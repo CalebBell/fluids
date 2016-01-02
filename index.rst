@@ -11,6 +11,16 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   fluids.compressible
+   fluids.core
+   fluids.filters
+   fluids.fittings
+   fluids.friction_factor
+   fluids.mixing
+   fluids.packed_bed
+   fluids.piping
+   fluids.pump
+   fluids.test
 
 
 Indices and tables
