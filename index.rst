@@ -11,6 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   modules
    fluids.compressible
    fluids.core
    fluids.filters
