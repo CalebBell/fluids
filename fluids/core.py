@@ -89,7 +89,7 @@ def c_ideal_gas(T, k, MW):
     Note that the gas constant used is the specific gas constant:
 
     .. math::
-        R_{specific} = R\fac{1000}{MW}
+        R_{specific} = R\frac{1000}{MW}
 
     Examples
     --------
@@ -886,6 +886,38 @@ def K_from_f(f, L, D):
     return K
 
 
+def K_from_L_equiv(L_D, f=0.015):
+    r'''Calculates loss coefficient, for a given equivalent length (L/D).
+
+    .. math::
+        K = f \frac{L}{D}
+
+    Parameters
+    ----------
+    L_D : float
+        Length over diameter, []
+    f : float, optional
+        Darcy friction factor, [-]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient, []
+
+    Notes
+    -----
+    Almost identical to `K_from_f`, but with a default friction factor for
+    fully turbulent flow in steel pipes.
+
+    Examples
+    --------
+    >>> K_from_L_equiv(240.)
+    3.5999999999999996
+    '''
+    K = f*L_D
+    return K
+
+
 def dP_from_K(K, rho, V):
     r'''Calculates pressure drop, for a given loss coefficient,
     at a specified density and velocity.
@@ -952,6 +984,7 @@ def head_from_K(K, V):
     '''
     head = K*0.5*V**2/g
     return head
+
 
 
 ### Misc conversion functions

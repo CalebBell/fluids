@@ -1138,3 +1138,110 @@ def Hooper2K(Di=None, Re=None, name=None, K1=None, Kinfty=None):
         raise Exception('Name of fitting or constants are required')
     K = K1/Re + Kinfty*(1. + 1./Di)
     return K
+
+
+
+### Valves
+
+
+
+def Kv_to_Cv(Kv):
+    r'''Convert valve flow coefficient from imperial to common metric units.
+
+    .. math::
+        C_v = 1.1560992283540599 K_v
+
+    Parameters
+    ----------
+    Kv : float
+        Valve flow coefficient, [1 m^3 cold water/hour at dP = 1 bar]
+
+    Returns
+    -------
+    Cv : float
+        Valve flow coefficient, [1 gpm water at 1.0 psi dP]
+
+    Notes
+    -----
+    Kv = 0.865 Cv is in the IEC standard 60534-2-1.
+    It has also been said that Cv = 1.17Kv; this is wrong by current standards.
+
+    Examples
+    --------
+    >>> Kv_to_Cv(2)
+    2.3121984567081197
+
+    References
+    ----------
+    .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
+    '''
+    Cv = 1.1560992283540599*Kv
+    return Cv
+
+
+def Cv_to_Kv(Cv):
+    r'''Convert valve flow coefficient from imperial to common metric units.
+
+    .. math::
+        K_v = C_v/1.156
+
+    Parameters
+    ----------
+    Cv : float
+        Valve flow coefficient, [1 gpm water at 1.0 psi dP]
+
+    Returns
+    -------
+    Kv : float
+        Valve flow coefficient, [1 m^3 cold water/hour at dP = 1 bar]
+
+    Notes
+    -----
+    Kv = 0.865 Cv is in the IEC standard 60534-2-1.
+    It has also been said that Cv = 1.17Kv; this is wrong by current standards.
+
+    Examples
+    --------
+    >>> Cv_to_Kv(2.312)
+    1.9998283393819036
+
+    References
+    ----------
+    .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
+    '''
+    Kv = Cv/1.1560992283540599
+    return Kv
+
+
+def Kv_to_K(Kv, D):
+    r'''Convert valve flow coefficient from common metric units to regular
+    loss coefficients.
+
+    .. math::
+        K = 0.001604 \frac{D^4}{K_v^2}
+
+    Parameters
+    ----------
+    Kv : float
+        Valve flow coefficient, [1 m^3 cold water/hour at dP = 1 bar]
+
+    Returns
+    -------
+    K : float
+        Losscoefficient, [-]
+
+    Notes
+    -----
+
+
+    Examples
+    --------
+    >>> Cv_to_Kv(2.312)
+    2.0
+
+    References
+    ----------
+    .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
+    '''
+    K = 0.001604E12*D**4/Kv**2
+    return K
