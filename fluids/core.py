@@ -716,7 +716,7 @@ def Jakob(Cp, Hvap, Te):
     above its saturation boiling point.
 
     .. math::
-        Ja = frac{C_{P}\Delta T_e}{\Delta H_{vap}}
+        Ja = \frac{C_{P}\Delta T_e}{\Delta H_{vap}}
 
     Parameters
     ----------
