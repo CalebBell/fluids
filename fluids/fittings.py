@@ -271,7 +271,7 @@ def bend_rounded(Di=None, rc=None, angle=None, fd=None, bend_diameters=5):
     Di : float
         Inside diameter of pipe, [m]
     rc : float
-        Radius of curvatuce of the entrance, [m]
+        Radius of curvatuce of the entrance, optional [m]
     angle : float
         Angle of bend, [degrees]
     fd : float
@@ -1228,7 +1228,7 @@ def Kv_to_K(Kv, D):
     Returns
     -------
     K : float
-        Losscoefficient, [-]
+        Loss coefficient, [-]
 
     Notes
     -----
@@ -1236,8 +1236,8 @@ def Kv_to_K(Kv, D):
 
     Examples
     --------
-    >>> Cv_to_Kv(2.312)
-    2.0
+    >>> Kv_to_K(2.312, .015)
+    15.1912580369009
 
     References
     ----------

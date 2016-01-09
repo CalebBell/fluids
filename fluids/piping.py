@@ -15,10 +15,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
-import os
 from math import pi
-from thermo.utils import to_num
-from scipy.constants import g
+from scipy.constants import g, inch
 from scipy.interpolate import interp1d
 
 
@@ -267,71 +265,270 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     elif schedule == '80S':
         nums = lookup_wrapper(Di, Do, NPS, NPSS80, SS80i, SS80o, SS80t)
     else:
-        return 'Schedule unknown'
+        raise ValueError('Schedule not recognized')
     if nums == None:
-        return 'Pipe larger than available in selected scedule'
+        raise ValueError('Pipe input is larger than max of selected scedule')
     _nps, _di, _do, _t = nums
     return _nps, _di/1E3, _do/1E3, _t/1E3
 
+### Wire gauge schedules
 
-BWG_integers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
-BWG_inch = [0.34, 0.3, 0.284, 0.259, 0.238, 0.22, 0.203, 0.18, 0.165, 0.148, 0.134, 0.12, 0.109, 0.095, 0.083, 0.072, 0.065, 0.058, 0.049, 0.042, 0.035, 0.032, 0.028, 0.025, 0.022, 0.02, 0.018, 0.016, 0.014, 0.013, 0.012, 0.01, 0.009, 0.008, 0.007, 0.005, 0.004]
-BWG_SI = [round(i*.0254,6) for i in BWG_inch]
+# Stub's Steel Wire Gage
+SSWG_integers = range(1, 81)
+SSWG_inch = [0.227, 0.219, 0.212, 0.207, 0.204, 0.201, 0.199, 0.197, 0.194,
+             0.191, 0.188, 0.185, 0.182, 0.18, 0.178, 0.175, 0.172, 0.168,
+             0.164, 0.161, 0.157, 0.155, 0.153, 0.151, 0.148, 0.146, 0.143,
+             0.139, 0.134, 0.127, 0.12, 0.115, 0.112, 0.11, 0.108, 0.106,
+             0.103, 0.101, 0.099, 0.097, 0.095, 0.092, 0.088, 0.085, 0.081,
+             0.079, 0.077, 0.075, 0.072, 0.069, 0.066, 0.063, 0.058, 0.055,
+             0.05, 0.045, 0.042, 0.041, 0.04, 0.039, 0.038, 0.037, 0.036,
+             0.035, 0.033, 0.032, 0.031, 0.03, 0.029, 0.027, 0.026, 0.024,
+             0.023, 0.022, 0.02, 0.018, 0.016, 0.015, 0.014, 0.013]
+SSWG_SI = [round(i*inch, 7) for i in SSWG_inch] # 7 decimals for equal conversion
 
 
-def BWG_from_SI(tmin):
+# British Standard Wire Gage (Imperial Wire Gage)
+BSWG_integers = [0.143, .167, 0.2, 0.25, 0.33, 0.5] + range(51)
+BSWG_inch = [0.5, 0.464, 0.432, 0.4, 0.372, 0.348, 0.324, 0.3, 0.276, 0.252, 0.232,
+        0.212, 0.192, 0.176, 0.16, 0.144, 0.128, 0.116, 0.104, 0.092, 0.08,
+        0.072, 0.064, 0.056, 0.048, 0.04, 0.036, 0.032, 0.028, 0.024, 0.022,
+        0.02, 0.018, 0.0164, 0.0149, 0.0136, 0.0124, 0.0116, 0.0108, 0.01,
+        0.0092, 0.0084, 0.0076, 0.0068, 0.006, 0.0052, 0.0048, 0.0044, 0.004,
+        0.0036, 0.0032, 0.0028, 0.0024, 0.002, 0.0016, 0.0012, 0.001]
+BSWG_SI = [round(i*inch,8) for i in BSWG_inch] # 8 decimals for equal conversion
+
+
+# Music Wire Gauge
+MWG_integers = [.167, 0.2, 0.25, 0.33, 0.5] + range(46)
+MWG_inch = [0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01, 0.011, 0.012,
+            0.013, 0.014, 0.016, 0.018, 0.02, 0.022, 0.024, 0.026, 0.029,
+            0.031, 0.033, 0.035, 0.037, 0.039, 0.041, 0.043, 0.045, 0.047,
+            0.049, 0.051, 0.055, 0.059, 0.063, 0.067, 0.071, 0.075, 0.08,
+            0.085, 0.09, 0.095, 0.1, 0.106, 0.112, 0.118, 0.124, 0.13, 0.138,
+            0.146, 0.154, 0.162, 0.17, 0.18]
+MWG_SI = [round(i*inch,7) for i in MWG_inch] # 7 decimals for equal conversion
+# Scale gets bigger instead of smaller; reverse for convenience
+MWG_integers.reverse()
+MWG_inch.reverse()
+MWG_SI.reverse()
+
+# Steel Wire Gage -Also Washburn & Moen gage, American Steel gage;
+# Wire Co.gage;  Roebling Wire Gages.
+SWG_integers = [0.143, .167, 0.2, 0.25, 0.33, 0.5] + range(51)
+SWG_inch = [0.49, 0.4615, 0.4305, 0.3938, 0.3625, 0.331, 0.3065, 0.283, 0.2625,
+            0.2437, 0.2253, 0.207, 0.192, 0.177, 0.162, 0.1483, 0.135, 0.1205,
+            0.1055, 0.0915, 0.08, 0.072, 0.0625, 0.054, 0.0475, 0.041, 0.0348,
+            0.0318, 0.0286, 0.0258, 0.023, 0.0204, 0.0181, 0.0173, 0.0162,
+            0.015, 0.014, 0.0132, 0.0128, 0.0118, 0.0104, 0.0095, 0.009,
+            0.0085, 0.008, 0.0075, 0.007, 0.0066, 0.0062, 0.006, 0.0058,
+            0.0055, 0.0052, 0.005, 0.0048, 0.0046, 0.0044]
+SWG_SI = [round(i*inch,8) for i in SWG_inch] # 8 decimals for equal conversion
+
+
+# American Wire or Brown & Sharpe Gage
+AWG_integers = [.167, 0.2, 0.25, 0.33, 0.5] + range(51)
+AWG_inch = [0.58, 0.5165, 0.46, 0.4096, 0.3648, 0.3249, 0.2893, 0.2576, 0.2294,
+            0.2043, 0.1819, 0.162, 0.1443, 0.1285, 0.1144, 0.1019, 0.0907,
+            0.0808, 0.072, 0.0641, 0.0571, 0.0508, 0.0453, 0.0403, 0.0359,
+            0.032, 0.0285, 0.0253, 0.0226, 0.0201, 0.0179, 0.0159, 0.0142,
+            0.0126, 0.0113, 0.01, 0.00893, 0.00795, 0.00708, 0.0063, 0.00561,
+            0.005, 0.00445, 0.00396, 0.00353, 0.00314, 0.0028, 0.00249,
+            0.00222, 0.00198, 0.00176, 0.00157, 0.0014, 0.00124, 0.00111,
+            0.00099]
+AWG_SI = [round(i*inch,9) for i in AWG_inch] # 9 decimals for equal conversion
+
+
+# Birmingham or Stub's Iron Wire Gage
+BWG_integers = [0.2, 0.25, 0.33, 0.5] + range(37)
+BWG_inch = [0.5, 0.454, 0.425, 0.38, 0.34, 0.3, 0.284, 0.259, 0.238, 0.22,
+            0.203, 0.18, 0.165, 0.148, 0.134, 0.12, 0.109, 0.095, 0.083,
+            0.072, 0.065, 0.058, 0.049, 0.042, 0.035, 0.032, 0.028, 0.025,
+            0.022, 0.02, 0.018, 0.016, 0.014, 0.013, 0.012, 0.01, 0.009,
+            0.008, 0.007, 0.005, 0.004]
+BWG_SI = [round(i*inch,6) for i in BWG_inch]
+
+wire_schdules = {'BWG': (BWG_integers, BWG_inch, BWG_SI, True),
+                 'AWG': (AWG_integers, AWG_inch, AWG_SI, True),
+                 'SWG': (SWG_integers, SWG_inch, SWG_SI, True),
+                 'MWG': (MWG_integers, MWG_inch, MWG_SI, False),
+                 'BSWG': (BSWG_integers, BSWG_inch, BSWG_SI, True),
+                 'SSWG': (SSWG_integers, SSWG_inch, SSWG_SI, True)}
+
+
+def gauge_from_t(t, SI=True, schedule='BWG'):
+    r'''Looks up the gauge of a given wire thickness of given schedule.
+    Values are all non-linear, and tabulated internally.
+
+    Parameters
+    ----------
+    t : float
+        Thickness, [m]
+    SI : bool, optional
+        If False, value in inches is returned, rather than m.
+    schedule : str
+        Gauge schedule, one of 'BWG', 'AWG', 'SWG', 'MWG', 'BSWG', or 'SSWG'
+
+    Returns
+    -------
+    gauge : float-like
+        Wire Gauge, []
+
+    Notes
+    -----
+    Birmingham Wire Gauge (BWG) ranges from 0.2 (0.5 inch) to 36 (0.004 inch).
+
+    American Wire Gauge (AWG) ranges from 0.167 (0.58 inch) to 51 (0.00099
+    inch). These are used for electrical wires.
+
+    Steel Wire Gauge (SWG) ranges from 0.143 (0.49 inch) to 51 (0.0044 inch).
+    Also called Washburn & Moen wire gauge, American Steel gauge, Wire Co.
+    gauge, and Roebling wire gauge.
+
+    Music Wire Gauge (MWG) ranges from 0.167 (0.004 inch) to 46 (0.18
+    inch). Also called Piano Wire Gauge.
+
+    British Standard Wire Gage (BSWG) ranges from 0.143 (0.5 inch) to
+    51 (0.001 inch). Also called Imperial Wire Gage (IWG).
+
+    Stub's Steel Wire Gage (SSWG) ranges from 1 (0.227 inch) to 80 (0.013 inch)
+
+    Examples
+    --------
+    >>> gauge_from_t(.5, False, 'BWG'), gauge_from_t(0.005588, True)
+    (0.2, 5)
+    >>> gauge_from_t(0.5165, False, 'AWG'), gauge_from_t(0.00462026, True, 'AWG')
+    (0.2, 5)
+    >>> gauge_from_t(.4305, False, 'SWG'), gauge_from_t(0.0052578, True, 'SWG')
+    (0.2, 5)
+    >>> gauge_from_t(.005, False, 'MWG'), gauge_from_t(0.0003556, True, 'MWG')
+    (0.2, 5)
+    >>> gauge_from_t(.432, False, 'BSWG'), gauge_from_t(0.0053848, True, 'BSWG')
+    (0.2, 5)
+    >>> gauge_from_t(0.227, False, 'SSWG'), gauge_from_t(0.0051816, True, 'SSWG')
+    (1, 5)
+
+    References
+    ----------
+    .. [1] Oberg, Erik, Franklin D. Jones, and Henry H. Ryffel. Machinery's
+       Handbook. Industrial Press, Incorporated, 2012.
     '''
-    Returns BWG of the given thickness above the given thickness, or exactly the BWG.
+    tol = 0.1
+    # Handle units
+    if SI:
+        t_inch = round(t/inch, 9) # all schedules are in inches
+    else:
+        t_inch = t
 
-    >>> BWG_from_SI(.007214)
-    2
+    # Get the schedule
+    try:
+        sch_integers, sch_inch, sch_SI, decreasing = wire_schdules[schedule]
+    except:
+        raise ValueError('Wire gauge schedule not found')
+
+    # Check if outside limits
+    sch_max, sch_min = sch_inch[0], sch_inch[-1]
+    if t_inch > sch_max:
+        raise ValueError('Input thickness is above the largest in the selected schedule')
+
+
+    # If given thickness is exactly in the index, be happy
+    if t_inch in sch_inch:
+        gauge = sch_integers[sch_inch.index(t_inch)]
+
+    else:
+        for i in range(len(sch_inch)):
+            if sch_inch[i] >= t_inch:
+                larger = sch_inch[i]
+            else:
+                break
+        if larger == sch_min:
+            gauge = sch_min # If t is under the lowest schedule, be happy
+        else:
+
+            smaller = sch_inch[i]
+            if (t_inch - smaller) <= tol*(larger - smaller):
+                gauge = sch_integers[i]
+            else:
+                gauge = sch_integers[i-1]
+
+    return gauge
+
+
+#print gauge_from_t(.0009), gauge_from_t(.00095)
+#print gauge_from_t(0.000990, schedule='MWG'), gauge_from_t(.000996, schedule='MWG')
+
+
+
+def t_from_gauge(gauge, SI=True, schedule='BWG'):
+    r'''Looks up the thickness of a given wire gauge of given schedule.
+    Values are all non-linear, and tabulated internally.
+
+    Parameters
+    ----------
+    gauge : float-like
+        Wire Gauge, []
+    SI : bool, optional
+        If False, value in inches is returned, rather than m.
+    schedule : str
+        Gauge schedule, one of 'BWG', 'AWG', 'SWG', 'MWG', 'BSWG', or 'SSWG'
+
+    Returns
+    -------
+    t : float
+        Thickness, [m]
+
+    Notes
+    -----
+    Birmingham Wire Gauge (BWG) ranges from 0.2 (0.5 inch) to 36 (0.004 inch).
+
+    American Wire Gauge (AWG) ranges from 0.167 (0.58 inch) to 51 (0.00099
+    inch). These are used for electrical wires.
+
+    Steel Wire Gauge (SWG) ranges from 0.143 (0.49 inch) to 51 (0.0044 inch).
+    Also called Washburn & Moen wire gauge, American Steel gauge, Wire Co.
+    gauge, and Roebling wire gauge.
+
+    Music Wire Gauge (MWG) ranges from 0.167 (0.004 inch) to 46 (0.18
+    inch). Also called Piano Wire Gauge.
+
+    British Standard Wire Gage (BSWG) ranges from 0.143 (0.5 inch) to
+    51 (0.001 inch). Also called Imperial Wire Gage (IWG).
+
+    Stub's Steel Wire Gage (SSWG) ranges from 1 (0.227 inch) to 80 (0.013 inch)
+
+    Examples
+    --------
+    >>> t_from_gauge(.2, False, 'BWG'), t_from_gauge(5, True)
+    (0.5, 0.005588)
+    >>> t_from_gauge(.2, False, 'AWG'), t_from_gauge(5, True, 'AWG')
+    (0.5165, 0.00462026)
+    >>> t_from_gauge(.2, False, 'SWG'), t_from_gauge(5, True, 'SWG')
+    (0.4305, 0.0052578)
+    >>> t_from_gauge(.2, False, 'MWG'), t_from_gauge(5, True, 'MWG')
+    (0.005, 0.0003556)
+    >>> t_from_gauge(.2, False, 'BSWG'), t_from_gauge(5, True, 'BSWG')
+    (0.432, 0.0053848)
+    >>> t_from_gauge(1, False, 'SSWG'), t_from_gauge(5, True, 'SSWG')
+    (0.227, 0.0051816)
+
+    References
+    ----------
+    .. [1] Oberg, Erik, Franklin D. Jones, and Henry H. Ryffel. Machinery's
+       Handbook. Industrial Press, Incorporated, 2012.
     '''
-    for t_bwg in BWG_SI:
-        if tmin >= t_bwg:
-            _bwg = BWG_integers[BWG_SI.index(t_bwg)]
-            return _bwg
+    try:
+        sch_integers, sch_inch, sch_SI, decreasing = wire_schdules[schedule]
+    except:
+        raise ValueError('Wire gauge schedule not found')
 
+    try:
+        i = sch_integers.index(gauge)
+    except:
+        raise ValueError('Input gauge not found in selected schedule')
+    if SI:
+        t = sch_SI[i]
+    else:
+        t = sch_inch[i]
+    return t
 
-def BWG_from_inch(m):
-    '''
-    Returns BWG of thickness above given one or exact
-
-    >>> BWG_from_inch(.259)
-    3
-    '''
-    for i in BWG_inch:
-        if m >= round(i,3):
-            _bwg = BWG_integers[BWG_inch.index(i)]
-            return _bwg
-
-
-
-
-
-
-
-
-#
-#print nearest_pipe(Do=.273, schedule=80)
-#print nearest_pipe(Do=.273, schedule='5S')
-
-
-#folder = os.path.join(os.path.dirname(__file__), 'B31')
-#
-#
-#### B31.3
-#_B313db = {}
-#with open(os.path.join(folder,'B31.3 Al.csv')) as f:
-#    f.next()
-#    for line in f:
-#        values = to_num(line.strip('\n').split('\t'))
-#        (_, _comp, _form, _spec, _grade, _UNS, _class, _size, _PNo, _notes,
-#         _Tmin, _minTS, _minYS, _Tmax, _Ymin, _Y65, _Y100, _Y125, _Y150,
-#         _Y175, _Y200, _Y225) = values
-#        _name = str(_UNS) + str(_grade) + str(_spec) + str(_class) + str(_form)
-#        f = interp1d([65, 100, 125, 150, 175, 200, 225], [_Y65, _Y100, _Y125, _Y150, _Y175, _Y200, _Y225], kind='linear')
-#        _B313db[_name] = {"}
-
-
-
-
+#print t_from_gauge(17, schedule='MWG')
