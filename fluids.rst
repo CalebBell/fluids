@@ -12,6 +12,7 @@ Submodules
    fluids.fittings
    fluids.friction_factor
    fluids.mixing
+   fluids.open_flow
    fluids.packed_bed
    fluids.piping
    fluids.pump

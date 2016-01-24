@@ -7,6 +7,7 @@ fluids/filters.py
 fluids/fittings.py
 fluids/friction_factor.py
 fluids/mixing.py
+fluids/open_flow.py
 fluids/packed_bed.py
 fluids/piping.py
 fluids/pump.py

@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from fluids import filters, fittings, friction_factor, mixing, piping, core
 from fluids import compressible
-from fluids import pump, packed_bed
+from fluids import pump, packed_bed, open_flow
 
 import warnings
 
-warnings.simplefilter("always") #error for error
+#warnings.simplefilter("always") #error for error
 
 if __name__ == '__main__':
     import doctest
@@ -34,3 +34,4 @@ if __name__ == '__main__':
     doctest.testmod(packed_bed)
     doctest.testmod(piping)
     doctest.testmod(pump)
+    doctest.testmod(open_flow)
