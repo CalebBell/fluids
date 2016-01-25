@@ -19,12 +19,12 @@ from distutils.core import setup
 setup(
   name = 'fluids',
   packages = ['fluids'],
-  version = '0.1.13',
+  version = '0.1.14',
   description = 'Fluid dynamics component of Chemical Engineering Design Library (ChEDL)',
   author = 'Caleb Bell',
   author_email = 'Caleb.Andrew.Bell@gmail.com',
   url = 'https://github.com/CalebBell/fluids',
-  download_url = 'https://github.com/CalebBell/fluids/tarball/0.1.13',
+  download_url = 'https://github.com/CalebBell/fluids/tarball/0.1.14',
   keywords = ['chemical engineering', 'fluids', 'mechanical engineering'],
   classifiers = [],
 )
