@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
-
+from __future__ import division
 
 def Ergun(Dp, voidage=0.4, sphericity=1, H=None, vs=None, rho=None, mu=None):
     r'''Calculates pressure drop across a packed bed, using the famous Ergun

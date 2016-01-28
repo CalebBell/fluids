@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
+from __future__ import division
 from fluids import filters, fittings, friction_factor, mixing, piping, core
 from fluids import compressible
 from fluids import pump, packed_bed, open_flow

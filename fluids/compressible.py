@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
+from __future__ import division
 
 def T_critical_flow(T, k):
     r'''Calculates critical flow temperature `Tcf` for a fluid with the

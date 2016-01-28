@@ -15,6 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
+from __future__ import division
 from math import sin, cos, exp, pi, log
 from scipy.constants import g, R
 
@@ -57,7 +58,8 @@ def thermal_diffusivity(k, rho, Cp):
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    return k/(rho*Cp)
+    alpha = k/(rho*Cp)
+    return alpha
 
 
 ### Ideal gas fluid properties
@@ -170,6 +172,69 @@ def Reynolds(V, D, rho=None, mu=None, nu=None):
         is needed')
     Re = V*D/nu
     return Re
+
+
+def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
+    r'''Calculates heat transfer Peclet number or `Pe` for a specified velocity
+    `V`, characteristic length `L`, and specified properties for the given
+    fluid.
+
+    .. math::
+        Pe = \frac{VL\rho C_p}{k} = \frac{LV}{\alpha}
+
+    Inputs either of any of the following sets:
+
+    * V, L, density `rho`, heat capcity `Cp`, and thermal conductivity `k`
+    * V, L, and thermal diffusivity `alpha`
+
+    Parameters
+    ----------
+    V : float
+        Velocity [m/s]
+    L : float
+        Characteristic length [m]
+    rho : float, optional
+        Density, [kg/m^3]
+    Cp : float, optional
+        Heat capacity, [J/kg/K]
+    k : float, optional
+        Thermal conductivity, [W/m/K]
+    alpha : float, optional
+        Thermal diffusivity, [m^2/s]
+
+    Returns
+    -------
+    Pe : float
+        Peclet number (heat) []
+
+    Notes
+    -----
+    .. math::
+        Pe = \frac{\text{Bulk heat transfer}}{\text{Conduction heat transfer}}
+
+    An error is raised if none of the required input sets are provided.
+
+    Examples
+    --------
+    >>> Peclet_heat(1.5, 2, 1000., 4000., 0.6)
+    20000000.0
+    >>> Peclet_heat(1.5, 2, alpha=1E-7)
+    30000000.0
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
+       Applications. Boston: McGraw Hill Higher Education, 2006.
+    '''
+    if rho and Cp and k:
+        alpha =  k/(rho*Cp)
+    elif not alpha:
+        raise Exception('Either heat capacity and thermal conductivity and\
+        density, or thermal diffusivity is needed')
+    Pe = V*L/alpha
+    return Pe
 
 
 def Weber(V, L, rho, sigma):
@@ -329,6 +394,7 @@ def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
     else:
         raise Exception('Insufficient information provided for Pr calculation')
     return Pr
+
 
 def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
     r'''Calculates Grashof number or `Gr` for a fluid with the given
@@ -529,6 +595,56 @@ def Froude(V, L, g=g, squared=False):
         Fr *= Fr
     return Fr
 
+
+def Nusselt(h, L, k):
+    r'''Calculates Nusselt number `Nu` for a heat transfer coefficient `h`,
+    characteristic length `L`, and thermal conductivity `k`.
+
+    .. math::
+        Nu = \frac{hL}{k}
+
+    Parameters
+    ----------
+    h : float
+        Heat transfer coefficient, [W/m^2/K]
+    L : float
+        Characteristic length, no typical definition [m]
+    k : float
+        Thermal conductivity of fluid [W/m/K]
+
+    Returns
+    -------
+    Nu : float
+        Nusselt number, [-]
+
+    Notes
+    -----
+    Do not confuse k, the thermal conductivity of the fluid, with that
+    of within a solid object associated with!
+
+    .. math::
+        Nu = \frac{\text{Convective heat transfer}}
+        {\text{Conductive heat transfer}}
+
+    Examples
+    --------
+    >>> Nusselt(1000., 1.2, 300.)
+    4.0
+    >>> Nusselt(10000., .01, 4000.)
+    0.025
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Bergman, Theodore L., Adrienne S. Lavine, Frank P. Incropera, and
+       David P. DeWitt. Introduction to Heat Transfer. 6E. Hoboken, NJ:
+       Wiley, 2011.
+    '''
+    Nu = h*L/k
+    return Nu
+
+
 def Biot(h, L, k):
     r'''Calculates Biot number `Br` for heat transfer coefficient `h`,
     geometric length `L`, and thermal conductivity `k`.
@@ -575,6 +691,52 @@ def Biot(h, L, k):
     '''
     Bi = h*L/k
     return Bi
+
+
+def Stanton(h, V, rho, Cp):
+    r'''Calculates Stanton number or `St` for a specified heat transfer
+    coefficient `h`, velocity `V`, density `rho`, and heat capacity `Cp`.
+
+    .. math::
+        St = \frac{h}{V\rho Cp}
+
+    Parameters
+    ----------
+    h : float
+        Heat transfer coefficient, [W/m^2/K]
+    V : float
+        Velocity, [m/s]
+    rho : float
+        Density, [kg/m^3]
+    Cp : float
+        Heat capacity, [J/kg/K]
+
+    Returns
+    -------
+    St : float
+        Stanton number []
+
+    Notes
+    -----
+    .. math::
+        St = \frac{\text{Heat transfer coefficient}}{\text{Thermal capacity}}
+
+    Examples
+    --------
+    >>> Stanton(5000, 5, 800, 2000.)
+    0.000625
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [1] Bergman, Theodore L., Adrienne S. Lavine, Frank P. Incropera, and
+       David P. DeWitt. Introduction to Heat Transfer. 6E. Hoboken, NJ:
+       Wiley, 2011.
+    '''
+    St = h/(V*rho*Cp)
+    return St
+
 
 def Euler(dP, rho, V):
     r'''Calculates Euler number or `Eu` for a fluid of velocity `V` and
@@ -669,6 +831,7 @@ def Cavitation(P, Psat, rho, V):
     Ca = (P-Psat)/(0.5*rho*V**2)
     return Ca
 
+
 def Eckert(V, Cp, dT):
     r'''Calculates Eckert number or `Ec` for a fluid of velocity `V` with
     a heat capacity `Cp`, between two temperature given as `dT`.
@@ -709,6 +872,7 @@ def Eckert(V, Cp, dT):
     '''
     Ec = V**2/(Cp*dT)
     return Ec
+
 
 def Jakob(Cp, Hvap, Te):
     r'''Calculates Jakob number or `Ja` for a boiling fluid with sensible heat
@@ -754,6 +918,100 @@ def Jakob(Cp, Hvap, Te):
     '''
     Ja = Cp*Te/Hvap
     return Ja
+
+
+def Drag(F, A, V, rho):
+    r'''Calculates drag coefficient `Cd` for a given drag force `F`,
+    projected area `A`, characteristic velocity `V`, and density `rho`.
+
+    .. math::
+        C_D = \frac{F_d}{A\cdot\frac{1}{2}\rho V^2}
+
+    Parameters
+    ----------
+    F : float
+        Drag force, [N]
+    A : float
+        Projected area, [m^2]
+    V : float
+        Characteristic velocity, [m/s]
+    rho : float
+        Density, [kg/m^3]
+
+    Returns
+    -------
+    Cd : float
+        Drag coefficient, [-]
+
+    Notes
+    -----
+    Used in flow around objects, or objects flowing within a fluid.
+
+    .. math::
+        C_D = \frac{\text{Drag forces}}{\text{Projected area}\cdot
+        \text{Velocity head}}
+
+    Examples
+    --------
+    >>> Drag(1000, 0.0001, 5, 2000)
+    400.0
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
+       Applications. Boston: McGraw Hill Higher Education, 2006.
+    '''
+    Cd = F/(A*rho*V**2/2.)
+    return Cd
+
+
+def Capillary(V, mu, sigma):
+    r'''Calculates Capillary number `Ca` for a characteristic velocity `V`,
+    viscosity `mu`, and surface tension `sigma`.
+
+    .. math::
+        Ca = \frac{V \mu}{\sigma}
+
+    Parameters
+    ----------
+    V : float
+        Characteristic velocity, [m/s]
+    mu : float
+        Dynamic viscosity, [Pa*s]
+    sigma : float
+        Surface tension, [N/m]
+
+    Returns
+    -------
+    Ca : float
+        Capillary number, [-]
+
+    Notes
+    -----
+    Used in porous media calculations and film flow calculations.
+    Surface tension may gas-liquid, or liquid-liquid.
+
+    .. math::
+        Ca = \frac{\text{Viscous forces}}
+        {\text{Surface forces}}
+
+    Examples
+    --------
+    >>> Capillary(1.2, 0.01, .1)
+    0.12
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Kundu, Pijush K., Ira M. Cohen, and David R. Dowling. Fluid
+       Mechanics. Academic Press, 2012.
+    '''
+    Ca = V*mu/sigma
+    return Ca
+
 
 def relative_roughness(D, roughness=1.52e-06):
     r'''Calculates relative roughness `eD` using a diameter and the roughness
