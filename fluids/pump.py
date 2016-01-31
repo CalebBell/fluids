@@ -419,3 +419,44 @@ def specific_speed(Q, H, n=3600.):
     return nS
 
 #print [specific_speed(0.0402, 100, 3550)]
+
+
+def speed_synchronous(f, poles=2, phase=3):
+    r'''Returns the synchronous speed of a synchronous motor according to [1]_.
+
+    .. math::
+        N_s = \frac{120 f \cdot\text{phase}}{\text{poles}}
+
+    Parameters
+    ----------
+    f : float
+        Line frequency, [Hz]
+    poles : int, optional
+        The number of poles of the motor
+    phase : int, optional
+        Line AC phase
+
+    Returns
+    -------
+    Ns : float
+        Speed of synchronous motor, [rpm]
+
+    Notes
+    -----
+    Synchronous motors have no slip. Large synchronous motors are not
+    self-starting.
+
+    Examples
+    --------
+    >>> speed_synchronous(50, poles=12)
+    1500.0
+    >>> speed_synchronous(60, phase=1)
+    3600.0
+
+    References
+    ----------
+    .. [1] All About Circuits. Synchronous Motors. Chapter 13 - AC Motors
+       http://www.allaboutcircuits.com/textbook/alternating-current/chpt-13/synchronous-motors/
+    '''
+    Ns = 120.*f*phase/poles
+    return Ns

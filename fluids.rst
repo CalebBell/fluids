@@ -11,6 +11,7 @@ Submodules
    fluids.filters
    fluids.fittings
    fluids.friction_factor
+   fluids.geometry
    fluids.mixing
    fluids.open_flow
    fluids.packed_bed

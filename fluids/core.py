@@ -237,6 +237,276 @@ def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
     return Pe
 
 
+def Peclet_mass(V, L, D):
+    r'''Calculates mass transfer Peclet number or `Pe` for a specified velocity
+    `V`, characteristic length `L`, and diffusion coefficient `D`.
+
+    .. math::
+        Pe = \frac{L V}{D}
+
+    Parameters
+    ----------
+    V : float
+        Velocity [m/s]
+    L : float
+        Characteristic length [m]
+    D : float
+        Diffusivity of a species, [m^2/s]
+
+    Returns
+    -------
+    Pe : float
+        Peclet number (mass) []
+
+    Notes
+    -----
+    .. math::
+        Pe = \frac{\text{Advective transport rate}}{\text{Diffusive transport rate}}
+
+    Examples
+    --------
+    >>> Peclet_mass(1.5, 2, 1E-9)
+    3000000000.0
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    '''
+    Pe = V*L/D
+    return Pe
+
+
+def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
+    r'''Calculates heat transfer Fourier number or `Fo` for a specified time
+    `t`, characteristic length `L`, and specified properties for the given
+    fluid.
+
+    .. math::
+        Fo = \frac{k t}{C_p \rho L^2} = \frac{\alpha t}{L^2}
+
+    Inputs either of any of the following sets:
+
+    * t, L, density `rho`, heat capcity `Cp`, and thermal conductivity `k`
+    * t, L, and thermal diffusivity `alpha`
+
+    Parameters
+    ----------
+    t : float
+        time [s]
+    L : float
+        Characteristic length [m]
+    rho : float, optional
+        Density, [kg/m^3]
+    Cp : float, optional
+        Heat capacity, [J/kg/K]
+    k : float, optional
+        Thermal conductivity, [W/m/K]
+    alpha : float, optional
+        Thermal diffusivity, [m^2/s]
+
+    Returns
+    -------
+    Fo : float
+        Fourier number (heat) []
+
+    Notes
+    -----
+    .. math::
+        Fo = \frac{\text{Heat conduction rate}}
+        {\text{Rate of thermal energy storage in a solid}}
+
+    An error is raised if none of the required input sets are provided.
+
+    Examples
+    --------
+    >>> Fourier_heat(1.5, 2, 1000., 4000., 0.6)
+    5.625e-08
+    >>> Fourier_heat(1.5, 2, alpha=1E-7)
+    3.75e-08
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
+       Applications. Boston: McGraw Hill Higher Education, 2006.
+    '''
+    if rho and Cp and k:
+        alpha =  k/(rho*Cp)
+    elif not alpha:
+        raise Exception('Either heat capacity and thermal conductivity and\
+        density, or thermal diffusivity is needed')
+    Fo = t*alpha/L**2
+    return Fo
+
+
+def Fourier_mass(t, L, D):
+    r'''Calculates mass transfer Fourier number or `Fo` for a specified time
+    `t`, characteristic length `L`, and diffusion coefficient `D`.
+
+    .. math::
+        Fo = \frac{D t}{L^2}
+
+    Parameters
+    ----------
+    t : float
+        time [s]
+    L : float
+        Characteristic length [m]
+    D : float
+        Diffusivity of a species, [m^2/s]
+
+    Returns
+    -------
+    Fo : float
+        Fourier number (mass) []
+
+    Notes
+    -----
+    .. math::
+        Fo = \frac{\text{Diffusive transport rate}}{\text{Storage rate}}
+
+    Examples
+    --------
+    >>> Fourier_mass(1.5, 2, 1E-9)
+    3.7500000000000005e-10
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    '''
+    Fo = t*D/L**2
+    return Fo
+
+
+def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
+    r'''Calculates Graetz number or `Gz` for a specified velocity
+    `V`, diameter `D`, axial diatance `x`, and specified properties for the
+    given fluid.
+
+    .. math::
+        Gz = \frac{VD^2\cdot C_p \rho}{x\cdot k} = \frac{VD^2}{x \alpha}
+
+    Inputs either of any of the following sets:
+
+    * V, D, x, density `rho`, heat capcity `Cp`, and thermal conductivity `k`
+    * V, D, x, and thermal diffusivity `alpha`
+
+    Parameters
+    ----------
+    V : float
+        Velocity, [m/s]
+    D : float
+        Diameter [m]
+    x : float
+        Axial distance [m]
+    rho : float, optional
+        Density, [kg/m^3]
+    Cp : float, optional
+        Heat capacity, [J/kg/K]
+    k : float, optional
+        Thermal conductivity, [W/m/K]
+    alpha : float, optional
+        Thermal diffusivity, [m^2/s]
+
+    Returns
+    -------
+    Gz : float
+        Graetz number []
+
+    Notes
+    -----
+    .. math::
+        Gz = \frac{\text{Time for radial heat diffusion in a fluid by conduction}}
+        {\text{Time taken by fluid to reach distance x}}
+
+        Gz = \frac{D}{x}RePr
+
+    An error is raised if none of the required input sets are provided.
+
+    Examples
+    --------
+    >>> Graetz_heat(1.5, 0.25, 5, 800., 2200., 0.6)
+    55000.0
+    >>> Graetz_heat(1.5, 0.25, 5, alpha=1E-7)
+    187500.0
+
+    References
+    ----------
+    .. [1] Bergman, Theodore L., Adrienne S. Lavine, Frank P. Incropera, and
+       David P. DeWitt. Introduction to Heat Transfer. 6E. Hoboken, NJ:
+       Wiley, 2011.
+    '''
+    if rho and Cp and k:
+        alpha =  k/(rho*Cp)
+    elif not alpha:
+        raise Exception('Either heat capacity and thermal conductivity and\
+        density, or thermal diffusivity is needed')
+    Gz = V*D**2/(x*alpha)
+    return Gz
+
+
+def Schmidt(D, mu=None, nu=None, rho=None):
+    r'''Calculates Schmidt number or `Sc` for a fluid with the given
+    parameters.
+
+    .. math::
+        Sc = \frac{\mu}{D\rho} = \frac{\nu}{D}
+
+    Inputs can be any of the following sets:
+
+    * Diffusivity, dynamic viscosity, and density
+    * Diffusivity and kinematic viscosity
+
+    Parameters
+    ----------
+    D : float
+        Diffusivity of a species, [m^2/s]
+    mu : float, optional
+        Dynamic viscosity, [Pa*s]
+    nu : float, optional
+        Kinematic viscosity, [m^2/s]
+    rho : float, optional
+        Density, [kg/m^3]
+
+    Returns
+    -------
+    Sc : float
+        Schmidt number []
+
+    Notes
+    -----
+    .. math::
+        Sc =\frac{\text{kinematic viscosity}}{\text{molecular diffusivity}}
+        = \frac{\text{viscous diffusivity}}{\text{species diffusivity}}
+
+    An error is raised if none of the required input sets are provided.
+
+    Examples
+    --------
+    >>> Schmidt(D=2E-6, mu=4.61E-6, rho=800)
+    0.00288125
+    >>> Schmidt(D=1E-9, nu=6E-7)
+    599.9999999999999
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
+       Applications. Boston: McGraw Hill Higher Education, 2006.
+    '''
+    if rho and mu:
+        Sc = mu/(rho*D)
+    elif nu:
+        Sc = nu/D
+    else:
+        raise Exception('Insufficient information provided for Schmidt number calculation')
+    return Sc
+
+
 def Weber(V, L, rho, sigma):
     r'''Calculates Weber number, `We`, for a fluid with the given density,
     surface tension, velocity, and geometric parameter (usually diameter
@@ -363,7 +633,7 @@ def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
     Notes
     -----
     .. math::
-        Pr=\frac{\text{kinematic viscosity}}{\text{thermal diffusivity}} = \frac{\text{momendum diffusivity}}{\text{thermal diffusivity}}
+        Pr=\frac{\text{kinematic viscosity}}{\text{thermal diffusivity}} = \frac{\text{momentum diffusivity}}{\text{thermal diffusivity}}
 
     An error is raised if none of the required input sets are provided.
 
@@ -1011,6 +1281,55 @@ def Capillary(V, mu, sigma):
     '''
     Ca = V*mu/sigma
     return Ca
+
+
+def Archimedes(L, rhof, rhop, mu, g=g):
+    r'''Calculates Archimedes number, `Ar`, for a fluid and particle with the
+    given densities, characteristic length, viscosity, and gravity
+    (usually diameter of particle).
+
+    .. math::
+        Ar = \frac{L^3 \rho_f(\rho_p-\rho_f)g}{\mu^2}
+
+    Parameters
+    ----------
+    L : float
+        Characteristic length, typically particle diameter [m]
+    rhof : float
+        Density of fluid, [kg/m^3]
+    rhop : float
+        Density of particle, [kg/m^3]
+    mu : float
+        Viscosity of fluid, [N/m]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
+
+    Returns
+    -------
+    Ar : float
+        Archimedes number []
+
+    Notes
+    -----
+    Used in fluid-particle interaction calculations.
+
+    .. math::
+        Ar = \frac{\text{Gravitational force}}{\text{Viscous force}}
+
+    Examples
+    --------
+    >>> Archimedes(0.002, 0.2804, 2699.37, 4E-5)
+    37109.575890227665
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
+       Applications. Boston: McGraw Hill Higher Education, 2006.
+    '''
+    Ar = L**3*rhof*(rhop-rhof)*g/mu**2
+    return Ar
 
 
 def relative_roughness(D, roughness=1.52e-06):
