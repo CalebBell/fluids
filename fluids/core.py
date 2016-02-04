@@ -507,6 +507,69 @@ def Schmidt(D, mu=None, nu=None, rho=None):
     return Sc
 
 
+def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
+    r'''Calculates Lewis number or `Le` for a fluid with the given parameters.
+
+    .. math::
+        Le = \frac{k}{\rho C_p D} = \frac{\alpha}{D}
+
+    Inputs can be either of the following sets:
+
+    * Diffusivity and Thermal diffusivity
+    * Diffusivity, heat capacity, thermal conductivity, and density
+
+    Parameters
+    ----------
+    D : float
+        Diffusivity of a species, [m^2/s]
+    alpha : float, optional
+        Thermal diffusivity, [m^2/s]
+    Cp : float, optional
+        Heat capacity, [J/kg/K]
+    k : float, optional
+        Thermal conductivity, [W/m/K]
+    rho : float, optional
+        Density, [kg/m^3]
+
+    Returns
+    -------
+    Le : float
+        Lewis number []
+
+    Notes
+    -----
+    .. math::
+        Le=\frac{\text{Thermal diffusivity}}{\text{Mass diffusivity}} =
+        \frac{Sc}{Pr}
+
+    An error is raised if none of the required input sets are provided.
+
+    Examples
+    --------
+    >>> Lewis(D=22.6E-6, alpha=19.1E-6)
+    0.8451327433628318
+    >>> Lewis(D=22.6E-6, rho=800., k=.2, Cp=2200)
+    0.00502815768302494
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
+       Applications. Boston: McGraw Hill Higher Education, 2006.
+    .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
+       Berlin; New York:: Springer, 2010.
+    '''
+    if k and Cp and rho:
+        alpha =  k/(rho*Cp)
+    elif alpha:
+        pass
+    else:
+        raise Exception('Insufficient information provided for Le calculation')
+    Le = alpha/D
+    return Le
+
+
 def Weber(V, L, rho, sigma):
     r'''Calculates Weber number, `We`, for a fluid with the given density,
     surface tension, velocity, and geometric parameter (usually diameter
@@ -595,6 +658,48 @@ def Mach(V, c):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
     return V/c
+
+
+def Knudsen(path, L):
+    r'''Calculates Knudsen number or `Kn` for a fluid with mean free path
+    `path` and for a characteristic length `L`.
+
+    .. math::
+        Kn = \frac{\lambda}{L}
+
+    Parameters
+    ----------
+    path : float
+        Mean free path between molecular collisions, [m]
+    L : float
+        Characteristic length, [m]
+
+    Returns
+    -------
+    Kn : float
+        Knudsen number []
+
+    Notes
+    -----
+    Used in mass transfer calculations.
+
+    .. math::
+        Kn = \frac{\text{Mean free path length}}{\text{Characteristic length}}
+
+    Examples
+    --------
+    >>> Knudsen(1e-10, .001)
+    1e-07
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
+       Applications. Boston: McGraw Hill Higher Education, 2006.
+    '''
+    Kn = path/L
+    return Kn
 
 
 def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
@@ -866,6 +971,51 @@ def Froude(V, L, g=g, squared=False):
     return Fr
 
 
+def Strouhal(f, L, V):
+    r'''Calculates Strouhal number `St` for a characteristic frequency `f`,
+    characteristic length `L`, and velocity `V`.
+
+    .. math::
+        St = \frac{fL}{V}
+
+    Parameters
+    ----------
+    f : float
+        Characteristic frequency, usually that of vortex shedding, [Hz]
+    L : float
+        Characteristic length, [m]
+    V : float
+        Velocity of the fluid, [m/s]
+
+    Returns
+    -------
+    St : float
+        Strouhal number, [-]
+
+    Notes
+    -----
+    Sometimes abbreviated to S or Sr.
+
+    .. math::
+        St = \frac{\text{Characteristif flow time}}
+        {\text{Period of oscillation}}
+
+    Examples
+    --------
+    >>> Strouhal(8, 2., 4.)
+    4.0
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
+       Applications. Boston: McGraw Hill Higher Education, 2006.
+    '''
+    St = f*L/V
+    return St
+
+
 def Nusselt(h, L, k):
     r'''Calculates Nusselt number `Nu` for a heat transfer coefficient `h`,
     characteristic length `L`, and thermal conductivity `k`.
@@ -913,6 +1063,48 @@ def Nusselt(h, L, k):
     '''
     Nu = h*L/k
     return Nu
+
+
+def Sherwood(K, L, D):
+    r'''Calculates Sherwood number `Sh` for a mass transfer coefficient `K`,
+    characteristic length `L`, and diffusivity `D`.
+
+    .. math::
+        Sh = \frac{KL}{D}
+
+    Parameters
+    ----------
+    K : float
+        Mass transfer coefficient, [m/s]
+    L : float
+        Characteristic length, no typical definition [m]
+    D : float
+        Diffusivity of a species [m/s^2]
+
+    Returns
+    -------
+    Sh : float
+        Sherwood number, [-]
+
+    Notes
+    -----
+
+    .. math::
+        Sh = \frac{\text{Mass transfer by convection}}
+        {\text{Mass transfer by diffusion}} = \frac{K}{D/L}
+
+    Examples
+    --------
+    >>> Sherwood(1000., 1.2, 300.)
+    4.0
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    '''
+    Sh = K*L/D
+    return Sh
 
 
 def Biot(h, L, k):
@@ -1188,6 +1380,53 @@ def Jakob(Cp, Hvap, Te):
     '''
     Ja = Cp*Te/Hvap
     return Ja
+
+
+def Power_number(P, L, N, rho):
+    r'''Calculates power number, `Po`, for an agitator applying a specified
+    power `P` with a characteristic length `L`, rotationa speed `N`, to
+    a fluid with a specified density `rho`.
+
+    .. math::
+        Po = \frac{P}{\rho N^3 D^5}
+
+    Parameters
+    ----------
+    P : float
+        Power applied, [W]
+    L : float
+        Characteristic length, typically agitator diameter [m]
+    N : float
+        Speed [revolutions/second]
+    rho : float
+        Density of fluid, [kg/m^3]
+
+    Returns
+    -------
+    Po : float
+        Power number []
+
+    Notes
+    -----
+    Used in mixing calculations.
+
+    .. math::
+        Po = \frac{\text{Power}}{\text{Rotational inertia}}
+
+    Examples
+    --------
+    >>> Power_number(P=180, L=0.01, N=2.5, rho=800.)
+    144000000.0
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
+       Applications. Boston: McGraw Hill Higher Education, 2006.
+    '''
+    Po = P/(rho*N**3*L**5)
+    return Po
 
 
 def Drag(F, A, V, rho):

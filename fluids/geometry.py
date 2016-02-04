@@ -1210,22 +1210,34 @@ class TANK():
     ----------
     table : bool
         Whether or not a table of heights-volumes has been generated
+    h_max : float
+        Height of the tank, [m]
+    V_total : float
+        Total volume of the tank as calculated [m^3]
+    heights : ndarray
+        Array of heights between 0 and h_max, [m]
+    volumes : ndarray
+        Array of volumes calculated from the heights [m^3]
 
     Examples
     --------
     Total volume of a tank:
+
     >>> TANK(D=1.2, L=4, horizontal=False).V_total
     4.523893421169302
 
-    Volume of a tank at a given height
+    Volume of a tank at a given height:
+
     >>> TANK(D=1.2, L=4, horizontal=False).V_from_h(.5)
     0.5654866776461628
 
     Height of liquid for a given volume:
+
     >>> TANK(D=1.2, L=4, horizontal=False).h_from_V(.5)
     0.44209706414415373
 
     Solving for tank volumes, first horizontal, then vertical:
+
     >>> TANK(D=10., horizontal=True, sideA='conical', sideB='conical', V=500).L
     4.699531057009146
     >>> TANK(L=4.69953105701, horizontal=True, sideA='conical', sideB='conical', V=500).D
