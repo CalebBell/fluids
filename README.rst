@@ -9,7 +9,7 @@ What is fluids?
 
 fluids is open-source software for engineers and technicians working in the
 fields of chemical, mechanical, or civil engineering. It includes modules
-for piping, fittings, pumps, tanks, compressible flow and open-channel flow,
+for piping, fittings, pumps, tanks, compressible flow, open-channel flow,
 and more.
 
 The fluids library depends on the SciPy library to provide numerical constants,
@@ -22,10 +22,10 @@ fluids a try.
 Installation
 ------------
 
-Get the latest version of fluids from 
+Get the latest version of fluids from
 https://pypi.python.org/pypi/fluids/
 
-If you have an installation of Python with pip, simple install it with
+If you have an installation of Python with pip, simple install it with:
 
     $ pip install fluids
 
@@ -65,7 +65,7 @@ of this software, and a DISCLAIMER OF ALL WARRANTIES.
 
 Although not required by the fluids license, if it is convenient for you,
 please cite fluids if used in your work. Please also consider contributing
-any changes you make back, such that they may be incorporated into the 
+any changes you make back, such that they may be incorporated into the
 main library and all of us will benefit from them.
 
 
@@ -74,6 +74,5 @@ Citation
 
 To cite fluids in publications use::
 
-    Caleb Bell (2016). fluids: Fluid dynamics component of Chemical 
-    Engineering Design Library (ChEDL)
-    URL https://github.com/CalebBell/fluids.
+    Caleb Bell (2016). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
+    https://github.com/CalebBell/fluids.

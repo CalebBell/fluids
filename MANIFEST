@@ -6,6 +6,7 @@ fluids/core.py
 fluids/filters.py
 fluids/fittings.py
 fluids/friction_factor.py
+fluids/geometry.py
 fluids/mixing.py
 fluids/open_flow.py
 fluids/packed_bed.py

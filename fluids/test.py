@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 from __future__ import division
 from fluids import filters, fittings, friction_factor, mixing, piping, core
 from fluids import compressible
-from fluids import pump, packed_bed, open_flow, geometry
+from fluids import pump, packed_bed, open_flow, geometry, control_valve
 
 import warnings
 
@@ -37,3 +37,4 @@ if __name__ == '__main__':
     doctest.testmod(pump)
     doctest.testmod(open_flow)
     doctest.testmod(geometry)
+    doctest.testmod(control_valve)

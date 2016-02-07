@@ -7,6 +7,7 @@ Submodules
 .. toctree::
 
    fluids.compressible
+   fluids.control_valve
    fluids.core
    fluids.filters
    fluids.fittings
