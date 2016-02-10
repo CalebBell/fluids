@@ -1571,6 +1571,51 @@ def Archimedes(L, rhof, rhop, mu, g=g):
     return Ar
 
 
+def Ohnesorge(L, rho, mu, sigma):
+    r'''Calculates Ohnesorge number, `Oh`, for a fluid with the given
+    characteristic length, density, viscosity, and surface tension.
+
+    .. math::
+         \text{Oh} = \frac{\mu}{\sqrt{\rho \sigma L }}
+
+    Parameters
+    ----------
+    L : float
+        Characteristic length [m]
+    rho : float
+        Density of fluid, [kg/m^3]
+    mu : float
+        Viscosity of fluid, [Pa*s]
+    sigma : float
+        Surface tension, [N/m]
+
+    Returns
+    -------
+    Oh : float
+        Ohnesorge number []
+
+    Notes
+    -----
+    Often used in spray calculations. Sometimes given the symbol Z.
+
+    .. math::
+        Oh = \frac{\sqrt{\text{We}}}{\text{Re}}= \frac{\text{viscous forces}}
+        {\sqrt{\text{Inertia}\cdot\text{Surface tension}} }
+
+    Examples
+    --------
+    >>> Ohnesorge(1E-5, 2000., 1E-4, 1E-1)
+    0.00223606797749979
+
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    '''
+    Oh = mu/(L*rho*sigma)**0.5
+    return Oh
+
+
 def relative_roughness(D, roughness=1.52e-06):
     r'''Calculates relative roughness `eD` using a diameter and the roughness
     of the material of the wall. Default roughness is that of steel.

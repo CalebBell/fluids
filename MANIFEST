@@ -2,6 +2,7 @@
 setup.py
 fluids/__init__.py
 fluids/compressible.py
+fluids/control_valve.py
 fluids/core.py
 fluids/filters.py
 fluids/fittings.py

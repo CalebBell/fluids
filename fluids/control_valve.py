@@ -246,7 +246,7 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
 
     .. math::
         Re_v = \frac{N_4 F_d Q}{\nu \sqrt{C F_L}}\left(\frac{F_L^2 C^2}
-        {N_2D^4} +1\right)1/4
+        {N_2D^4} +1\right)^{1/4}
 
     Parameters
     ----------
