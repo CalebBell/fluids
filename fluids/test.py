@@ -19,6 +19,7 @@ from __future__ import division
 from fluids import filters, fittings, friction_factor, mixing, piping, core
 from fluids import compressible
 from fluids import pump, packed_bed, open_flow, geometry, control_valve
+from fluids import safety_valve
 
 import warnings
 
@@ -38,3 +39,4 @@ if __name__ == '__main__':
     doctest.testmod(open_flow)
     doctest.testmod(geometry)
     doctest.testmod(control_valve)
+    doctest.testmod(safety_valve)

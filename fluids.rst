@@ -18,6 +18,7 @@ Submodules
    fluids.packed_bed
    fluids.piping
    fluids.pump
+   fluids.safety_valve
    fluids.test
 
 Module contents

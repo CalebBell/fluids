@@ -53,8 +53,8 @@ def Ergun(Dp, voidage=0.4, sphericity=1, H=None, vs=None, rho=None, mu=None):
     -----
     The first term in this equation represents laminar loses, and the second,
     turbulent loses. Sphericity must be calculated.
-    According to [2]_, developed using spheres, pulverized coke/coal, sand,
-    cylinders and tablets for ranges of :math:`1 < RE_{ERg} <2300`. [2]_ cites
+    According to [1]_, developed using spheres, pulverized coke/coal, sand,
+    cylinders and tablets for ranges of :math:`1 < RE_{ERg} <2300`. [1]_ cites
     a source claiming it should not be used above 500.
 
     Examples
