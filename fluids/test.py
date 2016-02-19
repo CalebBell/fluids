@@ -21,9 +21,6 @@ from fluids import compressible
 from fluids import pump, packed_bed, open_flow, geometry, control_valve
 from fluids import safety_valve
 
-import warnings
-
-#warnings.simplefilter("always") #error for error
 
 if __name__ == '__main__':
     import doctest

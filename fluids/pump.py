@@ -20,6 +20,12 @@ from math import log
 from scipy.interpolate import interp1d, interp2d
 from scipy.constants import hp
 
+__all__ = ['Corripio_pump_efficiency', 'Corripio_motor_efficiency',
+'VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
+'specific_speed', 'specific_diameter', 'speed_synchronous', 'nema_sizes',
+'nema_sizes_hp', 'motor_round_size']
+
+
 def Corripio_pump_efficiency(Q):
     r'''Estimates pump efficiency using the method in Corripio (1982)
     as shown in [1]_ and originally in [2]_. Estimation only
@@ -176,6 +182,44 @@ def VFD_efficiency(P, load=1):
     efficiency = round(float(VFD_efficiency_interp(load, P)), 4)
     return efficiency
 
+
+nema_sizes_hp = [.25, 1/3., .5, .75, 1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500]
+nema_sizes = [i*hp for i in nema_sizes_hp]
+
+def motor_round_size(P):
+    r'''Rounds up the power for a motor to the nearest NEMA standard power.
+    The returned power is always larger or equal to the input power.
+
+    Parameters
+    ----------
+    P : float
+        Power, [W]
+
+    Returns
+    -------
+    P_actual : float
+        Actual power, equal to or larger than input [W]
+
+    Notes
+    -----
+    An exception is raised if the power required is larger than any of
+    the NEMA sizes. Larger motors are available, but are unstandardized.
+
+    Examples
+    --------
+    >>> [motor_round_size(i) for i in [.1*hp, .25*hp, 1E5, 3E5]]
+    [186.42496789556753, 186.42496789556753, 111854.98073734052, 335564.94221202156]
+
+    References
+    ----------
+    .. [1] Natural Resources Canada. Electric Motors (1 to 500 HP/0.746 to
+       375 kW). As modified 2015-12-17.
+       https://www.nrcan.gc.ca/energy/regulations-codes-standards/products/6885
+    '''
+    for P_actual in nema_sizes:
+        if P_actual >= P:
+            return P_actual
+    raise Exception('Required power is larger than can be provided with one valve')
 
 
 nema_high_P = [1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200]

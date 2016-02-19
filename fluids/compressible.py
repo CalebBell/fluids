@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
+__all__ = ['T_critical_flow', 'P_critical_flow', 'is_critical_flow',
+           'stagnation_energy', 'P_stagnation', 'T_stagnation',
+           'T_stagnation_ideal']
+
 
 def T_critical_flow(T, k):
     r'''Calculates critical flow temperature `Tcf` for a fluid with the

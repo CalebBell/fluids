@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
 from math import log, log10, exp
+__all__ = []
 
 
 def Moody(Re, eD):

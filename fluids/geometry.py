@@ -1,9 +1,29 @@
 # -*- coding: utf-8 -*-
+'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
+
+from __future__ import division
 from math import *
-from scipy.integrate import quad
 import numpy as np
 from scipy.interpolate import interp1d
+from scipy.integrate import quad
 from scipy.optimize import fsolve
+
+__all__ = ['TANK']
+
 
 ### Spherical Vessels, partially filled
 
@@ -730,7 +750,7 @@ def V_vertical_torispherical(D, f, k, h):
 
     >>> [V_vertical_torispherical(D=132., f=1.0, k=0.06, h=i)/231.
     ... for i in [24, 60, 0, 1, 22, 132]]
-    [904.0688283793511, 3036.7614412163075, 0.0, 1.79179581000197, 712.9368409576765, 7302.146666890221]
+    [904.0688283793511, 3036.7614412163075, 0.0, 1.7906624793188568, 712.9368409576765, 7302.146666890221]
 
     References
     ----------

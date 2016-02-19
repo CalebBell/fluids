@@ -21,6 +21,13 @@ from scipy.optimize import fsolve
 from scipy.constants import g
 from math import tan, radians
 
+__all__ = ['Q_weir_V_Shen', 'Q_weir_rectangular_Smith',
+'Q_weir_rectangular_Kindsvater_Carter', 'Q_weir_rectangular_SIA',
+'Q_weir_rectangular_full_Ackers', 'Q_weir_rectangular_full_SIA',
+'Q_weir_rectangular_full_Rehbock', 'Q_weir_rectangular_full_Kindsvater_Carter',
+'V_Manning', 'n_Manning_to_C_Chezy', 'C_Chezy_to_n_Manning', 'V_Chezy']
+
+
 nape_types = ['free', 'depressed', 'clinging']
 flow_types = ['aerated', 'partially aerated', 'unaerated']
 weir_types = ['V-notch', 'rectangular', 'rectangular full-channel',

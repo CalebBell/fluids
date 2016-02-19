@@ -19,6 +19,10 @@ from __future__ import division
 from scipy.constants import g
 from math import log, exp, pi
 
+__all__ = ['adjust_homogeneity', 'agitator_time_homogeneous',
+'Kp_helical_ribbon_Rieger', 'time_helical_ribbon_Grenville', 'size_tee',
+'COV_motionless_mixer', 'K_motionless_mixer']
+
 max_Fo_for_turbulent = 1/1225.
 min_regime_constant_for_turbulent = 6370.
 

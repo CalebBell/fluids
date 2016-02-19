@@ -21,11 +21,13 @@ from scipy.constants import psi, F2K, inch, atm, C2K
 from fluids.compressible import is_critical_flow
 from scipy.interpolate import interp1d, interp2d
 
+__all__ = ['API526_A_sq_inch', 'API526_letters', 'API526_A',
+'API520_round_size']
 
-_API526US = [0.110, 0.196, 0.307, 0.503, 0.785, 1.287, 1.838, 2.853, 3.60,
+API526_A_sq_inch = [0.110, 0.196, 0.307, 0.503, 0.785, 1.287, 1.838, 2.853, 3.60,
              4.34, 6.38, 11.05, 16.00, 26.00] # square inches
-_API526 = ['D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R','T']
-_API526SI = [i*inch**2 for i in _API526US]
+API526_letters = ['D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R','T']
+API526_A = [i*inch**2 for i in API526_A_sq_inch]
 
 
 def API520_round_size(A):
@@ -47,7 +49,7 @@ def API520_round_size(A):
     To obtain the letter designation of an input area, lookup the area with
     the following:
 
-    _API526[_API526SI.index(area)]
+    API526_letters[API526_A.index(area)]
 
     An exception is raised if the required relief area is larger than any of
     the API 526 sizes.
@@ -58,14 +60,14 @@ def API520_round_size(A):
 
     >>> API520_round_size(1E-4)
     0.00012645136
-    >>> _API526[_API526SI.index(API520_round_size(1E-4))]
+    >>> API526_letters[API526_A.index(API520_round_size(1E-4))]
     'E'
 
     References
     ----------
     .. [1] API Standard 526.
     '''
-    for area in _API526SI:
+    for area in API526_A:
         if area >= A:
             return area
     raise Exception('Required relief area is larger than can be provided with one valve')

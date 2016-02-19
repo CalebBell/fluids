@@ -19,6 +19,9 @@ from __future__ import division
 from scipy.interpolate import interp1d
 from math import radians, cos
 
+__all__ = ['round_edge_screen', 'round_edge_open_mesh', 'square_edge_screen',
+'square_edge_grill', 'round_edge_grill']
+
 round_Res = [20, 30, 40, 60, 80, 100, 200, 400, 1E9]
 round_betas = [1.3, 1.1, 0.95, 0.83, 0.75, 0.7, 0.6, 0.52, 0.52]
 round_interp = interp1d(round_Res, round_betas, kind='linear')

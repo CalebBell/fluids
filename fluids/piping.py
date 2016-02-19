@@ -20,6 +20,7 @@ from math import pi
 from scipy.constants import g, inch
 from scipy.interpolate import interp1d
 
+__all__ = ['nearest_pipe', 'gauge_from_t', 't_from_gauge', 'wire_schedules']
 
 # Schedules 5, 10, 20, 30, 40, 60, 80, 100, 120, 140, 160 from
 # ASME B36.10M - Welded and Seamless Wrought Steel Pipe
@@ -348,7 +349,7 @@ BWG_inch = [0.5, 0.454, 0.425, 0.38, 0.34, 0.3, 0.284, 0.259, 0.238, 0.22,
             0.008, 0.007, 0.005, 0.004]
 BWG_SI = [round(i*inch,6) for i in BWG_inch]
 
-wire_schdules = {'BWG': (BWG_integers, BWG_inch, BWG_SI, True),
+wire_schedules = {'BWG': (BWG_integers, BWG_inch, BWG_SI, True),
                  'AWG': (AWG_integers, AWG_inch, AWG_SI, True),
                  'SWG': (SWG_integers, SWG_inch, SWG_SI, True),
                  'MWG': (MWG_integers, MWG_inch, MWG_SI, False),
@@ -422,7 +423,7 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
 
     # Get the schedule
     try:
-        sch_integers, sch_inch, sch_SI, decreasing = wire_schdules[schedule]
+        sch_integers, sch_inch, sch_SI, decreasing = wire_schedules[schedule]
     except:
         raise ValueError('Wire gauge schedule not found')
 
@@ -518,7 +519,7 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
        Handbook. Industrial Press, Incorporated, 2012.
     '''
     try:
-        sch_integers, sch_inch, sch_SI, decreasing = wire_schdules[schedule]
+        sch_integers, sch_inch, sch_SI, decreasing = wire_schedules[schedule]
     except:
         raise ValueError('Wire gauge schedule not found')
 
