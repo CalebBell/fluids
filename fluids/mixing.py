@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
 from scipy.constants import g
-from math import log, exp, pi
+from math import log, pi
 
 __all__ = ['adjust_homogeneity', 'agitator_time_homogeneous',
 'Kp_helical_ribbon_Rieger', 'time_helical_ribbon_Grenville', 'size_tee',
@@ -308,7 +308,6 @@ def size_tee(Q1=None, Q2=None, D=None, D2=None, n=1, pipe_diameters=5):
 Paul, Edward L, Victor A Atiemo-Obeng, and Suzanne M Kresta.
 Handbook of Industrial Mixing: Science and Practice.
 Hoboken, N.J.: Wiley-Interscience, 2004.'''
-
 StatixMixers = {}
 StatixMixers['KMS'] = {'Name': 'KMS', 'Vendor': 'Chemineer', 'Description': 'Twisted ribbon. Alternating left and right twists.', 'KL': 6.9, 'KiL': 0.87, 'KT': 150, 'KiT': 0.5}
 StatixMixers['SMX'] = {'Name': 'SMX', 'Vendor': 'Koch-Glitsch', 'Description': 'Guide vanes 45 degrees to pipe axis. Adjacent elements rotated 90 degrees.', 'KL': 37.5, 'KiL': 0.63, 'KT': 500, 'KiT': 0.46}

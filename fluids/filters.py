@@ -165,7 +165,7 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0):
     return K
 
 
-def square_edge_screen(alpha, angle=0):
+def square_edge_screen(alpha):
     r'''Returns the loss coefficient for a square wire screen or square bar
     screen or perforated plate with squared edges, as shown in [1]_.
 

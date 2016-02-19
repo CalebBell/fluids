@@ -17,8 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
 from math import pi
-from scipy.constants import g, inch
-from scipy.interpolate import interp1d
+from scipy.constants import inch
 
 __all__ = ['nearest_pipe', 'gauge_from_t', 't_from_gauge', 'wire_schedules']
 

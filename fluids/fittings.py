@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
-from math import log, exp, cos, sin, tan, atan, pi
+from math import exp, cos, sin, tan, atan, pi
 
 __all__ = ['entrance_sharp', 'entrance_distance', 'entrance_angled',
 'entrance_rounded', 'entrance_beveled', 'exit_normal', 'bend_rounded',
@@ -788,7 +788,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None):
     return K
 
 
-def diffuser_conical_staged(Di1, Di2, DEs=[], ls=[], fd=None):
+def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None):
     r'''Returns loss coefficient for any series of staged conical pipe expansions
     as shown in [1]_. Five different formulas are used, depending on
     the angle and the ratio of diameters. This function calls diffuser_conical.
@@ -833,7 +833,6 @@ def diffuser_conical_staged(Di1, Di2, DEs=[], ls=[], fd=None):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     K = 0
-    DEs = list(DEs)
     DEs.insert(0, Di1)
     DEs.append(Di2)
     for i in range(len(ls)):

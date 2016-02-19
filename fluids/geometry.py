@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
-from math import *
+from math import pi, sin, cos, asin, acos, atan, acosh
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.integrate import quad
@@ -520,7 +520,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         n = R - k*D + (k**2*D**2 - x**2)**0.5
         ans = n**2*(acos(w/n) - acos(g/n)) - w*(n**2 - w**2)**0.5 + g*(n**2-g**2)**0.5
         return ans
-    def V3_toint(x, w):
+    def V3_toint(x):
         ans = (r**2-x**2)*atan((g**2-x**2)**0.5/z)
         return ans
 
@@ -532,7 +532,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         wmax1 = R - h1
         V1max = quad(V1_toint, 0, (2*k*D*h1-h1**2)**0.5, wmax1)[0]
         V2 = quad(V2_toint, 0, k*D*cos(alpha), w)[0]
-        V3 = quad(V3_toint, w, g, w)[0] - z/2.*(g**2*acos(w/g) -w*(2*g*(h-h1) - (h-h1)**2)**0.5)
+        V3 = quad(V3_toint, w, g)[0] - z/2.*(g**2*acos(w/g) -w*(2*g*(h-h1) - (h-h1)**2)**0.5)
         Vf = 2*(V1max + V2 + V3)
     else:
         w = R - h
@@ -750,7 +750,7 @@ def V_vertical_torispherical(D, f, k, h):
 
     >>> [V_vertical_torispherical(D=132., f=1.0, k=0.06, h=i)/231.
     ... for i in [24, 60, 0, 1, 22, 132]]
-    [904.0688283793511, 3036.7614412163075, 0.0, 1.7906624793188568, 712.9368409576765, 7302.146666890221]
+    [904.0688283793511, 3036.7614412163075, 0.0, 1.7906624793188568, 785.587561468186, 7302.146666890221]
 
     References
     ----------
@@ -767,9 +767,9 @@ def V_vertical_torispherical(D, f, k, h):
     if 0 <= h <= a1:
         Vf = pi*h**2/4*(2*a1 + D1**2/2/a1 - 4*h/3)
     elif a1 < h <= a1 + a2:
-        Vf = pi/4*(2*a1**3/3 + a1*D1**2/2.) + pi*u*((D/2. - k*D)**2 + s)
+        Vf = (pi/4*(2*a1**3/3 + a1*D1**2/2.) + pi*u*((D/2. - k*D)**2 + s)
         + pi*t*u**2/2. - pi*u**3/3. + pi*D*(1 - 2*k)*((2*u-t)/4.*(s + t*u
-        - u**2)**0.5 + t*s**0.5/4. + k**2*D**2/2*(acos((t-2*u)/(2*k*D))-alpha))
+        - u**2)**0.5 + t*s**0.5/4. + k**2*D**2/2*(acos((t-2*u)/(2*k*D))-alpha)))
     else:
         Vf = pi/4*(2*a1**3/3. + a1*D1**2/2.) + pi*t/2.*((D/2 - k*D)**2
         + s) + pi*t**3/12. + pi*D*(1 - 2*k)*(t*s**0.5/4
@@ -1003,7 +1003,6 @@ def V_vertical_torispherical_concave(D, f, k, h):
         + k**2*D**2/2.*(acos((t-2*u)/(2*k*D)) -alpha))
         return v1
     def V2(h):
-        u = h-f*D*(1-cos(alpha))
         v2 = pi*h**2/4.*(2*a1 + D1**2/(2.*a1) - 4*h/3.)
         return v2
     if 0 <= h < a2:
@@ -1143,7 +1142,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     >>> [V_from_h(h=h, D=8., L=10., horizontal=False, sideA='torispherical',
     ... sideB='torispherical', sideA_a=1.3547, sideB_a=1.3547, sideA_f=1.,
     ... sideA_k=0.06, sideB_f=1., sideB_k=0.06) for h in [0, 1.3, 9.3, 10.1, 10.7094]]
-    [0.0, 35.35877620890453, 436.8710187266448, 477.0834046925942, 507.7151897021561]
+    [0.0, 38.723353379954276, 440.84578224136413, 481.0581682073135, 511.68995321687544]
     >>> [V_from_h(h=h, D=1.5, L=5., horizontal=False) for h in [0, 2.5, 5]]
     [0, 4.417864669110647, 8.835729338221293]
 
@@ -1221,7 +1220,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     return V
 
 
-class TANK():
+class TANK(object):
     '''
     Class representing tank volumes and levels. All parameters are also
     attributes.

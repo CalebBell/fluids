@@ -15,11 +15,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
-from __future__ import division
-from fluids import filters, fittings, friction_factor, mixing, piping, core
-from fluids import compressible
-from fluids import pump, packed_bed, open_flow, geometry, control_valve
-from fluids import safety_valve
+import compressible
+import control_valve
+import core
+import filters
+import fittings
+import friction_factor
+import geometry
+import mixing
+import open_flow
+import packed_bed
+import piping
+import pump
+import safety_valve
 
 
 if __name__ == '__main__':
