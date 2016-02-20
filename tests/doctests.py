@@ -15,20 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
-import compressible
-import control_valve
-import core
-import filters
-import fittings
-import friction_factor
-import geometry
-import mixing
-import open_flow
-import packed_bed
-import piping
-import pump
-import safety_valve
-
+from fluids import *
 
 if __name__ == '__main__':
     import doctest
