@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
-from math import exp, cos, sin, tan, atan, pi
+from math import cos, sin, tan, atan, pi
 
 __all__ = ['entrance_sharp', 'entrance_distance', 'entrance_angled',
 'entrance_rounded', 'entrance_beveled', 'exit_normal', 'bend_rounded',
@@ -1252,3 +1252,37 @@ def Kv_to_K(Kv, D):
     '''
     K = 0.001604E12*D**4/Kv**2
     return K
+
+
+def K_to_Kv(K, D):
+    r'''Convert regular loss coefficient to valve flow coefficient.
+
+    .. math::
+        K_v = \sqrt{0.001604 \frac{D^4}{K}}
+
+    Parameters
+    ----------
+    K : float
+        Loss coefficient, [-]
+
+    Returns
+    -------
+    Kv : float
+        Valve flow coefficient, [1 m^3 cold water/hour at dP = 1 bar]
+
+    Notes
+    -----
+
+
+    Examples
+    --------
+    >>> K_to_Kv(15.1912580369009, .015)
+    2.312
+
+    References
+    ----------
+    .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
+    '''
+    Kv = (0.001604E12*D**4/K)**0.5
+    return Kv
+

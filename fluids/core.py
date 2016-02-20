@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
-from math import sin, exp, pi, log
+from math import sin, exp, pi
 from scipy.constants import g, R
 
 __all__ = ['thermal_diffusivity', 'c_ideal_gas', 'Reynolds', 'Peclet_heat',
