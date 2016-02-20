@@ -5,8 +5,14 @@ python:
 virtualenv:
   system_site_packages: true
 before_install:
- - sudo apt-get install -qq python-numpy python-scipy
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  - conda update --yes conda
+# Install packages
 install:
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy
   - pip install -r requirements.txt
   - python setup.py -q install
 script: 
