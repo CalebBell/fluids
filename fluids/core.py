@@ -103,7 +103,7 @@ def c_ideal_gas(T, k, MW):
     Examples
     --------
     >>> c_ideal_gas(1.4, 303., 28.96)
-    348.9820844443473
+    348.9820361755092
 
     References
     ----------
