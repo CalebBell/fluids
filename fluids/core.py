@@ -783,7 +783,7 @@ def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
     properties, temperature difference, and characteristic length.
 
     .. math::
-        Gr = = \frac{g\beta (T_s-T_\infty)L^3}{\nu^2}
+        Gr = \frac{g\beta (T_s-T_\infty)L^3}{\nu^2}
         = \frac{g\beta (T_s-T_\infty)L^3\rho^2}{\mu^2}
 
     Inputs either of any of the following sets:

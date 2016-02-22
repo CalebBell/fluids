@@ -2,6 +2,20 @@
 fluids
 ======
 
+.. image:: http://img.shields.io/pypi/v/fluids.svg?style=flat
+   :target: https://pypi.python.org/pypi/fluids
+   :alt: Version_status
+.. image:: http://img.shields.io/pypi/dm/fluids.svg?style=flat
+   :target: https://pypi.python.org/pypi/fluids
+   :alt: Downloads
+.. image:: http://img.shields.io/travis/CalebBell/fluids/master.svg?style=flat
+   :target: https://travis-ci.org/CalebBell/fluids
+   :alt: Build_status
+.. image:: http://img.shields.io/badge/license-GPL3-blue.svg?style=flat
+   :target: https://github.com/CalebBell/fluids/blob/master/LICENSE.txt
+   :alt: license
+
+
 .. contents::
 
 What is fluids?
