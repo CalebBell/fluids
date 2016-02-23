@@ -1,0 +1,5 @@
+*.pyc
+*.swp
+.coverage
+code_coverage/*
+html_report/*
