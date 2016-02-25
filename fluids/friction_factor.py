@@ -1328,6 +1328,8 @@ fmethods['Brkic_2011_1'] = {'Nice name': 'Brkic 2011 1', 'Notes': '', 'Arguments
 fmethods['Brkic_2011_2'] = {'Nice name': 'Brkic 2011 2', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
 fmethods['Fang_2011'] = {'Nice name': 'Fang 2011', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 3000.0, 'Default': None, 'Max': 100000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
 
+
+
 def friction_factor(Re=1E5, eD=1E-4, Method=None, Darcy=True, AvailableMethods=False):
     '''Calculates friction factor. Uses a specified method, or automatically
     picks one from the dictionary of available methods. 28 methods available.

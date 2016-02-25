@@ -574,3 +574,137 @@ def Idelchik(Dp, voidage=0.4, H=None, vs=None, rho=None, mu=None):
 #print [Idelchik(Dp=0.008, voidage=0.4, H=0.5, vs=0.05, rho=1000., mu=1.00E-003)]
 #
 
+### Voidage correlations
+
+def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
+    r'''Calculates voidage of a bed of arbitraryily shaped uniform particles
+    packed into a bed or tube of diameter `Dt`, with equivalent sphere diameter
+    `Dp`. Shown in [1]_, and cited by various authors. Correlations exist
+    also for spheres, solid cylinders, hollow cylinders, and 4-hole cylinders.
+    Based on a series of physical measurements.
+
+    .. math::
+        \epsilon = 0.1504 + \frac{0.2024}{\phi} + \frac{1.0814}
+        {\left(\frac{d_{t}}{d_{pe}}+0.1226\right)^2}
+
+    Parameters
+    ----------
+    Dpe : float
+        Equivalent spherical particle diameter, [m]
+    Dt : float
+        Diameter of the tube, [m]
+    sphericity : float
+        Sphericity of particles in bed []
+
+    Returns
+    -------
+    voidage : float
+        Void fraction of bed packing []
+
+    Notes
+    -----
+    Average error of 5.2%; valid 1.5 < dtube/dp < 50 and 0.42 < sphericity < 1
+
+    Examples
+    --------
+    >>> voidage_Benyahia_Oneil(1E-3, 1E-2, .8)
+    0.41395363849210065
+
+    References
+    ----------
+    .. [1] Benyahia, F., and K. E. O’Neill. "Enhanced Voidage Correlations for
+       Packed Beds of Various Particle Shapes and Sizes." Particulate Science
+       and Technology 23, no. 2 (April 1, 2005): 169-77.
+       doi:10.1080/02726350590922242.
+    '''
+    voidage = 0.1504 + 0.2024/sphericity + 1.0814/(Dt/Dpe + 0.1226)**2
+    return voidage
+
+#print [voidage_Benyahia_Oneil(1E-3, 1E-2, .8)]
+
+
+def voidage_Benyahia_Oneil_spherical(Dp, Dt):
+    r'''Calculates voidage of a bed of spheres
+    packed into a bed or tube of diameter `Dt`, with sphere diameters
+    `Dp`. Shown in [1]_, and cited by various authors. Correlations exist
+    also for solid cylinders, hollow cylinders, and 4-hole cylinders.
+    Based on a series of physical measurements.
+
+    .. math::
+        \epsilon = 0.390+\frac{1.740}{\left(\frac{d_{cyl}}{d_p}+1.140\right)^2}
+
+    Parameters
+    ----------
+    Dp : float
+        Spherical particle diameter, [m]
+    Dt : float
+        Diameter of the tube, [m]
+
+    Returns
+    -------
+    voidage : float
+        Void fraction of bed packing []
+
+    Notes
+    -----
+    Average error 1.5%, 1.5 < ratio < 50.
+
+    Examples
+    --------
+    >>> voidage_Benyahia_Oneil_spherical(.001, .05)
+    0.3906653157443224
+
+    References
+    ----------
+    .. [1] Benyahia, F., and K. E. O’Neill. "Enhanced Voidage Correlations for
+       Packed Beds of Various Particle Shapes and Sizes." Particulate Science
+       and Technology 23, no. 2 (April 1, 2005): 169-77.
+       doi:10.1080/02726350590922242.
+    '''
+    voidage = 0.390 + 1.740/(Dt/Dp + 1.140)**2
+    return voidage
+
+
+def voidage_Benyahia_Oneil_cylinderical(Dpe, Dt, sphericity):
+    r'''Calculates voidage of a bed of cylindrical uniform particles
+    packed into a bed or tube of diameter `Dt`, with equivalent sphere diameter
+    `Dpe`. Shown in [1]_, and cited by various authors. Correlations exist
+    also for spheres, solid cylinders, hollow cylinders, and 4-hole cylinders.
+    Based on a series of physical measurements.
+
+    .. math::
+        \epsilon = 0.373+\frac{1.703}{\left(\frac{d_{cyl}}{d_p}+0.611\right)^2}
+
+    Parameters
+    ----------
+    Dpe : float
+        Equivalent spherical particle diameter, [m]
+    Dt : float
+        Diameter of the tube, [m]
+    sphericity : float
+        Sphericity of particles in bed []
+
+    Returns
+    -------
+    voidage : float
+        Void fraction of bed packing []
+
+    Notes
+    -----
+    Average error 0.016%; 1.7 < ratio < 26.3.
+
+    Examples
+    --------
+    >>> voidage_Benyahia_Oneil_cylinderical(.01, .1, .6)
+    0.38812523109607894
+
+    References
+    ----------
+    .. [1] Benyahia, F., and K. E. O’Neill. "Enhanced Voidage Correlations for
+       Packed Beds of Various Particle Shapes and Sizes." Particulate Science
+       and Technology 23, no. 2 (April 1, 2005): 169-77.
+       doi:10.1080/02726350590922242.
+    '''
+    voidage = 0.373 + 1.703/(Dt/Dpe + 0.611)**2
+    return voidage
+
