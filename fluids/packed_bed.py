@@ -620,8 +620,6 @@ def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
     voidage = 0.1504 + 0.2024/sphericity + 1.0814/(Dt/Dpe + 0.1226)**2
     return voidage
 
-#print [voidage_Benyahia_Oneil(1E-3, 1E-2, .8)]
-
 
 def voidage_Benyahia_Oneil_spherical(Dp, Dt):
     r'''Calculates voidage of a bed of spheres
@@ -707,4 +705,3 @@ def voidage_Benyahia_Oneil_cylinderical(Dpe, Dt, sphericity):
     '''
     voidage = 0.373 + 1.703/(Dt/Dpe + 0.611)**2
     return voidage
-
