@@ -44,6 +44,8 @@ from piping import *
 from pump import *
 from safety_valve import *
 
+import friction_factor # Needed to ensure module overwrites function
+
 __all__ = ['compressible', 'control_valve', 'core', 'filters', 'fittings',
 'friction_factor', 'geometry', 'mixing', 'open_flow', 'packed_bed', 'piping',
 'pump', 'safety_valve']
@@ -53,7 +55,7 @@ __all__.extend(compressible.__all__)
 __all__.extend(control_valve.__all__)
 __all__.extend(core.__all__)
 __all__.extend(filters.__all__)
-#__all__.extend(friction_factor.__all__)
+__all__.extend(friction_factor.__all__)
 __all__.extend(geometry.__all__)
 __all__.extend(mixing.__all__)
 __all__.extend(open_flow.__all__)

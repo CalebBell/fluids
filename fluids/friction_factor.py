@@ -17,7 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
 from math import log, log10, exp
-__all__ = []
+__all__ = ['fd', 'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
+'Eck_1973', 'Jain_1976', 'Swamee_Jain_1976', 'Churchill_1977', 'Chen_1979',
+'Round_1980', 'Shacham_1980', 'Barr_1981', 'Zigrang_Sylvester_1',
+'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
+'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
+'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
+'Brkic_2011_2', 'Fang_2011', 'friction_factor']
 
 
 def Moody(Re, eD):
@@ -1331,11 +1337,103 @@ fmethods['Fang_2011'] = {'Nice name': 'Fang 2011', 'Notes': '', 'Arguments': {'e
 
 
 def friction_factor(Re=1E5, eD=1E-4, Method=None, Darcy=True, AvailableMethods=False):
-    '''Calculates friction factor. Uses a specified method, or automatically
-    picks one from the dictionary of available methods. 28 methods available.
+    r'''Calculates friction factor. Uses a specified method, or automatically
+    picks one from the dictionary of available methods. 28 methods available,
+    described in the table below. The default is more than sufficient
+    for all applications.
 
+    Examples
+    --------
     >>> friction_factor(Re=1E5, eD=1E-4)
     0.018513948401365277
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number, [-]
+    eD : float
+        Relative roughness of the wall, []
+
+    Returns
+    -------
+    f : float
+        Friction factor, [-]
+    methods : list, only returned if AvailableMethods == True
+        List of methods which claim to be valid for the range of `Re` and `eD`
+        given
+
+    Other Parameters
+    ----------------
+    Method : string, optional
+        A string of the function name to use
+    Darcy : bool, optional
+        If False, will return fanning friction factor, 1/4 of the Darcy value
+    AvailableMethods : bool, optional
+        If True, function will consider which methods claim to be valid for
+        the range of `Re` and `eD` given
+
+
+    Notes
+    -----
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Nice name          |Re min|Re max|Re Default|:math:`\epsilon/D` Min|:math:`\epsilon/D` Max|:math:`\epsilon/D` Default|
+    +===================+======+======+==========+======================+======================+==========================+
+    |Rao Kumar 2007     |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Eck 1973           |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Jain 1976          |5000  |1.0E+7|None      |4.0E-5                |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Avci Karagoz 2009  |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Swamee Jain 1976   |5000  |1.0E+8|None      |1.0E-6                |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Churchill 1977     |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Brkic 2011 1       |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Chen 1979          |4000  |4.0E+8|None      |1.0E-7                |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Round 1980         |4000  |4.0E+8|None      |0                     |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Papaevangelo 2010  |10000 |1.0E+7|None      |1.0E-5                |0.001                 |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Fang 2011          |3000  |1.0E+8|None      |0                     |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Shacham 1980       |4000  |4.0E+8|None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Barr 1981          |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Churchill 1973     |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Moody              |4000  |1.0E+8|None      |0                     |1                     |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Zigrang Sylvester 1|4000  |1.0E+8|None      |4.0E-5                |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Zigrang Sylvester 2|4000  |1.0E+8|None      |4.0E-5                |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Buzzelli 2008      |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Haaland            |4000  |1.0E+8|None      |1.0E-6                |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Serghides 1        |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Serghides 2        |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Tsal 1989          |4000  |1.0E+8|None      |0                     |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Alshul 1952        |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Wood 1966          |4000  |5.0E+7|None      |1.0E-5                |0.04                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Manadilli 1997     |5245  |1.0E+8|None      |0                     |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Brkic 2011 2       |None  |None  |None      |None                  |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Romeo 2002         |3000  |1.5E+8|None      |0                     |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    |Sonnad Goudar 2006 |4000  |1.0E+8|None      |1.0E-6                |0.05                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
     '''
     def list_methods():
         methods = [i for i in fmethods if
@@ -1359,7 +1457,9 @@ def friction_factor(Re=1E5, eD=1E-4, Method=None, Darcy=True, AvailableMethods=F
         f *= 4
     return f
 
-#print [friction_factor(Re=1E5, eD=1E-4)]
+
+fd = friction_factor # shortcut
+
 
 # Roughness, in m
 _roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
@@ -1373,56 +1473,152 @@ _roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
 
 
 
-### Code used to create the dictionary
-
-#data = '''Moody	4000	1.00E+008	0	1
+#### Code used to create the dictionary
+#data = '''Moody	4000	1.0E+8	0	1
 #Alshul_1952
-#Wood_1966	4000	50000000	0.00001	0.04
+#Wood_1966	4000	5.0E+7	1.0E-5	0.04
 #Churchill_1973
 #Eck_1973
-#Jain_1976	5000	10000000	0.00004	0.05
-#Swamee_Jain_1976	5000	100000000	0.000001	0.05
+#Jain_1976	5000	1.0E+7	4.0E-5	0.05
+#Swamee_Jain_1976	5000	1.0E+8	1.0E-6	0.05
 #Churchill_1977
-#Chen_1979	4000	400000000	0.0000001	0.05
-#Round_1980	4000	400000000	0	0.05
-#Shacham_1980	4000	400000000
+#Chen_1979	4000	4.0E+8	1.0E-7	0.05
+#Round_1980	4000	4.0E+8	0	0.05
+#Shacham_1980	4000	4.0E+8
 #Barr_1981
-#Zigrang_Sylvester_1	4000	100000000	0.00004	0.05
-#Zigrang_Sylvester_2	4000	100000000	0.00004	0.05
-#Haaland	4000	100000000	0.000001	0.05
+#Zigrang_Sylvester_1	4000	1.0E+8	4.0E-5	0.05
+#Zigrang_Sylvester_2	4000	1.0E+8	4.0E-5	0.05
+#Haaland	4000	1.0E+8	1.0E-6	0.05
 #Serghides_1
 #Serghides_2
-#Tsal_1989	4000	100000000	0	0.05
-#Manadilli_1997	5245	100000000	0	0.05
-#Romeo_2002	3000	150000000	0	0.05
-#Sonnad_Goudar_2006	4000	100000000	0.000001	0.05
+#Tsal_1989	4000	1.0E+8	0	0.05
+#Manadilli_1997	5245	1.0E+8	0	0.05
+#Romeo_2002	3000	1.5E+8	0	0.05
+#Sonnad_Goudar_2006	4000	1.0E+8	1.0E-6	0.05
 #Rao_Kumar_2007
 #Buzzelli_2008
 #Avci_Karagoz_2009
-#Papaevangelo_2010	10000	10000000	0.00001	0.001
+#Papaevangelo_2010	10000	1.0E+7	1.0E-5	0.001
 #Brkic_2011_1
 #Brkic_2011_2
-#Fang_2011	3000	100000000	0	0.05'''
+#Fang_2011	3000	1.0E+8	0	0.05'''
+
 #for i in data.split('\n'):
-#    break
 #    j = i.split('\t')
 #    if len(j) == 1:
 #        fname = j[0]
 #        Remin, Remax, eDmin, eDmax = None, None, None, None
 #    elif len(j) == 3:
 #        fname, Remin, Remax = j
-#        Remin = float(Remin)
-#        Remax = float(Remax)
+##        Remin = float(Remin)
+##        Remax = float(Remax)
 #        eDmin, eDmax = None, None
 #    elif len(j) == 5:
 #        fname, Remin, Remax, eDmin, eDmax = j
-#        Remin = float(Remin)
-#        Remax = float(Remax)
-#        eDmin = float(eDmin)
-#        eDmax = float(eDmax)
+##        Remin = float(Remin)
+##        Remax = float(Remax)
+##        eDmin = float(eDmin)
+##        eDmax = float(eDmax)
+##
+##    args = {}
+#    Re_args = (Remin, Remax, None)
+#    eD_args = (eDmin, eDmax, None)
 #
-#    args = {}
-#    args['eD'] = {'Name': 'Relative roughness', 'Symbol': '\epsilon/D', 'Default': None, 'Min': eDmin, 'Max': eDmax, 'Units': None }
-#    args['Re'] = {'Name': 'Reynolds number', 'Symbol': '\text{Re}', 'Default': None, 'Min':  Remin, 'Max': Remax, 'Units': None }
-#    print args
-#    print '''fmethods['%s'] = {'Nice name': '%s', 'Notes': '', 'Arguments': %s} '''  %(fname, fname.replace('_', ' '), args)
+##    args['eD'] = {'Name': 'Relative roughness', 'Symbol': '\epsilon/D', 'Default': None, 'Min': eDmin, 'Max': eDmax, 'Units': None }
+##    args['Re'] = {'Name': 'Reynolds number', 'Symbol': '\text{Re}', 'Default': None, 'Min':  Remin, 'Max': Remax, 'Units': None }
+##    print args
+#    print '''fmethods[%s] = {'Nice name': '%s', 'Re_details': %s, 'eD_details': %s}'''  %(fname, fname.replace('_', ' '), Re_args, eD_args)
+#
+#
+#fmethods_prototype = {'Re_details': ('Re min', 'Re max', 'Re Default'),
+#                      'eD_details': (':math:`\epsilon/D` Min', ':math:`\epsilon/D` Max', ':math:`\epsilon/D` Default')}
+#
+##print fmethods_prototype
+#
+#fmethods = {}
+#fmethods[Moody] = {'Nice name': 'Moody', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('0', '1', None)}
+#fmethods[Alshul_1952] = {'Nice name': 'Alshul 1952', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Wood_1966] = {'Nice name': 'Wood 1966', 'Re_details': ('4000', '5.0E+7', None), 'eD_details': ('1.0E-5', '0.04', None)}
+#fmethods[Churchill_1973] = {'Nice name': 'Churchill 1973', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Eck_1973] = {'Nice name': 'Eck 1973', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Jain_1976] = {'Nice name': 'Jain 1976', 'Re_details': ('5000', '1.0E+7', None), 'eD_details': ('4.0E-5', '0.05', None)}
+#fmethods[Swamee_Jain_1976] = {'Nice name': 'Swamee Jain 1976', 'Re_details': ('5000', '1.0E+8', None), 'eD_details': ('1.0E-6', '0.05', None)}
+#fmethods[Churchill_1977] = {'Nice name': 'Churchill 1977', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Chen_1979] = {'Nice name': 'Chen 1979', 'Re_details': ('4000', '4.0E+8', None), 'eD_details': ('1.0E-7', '0.05', None)}
+#fmethods[Round_1980] = {'Nice name': 'Round 1980', 'Re_details': ('4000', '4.0E+8', None), 'eD_details': ('0', '0.05', None)}
+#fmethods[Shacham_1980] = {'Nice name': 'Shacham 1980', 'Re_details': ('4000', '4.0E+8', None), 'eD_details': (None, None, None)}
+#fmethods[Barr_1981] = {'Nice name': 'Barr 1981', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Zigrang_Sylvester_1] = {'Nice name': 'Zigrang Sylvester 1', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('4.0E-5', '0.05', None)}
+#fmethods[Zigrang_Sylvester_2] = {'Nice name': 'Zigrang Sylvester 2', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('4.0E-5', '0.05', None)}
+#fmethods[Haaland] = {'Nice name': 'Haaland', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('1.0E-6', '0.05', None)}
+#fmethods[Serghides_1] = {'Nice name': 'Serghides 1', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Serghides_2] = {'Nice name': 'Serghides 2', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Tsal_1989] = {'Nice name': 'Tsal 1989', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('0', '0.05', None)}
+#fmethods[Manadilli_1997] = {'Nice name': 'Manadilli 1997', 'Re_details': ('5245', '1.0E+8', None), 'eD_details': ('0', '0.05', None)}
+#fmethods[Romeo_2002] = {'Nice name': 'Romeo 2002', 'Re_details': ('3000', '1.5E+8', None), 'eD_details': ('0', '0.05', None)}
+#fmethods[Sonnad_Goudar_2006] = {'Nice name': 'Sonnad Goudar 2006', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('1.0E-6', '0.05', None)}
+#fmethods[Rao_Kumar_2007] = {'Nice name': 'Rao Kumar 2007', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Buzzelli_2008] = {'Nice name': 'Buzzelli 2008', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Avci_Karagoz_2009] = {'Nice name': 'Avci Karagoz 2009', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Papaevangelo_2010] = {'Nice name': 'Papaevangelo 2010', 'Re_details': ('10000', '1.0E+7', None), 'eD_details': ('1.0E-5', '0.001', None)}
+#fmethods[Brkic_2011_1] = {'Nice name': 'Brkic 2011 1', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Brkic_2011_2] = {'Nice name': 'Brkic 2011 2', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
+#fmethods[Fang_2011] = {'Nice name': 'Fang 2011', 'Re_details': ('3000', '1.0E+8', None), 'eD_details': ('0', '0.05', None)}
+
+
+
+#header = ['Nice name']
+#rows = [header]
+#row_elements = []
+#
+#for details in fmethods_prototype.values():
+#    for detail in details:
+#        header += [detail]
+#
+#
+#for f in fmethods.values():
+#    row = [f['Nice name']]
+#    for detail_type in ['Re_details', 'eD_details']:
+#        for detail in f[detail_type]:
+#            row.append(str(detail))
+#    rows.append(row)
+#
+#
+#lengths = [0 for i in rows[0]]
+#for row in rows:
+#    for i in range(len(row)):
+#        lengths[i] = max(lengths[i], len(row[i]))
+#
+#def main_line(lengths):
+#    new_line = ''
+#    for length in lengths:
+#        new_line += '+' + '-'*length
+#    new_line += '+\n'
+#    return new_line
+#
+#def header_line(lengths):
+#    line = ''
+#    for length in lengths:
+#        line += '+' + '='*length
+#    line += '+\n'
+#    return line
+#
+#n_line = main_line(lengths)
+#h_line = header_line(lengths)
+#
+#
+#table = n_line
+#for k in range(len(rows)):
+#    row = rows[k]
+#
+#    for i in range(len(row)):
+#        table += '|' + str(row[i]).ljust(lengths[i])
+#    table += '|\n'
+#
+#    if k == 0:
+#        table += h_line
+#    else:
+#        table += n_line
+##table += n_line
+#print table
+
