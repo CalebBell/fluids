@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 from __future__ import division
 
 __all__ = ['Ergun', 'Kuo_Nydegger', 'Jones_Krier', 'Carman', 'Hicks',
-           'Brauer', 'Montillet', 'Idelchik']
+           'Brauer', 'Montillet', 'Idelchik', 'voidage_Benyahia_Oneil',
+           'voidage_Benyahia_Oneil_spherical', 'voidage_Benyahia_Oneil_cylindrical']
 
 
 def Ergun(Dp, voidage=0.4, sphericity=1, H=None, vs=None, rho=None, mu=None):
@@ -663,7 +664,7 @@ def voidage_Benyahia_Oneil_spherical(Dp, Dt):
     return voidage
 
 
-def voidage_Benyahia_Oneil_cylinderical(Dpe, Dt, sphericity):
+def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
     r'''Calculates voidage of a bed of cylindrical uniform particles
     packed into a bed or tube of diameter `Dt`, with equivalent sphere diameter
     `Dpe`. Shown in [1]_, and cited by various authors. Correlations exist
@@ -693,7 +694,7 @@ def voidage_Benyahia_Oneil_cylinderical(Dpe, Dt, sphericity):
 
     Examples
     --------
-    >>> voidage_Benyahia_Oneil_cylinderical(.01, .1, .6)
+    >>> voidage_Benyahia_Oneil_cylindrical(.01, .1, .6)
     0.38812523109607894
 
     References

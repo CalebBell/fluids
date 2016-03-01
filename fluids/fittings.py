@@ -18,12 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 from __future__ import division
 from math import cos, sin, tan, atan, pi
 
-__all__ = ['entrance_sharp', 'entrance_distance', 'entrance_angled',
-'entrance_rounded', 'entrance_beveled', 'exit_normal', 'bend_rounded',
-'bend_miter', 'helix', 'spiral', 'contraction_sharp', 'contraction_round',
-'contraction_conical', 'contraction_beveled', 'diffuser_sharp',
+__all__ = ['contraction_sharp', 'contraction_round',
+'contraction_conical', 'contraction_beveled',  'diffuser_sharp',
 'diffuser_conical', 'diffuser_conical_staged', 'diffuser_curved',
-'diffuser_pipe_reducer', 'Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
+'diffuser_pipe_reducer',
+'entrance_sharp', 'entrance_distance', 'entrance_angled',
+'entrance_rounded', 'entrance_beveled', 'exit_normal', 'bend_rounded',
+'bend_miter', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
 'Kv_to_K']
 
 ### Entrances

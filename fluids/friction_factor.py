@@ -17,13 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
 from math import log, log10, exp
-__all__ = ['fd', 'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
+__all__ = ['friction_factor', 'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
 'Eck_1973', 'Jain_1976', 'Swamee_Jain_1976', 'Churchill_1977', 'Chen_1979',
 'Round_1980', 'Shacham_1980', 'Barr_1981', 'Zigrang_Sylvester_1',
 'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
-'Brkic_2011_2', 'Fang_2011', 'friction_factor']
+'Brkic_2011_2', 'Fang_2011']
 
 
 def Moody(Re, eD):
@@ -1340,7 +1340,7 @@ def friction_factor(Re=1E5, eD=1E-4, Method=None, Darcy=True, AvailableMethods=F
     r'''Calculates friction factor. Uses a specified method, or automatically
     picks one from the dictionary of available methods. 28 methods available,
     described in the table below. The default is more than sufficient
-    for all applications.
+    for all applications. Can also be accesed under the name `fd`.
 
     Examples
     --------

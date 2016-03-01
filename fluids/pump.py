@@ -20,8 +20,8 @@ from math import log
 from scipy.interpolate import interp1d, interp2d
 from scipy.constants import hp
 
-__all__ = ['Corripio_pump_efficiency', 'Corripio_motor_efficiency',
-'VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
+__all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
+'Corripio_pump_efficiency', 'Corripio_motor_efficiency',
 'specific_speed', 'specific_diameter', 'speed_synchronous', 'nema_sizes',
 'nema_sizes_hp', 'motor_round_size']
 
@@ -184,7 +184,11 @@ def VFD_efficiency(P, load=1):
 
 
 nema_sizes_hp = [.25, 1/3., .5, .75, 1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500]
+'''list: all NEMA motor sizes, in hp.
+'''
 nema_sizes = [i*hp for i in nema_sizes_hp]
+'''list: all NEMA motor sizes, in Watts.
+'''
 
 def motor_round_size(P):
     r'''Rounds up the power for a motor to the nearest NEMA standard power.

@@ -19,12 +19,13 @@ from __future__ import division
 from math import sin, exp, pi
 from scipy.constants import g, R
 
-__all__ = ['thermal_diffusivity', 'c_ideal_gas', 'Reynolds', 'Peclet_heat',
-'Peclet_mass', 'Fourier_heat', 'Fourier_mass', 'Graetz_heat', 'Schmidt',
-'Lewis', 'Weber', 'Mach', 'Knudsen', 'Prandtl', 'Grashof', 'Bond',
-'Rayleigh', 'Froude', 'Strouhal', 'Nusselt', 'Sherwood', 'Biot', 'Stanton',
-'Euler', 'Cavitation', 'Eckert', 'Jakob', 'Power_number', 'Drag', 'Capillary',
-'Archimedes', 'Ohnesorge', 'relative_roughness', 'nu_mu_converter', 'gravity',
+__all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
+'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
+'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen',  'Bond',
+'Froude', 'Strouhal',  'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
+'Jakob', 'Power_number', 'Drag', 'Capillary',
+'Archimedes', 'Ohnesorge', 'thermal_diffusivity', 'c_ideal_gas',
+'relative_roughness', 'nu_mu_converter', 'gravity',
 'K_from_f', 'K_from_L_equiv', 'dP_from_K', 'head_from_K', 'head_from_P',
 'P_from_head']
 
