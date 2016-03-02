@@ -1,5 +1,2 @@
-argparse==1.2.1
-coverage==4.0.3
-numpy==1.10.4
-scipy==0.17.0
-wsgiref==0.1.2
+numpy>=1.5.0
+scipy>=0.9.0

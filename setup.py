@@ -57,6 +57,9 @@ setup(
   download_url = 'https://github.com/CalebBell/fluids/tarball/0.1.25',
   description = 'Fluid dynamics component of Chemical Engineering Design Library (ChEDL)',
   long_description = long_description,
+  extras_require = {
+      'Coverage documentation':  ['wsgiref>=0.1.2', 'coverage>=4.0.3']
+  },
   author = 'Caleb Bell',
   author_email = 'Caleb.Andrew.Bell@gmail.com',
   platforms=['Windows', 'Linux', 'Mac OS', 'Unix'],

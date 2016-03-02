@@ -22,7 +22,13 @@ from scipy.interpolate import interp1d
 from scipy.integrate import quad
 from scipy.optimize import fsolve
 
-__all__ = ['TANK']
+__all__ = ['TANK', 'SA_partial_sphere', 'V_partial_sphere', 'V_horiz_conical',
+           'V_horiz_ellipsoidal', 'V_horiz_guppy', 'V_horiz_spherical',
+           'V_horiz_torispherical', 'V_vertical_conical',
+           'V_vertical_ellipsoidal', 'V_vertical_spherical',
+           'V_vertical_torispherical', 'V_vertical_conical_concave',
+           'V_vertical_ellipsoidal_concave', 'V_vertical_spherical_concave',
+           'V_vertical_torispherical_concave', 'a_torispherical', 'V_from_h']
 
 
 ### Spherical Vessels, partially filled
