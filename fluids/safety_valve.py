@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 from __future__ import division
 from math import exp
 from scipy.constants import psi, F2K, inch, atm, C2K
-from fluids.compressible import is_critical_flow
+from .compressible import is_critical_flow
 from scipy.interpolate import interp1d, interp2d
 
 __all__ = ['API526_A_sq_inch', 'API526_letters', 'API526_A',
