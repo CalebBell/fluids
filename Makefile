@@ -6,11 +6,14 @@ path_to_pymodule = $(subst /,.,$(basename $(1)))
 
 unittests: clean run html annotate
 
-run: $(PYTHON_FILES)
-	@for f in $^; do \
-		echo "$(COVERAGE) run -a --include="fluids/*" $$f"; \
-		$(COVERAGE) run -a --include="fluids/*" $$f; \
-	done
+RUN_SUFFIX:= runfile
+RUN_FILES:= $(addsuffix .$(RUN_SUFFIX),$(PYTHON_FILES))
+
+run: $(RUN_FILES)
+
+%.$(RUN_SUFFIX): %
+	$(COVERAGE) run -m -a --include="fluids/*" $(call path_to_pymodule,$<)
+	@touch $@
 
 HTML_DIR:= html_report
 
@@ -29,6 +32,7 @@ clean:
 	$(COVERAGE) erase
 	rm -rf $(HTML_DIR)
 	rm -rf $(ANNOTATED_DIR)
+	rm -rf $$(find . -name "*.$(RUN_SUFFIX)" -type f)
 
 $(ANNOTATED_DIR) $(HTML_DIR):
 	mkdir -p $@

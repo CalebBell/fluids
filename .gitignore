@@ -1,5 +1,6 @@
 *.pyc
 *.swp
+*.runfile
 .coverage
 code_coverage/*
 html_report/*
