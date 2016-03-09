@@ -53,8 +53,8 @@ setup(
   name = 'fluids',
   packages = ['fluids'],
   license='GPL3',
-  version = '0.1.28',
-  download_url = 'https://github.com/CalebBell/fluids/tarball/0.1.28',
+  version = '0.1.29',
+  download_url = 'https://github.com/CalebBell/fluids/tarball/0.1.29',
   description = 'Fluid dynamics component of Chemical Engineering Design Library (ChEDL)',
   long_description = long_description,
   extras_require = {

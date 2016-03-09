@@ -17,10 +17,100 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
 
-from scipy.constants import g
+from scipy.constants import g, pi
 from scipy.optimize import fsolve
 
-__all__ = ['Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood']
+__all__ = ['voidage_experimental', 'specific_area_mesh',
+'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood']
+
+
+def voidage_experimental(m, rho, D, H):
+    r'''Calculates voidage of a bed or mesh given an experimental weight and
+    fixed density, diameter, and height, as shown in [1]_. The formula is also
+    self-evident.
+
+    .. math::
+        \epsilon = 1 - \frac{\frac{m_{mesh}}{\frac{\pi}{4}d_{column}
+        L_{mesh}}}{\rho_{material}}
+
+    Parameters
+    ----------
+    m : float
+        Mass of mesh or bed particles weighted, [kg]
+    rho : float
+        Density of solid particles or mesh [kg/m^3]
+    D : float
+        Diameter of the cylindrical bed [m]
+    L : float
+        Length of the demister or bed [m]
+
+    Returns
+    -------
+    voidage : float
+        Voidage of bed of the material []
+
+    Notes
+    -----
+    Should be trusted over manufacturer data.
+
+    Examples
+    --------
+    >>> voidage_experimental(m=126, rho=8000, D=1, H=1)
+    0.9799464771704212
+
+    References
+    ----------
+    .. [1] Helsør, T., and H. Svendsen. "Experimental Characterization of
+       Pressure Drop in Dry Demisters at Low and Elevated Pressures." Chemical
+       Engineering Research and Design 85, no. 3 (2007): 377-85.
+       doi:10.1205/cherd06048.
+    '''
+    voidage = 1 - m/(pi/4*D*H)/rho
+    return voidage
+
+
+def specific_area_mesh(voidage, d):
+    r'''Calculates the specific area of a wire mesh, as used in demisters or
+    filters. Shown in [1]_, and also self-evident and non-emperical.
+    Makes the ideal assumption that wires never touch.
+
+    .. math::
+        S = \frac{4(1-\epsilon)}{d_{wire}}
+
+    Parameters
+    ----------
+    voidage : float
+        Voidage of the mesh []
+    d : float
+        Diameter of the wires making the mesh, [m]
+
+    Returns
+    -------
+    S : float
+        Specific area of the mesh [m^2/m^3]
+
+    Notes
+    -----
+    Should be prefered over manufacturer data. Can also be used to show that
+    manufacturer's data is inconsistent with their claimed voidage and wire
+    diameter.
+
+    Examples
+    --------
+    >>> specific_area_mesh(voidage=.934, d=3e-4)
+    879.9999999999994
+
+    References
+    ----------
+    .. [1] Helsør, T., and H. Svendsen. "Experimental Characterization of
+       Pressure Drop in Dry Demisters at Low and Elevated Pressures." Chemical
+       Engineering Research and Design 85, no. 3 (2007): 377-85.
+       doi:10.1205/cherd06048.
+    '''
+    S = 4*(1-voidage)/d
+    return S
+
+
 
 
 def Stichlmair_dry(Vg, rhog, mug, voidage, specific_area, C1, C2, C3, H=1.):
