@@ -30,6 +30,7 @@ import packed_bed
 import piping
 import pump
 import safety_valve
+import packed_tower
 
 from compressible import *
 from control_valve import *
@@ -43,12 +44,13 @@ from packed_bed import *
 from piping import *
 from pump import *
 from safety_valve import *
+from packed_tower import *
 
 import friction_factor # Needed to ensure module overwrites function
 
 __all__ = ['compressible', 'control_valve', 'core', 'filters', 'fittings',
 'friction_factor', 'geometry', 'mixing', 'open_flow', 'packed_bed', 'piping',
-'pump', 'safety_valve']
+'pump', 'safety_valve', 'packed_tower']
 
 
 __all__.extend(compressible.__all__)
@@ -63,6 +65,7 @@ __all__.extend(packed_bed.__all__)
 __all__.extend(piping.__all__)
 __all__.extend(pump.__all__)
 __all__.extend(safety_valve.__all__)
+__all__.extend(packed_tower.__all__)
 
 
 

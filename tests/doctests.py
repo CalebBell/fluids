@@ -32,3 +32,4 @@ if __name__ == '__main__':
     doctest.testmod(geometry)
     doctest.testmod(control_valve)
     doctest.testmod(safety_valve)
+    doctest.testmod(packed_tower)
