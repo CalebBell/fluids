@@ -3,6 +3,9 @@
 .pypirc
 dist
 MANIFEST
+.coverage
+.cache
+__pycache__
 
 # Compiled source #
 ###################
