@@ -279,8 +279,6 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
     dP_irr = float(fsolve(to_zero, dP_dry))
     return dP_irr
 
-#print [dP_wet(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)]
-
 
 def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=1):
     r'''Calculates gas rate for flooding of a packed column, using the
@@ -339,10 +337,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
 
     Notes
     -----
-    A numerical solver is used in loops in in this model. The model is not
-    well-behaved, and the solver nurmally provides an error. Also,
-    there may be multiple solutions. This problem is well-suited to being
-    investigated in a CAS environment.
+    A numerical solver is used to solve this model.
 
     Examples
     --------
@@ -350,7 +345,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
 
     >>> Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5,
     ... voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
-    0.6394380360583576
+    0.6394323542687361
 
     References
     ----------
@@ -359,8 +354,8 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
        Packed Columns." Gas Separation & Purification 3, no. 1 (March 1989):
        19-28. doi:10.1016/0950-4214(89)80016-7.
     '''
-    dp = 6*(1-voidage)/specific_area
-    def to_zero(Vg):
+    def to_zero(inputs):
+        Vg, dP_irr = inputs
         dp = 6*(1-voidage)/specific_area
         Re = Vg*rhog*dp/mug
         f0 = C1/Re + C2/Re**0.5 + C3
@@ -368,15 +363,13 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
         c = (-C1/Re - C2/(2*Re**0.5))/f0
         Frl = Vl**2*specific_area/(g*voidage**4.65)
         h0 = 0.555*Frl**(1/3.)
-        def to_zero_wet(dP_irr):
-            hT = h0*(1 + 20*(dP_irr/H/rhol/g)**2)
-            err = dP_dry/H*((1-voidage+hT)/(1-voidage))**((2+c)/3.)*(voidage/(voidage-hT))**4.65 -dP_irr/H
-            return err
-        dP_irr = float(fsolve(to_zero_wet, dP_dry))
+        hT = h0*(1 + 20*(dP_irr/H/rhol/g)**2)
+        err1 = dP_dry/H*((1-voidage+hT)/(1-voidage))**((2+c)/3.)*(voidage/(voidage-hT))**4.65 -dP_irr/H
         term = (dP_irr/(rhol*g*H))**2
-        err = (1./term - 40*((2+c)/3.)*h0/(1 - voidage + h0*(1 + 20*term))
+        err2 = (1./term - 40*((2+c)/3.)*h0/(1 - voidage + h0*(1 + 20*term))
         - 186*h0/(voidage - h0*(1 + 20*term)))
-        return err
-    Vg = float(fsolve(to_zero, Vl*100.))
+        return err1, err2
+    Vg = float(fsolve(to_zero, [Vl*100., 1000])[0])
     return Vg
+
 #print [Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)]

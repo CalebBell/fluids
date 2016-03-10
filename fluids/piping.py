@@ -275,7 +275,7 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
 ### Wire gauge schedules
 
 # Stub's Steel Wire Gage
-SSWG_integers = range(1, 81)
+SSWG_integers = list(range(1, 81))
 SSWG_inch = [0.227, 0.219, 0.212, 0.207, 0.204, 0.201, 0.199, 0.197, 0.194,
              0.191, 0.188, 0.185, 0.182, 0.18, 0.178, 0.175, 0.172, 0.168,
              0.164, 0.161, 0.157, 0.155, 0.153, 0.151, 0.148, 0.146, 0.143,
@@ -289,7 +289,7 @@ SSWG_SI = [round(i*inch, 7) for i in SSWG_inch] # 7 decimals for equal conversio
 
 
 # British Standard Wire Gage (Imperial Wire Gage)
-BSWG_integers = [0.143, .167, 0.2, 0.25, 0.33, 0.5] + range(51)
+BSWG_integers = [0.143, .167, 0.2, 0.25, 0.33, 0.5] + list(range(51))
 BSWG_inch = [0.5, 0.464, 0.432, 0.4, 0.372, 0.348, 0.324, 0.3, 0.276, 0.252, 0.232,
         0.212, 0.192, 0.176, 0.16, 0.144, 0.128, 0.116, 0.104, 0.092, 0.08,
         0.072, 0.064, 0.056, 0.048, 0.04, 0.036, 0.032, 0.028, 0.024, 0.022,
@@ -300,7 +300,7 @@ BSWG_SI = [round(i*inch,8) for i in BSWG_inch] # 8 decimals for equal conversion
 
 
 # Music Wire Gauge
-MWG_integers = [.167, 0.2, 0.25, 0.33, 0.5] + range(46)
+MWG_integers = [.167, 0.2, 0.25, 0.33, 0.5] + list(range(46))
 MWG_inch = [0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01, 0.011, 0.012,
             0.013, 0.014, 0.016, 0.018, 0.02, 0.022, 0.024, 0.026, 0.029,
             0.031, 0.033, 0.035, 0.037, 0.039, 0.041, 0.043, 0.045, 0.047,
@@ -315,7 +315,7 @@ MWG_SI.reverse()
 
 # Steel Wire Gage -Also Washburn & Moen gage, American Steel gage;
 # Wire Co.gage;  Roebling Wire Gages.
-SWG_integers = [0.143, .167, 0.2, 0.25, 0.33, 0.5] + range(51)
+SWG_integers = [0.143, .167, 0.2, 0.25, 0.33, 0.5] + list(range(51))
 SWG_inch = [0.49, 0.4615, 0.4305, 0.3938, 0.3625, 0.331, 0.3065, 0.283, 0.2625,
             0.2437, 0.2253, 0.207, 0.192, 0.177, 0.162, 0.1483, 0.135, 0.1205,
             0.1055, 0.0915, 0.08, 0.072, 0.0625, 0.054, 0.0475, 0.041, 0.0348,
@@ -327,7 +327,7 @@ SWG_SI = [round(i*inch,8) for i in SWG_inch] # 8 decimals for equal conversion
 
 
 # American Wire or Brown & Sharpe Gage
-AWG_integers = [.167, 0.2, 0.25, 0.33, 0.5] + range(51)
+AWG_integers = [.167, 0.2, 0.25, 0.33, 0.5] + list(range(51))
 AWG_inch = [0.58, 0.5165, 0.46, 0.4096, 0.3648, 0.3249, 0.2893, 0.2576, 0.2294,
             0.2043, 0.1819, 0.162, 0.1443, 0.1285, 0.1144, 0.1019, 0.0907,
             0.0808, 0.072, 0.0641, 0.0571, 0.0508, 0.0453, 0.0403, 0.0359,
@@ -340,7 +340,7 @@ AWG_SI = [round(i*inch,9) for i in AWG_inch] # 9 decimals for equal conversion
 
 
 # Birmingham or Stub's Iron Wire Gage
-BWG_integers = [0.2, 0.25, 0.33, 0.5] + range(37)
+BWG_integers = [0.2, 0.25, 0.33, 0.5] + list(range(37))
 BWG_inch = [0.5, 0.454, 0.425, 0.38, 0.34, 0.3, 0.284, 0.259, 0.238, 0.22,
             0.203, 0.18, 0.165, 0.148, 0.134, 0.12, 0.109, 0.095, 0.083,
             0.072, 0.065, 0.058, 0.049, 0.042, 0.035, 0.032, 0.028, 0.025,

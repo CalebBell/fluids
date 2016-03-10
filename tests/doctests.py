@@ -23,7 +23,7 @@ if __name__ == '__main__':
     doctest.testmod(core)
     doctest.testmod(filters)
     doctest.testmod(fittings)
-    doctest.testmod(friction_factor)
+    doctest.testmod(friction)
     doctest.testmod(mixing)
     doctest.testmod(packed_bed)
     doctest.testmod(piping)

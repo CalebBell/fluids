@@ -1372,7 +1372,6 @@ def friction_factor(Re=1E5, eD=1E-4, Method=None, Darcy=True, AvailableMethods=F
         If True, function will consider which methods claim to be valid for
         the range of `Re` and `eD` given
 
-
     Notes
     -----
     +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
@@ -1437,10 +1436,10 @@ def friction_factor(Re=1E5, eD=1E-4, Method=None, Darcy=True, AvailableMethods=F
     '''
     def list_methods():
         methods = [i for i in fmethods if
-        (fmethods[i]['Arguments']['eD']['Min'] <= eD or not fmethods[i]['Arguments']['eD']['Min']) and
-        (eD <= fmethods[i]['Arguments']['eD']['Max'] or not fmethods[i]['Arguments']['eD']['Max']) and
-        (Re > fmethods[i]['Arguments']['Re']['Min'] or not fmethods[i]['Arguments']['Re']['Min']) and
-        (Re <= fmethods[i]['Arguments']['Re']['Max'] or not fmethods[i]['Arguments']['Re']['Max'])]
+        (not fmethods[i]['Arguments']['eD']['Min'] or fmethods[i]['Arguments']['eD']['Min'] <= eD) and
+        (not fmethods[i]['Arguments']['eD']['Max'] or eD <= fmethods[i]['Arguments']['eD']['Max']) and
+        (not fmethods[i]['Arguments']['Re']['Min'] or Re > fmethods[i]['Arguments']['Re']['Min']) and
+        (not fmethods[i]['Arguments']['Re']['Max'] or Re <= fmethods[i]['Arguments']['Re']['Max'])]
         return methods
     if AvailableMethods:
         return list_methods()

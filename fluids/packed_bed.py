@@ -887,7 +887,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
     def list_methods():
         methods = []
         if all((dp, voidage, vs, rho, mu, L)):
-            for key, values in packed_beds_correlations.iteritems():
+            for key, values in packed_beds_correlations.items():
                 if Dt or not values[1]:
                     methods.append(key)
         methods.append('None')

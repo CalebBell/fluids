@@ -1,7 +1,7 @@
-fluids.friction_factor module
+fluids.friction module
 =============================
 
-.. automodule:: fluids.friction_factor
+.. automodule:: fluids.friction
     :members:
     :undoc-members:
     :show-inheritance:

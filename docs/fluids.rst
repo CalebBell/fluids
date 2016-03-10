@@ -11,7 +11,7 @@ Submodules
    fluids.core
    fluids.filters
    fluids.fittings
-   fluids.friction_factor
+   fluids.friction
    fluids.geometry
    fluids.mixing
    fluids.open_flow
