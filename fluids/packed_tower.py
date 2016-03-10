@@ -16,12 +16,124 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
-
 from scipy.constants import g, pi
 from scipy.optimize import fsolve
 
+
 __all__ = ['voidage_experimental', 'specific_area_mesh',
-'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood']
+'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood',
+'dP_demister_dry_Setekleiv_Svendsen_lit',
+'dP_demister_dry_Setekleiv_Svendsen']
+
+
+### Demister
+
+def dP_demister_dry_Setekleiv_Svendsen(S, voidage, vs, rho, mu, L=1):
+    r'''Calculates dry pressure drop across a demister, using the
+    correlation in [1]_. This model is for dry demisters with no holdup only.
+
+    .. math::
+        \frac{\Delta P \epsilon^2}{\rho_f v^2} = 10.29 - \frac{565}
+        {69.6SL - (SL)^2 - 779} - \frac{74.9}{160.9 - 4.85SL} + 45.33\left(
+        \frac{\mu_f \epsilon S^2 L}{\rho_f v}\right)^{0.75}
+
+    Parameters
+    ----------
+    S : float
+        Specific area of the demister, normally ~250-1000 [m^2/m^3]
+    voidage : float
+        Voidage of bed of the demister material, normally ~0.98 []
+    vs : float
+        Superficial velocity of fluid, Q/A [m/s]
+    rho : float
+        Density of fluid [kg/m^3]
+    mu : float
+        Viscosity of fluid [Pa*S]
+    L : float, optional
+        Length of the demister [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop across a dry demister [Pa]
+
+    Notes
+    -----
+    Useful at startup and in modeling. Dry pressure drop is normally neglible
+    compared to wet pressure drop. Coefficients obtained by evolutionary
+    programming and may not fit data outside of the limits of the variables.
+
+    Examples
+    --------
+    >>> dP_demister_dry_Setekleiv_Svendsen(S=250, voidage=.983, vs=1.2, rho=10, mu=3E-5, L=1)
+    320.3280788941329
+
+    References
+    ----------
+    .. [1] Setekleiv, A. Eddie, and Hallvard F. Svendsen. "Dry Pressure Drop in
+       Spiral Wound Wire Mesh Pads at Low and Elevated Pressures." Chemical
+       Engineering Research and Design 109 (May 2016): 141-149.
+       doi:10.1016/j.cherd.2016.01.019.
+    '''
+    term = 10.29 - 565./(69.6*S*L - (S*L)**2 - 779) - 74.9/(160.9 - 4.85*S*L)
+    right = term + 45.33*(mu*voidage*S**2*L/rho/vs)**0.75
+    dP = right*rho*vs**2/voidage**2
+    return dP
+
+
+def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1):
+    r'''Calculates dry pressure drop across a demister, using the
+    correlation in [1]_. This model is for dry demisters with no holdup only.
+    Developed with literature data included as well as their own experimental
+    data.
+
+    .. math::
+        \frac{\Delta P \epsilon^2}{\rho_f v^2} = 7.3 - \frac{320}
+        {69.6SL - (SL)^2 - 779} - \frac{52.4}{161 - 4.85SL} + 27.2\left(
+        \frac{\mu_f \epsilon S^2 L}{\rho_f v}\right)^{0.75}
+
+    Parameters
+    ----------
+    S : float
+        Specific area of the demister, normally ~250-1000 [m^2/m^3]
+    voidage : float
+        Voidage of bed of the demister material, normally ~0.98 []
+    vs : float
+        Superficial velocity of fluid, Q/A [m/s]
+    rho : float
+        Density of fluid [kg/m^3]
+    mu : float
+        Viscosity of fluid [Pa*S]
+    L : float, optional
+        Length of the demister [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop across a dry demister [Pa]
+
+    Notes
+    -----
+    Useful at startup and in modeling. Dry pressure drop is normally neglible
+    compared to wet pressure drop. Coefficients obtained by evolutionary
+    programming and may not fit data outside of the limits of the variables.
+
+    Examples
+    --------
+    >>> dP_demister_dry_Setekleiv_Svendsen_lit(S=250, voidage=.983, vs=1.2, rho=10, mu=3E-5, L=1)
+    209.083848658307
+
+    References
+    ----------
+    .. [1] Setekleiv, A. Eddie, and Hallvard F. Svendsen. "Dry Pressure Drop in
+       Spiral Wound Wire Mesh Pads at Low and Elevated Pressures." Chemical
+       Engineering Research and Design 109 (May 2016): 141-149.
+       doi:10.1016/j.cherd.2016.01.019.
+    '''
+    term = 7.3 - 320./(69.6*S*L - (S*L)**2 - 779) - 52.4/(161 - 4.85*S*L)
+    right = term + 27.2*(mu*voidage*S**2*L/rho/vs)**0.75
+    dP = right*rho*vs**2/voidage**2
+    return dP
 
 
 def voidage_experimental(m, rho, D, H):
@@ -110,7 +222,7 @@ def specific_area_mesh(voidage, d):
     S = 4*(1-voidage)/d
     return S
 
-
+### Packing
 
 
 def Stichlmair_dry(Vg, rhog, mug, voidage, specific_area, C1, C2, C3, H=1.):

@@ -1,21 +1,27 @@
 language: python
 python:
+  - "2.6"
   - "2.7"
-# command to install dependencies
+  - "3.3"
+  - "3.4"
 notifications:
   email: false
-virtualenv:
-  system_site_packages: true
-before_install:
-  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b
-  - export PATH=/home/travis/miniconda2/bin:$PATH
-  - conda update --yes conda
-# Install packages
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy
+  - sudo apt-get update
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy
+  - source activate test-environment
   - pip install -r requirements.txt
   - python setup.py -q install
-script: 
+script:
   - python tests/doctests.py
