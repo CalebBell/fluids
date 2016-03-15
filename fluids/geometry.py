@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
-from math import pi, sin, cos, asin, acos, atan, acosh
+from math import pi, sin, cos, asin, acos, atan, acosh, log
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.integrate import quad
@@ -28,7 +28,9 @@ __all__ = ['TANK', 'SA_partial_sphere', 'V_partial_sphere', 'V_horiz_conical',
            'V_vertical_ellipsoidal', 'V_vertical_spherical',
            'V_vertical_torispherical', 'V_vertical_conical_concave',
            'V_vertical_ellipsoidal_concave', 'V_vertical_spherical_concave',
-           'V_vertical_torispherical_concave', 'a_torispherical', 'V_from_h']
+           'V_vertical_torispherical_concave', 'a_torispherical',
+           'SA_ellipsoidal_head', 'SA_conical_head', 'SA_guppy_head',
+           'SA_torispheroidal', 'V_from_h']
 
 
 ### Spherical Vessels, partially filled
@@ -59,6 +61,11 @@ def SA_partial_sphere(D, h):
     >>> SA_partial_sphere(1., 0.7)
     2.199114857512855
 
+    One spherical head's surface area:
+
+    >>> SA_partial_sphere(2, 1)
+    6.283185307179586
+
     References
     ----------
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
@@ -68,8 +75,6 @@ def SA_partial_sphere(D, h):
     A = pi*(a**2 + h**2)
     return A
 
-
-#print [SA_partial_sphere(1., 0.7)]
 
 def V_partial_sphere(D, h):
     r'''Calculates volume of a partial sphere according to [1]_.
@@ -1021,7 +1026,167 @@ def V_vertical_torispherical_concave(D, f, k, h):
 
 #print [V_vertical_torispherical_concave(D=113., f=0.71, k=0.081, h=i)/231 for i in [15., 25., 50., 0, 113]]
 
+### Total surface area of heads, orientation-independent
 
+def SA_ellipsoidal_head(D, a):
+    r'''Calculates the surface area of an ellipsoidal head according to [1]_.
+    Formula below is for the full shape, the result of which is halved. The
+    formula also does not support `D` being larger than `a`; this is ensured
+    by simply swapping the variables if necessary, as geometrically the result
+    is the same.
+
+    .. math::
+        SA = 2\pi a^2 + \frac{\pi c^2}{e_1}\ln\left(\frac{1+e_1}{1-e_1}\right)
+
+        e_1 = \sqrt{1 - \frac{c^2}{a^2}}
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    a : float
+        Distance the ellipsoidal head extends, [m]
+
+    Returns
+    -------
+    SA : float
+        Surface area [m^2]
+
+    Examples
+    --------
+    >>> SA_ellipsoidal_head(2, 1)
+    17.343765406690103
+
+    References
+    ----------
+    .. [1] Weisstein, Eric W. "Spheroid." Text. Accessed March 14, 2016.
+       http://mathworld.wolfram.com/Spheroid.html.'''
+    D, a = min((D, a)), max((D, a))
+    e1 = (1 - D**2/a**2)**0.5
+    SA = (2*pi*a**2 + pi*D**2/e1*log((1+e1)/(1-e1)))/2.
+    return SA
+
+
+def SA_conical_head(D, a):
+    r'''Calculates the surface area of a conical head according to [1]_.
+
+    .. math::
+        SA = \frac{\pi D}{2} \sqrt{a^2 + \left(\frac{D}{2}\right)^2}
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    a : float
+        Distance the conical head extends, [m]
+
+    Returns
+    -------
+    SA : float
+        Surface area [m^2]
+
+    Examples
+    --------
+    >>> SA_conical_head(2, 1)
+    4.442882938158366
+
+    References
+    ----------
+    .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
+       http://mathworld.wolfram.com/Cone.html.'''
+    SA = pi*D/2*(a**2 + (D/2)**2)**0.5
+    return SA
+
+
+def SA_guppy_head(D, a):
+    r'''Calculates the surface area of a guppy head according to [1]_.
+    Some work was involved in combining formulas for the ellipse of the head,
+    and the conic section on the sides.
+
+    .. math::
+        SA = \frac{\pi  D}{4}\sqrt{D^2 + a^2} + \frac{\pi D}{2}a
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    a : float
+        Distance the conical head extends, [m]
+
+    Returns
+    -------
+    SA : float
+        Surface area [m^2]
+
+    Examples
+    --------
+    >>> SA_guppy_head(2, 1)
+    6.654000019110157
+
+    References
+    ----------
+    .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
+       http://mathworld.wolfram.com/Cone.html.'''
+    SA = pi*D/4*(a**2 + D**2)**0.5 + pi*D/2*a
+    return SA
+
+
+def SA_torispheroidal(D, fd, fk):
+    r'''Calculates surface area of a torispherical head according to [1]_.
+    Somewhat involved. Equations are adapted to be used for a full head.
+
+    .. math::
+        SA = S_1 + S_2
+
+        S_1 = 2\pi D^2 f_d \alpha
+
+        S_2 = 2\pi D^2 f_k\left(\alpha - \alpha_1 + (0.5 - f_k)\left(\sin^{-1}
+        \left(\frac{\alpha-\alpha_2}{f_k}\right) - \sin^{-1}\left(\frac{
+        \alpha_1-\alpha_2}{f_k}\right)\right)\right)
+
+        \alpha_1 = f_d\left(1 - \sqrt{1 - \left(\frac{0.5 - f_k}{f_d-f_k}
+        \right)^2}\right)
+
+        \alpha_2 = f_d - \sqrt{f_d^2 - 2f_d f_k + f_k - 0.25}
+
+        \alpha = \frac{a}{D_i}
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    fd : float
+        Dish-radius parameter = f; fD  = dish radius []
+    fk : float
+        knucle-radius parameter = k; kD = knucle radius []
+
+    Returns
+    -------
+    SA : float
+        Surface area [m^2]
+
+    Examples
+    --------
+    Example from [1]_.
+
+    >>> SA_torispheroidal(D=2.54, fd=1.039370079, fk=0.062362205)
+    6.00394283477063
+
+    References
+    ----------
+    .. [1] Honeywell. "Calculate Surface Areas and Cross-sectional Areas in
+       Vessels with Dished Heads". https://www.honeywellprocess.com/library/marketing/whitepapers/WP-VesselsWithDishedHeads-UniSimDesign.pdf
+       Whitepaper. 2014.
+    '''
+    alpha_1 = fd*(1 - (1 - ((0.5-fk)/(fd-fk))**2)**0.5)
+    alpha_2 = fd - (fd**2 - 2*fd*fk + fk - 0.25)**0.5
+    alpha = alpha_1 # Up to top of dome
+    S1 = 2*pi*D**2*fd*alpha_1
+    alpha = alpha_2 # up to top of torus
+    S2_sub = asin((alpha-alpha_2)/fk) - asin((alpha_1-alpha_2)/fk)
+    S2 = 2*pi*D**2*fk*(alpha - alpha_1 + (0.5-fk)*S2_sub)
+    SA = S1 + S2
+    return SA
 
 
 def a_torispherical(D, f, k):
