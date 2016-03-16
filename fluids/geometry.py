@@ -1552,7 +1552,7 @@ class TANK(object):
     Surface area of a tank with a conical head:
 
     >>> T1 = TANK(V=10, L_over_D=0.7, sideB='conical', sideB_a=0.5)
-    >>> print(T1.A, T1.A_sideA, T1.A_sideB, T1.A_lateral)
+    >>> T1.A, T1.A_sideA, T1.A_sideB, T1.A_lateral
     (24.94775907657148, 5.118555935958284, 5.497246519930003, 14.331956620683194)
 
     Solving for tank volumes, first horizontal, then vertical:
