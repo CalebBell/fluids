@@ -1033,7 +1033,7 @@ def SA_ellipsoidal_head(D, a):
     Formula below is for the full shape, the result of which is halved. The
     formula also does not support `D` being larger than `a`; this is ensured
     by simply swapping the variables if necessary, as geometrically the result
-    is the same.
+    is the same. In the equations
 
     .. math::
         SA = 2\pi a^2 + \frac{\pi c^2}{e_1}\ln\left(\frac{1+e_1}{1-e_1}\right)
@@ -1054,13 +1054,21 @@ def SA_ellipsoidal_head(D, a):
 
     Examples
     --------
+    Spherical case, and then a slightly non-Spherical case:
+
     >>> SA_ellipsoidal_head(2, 1)
-    17.343765406690103
+    6.283185307179586
+    >>> SA_ellipsoidal_head(2, 0.999)
+    6.278996936093318
 
     References
     ----------
     .. [1] Weisstein, Eric W. "Spheroid." Text. Accessed March 14, 2016.
-       http://mathworld.wolfram.com/Spheroid.html.'''
+       http://mathworld.wolfram.com/Spheroid.html.
+    '''
+    if D == a*2:
+        return pi*D**2/2 # necessary to avoid a division by zero when D == a
+    D = D/2.
     D, a = min((D, a)), max((D, a))
     e1 = (1 - D**2/a**2)**0.5
     SA = (2*pi*a**2 + pi*D**2/e1*log((1+e1)/(1-e1)))/2.
@@ -1187,6 +1195,113 @@ def SA_torispheroidal(D, fd, fk):
     S2 = 2*pi*D**2*fk*(alpha - alpha_1 + (0.5-fk)*S2_sub)
     SA = S1 + S2
     return SA
+
+
+def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
+             sideB_a=0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
+             full_output=False):
+    r'''Calculates the surface are of a cylindrical tank with optional heads.
+    In the degenerate case of being provided with only `D` and `L`, provides
+    the surface area of a cylinder.
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the cylindrical section of the tank.
+    L : float
+        Length of the main cylindrical section of the tank.
+    sideA : string, optional
+        The left (or bottom for vertical) head of the tank's type; one of
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+    sideB : string, optional
+        The right (or top for vertical) head of the tank's type; one of
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+    sideA_a : float, optional
+        The distance the head as specified by sideA extends down or to the left
+        from the main cylindrical section
+    sideB_a : float, optional
+        The distance the head as specified by sideB extends up or to the right
+        from the main cylindrical section
+    sideA_f : float, optional
+        Dish-radius parameter for side A; fD  = dish radius []
+    sideA_k : float, optional
+        knucle-radius parameter for side A; kD = knucle radius []
+    sideB_f : float, optional
+        Dish-radius parameter for side B; fD  = dish radius []
+    sideB_k : float, optional
+        knucle-radius parameter for side B; kD = knucle radius []
+
+    Returns
+    -------
+    SA : float
+        Surface area of the tank [m^2]
+    areas : tuple, only returned if full_output == True
+        (sideA_SA, sideB_SA, lateral_SA)
+
+    Other Parameters
+    ----------------
+    full_output : bool, optional
+        Returns a tuple of (sideA_SA, sideB_SA, lateral_SA) if True
+
+    Examples
+    --------
+    Cylinder, Spheroid, Long Cones, and spheres. All checked.
+
+    >>> SA_tank(D=2, L=2)
+    18.84955592153876
+    >>> SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal',
+    ... sideB_a=2)
+    28.480278854014387
+    >>> SA_tank(D=1., L=5, sideA='conical', sideA_a=2, sideB='conical',
+    ... sideB_a=2)
+    22.18452243965656
+    >>> SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',
+    ... sideB_a=0.5)
+    18.84955592153876
+
+    Torispherical, checked; and Guppy, unchecked
+    >>> SA_tank(D=2.54, L=5, sideA='torispherical', sideB='torispherical',
+    ... sideA_f=1.039370079, sideA_k=0.062362205,
+    ... sideB_f=1.039370079, sideB_k=0.062362205, full_output=True)
+    (51.90611237013163, (6.00394283477063, 6.00394283477063, 39.89822670059037))
+    >>> SA_tank(D=1., L=5, sideA='guppy', sideA_a=0.5, sideB='guppy',
+    ... sideB_a=0.5)
+    19.034963277504044
+    '''
+    # Side A
+    if sideA == 'conical':
+        sideA_SA = SA_conical_head(D=D, a=sideA_a)
+    elif sideA == 'ellipsoidal':
+        sideA_SA = SA_ellipsoidal_head(D=D, a=sideA_a)
+    elif sideA == 'guppy':
+        sideA_SA = SA_guppy_head(D=D, a=sideA_a)
+    elif sideA == 'spherical':
+        sideA_SA = SA_partial_sphere(D=D, h=sideA_a)
+    elif sideA == 'torispherical':
+        sideA_SA = SA_torispheroidal(D=D, fd=sideA_f, fk=sideA_k)
+    else:
+        sideA_SA = pi/4*D**2 # Circle
+    # Side B
+    if sideB == 'conical':
+        sideB_SA = SA_conical_head(D=D, a=sideB_a)
+    elif sideB == 'ellipsoidal':
+        sideB_SA = SA_ellipsoidal_head(D=D, a=sideB_a)
+    elif sideB == 'guppy':
+        sideB_SA = SA_guppy_head(D=D, a=sideB_a)
+    elif sideB == 'spherical':
+        sideB_SA = SA_partial_sphere(D=D, h=sideB_a)
+    elif sideB == 'torispherical':
+        sideB_SA = SA_torispheroidal(D=D, fd=sideB_f, fk=sideB_k)
+    else:
+        sideB_SA = pi/4*D**2 # Circle
+
+    lateral_SA = pi*D*L
+
+    SA = sideA_SA + sideB_SA + lateral_SA
+    if full_output:
+        return SA, (sideA_SA, sideB_SA, lateral_SA)
+    else:
+        return SA
 
 
 def a_torispherical(D, f, k):
@@ -1408,6 +1523,14 @@ class TANK(object):
         Array of heights between 0 and h_max, [m]
     volumes : ndarray
         Array of volumes calculated from the heights [m^3]
+    A : float
+        Total surface area of the tank
+    A_sideA : float
+        Surface area of sideA
+    A_sideB : float
+        Surface area of sideB
+    A_lateral : float
+        Surface area of the lateral side
 
     Examples
     --------
@@ -1425,6 +1548,12 @@ class TANK(object):
 
     >>> TANK(D=1.2, L=4, horizontal=False).h_from_V(.5)
     0.44209706414415373
+
+    Surface area of a tank with a conical head:
+
+    >>> T1 = TANK(V=10, L_over_D=0.7, sideB='conical', sideB_a=0.5)
+    >>> print(T1.A, T1.A_sideA, T1.A_sideB, T1.A_lateral)
+    (24.94775907657148, 5.118555935958284, 5.497246519930003, 14.331956620683194)
 
     Solving for tank volumes, first horizontal, then vertical:
 
@@ -1572,6 +1701,14 @@ class TANK(object):
         # Set maximum height
         self.V_total = self.V_from_h(self.h_max)
 
+        # Set surface areas
+        self.A, (self.A_sideA, self.A_sideB, self.A_lateral) = SA_tank(
+        D=self.D, L=self.L, sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a,
+        sideB_a=self.sideB_a, sideA_f=self.sideA_f, sideA_k=self.sideA_k,
+        sideB_f=self.sideB_f, sideB_k=self.sideB_k,
+             full_output=True)
+
+
     def V_from_h(self, h):
         r'''Method to calculate the volume of liquid in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
@@ -1691,6 +1828,12 @@ class TANK(object):
             solve_L_D = lambda L: self._V_solver_error(self.V, L/self.L_over_D, L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
             self.L = float(fsolve(solve_L_D, Lguess))
             self.D = self.L/self.L_over_D
+
+
+
+#T1 = TANK(V=10, L_over_D=0.7, sideB='conical', sideB_a=0.5)
+#print(T1.A, T1.A_sideA, T1.A_sideB, T1.A_lateral)
+
 
 #
 #test = TANK(D=10., L=100., horizontal=True, sideA='spherical', sideB='ellipsoidal',
