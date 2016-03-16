@@ -1624,6 +1624,96 @@ def Ohnesorge(L, rho, mu, sigma):
     return Oh
 
 
+def Bejan_L(dP, L, mu, alpha):
+    r'''Calculates Bejan number of a length or `Be_L` for a fluid with the
+    given parameters flowing over a characteristic length `L` and experiencing
+    a pressure drop `dP`.
+
+    .. math::
+        Be_L = \frac{\Delta P L^2}{\mu \alpha}
+
+    Parameters
+    ----------
+    dP : float
+        Pressure drop, [Pa]
+    L : float
+        Characteristic length, [m]
+    mu : float, optional
+        Dynamic viscosity, [Pa*s]
+    alpha : float
+        Thermal diffusivity, [m^2/s]
+
+    Returns
+    -------
+    Be_L : float
+        Bejan number with respect to length []
+
+    Notes
+    -----
+    Termed a dimensionless number by someone in 1988.
+
+    Examples
+    --------
+    >>> Bejan_L(1E4, 1, 1E-3, 1E-6)
+    10000000000000.0
+
+    References
+    ----------
+    .. [1] Awad, M. M. "The Science and the History of the Two Bejan Numbers."
+       International Journal of Heat and Mass Transfer 94 (March 2016): 101-3.
+       doi:10.1016/j.ijheatmasstransfer.2015.11.073.
+    .. [2] Bejan, Adrian. Convection Heat Transfer. 4E. Hoboken, New Jersey:
+       Wiley, 2013.
+    '''
+    Be_L = dP*L**2/(alpha*mu)
+    return Be_L
+
+
+def Bejan_p(dP, K, mu, alpha):
+    r'''Calculates Bejan number of a permeability or `Be_p` for a fluid with
+    the given parameters and a permeability `K` experiencing a pressure drop
+    `dP`.
+
+    .. math::
+        Be_p = \frac{\Delta P K}{\mu \alpha}
+
+    Parameters
+    ----------
+    dP : float
+        Pressure drop, [Pa]
+    K : float
+        Permeability, [m^2]
+    mu : float, optional
+        Dynamic viscosity, [Pa*s]
+    alpha : float
+        Thermal diffusivity, [m^2/s]
+
+    Returns
+    -------
+    Be_p : float
+        Bejan number with respect to pore characteristics []
+
+    Notes
+    -----
+    Termed a dimensionless number by someone in 1988.
+
+    Examples
+    --------
+    >>> Bejan_p(1E4, 1, 1E-3, 1E-6)
+    10000000000000.0
+
+    References
+    ----------
+    .. [1] Awad, M. M. "The Science and the History of the Two Bejan Numbers."
+       International Journal of Heat and Mass Transfer 94 (March 2016): 101-3.
+       doi:10.1016/j.ijheatmasstransfer.2015.11.073.
+    .. [2] Bejan, Adrian. Convection Heat Transfer. 4E. Hoboken, New Jersey:
+       Wiley, 2013.
+    '''
+    Be_p = dP*K/(alpha*mu)
+    return Be_p
+
+
 def relative_roughness(D, roughness=1.52e-06):
     r'''Calculates relative roughness `eD` using a diameter and the roughness
     of the material of the wall. Default roughness is that of steel.
