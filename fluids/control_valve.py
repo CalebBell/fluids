@@ -219,16 +219,6 @@ def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
     >>> is_choked_turbulent_g(0.544, 0.929, xTP=0.625)
     False
 
-    Example 4, compressible flow - small flow trim sized for gas flow:
-
-    >>> is_choked_turbulent_g(0.536, 1.193, 0.8)
-    False
-
-    Cusom example:
-
-    >>> is_choked_turbulent_g(0.9, 1.193, 0.7)
-    True
-
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
@@ -273,10 +263,8 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
 
     Examples
     --------
-    >>> Reynolds_valve(3.26e-07, 360, 150.0, 0.9, 0.46, 164.9954763704956)
-    2967024.346783506
-    >>> Reynolds_valve(3.26e-07, 360, 100.0, 0.6, 0.98, 238.05817216710483)
-    6596953.826574914
+    >>> Reynolds_valve(3.26e-07, 360, 150.0, 0.9, 0.46, 165)
+    2966984.7525455453
 
     References
     ----------
@@ -395,10 +383,6 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
     >>> Reynolds_factor(FL=0.98, C=0.015483, d=15., Rev=1202., full_trim=False)
     0.7148753122302025
 
-    Custom, same as above but with full trim:
-
-    >>> Reynolds_factor(FL=0.98, C=0.015483, d=15., Rev=1202., full_trim=True)
-    0.9875328782172637
 
     References
     ----------
@@ -421,7 +405,6 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
         else:
             FR = min(FR_3a, FR_4)
     return FR
-
 
 
 def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd):
@@ -482,25 +465,6 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd):
     ... FL=0.6, Fd=0.98)
     238.05817216710483
 
-    Modified example 1 with non-choked flow, with reducer and expander
-
-    >>> size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4,
-    ...  P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.09, d=0.08, FL=0.9, Fd=0.46)
-    177.44417090966715
-
-    Modified example 2 with non-choked flow, with reducer and expander
-
-    >>> size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4,
-    ... P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.95, FL=0.6, Fd=0.98)
-    230.1734424266345
-
-    Modified example 2 with laminar flow at 100x viscosity, 100th flow rate,
-    and 1/10th diameters:
-
-    >>> size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-2,
-    ... P1=680E3, P2=220E3, Q=0.001, D1=0.01, D2=0.01, d=0.01, FL=0.6, Fd=0.98)
-    3.0947562381723626
-
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
@@ -553,18 +517,16 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd):
             else:
                 FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)
             if C/FR >= Ci:
-                Ci = iterate_piping_laminar(Ci)
+                Ci = iterate_piping_laminar(Ci) # pragma: no cover
             return Ci
         C = iterate_piping_laminar(C)
     return C
 
 
-#print [size_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.15, D2=0.15, d=0.15, FL=0.9, Fd=0.46)]
-#print [size_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.09, d=0.08, FL=0.9, Fd=0.46)]
-#print [size_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.1, FL=0.6, Fd=0.98)]
-#print [size_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.95, FL=0.6, Fd=0.98)]
-#print [size_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-2, P1=680E3, P2=220E3, Q=0.001, D1=0.01, D2=0.01, d=0.01, FL=0.6, Fd=0.98)]
-
+#print [size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.09, d=0.08, FL=0.9, Fd=0.46)]
+#print [size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.1, FL=0.6, Fd=0.98)]
+#print [size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.95, FL=0.6, Fd=0.98)]
+#print [size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-2, P1=680E3, P2=220E3, Q=0.001, D1=0.01, D2=0.01, d=0.01, FL=0.6, Fd=0.98)]
 
 
 
@@ -694,7 +656,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
         C = iterate_piping_laminar(C)
     return C
 
-#print [size_g(T=433., MW=44.01, mu=1.4665E-4, gamma=1.30, Z=0.988, P1=680E3,
-#             P2=310E3, Q=38/36., D1=0.08, D2=0.1, d=0.05, FL=0.85, Fd=0.42, xT=0.60)]
-#print [size_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5,
-#           P2=1.3E5, Q=0.46/3600., D1=0.015, D2=0.015, d=0.015, FL=0.98, Fd=0.07, xT=0.8)]
+#print [size_control_valve_g(T=433., MW=44.01, mu=1.4665E-4, gamma=1.30, Z=0.988, P1=680E3,
+#             P2=30E3, Q=38/36., D1=0.08, D2=0.1, d=0.05, FL=0.85, Fd=0.42, xT=0.60)]
+#print [size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5,
+#           P2=2.7E5, Q=0.1/3600., D1=0.015, D2=0.015, d=0.001, FL=0.98, Fd=0.07, xT=0.8)]

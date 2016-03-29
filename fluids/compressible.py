@@ -61,7 +61,6 @@ def T_critical_flow(T, k):
     Tcf = T*2/(k+1.)
     return Tcf
 
-#print [T_critical_flow(473, 1.289)]
 
 def P_critical_flow(P, k):
     r'''Calculates critical flow pressure `Pcf` for a fluid with the
@@ -152,8 +151,6 @@ def is_critical_flow(P1, P2, k):
     flowtype = Pcf > P2
     return flowtype
 
-#print is_critical_flow(670E3, 532E3, 1.11)
-#print is_critical_flow(670E3, 101E3, 1.11)
 
 def stagnation_energy(V):
     r'''Calculates the increase in enthalpy `dH` which is provided by a fluid's
@@ -233,7 +230,6 @@ def P_stagnation(P, T, Tst, k):
     Pst = P*(Tst/T)**(k/(k-1))
     return Pst
 
-#print [P_stagnation(54050., 255.7, 286.8, 1.4)]
 
 def T_stagnation(T, P, Pst, k):
     r'''Calculates stagnation flow temperature `Tst` for a fluid with the
@@ -278,10 +274,6 @@ def T_stagnation(T, P, Pst, k):
     Tst = T*(Pst/P)**((k - 1)/k)
     return Tst
 
-#print [T_stagnation(286.8, 54050, 54050*8, 1.4)]
-
-
-#print [rho_stagnation(0.7367, 255.7, 286.8, 1.4)]
 
 def T_stagnation_ideal(T, V, Cp):
     r'''Calculates the ideal stagnation temperature `Tst` calculated assuming
@@ -320,4 +312,3 @@ def T_stagnation_ideal(T, V, Cp):
     Tst = T + V**2/2./Cp
     return Tst
 
-#print [T_stagnation_ideal(255.7, 250, 1005.)]

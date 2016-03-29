@@ -25,7 +25,7 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'entrance_sharp', 'entrance_distance', 'entrance_angled',
 'entrance_rounded', 'entrance_beveled', 'exit_normal', 'bend_rounded',
 'bend_miter', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
-'Kv_to_K']
+'Kv_to_K', 'K_to_Kv', 'Darby', 'Hooper']
 
 ### Entrances
 
@@ -85,6 +85,7 @@ def entrance_distance(d=None, t=None, l=None):
     -----
     Requires that l/d be >= 0.5.
     Requires that t/d <= 0.05.
+    Will raise an exception if these are not the case.
 
     Examples
     --------
@@ -305,10 +306,8 @@ def bend_rounded(Di=None, rc=None, angle=None, fd=None, bend_diameters=5):
 
     Examples
     --------
-    >>> [bend_rounded(Di=4.020, rc=4.0*5, angle=i, fd=0.0163) for i in [15, 30, 45, 60, 75, 90]]
-    [0.07038212630028828, 0.10680196344492195, 0.13858204974134541, 0.16977191374717754, 0.20114941557508642, 0.23248382866658507]
-    >>> [bend_rounded(Di=34.500, rc=36*10, angle=i, fd=0.0106) for i in [15, 30, 45, 60, 75, 90]]
-    [0.061075866683922314, 0.10162621862720357, 0.14158887563243763, 0.18225270014527103, 0.22309967045081655, 0.26343782210280947]
+    >>> bend_rounded(Di=4.020, rc=4.0*5, angle=30, fd=0.0163)
+    0.10680196344492195
 
     References
     ----------
@@ -346,8 +345,8 @@ def bend_miter(angle):
 
     Examples
     --------
-    >>> [bend_miter(i) for i in [150, 120, 90, 75, 60, 45, 30, 15]]
-    [2.7128147734758103, 2.0264994448555864, 1.2020815280171306, 0.8332188430731828, 0.5299999999999998, 0.30419633092708653, 0.15308822558050816, 0.06051389308126326]
+    >>> bend_miter(150)
+    2.7128147734758103
 
     References
     ----------
@@ -823,8 +822,6 @@ def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None):
 
     Examples
     --------
-    >>> diffuser_conical_staged(Di1=1., Di2=10., DEs=[2,3,4,5,6,7,8,9], ls=[1,1,1,1,1,1,1,1,1], fd=0.01)
-    1.7681854713484308
     >>> diffuser_conical(Di1=1., Di2=10.,l=9, fd=0.01)
     0.973137914861591
 
@@ -1020,8 +1017,6 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
     --------
     >>> Darby3K(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
     1.1572523963562353
-    >>> Darby3K(NPS=12., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
-    0.819510280626355
     >>> Darby3K(NPS=12., Re=10000., K1=950,  Ki=0.25,  Kd=4)
     0.819510280626355
 
@@ -1045,6 +1040,7 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
         raise Exception('Name of fitting or constants are required')
     K = K1/Re + Ki*(1. + Kd/NPS**0.3)
     return K
+
 
 ### 2K Hooper Method
 
@@ -1121,8 +1117,8 @@ def Hooper2K(Di=None, Re=None, name=None, K1=None, Kinfty=None):
     --------
     >>> Hooper2K(Di=2., Re=10000., name='Valve, Globe, Standard')
     6.15
-    >>> Hooper2K(Di=2.067, Re=500., name='Valve, Check, Tilting-disc')
-    2.7418964683115625
+    >>> Hooper2K(Di=2., Re=10000., K1=900, Kinfty=4)
+    6.09
 
     References
     ----------
@@ -1146,7 +1142,6 @@ def Hooper2K(Di=None, Re=None, name=None, K1=None, Kinfty=None):
         raise Exception('Name of fitting or constants are required')
     K = K1/Re + Kinfty*(1. + 1./Di)
     return K
-
 
 
 ### Valves

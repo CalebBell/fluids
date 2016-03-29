@@ -109,7 +109,6 @@ def agitator_time_homogeneous(D=None, N=None, P=None, T=None, H=None, mu=None, r
     time = time*multiplier
     return time
 
-
 #print [agitator_time_homogeneous(D=1, N=125/60., P=298., T=3, H=2.5, mu=.5, rho=980, homogeneity=.95)]
 #print 'example 2:'
 #print [agitator_time_homogeneous(D=36*.0254, N=56/60., P=957., T=1.83, H=1.83, mu=0.018, rho=1020, homogeneity=.995)]

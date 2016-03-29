@@ -23,7 +23,7 @@ __all__ = ['friction_factor', 'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_19
 'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
-'Brkic_2011_2', 'Fang_2011']
+'Brkic_2011_2', 'Fang_2011', '_roughness']
 
 
 def Moody(Re, eD):
@@ -1444,13 +1444,7 @@ def friction_factor(Re=1E5, eD=1E-4, Method=None, Darcy=True, AvailableMethods=F
     if AvailableMethods:
         return list_methods()
     if not Method:
-        methods = list_methods()
-        if 'Buzzelli_2008' in methods:
-            Method = 'Buzzelli_2008'
-        elif 'Serghides_2' in methods:
-            Method = 'Serghides_2'
-        else:
-            Method = methods[0]
+        Method = 'Buzzelli_2008'
     f = globals()[Method](Re=Re, eD=eD)
     if not Darcy:
         f *= 4
@@ -1459,6 +1453,7 @@ def friction_factor(Re=1E5, eD=1E-4, Method=None, Darcy=True, AvailableMethods=F
 
 fd = friction_factor # shortcut
 
+#print friction_factor(Re=1E5, eD=1E-4, AvailableMethods=True)
 
 # Roughness, in m
 _roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
@@ -1466,8 +1461,6 @@ _roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
 'Cast iron': .000259, 'Wood stave': .000183, 'Rough wood stave': .000914,
 'Concrete': .000305, 'Rough concrete': .00305, 'Riveted steel': .000914,
 'Rough riveted steel': .00914}
-
-
 
 
 

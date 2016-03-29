@@ -16,28 +16,44 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, UnivariateSpline
 from math import radians, cos
 
 __all__ = ['round_edge_screen', 'round_edge_open_mesh', 'square_edge_screen',
 'square_edge_grill', 'round_edge_grill']
 
-round_Res = [20, 30, 40, 60, 80, 100, 200, 400, 1E9]
-round_betas = [1.3, 1.1, 0.95, 0.83, 0.75, 0.7, 0.6, 0.52, 0.52]
-round_interp = interp1d(round_Res, round_betas, kind='linear')
+round_Res = [20, 30, 40, 60, 80, 100, 200, 400]
+round_betas = [1.3, 1.1, 0.95, 0.83, 0.75, 0.7, 0.6, 0.52]
+#round_interp = interp1d(round_Res, round_betas, kind='linear')
+'''Quadratic interpolation with no smoothing, constant value extremities
+returned when outside table limits'''
+round_interp = UnivariateSpline(round_Res, round_betas, s=0, k=1, ext='const')
+
 
 round_thetas = [0, 10, 20, 30, 40, 50, 60, 70, 80, 85]
 round_gammas = [1, 0.97, 0.88, 0.75, 0.59, 0.45, 0.3, 0.23, 0.15, 0.09]
-inclined_round_interp = interp1d(round_thetas, round_gammas, kind='linear')
+#inclined_round_interp = interp1d(round_thetas, round_gammas, kind='linear')
+'''Quadratic interpolation with no smoothing, constant value extremities
+returned when outside table limits'''
+inclined_round_interp = UnivariateSpline(round_thetas, round_gammas, s=0, k=1, ext='const')
 
-square_alphas = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.]
-square_Ks = [100000., 1000., 250., 85., 52., 30., 17., 11., 7.7, 5.5, 3.8, 2.8, 2, 1.5, 1.1, 0.78, 0.53, 0.35, 0.08, 0.]
-square_interp = interp1d(square_alphas, square_Ks, kind='linear')
+#square_alphas = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.]
+#square_Ks = [100000., 1000., 250., 85., 52., 30., 17., 11., 7.7, 5.5, 3.8, 2.8, 2, 1.5, 1.1, 0.78, 0.53, 0.35, 0.08, 0.]
+#square_interp = interp1d(square_alphas, square_Ks, kind='linear')
+'''Quadratic interpolation with no smoothing, constant value extremities
+returned when outside table limits. Last actual value in the original table is
+K=1000 at alpha=0.05; the rest are extrapolated.'''
+square_alphas = [0.0015625, 0.003125, 0.00625, 0.0125, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.]
+square_Ks = [1024000.,256000, 64000, 16000, 4000, 1000., 250., 85., 52., 30., 17., 11., 7.7, 5.5, 3.8, 2.8, 2, 1.5, 1.1, 0.78, 0.53, 0.35, 0.08, 0.]
+square_interp = UnivariateSpline(square_alphas, square_Ks, s=0, k=1, ext='const')
+
 
 grills_rounded_alphas = [0.3, 0.4, 0.5, 0.6, 0.7]
 grills_rounded_Ks = [2, 1, 0.6, 0.4, 0.2]
-grills_rounded_interp = interp1d(grills_rounded_alphas, grills_rounded_Ks, kind='linear')
-
+#grills_rounded_interp = interp1d(grills_rounded_alphas, grills_rounded_Ks, kind='linear')
+'''Cubic interpolation with no smoothing, constant value extremities
+returned when outside table limits'''
+grills_rounded_interp = UnivariateSpline(grills_rounded_alphas, grills_rounded_Ks, s=0, k=2, ext='const')
 
 def round_edge_screen(alpha, Re, angle=0):
     r'''Returns the loss coefficient for a round edged wire screen or bar
@@ -60,9 +76,11 @@ def round_edge_screen(alpha, Re, angle=0):
 
     Notes
     -----
-    Linear interpolation between a table of values. Re should be > 20.
+    Linear interpolation between a table of values. Re table extends
+    from 20 to 400, with constant values outside of the table. This behavior
+    should be adequate.
     alpha should be between 0.05 and 0.8.
-    Angle may be no more than 85 degress.
+    If angle is over 85 degrees, the value at 85 degrees is used.
 
     Examples
     --------
@@ -70,8 +88,6 @@ def round_edge_screen(alpha, Re, angle=0):
     2.0999999999999996
     >>> round_edge_screen(0.5, 100, 45)
     1.05
-    >>> round_edge_screen(0.5, 100, 85)
-    0.18899999999999997
 
     References
     ----------
@@ -84,7 +100,7 @@ def round_edge_screen(alpha, Re, angle=0):
         if angle <= 45:
             K *= cos(radians(angle))**2
         else:
-            K *=  inclined_round_interp(angle)
+            K *= float(inclined_round_interp(angle))
     return K
 
 
@@ -132,13 +148,9 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0):
     -----
     `alpha` should be between 0.85 and 1 for these correlations.
     Flow should be turbulent, with Re > 500.
-    Angle may be no more than 85 degress.
 
     Examples
     --------
-    >>> [round_edge_open_mesh(0.88, i) for i in ['round bar screen',
-    ... 'diamond pattern wire', 'knotted net', 'knotless net']]
-    [0.11687999999999998, 0.09912, 0.15455999999999998, 0.11664]
     >>> round_edge_open_mesh(0.96, angle=33.)
     0.02031327712601458
 
@@ -161,7 +173,7 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0):
         if angle < 45:
             K *= cos(radians(angle))**2
         else:
-            K *= inclined_round_interp(angle)
+            K *= float(inclined_round_interp(angle))
     return K
 
 
@@ -186,7 +198,7 @@ def square_edge_screen(alpha):
     Examples
     --------
     >>> square_edge_screen(0.99)
-    0.008000000000000007
+    0.008000000000000009
 
     References
     ----------
@@ -295,10 +307,10 @@ def round_edge_grill(alpha=None, l=None, Dh=None, fd=None):
 
     Examples
     --------
-    >>> round_edge_grill(.45)
-    0.8
-    >>> round_edge_grill(.45, l=.15, Dh=.002, fd=.0185)
-    2.1875
+    >>> round_edge_grill(.4)
+    1.0
+    >>> round_edge_grill(.4, l=.15, Dh=.002, fd=.0185)
+    2.3874999999999997
 
     References
     ----------

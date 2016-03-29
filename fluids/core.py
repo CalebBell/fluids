@@ -117,8 +117,6 @@ def c_ideal_gas(T, k, MW):
     c = (k*Rspecific*T)**0.5
     return c
 
-#print [c_ideal_gas(1.4, 303., 28.96)]
-
 
 ### Dimensionless groups with documentation
 
@@ -886,6 +884,7 @@ def Bond(rhol, rhog, sigma, L):
     '''
     return (g*(rhol-rhog)*L**2/sigma)
 
+
 def Rayleigh(Pr, Gr):
     r'''Calculates Rayleigh number or `Ra` using Prandtl number `Pr` and
     Grashof number `Gr` for a fluid with the given
@@ -1565,8 +1564,8 @@ def Archimedes(L, rhof, rhop, mu, g=g):
 
     Examples
     --------
-    >>> Archimedes(0.002, 0.2804, 2699.37, 4E-5)
-    37109.575890227665
+    >>> Archimedes(0.002, 2., 3000, 1E-3)
+    470.4053872
 
     References
     ----------
@@ -1612,8 +1611,8 @@ def Ohnesorge(L, rho, mu, sigma):
 
     Examples
     --------
-    >>> Ohnesorge(1E-5, 2000., 1E-4, 1E-1)
-    0.00223606797749979
+    >>> Ohnesorge(1E-4, 1000., 1E-3, 1E-1)
+    0.01
 
     References
     ----------
@@ -1735,8 +1734,6 @@ def relative_roughness(D, roughness=1.52e-06):
 
     Examples
     --------
-    >>> relative_roughness(0.0254)
-    5.9842519685039374e-05
     >>> relative_roughness(0.5, 1E-4)
     0.0002
 
@@ -1753,24 +1750,50 @@ def relative_roughness(D, roughness=1.52e-06):
 
 ### Misc utilities
 
-def nu_mu_converter(rho, nu=0, mu=0):
-    """Specify density and either Kinematic viscosity or Dynamic Viscosity
-    by name for the result to be converted to the other.
+def nu_mu_converter(rho, mu=None, nu=None):
+    r'''Calculates either kinematic or dynamic viscosity, depending on inputs.
+    Used when one type of viscosity is known as well as density, to obtain
+    the other type. Raises an error if both types of viscosity or neither type
+    of viscosity is provided.
 
-    >>> nu_mu_converter(998.1,nu=1.01E-6)
-    0.001008081
-    """
-    if nu and mu:
-        return Exception('Error: Both parameters given')
+    .. math::
+        \nu = \frac{\mu}{\rho}
+
+        \mu = \nu\rho
+
+    Parameters
+    ----------
+    rho : float
+        Density, [kg/m^3]
+    mu : float, optional
+        Dynamic viscosity, [Pa*s]
+    nu : float, optional
+        Kinematic viscosity, [m^2/s]
+
+    Returns
+    -------
+    mu or nu : float
+        Dynamic viscosity, [Pa*s] or Kinematic viscosity, [m^2/s]
+
+    Examples
+    --------
+    >>> nu_mu_converter(998., nu=1.0E-6)
+    0.000998
+
+    References
+    ----------
+    .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
+       Applications. Boston: McGraw Hill Higher Education, 2006.
+    '''
+    if (nu and mu) or not rho or (not nu and not mu):
+        raise Exception('Inputs must be rho and one of mu and nu.')
     if mu:
         return mu/rho
     elif nu:
         return nu*rho
-    else:
-        return Exception('Something went wrong.')
 
 
-def gravity(latitude, height):
+def gravity(latitude, H):
     r'''Calculates local acceleration due to gravity `g` according to [1]_.
     Uses latitude and height to calculate `g`.
 
@@ -1782,7 +1805,7 @@ def gravity(latitude, height):
     ----------
     latitude : float
         Degrees, [degrees]
-    height : float
+    H : float
         Height above earth's surface [m]
 
     Returns
@@ -1804,9 +1827,9 @@ def gravity(latitude, height):
     .. [1] Haynes, W.M., Thomas J. Bruno, and David R. Lide. CRC Handbook of
        Chemistry and Physics. [Boca Raton, FL]: CRC press, 2014.
     '''
-    latitude=latitude*pi/180
-    return 9.780356*(1+0.0052885*sin(latitude)**2\
-    -0.0000059*sin(2*latitude)**2) -3.086E-6*height
+    lat = latitude*pi/180
+    g = 9.780356*(1+0.0052885*sin(lat)**2 -0.0000059*sin(2*lat)**2)-3.086E-6*H
+    return g
 
 ### Friction loss conversion functions
 
@@ -1945,8 +1968,6 @@ def head_from_K(K, V):
     return head
 
 
-
-### Misc conversion functions
 def head_from_P(P, rho):
     r'''Calculates head for a fluid of specified density at specified
     pressure.
@@ -1973,8 +1994,8 @@ def head_from_P(P, rho):
 
     Examples
     --------
-    >>> head_from_P(P=1E5, rho=1000.)
-    10.197162129779283
+    >>> head_from_P(P=98066.5, rho=1000)
+    10.000000000000002
     '''
     head = P/rho/g
     return head

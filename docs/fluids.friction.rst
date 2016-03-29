@@ -1,5 +1,5 @@
 fluids.friction module
-=============================
+======================
 
 .. automodule:: fluids.friction
     :members:

@@ -21,7 +21,7 @@ from scipy.optimize import fsolve
 from scipy.constants import g
 from math import tan, radians
 
-__all__ = ['Q_weir_V_Shen', 'Q_weir_rectangular_Smith',
+__all__ = ['Q_weir_V_Shen',
 'Q_weir_rectangular_Kindsvater_Carter', 'Q_weir_rectangular_SIA',
 'Q_weir_rectangular_full_Ackers', 'Q_weir_rectangular_full_SIA',
 'Q_weir_rectangular_full_Rehbock', 'Q_weir_rectangular_full_Kindsvater_Carter',
@@ -112,29 +112,6 @@ def Q_weir_V_Shen(h1, angle=90):
 
 
 ### Rectangular Weirs
-
-def Q_weir_rectangular_Smith(h1, b, h2=None, b1=None, V1=None):
-    def calc(h1, b, V1):
-        Q = 0.581*(1 + 0.1/b*(h1 + 1.4*V1**2/2/g))*b*g**0.5*(h1 + 1.4*V1**2/(2*g))**1.5
-        return Q
-    if h2 and b1:
-        def error(V):
-            Q = calc(h1, b, V)
-            V2 = Q/(b1*(h1+h2))
-            return abs(V-V2)
-        V = float(fsolve(error, 1))
-        Q = calc(h1, b, V)
-    elif V1:
-        Q = calc(h1, b, V1)
-    else:
-        raise Exception('Either V1 or h2 and b1 must be provided')
-    return Q
-
-#print [Q_weir_rectangular_Smith(h1=1.2, b=.1, V1=0.4)]
-#print [Q_weir_rectangular_Smith(h1=1.2, b=.1, V1=0.4)]
-
-#print [Q_weir_rectangular_Smith(h1=0.2, h2=0.5, b=1, b1=2)]
-#    1.0286951509909212
 
 
 def Q_weir_rectangular_Kindsvater_Carter(h1, h2, b):
