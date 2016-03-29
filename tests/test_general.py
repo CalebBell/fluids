@@ -58,7 +58,7 @@ def test_control_valve():
     assert_allclose([False, True], [F, T])
 
     with pytest.raises(Exception):
-	is_choked_turbulent_l(460.0, 680.0, 70.1, 0.9442375225233299)
+    is_choked_turbulent_l(460.0, 680.0, 70.1, 0.9442375225233299)
 
     # Example 4, compressible flow - small flow trim sized for gas flow:
     assert False == is_choked_turbulent_g(0.536, 1.193, 0.8)
@@ -66,7 +66,7 @@ def test_control_valve():
     assert True == is_choked_turbulent_g(0.9, 1.193, 0.7)
 
     with pytest.raises(Exception):
-	is_choked_turbulent_g(0.544, 0.929)
+    is_choked_turbulent_g(0.544, 0.929)
 
     Rev = Reynolds_valve(3.26e-07, 360, 100.0, 0.6, 0.98, 238.05817216710483)
     assert_allclose(Rev, 6596953.826574914)
@@ -175,14 +175,14 @@ def test_core_dimensionless():
     Re = Reynolds(2.5, 0.25, nu=1.636e-05)
     assert_allclose(Re, 38202.93398533008)
     with pytest.raises(Exception):
-	 Reynolds(2.5, 0.25, 1.1613)
+     Reynolds(2.5, 0.25, 1.1613)
 
     PeH = Peclet_heat(1.5, 2, 1000., 4000., 0.6)
     assert_allclose(PeH, 20000000.0)
     PeH = Peclet_heat(1.5, 2, alpha=1E-7)
     assert_allclose(PeH, 30000000.0)
     with pytest.raises(Exception):
-	 Peclet_heat(1.5, 2, 1000., 4000.)
+     Peclet_heat(1.5, 2, 1000., 4000.)
 
     PeM = Peclet_mass(1.5, 2, 1E-9)
     assert_allclose(PeM, 3000000000)
@@ -191,7 +191,7 @@ def test_core_dimensionless():
     FH2 = Fourier_heat(1.5, 2, alpha=1E-7)
     assert_allclose([FH1, FH2], [5.625e-08, 3.75e-08])
     with pytest.raises(Exception):
-	Fourier_heat(1.5, 2, 1000., 4000.)
+    Fourier_heat(1.5, 2, 1000., 4000.)
 
     FHM = Fourier_mass(1.5, 2, 1E-9)
     assert_allclose(FHM,  3.7500000000000005e-10)
@@ -200,19 +200,19 @@ def test_core_dimensionless():
     GZh2 = Graetz_heat(1.5, 0.25, 5, alpha=1E-7)
     assert_allclose([GZh1, GZh2], [55000.0, 187500.0])
     with pytest.raises(Exception):
-	Graetz_heat(1.5, 0.25, 5, 800., 2200.)
+    Graetz_heat(1.5, 0.25, 5, 800., 2200.)
 
     Sc1 = Schmidt(D=2E-6, mu=4.61E-6, rho=800)
     Sc2 = Schmidt(D=1E-9, nu=6E-7)
     assert_allclose([Sc1, Sc2], [0.00288125, 600.])
     with pytest.raises(Exception):
-	Schmidt(D=2E-6, mu=4.61E-6)
+    Schmidt(D=2E-6, mu=4.61E-6)
 
     Le1 = Lewis(D=22.6E-6, alpha=19.1E-6)
     Le2 = Lewis(D=22.6E-6, rho=800., k=.2, Cp=2200)
     assert_allclose([Le1, Le2], [0.8451327433628318, 0.00502815768302494])
     with pytest.raises(Exception):
-	Lewis(D=22.6E-6, rho=800., k=.2)
+    Lewis(D=22.6E-6, rho=800., k=.2)
 
     We = Weber(0.18, 0.001, 900., 0.01)
     assert_allclose(We, 2.916)
@@ -228,13 +228,13 @@ def test_core_dimensionless():
     Pr3 = Prandtl(nu=6.3E-7, alpha=9E-7)
     assert_allclose([Pr1, Pr2, Pr3], [0.754657, 0.7438528, 0.7])
     with pytest.raises(Exception):
-	Prandtl(Cp=1637., k=0.010)
+    Prandtl(Cp=1637., k=0.010)
 
     Gr1 = Grashof(L=0.9144, beta=0.000933, T1=178.2, rho=1.1613, mu=1.9E-5)
     Gr2 = Grashof(L=0.9144, beta=0.000933, T1=378.2, T2=200, nu=1.636e-05)
     assert_allclose([Gr1, Gr2], [4656936556.178915, 4657491516.530312])
     with pytest.raises(Exception):
-	Grashof(L=0.9144, beta=0.000933, T1=178.2, rho=1.1613)
+    Grashof(L=0.9144, beta=0.000933, T1=178.2, rho=1.1613)
 
     Bo1 = Bond(1000., 1.2, .0589, 2)
     assert_allclose(Bo1, 665187.2339558573)
@@ -306,9 +306,9 @@ def test_core_misc2():
     nu1 = nu_mu_converter(998., mu=0.000998)
     assert_allclose([mu1, nu1], [0.000998, 1E-6])
     with pytest.raises(Exception):
-	nu_mu_converter(990)
+    nu_mu_converter(990)
     with pytest.raises(Exception):
-	nu_mu_converter(990, 0.000998, 1E-6)
+    nu_mu_converter(990, 0.000998, 1E-6)
 
     g1 = gravity(55, 1E4)
     assert_allclose(g1, 9.784151976863571)
@@ -347,7 +347,7 @@ def test_filters():
     assert_allclose([K1, K2], [0.02031327712601458, 0.012996000000000014])
 
     with pytest.raises(Exception):
-	 round_edge_open_mesh(0.96, subtype='not_filter', angle=33.)
+     round_edge_open_mesh(0.96, subtype='not_filter', angle=33.)
 
     K = square_edge_screen(0.99)
     assert_allclose(K, 0.008000000000000009)
@@ -367,9 +367,9 @@ def test_fittings():
     K1 = entrance_distance(d=0.1, t=0.0005)
     assert_allclose(K1, 1.0154100000000004)
     with pytest.raises(Exception):
-	entrance_distance(d=0.1, l=0.005, t=0.0005)
+    entrance_distance(d=0.1, l=0.005, t=0.0005)
     with pytest.raises(Exception):
-	entrance_distance(d=0.1,  t=0.05)
+    entrance_distance(d=0.1,  t=0.05)
 
     assert_allclose(entrance_angled(30), 0.9798076211353316)
 
@@ -415,7 +415,7 @@ def test_fittings():
     K_conical2 = contraction_conical(Di1=0.1, Di2=0.04, angle=73.74, fd=0.0185)
     assert_allclose([K_conical1, K_conical2], [0.15779041548350314, 0.15779101784158286])
     with pytest.raises(Exception):
-	contraction_conical(Di1=0.1, Di2=0.04, fd=0.0185)
+    contraction_conical(Di1=0.1, Di2=0.04, fd=0.0185)
 
     K_beveled = contraction_beveled(Di1=0.5, Di2=0.1, l=.7*.1, angle=120)
     assert_allclose(K_beveled, 0.40946469413070485)
@@ -433,7 +433,7 @@ def test_fittings():
     Ks = [0.12301652230915454, 0.8081340270019336, 0.32533470783539786, 0.812308728765127, 0.3282650135070033, 0.12300865396254032]
     assert_allclose([K1, K2, K3, K4, K5, K6], Ks)
     with pytest.raises(Exception):
-	diffuser_conical(Di1=.1, Di2=0.1, angle=1800., fd=0.020)
+    diffuser_conical(Di1=.1, Di2=0.1, angle=1800., fd=0.020)
 
     K1 = diffuser_conical_staged(Di1=1., Di2=10., DEs=[2,3,4,5,6,7,8,9], ls=[1,1,1,1,1,1,1,1,1], fd=0.01)
     K2 = diffuser_conical(Di1=1., Di2=10.,l=9, fd=0.01)
@@ -454,9 +454,9 @@ def test_fittings():
     assert_allclose([K1, K2, K3], Ks)
 
     with pytest.raises(Exception):
-	Darby3K(NPS=12., Re=10000)
+    Darby3K(NPS=12., Re=10000)
     with pytest.raises(Exception):
-	Darby3K(NPS=12., Re=10000, name='fail')
+    Darby3K(NPS=12., Re=10000, name='fail')
 
     tot = sum([Darby3K(NPS=2., Re=1000, name=i) for i in Darby.keys()])
     assert_allclose(tot, 67.96442287975898)
@@ -468,9 +468,9 @@ def test_fittings():
     assert_allclose(tot, 46.18)
 
     with pytest.raises(Exception):
-	Hooper2K(Di=2, Re=10000)
+    Hooper2K(Di=2, Re=10000)
     with pytest.raises(Exception):
-	Hooper2K(Di=2., Re=10000, name='fail')
+    Hooper2K(Di=2., Re=10000, name='fail')
 
     Cv = Kv_to_Cv(2)
     assert_allclose(Cv, 2.3121984567081197)
