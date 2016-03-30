@@ -516,7 +516,13 @@ def test_friction():
     assert_allclose(sum(_roughness.values()), 0.01504508)
 
     assert_allclose(friction_factor(Re=1E5, eD=1E-4), 0.018513948401365277)
-    assert friction_factor(Re=1E5, eD=1E-4, AvailableMethods=True) == ['Manadilli_1997', 'Haaland', 'Alshul_1952', 'Avci_Karagoz_2009', 'Rao_Kumar_2007', 'Zigrang_Sylvester_2', 'Eck_1973', 'Buzzelli_2008', 'Tsal_1989', 'Papaevangelo_2010', 'Barr_1981', 'Jain_1976', 'Moody', 'Brkic_2011_2', 'Brkic_2011_1', 'Swamee_Jain_1976', 'Wood_1966', 'Shacham_1980', 'Romeo_2002', 'Chen_1979', 'Fang_2011', 'Round_1980', 'Sonnad_Goudar_2006', 'Churchill_1973', 'Churchill_1977', 'Serghides_2', 'Serghides_1', 'Zigrang_Sylvester_1']
+    methods_1 = friction_factor(Re=1E5, eD=1E-4, AvailableMethods=True)
+    methods_1.sort()
+
+    methods_2 = ['Manadilli_1997', 'Haaland', 'Alshul_1952', 'Avci_Karagoz_2009', 'Rao_Kumar_2007', 'Zigrang_Sylvester_2', 'Eck_1973', 'Buzzelli_2008', 'Tsal_1989', 'Papaevangelo_2010', 'Barr_1981', 'Jain_1976', 'Moody', 'Brkic_2011_2', 'Brkic_2011_1', 'Swamee_Jain_1976', 'Wood_1966', 'Shacham_1980', 'Romeo_2002', 'Chen_1979', 'Fang_2011', 'Round_1980', 'Sonnad_Goudar_2006', 'Churchill_1973', 'Churchill_1977', 'Serghides_2', 'Serghides_1', 'Zigrang_Sylvester_1']
+    methods_2.sort()
+    assert methods_1 == methods_2
+
     assert_allclose(friction_factor(Re=1E5, eD=1E-4, Darcy=False), 0.018513948401365277*4)
 
 
