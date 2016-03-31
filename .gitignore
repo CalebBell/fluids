@@ -4,6 +4,7 @@
 dist
 MANIFEST
 .coverage
+htmlcov
 .cache
 __pycache__
 

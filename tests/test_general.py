@@ -46,7 +46,7 @@ def test_compressible():
 
 
 def test_control_valve():
-    from fluids.control_valve import cavitation_index, FF_critical_pressure_ratio_l, is_choked_turbulent_l, is_choked_turbulent_g, Reynolds_valve, loss_coefficient_piping, Reynolds_factor, size_control_valve_l, size_control_valve_g
+    from fluids.control_valve import cavitation_index, FF_critical_pressure_ratio_l, is_choked_turbulent_l, is_choked_turbulent_g, Reynolds_valve, loss_coefficient_piping, Reynolds_factor
     CI = cavitation_index(1E6, 8E5, 2E5)
     assert_allclose(CI, 4.0)
 
@@ -547,3 +547,168 @@ def test_mixing():
 
     K = K_motionless_mixer(K=150, L=.762*5, D=.762, fd=.01)
     assert_allclose(K, 7.5)
+
+
+def test_open_flow():
+    Q1 = Q_weir_V_Shen(0.6, angle=45)
+    Q2 = Q_weir_V_Shen(1.2)
+
+    assert_allclose([Q1, Q2], [0.21071725775478228, 2.8587083148501078])
+
+    Q1 = Q_weir_rectangular_Kindsvater_Carter(0.2, 0.5, 1)
+    assert_allclose(Q1, 0.15545928949179422)
+
+    Q1 = Q_weir_rectangular_SIA(0.2, 0.5, 1, 2)
+    assert_allclose(Q1, 1.0408858453811165)
+
+    Q1 = Q_weir_rectangular_full_Ackers(h1=0.9, h2=0.6, b=5)
+    Q2 = Q_weir_rectangular_full_Ackers(h1=0.3, h2=0.4, b=2)
+    assert_allclose([Q1, Q2], [9.251938159899948, 0.6489618999846898])
+
+    Q1 = Q_weir_rectangular_full_SIA(h1=0.3, h2=0.4, b=2)
+    assert_allclose(Q1, 1.1875825055400384)
+
+    Q1 = Q_weir_rectangular_full_Rehbock(h1=0.3, h2=0.4, b=2)
+    assert_allclose(Q1, 0.6486856330601333)
+
+    Q1 = Q_weir_rectangular_full_Kindsvater_Carter(h1=0.3, h2=0.4, b=2)
+    assert_allclose(Q1, 0.641560300081563)
+
+    V1 = V_Manning(0.2859, 0.005236, 0.03)*0.5721
+    V2 = V_Manning(0.2859, 0.005236, 0.03)
+    V3 = V_Manning(Rh=5, S=0.001, n=0.05)
+    assert_allclose([V1, V2, V3], [0.5988618058239864, 1.0467781958118971, 1.8493111942973235])
+
+    C = n_Manning_to_C_Chezy(0.05, Rh=5)
+    assert_allclose(C, 26.15320972023661)
+
+    n = C_Chezy_to_n_Manning(26.15, Rh=5)
+    assert_allclose(n, 0.05000613713238358)
+
+    V = V_Chezy(Rh=5, S=0.001, C=26.153)
+    assert_allclose(V, 1.8492963648371776)
+
+    n_tot = np.sum(np.array([val.values()[0] for thing in n_dicts for val in thing.values()]))
+    assert_allclose(n_tot, 3.409)
+
+
+def test_packed_bed():
+    dP = Ergun(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    assert_allclose(dP, 1338.8671874999995)
+
+    dP = Kuo_Nydegger(dp=8E-1, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    assert_allclose(dP, 0.025651460973648624)
+
+    dP = Jones_Krier(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    assert_allclose(dP, 1362.2719449873746)
+
+    dP = Carman(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    assert_allclose(dP, 1614.721678121775)
+
+    dP = Hicks(dp=0.01, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    assert_allclose(dP, 3.631703956680737)
+
+    dP = Brauer(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    assert_allclose(dP, 1441.5479196020563)
+
+    dP = KTA(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    assert_allclose(dP, 1440.409277034248)
+
+    dP = Erdim_Akgiray_Demir(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    assert_allclose(dP, 1438.2826958844414)
+
+    dP = Fahien_Schriver(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    assert_allclose(dP, 1470.6175541844711)
+
+    dP = Idelchik(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    assert_allclose(dP, 1571.909125999067)
+
+    dP1 = Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    dP2 = Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=1E-2)
+    assert_allclose([dP1, dP2], [1104.6473821473724, 1255.1625662548427])
+
+    dP1 = Montillet_Akkari_Comiti(dp=0.0008, voidage=0.4, L=0.5, vs=0.00132629120, rho=1000., mu=1.00E-003)
+    dP2 = Montillet_Akkari_Comiti(dp=0.08, voidage=0.4, L=0.5, vs=0.05, rho=1000., mu=1.00E-003)
+    dP3 = Montillet_Akkari_Comiti(dp=0.08, voidage=0.3, L=0.5, vs=0.05, rho=1000., mu=1.00E-003, Dt=1)
+    assert_allclose([dP1, dP2, dP3], [1148.1905244077548, 212.67409611116554, 540.501305905986])
+
+    dP1 = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    dP2 = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01)
+    dP3 = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, Method='Ergun')
+    dP4 = dP_packed_bed(dp=8E-4, voidage=0.4, sphericity=0.6, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, Method='Ergun')
+    dP5 = dP_packed_bed(8E-4, 0.4, 1E-3, 1E3, 1E-3)
+    assert_allclose([dP1, dP2, dP3, dP4, dP5], [1438.2826958844414, 1255.1625662548427, 1338.8671874999995, 3696.2890624999986, 1438.2826958844414])
+
+    methods_dP = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, AvailableMethods=True)
+    methods_dP.sort()
+    methods_dP_val = ['Harrison, Brunner & Hecker', 'Carman', 'Hicks', 'Montillet, Akkari & Comiti', 'Idelchik', 'Erdim, Akgiray & Demir', 'KTA', 'Kuo & Nydegger', 'Ergun', 'Brauer', 'Fahien & Schriver', 'Jones & Krier']
+    methods_dP_val.sort()
+    assert methods_dP == methods_dP_val
+
+    with pytest.raises(Exception):
+        dP_packed_bed(8E-4, 0.4, 1E-3, 1E3, 1E-3, Method='Fail')
+
+    v = voidage_Benyahia_Oneil(1E-3, 1E-2, .8)
+    assert_allclose(v, 0.41395363849210065)
+    v = voidage_Benyahia_Oneil_spherical(.001, .05)
+    assert_allclose(v, 0.3906653157443224)
+    v = voidage_Benyahia_Oneil_cylindrical(.01, .1, .6)
+    assert_allclose(v, 0.38812523109607894)
+
+
+def test_packed_tower():
+    dP = dP_demister_dry_Setekleiv_Svendsen(S=250, voidage=.983, vs=1.2, rho=10, mu=3E-5, L=1)
+    assert_allclose(dP, 320.3280788941329)
+    dP = dP_demister_dry_Setekleiv_Svendsen_lit(S=250, voidage=.983, vs=1.2, rho=10, mu=3E-5, L=1)
+    assert_allclose(dP, 209.083848658307)
+    dP = voidage_experimental(m=126, rho=8000, D=1, H=1)
+    assert_allclose(dP, 0.9799464771704212)
+
+    S = specific_area_mesh(voidage=.934, d=3e-4)
+    assert_allclose(S, 879.9999999999994)
+
+    dP_dry = Stichlmair_dry(Vg=0.4, rhog=5., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7, C3=1)
+    assert_allclose(dP_dry, 236.80904286559885)
+
+    dP_wet = Stichlmair_wet(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
+    assert_allclose(dP_wet, 539.8768237253518)
+
+    Vg = Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
+    assert_allclose(Vg, 0.6394323542687361)
+
+def test_piping():
+    P1 = nearest_pipe(Di=0.021)
+    assert_allclose(P1, (1, 0.02664, 0.0334, 0.0033799999999999998))
+    P2 = nearest_pipe(Do=.273, schedule='5S')
+    assert_allclose(P2, (10, 0.26630000000000004, 0.2731, 0.0034))
+
+    g1s = gauge_from_t(.5, False, 'BWG'), gauge_from_t(0.005588, True)
+    assert_allclose(g1s, (0.2, 5))
+    g2s = gauge_from_t(0.5165, False, 'AWG'), gauge_from_t(0.00462026, True, 'AWG')
+    assert_allclose(g2s, (0.2, 5))
+    g3s = gauge_from_t(.4305, False, 'SWG'), gauge_from_t(0.0052578, True, 'SWG')
+    assert_allclose(g3s, (0.2, 5))
+    g4s = gauge_from_t(.005, False, 'MWG'), gauge_from_t(0.0003556, True, 'MWG')
+    assert_allclose(g4s, (0.2, 5))
+    g5s = gauge_from_t(.432, False, 'BSWG'), gauge_from_t(0.0053848, True, 'BSWG')
+    assert_allclose(g5s, (0.2, 5))
+    g6s = gauge_from_t(0.227, False, 'SSWG'), gauge_from_t(0.0051816, True, 'SSWG')
+    assert_allclose(g6s, (1, 5))
+
+    t1s = t_from_gauge(.2, False, 'BWG'), t_from_gauge(5, True)
+    assert_allclose(t1s, (0.5, 0.005588))
+
+    t2s = t_from_gauge(.2, False, 'AWG'), t_from_gauge(5, True, 'AWG')
+    assert_allclose(t2s, (0.5165, 0.00462026))
+
+    t3s = t_from_gauge(.2, False, 'SWG'), t_from_gauge(5, True, 'SWG')
+    assert_allclose(t3s, (0.4305, 0.0052578))
+
+    t4s = t_from_gauge(.2, False, 'MWG'), t_from_gauge(5, True, 'MWG')
+    assert_allclose(t4s, (0.005, 0.0003556))
+
+    t5s = t_from_gauge(.2, False, 'BSWG'), t_from_gauge(5, True, 'BSWG')
+    assert_allclose(t5s, (0.432, 0.0053848))
+
+    t6s = t_from_gauge(1, False, 'SSWG'), t_from_gauge(5, True, 'SSWG')
+    assert_allclose(t6s, (0.227, 0.0051816))

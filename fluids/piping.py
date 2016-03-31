@@ -395,18 +395,7 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
 
     Examples
     --------
-    >>> gauge_from_t(.5, False, 'BWG'), gauge_from_t(0.005588, True)
-    (0.2, 5)
-    >>> gauge_from_t(0.5165, False, 'AWG'), gauge_from_t(0.00462026, True, 'AWG')
-    (0.2, 5)
-    >>> gauge_from_t(.4305, False, 'SWG'), gauge_from_t(0.0052578, True, 'SWG')
-    (0.2, 5)
-    >>> gauge_from_t(.005, False, 'MWG'), gauge_from_t(0.0003556, True, 'MWG')
-    (0.2, 5)
-    >>> gauge_from_t(.432, False, 'BSWG'), gauge_from_t(0.0053848, True, 'BSWG')
-    (0.2, 5)
-    >>> gauge_from_t(0.227, False, 'SSWG'), gauge_from_t(0.0051816, True, 'SSWG')
-    (1, 5)
+    >>> gauge_from_t(.5, False, 'BWG')
 
     References
     ----------
@@ -499,18 +488,7 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
 
     Examples
     --------
-    >>> t_from_gauge(.2, False, 'BWG'), t_from_gauge(5, True)
-    (0.5, 0.005588)
-    >>> t_from_gauge(.2, False, 'AWG'), t_from_gauge(5, True, 'AWG')
-    (0.5165, 0.00462026)
-    >>> t_from_gauge(.2, False, 'SWG'), t_from_gauge(5, True, 'SWG')
-    (0.4305, 0.0052578)
-    >>> t_from_gauge(.2, False, 'MWG'), t_from_gauge(5, True, 'MWG')
-    (0.005, 0.0003556)
-    >>> t_from_gauge(.2, False, 'BSWG'), t_from_gauge(5, True, 'BSWG')
-    (0.432, 0.0053848)
-    >>> t_from_gauge(1, False, 'SSWG'), t_from_gauge(5, True, 'SSWG')
-    (0.227, 0.0051816)
+    >>> t_from_gauge(.2, False, 'BWG')
 
     References
     ----------

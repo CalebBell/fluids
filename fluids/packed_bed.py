@@ -710,8 +710,6 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
 
     Examples
     --------
-    >>> Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
-    1104.6473821473724
     >>> Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=1E-2)
     1255.1625662548427
 
@@ -780,11 +778,6 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
 
     >>> Montillet_Akkari_Comiti(dp=0.0008, voidage=0.4, L=0.5, vs=0.00132629120, rho=1000., mu=1.00E-003)
     1148.1905244077548
-
-    Re = 4000 custom example:
-
-    >>> Montillet_Akkari_Comiti(dp=0.08, voidage=0.4, L=0.5, vs=0.05, rho=1000., mu=1.00E-003)
-    212.67409611116554
 
     References
     ----------
@@ -890,7 +883,6 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
             for key, values in packed_beds_correlations.items():
                 if Dt or not values[1]:
                     methods.append(key)
-        methods.append('None')
         if 'Harrison, Brunner & Hecker' in methods:
             methods.remove('Harrison, Brunner & Hecker')
             methods.insert(0, 'Harrison, Brunner & Hecker')
@@ -911,12 +903,9 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
             dP = packed_beds_correlations[Method][0](dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L, Dt=Dt)
         else:
             dP = packed_beds_correlations[Method][0](dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
-    elif Method == 'None':
-        dP = None
     else:
         raise Exception('Failure in in function')
     return dP
-
 
 
 #import matplotlib.pyplot as plt

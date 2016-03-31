@@ -25,7 +25,9 @@ __all__ = ['Q_weir_V_Shen',
 'Q_weir_rectangular_Kindsvater_Carter', 'Q_weir_rectangular_SIA',
 'Q_weir_rectangular_full_Ackers', 'Q_weir_rectangular_full_SIA',
 'Q_weir_rectangular_full_Rehbock', 'Q_weir_rectangular_full_Kindsvater_Carter',
-'V_Manning', 'n_Manning_to_C_Chezy', 'C_Chezy_to_n_Manning', 'V_Chezy']
+'V_Manning', 'n_Manning_to_C_Chezy', 'C_Chezy_to_n_Manning', 'V_Chezy',
+'n_natural', 'n_excavated_dredged', 'n_lined_built', 'n_closed_conduit',
+'n_dicts']
 
 
 nape_types = ['free', 'depressed', 'clinging']
@@ -89,8 +91,6 @@ def Q_weir_V_Shen(h1, angle=90):
     --------
     >>> Q_weir_V_Shen(0.6, angle=45)
     0.21071725775478228
-    >>> Q_weir_V_Shen(1.2)
-    2.8587083148501078
 
     References
     ----------
@@ -105,10 +105,6 @@ def Q_weir_V_Shen(h1, angle=90):
     k = k_Shen_i(angle)
     Q = C*tan(radians(angle)/2)*g**0.5*(h1 + k)**2.5
     return Q
-
-#print [Q_weir_V_Shen(0.6, angle=45)]
-#print [Q_weir_V_Shen(1.)]
-
 
 
 ### Rectangular Weirs
@@ -165,7 +161,7 @@ def Q_weir_rectangular_Kindsvater_Carter(h1, h2, b):
     '''
     Q = 0.554*(1 - 0.0035*h1/h2)*(b + 0.0025)*g**0.5*(h1 + 0.0001)**1.5
     return Q
-#print [Q_weir_rectangular_Kindsvater_Carter(0.2, 0.5, 1)]
+
 
 def Q_weir_rectangular_SIA(h1, h2, b, b1):
     r'''Calculates the flow rate across rectangular weir from
@@ -224,8 +220,6 @@ def Q_weir_rectangular_SIA(h1, h2, b, b1):
     *(1 + 0.5*(b/b1)**4*(h1/(h1 + h2))**2)*b*g**0.5*h**1.5
     return Q
 
-#print [Q_weir_rectangular_SIA(0.2, 0.5, 1, 2)]
-
 
 ### Rectangular Weirs, full channel
 
@@ -269,9 +263,6 @@ def Q_weir_rectangular_full_Ackers(h1, h2, b):
     >>> Q_weir_rectangular_full_Ackers(h1=0.9, h2=0.6, b=5)
     9.251938159899948
 
-    >>> Q_weir_rectangular_full_Ackers(h1=0.3, h2=0.4, b=2)
-    0.6489618999846898
-
     References
     ----------
     .. [1] Ackers, Peter, W. R. White, J. A. Perkins, and A. J. M. Harrison.
@@ -285,8 +276,6 @@ def Q_weir_rectangular_full_Ackers(h1, h2, b):
     Q = 0.564*(1 + 0.150*h1/h2)*b*g**0.5*(h1 + 0.001)**1.5
     return Q
 
-#print [Q_weir_rectangular_full_Ackers(h1=0.3, h2=0.4, b=2)]
-#print [Q_weir_rectangular_full_Ackers(h1=0.9, h2=0.6, b=5)]
 
 def Q_weir_rectangular_full_SIA(h1, h2, b):
     r'''Calculates the flow rate across a full-channel rectangular weir from
@@ -341,7 +330,7 @@ def Q_weir_rectangular_full_SIA(h1, h2, b):
     Q = 2/3.*2**0.5*(0.615 + 0.000615/(h1 + 0.0016))*b*g**0.5*h1 \
     + 0.5*(h1/(h1+h2))**2*b*g**0.5*h1**1.5
     return Q
-#print [Q_weir_rectangular_full_SIA(h1=0.3, h2=0.4, b=2)]
+
 
 def Q_weir_rectangular_full_Rehbock(h1, h2, b):
     r'''Calculates the flow rate across a full-channel rectangular weir from
@@ -487,13 +476,8 @@ def V_Manning(Rh, S, n):
     --------
     Example is from [2]_, matches.
 
-    >>> V_Manning(0.2859, 0.005236, 0.03)*0.5721
-    0.5988618058239864
-
-    Custom example, checked.
-
-    >>> V_Manning(Rh=5, S=0.001, n=0.05)
-    1.8493111942973235
+    >>> V_Manning(0.2859, 0.005236, 0.03)
+    1.0467781958118971
 
     References
     ----------
@@ -504,6 +488,7 @@ def V_Manning(Rh, S, n):
     '''
     V = Rh**(2/3.)*S**0.5/n
     return V
+
 
 def n_Manning_to_C_Chezy(n, Rh):
     r'''Converts a Manning roughness coefficient to a Chezy coefficient,
@@ -623,9 +608,6 @@ def V_Chezy(Rh, S, C):
     V = C*(S*Rh)**0.5
     return V
 
-#print [V_Chezy(Rh=5, S=0.001, C=26.153)]
-
-
 
 
 
@@ -695,7 +677,7 @@ n_closed_conduit = {
         'Rubble masonry, cemented': (0.018, 0.025, 0.03),
     }
 }
-#
+
 
 
 
@@ -825,9 +807,19 @@ n_natural = {
     }
 }
 
-#p = 0
-#for thing in [n_natural, n_excavated_dredged, n_lined_built, n_closed_conduit]:
+n_dicts = [n_natural, n_excavated_dredged, n_lined_built, n_closed_conduit]
+
+#tot = 0
+#for thing in n_dicts:
+#    for val in thing.values():
+#        tot += sum(val.values()[0])
+
+#print tot
 #    for i in thing:
 #        print i, thing[i].keys()
 #        p += len(thing[i].keys())
-#print p*3
+##print p*3
+#import numpy as np
+#
+##print '2'
+#print np.sum(np.array([val.values()[0] for thing in n_dicts for val in thing.values()]))
