@@ -588,8 +588,8 @@ def test_open_flow():
     V = V_Chezy(Rh=5, S=0.001, C=26.153)
     assert_allclose(V, 1.8492963648371776)
 
-    #n_tot = np.sum(np.array([val.values()[0] for thing in n_dicts for val in thing.values()]))
-    #assert_allclose(n_tot, 3.409)
+    n_tot = np.sum(np.concatenate(np.array([list(val.values()) for thing in n_dicts for val in thing.values()])))
+    assert_allclose(n_tot, 11.115999999999984)
 
 
 def test_packed_bed():
