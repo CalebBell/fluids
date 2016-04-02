@@ -30,14 +30,17 @@ __all__ = ['TANK', 'SA_partial_sphere', 'V_partial_sphere', 'V_horiz_conical',
            'V_vertical_ellipsoidal_concave', 'V_vertical_spherical_concave',
            'V_vertical_torispherical_concave', 'a_torispherical',
            'SA_ellipsoidal_head', 'SA_conical_head', 'SA_guppy_head',
-           'SA_torispheroidal', 'V_from_h']
+           'SA_torispheroidal', 'V_from_h', 'SA_tank']
 
 
 ### Spherical Vessels, partially filled
 
 
 def SA_partial_sphere(D, h):
-    r'''Calculates surface area of a partial sphere according to  [1]_.
+    r'''Calculates surface area of a partial sphere according to [1]_.
+    If h is half of D, the shape is half a sphere. No bottom is considered in
+    this function. Valid inputs are positive values of D and h, with h always
+    smaller or equal to D.
 
     .. math::
         a = \sqrt{h(2r - h)}
@@ -49,7 +52,7 @@ def SA_partial_sphere(D, h):
     D : float
         Diameter of the sphere, [m]
     h : float
-        Height, as measured up to where the sphere is cut off, [m]
+        Height, as measured from the cap to where the sphere is cut off [m]
 
     Returns
     -------
@@ -60,11 +63,6 @@ def SA_partial_sphere(D, h):
     --------
     >>> SA_partial_sphere(1., 0.7)
     2.199114857512855
-
-    One spherical head's surface area:
-
-    >>> SA_partial_sphere(2, 1)
-    6.283185307179586
 
     References
     ----------
@@ -78,6 +76,9 @@ def SA_partial_sphere(D, h):
 
 def V_partial_sphere(D, h):
     r'''Calculates volume of a partial sphere according to [1]_.
+    If h is half of D, the shape is half a sphere. No bottom is considered in
+    this function. Valid inputs are positive values of D and h, with h always
+    smaller or equal to D.
 
     .. math::
         a = \sqrt{h(2r - h)}
@@ -110,8 +111,6 @@ def V_partial_sphere(D, h):
     V = 1/6.*pi*h*(3*a**2 + h**2)
     return V
 
-#print [V_partial_sphere(1., 0.7)]
-
 
 
 #def V_horizontal_bullet(D, L, H, b=None):
@@ -127,8 +126,7 @@ def V_partial_sphere(D, h):
 #    V = 1/6.*pi*K1*D**3*fZe + 1/4.*pi*D**2*L*fZc
 #    return V
 
-#print V_horizontal_bullet(1., 5., .4999999999999, 0.000000000000000001)
-# TODO: SA
+#print(V_horizontal_bullet(1., 5., .4999999999999, 0.000000000000000001))
 
 #def V_vertical_bullet(D, L, H, b=None):
 #    K1 = 2*b/D
@@ -178,16 +176,10 @@ def V_horiz_conical(D, L, a, h, headonly=False):
 
     Examples
     --------
-    Two examples from [1]_, and at midway, full, and empty.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_horiz_conical(D=108., L=156., a=42., h=i)/231.
-    ... for i in (36, 84, 54, 108, 0)]
-    [2041.1923581273443, 6180.540773905826, 3648.490668241736, 7296.981336483472, 0.0]
-
-    Head only custom example:
-
-    >>> V_horiz_conical(D=108., L=156., a=42., h=84., headonly=True)/231.
-    508.8239000645628
+    >>> V_horiz_conical(D=108., L=156., a=42., h=36)/231
+    2041.1923581273443
 
     References
     ----------
@@ -209,9 +201,6 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     else:
         Vf += Af*L
     return Vf
-
-#print [V_horiz_conical(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)] # 471515.434727
-#print [V_horiz_conical(D=108., L=156., a=42., h=84., headonly=True)/231.]
 
 
 def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
@@ -242,16 +231,10 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
 
     Examples
     --------
-    Two examples from [1]_, and at midway, full, and empty.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_horiz_ellipsoidal(D=108., L=156., a=42., h=i)/231.
-    ... for i in (36, 84, 54, 108, 0)]
-    [2380.9565415578145, 7103.445235921378, 4203.695769930696, 8407.391539861392, 0.0]
-
-    Head only custom example:
-
-    >>> V_horiz_ellipsoidal(D=108., L=156., a=42., h=84., headonly=True)/231.
-    970.2761310723387
+    >>> V_horiz_ellipsoidal(D=108, L=156, a=42, h=36)/231.
+    2380.9565415578145
 
     References
     ----------
@@ -266,8 +249,6 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
         Vf += Af*L
     return Vf
 
-#print [V_horiz_ellipsoidal(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)] # 471515.434727
-#print [V_horiz_ellipsoidal(D=108., L=156., a=42., h=84., headonly=True)/231.]
 
 def V_horiz_guppy(D, L, a, h, headonly=False):
     r'''Calculates volume of a tank with guppy heads, according to [1]_.
@@ -298,16 +279,10 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
 
     Examples
     --------
-    Two examples from [1]_, and at midway, full, and empty.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_horiz_guppy(D=108., L=156., a=42., h=i)/231.
-    ... for i in (36, 84, 54, 108, 0)]
-    [1931.7208029476762, 5954.110515329029, 3412.8543046053724, 7296.981336483472, 0.0]
-
-    Head only custom example:
-
-    >>> V_horiz_guppy(D=108., L=156., a=42., h=36, headonly=True)/231.
-    63.266257496613804
+    >>> V_horiz_guppy(D=108., L=156., a=42., h=36)/231.
+    1931.7208029476762
 
     References
     ----------
@@ -322,8 +297,6 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
         Vf += Af*L
     return Vf
 
-#print [V_horiz_guppy(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)] # 471515.434727
-#print [V_horiz_guppy(D=108., L=156., a=42., h=36, headonly=True)/231.]
 
 def V_horiz_spherical(D, L, a, h, headonly=False):
     r'''Calculates volume of a tank with spherical heads, according to [1]_.
@@ -377,22 +350,10 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
 
     Examples
     --------
-    Two examples from [1]_, and at midway, full, and empty.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_horiz_spherical(D=108., L=156., a=42., h=i)/231.
-    ... for i in (36, 84, 54, 108, 0)]
-    [2303.9615116986183, 6935.163365275476, 4094.025626387197, 8188.051252774394, 0.0]
-
-    Test when the integration function is called, on its limits:
-
-    >>> [V_horiz_spherical(D=108., L=156., a=i, h=84.)/231.
-    ... for i in (108*.009999999, 108*.01000001)]
-    [5201.54341872961, 5201.543461255985]
-
-    Head only custom example:
-
-    >>> V_horiz_spherical(D=108., L=156., a=42., h=84., headonly=True)/231.
-    886.1351957493874
+    >>> V_horiz_spherical(D=108., L=156., a=42., h=36)/231.
+    2303.9615116986183
 
     References
     ----------
@@ -426,11 +387,6 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     else:
         Vf += Af*L
     return Vf
-
-
-#print [V_horiz_spherical(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)] # 471515.434727
-#print [V_horiz_spherical(D=108., L=156., a=i, h=84.)/231. for i in (108*.009999999, 108*.01000001)]
-#print [V_horiz_spherical(D=108., L=156., a=42., h=84., headonly=True)/231.]
 
 
 def V_horiz_torispherical(D, L, f, k, h, headonly=False):
@@ -497,17 +453,10 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
 
     Examples
     --------
-    Two examples from [1]_, and at midway, full, empty, and 1 inch; covering
-    all code cases.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_horiz_torispherical(D=108., L=156., f=1., k=0.06, h=i)/231.
-    ... for i in [36, 84, 54, 108, 0, 1]]
-    [2028.626670842139, 5939.897910157917, 3534.9973314622794, 7069.994662924554, 0.0, 9.580013820942611]
-
-    Head only custom example:
-
-    >>> V_horiz_spherical(D=108., L=156., a=42., h=84., headonly=True)/231.
-    886.1351957493874
+    >>> V_horiz_torispherical(D=108., L=156., f=1., k=0.06, h=36)/231.
+    2028.626670842139
 
     References
     ----------
@@ -562,8 +511,6 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         Vf += Af*L
     return Vf
 
-#print [V_horiz_torispherical(D=108., L=156., f=1., k=0.06, h=i)/231. for i in [36, 84, 54, 108, 0, 1]]
-#print [V_horiz_torispherical(D=108., L=156., f=1., k=0.06, h=i, headonly=True)/231.]
 
 ### Begin vertical tanks
 
@@ -592,10 +539,10 @@ def V_vertical_conical(D, a, h):
 
     Examples
     --------
-    Two examples from [1]_, and at empty and h=D.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_vertical_conical(132., 33., i)/231. for i in [24, 60, 0, 132]]
-    [250.67461381371024, 2251.175535772343, 0.0, 6516.560761446257]
+    >>> V_vertical_conical(132., 33., 24)/231.
+    250.67461381371024
 
     References
     ----------
@@ -606,10 +553,6 @@ def V_vertical_conical(D, a, h):
     else:
         Vf = pi*D**2/4*(h - 2*a/3.)
     return Vf
-#print 'vertical conical'
-#print V_vertical_conical(132., 33., 24.)/231.
-#print V_vertical_conical(132., 33., 60.)/231.
-#print [V_vertical_conical(132., 33., i)/231. for i in [24, 60, 0, 132]]
 
 
 def V_vertical_ellipsoidal(D, a, h):
@@ -637,10 +580,10 @@ def V_vertical_ellipsoidal(D, a, h):
 
     Examples
     --------
-    Two examples from [1]_, and at empty and h=D.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_vertical_ellipsoidal(132., 33., i)/231. for i in [24, 60, 0, 132]]
-    [783.3581681678445, 2902.831611916969, 0.0, 7168.216837590883]
+    >>> V_vertical_ellipsoidal(132., 33., 24)/231.
+    783.3581681678445
 
     References
     ----------
@@ -651,11 +594,6 @@ def V_vertical_ellipsoidal(D, a, h):
     else:
         Vf = pi*D**2/4*(h - a/3.)
     return Vf
-
-#print 'vertical epilsoidal'
-#print V_vertical_ellipsoidal(132., 33., 24.)/231.
-#print V_vertical_ellipsoidal(132., 33., 60.)/231.
-#print [V_vertical_ellipsoidal(132., 33., i)/231. for i in [24, 60, 0, 132]]
 
 
 def V_vertical_spherical(D, a, h):
@@ -683,10 +621,10 @@ def V_vertical_spherical(D, a, h):
 
     Examples
     --------
-    Two examples from [1]_, and at empty and h=D.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_vertical_spherical(132., 33., i)/231. for i in [24, 60, 0, 132]]
-    [583.6018352850442, 2658.4605833627343, 0.0, 6923.845809036648]
+    >>> V_vertical_spherical(132., 33., 24)/231.
+    583.6018352850442
 
     References
     ----------
@@ -697,11 +635,6 @@ def V_vertical_spherical(D, a, h):
     else:
         Vf = pi/4*(2*a**3/3 - a*D**2/2 + h*D**2)
     return Vf
-
-#print 'vertical spherical'
-#print V_vertical_spherical(132., 33., 24.)/231.
-#print V_vertical_spherical(132., 33., 60.)/231.
-#print [V_vertical_spherical(132., 33., i)/231. for i in [24, 60, 0, 132]]
 
 
 def V_vertical_torispherical(D, f, k, h):
@@ -757,11 +690,10 @@ def V_vertical_torispherical(D, f, k, h):
 
     Examples
     --------
-    Two examples from [1]_, and at empty, 1, 22, and h=D.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_vertical_torispherical(D=132., f=1.0, k=0.06, h=i)/231.
-    ... for i in [24, 60, 0, 1, 22, 132]]
-    [904.0688283793511, 3036.7614412163075, 0.0, 1.7906624793188568, 785.587561468186, 7302.146666890221]
+    >>> V_vertical_torispherical(D=132., f=1.0, k=0.06, h=24)/231.
+    904.0688283793511
 
     References
     ----------
@@ -787,10 +719,6 @@ def V_vertical_torispherical(D, f, k, h):
         + k**2*D**2/2*asin(cos(alpha))) + pi*D**2/4*(h - (a1 + a2))
     return Vf
 
-#print 'torispherical, vertical'
-#print V_vertical_torispherical(D=132., f=1.0, k=0.06, h=24.)/231.
-#print V_vertical_torispherical(D=132., f=1.0, k=0.06, h=60.)/231.
-#print [V_vertical_torispherical(D=132., f=1.0, k=0.06, h=i)/231.for i in [24, 60, 0, 1, 22, 132]]
 
 ### Begin vertical tanks with concave heads
 
@@ -820,11 +748,10 @@ def V_vertical_conical_concave(D, a, h):
 
     Examples
     --------
-    Three examples from [1]_, and at empty and with h=D.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_vertical_conical_concave(D=113., a=-33, h=i)/231 for i in
-    ... [15., 25., 50., 0, 113]]
-    [251.15825565795188, 614.6068425492208, 1693.1654406426783, 0.0, 4428.278844757774]
+    >>> V_vertical_conical_concave(D=113., a=-33, h=15)/231
+    251.15825565795188
 
     References
     ----------
@@ -838,10 +765,6 @@ def V_vertical_conical_concave(D, a, h):
         Vf = pi*D**2/12.*(3*h + a)
     return Vf
 
-#print V_vertical_conical_concave(D=113., a=-33, h=15.)/231 # works
-#print V_vertical_conical_concave(D=113., a=-33, h=25.)/231 # works
-#print V_vertical_conical_concave(D=113., a=-33, h=50.)/231 # works
-#print [V_vertical_conical_concave(D=113., a=-33, h=i)/231 for i in [15., 25., 50., 0, 113]]
 
 def V_vertical_ellipsoidal_concave(D, a, h):
     r'''Calculates volume of a vertical tank with a concave ellipsoidal bottom,
@@ -869,11 +792,10 @@ def V_vertical_ellipsoidal_concave(D, a, h):
 
     Examples
     --------
-    Three examples from [1]_, and at empty and with h=D.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_vertical_ellipsoidal_concave(D=113., a=-33, h=i)/231 for i in
-    ... [15., 25., 50., 0, 113]]
-    [44.84968851034856, 207.6374468071692, 1215.605957384487, 0.0, 3950.7193614995826]
+    >>> V_vertical_ellipsoidal_concave(D=113., a=-33, h=15)/231
+    44.84968851034856
 
     References
     ----------
@@ -886,8 +808,6 @@ def V_vertical_ellipsoidal_concave(D, a, h):
     else:
         Vf = pi*D**2/12.*(3*h + 2*a)
     return Vf
-
-#print [V_vertical_ellipsoidal_concave(D=113., a=-33, h=i)/231 for i in [15., 25., 50., 0, 113]]
 
 
 def V_vertical_spherical_concave(D, a, h):
@@ -917,11 +837,10 @@ def V_vertical_spherical_concave(D, a, h):
 
     Examples
     --------
-    Three examples from [1]_, and at empty and with h=D.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_vertical_spherical_concave(D=113., a=-33, h=i)/231 for i in
-    ... [15., 25., 50., 0, 113]]
-    [112.81405437348528, 341.7056403375114, 1372.9286894955042, 0.0, 4108.042093610599]
+    >>> V_vertical_spherical_concave(D=113., a=-33, h=15)/231
+    112.81405437348528
 
     References
     ----------
@@ -935,7 +854,6 @@ def V_vertical_spherical_concave(D, a, h):
         Vf = pi/12*(3*D**2*h + a/2.*(3*D**2 + 4*a**2))
     return Vf
 
-#print [V_vertical_spherical_concave(D=113., a=-33, h=i)/231 for i in [15., 25., 50., 0, 113]]
 
 def V_vertical_torispherical_concave(D, f, k, h):
     r'''Calculates volume of a vertical tank with a concave torispherical bottom,
@@ -988,11 +906,10 @@ def V_vertical_torispherical_concave(D, f, k, h):
 
     Examples
     --------
-    Three examples from [1]_, and at empty and with h=D.
+    Matching example from [1]_, with inputs in inches and volume in gallons.
 
-    >>> [V_vertical_torispherical_concave(D=113., f=0.71, k=0.081, h=i)/231
-    ... for i in [15., 25., 50., 0, 113]]
-    [103.88569287163769, 388.72142877582087, 1468.762358198084, 0.0, 4203.87576231318]
+    >>> V_vertical_torispherical_concave(D=113., f=0.71, k=0.081, h=15)/231
+    103.88569287163769
 
     References
     ----------
@@ -1024,7 +941,6 @@ def V_vertical_torispherical_concave(D, f, k, h):
         Vf = pi*D**2*h/4 - V1(a1+a2)
     return Vf
 
-#print [V_vertical_torispherical_concave(D=113., f=0.71, k=0.081, h=i)/231 for i in [15., 25., 50., 0, 113]]
 
 ### Total surface area of heads, orientation-independent
 
@@ -1054,12 +970,10 @@ def SA_ellipsoidal_head(D, a):
 
     Examples
     --------
-    Spherical case, and then a slightly non-Spherical case:
+    Spherical case
 
     >>> SA_ellipsoidal_head(2, 1)
     6.283185307179586
-    >>> SA_ellipsoidal_head(2, 0.999)
-    6.278996936093318
 
     References
     ----------
@@ -1258,15 +1172,6 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     >>> SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',
     ... sideB_a=0.5)
     18.84955592153876
-
-    Torispherical, checked; and Guppy, unchecked
-    >>> SA_tank(D=2.54, L=5, sideA='torispherical', sideB='torispherical',
-    ... sideA_f=1.039370079, sideA_k=0.062362205,
-    ... sideB_f=1.039370079, sideB_k=0.062362205, full_output=True)
-    (51.90611237013163, (6.00394283477063, 6.00394283477063, 39.89822670059037))
-    >>> SA_tank(D=1., L=5, sideA='guppy', sideA_a=0.5, sideB='guppy',
-    ... sideB_a=0.5)
-    19.034963277504044
     '''
     # Side A
     if sideA == 'conical':
@@ -1332,12 +1237,10 @@ def a_torispherical(D, f, k):
 
     Examples
     --------
-    Two examples from [1]_.
+    Example from [1]_.
 
     >>> a_torispherical(D=96., f=0.9, k=0.2)
     25.684268924767125
-    >>> a_torispherical(D=108., f=1., k=0.06)
-    18.288462280484797
 
     References
     ----------
@@ -1348,7 +1251,6 @@ def a_torispherical(D, f, k):
     a2 = k*D*cos(alpha)
     a = a1 + a2
     return a
-
 
 
 def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
@@ -1394,43 +1296,9 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
 
     Examples
     --------
-    Horizontal configurations, compared with TankCalc - Ellipsoidal*2,
-    Ellipsoidal/None, spherical/conical, None/None. Final test is guppy/torispherical,
-    no checks available.
-
-    >>> [V_from_h(h=h, D=10., L=25., horizontal=True, sideA='ellipsoidal',
-    ... sideB='ellipsoidal', sideA_a=2, sideB_a=2) for h in [1, 2.5, 5, 7.5, 10]]
-    [108.05249928250362, 416.5904542901302, 1086.4674593664702, 1756.34446444281, 2172.9349187329403]
-    >>> [V_from_h(h=h, D=10., L=25., horizontal=True, sideA='ellipsoidal',
-    ... sideA_a=2) for h in [1, 2.5, 5, 7.5, 10]]
-    [105.12034613915314, 400.22799255268336, 1034.1075818066402, 1667.9871710605971, 2068.2151636132803]
-    >>> [V_from_h(h=h, D=10., L=25., horizontal=True, sideA='spherical',
-    ... sideB='conical', sideA_a=2, sideB_a=2) for h in [1, 2.5, 5, 7.5, 10]]
-    [104.20408244287965, 400.47607362329063, 1049.291946298991, 1698.107818974691, 2098.583892597982]
-    >>> [V_from_h(h=h, D=1.5, L=5., horizontal=True) for h in [0, 0.75, 1.5]]
-    [0.0, 4.417864669110647, 8.835729338221293]
-    >>> [V_from_h(h=h, D=10., L=25., horizontal=True, sideA='guppy',
-    ... sideB='torispherical', sideA_a=2, sideB_f=1., sideB_k=0.06) for h in [1, 2.5, 5, 7.5, 10]]
-    [104.68706323659293, 399.0285611453449, 1037.3160340613756, 1683.391972469731, 2096.854290344973]
-
-    Vertical configurations, compared with TankCalc - conical*2, spherical*2,
-    ellipsoidal*2. Torispherical*2 has no check. None*2 checks.
-
-    >>> [V_from_h(h=h, D=1.5, L=5., horizontal=False, sideA='conical',
-    ... sideB='conical', sideA_a=2., sideB_a=1.) for h in [0, 1, 2, 5., 7, 7.2, 8]]
-    [0.0, 0.14726215563702155, 1.1780972450961726, 6.4795348480289485, 10.013826583317465, 10.301282311120932, 10.602875205865551]
-    >>> [V_from_h(h=h, D=8., L=10., horizontal=False, sideA='spherical',
-    ... sideB='spherical', sideA_a=3., sideB_a=4.) for h in [0, 1.5, 3, 8.5, 13., 15., 16.2, 17]]
-    [0.0, 25.91813939211579, 89.5353906273091, 365.99554414321085, 592.190215201676, 684.3435997069765, 718.7251897078633, 726.2315017548405]
-    >>> [V_from_h(h=h, D=8., L=10., horizontal=False, sideA='ellipsoidal',
-    ... sideB='ellipsoidal', sideA_a=3., sideB_a=4.) for h in [0, 1.5, 3, 8.5, 13., 15., 16.2, 17]]
-    [0.0, 31.41592653589793, 100.53096491487338, 376.99111843077515, 603.1857894892403, 695.3391739945409, 729.7207639954277, 737.2270760424049]
-    >>> [V_from_h(h=h, D=8., L=10., horizontal=False, sideA='torispherical',
-    ... sideB='torispherical', sideA_a=1.3547, sideB_a=1.3547, sideA_f=1.,
-    ... sideA_k=0.06, sideB_f=1., sideB_k=0.06) for h in [0, 1.3, 9.3, 10.1, 10.7094]]
-    [0.0, 38.723353379954276, 440.84578224136413, 481.0581682073135, 511.68995321687544]
-    >>> [V_from_h(h=h, D=1.5, L=5., horizontal=False) for h in [0, 2.5, 5]]
-    [0, 4.417864669110647, 8.835729338221293]
+    >>> V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical',
+    ... sideB='conical', sideA_a=2., sideB_a=1.)
+    10.013826583317465
 
     References
     ----------

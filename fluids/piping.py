@@ -396,6 +396,7 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
     Examples
     --------
     >>> gauge_from_t(.5, False, 'BWG')
+    0.2
 
     References
     ----------
@@ -489,6 +490,7 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
     Examples
     --------
     >>> t_from_gauge(.2, False, 'BWG')
+    0.5
 
     References
     ----------
