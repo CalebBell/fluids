@@ -712,3 +712,30 @@ def test_piping():
 
     t6s = t_from_gauge(1, False, 'SSWG'), t_from_gauge(5, True, 'SSWG')
     assert_allclose(t6s, (0.227, 0.0051816))
+
+
+def test_pump():
+    from scipy.constants import hp
+    eta = Corripio_pump_efficiency(461./15850.323)
+    assert_allclose(eta, 0.7058888670951621)
+    eta = Corripio_motor_efficiency(137*745.7)
+    assert_allclose(eta, 0.9128920875679222)
+
+    eta = VFD_efficiency(10*hp)
+    assert_allclose(eta, 0.96)
+
+    eta = VFD_efficiency(100*hp, load=0.5)
+    assert_allclose(eta, 0.96)
+
+    # Lower bound, 3 hp; upper bound, 400 hp
+    etas = VFD_efficiency(1*hp), VFD_efficiency(500*hp)
+    assert_allclose(etas, [0.94, 0.97])
+
+    hp_sum = sum(nema_sizes_hp)
+    assert_allclose(hp_sum, 3356.333333333333)
+    W_sum = sum(nema_sizes)
+    assert_allclose(W_sum, 2502817.33565396)
+
+    sizes = [motor_round_size(i) for i in [.1*hp, .25*hp, 1E5, 3E5]]
+    sizes_calc = [186.42496789556753, 186.42496789556753, 111854.98073734052, 335564.94221202156]
+    assert_allclose(sizes, sizes_calc)

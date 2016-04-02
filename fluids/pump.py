@@ -174,6 +174,7 @@ def VFD_efficiency(P, load=1):
     '''
     P = P/hp
     if P < 3:
+        print 'hi'
         P = 3
     elif P > 400:
         P = 400
@@ -182,6 +183,9 @@ def VFD_efficiency(P, load=1):
     efficiency = round(float(VFD_efficiency_interp(load, P)), 4)
     return efficiency
 
+print [VFD_efficiency(10*hp, load=0.001)]
+
+
 
 nema_sizes_hp = [.25, 1/3., .5, .75, 1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500]
 '''list: all NEMA motor sizes in increasing order, in horsepower.
@@ -189,6 +193,7 @@ nema_sizes_hp = [.25, 1/3., .5, .75, 1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20, 2
 nema_sizes = [i*hp for i in nema_sizes_hp]
 '''list: all NEMA motor sizes in increasing order, in Watts.
 '''
+
 
 def motor_round_size(P):
     r'''Rounds up the power for a motor to the nearest NEMA standard power.
@@ -211,8 +216,8 @@ def motor_round_size(P):
 
     Examples
     --------
-    >>> [motor_round_size(i) for i in [.1*hp, .25*hp, 1E5, 3E5]]
-    [186.42496789556753, 186.42496789556753, 111854.98073734052, 335564.94221202156]
+    >>> motor_round_size(1E5)
+    111854.98073734052
 
     References
     ----------
@@ -545,3 +550,5 @@ def speed_synchronous(f, poles=2, phase=3):
     '''
     Ns = 120.*f*phase/poles
     return Ns
+
+
