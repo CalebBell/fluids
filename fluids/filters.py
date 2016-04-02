@@ -27,7 +27,7 @@ round_betas = [1.3, 1.1, 0.95, 0.83, 0.75, 0.7, 0.6, 0.52]
 #round_interp = interp1d(round_Res, round_betas, kind='linear')
 '''Quadratic interpolation with no smoothing, constant value extremities
 returned when outside table limits'''
-round_interp = UnivariateSpline(round_Res, round_betas, s=0, k=1, ext='const')
+round_interp = UnivariateSpline(round_Res, round_betas, s=0, k=1)
 
 
 round_thetas = [0, 10, 20, 30, 40, 50, 60, 70, 80, 85]
@@ -35,7 +35,7 @@ round_gammas = [1, 0.97, 0.88, 0.75, 0.59, 0.45, 0.3, 0.23, 0.15, 0.09]
 #inclined_round_interp = interp1d(round_thetas, round_gammas, kind='linear')
 '''Quadratic interpolation with no smoothing, constant value extremities
 returned when outside table limits'''
-inclined_round_interp = UnivariateSpline(round_thetas, round_gammas, s=0, k=1, ext='const')
+inclined_round_interp = UnivariateSpline(round_thetas, round_gammas, s=0, k=1)
 
 #square_alphas = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.]
 #square_Ks = [100000., 1000., 250., 85., 52., 30., 17., 11., 7.7, 5.5, 3.8, 2.8, 2, 1.5, 1.1, 0.78, 0.53, 0.35, 0.08, 0.]
@@ -45,7 +45,7 @@ returned when outside table limits. Last actual value in the original table is
 K=1000 at alpha=0.05; the rest are extrapolated.'''
 square_alphas = [0.0015625, 0.003125, 0.00625, 0.0125, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.]
 square_Ks = [1024000.,256000, 64000, 16000, 4000, 1000., 250., 85., 52., 30., 17., 11., 7.7, 5.5, 3.8, 2.8, 2, 1.5, 1.1, 0.78, 0.53, 0.35, 0.08, 0.]
-square_interp = UnivariateSpline(square_alphas, square_Ks, s=0, k=1, ext='const')
+square_interp = UnivariateSpline(square_alphas, square_Ks, s=0, k=1)
 
 
 grills_rounded_alphas = [0.3, 0.4, 0.5, 0.6, 0.7]
@@ -53,7 +53,7 @@ grills_rounded_Ks = [2, 1, 0.6, 0.4, 0.2]
 #grills_rounded_interp = interp1d(grills_rounded_alphas, grills_rounded_Ks, kind='linear')
 '''Cubic interpolation with no smoothing, constant value extremities
 returned when outside table limits'''
-grills_rounded_interp = UnivariateSpline(grills_rounded_alphas, grills_rounded_Ks, s=0, k=2, ext='const')
+grills_rounded_interp = UnivariateSpline(grills_rounded_alphas, grills_rounded_Ks, s=0, k=2)
 
 def round_edge_screen(alpha, Re, angle=0):
     r'''Returns the loss coefficient for a round edged wire screen or bar
