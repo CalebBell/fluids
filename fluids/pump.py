@@ -174,7 +174,6 @@ def VFD_efficiency(P, load=1):
     '''
     P = P/hp
     if P < 3:
-        print 'hi'
         P = 3
     elif P > 400:
         P = 400
