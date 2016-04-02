@@ -1697,13 +1697,6 @@ class TANK(object):
             self.L = float(fsolve(solve_L_D, Lguess))
             self.D = self.L/self.L_over_D
 
-
-
-#T1 = TANK(V=10, L_over_D=0.7, sideB='conical', sideB_a=0.5)
-#print(T1.A, T1.A_sideA, T1.A_sideB, T1.A_lateral)
-
-
-#
 #test = TANK(D=10., L=100., horizontal=True, sideA='spherical', sideB='ellipsoidal',
 #            sideA_a=2., sideB_a=2.)
 #print test.V_total

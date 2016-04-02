@@ -676,15 +676,25 @@ def test_geometry():
     Vs_calc =[V_from_h(h=h, D=10., L=25., horizontal=True, sideA='ellipsoidal', sideA_a=2) for h in [1, 2.5, 5, 7.5, 10]]
     Vs = [105.12034613915314, 400.22799255268336, 1034.1075818066402, 1667.9871710605971, 2068.2151636132803]
     assert_allclose(Vs_calc, Vs)
+
     Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideA='spherical', sideB='conical', sideA_a=2, sideB_a=2) for h in [1, 2.5, 5, 7.5, 10]]
     Vs = [104.20408244287965, 400.47607362329063, 1049.291946298991, 1698.107818974691, 2098.583892597982]
     assert_allclose(Vs_calc, Vs)
+    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideB='spherical', sideA='conical', sideB_a=2, sideA_a=2) for h in [1, 2.5, 5, 7.5, 10]]
+    assert_allclose(Vs_calc, Vs)
+
     Vs_calc = [V_from_h(h=h, D=1.5, L=5., horizontal=True) for h in [0, 0.75, 1.5]]
     Vs = [0.0, 4.417864669110647, 8.835729338221293]
     assert_allclose(Vs_calc, Vs)
+
     Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideA='guppy', sideB='torispherical', sideA_a=2, sideB_f=1., sideB_k=0.06) for h in [1, 2.5, 5, 7.5, 10]]
     Vs = [104.68706323659293, 399.0285611453449, 1037.3160340613756, 1683.391972469731, 2096.854290344973]
     assert_allclose(Vs_calc, Vs)
+    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideB='guppy', sideA='torispherical', sideB_a=2, sideA_f=1., sideA_k=0.06) for h in [1, 2.5, 5, 7.5, 10]]
+    assert_allclose(Vs_calc, Vs)
+
+    with pytest.raises(Exception):
+        V_from_h(h=7, D=1.5, L=5)
 
 
     # Vertical configurations, compared with TankCalc - conical*2, spherical*2,
@@ -699,13 +709,20 @@ def test_geometry():
     Vs_calc = [V_from_h(h=h, D=8., L=10., horizontal=False, sideA='ellipsoidal', sideB='ellipsoidal', sideA_a=3., sideB_a=4.) for h in [0, 1.5, 3, 8.5, 13., 15., 16.2, 17]]
     Vs = [0.0, 31.41592653589793, 100.53096491487338, 376.99111843077515, 603.1857894892403, 695.3391739945409, 729.7207639954277, 737.2270760424049]
     assert_allclose(Vs_calc, Vs)
-    Vs_calc = [V_from_h(h=h, D=8., L=10., horizontal=False, sideA='torispherical', sideB='torispherical', sideA_a=1.3547, sideB_a=1.3547, sideA_f=1.,  sideA_k=0.06, sideB_f=1., sideB_k=0.06) for h in [0, 1.3, 9.3, 10.1, 10.7094]]
-    Vs = [0.0, 38.723353379954276, 440.84578224136413, 481.0581682073135, 511.68995321687544]
+    Vs_calc = [V_from_h(h=h, D=8., L=10., horizontal=False, sideA='torispherical', sideB='torispherical', sideA_a=1.3547, sideB_a=1.3547, sideA_f=1.,  sideA_k=0.06, sideB_f=1., sideB_k=0.06) for h in [0, 1.3, 9.3, 10.1, 10.7094, 12]]
+    Vs = [0.0, 38.723353379954276, 440.84578224136413, 481.0581682073135, 511.68995321687544, 573.323556832692]
     assert_allclose(Vs_calc, Vs)
     Vs_calc = [V_from_h(h=h, D=1.5, L=5., horizontal=False) for h in [0, 2.5, 5]]
     Vs = [0, 4.417864669110647, 8.835729338221293]
     assert_allclose(Vs_calc, Vs)
 
+    with pytest.raises(Exception):
+        V_from_h(h=7, D=1.5, L=5., horizontal=False)
+
+
+
+
+def test_geometry_tank():
     V1 = TANK(D=1.2, L=4, horizontal=False).V_total
     assert_allclose(V1, 4.523893421169302)
 
@@ -716,6 +733,7 @@ def test_geometry():
     assert_allclose(V3, 0.44209706414415373)
 
     T1 = TANK(V=10, L_over_D=0.7, sideB='conical', sideB_a=0.5)
+    T1.set_table(dx=0.001)
     things_calc = T1.A, T1.A_sideA, T1.A_sideB, T1.A_lateral
     things = (24.94775907657148, 5.118555935958284, 5.497246519930003, 14.331956620683194)
     assert_allclose(things_calc, things)
@@ -729,6 +747,23 @@ def test_geometry():
     D1 = TANK(L=4.69953105701, horizontal=False, sideA='conical', sideB='conical', V=500).D
     L2 = TANK(L_over_D=0.469953105701, horizontal=False, sideA='conical', sideB='conical', V=500).L
     assert_allclose([L1, D1, L2], [4.699531057009146, 9.999999999999407, 4.69953105700979])
+
+    # Test L_over_D setting simple cases
+    L1 = TANK(D=1.2, L_over_D=3.5, horizontal=False).L
+    D1 = TANK(L=1.2, L_over_D=3.5, horizontal=False).D
+    assert_allclose([L1, D1], [4.2, 0.342857142857])
+    # Test toripsherical a calculation
+    V = TANK(L=1.2, L_over_D=3.5, sideA='torispherical', sideB='torispherical', sideA_f=1.,  sideA_k=0.06, sideB_f=1., sideB_k=0.06).V_total
+    assert_allclose(V, 0.117318265914)
+
+    with pytest.raises(Exception):
+        # Test overdefinition case
+        TANK(V=10, L=10, D=10)
+    with pytest.raises(Exception):
+        # Test sides specified with V solving
+        TANK(V=10, L=10, sideA='conical', sideB_a=0.5)
+    with pytest.raises(Exception):
+        TANK(V=10, L=10, sideA='conical', sideA_a_ratio=None)
 
 
 def test_mixing():
