@@ -22,7 +22,8 @@ from fluids.compressible import is_critical_flow
 from scipy.interpolate import interp1d, interp2d
 
 __all__ = ['API526_A_sq_inch', 'API526_letters', 'API526_A',
-'API520_round_size']
+'API520_round_size', 'API520_C', 'API520_F2', 'API520_Kv', 'API520_N',
+'API520_SH', 'API520_B', 'API520_W', 'API520_A_g', 'API520_A_steam']
 
 API526_A_sq_inch = [0.110, 0.196, 0.307, 0.503, 0.785, 1.287, 1.838, 2.853, 3.60,
              4.34, 6.38, 11.05, 16.00, 26.00] # square inches
@@ -72,8 +73,6 @@ def API520_round_size(A):
             return area
     raise Exception('Required relief area is larger than can be provided with one valve')
 
-#print [API520_round_size(1E-4)]
-#print [_API526[_API526SI.index(API520_round_size(1E-4))]]
 
 def API520_C(k):
     r'''Calculates coefficient C for use in API 520 critical flow relief valve
@@ -122,8 +121,6 @@ def API520_C(k):
         C = 0.03948*(1./exp(1))**0.5
     return C
 
-#print [API520_C(1.35)]
-#print [API520_C(1.)]
 
 def API520_F2(k, P1, P2):
     r'''Calculates coefficient F2 for subcritical flow for use in API 520
@@ -208,8 +205,8 @@ def API520_Kv(Re):
     --------
     From [1]_, checked with example 5.
 
-    >>> [API520_Kv(100), API520_Kv(4525), API520_Kv(1E5)]
-    [0.6157445891444229, 0.9639390032437682, 0.9973949303006829]
+    >>> API520_Kv(100)
+    0.6157445891444229
 
     References
     ----------
@@ -217,8 +214,6 @@ def API520_Kv(Re):
     '''
     Kv = (0.9935 + 2.878/Re**0.5 + 342.75/Re**1.5)**-1.0
     return Kv
-
-#print [API520_Kv(100), API520_Kv(4525), API520_Kv(1E5)]
 
 
 def API520_N(P1):
@@ -346,6 +341,7 @@ def API520_SH(T1, P1):
     return KSH
 
 
+
 # Kw, for liquids. Applicable for all overpressures.
 _Kw_x = [15., 16.5493, 17.3367, 18.124, 18.8235, 19.5231, 20.1351, 20.8344, 21.4463, 22.0581, 22.9321, 23.5439, 24.1556, 24.7674, 25.0296, 25.6414, 26.2533, 26.8651, 27.7393, 28.3511, 28.9629, 29.6623, 29.9245, 30.5363, 31.2357, 31.8475, 32.7217, 33.3336, 34.0329, 34.6448, 34.8196, 35.4315, 36.1308, 36.7428, 37.7042, 38.3162, 39.0154, 39.7148, 40.3266, 40.9384, 41.6378, 42.7742, 43.386, 43.9978, 44.6098, 45.2216, 45.921, 46.5329, 47.7567, 48.3685, 49.0679, 49.6797, 50.]
 _Kw_y = [1, 0.996283, 0.992565, 0.987918, 0.982342, 0.976766, 0.97119, 0.964684, 0.958178, 0.951673, 0.942379, 0.935874, 0.928439, 0.921933, 0.919145, 0.912639, 0.906134, 0.899628, 0.891264, 0.884758, 0.878253, 0.871747, 0.868959, 0.862454, 0.855948, 0.849442, 0.841078, 0.834572, 0.828067, 0.821561, 0.819703, 0.814126, 0.806691, 0.801115, 0.790892, 0.785316, 0.777881, 0.771375, 0.76487, 0.758364, 0.751859, 0.740706, 0.734201, 0.727695, 0.722119, 0.715613, 0.709108, 0.702602, 0.69052, 0.684015, 0.677509, 0.671004, 0.666357]
@@ -393,7 +389,6 @@ def API520_W(Pset, Pback):
     KW = float(API520_Kw(gauge_backpressure))
     return KW
 
-#print [API520_W(1E6, 3E5)]
 
 
 # Kb Backpressure correction factor, for gases
@@ -439,10 +434,8 @@ def API520_B(Pset, Pback, overpressure=0.1):
     --------
     Custom examples from figure 30:
 
-    >>> [API520_B(1E6, 3E5), API520_B(1E6, 5E5),
-    ... API520_B(1E6, 5E5, overpressure=.16),
-    ... API520_B(1E6, 5E5, overpressure=.21)]
-    [1, 0.7929945420944432, 0.94825439189912, 1]
+    >>> API520_B(1E6, 5E5)
+    0.7929945420944432
 
     References
     ----------
@@ -463,6 +456,7 @@ def API520_B(Pset, Pback, overpressure=0.1):
          Kb = float(API520_Kb_10(gauge_backpressure))
     return Kb
 
+#print [API520_B(1E6, 3E5), API520_B(1E6, 5E5), API520_B(1E6, 5E5, overpressure=.16), API520_B(1E6, 5E5, overpressure=.21)]
 
 def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
     r'''Calculates required relief valve area for an API 520 valve passing

@@ -376,6 +376,12 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
 
     Notes
     -----
+    An internal variable, tol, is used in the selection of the wire gauge. If
+    the next smaller wire gauge is within 10% of the difference between it and
+    the previous wire gauge, the smaller wire gauge is selected. Accordingly,
+    this function can return a gauge with a thickness smaller than desired
+    in some circumstances.
+
     Birmingham Wire Gauge (BWG) ranges from 0.2 (0.5 inch) to 36 (0.004 inch).
 
     American Wire Gauge (AWG) ranges from 0.167 (0.58 inch) to 51 (0.00099
@@ -395,7 +401,7 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
 
     Examples
     --------
-    >>> gauge_from_t(.5, False, 'BWG')
+    >>> gauge_from_t(.5, SI=False, schedule='BWG')
     0.2
 
     References
@@ -435,19 +441,12 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
         if larger == sch_min:
             gauge = sch_min # If t is under the lowest schedule, be happy
         else:
-
             smaller = sch_inch[i]
             if (t_inch - smaller) <= tol*(larger - smaller):
                 gauge = sch_integers[i]
             else:
                 gauge = sch_integers[i-1]
-
     return gauge
-
-
-#print gauge_from_t(.0009), gauge_from_t(.00095)
-#print gauge_from_t(0.000990, schedule='MWG'), gauge_from_t(.000996, schedule='MWG')
-
 
 
 def t_from_gauge(gauge, SI=True, schedule='BWG'):
@@ -512,4 +511,3 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
         t = sch_inch[i]
     return t
 
-#print t_from_gauge(17, schedule='MWG')

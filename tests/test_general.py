@@ -922,6 +922,8 @@ def test_piping():
     P2 = nearest_pipe(Do=.273, schedule='5S')
     assert_allclose(P2, (10, 0.26630000000000004, 0.2731, 0.0034))
 
+
+
     g1s = gauge_from_t(.5, False, 'BWG'), gauge_from_t(0.005588, True)
     assert_allclose(g1s, (0.2, 5))
     g2s = gauge_from_t(0.5165, False, 'AWG'), gauge_from_t(0.00462026, True, 'AWG')
@@ -934,6 +936,19 @@ def test_piping():
     assert_allclose(g5s, (0.2, 5))
     g6s = gauge_from_t(0.227, False, 'SSWG'), gauge_from_t(0.0051816, True, 'SSWG')
     assert_allclose(g6s, (1, 5))
+
+    with pytest.raises(Exception):
+        gauge_from_t(.5, False, 'FAIL') # Not in schedule
+    with pytest.raises(Exception):
+        gauge_from_t(0.02) # Too large
+
+    g1 = gauge_from_t(0.002) # not in index; gauge 14, 2 mm
+    g2 = gauge_from_t(0.00185) # not in index, gauge 15, within tol (10% default)
+    # Limits between them are 0.0018288 and 0.0021082 m.
+    g3 = gauge_from_t(0.00002)
+    assert_allclose([g1, g2, g3], [14, 15, 0.004])
+
+
 
     t1s = t_from_gauge(.2, False, 'BWG'), t_from_gauge(5, True)
     assert_allclose(t1s, (0.5, 0.005588))
@@ -953,6 +968,11 @@ def test_piping():
     t6s = t_from_gauge(1, False, 'SSWG'), t_from_gauge(5, True, 'SSWG')
     assert_allclose(t6s, (0.227, 0.0051816))
 
+    with pytest.raises(Exception):
+        t_from_gauge(17.5, schedule='FAIL')
+    with pytest.raises(Exception):
+        t_from_gauge(17.5, schedule='MWG')
+
 
 def test_pump():
     from scipy.constants import hp
@@ -967,9 +987,9 @@ def test_pump():
     eta = VFD_efficiency(100*hp, load=0.5)
     assert_allclose(eta, 0.96)
 
-    # Lower bound, 3 hp; upper bound, 400 hp
-    etas = VFD_efficiency(1*hp), VFD_efficiency(500*hp)
-    assert_allclose(etas, [0.94, 0.97])
+    # Lower bound, 3 hp; upper bound, 400 hp; 0.016 load bound
+    etas = VFD_efficiency(1*hp), VFD_efficiency(500*hp), VFD_efficiency(8*hp, load=0.01)
+    assert_allclose(etas, [0.94, 0.97, 0.386])
 
     hp_sum = sum(nema_sizes_hp)
     assert_allclose(hp_sum, 3356.333333333333)
@@ -979,3 +999,83 @@ def test_pump():
     sizes = [motor_round_size(i) for i in [.1*hp, .25*hp, 1E5, 3E5]]
     sizes_calc = [186.42496789556753, 186.42496789556753, 111854.98073734052, 335564.94221202156]
     assert_allclose(sizes, sizes_calc)
+
+    with pytest.raises(Exception):
+        motor_round_size(1E100)
+
+    nema_high_P_calcs = [CSA_motor_efficiency(k*hp, high_efficiency=True, closed=i, poles=j) for i in [True, False] for j in [2, 4, 6] for k in nema_high_P]
+    nema_high_Ps = [0.77, 0.84, 0.855, 0.865, 0.885, 0.885, 0.885, 0.895, 0.902, 0.91, 0.91, 0.917, 0.917, 0.924, 0.93, 0.936, 0.936, 0.941, 0.95, 0.95, 0.954, 0.954, 0.855, 0.865, 0.865, 0.895, 0.895, 0.895, 0.895, 0.917, 0.917, 0.924, 0.93, 0.936, 0.936, 0.941, 0.945, 0.95, 0.954, 0.954, 0.954, 0.958, 0.962, 0.962, 0.825, 0.875, 0.885, 0.895, 0.895, 0.895, 0.895, 0.91, 0.91, 0.917, 0.917, 0.93, 0.93, 0.941, 0.941, 0.945, 0.945, 0.95, 0.95, 0.958, 0.958, 0.958, 0.77, 0.84, 0.855, 0.855, 0.865, 0.865, 0.865, 0.885, 0.895, 0.902, 0.91, 0.917, 0.917, 0.924, 0.93, 0.936, 0.936, 0.936, 0.941, 0.941, 0.95, 0.95, 0.855, 0.865, 0.865, 0.895, 0.895, 0.895, 0.895, 0.91, 0.917, 0.93, 0.93, 0.936, 0.941, 0.941, 0.945, 0.95, 0.95, 0.954, 0.954, 0.958, 0.958, 0.958, 0.825, 0.865, 0.875, 0.885, 0.895, 0.895, 0.895, 0.902, 0.917, 0.917, 0.924, 0.93, 0.936, 0.941, 0.941, 0.945, 0.945, 0.95, 0.95, 0.954, 0.954, 0.954]
+    assert_allclose(nema_high_P_calcs, nema_high_Ps)
+
+    nema_min_P_calcs = [CSA_motor_efficiency(k*hp, high_efficiency=False, closed=i, poles=j) for i in [True, False] for j in [2, 4, 6, 8] for k in nema_min_P]
+    nema_min_Ps = [0.755, 0.825, 0.84, 0.855, 0.855, 0.875, 0.875, 0.885, 0.895, 0.902, 0.902, 0.91, 0.91, 0.917, 0.924, 0.93, 0.93, 0.936, 0.945, 0.945, 0.95, 0.95, 0.954, 0.954, 0.954, 0.954, 0.954, 0.954, 0.825, 0.84, 0.84, 0.875, 0.875, 0.875, 0.875, 0.895, 0.895, 0.91, 0.91, 0.924, 0.924, 0.93, 0.93, 0.936, 0.941, 0.945, 0.945, 0.95, 0.95, 0.95, 0.95, 0.954, 0.954, 0.954, 0.954, 0.958, 0.8, 0.855, 0.865, 0.875, 0.875, 0.875, 0.875, 0.895, 0.895, 0.902, 0.902, 0.917, 0.917, 0.93, 0.93, 0.936, 0.936, 0.941, 0.941, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.74, 0.77, 0.825, 0.84, 0.84, 0.855, 0.855, 0.855, 0.885, 0.885, 0.895, 0.895, 0.91, 0.91, 0.917, 0.917, 0.93, 0.93, 0.936, 0.936, 0.941, 0.941, 0.945, 0.945, 0.945, 0.945, 0.945, 0.945, 0.755, 0.825, 0.84, 0.84, 0.84, 0.855, 0.855, 0.875, 0.885, 0.895, 0.902, 0.91, 0.91, 0.917, 0.924, 0.93, 0.93, 0.93, 0.936, 0.936, 0.945, 0.945, 0.945, 0.95, 0.95, 0.954, 0.958, 0.958, 0.825, 0.84, 0.84, 0.865, 0.865, 0.875, 0.875, 0.885, 0.895, 0.91, 0.91, 0.917, 0.924, 0.93, 0.93, 0.936, 0.941, 0.941, 0.945, 0.95, 0.95, 0.95, 0.954, 0.954, 0.954, 0.954, 0.958, 0.958, 0.8, 0.84, 0.855, 0.865, 0.865, 0.875, 0.875, 0.885, 0.902, 0.902, 0.91, 0.917, 0.924, 0.93, 0.93, 0.936, 0.936, 0.941, 0.941, 0.945, 0.945, 0.945, 0.954, 0.954, 0.954, 0.954, 0.954, 0.954, 0.74, 0.755, 0.855, 0.865, 0.865, 0.875, 0.875, 0.885, 0.895, 0.895, 0.902, 0.902, 0.91, 0.91, 0.917, 0.924, 0.936, 0.936, 0.936, 0.936, 0.936, 0.936, 0.945, 0.945, 0.945, 0.945, 0.945, 0.945]
+
+    full_efficiencies = [motor_efficiency_underloaded(P*hp,  .99) for P in (0.5, 2.5, 7, 12, 42, 90)]
+    assert_allclose(full_efficiencies, [1, 1, 1, 1, 1, 1])
+
+    low_efficiencies = [motor_efficiency_underloaded(P*hp,  .25) for P in (0.5, 2.5, 7, 12, 42, 90)]
+    low_ans = [0.6761088414400706, 0.7581996772085579, 0.8679397648030529, 0.9163243775499996, 0.9522559064662419, 0.9798906308690559]
+    assert_allclose(low_efficiencies, low_ans)
+
+    nS = specific_speed(0.0402, 100, 3550)
+    assert_allclose(nS, 22.50823182748925)
+
+    Ds = specific_diameter(Q=0.1, H=10., D=0.1)
+    assert_allclose(Ds, 0.5623413251903491)
+
+    s1, s2 = speed_synchronous(50, poles=12), speed_synchronous(60, phase=1)
+    assert_allclose([s1, s2], [1500, 3600])
+
+
+def test_safety_valve():
+    A = API520_round_size(1E-4)
+    assert_allclose(A, 0.00012645136)
+    assert 'E' == API526_letters[API526_A.index(API520_round_size(1E-4))]
+    with pytest.raises(Exception):
+        API520_round_size(1)
+
+    C1, C2 = API520_C(1.35), API520_C(1.)
+    Cs = [0.02669419967057233, 0.023945830445454768]
+    assert_allclose([C1, C2], Cs)
+
+    F2 = API520_F2(1.8, 1E6, 7E5)
+    assert_allclose(F2, 0.8600724121105563)
+
+    Kv_calcs = [API520_Kv(100), API520_Kv(4525), API520_Kv(1E5)]
+    Kvs = [0.6157445891444229, 0.9639390032437682, 0.9973949303006829]
+    assert_allclose(Kv_calcs, Kvs)
+
+    KN = API520_N(1774700)
+    assert_allclose(KN, 0.9490406958152466)
+
+    with pytest.raises(Exception):
+        API520_SH(593+273.15, 21E6)
+    with pytest.raises(Exception):
+        API520_SH(1000, 1066E3)
+    # Test under 15 psig sat case
+    assert API520_SH(320, 5E4) == 1
+
+    from fluids.safety_valve import _KSH_Pa, _KSH_tempKs
+    KSH_tot =  sum([API520_SH(T, P) for P in _KSH_Pa[:-1] for T in _KSH_tempKs])
+    assert_allclose(229.93, KSH_tot)
+
+    KW = [API520_W(1E6, 3E5), API520_W(1E6, 1E5)]
+    assert_allclose(KW, [0.9511471848008564, 1])
+
+    B_calc = [API520_B(1E6, 3E5), API520_B(1E6, 5E5), API520_B(1E6, 5E5, overpressure=.16), API520_B(1E6, 5E5, overpressure=.21)]
+    Bs = [1, 0.7929945420944432, 0.94825439189912, 1]
+    assert_allclose(B_calc, Bs)
+
+    with pytest.raises(Exception):
+        API520_B(1E6, 5E5, overpressure=.17)
+    with pytest.raises(Exception):
+        API520_B(1E6, 7E5, overpressure=.16)
+
+    A1 = API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, Kb=1, Kc=1)
+    A2 = API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, P2=532E3, Kd=0.975, Kb=1, Kc=1)
+    As = [0.0036990460646834414, 0.004248358775943481]
+    assert_allclose([A1, A2], As)
+
+    A = API520_A_steam(m=69615/3600., T=592.5, P1=12236E3, Kd=0.975, Kb=1, Kc=1)
+    assert_allclose(A, 0.0011034712423692733)
+

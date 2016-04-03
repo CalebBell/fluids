@@ -23,7 +23,7 @@ from scipy.constants import hp
 __all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
 'Corripio_pump_efficiency', 'Corripio_motor_efficiency',
 'specific_speed', 'specific_diameter', 'speed_synchronous', 'nema_sizes',
-'nema_sizes_hp', 'motor_round_size']
+'nema_sizes_hp', 'motor_round_size', 'nema_min_P', 'nema_high_P']
 
 
 def Corripio_pump_efficiency(Q):
@@ -181,7 +181,6 @@ def VFD_efficiency(P, load=1):
         load = 0.016
     efficiency = round(float(VFD_efficiency_interp(load, P)), 4)
     return efficiency
-
 
 
 nema_sizes_hp = [.25, 1/3., .5, .75, 1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500]
@@ -357,6 +356,9 @@ def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
     efficiency = round(float(efficiency), 4)
     return efficiency
 
+# Test high efficiency:
+#print([CSA_motor_efficiency(k*hp, high_efficiency=False, closed=i, poles=j) for i in [True, False] for j in [2, 4, 6, 8] for k in nema_min_P])
+
 
 
 _to_1 = [0.015807118828266818, 4.3158627514876216, -8.5612097969025438, 8.2040355039147386, -3.0147603718043068]
@@ -426,7 +428,6 @@ def motor_efficiency_underloaded(P, load=0.5):
         efficiency = cs[0] + cs[1]*load + cs[2]*load**2 + cs[3]*load**3 + cs[4]*load**4
     return efficiency
 
-#print [motor_efficiency_underloaded(1*hp)]
 
 def specific_speed(Q, H, n=3600.):
     r'''Returns the specific speed of a pump operating at a specified Q, H,
