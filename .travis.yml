@@ -24,7 +24,7 @@ install:
   - pip install -r requirements_test.txt
   - python setup.py -q install
 script:
-  - python tests/doctests.py
+  - python tests/test_doctests.py
   - py.test . -v --cov-report html --cov=fluids --cov-report term-missing 
 after_success:
   - coveralls
