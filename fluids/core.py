@@ -74,7 +74,7 @@ def thermal_diffusivity(k, rho, Cp):
 
 
 def c_ideal_gas(T, k, MW):
-    r'''Calculates speed of sound `c` in an ideal gas at tempereture T.
+    r'''Calculates speed of sound `c` in an ideal gas at temperature T.
 
     .. math::
         c = \sqrt{kR_{specific}T}
