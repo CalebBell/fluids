@@ -55,7 +55,7 @@ Documentation
 
 fluids's documentation is available on the web:
 
-    https://fluids.readthedocs.org/en/latest/index.html
+    http://fluids.readthedocs.io/
 
 
 Latest source code
