@@ -45,14 +45,6 @@ classifiers=[
 ]
 
 
-long_description = '''fluids is open-source software for engineers and
-technicians working in the fields of chemical, mechanical, or civil
-engineering. It includes modules for piping, fittings, pumps, tanks,
-compressible flow, open-channel flow, and more. fluids runs on all operating
-systems which support Python, is quick to install, and is free of charge.
-fluids is designed to be easy to use while still providing powerful
-functionality. If you need to perform some fluid dynamics calculations,
-give fluids a try.'''
 
 from distutils.core import setup
 setup(
@@ -62,7 +54,7 @@ setup(
   version = '0.1.43',
   download_url = 'https://github.com/CalebBell/fluids/tarball/0.1.43',
   description = 'Fluid dynamics component of Chemical Engineering Design Library (ChEDL)',
-  long_description = long_description,
+  long_description=open('README.rst').read(),
   extras_require = {
       'Coverage documentation':  ['wsgiref>=0.1.2', 'coverage>=4.0.3']
   },
