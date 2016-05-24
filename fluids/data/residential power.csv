@@ -1,0 +1,205 @@
+Country	Country code	Plugs	Residential voltage, V	Frequency, Hz
+Andorra	ad	C, F	230	50
+United Arab Emirates	ae	C, D, G	220	50
+Afghanistan	af	C, F	220	50
+Antigua and Barbuda	ag	A, B	230	60
+Anguilla	ai	A	110	60
+Albania	al	C, F	230	50
+Armenia	am	C, F	230	50
+Angola	ao	C	220	50
+Argentina	ar	C, I	220	50
+Austria	at	C, F	230	50
+Australia	au	I	230	50
+Azerbaijan	az	C, F	230	50
+Bosnia and Herzegovina	ba	C, F	230	50
+Barbados	bb	A, B	115	50
+Bangladesh	bd	C, D, G, K	220	50
+Belgium	be	C, E	230	50
+Burkina Faso	bf	C, E	220	50
+Bulgaria	bg	C, F	230	50
+Bahrain	bh	G	230	50
+Burundi	bi	C, E	220	50
+Benin	bj	C, E	220	50
+Bermuda	bm	A, B	120	60
+Brunei	bn	G	240	50
+Bolivia	bo	A, C	115	50
+Brazil	br	C, N	220	60
+Bahamas	bs	A, B	120	60
+Bhutan	bt	C, D, F, G, M	230	50
+Botswana	bw	D, G, M	230	50
+Belarus	by	C, F	230	50
+Belize	bz	A, B, G	110	60
+Canada	ca	A, B	120	60
+Congo, Democratic Republic of the	cd	C, D, E	220	50
+Central African Republic	cf	C, E	220	50
+Congo, Republic of the	cg	C, E	230	50
+Switzerland	ch	C, J	230	50
+Côte d'Ivoire	ci	C, E	230	50
+Chile	cl	L	220	50
+Cameroon	cm	C, E	220	50
+China	cn	A, I, C	220	50
+Colombia	co	A, B	110	60
+Costa Rica	cr	A, B	120	60
+Cuba	cu	A, B, C	110	60
+Cape Verde	cv	C, F	220	50
+Cyprus	cy	G	240	50
+Czech Republic	cz	C, E	230	50
+Germany	de	C, F	230	50
+Djibouti	dj	C, E	220	50
+Denmark	dk	C, E, F, K	230	50
+Dominica	dm	D, G	230	50
+Dominican Republic	do	A, B	110	60
+Algeria	dz	C, F	230	50
+Ecuador	ec	A, B	120	60
+Estonia	ee	C, F	230	50
+Egypt	eg	C, F	220	50
+Eritrea	er	C, L	230	50
+Spain	es	C, F	230	50
+Ethiopia	et	C, E, F, L	220	50
+Finland	fi	C, F	230	50
+Fiji	fj	I	240	50
+Falkland Islands	fk	G	240	50
+Micronesia	fm	A, B	120	60
+Faroe Islands	fo	C, E, F, K	230	50
+France	fr	C, E	230	50
+Gabon	ga	C	220	50
+United Kingdom	gb	G	230	50
+Grenada	gd	G	230	50
+Guernsey	gg	G	230	50
+Ghana	gh	D, G	230	50
+Gibraltar	gi	C, G	240	50
+Gambia	gm	G	230	50
+Guinea	gn	C, F, K	220	50
+Equatorial Guinea	gq	C, E	220	50
+Greece	gr	C, F	230	50
+Guatemala	gt	A, B	120	60
+Guam	gu	A, B	110	60
+Guinea-Bissau	gw	C	220	50
+Guyana	gy	A, B, D, G	110	60
+Honduras	hn	A, B	110	60
+Croatia	hr	C, F	230	50
+Haiti	ht	A, B	110	60
+Hungary	hu	C, F	230	50
+Indonesia	id	C, F, G	230	50
+Ireland	ie	G	230	50
+Israel	il	C, H, M	230	50
+Isle of Man	im	G	240	50
+India	in	C, D, M	230	50
+Iraq	iq	C, D, G	230	50
+Iran	ir	C, F	220	50
+Iceland	is	C, F	230	50
+Italy	it	C, F, L	230	50
+Jersey	je	G	230	50
+Jamaica	jm	A, B	110	50
+Jordan	jo	B, C, D, F, G, J	230	50
+Japan	jp	A, B	100	50
+Kenya	ke	G	240	50
+Kyrgyzstan	kg	C, F	220	50
+Cambodia	kh	A, C, G	230	50
+Comoros	km	C, E	220	50
+St. Kitts and Nevis	kn	A, B, D, G	110	60
+North Korea	kp	A, C, F	110	60
+South Korea	kr	C, F	220	60
+Kuwait	kw	C, G	240	50
+Cayman Islands	ky	A, B	120	60
+Kazakhstan	kz	C, F	220	50
+Laos	la	C, E, F	230	50
+Lebanon	lb	A, B, C, D, G	220	50
+St. Lucia	lc	G	240	50
+Liechtenstein	li	C, J	230	50
+Sri Lanka	lk	D, G, M	230	50
+Liberia	lr	A, B, C, E, F	120	60
+Lesotho	ls	M	220	50
+Lithuania	lt	C, F	230	50
+Luxembourg	lu	C, F	230	50
+Latvia	lv	C, F	230	50
+Libya	ly	C, D, F, L	127	50
+Morocco	ma	C, E	220	50
+Monaco	mc	C, D, E, F	230	50
+Moldova	md	C, F	220	50
+Montenegro	me	C, F	230	50
+Madagascar	mg	C, D, E, J, K	220	50
+Macedonia	mk	C, F	230	50
+Mali	ml	C, E	220	50
+Myanmar	mm	C, D, F, G	230	50
+Mongolia	mn	C, E	220	50
+Mauritania	mr	C	220	50
+Montserrat	ms	A, B	120	60
+Mauritius	mu	C, G	230	50
+Maldives	mv	D, G, J, K, L	230	50
+Malawi	mw	G	230	50
+Mexico	mx	A, B	127	60
+Malaysia	my	C, G, M	230	50
+Mozambique	mz	C, F, M	220	50
+Namibia	na	D, M	220	50
+Niger	ne	A, B, C, D, E, F	220	50
+Nigeria	ng	D, G	240	50
+Nicaragua	ni	A, B	120	60
+Netherlands	nl	C, F	230	50
+Norway	no	C, F	230	50
+Malta	np	G	230	50
+Nepal	np	C, D, M	230	50
+Nauru	nr	I	240	50
+New Zealand	nz	I	230	50
+Oman	om	C, G	240	50
+Panama	pa	A, B	120	60
+Peru	pe	A, B, C	220	60
+Papua New Guinea	pg	I	240	50
+Philippines	ph	A, B	220	60
+Pakistan	pk	C, D, G, M	230	50
+Poland	pl	C, E	230	50
+Portugal	pt	C, F	230	50
+Palau	pw	A, B	120	60
+Paraguay	py	C	220	50
+Qatar	qa	D, G	240	50
+Romania	ro	C, F	230	50
+Serbia	rs	C, F	230	50
+Russia	ru	C, F	230	50
+Rwanda	rw	C, J	230	50
+Saudi Arabia	sa	A, B, G	220	60
+Solomon Islands	sb	I, G	220	50
+Seychelles	sc	G	240	50
+Sudan	sd	C, D	230	50
+Sweden	se	C, F	230	50
+Singapore	sg	C, G, M	230	50
+Saint Helena, Ascension and Tristan da Cunha	sh	G	240	50
+Slovenia	si	C, F	230	50
+Slovakia	sk	C, E	230	50
+Sierra Leone	sl	D, G	230	50
+San Marino	sm	C, F, L	230	50
+Senegal	sn	C, D, E, K	230	50
+Somalia	so	C	220	50
+Suriname	sr	C, F	127	60
+São Tomé and Príncipe	st	C, F	220	50
+El Salvador	sv	A, B	115	60
+Syria	sy	C, E, L	220	50
+Swaziland	sz	M	230	50
+Chad	td	C, D, E, F	220	50
+Togo	tg	C	220	50
+Thailand	th	A, B, C, F	220	50
+Tajikistan	tj	C, F, I	220	50
+Timor-Leste 	tl	C, E, F, I	220	50
+Turkmenistan	tm	B, C, F	220	50
+Tunisia	tn	C, E	230	50
+Tonga	to	I	240	50
+Turkey	tr	C, F	230	50
+Trinidad & Tobago	tt	A, B	115	60
+Tuvalu	tv	I	220	50
+Taiwan	tw	A, B	110	60
+Tanzania	tz	D, G	230	50
+Ukraine	ua	C, F	230	50
+Uganda	ug	G	240	50
+United States	us	A, B	120	60
+Uruguay	uy	C, F, I, L	230	50
+Uzbekistan	uz	C, I	220	50
+St. Vincent and the Grenadines	vc	C, E, G, I, K	230	50
+Venezuela	ve	A, B	120	60
+British Virgin Islands	vg	A, B	110	60
+Vietnam	vn	A, C, G	220	50
+Vanuatu	vu	C, G, I	220	50
+Samoa	ws	I	230	50
+Kosovo	xk	C, F	230	50
+Yemen	ye	A, D, G	230	50
+South Africa	za	C, F, M, N	230	50
+Zambia	zm	C, D, G	230	50
+Zimbabwe	zw	D, G	220	50

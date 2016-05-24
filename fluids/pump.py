@@ -17,13 +17,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
 from math import log
+from collections import namedtuple
 from scipy.interpolate import interp1d, interp2d
 from scipy.constants import hp
+import os
 
 __all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
 'Corripio_pump_efficiency', 'Corripio_motor_efficiency',
 'specific_speed', 'specific_diameter', 'speed_synchronous', 'nema_sizes',
-'nema_sizes_hp', 'motor_round_size', 'nema_min_P', 'nema_high_P']
+'nema_sizes_hp', 'motor_round_size', 'nema_min_P', 'nema_high_P', 'plug_types',
+'voltages_1_phase_residential', 'voltages_3_phase', 'frequencies',
+'residential_power', 'industrial_power', 'current_ideal']
+
+folder = os.path.join(os.path.dirname(__file__), 'data')
 
 
 def Corripio_pump_efficiency(Q):
@@ -549,4 +555,85 @@ def speed_synchronous(f, poles=2, phase=3):
     Ns = 120.*f*phase/poles
     return Ns
 
+
+def current_ideal(P, V, phase=3, PF=1):
+    r'''Returns the current drawn by a motor of power `P` operating at voltage
+    `V`, with line AC of phase `phase` and power factor `PF` according to [1]_.
+
+    Single-phase power:
+
+    .. math::
+        I = \frac{P}{V \cdot \text{PF}}
+
+    3-phase power:
+
+    .. math::
+        I = \frac{P}{V \cdot \text{PF} \sqrt{3}}
+
+
+    Parameters
+    ----------
+    P : float
+        Power, [W]
+    V : float
+        Voltage, [V]
+    phase : int, optional
+        Line AC phase, either 1 or 3
+    PF : float, optional
+        Power factor of motor
+
+    Returns
+    -------
+    I : float
+        Power drawn by motor, [A]
+
+    Notes
+    -----
+    Does not include power used by the motor's fan, or startor, or internal
+    losses. These are all significant.
+
+    Examples
+    --------
+    >>> current_ideal(V=120, P=1E4, PF=1, phase=1)
+    83.33333333333333
+
+    References
+    ----------
+    .. [1] Electrical Construction, and Maintenance. "Calculating Single- and
+       3-Phase Parameters." April 1, 2008.
+       http://ecmweb.com/basics/calculating-single-and-3-phase-parameters.
+    '''
+    if phase not in [1, 3]:
+        raise Exception('Only 1 and 3 phase power supported')
+    if phase == 3:
+        I = P/(V*3**0.5*PF)
+    else:
+        I = P/(V*PF)
+    return I
+
+
+with open(os.path.join(folder, 'residential power.csv')) as f:
+    residential_power_raw = f.read()
+
+with open(os.path.join(folder, '3 phase power.csv')) as f:
+    industrial_power_raw = f.read()
+
+residential_power = {}
+industrial_power = {}
+residential_power_data = namedtuple('residential_power_data', ['plugs', 'voltage', 'freq', 'country'])
+industrial_power_data = namedtuple('industrial_power_data', ['voltage', 'freq', 'country'])
+for line in residential_power_raw.split('\n')[1:]:
+    country, code, plugs, voltage, freq = line.split('\t')
+    plugs = plugs.replace(' ', '').split(',')
+    residential_power[code] = residential_power_data(plugs, int(voltage), int(freq), country)
+for line in industrial_power_raw.split('\n')[1:]:
+    code, country, voltage, freq = line.split('\t')
+    voltage = [int(i) for i in voltage.replace(' ', '').split(',')]
+    industrial_power[code] = industrial_power_data(voltage, int(freq), country)
+
+
+plug_types = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']
+voltages_1_phase_residential = [100, 110, 115, 120, 127, 220, 230, 240]
+voltages_3_phase = [120, 190, 200, 208, 220, 230, 240, 277, 380, 400, 415, 440, 480]
+frequencies = [50, 60]
 

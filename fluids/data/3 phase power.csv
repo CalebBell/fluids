@@ -1,0 +1,198 @@
+Country code	Country	3-phase voltage	Frequency
+ad	Andorra	400	50
+cf	Central African Republic	380	50
+ae	United Arab Emirates	400	50
+af	Afghanistan	380	50
+ag	Antigua and Barbuda	400	60
+ai	Anguilla	120, 208,  127, 220,  240, 415 	60
+al	Albania	400	50
+am	Armenia	400	50
+ao	Angola	380	50
+ar	Argentina	380	50
+at	Austria	400	50
+au	Australia	400	50
+az	Azerbaijan	380	50
+ba	Bosnia & Herzegovina	400	50
+bb	Barbados	200	50
+bd	Bangladesh	380	50
+be	Belgium	400	50
+bf	Burkina Faso	380	50
+bg	Bulgaria	400	50
+bh	Bahrain	400	50
+bi	Burundi	380	50
+bj	Benin	380	50
+bm	Bermuda	208	60
+bn	Brunei	415	50
+bo	Bolivia	400	50
+br	Brazil	220  ,  380 	60
+bs	Bahamas	208	60
+bt	Bhutan	400	50
+bw	Botswana	400	50
+by	Belarus	380	50
+bz	Belize	190  ,  380 	60
+ca	Canada	120, 208  ,  240  ,  480  ,  347, 600 	60
+cd	Democratic Republic of Congo	380	50
+cg	People's Republic of Congo	400	50
+ch	Switzerland	400	50
+ci	Côte d’Ivoire	380	50
+cl	Chile	380	50
+cm	Cameroon	380	50
+cn	China	380	50
+co	Colombia	220  ,  440 	60
+cr	Costa Rica	240	60
+cu	Cuba	190  ,  440 	60
+cv	Cape Verde	400	50
+cy	Cyprus	400	50
+cz	Czech Republic	400	50
+de	Germany	400	50
+dj	Djibouti	380	50
+dk	Denmark	400	50
+dm	Dominica	400	50
+do	Dominican Republic	120, 208  ,  277, 480 	60
+dz	Algeria	400	50
+ec	Ecuador	208	60
+ee	Estonia	400	50
+eg	Egypt	380	50
+er	Eritrea	400	50
+es	Spain	400	50
+et	Ethiopia	380	50
+fi	Finland	400	50
+fj	Fiji	415	50
+fk	Falkland Islands	415	50
+fo	Faeroe Islands	400	50
+fr	France	400	50
+ga	Gabon	380	50
+gb	United Kingdom	415	50
+gd	Grenada	400	50
+gh	Ghana	400	50
+gi	Gibraltar	400	50
+gm	Gambia	400	50
+gn	Guinea	380	50
+gr	Greece	400	50
+gt	Guatemala	208	60
+gu	Guam	190	60
+gw	Guinea-Bissau	380	50
+gy	Guyana	190	60
+hn	Honduras	208  ,  230  ,  240  ,  460  ,  480 	60
+hr	Croatia	400	50
+ht	Haiti	190	60
+hu	Hungary	400	50
+id	Indonesia	400	50
+ie	Ireland	415	50
+il	Israel	400	50
+im	Isle of Man	415	50
+in	India	400	50
+iq	Iraq	400	50
+ir	Iran	400	50
+is	Iceland	400	50
+it	Italy	400	50
+jm	Jamaica	190	50
+jo	Jordan	400	50
+jp	Japan	200	50
+ke	Kenya	415	50
+kg	Kyrgyzstan	380	50
+kh	Cambodia	400	50
+km	Comoros	380	50
+kp	North Korea	380	50
+kr	South Korea	380	60
+kw	Kuwait	415	50
+ky	Cayman Islands	240	60
+kz	Kazakhstan	380	50
+la	Laos	400	50
+lb	Lebanon	400	50
+lc	Saint Lucia	400	50
+li	Liechtenstein	400	50
+lk	Sri Lanka	400	50
+lr	Liberia	208	60
+ls	Lesotho	380	50
+lt	Lithuania	400	50
+lu	Luxembourg	400	50
+lv	Latvia	400	50
+ly	Libya	400	50
+ma	Morocco	380	50
+mc	Monaco	400	50
+md	Moldova	400	50
+me	Montenegro	400	50
+mg	Madagascar	380	50
+mk	Macedonia, Republic of	400	50
+ml	Mali	380	50
+mm	Myanmar	400	50
+mn	Mongolia	400	50
+mr	Mauritania	220	50
+ms	Montserrat	400	60
+mu	Mauritius	400	50
+mv	Maldives	400	50
+mw	Malawi	400	50
+mx	Mexico	220  ,  480 	60
+my	Malaysia	415	50
+mz	Mozambique	380	50
+na	Namibia	380	50
+ne	Niger	380	50
+ng	Nigeria	415	50
+ni	Nicaragua	208	60
+nl	Netherlands	400	50
+no	Norway	230  ,  400 	50
+mt	Malta	400	50
+np	Nepal	400	50
+nr	Nauru	415	50
+nz	New Zealand	400	50
+om	Oman	415	50
+pa	Panama	240	60
+pe	Peru	220	60
+pg	Papua New Guinea	415	50
+ph	Philippines	380	60
+pk	Pakistan	400	50
+pl	Poland	400	50
+pw	Palau	208	60
+py	Paraguay	380	50
+qa	Qatar	415	50
+ro	Romania	400	50
+xk	Kosovo	230  ,  400 	50
+rs	Serbia	400	50
+ru	Russia	380	50
+rw	Rwanda	400	50
+sa	Saudi Arabia	400	60
+sc	Seychelles	240	50
+sd	Sudan	400	50
+se	Sweden	400	50
+sg	Singapore	400	50
+si	Slovenia	400	50
+sk	Slovakia	400	50
+sl	Sierra Leone	400	50
+sm	San Marino	400	50
+sn	Senegal	400	50
+so	Somalia	380	50
+sr	Suriname	220  ,  400 	60
+ss	South Sudan	400	50
+st	São Tomé and Príncipe	400	50
+sv	El Salvador	200	60
+sy	Syria	380	50
+sz	Swaziland	400	50
+tc	Turks and Caicos Islands	240	60
+td	Chad	380	50
+tg	Togo	380	50
+th	Thailand	400	50
+tj	Tajikistan	380	50
+tl	East Timor	380	50
+tm	Turkmenistan	380	50
+tn	Tunisia	400	50
+to	Tonga	415	50
+tr	Turkey	400	50
+tt	Trinidad & Tobago	115, 230  ,  230, 400 	60
+tw	Taiwan	220	60
+tz	Tanzania	415	50
+ua	Ukraine	400	50
+ug	Uganda	415	50
+us	United States of America	120, 208  ,  277, 480  ,  120, 240  ,  240  ,  480 	60
+uy	Uruguay	380	50
+uz	Uzbekistan	380	50
+vc	Saint Vincent and the Grenadines	400	50
+ve	Venezuela	120	60
+vg	British Virgin Islands	190	60
+vn	Vietnam	380	50
+vu	Vanuatu	400	50
+ws	Samoa	400	50
+ye	Yemen	400	50
+za	South Africa	400	50
+zm	Zambia	400	50
+zw	Zimbabwe	415	50
