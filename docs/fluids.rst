@@ -21,10 +21,3 @@ Submodules
    fluids.pump
    fluids.safety_valve
 
-Module contents
----------------
-
-.. automodule:: fluids
-    :members:
-    :undoc-members:
-    :show-inheritance:

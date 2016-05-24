@@ -72,5 +72,6 @@ setup(
   url = 'https://github.com/CalebBell/fluids',
   keywords = ['chemical engineering', 'fluids', 'mechanical engineering'],
   classifiers = classifiers,
+  package_data={'fluids': ['data/*']},
 )
 
