@@ -1,0 +1,3 @@
+include Makefile LICENSE.txt AUTHORS README.rst pytest.ini 
+recursive-include tests *
+recursive-include docs *
