@@ -213,12 +213,12 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     def lookup_wrapper(Di, Do, NPS, NPSes, Dis, Dos, ts):
         if Di:
             nums = Di_lookup(Di, NPSes, Dis, Dos, ts)
-            if nums == None:
+            if nums is None:
                 return None
             _nps, _di, _do, _t = nums
         elif Do:
             nums = Do_lookup(Do, NPSes, Dis, Dos, ts)
-            if nums == None:
+            if nums is None:
                 return None
             _nps, _di, _do, _t = nums
         elif NPS:
@@ -267,7 +267,7 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
         nums = lookup_wrapper(Di, Do, NPS, NPSS80, SS80i, SS80o, SS80t)
     else:
         raise ValueError('Schedule not recognized')
-    if nums == None:
+    if nums is None:
         raise ValueError('Pipe input is larger than max of selected scedule')
     _nps, _di, _do, _t = nums
     return _nps, _di/1E3, _do/1E3, _t/1E3

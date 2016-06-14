@@ -102,12 +102,6 @@ def P_critical_flow(P, k):
     Pcf = P*(2/(k+1.))**(k/(k-1))
     return Pcf
 
-#print [P_critical_flow(1400000, 1.289)]
-
-# It would be better to find critical density from an EOS and T and P
-#def rho_critical_flow(rho, k):
-#    rhocf = rho*(2/(k+1.))**(1/(k-1))
-#    return rhocf
 
 def is_critical_flow(P1, P2, k):
     r'''Determines if a flow of a fluid driven by pressure gradient
