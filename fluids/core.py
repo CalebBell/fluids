@@ -27,7 +27,7 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Archimedes', 'Ohnesorge', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
 'K_from_f', 'K_from_L_equiv', 'dP_from_K', 'head_from_K', 'head_from_P',
-'P_from_head']
+'P_from_head', 'Eotvos']
 
 
 
