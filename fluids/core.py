@@ -21,8 +21,8 @@ from scipy.constants import g, R
 
 __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
-'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen',  'Bond',
-'Froude', 'Strouhal',  'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
+'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond',
+'Froude', 'Strouhal', 'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
 'Jakob', 'Power_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p',
 'Archimedes', 'Ohnesorge', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
@@ -567,7 +567,7 @@ def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
        Berlin; New York:: Springer, 2010.
     '''
     if k and Cp and rho:
-        alpha =  k/(rho*Cp)
+        alpha = k/(rho*Cp)
     elif alpha:
         pass
     else:
@@ -883,6 +883,8 @@ def Bond(rhol, rhog, sigma, L):
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
     return (g*(rhol-rhog)*L**2/sigma)
+
+Eotvos = Bond
 
 
 def Rayleigh(Pr, Gr):
