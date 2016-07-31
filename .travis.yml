@@ -6,6 +6,9 @@ python:
   - "3.4"
 notifications:
   email: false
+matrix:
+  allow_failures:
+  - python: 3.3
 install:
   - sudo apt-get update
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then

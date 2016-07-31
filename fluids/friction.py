@@ -1435,7 +1435,7 @@ def friction_factor(Re, eD, Method='Colebrook', Darcy=True, AvailableMethods=Fal
     
     See Also
     --------
-    `Colebrook`
+    Colebrook
 
     Notes
     -----
