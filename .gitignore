@@ -7,6 +7,7 @@ MANIFEST
 htmlcov
 .cache
 __pycache__
+*kate-swp
 
 # Compiled source #
 ###################
