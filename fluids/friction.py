@@ -17,13 +17,74 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
 from math import log, log10, exp
+from scipy.special import lambertw
 __all__ = ['friction_factor', 'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
 'Eck_1973', 'Jain_1976', 'Swamee_Jain_1976', 'Churchill_1977', 'Chen_1979',
 'Round_1980', 'Shacham_1980', 'Barr_1981', 'Zigrang_Sylvester_1',
 'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
-'Brkic_2011_2', 'Fang_2011', '_roughness']
+'Brkic_2011_2', 'Fang_2011', '_roughness', 'Colebrook']
+
+
+def Colebrook(Re, eD):
+    r'''Calculates Darcy friction factor using an exact solution to the 
+    Colebrook equation, derived with a CAS system. Relatively slow despite its
+    explicit form.
+
+    .. math::
+        \frac{1}{\sqrt{f}}=-2\log_{10}\left(\frac{\epsilon/D}{3.7}
+        +\frac{2.51}{\text{Re}\sqrt{f}}\right)
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number, [-]
+    eD : float
+        Relative roughness, [-]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor [-]
+
+    Notes
+    -----
+    The solution is as follows:
+    
+    .. math::
+        f_d = \frac{\ln(10)^2\cdot {3.7}^2\cdot{2.51}^2}
+        {\left(\log(10)\epsilon/D\cdot\text{Re} - 2\cdot 2.51\cdot 3.7W
+        \left[\log(\sqrt{10})\sqrt{
+        10^{\left(\frac{\epsilon \text{Re}}{2.51\cdot 3.7D}\right)}
+        \cdot \text{Re}^2/{2.51}^2}\right]\right)}
+
+    Some effort to optimize this function has been made. The `lambertw`  
+    function from scipy is used, solves the specific function:
+    
+    .. math::
+        x\exp(x)
+
+    Examples
+    --------
+    >>> Colebrook(1E5, 1E-4)
+    0.018513866077471648
+
+    References
+    ----------
+    .. [1] Colebrook, C F."Turbulent Flow in Pipes, with Particular Reference to
+       the Transition Region Between the Smooth and Rough Pipe Laws." Journal 
+       of the ICE 11, no. 4 (February 1, 1939): 133-156. 
+       doi:10.1680/ijoti.1939.13150.
+    '''
+    # 9.287 = 2.51*3.7; 6.3001 = 2.51**2
+    sub = 10**(eD*Re/9.287)*Re**2/6.3001 
+    # 1.15129... = log(sqrt(10))
+    lambert_term = lambertw(1.151292546497022950546806896454654633998870849609375*sub**0.5).real 
+    # log(10) = 2.302585...; 2*2.51*3.7 = 18.574
+    # 457.28... = log(10)**2*3.7**2*2.51**2
+    return (457.28006463294371997108100913465023040771484375
+            /(2.30258509299404590109361379290930926799774169921875*eD*Re - 18.574*lambert_term)**2)
 
 
 def Moody(Re, eD):
@@ -737,7 +798,7 @@ def Serghides_1(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Serghides T.K (1984)."Estimate friction factor accurately"
+    .. [2] Serghides T.K (1984)."Estimate friction factor accurately"
        Chemical Engineering, Vol. 91(5), pp. 63-64.
     '''
     A = -2*log10(eD/3.7 + 12/Re)
@@ -1336,16 +1397,16 @@ fmethods['Fang_2011'] = {'Nice name': 'Fang 2011', 'Notes': '', 'Arguments': {'e
 
 
 
-def friction_factor(Re=1E5, eD=1E-4, Method=None, Darcy=True, AvailableMethods=False):
+def friction_factor(Re, eD, Method='Colebrook', Darcy=True, AvailableMethods=False):
     r'''Calculates friction factor. Uses a specified method, or automatically
-    picks one from the dictionary of available methods. 28 methods available,
-    described in the table below. The default is more than sufficient
-    for all applications. Can also be accesed under the name `fd`.
+    picks one from the dictionary of available methods. 28 approximations are 
+    available, described in the table below. The default is to use the exact
+    solution. Can also be accesed under the name `fd`.
 
     Examples
     --------
     >>> friction_factor(Re=1E5, eD=1E-4)
-    0.018513948401365277
+    0.018513866077471648
 
     Parameters
     ----------
@@ -1371,6 +1432,10 @@ def friction_factor(Re=1E5, eD=1E-4, Method=None, Darcy=True, AvailableMethods=F
     AvailableMethods : bool, optional
         If True, function will consider which methods claim to be valid for
         the range of `Re` and `eD` given
+    
+    See Also
+    --------
+    `Colebrook`
 
     Notes
     -----
@@ -1444,12 +1509,11 @@ def friction_factor(Re=1E5, eD=1E-4, Method=None, Darcy=True, AvailableMethods=F
     if AvailableMethods:
         return list_methods()
     if not Method:
-        Method = 'Buzzelli_2008'
+        Method = 'Colebrook'
     f = globals()[Method](Re=Re, eD=eD)
     if not Darcy:
         f *= 4
     return f
-
 
 fd = friction_factor # shortcut
 

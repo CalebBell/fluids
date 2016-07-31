@@ -53,7 +53,7 @@ def test_friction():
 
     assert_allclose(sum(_roughness.values()), 0.01504508)
 
-    assert_allclose(friction_factor(Re=1E5, eD=1E-4), 0.018513948401365277)
+    assert_allclose(friction_factor(Re=1E5, eD=1E-4), 0.018513866077471648)
     methods_1 = friction_factor(Re=1E5, eD=1E-4, AvailableMethods=True)
     methods_1.sort()
 
@@ -61,4 +61,4 @@ def test_friction():
     methods_2.sort()
     assert methods_1 == methods_2
 
-    assert_allclose(friction_factor(Re=1E5, eD=1E-4, Darcy=False), 0.018513948401365277*4)
+    assert_allclose(friction_factor(Re=1E5, eD=1E-4, Darcy=False), 0.018513866077471648*4)
