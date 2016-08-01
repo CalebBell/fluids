@@ -18,13 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 from __future__ import division
 from math import log, log10, exp
 from scipy.special import lambertw
-__all__ = ['friction_factor', 'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
+__all__ = ['friction_factor', 'Colebrook', 'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
 'Eck_1973', 'Jain_1976', 'Swamee_Jain_1976', 'Churchill_1977', 'Chen_1979',
 'Round_1980', 'Shacham_1980', 'Barr_1981', 'Zigrang_Sylvester_1',
 'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
-'Brkic_2011_2', 'Fang_2011', '_roughness', 'Colebrook']
+'Brkic_2011_2', 'Fang_2011', '_roughness']
 
 
 def Colebrook(Re, eD):
@@ -125,9 +125,7 @@ def Moody(Re, eD):
     .. [2] Moody, L.F.: An approximate formula for pipe friction factors.
        Trans. Am. Soc. Mech. Eng. 69,1005-1006 (1947)
     '''
-    ff = 1.375E-3*(1 + (2E4*eD + 1E6/Re)**(1/3.))
-    fd = ff*4
-    return fd
+    return 4*(1.375E-3*(1 + (2E4*eD + 1E6/Re)**(1/3.)))
 
 
 def Alshul_1952(Re, eD):
