@@ -23,7 +23,7 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
 'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond',
 'Froude', 'Strouhal', 'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
-'Jakob', 'Power_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p',
+'Jakob', 'Power_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
 'Archimedes', 'Ohnesorge', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
 'K_from_f', 'K_from_L_equiv', 'dP_from_K', 'head_from_K', 'head_from_P',
@@ -1713,6 +1713,60 @@ def Bejan_p(dP, K, mu, alpha):
     '''
     Be_p = dP*K/(alpha*mu)
     return Be_p
+
+
+def Boiling(G, q, Hvap):
+    r'''Calculates Boiling number or `Bg` using heat flux, two-phase mass flux,
+    and heat of vaporization of the fluid flowing. Used in two-phase heat 
+    transfer calculations.
+
+    .. math::
+        \text{Bg} = \frac{q}{G_{tp} \Delta H_{vap}}
+
+    Parameters
+    ----------
+    G : float
+        Two-phase mass flux in a channel (combined liquid and vapor) [kg/m^2/s]
+    q : float
+        Heat flux [W/m^2]
+    Hvap : float
+        Heat of vaporization of the fluid [J/kg]
+
+    Returns
+    -------
+    Bg : float
+        Boiling number [-]
+
+    Notes
+    -----
+    Most often uses the symbol `Bo` instead of `Bg`, but this conflicts with
+    Bond number.
+    
+    .. math::
+        \text{Bg} = \frac{\text{mass liquid evaporated / area heat transfer 
+        surface}}{\text{mass flow rate fluid / flow cross sectional area}}
+    
+    First defined in [4]_, though not named.
+
+    Examples
+    --------
+    >>> Boiling(300, 3000, 800000)
+    1.25e-05
+
+    References
+    ----------
+    .. [1] Winterton, Richard H.S. BOILING NUMBER. Thermopedia. Hemisphere, 
+       2011. 10.1615/AtoZ.b.boiling_number
+    .. [2] Collier, John G., and John R. Thome. Convective Boiling and 
+       Condensation. 3rd edition. Clarendon Press, 1996.
+    .. [3] Stephan, Karl. Heat Transfer in Condensation and Boiling. Translated
+       by C. V. Green.. 1992 edition. Berlin; New York: Springer, 2013.
+    .. [4] W. F. Davidson, P. H. Hardie, C. G. R. Humphreys, A. A. Markson, 
+       A. R. Mumford and T. Ravese "Studies of heat transmission through boiler
+       tubing at pressures from 500 to 3300 pounds" Trans. ASME, Vol. 65, 9, 
+       February 1943, pp. 553-591. 
+    '''
+    return q/(G*Hvap)
 
 
 def relative_roughness(D, roughness=1.52e-06):

@@ -155,6 +155,9 @@ def test_core_dimensionless():
 
     Bep1 = Bejan_p(1E4, 1, 1E-3, 1E-6)
     assert_allclose(Bep1, 10000000000000)
+    
+    Bo = Boiling(300, 3000, 800000)
+    assert_allclose(Bo, 1.25e-05)
 
     e_D1 = relative_roughness(0.0254)
     e_D2 = relative_roughness(0.5, 1E-4)

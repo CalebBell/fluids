@@ -111,9 +111,9 @@ def is_critical_flow(P1, P2, k):
 
     Parameters
     ----------
-    P1: float
+    P1 : float
         Higher, source pressure [Pa]
-    P2: float
+    P2 : float
         Lower, downstream pressure [Pa]
     k : float
         Isentropic coefficient []

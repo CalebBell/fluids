@@ -152,11 +152,11 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     -------
     NPS : float
         Nominal pipe size, []
-    _di : float
+    Di : float
         Pipe inner diameter, [m]
-    _do : float
+    Do : float
         Pipe outer diameter, [m]
-    _t : float
+    t : float
         Pipe wall thickness, [m]
 
     Notes

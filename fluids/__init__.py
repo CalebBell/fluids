@@ -72,4 +72,4 @@ __all__.extend(packed_tower.__all__)
 __all__.extend(two_phase_voidage.__all__)
 
 
-__version__ = '0.1.48'
+__version__ = '0.1.49'

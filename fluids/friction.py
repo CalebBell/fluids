@@ -29,7 +29,7 @@ __all__ = ['friction_factor', 'Colebrook', 'Moody', 'Alshul_1952', 'Wood_1966', 
 
 def Colebrook(Re, eD):
     r'''Calculates Darcy friction factor using an exact solution to the 
-    Colebrook equation, derived with a CAS system. Relatively slow despite its
+    Colebrook equation, derived with a CAS. Relatively slow despite its
     explicit form.
 
     .. math::
