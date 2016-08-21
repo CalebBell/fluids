@@ -50,15 +50,16 @@ def test_friction():
     assert_allclose(Brkic_2011_1(1E5, 1E-4), 0.01812455874141297)
     assert_allclose(Brkic_2011_2(1E5, 1E-4), 0.018619745410688716)
     assert_allclose(Fang_2011(1E5, 1E-4), 0.018481390682985432)
+    assert_allclose(Clamond(1E5, 1E-4), 0.01851386607747165)
 
     assert_allclose(sum(_roughness.values()), 0.01504508)
 
-    assert_allclose(friction_factor(Re=1E5, eD=1E-4), 0.018513866077471648)
+    assert_allclose(friction_factor(Re=1E5, eD=1E-4), 0.01851386607747165)
     methods_1 = friction_factor(Re=1E5, eD=1E-4, AvailableMethods=True)
     methods_1.sort()
 
-    methods_2 = ['Manadilli_1997', 'Haaland', 'Alshul_1952', 'Avci_Karagoz_2009', 'Rao_Kumar_2007', 'Zigrang_Sylvester_2', 'Eck_1973', 'Buzzelli_2008', 'Tsal_1989', 'Papaevangelo_2010', 'Barr_1981', 'Jain_1976', 'Moody', 'Brkic_2011_2', 'Brkic_2011_1', 'Swamee_Jain_1976', 'Wood_1966', 'Shacham_1980', 'Romeo_2002', 'Chen_1979', 'Fang_2011', 'Round_1980', 'Sonnad_Goudar_2006', 'Churchill_1973', 'Churchill_1977', 'Serghides_2', 'Serghides_1', 'Zigrang_Sylvester_1']
+    methods_2 = ['Clamond', 'Colebrook', 'Manadilli_1997', 'Haaland', 'Alshul_1952', 'Avci_Karagoz_2009', 'Rao_Kumar_2007', 'Zigrang_Sylvester_2', 'Eck_1973', 'Buzzelli_2008', 'Tsal_1989', 'Papaevangelo_2010', 'Barr_1981', 'Jain_1976', 'Moody', 'Brkic_2011_2', 'Brkic_2011_1', 'Swamee_Jain_1976', 'Wood_1966', 'Shacham_1980', 'Romeo_2002', 'Chen_1979', 'Fang_2011', 'Round_1980', 'Sonnad_Goudar_2006', 'Churchill_1973', 'Churchill_1977', 'Serghides_2', 'Serghides_1', 'Zigrang_Sylvester_1']
     methods_2.sort()
     assert methods_1 == methods_2
 
-    assert_allclose(friction_factor(Re=1E5, eD=1E-4, Darcy=False), 0.018513866077471648*4)
+    assert_allclose(friction_factor(Re=1E5, eD=1E-4, Darcy=False), 0.01851386607747165*4)

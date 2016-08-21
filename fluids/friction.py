@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 from __future__ import division
 from math import log, log10, exp
 from scipy.special import lambertw
-__all__ = ['friction_factor', 'Colebrook', 'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
+
+__all__ = ['friction_factor', 'Colebrook', 'Clamond', 'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
 'Eck_1973', 'Jain_1976', 'Swamee_Jain_1976', 'Churchill_1977', 'Chen_1979',
 'Round_1980', 'Shacham_1980', 'Barr_1981', 'Zigrang_Sylvester_1',
 'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
@@ -30,7 +31,7 @@ __all__ = ['friction_factor', 'Colebrook', 'Moody', 'Alshul_1952', 'Wood_1966', 
 def Colebrook(Re, eD):
     r'''Calculates Darcy friction factor using an exact solution to the 
     Colebrook equation, derived with a CAS. Relatively slow despite its
-    explicit form.
+    explicit form. 
 
     .. math::
         \frac{1}{\sqrt{f}}=-2\log_{10}\left(\frac{\epsilon/D}{3.7}
@@ -54,16 +55,21 @@ def Colebrook(Re, eD):
     
     .. math::
         f_d = \frac{\ln(10)^2\cdot {3.7}^2\cdot{2.51}^2}
-        {\left(\log(10)\epsilon/D\cdot\text{Re} - 2\cdot 2.51\cdot 3.7W
-        \left[\log(\sqrt{10})\sqrt{
+        {\left(\log(10)\epsilon/D\cdot\text{Re} - 2\cdot 2.51\cdot 3.7\cdot
+        \text{lambertW}\left[\log(\sqrt{10})\sqrt{
         10^{\left(\frac{\epsilon \text{Re}}{2.51\cdot 3.7D}\right)}
         \cdot \text{Re}^2/{2.51}^2}\right]\right)}
 
     Some effort to optimize this function has been made. The `lambertw`  
-    function from scipy is used, solves the specific function:
+    function from scipy is used, and is defined to solve the specific function:
     
     .. math::
-        x\exp(x)
+        y = x\exp(x)
+        
+        \text{lambertW}(y) = x
+
+    For high relative roughness and reynolds numbers, an OverflowError is 
+    raised in solution of this equation. 
 
     Examples
     --------
@@ -85,6 +91,62 @@ def Colebrook(Re, eD):
     # 457.28... = log(10)**2*3.7**2*2.51**2
     return (457.28006463294371997108100913465023040771484375
             /(2.30258509299404590109361379290930926799774169921875*eD*Re - 18.574*lambert_term)**2)
+
+
+def Clamond(Re, eD):
+    r'''Calculates Darcy friction factor using a solution accurate to almost
+    machine precision. Recommended very strongly. For details of the algorithm,
+    see [1]_. 
+    
+    Parameters
+    ----------
+    Re : float
+        Reynolds number, [-]
+    eD : float
+        Relative roughness, [-]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor [-]
+
+    Notes
+    -----
+    This is a highly optimized function, 4 times faster than the solution using
+    the LambertW function, and faster than many other approximations which are 
+    much less accurate.
+
+    The code used here is only slightly modified than that in [1]_, for further
+    performance improvements. 
+    
+    Examples
+    --------
+    >>> Clamond(1E5, 1E-4)
+    0.01851386607747165
+
+    References
+    ----------
+    .. [1] Clamond, Didier. "Efficient Resolution of the Colebrook Equation." 
+       Industrial & Engineering Chemistry Research 48, no. 7 (April 1, 2009): 
+       3665-71. doi:10.1021/ie801626g.  
+       http://math.unice.fr/%7Edidierc/DidPublis/ICR_2009.pdf
+    '''
+    X1 = eD*Re*0.1239681863354175460160858261654858382699 # (log(10)/18.574).evalf(40)
+    X2 = log(Re) - 0.7793974884556819406441139701653776731705 # log(log(10)/5.02).evalf(40)
+    F = X2 - 0.2
+    X1F = X1 + F
+    X1F1 = 1. + X1F
+    
+    E = (log(X1F) - 0.2)/(X1F1)
+    F = F - (X1F1 + 0.5*E)*E*(X1F)/ (X1F1 + E*(1. + E/3.))
+
+    X1F = X1 + F
+    X1F1 = 1. + X1F
+    E = (log(X1F) + F - X2)/(X1F1)
+    F = F - (X1F1 + 0.5*E)*E*(X1F)/ (X1F1 + E*(1. + E/3.))
+
+    return 1.325474527619599502640416597148504422899/F/F # ((0.5*log(10))**2).evalf(40)
+
 
 
 def Moody(Re, eD):
@@ -1392,19 +1454,22 @@ fmethods['Papaevangelo_2010'] = {'Nice name': 'Papaevangelo 2010', 'Notes': '', 
 fmethods['Brkic_2011_1'] = {'Nice name': 'Brkic 2011 1', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
 fmethods['Brkic_2011_2'] = {'Nice name': 'Brkic 2011 2', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
 fmethods['Fang_2011'] = {'Nice name': 'Fang 2011', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 3000.0, 'Default': None, 'Max': 100000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
+fmethods['Clamond'] = {'Nice name': 'Clamond 2009', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 0, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
+fmethods['Colebrook'] = {'Nice name': 'Colebrook', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 0, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
 
 
 
-def friction_factor(Re, eD, Method='Colebrook', Darcy=True, AvailableMethods=False):
+def friction_factor(Re, eD, Method='Clamond', Darcy=True, AvailableMethods=False):
     r'''Calculates friction factor. Uses a specified method, or automatically
-    picks one from the dictionary of available methods. 28 approximations are 
-    available, described in the table below. The default is to use the exact
-    solution. Can also be accesed under the name `fd`.
+    picks one from the dictionary of available methods. 29 approximations are 
+    available as well as the direct solution, described in the table below. 
+    The default is to use the exact solution. Can also be accesed under the 
+    name `fd`.
 
     Examples
     --------
     >>> friction_factor(Re=1E5, eD=1E-4)
-    0.018513866077471648
+    0.01851386607747165
 
     Parameters
     ----------
@@ -1434,12 +1499,15 @@ def friction_factor(Re, eD, Method='Colebrook', Darcy=True, AvailableMethods=Fal
     See Also
     --------
     Colebrook
-
+    Clamond
+    
     Notes
     -----
     +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
     |Nice name          |Re min|Re max|Re Default|:math:`\epsilon/D` Min|:math:`\epsilon/D` Max|:math:`\epsilon/D` Default|
     +===================+======+======+==========+======================+======================+==========================+
+    |Clamond            |0     |None  |None      |0                     |None                  |None                      |
+    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
     |Rao Kumar 2007     |None  |None  |None      |None                  |None                  |None                      |
     +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
     |Eck 1973           |None  |None  |None      |None                  |None                  |None                      |
@@ -1507,7 +1575,7 @@ def friction_factor(Re, eD, Method='Colebrook', Darcy=True, AvailableMethods=Fal
     if AvailableMethods:
         return list_methods()
     if not Method:
-        Method = 'Colebrook'
+        Method = 'Clamond'
     f = globals()[Method](Re=Re, eD=eD)
     if not Darcy:
         f *= 4
