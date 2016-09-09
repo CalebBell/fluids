@@ -2,3 +2,4 @@ scipy
 pytest
 pytest-cov
 coveralls
+sympy

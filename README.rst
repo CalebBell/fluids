@@ -6,7 +6,7 @@ fluids
    :target: https://pypi.python.org/pypi/fluids
    :alt: Version_status
 .. image:: http://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
-   :target: https://fluids.readthedocs.io/en/latest/
+   :target: https://fluids.readthedocs.io/
    :alt: Documentation
 .. image:: http://img.shields.io/travis/CalebBell/fluids/master.svg?style=flat
    :target: https://travis-ci.org/CalebBell/fluids
