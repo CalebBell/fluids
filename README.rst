@@ -5,16 +5,24 @@ fluids
 .. image:: http://img.shields.io/pypi/v/fluids.svg?style=flat
    :target: https://pypi.python.org/pypi/fluids
    :alt: Version_status
+.. image:: http://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
+   :target: https://fluids.readthedocs.io/en/latest/
+   :alt: Documentation
 .. image:: http://img.shields.io/travis/CalebBell/fluids/master.svg?style=flat
    :target: https://travis-ci.org/CalebBell/fluids
    :alt: Build_status
-.. image:: http://img.shields.io/badge/license-GPL3-blue.svg?style=flat
+.. image:: http://img.shields.io/badge/license-MIT-blue.svg?style=flat
    :target: https://github.com/CalebBell/fluids/blob/master/LICENSE.txt
    :alt: license
 .. image:: https://img.shields.io/coveralls/CalebBell/fluids.svg
    :target: https://coveralls.io/github/CalebBell/fluids
    :alt: Coverage
-
+.. image:: https://img.shields.io/pypi/pyversions/fluids.svg
+   :target: https://pypi.python.org/pypi/fluids
+   :alt: Supported_versions
+.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.59769.svg
+   :alt: Zendo
+   :target: http://dx.doi.org/10.5281/zenodo.59769
 
 .. contents::
 

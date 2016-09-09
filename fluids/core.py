@@ -2,18 +2,23 @@
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.'''
 
 from __future__ import division
 from math import sin, exp, pi
@@ -26,7 +31,7 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Jakob', 'Power_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
 'Archimedes', 'Ohnesorge', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
-'K_from_f', 'K_from_L_equiv', 'dP_from_K', 'head_from_K', 'head_from_P',
+'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'dP_from_K', 'head_from_K', 'head_from_P',
 'P_from_head', 'Eotvos']
 
 
@@ -1889,16 +1894,16 @@ def gravity(latitude, H):
 
 ### Friction loss conversion functions
 
-def K_from_f(f, L, D):
+def K_from_f(fd, L, D):
     r'''Calculates loss coefficient, K, for a given section of pipe
     at a specified friction factor.
 
     .. math::
-        K = fL/D
+        K = f_dL/D
 
     Parameters
     ----------
-    f : float
+    fd : float
         friction factor of pipe, []
     L : float
         Length of pipe, [m]
@@ -1917,24 +1922,24 @@ def K_from_f(f, L, D):
 
     Examples
     --------
-    >>> K_from_f(f=0.018, L=100., D=.3)
+    >>> K_from_f(fd=0.018, L=100., D=.3)
     6.0
     '''
-    K = f*L/D
+    K = fd*L/D
     return K
 
 
-def K_from_L_equiv(L_D, f=0.015):
+def K_from_L_equiv(L_D, fd=0.015):
     r'''Calculates loss coefficient, for a given equivalent length (L/D).
 
     .. math::
-        K = f \frac{L}{D}
+        K = f_d \frac{L}{D}
 
     Parameters
     ----------
     L_D : float
         Length over diameter, []
-    f : float, optional
+    fd : float, optional
         Darcy friction factor, [-]
 
     Returns
@@ -1952,8 +1957,40 @@ def K_from_L_equiv(L_D, f=0.015):
     >>> K_from_L_equiv(240.)
     3.5999999999999996
     '''
-    K = f*L_D
+    K = fd*L_D
     return K
+
+
+def L_equiv_from_K(K, fd=0.015):
+    r'''Calculates equivalent length of pipe (L/D), for a given loss 
+    coefficient.
+
+    .. math::
+        \frac{L}{D} = \frac{K}{f_d}
+
+    Parameters
+    ----------
+    K : float
+        Loss coefficient, []
+    fd : float, optional
+        Darcy friction factor, [-]
+
+    Returns
+    -------
+    L_D : float
+        Length over diameter, []
+
+    Notes
+    -----
+    Assumes a default friction factor for fully turbulent flow in steel pipes.
+
+    Examples
+    --------
+    >>> L_equiv_from_K(3.6)
+    240.00000000000003
+    '''
+    L_D = K/fd
+    return L_D
 
 
 def dP_from_K(K, rho, V):

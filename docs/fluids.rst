@@ -9,6 +9,7 @@ Submodules
    fluids.compressible
    fluids.control_valve
    fluids.core
+   fluids.drag
    fluids.filters
    fluids.fittings
    fluids.friction
@@ -20,4 +21,5 @@ Submodules
    fluids.piping
    fluids.pump
    fluids.safety_valve
+   fluids.saltation
    fluids.two_phase_voidage

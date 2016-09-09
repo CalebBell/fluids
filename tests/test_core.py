@@ -176,11 +176,14 @@ def test_core_misc2():
     g1 = gravity(55, 1E4)
     assert_allclose(g1, 9.784151976863571)
 
-    K = K_from_f(f=0.018, L=100., D=.3)
+    K = K_from_f(fd=0.018, L=100., D=.3)
     assert_allclose(K, 6.0)
 
     K = K_from_L_equiv(240.)
     assert_allclose(K, 3.6)
+    
+    L_D = L_equiv_from_K(3.6)
+    assert_allclose(L_D, 240.)
 
     dP = dP_from_K(K=10, rho=1000, V=3)
     assert_allclose(dP, 45000)

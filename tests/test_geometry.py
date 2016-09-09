@@ -259,3 +259,32 @@ def test_geometry_tank():
         TANK(V=10, L=10, sideA='conical', sideB_a=0.5)
     with pytest.raises(Exception):
         TANK(V=10, L=10, sideA='conical', sideA_a_ratio=None)
+
+
+def test_basic():
+    psi = sphericity(10., 2.)
+    assert_allclose(psi, 0.767663317071005)
+
+    a_r = aspect_ratio(.2, 2)
+    assert_allclose(a_r, 0.1)
+
+    f_circ = circularity(1.5, .1)
+    assert_allclose(f_circ, 1884.9555921538756)
+
+    A = A_cylinder(0.01, .1)
+    assert_allclose(A, 0.0032986722862692833)
+
+    V = V_cylinder(0.01, .1)
+    assert_allclose(V, 7.853981633974484e-06)
+
+    A = A_hollow_cylinder(0.005, 0.01, 0.1)
+    assert_allclose(A, 0.004830198704894308)
+
+    V = V_hollow_cylinder(0.005, 0.01, 0.1)
+    assert_allclose(V, 5.890486225480862e-06)
+
+    A =  A_multiple_hole_cylinder(0.01, 0.1, [(0.005, 1)])
+    assert_allclose(A, 0.004830198704894308)
+
+    V = V_multiple_hole_cylinder(0.01, 0.1, [(0.005, 1)])
+    assert_allclose(V, 5.890486225480862e-06)
