@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['T_critical_flow', 'P_critical_flow', 'is_critical_flow',
+__all__ = ['Panhandle_A', 'T_critical_flow', 'P_critical_flow', 'is_critical_flow',
            'stagnation_energy', 'P_stagnation', 'T_stagnation',
            'T_stagnation_ideal']
 
@@ -310,4 +310,129 @@ def T_stagnation_ideal(T, V, Cp):
     '''
     Tst = T + V**2/2./Cp
     return Tst
+
+
+def Panhandle_A(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
+                Ps=101325., Zavg=1, E=0.92):
+    r'''Calculation function for dealing with flow of a compressible gas in a 
+    pipeline. Can calculate any of the following, given all other inputs:
+    
+    * Flow rate
+    * Upstream pressure
+    * Downstream pressure
+    * Diameter of pipe
+    * Length of pipe
+    
+    A variety of different constants and expressions have been presented
+    for the Panhandle A equation. Here, a new form is developed with all units
+    in base SI, based on the work of [1]_.
+    
+    .. math::
+        Q = 158.02053 E \left(\frac{T_s}{P_s}\right)^{1.0788}\left[\frac{P_1^2
+        -P_2^2}{L \cdot {SG}^{0.8539} T_{avg}Z_{avg}}\right]^{0.5394}D^{2.6182}
+
+    Parameters
+    ----------
+    SG : float
+        Specific gravity of fluid with respect to air at the reference 
+        temperature and pressure `Ts` and `Ps`, [-]
+    Tavg : float
+        Average temperature of the fluid in the pipeline, [K]
+    L : float, optional
+        Length of pipe, [m]
+    D : float, optional
+        Diameter of pipe, [m]
+    P1 : float, optional
+        Inlet pressure to pipe, [Pa]
+    P2 : float, optional
+        Outlet pressure from pipe, [Pa]
+    Q : float, optional
+        Flow rate of gas through pipe, [m^3/s]
+    Ts : float, optional
+        Reference temperature for the specific gravity of the gas, [K]
+    Ps : float, optional
+        Reference pressure for the specific gravity of the gas, [Pa]
+    Zavg : float, optional
+        Average compressibility factor for gas, [-]
+    E : float, optional
+        Pipeline efficiency, a correction factor between 0 and 1
+
+    Returns
+    -------
+    Q, P1, P2, D, or L : float
+        The missing input which was solved for [base SI]
+
+    Notes
+    -----
+    [1]_'s original constant was 4.5965E-3, and it has units of km (length), 
+    kPa, mm (diameter), and flowrate in m^3/day.
+    
+    The form in [2]_ has the same exponents as used here, units of mm 
+    (diameter), kPa, km (length), and flow in m^3/hour; its leading constant is
+    1.9152E-4.  
+    
+    The GPSA [3]_ has a leading constant of 0.191, a bracketed power of 0.5392,
+    a specific gravity power of 0.853, and otherwise the same constants.
+    It is in units of mm (diameter) and kPa and m^3/day; length is stated to be
+    in km, but according to the errata is in m.
+    
+    [4]_ has a leading constant of 1.198E7, a specific gravity of power of 0.8541,
+    and a power of diameter which is under the root of 4.854 and is otherwise
+    the same. It has units of kPa and m^3/day, but is otherwise in base SI 
+    units.
+    
+    [5]_ has a leading constant of 99.5211, but its reference correction has no 
+    exponent; other exponents are the same as here. It is entirely in base SI 
+    units.
+    
+    [6]_ has pressures in psi, diameter in inches, length in miles, Q in 
+    ft^3/day, T in degrees Rankine, and a constant of 435.87.
+    Its reference condition power is 1.07881, and it has a specific gravity
+    correction outside any other term with a power of 0.4604.
+
+    Examples
+    --------
+    >>> Panhandle_A(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15)
+    42.56082051195928
+
+    References
+    ----------
+    .. [1] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
+       FL: CRC Press, 2005.
+    .. [2] Co, Crane. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    .. [3] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
+       Suppliers Association, Tulsa, OK, 2012.
+    .. [4] Campbell, John M. Gas Conditioning and Processing, Vol. 2: The 
+       Equipment Modules. 7th edition. Campbell Petroleum Series, 1992.
+    .. [5] Coelho, Paulo M., and Carlos Pinho. "Considerations about Equations 
+       for Steady State Flow in Natural Gas Pipelines." Journal of the 
+       Brazilian Society of Mechanical Sciences and Engineering 29, no. 3 
+       (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
+    .. [6] Ikoku, Chi U. Natural Gas Production Engineering. Malabar, Fla: 
+       Krieger Pub Co, 1991.
+    '''
+    c1 = 1.0788
+    c2 = 0.8539
+    c3 = 0.5394
+    c4 = 2.6182
+    c5 = 158.0205328706957220332831680508433862787 # 45965*10**(591/1250)/864
+    if Q is None and (None not in [L, D, P1, P2]):
+        return c5*E*(Ts/Ps)**c1*((P1**2 - P2**2)/(L*SG**c2*Tavg*Zavg))**c3*D**c4
+    elif D is None and (None not in [L, Q, P1, P2]):
+        return (Q*(Ts/Ps)**(-c1)*(SG**(-c2)*(P1**2 - P2**2)/(L*Tavg*Zavg))**(-c3)/(E*c5))**(1./c4)
+    elif P1 is None and (None not in [L, Q, D, P2]):
+        return (L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P2**2)**0.5
+    elif P2 is None and (None not in [L, Q, D, P1]):
+        return (-L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P1**2)**0.5
+    elif L is None and (None not in [P2, Q, D, P1]):
+        return SG**(-c2)*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
+    else:
+        raise Exception('This function solves for either flow, upstream \
+pressure, downstream pressure, diameter, or length; all other inputs \
+must be provided.')
+
+
+
+
 

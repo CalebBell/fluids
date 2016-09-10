@@ -63,3 +63,12 @@ def test_friction():
     assert methods_1 == methods_2
 
     assert_allclose(friction_factor(Re=1E5, eD=1E-4, Darcy=False), 0.01851386607747165*4)
+
+
+def test_transmission_factor():
+    assert_allclose(transmission_factor(fd=0.0185), 14.704292441876154)
+    assert_allclose(transmission_factor(F=14.704292441876154), 0.0185)
+    assert_allclose(transmission_factor(0.0185), 14.704292441876154)
+    
+    # Example in [1]_, lists answer as 12.65
+    assert_allclose(transmission_factor(fd=0.025), 12.649110640673516)

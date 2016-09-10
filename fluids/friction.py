@@ -30,7 +30,7 @@ __all__ = ['friction_factor', 'Colebrook', 'Clamond', 'Moody', 'Alshul_1952', 'W
 'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
-'Brkic_2011_2', 'Fang_2011', '_roughness']
+'Brkic_2011_2', 'Fang_2011', 'transmission_factor', '_roughness']
 
 
 def Colebrook(Re, eD):
@@ -1598,6 +1598,49 @@ _roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
 'Rough riveted steel': .00914}
 
 
+
+def transmission_factor(fd=None, F=None):
+    r'''Calculates either transmission factor from Darcy friction factor,
+    or Darcy friction factor from the transmission factor. Raises an exception
+    if neither input is given.
+    
+    Transmission factor is a term used in compressible gas flow in pipelines.
+
+    .. math::
+        F = \frac{2}{\sqrt{f_d}}
+
+        f_d = \frac{4}{F^2}
+
+    Parameters
+    ----------
+    fd : float, optional
+        Darcy friction factor, [-]
+    F : float, optional
+        Transmission factor, [-]
+
+    Returns
+    -------
+    fd or F : float
+        Darcy friction factor or transmission factor [-]
+
+    Examples
+    --------
+    >>> transmission_factor(fd=0.0185)
+    14.704292441876154
+
+    References
+    ----------
+    .. [1] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
+       FL: CRC Press, 2005.
+    '''
+    if fd:
+        return 2./fd**0.5
+    elif F:
+        return 4./(F*F)
+    else:
+        raise Exception('Either Darcy friction factor or transmission factor is needed')
+
+#print(transmission_factor(fd=0.0185))
 
 
 #### Code used to create the dictionary
