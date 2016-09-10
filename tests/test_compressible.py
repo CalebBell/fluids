@@ -62,4 +62,25 @@ def test_Panhandle_A():
     
     with pytest.raises(Exception):
         Panhandle_A(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
+        
+def test_Panhandle_B():
+    # Example 7-18 Gas of Crane TP 410M
+    D = 0.340
+    P1 = 90E5
+    P2 = 20E5
+    L = 160E3
+    SG=0.693
+    Tavg = 277.15
+    Q = 42.35366178004172
+    
+    # Test all combinations of relevant missing inputs
+    assert_allclose(Panhandle_B(D=D, P1=P1, P2=P2, L=L, SG=SG, Tavg=Tavg), Q)
+    assert_allclose(Panhandle_B(D=D, Q=Q, P2=P2, L=L, SG=SG, Tavg=Tavg), P1)
+    assert_allclose(Panhandle_B(D=D, Q=Q, P1=P1, L=L, SG=SG, Tavg=Tavg), P2)
+    assert_allclose(Panhandle_B(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
+    assert_allclose(Panhandle_B(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
+    
+    with pytest.raises(Exception):
+        Panhandle_B(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
+    
 
