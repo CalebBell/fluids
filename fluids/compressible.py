@@ -21,10 +21,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['Panhandle_A', 'Panhandle_B', 'T_critical_flow', 'P_critical_flow', 'is_critical_flow',
+__all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 
+           'Spitzglass_low',
+           'T_critical_flow', 'P_critical_flow', 'is_critical_flow',
            'stagnation_energy', 'P_stagnation', 'T_stagnation',
            'T_stagnation_ideal']
 
+from scipy.optimize import newton 
 
 def T_critical_flow(T, k):
     r'''Calculates critical flow temperature `Tcf` for a fluid with the
@@ -552,3 +555,337 @@ def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
 
+def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
+                Ps=101325., Zavg=1, E=0.92):
+    r'''Calculation function for dealing with flow of a compressible gas in a 
+    pipeline with the Weymouth formula. Can calculate any of the following, 
+    given all other inputs:
+    
+    * Flow rate
+    * Upstream pressure
+    * Downstream pressure
+    * Diameter of pipe
+    * Length of pipe
+    
+    A variety of different constants and expressions have been presented
+    for the Weymouth equation. Here, a new form is developed with all units
+    in base SI, based on the work of [1]_.
+    
+    .. math::
+        Q = 137.32958 E \frac{T_s}{P_s}\left[\frac{P_1^2
+        -P_2^2}{L \cdot {SG} \cdot T_{avg}Z_{avg}}\right]^{0.5}D^{2.667}
+
+    Parameters
+    ----------
+    SG : float
+        Specific gravity of fluid with respect to air at the reference 
+        temperature and pressure `Ts` and `Ps`, [-]
+    Tavg : float
+        Average temperature of the fluid in the pipeline, [K]
+    L : float, optional
+        Length of pipe, [m]
+    D : float, optional
+        Diameter of pipe, [m]
+    P1 : float, optional
+        Inlet pressure to pipe, [Pa]
+    P2 : float, optional
+        Outlet pressure from pipe, [Pa]
+    Q : float, optional
+        Flow rate of gas through pipe, [m^3/s]
+    Ts : float, optional
+        Reference temperature for the specific gravity of the gas, [K]
+    Ps : float, optional
+        Reference pressure for the specific gravity of the gas, [Pa]
+    Zavg : float, optional
+        Average compressibility factor for gas, [-]
+    E : float, optional
+        Pipeline efficiency, a correction factor between 0 and 1
+
+    Returns
+    -------
+    Q, P1, P2, D, or L : float
+        The missing input which was solved for [base SI]
+
+    Notes
+    -----
+    [1]_'s original constant was 3.7435E-3, and it has units of km (length), 
+    kPa, mm (diameter), and flowrate in m^3/day.
+    
+    The form in [2]_ has the same exponents as used here, units of mm 
+    (diameter), kPa, km (length), and flow in m^3/hour; its leading constant is
+    1.5598E-4.  
+    
+    The GPSA [3]_ has a leading constant of 0.1182, and otherwise the same constants.
+    It is in units of mm (diameter) and kPa and m^3/day; length is stated to be
+    in km, but according to the errata is in m.
+    
+    [4]_ has a leading constant of 1.162E7, a diameter power of 5.333 which is
+    also under the 0.50 power, and is otherwise the same. It has units of kPa 
+    and m^3/day, but is otherwise in base SI units.
+    
+    [5]_ has a leading constant of 137.2364; the other 
+    exponents are the same as here. It is entirely in base SI units.
+    
+    [6]_ has pressures in psi, diameter in inches, length in miles, Q in 
+    ft^3/hour, T in degrees Rankine, and a constant of 18.062 with the  
+    exponents the same as here.
+
+    Examples
+    --------
+    >>> Weymouth(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15)
+    32.07729055913029
+
+    References
+    ----------
+    .. [1] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
+       FL: CRC Press, 2005.
+    .. [2] Co, Crane. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    .. [3] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
+       Suppliers Association, Tulsa, OK, 2012.
+    .. [4] Campbell, John M. Gas Conditioning and Processing, Vol. 2: The 
+       Equipment Modules. 7th edition. Campbell Petroleum Series, 1992.
+    .. [5] Coelho, Paulo M., and Carlos Pinho. "Considerations about Equations 
+       for Steady State Flow in Natural Gas Pipelines." Journal of the 
+       Brazilian Society of Mechanical Sciences and Engineering 29, no. 3 
+       (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
+    .. [6] Ikoku, Chi U. Natural Gas Production Engineering. Malabar, Fla: 
+       Krieger Pub Co, 1991.
+    '''
+    c3 = 0.5 # main power
+    c4 = 2.667 # diameter power
+    c5 = 137.3295809942512546732179684618143090992 # 37435*10**(501/1000)/864
+    if Q is None and (None not in [L, D, P1, P2]):
+        return c5*E*(Ts/Ps)*((P1**2 - P2**2)/(L*SG*Tavg*Zavg))**c3*D**c4
+    elif D is None and (None not in [L, Q, P1, P2]):
+        return (Ps*Q*((P1**2 - P2**2)/(L*SG*Tavg*Zavg))**(-c3)/(E*Ts*c5))**(1./c4)
+    elif P1 is None and (None not in [L, Q, D, P2]):
+        return (L*SG*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P2**2)**0.5
+    elif P2 is None and (None not in [L, Q, D, P1]):
+        return (-L*SG*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P1**2)**0.5
+    elif L is None and (None not in [P2, Q, D, P1]):
+        return (D**(-c4)*Ps*Q/(E*Ts*c5))**(-1./c3)*(P1**2 - P2**2)/(SG*Tavg*Zavg)
+    else:
+        raise Exception('This function solves for either flow, upstream \
+pressure, downstream pressure, diameter, or length; all other inputs \
+must be provided.')
+
+
+def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
+                Ps=101325., Zavg=1, E=1.):
+    r'''Calculation function for dealing with flow of a compressible gas in a 
+    pipeline with the Spitzglass (high pressure drop) formula. Can calculate  
+    any of the following, given all other inputs:
+    
+    * Flow rate
+    * Upstream pressure
+    * Downstream pressure
+    * Diameter of pipe (numerical solution)
+    * Length of pipe
+    
+    A variety of different constants and expressions have been presented
+    for the Spitzglass (high pressure drop) formula. Here, the form as in [1]_
+    is used but with a more precise metric conversion from inches to m.
+    
+    .. math::
+        Q = 125.1060 E \left(\frac{T_s}{P_s}\right)\left[\frac{P_1^2
+        -P_2^2}{L \cdot {SG} T_{avg}Z_{avg} (1 + 0.09144/D + \frac{150}{127}D)}
+        \right]^{0.5}D^{2.5}
+
+    Parameters
+    ----------
+    SG : float
+        Specific gravity of fluid with respect to air at the reference 
+        temperature and pressure `Ts` and `Ps`, [-]
+    Tavg : float
+        Average temperature of the fluid in the pipeline, [K]
+    L : float, optional
+        Length of pipe, [m]
+    D : float, optional
+        Diameter of pipe, [m]
+    P1 : float, optional
+        Inlet pressure to pipe, [Pa]
+    P2 : float, optional
+        Outlet pressure from pipe, [Pa]
+    Q : float, optional
+        Flow rate of gas through pipe, [m^3/s]
+    Ts : float, optional
+        Reference temperature for the specific gravity of the gas, [K]
+    Ps : float, optional
+        Reference pressure for the specific gravity of the gas, [Pa]
+    Zavg : float, optional
+        Average compressibility factor for gas, [-]
+    E : float, optional
+        Pipeline efficiency, a correction factor between 0 and 1
+
+    Returns
+    -------
+    Q, P1, P2, D, or L : float
+        The missing input which was solved for [base SI]
+
+    Notes
+    -----    
+    This equation is often presented without any corection for reference
+    conditions for specific gravity.
+    
+    This model is also presented in [2]_ with a leading constant of 1.0815E-2,
+    the same exponents as used here, units of mm  (diameter), kPa, km (length),
+    and flow in m^3/hour.    
+
+    Examples
+    --------
+    >>> Spitzglass_high(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15)
+    29.42670246281681
+
+    References
+    ----------
+    .. [1] Coelho, Paulo M., and Carlos Pinho. "Considerations about Equations 
+       for Steady State Flow in Natural Gas Pipelines." Journal of the 
+       Brazilian Society of Mechanical Sciences and Engineering 29, no. 3 
+       (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
+    .. [2] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
+       FL: CRC Press, 2005.
+    '''
+    c3 = 1.181102362204724409448818897637795275591 # 0.03/inch or 150/127
+    c4 = 0.09144
+    c5 = 125.1060 
+    if Q is None and (None not in [L, D, P1, P2]):
+        return (c5*E*Ts/Ps*D**2.5*((P1**2-P2**2)
+                /(L*SG*Zavg*Tavg*(1 + c4/D + c3*D)))**0.5)
+    elif D is None and (None not in [L, Q, P1, P2]):
+        to_solve = lambda D : Q - Spitzglass_high(SG=SG, Tavg=Tavg, L=L, D=D, 
+                                                  P1=P1, P2=P2, Ts=Ts, Ps=Ps, 
+                                                  Zavg=Zavg, E=E)        
+        return newton(to_solve, 0.5)
+    elif P1 is None and (None not in [L, Q, D, P2]):
+        return ((D**6*E**2*P2**2*Ts**2*c5**2
+                 + D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3 
+                 + D*L*Ps**2*Q**2*SG*Tavg*Zavg 
+                 + L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2))**0.5
+    elif P2 is None and (None not in [L, Q, D, P1]):
+        return ((D**6*E**2*P1**2*Ts**2*c5**2 
+                 - D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3 
+                 - D*L*Ps**2*Q**2*SG*Tavg*Zavg 
+                 - L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2))**0.5
+    elif L is None and (None not in [P2, Q, D, P1]):
+        return (D**6*E**2*Ts**2*c5**2*(P1**2 - P2**2)
+                /(Ps**2*Q**2*SG*Tavg*Zavg*(D**2*c3 + D + c4)))
+    else:
+        raise Exception('This function solves for either flow, upstream \
+pressure, downstream pressure, diameter, or length; all other inputs \
+must be provided.')
+
+
+def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
+                Ps=101325., Zavg=1, E=1.):
+    r'''Calculation function for dealing with flow of a compressible gas in a 
+    pipeline with the Spitzglass (low pressure drop) formula. Can calculate  
+    any of the following, given all other inputs:
+    
+    * Flow rate
+    * Upstream pressure
+    * Downstream pressure
+    * Diameter of pipe (numerical solution)
+    * Length of pipe
+    
+    A variety of different constants and expressions have been presented
+    for the Spitzglass (low pressure drop) formula. Here, the form as in [1]_
+    is used but with a more precise metric conversion from inches to m.
+    
+    .. math::
+        Q = 125.1060 E \left(\frac{T_s}{P_s}\right)\left[\frac{2(P_1
+        -P_2)(P_s+1210)}{L \cdot {SG} \cdot T_{avg}Z_{avg} (1 + 0.09144/D 
+        + \frac{150}{127}D)}\right]^{0.5}D^{2.5}
+
+    Parameters
+    ----------
+    SG : float
+        Specific gravity of fluid with respect to air at the reference 
+        temperature and pressure `Ts` and `Ps`, [-]
+    Tavg : float
+        Average temperature of the fluid in the pipeline, [K]
+    L : float, optional
+        Length of pipe, [m]
+    D : float, optional
+        Diameter of pipe, [m]
+    P1 : float, optional
+        Inlet pressure to pipe, [Pa]
+    P2 : float, optional
+        Outlet pressure from pipe, [Pa]
+    Q : float, optional
+        Flow rate of gas through pipe, [m^3/s]
+    Ts : float, optional
+        Reference temperature for the specific gravity of the gas, [K]
+    Ps : float, optional
+        Reference pressure for the specific gravity of the gas, [Pa]
+    Zavg : float, optional
+        Average compressibility factor for gas, [-]
+    E : float, optional
+        Pipeline efficiency, a correction factor between 0 and 1
+
+    Returns
+    -------
+    Q, P1, P2, D, or L : float
+        The missing input which was solved for [base SI]
+
+    Notes
+    -----    
+    This equation is often presented without any corection for reference
+    conditions for specific gravity.
+    
+    This model is also presented in [2]_ with a leading constant of 5.69E-2,
+    the same exponents as used here, units of mm  (diameter), kPa, km (length),
+    and flow in m^3/hour. However, it is believed to contain a typo, and gives
+    results <1/3 of the correct values. It is also present in [2]_ in imperial
+    form; this is believed correct, but makes a slight assumption not done in
+    [1]_.
+
+    This model is present in [3]_ without reference corrections. The 1210 
+    constant in [1]_ is an approximation necessary for the reference correction
+    to function without a square of the pressure difference. The GPSA version
+    is as follows, and matches this formulation very closely:
+    
+    .. math::
+        Q = 0.821 \left[\frac{(P_1-P_2)D^5}{L \cdot {SG}
+        (1 + 91.44/D + 0.0018D)}\right]^{0.5}
+    
+    The model is also shown in [4]_, with diameter in inches, length in feet, 
+    flow in MMSCFD, pressure drop in inH2O, and a rounded leading constant of 
+    0.09; this makes its predictions several percent higher than the model here.
+
+    Examples
+    --------
+    >>> Spitzglass_low(D=0.154051, P1=6720.3199, P2=0, L=54.864, SG=0.6, Tavg=288.7)
+    0.9488775242530617
+    
+    References
+    ----------
+    .. [1] Coelho, Paulo M., and Carlos Pinho. "Considerations about Equations 
+       for Steady State Flow in Natural Gas Pipelines." Journal of the 
+       Brazilian Society of Mechanical Sciences and Engineering 29, no. 3 
+       (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
+    .. [2] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
+       FL: CRC Press, 2005.
+    .. [3] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
+       Suppliers Association, Tulsa, OK, 2012.
+    .. [4] PetroWiki. "Pressure Drop Evaluation along Pipelines" Accessed 
+       September 11, 2016. http://petrowiki.org/Pressure_drop_evaluation_along_pipelines#Spitzglass_equation_2.
+    '''
+    c3 = 1.181102362204724409448818897637795275591 # 1.1811 ish or 0.03/inch or 150/127
+    c4 = 0.09144
+    c5 = 125.1060 
+    if Q is None and (None not in [L, D, P1, P2]):
+        return c5*Ts/Ps*D**2.5*E*(((P1-P2)*2*(Ps+1210.))/(L*SG*Tavg*Zavg*(1 + c4/D + c3*D)))**0.5
+    elif D is None and (None not in [L, Q, P1, P2]):
+        to_solve = lambda D : Q - Spitzglass_low(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)        
+        return newton(to_solve, 0.5)
+    elif P1 is None and (None not in [L, Q, D, P2]):
+        return 0.5*(2.0*D**6*E**2*P2*Ts**2*c5**2*(Ps + 1210.0) + D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3 + D*L*Ps**2*Q**2*SG*Tavg*Zavg + L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2*(Ps + 1210.0))
+    elif P2 is None and (None not in [L, Q, D, P1]):
+        return 0.5*(2.0*D**6*E**2*P1*Ts**2*c5**2*(Ps + 1210.0) - D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3 - D*L*Ps**2*Q**2*SG*Tavg*Zavg - L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2*(Ps + 1210.0))
+    elif L is None and (None not in [P2, Q, D, P1]):
+        return 2.0*D**6*E**2*Ts**2*c5**2*(P1*Ps + 1210.0*P1 - P2*Ps - 1210.0*P2)/(Ps**2*Q**2*SG*Tavg*Zavg*(D**2*c3 + D + c4))
+    else:
+        raise Exception('This function solves for either flow, upstream \
+pressure, downstream pressure, diameter, or length; all other inputs \
+must be provided.')

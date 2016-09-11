@@ -84,3 +84,52 @@ def test_Panhandle_B():
         Panhandle_B(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
     
 
+def test_Weymouth():
+    from numpy.testing import assert_allclose
+
+    D = 0.340
+    P1 = 90E5
+    P2 = 20E5
+    L = 160E3
+    SG=0.693
+    Tavg = 277.15
+    Q = 32.07729055913029
+    assert_allclose(Weymouth(D=D, P1=P1, P2=P2, L=L, SG=SG, Tavg=Tavg), Q)
+    assert_allclose(Weymouth(D=D, Q=Q, P2=P2, L=L, SG=SG, Tavg=Tavg), P1)
+    assert_allclose(Weymouth(D=D, Q=Q, P1=P1, L=L, SG=SG, Tavg=Tavg), P2)
+    assert_allclose(Weymouth(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
+    assert_allclose(Weymouth(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
+
+    with pytest.raises(Exception):
+        Weymouth(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
+
+
+def test_Spitzglass_high():
+    
+    D = 0.340
+    P1 = 90E5
+    P2 = 20E5
+    L = 160E3
+    SG=0.693
+    Tavg = 277.15
+    Q = 29.42670246281681
+    assert_allclose(Spitzglass_high(D=D, P1=P1, P2=P2, L=L, SG=SG, Tavg=Tavg), Q)
+    assert_allclose(Spitzglass_high(D=D, Q=Q, P2=P2, L=L, SG=SG, Tavg=Tavg), P1)
+    assert_allclose(Spitzglass_high(D=D, Q=Q, P1=P1, L=L, SG=SG, Tavg=Tavg), P2)
+    assert_allclose(Spitzglass_high(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
+    assert_allclose(Spitzglass_high(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
+
+
+def test_Spitzglass_low():
+    D = 0.154051
+    P1 = 6720.3199
+    P2 = 0
+    L = 54.864
+    SG=0.6
+    Tavg = 288.7
+    Q = 0.9488775242530617
+    assert_allclose(Spitzglass_low(D=D, P1=P1, P2=P2, L=L, SG=SG, Tavg=Tavg), Q)
+    assert_allclose(Spitzglass_low(D=D, Q=Q, P2=P2, L=L, SG=SG, Tavg=Tavg), P1)
+    assert_allclose(Spitzglass_low(D=D, Q=Q, P1=P1, L=L, SG=SG, Tavg=Tavg), P2, atol=1E-10)
+    assert_allclose(Spitzglass_low(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
+    assert_allclose(Spitzglass_low(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
