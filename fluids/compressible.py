@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 
-           'Spitzglass_low',
+           'Spitzglass_low', 'Oliphant',
            'T_critical_flow', 'P_critical_flow', 'is_critical_flow',
            'stagnation_energy', 'P_stagnation', 'T_stagnation',
            'T_stagnation_ideal']
@@ -555,6 +555,7 @@ def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
 
+
 def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
                 Ps=101325., Zavg=1, E=0.92):
     r'''Calculation function for dealing with flow of a compressible gas in a 
@@ -885,6 +886,101 @@ def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
         return 0.5*(2.0*D**6*E**2*P1*Ts**2*c5**2*(Ps + 1210.0) - D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3 - D*L*Ps**2*Q**2*SG*Tavg*Zavg - L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2*(Ps + 1210.0))
     elif L is None and (None not in [P2, Q, D, P1]):
         return 2.0*D**6*E**2*Ts**2*c5**2*(P1*Ps + 1210.0*P1 - P2*Ps - 1210.0*P2)/(Ps**2*Q**2*SG*Tavg*Zavg*(D**2*c3 + D + c4))
+    else:
+        raise Exception('This function solves for either flow, upstream \
+pressure, downstream pressure, diameter, or length; all other inputs \
+must be provided.')
+
+
+def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
+                Ps=101325., Zavg=1, E=0.92):
+    r'''Calculation function for dealing with flow of a compressible gas in a 
+    pipeline with the Oliphant formula. Can calculate any of the following, 
+    given all other inputs:
+    
+    * Flow rate
+    * Upstream pressure
+    * Downstream pressure
+    * Diameter of pipe (numerical solution)
+    * Length of pipe
+    
+    This model is a more complete conversion to metric of the Imperial version
+    presented in [1]_.
+    
+    .. math::
+        Q = 84.5872\left(D^{2.5} + 0.20915D^3\right)\frac{T_s}{P_s}\left(\frac
+        {P_1^2 - P_2^2}{L\cdot {SG} \cdot T_{avg}}\right)^{0.5}
+
+    Parameters
+    ----------
+    SG : float
+        Specific gravity of fluid with respect to air at the reference 
+        temperature and pressure `Ts` and `Ps`, [-]
+    Tavg : float
+        Average temperature of the fluid in the pipeline, [K]
+    L : float, optional
+        Length of pipe, [m]
+    D : float, optional
+        Diameter of pipe, [m]
+    P1 : float, optional
+        Inlet pressure to pipe, [Pa]
+    P2 : float, optional
+        Outlet pressure from pipe, [Pa]
+    Q : float, optional
+        Flow rate of gas through pipe, [m^3/s]
+    Ts : float, optional
+        Reference temperature for the specific gravity of the gas, [K]
+    Ps : float, optional
+        Reference pressure for the specific gravity of the gas, [Pa]
+    Zavg : float, optional
+        Average compressibility factor for gas, [-]
+    E : float, optional
+        Pipeline efficiency, a correction factor between 0 and 1
+
+    Returns
+    -------
+    Q, P1, P2, D, or L : float
+        The missing input which was solved for [base SI]
+
+    Notes
+    -----
+    Recommended in [1]_ for use between vacuum and 100 psi.
+    
+    The model is simplified by grouping constants here; however, it is presented
+    in the imperial unit set inches (diameter), miles (length), psi, Rankine,
+    and MMSCFD in [1]_:
+    
+    .. math::
+        Q = 42(24)\left(D^{2.5} + \frac{D^3}{30}\right)\left(\frac{14.4}{P_s}
+        \right)\left(\frac{T_s}{520}\right)\left[\left(\frac{0.6}{SG}\right)
+        \left(\frac{520}{T_{avg}}\right)\left(\frac{P_1^2 - P_2^2}{L}\right)
+        \right]^{0.5}
+    
+    Examples
+    --------
+    >>> Oliphant(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15)
+    28.851535408143057
+    
+    References
+    ----------
+    .. [1] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
+       Suppliers Association, Tulsa, OK, 2012.
+    .. [2] F. N. Oliphant, "Production of Natural Gas," Report. USGS, 1902.
+    '''
+    # c1 = 42*24*Q*foot**3/day*(mile)**0.5*9/5.*(5/9.)**0.5*psi*(1/psi)*14.4/520.*0.6**0.5*520**0.5/inch**2.5
+    c1 = 84.587176139918568651410168968141078948974609375000
+    c2 = 0.2091519350460528670065940559652517549694 # 1/(30.*0.0254**0.5)
+    if Q is None and (None not in [L, D, P1, P2]):
+        return c1*(D**2.5 + c2*D**3)*Ts/Ps*((P1**2-P2**2)/(L*SG*Tavg))**0.5    
+    elif D is None and (None not in [L, Q, P1, P2]):
+        to_solve = lambda D : Q - Oliphant(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)        
+        return newton(to_solve, 0.5)
+    elif P1 is None and (None not in [L, Q, D, P2]):
+        return (L*Ps**2*Q**2*SG*Tavg/(Ts**2*c1**2*(D**3*c2 + D**2.5)**2) + P2**2)**0.5
+    elif P2 is None and (None not in [L, Q, D, P1]):
+        return (-L*Ps**2*Q**2*SG*Tavg/(Ts**2*c1**2*(D**3*c2 + D**2.5)**2) + P1**2)**0.5
+    elif L is None and (None not in [P2, Q, D, P1]):
+        return Ts**2*c1**2*(P1**2 - P2**2)*(D**3*c2 + D**2.5)**2/(Ps**2*Q**2*SG*Tavg)
     else:
         raise Exception('This function solves for either flow, upstream \
 pressure, downstream pressure, diameter, or length; all other inputs \

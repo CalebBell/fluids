@@ -133,3 +133,21 @@ def test_Spitzglass_low():
     assert_allclose(Spitzglass_low(D=D, Q=Q, P1=P1, L=L, SG=SG, Tavg=Tavg), P2, atol=1E-10)
     assert_allclose(Spitzglass_low(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
     assert_allclose(Spitzglass_low(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
+
+
+
+def test_Oliphant():
+    from numpy.testing import assert_allclose
+
+    D = 0.340
+    P1 = 90E5
+    P2 = 20E5
+    L = 160E3
+    SG=0.693
+    Tavg = 277.15
+    Q = 28.851535408143057
+    assert_allclose(Oliphant(D=D, P1=P1, P2=P2, L=L, SG=SG, Tavg=Tavg), Q)
+    assert_allclose(Oliphant(D=D, Q=Q, P2=P2, L=L, SG=SG, Tavg=Tavg), P1)
+    assert_allclose(Oliphant(D=D, Q=Q, P1=P1, L=L, SG=SG, Tavg=Tavg), P2)
+    assert_allclose(Oliphant(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
+    assert_allclose(Oliphant(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
