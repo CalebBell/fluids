@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 
-           'Spitzglass_low', 'Oliphant',
+           'Spitzglass_low', 'Oliphant', 'Fritzsche',
            'T_critical_flow', 'P_critical_flow', 'is_critical_flow',
            'stagnation_energy', 'P_stagnation', 'T_stagnation',
            'T_stagnation_ideal']
@@ -985,3 +985,95 @@ def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
         raise Exception('This function solves for either flow, upstream \
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
+
+
+def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, Ps=101325., Zavg=1, E=1):
+    r'''Calculation function for dealing with flow of a compressible gas in a 
+    pipeline with the Fritzsche formula. Can calculate any of the following, 
+    given all other inputs:
+    
+    * Flow rate
+    * Upstream pressure
+    * Downstream pressure
+    * Diameter of pipe
+    * Length of pipe
+    
+    A variety of different constants and expressions have been presented
+    for the Fritzsche formula. Here, the form as in [1]_
+    is used but with all inputs in base SI units.
+    
+    .. math::
+        Q = 93.500 \frac{T_s}{P_s}\left(\frac{P_1^2 - P_2^2}
+        {L\cdot {SG}^{0.8587} \cdot T_{avg}}\right)^{0.538}D^{2.69}
+
+    Parameters
+    ----------
+    SG : float
+        Specific gravity of fluid with respect to air at the reference 
+        temperature and pressure `Ts` and `Ps`, [-]
+    Tavg : float
+        Average temperature of the fluid in the pipeline, [K]
+    L : float, optional
+        Length of pipe, [m]
+    D : float, optional
+        Diameter of pipe, [m]
+    P1 : float, optional
+        Inlet pressure to pipe, [Pa]
+    P2 : float, optional
+        Outlet pressure from pipe, [Pa]
+    Q : float, optional
+        Flow rate of gas through pipe, [m^3/s]
+    Ts : float, optional
+        Reference temperature for the specific gravity of the gas, [K]
+    Ps : float, optional
+        Reference pressure for the specific gravity of the gas, [Pa]
+    Zavg : float, optional
+        Average compressibility factor for gas, [-]
+    E : float, optional
+        Pipeline efficiency, a correction factor between 0 and 1
+
+    Returns
+    -------
+    Q, P1, P2, D, or L : float
+        The missing input which was solved for [base SI]
+
+    Notes
+    -----
+    This model is also presented in [1]_ with a leading constant of 2.827,
+    the same exponents as used here, units of mm  (diameter), kPa, km (length),
+    and flow in m^3/hour. 
+    
+    This model is shown in base SI units in [2]_, and with a leading constant
+    of 94.2565, a diameter power of 2.6911, main group power of 0.5382
+    and a specific gravity power of 0.858. The difference is very small.
+
+    Examples
+    --------
+    >>> Fritzsche(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15)
+    39.421535157535565
+    
+    References
+    ----------
+    .. [1] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
+       FL: CRC Press, 2005.
+    .. [2] Coelho, Paulo M., and Carlos Pinho. "Considerations about Equations 
+       for Steady State Flow in Natural Gas Pipelines." Journal of the 
+       Brazilian Society of Mechanical Sciences and Engineering 29, no. 3 
+       (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
+    '''
+    c5 = 93.50009798751128188757518688244137811221 # 14135*10**(57/125)/432
+    c2 = 0.8587
+    c3 = 0.538
+    c4 = 2.69
+    if Q is None and (None not in [L, D, P1, P2]):
+        return c5*E*(Ts/Ps)*((P1**2 - P2**2)/(SG**c2*Tavg*L*Zavg))**c3*D**c4
+    elif D is None and (None not in [L, Q, P1, P2]):
+        return (Ps*Q*(SG**(-c2)*(P1**2 - P2**2)/(L*Tavg*Zavg))**(-c3)/(E*Ts*c5))**(1./c4)
+    elif P1 is None and (None not in [L, Q, D, P2]):
+        return (L*SG**c2*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P2**2)**0.5
+    elif P2 is None and (None not in [L, Q, D, P1]):
+        return (-L*SG**c2*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P1**2)**0.5
+    elif L is None and (None not in [P2, Q, D, P1]):
+        return SG**(-c2)*(D**(-c4)*Ps*Q/(E*Ts*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
+    else:
+        raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')

@@ -119,6 +119,9 @@ def test_Spitzglass_high():
     assert_allclose(Spitzglass_high(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
     assert_allclose(Spitzglass_high(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
 
+    with pytest.raises(Exception):
+        Spitzglass_high(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
+
 
 def test_Spitzglass_low():
     D = 0.154051
@@ -134,11 +137,11 @@ def test_Spitzglass_low():
     assert_allclose(Spitzglass_low(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
     assert_allclose(Spitzglass_low(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
 
+    with pytest.raises(Exception):
+        Spitzglass_low(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
 
 
 def test_Oliphant():
-    from numpy.testing import assert_allclose
-
     D = 0.340
     P1 = 90E5
     P2 = 20E5
@@ -151,3 +154,24 @@ def test_Oliphant():
     assert_allclose(Oliphant(D=D, Q=Q, P1=P1, L=L, SG=SG, Tavg=Tavg), P2)
     assert_allclose(Oliphant(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
     assert_allclose(Oliphant(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
+
+    with pytest.raises(Exception):
+        Oliphant(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
+
+
+def test_Fritzsche():
+    D = 0.340
+    P1 = 90E5
+    P2 = 20E5
+    L = 160E3
+    SG=0.693
+    Tavg = 277.15
+    Q = 39.421535157535565
+    assert_allclose(Fritzsche(D=D, P1=P1, P2=P2, L=L, SG=SG, Tavg=Tavg), Q)
+    assert_allclose(Fritzsche(D=D, Q=Q, P2=P2, L=L, SG=SG, Tavg=Tavg), P1)
+    assert_allclose(Fritzsche(D=D, Q=Q, P1=P1, L=L, SG=SG, Tavg=Tavg), P2)
+    assert_allclose(Fritzsche(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
+    assert_allclose(Fritzsche(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
+
+    with pytest.raises(Exception):
+        Fritzsche(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
