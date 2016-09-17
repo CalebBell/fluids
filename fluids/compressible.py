@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 
-           'Spitzglass_low', 'Oliphant', 'Fritzsche',
+           'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller',
            'T_critical_flow', 'P_critical_flow', 'is_critical_flow',
            'stagnation_energy', 'P_stagnation', 'T_stagnation',
            'T_stagnation_ideal']
@@ -872,7 +872,7 @@ def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     .. [4] PetroWiki. "Pressure Drop Evaluation along Pipelines" Accessed 
        September 11, 2016. http://petrowiki.org/Pressure_drop_evaluation_along_pipelines#Spitzglass_equation_2.
     '''
-    c3 = 1.181102362204724409448818897637795275591 # 1.1811 ish or 0.03/inch or 150/127
+    c3 = 1.181102362204724409448818897637795275591 # 0.03/inch or 150/127
     c4 = 0.09144
     c5 = 125.1060 
     if Q is None and (None not in [L, D, P1, P2]):
@@ -1061,6 +1061,7 @@ def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, Ps=1
        Brazilian Society of Mechanical Sciences and Engineering 29, no. 3 
        (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
     '''
+    # Rational('2.827E-3')/(3600*24)*(1000)**Rational('2.69')*(1000)**Rational('0.538')*1000/(1000**2)**Rational('0.538')
     c5 = 93.50009798751128188757518688244137811221 # 14135*10**(57/125)/432
     c2 = 0.8587
     c3 = 0.538
@@ -1075,5 +1076,114 @@ def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, Ps=1
         return (-L*SG**c2*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P1**2)**0.5
     elif L is None and (None not in [P2, Q, D, P1]):
         return SG**(-c2)*(D**(-c4)*Ps*Q/(E*Ts*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
+    else:
+        raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')
+
+
+def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, Ps=101325., Zavg=1, E=1):
+    r'''Calculation function for dealing with flow of a compressible gas in a 
+    pipeline with the Muller formula. Can calculate any of the following, 
+    given all other inputs:
+    
+    * Flow rate
+    * Upstream pressure
+    * Downstream pressure
+    * Diameter of pipe
+    * Length of pipe
+    
+    A variety of different constants and expressions have been presented
+    for the Fritzsche formula. Here, the form as in [1]_
+    is used but with all inputs in base SI units.
+    
+    .. math::
+        Q = 15.7743\frac{T_s}{P_s}E\left(\frac{P_1^2 - P_2^2}{L \cdot Z_{avg} 
+        \cdot T_{avg}}\right)^{0.575} \left(\frac{D^{2.725}}{\mu^{0.15} 
+        SG^{0.425}}\right)
+
+    Parameters
+    ----------
+    SG : float
+        Specific gravity of fluid with respect to air at the reference 
+        temperature and pressure `Ts` and `Ps`, [-]
+    Tavg : float
+        Average temperature of the fluid in the pipeline, [K]
+    mu : float
+        Average viscosity of the fluid in the pipeline, [Pa*s]
+    L : float, optional
+        Length of pipe, [m]
+    D : float, optional
+        Diameter of pipe, [m]
+    P1 : float, optional
+        Inlet pressure to pipe, [Pa]
+    P2 : float, optional
+        Outlet pressure from pipe, [Pa]
+    Q : float, optional
+        Flow rate of gas through pipe, [m^3/s]
+    Ts : float, optional
+        Reference temperature for the specific gravity of the gas, [K]
+    Ps : float, optional
+        Reference pressure for the specific gravity of the gas, [Pa]
+    Zavg : float, optional
+        Average compressibility factor for gas, [-]
+    E : float, optional
+        Pipeline efficiency, a correction factor between 0 and 1
+
+    Returns
+    -------
+    Q, P1, P2, D, or L : float
+        The missing input which was solved for [base SI]
+
+    Notes
+    -----
+    This model is presented in [1]_ with a leading constant of 0.4937, the same
+    exponents as used here, units of inches (diameter), psi, feet (length),
+    Rankine, pound/(foot*second) for viscosity, and 1000 ft^3/hour.
+    
+    This model is also presented in [2]_  in both SI and imperial form. The
+    SI form was incorrectly converted and yields much higher flow rates. The
+    imperial version has a leading constant of 85.7368, the same powers as
+    used here except with rounded values of powers of viscosity (0.2609) and  
+    specific gravity (0.7391) rearanged to be inside the bracketed group;
+    its units are inches (diameter), psi, miles (length),
+    Rankine, pound/(foot*second) for viscosity, and ft^3/day.
+    
+    This model is shown in base SI units in [3]_, and with a leading constant
+    of 15.7650, a diameter power of 2.724, main group power of 0.5747,
+    a specific gravity power of 0.74, and a viscosity power of 0.1494. 
+
+    Examples
+    --------
+    >>> Muller(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, mu=1E-5, 
+    ... Tavg=277.15)
+    60.45796698148659
+    
+    References
+    ----------
+    .. [1] Mohitpour, Mo, Golshan, and Allan Murray. Pipeline Design and 
+       Construction: A Practical Approach. 3 edition. New York: Amer Soc 
+       Mechanical Engineers, 2006.
+    .. [2] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
+       FL: CRC Press, 2005.
+    .. [3] Coelho, Paulo M., and Carlos Pinho. "Considerations about Equations 
+       for Steady State Flow in Natural Gas Pipelines." Journal of the 
+       Brazilian Society of Mechanical Sciences and Engineering 29, no. 3 
+       (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
+    '''
+    # 1000*foot**3/hour*0.4937/inch**2.725*foot**0.575*(5/9.)**0.575*9/5.*(pound/foot)**0.15*psi*(1/psi**2)**0.575
+    c5 = 15.77439908642077352939746374951659525108 # 5642991*196133**(17/20)*2**(3/5)*3**(11/40)*5**(7/40)/30645781250
+    c2 = 0.575 # main power
+    c3 = 2.725 # D power
+    c4 = 0.425 # SG power
+    c1 = 0.15 # mu power
+    if not Q:
+        return c5*Ts/Ps*E*((P1**2-P2**2)/Tavg/L/Zavg)**c2*D**c3/SG**c4/mu**c1
+    elif not D:
+        return (Ps*Q*SG**c4*mu**c1*((P1**2 - P2**2)/(L*Tavg*Zavg))**(-c2)/(E*Ts*c5))**(1./c3)
+    elif not P1:
+        return (L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P2**2)**0.5
+    elif not P2:
+        return (-L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P1**2)**0.5
+    elif not L:
+        return (D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(-1/c2)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
         raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')

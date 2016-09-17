@@ -175,3 +175,22 @@ def test_Fritzsche():
 
     with pytest.raises(Exception):
         Fritzsche(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
+
+
+def test_Muller():
+    D = 0.340
+    mu = 1E-5
+    P1 = 90E5
+    P2 = 20E5
+    L = 160E3
+    SG=0.693
+    Tavg = 277.15
+    Q = 60.45796698148663
+    assert_allclose(Muller(D=D, P1=P1, P2=P2, L=L, SG=SG, mu=mu, Tavg=Tavg), Q)
+    assert_allclose(Muller(D=D, Q=Q, P2=P2, L=L, SG=SG, mu=mu, Tavg=Tavg), P1)
+    assert_allclose(Muller(D=D, Q=Q, P1=P1, L=L, SG=SG, mu=mu, Tavg=Tavg), P2)
+    assert_allclose(Muller(D=D, Q=Q, P1=P1, P2=P2, SG=SG, mu=mu, Tavg=Tavg), L)
+    assert_allclose(Muller(L=L, Q=Q, P1=P1, P2=P2, SG=SG, mu=mu, Tavg=Tavg), D)
+
+    with pytest.raises(Exception):
+        Muller(D=D, P2=P2, L=L, SG=SG, mu=mu, Tavg=Tavg)
