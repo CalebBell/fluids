@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 
-           'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller',
+           'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT',
            'T_critical_flow', 'P_critical_flow', 'is_critical_flow',
            'stagnation_energy', 'P_stagnation', 'T_stagnation',
            'T_stagnation_ideal']
@@ -1080,7 +1080,8 @@ def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, Ps=1
         raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')
 
 
-def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, Ps=101325., Zavg=1, E=1):
+def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
+           Ps=101325., Zavg=1, E=1):
     r'''Calculation function for dealing with flow of a compressible gas in a 
     pipeline with the Muller formula. Can calculate any of the following, 
     given all other inputs:
@@ -1092,7 +1093,7 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, Ps=
     * Length of pipe
     
     A variety of different constants and expressions have been presented
-    for the Fritzsche formula. Here, the form as in [1]_
+    for the Muller formula. Here, the form as in [1]_
     is used but with all inputs in base SI units.
     
     .. math::
@@ -1160,7 +1161,7 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, Ps=
     References
     ----------
     .. [1] Mohitpour, Mo, Golshan, and Allan Murray. Pipeline Design and 
-       Construction: A Practical Approach. 3 edition. New York: Amer Soc 
+       Construction: A Practical Approach. 3rd edition. New York: Amer Soc 
        Mechanical Engineers, 2006.
     .. [2] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
        FL: CRC Press, 2005.
@@ -1175,15 +1176,122 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, Ps=
     c3 = 2.725 # D power
     c4 = 0.425 # SG power
     c1 = 0.15 # mu power
-    if not Q:
+    if Q is None and (None not in [L, D, P1, P2]):
         return c5*Ts/Ps*E*((P1**2-P2**2)/Tavg/L/Zavg)**c2*D**c3/SG**c4/mu**c1
-    elif not D:
+    elif D is None and (None not in [L, Q, P1, P2]):
         return (Ps*Q*SG**c4*mu**c1*((P1**2 - P2**2)/(L*Tavg*Zavg))**(-c2)/(E*Ts*c5))**(1./c3)
-    elif not P1:
+    elif P1 is None and (None not in [L, Q, D, P2]):
         return (L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P2**2)**0.5
-    elif not P2:
+    elif P2 is None and (None not in [L, Q, D, P1]):
         return (-L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P1**2)**0.5
-    elif not L:
+    elif L is None and (None not in [P2, Q, D, P1]):
+        return (D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(-1/c2)*(P1**2 - P2**2)/(Tavg*Zavg)
+    else:
+        raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')
+
+
+def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
+        Ps=101325., Zavg=1, E=1):
+    r'''Calculation function for dealing with flow of a compressible gas in a 
+    pipeline with the IGT formula. Can calculate any of the following, 
+    given all other inputs:
+    
+    * Flow rate
+    * Upstream pressure
+    * Downstream pressure
+    * Diameter of pipe
+    * Length of pipe
+    
+    A variety of different constants and expressions have been presented
+    for the IGT formula. Here, the form as in [1]_
+    is used but with all inputs in base SI units.
+    
+    .. math::
+        Q = 24.6241\frac{T_s}{P_s}E\left(\frac{P_1^2 - P_2^2}{L \cdot Z_{avg} 
+        \cdot T_{avg}}\right)^{5/9} \left(\frac{D^{8/3}}{\mu^{1/9} 
+        SG^{4/9}}\right)
+    
+    Parameters
+    ----------
+    SG : float
+        Specific gravity of fluid with respect to air at the reference 
+        temperature and pressure `Ts` and `Ps`, [-]
+    Tavg : float
+        Average temperature of the fluid in the pipeline, [K]
+    mu : float
+        Average viscosity of the fluid in the pipeline, [Pa*s]
+    L : float, optional
+        Length of pipe, [m]
+    D : float, optional
+        Diameter of pipe, [m]
+    P1 : float, optional
+        Inlet pressure to pipe, [Pa]
+    P2 : float, optional
+        Outlet pressure from pipe, [Pa]
+    Q : float, optional
+        Flow rate of gas through pipe, [m^3/s]
+    Ts : float, optional
+        Reference temperature for the specific gravity of the gas, [K]
+    Ps : float, optional
+        Reference pressure for the specific gravity of the gas, [Pa]
+    Zavg : float, optional
+        Average compressibility factor for gas, [-]
+    E : float, optional
+        Pipeline efficiency, a correction factor between 0 and 1
+
+    Returns
+    -------
+    Q, P1, P2, D, or L : float
+        The missing input which was solved for [base SI]
+
+    Notes
+    -----
+    This model is presented in [1]_ with a leading constant of 0.6643, the same
+    exponents as used here, units of inches (diameter), psi, feet (length),
+    Rankine, pound/(foot*second) for viscosity, and 1000 ft^3/hour.
+    
+    This model is also presented in [2]_  in both SI and imperial form. Both
+    forms are correct. The imperial version has a leading constant of 136.9, 
+    the same powers as used here except with rounded values of powers of 
+    viscosity (0.2) and specific gravity (0.8) rearanged to be inside the 
+    bracketed group; its units are inches (diameter), psi, miles (length),
+    Rankine, pound/(foot*second) for viscosity, and ft^3/day.
+    
+    This model is shown in base SI units in [3]_, and with a leading constant
+    of 24.6145, and the same powers as used here.
+
+    Examples
+    --------
+    >>> IGT(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, mu=1E-5, Tavg=277.15)
+    48.92351786788815
+    
+    References
+    ----------
+    .. [1] Mohitpour, Mo, Golshan, and Allan Murray. Pipeline Design and 
+       Construction: A Practical Approach. 3rd edition. New York: Amer Soc 
+       Mechanical Engineers, 2006.
+    .. [2] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
+       FL: CRC Press, 2005.
+    .. [3] Coelho, Paulo M., and Carlos Pinho. "Considerations about Equations 
+       for Steady State Flow in Natural Gas Pipelines." Journal of the 
+       Brazilian Society of Mechanical Sciences and Engineering 29, no. 3 
+       (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
+    '''
+    # 1000*foot**3/hour*0.6643/inch**(8/3.)*foot**(5/9.)*(5/9.)**(5/9.)*9/5.*(pound/foot)**(1/9.)*psi*(1/psi**2)**(5/9.)
+    c5 = 24.62412451461407054875301709443930350550 # 1084707*196133**(8/9)*2**(1/9)*6**(1/3)/4377968750
+    c2 = 5/9. # main power
+    c3 = 8/3. # D power
+    c4 = 4/9. # SG power
+    c1 = 1/9. # mu power
+    if Q is None and (None not in [L, D, P1, P2]):
+        return c5*Ts/Ps*E*((P1**2-P2**2)/Tavg/L/Zavg)**c2*D**c3/SG**c4/mu**c1
+    elif D is None and (None not in [L, Q, P1, P2]):
+        return (Ps*Q*SG**c4*mu**c1*((P1**2 - P2**2)/(L*Tavg*Zavg))**(-c2)/(E*Ts*c5))**(1./c3)
+    elif P1 is None and (None not in [L, Q, D, P2]):
+        return (L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P2**2)**0.5
+    elif P2 is None and (None not in [L, Q, D, P1]):
+        return (-L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P1**2)**0.5
+    elif L is None and (None not in [P2, Q, D, P1]):
         return (D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(-1/c2)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
         raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')

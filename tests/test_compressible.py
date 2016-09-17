@@ -194,3 +194,21 @@ def test_Muller():
 
     with pytest.raises(Exception):
         Muller(D=D, P2=P2, L=L, SG=SG, mu=mu, Tavg=Tavg)
+
+def test_IGT():
+    D = 0.340
+    mu = 1E-5
+    P1 = 90E5
+    P2 = 20E5
+    L = 160E3
+    SG=0.693
+    Tavg = 277.15
+    Q = 48.92351786788815
+    assert_allclose(IGT(D=D, P1=P1, P2=P2, L=L, SG=SG, mu=mu, Tavg=Tavg), Q)
+    assert_allclose(IGT(D=D, Q=Q, P2=P2, L=L, SG=SG, mu=mu, Tavg=Tavg), P1)
+    assert_allclose(IGT(D=D, Q=Q, P1=P1, L=L, SG=SG, mu=mu, Tavg=Tavg), P2)
+    assert_allclose(IGT(D=D, Q=Q, P1=P1, P2=P2, SG=SG, mu=mu, Tavg=Tavg), L)
+    assert_allclose(IGT(L=L, Q=Q, P1=P1, P2=P2, SG=SG, mu=mu, Tavg=Tavg), D)
+
+    with pytest.raises(Exception):
+        IGT(D=D, P2=P2, L=L, SG=SG, mu=mu, Tavg=Tavg)
