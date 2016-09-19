@@ -30,7 +30,7 @@ __all__ = ['friction_factor', 'Colebrook', 'Clamond', 'Moody', 'Alshul_1952', 'W
 'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
-'Brkic_2011_2', 'Fang_2011', 'transmission_factor', '_roughness']
+'Brkic_2011_2', 'Fang_2011', 'von_Karman', 'transmission_factor', '_roughness']
 
 
 def Colebrook(Re, eD):
@@ -1428,6 +1428,51 @@ def Fang_2011(Re, eD):
     fd = log(0.234*eD**1.1007 - 60.525/Re**1.1105 + 56.291/Re**1.0712)**-2*1.613
     return fd
 
+
+def von_Karman(eD):
+    r'''Calculates Darcy friction factor for rough pipes at infinite Reynolds
+    number from the von Karman equation (as given in [1]_ and [2]_:
+    
+    .. math::
+        \frac{1}{\sqrt{f_d}} = -2 \log_{10} \left(\frac{\epsilon/D}{3.7}\right)
+
+    Parameters
+    ----------
+    eD : float
+        Relative roughness, [-]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor [-]
+
+    Notes
+    -----
+    This case does not actually occur; Reynolds number is always finite.
+    It is normally applied as a "limiting" value when a pipe's roughness is so
+    high it has a friction factor curve effectively independent of Reynods
+    number.
+
+    Examples
+    --------
+    >>> von_Karman(1E-4)
+    0.01197365149564789
+
+    References
+    ----------
+    .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
+       and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] McGovern, Jim. "Technical Note: Friction Factor Diagrams for Pipe 
+       Flow." Paper, October 3, 2011. http://arrow.dit.ie/engschmecart/28.
+    '''
+    x = log10(eD/3.71)
+    return 0.25/(x*x)
+
+
+
+
+
+
 ### Main functions
 
 fmethods = {}
@@ -1640,7 +1685,6 @@ def transmission_factor(fd=None, F=None):
     else:
         raise Exception('Either Darcy friction factor or transmission factor is needed')
 
-#print(transmission_factor(fd=0.0185))
 
 
 #### Code used to create the dictionary

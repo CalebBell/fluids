@@ -72,3 +72,9 @@ def test_transmission_factor():
     
     # Example in [1]_, lists answer as 12.65
     assert_allclose(transmission_factor(fd=0.025), 12.649110640673516)
+
+
+def test_von_Karman():
+    f = von_Karman(1E-4)
+    f_precalc = 0.01197365149564789
+    assert_allclose(f, f_precalc)
