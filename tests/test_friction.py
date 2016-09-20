@@ -76,7 +76,27 @@ def test_transmission_factor():
     
     # Example in [1]_, lists answer as 12.65
     assert_allclose(transmission_factor(fd=0.025), 12.649110640673516)
+    
+    with pytest.raises(Exception):
+        transmission_factor()
 
+
+def test_roughness_Farshad():
+    
+    e = roughness_Farshad('Cr13, bare', 0.05)
+    assert_allclose(e, 5.3141677781137006e-05)
+    
+    e = roughness_Farshad('Cr13, bare')
+    assert_allclose(e, 5.5e-05)
+    
+    e = roughness_Farshad(coeffs=(0.0021, -1.0055), D=0.05)
+    assert_allclose(e, 5.3141677781137006e-05)
+    
+    tot = sum([abs(j) for i in _Farshad_roughness.values() for j in i])
+    assert_allclose(tot, 7.0729095)
+    
+    with pytest.raises(Exception):
+        roughness_Farshad('BADID', 0.05)
 
 def test_von_Karman():
     f = von_Karman(1E-4)

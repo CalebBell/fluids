@@ -23,6 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from math import log, log10, exp
 from scipy.special import lambertw
+from scipy.constants import inch
 
 __all__ = ['friction_factor', 'Colebrook', 'Clamond', 'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
 'Eck_1973', 'Jain_1976', 'Swamee_Jain_1976', 'Churchill_1977', 'Chen_1979',
@@ -31,7 +32,8 @@ __all__ = ['friction_factor', 'Colebrook', 'Clamond', 'Moody', 'Alshul_1952', 'W
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
 'Brkic_2011_2', 'Fang_2011', 'von_Karman', 'Prandtl_von_Karman_Nikuradse', 
-'transmission_factor', '_roughness']
+'transmission_factor', 'roughness_Farshad', '_Farshad_roughness', 
+'_roughness']
 
 
 def Colebrook(Re, eD):
@@ -1692,6 +1694,103 @@ _roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
 'Concrete': .000305, 'Rough concrete': .00305, 'Riveted steel': .000914,
 'Rough riveted steel': .00914}
 
+
+# Format : ID: (avg_roughness, coef A (inches), coef B (inches))
+_Farshad_roughness = {'Plastic coated': (5E-6, 0.0002, -1.0098),
+                      'Carbon steel, honed bare': (12.5E-6, 0.0005, -1.0101),
+                      'Cr13, electropolished bare': (30E-6, 0.0012, -1.0086),
+                      'Cement lining': (33E-6, 0.0014, -1.0105),
+                      'Carbon steel, bare': (36E-6, 0.0014, -1.0112),
+                      'Fiberglass lining': (38E-6, 0.0016, -1.0086),
+                      'Cr13, bare': (55E-6, 0.0021, -1.0055)  }
+
+
+def roughness_Farshad(ID=None, D=None, coeffs=None):
+    r'''Calculates of retrieves the roughness of a pipe based on the work of
+    [1]_. This function will return an average value for pipes of a given
+    material, or if diameter is provided, will calculate one specifically for
+    the pipe inner diameter according to the following expression with 
+    constants `A` and `B`:
+    
+    .. math::
+        \epsilon = A\cdot D^{B+1}
+    
+    Please not that `A` has units of inches, and `B` requires `D` to be in 
+    inches as well.
+    
+    The list of supported materials is as follows:
+
+        * 'Plastic coated'
+        * 'Carbon steel, honed bare'
+        * 'Cr13, electropolished bare'
+        * 'Cement lining'
+        * 'Carbon steel, bare'
+        * 'Fiberglass lining'
+        * 'Cr13, bare'
+    
+    If `coeffs` and `D` are given, the custom coefficients for the equation as
+    given by the user will be used and `ID` is not required.
+
+    Parameters
+    ----------
+    ID : str, optional
+        Name of pipe material from above list
+    D : float, optional
+        Actual inner diameter of pipe, [m]
+    coeffs : tuple, optional
+        (A, B) Coefficients to use directly, instead of looking them up
+        [inch^-B, -]
+
+    Returns
+    -------
+    epsilon : float
+        Roughness of pipe [m]
+    
+    Notes
+    -----
+    The diameter-dependent form provides lower roughness values for larger
+    diameters.
+    
+    The measurements were based on DIN 4768/1 (1987), using both a 
+    "Dektak ST Surface Profiler" and a "Hommel Tester T1000". Both instruments
+    were found to be in agreement. A series of flow tests, in which pressure 
+    drop directly measured, were performed as well, with nitrogen gas as an 
+    operating fluid. The accuracy of the data from these tests is claimed to be
+    within 1%.
+    
+    Using those results, the authors back-calculated what relative roughness 
+    values would be ncessary to produce the observed pressure drops. The 
+    average difference between this back-calculated roughness and the measured
+    roughness was 6.75%.
+
+    Examples
+    --------
+    >>> roughness_Farshad('Cr13, bare', 0.05)
+    5.3141677781137006e-05
+
+    References
+    ----------
+    .. [1] Farshad, Fred F., and Herman H. Rieke. "Surface Roughness Design 
+       Values for Modern Pipes." SPE Drilling & Completion 21, no. 3 (September
+       1, 2006): 212-215. doi:10.2118/89040-PA.
+    '''
+    # Case 1, coeffs given; only run if ID is not given.
+    if ID is None and coeffs:
+        A, B = coeffs
+        return A*(D/inch)**(B+1)*inch
+    # Case 2, lookup parameters
+    try :
+        dat = _Farshad_roughness[ID]
+    except:
+        raise KeyError('ID was not in _Farshad_roughness.')
+    if D is None:
+        return dat[0]
+    else:
+        A, B = dat[1], dat[2]
+        return A*(D/inch)**(B+1)*inch
+
+
+#print(roughness_Farshad(coeffs=(0.0021, -1.0055), D=0.05))
 
 
 def transmission_factor(fd=None, F=None):
