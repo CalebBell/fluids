@@ -212,3 +212,6 @@ def test_IGT():
 
     with pytest.raises(Exception):
         IGT(D=D, P2=P2, L=L, SG=SG, mu=mu, Tavg=Tavg)
+
+
+    

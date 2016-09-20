@@ -16,6 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
+from math import log10
+from scipy.optimize import newton
+import numpy as np
+
 from fluids import *
 from numpy.testing import assert_allclose
 import pytest
@@ -78,3 +82,14 @@ def test_von_Karman():
     f = von_Karman(1E-4)
     f_precalc = 0.01197365149564789
     assert_allclose(f, f_precalc)
+
+def test_Prandtl_von_Karman_Nikuradse():
+    def Prandtl_von_Karman_Nikuradse_numeric(Re):
+        def to_solve(f):
+            # Good to 1E75, down to 1E-17
+            return 1./f**0.5 + 2*log10(2.51/Re/f**0.5)
+        return newton(to_solve, 0.000001)
+
+    for Re in np.logspace(1E-15,30,200):
+        assert_allclose(Prandtl_von_Karman_Nikuradse_numeric(Re), Prandtl_von_Karman_Nikuradse(Re))
+    

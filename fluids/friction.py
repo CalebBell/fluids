@@ -30,7 +30,8 @@ __all__ = ['friction_factor', 'Colebrook', 'Clamond', 'Moody', 'Alshul_1952', 'W
 'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
-'Brkic_2011_2', 'Fang_2011', 'von_Karman', 'transmission_factor', '_roughness']
+'Brkic_2011_2', 'Fang_2011', 'von_Karman', 'Prandtl_von_Karman_Nikuradse', 
+'transmission_factor', '_roughness']
 
 
 def Colebrook(Re, eD):
@@ -1469,6 +1470,55 @@ def von_Karman(eD):
     return 0.25/(x*x)
 
 
+def Prandtl_von_Karman_Nikuradse(Re):
+    r'''Calculates Darcy friction factor for smooth pipes as a function of
+    Reynolds number from the Prandtl-von Karman Nikuradse equation as given 
+    in [1]_ and [2]_:
+    
+    .. math::
+        \frac{1}{\sqrt{f}} = -2\log_{10}\left(\frac{2.51}{Re\sqrt{f}}\right)
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number, [-]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor [-]
+
+    Notes
+    -----
+    This equation is often stated as follows; the correct constant is not 0.8,
+    but 2log10(2.51) or approximately 0.7993474:
+    
+    .. math::
+        \frac{1}{\sqrt{f}}\approx 2\log_{10}(\text{Re}\sqrt{f})-0.8
+
+    This function is calculable for all Reynolds numbers between 1E151 and 
+    1E-151. It is solved with the LambertW function from SciPy. The solution is:
+    
+    .. math::
+        f_d = \frac{\frac{1}{4}\log_{10}^2}{\left(\text{lambertW}\left(\frac{
+        \log(10)Re}{2(2.51)}\right)\right)^2}
+
+    Examples
+    --------
+    >>> Prandtl_von_Karman_Nikuradse(1E7)
+    0.0081026694308749137
+
+    References
+    ----------
+    .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
+       and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] McGovern, Jim. "Technical Note: Friction Factor Diagrams for Pipe 
+       Flow." Paper, October 3, 2011. http://arrow.dit.ie/engschmecart/28.
+    '''
+    # Good 1E150 to 1E-150
+    c1 = 1.151292546497022842008995727342182103801 # log(10)/2
+    c2 = 1.325474527619599502640416597148504422899 # log(10)**2/4
+    return c2/(lambertw((c1*Re)/2.51).real)**2
 
 
 
