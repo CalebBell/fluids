@@ -1695,6 +1695,59 @@ _roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
 'Rough riveted steel': .00914}
 
 
+seamless_other_metals = {'Commercially smooth': (1.5E-6, 1.0E-5, None)}
+seamless_steel = {}
+welded_steel = {}
+riveted_steel = {}
+roofing_metal = {}
+galvanized_steel_tube = {}
+galvanized_steel_sheet = {}
+steel = {}
+cast_iron = {}
+water_conduit_steel = {}
+water_conduit_steel_used = {}
+
+steels = {'Seamless tubes made from brass, copper, lead, aluminum': seamless_other_metals,
+          'Seamless steel tubes': seamless_steel,
+          'Welded steel tubes': welded_steel,
+          'Riveted steel tubes': riveted_steel,
+          'Roofing steel sheets': roofing_metal,
+          'Galzanized steel tubes': galvanized_steel_tube,
+          'Galzanized sheet steel': galvanized_steel_sheet,
+          'Steel tubes': steel,
+          'Cast-iron tubes': cast_iron,
+          'Steel water conduits in generating stations': water_conduit_steel,
+          'Used steel water conduits in generating stations': water_conduit_steel_used}
+
+concrete_water_conduits = {}
+concrete_reinforced_tubes = {}
+asbestos_cement = {}
+cement_tubes = {}
+cement_mortar_channels = {}
+cement_other = {}
+
+concretes = {'Concrete water conduits, no finish': concrete_water_conduits,
+             'Reinforced concrete tubes': concrete_reinforced_tubes,
+             'Asbestos cement tubes': asbestos_cement,
+             'Cement tubes': cement_tubes,
+             'Cement-mortar plaster channels': cement_mortar_channels,
+             'Other': cement_other}
+
+wood_tube = {}
+plywood_tube = {}
+glass_tube = {}
+
+wood_plywood_glass = {'Wood tubes': wood_tube,
+                      'Plywood tubes': plywood_tube,
+                      'Glass tubes': glass_tube}
+
+rock_channels = {}
+unlined_tunnels = {}
+
+tunnels = {'Rough channels in rock': rock_channels,
+           'Unlined tunnels': unlined_tunnels}
+
+
 # Format : ID: (avg_roughness, coef A (inches), coef B (inches))
 _Farshad_roughness = {'Plastic coated': (5E-6, 0.0002, -1.0098),
                       'Carbon steel, honed bare': (12.5E-6, 0.0005, -1.0101),
@@ -1788,9 +1841,6 @@ def roughness_Farshad(ID=None, D=None, coeffs=None):
     else:
         A, B = dat[1], dat[2]
         return A*(D/inch)**(B+1)*inch
-
-
-#print(roughness_Farshad(coeffs=(0.0021, -1.0055), D=0.05))
 
 
 def transmission_factor(fd=None, F=None):
