@@ -1694,18 +1694,81 @@ _roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
 'Concrete': .000305, 'Rough concrete': .00305, 'Riveted steel': .000914,
 'Rough riveted steel': .00914}
 
-
+# Data from the Handbook of Hydraulic Resistance, 4E, in format (min, max, avg) roughness in m
 seamless_other_metals = {'Commercially smooth': (1.5E-6, 1.0E-5, None)}
-seamless_steel = {}
-welded_steel = {}
-riveted_steel = {}
-roofing_metal = {}
-galvanized_steel_tube = {}
-galvanized_steel_sheet = {}
-steel = {}
-cast_iron = {}
-water_conduit_steel = {}
-water_conduit_steel_used = {}
+seamless_steel = {'New and unused': (2.0E-5, 1.0E-4, None),
+                'Cleaned, following years of use': (None, 4.0E-5, None),
+                'Bituminized': (None, 4.0E-5, None),
+                'Heating systems piping; either superheated steam pipes, or just water pipes of systems with deaerators and chemical treatment': (None, None, 1.0E-4),
+                'Following one year as a gas pipeline': (None, None, 1.2E-4),
+                'Following multiple year as a gas pipeline': (4.0E-5, 2.0E-4, None),
+                'Casings in gas wells, different conditions, several years of use': (6.0E-5, 2.2E-4, None),
+                'Heating systems, saturated steam ducts or water pipes (with minor water leakage < 0.5%, and balance water deaerated)': (None, None, 2.0E-4),
+                'Water heating system pipelines, any source': (None, None, 2.0E-4),
+                'Oil pipelines, intermediate operating conditions ': (None, None, 2.0E-4),
+                'Corroded, moderately ': (None, None, -4.0E-4),
+                'Scale, small depositions only ': (None, None, -4.0E-4),
+                'Condensate pipes in open systems or periodically operated steam pipelines': (None, None, 5.0E-4),
+                'Compressed air piping': (None, None, 8.0E-4),
+                'Following multiple years of operation, generally corroded or with small amounts of scale': (1.5E-4, 1.0E-3, None),
+                'Water heating piping without deaeration but with chemical treatment of water; leakage up to 3%; or condensate piping operated periodically': (None, None, 1.0E-3),
+                'Used water piping': (1.2E-3, 1.5E-3, None),
+                'Poor condition': (5.0E-3, None, None)}
+welded_steel = {'Good condition': (4.0E-5, 1.0E-4, None),
+                'New and covered with bitumen': (None, None, -5.0E-5),
+                'Used and covered with partially dissolved bitumen; corroded': (None, None, -1.0E-4),
+                'Used, suffering general corrosion': (None, None, -1.5E-4),
+                'Surface looks like new, 10 mm lacquer inside, even joints': (3.0E-4, 4.0E-4, None),
+                'Used Gas mains': (None, None, -5.0E-4),
+                'Double or simple transverse riveted joints; with or without lacquer; without corrosion': (6.0E-4, 7.0E-4, None),
+                'Lacquered inside but rusted': (9.5E-4, 1.0E-3, None),
+                'Gas mains, many years of use, with layered deposits': (None, None, 1.1E-3),
+                'Non-corroded and with double transverse riveted joints': (1.2E-3, 1.5E-3, None),
+                'Small deposits': (None, None, 1.5E-3),
+                'Heavily corroded and with  double transverse riveted joints': (None, None, 2.0E-3),
+                'Appreciable deposits': (2.0E-3, 4.0E-3, None),
+                'Gas mains, many years of use, deposits of resin/naphthalene': (None, None, 2.4E-3),
+                'Poor condition': (5.0E-3, None, None)}
+riveted_steel = {'Riveted laterally and longitudinally with one line; lacquered on the inside': (3.0E-4, 4.0E-4, None),
+                'Riveted laterally and longitudinally with two lines; with or without lacquer on the inside and without corrosion': (6.0E-4, 7.0E-4, None),
+                'Riveted laterally with one line and longitudinally with two lines; thickly lacquered or torred on the inside': (1.2E-3, 1.4E-3, None),
+                'Riveted longitudinally with six lines, after extensive use': (None, None, 2.0E-3),
+                'Riveted laterally with four line and longitudinally with six lines; overlapping joints inside': (None, None, 4.0E-3),
+                'Extremely poor surface; overlapping and uneven joints': (5.0E-3, None, None)}
+roofing_metal = {'Oiled': (1.5E-4, 1.1E-3, None),
+                 'Not Oiled': (2.0E-5, 4.0E-5, None)}
+galvanized_steel_tube = {'Bright galvanization; new': (7.0E-5, 1.0E-4, None),
+                         'Ordinary galvanization': (1.0E-4, 1.5E-4, None)}
+galvanized_steel_sheet = {'New': (None, None, 1.5E-4),
+                          'Used previously for water': (None, None, 1.8E-4)}
+steel = {'Glass enamel coat': (1.0E-6, 1.0E-5, None),
+         'New': (2.5E-4, 1.0E-3, None)}
+cast_iron = {'New, bituminized': (1.0E-4, 1.5E-4, None),
+            'Coated with asphalt': (1.2E-4, 3.0E-4, None),
+            'Used water pipelines': (None, None, 1.4E-3),
+            'Used and corroded': (1.0E-3, 1.5E-3, None),
+            'Deposits visible': (1.0E-3, 1.5E-3, None),
+            'Substantial deposits': (2.0E-3, 4.0E-3, None),
+            'Cleaned after extensive use': (3.0E-4, 1.5E-3, None),
+            'Severely corroded': (None, 3.0E-3, None)}
+water_conduit_steel = {'New, clean, seamless (without joints), well fitted': (1.5E-5, 4.0E-5, None),
+                        'New, clean, welded lengthwise and well fitted': (1.2E-5, 3.0E-5, None),
+                        'New, clean, welded lengthwise and well fitted, with transverse welded joints': (8.0E-5, 1.7E-4, None),
+                        'New, clean, coated, bituminized when manufactured': (1.4E-5, 1.8E-5, None),
+                        'New, clean, coated, bituminized when manufactured, with transverse welded joints': (2.0E-4, 6.0E-4, None),
+                        'New, clean, coated, galvanized': (1.0E-4, 2.0E-4, None),
+                        'New, clean, coated, roughly galvanized': (4.0E-4, 7.0E-4, None),
+                        'New, clean, coated, bituminized, curved': (1.0E-4, 1.4E-3, None),
+                        'Used, clean, slight corrosion': (1.0E-4, 3.0E-4, None),
+                        'Used, clean, moderate corrosion or slight deposits': (3.0E-4, 7.0E-4, None),
+                        'Used, clean, severe corrosion': (8.0E-4, 1.5E-3, None),
+                        'Used, clean, previously cleaned of either deposits or rust': (1.5E-4, 2.0E-4, None)}
+water_conduit_steel_used = {'Used, all welded, <2 years use, no deposits': (1.2E-4, 2.4E-4, None),
+                            'Used, all welded, <20 years use, no deposits': (6.0E-4, 5.0E-3, None),
+                            'Used, iron-bacterial corrosion': (3.0E-3, 4.0E-3, None),
+                            'Used, heavy corrosion, or with incrustation (deposit 1.5 - 9 mm deep)': (3.0E-3, 5.0E-3, None),
+                            'Used, heavy corrosion, or with incrustation (deposit 3 - 25 mm deep)': (6.0E-3, 6.5E-3, None),
+                            'Used, inside coating, bituminized, < 2 years use': (1.0E-4, 3.5E-4, None)}
 
 steels = {'Seamless tubes made from brass, copper, lead, aluminum': seamless_other_metals,
           'Seamless steel tubes': seamless_steel,
@@ -1719,12 +1782,33 @@ steels = {'Seamless tubes made from brass, copper, lead, aluminum': seamless_oth
           'Steel water conduits in generating stations': water_conduit_steel,
           'Used steel water conduits in generating stations': water_conduit_steel_used}
 
-concrete_water_conduits = {}
-concrete_reinforced_tubes = {}
-asbestos_cement = {}
-cement_tubes = {}
-cement_mortar_channels = {}
-cement_other = {}
+concrete_water_conduits = {'New and finished with plater; excellent manufacture (joints aligned, prime coated and smoothed)': (5.0E-5, 1.5E-4, None),
+                            'Used and corroded; with a wavy surface and wood framework': (1.0E-3, 4.0E-3, None),
+                            'Old, poor fitting and manufacture; with an overgrown surface and deposits of sand and gravel': (1.0E-3, 4.0E-3, None),
+                            'Very old; damaged surface, very overgrown': (5.0E-3, None, None),
+                            'Water conduit, finished with smoothed plaster': (5.0E-3, None, None),
+                            'New, very well manufactured, hand smoothed, prime-coated joints': (1.0E-4, 2.0E-4, None),
+                            'Hand-smoothed cement finish and smoothed joints': (1.5E-4, 3.5E-4, None),
+                            'Used, no deposits, moderately smooth, steel or wooden casing, joints prime coated but not smoothed': (3.0E-4, 6.0E-4, None),
+                            'Used, prefabricated monoliths, cement plaster (wood floated), rough joints': (5.0E-4, 1.0E-3, None),
+                            'Conduits for water, sprayed surface of concrete': (5.0E-4, 1.0E-3, None),
+                            'Smoothed air-placed, either sprayed concrete or concrete on more concrete': (None, None, 5.0E-4),
+                            'Brushed air-placed, either sprayed concrete or concrete on more concrete': (None, None, 2.3E-3),
+                            'Non-smoothed air-placed, either sprayed concrete or concrete on more concrete': (3.0E-3, 6.0E-3, None),
+                            'Smoothed air-placed, either sprayed concrete or concrete on more concrete': (6.0E-3, 1.7E-2, None)}
+concrete_reinforced_tubes = {'New': (2.5E-4, 3.4E-4, None),
+                             'Nonprocessed': (2.5E-3, None, None)}
+asbestos_cement = {'New': (5.0E-5, 1.0E-4, None),
+                   'Average': (6.0E-4, None, None)}
+cement_tubes = {'Smoothed': (3.0E-4, 8.0E-4, None),
+                'Non processed': (1.0E-3, 2.0E-3, None),
+                'Joints, non smoothed': (1.9E-3, 6.4E-3, None)}
+cement_mortar_channels = {'Plaster, cement, smoothed joints and protrusions, and a casing': (5.0E-5, 2.2E-4, None),
+                          'Steel trowled': (None, None, 5.0E-4)}
+cement_other = {'Plaster over a screen': (1.0E-2, 1.5E-2, None),
+                'Salt-glazed ceramic': (None, None, 1.4E-3),
+                'Slag-concrete': (None, None, 1.5E-3),
+                'Slag and alabaster-filling': (1.0E-3, 1.5E-3, None)}
 
 concretes = {'Concrete water conduits, no finish': concrete_water_conduits,
              'Reinforced concrete tubes': concrete_reinforced_tubes,
@@ -1733,19 +1817,36 @@ concretes = {'Concrete water conduits, no finish': concrete_water_conduits,
              'Cement-mortar plaster channels': cement_mortar_channels,
              'Other': cement_other}
 
-wood_tube = {}
-plywood_tube = {}
-glass_tube = {}
+wood_tube = {'Boards, thoroughly dressed': (None, None, 1.5E-4),
+            'Boards, well dressed': (None, None, 3.0E-4),
+            'Boards, undressed but fitted': (None, None, 7.0E-4),
+            'Boards, undressed': (None, None, 1.0E-3),
+            'Staved': (None, None, 6.0E-4)}
+plywood_tube = {'Birch plywood, transverse grain, good quality': (None, None, 1.2E-4),
+                'Birch plywood, longitudal grain, good quality': (3.0E-5, 5.0E-5, None)}
+glass_tube = {'Glass': (1.5E-6, 1.0E-5, None)}
 
 wood_plywood_glass = {'Wood tubes': wood_tube,
                       'Plywood tubes': plywood_tube,
                       'Glass tubes': glass_tube}
 
-rock_channels = {}
-unlined_tunnels = {}
+rock_channels = {'Blast-hewed, little jointing': (1.0E-1, 1.4E-1, None),
+                'Blast-hewed, substantial jointing': (1.3E-1, 5.0E-1, None),
+                'Roughly cut or very uneven surface': (5.0E-1, 1.5E+0, None)}
+unlined_tunnels = {'Rocks, gneiss, diameter 3-13.5 m': (3.0E-1, 7.0E-1, None),
+                'Rocks, granite, diameter 3-9 m': (2.0E-1, 7.0E-1, None),
+                'Shale, diameter, diameter 9-12 m': (2.5E-1, 6.5E-1, None),
+                'Shale, quartz, quartzile, diameter 7-10 m': (2.0E-1, 6.0E-1, None),
+                'Shale, sedimentary, diameter 4-7 m': (None, None, 4.0E-1),
+                'Shale, nephrite bearing, diameter 3-8 m': (None, None, 2.0E-1)}
 
 tunnels = {'Rough channels in rock': rock_channels,
            'Unlined tunnels': unlined_tunnels}
+
+hhr_roughness_dicts = [tunnels, steels, wood_plywood_glass, concretes]
+hhr_roughness_sets, hhr_roughness = {}, {}
+[hhr_roughness_sets.update(i) for i in hhr_roughness_dicts]
+[[hhr_roughness.update(i) for i in j.values()] for j in hhr_roughness_dicts]
 
 
 # Format : ID: (avg_roughness, coef A (inches), coef B (inches))
