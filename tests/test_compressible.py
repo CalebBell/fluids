@@ -43,6 +43,22 @@ def test_isentropic_simplified_T_rise_compression():
     assert_allclose(T2, 585.1629407971498)
 
 
+def test_isentropic_efficiency():
+    eta_s = isentropic_efficiency(1E5, 1E6, 1.4, eta_p=0.78)
+    assert_allclose(eta_s, 0.7027614191263858)
+    eta_p = isentropic_efficiency(1E5, 1E6, 1.4, eta_s=0.7027614191263858)
+    assert_allclose(eta_p, 0.78)
+    
+    with pytest.raises(Exception):
+        isentropic_efficiency(1E5, 1E6, 1.4)
+    
+def test_polytropic_exponent():
+    assert_allclose(polytropic_exponent(1.4, eta_p=0.78), 1.5780346820809246)
+    assert_allclose(polytropic_exponent(1.4, n=1.5780346820809246), 0.78)
+    with pytest.raises(Exception):
+        polytropic_exponent(1.4)
+
+
 def test_compressible():
     T = T_critical_flow(473, 1.289)
     assert_allclose(T, 413.2809086937528)

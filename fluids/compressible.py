@@ -23,8 +23,8 @@ SOFTWARE.'''
 from __future__ import division
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 
            'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT',
-           'isothermal_work_compression', 
-           'isentropic_work_compression', 
+           'isothermal_work_compression', 'polytropic_exponent',
+           'isentropic_work_compression', 'isentropic_efficiency',
            'isentropic_T_rise_compression', 'T_critical_flow', 
            'P_critical_flow', 
            'is_critical_flow', 'stagnation_energy', 'P_stagnation', 
@@ -235,6 +235,109 @@ def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
     '''
     dT = T1*((P2/P1)**((k-1)/k)-1)/eta
     return T1 + dT
+
+
+def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
+    r'''Calculates either isentropic or polytropic efficiency from the other
+    type of efficiency.
+    
+    .. math::
+        \eta_s = \frac{(P_2/P_1)^{(k-1)/k}-1}
+        {(P_2/P_1)^{\frac{k-1}{k\eta_p}}-1}
+        
+        \eta_p = \frac{\left(k - 1\right) \log{\left (\frac{P_{2}}{P_{1}} 
+        \right )}}{k \log{\left (\frac{1}{\eta_{s}} \left(\eta_{s} 
+        + \left(\frac{P_{2}}{P_{1}}\right)^{\frac{1}{k} \left(k - 1\right)} 
+        - 1\right) \right )}}
+        
+    Parameters
+    ----------
+    P1 : float
+        Initial pressure of gas [Pa]
+    P2 : float
+        Final pressure of gas [Pa]
+    k : float
+        Isentropic exponent of the gas (Cp/Cv) or polytropic exponent `n` to
+        use this as a polytropic model instead [-]
+    eta_s : float, optional
+        Isentropic efficiency of the process, [-]
+    eta_p : float, optional
+        Polytropic efficiency of the process, [-]
+
+    Returns
+    -------
+    eta_s or eta_p : float
+        Isentropic or polytropic efficiency, depending on input, [-]
+
+    Notes
+    -----
+    The form for obtained `eta_p` from `eta_s` was derived with SymPy.
+
+    Examples
+    --------
+    >>> isentropic_efficiency(1E5, 1E6, 1.4, eta_p=0.78)
+    0.7027614191263858
+
+    References
+    ----------
+    .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
+       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf 
+       Professional Publishing, 2009.
+    '''
+    if eta_s is None:
+        return ((P2/P1)**((k-1)/k)-1)/((P2/P1)**((k-1)/(k*eta_p))-1)
+    elif eta_p is None:
+        return (k - 1.)*log(P2/P1)/(k*log(
+                (eta_s + (P2/P1)**((k - 1.)/k) - 1.)/eta_s))
+    else:
+        raise Exception('Either eta_s or eta_p is required')
+
+
+def polytropic_exponent(k, n=None, eta_p=None):
+    r'''Calculates either the polytropic exponent from polytropic efficiency
+    or polytropic efficiency from the polytropic exponent.
+    
+    .. math::
+            n = \frac{k\eta_p}{1 - k(1-\eta_p)}
+            
+            \eta_p = \frac{\left(\frac{n}{n-1}\right)}{\left(\frac{k}{k-1}
+            \right)} = \frac{n(k-1)}{k(n-1)}
+        
+    Parameters
+    ----------
+    k : float
+        Isentropic exponent of the gas (Cp/Cv) or polytropic exponent `n` to
+        use this as a polytropic model instead [-]
+    eta_p : float, optional
+        Polytropic efficiency of the process, [-]
+    n : float, optional
+        Polytropic exponent of the process [-]
+
+    Returns
+    -------
+    n or eta_p : float
+        isentropic exponent or polytropic efficiency, depending on input, [-]
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> polytropic_exponent(1.4, eta_p=0.78)
+    1.5780346820809246
+
+    References
+    ----------
+    .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
+       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf 
+       Professional Publishing, 2009.
+    '''
+    if n is None:
+        return k*eta_p/(1 - k*(1-eta_p))
+    elif eta_p is None:
+        return n*(k-1)/(k*(n-1))
+    else:
+        raise Exception('Either n or eta_p is required')
 
 
 def T_critical_flow(T, k):
