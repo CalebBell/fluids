@@ -23,11 +23,72 @@ SOFTWARE.'''
 from __future__ import division
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 
            'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT',
-           'T_critical_flow', 'P_critical_flow', 'is_critical_flow',
-           'stagnation_energy', 'P_stagnation', 'T_stagnation',
-           'T_stagnation_ideal']
+           'isothermal_work_compression', 'T_critical_flow', 'P_critical_flow', 
+           'is_critical_flow', 'stagnation_energy', 'P_stagnation', 
+           'T_stagnation', 'T_stagnation_ideal']
 
 from scipy.optimize import newton 
+from scipy.constants import R
+from thermo.utils import log
+
+
+def isothermal_work_compression(P1, P2, T, Z=1):
+    r'''Calculates the work of compression of expansion of a gas going through 
+    an isothermal process.
+    
+    .. math::
+        W = zRT\ln\left(\frac{P_2}{P_1}\right)
+        
+    Parameters
+    ----------
+    P1 : float
+        Inlet pressure, [Pa]
+    P2 : float
+        Outlet pressure, [Pa]
+    T : float
+        Temperature of the gas going through an isothermal process, [K]
+    Z : float
+        Constant compressibility factor of the gas, [-]
+
+    Returns
+    -------
+    w : float
+        Work performed per mole of gas compressed/expanded [J]
+
+    Notes
+    -----
+    The full derivation with all forms is as follows:
+    
+    .. math::
+        W = \int_{P_1}^{P_2} = V dP = zRT\int_{P_1}^{P_2} \frac{1}{P} dP 
+        
+        W = zRT\ln\left(\frac{P_2}{P_1}\right) = P_1 V_1 \ln\left(\frac{P_2}
+        {P_1}\right) = P_2 V_2 \ln\left(\frac{P_2}{P_1}\right)
+        
+    The substitutions are according to the ideal gas law with compressibility:
+    
+    .. math:
+        PV = ZRT
+
+    The work of compression/expansion is the change in enthalpy of the gas.
+    Returns negative values for expansion and positive values for compression.
+    
+    An average compressibility factor can be used were Z changes. For further
+    accuracy, this expression can be used repeatedly with small changes in 
+    pressure and the work from each step summed.
+
+    Examples
+    --------
+    >>> isothermal_work_compression(1E5, 1E6, 300)
+    5743.425357533477
+
+    References
+    ----------
+    .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
+       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf 
+       Professional Publishing, 2009.
+    '''
+    return Z*R*T*log(P2/P1)
 
 def T_critical_flow(T, k):
     r'''Calculates critical flow temperature `Tcf` for a fluid with the

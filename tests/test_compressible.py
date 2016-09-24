@@ -20,6 +20,9 @@ from numpy.testing import assert_allclose
 import pytest
 
 
+def test_isothermal_work_compression():
+    assert_allclose(isothermal_work_compression(1E5, 1E6, 300), 5743.425357533477)
+
 def test_compressible():
     T = T_critical_flow(473, 1.289)
     assert_allclose(T, 413.2809086937528)
