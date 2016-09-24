@@ -32,7 +32,7 @@ __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
 
 from scipy.optimize import newton 
 from scipy.constants import R
-from thermo.utils import log
+from math import log
 
 
 def isothermal_work_compression(P1, P2, T, Z=1):
