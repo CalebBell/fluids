@@ -23,7 +23,10 @@ SOFTWARE.'''
 from __future__ import division
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 
            'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT',
-           'isothermal_work_compression', 'T_critical_flow', 'P_critical_flow', 
+           'isothermal_work_compression', 
+           'isentropic_simplified_work_compression', 
+           'isentropic_simplified_T_rise_compression', 'T_critical_flow', 
+           'P_critical_flow', 
            'is_critical_flow', 'stagnation_energy', 'P_stagnation', 
            'T_stagnation', 'T_stagnation_ideal']
 
@@ -33,7 +36,7 @@ from thermo.utils import log
 
 
 def isothermal_work_compression(P1, P2, T, Z=1):
-    r'''Calculates the work of compression of expansion of a gas going through 
+    r'''Calculates the work of compression or expansion of a gas going through 
     an isothermal process.
     
     .. math::
@@ -52,15 +55,15 @@ def isothermal_work_compression(P1, P2, T, Z=1):
 
     Returns
     -------
-    w : float
-        Work performed per mole of gas compressed/expanded [J]
+    W : float
+        Work performed per mole of gas compressed/expanded [J/mol]
 
     Notes
     -----
     The full derivation with all forms is as follows:
     
     .. math::
-        W = \int_{P_1}^{P_2} = V dP = zRT\int_{P_1}^{P_2} \frac{1}{P} dP 
+        W = \int_{P_1}^{P_2} V dP = zRT\int_{P_1}^{P_2} \frac{1}{P} dP 
         
         W = zRT\ln\left(\frac{P_2}{P_1}\right) = P_1 V_1 \ln\left(\frac{P_2}
         {P_1}\right) = P_2 V_2 \ln\left(\frac{P_2}{P_1}\right)
@@ -73,7 +76,7 @@ def isothermal_work_compression(P1, P2, T, Z=1):
     The work of compression/expansion is the change in enthalpy of the gas.
     Returns negative values for expansion and positive values for compression.
     
-    An average compressibility factor can be used were Z changes. For further
+    An average compressibility factor can be used where Z changes. For further
     accuracy, this expression can be used repeatedly with small changes in 
     pressure and the work from each step summed.
 
@@ -89,6 +92,149 @@ def isothermal_work_compression(P1, P2, T, Z=1):
        Professional Publishing, 2009.
     '''
     return Z*R*T*log(P2/P1)
+
+
+def isentropic_simplified_work_compression(P1, P2, T1, k, Z=1, eta=1):
+    r'''Calculates the work of compression or expansion of a gas going through 
+    an isentropic, adiabatic process assuming constant Cp and Cv. The 
+    polytropic model is the same equation; just provide `n` instead of `k` and  
+    use a polytropic efficienty for `eta` instead of a isentropic efficiency.
+    
+    .. math::
+        W = \left(\frac{k}{k-1}\right)ZRT_1\left[\left(\frac{P_2}{P_1}
+        \right)^{(k-1)/k}-1\right]    
+        
+    Parameters
+    ----------
+    P1 : float
+        Inlet pressure, [Pa]
+    P2 : float
+        Outlet pressure, [Pa]
+    T1 : float
+        Initial temperature of the gas, [K]
+    k : float
+        Isentropic exponent of the gas (Cp/Cv) or polytropic exponent `n` to
+        use this as a polytropic model instead [-]
+    Z : float
+        Constant compressibility factor of the gas, [-]
+    eta : float
+        Isentropic efficiency of the process or polytropic efficiency of the
+        process to use this as a polytropic model instead [-]
+
+    Returns
+    -------
+    W : float
+        Work performed per mole of gas compressed/expanded [J/mol]
+
+    Notes
+    -----
+    For the same compression ratio, this is always of larger magnitude than the
+    isothermal case.
+
+    The full derivation is as follows:
+    
+    For constant-heat capacity "isentropic" fluid,
+    
+    .. math::
+        V = \frac{P_1^{1/k}V_1}{P^{1/k}}
+        
+        W = \int_{P_1}^{P_2} V dP = \int_{P_1}^{P_2}\frac{P_1^{1/k}V_1}
+        {P^{1/k}}dP
+        
+        W = \frac{P_1^{1/k} V_1}{1 - \frac{1}{k}}\left[P_2^{1-1/k} - 
+        P_1^{1-1/k}\right]
+    
+    After performing the integration and substantial mathematical manipulation 
+    we can obtain:
+    
+    .. math::
+        W = \left(\frac{k}{k-1}\right) P_1 V_1 \left[\left(\frac{P_2}{P_1}
+        \right)^{(k-1)/k}-1\right]
+    
+    Using PV = ZRT:
+    
+    .. math::
+        W = \left(\frac{k}{k-1}\right)ZRT_1\left[\left(\frac{P_2}{P_1}
+        \right)^{(k-1)/k}-1\right]
+    
+    As entropy does not change, the added enthalpy is entirely expressed 
+    through the change in temperature:
+    
+    .. math::
+        W = dH = \int Cp \; dT \approx Cp\Delta T
+    
+    The work of compression/expansion is the change in enthalpy of the gas.
+    Returns negative values for expansion and positive values for compression.
+    
+    An average compressibility factor should be used as Z changes. For further
+    accuracy, this expression can be used repeatedly with small changes in 
+    pressure and new values of isentropic exponent, and the work from each step
+    summed.
+    
+    For the polytropic case this is not necessary, as `eta` corrects for the
+    simplification.
+
+    Examples
+    --------
+    >>> isentropic_simplified_work_compression(1E5, 1E6, 300, 1.4, eta=0.78)
+    8889.168304761399
+
+    References
+    ----------
+    .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
+       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf 
+       Professional Publishing, 2009.
+    '''
+    return k/(k-1)*Z*R*T1*((P2/P1)**(k-1)/k - 1)/eta
+
+
+def isentropic_simplified_T_rise_compression(T1, P1, P2, k):
+    r'''Calculates the increase in temperature of a fluid which is compressed
+    or expanded under isentropic, adiabatic conditions assuming constant
+    Cp and Cv.
+    
+    .. math::
+        T_2 = T_1\left(\frac{P_2}{P_1}\right)^{\frac{k-1}{k}}
+
+    Parameters
+    ----------
+    T1 : float
+        Initial temperature of gas [K]
+    P1 : float
+        Initial pressure of gas [Pa]
+    P2 : float
+        Final pressure of gas [Pa]
+    k : float
+        Isentropic coefficient []
+
+    Returns
+    -------
+    T2 : float
+        Final temperature of gas [K]
+
+    Notes
+    -----
+    If temperature-dependent heat capacity is available, the following integral 
+    should be solved for T2 instead:
+    
+    .. math::
+        dH = \int Cp \; dT 
+
+    This is the same as `T_stagnation`, but with different definitions.
+
+    Examples
+    --------
+    >>> isentropic_simplified_T_rise_compression(286.8, 54050, 432400, 1.4)
+    519.5230938217768
+
+    References
+    ----------
+    .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
+       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf 
+       Professional Publishing, 2009.
+    '''
+    return T1*(P2/P1)**((k - 1)/k)
+
 
 def T_critical_flow(T, k):
     r'''Calculates critical flow temperature `Tcf` for a fluid with the
