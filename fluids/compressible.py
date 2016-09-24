@@ -24,8 +24,8 @@ from __future__ import division
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 
            'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT',
            'isothermal_work_compression', 
-           'isentropic_simplified_work_compression', 
-           'isentropic_simplified_T_rise_compression', 'T_critical_flow', 
+           'isentropic_work_compression', 
+           'isentropic_T_rise_compression', 'T_critical_flow', 
            'P_critical_flow', 
            'is_critical_flow', 'stagnation_energy', 'P_stagnation', 
            'T_stagnation', 'T_stagnation_ideal']
@@ -94,7 +94,7 @@ def isothermal_work_compression(P1, P2, T, Z=1):
     return Z*R*T*log(P2/P1)
 
 
-def isentropic_simplified_work_compression(P1, P2, T1, k, Z=1, eta=1):
+def isentropic_work_compression(P1, P2, T1, k, Z=1, eta=1):
     r'''Calculates the work of compression or expansion of a gas going through 
     an isentropic, adiabatic process assuming constant Cp and Cv. The 
     polytropic model is the same equation; just provide `n` instead of `k` and  
@@ -102,7 +102,7 @@ def isentropic_simplified_work_compression(P1, P2, T1, k, Z=1, eta=1):
     
     .. math::
         W = \left(\frac{k}{k-1}\right)ZRT_1\left[\left(\frac{P_2}{P_1}
-        \right)^{(k-1)/k}-1\right]    
+        \right)^{(k-1)/k}-1\right]/\eta_{isentropic}
         
     Parameters
     ----------
@@ -156,13 +156,7 @@ def isentropic_simplified_work_compression(P1, P2, T1, k, Z=1, eta=1):
     .. math::
         W = \left(\frac{k}{k-1}\right)ZRT_1\left[\left(\frac{P_2}{P_1}
         \right)^{(k-1)/k}-1\right]
-    
-    As entropy does not change, the added enthalpy is entirely expressed 
-    through the change in temperature:
-    
-    .. math::
-        W = dH = \int Cp \; dT \approx Cp\Delta T
-    
+        
     The work of compression/expansion is the change in enthalpy of the gas.
     Returns negative values for expansion and positive values for compression.
     
@@ -176,7 +170,7 @@ def isentropic_simplified_work_compression(P1, P2, T1, k, Z=1, eta=1):
 
     Examples
     --------
-    >>> isentropic_simplified_work_compression(1E5, 1E6, 300, 1.4, eta=0.78)
+    >>> isentropic_work_compression(1E5, 1E6, 300, 1.4, eta=0.78)
     8889.168304761399
 
     References
@@ -188,13 +182,16 @@ def isentropic_simplified_work_compression(P1, P2, T1, k, Z=1, eta=1):
     return k/(k-1)*Z*R*T1*((P2/P1)**(k-1)/k - 1)/eta
 
 
-def isentropic_simplified_T_rise_compression(T1, P1, P2, k):
+def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
     r'''Calculates the increase in temperature of a fluid which is compressed
     or expanded under isentropic, adiabatic conditions assuming constant
-    Cp and Cv.
+    Cp and Cv.  The polytropic model is the same equation; just provide `n` 
+    instead of `k` and use a polytropic efficienty for `eta` instead of a 
+    isentropic efficiency.
     
     .. math::
-        T_2 = T_1\left(\frac{P_2}{P_1}\right)^{\frac{k-1}{k}}
+        T_2 = T_1 + \frac{\Delta T_s}{\eta_s} = T_1 \left\{1 + \frac{1}
+        {\eta_s}\left[\left(\frac{P_2}{P_1}\right)^{(k-1)/k}-1\right]\right\}
 
     Parameters
     ----------
@@ -205,7 +202,11 @@ def isentropic_simplified_T_rise_compression(T1, P1, P2, k):
     P2 : float
         Final pressure of gas [Pa]
     k : float
-        Isentropic coefficient []
+        Isentropic exponent of the gas (Cp/Cv) or polytropic exponent `n` to
+        use this as a polytropic model instead [-]
+    eta : float
+        Isentropic efficiency of the process or polytropic efficiency of the
+        process to use this as a polytropic model instead [-]
 
     Returns
     -------
@@ -214,17 +215,14 @@ def isentropic_simplified_T_rise_compression(T1, P1, P2, k):
 
     Notes
     -----
-    If temperature-dependent heat capacity is available, the following integral 
-    should be solved for T2 instead:
+    For the ideal case (`eta`=1), the model simplifies to:
     
     .. math::
-        dH = \int Cp \; dT 
-
-    This is the same as `T_stagnation`, but with different definitions.
+        \frac{T_2}{T_1} = \left(\frac{P_2}{P_1}\right)^{(k-1)/k}
 
     Examples
     --------
-    >>> isentropic_simplified_T_rise_compression(286.8, 54050, 432400, 1.4)
+    >>> isentropic_T_rise_compression(286.8, 54050, 432400, 1.4)
     519.5230938217768
 
     References
@@ -232,8 +230,11 @@ def isentropic_simplified_T_rise_compression(T1, P1, P2, k):
     .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf 
        Professional Publishing, 2009.
+    .. [2] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
+       Suppliers Association, Tulsa, OK, 2012.
     '''
-    return T1*(P2/P1)**((k - 1)/k)
+    dT = T1*((P2/P1)**((k-1)/k)-1)/eta
+    return T1 + dT
 
 
 def T_critical_flow(T, k):

@@ -25,19 +25,22 @@ def test_isothermal_work_compression():
 
 
 def test_isentropic_simplified_work_compression():
-    dH = isentropic_simplified_work_compression(1E5, 1E6, 300, 1.4)
+    dH = isentropic_work_compression(1E5, 1E6, 300, 1.4)
     assert_allclose(dH, 6933.551277713891)
     
-    dH = isentropic_simplified_work_compression(1E5, 1E6, 300, 1.4, eta=0.78)
+    dH = isentropic_work_compression(1E5, 1E6, 300, 1.4, eta=0.78)
     assert_allclose(dH, 8889.168304761399)
     
-    dH = isentropic_simplified_work_compression(1E5, 1E6, 300, 1.4, eta=0.78, Z=0.9)
+    dH = isentropic_work_compression(1E5, 1E6, 300, 1.4, eta=0.78, Z=0.9)
     assert_allclose(dH, 8000.251474285259)
 
 
 def test_isentropic_simplified_T_rise_compression():
-    T2 = isentropic_simplified_T_rise_compression(286.8, 54050, 432400, 1.4)
+    T2 = isentropic_T_rise_compression(286.8, 54050, 432400, 1.4)
     assert_allclose(T2, 519.5230938217768)
+    
+    T2 = isentropic_T_rise_compression(286.8, 54050, 432400, 1.4, eta=0.78)
+    assert_allclose(T2, 585.1629407971498)
 
 
 def test_compressible():
