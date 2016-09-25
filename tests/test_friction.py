@@ -57,6 +57,8 @@ def test_friction():
     assert_allclose(Clamond(1E5, 1E-4), 0.01851386607747165)
     
     assert_allclose(friction_laminar(128), 0.5)
+    
+    assert_allclose(Blasius(10000), 0.03164)
 
     assert_allclose(sum(_roughness.values()), 0.01504508)
 

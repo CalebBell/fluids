@@ -32,7 +32,7 @@ __all__ = ['friction_factor', 'Colebrook', 'Clamond', 'Moody', 'Alshul_1952', 'W
 'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
-'Brkic_2011_2', 'Fang_2011', 'friction_laminar', 'von_Karman', 'Prandtl_von_Karman_Nikuradse', 
+'Brkic_2011_2', 'Fang_2011', 'friction_laminar', 'Blasius', 'von_Karman', 'Prandtl_von_Karman_Nikuradse', 
 'transmission_factor', 'roughness_Farshad', '_Farshad_roughness', 
 '_roughness', 'oregon_smooth_data']
 
@@ -97,6 +97,45 @@ def friction_laminar(Re):
        Mechanics 511 (July 1, 2004): 41-44. doi:10.1017/S0022112004009796.
     '''    
     return 64./Re
+
+
+def Blasius(Re):
+    r'''Calculates Darcy friction factor according to the Blasius formulation,
+    originally presented in [1]_ and described more recently in [2]_.
+
+    .. math::
+        f_d=\frac{0.3164}{Re^{0.25}}
+        
+    Parameters
+    ----------
+    Re : float
+        Reynolds number, [-]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor [-]
+
+    Notes
+    -----
+    Developed for 3000 < Re < 200000. 
+
+    Examples
+    --------
+    >>> Blasius(10000)
+    0.03164
+
+    References
+    ----------
+    .. [1] Blasius, H."Das Aehnlichkeitsgesetz bei Reibungsvorgängen in 
+       Flüssigkeiten." In Mitteilungen über Forschungsarbeiten auf dem Gebiete 
+       des Ingenieurwesens, edited by Verein deutscher Ingenieure, 1-41. 
+       Berlin, Heidelberg: Springer Berlin Heidelberg, 1913. 
+       http://rd.springer.com/chapter/10.1007/978-3-662-02239-9_1.
+    .. [2] Hager, W. H. "Blasius: A Life in Research and Education." In 
+       Experiments in Fluids, 566–571, 2003.
+    '''
+    return 0.3164*Re**-0.25
 
 
 def Colebrook(Re, eD):
@@ -1632,7 +1671,7 @@ def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=Fal
     name `fd`.
     
     For Re < 2320, the laminar solution is always returned, regardless of
-    selected method
+    selected method.
 
     Examples
     --------
