@@ -253,4 +253,13 @@ def test_IGT():
         IGT(D=D, P2=P2, L=L, SG=SG, mu=mu, Tavg=Tavg)
 
 
-    
+def test_isothermal_gas():
+    mcalc = isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000, D=0.5)
+    assert_allclose(mcalc, 145.484757264)
+    assert_allclose(isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, m=145.484757264, D=0.5), 1000)
+    assert_allclose(isothermal_gas(11.3, 0.00185, P2=9E5, m=145.484757264, L=1000., D=0.5), 1E6)
+    assert_allclose(isothermal_gas(11.3, 0.00185, P1=1E6, m=145.484757264, L=1000., D=0.5), 9E5)
+    assert_allclose(isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, m=145.484757264, L=1000.), 0.5)
+
+    with pytest.raises(Exception):
+        isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000)

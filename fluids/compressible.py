@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 
-           'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT',
+           'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT', 'isothermal_gas',
            'isothermal_work_compression', 'polytropic_exponent',
            'isentropic_work_compression', 'isentropic_efficiency',
            'isentropic_T_rise_compression', 'T_critical_flow', 
@@ -32,7 +32,7 @@ __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
 
 from scipy.optimize import newton 
 from scipy.constants import R
-from math import log
+from math import log, pi
 
 
 def isothermal_work_compression(P1, P2, T, Z=1):
@@ -624,6 +624,96 @@ def T_stagnation_ideal(T, V, Cp):
     '''
     Tst = T + V**2/2./Cp
     return Tst
+
+
+def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
+    r'''Calculation function for dealing with flow of a compressible gas in a 
+    pipeline for the complete isothermal flow equation. Can calculate any of  
+    the following, given all other inputs:
+    
+    * Mass flow rate
+    * Upstream pressure (numerical)
+    * Downstream pressure (numerical)
+    * Diameter of pipe (numerical)
+    * Length of pipe
+    
+    A variety of forms of this equation have been presented, differing in their
+    use of the ideal gas law and choice of gas constant. The form here uses
+    density explicitly, allowing for non-ideal values to be used.
+    
+    .. math::
+        \dot m^2 = \frac{\left(\frac{\pi D^2}{4}\right)^2 \rho_{avg} 
+        \left(P_1^2-P_2^2\right)}{P_1\left(f_d\frac{L}{D} + 2\ln\frac{P_1}{P_2}
+        \right)}
+
+    Parameters
+    ----------
+    rho : float
+        Average density of gas in pipe, [kg/m^3]
+    f : float
+        Darcy friction factor for flow in pipe [-]
+    P1 : float, optional
+        Inlet pressure to pipe, [Pa]
+    P2 : float, optional
+        Outlet pressure from pipe, [Pa]
+    L : float, optional
+        Length of pipe, [m]
+    D : float, optional
+        Diameter of pipe, [m]
+    Qm: float, optional
+        Mass flow rate of gas through pipe, [kg/s]
+
+    Returns
+    -------
+    m, P1, P2, D, or L : float
+        The missing input which was solved for [base SI]
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000, D=0.5)
+    145.4847572636031
+
+    References
+    ----------
+    .. [1] Co, Crane. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    .. [2] Kim, J. and Singh, N. "A Novel Equation for Isothermal Pipe Flow.".
+       Chemical Engineering, June 2012, http://www.chemengonline.com/a-novel-equation-for-isothermal-pipe-flow/?printmode=1
+    '''
+    if m is None and (None not in [P1, P2, L, D]):
+        A = pi/4*D**2
+        return (A**2*rho/P1/(f*L/D + 2*log(P1/P2))*(P1**2-P2**2))**0.5
+    elif L is None and (None not in [P1, P2, D, m]):
+        return D*(pi**2*D**4*rho*(P1**2 - P2**2) - 32*P1*m**2*log(P1/P2))/(16*P1*f*m**2)
+    elif P1 is None and (None not in [L, P2, D, m]):
+#        Slightly faster but more confusing
+#        def to_solve(_Z): 
+#            return _Z-(D**5*exp(_Z)**2*P2*pi**2*rho-D**5*P2*pi**2*rho-32*_Z *D*m**2*exp(_Z)-16*L*exp(_Z)*f*m**2)
+#        ans = newton(to_solve, 1)
+#        return exp(ans)*P2
+        def to_solve(P1):
+            return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
+        return newton(to_solve, P2*1.1)
+    elif P2 is None and (None not in [L, P1, D, m]):
+#         When you don't know which branch of the lamberw function to take, it's no good.
+#         return (P1/exp(0.3125000000e-1*(D**5*P1*pi**2*rho+16*lambertw(
+#                         -0.6250000000e-1*pi**2*D**4*rho*P1/m**2*exp(
+#                             -0.6250000000e-1*(D**5*P1*pi**2*rho-16*L*f*m**2
+#                                              )/D/m**2), 0).real*D*m**2-16*L*f*m**2)/D/m**2))
+        def to_solve(P2):
+            return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
+        return newton(to_solve, P1*.8)
+    elif D is None and (None not in [P2, P1, L, m]):
+        def to_solve(D):
+            return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
+        return newton(to_solve, 0.1)
+    else:
+        raise Exception('This function solves for either mass flow, upstream \
+pressure, downstream pressure, diameter, or length; all other inputs \
+must be provided.')
 
 
 def Panhandle_A(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
