@@ -660,7 +660,7 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
         Length of pipe, [m]
     D : float, optional
         Diameter of pipe, [m]
-    Qm: float, optional
+    m: float, optional
         Mass flow rate of gas through pipe, [kg/s]
 
     Returns

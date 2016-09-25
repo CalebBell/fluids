@@ -32,9 +32,71 @@ __all__ = ['friction_factor', 'Colebrook', 'Clamond', 'Moody', 'Alshul_1952', 'W
 'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
-'Brkic_2011_2', 'Fang_2011', 'von_Karman', 'Prandtl_von_Karman_Nikuradse', 
+'Brkic_2011_2', 'Fang_2011', 'friction_laminar', 'von_Karman', 'Prandtl_von_Karman_Nikuradse', 
 'transmission_factor', 'roughness_Farshad', '_Farshad_roughness', 
-'_roughness']
+'_roughness', 'oregon_smooth_data']
+
+oregon_Res = [11.21, 20.22, 29.28, 43.19, 57.73, 64.58, 86.05, 113.3, 135.3, 
+              157.5, 179.4, 206.4, 228, 270.9, 315.2, 358.9, 402.9, 450.2, 
+              522.5, 583.1, 671.8, 789.8, 891, 1013, 1197, 1300, 1390, 1669, 
+              1994, 2227, 2554, 2868, 2903, 2926, 2955, 2991, 2997, 3047, 3080,
+              3264, 3980, 4835, 5959, 8162, 10900, 13650, 18990, 29430, 40850, 
+              59220, 84760, 120000, 176000, 237700, 298200, 467800, 587500, 
+              824200, 1050000]
+oregon_fd_smooth = [5.537, 3.492, 2.329, 1.523, 1.173, 0.9863, 0.7826, 0.5709,
+                    0.4815, 0.4182, 0.3655, 0.3237, 0.2884, 0.2433, 0.2077, 
+                    0.1834, 0.1656, 0.1475, 0.1245, 0.1126, 0.09917, 0.08501, 
+                    0.07722, 0.06707, 0.0588, 0.05328, 0.04815, 0.04304, 
+                    0.03739, 0.03405, 0.03091, 0.02804, 0.03182, 0.03846, 
+                    0.03363, 0.04124, 0.035, 0.03875, 0.04285, 0.0426, 0.03995,
+                    0.03797, 0.0361, 0.03364, 0.03088, 0.02903, 0.0267, 
+                    0.02386, 0.02086, 0.02, 0.01805, 0.01686, 0.01594, 0.01511,
+                    0.01462, 0.01365, 0.01313, 0.01244, 0.01198]
+'''Holds a tuple of experimental results from the smooth pipe flow experiments
+presented in McKEON, B. J., C. J. SWANSON, M. V. ZAGAROLA, R. J. DONNELLY, and 
+A. J. SMITS. "Friction Factors for Smooth Pipe Flow." Journal of Fluid 
+Mechanics 511 (July 1, 2004): 41-44. doi:10.1017/S0022112004009796.
+'''
+oregon_smooth_data = (oregon_Res, oregon_fd_smooth)
+
+def friction_laminar(Re):
+    r'''Calculates Darcy friction factor for laminar flow, as shown in [1]_ or
+    anywhere else.
+
+    .. math::
+        f_d = \frac{64}{Re}
+        
+    Parameters
+    ----------
+    Re : float
+        Reynolds number, [-]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor [-]
+
+    Notes
+    -----
+    For round pipes, this valid for Re < 2320. 
+    
+    Results in [2]_ show that this theoretical solution calculates too low of  
+    friction factors from Re = 10 and up, with an average deviation of 4%.
+
+    Examples
+    --------
+    >>> friction_laminar(128)
+    0.5
+
+    References
+    ----------
+    .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
+       Applications. Boston: McGraw Hill Higher Education, 2006.
+    .. [2] McKEON, B. J., C. J. SWANSON, M. V. ZAGAROLA, R. J. DONNELLY, and 
+       A. J. SMITS. "Friction Factors for Smooth Pipe Flow." Journal of Fluid 
+       Mechanics 511 (July 1, 2004): 41-44. doi:10.1017/S0022112004009796.
+    '''    
+    return 64./Re
 
 
 def Colebrook(Re, eD):
@@ -1562,12 +1624,15 @@ fmethods['Colebrook'] = {'Nice name': 'Colebrook', 'Notes': '', 'Arguments': {'e
 
 
 
-def friction_factor(Re, eD, Method='Clamond', Darcy=True, AvailableMethods=False):
+def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=False):
     r'''Calculates friction factor. Uses a specified method, or automatically
     picks one from the dictionary of available methods. 29 approximations are 
     available as well as the direct solution, described in the table below. 
     The default is to use the exact solution. Can also be accesed under the 
     name `fd`.
+    
+    For Re < 2320, the laminar solution is always returned, regardless of
+    selected method
 
     Examples
     --------
@@ -1578,7 +1643,7 @@ def friction_factor(Re, eD, Method='Clamond', Darcy=True, AvailableMethods=False
     ----------
     Re : float
         Reynolds number, [-]
-    eD : float
+    eD : float, optional
         Relative roughness of the wall, []
 
     Returns
@@ -1677,9 +1742,12 @@ def friction_factor(Re, eD, Method='Clamond', Darcy=True, AvailableMethods=False
         return methods
     if AvailableMethods:
         return list_methods()
-    if not Method:
+    elif not Method:
         Method = 'Clamond'
-    f = globals()[Method](Re=Re, eD=eD)
+    if Re < 2320:
+        f = friction_laminar(Re)
+    else:
+        f = globals()[Method](Re=Re, eD=eD)
     if not Darcy:
         f *= 4
     return f

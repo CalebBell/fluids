@@ -55,6 +55,8 @@ def test_friction():
     assert_allclose(Brkic_2011_2(1E5, 1E-4), 0.018619745410688716)
     assert_allclose(Fang_2011(1E5, 1E-4), 0.018481390682985432)
     assert_allclose(Clamond(1E5, 1E-4), 0.01851386607747165)
+    
+    assert_allclose(friction_laminar(128), 0.5)
 
     assert_allclose(sum(_roughness.values()), 0.01504508)
 
@@ -67,6 +69,7 @@ def test_friction():
     assert methods_1 == methods_2
 
     assert_allclose(friction_factor(Re=1E5, eD=1E-4, Darcy=False), 0.01851386607747165*4)
+    assert_allclose(friction_factor(Re=128), 0.5)
 
 
 def test_transmission_factor():
