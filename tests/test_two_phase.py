@@ -1,0 +1,38 @@
+# -*- coding: utf-8 -*-
+'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
+
+from __future__ import division
+from fluids import *
+import numpy as np
+from numpy.testing import assert_allclose
+import pytest
+
+
+def test_Friedel():
+    dP = Friedel(m=10, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.3, roughness=0, L=1)
+    assert_allclose(dP, 274.21322116878406)
+    
+    # Example 4 in [6]_:
+    dP = Friedel(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 738.6500525002241)
+    # 730 is the result in [1]_; they use the Blassius equation instead for friction
+    # the multiplier was calculated to be 38.871 vs 38.64 in [6]_
+
+
+def test_Gronnerud():
+    dP = Gronnerud(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 384.125411444741)

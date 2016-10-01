@@ -8,6 +8,7 @@ htmlcov
 .cache
 __pycache__
 *kate-swp
+.spyproject
 
 # Compiled source #
 ###################

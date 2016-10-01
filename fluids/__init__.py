@@ -36,6 +36,7 @@ from . import piping
 from . import pump
 from . import safety_valve
 from . import packed_tower
+from . import two_phase
 from . import two_phase_voidage
 from . import drag
 from . import saltation
@@ -56,6 +57,7 @@ from .piping import *
 from .pump import *
 from .safety_valve import *
 from .packed_tower import *
+from .two_phase import *
 from .two_phase_voidage import *
 from .drag import *
 from .saltation import *
@@ -63,8 +65,8 @@ from .saltation import *
 
 __all__ = ['compressible', 'control_valve', 'core', 'filters', 'fittings',
 'friction', 'geometry', 'mixing', 'open_flow', 'packed_bed', 'piping',
-'pump', 'safety_valve', 'packed_tower', 'two_phase_voidage', 'drag', 
-'saltation']
+'pump', 'safety_valve', 'packed_tower', 'two_phase', 'two_phase_voidage', 
+'drag', 'saltation']
 
 
 __all__.extend(compressible.__all__)
@@ -81,6 +83,7 @@ __all__.extend(piping.__all__)
 __all__.extend(pump.__all__)
 __all__.extend(safety_valve.__all__)
 __all__.extend(packed_tower.__all__)
+__all__.extend(two_phase.__all__)
 __all__.extend(two_phase_voidage.__all__)
 __all__.extend(drag.__all__)
 __all__.extend(saltation.__all__)

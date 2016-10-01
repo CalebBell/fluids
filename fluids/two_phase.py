@@ -1,0 +1,231 @@
+# -*- coding: utf-8 -*-
+'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.'''
+
+from __future__ import division
+__all__ = ['Friedel', 'Gronnerud']
+
+from math import pi, log
+from fluids.friction import friction_factor
+from fluids.core import Reynolds, Froude, Weber
+
+
+def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
+    r'''Calculates two-phase pressure drop with the Friedel correlation.
+    
+    .. math::
+        \Delta P_{friction} = \Delta P_{lo} \phi_{lo}^2
+        
+        \phi_{lo}^2 = E + \frac{3.24FH}{Fr^{0.0454} We^{0.035}}
+        
+        H = \left(\frac{\rho_l}{\rho_g}\right)^{0.91}\left(\frac{\mu_g}{\mu_l}
+        \right)^{0.19}\left(1 - \frac{\mu_g}{\mu_l}\right)^{0.7}
+        
+        F = x^{0.78}(1 - x)^{0.224}
+        
+        E = (1-x)^2 + x^2\left(\frac{\rho_l f_{d,go}}{\rho_g f_{d,lo}}\right)
+        
+        Fr = \frac{G_{tp}^2}{gD\rho_H^2}
+        
+        We = \frac{G_{tp}^2 D}{\sigma \rho_H}
+        
+        \rho_H = \left(\frac{x}{\rho_g} + \frac{1-x}{\rho_l}\right)^{-1}
+        
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    sigma : float
+        Surface tension, [N/m]
+    D : float
+        Diameter of pipe, [m]
+    roughness, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+    Applicable to vertical upflow and horizontal flow. Known to work poorly
+    when mul/mug > 1000. Gives mean errors on the order of 40%. Tested on data
+    with diameters as small as 4 mm.
+    
+    The power of 0.0454 is given as 0.045 in [2]_, [3]_, [4]_, and [5]_; [6]_
+    and [2]_ give 0.0454 and [2]_ also gives a similar correlation said to be
+    presented in [1]_, so it is believed this 0.0454 was the original power.
+    [6]_ also gives an expression for friction factor claimed to be presented
+    in [1]_; it is not used here.
+
+    Examples
+    --------
+    Example 4 in [6]_:
+        
+    >>> Friedel(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, 
+    ... sigma=0.0487, D=0.05, roughness=0, L=1)
+    738.6500525002241
+
+    References
+    ----------
+    .. [1] Friedel, L. "Improved Friction Pressure Drop Correlations for 
+       Horizontal and Vertical Two-Phase Pipe Flow." , in: Proceedings, 
+       European Two Phase Flow Group Meeting, Ispra, Italy, 1979: 485-481.
+    .. [2] Whalley, P. B. Boiling, Condensation, and Gas-Liquid Flow. Oxford: 
+       Oxford University Press, 1987.
+    .. [3] Triplett, K. A., S. M. Ghiaasiaan, S. I. Abdel-Khalik, A. LeMouel, 
+       and B. N. McCord. "Gas-liquid Two-Phase Flow in Microchannels: Part II: 
+       Void Fraction and Pressure Drop.” International Journal of Multiphase 
+       Flow 25, no. 3 (April 1999): 395-410. doi:10.1016/S0301-9322(98)00055-X.
+    .. [4] Mekisso, Henock Mateos. "Comparison of Frictional Pressure Drop 
+       Correlations for Isothermal Two-Phase Horizontal Flow." Thesis, Oklahoma
+       State University, 2013. https://shareok.org/handle/11244/11109.
+    .. [5] Thome, John R. "Engineering Data Book III." Wolverine Tube Inc
+       (2004). http://www.wlv.com/heat-transfer-databook/
+    .. [6] Ghiaasiaan, S. Mostafa. Two-Phase Flow, Boiling, and Condensation: 
+        In Conventional and Miniature Systems. Cambridge University Press, 2007.
+    '''
+    # Liquid-only properties, for calculation of E, dP_lo
+    v_lo = m/rhol/(pi/4*D**2)
+    Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
+    fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+
+    # Gas-only properties, for calculation of E
+    v_go = m/rhog/(pi/4*D**2)
+    Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
+    fd_go = friction_factor(Re=Re_go, eD=roughness/D)
+
+    F = x**0.78*(1-x)**0.224
+    H = (rhol/rhog)**0.91*(mug/mul)**0.19*(1 - mug/mul)**0.7
+    E = (1-x)**2 + x**2*(rhol*fd_go/(rhog*fd_lo))
+    
+    # Homogeneous properties, for Froude/Weber numbers
+    rho_h = 1./(x/rhog + (1-x)/rhol)
+    Q_h = m/rho_h
+    v_h = Q_h/(pi/4*D**2)
+    
+    Fr = Froude(V=v_h, L=D, squared=True) # checked with (m/(pi/4*D**2))**2/g/D/rho_h**2
+    We = Weber(V=v_h, L=D, rho=rho_h, sigma=sigma) # checked with (m/(pi/4*D**2))**2*D/sigma/rho_h
+    
+    phi_lo2 = E + 3.24*F*H/(Fr**0.0454*We**0.035)
+    return phi_lo2*dP_lo
+
+
+def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+    r'''Calculates two-phase pressure drop with the Gronnerud correlation as
+    presented in [2]_, [3]_, and [4]_.
+    
+    .. math::
+        \Delta P_{friction} = \Delta P_{gd} \phi_{lo}^2
+        
+        \phi_{gd} = 1 + \left(\frac{dP}{dL}\right)_{Fr}\left[
+        \frac{\frac{\rho_l}{\rho_g}}{\left(\frac{\mu_l}{\mu_g}\right)^{0.25}}
+        -1\right]
+        
+        \left(\frac{dP}{dL}\right)_{Fr} = f_{Fr}\left[x+4(x^{1.8}-x^{10}
+        f_{Fr}^{0.5})\right]
+        
+        f_{Fr} = Fr_l^{0.3} + 0.0055\left(\ln \frac{1}{Fr_l}\right)^2
+        
+        Fr_l = \frac{G_{tp}^2}{gD\rho_l^2}
+        
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    D : float
+        Diameter of pipe, [m]
+    roughness, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+    Developed for evaporators. Applicable from 0 < x < 1.
+    
+    In the model, if `Fr_l` is more than 1, `f_Fr` is set to 1.
+    
+    Examples
+    --------
+    >>> Gronnerud(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
+    ... D=0.05, roughness=0, L=1)
+    384.125411444741
+
+    References
+    ----------
+    .. [1] Gronnerud, R. "Investigation of Liquid Hold-Up, Flow Resistance and 
+       Heat Transfer in Circulation Type Evaporators. 4. Two-Phase Flow 
+       Resistance in Boiling Refrigerants." Proc. Freudenstadt Meet., IIR/C. 
+       R. Réun. Freudenstadt, IIF. 1972-1: 127-138. 1972.
+    .. [2] ASHRAE Handbook: Fundamentals. American Society of Heating,
+       Refrigerating and Air-Conditioning Engineers, Incorporated, 2013.
+    .. [3] Mekisso, Henock Mateos. "Comparison of Frictional Pressure Drop 
+       Correlations for Isothermal Two-Phase Horizontal Flow." Thesis, Oklahoma
+       State University, 2013. https://shareok.org/handle/11244/11109.
+    .. [4] Thome, John R. "Engineering Data Book III." Wolverine Tube Inc
+       (2004). http://www.wlv.com/heat-transfer-databook/
+    '''
+    G = m/(pi/4*D**2)
+    V = G/rhol
+    Frl = Froude(V=V, L=D, squared=True)
+    if Frl >= 1:
+        f_Fr = 1
+    else:
+        f_Fr = Frl**0.3 + 0.0055*(log(1./Frl))**2
+    dP_dL_Fr = f_Fr*(x + 4*(x**1.8 - x**10*f_Fr**0.5))
+    phi_gd = 1 + dP_dL_Fr*((rhol/rhog)/(mul/mug)**0.25 - 1)
+    
+    # Liquid-only properties, for calculation of E, dP_lo
+    v_lo = m/rhol/(pi/4*D**2)
+    Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
+    fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    return phi_gd*dP_lo
