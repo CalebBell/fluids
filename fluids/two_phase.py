@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['Friedel', 'Chisholm_1973', 'Muller_Steinhagen_Heck', 'Gronnerud',
-           'Lombardi_Pedrocchi']
+__all__ = ['Friedel', 'Chisholm_1973', 'Baroczy_Chisholm', 
+           'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi']
 
 from math import pi, log
 from fluids.friction import friction_factor
@@ -349,6 +349,109 @@ def Chisholm_1973(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return phi2_ch*dP_lo
 
 
+def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+    r'''Calculates two-phase pressure drop with the Baroczy (1966) model.
+    It was presented in graphical form originally; Chisholm (1973) made the 
+    correlation non-graphical. The model is also shown in [3]_.
+    
+    .. math::
+        \frac{\Delta P_{tp}}{\Delta P_{lo}} = \phi_{ch}^2
+        
+        \phi_{ch}^2 = 1 + (\Gamma^2 -1)\left\{B x^{(2-n)/2} (1-x)^{(2-n)/2}
+        + x^{2-n} \right\}
+        
+        \Gamma ^2 = \frac{\left(\frac{\Delta P}{L}\right)_{go}}{\left(\frac{
+        \Delta P}{L}\right)_{lo}}
+        
+    For Gamma < 9.5:
+    
+    .. math::
+        B = \frac{55}{G_{tp}^{0.5}} 
+        
+    For 9.5 < Gamma < 28:
+        
+    .. math::
+        B = \frac{520}{\Gamma G_{tp}^{0.5}} 
+        
+    For Gamma > 28:
+        
+    .. math::
+        B = \frac{15000}{\Gamma^2 G_{tp}^{0.5}}
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    D : float
+        Diameter of pipe, [m]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+    Applicable for  0 < x < 1. n = 0.25, the exponent in the Blassius equation.
+    The `Chisholm_1973` function should be used in preference to this.
+        
+    Examples
+    --------
+    >>> Baroczy_Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, 
+    ... mug=14E-6, D=0.05, roughness=0, L=1)
+    1084.1489922923736
+
+    References
+    ----------
+    .. [1] Baroczy, C. J. "A systematic correlation for two-phase pressure 
+       drop." In Chem. Eng. Progr., Symp. Ser., 62: No. 64, 232-49 (1966).
+    .. [2] Chisholm, D. "Pressure Gradients due to Friction during the Flow of 
+       Evaporating Two-Phase Mixtures in Smooth Tubes and Channels." 
+       International Journal of Heat and Mass Transfer 16, no. 2 (February 
+       1973): 347-58. doi:10.1016/0017-9310(73)90063-X. 
+    .. [3] Mekisso, Henock Mateos. "Comparison of Frictional Pressure Drop 
+       Correlations for Isothermal Two-Phase Horizontal Flow." Thesis, Oklahoma
+       State University, 2013. https://shareok.org/handle/11244/11109.
+    '''
+    G_tp = m/(pi/4*D**2)
+    n = 0.25 # Blasius friction factor exponent
+    # Liquid-only properties, for calculation of dP_lo
+    v_lo = m/rhol/(pi/4*D**2)
+    Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
+    fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+
+    # Gas-only properties, for calculation of dP_go
+    v_go = m/rhog/(pi/4*D**2)
+    Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
+    fd_go = friction_factor(Re=Re_go, eD=roughness/D)
+    dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
+    
+    Gamma = (dP_go/dP_lo)**0.5
+    if Gamma <= 9.5:
+        B = 55*G_tp**-0.5
+    elif Gamma <= 28:
+        B = 520.*G_tp**-0.5/Gamma
+    else:
+        B = 15000.*G_tp**-0.5/Gamma**2
+    phi2_ch = 1 + (Gamma**2-1)*(B*x**((2-n)/2.)*(1-x)**((2-n)/2.) + x**(2-n))
+    return phi2_ch*dP_lo
+
+    
 def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     r'''Calculates two-phase pressure drop with the Muller-Steinhagen and Heck
     (1986) correlation from [1]_, also in [2]_ and [3]_.
