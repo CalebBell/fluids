@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['Friedel', 'Chisholm', 'Baroczy_Chisholm', 
+__all__ = ['Friedel', 'Chisholm', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi']
 
 from math import pi, log
@@ -609,3 +609,121 @@ def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1):
     rho_h = rhol*(1-voidage_h) + rhog*voidage_h
     G_tp = m/(pi/4*D**2)
     return 0.83*G_tp**1.4*sigma**0.4*L/(D**1.2*rho_h**0.866)
+
+    
+def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+    r'''Calculates two-phase pressure drop with the Theissing (1980) 
+    correlation as shown in [2]_ and [3]_.
+
+    .. math::
+        \Delta P_{{tp}} = \left[ {\Delta P_{{lo}}^{{1/{n\epsilon}}} \left({1 -
+        x} \right)^{{1/\epsilon}} + \Delta P_{{go}}^{{1/
+        {(n\epsilon)}}} x^{{1/\epsilon}}} \right]^{n\epsilon}
+        
+        \epsilon = 3 - 2\left({\frac{{2\sqrt {{{\rho_{{l}}}/
+        {\rho_{{g}}}}}}}{{1 + {{\rho_{{l}}}/{\rho_{{g}}}}}}}
+        \right)^{{{0.7}/n}}
+
+        n = \frac{{n_1 + n_2 \left({{{\Delta P_{{g}}}/{\Delta 
+        P_{{l}}}}} \right)^{0.1}}}{{1 + \left({{{\Delta P_{{g}}} /
+        {\Delta P_{{l}}}}} \right)^{0.1}}}
+
+        n_1 = \frac{{\ln \left({{{\Delta P_{{l}}}/
+        {\Delta P_{{lo}}}}} \right)}}{{\ln \left({1 - x} \right)}}
+                             
+        n_2 = \frac{\ln \left({\Delta P_{{g}} / \Delta P_{{go}}} 
+        \right)}{{\ln x}}                             
+        
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    D : float
+        Diameter of pipe, [m]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+    Applicable for 0 < x < 1. Notable, as it can be used for two-phase liquid-
+    liquid flow as well as liquid-gas flow.
+
+    Examples
+    --------
+    >>> Theissing(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, 
+    ... D=0.05, roughness=0, L=1)
+    497.6156370699528
+
+    References
+    ----------
+    .. [1] Theissing, Peter. "Eine Allgemeingültige Methode Zur Berechnung Des
+       Reibungsdruckverlustes Der Mehrphasenströmung (A Generally Valid Method 
+       for Calculating Frictional Pressure Drop on Multiphase Flow)." Chemie 
+       Ingenieur Technik 52, no. 4 (January 1, 1980): 344-345. 
+       doi:10.1002/cite.330520414. 
+    .. [2] Mekisso, Henock Mateos. "Comparison of Frictional Pressure Drop 
+       Correlations for Isothermal Two-Phase Horizontal Flow." Thesis, Oklahoma
+       State University, 2013. https://shareok.org/handle/11244/11109.
+    .. [3] Greco, A., and G. P. Vanoli. "Experimental Two-Phase Pressure 
+       Gradients during Evaporation of Pure and Mixed Refrigerants in a Smooth 
+       Horizontal Tube. Comparison with Correlations." Heat and Mass Transfer 
+       42, no. 8 (April 6, 2006): 709-725. doi:10.1007/s00231-005-0020-7. 
+    '''
+    # Liquid-only flow
+    v_lo = m/rhol/(pi/4*D**2)
+    Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
+    fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+
+    # Gas-only flow
+    v_go = m/rhog/(pi/4*D**2)
+    Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
+    fd_go = friction_factor(Re=Re_go, eD=roughness/D)
+    dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
+
+    # Handle x = 0, x=1:
+    if x == 0:
+        return dP_lo
+    elif x == 1:
+        return dP_go
+
+    # Actual Liquid flow
+    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
+    fd_l = friction_factor(Re=Re_l, eD=roughness/D)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+
+    # Actual gas flow
+    v_g = m*x/rhog/(pi/4*D**2)
+    Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
+    fd_g = friction_factor(Re=Re_g, eD=roughness/D)
+    dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+    
+    
+    # The model
+    n1 = log(dP_l/dP_lo)/log(1.-x)
+    n2 = log(dP_g/dP_go)/log(x)
+    n = (n1 + n2*(dP_g/dP_l)**0.1)/(1 + (dP_g/dP_l)**0.1)
+    epsilon = 3 - 2*(2*(rhol/rhog)**0.5/(1.+rhol/rhog))**(0.7/n)
+    dP = (dP_lo**(1./(n*epsilon))*(1-x)**(1./epsilon) 
+          + dP_go**(1./(n*epsilon))*x**(1./epsilon))**(n*epsilon)
+    return dP
+    #fails at 0 and 1.
+#Theissing(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)

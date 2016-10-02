@@ -90,3 +90,14 @@ def test_Muller_Steinhagen_Heck():
 def test_Lombardi_Pedrocchi():
     dP = Lombardi_Pedrocchi(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1)
     assert_allclose(dP, 1567.328374498781)
+
+def test_Theissing():
+    dP = Theissing(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 497.6156370699528)
+    
+    # Test x=1, x=0
+    dP = Theissing(m=0.6, x=1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 4012.248776469056)
+    
+    dP = Theissing(m=0.6, x=0, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 19.00276790390895)
