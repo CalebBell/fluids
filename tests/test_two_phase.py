@@ -68,3 +68,8 @@ def test_Chisholm_1973():
 def test_Muller_Steinhagen_Heck():
     dP = Muller_Steinhagen_Heck(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 793.4465457435081)
+
+
+def test_Lombardi_Pedrocchi():
+    dP = Lombardi_Pedrocchi(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1)
+    assert_allclose(dP, 1567.328374498781)

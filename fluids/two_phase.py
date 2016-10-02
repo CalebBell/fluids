@@ -21,11 +21,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['Friedel', 'Chisholm_1973', 'Muller_Steinhagen_Heck', 'Gronnerud']
+__all__ = ['Friedel', 'Chisholm_1973', 'Muller_Steinhagen_Heck', 'Gronnerud',
+           'Lombardi_Pedrocchi']
 
 from math import pi, log
 from fluids.friction import friction_factor
 from fluids.core import Reynolds, Froude, Weber
+from fluids.two_phase_voidage import homogeneous
 
 
 def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
@@ -95,7 +97,7 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
         
     >>> Friedel(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, 
     ... sigma=0.0487, D=0.05, roughness=0, L=1)
-    738.6500525002241
+    738.6500525002243
 
     References
     ----------
@@ -132,7 +134,8 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     E = (1-x)**2 + x**2*(rhol*fd_go/(rhog*fd_lo))
     
     # Homogeneous properties, for Froude/Weber numbers
-    rho_h = 1./(x/rhog + (1-x)/rhol)
+    voidage_h = homogeneous(x, rhol, rhog)
+    rho_h = rhol*(1-voidage_h) + rhog*voidage_h
     Q_h = m/rho_h
     v_h = Q_h/(pi/4*D**2)
     
@@ -420,3 +423,60 @@ def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     G_MSH = dP_lo + 2*(dP_go - dP_lo)*x
     return G_MSH*(1-x)**(1/3.) + dP_go*x**3
 
+
+def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1):
+    r'''Calculates two-phase pressure drop with the Lombardi-Pedrocchi (1972) 
+    correlation from [1]_ as shown in [2]_ and [3]_.
+    
+    .. math::
+        \Delta P_{tp} = \frac{0.83 G_{tp}^{1.4} \sigma^{0.4} L}{D^{1.2} 
+        \rho_{h}^{0.866}}
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    D : float
+        Diameter of pipe, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+    This is a purely emperical method. [3]_ presents a review of this and other
+    correlations. It did not perform best, but there were also correlations 
+    worse than it.
+        
+    Examples
+    --------
+    >>> Lombardi_Pedrocchi(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, 
+    ... D=0.05, L=1)
+    1567.328374498781
+
+    References
+    ----------
+    .. [1] Lombardi, C., and E. Pedrocchi. "Pressure Drop Correlation in Two-
+       Phase Flow." Energ. Nucl. (Milan) 19: No. 2, 91-99, January 1, 1972. 
+    .. [2] Mekisso, Henock Mateos. "Comparison of Frictional Pressure Drop 
+       Correlations for Isothermal Two-Phase Horizontal Flow." Thesis, Oklahoma
+       State University, 2013. https://shareok.org/handle/11244/11109.
+    .. [3] Turgut, Oğuz Emrah, Mustafa Turhan Çoban, and Mustafa Asker. 
+       "Comparison of Flow Boiling Pressure Drop Correlations for Smooth 
+       Macrotubes." Heat Transfer Engineering 37, no. 6 (April 12, 2016): 
+       487-506. doi:10.1080/01457632.2015.1060733.
+    '''
+    voidage_h = homogeneous(x, rhol, rhog)
+    rho_h = rhol*(1-voidage_h) + rhog*voidage_h
+    G_tp = m/(pi/4*D**2)
+    return 0.83*G_tp**1.4*sigma**0.4*L/(D**1.2*rho_h**0.866)
