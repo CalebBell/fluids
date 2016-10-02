@@ -36,3 +36,31 @@ def test_Friedel():
 def test_Gronnerud():
     dP = Gronnerud(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 384.125411444741)
+    
+    dP = Gronnerud(m=5, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 26650.676132410194)
+
+def test_Chisholm_1973():
+    # Gamma < 28, G< 600
+    dP = Chisholm_1973(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 1084.1489922923736)
+    
+    # Gamma < 28, G > 600
+    dP = Chisholm_1973(m=2, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 7081.89630764668)
+    
+    # Gamma <= 9.5, G_tp <= 500
+    dP = Chisholm_1973(m=.6, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 222.36274920522493)
+    
+    # Gamma <= 9.5, G_tp < 1900:
+    dP = Chisholm_1973(m=2, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 1107.9944943816388)
+    
+    # Gamma <= 9.5, G_tp > 1900:
+    dP = Chisholm_1973(m=5, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 3414.1123536958203)
+    
+    dP = Chisholm_1973(m=1, x=0.1, rhol=915., rhog=0.1, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 8743.742915625126)
+
