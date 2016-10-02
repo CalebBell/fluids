@@ -52,8 +52,8 @@ def test_Fauske():
     assert_allclose(Fauske(.4, 800, 2.5), 0.9226347262627932)
 
 
-def test_Chisholm():
-    assert_allclose(Chisholm(.4, 800, 2.5), 0.949525900374774)
+def test_Chisholm_voidage():
+    assert_allclose(Chisholm_voidage(.4, 800, 2.5), 0.949525900374774)
 
 
 def test_Turner_Wallis():

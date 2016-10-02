@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['Friedel', 'Chisholm_1973', 'Baroczy_Chisholm', 
+__all__ = ['Friedel', 'Chisholm', 'Baroczy_Chisholm', 
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi']
 
 from math import pi, log
@@ -234,7 +234,8 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return phi_gd*dP_lo
 
     
-def Chisholm_1973(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1, 
+             rough_correction=False):
     r'''Calculates two-phase pressure drop with the Chisholm (1973) correlation 
     from [1]_, also in [2]_ and [3]_.
     
@@ -268,6 +269,15 @@ def Chisholm_1973(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     .. math::
         B = \frac{15000}{\Gamma^2 G_{tp}^{0.5}}
 
+    If `rough_correction` is True, the following correction to B is applied:
+    
+    .. math::
+        \frac{B_{rough}}{B_{smooth}} = \left[0.5\left\{1+ \left(\frac{\mu_g}
+        {\mu_l}\right)^2 + 10^{-600\epsilon/D}\right\}\right]^{\frac{0.25-n}
+        {0.25}}
+        
+        n = \frac{\log \frac{f_{d,lo}}{f_{d,go}}}{\log \frac{Re_{go}}{Re_{lo}}}
+
     Parameters
     ----------
     m : float
@@ -288,6 +298,9 @@ def Chisholm_1973(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
         Roughness of pipe for use in calculating friction factor, [m]
     L : float, optional
         Length of pipe, [m]
+    rough_correction : bool, optional
+        Whether or not to use the roughness correction proposed in the 1968
+        version of the correlation
 
     Returns
     -------
@@ -297,10 +310,13 @@ def Chisholm_1973(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     Notes
     -----
     Applicable for  0 < x < 1. n = 0.25, the exponent in the Blassius equation.
+    Originally developed for smooth pipes, a roughness correction is included
+    as well from the Chisholm's 1968 work [4]_. Neither [2]_ nor [3]_ have any
+    mention of the correction however.
         
     Examples
     --------
-    >>> Chisholm_1973(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, 
+    >>> Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, 
     ... mug=14E-6, D=0.05, roughness=0, L=1)
     1084.1489922923736
 
@@ -315,6 +331,10 @@ def Chisholm_1973(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
        State University, 2013. https://shareok.org/handle/11244/11109.
     .. [3] Thome, John R. "Engineering Data Book III." Wolverine Tube Inc
        (2004). http://www.wlv.com/heat-transfer-databook/
+    .. [4] Chisholm, D. "Research Note: Influence of Pipe Surface Roughness on 
+       Friction Pressure Gradient during Two-Phase Flow." Journal of Mechanical
+       Engineering Science 20, no. 6 (December 1, 1978): 353-354. 
+       doi:10.1243/JMES_JOUR_1978_020_061_02.
     '''
     G_tp = m/(pi/4*D**2)
     n = 0.25 # Blasius friction factor exponent
@@ -345,6 +365,12 @@ def Chisholm_1973(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
             B = 21./Gamma
     else:
         B = 15000.*G_tp**-0.5/Gamma**2
+    
+    if rough_correction:
+        n = log(fd_lo/fd_go)/log(Re_go/Re_lo)
+        B_ratio = (0.5*(1 + (mug/mul)**2 + 10**(-600*roughness/D)))**((0.25-n)/0.25)
+        B = B*B_ratio
+    
     phi2_ch = 1 + (Gamma**2-1)*(B*x**((2-n)/2.)*(1-x)**((2-n)/2.) + x**(2-n))
     return phi2_ch*dP_lo
 

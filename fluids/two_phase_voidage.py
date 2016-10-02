@@ -26,7 +26,7 @@ from scipy.constants import g
 from fluids.core import Froude
 
 
-__all__ = ['Thom', 'Zivi', 'Smith', 'Fauske', 'Chisholm', 'Turner_Wallis',
+__all__ = ['Thom', 'Zivi', 'Smith', 'Fauske', 'Chisholm_voidage', 'Turner_Wallis',
            'homogeneous', 'Chisholm_Armand', 'Armand', 'Nishino_Yamazaki',
            'Guzhov', 'Kawahara', 'Baroczy', 'Tandon_Varma_Gupta', 'Harms',
            'Domanski_Didion', 'Graham', 'Yashar', 'Huq_Loth', 
@@ -262,7 +262,7 @@ def Fauske(x, rhol, rhog):
     return (1 + (1-x)/x*(rhog/rhol)**0.5)**-1
 
 
-def Chisholm(x, rhol, rhog):
+def Chisholm_voidage(x, rhol, rhog):
     r'''Calculates void fraction in two-phase flow according to the model of 
     [1]_, as given in [2]_ and [3]_.
 
@@ -292,7 +292,7 @@ def Chisholm(x, rhol, rhog):
 
     Examples
     --------
-    >>> Chisholm(.4, 800, 2.5)
+    >>> Chisholm_voidage(.4, 800, 2.5)
     0.949525900374774
 
     References
