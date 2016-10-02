@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['Friedel', 'Chisholm_1973', 'Gronnerud']
+__all__ = ['Friedel', 'Chisholm_1973', 'Muller_Steinhagen_Heck', 'Gronnerud']
 
 from math import pi, log
 from fluids.friction import friction_factor
@@ -67,7 +67,7 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
         Surface tension, [N/m]
     D : float
         Diameter of pipe, [m]
-    roughness: float, optional
+    roughness : float, optional
         Roughness of pipe for use in calculating friction factor, [m]
     L : float, optional
         Length of pipe, [m]
@@ -177,7 +177,7 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
         Viscosity of gas, [Pa*s]
     D : float
         Diameter of pipe, [m]
-    roughness: float, optional
+    roughness : float, optional
         Roughness of pipe for use in calculating friction factor, [m]
     L : float, optional
         Length of pipe, [m]
@@ -281,7 +281,7 @@ def Chisholm_1973(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
         Viscosity of gas, [Pa*s]
     D : float
         Diameter of pipe, [m]
-    roughness: float, optional
+    roughness : float, optional
         Roughness of pipe for use in calculating friction factor, [m]
     L : float, optional
         Length of pipe, [m]
@@ -345,4 +345,78 @@ def Chisholm_1973(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     phi2_ch = 1 + (Gamma**2-1)*(B*x**((2-n)/2.)*(1-x)**((2-n)/2.) + x**(2-n))
     return phi2_ch*dP_lo
 
-            
+
+def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+    r'''Calculates two-phase pressure drop with the Muller-Steinhagen and Heck
+    (1986) correlation from [1]_, also in [2]_ and [3]_.
+    
+    .. math::
+        \Delta P_{tp} = G_{MSH}(1-x)^{1/3} + \Delta P_{go}x^3
+        
+        G_{MSH} = \Delta P_{lo} + 2\left[\Delta P_{go} - \Delta P_{lo}\right]x
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    D : float
+        Diameter of pipe, [m]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+    Applicable for  0 < x < 1. Developed to be easily integrated. The 
+    contribution of each term to the overall pressure drop can be
+    understood in this model.
+        
+    Examples
+    --------
+    >>> Muller_Steinhagen_Heck(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, 
+    ... mug=14E-6, D=0.05, roughness=0, L=1)
+    793.4465457435081
+
+    References
+    ----------
+    .. [1] Müller-Steinhagen, H, and K Heck. "A Simple Friction Pressure Drop 
+       Correlation for Two-Phase Flow in Pipes." Chemical Engineering and 
+       Processing: Process Intensification 20, no. 6 (November 1, 1986): 
+       297-308. doi:10.1016/0255-2701(86)80008-3.
+    .. [2] Mekisso, Henock Mateos. "Comparison of Frictional Pressure Drop 
+       Correlations for Isothermal Two-Phase Horizontal Flow." Thesis, Oklahoma
+       State University, 2013. https://shareok.org/handle/11244/11109.
+    .. [3] Thome, John R. "Engineering Data Book III." Wolverine Tube Inc
+       (2004). http://www.wlv.com/heat-transfer-databook/
+    '''
+    # Liquid-only properties, for calculation of dP_lo
+    v_lo = m/rhol/(pi/4*D**2)
+    Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
+    fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+
+    # Gas-only properties, for calculation of dP_go
+    v_go = m/rhog/(pi/4*D**2)
+    Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
+    fd_go = friction_factor(Re=Re_go, eD=roughness/D)
+    dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
+    
+    G_MSH = dP_lo + 2*(dP_go - dP_lo)*x
+    return G_MSH*(1-x)**(1/3.) + dP_go*x**3
+
