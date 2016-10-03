@@ -1712,11 +1712,16 @@ def Suratman(L, rho, mu, sigma):
 
     Notes
     -----
-    Also known as Suratman number. Used in two-phase flow, especially the bubbly-slug regime.
+    Also known as Laplace number. Used in two-phase flow, especially the 
+    bubbly-slug regime. No confusion regarding the definition of this group 
+    has been observed.
 
     .. math::
-        \text{Su} = \frac{\text{Re}^2}{\text{We}} =\frac{\text{Inertia}\cdot\text{Surface tension} }{\text{(viscous forces)}^2}
+        \text{Su} = \frac{\text{Re}^2}{\text{We}} =\frac{\text{Inertia}\cdot
+        text{Surface tension} }{\text{(viscous forces)}^2}
 
+    The oldest reference to this group found by the author is in 1963, from 
+    [2]_.
 
     Examples
     --------
@@ -1725,8 +1730,12 @@ def Suratman(L, rho, mu, sigma):
 
     References
     ----------
-    .. [1] Sen, Nilava. "Suratman Number in Bubble-to-Slug Flow Pattern Transition under Microgravity." Acta Astronautica 65, no. 3–4 (August 2009): 423-28. doi:10.1016/j.actaastro.2009.02.013.
-
+    .. [1] Sen, Nilava. "Suratman Number in Bubble-to-Slug Flow Pattern 
+       Transition under Microgravity." Acta Astronautica 65, no. 3-4 (August 
+       2009): 423-28. doi:10.1016/j.actaastro.2009.02.013.
+    .. [2] Catchpole, John P., and George. Fulford. "DIMENSIONLESS GROUPS." 
+       Industrial & Engineering Chemistry 58, no. 3 (March 1, 1966): 46-60. 
+       doi:10.1021/ie50675a012.
     '''
     return rho*sigma*L/(mu*mu)
 
