@@ -29,7 +29,7 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond',
 'Froude', 'Strouhal', 'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
 'Jakob', 'Power_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
-'Confinement', 'Archimedes', 'Ohnesorge', 'thermal_diffusivity', 'c_ideal_gas',
+'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
 'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'dP_from_K', 'head_from_K', 'head_from_P',
 'P_from_head', 'Eotvos']
@@ -1686,7 +1686,51 @@ def Ohnesorge(L, rho, mu, sigma):
     Oh = mu/(L*rho*sigma)**0.5
     return Oh
 
+    
+def Suratman(L, rho, mu, sigma):
+    r'''Calculates Suratman number, `Su`, for a fluid with the given
+    characteristic length, density, viscosity, and surface tension.
 
+    .. math::
+        \text{Su} = \frac{\rho\sigma L}{\mu^2}
+
+    Parameters
+    ----------
+    L : float
+        Characteristic length [m]
+    rho : float
+        Density of fluid, [kg/m^3]
+    mu : float
+        Viscosity of fluid, [Pa*s]
+    sigma : float
+        Surface tension, [N/m]
+
+    Returns
+    -------
+    Su : float
+        Suratman number []
+
+    Notes
+    -----
+    Also known as Suratman number. Used in two-phase flow, especially the bubbly-slug regime.
+
+    .. math::
+        \text{Su} = \frac{\text{Re}^2}{\text{We}} =\frac{\text{Inertia}\cdot\text{Surface tension} }{\text{(viscous forces)}^2}
+
+
+    Examples
+    --------
+    >>> Suratman(1E-4, 1000., 1E-3, 1E-1)
+    10000.0
+
+    References
+    ----------
+    .. [1] Sen, Nilava. "Suratman Number in Bubble-to-Slug Flow Pattern Transition under Microgravity." Acta Astronautica 65, no. 3–4 (August 2009): 423-28. doi:10.1016/j.actaastro.2009.02.013.
+
+    '''
+    return rho*sigma*L/(mu*mu)
+
+    
 def Bejan_L(dP, L, mu, alpha):
     r'''Calculates Bejan number of a length or `Be_L` for a fluid with the
     given parameters flowing over a characteristic length `L` and experiencing

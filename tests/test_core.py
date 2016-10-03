@@ -149,6 +149,10 @@ def test_core_dimensionless():
 
     Oh1 = Ohnesorge(1E-4, 1000., 1E-3, 1E-1)
     assert_allclose(Oh1, 0.01)
+    
+    Su = Suratman(1E-4, 1000., 1E-3, 1E-1)
+    assert_allclose(Su, 10000.0)
+    
 
     BeL1 = Bejan_L(1E4, 1, 1E-3, 1E-6)
     assert_allclose(BeL1, 10000000000000)

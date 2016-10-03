@@ -121,7 +121,13 @@ def test_Chen_Friedel():
     dP = Chen_Friedel(m=.05, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.03, roughness=0, L=1)
     assert_allclose(dP, 690.8541527904271)
 
+    
 def test_Zhang_Webb():
     dP = Zhang_Webb(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 712.0999804205619)
+
+    
+def test_Bankoff():
+    dP = Bankoff(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 4746.059442453398)
     

@@ -23,7 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 __all__ = ['Friedel', 'Chisholm', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
-           'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb']
+           'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Bankoff']
 
 from math import pi, log, exp
 from fluids.friction import friction_factor
@@ -1079,3 +1079,82 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0, L=1):
     Pr = P/Pc
     phi_lo2 = (1-x)**2 + 2.87*x**2/Pr + 1.68*x**0.8*(1-x)**0.25*Pr**-1.64
     return dP_lo*phi_lo2
+
+    
+def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+    r'''Calculates two-phase pressure drop with the Bankoff (1960) correlation,
+    as shown in [2]_, [3]_, and [4]_. 
+    
+    .. math::
+        \Delta P_{tp} = \phi_{l}^{7/4} \Delta P_{l}
+        
+        \phi_l = \frac{1}{1-x}\left[1 - \gamma\left(1 - \frac{\rho_g}{\rho_l}
+        \right)\right]^{3/7}\left[1 + x\left(\frac{\rho_l}{\rho_g} - 1\right)
+        \right]
+        
+        \gamma = \frac{0.71 + 2.35\left(\frac{\rho_g}{\rho_l}\right)}
+        {1 + \frac{1-x}{x} \cdot \frac{\rho_g}{\rho_l}}
+        
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    D : float
+        Diameter of pipe, [m]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+    This correlation is not actually shown in [1]_. Its origin is unknown. 
+    The author recommends against using this.
+    
+    Examples
+    --------
+    >>> Bankoff(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, 
+    ... D=0.05, roughness=0, L=1)
+    4746.059442453398
+    
+    References
+    ----------
+    .. [1] Bankoff, S. G. "A Variable Density Single-Fluid Model for Two-Phase 
+       Flow With Particular Reference to Steam-Water Flow." Journal of Heat 
+       Transfer 82, no. 4 (November 1, 1960): 265-72. doi:10.1115/1.3679930. 
+    .. [2] Thome, John R. "Engineering Data Book III." Wolverine Tube Inc
+       (2004). http://www.wlv.com/heat-transfer-databook/
+    .. [3] Moreno Quibén, Jesús. "Experimental and Analytical Study of Two-
+       Phase Pressure Drops during Evaporation in Horizontal Tubes," 2005. 
+       doi:10.5075/epfl-thesis-3337.
+    .. [4] Mekisso, Henock Mateos. "Comparison of Frictional Pressure Drop 
+       Correlations for Isothermal Two-Phase Horizontal Flow." Thesis, Oklahoma
+       State University, 2013. https://shareok.org/handle/11244/11109.
+    '''
+    # Liquid-only properties, for calculation of dP_lo
+    v_lo = m/rhol/(pi/4*D**2)
+    Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
+    fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+
+    gamma = (0.71 + 2.35*rhog/rhol)/(1. + (1.-x)/x*rhog/rhol)
+    phi_Bf = 1./(1.-x)*(1 - gamma*(1 - rhog/rhol))**(3/7.)*(1. + x*(rhol/rhog -1.))
+    return dP_lo*phi_Bf**(7/4.)
+    
+    
+#Bankoff(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
