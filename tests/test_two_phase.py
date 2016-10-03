@@ -91,6 +91,7 @@ def test_Lombardi_Pedrocchi():
     dP = Lombardi_Pedrocchi(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1)
     assert_allclose(dP, 1567.328374498781)
 
+
 def test_Theissing():
     dP = Theissing(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 497.6156370699528)
@@ -101,3 +102,26 @@ def test_Theissing():
     
     dP = Theissing(m=0.6, x=0, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 19.00276790390895)
+
+    
+def test_Jung_Radermacher():
+    dP = Jung_Radermacher(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 552.068612372557)
+
+    
+def test_Tran():
+    dP = Tran(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 423.2563312951231)
+
+    
+def test_Chen_Friedel():
+    dP = Chen_Friedel(m=.0005, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.003, roughness=0, L=1)
+    assert_allclose(dP, 6249.247540588871)
+    
+    dP = Chen_Friedel(m=.05, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.03, roughness=0, L=1)
+    assert_allclose(dP, 690.8541527904271)
+
+def test_Zhang_Webb():
+    dP = Zhang_Webb(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 712.0999804205619)
+    

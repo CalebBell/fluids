@@ -30,7 +30,7 @@ __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'is_critical_flow', 'stagnation_energy', 'P_stagnation', 
            'T_stagnation', 'T_stagnation_ideal']
 
-from scipy.optimize import newton 
+from scipy.optimize import newton, fsolve
 from scipy.constants import R
 from math import log, pi
 
@@ -705,7 +705,7 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
 #                                              )/D/m**2), 0).real*D*m**2-16*L*f*m**2)/D/m**2))
         def to_solve(P2):
             return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
-        return newton(to_solve, P1*.8)
+        return newton(to_solve, P1*.999)
     elif D is None and (None not in [P2, P1, L, m]):
         def to_solve(D):
             return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)

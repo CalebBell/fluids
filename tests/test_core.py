@@ -162,6 +162,9 @@ def test_core_dimensionless():
     e_D1 = relative_roughness(0.0254)
     e_D2 = relative_roughness(0.5, 1E-4)
     assert_allclose([e_D1, e_D2], [5.9842519685039374e-05, 0.0002])
+    
+    Co = Confinement(0.001, 1077, 76.5, 4.27E-3)
+    assert_allclose(Co, 0.6596978265315191)
 
 
 def test_core_misc2():

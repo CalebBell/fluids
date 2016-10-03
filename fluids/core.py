@@ -29,7 +29,7 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond',
 'Froude', 'Strouhal', 'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
 'Jakob', 'Power_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
-'Archimedes', 'Ohnesorge', 'thermal_diffusivity', 'c_ideal_gas',
+'Confinement', 'Archimedes', 'Ohnesorge', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
 'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'dP_from_K', 'head_from_K', 'head_from_P',
 'P_from_head', 'Eotvos']
@@ -669,6 +669,63 @@ def Mach(V, c):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
     return V/c
+
+
+def Confinement(D, rhol, rhog, sigma, g=g):
+    r'''Calculates Confinement number or `Co` for a fluid in a channel of 
+    diameter `D` with liquid and gas densities `rhol` and `rhog` and surface
+    tension `sigma`, under the influence of gravitational force `g`.
+
+    .. math::
+        \text{Co}=\frac{\left[\frac{\sigma}{g(\rho_l-\rho_g)}\right]^{0.5}}{D}
+
+    Parameters
+    ----------
+    D : float
+        Diameter of channel, [m]
+    rhol : float
+        Density of liquid phase, [kg/m^3]
+    rhog : float
+        Density of gas phase, [kg/m^3]
+    sigma : float
+        Surface tension between liquid-gas phase, [N/m]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
+
+    Returns
+    -------
+    Co : float
+        Confinement number [-]
+
+    Notes
+    -----
+    Used in two-phase pressure drop and heat transfer correlations. First used
+    in [1]_ according to [3]_.
+
+    .. math::
+        \text{Co} = \frac{\frac{\text{surface tension force}}
+        {\text{buoyancy force}}}{\text{Channel area}}
+
+    Examples
+    --------
+    >>> Confinement(0.001, 1077, 76.5, 4.27E-3)
+    0.6596978265315191
+
+    References
+    ----------
+    .. [1] Cornwell, Keith, and Peter A. Kew. "Boiling in Small Parallel 
+       Channels." In Energy Efficiency in Process Technology, edited by Dr P. 
+       A. Pilavachi, 624-638. Springer Netherlands, 1993. 
+       doi:10.1007/978-94-011-1454-7_56.
+    .. [2] Kandlikar, Satish G. Heat Transfer and Fluid Flow in Minichannels 
+       and Microchannels. Elsevier, 2006.
+    .. [3] Tran, T. N, M. -C Chyu, M. W Wambsganss, and D. M France. Two-Phase 
+       Pressure Drop of Refrigerants during Flow Boiling in Small Channels: An 
+       Experimental Investigation and Correlation Development." International 
+       Journal of Multiphase Flow 26, no. 11 (November 1, 2000): 1739-54. 
+       doi:10.1016/S0301-9322(99)00119-6.
+    '''
+    return (sigma/(g*(rhol-rhog)))**0.5/D
 
 
 def Knudsen(path, L):
