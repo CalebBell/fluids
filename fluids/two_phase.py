@@ -23,7 +23,8 @@ SOFTWARE.'''
 from __future__ import division
 __all__ = ['Friedel', 'Chisholm', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
-           'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Bankoff']
+           'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
+           'Yu_France', 'Wang_Chiang_Lu', 'Bankoff']
 
 from math import pi, log, exp
 from fluids.friction import friction_factor
@@ -1157,4 +1158,266 @@ def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return dP_lo*phi_Bf**(7/4.)
     
     
-#Bankoff(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
+    r'''Calculates two-phase pressure drop with the Xu and Fang (2013) 
+    correlation. Developed after a comprehensive review of available
+    correlations, likely meaning it is quite accurate.
+    
+    .. math::
+        \Delta P = \Delta P_{lo} \phi_{lo}^2
+        
+        \phi_{lo}^2 = Y^2x^3 + (1-x^{2.59})^{0.632}[1 + 2x^{1.17}(Y^2-1) 
+        + 0.00775x^{-0.475} Fr_{tp}^{0.535} We_{tp}^{0.188}]
+        
+        Y^2 = \frac{\Delta P_{go}}{\Delta P_{lo}}
+        
+        Fr_{tp} = \frac{G_{tp}^2}{gD\rho_{tp}^2}
+        
+        We_{tp} = \frac{G_{tp}^2 D}{\sigma \rho_{tp}}
+        
+        \frac{1}{\rho_{tp}} = \frac{1-x}{\rho_l} + \frac{x}{\rho_g}
+        
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    sigma : float
+        Surface tension, [N/m]
+    D : float
+        Diameter of pipe, [m]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+
+
+    Examples
+    --------        
+    >>> Xu_Fang(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, 
+    ... sigma=0.0487, D=0.05, roughness=0, L=1)
+    604.0595632116267
+
+    References
+    ----------
+    .. [1] Xu, Yu, and Xiande Fang. "A New Correlation of Two-Phase Frictional 
+       Pressure Drop for Condensing Flow in Pipes." Nuclear Engineering and 
+       Design 263 (October 2013): 87-96. doi:10.1016/j.nucengdes.2013.04.017. 
+    '''
+    A = pi/4*D*D
+    # Liquid-only properties, for calculation of E, dP_lo
+    v_lo = m/rhol/A
+    Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
+    fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+
+    # Gas-only properties, for calculation of E
+    v_go = m/rhog/A
+    Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
+    fd_go = friction_factor(Re=Re_go, eD=roughness/D)
+    dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
+
+    # Homogeneous properties, for Froude/Weber numbers
+    voidage_h = homogeneous(x, rhol, rhog)
+    rho_h = rhol*(1-voidage_h) + rhog*voidage_h
+    
+    Q_h = m/rho_h
+    v_h = Q_h/A
+    
+    Fr = Froude(V=v_h, L=D, squared=True)
+    We = Weber(V=v_h, L=D, rho=rho_h, sigma=sigma) 
+    Y2 = dP_go/dP_lo
+    
+    phi_lo2 = Y2*x**3 + (1-x**2.59)**0.632*(1 + 2*x**1.17*(Y2-1)
+            + 0.00775*x**-0.475*Fr**0.535*We**0.188)
+    
+    return phi_lo2*dP_lo
+
+    
+def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+    r'''Calculates two-phase pressure drop with the Yu, France, Wambsganss,
+    and Hull (2002) correlation given in [1]_ and reviewed in [2]_ and [3]_.
+
+    .. math::
+        \Delta P = \Delta P_{l} \phi_{l}^2
+        
+        \phi_l^2 = X^{-1.9}
+        
+        X = 18.65\left(\frac{\rho_g}{\rho_l}\right)^{0.5}\left(\frac{1-x}{x}
+        \right)\frac{Re_{g}^{0.1}}{Re_l^{0.5}}
+        
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    D : float
+        Diameter of pipe, [m]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> Yu_France(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
+    ... D=0.05, roughness=0, L=1)
+    1146.983322553957
+    
+    References
+    ----------
+    .. [1] Yu, W., D. M. France, M. W. Wambsganss, and J. R. Hull. "Two-Phase 
+       Pressure Drop, Boiling Heat Transfer, and Critical Heat Flux to Water in
+       a Small-Diameter Horizontal Tube." International Journal of Multiphase 
+       Flow 28, no. 6 (June 2002): 927-41. doi:10.1016/S0301-9322(02)00019-8. 
+    .. [2] Kim, Sung-Min, and Issam Mudawar. "Universal Approach to Predicting 
+       Two-Phase Frictional Pressure Drop for Adiabatic and Condensing Mini/
+       Micro-Channel Flows." International Journal of Heat and Mass Transfer 
+       55, no. 11-12 (May 2012): 3246-61. 
+       doi:10.1016/j.ijheatmasstransfer.2012.02.047.
+    .. [3] Xu, Yu, Xiande Fang, Xianghui Su, Zhanru Zhou, and Weiwei Chen. 
+       "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow 
+       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
+       2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
+    '''
+    # Actual Liquid flow
+    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
+    fd_l = friction_factor(Re=Re_l, eD=roughness/D)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+
+    # Actual gas flow
+    v_g = m*x/rhog/(pi/4*D**2)
+    Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
+    
+    X = 18.65*(rhog/rhol)**0.5*(1-x)/x*Re_g**0.1/Re_l**0.5
+    phi_l2 = X**-1.9
+    return phi_l2*dP_l
+
+    
+def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+    r'''Calculates two-phase pressure drop with the Wang, Chiang, and Lu (1997)
+    correlation given in [1]_ and reviewed in [2]_ and [3]_.
+
+    .. math::
+        \Delta P = \Delta P_{g} \phi_g^2
+        
+        \phi_g^2 = 1 + 9.397X^{0.62} + 0.564X^{2.45} \text{ for } G >= 200 kg/m^2/s
+        
+        \phi_g^2 = 1 + CX + X^2 \text{ for lower mass fluxes}
+        
+        C = 0.000004566X^{0.128}Re_{lo}^{0.938}\left(\frac{\rho_l}{\rho_g}
+        \right)^{-2.15}\left(\frac{\mu_l}{\mu_g}\right)^{5.1}
+        
+        X^2 = \frac{\Delta P_l}{\Delta P_g}
+        
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    D : float
+        Diameter of pipe, [m]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> Wang_Chiang_Lu(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, 
+    ... mug=14E-6, D=0.05, roughness=0, L=1)
+    448.29981978639154
+    
+    References
+    ----------
+    .. [1] Wang, Chi-Chuan, Ching-Shan Chiang, and Ding-Chong Lu. "Visual 
+       Observation of Two-Phase Flow Pattern of R-22, R-134a, and R-407C in a 
+       6.5-Mm Smooth Tube." Experimental Thermal and Fluid Science 15, no. 4 
+       (November 1, 1997): 395-405. doi:10.1016/S0894-1777(97)00007-1. 
+    .. [2] Kim, Sung-Min, and Issam Mudawar. "Universal Approach to Predicting 
+       Two-Phase Frictional Pressure Drop for Adiabatic and Condensing Mini/
+       Micro-Channel Flows." International Journal of Heat and Mass Transfer 
+       55, no. 11-12 (May 2012): 3246-61. 
+       doi:10.1016/j.ijheatmasstransfer.2012.02.047.
+    .. [3] Xu, Yu, Xiande Fang, Xianghui Su, Zhanru Zhou, and Weiwei Chen. 
+       "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow 
+       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
+       2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
+    '''
+    G_tp = m/(pi/4*D**2)
+
+    # Actual Liquid flow
+    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
+    fd_l = friction_factor(Re=Re_l, eD=roughness/D)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+
+    # Actual gas flow
+    v_g = m*x/rhog/(pi/4*D**2)
+    Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
+    fd_g = friction_factor(Re=Re_g, eD=roughness/D)
+    dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+    
+    X = (dP_l/dP_g)**0.5
+    
+    if G_tp >= 200:
+        phi_g2 = 1 + 9.397*X**0.62 + 0.564*X**2.45
+    else:
+        # Liquid-only flow; Re_lo is oddly needed
+        v_lo = m/rhol/(pi/4*D**2)
+        Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
+        C = 0.000004566*X**0.128*Re_lo**0.938*(rhol/rhog)**-2.15*(mul/mug)**5.1
+        phi_g2 = 1 + C*X + X**2
+    return dP_g*phi_g2

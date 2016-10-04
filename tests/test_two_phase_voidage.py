@@ -37,7 +37,6 @@ def test_Smith():
     # the form of the expression
     def Smith2(x, rhol, rhog):
         K = 0.4
-        x_ratio = (1-x)/x
         first = 1 + rhog/rhol*K*(1/x-1)
         second = rhog/rhol*(1-K)*(1/x-1)
         third = ((rhol/rhog + K*(1/x-1))/(1 + K*(1/x -1)))**0.5
@@ -164,5 +163,5 @@ def test_Woldesemayat_Ghajar():
     assert_allclose(Woldesemayat_Ghajar(0.4, 800., 2.5, sigma=0.2, m=1, D=0.3, P=1E6, angle=45), 0.7640815513429202)
 
 
-def test_Xu_Fang():
-    assert_allclose(Xu_Fang(0.4, 800., 2.5, m=1, D=0.3), 0.9414660089942093)
+def test_Xu_Fang_voidage():
+    assert_allclose(Xu_Fang_voidage(0.4, 800., 2.5, m=1, D=0.3), 0.9414660089942093)

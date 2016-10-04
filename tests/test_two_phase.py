@@ -130,4 +130,20 @@ def test_Zhang_Webb():
 def test_Bankoff():
     dP = Bankoff(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 4746.059442453398)
+
+
+def test_Xu_Fang():
+    dP = Xu_Fang(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 604.0595632116267)
+
+def test_Yu_France():
+    dP = Yu_France(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 1146.983322553957)
     
+
+def test_Wang_Chiang_Lu():
+    dP = Wang_Chiang_Lu(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 448.29981978639154)
+    
+    dP = Wang_Chiang_Lu(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 3.3087255464765417)

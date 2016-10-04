@@ -32,7 +32,7 @@ __all__ = ['Thom', 'Zivi', 'Smith', 'Fauske', 'Chisholm_voidage', 'Turner_Wallis
            'Domanski_Didion', 'Graham', 'Yashar', 'Huq_Loth', 
            'Kopte_Newell_Chato', 'Steiner', 'Rouhani_1', 'Rouhani_2',
            'Nicklin_Wilkes_Davidson', 'Gregory_Scott', 'Dix', 
-           'Sun_Duffey_Peng', 'Xu_Fang', 'Woldesemayat_Ghajar',
+           'Sun_Duffey_Peng', 'Xu_Fang_voidage', 'Woldesemayat_Ghajar',
            'Lockhart_Martinelli_Xtt']
 
 ### Models based on slip ratio
@@ -1730,7 +1730,7 @@ def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
 # Correlations developed in reviews
 
 
-def Xu_Fang(x, rhol, rhog, m, D, g=g):
+def Xu_Fang_voidage(x, rhol, rhog, m, D, g=g):
     r'''Calculates void fraction in two-phase flow according to the model 
     developed in the review of [1]_.
     
@@ -1767,7 +1767,7 @@ def Xu_Fang(x, rhol, rhog, m, D, g=g):
         
     Examples
     --------
-    >>> Xu_Fang(0.4, 800., 2.5, m=1, D=0.3)
+    >>> Xu_Fang_voidage(0.4, 800., 2.5, m=1, D=0.3)
     0.9414660089942093
 
     References
