@@ -169,7 +169,9 @@ def test_core_dimensionless():
     
     Co = Confinement(0.001, 1077, 76.5, 4.27E-3)
     assert_allclose(Co, 0.6596978265315191)
-
+    
+    De = Dean(10000, 0.1, 0.4)
+    assert_allclose(De, 5000.0)
 
 def test_core_misc2():
     mu1 = nu_mu_converter(998., nu=1.0E-6)

@@ -26,7 +26,7 @@ from scipy.constants import g, R
 
 __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
-'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond',
+'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond', 'Dean',
 'Froude', 'Strouhal', 'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
 'Jakob', 'Power_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
 'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'thermal_diffusivity', 'c_ideal_gas',
@@ -1882,6 +1882,52 @@ def Boiling(G, q, Hvap):
        February 1943, pp. 553-591. 
     '''
     return q/(G*Hvap)
+
+    
+def Dean(Re, Di, D):
+    r'''Calculates Dean number, `De`, for a fluid with the Reynolds number `Re`,
+    inner diameter `Di`, and a secondary diameter `D`. `D` may be the 
+    diameter of curvature, the diameter of a spiral, or some other dimension.
+
+    .. math::
+        \text{De} = \sqrt{\frac{D_i}{D}} \text{Re} = \sqrt{\frac{D_i}{D}} 
+        \frac{\rho v D}{\mu}
+        
+    Parameters
+    ----------
+    Re : float
+        Reynolds number []
+    Di : float
+        Inner diameter []
+    D : float
+        Diameter of curvature or outer spiral or other dimension []
+
+    Returns
+    -------
+    De : float
+        Dean number [-]
+
+    Notes
+    -----
+    Used in flow in curved geometry.
+
+    .. math::
+        \text{De} = \frac{\sqrt{\text{centripetal forces}\cdot 
+        \text{inertial forces}}}{\text{viscous forces}}
+
+    Examples
+    --------
+    >>> Dean(10000, 0.1, 0.4)
+    5000.0
+
+    References
+    ----------
+    .. [1] Catchpole, John P., and George. Fulford. "DIMENSIONLESS GROUPS." 
+       Industrial & Engineering Chemistry 58, no. 3 (March 1, 1966): 46-60. 
+       doi:10.1021/ie50675a012.
+    '''
+    return (Di/D)**0.5*Re
+
 
 
 def relative_roughness(D, roughness=1.52e-06):
