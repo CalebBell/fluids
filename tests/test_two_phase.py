@@ -147,3 +147,8 @@ def test_Wang_Chiang_Lu():
     
     dP = Wang_Chiang_Lu(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 3.3087255464765417)
+
+
+def test_Hwang_Kim():
+    dP = Hwang_Kim(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1)
+    assert_allclose(dP, 798.302774184557)
