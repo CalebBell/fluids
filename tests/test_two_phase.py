@@ -163,3 +163,6 @@ def test_Zhang_Hibiki_Mishima():
     
     dP = Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1, flowtype='flow boiling')
     assert_allclose(dP, 770.0975665928916)
+    
+    with pytest.raises(Exception):
+        Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1, flowtype='BADMETHOD')
