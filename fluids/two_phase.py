@@ -1627,3 +1627,88 @@ and 'flow boiling' are recognized.")
 
     phi_l2 = 1 + C/X + 1./X**2
     return dP_l*phi_l2
+
+
+def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness, L):
+    r'''Calculates two-phase pressure drop with the Mishima and Hibiki (1996) 
+    correlation as in [1]_, also presented in [2]_ and [3]_.
+    
+    .. math::
+        \Delta P = \Delta P_{l} \phi_{l}^2
+        
+        C = 21[1 - \exp(-319D)]
+        
+        \phi_l^2 = 1 + \frac{C}{X} + \frac{1}{X^2}
+        
+        X^2 = \frac{\Delta P_l}{\Delta P_g}
+        
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    sigma : float
+        Surface tension, [N/m]
+    D : float
+        Diameter of pipe, [m]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> Mishima_Hibiki(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, 
+    ... mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    732.4268200606265
+    
+    References
+    ----------
+    .. [1] Mishima, K., and T. Hibiki. "Some Characteristics of Air-Water Two-
+       Phase Flow in Small Diameter Vertical Tubes." International Journal of 
+       Multiphase Flow 22, no. 4 (August 1, 1996): 703-12. 
+       doi:10.1016/0301-9322(96)00010-9.
+    .. [2] Kim, Sung-Min, and Issam Mudawar. "Universal Approach to Predicting 
+       Two-Phase Frictional Pressure Drop for Adiabatic and Condensing Mini/
+       Micro-Channel Flows." International Journal of Heat and Mass Transfer 
+       55, no. 11-12 (May 2012): 3246-61. 
+       doi:10.1016/j.ijheatmasstransfer.2012.02.047.
+    .. [3] Xu, Yu, Xiande Fang, Xianghui Su, Zhanru Zhou, and Weiwei Chen. 
+       "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow 
+       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
+       2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
+    '''    
+    # Actual Liquid flow
+    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
+    fd_l = friction_factor(Re=Re_l, eD=roughness/D)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+
+    # Actual gas flow
+    v_g = m*x/rhog/(pi/4*D**2)
+    Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
+    fd_g = friction_factor(Re=Re_g, eD=roughness/D)
+    dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+    
+    # Actual model
+    X = (dP_l/dP_g)**0.5
+    C = 21*(1 - exp(-0.319E3*D))
+    phi_l2 = 1 + C/X + 1./X**2
+    return dP_l*phi_l2
