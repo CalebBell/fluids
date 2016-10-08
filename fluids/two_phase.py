@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['Friedel', 'Chisholm', 'Baroczy_Chisholm', 'Theissing',
+__all__ = ['Friedel', 'Chisholm', 'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
            'Yu_France', 'Wang_Chiang_Lu', 'Hwang_Kim', 'Zhang_Hibiki_Mishima',
@@ -29,7 +29,7 @@ __all__ = ['Friedel', 'Chisholm', 'Baroczy_Chisholm', 'Theissing',
 
 from math import pi, log, exp
 from fluids.friction import friction_factor
-from fluids.core import Reynolds, Froude, Weber, Confinement, Bond
+from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
 from fluids.two_phase_voidage import homogeneous, Lockhart_Martinelli_Xtt
 
 
@@ -1710,5 +1710,155 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness, L):
     # Actual model
     X = (dP_l/dP_g)**0.5
     C = 21*(1 - exp(-0.319E3*D))
+    phi_l2 = 1 + C/X + 1./X**2
+    return dP_l*phi_l2
+
+
+def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L):
+    r'''Calculates two-phase pressure drop with the Kim and Mudawar (2012) 
+    correlation as in [1]_, also presented in [2]_ and [3]_.
+    
+    .. math::
+        \Delta P = \Delta P_{l} \phi_{l}^2
+                
+        \phi_l^2 = 1 + \frac{C}{X} + \frac{1}{X^2}
+        
+        X^2 = \frac{\Delta P_l}{\Delta P_g}
+        
+    For turbulent liquid, turbulent gas:
+        
+    .. math::
+        C = 0.39Re_{lo}^{0.03} Su_{go}^{0.10}\left(\frac{\rho_l}{\rho_g}
+        \right)^{0.35}
+
+    For turbulent liquid, laminar gas:
+    
+    .. math::
+        C = 8.7\times 10^{-4} Re_{lo}^{0.17} Su_{go}^{0.50}\left(\frac{\rho_l}
+        {\rho_g}\right)^{0.14}
+
+    For laminar liquid, turbulent gas:
+        
+    .. math::
+        C = 0.0015 Re_{lo}^{0.59} Su_{go}^{0.19}\left(\frac{\rho_l}{\rho_g}
+        \right)^{0.36}
+
+    For laminar liquid, laminar gas:
+    
+    .. math::
+        C = 3.5\times 10^{-5} Re_{lo}^{0.44} Su_{go}^{0.50}\left(\frac{\rho_l}
+        {\rho_g}\right)^{0.48}
+        
+    This model has its own friction factor calculations, to be consistent with
+    its Reynolds number transition. As their model was regressed with these 
+    equations, more error is obtained when using any other friction factor 
+    calculation. The laminar equation 64/Re is used up to Re=2000, then the
+    Blasius equation with a coefficient of 0.316, and above Re = 20000,
+    
+    .. math::
+        f_d = \frac{0.184}{Re}
+    
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    sigma : float
+        Surface tension, [N/m]
+    D : float
+        Diameter of pipe, [m]
+    L : float, optional
+        Length of pipe, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+    The critical Reynolds number in this model is 2000, with a Reynolds number
+    definition using actual liquid and gas flows. This model also requires
+    liquid-only Reynolds number to be calculated.
+    
+    No attempt to incorporate roughness into the model was made in [1]_.
+    
+    The model was developed with hydraulic diameter from 0.0695 to 6.22 mm,
+    mass velocities 4 to 8528 kg/m^2/s, flow qualities from 0 to 1, reduced 
+    pressures from 0.0052 to 0.91, superficial liquid Reynolds numbers up to
+    79202, superficial gas Reynolds numbers up to 253810, liquid-only Reynolds
+    numbers up to 89798, 7115 data points from 36 sources and working fluids
+    air, CO2, N2, water, ethanol, R12, R22, R134a, R236ea, R245fa, R404A, R407C,
+    propane, methane, and ammonia.
+    
+    Examples
+    --------
+    >>> Kim_Mudawar(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, 
+    ... sigma=0.0487, D=0.05, L=1)
+    840.4137796786074
+    
+    References
+    ----------
+    .. [1] Kim, Sung-Min, and Issam Mudawar. "Universal Approach to Predicting 
+       Two-Phase Frictional Pressure Drop for Adiabatic and Condensing Mini/
+       Micro-Channel Flows." International Journal of Heat and Mass Transfer 
+       55, no. 11-12 (May 2012): 3246-61. 
+       doi:10.1016/j.ijheatmasstransfer.2012.02.047.
+    .. [2] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and 
+       Predictive Methods for Pressure Drop in Adiabatic, Condensing and 
+       Boiling Mini/Micro-Channel Flows." International Journal of Heat and 
+       Mass Transfer 77 (October 2014): 74-97. 
+       doi:10.1016/j.ijheatmasstransfer.2014.04.035.
+    .. [3] Xu, Yu, Xiande Fang, Xianghui Su, Zhanru Zhou, and Weiwei Chen. 
+       "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow 
+       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
+       2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
+    '''    
+    def friction_factor(Re):
+        if Re < 2000:
+            return 64./Re
+        elif Re < 20000:
+            return 0.316*Re**-0.25
+        else:
+            return 0.184*Re**-0.2
+    
+    # Actual Liquid flow
+    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
+    fd_l = friction_factor(Re=Re_l)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    
+    # Actual gas flow
+    v_g = m*x/rhog/(pi/4*D**2)
+    Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
+    fd_g = friction_factor(Re=Re_g)
+    dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+
+    # Liquid-only flow
+    v_lo = m/rhol/(pi/4*D**2)
+    Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
+
+    Su = Suratman(L=D, rho=rhog, mu=mug, sigma=sigma)
+    X = (dP_l/dP_g)**0.5
+    Re_c = 2000 # Transition Reynolds number
+    
+    if Re_l < Re_c and Re_g < Re_c:
+        C = 3.5E-5*Re_lo**0.44*Su**0.5*(rhol/rhog)**0.48
+    elif Re_l < Re_c and Re_g >= Re_c:
+        C = 0.0015*Re_lo**0.59*Su**0.19*(rhol/rhog)**0.36
+    elif Re_l >= Re_c and Re_g < Re_c:
+        C = 8.7E-4*Re_lo**0.17*Su**0.5*(rhol/rhog)**0.14
+    else: # Turbulent case
+        C = 0.39*Re_lo**0.03*Su**0.10*(rhol/rhog)**0.35
+    
     phi_l2 = 1 + C/X + 1./X**2
     return dP_l*phi_l2

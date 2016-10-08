@@ -166,3 +166,28 @@ def test_Zhang_Hibiki_Mishima():
     
     with pytest.raises(Exception):
         Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1, flowtype='BADMETHOD')
+    
+        
+def test_Kim_Mudawar():
+    # turbulent-turbulent
+    dP = Kim_Mudawar(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+    assert_allclose(dP, 840.4137796786074)
+    
+    # Re_l >= Re_c and Re_g < Re_c
+    dP = Kim_Mudawar(m=0.6, x=0.001, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+    assert_allclose(dP, 68.61594310455612)
+    
+    # Re_l < Re_c and Re_g >= Re_c:
+    dP = Kim_Mudawar(m=0.6, x=0.99, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+    assert_allclose(dP, 5381.335846128011)
+    
+    # laminar-laminar
+    dP = Kim_Mudawar(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.5, L=1)
+    assert_allclose(dP, 0.005121833671658875)
+    
+    # Test friction Re < 20000
+    dP = Kim_Mudawar(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+
+    assert_allclose(dP, 33.74875494223592)
+    
+    
