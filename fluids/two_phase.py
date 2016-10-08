@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['Friedel', 'Chisholm', 'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
+__all__ = ['Lockhart_Martinelli', 'Friedel', 'Chisholm', 'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
            'Yu_France', 'Wang_Chiang_Lu', 'Hwang_Kim', 'Zhang_Hibiki_Mishima',
@@ -1424,7 +1424,7 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return dP_g*phi_g2
 
 
-def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness, L):
+def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     r'''Calculates two-phase pressure drop with the Hwang and Kim (2006) 
     correlation as in [1]_, also presented in [2]_ and [3]_.
     
@@ -1516,8 +1516,8 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness, L):
     return dP_l*phi_l2
 
     
-def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness, L, 
-                         flowtype='adiabatic vapor'):
+def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, 
+                         L=1, flowtype='adiabatic vapor'):
     r'''Calculates two-phase pressure drop with the Zhang, Hibiki, Mishima and 
     (2010) correlation as in [1]_, also presented in [2]_ and [3]_.
     
@@ -1629,7 +1629,7 @@ and 'flow boiling' are recognized.")
     return dP_l*phi_l2
 
 
-def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness, L):
+def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     r'''Calculates two-phase pressure drop with the Mishima and Hibiki (1996) 
     correlation as in [1]_, also presented in [2]_ and [3]_.
     
@@ -1714,9 +1714,9 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness, L):
     return dP_l*phi_l2
 
 
-def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L):
+def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1):
     r'''Calculates two-phase pressure drop with the Kim and Mudawar (2012) 
-    correlation as in [1]_, also presented in [2]_ and [3]_.
+    correlation as in [1]_, also presented in [2]_.
     
     .. math::
         \Delta P = \Delta P_{l} \phi_{l}^2
@@ -1756,7 +1756,7 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L):
     Blasius equation with a coefficient of 0.316, and above Re = 20000,
     
     .. math::
-        f_d = \frac{0.184}{Re}
+        f_d = \frac{0.184}{Re^{0.2}}
     
     Parameters
     ----------
@@ -1818,10 +1818,6 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L):
        Boiling Mini/Micro-Channel Flows." International Journal of Heat and 
        Mass Transfer 77 (October 2014): 74-97. 
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
-    .. [3] Xu, Yu, Xiande Fang, Xianghui Su, Zhanru Zhou, and Weiwei Chen. 
-       "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow 
-       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
-       2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
     '''    
     def friction_factor(Re):
         if Re < 2000:
@@ -1859,6 +1855,139 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L):
         C = 8.7E-4*Re_lo**0.17*Su**0.5*(rhol/rhog)**0.14
     else: # Turbulent case
         C = 0.39*Re_lo**0.03*Su**0.10*(rhol/rhog)**0.35
+    
+    phi_l2 = 1 + C/X + 1./X**2
+    return dP_l*phi_l2
+
+    
+def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
+    r'''Calculates two-phase pressure drop with the Lockhart and Martinelli 
+    (1949) correlation as presented in non-graphical form by Chisholm (1967).
+    
+    .. math::
+        \Delta P = \Delta P_{l} \phi_{l}^2
+                
+        \phi_l^2 = 1 + \frac{C}{X} + \frac{1}{X^2}
+        
+        X^2 = \frac{\Delta P_l}{\Delta P_g}
+        
+    +---------+---------+--+
+    |Liquid   |Gas      |C |
+    +=========+=========+==+
+    |Turbulent|Turbulent|20|
+    +---------+---------+--+
+    |Laminar  |Turbulent|12|
+    +---------+---------+--+
+    |Turbulent|Laminar  |10|
+    +---------+---------+--+
+    |Laminar  |Laminar  |5 |
+    +---------+---------+--+
+        
+    This model has its own friction factor calculations, to be consistent with
+    its Reynolds number transition and the calculation in [1]_. The laminar 
+    equation 64/Re is used up to Re_c, then the Blasius equation as follows:
+    
+    .. math::
+        f_d = \frac{0.184}{Re^{0.2}}
+    
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    D : float
+        Diameter of pipe, [m]
+    L : float, optional
+        Length of pipe, [m]
+    Re_c : float, optional
+        Transition Reynolds number, used in friction factor and C calculation
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+    Developed for horizontal flow. Very popular. Many implementations of this
+    model assume turbulent-turbulent flow.
+    
+    The original model proposed that the transition Reynolds number was 1000
+    for laminar flow, and 2000 for turbulent flow; it proposed no model
+    for Re_l < 1000 and Re_g between 1000 and 2000 and also Re_g < 1000 and
+    Re_l between 1000 and 2000.
+    
+    No correction is available in this model for rough pipe.
+    
+    [3]_ examined the original data in [1]_ again, and fit more curves to the
+    data, seperating them into different flow regimes. There were 229 datum
+    in the turbulent-turbulent regime, 9 in the turbulent-laminar regime, 339
+    in the laminar-turbulent regime, and 42 in the laminar-laminar regime. 
+    Errors from [3]_'s curves were 13.4%, 3.5%, 14.3%, and 12.0% for the above
+    regimes, respectively. [2]_'s fits provide further error.  
+    
+    Examples
+    --------
+    >>> Lockhart_Martinelli(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, 
+    ... mug=14E-6, D=0.05, L=1)
+    716.4695654888484
+    
+    References
+    ----------
+    .. [1] Lockhart, R. W. & Martinelli, R. C. (1949), "Proposed correlation of
+       data for isothermal two-phase, two-component flow in pipes", Chemical 
+       Engineering Progress 45 (1), 39-48. 
+    .. [2] Chisholm, D."A Theoretical Basis for the Lockhart-Martinelli 
+       Correlation for Two-Phase Flow." International Journal of Heat and Mass 
+       Transfer 10, no. 12 (December 1967): 1767-78. 
+       doi:10.1016/0017-9310(67)90047-6.
+    .. [3] Cui, Xiaozhou, and John J. J. Chen."A Re-Examination of the Data of 
+       Lockhart-Martinelli." International Journal of Multiphase Flow 36, no. 
+       10 (October 2010): 836-46. doi:10.1016/j.ijmultiphaseflow.2010.06.001.
+    .. [4] Kim, Sung-Min, and Issam Mudawar. "Universal Approach to Predicting 
+       Two-Phase Frictional Pressure Drop for Adiabatic and Condensing Mini/
+       Micro-Channel Flows." International Journal of Heat and Mass Transfer 
+       55, no. 11-12 (May 2012): 3246-61. 
+       doi:10.1016/j.ijheatmasstransfer.2012.02.047.
+    '''    
+    def friction_factor(Re):
+        # As in the original model
+        if Re < Re_c:
+            return 64./Re
+        else:
+            return 0.184*Re**-0.2
+    
+    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
+    v_g = m*x/rhog/(pi/4*D**2)
+    Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
+
+    if Re_l < Re_c and Re_g < Re_c:
+        C = 5.0
+    elif Re_l < Re_c and Re_g >= Re_c:
+        # Liquid laminar, gas turbulent
+        C = 12.0
+    elif Re_l >= Re_c and Re_g < Re_c:
+        # Liquid turbulent, gas laminar
+        C = 10.0
+    else: # Turbulent case
+        C = 20.0
+    
+    fd_l = friction_factor(Re=Re_l)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    fd_g = friction_factor(Re=Re_g)
+    dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+
+    X = (dP_l/dP_g)**0.5
     
     phi_l2 = 1 + C/X + 1./X**2
     return dP_l*phi_l2

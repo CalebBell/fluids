@@ -189,5 +189,21 @@ def test_Kim_Mudawar():
     dP = Kim_Mudawar(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
 
     assert_allclose(dP, 33.74875494223592)
+
+def test_Lockhart_Martinelli():
+    dP = Lockhart_Martinelli(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, L=1)
+    assert_allclose(dP, 716.4695654888484)
+    
+    # laminar-laminar
+    dP = Lockhart_Martinelli(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=1, L=1)
+    assert_allclose(dP, 9.06478815533121e-06)
+    
+    # Liquid laminar, gas turbulent
+    dP = Lockhart_Martinelli(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=2, L=1)
+    assert_allclose(dP, 8.654579552636214e-06)
+
+    # Gas laminar, liquid turbulent
+    dP = Lockhart_Martinelli(m=0.6, x=0.05, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=2, L=1)
+    assert_allclose(dP, 4.56627076018814e-06)
     
     
