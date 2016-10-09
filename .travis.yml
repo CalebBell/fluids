@@ -8,6 +8,8 @@ compiler:
   - "3.3"
   - "3.4"
   - "3.5"
+env:
+  - SCIPY_VER="scipy>=0.11.0" 
 matrix:
   fast_finish: true
   exclude:
@@ -15,6 +17,10 @@ matrix:
       compiler: "2.6"
     - os: "linux"
       compiler: "3.3"
+  include:
+    - os: "linux"
+      compiler: "2.7"
+      env: SCIPY_VER="scipy<=0.11.0" 
 notifications:
   email: false
 install:
@@ -28,7 +34,7 @@ install:
   - conda info -a
   - conda create -q -n test-environment python=$CC numpy
   - source activate test-environment
-  - conda install scipy
+  - conda install $SCIPY_VER
   - pip install -r requirements_test.txt
   - python setup.py -q install
 script:
