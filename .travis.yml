@@ -1,12 +1,12 @@
-language: generic
+language: c
 os:
   - osx
   - linux
-python:
-  - 2.6
-  - 2.7
-  - 3.4
-  - 3.5
+compiler:
+  - "2.6"
+  - "2.7"
+  - "3.4"
+  - "3.5"
 matrix:
   fast_finish: true
   exclude:
