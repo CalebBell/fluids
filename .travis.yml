@@ -5,13 +5,16 @@ os:
 compiler:
   - "2.6"
   - "2.7"
+  - "3.1"
+  - "3.2"
+  - "3.3"
   - "3.4"
   - "3.5"
 matrix:
   fast_finish: true
   exclude:
     - os: "osx"
-      python: "2.6"
+      compiler: "2.6"
 notifications:
   email: false
 install:
