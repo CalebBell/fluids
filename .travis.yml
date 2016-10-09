@@ -13,6 +13,10 @@ env:
     - CONDA_PY=2.7
     - CONDA_PY=3.4
     - CONDA_PY=3.5
+    - SCIPY_VER=0.18.1
+    - SCIPY_VER=0.18.0
+    - SCIPY_VER=0.17.1
+    - SCIPY_VER=0.17.0
 notifications:
   email: false
 install:
@@ -24,8 +28,9 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda create -q -n test-environment python=$CONDA_PY numpy scipy
+  - conda create -q -n test-environment python=$CONDA_PY numpy
   - source activate test-environment
+  - conda install scipy=$SCIPY_VER
   - pip install -r requirements_test.txt
   - python setup.py -q install
 script:
