@@ -4,27 +4,20 @@ os:
   - linux
 matrix:
   fast_finish: true
+  include:
+    - env: SCIPY_VER=0.18.1
+    - env: SCIPY_VER=0.18.0
+    - env: SCIPY_VER=0.17.1
+    - env: SCIPY_VER=0.17.0
   exclude:
     - os: "osx"
       env: CONDA_PY=2.6
 env:
   matrix:
-    - CONDA_PY=2.6 SCIPY_VER=0.18.1
-    - CONDA_PY=2.7 SCIPY_VER=0.18.1
-    - CONDA_PY=3.4 SCIPY_VER=0.18.1
-    - CONDA_PY=3.5 SCIPY_VER=0.18.1
-    - CONDA_PY=2.6 SCIPY_VER=0.18.0
-    - CONDA_PY=2.7 SCIPY_VER=0.18.0
-    - CONDA_PY=3.4 SCIPY_VER=0.18.0
-    - CONDA_PY=3.5 SCIPY_VER=0.18.0
-    - CONDA_PY=2.6 SCIPY_VER=0.17.1
-    - CONDA_PY=2.7 SCIPY_VER=0.17.1
-    - CONDA_PY=3.4 SCIPY_VER=0.17.1
-    - CONDA_PY=3.5 SCIPY_VER=0.17.1
-    - CONDA_PY=2.6 SCIPY_VER=0.17.0
-    - CONDA_PY=2.7 SCIPY_VER=0.17.0
-    - CONDA_PY=3.4 SCIPY_VER=0.17.0
-    - CONDA_PY=3.5 SCIPY_VER=0.17.0
+    - CONDA_PY=2.6
+    - CONDA_PY=2.7
+    - CONDA_PY=3.4
+    - CONDA_PY=3.5
 notifications:
   email: false
 install:
