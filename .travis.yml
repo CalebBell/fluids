@@ -1,23 +1,17 @@
-language: c
+language: python
 os:
   - osx
   - linux
+python:
+  - "2.6"
+  - "2.7"
+  - "3.4"
+  - "3.5"
 matrix:
   fast_finish: true
-  include:
-    - env: SCIPY_VER=0.18.1
-    - env: SCIPY_VER=0.18.0
-    - env: SCIPY_VER=0.17.1
-    - env: SCIPY_VER=0.17.0
   exclude:
     - os: "osx"
-      env: CONDA_PY=2.6
-env:
-  matrix:
-    - CONDA_PY=2.6
-    - CONDA_PY=2.7
-    - CONDA_PY=3.4
-    - CONDA_PY=3.5
+      python: "2.6"
 notifications:
   email: false
 install:
@@ -29,9 +23,9 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda create -q -n test-environment python=$CONDA_PY numpy
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy
   - source activate test-environment
-  - conda install scipy=$SCIPY_VER
+  - conda install scipy
   - pip install -r requirements_test.txt
   - python setup.py -q install
 script:
