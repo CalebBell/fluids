@@ -21,6 +21,21 @@ matrix:
     - os: "linux"
       compiler: "2.7"
       env: SCIPY_VER="scipy<=0.11.0" 
+    - os: "linux"
+      compiler: "2.7"
+      env: SCIPY_VER="scipy<=0.12.0" 
+    - os: "linux"
+      compiler: "2.7"
+      env: SCIPY_VER="scipy<=0.13.0" 
+    - os: "linux"
+      compiler: "2.7"
+      env: SCIPY_VER="scipy<=0.14.0" 
+    - os: "linux"
+      compiler: "2.7"
+      env: SCIPY_VER="scipy<=0.15.0" 
+    - os: "linux"
+      compiler: "2.7"
+      env: SCIPY_VER="scipy<=0.16.0" 
 notifications:
   email: false
 install:
