@@ -68,8 +68,8 @@ def Thom(x, rhol, rhog, mul, mug):
     -----
     Based on experimental data for boiling of water. [3]_ presents a slightly
     different model. However, its results are quite similar, as may be 
-    compared as follows. Neither expression was aparent from a brief review
-    of [1]_.
+    compared as follows. Neither expression was found in [1]_ in a brief 
+    review.
     
     >>> from sympy import *
     >>> x, rhol, rhog, mug, mul = symbols('x, rhol, rhog, mug, mul')
