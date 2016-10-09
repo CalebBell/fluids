@@ -2,6 +2,11 @@ language: c
 os:
   - osx
   - linux
+matrix:
+  fast_finish: true
+  exclude:
+    - os: "osx"
+      env: CONDA_PY=2.6
 env:
   matrix:
     - CONDA_PY=2.6
