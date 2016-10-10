@@ -30,9 +30,10 @@ __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'is_critical_flow', 'stagnation_energy', 'P_stagnation', 
            'T_stagnation', 'T_stagnation_ideal']
 
-from scipy.optimize import newton, fsolve
+from scipy.optimize import newton, fsolve, brenth, brentq, fminbound
 from scipy.constants import R
-from math import log, pi
+from math import log, pi, exp
+from scipy.special import lambertw
 
 
 def isothermal_work_compression(P1, P2, T, Z=1):
@@ -626,14 +627,15 @@ def T_stagnation_ideal(T, V, Cp):
     return Tst
 
 
-def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
+def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None, 
+                   P2_high=True):
     r'''Calculation function for dealing with flow of a compressible gas in a 
     pipeline for the complete isothermal flow equation. Can calculate any of  
     the following, given all other inputs:
     
     * Mass flow rate
     * Upstream pressure (numerical)
-    * Downstream pressure (numerical)
+    * Downstream pressure
     * Diameter of pipe (numerical)
     * Length of pipe
     
@@ -662,7 +664,11 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
         Diameter of pipe, [m]
     m: float, optional
         Mass flow rate of gas through pipe, [kg/s]
-
+    P2_high : bool, optional
+        Used when solving for P2; there are always two correct solutions,
+        of similar magnitudes. This toggles returning either the higher or
+        lower solution. 
+        
     Returns
     -------
     m, P1, P2, D, or L : float
@@ -670,7 +676,22 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
 
     Notes
     -----
+    The solution for P2 has the following closed form, derived using Maple:
+    
+    .. math::
+        P_2={P_1 \left( {{ e}^{0.5\cdot{\frac {1}{{m}^{2}} \left( -C{m}^{2}
+        +\text{ lambertW} \left(-{\frac {BP_1}{{m}^{2}}{{ e}^{-{\frac {-C{m}^{
+        2}+BP_1}{{m}^{2}}}}}}\right){}{m}^{2}+BP_1 \right) }}} \right) ^{-1}}
 
+       B = \frac{\pi^2 D^4}{4^2} \rho_{avg}
+       
+       C = f_d \frac{L}{D}
+      
+    There is only one P1 > P2 solution for P1, however there are two (or more?)
+    incorrect solutions with P1 < P2. The `newton` solver is first attempted
+    to solve for P1; if it does not get a solution, `fminbound` is used
+    and searches in the interval of P2 to 1E5*P2.
+        
     Examples
     --------
     >>> isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000, D=0.5)
@@ -690,22 +711,47 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
         return D*(pi**2*D**4*rho*(P1**2 - P2**2) - 32*P1*m**2*log(P1/P2))/(16*P1*f*m**2)
     elif P1 is None and (None not in [L, P2, D, m]):
 #        Slightly faster but more confusing
-#        def to_solve(_Z): 
-#            return _Z-(D**5*exp(_Z)**2*P2*pi**2*rho-D**5*P2*pi**2*rho-32*_Z *D*m**2*exp(_Z)-16*L*exp(_Z)*f*m**2)
-#        ans = newton(to_solve, 1)
+# The solution to the root problem must be larger than one. There are 3 roots for one case.
+#        C = f*L/D
+#        B = (pi/4*D**2)**2*rho
+#        BP2 = B*P2
+#        m2 = m**2
+#        twom2 = 2*m2
+#        Cm2 = C*m2
+#        def to_solve(x): 
+#            expx = exp(x)
+#            return abs(BP2*expx**2-Cm2*expx-x*twom2*expx-BP2)
+#        ans = fminbound(to_solve, 0, 40, xtol=1E-14)
 #        return exp(ans)*P2
         def to_solve(P1):
-            return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
-        return newton(to_solve, P2*1.1)
+            return abs(m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D))
+        try:
+            # Newton will sometimes crash; fminbound is slower but reliable
+            P1 = newton(to_solve, P2*1.1)
+            assert P2 <= P1
+            return P1
+        except:
+            # Possible overflow problem here
+            return fminbound(to_solve, P2, P2*100000)
     elif P2 is None and (None not in [L, P1, D, m]):
-#         When you don't know which branch of the lamberw function to take, it's no good.
-#         return (P1/exp(0.3125000000e-1*(D**5*P1*pi**2*rho+16*lambertw(
-#                         -0.6250000000e-1*pi**2*D**4*rho*P1/m**2*exp(
-#                             -0.6250000000e-1*(D**5*P1*pi**2*rho-16*L*f*m**2
-#                                              )/D/m**2), 0).real*D*m**2-16*L*f*m**2)/D/m**2))
-        def to_solve(P2):
-            return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
-        return newton(to_solve, P1*.999)
+        C = f*L/D
+        B = (pi/4*D**2)**2*rho
+        arg = -B/m**2*P1*exp(-(-C*m**2+B*P1)/m**2)
+        # Consider the two real branches of the lambertw function.
+        # The k=-1 branch produces the higher P2 values.
+        # note: 
+        if P2_high:
+            k = -1
+        else:
+            k = 0
+        lambert_ans = float(lambertw(arg,k).real)
+        # Possible overflow problem here
+        P2 = P1/exp((-C*m**2+lambert_ans*m**2+B*P1)/m**2/2.)
+        
+        if P2 > P1:
+            raise Exception('There is no P2 which allows for the specified flow\
+rate given the inlet pressure P1.')
+        return P2
     elif D is None and (None not in [P2, P1, L, m]):
         def to_solve(D):
             return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
