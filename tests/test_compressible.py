@@ -261,13 +261,12 @@ def test_isothermal_gas():
     assert_allclose(isothermal_gas(11.3, 0.00185, P1=1E6, m=145.484757264, L=1000., D=0.5), 9E5)
     assert_allclose(isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, m=145.484757264, L=1000.), 0.5)
     
-    # Second P2 solution:
-    P2 = isothermal_gas(11.3, 0.00185, P1=1E6, m=145.484757264, L=1000., D=0.5, P2_high=False)
-    assert_allclose(P2, 215.754222717117)
-
     with pytest.raises(Exception):
         isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000)
-    with pytest.raises(Exception):
-        isothermal_gas(11.3, 0.00185, P1=30, m=145.484757264, L=1000., D=0.5, P2_high=False)
+#    with pytest.raises(Exception):
+#        isothermal_gas(11.3, 0.00185, P1=30, m=145.484757264, L=1000., D=0.5, P2_high=False)
         
 
+def test_P_isothermal_critical_flow():
+    P2_max = P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
+    assert_allclose(P2_max, 389699.7317645518)

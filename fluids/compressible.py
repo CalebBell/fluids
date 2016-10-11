@@ -26,13 +26,14 @@ __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'isothermal_work_compression', 'polytropic_exponent',
            'isentropic_work_compression', 'isentropic_efficiency',
            'isentropic_T_rise_compression', 'T_critical_flow', 
-           'P_critical_flow', 
+           'P_critical_flow', 'P_isothermal_critical_flow',
            'is_critical_flow', 'stagnation_energy', 'P_stagnation', 
            'T_stagnation', 'T_stagnation_ideal']
 
-from scipy.optimize import newton, fsolve, brenth, brentq, fminbound
-from scipy.constants import R
 from math import log, pi, exp
+import numpy as np
+from scipy.optimize import newton, fsolve, brenth, brentq, fminbound, brent, ridder
+from scipy.constants import R
 from scipy.special import lambertw
 
 
@@ -422,6 +423,68 @@ def P_critical_flow(P, k):
     Pcf = P*(2/(k+1.))**(k/(k-1))
     return Pcf
 
+def P_isothermal_critical_flow(P, fd, D, L):
+    r'''Calculates critical flow pressure `Pcf` for a fluid flowing
+    isothermally and suffering pressure drop caused by a pipe's friction factor.
+
+    .. math::
+        P_2 = P_{1} e^{\frac{1}{2 D} \left(D \left(\operatorname{LambertW}
+        {\left (- e^{\frac{1}{D} \left(- D - L f_d\right)} \right )} + 1\right)
+        + L f_d\right)}
+
+    Parameters
+    ----------
+    P : float
+        Inlet pressure [Pa]
+    fd : float
+        Darcy friction factor for flow in pipe [-]
+    L : float, optional
+        Length of pipe, [m]
+    D : float, optional
+        Diameter of pipe, [m]
+
+    Returns
+    -------
+    Pcf : float
+        Critical flow pressure of a compressible gas flowing from `P1` to `Pcf`
+        in a tube of length L and friction factor `fd` [Pa]
+
+    Notes
+    -----
+    Assumes isothermal flow. Developed based on the `isothermal_gas` model,
+    using SymPy.
+    
+    The isothermal gas model is solved for maximum mass flow rate; any pressure
+    drop under it is impossible due to the formation of a shock wave.
+
+    Examples
+    --------
+    >>> P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
+    389699.7317645518
+
+    References
+    ----------
+    .. [1] Wilkes, James O. Fluid Mechanics for Chemical Engineers with 
+       Microfluidics and CFD. 2 edition. Upper Saddle River, NJ: Prentice Hall, 
+       2005.
+    '''
+    # Correct branch of lambertw found by trial and error
+    lambert_term = float(lambertw(-exp((-D - L*fd)/D), -1).real)
+    return P*exp((D*(lambert_term + 1) + L*fd)/(2.*D))
+
+
+def P_upstream_isothermal_critical_flow(P, fd, D, L):
+    '''Not part of the public API. Reverses `P_isothermal_critical_flow`.
+    
+    Examples
+    --------
+    >>> P_upstream_isothermal_critical_flow(P=389699.7317645518, fd=0.00185,
+    ... L=1000., D=0.5)
+    1000000.0000000001
+    '''
+    lambertw_term = lambertw(-exp(-(fd*L+D)/D), -1)
+    return exp(-0.5*(D*lambertw_term+fd*L+D)/D)*P
+
 
 def is_critical_flow(P1, P2, k):
     r'''Determines if a flow of a fluid driven by pressure gradient
@@ -627,8 +690,7 @@ def T_stagnation_ideal(T, V, Cp):
     return Tst
 
 
-def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None, 
-                   P2_high=True):
+def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
     r'''Calculation function for dealing with flow of a compressible gas in a 
     pipeline for the complete isothermal flow equation. Can calculate any of  
     the following, given all other inputs:
@@ -664,10 +726,6 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None,
         Diameter of pipe, [m]
     m: float, optional
         Mass flow rate of gas through pipe, [kg/s]
-    P2_high : bool, optional
-        Used when solving for P2; there are always two correct solutions,
-        of similar magnitudes. This toggles returning either the higher or
-        lower solution. 
         
     Returns
     -------
@@ -691,6 +749,10 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None,
     incorrect solutions with P1 < P2. The `newton` solver is first attempted
     to solve for P1; if it does not get a solution, `fminbound` is used
     and searches in the interval of P2 to 1E5*P2.
+    
+    The 2 multiplied by the logarithm is often shown  as a power of the 
+    pressure ratio; this is only the case when the pressure ratio is raised to
+    the power of 2 before its logarithm is taken. 
         
     Examples
     --------
@@ -703,10 +765,22 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None,
        2009.
     .. [2] Kim, J. and Singh, N. "A Novel Equation for Isothermal Pipe Flow.".
        Chemical Engineering, June 2012, http://www.chemengonline.com/a-novel-equation-for-isothermal-pipe-flow/?printmode=1
+    .. [3] Wilkes, James O. Fluid Mechanics for Chemical Engineers with 
+       Microfluidics and CFD. 2 edition. Upper Saddle River, NJ: Prentice Hall, 
+       2005.
     '''
     if m is None and (None not in [P1, P2, L, D]):
-        A = pi/4*D**2
-        return (A**2*rho/P1/(f*L/D + 2*log(P1/P2))*(P1**2-P2**2))**0.5
+        # Perform a check for chocked flow and raise an exception if it is
+        # the case.
+        Pcf = P_isothermal_critical_flow(P=P1, fd=f, D=D, L=L)
+#        print(P2, Pcf)
+        if P2 < Pcf:
+            raise Exception('Given outlet pressure is not physically possible\
+due to the formation of choked flow at P2=%f, specified outlet pressure was %f' %(Pcf, P2))
+        if P2 > P1:
+            raise Exception('Specified outlet pressure is larger than the\
+inlet pressure; fluid will flow backwards.')
+        return (pi**2/16*D**4*rho/P1/(f*L/D + 2*log(P1/P2))*(P1**2-P2**2))**0.5
     elif L is None and (None not in [P1, P2, D, m]):
         return D*(pi**2*D**4*rho*(P1**2 - P2**2) - 32*P1*m**2*log(P1/P2))/(16*P1*f*m**2)
     elif P1 is None and (None not in [L, P2, D, m]):
@@ -724,7 +798,7 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None,
 #        ans = fminbound(to_solve, 0, 40, xtol=1E-14)
 #        return exp(ans)*P2
         def to_solve(P1):
-            return abs(m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D))
+            return abs(P2 - isothermal_gas(rho, f, m=m, P1=P1, P2=None, L=L, D=D))
         try:
             # Newton will sometimes crash; fminbound is slower but reliable
             P1 = newton(to_solve, P2*1.1)
@@ -734,24 +808,31 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None,
             # Possible overflow problem here
             return fminbound(to_solve, P2, P2*100000)
     elif P2 is None and (None not in [L, P1, D, m]):
-        C = f*L/D
-        B = (pi/4*D**2)**2*rho
-        arg = -B/m**2*P1*exp(-(-C*m**2+B*P1)/m**2)
-        # Consider the two real branches of the lambertw function.
-        # The k=-1 branch produces the higher P2 values.
-        # note: 
-        if P2_high:
-            k = -1
-        else:
-            k = 0
-        lambert_ans = float(lambertw(arg,k).real)
-        # Possible overflow problem here
-        P2 = P1/exp((-C*m**2+lambert_ans*m**2+B*P1)/m**2/2.)
-        
-        if P2 > P1:
-            raise Exception('There is no P2 which allows for the specified flow\
-rate given the inlet pressure P1.')
-        return P2
+        try:
+            C = f*L/D
+            B = (pi/4*D**2)**2*rho
+            arg = -B/m**2*P1*exp(-(-C*m**2+B*P1)/m**2)
+            # Consider the two real branches of the lambertw function.
+            # The k=-1 branch produces the higher P2 values; the k=0 branch is 
+            # physically impossible.
+            lambert_ans = float(lambertw(arg,k=-1).real)
+            # Large overflow problem here; also divide by zero problems!
+            # Fail and try a numerical solution if it doesn't work.
+            assert np.isfinite(lambert_ans)
+            P2 = P1/exp((-C*m**2+lambert_ans*m**2+B*P1)/m**2/2.)
+            assert P2 < P1
+            return P2
+        except:
+            Pcf = P_isothermal_critical_flow(P=P1, fd=f, D=D, L=L)
+            def to_solve(P2):
+                return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
+#                return abs(m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D))
+#            return fminbound(to_solve, x1=Pcf, x2=P1)
+            return ridder(to_solve, a=Pcf, b=P1)
+            # A solver which respects its boundaries is required here.
+            # ridder cuts the time down from 2 ms to 200 mircoseconds.
+            # Is is believed Pcf and P1 will always bracked the root, however
+            # leave the commented code for testing
     elif D is None and (None not in [P2, P1, L, m]):
         def to_solve(D):
             return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
