@@ -482,7 +482,7 @@ def P_upstream_isothermal_critical_flow(P, fd, D, L):
     ... L=1000., D=0.5)
     1000000.0000000001
     '''
-    lambertw_term = lambertw(-exp(-(fd*L+D)/D), -1)
+    lambertw_term = float(lambertw(-exp(-(fd*L+D)/D), -1).real)
     return exp(-0.5*(D*lambertw_term+fd*L+D)/D)*P
 
 
@@ -697,7 +697,7 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
     
     * Mass flow rate
     * Upstream pressure (numerical)
-    * Downstream pressure
+    * Downstream pressure (analytical or numerical if an overflow occurs)
     * Diameter of pipe (numerical)
     * Length of pipe
     
@@ -745,10 +745,9 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
        
        C = f_d \frac{L}{D}
       
-    There is only one P1 > P2 solution for P1, however there are two (or more?)
-    incorrect solutions with P1 < P2. The `newton` solver is first attempted
-    to solve for P1; if it does not get a solution, `fminbound` is used
-    and searches in the interval of P2 to 1E5*P2.
+    A wide range of conditions are impossible due to chocked flow. See
+    `P_isothermal_critical_flow` for details. An exception is raised when
+    they occur.
     
     The 2 multiplied by the logarithm is often shown  as a power of the 
     pressure ratio; this is only the case when the pressure ratio is raised to
@@ -770,10 +769,7 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
        2005.
     '''
     if m is None and (None not in [P1, P2, L, D]):
-        # Perform a check for chocked flow and raise an exception if it is
-        # the case.
         Pcf = P_isothermal_critical_flow(P=P1, fd=f, D=D, L=L)
-#        print(P2, Pcf)
         if P2 < Pcf:
             raise Exception('Given outlet pressure is not physically possible\
 due to the formation of choked flow at P2=%f, specified outlet pressure was %f' %(Pcf, P2))
@@ -784,29 +780,25 @@ inlet pressure; fluid will flow backwards.')
     elif L is None and (None not in [P1, P2, D, m]):
         return D*(pi**2*D**4*rho*(P1**2 - P2**2) - 32*P1*m**2*log(P1/P2))/(16*P1*f*m**2)
     elif P1 is None and (None not in [L, P2, D, m]):
-#        Slightly faster but more confusing
-# The solution to the root problem must be larger than one. There are 3 roots for one case.
-#        C = f*L/D
-#        B = (pi/4*D**2)**2*rho
-#        BP2 = B*P2
-#        m2 = m**2
-#        twom2 = 2*m2
-#        Cm2 = C*m2
-#        def to_solve(x): 
-#            expx = exp(x)
-#            return abs(BP2*expx**2-Cm2*expx-x*twom2*expx-BP2)
-#        ans = fminbound(to_solve, 0, 40, xtol=1E-14)
-#        return exp(ans)*P2
+        Pcf = P_upstream_isothermal_critical_flow(P=P2, fd=f, D=D, L=L)
         def to_solve(P1):
-            return abs(P2 - isothermal_gas(rho, f, m=m, P1=P1, P2=None, L=L, D=D))
+            return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
         try:
-            # Newton will sometimes crash; fminbound is slower but reliable
-            P1 = newton(to_solve, P2*1.1)
+            # Use the explicit solution for P2 with different P1 guesses;
+            # newton doesn't like solving for m.
+            def to_solve_P2_basis(P1):
+                return abs(P2 - isothermal_gas(rho, f, m=m, P1=P1, P2=None, L=L, D=D))
+            P1 = newton(to_solve_P2_basis, (P2+Pcf)/2.)
             assert P2 <= P1
             return P1
         except:
-            # Possible overflow problem here
-            return fminbound(to_solve, P2, P2*100000)
+            try:
+                return ridder(to_solve, a=P2, b=Pcf)
+            except:
+                m_max = isothermal_gas(rho, f, P1=Pcf, P2=P2, L=L, D=D)
+                raise Exception('The desired mass flow rate cannot be achieved\
+with the specified downstream pressure; the maximum flowrate is %f at an \
+upstream pressure of %f' %(m_max, Pcf))
     elif P2 is None and (None not in [L, P1, D, m]):
         try:
             C = f*L/D
@@ -828,7 +820,13 @@ inlet pressure; fluid will flow backwards.')
                 return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
 #                return abs(m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D))
 #            return fminbound(to_solve, x1=Pcf, x2=P1)
-            return ridder(to_solve, a=Pcf, b=P1)
+            try:
+                return ridder(to_solve, a=Pcf, b=P1)
+            except:
+                m_max = isothermal_gas(rho, f, P1=P1, P2=Pcf, L=L, D=D)
+                raise Exception('The desired mass flow rate cannot be achieved\
+with the specified upstream pressure; the maximum flowrate is %f at an \
+downstream pressure of %f' %(m_max, Pcf))
             # A solver which respects its boundaries is required here.
             # ridder cuts the time down from 2 ms to 200 mircoseconds.
             # Is is believed Pcf and P1 will always bracked the root, however
