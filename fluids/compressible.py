@@ -32,7 +32,7 @@ __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
 
 from math import log, pi, exp
 import numpy as np
-from scipy.optimize import newton, fsolve, brenth, brentq, fminbound, brent, ridder
+from scipy.optimize import newton, ridder
 from scipy.constants import R
 from scipy.special import lambertw
 
@@ -724,7 +724,7 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
         Length of pipe, [m]
     D : float, optional
         Diameter of pipe, [m]
-    m: float, optional
+    m : float, optional
         Mass flow rate of gas through pipe, [kg/s]
         
     Returns
@@ -797,7 +797,7 @@ inlet pressure; fluid will flow backwards.')
             except:
                 m_max = isothermal_gas(rho, f, P1=Pcf, P2=P2, L=L, D=D)
                 raise Exception('The desired mass flow rate cannot be achieved\
-with the specified downstream pressure; the maximum flowrate is %f at an \
+ with the specified downstream pressure; the maximum flowrate is %f at an \
 upstream pressure of %f' %(m_max, Pcf))
     elif P2 is None and (None not in [L, P1, D, m]):
         try:
