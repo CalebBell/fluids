@@ -760,7 +760,7 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
 
     References
     ----------
-    .. [1] Co, Crane. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     .. [2] Kim, J. and Singh, N. "A Novel Equation for Isothermal Pipe Flow.".
        Chemical Engineering, June 2012, http://www.chemengonline.com/a-novel-equation-for-isothermal-pipe-flow/?printmode=1
@@ -929,7 +929,7 @@ def Panhandle_A(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     ----------
     .. [1] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
        FL: CRC Press, 2005.
-    .. [2] Co, Crane. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+    .. [2] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     .. [3] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
        Suppliers Association, Tulsa, OK, 2012.
@@ -1048,7 +1048,7 @@ def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     ----------
     .. [1] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
        FL: CRC Press, 2005.
-    .. [2] Co, Crane. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+    .. [2] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     .. [3] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
        Suppliers Association, Tulsa, OK, 2012.
@@ -1166,7 +1166,7 @@ def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     ----------
     .. [1] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
        FL: CRC Press, 2005.
-    .. [2] Co, Crane. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+    .. [2] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     .. [3] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
        Suppliers Association, Tulsa, OK, 2012.
