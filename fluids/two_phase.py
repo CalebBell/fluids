@@ -1884,8 +1884,9 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
     +---------+---------+--+
         
     This model has its own friction factor calculations, to be consistent with
-    its Reynolds number transition and the calculation in [1]_. The laminar 
-    equation 64/Re is used up to Re_c, then the Blasius equation as follows:
+    its Reynolds number transition and the procedure specified in the original
+    work. The equation 64/Re is used up to Re_c, and above it the Blasius 
+    equation is used as follows:
     
     .. math::
         f_d = \frac{0.184}{Re^{0.2}}
@@ -1909,7 +1910,8 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
     L : float, optional
         Length of pipe, [m]
     Re_c : float, optional
-        Transition Reynolds number, used in friction factor and C calculation
+        Transition Reynolds number, used to decide which friction factor 
+        equation to use and which C value to use from the table above.
 
     Returns
     -------

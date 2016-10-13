@@ -1718,7 +1718,7 @@ def Suratman(L, rho, mu, sigma):
 
     .. math::
         \text{Su} = \frac{\text{Re}^2}{\text{We}} =\frac{\text{Inertia}\cdot
-        text{Surface tension} }{\text{(viscous forces)}^2}
+        \text{Surface tension} }{\text{(viscous forces)}^2}
 
     The oldest reference to this group found by the author is in 1963, from 
     [2]_.
