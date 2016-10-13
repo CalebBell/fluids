@@ -23,7 +23,7 @@ fluids
 .. image:: https://zenodo.org/badge/doi/10.5281/zenodo.59769.svg
    :alt: Zendo
    :target: http://dx.doi.org/10.5281/zenodo.59769
-.. image:: http://ci.appveyor.com/api/projects/status/github/calebbell/fluids
+.. image:: http://img.shields.io/appveyor/ci/calebbell/fluids.svg
    :target: https://ci.appveyor.com/project/calebbell/fluids/branch/master
    :alt: Build_status
 
