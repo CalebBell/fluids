@@ -22,11 +22,14 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import exp, log, log10, tanh
+import numpy as np
 from scipy.constants import g
 from scipy.optimize import newton
+from scipy.integrate import odeint, cumtrapz
 from fluids.core import Reynolds
 
-__all__ = ['drag_sphere', 'v_terminal', 'Stokes', 'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
+__all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere', 'Stokes', 
+'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
 'Clift_Gauvin', 'Morsi_Alexander', 'Graf', 'Flemmer_Banks', 'Khan_Richardson',
 'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
 'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison']
@@ -1099,4 +1102,79 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     def err(V):
         Cd = drag_sphere(Re_almost*V, Method=Method)
         return V - (main/Cd)**0.5
+    # Begin the solver with 1/100 th the velocity possible at the maximum 
+    # Reynolds number the correlation is good for
     return float(newton(err, V_max/100, tol=1E-12))
+
+
+def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None, 
+                          distance=False):
+    r'''Integrates the velocity and distance traveled by a particle moving
+    at a speed which will converge to its terminal velocity. 
+
+    Performs an integration of the following expression for acceleration:
+
+    .. math::
+        a = \frac{g(\rho_p-\rho_f)}{\rho_p} - \frac{3C_D \rho_f u^2}{4D \rho_p}
+        
+    Parameters
+    ----------
+    D : float
+        Diameter of the sphere, [m]
+    rhop : float
+        Particle density, [kg/m^3]
+    rho : float
+        Density of the surrounding fluid, [kg/m^3]
+    mu : float
+        Viscosity of the surrounding fluid [Pa*s]
+    t : float
+        Time to integrate the particle to, [s]
+    V : float
+        Initial velocity of the particle, [m/s]
+    Method : string, optional
+        A string of the function name to use, as in the dictionary
+        drag_sphere_correlations
+    distance: bool, optional
+        Whether or not to calculate the distance traveled and return it as
+        well
+
+    Returns
+    -------
+    v : float
+        Velocity of falling sphere after time `t` [m/s]
+    x : float, returned only if `distance` == True
+        Distance traveled by the falling sphere in time `t`, [m]
+        
+    Notes
+    -----
+    This can be relatively slow as drag correlations can be complex.
+
+    Examples
+    --------
+    >>> integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5, 
+    ... V=30, distance=True)
+    (9.686465044063436, 7.829454643649386)
+    '''
+    Re_ish = rho*D/mu
+    c1 = g*(rhop-rho)/rhop
+    c2 = -0.75*rho/(D*rhop)
+    
+    def dv_dt(V, t):
+        return c1 + c2*drag_sphere(Re_ish*V, Method=Method)*V*V
+
+    # Number of intervals for the solution to be solved for; the integrator 
+    # doesn't care what we give it, but a large number of intervals are needed
+    # For an accurate integration of the particle's distance traveled
+    pts = 1000 if distance else 2
+    ts = np.linspace(0, t, pts)
+    
+    # Perform the integration
+    Vs = odeint(dv_dt, [V], ts)
+    # 
+    V_end = float(Vs[-1])
+    if distance:
+        # Calculate the distance traveled
+        x = float(cumtrapz(np.ravel(Vs), ts)[-1])
+        return V_end, x
+    else:
+        return V_end

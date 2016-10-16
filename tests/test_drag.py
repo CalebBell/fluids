@@ -136,3 +136,10 @@ def test_v_terminal():
     
     v_t = v_terminal(D=70E-9, rhop=2600., rho=1000., mu=1E-3)
     assert_allclose(v_t, 4.271340888888889e-09)
+
+def test_integrate_drag_sphere():
+    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5, V=30, distance=True)
+    assert_allclose(ans, (9.686465044063436, 7.829454643649386))
+
+    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5, V=30)
+    assert_allclose(ans, 9.686465044063436)
