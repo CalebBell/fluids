@@ -130,3 +130,9 @@ def test_drag_sphere():
     with pytest.raises(Exception):
         drag_sphere(1E7)
         
+def test_v_terminal():
+    v_t = v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-3)
+    assert_allclose(v_t, 0.00414249724453)
+    
+    v_t = v_terminal(D=70E-9, rhop=2600., rho=1000., mu=1E-3)
+    assert_allclose(v_t, 4.271340888888889e-09)

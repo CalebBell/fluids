@@ -23,8 +23,10 @@ SOFTWARE.'''
 from __future__ import division
 from math import exp, log, log10, tanh
 from scipy.constants import g
+from scipy.optimize import newton
+from fluids.core import Reynolds
 
-__all__ = ['drag_sphere', 'Stokes', 'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
+__all__ = ['drag_sphere', 'v_terminal', 'Stokes', 'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
 'Clift_Gauvin', 'Morsi_Alexander', 'Graf', 'Flemmer_Banks', 'Khan_Richardson',
 'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
 'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison']
@@ -1015,7 +1017,7 @@ def drag_sphere(Re, AvailableMethods=False, Method=None):
             elif Re <= 1E6:
                 return Barati_high(Re)
             else:
-                raise Exception('No models implement a solution for Re > 1E6')
+                raise ValueError('No models implement a solution for Re > 1E6')
         elif Re >= 0.01:
             # Re from 0.01 to 0.1
             ratio = (Re - 0.01)/(0.1 - 0.01)
@@ -1028,3 +1030,73 @@ def drag_sphere(Re, AvailableMethods=False, Method=None):
         return drag_sphere_correlations[Method][0](Re)
     else:
         raise Exception('Failure in in function')
+
+
+def v_terminal(D, rhop, rho, mu, Method=None):
+    r'''Calculates terminal velocity of a falling sphere using any drag
+    coefficient method supported by `drag_sphere`. The laminar solution for
+    Re < 0.01 is first tried; if the resulting terminal velocity does not
+    put it in the laminar regime, a numerical solution is used.
+
+    .. math::
+        v_t = \sqrt{\frac{4 g d_p (\rho_p-\rho_f)}{3 C_D \rho_f }}
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the sphere, [m]
+    rhop : float
+        Particle density, [kg/m^3]
+    rho : float
+        Density of the surrounding fluid, [kg/m^3]
+    mu : float
+        Viscosity of the surrounding fluid [Pa*S]
+    Method : string, optional
+        A string of the function name to use, as in the dictionary
+        drag_sphere_correlations
+
+    Returns
+    -------
+    v_t : float
+        Terminal velocity of falling sphere [m/s]
+
+    Notes
+    -----
+    As there are no correlations implmented for Re > 1E6, an error will be 
+    raised if the numerical solver seeks a solution above that limit. 
+    
+    The laminar solution is given in [1]_ and is:
+    
+    .. math::
+        v_t = \frac{g d_p^2 (\rho_p - \rho_f)}{18 \mu_f}
+
+    Examples
+    --------
+    >>> v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-3)
+    0.004142497244531304
+    
+    References
+    ----------
+    .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
+       Eighth Edition. McGraw-Hill Professional, 2007.
+    '''
+    '''The following would be the ideal implementation. The actual function is
+    optized for speed, not readability
+    def err(V):
+        Re = rho*V*D/mu
+        Cd = Barati_high(Re)
+        V2 = (4/3.*g*D*(rhop-rho)/rho/Cd)**0.5
+        return (V-V2)
+    return fsolve(err, 1.)'''
+    v_lam = g*D**2*(rhop-rho)/(18*mu)
+    Re_lam = Reynolds(V=v_lam, D=D, rho=rhop, mu=mu)
+    if Re_lam < 0.01:
+        return v_lam
+    
+    Re_almost = rho*D/mu
+    main = 4/3.*g*D*(rhop-rho)/rho
+    V_max = 1E6/rho/D*mu # where the correlation breaks down, Re=1E6
+    def err(V):
+        Cd = drag_sphere(Re_almost*V, Method=Method)
+        return V - (main/Cd)**0.5
+    return float(newton(err, V_max/100, tol=1E-12))
