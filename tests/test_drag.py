@@ -104,4 +104,29 @@ def test_drag():
     Cd_values = [0.767731559965325, 12000.134917101897]
     close(Cds, Cd_values)
 
-
+def test_drag_sphere():
+    Cd = drag_sphere(200)
+    assert_allclose(Cd, 0.7682237950389874)
+    
+    Cd = drag_sphere(1E6)
+    assert_allclose(Cd, 0.21254574397767056)
+    
+    Cd = drag_sphere(1E6, Method='Barati_high')
+    assert_allclose(Cd, 0.21254574397767056)
+    
+    Cd = drag_sphere(0.001)
+    assert_allclose(Cd, 24000.0)
+    
+    Cd = drag_sphere(0.05)
+    assert_allclose(Cd, 481.23769162684573)
+    
+    methods = sorted(drag_sphere(3E5, AvailableMethods=True))
+    method_known = ['Barati_high', 'Ceylan', 'Morrison', 'Clift', 'Almedeij']
+    assert sorted(method_known) == methods
+    
+    with pytest.raises(Exception):
+        drag_sphere(200, Method='BADMETHOD')
+        
+    with pytest.raises(Exception):
+        drag_sphere(1E7)
+        

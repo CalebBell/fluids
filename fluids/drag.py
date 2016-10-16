@@ -24,7 +24,7 @@ from __future__ import division
 from math import exp, log, log10, tanh
 from scipy.constants import g
 
-__all__ = ['Stokes', 'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
+__all__ = ['drag_sphere', 'Stokes', 'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
 'Clift_Gauvin', 'Morsi_Alexander', 'Graf', 'Flemmer_Banks', 'Khan_Richardson',
 'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
 'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison']
@@ -931,3 +931,100 @@ def Morrison(Re):
     + Re**0.8/461000.)
     return Cd
 
+
+drag_sphere_correlations = {
+    'Stokes': (Stokes, None, 0.3),
+    'Barati': (Barati, None, 2E5),
+    'Barati_high': (Barati_high, None, 1E6),
+    'Rouse': (Rouse, None, 2E5),
+    'Engelund_Hansen': (Engelund_Hansen, None, 2E5),
+    'Clift_Gauvin': (Clift_Gauvin, None, 2E5),
+    'Morsi_Alexander': (Morsi_Alexander, None, 2E5),
+    'Graf': (Graf, None, 2E5),
+    'Flemmer_Banks': (Flemmer_Banks, None, 2E5),
+    'Khan_Richardson': (Khan_Richardson, None, 2E5),
+    'Swamee_Ojha': (Swamee_Ojha, None, 1.5E5),
+    'Yen': (Yen, None, 2E5),
+    'Haider_Levenspiel': (Haider_Levenspiel, None, 2E5),
+    'Cheng': (Cheng, None, 2E5),
+    'Terfous': (Terfous, 0.1, 5E4),
+    'Mikhailov_Freire': (Mikhailov_Freire, None, 118300),
+    'Clift': (Clift, None, 1E6),
+    'Ceylan': (Ceylan, 0.1, 1E6),
+    'Almedeij': (Almedeij, None, 1E6),
+    'Morrison': (Morrison, None, 1E6)
+}
+
+def drag_sphere(Re, AvailableMethods=False, Method=None):
+    r'''This function handles calculation of drag coefficient on spheres.
+    Twenty methods are available, all requiring only the Reynolds number of the
+    sphere. Most methods are valid from Re=0 to Re=200,000. A correlation will
+    be automatically selected if none is specified. The full list of correlations
+    valid for a given Reynolds number can be obtained with the `AvailableMethods`
+    flag.
+    
+    If no correlation is selected, the following rules are used:
+    
+        * If Re < 0.01, use Stoke's solution.
+        * If 0.01 <= Re < 0.1, linearly combine 'Barati' with Stokes's solution
+          such that at Re = 0.1 the solution is 'Barati', and at Re = 0.01 the 
+          solution is 'Stokes'.
+        * If 0.1 <= Re <= ~212963, use the 'Barati' solution.
+        * If ~212963 < Re <= 1E6, use the 'Barati_high' solution.
+        * For Re > 1E6, raises an exception; no valid results have been found.
+
+    Examples
+    --------
+    >>> drag_sphere(200)
+    0.7682237950389874
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number of the sphere, [-]
+
+    Returns
+    -------
+    Cd : float
+        Drag coefficient [-]
+    methods : list, only returned if AvailableMethods == True
+        List of methods which can be used to calculate `Cd` with the given `Re`
+    
+    Other Parameters
+    ----------------
+    Method : string, optional
+        A string of the function name to use, as in the dictionary
+        drag_sphere_correlations
+    AvailableMethods : bool, optional
+        If True, function will consider which methods which can be used to
+        calculate `Cd` with the given `Re`
+    '''
+    def list_methods():
+        methods = []
+        for key, (func, Re_min, Re_max) in drag_sphere_correlations.items():
+            if (Re_min is None or Re > Re_min) and (Re_max is None or Re < Re_max):
+                methods.append(key)
+        return methods
+    if AvailableMethods:
+        return list_methods()
+    if not Method:
+        if Re > 0.1:
+            # Smooth transition point between the two models
+            if Re <= 212963.26847812787:
+                return Barati(Re)
+            elif Re <= 1E6:
+                return Barati_high(Re)
+            else:
+                raise Exception('No models implement a solution for Re > 1E6')
+        elif Re >= 0.01:
+            # Re from 0.01 to 0.1
+            ratio = (Re - 0.01)/(0.1 - 0.01)
+            # Ensure a smooth transition by linearly switching to Stokes' law
+            return ratio*Barati(Re) + (1-ratio)*Stokes(Re)
+        else:
+            return Stokes(Re)
+
+    if Method in drag_sphere_correlations:
+        return drag_sphere_correlations[Method][0](Re)
+    else:
+        raise Exception('Failure in in function')
