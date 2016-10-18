@@ -208,3 +208,6 @@ def test_Lockhart_Martinelli():
     assert_allclose(dP, 4.56627076018814e-06)
     
     
+def test_Mishima_Hibiki():
+    dP = Mishima_Hibiki(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 732.4268200606265)

@@ -28,7 +28,7 @@ from scipy.optimize import newton
 from scipy.integrate import odeint, cumtrapz
 from fluids.core import Reynolds
 
-__all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere', 'Stokes', 
+__all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere', 'Stokes',
 'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
 'Clift_Gauvin', 'Morsi_Alexander', 'Graf', 'Flemmer_Banks', 'Khan_Richardson',
 'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
@@ -722,7 +722,7 @@ def Mikhailov_Freire(Re):
        doi:10.1016/j.powtec.2014.02.045.
     '''
     Cd = (3808.*((1617933./2030.) + (178861./1063.)*Re + (1219./1084.)*Re**2)
-    /(681.*Re*((77531./422.) + (13529./976.)*Re - (1./71154.)*Re**2)))
+          /(681.*Re*((77531./422.) + (13529./976.)*Re - (1./71154.)*Re**2)))
     return Cd
 
 
@@ -960,6 +960,7 @@ drag_sphere_correlations = {
     'Morrison': (Morrison, None, 1E6)
 }
 
+
 def drag_sphere(Re, AvailableMethods=False, Method=None):
     r'''This function handles calculation of drag coefficient on spheres.
     Twenty methods are available, all requiring only the Reynolds number of the
@@ -967,12 +968,12 @@ def drag_sphere(Re, AvailableMethods=False, Method=None):
     be automatically selected if none is specified. The full list of correlations
     valid for a given Reynolds number can be obtained with the `AvailableMethods`
     flag.
-    
+
     If no correlation is selected, the following rules are used:
-    
+
         * If Re < 0.01, use Stoke's solution.
         * If 0.01 <= Re < 0.1, linearly combine 'Barati' with Stokes's solution
-          such that at Re = 0.1 the solution is 'Barati', and at Re = 0.01 the 
+          such that at Re = 0.1 the solution is 'Barati', and at Re = 0.01 the
           solution is 'Stokes'.
         * If 0.1 <= Re <= ~212963, use the 'Barati' solution.
         * If ~212963 < Re <= 1E6, use the 'Barati_high' solution.
@@ -994,7 +995,7 @@ def drag_sphere(Re, AvailableMethods=False, Method=None):
         Drag coefficient [-]
     methods : list, only returned if AvailableMethods == True
         List of methods which can be used to calculate `Cd` with the given `Re`
-    
+
     Other Parameters
     ----------------
     Method : string, optional
@@ -1065,11 +1066,11 @@ def v_terminal(D, rhop, rho, mu, Method=None):
 
     Notes
     -----
-    As there are no correlations implmented for Re > 1E6, an error will be 
-    raised if the numerical solver seeks a solution above that limit. 
-    
+    As there are no correlations implmented for Re > 1E6, an error will be
+    raised if the numerical solver seeks a solution above that limit.
+
     The laminar solution is given in [1]_ and is:
-    
+
     .. math::
         v_t = \frac{g d_p^2 (\rho_p - \rho_f)}{18 \mu_f}
 
@@ -1077,11 +1078,14 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     --------
     >>> v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-3)
     0.004142497244531304
-    
+
     References
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
+    .. [2] Rushton, Albert, Anthony S. Ward, and Richard G. Holdich.
+       Solid-Liquid Filtration and Separation Technology. 1st edition. Weinheim ;
+       New York: Wiley-VCH, 1996.
     '''
     '''The following would be the ideal implementation. The actual function is
     optized for speed, not readability
@@ -1095,28 +1099,29 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     Re_lam = Reynolds(V=v_lam, D=D, rho=rhop, mu=mu)
     if Re_lam < 0.01:
         return v_lam
-    
+
     Re_almost = rho*D/mu
     main = 4/3.*g*D*(rhop-rho)/rho
-    V_max = 1E6/rho/D*mu # where the correlation breaks down, Re=1E6
+    V_max = 1E6/rho/D*mu  # where the correlation breaks down, Re=1E6
+
     def err(V):
         Cd = drag_sphere(Re_almost*V, Method=Method)
         return V - (main/Cd)**0.5
-    # Begin the solver with 1/100 th the velocity possible at the maximum 
+    # Begin the solver with 1/100 th the velocity possible at the maximum
     # Reynolds number the correlation is good for
     return float(newton(err, V_max/100, tol=1E-12))
 
 
-def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None, 
+def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
                           distance=False):
     r'''Integrates the velocity and distance traveled by a particle moving
-    at a speed which will converge to its terminal velocity. 
+    at a speed which will converge to its terminal velocity.
 
     Performs an integration of the following expression for acceleration:
 
     .. math::
         a = \frac{g(\rho_p-\rho_f)}{\rho_p} - \frac{3C_D \rho_f u^2}{4D \rho_p}
-        
+
     Parameters
     ----------
     D : float
@@ -1134,7 +1139,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     Method : string, optional
         A string of the function name to use, as in the dictionary
         drag_sphere_correlations
-    distance: bool, optional
+    distance : bool, optional
         Whether or not to calculate the distance traveled and return it as
         well
 
@@ -1144,33 +1149,33 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
         Velocity of falling sphere after time `t` [m/s]
     x : float, returned only if `distance` == True
         Distance traveled by the falling sphere in time `t`, [m]
-        
+
     Notes
     -----
     This can be relatively slow as drag correlations can be complex.
 
     Examples
     --------
-    >>> integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5, 
+    >>> integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5,
     ... V=30, distance=True)
     (9.686465044063436, 7.829454643649386)
     '''
     Re_ish = rho*D/mu
     c1 = g*(rhop-rho)/rhop
     c2 = -0.75*rho/(D*rhop)
-    
+
     def dv_dt(V, t):
         return c1 + c2*drag_sphere(Re_ish*V, Method=Method)*V*V
 
-    # Number of intervals for the solution to be solved for; the integrator 
+    # Number of intervals for the solution to be solved for; the integrator
     # doesn't care what we give it, but a large number of intervals are needed
     # For an accurate integration of the particle's distance traveled
     pts = 1000 if distance else 2
     ts = np.linspace(0, t, pts)
-    
+
     # Perform the integration
     Vs = odeint(dv_dt, [V], ts)
-    # 
+    #
     V_end = float(Vs[-1])
     if distance:
         # Calculate the distance traveled
