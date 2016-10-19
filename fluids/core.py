@@ -1929,7 +1929,6 @@ def Dean(Re, Di, D):
     return (Di/D)**0.5*Re
 
 
-
 def relative_roughness(D, roughness=1.52e-06):
     r'''Calculates relative roughness `eD` using a diameter and the roughness
     of the material of the wall. Default roughness is that of steel.
@@ -2184,7 +2183,7 @@ def dP_from_K(K, rho, V):
     return dP
 
 
-def head_from_K(K, V):
+def head_from_K(K, V, g=g):
     r'''Calculates head loss, for a given loss coefficient,
     at a specified velocity.
 
@@ -2197,6 +2196,8 @@ def head_from_K(K, V):
         Loss coefficient, []
     V : float
         Velocity of fluid in pipe, [m/s]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
 
     Returns
     -------
@@ -2217,7 +2218,7 @@ def head_from_K(K, V):
     return head
 
 
-def head_from_P(P, rho):
+def head_from_P(P, rho, g=g):
     r'''Calculates head for a fluid of specified density at specified
     pressure.
 
@@ -2230,6 +2231,8 @@ def head_from_P(P, rho):
         Pressure fluid in pipe, [Pa]
     rho : float
         Density of fluid, [kg/m^3]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
 
     Returns
     -------
@@ -2250,7 +2253,7 @@ def head_from_P(P, rho):
     return head
 
 
-def P_from_head(head, rho):
+def P_from_head(head, rho, g=g):
     r'''Calculates head for a fluid of specified density at specified
     pressure.
 
@@ -2263,6 +2266,8 @@ def P_from_head(head, rho):
         Head, [m]
     rho : float
         Density of fluid, [kg/m^3]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
 
     Returns
     -------

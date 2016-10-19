@@ -21,11 +21,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['Lockhart_Martinelli', 'Friedel', 'Chisholm', 'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
+__all__ = ['Lockhart_Martinelli', 'Friedel', 'Chisholm', 
+           'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
            'Yu_France', 'Wang_Chiang_Lu', 'Hwang_Kim', 'Zhang_Hibiki_Mishima',
-           'Mishima_Hibiki', 'Bankoff']
+           'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations']
 
 from math import pi, log, exp
 from fluids.friction import friction_factor
@@ -888,7 +889,7 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     return dP_lo*phi_lo2
 
 
-def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness, L):
+def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     r'''Calculates two-phase pressure drop with the Chen modification of the
     Friedel correlation, as given in [1]_ and also shown in [2]_ and [3]_.
 
@@ -1993,3 +1994,39 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
 
     phi_l2 = 1 + C/X + 1./X**2
     return dP_l*phi_l2
+
+
+two_phase_correlations = {
+    # 0 index, args are: m, x, rhol, mul, P, Pc, D, roughness=0, L=1
+    'Zhang_Webb': (Zhang_Webb, 0),
+    # 1 index, args are: m, x, rhol, rhog, mul, mug, D, L=1
+    'Lockhart_Martinelli': (Lockhart_Martinelli, 1),
+    # 2 index, args are: m, x, rhol, rhog, mul, mug, D, roughness=0, L=1
+    'Bankoff': (Bankoff, 2),
+    'Baroczy_Chisholm': (Baroczy_Chisholm, 2),
+    'Chisholm': (Chisholm, 2),
+    'Gronnerud': (Gronnerud, 2),
+    'Jung_Radermacher': (Jung_Radermacher, 2),
+    'Muller_Steinhagen_Heck': (Muller_Steinhagen_Heck, 2),
+    'Theissing': (Theissing, 2),
+    'Wang_Chiang_Lu': (Wang_Chiang_Lu, 2),
+    'Yu_France': (Yu_France, 2),
+    # 3 index, args are: m, x, rhol, rhog, mul, mug, sigma, D, L=1
+    'Kim_Mudawar': (Kim_Mudawar, 3),
+    # 4 index, args are: m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1
+    'Friedel': (Friedel, 4),
+    'Hwang_Kim': (Hwang_Kim, 4),
+    'Mishima_Hibiki': (Mishima_Hibiki, 4),
+    'Tran': (Tran, 4),
+    'Xu_Fang': (Xu_Fang, 4),
+    'Zhang_Hibiki_Mishima': (Zhang_Hibiki_Mishima, 4),
+    'Chen_Friedel': (Chen_Friedel, 4),
+    # 5 index: args are m, x, rhol, rhog, sigma, D, L=1
+    'Lombardi_Pedrocchi': (Lombardi_Pedrocchi, 5),
+    # Misc indexes:
+    'Chisholm rough': (Chisholm, 101),
+    'Zhang_Hibiki_Mishima adiabatic gas': (Zhang_Hibiki_Mishima, 102),
+    'Zhang_Hibiki_Mishima flow boiling': (Zhang_Hibiki_Mishima, 103)
+}
+
+

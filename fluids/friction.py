@@ -258,7 +258,6 @@ def Clamond(Re, eD):
     return 1.325474527619599502640416597148504422899/F/F # ((0.5*log(10))**2).evalf(40)
 
 
-
 def Moody(Re, eD):
     r'''Calculates Darcy friction factor using the method in Moody (1947)
     as shown in [1]_ and originally in [2]_.
