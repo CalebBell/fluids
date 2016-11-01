@@ -29,6 +29,7 @@ try:
     from fuzzywuzzy import process, fuzz
     fuzzy_match = lambda name, strings: process.extractOne(name, strings, scorer=fuzz.partial_ratio)[0]
 except ImportError: # pragma: no cover
+    import difflib
     fuzzy_match = lambda name, strings: difflib.get_close_matches(name, strings, n=1, cutoff=0)[0]
 
 __all__ = ['friction_factor', 'Colebrook', 'Clamond', 'friction_laminar',
