@@ -271,7 +271,7 @@ def square_edge_grill(alpha=None, l=None, Dh=None, fd=None):
     return K
 
 
-def round_edge_grill(alpha=None, l=None, Dh=None, fd=None):
+def round_edge_grill(alpha, l=None, Dh=None, fd=None):
     r'''Returns the loss coefficient for a rounded square grill or square bar
     screen or perforated plate with rounded edges of thickness l, as shown in
     [1]_.

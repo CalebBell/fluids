@@ -22,19 +22,29 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import log, log10, exp
-import difflib
 from scipy.special import lambertw
 from scipy.constants import inch
 
-__all__ = ['friction_factor', 'Colebrook', 'Clamond', 'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
+try:
+    from fuzzywuzzy import process, fuzz
+    fuzzy_match = lambda name, strings: process.extractOne(name, strings, scorer=fuzz.partial_ratio)[0]
+except ImportError: # pragma: no cover
+    fuzzy_match = lambda name, strings: difflib.get_close_matches(name, strings, n=1, cutoff=0)[0]
+
+__all__ = ['friction_factor', 'Colebrook', 'Clamond', 'friction_laminar',
+           'transmission_factor', 'material_roughness', 
+           'nearest_material_roughness', 'roughness_Farshad', 
+           '_Farshad_roughness', '_roughness', 'HHR_roughness',
+           'oregon_smooth_data',
+           'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
 'Eck_1973', 'Jain_1976', 'Swamee_Jain_1976', 'Churchill_1977', 'Chen_1979',
 'Round_1980', 'Shacham_1980', 'Barr_1981', 'Zigrang_Sylvester_1',
 'Zigrang_Sylvester_2', 'Haaland', 'Serghides_1', 'Serghides_2', 'Tsal_1989',
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
-'Brkic_2011_2', 'Fang_2011', 'friction_laminar', 'Blasius', 'von_Karman', 'Prandtl_von_Karman_Nikuradse', 
-'transmission_factor', 'roughness_Farshad', '_Farshad_roughness', 
-'_roughness', 'oregon_smooth_data']
+'Brkic_2011_2', 'Fang_2011', 'Blasius', 'von_Karman', 'Prandtl_von_Karman_Nikuradse']
+
+
 
 oregon_Res = [11.21, 20.22, 29.28, 43.19, 57.73, 64.58, 86.05, 113.3, 135.3, 
               157.5, 179.4, 206.4, 228, 270.9, 315.2, 358.9, 402.9, 450.2, 
@@ -1792,16 +1802,10 @@ def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=Fal
 
 fd = friction_factor # shortcut
 
-#print friction_factor(Re=1E5, eD=1E-4, AvailableMethods=True)
 
-# Roughness, in m
-_roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
-'Steel': .00000152, 'Asphalted cast iron': .000122, 'Galvanized iron': .000152,
-'Cast iron': .000259, 'Wood stave': .000183, 'Rough wood stave': .000914,
-'Concrete': .000305, 'Rough concrete': .00305, 'Riveted steel': .000914,
-'Rough riveted steel': .00914}
 
-# Data from the Handbook of Hydraulic Resistance, 4E, in format (min, max, avg) roughness in m
+# Data from the Handbook of Hydraulic Resistance, 4E, in format (min, max, avg)
+#  roughness in m; may have one, two, or three of the values.
 seamless_other_metals = {'Commercially smooth': (1.5E-6, 1.0E-5, None)}
 
 seamless_steel = {'New and unused': (2.0E-5, 1.0E-4, None),
@@ -1817,8 +1821,8 @@ seamless_steel = {'New and unused': (2.0E-5, 1.0E-4, None),
     (None, None, 2.0E-4),
     'Water heating system pipelines, any source': (None, None, 2.0E-4),
     'Oil pipelines, intermediate operating conditions ': (None, None, 2.0E-4),
-    'Corroded, moderately ': (None, None, -4.0E-4),
-    'Scale, small depositions only ': (None, None, -4.0E-4),
+    'Corroded, moderately ': (None, None, 4.0E-4),
+    'Scale, small depositions only ': (None, None, 4.0E-4),
     'Condensate pipes in open systems or periodically operated steam pipelines':
     (None, None, 5.0E-4),
     'Compressed air piping': (None, None, 8.0E-4),
@@ -1830,13 +1834,13 @@ seamless_steel = {'New and unused': (2.0E-5, 1.0E-4, None),
     'Poor condition': (5.0E-3, None, None)}
 
 welded_steel = {'Good condition': (4.0E-5, 1.0E-4, None),
-    'New and covered with bitumen': (None, None, -5.0E-5),
+    'New and covered with bitumen': (None, None, 5.0E-5),
     'Used and covered with partially dissolved bitumen; corroded':
-    (None, None, -1.0E-4),
-    'Used, suffering general corrosion': (None, None, -1.5E-4),
+    (None, None, 1.0E-4),
+    'Used, suffering general corrosion': (None, None, 1.5E-4),
     'Surface looks like new, 10 mm lacquer inside, even joints':
     (3.0E-4, 4.0E-4, None),
-    'Used Gas mains': (None, None, -5.0E-4),
+    'Used Gas mains': (None, None, 5.0E-4),
     'Double or simple transverse riveted joints; with or without lacquer; without corrosion':
     (6.0E-4, 7.0E-4, None),
     'Lacquered inside but rusted': (9.5E-4, 1.0E-3, None),
@@ -2019,11 +2023,35 @@ tunnels = {'Rough channels in rock': rock_channels,
            'Unlined tunnels': unlined_tunnels}
 
 
-HHR_roughness_dicts = [tunnels, steels, wood_plywood_glass, concretes]
-HHR_roughness_categories, HHR_roughness = {}, {}
-[HHR_roughness_categories.update(i) for i in HHR_roughness_dicts]
-[[HHR_roughness.update(i) for i in j.values()] for j in HHR_roughness_dicts]
+# Roughness, in m
+_roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
+'Steel': .00000152, 'Asphalted cast iron': .000122, 'Galvanized iron': .000152,
+'Cast iron': .000259, 'Wood stave': .000183, 'Rough wood stave': .000914,
+'Concrete': .000305, 'Rough concrete': .00305, 'Riveted steel': .000914,
+'Rough riveted steel': .00914}
 
+
+# Create a more friendly data structure
+
+'''Holds a dict of tuples in format (min, max, average) roughness values in 
+meters from the source
+Idelʹchik, I. E, and A. S Ginevskiĭ. Handbook of Hydraulic 
+Resistance. Redding, CT: Begell House, 2007.
+'''
+HHR_roughness = {}
+
+
+HHR_roughness_dicts = [tunnels, wood_plywood_glass, concretes, steels]
+HHR_roughness_categories = {}
+[HHR_roughness_categories.update(i) for i in HHR_roughness_dicts]
+for d in HHR_roughness_dicts:
+    for k, v in d.items():
+        for name, values in v.items():
+            HHR_roughness[str(k)+', ' + name] = values
+
+# For searching only
+_all_roughness = HHR_roughness.copy()
+_all_roughness.update(_roughness)
 
 # Format : ID: (avg_roughness, coef A (inches), coef B (inches))
 _Farshad_roughness = {'Plastic coated': (5E-6, 0.0002, -1.0098),
@@ -2092,6 +2120,9 @@ def roughness_Farshad(ID=None, D=None, coeffs=None):
     values would be ncessary to produce the observed pressure drops. The 
     average difference between this back-calculated roughness and the measured
     roughness was 6.75%.
+    
+    For microchannels, this model will predict roughness much larger than the
+    actual channel diameter.
 
     Examples
     --------
@@ -2124,18 +2155,93 @@ roughness_clean_dict = _roughness.copy()
 roughness_clean_dict.update(_Farshad_roughness)
 
 
-#def nearest_roughness(name, clean=True):
-#    if clean:
-#        d = roughness_clean_dict
-#    else:
-#        d = HHR_roughness
-#    ID = difflib.get_close_matches(name, d.keys(), n=1, cutoff=0.6)
-#    if not ID:
-#        ID = difflib.get_close_matches(name, d.keys(), n=1, cutoff=0.3)
-#    if not ID:
-#        ID = difflib.get_close_matches(name, d.keys(), n=1, cutoff=0)
-#    return ID[0]
+def nearest_material_roughness(name, clean=None):
+    r'''Searches through either a dict of clean pipe materials or used pipe
+    materials and conditions and returns the ID of the nearest material.
+    Search is performed with either the standard library's difflib or with
+    the fuzzywuzzy module if available.
 
+    Parameters
+    ----------
+    name : str
+        Search term for matching pipe materials
+    clean : bool, optional
+        If True, search only clean pipe database; if False, search only the
+        dirty database; if None, search both
+
+    Returns
+    -------
+    ID : str
+        String for lookup of roughness of a pipe, in either 
+        `roughness_clean_dict` or `HHR_roughness` depending on if clean is 
+        True
+
+    Examples
+    --------
+    >>> nearest_material_roughness('condensate pipes', clean=False)
+    'Seamless steel tubes, Condensate pipes in open systems or periodically operated steam pipelines'
+
+    References
+    ----------
+    .. [1] Idelʹchik, I. E, and A. S Ginevskiĭ. Handbook of Hydraulic 
+       Resistance. Redding, CT: Begell House, 2007.
+    '''
+    d = _all_roughness if clean is None else (roughness_clean_dict if clean else HHR_roughness)
+    return fuzzy_match(name, d.keys())
+
+
+def material_roughness(ID, D=None, optimism=None):
+    r'''Searches through either a dict of clean pipe materials or used pipe
+    materials and conditions and returns the ID of the nearest material.
+    Search is performed with either the standard library's difflib or with
+    the fuzzywuzzy module if available.
+
+    Parameters
+    ----------
+    ID : str
+        Search terms for matching pipe materials
+    D : float, optional
+        Diameter of desired pipe; used only if ID is in [2]_
+    optimism : bool, optional
+        For values in [1]_, a minimum, maximum, and average value is normally
+        given; if True, returns the minimum roughness; if False, the maximum
+        roughness; and if None, returns the average roughness. Most entries do
+        not have all three values, so fallback logic to return the closest
+        entry is used.
+
+    Returns
+    -------
+    roughness : float
+        Retrieved or calculated roughness, [m]
+
+    Examples
+    --------
+    >>> material_roughness('condensate pipes')
+    0.0005
+
+    References
+    ----------
+    .. [1] Idelʹchik, I. E, and A. S Ginevskiĭ. Handbook of Hydraulic 
+       Resistance. Redding, CT: Begell House, 2007.
+    .. [2] Farshad, Fred F., and Herman H. Rieke. "Surface Roughness Design 
+       Values for Modern Pipes." SPE Drilling & Completion 21, no. 3 (September
+       1, 2006): 212-215. doi:10.2118/89040-PA.
+    '''
+    if ID in _Farshad_roughness:
+        return roughness_Farshad(ID, D)
+    elif ID in _roughness:
+        return _roughness[ID]
+    elif ID in HHR_roughness:
+        minimum, maximum, avg = HHR_roughness[ID]
+        if optimism is None:
+            return avg if avg else (maximum if maximum else minimum)
+        elif optimism is True:
+            return minimum if minimum else (avg if avg else maximum)
+        else:
+            return maximum if maximum else (avg if avg else minimum)
+    else:
+        return material_roughness(nearest_material_roughness(ID, clean=False), 
+                                  D=D, optimism=optimism)
 
 def transmission_factor(fd=None, F=None):
     r'''Calculates either transmission factor from Darcy friction factor,
@@ -2179,153 +2285,4 @@ def transmission_factor(fd=None, F=None):
         raise Exception('Either Darcy friction factor or transmission factor is needed')
 
 
-
-#### Code used to create the dictionary
-#data = '''Moody	4000	1.0E+8	0	1
-#Alshul_1952
-#Wood_1966	4000	5.0E+7	1.0E-5	0.04
-#Churchill_1973
-#Eck_1973
-#Jain_1976	5000	1.0E+7	4.0E-5	0.05
-#Swamee_Jain_1976	5000	1.0E+8	1.0E-6	0.05
-#Churchill_1977
-#Chen_1979	4000	4.0E+8	1.0E-7	0.05
-#Round_1980	4000	4.0E+8	0	0.05
-#Shacham_1980	4000	4.0E+8
-#Barr_1981
-#Zigrang_Sylvester_1	4000	1.0E+8	4.0E-5	0.05
-#Zigrang_Sylvester_2	4000	1.0E+8	4.0E-5	0.05
-#Haaland	4000	1.0E+8	1.0E-6	0.05
-#Serghides_1
-#Serghides_2
-#Tsal_1989	4000	1.0E+8	0	0.05
-#Manadilli_1997	5245	1.0E+8	0	0.05
-#Romeo_2002	3000	1.5E+8	0	0.05
-#Sonnad_Goudar_2006	4000	1.0E+8	1.0E-6	0.05
-#Rao_Kumar_2007
-#Buzzelli_2008
-#Avci_Karagoz_2009
-#Papaevangelo_2010	10000	1.0E+7	1.0E-5	0.001
-#Brkic_2011_1
-#Brkic_2011_2
-#Fang_2011	3000	1.0E+8	0	0.05'''
-
-#for i in data.split('\n'):
-#    j = i.split('\t')
-#    if len(j) == 1:
-#        fname = j[0]
-#        Remin, Remax, eDmin, eDmax = None, None, None, None
-#    elif len(j) == 3:
-#        fname, Remin, Remax = j
-##        Remin = float(Remin)
-##        Remax = float(Remax)
-#        eDmin, eDmax = None, None
-#    elif len(j) == 5:
-#        fname, Remin, Remax, eDmin, eDmax = j
-##        Remin = float(Remin)
-##        Remax = float(Remax)
-##        eDmin = float(eDmin)
-##        eDmax = float(eDmax)
-##
-##    args = {}
-#    Re_args = (Remin, Remax, None)
-#    eD_args = (eDmin, eDmax, None)
-#
-##    args['eD'] = {'Name': 'Relative roughness', 'Symbol': '\epsilon/D', 'Default': None, 'Min': eDmin, 'Max': eDmax, 'Units': None }
-##    args['Re'] = {'Name': 'Reynolds number', 'Symbol': '\text{Re}', 'Default': None, 'Min':  Remin, 'Max': Remax, 'Units': None }
-##    print args
-#    print '''fmethods[%s] = {'Nice name': '%s', 'Re_details': %s, 'eD_details': %s}'''  %(fname, fname.replace('_', ' '), Re_args, eD_args)
-#
-#
-#fmethods_prototype = {'Re_details': ('Re min', 'Re max', 'Re Default'),
-#                      'eD_details': (':math:`\epsilon/D` Min', ':math:`\epsilon/D` Max', ':math:`\epsilon/D` Default')}
-#
-##print fmethods_prototype
-#
-#fmethods = {}
-#fmethods[Moody] = {'Nice name': 'Moody', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('0', '1', None)}
-#fmethods[Alshul_1952] = {'Nice name': 'Alshul 1952', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Wood_1966] = {'Nice name': 'Wood 1966', 'Re_details': ('4000', '5.0E+7', None), 'eD_details': ('1.0E-5', '0.04', None)}
-#fmethods[Churchill_1973] = {'Nice name': 'Churchill 1973', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Eck_1973] = {'Nice name': 'Eck 1973', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Jain_1976] = {'Nice name': 'Jain 1976', 'Re_details': ('5000', '1.0E+7', None), 'eD_details': ('4.0E-5', '0.05', None)}
-#fmethods[Swamee_Jain_1976] = {'Nice name': 'Swamee Jain 1976', 'Re_details': ('5000', '1.0E+8', None), 'eD_details': ('1.0E-6', '0.05', None)}
-#fmethods[Churchill_1977] = {'Nice name': 'Churchill 1977', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Chen_1979] = {'Nice name': 'Chen 1979', 'Re_details': ('4000', '4.0E+8', None), 'eD_details': ('1.0E-7', '0.05', None)}
-#fmethods[Round_1980] = {'Nice name': 'Round 1980', 'Re_details': ('4000', '4.0E+8', None), 'eD_details': ('0', '0.05', None)}
-#fmethods[Shacham_1980] = {'Nice name': 'Shacham 1980', 'Re_details': ('4000', '4.0E+8', None), 'eD_details': (None, None, None)}
-#fmethods[Barr_1981] = {'Nice name': 'Barr 1981', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Zigrang_Sylvester_1] = {'Nice name': 'Zigrang Sylvester 1', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('4.0E-5', '0.05', None)}
-#fmethods[Zigrang_Sylvester_2] = {'Nice name': 'Zigrang Sylvester 2', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('4.0E-5', '0.05', None)}
-#fmethods[Haaland] = {'Nice name': 'Haaland', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('1.0E-6', '0.05', None)}
-#fmethods[Serghides_1] = {'Nice name': 'Serghides 1', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Serghides_2] = {'Nice name': 'Serghides 2', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Tsal_1989] = {'Nice name': 'Tsal 1989', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('0', '0.05', None)}
-#fmethods[Manadilli_1997] = {'Nice name': 'Manadilli 1997', 'Re_details': ('5245', '1.0E+8', None), 'eD_details': ('0', '0.05', None)}
-#fmethods[Romeo_2002] = {'Nice name': 'Romeo 2002', 'Re_details': ('3000', '1.5E+8', None), 'eD_details': ('0', '0.05', None)}
-#fmethods[Sonnad_Goudar_2006] = {'Nice name': 'Sonnad Goudar 2006', 'Re_details': ('4000', '1.0E+8', None), 'eD_details': ('1.0E-6', '0.05', None)}
-#fmethods[Rao_Kumar_2007] = {'Nice name': 'Rao Kumar 2007', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Buzzelli_2008] = {'Nice name': 'Buzzelli 2008', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Avci_Karagoz_2009] = {'Nice name': 'Avci Karagoz 2009', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Papaevangelo_2010] = {'Nice name': 'Papaevangelo 2010', 'Re_details': ('10000', '1.0E+7', None), 'eD_details': ('1.0E-5', '0.001', None)}
-#fmethods[Brkic_2011_1] = {'Nice name': 'Brkic 2011 1', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Brkic_2011_2] = {'Nice name': 'Brkic 2011 2', 'Re_details': (None, None, None), 'eD_details': (None, None, None)}
-#fmethods[Fang_2011] = {'Nice name': 'Fang 2011', 'Re_details': ('3000', '1.0E+8', None), 'eD_details': ('0', '0.05', None)}
-
-
-
-#header = ['Nice name']
-#rows = [header]
-#row_elements = []
-#
-#for details in fmethods_prototype.values():
-#    for detail in details:
-#        header += [detail]
-#
-#
-#for f in fmethods.values():
-#    row = [f['Nice name']]
-#    for detail_type in ['Re_details', 'eD_details']:
-#        for detail in f[detail_type]:
-#            row.append(str(detail))
-#    rows.append(row)
-#
-#
-#lengths = [0 for i in rows[0]]
-#for row in rows:
-#    for i in range(len(row)):
-#        lengths[i] = max(lengths[i], len(row[i]))
-#
-#def main_line(lengths):
-#    new_line = ''
-#    for length in lengths:
-#        new_line += '+' + '-'*length
-#    new_line += '+\n'
-#    return new_line
-#
-#def header_line(lengths):
-#    line = ''
-#    for length in lengths:
-#        line += '+' + '='*length
-#    line += '+\n'
-#    return line
-#
-#n_line = main_line(lengths)
-#h_line = header_line(lengths)
-#
-#
-#table = n_line
-#for k in range(len(rows)):
-#    row = rows[k]
-#
-#    for i in range(len(row)):
-#        table += '|' + str(row[i]).ljust(lengths[i])
-#    table += '|\n'
-#
-#    if k == 0:
-#        table += h_line
-#    else:
-#        table += n_line
-##table += n_line
-#print table
 

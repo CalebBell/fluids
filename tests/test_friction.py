@@ -55,9 +55,10 @@ def test_friction():
     assert_allclose(Brkic_2011_2(1E5, 1E-4), 0.018619745410688716)
     assert_allclose(Fang_2011(1E5, 1E-4), 0.018481390682985432)
     assert_allclose(Clamond(1E5, 1E-4), 0.01851386607747165)
-    
+    assert_allclose(Colebrook(1E5, 1E-4), 0.018513866077471648)
+
     assert_allclose(friction_laminar(128), 0.5)
-    
+
     assert_allclose(Blasius(10000), 0.03164)
 
     assert_allclose(sum(_roughness.values()), 0.01504508)
@@ -72,36 +73,65 @@ def test_friction():
 
     assert_allclose(friction_factor(Re=1E5, eD=1E-4, Darcy=False), 0.01851386607747165*4)
     assert_allclose(friction_factor(Re=128), 0.5)
+    
+    assert_allclose(friction_factor(Re=1E5, eD=0, Method=None), 0.01798977308427384)
+    
 
 
 def test_transmission_factor():
     assert_allclose(transmission_factor(fd=0.0185), 14.704292441876154)
     assert_allclose(transmission_factor(F=14.704292441876154), 0.0185)
     assert_allclose(transmission_factor(0.0185), 14.704292441876154)
-    
+
     # Example in [1]_, lists answer as 12.65
     assert_allclose(transmission_factor(fd=0.025), 12.649110640673516)
-    
+
     with pytest.raises(Exception):
         transmission_factor()
 
 
 def test_roughness_Farshad():
-    
+
     e = roughness_Farshad('Cr13, bare', 0.05)
     assert_allclose(e, 5.3141677781137006e-05)
-    
+
     e = roughness_Farshad('Cr13, bare')
     assert_allclose(e, 5.5e-05)
-    
+
     e = roughness_Farshad(coeffs=(0.0021, -1.0055), D=0.05)
     assert_allclose(e, 5.3141677781137006e-05)
-    
+
     tot = sum([abs(j) for i in _Farshad_roughness.values() for j in i])
     assert_allclose(tot, 7.0729095)
-    
+
     with pytest.raises(Exception):
         roughness_Farshad('BADID', 0.05)
+
+def test_nearest_material_roughness():
+    hit1 = nearest_material_roughness('condensate pipes', clean=False)
+    assert hit1 == 'Seamless steel tubes, Condensate pipes in open systems or periodically operated steam pipelines'
+    
+    hit2 = nearest_material_roughness('Plastic', clean=True)
+    assert hit2 == 'Plastic coated'
+
+
+def test_material_roughness():
+    e1 = material_roughness('Plastic coated')
+    assert_allclose(e1, 5e-06)
+    
+    e2 = material_roughness('Plastic coated', D=1E-3)
+    assert_allclose(e2, 5.243618447826409e-06)
+
+    e3 = material_roughness('Brass')
+    assert_allclose(e3, 1.52e-06)
+
+    e4 = material_roughness('condensate pipes')
+    assert_allclose(e4, 0.0005)
+
+    ID = 'Old, poor fitting and manufacture; with an overgrown surface'
+    e5 = [material_roughness(ID, optimism=i) for i in (True, False)]
+    assert_allclose(e5, [0.001, 0.004])
+
 
 def test_von_Karman():
     f = von_Karman(1E-4)
@@ -117,4 +147,4 @@ def test_Prandtl_von_Karman_Nikuradse():
 
     for Re in np.logspace(1E-15,30,200):
         assert_allclose(Prandtl_von_Karman_Nikuradse_numeric(Re), Prandtl_von_Karman_Nikuradse(Re))
-    
+
