@@ -3,3 +3,4 @@ pytest
 pytest-cov
 coveralls
 sympy
+fuzzywuzzy
