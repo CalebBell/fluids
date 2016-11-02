@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 
-
+from . import atmosphere
 from . import compressible
 from . import control_valve
 from . import core
@@ -42,7 +42,7 @@ from . import drag
 from . import saltation
 
 
-
+from .atmosphere import *
 from .compressible import *
 from .control_valve import *
 from .core import *
@@ -63,12 +63,12 @@ from .drag import *
 from .saltation import *
 
 
-__all__ = ['compressible', 'control_valve', 'core', 'filters', 'fittings',
+__all__ = ['atmosphere', 'compressible', 'control_valve', 'core', 'filters', 'fittings',
 'friction', 'geometry', 'mixing', 'open_flow', 'packed_bed', 'piping',
 'pump', 'safety_valve', 'packed_tower', 'two_phase', 'two_phase_voidage', 
 'drag', 'saltation']
 
-
+__all__.extend(atmosphere.__all__)
 __all__.extend(compressible.__all__)
 __all__.extend(control_valve.__all__)
 __all__.extend(core.__all__)
