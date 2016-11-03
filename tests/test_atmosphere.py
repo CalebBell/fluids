@@ -48,4 +48,8 @@ def test_ATMOSPHERE_1976():
     assert_allclose(mus, mu_1, rtol=5E-5)
     
     assert_allclose(ATMOSPHERE_1976(1000, dT=1).T, 282.6510223716947)
+    
+    # Check thermal conductivity with: http://www.aerospaceweb.org/design/scripts/atmosphere/
     assert_allclose(ATMOSPHERE_1976(1000).k, 0.0248133634493)
+    # Other possible additions: 
+    # mean air particle speed; mean collision frequency; mean free path; mole volume; total number density

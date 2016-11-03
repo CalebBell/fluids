@@ -44,6 +44,10 @@ class ATMOSPHERE_1976(object):
 
     @staticmethod
     def get_ind_from_H(H):
+        '''Method defined in the US Standard Atmosphere 1976 for determining
+        the index of the layer a specified elevation is above. Levels are 
+        0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852 meters respectively.
+        '''
         if H <= 0:
             return 0
         for ind, Hi in enumerate(H_std):
@@ -53,27 +57,125 @@ class ATMOSPHERE_1976(object):
     
     @staticmethod
     def thermal_conductivity(T):
+        '''Method defined in the US Standard Atmosphere 1976 for calculating
+        thermal conductivity of air as a function of `T` only. 
+        
+        .. math::
+            k_g = \frac{2.64638\times10^{-3}T^{1.5}}
+            {T + 245.4\cdot 10^{-12./T}}
+    
+        Parameters
+        ----------
+        T : float
+            Temperature, [K]
+
+        Returns
+        -------
+        kg : float
+            Thermal conductivity, [W/m/K]
+        '''        
         return 2.64638E-3*T**1.5/(T + 245.4*10**(-12./T))
     
     @staticmethod
     def viscosity(T):
+        '''Method defined in the US Standard Atmosphere 1976 for calculating
+        viscosity of air as a function of `T` only. 
+        
+        .. math::
+            \mu_g = \frac{1.458\times10^{-6}T^{1.5}}{T+110.4}
+    
+        Parameters
+        ----------
+        T : float
+            Temperature, [K]
+
+        Returns
+        -------
+        mug : float
+            Viscosity, [Pa*s]
+        '''        
         return 1.458E-6*T**1.5/(T+110.4)
     
     @staticmethod
     def density(T, P):
+        '''Method defined in the US Standard Atmosphere 1976 for calculating
+        density of air as a function of `T` and `P`. MW is defined as 28.9644
+        g/mol, and R as 8314.32 J/kmol/K
+        
+        .. math::
+            \rho_g = \frac{P\cdot MW}{T\cdot R\cdot 1000}
+    
+        Parameters
+        ----------
+        T : float
+            Temperature, [K]
+        P : float
+            Pressure, [Pa]
+
+        Returns
+        -------
+        rho : float
+            Mass density, [kg/m^3]
+        '''        
         # 0.00348367635597379 = M0/R
         return P*0.00348367635597379/T
     
     @staticmethod
     def sonic_velocity(T):
+        '''Method defined in the US Standard Atmosphere 1976 for calculating
+        the speed of sound in air as a function of `T` only. 
+        
+        .. math::
+            c = \left(\frac{\gamma R T}{MW}\right)^{0.5}
+    
+        Parameters
+        ----------
+        T : float
+            Temperature, [K]
+
+        Returns
+        -------
+        c : float
+            Speed of sound, [m/s]
+        '''        
         # 401.87... = gamma*R/MO
         return (401.87430086589046*T)**0.5
     
     @staticmethod
     def gravity(Z):
-        return g0*(r0/(r0+Z))**2
+        '''Method defined in the US Standard Atmosphere 1976 for calculating
+        the gravitational acceleration above earth as a function of elevation
+        only.
+        
+        .. math::
+            g = g_0\left(\frac{r_0}{r_0+Z}\right)^2
     
+        Parameters
+        ----------
+        Z : float
+            Elevation above sea level, [m]
+
+        Returns
+        -------
+        g : float
+            Acceleration due to gravity, [m/s^2]
+        '''        
+        return g0*(r0/(r0+Z))**2
+
+
     def __init__(self, Z, dT=0):
+        '''US Standard Atmosphere 1976 main method, which calculates `T`, `P`,
+        `rho`, `v_sonic`, `mu`, `k`, and `g` as a function of altitude above 
+        sea level.
+        
+        Parameters
+        ----------
+        Z : float
+            Elevation, [m]
+        dT : float, optional
+            Temperature difference from standard conditions used in determining
+            the properties of the atmosphere, [K]
+        '''        
         self.Z = Z
         self.H = r0*self.Z/(r0+self.Z)
 
