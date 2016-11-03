@@ -41,10 +41,22 @@ gamma = 1.400
 
 
 class ATMOSPHERE_1976(object):
+    r'''US Standard Atmosphere 1976 class, which calculates `T`, `P`,
+    `rho`, `v_sonic`, `mu`, `k`, and `g` as a function of altitude above 
+    sea level. 
+    
+    Parameters
+    ----------
+    Z : float
+        Elevation, [m]
+    dT : float, optional
+        Temperature difference from standard conditions used in determining
+        the properties of the atmosphere, [K]
+    '''        
 
     @staticmethod
     def get_ind_from_H(H):
-        '''Method defined in the US Standard Atmosphere 1976 for determining
+        r'''Method defined in the US Standard Atmosphere 1976 for determining
         the index of the layer a specified elevation is above. Levels are 
         0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852 meters respectively.
         '''
@@ -57,7 +69,7 @@ class ATMOSPHERE_1976(object):
     
     @staticmethod
     def thermal_conductivity(T):
-        '''Method defined in the US Standard Atmosphere 1976 for calculating
+        r'''Method defined in the US Standard Atmosphere 1976 for calculating
         thermal conductivity of air as a function of `T` only. 
         
         .. math::
@@ -78,7 +90,7 @@ class ATMOSPHERE_1976(object):
     
     @staticmethod
     def viscosity(T):
-        '''Method defined in the US Standard Atmosphere 1976 for calculating
+        r'''Method defined in the US Standard Atmosphere 1976 for calculating
         viscosity of air as a function of `T` only. 
         
         .. math::
@@ -98,7 +110,7 @@ class ATMOSPHERE_1976(object):
     
     @staticmethod
     def density(T, P):
-        '''Method defined in the US Standard Atmosphere 1976 for calculating
+        r'''Method defined in the US Standard Atmosphere 1976 for calculating
         density of air as a function of `T` and `P`. MW is defined as 28.9644
         g/mol, and R as 8314.32 J/kmol/K
         
@@ -122,7 +134,7 @@ class ATMOSPHERE_1976(object):
     
     @staticmethod
     def sonic_velocity(T):
-        '''Method defined in the US Standard Atmosphere 1976 for calculating
+        r'''Method defined in the US Standard Atmosphere 1976 for calculating
         the speed of sound in air as a function of `T` only. 
         
         .. math::
@@ -143,7 +155,7 @@ class ATMOSPHERE_1976(object):
     
     @staticmethod
     def gravity(Z):
-        '''Method defined in the US Standard Atmosphere 1976 for calculating
+        r'''Method defined in the US Standard Atmosphere 1976 for calculating
         the gravitational acceleration above earth as a function of elevation
         only.
         
@@ -164,18 +176,6 @@ class ATMOSPHERE_1976(object):
 
 
     def __init__(self, Z, dT=0):
-        '''US Standard Atmosphere 1976 main method, which calculates `T`, `P`,
-        `rho`, `v_sonic`, `mu`, `k`, and `g` as a function of altitude above 
-        sea level.
-        
-        Parameters
-        ----------
-        Z : float
-            Elevation, [m]
-        dT : float, optional
-            Temperature difference from standard conditions used in determining
-            the properties of the atmosphere, [K]
-        '''        
         self.Z = Z
         self.H = r0*self.Z/(r0+self.Z)
 
