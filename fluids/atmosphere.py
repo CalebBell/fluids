@@ -56,7 +56,7 @@ class ATMOSPHERE_1976(object):
     Examples
     --------
     >>> five_km = ATMOSPHERE_1976(5000)
-    >>> five_km.P, five_km.rho, five_km.mu, 
+    >>> five_km.P, five_km.rho, five_km.mu
     (54048.28614576141, 0.7364284207799743, 1.628248135362207e-05)
     >>> five_km.k, five_km.g, five_km.v_sonic
     (0.02273190295142526, 9.791241076982665, 320.5455196704035)
