@@ -48,13 +48,31 @@ def test_dP_demister_wet_ElDessouky():
     V = 6.
     dw = 0.32
     dP_orig = 3.88178*rho**0.375798*V**0.81317*dw**-1.56114147
-    # 689.4685604448499, compares with maybe 690 Pa/m.
+    # 689.4685604448499, compares with maybe 690 Pa/m from figure
     
     voidage = 1-rho/7999.
     dP = dP_demister_wet_ElDessouky(V, voidage, dw/1000.)
     assert_allclose(dP_orig, dP)
+    assert_allclose(dP, 689.4685604448499)
     
     # Test length multiplier
     assert_allclose(dP*10, dP_demister_wet_ElDessouky(V, voidage, dw/1000., 10))
+    
+    
+def test_separation_demister_ElDessouky():
+    # Point from their figure 6
+    dw = 0.2
+    rho = 208.16
+    d_p = 5
+    V = 1.35
+    eta1 = 17.5047*dw**-0.28264*rho**0.099625*V**0.106878*d_p**0.383197
+    eta1 /=100. # Convert to a 0-1 basis.
+    voidage = 1-rho/7999.
+
+    eta = separation_demister_ElDessouky(V, voidage, dw/1000., d_p/1000.)
+    assert_allclose(eta1, eta)
+    assert_allclose(eta, 0.8983693041263305)
+
+    assert 1 == separation_demister_ElDessouky(1.35, 0.92, 0.0002, 0.005)   
 
 

@@ -29,7 +29,7 @@ __all__ = ['voidage_experimental', 'specific_area_mesh',
 'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood',
 'dP_demister_dry_Setekleiv_Svendsen_lit',
 'dP_demister_dry_Setekleiv_Svendsen',
-'dP_demister_wet_ElDessouky']
+'dP_demister_wet_ElDessouky', 'separation_demister_ElDessouky']
 
 
 ### Demister
@@ -152,10 +152,10 @@ def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1):
         
     Parameters
     ----------
-    voidage : float
-        Voidage of bed of the demister material, normally ~0.98 []
     vs : float
         Superficial velocity of fluid, Q/A [m/s]
+    voidage : float
+        Voidage of bed of the demister material, normally ~0.98 []
     d_wire : float
         Diameter of mesh wire,[m]
     L : float, optional
@@ -168,9 +168,13 @@ def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1):
 
     Notes
     -----
-    No dependency on the liquid properties is included here. 
-    
-    The correlation in [1] was presented as follows, with wire diameter in
+    No dependency on the liquid properties is included here. Because of the
+    exponential nature of the correlation, the limiting pressure drop as V
+    is lowered is 0 Pa. A dry pressure drop correlation should be compared with
+    results from this at low velocities, and the larger of the
+    two pressure drops used.
+
+    The correlation in [1]_ was presented as follows, with wire diameter in
     units of mm, density in kg/m^3, V in m/s, and dP in Pa/m.
     
     .. math::
@@ -184,6 +188,7 @@ def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1):
     In [1]_, V ranged from 0.98-7.5 m/s, rho from 80.317-208.16 kg/m^3, depth 
     from 100 to 200 mm, wire diameter of 0.2mm to 0.32 mm, and particle 
     diameter from 1 to 5 mm.
+    
 
     Examples
     --------
@@ -198,6 +203,70 @@ def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1):
        2000): 129-39. doi:10.1016/S0255-2701(99)00033-1.
     '''
     return L*0.002356999643727531*(1-voidage)**0.375798*vs**0.81317*d_wire**-1.56114147
+
+
+def separation_demister_ElDessouky(vs, voidage, d_wire, d_drop):
+    r'''Calculates droplet removal by a demister as a fraction from 0 to 1,
+    using the correlation in [1]_. Uses only their own experimental data.
+    
+    .. math::
+        \eta = 0.85835(d_w)^{-0.28264}(1-\epsilon)^{0.099625}(V)^{0.106878}
+        (d_p)^{0.383197}
+        
+    Parameters
+    ----------
+    vs : float
+        Superficial velocity of fluid, Q/A [m/s]
+    voidage : float
+        Voidage of bed of the demister material, normally ~0.98 []
+    d_wire : float
+        Diameter of mesh wire,[m]
+    d_drop : float
+        Drop diameter, [m]
+
+    Returns
+    -------
+    eta : float
+        Fraction droplets removed by mass [-]
+
+    Notes
+    -----
+    No dependency on the liquid properties is included here. Because of the
+    exponential nature of the correlation, for smaller diameters separation
+    quickly lowers. This correlation can predict a separation larger than 1
+    for higher velocities, lower voidages, lower wire diameters, and large 
+    droplet sizes. This function truncates these larger values to 1.
+    
+    The correlation in [1]_ was presented as follows, with wire diameter in
+    units of mm, density in kg/m^3, V in m/s, separation in %, and particle
+    diameter in mm.
+    
+    .. math::
+        \eta = 17.5047(d_w)^{-0.28264}(\rho_{mesh})^{0.099625}(V)^{0.106878}
+        (d_p)^{0.383197}
+    
+    Here, the correlation is converted to base SI units and to use voidage;
+    not all demisters are stainless steel as in [1]_. A density of 7999 kg/m^3 
+    was used in the conversion.
+    
+    In [1]_, V ranged from 0.98-7.5 m/s, rho from 80.317-208.16 kg/m^3, depth 
+    from 100 to 200 mm, wire diameter of 0.2mm to 0.32 mm, and particle 
+    diameter from 1 to 5 mm.
+    
+    Examples
+    --------
+    >>> separation_demister_ElDessouky(1.35, 0.974, 0.0002, 0.005)
+    0.8982892997640582
+    
+    References
+    ----------
+    .. [1] El-Dessouky, Hisham T, Imad M Alatiqi, Hisham M Ettouney, and Noura 
+       S Al-Deffeeri. "Performance of Wire Mesh Mist Eliminator." Chemical 
+       Engineering and Processing: Process Intensification 39, no. 2 (March 
+       2000): 129-39. doi:10.1016/S0255-2701(99)00033-1.
+    '''
+    eta = 0.858352355761947*d_wire**-0.28264*(1-voidage)**0.099625*vs**0.106878*d_drop**0.383197
+    return min(eta, 1.0)
 
 
 def voidage_experimental(m, rho, D, H):
