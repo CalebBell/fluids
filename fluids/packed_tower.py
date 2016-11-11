@@ -28,7 +28,8 @@ from scipy.optimize import fsolve
 __all__ = ['voidage_experimental', 'specific_area_mesh',
 'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood',
 'dP_demister_dry_Setekleiv_Svendsen_lit',
-'dP_demister_dry_Setekleiv_Svendsen']
+'dP_demister_dry_Setekleiv_Svendsen',
+'dP_demister_wet_ElDessouky']
 
 
 ### Demister
@@ -141,13 +142,71 @@ def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1):
     return dP
 
 
+def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1):
+    r'''Calculates wet pressure drop across a demister, using the
+    correlation in [1]_. Uses only their own experimental data.
+    
+    .. math::
+        \frac{\Delta P}{L} = 0.002357(1-\epsilon)^{0.375798}(V)^{0.81317}
+        (d_w)^{-1.56114147}
+        
+    Parameters
+    ----------
+    voidage : float
+        Voidage of bed of the demister material, normally ~0.98 []
+    vs : float
+        Superficial velocity of fluid, Q/A [m/s]
+    d_wire : float
+        Diameter of mesh wire,[m]
+    L : float, optional
+        Length of the demister [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop across a dry demister [Pa]
+
+    Notes
+    -----
+    No dependency on the liquid properties is included here. 
+    
+    The correlation in [1] was presented as follows, with wire diameter in
+    units of mm, density in kg/m^3, V in m/s, and dP in Pa/m.
+    
+    .. math::
+        \Delta P = 3.88178(\rho_{mesh})^{0.375798}(V)^{0.81317}
+        (d_w)^{-1.56114147}
+    
+    Here, the correlation is converted to base SI units and to use voidage;
+    not all demisters are stainless steel as in [1]_. A density of 7999 kg/m^3 
+    was used in the conversion.
+    
+    In [1]_, V ranged from 0.98-7.5 m/s, rho from 80.317-208.16 kg/m^3, depth 
+    from 100 to 200 mm, wire diameter of 0.2mm to 0.32 mm, and particle 
+    diameter from 1 to 5 mm.
+
+    Examples
+    --------
+    >>> dP_demister_wet_ElDessouky(6, 0.978, 0.00032)
+    688.9216420105029
+    
+    References
+    ----------
+    .. [1] El-Dessouky, Hisham T, Imad M Alatiqi, Hisham M Ettouney, and Noura 
+       S Al-Deffeeri. "Performance of Wire Mesh Mist Eliminator." Chemical 
+       Engineering and Processing: Process Intensification 39, no. 2 (March 
+       2000): 129-39. doi:10.1016/S0255-2701(99)00033-1.
+    '''
+    return L*0.002356999643727531*(1-voidage)**0.375798*vs**0.81317*d_wire**-1.56114147
+
+
 def voidage_experimental(m, rho, D, H):
     r'''Calculates voidage of a bed or mesh given an experimental weight and
     fixed density, diameter, and height, as shown in [1]_. The formula is also
     self-evident.
 
     .. math::
-        \epsilon = 1 - \frac{\frac{m_{mesh}}{\frac{\pi}{4}d_{column}
+        \epsilon = 1 - \frac{\frac{m_{mesh}}{\frac{\pi}{4}d_{column}^2
         L_{mesh}}}{\rho_{material}}
 
     Parameters
@@ -182,7 +241,7 @@ def voidage_experimental(m, rho, D, H):
        Engineering Research and Design 85, no. 3 (2007): 377-85.
        doi:10.1205/cherd06048.
     '''
-    voidage = 1 - m/(pi/4*D*H)/rho
+    voidage = 1 - m/(pi/4*D**2*H)/rho
     return voidage
 
 

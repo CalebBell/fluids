@@ -40,3 +40,21 @@ def test_packed_tower():
 
     Vg = Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
     assert_allclose(Vg, 0.6394323542687361)
+    
+
+def test_dP_demister_wet_ElDessouky():
+    # Point from their figure 8
+    rho = 176.35
+    V = 6.
+    dw = 0.32
+    dP_orig = 3.88178*rho**0.375798*V**0.81317*dw**-1.56114147
+    # 689.4685604448499, compares with maybe 690 Pa/m.
+    
+    voidage = 1-rho/7999.
+    dP = dP_demister_wet_ElDessouky(V, voidage, dw/1000.)
+    assert_allclose(dP_orig, dP)
+    
+    # Test length multiplier
+    assert_allclose(dP*10, dP_demister_wet_ElDessouky(V, voidage, dw/1000., 10))
+
+

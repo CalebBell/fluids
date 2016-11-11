@@ -51,7 +51,8 @@ def test_isentropic_efficiency():
     
     with pytest.raises(Exception):
         isentropic_efficiency(1E5, 1E6, 1.4)
-    
+
+
 def test_polytropic_exponent():
     assert_allclose(polytropic_exponent(1.4, eta_p=0.78), 1.5780346820809246)
     assert_allclose(polytropic_exponent(1.4, n=1.5780346820809246), 0.78)
