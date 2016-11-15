@@ -26,7 +26,7 @@ from scipy.optimize import fsolve
 
 
 __all__ = ['voidage_experimental', 'specific_area_mesh',
-'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood',
+'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood', 'Robbins',
 'dP_demister_dry_Setekleiv_Svendsen_lit',
 'dP_demister_dry_Setekleiv_Svendsen',
 'dP_demister_wet_ElDessouky', 'separation_demister_ElDessouky']
@@ -618,3 +618,76 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
     return Vg
 
 #print [Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)]
+
+
+
+def Robbins(Fpd=24, L=None, G=None, rhol=None, rhog=None, mul=None, H=1, A=None):
+    r'''Calculates pressure drop across a packed column, using the Robbins
+    equation.
+
+    Pressure drop is given by:
+
+    .. math::
+        \Delta P = C_3 G_f^2 10^{C_4L_f}+0.4[L_f/20000]^{0.1}[C_3G_f^210^{C_4L_f}]^4
+
+        G_f=G[0.075/\rho_g]^{0.5}[F_{pd}/20]^{0.5}=986F_s[F_{pd}/20]^{0.5}
+
+        L_f=L[62.4/\rho_L][F_{pd}/20]^{0.5}\mu^{0.1}
+
+        F_s=V_s\rho_g^{0.5}
+
+    Parameters
+    ----------
+    Fpd : float
+        Robbins packing factor (tabulated for packings) [1/ft]
+    L : float
+        Specific liquid mass flow rate [kg/s/m^2]
+    G : float
+        Specific gas mass flow rate [kg/s/m^2]
+    rhol : float
+        Density of liquid [kg/m^3]
+    rhog : float
+        Density of gas [kg/m^3]
+    mul : float
+        Viscosity of liquid [Pa*S]
+    H : float
+        Height of packing [m]
+    A : float, optional
+        Area of packing; Provide if G and L are in kg/s [m^2]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop across packing [Pa]
+
+    Notes
+    -----
+    Perry's displayed equation has a typo in a superscript.
+    This model is based on the example in Perry's.
+
+    Examples
+    --------
+    >>> Robbins(Fpd=24, L=12.2, G=2.03, rhol=1000., rhog=1.1853, mul=0.001, H=2)
+    619.6624593438099
+
+    References
+    ----------
+    .. [1] Robbins [Chem. Eng. Progr., p. 87 (May 1991) Improved Pressure Drop
+       Prediction with a New Correlation.
+    '''
+    if A:
+        L, G = L/A, G/A
+    # Convert SI units to imperial for use in correlation
+    L = L*737.33812 # kg/s/m^2 to lb/hr/ft^2
+    G = G*737.33812 # kg/s/m^2 to lb/hr/ft^2
+    rhol = rhol*0.062427961 # kg/m^3 to lb/ft^3
+    rhog = rhog*0.062427961 # kg/m^3 to lb/ft^3
+    mul = mul*1000 # Pa*s to cP
+
+    C3 = 7.4E-8
+    C4 = 2.7E-5
+    Lf = L *(62.4/rhol)*(Fpd/20.)**0.5*mul**0.1
+    Gf = G*(0.075/rhog)**0.5*(Fpd/20.)**0.5
+    dP = C3*Gf**2*10**(C4*Lf) + 0.4*(Lf/20000.)**0.1*(C3*Gf**2*10**(C4*Lf))**4
+    dP = dP*817.22083*H # in. H2O to Pa/m
+    return dP

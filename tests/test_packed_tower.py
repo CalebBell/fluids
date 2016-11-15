@@ -76,3 +76,8 @@ def test_separation_demister_ElDessouky():
     assert 1 == separation_demister_ElDessouky(1.35, 0.92, 0.0002, 0.005)   
 
 
+def test_Robbins():
+    dP = Robbins(Fpd=24, L=12.2, G=2.03, rhol=1000., rhog=1.1853, mul=0.001, H=2)
+    assert_allclose(dP, 619.6624593438099)
+
+
