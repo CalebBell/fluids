@@ -26,6 +26,8 @@ from collections import namedtuple
 from scipy.interpolate import interp1d, interp2d
 from scipy.constants import hp
 import os
+from io import open
+
 
 __all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
 'Corripio_pump_efficiency', 'Corripio_motor_efficiency',
@@ -617,10 +619,10 @@ def current_ideal(P, V, phase=3, PF=1):
     return I
 
 
-with open(os.path.join(folder, 'residential power.csv')) as f:
+with open(os.path.join(folder, 'residential power.csv'), encoding='utf-8') as f:
     residential_power_raw = f.read()
 
-with open(os.path.join(folder, '3 phase power.csv')) as f:
+with open(os.path.join(folder, '3 phase power.csv'), encoding='utf-8') as f:
     industrial_power_raw = f.read()
 
 residential_power = {}
