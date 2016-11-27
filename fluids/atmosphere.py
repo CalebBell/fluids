@@ -22,8 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import exp
-from .nrlmsise00.nrlmsise_00 import gtd7
-from .nrlmsise00.nrlmsise_00_header import nrlmsise_output, nrlmsise_input, nrlmsise_flags , ap_array
+from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00']
 

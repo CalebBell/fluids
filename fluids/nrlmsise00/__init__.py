@@ -21,3 +21,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 
+
+from . import nrlmsise_00
+from . import nrlmsise_00_header
+from . import nrlmsise_00_data
+
+from .nrlmsise_00 import gtd7
+from .nrlmsise_00_header import nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
+
+
+__all__ = ['nrlmsise_00', 'nrlmsise_00_header', 'nrlmsise_00_data']
+
+__all__.extend(nrlmsise_00.__all__)
+__all__.extend(nrlmsise_00_header.__all__)
