@@ -40,8 +40,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 """
 
 from __future__ import division
-from nrlmsise_00_header import *
-from nrlmsise_00_data import *
+from .nrlmsise_00_header import *
+from .nrlmsise_00_data import *
 from math import sin, cos, pow, exp, log, sqrt
 __all__ = ['gtd7']
 
