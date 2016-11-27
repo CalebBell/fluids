@@ -22,8 +22,10 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import exp
+from fluids.nrlmsise00.nrlmsise_00 import gtd7
+from fluids.nrlmsise00.nrlmsise_00_header import nrlmsise_output, nrlmsise_input, nrlmsise_flags , ap_array
 
-__all__ = ['ATMOSPHERE_1976']
+__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00']
 
 H_std = [0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852]
 T_grad = [-6.5E-3, 0, 1E-3, 2.8E-3, 0, -2.8E-3, -2E-3, 0]
@@ -60,6 +62,23 @@ class ATMOSPHERE_1976(object):
     (54048.28614576141, 0.7364284207799743, 1.628248135362207e-05)
     >>> five_km.k, five_km.g, five_km.v_sonic
     (0.02273190295142526, 9.791241076982665, 320.5455196704035)
+    
+    Notes
+    -----
+    Up to 32 km, the International Standard Atmosphere (ISA) and World 
+    Meteorological Organization (WMO) standard atmosphere are identical. 
+    
+    This is a revision of the US 1962 atmosphere.
+    
+    References
+    ----------
+    .. [1] NOAA, NASA, and USAF. "U.S. Standard Atmosphere, 1976" October 15, 
+       1976. http://ntrs.nasa.gov/search.jsp?R=19770009539.
+    .. [2] "ISO 2533:1975 - Standard Atmosphere." ISO.
+       http://www.iso.org/iso/catalogue_detail.htm?csnumber=7472.
+    .. [3] Yager, Robert J. "Calculating Atmospheric Conditions (Temperature, 
+       Pressure, Air Density, and Speed of Sound) Using C++," June 2013.
+       http://www.dtic.mil/cgi-bin/GetTRDoc?AD=ADA588839
     '''        
 
     @staticmethod
@@ -209,4 +228,148 @@ class ATMOSPHERE_1976(object):
         self.mu = self.viscosity(self.T)
         self.k = self.thermal_conductivity(self.T)
         self.g = self.gravity(self.Z)
+    
+
+class ATMOSPHERE_NRLMSISE00(object):
+    r'''NRLMSISE 00 model for calculating temperature and density of gases in
+    the atmosphere, from groud level to 1000 km, as a function of time of year,
+    longitude and latitude, solar activity and earth's geomagnetic disturbance.
+    
+    NRLMSISE standa for the `US Naval Research Laboratory Mass Spectrometer and
+    Incoherent Scatter Radar Exosphere` model, released in 2001; see [1]_ for
+    details.
+    
+    Parameters
+    ----------
+    Z : float
+        Elevation, [m]
+    latitude : float, optional
+        Latitude, between -90 and 90 [degrees]
+    longitude : float, optional
+        Longitude, between -180 and 180 or 0 and 360, [degrees]
+    day : float, optional
+        Day of year, 0-366 [day]
+    seconds : float, optional
+        Seconds since start of day, in UT1 time; using UTC provides no loss in
+        accuracy [s]
+    f107 : float, optional
+        Daily average 10.7 cm solar flux measurement of the strength of solar  
+        emissions on the 100 MHz band centered on 2800 MHz, averaged hourly; in 
+        sfu units, which are multiples of 10^-22 W/m^2/Hz; use 150 as a default 
+        [sfu]
+    f107_avg : float, optional
+        81-day sfu average; centered on specified day if possible, otherwise
+        use the previous days [sfu]
+    geomagnetic_disturbance_indices : list[float], optional
+        List of the 7 following `Ap` indexes also known as planetary magnetic 
+        indexes. Has a negligible effect on the calculation. 4 is the default
+        value often used for each of these values.
+        * Average daily `Ap`.
+        * 3-hour average `Ap` centered on the current time.
+        * 3-hour average `Ap` before the current time.
+        * 6-hour average `Ap` before the current time.
+        * 9-hour average `Ap` before the current time.
+        * Average `Ap` from 12 to 33 hours before the current time, based on
+        eight 3-hour average `Ap` values.
+        * Average `Ap` from 36 to 57 hours before the current time, based on
+        eight 3-hour average `Ap` values.
+        
+    Attributes
+    ----------
+    rho : float
+        Mass density [kg/m^3]
+    T : float
+        Temperature, [K]
+    He_density : float
+        Density of helium atoms [count/m^3]
+    O_density : float
+        Density of monatomic oxygen [count/m^3]
+    N2_density : float
+        Density of nitrogen molecules [count/m^3]
+    O2_density : float
+        Density of oxygen molecules [count/m^3]
+    Ar_density : float
+        Density of Argon atoms [count/m^3]
+    H_density : float
+        Density of hydrogen atoms [count/m^3]
+    N_density : float
+        Density of monatomic nitrogen [count/m^3]
+    O_anomalous_density : float
+        Density of `anomalous` oxygen; see [1]_ for details [count/m^3]
+
+    Examples
+    --------
+    >>> atmosphere = ATMOSPHERE_NRLMSISE00(1E3, 45,45, 150)
+    >>> atmosphere.T, atmosphere.rho
+    (285.54408606237405, 1.1019062026405517)
+    
+    Notes
+    -----
+    No full description has been published of this mode; it has been defined by
+    its implementation only. It was written in FORTRAN, and is accessible
+    at ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/msis/nrlmsise00/
+    
+    A C port of the model by Dominik Brodowskihas become popular, and is
+    available on his website: http://www.brodo.de/space/nrlmsise/.
+    
+    In 2013 Joshua Milas ported the C port to Python. This is an interface to
+    his excellent port. It is a 1000-sloc model, and has
+    been rigorously tested against the C version, and the online calculation
+    tool available at [3]_ for parametric inputs of latitude, longitude,
+    altitude, time of day and day of year.
+    
+    This model is based on measurements other than gravity; it does not provide
+    a calculation method for `g`. It does not provide transport properties.
+    
+    References
+    ----------
+    .. [1] Picone, J. M., A. E. Hedin, D. P. Drob, and A. C. Aikin. 
+       "NRLMSISE-00 Empirical Model of the Atmosphere: Statistical Comparisons 
+       and Scientific Issues." Journal of Geophysical Research: Space Physics 
+       107, no. A12 (December 1, 2002): 1468. doi:10.1029/2002JA009430.
+    .. [2] Tapping, K. F. "The 10.7 Cm Solar Radio Flux (F10.7)." Space Weather
+       11, no. 7 (July 1, 2013): 394-406. doi:10.1002/swe.20064. 
+    .. [3] Natalia Papitashvili. "NRLMSISE-00 Atmosphere Model." Accessed 
+       November 27, 2016. http://ccmc.gsfc.nasa.gov/modelweb/models/nrlmsise00.php.
+
+    '''        
+    def __init__(self, Z, latitude=0, longitude=0, day=0, seconds=0, 
+                 f107=150., f107_avg=150., geomagnetic_disturbance_indices=None):
+        alt = Z/1000.
+        output = nrlmsise_output()
+        Input = nrlmsise_input()
+        flags = nrlmsise_flags()
+        
+        flags.switches = [0] + [1]*23
+            
+        if geomagnetic_disturbance_indices:
+            aph = ap_array()
+            aph.a = geomagnetic_disturbance_indices
+            flags.switches[9] = -1
+            Input.ap=geomagnetic_disturbance_indices[0];
+            Input.ap_a = aph
+
+        Input.doy=day;
+        Input.year=0; 
+        Input.sec=seconds;
+        Input.alt=alt;
+        Input.g_lat=latitude;
+        Input.g_long=longitude;
+        Input.lst=seconds/3600. + longitude/15.
+        Input.f107A=f107_avg;
+        Input.f107=f107;
+        gtd7(Input, flags, output)
+        
+        self.He_density = output.d[0]*1E6 # 1/cm^3 to 1/m^3
+        self.O_density = output.d[1]*1E6 # 1/cm^3 to 1/m^3
+        self.N2_density = output.d[2]*1E6 # 1/cm^3 to 1/m^3
+        self.O2_density = output.d[3]*1E6 # 1/cm^3 to 1/m^3
+        self.Ar_density = output.d[4]*1E6 # 1/cm^3 to 1/m^3
+        self.rho = output.d[5]*1000 # gram/cm^3 to kg/m^3
+        self.H_density = output.d[6]*1E6 # 1/cm^3 to 1/m^3
+        self.N_density = output.d[7]*1E6 # 1/cm^3 to 1/m^3
+        self.O_anomalous_density = output.d[8]*1E6 # 1/cm^3 to 1/m^3
+        self.T_exospheric = output.t[0]
+        self.T = output.t[1]
+
     

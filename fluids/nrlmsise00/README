@@ -1,0 +1,16 @@
+This is a port of the NRLMSISE-00 atmospheric model to python 
+based of the c version from Dominik Brodowski http://www.brodo.de/english/pub/nrlmsise/
+
+It is used the same way as the c version is
+
+C program runtime
+0.031-0.033 seconds
+
+Python runtime
+0.038-0.041 seconds
+
+It runs at almost comparable speeds after running a few times
+
+To use, make an input class, and output class, and a flag class.
+Set the input and flags with the appropriate settings,
+then call gtd7(input, flags, output)

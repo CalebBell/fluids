@@ -1,0 +1,10 @@
+# .coveragerc to control coverage.py
+[run]
+branch = True
+omit =
+    # omit anything in a .local directory anywhere
+    *nrlmsise_00.py
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
