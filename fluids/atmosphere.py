@@ -298,7 +298,7 @@ class ATMOSPHERE_NRLMSISE00(object):
 
     Examples
     --------
-    >>> atmosphere = ATMOSPHERE_NRLMSISE00(1E3, 45,45, 150)
+    >>> atmosphere = ATMOSPHERE_NRLMSISE00(1E3, 45, 45, 150)
     >>> atmosphere.T, atmosphere.rho
     (285.54408606237405, 1.1019062026405517)
     
