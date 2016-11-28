@@ -28,11 +28,15 @@ def test_NRLMSISE00_against_C_output():
     # Load known data
     known = os.path.join(os.path.dirname(__file__), 'data_from_C_version.txt')
     # On a separate process, run the test script, and capture its output
-    proc = subprocess.Popen(["python", script], stdout=subprocess.PIPE)
-    response = proc.communicate()[0]  
-
-    # Hash it, check it is as expected.
-    hasher = hashlib.md5()
-    hasher.update(response)
-    expect = hasher.hexdigest()
-    assert expect == known_hash
+    from sys import platform
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        # Run the test only on linux; print statements to files have different
+        # formats on windows
+        proc = subprocess.Popen(["python", script], stdout=subprocess.PIPE)
+        response = proc.communicate()[0]  
+    
+        # Hash it, check it is as expected.
+        hasher = hashlib.md5()
+        hasher.update(response)
+        expect = hasher.hexdigest()
+        assert expect == known_hash
