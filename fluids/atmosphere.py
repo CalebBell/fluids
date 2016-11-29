@@ -22,6 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import exp
+from scipy.constants import N_A, R
 from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00']
@@ -37,7 +38,6 @@ r0 = 6356766.0
 P0 = 101325.0
 M0 = 28.9644
 g0 = 9.80665
-R = 8314.32
 gamma = 1.400
 
 
@@ -78,7 +78,8 @@ class ATMOSPHERE_1976(object):
     .. [3] Yager, Robert J. "Calculating Atmospheric Conditions (Temperature, 
        Pressure, Air Density, and Speed of Sound) Using C++," June 2013.
        http://www.dtic.mil/cgi-bin/GetTRDoc?AD=ADA588839
-    '''        
+    '''
+    R = 8314.32
 
     @staticmethod
     def get_ind_from_H(H):
@@ -215,9 +216,9 @@ class ATMOSPHERE_1976(object):
         self.T = self.T_layer + self.T_increase*self.H_above_layer
 
         if self.T_increase == 0:
-            self.P = self.P_layer*exp(-g0*M0*(self.H_above_layer)/R/self.T_layer)
+            self.P = self.P_layer*exp(-g0*M0*(self.H_above_layer)/self.R/self.T_layer)
         else:
-            self.P = self.P_layer*(self.T_layer/self.T)**(g0*M0/R/self.T_increase)
+            self.P = self.P_layer*(self.T_layer/self.T)**(g0*M0/self.R/self.T_increase)
 
         if dT: # Affects only the following properties
             self.T += dT
@@ -279,6 +280,8 @@ class ATMOSPHERE_NRLMSISE00(object):
         Mass density [kg/m^3]
     T : float
         Temperature, [K]
+    P : float
+        Pressure, calculated with ideal gas law [P]
     He_density : float
         Density of helium atoms [count/m^3]
     O_density : float
@@ -330,8 +333,12 @@ class ATMOSPHERE_NRLMSISE00(object):
        11, no. 7 (July 1, 2013): 394-406. doi:10.1002/swe.20064. 
     .. [3] Natalia Papitashvili. "NRLMSISE-00 Atmosphere Model." Accessed 
        November 27, 2016. http://ccmc.gsfc.nasa.gov/modelweb/models/nrlmsise00.php.
-
     '''        
+    components = ['N2', 'O2', 'Ar', 'He', 'O', 'H', 'N']
+    atrrs = ['N2_density', 'O2_density', 'Ar_density', 'He_density', 
+             'O_density', 'H_density', 'N_density']
+    MWs = [28.0134, 31.9988, 39.948, 4.002602, 15.9994, 1.00794, 14.0067]
+    
     def __init__(self, Z, latitude=0, longitude=0, day=0, seconds=0, 
                  f107=150., f107_avg=150., geomagnetic_disturbance_indices=None):
         alt = Z/1000.
@@ -370,5 +377,10 @@ class ATMOSPHERE_NRLMSISE00(object):
         self.O_anomalous_density = output.d[8]*1E6 # 1/cm^3 to 1/m^3
         self.T_exospheric = output.t[0]
         self.T = output.t[1]
+        
+        # Calculate pressure with the ideal gas law PV = nRT with V = 1 m^3
+        self.P = sum([getattr(self, a) for a in self.atrrs])*self.T*R/N_A
+        # Calculate mass density with known MWs
+        self.rho_calculated = sum([getattr(self, a)*MW for c, a, MW in 
+                                   zip(self.components, self.atrrs, self.MWs)])/(1000.*N_A)
 
-    

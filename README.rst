@@ -20,12 +20,13 @@ fluids
 .. image:: https://img.shields.io/pypi/pyversions/fluids.svg
    :target: https://pypi.python.org/pypi/fluids
    :alt: Supported_versions
-.. image:: https://zenodo.org/badge/doi/10.5281/zenodo.59769.svg
-   :alt: Zendo
-   :target: http://dx.doi.org/10.5281/zenodo.59769
 .. image:: http://img.shields.io/appveyor/ci/calebbell/fluids.svg
    :target: https://ci.appveyor.com/project/calebbell/fluids/branch/master
    :alt: Build_status
+.. image:: https://zenodo.org/badge/48924523.svg
+   :alt: Zendo
+   :target: https://zenodo.org/badge/latestdoi/48924523
+
 
 .. contents::
 
