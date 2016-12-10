@@ -280,3 +280,11 @@ texinfo_documents = [
 #texinfo_no_detailmenu = False
 
 html_theme = "nature"
+
+from sphinx.ext.autodoc import between
+
+def setup(app):
+    # Register a sphinx.ext.autodoc.between listener to ignore everything
+    # between lines that contain the word IGNORE
+    app.connect('autodoc-process-docstring', between('(^Chemical Engineering Design Library).*|(^SOFTWARE.$).*', exclude=True))
+    return app

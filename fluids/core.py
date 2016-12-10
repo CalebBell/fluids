@@ -130,7 +130,7 @@ def Reynolds(V, D, rho=None, mu=None, nu=None):
     properties for the specified velocity and diameter.
 
     .. math::
-        Re = {D \cdot V}{\nu} = \frac{\rho V D}{\mu}
+        Re = \frac{D \cdot V}{\nu} = \frac{\rho V D}{\mu}
 
     Inputs either of any of the following sets:
 
