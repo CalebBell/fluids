@@ -26,13 +26,13 @@ def test_isothermal_work_compression():
 
 def test_isentropic_work_compression():
     dH = isentropic_work_compression(1E5, 1E6, 300, 1.4)
-    assert_allclose(dH, 6933.551277713891, rtol=1e-05)
+    assert_allclose(dH, 8125.161295388634, rtol=1e-05)
     
     dH = isentropic_work_compression(1E5, 1E6, 300, 1.4, eta=0.78)
-    assert_allclose(dH, 8889.168304761399, rtol=1e-05)
+    assert_allclose(dH, 10416.873455626454, rtol=1e-05)
     
     dH = isentropic_work_compression(1E5, 1E6, 300, 1.4, eta=0.78, Z=0.9)
-    assert_allclose(dH, 8000.251474285259, rtol=1e-05)
+    assert_allclose(dH, 9375.186110063809, rtol=1e-05)
 
 
 def test_isentropic_T_rise_compression():
@@ -41,6 +41,11 @@ def test_isentropic_T_rise_compression():
     
     T2 = isentropic_T_rise_compression(286.8, 54050, 432400, 1.4, eta=0.78)
     assert_allclose(T2, 585.1629407971498, rtol=1e-05)
+    
+    # Test against the simpler formula for eta=1:
+    # T2 = T2*(P2/P1)^((k-1)/k)
+    T2_ideal = 286.8*((432400/54050)**((1.4-1)/1.4))
+    assert_allclose(T2_ideal, 519.5230938217768, rtol=1e-05)
 
 
 def test_isentropic_efficiency():

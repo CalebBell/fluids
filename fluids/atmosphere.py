@@ -25,7 +25,13 @@ from math import exp
 from scipy.constants import N_A, R
 from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
 
-__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00']
+__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93']
+
+no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
+routine. However, f2py did not detect one on installation and could not compile\
+this routine. '''
+
+
 
 H_std = [0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852]
 T_grad = [-6.5E-3, 0, 1E-3, 2.8E-3, 0, -2.8E-3, -2E-3, 0]
@@ -384,3 +390,76 @@ class ATMOSPHERE_NRLMSISE00(object):
         self.rho_calculated = sum([getattr(self, a)*MW for c, a, MW in 
                                    zip(self.components, self.atrrs, self.MWs)])/(1000.*N_A)
 
+def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150., 
+          f107_avg=150., geomagnetic_disturbance_index=4):
+    r'''Horizontal Wind Model 1993, for calculating wind velocity in the
+    atmosphere as a function of time of year, longitude and latitude, solar 
+    activity and earth's geomagnetic disturbance.
+    
+    The model is described across the publications [1]_, [2]_, and [3]_.
+    
+    Parameters
+    ----------
+    Z : float
+        Elevation, [m]
+    latitude : float, optional
+        Latitude, between -90 and 90 [degrees]
+    longitude : float, optional
+        Longitude, between -180 and 180 or 0 and 360, [degrees]
+    day : float, optional
+        Day of year, 0-366 [day]
+    seconds : float, optional
+        Seconds since start of day, in UT1 time; using UTC provides no loss in
+        accuracy [s]
+    f107 : float, optional
+        Daily average 10.7 cm solar flux measurement of the strength of solar  
+        emissions on the 100 MHz band centered on 2800 MHz, averaged hourly; in 
+        sfu units, which are multiples of 10^-22 W/m^2/Hz; use 150 as a default 
+        [sfu]
+    f107_avg : float, optional
+        81-day sfu average; centered on specified day if possible, otherwise
+        use the previous days [sfu]
+    geomagnetic_disturbance_index : float, optional
+        Average daily `Ap` or also known as planetary magnetic index.
+        
+    Returns
+    -------
+    w : list[float]
+        Wind velocity, meridional (m/sec Northward) and zonal (m/sec Eastward)
+
+    Examples
+    --------
+    >>> hwm93(5E5, 45, 50, 365)
+    [-73.00312042236328, 0.1485661268234253]
+    
+    Notes
+    -----
+    No full description has been published of this mode; it has been defined by
+    its implementation only. It was written in FORTRAN, and is accessible
+    at ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/hwm93/.
+    
+    References
+    ----------
+    .. [1] Hedin, A. E., N. W. Spencer, and T. L. Killeen. "Empirical Global 
+       Model of Upper Thermosphere Winds Based on Atmosphere and Dynamics 
+       Explorer Satellite Data." Journal of Geophysical Research: Space Physics
+       93, no. A9 (September 1, 1988): 9959-78. doi:10.1029/JA093iA09p09959.
+    .. [2] Hedin, A. E., M. A. Biondi, R. G. Burnside, G. Hernandez, R. M. 
+       Johnson, T. L. Killeen, C. Mazaudier, et al. "Revised Global Model of 
+       Thermosphere Winds Using Satellite and Ground-Based Observations." 
+       Journal of Geophysical Research: Space Physics 96, no. A5 (May 1, 1991):
+       7657-88. doi:10.1029/91JA00251.
+    .. [3] Hedin, A. E., E. L. Fleming, A. H. Manson, F. J. Schmidlin, S. K. 
+       Avery, R. R. Clark, S. J. Franke, et al. "Empirical Wind Model for the 
+       Upper, Middle and Lower Atmosphere." Journal of Atmospheric and 
+       Terrestrial Physics 58, no. 13 (September 1996): 1421-47. 
+       doi:10.1016/0021-9169(95)00122-0.
+    '''
+    try:
+        from .optional.hwm93 import gws5
+        slt_hour = seconds/3600. + longitude/15.
+        ans = gws5(day, seconds, Z/1000., latitude, longitude, slt_hour, f107, 
+                   f107_avg, geomagnetic_disturbance_index)
+        return ans.tolist()
+    except:
+        raise ImportError(no_gfortran_error)

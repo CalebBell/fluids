@@ -173,7 +173,7 @@ def isentropic_work_compression(P1, P2, T1, k, Z=1, eta=1):
     Examples
     --------
     >>> isentropic_work_compression(1E5, 1E6, 300, 1.4, eta=0.78)
-    8889.168304761399
+    10416.873455626454
 
     References
     ----------
@@ -181,7 +181,7 @@ def isentropic_work_compression(P1, P2, T1, k, Z=1, eta=1):
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     '''
-    return k/(k-1)*Z*R*T1*((P2/P1)**(k-1)/k - 1)/eta
+    return k/(k-1)*Z*R*T1*((P2/P1)**((k-1.)/k) - 1)/eta
 
 
 def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):

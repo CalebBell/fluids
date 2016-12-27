@@ -1045,6 +1045,7 @@ def Tsal_1989(Re, eD):
         A = 0.11(\frac{68}{Re} + \frac{\epsilon}{D})^{0.25}
 
     if A >= 0.018 then fd = A
+    
     if A < 0.018 then fd = 0.0028 + 0.85 A
 
     Parameters
@@ -1074,7 +1075,7 @@ def Tsal_1989(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Tsal, R.J.: Altshul-Tsal friction factor equation.
+    .. [2] Tsal, R.J.: Altshul-Tsal friction factor equation.
        Heat-Piping-Air Cond. 8, 30-45 (1989)
     '''
     A = 0.11*(68/Re + eD)**0.25
