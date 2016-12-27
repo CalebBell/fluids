@@ -438,6 +438,8 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
     its implementation only. It was written in FORTRAN, and is accessible
     at ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/hwm93/.
     
+    F2PY auto-compilation support is not yet currently supported.
+    
     References
     ----------
     .. [1] Hedin, A. E., N. W. Spencer, and T. L. Killeen. "Empirical Global 

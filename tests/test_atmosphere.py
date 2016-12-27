@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from numpy.testing import assert_allclose
-from fluids.atmosphere import ATMOSPHERE_1976
+from fluids.atmosphere import ATMOSPHERE_1976, hwm93
 
 # Test values from 'Atmosphere to 86 Km by 2 Km (SI units)', from 
 # http://ckw.phys.ncku.edu.tw/public/pub/Notes/Languages/Fortran/FORSYTHE/www.pdas.com/m1.htm
@@ -53,3 +53,16 @@ def test_ATMOSPHERE_1976():
     assert_allclose(ATMOSPHERE_1976(1000).k, 0.0248133634493)
     # Other possible additions: 
     # mean air particle speed; mean collision frequency; mean free path; mole volume; total number density
+
+def test_hwm93():
+    # pass on systems without f2py for now
+    try:
+        custom = hwm93(5E5, 45, 50, 365)
+        assert_allclose(custom, [-73.00312042236328, 0.1485661268234253])
+        
+        
+        # Test from pyhwm93
+        ans = hwm93(Z=150E3, latitude=65, longitude=-148, day=90, seconds=12*3600, f107=100., f107_avg=100., geomagnetic_disturbance_index=4)
+        assert_allclose(ans, [-110.16133880615234, -12.400712013244629])
+    except:
+        pass
