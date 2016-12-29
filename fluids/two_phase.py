@@ -2030,3 +2030,63 @@ two_phase_correlations = {
 }
 
 
+def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
+                 P=None, Pc=None, roughness=0, AvailableMethods=False, 
+                 Method=None):
+    def list_methods():
+        usable_indices = []
+        if all([rhog, sigma]):
+            usable_indices.append(5)
+        if all([rhog, mul, mug, sigma]):
+            usable_indices.extend([4, 3, 102, 103]) # Differs only in the addition of roughness
+        if all([rhog, mul, mug]):
+            usable_indices.extend([1,2, 101]) # Differs only in the addition of roughness
+        if all([mul, P, Pc]):
+            usable_indices.append(0)
+        return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
+
+    if AvailableMethods:
+        return list_methods()
+    if not Method:
+        if all([rhog, mul, mug, sigma]):
+            Method = 'Kim_Mudawar' # Kim_Mudawar prefered; 3 or 4
+        elif all([rhog, mul, mug]):
+            Method = 'Chisholm' # Second choice, indexes 1 or 2
+        elif all([mul, P, Pc,]) :
+            Method = 'Zhang_Webb' # Not a good choice
+        elif all([rhog, sigma, D]):
+            Method = 'Lombardi_Pedrocchi' # Last try
+        else:
+            raise Exception('All possible methods require more information \
+than provided; provide more inputs!')
+    if Method in two_phase_correlations:
+        f, i = two_phase_correlations[Method]
+        if i == 0:
+            return f(m=m, x=x, rhol=rhol, mul=mul, P=P, Pc=Pc, D=D, 
+                     roughness=roughness, L=L)
+        elif i == 1:
+            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, L=L)
+        elif i == 2:
+            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, 
+                     L=L, roughness=roughness)
+        elif i == 3:
+            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
+                     sigma=sigma, D=D, L=L)
+        elif i == 4:
+            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
+                     sigma=sigma, D=D, L=L, roughness=roughness)
+        elif i == 5:
+            return f(m=m, x=x, rhol=rhol, rhog=rhog, sigma=sigma, D=D, L=L)
+        elif i == 101:
+            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, 
+                     L=L, roughness=roughness, rough_correction=True)
+        elif i == 102:
+            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
+                     sigma=sigma, D=D, L=L, roughness=roughness, 
+                     flowtype='adiabatic gas')
+        elif i == 103:
+            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
+                     sigma=sigma, D=D, L=L, roughness=roughness,
+                     flowtype='flow boiling')
+    else:
+        raise Exception('Failure in in function')
