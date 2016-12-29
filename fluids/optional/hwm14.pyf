@@ -1,0 +1,246 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module hwm14 ! in 
+    interface  ! in :hwm14
+        module hwm ! in :hwm14:hwm14.f90
+            integer(kind=4), optional :: nmaxgeo=0
+            real(kind=8), allocatable,dimension(:,:) :: gpbar
+            integer(kind=4), optional :: nmaxdwm=0
+            real(kind=8), allocatable,dimension(:,:) :: spbar
+            real(kind=8), allocatable,dimension(:,:) :: gwbar
+            real(kind=8), optional :: glatalf=-1.d32
+            real(kind=8), allocatable,dimension(:,:) :: gvbar
+            integer(kind=4), optional :: nmaxqdc=0
+            integer(kind=4), optional :: omaxhwm=0
+            integer(kind=4), optional :: mmaxgeo=0
+            integer(kind=4), optional :: mmaxdwm=0
+            logical, optional :: hwminit=.true.
+            real(kind=8), allocatable,dimension(:,:) :: svbar
+            integer(kind=4), optional :: mmaxqdc=0
+            integer(kind=4), optional :: nmaxhwm=0
+            real(kind=8), allocatable,dimension(:,:) :: swbar
+        end module hwm
+        subroutine hwm14(iyd,sec,alt,glat,glon,stl,f107a,f107,ap,w) ! in :hwm14:hwm14.f90
+            use hwm
+            integer(kind=4) intent(in) :: iyd
+            real(kind=4) intent(in) :: sec
+            real(kind=4) intent(in) :: alt
+            real(kind=4) intent(in) :: glat
+            real(kind=4) intent(in) :: glon
+            real(kind=4) intent(in) :: stl
+            real(kind=4) intent(in) :: f107a
+            real(kind=4) intent(in) :: f107
+            real(kind=4) dimension(2),intent(in) :: ap
+            real(kind=4) dimension(2),intent(out) :: w
+        end subroutine hwm14
+        module alf ! in :hwm14:hwm14.f90
+            real(kind=8), allocatable,dimension(:) :: en
+            real(kind=8), allocatable,dimension(:,:) :: bnm
+            real(kind=8), allocatable,dimension(:) :: cm
+            real(kind=8), allocatable,dimension(:,:) :: dnm
+            real(kind=8), allocatable,dimension(:,:) :: anm
+            real(kind=8), allocatable,dimension(:) :: narr
+            real(kind=8), allocatable,dimension(:) :: marr
+            integer(kind=4) :: nmax0
+            integer(kind=4) :: mmax0
+            subroutine alfbasis(nmax,mmax,theta,p,v,w) ! in :hwm14:hwm14.f90:alf
+                integer(kind=4) intent(in) :: nmax
+                integer(kind=4) intent(in) :: mmax
+                real(kind=8) intent(in) :: theta
+                real(kind=8) dimension(nmax + 1,mmax + 1),intent(out),depend(nmax,mmax) :: p
+                real(kind=8) dimension(nmax + 1,mmax + 1),intent(out),depend(nmax,mmax) :: v
+                real(kind=8) dimension(nmax + 1,mmax + 1),intent(out),depend(nmax,mmax) :: w
+            end subroutine alfbasis
+            subroutine initalf(nmaxin,mmaxin) ! in :hwm14:hwm14.f90:alf
+                integer(kind=4) intent(in) :: nmaxin
+                integer(kind=4) intent(in) :: mmaxin
+            end subroutine initalf
+        end module alf
+        module qwm ! in :hwm14:hwm14.f90
+            integer(kind=4) :: lev
+            real(kind=8) :: altsym
+            integer(kind=4) :: nbf
+            real(kind=8), optional,dimension(5) :: previous=-1.0d32
+            integer(kind=4) :: nnode
+            integer(kind=4) :: maxs
+            integer(kind=4), allocatable,dimension(:) :: nb
+            integer(kind=4), optional :: cseason=0
+            logical, optional,dimension(5) :: content=.true.
+            integer(kind=4) :: maxn
+            integer(kind=4) :: maxo
+            integer(kind=4) :: maxl
+            integer(kind=4) :: maxm
+            integer(kind=4), optional :: ctide=0
+            integer(kind=4), optional :: cwave=0
+            real(kind=8), allocatable,dimension(:,:) :: fs
+            real(kind=8) :: altiso
+            real(kind=8), optional,dimension(4) :: tidefactor=1.0
+            real(kind=8), allocatable,dimension(:) :: bm
+            real(kind=8) :: alttns
+            real(kind=8), allocatable,dimension(:,:) :: mparm
+            character(len=128), optional :: qwmdefault='hwm123114.bin'
+            real(kind=8) dimension(5) :: e1
+            real(kind=8), allocatable,dimension(:,:) :: fm
+            real(kind=8), allocatable,dimension(:) :: bz
+            real(kind=8) dimension(5) :: e2
+            real(kind=8), optional,dimension(4) :: wavefactor=1.0
+            real(kind=8), parameter,optional :: h=60.0d0
+            real(kind=8), allocatable,dimension(:) :: vnode
+            integer(kind=4) :: p
+            integer(kind=4), optional :: priornb=0
+            logical, optional,dimension(2) :: component=.true.
+            real(kind=8), allocatable,dimension(:) :: zwght
+            integer(kind=4) :: nlev
+            logical, optional :: qwminit=.true.
+            real(kind=8), allocatable,dimension(:,:) :: fl
+            integer(kind=4), allocatable,dimension(:,:) :: order
+            real(kind=8), allocatable,dimension(:,:) :: tparm
+        end module qwm
+        module dwm ! in :hwm14:hwm14.f90
+            integer(kind=4) :: nmax
+            real(kind=4), allocatable,dimension(:,:) :: vshterms
+            real(kind=8), parameter,optional,depend(pi) :: dtor=pi/180.d0
+            integer(kind=4) :: nvshterm
+            real(kind=4) :: twidth
+            integer(kind=4), allocatable,dimension(:,:) :: termarr
+            real(kind=8), allocatable,dimension(:,:) :: dvbar
+            character(len=128), parameter,optional :: dwmdefault='dwm07b104i.dat'
+            real(kind=8), allocatable,dimension(:,:) :: mltterms
+            real(kind=8), allocatable,dimension(:,:) :: dwbar
+            integer(kind=4) :: mmax
+            integer(kind=4) :: nterm
+            real(kind=4), allocatable,dimension(:) :: coeff
+            real(kind=4), allocatable,dimension(:,:) :: termval
+            logical, optional :: dwminit=.true.
+            real(kind=8), parameter,optional :: pi=3.14159265359
+            real(kind=8), allocatable,dimension(:,:) :: dpbar
+        end module dwm
+        subroutine inithwm ! in :hwm14:hwm14.f90
+            use alf, only: initalf
+            use qwm
+            use hwm
+            use dwm
+        end subroutine inithwm
+        subroutine initqwm(filename) ! in :hwm14:hwm14.f90
+            use qwm
+            use hwm, only: nmaxhwm,omaxhwm
+            character*128 intent(in) :: filename
+        end subroutine initqwm
+        subroutine hwmqt(iyd,sec,alt,glat,glon,stl,f107a,f107,ap,w) ! in :hwm14:hwm14.f90
+            use alf, only: alfbasis
+            use qwm
+            use hwm
+            integer intent(in) :: iyd
+            real(kind=4) intent(in) :: sec
+            real(kind=4) intent(in) :: alt
+            real(kind=4) intent(in) :: glat
+            real(kind=4) intent(in) :: glon
+            real(kind=4) intent(in) :: stl
+            real(kind=4) intent(in) :: f107a
+            real(kind=4) intent(in) :: f107
+            real(kind=4) dimension(2),intent(in) :: ap
+            real(kind=4) dimension(2),intent(out) :: w
+        end subroutine hwmqt
+        subroutine vertwght(alt,wght,iz) ! in :hwm14:hwm14.f90
+            use qwm
+            real(kind=8) intent(in) :: alt
+            real(kind=8) dimension(4),intent(out) :: wght
+            integer(kind=4) intent(out) :: iz
+        end subroutine vertwght
+        subroutine initdwm(nmaxout,mmaxout) ! in :hwm14:hwm14.f90
+            use hwm
+            use dwm
+            integer(kind=4) intent(out) :: nmaxout
+            integer(kind=4) intent(out) :: mmaxout
+        end subroutine initdwm
+        subroutine dwm07(iyd,sec,alt,glat,glon,ap,dw) ! in :hwm14:hwm14.f90
+            use hwm
+            use dwm
+            integer intent(in) :: iyd
+            real(kind=4) intent(in) :: sec
+            real(kind=4) intent(in) :: alt
+            real(kind=4) intent(in) :: glat
+            real(kind=4) intent(in) :: glon
+            real(kind=4) dimension(2),intent(in) :: ap
+            real(kind=4) dimension(2),intent(out) :: dw
+        end subroutine dwm07
+        subroutine dwm07b(mlt,mlat,kp,mmpwind,mzpwind) ! in :hwm14:hwm14.f90
+            use alf, only: alfbasis
+            use hwm
+            use dwm
+            real(kind=4) intent(in) :: mlt
+            real(kind=4) intent(in) :: mlat
+            real(kind=4) intent(in) :: kp
+            real(kind=4) intent(out) :: mmpwind
+            real(kind=4) intent(out) :: mzpwind
+        end subroutine dwm07b
+        function ap2kp(ap0) ! in :hwm14:hwm14.f90
+            real(kind=4) :: ap0
+            real(kind=4) :: ap2kp
+        end function ap2kp
+        module gd2qdc ! in :hwm14:hwm14.f90
+            integer(kind=4) :: nmax
+            real(kind=8), allocatable,dimension(:) :: xcoeff
+            real(kind=8), parameter,optional,depend(pi) :: dtor=pi/180.0d0
+            logical, optional :: gd2qdinit=.true.
+            real(kind=8), allocatable,dimension(:) :: ycoeff
+            real(kind=8), allocatable,dimension(:) :: zcoeff
+            real(kind=4) :: alt
+            integer(kind=4) :: mmax
+            integer(kind=4) :: nterm
+            real(kind=8), allocatable,dimension(:,:) :: coeff
+            real(kind=8), parameter,optional :: sineps=0.39781868d0
+            real(kind=8), allocatable,dimension(:) :: shgradtheta
+            real(kind=4) :: epoch
+            real(kind=8), allocatable,dimension(:) :: sh
+            real(kind=8), allocatable,dimension(:) :: normadj
+            real(kind=8), parameter,optional :: pi=3.1415926535897932d0
+            real(kind=8), allocatable,dimension(:) :: shgradphi
+            subroutine initgd2qd ! in :hwm14:hwm14.f90:gd2qdc
+                use hwm
+            end subroutine initgd2qd
+        end module gd2qdc
+        subroutine gd2qd(glatin,glon,qlat,qlon,f1e,f1n,f2e,f2n) ! in :hwm14:hwm14.f90
+            use alf
+            use hwm
+            use gd2qdc
+            real(kind=4) intent(in) :: glatin
+            real(kind=4) intent(in) :: glon
+            real(kind=4) intent(out) :: qlat
+            real(kind=4) intent(out) :: qlon
+            real(kind=4) intent(out) :: f1e
+            real(kind=4) intent(out) :: f1n
+            real(kind=4) intent(out) :: f2e
+            real(kind=4) intent(out) :: f2n
+        end subroutine gd2qd
+        function mltcalc(qlat,qlon,day,ut) ! in :hwm14:hwm14.f90
+            use alf
+            use hwm
+            use gd2qdc
+            real(kind=4) intent(in) :: qlat
+            real(kind=4) intent(in) :: qlon
+            real(kind=4) intent(in) :: day
+            real(kind=4) intent(in) :: ut
+            real(kind=4) :: mltcalc
+        end function mltcalc
+        subroutine kpspl3(kp,kpterms) ! in :hwm14:hwm14.f90
+            real(kind=4) intent(in) :: kp
+            real(kind=4) dimension(3),intent(out) :: kpterms
+        end subroutine kpspl3
+        function latwgt2(mlat,mlt,kp0,twidth) ! in :hwm14:hwm14.f90
+            real(kind=4) :: mlat
+            real(kind=4) :: mlt
+            real(kind=4) :: kp0
+            real(kind=4) :: twidth
+            real(kind=4) :: latwgt2
+        end function latwgt2
+        subroutine findandopen(datafile,unitid) ! in :hwm14:hwm14.f90
+            character*128 :: datafile
+            integer :: unitid
+        end subroutine findandopen
+    end interface 
+end python module hwm14
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/

@@ -21,16 +21,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
+import os
 from math import exp
+import numpy as np
 from scipy.constants import N_A, R
 from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
 
-__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93']
+__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14']
 
 no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
-routine. However, f2py did not detect one on installation and could not compile\
+routine. However, f2py did not detect one on installation and could not compile \
 this routine. '''
 
+
+# Needed by hwm14
+os.environ["HWMPATH"] = os.path.join(os.path.dirname(__file__), 'optional')
 
 
 H_std = [0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852]
@@ -313,7 +318,7 @@ class ATMOSPHERE_NRLMSISE00(object):
     
     Notes
     -----
-    No full description has been published of this mode; it has been defined by
+    No full description has been published of this model; it has been defined by
     its implementation only. It was written in FORTRAN, and is accessible
     at ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/msis/nrlmsise00/
     
@@ -434,7 +439,7 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
     
     Notes
     -----
-    No full description has been published of this mode; it has been defined by
+    No full description has been published of this model; it has been defined by
     its implementation only. It was written in FORTRAN, and is accessible
     at ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/hwm93/.
     
@@ -459,9 +464,71 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
     '''
     try:
         from .optional.hwm93 import gws5
-        slt_hour = seconds/3600. + longitude/15.
-        ans = gws5(day, seconds, Z/1000., latitude, longitude, slt_hour, f107, 
-                   f107_avg, geomagnetic_disturbance_index)
-        return ans.tolist()
     except:
         raise ImportError(no_gfortran_error)
+    slt_hour = seconds/3600. + longitude/15.
+    ans = gws5(day, seconds, Z/1000., latitude, longitude, slt_hour, f107, 
+               f107_avg, geomagnetic_disturbance_index)
+    return ans.tolist()
+
+
+def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0, 
+          geomagnetic_disturbance_index=4):
+    r'''Horizontal Wind Model 2014, for calculating wind velocity in the
+    atmosphere as a function of time of year, longitude and latitude, and 
+    earth's geomagnetic disturbance. The model is described in [1]_.
+    
+    The model no longer accounts for solar flux.
+    
+    Parameters
+    ----------
+    Z : float
+        Elevation, [m]
+    latitude : float, optional
+        Latitude, between -90 and 90 [degrees]
+    longitude : float, optional
+        Longitude, between -180 and 180 or 0 and 360, [degrees]
+    day : float, optional
+        Day of year, 0-366 [day]
+    seconds : float, optional
+        Seconds since start of day, in UT1 time; using UTC provides no loss in
+        accuracy [s]
+    geomagnetic_disturbance_index : float, optional
+        Average daily `Ap` or also known as planetary magnetic index.
+        
+    Returns
+    -------
+    w : list[float]
+        Wind velocity, meridional (m/sec Northward) and zonal (m/sec Eastward)
+
+    Examples
+    --------
+    >>> hwm14(5E5, 45, 50, 365)
+    [-38.64341354370117, 12.871272087097168]
+
+    Notes
+    -----
+    No full description has been published of this model; it has been defined by
+    its implementation only. It was written in FORTRAN, and is accessible
+    at http://onlinelibrary.wiley.com/store/10.1002/2014EA000089/asset/supinfo/ess224-sup-0002-supinfo.tgz?v=1&s=2a957ba70b7cf9dd0612d9430076297c3634ea75.
+    
+    F2PY auto-compilation support is not yet currently supported.
+    
+    No patches were necessary to either the generated pyf or hwm14.f90 file,
+    as the authors of [1]_ have made it F2PY compatible.
+    
+    References
+    ----------
+    .. [1] Drob, Douglas P., John T. Emmert, John W. Meriwether, Jonathan J. 
+       Makela, Eelco Doornbos, Mark Conde, Gonzalo Hernandez, et al. "An Update
+       to the Horizontal Wind Model (HWM): The Quiet Time Thermosphere." Earth
+       and Space Science 2, no. 7 (July 1, 2015): 2014EA000089. 
+       doi:10.1002/2014EA000089.
+    '''
+    try:
+        import optional.hwm14
+    except:
+        raise ImportError(no_gfortran_error)
+    ans = optional.hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
+               0, np.array([np.nan, geomagnetic_disturbance_index]))
+    return ans.tolist()
