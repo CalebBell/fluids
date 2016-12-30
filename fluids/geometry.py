@@ -1449,6 +1449,30 @@ class TANK(object):
     '''
     table = False
 
+    def __repr__(self): # pragma: no cover
+        orient = 'Horizontal' if self.horizontal else 'Vertical'
+        if self.sideA is None and self.sideB is None:
+            sides = 'no heads'
+        elif self.sideA == self.sideB:
+            if self.sideA_a == self.sideB_a:
+                sides = self.sideA + (' heads, a=%f m' %(self.sideA_a)) 
+            else:
+                sides = self.sideA + ' heads, sideA a=%f m, sideB a=%f m' % (self.sideA_a, self.sideB_a)
+        else:
+            if self.sideA:
+                A = '%s head on sideA with a=%f m' % (self.sideA, self.sideA_a)
+            else:
+                A = 'no head on sideA'
+            if self.sideB:
+                B = ' and %s head on sideB with a=%f m' % (self.sideB, self.sideB_a)
+            else:
+                B = ' and no head on sideB'
+            sides = A + B
+        
+        
+        return '%s tank, V=%f m^3, D=%f m, L=%f m, %s.' %(orient, self.V_total, self.D, self.L, sides)
+
+
     def __init__(self, D=None, L=None, horizontal=True,
                  sideA=None, sideB=None, sideA_a=0, sideB_a=0,
                  sideA_f=1., sideA_k=0.06, sideB_f=1., sideB_k=0.06,
