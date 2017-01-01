@@ -96,37 +96,45 @@ def isothermal_work_compression(P1, P2, T, Z=1):
     return Z*R*T*log(P2/P1)
 
 
-def isentropic_work_compression(P1, P2, T1, k, Z=1, eta=1):
-    r'''Calculates the work of compression or expansion of a gas going through
-    an isentropic, adiabatic process assuming constant Cp and Cv. The
-    polytropic model is the same equation; just provide `n` instead of `k` and
-    use a polytropic efficienty for `eta` instead of a isentropic efficiency.
+def isentropic_work_compression(T1, k, Z=1, P1=None, P2=None, W=None, eta=None):
+    r'''Calculation function for dealing with compressing or expanding a gas
+    going through an isentropic, adiabatic process assuming constant Cp and Cv. 
+    The polytropic model is the same equation; just provide `n` instead of `k` 
+    and use a polytropic efficienty for `eta` instead of a isentropic 
+    efficiency. Can calculate any of the following, given all the other inputs:
 
+    * W, Work of compression
+    * P2, Pressure after compression 
+    * P1, Pressure before compression
+    * eta, isentropic efficiency of compression
+    
     .. math::
         W = \left(\frac{k}{k-1}\right)ZRT_1\left[\left(\frac{P_2}{P_1}
         \right)^{(k-1)/k}-1\right]/\eta_{isentropic}
 
     Parameters
     ----------
-    P1 : float
-        Inlet pressure, [Pa]
-    P2 : float
-        Outlet pressure, [Pa]
     T1 : float
         Initial temperature of the gas, [K]
     k : float
         Isentropic exponent of the gas (Cp/Cv) or polytropic exponent `n` to
         use this as a polytropic model instead [-]
-    Z : float
+    Z : float, optional
         Constant compressibility factor of the gas, [-]
-    eta : float
+    P1 : float, optional
+        Inlet pressure, [Pa]
+    P2 : float, optional
+        Outlet pressure, [Pa]
+    W : float, optional
+        Work performed per mole of gas compressed/expanded [J/mol]
+    eta : float, optional
         Isentropic efficiency of the process or polytropic efficiency of the
         process to use this as a polytropic model instead [-]
 
     Returns
     -------
-    W : float
-        Work performed per mole of gas compressed/expanded [J/mol]
+    W, P1, P2, or eta : float
+        The missing input which was solved for [base SI]
 
     Notes
     -----
@@ -172,7 +180,7 @@ def isentropic_work_compression(P1, P2, T1, k, Z=1, eta=1):
 
     Examples
     --------
-    >>> isentropic_work_compression(1E5, 1E6, 300, 1.4, eta=0.78)
+    >>> isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78)
     10416.873455626454
 
     References
@@ -181,7 +189,16 @@ def isentropic_work_compression(P1, P2, T1, k, Z=1, eta=1):
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     '''
-    return k/(k-1)*Z*R*T1*((P2/P1)**((k-1.)/k) - 1)/eta
+    if W is None and (None not in [eta, P1, P2]):
+        return k/(k-1)*Z*R*T1*((P2/P1)**((k-1.)/k) - 1)/eta
+    elif P1 is None and (None not in [eta, W, P2]):
+        return P2*(1 + W*eta/(R*T1*Z) - W*eta/(R*T1*Z*k))**(-k/(k - 1))
+    elif P2 is None and (None not in [eta, W, P1]):
+        return P1*(1 + W*eta/(R*T1*Z) - W*eta/(R*T1*Z*k))**(k/(k - 1))
+    elif eta is None and (None not in [P1, P2, W]):
+        return R*T1*Z*k*((P2/P1)**((k - 1)/k) - 1)/(W*(k - 1))
+    else:
+        raise Exception('Three of W, P1, P2, and eta must be specified.')
 
 
 def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
@@ -286,9 +303,9 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     '''
-    if eta_s is None:
+    if eta_s is None and eta_p:
         return ((P2/P1)**((k-1)/k)-1)/((P2/P1)**((k-1)/(k*eta_p))-1)
-    elif eta_p is None:
+    elif eta_p is None and eta_s:
         return (k - 1.)*log(P2/P1)/(k*log(
             (eta_s + (P2/P1)**((k - 1.)/k) - 1.)/eta_s))
     else:
@@ -334,9 +351,9 @@ def polytropic_exponent(k, n=None, eta_p=None):
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     '''
-    if n is None:
+    if n is None and eta_p:
         return k*eta_p/(1 - k*(1-eta_p))
-    elif eta_p is None:
+    elif eta_p is None and n:
         return n*(k-1)/(k*(n-1))
     else:
         raise Exception('Either n or eta_p is required')
@@ -775,7 +792,7 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
             raise Exception('Given outlet pressure is not physically possible \
 due to the formation of choked flow at P2=%f, specified outlet pressure was %f' % (Pcf, P2))
         if P2 > P1:
-            raise Exception('Specified outlet pressure is larger than the\
+            raise Exception('Specified outlet pressure is larger than the \
 inlet pressure; fluid will flow backwards.')
         return (pi**2/16*D**4*rho/P1/(f*L/D + 2*log(P1/P2))*(P1**2-P2**2))**0.5
     elif L is None and (None not in [P1, P2, D, m]):
@@ -798,8 +815,8 @@ inlet pressure; fluid will flow backwards.')
                 return ridder(to_solve, a=P2, b=Pcf)
             except:
                 m_max = isothermal_gas(rho, f, P1=Pcf, P2=P2, L=L, D=D)
-                raise Exception('The desired mass flow rate cannot be achieved\
- with the specified downstream pressure; the maximum flowrate is %f at an \
+                raise Exception('The desired mass flow rate cannot be achieved \
+with the specified downstream pressure; the maximum flowrate is %f at an \
 upstream pressure of %f' %(m_max, Pcf))
     elif P2 is None and (None not in [L, P1, D, m]):
         try:

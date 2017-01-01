@@ -25,14 +25,27 @@ def test_isothermal_work_compression():
 
 
 def test_isentropic_work_compression():
-    dH = isentropic_work_compression(1E5, 1E6, 300, 1.4)
+    dH = isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=1)
     assert_allclose(dH, 8125.161295388634, rtol=1e-05)
     
-    dH = isentropic_work_compression(1E5, 1E6, 300, 1.4, eta=0.78)
+    dH = isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78)
     assert_allclose(dH, 10416.873455626454, rtol=1e-05)
     
-    dH = isentropic_work_compression(1E5, 1E6, 300, 1.4, eta=0.78, Z=0.9)
+    dH = isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78, Z=0.9)
     assert_allclose(dH, 9375.186110063809, rtol=1e-05)
+
+    # Other solutions - P1, P2, and eta
+    P1 = isentropic_work_compression(W=9375.186110063809, P2=1E6, T1=300, k=1.4, eta=0.78, Z=0.9)
+    assert_allclose(P1, 1E5, rtol=1E-5)
+
+    P2 = isentropic_work_compression(W=9375.186110063809, P1=1E5, T1=300, k=1.4, eta=0.78, Z=0.9)
+    assert_allclose(P2, 1E6, rtol=1E-5)
+
+    eta = isentropic_work_compression(W=9375.186110063809, P1=1E5, P2=1E6, T1=300, k=1.4, Z=0.9, eta=None)
+    assert_allclose(eta, 0.78, rtol=1E-5)
+    
+    with pytest.raises(Exception):
+        isentropic_work_compression(P1=1E5, P2=1E6, k=1.4, T1=None)
 
 
 def test_isentropic_T_rise_compression():
