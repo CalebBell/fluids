@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['Lockhart_Martinelli', 'Friedel', 'Chisholm', 
+__all__ = ['two_phase_dP', 'Lockhart_Martinelli', 'Friedel', 'Chisholm', 
            'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
@@ -2033,6 +2033,79 @@ two_phase_correlations = {
 def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
                  P=None, Pc=None, roughness=0, AvailableMethods=False, 
                  Method=None):
+    r'''This function handles calculation of two-phase liquid-gas pressure drop
+    for flow inside channels. 23 calculation methods are available, with
+    varying input requirements. A correlation will be automatically selected if
+    none is specified. The full list of correlation can be obtained with the 
+    `AvailableMethods` flag.
+
+    If no correlation is selected, the following rules are used, with the 
+    earlier options attempted first:
+
+        * If rhog, mul, mug, and sigma are specified, use the Kim_Mudawar model
+        * If rhog, mul, and mug are specified, use the Chisholm model
+        * If mul, P, and Pc are specified, use the Zhang_Webb model
+        * If rhog and sigma are specified, use the Lombardi_Pedrocchi model
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    D : float
+        Diameter of pipe, [m]
+    L : float, optional
+        Length of pipe, [m]
+    rhog : float, optional
+        Gas density, [kg/m^3]
+    mul : float, optional
+        Viscosity of liquid, [Pa*s]
+    mug : float, optional
+        Viscosity of gas, [Pa*s]
+    sigma : float, optional
+        Surface tension, [N/m]
+    P : float, optional
+        Pressure of fluid, [Pa]
+    Pc : float, optional
+        Critical pressure of fluid, [Pa]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+    methods : list, only returned if AvailableMethods == True
+        List of methods which can be used to calculate two-phase pressure drop
+        with the given inputs.
+
+    Other Parameters
+    ----------------
+    Method : string, optional
+        A string of the function name to use, as in the dictionary
+        two_phase_correlations.
+    AvailableMethods : bool, optional
+        If True, function will consider which methods which can be used to
+        calculate two-phase pressure drop with the given inputs and return
+        them as a list instead of performing a calculation.
+
+    Notes
+    -----
+    These functions may be integrated over, with properties recalculated as
+    the fluid's quality changes.
+    
+    This model considers only the frictional pressure drop, not that due to
+    gravity or acceleration.
+
+    Examples
+    --------
+    >>> two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
+    ... sigma=0.0487, D=0.05, L=1)
+    840.4137796786074
+    '''
     def list_methods():
         usable_indices = []
         if all([rhog, sigma]):
@@ -2054,7 +2127,7 @@ def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
             Method = 'Chisholm' # Second choice, indexes 1 or 2
         elif all([mul, P, Pc,]) :
             Method = 'Zhang_Webb' # Not a good choice
-        elif all([rhog, sigma, D]):
+        elif all([rhog, sigma]):
             Method = 'Lombardi_Pedrocchi' # Last try
         else:
             raise Exception('All possible methods require more information \

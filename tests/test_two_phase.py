@@ -213,3 +213,60 @@ def test_Mishima_Hibiki():
     assert_allclose(dP, 732.4268200606265)
 
 
+
+def test_two_phase_dP():
+    # Case 0
+    assert ['Lombardi_Pedrocchi'] == two_phase_dP(10, 0.7, 1000, 0.1, rhog=1.2, sigma=0.02, AvailableMethods=True)
+    # Case 5
+    assert ['Zhang_Webb'] == two_phase_dP(10, 0.7, 1000, 0.1, mul=1E-3, P=1E5, Pc=1E6, AvailableMethods=True)
+    # Case 1,2
+    expect = ['Jung_Radermacher', 'Muller_Steinhagen_Heck', 'Baroczy_Chisholm', 'Yu_France', 'Wang_Chiang_Lu', 'Theissing', 'Chisholm rough', 'Chisholm', 'Gronnerud', 'Lockhart_Martinelli', 'Bankoff']
+    actual = two_phase_dP(10, 0.7, 1000, 0.1, rhog=1.2, mul=1E-3, mug=1E-6, AvailableMethods=True)
+    assert sorted(expect) == sorted(actual)
+    # Case 3, 4; drags in 5, 1, 2
+    expect = ['Zhang_Hibiki_Mishima adiabatic gas', 'Kim_Mudawar', 'Friedel', 'Jung_Radermacher', 'Hwang_Kim', 'Muller_Steinhagen_Heck', 'Baroczy_Chisholm', 'Tran', 'Yu_France', 'Zhang_Hibiki_Mishima flow boiling', 'Xu_Fang', 'Wang_Chiang_Lu', 'Theissing', 'Chisholm rough', 'Chisholm', 'Mishima_Hibiki', 'Gronnerud', 'Chen_Friedel', 'Lombardi_Pedrocchi', 'Zhang_Hibiki_Mishima', 'Lockhart_Martinelli', 'Bankoff']
+    actual = two_phase_dP(10, 0.7, 1000, 0.1, rhog=1.2, mul=1E-3, mug=1E-6, sigma=0.014, AvailableMethods=True)
+    assert sorted(expect) == sorted(actual)
+
+    # Final method attempt Lombardi_Pedrocchi
+    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1)
+    assert_allclose(dP, 1567.328374498781)
+
+    # Second method attempt Zhang_Webb
+    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 712.0999804205619)
+
+    # Second choice, for no sigma; Chisholm
+    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 1084.1489922923736)
+
+    # Prefered choice, Kim_Mudawar
+    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+    assert_allclose(dP, 840.4137796786074)
+
+    # Case where i = 4
+    dP = two_phase_dP(Method='Friedel', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    assert_allclose(dP, 738.6500525002243)
+
+    # Case where i = 1
+    dP = two_phase_dP(Method='Lockhart_Martinelli', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, L=1)
+    assert_allclose(dP, 716.4695654888484)
+
+    # Case where i = 101, 'Chisholm rough'
+    dP = two_phase_dP(Method='Chisholm rough', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=1E-4, L=1)
+    assert_allclose(dP, 846.6778299960783)
+
+    # Case where i = 102:
+    dP = two_phase_dP(Method='Zhang_Hibiki_Mishima adiabatic gas', m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1)
+    assert_allclose(dP, 1109.1976111277042)
+
+    # Case where i = 103:
+    dP = two_phase_dP(Method='Zhang_Hibiki_Mishima flow boiling', m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1)
+    assert_allclose(dP, 770.0975665928916)
+
+    # Don't give enough information:
+    with pytest.raises(Exception):
+        two_phase_dP(m=0.6, x=0.1, rhol=915., D=0.05, L=1)
+
+    with pytest.raises(Exception):
+        two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1, Method='BADMETHOD')
