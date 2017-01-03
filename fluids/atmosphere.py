@@ -353,8 +353,8 @@ class ATMOSPHERE_NRLMSISE00(object):
     def __init__(self, Z, latitude=0, longitude=0, day=0, seconds=0, 
                  f107=150., f107_avg=150., geomagnetic_disturbance_indices=None):
         alt = Z/1000.
-        output = nrlmsise_output()
-        Input = nrlmsise_input()
+        output_obj = nrlmsise_output()
+        input_obj = nrlmsise_input()
         flags = nrlmsise_flags()
         
         flags.switches = [0] + [1]*23
@@ -363,31 +363,31 @@ class ATMOSPHERE_NRLMSISE00(object):
             aph = ap_array()
             aph.a = geomagnetic_disturbance_indices
             flags.switches[9] = -1
-            Input.ap=geomagnetic_disturbance_indices[0];
-            Input.ap_a = aph
+            input_obj.ap = geomagnetic_disturbance_indices[0]
+            input_obj.ap_a = aph
 
-        Input.doy=day;
-        Input.year=0; 
-        Input.sec=seconds;
-        Input.alt=alt;
-        Input.g_lat=latitude;
-        Input.g_long=longitude;
-        Input.lst=seconds/3600. + longitude/15.
-        Input.f107A=f107_avg;
-        Input.f107=f107;
-        gtd7(Input, flags, output)
+        input_obj.doy = day
+        input_obj.year = 0
+        input_obj.sec = seconds
+        input_obj.alt = alt
+        input_obj.g_lat = latitude
+        input_obj.g_long = longitude
+        input_obj.lst = seconds/3600. + longitude/15.
+        input_obj.f107A = f107_avg
+        input_obj.f107 = f107
+        gtd7(input_obj, flags, output_obj)
         
-        self.He_density = output.d[0]*1E6 # 1/cm^3 to 1/m^3
-        self.O_density = output.d[1]*1E6 # 1/cm^3 to 1/m^3
-        self.N2_density = output.d[2]*1E6 # 1/cm^3 to 1/m^3
-        self.O2_density = output.d[3]*1E6 # 1/cm^3 to 1/m^3
-        self.Ar_density = output.d[4]*1E6 # 1/cm^3 to 1/m^3
-        self.rho = output.d[5]*1000 # gram/cm^3 to kg/m^3
-        self.H_density = output.d[6]*1E6 # 1/cm^3 to 1/m^3
-        self.N_density = output.d[7]*1E6 # 1/cm^3 to 1/m^3
-        self.O_anomalous_density = output.d[8]*1E6 # 1/cm^3 to 1/m^3
-        self.T_exospheric = output.t[0]
-        self.T = output.t[1]
+        self.He_density = output_obj.d[0]*1E6 # 1/cm^3 to 1/m^3
+        self.O_density = output_obj.d[1]*1E6 # 1/cm^3 to 1/m^3
+        self.N2_density = output_obj.d[2]*1E6 # 1/cm^3 to 1/m^3
+        self.O2_density = output_obj.d[3]*1E6 # 1/cm^3 to 1/m^3
+        self.Ar_density = output_obj.d[4]*1E6 # 1/cm^3 to 1/m^3
+        self.rho = output_obj.d[5]*1000 # gram/cm^3 to kg/m^3
+        self.H_density = output_obj.d[6]*1E6 # 1/cm^3 to 1/m^3
+        self.N_density = output_obj.d[7]*1E6 # 1/cm^3 to 1/m^3
+        self.O_anomalous_density = output_obj.d[8]*1E6 # 1/cm^3 to 1/m^3
+        self.T_exospheric = output_obj.t[0]
+        self.T = output_obj.t[1]
         
         # Calculate pressure with the ideal gas law PV = nRT with V = 1 m^3
         self.P = sum([getattr(self, a) for a in self.atrrs])*self.T*R/N_A
