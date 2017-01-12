@@ -38,6 +38,7 @@ this routine. '''
 os.environ["HWMPATH"] = os.path.join(os.path.dirname(__file__), 'optional')
 
 
+
 H_std = [0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852]
 T_grad = [-6.5E-3, 0, 1E-3, 2.8E-3, 0, -2.8E-3, -2E-3, 0]
 T_std = [288.15, 216.65, 216.65, 228.65, 270.65, 270.65, 214.65, 186.946]
@@ -50,7 +51,6 @@ P0 = 101325.0
 M0 = 28.9644
 g0 = 9.80665
 gamma = 1.400
-
 
 class ATMOSPHERE_1976(object):
     r'''US Standard Atmosphere 1976 class, which calculates `T`, `P`,
@@ -91,7 +91,7 @@ class ATMOSPHERE_1976(object):
        http://www.dtic.mil/cgi-bin/GetTRDoc?AD=ADA588839
     '''
     R = 8314.32
-
+    
     @staticmethod
     def get_ind_from_H(H):
         r'''Method defined in the US Standard Atmosphere 1976 for determining
@@ -144,7 +144,7 @@ class ATMOSPHERE_1976(object):
         mug : float
             Viscosity, [Pa*s]
         '''        
-        return 1.458E-6*T**1.5/(T+110.4)
+        return 1.458E-6*T**1.5/(T + 110.4)
     
     @staticmethod
     def density(T, P):
