@@ -121,10 +121,9 @@ def API520_C(k):
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
     if k != 1:
-        C = 0.03948*( k*(2./(k+1.))**((k+1.)/(k-1.)) )**0.5
+        return 0.03948*( k*(2./(k+1.))**((k+1.)/(k-1.)) )**0.5
     else:
-        C = 0.03948*(1./exp(1))**0.5
-    return C
+        return 0.03948*(1./exp(1))**0.5
 
 
 def API520_F2(k, P1, P2):
@@ -169,8 +168,7 @@ def API520_F2(k, P1, P2):
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
     r = P2/P1
-    F2 = ( k/(k-1)*r**(2./k) * ((1-r**((k-1.)/k))/(1.-r)) )**0.5
-    return F2
+    return ( k/(k-1)*r**(2./k) * ((1-r**((k-1.)/k))/(1.-r)) )**0.5
 
 
 def API520_Kv(Re):
@@ -217,8 +215,7 @@ def API520_Kv(Re):
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
-    Kv = (0.9935 + 2.878/Re**0.5 + 342.75/Re**1.5)**-1.0
-    return Kv
+    return (0.9935 + 2.878/Re**0.5 + 342.75/Re**1.5)**-1.0
 
 
 def API520_N(P1):
@@ -259,8 +256,7 @@ def API520_N(P1):
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
     P1 = P1/1000. # Pa to kPa
-    KN = (0.02764*P1-1000.)/(0.03324*P1-1061)
-    return KN
+    return (0.02764*P1-1000.)/(0.03324*P1-1061)
 
 
 _KSH_psigs = [15, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260,
@@ -342,8 +338,7 @@ def API520_SH(T1, P1):
         raise Exception('Superheat cannot be above 649 degrees Celcius')
     if T1 < C2K(149):
         return 1. # No superheat under 15 psig
-    KSH = float(API520_KSH(T1, P1))
-    return KSH
+    return float(API520_KSH(T1, P1))
 
 
 
@@ -391,8 +386,7 @@ def API520_W(Pset, Pback):
     gauge_backpressure = (Pback-atm)/(Pset-atm)*100 # in percent
     if gauge_backpressure < 15:
         return 1
-    KW = float(API520_Kw(gauge_backpressure))
-    return KW
+    return float(API520_Kw(gauge_backpressure))
 
 
 
@@ -538,8 +532,7 @@ def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
     else:
         F2 = API520_F2(k, P1, P2)
         A = 17.9*m/(F2*Kd*Kc)*(T*Z/(MW*P1*(P1-P2)))**0.5
-    A = A*0.001**2 # convert mm^2 to m^2
-    return A
+    return A*0.001**2 # convert mm^2 to m^2
 
 #print [API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, Kb=1, Kc=1)]
 #print [API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, P2=532E3, Kd=0.975, Kb=1, Kc=1)]
@@ -598,7 +591,6 @@ def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1):
     P1 = P1/1000. # Pa to kPa
     m = m*3600. # kg/s to kg/hr
     A = 190.5*m/(P1*Kd*Kb*Kc*KN*KSH)
-    A = A*0.001**2 # convert mm^2 to m^2
-    return A
+    return A*0.001**2 # convert mm^2 to m^2
 
 #print [API520_A_steam(m=69615/3600., T=592.5, P1=12236E3, Kd=0.975, Kb=1, Kc=1)]

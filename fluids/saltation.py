@@ -82,8 +82,7 @@ def Rizk(mp, dp, rhog, D):
     Frs_sorta = 1/(g*D)**0.5
     expression1 = term1*Frs_sorta**beta
     expression2 = mp/rhog/(pi/4*D**2)
-    V = (expression2/expression1)**(1./(1 + beta))
-    return V
+    return (expression2/expression1)**(1./(1 + beta))
 
 
 def Matsumoto_1974(mp, rhop, dp, rhog, D, Vterminal=1):
@@ -148,8 +147,7 @@ def Matsumoto_1974(mp, rhop, dp, rhog, D, Vterminal=1):
     Frs_sorta = 1./(g*D)**0.5
     expression1 = 0.448*(rhop/rhog)**0.5*(Frp/10.)**-1.75*(Frs_sorta/10.)**3
     expression2 = mp/rhog/A
-    V = (expression2/expression1)**(1/4.)
-    return V
+    return (expression2/expression1)**(1/4.)
 
 
 def Matsumoto_1975(mp, rhop, dp, rhog, D, Vterminal=1):
@@ -214,8 +212,7 @@ def Matsumoto_1975(mp, rhop, dp, rhog, D, Vterminal=1):
     Frs_sorta = 1./(g*D)**0.5
     expression1 = 1.11*(rhop/rhog)**0.55*(Frp/10.)**-2.3*(Frs_sorta/10.)**3
     expression2 = mp/rhog/A
-    V = (expression2/expression1)**(1/4.)
-    return V
+    return (expression2/expression1)**(1/4.)
 
 
 def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
@@ -299,13 +296,12 @@ def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
         Frs_sorta = 1./(g*D)**0.5
         expression1 = 0.373*(rhop/rhog)**1.06*(Frp/10.)**-3.7*(Frs_sorta/10.)**3.61
         expression2 = mp/rhog/A
-        V = (expression2/expression1)**(1/4.61)
+        return (expression2/expression1)**(1/4.61)
     else:
         Frs_sorta = 1./(g*D)**0.5
         expression1 = 5560*(dp/D)**1.43*(Frs_sorta/10.)**4
         expression2 = mp/rhog/A
-        V = (expression2/expression1)**(0.2)
-    return V
+        return (expression2/expression1)**(0.2)
 
 
 def Schade(mp, rhop, dp, rhog, D):
@@ -373,8 +369,7 @@ def Schade(mp, rhop, dp, rhog, D):
     B = (D/dp)**0.025*(rhop/rhog)**0.34
     A = (g*D)**0.5
     C = mp/(rhog*pi/4*D**2)
-    V = (C**0.11*B*A)**(1/1.11)
-    return V
+    return (C**0.11*B*A)**(1/1.11)
 
 
 def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
@@ -452,8 +447,7 @@ def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
         term1 = 15.*(dp/D)**0.1
     term2 = 1./(g*D)**0.5
     term3 = mp/rhog/(pi/4*D**2)
-    V = (term1/term2*term3**0.25)**(1/1.25)
-    return V
+    return (term1/term2*term3**0.25)**(1/1.25)
 
 
 def Geldart_Ling(mp, rhog, D, mug):
@@ -516,8 +510,7 @@ def Geldart_Ling(mp, rhog, D, mug):
     '''
     Gs = mp/(pi/4*D**2)
     if Gs/D <= 47000:
-        V = 1.5*Gs**0.465*D**-0.01*mug**0.055*rhog**-0.42
+        return 1.5*Gs**0.465*D**-0.01*mug**0.055*rhog**-0.42
     else:
-        V = 8.7*Gs**0.302*D**0.153*mug**0.055*rhog**-0.42
-    return V
+        return 8.7*Gs**0.302*D**0.153*mug**0.055*rhog**-0.42
 
