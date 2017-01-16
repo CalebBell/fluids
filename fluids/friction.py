@@ -345,8 +345,7 @@ def Alshul_1952(Re, eD):
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
     '''
-    fd = 0.11*(68/Re + eD)**0.25
-    return fd
+    return 0.11*(68/Re + eD)**0.25
 
 
 def Wood_1966(Re, eD):
@@ -390,8 +389,7 @@ def Wood_1966(Re, eD):
        Civil Engineering American Society of Civil Engineers (1966)
     '''
     A1 = 1.62*eD**0.134
-    fd = 0.094*eD**0.225 + 0.53*eD +88*eD**0.4*Re**-A1
-    return fd
+    return 0.094*eD**0.225 + 0.53*eD +88*eD**0.4*Re**-A1
 
 
 def Churchill_1973(Re, eD):
@@ -433,8 +431,7 @@ def Churchill_1973(Re, eD):
        Stress in Turbulent Flow in Commercial Pipe." AIChE Journal 19, no. 2
        (March 1, 1973): 375-76. doi:10.1002/aic.690190228.
     '''
-    fd = (-2*log10(eD/3.7 + (7./Re)**0.9))**-2
-    return fd
+    return (-2*log10(eD/3.7 + (7./Re)**0.9))**-2
 
 
 def Eck_1973(Re, eD):
@@ -474,8 +471,7 @@ def Eck_1973(Re, eD):
        doi:10.1007/s10494-012-9419-7
     .. [2] Eck, B.: Technische Stromungslehre. Springer, New York (1973)
     '''
-    fd = (-2*log10(eD/3.715 + 15/Re))**-2
-    return fd
+    return (-2*log10(eD/3.715 + 15/Re))**-2
 
 
 def Jain_1976(Re, eD):
@@ -517,8 +513,7 @@ def Jain_1976(Re, eD):
        Journal of the Hydraulics Division 102, no. 5 (May 1976): 674-77.
     '''
     ff = (2.28-4*log10(eD+(29.843/Re)**0.9))**-2
-    fd = 4*ff
-    return fd
+    return 4*ff
 
 
 def Swamee_Jain_1976(Re, eD):
@@ -561,8 +556,7 @@ def Swamee_Jain_1976(Re, eD):
        (May 1976): 657-664.
     '''
     ff = (-4*log10((6.97/Re)**0.9 + eD/3.7))**-2
-    fd = 4*ff
-    return fd
+    return 4*ff
 
 
 def Churchill_1977(Re, eD):
@@ -610,8 +604,7 @@ def Churchill_1977(Re, eD):
     A3 = (37530/Re)**16
     A2 = (2.457*log((7./Re)**0.9 + 0.27*eD))**16
     ff = 2*((8/Re)**12 + 1/(A2+A3)**1.5)**(1/12.)
-    fd = 4*ff
-    return fd
+    return 4*ff
 
 
 def Chen_1979(Re, eD):
@@ -658,8 +651,7 @@ def Chen_1979(Re, eD):
     '''
     A4 = eD**1.1098/2.8257 + (7.149/Re)**0.8981
     ff = (-4*log10(eD/3.7065 - 5.0452/Re*log10(A4)))**-2
-    fd = 4*ff
-    return fd
+    return 4*ff
 
 
 def Round_1980(Re, eD):
@@ -703,8 +695,7 @@ def Round_1980(Re, eD):
        122-23. doi:10.1002/cjce.5450580119.
     '''
     ff = (-3.6*log10(Re/(0.135*Re*eD+6.5)))**-2
-    fd = 4*ff
-    return fd
+    return 4*ff
 
 
 def Shacham_1980(Re, eD):
@@ -748,8 +739,7 @@ def Shacham_1980(Re, eD):
        no. 2 (May 1, 1980): 228-228. doi:10.1021/i160074a019.
     '''
     ff = (-4*log10(eD/3.7 - 5.02/Re*log10(eD/3.7 + 14.5/Re)))**-2
-    fd = 4*ff
-    return fd
+    return 4*ff
 
 
 def Barr_1981(Re, eD):
@@ -840,8 +830,7 @@ def Zigrang_Sylvester_1(Re, eD):
     '''
     A5 = eD/3.7 + 13/Re
     ff = (-4*log10(eD/3.7 - 5.02/Re*log10(A5)))**-2
-    fd = 4*ff
-    return fd
+    return 4*ff
 
 
 def Zigrang_Sylvester_2(Re, eD):
@@ -890,8 +879,7 @@ def Zigrang_Sylvester_2(Re, eD):
     A5 = eD/3.7 + 13/Re
     A6 = eD/3.7 - 5.02/Re*log10(A5)
     ff = (-4*log10(eD/3.7 - 5.02/Re*log10(A6)))**-2
-    fd = 4*ff
-    return fd
+    return 4*ff
 
 
 def Haaland(Re, eD):
@@ -934,8 +922,7 @@ def Haaland(Re, eD):
        (March 1, 1983): 89-90. doi:10.1115/1.3240948.
     '''
     ff = (-3.6*log10(6.9/Re +(eD/3.7)**1.11))**-2
-    fd = 4*ff
-    return fd
+    return 4*ff
 
 
 def Serghides_1(Re, eD):
@@ -984,8 +971,7 @@ def Serghides_1(Re, eD):
     A = -2*log10(eD/3.7 + 12/Re)
     B = -2*log10(eD/3.7 + 2.51*A/Re)
     C = -2*log10(eD/3.7 + 2.51*B/Re)
-    fd = (A - (B-A)**2/(C-2*B + A))**-2
-    return fd
+    return (A - (B-A)**2/(C-2*B + A))**-2
 
 
 def Serghides_2(Re, eD):
@@ -1033,8 +1019,7 @@ def Serghides_2(Re, eD):
     '''
     A = -2*log10(eD/3.7 + 12/Re)
     B = -2*log10(eD/3.7 + 2.51*A/Re)
-    fd = (4.781 - (A - 4.781)**2/(B - 2*A + 4.781))**-2
-    return fd
+    return (4.781 - (A - 4.781)**2/(B - 2*A + 4.781))**-2
 
 
 def Tsal_1989(Re, eD):
@@ -1080,10 +1065,9 @@ def Tsal_1989(Re, eD):
     '''
     A = 0.11*(68/Re + eD)**0.25
     if A >= 0.018:
-        fd = A
+        return A
     else:
-        fd = 0.0028 + 0.85*A
-    return fd
+        return 0.0028 + 0.85*A
 
 
 def Manadilli_1997(Re, eD):
@@ -1124,8 +1108,7 @@ def Manadilli_1997(Re, eD):
     .. [2] 	Manadilli, G.: Replace implicit equations with signomial functions.
        Chem. Eng. 104, 129 (1997)
     '''
-    fd = (-2*log10(eD/3.7 + 95/Re**0.983 - 96.82/Re))**-2
-    return fd
+    return (-2*log10(eD/3.7 + 95/Re**0.983 - 96.82/Re))**-2
 
 
 def Romeo_2002(Re, eD):
@@ -1216,8 +1199,7 @@ def Sonnad_Goudar_2006(Re, eD):
        doi:10.1061/(ASCE)0733-9429(2007)133:11(1270).
     '''
     S = 0.124*eD*Re + log(0.4587*Re)
-    fd = (.8686*log(.4587*Re/S**(S/(S+1))))**-2
-    return fd
+    return (.8686*log(.4587*Re/S**(S/(S+1))))**-2
 
 
 def Rao_Kumar_2007(Re, eD):
@@ -1265,8 +1247,7 @@ def Rao_Kumar_2007(Re, eD):
        Science Bangalore, India ID Code 9587 (2007)
     '''
     beta = 1 - 0.55*exp(-0.33*(log(Re/6.5))**2)
-    fd = (2*log10((2*eD)**-1/beta/((0.444+0.135*Re)/Re)))**-2
-    return fd
+    return (2*log10((2*eD)**-1/beta/((0.444+0.135*Re)/Re)))**-2
 
 
 def Buzzelli_2008(Re, eD):
@@ -1313,8 +1294,7 @@ def Buzzelli_2008(Re, eD):
     '''
     B1 = (.774*log(Re)-1.41)/(1+1.32*eD**0.5)
     B2 = eD/3.7*Re + 2.51*B1
-    fd = (B1- (B1+2*log10(B2/Re))/(1+2.18/B2))**-2
-    return fd
+    return (B1- (B1+2*log10(B2/Re))/(1+2.18/B2))**-2
 
 
 def Avci_Karagoz_2009(Re, eD):
@@ -1357,8 +1337,7 @@ def Avci_Karagoz_2009(Re, eD):
        Friction Factor in Smooth and Rough Pipes." Journal of Fluids
        Engineering 131, no. 6 (2009): 061203. doi:10.1115/1.3129132.
     '''
-    fd = 6.4*(log(Re) - log(1 + 0.01*Re*eD*(1+10*eD**0.5)))**-2.4
-    return fd
+    return 6.4*(log(Re) - log(1 + 0.01*Re*eD*(1+10*eD**0.5)))**-2.4
 
 
 def Papaevangelo_2010(Re, eD):
@@ -1402,8 +1381,7 @@ def Papaevangelo_2010(Re, eD):
        Corfu, Greece: University of Ioannina Greece and Stevens Institute of
        Technology New Jersey (2010)
     '''
-    fd = (0.2479-0.0000947*(7-log(Re))**4)/(log10(eD/3.615 + 7.366/Re**0.9142))**2
-    return fd
+    return (0.2479-0.0000947*(7-log(Re))**4)/(log10(eD/3.615 + 7.366/Re**0.9142))**2
 
 
 def Brkic_2011_1(Re, eD):
@@ -1448,8 +1426,7 @@ def Brkic_2011_1(Re, eD):
        doi:10.1016/j.petrol.2011.02.006.
     '''
     beta = log(Re/(1.816*log(1.1*Re/log(1+1.1*Re))))
-    fd = (-2*log10(10**(-0.4343*beta)+eD/3.71))**-2
-    return fd
+    return (-2*log10(10**(-0.4343*beta)+eD/3.71))**-2
 
 
 def Brkic_2011_2(Re, eD):
@@ -1494,8 +1471,7 @@ def Brkic_2011_2(Re, eD):
        doi:10.1016/j.petrol.2011.02.006.
     '''
     beta = log(Re/(1.816*log(1.1*Re/log(1+1.1*Re))))
-    fd = (-2*log10(2.18*beta/Re + eD/3.71))**-2
-    return fd
+    return (-2*log10(2.18*beta/Re + eD/3.71))**-2
 
 
 def Fang_2011(Re, eD):
@@ -1541,8 +1517,7 @@ def Fang_2011(Re, eD):
        Reactor Technology (SMiRT19) Special Section, 241, no. 3 (March 2011):
        897-902. doi:10.1016/j.nucengdes.2010.12.019.
     '''
-    fd = log(0.234*eD**1.1007 - 60.525/Re**1.1105 + 56.291/Re**1.0712)**-2*1.613
-    return fd
+    return log(0.234*eD**1.1007 - 60.525/Re**1.1105 + 56.291/Re**1.0712)**-2*1.613
 
 
 def von_Karman(eD):

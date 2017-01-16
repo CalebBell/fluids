@@ -23,6 +23,7 @@ SOFTWARE.'''
 from numpy.testing import assert_allclose
 from fluids.atmosphere import ATMOSPHERE_NRLMSISE00
 import numpy as np
+import pytest
 import os
 
 def helper_test_match(f, atms):
@@ -42,6 +43,7 @@ def helper_test_match(f, atms):
     assert_allclose(calcs, f[:, 6], rtol=1E-3)
 
 
+@pytest.mark.slow
 def test_ATMOSPHERE_NRLMSISE00():
     name = os.path.join(os.path.dirname(__file__), 'known_data_height.txt')
     f = np.loadtxt(name, delimiter=' ')

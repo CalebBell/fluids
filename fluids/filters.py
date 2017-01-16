@@ -210,8 +210,7 @@ def square_edge_screen(alpha):
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    K = float(square_interp(alpha))
-    return K
+    return float(square_interp(alpha))
 
 
 def square_edge_grill(alpha=None, l=None, Dh=None, fd=None):
@@ -265,10 +264,9 @@ def square_edge_grill(alpha=None, l=None, Dh=None, fd=None):
        Van Nostrand Reinhold Co., 1984.
     '''
     if Dh and l and fd and l > 50*Dh:
-        K = (0.5*(1-alpha) + (1-alpha**2) + fd*l/Dh)/alpha**2
+        return (0.5*(1-alpha) + (1-alpha**2) + fd*l/Dh)/alpha**2
     else:
-        K = (0.5*(1-alpha) + (1-alpha**2))/alpha**2
-    return K
+        return (0.5*(1-alpha) + (1-alpha**2))/alpha**2
 
 
 def round_edge_grill(alpha, l=None, Dh=None, fd=None):
@@ -323,8 +321,7 @@ def round_edge_grill(alpha, l=None, Dh=None, fd=None):
        Van Nostrand Reinhold Co., 1984.
     '''
     if Dh and l and fd and l > 50*Dh:
-        K = float(grills_rounded_interp(alpha)) + fd*l/Dh
+        return float(grills_rounded_interp(alpha)) + fd*l/Dh
     else:
-        K = float(grills_rounded_interp(alpha))
-    return K
+        return float(grills_rounded_interp(alpha))
 

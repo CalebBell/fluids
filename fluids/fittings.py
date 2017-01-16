@@ -60,8 +60,7 @@ def entrance_sharp():
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    K = 0.57
-    return K
+    return 0.57
 
 
 def entrance_distance(d=None, t=None, l=None):
@@ -107,8 +106,7 @@ def entrance_distance(d=None, t=None, l=None):
             raise Exception('l/d is under 0.5')
     if t/d > 0.05:
         raise Exception('t/d > 0.05')
-    K = 1.12 - 22*t/d + 216*(t/d)**2 + 80*(t/d)**3
-    return K
+    return 1.12 - 22*t/d + 216*(t/d)**2 + 80*(t/d)**3
 
 
 def entrance_angled(angle):
@@ -144,8 +142,7 @@ def entrance_angled(angle):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     angle = angle/(180/pi)
-    K = 0.57 + 0.30*cos(angle) + 0.20*cos(angle)**2
-    return K
+    return  0.57 + 0.30*cos(angle) + 0.20*cos(angle)**2
 
 
 def entrance_rounded(Di, rc):
@@ -186,8 +183,7 @@ def entrance_rounded(Di, rc):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     lbd = 1 + 0.622*(1 - 0.30*(rc/Di)**0.5 - 0.70*(rc/Di))**4
-    K = 0.0696*(1 - 0.569*rc/Di)*lbd**2 + (lbd-1)**2
-    return K
+    return 0.0696*(1 - 0.569*rc/Di)*lbd**2 + (lbd-1)**2
 
 
 def entrance_beveled(Di, l, angle):
@@ -234,8 +230,7 @@ def entrance_beveled(Di, l, angle):
     '''
     Cb = (1-angle/90.)*(angle/90.)**(1./(1 +l/Di ))
     lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1-(l/Di)**0.25)/2.))
-    K = 0.0696*(1-Cb*l/Di)*lbd**2 + (lbd-1)**2
-    return K
+    return 0.0696*(1-Cb*l/Di)*lbd**2 + (lbd-1)**2
 
 
 ### Exits
@@ -267,8 +262,7 @@ def exit_normal():
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    K = 1.0
-    return K
+    return 1.0
 
 ### Bends
 
@@ -322,9 +316,8 @@ def bend_rounded(Di=None, rc=None, angle=None, fd=None, bend_diameters=5):
     angle = angle/(180/pi)
     if not rc:
         rc = Di*bend_diameters
-    K = (fd*angle*rc/Di + (0.10+2.4*fd)*sin(angle/2.)
+    return (fd*angle*rc/Di + (0.10+2.4*fd)*sin(angle/2.)
     + 6.6*fd*(sin(angle/2.)**0.5 + sin(angle/2.))/(rc/Di)**(4.*angle/pi))
-    return K
 
 
 def bend_miter(angle):
@@ -359,8 +352,7 @@ def bend_miter(angle):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     angle = angle/(180/pi)
-    K = 0.42*sin(angle/2) + 2.56*sin(angle/2)**3
-    return K
+    return 0.42*sin(angle*0.5) + 2.56*sin(angle*0.5)**3
 
 
 def helix(Di=None, rs=None, pitch=None, N=None, fd=None):
@@ -405,8 +397,7 @@ def helix(Di=None, rs=None, pitch=None, N=None, fd=None):
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    K = N*(fd*( (2*pi*rs)**2 +pitch**2 )**0.5/Di + 0.20 + 4.8*fd)
-    return K
+    return N*(fd*( (2*pi*rs)**2 +pitch**2 )**0.5/Di + 0.20 + 4.8*fd)
 
 
 def spiral(Di=None, rmax=None, rmin=None, pitch=None, fd=None):
@@ -494,8 +485,7 @@ def contraction_sharp(Di1, Di2):
     '''
     beta = Di2/Di1
     lbd = 1 + 0.622*(1-0.215*beta**2 - 0.785*beta**5)
-    K = 0.0696*(1-beta**5)*lbd**2 + (lbd-1)**2
-    return K
+    return 0.0696*(1-beta**5)*lbd**2 + (lbd-1)**2
 
 
 def contraction_round(Di1, Di2, rc):
@@ -650,8 +640,7 @@ def contraction_beveled(Di1, Di2, l=None, angle=None):
     beta = Di2/Di1
     CB = l/Di2*2*beta*tan(angle/2)/(1-beta)
     lbd  = 1 + 0.622*(1 + CB*((angle/pi)**0.8-1))*(1-0.215*beta**2-0.785*beta**5)
-    K = 0.0696*(1 + CB*(sin(angle/2)-1))*(1-beta**5)*lbd**2 + (lbd-1)**2
-    return K
+    return 0.0696*(1 + CB*(sin(angle/2)-1))*(1-beta**5)*lbd**2 + (lbd-1)**2
 
 ### Expansions (diffusers)
 
@@ -689,8 +678,7 @@ def diffuser_sharp(Di1, Di2):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     beta = Di1/Di2
-    K = (1-beta**2)**2
-    return K
+    return (1-beta**2)**2
 
 
 def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None):
@@ -885,8 +873,7 @@ def diffuser_curved(Di1, Di2, l):
     '''
     beta = Di1/Di2
     phi = 1.01 - 0.624*l/Di1 + 0.30*(l/Di1)**2 - 0.074*(l/Di1)**3 + 0.0070*(l/Di1)**4
-    K = phi*(1.43 - 1.3*beta**2)*(1 - beta**2)**2
-    return K
+    return phi*(1.43 - 1.3*beta**2)*(1 - beta**2)**2
 
 
 def diffuser_pipe_reducer(Di1, Di2, l, fd1, fd2=None):
@@ -1043,8 +1030,7 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
         pass
     else:
         raise Exception('Name of fitting or constants are required')
-    K = K1/Re + Ki*(1. + Kd/NPS**0.3)
-    return K
+    return K1/Re + Ki*(1. + Kd/NPS**0.3)
 
 
 ### 2K Hooper Method
@@ -1145,8 +1131,7 @@ def Hooper2K(Di=None, Re=None, name=None, K1=None, Kinfty=None):
         pass
     else:
         raise Exception('Name of fitting or constants are required')
-    K = K1/Re + Kinfty*(1. + 1./Di)
-    return K
+    return K1/Re + Kinfty*(1. + 1./Di)
 
 
 ### Valves
@@ -1183,8 +1168,7 @@ def Kv_to_Cv(Kv):
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
-    Cv = 1.1560992283540599*Kv
-    return Cv
+    return 1.1560992283540599*Kv
 
 
 def Cv_to_Kv(Cv):
@@ -1217,8 +1201,7 @@ def Cv_to_Kv(Cv):
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
-    Kv = Cv/1.1560992283540599
-    return Kv
+    return Cv/1.1560992283540599
 
 
 def Kv_to_K(Kv, D):
@@ -1251,8 +1234,7 @@ def Kv_to_K(Kv, D):
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
-    K = 0.001604E12*D**4/Kv**2
-    return K
+    return 0.001604E12*D**4/Kv**2
 
 
 def K_to_Kv(K, D):
@@ -1284,6 +1266,5 @@ def K_to_Kv(K, D):
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
-    Kv = (0.001604E12*D**4/K)**0.5
-    return Kv
+    return (0.001604E12*D**4/K)**0.5
 

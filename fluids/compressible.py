@@ -396,8 +396,7 @@ def T_critical_flow(T, k):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Tcf = T*2/(k+1.)
-    return Tcf
+    return T*2/(k+1.)
 
 
 def P_critical_flow(P, k):
@@ -437,8 +436,7 @@ def P_critical_flow(P, k):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Pcf = P*(2/(k+1.))**(k/(k-1))
-    return Pcf
+    return P*(2/(k+1.))**(k/(k-1))
 
 
 def P_isothermal_critical_flow(P, fd, D, L):
@@ -543,8 +541,7 @@ def is_critical_flow(P1, P2, k):
        Pressure-relieving Devices, Part I - Sizing and Selection, 9E.
     '''
     Pcf = P_critical_flow(P1, k)
-    flowtype = Pcf > P2
-    return flowtype
+    return Pcf > P2
 
 
 def stagnation_energy(V):
@@ -578,8 +575,7 @@ def stagnation_energy(V):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    dH = V**2/2.
-    return dH
+    return 0.5*V*V
 
 
 def P_stagnation(P, T, Tst, k):
@@ -622,8 +618,7 @@ def P_stagnation(P, T, Tst, k):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Pst = P*(Tst/T)**(k/(k-1))
-    return Pst
+    return P*(Tst/T)**(k/(k-1))
 
 
 def T_stagnation(T, P, Pst, k):
@@ -666,8 +661,7 @@ def T_stagnation(T, P, Pst, k):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Tst = T*(Pst/P)**((k - 1)/k)
-    return Tst
+    return T*(Pst/P)**((k - 1)/k)
 
 
 def T_stagnation_ideal(T, V, Cp):
@@ -704,8 +698,7 @@ def T_stagnation_ideal(T, V, Cp):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Tst = T + V**2/2./Cp
-    return Tst
+    return T + 0.5*V*V/Cp
 
 
 def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):

@@ -79,10 +79,7 @@ def Corripio_pump_efficiency(Q):
        February 22 (1982).
     '''
     Q *= 15850.323
-    eta = -0.316 + 0.24015*log(Q) - 0.01199*log(Q)**2
-    return eta
-
-#print [Corripio_pump_efficiency(461./15850.323)]
+    return -0.316 + 0.24015*log(Q) - 0.01199*log(Q)**2
 
 
 def Corripio_motor_efficiency(P):
@@ -121,8 +118,7 @@ def Corripio_motor_efficiency(P):
        February 22 (1982).
     '''
     P = P/745.69987
-    eta = 0.8 + 0.0319*log(P) - 0.00182*log(P)**2
-    return eta
+    return 0.8 + 0.0319*log(P) - 0.00182*log(P)**2
 
 #print [Corripio_motor_efficiency(137*745.7)]
 
@@ -192,8 +188,7 @@ def VFD_efficiency(P, load=1):
         P = 400
     if load < 0.016:
         load = 0.016
-    efficiency = round(float(VFD_efficiency_interp(load, P)), 4)
-    return efficiency
+    return round(float(VFD_efficiency_interp(load, P)), 4)
 
 
 nema_sizes_hp = [.25, 1/3., .5, .75, 1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500]
@@ -366,8 +361,7 @@ def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
                 efficiency = nema_min_full_open_6p_i(P)
             elif poles == 8:
                 efficiency = nema_min_full_open_8p_i(P)
-    efficiency = round(float(efficiency), 4)
-    return efficiency
+    return round(float(efficiency), 4)
 
 # Test high efficiency:
 #print([CSA_motor_efficiency(k*hp, high_efficiency=False, closed=i, poles=j) for i in [True, False] for j in [2, 4, 6, 8] for k in nema_min_P])
@@ -435,11 +429,10 @@ def motor_efficiency_underloaded(P, load=0.5):
     else:
         i = 5
     if load > _efficiency_ones[i]:
-        efficiency = 1
+        return 1
     else:
         cs = _efficiency_lists[i]
-        efficiency = cs[0] + cs[1]*load + cs[2]*load**2 + cs[3]*load**3 + cs[4]*load**4
-    return efficiency
+        return cs[0] + cs[1]*load + cs[2]*load**2 + cs[3]*load**3 + cs[4]*load**4
 
 
 def specific_speed(Q, H, n=3600.):
@@ -479,8 +472,7 @@ def specific_speed(Q, H, n=3600.):
     ----------
     .. [1] HI 1.3 Rotodynamic Centrifugal Pumps for Design and Applications
     '''
-    nS = n*Q**0.5/H**0.75
-    return nS
+    return n*Q**0.5/H**0.75
 
 
 def specific_diameter(Q, H, D):
@@ -518,8 +510,7 @@ def specific_diameter(Q, H, D):
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    Ds = D*H**0.25/Q**0.5
-    return Ds
+    return D*H**0.25/Q**0.5
 
 
 def speed_synchronous(f, poles=2, phase=3):
@@ -559,8 +550,7 @@ def speed_synchronous(f, poles=2, phase=3):
     .. [1] All About Circuits. Synchronous Motors. Chapter 13 - AC Motors
        http://www.allaboutcircuits.com/textbook/alternating-current/chpt-13/synchronous-motors/
     '''
-    Ns = 120.*f*phase/poles
-    return Ns
+    return 120.*f*phase/poles
 
 
 def current_ideal(P, V, phase=3, PF=1):
@@ -613,10 +603,9 @@ def current_ideal(P, V, phase=3, PF=1):
     if phase not in [1, 3]:
         raise Exception('Only 1 and 3 phase power supported')
     if phase == 3:
-        I = P/(V*3**0.5*PF)
+        return P/(V*3**0.5*PF)
     else:
-        I = P/(V*PF)
-    return I
+        return P/(V*PF)
 
 
 with open(os.path.join(folder, 'residential power.csv'), encoding='utf-8') as f:

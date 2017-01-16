@@ -71,8 +71,7 @@ def thermal_diffusivity(k, rho, Cp):
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    alpha = k/(rho*Cp)
-    return alpha
+    return k/(rho*Cp)
 
 
 ### Ideal gas fluid properties
@@ -119,8 +118,7 @@ def c_ideal_gas(T, k, MW):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
     Rspecific = R*1000./MW
-    c = (k*Rspecific*T)**0.5
-    return c
+    return (k*Rspecific*T)**0.5
 
 
 ### Dimensionless groups with documentation
@@ -181,8 +179,7 @@ def Reynolds(V, D, rho=None, mu=None, nu=None):
     elif not nu:
         raise Exception('Either density and viscosity, or dynamic viscosity, \
         is needed')
-    Re = V*D/nu
-    return Re
+    return V*D/nu
 
 
 def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
@@ -244,8 +241,7 @@ def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
     elif not alpha:
         raise Exception('Either heat capacity and thermal conductivity and\
         density, or thermal diffusivity is needed')
-    Pe = V*L/alpha
-    return Pe
+    return V*L/alpha
 
 
 def Peclet_mass(V, L, D):
@@ -284,8 +280,7 @@ def Peclet_mass(V, L, D):
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    Pe = V*L/D
-    return Pe
+    return V*L/D
 
 
 def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
@@ -348,8 +343,7 @@ def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
     elif not alpha:
         raise Exception('Either heat capacity and thermal conductivity and\
         density, or thermal diffusivity is needed')
-    Fo = t*alpha/L**2
-    return Fo
+    return t*alpha/L**2
 
 
 def Fourier_mass(t, L, D):
@@ -388,8 +382,7 @@ def Fourier_mass(t, L, D):
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    Fo = t*D/L**2
-    return Fo
+    return t*D/L**2
 
 
 def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
@@ -455,8 +448,7 @@ def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
     elif not alpha:
         raise Exception('Either heat capacity and thermal conductivity and\
         density, or thermal diffusivity is needed')
-    Gz = V*D**2/(x*alpha)
-    return Gz
+    return V*D**2/(x*alpha)
 
 
 def Schmidt(D, mu=None, nu=None, rho=None):
@@ -510,12 +502,11 @@ def Schmidt(D, mu=None, nu=None, rho=None):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
     if rho and mu:
-        Sc = mu/(rho*D)
+        return mu/(rho*D)
     elif nu:
-        Sc = nu/D
+        return nu/D
     else:
         raise Exception('Insufficient information provided for Schmidt number calculation')
-    return Sc
 
 
 def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
@@ -577,8 +568,7 @@ def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
         pass
     else:
         raise Exception('Insufficient information provided for Le calculation')
-    Le = alpha/D
-    return Le
+    return alpha/D
 
 
 def Weber(V, L, rho, sigma):
@@ -626,8 +616,7 @@ def Weber(V, L, rho, sigma):
     .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
     '''
-    We = V**2*L*rho/sigma
-    return We
+    return V**2*L*rho/sigma
 
 
 def Mach(V, c):
@@ -766,8 +755,7 @@ def Knudsen(path, L):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Kn = path/L
-    return Kn
+    return path/L
 
 
 def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
@@ -829,14 +817,13 @@ def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
        Berlin; New York:: Springer, 2010.
     '''
     if k and Cp and mu:
-        Pr = Cp*mu/k
+        return Cp*mu/k
     elif nu and rho and Cp and k:
-        Pr = nu*rho*Cp/k
+        return nu*rho*Cp/k
     elif nu and alpha:
-        Pr = nu/alpha
+        return nu/alpha
     else:
         raise Exception('Insufficient information provided for Pr calculation')
-    return Pr
 
 
 def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
@@ -906,8 +893,7 @@ def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
     elif not nu:
         raise Exception('Either density and viscosity, or dynamic viscosity, \
         is needed')
-    Gr = g*beta*abs(T2-T1)*L**3/nu**2
-    return Gr
+    return g*beta*abs(T2-T1)*L**3/nu**2
 
 
 def Bond(rhol, rhog, sigma, L):
@@ -986,8 +972,7 @@ def Rayleigh(Pr, Gr):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Ra = Pr*Gr
-    return Ra
+    return Pr*Gr
 
 
 def Froude(V, L, g=g, squared=False):
@@ -1083,8 +1068,7 @@ def Strouhal(f, L, V):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    St = f*L/V
-    return St
+    return f*L/V
 
 
 def Nusselt(h, L, k):
@@ -1132,8 +1116,7 @@ def Nusselt(h, L, k):
        David P. DeWitt. Introduction to Heat Transfer. 6E. Hoboken, NJ:
        Wiley, 2011.
     '''
-    Nu = h*L/k
-    return Nu
+    return h*L/k
 
 
 def Sherwood(K, L, D):
@@ -1174,8 +1157,7 @@ def Sherwood(K, L, D):
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    Sh = K*L/D
-    return Sh
+    return K*L/D
 
 
 def Biot(h, L, k):
@@ -1222,8 +1204,7 @@ def Biot(h, L, k):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Bi = h*L/k
-    return Bi
+    return h*L/k
 
 
 def Stanton(h, V, rho, Cp):
@@ -1267,8 +1248,7 @@ def Stanton(h, V, rho, Cp):
        David P. DeWitt. Introduction to Heat Transfer. 6E. Hoboken, NJ:
        Wiley, 2011.
     '''
-    St = h/(V*rho*Cp)
-    return St
+    return h/(V*rho*Cp)
 
 
 def Euler(dP, rho, V):
@@ -1313,8 +1293,7 @@ def Euler(dP, rho, V):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Eu = dP/(rho*V**2)
-    return Eu
+    return dP/(rho*V**2)
 
 
 def Cavitation(P, Psat, rho, V):
@@ -1361,8 +1340,7 @@ def Cavitation(P, Psat, rho, V):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Ca = (P-Psat)/(0.5*rho*V**2)
-    return Ca
+    return (P-Psat)/(0.5*rho*V**2)
 
 
 def Eckert(V, Cp, dT):
@@ -1403,8 +1381,7 @@ def Eckert(V, Cp, dT):
     .. [1] Goldstein, Richard J. ECKERT NUMBER. Thermopedia. Hemisphere, 2011.
        10.1615/AtoZ.e.eckert_number
     '''
-    Ec = V**2/(Cp*dT)
-    return Ec
+    return V**2/(Cp*dT)
 
 
 def Jakob(Cp, Hvap, Te):
@@ -1449,8 +1426,7 @@ def Jakob(Cp, Hvap, Te):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Ja = Cp*Te/Hvap
-    return Ja
+    return Cp*Te/Hvap
 
 
 def Power_number(P, L, N, rho):
@@ -1496,8 +1472,7 @@ def Power_number(P, L, N, rho):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Po = P/(rho*N**3*L**5)
-    return Po
+    return P/(rho*N**3*L**5)
 
 
 def Drag(F, A, V, rho):
@@ -1543,8 +1518,7 @@ def Drag(F, A, V, rho):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Cd = F/(A*rho*V**2/2.)
-    return Cd
+    return F/(A*rho*V**2/2.)
 
 
 def Capillary(V, mu, sigma):
@@ -1589,8 +1563,7 @@ def Capillary(V, mu, sigma):
     .. [2] Kundu, Pijush K., Ira M. Cohen, and David R. Dowling. Fluid
        Mechanics. Academic Press, 2012.
     '''
-    Ca = V*mu/sigma
-    return Ca
+    return V*mu/sigma
 
 
 def Archimedes(L, rhof, rhop, mu, g=g):
@@ -1638,8 +1611,7 @@ def Archimedes(L, rhof, rhop, mu, g=g):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Ar = L**3*rhof*(rhop-rhof)*g/mu**2
-    return Ar
+    return L**3*rhof*(rhop-rhof)*g/mu**2
 
 
 def Ohnesorge(L, rho, mu, sigma):
@@ -1683,8 +1655,7 @@ def Ohnesorge(L, rho, mu, sigma):
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    Oh = mu/(L*rho*sigma)**0.5
-    return Oh
+    return mu/(L*rho*sigma)**0.5
 
     
 def Suratman(L, rho, mu, sigma):
@@ -1781,8 +1752,7 @@ def Bejan_L(dP, L, mu, alpha):
     .. [2] Bejan, Adrian. Convection Heat Transfer. 4E. Hoboken, New Jersey:
        Wiley, 2013.
     '''
-    Be_L = dP*L**2/(alpha*mu)
-    return Be_L
+    return dP*L**2/(alpha*mu)
 
 
 def Bejan_p(dP, K, mu, alpha):
@@ -1826,8 +1796,7 @@ def Bejan_p(dP, K, mu, alpha):
     .. [2] Bejan, Adrian. Convection Heat Transfer. 4E. Hoboken, New Jersey:
        Wiley, 2013.
     '''
-    Be_p = dP*K/(alpha*mu)
-    return Be_p
+    return dP*K/(alpha*mu)
 
 
 def Boiling(G, q, Hvap):
@@ -1960,8 +1929,7 @@ def relative_roughness(D, roughness=1.52e-06):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    eD = roughness/D
-    return eD
+    return roughness/D
 
 
 ### Misc utilities
@@ -2080,8 +2048,7 @@ def K_from_f(fd, L, D):
     >>> K_from_f(fd=0.018, L=100., D=.3)
     6.0
     '''
-    K = fd*L/D
-    return K
+    return fd*L/D
 
 
 def K_from_L_equiv(L_D, fd=0.015):
@@ -2112,8 +2079,7 @@ def K_from_L_equiv(L_D, fd=0.015):
     >>> K_from_L_equiv(240.)
     3.5999999999999996
     '''
-    K = fd*L_D
-    return K
+    return fd*L_D
 
 
 def L_equiv_from_K(K, fd=0.015):
@@ -2144,8 +2110,7 @@ def L_equiv_from_K(K, fd=0.015):
     >>> L_equiv_from_K(3.6)
     240.00000000000003
     '''
-    L_D = K/fd
-    return L_D
+    return K/fd
 
 
 def dP_from_K(K, rho, V):
@@ -2179,8 +2144,7 @@ def dP_from_K(K, rho, V):
     >>> dP_from_K(K=10, rho=1000, V=3)
     45000.0
     '''
-    dP = K*0.5*rho*V**2
-    return dP
+    return K*0.5*rho*V*V
 
 
 def head_from_K(K, V, g=g):
@@ -2214,8 +2178,7 @@ def head_from_K(K, V, g=g):
     >>> head_from_K(K=10, V=1.5)
     1.1471807396001694
     '''
-    head = K*0.5*V**2/g
-    return head
+    return K*0.5*V*V/g
 
 
 def head_from_P(P, rho, g=g):
@@ -2249,8 +2212,7 @@ def head_from_P(P, rho, g=g):
     >>> head_from_P(P=98066.5, rho=1000)
     10.000000000000002
     '''
-    head = P/rho/g
-    return head
+    return P/rho/g
 
 
 def P_from_head(head, rho, g=g):
@@ -2282,8 +2244,7 @@ def P_from_head(head, rho, g=g):
     >>> P_from_head(head=5., rho=800.)
     39226.6
     '''
-    P = head*rho*g
-    return P
+    return head*rho*g
 
 
 

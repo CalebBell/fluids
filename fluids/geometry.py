@@ -76,10 +76,9 @@ def SA_partial_sphere(D, h):
     ----------
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
        http://mathworld.wolfram.com/SphericalCap.html.'''
-    r = D/2
+    r = D*0.5
     a = (h*(2*r - h))**0.5
-    A = pi*(a**2 + h**2)
-    return A
+    return pi*(a**2 + h**2)
 
 
 def V_partial_sphere(D, h):
@@ -116,8 +115,7 @@ def V_partial_sphere(D, h):
        http://mathworld.wolfram.com/SphericalCap.html.'''
     r = D/2
     a = (h*(2*r - h))**0.5
-    V = 1/6.*pi*h*(3*a**2 + h**2)
-    return V
+    return 1/6.*pi*h*(3*a**2 + h**2)
 
 
 
@@ -993,8 +991,7 @@ def SA_ellipsoidal_head(D, a):
     D = D/2.
     D, a = min((D, a)), max((D, a))
     e1 = (1 - D**2/a**2)**0.5
-    SA = (2*pi*a**2 + pi*D**2/e1*log((1+e1)/(1-e1)))/2.
-    return SA
+    return (2*pi*a**2 + pi*D**2/e1*log((1+e1)/(1-e1)))/2.
 
 
 def SA_conical_head(D, a):
@@ -1024,8 +1021,7 @@ def SA_conical_head(D, a):
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Cone.html.'''
-    SA = pi*D/2*(a**2 + (D/2)**2)**0.5
-    return SA
+    return pi*D/2*(a**2 + (D/2)**2)**0.5
 
 
 def SA_guppy_head(D, a):
@@ -1057,8 +1053,7 @@ def SA_guppy_head(D, a):
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Cone.html.'''
-    SA = pi*D/4*(a**2 + D**2)**0.5 + pi*D/2*a
-    return SA
+    return pi*D/4*(a**2 + D**2)**0.5 + pi*D/2*a
 
 
 def SA_torispheroidal(D, fd, fk):
@@ -1115,8 +1110,7 @@ def SA_torispheroidal(D, fd, fk):
     alpha = alpha_2 # up to top of torus
     S2_sub = asin((alpha-alpha_2)/fk) - asin((alpha_1-alpha_2)/fk)
     S2 = 2*pi*D**2*fk*(alpha - alpha_1 + (0.5-fk)*S2_sub)
-    SA = S1 + S2
-    return SA
+    return S1 + S2
 
 
 def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
@@ -1257,8 +1251,7 @@ def a_torispherical(D, f, k):
     alpha = asin((1-2*k)/(2*(f-k)))
     a1 = f*D*(1 - cos(alpha))
     a2 = k*D*cos(alpha)
-    a = a1 + a2
-    return a
+    return a1 + a2
 
 
 def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
@@ -1787,8 +1780,7 @@ def sphericity(A, V):
     .. [1] Rhodes, Martin J., ed. Introduction to Particle Technology. 2E.
     Chichester, England ; Hoboken, NJ: Wiley, 2008.
     '''
-    Psi = pi**(1/3.)*(6*V)**(2/3.)/A
-    return Psi
+    return pi**(1/3.)*(6*V)**(2/3.)/A
 
 
 def aspect_ratio(Dmin, Dmax):
@@ -1815,8 +1807,7 @@ def aspect_ratio(Dmin, Dmax):
     >>> aspect_ratio(.2, 2)
     0.1
     '''
-    a_r = Dmin/Dmax
-    return a_r
+    return Dmin/Dmax
 
 
 def circularity(A, P):
@@ -1842,8 +1833,7 @@ def circularity(A, P):
     >>> circularity(1.5, .1)
     1884.9555921538756
     '''
-    f_circ = 4*pi*A/P**2
-    return f_circ
+    return 4*pi*A/P**2
 
 
 def A_cylinder(D, L):
@@ -1871,8 +1861,7 @@ def A_cylinder(D, L):
     '''
     cap = pi*D**2/4*2
     side = pi*D*L
-    A = cap + side
-    return A
+    return cap + side
 
 
 def V_cylinder(D, L):
@@ -1898,8 +1887,7 @@ def V_cylinder(D, L):
     >>> V_cylinder(0.01, .1)
     7.853981633974484e-06
     '''
-    V = pi*D**2/4*L
-    return V
+    return pi*D**2/4*L
 
 
 def A_hollow_cylinder(Di, Do, L):
@@ -1932,8 +1920,7 @@ def A_hollow_cylinder(Di, Do, L):
     side_i = pi*Di*L
     cap_circle = pi*Do**2/4*2
     cap_removed = pi*Di**2/4*2
-    A = side_o + side_i + cap_circle - cap_removed
-    return A
+    return side_o + side_i + cap_circle - cap_removed
 
 
 def V_hollow_cylinder(Di, Do, L):
@@ -1961,8 +1948,7 @@ def V_hollow_cylinder(Di, Do, L):
     >>> V_hollow_cylinder(0.005, 0.01, 0.1)
     5.890486225480862e-06
     '''
-    V = pi*Do**2/4*L - pi*Di**2/4*L
-    return V
+    return pi*Do**2/4*L - pi*Di**2/4*L
 
 
 def A_multiple_hole_cylinder(Do, L, holes):

@@ -63,8 +63,7 @@ def Stokes(Re):
     ----------
     .. [1] Rhodes, Martin J. Introduction to Particle Technology. Wiley, 2013.
     '''
-    Cd = 24./Re
-    return Cd
+    return 24./Re
 
 
 def Barati(Re):
@@ -198,8 +197,7 @@ def Rouse(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = 24./Re + 3/Re**0.5 + 0.34
-    return Cd
+    return 24./Re + 3/Re**0.5 + 0.34
 
 
 def Engelund_Hansen(Re):
@@ -239,8 +237,7 @@ def Engelund_Hansen(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = 24./Re + 1.5
-    return Cd
+    return 24./Re + 1.5
 
 
 def Clift_Gauvin(Re):
@@ -280,8 +277,7 @@ def Clift_Gauvin(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = 24./Re*(1 + 0.152*Re**0.677) + 0.417/(1 + 5070*Re**-0.94)
-    return Cd
+    return 24./Re*(1 + 0.152*Re**0.677) + 0.417/(1 + 5070*Re**-0.94)
 
 
 def Morsi_Alexander(Re):
@@ -331,22 +327,21 @@ def Morsi_Alexander(Re):
        doi:10.1016/j.powtec.2014.02.045.
     '''
     if Re < 0.1:
-        Cd = 24./Re
+        return 24./Re
     elif Re < 1:
-        Cd = 22.73/Re + 0.0903/Re**2 + 3.69
+        return 22.73/Re + 0.0903/Re**2 + 3.69
     elif Re < 10:
-        Cd = 29.1667/Re - 3.8889/Re**2 + 1.222
+        return 29.1667/Re - 3.8889/Re**2 + 1.222
     elif Re < 100:
-        Cd = 46.5/Re - 116.67/Re**2 + 0.6167
+        return 46.5/Re - 116.67/Re**2 + 0.6167
     elif Re < 1000:
-        Cd = 98.33/Re - 2778./Re**2 + 0.3644
+        return 98.33/Re - 2778./Re**2 + 0.3644
     elif Re < 5000:
-        Cd = 148.62/Re - 4.75E4/Re**2 + 0.357
+        return 148.62/Re - 4.75E4/Re**2 + 0.357
     elif Re < 10000:
-        Cd = -490.546/Re + 57.87E4/Re**2 + 0.46
+        return -490.546/Re + 57.87E4/Re**2 + 0.46
     else:
-        Cd = -1662.5/Re + 5.4167E6/Re**2 + 0.5191
-    return Cd
+        return -1662.5/Re + 5.4167E6/Re**2 + 0.5191
 
 
 def Graf(Re):
@@ -385,8 +380,7 @@ def Graf(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = 24./Re + 7.3/(1 + Re**0.5) + 0.25
-    return Cd
+    return 24./Re + 7.3/(1 + Re**0.5) + 0.25
 
 
 def Flemmer_Banks(Re):
@@ -429,8 +423,7 @@ def Flemmer_Banks(Re):
        doi:10.1016/j.powtec.2014.02.045.
     '''
     E = 0.383*Re**0.356 - 0.207*Re**0.396 - 0.143/(1 + (log10(Re))**2)
-    Cd = 24./Re*10**E
-    return Cd
+    return 24./Re*10**E
 
 
 def Khan_Richardson(Re):
@@ -470,8 +463,7 @@ def Khan_Richardson(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = (2.49*Re**-0.328 + 0.34*Re**0.067)**3.18
-    return Cd
+    return (2.49*Re**-0.328 + 0.34*Re**0.067)**3.18
 
 
 def Swamee_Ojha(Re):
@@ -553,8 +545,7 @@ def Yen(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = 24./Re*(1 + 0.15*Re**0.5 + 0.017*Re) - 0.208/(1 + 1E4*Re**-0.5)
-    return Cd
+    return 24./Re*(1 + 0.15*Re**0.5 + 0.017*Re) - 0.208/(1 + 1E4*Re**-0.5)
 
 
 def Haider_Levenspiel(Re):
@@ -596,8 +587,7 @@ def Haider_Levenspiel(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = 24./Re*(1 + 0.1806*Re**0.6459) + (0.4251/(1 + 6880.95/Re))
-    return Cd
+    return 24./Re*(1 + 0.1806*Re**0.6459) + (0.4251/(1 + 6880.95/Re))
 
 
 def Cheng(Re):
@@ -637,8 +627,7 @@ def Cheng(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = 24./Re*(1 + 0.27*Re)**0.43 + 0.47*(1 - exp(-0.04*Re**0.38))
-    return Cd
+    return 24./Re*(1. + 0.27*Re)**0.43 + 0.47*(1. - exp(-0.04*Re**0.38))
 
 
 def Terfous(Re):
@@ -679,8 +668,7 @@ def Terfous(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = 2.689 + 21.683/Re + 0.131/Re**2 - 10.616/Re**0.1 + 12.216/Re**0.2
-    return Cd
+    return 2.689 + 21.683/Re + 0.131/Re**2 - 10.616/Re**0.1 + 12.216/Re**0.2
 
 
 def Mikhailov_Freire(Re):
@@ -772,24 +760,23 @@ def Clift(Re):
        doi:10.1016/j.powtec.2014.02.045.
     '''
     if Re < 0.01:
-        Cd = 24./Re + 3/16.
+        return 24./Re + 3/16.
     elif Re < 20:
-        Cd = 24./Re*(1 + 0.1315*Re**(0.82 - 0.05*log10(Re)))
+        return 24./Re*(1 + 0.1315*Re**(0.82 - 0.05*log10(Re)))
     elif Re < 260:
-        Cd = 24./Re*(1 + 0.1935*Re**(0.6305))
+        return 24./Re*(1 + 0.1935*Re**(0.6305))
     elif Re < 1500:
-        Cd = 10**(1.6435 - 1.1242*log10(Re) + 0.1558*(log10(Re))**2)
+        return 10**(1.6435 - 1.1242*log10(Re) + 0.1558*(log10(Re))**2)
     elif Re < 12000:
-        Cd = 10**(-2.4571 + 2.5558*log10(Re) - 0.9295*(log10(Re))**2 + 0.1049*log10(Re)**3)
+        return 10**(-2.4571 + 2.5558*log10(Re) - 0.9295*(log10(Re))**2 + 0.1049*log10(Re)**3)
     elif Re < 44000:
-        Cd = 10**(-1.9181 + 0.6370*log10(Re) - 0.0636*(log10(Re))**2)
+        return 10**(-1.9181 + 0.6370*log10(Re) - 0.0636*(log10(Re))**2)
     elif Re < 338000:
-        Cd = 10**(-4.3390 + 1.5809*log10(Re) - 0.1546*(log10(Re))**2)
+        return 10**(-4.3390 + 1.5809*log10(Re) - 0.1546*(log10(Re))**2)
     elif Re < 400000:
-        Cd = 29.78 - 5.3*log10(Re)
+        return 29.78 - 5.3*log10(Re)
     else:
-        Cd = 0.19*log10(Re) - 0.49
-    return Cd
+        return 0.19*log10(Re) - 0.49
 
 
 def Ceylan(Re):
@@ -890,8 +877,7 @@ def Almedeij(Re):
     phi3 = (1.57E8*Re**-1.625)**10
     phi2 = ((0.148*Re**0.11)**-10 + 0.5**-10)**-1
     phi1 = (24*Re**-1)**10 + (21*Re**-0.67)**10 + (4*Re**-0.33)**10 + 0.4**10
-    Cd = (1/((phi1 + phi2)**-1 + phi3**-1) + phi4)**0.1
-    return Cd
+    return (1/((phi1 + phi2)**-1 + phi3**-1) + phi4)**0.1
 
 
 def Morrison(Re):

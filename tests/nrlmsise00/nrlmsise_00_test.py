@@ -43,7 +43,9 @@ from __future__ import division, print_function
 import time
 from fluids.nrlmsise00.nrlmsise_00 import gtd7
 from fluids.nrlmsise00.nrlmsise_00_header import nrlmsise_output, nrlmsise_input, nrlmsise_flags , ap_array
+import pytest
 
+@pytest.mark.slow
 def test_gtd7():
     output = [nrlmsise_output() for _ in range(17)]
     Input = [nrlmsise_input() for _ in range(17)]

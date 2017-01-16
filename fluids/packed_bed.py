@@ -107,8 +107,7 @@ def Ergun(dp, voidage, vs, rho, mu, L=1):
     '''
     Re = dp*rho*vs/mu
     fp = (150 + 1.75*(Re/(1-voidage)))*(1-voidage)**2/(voidage**3*Re)
-    dP = fp*rho*vs**2*L/dp
-    return dP
+    return fp*rho*vs**2*L/dp
 
 
 def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1):
@@ -170,8 +169,7 @@ def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1):
     '''
     Re = dp*rho*vs/mu
     fp = (276.23 + 5.05*(Re/(1-voidage))**0.87)*(1-voidage)**2/(voidage**3*Re)
-    dP = fp*rho*vs**2*L/dp
-    return dP
+    return fp*rho*vs**2*L/dp
 
 
 def Jones_Krier(dp, voidage, vs, rho, mu, L=1):
@@ -230,8 +228,7 @@ def Jones_Krier(dp, voidage, vs, rho, mu, L=1):
     '''
     Re = dp*rho*vs/mu
     fp = (150 + 3.89*(Re/(1-voidage))**0.87)*(1-voidage)**2/(voidage**3*Re)
-    dP = fp*rho*vs**2*L/dp
-    return dP
+    return fp*rho*vs**2*L/dp
 
 
 def Carman(dp, voidage, vs, rho, mu, L=1):
@@ -291,8 +288,7 @@ def Carman(dp, voidage, vs, rho, mu, L=1):
     '''
     Re = dp*rho*vs/mu
     fp = (180 + 2.871*(Re/(1-voidage))**0.9)*(1-voidage)**2/(voidage**3*Re)
-    dP = fp*rho*vs**2*L/dp
-    return dP
+    return fp*rho*vs**2*L/dp
 
 
 def Hicks(dp, voidage, vs, rho, mu, L=1):
@@ -352,8 +348,7 @@ def Hicks(dp, voidage, vs, rho, mu, L=1):
     '''
     Re = dp*rho*vs/mu
     fp = 6.8*(1-voidage)**1.2/Re**0.2/voidage**3
-    dP = fp*rho*vs**2*L/dp
-    return dP
+    return fp*rho*vs**2*L/dp
 
 
 def Brauer(dp, voidage, vs, rho, mu, L=1):
@@ -414,8 +409,7 @@ def Brauer(dp, voidage, vs, rho, mu, L=1):
     '''
     Re = dp*rho*vs/mu
     fp = (160 + 3.1*(Re/(1-voidage))**0.9)*(1-voidage)**2/(voidage**3*Re)
-    dP = fp*rho*vs**2*L/dp
-    return dP
+    return fp*rho*vs**2*L/dp
 
 
 def KTA(dp, voidage, vs, rho, mu, L=1):
@@ -474,8 +468,7 @@ def KTA(dp, voidage, vs, rho, mu, L=1):
     '''
     Re = dp*rho*vs/mu
     fp = (160 + 3*(Re/(1-voidage))**0.9)*(1-voidage)**2/(voidage**3*Re)
-    dP = fp*rho*vs**2*L/dp
-    return dP
+    return fp*rho*vs**2*L/dp
 
 
 def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1):
@@ -531,8 +524,7 @@ def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1):
     '''
     Rem = dp*rho*vs/mu/(1-voidage)
     fv = 160 + 2.81*Rem**0.904
-    dP = fv*(mu*vs*L/dp**2)*(1-voidage)**2/voidage**3
-    return dP
+    return fv*(mu*vs*L/dp**2)*(1-voidage)**2/voidage**3
 
 
 def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1):
@@ -600,8 +592,7 @@ def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1):
     f1T = 29/((1-voidage)**1.45*voidage**2)
     f2 = 1.87*voidage**0.75/(1-voidage)**0.26
     fp = (q*f1L/Rem + (1-q)*(f2 + f1T/Rem))*(1-voidage)/voidage**3
-    dP = fp*rho*vs**2*L/dp
-    return dP
+    return fp*rho*vs**2*L/dp
 
 
 def Idelchik(dp, voidage, vs, rho, mu, L=1):
@@ -660,8 +651,7 @@ def Idelchik(dp, voidage, vs, rho, mu, L=1):
     Re = (0.45/voidage**0.5)*Re
     right = 0.765/voidage**4.2*(30./Re + 3./Re**0.7 + 0.3)
     left = dp/L/rho/vs**2
-    dP = right/left
-    return dP
+    return right/left
 
 
 def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
@@ -734,8 +724,7 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
         A = (1 + pi*dp/(6*(1-voidage)*Dt))**2
         B = 1 - pi**2*dp/24/Dt*(1 - dp/(2*Dt))
     fp = (119.8*A + 4.63*B*(Re/(1-voidage))**(5/6.))*(1-voidage)**2/(voidage**3*Re)
-    dP = fp*rho*vs**2*L/dp
-    return dP
+    return fp*rho*vs**2*L/dp
 
 
 def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
@@ -807,8 +796,7 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
         Dterm = (Dt/dp)**0.2
     right = a*Dterm*(1000./Re + 60/Re**0.5 + 12)
     left = dp/L/rho/vs**2*voidage**3/(1-voidage)
-    dP = right/left
-    return dP
+    return right/left
 
 
 
@@ -905,12 +893,11 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
         dp = dp*sphericity
     if Method in packed_beds_correlations:
         if packed_beds_correlations[Method][1]:
-            dP = packed_beds_correlations[Method][0](dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L, Dt=Dt)
+            return packed_beds_correlations[Method][0](dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L, Dt=Dt)
         else:
-            dP = packed_beds_correlations[Method][0](dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+            return packed_beds_correlations[Method][0](dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
     else:
         raise Exception('Failure in in function')
-    return dP
 
 
 #import matplotlib.pyplot as plt
@@ -975,8 +962,7 @@ def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
     '''
-    voidage = 0.1504 + 0.2024/sphericity + 1.0814/(Dt/Dpe + 0.1226)**2
-    return voidage
+    return 0.1504 + 0.2024/sphericity + 1.0814/(Dt/Dpe + 0.1226)**2
 
 
 def voidage_Benyahia_Oneil_spherical(Dp, Dt):
@@ -1017,8 +1003,7 @@ def voidage_Benyahia_Oneil_spherical(Dp, Dt):
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
     '''
-    voidage = 0.390 + 1.740/(Dt/Dp + 1.140)**2
-    return voidage
+    return 0.390 + 1.740/(Dt/Dp + 1.140)**2
 
 
 def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
@@ -1061,5 +1046,4 @@ def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
     '''
-    voidage = 0.373 + 1.703/(Dt/Dpe + 0.611)**2
-    return voidage
+    return 0.373 + 1.703/(Dt/Dpe + 0.611)**2

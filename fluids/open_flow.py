@@ -108,8 +108,7 @@ def Q_weir_V_Shen(h1, angle=90):
     '''
     C = Cs_Shen_i(angle)
     k = k_Shen_i(angle)
-    Q = C*tan(radians(angle)/2)*g**0.5*(h1 + k)**2.5
-    return Q
+    return C*tan(radians(angle)/2)*g**0.5*(h1 + k)**2.5
 
 
 ### Rectangular Weirs
@@ -164,8 +163,7 @@ def Q_weir_rectangular_Kindsvater_Carter(h1, h2, b):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    Q = 0.554*(1 - 0.0035*h1/h2)*(b + 0.0025)*g**0.5*(h1 + 0.0001)**1.5
-    return Q
+    return 0.554*(1 - 0.0035*h1/h2)*(b + 0.0025)*g**0.5*(h1 + 0.0001)**1.5
 
 
 def Q_weir_rectangular_SIA(h1, h2, b, b1):
@@ -278,8 +276,7 @@ def Q_weir_rectangular_full_Ackers(h1, h2, b):
     .. [3] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Q = 0.564*(1 + 0.150*h1/h2)*b*g**0.5*(h1 + 0.001)**1.5
-    return Q
+    return 0.564*(1 + 0.150*h1/h2)*b*g**0.5*(h1 + 0.001)**1.5
 
 
 def Q_weir_rectangular_full_SIA(h1, h2, b):
@@ -387,8 +384,7 @@ def Q_weir_rectangular_full_Rehbock(h1, h2, b):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    Q = 2/3.*2**0.5*(0.602 + 0.0832*h1/h2)*b*g**0.5*(h1+0.00125)**1.5
-    return Q
+    return 2/3.*2**0.5*(0.602 + 0.0832*h1/h2)*b*g**0.5*(h1+0.00125)**1.5
 
 #print [Q_weir_rectangular_full_Rehbock(h1=0.3, h2=0.4, b=2)]
 
@@ -491,8 +487,7 @@ def V_Manning(Rh, S, n):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    V = Rh**(2/3.)*S**0.5/n
-    return V
+    return Rh**(2/3.)*S**0.5/n
 
 
 def n_Manning_to_C_Chezy(n, Rh):
@@ -528,8 +523,7 @@ def n_Manning_to_C_Chezy(n, Rh):
     ----------
     .. [1] Chow, Ven Te. Open-Channel Hydraulics. New York: McGraw-Hill, 1959.
     '''
-    C = 1./n*Rh**(1/6.)
-    return C
+    return 1./n*Rh**(1/6.)
 
 
 def C_Chezy_to_n_Manning(C, Rh):
@@ -565,8 +559,7 @@ def C_Chezy_to_n_Manning(C, Rh):
     ----------
     .. [1] Chow, Ven Te. Open-Channel Hydraulics. New York: McGraw-Hill, 1959.
     '''
-    n = Rh**(1/6.)/C
-    return n
+    return Rh**(1/6.)/C
 
 
 def V_Chezy(Rh, S, C):
@@ -610,8 +603,7 @@ def V_Chezy(Rh, S, C):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     .. [3] Chow, Ven Te. Open-Channel Hydraulics. New York: McGraw-Hill, 1959.
     '''
-    V = C*(S*Rh)**0.5
-    return V
+    return C*(S*Rh)**0.5
 
 
 
@@ -813,6 +805,8 @@ n_natural = {
 }
 
 n_dicts = [n_natural, n_excavated_dredged, n_lined_built, n_closed_conduit]
+# TODO lookup function to determine the nearest hit based on string matching
+
 
 #tot = 0
 #for thing in n_dicts:

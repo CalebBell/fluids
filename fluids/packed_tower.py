@@ -83,8 +83,7 @@ def dP_demister_dry_Setekleiv_Svendsen(S, voidage, vs, rho, mu, L=1):
     '''
     term = 10.29 - 565./(69.6*S*L - (S*L)**2 - 779) - 74.9/(160.9 - 4.85*S*L)
     right = term + 45.33*(mu*voidage*S**2*L/rho/vs)**0.75
-    dP = right*rho*vs**2/voidage**2
-    return dP
+    return right*rho*vs**2/voidage**2
 
 
 def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1):
@@ -138,8 +137,7 @@ def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1):
     '''
     term = 7.3 - 320./(69.6*S*L - (S*L)**2 - 779) - 52.4/(161 - 4.85*S*L)
     right = term + 27.2*(mu*voidage*S**2*L/rho/vs)**0.75
-    dP = right*rho*vs**2/voidage**2
-    return dP
+    return right*rho*vs**2/voidage**2
 
 
 def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1):
@@ -310,8 +308,7 @@ def voidage_experimental(m, rho, D, H):
        Engineering Research and Design 85, no. 3 (2007): 377-85.
        doi:10.1205/cherd06048.
     '''
-    voidage = 1 - m/(pi/4*D**2*H)/rho
-    return voidage
+    return 1 - m/(pi/4*D**2*H)/rho
 
 
 def specific_area_mesh(voidage, d):
@@ -352,8 +349,7 @@ def specific_area_mesh(voidage, d):
        Engineering Research and Design 85, no. 3 (2007): 377-85.
        doi:10.1205/cherd06048.
     '''
-    S = 4*(1-voidage)/d
-    return S
+    return 4*(1-voidage)/d
 
 ### Packing
 
@@ -420,8 +416,7 @@ def Stichlmair_dry(Vg, rhog, mug, voidage, specific_area, C1, C2, C3, H=1.):
     dp = 6*(1-voidage)/specific_area
     Re = Vg*rhog*dp/mug
     f0 = C1/Re + C2/Re**0.5 + C3
-    dP_dry = 3/4.*f0*(1-voidage)/voidage**4.65*rhog*H/dp*Vg**2
-    return dP_dry
+    return 3/4.*f0*(1-voidage)/voidage**4.65*rhog*H/dp*Vg**2
 
 
 def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=1):
@@ -521,8 +516,7 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
         hT = h0*(1 + 20*(dP_irr/H/rhol/g)**2)
         err = dP_dry/H*((1-voidage+hT)/(1-voidage))**((2+c)/3.)*(voidage/(voidage-hT))**4.65 -dP_irr/H
         return err
-    dP_irr = float(fsolve(to_zero, dP_dry))
-    return dP_irr
+    return float(fsolve(to_zero, dP_dry))
 
 
 def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=1):
@@ -614,8 +608,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
         err2 = (1./term - 40*((2+c)/3.)*h0/(1 - voidage + h0*(1 + 20*term))
         - 186*h0/(voidage - h0*(1 + 20*term)))
         return err1, err2
-    Vg = float(fsolve(to_zero, [Vl*100., 1000])[0])
-    return Vg
+    return float(fsolve(to_zero, [Vl*100., 1000])[0])
 
 #print [Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)]
 
@@ -689,5 +682,4 @@ def Robbins(Fpd=24, L=None, G=None, rhol=None, rhog=None, mul=None, H=1, A=None)
     Lf = L *(62.4/rhol)*(Fpd/20.)**0.5*mul**0.1
     Gf = G*(0.075/rhog)**0.5*(Fpd/20.)**0.5
     dP = C3*Gf**2*10**(C4*Lf) + 0.4*(Lf/20000.)**0.1*(C3*Gf**2*10**(C4*Lf))**4
-    dP = dP*817.22083*H # in. H2O to Pa/m
-    return dP
+    return dP*817.22083*H # in. H2O to Pa/m

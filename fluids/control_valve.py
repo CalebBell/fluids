@@ -95,8 +95,7 @@ def cavitation_index(P1, P2, Psat):
     .. [1] ISA. "RP75.23 Considerations for Evaluating Control Valve
        Cavitation." 1995.
     '''
-    sigma = (P1 - Psat)/(P1 - P2)
-    return sigma
+    return (P1 - Psat)/(P1 - P2)
 
 
 def FF_critical_pressure_ratio_l(Psat, Pc):
@@ -129,8 +128,7 @@ def FF_critical_pressure_ratio_l(Psat, Pc):
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
-    FF = 0.96 - 0.28*(Psat/Pc)**0.5
-    return FF
+    return 0.96 - 0.28*(Psat/Pc)**0.5
 
 
 def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
@@ -179,12 +177,11 @@ def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
     if FLP and FP:
-        choked = dP >= (FLP/FP)**2*(P1-FF*Psat)
+        return dP >= (FLP/FP)**2*(P1-FF*Psat)
     elif FL:
-        choked = dP >= FL**2*(P1-FF*Psat)
+        return dP >= FL**2*(P1-FF*Psat)
     else:
         raise Exception('Either (FLP and FP) or FL is needed')
-    return choked
 
 
 def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
@@ -229,12 +226,11 @@ def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
     if xT:
-        choked = x >= Fgamma*xT
+        return x >= Fgamma*xT
     elif xTP:
-        choked = x >= Fgamma*xTP
+        return x >= Fgamma*xTP
     else:
         raise Exception('Either xT or xTP is needed')
-    return choked
 
 
 def Reynolds_valve(nu, Q, D1, FL, Fd, C):
@@ -275,8 +271,7 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
-    Rev = N4*Fd*Q/nu/(C*FL)**0.5*(FL**2*C**2/(N2*D1**4) + 1)**0.25
-    return Rev
+    return N4*Fd*Q/nu/(C*FL)**0.5*(FL**2*C**2/(N2*D1**4) + 1)**0.25
 
 
 def loss_coefficient_piping(d, D1=None, D2=None):
