@@ -8,6 +8,7 @@ compiler:
   - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
 env:
   - SCIPY_VER="scipy>=0.12.0" 
 matrix:
