@@ -25,7 +25,7 @@ from math import pi, sin, cos, asin, acos, atan, acosh, log
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.integrate import quad
-from scipy.optimize import fsolve
+from scipy.optimize import newton
 
 __all__ = ['TANK', 'SA_partial_sphere', 'V_partial_sphere', 'V_horiz_conical',
            'V_horiz_ellipsoidal', 'V_horiz_guppy', 'V_horiz_spherical',
@@ -1709,17 +1709,17 @@ class TANK(object):
             # Iterate until L is appropriate
             solve_L = lambda L: self._V_solver_error(self.V, self.D, L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
             Lguess = self.V/(pi/4*self.D**2)
-            self.L = float(fsolve(solve_L, Lguess))
+            self.L = float(newton(solve_L, Lguess))
         elif self.L:
             # Iterate until D is appropriate
             solve_D = lambda D: self._V_solver_error(self.V, D, self.L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
             Dguess = (4*self.V/pi/self.L)**0.5
-            self.D = float(fsolve(solve_D, Dguess))
+            self.D = float(newton(solve_D, Dguess))
         else:
             # Use L_over_D until L and D are appropriate
             Lguess = (4*self.V*self.L_over_D**2/pi)**(1/3.)
             solve_L_D = lambda L: self._V_solver_error(self.V, L/self.L_over_D, L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
-            self.L = float(fsolve(solve_L_D, Lguess))
+            self.L = float(newton(solve_L_D, Lguess))
             self.D = self.L/self.L_over_D
 
 #test = TANK(D=10., L=100., horizontal=True, sideA='spherical', sideB='ellipsoidal',

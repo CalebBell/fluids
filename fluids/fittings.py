@@ -142,7 +142,7 @@ def entrance_angled(angle):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     angle = angle/(180/pi)
-    return  0.57 + 0.30*cos(angle) + 0.20*cos(angle)**2
+    return 0.57 + 0.30*cos(angle) + 0.20*cos(angle)**2
 
 
 def entrance_rounded(Di, rc):
@@ -316,7 +316,7 @@ def bend_rounded(Di=None, rc=None, angle=None, fd=None, bend_diameters=5):
     angle = angle/(180/pi)
     if not rc:
         rc = Di*bend_diameters
-    return (fd*angle*rc/Di + (0.10+2.4*fd)*sin(angle/2.)
+    return (fd*angle*rc/Di + (0.10 + 2.4*fd)*sin(angle/2.)
     + 6.6*fd*(sin(angle/2.)**0.5 + sin(angle/2.))/(rc/Di)**(4.*angle/pi))
 
 
@@ -397,7 +397,7 @@ def helix(Di=None, rs=None, pitch=None, N=None, fd=None):
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    return N*(fd*( (2*pi*rs)**2 +pitch**2 )**0.5/Di + 0.20 + 4.8*fd)
+    return N*(fd*((2*pi*rs)**2 + pitch**2)**0.5/Di + 0.20 + 4.8*fd)
 
 
 def spiral(Di=None, rmax=None, rmin=None, pitch=None, fd=None):
@@ -441,8 +441,7 @@ def spiral(Di=None, rmax=None, rmin=None, pitch=None, fd=None):
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    K = (rmax-rmin)/pitch*(fd*pi*(rmax+rmin)/Di + 0.20 + 4.8*fd) + 13.2*fd/(rmin/Di)**2
-    return K
+    return (rmax-rmin)/pitch*(fd*pi*(rmax+rmin)/Di + 0.20 + 4.8*fd) + 13.2*fd/(rmin/Di)**2
 
 ### Contractions
 
@@ -532,8 +531,7 @@ def contraction_round(Di1, Di2, rc):
     '''
     beta = Di2/Di1
     lbd = 1 + 0.622*(1 - 0.30*(rc/Di2)**0.5 - 0.70*rc/Di2)**4*(1-0.215*beta**2 - 0.785*beta**5)
-    K = 0.0696*(1-0.569*rc/Di2)*(1-(rc/Di2)**0.5*beta)*(1-beta**5)*lbd**2 + (lbd-1)**2
-    return K
+    return 0.0696*(1-0.569*rc/Di2)*(1-(rc/Di2)**0.5*beta)*(1-beta**5)*lbd**2 + (lbd-1)**2
 
 
 def contraction_conical(Di1, Di2, l=None, angle=None, fd=None):
@@ -589,8 +587,7 @@ def contraction_conical(Di1, Di2, l=None, angle=None, fd=None):
         raise Exception('Either l or angle is required')
 
     lbd = 1 + 0.622*(angle/pi)**0.8*(1-0.215*beta**2 - 0.785*beta**5)
-    K = fd*(1-beta**4)/(8*sin(angle/2)) + 0.0696*sin(angle/2)*(1-beta**5)*lbd**2 + (lbd-1)**2
-    return K
+    return fd*(1-beta**4)/(8*sin(angle/2)) + 0.0696*sin(angle/2)*(1-beta**5)*lbd**2 + (lbd-1)**2
 
 
 def contraction_beveled(Di1, Di2, l=None, angle=None):
