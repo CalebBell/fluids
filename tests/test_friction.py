@@ -148,3 +148,37 @@ def test_Prandtl_von_Karman_Nikuradse():
     for Re in np.logspace(1E-15,30,200):
         assert_allclose(Prandtl_von_Karman_Nikuradse_numeric(Re), Prandtl_von_Karman_Nikuradse(Re))
 
+
+def test_helical_laminar_fd_White():
+    fd = helical_laminar_fd_White(250, .02, .1)
+    assert_allclose(fd, 0.4063281817830202)
+    assert_allclose(helical_laminar_fd_White(250, .02, 100), 0.256)
+    
+    
+def test_helical_laminar_fd_Mori_Nakayama():
+    fd = helical_laminar_fd_Mori_Nakayama(250, .02, .1)
+    assert_allclose(fd, 0.4222458285779544)
+    assert_allclose(4.4969472, helical_laminar_fd_Mori_Nakayama(20, .02, .1))
+    
+    
+def test_helical_laminar_fd_Schmidt():
+    fd = helical_laminar_fd_Schmidt(250, .02, .1)
+    assert_allclose(fd, 0.47460725672835236)
+    # Test convergence at low curvature 
+    assert_allclose(helical_laminar_fd_Schmidt(250, 1, 1E10), friction_laminar(250))
+    
+    
+def test_helical_turbulent_fd_Schmidt():
+    fd = helical_turbulent_fd_Schmidt(1E4, 0.01, .02)
+    assert_allclose(fd, 0.08875550767040916)
+    fd = helical_turbulent_fd_Schmidt(1E4, 0.01, .2)
+    assert_allclose(fd, 0.04476560991345504)
+    assert_allclose(friction_factor(1E4), helical_turbulent_fd_Schmidt(1E4, 0.01, 1E11))
+        
+    
+def test_helical_turbulent_fd_Mori_Nakayama():
+    # Formula in [1]_ is hard to read, but the powers have been confirmed in
+    # two sources to be 1/5. [3]_ butchers the formula's brackets/power raising,
+    # but is otherwise correct.
+    fd = helical_turbulent_fd_Mori_Nakayama(1E4, 0.01, .2)
+    assert_allclose(fd, 0.037311802071379796)

@@ -21,13 +21,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import pi, sin, cos, asin, acos, atan, acosh, log
+from math import pi, sin, cos, tan, asin, acos, atan, acosh, log
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.integrate import quad
 from scipy.optimize import newton
 
-__all__ = ['TANK', 'SA_partial_sphere', 'V_partial_sphere', 'V_horiz_conical',
+__all__ = ['TANK', 'HelicalCoil', 'SA_partial_sphere', 'V_partial_sphere', 
+'V_horiz_conical',
            'V_horiz_ellipsoidal', 'V_horiz_guppy', 'V_horiz_spherical',
            'V_horiz_torispherical', 'V_vertical_conical',
            'V_vertical_ellipsoidal', 'V_vertical_spherical',
@@ -1376,9 +1377,44 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
 
 
 class TANK(object):
-    '''
-    Class representing tank volumes and levels. All parameters are also
+    '''Class representing tank volumes and levels. All parameters are also
     attributes.
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the cylindrical section of the tank, [m]
+    L : float
+        Length of the main cylindrical section of the tank, [m]
+    horizontal : bool, optional
+        Whether or not the tank is a horizontal or vertical tank
+    sideA : string, optional
+        The left (or bottom for vertical) head of the tank's type; one of
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+    sideB : string, optional
+        The right (or top for vertical) head of the tank's type; one of
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+    sideA_a : float, optional
+        The distance the head as specified by sideA extends down or to the left
+        from the main cylindrical section
+    sideB_a : float, optional
+        The distance the head as specified by sideB extends up or to the right
+        from the main cylindrical section
+    sideA_f : float, optional
+        Dish-radius parameter for side A; fD  = dish radius []
+    sideA_k : float, optional
+        knucle-radius parameter for side A; kD = knucle radius []
+    sideB_f : float, optional
+        Dish-radius parameter for side B; fD  = dish radius []
+    sideB_k : float, optional
+        knucle-radius parameter for side B; kD = knucle radius []
+    L_over_D : float, optional
+        Ratio of length over diameter, used only when D and L are both
+        unspecified but V is, []
+    V : float, optional
+        Volume of the tank; solved for if specified, using
+        sideA_a_ratio/sideB_a_ratio, sideA, sideB, horizontal, and one
+        of L_over_D, L, or D, [m^3]
 
     Attributes
     ----------
@@ -1422,12 +1458,12 @@ class TANK(object):
 
     >>> T1 = TANK(V=10, L_over_D=0.7, sideB='conical', sideB_a=0.5)
     >>> T1.A, T1.A_sideA, T1.A_sideB, T1.A_lateral
-    (24.94775907657148, 5.118555935958284, 5.497246519930003, 14.331956620683194)
+    (24.94775907657148, 5.118555935958284, 5.497246519930003, 14.331956620683192)
 
     Solving for tank volumes, first horizontal, then vertical:
 
     >>> TANK(D=10., horizontal=True, sideA='conical', sideB='conical', V=500).L
-    4.699531057009146
+    4.699531057009147
     >>> TANK(L=4.69953105701, horizontal=True, sideA='conical', sideB='conical', V=500).D
     9.999999999999407
     >>> TANK(L_over_D=0.469953105701, horizontal=True, sideA='conical', sideB='conical', V=500).L
@@ -1438,7 +1474,7 @@ class TANK(object):
     >>> TANK(L=4.69953105701, horizontal=False, sideA='conical', sideB='conical', V=500).D
     9.999999999999407
     >>> TANK(L_over_D=0.469953105701, horizontal=False, sideA='conical', sideB='conical', V=500).L
-    4.69953105700979
+    4.699531057009791
     '''
     table = False
 
@@ -1470,44 +1506,6 @@ class TANK(object):
                  sideA=None, sideB=None, sideA_a=0, sideB_a=0,
                  sideA_f=1., sideA_k=0.06, sideB_f=1., sideB_k=0.06,
                  sideA_a_ratio=0.25, sideB_a_ratio=0.25, L_over_D=None, V=None):
-        '''Initilization method for a new tank. All parameters are attributes.
-
-        Parameters
-        ----------
-        D : float
-            Diameter of the cylindrical section of the tank, [m]
-        L : float
-            Length of the main cylindrical section of the tank, [m]
-        horizontal : bool, optional
-            Whether or not the tank is a horizontal or vertical tank
-        sideA : string, optional
-            The left (or bottom for vertical) head of the tank's type; one of
-            [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
-        sideB : string, optional
-            The right (or top for vertical) head of the tank's type; one of
-            [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
-        sideA_a : float, optional
-            The distance the head as specified by sideA extends down or to the left
-            from the main cylindrical section
-        sideB_a : float, optional
-            The distance the head as specified by sideB extends up or to the right
-            from the main cylindrical section
-        sideA_f : float, optional
-            Dish-radius parameter for side A; fD  = dish radius []
-        sideA_k : float, optional
-            knucle-radius parameter for side A; kD = knucle radius []
-        sideB_f : float, optional
-            Dish-radius parameter for side B; fD  = dish radius []
-        sideB_k : float, optional
-            knucle-radius parameter for side B; kD = knucle radius []
-        L_over_D: float, optional
-            Ratio of length over diameter, used only when D and L are both
-            unspecified but V is, []
-        V : float, optional
-            Volume of the tank; solved for if specified, using
-            sideA_a_ratio/sideB_a_ratio, sideA, sideB, horizontal, and one
-            of L_over_D, L, or D, [m^3]
-        '''
         self.D = D
         self.L = L
         self.L_over_D = L_over_D
@@ -1722,29 +1720,158 @@ class TANK(object):
             self.L = float(newton(solve_L_D, Lguess))
             self.D = self.L/self.L_over_D
 
-#test = TANK(D=10., L=100., horizontal=True, sideA='spherical', sideB='ellipsoidal',
-#            sideA_a=2., sideB_a=2.)
-#print test.V_total
-#print test.V_from_h(9.2)
-#
-#test = TANK(D=10., L=100., horizontal=True, sideA='conical', sideB='conical',
-#            sideA_a=2., sideB_a=2.)
-##
-#import matplotlib.pyplot as plt
-#print test.heights
-##
-#plt.plot(test.heights, test.volumes)
-#plt.show()
-#print [TANK(D=10., horizontal=True, sideA='conical', sideB='conical', V=500).L]
-#print [TANK(L=4.69953105701, horizontal=True, sideA='conical', sideB='conical', V=500).D]
-#print [TANK(L_over_D=0.469953105701, horizontal=True, sideA='conical', sideB='conical', V=500).L]
-##
-#print 'hi'
-#print [TANK(D=10., horizontal=False, sideA='conical', sideB='conical', V=500).L]
-#print [TANK(L=4.69953105701, horizontal=False, sideA='conical', sideB='conical', V=500).D]
-#print [TANK(L_over_D=0.469953105701, horizontal=False, sideA='conical', sideB='conical', V=500).L]
-#
-#print [TANK(D=1.2, L=4, horizontal=False).h_from_V(.5)]
+
+class HelicalCoil(object):
+    r'''Class representing a helical coiled tube, as are found in many heated 
+    tanks and some small nuclear reactors. All parameters are also attributes.
+    
+    One set of the following parameters is required; inner tube diameter is 
+    optional.
+    
+        * Tube outer diameter, coil outer diameter, pitch, number of coil turns
+        * Tube outer diameter, coil outer diameter, pitch, height
+        * Tube outer diameter, coil outer diameter, number of coil turns, height
+        
+    Parameters
+    ----------
+    Dt : float
+        Outer diameter of the tube wound to make up the helical spiral, [m]
+    Do : float, optional
+        Diameter of the spiral as measured from the center of the coil on one
+        side to the center of the coil on the other side, [m]
+    Do_total : float, optional
+        Diameter of the spiral as measured from one edge of the tube to the
+        other edge; equal to Do + Dt; either `Do` or `Do_total` may be 
+        specified and the other will be calculated [m]
+    pitch : float, optional
+        Height change from one coil to the next as measured from the middles
+        of the tube, [m]
+    H : float, optional
+        Height of the spiral, as measured from the middle of the bottom of the
+        tube to the middle of the top of the tube, [m]
+    H_total : float, optional
+        Height of the spiral as measured from one edge of the tube to the other
+        edge; equal to `H_total` + `Dt`; either may be specified and the other
+        will be calculated [m]
+    N : float, optional
+        Number of coil turns; may be specified along with `pitch` instead of 
+        specifying `H` or `H_total`, [-]
+    Di : float, optional
+        Inner diameter of the tube; if specified, inside and annulus properties
+        will be calculated, [m]
+
+    Attributes
+    ----------
+    tube_circumference : float
+        Circumference of the tube as measured though its center, not inner or 
+        outer edges;  :math:`C = \pi D_o`, [m]
+    tube_length : float
+        Length of tube used to make the helical coil; 
+        :math:`L = \sqrt{(\pi D_o\cdot N)^2 + H^2}`, [m]
+    surface_area : float
+        Surface area of the outer surface of the helical coil;
+        :math:`A_t = \pi D_t L`, [m^2]
+    inner_surface_area : float
+        Surface area of the inner surface of the helical coil; calculated if
+        `Di` is supplied; :math:`A_{inside} = \pi D_i L`, [m^2]
+    inlet_area : float
+        Area of the inlet to the helical coil; calculated if
+        `Di` is supplied; :math:`A_{inlet} = \frac{\pi}{4} D_i^2`, [m^2]
+    inner_volume : float
+        Volume of the tube as would be filled by a fluid, useful for weight
+        calculations; calculated if `Di` is supplied;
+        :math:`V_{inside} = A_i L`, [m^3]
+    annulus_area : float
+        Area of the annulus (wall of the pipe); calculated if `Di` is supplied;
+        :math:`A_a = \frac{\pi}{4} (D_t^2 - D_i^2)`, [m^2]
+    annulus_volume : float
+        Volume of the annulus (wall of the pipe); calculated if `Di` 
+        is supplied, useful for weight calculations; :math:`V_a = A_a L`, [m^3]
+    total_volume : float
+        Total volume occupied by the pipe and the fluid inside it;
+        :math:`V = D_t L`, [m^3]
+    helix_angle : float
+        Angle between the pitch and coil diameter; used in some calculations; 
+        :math:`\alpha = \arctan \left(\frac{p_t}{\pi D_o}\right)`, [-]
+    curvature : float
+        Coil curvature, useful in some calculations; 
+        :math:`\delta = \frac{D_t}{D_o[1 + 4\pi^2 \tan^2(\alpha)]}`, [-]
+
+    Notes
+    -----
+    `Do` must be larger than `Dt`.
+
+    Examples
+    --------
+    >>> C1 = HelicalCoil(Do=30, H=20, pitch=5, Dt=2)
+    >>> C1.N, C1.tube_length, C1.surface_area
+    (4.0, 377.5212621504738, 2372.0360474917497)
+    
+    Same coil, with the inputs one would physically measure from the coil,
+    and a specified inlet diameter:
+        
+    >>> C1 = HelicalCoil(Do_total=32, H_total=22, pitch=5, Dt=2, Di=1.8)
+    >>> C1.N, C1.tube_length, C1.surface_area
+    (4.0, 377.5212621504738, 2372.0360474917497)
+    >>> C1.inner_surface_area, C1.inlet_area, C1.inner_volume, C1.total_volume, C1.annulus_volume
+    (2134.832442742575, 2.5446900494077327, 960.6745992341587, 1186.0180237458749, 225.3434245117162)
+
+    References
+    ----------
+    .. [1] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
+       Correlations for Convection Heat Transfer and Pressure Losses in 
+       Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
+       (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    '''
+    def __init__(self, Dt, Do=None, pitch=None, H=None, N=None, H_total=None, 
+                 Do_total=None, Di=None):
+        # H goes from center of tube in bottom of coil to center of tube in top of coil
+        # Do goes from the center of the spiral to the center of the outer tube
+        if H_total:
+            H = H_total - Dt
+        if Do_total:
+            Do = Do_total - Dt
+        self.Do = Do
+        self.Dt = Dt
+        self.Do_total = self.Do+self.Dt
+        if N and pitch:
+            self.N = N
+            self.pitch = pitch
+            self.H = N*pitch
+        elif N and H:
+            self.N = N
+            self.H = H
+            self.pitch = self.H/N
+            if self.pitch < self.Dt:
+                raise Exception('Pitch is too small - tubes are colliding; maximum number of spirals is %f.'%(self.H/self.Dt))
+        elif H and pitch:
+            self.pitch = pitch
+            self.H = H
+            self.N = self.H/self.pitch
+            if self.pitch < self.Dt:
+                raise Exception('Pitch is too small - tubes are colliding; pitch must be larger than tube diameter.')
+        self.H_total = self.Dt + self.H
+        
+        if self.Dt > self.Do:
+            raise Exception('Tube diameter is larger than helix outer diameter - not feasible.')
+        
+        self.tube_circumference = pi*self.Do
+        self.tube_length = ((self.tube_circumference*self.N)**2 + self.H**2)**0.5
+        self.surface_area = self.tube_length*pi*self.Dt
+        #print(pi*self.tube_length*self.Dt) == surface_area
+        self.helix_angle = atan(self.pitch/(pi*self.Do))
+        self.curvature = self.Dt/self.Do/(1. + 4*pi**2*tan(self.helix_angle)**2)
+        #print(self.N*pi*self.Do/cos(self.helix_angle)) # Confirms the length with another formula
+        self.total_inlet_area = pi/4.*self.Dt**2
+        self.total_volume = self.total_inlet_area*self.tube_length
+        
+        if Di:
+            self.Di = Di
+            self.inner_surface_area = self.tube_length*pi*self.Di
+            self.inlet_area = pi/4.*self.Di**2
+            self.inner_volume = self.inlet_area*self.tube_length
+            self.annulus_area = self.total_inlet_area - self.inlet_area
+            self.annulus_volume = self.total_volume - self.inner_volume
 
 
 
@@ -1778,7 +1905,7 @@ def sphericity(A, V):
     References
     ----------
     .. [1] Rhodes, Martin J., ed. Introduction to Particle Technology. 2E.
-    Chichester, England ; Hoboken, NJ: Wiley, 2008.
+       Chichester, England ; Hoboken, NJ: Wiley, 2008.
     '''
     return pi**(1/3.)*(6*V)**(2/3.)/A
 

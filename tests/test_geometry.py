@@ -288,3 +288,51 @@ def test_basic():
 
     V = V_multiple_hole_cylinder(0.01, 0.1, [(0.005, 1)])
     assert_allclose(V, 5.890486225480862e-06)
+    
+    
+def test_HelicalCoil():
+    for kwargs in [{'Do': 30, 'H': 20, 'pitch': 5, 'Dt':2},
+                   {'Do': 30, 'N': 4, 'pitch': 5, 'Dt':2},
+                   {'Do': 30, 'N': 4, 'H': 20, 'Dt':2},
+                   {'Do_total': 32, 'N': 4, 'H': 20, 'Dt':2},
+                   {'Do_total': 32, 'N': 4, 'H_total': 22, 'Dt':2}]:
+
+        a = HelicalCoil(Di=1.8, **kwargs)
+        assert_allclose(a.N, 4)
+        assert_allclose(a.H, 20)
+        assert_allclose(a.H_total, 22)
+        assert_allclose(a.Do_total, 32)
+        assert_allclose(a.pitch, 5)
+        assert_allclose(a.tube_length, 377.5212621504738)
+        assert_allclose(a.surface_area, 2372.0360474917497)
+        # Other parameters
+        assert_allclose(a.curvature, 0.06)
+        assert_allclose(a.helix_angle, 0.053001960689651316)
+        assert_allclose(a.tube_circumference, 94.24777960769379)
+        assert_allclose(a.total_inlet_area, 3.141592653589793)
+        assert_allclose(a.total_volume, 1186.0180237458749)
+        # with Di specified
+        assert_allclose(a.Di, 1.8)
+        assert_allclose(a.inner_surface_area,  2134.832442742575)
+        assert_allclose(a.inlet_area, 2.5446900494077327)
+        assert_allclose(a.inner_volume, 960.6745992341587)
+        assert_allclose(a.annulus_area, 0.5969026041820604)
+        assert_allclose(a.annulus_volume, 225.3434245117162)
+    
+    # Fusion 360 agrees with the tube length.
+    # It says the SA should be 2370.3726964956063057
+    # Hopefully its own calculation is flawed
+
+    # Test successfully creating a helix with 
+    HelicalCoil(Di=1.8, Do=30, H=20, pitch=2, Dt=2)
+    with pytest.raises(Exception):
+        HelicalCoil(Di=1.8, Do=30, H=20, pitch=1.999, Dt=2)
+    with pytest.raises(Exception):
+        HelicalCoil(Di=1.8, Do=30, H=20, N=10.0001,  Dt=2)
+        
+    # Test Dt < Do
+    HelicalCoil(Do=10, H=30, N=2, Dt=10)
+    with pytest.raises(Exception):
+        HelicalCoil(Do=10, H=30, N=2, Dt=10.00000001)
+    with pytest.raises(Exception):
+        HelicalCoil(Do_total=20-1E-9, H=30, N=3., Dt=10.000)
