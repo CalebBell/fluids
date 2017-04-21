@@ -47,7 +47,10 @@ __all__ = ['friction_factor', 'Colebrook', 'Clamond', 'friction_laminar',
 'Brkic_2011_2', 'Fang_2011', 'Blasius', 'von_Karman', 
 'Prandtl_von_Karman_Nikuradse', 'helical_laminar_fd_White',
 'helical_laminar_fd_Mori_Nakayama', 'helical_laminar_fd_Schmidt',
-'helical_turbulent_fd_Schmidt', 'helical_turbulent_fd_Mori_Nakayama']
+'helical_turbulent_fd_Schmidt', 'helical_turbulent_fd_Mori_Nakayama',
+'helical_turbulent_fd_Prasad', 'helical_turbulent_fd_Czop',
+'helical_turbulent_fd_Guo', 'helical_turbulent_fd_Ju',
+'helical_turbulent_fd_Mandal_Nigam']
 
 
 
@@ -1797,7 +1800,7 @@ def helical_laminar_fd_White(Re, Di, Dc):
     Parameters
     ----------
     Re : float
-        Reynolds number with `D`=`Di`, [-]
+        Reynolds number with `D=Di`, [-]
     Di : float
         Inner diameter of the coil, [m]
     Dc : float
@@ -1839,6 +1842,7 @@ def helical_laminar_fd_White(Re, Di, Dc):
         De = 11.6
     return fd/(1. - (1. - (11.6/De)**0.45)**(1./0.45))
 
+
 def helical_laminar_fd_Mori_Nakayama(Re, Di, Dc):
     r'''Calculates Darcy friction factor for a fluid flowing inside a curved 
     pipe such as a helical coil under laminar conditions, using the method of 
@@ -1851,7 +1855,7 @@ def helical_laminar_fd_Mori_Nakayama(Re, Di, Dc):
     Parameters
     ----------
     Re : float
-        Reynolds number with `D`=`Di`, [-]
+        Reynolds number with `D=Di`, [-]
     Di : float
         Inner diameter of the coil, [m]
     Dc : float
@@ -1911,7 +1915,7 @@ def helical_laminar_fd_Schmidt(Re, Di, Dc):
     Parameters
     ----------
     Re : float
-        Reynolds number with `D`=`Di`, [-]
+        Reynolds number with `D=Di`, [-]
     Di : float
         Inner diameter of the coil, [m]
     Dc : float
@@ -1975,7 +1979,7 @@ def helical_turbulent_fd_Schmidt(Re, Di, Dc, roughness=0):
     Parameters
     ----------
     Re : float
-        Reynolds number with `D`=`Di`, [-]
+        Reynolds number with `D=Di`, [-]
     Di : float
         Inner diameter of the coil, [m]
     Dc : float
@@ -2030,7 +2034,7 @@ def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
     Parameters
     ----------
     Re : float
-        Reynolds number with `D`=`Di`, [-]
+        Reynolds number with `D=Di`, [-]
     Di : float
         Inner diameter of the coil, [m]
     Dc : float
@@ -2070,6 +2074,259 @@ def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
     '''
     term = (Re*(Di/Dc)**2)**-0.2
     return 0.3*(Dc/Di)**-0.5*term*(1. + 0.112*term)
+
+
+def helical_turbulent_fd_Prasad(Re, Di, Dc,roughness=0):
+    r'''Calculates Darcy friction factor for a fluid flowing inside a curved 
+    pipe such as a helical coil under turbulent conditions, using the method of 
+    Prasad [1]_, also shown in [2]_.
+        
+    .. math::
+        f_{curv} = f_{\text{str,turb}}\left[1 + 0.18\left[Re\left(\frac{D_i}
+        {D_c}\right)^2\right]^{0.25}\right]
+        
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with `D=Di`, [-]
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+    roughness : float, optional
+        Roughness of pipe wall [m]        
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor for a curved pipe [-]
+
+    Notes
+    -----    
+    No range of validity was specified, but the experiments used were with 
+    coil/tube diameter ratios of 17.24 and 34.9, hot water in the tube, and
+    :math:`1780 < Re < 59500`. At very low curvatures, converges on the
+    straight pipe result.
+
+    Examples
+    --------
+    >>> helical_turbulent_fd_Prasad(1E4, 0.01, .2)
+    0.043313098093994626
+
+    References
+    ----------
+    .. [1] Prasad, B. V. S. S. S., D. H. Das, and A. K. Prabhakar. "Pressure 
+       Drop, Heat Transfer and Performance of a Helically Coiled Tubular 
+       Exchanger." Heat Recovery Systems and CHP 9, no. 3 (January 1, 1989): 
+       249-56. doi:10.1016/0890-4332(89)90008-2.
+    .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
+       Correlations for Convection Heat Transfer and Pressure Losses in 
+       Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
+       (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    '''
+    fd = friction_factor(Re=Re, eD=roughness/Di)
+    return fd*(1. + 0.18*(Re*(Di/Dc)**2)**0.25)
+
+
+def helical_turbulent_fd_Czop (Re, Di, Dc):
+    r'''Calculates Darcy friction factor for a fluid flowing inside a curved 
+    pipe such as a helical coil under turbulent conditions, using the method of 
+    Czop [1]_, also shown in [2]_.
+        
+    .. math::
+        f_{curv} = 0.096De^{-0.1517}
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with `D=Di`, [-]
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor for a curved pipe [-]
+
+    Notes
+    -----    
+    Valid for :math:`2\times10^4 < Re < 1.5\times10^{5}`. Does not use a 
+    straight pipe correlation, and so will not converge on the
+    straight pipe result at very low curvature.
+
+    Examples
+    --------
+    >>> helical_turbulent_fd_Czop(1E4, 0.01, .2)
+    0.02979575250574106
+
+    References
+    ----------
+    .. [1] Czop, V., D. Barbier, and S. Dong. "Pressure Drop, Void Fraction and
+       Shear Stress Measurements in an Adiabatic Two-Phase Flow in a Coiled 
+       Tube." Nuclear Engineering and Design 149, no. 1 (September 1, 1994): 
+       323-33. doi:10.1016/0029-5493(94)90298-4.
+    .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
+       Correlations for Convection Heat Transfer and Pressure Losses in 
+       Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
+       (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    '''
+    De = Dean(Re=Re, Di=Di, D=Dc)
+    return 0.096*De**-0.1517
+
+
+def helical_turbulent_fd_Guo(Re, Di, Dc):
+    r'''Calculates Darcy friction factor for a fluid flowing inside a curved 
+    pipe such as a helical coil under turbulent conditions, using the method of 
+    Guo [1]_, also shown in [2]_.
+        
+    .. math::
+        f_{curv} = 0.638Re^{-0.15}\left(\frac{D_i}{D_c}\right)^{0.51}
+        
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with `D=Di`, [-]
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor for a curved pipe [-]
+
+    Notes
+    -----    
+    Valid for :math:`2\times10^4 < Re < 1.5\times10^{5}`. Does not use a 
+    straight pipe correlation, and so will not converge on the
+    straight pipe result at very low curvature.
+
+    Examples
+    --------
+    >>> helical_turbulent_fd_Guo(2E5, 0.01, .2)
+    0.022189161013253147
+
+    References
+    ----------
+    .. [1] Guo, Liejin, Ziping Feng, and Xuejun Chen. "An Experimental 
+       Investigation of the Frictional Pressure Drop of Steam–water Two-Phase 
+       Flow in Helical Coils." International Journal of Heat and Mass Transfer 
+       44, no. 14 (July 2001): 2601-10. doi:10.1016/S0017-9310(00)00312-4. 
+    .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
+       Correlations for Convection Heat Transfer and Pressure Losses in 
+       Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
+       (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    '''
+    return 0.638*Re**-0.15*(Di/Dc)**0.51
+
+
+def helical_turbulent_fd_Ju(Re, Di, Dc,roughness=0):
+    r'''Calculates Darcy friction factor for a fluid flowing inside a curved 
+    pipe such as a helical coil under turbulent conditions, using the method of 
+    Ju et al. [1]_, also shown in [2]_.
+        
+    .. math::
+        f_{curv} = f_{\text{str,turb}}\left[1 +0.11Re^{0.23}\left(\frac{D_i}
+        {D_c}\right)^{0.14}\right]
+        
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with `D=Di`, [-]
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+    roughness : float, optional
+        Roughness of pipe wall [m]        
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor for a curved pipe [-]
+
+    Notes
+    -----
+    Claimed to be valid for all turbulent conditions with :math:`De>11.6`.
+    At very low curvatures, converges on the straight pipe result.
+
+    Examples
+    --------
+    >>> helical_turbulent_fd_Ju(1E4, 0.01, .2)
+    0.04945959480770937
+
+    References
+    ----------
+    .. [1] Ju, Huaiming, Zhiyong Huang, Yuanhui Xu, Bing Duan, and Yu Yu. 
+       "Hydraulic Performance of Small Bending Radius Helical Coil-Pipe." 
+       Journal of Nuclear Science and Technology 38, no. 10 (October 1, 2001): 
+       826-31. doi:10.1080/18811248.2001.9715102.
+    .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
+       Correlations for Convection Heat Transfer and Pressure Losses in 
+       Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
+       (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    '''
+    fd = friction_factor(Re=Re, eD=roughness/Di)
+    return fd*(1. + 0.11*Re**0.23*(Di/Dc)**0.14)
+
+
+def helical_turbulent_fd_Mandal_Nigam(Re, Di, Dc, roughness=0):
+    r'''Calculates Darcy friction factor for a fluid flowing inside a curved 
+    pipe such as a helical coil under turbulent conditions, using the method of 
+    Mandal and Nigam [1]_, also shown in [2]_.
+        
+    .. math::
+        f_{curv} = f_{\text{str,turb}} [1 + 0.03{De}^{0.27}]
+        
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with `D=Di`, [-]
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+    roughness : float, optional
+        Roughness of pipe wall [m]        
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor for a curved pipe [-]
+
+    Notes
+    -----
+    Claimed to be valid for all turbulent conditions with 
+    :math:`2500 < De < 15000`. At very low curvatures, converges on the 
+    straight pipe result.
+
+    Examples
+    --------
+    >>> helical_turbulent_fd_Mandal_Nigam(1E4, 0.01, .2)
+    0.03831658117115902
+
+    References
+    ----------
+    .. [1] Mandal, Monisha Mridha, and K. D. P. Nigam. "Experimental Study on 
+       Pressure Drop and Heat Transfer of Turbulent Flow in Tube in Tube 
+       Helical Heat Exchanger." Industrial & Engineering Chemistry Research 48,
+       no. 20 (October 21, 2009): 9318-24. doi:10.1021/ie9002393. 
+    .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
+       Correlations for Convection Heat Transfer and Pressure Losses in 
+       Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
+       (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    '''
+    De = Dean(Re=Re, Di=Di, D=Dc)
+    fd = friction_factor(Re=Re, eD=roughness/Di)
+    return fd*(1. + 0.03*De**0.27)
 
 
 # Data from the Handbook of Hydraulic Resistance, 4E, in format (min, max, avg)

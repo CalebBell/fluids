@@ -182,3 +182,30 @@ def test_helical_turbulent_fd_Mori_Nakayama():
     # but is otherwise correct.
     fd = helical_turbulent_fd_Mori_Nakayama(1E4, 0.01, .2)
     assert_allclose(fd, 0.037311802071379796)
+
+
+def test_helical_turbulent_fd_Prasad():
+    # Checks out, formula in [2]_ is the same as in [1]_!
+    fd = helical_turbulent_fd_Prasad(1E4, 0.01, .2)
+    assert_allclose(fd, 0.043313098093994626)
+    assert_allclose(helical_turbulent_fd_Prasad(1E4, 0.01, 1E20), friction_factor(1E4))
+    
+def test_helical_turbulent_fd_Czop():
+    fd = helical_turbulent_fd_Czop(1E4, 0.01, .2)
+    assert_allclose(fd, 0.02979575250574106)
+    
+def test_helical_turbulent_fd_Guo():
+    fd = helical_turbulent_fd_Guo(2E5, 0.01, .2)
+    assert_allclose(fd, 0.022189161013253147)
+    
+    
+def test_helical_turbulent_fd_Ju():
+    fd = helical_turbulent_fd_Ju(1E4, 0.01, .2)
+    assert_allclose(fd, 0.04945959480770937)
+    assert_allclose(helical_turbulent_fd_Ju(1E4, 0.01, 1E80),  friction_factor(1E4))
+    
+    
+def test_helical_turbulent_fd_Mandal_Nigam():
+    fd = helical_turbulent_fd_Mandal_Nigam(1E4, 0.01, .2)
+    assert_allclose(fd, 0.03831658117115902)
+    assert_allclose(helical_turbulent_fd_Mandal_Nigam(1E4, 0.01, 1E80),  friction_factor(1E4))
