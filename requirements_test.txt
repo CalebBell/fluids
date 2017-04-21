@@ -1,6 +1,6 @@
 scipy
 pytest
 pytest-cov
-coveralls
+coveralls==1.1
 sympy
 fuzzywuzzy
