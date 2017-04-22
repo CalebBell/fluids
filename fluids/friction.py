@@ -50,7 +50,10 @@ __all__ = ['friction_factor', 'Colebrook', 'Clamond', 'friction_laminar',
 'helical_turbulent_fd_Schmidt', 'helical_turbulent_fd_Mori_Nakayama',
 'helical_turbulent_fd_Prasad', 'helical_turbulent_fd_Czop',
 'helical_turbulent_fd_Guo', 'helical_turbulent_fd_Ju',
-'helical_turbulent_fd_Mandal_Nigam']
+'helical_turbulent_fd_Mandal_Nigam', 'helical_transition_Re_Seth_Stahel', 
+'helical_transition_Re_Ito', 'helical_transition_Re_Kubair_Kuloor', 
+'helical_transition_Re_Kutateladze_Borishanskii', 
+'helical_transition_Re_Schmidt', 'helical_transition_Re_Srinivasan']
 
 
 
@@ -2327,6 +2330,272 @@ def helical_turbulent_fd_Mandal_Nigam(Re, Di, Dc, roughness=0):
     De = Dean(Re=Re, Di=Di, D=Dc)
     fd = friction_factor(Re=Re, eD=roughness/Di)
     return fd*(1. + 0.03*De**0.27)
+
+
+def helical_transition_Re_Seth_Stahel(Di, Dc):
+    r'''Calculates the transition Reynolds number for flow inside a curved or 
+    helical coil between laminar and turbulent flow, using the method of [1]_.
+
+    .. math::
+        Re_{crit} = 1900\left[1 + 8 \sqrt{\frac{D_i}{D_c}}\right]
+        
+    Parameters
+    ----------
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+
+    Returns
+    -------
+    Re_crit : float
+        Transition Reynolds number between laminar and turbulent [-]
+
+    Notes
+    -----
+    At very low curvatures, converges to Re = 1900.
+
+    Examples
+    --------
+    >>> helical_transition_Re_Seth_Stahel(1, 7.)
+    7645.0599897402535
+    
+    References
+    ----------
+    .. [1] Seth, K. K., and E. P. Stahel. "HEAT TRANSFER FROM HELICAL COILS 
+       IMMERSED IN AGITATED VESSELS." Industrial & Engineering Chemistry 61, 
+       no. 6 (June 1, 1969): 39-49. doi:10.1021/ie50714a007.
+    '''
+    return 1900.*(1. + 8.*(Di/Dc)**0.5)
+
+
+def helical_transition_Re_Ito(Di, Dc):
+    r'''Calculates the transition Reynolds number for flow inside a curved or 
+    helical coil between laminar and turbulent flow, using the method of [1]_,
+    as shown in [2]_ and in [3]_.
+
+    .. math::
+        Re_{crit} = 20000 \left(\frac{D_i}{D_c}\right)^{0.32}
+        
+    Parameters
+    ----------
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+
+    Returns
+    -------
+    Re_crit : float
+        Transition Reynolds number between laminar and turbulent [-]
+
+    Notes
+    -----
+    At very low curvatures, converges to Re = 0.
+    Recommended for :math:`0.00116 < d_i/D_c  < 0.067`
+
+    Examples
+    --------
+    >>> helical_transition_Re_Ito(1, 7.)
+    10729.972844697186
+    
+    References
+    ----------
+    .. [1] H. Ito. "Friction factors for turbulent flow in curved pipes." 
+       Journal Basic Engineering, Transactions of the ASME, 81 (1959): 123-134.
+    .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
+       Correlations for Convection Heat Transfer and Pressure Losses in 
+       Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
+       (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    .. [3] Mori, Yasuo, and Wataru Nakayama. "Study on Forced Convective Heat
+       Transfer in Curved Pipes." International Journal of Heat and Mass 
+       Transfer 10, no. 5 (May 1, 1967): 681-95. 
+       doi:10.1016/0017-9310(67)90113-5.
+    '''
+    return 2E4*(Di/Dc)**0.32
+
+
+def helical_transition_Re_Kubair_Kuloor(Di, Dc):
+    r'''Calculates the transition Reynolds number for flow inside a curved or 
+    helical coil between laminar and turbulent flow, using the method of [1]_,
+    as shown in [2]_.
+
+    .. math::
+        Re_{crit} = 12730 \left(\frac{D_i}{D_c}\right)^{0.2}
+        
+    Parameters
+    ----------
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+
+    Returns
+    -------
+    Re_crit : float
+        Transition Reynolds number between laminar and turbulent [-]
+
+    Notes
+    -----
+    At very low curvatures, converges to Re = 0.
+    Recommended for :math:`0.0005 < d_i/D_c < 0.103`
+
+    Examples
+    --------
+    >>> helical_transition_Re_Kubair_Kuloor(1, 7.)
+    8625.986927588123
+    
+    References
+    ----------
+    .. [1] Kubair, Venugopala, and N. R. Kuloor. "Heat Transfer to Newtonian
+       Fluids in Coiled Pipes in Laminar Flow." International Journal of Heat 
+       and Mass Transfer 9, no. 1 (January 1, 1966): 63-75. 
+       doi:10.1016/0017-9310(66)90057-3. 
+    .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
+       Correlations for Convection Heat Transfer and Pressure Losses in 
+       Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
+       (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    '''
+    return 1.273E4*(Di/Dc)**0.2
+
+
+def helical_transition_Re_Kutateladze_Borishanskii(Di, Dc):
+    r'''Calculates the transition Reynolds number for flow inside a curved or 
+    helical coil between laminar and turbulent flow, using the method of [1]_,
+    also shown in [2]_.
+
+    .. math::
+        Re_{crit} = 2300 + 1.05\times 10^4 \left(\frac{D_i}{D_c}\right)^{0.3}
+        
+    Parameters
+    ----------
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+
+    Returns
+    -------
+    Re_crit : float
+        Transition Reynolds number between laminar and turbulent [-]
+
+    Notes
+    -----
+    At very low curvatures, converges to Re = 2300.
+    Recommended for :math:`0.0417 < d_i/D_c < 0.1667`
+
+    Examples
+    --------
+    >>> helical_transition_Re_Kutateladze_Borishanskii(1, 7.)
+    7121.143774574058
+    
+    References
+    ----------
+    .. [1] Kutateladze, S. S, and V. M Borishanskiĭ. A Concise Encyclopedia of 
+       Heat Transfer. Oxford; New York: Pergamon Press, 1966.
+    .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
+       Correlations for Convection Heat Transfer and Pressure Losses in 
+       Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
+       (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    '''
+    return 2300. + 1.05E4*(Di/Dc)**0.4
+
+
+def helical_transition_Re_Schmidt(Di, Dc):
+    r'''Calculates the transition Reynolds number for flow inside a curved or 
+    helical coil between laminar and turbulent flow, using the method of [1]_,
+    also shown in [2]_ and [3]_. Correlation recommended in [3]_.
+
+    .. math::
+        Re_{crit} = 2300\left[1 + 8.6\left(\frac{D_i}{D_c}\right)^{0.45}\right]
+        
+    Parameters
+    ----------
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+
+    Returns
+    -------
+    Re_crit : float
+        Transition Reynolds number between laminar and turbulent [-]
+
+    Notes
+    -----
+    At very low curvatures, converges to Re = 2300.
+    Recommended for :math:`d_i/D_c < 0.14`
+
+    Examples
+    --------
+    >>> helical_transition_Re_Schmidt(1, 7.)
+    10540.094061770815
+    
+    References
+    ----------
+    .. [1] Schmidt, Eckehard F. "Wärmeübergang Und Druckverlust in 
+       Rohrschlangen." Chemie Ingenieur Technik 39, no. 13 (July 10, 1967): 
+       781-89. doi:10.1002/cite.330391302. 
+    .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
+       Correlations for Convection Heat Transfer and Pressure Losses in 
+       Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
+       (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    .. [3] Schlunder, Ernst U, and International Center for Heat and Mass
+       Transfer. Heat Exchanger Design Handbook. Washington:
+       Hemisphere Pub. Corp., 1983.
+    '''
+    return 2300.*(1. + 8.6*(Di/Dc)**0.45)
+
+
+def helical_transition_Re_Srinivasan(Di, Dc):
+    r'''Calculates the transition Reynolds number for flow inside a curved or 
+    helical coil between laminar and turbulent flow, using the method of [1]_,
+    also shown in [2]_ and [3]_. Correlation recommended in [3]_.
+
+    .. math::
+        Re_{crit} = 2100\left[1 + 12\left(\frac{D_i}{D_c}\right)^{0.5}\right]        
+        
+    Parameters
+    ----------
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+
+    Returns
+    -------
+    Re_crit : float
+        Transition Reynolds number between laminar and turbulent [-]
+
+    Notes
+    -----
+    At very low curvatures, converges to Re = 2100.
+    Recommended for :math:`0.004 < d_i/D_c < 0.1`.
+    
+    Examples
+    --------
+    >>> helical_transition_Re_Srinivasan(1, 7.)
+    11624.704719832524
+    
+    References
+    ----------
+    .. [1] Srinivasan, P. S., Nandapurkar, S. S., and Holland, F. A., "Pressure
+       Drop and Heat Transfer in Coils", Chemical Engineering, 218, CE131-119,
+       (1968).
+    .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
+       Correlations for Convection Heat Transfer and Pressure Losses in 
+       Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
+       (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    .. [3] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
+       Transfer, 3E. New York: McGraw-Hill, 1998.
+    '''
+    return 2100.*(1. + 12.*(Di/Dc)**0.5)
 
 
 # Data from the Handbook of Hydraulic Resistance, 4E, in format (min, max, avg)

@@ -138,6 +138,7 @@ def test_von_Karman():
     f_precalc = 0.01197365149564789
     assert_allclose(f, f_precalc)
 
+
 def test_Prandtl_von_Karman_Nikuradse():
     def Prandtl_von_Karman_Nikuradse_numeric(Re):
         def to_solve(f):
@@ -190,9 +191,11 @@ def test_helical_turbulent_fd_Prasad():
     assert_allclose(fd, 0.043313098093994626)
     assert_allclose(helical_turbulent_fd_Prasad(1E4, 0.01, 1E20), friction_factor(1E4))
     
+    
 def test_helical_turbulent_fd_Czop():
     fd = helical_turbulent_fd_Czop(1E4, 0.01, .2)
     assert_allclose(fd, 0.02979575250574106)
+    
     
 def test_helical_turbulent_fd_Guo():
     fd = helical_turbulent_fd_Guo(2E5, 0.01, .2)
@@ -209,3 +212,34 @@ def test_helical_turbulent_fd_Mandal_Nigam():
     fd = helical_turbulent_fd_Mandal_Nigam(1E4, 0.01, .2)
     assert_allclose(fd, 0.03831658117115902)
     assert_allclose(helical_turbulent_fd_Mandal_Nigam(1E4, 0.01, 1E80),  friction_factor(1E4))
+
+
+def test_helical_transition_Re_Seth_Stahel():
+    # Read the original
+    assert_allclose(helical_transition_Re_Seth_Stahel(1, 7.), 7645.0599897402535)
+    assert_allclose(helical_transition_Re_Seth_Stahel(1, 1E20), 1900)
+    
+
+def test_helical_transition_Re_Ito():
+    assert_allclose(helical_transition_Re_Ito(1, 7.), 10729.972844697186)
+    
+    
+def test_helical_transition_Re_Kubair_Kuloor():
+    assert_allclose(helical_transition_Re_Kubair_Kuloor(1, 7), 8625.986927588123)
+    
+    
+def test_helical_transition_Re_Kutateladze_Borishanskii():
+    assert_allclose(helical_transition_Re_Kutateladze_Borishanskii(1, 7.),  7121.143774574058)
+    assert_allclose(helical_transition_Re_Kutateladze_Borishanskii(1, 1E20), 2300)
+    
+    
+def test_helical_transition_Re_Schmidt():
+    assert_allclose(helical_transition_Re_Schmidt(1, 7.), 10540.094061770815)
+    assert_allclose(helical_transition_Re_Schmidt(1, 1E20), 2300)
+    
+    
+def test_helical_transition_Re_Srinivasan():
+    assert_allclose(helical_transition_Re_Srinivasan(1, 7.),  11624.704719832524,)
+    assert_allclose(helical_transition_Re_Srinivasan(1, 1E20),  2100)
+    
+    
