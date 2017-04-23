@@ -42,6 +42,7 @@ classifiers=[
     'Programming Language :: Python :: 3.3',
     'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: Implementation :: CPython',
     'Topic :: Education',
     'Topic :: Scientific/Engineering :: Atmospheric Science',
@@ -56,8 +57,8 @@ setup(
   name = 'fluids',
   packages = ['fluids'],
   license='MIT',
-  version = '0.1.59',
-  download_url = 'https://github.com/CalebBell/fluids/tarball/0.1.59',
+  version = '0.1.60',
+  download_url = 'https://github.com/CalebBell/fluids/tarball/0.1.60',
   description = 'Fluid dynamics component of Chemical Engineering Design Library (ChEDL)',
   long_description=open('README.rst').read(),
   extras_require = {
