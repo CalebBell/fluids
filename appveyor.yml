@@ -16,16 +16,6 @@ platform:
 
 init:
   - "ECHO %PYTHON%"
-#  - ps: if($env:PYTHON -eq "2.7" -and $env:Platform -eq "x64"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda2-latest-Windows-x86_64.exe' -FileName C:\Miniconda.exe; echo "Done"}
-#  - ps: if($env:PYTHON -eq "2.7" -and $env:Platform -eq "x86"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda2-latest-Windows-x86.exe' -FileName C:\Miniconda.exe; echo "Done"}
-#  - ps: if($env:PYTHON -eq "3.3" -and $env:Platform -eq "x64"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe' -FileName C:\Miniconda.exe; echo "Done"}
-#  - ps: if($env:PYTHON -eq "3.3" -and $env:Platform -eq "x86"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe' -FileName C:\Miniconda.exe; echo "Done"}
-#  - ps: if($env:PYTHON -eq "3.4" -and $env:Platform -eq "x64"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe' -FileName C:\Miniconda.exe; echo "Done"}
-#  - ps: if($env:PYTHON -eq "3.4" -and $env:Platform -eq "x86"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe' -FileName C:\Miniconda.exe; echo "Done"}
-#  - ps: if($env:PYTHON -eq "3.5" -and $env:Platform -eq "x64"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe' -FileName C:\Miniconda.exe; echo "Done"}
-#  - ps: if($env:PYTHON -eq "3.5" -and $env:Platform -eq "x86"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe' -FileName C:\Miniconda.exe; echo "Done"}
-#  - cmd: C:\Miniconda.exe /RegisterPython=1 /S /D=C:\Miniconda
-
   - cmd: SET PATH=C:\Miniconda3\Scripts;C:\Miniconda\Scripts;%PATH%
   - cmd: conda update -yq conda
   - cmd: conda install -yq conda-env conda-build 
