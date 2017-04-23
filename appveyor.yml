@@ -24,7 +24,7 @@ init:
   - ps: if($env:PYTHON -eq "3.4" -and $env:Platform -eq "x86"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe' -FileName C:\Miniconda.exe; echo "Done"}
   - ps: if($env:PYTHON -eq "3.5" -and $env:Platform -eq "x64"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86_64.exe' -FileName C:\Miniconda.exe; echo "Done"}
   - ps: if($env:PYTHON -eq "3.5" -and $env:Platform -eq "x86"){Start-FileDownload 'http://repo.continuum.io/miniconda/Miniconda3-latest-Windows-x86.exe' -FileName C:\Miniconda.exe; echo "Done"}
-  - cmd: C:\Miniconda.exe /D=C:\Miniconda
+  - cmd: C:\Miniconda.exe /InstallationType=AllUsers /RegisterPython=1 /S /D=C:\Miniconda3
 
   - cmd: SET PATH=C:\Miniconda3\Scripts;C:\Miniconda\Scripts;%PATH%
   - cmd: conda update -yq conda
