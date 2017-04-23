@@ -175,6 +175,9 @@ def test_helical_turbulent_fd_Schmidt():
     fd = helical_turbulent_fd_Schmidt(1E4, 0.01, .2)
     assert_allclose(fd, 0.04476560991345504)
     assert_allclose(friction_factor(1E4), helical_turbulent_fd_Schmidt(1E4, 0.01, 1E11))
+    
+    fd = helical_turbulent_fd_Schmidt(1E6, 0.01, .02)
+    assert_allclose(fd, 0.04312877383550924)
         
     
 def test_helical_turbulent_fd_Mori_Nakayama():
@@ -243,3 +246,28 @@ def test_helical_transition_Re_Srinivasan():
     assert_allclose(helical_transition_Re_Srinivasan(1, 1E20),  2100)
     
     
+def test_friction_factor_curved():
+    fd = friction_factor_curved(2E4, 0.01, .02)
+    assert_allclose(fd, 0.050134646621603024)
+    fd = friction_factor_curved(250, .02, .1)
+    assert_allclose(fd, 0.47460725672835236)
+    
+    fd_transition = [friction_factor_curved(i, 0.01, .02) for i in [16779, 16780]]
+    assert_allclose(fd_transition, [0.03323676794260526, 0.057221855744623344])
+    
+    with pytest.raises(Exception):
+        friction_factor_curved(16779, 0.01, .02, Method='BADMETHOD')
+    with pytest.raises(Exception):
+        friction_factor_curved(16779, 0.01, .02, Rec_method='BADMETHOD')
+        
+    fd_rough_false = friction_factor_curved(20000, 0.01, .02, roughness=.0001, turbulent_method='Guo')
+    assert_allclose(fd_rough_false, 0.1014240343662085)
+    
+    methods = friction_factor_curved(20000, 0.01, .02, AvailableMethods=True)
+    assert sorted(methods) == sorted(['Guo','Ju','Schmidt turbulent','Prasad','Mandel Nigam','Mori Nakayama turbulent','Czop'])
+    methods = friction_factor_curved(2000, 0.01, .02, AvailableMethods=True)
+    assert sorted(methods) == sorted(['White', 'Schmidt laminar', 'Mori Nakayama laminar'])
+    
+    # Test the Fanning case
+    fd = friction_factor_curved(2E4, 0.01, .02, Darcy=False)
+    assert_allclose(fd, 0.2005385864864121)

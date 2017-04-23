@@ -33,7 +33,8 @@ except ImportError: # pragma: no cover
     import difflib
     fuzzy_match = lambda name, strings: difflib.get_close_matches(name, strings, n=1, cutoff=0)[0]
 
-__all__ = ['friction_factor', 'Colebrook', 'Clamond', 'friction_laminar',
+__all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 'Clamond',
+           'friction_laminar',
            'transmission_factor', 'material_roughness', 
            'nearest_material_roughness', 'roughness_Farshad', 
            '_Farshad_roughness', '_roughness', 'HHR_roughness',
@@ -2596,6 +2597,153 @@ def helical_transition_Re_Srinivasan(Di, Dc):
        Transfer, 3E. New York: McGraw-Hill, 1998.
     '''
     return 2100.*(1. + 12.*(Di/Dc)**0.5)
+
+
+curved_friction_laminar_methods = {'White': helical_laminar_fd_White,
+                           'Mori Nakayama laminar': helical_laminar_fd_Mori_Nakayama,
+                           'Schmidt laminar': helical_laminar_fd_Schmidt}
+
+# Format: 'key': (correlation, supports_roughness)
+curved_friction_turbulent_methods = {'Schmidt turbulent': (helical_turbulent_fd_Schmidt, True),
+                                     'Mori Nakayama turbulent': (helical_turbulent_fd_Mori_Nakayama, False),
+                                     'Prasad': (helical_turbulent_fd_Prasad, True),
+                                     'Czop': (helical_turbulent_fd_Czop, False),
+                                     'Guo': (helical_turbulent_fd_Guo, False),
+                                     'Ju': (helical_turbulent_fd_Ju, True),
+                                     'Mandel Nigam': (helical_turbulent_fd_Mandal_Nigam, True)}
+
+curved_friction_transition_methods = {'Seth Stahel': helical_transition_Re_Seth_Stahel,
+                                      'Ito': helical_transition_Re_Ito,
+                                      'Kubair Kuloor': helical_transition_Re_Kubair_Kuloor,
+                                      'Kutateladze Borishanskii': helical_transition_Re_Kutateladze_Borishanskii,
+                                      'Schmidt': helical_transition_Re_Schmidt,
+                                      'Srinivasan': helical_transition_Re_Srinivasan}
+
+def friction_factor_curved(Re, Di, Dc, roughness=0, Method=None, 
+                           Rec_method='Schmidt', 
+                           laminar_method='Schmidt laminar',
+                           turbulent_method='Schmidt turbulent', Darcy=True, 
+                           AvailableMethods=False):
+    r'''Calculates friction factor fluid flowing in a curved pipe or helical
+    coil, supporting both laminar and turbulent regimes. Selects the 
+    appropriate regime by default, and has default correlation choices.
+    Optionally, a specific correlation can be specified with the `Method` 
+    keyword.
+    
+    The default correlations are those recommended in [1]_, and are believed to 
+    be the best publically available.
+    
+    Examples
+    --------
+    >>> friction_factor_curved(Re=1E5, Di=0.02, Dc=0.5)
+    0.022961996738387523
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with `D=Di`, [-]
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+    roughness : float, optional
+        Roughness of pipe wall [m]        
+
+    Returns
+    -------
+    f : float
+        Friction factor, [-]
+    methods : list, only returned if AvailableMethods == True
+        List of methods in the regime the specified `Re` is in at the given
+        `Di` and `Dc`.
+
+    Other Parameters
+    ----------------
+    Method : string, optional
+        A string of the function name to use, overriding the default turbulent/
+        laminar selection.
+    Rec_method : str, optional
+        Critical Reynolds number transition criteria; one of ['Seth Stahel', 
+        'Ito', 'Kubair Kuloor', 'Kutateladze Borishanskii', 'Schmidt', 
+        'Srinivasan']; the default is 'Schmidt'.
+    laminar_method : str, optional
+        Friction factor correlation for the laminar regime; one of 
+        ['White', 'Mori Nakayama laminar', 'Schmidt laminar']; the default is
+        'Schmidt laminar'.
+    turbulent_method : str, optional
+        Friction factor correlation for the turbulent regime; one of 
+        ['Guo', 'Ju', 'Schmidt turbulent', 'Prasad', 'Mandel Nigam', 
+        'Mori Nakayama turbulent', 'Czop']; the default is 'Schmidt turbulent'.
+    Darcy : bool, optional
+        If False, will return fanning friction factor, 1/4 of the Darcy value
+    AvailableMethods : bool, optional
+        If True, function will consider which methods claim to be valid for
+        the range of `Re` and `eD` given
+    
+    See Also
+    --------
+    fluids.geometry.HelicalCoil
+    helical_turbulent_fd_Schmidt
+    helical_turbulent_fd_Mandal_Nigam
+    helical_turbulent_fd_Ju
+    helical_turbulent_fd_Guo
+    helical_turbulent_fd_Czop
+    helical_turbulent_fd_Prasad
+    helical_turbulent_fd_Mori_Nakayama
+    helical_laminar_fd_Schmidt
+    helical_laminar_fd_Mori_Nakayama
+    helical_laminar_fd_White
+    helical_transition_Re_Schmidt
+    helical_transition_Re_Srinivasan
+    helical_transition_Re_Kutateladze_Borishanskii
+    helical_transition_Re_Kubair_Kuloor
+    helical_transition_Re_Ito
+    helical_transition_Re_Seth_Stahel
+
+    Notes
+    -----
+    The range of acccuracy of these correlations is much than that in a 
+    straight pipe.    
+    
+    References
+    ----------
+    .. [1] Schlunder, Ernst U, and International Center for Heat and Mass
+       Transfer. Heat Exchanger Design Handbook. Washington:
+       Hemisphere Pub. Corp., 1983.
+    '''
+    if Rec_method in curved_friction_transition_methods:
+        Re_crit = curved_friction_transition_methods[Rec_method](Di, Dc)
+    else:
+        raise Exception('Invalid method specified for transition Reynolds number.')
+    
+    turbulent = False if Re < Re_crit else True
+    
+    def list_methods():
+        if turbulent:
+            return list(curved_friction_turbulent_methods.keys())
+        else:
+            return list(curved_friction_laminar_methods.keys())
+    if AvailableMethods:
+        return list_methods()
+    
+    if not Method:
+        Method = turbulent_method if turbulent else laminar_method
+    
+    if Method in curved_friction_laminar_methods:
+        f = curved_friction_laminar_methods[Method](Re, Di, Dc)
+    elif Method in curved_friction_turbulent_methods:
+        correlation, supports_roughness = curved_friction_turbulent_methods[Method]
+        if supports_roughness:
+            f = correlation(Re, Di, Dc, roughness)
+        else:
+            f = correlation(Re, Di, Dc)
+    else:
+        raise Exception('Invalid method for friction factor calculation')
+        
+    if not Darcy:
+        f *= 4
+    return f
 
 
 # Data from the Handbook of Hydraulic Resistance, 4E, in format (min, max, avg)
