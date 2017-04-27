@@ -1,5 +1,5 @@
-fluids.atmosphere module
-========================
+Atmospheric properties (fluids.atmosphere)
+==========================================
 
 .. automodule:: fluids.atmosphere
     :members:

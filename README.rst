@@ -14,26 +14,26 @@ fluids
 .. image:: http://img.shields.io/badge/license-MIT-blue.svg?style=flat
    :target: https://github.com/CalebBell/fluids/blob/master/LICENSE.txt
    :alt: license
-.. image:: https://img.shields.io/coveralls/CalebBell/fluids.svg
+.. image:: https://img.shields.io/coveralls/CalebBell/fluids.svg?
    :target: https://coveralls.io/github/CalebBell/fluids
    :alt: Coverage
-.. image:: https://img.shields.io/pypi/pyversions/fluids.svg
+.. image:: https://img.shields.io/pypi/pyversions/fluids.svg?
    :target: https://pypi.python.org/pypi/fluids
    :alt: Supported_versions
-.. image:: http://img.shields.io/appveyor/ci/calebbell/fluids.svg
+.. image:: http://img.shields.io/appveyor/ci/calebbell/fluids.svg?
    :target: https://ci.appveyor.com/project/calebbell/fluids/branch/master
    :alt: Build_status
-.. image:: https://zenodo.org/badge/48924523.svg
+.. image:: https://zenodo.org/badge/48924523.svg?
    :alt: Zendo
    :target: https://zenodo.org/badge/latestdoi/48924523
 
 
 .. contents::
 
-What is fluids?
+What is Fluids?
 ---------------
 
-fluids is open-source software for engineers and technicians working in the
+Fluids is open-source software for engineers and technicians working in the
 fields of chemical, mechanical, or civil engineering. It includes modules
 for piping, fittings, pumps, tanks, compressible flow, open-channel flow,
 and more.
@@ -59,14 +59,10 @@ To get the git version, run:
 
     $ git clone git://github.com/CalebBell/fluids.git
 
-Documentation
--------------
-
-fluids's documentation is available on the web:
-
-    http://fluids.readthedocs.io/
 
 
+    
+    
 Latest source code
 ------------------
 
@@ -81,13 +77,17 @@ Bug reports
 To report bugs, please use the fluids's Bug Tracker at:
 
     https://github.com/CalebBell/fluids/issues
+    
+If you have further questions about the usage of the library, feel free
+to contact the author at Caleb.Andrew.Bell@gmal.com.
 
 
 License information
 -------------------
 
-See ``LICENSE.txt`` for information on the terms & conditions for usage
-of this software, and a DISCLAIMER OF ALL WARRANTIES.
+Fluids is MIT licensed. See ``LICENSE.txt`` for full information 
+on the terms & conditions for usage of this software, and a 
+DISCLAIMER OF ALL WARRANTIES.
 
 Although not required by the fluids license, if it is convenient for you,
 please cite fluids if used in your work. Please also consider contributing

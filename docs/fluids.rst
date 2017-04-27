@@ -1,9 +1,3 @@
-fluids package
-==============
-
-Submodules
-----------
-
 .. toctree::
 
    fluids.atmosphere
