@@ -1499,7 +1499,7 @@ class TANK(object):
             sides = A + B
         
         
-        return '<%s tank, V=%f m^3, D=%f m, L=%f m, %s.>' %(orient, self.V_total, self.D, self.L, sides)
+        return '%s tank, V=%f m^3, D=%f m, L=%f m, %s.' %(orient, self.V_total, self.D, self.L, sides)
 
 
     def __init__(self, D=None, L=None, horizontal=True,
@@ -1823,16 +1823,6 @@ class HelicalCoil(object):
        Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
     '''
-    def __repr__(self): # pragma: no cover
-        s = '<Helical coil, total height=%s m, total width=%s m, revolutions=%s, \
-tube outer diameter=%s m, tube outer surface area=%s m^2' % (self.H_total, self.Do_total, self.N, self.Dt, self.surface_area)
-        if self.Di:
-            s += ', tube inner diameter=%s m, tube inner surface area=%s m^2.>' % (self.Di, self.inner_surface_area)
-        else:
-            s += '.>'
-        return s
-    
-    
     def __init__(self, Dt, Do=None, pitch=None, H=None, N=None, H_total=None, 
                  Do_total=None, Di=None):
         # H goes from center of tube in bottom of coil to center of tube in top of coil
@@ -1860,8 +1850,6 @@ tube outer diameter=%s m, tube outer surface area=%s m^2' % (self.H_total, self.
             self.N = self.H/self.pitch
             if self.pitch < self.Dt:
                 raise Exception('Pitch is too small - tubes are colliding; pitch must be larger than tube diameter.')
-        else:
-            raise Exception('One set of (N, pitch), (N, H), (H, pitch) was not specified as is required to construct the coil')
         self.H_total = self.Dt + self.H
         
         if self.Dt > self.Do:
@@ -1877,8 +1865,8 @@ tube outer diameter=%s m, tube outer surface area=%s m^2' % (self.H_total, self.
         self.total_inlet_area = pi/4.*self.Dt**2
         self.total_volume = self.total_inlet_area*self.tube_length
         
-        self.Di = Di
-        if self.Di:
+        if Di:
+            self.Di = Di
             self.inner_surface_area = self.tube_length*pi*self.Di
             self.inlet_area = pi/4.*self.Di**2
             self.inner_volume = self.inlet_area*self.tube_length
