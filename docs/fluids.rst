@@ -25,3 +25,4 @@ Submodules
    fluids.saltation
    fluids.two_phase
    fluids.two_phase_voidage
+   fluids.vectorized
