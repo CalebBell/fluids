@@ -1,5 +1,5 @@
-fluids.vectorized module
-========================
+Support for numpy arrays (fluids.vectorized)
+============================================
 
 
 Basic module which wraps all fluids functions with numpy's vectorize.

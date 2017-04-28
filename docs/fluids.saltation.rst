@@ -1,5 +1,5 @@
-fluids.saltation module
-=======================
+Pneumatic conveying (fluids.saltation)
+======================================
 
 .. automodule:: fluids.saltation
     :members:

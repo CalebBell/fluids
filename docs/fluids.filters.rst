@@ -1,5 +1,5 @@
-fluids.filters module
-=====================
+Filter pressure drop (fluids.filters)
+=====================================
 
 .. automodule:: fluids.filters
     :members:

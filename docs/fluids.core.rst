@@ -1,5 +1,5 @@
-fluids.core module
-==================
+Dimentionless numbers (fluids.core)
+===================================
 
 .. automodule:: fluids.core
     :members:

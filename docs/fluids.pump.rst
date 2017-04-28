@@ -1,5 +1,5 @@
-fluids.pump module
-==================
+Pump and motor sizing (fluids.pump)
+===================================
 
 .. automodule:: fluids.pump
     :members:

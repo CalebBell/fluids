@@ -1,5 +1,5 @@
-fluids.two_phase module
-=======================
+Two phase flow (fluids.two_phase)
+=================================
 
 .. automodule:: fluids.two_phase
     :members:

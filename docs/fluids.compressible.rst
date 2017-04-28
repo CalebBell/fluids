@@ -1,5 +1,5 @@
-fluids.compressible module
-==========================
+Compressible flow and compressor sizing (fluids.compressible)
+=============================================================
 
 .. automodule:: fluids.compressible
     :members:

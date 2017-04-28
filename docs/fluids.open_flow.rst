@@ -1,5 +1,5 @@
-fluids.open_flow module
-=======================
+Hydrology, weirs and open flow (fluids.open_flow)
+=================================================
 
 .. automodule:: fluids.open_flow
     :members:

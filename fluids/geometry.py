@@ -1308,6 +1308,10 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
     '''
+    if sideA not in [None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy']:
+        raise Exception('Unspoorted head type for side A')
+    if sideB not in [None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy']:
+        raise Exception('Unspoorted head type for side B')
     R = D/2.
     V = 0
     if horizontal:
@@ -1436,6 +1440,27 @@ class TANK(object):
         Surface area of sideB
     A_lateral : float
         Surface area of the lateral side
+        
+    Notes
+    -----
+    For torpsherical tank heads, the following `f` and `k` parameters are used
+    in standards. The default is ASME F&D	.
+        
+    +----------------------+-----+-------+
+    |                      | f   | k     |
+    +======================+=====+=======+
+    |  2:1 semi-elliptical | 0.9 | 0.17  |
+    +----------------------+-----+-------+
+    |  ASME F&D            | 1   | 0.06  |
+    +----------------------+-----+-------+
+    |  ASME 80/6           | 0.8 | 0.06  |
+    +----------------------+-----+-------+
+    |  ASME 80/10 F&D      | 0.8 | 0.1   |
+    +----------------------+-----+-------+
+    |  DIN 28011           | 1   | 0.1   |
+    +----------------------+-----+-------+
+    |  DIN 28013           | 0.8 | 0.154 |
+    +----------------------+-----+-------+
 
     Examples
     --------
@@ -1498,8 +1523,7 @@ class TANK(object):
                 B = ' and no head on sideB'
             sides = A + B
         
-        
-        return '%s tank, V=%f m^3, D=%f m, L=%f m, %s.' %(orient, self.V_total, self.D, self.L, sides)
+        return '<%s tank, V=%f m^3, D=%f m, L=%f m, %s.>' %(orient, self.V_total, self.D, self.L, sides)
 
 
     def __init__(self, D=None, L=None, horizontal=True,

@@ -1,5 +1,5 @@
-fluids.friction module
-======================
+Friction factor and pipe roughness (fluids.friction)
+====================================================
 
 .. automodule:: fluids.friction
     :members:

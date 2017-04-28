@@ -1,5 +1,5 @@
-fluids.piping module
-====================
+Pipe schedules (fluids.piping)
+==============================
 
 .. automodule:: fluids.piping
     :members:

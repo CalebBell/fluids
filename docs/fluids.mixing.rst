@@ -1,5 +1,5 @@
-fluids.mixing module
-====================
+Mixing (fluids.mixing)
+======================
 
 .. automodule:: fluids.mixing
     :members:

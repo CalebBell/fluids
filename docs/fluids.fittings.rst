@@ -1,5 +1,5 @@
-fluids.fittings module
-======================
+Fittings pressure drop (fluids.fittings)
+========================================
 
 .. automodule:: fluids.fittings
     :members:

@@ -1,5 +1,5 @@
-fluids.drag module
-==================
+Drag and terminal velocity (fluids.drag)
+========================================
 
 .. automodule:: fluids.drag
     :members:
