@@ -59,10 +59,13 @@ To get the git version, run:
 
     $ git clone git://github.com/CalebBell/fluids.git
 
+Documentation
+-------------
 
+fluids's documentation is available on the web:
 
-    
-    
+    http://fluids.readthedocs.io/
+
 Latest source code
 ------------------
 

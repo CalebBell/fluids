@@ -51,10 +51,22 @@ The correct syntax is as follows:
 
 __all__ = []
 
+__funcs = {}
+
 for name in dir(fluids):
     obj = getattr(fluids, name)
     if isinstance(obj, types.FunctionType):
         obj = np.vectorize(obj)
+    elif isinstance(obj, str):
+        continue
     __all__.append(name)
-    globals()[name] = obj
-        
+    __funcs.update({name: obj})
+#    globals()[name] = obj
+globals().update(__funcs)
+
+
+
+
+
+
+

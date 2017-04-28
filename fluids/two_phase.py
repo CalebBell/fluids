@@ -101,7 +101,7 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
 
     >>> Friedel(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... sigma=0.0487, D=0.05, roughness=0, L=1)
-    738.6500525002243
+    738.6500525002245
 
     References
     ----------
@@ -204,7 +204,7 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     --------
     >>> Gronnerud(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... D=0.05, roughness=0, L=1)
-    384.125411444741
+    384.1254114447411
 
     References
     ----------
@@ -322,7 +322,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1,
     --------
     >>> Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
     ... mug=14E-6, D=0.05, roughness=0, L=1)
-    1084.1489922923736
+    1084.1489922923738
 
     References
     ----------
@@ -443,7 +443,7 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     --------
     >>> Baroczy_Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
     ... mug=14E-6, D=0.05, roughness=0, L=1)
-    1084.1489922923736
+    1084.1489922923738
 
     References
     ----------
@@ -774,7 +774,7 @@ def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     --------
     >>> Jung_Radermacher(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
     ... mug=14E-6, D=0.05, roughness=0, L=1)
-    552.068612372557
+    552.0686123725571
 
     References
     ----------
@@ -852,7 +852,7 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     --------
     >>> Tran(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... sigma=0.0487, D=0.05, roughness=0, L=1)
-    423.2563312951231
+    423.2563312951232
 
     References
     ----------
@@ -1060,7 +1060,7 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0, L=1):
     --------
     >>> Zhang_Webb(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000,
     ... D=0.05, roughness=0, L=1)
-    712.0999804205619
+    712.0999804205621
 
     References
     ----------
@@ -1133,7 +1133,7 @@ def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     --------
     >>> Bankoff(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... D=0.05, roughness=0, L=1)
-    4746.059442453398
+    4746.059442453399
 
     References
     ----------
