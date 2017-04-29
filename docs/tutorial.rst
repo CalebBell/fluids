@@ -125,5 +125,91 @@ to construct them is available, HelicalCoil.
 
 
 
+Atmospheric Properties
+----------------------
+Four main classes are available to model the atmosphere. They are the
+US Standard Atmosphere 1976 (ATMOSPHERE_1976), a basic
+but very quick model; the NRLMSISE 00 model, substantially more powerful and
+accurate and still the standard to this day (ATMOSPHERE_NRLMSISE00); and two
+models for wind speed only, Horizontal Wind Model 1993 (hwm93) and 
+Horizontal Wind Model 2014 (hwm14). The two horizontal wind models are actually
+fortran codes, and are not compilled automatically on installation.
+
+ATMOSPHERE_1976 is the simplest model, and very suitable for basic engineering
+purposes. It supports atmospheric temperature, density, and pressure as a 
+function of elevation. Optionally, a local temperature difference from earth's
+average can be specified to correct the model to local conditions but this is 
+only a crude approximation.
+
+Conditions 5 km into the air:
+
+>>> atm = ATMOSPHERE_1976(5000)
+>>> atm.T, atm.P, atm.rho
+(255.67554322180348, 54048.28614576141, 0.7364284207799743)
+
+The standard also specifies simplistic formulas for calculating the thermal 
+conductivity, viscosity, speed of sound, and gravity at a given elevation:
+
+>>> atm.g, atm.mu, atm.k, atm.v_sonic
+(9.791241076982665, 1.628248135362207e-05, 0.02273190295142526, 320.5455196704035)
+
+Those property routines are static methods, and can be used without instantiating
+an atmosphere object:
+
+>>> ATMOSPHERE_1976.gravity(Z=1E5)
+9.505238763515356
+>>> ATMOSPHERE_1976.sonic_velocity(T=300)
+347.22080908230015
+>>> ATMOSPHERE_1976.viscosity(T=400)
+2.285266457680251e-05
+>>> ATMOSPHERE_1976.thermal_conductivity(T=400)
+0.033657148617592114
+
+ATMOSPHERE_NRLMSISE00 is the recommended model, and calculates atmospheric density,
+temperature, and pressure as a function of height, latitude/longitude, day of year, 
+and seconds since start of day. The model can also take into account solar and 
+geomagnetic disturbances which effect the atmosphere at very high elevations
+if more parameters are provided. It is valid up to 1000 km. This model
+is somewhat slow; it is a Python port of the fortran version, created by Joshua 
+Milas. It does not support gravity profiles or transport properties, but does 
+calculate the composition of the atmosphere (He, O, N2, O2, Ar, H2, N2 as 
+constituents).
+
+1000 m elevation, 45 degrees latitude and longitude, 150th day of year, 0 seconds in:
+
+>>> atm = ATMOSPHERE_NRLMSISE00(Z=1E3, latitude=45, longitude=45, day=150)
+>>> atm.T, atm.P, atm.rho
+(285.54408606237405, 90394.40851588511, 1.1019062026405517)
+
+The composition of the atmosphere is specified in terms of individual molecules/m^3:
+
+>>> atm.N2_density, atm.O2_density
+(1.7909954550444606e+25, 4.8047035072477747e+24)
+
+This model uses the ideal gas law to convert particle counts to mass density.
+Mole fractions of each species are available as well.
+
+>>> atm.components
+['N2', 'O2', 'Ar', 'He', 'O', 'H', 'N']
+>>> atm.zs
+[0.7811046347676225, 0.2095469403691101, 0.009343183088772914, 5.241774494627779e-06, 0.0, 0.0, 0.0]
+
+The horizontal wind models have almost the same API, and calculate wind speed
+and direction as a function of elevation, latitude, longitude, day of year and
+time of day. hwm93 can also take as an argument local geomagnetic conditions 
+and solar activity, but this effect was found to be so negligible it was removed
+from future versions of the model such as hwm14.
+
+Calculation of wind velocity, meridional (m/sec Northward) and zonal (m/sec
+Eastward) for 1000 m elevation, 45 degrees latitude and longitude, 150th day
+of year, 0 seconds in, with both models:
+
+>>> hwm93(Z=1000, latitude=45, longitude=45, day=150)
+[-0.0038965975400060415, 3.8324742317199707]
+>>> hwm14(Z=1000, latitude=45, longitude=45, day=150)
+[-0.9920163154602051, 0.4105832874774933]
+
+These wind velocities are only historical normals; conditions may vary year to 
+year. 
 
 

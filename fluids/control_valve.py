@@ -167,9 +167,9 @@ def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
 
     Examples
     --------
-    >>> is_choked_turbulent_l(460.0, 680.0, 70.1, 0.9442375225233299, 0.9)
+    >>> is_choked_turbulent_l(460.0, 680.0, 70.1, 0.94, 0.9)
     False
-    >>> is_choked_turbulent_l(460.0, 680.0, 70.1, 0.9442375225233299, 0.6)
+    >>> is_choked_turbulent_l(460.0, 680.0, 70.1, 0.94, 0.6)
     True
 
     References

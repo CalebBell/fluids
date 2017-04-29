@@ -737,16 +737,8 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None):
 
     Examples
     --------
-    >>> diffuser_conical(Di1=.1**0.5, Di2=1, angle=10., fd=0.020)
-    0.12301652230915454
-    >>> diffuser_conical(Di1=1/3., Di2=1, angle=50, fd=0.03) # 2
+    >>> diffuser_conical(Di1=1/3., Di2=1, angle=50, fd=0.03)
     0.8081340270019336
-    >>> diffuser_conical(Di1=2/3., Di2=1, angle=40, fd=0.03) # 3
-    0.32533470783539786
-    >>> diffuser_conical(Di1=1/3., Di2=1, angle=120, fd=0.0185) # #4
-    0.812308728765127
-    >>> diffuser_conical(Di1=2/3., Di2=1, angle=120, fd=0.0185) # Last
-    0.3282650135070033
 
     References
     ----------

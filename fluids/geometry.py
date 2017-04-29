@@ -1847,6 +1847,14 @@ class HelicalCoil(object):
        Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
     '''
+    def __repr__(self): # pragma : no cover
+        s = '<Helical coil, total height=%s m, total outer diameter=%s m, tube \
+outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_total, self.Dt, self.N, self.pitch)
+        if self.Di:
+             s += ', inside diameter %s m' %(self.Di)
+        s += '>'
+        return s
+
     def __init__(self, Dt, Do=None, pitch=None, H=None, N=None, H_total=None, 
                  Do_total=None, Di=None):
         # H goes from center of tube in bottom of coil to center of tube in top of coil

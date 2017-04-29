@@ -55,7 +55,9 @@ gamma = 1.400
 class ATMOSPHERE_1976(object):
     r'''US Standard Atmosphere 1976 class, which calculates `T`, `P`,
     `rho`, `v_sonic`, `mu`, `k`, and `g` as a function of altitude above 
-    sea level. 
+    sea level. Designed to provide reasonable results up to an elevation
+    of 86,000 m (0.4 Pa). The model is also valid under sea level, to
+    -610 meters.
     
     Parameters
     ----------
@@ -93,7 +95,7 @@ class ATMOSPHERE_1976(object):
     R = 8314.32
     
     @staticmethod
-    def get_ind_from_H(H):
+    def _get_ind_from_H(H):
         r'''Method defined in the US Standard Atmosphere 1976 for determining
         the index of the layer a specified elevation is above. Levels are 
         0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852 meters respectively.
@@ -217,7 +219,7 @@ class ATMOSPHERE_1976(object):
         self.Z = Z
         self.H = r0*self.Z/(r0+self.Z)
 
-        i = self.get_ind_from_H(self.H)
+        i = self._get_ind_from_H(self.H)
         self.T_layer = T_std[i]
         self.T_increase = T_grad[i]
         self.P_layer = P_std[i]
@@ -243,7 +245,7 @@ class ATMOSPHERE_1976(object):
 
 class ATMOSPHERE_NRLMSISE00(object):
     r'''NRLMSISE 00 model for calculating temperature and density of gases in
-    the atmosphere, from groud level to 1000 km, as a function of time of year,
+    the atmosphere, from ground level to 1000 km, as a function of time of year,
     longitude and latitude, solar activity and earth's geomagnetic disturbance.
     
     NRLMSISE standa for the `US Naval Research Laboratory Mass Spectrometer and
@@ -309,6 +311,13 @@ class ATMOSPHERE_NRLMSISE00(object):
         Density of monatomic nitrogen [count/m^3]
     O_anomalous_density : float
         Density of `anomalous` oxygen; see [1]_ for details [count/m^3]
+    particle_density : float
+        Total density of molecules [count/m^3]
+    components : list[str]
+        List of species making up the atmosphere [-]
+    zs : list[float]
+        Mole fractions of each molecule in the atmosphere, in order of 
+        `components` [-]
 
     Examples
     --------
@@ -394,6 +403,10 @@ class ATMOSPHERE_NRLMSISE00(object):
         # Calculate mass density with known MWs
         self.rho_calculated = sum([getattr(self, a)*MW for c, a, MW in 
                                    zip(self.components, self.atrrs, self.MWs)])/(1000.*N_A)
+        
+        self.particle_density = sum(getattr(self, a) for a in self.atrrs)
+        self.zs = [getattr(self, a)/self.particle_density for a in self.atrrs]
+
 
 def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150., 
           f107_avg=150., geomagnetic_disturbance_index=4):
@@ -516,6 +529,9 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     
     No patches were necessary to either the generated pyf or hwm14.f90 file,
     as the authors of [1]_ have made it F2PY compatible.
+    
+    Developed using 73 million data points taken by 44 instruments over 60 
+    years.
     
     References
     ----------

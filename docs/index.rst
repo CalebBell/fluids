@@ -10,13 +10,6 @@ fields of chemical, mechanical, or civil engineering. It includes modules
 for piping, fittings, pumps, tanks, compressible flow, open-channel flow,
 and more.
 
-The fluids library depends on the SciPy library to provide numerical constants,
-interpolation, integration, and numerical solving functionality. fluids runs on
-all operating systems which support Python, is quick to install, and is free
-of charge. fluids is designed to be easy to use while still providing powerful
-functionality. If you need to perform some fluid dynamics calculations, give
-fluids a try.
-
 .. image:: http://img.shields.io/pypi/v/fluids.svg?style=flat
    :target: https://pypi.python.org/pypi/fluids
    :alt: Version_status
