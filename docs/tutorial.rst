@@ -215,7 +215,7 @@ year.
 Compressor Sizing
 -----------------
 Both isothermal and isentropic/polytropic compression models are implemented in
-fluids. Isothermal compression calculates the work required to compress a gas from
+fluids.compressible. Isothermal compression calculates the work required to compress a gas from
 one pressure to another at a specified temperature. This is the best possible case 
 for compression; all actual compresssors require more work to do the compression.
 By making the compression take a large number of stages and cooling the gas
@@ -266,3 +266,55 @@ isentropic_T_rise_compression.
 
 It is more accurate to use an enthalpy-based model which incorporates departure
 functions.
+
+Polytropic exponents and efficiencies are convertible to isentropic exponents and
+efficiencies.  For the above example, with k=1.4 and `eta_s`=0.78:
+
+>>> eta_p = isentropic_efficiency(P1=1E5, P2=1E6, k=1.4, eta_s=0.78) # with eta_s specified, returns polytropic efficiency
+>>> n = polytropic_exponent(k=1.4, eta_p=eta_p)
+>>> eta_p, n
+(0.8376785349411107, 1.517631868575738)
+
+With those results, we can prove the calculation worked by calculating the
+work required using these polytropic inputs:
+
+>>> isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=n, eta=eta_p)
+10416.873455626452
+
+The work is the same as calculated with the original inputs. Note that the 
+conversion is specific to three inputs: Inlet pressure; outlet pressure;
+and isentropic exponent `k`. If any of those change, then the calculated
+polytropic exponent and efficiency will be different as well.
+
+To go in the reverse direction, we take the case of isentropic exponent 
+k =Cp/Cv=1.4, eta_p=0.83 The power is calculated to be:
+
+We first need to calculate the polytropic exponent from the polytropic
+efficiency:
+
+>>> n = polytropic_exponent(k=1.4, eta_p=0.83)
+>>> print(n)
+1.5249343832
+
+>>> isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=n, eta=0.83)
+10556.494602042329
+
+Converting polytropic efficiency to isentropic efficiency:
+
+>>> eta_s = isentropic_efficiency(P1=1E5, P2=1E6, k=1.4, eta_p=0.83)
+>>> print(eta_s)
+0.7588999047069671
+
+Checking the calculated power is the same:
+>>> isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=eta_s)
+10556.494602042327
+
+Gas pipeline sizing
+-------------------
+TODO
+
+
+
+
+
+

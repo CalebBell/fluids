@@ -283,8 +283,7 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
     P2 : float
         Final pressure of gas [Pa]
     k : float
-        Isentropic exponent of the gas (Cp/Cv) or polytropic exponent `n` to
-        use this as a polytropic model instead [-]
+        Isentropic exponent of the gas (Cp/Cv) [-]
     eta_s : float, optional
         Isentropic efficiency of the process, [-]
     eta_p : float, optional
@@ -320,8 +319,10 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
 
 
 def polytropic_exponent(k, n=None, eta_p=None):
-    r'''Calculates either the polytropic exponent from polytropic efficiency
-    or polytropic efficiency from the polytropic exponent.
+    r'''Calculates one of:
+    
+        * Polytropic exponent from polytropic efficiency
+        * Polytropic efficiency from the polytropic exponent
 
     .. math::
             n = \frac{k\eta_p}{1 - k(1-\eta_p)}
@@ -332,8 +333,7 @@ def polytropic_exponent(k, n=None, eta_p=None):
     Parameters
     ----------
     k : float
-        Isentropic exponent of the gas (Cp/Cv) or polytropic exponent `n` to
-        use this as a polytropic model instead [-]
+        Isentropic exponent of the gas (Cp/Cv) [-]
     eta_p : float, optional
         Polytropic efficiency of the process, [-]
     n : float, optional
@@ -342,7 +342,7 @@ def polytropic_exponent(k, n=None, eta_p=None):
     Returns
     -------
     n or eta_p : float
-        isentropic exponent or polytropic efficiency, depending on input, [-]
+        Polytropic exponent or polytropic efficiency, depending on input, [-]
 
     Notes
     -----
