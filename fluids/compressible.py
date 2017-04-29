@@ -1559,7 +1559,8 @@ pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
 
 
-def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, Ps=101325., Zavg=1, E=1):
+def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
+              Ps=101325., Zavg=1, E=1):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Fritzsche formula. Can calculate any of the following,
     given all other inputs:

@@ -56,7 +56,7 @@ then requested is returned:
 >>> Di
 0.57504
 
-Tank Geometry
+Tank geometry
 -------------
 
 Sizing of vessels and storage tanks is implemented in an object-oriented way 
@@ -117,14 +117,10 @@ surface area of the tank.
 >>> DIN.A_sideA, DIN.A_sideB, DIN.A_lateral, DIN.A
 (24.7496775831724, 24.7496775831724, 47.12388980384689, 96.62324497019169)
 
-Helical Coils
--------------
-As coils are often used in fluid dynamics calculations, a convenience class 
-to construct them is available, HelicalCoil.
 
 
 
-Atmospheric Properties
+Atmospheric properties
 ----------------------
 Four main classes are available to model the atmosphere. They are the
 US Standard Atmosphere 1976 (ATMOSPHERE_1976), a basic
@@ -212,7 +208,7 @@ These wind velocities are only historical normals; conditions may vary year to
 year. 
 
 
-Compressor Sizing
+Compressor sizing
 -----------------
 Both isothermal and isentropic/polytropic compression models are implemented in
 fluids.compressible. Isothermal compression calculates the work required to compress a gas from
@@ -306,6 +302,7 @@ Converting polytropic efficiency to isentropic efficiency:
 0.7588999047069671
 
 Checking the calculated power is the same:
+
 >>> isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=eta_s)
 10556.494602042327
 
@@ -369,7 +366,49 @@ A number of limitations exist with respect to the accuracy of this model:
 * As the gas expands, it will change temperature slightly, further
   altering the density and friction factor.
   
+We can explore how the gas density and friction factor effect the model using
+the `thermo library <https://github.com/CalebBell/thermo>`_ for chemical properties.
 
+Compute the downstream pressure of 50 kg/s of natural gas flowing in a 0.5 m 
+diameter pipeline for 1 km, roughness = 5E-5 m:
+ 
+>>> from thermo import *
+>>> from fluids import *
+>>> D = 0.5
+>>> L = 1000
+>>> epsilon = 5E-5
+>>> S1 = Stream('natural gas', P=1E6, m=50)
+>>> V = S1.Q/(pi/4*D**2)
+>>> Re = S1.Reynolds(D=D, V=V)
+>>> fd = friction_factor(Re=Re, eD=epsilon/D)
+>>> P2 = isothermal_gas(rho=S1.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)
+>>> 877852.8365849017
+
+In the above example, the friction factor was calculated using the density
+and velocity of the gas when it enters the stream. However, the average values,
+at the middle pressure, and more representative. We can iterate to observe
+the effect of using the average values:
+
+>>> for i in range(10):
+>>>     S2 = Stream('natural gas', P=0.5*(P2+S1.P), m=50)
+>>>     V = S2.Q/(pi/4*D**2)
+>>>     Re = S2.Reynolds(D=D, V=V)
+>>>     fd = friction_factor(Re=Re, eD=epsilon/D)
+>>>     P2 = isothermal_gas(rho=S2.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)
+>>>     print(P2)
+868992.832357
+868300.621412
+868246.236225
+868241.961444
+868241.625427
+868241.599014
+868241.596938
+868241.596775
+868241.596762
+868241.596761
+
+As can be seen, the system converges very quickly. The difference in calculated
+pressure drop is approximately 1%.
 
 
 
