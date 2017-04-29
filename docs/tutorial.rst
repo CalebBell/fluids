@@ -56,7 +56,6 @@ then requested is returned:
 >>> Di
 0.57504
 
-
 Tank Geometry
 -------------
 
@@ -143,7 +142,7 @@ only a crude approximation.
 
 Conditions 5 km into the air:
 
->>> atm = ATMOSPHERE_1976(5000)
+>>> atm = ATMOSPHERE_1976(Z=5000)
 >>> atm.T, atm.P, atm.rho
 (255.67554322180348, 54048.28614576141, 0.7364284207799743)
 
@@ -213,3 +212,57 @@ These wind velocities are only historical normals; conditions may vary year to
 year. 
 
 
+Compressor Sizing
+-----------------
+Both isothermal and isentropic/polytropic compression models are implemented in
+fluids. Isothermal compression calculates the work required to compress a gas from
+one pressure to another at a specified temperature. This is the best possible case 
+for compression; all actual compresssors require more work to do the compression.
+By making the compression take a large number of stages and cooling the gas
+between stages, this can be approached reasonable closely. Integrally 
+geared compressors are often used for this purpose.
+
+>>> isothermal_work_compression(P1=1E5, P2=1E6, T=300)
+5743.425357533477
+
+Work is calculated on a J/mol basis. If the second pressure is lower than the
+first, a negative work will result and you are modeling an expander instead
+of a compressor. Gas compressibility factor can also be specified. The lower
+the gas's compressibility factor, the less power required to compress it.
+
+>>> isothermal_work_compression(P1=1E6, P2=1E5, T=300)
+-5743.425357533475
+>>> isothermal_work_compression(P1=1E5, P2=1E6, T=300, Z=0.95)
+5456.2540896568025
+
+There is only one function implemented to model both isentropic and polytropic
+compressors, as the only difference is that a polytropic exponent `n` is used
+instead of the gas's isentropic exponent Cp/Cv `k` and the type of efficiency
+is changed. The model requires initial temperature, inlet and outlet pressure,
+isentropic exponent or polytropic exponent, and optionally an efficiency.
+
+Compressing air from 1 bar to 10 bar, with inlet temperature of 300 K and
+efficiency of 78%:
+
+>>> isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78) # work, J/mol
+10416.873455626454
+
+The model allows for the inlet or outlet pressure or efficiency to be calculated
+instead of the work:
+
+>>> isentropic_work_compression(T1=300, P1=1E5, P2=1E6, k=1.4, W=10416) # Calculate efficiency
+0.7800654085434559
+>>> isentropic_work_compression(T1=300, P1=1E5, k=1.4, W=10416, eta=0.78) # Calculate P2
+999858.5366533266
+>>> isentropic_work_compression(T1=300, P2=1E6, k=1.4, W=10416, eta=0.78) # Calculate P1
+100014.14833613831
+
+The approximate temperature rise can also be calculated with the function
+isentropic_T_rise_compression.
+
+>>> T2 = isentropic_T_rise_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78)
+>>> T2, T2-300 # outlet temperature and temperature rise, K
+(657.960664955096, 357.96066495509604)
+
+It is more accurate to use an enthalpy-based model which incorporates departure
+functions.

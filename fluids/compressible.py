@@ -81,6 +81,13 @@ def isothermal_work_compression(P1, P2, T, Z=1):
     An average compressibility factor can be used where Z changes. For further
     accuracy, this expression can be used repeatedly with small changes in
     pressure and the work from each step summed.
+    
+    This is the best possible case for compression; all actual compresssors 
+    require more work to do the compression.
+    
+    By making the compression take a large number of stages and cooling the gas
+    between stages, this can be approached reasonable closely. Integrally 
+    geared compressors are often used for this purpose.
 
     Examples
     --------
