@@ -708,7 +708,7 @@ def T_stagnation_ideal(T, V, Cp):
     return T + 0.5*V*V/Cp
 
 
-def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
+def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline for the complete isothermal flow equation. Can calculate any of
     the following, given all other inputs:
@@ -732,7 +732,7 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
     ----------
     rho : float
         Average density of gas in pipe, [kg/m^3]
-    f : float
+    fd : float
         Darcy friction factor for flow in pipe [-]
     P1 : float, optional
         Inlet pressure to pipe, [Pa]
@@ -770,10 +770,27 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
     The 2 multiplied by the logarithm is often shown  as a power of the
     pressure ratio; this is only the case when the pressure ratio is raised to
     the power of 2 before its logarithm is taken.
+    
+    A number of limitations exist for this model:
+        
+        * Density dependence is that of an ideal gas.
+        * If calculating the pressure drop, the average gas density cannot
+          be known immediately; iteration must be used to correct this.
+        * The friction factor depends on both the gas density and velocity,
+          so it should be solved for iteratively as well. It changes thoughout
+          the pipe as the gas expands and velocity increases.
+        * The model is not easily adapted to include elevation effects due to 
+          the acceleration term included in it.
+        * As the gas expands, it will change temperature slightly, further
+          altering the density and friction factor.
+         
+    There are many commercial packages which perform the actual direct 
+    integration of the flow, such as OLGA Dynamic Multiphase Flow Simulator,
+    or ASPEN Hydraulics.
 
     Examples
     --------
-    >>> isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000, D=0.5)
+    >>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, D=0.5)
     145.4847572636031
 
     References
@@ -787,26 +804,26 @@ def isothermal_gas(rho, f, P1=None, P2=None, L=None, D=None, m=None):
        2005.
     '''
     if m is None and (None not in [P1, P2, L, D]):
-        Pcf = P_isothermal_critical_flow(P=P1, fd=f, D=D, L=L)
+        Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
         if P2 < Pcf:
             raise Exception('Given outlet pressure is not physically possible \
 due to the formation of choked flow at P2=%f, specified outlet pressure was %f' % (Pcf, P2))
         if P2 > P1:
             raise Exception('Specified outlet pressure is larger than the \
 inlet pressure; fluid will flow backwards.')
-        return (pi**2/16*D**4*rho/P1/(f*L/D + 2*log(P1/P2))*(P1**2-P2**2))**0.5
+        return (pi**2/16*D**4*rho/P1/(fd*L/D + 2*log(P1/P2))*(P1**2-P2**2))**0.5
     elif L is None and (None not in [P1, P2, D, m]):
-        return D*(pi**2*D**4*rho*(P1**2 - P2**2) - 32*P1*m**2*log(P1/P2))/(16*P1*f*m**2)
+        return D*(pi**2*D**4*rho*(P1**2 - P2**2) - 32*P1*m**2*log(P1/P2))/(16*P1*fd*m**2)
     elif P1 is None and (None not in [L, P2, D, m]):
-        Pcf = P_upstream_isothermal_critical_flow(P=P2, fd=f, D=D, L=L)
+        Pcf = P_upstream_isothermal_critical_flow(P=P2, fd=fd, D=D, L=L)
 
         def to_solve(P1):
-            return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
+            return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
         try:
             # Use the explicit solution for P2 with different P1 guesses;
             # newton doesn't like solving for m.
             def to_solve_P2_basis(P1):
-                return abs(P2 - isothermal_gas(rho, f, m=m, P1=P1, P2=None, L=L, D=D))
+                return abs(P2 - isothermal_gas(rho, fd, m=m, P1=P1, P2=None, L=L, D=D))
             P1 = newton(to_solve_P2_basis, (P2+Pcf)/2.)
             assert P2 <= P1
             return P1
@@ -814,13 +831,17 @@ inlet pressure; fluid will flow backwards.')
             try:
                 return ridder(to_solve, a=P2, b=Pcf)
             except:
-                m_max = isothermal_gas(rho, f, P1=Pcf, P2=P2, L=L, D=D)
+                m_max = isothermal_gas(rho, fd, P1=Pcf, P2=P2, L=L, D=D)
                 raise Exception('The desired mass flow rate cannot be achieved \
 with the specified downstream pressure; the maximum flowrate is %f at an \
 upstream pressure of %f' %(m_max, Pcf))
     elif P2 is None and (None not in [L, P1, D, m]):
         try:
-            C = f*L/D
+            Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
+            m_max = isothermal_gas(rho, fd, P1=P1, P2=Pcf, L=L, D=D)
+            assert m <= m_max
+
+            C = fd*L/D
             B = (pi/4*D**2)**2*rho
             arg = -B/m**2*P1*exp(-(-C*m**2+B*P1)/m**2)
             # Consider the two real branches of the lambertw function.
@@ -832,18 +853,24 @@ upstream pressure of %f' %(m_max, Pcf))
             assert np.isfinite(lambert_ans)
             P2 = P1/exp((-C*m**2+lambert_ans*m**2+B*P1)/m**2/2.)
             assert P2 < P1
+            
+
             return P2
         except:
-            Pcf = P_isothermal_critical_flow(P=P1, fd=f, D=D, L=L)
+            Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
             def to_solve(P2):
-                return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
-#                return abs(m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D))
+                return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
+#                return abs(m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D))
 #            return fminbound(to_solve, x1=Pcf, x2=P1)
             try:
                 return ridder(to_solve, a=Pcf, b=P1)
+#                m_max = isothermal_gas(rho, fd, P1=P1, P2=Pcf, L=L, D=D)
+#                assert m < m_max
+#                assert P > Pcv
+#                return m
             except:
-                m_max = isothermal_gas(rho, f, P1=P1, P2=Pcf, L=L, D=D)
-                raise Exception('The desired mass flow rate cannot be achieved\
+                m_max = isothermal_gas(rho, fd, P1=P1, P2=Pcf, L=L, D=D)
+                raise Exception('The desired mass flow rate cannot be achieved \
 with the specified upstream pressure; the maximum flowrate is %f at an \
 downstream pressure of %f' %(m_max, Pcf))
             # A solver which respects its boundaries is required here.
@@ -852,7 +879,7 @@ downstream pressure of %f' %(m_max, Pcf))
             # leave the commented code for testing
     elif D is None and (None not in [P2, P1, L, m]):
         def to_solve(D):
-            return m - isothermal_gas(rho, f, P1=P1, P2=P2, L=L, D=D)
+            return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
         return newton(to_solve, 0.1)
     else:
         raise Exception('This function solves for either mass flow, upstream \

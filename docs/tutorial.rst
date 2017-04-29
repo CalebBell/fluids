@@ -311,8 +311,64 @@ Checking the calculated power is the same:
 
 Gas pipeline sizing
 -------------------
-TODO
 
+The standard isothermal compressible gas flow is fully implemented, and through
+a variety of numerical and analytical expressions, can solve for any of the
+following parameters:
+
+    * Mass flow rate
+    * Upstream pressure (numerical)
+    * Downstream pressure (analytical or numerical if an overflow occurs)
+    * Diameter of pipe (numerical)
+    * Length of pipe
+
+Solve for the mass flow rate of gas (kg/s) flowing through a 1 km long 0.5 m
+inner diameter pipeline, initially at 10 bar with a density of 11.3 kg/m^3
+going downstream to a pressure of 9 bar.
+
+>>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, D=0.5)
+145.4847572636031
+
+The same case, but sizing the pipe to take 100 kg/s of gas:
+
+>>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, m=100)
+0.42971708911060613
+
+The same case, but determining what the outlet pressure will be if 200 kg/s
+flow in the 0.5 m diameter pipe:
+
+>>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, D=0.5, L=1000, m=200)
+784701.0681827427
+
+Determining pipe length from known diameter, pressure drop, and mass flow
+(possible but not necessarily useful):
+
+>>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, D=0.5, m=150)
+937.3258027759333
+
+Not all specified mass flow rates are possible. At a certain downstream
+pressure, chocked flow will develop - that downstream pressure is that
+at which the mass flow rate reaches a maximum. An exception will be
+raised if such an input is specified:
+
+>>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, L=1000, D=0.5, m=260)
+Exception: The desired mass flow rate cannot be achieved with the specified upstream pressure; the maximum flowrate is 257.216733 at an downstream pressure of 389699.731765
+>>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=3E5, L=1000, D=0.5)
+Exception: Given outlet pressure is not physically possible due to the formation of choked flow at P2=389699.731765, specified outlet pressure was 300000.000000
+
+A number of limitations exist with respect to the accuracy of this model:
+    
+* Density dependence is that of an ideal gas.
+* If calculating the pressure drop, the average gas density cannot
+  be known immediately; iteration must be used to correct this.
+* The friction factor depends on both the gas density and velocity,
+  so it should be solved for iteratively as well. It changes throughout
+  the pipe as the gas expands and velocity increases.
+* The model is not easily adapted to include elevation effects due to 
+  the acceleration term included in it.
+* As the gas expands, it will change temperature slightly, further
+  altering the density and friction factor.
+  
 
 
 
