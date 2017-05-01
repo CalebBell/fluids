@@ -313,11 +313,11 @@ The standard isothermal compressible gas flow is fully implemented, and through
 a variety of numerical and analytical expressions, can solve for any of the
 following parameters:
 
-    * Mass flow rate
-    * Upstream pressure (numerical)
-    * Downstream pressure (analytical or numerical if an overflow occurs)
-    * Diameter of pipe (numerical)
-    * Length of pipe
+* Mass flow rate
+* Upstream pressure (numerical)
+* Downstream pressure (analytical or numerical if an overflow occurs)
+* Diameter of pipe (numerical)
+* Length of pipe
 
 Solve for the mass flow rate of gas (kg/s) flowing through a 1 km long 0.5 m
 inner diameter pipeline, initially at 10 bar with a density of 11.3 kg/m^3
@@ -352,6 +352,12 @@ raised if such an input is specified:
 Exception: The desired mass flow rate cannot be achieved with the specified upstream pressure; the maximum flowrate is 257.216733 at an downstream pressure of 389699.731765
 >>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=3E5, L=1000, D=0.5)
 Exception: Given outlet pressure is not physically possible due to the formation of choked flow at P2=389699.731765, specified outlet pressure was 300000.000000
+
+The downstream pressure at which chocked flow occurs can be calculated directly
+as well:
+
+>>> P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
+389699.7317645518
 
 A number of limitations exist with respect to the accuracy of this model:
     
@@ -410,6 +416,75 @@ the effect of using the average values:
 As can be seen, the system converges very quickly. The difference in calculated
 pressure drop is approximately 1%.
 
+Gas pipeline sizing: Empirical equations
+----------------------------------------
+In addition to the actual model, many common simplifications used in industry
+are implemented as well. These are equally capable of solving for any of the
+following inputs:
+
+* Mass flow rate
+* Upstream pressure
+* Downstream pressure
+* Diameter of pipe
+* Length of pipe
+
+None of these models include an acceleration term. In addition to reducing 
+their accuracy, it allows all solutions for the above variables to be analytical.
+These models cannot predict the occurrence of chocked flow, and model only
+turbulent, not laminar, flow. Most of these models do not depend on the gas's
+viscosity.
+
+Rather than using mass flow rate, they use specific gravity and volumetric 
+flow rate. The volumetric flow rate is specified with respect to a reference
+temperature and pressure. The defaults are 288.7 K and 101325 Pa, dating to
+the old imperial standard of 60° F. The specific gravity is with respect to 
+air at the reference conditions. As the ideal gas law is used in each of 
+these models, in addition to pressure and specific gravity the average 
+temperature in the pipeline is required. Average compressibility factor is
+an accepted input to all models and corrects the ideal gas law's ideality. 
+
+The full list of approximate models is as follows:
+
+* Panhandle_A
+* Panhandle_B
+* Weymouth
+* Oliphant
+* Fritzsche
+* Muller
+* IGT
+* Spitzglass_high
+* Spitzglass_low
+
+As an example, calculating flow for a pipe with diameter 0.34 m, upstream 
+pressure 90 bar and downstream pressure 20 bar, 160 km long, 0.693 specific
+gravity and with an average temperature in the pipeline of 277.15 K:
+
+>>> Panhandle_A(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15)
+42.56082051195928
+
+Each model also includes a pipeline efficiency term, ranging from 0 to 1. These
+are just empirical correction factors, Some of the models were developed with 
+theory and a correction factor applied always; others are more empirical, and
+have a default correction factor. 0.92 is the default for the Panhandle A/B,
+Weymouth, and Oliphant models; the rest default to a correction of 1 i.e. no
+correction at all.
+
+The Muller and IGT models are the most accurate and recent approximations.
+They both depend on viscosity.
+
+>>> Muller(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, mu=1E-5, Tavg=277.15)
+60.45796698148659
+>>> IGT(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, mu=1E-5, Tavg=277.15)
+48.92351786788815
+
+These empirical models are included because they are mandated in many industrial
+applications regardless of their accuracy, and correction factors have already 
+been determined.
+
+A great deal of effort was spent converting these models to base SI units
+and checking the coefficients used in each model with multiple sources. 
+In many cases multiple sets of coefficients are available for a model;
+the most authoritative or common ones were used in those cases.
 
 
 
