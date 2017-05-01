@@ -193,6 +193,9 @@ def test_core_misc2():
     
     L_D = L_equiv_from_K(3.6)
     assert_allclose(L_D, 240.)
+    
+    L = L_from_K(K=6, fd=0.018, D=.3)
+    assert_allclose(L, 100)
 
     dP = dP_from_K(K=10, rho=1000, V=3)
     assert_allclose(dP, 45000)

@@ -31,7 +31,8 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Jakob', 'Power_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
 'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
-'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'dP_from_K', 'head_from_K', 'head_from_P',
+'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'L_from_K', 'dP_from_K', 
+'head_from_K', 'head_from_P',
 'P_from_head', 'Eotvos']
 
 
@@ -48,10 +49,10 @@ def thermal_diffusivity(k, rho, Cp):
     ----------
     k : float
         Thermal conductivity, [W/m/K]
-    Cp : float
-        Heat capacity, [J/kg/K]
     rho : float
         Density, [kg/m^3]
+    Cp : float
+        Heat capacity, [J/kg/K]
 
     Returns
     -------
@@ -63,7 +64,7 @@ def thermal_diffusivity(k, rho, Cp):
 
     Examples
     --------
-    >>> thermal_diffusivity(0.02, 1., 1000.)
+    >>> thermal_diffusivity(k=0.02, rho=1., Cp=1000.)
     2e-05
 
     References
@@ -107,7 +108,7 @@ def c_ideal_gas(T, k, MW):
 
     Examples
     --------
-    >>> c_ideal_gas(1.4, 303., 28.96)
+    >>> c_ideal_gas(T=303, k=1.4, MW=28.96)
     348.9820361755092
 
     References
@@ -326,7 +327,7 @@ def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
 
     Examples
     --------
-    >>> Fourier_heat(1.5, 2, 1000., 4000., 0.6)
+    >>> Fourier_heat(t=1.5, L=2, rho=1000., Cp=4000., k=0.6)
     5.625e-08
     >>> Fourier_heat(1.5, 2, alpha=1E-7)
     3.75e-08
@@ -341,8 +342,8 @@ def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
     if rho and Cp and k:
         alpha =  k/(rho*Cp)
     elif not alpha:
-        raise Exception('Either heat capacity and thermal conductivity and\
-        density, or thermal diffusivity is needed')
+        raise Exception('Either heat capacity and thermal conductivity and \
+density, or thermal diffusivity is needed')
     return t*alpha/L**2
 
 
@@ -374,7 +375,7 @@ def Fourier_mass(t, L, D):
 
     Examples
     --------
-    >>> Fourier_mass(1.5, 2, 1E-9)
+    >>> Fourier_mass(t=1.5, L=2, D=1E-9)
     3.7500000000000005e-10
 
     References
@@ -2076,7 +2077,7 @@ def K_from_L_equiv(L_D, fd=0.015):
 
     Examples
     --------
-    >>> K_from_L_equiv(240.)
+    >>> K_from_L_equiv(240)
     3.5999999999999996
     '''
     return fd*L_D
@@ -2111,6 +2112,35 @@ def L_equiv_from_K(K, fd=0.015):
     240.00000000000003
     '''
     return K/fd
+
+
+def L_from_K(K, D, fd=0.015):
+    r'''Calculates the length of straight pipe at a specified friction factor
+    required to produce a given loss coefficient `K`.
+
+    .. math::
+        L = \frac{K D}{f_d}
+
+    Parameters
+    ----------
+    K : float
+        Loss coefficient, []
+    fd : float
+        friction factor of pipe, []
+    D : float
+        Inner diameter of pipe, [m]
+
+    Returns
+    -------
+    L : float
+        Length of pipe, [m]
+
+    Examples
+    --------
+    >>> L_from_K(K=6, fd=0.018, D=.3)
+    100.0
+    '''
+    return K*D/fd
 
 
 def dP_from_K(K, rho, V):

@@ -27,11 +27,97 @@ diameter pipe at 1.5 m/s:
 >>> fluids.core.Prandtl(rho=1000, mu=1E-3, Cp=4200, k=0.6)
 7.000000000000001
 
+Where different parameters may be used with a dimentionless number, either
+a separate function is created for each or both sets of parameters are can
+be specified. For example, instead of specifying viscosity and density for the
+Reynolds number calculation, kinematic viscosity could have been used instead:
 
+>>> Reynolds(D=0.01, V=1.5, nu=1E-6)
+15000.0
 
+In the case of groups like the Fourier number, used in both heat and mass
+transfer, two separate functions are available, `Fourier_heat` and 
+`Fourier_mass`. The heat transfer version supports specifying either the 
+density, heat capacity, and thermal conductivity - or just the thermal 
+diffusivity. There is no equivalent set of three parameters for the mass
+transfer version; it always requires mass diffusivity.
 
+>>> Fourier_heat(t=1.5, L=2, rho=1000., Cp=4000., k=0.6)
+5.625e-08
+>>> Fourier_heat(1.5, 2, alpha=1E-7)
+3.75e-08
+>>> Fourier_mass(t=1.5, L=2, D=1E-9)
+3.7500000000000005e-10
+
+Miscellaneous utilities
+-----------------------
+More than just dimensionless groups are implemented in fluids.core.
+
+Converters between loss coefficient, L/D equivalent, length of pipe, and
+pressure drop are available.
+It is recommended to convert length/diameter equivalents and lengths of pipe
+at specified friction factors to loss coefficients. They can all be summed
+easily afterwards.
+
+>>> K_from_f(fd=0.018, L=100., D=.3)
+6.0
+>>> K_from_L_equiv(L_D=240, fd=0.02)
+4.8
+
+Either head loss or pressure drop can be calculated once the total loss 
+coefficient K is known. Head loss does not require knowledge of the fluid's
+density, but pressure drop does.
+
+>>> dP_from_K(K=(6+4.8), rho=1000, V=3)
+48600.0
+
+>>> head_from_K(K=(6+4.8), V=3)
+4.955820795072732
+
+If a K value is known and desired to be converted to a L/D ratio or to an
+equivalent length of pipe, that calculation is available as well:
+
+>>> L_equiv_from_K(3.6, fd=0.02)
+180.0
+>>> L_from_K(K=6, fd=0.018, D=.3)
+100.0
+
+Pressure and head are also convertible with the following functions:
+
+>>> head_from_P(P=98066.5, rho=1000)
+10.000000000000002
+>>> P_from_head(head=5., rho=800.)
+39226.6
+
+Also implemented in fluids.core are the following:
+
+Thermal diffisivity:
+
+>>> thermal_diffusivity(k=0.02, rho=1., Cp=1000.)
+2e-05
+
+Speed of sound in an ideal gas (requires temperature, isentropic exponent Cp/Cv):
+
+>>> c_ideal_gas(T=303, k=1.4, MW=28.96)
+348.9820361755092
+
+A converter between dynamic and kinematic viscosity:
+
+>>> nu_mu_converter(rho=998., nu=1.0E-6)
+0.000998
+>>> nu_mu_converter(998., mu=0.000998)
+1e-06
+
+Calculation of gravity on earth as a function of height and latitude (input
+in degrees and height in meters):
+
+>>> gravity(latitude=55, H=1E6)
+6.729011976863571
+
+    
 Friction factors
 ----------------
+
 
 >>> epsilon = 1.5E-6 # m, clean steel
 >>> fluids.friction.friction_factor(Re=15000, eD=epsilon/0.01)
@@ -40,6 +126,9 @@ Friction factors
 The transition to laminar flow is implemented abruptly at Re=2320.
 Friction factor in curved pipes in available as friction_factor_curved.
 
+
+Pipe Schedules
+--------------
 ASME/ANSI pipe tables from B36.10M-2004 and B36-19M-2004 are implemented 
 in fluids.piping.
 
@@ -116,6 +205,13 @@ surface area of the tank.
 
 >>> DIN.A_sideA, DIN.A_sideB, DIN.A_lateral, DIN.A
 (24.7496775831724, 24.7496775831724, 47.12388980384689, 96.62324497019169)
+
+Miscellaneous geometry
+----------------------
+In addition to sizing all sorts of tanks, helical coils are supported and so are 
+and a number of other simple calculations.
+
+
 
 
 
@@ -485,6 +581,62 @@ A great deal of effort was spent converting these models to base SI units
 and checking the coefficients used in each model with multiple sources. 
 In many cases multiple sets of coefficients are available for a model;
 the most authoritative or common ones were used in those cases.
+
+
+
+Drag and terminal velocity
+--------------------------
+A number of spherical particle drag correlations are implemented.
+
+In the simplest case, consider a spherical particle of diameter D=1 mm,
+density=3400 kg/m^3, traveling at 30 m/s in air with viscosity mu=1E-5 Pa*s
+and density 1.2 kg/m^3.
+
+We calculate the particle Reynolds number:
+
+>>> Re = Reynolds(V=30, rho=1.2, mu=1E-5, D=1E-3)
+>>> Re
+3599.9999999999995
+
+The drag coefficient `Cd` can be calculated with no other parameters:
+
+>>> drag_sphere(Re)
+0.3914804681941151
+
+The terminal velocity of the particle is easily calculated with the 
+`v_terminal` function. 
+
+>>> v_terminal(D=1E-3, rhop=3400, rho=1.2, mu=1E-5)
+8.971223953182939
+
+Very often, we are not interested in just what the velocity of the particle will
+be at terminal conditions, but on the distance it will travel and the particle will
+never have time to reach terminal conditions. An integrating function is available 
+to do that. Consider that same particle being shot directly down from a helicopter
+100 m high. 
+
+The integrating function, integrate_drag_sphere, performs the integral with respect
+to time. At one second, we can see the (velocity, distance travelled):
+
+>>> integrate_drag_sphere(D=1E-3, rhop=3400., rho=1.2, mu=1E-5, t=1, V=30, distance=True)
+(10.561878111154627, 15.60790417764922)
+
+After integrating to 10 seconds, we can see the particle has travelled 97 meters and is
+almost on the ground. 
+
+>>> integrate_drag_sphere(D=1E-3, rhop=3400., rho=1.2, mu=1E-5, t=10, V=30, distance=True)
+(8.971223987066322, 97.13276290361276)
+
+For this example simply using the terminal velocity would have given an accurate estimation
+of distance travelled:
+
+>>> 8.971223953182939*10
+89.7122395318294
+
+Many engineering applications such as direct contact condensers do operate far from terminal
+velocity however, and this function is useful there.
+
+
 
 
 

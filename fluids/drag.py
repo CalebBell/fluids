@@ -43,7 +43,8 @@ def Stokes(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -78,7 +79,8 @@ def Barati(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -125,7 +127,8 @@ def Barati_high(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -171,7 +174,8 @@ def Rouse(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -210,7 +214,8 @@ def Engelund_Hansen(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -251,7 +256,8 @@ def Clift_Gauvin(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -298,7 +304,8 @@ def Morsi_Alexander(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -354,7 +361,8 @@ def Graf(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -395,7 +403,8 @@ def Flemmer_Banks(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -436,7 +445,8 @@ def Khan_Richardson(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -478,7 +488,8 @@ def Swamee_Ojha(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -519,7 +530,8 @@ def Yen(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -559,7 +571,8 @@ def Haider_Levenspiel(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -600,7 +613,8 @@ def Cheng(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -641,7 +655,8 @@ def Terfous(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -682,7 +697,8 @@ def Mikhailov_Freire(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -733,7 +749,8 @@ def Clift(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -792,7 +809,8 @@ def Ceylan(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -845,7 +863,8 @@ def Almedeij(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -892,7 +911,8 @@ def Morrison(Re):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -973,7 +993,8 @@ def drag_sphere(Re, AvailableMethods=False, Method=None):
     Parameters
     ----------
     Re : float
-        Reynolds number of the sphere, [-]
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
 
     Returns
     -------
@@ -1082,7 +1103,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
         return (V-V2)
     return fsolve(err, 1.)'''
     v_lam = g*D**2*(rhop-rho)/(18*mu)
-    Re_lam = Reynolds(V=v_lam, D=D, rho=rhop, mu=mu)
+    Re_lam = Reynolds(V=v_lam, D=D, rho=rho, mu=mu)
     if Re_lam < 0.01:
         return v_lam
 
