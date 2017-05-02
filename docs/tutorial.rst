@@ -209,11 +209,29 @@ surface area of the tank.
 Miscellaneous geometry
 ----------------------
 In addition to sizing all sorts of tanks, helical coils are supported and so are 
-and a number of other simple calculations.
+a number of other simple calculations.
 
+Sphericity is implemented, requiring a calculated surface area and volume. 
+For a cube of side length 3, the surface area is 6*a^2=54 and volume a^3=27.
+Its sphericity is then:
 
+>>> sphericity(A=54, V=27)
+0.8059959770082346
 
+Aspect ratio of a rectangle 0.2 m by 2 m:
 
+>>> aspect_ratio(.2, 2)
+0.1
+
+Circularity, a parameter used to characterize 2d images of particles, is implemented.
+For a rectangle, one side length = 1, second side length = 100:
+
+>>> D1 = 1
+>>> D2 = 100
+>>> A = D1*D2
+>>> P = 2*D1 + 2*D2
+>>> circularity(A, P)
+0.030796908671598795
 
 
 Atmospheric properties

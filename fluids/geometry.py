@@ -1928,16 +1928,29 @@ def sphericity(A, V):
     -------
     Psi : float
         Sphericity [-]
+        
+    Notes
+    -----
+    All non-spherical particles have spericities less than 1 but greater than 0.
+    Many common geometrical shapes have their results calculated exactly in [2]_.
 
     Examples
     --------
     >>> sphericity(10., 2.)
     0.767663317071005
 
+    For a cube of side length a=3, the surface area is 6*a^2=54 and volume a^3=27.
+    Its sphericity is then:
+    
+    >>> sphericity(A=54, V=27)
+    0.8059959770082346
+
     References
     ----------
     .. [1] Rhodes, Martin J., ed. Introduction to Particle Technology. 2E.
        Chichester, England ; Hoboken, NJ: Wiley, 2008.
+    .. [2] "Sphericity." Wikipedia, March 8, 2017. 
+       https://en.wikipedia.org/w/index.php?title=Sphericity&oldid=769183043
     '''
     return pi**(1/3.)*(6*V)**(2/3.)/A
 
@@ -1975,6 +1988,9 @@ def circularity(A, P):
     .. math::
         f_{circ} = \frac {4 \pi A} {P^2}
 
+    Defined to be 1 for a circle. Used to characterize particles. Any 
+    non-circular shape must have a circularity less than one.
+    
     Parameters
     ----------
     A : float
@@ -1989,8 +2005,19 @@ def circularity(A, P):
 
     Examples
     --------
-    >>> circularity(1.5, .1)
-    1884.9555921538756
+    Square, side length = 2 (all squares are the same):
+        
+    >>> circularity(A=(2*2), P=4*2)
+    0.7853981633974483
+    
+    Rectangle, one side length = 1, second side length = 100
+    
+    >>> D1 = 1
+    >>> D2 = 100
+    >>> A = D1*D2
+    >>> P = 2*D1 + 2*D2
+    >>> circularity(A, P)
+    0.030796908671598795
     '''
     return 4*pi*A/P**2
 
