@@ -41,7 +41,7 @@ which wraps all of the fluids functions with np.vectorize. Instead of importing
 from fluids, the user can import from fluids.vectorized:
 
 >>> from fluids.vectorized import *
->>> fluids.vectorized.friction_factor(Re=[100, 1000, 10000], eD=0)
+>>> friction_factor(Re=[100, 1000, 10000], eD=0)
 array([ 0.64      ,  0.064     ,  0.03088295])
 
 Dimentionless numbers
