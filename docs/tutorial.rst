@@ -14,6 +14,36 @@ All functions are available from either the main fluids module or the
 submodule; i.e. both fluids.friction_factor and 
 fluids.friction.friction_factor are valid ways of accessing a function.
 
+Design philosophy
+-----------------
+Like all libraries, this was developed to scratch my own itches. Since its
+public release it has been found useful by many others, from students across 
+the world to practicing engineers at some of the world's largest companies.
+
+The bulk of this library's API is considered stable; enhancements to 
+functions and classes will still happen, and default methods when using a generic 
+correlation interface may change to newer and more accurate correlations as
+they are published and reviewed.
+
+To the extent possible, correlations are implemented depending on the highest
+level parameters. The friction_factor correlation does not accept pipe diameter,
+velocity, viscosity, density, and roughness - it accepts Reynolds number and
+relative roughness. This makes the API cleaner and encourages modular design.
+
+The standard math library is used in all functions except where special
+functions from numpy or scipy are necessary. SciPy is used for root finding,
+interpolation, scientific constants, ode integration, and its many special
+mathematical functions not present in the standard math library. No other 
+libraries will become required dependencies; anything else is optional.
+
+To allow use of numpy arrays with fluids, a `vectorized` module is implemented,
+which wraps all of the fluids functions with np.vectorize. Instead of importing
+from fluids, the user can import from fluids.vectorized:
+
+>>> from fluids.vectorized import *
+>>> fluids.vectorized.friction_factor(Re=[100, 1000, 10000], eD=0)
+array([ 0.64      ,  0.064     ,  0.03088295])
+
 Dimentionless numbers
 ---------------------
 
