@@ -231,7 +231,7 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
         return _nps, _di, _do, _t
 
     # If accidentally given numerical schedule, convert to string
-    if type(1) == type(schedule) or type(1.1) == type(schedule):
+    if isinstance(schedule, (int, float)):
         schedule = str(int(schedule))
 
     if schedule == '40':
@@ -368,16 +368,16 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
     Parameters
     ----------
     t : float
-        Thickness, [m]
+        Thickness, [m or inches if SI is False]
     SI : bool, optional
-        If False, value in inches is returned, rather than m.
+        If False, expects thickness to be given in inches not meters
     schedule : str
         Gauge schedule, one of 'BWG', 'AWG', 'SWG', 'MWG', 'BSWG', or 'SSWG'
 
     Returns
     -------
     gauge : float-like
-        Wire Gauge, []
+        Wire Gauge, [-]
 
     Notes
     -----
@@ -387,22 +387,17 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
     this function can return a gauge with a thickness smaller than desired
     in some circumstances.
 
-    Birmingham Wire Gauge (BWG) ranges from 0.2 (0.5 inch) to 36 (0.004 inch).
-
-    American Wire Gauge (AWG) ranges from 0.167 (0.58 inch) to 51 (0.00099
-    inch). These are used for electrical wires.
-
-    Steel Wire Gauge (SWG) ranges from 0.143 (0.49 inch) to 51 (0.0044 inch).
-    Also called Washburn & Moen wire gauge, American Steel gauge, Wire Co.
-    gauge, and Roebling wire gauge.
-
-    Music Wire Gauge (MWG) ranges from 0.167 (0.004 inch) to 46 (0.18
-    inch). Also called Piano Wire Gauge.
-
-    British Standard Wire Gage (BSWG) ranges from 0.143 (0.5 inch) to
-    51 (0.001 inch). Also called Imperial Wire Gage (IWG).
-
-    Stub's Steel Wire Gage (SSWG) ranges from 1 (0.227 inch) to 80 (0.013 inch)
+    * Birmingham Wire Gauge (BWG) ranges from 0.2 (0.5 inch) to 36 (0.004 inch).
+    * American Wire Gauge (AWG) ranges from 0.167 (0.58 inch) to 51 (0.00099
+      inch). These are used for electrical wires.
+    * Steel Wire Gauge (SWG) ranges from 0.143 (0.49 inch) to 51 (0.0044 inch).
+      Also called Washburn & Moen wire gauge, American Steel gauge, Wire Co.
+      gauge, and Roebling wire gauge.
+    * Music Wire Gauge (MWG) ranges from 0.167 (0.004 inch) to 46 (0.18
+      inch). Also called Piano Wire Gauge.
+    * British Standard Wire Gage (BSWG) ranges from 0.143 (0.5 inch) to
+      51 (0.001 inch). Also called Imperial Wire Gage (IWG).
+    * Stub's Steel Wire Gage (SSWG) ranges from 1 (0.227 inch) to 80 (0.013 inch)
 
     Examples
     --------
@@ -470,26 +465,22 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
     Returns
     -------
     t : float
-        Thickness, [m]
+        Thickness, [m or inches if SI is False]
 
     Notes
     -----
-    Birmingham Wire Gauge (BWG) ranges from 0.2 (0.5 inch) to 36 (0.004 inch).
-
-    American Wire Gauge (AWG) ranges from 0.167 (0.58 inch) to 51 (0.00099
-    inch). These are used for electrical wires.
-
-    Steel Wire Gauge (SWG) ranges from 0.143 (0.49 inch) to 51 (0.0044 inch).
-    Also called Washburn & Moen wire gauge, American Steel gauge, Wire Co.
-    gauge, and Roebling wire gauge.
-
-    Music Wire Gauge (MWG) ranges from 0.167 (0.004 inch) to 46 (0.18
-    inch). Also called Piano Wire Gauge.
-
-    British Standard Wire Gage (BSWG) ranges from 0.143 (0.5 inch) to
-    51 (0.001 inch). Also called Imperial Wire Gage (IWG).
-
-    Stub's Steel Wire Gage (SSWG) ranges from 1 (0.227 inch) to 80 (0.013 inch)
+    
+    * Birmingham Wire Gauge (BWG) ranges from 0.2 (0.5 inch) to 36 (0.004 inch).
+    * American Wire Gauge (AWG) ranges from 0.167 (0.58 inch) to 51 (0.00099
+      inch). These are used for electrical wires.
+    * Steel Wire Gauge (SWG) ranges from 0.143 (0.49 inch) to 51 (0.0044 inch).
+      Also called Washburn & Moen wire gauge, American Steel gauge, Wire Co.
+      gauge, and Roebling wire gauge.
+    * Music Wire Gauge (MWG) ranges from 0.167 (0.004 inch) to 46 (0.18
+      inch). Also called Piano Wire Gauge.
+    * British Standard Wire Gage (BSWG) ranges from 0.143 (0.5 inch) to
+      51 (0.001 inch). Also called Imperial Wire Gage (IWG).
+    * Stub's Steel Wire Gage (SSWG) ranges from 1 (0.227 inch) to 80 (0.013 inch)
 
     Examples
     --------
@@ -504,15 +495,15 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
     try:
         sch_integers, sch_inch, sch_SI, decreasing = wire_schedules[schedule]
     except:
-        raise ValueError('Wire gauge schedule not found')
+        raise ValueError("Wire gauge schedule not found; supported gauges are \
+'BWG', 'AWG', 'SWG', 'MWG', 'BSWG', and 'SSWG'.")
 
     try:
         i = sch_integers.index(gauge)
     except:
         raise ValueError('Input gauge not found in selected schedule')
     if SI:
-        t = sch_SI[i]
+        return sch_SI[i] # returns thickness in m
     else:
-        t = sch_inch[i]
-    return t
+        return sch_inch[i] # returns thickness in inch
 

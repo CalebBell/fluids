@@ -515,7 +515,7 @@ def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
     >>> API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, Kb=1, Kc=1)
     0.0036990460646834414
 
-    Example 2 from [2]_ for sub-critical flow, matches:
+    Example 2 from [1]_ for sub-critical flow, matches:
 
     >>> API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, P2=532E3, Kd=0.975, Kb=1, Kc=1)
     0.004248358775943481

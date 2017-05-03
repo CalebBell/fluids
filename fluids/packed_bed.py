@@ -67,7 +67,8 @@ def Ergun(dp, voidage, vs, rho, mu, L=1):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -130,7 +131,8 @@ def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -192,7 +194,8 @@ def Jones_Krier(dp, voidage, vs, rho, mu, L=1):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -251,7 +254,8 @@ def Carman(dp, voidage, vs, rho, mu, L=1):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -281,7 +285,7 @@ def Carman(dp, voidage, vs, rho, mu, L=1):
     .. [2] Erdim, Esra, Ömer Akgiray, and İbrahim Demir. "A Revisit of Pressure
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
-    .. [2] Allen, K. G., T. W. von Backstrom, and D. G. Kroger. "Packed Bed
+    .. [3] Allen, K. G., T. W. von Backstrom, and D. G. Kroger. "Packed Bed
        Pressure Drop Dependence on Particle Shape, Size Distribution, Packing
        Arrangement and Roughness." Powder Technology 246 (September 2013):
        590-600. doi:10.1016/j.powtec.2013.06.022.
@@ -310,7 +314,8 @@ def Hicks(dp, voidage, vs, rho, mu, L=1):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -341,7 +346,7 @@ def Hicks(dp, voidage, vs, rho, mu, L=1):
     .. [2] Erdim, Esra, Ömer Akgiray, and İbrahim Demir. "A Revisit of Pressure
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
-    .. [2] Allen, K. G., T. W. von Backstrom, and D. G. Kroger. "Packed Bed
+    .. [3] Allen, K. G., T. W. von Backstrom, and D. G. Kroger. "Packed Bed
        Pressure Drop Dependence on Particle Shape, Size Distribution, Packing
        Arrangement and Roughness." Powder Technology 246 (September 2013):
        590-600. doi:10.1016/j.powtec.2013.06.022.
@@ -371,7 +376,8 @@ def Brauer(dp, voidage, vs, rho, mu, L=1):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -432,7 +438,8 @@ def KTA(dp, voidage, vs, rho, mu, L=1):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -447,7 +454,8 @@ def KTA(dp, voidage, vs, rho, mu, L=1):
 
     Notes
     -----
-    Developed for gas flow through pebbles.
+    Developed for gas flow through pebbles in nuclear reactors.
+    
     In [2]_, stated as for a range of :math:`1 < RE_{Erg} <100,000`.
     In [1]_, a limit on porosity is stated as :math:`0.36 < \epsilon < 0.42`.
 
@@ -489,7 +497,8 @@ def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -555,7 +564,8 @@ def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -614,7 +624,8 @@ def Idelchik(dp, voidage, vs, rho, mu, L=1):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -679,7 +690,8 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -745,7 +757,8 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -842,7 +855,8 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
     voidage : float
         Void fraction of bed packing [-]
     vs : float
-        Superficial velocity of the fluid [m/s]
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
@@ -935,7 +949,8 @@ def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
     Parameters
     ----------
     Dpe : float
-        Equivalent spherical particle diameter, [m]
+        Equivalent spherical particle diameter (diameter of a sphere with the 
+        same volume), [m]
     Dt : float
         Diameter of the tube, [m]
     sphericity : float
@@ -952,7 +967,7 @@ def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
 
     Examples
     --------
-    >>> voidage_Benyahia_Oneil(1E-3, 1E-2, .8)
+    >>> voidage_Benyahia_Oneil(Dpe=1E-3, Dt=1E-2, sphericity=.8)
     0.41395363849210065
 
     References
@@ -993,7 +1008,7 @@ def voidage_Benyahia_Oneil_spherical(Dp, Dt):
 
     Examples
     --------
-    >>> voidage_Benyahia_Oneil_spherical(.001, .05)
+    >>> voidage_Benyahia_Oneil_spherical(Dp=.001, Dt=.05)
     0.3906653157443224
 
     References
@@ -1019,7 +1034,8 @@ def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
     Parameters
     ----------
     Dpe : float
-        Equivalent spherical particle diameter, [m]
+        Equivalent spherical particle diameter (diameter of a sphere with the 
+        same volume), [m]
     Dt : float
         Diameter of the tube, [m]
     sphericity : float
@@ -1032,11 +1048,11 @@ def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
 
     Notes
     -----
-    Average error 0.016%; 1.7 < ratio < 26.3.
+    Average error 1.6%; 1.7 < ratio < 26.3.
 
     Examples
     --------
-    >>> voidage_Benyahia_Oneil_cylindrical(.01, .1, .6)
+    >>> voidage_Benyahia_Oneil_cylindrical(Dpe=.01, Dt=.1, sphericity=.6)
     0.38812523109607894
 
     References

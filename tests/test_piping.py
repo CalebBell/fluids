@@ -27,6 +27,17 @@ def test_piping():
     assert_allclose(P1, (1, 0.02664, 0.0334, 0.0033799999999999998))
     P2 = nearest_pipe(Do=.273, schedule='5S')
     assert_allclose(P2, (10, 0.26630000000000004, 0.2731, 0.0034))
+    
+    ans_str = nearest_pipe(Do=0.5, schedule='80')
+    ans_int = nearest_pipe(Do=0.5, schedule=80)
+    ans_float = nearest_pipe(Do=0.5, schedule=80.0)
+    ans_expect = (20, 0.45562, 0.508, 0.02619)
+    assert_allclose(ans_str, ans_expect)
+    assert_allclose(ans_str, ans_int)
+    assert_allclose(ans_str, ans_float)
+    
+    
+def test_gauge():
 
     g1s = gauge_from_t(.5, False, 'BWG'), gauge_from_t(0.005588, True)
     assert_allclose(g1s, (0.2, 5))

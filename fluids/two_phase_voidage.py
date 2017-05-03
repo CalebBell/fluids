@@ -1784,7 +1784,7 @@ def Xu_Fang_voidage(x, rhol, rhog, m, D, g=g):
 
 def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
     r'''Calculates void fraction in two-phase flow according to the model of 
-    [1]_ as given in [2]_ and [3]_.
+    [1]_.
     
     .. math::
         \alpha = \frac{v_{gs}}{v_{gs}\left(1 + \left(\frac{v_{ls}}{v_{gs}}

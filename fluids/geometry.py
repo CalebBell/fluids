@@ -1911,7 +1911,9 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
 
 def sphericity(A, V):
     r'''Returns the sphericity of a particle of surface area `A` and volume
-    `V`.
+    `V`. Sphericity is the ratio of the surface area of a sphere with the same
+    volume as the particle (equivalent diameter) to the actual surface area of 
+    the particle.
 
     .. math::
         \Psi = \frac{\text{A of sphere with } V_p }  {{A}_p}

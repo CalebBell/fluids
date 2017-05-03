@@ -30,6 +30,14 @@ level parameters. The friction_factor correlation does not accept pipe diameter,
 velocity, viscosity, density, and roughness - it accepts Reynolds number and
 relative roughness. This makes the API cleaner and encourages modular design.
 
+All functions are desiged to accept inputs in base SI units. However, any 
+set of consistent units given to a function will return a consistent result;
+for instance, a function calculating volume doesn't care if given an input in
+inches or meters; the output units will be the cube of those given to it.
+The user is directed to unit conversion libraries such as 
+`pint <https://github.com/hgrecco/pint>`_ to perform unit conversions if they
+prefer not to work in SI units.
+
 The standard math library is used in all functions except where special
 functions from numpy or scipy are necessary. SciPy is used for root finding,
 interpolation, scientific constants, ode integration, and its many special
@@ -157,7 +165,7 @@ The transition to laminar flow is implemented abruptly at Re=2320.
 Friction factor in curved pipes in available as friction_factor_curved.
 
 
-Pipe Schedules
+Pipe schedules
 --------------
 ASME/ANSI pipe tables from B36.10M-2004 and B36-19M-2004 are implemented 
 in fluids.piping.
@@ -174,6 +182,66 @@ then requested is returned:
 >>> NPS, Di, Do, t = nearest_pipe(Di=0.5)
 >>> Di
 0.57504
+>>> nearest_pipe(Do=0.5)
+(20, 0.47781999999999997, 0.508, 0.01509)
+
+By default, the pipe schedule used for the lookup is schedule 40. Other schedules 
+that are available are: '5', '10', '20', '30', '40', '60', '80', '100',
+'120', '140', '160', 'STD', 'XS', 'XXS', '5S', '10S', '40S', '80S'.
+
+>>> nearest_pipe(Do=0.5, schedule='40S')
+(20, 0.48894, 0.508, 0.009529999999999999)
+>>> nearest_pipe(Do=0.5, schedule='80')
+(20, 0.45562, 0.508, 0.02619)
+
+If a diameter which is larger than any pipe in the schedule is input, an
+exception is raised:
+
+>>> nearest_pipe(Do=1)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "fluids/piping.py", line 276, in nearest_pipe
+    raise ValueError('Pipe input is larger than max of selected scedule')
+ValueError: Pipe input is larger than max of selected scedule
+
+
+Wire gauges
+-----------
+
+The construction of mechanical systems often uses the "gauge" sytems, a variety
+of old imperial conversions between plate or wire thickness and a dimensionless
+number. Conversion from and to the gauge system is done by the gauge_from_t and
+t_from_gauge functions.
+
+Looking up the gauge from a wire of known diameter approximately 1.2 mm:
+
+>>> gauge_from_t(.0012)
+18
+
+The reverse conversion:
+
+>>> t_from_gauge(18)
+0.001245
+
+Other schedules are also supported: 
+
+* Birmingham Wire Gauge (BWG) ranges from 0.2 (0.5 inch) to 36 (0.004 inch).
+* American Wire Gauge (AWG) ranges from 0.167 (0.58 inch) to 51 (0.00099
+  inch). These are used for electrical wires.
+* Steel Wire Gauge (SWG) ranges from 0.143 (0.49 inch) to 51 (0.0044 inch).
+  Also called Washburn & Moen wire gauge, American Steel gauge, Wire Co.
+  gauge, and Roebling wire gauge.
+* Music Wire Gauge (MWG) ranges from 0.167 (0.004 inch) to 46 (0.18
+  inch). Also called Piano Wire Gauge.
+* British Standard Wire Gage (BSWG) ranges from 0.143 (0.5 inch) to
+  51 (0.001 inch). Also called Imperial Wire Gage (IWG).
+* Stub's Steel Wire Gage (SSWG) ranges from 1 (0.227 inch) to 80 (0.013 inch)
+
+>>> t_from_gauge(18, schedule='AWG')
+0.00102362
+
+
+
 
 Tank geometry
 -------------
@@ -684,7 +752,85 @@ of distance travelled:
 Many engineering applications such as direct contact condensers do operate far from terminal
 velocity however, and this function is useful there.
 
+Pressure drop through packed beds
+---------------------------------
+
+Twelve different packed bed pressure drop correlations are available. A meta
+function which allows any of them to be selected and automatically selects
+the most accurate correlation for the given parameters.
+
+Pressure drop through a packed bed depends on the density, viscosity and  
+velocity of the fluid, as well as the diameter of the particles, the amount
+of free space in the bed (voidage), and to a lesser amount the ratio of 
+particle to tube diameter and the shape of the particles. 
+
+Consider 0.8 mm pebbles with 40% empty space with water flowing through a 2 m  
+column creeping flow at a superficial velocity of 1 mm/s. We can calculate the 
+pressure drop as follows:
+
+>>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2)
+2876.565391768883
+
+The method can be specified manually as well, for example the commonly used Ergun equation:
+
+>>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Method='Ergun')
+2677.734374999999
+
+Incorporation of the tube diameter will add wall effects to the model.
+
+>>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Dt=0.01)
+2510.3251325096853
+
+Models can be used directly as well. The length of the column is an optional
+input; if not provided, the result will be in terms of Pa/m.
+
+>>> KTA(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3) # A correlation standardized for use in pebble reactors
+1440.409277034248
+
+If the column diameter was 0.5 m, the flow rate would be:
+
+>>> .001*(pi/4*0.5**2) # superficial_velocity*A_column
+0.00019634954084936208 # m^3/s
+
+The holdup (total volume of the column holding fluid not particles) would be:
+
+>>> (pi/4*0.5**2)*(2)*0.4 # A_column*H_column*voidage
+0.15707963267948966 # m^3
 
 
+Not all particles are spherical. There have been correlations published for 
+specific shapes, but what is often performed is simply an adjustment of particle
+diameter by its sphericity in the correlation, with the effective `dp` used
+as the product of the actual `dp` and the sphericity of the particle. The less
+spherical the particles, the higher the pressure drop. This is supported in 
+all of the correlations.
 
+>>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Dt=0.01, sphericity=0.9)
+3050.419598116882
+
+While it is easy to measure the volume of particles added to a given column 
+and determine the voidage experimentally, this does not help in the design process.
+Several authors have methodically filled columns with particles of different sizes and
+created correlations in terms of sphericity and particle to tube diameter ratios.
+Three such correlations are implemented in fluids, one generally using sphericity,
+one for spheres, and one for cylinders.
+
+1 mm spheres in a 5 cm diameter tube:
+
+>>> voidage_Benyahia_Oneil_spherical(Dp=.001, Dt=.05)
+0.3906653157443224
+
+1 mm diameter cylinder 5 mm long in a 5 cm diameter tube:
+
+>>> V_cyl = V_cylinder(D=0.001, L=0.005)
+>>> D_sphere_eq = (6*V_cyl/pi)**(1/3.)
+>>> A_cyl = A_cylinder(D=0.001, L=0.005)
+>>> sph = sphericity(A=A_cyl, V=V_cyl)
+>>> voidage_Benyahia_Oneil_cylindrical(Dpe=D_sphere_eq, Dt=0.05, sphericity=sph)
+0.3754895273247688
+
+Same calculation, but using the general correlation for all shapes:
+
+>>> voidage_Benyahia_Oneil(Dpe=D_sphere_eq, Dt=0.05, sphericity=sph)
+0.4425769555048246
 
