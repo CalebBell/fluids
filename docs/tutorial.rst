@@ -769,7 +769,7 @@ column creeping flow at a superficial velocity of 1 mm/s. We can calculate the
 pressure drop as follows:
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2)
-2876.565391768883
+2876.565391768883 # Pa
 
 The method can be specified manually as well, for example the commonly used Ergun equation:
 
@@ -834,3 +834,29 @@ Same calculation, but using the general correlation for all shapes:
 >>> voidage_Benyahia_Oneil(Dpe=D_sphere_eq, Dt=0.05, sphericity=sph)
 0.4425769555048246
 
+Pressure drop through piping
+----------------------------
+It is straightforward to calculate the pressure drop of fluid flowing in a 
+pipeline with any number of fittings using the fluids library.
+
+15 m of piping, with a sharp entrance and sharp exit, two 30 degree miter 
+bends, one rounded bend 45 degrees, 1 sharp contraction to half the pipe
+diameter and 1 sharp expansion back to the normal pipe diameter (water,
+V=3 m/s, Di=0.05, roughness 0.01 mm):
+
+>>> Re = Reynolds(V=3, D=0.05, rho=1000, mu=1E-3)
+>>> fd = friction_factor(Re, eD=1E-5/0.05)
+>>> K = K_from_f(fd=fd, L=15, D=0.05)
+>>> K += entrance_sharp()
+>>> K += exit_normal()
+>>> K += 2*bend_miter(angle=30)
+>>> K += bend_rounded(Di=0.05, angle=45, fd=fd)
+>>> K += contraction_sharp(Di1=0.05, Di2=0.025)
+>>> K += diffuser_sharp(Di1=0.025, Di2=0.05)
+>>> dP_from_K(K, rho=1000, V=3)
+37920.51140146369
+
+There are five entrance loss coefficient methods:
+
+>>> entrance_sharp() # sharp entrances
+0.57

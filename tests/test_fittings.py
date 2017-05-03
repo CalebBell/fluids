@@ -23,13 +23,11 @@ import pytest
 def test_fittings():
     assert_allclose(entrance_sharp(), 0.57)
 
-    K1 = entrance_distance(d=0.1, t=0.0005)
+    K1 = entrance_distance(0.1, t=0.0005)
     assert_allclose(K1, 1.0154100000000004)
-    with pytest.raises(Exception):
-        entrance_distance(d=0.1, l=0.005, t=0.0005)
-    with pytest.raises(Exception):
-        entrance_distance(d=0.1,  t=0.05)
-
+    
+    assert_allclose(entrance_distance(Di=0.1, t=0.05), 0.57)
+    
     assert_allclose(entrance_angled(30), 0.9798076211353316)
 
     K =  entrance_rounded(Di=0.1, rc=0.0235)

@@ -63,7 +63,7 @@ def entrance_sharp():
     return 0.57
 
 
-def entrance_distance(d=None, t=None, l=None):
+def entrance_distance(Di, t):
     r'''Returns loss coefficient for a sharp entrance to a pipe at a distance
     from the wall of a reservoir, as shown in [1]_.
 
@@ -77,8 +77,6 @@ def entrance_distance(d=None, t=None, l=None):
         Inside diameter of pipe, [m]
     t : float
         Thickness of pipe wall, [m]
-    l : float, optional
-        Length of pipe extending from the wall, [m]
 
     Returns
     -------
@@ -87,26 +85,29 @@ def entrance_distance(d=None, t=None, l=None):
 
     Notes
     -----
-    Requires that l/d be >= 0.5.
-    Requires that t/d <= 0.05.
-    Will raise an exception if these are not the case.
+    Recommended for cases where the length of the inlet pipe extending into a 
+    tank divided by the inner diameter of the pipe is larger than 0.5.
+    If the pipe is 10 cm in diameter, the pipe should extend into the tank 
+    at least 5 cm. This type of inlet is also known as a Borda's mouthpiece.
+    It is not of practical interest according to [1]_.
+    
+    If the pipe wall thickness to diameter ratio `t`/`Di` is larger than 0.05,
+    it is rounded to 0.05; the effect levels off at that ratio and K=0.57.
 
     Examples
     --------
-    >>> entrance_distance(d=0.1, t=0.0005)
-    1.0154100000000004
+    >>> entrance_distance(Di=0.1, t=0.0005)
+    1.0154100000000001
 
     References
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    if l:
-        if l/d < 0.5:
-            raise Exception('l/d is under 0.5')
-    if t/d > 0.05:
-        raise Exception('t/d > 0.05')
-    return 1.12 - 22*t/d + 216*(t/d)**2 + 80*(t/d)**3
+    ratio = t/Di
+    if ratio > 0.05:
+        ratio = 0.05
+    return 1.12 - 22.*ratio + 216.*ratio**2 + 80*ratio**3
 
 
 def entrance_angled(angle):
@@ -266,7 +267,7 @@ def exit_normal():
 
 ### Bends
 
-def bend_rounded(Di=None, rc=None, angle=None, fd=None, bend_diameters=5):
+def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
     r'''Returns loss coefficient for any rounded bend in a pipe
     as shown in [1]_.
 
@@ -279,13 +280,13 @@ def bend_rounded(Di=None, rc=None, angle=None, fd=None, bend_diameters=5):
     ----------
     Di : float
         Inside diameter of pipe, [m]
-    rc : float
-        Radius of curvatuce of the entrance, optional [m]
     angle : float
         Angle of bend, [degrees]
     fd : float
         Darcy friction factor [-]
-    bend_diameters : float
+    rc : float, optional
+        Radius of curvatuce of the entrance, optional [m]
+    bend_diameters : float, optional (used if rc not provided)
         Number of diameters of pipe making up the bend radius [-]
 
     Returns
@@ -355,7 +356,7 @@ def bend_miter(angle):
     return 0.42*sin(angle*0.5) + 2.56*sin(angle*0.5)**3
 
 
-def helix(Di=None, rs=None, pitch=None, N=None, fd=None):
+def helix(Di, rs, pitch, N, fd):
     r'''Returns loss coefficient for any size constant-pitch helix
     as shown in [1]_. Has applications in immersed coils in tanks.
 
@@ -400,7 +401,7 @@ def helix(Di=None, rs=None, pitch=None, N=None, fd=None):
     return N*(fd*((2*pi*rs)**2 + pitch**2)**0.5/Di + 0.20 + 4.8*fd)
 
 
-def spiral(Di=None, rmax=None, rmin=None, pitch=None, fd=None):
+def spiral(Di, rmax, rmin, pitch, fd):
     r'''Returns loss coefficient for any size constant-pitch spiral
     as shown in [1]_. Has applications in immersed coils in tanks.
 
@@ -534,7 +535,7 @@ def contraction_round(Di1, Di2, rc):
     return 0.0696*(1-0.569*rc/Di2)*(1-(rc/Di2)**0.5*beta)*(1-beta**5)*lbd**2 + (lbd-1)**2
 
 
-def contraction_conical(Di1, Di2, l=None, angle=None, fd=None):
+def contraction_conical(Di1, Di2, fd, l=None, angle=None):
     r'''Returns loss coefficient for any conical pipe contraction
     as shown in [1]_.
 
@@ -551,12 +552,12 @@ def contraction_conical(Di1, Di2, l=None, angle=None, fd=None):
         Inside diameter of original pipe, [m]
     Di2 : float
         Inside diameter of following pipe, [m]
+    fd : float
+        Darcy friction factor [-]
     l : float
         Length of the contraction, optional [m]
     angle : float
         Angle of contraction, optional [degrees]
-    fd : float
-        Darcy friction factor [-]
 
     Returns
     -------
@@ -675,7 +676,7 @@ def diffuser_sharp(Di1, Di2):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     beta = Di1/Di2
-    return (1-beta**2)**2
+    return (1. - beta*beta)**2
 
 
 def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None):
