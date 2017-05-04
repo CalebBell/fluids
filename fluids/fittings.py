@@ -120,7 +120,7 @@ def entrance_angled(angle):
     Parameters
     ----------
     angle : float
-        Angle of inclination, [degrees]
+        Angle of inclination (90=straight, 0=parallel to pipe wall) [degrees]
 
     Returns
     -------
@@ -130,7 +130,7 @@ def entrance_angled(angle):
     Notes
     -----
     Not reliable for angles under 20 degrees.
-    Loss coefficient is the same for a upward or downward angle.
+    Loss coefficient is the same for an upward or downward angled inlet.
 
     Examples
     --------
@@ -155,7 +155,7 @@ def entrance_rounded(Di, rc):
 
         \lambda = 1 + 0.622\left(1 - 0.30\sqrt{\frac{r}{d}}
         - 0.70\frac{r}{d}\right)^4
-
+        
     Parameters
     ----------
     Di : float
@@ -170,8 +170,8 @@ def entrance_rounded(Di, rc):
 
     Notes
     -----
-    Applies for r/D < 1.
-    For generously rounded entrances (r/D ~= 1):  K = 0.03
+    For generously rounded entrance (rc/Di >= 1), the loss coefficient converges
+    to 0.03.
 
     Examples
     --------
@@ -183,12 +183,14 @@ def entrance_rounded(Di, rc):
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    lbd = 1 + 0.622*(1 - 0.30*(rc/Di)**0.5 - 0.70*(rc/Di))**4
-    return 0.0696*(1 - 0.569*rc/Di)*lbd**2 + (lbd-1)**2
+    if rc/Di > 1:
+        return 0.03
+    lbd = 1. + 0.622*(1. - 0.30*(rc/Di)**0.5 - 0.70*(rc/Di))**4
+    return 0.0696*(1. - 0.569*rc/Di)*lbd**2 + (lbd - 1.)**2
 
 
 def entrance_beveled(Di, l, angle):
-    r'''Returns loss coefficient for a beveled entrance to a pipe
+    r'''Returns loss coefficient for a beveled or chamfered entrance to a pipe
     flush with the wall of a reservoir, as shown in [1]_.
 
     .. math::
@@ -205,9 +207,9 @@ def entrance_beveled(Di, l, angle):
     Di : float
         Inside diameter of pipe, [m]
     l : float
-        Length of bevel, [m]
+        Length of bevel measured parallel to the pipe length, [m]
     angle : float
-        Angle of bevel, [degrees]
+        Angle of bevel with respect to the pipe length, [degrees]
 
     Returns
     -------
@@ -229,9 +231,9 @@ def entrance_beveled(Di, l, angle):
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    Cb = (1-angle/90.)*(angle/90.)**(1./(1 +l/Di ))
-    lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1-(l/Di)**0.25)/2.))
-    return 0.0696*(1-Cb*l/Di)*lbd**2 + (lbd-1)**2
+    Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/Di ))
+    lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1 - (l/Di)**0.25)/2.))
+    return 0.0696*(1 - Cb*l/Di)*lbd**2 + (lbd - 1.)**2
 
 
 ### Exits

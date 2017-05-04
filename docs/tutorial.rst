@@ -856,7 +856,81 @@ V=3 m/s, Di=0.05, roughness 0.01 mm):
 >>> dP_from_K(K, rho=1000, V=3)
 37920.51140146369
 
-There are five entrance loss coefficient methods:
 
->>> entrance_sharp() # sharp entrances
-0.57
+Electric motor sizing
+---------------------
+Motors are available in standard sizes, mostly as designated by the
+National Electrical Manufacturers Association (NEMA). To easily determine what
+the power of a motor will actually be once purchased, motor_round_size implements
+rounding up of a motor power to the nearest size. NEMA standard motors are
+specified in terms of horsepower.
+
+>>> motor_round_size(1E5) # 100 kW motor
+111854.98073734052 # 11.8% larger than desired
+>>> from scipy.constants import hp
+>>> motor_round_size(1E5)/hp # convert to hp
+150.0
+
+Motors are designed to generate a certain amount of power, but they themselves are 
+not 100% efficient at doing this and require more power due to efficiency losses.
+Many minimum values for motor efficiency are standardized. The Canadian standard
+for this is implemented in fluids as CSA_motor_efficiency.
+
+>>> CSA_motor_efficiency(P=5*hp)
+0.855
+
+Most motors are not enclosed (the default assumption), but those that are closed
+are more efficient. 
+
+>>> CSA_motor_efficiency(P=5*hp, closed=True)
+0.875
+
+The number of poles in a motor also affects its efficiency:
+
+>>> CSA_motor_efficiency(P=5*hp, poles=6)
+0.875
+
+There is also a schedule of higher efficiency values standardized as well,
+normally available at somewhat higher cost:
+
+>>> CSA_motor_efficiency(P=5*hp, closed=True, poles=6, high_efficiency=True)
+0.895
+
+A motor will spin at more or less its design frequency, depending on its type.
+However, if it does not meet sufficient resistance, it will not be using its
+design power. This is good and bad - less power is used, but as a motor 
+drops under 50% of its design power, its efficiency becomes terrible. A function
+has been written based on generic performance curves to estimate the underloaded
+efficiency of a motor. Just how bad efficiency drops off depends on the design
+power of a motor - higher power motors do better operating at low loads than 
+small motors.
+
+>>> motor_efficiency_underloaded(P=1E3, load=.9)
+1
+>>> motor_efficiency_underloaded(P=1E3, load=.2)
+0.6639347559654663
+
+This needs to be applied on top of the normal motor efficiency; for example,
+that 1 kW motor at 20% load would have a net efficiency of:
+
+>>> motor_efficiency_underloaded(P=1E3, load=.2)*CSA_motor_efficiency(P=1E3)
+0.5329404286134798
+
+
+Many motors have Variable Frequency Drives (VFDs) which allow them to vary the
+speed of their rotation. The VFD is another source of inefficiency, but by allowing
+the pump or other piece of equipment to vary its speed, a system may be designed to
+be less energy intensive. For example, rather than running a pump at a certain
+high frequency and controlling the flow with a large control valve, the flow 
+rate can be controlled with the VFD directly.
+
+The efficiency of a VFD depends on the maximum power it needs to be able to
+generate, and the power it is actually generating at an instant (load).
+A table of typical modern VFD efficiencies is implemented in fluids as
+VFD_efficiency.
+
+>>> VFD_efficiency(1E5) # 100 kW
+0.97
+>>> VFD_efficiency(5E3, load=.2) # 5 kW, 20% load
+0.8562
+

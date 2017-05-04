@@ -32,6 +32,7 @@ def test_fittings():
 
     K =  entrance_rounded(Di=0.1, rc=0.0235)
     assert_allclose(K, 0.09839534618360923)
+    assert_allclose(entrance_rounded(Di=0.1, rc=0.2), 0.03)
 
     K = entrance_beveled(Di=0.1, l=0.003, angle=45)
     assert_allclose(K, 0.45086864221916984)

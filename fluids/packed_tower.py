@@ -248,7 +248,7 @@ def separation_demister_ElDessouky(vs, voidage, d_wire, d_drop):
     was used in the conversion.
     
     In [1]_, V ranged from 0.98-7.5 m/s, rho from 80.317-208.16 kg/m^3, depth 
-    from 100 to 200 mm, wire diameter of 0.2mm to 0.32 mm, and particle 
+    from 100 to 200 mm, wire diameter of 0.2 mm to 0.32 mm, and particle 
     diameter from 1 to 5 mm.
     
     Examples
@@ -614,7 +614,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
 
 
 
-def Robbins(Fpd=24, L=None, G=None, rhol=None, rhog=None, mul=None, H=1, A=None):
+def Robbins(L, G, rhol, rhog, mul, H=1, A=None, Fpd=24):
     r'''Calculates pressure drop across a packed column, using the Robbins
     equation.
 

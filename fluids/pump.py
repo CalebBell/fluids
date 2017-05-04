@@ -168,13 +168,15 @@ def VFD_efficiency(P, load=1):
     Table extends down to 3 hp and up to 400 hp; values outside these limits
     are rounded to the nearest known value. Values between standardized sizes
     are interpolated linearly. Load values extend down to 0.016.
+    
+    The table used is for Pulse Width Modulation (PWM) VFDs.
 
     Examples
     --------
     >>> VFD_efficiency(10*hp)
     0.96
-    >>> VFD_efficiency(100*hp, load=0.5)
-    0.96
+    >>> VFD_efficiency(100*hp, load=0.2)
+    0.92
 
     References
     ----------
@@ -271,7 +273,6 @@ nema_min_full_closed_4p_i = interp1d(nema_min_P, nema_min_full_closed_4p)
 nema_min_full_closed_6p_i = interp1d(nema_min_P, nema_min_full_closed_6p)
 nema_min_full_closed_8p_i = interp1d(nema_min_P, nema_min_full_closed_8p)
 
-#print nema_min_full_closed_8p_i(345)
 
 def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
     r'''Returns the efficiency of a NEMA motor according to [1]_.
