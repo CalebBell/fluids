@@ -1,5 +1,5 @@
 scipy
-pytest
+pytest==3.0.7
 pytest-cov
 coveralls
 sympy
