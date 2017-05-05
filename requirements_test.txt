@@ -2,5 +2,5 @@ scipy
 pytest
 pytest-cov
 coveralls
-sympy
+sympy==1.0
 fuzzywuzzy
