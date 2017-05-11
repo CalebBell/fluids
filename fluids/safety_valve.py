@@ -560,7 +560,7 @@ def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1):
     Kb : float, optional
         Correction due to vapor backpressure [-]
     Kc : float, optional
-        Combination correction factor for installation with a ruture disk
+        Combination correction factor for installation with a rupture disk
         upstream of the PRV, []
 
     Returns

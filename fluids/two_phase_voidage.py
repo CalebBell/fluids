@@ -181,7 +181,7 @@ def Smith(x, rhol, rhog):
     Notes
     -----
     [1]_ is an easy to read paper and has been reviewed.
-    The form of the expression here is rearanged somewhat differently
+    The form of the expression here is rearranged somewhat differently
     than in [1]_ but has been verified to be numerically equivalent. The form
     of this in [3]_ is missing a square root on a bracketed term; this appears
     in multiple papers by the authors.
@@ -741,7 +741,7 @@ def Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug, pow_x=0.9, pow_rho=0.5,
 
     Notes
     -----
-    Xtt is best regarded as an emperical parameter.
+    Xtt is best regarded as an empirical parameter.
     If used, n is often 0.2 or 0.25.
 
     Examples
@@ -1195,7 +1195,7 @@ def Huq_Loth(x, rhol, rhog):
     Notes
     -----
     [1]_ has been reviewed, and matches the expressions given in the reviews
-    [2]_, [3]_, and [4]_; the form of the expression is rearanged somewhat 
+    [2]_, [3]_, and [4]_; the form of the expression is rearranged somewhat 
     differently.
 
     Examples

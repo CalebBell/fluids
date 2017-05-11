@@ -44,7 +44,7 @@ def Ergun(dp, voidage, vs, rho, mu, L=1):
 
     It is also often presented with a term for sphericity, which is multiplied
     by particle diameter everywhere in the equation. However, this is highly
-    emperical and better correlations for beds of differently-shaped particles
+    empirical and better correlations for beds of differently-shaped particles
     exist. To use sphericity in this model, multiple the input particle
     diameter by the spericity separately.
 
@@ -88,7 +88,7 @@ def Ergun(dp, voidage, vs, rho, mu, L=1):
     coke. Fluids tested were carbon dioxide, nitrogen, methane, and hydrogen.
 
     Validity range shown in [3]_ is :math:`1 < Re_{Erg} < 2300`.
-    Overpredicts pressure drop for :math:`Re_{Erg} > 700`.
+    Over predicts pressure drop for :math:`Re_{Erg} > 700`.
 
     Examples
     --------

@@ -65,7 +65,7 @@ def dP_demister_dry_Setekleiv_Svendsen(S, voidage, vs, rho, mu, L=1):
 
     Notes
     -----
-    Useful at startup and in modeling. Dry pressure drop is normally neglible
+    Useful at startup and in modeling. Dry pressure drop is normally negligible
     compared to wet pressure drop. Coefficients obtained by evolutionary
     programming and may not fit data outside of the limits of the variables.
 
@@ -119,7 +119,7 @@ def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1):
 
     Notes
     -----
-    Useful at startup and in modeling. Dry pressure drop is normally neglible
+    Useful at startup and in modeling. Dry pressure drop is normally negligible
     compared to wet pressure drop. Coefficients obtained by evolutionary
     programming and may not fit data outside of the limits of the variables.
 
@@ -313,7 +313,7 @@ def voidage_experimental(m, rho, D, H):
 
 def specific_area_mesh(voidage, d):
     r'''Calculates the specific area of a wire mesh, as used in demisters or
-    filters. Shown in [1]_, and also self-evident and non-emperical.
+    filters. Shown in [1]_, and also self-evident and non-empirical.
     Makes the ideal assumption that wires never touch.
 
     .. math::

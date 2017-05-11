@@ -117,7 +117,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
     Returns
     -------
     K : float
-        Horizontal or vertical `K` factor for two-phase seperator design only,
+        Horizontal or vertical `K` factor for two-phase separator design only,
         [m/s]
 
     Notes

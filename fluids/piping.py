@@ -273,7 +273,7 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     else:
         raise ValueError('Schedule not recognized')
     if nums is None:
-        raise ValueError('Pipe input is larger than max of selected scedule')
+        raise ValueError('Pipe input is larger than max of selected schedule')
     _nps, _di, _do, _t = nums
     return _nps, _di/1E3, _do/1E3, _t/1E3
 

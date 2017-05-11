@@ -84,7 +84,7 @@ def agitator_time_homogeneous(D=None, N=None, P=None, T=None, H=None, mu=None, r
     different result is obtained, but is accurate.
 
     No check to see if the mixture if laminar is currently implemented.
-    This would underpredict the required time.
+    This would under predict the required time.
 
     Examples
     --------
@@ -119,7 +119,7 @@ def agitator_time_homogeneous(D=None, N=None, P=None, T=None, H=None, mu=None, r
 #print [agitator_time_homogeneous(D=36*.0254, N=56/60., P=957., T=1.83, H=1.83, mu=0.018, rho=1020, homogeneity=.995)]
 
 def Kp_helical_ribbon_Rieger(D=None, h=None, nb=None, pitch=None, width=None, T=None):
-    r'''Calculates product of power number and reynolds number for a
+    r'''Calculates product of power number and Reynolds number for a
     specified geometry for a heilical ribbon mixer in the laminar regime.
     One of several correlations listed in [1]_, it used more data than other
     listed correlations and was recommended.
@@ -146,7 +146,7 @@ def Kp_helical_ribbon_Rieger(D=None, h=None, nb=None, pitch=None, width=None, T=
     Returns
     -------
     Kp : float
-        Product of power number and reynolds number for laminar regime []
+        Product of Power number and Reynolds number for laminar regime []
 
     Notes
     -----
@@ -183,7 +183,7 @@ def time_helical_ribbon_Grenville(Kp, N):
     Parameters
     ----------
     Kp : float
-        Product of power number and reynolds number for laminar regime []
+        Product of power number and Reynolds number for laminar regime []
     N : float:
         Speed of impeller, [r/s]
 
@@ -248,7 +248,7 @@ def size_tee(Q1=None, Q2=None, D=None, D2=None, n=1, pipe_diameters=5):
     Returns
     -------
     CoV : float
-        Standard deviation of dimentionless concentration [-]
+        Standard deviation of dimensionless concentration [-]
 
     Notes
     -----
@@ -340,7 +340,7 @@ def COV_motionless_mixer(Ki=None, Q1=None, Q2=None, pipe_diameters=None):
     Returns
     -------
     CoV : float
-        Standard deviation of dimentionless concentration [-]
+        Standard deviation of dimensionless concentration [-]
 
     Notes
     -----
@@ -368,7 +368,7 @@ def COV_motionless_mixer(Ki=None, Q1=None, Q2=None, pipe_diameters=None):
 
 
 def K_motionless_mixer(K=None, L=None, D=None, fd=None):
-    r'''Calculates loss ciefficient of a motionless mixer with a regression
+    r'''Calculates loss coefficient of a motionless mixer with a regression
     parameter in [1]_ and originally in [2]_.
 
     .. math::

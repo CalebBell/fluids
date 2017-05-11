@@ -56,7 +56,7 @@ def Rizk(mp, dp, rhog, D):
 
     Notes
     -----
-    Model is rearanged to be explicit in terms of saltation velocity
+    Model is rearranged to be explicit in terms of saltation velocity
     internally.
 
     Examples
@@ -116,12 +116,12 @@ def Matsumoto_1974(mp, rhop, dp, rhog, D, Vterminal=1):
 
     Returns
     -------
-        V : float
-            Saltation velocity of gas, [m/s]
+    V : float
+        Saltation velocity of gas, [m/s]
 
     Notes
     -----
-    Model is rearanged to be explicit in terms of saltation velocity
+    Model is rearranged to be explicit in terms of saltation velocity
     internally.
     Result looks high, something may be wrong.
     For particles > 0.3 mm.
@@ -186,7 +186,7 @@ def Matsumoto_1975(mp, rhop, dp, rhog, D, Vterminal=1):
 
     Notes
     -----
-    Model is rearanged to be explicit in terms of saltation velocity
+    Model is rearranged to be explicit in terms of saltation velocity
     internally.
     Result looks high, something may be wrong.
     For particles > 0.3 mm.
@@ -219,7 +219,7 @@ def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
     r'''Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_ and reproduced in [2]_, [3]_, and [4]_.
 
-    First equation is used if third equation yeilds d* higher than dp.
+    First equation is used if third equation yields d* higher than dp.
     Otherwise, use equation 2.
 
     .. math::
@@ -259,7 +259,7 @@ def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
     Notes
     -----
     Model is rearanged to be explicit in terms of saltation velocity
-    internally.
+    internally.r
 
     Examples
     --------
@@ -291,7 +291,7 @@ def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
     limit = 1.39*D*(rhop/rhog)**-0.74
     A = pi/4*D**2
     if limit < dp:
-        # Corase routine
+        # Coarse routine
         Frp = Vterminal/(g*dp)**0.5
         Frs_sorta = 1./(g*D)**0.5
         expression1 = 0.373*(rhop/rhog)**1.06*(Frp/10.)**-3.7*(Frs_sorta/10.)**3.61
@@ -336,7 +336,7 @@ def Schade(mp, rhop, dp, rhog, D):
 
     Notes
     -----
-    Model is rearanged to be explicit in terms of saltation velocity
+    Model is rearranged to be explicit in terms of saltation velocity
     internally.
 
     Examples
@@ -410,7 +410,7 @@ def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
 
     Notes
     -----
-    Model is rearanged to be explicit in terms of saltation velocity
+    Model is rearranged to be explicit in terms of saltation velocity
     internally.
 
     Examples
@@ -487,7 +487,7 @@ def Geldart_Ling(mp, rhog, D, mug):
 
     Notes
     -----
-    Model is rearanged to be explicit in terms of saltation velocity
+    Model is rearranged to be explicit in terms of saltation velocity
     internally.
 
     Examples

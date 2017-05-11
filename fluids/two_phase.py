@@ -587,7 +587,7 @@ def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1):
 
     Notes
     -----
-    This is a purely emperical method. [3]_ presents a review of this and other
+    This is a purely empirical method. [3]_ presents a review of this and other
     correlations. It did not perform best, but there were also correlations
     worse than it.
 
@@ -1576,7 +1576,7 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0,
 
     Notes
     -----
-    Seems faily reliable.
+    Seems fairly reliable.
 
     Examples
     --------
@@ -1932,7 +1932,7 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
     No correction is available in this model for rough pipe.
 
     [3]_ examined the original data in [1]_ again, and fit more curves to the
-    data, seperating them into different flow regimes. There were 229 datum
+    data, separating them into different flow regimes. There were 229 datum
     in the turbulent-turbulent regime, 9 in the turbulent-laminar regime, 339
     in the laminar-turbulent regime, and 42 in the laminar-laminar regime.
     Errors from [3]_'s curves were 13.4%, 3.5%, 14.3%, and 12.0% for the above
@@ -2122,7 +2122,7 @@ def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
         return list_methods()
     if not Method:
         if all([rhog, mul, mug, sigma]):
-            Method = 'Kim_Mudawar' # Kim_Mudawar prefered; 3 or 4
+            Method = 'Kim_Mudawar' # Kim_Mudawar preferred; 3 or 4
         elif all([rhog, mul, mug]):
             Method = 'Chisholm' # Second choice, indexes 1 or 2
         elif all([mul, P, Pc,]) :

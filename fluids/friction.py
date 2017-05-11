@@ -3059,7 +3059,7 @@ def roughness_Farshad(ID=None, D=None, coeffs=None):
     within 1%.
     
     Using those results, the authors back-calculated what relative roughness 
-    values would be ncessary to produce the observed pressure drops. The 
+    values would be necessary to produce the observed pressure drops. The 
     average difference between this back-calculated roughness and the measured
     roughness was 6.75%.
     

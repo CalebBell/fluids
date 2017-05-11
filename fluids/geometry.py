@@ -447,7 +447,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     f : float
         Dish-radius parameter; fD  = dish radius []
     k : float
-        knucle-radius parameter ; kD = knucle radius []
+        knuckle-radius parameter ; kD = knuckle radius []
     h : float
         Height, as measured up to where the fluid ends, [m]
     headonly : bool, optional
@@ -686,7 +686,7 @@ def V_vertical_torispherical(D, f, k, h):
     f : float
         Dish-radius parameter; fD  = dish radius []
     k : float
-        knucle-radius parameter ; kD = knucle radius []
+        knuckle-radius parameter ; kD = knuckle radius []
     h : float
         Height, as measured up to where the fluid ends, [m]
 
@@ -902,7 +902,7 @@ def V_vertical_torispherical_concave(D, f, k, h):
     f : float
         Dish-radius parameter; fD  = dish radius []
     k : float
-        knucle-radius parameter ; kD = knucle radius []
+        knuckle-radius parameter ; kD = knuckle radius []
     h : float
         Height, as measured up to where the fluid ends, [m]
 
@@ -1084,7 +1084,7 @@ def SA_torispheroidal(D, fd, fk):
     fd : float
         Dish-radius parameter = f; fD  = dish radius []
     fk : float
-        knucle-radius parameter = k; kD = knucle radius []
+        knuckle-radius parameter = k; kD = knuckle radius []
 
     Returns
     -------
@@ -1142,11 +1142,11 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     sideA_f : float, optional
         Dish-radius parameter for side A; fD  = dish radius []
     sideA_k : float, optional
-        knucle-radius parameter for side A; kD = knucle radius []
+        knuckle-radius parameter for side A; kD = knuckle radius []
     sideB_f : float, optional
         Dish-radius parameter for side B; fD  = dish radius []
     sideB_k : float, optional
-        knucle-radius parameter for side B; kD = knucle radius []
+        knuckle-radius parameter for side B; kD = knuckle radius []
 
     Returns
     -------
@@ -1231,7 +1231,7 @@ def a_torispherical(D, f, k):
     f : float
         Dish-radius parameter; fD  = dish radius []
     k : float
-        knucle-radius parameter ; kD = knucle radius []
+        knuckle-radius parameter ; kD = knuckle radius []
 
     Returns
     -------
@@ -1285,11 +1285,11 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     sideA_f : float, optional
         Dish-radius parameter for side A; fD  = dish radius []
     sideA_k : float, optional
-        knucle-radius parameter for side A; kD = knucle radius []
+        knuckle-radius parameter for side A; kD = knuckle radius []
     sideB_f : float, optional
         Dish-radius parameter for side B; fD  = dish radius []
     sideB_k : float, optional
-        knucle-radius parameter for side B; kD = knucle radius []
+        knuckle-radius parameter for side B; kD = knuckle radius []
 
     Returns
     -------
@@ -1407,11 +1407,11 @@ class TANK(object):
     sideA_f : float, optional
         Dish-radius parameter for side A; fD  = dish radius []
     sideA_k : float, optional
-        knucle-radius parameter for side A; kD = knucle radius []
+        knuckle-radius parameter for side A; kD = knuckle radius []
     sideB_f : float, optional
         Dish-radius parameter for side B; fD  = dish radius []
     sideB_k : float, optional
-        knucle-radius parameter for side B; kD = knucle radius []
+        knuckle-radius parameter for side B; kD = knuckle radius []
     L_over_D : float, optional
         Ratio of length over diameter, used only when D and L are both
         unspecified but V is, []

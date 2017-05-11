@@ -53,7 +53,7 @@ def Corripio_pump_efficiency(Q):
 
     Returns
     -------
-    effciency : float
+    efficiency : float
         Pump efficiency, [-]
 
     Notes
@@ -96,7 +96,7 @@ def Corripio_motor_efficiency(P):
 
     Returns
     -------
-    effciency : float
+    efficiency : float
         Motor efficiency, [-]
 
     Notes
@@ -153,7 +153,7 @@ def VFD_efficiency(P, load=1):
 
     Returns
     -------
-    effciency : float
+    efficiency : float
         VFD efficiency, [-]
 
     Notes
@@ -291,7 +291,7 @@ def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
 
     Returns
     -------
-    effciency : float
+    efficiency : float
         Guaranteed full-load motor efficiency, [-]
 
     Notes
@@ -379,7 +379,7 @@ _efficiency_lists = [_to_1, _to_5, _to_10, _to_25, _to_60, _to_infty]
 _efficiency_ones = [0.9218102, 0.64307597, 0.61724113, 0.61569791, 0.6172238, 0.40648294]
 
 def motor_efficiency_underloaded(P, load=0.5):
-    r'''Returns the efficiency of a motor opperating under its design power
+    r'''Returns the efficiency of a motor operating under its design power
     according to [1]_.These values are generic; manufacturers usually list 4
     points on their product information, but full-scale data is hard to find
     and not regulated.
@@ -393,7 +393,7 @@ def motor_efficiency_underloaded(P, load=0.5):
 
     Returns
     -------
-    effciency : float
+    efficiency : float
         Motor efficiency, [-]
 
     Notes
