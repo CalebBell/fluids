@@ -161,7 +161,7 @@ def entrance_rounded(Di, rc):
     Di : float
         Inside diameter of pipe, [m]
     rd : float
-        Radius of curvatuce of the entrance, [m]
+        Radius of curvature of the entrance, [m]
 
     Returns
     -------
@@ -287,7 +287,7 @@ def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
     fd : float
         Darcy friction factor [-]
     rc : float, optional
-        Radius of curvatuce of the entrance, optional [m]
+        Radius of curvature of the entrance, optional [m]
     bend_diameters : float, optional (used if rc not provided)
         Number of diameters of pipe making up the bend radius [-]
 
@@ -510,7 +510,7 @@ def contraction_round(Di1, Di2, rc):
     Di2 : float
         Inside diameter of following pipe, [m]
     rc : float
-        Radius of curvatuce of the contraction, [m]
+        Radius of curvature of the contraction, [m]
 
     Returns
     -------
@@ -645,7 +645,7 @@ def contraction_beveled(Di1, Di2, l=None, angle=None):
 ### Expansions (diffusers)
 
 def diffuser_sharp(Di1, Di2):
-    r'''Returns loss coefficient for any sudded pipe diameter expansion
+    r'''Returns loss coefficient for any sudden pipe diameter expansion
     as shown in [1]_ and in other sources.
 
     .. math::

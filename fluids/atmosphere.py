@@ -248,7 +248,7 @@ class ATMOSPHERE_NRLMSISE00(object):
     the atmosphere, from ground level to 1000 km, as a function of time of year,
     longitude and latitude, solar activity and earth's geomagnetic disturbance.
     
-    NRLMSISE standa for the `US Naval Research Laboratory Mass Spectrometer and
+    NRLMSISE stands for the `US Naval Research Laboratory Mass Spectrometer and
     Incoherent Scatter Radar Exosphere` model, released in 2001; see [1]_ for
     details.
     

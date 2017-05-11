@@ -200,7 +200,7 @@ def Colebrook(Re, eD):
         
         \text{lambertW}(y) = x
 
-    For high relative roughness and reynolds numbers, an OverflowError is 
+    For high relative roughness and Reynolds numbers, an OverflowError is 
     raised in solution of this equation. 
 
     Examples
@@ -1664,7 +1664,7 @@ def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=Fal
     r'''Calculates friction factor. Uses a specified method, or automatically
     picks one from the dictionary of available methods. 29 approximations are 
     available as well as the direct solution, described in the table below. 
-    The default is to use the exact solution. Can also be accesed under the 
+    The default is to use the exact solution. Can also be accessed under the 
     name `fd`.
     
     For Re < 2320, the laminar solution is always returned, regardless of
@@ -2000,7 +2000,7 @@ def helical_turbulent_fd_Schmidt(Re, Di, Dc, roughness=0):
     Notes
     -----    
     Valid from the transition to turbulent flow up to 
-    :math:`Re=1.5\times10^{5}`. At very low curvatures, converges on the
+    :math:`Re=1.5\times 10^{5}`. At very low curvatures, converges on the
     straight pipe result.
 
     Examples
@@ -2053,7 +2053,7 @@ def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
     Notes
     -----    
     Valid from the transition to turbulent flow up to 
-    :math:`Re=6.5\times10^{5}\sqrt{D_i/D_c}`. Does not use a straight pipe 
+    :math:`Re=6.5\times 10^{5}\sqrt{D_i/D_c}`. Does not use a straight pipe 
     correlation, and so will not converge on the
     straight pipe result at very low curvature.
 
@@ -2631,7 +2631,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0, Method=None,
     keyword.
     
     The default correlations are those recommended in [1]_, and are believed to 
-    be the best publically available.
+    be the best publicly available.
     
     Examples
     --------

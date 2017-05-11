@@ -193,7 +193,7 @@ def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
 
     Inputs either of any of the following sets:
 
-    * V, L, density `rho`, heat capcity `Cp`, and thermal conductivity `k`
+    * V, L, density `rho`, heat capacity `Cp`, and thermal conductivity `k`
     * V, L, and thermal diffusivity `alpha`
 
     Parameters
@@ -294,7 +294,7 @@ def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
 
     Inputs either of any of the following sets:
 
-    * t, L, density `rho`, heat capcity `Cp`, and thermal conductivity `k`
+    * t, L, density `rho`, heat capacity `Cp`, and thermal conductivity `k`
     * t, L, and thermal diffusivity `alpha`
 
     Parameters
@@ -388,7 +388,7 @@ def Fourier_mass(t, L, D):
 
 def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
     r'''Calculates Graetz number or `Gz` for a specified velocity
-    `V`, diameter `D`, axial diatance `x`, and specified properties for the
+    `V`, diameter `D`, axial distance `x`, and specified properties for the
     given fluid.
 
     .. math::
@@ -396,7 +396,7 @@ def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
 
     Inputs either of any of the following sets:
 
-    * V, D, x, density `rho`, heat capcity `Cp`, and thermal conductivity `k`
+    * V, D, x, density `rho`, heat capacity `Cp`, and thermal conductivity `k`
     * V, D, x, and thermal diffusivity `alpha`
 
     Parameters
@@ -994,7 +994,7 @@ def Froude(V, L, g=g, squared=False):
     g : float, optional
         Acceleration due to gravity, [m/s^2]
     squared : bool, optional
-        Whether to return the squared form of Frounde number
+        Whether to return the squared form of Froude number
 
     Returns
     -------
@@ -1054,7 +1054,7 @@ def Strouhal(f, L, V):
     Sometimes abbreviated to S or Sr.
 
     .. math::
-        St = \frac{\text{Characteristif flow time}}
+        St = \frac{\text{Characteristic flow time}}
         {\text{Period of oscillation}}
 
     Examples
@@ -1432,7 +1432,7 @@ def Jakob(Cp, Hvap, Te):
 
 def Power_number(P, L, N, rho):
     r'''Calculates power number, `Po`, for an agitator applying a specified
-    power `P` with a characteristic length `L`, rotationa speed `N`, to
+    power `P` with a characteristic length `L`, rotational speed `N`, to
     a fluid with a specified density `rho`.
 
     .. math::
@@ -2234,7 +2234,7 @@ def head_from_P(P, rho, g=g):
 
     Notes
     -----
-    By definition. Head varies with location, inversely propertional to the
+    By definition. Head varies with location, inversely proportional to the
     increase in gravitational constant.
 
     Examples

@@ -1073,7 +1073,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
 
     Notes
     -----
-    As there are no correlations implmented for Re > 1E6, an error will be
+    As there are no correlations implemented for Re > 1E6, an error will be
     raised if the numerical solver seeks a solution above that limit.
 
     The laminar solution is given in [1]_ and is:
@@ -1095,7 +1095,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
        New York: Wiley-VCH, 1996.
     '''
     '''The following would be the ideal implementation. The actual function is
-    optized for speed, not readability
+    optimized for speed, not readability
     def err(V):
         Re = rho*V*D/mu
         Cd = Barati_high(Re)

@@ -32,7 +32,7 @@ will be imported from here.
 
 >>> from fluids.vectorized import *
 
-Inputs do not need to be numpy arrays; they can be any interable:
+Inputs do not need to be numpy arrays; they can be any iterable:
 
 >>> fluids.vectorized.friction_factor(Re=[100, 1000, 10000], eD=0)
 array([ 0.64      ,  0.064     ,  0.03088295])

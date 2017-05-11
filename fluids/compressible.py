@@ -107,7 +107,7 @@ def isentropic_work_compression(T1, k, Z=1, P1=None, P2=None, W=None, eta=None):
     r'''Calculation function for dealing with compressing or expanding a gas
     going through an isentropic, adiabatic process assuming constant Cp and Cv. 
     The polytropic model is the same equation; just provide `n` instead of `k` 
-    and use a polytropic efficienty for `eta` instead of a isentropic 
+    and use a polytropic efficiency for `eta` instead of a isentropic 
     efficiency. Can calculate any of the following, given all the other inputs:
 
     * W, Work of compression
@@ -674,7 +674,7 @@ def T_stagnation(T, P, Pst, k):
 def T_stagnation_ideal(T, V, Cp):
     r'''Calculates the ideal stagnation temperature `Tst` calculated assuming
     the fluid has a constant heat capacity `Cp` and with a specified
-    velocity `V` and tempeature `T`.
+    velocity `V` and temperature `T`.
 
     .. math::
         T^* = T + \frac{V^2}{2C_p}
@@ -777,7 +777,7 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
         * If calculating the pressure drop, the average gas density cannot
           be known immediately; iteration must be used to correct this.
         * The friction factor depends on both the gas density and velocity,
-          so it should be solved for iteratively as well. It changes thoughout
+          so it should be solved for iteratively as well. It changes throughout
           the pipe as the gas expands and velocity increases.
         * The model is not easily adapted to include elevation effects due to 
           the acceleration term included in it.
@@ -1298,7 +1298,7 @@ def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7
 
     Notes
     -----
-    This equation is often presented without any corection for reference
+    This equation is often presented without any correction for reference
     conditions for specific gravity.
 
     This model is also presented in [2]_ with a leading constant of 1.0815E-2,
@@ -1403,7 +1403,7 @@ def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
 
     Notes
     -----
-    This equation is often presented without any corection for reference
+    This equation is often presented without any correction for reference
     conditions for specific gravity.
 
     This model is also presented in [2]_ with a leading constant of 5.69E-2,
@@ -1717,7 +1717,7 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     SI form was incorrectly converted and yields much higher flow rates. The
     imperial version has a leading constant of 85.7368, the same powers as
     used here except with rounded values of powers of viscosity (0.2609) and
-    specific gravity (0.7391) rearanged to be inside the bracketed group;
+    specific gravity (0.7391) rearranged to be inside the bracketed group;
     its units are inches (diameter), psi, miles (length),
     Rankine, pound/(foot*second) for viscosity, and ft^3/day.
 
@@ -1826,7 +1826,7 @@ def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     This model is also presented in [2]_  in both SI and imperial form. Both
     forms are correct. The imperial version has a leading constant of 136.9,
     the same powers as used here except with rounded values of powers of
-    viscosity (0.2) and specific gravity (0.8) rearanged to be inside the
+    viscosity (0.2) and specific gravity (0.8) rearranged to be inside the
     bracketed group; its units are inches (diameter), psi, miles (length),
     Rankine, pound/(foot*second) for viscosity, and ft^3/day.
 

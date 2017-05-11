@@ -52,10 +52,10 @@ from fluids, the user can import from fluids.vectorized:
 >>> friction_factor(Re=[100, 1000, 10000], eD=0)
 array([ 0.64      ,  0.064     ,  0.03088295])
 
-Dimentionless numbers
+Dimensionless numbers
 ---------------------
 
-More than 30 dimentionless numbers are available in :ref:`fluids.core <fluids.core>`:
+More than 30 Dimensionless numbers are available in :ref:`fluids.core <fluids.core>`:
 
 Calculation of Reynolds and Prandtl number for water flowing in a 0.01 m 
 diameter pipe at 1.5 m/s:
@@ -65,7 +65,7 @@ diameter pipe at 1.5 m/s:
 >>> fluids.core.Prandtl(rho=1000, mu=1E-3, Cp=4200, k=0.6)
 7.000000000000001
 
-Where different parameters may be used with a dimentionless number, either
+Where different parameters may be used with a dimensionless number, either
 a separate function is created for each or both sets of parameters are can
 be specified. For example, instead of specifying viscosity and density for the
 Reynolds number calculation, kinematic viscosity could have been used instead:

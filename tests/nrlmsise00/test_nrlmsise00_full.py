@@ -77,3 +77,8 @@ def test_ATMOSPHERE_NRLMSISE00():
     f = np.loadtxt(name, delimiter=' ')    
     atms = [ATMOSPHERE_NRLMSISE00(100000., latitude=45, longitude=l, day=1, seconds=0, geomagnetic_disturbance_indices=[4]*7) for l in range(0, 361)]
     helper_test_match(f, atms)
+
+    # Custom test, particle total density and composition
+    atm = ATMOSPHERE_NRLMSISE00(Z=1E3, latitude=45, longitude=45, day=150)
+    assert_allclose(atm.particle_density, 2.2929008167737723e+25)
+    assert_allclose(atm.zs, [0.7811046347676225, 0.2095469403691101, 0.009343183088772914, 5.241774494627779e-06, 0.0, 0.0, 0.0])
