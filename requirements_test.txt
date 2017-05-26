@@ -3,4 +3,4 @@ pytest
 pytest-cov
 coveralls
 sympy
-fuzzywuzzy
+fuzzywuzzy==0.15.0
