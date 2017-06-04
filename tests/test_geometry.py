@@ -17,6 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
 from fluids import *
+from math import *
+import numpy as np
+from scipy.integrate import quad
 from numpy.testing import assert_allclose
 import pytest
 
@@ -336,3 +339,75 @@ def test_HelicalCoil():
         HelicalCoil(Do=10, H=30, N=2, Dt=10.00000001)
     with pytest.raises(Exception):
         HelicalCoil(Do_total=20-1E-9, H=30, N=3., Dt=10.000)
+        
+        
+    
+def test_PlateExchanger():
+    ex = PlateExchanger(amplitude=5E-4, wavelength=3.7E-3, length=1.2, width=.3, d_port=.05, plates=51)
+    
+    assert str(ex) == 'L3.7A0.5B45-45'
+    assert_allclose(ex.amplitude, 0.0005)
+    assert_allclose(ex.a, 0.0005)
+    assert_allclose(ex.b, 0.001)
+    assert_allclose(ex.wavelength, 3.7E-3)
+    assert_allclose(ex.pitch, 3.7E-3)
+
+    assert ex.chevron_angle == 45
+    assert ex.chevron_angles == (45, 45)
+    
+    assert ex.inclination_angle == 45
+    
+    assert_allclose(ex.plate_corrugation_aspect_ratio, 0.5405405405405406)
+    assert_allclose(ex.gamma, 0.5405405405405406)
+    assert_allclose(ex.plate_enlargement_factor, 1.1611862034509677)
+    
+    assert_allclose(ex.D_eq, 0.002)
+    assert_allclose(ex.D_hydraulic, 0.0017223766473078426)
+    
+    assert_allclose(ex.length_port, 1.25)
+    
+    assert_allclose(ex.A_plate_surface, 0.41802703324234836)
+    assert_allclose(ex.A_heat_transfer, 20.483324628875071)
+    assert_allclose(ex.A_channel_flow, 0.0003)
+    assert ex.channels == 50
+    assert ex.channels_per_fluid == 25
+    
+    ex = PlateExchanger(amplitude=5E-4, wavelength=3.7E-3, length=1.2, width=.3, d_port=.05, plates=51, chevron_angle=(30, 60))
+    assert ex.chevron_angle == 45
+    assert ex.chevron_angles == (30, 60)
+    
+    ex = PlateExchanger(amplitude=5E-4, wavelength=3.7E-3)
+    
+    
+def test_plate_enhancement_factor():
+    def plate_enlargement_factor_approx(amplitude, wavelength):
+        # Approximate formula
+        lambda1 = wavelength
+        b = amplitude
+        A = 2*pi*b/lambda1
+        return 1/6.*(1 + (1 + A**2)**0.5 + 4*(1 + 0.5*A**2)**0.5)
+    
+    # 1.218 in VDI example
+    phi = plate_enlargement_factor_approx(amplitude=0.002, wavelength=0.0126)
+    assert_allclose(phi, 1.217825410973735)
+    assert_allclose(phi, 1.218, rtol=1E-3)
+
+    def plate_enlargement_factor_numerical(amplitude, wavelength):
+        lambda1 = wavelength
+        b = amplitude
+        gamma = 4*b/lambda1
+        
+        def to_int(s):
+            return (1 + (gamma*pi/2)**2*cos(2*pi/lambda1*s)**2)**0.5
+        main = quad(to_int, 0, lambda1)[0]
+        
+        return main/lambda1
+    phi = plate_enlargement_factor_numerical(amplitude=0.002, wavelength=0.0126)
+    assert_allclose(phi, 1.2149896289702244)
+    
+    # Confirm it's correct to within 1E-7
+    for x in np.linspace(1E-5, 100, 10):
+        for y in np.linspace(1E-5, 100, 10):
+            a = PlateExchanger.plate_enlargement_factor_analytical(x, y)
+            b = plate_enlargement_factor_numerical(x, y)
+            assert_allclose(a, b, rtol=1E-7)

@@ -26,9 +26,10 @@ import numpy as np
 from scipy.interpolate import interp1d
 from scipy.integrate import quad
 from scipy.optimize import newton
+from scipy.special import ellipe
 
-__all__ = ['TANK', 'HelicalCoil', 'SA_partial_sphere', 'V_partial_sphere', 
-'V_horiz_conical',
+__all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'SA_partial_sphere', 
+           'V_partial_sphere', 'V_horiz_conical',
            'V_horiz_ellipsoidal', 'V_horiz_guppy', 'V_horiz_spherical',
            'V_horiz_torispherical', 'V_vertical_conical',
            'V_vertical_ellipsoidal', 'V_vertical_spherical',
@@ -78,8 +79,8 @@ def SA_partial_sphere(D, h):
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
        http://mathworld.wolfram.com/SphericalCap.html.'''
     r = D*0.5
-    a = (h*(2*r - h))**0.5
-    return pi*(a**2 + h**2)
+    a = (h*(2.*r - h))**0.5
+    return pi*(a*a + h*h)
 
 
 def V_partial_sphere(D, h):
@@ -114,9 +115,9 @@ def V_partial_sphere(D, h):
     ----------
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
        http://mathworld.wolfram.com/SphericalCap.html.'''
-    r = D/2
-    a = (h*(2*r - h))**0.5
-    return 1/6.*pi*h*(3*a**2 + h**2)
+    r = 0.5*D
+    a = (h*(2.*r - h))**0.5
+    return 1/6.*pi*h*(3.*a*a + h*h)
 
 
 
@@ -193,18 +194,18 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
     R = D/2.
-    Af = R**2*acos((R-h)/R) - (R-h)*(2*R*h - h**2)**0.5
+    Af = R*R*acos((R-h)/R) - (R-h)*(2*R*h - h*h)**0.5
     M = abs((R-h)/R)
     if h == R:
-        Vf = 2*a*R**2/3*pi/2
+        Vf = a*R*R/3.*pi
     else:
-        K = acos(M) + M**3*acosh(1./M) - 2*M*(1-M**2)**0.5
-        if 0 <= h < R:
-            Vf = 2*a*R**2/3*K
+        K = acos(M) + M*M*M*acosh(1./M) - 2.*M*(1.-M*M)**0.5
+        if 0. <= h < R:
+            Vf = 2.*a*R*R/3*K
         elif R < h <= 2*R:
-            Vf = 2*a*R**2/3*(pi-K)
+            Vf = 2.*a*R*R/3*(pi - K)
     if headonly:
-        Vf = Vf/2.
+        Vf = 0.5*Vf
     else:
         Vf += Af*L
     return Vf
@@ -247,11 +248,11 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
-    R = D/2.
-    Af = R**2*acos((R-h)/R) - (R-h)*(2*R*h - h**2)**0.5
-    Vf = pi*a*h**2*(1 - h/3./R)
+    R = 0.5*D
+    Af = R*R*acos((R-h)/R) - (R-h)*(2*R*h - h*h)**0.5
+    Vf = pi*a*h*h*(1 - h/(3.*R))
     if headonly:
-        Vf = Vf/2.
+        Vf = 0.5*Vf
     else:
         Vf += Af*L
     return Vf
@@ -295,9 +296,9 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
-    R = D/2.
-    Af = R**2*acos((R-h)/R) - (R-h)*(2*R*h - h**2)**0.5
-    Vf = 2*a*R**2/3*acos(1 - h/R) + 2*a/9./R*(2*R*h - h**2)**0.5*(2*h - 3*R)*(h + R)
+    R = 0.5*D
+    Af = R*R*acos((R-h)/R) - (R-h)*(2.*R*h - h*h)**0.5
+    Vf = 2.*a*R*R/3.*acos(1. - h/R) + 2.*a/9./R*(2*R*h - h**2)**0.5*(2*h - 3*R)*(h + R)
     if headonly:
         Vf = Vf/2.
     else:
@@ -1905,6 +1906,58 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
             self.annulus_area = self.total_inlet_area - self.inlet_area
             self.annulus_volume = self.total_volume - self.inner_volume
 
+
+class PlateExchanger(object):
+    def __repr__(self):
+        # wavelength and amplitude in mm.
+        s = ('L' + str(round(self.wavelength*1000, 2))
+             + 'A' + str(round(self.amplitude*1000, 2))
+             + 'B' + '-'.join([str(i) for i in self.chevron_angles]))
+        return s
+    
+    @staticmethod
+    def plate_enlargement_factor_analytical(amplitude, wavelength):
+        b = 2*amplitude
+        return 2*ellipe(-b*b*pi*pi/(wavelength*wavelength))/pi
+    
+    def __init__(self, amplitude, wavelength, chevron_angle=45, width=None,
+                 length=None, thickness=None, d_port=None, plates=None):
+        self.amplitude = self.a = amplitude # half a sine wave's height
+        self.b = 2*self.amplitude # Used in some models. From a flat plate, a press goes down this far into the plate. Also called the hot and cold gap
+        self.wavelength = self.pitch = wavelength # self.lambda
+        if isinstance(chevron_angle, tuple):
+            self.chevron_angles = chevron_angle
+            self.chevron_angle = self.beta = 0.5*(chevron_angle[0]+chevron_angle[1])
+        else:
+            self.chevron_angle = self.beta = chevron_angle # between 0 and 90
+            self.chevron_angles = (chevron_angle, chevron_angle)
+            
+        self.inclination_angle = 90 - self.chevron_angle # Used in some definitions instead
+
+        self.plate_corrugation_aspect_ratio = self.gamma = 4*self.a/self.wavelength
+        self.plate_enlargement_factor = self.plate_enlargement_factor_analytical(self.amplitude, self.wavelength)
+        
+        self.D_eq = 4*self.amplitude # Equivalent diameter for inter-plate spacing
+        self.D_hydraulic = 4*self.amplitude/self.plate_enlargement_factor # Get better results when correlations use this
+        
+        self.width = width
+        self.length = length
+        self.thickness = thickness
+        self.d_port = d_port
+        self.plates = plates
+                
+        if d_port and length:
+            self.length_port = self.length + self.d_port # port center to port center along the direction of flow
+            # There is another larger length as well, including both port diameters
+        if width and length:
+            self.A_plate_surface = self.length*self.width*self.plate_enlargement_factor # use this in Q = UAdT
+            if plates:
+                self.A_heat_transfer = (self.plates-2)*self.A_plate_surface # the two outermost sides aren't used
+        if width: 
+            self.A_channel_flow = self.width*self.b # Use this to get G, kg/s/m^2
+        if plates:
+            self.channels = self.plates - 1
+            self.channels_per_fluid = 0.5*self.channels
 
 
 
