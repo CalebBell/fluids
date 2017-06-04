@@ -345,7 +345,7 @@ def test_HelicalCoil():
 def test_PlateExchanger():
     ex = PlateExchanger(amplitude=5E-4, wavelength=3.7E-3, length=1.2, width=.3, d_port=.05, plates=51)
     
-    assert str(ex) == 'L3.7A0.5B45-45'
+    assert ex.plate_exchanger_identifier == 'L3.7A0.5B45-45'
     assert_allclose(ex.amplitude, 0.0005)
     assert_allclose(ex.a, 0.0005)
     assert_allclose(ex.b, 0.001)
