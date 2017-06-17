@@ -21,7 +21,7 @@ matrix:
   include:
     - os: "linux"
       compiler: "2.7"
-      env: SCIPY_VER="scipy=0.14.0" 
+      env: SCIPY_VER="scipy=0.18.0" 
 notifications:
   email: false
 install:
