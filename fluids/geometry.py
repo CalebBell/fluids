@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016-2017, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -1954,7 +1954,7 @@ class PlateExchanger(object):
         The extra surface area multiplier as compared to a flat plate
         caused the corrugations, [-]
     D_eq : float
-        Equivalent dyameter of the channels, :math:`D_{eq} = 4a` [m]
+        Equivalent diameter of the channels, :math:`D_{eq} = 4a` [m]
     D_hydraulic : float
         Hydraulic diameter of the channels, :math:`D_{hyd} = \frac{4a}{\phi}` [m]
     length_port : float

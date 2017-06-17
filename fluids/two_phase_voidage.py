@@ -693,7 +693,7 @@ def Kawahara(x, rhol, rhog, D):
     else:
         C1, C2 = 0.02, 0.98
     alpha_h = homogeneous(x, rhol, rhog)
-    return C1*alpha_h**0.5/(1 - C2*alpha_h**0.5) 
+    return C1*alpha_h**0.5/(1. - C2*alpha_h**0.5) 
 
 ### Miscellaneous correlations
 

@@ -2619,6 +2619,7 @@ curved_friction_transition_methods = {'Seth Stahel': helical_transition_Re_Seth_
                                       'Schmidt': helical_transition_Re_Schmidt,
                                       'Srinivasan': helical_transition_Re_Srinivasan}
 
+
 def friction_factor_curved(Re, Di, Dc, roughness=0, Method=None, 
                            Rec_method='Schmidt', 
                            laminar_method='Schmidt laminar',
