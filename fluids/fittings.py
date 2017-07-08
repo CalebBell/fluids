@@ -30,7 +30,7 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'entrance_sharp', 'entrance_distance', 'entrance_angled',
 'entrance_rounded', 'entrance_beveled', 'exit_normal', 'bend_rounded',
 'bend_miter', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
-'Kv_to_K', 'K_to_Kv', 'Darby', 'Hooper']
+'Kv_to_K', 'K_to_Kv', 'Cv_to_K', 'K_to_Cv', 'Darby', 'Hooper']
 
 ### Entrances
 
@@ -1134,33 +1134,40 @@ def Kv_to_Cv(Kv):
     r'''Convert valve flow coefficient from imperial to common metric units.
 
     .. math::
-        C_v = 1.1560992283540599 K_v
+        C_v = 1.156 K_v
 
     Parameters
     ----------
     Kv : float
-        Valve flow coefficient, [1 m^3 cold water/hour at dP = 1 bar]
+        Metric valve flow coefficient, [m^3 water/hour (at a dP = 1 bar)]
 
     Returns
     -------
     Cv : float
-        Valve flow coefficient, [1 gpm water at 1.0 psi dP]
+        Imperial valve flow coefficient, [gpm water (at a dP = 1 psi)]
 
     Notes
     -----
     Kv = 0.865 Cv is in the IEC standard 60534-2-1.
     It has also been said that Cv = 1.17Kv; this is wrong by current standards.
+    
+    The conversion factor does not depend on the density of the fluid or the
+    diameter of the valve. It is calculated with the definition of a US gallon
+    as 231 cubic inches, and a psi as a pound-force per square inch.
+
+    The exact conversion coefficient between Kv to Cv is 1.1560992283536566;
+    it is rounded in the formula above.
 
     Examples
     --------
     >>> Kv_to_Cv(2)
-    2.3121984567081197
+    2.3121984567073133
 
     References
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
-    return 1.1560992283540599*Kv
+    return 1.1560992283536566*Kv
 
 
 def Cv_to_Kv(Cv):
@@ -1172,28 +1179,35 @@ def Cv_to_Kv(Cv):
     Parameters
     ----------
     Cv : float
-        Valve flow coefficient, [1 gpm water at 1.0 psi dP]
+        Imperial valve flow coefficient, [gpm water (at a dP = 1 psi)]
 
     Returns
     -------
     Kv : float
-        Valve flow coefficient, [1 m^3 cold water/hour at dP = 1 bar]
+        Metric valve flow coefficient, [m^3 water/hour (at a dP = 1 bar)]
 
     Notes
     -----
     Kv = 0.865 Cv is in the IEC standard 60534-2-1.
     It has also been said that Cv = 1.17Kv; this is wrong by current standards.
 
+    The conversion factor does not depend on the density of the fluid or the
+    diameter of the valve. It is calculated with the definition of a US gallon
+    as 231 cubic inches, and a psi as a pound-force per square inch.
+
+    The exact conversion coefficient between Kv to Cv is 1.1560992283536566;
+    it is rounded in the formula above.
+
     Examples
     --------
     >>> Cv_to_Kv(2.312)
-    1.9998283393819036
+    1.9998283393826013
 
     References
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
-    return Cv/1.1560992283540599
+    return Cv/1.1560992283536566
 
 
 def Kv_to_K(Kv, D):
@@ -1201,12 +1215,14 @@ def Kv_to_K(Kv, D):
     loss coefficients.
 
     .. math::
-        K = 0.001604 \frac{D^4}{K_v^2}
-
+        K = 1.6\times 10^9 \frac{D^4}{K_v^2}
+        
     Parameters
     ----------
     Kv : float
-        Valve flow coefficient, [1 m^3 cold water/hour at dP = 1 bar]
+        Metric valve flow coefficient, [m^3 water/hour (at a dP = 1 bar)]
+    D : float
+        Inside diameter of the valve [m]
 
     Returns
     -------
@@ -1215,48 +1231,154 @@ def Kv_to_K(Kv, D):
 
     Notes
     -----
+    Crane TP 410 M (2009) gives the coefficient of 0.04 (with diameter in mm).
+    
+    It also suggests the density of water should be found between 5-40°C. 
+    Older versions specify the density should be found at 60 °F, which is
+    used here, and the pessure for the appropriate density is back calculated.
 
+    .. math::
+        \Delta P = 1 \text{ bar} = \frac{1}{2}\rho V^2\cdot K
+        
+        V = \frac{\frac{K_v\cdot \text{ hour}}{3600 \text{ second}}}{\frac{\pi}{4}D^2}
+        
+        \rho = 999.29744568 \;\; kg/m^3  \text{ at } T=60° F, P = 703572 Pa
+
+    The value of density is calculated with IAPWS-95; it is chosen as it makes
+    the coefficient a very convenient round number. Others constants that have
+    been used are 1.604E9, and 1.60045E9.
 
     Examples
     --------
     >>> Kv_to_K(2.312, .015)
-    15.1912580369009
+    15.153374600399898
 
     References
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
-    return 0.001604E12*D**4/Kv**2
+    return 1.6E9*D**4*Kv**-2
 
 
 def K_to_Kv(K, D):
     r'''Convert regular loss coefficient to valve flow coefficient.
 
     .. math::
-        K_v = \sqrt{0.001604 \frac{D^4}{K}}
+        K_v = 4\times 10^4 \sqrt{ \frac{D^4}{K}}
 
     Parameters
     ----------
     K : float
         Loss coefficient, [-]
+    D : float
+        Inside diameter of the valve [m]
 
     Returns
     -------
     Kv : float
-        Valve flow coefficient, [1 m^3 cold water/hour at dP = 1 bar]
+        Metric valve flow coefficient, [m^3 water/hour (at a dP = 1 bar)]
 
     Notes
     -----
+    Crane TP 410 M (2009) gives the coefficient of 0.04 (with diameter in mm).
+    
+    It also suggests the density of water should be found between 5-40°C. 
+    Older versions specify the density should be found at 60 °F, which is
+    used here, and the pessure for the appropriate density is back calculated.
 
+    .. math::
+        \Delta P = 1 \text{ bar} = \frac{1}{2}\rho V^2\cdot K
+        
+        V = \frac{\frac{K_v\cdot \text{ hour}}{3600 \text{ second}}}{\frac{\pi}{4}D^2}
+        
+        \rho = 999.29744568 \;\; kg/m^3 \text{ at } T=60° F, P = 703572 Pa
+
+    The value of density is calculated with IAPWS-95; it is chosen as it makes
+    the coefficient a very convenient round number. Others constants that have
+    been used are 1.604E9, and 1.60045E9.
 
     Examples
     --------
-    >>> K_to_Kv(15.1912580369009, .015)
+    >>> K_to_Kv(15.15337460039990, .015)
     2.312
 
     References
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
-    return (0.001604E12*D**4/K)**0.5
+    return D*D*(1.6E9/K)**0.5
 
+
+def K_to_Cv(K, D):
+    r'''Convert regular loss coefficient to imperial valve flow coefficient.
+
+    .. math::
+        K_v = 1.156 \cdot 4\times 10^4 \sqrt{ \frac{D^4}{K}}
+        
+    Parameters
+    ----------
+    K : float
+        Loss coefficient, [-]
+    D : float
+        Inside diameter of the valve [m]
+
+    Returns
+    -------
+    Cv : float
+        Imperial valve flow coefficient, [gpm water (at a dP = 1 psi)]
+
+    Notes
+    -----
+    The conversion factor does not depend on the density of the fluid or the
+    diameter of the valve. It is calculated with the definition of a US gallon
+    as 231 cubic inches, and a psi as a pound-force per square inch.
+
+    The exact conversion coefficient between Kv to Cv is 1.1560992283536566;
+    it is rounded in the formula above.
+
+    Examples
+    --------
+    >>> K_to_Cv(16, .015)
+    2.601223263795727
+    
+    References
+    ----------
+    .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
+    '''
+    return 1.1560992283536566*D*D*(1.6E9/K)**0.5
+
+
+def Cv_to_K(Cv, D):
+    r'''Convert imperial valve flow coefficient from imperial units to regular
+    loss coefficients.
+
+    .. math::
+        K = 1.6\times 10^9 \frac{D^4}{\left(\frac{C_v}{1.56}\right)^2}
+        
+    Parameters
+    ----------
+    Cv : float
+        Imperial valve flow coefficient, [gpm water (at a dP = 1 psi)]
+    D : float
+        Inside diameter of the valve [m]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient, [-]
+
+    Notes
+    -----
+    The exact conversion coefficient between Kv to Cv is 1.1560992283536566;
+    it is rounded in the formula above.
+
+    Examples
+    --------
+    >>> Cv_to_K(2.712, .015)
+    14.719595348352552
+
+    References
+    ----------
+    .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
+    '''
+    return 1.6E9*D**4*(Cv/1.1560992283536566)**-2

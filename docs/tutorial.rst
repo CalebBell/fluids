@@ -860,6 +860,42 @@ V=3 m/s, Di=0.05, roughness 0.01 mm):
 >>> dP_from_K(K, rho=1000, V=3)
 37920.51140146369
 
+Valve sizing
+------------
+The now internationally-standardized methods (IEC 60534) for sizing liquid and 
+gas valves have been implemented. Conversion factors among the different types
+of valve coefficients are implemented as well.
+
+There are two forms of loss coefficient used for vales, an imperial and a metric
+variable called "valve flow coefficient". Both can be converted to the standard
+dimensionless loss coefficient. 
+
+If one knows the actual loss coefficient of a valve, the valve flow coefficient
+can be calculated in either metric or imperial forms as follows. The flow
+coefficients are specific to the diameter of the valve.
+
+>>> K_to_Kv(K=16, D=0.016)
+2.56
+>>> K_to_Cv(K=16, D=0.016)
+2.9596140245853606
+
+If Kv or Cv are known, they can be converted to each other with the
+proportionality constant 1.156, which is derived from a unit conversion only.
+This conversion does not require valve diameter.
+
+>>> Cv_to_Kv(12)
+10.379731865307619
+>>> Kv_to_Cv(10.37)
+11.988748998027418
+
+If a Cv or Kv is obtained from a valve datasheet, it can be converted into a
+standard loss coefficient as follows.
+
+>>> Kv_to_K(Kv=2.56, D=0.016)
+16.000000000000004
+>>> Cv_to_K(Cv=3, D=0.016)
+15.57211586581753
+
 
 Electric motor sizing
 ---------------------

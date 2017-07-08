@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
 from fluids import *
+from math import pi
 from numpy.testing import assert_allclose
 import pytest
 
@@ -130,11 +131,50 @@ def test_fittings():
     with pytest.raises(Exception):
         Hooper2K(Di=2., Re=10000, name='fail')
 
+
+def test_valve_coefficients():
     Cv = Kv_to_Cv(2)
-    assert_allclose(Cv, 2.3121984567081197)
+    assert_allclose(Cv, 2.3121984567073133)
     Kv = Cv_to_Kv(2.312)
-    assert_allclose(Kv, 1.9998283393819036)
+    assert_allclose(Kv, 1.9998283393826013)
     K = Kv_to_K(2.312, .015)
-    assert_allclose(K, 15.1912580369009)
-    Kv = K_to_Kv(15.1912580369009, .015)
+    assert_allclose(K, 15.15337460039990)
+    Kv = K_to_Kv(15.15337460039990, .015)
     assert_allclose(Kv, 2.312)
+    
+    # Two way conversions
+    K = Cv_to_K(2.712, .015)
+    assert_allclose(K, 14.719595348352552)
+    assert_allclose(K, Kv_to_K(Cv_to_Kv(2.712), 0.015))
+    
+    Cv = K_to_Cv(14.719595348352552, .015)
+    assert_allclose(Cv, 2.712)
+    assert_allclose(Cv, Kv_to_Cv(K_to_Kv(14.719595348352552, 0.015)))
+    
+    # Code to generate the Kv Cv conversion factor
+    # Round 1 trip; randomly assume Kv = 12, rho = 900; they can be anything
+    # an tit still works
+    dP = 1E5
+    rho = 900.
+    Kv = 12.
+    Q = Kv/3600.
+    D = .01
+    V = Q/(pi/4*D**2)
+    K = dP/(.5*rho*V*V)
+    good_K = K
+
+    def to_solve(x):
+        from scipy.constants import gallon, minute, hour, psi
+        conversion = gallon/minute*hour # from gpm to m^3/hr
+        dP = 1*psi
+        Cv = Kv*x*conversion
+        Q = Cv/3600
+        D = .01
+        V = Q/(pi/4*D**2)
+        K = dP/(.5*rho*V*V)
+        return K - good_K
+    
+    from scipy.optimize import newton
+    
+    ans = newton(to_solve, 1.2)
+    assert_allclose(ans, 1.1560992283536566)
