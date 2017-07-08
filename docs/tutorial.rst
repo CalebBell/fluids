@@ -87,6 +87,10 @@ transfer version; it always requires mass diffusivity.
 >>> Fourier_mass(t=1.5, L=2, D=1E-9)
 3.7500000000000005e-10
 
+Among the other coded dimensionless numbers are Grashof, Nusselt, Sherwood, 
+Rayleigh, Schmidt, Weber, Mach, Knudsen, Bond, Dean, Froude, Biot, Stanton, 
+and Euler.
+
 Miscellaneous utilities
 -----------------------
 More than just dimensionless groups are implemented in fluids.core.

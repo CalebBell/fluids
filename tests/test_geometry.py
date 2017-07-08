@@ -69,6 +69,10 @@ def test_geometry():
     assert_allclose(V_calc, Vs)
 
     # Test when the integration function is called, on its limits:
+    # The integral can be done analytically, but there's a zero to the power of negative integer error
+    # the expression is 
+    # -cmath.atan(cmath.sqrt((R ** 2 - x ** 2) / (-R ** 2 + r ** 2))) * x ** 3 / 3 + cmath.atan(cmath.sqrt((R ** 2 - x ** 2) / (-R ** 2 + r ** 2))) * r ** 2 * x + x * (R ** 2 - r ** 2) * cmath.sqrt(0.1e1 / (R ** 2 - r ** 2) * x ** 2 - R ** 2 / (R ** 2 - r ** 2)) / 6 + R ** 2 * cmath.log(x / (R ** 2 - r ** 2) * (0.1e1 / (R ** 2 - r ** 2)) ** (-0.1e1 / 0.2e1) + cmath.sqrt(0.1e1 / (R ** 2 - r ** 2) * x ** 2 - R ** 2 / (R ** 2 - r ** 2))) * (0.1e1 / (R ** 2 - r ** 2)) ** (-0.1e1 / 0.2e1) / 6 - 0.2e1 / 0.3e1 * r ** 2 * cmath.log(x / (R ** 2 - r ** 2) * (0.1e1 / (R ** 2 - r ** 2)) ** (-0.1e1 / 0.2e1) + cmath.sqrt(0.1e1 / (R ** 2 - r ** 2) * x ** 2 - R ** 2 / (R ** 2 - r ** 2))) * (0.1e1 / (R ** 2 - r ** 2)) ** (-0.1e1 / 0.2e1) - r ** 3 * cmath.atan((-2 + 2 / (R ** 2 - r ** 2) * r * (x - r)) * (0.1e1 / (R ** 2 - r ** 2) * (x - r) ** 2 + 2 / (R ** 2 - r ** 2) * r * (x - r) - 1) ** (-0.1e1 / 0.2e1) / 2) / 3 + r ** 3 * cmath.atan((-2 - 2 / (R ** 2 - r ** 2) * r * (x + r)) * (0.1e1 / (R ** 2 - r ** 2) * (x + r) ** 2 - 2 / (R ** 2 - r ** 2) * r * (x + r) - 1) ** (-0.1e1 / 0.2e1) / 2) / 3
+
     Vs = [V_horiz_spherical(D=108., L=156., a=i, h=84.)/231. for i in (108*.009999999, 108*.01000001)]
     V_calc = [5201.54341872961, 5201.543461255985]
     assert_allclose(Vs, V_calc)

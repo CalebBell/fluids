@@ -481,14 +481,18 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     h2 = D - h1
 
     def V1_toint(x, w):
+        # No analytical integral available in MP
         n = R - k*D + (k**2*D**2 - x**2)**0.5
         ans = n**2*asin((n**2-w**2)**0.5/n) - w*(n**2 - w**2)**0.5
         return ans
     def V2_toint(x, w):
+        # No analytical integral available in MP
         n = R - k*D + (k**2*D**2 - x**2)**0.5
         ans = n**2*(acos(w/n) - acos(g/n)) - w*(n**2 - w**2)**0.5 + g*(n**2-g**2)**0.5
         return ans
     def V3_toint(x):
+        # There is an analytical integral in MP, but for all cases we seem to 
+        # get ZeroDivisionError: 0.0 cannot be raised to a negative power
         ans = (r**2-x**2)*atan((g**2-x**2)**0.5/z)
         return ans
 
