@@ -860,8 +860,8 @@ V=3 m/s, Di=0.05, roughness 0.01 mm):
 >>> dP_from_K(K, rho=1000, V=3)
 37920.51140146369
 
-Valve sizing
-------------
+Control valve sizing: Introduction
+----------------------------------
 The now internationally-standardized methods (IEC 60534) for sizing liquid and 
 gas valves have been implemented. Conversion factors among the different types
 of valve coefficients are implemented as well.
@@ -896,6 +896,113 @@ standard loss coefficient as follows.
 >>> Cv_to_K(Cv=3, D=0.016)
 15.57211586581753
 
+For a valve with a specified Kv and pressure drop, the flow rate can be calculated
+easily for the case of non-chocked non-compressible flow (neglecting other friction 
+losses), as illustrated in the example below for a 5 cm valve with a pressure drop
+370 kPa and density of 870 kg/m^3:
+
+>>> Kv = 72.5
+>>> D = 0.05 
+>>> dP = 370E3
+>>> K = Kv_to_K(D=D, Kv=Kv)
+>>> rho = 870
+>>> V = (dP/(.5*rho*K))**0.5 # dP = K*0.5*rho*V^2
+>>> A = pi/4*D**2
+>>> Q = V*A
+>>> Q
+0.04151682468778643
+
+Alternatively, the required Kv can be calculated from an assumed diameter and allowable
+pressure drop:
+
+>>> Q = .05
+>>> D = 0.05 
+>>> dP = 370E3
+>>> rho = 870
+>>> A = pi/4*D**2
+>>> V = Q/A
+>>> K = dP/(.5*rho*V**2)
+>>> K_to_Kv(D=D, K=K)
+87.31399925838778
+
+The approach documented above is not an adequate procedure for sizing valves
+however because chocked flow, compressible flow, the effect of inlet and outlet
+reducers, the effect of viscosity and the effect of laminar/turbulent flow all
+have large influences on the performance of control valves. 
+
+Historically, valve manufacturers had their own standards for sizing valves, 
+but these have been standardized today into the IEC 60534 methods. 
+
+Control valve sizing: Liquid flow
+---------------------------------
+To rigorously size a control valve for liquid flow, the inlet pressure, 
+allowable pressure drop, and desired flow rate must first be known. 
+These need to be determined taking into account the entire pipe network
+and the various operating conditions it needs to support; sizing the valves
+can be performed afterward and only if no valve with the desired performance
+is available does the network need to be redesigned. 
+
+To illustrate sizing a valve, we borrow an example from Emerson's
+Control Valve Handbook, 4th edition (2005). It involves a flow of 800 gpm of
+liquid propane. The inlet and outlet pipe size is 8 inches, but the size of the 
+valve itself is unknown. The desired pressure drop is 25 psi. 
+
+Converting this problem to SI units and using the thermo library to calculate
+the necessary properties of the fluid, we calculate the necessary Kv of the 
+valve based on an assumed valve size of 3 inches:
+
+>>> from scipy.constants import *
+>>> from fluids.control_valve import size_control_valve_l
+>>> from thermo.chemical import Chemical
+>>> P1 = 300*psi + psi # to Pa
+>>> P2 = 275*psi + psi # to Pa
+>>> T = 273.15 + 21 # to K
+>>> propane = Chemical('propane', P=(P1+P2)/2, T=T)
+>>> rho = propane.rho
+>>> Psat = propane.Psat
+>>> Pc = propane.Pc
+>>> mu = propane.mu
+>>> Q = 800*gallon/minute # to m^3/s
+>>> D1 = D2 = 8*inch # to m
+>>> d = 3*inch # to m
+
+The standard specifies two more parameters specific to a valve:
+
+* FL, Liquid pressure recovery factor of a control valve without attached fittings
+* Fd, Valve style modifier
+
+Both of these are factors between 0 and 1. In the Emerson handbook, they are 
+not considered in the sizing procedure and set to 1. These factors are also
+a function of the diameter of the valve and are normally tabulated next to the
+values of Cv or Kv for a valve.
+
+>>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)
+>>> 109.39701927957765
+
+The handbook states the Cv of the valve is 121; we convert Kv to Cv:
+
+>>> Kv_to_Cv(Kv=Kv)
+126.47380957330982
+
+The example in the book calculated Cv = 125.7, but doesn't actually use the 
+full calculation method. Either way, the valve will not carry the desired flow 
+rate; we need to try a larger valve size. The 4 inch is tried next in the 
+example, which has a known Cv of 203.
+
+>>> d = 4*inch # to m
+>>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)
+>>> Kv_to_Cv(Kv=Kv)
+116.17550388277834
+
+The calculated Cv is well under the valve's maximum Cv; we can select it.
+
+Two parameters to this model are only available for pure species. For liquid
+mixture, there are no defined procedures in the standard but it is reasonable
+to calculate vapor pressure as the bubble pressure, and the mixture's critical
+pressure through a mole-weighted average.
+
+For actual values of Cv, Fl, Fd, and available diameters, an excellent resource
+is the `Fisher Catalog 12 <http://www.documentation.emersonprocess.com/groups/public/documents/catalog/cat12_s1.pdf>`_.
 
 Electric motor sizing
 ---------------------

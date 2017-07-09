@@ -438,7 +438,8 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd):
     d : float
         Diameter of the valve [m]
     FL : float
-        Liquid pressure recovery factor of a control valve without attached fittings []
+        Liquid pressure recovery factor of a control valve without attached 
+        fittings []
     Fd : float
         Valve style modifier []
 
