@@ -1004,6 +1004,95 @@ pressure through a mole-weighted average.
 For actual values of Cv, Fl, Fd, and available diameters, an excellent resource
 is the `Fisher Catalog 12 <http://www.documentation.emersonprocess.com/groups/public/documents/catalog/cat12_s1.pdf>`_.
 
+Control valve sizing: Gas flow
+------------------------------
+To rigorously size a control valve for gas flow, the inlet pressure, 
+allowable pressure drop, and desired flow rate must first be known. 
+These need to be determined taking into account the entire pipe network
+and the various operating conditions it needs to support; sizing the valves
+can be performed afterward and only if no valve with the desired performance
+is available does the network need to be redesigned. 
+
+To illustrate sizing a valve, we borrow an example from Emerson's
+Control Valve Handbook, 4th edition (2005). It involves a flow of 6 million ft^3/hour
+of natural gas. The inlet and outlet pipe size is 8 inches, but the size of the 
+valve itself is unknown. The desired pressure drop is 150 psi. 
+
+Converting this problem to SI units and using the thermo library to calculate
+the necessary properties of the fluid, we calculate the necessary Kv of the 
+valve based on an assumed valve size of 8 inches.
+
+>>> from scipy.constants import *
+>>> from fluids.control_valve import size_control_valve_g
+>>> from thermo.chemical import Chemical
+>>> P1 = 214.7*psi
+>>> P2 = 64.7*psi
+>>> T = 16 + 273.15
+>>> natural_gas = Mixture('natural gas', T=T, P=(P1+P2)/2)
+>>> Z = natural_gas.Z
+>>> MW = natural_gas.MW
+>>> mu = natural_gas.mu
+>>> gamma = natural_gas.isentropic_exponent
+>>> Q = 6E6*foot**3/hour
+>>> D1 = D2 = d = 8*inch #  8-inch Fisher Design V250 
+
+The standard specifies three more parameters specific to a valve:
+
+* FL, Liquid pressure recovery factor of a control valve without attached fittings
+* Fd, Valve style modifier
+* xT, Pressure difference ratio factor of a valve without fittings at choked flow
+
+All three of these are factors between 0 and 1. In the Emerson handbook, FL and Fd are 
+not considered in the sizing procedure and set to 1. xT is specified as 0.137
+at full opening. These factors are also a function of the diameter of the 
+valve and are normally tabulated next to the values of Cv or Kv for a valve.
+Performing the calculation:
+
+>>> Kv = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=1, Fd=1, xT=.137)
+>>> Kv_to_Cv(Kv)
+1563.4479874210986
+
+The 8-inch valve is rated with Cv = 2190. The valve is adequate to provide 
+the desired flow because the rated Cv is higher. The calculated value in their
+example is 1515, differing slightly due to the properties used. 
+
+The example next does on to determine the actual opening position the valve
+should be set to to provide the required flow. Their conclusion is approximately
+75% open; we can do better using a numerical solver. The values of opening at
+different positions are obtained in this example from the valve's 
+`datasheet <http://www.emerson.com/documents/automation/141362.pdf>`_.
+
+Loading the data and creating interpolation functions so FL, Fd, and xT 
+are all smooth functions:
+
+>>> from scipy.interpolate import interp1d
+>>> from scipy.optimize import newton
+>>> openings = [.2, .3, .4, .5, .6, .7, .8, .9]
+>>> Fds = [0.59, 0.75, 0.85, 0.92, 0.96, 0.98, 0.99, 0.99]
+>>> Fls = [0.9, 0.9, 0.9, 0.85, 0.78, 0.68, 0.57, 0.45]
+>>> xTs = [0.92, 0.81, 0.85, 0.63, 0.58, 0.48, 0.29, 0.14]
+>>> Kvs = [24.1, 79.4, 153, 266, 413, 623, 1060, 1890]
+>>> Fd_interp = interp1d(openings, Fds, kind='cubic')
+>>> Fl_interp = interp1d(openings, Fls, kind='cubic')
+>>> xT_interp = interp1d(openings, xTs, kind='cubic')
+>>> Kv_interp = interp1d(openings, Kvs, kind='cubic')
+
+Creating and solving the objective function:
+
+>>> def to_solve(opening):
+>>>     Fd = float(Fd_interp(opening))
+>>>     Fl = float(Fl_interp(opening))
+>>>     xT = float(xT_interp(opening))
+>>>     Kv_lookup = float(Kv_interp(opening))
+>>>     Kv_calc = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=Fl, Fd=Fd, xT=xT)
+>>>     return Kv_calc - Kv_lookup
+>>> 
+>>> newton(to_solve, .8) # initial guess of 80%
+0.7495109870213784
+
+We see the valve should indeed be set to almost exactly 75% open to provide 
+the desired flow. 
+
 Electric motor sizing
 ---------------------
 Motors are available in standard sizes, mostly as designated by the
