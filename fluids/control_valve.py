@@ -24,7 +24,7 @@ from __future__ import division
 from math import log10
 from scipy.constants import R
 
-__all__ = ['cavitation_index', 'size_control_valve_l', 'size_control_valve_g']
+__all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index']
 
 N1 = 0.1 # m^3/hr, kPa
 N2 = 1.6E-3 # mm
