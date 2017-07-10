@@ -457,6 +457,13 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
     at ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/hwm93/.
     
     F2PY auto-compilation support is not yet currently supported.
+    To compile this file, run the following command in a shell after navigating
+    to $FLUIDSPATH/fluids/optional/. This should generate the file hwm93.so
+    in that directory.
+        
+    f2py -c hwm93.pyf hwm93.for --f77flags="-std=legacy"
+    
+    If the module is not compiled, an import error will be raised.
     
     References
     ----------
@@ -526,6 +533,18 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     at http://onlinelibrary.wiley.com/store/10.1002/2014EA000089/asset/supinfo/ess224-sup-0002-supinfo.tgz?v=1&s=2a957ba70b7cf9dd0612d9430076297c3634ea75.
     
     F2PY auto-compilation support is not yet currently supported.
+    To compile this file, run the following command in a shell after navigating
+    to $FLUIDSPATH/fluids/optional/. This should generate the file hwm14.so
+    in that directory.
+        
+    f2py -c hwm14.pyf hwm14.f90
+    
+    The fortran .pyf signature file is included with this project, but it can
+    also be re-created with the command:
+        
+    f2py -m hwm14 -h hwm14.pyf hwm14.f90
+    
+    If the module is not compiled, an import error will be raised.
     
     No patches were necessary to either the generated pyf or hwm14.f90 file,
     as the authors of [1]_ have made it F2PY compatible.

@@ -24,7 +24,10 @@ from __future__ import division
 from math import log10
 from scipy.constants import R
 
-__all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index']
+__all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index',
+           'FF_critical_pressure_ratio_l', 'is_choked_turbulent_l', 
+           'is_choked_turbulent_g', 'Reynolds_valve', 
+           'loss_coefficient_piping', 'Reynolds_factor']
 
 N1 = 0.1 # m^3/hr, kPa
 N2 = 1.6E-3 # mm
@@ -618,10 +621,10 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
     Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
     if Rev > 10000 and (D1 != d or D2 != d):
         # gas, using xTP and FLP
-        FP = 1
+        FP = 1.
         def iterate_piping_coef(Ci):
             loss = loss_coefficient_piping(d, D1, D2)
-            FP = (1 + loss/N2*(Ci/d**2)**2)**-0.5
+            FP = (1. + loss/N2*(Ci/d**2)**2)**-0.5
             loss_upstream = loss_coefficient_piping(d, D1)
             xTP = xT/FP**2/(1 + xT*loss_upstream/N5*(Ci/d**2)**2)
             choked = is_choked_turbulent_g(x, Fgamma, xTP=xTP)

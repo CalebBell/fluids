@@ -968,7 +968,8 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
     Reviews of this model are favorable.
 
     .. math::
-        K_f = \frac{K_1}{Re} + K_i\left(1 + \frac{K_d}{D_{\text{NPS}}^{0.3}}\right)
+        K_f = \frac{K_1}{Re} + K_i\left(1 + \frac{K_d}{D_{\text{NPS}}^{0.3}}
+        \right)
 
     Parameters
     ----------
