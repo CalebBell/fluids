@@ -138,10 +138,10 @@ def Reynolds(V, D, rho=None, mu=None, nu=None):
 
     Parameters
     ----------
-    D : float
-        Diameter [m]
     V : float
         Velocity [m/s]
+    D : float
+        Diameter [m]
     rho : float, optional
         Density, [kg/m^3]
     mu : float, optional
@@ -2125,10 +2125,10 @@ def L_from_K(K, D, fd=0.015):
     ----------
     K : float
         Loss coefficient, []
-    fd : float
-        friction factor of pipe, []
     D : float
         Inner diameter of pipe, [m]
+    fd : float
+        friction factor of pipe, []
 
     Returns
     -------
@@ -2137,7 +2137,7 @@ def L_from_K(K, D, fd=0.015):
 
     Examples
     --------
-    >>> L_from_K(K=6, fd=0.018, D=.3)
+    >>> L_from_K(K=6, D=.3, fd=0.018)
     100.0
     '''
     return K*D/fd

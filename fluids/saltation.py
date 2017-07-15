@@ -51,8 +51,8 @@ def Rizk(mp, dp, rhog, D):
 
     Returns
     -------
-        V : float
-            Saltation velocity of gas, [m/s]
+    V : float
+        Saltation velocity of gas, [m/s]
 
     Notes
     -----
@@ -181,8 +181,8 @@ def Matsumoto_1975(mp, rhop, dp, rhog, D, Vterminal=1):
 
     Returns
     -------
-        V : float
-            Saltation velocity of gas, [m/s]
+    V : float
+        Saltation velocity of gas, [m/s]
 
     Notes
     -----
@@ -253,8 +253,8 @@ def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
 
     Returns
     -------
-        V : float
-            Saltation velocity of gas, [m/s]
+    V : float
+        Saltation velocity of gas, [m/s]
 
     Notes
     -----
@@ -331,8 +331,8 @@ def Schade(mp, rhop, dp, rhog, D):
 
     Returns
     -------
-        V : float
-            Saltation velocity of gas, [m/s]
+    V : float
+        Saltation velocity of gas, [m/s]
 
     Notes
     -----
@@ -405,8 +405,8 @@ def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
 
     Returns
     -------
-        V : float
-            Saltation velocity of gas, [m/s]
+    V : float
+        Saltation velocity of gas, [m/s]
 
     Notes
     -----
@@ -478,12 +478,12 @@ def Geldart_Ling(mp, rhog, D, mug):
     D : float
         Diameter of pipe, [m]
     mug : float
-        Gas viscosity, [Pa*S]
+        Gas viscosity, [Pa*s]
 
     Returns
     -------
-        V : float
-            Saltation velocity of gas, [m/s]
+    V : float
+        Saltation velocity of gas, [m/s]
 
     Notes
     -----

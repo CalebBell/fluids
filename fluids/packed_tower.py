@@ -54,7 +54,7 @@ def dP_demister_dry_Setekleiv_Svendsen(S, voidage, vs, rho, mu, L=1):
     rho : float
         Density of fluid [kg/m^3]
     mu : float
-        Viscosity of fluid [Pa*S]
+        Viscosity of fluid [Pa*s]
     L : float, optional
         Length of the demister [m]
 
@@ -108,7 +108,7 @@ def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1):
     rho : float
         Density of fluid [kg/m^3]
     mu : float
-        Viscosity of fluid [Pa*S]
+        Viscosity of fluid [Pa*s]
     L : float, optional
         Length of the demister [m]
 
@@ -284,8 +284,8 @@ def voidage_experimental(m, rho, D, H):
         Density of solid particles or mesh [kg/m^3]
     D : float
         Diameter of the cylindrical bed [m]
-    L : float
-        Length of the demister or bed [m]
+    H : float
+        Height of the demister or bed [m]
 
     Returns
     -------
@@ -376,7 +376,7 @@ def Stichlmair_dry(Vg, rhog, mug, voidage, specific_area, C1, C2, C3, H=1.):
     rhog : float
         Density of gas [kg/m^3]
     mug : float
-        Viscosity of gas [Pa*S]
+        Viscosity of gas [Pa*s]
     voidage : float
         Voidage of bed of packing material []
     specific_area : float
@@ -458,7 +458,7 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
     rhol : float
         Density of liquid [kg/m^3]
     mug : float
-        Viscosity of gas [Pa*S]
+        Viscosity of gas [Pa*s]
     voidage : float
         Voidage of bed of packing material []
     specific_area : float
@@ -555,7 +555,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
     rhol : float
         Density of liquid [kg/m^3]
     mug : float
-        Viscosity of gas [Pa*S]
+        Viscosity of gas [Pa*s]
     voidage : float
         Voidage of bed of packing material []
     specific_area : float
@@ -631,8 +631,6 @@ def Robbins(L, G, rhol, rhog, mul, H=1, A=None, Fpd=24):
 
     Parameters
     ----------
-    Fpd : float
-        Robbins packing factor (tabulated for packings) [1/ft]
     L : float
         Specific liquid mass flow rate [kg/s/m^2]
     G : float
@@ -642,11 +640,13 @@ def Robbins(L, G, rhol, rhog, mul, H=1, A=None, Fpd=24):
     rhog : float
         Density of gas [kg/m^3]
     mul : float
-        Viscosity of liquid [Pa*S]
+        Viscosity of liquid [Pa*s]
     H : float
         Height of packing [m]
     A : float, optional
         Area of packing; Provide if G and L are in kg/s [m^2]
+    Fpd : float
+        Robbins packing factor (tabulated for packings) [1/ft]
 
     Returns
     -------
@@ -660,7 +660,7 @@ def Robbins(L, G, rhol, rhog, mul, H=1, A=None, Fpd=24):
 
     Examples
     --------
-    >>> Robbins(Fpd=24, L=12.2, G=2.03, rhol=1000., rhog=1.1853, mul=0.001, H=2)
+    >>> Robbins(L=12.2, G=2.03, rhol=1000., rhog=1.1853, mul=0.001, H=2, Fpd=24)
     619.6624593438099
 
     References

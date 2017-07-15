@@ -575,6 +575,8 @@ def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1):
         Liquid density, [kg/m^3]
     rhog : float
         Gas density, [kg/m^3]
+    sigma : float
+        Surface tension, [N/m]
     D : float
         Diameter of pipe, [m]
     L : float, optional
@@ -2031,8 +2033,8 @@ two_phase_correlations = {
 
 
 def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
-                 P=None, Pc=None, roughness=0, AvailableMethods=False, 
-                 Method=None):
+                 P=None, Pc=None, roughness=0, Method=None, 
+                 AvailableMethods=False):
     r'''This function handles calculation of two-phase liquid-gas pressure drop
     for flow inside channels. 23 calculation methods are available, with
     varying input requirements. A correlation will be automatically selected if

@@ -277,15 +277,16 @@ class ATMOSPHERE_NRLMSISE00(object):
         List of the 7 following `Ap` indexes also known as planetary magnetic 
         indexes. Has a negligible effect on the calculation. 4 is the default
         value often used for each of these values.
+        
         * Average daily `Ap`.
         * 3-hour average `Ap` centered on the current time.
         * 3-hour average `Ap` before the current time.
         * 6-hour average `Ap` before the current time.
         * 9-hour average `Ap` before the current time.
         * Average `Ap` from 12 to 33 hours before the current time, based on
-        eight 3-hour average `Ap` values.
+          eight 3-hour average `Ap` values.
         * Average `Ap` from 36 to 57 hours before the current time, based on
-        eight 3-hour average `Ap` values.
+          eight 3-hour average `Ap` values.
         
     Attributes
     ----------
@@ -433,22 +434,24 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
         Daily average 10.7 cm solar flux measurement of the strength of solar  
         emissions on the 100 MHz band centered on 2800 MHz, averaged hourly; in 
         sfu units, which are multiples of 10^-22 W/m^2/Hz; use 150 as a default 
-        [sfu]
+        [W/m^2/Hz]
     f107_avg : float, optional
         81-day sfu average; centered on specified day if possible, otherwise
-        use the previous days [sfu]
+        use the previous days [W/m^2/Hz]
     geomagnetic_disturbance_index : float, optional
         Average daily `Ap` or also known as planetary magnetic index.
         
     Returns
     -------
-    w : list[float]
-        Wind velocity, meridional (m/sec Northward) and zonal (m/sec Eastward)
+    v_north : float
+        Wind velocity, meridional (Northward) [m/s]
+    v_east : float
+        Wind velocity, zonal (Eastward) [m/s]
 
     Examples
     --------
     >>> hwm93(5E5, 45, 50, 365)
-    [-73.00312042236328, 0.1485661268234253]
+    (-73.00312042236328, 0.1485661268234253)
     
     Notes
     -----
@@ -489,7 +492,7 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
     slt_hour = seconds/3600. + longitude/15.
     ans = gws5(day, seconds, Z/1000., latitude, longitude, slt_hour, f107, 
                f107_avg, geomagnetic_disturbance_index)
-    return ans.tolist()
+    return tuple(ans.tolist())
 
 
 def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0, 
@@ -518,13 +521,16 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
         
     Returns
     -------
-    w : list[float]
-        Wind velocity, meridional (m/sec Northward) and zonal (m/sec Eastward)
+    v_north : float
+        Wind velocity, meridional (Northward) [m/s]
+    v_east : float
+        Wind velocity, zonal (Eastward) [m/s]
+        
 
     Examples
     --------
     >>> hwm14(5E5, 45, 50, 365)
-    [-38.64341354370117, 12.871272087097168]
+    (-38.64341354370117, 12.871272087097168)
 
     Notes
     -----
@@ -566,4 +572,4 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
         raise ImportError(no_gfortran_error)
     ans = optional.hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
                0, np.array([np.nan, geomagnetic_disturbance_index]))
-    return ans.tolist()
+    return tuple(ans.tolist())

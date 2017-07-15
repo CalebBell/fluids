@@ -332,6 +332,10 @@ def Turner_Wallis(x, rhol, rhog, mul, mug):
         Density of the liquid [kg/m^3]
     rhog : float
         Density of the gas [kg/m^3]
+    mul : float
+        Viscosity of liquid [Pa*s]
+    mug : float
+        Viscosity of gas [Pa*s]
 
     Returns
     -------

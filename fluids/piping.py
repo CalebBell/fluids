@@ -368,9 +368,9 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
     Parameters
     ----------
     t : float
-        Thickness, [m or inches if SI is False]
+        Thickness, [m]
     SI : bool, optional
-        If False, expects thickness to be given in inches not meters
+        If False, requires that the thickness is given in inches not meters
     schedule : str
         Gauge schedule, one of 'BWG', 'AWG', 'SWG', 'MWG', 'BSWG', or 'SSWG'
 
@@ -458,14 +458,14 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
     gauge : float-like
         Wire Gauge, []
     SI : bool, optional
-        If False, value in inches is returned, rather than m.
+        If False, will return a thickness in inches not meters
     schedule : str
         Gauge schedule, one of 'BWG', 'AWG', 'SWG', 'MWG', 'BSWG', or 'SSWG'
 
     Returns
     -------
     t : float
-        Thickness, [m or inches if SI is False]
+        Thickness, [m]
 
     Notes
     -----

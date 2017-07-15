@@ -24,7 +24,7 @@ from __future__ import division
 from scipy.constants import g
 from math import log, pi
 
-__all__ = ['adjust_homogeneity', 'agitator_time_homogeneous',
+__all__ = ['agitator_time_homogeneous',
 'Kp_helical_ribbon_Rieger', 'time_helical_ribbon_Grenville', 'size_tee',
 'COV_motionless_mixer', 'K_motionless_mixer']
 
@@ -37,7 +37,7 @@ def adjust_homogeneity(fraction):
     return multiplier
 
 
-def agitator_time_homogeneous(D=None, N=None, P=None, T=None, H=None, mu=None, rho=None, homogeneity=.95):
+def agitator_time_homogeneous(N, P, T, H, mu, rho, D=None, homogeneity=.95):
     r'''Calculates time for a fluid mizing in a tank with an impeller to
     reach a specified level of homogeneity, according to [1]_.
 
@@ -54,10 +54,8 @@ def agitator_time_homogeneous(D=None, N=None, P=None, T=None, H=None, mu=None, r
 
     Parameters
     ----------
-    D : float
-        Impeller diameter (optional) [m]
     N : float:
-        Speed of impeller, [r/s]
+        Speed of impeller, [revolutions/s]
     P : float
         Actual power required to mix, ignoring mechanical inefficiencies [W]
     T : float
@@ -68,8 +66,10 @@ def agitator_time_homogeneous(D=None, N=None, P=None, T=None, H=None, mu=None, r
         Mixture viscosity, [Pa*s]
     rho : float
         Mixture density, [kg/m^3]
-    homogeneity : float
-        Fraction completion of mixing, optional, []
+    D : float, optional
+        Impeller diameter [m]
+    homogeneity : float, optional
+        Fraction completion of mixing, []
 
     Returns
     -------
@@ -111,14 +111,10 @@ def agitator_time_homogeneous(D=None, N=None, P=None, T=None, H=None, mu=None, r
         Fo = (183./regime_constant)**2
     time = rho*T**1.5*H**0.5/mu*Fo
     multiplier = adjust_homogeneity(homogeneity)
-    time = time*multiplier
-    return time
+    return time*multiplier
 
-#print [agitator_time_homogeneous(D=1, N=125/60., P=298., T=3, H=2.5, mu=.5, rho=980, homogeneity=.95)]
-#print 'example 2:'
-#print [agitator_time_homogeneous(D=36*.0254, N=56/60., P=957., T=1.83, H=1.83, mu=0.018, rho=1020, homogeneity=.995)]
 
-def Kp_helical_ribbon_Rieger(D=None, h=None, nb=None, pitch=None, width=None, T=None):
+def Kp_helical_ribbon_Rieger(D, h, nb, pitch, width, T):
     r'''Calculates product of power number and Reynolds number for a
     specified geometry for a heilical ribbon mixer in the laminar regime.
     One of several correlations listed in [1]_, it used more data than other
@@ -131,7 +127,7 @@ def Kp_helical_ribbon_Rieger(D=None, h=None, nb=None, pitch=None, width=None, T=
     Parameters
     ----------
     D : float
-        Impeller diameter (optional) [m]
+        Impeller diameter [m]
     h : float
         Ribbon mixer height, [m]
     nb : float:
@@ -166,11 +162,9 @@ def Kp_helical_ribbon_Rieger(D=None, h=None, nb=None, pitch=None, width=None, T=
        geometrical shape on the power requirements of ribbon impellers,
        Int. Chem. Eng., 28, 376-383.
     '''
-    c = (T-D)/2
-    Kp = 82.8*h/D*(c/D)**-.38*(pitch/D)**-0.35*(width/D)**0.2*nb**0.78
-    return Kp
+    c = 0.5*(T - D)
+    return 82.8*h/D*(c/D)**-.38*(pitch/D)**-0.35*(width/D)**0.2*nb**0.78
 
-#print [Kp_helical_ribbon_Rieger(D=1.9, h=1.9, nb=2, pitch=1.9, width=.19, T=2)]
 
 def time_helical_ribbon_Grenville(Kp, N):
     r'''Calculates product of time required for mixing in a helical ribbon
@@ -184,8 +178,8 @@ def time_helical_ribbon_Grenville(Kp, N):
     ----------
     Kp : float
         Product of power number and Reynolds number for laminar regime []
-    N : float:
-        Speed of impeller, [r/s]
+    N : float
+        Speed of impeller, [revolutions/s]
 
     Returns
     -------
@@ -211,15 +205,12 @@ def time_helical_ribbon_Grenville(Kp, N):
        Optimisation of helical ribbon geometry for blending in the laminar
        regime, presented at MIXING XVIII, NAMF.
     '''
-    t = 896E3*Kp**-1.69/N
-    return t
-
-#print [time_helical_ribbon_Grenville(357.4, 4/60.)]
+    return 896E3*Kp**-1.69/N
 
 
 ### Tee mixer
 
-def size_tee(Q1=None, Q2=None, D=None, D2=None, n=1, pipe_diameters=5):
+def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
     r'''Calculates CoV of an optimal or specified tee for mixing at a tee
     according to [1]_. Assumes turbulent flow.
     The smaller stream in injected into the main pipe, which continues
@@ -271,17 +262,12 @@ def size_tee(Q1=None, Q2=None, D=None, D2=None, n=1, pipe_diameters=5):
        doi:10.1205/02638760152424280.
     '''
     V1 = Q1/(pi/4*D**2)
-#    print 'V1', V1
     Cv = Q2/(Q1 + Q2)
     COV0 = ((1-Cv)/Cv)**0.5
-#    print 'COV0', COV0
     if not D2:
         D2 = (Q2/Q1)**(2/3.)*D
     V2 = Q2/(pi/4*D2**2)
-#    V2 = 45.67
-#    print 'D2, V2', D2, V2
     B = n**2*(D2/D)**2*(V2/V1)**2
-#    print 'B', B
     if not n == 1 and not n == 2 and not n == 3 and not n ==4:
         raise Exception('Only 1 or 4 side streams investigated')
     if n == 1:
@@ -319,7 +305,7 @@ StatixMixers['SMXL'] = {'Name': 'SMXL', 'Vendor': 'Koch-Glitsch', 'Description':
 StatixMixers['SMF'] = {'Name': 'SMF', 'Vendor': 'Koch-Glitsch', 'Description': 'Three guide vanes projecting from the tube wall in a way as to not contact. Designed for applications subject to plugging.', 'KL': 5.6, 'KiL': 0.83, 'KT': 130, 'KiT': 0.4}
 
 
-def COV_motionless_mixer(Ki=None, Q1=None, Q2=None, pipe_diameters=None):
+def COV_motionless_mixer(Ki, Q1, Q2, pipe_diameters):
     r'''Calculates CoV of a motionless mixer with a regression parameter in
     [1]_ and originally in [2]_.
 
@@ -367,7 +353,7 @@ def COV_motionless_mixer(Ki=None, Q1=None, Q2=None, pipe_diameters=None):
     return COV
 
 
-def K_motionless_mixer(K=None, L=None, D=None, fd=None):
+def K_motionless_mixer(K, L, D, fd):
     r'''Calculates loss coefficient of a motionless mixer with a regression
     parameter in [1]_ and originally in [2]_.
 
@@ -409,7 +395,5 @@ def K_motionless_mixer(K=None, L=None, D=None, fd=None):
        application of motionless mixer technology, Proc. ISMIP3, Osaka,
        pp. 107-114.
     '''
-    K = L/D*fd*K
-    return K
+    return L/D*fd*K
 
-#print K_motionless_mixer(K=150, L=.762*5, D=.762, fd=.01)

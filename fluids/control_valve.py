@@ -258,7 +258,7 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
     Fd : float
         Valve style modifier []
     C : float
-        Kv flow coefficient [m^3/hr at a dP of 1 bar]
+        Kv flow coefficient (flow rate at a pressure drop of 1 bar) [m^3/hr]
 
     Returns
     -------
@@ -365,7 +365,7 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
         Liquid pressure recovery factor of a control valve without attached
         fittings []
     C : float
-        Kv flow coefficient [m^3/hr at a dP of 1 bar]
+        Kv flow coefficient (flow rate at a pressure drop of 1 bar) [m^3/hr]
     d : float
         Diameter of the valve [m]
     Rev : float
@@ -449,7 +449,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd):
     Returns
     -------
     C : float
-        Kv flow coefficient [m^3/hr at a dP of 1 bar]
+        Kv flow coefficient (flow rate at a pressure drop of 1 bar) [m^3/hr]
 
     Examples
     --------
@@ -570,7 +570,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
     Returns
     -------
     C : float
-        Kv flow coefficient [m^3/hr at a dP of 1 bar]
+        Kv flow coefficient (flow rate at a pressure drop of 1 bar) [m^3/hr]
 
     Examples
     --------

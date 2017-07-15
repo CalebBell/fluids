@@ -160,7 +160,7 @@ def entrance_rounded(Di, rc):
     ----------
     Di : float
         Inside diameter of pipe, [m]
-    rd : float
+    rc : float
         Radius of curvature of the entrance, [m]
 
     Returns
@@ -418,7 +418,7 @@ def spiral(Di, rmax, rmin, pitch, fd):
         Inside diameter of pipe, [m]
     rmax : float
         Radius of spiral at extremity, [m]
-    rmax : float
+    rmin : float
         Radius of spiral at end near center, [m]
     pitch : float
         Distance between two subsequent coil centers, [m]

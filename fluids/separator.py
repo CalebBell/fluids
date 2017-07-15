@@ -111,7 +111,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
     horizontal : bool, optional
         Whether to use the vertical or horizontal value; horizontal is 1.25 
         higher
-    method: str
+    method : str
         One of 'spline, 'blackwell', or 'branan'
 
     Returns

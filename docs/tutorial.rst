@@ -897,7 +897,7 @@ standard loss coefficient as follows.
 15.57211586581753
 
 For a valve with a specified Kv and pressure drop, the flow rate can be calculated
-easily for the case of non-chocked non-compressible flow (neglecting other friction 
+easily for the case of non-choked non-compressible flow (neglecting other friction 
 losses), as illustrated in the example below for a 5 cm valve with a pressure drop
 370 kPa and density of 870 kg/m^3:
 
@@ -977,7 +977,7 @@ a function of the diameter of the valve and are normally tabulated next to the
 values of Cv or Kv for a valve.
 
 >>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)
->>> 109.39701927957765
+109.39701927957765
 
 The handbook states the Cv of the valve is 121; we convert Kv to Cv:
 
@@ -986,7 +986,7 @@ The handbook states the Cv of the valve is 121; we convert Kv to Cv:
 
 The example in the book calculated Cv = 125.7, but doesn't actually use the 
 full calculation method. Either way, the valve will not carry the desired flow 
-rate; we need to try a larger valve size. The 4 inch is tried next in the 
+rate; we need to try a larger valve size. The 4 inch size is tried next in the 
 example, which has a known Cv of 203.
 
 >>> d = 4*inch # to m
@@ -996,8 +996,9 @@ example, which has a known Cv of 203.
 
 The calculated Cv is well under the valve's maximum Cv; we can select it.
 
-Two parameters to this model are only available for pure species. For liquid
-mixture, there are no defined procedures in the standard but it is reasonable
+This model requires a vapor pressure and a critical pressure of the fluid as
+inputs. There is no clarification in the standard about how to handle mixtures,
+which do not have these values. It is reasonable
 to calculate vapor pressure as the bubble pressure, and the mixture's critical
 pressure through a mole-weighted average.
 
@@ -1056,8 +1057,8 @@ The 8-inch valve is rated with Cv = 2190. The valve is adequate to provide
 the desired flow because the rated Cv is higher. The calculated value in their
 example is 1515, differing slightly due to the properties used. 
 
-The example next does on to determine the actual opening position the valve
-should be set to to provide the required flow. Their conclusion is approximately
+The example next goes on to determine the actual opening position the valve
+should be set at to provide the required flow. Their conclusion is approximately
 75% open; we can do better using a numerical solver. The values of opening at
 different positions are obtained in this example from the valve's 
 `datasheet <http://www.emerson.com/documents/automation/141362.pdf>`_.

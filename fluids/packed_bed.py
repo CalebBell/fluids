@@ -72,7 +72,7 @@ def Ergun(dp, voidage, vs, rho, mu, L=1):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
 
@@ -136,7 +136,7 @@ def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
 
@@ -199,7 +199,7 @@ def Jones_Krier(dp, voidage, vs, rho, mu, L=1):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
 
@@ -259,7 +259,7 @@ def Carman(dp, voidage, vs, rho, mu, L=1):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
 
@@ -319,7 +319,7 @@ def Hicks(dp, voidage, vs, rho, mu, L=1):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
 
@@ -381,7 +381,7 @@ def Brauer(dp, voidage, vs, rho, mu, L=1):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
 
@@ -443,7 +443,7 @@ def KTA(dp, voidage, vs, rho, mu, L=1):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
 
@@ -502,7 +502,7 @@ def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
 
@@ -569,7 +569,7 @@ def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
 
@@ -629,7 +629,7 @@ def Idelchik(dp, voidage, vs, rho, mu, L=1):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
 
@@ -695,7 +695,7 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
     Dt : float, optional
@@ -762,7 +762,7 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
     Dt : float, optional
@@ -831,7 +831,7 @@ packed_beds_correlations = {
 }
 
 def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
-                         AvailableMethods=False, Method=None):
+                  Method=None, AvailableMethods=False):
     r'''This function handles choosing which pressure drop in a packed bed
     correlation is used. Automatically select which correlation
     to use if none is provided. Returns None if insufficient information is
@@ -860,7 +860,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
     rho : float
         Density of the fluid [kg/m^3]
     mu : float
-        Viscosity of the fluid, [Pa*S]
+        Viscosity of the fluid, [Pa*s]
     L : float, optional
         Length the fluid flows in the packed bed [m]
     Dt : float, optional

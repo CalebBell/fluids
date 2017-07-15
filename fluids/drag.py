@@ -967,7 +967,7 @@ drag_sphere_correlations = {
 }
 
 
-def drag_sphere(Re, AvailableMethods=False, Method=None):
+def drag_sphere(Re, Method=None, AvailableMethods=False):
     r'''This function handles calculation of drag coefficient on spheres.
     Twenty methods are available, all requiring only the Reynolds number of the
     sphere. Most methods are valid from Re=0 to Re=200,000. A correlation will
@@ -1061,7 +1061,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     rho : float
         Density of the surrounding fluid, [kg/m^3]
     mu : float
-        Viscosity of the surrounding fluid [Pa*S]
+        Viscosity of the surrounding fluid [Pa*s]
     Method : string, optional
         A string of the function name to use, as in the dictionary
         drag_sphere_correlations

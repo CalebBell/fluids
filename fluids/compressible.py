@@ -334,10 +334,10 @@ def polytropic_exponent(k, n=None, eta_p=None):
     ----------
     k : float
         Isentropic exponent of the gas (Cp/Cv) [-]
-    eta_p : float, optional
-        Polytropic efficiency of the process, [-]
     n : float, optional
         Polytropic exponent of the process [-]
+    eta_p : float, optional
+        Polytropic efficiency of the process, [-]
 
     Returns
     -------
@@ -461,10 +461,10 @@ def P_isothermal_critical_flow(P, fd, D, L):
         Inlet pressure [Pa]
     fd : float
         Darcy friction factor for flow in pipe [-]
-    L : float, optional
-        Length of pipe, [m]
-    D : float, optional
+    D : float
         Diameter of pipe, [m]
+    L : float
+        Length of pipe, [m]
 
     Returns
     -------
@@ -763,7 +763,7 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
 
        C = f_d \frac{L}{D}
 
-    A wide range of conditions are impossible due to chocked flow. See
+    A wide range of conditions are impossible due to choked flow. See
     `P_isothermal_critical_flow` for details. An exception is raised when
     they occur.
 
