@@ -42,7 +42,7 @@ expr2 = re.compile('Returns *\n *-+\n +')
 match_sections = re.compile('\n *[A-Za-z ]+ *\n +-+')
 match_section_names = re.compile('\n *[A-Za-z]+ *\n +-+')
 variable = re.compile('[a-zA-Z_0-9]* : ')
-match_units = re.compile('\[[a-zA-Z0-9./*^\- ]*\]')
+match_units = re.compile('\[[a-zA-Z0-9()./*^\- ]*\]')
 
 
 def parse_numpydoc_variables_units(func):
@@ -163,3 +163,35 @@ for name in dir(fluids):
     __all__.append(name)
     __funcs.update({name: obj})
 globals().update(__funcs)
+
+
+'''
+Known unsupported functions:
+* A_multiple_hole_cylinder
+* V_multiple_hole_cylinder
+* SA_tank
+isentropic_work_compression, polytropic_exponent, isothermal_gas, Panhandle_A, Panhandle_B, Weymouth, Spitzglass_high, Spitzglass_low, Oliphant, Fritzsche, Muller, IGT
+roughness_Farshad
+nu_mu_converter
+
+All the classes
+
+'''
+
+def A_multiple_hole_cylinder(Do, L, holes):
+    Do = Do.to(u.m).magnitude
+    L = L.to(u.m).magnitude
+    holes = [(i.to(u.m).magnitude, N) for i, N in holes]
+    A = fluids.geometry.A_multiple_hole_cylinder(Do, L, holes)
+    return A*u.m**2
+
+A_multiple_hole_cylinder.__doc__ = fluids.geometry.A_multiple_hole_cylinder.__doc__
+
+def V_multiple_hole_cylinder(Do, L, holes):
+    Do = Do.to(u.m).magnitude
+    L = L.to(u.m).magnitude
+    holes = [(i.to(u.m).magnitude, N) for i, N in holes]
+    A = fluids.geometry.V_multiple_hole_cylinder(Do, L, holes)
+    return A*u.m**3
+
+V_multiple_hole_cylinder.__doc__ = fluids.geometry.V_multiple_hole_cylinder.__doc__

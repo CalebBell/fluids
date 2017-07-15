@@ -614,7 +614,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
 
 
 
-def Robbins(L, G, rhol, rhog, mul, H=1, A=None, Fpd=24):
+def Robbins(L, G, rhol, rhog, mul, H=1, Fpd=24):
     r'''Calculates pressure drop across a packed column, using the Robbins
     equation.
 
@@ -643,8 +643,6 @@ def Robbins(L, G, rhol, rhog, mul, H=1, A=None, Fpd=24):
         Viscosity of liquid [Pa*s]
     H : float
         Height of packing [m]
-    A : float, optional
-        Area of packing; Provide if G and L are in kg/s [m^2]
     Fpd : float
         Robbins packing factor (tabulated for packings) [1/ft]
 
@@ -668,8 +666,6 @@ def Robbins(L, G, rhol, rhog, mul, H=1, A=None, Fpd=24):
     .. [1] Robbins [Chem. Eng. Progr., p. 87 (May 1991) Improved Pressure Drop
        Prediction with a New Correlation.
     '''
-    if A:
-        L, G = L/A, G/A
     # Convert SI units to imperial for use in correlation
     L = L*737.33812 # kg/s/m^2 to lb/hr/ft^2
     G = G*737.33812 # kg/s/m^2 to lb/hr/ft^2

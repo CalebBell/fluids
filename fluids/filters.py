@@ -213,7 +213,7 @@ def square_edge_screen(alpha):
     return float(square_interp(alpha))
 
 
-def square_edge_grill(alpha=None, l=None, Dh=None, fd=None):
+def square_edge_grill(alpha, l=None, Dh=None, fd=None):
     r'''Returns the loss coefficient for a square grill or square bar
     screen or perforated plate with squared edges of thickness l, as shown in
     [1]_.
@@ -232,11 +232,11 @@ def square_edge_grill(alpha=None, l=None, Dh=None, fd=None):
     ----------
     alpha : float
         Fraction of grill open to flow [-]
-    l : float
+    l : float, optional
         Thickness of the grill or plate [m]
-    Dh : float
+    Dh : float, optional
         Hydraulic diameter of gap in grill, [m]
-    fd : float
+    fd : float, optional
         Darcy friction factor [-]
 
     Returns

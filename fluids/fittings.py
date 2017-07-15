@@ -971,6 +971,8 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
         K_f = \frac{K_1}{Re} + K_i\left(1 + \frac{K_d}{D_{\text{NPS}}^{0.3}}
         \right)
 
+    Note this model uses nominal pipe diameter in inches.
+    
     Parameters
     ----------
     NPS : float
@@ -1063,7 +1065,7 @@ Hooper['Valve, Check, Swing'] = {'K1': 1500, 'Kinfty': 1.5}
 Hooper['Valve, Check, Tilting-disc'] = {'K1': 1000, 'Kinfty': 0.5}
 
 
-def Hooper2K(Di=None, Re=None, name=None, K1=None, Kinfty=None):
+def Hooper2K(Di, Re, name=None, K1=None, Kinfty=None):
     r'''Returns loss coefficient for any various fittings, depending
     on the name input. Alternatively, the Hooper constants K1, Kinfty
     may be provided and used instead. Source of data is [1]_.
@@ -1071,7 +1073,9 @@ def Hooper2K(Di=None, Re=None, name=None, K1=None, Kinfty=None):
     but superior to the constant-K method.
 
     .. math::
-        K = \frac{K_1}{Re} + K_\infty\left(1 + \frac{1}{ID_{in}}\right)
+        K = \frac{K_1}{Re} + K_\infty\left(1 + \frac{1\text{ inch}}{D_{in}}\right)
+
+    Note this model uses actual inside pipe diameter in inches.
 
     Parameters
     ----------
@@ -1079,11 +1083,11 @@ def Hooper2K(Di=None, Re=None, name=None, K1=None, Kinfty=None):
         Actual inside diameter of the pipe, [in]
     Re : float
         Reynolds number, [-]
-    name : str
+    name : str, optional
         String from Hooper dict representing a fitting
-    K1 : float
+    K1 : float, optional
         K1 parameter of Hooper model, optional [-]
-    Kinfty : float
+    Kinfty : float, optional
         Kinfty parameter of Hooper model, optional [-]
 
     Returns
@@ -1140,12 +1144,14 @@ def Kv_to_Cv(Kv):
     Parameters
     ----------
     Kv : float
-        Metric valve flow coefficient, [m^3 water/hour (at a dP = 1 bar)]
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        of 1 bar) [m^3/hr]
 
     Returns
     -------
     Cv : float
-        Imperial valve flow coefficient, [gpm water (at a dP = 1 psi)]
+        Imperial Cv valve flow coefficient (flow rate of water at a pressure   
+        drop of 1 psi) [gallons/minute]
 
     Notes
     -----
@@ -1180,12 +1186,14 @@ def Cv_to_Kv(Cv):
     Parameters
     ----------
     Cv : float
-        Imperial valve flow coefficient, [gpm water (at a dP = 1 psi)]
+        Imperial Cv valve flow coefficient (flow rate of water at a pressure   
+        drop of 1 psi) [gallons/minute]
 
     Returns
     -------
     Kv : float
-        Metric valve flow coefficient, [m^3 water/hour (at a dP = 1 bar)]
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        of 1 bar) [m^3/hr]
 
     Notes
     -----
@@ -1221,7 +1229,8 @@ def Kv_to_K(Kv, D):
     Parameters
     ----------
     Kv : float
-        Metric valve flow coefficient, [m^3 water/hour (at a dP = 1 bar)]
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        of 1 bar) [m^3/hr]
     D : float
         Inside diameter of the valve [m]
 
@@ -1277,7 +1286,8 @@ def K_to_Kv(K, D):
     Returns
     -------
     Kv : float
-        Metric valve flow coefficient, [m^3 water/hour (at a dP = 1 bar)]
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        of 1 bar) [m^3/hr]
 
     Notes
     -----
@@ -1326,7 +1336,8 @@ def K_to_Cv(K, D):
     Returns
     -------
     Cv : float
-        Imperial valve flow coefficient, [gpm water (at a dP = 1 psi)]
+        Imperial Cv valve flow coefficient (flow rate of water at a pressure   
+        drop of 1 psi) [gallons/minute]
 
     Notes
     -----
@@ -1359,7 +1370,8 @@ def Cv_to_K(Cv, D):
     Parameters
     ----------
     Cv : float
-        Imperial valve flow coefficient, [gpm water (at a dP = 1 psi)]
+        Imperial Cv valve flow coefficient (flow rate of water at a pressure   
+        drop of 1 psi) [gallons/minute]
     D : float
         Inside diameter of the valve [m]
 

@@ -446,9 +446,9 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     L : float
         Length of the main cylindrical section, [m]
     f : float
-        Dish-radius parameter; fD  = dish radius []
+        Dish-radius parameter; fD  = dish radius [1/m]
     k : float
-        knuckle-radius parameter ; kD = knuckle radius []
+        knuckle-radius parameter ; kD = knuckle radius [1/m]
     h : float
         Height, as measured up to where the fluid ends, [m]
     headonly : bool, optional
@@ -689,9 +689,9 @@ def V_vertical_torispherical(D, f, k, h):
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dish-radius parameter; fD  = dish radius []
+        Dish-radius parameter; fD  = dish radius [1/m]
     k : float
-        knuckle-radius parameter ; kD = knuckle radius []
+        knuckle-radius parameter ; kD = knuckle radius [1/m]
     h : float
         Height, as measured up to where the fluid ends, [m]
 
@@ -905,9 +905,9 @@ def V_vertical_torispherical_concave(D, f, k, h):
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dish-radius parameter; fD  = dish radius []
+        Dish-radius parameter; fD  = dish radius [1/m]
     k : float
-        knuckle-radius parameter ; kD = knuckle radius []
+        knuckle-radius parameter ; kD = knuckle radius [1/m]
     h : float
         Height, as measured up to where the fluid ends, [m]
 
@@ -1087,9 +1087,9 @@ def SA_torispheroidal(D, fd, fk):
     D : float
         Diameter of the main cylindrical section, [m]
     fd : float
-        Dish-radius parameter = f; fD  = dish radius []
+        Dish-radius parameter = f; fD  = dish radius [1/m]
     fk : float
-        knuckle-radius parameter = k; kD = knuckle radius []
+        knuckle-radius parameter = k; kD = knuckle radius [1/m]
 
     Returns
     -------
@@ -1129,9 +1129,9 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     Parameters
     ----------
     D : float
-        Diameter of the cylindrical section of the tank.
+        Diameter of the cylindrical section of the tank, [m]
     L : float
-        Length of the main cylindrical section of the tank.
+        Length of the main cylindrical section of the tank, [m]
     sideA : string, optional
         The left (or bottom for vertical) head of the tank's type; one of
         [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
@@ -1140,18 +1140,18 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
         [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
     sideA_a : float, optional
         The distance the head as specified by sideA extends down or to the left
-        from the main cylindrical section
+        from the main cylindrical section, [m]
     sideB_a : float, optional
         The distance the head as specified by sideB extends up or to the right
-        from the main cylindrical section
+        from the main cylindrical section, [m]
     sideA_f : float, optional
-        Dish-radius parameter for side A; fD  = dish radius []
+        Dish-radius parameter for side A; fD  = dish radius [1/m]
     sideA_k : float, optional
-        knuckle-radius parameter for side A; kD = knuckle radius []
+        knuckle-radius parameter for side A; kD = knuckle radius [1/m]
     sideB_f : float, optional
-        Dish-radius parameter for side B; fD  = dish radius []
+        Dish-radius parameter for side B; fD  = dish radius [1/m]
     sideB_k : float, optional
-        knuckle-radius parameter for side B; kD = knuckle radius []
+        knuckle-radius parameter for side B; kD = knuckle radius [1/m]
 
     Returns
     -------
@@ -1234,9 +1234,9 @@ def a_torispherical(D, f, k):
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dish-radius parameter; fD  = dish radius []
+        Dish-radius parameter; fD  = dish radius [1/m]
     k : float
-        knuckle-radius parameter ; kD = knuckle radius []
+        knuckle-radius parameter ; kD = knuckle radius [1/m]
 
     Returns
     -------
@@ -1268,11 +1268,11 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     Parameters
     ----------
     h : float
-        Heifht of the liquid in the tank
+        Height of the liquid in the tank, [m]
     D : float
-        Diameter of the cylindrical section of the tank.
+        Diameter of the cylindrical section of the tank, [m]
     L : float
-        Length of the main cylindrical section of the tank.
+        Length of the main cylindrical section of the tank, [m]
     horizontal : bool, optional
         Whether or not the tank is a horizontal or vertical tank
     sideA : string, optional
@@ -1283,18 +1283,18 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
         [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
     sideA_a : float, optional
         The distance the head as specified by sideA extends down or to the left
-        from the main cylindrical section
+        from the main cylindrical section, [m]
     sideB_a : float, optional
         The distance the head as specified by sideB extends up or to the right
-        from the main cylindrical section
+        from the main cylindrical section, [m]
     sideA_f : float, optional
-        Dish-radius parameter for side A; fD  = dish radius []
+        Dish-radius parameter for side A; fD  = dish radius [1/m]
     sideA_k : float, optional
-        knuckle-radius parameter for side A; kD = knuckle radius []
+        knuckle-radius parameter for side A; kD = knuckle radius [1/m]
     sideB_f : float, optional
-        Dish-radius parameter for side B; fD  = dish radius []
+        Dish-radius parameter for side B; fD  = dish radius [1/m]
     sideB_k : float, optional
-        knuckle-radius parameter for side B; kD = knuckle radius []
+        knuckle-radius parameter for side B; kD = knuckle radius [1/m]
 
     Returns
     -------
@@ -1405,21 +1405,21 @@ class TANK(object):
         [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
     sideA_a : float, optional
         The distance the head as specified by sideA extends down or to the left
-        from the main cylindrical section
+        from the main cylindrical section, [m]
     sideB_a : float, optional
         The distance the head as specified by sideB extends up or to the right
-        from the main cylindrical section
+        from the main cylindrical section, [m]
     sideA_f : float, optional
-        Dish-radius parameter for side A; fD  = dish radius []
+        Dish-radius parameter for side A; fD  = dish radius [1/m]
     sideA_k : float, optional
-        knuckle-radius parameter for side A; kD = knuckle radius []
+        knuckle-radius parameter for side A; kD = knuckle radius [1/m]
     sideB_f : float, optional
-        Dish-radius parameter for side B; fD  = dish radius []
+        Dish-radius parameter for side B; fD  = dish radius [1/m]
     sideB_k : float, optional
-        knuckle-radius parameter for side B; kD = knuckle radius []
+        knuckle-radius parameter for side B; kD = knuckle radius [1/m]
     L_over_D : float, optional
         Ratio of length over diameter, used only when D and L are both
-        unspecified but V is, []
+        unspecified but V is, [-]
     V : float, optional
         Volume of the tank; solved for if specified, using
         sideA_a_ratio/sideB_a_ratio, sideA, sideB, horizontal, and one
@@ -1436,15 +1436,15 @@ class TANK(object):
     heights : ndarray
         Array of heights between 0 and h_max, [m]
     volumes : ndarray
-        Array of volumes calculated from the heights [m^3]
+        Array of volumes calculated from the heights, [m^3]
     A : float
-        Total surface area of the tank
+        Total surface area of the tank, [m^2]
     A_sideA : float
-        Surface area of sideA
+        Surface area of sideA, [m^2]
     A_sideB : float
-        Surface area of sideB
+        Surface area of sideB, [m^2]
     A_lateral : float
-        Surface area of the lateral side
+        Surface area of the lateral side, [m^2]
         
     Notes
     -----
@@ -2253,7 +2253,7 @@ def A_cylinder(D, L):
     Returns
     -------
     A : float
-        Surface area [m]
+        Surface area [m^2]
 
     Examples
     --------
@@ -2310,7 +2310,7 @@ def A_hollow_cylinder(Di, Do, L):
     Returns
     -------
     A : float
-        Surface area [m]
+        Surface area [m^2]
 
     Examples
     --------
@@ -2376,7 +2376,7 @@ def A_multiple_hole_cylinder(Do, L, holes):
     Returns
     -------
     A : float
-        Surface area [m]
+        Surface area [m^2]
 
     Examples
     --------
@@ -2423,6 +2423,6 @@ def V_multiple_hole_cylinder(Do, L, holes):
     '''
     V = pi*Do**2/4*L
     for Di, n in holes:
-        V -= pi*Di**2/4*L*n
+        V -= pi*Di*Di/4*L*n
     return V
 

@@ -156,12 +156,12 @@ def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
     FF : float
         Liquid critical pressure ratio factor [-]
     FL : float, optional
-        Liquid pressure recovery factor of a control valve without attached fittings []
+        Liquid pressure recovery factor of a control valve without attached fittings [-]
     FLP : float, optional
         Combined liquid pressure recovery factor with piping geometry factor,
-        for a control valve with attached fittings []
+        for a control valve with attached fittings [-]
     FP : float, optional
-        Piping geometry factor []
+        Piping geometry factor [-]
 
     Returns
     -------
@@ -254,11 +254,13 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
     D1 : float
         Diameter of the pipe before the valve [m]
     FL : float, optional
-        Liquid pressure recovery factor of a control valve without attached fittings []
+        Liquid pressure recovery factor of a control valve without attached 
+        fittings []
     Fd : float
-        Valve style modifier []
+        Valve style modifier [-]
     C : float
-        Kv flow coefficient (flow rate at a pressure drop of 1 bar) [m^3/hr]
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        of 1 bar) [m^3/hr]
 
     Returns
     -------
@@ -318,13 +320,13 @@ def loss_coefficient_piping(d, D1=None, D2=None):
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
-    loss = 0
+    loss = 0.
     if D1:
-        loss += 1 - (d/D1)**4 # Inlet flow energy
-        loss += 0.5*(1 - (d/D1)**2)**2 # Inlet reducer
+        loss += 1. - (d/D1)**4 # Inlet flow energy
+        loss += 0.5*(1. - (d/D1)**2)**2 # Inlet reducer
     if D2:
-        loss += 1.0*(1 - (d/D2)**2)**2 # Outlet reducer (expander)
-        loss -= 1 - (d/D2)**4 # Outlet flow energy
+        loss += 1.0*(1. - (d/D2)**2)**2 # Outlet reducer (expander)
+        loss -= 1. - (d/D2)**4 # Outlet flow energy
     return loss
 
 
@@ -365,7 +367,8 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
         Liquid pressure recovery factor of a control valve without attached
         fittings []
     C : float
-        Kv flow coefficient (flow rate at a pressure drop of 1 bar) [m^3/hr]
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        of 1 bar) [m^3/hr]
     d : float
         Diameter of the valve [m]
     Rev : float
@@ -449,7 +452,8 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd):
     Returns
     -------
     C : float
-        Kv flow coefficient (flow rate at a pressure drop of 1 bar) [m^3/hr]
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        of 1 bar) [m^3/hr]
 
     Examples
     --------
@@ -560,9 +564,9 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
         Diameter of the valve [m]
     FL : float
         Liquid pressure recovery factor of a control valve without attached
-        fittings []
+        fittings [-]
     Fd : float
-        Valve style modifier []
+        Valve style modifier [-]
     xT : float
         Pressure difference ratio factor of a valve without fittings at choked
         flow [-]
@@ -570,7 +574,8 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
     Returns
     -------
     C : float
-        Kv flow coefficient (flow rate at a pressure drop of 1 bar) [m^3/hr]
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        of 1 bar) [m^3/hr]
 
     Examples
     --------
