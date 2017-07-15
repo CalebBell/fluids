@@ -42,8 +42,8 @@ def test_Smith():
         third = ((rhol/rhog + K*(1/x-1))/(1 + K*(1/x -1)))**0.5
         return (first + second*third)**-1
 
-    alpha_1 = [Smith(i, 800, 2.5) for i in np.linspace(0,1)]
-    alpha_2 = [Smith2(i, 800, 2.5) for i in np.linspace(0,1)]
+    alpha_1 = [Smith(i, 800, 2.5) for i in np.linspace(1E-9,.99)]
+    alpha_2 = [Smith2(i, 800, 2.5) for i in np.linspace(1E-9, .99)]
     assert_allclose(alpha_1, alpha_2)
 
 
