@@ -62,7 +62,7 @@ setup(
   description = 'Fluid dynamics component of Chemical Engineering Design Library (ChEDL)',
   long_description=open('README.rst').read(),
   extras_require = {
-      'Coverage documentation':  ['wsgiref>=0.1.2', 'coverage>=4.0.3']
+      'Coverage documentation':  ['wsgiref>=0.1.2', 'coverage>=4.0.3', 'pint']
   },
   author = 'Caleb Bell',
   author_email = 'Caleb.Andrew.Bell@gmail.com',

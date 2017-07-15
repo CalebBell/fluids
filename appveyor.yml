@@ -24,7 +24,7 @@ init:
 install:
   - cmd: activate condaenv
   - cmd: conda install -yq numpy scipy pip pytest
-  - cmd: pip install pytest-cov coveralls sympy fuzzywuzzy
+  - cmd: pip install pytest-cov coveralls sympy fuzzywuzzy pint
   - cmd: python setup.py install
 
 test_script:
