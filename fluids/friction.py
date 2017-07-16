@@ -3039,8 +3039,9 @@ def roughness_Farshad(ID=None, D=None, coeffs=None):
     D : float, optional
         Actual inner diameter of pipe, [m]
     coeffs : tuple, optional
-        (A, B) Coefficients to use directly, instead of looking them up
-        [inch^-B, -]
+        (A, B) Coefficients to use directly, instead of looking them up;
+        they are actually dimensional, in the forms (inch^-B, -) but only
+        coefficients with those dimensions are available [-]
 
     Returns
     -------

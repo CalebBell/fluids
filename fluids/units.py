@@ -109,21 +109,9 @@ Some functions are too "clever" to be wrapped and are not surrently supported
 in fluids.units:
 
 * SA_tank
-* isentropic_work_compression
-* polytropic_exponent
-* isothermal_gas
-* Panhandle_A
-* Panhandle_B
-* Weymouth
-* Spitzglass_high
-* Spitzglass_low
-* Oliphant
-* Fritzsche
-* Muller
-* IGT
-* roughness_Farshad
-* nu_mu_converter
 '''
+
+u.autoconvert_offset_to_baseunit = True
 
 
 expr = re.compile('Parameters *\n *-+\n +')
@@ -173,6 +161,8 @@ def parse_numpydoc_variables_units(func):
 
 
 def convert_input(val, unit, ureg, strict=True):
+    if val is None:
+        return val # Handle optional units which are given
     if unit != 'dimensionless':
         try:
             return val.to(unit).magnitude
@@ -242,6 +232,7 @@ def wraps_numpydoc(ureg, strict=True):
 
 __funcs = {}
 
+
 for name in dir(fluids):
     obj = getattr(fluids, name)
     if isinstance(obj, types.FunctionType):
@@ -287,4 +278,130 @@ def V_multiple_hole_cylinder(Do, L, holes):
 
 #V_multiple_hole_cylinder.__doc__ = fluids.geometry.V_multiple_hole_cylinder.__doc__
 
-u.autoconvert_offset_to_baseunit = True
+wrapped_isothermal_gas = isothermal_gas
+wrapped_Panhandle_A = Panhandle_A
+wrapped_Muller = Muller
+wrapped_IGT = IGT
+wrapped_nu_mu_converter = nu_mu_converter
+
+def nu_mu_converter(rho, mu=None, nu=None):
+    ans = wrapped_nu_mu_converter(rho, mu, nu)
+    if mu is None:
+        return ans*u.Pa*u.s
+    return ans*u.m**2/u.s
+
+def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0*u.m,
+             sideB_a=0*u.m, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
+             full_output=False):
+
+    if full_output:
+        return SA*u.m**2, (sideA_SA*u.m**2, sideB_SA*u.m**2, lateral_SA*u.m**2)
+    else:
+        return SA*u.m**2
+
+
+def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None): # pragma: no cover
+    '''
+    >>> isothermal_gas(rho=11.3*u.kg/u.m**3, fd=0.00185*u.dimensionless, P1=1E6*u.Pa, P2=9E5*u.Pa, L=1000*u.m, D=0.5*u.m)
+    <Quantity(145.484757264, 'kilogram / second')>
+    '''
+    ans = wrapped_isothermal_gas(rho, fd, P1, P2, L, D, m)    
+    if m is None and (None not in [P1, P2, L, D]):
+        return ans*u.kg/u.s
+    elif L is None and (None not in [P1, P2, D, m]):
+        return ans*u.m
+    elif P1 is None and (None not in [L, P2, D, m]):
+        return ans*u.Pa
+    elif P2 is None and (None not in [L, P1, D, m]):
+        return ans*u.Pa
+    elif D is None and (None not in [P2, P1, L, m]):
+        return ans*u.m
+
+def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
+           Ps=101325., Zavg=1, E=1):
+    ans = wrapped_Muller(SG, Tavg, mu, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
+    if Q is None and (None not in [L, D, P1, P2]):
+        return ans*u.m**3/u.s
+    elif D is None and (None not in [L, Q, P1, P2]):
+        return ans*u.m
+    elif P1 is None and (None not in [L, Q, D, P2]):
+        return ans*u.Pa
+    elif P2 is None and (None not in [L, Q, D, P1]):
+        return ans*u.Pa
+    elif L is None and (None not in [P2, Q, D, P1]):
+        return ans*u.m
+
+def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
+           Ps=101325., Zavg=1, E=1):
+    ans = wrapped_IGT(SG, Tavg, mu, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
+    if Q is None and (None not in [L, D, P1, P2]):
+        return ans*u.m**3/u.s
+    elif D is None and (None not in [L, Q, P1, P2]):
+        return ans*u.m
+    elif P1 is None and (None not in [L, Q, D, P2]):
+        return ans*u.Pa
+    elif P2 is None and (None not in [L, Q, D, P1]):
+        return ans*u.Pa
+    elif L is None and (None not in [P2, Q, D, P1]):
+        return ans*u.m
+
+#def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
+#                Ps=101325., Zavg=1, E=0.92):
+#def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
+#                Ps=101325., Zavg=1, E=0.92):
+#def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
+#                Ps=101325., Zavg=1, E=1.):
+#def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
+#                Ps=101325., Zavg=1, E=1.):
+#def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
+#             Ps=101325., Zavg=1, E=0.92):
+#def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
+#              Ps=101325., Zavg=1, E=1):
+
+    
+def compressible_flow_wrapper(wrapper, SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
+                Ps=101325.*u.Pa, Zavg=1, E=0.92):
+    '''
+    >>> Panhandle_A(SG=0.693, D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, Tavg=277.15*u.K)
+    <Quantity(42.560820512, 'meter ** 3 / second')>
+    '''
+    ans = wrapper(SG, Tavg, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
+    if Q is None and (None not in [L, D, P1, P2]):
+        return ans*u.m**3/u.s
+    elif D is None and (None not in [L, Q, P1, P2]):
+        return ans*u.m
+    elif P1 is None and (None not in [L, Q, D, P2]):
+        return ans*u.Pa
+    elif P2 is None and (None not in [L, Q, D, P1]):
+        return ans*u.Pa
+    elif L is None and (None not in [P2, Q, D, P1]):
+        return ans*u.m
+
+
+funcs = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 'Spitzglass_low', 'Oliphant', 'Fritzsche']
+Es = [.92, .92, .92, 1, 1, .92, 1]
+for wrapper, E in zip(funcs, Es):
+    wrapper_name = wrapper + '_wrapper'
+    globals()[wrapper_name] = globals()[wrapper]
+    
+    def compressible_flow_wrapper(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
+                Ps=101325.*u.Pa, Zavg=1, E=0.92, _=wrapper_name):
+        '''
+        >>> Panhandle_A(SG=0.693, D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, Tavg=277.15*u.K)
+        <Quantity(42.560820512, 'meter ** 3 / second')>
+        '''
+        ans = globals()[_](SG, Tavg, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
+        if Q is None and (None not in [L, D, P1, P2]):
+            return ans*u.m**3/u.s
+        elif D is None and (None not in [L, Q, P1, P2]):
+            return ans*u.m
+        elif P1 is None and (None not in [L, Q, D, P2]):
+            return ans*u.Pa
+        elif P2 is None and (None not in [L, Q, D, P1]):
+            return ans*u.Pa
+        elif L is None and (None not in [P2, Q, D, P1]):
+            return ans*u.m
+
+    
+    
+    globals()[wrapper] = compressible_flow_wrapper
