@@ -410,8 +410,8 @@ def test_plate_enhancement_factor():
     assert_allclose(phi, 1.2149896289702244)
     
     # Confirm it's correct to within 1E-7
-    for x in np.linspace(1E-5, 100, 10):
-        for y in np.linspace(1E-5, 100, 10):
+    for x in np.linspace(1E-5, 100, 3):
+        for y in np.linspace(1E-5, 100, 3):
             a = PlateExchanger.plate_enlargement_factor_analytical(x, y)
             b = plate_enlargement_factor_numerical(x, y)
             assert_allclose(a, b, rtol=1E-7)

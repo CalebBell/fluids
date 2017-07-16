@@ -16,11 +16,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.'''
 
 from __future__ import division
-#from fluids import *
+import types
+import numpy as np
 from numpy.testing import assert_allclose
 import pytest
+import fluids
 from fluids.units import *
-import numpy as np
 
 
 def test_convert_input():
@@ -161,3 +162,11 @@ def test_sample_cases():
     V = V_multiple_hole_cylinder(0.01*u.m, 0.1*u.m, [(0.005*u.m, 1)])
     assert_allclose(V.to_base_units().magnitude, 5.890486225480862e-06)
     assert dict(V.dimensionality) == {u'[length]': 3.0}
+
+
+def test_check_signatures():
+    from fluids.units import check_args_order
+    for name in dir(fluids):
+        obj = getattr(fluids, name)
+        if isinstance(obj, types.FunctionType):
+            check_args_order(obj)

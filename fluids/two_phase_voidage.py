@@ -67,19 +67,9 @@ def Thom(x, rhol, rhog, mul, mug):
     Notes
     -----
     Based on experimental data for boiling of water. [3]_ presents a slightly
-    different model. However, its results are quite similar, as may be 
-    compared as follows. Neither expression was found in [1]_ in a brief 
+    different model. However, its results are almost identical. A comparison can
+    be found in the unit tests. Neither expression was found in [1]_ in a brief 
     review.
-    
-    >>> from sympy import *
-    >>> x, rhol, rhog, mug, mul = symbols('x, rhol, rhog, mug, mul')
-    >>> Z = (rhol/rhog)**Rational(555,1000)*(mug/mul)**Rational(111,1000)
-    >>> gamma = Z**1.6
-    >>> alpha = (gamma*x/(1 + x*(gamma-1)))
-    >>> alpha
-    x*((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6/(x*(((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6 - 1) + 1)
-    >>> alpha.subs([(x, .4), (rhol, 800), (rhog, 2.5), (mul, 1E-3), (mug, 1E-5)])
-    0.980138792146901
     
     Examples
     --------

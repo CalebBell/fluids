@@ -23,6 +23,17 @@ import pytest
 
 
 def test_Thom():
+#    >>> from sympy import *
+#    >>> x, rhol, rhog, mug, mul = symbols('x, rhol, rhog, mug, mul')
+#    >>> Z = (rhol/rhog)**Rational(555,1000)*(mug/mul)**Rational(111,1000)
+#    >>> gamma = Z**1.6
+#    >>> alpha = (gamma*x/(1 + x*(gamma-1)))
+#    >>> alpha
+#    x*((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6/(x*(((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6 - 1) + 1)
+#    >>> alpha.subs([(x, .4), (rhol, 800), (rhog, 2.5), (mul, 1E-3), (mug, 1E-5)])
+#    0.980138792146901
+    
+    
     assert_allclose(Thom(.4, 800, 2.5, 1E-3, 1E-5), 0.9801482164042417)
 
 

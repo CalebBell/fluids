@@ -26,6 +26,7 @@ __all__ = ['wraps_numpydoc', 'u']
 
 import types
 import re
+import inspect
 import functools
 import collections
 import fluids
@@ -103,12 +104,6 @@ exception will be raised.
 >>> K_separator_Watkins(985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, 0.88*u.dimensionless, horizontal=True)
 Exception: Converting 0.88 dimensionless to units of kg/m^3 raised DimensionalityError: Cannot convert from 'dimensionless' (dimensionless) to 'kilogram / meter ** 3' ([mass] / [length] ** 3)
 
-Unsupported functions
----------------------
-Some functions are too "clever" to be wrapped and are not surrently supported
-in fluids.units:
-
-* SA_tank
 '''
 
 u.autoconvert_offset_to_baseunit = True
@@ -405,3 +400,26 @@ for wrapper, E in zip(funcs, Es):
     
     
     globals()[wrapper] = compressible_flow_wrapper
+
+
+def check_args_order(func):
+    '''Reads a numpydoc function and compares the Parameters and
+    Other Parameters with the input arguments of the actual function signature.
+    Raises an exception if not correctly defined.
+    
+    >>> check_args_order(fluids.core.Reynolds)
+    '''
+    argspec = inspect.getargspec(func)
+    parsed_data = parse_numpydoc_variables_units(func)
+    # compare the parsed arguments with those actually defined
+    parsed_units = parsed_data['Parameters']['units']
+    parsed_parameters = parsed_data['Parameters']['vars']
+    if 'Other Parameters' in parsed_data:
+        parsed_parameters += parsed_data['Other Parameters']['vars']
+        parsed_units += parsed_data['Other Parameters']['units']
+    
+    if argspec.args != parsed_parameters:
+        raise Exception('Function signature is not the same as the documentation'
+                        'signature = %s; documentation = %s' %(argspec.args, parsed_parameters))
+    
+    
