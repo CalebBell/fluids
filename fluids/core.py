@@ -1958,7 +1958,7 @@ def nu_mu_converter(rho, mu=None, nu=None):
     Returns
     -------
     mu or nu : float
-        Dynamic viscosity, [Pa*s] or Kinematic viscosity, [m^2/s]
+        Dynamic viscosity, Pa*s or Kinematic viscosity, m^2/s
 
     Examples
     --------

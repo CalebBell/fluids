@@ -24,6 +24,11 @@ import fluids
 from fluids.units import *
 
 
+def assert_pint_allclose(value, magnitude, units):
+    assert_allclose(value.to_base_units().magnitude, magnitude)
+    assert dict(value.dimensionality) == units
+
+
 def test_convert_input():
     from fluids.units import convert_input
     
@@ -155,6 +160,9 @@ def test_sample_cases():
     assert_allclose(roughness.to_base_units().magnitude, 5.3141677781137006e-05)
     assert dict(roughness.dimensionality) == {u'[length]': 1.0}
 
+
+
+def test_custom_wraps():
     A = A_multiple_hole_cylinder(0.01*u.m, 0.1*u.m, [(0.005*u.m, 1)])
     assert_allclose(A.to_base_units().magnitude, 0.004830198704894308)
     assert dict(A.dimensionality) == {u'[length]': 2.0}
@@ -163,6 +171,35 @@ def test_sample_cases():
     assert_allclose(V.to_base_units().magnitude, 5.890486225480862e-06)
     assert dict(V.dimensionality) == {u'[length]': 3.0}
 
+    # custom compressible flow model wrappers 
+    functions = [Panhandle_A, Panhandle_B, Weymouth, Spitzglass_high, Oliphant, Fritzsche]
+    values = [42.56082051195928, 42.35366178004172, 32.07729055913029, 29.42670246281681, 28.851535408143057, 39.421535157535565]
+    for f, v in zip(functions, values):
+        ans = f(D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, SG=0.693, Tavg=277.15*u.K)
+        assert_pint_allclose(ans, v, {u'[length]': 3.0, u'[time]': -1.0})
+        
+    ans = IGT(D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, SG=0.693, mu=1E-5*u.Pa*u.s, Tavg=277.15*u.K)
+    assert_pint_allclose(ans, 48.92351786788815, {u'[length]': 3.0, u'[time]': -1.0})
+
+    ans = Muller(D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, SG=0.693, mu=1E-5*u.Pa*u.s, Tavg=277.15*u.K)
+    assert_pint_allclose(ans, 60.45796698148659, {u'[length]': 3.0, u'[time]': -1.0})
+    
+    
+    nu = nu_mu_converter(rho=1000*u.kg/u.m**3, mu=1E-4*u.Pa*u.s)
+    assert_pint_allclose(nu, 1E-7, {u'[length]': 2.0, u'[time]': -1.0})
+
+    mu = nu_mu_converter(rho=1000*u.kg/u.m**3, nu=1E-7*u.m**2/u.s)
+    assert_pint_allclose(mu, 1E-4, {u'[time]': -1.0, u'[length]': -1.0, u'[mass]': 1.0})
+    
+    SA = SA_tank(D=1.*u.m, L=0*u.m, sideA='ellipsoidal', sideA_a=2*u.m, sideB='ellipsoidal', sideB_a=2*u.m)
+    assert_pint_allclose(SA, 28.480278854014387, {u'[length]': 2.0})
+    
+    SA, (sideA_SA, sideB_SA, lateral_SA) = SA_tank(D=1.*u.m, L=0*u.m, sideA='ellipsoidal', sideA_a=2*u.m, sideB='ellipsoidal', sideB_a=2*u.m, full_output=True)
+    expect = [28.480278854014387, 14.240139427007193, 14.240139427007193, 0]
+    for value, expected in zip([SA, sideA_SA, sideB_SA, lateral_SA], expect):
+        assert_pint_allclose(value, expected, {u'[length]': 2.0})
+    
+
 
 def test_check_signatures():
     from fluids.units import check_args_order
@@ -170,3 +207,4 @@ def test_check_signatures():
         obj = getattr(fluids, name)
         if isinstance(obj, types.FunctionType):
             check_args_order(obj)
+

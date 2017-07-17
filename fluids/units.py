@@ -242,19 +242,6 @@ for name in dir(fluids):
 globals().update(__funcs)
 
 
-'''
-Known unsupported functions:
-* A_multiple_hole_cylinder
-* V_multiple_hole_cylinder
-* SA_tank
-isentropic_work_compression, polytropic_exponent, isothermal_gas, Panhandle_A, Panhandle_B, Weymouth, Spitzglass_high, Spitzglass_low, Oliphant, Fritzsche, Muller, IGT
-roughness_Farshad
-nu_mu_converter
-
-All the classes
-
-'''
-
 def A_multiple_hole_cylinder(Do, L, holes):
     Do = Do.to(u.m).magnitude
     L = L.to(u.m).magnitude
@@ -278,6 +265,8 @@ wrapped_Panhandle_A = Panhandle_A
 wrapped_Muller = Muller
 wrapped_IGT = IGT
 wrapped_nu_mu_converter = nu_mu_converter
+wrapped_SA_tank= SA_tank
+
 
 def nu_mu_converter(rho, mu=None, nu=None):
     ans = wrapped_nu_mu_converter(rho, mu, nu)
@@ -285,14 +274,20 @@ def nu_mu_converter(rho, mu=None, nu=None):
         return ans*u.Pa*u.s
     return ans*u.m**2/u.s
 
+
 def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0*u.m,
              sideB_a=0*u.m, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
              full_output=False):
-
+    ans = wrapped_SA_tank(D, L, sideA, sideB, sideA_a, sideB_a, sideA_f, 
+                          sideA_k, sideB_f, sideB_k, full_output)
     if full_output:
-        return SA*u.m**2, (sideA_SA*u.m**2, sideB_SA*u.m**2, lateral_SA*u.m**2)
+        SA, (sideA_SA, sideB_SA, lateral_SA) = ans
     else:
-        return SA*u.m**2
+        SA = ans
+    if full_output:
+        return SA, (sideA_SA*u.m**2, sideB_SA*u.m**2, lateral_SA*u.m**2)
+    else:
+        return SA
 
 
 def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None): # pragma: no cover
@@ -312,8 +307,9 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None): # pragma:
     elif D is None and (None not in [P2, P1, L, m]):
         return ans*u.m
 
-def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-           Ps=101325., Zavg=1, E=1):
+
+def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
+           Ps=101325.*u.Pa, Zavg=1, E=1): # pragma: no cover
     ans = wrapped_Muller(SG, Tavg, mu, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
     if Q is None and (None not in [L, D, P1, P2]):
         return ans*u.m**3/u.s
@@ -326,8 +322,9 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif L is None and (None not in [P2, Q, D, P1]):
         return ans*u.m
 
-def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-           Ps=101325., Zavg=1, E=1):
+
+def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
+        Ps=101325.*u.Pa, Zavg=1, E=1): # pragma: no cover
     ans = wrapped_IGT(SG, Tavg, mu, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
     if Q is None and (None not in [L, D, P1, P2]):
         return ans*u.m**3/u.s
@@ -340,47 +337,17 @@ def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif L is None and (None not in [P2, Q, D, P1]):
         return ans*u.m
 
-#def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-#                Ps=101325., Zavg=1, E=0.92):
-#def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-#                Ps=101325., Zavg=1, E=0.92):
-#def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-#                Ps=101325., Zavg=1, E=1.):
-#def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-#                Ps=101325., Zavg=1, E=1.):
-#def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-#             Ps=101325., Zavg=1, E=0.92):
-#def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
-#              Ps=101325., Zavg=1, E=1):
-
-    
-def compressible_flow_wrapper(wrapper, SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
-                Ps=101325.*u.Pa, Zavg=1, E=0.92):
-    '''
-    >>> Panhandle_A(SG=0.693, D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, Tavg=277.15*u.K)
-    <Quantity(42.560820512, 'meter ** 3 / second')>
-    '''
-    ans = wrapper(SG, Tavg, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
-    if Q is None and (None not in [L, D, P1, P2]):
-        return ans*u.m**3/u.s
-    elif D is None and (None not in [L, Q, P1, P2]):
-        return ans*u.m
-    elif P1 is None and (None not in [L, Q, D, P2]):
-        return ans*u.Pa
-    elif P2 is None and (None not in [L, Q, D, P1]):
-        return ans*u.Pa
-    elif L is None and (None not in [P2, Q, D, P1]):
-        return ans*u.m
 
 
 funcs = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 'Spitzglass_low', 'Oliphant', 'Fritzsche']
 Es = [.92, .92, .92, 1, 1, .92, 1]
+
 for wrapper, E in zip(funcs, Es):
     wrapper_name = wrapper + '_wrapper'
     globals()[wrapper_name] = globals()[wrapper]
     
     def compressible_flow_wrapper(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
-                Ps=101325.*u.Pa, Zavg=1, E=0.92, _=wrapper_name):
+                Ps=101325.*u.Pa, Zavg=1, E=E, _=wrapper_name): # pragma: no cover
         '''
         >>> Panhandle_A(SG=0.693, D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, Tavg=277.15*u.K)
         <Quantity(42.560820512, 'meter ** 3 / second')>
@@ -396,9 +363,6 @@ for wrapper, E in zip(funcs, Es):
             return ans*u.Pa
         elif L is None and (None not in [P2, Q, D, P1]):
             return ans*u.m
-
-    
-    
     globals()[wrapper] = compressible_flow_wrapper
 
 
@@ -418,7 +382,7 @@ def check_args_order(func):
         parsed_parameters += parsed_data['Other Parameters']['vars']
         parsed_units += parsed_data['Other Parameters']['units']
     
-    if argspec.args != parsed_parameters:
+    if argspec.args != parsed_parameters: # pragma: no cover
         raise Exception('Function signature is not the same as the documentation'
                         'signature = %s; documentation = %s' %(argspec.args, parsed_parameters))
     

@@ -63,24 +63,3 @@ exception will be raised.
 
 >>> K_separator_Watkins(985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, 0.88*u.dimensionless, horizontal=True)
 Exception: Converting 0.88 dimensionless to units of kg/m^3 raised DimensionalityError: Cannot convert from 'dimensionless' (dimensionless) to 'kilogram / meter ** 3' ([mass] / [length] ** 3)
-
-Unsupported functions
----------------------
-Some functions are too "clever" to be wrapped and are not surrently supported
-in fluids.units:
-
-* SA_tank
-* isentropic_work_compression
-* polytropic_exponent
-* isothermal_gas
-* Panhandle_A
-* Panhandle_B
-* Weymouth
-* Spitzglass_high
-* Spitzglass_low
-* Oliphant
-* Fritzsche
-* Muller
-* IGT
-* roughness_Farshad
-* nu_mu_converter
