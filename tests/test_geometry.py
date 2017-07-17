@@ -197,7 +197,12 @@ def test_geometry():
 
     with pytest.raises(Exception):
         V_from_h(h=7, D=1.5, L=5)
-
+        
+    # bad head cases
+    with pytest.raises(Exception):
+        V_from_h(h=2.6, D=10., L=25., horizontal=True, sideA='BADHEAD', sideB='torispherical', sideA_a=2, sideB_f=1., sideB_k=0.06)
+    with pytest.raises(Exception):
+        V_from_h(h=2.6, D=10., L=25., horizontal=True, sideA='torispherical', sideB='BADHEAD', sideA_a=2, sideB_f=1., sideB_k=0.06)
 
     # Vertical configurations, compared with TankCalc - conical*2, spherical*2,
     # ellipsoidal*2. Torispherical*2 has no check. None*2 checks.

@@ -281,10 +281,19 @@ def test_isothermal_gas():
     assert_allclose(isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, m=145.484757264, L=1000.), 0.5)
     
     with pytest.raises(Exception):
-        isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000)
-#    with pytest.raises(Exception):
-#        isothermal_gas(11.3, 0.00185, P1=30, m=145.484757264, L=1000., D=0.5, P2_high=False)
+        isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000)        
+    with pytest.raises(Exception):
+        isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=1E5, L=1000, D=0.5)
+    with pytest.raises(Exception):
+        isothermal_gas(rho=11.3, fd=0.00185, P2=1E6, P1=9E5, L=1000, D=0.5)
         
+    # Newton can't converge, need a bounded solver
+    P1 = isothermal_gas(rho=11.3, fd=0.00185, m=390, P2=9E5, L=1000, D=0.5)
+    assert_allclose(P1, 2298973.786533209)
+    
+    # Case where the desired flow is greated than the choked flow's rate 
+    with pytest.raises(Exception):
+        isothermal_gas(rho=11.3, fd=0.00185, m=400, P2=9E5, L=1000, D=0.5)
 
 def test_P_isothermal_critical_flow():
     P2_max = P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)

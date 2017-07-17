@@ -487,7 +487,7 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
     '''
     try:
         from .optional.hwm93 import gws5
-    except:
+    except: # pragma: no cover
         raise ImportError(no_gfortran_error)
     slt_hour = seconds/3600. + longitude/15.
     ans = gws5(day, seconds, Z/1000., latitude, longitude, slt_hour, f107, 
@@ -568,7 +568,7 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     '''
     try:
         import optional.hwm14
-    except:
+    except: # pragma: no cover
         raise ImportError(no_gfortran_error)
     ans = optional.hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
                0, np.array([np.nan, geomagnetic_disturbance_index]))
