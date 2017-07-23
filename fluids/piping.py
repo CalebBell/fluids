@@ -127,6 +127,25 @@ SS80i = [5.48, 7.66, 10.7, 13.84, 18.88, 24.3, 32.5, 38.14, 49.22, 58.98, 73.66,
 SS80o = [10.3, 13.7, 17.1, 21.3, 26.7, 33.4, 42.2, 48.3, 60.3, 73, 88.9, 101.6, 114.3, 141.3, 168.3, 219.1, 273.1, 323.9, 355.6, 406.4, 457, 508, 610]
 SS80t = [2.41, 3.02, 3.2, 3.73, 3.91, 4.55, 4.85, 5.08, 5.54, 7.01, 7.62, 8.08, 8.56, 9.53, 10.97, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7, 12.7]
 
+schedule_lookup = { '40': (NPS40, S40i, S40o, S40t),
+                    '5': (NPS5, S5i, S5o, S5t),
+                    '10': (NPS10, S10i, S10o, S10t),
+                    '20': (NPS20, S20i, S20o, S20t),
+                    '30': (NPS30, S30i, S30o, S30t),
+                    '60': (NPS60, S60i, S60o, S60t),
+                    '80': (NPS80, S80i, S80o, S80t),
+                    '100': (NPS100, S100i, S100o, S100t),
+                    '120': (NPS120, S120i, S120o, S120t),
+                    '140': (NPS140, S140i, S140o, S140t),
+                    '160': (NPS160, S160i, S160o, S160t),
+                    'STD': (NPSSTD, STDi, STDo, STDt),
+                    'XS': (NPSXS, XSi, XSo, XSt),
+                    'XXS': (NPSXXS, XXSi, XXSo, XXSt),
+                    '5S': (NPSS5, SS5i, SS5o, SS5t),
+                    '10S': (NPSS10, SS10i, SS10o, SS10t),
+                    '40S': (NPSS40, SS40i, SS40o, SS40t),
+                    '80S': (NPSS80, SS80i, SS80o, SS80t)}
+
 
 def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     r'''Searches for and finds the nearest standard pipe size to a given
@@ -149,14 +168,14 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     Di : float
         Pipe inner diameter, [m]
     NPS : float
-        Nominal pipe size, []
+        Nominal pipe size, [-]
     schedule : str
         String representing schedule size
 
     Returns
     -------
     NPS : float
-        Nominal pipe size, []
+        Nominal pipe size, [-]
     Di : float
         Pipe inner diameter, [m]
     Do : float
@@ -186,9 +205,12 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
        Mechanical Engineers. B36-19M-2004: Stainless Steel Pipe.
        New York, N.Y.: American Society of Mechanical Engineers, 2004.
     '''
-    if Di: Di = Di*1000
-    if Do: Do = Do*1000
-    if NPS: NPS = float(NPS)
+    if Di: 
+        Di *= 1E3
+    if Do: 
+        Do *= 1E3
+    if NPS: 
+        NPS = float(NPS)
 
     def Di_lookup(Di, NPSes, Dis, Dos, ts):
         for i in range(len(Dis)): # Go up ascending list; once larger than specified, return
@@ -206,7 +228,7 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
             if Dos[i] >= Do:
                 _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
                 return (_nps, _di, _do, _t)
-        raise Exception('Di lookup failed')
+        raise Exception('Do lookup failed')
 
     def NPS_lookup(NPS, NPSes, Dis, Dos, ts):
         for i in range(len(NPSes)): # Go up ascending list; once larger than specified, return
@@ -215,67 +237,30 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
                 return (_nps, _di, _do, _t)
         raise Exception('NPS not in list')
 
-    def lookup_wrapper(Di, Do, NPS, NPSes, Dis, Dos, ts):
-        if Di:
-            nums = Di_lookup(Di, NPSes, Dis, Dos, ts)
-            if nums is None:
-                return None
-            _nps, _di, _do, _t = nums
-        elif Do:
-            nums = Do_lookup(Do, NPSes, Dis, Dos, ts)
-            if nums is None:
-                return None
-            _nps, _di, _do, _t = nums
-        elif NPS:
-            _nps, _di, _do, _t = NPS_lookup(NPS, NPSes, Dis, Dos, ts)
-        return _nps, _di, _do, _t
 
-    # If accidentally given numerical schedule, convert to string
-    if isinstance(schedule, (int, float)):
+    # If accidentally given an numerical schedule, convert it to a string
+    schedule_type = type(schedule)
+    if schedule_type in (int, float):
         schedule = str(int(schedule))
-
-    if schedule == '40':
-        nums = lookup_wrapper(Di, Do, NPS, NPS40, S40i, S40o, S40t)
-    elif schedule == '5':
-        nums = lookup_wrapper(Di, Do, NPS, NPS5, S5i, S5o, S5t)
-    elif schedule == '10':
-        nums = lookup_wrapper(Di, Do, NPS, NPS10, S10i, S10o, S10t)
-    elif schedule == '20':
-        nums = lookup_wrapper(Di, Do, NPS, NPS20, S20i, S20o, S20t)
-    elif schedule == '30':
-        nums = lookup_wrapper(Di, Do, NPS, NPS30, S30i, S30o, S30t)
-    elif schedule == '60':
-        nums = lookup_wrapper(Di, Do, NPS, NPS60, S60i, S60o, S60t)
-    elif schedule == '80':
-        nums = lookup_wrapper(Di, Do, NPS, NPS80, S80i, S80o, S80t)
-    elif schedule == '100':
-        nums = lookup_wrapper(Di, Do, NPS, NPS100, S100i, S100o, S100t)
-    elif schedule == '120':
-        nums = lookup_wrapper(Di, Do, NPS, NPS120, S120i, S120o, S120t)
-    elif schedule == '140':
-        nums = lookup_wrapper(Di, Do, NPS, NPS140, S140i, S140o, S140t)
-    elif schedule == '160':
-        nums = lookup_wrapper(Di, Do, NPS, NPS160, S160i, S160o, S160t)
-    elif schedule == 'STD':
-        nums = lookup_wrapper(Di, Do, NPS, NPSSTD, STDi, STDo, STDt)
-    elif schedule == 'XS':
-        nums = lookup_wrapper(Di, Do, NPS, NPSXS, XSi, XSo, XSt)
-    elif schedule == 'XXS':
-        nums = lookup_wrapper(Di, Do, NPS, NPSXXS, XXSi, XXSo, XXSt)
-    elif schedule == '5S':
-        nums = lookup_wrapper(Di, Do, NPS, NPSS5, SS5i, SS5o, SS5t)
-    elif schedule == '10S':
-        nums = lookup_wrapper(Di, Do, NPS, NPSS10, SS10i, SS10o, SS10t)
-    elif schedule == '40S':
-        nums = lookup_wrapper(Di, Do, NPS, NPSS40, SS40i, SS40o, SS40t)
-    elif schedule == '80S':
-        nums = lookup_wrapper(Di, Do, NPS, NPSS80, SS80i, SS80o, SS80t)
-    else:
+    
+    if schedule not in schedule_lookup:
         raise ValueError('Schedule not recognized')
+    else:
+        NPSes, Dis, Dos, ts = schedule_lookup[schedule]
+    
+    # Handle the three cases of different inputs
+    if Di:
+        nums = Di_lookup(Di, NPSes, Dis, Dos, ts)
+    elif Do:
+        nums = Do_lookup(Do, NPSes, Dis, Dos, ts)
+    elif NPS:
+        nums = NPS_lookup(NPS, NPSes, Dis, Dos, ts)
+
     if nums is None:
         raise ValueError('Pipe input is larger than max of selected schedule')
     _nps, _di, _do, _t = nums
     return _nps, _di/1E3, _do/1E3, _t/1E3
+
 
 ### Wire gauge schedules
 

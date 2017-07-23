@@ -155,6 +155,27 @@ def parse_numpydoc_variables_units(func):
     return parsed
 
 
+def check_args_order(func):
+    '''Reads a numpydoc function and compares the Parameters and
+    Other Parameters with the input arguments of the actual function signature.
+    Raises an exception if not correctly defined.
+    
+    >>> check_args_order(fluids.core.Reynolds)
+    '''
+    argspec = inspect.getargspec(func)
+    parsed_data = parse_numpydoc_variables_units(func)
+    # compare the parsed arguments with those actually defined
+    parsed_units = parsed_data['Parameters']['units']
+    parsed_parameters = parsed_data['Parameters']['vars']
+    if 'Other Parameters' in parsed_data:
+        parsed_parameters += parsed_data['Other Parameters']['vars']
+        parsed_units += parsed_data['Other Parameters']['units']
+    
+    if argspec.args != parsed_parameters: # pragma: no cover
+        raise Exception('Function signature is not the same as the documentation'
+                        'signature = %s; documentation = %s' %(argspec.args, parsed_parameters))
+    
+
 def convert_input(val, unit, ureg, strict=True):
     if val is None:
         return val # Handle optional units which are given
@@ -191,6 +212,12 @@ def wraps_numpydoc(ureg, strict=True):
             in_vars_to_dict[i] = j
 
         out_units = parsed_info['Returns']['units']
+        out_vars = parsed_info['Returns']['vars']
+        # Handle the case of dict answers - require the first line's args to be 
+        # parsed as 'results'
+        if out_vars and 'results' == out_vars[0]:
+            out_units.pop(0)
+            out_vars.pop(0)
 
         @functools.wraps(func, assigned=assigned, updated=updated)
         def wrapper(*values, **kw):
@@ -211,7 +238,12 @@ def wraps_numpydoc(ureg, strict=True):
             
             # Attempt to handle multiple return values
             # Must be able to convert all values to a pint expression
-            if isinstance(result, collections.Iterable):
+            if type(result) == dict:
+                for key, ans in result.items():
+                    unit = out_units[out_vars.index(key)]
+                    result[key] = ans*ureg.parse_expression(unit)
+                return result
+            elif isinstance(result, collections.Iterable):
                 conveted_result = []
                 for ans, unit in zip(result, out_units):
                     conveted_result.append(ans*ureg.parse_expression(unit))
@@ -366,24 +398,4 @@ for wrapper, E in zip(funcs, Es):
     globals()[wrapper] = compressible_flow_wrapper
 
 
-def check_args_order(func):
-    '''Reads a numpydoc function and compares the Parameters and
-    Other Parameters with the input arguments of the actual function signature.
-    Raises an exception if not correctly defined.
-    
-    >>> check_args_order(fluids.core.Reynolds)
-    '''
-    argspec = inspect.getargspec(func)
-    parsed_data = parse_numpydoc_variables_units(func)
-    # compare the parsed arguments with those actually defined
-    parsed_units = parsed_data['Parameters']['units']
-    parsed_parameters = parsed_data['Parameters']['vars']
-    if 'Other Parameters' in parsed_data:
-        parsed_parameters += parsed_data['Other Parameters']['vars']
-        parsed_units += parsed_data['Other Parameters']['units']
-    
-    if argspec.args != parsed_parameters: # pragma: no cover
-        raise Exception('Function signature is not the same as the documentation'
-                        'signature = %s; documentation = %s' %(argspec.args, parsed_parameters))
-    
     

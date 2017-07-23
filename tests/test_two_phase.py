@@ -118,8 +118,8 @@ def test_Chen_Friedel():
     dP = Chen_Friedel(m=.0005, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.003, roughness=0, L=1)
     assert_allclose(dP, 6249.247540588871)
 
-    dP = Chen_Friedel(m=.05, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.03, roughness=0, L=1)
-    assert_allclose(dP, 690.8541527904271)
+    dP = Chen_Friedel(m=.1, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.03, roughness=0, L=1)
+    assert_allclose(dP, 3541.7714973093725)
 
 
 def test_Zhang_Webb():

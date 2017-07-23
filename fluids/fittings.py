@@ -28,7 +28,8 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'diffuser_conical', 'diffuser_conical_staged', 'diffuser_curved',
 'diffuser_pipe_reducer',
 'entrance_sharp', 'entrance_distance', 'entrance_angled',
-'entrance_rounded', 'entrance_beveled', 'exit_normal', 'bend_rounded',
+'entrance_rounded', 'entrance_beveled', 'entrance_beveled_orifice', 
+'exit_normal', 'bend_rounded',
 'bend_miter', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
 'Kv_to_K', 'K_to_Kv', 'Cv_to_K', 'K_to_Cv', 'Darby', 'Hooper']
 
@@ -40,6 +41,10 @@ def entrance_sharp():
 
     .. math::
         K = 0.57
+
+    .. figure:: fittings/flush_mounted_sharp_edged_entrance.png
+       :scale: 30 %
+       :alt: flush mounted sharp edged entrance; after [1]_
 
     Returns
     -------
@@ -70,6 +75,10 @@ def entrance_distance(Di, t):
     .. math::
         K = 1.12 - 22\frac{t}{d} + 216\left(\frac{t}{d}\right)^2 +
         80\left(\frac{t}{d}\right)^3
+
+    .. figure:: fittings/sharp_edged_entrace_extended_mount.png
+       :scale: 30 %
+       :alt: sharp edged entrace, extended mount; after [1]_
 
     Parameters
     ----------
@@ -117,6 +126,10 @@ def entrance_angled(angle):
     .. math::
         K = 0.57 + 0.30\cos(\theta) + 0.20\cos(\theta)^2
 
+    .. figure:: fittings/entrance_mounted_at_an_angle.png
+       :scale: 30 %
+       :alt: entrace mounted at an angle; after [1]_
+
     Parameters
     ----------
     angle : float
@@ -156,6 +169,10 @@ def entrance_rounded(Di, rc):
         \lambda = 1 + 0.622\left(1 - 0.30\sqrt{\frac{r}{d}}
         - 0.70\frac{r}{d}\right)^4
         
+    .. figure:: fittings/flush_mounted_rounded_entrance.png
+       :scale: 30 %
+       :alt: rounded entrace mounted straight and flush; after [1]_
+
     Parameters
     ----------
     Di : float
@@ -200,7 +217,11 @@ def entrance_beveled(Di, l, angle):
         \right)^{\frac{1-(l/d)^{1/4}}{2}}\right]
 
         C_b = \left(1 - \frac{\theta}{90}\right)\left(\frac{\theta}{90}
-        \right)^{\frac{1}{l+l/d}}
+        \right)^{\frac{1}{1+l/d}}
+
+    .. figure:: fittings/flush_mounted_beveled_entrance.png
+       :scale: 30 %
+       :alt: Beveled entrace mounted straight; after [1]_
 
     Parameters
     ----------
@@ -236,6 +257,55 @@ def entrance_beveled(Di, l, angle):
     return 0.0696*(1 - Cb*l/Di)*lbd**2 + (lbd - 1.)**2
 
 
+def entrance_beveled_orifice(Di, do, l, angle):
+    r'''Returns loss coefficient for a beveled or chamfered orifice entrance to 
+    a pipe flush with the wall of a reservoir, as shown in [1]_.
+
+    .. math::
+        K = 0.0696\left(1 - C_b\frac{l}{d_o}\right)\lambda^2 + \left(\lambda
+        -\left(\frac{d_o}{D_i}\right)^2\right)^2
+        
+        \lambda = 1 + 0.622\left[1-C_b\left(\frac{l}{d_o}\right)^{\frac{1-
+        (l/d_o)^{0.25}}{2}}\right]
+    
+        C_b = \left(1 - \frac{\Psi}{90}\right)\left(\frac{\Psi}{90}
+        \right)^{\frac{1}{1+l/d_o}}
+        
+    .. figure:: fittings/flush_mounted_beveled_orifice_entrance.png
+       :scale: 30 %
+       :alt: Beveled orifice entrace mounted straight; after [1]_
+
+    Parameters
+    ----------
+    Di : float
+        Inside diameter of pipe, [m]
+    do : float
+        Inside diameter of orifice, [m]
+    l : float
+        Length of bevel measured parallel to the pipe length, [m]
+    angle : float
+        Angle of bevel with respect to the pipe length, [degrees]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient [-]
+
+    Examples
+    --------
+    >>> entrance_beveled_orifice(Di=0.1, do=.07, l=0.003, angle=45)
+    1.2987552913818574
+
+    References
+    ----------
+    .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
+       and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    '''
+    Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/do ))
+    lbd = 1 + 0.622*(1 - Cb*(l/do)**((1 - (l/do)**0.25)/2.))
+    return 0.0696*(1 - Cb*l/do)*lbd**2 + (lbd - (do/Di)**2)**2
+
+
 ### Exits
 
 def exit_normal():
@@ -244,6 +314,10 @@ def exit_normal():
 
     .. math::
         K = 1
+
+    .. figure:: fittings/flush_mounted_exit.png
+       :scale: 28 %
+       :alt: Exit from a flush mounted wall; after [1]_
 
     Returns
     -------
@@ -278,6 +352,10 @@ def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
         + \frac{6.6f(\sqrt{\sin(\alpha/2)}+\sin(\alpha/2))}
         {(r/d)^{\frac{4\alpha}{\pi}}}
 
+    .. figure:: fittings/bend_rounded.png
+       :scale: 30 %
+       :alt: rounded bend; after [1]_
+
     Parameters
     ----------
     Di : float
@@ -305,7 +383,7 @@ def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
     First term represents surface friction loss; the second, secondary flows;
     and the third, flow separation.
     Encompasses the entire range of elbow and pipe bend configurations.
-
+   
     Examples
     --------
     >>> bend_rounded(Di=4.020, rc=4.0*5, angle=30, fd=0.0163)
@@ -329,6 +407,10 @@ def bend_miter(angle):
 
     .. math::
         K = 0.42\sin(\alpha/2) + 2.56\sin^3(\alpha/2)
+
+    .. figure:: fittings/bend_mitre.png
+       :scale: 25 %
+       :alt: Miter bend, one joint only; after [1]_
 
     Parameters
     ----------
@@ -459,6 +541,10 @@ def contraction_sharp(Di1, Di2):
 
         \beta = d_2/d_1
 
+    .. figure:: fittings/contraction_sharp.png
+       :scale: 40 %
+       :alt: Sharp contraction; after [1]_
+
     Parameters
     ----------
     Di1 : float
@@ -502,6 +588,10 @@ def contraction_round(Di1, Di2, rc):
         - 0.70\frac{r}{d_2}\right)^4 (1-0.215\beta^2-0.785\beta^5)
 
         \beta = d_2/d_1
+
+    .. figure:: fittings/contraction_round.png
+       :scale: 30 %
+       :alt: Cirucular round contraction; after [1]_
 
     Parameters
     ----------
@@ -547,6 +637,10 @@ def contraction_conical(Di1, Di2, fd, l=None, angle=None):
         \lambda = 1 + 0.622(\alpha/180)^{0.8}(1-0.215\beta^2-0.785\beta^5)
 
         \beta = d_2/d_1
+
+    .. figure:: fittings/contraction_conical.png
+       :scale: 30 %
+       :alt: contraction conical; after [1]_
 
     Parameters
     ----------
@@ -606,6 +700,10 @@ def contraction_beveled(Di1, Di2, l=None, angle=None):
         C_B = \frac{l}{d_2}\frac{2\beta\tan(\alpha/2)}{1-\beta}
 
         \beta = d_2/d_1
+
+    .. figure:: fittings/contraction_beveled.png
+       :scale: 30 %
+       :alt: contraction beveled; after [1]_
 
     Parameters
     ----------
@@ -715,6 +813,10 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None):
     .. math::
         K_1 = \left[1.205 - 0.20\sqrt{\frac{\alpha-60^\circ}{120^\circ}}
         \right](1-\beta^2)^2
+
+    .. figure:: fittings/diffuser_conical.png
+       :scale: 60 %
+       :alt: diffuser conical; after [1]_
 
     Parameters
     ----------
@@ -832,6 +934,10 @@ def diffuser_curved(Di1, Di2, l):
 
         \phi = 1.01 - 0.624\frac{l}{d_1} + 0.30\left(\frac{l}{d_1}\right)^2
         - 0.074\left(\frac{l}{d_1}\right)^3 + 0.0070\left(\frac{l}{d_1}\right)^4
+
+    .. figure:: fittings/curved_wall_diffuser.png
+       :scale: 25 %
+       :alt: diffuser curved; after [1]_
 
     Parameters
     ----------

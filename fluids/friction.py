@@ -54,9 +54,16 @@ __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 'Clamond',
 'helical_turbulent_fd_Mandal_Nigam', 'helical_transition_Re_Seth_Stahel', 
 'helical_transition_Re_Ito', 'helical_transition_Re_Kubair_Kuloor', 
 'helical_transition_Re_Kutateladze_Borishanskii', 
-'helical_transition_Re_Schmidt', 'helical_transition_Re_Srinivasan']
+'helical_transition_Re_Schmidt', 'helical_transition_Re_Srinivasan',
+'LAMINAR_TRANSITION_PIPE']
 
 
+LAMINAR_TRANSITION_PIPE = 2040.
+'''Believed to be the most accurate result to date. Accurate to +/- 10.
+Avila, Kerstin, David Moxey, Alberto de Lozar, Marc Avila, Dwight Barkley, and
+Björn Hof. “The Onset of Turbulence in Pipe Flow.” Science 333, no. 6039 
+(July 8, 2011): 192–96. doi:10.1126/science.1203223.
+'''
 
 oregon_Res = [11.21, 20.22, 29.28, 43.19, 57.73, 64.58, 86.05, 113.3, 135.3, 
               157.5, 179.4, 206.4, 228, 270.9, 315.2, 358.9, 402.9, 450.2, 
@@ -100,7 +107,7 @@ def friction_laminar(Re):
 
     Notes
     -----
-    For round pipes, this valid for Re < 2320. 
+    For round pipes, this valid for :math:`Re \approx< 2040`. 
     
     Results in [2]_ show that this theoretical solution calculates too low of  
     friction factors from Re = 10 and up, with an average deviation of 4%.
@@ -1667,7 +1674,7 @@ def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=Fal
     The default is to use the exact solution. Can also be accessed under the 
     name `fd`.
     
-    For Re < 2320, the laminar solution is always returned, regardless of
+    For Re < 2040, [1]_ the laminar solution is always returned, regardless of
     selected method.
 
     Examples
@@ -1768,6 +1775,12 @@ def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=Fal
     +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
     |Sonnad Goudar 2006 |4000  |1.0E+8|None      |1.0E-6                |0.05                  |None                      |
     +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    
+    References
+    ----------
+    .. [1] Avila, Kerstin, David Moxey, Alberto de Lozar, Marc Avila, Dwight 
+       Barkley, and Björn Hof. "The Onset of Turbulence in Pipe Flow." Science 
+       333, no. 6039 (July 8, 2011): 192-96. doi:10.1126/science.1203223.
     '''
     def list_methods():
         methods = [i for i in fmethods if
@@ -1780,7 +1793,8 @@ def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=Fal
         return list_methods()
     elif not Method:
         Method = 'Clamond'
-    if Re < 2320:
+
+    if Re < LAMINAR_TRANSITION_PIPE:
         f = friction_laminar(Re)
     else:
         f = globals()[Method](Re=Re, eD=eD)

@@ -37,6 +37,9 @@ def test_fittings():
 
     K = entrance_beveled(Di=0.1, l=0.003, angle=45)
     assert_allclose(K, 0.45086864221916984)
+    
+    K = entrance_beveled_orifice(Di=0.1, do=.07, l=0.003, angle=45)
+    assert_allclose(K, 1.2987552913818574)
 
     ### Exits
     assert_allclose(exit_normal(), 1.0)
