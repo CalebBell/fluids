@@ -238,7 +238,9 @@ def wraps_numpydoc(ureg, strict=True):
             
             # Attempt to handle multiple return values
             # Must be able to convert all values to a pint expression
-            if type(result) == dict:
+            if type(result) == str:
+                return result
+            elif type(result) == dict:
                 for key, ans in result.items():
                     unit = out_units[out_vars.index(key)]
                     result[key] = ans*ureg.parse_expression(unit)

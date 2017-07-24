@@ -30,7 +30,7 @@ level parameters. The friction_factor correlation does not accept pipe diameter,
 velocity, viscosity, density, and roughness - it accepts Reynolds number and
 relative roughness. This makes the API cleaner and encourages modular design.
 
-All functions are desiged to accept inputs in base SI units. However, any 
+All functions are designed to accept inputs in base SI units. However, any 
 set of consistent units given to a function will return a consistent result;
 for instance, a function calculating volume doesn't care if given an input in
 inches or meters; the output units will be the cube of those given to it.
@@ -165,8 +165,74 @@ Friction factors
 >>> fluids.friction.friction_factor(Re=15000, eD=epsilon/0.01)
 0.02808790938573186
 
-The transition to laminar flow is implemented abruptly at Re=2320.
+The transition to laminar flow is implemented abruptly at Re=2040,
+one of the latest experimental results which is accurate to +- 10. 
+If the Reynolds number is in the laminar regime, the transition happens 
+automatically and the well-known solution fd = 64/Re is given.
+
+>>> fluids.friction.friction_factor(Re=150)
+0.4266666666666667
+
 Friction factor in curved pipes in available as friction_factor_curved.
+The curved friction factor is applicable for helices and coils, and to a 
+lesser extent curved bends. 
+
+>>> friction_factor_curved(Re=15000, Di=.01, Dc=2.5, roughness=1.5E-6)
+0.02984622907277626
+
+The critical Reynolds number for curved pipes
+is increased compared to straight pipe flow, and is a function of the 
+curvature of the pipe. The preferred method to calculate the transition 
+(used by default for the automatic regime transition)
+is the method of Schmidt (1967).
+
+>>> helical_transition_Re_Schmidt(Di=.01, Dc=2.5)
+3948.7442097768603
+
+Although roughness is a hard value to know without measuring it for a pipe,
+several hundred pipe conditions have had their roughness values measured in the
+literature, and they can be searched through using fuzzy matching fluids.
+
+>>> nearest_material_roughness('Used water piping', clean=False)
+'Seamless steel tubes, Used water piping'
+>>> material_roughness('Seamless steel tubes, Used water piping')
+0.0015
+
+The material_roughness function can also be used directly, but in that case
+there is no feedback about the material which was found.
+
+>>> material_roughness('glass')
+1e-05
+
+As fuzzy string matching is a pretty terrible solution, it is encouraged to find the
+desired string in the `actual source code of fluids <https://github.com/CalebBell/fluids/blob/master/fluids/friction.py#L2766>`_.
+
+There is one more way of obtaining the roughness of a clean pipe, developed by
+Farshad and Rieke (2006). It has been established that in commercial pipe,
+the larger the diameter, the larger the roughness. 
+
+>>> roughness_Farshad('Carbon steel, bare', D=0.05)
+3.529128126365038e-05
+
+Only the following types of clean, new pipe have data available:
+
+* 'Plastic coated'
+* 'Carbon steel, honed bare'
+* 'Cr13, electropolished bare'
+* 'Cement lining'
+* 'Carbon steel, bare'
+* 'Fiberglass lining'
+* 'Cr13, bare'
+
+
+There is also a term called `Transmission factor`, used in many pipeline applications.
+It is effectively a variant on friction factor. They can be inter-converted 
+with the transmission_factor function.
+
+>>> transmission_factor(fd=0.0185) # calculate transmission factor
+14.704292441876154
+>>> transmission_factor(F=20) # calculate Darcy friction factor
+0.01
 
 
 Pipe schedules
@@ -859,6 +925,58 @@ V=3 m/s, Di=0.05, roughness 0.01 mm):
 >>> K += diffuser_sharp(Di1=0.025, Di2=0.05)
 >>> dP_from_K(K, rho=1000, V=3)
 37920.51140146369
+
+If the diameter of the piping varies, not all of the loss coefficients will be
+with respect to the same diameter. Each loss coefficient must be converted to
+one standard diameter before the total pressure drop can be calculated. The
+following example is solved with the optional `pint` unit compatibility module.
+
+40 m piping, beveled entrance (10 mm length, 30 degrees, into 5 cm ID pipe)
+, then a 30 degree miter bend, a sharp contraction to half the pipe diameter (5 m long), 
+a 30 degree miter bend, a rounded 45 degree bend, a sharp expansion to 4 cm ID
+pipe (15 more meters), and a sharp exit:
+
+>>> from fluids.units import *
+>>> from math import *
+>>> material = nearest_material_roughness('steel', clean=True)
+>>> epsilon = material_roughness(material)
+>>> Q = .01*u.m**3/u.s
+>>> rho = 1000*u.kg/u.m**3
+>>> mu = 1E-4*u.Pa*u.s
+>>> D1 = 5*u.cm
+>>> D2 = 2.5*u.cm
+>>> D3 = 4*u.cm
+>>> L1 = 20*u.m
+>>> L2 = 5*u.m
+>>> L3 = 15*u.m
+>>> V1 = Q/(pi/4*D1**2)
+
+>>> Re = Reynolds(V=V1, D=D1, rho=rho, mu=mu)
+>>> fd = friction_factor(Re, eD=epsilon/D1)
+>>> K = K_from_f(fd=fd, L=L1, D=D1)
+>>> K += entrance_beveled(Di=D1, l=10*u.mm, angle=30*u.degrees)
+>>> K += bend_miter(angle=30*u.degrees)
+>>> K += contraction_sharp(Di1=D1, Di2=D2)
+
+>>> V2 = Q/(pi/4*D2**2)
+>>> Re2 = Reynolds(V=V2, D=D2, rho=rho, mu=mu)
+>>> fd2 = friction_factor(Re2, eD=epsilon/D2)
+
+>>> K += change_K_basis(K_from_f(fd=fd2, L=L2, D=D2), D1=D2, D2=D1)
+>>> K += change_K_basis(K1=bend_miter(angle=30*u.degrees), D1=D2, D2=D1)
+>>> K += change_K_basis(K1=bend_rounded(Di=D2, angle=45*u.degrees, fd=fd2), D1=D2, D2=D1)
+
+>>> V3 = Q/(pi/4*D3**2)
+>>> Re3 = Reynolds(V=V3, D=D3, rho=rho, mu=mu)
+>>> fd3 = friction_factor(Re3, eD=epsilon/D3)
+
+>>> K += change_K_basis(K_from_f(fd=fd3, L=L3, D=D3), D1=D3, D2=D1)
+>>> K += diffuser_sharp(Di1=D2, Di2=D3)
+
+>>> dP_from_K(K, rho=rho, V=V1)
+<Quantity(608471.881547, 'pascal')>
+
+
 
 Control valve sizing: Introduction
 ----------------------------------

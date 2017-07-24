@@ -133,6 +133,10 @@ def test_fittings():
         Hooper2K(Di=2, Re=10000)
     with pytest.raises(Exception):
         Hooper2K(Di=2., Re=10000, name='fail')
+        
+    K2 = change_K_basis(K1=32.68875692997804, D1=.01, D2=.02)
+    assert_allclose(K2, 523.0201108796487)
+        
 
 
 def test_valve_coefficients():

@@ -2658,7 +2658,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0, Method=None,
     Re : float
         Reynolds number with `D=Di`, [-]
     Di : float
-        Inner diameter of the coil, [m]
+        Inner diameter of the tube making up the coil, [m]
     Dc : float
         Diameter of the helix/coil measured from the center of the tube on one
         side to the center of the tube on the other side, [m]
@@ -3132,8 +3132,8 @@ def nearest_material_roughness(name, clean=None):
     ID : str
         String for lookup of roughness of a pipe, in either 
         `roughness_clean_dict` or `HHR_roughness` depending on if clean is 
-        True
-
+        True, [-]
+        
     Examples
     --------
     >>> nearest_material_roughness('condensate pipes', clean=False)
@@ -3230,6 +3230,9 @@ def transmission_factor(fd=None, F=None):
     >>> transmission_factor(fd=0.0185)
     14.704292441876154
 
+    >>> transmission_factor(F=20)
+    0.01
+    
     References
     ----------
     .. [1] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 

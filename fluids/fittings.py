@@ -31,7 +31,61 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'entrance_rounded', 'entrance_beveled', 'entrance_beveled_orifice', 
 'exit_normal', 'bend_rounded',
 'bend_miter', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
-'Kv_to_K', 'K_to_Kv', 'Cv_to_K', 'K_to_Cv', 'Darby', 'Hooper']
+'Kv_to_K', 'K_to_Kv', 'Cv_to_K', 'K_to_Cv', 'change_K_basis', 'Darby', 'Hooper']
+
+
+
+
+def change_K_basis(K1, D1, D2):
+    r'''Converts a loss coefficient `K1` from the basis of one diameter `D1`
+    to another diameter, `D2`. This is necessary when dealing with pipelines
+    of changing diameter.
+    
+    .. math::
+        K_2 = K_1\frac{D_2^4}{D_1^4} = K_1 \frac{A_2^2}{A_1^2}
+
+    Parameters
+    ----------
+    K1 : float
+        Loss coefficient with respect to diameter `D`, [-]
+    D1 : float
+        Diameter of pipe for which `K1` has been calculated, [m]
+    D2 : float
+        Diameter of pipe for which `K2` will be calculated, [m]
+
+    Returns
+    -------
+    K2 : float
+        Loss coefficient with respect to the second diameter, [-]
+
+    Notes
+    -----
+    This expression is shown in [1]_ and can easily be derived:
+        
+    .. math::
+        \frac{\rho V_{1}^{2}}{2} \cdot K_{1} = \frac{\rho V_{2}^{2} }{2}
+        \cdot K_{2} 
+        
+    Substitute velocities for flow rate divided by area:
+        
+    .. math::
+        \frac{8 K_{1} Q^{2} \rho}{\pi^{2} D_{1}^{4}} = \frac{8 K_{2} Q^{2} 
+        \rho}{\pi^{2} D_{2}^{4}}
+
+    From here, simplification and rearrangement is all that is required.
+    
+    Examples
+    --------
+    >>> change_K_basis(K1=32.68875692997804, D1=.01, D2=.02)
+    523.0201108796487
+
+    References
+    ----------
+    .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
+       and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    '''
+    return K1*(D2/D1)**4
+
 
 ### Entrances
 
