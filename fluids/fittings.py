@@ -21,7 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import cos, sin, tan, atan, pi
+from math import cos, sin, tan, atan, pi, radians
+from scipy.constants import inch
 
 __all__ = ['contraction_sharp', 'contraction_round',
 'contraction_conical', 'contraction_beveled',  'diffuser_sharp',
@@ -1555,3 +1556,6 @@ def Cv_to_K(Cv, D):
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
     return 1.6E9*D**4*(Cv/1.1560992283536566)**-2
+
+
+
