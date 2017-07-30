@@ -61,6 +61,7 @@ setup(
   download_url = 'https://github.com/CalebBell/fluids/tarball/0.1.65',
   description = 'Fluid dynamics component of Chemical Engineering Design Library (ChEDL)',
   long_description=open('README.rst').read(),
+  install_requires = ["numpy>=1.5.0", "scipy>=0.9.0"],
   extras_require = {
       'Coverage documentation':  ['wsgiref>=0.1.2', 'coverage>=4.0.3', 'pint']
   },
