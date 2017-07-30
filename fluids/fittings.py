@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,9 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import cos, sin, tan, atan, pi, radians
+import numpy as np
 from scipy.constants import inch
+from fluids.friction import friction_factor
 
 __all__ = ['contraction_sharp', 'contraction_round',
 'contraction_conical', 'contraction_beveled',  'diffuser_sharp',
@@ -32,9 +34,14 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'entrance_rounded', 'entrance_beveled', 'entrance_beveled_orifice', 
 'exit_normal', 'bend_rounded',
 'bend_miter', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
-'Kv_to_K', 'K_to_Kv', 'Cv_to_K', 'K_to_Cv', 'change_K_basis', 'Darby', 'Hooper']
-
-
+'Kv_to_K', 'K_to_Kv', 'Cv_to_K', 'K_to_Cv', 'change_K_basis', 'Darby', 
+'Hooper', 'K_gate_valve_Crane', 'K_angle_valve_Crane', 'K_globe_valve_Crane',
+'K_swing_check_valve_Crane', 'K_lift_check_valve_Crane',
+'K_tilting_disk_check_valve_Crane', 'K_globe_stop_check_valve_Crane',
+'K_angle_stop_check_valve_Crane', 'K_ball_valve_Crane',
+'K_diaphragm_valve_Crane', 'K_foot_valve_Crane', 'K_butterfly_valve_Crane',
+'K_plug_valve_Crane', 'K_branch_converging_Crane', 'K_run_converging_Crane',
+'K_branch_diverging_Crane', 'K_run_diverging_Crane']
 
 
 def change_K_basis(K1, D1, D2):
@@ -907,12 +914,14 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None):
     '''
     beta = Di1/Di2
 
-    if angle:
+    if angle is not None:
         angle_rad = angle/(180/pi)
         l = (Di2 - Di1)/(2*tan(angle_rad/2))
-    elif l:
+    elif l is not None:
         angle_rad = 2*atan((Di2-Di1)/2/l)
         angle = angle_rad*(180/pi)
+    else:
+        raise Exception('Either `l` or `angle` must be specified')
 
     if 0 < angle <= 20:
         K = 8.30*tan(angle_rad/2)**1.75*(1-beta**2)**2 + fd*(1-beta**4)/8./sin(angle_rad/2)
@@ -1075,7 +1084,7 @@ def diffuser_pipe_reducer(Di1, Di2, l, fd1, fd2=None):
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    if not fd2:
+    if fd2 is None:
         fd2 = fd1
     beta = Di1/Di2
     angle = -2*atan((Di1-Di2)/1.20/l)
@@ -1558,4 +1567,1173 @@ def Cv_to_K(Cv, D):
     return 1.6E9*D**4*(Cv/1.1560992283536566)**-2
 
 
+def K_gate_valve_Crane(D1, D2, angle, fd):
+    r'''Returns loss coefficient for a gate valve of types wedge disc, double
+    disc, or plug type, as shown in [1]_.
 
+    If β = 1 and θ = 0:
+        
+    .. math::
+        K = K_1 = K_2 = 8f_d
+        
+    If β < 1 and θ <= 45°:
+        
+    .. math::
+        K_2 = \frac{K + \sin \frac{\theta}{2} \left[0.8(1-\beta^2) 
+        + 2.6(1-\beta^2)^2\right]}{\beta^4}
+            
+    If β < 1 and θ > 45°:
+        
+    .. math::
+        K_2 = \frac{K + 0.5\sqrt{\sin\frac{\theta}{2}}(1-\beta^2) 
+        + (1-\beta^2)^2}{\beta^4}
+        
+    Parameters
+    ----------
+    D1 : float
+        Diameter of the valve seat bore (must be smaller or equal to `D2`), [m]
+    D2 : float
+        Diameter of the pipe attached to the valve, [m]
+    angle : float
+        Angle formed by the reducer in the valve, [degrees]
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions [2]_.
+    
+    Examples
+    --------
+    Example 7-4 in [1]_; a 150 by 100 mm glass 600 steel gate valve, conically
+    tapered ports, length 550 mm, back of sear ring ~150 mm. The valve is 
+    connected to 146 mm schedule 80 pipe. The angle can be calculated to be 
+    13 degrees. The valve is specified to be operating in turbulent conditions.
+    
+    >>> K_gate_valve_Crane(D1=.1, D2=.146, angle=13.115, fd=0.015)
+    1.145830368873396
+    
+    The calculated result is lower than their value of 1.22; the difference is
+    due to intermediate rounding.
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    .. [2] Harvey Wilson. "Pressure Drop in Pipe Fittings and Valves | 
+       Equivalent Length and Resistance Coefficient." Katmar Software. Accessed
+       July 28, 2017. http://www.katmarsoftware.com/articles/pipe-fitting-pressure-drop.htm.
+    '''
+    angle = radians(angle)
+    beta = D1/D2
+    K1 = 8*fd # This does not refer to upstream loss per se
+    if beta == 1 or angle == 0:
+        return K1 # upstream and down
+    else:
+        if angle <= pi/4:
+            K = (K1 + sin(angle/2)*(0.8*(1-beta**2) + 2.6*(1-beta**2)**2))/beta**4
+        else:
+            K = (K1 + 0.5*(sin(angle/2))**0.5 * (1 - beta**2) + (1-beta**2)**2)/beta**4
+    return K
+
+
+def K_globe_valve_Crane(D1, D2, fd):
+    r'''Returns the loss coefficient for all types of globe valve, (reduced 
+    seat or throttled) as shown in [1]_.
+
+    If β = 1:
+        
+    .. math::
+        K = K_1 = K_2 = 340 f_d
+        
+    Otherwise:
+    
+    .. math::
+        K_2 = \frac{K + \left[0.5(1-\beta^2) + (1-\beta^2)^2\right]}{\beta^4}
+        
+    Parameters
+    ----------
+    D1 : float
+        Diameter of the valve seat bore (must be smaller or equal to `D2`), [m]
+    D2 : float
+        Diameter of the pipe attached to the valve, [m]
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_globe_valve_Crane(.01, .02, fd=.015)
+    87.1
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    beta = D1/D2
+    K1 = 340*fd 
+    if beta == 1:
+        return K1 # upstream and down
+    else:
+        return (K1 + beta*(0.5*(1-beta)**2 + (1-beta**2)**2))/beta**4
+
+
+def K_angle_valve_Crane(D1, D2, fd, style=0):
+    r'''Returns the loss coefficient for all types of angle valve, (reduced 
+    seat or throttled) as shown in [1]_.
+
+    If β = 1:
+        
+    .. math::
+        K = K_1 = K_2 = N\cdot f_d
+        
+    Otherwise:
+    
+    .. math::
+        K_2 = \frac{K + \left[0.5(1-\beta^2) + (1-\beta^2)^2\right]}{\beta^4}
+        
+    For style 0 and 2, N = 55; for style 1, N=150.
+    
+    Parameters
+    ----------
+    D1 : float
+        Diameter of the valve seat bore (must be smaller or equal to `D2`), [m]
+    D2 : float
+        Diameter of the pipe attached to the valve, [m]
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+    style : int, optional
+        One of 0, 1, or 2; refers to three different types of angle valves
+        as shown in [1]_ [-]
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_angle_valve_Crane(.01, .02, fd=.016)
+    19.58
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    beta = D1/D2
+    if style not in [0, 1, 2]:
+        raise Exception('Valve style should be 0, 1, or 2')
+    if style == 0 or style == 2:
+        K1 = 55*fd
+    else:
+        K1 = 150*fd
+    if beta == 1:
+        return K1 # upstream and down
+    else:
+        return (K1 + beta*(0.5*(1-beta)**2 + (1-beta**2)**2))/beta**4
+
+
+def K_swing_check_valve_Crane(fd, angled=True):
+    r'''Returns the loss coefficient for a swing check valve as shown in [1]_.
+        
+    .. math::
+        K_2 = N\cdot f_d
+        
+    For angled swing check valves N = 100; for straight valves, N = 50.
+    
+    Parameters
+    ----------
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+    angled : bool, optional
+        If True, returns a value 2x the unangled value; the style of the valve
+        [-]
+        
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_swing_check_valve_Crane(fd=.016)
+    1.6
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    if angled:
+        return 100.*fd
+    return 50.*fd
+
+
+def K_lift_check_valve_Crane(D1, D2, fd, angled=True):
+    r'''Returns the loss coefficient for a lift check valve as shown in [1]_.
+        
+    If β = 1:
+        
+    .. math::
+        K = K_1 = K_2 = N\cdot f_d
+        
+    Otherwise:
+    
+    .. math::
+        K_2 = \frac{K + \left[0.5(1-\beta^2) + (1-\beta^2)^2\right]}{\beta^4}
+        
+        
+    For angled lift check valves N = 55; for straight valves, N = 600.
+    
+    Parameters
+    ----------
+    D1 : float
+        Diameter of the valve seat bore (must be smaller or equal to `D2`), [m]
+    D2 : float
+        Diameter of the pipe attached to the valve, [m]
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+    angled : bool, optional
+        If True, returns a value 2x the unangled value; the style of the valve
+        [-]
+        
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_lift_check_valve_Crane(.01, .02, fd=.016)
+    21.58
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    beta = D1/D2
+    if angled:
+        K1 = 55*fd
+        if beta == 1:
+            return K1
+        else:
+            return (K1 + beta*(0.5*(1 - beta**2) + (1 - beta**2)**2))/beta**4
+    else:
+        K1 = 600.*fd
+        if beta == 1:
+            return K1
+        else:
+            return (K1 + beta*(0.5*(1 - beta**2) + (1 - beta**2)**2))/beta**4
+            
+        
+def K_tilting_disk_check_valve_Crane(D, angle, fd):
+    r'''Returns the loss coefficient for a tilting disk check valve as shown in
+    [1]_. Results are specified in [1]_ to be for the disk's resting position
+    to be at 5 or 25 degrees to the flow direction.  The model is implemented
+    here so as to switch to the higher loss 15 degree coefficients at 10 
+    degrees, and use the lesser coefficients for any angle under 10 degrees.
+        
+    .. math::
+        K = N\cdot f_d
+        
+    N is obtained from the following table:
+
+    +--------+-------------+-------------+
+    |        | angle = 5 ° | angle = 15° |
+    +========+=============+=============+
+    | 2-8"   | 40          | 120         |
+    +--------+-------------+-------------+
+    | 10-14" | 30          | 90          |
+    +--------+-------------+-------------+
+    | 16-48" | 20          | 60          |
+    +--------+-------------+-------------+
+    
+    The actual change of coefficients happen at <= 9" and <= 15".
+            
+    Parameters
+    ----------
+    D : float
+        Diameter of the pipe section the valve in mounted in; the
+        same as the line size [m]
+    angle : float
+        Angle of the tilting disk to the flow direction; nominally 5 or 15
+        degrees [degrees]
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+        
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_tilting_disk_check_valve_Crane(.01, 5, fd=.016)
+    0.64
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    if angle < 10:
+        # 5 degree case
+        if D <= 0.2286:
+            # 2-8 inches, split at 9 inch
+            return 40*fd
+        elif D <= 0.381:
+            # 10-14 inches, split at 15 inch
+            return 30*fd
+        else:
+            # 16-18 inches
+            return 20*fd
+    else:
+        # 15 degree case
+        if D < 0.2286:
+            # 2-8 inches
+            return 120*fd
+        elif D < 0.381:
+            # 10-14 inches
+            return 90*fd
+        else:
+            # 16-18 inches
+            return 60*fd
+
+
+def K_globe_stop_check_valve_Crane(D1, D2, fd, style=0):
+    r'''Returns the loss coefficient for a globe stop check valve as shown in 
+    [1]_.
+        
+    If β = 1:
+        
+    .. math::
+        K = K_1 = K_2 = N\cdot f_d
+        
+    Otherwise:
+    
+    .. math::
+        K_2 = \frac{K + \left[0.5(1-\beta^2) + (1-\beta^2)^2\right]}{\beta^4}
+        
+    Style 0 is the standard form; style 1 is angled, with a restrition to force
+    the flow up through the valve; style 2 is also angled but with a smaller
+    restriction forcing the flow up. N is 400, 300, and 55 for those cases
+    respectively.
+    
+    Parameters
+    ----------
+    D1 : float
+        Diameter of the valve seat bore (must be smaller or equal to `D2`), [m]
+    D2 : float
+        Diameter of the pipe attached to the valve, [m]
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+    style : int, optional
+        One of 0, 1, or 2; refers to three different types of angle valves
+        as shown in [1]_ [-]
+        
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_globe_stop_check_valve_Crane(.1, .02, .0165, style=1)
+    4.51992
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    coeffs = {0: 400, 1: 300, 2: 55}
+    try:
+        K = coeffs[style]*fd
+    except KeyError:
+        raise KeyError('Accepted valve styles are 0, 1, and 2 only')
+    beta = D1/D2
+    if beta == 1:
+        return K
+    else:
+        return (K + beta*(0.5*(1 - beta**2) + (1 - beta**2)**2))/beta**4
+
+
+def K_angle_stop_check_valve_Crane(D1, D2, fd, style=0):
+    r'''Returns the loss coefficient for a angle stop check valve as shown in 
+    [1]_.
+        
+    If β = 1:
+        
+    .. math::
+        K = K_1 = K_2 = N\cdot f_d
+        
+    Otherwise:
+    
+    .. math::
+        K_2 = \frac{K + \left[0.5(1-\beta^2) + (1-\beta^2)^2\right]}{\beta^4}
+        
+    Style 0 is the standard form; style 1 has a restrition to force
+    the flow up through the valve; style 2 is has the clearest flow area with
+    no guides for the angle valve. N is 200, 350, and 55 for those cases
+    respectively.
+    
+    Parameters
+    ----------
+    D1 : float
+        Diameter of the valve seat bore (must be smaller or equal to `D2`), [m]
+    D2 : float
+        Diameter of the pipe attached to the valve, [m]
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+    style : int, optional
+        One of 0, 1, or 2; refers to three different types of angle valves
+        as shown in [1]_ [-]
+        
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_angle_stop_check_valve_Crane(.1, .02, .0165, style=1)
+    4.52124
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    coeffs = {0: 200, 1: 350, 2: 55}
+    try:
+        K = coeffs[style]*fd
+    except KeyError:
+        raise KeyError('Accepted valve styles are 0, 1, and 2 only')
+
+    beta = D1/D2
+    if beta == 1:
+        return K
+    else:
+        return (K + beta*(0.5*(1 - beta**2) + (1 - beta**2)**2))/beta**4
+
+
+def K_ball_valve_Crane(D1, D2, angle, fd):
+    r'''Returns the loss coefficient for a ball valve as shown in [1]_.
+
+    If β = 1:
+        
+    .. math::
+        K = K_1 = K_2 = 3f_d
+        
+    If β < 1 and θ <= 45°:
+        
+    .. math::
+        K_2 = \frac{K + \sin \frac{\theta}{2} \left[0.8(1-\beta^2) 
+        + 2.6(1-\beta^2)^2\right]} {\beta^4}
+            
+    If β < 1 and θ > 45°:
+        
+    .. math::
+        K_2 = \frac{K + 0.5\sqrt{\sin\frac{\theta}{2}}(1-\beta^2) 
+        + (1-\beta^2)^2}{\beta^4}
+        
+    Parameters
+    ----------
+    D1 : float
+        Diameter of the valve seat bore (must be equal to or smaller than 
+        `D2`), [m]
+    D2 : float
+        Diameter of the pipe attached to the valve, [m]
+    angle : float
+        Angle formed by the reducer in the valve, [degrees]
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_ball_valve_Crane(.01, .02, 50, .025)
+    14.100545785228675
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    beta = D1/D2
+    K1 = 3*fd
+    angle = radians(angle)
+    if beta == 1:
+        return K1
+    else:
+        if angle <= pi/4:
+            return (K1 + sin(angle/2)*(0.8*(1-beta**2) + 2.6*(1-beta**2)**2))/beta**4
+        else:
+            return (K1 + 0.5*(sin(angle/2))**0.5 * (1 - beta**2) + (1-beta**2)**2)/beta**4
+
+
+def K_diaphragm_valve_Crane(fd, style=0):
+    r'''Returns the loss coefficient for a diaphragm valve of either weir
+    (`style` = 0) or straight-through (`style` = 1) as shown in [1]_.
+        
+    .. math::
+        K = K_1 = K_2 = N\cdot f_d
+        
+    For style 0 (weir), N = 149; for style 1 (straight through), N = 39.
+    
+    Parameters
+    ----------
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+    style : int, optional
+        Either 0 (weir type valve) or 1 (straight through weir valve) [-]
+        
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_diaphragm_valve_Crane(0.015, style=0)
+    2.235
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    coeffs = {0: 149, 1: 39}
+    try:
+        K = coeffs[style]*fd
+    except KeyError:
+        raise KeyError('Accepted valve styles are 0 (weir) or 1 (straight through) only')
+    return K
+
+
+def K_foot_valve_Crane(fd, style=0):
+    r'''Returns the loss coefficient for a foot valve of either poppet disc
+    (`style` = 0) or hinged-disk (`style` = 1) as shown in [1]_. Both valves
+    are specified include the loss of the attached strainer.
+        
+    .. math::
+        K = K_1 = K_2 = N\cdot f_d
+        
+    For style 0 (poppet disk), N = 420; for style 1 (hinged disk), N = 75.
+    
+    Parameters
+    ----------
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+    style : int, optional
+        Either 0 (poppet disk foot valve) or 1 (hinged disk foot valve) [-]
+        
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_foot_valve_Crane(0.015, style=0)
+    6.3
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    coeffs = {0: 420, 1: 75}
+    try:
+        K = coeffs[style]*fd
+    except KeyError:
+        raise KeyError('Accepted valve styles are 0 (poppet disk) or 1 (hinged disk) only')
+    return K
+
+
+def K_butterfly_valve_Crane(D, fd, style=0):
+    r'''Returns the loss coefficient for a butterfly valve as shown in
+    [1]_. Three different types are supported; Centric (`style` = 0),
+    double offset (`style` = 1), and triple offset (`style` = 2).
+        
+    .. math::
+        K = N\cdot f_d
+        
+    N is obtained from the following table:
+        
+    +------------+---------+---------------+---------------+
+    | Size range | Centric | Double offset | Triple offset |
+    +============+=========+===============+===============+
+    | 2" - 8"    | 45      | 74            | 218           |
+    +------------+---------+---------------+---------------+
+    | 10" - 14"  | 35      | 52            | 96            |
+    +------------+---------+---------------+---------------+
+    | 16" - 24"  | 25      | 43            | 55            |
+    +------------+---------+---------------+---------------+
+        
+    The actual change of coefficients happen at <= 9" and <= 15".
+            
+    Parameters
+    ----------
+    D : float
+        Diameter of the pipe section the valve in mounted in; the
+        same as the line size [m]
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+    style : int, optional
+        Either 0 (centric), 1 (double offset), or 2 (triple offset) [-]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_butterfly_valve_Crane(.01, .016, style=2)
+    3.488
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    coeffs = {0: (45, 35, 25), 1: (74, 52, 43), 2: (218, 96, 55)}
+    try:
+        c1, c2, c3 = coeffs[style]
+    except KeyError:
+        raise KeyError('Accepted valve styles are 0 (centric), 1 (double offset), or 2 (triple offset) only.')
+    if D <= 0.2286:
+        # 2-8 inches, split at 9 inch
+        return c1*fd
+    elif D <= 0.381:
+        # 10-14 inches, split at 15 inch
+        return c2*fd
+    else:
+        # 16-18 inches
+        return c3*fd
+    
+    
+def K_plug_valve_Crane(D1, D2, angle, fd, style=0):
+    r'''Returns the loss coefficient for a plug valve or cock valve as shown in
+    [1]_.
+
+    If β = 1:
+        
+    .. math::
+        K = K_1 = K_2 = Nf_d
+        
+    Otherwise:
+        
+    .. math::
+        K_2 = \frac{K + 0.5\sqrt{\sin\frac{\theta}{2}}(1-\beta^2) 
+        + (1-\beta^2)^2}{\beta^4}
+        
+    Three types of plug valves are supported. For straight-through plug valves
+    (`style` = 0), N = 18. For 3-way, flow straight through (`style` = 1) 
+    plug valves, N = 30. For 3-way, flow 90° valves (`style` = 2) N = 90.
+        
+    Parameters
+    ----------
+    D1 : float
+        Diameter of the valve plug bore (must be equal to or smaller than 
+        `D2`), [m]
+    D2 : float
+        Diameter of the pipe attached to the valve, [m]
+    angle : float
+        Angle formed by the reducer in the valve, [degrees]
+    fd : float
+        Darcy friction factor calculated for the actual pipe flow in clean 
+        steel (roughness = 0.0018 inch) in the fully developed turbulent 
+        region [-]
+    style : int, optional
+        Either 0 (straight-through), 1 (3-way, flow straight-through), or 2 
+        (3-way, flow 90°) [-]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----    
+    This method is not valid in the laminar regime and the pressure drop will
+    be underestimated in those conditions.
+
+    Examples
+    --------
+    >>> K_plug_valve_Crane(.01, .02, 50, .025)
+    20.100545785228675
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    coeffs = {0: 18, 1: 30, 2: 90}
+    beta = D1/D2
+    try:
+        K = coeffs[style]*fd
+    except KeyError:
+        raise KeyError('Accepted valve styles are 0 (straight-through), 1 (3-way, flow straight-through), or 2 (3-way, flow 90°)')
+    angle = radians(angle)
+    if beta == 1:
+        return K
+    else:
+        return (K + 0.5*(sin(angle/2))**0.5 * (1 - beta**2) + (1-beta**2)**2)/beta**4
+
+
+branch_converging_Crane_Fs = np.array([1.74, 1.41, 1, 0])
+branch_converging_Crane_angles = np.array([30, 45, 60, 90])
+
+
+def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
+    r'''Returns the loss coefficient for the branch of a converging tee or wye
+    according to the Crane method [1]_.
+    
+    .. math::
+        K_{branch} = C\left[1 + D\left(\frac{Q_{branch}}{Q_{comb}\cdot 
+        \beta_{branch}^2}\right)^2 - E\left(1 - \frac{Q_{branch}}{Q_{comb}}
+        \right)^2 - \frac{F}{\beta_{branch}^2} \left(\frac{Q_{branch}}
+        {Q_{comb}}\right)^2\right]
+            
+        \beta_{branch} = \frac{D_{branch}}{D_{comb}}
+    
+    In the above equation, D = 1, E = 2. See the notes for definitions of F and
+    C.
+
+    Parameters
+    ----------
+    D_run : float
+        Diameter of the straight-through inlet portion of the tee or wye [m]
+    D_branch : float
+        Diameter of the pipe attached at an angle to the straight-through, [m]
+    Q_run : float
+        Volumetric flow rate in the straight-through inlet of the tee or wye,
+        [m^3/s]
+    Q_branch : float
+        Volumetric flow rate in the pipe attached at an angle to the straight-
+        through, [m^3/s]
+    angle : float, optional
+        Angle the branch makes with the straight-through (tee=90, wye<90)
+        [degrees]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient of branch with respect to the velocity and inside 
+        diameter of the combined flow outlet [-]
+
+    Notes
+    -----
+    F is linearly interpolated from the table of angles below. There is no 
+    cutoff to prevent angles from being larger or smaller than 30 or 90
+    degrees. 
+
+    +-----------+------+
+    | Angle [°] |      |
+    +===========+======+
+    | 30        | 1.74 |
+    +-----------+------+
+    | 45        | 1.41 |
+    +-----------+------+
+    | 60        | 1    |
+    +-----------+------+
+    | 90        | 0    |
+    +-----------+------+
+    
+    If :math:`\beta_{branch}^2 \le 0.35`, C = 1
+
+    If :math:`\beta_{branch}^2 > 0.35` and :math:`Q_{branch}/Q_{comb} > 0.35`,
+    C = 0.55.
+
+    If neither of the above conditions are met:
+        
+    .. math::
+        C = 0.9\left(1 - \frac{Q_{branch}}{Q_{comb}}\right)
+
+    Examples
+    --------
+    Example 7-35 of [1]_. A DN100 schedule 40 tee has 1135 liters/minute of
+    water passing through the straight leg, and 380 liters/minute of water
+    converging with it through a 90° branch. Calculate the loss coefficient in
+    the branch. The calculated value there is -0.04026.
+    
+    >>> K_branch_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633)
+    -0.04044108513625682
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    beta = (D_branch/D_run)
+    beta2 = beta*beta
+    Q_comb = Q_run + Q_branch
+    Q_ratio = Q_branch/Q_comb
+    if beta2 <= 0.35:
+        C = 1.
+    elif Q_ratio <= 0.35:
+        C = 0.9*(1 - Q_ratio)
+    else:
+        C = 0.55
+    D, E = 1., 2.
+    F = np.interp(angle, branch_converging_Crane_angles, branch_converging_Crane_Fs)
+    K = C*(1. + D*(Q_ratio/beta2)**2 - E*(1. - Q_ratio)**2 - F/beta2*Q_ratio**2)
+    return K
+
+
+run_converging_Crane_Fs = np.array([1.74, 1.41, 1])
+run_converging_Crane_angles = np.array([30, 45, 60])
+
+def K_run_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
+    r'''Returns the loss coefficient for the run of a converging tee or wye
+    according to the Crane method [1]_.
+    
+    .. math::
+        K_{branch} = C\left[1 + D\left(\frac{Q_{branch}}{Q_{comb}\cdot 
+        \beta_{branch}^2}\right)^2 - E\left(1 - \frac{Q_{branch}}{Q_{comb}}
+        \right)^2 - \frac{F}{\beta_{branch}^2} \left(\frac{Q_{branch}}
+        {Q_{comb}}\right)^2\right]
+            
+        \beta_{branch} = \frac{D_{branch}}{D_{comb}}
+    
+    In the above equation, C=1, D=0, E=1. See the notes for definitions of F 
+    and also the special case of 90°.
+
+    Parameters
+    ----------
+    D_run : float
+        Diameter of the straight-through inlet portion of the tee or wye
+        [m]
+    D_branch : float
+        Diameter of the pipe attached at an angle to the straight-through, [m]
+    Q_run : float
+        Volumetric flow rate in the straight-through inlet of the tee or wye,
+        [m^3/s]
+    Q_branch : float
+        Volumetric flow rate in the pipe attached at an angle to the straight-
+        through, [m^3/s]
+    angle : float, optional
+        Angle the branch makes with the straight-through (tee=90, wye<90)
+        [degrees]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient of run with respect to the velocity and inside 
+        diameter of the combined flow outlet [-]
+
+    Notes
+    -----
+    F is linearly interpolated from the table of angles below. There is no 
+    cutoff to prevent angles from being larger or smaller than 30 or 60
+    degrees. The switch to the special 90° happens at 75°.
+
+    +-----------+------+
+    | Angle [°] |      |
+    +===========+======+
+    | 30        | 1.74 |
+    +-----------+------+
+    | 45        | 1.41 |
+    +-----------+------+
+    | 60        | 1    |
+    +-----------+------+
+    
+    For the special case of 90°, the formula used is as follows. 
+        
+    .. math::
+        K_{run} = 1.55\left(\frac{Q_{branch}}{Q_{comb}} \right)
+        - \left(\frac{Q_{branch}}{Q_{comb}}\right)^2
+    
+    Examples
+    --------
+    Example 7-35 of [1]_. A DN100 schedule 40 tee has 1135 liters/minute of
+    water passing through the straight leg, and 380 liters/minute of water
+    converging with it through a 90° branch. Calculate the loss coefficient in
+    the run. The calculated value there is 0.03258.
+    
+    >>> K_run_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633)
+    0.32575847854551254
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    beta = (D_branch/D_run)
+    beta2 = beta*beta
+    Q_comb = Q_run + Q_branch
+    Q_ratio = Q_branch/Q_comb
+    if angle < 75.:
+        C = 1
+    else:
+        return 1.55*(Q_ratio) - Q_ratio*Q_ratio
+
+    D, E = 0, 1
+    F = np.interp(angle, run_converging_Crane_angles, run_converging_Crane_Fs)
+    K = C*(1. + D*(Q_ratio/beta2)**2 - E*(1. - Q_ratio)**2 - F/beta2*Q_ratio**2)
+    return K
+
+
+def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
+    r'''Returns the loss coefficient for the branch of a diverging tee or wye
+    according to the Crane method [1]_.
+    
+    .. math::
+        K_{branch} = G\left[1 + H\left(\frac{Q_{branch}}{Q_{comb}
+        \beta_{branch}^2}\right)^2 - J\left(\frac{Q_{branch}}{Q_{comb}
+        \beta_{branch}^2}\right)\cos\theta\right]
+            
+        \beta_{branch} = \frac{D_{branch}}{D_{comb}}
+    
+    See the notes for definitions of H, J, and G.
+
+    Parameters
+    ----------
+    D_run : float
+        Diameter of the straight-through inlet portion of the tee or wye [m]
+    D_branch : float
+        Diameter of the pipe attached at an angle to the straight-through, [m]
+    Q_run : float
+        Volumetric flow rate in the straight-through outlet of the tee or wye,
+        [m^3/s]
+    Q_branch : float
+        Volumetric flow rate in the pipe attached at an angle to the straight-
+        through, [m^3/s]
+    angle : float, optional
+        Angle the branch makes with the straight-through (tee=90, wye<90)
+        [degrees]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient of branch with respect to the velocity and inside 
+        diameter of the combined flow inlet [-]
+
+    Notes
+    -----
+    If :math:`\beta_{branch} = 1, \theta = 90^\circ`, H = 0.3 and J = 0. 
+    Otherwise H = 1 and J = 2.
+    
+    G is determined according to the following pseudocode:
+        
+    .. code-block:: python
+    
+        if beta*beta <= 0.35:
+            if Q_branch/Q_comb <= 0.6:
+                G = 1.1 - 0.7*Q_branch/Q_comb
+            else:
+                G = 0.85
+        else:
+            if Q_branch/Q_comb <= 0.4:
+                G = 1.0 - 0.6*Q_branch/Q_comb
+            else:
+                G = 0.6
+
+    Examples
+    --------
+    Example 7-36 of [1]_. A DN150 schedule 80 wye has 1515 liters/minute of
+    water exiting the straight leg, and 950 liters/minute of water
+    exiting it through a 45° branch. Calculate the loss coefficient in
+    the branch. The calculated value there is 0.4640.
+    
+    >>> K_branch_diverging_Crane(0.146, 0.146, 0.02525, 0.01583, angle=45)
+    0.4639895627496694
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    beta = (D_branch/D_run)
+    beta2 = beta*beta
+    Q_comb = Q_run + Q_branch
+    Q_ratio = Q_branch/Q_comb
+
+    if angle < 60 or beta <= 2/3.:
+        H, J = 1., 2.
+    else:
+        H, J = 0.3, 0
+    if beta2 <= 0.35:
+        if Q_ratio <= 0.6:
+            G = 1.1 - 0.7*Q_ratio
+        else:
+            G = 0.85
+    else:
+        if Q_ratio <= 0.4:
+            G = 1.0 - 0.6*Q_ratio
+        else:
+            G = 0.6
+    angle_rad = radians(angle)
+    K_branch = G*(1 + H*(Q_ratio/beta2)**2 - J*(Q_ratio/beta2)*cos(angle_rad))
+    return K_branch
+
+
+def K_run_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
+    r'''Returns the loss coefficient for the run of a converging tee or wye
+    according to the Crane method [1]_.
+    
+    .. math::
+        K_{run} = M \left(\frac{Q_{branch}}{Q_{comb}}\right)^2
+            
+        \beta_{branch} = \frac{D_{branch}}{D_{comb}}
+    
+    See the notes for the definition of M.
+
+    Parameters
+    ----------
+    D_run : float
+        Diameter of the straight-through inlet portion of the tee or wye [m]
+    D_branch : float
+        Diameter of the pipe attached at an angle to the straight-through, [m]
+    Q_run : float
+        Volumetric flow rate in the straight-through outlet of the tee or wye,
+        [m^3/s]
+    Q_branch : float
+        Volumetric flow rate in the pipe attached at an angle to the straight-
+        through, [m^3/s]
+    angle : float, optional
+        Angle the branch makes with the straight-through (tee=90, wye<90)
+        [degrees]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient of run with respect to the velocity and inside 
+        diameter of the combined flow inlet [-]
+
+    Notes
+    -----
+    M is calculated according to the following pseudocode:
+        
+    .. code-block:: python
+
+        if beta*beta <= 0.4:
+            M = 0.4
+        elif Q_branch/Q_comb <= 0.5:
+            M = 2*(2*Q_branch/Q_comb - 1)
+        else:
+            M = 0.3*(2*Q_branch/Q_comb - 1)
+
+    Examples
+    --------
+    Example 7-36 of [1]_. A DN150 schedule 80 wye has 1515 liters/minute of
+    water exiting the straight leg, and 950 liters/minute of water
+    exiting it through a 45° branch. Calculate the loss coefficient in
+    the branch. The calculated value there is -0.06809.
+    
+    >>> K_run_diverging_Crane(0.146, 0.146, 0.02525, 0.01583, angle=45)
+    -0.06810067607153049
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    beta = (D_branch/D_run)
+    beta2 = beta*beta
+    Q_comb = Q_run + Q_branch
+    Q_ratio = Q_branch/Q_comb
+    if beta2 <= 0.4:
+        M = 0.4
+    elif Q_ratio <= 0.5:
+        M = 2.*(2.*Q_ratio - 1.)
+    else:
+        M = 0.3*(2.*Q_ratio - 1.)
+    return M*Q_ratio*Q_ratio

@@ -19,6 +19,7 @@ from __future__ import division
 from fluids import *
 from math import pi
 from numpy.testing import assert_allclose
+from scipy.constants import *
 import pytest
 
 def test_fittings():
@@ -96,6 +97,8 @@ def test_fittings():
     assert_allclose([K1, K2, K3, K4, K5, K6], Ks)
     with pytest.raises(Exception):
         diffuser_conical(Di1=.1, Di2=0.1, angle=1800., fd=0.020)
+    with pytest.raises(Exception):
+        diffuser_conical(Di1=.1, Di2=0.1, fd=0.020)
 
     K1 = diffuser_conical_staged(Di1=1., Di2=10., DEs=[2,3,4,5,6,7,8,9], ls=[1,1,1,1,1,1,1,1,1], fd=0.01)
     K2 = diffuser_conical(Di1=1., Di2=10.,l=9, fd=0.01)
@@ -107,6 +110,9 @@ def test_fittings():
 
     K = diffuser_pipe_reducer(Di1=.5, Di2=.75, l=1.5, fd1=0.07)
     assert_allclose(K, 0.06873244301714816)
+    
+    K = diffuser_pipe_reducer(Di1=.5, Di2=.75, l=1.5, fd1=0.07, fd2=.08)
+    assert_allclose(K, 0.06952256647393829)
 
     # Misc
     K1 = Darby3K(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
@@ -185,3 +191,231 @@ def test_valve_coefficients():
     
     ans = newton(to_solve, 1.2)
     assert_allclose(ans, 1.1560992283536566)
+
+
+def test_K_gate_valve_Crane():
+    K = K_gate_valve_Crane(D1=.01, D2=.02, angle=45, fd=.015)
+    assert_allclose(K, 14.548553268047963)
+    
+    K = K_gate_valve_Crane(D1=.1, D2=.1, angle=0, fd=.015)
+    assert_allclose(K, 0.12)
+    
+    # non-smooth transition test
+    K = K_gate_valve_Crane(D1=.1, D2=.146, angle=45, fd=.015)
+    assert_allclose(K, 2.5577948931946746)
+    K = K_gate_valve_Crane(D1=.1, D2=.146, angle=45.01, fd=.015)
+    assert_allclose(K, 2.5719286772143595)
+
+
+def test_K_globe_valve_Crane():
+    K =  K_globe_valve_Crane(.01, .02, fd=.015)
+    assert_allclose(K, 87.1)
+    
+    assert_allclose(K_globe_valve_Crane(.01, .01, fd=.015), .015*340)
+    
+    
+def test_K_angle_valve_Crane():
+    K =  K_angle_valve_Crane(.01, .02, fd=.016)
+    assert_allclose(K, 19.58)
+    
+    K = K_angle_valve_Crane(.01, .02, fd=.016, style=1)
+    assert_allclose(K, 43.9)
+    
+    K = K_angle_valve_Crane(.01, .01, fd=.016, style=1)
+    assert_allclose(K, 2.4)
+    
+    with pytest.raises(Exception):
+        K_angle_valve_Crane(.01, .02, fd=.016, style=-1)
+    
+    
+def test_K_swing_check_valve_Crane():
+    K = K_swing_check_valve_Crane(fd=.016)
+    assert_allclose(K, 1.6)
+    K = K_swing_check_valve_Crane(fd=.016, angled=False)
+    assert_allclose(K, 0.8)
+    
+    
+def test_K_lift_check_valve_Crane():
+    K = K_lift_check_valve_Crane(.01, .02, fd=.016)
+    assert_allclose(K, 21.58)
+    
+    K = K_lift_check_valve_Crane(.01, .01, fd=.016)
+    assert_allclose(K, 0.88)
+    
+    K = K_lift_check_valve_Crane(.01, .01, fd=.016, angled=False)
+    assert_allclose(K, 9.6)
+    
+    K = K_lift_check_valve_Crane(.01, .02, fd=.016, angled=False)
+    assert_allclose(K, 161.1)
+    
+    
+def test_K_tilting_disk_check_valve_Crane():
+    K = K_tilting_disk_check_valve_Crane(.01, 5, fd=.016)
+    assert_allclose(K, 0.64)
+    
+    K = K_tilting_disk_check_valve_Crane(.25, 5, fd=.016)
+    assert_allclose(K, .48)
+    
+    K = K_tilting_disk_check_valve_Crane(.9, 5, fd=.016)
+    assert_allclose(K, 0.32)
+    
+    K = K_tilting_disk_check_valve_Crane(.01, 15, fd=.016)
+    assert_allclose(K, 1.92)
+
+    K = K_tilting_disk_check_valve_Crane(.25, 15, fd=.016)
+    assert_allclose(K, 1.44)
+
+    K = K_tilting_disk_check_valve_Crane(.9, 15, fd=.016)
+    assert_allclose(K, 0.96)
+    
+
+def test_K_globe_stop_check_valve_Crane():
+    K = K_globe_stop_check_valve_Crane(.1, .02, .0165)
+    assert_allclose(K, 4.5225599999999995)
+    
+    K = K_globe_stop_check_valve_Crane(.1, .02, .0165, style=1)
+    assert_allclose(K, 4.51992)
+    
+    K = K_globe_stop_check_valve_Crane(.1, .02, .0165, style=2)
+    assert_allclose(K, 4.513452)
+    
+    with pytest.raises(Exception):
+        K_globe_stop_check_valve_Crane(.1, .02, .0165, style=-1)
+        
+    K = K_globe_stop_check_valve_Crane(.1, .1, .0165)
+    assert_allclose(K, 6.6)
+        
+        
+def test_K_angle_stop_check_valve_Crane():
+    K = K_angle_stop_check_valve_Crane(.1, .02, .0165)
+    assert_allclose(K, 4.51728)
+    
+    K = K_angle_stop_check_valve_Crane(.1, .02, .0165, style=1)
+    assert_allclose(K, 4.52124)
+    
+    K = K_angle_stop_check_valve_Crane(.1, .02, .0165, style=2)
+    assert_allclose(K, 4.513452)
+
+    with pytest.raises(Exception):
+        K_angle_stop_check_valve_Crane(.1, .02, .0165, style=-1)
+    
+    K = K_angle_stop_check_valve_Crane(.1, .1, .0165)
+    assert_allclose(K, 3.3)
+
+
+def test_K_ball_valve_Crane():
+    K = K_ball_valve_Crane(.01, .02, 50, .025)
+    assert_allclose(K, 14.100545785228675)
+    
+    K = K_ball_valve_Crane(.01, .02, 40, .025)
+    assert_allclose(K, 12.48666472974707)
+    
+    K = K_ball_valve_Crane(.01, .01, 0, .025)
+    assert_allclose(K, 0.07500000000000001)
+    
+    
+def test_K_diaphragm_valve_Crane():
+    K = K_diaphragm_valve_Crane(0.015, style=0)
+    assert_allclose(2.235, K)
+    
+    K = K_diaphragm_valve_Crane(0.015, style=1)
+    assert_allclose(K, 0.585)
+    
+    with pytest.raises(Exception):
+        K_diaphragm_valve_Crane(0.015, style=-1)
+    
+    
+def test_K_foot_valve_Crane():
+    K = K_foot_valve_Crane(0.015, style=0)
+    assert_allclose(K, 6.3)
+    
+    K = K_foot_valve_Crane(0.015, style=1)
+    assert_allclose(K, 1.125)
+    
+    with pytest.raises(Exception):
+        K_foot_valve_Crane(0.015, style=-1)
+        
+        
+def test_K_butterfly_valve_Crane():
+    K = K_butterfly_valve_Crane(.1, 0.0165)
+    assert_allclose(K, 0.7425)
+    
+    K = K_butterfly_valve_Crane(.3, 0.0165, style=1)
+    assert_allclose(K, 0.8580000000000001)
+    
+    K = K_butterfly_valve_Crane(.6, 0.0165, style=2)
+    assert_allclose(K, 0.9075000000000001)
+    
+    with pytest.raises(Exception):
+        K_butterfly_valve_Crane(.6, 0.0165, style=-1)
+        
+        
+def test_K_plug_valve_Crane():
+    K = K_plug_valve_Crane(.01, .02, 50, .025)
+    assert_allclose(K, 20.100545785228675)
+    
+    K = K_plug_valve_Crane(.01, .02, 50, .025, style=1)
+    assert_allclose(K, 24.900545785228676)
+    
+    K = K_plug_valve_Crane(.01, .02, 50, .025, style=2)
+    assert_allclose(K, 48.90054578522867)
+    
+    K = K_plug_valve_Crane(.01, .01, 50, .025, style=2)
+    assert_allclose(K, 2.25)
+    
+    
+    with pytest.raises(Exception):
+        K_plug_valve_Crane(.01, .01, 50, .025, style=-1)
+
+
+def test_K_branch_converging_Crane():
+    K = K_branch_converging_Crane(0.1023, 0.1023, 1135*liter/minute, 380*liter/minute, angle=90)
+    assert_allclose(K, -0.04026, atol=.0001)
+    
+    K = K_branch_converging_Crane(0.1023, 0.05, 1135*liter/minute, 380*liter/minute, angle=90)
+    assert_allclose(K, 0.9799379575823042)
+    
+    K = K_branch_converging_Crane(0.1023, 0.1023, 0.018917, 0.0133)
+    assert_allclose(K, 0.2644824555594152)
+    
+    K = K_branch_converging_Crane(0.1023, 0.1023, 0.018917, 0.0133, angle=45)
+    assert_allclose(K, 0.13231793346761025)
+    
+    
+def test_K_run_converging_Crane():
+    K = K_run_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633)
+    assert_allclose(K, 0.32575847854551254)
+    
+    K =   K_run_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633, angle=30)
+    assert_allclose(K, 0.32920396892611553)
+    
+    K = K_run_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633, angle=60)
+    assert_allclose(K, 0.3757218131135227)
+    
+    
+def test_K_branch_diverging_Crane():
+    K = K_branch_diverging_Crane(0.146, 0.146, 1515*liter/minute, 950*liter/minute, angle=45)
+    assert_allclose(K, 0.4640, atol=0.0001)
+    
+    K = K_branch_diverging_Crane(0.146, 0.146, 0.02525, 0.01583, angle=90)
+    assert_allclose(K, 0.8030402996729503)
+    
+    K = K_branch_diverging_Crane(0.146, 0.07, 0.02525, 0.01583, angle=45)
+    assert_allclose(K, 1.1950718299625727)
+    
+    K = K_branch_diverging_Crane(0.146, 0.07, 0.01425, 0.02283, angle=45)
+    assert_allclose(K, 3.7281052908078762)
+    
+    K = K_branch_diverging_Crane(0.146, 0.146, 0.02525, 0.01983, angle=90)
+    assert_allclose(K, 0.6348297308777298)
+    
+    
+def test_K_run_diverging_Crane():
+    K = K_run_diverging_Crane(0.146, 0.146, 1515*liter/minute, 950*liter/minute, angle=45)
+    assert_allclose(K, -0.06809, atol=.00001)
+    
+    K =  K_run_diverging_Crane(0.146, 0.146, 0.01025, 0.01983, angle=45)
+    assert_allclose(K, 0.041523953539921235)
+    
+    K = K_run_diverging_Crane(0.146, 0.08, 0.02525, 0.01583, angle=90)
+    assert_allclose(K, 0.0593965132275684)
