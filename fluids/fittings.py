@@ -1727,6 +1727,7 @@ def K_angle_valve_Crane(D1, D2, fd, style=0):
     style : int, optional
         One of 0, 1, or 2; refers to three different types of angle valves
         as shown in [1]_ [-]
+        
     Returns
     -------
     K : float

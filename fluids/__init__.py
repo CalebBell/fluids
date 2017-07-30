@@ -93,4 +93,4 @@ __all__.extend(saltation.__all__)
 __all__.extend(separator.__all__)
 
 
-__version__ = '0.1.65'
+__version__ = '0.1.66'
