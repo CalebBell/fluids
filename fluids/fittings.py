@@ -445,6 +445,12 @@ def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
     First term represents surface friction loss; the second, secondary flows;
     and the third, flow separation.
     Encompasses the entire range of elbow and pipe bend configurations.
+    
+    This was developed for bend angles between 0 and 180 degrees; and r/D
+    ratios above 0.5.
+    
+    Note the loss coefficient includes the surface friction of the pipe as if
+    it was straight.
    
     Examples
     --------
