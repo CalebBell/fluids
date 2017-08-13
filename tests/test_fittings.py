@@ -398,7 +398,7 @@ def test_K_branch_diverging_Crane():
     assert_allclose(K, 0.4640, atol=0.0001)
     
     K = K_branch_diverging_Crane(0.146, 0.146, 0.02525, 0.01583, angle=90)
-    assert_allclose(K, 0.8030402996729503)
+    assert_allclose(K, 1.0910792393446236)
     
     K = K_branch_diverging_Crane(0.146, 0.07, 0.02525, 0.01583, angle=45)
     assert_allclose(K, 1.1950718299625727)
@@ -407,7 +407,14 @@ def test_K_branch_diverging_Crane():
     assert_allclose(K, 3.7281052908078762)
     
     K = K_branch_diverging_Crane(0.146, 0.146, 0.02525, 0.01983, angle=90)
-    assert_allclose(K, 0.6348297308777298)
+    assert_allclose(K, 1.1194688533508077)
+    
+    # New test cases post-errata
+    K = K_branch_diverging_Crane(0.146, 0.146, 0.02525, 0.04183, angle=45)
+    assert_allclose(K, 0.30418565498014477)
+    
+    K = K_branch_diverging_Crane(0.146, 0.116, 0.02525, 0.01983, angle=90)
+    assert_allclose(K, 1.1456727552755597)
     
     
 def test_K_run_diverging_Crane():
@@ -419,3 +426,11 @@ def test_K_run_diverging_Crane():
     
     K = K_run_diverging_Crane(0.146, 0.08, 0.02525, 0.01583, angle=90)
     assert_allclose(K, 0.0593965132275684)
+    
+
+def test_v_lift_valve_Crane():
+    v = v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style='lift check straight')
+    assert_allclose(v, 1.0252301935349286)
+    
+    v = v_lift_valve_Crane(rho=998.2, style='swing check angled')
+    assert_allclose(v, 1.4243074011010037)

@@ -41,7 +41,7 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'K_angle_stop_check_valve_Crane', 'K_ball_valve_Crane',
 'K_diaphragm_valve_Crane', 'K_foot_valve_Crane', 'K_butterfly_valve_Crane',
 'K_plug_valve_Crane', 'K_branch_converging_Crane', 'K_run_converging_Crane',
-'K_branch_diverging_Crane', 'K_run_diverging_Crane']
+'K_branch_diverging_Crane', 'K_run_diverging_Crane', 'v_lift_valve_Crane']
 
 
 def change_K_basis(K1, D1, D2):
@@ -2440,13 +2440,16 @@ def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     
     If :math:`\beta_{branch}^2 \le 0.35`, C = 1
 
-    If :math:`\beta_{branch}^2 > 0.35` and :math:`Q_{branch}/Q_{comb} > 0.35`,
+    If :math:`\beta_{branch}^2 > 0.35` and :math:`Q_{branch}/Q_{comb} > 0.4`,
     C = 0.55.
 
     If neither of the above conditions are met:
         
     .. math::
         C = 0.9\left(1 - \frac{Q_{branch}}{Q_{comb}}\right)
+
+    Note that there is an error in the text of [1]_; the errata can be obtained 
+    here: http://www.flowoffluids.com/publications/tp-410-errata.aspx
 
     Examples
     --------
@@ -2469,7 +2472,7 @@ def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     Q_ratio = Q_branch/Q_comb
     if beta2 <= 0.35:
         C = 1.
-    elif Q_ratio <= 0.35:
+    elif Q_ratio <= 0.4:
         C = 0.9*(1 - Q_ratio)
     else:
         C = 0.55
@@ -2616,16 +2619,25 @@ def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
         
     .. code-block:: python
     
-        if beta*beta <= 0.35:
-            if Q_branch/Q_comb <= 0.6:
-                G = 1.1 - 0.7*Q_branch/Q_comb
+        if angle < 75:
+            if beta2 <= 0.35:
+                if Q_ratio <= 0.4:
+                    G = 1.1 - 0.7*Q_ratio
+                else:
+                    G = 0.85
             else:
-                G = 0.85
+                if Q_ratio <= 0.6:
+                    G = 1.0 - 0.6*Q_ratio
+                else:
+                    G = 0.6
         else:
-            if Q_branch/Q_comb <= 0.4:
-                G = 1.0 - 0.6*Q_branch/Q_comb
+            if beta2 <= 2/3.:
+                G = 1
             else:
-                G = 0.6
+                G = 1 + 0.3*Q_ratio*Q_ratio
+
+    Note that there are several errors in the text of [1]_; the errata can be  
+    obtained here: http://www.flowoffluids.com/publications/tp-410-errata.aspx
 
     Examples
     --------
@@ -2651,16 +2663,22 @@ def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
         H, J = 1., 2.
     else:
         H, J = 0.3, 0
-    if beta2 <= 0.35:
-        if Q_ratio <= 0.6:
-            G = 1.1 - 0.7*Q_ratio
+    if angle < 75:
+        if beta2 <= 0.35:
+            if Q_ratio <= 0.4:
+                G = 1.1 - 0.7*Q_ratio
+            else:
+                G = 0.85
         else:
-            G = 0.85
+            if Q_ratio <= 0.6:
+                G = 1.0 - 0.6*Q_ratio
+            else:
+                G = 0.6
     else:
-        if Q_ratio <= 0.4:
-            G = 1.0 - 0.6*Q_ratio
+        if beta2 <= 2/3.:
+            G = 1
         else:
-            G = 0.6
+            G = 1 + 0.3*Q_ratio*Q_ratio
     angle_rad = radians(angle)
     K_branch = G*(1 + H*(Q_ratio/beta2)**2 - J*(Q_ratio/beta2)*cos(angle_rad))
     return K_branch
@@ -2738,3 +2756,123 @@ def K_run_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     else:
         M = 0.3*(2.*Q_ratio - 1.)
     return M*Q_ratio*Q_ratio
+
+
+def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
+    r'''Calculates the approximate minimum velocity required to lift the disk 
+    or other controlling element of a check valve to a fully open, stable,
+    position according to the Crane method [1]_.
+    
+    .. math::
+        
+        v_{min} = N\cdot \text{m/s} \cdot \sqrt{\frac{\text{kg/m}^3}{\rho}}
+    
+        v_{min} = N\beta^2 \cdot \text{m/s} \cdot \sqrt{\frac{\text{kg/m}^3}{\rho}}
+        
+    See the notes for the definition of values of N and which check valves use 
+    which formulas.
+
+    Parameters
+    ----------
+    rho : float
+        Density of the fluid [kg/m^3]
+    D1 : float, optional
+        Diameter of the valve bore (must be equal to or smaller than 
+        `D2`), [m]
+    D2 : float, optional
+        Diameter of the pipe attached to the valve, [m]
+    style : str
+        The type of valve; one of ['swing check angled', 'swing check straight',
+        'swing check UL', 'lift check straight', 'lift check angled', 
+        'tilting check 5°', 'tilting check 15°', 'stop check globe 1', 
+        'stop check angle 1', 'stop check globe 2',  'stop check angle 2', 
+        'stop check globe 3', 'stop check angle 3', 'foot valve poppet disc', 
+        'foot valve hinged disc'], [-]
+
+    Returns
+    -------
+    v_min : float
+        Approximate minimum velocity required to keep the disc fully lifted,
+        preventing chattering and wear [m/s]
+
+    Notes
+    -----
+    This equation is not dimensionless.
+
+    +--------------------------+-----+------+
+    | Name/string              | N   | Full |
+    +==========================+=====+======+
+    | 'swing check angled'     | 45  | No   |
+    +--------------------------+-----+------+
+    | 'swing check straight'   | 75  | No   |
+    +--------------------------+-----+------+
+    | 'swing check UL'         | 120 | No   |
+    +--------------------------+-----+------+
+    | 'lift check straight'    | 50  | Yes  |
+    +--------------------------+-----+------+
+    | 'lift check angled'      | 170 | Yes  |
+    +--------------------------+-----+------+
+    | 'tilting check 5°'       | 100 | No   |
+    +--------------------------+-----+------+
+    | 'tilting check 15°'      | 40  | No   |
+    +--------------------------+-----+------+
+    | 'stop check globe 1'     | 70  | Yes  |
+    +--------------------------+-----+------+
+    | 'stop check angle 1'     | 95  | Yes  |
+    +--------------------------+-----+------+
+    | 'stop check globe 2'     | 75  | Yes  |
+    +--------------------------+-----+------+
+    | 'stop check angle 2'     | 75  | Yes  |
+    +--------------------------+-----+------+
+    | 'stop check globe 3'     | 170 | Yes  |
+    +--------------------------+-----+------+
+    | 'stop check angle 3'     | 170 | Yes  |
+    +--------------------------+-----+------+
+    | 'foot valve poppet disc' | 20  | No   |
+    +--------------------------+-----+------+
+    | 'foot valve hinged disc' | 45  | No   |
+    +--------------------------+-----+------+
+
+    Examples
+    --------
+    >>> v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style='lift check straight')
+    1.0252301935349286
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    specific_volume = 1./rho
+    if D1 is not None and D2 is not None:
+        beta = D1/D2
+        beta2 = beta*beta
+    if style == 'swing check angled':
+        return 45*specific_volume**0.5
+    elif style == 'swing check straight':
+        return 75*specific_volume**0.5
+    elif style == 'swing check UL':
+        return 120*specific_volume**0.5
+    elif style == 'lift check straight':
+        return 50.*beta2*specific_volume**0.5
+    elif style == 'lift check angled':
+        return 170.*beta2*specific_volume**0.5
+    elif style == 'tilting check 5°':
+        return 100*specific_volume**0.5
+    elif style == 'tilting check 15°':
+        # TODO check if this coefficient is actually correct, hard to read
+        return 40*specific_volume**0.5
+    elif style == 'stop check globe 1':
+        return 70*beta2*specific_volume**0.5
+    elif style == 'stop check angle 1':
+        return 95*beta2*specific_volume**0.5
+    elif style in ['stop check globe 2', 'stop check angle 2']:
+        return 75*beta2*specific_volume**0.5
+    elif style in ['stop check globe 3', 'stop check angle 3']:
+        return 170*beta2*specific_volume**0.5
+    elif style == 'foot valve poppet disc':
+        return 20*specific_volume**0.5
+    elif style == 'foot valve hinged disc':
+        return 45*specific_volume**0.5
+        
+    

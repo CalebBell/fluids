@@ -30,6 +30,8 @@ import inspect
 import functools
 import collections
 import fluids
+import fluids.vectorized
+import numpy as np
 try:
     import pint
     from pint import _DEFAULT_REGISTRY as u
@@ -196,6 +198,25 @@ def convert_input(val, unit, ureg, strict=True):
             return val
 
 
+def convert_output(result, out_units, out_vars, ureg):
+    # Attempt to handle multiple return values
+    # Must be able to convert all values to a pint expression
+    if type(result) == str:
+        return result
+    elif type(result) == dict:
+        for key, ans in result.items():
+            unit = out_units[out_vars.index(key)]
+            result[key] = ans*ureg.parse_expression(unit)
+        return result
+    elif isinstance(result, collections.Iterable):
+        conveted_result = []
+        for ans, unit in zip(result, out_units):
+            conveted_result.append(ans*ureg.parse_expression(unit))
+        return conveted_result
+    else:
+        return result*ureg.parse_expression(out_units[0])
+
+
 def wraps_numpydoc(ureg, strict=True):    
     def decorator(func):
         assigned = (attr for attr in functools.WRAPPER_ASSIGNMENTS if hasattr(func, attr))
@@ -233,25 +254,16 @@ def wraps_numpydoc(ureg, strict=True):
             for name, val in kw.items():
                 unit = in_vars_to_dict[name]
                 kwargs[name] = convert_input(val, unit, ureg, strict)
-                
-            result = func(*conv_values, **kwargs)
-            
-            # Attempt to handle multiple return values
-            # Must be able to convert all values to a pint expression
-            if type(result) == str:
-                return result
-            elif type(result) == dict:
-                for key, ans in result.items():
-                    unit = out_units[out_vars.index(key)]
-                    result[key] = ans*ureg.parse_expression(unit)
-                return result
-            elif isinstance(result, collections.Iterable):
-                conveted_result = []
-                for ans, unit in zip(result, out_units):
-                    conveted_result.append(ans*ureg.parse_expression(unit))
-                return conveted_result
+            if any([type(i.m) == np.ndarray for i in list(kw.values()) + list(values) if type(i) == u.Quantity]):
+                result = getattr(fluids.vectorized, func.__name__)(*conv_values, **kwargs)
             else:
-                return result*ureg.parse_expression(out_units[0])
+                result = func(*conv_values, **kwargs)
+            if type(result) == np.ndarray:
+                units = convert_output(result, out_units, out_vars, ureg)[0].units
+                return result*units
+            else:
+                return convert_output(result, out_units, out_vars, ureg)
+            
 
         return wrapper
     return decorator

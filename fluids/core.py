@@ -2093,14 +2093,14 @@ def L_equiv_from_K(K, fd=0.015):
     Parameters
     ----------
     K : float
-        Loss coefficient, []
+        Loss coefficient, [-]
     fd : float, optional
         Darcy friction factor, [-]
 
     Returns
     -------
     L_D : float
-        Length over diameter, []
+        Length over diameter, [-]
 
     Notes
     -----
