@@ -420,3 +420,26 @@ def test_plate_enhancement_factor():
             a = PlateExchanger.plate_enlargement_factor_analytical(x, y)
             b = plate_enlargement_factor_numerical(x, y)
             assert_allclose(a, b, rtol=1E-7)
+            
+            
+def test_RectangularFinExchanger():
+    PFE = RectangularFinExchanger(0.03, 0.001, 0.012)
+    assert_allclose(PFE.fin_height, 0.03)
+    assert_allclose(PFE.fin_thickness, 0.001)
+    assert_allclose(PFE.fin_spacing, 0.012)
+    
+    # calculated values
+    assert_allclose(PFE.channel_height, 0.029)
+    assert_allclose(PFE.blockage_ratio, 0.8861111111111111)
+    assert_allclose(PFE.fin_count, 83.33333333333333)
+    assert_allclose(PFE.Dh, 0.01595)
+    assert_allclose(PFE.channel_width, 0.011)
+    
+    # with layers, plate thickness, width, and length (fully defined)
+    PFE = RectangularFinExchanger(0.03, 0.001, 0.012, length=1.2, width=2.401, plate_thickness=.005, layers=40)
+    assert_allclose(PFE.A_HX_layer, 19.2)
+    assert_allclose(PFE.layer_fin_count, 200)
+    assert_allclose(PFE.A_HX, 768.0)
+    assert_allclose(PFE.height, 1.4+.005)
+    assert_allclose(PFE.volume, 4.048085999999999)
+    assert_allclose(PFE.A_specific_HX, 189.71928956054794)

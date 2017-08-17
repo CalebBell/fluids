@@ -32,7 +32,7 @@ __all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere', 'Stokes',
 'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
 'Clift_Gauvin', 'Morsi_Alexander', 'Graf', 'Flemmer_Banks', 'Khan_Richardson',
 'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
-'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison']
+'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison', 'Song_Xu']
 
 def Stokes(Re):
     r'''Calculates drag coefficient of a smooth sphere using Stoke's law.
@@ -943,6 +943,51 @@ def Morrison(Re):
     return Cd
 
 
+def Song_Xu(Re, sphericity=1., S=1.):
+    r'''Calculates drag coefficient of a particle using the method in
+    [1]_. Developed with data for spheres, cubes, and cylinders. Claims 3.52%
+    relative error for 0.001 < Re < 100 based on 336 tests data.
+
+    .. math::
+        C_d = \frac{24}{Re\phi^{0.65}S^{0.3}}\left(1 + 0.35Re\right)^{0.44}
+        
+    Parameters
+    ----------
+    Re : float
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
+    sphericity : float, optional
+        Sphericity of the particle
+    S : float, optional
+        Ratio of equivalent sphere area and the projected area in the particle
+        settling direction [-]
+
+    Returns
+    -------
+    Cd : float
+        Drag coefficient of particle [-]
+
+    Notes
+    -----
+    Notable as its experimental data and analysis is included in their 
+    supporting material.
+
+    Examples
+    --------
+    >>> Song_Xu(30.)
+    2.3431335190092444
+
+    References
+    ----------
+    .. [1] Song, Xianzhi, Zhengming Xu, Gensheng Li, Zhaoyu Pang, and Zhaopeng 
+       Zhu. "A New Model for Predicting Drag Coefficient and Settling Velocity 
+       of Spherical and Non-Spherical Particle in Newtonian Fluid." Powder 
+       Technology 321 (November 2017): 242-50. 
+       doi:10.1016/j.powtec.2017.08.017.
+    '''
+    return 24/(Re*sphericity**0.65*S**0.3)*(1+0.35*Re)**0.44
+
+
 drag_sphere_correlations = {
     'Stokes': (Stokes, None, 0.3),
     'Barati': (Barati, None, 2E5),
@@ -963,7 +1008,8 @@ drag_sphere_correlations = {
     'Clift': (Clift, None, 1E6),
     'Ceylan': (Ceylan, 0.1, 1E6),
     'Almedeij': (Almedeij, None, 1E6),
-    'Morrison': (Morrison, None, 1E6)
+    'Morrison': (Morrison, None, 1E6),
+    'Song_Xu': (Song_Xu, None, 1E3)
 }
 
 

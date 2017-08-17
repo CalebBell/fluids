@@ -104,6 +104,13 @@ def test_drag():
     Cd_values = [0.767731559965325, 12000.134917101897]
     close(Cds, Cd_values)
 
+    Cd = Song_Xu(1.72525554724508000000)
+    assert_allclose(Cd, 17.1249219416881000000)
+    
+    Cd = Song_Xu(1.24798925062065, sphericity=0.64, S=0.55325984525397)
+    assert_allclose(Cd, 36.00464629658840)
+
+
 def test_drag_sphere():
     Cd = drag_sphere(200)
     assert_allclose(Cd, 0.7682237950389874)

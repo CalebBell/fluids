@@ -55,7 +55,7 @@ __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 'Clamond',
 'helical_transition_Re_Ito', 'helical_transition_Re_Kubair_Kuloor', 
 'helical_transition_Re_Kutateladze_Borishanskii', 
 'helical_transition_Re_Schmidt', 'helical_transition_Re_Srinivasan',
-'LAMINAR_TRANSITION_PIPE']
+'LAMINAR_TRANSITION_PIPE', 'oregon_smooth_data']
 
 
 LAMINAR_TRANSITION_PIPE = 2040.
@@ -72,6 +72,8 @@ oregon_Res = [11.21, 20.22, 29.28, 43.19, 57.73, 64.58, 86.05, 113.3, 135.3,
               3264, 3980, 4835, 5959, 8162, 10900, 13650, 18990, 29430, 40850, 
               59220, 84760, 120000, 176000, 237700, 298200, 467800, 587500, 
               824200, 1050000]
+
+
 oregon_fd_smooth = [5.537, 3.492, 2.329, 1.523, 1.173, 0.9863, 0.7826, 0.5709,
                     0.4815, 0.4182, 0.3655, 0.3237, 0.2884, 0.2433, 0.2077, 
                     0.1834, 0.1656, 0.1475, 0.1245, 0.1126, 0.09917, 0.08501, 
@@ -86,6 +88,8 @@ presented in McKEON, B. J., C. J. SWANSON, M. V. ZAGAROLA, R. J. DONNELLY, and
 A. J. SMITS. "Friction Factors for Smooth Pipe Flow." Journal of Fluid 
 Mechanics 511 (July 1, 2004): 41-44. doi:10.1017/S0022112004009796.
 '''
+
+
 oregon_smooth_data = (oregon_Res, oregon_fd_smooth)
 
 def friction_laminar(Re):
