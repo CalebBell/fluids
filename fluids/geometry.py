@@ -29,7 +29,7 @@ from scipy.optimize import newton
 from scipy.special import ellipe
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
-           'SA_partial_sphere', 
+           'RectangularOffsetStripFinExchanger', 'SA_partial_sphere', 
            'V_partial_sphere', 'V_horiz_conical',
            'V_horiz_ellipsoidal', 'V_horiz_guppy', 'V_horiz_spherical',
            'V_horiz_torispherical', 'V_vertical_conical',
@@ -2246,7 +2246,10 @@ class RectangularFinExchanger(object):
         
         if self.length and self.width:
             self.layer_fin_count = round(self.fin_count*self.width, 0)
-            self.A_HX_layer = self.P_channel*self.length*self.layer_fin_count
+            if hasattr(self, 'SA_fin'):
+                self.A_HX_layer = self.layer_fin_count*self.SA_fin*self.length
+            else:
+                self.A_HX_layer = self.P_channel*self.length*self.layer_fin_count
             
             if self.layers:
                 self.A_HX = self.layers*self.A_HX_layer
@@ -2254,6 +2257,41 @@ class RectangularFinExchanger(object):
                     self.height = self.layer_thickness*self.layers + self.plate_thickness
                     self.volume = (self.length*self.width*self.height)
                     self.A_specific_HX = self.A_HX/self.volume
+
+
+class RectangularOffsetStripFinExchanger(RectangularFinExchanger):
+    def __init__(self, fin_length, fin_height, fin_thickness, fin_spacing, length=None, width=None, layers=None, plate_thickness=None, flow='crossflow'):
+        self.l = self.fin_length = fin_length
+        self.h = self.fin_height = fin_height
+        self.t = self.fin_thickness = fin_thickness
+        self.s = self.fin_spacing = fin_spacing
+        
+        self.blockage_ratio = self.omega = 2*self.t/self.s*(1. - self.t/self.h) + self.t/self.h*(1 - 2*self.t/self.s)
+        # Kim blockage ratio beta
+        self.blockage_ratio_Kim = self.t/self.h + self.t/self.s - self.t**2/(self.h*self.s)
+        
+        # Definitions as in the paper with the most common correlation
+        self.alpha = self.s/self.h # "General prediction" uses t/h here
+        self.delta = self.t/self.l
+        self.gamma = self.t/self.s
+        
+        # free flow area
+        self.A_channel = (self.h  - self.t)*(self.s - self.t)
+        self.A = 2.*(self.l*(self.h-self.t) + self.l*(self.s-self.t) + self.t*(self.h-self.t)) + self.t*(self.s-2*self.t)
+        self.Dh = 4.*self.l*self.A_channel/self.A # not the standard definition
+
+        self.Dh_Kays_London = 4*self.A_channel/(2*(self.h -self.t)+ 2*(self.s -self.t))
+        # Does not consider the fronts of backs of the fins, only the 2d shape
+        
+        self.Dh_Joshi_Webb = 2*self.l*(self.h - self.t)*(self.s - 2*self.t)/(self.l*(self.h-self.t) + self.l*(self.s - self.t) + self.t*(self.h - self.t))
+        
+        self.L = self.length = length
+        self.W = self.width = width
+        self.layers = layers
+        self.flow = flow
+        self.plate_thickness = plate_thickness
+        self.fin_count = 1./self.fin_spacing
+        self.set_overall_geometry()
 
 
 def sphericity(A, V):

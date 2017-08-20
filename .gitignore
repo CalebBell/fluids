@@ -42,6 +42,7 @@ __pycache__
 ######################
 .DS_Store
 .DS_Store?
+.ipynb_checkpoints
 ._*
 _*
 .Spotlight-V100

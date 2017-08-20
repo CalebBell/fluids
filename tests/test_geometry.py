@@ -443,3 +443,26 @@ def test_RectangularFinExchanger():
     assert_allclose(PFE.height, 1.4+.005)
     assert_allclose(PFE.volume, 4.048085999999999)
     assert_allclose(PFE.A_specific_HX, 189.71928956054794)
+    
+    
+    
+def test_RectangularOffsetStripFinExchanger():
+    ROSFE = RectangularOffsetStripFinExchanger(fin_length=.05, fin_height=.01, fin_thickness=.003, fin_spacing=.05)
+    assert_allclose(ROSFE.fin_length, 0.05)
+    assert_allclose(ROSFE.fin_height, 0.01)
+    assert_allclose(ROSFE.fin_thickness, 0.003)
+    assert_allclose(ROSFE.fin_spacing, 0.05)
+    assert_allclose(ROSFE.blockage_ratio, 0.348)
+    assert_allclose(ROSFE.blockage_ratio_Kim, 0.34199999999999997)
+    assert_allclose(ROSFE.alpha, 5)
+    assert_allclose(ROSFE.delta, 0.06)
+    assert_allclose(ROSFE.gamma, 0.06)
+    assert_allclose(ROSFE.A_channel, 0.000329)
+    assert_allclose(ROSFE.SA_fin, 0.005574)
+    assert_allclose(ROSFE.Dh, 0.011804808037316112)
+    assert_allclose(ROSFE.Dh_Kays_London, 0.012185185185185186)
+    assert_allclose(ROSFE.Dh_Joshi_Webb, 0.011319367879456085)
+    
+    # With layers, plate thickness, width (fully defined)
+    ROSFE = RectangularOffsetStripFinExchanger(fin_length=.05, fin_height=.01, fin_thickness=.003, fin_spacing=.05, length=1.2, width=2.401, plate_thickness=.005, layers=40)
+    assert_allclose(ROSFE.A_HX_layer, 0.267552)
