@@ -3,3 +3,4 @@ scipy
 numpydoc
 pint
 nbsphinx
+ipython
