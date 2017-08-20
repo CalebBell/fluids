@@ -25,7 +25,7 @@ from math import exp, pi
 
 __all__ = ['dP_packed_bed', 'Ergun', 'Kuo_Nydegger', 'Jones_Krier', 'Carman', 'Hicks',
            'Brauer', 'KTA', 'Erdim_Akgiray_Demir', 'Fahien_Schriver', 'Idelchik',
-           'Harrison_Brunner_Hecker', 'Montillet_Akkari_Comiti',
+           'Harrison_Brunner_Hecker', 'Montillet_Akkari_Comiti', 'Guo_Sun',
             'voidage_Benyahia_Oneil',
            'voidage_Benyahia_Oneil_spherical', 'voidage_Benyahia_Oneil_cylindrical']
 
@@ -812,6 +812,70 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
     return right/left
 
 
+def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1):
+    r'''Calculates pressure drop across a packed bed of spheres using a
+    correlation developed in [1]_. This is valid for highly-packed particles 
+    at particle/tube diameter ratios between 2 and 3, where a ring packing 
+    structure occurs. If a packing ratio is so low, it is important to use this
+    model because in some cases its predictions are as low as half those of 
+    other models!
+
+    .. math::
+        f_v = 180 + \left(9.5374\frac{d_p}{D_t} - 2.8054\right)Re_{Erg}^{0.97}
+        
+        f_v = \frac{\Delta P d_p^2}{\mu v_s L}\frac{\epsilon^3}{(1-\epsilon)^2}
+
+        Re_{Erg} = \frac{\rho v_s  d_p}{\mu(1-\epsilon)}
+
+    Parameters
+    ----------
+    dp : float
+        Particle diameter of spheres [m]
+    voidage : float
+        Void fraction of bed packing [-]
+    vs : float
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
+    rho : float
+        Density of the fluid [kg/m^3]
+    mu : float
+        Viscosity of the fluid, [Pa*s]
+    Dt : float
+        Diameter of the tube, [m]
+    L : float, optional
+        Length the fluid flows in the packed bed [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop across the bed [Pa]
+
+    Notes
+    -----
+    Developed with data in the range of:
+
+    .. math::
+        100 < Re_{m} <33000\\
+        2 < d_t/d_p < 3 1\\
+        0.476 < \epsilon <0.492
+
+    Examples
+    --------
+    >>> Guo_Sun(dp=14.2E-3, voidage=0.492, vs=0.6, rho=1E3, mu=1E-3, Dt=40.9E-3)
+    42019.529911473706
+    
+    References
+    ----------
+    .. [1] Guo, Zehua, Zhongning Sun, Nan Zhang, Ming Ding, and Jiaqing Liu. 
+       "Pressure Drop in Slender Packed Beds with Novel Packing Arrangement." 
+       Powder Technology 321 (November 2017): 286-92.
+       doi:10.1016/j.powtec.2017.08.024. 
+    '''
+    #  2 < D/d < 3, particles in contact with the wall tend to form a highly ordered ring structure. 
+    Rem = dp*rho*vs/mu/(1-voidage)
+    fv = 180 + (9.5374*dp/Dt - 2.8054)*Rem**0.97
+    return fv*(mu*vs*L/dp**2)*(1-voidage)**2/voidage**3
+
 
 
 # Format: Nice nane : (formula, uses_dt)
@@ -827,7 +891,8 @@ packed_beds_correlations = {
 'Fahien & Schriver': (Fahien_Schriver, False),
 'Idelchik': (Idelchik, False),
 'Harrison, Brunner & Hecker': (Harrison_Brunner_Hecker, True),
-'Montillet, Akkari & Comiti': (Montillet_Akkari_Comiti, True)
+'Montillet, Akkari & Comiti': (Montillet_Akkari_Comiti, True),
+'Guo, Sun, Zhang, Ding & Liu': (Guo_Sun, True)
 }
 
 def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
@@ -839,7 +904,9 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
 
     Prefered correlations are 'Erdim, Akgiray & Demir' when tube
     diameter is not provided, and 'Harrison, Brunner & Hecker' when tube
-    diameter is provided.
+    diameter is provided. If you are using a particles in a narrow tube 
+    between 2 and 3 particle diameters, expect higher than normal voidages 
+    (0.4-0.5) and used the method 'Guo, Sun, Zhang, Ding & Liu'.
 
     Examples
     --------
@@ -847,6 +914,8 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
     1438.2826958844414
     >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01)
     1255.1625662548427
+    >>> dP_packed_bed(dp=0.05, voidage=0.492, vs=0.1, rho=1E3, mu=1E-3, Dt=0.015, Method='Guo, Sun, Zhang, Ding & Liu')
+    18782.499710673364
 
     Parameters
     ----------
@@ -856,7 +925,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
         Void fraction of bed packing [-]
     vs : float
         Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
-        area)[m/s]
+        area) [m/s]
     rho : float
         Density of the fluid [kg/m^3]
     mu : float

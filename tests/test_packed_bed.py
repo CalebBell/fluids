@@ -69,7 +69,7 @@ def test_packed_bed():
 
     methods_dP = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, AvailableMethods=True)
     methods_dP.sort()
-    methods_dP_val = ['Harrison, Brunner & Hecker', 'Carman', 'Hicks', 'Montillet, Akkari & Comiti', 'Idelchik', 'Erdim, Akgiray & Demir', 'KTA', 'Kuo & Nydegger', 'Ergun', 'Brauer', 'Fahien & Schriver', 'Jones & Krier']
+    methods_dP_val = ['Harrison, Brunner & Hecker', 'Carman', 'Guo, Sun, Zhang, Ding & Liu', 'Hicks', 'Montillet, Akkari & Comiti', 'Idelchik', 'Erdim, Akgiray & Demir', 'KTA', 'Kuo & Nydegger', 'Ergun', 'Brauer', 'Fahien & Schriver', 'Jones & Krier']
     methods_dP_val.sort()
     assert methods_dP == methods_dP_val
 
@@ -82,3 +82,9 @@ def test_packed_bed():
     assert_allclose(v, 0.3906653157443224)
     v = voidage_Benyahia_Oneil_cylindrical(.01, .1, .6)
     assert_allclose(v, 0.38812523109607894)
+
+
+def test_Guo_Sun():
+    dP = Guo_Sun(dp=14.2E-3, voidage=0.492, vs=0.6, rho=1E3, mu=1E-3, Dt=40.9E-3)
+    assert_allclose(dP, 42019.529911473706)
+    # Confirmed to be 42 kPa from a graph they provided
