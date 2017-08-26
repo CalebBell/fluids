@@ -33,7 +33,8 @@ __all__ = ['Thom', 'Zivi', 'Smith', 'Fauske', 'Chisholm_voidage', 'Turner_Wallis
            'Kopte_Newell_Chato', 'Steiner', 'Rouhani_1', 'Rouhani_2',
            'Nicklin_Wilkes_Davidson', 'Gregory_Scott', 'Dix', 
            'Sun_Duffey_Peng', 'Xu_Fang_voidage', 'Woldesemayat_Ghajar',
-           'Lockhart_Martinelli_Xtt']
+           'Lockhart_Martinelli_Xtt', 'two_phase_voidage_experimental', 
+           'density_two_phase']
 
 ### Models based on slip ratio
 
@@ -1842,22 +1843,88 @@ def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
     return vgs/(first + second*third)
 
 
-#print([Woldesemayat_Ghajar(0.4, 800., 2.5, sigma=0.2, m=1, D=0.3, P=1E6, angle=45)])
+def density_two_phase(alpha, rhol, rhog):
+    r'''Calculates the "effective" density of fluid in a liquid-gas flow. If
+    the weight of fluid in a pipe pipe could be measured and the volume of
+    the pipe were known, an effective density of the two-phase mixture could be
+    calculated. This is directly relatable to the void fraction of the pipe,
+    a parameter used to predict the pressure drop. This function converts
+    void fraction to effective two-phase density.
+
+    .. math::
+        \rho_m = \alpha \rho_g + (1-\alpha)\rho_l
+        
+    Parameters
+    ----------
+    alpha : float
+        Void fraction (area of gas / total area of channel), [-]
+    rhol : float
+        Density of the liquid [kg/m^3]
+    rhog : float
+        Density of the gas [kg/m^3]
+
+    Returns
+    -------
+    rho_lg : float
+        Two-phase effective density [kg/m^3]
+
+    Notes
+    -----
+    **THERE IS NO THERMODYNAMIC DEFINITION FOR THIS QUANTITY. DO NOT USE THIS
+    VALUE IN SINGLE-PHASE CORRELATIONS.**
+
+    Examples
+    --------
+    >>> density_two_phase(.4, 800, 2.5)
+    481.0
+
+    References
+    ----------
+    .. [1] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for 
+       Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
+       no. 1 (October 1, 2008): 106-13. 
+    '''
+    return alpha*rhog + (1. - alpha)*rhol
 
 
+def two_phase_voidage_experimental(rho_lg, rhol, rhog):
+    r'''Calculates the void fraction for two-phase liquid-gas pipeflow. If
+    the weight of fluid in a pipe pipe could be measured and the volume of
+    the pipe were known, an effective density of the two-phase mixture could be
+    calculated. This is directly relatable to the void fraction of the pipe,
+    a parameter used to predict the pressure drop. This function converts
+    that measured effective two-phase density to void fraction for use in 
+    developing correlations.
 
+    .. math::
+        \alpha = \frac{\rho_m - \rho_l}{\rho_g - \rho_l}
+        
+    Parameters
+    ----------
+    rho_lg : float
+        Two-phase effective density [kg/m^3]
+    rhol : float
+        Density of the liquid [kg/m^3]
+    rhog : float
+        Density of the gas [kg/m^3]
 
+    Returns
+    -------
+    alpha : float
+        Void fraction (area of gas / total area of channel), [-]
 
-#print(Sun_Duffey_Peng(0.4, 800., 2.5, sigma=0.02, m=1, D=0.3, P=1E5, Pc=7E6))
-#print(Rouhani_2(0.4, 800., 2.5, sigma=0.02, m=1, D=0.3))
-#print(Steiner(0.4, 800., 2.5, sigma=0.02, m=1, D=0.3))
+    Notes
+    -----
 
+    Examples
+    --------
+    >>> two_phase_voidage_experimental(481.0, 800, 2.5)
+    0.4
 
-#print([Kopte_Newell_Chato(.4, 800, 2.5, 1E-3, 1E-5, m=10000001, D=0.3)])
-#print(Huq_Loth(.4, 800, 2.5))
-#print([Yashar(.4, 800, 2.5, 1E-3, 1E-5, m=1, D=0.3)])
-#print([Graham(.4, 800, 2.5, 1E-3, 1E-5, m=1, D=0.3)])
-#print(Graham(.4, 800, 2.5, 1E-3, 1E-5, m=1, D=0.3))
-
-#print([Tandon_Varma_Gupta(.4, 800, 2.5, 1E-3, 1E-5, m, 0.3) for m in [1, .1]])
-#print([Tandon_Varma_Gupta(.4, 800, 2.5, 1E-3, 1E-5, .1, 0.3)])
+    References
+    ----------
+    .. [1] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for 
+       Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
+       no. 1 (October 1, 2008): 106-13. 
+    '''
+    return (rho_lg - rhol)/(rhog - rhol)

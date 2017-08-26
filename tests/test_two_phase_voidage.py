@@ -176,3 +176,12 @@ def test_Woldesemayat_Ghajar():
 
 def test_Xu_Fang_voidage():
     assert_allclose(Xu_Fang_voidage(0.4, 800., 2.5, m=1, D=0.3), 0.9414660089942093)
+    
+    
+def test_density_two_phase():
+    assert_allclose(density_two_phase(.4, 800, 2.5), 481.0)
+    
+    
+def test_two_phase_voidage_experimental():
+    alpha = two_phase_voidage_experimental(481.0, 800, 2.5)
+    assert_allclose(alpha, 0.4)
