@@ -1667,7 +1667,7 @@ class TANK(object):
         '''
         if not self.table:
             self.set_table()
-        h = self.interp_h_from_V(V)
+        h = float(self.interp_h_from_V(V))
         return h
 
     def set_table(self, n=100, dx=None):

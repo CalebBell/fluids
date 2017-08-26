@@ -23,6 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 __all__ = ['two_phase_dP', 'two_phase_dP_acceleration', 
            'two_phase_dP_dz_acceleration', 'two_phase_dP_gravitational',
+           'two_phase_dP_dz_gravitational',
            'Lockhart_Martinelli', 'Friedel', 'Chisholm', 
            'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
@@ -2396,4 +2397,55 @@ def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
     in_term = alpha_i*rho_gi + (1. - alpha_i)*rho_li
     out_term = alpha_o*rho_go + (1. - alpha_o)*rho_lo
     return g*z*sin(angle)*(out_term + in_term)/2.
+
+
+def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
+    r'''This function handles calculation of two-phase liquid-gas pressure drop
+    due to gravitation for flow inside channels. This is a differential 
+    calculation for a segment with an infinitesimal difference in elevation for
+    use in performing integration over a pipe as shown in [1]_ and [2]_.
+    
+    .. math::
+        -\left(\frac{dP}{dz} \right)_{grav} =  [\alpha\rho_g + (1-\alpha)
+        \rho_l]g \sin \theta
+        
+    Parameters
+    ----------
+    angle : float
+        The angle of the pipe with respect to the horizontal, [degrees]
+    alphi : float
+        Void fraction (area of gas / total area of channel), [-]
+    rhol : float
+        Liquid phase density, [kg/m^3]
+    rhog : float
+        Gas phase density, [kg/m^3]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
+
+    Returns
+    -------
+    dP_dz : float
+        Gravitational component of pressure drop for two-phase flow, [Pa/m]
+        
+    Notes
+    -----
+        
+    Examples
+    --------    
+    >>> two_phase_dP_dz_gravitational(angle=90, alpha=0.9685, rhol=1518, 
+    ... rhog=2.6)
+    493.6187084149995
+
+    References
+    ----------
+    .. [1] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
+       Transfer, 3E. New York: McGraw-Hill, 1998.
+    .. [2] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and
+       Predictive Methods for Pressure Drop in Adiabatic, Condensing and
+       Boiling Mini/Micro-Channel Flows." International Journal of Heat and
+       Mass Transfer 77 (October 2014): 74-97.
+       doi:10.1016/j.ijheatmasstransfer.2014.04.035.
+    '''
+    angle = radians(angle)
+    return g*sin(angle)*(alpha*rhog + (1. - alpha)*rhol)
 
