@@ -34,7 +34,8 @@ __all__ = ['Thom', 'Zivi', 'Smith', 'Fauske', 'Chisholm_voidage', 'Turner_Wallis
            'Nicklin_Wilkes_Davidson', 'Gregory_Scott', 'Dix', 
            'Sun_Duffey_Peng', 'Xu_Fang_voidage', 'Woldesemayat_Ghajar',
            'Lockhart_Martinelli_Xtt', 'two_phase_voidage_experimental', 
-           'density_two_phase']
+           'density_two_phase', 'Beattie_Whalley', 'McAdams', 'Cicchitti',
+           'Lin_Kwok', 'Fourar_Bories']
 
 ### Models based on slip ratio
 
@@ -407,7 +408,7 @@ def homogeneous(x, rhol, rhog):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33, 
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    return 1./(1 + (1-x)/x*(rhog/rhol))
+    return 1./(1. + (1-x)/x*(rhog/rhol))
 
 
 def Chisholm_Armand(x, rhol, rhog):
@@ -1928,3 +1929,344 @@ def two_phase_voidage_experimental(rho_lg, rhol, rhog):
        no. 1 (October 1, 2008): 106-13. 
     '''
     return (rho_lg - rhol)/(rhog - rhol)
+
+
+### two-phase viscosity models
+
+
+def Beattie_Whalley(x, mul, mug, rhol, rhog):
+    r'''Calculates a suggested definition for liquid-gas two-phase flow 
+    viscosity in internal pipe flow according to the form in [1]_ and shown
+    in [2]_ and [3]_.
+        
+    .. math::
+        \mu_m = \mu_l(1-\alpha_m)(1 + 2.5\alpha_m) + \mu_g\alpha_m
+        
+        \alpha_m = \frac{1}{1 + \left(\frac{1-x}{x}\right)\frac{\rho_g}{\rho_l}}
+        \text{(homogeneous model)}
+
+    Parameters
+    ----------
+    x : float
+        Quality of the gas-liquid flow, [-]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    rhol : float
+        Density of the liquid [kg/m^3]
+    rhog : float
+        Density of the gas [kg/m^3]
+
+    Returns
+    -------
+    mu_lg : float
+        Liquid-gas viscosity (**a suggested definition, potentially useful
+        for empirical work only!**) [Pa*s]
+
+    Notes
+    -----
+    This model converges to the liquid or gas viscosity as the quality
+    approaches either limits.
+        
+    Examples
+    --------
+    >>> Beattie_Whalley(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
+    1.7363806909512365e-05
+
+    References
+    ----------
+    .. [1] Beattie, D. R. H., and P. B. Whalley. "A Simple Two-Phase Frictional
+       Pressure Drop Calculation Method." International Journal of Multiphase 
+       Flow 8, no. 1 (February 1, 1982): 83-87. 
+       doi:10.1016/0301-9322(82)90009-X. 
+    .. [2] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for 
+       Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
+       no. 1 (October 1, 2008): 106-13. 
+    .. [3] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and
+       Predictive Methods for Pressure Drop in Adiabatic, Condensing and
+       Boiling Mini/Micro-Channel Flows." International Journal of Heat and
+       Mass Transfer 77 (October 2014): 74-97.
+       doi:10.1016/j.ijheatmasstransfer.2014.04.035.
+    '''
+    alpha = homogeneous(x, rhol, rhog)
+    return mul*(1. - alpha)*(1. + 2.5*alpha) + mug*alpha
+
+
+def McAdams(x, mul, mug):
+    r'''Calculates a suggested definition for liquid-gas two-phase flow 
+    viscosity in internal pipe flow according to the form in [1]_ and shown
+    in [2]_ and [3]_.
+        
+    .. math::
+        \mu_m = \left(\frac{x}{\mu_g} + \frac{1-x}{\mu_l}\right)^{-1}
+
+    Parameters
+    ----------
+    x : float
+        Quality of the gas-liquid flow, [-]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+
+    Returns
+    -------
+    mu_lg : float
+        Liquid-gas viscosity (**a suggested definition, potentially useful
+        for empirical work only!**) [Pa*s]
+
+    Notes
+    -----
+    This model converges to the liquid or gas viscosity as the quality
+    approaches either limits.
+    
+    [3]_ states this is the most common definition of two-phase liquid-gas 
+    viscosity.
+        
+    Examples
+    --------
+    >>> McAdams(x=0.4, mul=1E-3, mug=1E-5)
+    2.4630541871921184e-05
+
+    References
+    ----------
+    .. [1] McAdams, W. H. "Vaporization inside Horizontal Tubes-II Benzene-Oil 
+       Mixtures." Trans. ASME 39 (1949): 39-48.
+    .. [2] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for 
+       Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
+       no. 1 (October 1, 2008): 106-13. 
+    .. [3] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and
+       Predictive Methods for Pressure Drop in Adiabatic, Condensing and
+       Boiling Mini/Micro-Channel Flows." International Journal of Heat and
+       Mass Transfer 77 (October 2014): 74-97.
+       doi:10.1016/j.ijheatmasstransfer.2014.04.035.
+    '''
+    return 1./(x/mug + (1. - x)/mul)
+
+
+def Cicchitti(x, mul, mug):
+    r'''Calculates a suggested definition for liquid-gas two-phase flow 
+    viscosity in internal pipe flow according to the form in [1]_ and shown
+    in [2]_ and [3]_.
+        
+    .. math::
+        \mu_m = x\mu_g + (1-x)\mu_l
+        
+    Parameters
+    ----------
+    x : float
+        Quality of the gas-liquid flow, [-]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+
+    Returns
+    -------
+    mu_lg : float
+        Liquid-gas viscosity (**a suggested definition, potentially useful
+        for empirical work only!**) [Pa*s]
+
+    Notes
+    -----
+    This model converges to the liquid or gas viscosity as the quality
+    approaches either limits.
+    
+    Examples
+    --------
+    >>> Cicchitti(x=0.4, mul=1E-3, mug=1E-5)
+    0.0006039999999999999
+
+    References
+    ----------
+    .. [1] Cicchitti, A., C. Lombardi, M. Silvestri, G. Soldaini, and R. 
+       Zavattarelli. "Two-Phase Cooling Experiments: Pressure Drop, Heat 
+       Transfer and Burnout Measurements." Centro Informazioni Studi 
+       Esperienze, Milan, January 1, 1959. 
+    .. [2] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for 
+       Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
+       no. 1 (October 1, 2008): 106-13. 
+    .. [3] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and
+       Predictive Methods for Pressure Drop in Adiabatic, Condensing and
+       Boiling Mini/Micro-Channel Flows." International Journal of Heat and
+       Mass Transfer 77 (October 2014): 74-97.
+       doi:10.1016/j.ijheatmasstransfer.2014.04.035.
+    '''
+    return x*mug + (1. - x)*mul
+
+
+def Lin_Kwok(x, mul, mug):
+    r'''Calculates a suggested definition for liquid-gas two-phase flow 
+    viscosity in internal pipe flow according to the form in [1]_ and shown
+    in [2]_ and [3]_.
+        
+    .. math::
+        \mu_m = \frac{\mu_l \mu_g}{\mu_g + x^{1.4}(\mu_l - \mu_g)}
+        
+    Parameters
+    ----------
+    x : float
+        Quality of the gas-liquid flow, [-]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+
+    Returns
+    -------
+    mu_lg : float
+        Liquid-gas viscosity (**a suggested definition, potentially useful
+        for empirical work only!**) [Pa*s]
+
+    Notes
+    -----
+    This model converges to the liquid or gas viscosity as the quality
+    approaches either limits.
+    
+    Examples
+    --------
+    >>> Lin_Kwok(x=0.4, mul=1E-3, mug=1E-5)
+    3.515119398126066e-05
+
+    References
+    ----------
+    .. [1] Lin, S., C. C. K. Kwok, R. -Y. Li, Z. -H. Chen, and Z. -Y. Chen. 
+       "Local Frictional Pressure Drop during Vaporization of R-12 through 
+       Capillary Tubes." International Journal of Multiphase Flow 17, no. 1 
+       (January 1, 1991): 95-102. doi:10.1016/0301-9322(91)90072-B.
+    .. [2] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for 
+       Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
+       no. 1 (October 1, 2008): 106-13. 
+    '''
+    return mul*mug/(mug + x**1.4*(mul - mug))
+
+
+def Fourar_Bories(x, mul, mug, rhol, rhog):
+    r'''Calculates a suggested definition for liquid-gas two-phase flow 
+    viscosity in internal pipe flow according to the form in [1]_ and shown
+    in [2]_ and [3]_.
+        
+    .. math::
+        \mu_m = \rho_m\left(\sqrt{x\nu_g} + \sqrt{(1-x)\nu_l}\right)^2
+        
+    Parameters
+    ----------
+    x : float
+        Quality of the gas-liquid flow, [-]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    rhol : float
+        Density of the liquid, [kg/m^3]
+    rhog : float
+        Density of the gas, [kg/m^3]
+
+    Returns
+    -------
+    mu_lg : float
+        Liquid-gas viscosity (**a suggested definition, potentially useful
+        for empirical work only!**) [Pa*s]
+
+    Notes
+    -----
+    This model converges to the liquid or gas viscosity as the quality
+    approaches either limits.
+    
+    This was first expressed in the equalivalent form as follows:
+        
+    .. math::
+        \mu_m = \rho_m\left(x\nu_g + (1-x)\nu_l + 2\sqrt{x(1-x)\nu_g\nu_l}
+        \right)
+    
+    Examples
+    --------
+    >>> Fourar_Bories(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
+    2.127617150298565e-05
+
+    References
+    ----------
+    .. [1] Fourar, M., and S. Bories. "Experimental Study of Air-Water 
+       Two-Phase Flow through a Fracture (Narrow Channel)." International 
+       Journal of Multiphase Flow 21, no. 4 (August 1, 1995): 621-37. 
+       doi:10.1016/0301-9322(95)00005-I.
+    .. [2] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for 
+       Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
+       no. 1 (October 1, 2008): 106-13. 
+    .. [3] Aung, NZ, and T. Yuwono. "Evaluation of Mixture Viscosity Models in 
+       the Prediction of Two-Phase Flow Pressure Drops." ASEAN Journal on 
+       Science and Technology for Development 29, no. 2 (2012). 
+    '''
+    rhom = 1./(x/rhog + (1. - x)/rhol)
+    nul = mul/rhol # = nu_mu_converter(rho=rhol, mu=mul)
+    nug = mug/rhog # = nu_mu_converter(rho=rhog, mu=mug)
+    return rhom*((x*nug)**0.5 + ((1. - x)*nul)**0.5)**2
+
+
+def Duckler(x, mul, mug, rhol, rhog):
+    r'''Calculates a suggested definition for liquid-gas two-phase flow 
+    viscosity in internal pipe flow according to the form in [1]_ and shown
+    in [2]_, [3]_, and [4]_.
+        
+    .. math::
+        \mu_m = \frac{\frac{x\mu_g}{\rho_g} + \frac{(1-x)\mu_l}{\rho_l} }
+        {\frac{x}{\rho_g} + \frac{(1-x)}{\rho_l}   }
+        
+    Parameters
+    ----------
+    x : float
+        Quality of the gas-liquid flow, [-]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    rhol : float
+        Density of the liquid, [kg/m^3]
+    rhog : float
+        Density of the gas, [kg/m^3]
+
+    Returns
+    -------
+    mu_lg : float
+        Liquid-gas viscosity (**a suggested definition, potentially useful
+        for empirical work only!**) [Pa*s]
+
+    Notes
+    -----
+    This model converges to the liquid or gas viscosity as the quality
+    approaches either limits.
+    
+    This has also been expressed in the following form:
+        
+    .. math::
+        \mu_m = \rho_m \left[x\left(\frac{\mu_g}{\rho_g}\right) 
+        + (1 - x)\left(\frac{\mu_l}{\rho_l}\right)\right]
+        
+    According to the homogeneous definition of two-phase density.
+        
+    Examples
+    --------
+    >>> Duckler(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
+    1.2092040385066917e-05
+
+    References
+    ----------
+    .. [1] Fourar, M., and S. Bories. "Experimental Study of Air-Water 
+       Two-Phase Flow through a Fracture (Narrow Channel)." International 
+       Journal of Multiphase Flow 21, no. 4 (August 1, 1995): 621-37. 
+       doi:10.1016/0301-9322(95)00005-I.
+    .. [2] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for 
+       Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
+       no. 1 (October 1, 2008): 106-13. 
+    .. [3] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and
+       Predictive Methods for Pressure Drop in Adiabatic, Condensing and
+       Boiling Mini/Micro-Channel Flows." International Journal of Heat and
+       Mass Transfer 77 (October 2014): 74-97.
+       doi:10.1016/j.ijheatmasstransfer.2014.04.035.
+    .. [4] Aung, NZ, and T. Yuwono. "Evaluation of Mixture Viscosity Models in 
+       the Prediction of Two-Phase Flow Pressure Drops." ASEAN Journal on 
+       Science and Technology for Development 29, no. 2 (2012). 
+    '''
+    return (x*mug/rhog + (1. - x)*mul/rhol)/(x/rhog + (1. - x)/rhol)
+    

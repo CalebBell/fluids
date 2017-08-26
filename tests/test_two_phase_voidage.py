@@ -75,6 +75,10 @@ def test_Turner_Wallis():
 def test_homogeneous():
     assert_allclose(homogeneous(.4, 800, 2.5), 0.995334370139969)
 
+    # 1./(1. + (1-x)/x*(rhog/rhol))
+
+test_homogeneous()
+
 
 def test_Chisholm_Armand():
     assert_allclose(Chisholm_Armand(.4, 800, 2.5), 0.9357814394262114)
@@ -185,3 +189,44 @@ def test_density_two_phase():
 def test_two_phase_voidage_experimental():
     alpha = two_phase_voidage_experimental(481.0, 800, 2.5)
     assert_allclose(alpha, 0.4)
+    
+    
+def test_Beattie_Whalley():
+    mu = Beattie_Whalley(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
+    assert_allclose(mu, 1.7363806909512365e-05)
+    
+    
+def test_McAdams():
+    mu = McAdams(x=0.4, mul=1E-3, mug=1E-5)
+    assert_allclose(mu, 2.4630541871921184e-05)
+    
+
+def test_Cicchitti():
+    mu = Cicchitti(x=0.4, mul=1E-3, mug=1E-5)
+    assert_allclose(mu, 0.000604)
+    
+    
+def test_Lin_Kwok():
+    mu = Lin_Kwok(x=0.4, mul=1E-3, mug=1E-5)
+    assert_allclose(mu, 3.515119398126066e-05)
+    
+def test_Fourar_Bories():
+    mu = Fourar_Bories(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
+    assert_allclose(mu, 2.127617150298565e-05)
+    
+    
+def tets_Duckler():
+    
+    mu =  Duckler(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
+    assert_allclose(mu, 1.2092040385066917e-05)
+    
+    
+    def Duckler1(x, mul, mug, rhol, rhog):
+        # Effective property models for homogeneous two-phase flows.
+        # different formulation
+        rhom = 1./(x/rhog + (1. - x)/rhol)
+        return rhom*(x*(mug/rhog) + (1. - x)*mul/rhol)
+    
+    
+    mu = Duckler1(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
+    assert_allclose(mu, 1.2092040385066917e-05)
