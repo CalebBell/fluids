@@ -21,14 +21,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['two_phase_dP', 'two_phase_dP_acceleration', 'Lockhart_Martinelli', 'Friedel', 'Chisholm', 
+__all__ = ['two_phase_dP', 'two_phase_dP_acceleration', 
+           'two_phase_dP_dz_acceleration', 'two_phase_dP_gravitational',
+           'Lockhart_Martinelli', 'Friedel', 'Chisholm', 
            'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
            'Yu_France', 'Wang_Chiang_Lu', 'Hwang_Kim', 'Zhang_Hibiki_Mishima',
            'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations']
 
-from math import pi, log, exp
+from math import pi, log, exp, sin, radians
+from scipy.constants import g
 from fluids.friction import friction_factor
 from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
 from fluids.two_phase_voidage import homogeneous, Lockhart_Martinelli_Xtt
@@ -2250,3 +2253,147 @@ def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
     in_term = (1.-xi)**2/(rho_li*(1.-alpha_i)) + xi*xi/(rho_gi*alpha_i)
     out_term = (1.-xo)**2/(rho_lo*(1.-alpha_o)) + xo*xo/(rho_go*alpha_o)
     return G*G*(out_term - in_term)
+
+
+def two_phase_dP_dz_acceleration(m, D, x, alpha, rhol, rhog):
+    r'''This function handles calculation of two-phase liquid-gas pressure drop
+    due to acceleration for flow inside channels. This is a continuous 
+    calculation, providing the differential in pressure per unit lenth and
+    should be called as part of an integration routine ([1]_, [2]_).
+    
+    .. math::
+        - \left(\frac{d P}{dz}\right)_{acc} = G^2 \frac{d}{dz} \left[\frac{
+        (1-x)^2}{\rho_l(1-\alpha)} + \frac{x^2}{\rho_g\alpha}\right]
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    D : float
+        Diameter of pipe, [m]
+    x : float
+        Quality of fluid [-]
+    alpha : float
+        Void fraction  (area of gas / total area of channel), [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+
+    Returns
+    -------
+    dP_dz : float
+        Acceleration component of pressure drop for two-phase flow, [Pa/m]
+        
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> two_phase_dP_dz_acceleration(m=1, D=0.1, x=0.372, rhol=827.1, rhog=3.919, alpha=0.992)
+    1543.3120935618122
+    
+    References
+    ----------
+    .. [1] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
+       Transfer, 3E. New York: McGraw-Hill, 1998.
+    .. [2] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and
+       Predictive Methods for Pressure Drop in Adiabatic, Condensing and
+       Boiling Mini/Micro-Channel Flows." International Journal of Heat and
+       Mass Transfer 77 (October 2014): 74-97.
+       doi:10.1016/j.ijheatmasstransfer.2014.04.035.
+    '''
+    G = 4*m/(pi*D*D)
+    return G*G*((1. - x)**2/(rhol*(1. - alpha)) + x*x/(rhog*alpha))
+
+
+def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,  
+                               alpha_o=None, rho_lo=None, rho_go=None, g=g):
+    r'''This function handles calculation of two-phase liquid-gas pressure drop
+    due to gravitation for flow inside channels. This is a discrete 
+    calculation for a segment with a known difference in elevation (and ideally
+    known inlet and outlet pressures so density dependence can be included). 
+    
+    .. math::
+        - \Delta P_{grav} =  g \sin \theta z \left\{\frac{ [\alpha_o\rho_{g,o} 
+        + (1-\alpha_o)\rho_{l,o}] + [\alpha_i\rho_{g,i} + (1-\alpha_i)\rho_{l,i}]}
+        {2}\right\}
+        
+    Parameters
+    ----------
+    angle : float
+        The angle of the pipe with respect to the horizontal, [degrees]
+    z : float
+        The total length of the pipe, [m]
+    alpha_i : float
+        Void fraction at inlet (area of gas / total area of channel), [-]
+    rho_li : float
+        Liquid phase density at inlet, [kg/m^3]
+    rho_gi : float
+        Gas phase density at inlet, [kg/m^3]
+    alpha_o : float, optional
+        Void fraction at outlet (area of gas / total area of channel), [-]
+    rho_lo : float, optional
+        Liquid phase density at outlet, [kg/m^3]
+    rho_go : float, optional
+        Gas phase density at outlet, [kg/m^3]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
+
+    Returns
+    -------
+    dP : float
+        Gravitational component of pressure drop for two-phase flow, [Pa]
+        
+    Notes
+    -----
+    The use of different gas and liquid phase densities and void fraction 
+    at the inlet and outlet is optional; the outlet densities and void fraction
+    will be assumed to be those of the inlet if they are not specified. This
+    does not add much accuracy.
+    
+    There is a continuous variant of this method which can be integrated over,
+    at the expense of a speed. The differential form of this is as follows 
+    ([1]_, [2]_):
+        
+    .. math::
+        -\left(\frac{dP}{dz} \right)_{grav} =  [\alpha\rho_g + (1-\alpha)
+        \rho_l]g \sin \theta
+        
+    Examples
+    --------
+    Example calculation, page 13-2 from [3]_:
+    
+    >>> two_phase_dP_gravitational(angle=90, z=2, alpha_i=0.9685, rho_li=1518., 
+    ... rho_gi=2.6)
+    987.237416829999
+
+    The same calculation, but using average inlet and outlet conditions:
+    
+    >>> two_phase_dP_gravitational(angle=90, z=2, alpha_i=0.9685, rho_li=1518.,
+    ... rho_gi=2.6,  alpha_o=0.968, rho_lo=1517.9, rho_go=2.59)
+    994.5416058829999
+    
+    References
+    ----------
+    .. [1] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
+       Transfer, 3E. New York: McGraw-Hill, 1998.
+    .. [2] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and
+       Predictive Methods for Pressure Drop in Adiabatic, Condensing and
+       Boiling Mini/Micro-Channel Flows." International Journal of Heat and
+       Mass Transfer 77 (October 2014): 74-97.
+       doi:10.1016/j.ijheatmasstransfer.2014.04.035.
+    .. [3] Thome, John R. "Engineering Data Book III." Wolverine Tube Inc
+       (2004). http://www.wlv.com/heat-transfer-databook/
+    '''
+    if rho_lo is None:
+        rho_lo = rho_li
+    if rho_go is None:
+        rho_go = rho_gi
+    if alpha_o is None:
+        alpha_o = alpha_i
+    angle = radians(angle)
+    in_term = alpha_i*rho_gi + (1. - alpha_i)*rho_li
+    out_term = alpha_o*rho_go + (1. - alpha_o)*rho_lo
+    return g*z*sin(angle)*(out_term + in_term)/2.
+
