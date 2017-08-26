@@ -288,3 +288,20 @@ def test_two_phase_dP_acceleration():
                                    rho_go=rho_go, rho_lo=rho_lo)
     assert_allclose(dP, 824.0280564053887)
 
+
+def test_two_phase_dP_dz_acceleration():
+    dP_dz = two_phase_dP_dz_acceleration(m=1, D=0.1, x=0.372, rhol=827.1, rhog=3.919, alpha=0.992)
+    assert_allclose(dP_dz, 1543.3120935618122)
+    
+    
+def test_two_phase_dP_gravitational():
+    dP = two_phase_dP_gravitational(angle=90, z=2, alpha_i=0.9685, rho_li=1518., rho_gi=2.6)
+    assert_allclose(dP, 987.237416829999)
+    
+    dP = two_phase_dP_gravitational(angle=90, z=2, alpha_i=0.9685, rho_li=1518., rho_gi=2.6,  alpha_o=0.968, rho_lo=1517.9, rho_go=2.59)
+    assert_allclose(dP, 994.5416058829999)
+    
+    
+def test_two_phase_dP_dz_gravitational():
+    dP_dz = two_phase_dP_dz_gravitational(angle=90, alpha=0.9685, rhol=1518., rhog=2.6)
+    assert_allclose(dP_dz, 493.6187084149995)

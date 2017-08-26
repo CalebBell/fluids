@@ -2413,7 +2413,7 @@ def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
     ----------
     angle : float
         The angle of the pipe with respect to the horizontal, [degrees]
-    alphi : float
+    alpha : float
         Void fraction (area of gas / total area of channel), [-]
     rhol : float
         Liquid phase density, [kg/m^3]
