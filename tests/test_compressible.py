@@ -294,6 +294,27 @@ def test_isothermal_gas():
     # Case where the desired flow is greated than the choked flow's rate 
     with pytest.raises(Exception):
         isothermal_gas(rho=11.3, fd=0.00185, m=400, P2=9E5, L=1000, D=0.5)
+        
+    # test the case where the ideal gas assumption is baked in:
+    
+    rho = 10.75342009105268 # Chemical('nitrogen', P=(1E6+9E5)/2).rho
+    m1 = isothermal_gas(rho=rho, fd=0.00185, P1=1E6, P2=9E5, L=1000, D=0.5)
+    assert_allclose(m1, 141.92260633059334)
+    
+    # They are fairly similar
+    from math import log, pi
+    fd = 0.00185
+    P1 = 1E6
+    P2 = 9E5
+    L = 1000
+    D = 0.5
+    T = 298.15
+    # from scipy.constants import R
+    # from thermo import property_molar_to_mass, Chemical, pi, log
+    R = 296.8029514446658 # property_molar_to_mass(R, Chemical('nitrogen').MW)
+    m2 = (pi**2/16*D**4/(R*T*(fd*L/D + 2*log(P1/P2)))*(P1**2-P2**2))**0.5
+    assert_allclose(m2, 145.48786057477403)
+
 
 def test_P_isothermal_critical_flow():
     P2_max = P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)

@@ -623,7 +623,7 @@ def contraction_sharp(Di1, Di2):
     Returns
     -------
     K : float
-        Loss coefficient [-]
+        Loss coefficient in terms of the following pipe [-]
 
     Notes
     -----
@@ -673,7 +673,7 @@ def contraction_round(Di1, Di2, rc):
     Returns
     -------
     K : float
-        Loss coefficient [-]
+        Loss coefficient in terms of the following pipe [-]
 
     Notes
     -----
@@ -726,7 +726,7 @@ def contraction_conical(Di1, Di2, fd, l=None, angle=None):
     Returns
     -------
     K : float
-        Loss coefficient [-]
+        Loss coefficient in terms of the following pipe [-]
 
     Notes
     -----
@@ -787,7 +787,7 @@ def contraction_beveled(Di1, Di2, l=None, angle=None):
     Returns
     -------
     K : float
-        Loss coefficient [-]
+        Loss coefficient in terms of the following pipe [-]
 
     Notes
     -----
@@ -2866,7 +2866,6 @@ def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
     elif style == 'tilting check 5°':
         return 100*specific_volume**0.5
     elif style == 'tilting check 15°':
-        # TODO check if this coefficient is actually correct, hard to read
         return 40*specific_volume**0.5
     elif style == 'stop check globe 1':
         return 70*beta2*specific_volume**0.5

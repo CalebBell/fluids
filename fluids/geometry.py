@@ -23,7 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from math import pi, sin, cos, tan, asin, acos, atan, acosh, log
 import numpy as np
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
 from scipy.integrate import quad
 from scipy.optimize import newton
 from scipy.special import ellipe
@@ -1483,7 +1483,7 @@ class TANK(object):
     Height of liquid for a given volume:
 
     >>> TANK(D=1.2, L=4, horizontal=False).h_from_V(.5)
-    0.44209706414415373
+    0.44209706414415384
 
     Surface area of a tank with a conical head:
 
@@ -1667,7 +1667,7 @@ class TANK(object):
         '''
         if not self.table:
             self.set_table()
-        h = float(self.interp_h_from_V(V))
+        h = self.interp_h_from_V(V)
         return h
 
     def set_table(self, n=100, dx=None):
@@ -1689,7 +1689,7 @@ class TANK(object):
         else:
             self.heights = np.linspace(0, self.h_max, n)
         self.volumes = [self.V_from_h(h) for h in self.heights]
-        self.interp_h_from_V = interp1d(self.volumes, self.heights)
+        self.interp_h_from_V = InterpolatedUnivariateSpline(self.volumes, self.heights, ext=3)
         self.table = True
 
 

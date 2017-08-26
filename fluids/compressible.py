@@ -787,6 +787,15 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
     There are many commercial packages which perform the actual direct 
     integration of the flow, such as OLGA Dynamic Multiphase Flow Simulator,
     or ASPEN Hydraulics.
+    
+    This expression has also been presented with the ideal gas assumption
+    directly incorporated into it [4]_ (note R is the specific gas constant, in 
+    units of J/kg/K):
+        
+    .. math::
+        \dot m^2 = \frac{\left(\frac{\pi D^2}{4}\right)^2
+        \left(P_1^2-P_2^2\right)}{RT\left(f_d\frac{L}{D} + 2\ln\frac{P_1}{P_2}
+        \right)}
 
     Examples
     --------
@@ -802,6 +811,8 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
     .. [3] Wilkes, James O. Fluid Mechanics for Chemical Engineers with
        Microfluidics and CFD. 2 edition. Upper Saddle River, NJ: Prentice Hall,
        2005.
+    .. [4] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
+       and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     if m is None and (None not in [P1, P2, L, D]):
         Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)

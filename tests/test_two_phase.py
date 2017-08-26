@@ -270,3 +270,21 @@ def test_two_phase_dP():
 
     with pytest.raises(Exception):
         two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1, Method='BADMETHOD')
+
+
+def test_two_phase_dP_acceleration():
+    m = 1
+    D = 0.1
+    xi = 0.37263067757947943
+    xo = 0.5570214522041096
+    rho_li = 827.1015716377739
+    rho_lo = 827.05
+    rho_gi = 3.9190921750559062
+    rho_go = 3.811717994431281
+    alpha_i = homogeneous(x=xi, rhol=rho_li, rhog=rho_gi)
+    alpha_o = homogeneous(x=xo, rhol=rho_lo, rhog=rho_go)
+    dP = two_phase_dP_acceleration(m=m, D=D, xi=xi, xo=xo, alpha_i=alpha_i, 
+                                   alpha_o=alpha_o, rho_li=rho_li, rho_gi=rho_gi,
+                                   rho_go=rho_go, rho_lo=rho_lo)
+    assert_allclose(dP, 824.0280564053887)
+

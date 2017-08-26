@@ -10,6 +10,21 @@ fields of chemical, mechanical, or civil engineering. It includes modules
 for piping, fittings, pumps, tanks, compressible flow, open-channel flow,
 and more.
 
+
+   
+   
+   
+Module Contents:
+
+.. toctree::
+   tutorial.rst
+   modules.rst
+   examples.rst
+
+
+Installation
+------------
+
 .. image:: http://img.shields.io/pypi/v/fluids.svg?style=flat
    :target: https://pypi.python.org/pypi/fluids
    :alt: Version_status
@@ -31,20 +46,6 @@ and more.
 .. image:: https://zenodo.org/badge/48924523.svg?
    :alt: Zendo
    :target: https://zenodo.org/badge/latestdoi/48924523
-
-   
-   
-   
-Module Contents:
-
-.. toctree::
-   tutorial.rst
-   modules.rst
-   examples.rst
-
-
-Installation
-------------
 
 Get the latest version of fluids from
 https://pypi.python.org/pypi/fluids/

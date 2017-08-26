@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['two_phase_dP', 'Lockhart_Martinelli', 'Friedel', 'Chisholm', 
+__all__ = ['two_phase_dP', 'two_phase_dP_acceleration', 'Lockhart_Martinelli', 'Friedel', 'Chisholm', 
            'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
@@ -2165,3 +2165,88 @@ than provided; provide more inputs!')
                      flowtype='flow boiling')
     else:
         raise Exception('Failure in in function')
+
+
+def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,  
+                              rho_lo=None, rho_go=None):
+    r'''This function handles calculation of two-phase liquid-gas pressure drop
+    due to acceleration for flow inside channels. This is a discrete 
+    calculation for a segment with a known difference in quality (and ideally
+    known inlet and outlet pressures so density dependence can be included). 
+    
+    .. math::
+        \Delta P_{acc} = G^2\left\{\left[\frac{(1-x_o)^2}{\rho_{l,o}
+        (1-\alpha_o)} + \frac{x_o^2}{\rho_{g,o}\alpha_o} \right]
+        - \left[\frac{(1-x_i)^2}{\rho_{l,i}(1-\alpha_i)} 
+        + \frac{x_i^2}{\rho_{g,i}\alpha_i} \right]\right\}
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    D : float
+        Diameter of pipe, [m]
+    xi : float
+        Quality of fluid at inlet, [-]
+    xo : float
+        Quality of fluid at outlet, [-]
+    alpha_i : float
+        Void fraction at inlet (area of gas / total area of channel), [-]
+    alpha_o : float
+        Void fraction at outlet (area of gas / total area of channel), [-]
+    rho_li : float
+        Liquid phase density at inlet, [kg/m^3]
+    rho_gi : float
+        Gas phase density at inlet, [kg/m^3]
+    rho_lo : float, optional
+        Liquid phase density at outlet, [kg/m^3]
+    rho_go : float, optional
+        Gas phase density at outlet, [kg/m^3]
+
+    Returns
+    -------
+    dP : float
+        Acceleration component of pressure drop for two-phase flow, [Pa]
+        
+    Notes
+    -----
+    The use of different gas and liquid phase densities at the inlet and outlet
+    is optional; the outlet densities conditions will be assumed to be those of
+    the inlet if they are not specified.
+    
+    There is a continuous variant of this method which can be integrated over,
+    at the expense of a speed. The differential form of this is as follows 
+    ([1]_, [3]_):
+        
+    .. math::
+        - \left(\frac{d P}{dz}\right)_{acc} = G^2 \frac{d}{dz} \left[\frac{
+        (1-x)^2}{\rho_l(1-\alpha)} + \frac{x^2}{\rho_g\alpha}\right]
+
+    Examples
+    --------
+    >>> two_phase_dP_acceleration(m=1, D=0.1, xi=0.372, xo=0.557, rho_li=827.1,
+    ... rho_gi=3.919, alpha_i=0.992, alpha_o=0.996)
+    706.8560377214725
+    
+    References
+    ----------
+    .. [1] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
+       Transfer, 3E. New York: McGraw-Hill, 1998.
+    .. [2] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for 
+       Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
+       no. 1 (October 1, 2008): 106-13. 
+       doi:10.1016/j.expthermflusci.2008.07.006.
+    .. [3] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and
+       Predictive Methods for Pressure Drop in Adiabatic, Condensing and
+       Boiling Mini/Micro-Channel Flows." International Journal of Heat and
+       Mass Transfer 77 (October 2014): 74-97.
+       doi:10.1016/j.ijheatmasstransfer.2014.04.035.
+    '''
+    G = 4*m/(pi*D*D)
+    if rho_lo is None:
+        rho_lo = rho_li
+    if rho_go is None:
+        rho_go = rho_gi
+    in_term = (1.-xi)**2/(rho_li*(1.-alpha_i)) + xi*xi/(rho_gi*alpha_i)
+    out_term = (1.-xo)**2/(rho_lo*(1.-alpha_o)) + xo*xo/(rho_go*alpha_o)
+    return G*G*(out_term - in_term)
