@@ -271,7 +271,39 @@ def test_geometry_tank():
         TANK(V=10, L=10, sideA='conical', sideB_a=0.5)
     with pytest.raises(Exception):
         TANK(V=10, L=10, sideA='conical', sideA_a_ratio=None)
+        
+        
+def test_geometry_tank_fuzz_h_from_V():
+    T = TANK(L=1.2, L_over_D=3.5, sideA='torispherical', sideB='torispherical', sideA_f=1., horizontal=True, sideA_k=0.06, sideB_f=1., sideB_k=0.06)
+    T.set_table(n=150)
+    T.set_chebshev_approximators(sections=41, deg=7, 
+                                calculated_points_per_section=20)
+    
+    for V in np.linspace(0, T.V_total, 50):
+        h1 = T.h_from_V(V, 'brenth')
+        h2 = T.h_from_V(V, 'spline')
+        assert_allclose(h1, h2, rtol=1E-5, atol=1E-6)
+    fail = 0
+    for V in np.linspace(0, T.V_total, 2000):
+        # There's room for improvement here
+        h1 = T.h_from_V(V, 'spline')
+        h2 = T.h_from_V(V, 'chebshev')
+        try:
+            assert_allclose(h1, h2, rtol=1E-4, atol=1E-5)
+        except:
+            fail +=1
+    assert fail < 5
 
+    
+    # test V_from_h
+    T.set_chebshev_approximators(sections=15, deg=9, 
+                                calculated_points_per_section=20)
+    
+    for h in np.linspace(0, T.h_max, 2000):
+        # It's the top and the bottom of the tank that sucks
+        V1 = T.V_from_h(h, 'full')
+        V2 = T.V_from_h(h, 'chebshev')
+        assert_allclose(V1, V2, rtol=1E-5, atol=2E-6)
 
 def test_basic():
     psi = sphericity(10., 2.)

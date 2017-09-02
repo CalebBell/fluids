@@ -22,11 +22,14 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import pi, sin, cos, tan, asin, acos, atan, acosh, log
+from bisect import bisect_left
 import numpy as np
+from numpy.polynomial.chebyshev import chebfit
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
 from scipy.integrate import quad
-from scipy.optimize import newton
+from scipy.optimize import newton, brenth
 from scipy.special import ellipe
+from fluids.optional.pychebfun import Chebfun
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'SA_partial_sphere', 
@@ -481,6 +484,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     h1 = k*D*(1-sin(alpha))
     h2 = D - h1
 
+    # Chebfun in Python failed on these functions
     def V1_toint(x, w):
         # No analytical integral available in MP
         n = R - k*D + (k**2*D**2 - x**2)**0.5
@@ -1386,6 +1390,33 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     return V
 
 
+class MultiCheb1D(object):
+    '''Simple class to store set of coefficients for multiple chebshev 
+    approximations and perform calculations from them.
+    '''
+    def __init__(self, points, coeffs):
+        self.points = points
+        self.coeffs = coeffs
+        self.N = len(points)-1
+        
+    def __call__(self, x):
+        coeffs = self.coeffs[bisect_left(self.points, x)]
+        return self.chebval(x, coeffs)
+                
+    @staticmethod
+    def chebval(x, c):
+        # copied from numpy's source, slightly optimized
+        # https://github.com/numpy/numpy/blob/v1.13.0/numpy/polynomial/chebyshev.py#L1093-L1177
+        x2 = 2.*x
+        c0 = c[-2]
+        c1 = c[-1]
+        for i in range(3, len(c) + 1):
+            tmp = c0
+            c0 = c[-i] - c1
+            c1 = tmp + c1*x2
+        return c0 + c1*x
+
+
 class TANK(object):
     '''Class representing tank volumes and levels. All parameters are also
     attributes.
@@ -1508,6 +1539,7 @@ class TANK(object):
     4.699531057009791
     '''
     table = False
+    chebshev = False
 
     def __repr__(self): # pragma: no cover
         orient = 'Horizontal' if self.horizontal else 'Vertical'
@@ -1630,7 +1662,7 @@ class TANK(object):
              full_output=True)
 
 
-    def V_from_h(self, h):
+    def V_from_h(self, h, method='full'):
         r'''Method to calculate the volume of liquid in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
 
@@ -1638,18 +1670,27 @@ class TANK(object):
         ----------
         h : float
             Height specified, [m]
+        method : str
+            One of 'full' (calculated rigorously) or 'chebshev'
 
         Returns
         -------
         V : float
             Volume of liquid in the tank up to the specified height, [m^3]
         '''
-        V = V_from_h(h, self.D, self.L, self.horizontal, self.sideA, self.sideB,
-                 self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k,
-                 self.sideB_f, self.sideB_k)
-        return V
+        if method == 'full':
+            return V_from_h(h, self.D, self.L, self.horizontal, self.sideA, 
+                            self.sideB, self.sideA_a, self.sideB_a, 
+                            self.sideA_f, self.sideA_k, self.sideB_f, 
+                            self.sideB_k)
+        elif method == 'chebshev':
+            if not self.chebshev:
+                self.set_chebshev_approximators()
+            return self.V_from_h_cheb(h)
+        else:
+            raise Exception("Allowable methods are 'full' or 'chebshev'.")
 
-    def h_from_V(self, V):
+    def h_from_V(self, V, method='spline'):
         r'''Method to calculate the height of liquid in a fully defined tank
         given a specified volume of liquid in it `V`. `V` must be under the
         maximum volume. If interpolation table is not yet defined, creates it
@@ -1659,16 +1700,28 @@ class TANK(object):
         ----------
         V : float
             Volume of liquid in the tank up to the desired height, [m^3]
+        method : str
+            One of 'spline', 'chebshev', or 'brenth'
 
         Returns
         -------
         h : float
             Height of liquid at which the volume is as desired, [m]
         '''
-        if not self.table:
-            self.set_table()
-        h = float(self.interp_h_from_V(V))
-        return h
+        if method == 'spline':
+            if not self.table:
+                self.set_table()
+            return float(self.interp_h_from_V(V))
+        elif method == 'chebshev':
+            if not self.chebshev:
+                self.set_chebshev_approximators()
+            return self.h_from_V_cheb(V)
+        elif method == 'brenth':
+            to_solve = lambda h : self.V_from_h(h, method='full') - V
+            return brenth(to_solve, self.h_max, 0)
+        else:
+            raise Exception("Allowable methods are 'full' or 'chebshev', "
+                            "or 'brenth'.")
 
     def set_table(self, n=100, dx=None):
         r'''Method to set an interpolation table of liquids levels versus
@@ -1691,6 +1744,35 @@ class TANK(object):
         self.volumes = [self.V_from_h(h) for h in self.heights]
         self.interp_h_from_V = InterpolatedUnivariateSpline(self.volumes, self.heights, ext=3)
         self.table = True
+        
+    def set_chebshev_approximators(self, sections=5, deg=9, 
+                                   calculated_points_per_section=20):
+        points_hs = np.linspace(0, self.h_max, sections)
+#        points_Vs = np.linspace(0, self.V_total, sections)
+        coeffs_h_from_Vs = []
+        coeffs_V_from_hs = []
+        points_Vs = []
+        for i in range(len(points_hs)-1):
+            hmin, hmax = points_hs[i], points_hs[i+1]
+#            Vmin, Vmax = points_Vs[i], points_Vs[i+1]
+            hs_linspace = np.linspace(hmin, hmax, calculated_points_per_section)
+#            Vs_linspace = np.linspace(Vmin, Vmax, calculated_points_per_section)
+            
+            Vs_calc = [self.V_from_h(h, method='full') for h in hs_linspace]
+#            hs_calc = [self.h_from_V(V, method='brenth') for V in Vs_linspace]
+            points_Vs.append(Vs_calc[-1])
+            coeffs_h_from_V = chebfit(Vs_calc, hs_linspace, deg=deg)
+#            coeffs_h_from_V = chebfit(Vs_linspace, hs_calc, deg=deg)
+            coeffs_h_from_Vs.append(coeffs_h_from_V)
+            
+            coeffs_V_from_h = chebfit(hs_linspace, Vs_calc, deg=deg)
+            coeffs_V_from_hs.append(coeffs_V_from_h)
+            
+        points_hs = points_hs[1:].tolist()
+#        points_Vs = points_Vs[1:].tolist()
+        self.V_from_h_cheb = MultiCheb1D(points_hs, coeffs_V_from_hs)
+        self.h_from_V_cheb = MultiCheb1D(points_Vs, coeffs_h_from_Vs)
+        self.chebshev = True
 
 
     def _V_solver_error(self, Vtarget, D, L, horizontal, sideA, sideB, sideA_a,

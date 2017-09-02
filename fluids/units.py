@@ -108,6 +108,8 @@ Exception: Converting 0.88 dimensionless to units of kg/m^3 raised Dimensionalit
 
 '''
 
+# is_critical_flow is broken
+
 u.autoconvert_offset_to_baseunit = True
 
 
@@ -201,9 +203,10 @@ def convert_input(val, unit, ureg, strict=True):
 def convert_output(result, out_units, out_vars, ureg):
     # Attempt to handle multiple return values
     # Must be able to convert all values to a pint expression
-    if type(result) == str:
+    t = type(result)
+    if t == str or t == bool:
         return result
-    elif type(result) == dict:
+    elif t == dict:
         for key, ans in result.items():
             unit = out_units[out_vars.index(key)]
             result[key] = ans*ureg.parse_expression(unit)

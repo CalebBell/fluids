@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,8 @@ __all__ = ['Thom', 'Zivi', 'Smith', 'Fauske', 'Chisholm_voidage', 'Turner_Wallis
            'Sun_Duffey_Peng', 'Xu_Fang_voidage', 'Woldesemayat_Ghajar',
            'Lockhart_Martinelli_Xtt', 'two_phase_voidage_experimental', 
            'density_two_phase', 'Beattie_Whalley', 'McAdams', 'Cicchitti',
-           'Lin_Kwok', 'Fourar_Bories']
+           'Lin_Kwok', 'Fourar_Bories', 'liquid_gas_voidage', 'gas_liquid_viscosity', 
+           'two_phase_voidage_correlations', 'liquid_gas_viscosity_correlations']
 
 ### Models based on slip ratio
 
@@ -1843,6 +1844,130 @@ def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
     third = (1.22 + 1.22*sin(radians(angle)))**(101325./P)
     return vgs/(first + second*third)
 
+# x, rhol, rhog 2ill be the minimum inputs
+
+two_phase_voidage_correlations = {'Thom' : (Thom, ['x', 'rhol', 'rhog', 'mul', 'mug']),
+'Zivi' : (Zivi, ['x', 'rhol', 'rhog']),
+'Smith' : (Smith, ['x', 'rhol', 'rhog']),
+'Fauske' : (Fauske, ['x', 'rhol', 'rhog']),
+'Chisholm_voidage' : (Chisholm_voidage, ['x', 'rhol', 'rhog']),
+'Turner Wallis' : (Turner_Wallis, ['x', 'rhol', 'rhog', 'mul', 'mug']),
+'homogeneous' : (homogeneous, ['x', 'rhol', 'rhog']),
+'Chisholm Armand' : (Chisholm_Armand, ['x', 'rhol', 'rhog']),
+'Armand' : (Armand, ['x', 'rhol', 'rhog']),
+'Nishino Yamazaki' : (Nishino_Yamazaki, ['x', 'rhol', 'rhog']),
+'Guzhov' : (Guzhov, ['x', 'rhol', 'rhog', 'm', 'D']),
+'Kawahara' : (Kawahara, ['x', 'rhol', 'rhog', 'D']),
+'Baroczy' : (Baroczy, ['x', 'rhol', 'rhog', 'mul', 'mug']),
+'Tandon Varma Gupta' : (Tandon_Varma_Gupta, ['x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D']),
+'Harms' : (Harms, ['x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D']),
+'Domanski Didion' : (Domanski_Didion, ['x', 'rhol', 'rhog', 'mul', 'mug']),
+'Graham' : (Graham, ['x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D', 'g']),
+'Yashar' : (Yashar, ['x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D', 'g']),
+'Huq_Loth' : (Huq_Loth, ['x', 'rhol', 'rhog']),
+'Kopte_Newell_Chato' : (Kopte_Newell_Chato, ['x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D', 'g']),
+'Steiner' : (Steiner, ['x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g']),
+'Rouhani 1' : (Rouhani_1, ['x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g']),
+'Rouhani 2' : (Rouhani_2, ['x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g']),
+'Nicklin Wilkes Davidson' : (Nicklin_Wilkes_Davidson, ['x', 'rhol', 'rhog', 'm', 'D', 'g']),
+'Gregory_Scott' : (Gregory_Scott, ['x', 'rhol', 'rhog']),
+'Dix' : (Dix, ['x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g']),
+'Sun Duffey Peng' : (Sun_Duffey_Peng, ['x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'P', 'Pc', 'g']),
+'Xu Fang voidage' : (Xu_Fang_voidage, ['x', 'rhol', 'rhog', 'm', 'D', 'g']),
+'Woldesemayat Ghajar' : (Woldesemayat_Ghajar, ['x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'P', 'angle', 'g'])}
+
+# All the available arguments are: 
+#{'rhol', 'angle=0', 'x', 'P', 'mug', 'rhog', 'D', 'g', 'Pc', 'sigma', 'mul', 'm'}
+
+def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None, 
+                       sigma=None, P=None, Pc=None, angle=0, g=g, Method=None, 
+                       AvailableMethods=False):
+    r'''This function handles calculation of two-phase liquid-gas voidage
+    for flow inside channels. 29 calculation methods are available, with
+    varying input requirements. A correlation will be automatically selected if
+    none is specified. The full list of correlation can be obtained with the 
+    `AvailableMethods` flag.
+
+    If no correlation is selected, the following rules are used, with the 
+    earlier options attempted first:
+
+        * TODO: defaults
+
+    Parameters
+    ----------
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    D : float, optional
+        Diameter of pipe, [m]
+    m : float, optional
+        Mass flow rate of fluid, [kg/s]
+    mul : float, optional
+        Viscosity of liquid, [Pa*s]
+    mug : float, optional
+        Viscosity of gas, [Pa*s]
+    sigma : float, optional
+        Surface tension, [N/m]
+    P : float, optional
+        Pressure of fluid, [Pa]
+    Pc : float, optional
+        Critical pressure of fluid, [Pa]
+    angle : float, optional
+        Angle of the channel with respect to the horizontal (vertical = 90), 
+        [degrees]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
+
+    Returns
+    -------
+    alpha : float
+        Void fraction (area of gas / total area of channel), [-]
+    methods : list, only returned if AvailableMethods == True
+        List of methods which can be used to calculate two-phase liquid-gas 
+        voidage with the given inputs.
+
+    Other Parameters
+    ----------------
+    Method : string, optional
+        A string of the function name to use, as in the dictionary
+        two_phase_voidage_correlations.
+    AvailableMethods : bool, optional
+        If True, function will consider which methods which can be used to
+        calculate two-phase liquid-gas voidage with the given inputs and return
+        them as a list instead of performing a calculation.
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> liquid_gas_voidage(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
+    ... sigma=0.0487, D=0.05)
+    0.9744097632663492
+    '''
+    def list_methods(myargs):
+        usable_methods = []
+        for method, value in two_phase_voidage_correlations.items():
+            f, args = value
+            if all(myargs[i] is not None for i in args):
+                usable_methods.append(method)
+        return usable_methods
+    if AvailableMethods:
+        return list_methods(locals())
+    if not Method:
+        Method = 'homogeneous'
+    if Method in two_phase_voidage_correlations:
+        f, args = two_phase_voidage_correlations[Method]
+        kwargs = {}
+        for arg in args:
+            kwargs[arg] = locals()[arg]
+        return f(**kwargs)
+    else:
+        raise Exception('Method not recognized; available methods are %s' %list(two_phase_voidage_correlations.keys()))
+
 
 def density_two_phase(alpha, rhol, rhog):
     r'''Calculates the "effective" density of fluid in a liquid-gas flow. If
@@ -2270,3 +2395,91 @@ def Duckler(x, mul, mug, rhol, rhog):
     '''
     return (x*mug/rhog + (1. - x)*mul/rhol)/(x/rhog + (1. - x)/rhol)
     
+
+liquid_gas_viscosity_correlations = {'Beattie Whalley': (Beattie_Whalley, 1),
+                                     'Fourar Bories': (Fourar_Bories, 1),
+                                     'Duckler': (Duckler, 1),
+                                     'McAdams': (McAdams, 0),
+                                     'Cicchitti': (Cicchitti, 0),
+                                     'Lin Kwok': (Lin_Kwok, 0)}
+
+
+
+def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None, 
+                         AvailableMethods=False):
+    r'''This function handles the calculation of two-phase liquid-gas viscosity.
+    Six calculation methods are available; three of them require only `x`, 
+    `mul`, and `mug`; the other three require `rhol` and `rhog` as well. 
+    
+    The 'McAdams' method will be used if no method is specified.
+    The full list of correlation can be obtained with the `AvailableMethods` 
+    flag.
+    
+    **ALL OF THESE METHODS ARE ONLY SUGGESTED DEFINITIONS, POTENTIALLY 
+    USEFUL FOR EMPERICAL WORK ONLY!**
+
+    Parameters
+    ----------
+    x : float
+        Quality of fluid, [-]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    rhol : float, optional
+        Liquid density, [kg/m^3]
+    rhog : float, optional
+        Gas density, [kg/m^3]
+
+    Returns
+    -------
+    mu_lg : float
+        Liquid-gas viscosity (**a suggested definition, potentially useful
+        for empirical work only!**) [Pa*s]
+    methods : list, only returned if AvailableMethods == True
+        List of methods which can be used to calculate two-phase liquid-gas
+        viscosity with the given inputs.
+
+    Other Parameters
+    ----------------
+    Method : string, optional
+        A string of the function name to use, as in the dictionary
+        liquid_gas_viscosity_correlations.
+    AvailableMethods : bool, optional
+        If True, function will consider which methods which can be used to
+        calculate two-phase liquid-gas viscosity with the given inputs and 
+        return them as a list instead of performing a calculation.
+
+    Notes
+    -----
+    All of these models converge to the liquid or gas viscosity as the quality
+    approaches either limits. Other definitions have been proposed, such as
+    using only liquid viscosity.
+    
+    These values cannot just be plugged into single phase correlations!
+    
+    Examples
+    --------
+    >>> gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method='Duckler')
+    1.2092040385066917e-05
+    >>> gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5)
+    2.4630541871921184e-05
+    '''
+    def list_methods():
+        methods = ['McAdams', 'Cicchitti', 'Lin Kwok']
+        if rhol is not None and rhog is not None:
+            methods = list(liquid_gas_viscosity_correlations.keys())
+        return methods
+    if AvailableMethods:
+        return list_methods()
+    if not Method:
+        Method = 'McAdams'
+
+    if Method in liquid_gas_viscosity_correlations:
+        f, i = liquid_gas_viscosity_correlations[Method]
+        if i == 0:
+            return f(x, mul, mug)
+        elif i == 1:
+            return f(x, mul, mug, rhol=rhol, rhog=rhog)
+    else:
+        raise Exception('Method not recognized; available methods are %s' %list(liquid_gas_viscosity_correlations.keys()))

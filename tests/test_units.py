@@ -68,6 +68,11 @@ def test_sample_cases():
     with pytest.raises(Exception):
         T_critical_flow(473*u.m, 1.289)
         
+    # boolean
+    P1 = 8*u.bar + 1*u.atm
+    P2 = 1*u.atm
+    assert True == is_critical_flow(P1, P2, k=1.4*u.dimensionless)
+        
     A = size_control_valve_g(T=433.*u.K, MW=44.01*u.g/u.mol, mu=1.4665E-4*u.Pa*u.s, gamma=1.30,
     Z=0.988, P1=680*u.kPa, P2=310*u.kPa, Q=38/36.*u.m**3/u.s, D1=0.08*u.m, D2=0.1*u.m, d=0.05*u.m,
     FL=0.85, Fd=0.42, xT=0.60)

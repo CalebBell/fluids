@@ -216,7 +216,6 @@ def test_Fourar_Bories():
     
     
 def tets_Duckler():
-    
     mu =  Duckler(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
     assert_allclose(mu, 1.2092040385066917e-05)
     
@@ -230,3 +229,17 @@ def tets_Duckler():
     
     mu = Duckler1(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
     assert_allclose(mu, 1.2092040385066917e-05)
+
+
+def test_gas_liquid_viscosity():
+    mu = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5)
+    assert_allclose(2.4630541871921184e-05, mu)
+    
+    mu = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method='Duckler')
+    assert_allclose(mu, 1.2092040385066917e-05)
+    
+    methods = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, AvailableMethods=True)
+    assert len(methods) == 6
+    
+    with pytest.raises(Exception):
+        gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, Method='NOTAMETHOD')
