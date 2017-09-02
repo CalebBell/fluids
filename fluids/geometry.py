@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016-2017, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@ from __future__ import division
 from math import pi, sin, cos, tan, asin, acos, atan, acosh, log
 from bisect import bisect_left
 import numpy as np
-from numpy.polynomial.chebyshev import chebfit
+from numpy.polynomial.chebyshev import chebfit, chebval
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
 from scipy.integrate import quad
 from scipy.optimize import newton, brenth
@@ -1745,35 +1745,17 @@ class TANK(object):
         self.interp_h_from_V = InterpolatedUnivariateSpline(self.volumes, self.heights, ext=3)
         self.table = True
         
-    def set_chebshev_approximators(self, sections=5, deg=9, 
-                                   calculated_points_per_section=20):
-        points_hs = np.linspace(0, self.h_max, sections)
-#        points_Vs = np.linspace(0, self.V_total, sections)
-        coeffs_h_from_Vs = []
-        coeffs_V_from_hs = []
-        points_Vs = []
-        for i in range(len(points_hs)-1):
-            hmin, hmax = points_hs[i], points_hs[i+1]
-#            Vmin, Vmax = points_Vs[i], points_Vs[i+1]
-            hs_linspace = np.linspace(hmin, hmax, calculated_points_per_section)
-#            Vs_linspace = np.linspace(Vmin, Vmax, calculated_points_per_section)
-            
-            Vs_calc = [self.V_from_h(h, method='full') for h in hs_linspace]
-#            hs_calc = [self.h_from_V(V, method='brenth') for V in Vs_linspace]
-            points_Vs.append(Vs_calc[-1])
-            coeffs_h_from_V = chebfit(Vs_calc, hs_linspace, deg=deg)
-#            coeffs_h_from_V = chebfit(Vs_linspace, hs_calc, deg=deg)
-            coeffs_h_from_Vs.append(coeffs_h_from_V)
-            
-            coeffs_V_from_h = chebfit(hs_linspace, Vs_calc, deg=deg)
-            coeffs_V_from_hs.append(coeffs_V_from_h)
-            
-        points_hs = points_hs[1:].tolist()
-#        points_Vs = points_Vs[1:].tolist()
-        self.V_from_h_cheb = MultiCheb1D(points_hs, coeffs_V_from_hs)
-        self.h_from_V_cheb = MultiCheb1D(points_Vs, coeffs_h_from_Vs)
-        self.chebshev = True
+    def set_chebshev_approximators(self, deg_forward=50, deg_backwards=200):
+        to_fit = lambda h: self.V_from_h(h, 'full')
+        c_forward = np.array(Chebfun.from_function(np.vectorize(to_fit), 
+                                          [0.0, self.h_max], N=deg_forward).coefficients())
+        self.V_from_h_cheb = lambda x : chebval((2.0*x-self.h_max)/(self.h_max), c_forward)
+        
+        to_fit = lambda h: self.h_from_V(h, 'brenth')
+        c_backward = Chebfun.from_function(np.vectorize(to_fit), [0.0, self.V_total], N=deg_backwards).coefficients()
+        self.h_from_V_cheb = lambda x : chebval((2.0*x-self.V_total)/(self.V_total), c_backward)
 
+        self.chebshev = True
 
     def _V_solver_error(self, Vtarget, D, L, horizontal, sideA, sideB, sideA_a,
                        sideB_a, sideA_f, sideA_k, sideB_f, sideB_k,
