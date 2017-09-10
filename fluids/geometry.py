@@ -1449,7 +1449,12 @@ class TANK(object):
         Surface area of sideB, [m^2]
     A_lateral : float
         Surface area of the lateral side, [m^2]
-        
+    c_forward : ndarray
+        Coefficients for the Chebyshev approximations in calculating V from h,
+        [-]
+    c_backward : ndarray
+        Coefficients for the Chebyshev approximations in calculating h from V,
+        [-]
     Notes
     -----
     For torpsherical tank heads, the following `f` and `k` parameters are used
@@ -1750,13 +1755,13 @@ class TANK(object):
             `h_from_V` curve, [-]
         '''
         to_fit = lambda h: self.V_from_h(h, 'full')
-        c_forward = np.array(Chebfun.from_function(np.vectorize(to_fit), 
+        self.c_forward = np.array(Chebfun.from_function(np.vectorize(to_fit), 
                                           [0.0, self.h_max], N=deg_forward).coefficients())
-        self.V_from_h_cheb = lambda x : chebval((2.0*x-self.h_max)/(self.h_max), c_forward)
+        self.V_from_h_cheb = lambda x : chebval((2.0*x-self.h_max)/(self.h_max), self.c_forward)
         
         to_fit = lambda h: self.h_from_V(h, 'brenth')
-        c_backward = Chebfun.from_function(np.vectorize(to_fit), [0.0, self.V_total], N=deg_backwards).coefficients()
-        self.h_from_V_cheb = lambda x : chebval((2.0*x-self.V_total)/(self.V_total), c_backward)
+        self.c_backward = Chebfun.from_function(np.vectorize(to_fit), [0.0, self.V_total], N=deg_backwards).coefficients()
+        self.h_from_V_cheb = lambda x : chebval((2.0*x-self.V_total)/(self.V_total), self.c_backward)
 
         self.chebyshev = True
 

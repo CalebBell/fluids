@@ -288,7 +288,7 @@ class UnitAwareClass(object):
         return self.wrapped.__repr__()
 
     def __init__(self, *args, **kwargs):
-        args_base, kwargs_base =  self.units_to_dimensionless('__init__', *args, **kwargs)
+        args_base, kwargs_base =  self.input_units_to_dimensionless('__init__', *args, **kwargs)
         self.wrapped = self.wrapped(*args_base, **kwargs_base)
 
                 
@@ -309,6 +309,8 @@ class UnitAwareClass(object):
                         if name == '__init__':
                             return result
                         _, _, _, out_vars, out_units = self.method_units[name]
+                        if not out_units:
+                            return
                         return convert_output(result, out_units, out_vars, self.ureg)
                         
                     return call_func_with_inputs_to_SI
@@ -358,7 +360,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
     property_unit_map = {}
     for i in dir(obj_to_wrap):
         attr = getattr(obj_to_wrap, i)
-        if isinstance(attr, types.FunctionType):
+        if isinstance(attr, types.FunctionType) or isinstance(attr, types.MethodType):
             if attr.__doc__:
                 parsed = parse_numpydoc_variables_units(attr)
                 callable_methods[attr.__name__] = clean_parsed_info(parsed)
@@ -369,15 +371,9 @@ def wrap_numpydoc_obj(obj_to_wrap):
     callable_methods['__init__'] = clean_parsed_info(parsed)
     
     if 'Attributes' in parsed:
-        try:
-            property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Attributes']['vars'], parsed['Attributes']['units'])} )
-        except:
-            print('failed', parsed['Attributes']['units'], obj_to_wrap)
+        property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Attributes']['vars'], parsed['Attributes']['units'])} )
     if 'Parameters' in parsed:
-        try:
-            property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
-        except:
-            print('failed', parsed['Parameters']['units'], obj_to_wrap)
+        property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
 
     name = obj_to_wrap.__name__
     locals()[name] = type(name, (UnitAwareClass,), 

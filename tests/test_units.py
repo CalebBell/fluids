@@ -26,6 +26,8 @@ from fluids.units import *
 
 def assert_pint_allclose(value, magnitude, units):
     assert_allclose(value.to_base_units().magnitude, magnitude)
+    if type(units) != dict:
+        units = dict(units.dimensionality)
     assert dict(value.dimensionality) == units
 
 
@@ -213,3 +215,41 @@ def test_check_signatures():
         if isinstance(obj, types.FunctionType):
             check_args_order(obj)
 
+def test_Tank_units_full():
+
+    T1 = TANK(L=3*u.m, D=150*u.cm, horizontal=True, sideA=None, sideB=None)
+    
+    # test all methods
+    V = T1.V_from_h(0.1*u.m, 'full')
+    assert_pint_allclose(V, 0.151783071377, u.m**3)
+    
+    h = T1.h_from_V(0.151783071377*u.m**3, method='brenth')
+    assert_pint_allclose(h, 0.1, u.m)
+    h = T1.h_from_V(0.151783071377*u.m**3, 'brenth')
+    assert_pint_allclose(h, 0.1, u.m)
+    
+    # Check the table and approximations
+    T1.set_table(dx=1*u.cm)
+    assert 151 == len(T1.volumes)
+    assert_pint_allclose(T1.heights[0:3], [0, 0.01, 0.02], u.m)
+    T1.set_table(n=10)
+    assert 10 == len(T1.volumes)
+    T1.set_table(n=10*u.dimensionless)
+    assert 10 == len(T1.volumes)
+    
+    T1.set_chebyshev_approximators(8, 8)
+    T1.set_chebyshev_approximators(8*u.dimensionless, 8)
+    T1.set_chebyshev_approximators(8, 8*u.dimensionless)
+    
+    assert 16 == len(T1.c_forward)
+    assert 16 == len(T1.c_backward)
+    
+    # Check the properties
+    
+    assert_pint_allclose(T1.h_max, 1.5, u.m)
+    assert_pint_allclose(T1.V_total, 5.301437602932776, u.m**3)
+    assert_pint_allclose(T1.L_over_D, 2, u.dimensionless)
+    assert_pint_allclose(T1.A_sideA, 1.76714586764, u.m**2)
+    assert_pint_allclose(T1.A_sideB, 1.76714586764, u.m**2)
+    assert_pint_allclose(T1.A_lateral, 14.1371669412, u.m**2)
+    assert_pint_allclose(T1.A, 17.6714586764, u.m**2)
