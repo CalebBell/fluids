@@ -236,6 +236,7 @@ class ATMOSPHERE_1976(object):
 
     def __init__(self, Z, dT=0):
         self.Z = Z
+        self.dT = dT
         self.H = r0*self.Z/(r0+self.Z)
 
         i = self._get_ind_from_H(self.H)
@@ -254,6 +255,7 @@ class ATMOSPHERE_1976(object):
 
         if dT: # Affects only the following properties
             self.T += dT
+            
             
         self.rho = self.density(self.T, self.P)
         self.v_sonic = self.sonic_velocity(self.T)
@@ -381,6 +383,15 @@ class ATMOSPHERE_NRLMSISE00(object):
     
     def __init__(self, Z, latitude=0, longitude=0, day=0, seconds=0, 
                  f107=150., f107_avg=150., geomagnetic_disturbance_indices=None):
+        self.Z = Z
+        self.latitude = latitude
+        self.longitude = longitude
+        self.day = day
+        self.seconds = seconds
+        self.f107 = f107
+        self.f107_avg = f107_avg
+        self.geomagnetic_disturbance_indices = geomagnetic_disturbance_indices
+        
         alt = Z/1000.
         output_obj = nrlmsise_output()
         input_obj = nrlmsise_input()

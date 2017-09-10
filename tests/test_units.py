@@ -273,3 +273,23 @@ def test_HelicalCoil_units():
         assert_pint_allclose(C1.surface_area, 0.237203604749 , u.m**2)
         assert_pint_allclose(C1.curvature, 0.06, u.dimensionless)
         assert_pint_allclose(C1.helix_angle, 0.0530019606897, u.radians)
+        
+        
+def test_ATMOSPHERE_1976_units():
+    five_km = ATMOSPHERE_1976(5000*u.m)
+    assert_pint_allclose(five_km.T, 255.675543222, u.K)
+    assert_pint_allclose(five_km.P, 54048.2861458, u.Pa)
+    assert_pint_allclose(five_km.rho, 0.73642842078, u.kg/u.m**3)
+    assert_pint_allclose(five_km.g, 9.79124107698, u.m/u.s**2)
+    assert_pint_allclose(five_km.mu, 1.62824813536e-05, u.Pa*u.s)
+    assert_pint_allclose(five_km.k, 0.0227319029514, u.W/u.K/u.m)
+    assert_pint_allclose(five_km.v_sonic, 320.54551967, u.m/u.s)
+    assert_pint_allclose(five_km.sonic_velocity(300*u.K), 347.220809082, u.m/u.s)
+
+
+def test_ATMOSPHERE_NRLMSISE00():
+    a = ATMOSPHERE_NRLMSISE00(Z=1E3*u.m, latitude=45*u.degrees, longitude=45*u.degrees, day=150*u.day)
+    assert_pint_allclose(a.T, 285.544086062, u.K)
+    assert_pint_allclose(a.rho, 1.10190620264, u.kg/u.m**3)
+    assert_pint_allclose(a.O2_density, 4.80470350725e+24, u.count/u.m**3)
+    assert_pint_allclose(a.day, 12960000, u.day)

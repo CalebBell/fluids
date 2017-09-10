@@ -528,6 +528,8 @@ for wrapper, E in zip(funcs, Es):
     globals()[wrapper] = compressible_flow_wrapper
 
 
+# NOTE: class support can't do static methods unless a class is already instantiated
+
     
 #TANK_method_input_units  = {'__init__': {'D':u.m, 'L': u.m, 'horizontal':u.dimensionless, 'sideA': u.dimensionless, 'sideB': u.dimensionless, 'sideA_a': u.m, 'sideB_a': u.m, 'sideA_f':1/u.m, 'sideB_f': 1/u.m, 'sideA_k':1/u.m, 'sideB_k':1/u.m, 'L_over_D':u.dimensionless, 'V': u.m**3},
 #               'V_from_h': {'h':u.m, 'method':u.dimensionless},
