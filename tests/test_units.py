@@ -253,3 +253,23 @@ def test_Tank_units_full():
     assert_pint_allclose(T1.A_sideB, 1.76714586764, u.m**2)
     assert_pint_allclose(T1.A_lateral, 14.1371669412, u.m**2)
     assert_pint_allclose(T1.A, 17.6714586764, u.m**2)
+    
+    
+    
+def test_HelicalCoil_units():
+    C2 = HelicalCoil(Do=30*u.cm, H=20*u.cm, pitch=5*u.cm, Dt=2*u.cm)
+    C3 = HelicalCoil(2*u.cm, 30*u.cm, 5*u.cm, 20*u.cm)
+    
+    for C1 in [C2, C3]:
+        assert_pint_allclose(C1.Dt, 0.02, u.m)
+        assert_pint_allclose(C1.Do, 0.3, u.m)
+        assert_pint_allclose(C1.Do_total, 0.32, u.m)
+        assert_pint_allclose(C1.pitch, 0.05, u.m)
+        assert_pint_allclose(C1.H, 0.2, u.m)
+        assert_pint_allclose(C1.H_total, 0.22, u.m)
+        assert_pint_allclose(C1.N, 4, u.dimensionless)
+        assert_pint_allclose(C1.tube_circumference, 0.942477796077, u.m)
+        assert_pint_allclose(C1.tube_length, 3.7752126215, u.m)
+        assert_pint_allclose(C1.surface_area, 0.237203604749 , u.m**2)
+        assert_pint_allclose(C1.curvature, 0.06, u.dimensionless)
+        assert_pint_allclose(C1.helix_angle, 0.0530019606897, u.radians)

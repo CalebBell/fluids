@@ -67,6 +67,25 @@ class ATMOSPHERE_1976(object):
         Temperature difference from standard conditions used in determining
         the properties of the atmosphere, [K]
     
+    Attributes
+    ----------
+    T : float
+        Temperature of atmosphere at specified conditions, [K]
+    P : float
+        Pressure of atmosphere at specified conditions, [Pa]
+    rho : float
+        Mass density of atmosphere at specified conditions [kg/m^3]
+    H : float
+        Geopotential height, [m]
+    g : float
+        Acceleration due to gravity, [m/s^2]
+    mu : float
+        Viscosity of atmosphere at specified conditions, [Pa*s]
+    k : float
+        Thermal conductivity of atmosphere at specified conditions, [W/m/K]
+    v_sonic : float
+        Speed of sound of atmosphere at specified conditions, [m/s]
+
     Examples
     --------
     >>> five_km = ATMOSPHERE_1976(5000)
@@ -295,7 +314,7 @@ class ATMOSPHERE_NRLMSISE00(object):
     T : float
         Temperature, [K]
     P : float
-        Pressure, calculated with ideal gas law [P]
+        Pressure, calculated with ideal gas law [Pa]
     He_density : float
         Density of helium atoms [count/m^3]
     O_density : float

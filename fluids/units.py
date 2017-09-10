@@ -276,7 +276,7 @@ def wraps_numpydoc(ureg, strict=True):
 class UnitAwareClass(object):
     wrapped = None
     ureg = u
-    strict = False
+    strict = True
     property_units = {} # for properties and attributes only
     method_input_units = {}
     method_output_units = {}

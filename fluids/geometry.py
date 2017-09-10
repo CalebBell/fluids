@@ -1894,7 +1894,7 @@ class HelicalCoil(object):
         :math:`V = D_t L`, [m^3]
     helix_angle : float
         Angle between the pitch and coil diameter; used in some calculations; 
-        :math:`\alpha = \arctan \left(\frac{p_t}{\pi D_o}\right)`, [-]
+        :math:`\alpha = \arctan \left(\frac{p_t}{\pi D_o}\right)`, [radians]
     curvature : float
         Coil curvature, useful in some calculations; 
         :math:`\delta = \frac{D_t}{D_o[1 + 4\pi^2 \tan^2(\alpha)]}`, [-]
@@ -1975,8 +1975,9 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
         self.total_inlet_area = pi/4.*self.Dt**2
         self.total_volume = self.total_inlet_area*self.tube_length
         
+        
+        self.Di = Di
         if Di:
-            self.Di = Di
             self.inner_surface_area = self.tube_length*pi*self.Di
             self.inlet_area = pi/4.*self.Di**2
             self.inner_volume = self.inlet_area*self.tube_length
