@@ -227,8 +227,6 @@ def test_geometry():
         V_from_h(h=7, D=1.5, L=5., horizontal=False)
 
 
-
-
 def test_geometry_tank():
     V1 = TANK(D=1.2, L=4, horizontal=False).V_total
     assert_allclose(V1, 4.523893421169302)
@@ -272,32 +270,42 @@ def test_geometry_tank():
     with pytest.raises(Exception):
         TANK(V=10, L=10, sideA='conical', sideA_a_ratio=None)
         
+    # Test auto set Chebyshev table
+    T = TANK(L=1.2, L_over_D=3.5)
+    assert_allclose(T.h_from_V(T.V_total, 'chebyshev'), T.h_max)
+    T = TANK(L=1.2, L_over_D=3.5)
+    assert_allclose(T.V_from_h(T.h_max, 'chebyshev'), T.V_total)
+
 @pytest.mark.slow
 def test_geometry_tank_fuzz_h_from_V():
     T = TANK(L=1.2, L_over_D=3.5, sideA='torispherical', sideB='torispherical', sideA_f=1., horizontal=True, sideA_k=0.06, sideB_f=1., sideB_k=0.06)
-    T.set_chebshev_approximators(deg_forward=100, deg_backwards=600)
+    T.set_chebyshev_approximators(deg_forward=100, deg_backwards=600)
 
     # test V_from_h - pretty easy to get right    
-    for h in np.linspace(0, T.h_max, 2000):
+    for h in np.linspace(0, T.h_max, 30):
         # It's the top and the bottom of the tank that works poorly
         V1 = T.V_from_h(h, 'full')
-        V2 = T.V_from_h(h, 'chebshev')
+        V2 = T.V_from_h(h, 'chebyshev')
         assert_allclose(V1, V2, rtol=1E-7, atol=1E-7)
+        
+    with pytest.raises(Exception):
+        T.V_from_h(1E-5, 'NOTAMETHOD')
 
     # reverse - the spline is also pretty easy, with a limited number of points
     # when the required precision is low
-    T.set_table(n=150)    
-    for V in np.linspace(0, T.V_total, 50):
+    T.set_table(n=150)
+    for V in np.linspace(0, T.V_total, 30):
         h1 = T.h_from_V(V, 'brenth')
         h2 = T.h_from_V(V, 'spline')
         assert_allclose(h1, h2, rtol=1E-5, atol=1E-6)
 
-    for V in np.linspace(0, T.V_total, 50):
-        h1 = T.h_from_V(V, 'brenth')
-        h2 = T.h_from_V(V, 'chebshev')
+        h3 = T.h_from_V(V, 'chebyshev')
         # Even with a 600-degree polynomial, there will be failures if N 
         # is high enough, but the tolerance should just be lowered
-        assert_allclose(h1, h2, rtol=1E-7, atol=1E-7)
+        assert_allclose(h1, h3, rtol=1E-7, atol=1E-7)
+    
+    with pytest.raises(Exception):
+        T.h_from_V(1E-5, 'NOTAMETHOD')
 
     
 def test_basic():

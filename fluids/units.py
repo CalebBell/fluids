@@ -148,7 +148,9 @@ def parse_numpydoc_variables_units(func):
                 # If there is no unit listed, assume it's dimensionless (probably a string)
                 matches = ['[]']
             match = matches[-1] # Assume the last bracketed group listed is the unit group 
-            match = match.replace('[', '').replace(']', '').replace('-', 'dimensionless')
+            match = match.replace('[', '').replace(']', '')
+            if len(match) == 1:
+                match = match.replace('-', 'dimensionless')
             if match == '':
                 match = 'dimensionless'
             if match == 'base SI':
@@ -267,20 +269,135 @@ def wraps_numpydoc(ureg, strict=True):
             else:
                 return convert_output(result, out_units, out_vars, ureg)
             
-
         return wrapper
     return decorator
 
 
+class UnitAwareClass(object):
+    wrapped = None
+    ureg = u
+    strict = False
+    property_units = {} # for properties and attributes only
+    method_input_units = {}
+    method_output_units = {}
+    
+    def __repr__(self):
+        '''Called only on the class instance, not any instance - ever.
+        https://stackoverflow.com/questions/10376604/overriding-special-methods-on-an-instance
+        '''
+        return self.wrapped.__repr__()
+
+    def __init__(self, *args, **kwargs):
+        args_base, kwargs_base =  self.units_to_dimensionless('__init__', *args, **kwargs)
+        self.wrapped = self.wrapped(*args_base, **kwargs_base)
+
+                
+    def __getattr__(self, name):
+        try:
+            value = getattr(self.wrapped, name)
+        except Exception as e:
+            raise Exception('Failed to get property %s with error %s' %(str(name), str(e)))
+        if value is not None:
+            if name in self.property_units:
+                return value*self.property_units[name]
+            else:
+                if hasattr(value, '__call__'):
+                    @functools.wraps(value)
+                    def call_func_with_inputs_to_SI(*args, **kwargs):
+                        args_base, kwargs_base = self.input_units_to_dimensionless(name, *args, **kwargs)
+                        result = value(*args_base, **kwargs_base)
+                        if name == '__init__':
+                            return result
+                        _, _, _, out_vars, out_units = self.method_units[name]
+                        return convert_output(result, out_units, out_vars, self.ureg)
+                        
+                    return call_func_with_inputs_to_SI
+                raise Exception('Error: Property does not yet have units attached')
+        else:
+            return value
+        
+        
+    def input_units_to_dimensionless(self, name, *values, **kw):
+        in_vars, in_units, in_vars_to_dict, out_vars, out_units = self.method_units[name]
+        conv_values = [] 
+        for val, unit in zip(values, in_units):
+            conv_values.append(convert_input(val, unit, self.ureg, self.strict))
+                    
+        # For keyword arguments, lookup their unit; convert to that;
+        # handle dimensionless arguments the same way
+        kwargs = {}
+        for name, val in kw.items():
+            unit = in_vars_to_dict[name]
+            kwargs[name] = convert_input(val, unit, self.ureg, self.strict)
+        return conv_values, kwargs
+
+
+def clean_parsed_info(parsed_info):
+    in_vars = parsed_info['Parameters']['vars']
+    in_units = parsed_info['Parameters']['units']
+    if 'Other Parameters' in parsed_info:
+        in_vars += parsed_info['Other Parameters']['vars']
+        in_units += parsed_info['Other Parameters']['units']
+    in_vars_to_dict = {}
+    for i, j in zip(in_vars, in_units):
+        in_vars_to_dict[i] = j
+        
+    out_units = parsed_info['Returns']['units']
+    out_vars = parsed_info['Returns']['vars']
+    # Handle the case of dict answers - require the first line's args to be 
+    # parsed as 'results'
+    if out_vars and 'results' == out_vars[0]:
+        out_units.pop(0)
+        out_vars.pop(0)
+        
+    return in_vars, in_units, in_vars_to_dict, out_vars, out_units
+
+
+def wrap_numpydoc_obj(obj_to_wrap):
+    callable_methods = {}
+    property_unit_map = {}
+    for i in dir(obj_to_wrap):
+        attr = getattr(obj_to_wrap, i)
+        if isinstance(attr, types.FunctionType):
+            if attr.__doc__:
+                parsed = parse_numpydoc_variables_units(attr)
+                callable_methods[attr.__name__] = clean_parsed_info(parsed)
+                if 'Attributes' in parsed:
+                    property_unit_map.update(parsed['Attributes'])
+    
+    parsed = parse_numpydoc_variables_units(obj_to_wrap)
+    callable_methods['__init__'] = clean_parsed_info(parsed)
+    
+    if 'Attributes' in parsed:
+        try:
+            property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Attributes']['vars'], parsed['Attributes']['units'])} )
+        except:
+            print('failed', parsed['Attributes']['units'], obj_to_wrap)
+    if 'Parameters' in parsed:
+        try:
+            property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
+        except:
+            print('failed', parsed['Parameters']['units'], obj_to_wrap)
+
+    name = obj_to_wrap.__name__
+    locals()[name] = type(name, (UnitAwareClass,), 
+           {'wrapped': obj_to_wrap, '__doc__': obj_to_wrap.__doc__,
+            'property_units': property_unit_map, 'method_units': callable_methods})
+    return locals()[name]
 
 
 __funcs = {}
 
 
 for name in dir(fluids):
+    if 'RectangularOffsetStripFinExchanger' in name:
+        continue
+    
     obj = getattr(fluids, name)
     if isinstance(obj, types.FunctionType):
         obj = wraps_numpydoc(u)(obj)
+    elif type(obj) == type:
+        obj = wrap_numpydoc_obj(obj)
     elif isinstance(obj, str):
         continue
     if name == '__all__':
@@ -416,3 +533,20 @@ for wrapper, E in zip(funcs, Es):
 
 
     
+#TANK_method_input_units  = {'__init__': {'D':u.m, 'L': u.m, 'horizontal':u.dimensionless, 'sideA': u.dimensionless, 'sideB': u.dimensionless, 'sideA_a': u.m, 'sideB_a': u.m, 'sideA_f':1/u.m, 'sideB_f': 1/u.m, 'sideA_k':1/u.m, 'sideB_k':1/u.m, 'L_over_D':u.dimensionless, 'V': u.m**3},
+#               'V_from_h': {'h':u.m, 'method':u.dimensionless},
+#                'h_from_V': {'V': u.m**3, 'method': u.dimensionless},
+#                'set_table': {'n': u.dimensionless, 'dx': u.m},
+#                'set_chebyshev_approximators': {'deg_forward': u.dimensionless, 'deg_backwards':u.dimensionless}}
+#
+#TANK_method_output_units = {'V_from_h': u.m**3,
+# '__init__': None,
+# 'h_from_V': u.m,
+# 'set_chebyshev_approximators': None,
+# 'set_table': None}
+#
+#TANK_properties = {'D':u.m, 'L': u.m, 'horizontal':u.dimensionless, 'sideA': u.dimensionless, 'sideB': u.dimensionless, 'sideA_a': u.m, 'sideB_a': u.m, 'sideA_f':1/u.m, 'sideB_f': 1/u.m, 'sideA_k':1/u.m, 'sideB_k':1/u.m, 'L_over_D':u.dimensionless, 'V_total': u.m**3,
+#                   'h_max': u.m, 'A': u.m**2, 'A_sideA': u.m**2, 'A_sideB': u.m**2, 'A_lateral': u.m**2}
+#
+
+

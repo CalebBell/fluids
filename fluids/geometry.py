@@ -22,9 +22,8 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import pi, sin, cos, tan, asin, acos, atan, acosh, log
-from bisect import bisect_left
 import numpy as np
-from numpy.polynomial.chebyshev import chebfit, chebval
+from numpy.polynomial.chebyshev import chebval
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
 from scipy.integrate import quad
 from scipy.optimize import newton, brenth
@@ -1390,33 +1389,6 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     return V
 
 
-class MultiCheb1D(object):
-    '''Simple class to store set of coefficients for multiple chebshev 
-    approximations and perform calculations from them.
-    '''
-    def __init__(self, points, coeffs):
-        self.points = points
-        self.coeffs = coeffs
-        self.N = len(points)-1
-        
-    def __call__(self, x):
-        coeffs = self.coeffs[bisect_left(self.points, x)]
-        return self.chebval(x, coeffs)
-                
-    @staticmethod
-    def chebval(x, c):
-        # copied from numpy's source, slightly optimized
-        # https://github.com/numpy/numpy/blob/v1.13.0/numpy/polynomial/chebyshev.py#L1093-L1177
-        x2 = 2.*x
-        c0 = c[-2]
-        c1 = c[-1]
-        for i in range(3, len(c) + 1):
-            tmp = c0
-            c0 = c[-i] - c1
-            c1 = tmp + c1*x2
-        return c0 + c1*x
-
-
 class TANK(object):
     '''Class representing tank volumes and levels. All parameters are also
     attributes.
@@ -1539,7 +1511,7 @@ class TANK(object):
     4.699531057009791
     '''
     table = False
-    chebshev = False
+    chebyshev = False
 
     def __repr__(self): # pragma: no cover
         orient = 'Horizontal' if self.horizontal else 'Vertical'
@@ -1665,43 +1637,51 @@ class TANK(object):
     def V_from_h(self, h, method='full'):
         r'''Method to calculate the volume of liquid in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
+        If the method is 'chebyshev', and the coefficients have not yet been 
+        calculated, they are created by calling `set_chebyshev_approximators`.
 
         Parameters
         ----------
         h : float
             Height specified, [m]
         method : str
-            One of 'full' (calculated rigorously) or 'chebshev'
+            One of 'full' (calculated rigorously) or 'chebyshev'
 
         Returns
         -------
         V : float
             Volume of liquid in the tank up to the specified height, [m^3]
+            
+        Notes
+        -----
+        The chebyshev app
         '''
         if method == 'full':
             return V_from_h(h, self.D, self.L, self.horizontal, self.sideA, 
                             self.sideB, self.sideA_a, self.sideB_a, 
                             self.sideA_f, self.sideA_k, self.sideB_f, 
                             self.sideB_k)
-        elif method == 'chebshev':
-            if not self.chebshev:
-                self.set_chebshev_approximators()
+        elif method == 'chebyshev':
+            if not self.chebyshev:
+                self.set_chebyshev_approximators()
             return self.V_from_h_cheb(h)
         else:
-            raise Exception("Allowable methods are 'full' or 'chebshev'.")
+            raise Exception("Allowable methods are 'full' or 'chebyshev'.")
 
     def h_from_V(self, V, method='spline'):
         r'''Method to calculate the height of liquid in a fully defined tank
         given a specified volume of liquid in it `V`. `V` must be under the
-        maximum volume. If interpolation table is not yet defined, creates it
-        by calling the method set_table.
+        maximum volume. If the method is 'spline', and the interpolation table
+        is not yet defined, creates it by calling the method set_table. If the
+        method is 'chebyshev', and the coefficients have not yet been 
+        calculated, they are created by calling `set_chebyshev_approximators`.
 
         Parameters
         ----------
         V : float
             Volume of liquid in the tank up to the desired height, [m^3]
         method : str
-            One of 'spline', 'chebshev', or 'brenth'
+            One of 'spline', 'chebyshev', or 'brenth'
 
         Returns
         -------
@@ -1712,15 +1692,15 @@ class TANK(object):
             if not self.table:
                 self.set_table()
             return float(self.interp_h_from_V(V))
-        elif method == 'chebshev':
-            if not self.chebshev:
-                self.set_chebshev_approximators()
+        elif method == 'chebyshev':
+            if not self.chebyshev:
+                self.set_chebyshev_approximators()
             return self.h_from_V_cheb(V)
         elif method == 'brenth':
             to_solve = lambda h : self.V_from_h(h, method='full') - V
             return brenth(to_solve, self.h_max, 0)
         else:
-            raise Exception("Allowable methods are 'full' or 'chebshev', "
+            raise Exception("Allowable methods are 'full' or 'chebyshev', "
                             "or 'brenth'.")
 
     def set_table(self, n=100, dx=None):
@@ -1745,7 +1725,30 @@ class TANK(object):
         self.interp_h_from_V = InterpolatedUnivariateSpline(self.volumes, self.heights, ext=3)
         self.table = True
         
-    def set_chebshev_approximators(self, deg_forward=50, deg_backwards=200):
+    def set_chebyshev_approximators(self, deg_forward=50, deg_backwards=200):        
+        r'''Method to derive and set coefficients for chebyshev polynomial 
+        function approximation of the height-volume and volume-height
+        relationship. 
+        
+        A single set of chebyshev coefficients is used for the entire height-
+        volume and volume-height relationships respectively. 
+        
+        The forward relationship, `V_from_h`, requires
+        far fewer coefficients in its fit than the reverse to obtain the same
+        relative accuracy. 
+        
+        Optionally, deg_forward or deg_backwards can be set to None to try to 
+        automatically fit the series to machine precision.
+        
+        Parameters
+        ----------
+        deg_forward : int, optional
+            The degree of the chebyshev polynomial to be created for the
+            `V_from_h` curve, [-]
+        deg_backwards : int, optional
+            The degree of the chebyshev polynomial to be created for the
+            `h_from_V` curve, [-]
+        '''
         to_fit = lambda h: self.V_from_h(h, 'full')
         c_forward = np.array(Chebfun.from_function(np.vectorize(to_fit), 
                                           [0.0, self.h_max], N=deg_forward).coefficients())
@@ -1755,7 +1758,7 @@ class TANK(object):
         c_backward = Chebfun.from_function(np.vectorize(to_fit), [0.0, self.V_total], N=deg_backwards).coefficients()
         self.h_from_V_cheb = lambda x : chebval((2.0*x-self.V_total)/(self.V_total), c_backward)
 
-        self.chebshev = True
+        self.chebyshev = True
 
     def _V_solver_error(self, Vtarget, D, L, horizontal, sideA, sideB, sideA_a,
                        sideB_a, sideA_f, sideA_k, sideB_f, sideB_k,

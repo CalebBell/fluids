@@ -269,11 +269,11 @@ class ATMOSPHERE_NRLMSISE00(object):
         Daily average 10.7 cm solar flux measurement of the strength of solar  
         emissions on the 100 MHz band centered on 2800 MHz, averaged hourly; in 
         sfu units, which are multiples of 10^-22 W/m^2/Hz; use 150 as a default 
-        [sfu]
+        [10^-22 W/m^2/Hz]
     f107_avg : float, optional
         81-day sfu average; centered on specified day if possible, otherwise
-        use the previous days [sfu]
-    geomagnetic_disturbance_indices : list[float], optional
+        use the previous days [10^-22 W/m^2/Hz]
+    geomagnetic_disturbance_indices : list of float, optional
         List of the 7 following `Ap` indexes also known as planetary magnetic 
         indexes. Has a negligible effect on the calculation. 4 is the default
         value often used for each of these values.
