@@ -181,6 +181,22 @@ def check_args_order(func):
         raise Exception('Function signature is not the same as the documentation'
                         'signature = %s; documentation = %s' %(argspec.args, parsed_parameters))
     
+    
+def match_parse_units(doc, i=-1):
+    matches = match_units.findall(doc)
+    if len(matches) == 0:
+        # If there is no unit listed, assume it's dimensionless (probably a string)
+        matches = ['[]']
+    match = matches[i] # Assume the last bracketed group listed is the unit group 
+    match = match.replace('[', '').replace(']', '')
+    if len(match) == 1:
+        match = match.replace('-', 'dimensionless')
+    if match == '':
+        match = 'dimensionless'
+    if match == 'base SI':
+        match = 'dimensionless' # TODO - write special wrappers for these cases
+    return match
+
 
 def convert_input(val, unit, ureg, strict=True):
     if val is None:
@@ -360,12 +376,22 @@ def wrap_numpydoc_obj(obj_to_wrap):
     property_unit_map = {}
     for i in dir(obj_to_wrap):
         attr = getattr(obj_to_wrap, i)
-        if isinstance(attr, types.FunctionType) or isinstance(attr, types.MethodType):
+        if isinstance(attr, types.FunctionType) or isinstance(attr, types.MethodType) or type(attr) == property:
+            if type(attr) == property:
+                name = attr.fget.__name__
+            else:
+                name = attr.__name__
             if attr.__doc__:
-                parsed = parse_numpydoc_variables_units(attr)
-                callable_methods[attr.__name__] = clean_parsed_info(parsed)
-                if 'Attributes' in parsed:
-                    property_unit_map.update(parsed['Attributes'])
+                if type(attr) == property:
+                    try:
+                        property_unit_map[name] = u(match_parse_units(attr.fget.__doc__, i=0))
+                    except:
+                        print('failed on ', attr.fget.__doc__)
+                else:
+                    parsed = parse_numpydoc_variables_units(attr)
+                    callable_methods[name] = clean_parsed_info(parsed)
+                    if 'Attributes' in parsed:
+                        property_unit_map.update(parsed['Attributes'])
     
     parsed = parse_numpydoc_variables_units(obj_to_wrap)
     callable_methods['__init__'] = clean_parsed_info(parsed)
@@ -377,7 +403,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
 
     name = obj_to_wrap.__name__
     locals()[name] = type(name, (UnitAwareClass,), 
-           {'wrapped': obj_to_wrap, '__doc__': obj_to_wrap.__doc__,
+           {'wrapped': obj_to_wrap, #'__doc__': obj_to_wrap.__doc__,
             'property_units': property_unit_map, 'method_units': callable_methods})
     return locals()[name]
 
@@ -402,6 +428,9 @@ for name in dir(fluids):
     __funcs.update({name: obj})
     
 globals().update(__funcs)
+__all__.extend(['wraps_numpydoc', 'convert_output', 'convert_input',
+                'check_args_order', 'match_parse_units', 'parse_numpydoc_variables_units', 
+                'wrap_numpydoc_obj', 'UnitAwareClass'])
 
 
 def A_multiple_hole_cylinder(Do, L, holes):
@@ -531,20 +560,3 @@ for wrapper, E in zip(funcs, Es):
 # NOTE: class support can't do static methods unless a class is already instantiated
 
     
-#TANK_method_input_units  = {'__init__': {'D':u.m, 'L': u.m, 'horizontal':u.dimensionless, 'sideA': u.dimensionless, 'sideB': u.dimensionless, 'sideA_a': u.m, 'sideB_a': u.m, 'sideA_f':1/u.m, 'sideB_f': 1/u.m, 'sideA_k':1/u.m, 'sideB_k':1/u.m, 'L_over_D':u.dimensionless, 'V': u.m**3},
-#               'V_from_h': {'h':u.m, 'method':u.dimensionless},
-#                'h_from_V': {'V': u.m**3, 'method': u.dimensionless},
-#                'set_table': {'n': u.dimensionless, 'dx': u.m},
-#                'set_chebyshev_approximators': {'deg_forward': u.dimensionless, 'deg_backwards':u.dimensionless}}
-#
-#TANK_method_output_units = {'V_from_h': u.m**3,
-# '__init__': None,
-# 'h_from_V': u.m,
-# 'set_chebyshev_approximators': None,
-# 'set_table': None}
-#
-#TANK_properties = {'D':u.m, 'L': u.m, 'horizontal':u.dimensionless, 'sideA': u.dimensionless, 'sideB': u.dimensionless, 'sideA_a': u.m, 'sideB_a': u.m, 'sideA_f':1/u.m, 'sideB_f': 1/u.m, 'sideA_k':1/u.m, 'sideB_k':1/u.m, 'L_over_D':u.dimensionless, 'V_total': u.m**3,
-#                   'h_max': u.m, 'A': u.m**2, 'A_sideA': u.m**2, 'A_sideB': u.m**2, 'A_lateral': u.m**2}
-#
-
-
