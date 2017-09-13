@@ -1,9 +1,9 @@
 Support for pint Quantities (fluids.units)
 ==========================================
 
-Basic module which wraps all fluids functions to be compatible with the
+Basic module which wraps all fluids functions and classes to be compatible with the
 `pint <https://github.com/hgrecco/pint>`_ unit handling library.
-All other object - dicts, classes, etc - are not wrapped. Supports star 
+All other object - dicts, lists, etc - are not wrapped. Supports star 
 imports; so the same objects exported when importing from the main library
 will be imported from here. 
 
@@ -13,7 +13,7 @@ There is no global unit registry in pint, and each registry must be a singleton.
 However, there is a default registry which is suitable for use in multiple
 modules at once. 
 
-This defualt registry should be imported in one of the following ways (it does
+This default registry should be imported in one of the following ways (it does
 not need to be called `u`; it can be imported from pint as `ureg` or any other
 name):
 
@@ -36,7 +36,7 @@ The result is always one or more Quantity objects, depending on the signature
 of the function called. 
 
 For arguments whose documentation specify they are dimensionless, they can
-optionaly be passed in without making them dimensionless numbers with pint.
+optionally be passed in without making them dimensionless numbers with pint.
 
 >>> speed_synchronous(50*u.Hz, poles=12)
 <Quantity(1500.0, 'revolutions_per_minute')>
@@ -63,3 +63,29 @@ exception will be raised.
 
 >>> K_separator_Watkins(985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, 0.88*u.dimensionless, horizontal=True)
 Exception: Converting 0.88 dimensionless to units of kg/m^3 raised DimensionalityError: Cannot convert from 'dimensionless' (dimensionless) to 'kilogram / meter ** 3' ([mass] / [length] ** 3)
+
+
+Support for classes is provided by wrapping each class by a proxy class which reads
+the docstrings of each method and the main class to determine the inputs and outputs.
+Properties, attributes, inputs, and units are all included.
+
+
+>>> T1 = TANK(L=3*u.m, D=150*u.cm, horizontal=True)
+>>> T1.V_total, T1.h_max
+(<Quantity(5.30143760293, 'meter ** 3')>, <Quantity(1.5, 'meter')>)
+>>> T1.V_from_h(0.1*u.m)
+<Quantity(0.151783071377, 'meter ** 3')>
+
+>>> atm = ATMOSPHERE_NRLMSISE00(Z=1E3*u.m, latitude=45*u.degrees, longitude=45*u.degrees, day=150*u.day)
+>>> atm.rho, atm.O2_density
+(<Quantity(1.10190620264, 'kilogram / meter ** 3')>, <Quantity(4.80470350725e+24, 'count / meter ** 3')>)
+
+
+Note that static methods cannot be used with the base class, only an instantiated class. This is
+because the proxy class wraps the methods only on creation of the object.
+
+>>> ATMOSPHERE_1976.thermal_conductivity(300*u.K)
+AttributeError: type object 'ATMOSPHERE_1976' has no attribute 'thermal_conductivity'
+
+>>> ATMOSPHERE_1976(0*u.m).thermal_conductivity(300*u.K)
+<Quantity(0.0262520007809, 'watt / kelvin / meter')>
