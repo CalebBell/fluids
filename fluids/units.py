@@ -29,6 +29,7 @@ import re
 import inspect
 import functools
 import collections
+from copy import copy
 import fluids
 import fluids.vectorized
 import numpy as np
@@ -231,14 +232,25 @@ class UnitAwareClass(object):
     ureg = u
     strict = True
     property_units = {} # for properties and attributes only
-    method_input_units = {}
-    method_output_units = {}
+    method_units = {}
     
     def __repr__(self):
         '''Called only on the class instance, not any instance - ever.
         https://stackoverflow.com/questions/10376604/overriding-special-methods-on-an-instance
         '''
         return self.wrapped.__repr__()
+    
+    def __add__(self, other):
+        new_obj = self.wrapped.__add__(other.wrapped)
+        new_instance = copy(self)
+        new_instance.wrapped = new_obj
+        return new_instance
+
+    def __sub__(self, other):
+        new_obj = self.wrapped.__sub__(other.wrapped)
+        new_instance = copy(self)
+        new_instance.wrapped = new_obj
+        return new_instance
 
     def __init__(self, *args, **kwargs):
         args_base, kwargs_base =  self.input_units_to_dimensionless('__init__', *args, **kwargs)
