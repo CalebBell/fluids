@@ -21,9 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-try:
+try: # pragma: no cover
     from cStringIO import StringIO
-except:
+except: # pragma: no cover
     from io import BytesIO as StringIO
 import os
 import gzip
@@ -36,17 +36,18 @@ from scipy.stats import scoreatpercentile
 F2K = lambda F : convert_temperature(F, 'f', 'k')
 
 
-try:
+try: # pragma: no cover
     from urllib.request import urlopen
     from urllib.error import HTTPError
-except ImportError:
+except ImportError: # pragma: no cover
     from urllib2 import urlopen
     from urllib2 import HTTPError
 
 folder = os.path.join(os.path.dirname(__file__), 'data')
 
 
-def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'), url="ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv"):
+def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'),
+                          url="ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv"): # # pragma: no cover
     '''Basic method to update the isd-history file from the NOAA. This is 
     useful as new weather stations are updated all the time.
     
@@ -112,6 +113,12 @@ class IntegratedSurfaceDatabaseStation(object):
     __slots__ = ['USAF', 'WBAN', 'NAME', 'CTRY', 'ST', 'ICAO', 'LAT', 'LON',
                  'ELEV', 'BEGIN', 'END']
     
+    def __repr__(self):
+        s = ('<Weather station registered in the Integrated Surface Database, '
+            'name %s, country %s, USAF %s, WBAN %s, coords (%s, %s) '
+            'Weather data from %s to %s>' )
+        return s%(self.NAME, self.CTRY, self.USAF, self.WBAN, self.LAT, self.LON, str(self.BEGIN)[0:4], str(self.END)[0:4])
+    
     def __init__(self, USAF, WBAN, NAME, CTRY, ST, ICAO, LAT, LON, ELEV, BEGIN,
                  END):
         self.USAF = USAF
@@ -129,8 +136,13 @@ class IntegratedSurfaceDatabaseStation(object):
 
 stations = []
 _latlongs = []
-
-with open(os.path.join(folder, 'isd-history-cleaned.tsv'), encoding='utf-8') as f:
+'''Read in the parsed data into 
+1) a list of latitudes and longitudes, temporary, which will get converted to
+a numpy array for use in KDTree
+2) a list of IntegratedSurfaceDatabaseStation objects; the query will return
+the index of the nearest weather stations.
+'''
+with open(os.path.join(folder, 'isd-history-cleaned.tsv')) as f:
     for line in f:
         values = line.split('\t')
         for i in range(0, 11):
@@ -154,19 +166,53 @@ station_count = len(stations)
 
 
 kd_tree = cKDTree(_latlongs) # _latlongs must be unchanged as data is not copied
-# Only end date is being used
 
 
-
-
-
-
-def get_closest_station(coords, minumum_recent_data=20140000, match_max=100):
+def get_closest_station(latitude, longitude, minumum_recent_data=20140000, 
+                        match_max=100):
+    '''Query function to find the nearest weather station to a particular 
+    set of coordinates. Optionally allows for a recent date by which the 
+    station is required to be still active at.
+    
+    Parameters
+    ----------
+    latitude : float
+        Latitude to search for nearby weather stations at, [degrees]
+    longitude : float
+        Longitude to search for nearby weather stations at, [degrees]
+    minumum_recent_data : int, optional
+        Date that the weather station is required to have more recent
+        weather data than; format YYYYMMDD; set this to 0 to not restrict data
+        by date.
+    match_max : int, optional
+        The maximum number of results in the KDTree to search for before 
+        applying the filtering criteria; an internal parameter which is
+        increased automatically if the default value is insufficient [-]
+        
+    Returns
+    -------
+    station : IntegratedSurfaceDatabaseStation
+        Instance of IntegratedSurfaceDatabaseStation which was nearest
+        to the requested coordinates and with sufficiently recent data
+        available [-]
+        
+    Notes
+    -----
+    Searching for 100 stations is a reasonable choice as it takes, ~70 
+    microseconds vs 50 microsecond to find only 1 station. The search does get 
+    slower as more points are requested. Bad data is returned from a KDTree
+    search if more points are requested than are available.
+    
+    Examples
+    --------
+    >>> get_closest_station(51.02532675, -114.049868485806, 20150000)
+    <Weather station registered in the Integrated Surface Database, name CALGARY INTL CS, country CA, USAF 713930.0, WBAN 99999.0, coords (51.1, -114.0) Weather data from 2004 to 2017>
+    '''
     # Both station strings may be important
     # Searching for 100 stations is fine, 70 microseconds vs 50 microsecond for 1
     # but there's little point for more points, it gets slower.
     # bad data is returned if k > station_count
-    distances, indexes = kd_tree.query(coords, k=min(match_max, station_count)) 
+    distances, indexes = kd_tree.query([latitude, longitude], k=min(match_max, station_count)) 
     #
     for i in indexes:
         latlon = _latlongs[i]
@@ -175,15 +221,12 @@ def get_closest_station(coords, minumum_recent_data=20140000, match_max=100):
         if enddate > minumum_recent_data:
             return stations[i]
     if match_max < station_count:
-        return get_closest_station(coords, minumum_recent_data=minumum_recent_data, match_max=match_max*10)
+        return get_closest_station(latitude, longitude, minumum_recent_data=minumum_recent_data, match_max=match_max*10)
     raise Exception('Could not find a station with more recent data than '
                     'specified near the specified coordinates.')
 
 
-#s = get_closest_station([51.02532675, -114.049868485806], 20150000)
-#print([getattr(s, i) for i in s.__slots__])
-#print(stations.index(s))
-
+# This should be agressively cached
 def get_station_year_text(station, year):
     toget = ('ftp://ftp.ncdc.noaa.gov/pub/data/gsod/' + str(year) + '/' 
              + station + '-' + str(year) +'.op.gz')
@@ -202,7 +245,5 @@ def get_station_year_text(station, year):
         year_station_data = f.read()
         return year_station_data
     
-# test case for assert
-#get_station_year_text('712650-99999', 1999)
 
 
