@@ -415,7 +415,7 @@ sample_data_random_station_1999 = '''STN--- WBAN   YEARMODA    TEMP       DEWP  
 '''
 
 
-
+@pytest.mark.slow
 @pytest.mark.online
 def test_get_station_year_text():
     downloaded_data = get_station_year_text('712650-99999', 1999).decode('utf-8')

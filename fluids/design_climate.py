@@ -47,7 +47,7 @@ folder = os.path.join(os.path.dirname(__file__), 'data')
 
 
 def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'),
-                          url="ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv"): # # pragma: no cover
+                          url="ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv"): # pragma: no cover
     '''Basic method to update the isd-history file from the NOAA. This is 
     useful as new weather stations are updated all the time.
     
@@ -152,7 +152,7 @@ with open(os.path.join(folder, 'isd-history-cleaned.tsv')) as f:
             else:
                 try:
                     values[i] = float(v)
-                    if v == 99999:
+                    if int(v) == 99999:
                         values[i] = None
                 except:
                     continue
@@ -206,7 +206,7 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
     Examples
     --------
     >>> get_closest_station(51.02532675, -114.049868485806, 20150000)
-    <Weather station registered in the Integrated Surface Database, name CALGARY INTL CS, country CA, USAF 713930.0, WBAN 99999.0, coords (51.1, -114.0) Weather data from 2004 to 2017>
+    <Weather station registered in the Integrated Surface Database, name CALGARY INTL CS, country CA, USAF 713930.0, WBAN None, coords (51.1, -114.0) Weather data from 2004 to 2017>
     '''
     # Both station strings may be important
     # Searching for 100 stations is fine, 70 microseconds vs 50 microsecond for 1
@@ -228,6 +228,21 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
 
 # This should be agressively cached
 def get_station_year_text(station, year):
+    '''Basic method to download data from the GSOD database, given a 
+    station idenfifier and year. 
+
+    Parameters
+    ----------
+    station : str
+        Station format, as a string, "USAF-WBAN", [-]
+    year : int
+        Year data should be retrieved from, [year]
+        
+    Returns
+    -------
+    data : str
+        Downloaded data file
+    '''
     toget = ('ftp://ftp.ncdc.noaa.gov/pub/data/gsod/' + str(year) + '/' 
              + station + '-' + str(year) +'.op.gz')
     try:

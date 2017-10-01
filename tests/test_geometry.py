@@ -274,12 +274,16 @@ def test_geometry_tank():
         TANK(V=10, L=10, sideA='conical', sideB_a=0.5)
     with pytest.raises(Exception):
         TANK(V=10, L=10, sideA='conical', sideA_a_ratio=None)
-        
+   
+     
+@pytest.mark.slow       
+def test_geometry_tank_chebyshev():
     # Test auto set Chebyshev table
     T = TANK(L=1.2, L_over_D=3.5)
     assert_allclose(T.h_from_V(T.V_total, 'chebyshev'), T.h_max)
     T = TANK(L=1.2, L_over_D=3.5)
     assert_allclose(T.V_from_h(T.h_max, 'chebyshev'), T.V_total)
+
 
 @pytest.mark.slow
 def test_geometry_tank_fuzz_h_from_V():
@@ -427,7 +431,7 @@ def test_PlateExchanger():
     
     ex = PlateExchanger(amplitude=5E-4, wavelength=3.7E-3)
     
-    
+
 def test_plate_enhancement_factor():
     def plate_enlargement_factor_approx(amplitude, wavelength):
         # Approximate formula
@@ -454,6 +458,8 @@ def test_plate_enhancement_factor():
     phi = plate_enlargement_factor_numerical(amplitude=0.002, wavelength=0.0126)
     assert_allclose(phi, 1.2149896289702244)
     
+@pytest.mark.slow
+def test_plate_enhancement_factor_fuzz():
     # Confirm it's correct to within 1E-7
     for x in np.linspace(1E-5, 100, 3):
         for y in np.linspace(1E-5, 100, 3):
