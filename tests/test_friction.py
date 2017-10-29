@@ -150,14 +150,17 @@ def Prandtl_von_Karman_Nikuradse_numeric(Re):
         return 1./f**0.5 + 2*log10(2.51/Re/f**0.5)
     return newton(to_solve, 0.000001)
 
+
+def test_Prandtl_von_Karman_Nikuradse():
+    Re = 200
+    assert_allclose(Prandtl_von_Karman_Nikuradse_numeric(Re),  Prandtl_von_Karman_Nikuradse(Re))
+
+
 @pytest.mark.slow
 def test_Prandtl_von_Karman_Nikuradse_full():
     for Re in np.logspace(1E-15,30,200):
         assert_allclose(Prandtl_von_Karman_Nikuradse_numeric(Re), Prandtl_von_Karman_Nikuradse(Re))
 
-def test_Prandtl_von_Karman_Nikuradse():
-    Re = 200
-    assert_allclose(Prandtl_von_Karman_Nikuradse_numeric(Re),  Prandtl_von_Karman_Nikuradse(Re))
 
 def test_helical_laminar_fd_White():
     fd = helical_laminar_fd_White(250, .02, .1)

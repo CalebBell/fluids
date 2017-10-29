@@ -22,7 +22,8 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import exp
-from scipy.constants import psi, F2K, inch, atm, C2K
+from scipy.constants import psi, inch, atm
+from fluids.core import F2K, C2K
 from fluids.compressible import is_critical_flow
 from scipy.interpolate import interp1d, interp2d
 

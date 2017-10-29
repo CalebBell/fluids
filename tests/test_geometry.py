@@ -432,6 +432,17 @@ def test_PlateExchanger():
     ex = PlateExchanger(amplitude=5E-4, wavelength=3.7E-3)
     
 
+def plate_enlargement_factor_numerical(amplitude, wavelength):
+    lambda1 = wavelength
+    b = amplitude
+    gamma = 4*b/lambda1
+    
+    def to_int(s):
+        return (1 + (gamma*pi/2)**2*cos(2*pi/lambda1*s)**2)**0.5
+    main = quad(to_int, 0, lambda1)[0]
+    
+    return main/lambda1
+
 def test_plate_enhancement_factor():
     def plate_enlargement_factor_approx(amplitude, wavelength):
         # Approximate formula
@@ -445,16 +456,6 @@ def test_plate_enhancement_factor():
     assert_allclose(phi, 1.217825410973735)
     assert_allclose(phi, 1.218, rtol=1E-3)
 
-    def plate_enlargement_factor_numerical(amplitude, wavelength):
-        lambda1 = wavelength
-        b = amplitude
-        gamma = 4*b/lambda1
-        
-        def to_int(s):
-            return (1 + (gamma*pi/2)**2*cos(2*pi/lambda1*s)**2)**0.5
-        main = quad(to_int, 0, lambda1)[0]
-        
-        return main/lambda1
     phi = plate_enlargement_factor_numerical(amplitude=0.002, wavelength=0.0126)
     assert_allclose(phi, 1.2149896289702244)
     

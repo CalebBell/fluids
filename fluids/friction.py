@@ -3161,15 +3161,15 @@ def material_roughness(ID, D=None, optimism=None):
     Parameters
     ----------
     ID : str
-        Search terms for matching pipe materials
+        Search terms for matching pipe materials, [-]
     D : float, optional
-        Diameter of desired pipe; used only if ID is in [2]_
+        Diameter of desired pipe; used only if ID is in [2]_, [m]
     optimism : bool, optional
         For values in [1]_, a minimum, maximum, and average value is normally
         given; if True, returns the minimum roughness; if False, the maximum
         roughness; and if None, returns the average roughness. Most entries do
         not have all three values, so fallback logic to return the closest
-        entry is used.
+        entry is used, [-]
 
     Returns
     -------

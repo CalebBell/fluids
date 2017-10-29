@@ -23,6 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from math import sin, exp, pi
 from scipy.constants import g, R
+import numpy as np
 
 __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
@@ -2281,3 +2282,188 @@ def P_from_head(head, rho, g=g):
 ### Synonyms
 alpha = thermal_diffusivity # synonym for thermal diffusivity
 Pr = Prandtl # Synonym
+
+
+# The following are functions which were deprecated from scipy
+# but are still desired to be here
+# Taken from scipy/constants/constants.py as in commit 
+# https://github.com/scipy/scipy/commit/4b7d325cd50e8828b06d628e69426a18283dc5b5
+# Copyright individual contributors to SciPy
+
+
+# temperature in kelvin
+zero_Celsius = 273.15
+degree_Fahrenheit = 1/1.8 # only for differences
+
+def C2K(C):
+    """
+    Convert Celsius to Kelvin
+
+    Parameters
+    ----------
+    C : array_like
+        Celsius temperature(s) to be converted.
+
+    Returns
+    -------
+    K : float or array of floats
+        Equivalent Kelvin temperature(s).
+
+    Notes
+    -----
+    Computes ``K = C + zero_Celsius`` where `zero_Celsius` = 273.15, i.e.,
+    (the absolute value of) temperature "absolute zero" as measured in Celsius.
+
+    Examples
+    --------
+    >>> from fluids.core import C2K
+    >>> C2K(np.array([-40, 40.0]))
+    array([ 233.15,  313.15])
+
+    """
+    return np.asanyarray(C) + zero_Celsius
+
+
+def K2C(K):
+    """
+    Convert Kelvin to Celsius
+
+    Parameters
+    ----------
+    K : array_like
+        Kelvin temperature(s) to be converted.
+
+    Returns
+    -------
+    C : float or array of floats
+        Equivalent Celsius temperature(s).
+
+    Notes
+    -----
+    Computes ``C = K - zero_Celsius`` where `zero_Celsius` = 273.15, i.e.,
+    (the absolute value of) temperature "absolute zero" as measured in Celsius.
+
+    Examples
+    --------
+    >>> from fluids.core import K2C
+    >>> K2C(np.array([233.15, 313.15]))
+    array([-40.,  40.])
+
+    """
+    return np.asanyarray(K) - zero_Celsius
+
+
+def F2C(F):
+    """
+    Convert Fahrenheit to Celsius
+
+    Parameters
+    ----------
+    F : array_like
+        Fahrenheit temperature(s) to be converted.
+
+    Returns
+    -------
+    C : float or array of floats
+        Equivalent Celsius temperature(s).
+
+    Notes
+    -----
+    Computes ``C = (F - 32) / 1.8``.
+
+    Examples
+    --------
+    >>> from fluids.core import F2C
+    >>> F2C(np.array([-40, 40.0]))
+    array([-40.        ,   4.44444444])
+
+    """
+    return (np.asanyarray(F) - 32) / 1.8
+
+
+def C2F(C):
+    """
+    Convert Celsius to Fahrenheit
+
+    Parameters
+    ----------
+    C : array_like
+        Celsius temperature(s) to be converted.
+
+    Returns
+    -------
+    F : float or array of floats
+        Equivalent Fahrenheit temperature(s).
+
+    Notes
+    -----
+    Computes ``F = 1.8 * C + 32``.
+
+    Examples
+    --------
+    >>> from fluids.core import C2F
+    >>> C2F(np.array([-40, 40.0]))
+    array([ -40.,  104.])
+
+    """
+    return 1.8 * np.asanyarray(C) + 32
+
+
+def F2K(F):
+    """
+    Convert Fahrenheit to Kelvin
+
+    Parameters
+    ----------
+    F : array_like
+        Fahrenheit temperature(s) to be converted.
+
+    Returns
+    -------
+    K : float or array of floats
+        Equivalent Kelvin temperature(s).
+
+    Notes
+    -----
+    Computes ``K = (F - 32)/1.8 + zero_Celsius`` where `zero_Celsius` =
+    273.15, i.e., (the absolute value of) temperature "absolute zero" as
+    measured in Celsius.
+
+    Examples
+    --------
+    >>> from fluids.core import F2K
+    >>> F2K(np.array([-40, 104]))
+    array([ 233.15,  313.15])
+
+    """
+    return C2K(F2C(np.asanyarray(F)))
+
+
+def K2F(K):
+    """
+    Convert Kelvin to Fahrenheit
+
+    Parameters
+    ----------
+    K : array_like
+        Kelvin temperature(s) to be converted.
+
+    Returns
+    -------
+    F : float or array of floats
+        Equivalent Fahrenheit temperature(s).
+
+    Notes
+    -----
+    Computes ``F = 1.8 * (K - zero_Celsius) + 32`` where `zero_Celsius` =
+    273.15, i.e., (the absolute value of) temperature "absolute zero" as
+    measured in Celsius.
+
+    Examples
+    --------
+    >>> from fluids.core import K2F
+    >>> K2F(np.array([233.15,  313.15]))
+    array([ -40.,  104.])
+
+    """
+    return C2F(K2C(np.asanyarray(K)))
