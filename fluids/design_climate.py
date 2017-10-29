@@ -29,11 +29,12 @@ import os
 import gzip
 
 import numpy as np
-from scipy.constants import convert_temperature, mile, knot, inch
+from fluids.core import F2K
+from scipy.constants import mile, knot, inch
 from scipy.spatial import KDTree, cKDTree
 from scipy.stats import scoreatpercentile
 
-F2K = lambda F : convert_temperature(F, 'f', 'k')
+#F2K = lambda F : convert_temperature(F, 'f', 'k')
 
 
 try: # pragma: no cover
