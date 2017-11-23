@@ -142,7 +142,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
     .. [3] Branan, Carl R. Pocket Guide to Chemical Engineering. 1st edition. 
        Houston, Tex: Gulf Professional Publishing, 1999.
     '''
-    factor = (1-x)/x*(rhog/rhol)**0.5
+    factor = (1. - x)/x*(rhog/rhol)**0.5
     if method == 'spline':
         K = float(Watkins_interp(factor))
     elif method == 'blackwell':
@@ -152,7 +152,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
         C = -0.1870744085
         D = -0.0145228667
         E = -0.00101148518
-        K = exp(A + B*X + C*X**2 + D*X**3 + E*X**4)
+        K = exp(A + X*(B + X*(C + X*(D + E*X))))
     elif method == 'branan':
         X = log(factor)
         A = -1.942936
@@ -161,7 +161,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
         D = -0.0123790
         E = 0.000386235
         F = 0.000259550
-        K = exp(A + B*X + C*X**2 + D*X**3 + E*X**4 + F*X**5)
+        K = exp(A + X*(B + X*(C + X*(D + X*(E + F*X)))))
     else:
         raise Exception("Only methods 'spline', 'branan', and 'blackwell' are supported.")
     K *= foot # Converts units of ft/s to m/s; the graph and all fits are in ft/s 
