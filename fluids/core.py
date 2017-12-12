@@ -36,7 +36,28 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'head_from_K', 'head_from_P',
 'P_from_head', 'Eotvos']
 
+def within_tol(x, y, atol, rtol):
+    return abs(x - y) <= max(rtol * max(np.abs(x), np.abs(y)), atol)
 
+def assert_allclose(actual, desired, rtol=1e-07, atol=0):
+#    f = open('/tmp/counter')
+#    n = int(f.read().strip())
+#    n += 1
+#    open('/tmp/counter', 'w').write(str(n))
+    if type(actual) == list and len(actual) == 1:
+        actual = actual[0]
+    if type(desired) == list and len(desired) == 1:
+        desired = desired[0]
+    actual, desired = np.asanyarray(actual), np.asanyarray(desired)
+    if actual.ndim == 0:
+        assert within_tol(actual, desired, atol, rtol)
+    elif actual.ndim == 2:
+        for actual1, desired1 in zip(actual, desired):
+            for x, y in zip(actual1, desired1):
+                assert within_tol(x, y, atol, rtol)
+    else:
+        for x, y in zip(actual, desired):
+            assert within_tol(x, y, atol, rtol)
 
 ### Not quite dimensionless groups
 def thermal_diffusivity(k, rho, Cp):
