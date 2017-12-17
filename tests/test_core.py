@@ -177,6 +177,10 @@ def test_core_dimensionless():
     
     De = Dean(10000, 0.1, 0.4)
     assert_allclose(De, 5000.0)
+    
+    Stk = Stokes_number(V=0.9, Dp=1E-5, D=1E-3, rhop=1000, mu=1E-5)
+    assert_allclose(Stk, 0.5)
+    
 
 def test_core_misc2():
     mu1 = nu_mu_converter(998., nu=1.0E-6)

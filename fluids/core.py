@@ -29,7 +29,7 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
 'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond', 'Dean',
 'Froude', 'Strouhal', 'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
-'Jakob', 'Power_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
+'Jakob', 'Power_number', 'Stokes_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
 'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
 'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'L_from_K', 'dP_from_K', 
@@ -1520,6 +1520,53 @@ def Drag(F, A, V, rho):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
     return F/(A*rho*V**2/2.)
+
+
+def Stokes_number(V, Dp, D, rhop, mu):
+    r'''Calculates Stokes Number for a given characteristic velocity `V`, 
+    particle diameter `Dp`, characteristic diameter `D`, particle density 
+    `rhop`, and fluid viscosity `mu`.
+
+    .. math::
+        \text{Stk} = \frac{\rho_p V D_p^2}{18\mu_f D}
+
+    Parameters
+    ----------
+    V : float
+        Characteristic velocity (often superficial), [m/s]
+    Dp : float
+        Particle diameter, [m]
+    D : float
+        Characteristic diameter (ex demister wire diameter or cyclone 
+        diameter), [m]
+    rhop : float
+        Particle density, [kg/m^3]
+    mu : float
+        Fluid viscosity, [Pa*s]
+    
+    Returns
+    -------
+    Stk : float
+        Stokes numer, [-]
+
+    Notes
+    -----
+    Used in droplet impaction or collection studies.
+
+    Examples
+    --------
+    >>> Stokes_number(V=0.9, Dp=1E-5, D=1E-3, rhop=1000, mu=1E-5)
+    0.5
+
+    References
+    ----------
+    .. [1] Rhodes, Martin J. Introduction to Particle Technology. Wiley, 2013.
+    .. [2] Al-Dughaither, Abdullah S., Ahmed A. Ibrahim, and Waheed A. 
+       Al-Masry. "Investigating Droplet Separation Efficiency in Wire-Mesh Mist
+       Eliminators in Bubble Column." Journal of Saudi Chemical Society 14, no.
+       4 (October 1, 2010): 331-39. https://doi.org/10.1016/j.jscs.2010.04.001.
+    '''
+    return rhop*V*(Dp*Dp)/(18.0*mu*D)
 
 
 def Capillary(V, mu, sigma):
