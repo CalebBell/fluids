@@ -89,16 +89,16 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
     of Blackwell (1984) [2]_, as follows:
     
     .. math::
-        K_{SB} = \exp(-1.942936 -0.814894X -0.179390 CX^2 -0.0123790 DX^3
-        + 0.000386235 EX^4 + 0.000259550 FX^5)
+        K_{SB} = \exp(-1.942936 -0.814894X -0.179390 X^2 -0.0123790 X^3
+        + 0.000386235 X^4 + 0.000259550 X^5)
 
         X = \log\left[\frac{(1-x)}{x}\sqrt{\rho_g/\rho_l}\right]
     
     The second is that of Branan (1999), as follows:
     
     .. math::
-        K_{SB} = \exp(-1.877478097 -0.81145804597X -0.1870744085 CX^2 
-        -0.0145228667 DX^3 -0.00101148518 EX^4)
+        K_{SB} = \exp(-1.877478097 -0.81145804597X -0.1870744085 X^2 
+        -0.0145228667 X^3 -0.00101148518 X^4)
     
         X = \log\left[\frac{(1-x)}{x}\sqrt{\rho_g/\rho_l}\right]
 
@@ -252,8 +252,9 @@ def K_separator_demister_York(P, horizontal=False):
 def v_Sounders_Brown(K, rhol, rhog):
     r'''Calculates the maximum allowable vapor velocity in a two-phase 
     separator to permit separation between entrained droplets and the gas
-    using an emperical `K` factor. This is a simplifying expression for 
-    terminal velocity and drag on particles.
+    using an emperical `K` factor, named after Sounders and Brown [1]_.
+    This is a simplifying expression for terminal velocity and drag on 
+    particles.
     
     .. math::
         v_{max} =  K_{SB} \sqrt{\frac{\rho_l-\rho_g}{\rho_g}}
@@ -286,9 +287,10 @@ def v_Sounders_Brown(K, rhol, rhog):
         v_{term} = K_{SB} \sqrt{\frac{4 g d_p}{3 C_D}}
         
     Note this form corresponds to the Newton's law range (Re > 500), but in 
-    reality droplets are normally in the intermediate or Stoke's law region.
-    For this reason using the drag coefficient expression directly is cleaner,
-    but identical results can be found with the Sounders Brown equation.
+    reality droplets are normally in the intermediate or Stoke's law region 
+    [2]_. For this reason using the drag coefficient expression directly is 
+    cleaner, but identical results can be found with the Sounders Brown 
+    equation.
 
     Examples
     --------
@@ -297,7 +299,10 @@ def v_Sounders_Brown(K, rhol, rhog):
 
     References
     ----------
-    .. [1] Vasude, Gael D. Ulrich and Palligarnai T. Chemical Engineering 
+    .. [1] Souders, Mott., and George Granger. Brown. "Design of Fractionating 
+       Columns I. Entrainment and Capacity." Industrial & Engineering Chemistry
+       26, no. 1 (January 1, 1934): 98-103. https://doi.org/10.1021/ie50289a025.
+    .. [2] Vasude, Gael D. Ulrich and Palligarnai T. Chemical Engineering 
        Process Design and Economics : A Practical Guide. 2nd edition. Durham, 
        N.H: Process Publishing, 2004.
     '''
