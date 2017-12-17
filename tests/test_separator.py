@@ -36,3 +36,27 @@ def test_K_separator_Watkins():
 
     with pytest.raises(Exception):
         K_separator_Watkins(0.88, 985.4, 1.3, horizontal=True, method='BADMETHOD')
+        
+        
+def test_K_separator_demister_York():
+    from scipy.constants import  psi
+    Ks_expect = [0.056387999999999994, 0.056387999999999994, 0.09662736507185091,
+                 0.10667999999999998, 0.10520347947487964, 0.1036391539227465, 0.07068690636639535]
+    Ks = []
+    for P in [.1, 1, 10, 20, 40, 50, 5600]:
+        Ks.append(K_separator_demister_York(P*psi))
+        
+    assert_allclose(Ks, Ks_expect)
+    
+    K  = K_separator_demister_York(25*psi, horizontal=True)
+    assert_allclose(K, 0.13334999999999997)
+    
+    
+def test_v_Sounders_Brown():
+    v = v_Sounders_Brown(K=0.08, rhol=985.4, rhog=1.3)
+    assert_allclose(v, 2.2010906387516167)
+    
+    
+def test_K_Sounders_Brown_theoretical():
+    K = K_Sounders_Brown_theoretical(D=150E-6, Cd=0.5)
+    assert_allclose(K, 0.06263114241333939)
