@@ -247,7 +247,7 @@ def get_station_year_text(station, year):
     toget = ('ftp://ftp.ncdc.noaa.gov/pub/data/gsod/' + str(year) + '/' 
              + station + '-' + str(year) +'.op.gz')
     try:
-        data = urlopen(toget)
+        data = urlopen(toget, timeout=5)
     except Exception as e:
         raise Exception('Could not obtain desired data; check '
                         'if the year has data published for the '

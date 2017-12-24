@@ -1132,6 +1132,14 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     >>> v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-3)
     0.004142497244531304
 
+    Example 7-1 in GPSA handbook, 13th edition:
+        
+    >>> from scipy.constants import *
+    >>> v_terminal(D=150E-6, rhop=31.2*lb/foot**3, rho=2.07*lb/foot**3,  mu=1.2e-05)/foot
+    0.4491992020345101
+    
+    The answer reported there is 0.46 ft/sec.
+
     References
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
@@ -1148,7 +1156,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
         V2 = (4/3.*g*D*(rhop-rho)/rho/Cd)**0.5
         return (V-V2)
     return fsolve(err, 1.)'''
-    v_lam = g*D**2*(rhop-rho)/(18*mu)
+    v_lam = g*D*D*(rhop-rho)/(18*mu)
     Re_lam = Reynolds(V=v_lam, D=D, rho=rho, mu=mu)
     if Re_lam < 0.01:
         return v_lam
