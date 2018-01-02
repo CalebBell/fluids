@@ -712,16 +712,13 @@ fan_bare_shaft_efficiencies = {'FEG90': FEG90,
                                'FEG50': FEG50}
 
 # TODO convert efficiencies to fractions
-
-for values in fan_bare_shaft_efficiencies.values():
-    for i in range(len(values)):
-        values[i] = values[i]*1E-2
         
 '''for key, values in fan_bare_shaft_efficiencies.items():
     plt.plot(fan_diameters, values, label=key)
 
 plt.legend()
 plt.show()'''
+
 
 
 FMEG_axial_powers = [125.0, 300.0, 1000.0, 2500.0, 5000.0, 8000.0, 10000.0, 20000.0, 60000.0, 160000.0, 300000.0, 375000.0, 500000.0]
@@ -750,12 +747,76 @@ fan_driven_axial_efficiencies = {'FMEG27': FMEG27,
                                  'FMEG50': FMEG50,
                                  'FMEG53': FMEG53,
                                  'FMEG55': FMEG55,
-                                 'FMEG55': FMEG55,
                                  'FMEG58': FMEG58,
                                  'FMEG60': FMEG60,
                                  'FMEG62': FMEG62,
                                  'FMEG64': FMEG64,
                                  'FMEG66': FMEG66}
-for values in fan_driven_axial_efficiencies.values():
-    for i in range(len(values)):
-        values[i] = values[i]*1E-2
+
+FMEG_centrifugal_backward_powers = FMEG_axial_powers
+FMEG35 = [15, 19, 24.5, 28.7, 31.8, 34, 35, 35.7, 36.9, 38, 38.7, 38.9, 39.2]
+FMEG39 = [19, 23, 28.5, 32.7, 35.8, 38, 39, 39.7, 40.9, 42, 42.7, 42.9, 43.2]
+FMEG42 = [22, 26, 31.5, 35.7, 38.8, 41, 42, 42.7, 43.9, 45, 45.7, 45.9, 46.2]
+FMEG46 = [26, 30, 35.5, 39.7, 42.8, 45, 46, 46.7, 47.9, 49, 49.7, 49.9, 50.2]
+FMEG50 = [30, 34, 39.5, 43.7, 46.8, 49, 50, 50.7, 51.9, 53, 53.7, 53.9, 54.2]
+FMEG53 = [33, 37, 42.5, 46.7, 49.8, 52, 53, 53.7, 54.9, 56, 56.7, 56.9, 57.2]
+FMEG55 = [35, 39, 44.5, 48.7, 51.8, 54, 55, 55.7, 56.9, 58, 58.7, 58.9, 59.2]
+FMEG58 = [38, 42, 47.5, 51.7, 54.8, 57, 58, 58.7, 59.9, 61, 61.7, 61.9, 62.2]
+FMEG60 = [40, 44, 49.5, 53.7, 56.8, 59, 60, 60.7, 61.9, 63, 63.7, 63.9, 64.2]
+FMEG62 = [42, 46, 51.5, 55.7, 58.8, 61, 62, 62.7, 63.9, 65, 65.7, 65.9, 66.2]
+FMEG64 = [44, 48, 53.5, 57.7, 60.8, 63, 64, 64.7, 65.9, 67, 67.7, 67.9, 68.2]
+FMEG66 = [46, 50, 55.5, 59.7, 62.8, 65, 66, 66.7, 67.9, 69, 69.7, 69.9, 70.2]
+FMEG68 = [48, 52, 57.5, 61.7, 64.8, 67, 68, 68.7, 69.9, 71, 71.7, 71.9, 72.2]
+FMEG70 = [50, 54, 59.5, 63.7, 66.8, 69, 70, 70.7, 71.9, 73, 73.7, 73.9, 74.2]
+FMEG72 = [52, 56, 61.5, 65.7, 68.8, 71, 72, 72.7, 73.9, 75, 75.7, 75.9, 76.2]
+FMEG74 = [54, 58, 63.5, 67.7, 70.8, 73, 74, 74.7, 75.9, 77, 77.7, 77.9, 78.2]
+FMEG76 = [56, 60, 65.5, 69.7, 72.8, 75, 76, 76.7, 77.9, 79, 79.7, 79.9, 80.2]
+
+fan_centrifugal_backward_efficiencies = {'FMEG35': FMEG35,
+                                         'FMEG39': FMEG39,
+                                         'FMEG42': FMEG42,
+                                         'FMEG46': FMEG46,
+                                         'FMEG50': FMEG50,
+                                         'FMEG53': FMEG53,
+                                         'FMEG55': FMEG55,
+                                         'FMEG55': FMEG55,
+                                         'FMEG58': FMEG58,
+                                         'FMEG60': FMEG60,
+                                         'FMEG62': FMEG62,
+                                         'FMEG64': FMEG64,
+                                         'FMEG66': FMEG66,
+                                         'FMEG68': FMEG68,
+                                         'FMEG70': FMEG70,
+                                         'FMEG72': FMEG72,
+                                         'FMEG74': FMEG74,
+                                         'FMEG76': FMEG76}
+
+FMEG_cross_flow_powers = [130.0, 300.0, 500.0, 800.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 8000.0, 10000.0, 16000.0, 22000.0]
+
+FMEG08 = [3, 4, 4.6, 5.1, 5.4, 6.2, 6.7, 7, 7.2, 7.8, 8, 8, 8]
+FMEG11 = [6, 7, 7.6, 8.1, 8.4, 9.2, 9.7, 10, 10.2, 10.8, 11, 11, 11]
+FMEG14 = [9, 10, 10.6, 11.1, 11.4, 12.2, 12.7, 13, 13.2, 13.8, 14, 14, 14]
+FMEG19 = [14, 15, 15.6, 16.1, 16.4, 17.2, 17.7, 18, 18.2, 18.8, 19, 19, 19]
+FMEG23 = [18, 19, 19.6, 20.1, 20.4, 21.2, 21.7, 22, 22.2, 22.8, 23, 23, 23]
+FMEG28 = [23, 24, 24.6, 25.1, 25.4, 26.2, 26.7, 27, 27.2, 27.8, 28, 28, 28]
+FMEG32 = [27, 28, 28.6, 29.1, 29.4, 30.2, 30.7, 31, 31.2, 31.8, 32, 32, 32]
+
+fan_crossflow_efficiencies = {'FMEG08': FMEG08,
+                              'FMEG11': FMEG11,
+                              'FMEG14': FMEG14,
+                              'FMEG19': FMEG19,
+                              'FMEG23': FMEG23,
+                              'FMEG28': FMEG28,
+                              'FMEG32': FMEG32}
+
+'''Convert the efficiencies of: 
+    * Bare shafts
+    * Centrifugal backward bladed mixed flow fans
+    * Cross flow driven fans
+    * Driven forward curved radial centrifugal fans
+to fractions, instead of percents.
+'''
+for d in (fan_bare_shaft_efficiencies, fan_driven_axial_efficiencies, fan_centrifugal_backward_efficiencies, fan_crossflow_efficiencies):
+    for values in d.values():
+        for i in range(len(values)):
+            values[i] = values[i]*1E-2
