@@ -634,3 +634,51 @@ voltages_1_phase_residential = [100, 110, 115, 120, 127, 220, 230, 240]
 voltages_3_phase = [120, 190, 200, 208, 220, 230, 240, 277, 380, 400, 415, 440, 480]
 frequencies = [50, 60]
 
+
+# https://www.grainger.com/content/supplylink-v-belt-maintenance-key-to-electric-motor-efficiency
+# Source of values for v belt, notched, and synchronous
+# Technology assessment: energy-efficient belt transmissions
+# Source of cogged value, their range is 95-98
+
+V_BELT = 'V'
+COGGED_V_BELT = 'cogged'
+
+NOTCHED_BELT = 'notched'
+SYNCHRONOUS_BELT = 'synchronous'
+
+belt_efficiencies = {V_BELT: 0.95,
+                     NOTCHED_BELT: 0.97,
+                     COGGED_V_BELT: 0.965,
+                     SYNCHRONOUS_BELT: 0.98}
+
+
+DEEP_GROOVE_BALL = "Deep groove ball"
+ANGULAR_CONTACT_BALL_SINGLE_ROW = "Angular contact ball Single row"
+ANGULAR_CONTACT_BALL_DOUBLE_ROW = "Angular contact ball Double row"
+FOUR_POINT_CONTACT_BALL = "Four point contact ball"
+SELF_ALIGNING_BALL = "Self aligning ball"
+CYLINDRICAL_ROLLER_WITH_CAGE = "Cylindrical roller with cage"
+CYLINDRICAL_ROLLER_FULL_COMPLEMENT = "Cylindrical roller full complement"
+NEEDLE_ROLLER = "Needle roller"
+TAPER_ROLLER = "Taper roller"
+SPHERICAL_ROLLER = "Spherical roller"
+THRUST_BALL = "Thrust ball"
+CYLINDRICAL_ROLLER_THRUST = "Cylindrical roller thrust"
+NEEDLE_ROLLER_THRUST = "Needle roller thrust"
+SPHERICAL_ROLLER_THRUST = "Spherical roller thrust"
+
+
+bearing_friction_factors = {DEEP_GROOVE_BALL: 0.0015,
+ANGULAR_CONTACT_BALL_SINGLE_ROW: 0.002,
+ANGULAR_CONTACT_BALL_DOUBLE_ROW: 0.0024,
+FOUR_POINT_CONTACT_BALL: 0.0024,
+SELF_ALIGNING_BALL: 0.001,
+CYLINDRICAL_ROLLER_WITH_CAGE: 0.0011,
+CYLINDRICAL_ROLLER_FULL_COMPLEMENT: 0.002,
+NEEDLE_ROLLER: 0.0025,
+TAPER_ROLLER: 0.0018,
+SPHERICAL_ROLLER: 0.0018,
+THRUST_BALL: 0.0013,
+CYLINDRICAL_ROLLER_THRUST: 0.005,
+NEEDLE_ROLLER_THRUST: 0.005,
+SPHERICAL_ROLLER_THRUST: 0.0018}
