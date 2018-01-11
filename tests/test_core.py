@@ -181,6 +181,18 @@ def test_core_dimensionless():
     Stk = Stokes_number(V=0.9, Dp=1E-5, D=1E-3, rhop=1000, mu=1E-5)
     assert_allclose(Stk, 0.5)
     
+    Hg = Hagen(Re=2610, fd=1.935235)
+    assert_allclose(Hg, 6591507.17175)
+    # Where fd was obtained from:
+    def Hagen2(rho, D, mu):
+        return rho*D**3/mu**2
+
+    correct = Hagen2(rho=992., mu=653E-6, D=6.568E-3)*10000
+    
+    guess = Hagen(Re=2610, fd=1.935235)
+    assert_allclose(correct, guess)
+
+    
 
 def test_core_misc2():
     mu1 = nu_mu_converter(998., nu=1.0E-6)

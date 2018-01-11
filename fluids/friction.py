@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import log, log10, exp
+from math import log, log10, exp, cos, sin, tan
 from scipy.special import lambertw
 from scipy.constants import inch
 from fluids.core import Dean
@@ -55,7 +55,8 @@ __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 'Clamond',
 'helical_transition_Re_Ito', 'helical_transition_Re_Kubair_Kuloor', 
 'helical_transition_Re_Kutateladze_Borishanskii', 
 'helical_transition_Re_Schmidt', 'helical_transition_Re_Srinivasan',
-'LAMINAR_TRANSITION_PIPE', 'oregon_smooth_data']
+'LAMINAR_TRANSITION_PIPE', 'oregon_smooth_data',
+'friction_plate_Martin_1999']
 
 
 LAMINAR_TRANSITION_PIPE = 2040.
@@ -2763,6 +2764,89 @@ def friction_factor_curved(Re, Di, Dc, roughness=0, Method=None,
     if not Darcy:
         f *= 4
     return f
+
+### Plate heat exchanger single phase
+
+def friction_plate_Martin_1999(Re, plate_enlargement_factor):
+    r'''Calculates Darcy friction factor for single-phase flow in a 
+    Chevron-style plate heat exchanger according to [1]_. 
+    
+    .. math::
+        \frac{1}{\sqrt{f_f}} = \frac{\cos \phi}{\sqrt{0.045\tan\phi
+        + 0.09\sin\phi + f_0/\cos(\phi)}} + \frac{1-\cos\phi}{\sqrt{3.8f_1}}
+        
+        f_0 = 16/Re \text{ for } Re < 2000
+        
+        f_0 = (1.56\ln Re - 3)^{-2} \text{ for } Re \ge 2000
+        
+        f_1 = \frac{149}{Re} + 0.9625 \text{ for } Re < 2000
+        
+        f_1 = \frac{9.75}{Re^{0.289}} \text{ for } Re \ge 2000
+        
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with respect to the hydraulic diameter of the channels,
+        [-]
+    plate_enlargement_factor : float
+        The extra surface area multiplier as compared to a flat plate
+        caused the corrugations, [-]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor [-]
+
+    Notes
+    -----
+    Based on experimental data from Re from 200 - 10000 and enhancement 
+    factors calculated with chevron angles of 0 to 80 degrees. See 
+    `PlateExchanger` for further clarification on the definitions.
+    
+    The length the friction factor gets multiplied by is not the flow path
+    length, but rather the straight path length from port to port as if there
+    were no chevrons.
+    
+    Note there is a discontinuity at Re = 2000 for the transition from
+    laminar to turbulent flow, although the lirerature suggests the transition
+    is actually smooth.
+    
+    This was first developed in [2]_ and only minor modifications by the 
+    original author were made before its republication in [1]_. 
+    This formula is also suggested in [3]_
+
+    Examples
+    --------
+    >>> friction_plate_Martin_1999(Re=20000, plate_enlargement_factor=1.15)
+    2.284018089834134
+
+    References
+    ----------
+    .. [1] Martin, Holger. "Economic optimization of compact heat exchangers."
+       EF-Conference on Compact Heat Exchangers and Enhancement Technology for 
+       the Process Industries, Banff, Canada, July 18-23, 1999, 1999. 
+       https://publikationen.bibliothek.kit.edu/1000034866.
+    .. [2] Martin, Holger. "A Theoretical Approach to Predict the Performance 
+       of Chevron-Type Plate Heat Exchangers." Chemical Engineering and 
+       Processing: Process Intensification 35, no. 4 (January 1, 1996): 301-10. 
+       https://doi.org/10.1016/0255-2701(95)04129-X.
+    .. [3] Shah, Ramesh K., and Dusan P. Sekulic. Fundamentals of Heat 
+       Exchanger Design. 1st edition. Hoboken, NJ: Wiley, 2002.
+    '''
+    phi = plate_enlargement_factor
+    
+    if Re < 2000.:
+        f0 = 16./Re
+        f1 = 149./Re + 0.9625
+    else:
+        f0 = (1.56*log(Re) - 3.0)**-2
+        f1 = 9.75*Re**-0.289
+        
+    rhs = cos(phi)*(0.045*tan(phi) + 0.09*sin(phi) + f0/cos(phi))**-0.5
+    rhs += (1. - cos(phi))*(3.8*f1)**-0.5
+    ff = rhs**-2.
+    return ff*4.0
+
 
 
 # Data from the Handbook of Hydraulic Resistance, 4E, in format (min, max, avg)

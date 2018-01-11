@@ -30,7 +30,7 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond', 'Dean',
 'Froude', 'Strouhal', 'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
 'Jakob', 'Power_number', 'Stokes_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
-'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'thermal_diffusivity', 'c_ideal_gas',
+'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'Hagen', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
 'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'L_from_K', 'dP_from_K', 
 'head_from_K', 'head_from_P',
@@ -1758,7 +1758,61 @@ def Suratman(L, rho, mu, sigma):
     '''
     return rho*sigma*L/(mu*mu)
 
+
+def Hagen(Re, fd):
+    r'''Calculates Hagen number, `Hg`, for a fluid with the given
+    Reynolds number and friction factor.
+
+    .. math::
+        \text{Hg} = \frac{f_d}{2} Re^2 = \frac{1}{\rho} 
+        \frac{\Delta P}{\Delta z} \frac{D^3}{\nu^2} 
+        = \frac{\rho\Delta P D^3}{\mu^2 \Delta z}
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number [-]
+    fd : float, optional
+        Darcy friction factor, [-]
+
+    Returns
+    -------
+    Hg : float
+        Hagen number, [-]
+
+    Notes
+    -----
+    Introduced in [1]_; further use of it is mostly of the correlations
+    introduced in [1]_.
     
+    Notable for use use in correlations, because it does not have any 
+    dependence on velocity.
+    
+    This expression is useful when designing backwards with a pressure drop
+    spec already known.
+    
+    Examples
+    --------
+    Example from [3]_:
+        
+    >>> Hagen(Re=2610, fd=1.935235)
+    6591507.17175
+
+    References
+    ----------
+    .. [1] Martin, Holger. "The Generalized Lévêque Equation and Its Practical 
+       Use for the Prediction of Heat and Mass Transfer Rates from Pressure 
+       Drop." Chemical Engineering Science, Jean-Claude Charpentier 
+       Festschrift Issue, 57, no. 16 (August 1, 2002): 3217-23. 
+       https://doi.org/10.1016/S0009-2509(02)00194-X.
+    .. [2] Shah, Ramesh K., and Dusan P. Sekulic. Fundamentals of Heat 
+       Exchanger Design. 1st edition. Hoboken, NJ: Wiley, 2002.
+    .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
+       Berlin; New York:: Springer, 2010.
+    '''
+    return 0.5*fd*Re*Re
+
+
 def Bejan_L(dP, L, mu, alpha):
     r'''Calculates Bejan number of a length or `Be_L` for a fluid with the
     given parameters flowing over a characteristic length `L` and experiencing

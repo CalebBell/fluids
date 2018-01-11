@@ -283,3 +283,10 @@ def test_friction_factor_curved():
     # Test the Fanning case
     fd = friction_factor_curved(2E4, 0.01, .02, Darcy=False)
     assert_allclose(fd, 0.2005385864864121)
+    
+def test_friction_plate():
+    fd = friction_plate_Martin_1999(Re=20000, plate_enlargement_factor=1.15)
+    assert_allclose(fd, 2.284018089834134)
+    
+    fd = friction_plate_Martin_1999(Re=1999, plate_enlargement_factor=1.15)
+    assert_allclose(fd, 2.749383588479863)
