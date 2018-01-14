@@ -56,7 +56,8 @@ __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 'Clamond',
 'helical_transition_Re_Kutateladze_Borishanskii', 
 'helical_transition_Re_Schmidt', 'helical_transition_Re_Srinivasan',
 'LAMINAR_TRANSITION_PIPE', 'oregon_smooth_data',
-'friction_plate_Martin_1999', 'friction_plate_Martin_VDI']
+'friction_plate_Martin_1999', 'friction_plate_Martin_VDI',
+'friction_plate_Kumar']
 
 
 LAMINAR_TRANSITION_PIPE = 2040.
@@ -2927,6 +2928,55 @@ def friction_plate_Martin_VDI(Re, plate_enlargement_factor):
     rhs = cos(phi)*(b*tan(phi) + c*sin(phi) + f0/cos(phi))**-0.5
     rhs += (1. - cos(phi))*(a*f1)**-0.5
     return rhs**-2.0
+
+Kumar_beta_list = [30, 45, 50, 60, 65]
+
+Kumar_fd_Res = [[10, 100],
+      [15, 300],
+      [20, 300],
+      [40, 400],
+      [50, 500]]
+
+Kumar_C2s = [[50.0, 19.40, 2.990],
+       [47.0, 18.29, 1.441],
+       [34.0, 11.25, 0.772],
+       [24.0, 3.24, 0.760],
+       [24.0, 2.80, 0.639]]
+
+# Is the second in the first row 0.589 (paper) or 0.598 (PHEWorks)
+# Believed to be the values from the paper, where this graph was 
+# curve fit as the original did not contain and coefficients only a plot
+Kumar_Ps = [[1.0, 0.589, 0.183],
+      [1.0, 0.652, 0.206], 
+      [1.0, 0.631, 0.161],
+      [1.0, 0.457, 0.215],
+      [1.0, 0.451, 0.213]]
+
+
+def friction_plate_Kumar(Re, chevron_angle):
+    # Uses the standard diameter as characteristic diameter
+    # Applicable only to well designed Chevron PHEs
+    beta_list_len = len(Kumar_beta_list)
+    
+    for i in range(beta_list_len):
+        if chevron_angle <= Kumar_beta_list[i]:
+            C2_options, p_options, Re_ranges = Kumar_C2s[i], Kumar_Ps[i], Kumar_fd_Res[i]
+            break
+        elif i == beta_list_len-1:
+            C2_options, p_options, Re_ranges = Kumar_C2s[-1], Kumar_Ps[-1], Kumar_fd_Res[-1]
+                
+    Re_len = len(Re_ranges)
+    
+    for j in range(Re_len):
+        if Re <= Re_ranges[j]:
+            C2, p = C2_options[j], p_options[j]
+            break
+        elif j == Re_len-1:
+            C2, p = C2_options[-1], p_options[-1]
+        
+    # Originally in Fanning friction factor basis
+    return 4.0*C2*Re**-p
+
 
 # Data from the Handbook of Hydraulic Resistance, 4E, in format (min, max, avg)
 #  roughness in m; may have one, two, or three of the values.

@@ -296,3 +296,36 @@ def test_friction_plate():
     
     fd = friction_plate_Martin_VDI(Re=1999, plate_enlargement_factor=1.15)
     assert_allclose(fd, 3.294294334690556)
+
+
+def test_friction_Kumar():
+    from fluids.friction import Kumar_beta_list, Kumar_fd_Res
+    fd = friction_plate_Kumar(2000, 30)
+    assert_allclose(fd, 2.9760669055634517)
+    
+    all_ans_expect = [[[22.22222222222222, 18.900854099814858, 5.181226661414687, 5.139730745446174],
+  [20.88888888888889, 17.09090909090909, 3.656954441625244, 3.609575756782771]],
+ [[13.428571428571427, 12.000171923243482, 1.7788367041690634, 1.7788497785371564],
+  [9.714285714285714, 8.5, 1.2332865464612235, 1.2320492987599356]],
+ [[7.157894736842104, 6.590102034105372, 1.2332865464612235, 1.2320492987599356],
+  [5.052631578947368, 4.571428571428571, 0.9576862861589914, 0.9547729646969146]],
+ [[2.4615384615384617, 2.374448634025773, 0.8393834232628009, 0.8379103279437352],
+  [2.4615384615384617, 2.3414634146341466, 0.7519331759748705, 0.7502394735017442]],
+ [[1.9591836734693877, 1.9015330284979595, 0.6797898512309091, 0.6799788644298855],
+  [1.9591836734693877, 1.9015330284979595, 0.6797898512309091, 0.6799788644298855]]]
+ 
+    all_ans = []
+    for i, beta_main in enumerate(Kumar_beta_list):
+        beta_ans = []
+        for beta in (beta_main-1, beta_main+1):
+            Re_ans = []
+            for Re_main in Kumar_fd_Res[i]:
+                for Re in [Re_main-1, Re_main+1]:
+                    ans = friction_plate_Kumar(Re, beta)
+                    Re_ans.append(ans)
+            beta_ans.append(Re_ans)
+        all_ans.append(beta_ans)
+        
+    assert_allclose(all_ans, all_ans_expect)
+
+    
