@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -290,3 +290,9 @@ def test_friction_plate():
     
     fd = friction_plate_Martin_1999(Re=1999, plate_enlargement_factor=1.15)
     assert_allclose(fd, 2.749383588479863)
+    
+    fd = friction_plate_Martin_VDI(Re=20000, plate_enlargement_factor=1.15)
+    assert_allclose(fd, 2.702534119024076)
+    
+    fd = friction_plate_Martin_VDI(Re=1999, plate_enlargement_factor=1.15)
+    assert_allclose(fd, 3.294294334690556)

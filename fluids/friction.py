@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,7 @@ __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 'Clamond',
 'helical_transition_Re_Kutateladze_Borishanskii', 
 'helical_transition_Re_Schmidt', 'helical_transition_Re_Srinivasan',
 'LAMINAR_TRANSITION_PIPE', 'oregon_smooth_data',
-'friction_plate_Martin_1999']
+'friction_plate_Martin_1999', 'friction_plate_Martin_VDI']
 
 
 LAMINAR_TRANSITION_PIPE = 2040.
@@ -2848,6 +2848,85 @@ def friction_plate_Martin_1999(Re, plate_enlargement_factor):
     return ff*4.0
 
 
+def friction_plate_Martin_VDI(Re, plate_enlargement_factor):
+    r'''Calculates Darcy friction factor for single-phase flow in a 
+    Chevron-style plate heat exchanger according to [1]_. 
+    
+    .. math::
+        \frac{1}{\sqrt{f_d}} = \frac{\cos \phi}{\sqrt{0.28\tan\phi
+        + 0.36\sin\phi + f_0/\cos(\phi)}} + \frac{1-\cos\phi}{\sqrt{3.8f_1}}
+        
+        f_0 = 64/Re \text{ for } Re < 2000
+        
+        f_0 = (1.56\ln Re - 3)^{-2} \text{ for } Re \ge 2000
+        
+        f_1 = \frac{597}{Re} + 3.85 \text{ for } Re < 2000
+        
+        f_1 = \frac{39}{Re^{0.289}} \text{ for } Re \ge 2000
+        
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with respect to the hydraulic diameter of the channels,
+        [-]
+    plate_enlargement_factor : float
+        The extra surface area multiplier as compared to a flat plate
+        caused the corrugations, [-]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor [-]
+
+    Notes
+    -----
+    Based on experimental data from Re from 200 - 10000 and enhancement 
+    factors calculated with chevron angles of 0 to 80 degrees. See 
+    `PlateExchanger` for further clarification on the definitions.
+    
+    The length the friction factor gets multiplied by is not the flow path
+    length, but rather the straight path length from port to port as if there
+    were no chevrons.
+    
+    Note there is a discontinuity at Re = 2000 for the transition from
+    laminar to turbulent flow, although the lirerature suggests the transition
+    is actually smooth.
+    
+    This is a revision of the Martin's earlier model, adjusted to predidct
+    higher friction factors.
+    
+    There are three parameters in this model, a, b and c; it is posisble
+    to adjust them to better fit a know exchanger's pressure drop.
+    
+    See Also
+    --------
+    friction_plate_Martin_1999
+
+    Examples
+    --------
+    >>> friction_plate_Martin_VDI(Re=20000, plate_enlargement_factor=1.15)
+    2.702534119024076
+
+    References
+    ----------
+    .. [1] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
+       Berlin; New York:: Springer, 2010.
+    '''
+    phi = plate_enlargement_factor
+    
+    if Re < 2000.:
+        f0 = 64./Re
+        f1 = 597./Re + 3.85
+    else:
+        f0 = (1.56*log(Re) - 3.0)**-2
+        f0 = (1.8*log10(Re) - 1.5)**-2
+        f1 = 39.*Re**-0.289
+        
+    a, b, c = 3.8, 0.28, 0.36
+        
+    rhs = cos(phi)*(b*tan(phi) + c*sin(phi) + f0/cos(phi))**-0.5
+    rhs += (1. - cos(phi))*(a*f1)**-0.5
+    return rhs**-2.0
 
 # Data from the Handbook of Hydraulic Resistance, 4E, in format (min, max, avg)
 #  roughness in m; may have one, two, or three of the values.
