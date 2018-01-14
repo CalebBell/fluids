@@ -2809,7 +2809,7 @@ def friction_plate_Martin_1999(Re, plate_enlargement_factor):
     were no chevrons.
     
     Note there is a discontinuity at Re = 2000 for the transition from
-    laminar to turbulent flow, although the lirerature suggests the transition
+    laminar to turbulent flow, although the literature suggests the transition
     is actually smooth.
     
     This was first developed in [2]_ and only minor modifications by the 
@@ -2890,7 +2890,7 @@ def friction_plate_Martin_VDI(Re, plate_enlargement_factor):
     were no chevrons.
     
     Note there is a discontinuity at Re = 2000 for the transition from
-    laminar to turbulent flow, although the lirerature suggests the transition
+    laminar to turbulent flow, although the literature suggests the transition
     is actually smooth.
     
     This is a revision of the Martin's earlier model, adjusted to predidct
@@ -2954,8 +2954,70 @@ Kumar_Ps = [[1.0, 0.589, 0.183],
 
 
 def friction_plate_Kumar(Re, chevron_angle):
-    # Uses the standard diameter as characteristic diameter
-    # Applicable only to well designed Chevron PHEs
+    r'''Calculates Darcy friction factor for single-phase flow in a 
+    **well-designed** Chevron-style plate heat exchanger according to [1]_.
+    The data is believed to have been developed by APV International Limited,
+    since acquired by SPX Corporation. This uses a curve fit of that data
+    published in [2]_.
+    
+    .. math::
+        f_f = \frac{C_2}{Re^p}
+        
+    C2 and p are coefficients looked up in a table, with varying ranges
+    of Re validity and chevron angle validity. See the source for their
+    exact values.
+        
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with respect to the hydraulic diameter of the channels,
+        [-]
+    chevron_angle : float
+        Angle of the plate corrugations with respect to the vertical axis
+        (the direction of flow if the plates were straight), between 0 and
+        90. Many plate exchangers use two alternating patterns; use their
+        average angle for that situation [degrees]
+        
+    Returns
+    -------
+    fd : float
+        Darcy friction factor [-]
+
+    Notes
+    -----
+    Data on graph from Re=0.1 to Re=10000, with chevron angles 30 to 65 degrees.
+    See `PlateExchanger` for further clarification on the definitions.
+    
+    It is believed the constants used in this correlation were curve-fit to
+    the actual graph in [1]_ by the author of [2]_ as there is no 
+    
+    The length the friction factor gets multiplied by is not the flow path
+    length, but rather the straight path length from port to port as if there
+    were no chevrons.
+    
+    As the coefficients change, there are numerous small discontinuities, 
+    although the data on the graphs is continuous with sharp transitions
+    of the slope.
+    
+    The author of [1]_ states clearly this correlation is "applicable only to 
+    well designed Chevron PHEs".
+    
+    Examples
+    --------
+    >>> friction_plate_Kumar(Re=2000, chevron_angle=30)
+    2.9760669055634517
+
+    References
+    ----------
+    .. [1] Kumar, H. "The plate heat exchanger: construction and design." In 
+       First U.K. National Conference on Heat Transfer: Held at the University 
+       of Leeds, 3-5 July 1984, Institute of Chemical Engineering Symposium 
+       Series, vol. 86, pp. 1275-1288. 1984.
+    .. [2] Ayub, Zahid H. "Plate Heat Exchanger Literature Survey and New Heat
+       Transfer and Pressure Drop Correlations for Refrigerant Evaporators." 
+       Heat Transfer Engineering 24, no. 5 (September 1, 2003): 3-16. 
+       doi:10.1080/01457630304056.
+    '''
     beta_list_len = len(Kumar_beta_list)
     
     for i in range(beta_list_len):
