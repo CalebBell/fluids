@@ -296,6 +296,9 @@ def test_friction_plate():
     
     fd = friction_plate_Martin_VDI(Re=1999, plate_enlargement_factor=1.15)
     assert_allclose(fd, 3.294294334690556)
+    
+    fd = friction_plate_Muley_Manglik(Re=2000, chevron_angle=45, plate_enlargement_factor=1.2)
+    assert_allclose(fd, 1.0880870804075413)
 
 
 def test_friction_Kumar():

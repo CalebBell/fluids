@@ -3040,6 +3040,73 @@ def friction_plate_Kumar(Re, chevron_angle):
     return 4.0*C2*Re**-p
 
 
+def friction_plate_Muley_Manglik(Re, chevron_angle, plate_enlargement_factor):
+    r'''Calculates Darcy friction factor for single-phase flow in a 
+    Chevron-style plate heat exchanger according to [1]_, also shown and
+    recommended in [2]_.
+    
+    .. math::
+        f_f = [2.917 - 0.1277\beta + 2.016\times10^{-3} \beta^2]
+        \times[20.78 - 19.02\phi + 18.93\phi^2 - 5.341\phi^3]
+        \times Re^{-[0.2 + 0.0577\sin[(\pi \beta/45)+2.1]]}
+        
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with respect to the hydraulic diameter of the channels,
+        [-]
+    chevron_angle : float
+        Angle of the plate corrugations with respect to the vertical axis
+        (the direction of flow if the plates were straight), between 0 and
+        90. Many plate exchangers use two alternating patterns; use their
+        average angle for that situation [degrees]
+    plate_enlargement_factor : float
+        The extra surface area multiplier as compared to a flat plate
+        caused the corrugations, [-]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor [-]
+
+    Notes
+    -----
+    Based on experimental data of plate enacement factors up to 1.5, and valid 
+    for Re > 1000 and chevron angles from 30 to 60 degrees with sinusoidal 
+    shape. See `PlateExchanger` for further clarification on the definitions.
+    
+    The length the friction factor gets multiplied by is not the flow path
+    length, but rather the straight path length from port to port as if there
+    were no chevrons.
+    
+    This is a continuous model with no discontinuities.
+    
+    Examples
+    --------
+    >>> friction_plate_Muley_Manglik(Re=2000, chevron_angle=45, plate_enlargement_factor=1.2)
+    1.0880870804075413
+
+    References
+    ----------
+    .. [1] Muley, A., and R. M. Manglik. "Experimental Study of Turbulent Flow
+       Heat Transfer and Pressure Drop in a Plate Heat Exchanger With Chevron 
+       Plates." Journal of Heat Transfer 121, no. 1 (February 1, 1999): 110-17.
+       doi:10.1115/1.2825923.
+    .. [2] Ayub, Zahid H. "Plate Heat Exchanger Literature Survey and New Heat
+       Transfer and Pressure Drop Correlations for Refrigerant Evaporators." 
+       Heat Transfer Engineering 24, no. 5 (September 1, 2003): 3-16. 
+       doi:10.1080/01457630304056.
+    '''
+    beta, phi = chevron_angle, plate_enlargement_factor
+    # Beta is indeed chevron angle; with respect to angle of mvoement
+    # Still might be worth another check
+    t1 = (2.917 - 0.1277*beta + 2.016E-3*beta**2)
+    t2 = (5.474 - 19.02*phi + 18.93*phi**2 - 5.341*phi**3)
+    t3 = -(0.2 + 0.0577*sin(pi*beta/45. + 2.1))
+    # Equation returns fanning friction factor
+    return 4*t1*t2*Re**t3
+
+
 # Data from the Handbook of Hydraulic Resistance, 4E, in format (min, max, avg)
 #  roughness in m; may have one, two, or three of the values.
 seamless_other_metals = {'Commercially smooth': (1.5E-6, 1.0E-5, None)}

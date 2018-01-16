@@ -2045,7 +2045,7 @@ class PlateExchanger(object):
         the multiple of `A_plate_surface` by the number of plates after
         removing the two on the edges, [m^2]
     A_channel_flow : float
-        The area for the fluid to flow in, :math:`W\cdot b` [m^2]
+        The area for the fluid to flow in one channel, :math:`W\cdot b` [m^2]
     channels : int
         The number of plates minus one, [-]
     channels_per_fluid : int
