@@ -28,6 +28,7 @@ except: # pragma: no cover
 import os
 import gzip
 import datetime
+from collections import namedtuple
 
 import numpy as np
 from fluids.core import F2K
@@ -314,10 +315,11 @@ gsod_flag_chars = '*ABCDEFGHI'
 # Values which should be converted to None, as normally there is no value
 gsod_bad_values = set(['99.99', '999.9', '9999.9'])
 
-gsod_indicator_names = ('fog', 'rain', 'snow_ice', 'hail', 'thunder', 
-                        'tornado')
+gsod_indicator_names = ['fog', 'rain', 'snow_ice', 'hail', 'thunder', 
+                        'tornado']
 five_ninths = 5.0/9.0
 
+gsod_day = namedtuple('gsod_day', gsod_fields + gsod_indicator_names)
 
 def gsod_datetime_parser(yymmdd):
     if not yymmdd:
@@ -326,6 +328,9 @@ def gsod_datetime_parser(yymmdd):
 
 
 def gsod_day_parser(line, SI=True, datetime=True):
+    # if datetime is True, the date is a datetime instance instead of as a string YYMMDD
+    # If SI is True, results are in SI units
+    
     # Ignore STN--- and WBAN, 8-12 characters
     fields = line.strip().split()[2:]
     # For the case the field is blank, set it to None; strip it either way 
@@ -384,5 +389,4 @@ def gsod_day_parser(line, SI=True, datetime=True):
 
     indicator_values = [flag == '1' for flag in obj['FRSHTT']]
     obj.update(zip(gsod_indicator_names, indicator_values))
-    
-    return obj
+    return gsod_day(**obj)
