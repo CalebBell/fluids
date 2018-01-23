@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import log, log10, exp, cos, sin, tan
+from math import log, log10, exp, cos, sin, tan, pi
 from scipy.special import lambertw
 from scipy.constants import inch
 from fluids.core import Dean
@@ -57,7 +57,7 @@ __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 'Clamond',
 'helical_transition_Re_Schmidt', 'helical_transition_Re_Srinivasan',
 'LAMINAR_TRANSITION_PIPE', 'oregon_smooth_data',
 'friction_plate_Martin_1999', 'friction_plate_Martin_VDI',
-'friction_plate_Kumar']
+'friction_plate_Kumar', 'friction_plate_Muley_Manglik']
 
 
 LAMINAR_TRANSITION_PIPE = 2040.
