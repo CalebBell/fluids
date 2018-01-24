@@ -46,7 +46,9 @@ except ImportError: # pragma: no cover
     
 try:  # pragma: no cover
     from appdirs import user_data_dir, user_config_dir
+    data_dir = user_config_dir('fluids')
 except ImportError:  # pragma: no cover
+    data_dir = ''
     pass
     
 __all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
@@ -175,7 +177,6 @@ class StationDataGSOD(object):
             self.raw_data[year] = [None]*days_in_year(year)
             self.parsed_data[year] = [None]*days_in_year(year)
             self.raw_text[year] = None
-        pass
 #        days = [None]*days_in_year(y)
 
     def download_data(self):
@@ -303,8 +304,14 @@ def get_station_year_text(WMO, WBAN, year):
         WMO = 999999
     if WBAN is None:
         WBAN = 99999
-        
     station = str(int(WMO)) + '-' + str(int(WBAN)) 
+    gsod_year_dir = os.path.join(data_dir, 'gsod', str(year))
+    path = os.path.join(gsod_year_dir, station + '.op')
+    if os.path.exists(path):
+        data = open(path).read()
+        if data:
+            return data
+        
     toget = ('ftp://ftp.ncdc.noaa.gov/pub/data/gsod/' + str(year) + '/' 
              + station + '-' + str(year) +'.op.gz')
     try:
@@ -318,9 +325,20 @@ def get_station_year_text(WMO, WBAN, year):
     data = data.read()
     data_thing = StringIO(data)
 
-    with gzip.GzipFile(fileobj=data_thing, mode="r") as f:
-        year_station_data = f.read()
-        return year_station_data
+    f = gzip.GzipFile(fileobj=data_thing, mode="r")
+    year_station_data = f.read()
+    try: 
+        year_station_data = year_station_data.decode('utf-8')
+    except:
+        pass
+    
+    # Cache the data for future use
+    if not os.path.exists(gsod_year_dir):
+        os.makedirs(gsod_year_dir)
+    open(path, 'w').write(year_station_data)
+    
+    
+    return year_station_data
     
 
 
