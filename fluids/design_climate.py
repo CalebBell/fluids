@@ -43,6 +43,9 @@ try: # pragma: no cover
 except ImportError: # pragma: no cover
     from urllib2 import urlopen
     from urllib2 import HTTPError
+    
+__all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
+           'get_closest_station', 'get_station_year_text', 'gsod_day_parser']
 
 folder = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -74,6 +77,11 @@ def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'),
     import pandas as pd
     df = pd.read_csv(url)
     df.to_csv(dest, sep='\t', index=False, header=False)
+
+def days_in_year(year):
+    if year %4 == 0 and (not year % 100 == 0 or year % 400 == 0):
+        return 366
+    return 365
 
 
 class IntegratedSurfaceDatabaseStation(object):
@@ -112,7 +120,7 @@ class IntegratedSurfaceDatabaseStation(object):
         within the P.O.R.
     '''
     __slots__ = ['USAF', 'WBAN', 'NAME', 'CTRY', 'ST', 'ICAO', 'LAT', 'LON',
-                 'ELEV', 'BEGIN', 'END']
+                 'ELEV', 'BEGIN', 'END', 'raw_data', 'parsed_data']
     
     def __repr__(self):
         s = ('<Weather station registered in the Integrated Surface Database, '
@@ -133,6 +141,26 @@ class IntegratedSurfaceDatabaseStation(object):
         self.ELEV = ELEV
         self.BEGIN = BEGIN
         self.END = END
+        
+class ClimateNormal(object):
+    def __init__(self, station):
+        self.station = station
+        self.begin = datetime.datetime.strptime(self.station.BEGIN, '%Y%m%d')
+        self.end = datetime.datetime.strptime(self.station.END, '%Y%m%d')
+        
+        self.year_range = range(self.begin.year, self.end.year + 1)
+        
+#         Would be nice to create these later, when using a download_data method
+        self.raw_data = {}
+        self.parsed_data = {}
+        
+    def load_empty_vectors(self):
+        for year in self.year_range:
+            self.raw_data[year] = [None]*days_in_year(year)
+            self.parsed_data[year] = [None]*days_in_year(year)
+        pass
+#        days = [None]*days_in_year(y)
+
 
 
 stations = []
@@ -228,14 +256,16 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
 
 
 # This should be agressively cached
-def get_station_year_text(station, year):
+def get_station_year_text(WMO, WBAN, year):
     '''Basic method to download data from the GSOD database, given a 
     station idenfifier and year. 
 
     Parameters
     ----------
-    station : str
-        Station format, as a string, "USAF-WBAN", [-]
+    WMO : int or None
+         World Meteorological Organization (WMO) identifiers, [-]
+    WBAN : int or None
+        Weather Bureau Army Navy (WBAN) weather station identifier, [-]
     year : int
         Year data should be retrieved from, [year]
         
@@ -244,6 +274,12 @@ def get_station_year_text(station, year):
     data : str
         Downloaded data file
     '''
+    if WMO is None:
+        WMO = 999999
+    if WBAN is None:
+        WBAN = 99999
+        
+    station = str(int(WMO)) + '-' + str(int(WBAN)) 
     toget = ('ftp://ftp.ncdc.noaa.gov/pub/data/gsod/' + str(year) + '/' 
              + station + '-' + str(year) +'.op.gz')
     try:
@@ -321,16 +357,41 @@ five_ninths = 5.0/9.0
 
 gsod_day = namedtuple('gsod_day', gsod_fields + gsod_indicator_names)
 
-def gsod_datetime_parser(yymmdd):
-    if not yymmdd:
-        return yymmdd
-    return datetime.datetime.strptime(yymmdd, '%Y%m%d')
-
 
 def gsod_day_parser(line, SI=True, datetime=True):
-    # if datetime is True, the date is a datetime instance instead of as a string YYMMDD
-    # If SI is True, results are in SI units
+    '''One line (one file) parser of data in the format of the GSOD database.
+    Returns all parsed results as a namedtuple for reduced memory consumption.
+    Will convert all data to base SI units unless the `SI` flag is set to 
+    False. As the values are rounded to one or two decimal places in the
+    GSOD database in Imperial units, it may be useful to look at the values
+    directly. 
     
+    The names columns of the columns in the GSOD database are retained and used
+    as the attributes of the namedtuple results.
+    
+    The day, month, and year are normally converted to a datetime instance in
+    resulting namedtuple; this behavior can be disabled by setting the 
+    `datetime` flag to False; it will be a string in the format YYYYMMDD if so.
+    This may be useful because datetime conversion roughly doubles the speed of
+    this function.
+    
+    Parameters
+    ----------
+    line : str
+        Line in format of GSOD documentation, [-]
+    SI : bool
+        Whether or not the results get converted to base SI units, [-] 
+    datetime : bool
+        Whether or not the date gets converted to a datetime instance or stays
+        as a string, [-]
+
+    Returns
+    -------
+    gsod_day_instance : gsod_day
+        namedtuple with fields described in the source (all values in SI units,
+        if `SI` is True, i.e. meters, m/s, Kelvin, Pascal; otherwise the 
+        original unit set is used), [-]
+    '''    
     # Ignore STN--- and WBAN, 8-12 characters
     fields = line.strip().split()[2:]
     # For the case the field is blank, set it to None; strip it either way 
@@ -341,10 +402,11 @@ def gsod_day_parser(line, SI=True, datetime=True):
         fields[i] = field 
 
     obj = dict(zip(gsod_fields, fields))
+    # Convert the date to a datetime object if specified
     if datetime:
-        # Convert the date to a datetime object
-        obj['DATE'] = gsod_datetime_parser(obj['DATE'])
-    
+        if obj['DATE']:
+            obj['DATE'] = datetime.datetime.strptime(obj['DATE'], '%Y%m%d')
+                
     # Parse float values as floats
     for field in gsod_float_fields:
         value = obj[field].rstrip(gsod_flag_chars)
@@ -359,9 +421,9 @@ def gsod_day_parser(line, SI=True, datetime=True):
         for field in ('TEMP', 'DEWP', 'MAX', 'MIN'):
             value = obj[field]
             if value is not None:
+                # F2K inline for efficiency unfortunately
                 obj[field] = (value + 459.67)*five_ninths
 
-            
         # Convert visibility, wind speed, pressures
         # to si units of meters, Pascal, and meters/second.
         if obj['VISIB'] is not None:
