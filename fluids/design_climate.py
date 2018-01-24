@@ -44,8 +44,14 @@ except ImportError: # pragma: no cover
     from urllib2 import urlopen
     from urllib2 import HTTPError
     
+try:  # pragma: no cover
+    from appdirs import user_data_dir, user_config_dir
+except ImportError:  # pragma: no cover
+    pass
+    
 __all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
-           'get_closest_station', 'get_station_year_text', 'gsod_day_parser']
+           'get_closest_station', 'get_station_year_text', 'gsod_day_parser',
+           'StationDataGSOD']
 
 folder = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -130,8 +136,14 @@ class IntegratedSurfaceDatabaseStation(object):
     
     def __init__(self, USAF, WBAN, NAME, CTRY, ST, ICAO, LAT, LON, ELEV, BEGIN,
                  END):
-        self.USAF = USAF
-        self.WBAN = WBAN
+        try:
+            self.USAF = int(USAF)
+        except TypeError:
+            self.USAF = USAF # Nones
+        try:
+            self.WBAN = int(WBAN)  
+        except TypeError:
+            self.WBAN = WBAN
         self.NAME = NAME
         self.CTRY = CTRY
         self.ST = ST
@@ -139,30 +151,43 @@ class IntegratedSurfaceDatabaseStation(object):
         self.LAT = LAT
         self.LON = LON
         self.ELEV = ELEV
-        self.BEGIN = BEGIN
-        self.END = END
+        self.BEGIN = int(BEGIN)
+        self.END = int(END)
         
-class ClimateNormal(object):
+
+class StationDataGSOD(object):
+    # Holds data, caches and retrieves data
     def __init__(self, station):
         self.station = station
-        self.begin = datetime.datetime.strptime(self.station.BEGIN, '%Y%m%d')
-        self.end = datetime.datetime.strptime(self.station.END, '%Y%m%d')
+        self.begin = datetime.datetime.strptime(str(self.station.BEGIN), '%Y%m%d')
+        self.end = datetime.datetime.strptime(str(self.station.END), '%Y%m%d')
         
         self.year_range = range(self.begin.year, self.end.year + 1)
         
 #         Would be nice to create these later, when using a download_data method
+        self.raw_text = {}
         self.raw_data = {}
         self.parsed_data = {}
+        self.load_empty_vectors()
         
     def load_empty_vectors(self):
         for year in self.year_range:
             self.raw_data[year] = [None]*days_in_year(year)
             self.parsed_data[year] = [None]*days_in_year(year)
+            self.raw_text[year] = None
         pass
 #        days = [None]*days_in_year(y)
 
-
-
+    def download_data(self):
+        for year in self.year_range:
+            if self.raw_text[year] is None:
+                try:
+                    year_data = get_station_year_text(self.station.USAF, self.station.WBAN, year)
+                    self.raw_text[year] = year_data
+                except:
+                    pass
+            
+            
 stations = []
 _latlongs = []
 '''Read in the parsed data into 
