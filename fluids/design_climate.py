@@ -28,6 +28,7 @@ except: # pragma: no cover
 import os
 import gzip
 import datetime
+from calendar import isleap
 from collections import namedtuple
 
 import numpy as np
@@ -85,11 +86,6 @@ def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'),
     import pandas as pd
     df = pd.read_csv(url)
     df.to_csv(dest, sep='\t', index=False, header=False)
-
-def days_in_year(year):
-    if year %4 == 0 and (not year % 100 == 0 or year % 400 == 0):
-        return 366
-    return 365
 
 
 class IntegratedSurfaceDatabaseStation(object):
@@ -174,8 +170,9 @@ class StationDataGSOD(object):
         
     def load_empty_vectors(self):
         for year in self.year_range:
-            self.raw_data[year] = [None]*days_in_year(year)
-            self.parsed_data[year] = [None]*days_in_year(year)
+            days_in_year = 366 if isleap(year) else 365
+            self.raw_data[year] = [None]*days_in_year
+            self.parsed_data[year] = [None]*days_in_year
             self.raw_text[year] = None
 #        days = [None]*days_in_year(y)
 
