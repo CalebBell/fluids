@@ -167,6 +167,8 @@ class StationDataGSOD(object):
         self.raw_data = {}
         self.parsed_data = {}
         self.load_empty_vectors()
+        self.download_data()
+        self.parse_data()
         
     def load_empty_vectors(self):
         for year in self.year_range:
@@ -184,8 +186,59 @@ class StationDataGSOD(object):
                     self.raw_text[year] = year_data
                 except:
                     pass
+    
+    def parse_data(self):
+        for year, data in self.raw_text.items():
+            if data is not None:
+                days = self.parsed_data[year]
+                for line in data.split('\n')[1:-1]:
+                    parsed = gsod_day_parser(line)
+                    doy = parsed.DATE.timetuple().tm_yday-1
+                    days[doy] = parsed
+                
+    def month_average_temperature(self, month, older_date=None, newer_date=None):
+        year_month_averages = {}
+        year_month_counts = {}
+        
+        for year, data in self.parsed_data.items():
+            if not (older_date <= datetime.datetime(year, month, 1) <= newer_date):
+                continue # Ignore out-of-range years easily
+            year_month_averages[year] = [0]*12
+            year_month_counts[year] = [0]*12
+
+            for i, day in enumerate(data):
+                if day is None:
+                    continue
+                
+                if day.DATE < older_date or day.DATE > newer_date:
+                    continue # Ignore out-of-range days as possible
+                    
+                T = getattr(day, 'TEMP')
+                year_month_averages[year][day.DATE.month-1] += T
+                year_month_counts[year][day.DATE.month-1] += 1
             
-            
+            for month in range(12):
+                count = year_month_counts[year][month]
+                if count < 23:
+                    ans = None
+                else:
+                    ans = year_month_averages[year][month]/count
+                year_month_averages[year][month] = ans
+                
+        # Compute the average of the month
+        actual_averages = [0]*12
+        actual_averages_counts = [0]*12
+        for year, average in year_month_averages.items():
+            for month in range(12):
+                if average is not None:
+                    actual_averages_counts[month] += 1
+                    actual_averages[month] += average[month]
+        for month in range(12):
+            actual_averages[month] = actual_averages[month]/actual_averages_counts[month]
+                    
+        return actual_averages, year_month_averages
+
+
 stations = []
 _latlongs = []
 '''Read in the parsed data into 
@@ -383,7 +436,7 @@ gsod_fields = ['DATE', # 15-18 int year; 19-22 int month/day
                         # Thunder ('T' - 5th digit).
                         # Tornado or Funnel Cloud ('T' - 6th digit).              
               ]
-
+# Use TEMP and DEWP and STP to calculate wet bulb temperatures
 # Values to be converted to floats always
 gsod_float_fields = ('TEMP', 'DEWP', 'SLP', 'STP', 'VISIB', 'WDSP', 'MXSPD', 
                      'GUST', 'MAX', 'MIN', 'PRCP', 'SNDP')
@@ -403,7 +456,7 @@ five_ninths = 5.0/9.0
 gsod_day = namedtuple('gsod_day', gsod_fields + gsod_indicator_names)
 
 
-def gsod_day_parser(line, SI=True, datetime=True):
+def gsod_day_parser(line, SI=True, to_datetime=True):
     '''One line (one file) parser of data in the format of the GSOD database.
     Returns all parsed results as a namedtuple for reduced memory consumption.
     Will convert all data to base SI units unless the `SI` flag is set to 
@@ -426,7 +479,7 @@ def gsod_day_parser(line, SI=True, datetime=True):
         Line in format of GSOD documentation, [-]
     SI : bool
         Whether or not the results get converted to base SI units, [-] 
-    datetime : bool
+    to_datetime : bool
         Whether or not the date gets converted to a datetime instance or stays
         as a string, [-]
 
@@ -448,9 +501,8 @@ def gsod_day_parser(line, SI=True, datetime=True):
 
     obj = dict(zip(gsod_fields, fields))
     # Convert the date to a datetime object if specified
-    if datetime:
-        if obj['DATE']:
-            obj['DATE'] = datetime.datetime.strptime(obj['DATE'], '%Y%m%d')
+    if to_datetime and obj['DATE'] is not None:
+        obj['DATE'] = datetime.datetime.strptime(obj['DATE'], '%Y%m%d')
                 
     # Parse float values as floats
     for field in gsod_float_fields:
