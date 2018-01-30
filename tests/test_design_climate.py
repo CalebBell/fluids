@@ -28,10 +28,18 @@ from fluids.design_climate import _latlongs, stations
 
 
 def test_heating_degree_days():
+    assert_allclose(heating_degree_days(273, truncate=False), -18.483333333333292)
     assert 0 == heating_degree_days(273, truncate=True)
     assert 0 == heating_degree_days(273)
     assert_allclose(heating_degree_days(273, T_base = 250), 23)
     assert_allclose(heating_degree_days(279, T_base=300, truncate=False), -21)
+    
+def test_cooling_degree_days():
+    
+    assert_allclose( cooling_degree_days(250), 33.15)
+    assert 0 == cooling_degree_days(300)
+    assert_allclose(cooling_degree_days(300, truncate=False), -16.85)
+    assert_allclose(cooling_degree_days(250, T_base=300), 50)
 
 
     

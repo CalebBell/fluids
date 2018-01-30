@@ -54,7 +54,7 @@ except ImportError:  # pragma: no cover
     
 __all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
            'get_closest_station', 'get_station_year_text', 'gsod_day_parser',
-           'StationDataGSOD', 'heating_degree_days']
+           'StationDataGSOD', 'heating_degree_days', 'cooling_degree_days']
 
 folder = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -75,8 +75,8 @@ def heating_degree_days(T, T_base=F2K(65), truncate=True):
         Reference temperature for the degree day calculation, defaults
         to 65 °F (18.33 °C, 291.483 K), the value most used in the US, [K]
     truncate : bool
-        If truncate is True, no negative values will be returned; the value
-        is truncated to 0, [-]
+        If truncate is True, no negative values will be returned; if negative, 
+        the value is truncated to 0, [-]
 
     Returns
     -------
@@ -90,7 +90,7 @@ def heating_degree_days(T, T_base=F2K(65), truncate=True):
     17 °C (Denmark, Finland), 12 °C Switzerland. The base temperature
     should always be presented with the results.
     
-    The time unit does not have to be days; it can be anyone, and the
+    The time unit does not have to be days; it can be any time unit, and the
     calculation behaves the same.
 
     Examples
@@ -101,7 +101,7 @@ def heating_degree_days(T, T_base=F2K(65), truncate=True):
     >>> heating_degree_days(273)
     0.0
     
-    >>> heating_degree_days((322, T_base=300)
+    >>> heating_degree_days(322, T_base=300)
     22
 
     References
@@ -110,6 +110,60 @@ def heating_degree_days(T, T_base=F2K(65), truncate=True):
        https://en.wikipedia.org/w/index.php?title=Heating_degree_day&oldid=822187764.
     '''
     dd = T - T_base
+    if truncate and dd < 0.0:
+        dd = 0.0
+    return dd
+
+
+def cooling_degree_days(T, T_base=283.15, truncate=True):
+    r'''Calculates the cooling degree days for a period of time.
+
+    .. math::
+        \text{cooling degree days} = max(T_{base} - T, 0)
+
+    Parameters
+    ----------
+    T : float
+        Measured temperature; sometimes an average over a length of time is used,
+        other times the average of the lowest and highest temperature in a 
+        period are used, [K]
+    T_base : float, optional
+        Reference temperature for the degree day calculation, defaults
+        to 10 °C, 283.15 K, a common value, [K]
+    truncate : bool
+        If truncate is True, no negative values will be returned; if negative, 
+        the value is truncated to 0, [-]
+
+    Returns
+    -------
+    cooling_degree_days : float
+        Degree below the base temperature multiplied by the length of time of
+        the measurement, normally days [day*K]
+
+    Notes
+    -----
+    The base temperature should always be presented with the results.
+    
+    The time unit does not have to be days; it can be time unit, and the
+    calculation behaves the same.
+
+    Examples
+    --------
+    >>> cooling_degree_days(250)
+    33.14999999999998
+    
+    >>> cooling_degree_days(300)
+    0.0
+    
+    >>> cooling_degree_days(250, T_base=300)
+    50
+
+    References
+    ----------
+    .. [1] "Heating Degree Day." Wikipedia, January 24, 2018. 
+       https://en.wikipedia.org/w/index.php?title=Heating_degree_day&oldid=822187764.
+    '''
+    dd = T_base - T
     if truncate and dd < 0.0:
         dd = 0.0
     return dd
