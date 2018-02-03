@@ -30,7 +30,7 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'C_Reader_Harris_Gallagher', 'Reader_Harris_Gallagher_discharge',
            'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
            'dP_orifice', 'velocity_of_approach_factor', 
-           'orifice_flow_coefficient']
+           'orifice_flow_coefficient', 'nozzle_expansibility']
 
 
 def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
@@ -138,7 +138,7 @@ def orifice_expansibility(D, Do, P1, P2, k):
             1.0 - (P2/P1)**(1./k)))
 
 
-def C_Reader_Harris_Gallagher(D, Do, P1, P2, rho, mu, k, m, taps='corner'):
+def C_Reader_Harris_Gallagher(D, Do, rho, mu, k, m, taps='corner'):
     r'''Calculates the coefficient of discharge of the orifice based on the 
     geometry of the plate, measured pressures of the orifice, mass flow rate
     through the orifice, and the density, viscosity, and isentropic exponent 
@@ -188,12 +188,6 @@ def C_Reader_Harris_Gallagher(D, Do, P1, P2, rho, mu, k, m, taps='corner'):
         Upstream internal pipe diameter, [m]
     Do : float
         Diameter of orifice at flow conditions, [m]
-    P1 : float
-        Static pressure of fluid upstream of orifice at the cross-section of
-        the pressure tap, [Pa]
-    P2 : float
-        Static pressure of fluid downstream of orifice at the cross-section of
-        the pressure tap, [Pa]
     rho : float
         Density of fluid at `P1`, [kg/m^3]
     mu : float
@@ -240,8 +234,8 @@ def C_Reader_Harris_Gallagher(D, Do, P1, P2, rho, mu, k, m, taps='corner'):
 
     Examples
     --------
-    >>> C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, P1=1E5, P2=9.9E4, 
-    ... rho=1.165, mu=1.85E-5, m=0.12, k=1.4, taps='flange')
+    >>> C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, 
+    ... m=0.12, k=1.4, taps='flange')
     0.5990326277163659
     
     References
@@ -254,7 +248,6 @@ def C_Reader_Harris_Gallagher(D, Do, P1, P2, rho, mu, k, m, taps='corner'):
     Re_D = rho*v*D/mu
     
     beta = Do/D
-    dP = P1 - P2
     if taps == 'corner':
         L1, L2_prime = 0.0, 0.0
     elif taps == 'D' or taps == 'D/2':
@@ -330,7 +323,7 @@ def Reader_Harris_Gallagher_discharge(D, Do, P1, P2, rho, mu, k, taps='corner'):
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
     '''
     def to_solve(m):
-        C = C_Reader_Harris_Gallagher(D=D, Do=Do, P1=P1, P2=P2, 
+        C = C_Reader_Harris_Gallagher(D=D, Do=Do, 
             rho=rho, mu=mu, m=m, k=k, taps=taps)
         epsilon = orifice_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
         m_calc = orifice_discharge(D=D, Do=Do, P1=P1, P2=P2, rho=rho, 
@@ -565,3 +558,61 @@ def orifice_flow_coefficient(D, Do, C):
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
     '''
     return C*(1.0 - (Do/D)**4)**-0.5
+
+
+def nozzle_expansibility(D, Do, P1, P2, k):
+    r'''Calculates the expansibility factor for a nozzle or venturi nozzle,
+    based on the geometry of the plate, measured pressures of the orifice, and
+    the isentropic exponent of the fluid.
+    
+    .. math::
+        \epsilon = \left\{\left(\frac{\kappa \tau^{2/\kappa}}{\kappa-1}\right)
+        \left(\frac{1 - \beta^4}{1 - \beta^4 \tau^{2/\kappa}}\right)
+        \left[\frac{1 - \tau^{(\kappa-1)/\kappa}}{1 - \tau}
+        \right] \right\}^{0.5}
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of orifice of the venturi or nozzle, [m]
+    P1 : float
+        Static pressure of fluid upstream of orifice at the cross-section of
+        the pressure tap, [Pa]
+    P2 : float
+        Static pressure of fluid downstream of orifice at the cross-section of
+        the pressure tap, [Pa]
+    k : float
+        Isentropic exponent of fluid, [-]
+
+    Returns
+    -------
+    expansibility : float, optional
+        Expansibility factor (1 for incompressible fluids, less than 1 for
+        real fluids), [-]
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> nozzle_expansibility(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1.4)
+    0.991617725452954
+
+    References
+    ----------
+    .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
+       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    '''
+    beta = Do/D
+    beta2 = beta*beta
+    beta4 = beta2*beta2
+    tau = P2/P1
+    term1 = k*tau**(2.0/tau)/(k - 1.0)
+    term2 = (1.0 - beta4)/(1.0 - beta4*tau**(2.0/k))
+    term3 = (1.0 - tau**((k - 1.0)/k))/(1.0 - tau)
+    return (term1*term2*term3)**0.5
+
+
+

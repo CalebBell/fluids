@@ -35,13 +35,13 @@ def test_orifice_expansibility():
     # Tested against a value in the standard
     
 def test_C_Reader_Harris_Gallagher():
-    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, k=1.4, taps='corner' )
+    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, k=1.4, taps='corner' )
     assert_allclose(C, 0.6000085121444034)
     
-    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, k=1.4, taps='D' )
+    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, k=1.4, taps='D' )
     assert_allclose(C, 0.5988219225153976)
     
-    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, k=1.4, taps='flange' )
+    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, k=1.4, taps='flange' )
     assert_allclose(C, 0.5990042535666878)
 
 def test_Reader_Harris_Gallagher_discharge():
@@ -68,6 +68,10 @@ def test_velocity_of_approach_factor():
 def test_orifice_flow_coefficient():
     factor = orifice_flow_coefficient(D=0.0739, Do=0.0222, C=0.6)
     assert_allclose(factor, 0.6024582044499308)
+    
+def test_nozzle_expansibility():
+    epsilon = nozzle_expansibility(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1.4)
+    assert_allclose(epsilon, 0.991617725452954)
 
 @pytest.mark.slow
 def test_fuzz_K_to_discharge_coefficient():
