@@ -293,6 +293,9 @@ def Reader_Harris_Gallagher_discharge(D, Do, P1, P2, rho, mu, k, taps='corner'):
 
     Examples
     --------
+    >>> Reader_Harris_Gallagher_discharge(D=0.07366, Do=0.05, P1=200000.0, 
+    ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33, taps='D')
+    7.702338035732167
     
     References
     ----------

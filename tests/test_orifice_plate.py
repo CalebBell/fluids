@@ -42,3 +42,7 @@ def test_C_Reader_Harris_Gallagher():
     
     C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, k=1.4, taps='flange' )
     assert_allclose(C, 0.5990042535666878)
+
+def test_Reader_Harris_Gallagher_discharge():
+    m = Reader_Harris_Gallagher_discharge(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, taps='D')
+    assert_allclose(m, 7.702338035732167)
