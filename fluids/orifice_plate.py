@@ -210,6 +210,30 @@ def C_Reader_Harris_Gallagher(D, Do, P1, P2, rho, mu, k, m, taps='corner'):
 
     Notes
     -----
+    The following limits apply to the orifice plate standard [1]_:
+        
+    The measured pressure difference for the orifice plate should be under
+    250 kPa.
+    
+    There are roughness limits as well; the roughness should be under 6 
+    micrometers, although there are many more conditions to that given in [1]_.
+        
+    For orifice plates with D and D/2 or corner pressure taps:
+        
+    * Orifice bore diameter muse be larger than 12.5 mm (0.5 inches)
+    * Pipe diameter between 50 mm and 1 m (2 to 40 inches)
+    * Beta between 0.1 and 0.75 inclusive
+    * Reynolds number larger than 5000 (for :math:`0.10 \le \beta \le 0.56`)
+      or for :math:`\beta \ge 0.56, Re_D \ge 16000\beta^2`
+      
+    For orifice plates with flange pressure taps:
+
+    * Orifice bore diameter muse be larger than 12.5 mm (0.5 inches)
+    * Pipe diameter between 50 mm and 1 m (2 to 40 inches)
+    * Beta between 0.1 and 0.75 inclusive
+    * Reynolds number larger than 5000 and also larger than :math:`170000\beta^2 D`.
+    
+    
 
     Examples
     --------
