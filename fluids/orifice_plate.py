@@ -29,7 +29,8 @@ from scipy.optimize import newton
 __all__ = ['orifice_discharge', 'orifice_expansibility',
            'C_Reader_Harris_Gallagher', 'Reader_Harris_Gallagher_discharge',
            'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
-           'dP_orifice']
+           'dP_orifice', 'velocity_of_approach_factor', 
+           'orifice_flow_coefficient']
 
 
 def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
@@ -491,3 +492,76 @@ def dP_orifice(D, Do, P1, P2, C):
     delta_w = ((1.0 - beta4*(1.0 - C*C))**0.5 - C*beta2)/(
                (1.0 - beta4*(1.0 - C*C))**0.5 + C*beta2)*dP
     return delta_w
+
+
+def velocity_of_approach_factor(D, Do):
+    r'''Calculates a factor for orifice plate design called the `velocity of
+    approach`.
+    
+    .. math::
+        \text{Velocity of approach} = \frac{1}{\sqrt{1 - \beta^4}}
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of orifice at flow conditions, [m]
+
+    Returns
+    -------
+    velocity_of_approach : float
+        Coefficient of discharge of the orifice, [-]
+
+    Notes
+    -----
+    
+    Examples
+    --------
+    >>> velocity_of_approach_factor(D=0.0739, Do=0.0222)
+    1.0040970074165514
+    
+    References
+    ----------
+    .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
+       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    '''
+    return (1.0 - (Do/D)**4)**-0.5
+
+
+def orifice_flow_coefficient(D, Do, C):
+    r'''Calculates a factor for orifice plate design called the `flow 
+    coefficient`. This should not be confused with the flow coefficient often
+    used when discussing valves.
+    
+    .. math::
+        \text{Flow coefficient} = \frac{C}{\sqrt{1 - \beta^4}}
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of orifice at flow conditions, [m]
+    C : float
+        Coefficient of discharge of the orifice, [-]
+
+    Returns
+    -------
+    flow_coefficient : float
+        Orifice flow coefficient, [-]
+
+    Notes
+    -----
+    
+    Examples
+    --------
+    >>> orifice_flow_coefficient(D=0.0739, Do=0.0222, C=0.6)
+    0.6024582044499308
+    
+    References
+    ----------
+    .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
+       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    '''
+    return C*(1.0 - (Do/D)**4)**-0.5

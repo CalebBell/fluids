@@ -60,6 +60,14 @@ def test_discharge_coefficient_to_K():
 def test_dP_orifice():
     dP = dP_orifice(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0, C=0.61512)
     assert_allclose(dP, 9069.474705745388)
+    
+def test_velocity_of_approach_factor():
+    factor = velocity_of_approach_factor(D=0.0739, Do=0.0222)
+    assert_allclose(factor, 1.0040970074165514)
+
+def test_orifice_flow_coefficient():
+    factor = orifice_flow_coefficient(D=0.0739, Do=0.0222, C=0.6)
+    assert_allclose(factor, 0.6024582044499308)
 
 @pytest.mark.slow
 def test_fuzz_K_to_discharge_coefficient():
