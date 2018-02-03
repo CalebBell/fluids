@@ -41,6 +41,16 @@ def test_cooling_degree_days():
     assert_allclose(cooling_degree_days(300, truncate=False), -16.85)
     assert_allclose(cooling_degree_days(250, T_base=300), 50)
 
+def test_month_average_temperature():
+    station = get_closest_station(38.8572, -77.0369)
+    station_data = StationDataGSOD(station)
+    Ts_calc = station_data.month_average_temperature(1990, 2000, include_yearly=False, minimum_days=23)
+    Ts_expect = [276.1599380905833, 277.5375516246206, 281.1881231671554, 286.7367003367004, 291.8689638318671, 296.79545454545456, 299.51868686868687, 298.2097914630174, 294.4116161616162, 288.25883023786247, 282.3188552188553, 277.8282339524275]
+    assert_allclose(Ts_calc, Ts_expect, rtol=1E-3)
+    
+    assert station_data.warmest_month(1990, 2000) == 6
+    assert station_data.coldest_month(1990, 2000) == 0
+    
 
     
 def test_IntegratedSurfaceDatabaseStation():

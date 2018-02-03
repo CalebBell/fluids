@@ -51,10 +51,11 @@ try:  # pragma: no cover
 except ImportError:  # pragma: no cover
     data_dir = ''
     pass
+# TODO: Import ephem and get hours/minutes of sunlight per day.
     
 __all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
            'get_closest_station', 'get_station_year_text', 'gsod_day_parser',
-           'StationDataGSOD', 'heating_degree_days', 'cooling_degree_days']
+           'StationDataGSOD', 'heating_degree_days', 'cooling_degree_days', 'stations']
 
 folder = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -305,14 +306,35 @@ class StationDataGSOD(object):
                     parsed = gsod_day_parser(line)
                     doy = parsed.DATE.timetuple().tm_yday-1
                     days[doy] = parsed
-                
-    def month_average_temperature(self, older_date=None, newer_date=None):
+                    
+    def coldest_month(self, older_year=None, newer_year=None, minimum_days=23):
+        # Tested
+        month_data = self.month_average_temperature(older_year=older_year,
+                                                    newer_year=newer_year, 
+                                                    minimum_days=minimum_days)
+        return month_data.index(min(month_data))
+    
+    def warmest_month(self, older_year=None, newer_year=None, minimum_days=23):
+        # Tested
+        month_data = self.month_average_temperature(older_year=older_year,
+                                                    newer_year=newer_year, 
+                                                    minimum_days=minimum_days)
+        return month_data.index(max(month_data))
+
+    def month_average_temperature(self, older_year=None, newer_year=None,
+                                  include_yearly=False, minimum_days=23):
+        '''
+        >>> station = get_closest_station(38.8572, -77.0369)
+        >>> station_data = StationDataGSOD(station)
+        >>> station_data.month_average_temperature(1990, 2000, include_yearly=False)
+        [276.1599380905833, 277.5375516246206, 281.1881231671554, 286.7367003367004, 291.8689638318671, 296.79545454545456, 299.51868686868687, 298.2097914630174, 294.4116161616162, 288.25883023786247, 282.3188552188553, 277.8282339524275]
+        '''
         # Take years, make them inclusive; add minimum valid days.
         year_month_averages = {}
         year_month_counts = {}
         
         for year, data in self.parsed_data.items():
-            if not (older_date <= datetime.datetime(year, 1, 1) <= newer_date):
+            if not (older_year <= year <= newer_year):
                 continue # Ignore out-of-range years easily
             year_month_averages[year] = [0.0]*12
             year_month_counts[year] = [0]*12
@@ -321,17 +343,19 @@ class StationDataGSOD(object):
                 if day is None:
                     continue
                 # Don't do these comparisions to make it fast
-                if day.DATE < older_date or day.DATE > newer_date:
+                if day.DATE.year < older_year or day.DATE.year > newer_year:
                     continue # Ignore out-of-range days as possible
                     
                 T = day.TEMP
+                if T is None:
+                    continue
                 # Cache these lookups
                 year_month_averages[year][day.DATE.month-1] += T
                 year_month_counts[year][day.DATE.month-1] += 1
             
             for month in range(12):
                 count = year_month_counts[year][month]
-                if count < 23:
+                if count < minimum_days:
                     ans = None
                 else:
                     ans = year_month_averages[year][month]/count
@@ -342,15 +366,104 @@ class StationDataGSOD(object):
         actual_averages_counts = [0]*12
         for year, average in year_month_averages.items():
             for month in range(12):
-                if average is not None:
-                    actual_averages_counts[month] += 1
-                    actual_averages[month] += average[month]
+                if average is not None and average[month] is not None:
+                    count = actual_averages_counts[month] 
+                    if count is None:
+                        count = 1
+                    else: 
+                        count += 1
+                    actual_averages_counts[month] = count
+                    month_average_sum = actual_averages[month]
+                    if month_average_sum is None:
+                        month_average_sum = average[month]
+                    else:
+                        month_average_sum += average[month]
+                    actual_averages[month] = month_average_sum
+                    
         for month in range(12):
             actual_averages[month] = actual_averages[month]/actual_averages_counts[month]
                     
         # Don't set anything as properties - too many variables used in calculating thems
         # Speed is not that important.
-        return actual_averages, year_month_averages
+        if include_yearly:
+            return actual_averages, year_month_averages
+        else:
+            return actual_averages
+
+    # Copy and paste
+    def month_average_windspeed(self, older_year=None, newer_year=None,
+                                  include_yearly=False, minimum_days=23):
+        # Take years, make them inclusive; add minimum valid days.
+        year_month_averages = {}
+        year_month_counts = {}
+        
+        for year, data in self.parsed_data.items():
+            if not (older_year <= year <= newer_year):
+                continue # Ignore out-of-range years easily
+            year_month_averages[year] = [0.0]*12
+            year_month_counts[year] = [0]*12
+
+            for i, day in enumerate(data):
+                if day is None:
+                    continue
+                # Don't do these comparisions to make it fast
+                if day.DATE.year < older_year or day.DATE.year > newer_year:
+                    continue # Ignore out-of-range days as possible
+                    
+                wind_speed = day.WDSP
+                if wind_speed is None:
+                    continue
+                # Cache these lookups
+                year_month_averages[year][day.DATE.month-1] += wind_speed
+                year_month_counts[year][day.DATE.month-1] += 1
+            
+            for month in range(12):
+                count = year_month_counts[year][month]
+                if count < minimum_days:
+                    ans = None
+                else:
+                    ans = year_month_averages[year][month]/count
+                year_month_averages[year][month] = ans
+                
+        # Compute the average of the month
+        actual_averages = [0.0]*12
+        actual_averages_counts = [0]*12
+        for year, average in year_month_averages.items():
+            for month in range(12):
+                if average is not None and average[month] is not None:
+                    count = actual_averages_counts[month] 
+                    if count is None:
+                        count = 1
+                    else: 
+                        count += 1
+                    actual_averages_counts[month] = count
+                    month_average_sum = actual_averages[month]
+                    if month_average_sum is None:
+                        month_average_sum = average[month]
+                    else:
+                        month_average_sum += average[month]
+                    actual_averages[month] = month_average_sum
+                    
+        for month in range(12):
+            actual_averages[month] = actual_averages[month]/actual_averages_counts[month]
+                    
+        # Don't set anything as properties - too many variables used in calculating thems
+        # Speed is not that important.
+        if include_yearly:
+            return actual_averages, year_month_averages
+        else:
+            return actual_averages
+
+    def percentile_extreme_condition(self, older_year=None, newer_year=None,
+                                  include_yearly=False, minimum_days=23, attr='WDSP'):
+        # Really need to normalize data with interpolation etc here.
+        # Need to get the data, and process it and score interpolation regimes.
+        # Or could just randomly drop data and try to fill it in.
+        accepted_values = []
+        for year, data in self.parsed_data.items():
+            if not (older_year <= year <= newer_year):
+                continue # Ignore out-of-range years easily
+
 
 
 stations = []
@@ -425,7 +538,7 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
     Examples
     --------
     >>> get_closest_station(51.02532675, -114.049868485806, 20150000)
-    <Weather station registered in the Integrated Surface Database, name CALGARY INTL CS, country CA, USAF 713930.0, WBAN None, coords (51.1, -114.0) Weather data from 2004 to 2017>
+    <Weather station registered in the Integrated Surface Database, name CALGARY INTL CS, country CA, USAF 713930, WBAN None, coords (51.1, -114.0) Weather data from 2004 to 2017>
     '''
     # Both station strings may be important
     # Searching for 100 stations is fine, 70 microseconds vs 50 microsecond for 1
