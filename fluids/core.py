@@ -2267,7 +2267,7 @@ def dP_from_K(K, rho, V):
 
     Notes
     -----
-    Loss ciefficient `K` is usually the sum of several factors, including
+    Loss coefficient `K` is usually the sum of several factors, including
     the friction factor.
 
     Examples
@@ -2301,7 +2301,7 @@ def head_from_K(K, V, g=g):
 
     Notes
     -----
-    Loss ciefficient `K` is usually the sum of several factors, including
+    Loss coefficient `K` is usually the sum of several factors, including
     the friction factor.
 
     Examples

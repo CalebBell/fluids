@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from fluids import *
+import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 
@@ -46,3 +47,50 @@ def test_C_Reader_Harris_Gallagher():
 def test_Reader_Harris_Gallagher_discharge():
     m = Reader_Harris_Gallagher_discharge(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, taps='D')
     assert_allclose(m, 7.702338035732167)
+    
+    
+def test_K_to_discharge_coefficient():
+    C = K_to_discharge_coefficient(D=0.07366, Do=0.05, K=5.2314291729754)
+    assert_allclose(C, 0.6151200000000001)
+    
+def test_discharge_coefficient_to_K():
+    K = discharge_coefficient_to_K(D=0.07366, Do=0.05, C=0.61512)
+    assert_allclose(K, 5.2314291729754)
+    
+def test_dP_orifice():
+    dP = dP_orifice(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0, C=0.61512)
+    assert_allclose(dP, 9069.474705745388)
+
+@pytest.mark.slow
+def test_fuzz_K_to_discharge_coefficient():
+    '''
+    # Testing the different formulas
+    from sympy import *
+    C, beta, K = symbols('C, beta, K')
+
+    expr = Eq(K, (sqrt(1 - beta**4*(1 - C*C))/(C*beta**2) - 1)**2)
+    solns = solve(expr, C)
+    [i.subs({'K': 5.2314291729754, 'beta': 0.05/0.07366}) for i in solns]
+    
+    [-sqrt(-beta**4/(-2*sqrt(K)*beta**4 + K*beta**4) + 1/(-2*sqrt(K)*beta**4 + K*beta**4)),
+ sqrt(-beta**4/(-2*sqrt(K)*beta**4 + K*beta**4) + 1/(-2*sqrt(K)*beta**4 + K*beta**4)),
+ -sqrt(-beta**4/(2*sqrt(K)*beta**4 + K*beta**4) + 1/(2*sqrt(K)*beta**4 + K*beta**4)),
+ sqrt(-beta**4/(2*sqrt(K)*beta**4 + K*beta**4) + 1/(2*sqrt(K)*beta**4 + K*beta**4))]
+    
+    # Getting the formula
+    from sympy import *
+    C, beta, K = symbols('C, beta, K')
+    
+    expr = Eq(K, (sqrt(1 - beta**4*(1 - C*C))/(C*beta**2) - 1)**2)
+    print(latex(solve(expr, C)[3]))
+    '''
+    
+    Ds = np.logspace(np.log10(1-1E-9), np.log10(1E-9))
+    for D_ratio in Ds:
+        Ks = np.logspace(np.log10(1E-9), np.log10(50000))
+        Ks_recalc = []
+        for K in Ks:
+            C = K_to_discharge_coefficient(D=1, Do=D_ratio, K=K)
+            K_calc = discharge_coefficient_to_K(D=1, Do=D_ratio, C=C)
+            Ks_recalc.append(K_calc)
+        assert_allclose(Ks, Ks_recalc)

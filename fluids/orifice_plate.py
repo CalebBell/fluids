@@ -27,7 +27,9 @@ from fluids.friction import friction_factor
 from scipy.optimize import newton
 
 __all__ = ['orifice_discharge', 'orifice_expansibility',
-           'C_Reader_Harris_Gallagher', 'Reader_Harris_Gallagher_discharge']
+           'C_Reader_Harris_Gallagher', 'Reader_Harris_Gallagher_discharge',
+           'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
+           'dP_orifice']
 
 
 def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
@@ -333,5 +335,159 @@ def Reader_Harris_Gallagher_discharge(D, Do, P1, P2, rho, mu, k, taps='corner'):
         m_calc = orifice_discharge(D=D, Do=Do, P1=P1, P2=P2, rho=rho, 
                                     C=C, expansibility=epsilon)
         return m - m_calc
-
+    
     return newton(to_solve, 2.81)
+
+
+def discharge_coefficient_to_K(D, Do, C):
+    r'''Converts a discharge coefficient to a standard loss coefficient,
+    for use in computation of the actual pressure drop of an orifice or other
+    device.
+
+    .. math::
+        K = \left[\frac{\sqrt{1-\beta^4(1-C^2)}}{C\beta^2} - 1\right]^2
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of orifice at flow conditions, [m]
+    C : float
+        Coefficient of discharge of the orifice, [-]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the velocity and density of the fluid
+        just upstream of the orifice, [-]
+
+    Notes
+    -----
+    If expansibility is used in the orifice calculation, the result will not
+    match with the specified pressure drop formula in [1]_; it can almost
+    be matched by dividing the calculated mass flow by the expansibility factor
+    and using that mass flow with the loss coefficient. 
+    
+    Examples
+    --------
+    >>> discharge_coefficient_to_K(D=0.07366, Do=0.05, C=0.61512)
+    5.2314291729754
+    
+    References
+    ----------
+    .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
+       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    '''
+    beta = Do/D
+    beta2 = beta*beta
+    beta4 = beta2*beta2
+    return ((1.0 - beta4*(1.0 - C*C))**0.5/(C*beta2) - 1.0)**2
+
+
+def K_to_discharge_coefficient(D, Do, K):
+    r'''Converts a standard loss coefficient to a discharge coefficient.
+    
+    .. math::
+        C = \sqrt{\frac{1}{2 \sqrt{K} \beta^{4} + K \beta^{4}}
+        - \frac{\beta^{4}}{2 \sqrt{K} \beta^{4} + K \beta^{4}} }
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of orifice at flow conditions, [m]
+    K : float
+        Loss coefficient with respect to the velocity and density of the fluid
+        just upstream of the orifice, [-]
+
+    Returns
+    -------
+    C : float
+        Coefficient of discharge of the orifice, [-]
+
+    Notes
+    -----
+    If expansibility is used in the orifice calculation, the result will not
+    match with the specified pressure drop formula in [1]_; it can almost
+    be matched by dividing the calculated mass flow by the expansibility factor
+    and using that mass flow with the loss coefficient. 
+    
+    This expression was derived with SymPy, and checked numerically. There were
+    three other, incorrect roots.
+    
+    Examples
+    --------
+    >>> K_to_discharge_coefficient(D=0.07366, Do=0.05, K=5.2314291729754)
+    0.6151200000000001
+    
+    References
+    ----------
+    .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
+       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    '''
+    beta = Do/D
+    beta2 = beta*beta
+    beta4 = beta2*beta2
+    root_K = K**0.5
+    common_term = 2.0*root_K*beta4 + K*beta4
+    return (-beta4/(common_term) + 1.0/(common_term))**0.5
+
+
+def dP_orifice(D, Do, P1, P2, C):
+    r'''Calculates the non-recoverable pressure drop of an orifice plate based
+    on the pressure drop and the geometry of the plate and the discharge 
+    coefficient.
+    
+    .. math::
+        \Delta\bar w = \frac{\sqrt{1-\beta^4(1-C^2)}-C\beta^2}
+        {\sqrt{1-\beta^4(1-C^2)}+C\beta^2} (P_1 - P_2)
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of orifice at flow conditions, [m]
+    P1 : float
+        Static pressure of fluid upstream of orifice at the cross-section of
+        the pressure tap, [Pa]
+    P2 : float
+        Static pressure of fluid downstream of orifice at the cross-section of
+        the pressure tap, [Pa]
+    C : float
+        Coefficient of discharge of the orifice, [-]
+
+    Returns
+    -------
+    dP : float
+        Non-recoverable pressure drop of the orifice plate, [Pa]
+
+    Notes
+    -----
+    This formula can be well approximated by:
+        
+    .. math::
+        \Delta\bar w = \left(1 - \beta^{1.9}\right)(P_1 - P_2)
+        
+    The recoverable pressure drop should be recovered by 6 pipe diameters 
+    downstream of the orifice plate.
+    
+    Examples
+    --------
+    >>> dP_orifice(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0, C=0.61512)
+    9069.474705745388
+    
+    References
+    ----------
+    .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
+       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    '''
+    beta = Do/D
+    beta2 = beta*beta
+    beta4 = beta2*beta2
+    dP = P1 - P2
+    delta_w = ((1.0 - beta4*(1.0 - C*C))**0.5 - C*beta2)/(
+               (1.0 - beta4*(1.0 - C*C))**0.5 + C*beta2)*dP
+    return delta_w
