@@ -15,4 +15,4 @@ Solved fluids mechanics problems
     Examples/Crane TP 410 Solved Problems/7.11 Flat heating Coils - Water.ipynb
     Examples/Crane TP 410 Solved Problems/7.13 Flow given in English Units - Oil.ipynb
     Examples/Crane TP 410 Solved Problems/7.14 Bernoulli's Theorem-Water.ipynb
-
+    Examples/Crane TP 410 Solved Problems/7.29 Orifice Flow Rate Calculation.ipynb
