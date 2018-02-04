@@ -30,7 +30,8 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'C_Reader_Harris_Gallagher', 'Reader_Harris_Gallagher_discharge',
            'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
            'dP_orifice', 'velocity_of_approach_factor', 
-           'orifice_flow_coefficient', 'nozzle_expansibility']
+           'orifice_flow_coefficient', 'nozzle_expansibility',
+           'C_long_radius_nozzle', 'C_ISA_1932_nozzle']
 
 
 def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
@@ -144,11 +145,10 @@ def orifice_expansibility(D, Do, P1, P2, k):
             1.0 - (P2/P1)**(1./k)))
 
 
-def C_Reader_Harris_Gallagher(D, Do, rho, mu, k, m, taps='corner'):
+def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     r'''Calculates the coefficient of discharge of the orifice based on the 
     geometry of the plate, measured pressures of the orifice, mass flow rate
-    through the orifice, and the density, viscosity, and isentropic exponent 
-    of the fluid.
+    through the orifice, and the density and viscosity of the fluid.
     
     .. math::
         C = 0.5961 + 0.0261\beta^2 - 0.216\beta^8 + 0.000521\left(\frac{
@@ -198,8 +198,6 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, k, m, taps='corner'):
         Density of fluid at `P1`, [kg/m^3]
     mu : float
         Viscosity of fluid at `P1`, [Pa*s]
-    k : float
-        Isentropic exponent of fluid, [-]
     m : float
         Mass flow rate of fluid through the orifice, [kg/s]
     taps : str
@@ -239,7 +237,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, k, m, taps='corner'):
     Examples
     --------
     >>> C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, 
-    ... m=0.12, k=1.4, taps='flange')
+    ... m=0.12, taps='flange')
     0.5990326277163659
     
     References
@@ -337,7 +335,7 @@ def Reader_Harris_Gallagher_discharge(D, Do, P1, P2, rho, mu, k, taps='corner'):
     '''
     def to_solve(m):
         C = C_Reader_Harris_Gallagher(D=D, Do=Do, 
-            rho=rho, mu=mu, m=m, k=k, taps=taps)
+            rho=rho, mu=mu, m=m, taps=taps)
         epsilon = orifice_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
         m_calc = orifice_discharge(D=D, Do=Do, P1=P1, P2=P2, rho=rho, 
                                     C=C, expansibility=epsilon)
@@ -641,4 +639,104 @@ def nozzle_expansibility(D, Do, P1, P2, k):
     return (term1*term2*term3)**0.5
 
 
+def C_long_radius_nozzle(D, Do, rho, mu, m):
+    r'''Calculates the coefficient of discharge of a long radius nozzle used
+    for measuring flow rate of fluid, based on the geometry of the nozzle, 
+    mass flow rate through the nozzle, and the density and viscosity of the
+    fluid.
+    
+    .. math::
+        C = 0.9965 - 0.00653\beta^{0.5} \left(\frac{10^6}{Re_D}\right)^{0.5}
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of long radius nozzle orifice at flow conditions, [m]
+    rho : float
+        Density of fluid at `P1`, [kg/m^3]
+    mu : float
+        Viscosity of fluid at `P1`, [Pa*s]
+    m : float
+        Mass flow rate of fluid through the nozzle, [kg/s]
+        
+    Returns
+    -------
+    C : float
+        Coefficient of discharge of the long radius nozzle orifice, [-]
 
+    Notes
+    -----
+    
+    Examples
+    --------
+    >>> C_long_radius_nozzle(D=0.07391, Do=0.0422, rho=1.2, mu=1.8E-5, m=0.1)
+    0.9805503704679863
+    
+    References
+    ----------
+    .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
+       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    .. [2] ISO 5167-3:2003 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 3: Nozzles and Venturi Nozzles.
+    '''
+    A_pipe = pi/4.*D*D
+    v = m/(A_pipe*rho)
+    Re_D = rho*v*D/mu
+    beta = Do/D
+    return 0.9965 - 0.00653*beta**0.5*(1E6/Re_D)**0.5
+
+
+def C_ISA_1932_nozzle(D, Do, rho, mu, m):
+    r'''Calculates the coefficient of discharge of an ISA 1932 style nozzle 
+    used for measuring flow rate of fluid, based on the geometry of the nozzle, 
+    mass flow rate through the nozzle, and the density and viscosity of the
+    fluid.
+    
+    .. math::
+        C = 0.9900 - 0.2262\beta^{4.1} - (0.00175\beta^2 - 0.0033\beta^{4.15})
+        \left(\frac{10^6}{Re_D}\right)^{1.15}
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of nozzle orifice at flow conditions, [m]
+    rho : float
+        Density of fluid at `P1`, [kg/m^3]
+    mu : float
+        Viscosity of fluid at `P1`, [Pa*s]
+    m : float
+        Mass flow rate of fluid through the nozzle, [kg/s]
+        
+    Returns
+    -------
+    C : float
+        Coefficient of discharge of the nozzle orifice, [-]
+
+    Notes
+    -----
+    
+    Examples
+    --------
+    >>> C_ISA_1932_nozzle(D=0.07391, Do=0.0422, rho=1.2, mu=1.8E-5, m=0.1)
+    0.9635849973250495
+    
+    References
+    ----------
+    .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
+       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    .. [2] ISO 5167-3:2003 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 3: Nozzles and Venturi Nozzles.
+    '''
+    A_pipe = pi/4.*D*D
+    v = m/(A_pipe*rho)
+    Re_D = rho*v*D/mu
+    beta = Do/D
+    C = (0.9900 - 0.2262*beta**4.1
+         - (0.00175*beta**2 - 0.0033*beta**4.15)*(1E6/Re_D)**1.15)
+    return C

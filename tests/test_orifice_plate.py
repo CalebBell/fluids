@@ -35,13 +35,13 @@ def test_orifice_expansibility():
     # Tested against a value in the standard
     
 def test_C_Reader_Harris_Gallagher():
-    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, k=1.4, taps='corner' )
+    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, taps='corner' )
     assert_allclose(C, 0.6000085121444034)
     
-    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, k=1.4, taps='D' )
+    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, taps='D' )
     assert_allclose(C, 0.5988219225153976)
     
-    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, k=1.4, taps='flange' )
+    C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, taps='flange' )
     assert_allclose(C, 0.5990042535666878)
 
 def test_Reader_Harris_Gallagher_discharge():
@@ -72,6 +72,15 @@ def test_orifice_flow_coefficient():
 def test_nozzle_expansibility():
     epsilon = nozzle_expansibility(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1.4)
     assert_allclose(epsilon, 0.991617725452954)
+
+def test_C_long_radius_nozzle():
+    C = C_long_radius_nozzle(D=0.07391, Do=0.0422, rho=1.2, mu=1.8E-5, m=0.1)
+    assert_allclose(C, 0.9805503704679863)
+    
+def test_C_ISA_1932_nozzle():
+    C = C_ISA_1932_nozzle(D=0.07391, Do=0.0422, rho=1.2, mu=1.8E-5, m=0.1)
+    assert_allclose(C, 0.9635849973250495)
+
 
 @pytest.mark.slow
 def test_fuzz_K_to_discharge_coefficient():
