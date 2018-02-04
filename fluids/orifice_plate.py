@@ -69,7 +69,7 @@ def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
 
     Notes
     -----
-    This is formula 1-12 in [1]_.
+    This is formula 1-12 in [1]_ and also [2]_.
 
     Examples
     --------
@@ -81,6 +81,9 @@ def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
     ----------
     .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 2: Orifice Plates.
     '''
     dP = P1 - P2
     beta = Do/D
@@ -132,6 +135,9 @@ def orifice_expansibility(D, Do, P1, P2, k):
     ----------
     .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 2: Orifice Plates.
     '''
     beta = Do/D
     return (1.0 - (0.351 + 0.256*beta**4 + 0.93*beta**8)*(
@@ -230,8 +236,6 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, k, m, taps='corner'):
     * Beta between 0.1 and 0.75 inclusive
     * Reynolds number larger than 5000 and also larger than :math:`170000\beta^2 D`.
     
-    
-
     Examples
     --------
     >>> C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, 
@@ -242,6 +246,12 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, k, m, taps='corner'):
     ----------
     .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 2: Orifice Plates.  
+    .. [3] Reader-Harris, M. J., "The Equation for the Expansibility Factor for
+       Orifice Plates," Proceedings of FLOMEKO 1998, Lund, Sweden, 1998: 
+       209-214.
     '''
     A_pipe = pi/4.*D*D
     v = m/(A_pipe*rho)
@@ -321,6 +331,9 @@ def Reader_Harris_Gallagher_discharge(D, Do, P1, P2, rho, mu, k, taps='corner'):
     ----------
     .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 2: Orifice Plates.
     '''
     def to_solve(m):
         C = C_Reader_Harris_Gallagher(D=D, Do=Do, 
@@ -372,6 +385,9 @@ def discharge_coefficient_to_K(D, Do, C):
     ----------
     .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 2: Orifice Plates.
     '''
     beta = Do/D
     beta2 = beta*beta
@@ -420,6 +436,9 @@ def K_to_discharge_coefficient(D, Do, K):
     ----------
     .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 2: Orifice Plates.
     '''
     beta = Do/D
     beta2 = beta*beta
@@ -477,6 +496,9 @@ def dP_orifice(D, Do, P1, P2, C):
     ----------
     .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 2: Orifice Plates.
     '''
     beta = Do/D
     beta2 = beta*beta
@@ -594,6 +616,7 @@ def nozzle_expansibility(D, Do, P1, P2, k):
 
     Notes
     -----
+    This formula was determined for the range of P2/P1 >= 0.75.
 
     Examples
     --------
@@ -604,6 +627,9 @@ def nozzle_expansibility(D, Do, P1, P2, k):
     ----------
     .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    .. [2] ISO 5167-3:2003 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 3: Nozzles and Venturi Nozzles.
     '''
     beta = Do/D
     beta2 = beta*beta
