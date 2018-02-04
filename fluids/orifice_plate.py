@@ -31,7 +31,7 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
            'dP_orifice', 'velocity_of_approach_factor', 
            'orifice_flow_coefficient', 'nozzle_expansibility',
-           'C_long_radius_nozzle', 'C_ISA_1932_nozzle']
+           'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle']
 
 
 def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
@@ -740,3 +740,42 @@ def C_ISA_1932_nozzle(D, Do, rho, mu, m):
     C = (0.9900 - 0.2262*beta**4.1
          - (0.00175*beta**2 - 0.0033*beta**4.15)*(1E6/Re_D)**1.15)
     return C
+
+
+def C_venturi_nozzle(D, Do):
+    r'''Calculates the coefficient of discharge of an Venturi style nozzle 
+    used for measuring flow rate of fluid, based on the geometry of the nozzle.
+    
+    .. math::
+        C = 0.9858 - 0.196\beta^{4.5}
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of nozzle orifice at flow conditions, [m]
+        
+    Returns
+    -------
+    C : float
+        Coefficient of discharge of the nozzle orifice, [-]
+
+    Notes
+    -----
+    
+    Examples
+    --------
+    >>> C_venturi_nozzle(D=0.07391, Do=0.0422)
+    0.9698996454169576
+    
+    References
+    ----------
+    .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
+       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
+    .. [2] ISO 5167-3:2003 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 3: Nozzles and Venturi Nozzles.
+    '''
+    beta = Do/D
+    return 0.9858 - 0.198*beta**4.5
