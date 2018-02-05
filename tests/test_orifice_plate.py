@@ -34,6 +34,11 @@ def test_orifice_expansibility():
     assert_allclose(epsilon, 0.9974739057343425)
     # Tested against a value in the standard
     
+def test_orifice_expansivity_1989():
+    # No actual sample points
+    epsilon = orifice_expansivity_1989(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1.4)
+    assert_allclose(epsilon, 0.9970510687411718)
+    
 def test_C_Reader_Harris_Gallagher():
     C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, taps='corner' )
     assert_allclose(C, 0.6000085121444034)
@@ -224,6 +229,7 @@ def test_C_venturi_nozzle_full():
     Cs = [0.9847, 0.9846, 0.9845, 0.9843, 0.9841, 0.9838, 0.9836, 0.9833, 0.9830, 0.9826, 0.9823, 0.9818, 0.9814, 0.9809, 0.9804, 0.9798, 0.9792, 0.9786, 0.9779, 0.9771, 0.9763, 0.9755, 0.9745, 0.9736, 0.9725, 0.9714, 0.9702, 0.9689, 0.9676, 0.9661, 0.9646, 0.9630, 0.9613, 0.9595, 0.9576, 0.9556, 0.9535, 0.9512, 0.9489, 0.9464, 0.9438, 0.9411, 0.9382, 0.9352, 0.9321, 0.9288, 0.9253, 0.9236]
     Cs_calc = [C_venturi_nozzle(D=1, Do=beta) for beta in betas]
     assert_allclose(Cs, Cs_calc, rtol=5E-3)
+
 
 
 @pytest.mark.slow

@@ -31,7 +31,8 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
            'dP_orifice', 'velocity_of_approach_factor', 
            'orifice_flow_coefficient', 'nozzle_expansibility',
-           'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle']
+           'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle',
+           'orifice_expansivity_1989']
 
 
 def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
@@ -144,6 +145,64 @@ def orifice_expansibility(D, Do, P1, P2, k):
     return (1.0 - (0.351 + 0.256*beta**4 + 0.93*beta**8)*(
             1.0 - (P2/P1)**(1./k)))
 
+def orifice_expansivity_1989(D, Do, P1, P2, k):
+    r'''Calculates the expansibility factor for orifice plate calculations
+    based on the geometry of the plate, measured pressures of the orifice, and
+    the isentropic exponent of the fluid.
+    
+    .. math::
+        \epsilon = 1- (0.41 + 0.35\beta^4)\Delta P/\kappa/P_1
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of orifice at flow conditions, [m]
+    P1 : float
+        Static pressure of fluid upstream of orifice at the cross-section of
+        the pressure tap, [Pa]
+    P2 : float
+        Static pressure of fluid downstream of orifice at the cross-section of
+        the pressure tap, [Pa]
+    k : float
+        Isentropic exponent of fluid, [-]
+
+    Returns
+    -------
+    expansibility : float
+        Expansibility factor (1 for incompressible fluids, less than 1 for
+        real fluids), [-]
+
+    Notes
+    -----
+    This formula was determined for the range of P2/P1 >= 0.75, and for fluids
+    of air, steam, and natural gas. However, there is no objection to using
+    it for other fluids.
+    
+    This is an older formula used to calculate expansivity factors for orifice
+    plates.
+    
+    In this standard, an expansivity factor formula transformation in terms of 
+    the pressure after the orifice is presented as well. This is the more
+    standard formulation in terms of the upstream conditions. The other formula
+    is below for reference only:
+    
+    .. math::
+        \epsilon_2 = \sqrt{1 + \frac{\Delta P}{P_2}} -  (0.41 + 0.35\beta^4)
+        \frac{\Delta P}{\kappa P_2 \sqrt{1 + \frac{\Delta P}{P_2}}}
+
+    Examples
+    --------
+    >>> orifice_expansivity_1989(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1.4)
+    0.9970510687411718
+
+    References
+    ----------
+    .. [1] American Society of Mechanical Engineers. MFC-3M-1989 Measurement 
+       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2005.
+    '''
+    return 1.0 - (0.41 + 0.35*(Do/D)**4)*(P1 - P2)/(k*P1)
 
 def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     r'''Calculates the coefficient of discharge of the orifice based on the 
@@ -608,7 +667,7 @@ def nozzle_expansibility(D, Do, P1, P2, k):
 
     Returns
     -------
-    expansibility : float, optional
+    expansibility : float
         Expansibility factor (1 for incompressible fluids, less than 1 for
         real fluids), [-]
 
