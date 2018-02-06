@@ -35,6 +35,17 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'orifice_expansivity_1989']
 
 
+CONCENTRIC_ORIFICE = 'concentric'
+ECCENTRIC_ORIFICE = 'eccentric'
+SEGMENTAL_ORIFICE = 'segmental'
+ORIFICE_HOLE_TYPES = [CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, SEGMENTAL_ORIFICE]
+
+ORIFICE_CORNER_TAPS = 'corner'
+ORIFICE_FLANGE_TAPS = 'flange'
+ORIFICE_D_AND_D_2_TAPS = 'D and D/2'
+
+
+
 def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
     r'''Calculates the flow rate of an orifice plate based on the geometry
     of the plate, measured pressures of the orifice, and the density of the
