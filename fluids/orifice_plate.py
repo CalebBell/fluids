@@ -38,7 +38,9 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
 CONCENTRIC_ORIFICE = 'concentric'
 ECCENTRIC_ORIFICE = 'eccentric'
 SEGMENTAL_ORIFICE = 'segmental'
-ORIFICE_HOLE_TYPES = [CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, SEGMENTAL_ORIFICE]
+CONDITIONING_4_HOLE_ORIFICE = 'Rosemount 4 hole self conditioing'
+ORIFICE_HOLE_TYPES = [CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, SEGMENTAL_ORIFICE,
+                      CONDITIONING_4_HOLE_ORIFICE]
 
 ORIFICE_CORNER_TAPS = 'corner'
 ORIFICE_FLANGE_TAPS = 'flange'
@@ -215,6 +217,9 @@ def orifice_expansivity_1989(D, Do, P1, P2, k):
     '''
     return 1.0 - (0.41 + 0.35*(Do/D)**4)*(P1 - P2)/(k*P1)
 
+
+
+
 def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     r'''Calculates the coefficient of discharge of the orifice based on the 
     geometry of the plate, measured pressures of the orifice, mass flow rate
@@ -302,7 +307,11 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     * Orifice bore diameter muse be larger than 12.5 mm (0.5 inches)
     * Pipe diameter between 50 mm and 1 m (2 to 40 inches)
     * Beta between 0.1 and 0.75 inclusive
-    * Reynolds number larger than 5000 and also larger than :math:`170000\beta^2 D`.
+    * Reynolds number larger than 5000 and also larger than
+      :math:`170000\beta^2 D`.
+      
+    This is also presented in Crane's TP410 (2009)publication, whereas the
+    1999 and 1982 editions showed only a graph for discharge coefficients.
     
     Examples
     --------
@@ -345,7 +354,8 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     
     C = (0.5961 + 0.0261*beta2 - 0.216*beta8 + 0.000521*(1E6*beta/Re_D)**0.7
          + (0.0188 + 0.0063*A)*beta**3.5*(1E6/Re_D)**0.3
-         + (0.043 + 0.080*exp(-1E1*L1) - 0.123*exp(-7.0*L1))*(1.0 - 0.11*A)*beta4/(1.0 - beta4)
+         + ((0.043 + 0.080*exp(-1E1*L1) - 0.123*exp(-7.0*L1))
+            *(1.0 - 0.11*A)*beta4/(1.0 - beta4))
          -0.031*(M2_prime - 0.8*M2_prime**1.1)*beta**1.3)
     if D < 0.07112:
         C += 0.011*(0.75 - beta)*(2.8 - D/0.0254)
@@ -849,3 +859,23 @@ def C_venturi_nozzle(D, Do):
     '''
     beta = Do/D
     return 0.9858 - 0.198*beta**4.5
+
+
+# Venturi tube loss coefficients as a function of Re
+as_cast_convergent_venturi_Res = [4E5, 6E4, 1E5, 1.5E5]
+as_cast_convergent_venturi_Cs = [0.957, 0.966, 0.976, 0.982]
+
+machined_convergent_venturi_Res = [5E4, 1E5, 2E5, 3E5, 
+                                   7.5E5, # 5E5 to 1E6
+                                   1.5E6, # 1E6 to 2E6
+                                   5E6] # 2E6 to 1E8
+machined_convergent_venturi_Cs = [0.970, 0.977, 0.992, 0.998, 0.995, 1.000, 1.010]
+
+rough_welded_convergent_venturi_Res = [4E4, 6E4, 1E5]
+rough_welded_convergent_venturi_Cs = [0.96, 0.97, 0.98]
+
+as_cast_convergent_entrance_machined_venturi_Res = [1E4, 6E4, 1E5, 1.5E5,
+                                                    3.5E5, # 2E5 to 5E5
+                                                    3.2E6] # 5E5 to 3.2E6
+as_cast_convergent_entrance_machined_venturi_Cs = [0.963, 0.978, 0.98, 0.987, 0.992, 0.995]
+
