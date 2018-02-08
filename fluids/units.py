@@ -61,6 +61,8 @@ match_units = re.compile('\[[a-zA-Z0-9()./*^\- ]*\]')
 
 def parse_numpydoc_variables_units(func):
     text = func.__doc__
+    if text is None:
+        text = ''
     section_names = [i.replace('-', '').strip() for i in match_sections.findall(text)]
     section_text = match_sections.split(text)
     
@@ -342,7 +344,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
                 name = attr.fget.__name__
             else:
                 name = attr.__name__
-            if attr.__doc__:
+            if hasattr(attr, '__doc__'):
                 if type(attr) == property:
                     property_unit_map[name] = u(match_parse_units(attr.fget.__doc__, i=0))
                 else:

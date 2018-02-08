@@ -883,8 +883,6 @@ as_cast_convergent_entrance_machined_venturi_Cs = [0.963, 0.978, 0.98, 0.987, 0.
 
 def differential_pressure_meter_discharge(D, Do, P1, P2, rho, mu, k, meter_type='orifice',
                                          taps=None):
-    '''
-    '''
     # rho, mu only needed for two nozzle functions and the main orifice function.
     # Greater friction losses = lower discharge coefficient
     if meter_type == 'ISO 5167 orifice':
