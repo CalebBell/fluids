@@ -32,7 +32,7 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'dP_orifice', 'velocity_of_approach_factor', 
            'orifice_flow_coefficient', 'nozzle_expansibility',
            'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle',
-           'orifice_expansivity_1989']
+           'orifice_expansivity_1989', 'differential_pressure_meter_discharge']
 
 
 CONCENTRIC_ORIFICE = 'concentric'
@@ -879,3 +879,44 @@ as_cast_convergent_entrance_machined_venturi_Res = [1E4, 6E4, 1E5, 1.5E5,
                                                     3.2E6] # 5E5 to 3.2E6
 as_cast_convergent_entrance_machined_venturi_Cs = [0.963, 0.978, 0.98, 0.987, 0.992, 0.995]
 
+
+
+def differential_pressure_meter_discharge(D, Do, P1, P2, rho, mu, k, meter_type='orifice',
+                                         taps=None):
+    '''
+    '''
+    # rho, mu only needed for two nozzle functions and the main orifice function.
+    # Greater friction losses = lower discharge coefficient
+    if meter_type == 'ISO 5167 orifice':
+        C_func = lambda m: C_Reader_Harris_Gallagher(D=D, Do=Do, rho=rho, mu=mu, m=m, taps=taps)
+        epsilon_func = lambda m : orifice_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
+        
+    elif meter_type == 'long radius nozzle':
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
+        C_func = lambda m: C_long_radius_nozzle(D, Do, rho, mu, m)
+    elif meter_type == 'ISA 1932 nozzle':
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
+        C_func = lambda m: C_ISA_1932_nozzle(D, Do, rho, mu, m)
+    elif meter_type == 'venturi nozzle':
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
+        C_func = lambda m: C_venturi_nozzle(D, Do)     
+    
+    elif meter_type == 'as cast convergent venturi tube':
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
+        C_func = lambda m: 0.984    
+    elif meter_type == 'machined convergent venturi tube':
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
+        C_func = lambda m: 0.995
+    elif meter_type == 'rough welded convergent venturi tube':
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
+        C_func = lambda m: 0.985
+
+        
+    def to_solve(m):
+        C = C_func(m)
+        epsilon = epsilon_func(m)
+        m_calc = orifice_discharge(D=D, Do=Do, P1=P1, P2=P2, rho=rho, 
+                                    C=C, expansibility=epsilon)
+        return m - m_calc
+    
+    return newton(to_solve, 2.81)
