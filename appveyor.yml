@@ -28,3 +28,6 @@ install:
 
 test_script:
   - cmd: py.test --cov-report html --cov=fluids 
+branches:
+  only:
+    - release
