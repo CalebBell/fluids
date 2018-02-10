@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import cos, sin, tan, atan, pi, radians, exp
+from math import cos, sin, tan, atan, pi, radians, exp, acos
 import numpy as np
 from fluids.friction import friction_factor
 from scipy.optimize import newton
@@ -33,7 +33,7 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'orifice_flow_coefficient', 'nozzle_expansibility',
            'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle',
            'orifice_expansivity_1989', 'differential_pressure_meter_discharge',
-           'diameter_ratio_cone_meter']
+           'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter']
 
 
 CONCENTRIC_ORIFICE = 'concentric'
@@ -898,6 +898,55 @@ def diameter_ratio_cone_meter(D, Dc):
     '''
     D_ratio = Dc/D
     return (1.0 - D_ratio*D_ratio)**0.5
+
+
+def diameter_ratio_wedge_meter(D, H):
+    r'''Calculates the diameter ratio `beta` used to characterize a wedge 
+    flow meter as given in [1]_ and [2]_.
+    
+    .. math::
+        \beta = \left(\frac{1}{\pi}\left\{\arccos\left[1 - \frac{2H}{D}
+        \right] - 2 \left[1 - \frac{2H}{D}
+        \right]\left(\frac{H}{D} - \left[\frac{H}{D}\right]^2
+        \right)^{0.5}\right\}\right)^{0.5}
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    H : float
+        Portion of the diameter of the clear segment of the pipe up to the 
+        wedge blocking flow; the height of the pipe up to the wedge, [m]
+    
+    Returns
+    -------
+    beta : float
+        Wedge meter diameter ratio, [-]
+
+    Notes
+    -----
+    
+    Examples
+    --------
+    >>> diameter_ratio_wedge_meter(D=0.2027, H=0.0608)
+    0.5022531424646643
+    
+    References
+    ----------
+    .. [1] Hollingshead, Colter. "Discharge Coefficient Performance of Venturi,
+       Standard Concentric Orifice Plate, V-Cone, and Wedge Flow Meters at 
+       Small Reynolds Numbers." May 1, 2011. 
+       https://digitalcommons.usu.edu/etd/869.
+    .. [2] IntraWedge WEDGE FLOW METER Type: IWM. January 2011.
+       http://www.intra-automation.com/download.php?file=pdf/products/technical_information/en/ti_iwm_en.pdf
+    '''
+    H_D = H/D
+    t0 = 1.0 - 2.0*H_D
+    t1 = acos(t0)
+    t2 = 2.0*(t0)
+    t3 = (H_D - H_D*H_D)**0.5
+    t4 = t1 - t2*t3
+    return (1./pi*t4)**0.5
 
 
 # Venturi tube loss coefficients as a function of Re

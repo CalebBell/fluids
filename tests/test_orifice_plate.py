@@ -100,6 +100,18 @@ def test_diameter_ratio_cone_meter():
     assert_allclose(beta, 0.6995232442563669)
 
 
+def test_diameter_ratio_wedge_meter():
+    beta = diameter_ratio_wedge_meter(D=6.065*inch, H=1.82*inch)
+    assert_allclose(beta, 0.5024062047655528)
+    
+    beta = diameter_ratio_wedge_meter(D=7.981*inch, H=3.192*inch)
+    assert_allclose(beta, 0.6111198863284705)
+    
+    beta = diameter_ratio_wedge_meter(D=7.981*inch, H=2.394*inch)
+    assert_allclose(beta, 0.5022667856496335)
+    
+    
+    
 def test_C_ISA_1932_nozzle_full():
     Cs = [[0.9616, 0.9692, 0.9750, 0.9773, 0.9789, 0.9813, 0.9820, 0.9821, 0.9822],
     [0.9604, 0.9682, 0.9741, 0.9764, 0.9781, 0.9805, 0.9812, 0.9813, 0.9814],
