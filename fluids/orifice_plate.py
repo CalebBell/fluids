@@ -34,7 +34,7 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle',
            'orifice_expansivity_1989', 'differential_pressure_meter_discharge',
            'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter',
-           'cone_meter_expansivity_Stewart']
+           'cone_meter_expansivity_Stewart', 'dP_cone_meter']
 
 
 CONCENTRIC_ORIFICE = 'concentric'
@@ -953,6 +953,53 @@ def cone_meter_expansivity_Stewart(D, Dc, P1, P2, k):
     dP = P1 - P2
     beta = diameter_ratio_cone_meter(D, Dc)
     return 1.0 - (0.649 + 0.696*beta**4)*dP/(k*P1)
+
+
+def dP_cone_meter(D, Dc, P1, P2):
+    r'''Calculates the non-recoverable pressure drop of a cone meter
+    based on the measured pressures before and at the cone end, and the 
+    geometry of the cone meter according to [1]_.
+    
+    .. math::
+        \Delta \bar \omega = (1.09 - 0.813\beta)\Delta P
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Dc : float
+        Diameter of the largest end of the cone meter, [m]
+    P1 : float
+        Static pressure of fluid upstream of cone meter at the cross-section of
+        the pressure tap, [Pa]
+    P2 : float
+        Static pressure of fluid at the end of the center of the cone pressure 
+        tap, [Pa]
+
+    Returns
+    -------
+    dP : float
+        Non-recoverable pressure drop of the orifice plate, [Pa]
+
+    Notes
+    -----
+    The recoverable pressure drop should be recovered by 6 pipe diameters 
+    downstream of the cone meter.
+    
+    Examples
+    --------
+    >>> dP_cone_meter(1, .7, 1E6, 9.5E5)
+    25470.093437973323
+    
+    References
+    ----------
+    .. [1] ISO 5167-5:2016 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 5: Cone meters.
+    '''
+    dP = P1 - P2
+    beta = diameter_ratio_cone_meter(D, Dc)
+    return (1.09 - 0.813*beta)*dP
 
 
 def diameter_ratio_wedge_meter(D, H):

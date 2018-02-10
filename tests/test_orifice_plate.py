@@ -117,6 +117,11 @@ def test_cone_meter_expansivity_Stewart():
     assert_allclose(eps, 0.91530745625)
 
 
+def test_dP_cone_meter():
+    dP = dP_cone_meter(1, .7, 1E6, 9.5E5)
+    assert_allclose(dP, 25470.093437973323)
+
+
 def test_cone_meter_expansivity_Stewart_full():
     err = lambda Dc, beta : diameter_ratio_cone_meter(D=1, Dc=Dc) - beta
     
@@ -252,6 +257,7 @@ def test_C_long_radius_nozzle_full():
     def C_long_radius_nozzle(D, Do, Re_D):
         beta = Do/D
         return 0.9965 - 0.00653*beta**0.5*(1E6/Re_D)**0.5
+    
     
     for i in range(len(betas)):
         Cs_expect = Cs[i]
