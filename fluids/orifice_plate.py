@@ -1100,7 +1100,10 @@ def differential_pressure_meter_discharge(D, Do, P1, P2, rho, mu, k, meter_type=
     elif meter_type == 'rough welded convergent venturi tube':
         epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
         C_func = lambda m: 0.985
-
+        
+    elif meter_type == 'cone meter':
+        epsilon_func = lambda m : cone_meter_expansivity_Stewart(D=D, Dc=Do, P1=P1, P2=P2, k=k)
+        C_func = lambda m: 0.82
         
     def to_solve(m):
         C = C_func(m)
