@@ -33,7 +33,8 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'orifice_flow_coefficient', 'nozzle_expansibility',
            'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle',
            'orifice_expansivity_1989', 'differential_pressure_meter_discharge',
-           'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter']
+           'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter',
+           'cone_meter_expansivity_Stewart']
 
 
 CONCENTRIC_ORIFICE = 'concentric'
@@ -900,6 +901,60 @@ def diameter_ratio_cone_meter(D, Dc):
     return (1.0 - D_ratio*D_ratio)**0.5
 
 
+def cone_meter_expansivity_Stewart(D, Dc, P1, P2, k):
+    r'''Calculates the expansibility factor for a cone flow meter,
+    based on the geometry of the cone meter, measured pressures of the orifice, 
+    and the isentropic exponent of the fluid. Developed in [1]_, also shown
+    in [2]_.
+    
+    .. math::
+        \epsilon = 1 - (0.649 + 0.696\beta^4) \frac{\Delta P}{\kappa P_1}
+
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Dc : float
+        Diameter of the largest end of the cone meter, [m]
+    P1 : float
+        Static pressure of fluid upstream of cone meter at the cross-section of
+        the pressure tap, [Pa]
+    P2 : float
+        Static pressure of fluid at the end of the center of the cone pressure 
+        tap, [Pa]
+    k : float
+        Isentropic exponent of fluid, [-]
+
+    Returns
+    -------
+    expansibility : float
+        Expansibility factor (1 for incompressible fluids, less than 1 for
+        real fluids), [-]
+
+    Notes
+    -----
+    This formula was determined for the range of P2/P1 >= 0.75; the only gas
+    used to determine the formula is air.
+
+    Examples
+    --------
+    >>> cone_meter_expansivity_Stewart(D=1, Dc=0.9, P1=1E6, P2=8.5E5, k=1.2)
+    0.9157343
+
+    References
+    ----------
+    .. [1] Stewart, D. G., M. Reader-Harris, and NEL Dr RJW Peters. "Derivation
+       of an Expansibility Factor for the V-Cone Meter." In Flow Measurement 
+       International Conference, Peebles, Scotland, UK, 2001.
+    .. [2] ISO 5167-5:2016 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running
+       Full -- Part 5: Cone meters.
+    '''
+    dP = P1 - P2
+    beta = diameter_ratio_cone_meter(D, Dc)
+    return 1.0 - (0.649 + 0.696*beta**4)*dP/(k*P1)
+
+
 def diameter_ratio_wedge_meter(D, H):
     r'''Calculates the diameter ratio `beta` used to characterize a wedge 
     flow meter as given in [1]_ and [2]_.
@@ -947,6 +1002,8 @@ def diameter_ratio_wedge_meter(D, H):
     t3 = (H_D - H_D*H_D)**0.5
     t4 = t1 - t2*t3
     return (1./pi*t4)**0.5
+
+
 
 
 # Venturi tube loss coefficients as a function of Re

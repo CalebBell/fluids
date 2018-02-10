@@ -23,6 +23,7 @@ SOFTWARE.'''
 from fluids import *
 import numpy as np
 from scipy.constants import inch
+from scipy.optimize import fsolve
 from numpy.testing import assert_allclose
 import pytest
 
@@ -111,7 +112,34 @@ def test_diameter_ratio_wedge_meter():
     assert_allclose(beta, 0.5022667856496335)
     
     
+def test_cone_meter_expansivity_Stewart():
+    eps = cone_meter_expansivity_Stewart(D=1, Dc=0.8930285549745876, P1=1E6, P2=1E6*.85, k=1.2)
+    assert_allclose(eps, 0.91530745625)
+
+
+def test_cone_meter_expansivity_Stewart_full():
+    err = lambda Dc, beta : diameter_ratio_cone_meter(D=1, Dc=Dc) - beta
     
+    solve_Dc = lambda beta : float(fsolve(err, x0=.7, args=(beta)))
+    
+    # Accidentally missed the beta ratio 0.75, oops
+    vals = [[1.0000, 0.9887, 0.9774, 0.9661, 0.9548, 0.9435, 0.9153, 0.8871, 0.8588],
+    [1.0000, 0.9885, 0.9769, 0.9654, 0.9538, 0.9423, 0.9134, 0.8846, 0.8557],
+    [1.0000, 0.9881, 0.9762, 0.9644, 0.9525, 0.9406, 0.9109, 0.8812, 0.8515],
+    [1.0000, 0.9877, 0.9754, 0.9630, 0.9507, 0.9384, 0.9076, 0.8768, 0.8460],
+    [1.0000, 0.9871, 0.9742, 0.9613, 0.9485, 0.9356, 0.9033, 0.8711, 0.8389],
+    [1.0000, 0.9864, 0.9728, 0.9592, 0.9456, 0.9320, 0.8980, 0.8640, 0.8300]]
+    pressure_ratios = [1, 0.98, 0.96, 0.94, 0.92, 0.9, 0.85, 0.8, 0.75]
+    betas = [.45, .5, .55, .6, .65, .7, .75]
+    
+    k = 1.2
+    for i, beta in enumerate(betas[:-1]):
+        Dc = solve_Dc(beta)
+        for j, pr in enumerate(pressure_ratios):
+            eps = cone_meter_expansivity_Stewart(D=1, Dc=Dc, P1=1E5, P2=pr*1E5, k=1.2)
+            eps = round(eps, 4)
+            assert eps == vals[i][j]
+        
 def test_C_ISA_1932_nozzle_full():
     Cs = [[0.9616, 0.9692, 0.9750, 0.9773, 0.9789, 0.9813, 0.9820, 0.9821, 0.9822],
     [0.9604, 0.9682, 0.9741, 0.9764, 0.9781, 0.9805, 0.9812, 0.9813, 0.9814],
