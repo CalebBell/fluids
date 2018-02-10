@@ -32,7 +32,8 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'dP_orifice', 'velocity_of_approach_factor', 
            'orifice_flow_coefficient', 'nozzle_expansibility',
            'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle',
-           'orifice_expansivity_1989', 'differential_pressure_meter_discharge']
+           'orifice_expansivity_1989', 'differential_pressure_meter_discharge',
+           'diameter_ratio_cone_meter']
 
 
 CONCENTRIC_ORIFICE = 'concentric'
@@ -859,6 +860,44 @@ def C_venturi_nozzle(D, Do):
     '''
     beta = Do/D
     return 0.9858 - 0.198*beta**4.5
+
+
+def diameter_ratio_cone_meter(D, Dc):
+    r'''Calculates the diameter ratio `beta` used to characterize a cone 
+    flow meter.
+    
+    .. math::
+        \beta = \sqrt{1 - \frac{d_c^2}{D^2}}
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Dc : float
+        Diameter of the largest end of the cone meter, [m]
+        
+    Returns
+    -------
+    beta : float
+        Cone meter diameter ratio, [-]
+
+    Notes
+    -----
+    
+    Examples
+    --------
+    >>> diameter_ratio_cone_meter(D=0.2575, Dc=0.184)
+    0.6995709873957624
+    
+    References
+    ----------
+    .. [1] Hollingshead, Colter. "Discharge Coefficient Performance of Venturi,
+       Standard Concentric Orifice Plate, V-Cone, and Wedge Flow Meters at 
+       Small Reynolds Numbers." May 1, 2011. 
+       https://digitalcommons.usu.edu/etd/869.
+    '''
+    D_ratio = Dc/D
+    return (1.0 - D_ratio*D_ratio)**0.5
 
 
 # Venturi tube loss coefficients as a function of Re

@@ -22,6 +22,7 @@ SOFTWARE.'''
 
 from fluids import *
 import numpy as np
+from scipy.constants import inch
 from numpy.testing import assert_allclose
 import pytest
 
@@ -89,6 +90,15 @@ def test_C_ISA_1932_nozzle():
 def test_C_venturi_nozzle():
     C = C_venturi_nozzle(D=0.07391, Do=0.0422)
     assert_allclose(C, 0.9698996454169576)
+    
+    
+def test_diameter_ratio_cone_meter():
+    beta = diameter_ratio_cone_meter(D=0.2575, Dc=0.184)
+    assert_allclose(beta, 0.6995709873957624)
+    # Example in 1 matches exactly; 
+    beta = diameter_ratio_cone_meter(D=10.137*inch, Dc=7.244*inch)
+    assert_allclose(beta, 0.6995232442563669)
+
 
 def test_C_ISA_1932_nozzle_full():
     Cs = [[0.9616, 0.9692, 0.9750, 0.9773, 0.9789, 0.9813, 0.9820, 0.9821, 0.9822],
