@@ -24,7 +24,7 @@ from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, exp, acos
 import numpy as np
 from fluids.friction import friction_factor
-from scipy.optimize import newton
+from scipy.optimize import newton, brenth
 
 __all__ = ['orifice_discharge', 'orifice_expansibility',
            'C_Reader_Harris_Gallagher', 'Reader_Harris_Gallagher_discharge',
@@ -34,7 +34,8 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle',
            'orifice_expansivity_1989', 'differential_pressure_meter_discharge',
            'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter',
-           'cone_meter_expansivity_Stewart', 'dP_cone_meter']
+           'cone_meter_expansivity_Stewart', 'dP_cone_meter',
+           'differential_pressure_meter_diameter']
 
 
 CONCENTRIC_ORIFICE = 'concentric'
@@ -48,6 +49,23 @@ ORIFICE_CORNER_TAPS = 'corner'
 ORIFICE_FLANGE_TAPS = 'flange'
 ORIFICE_D_AND_D_2_TAPS = 'D and D/2'
 
+
+
+ISO_5167_ORIFICE = 'ISO 5167 orifice'
+
+LONG_RADIUS_NOZZLE = 'long radius nozzle'
+ISA_1932_NOZZLE = 'ISA 1932 nozzle'
+VENTURI_NOZZLE = 'venuri nozzle'
+
+AS_CAST_VENTURI_TUBE = 'as cast convergent venturi tube'
+MACHINED_CONVERGENT_VENTURI_TUBE = 'machined convergent venturi tube'
+ROUGH_WELDED_CONVERGENT_VENTURI_TUBE = 'rough welded convergent venturi tube'
+
+CONE_METER = 'cone meter'
+__all__.extend(['ISO_5167_ORIFICE', 'LONG_RADIUS_NOZZLE', 'ISA_1932_NOZZLE',
+                'VENTURI_NOZZLE', 'AS_CAST_VENTURI_TUBE', 
+                'MACHINED_CONVERGENT_VENTURI_TUBE',
+                'ROUGH_WELDED_CONVERGENT_VENTURI_TUBE', 'CONE_METER'])
 
 
 def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
@@ -1051,8 +1069,6 @@ def diameter_ratio_wedge_meter(D, H):
     return (1./pi*t4)**0.5
 
 
-
-
 # Venturi tube loss coefficients as a function of Re
 as_cast_convergent_venturi_Res = [4E5, 6E4, 1E5, 1.5E5]
 as_cast_convergent_venturi_Cs = [0.957, 0.966, 0.976, 0.982]
@@ -1073,43 +1089,182 @@ as_cast_convergent_entrance_machined_venturi_Cs = [0.963, 0.978, 0.98, 0.987, 0.
 
 
 
-def differential_pressure_meter_discharge(D, Do, P1, P2, rho, mu, k, meter_type='orifice',
-                                         taps=None):
-    # rho, mu only needed for two nozzle functions and the main orifice function.
-    # Greater friction losses = lower discharge coefficient
-    if meter_type == 'ISO 5167 orifice':
-        C_func = lambda m: C_Reader_Harris_Gallagher(D=D, Do=Do, rho=rho, mu=mu, m=m, taps=taps)
-        epsilon_func = lambda m : orifice_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
+def differential_pressure_meter_discharge(D, D2, P1, P2, rho, mu, k, 
+                                          meter_type=ISO_5167_ORIFICE, 
+                                          taps=None):
+    r'''Calculates the mass flow rate of fluid through a differential
+    pressure flow meter based on the geometry of the meter, measured pressures 
+    of the meter, and the density, 
+    viscosity, and isentropic exponent of the fluid. This solves an equation
+    iteratively to obtain the correct flow rate.
         
-    elif meter_type == 'long radius nozzle':
-        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
-        C_func = lambda m: C_long_radius_nozzle(D, Do, rho, mu, m)
-    elif meter_type == 'ISA 1932 nozzle':
-        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
-        C_func = lambda m: C_ISA_1932_nozzle(D, Do, rho, mu, m)
-    elif meter_type == 'venturi nozzle':
-        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
-        C_func = lambda m: C_venturi_nozzle(D, Do)     
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    D2 : float
+        Diameter of orifice, or venturi meter orifice, or flow tube orifice,
+        or cone meter end diameter, or wedge meter fluid flow height, [m]
+    P1 : float
+        Static pressure of fluid upstream of differential pressure meter at the
+        cross-section of the pressure tap, [Pa]
+    P2 : float
+        Static pressure of fluid downstream of differential pressure meter or 
+        at the prescribed location (varies by type of meter) [Pa]
+    rho : float
+        Density of fluid at `P1`, [kg/m^3]
+    mu : float
+        Viscosity of fluid at `P1`, [Pa*s]
+    k : float
+        Isentropic exponent of fluid, [-]
+    meter_type : str, optional
+        One of ('ISO 5167 orifice', 'long radius nozzle', 'ISA 1932 nozzle', 
+        'venuri nozzle', 'as cast convergent venturi tube', 
+        'machined convergent venturi tube', 
+        'rough welded convergent venturi tube', 'cone meter'), [-]
+    taps : str, optional
+        The orientation of the taps; one of 'corner', 'flange', 'D', or 'D/2';
+        applies for orifice meters only, [-]
+        
+    Returns
+    -------
+    m : float
+        Mass flow rate of fluid through the flow meter, [kg/s]
+
+    Notes
+    -----
+    See the appropriate functions for the documentation for the formulas and
+    references used in each method.
     
-    elif meter_type == 'as cast convergent venturi tube':
-        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
+    Examples
+    --------
+    >>> differential_pressure_meter_discharge(D=0.07366, D2=0.05, P1=200000.0, 
+    ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
+    ... meter_type='ISO 5167 orifice', taps='D')
+    7.702338035732167
+    '''
+    if meter_type == ISO_5167_ORIFICE:
+        C_func = lambda m: C_Reader_Harris_Gallagher(D=D, Do=D2, rho=rho, mu=mu, m=m, taps=taps)
+        epsilon_func = lambda m : orifice_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+        
+    elif meter_type == LONG_RADIUS_NOZZLE:
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+        C_func = lambda m: C_long_radius_nozzle(D=D, Do=D2, rho=rho, mu=mu, m=m)
+    elif meter_type == ISA_1932_NOZZLE:
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+        C_func = lambda m: C_ISA_1932_nozzle(D=D, Do=D2, rho=rho, mu=mu, m=m)
+    elif meter_type == VENTURI_NOZZLE:
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+        C_func = lambda m: C_venturi_nozzle(D=D, Do=D2)     
+    
+    elif meter_type == AS_CAST_VENTURI_TUBE:
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
         C_func = lambda m: 0.984    
-    elif meter_type == 'machined convergent venturi tube':
-        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
+    elif meter_type == MACHINED_CONVERGENT_VENTURI_TUBE:
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
         C_func = lambda m: 0.995
-    elif meter_type == 'rough welded convergent venturi tube':
-        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
+    elif meter_type == ROUGH_WELDED_CONVERGENT_VENTURI_TUBE:
+        epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
         C_func = lambda m: 0.985
         
-    elif meter_type == 'cone meter':
-        epsilon_func = lambda m : cone_meter_expansivity_Stewart(D=D, Dc=Do, P1=P1, P2=P2, k=k)
+    elif meter_type == CONE_METER:
+        epsilon_func = lambda m : cone_meter_expansivity_Stewart(D=D, Dc=D2, P1=P1, P2=P2, k=k)
         C_func = lambda m: 0.82
         
     def to_solve(m):
         C = C_func(m)
         epsilon = epsilon_func(m)
-        m_calc = orifice_discharge(D=D, Do=Do, P1=P1, P2=P2, rho=rho, 
+        m_calc = orifice_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                     C=C, expansibility=epsilon)
         return m - m_calc
-    
     return newton(to_solve, 2.81)
+
+def differential_pressure_meter_diameter(D, m, P1, P2, rho, mu, k, 
+                                         meter_type=ISO_5167_ORIFICE, 
+                                         taps=None):
+    r'''Calculates the appropriate orifice diameter which will measure a 
+    specified mass flow rate at a specified pressure difference, based on the
+    geometry of the pressure meter, measured pressures of the meter, and the 
+    density, viscosity, and isentropic exponent of the fluid. This solves an 
+    equation iteratively to obtain the correct diameter.
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    m : float
+        Mass flow rate of fluid through the flow meter, [kg/s]
+    P1 : float
+        Static pressure of fluid upstream of differential pressure meter at the
+        cross-section of the pressure tap, [Pa]
+    P2 : float
+        Static pressure of fluid downstream of differential pressure meter or 
+        at the prescribed location (varies by type of meter) [Pa]
+    rho : float
+        Density of fluid at `P1`, [kg/m^3]
+    mu : float
+        Viscosity of fluid at `P1`, [Pa*s]
+    k : float
+        Isentropic exponent of fluid, [-]
+    meter_type : str, optional
+        One of ('ISO 5167 orifice', 'long radius nozzle', 'ISA 1932 nozzle', 
+        'venuri nozzle', 'as cast convergent venturi tube', 
+        'machined convergent venturi tube', 
+        'rough welded convergent venturi tube', 'cone meter'), [-]
+    taps : str, optional
+        The orientation of the taps; one of 'corner', 'flange', 'D', or 'D/2';
+        applies for orifice meters only, [-]
+        
+    Returns
+    -------
+    D2 : float
+        Diameter of orifice, or venturi meter orifice, or flow tube orifice,
+        or cone meter end diameter, or wedge meter fluid flow height, [m]
+        
+    Notes
+    -----
+    See the appropriate functions for the documentation for the formulas and
+    references used in each method.
+    
+    Examples
+    --------
+    >>> differential_pressure_meter_diameter(D=0.07366, m=7.702338, P1=200000.0, 
+    ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
+    ... meter_type='ISO 5167 orifice', taps='D')
+    0.04999999990831885
+    '''
+    def to_solve(D2):
+        if meter_type == ISO_5167_ORIFICE:
+            C_func = lambda m: C_Reader_Harris_Gallagher(D=D, Do=D2, rho=rho, mu=mu, m=m, taps=taps)
+            epsilon_func = lambda m : orifice_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+            
+        elif meter_type == LONG_RADIUS_NOZZLE:
+            epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+            C_func = lambda m: C_long_radius_nozzle(D=D, Do=D2, rho=rho, mu=mu, m=m)
+        elif meter_type == ISA_1932_NOZZLE:
+            epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+            C_func = lambda m: C_ISA_1932_nozzle(D=D, Do=D2, rho=rho, mu=mu, m=m)
+        elif meter_type == VENTURI_NOZZLE:
+            epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+            C_func = lambda m: C_venturi_nozzle(D=D, Do=D2)     
+        
+        elif meter_type == AS_CAST_VENTURI_TUBE:
+            epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+            C_func = lambda m: 0.984    
+        elif meter_type == MACHINED_CONVERGENT_VENTURI_TUBE:
+            epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+            C_func = lambda m: 0.995
+        elif meter_type == ROUGH_WELDED_CONVERGENT_VENTURI_TUBE:
+            epsilon_func = lambda m : nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+            C_func = lambda m: 0.985
+            
+        elif meter_type == CONE_METER:
+            epsilon_func = lambda m : cone_meter_expansivity_Stewart(D=D, Dc=D2, P1=P1, P2=P2, k=k)
+            C_func = lambda m: 0.82
+        
+        C = C_func(m)
+        epsilon = epsilon_func(m)
+        m_calc = orifice_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+                                    C=C, expansibility=epsilon)
+        return m - m_calc    
+    return brenth(to_solve, D*(1-1E-9), D*5E-3)
