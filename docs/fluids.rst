@@ -7,6 +7,7 @@
    fluids.drag
    fluids.filters
    fluids.fittings
+   fluids.flow_meter
    fluids.friction
    fluids.geometry
    fluids.mixing

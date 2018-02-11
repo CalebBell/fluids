@@ -34,9 +34,9 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'dP_orifice', 'velocity_of_approach_factor', 
            'orifice_flow_coefficient', 'nozzle_expansibility',
            'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle',
-           'orifice_expansivity_1989',
+           'orifice_expansibility_1989',
            'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter',
-           'cone_meter_expansivity_Stewart', 'dP_cone_meter',
+           'cone_meter_expansibility_Stewart', 'dP_cone_meter',
            ]
 
 
@@ -181,7 +181,7 @@ def orifice_expansibility(D, Do, P1, P2, k):
             1.0 - (P2/P1)**(1./k)))
 
 
-def orifice_expansivity_1989(D, Do, P1, P2, k):
+def orifice_expansibility_1989(D, Do, P1, P2, k):
     r'''Calculates the expansibility factor for orifice plate calculations
     based on the geometry of the plate, measured pressures of the orifice, and
     the isentropic exponent of the fluid.
@@ -216,10 +216,10 @@ def orifice_expansivity_1989(D, Do, P1, P2, k):
     of air, steam, and natural gas. However, there is no objection to using
     it for other fluids.
     
-    This is an older formula used to calculate expansivity factors for orifice
+    This is an older formula used to calculate expansibility factors for orifice
     plates.
     
-    In this standard, an expansivity factor formula transformation in terms of 
+    In this standard, an expansibility factor formula transformation in terms of 
     the pressure after the orifice is presented as well. This is the more
     standard formulation in terms of the upstream conditions. The other formula
     is below for reference only:
@@ -230,7 +230,7 @@ def orifice_expansivity_1989(D, Do, P1, P2, k):
 
     Examples
     --------
-    >>> orifice_expansivity_1989(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1.4)
+    >>> orifice_expansibility_1989(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1.4)
     0.9970510687411718
 
     References
@@ -920,7 +920,7 @@ def diameter_ratio_cone_meter(D, Dc):
     return (1.0 - D_ratio*D_ratio)**0.5
 
 
-def cone_meter_expansivity_Stewart(D, Dc, P1, P2, k):
+def cone_meter_expansibility_Stewart(D, Dc, P1, P2, k):
     r'''Calculates the expansibility factor for a cone flow meter,
     based on the geometry of the cone meter, measured pressures of the orifice, 
     and the isentropic exponent of the fluid. Developed in [1]_, also shown
@@ -957,7 +957,7 @@ def cone_meter_expansivity_Stewart(D, Dc, P1, P2, k):
 
     Examples
     --------
-    >>> cone_meter_expansivity_Stewart(D=1, Dc=0.9, P1=1E6, P2=8.5E5, k=1.2)
+    >>> cone_meter_expansibility_Stewart(D=1, Dc=0.9, P1=1E6, P2=8.5E5, k=1.2)
     0.9157343
 
     References
@@ -1123,16 +1123,16 @@ def _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, mu, k, meter_type,
         C = ROUGH_WELDED_CONVERGENT_VENTURI_TUBE_C
         
     elif meter_type == CONE_METER:
-        epsilon = cone_meter_expansivity_Stewart(D=D, Dc=D2, P1=P1, P2=P2, k=k)
+        epsilon = cone_meter_expansibility_Stewart(D=D, Dc=D2, P1=P1, P2=P2, k=k)
         C = CONE_METER_C
     return epsilon, C
 
 
-def differential_pressure_meter_solver(D, P1, rho, mu, k, D2=None, P2=None, 
+def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None, 
                                        m=None, meter_type=ISO_5167_ORIFICE, 
                                        taps=None):
-    r'''Calculates either the mass flow rate, or the second pressure value,
-    or the orifice diameter for a differential
+    r'''Calculates either the mass flow rate, the upstream pressure, the second
+    pressure value, or the orifice diameter for a differential
     pressure flow meter based on the geometry of the meter, measured pressures 
     of the meter, and the density, viscosity, and isentropic exponent of the 
     fluid. This solves an equation iteratively to obtain the correct flow rate.
@@ -1141,9 +1141,6 @@ def differential_pressure_meter_solver(D, P1, rho, mu, k, D2=None, P2=None,
     ----------
     D : float
         Upstream internal pipe diameter, [m]
-    P1 : float
-        Static pressure of fluid upstream of differential pressure meter at the
-        cross-section of the pressure tap, [Pa]
     rho : float
         Density of fluid at `P1`, [kg/m^3]
     mu : float
@@ -1153,6 +1150,9 @@ def differential_pressure_meter_solver(D, P1, rho, mu, k, D2=None, P2=None,
     D2 : float, optional
         Diameter of orifice, or venturi meter orifice, or flow tube orifice,
         or cone meter end diameter, or wedge meter fluid flow height, [m]
+    P1 : float, optional
+        Static pressure of fluid upstream of differential pressure meter at the
+        cross-section of the pressure tap, [Pa]
     P2 : float, optional
         Static pressure of fluid downstream of differential pressure meter or 
         at the prescribed location (varies by type of meter) [Pa]
@@ -1170,9 +1170,10 @@ def differential_pressure_meter_solver(D, P1, rho, mu, k, D2=None, P2=None,
     Returns
     -------
     ans : float
-        One of `m`, the mass flow rate of the fluid; `P2`, the second pressure
+        One of `m`, the mass flow rate of the fluid; `P1`, the pressure 
+        upstream of the flow meter; `P2`, the second pressure
         tap's value; and `D2`, the diameter of the measuring device; units
-        of respectively, [kg/s], [Pa], or [m]
+        of respectively, [kg/s], [Pa], [Pa], or [m]
 
     Notes
     -----
@@ -1181,6 +1182,14 @@ def differential_pressure_meter_solver(D, P1, rho, mu, k, D2=None, P2=None,
     
     The solvers make some assumptions about the range of values answers may be
     in.
+    
+    Note that the solver for the upstream pressure uses the provided values of
+    density, viscosity and isentropic exponent; whereas these values all
+    depend on pressure (albeit to a small extent). An outer loop should be
+    added with pressure-dependent values calculated in it for maximum accuracy.
+    
+    It would be possible to solve for the upstream pipe diameter, but there is
+    no use for that functionality.
     
     Examples
     --------
@@ -1221,6 +1230,15 @@ def differential_pressure_meter_solver(D, P1, rho, mu, k, D2=None, P2=None,
                                         C=C, expansibility=epsilon)
             return m - m_calc    
         return brenth(to_solve, P1*(1-1E-9), P1*0.7)
+    elif P1 is None:
+        def to_solve(P1):
+            C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
+                                                          mu, k, meter_type, 
+                                                          taps=taps)
+            m_calc = orifice_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+                                        C=C, expansibility=epsilon)
+            return m - m_calc    
+        return brenth(to_solve, P2*(1+1E-9), P2*1.4)
     else:
         raise Exception('Solver is capable of solving for one of P2, D2, or m only.')
     
