@@ -26,8 +26,10 @@ import numpy as np
 from fluids.friction import friction_factor
 from scipy.optimize import newton, brenth
 
-__all__ = ['orifice_discharge', 'orifice_expansibility',
-           'C_Reader_Harris_Gallagher', 'Reader_Harris_Gallagher_discharge',
+__all__ = ['C_Reader_Harris_Gallagher',
+           'differential_pressure_meter_solver',
+           'orifice_discharge', 'orifice_expansibility',
+            'Reader_Harris_Gallagher_discharge',
            'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
            'dP_orifice', 'velocity_of_approach_factor', 
            'orifice_flow_coefficient', 'nozzle_expansibility',
@@ -35,7 +37,7 @@ __all__ = ['orifice_discharge', 'orifice_expansibility',
            'orifice_expansivity_1989',
            'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter',
            'cone_meter_expansivity_Stewart', 'dP_cone_meter',
-           'differential_pressure_meter_solver']
+           ]
 
 
 CONCENTRIC_ORIFICE = 'concentric'
