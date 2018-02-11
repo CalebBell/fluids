@@ -27,11 +27,11 @@ from . import control_valve
 from . import core
 from . import filters
 from . import fittings
+from . import flow_meter
 from . import friction
 from . import geometry
 from . import mixing
 from . import open_flow
-from . import orifice_plate
 from . import packed_bed
 from . import piping
 from . import pump
@@ -51,11 +51,11 @@ from .control_valve import *
 from .core import *
 from .filters import *
 from .fittings import *
+from .flow_meter import *
 from .friction import *
 from .geometry import *
 from .mixing import *
 from .open_flow import *
-from .orifice_plate import *
 from .packed_bed import *
 from .piping import *
 from .pump import *
@@ -71,7 +71,7 @@ from .separator import *
 __all__ = ['atmosphere', 'compressible', 'control_valve', 'core', 'filters', 'fittings',
 'friction', 'geometry', 'mixing', 'open_flow', 'packed_bed', 'piping',
 'pump', 'safety_valve', 'packed_tower', 'two_phase', 'two_phase_voidage', 
-'drag', 'saltation', 'separator', 'orifice_plate']
+'drag', 'saltation', 'separator', 'flow_meter']
 
 __all__.extend(atmosphere.__all__)
 __all__.extend(compressible.__all__)
@@ -83,7 +83,7 @@ __all__.extend(friction.__all__)
 __all__.extend(geometry.__all__)
 __all__.extend(mixing.__all__)
 __all__.extend(open_flow.__all__)
-__all__.extend(orifice_plate.__all__)
+__all__.extend(flow_meter.__all__)
 __all__.extend(packed_bed.__all__)
 __all__.extend(piping.__all__)
 __all__.extend(pump.__all__)
