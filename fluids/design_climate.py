@@ -324,9 +324,9 @@ class StationDataGSOD(object):
     def month_average_temperature(self, older_year=None, newer_year=None,
                                   include_yearly=False, minimum_days=23):
         '''
-        >>> station = get_closest_station(38.8572, -77.0369)
-        >>> station_data = StationDataGSOD(station)
-        >>> station_data.month_average_temperature(1990, 2000, include_yearly=False)
+        >> station = get_closest_station(38.8572, -77.0369)
+        >> station_data = StationDataGSOD(station)
+        >> station_data.month_average_temperature(1990, 2000, include_yearly=False)
         [276.1599380905833, 277.5375516246206, 281.1881231671554, 286.7367003367004, 291.8689638318671, 296.79545454545456, 299.51868686868687, 298.2097914630174, 294.4116161616162, 288.25883023786247, 282.3188552188553, 277.8282339524275]
         '''
         # Take years, make them inclusive; add minimum valid days.

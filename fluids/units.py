@@ -493,7 +493,6 @@ def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
         return ans*u.m
 
 
-
 funcs = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 'Spitzglass_low', 'Oliphant', 'Fritzsche']
 Es = [.92, .92, .92, 1, 1, .92, 1]
 
@@ -523,4 +522,7 @@ for wrapper, E in zip(funcs, Es):
 
 # NOTE: class support can't do static methods unless a class is already instantiated
 
-    
+### TODO list
+def differential_pressure_meter_solver(*args, **kwargs):
+    raise Exception(NotImplemented('This function has not been ported to support pint'))
+

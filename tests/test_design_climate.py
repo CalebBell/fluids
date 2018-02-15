@@ -41,6 +41,7 @@ def test_cooling_degree_days():
     assert_allclose(cooling_degree_days(300, truncate=False), -16.85)
     assert_allclose(cooling_degree_days(250, T_base=300), 50)
 
+@pytest.mark.slow
 def test_month_average_temperature():
     station = get_closest_station(38.8572, -77.0369)
     station_data = StationDataGSOD(station)
