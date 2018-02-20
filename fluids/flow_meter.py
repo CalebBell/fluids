@@ -24,6 +24,7 @@ from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, exp, acos, log10
 import numpy as np
 from fluids.friction import friction_factor
+from fluids.core import Froude_densimetric
 from scipy.optimize import newton, brenth
 from scipy.constants import g, inch
 
@@ -1280,14 +1281,6 @@ def C_wedge_meter_Miller(D, H):
     return C
 
 
-def _Lockhart_Martinelli_X(ml, mg, rhog, rhol):
-    return ml/mg*(rhog/rhol)**0.5
-
-
-def _Froude_gas_densiometric(mg, D, rhog, rhol, g=g):
-    return 4*mg/(rhog*pi*D**2*(g*D)**0.5)*(rhog/(rhol - rhog))**0.5
-
-
 def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     r'''Calculates the coefficient of discharge of the wet gas venturi tube 
     based on the  geometry of the tube, mass flow rates of liquid and vapor
@@ -1358,7 +1351,8 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     .. [2] ISO/TR 11583:2012 Measurement of Wet Gas Flow by Means of Pressure 
        Differential Devices Inserted in Circular Cross-Section Conduits.
     '''
-    Frg = _Froude_gas_densiometric(mg, D, rhog, rhol)
+    V = 4*mg/(rhog*pi*D**2)
+    Frg =  Froude_densimetric(V, L=D, rho1=rhol, rho2=rhog, heavy=False)
     beta = Do/D
     beta2 = beta*beta
     Fr_gas_th = Frg*beta**-2.5
@@ -1367,7 +1361,7 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
             0.392 - 0.18*beta2)
     
     C_Ch = (rhol/rhog)**n + (rhog/rhol)**n
-    X = _Lockhart_Martinelli_X(ml, mg, rhog, rhol)
+    X =  ml/mg*(rhog/rhol)**0.5
     OF = (1.0 + C_Ch*X + X*X)**0.5
     
     C = 1.0 - 0.0463*exp(-0.05*Fr_gas_th)*min(1.0, (X/0.016)**0.5)

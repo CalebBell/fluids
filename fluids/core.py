@@ -1078,10 +1078,10 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
 
     Examples
     --------
-    >>> Froude_densimetric(1.83, L=2., rho1=1.2, rho2=800, g=9.81)
-    0.016013017679205096
-    >>> Froude_densimetric(1.83, L=2., rho1=1.2, rho2=800, g=9.81, heavy=False)
+    >>> Froude_densimetric(1.83, L=2., rho1=800, rho2=1.2, g=9.81)
     0.4134543386272418
+    >>> Froude_densimetric(1.83, L=2., rho1=800, rho2=1.2, g=9.81, heavy=False)
+    0.016013017679205096
 
     References
     ----------
@@ -1095,7 +1095,7 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
         rho3 = rho1
     else:
         rho3 = rho2
-    return V/((g*L)**0.5)*(rho3/(rho2 - rho1))**0.5
+    return V/((g*L)**0.5)*(rho3/(rho1 - rho2))**0.5
 
 
 def Strouhal(f, L, V):
