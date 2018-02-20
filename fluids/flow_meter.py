@@ -1284,12 +1284,81 @@ def _Lockhart_Martinelli_X(ml, mg, rhog, rhol):
     return ml/mg*(rhog/rhol)**0.5
 
 
-def _Froude_gas(mg, D, rhog, rhol, g=g):
+def _Froude_gas_densiometric(mg, D, rhog, rhol, g=g):
     return 4*mg/(rhog*pi*D**2*(g*D)**0.5)*(rhog/(rhol - rhog))**0.5
 
 
-def C_Reader_Harris_Gallagher_wet_venturi_tube(ml, mg, rhog, rhol, D, Do, H=1):
-    Frg = _Froude_gas(mg, D, rhog, rhol)
+def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
+    r'''Calculates the coefficient of discharge of the wet gas venturi tube 
+    based on the  geometry of the tube, mass flow rates of liquid and vapor
+    through the tube, the density of the liquid and gas phases, and an 
+    adjustable coefficient `H`.
+    
+    .. math::
+        C = 1 - 0.0463\exp(-0.05Fr_{gas, th}) \cdot \min\left(1, 
+        \sqrt{\frac{X}{0.016}}\right)
+        
+        Fr_{gas, th} = \frac{Fr_{\text{gas, densionetric }}}{\beta^{2.5}}
+        
+        \phi = \sqrt{1 + C_{Ch} X + X^2}
+        
+        C_{Ch} = \left(\frac{\rho_l}{\rho_{1,g}}\right)^n + 
+        \left(\frac{\rho_{1, g}}{\rho_{l}}\right)^n
+        
+        n = \max\left[0.583 - 0.18\beta^2 - 0.578\exp\left(\frac{-0.8 
+        Fr_{\text{gas, densiometric}}}{H}\right),0.392 - 0.18\beta^2 \right]
+            
+        X = \left(\frac{m_l}{m_g}\right) \sqrt{\frac{\rho_{1,g}}{\rho_l}}
+        
+        {Fr_{\text{gas, densiometric}}} = \frac{v_{gas}}{\sqrt{gD}}
+        \sqrt{\frac{\rho_{1,g}}{\rho_l - \rho_{1,g}}}
+        =  \frac{4m_g}{\rho_{1,g} \pi D^2 \sqrt{gD}}
+        \sqrt{\frac{\rho_{1,g}}{\rho_l - \rho_{1,g}}}
+        
+    Parameters
+    ----------
+    mg : float
+        Mass flow rate of gas through the venturi tube, [kg/s]
+    ml : float
+        Mass flow rate of liquid through the venturi tube, [kg/s]
+    rhog : float
+        Density of gas at `P1`, [kg/m^3]
+    rhol : float
+        Density of liquid at `P1`, [kg/m^3]
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of venturi tube at flow conditions, [m]
+    H : float, optional
+        A surface-tension effect coefficient used to adjust for different 
+        fluids, (1 for a hydrocarbon liquid, 1.35 for water, 0.79 for water in 
+        steam) [-]
+
+    Returns
+    -------
+    C : float
+        Coefficient of discharge of the wet gas venturi tube flow meter
+        (includes flow rate of gas ONLY), [-]
+
+    Notes
+    -----
+    This model has more error than single phase differential pressure meters.
+    The model was first published in [1]_, and became ISO 11583 later.
+    
+    Examples
+    --------
+    >>> C_Reader_Harris_Gallagher_wet_venturi_tube(mg=5.31926, ml=5.31926/2, 
+    ... rhog=50.0, rhol=800., D=.1, Do=.06, H=1)
+    0.9754210845876333
+    
+    References
+    ----------
+    .. [1] Reader-harris, Michael, and Tuv Nel. An Improved Model for 
+       Venturi-Tube Over-Reading in Wet Gas, 2009. 
+    .. [2] ISO/TR 11583:2012 Measurement of Wet Gas Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits.
+    '''
+    Frg = _Froude_gas_densiometric(mg, D, rhog, rhol)
     beta = Do/D
     beta2 = beta*beta
     Fr_gas_th = Frg*beta**-2.5
@@ -1303,8 +1372,6 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(ml, mg, rhog, rhol, D, Do, H=1):
     
     C = 1.0 - 0.0463*exp(-0.05*Fr_gas_th)*min(1.0, (X/0.016)**0.5)
     return C
-
-
 
 
 # Venturi tube loss coefficients as a function of Re

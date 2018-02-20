@@ -268,7 +268,7 @@ def test_dP_venturi_tube():
 def test_C_Reader_Harris_Gallagher_wet_venturi_tube():
     # Example 1
     # Works don't change anything
-    C = C_Reader_Harris_Gallagher_wet_venturi_tube(ml=5.31926/2, mg=5.31926, rhog=50.0, rhol=800., D=.1, Do=.06, H=1)
+    C = C_Reader_Harris_Gallagher_wet_venturi_tube(mg=5.31926, ml=5.31926/2, rhog=50.0, rhol=800., D=.1, Do=.06, H=1)
     assert_allclose(C, 0.9754210845876333)
 
     # From ISO 5167-4:2003, 5.6,
