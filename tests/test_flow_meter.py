@@ -265,6 +265,26 @@ def test_dP_venturi_tube():
     assert_allclose(dP, 1788.5717754177406)
 
 
+def test_C_Reader_Harris_Gallagher_wet_venturi_tube():
+    # Example 1
+    # Works don't change anything
+    C = C_Reader_Harris_Gallagher_wet_venturi_tube(ml=5.31926/2, mg=5.31926, rhog=50.0, rhol=800., D=.1, Do=.06, H=1)
+    assert_allclose(C, 0.9754210845876333)
+
+    # From ISO 5167-4:2003, 5.6,
+    # epsilon = 0.994236
+    # nozzle_expansibility, orifice_expansibility
+    epsilon = nozzle_expansibility(D=.1, Do=.06, P1=60E5, P2=59.5E5, k=1.3)
+    assert_allclose(epsilon, 0.994236, rtol=0, atol=.0000001)
+
+    # Example 2
+    # Had to solve backwards to get ml, but C checks out perfectly
+    C = C_Reader_Harris_Gallagher_wet_venturi_tube(ml=0.434947009566078, mg=6.3817, rhog=50.0, rhol=1000., D=.1, Do=.06, H=1.35)
+    # Don't know what the ml is
+    #  0,976 992 is C
+    assert_allclose(C, 0.9769937323602329)
+
+
 def test_differential_pressure_meter_dP():
     for m in [AS_CAST_VENTURI_TUBE, MACHINED_CONVERGENT_VENTURI_TUBE, ROUGH_WELDED_CONVERGENT_VENTURI_TUBE]:
         dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, meter_type=m)

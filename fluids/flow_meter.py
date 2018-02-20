@@ -25,7 +25,7 @@ from math import cos, sin, tan, atan, pi, radians, exp, acos, log10
 import numpy as np
 from fluids.friction import friction_factor
 from scipy.optimize import newton, brenth
-from scipy.constants import inch
+from scipy.constants import g, inch
 
 __all__ = ['C_Reader_Harris_Gallagher',
            'differential_pressure_meter_solver',
@@ -39,7 +39,8 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'orifice_expansibility_1989', 'dP_venturi_tube',
            'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter',
            'cone_meter_expansibility_Stewart', 'dP_cone_meter',
-           'C_wedge_meter_Miller'
+           'C_wedge_meter_Miller',
+           'C_Reader_Harris_Gallagher_wet_venturi_tube',
            ]
 
 
@@ -1277,6 +1278,33 @@ def C_wedge_meter_Miller(D, H):
     else:
         C = 0.5433 + 0.2453*(1 - beta*beta)
     return C
+
+
+def _Lockhart_Martinelli_X(ml, mg, rhog, rhol):
+    return ml/mg*(rhog/rhol)**0.5
+
+
+def _Froude_gas(mg, D, rhog, rhol, g=g):
+    return 4*mg/(rhog*pi*D**2*(g*D)**0.5)*(rhog/(rhol - rhog))**0.5
+
+
+def C_Reader_Harris_Gallagher_wet_venturi_tube(ml, mg, rhog, rhol, D, Do, H=1):
+    Frg = _Froude_gas(mg, D, rhog, rhol)
+    beta = Do/D
+    beta2 = beta*beta
+    Fr_gas_th = Frg*beta**-2.5
+    
+    n = max(0.583 - 0.18*beta2 - 0.578*exp(-0.8*Frg/H), 
+            0.392 - 0.18*beta2)
+    
+    C_Ch = (rhol/rhog)**n + (rhog/rhol)**n
+    X = _Lockhart_Martinelli_X(ml, mg, rhog, rhol)
+    OF = (1.0 + C_Ch*X + X*X)**0.5
+    
+    C = 1.0 - 0.0463*exp(-0.05*Fr_gas_th)*min(1.0, (X/0.016)**0.5)
+    return C
+
+
 
 
 # Venturi tube loss coefficients as a function of Re
