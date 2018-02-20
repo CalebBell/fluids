@@ -191,6 +191,12 @@ def test_core_dimensionless():
     
     guess = Hagen(Re=2610, fd=1.935235)
     assert_allclose(correct, guess)
+    
+    Fr = Froude_densimetric(1.83, L=2., rho1=1.2, rho2=800, g=9.81)
+    assert_allclose(Fr, 0.016013017679205096)
+    Fr = Froude_densimetric(1.83, L=2., rho1=1.2, rho2=800, g=9.81, heavy=False)
+    assert_allclose(Fr, 0.4134543386272418)
+
 
     
 

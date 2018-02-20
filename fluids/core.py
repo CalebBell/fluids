@@ -28,7 +28,7 @@ import numpy as np
 __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
 'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond', 'Dean',
-'Froude', 'Strouhal', 'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
+'Froude', 'Froude_densimetric', 'Strouhal', 'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
 'Jakob', 'Power_number', 'Stokes_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
 'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'Hagen', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
@@ -1026,6 +1026,76 @@ def Froude(V, L, g=g, squared=False):
     if squared:
         Fr *= Fr
     return Fr
+
+
+def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
+    r'''Calculates the densimetric Froude number :math:`Fr_{den}` for velocity
+    `V` geometric length `L`, heavier fluid density `rho1`, and lighter fluid 
+    density `rho2`. If desired, gravity can be specified as well. Depending on
+    the application, this dimensionless number may be defined with the heavy
+    phase or the light phase density in the numerator of the square root.
+    For some applications, both need to be calculated. The default is to 
+    calculate with the heavy liquid ensity on top; set `heavy` to False
+    to reverse this.
+
+    .. math::
+        Fr = \frac{V}{\sqrt{gL}} \sqrt{\frac{\rho_\text{(1 or 2)}} 
+        {\rho_1 - \rho_2}}
+
+    Parameters
+    ----------
+    V : float
+        Velocity of the specified phase, [m/s]
+    L : float
+        Characteristic length, no typical definition [m]
+    rho1 : float
+        Density of the heavier phase, [kg/m^3]
+    rho2 : float
+        Density of the lighter phase, [kg/m^3]
+    heavy : bool, optional
+        Whether or not the density used in the numerator is the heavy phase or
+        the light phase, [-]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
+
+    Returns
+    -------
+    Fr_den : float
+        Densimetric Froude number, [-]
+
+    Notes
+    -----
+    Many alternate definitions including density ratios have been used.
+
+    .. math::
+        Fr = \frac{\text{Inertial Force}}{\text{Gravity Force}}
+        
+    Where the gravity force is reduced by the relative densities of one fluid
+    in another.
+    
+    Note that an Exception will be raised if rho1 > rho2, as the square root
+    becomes negative.
+
+    Examples
+    --------
+    >>> Froude_densimetric(1.83, L=2., rho1=1.2, rho2=800, g=9.81)
+    0.016013017679205096
+    >>> Froude_densimetric(1.83, L=2., rho1=1.2, rho2=800, g=9.81, heavy=False)
+    0.4134543386272418
+
+    References
+    ----------
+    .. [1] Hall, A, G Stobie, and R Steven. "Further Evaluation of the 
+       Performance of Horizontally Installed Orifice Plate and Cone 
+       Differential Pressure Meters with Wet Gas Flows." In International 
+       SouthEast Asia Hydrocarbon Flow Measurement Workshop, KualaLumpur,
+       Malaysia, 2008.
+    '''
+    if heavy:
+        rho3 = rho1
+    else:
+        rho3 = rho2
+    return V/((g*L)**0.5)*(rho3/(rho2 - rho1))**0.5
 
 
 def Strouhal(f, L, V):
