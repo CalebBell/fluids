@@ -283,6 +283,11 @@ def test_C_Reader_Harris_Gallagher_wet_venturi_tube():
     # Don't know what the ml is
     #  0,976 992 is C
     assert_allclose(C, 0.9769937323602329)
+    
+
+def test_dP_Reader_Harris_Gallagher_wet_venturi_tube():
+    dP = dP_Reader_Harris_Gallagher_wet_venturi_tube(ml=5.31926/2, mg=5.31926, rhog=50.0, rhol=800., D=.1, Do=.06, H=1,  P1=6E6, P2=6E6-5E4)
+    assert_allclose(dP, 16957.43843129572)
 
 
 def test_differential_pressure_meter_dP():

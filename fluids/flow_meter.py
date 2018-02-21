@@ -42,6 +42,7 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'cone_meter_expansibility_Stewart', 'dP_cone_meter',
            'C_wedge_meter_Miller',
            'C_Reader_Harris_Gallagher_wet_venturi_tube',
+           'dP_Reader_Harris_Gallagher_wet_venturi_tube'
            ]
 
 
@@ -1338,6 +1339,19 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     This model has more error than single phase differential pressure meters.
     The model was first published in [1]_, and became ISO 11583 later.
     
+    The limits of this correlation according to [2]_ are as follows:
+        
+    .. math::
+        0.4 \le \beta \le 0.75
+        
+        0 < X \le 0.3
+        
+        Fr_{gas, th} > 3
+        
+        \frac{\rho_g}{\rho_l} > 0.02
+        
+        D \ge 50 \text{ mm}
+    
     Examples
     --------
     >>> C_Reader_Harris_Gallagher_wet_venturi_tube(mg=5.31926, ml=5.31926/2, 
@@ -1366,6 +1380,92 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     
     C = 1.0 - 0.0463*exp(-0.05*Fr_gas_th)*min(1.0, (X/0.016)**0.5)
     return C
+
+
+def dP_Reader_Harris_Gallagher_wet_venturi_tube(D, Do, P1, P2, ml, mg, rhol, 
+                                                rhog, H=1):
+    r'''Calculates the non-recoverable pressure drop of a wet gas venturi 
+    nozzle based on the pressure drop and the geometry of the venturi nozzle,
+    the mass flow rates of liquid and gas through it, the densities of the
+    vapor and liquid phase, and an adjustable coefficient `H`.
+    
+    .. math::
+        Y = \frac{\Delta \bar \omega}{\Delta P} - 0.0896 - 0.48\beta^9
+        
+        Y_{max} = 0.61\exp\left[-11\frac{\rho_{1,g}}{\rho_l}
+        - 0.045 \frac{Fr_{gas}}{H}\right]
+        
+        \frac{Y}{Y_{max}} = 1 - \exp\left[-35 X^{0.75} \exp
+        \left( \frac{-0.28Fr_{gas}}{H}\right)\right]
+            
+        X = \left(\frac{m_l}{m_g}\right) \sqrt{\frac{\rho_{1,g}}{\rho_l}}
+        
+        {Fr_{\text{gas, densiometric}}} = \frac{v_{gas}}{\sqrt{gD}}
+        \sqrt{\frac{\rho_{1,g}}{\rho_l - \rho_{1,g}}}
+        =  \frac{4m_g}{\rho_{1,g} \pi D^2 \sqrt{gD}}
+        \sqrt{\frac{\rho_{1,g}}{\rho_l - \rho_{1,g}}}
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of venturi tube at flow conditions, [m]
+    P1 : float
+        Static pressure of fluid upstream of venturi tube at the cross-section 
+        of the pressure tap, [Pa]
+    P2 : float
+        Static pressure of fluid downstream of venturi tube at the cross-
+        section of the pressure tap, [Pa]
+    ml : float
+        Mass flow rate of liquid through the venturi tube, [kg/s]
+    mg : float
+        Mass flow rate of gas through the venturi tube, [kg/s]
+    rhol : float
+        Density of liquid at `P1`, [kg/m^3]
+    rhog : float
+        Density of gas at `P1`, [kg/m^3]
+    H : float, optional
+        A surface-tension effect coefficient used to adjust for different 
+        fluids, (1 for a hydrocarbon liquid, 1.35 for water, 0.79 for water in 
+        steam) [-]
+
+    Returns
+    -------
+    C : float
+        Coefficient of discharge of the wet gas venturi tube flow meter
+        (includes flow rate of gas ONLY), [-]
+
+    Notes
+    -----
+    The model was first published in [1]_, and became ISO 11583 later.
+    
+    Examples
+    --------
+    >>> dP_Reader_Harris_Gallagher_wet_venturi_tube(D=.1, Do=.06, H=1, 
+    ... P1=6E6, P2=6E6-5E4, ml=5.31926/2, mg=5.31926, rhog=50.0, rhol=800.,)
+    16957.43843129572
+    
+    References
+    ----------
+    .. [1] Reader-harris, Michael, and Tuv Nel. An Improved Model for 
+       Venturi-Tube Over-Reading in Wet Gas, 2009. 
+    .. [2] ISO/TR 11583:2012 Measurement of Wet Gas Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits.
+    '''
+    dP = P1 - P2
+    beta = Do/D
+    X =  ml/mg*(rhog/rhol)**0.5
+
+    V = 4*mg/(rhog*pi*D**2)
+    Frg =  Froude_densimetric(V, L=D, rho1=rhol, rho2=rhog, heavy=False)
+
+    Y_ratio = 1.0 - exp(-35.0*X**0.75*exp(-0.28*Frg/H))
+    Y_max = 0.61*exp(-11.0*rhog/rhol - 0.045*Frg/H)
+    Y = Y_max*Y_ratio
+    rhs = -0.0896 - 0.48*beta**9
+    dw = dP*(Y - rhs)
+    return dw
 
 
 # Venturi tube loss coefficients as a function of Re
