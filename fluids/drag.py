@@ -34,6 +34,7 @@ __all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere', 'Stokes',
 'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
 'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison', 'Song_Xu']
 
+
 def Stokes(Re):
     r'''Calculates drag coefficient of a smooth sphere using Stoke's law.
 
@@ -1219,14 +1220,19 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     --------
     >>> integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5,
     ... V=30, distance=True)
-    (9.686465044063436, 7.829454643649386)
+    (9.686465044053476, 7.8294546436299175)
     '''
     Re_ish = rho*D/mu
     c1 = g*(rhop-rho)/rhop
     c2 = -0.75*rho/(D*rhop)
 
     def dv_dt(V, t):
-        return c1 + c2*drag_sphere(Re_ish*V, Method=Method)*V*V
+        if V == 0:
+            # 64/Re goes to infinity, but gets multiplied by 0 squared.
+            t2 = 0.0
+        else:
+            t2 = c2*V*V*drag_sphere(Re_ish*V, Method=Method)
+        return c1 + t2
 
     # Number of intervals for the solution to be solved for; the integrator
     # doesn't care what we give it, but a large number of intervals are needed

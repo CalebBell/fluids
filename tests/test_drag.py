@@ -170,3 +170,8 @@ def test_integrate_drag_sphere():
 
     ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5, V=30)
     assert_allclose(ans, 9.686465044063436)
+    
+    # Check no error when V is zero
+    
+    ans = integrate_drag_sphere(D=0.001, rhop=1.20001, rho=1.2, mu=1.78E-5, t=0.5, V=0)
+    assert_allclose(ans, 3.0607521920092645e-07)
