@@ -22,7 +22,7 @@ SOFTWARE.'''
 from __future__ import division
 
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
-           'pdf_lognormal', 'cdf_lognormal']
+           'pdf_lognormal', 'cdf_lognormal', 'pdf_lognormal_basis_integral']
 
 from math import log, exp, pi, log10
 from scipy.integrate import quad
@@ -474,6 +474,54 @@ def cdf_lognormal(d, d_characteristic, s):
     '''
     return 0.5*(1.0 + erf((log(d/d_characteristic))/(s*2.0**0.5)))
 
+
+def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
+    r'''Calculates the integral of the multiplication of d^n by the lognormal
+    pdf, given a particle diameter `d`, characteristic particle
+    diameter `d_characteristic`, distribution standard deviation `s`, and
+    exponent `n`.
     
-    
+    .. math::
+        \int d^n\cdot q(d)\; dd = -\frac{1}{2} \exp\left(\frac{s^2 n^2}{2}
+        \right)d^n \left(\frac{d}{d_{characteristic}}\right)^{-n}
+        \text{erf}\left[\frac{s^2 n - \log(d/d_{characteristic})}
+        {\sqrt{2} s} \right]
+        
+    This is the crucial integral required for interconversion between different
+    bases such as number density (denoted :math:`q_0(d)`), length density 
+    (:math:`q_1(d)`), surface area density (:math:`q_2(d)`), or volume density 
+    (:math:`q_3(d)`).
+        
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    d_characteristic : float
+        Characteristic particle diameter; often D[3, 3] is used for this
+        purpose but not always, [m]
+    s : float
+        Distribution standard deviation, [-]    
+    n : int
+        Exponent of the multiplied n
+
+    Returns
+    -------
+    pdf_basis_integral : float
+        Integral of pognormal pdf multiplied by d^n, [-]
+
+    Notes
+    -----
+    This integral has been verified numerically. This integral is itself
+    integrated, so it is crucial to obtain an analytical form for at least
+    this integral. 
+
+    Examples
+    --------
+    >>> pdf_lognormal_basis_integral(d=1E-4, d_characteristic=1E-5, s=1.1, n=-2)
+    56228306549.263626
+    '''
+    t0 = exp(s*s*n*n*0.5)
+    t1 = d**n*(d/d_characteristic)**-n
+    t2 = erf((s*s*n - log(d/d_characteristic))/(2.**0.5*s))
+    return -0.5*t0*t1*t2
 

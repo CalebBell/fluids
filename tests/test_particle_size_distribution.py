@@ -101,3 +101,7 @@ def test_cdf_lognormal():
     
     cdf_sp = scipy.stats.lognorm.cdf(x=1E-4/1E-5, s=1.1)
     assert_allclose(cdf, cdf_sp)
+    
+def test_pdf_lognormal_basis_integral():
+    ans = pdf_lognormal_basis_integral(d=1E-4, d_characteristic=1E-5, s=1.1, n=-2)
+    assert_allclose(ans, 56228306549.263626)
