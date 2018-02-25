@@ -22,7 +22,7 @@ SOFTWARE.'''
 from __future__ import division
 
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
-           'pdf_lognormal']
+           'pdf_lognormal', 'cdf_lognormal']
 
 from math import log, exp, pi, log10
 from scipy.integrate import quad
@@ -394,7 +394,7 @@ def pdf_lognormal(d, d_characteristic, s):
     (:math:`q_2(d)`), or volume density (:math:`q_3(d)`). Volume density is
     most often used. Interconversions among the distributions is possible but
     tricky.
-    
+        
     The standard distribution (i.e. the one used in Scipy) can perform the same
     computation with :math:`x = d/d_{characteristic}`, `s` unchanged, and
     the result divided by `d_characteristic` to obtain a compatible answer.
@@ -419,4 +419,61 @@ def pdf_lognormal(d, d_characteristic, s):
     log_term = log(d/d_characteristic)/s
     return 1./(d*s*ROOT_TWO_PI)*exp(-0.5*log_term*log_term)
 
+
+def cdf_lognormal(d, d_characteristic, s):
+    r'''Calculates the cumulative distribution function of a lognormal particle
+    distribution given a particle diameter `d`, characteristic particle
+    diameter `d_characteristic`, and distribution standard deviation `s`.
+    
+    .. math::
+        Q(d) = 0.5\left(1 + \text{err}\left[\left(\frac{\ln(d/d_c)}{s\sqrt{2}}
+        \right)\right]\right)
+        
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    d_characteristic : float
+        Characteristic particle diameter; often D[3, 3] is used for this
+        purpose but not always, [m]
+    s : float
+        Distribution standard deviation, [-]    
+
+    Returns
+    -------
+    cdf : float
+        Lognormal cummulative density function, [-]
+
+    Notes
+    -----
+    The characteristic diameter can be in terns of number density (denoted 
+    :math:`q_0(d)`), length density (:math:`q_1(d)`), surface area density
+    (:math:`q_2(d)`), or volume density (:math:`q_3(d)`). Volume density is
+    most often used. Interconversions among the distributions is possible but
+    tricky.
+        
+    The standard distribution (i.e. the one used in Scipy) can perform the same
+    computation with :math:`x = d/d_{characteristic}`, and `s` unchanged to 
+    obtain a compatible answer.
+
+    >>> scipy.stats.lognorm.cdf(x=1E-4/1E-5, s=1.1)
+    0.98183698757981774
+    
+    Scipy's calculation is over 100 times slower however.
+
+    Examples
+    --------
+    >>> cdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
+    0.98183698757981763
+
+    References
+    ----------
+    .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size 
+       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and 
+       Moments from Particle Size Distributions.
+    '''
+    return 0.5*(1.0 + erf((log(d/d_characteristic))/(s*2.0**0.5)))
+
+    
+    
 

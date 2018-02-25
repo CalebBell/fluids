@@ -93,4 +93,11 @@ def test_pdf_lognormal():
     assert_allclose(pdf, 405.5420921156425, rtol=1E-12)
     
     pdf_sp = scipy.stats.lognorm.pdf(x=1E-4/1E-5, s=1.1)/1E-5
-    assert_allclose(pdf_sp, 405.5420921156425)
+    assert_allclose(pdf_sp, pdf)
+    
+def test_cdf_lognormal():
+    cdf = cdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
+    assert_allclose(cdf, 0.98183698757981763)
+    
+    cdf_sp = scipy.stats.lognorm.cdf(x=1E-4/1E-5, s=1.1)
+    assert_allclose(cdf, cdf_sp)
