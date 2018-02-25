@@ -42,7 +42,7 @@ from . import two_phase_voidage
 from . import drag
 from . import saltation
 from . import separator
-
+from . import particle_size_distribution
 
 
 from .atmosphere import *
@@ -56,6 +56,7 @@ from .friction import *
 from .geometry import *
 from .mixing import *
 from .open_flow import *
+from .particle_size_distribution import *
 from .packed_bed import *
 from .piping import *
 from .pump import *
@@ -71,7 +72,7 @@ from .separator import *
 __all__ = ['atmosphere', 'compressible', 'control_valve', 'core', 'filters', 'fittings',
 'friction', 'geometry', 'mixing', 'open_flow', 'packed_bed', 'piping',
 'pump', 'safety_valve', 'packed_tower', 'two_phase', 'two_phase_voidage', 
-'drag', 'saltation', 'separator', 'flow_meter']
+'drag', 'saltation', 'separator', 'flow_meter', 'particle_size_distribution']
 
 __all__.extend(atmosphere.__all__)
 __all__.extend(compressible.__all__)
@@ -94,6 +95,7 @@ __all__.extend(two_phase_voidage.__all__)
 __all__.extend(drag.__all__)
 __all__.extend(saltation.__all__)
 __all__.extend(separator.__all__)
+__all__.extend(particle_size_distribution.__all__)
 
 
 __version__ = '0.1.68'

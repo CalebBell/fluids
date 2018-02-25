@@ -1659,7 +1659,6 @@ class TANK(object):
             
         Notes
         -----
-        The chebyshev app
         '''
         if method == 'full':
             return V_from_h(h, self.D, self.L, self.horizontal, self.sideA, 

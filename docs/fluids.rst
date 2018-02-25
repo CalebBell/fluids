@@ -14,6 +14,7 @@
    fluids.open_flow
    fluids.packed_bed
    fluids.packed_tower
+   fluids.particle_size_distribution
    fluids.piping
    fluids.pump
    fluids.safety_valve
