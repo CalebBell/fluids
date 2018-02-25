@@ -25,6 +25,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 from fluids.particle_size_distribution import *
+import scipy.stats
 
 
 def test_ParticleSizeDistribution_basic():
@@ -85,3 +86,11 @@ def test_ParticleSizeDistribution_basic():
         
         d44 = asme_e799.mean_size(4, 4)
         assert_allclose(d44, 2826.0471682278476)
+
+
+def test_pdf_lognormal():
+    pdf = pdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
+    assert_allclose(pdf, 405.5420921156425, rtol=1E-12)
+    
+    pdf_sp = scipy.stats.lognorm.pdf(x=1E-4/1E-5, s=1.1)/1E-5
+    assert_allclose(pdf_sp, 405.5420921156425)

@@ -21,15 +21,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 from __future__ import division
 
-__all__ = ['ParticleSizeDistribution']
+__all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
+           'pdf_lognormal']
 
 from math import log, exp, pi, log10
 from scipy.integrate import quad
 from scipy.special import erf
+import scipy.stats
 from numpy.random import lognormal
 import numpy as np
 
-
+ROOT_TWO_PI = (2.0*pi)**0.5
 
 
 
@@ -357,4 +359,64 @@ class ParticleSizeDistribution(object):
         return self.mean_size(p=p, q=q)
         
     
+class ParticleSizeDistributionContinuous(object):
+    pass
+
+
+def pdf_lognormal(d, d_characteristic, s):
+    r'''Calculates the probability density function of a lognormal particle
+    distribution given a particle diameter `d`, characteristic particle
+    diameter `d_characteristic`, and distribution standard deviation `s`.
+    
+    .. math::
+        q(d) = \frac{1}{ds\sqrt{2\pi}} \exp\left[-0.5\left(\frac{
+        \ln(d/d_{characteristic})}{s}\right)^2\right]
+        
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    d_characteristic : float
+        Characteristic particle diameter; often D[3, 3] is used for this
+        purpose but not always, [m]
+    s : float
+        Distribution standard deviation, [-]    
+
+    Returns
+    -------
+    pdf : float
+        Lognormal probability density function, [-]
+
+    Notes
+    -----
+    The characteristic diameter can be in terns of number density (denoted 
+    :math:`q_0(d)`), length density (:math:`q_1(d)`), surface area density
+    (:math:`q_2(d)`), or volume density (:math:`q_3(d)`). Volume density is
+    most often used. Interconversions among the distributions is possible but
+    tricky.
+    
+    The standard distribution (i.e. the one used in Scipy) can perform the same
+    computation with :math:`x = d/d_{characteristic}`, `s` unchanged, and
+    the result divided by `d_characteristic` to obtain a compatible answer.
+
+    >>> scipy.stats.lognorm.pdf(x=1E-4/1E-5, s=1.1)/1E-5
+    405.5420921156425
+    
+    Scipy's calculation is over 300 times slower however, and this expression
+    is numerically integrated so speed is required.
+
+    Examples
+    --------
+    >>> pdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
+    405.5420921156425
+
+    References
+    ----------
+    .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size 
+       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and 
+       Moments from Particle Size Distributions.
+    '''
+    log_term = log(d/d_characteristic)/s
+    return 1./(d*s*ROOT_TWO_PI)*exp(-0.5*log_term*log_term)
+
 
