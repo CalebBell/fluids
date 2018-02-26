@@ -22,7 +22,9 @@ SOFTWARE.'''
 from __future__ import division
 
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
-           'pdf_lognormal', 'cdf_lognormal', 'pdf_lognormal_basis_integral']
+           'pdf_lognormal', 'cdf_lognormal', 'pdf_lognormal_basis_integral',
+           'ParticleSizeDistributionContinuous',
+           'ParticleSizeDistributionLognormal']
 
 from math import log, exp, pi, log10
 from scipy.integrate import quad
@@ -363,6 +365,51 @@ class ParticleSizeDistributionContinuous(object):
     pass
 
 
+class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
+    
+    def __init__(self, d_characteristic, s, order=3):
+        self.s = s
+        self.d_characteristic = d_characteristic
+        self.order = 3
+        
+    def pdf(self, d):
+        return pdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
+        
+    def cdf(self, d):
+        return cdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
+    
+    def pdf_basis_integral(self, d, n):
+        return pdf_lognormal_basis_integral(d, d_characteristic=self.d_characteristic, s=self.s, n=n)
+    
+    def delta_cdf(self, dmin, dmax):
+        return self.cdf(dmax) - self.cdf(dmin)
+    
+    def ds_discrete(self, dmax=1E-1, pts=20):
+        return np.logspace(log10(1E-7), log10(dmax), pts).tolist()
+    
+    def fractions_discrete(self, ds):
+        fractions = [self.delta_cdf(1E-100, ds[0])]
+        for i in range(len(ds)-1):
+            delta = self.delta_cdf(ds[i], ds[i+1])
+            fractions.append(delta)
+        return fractions
+    
+    def mean_size(self, p, q):
+        pow1 = q - self.order # -3
+        denominator = self.pdf_basis_integral(d=1E-9, n=pow1) - self.pdf_basis_integral(d=1E20, n=pow1)
+        root_power = p # -q?
+        pow3 = pow1 + p
+        numerator = self.pdf_basis_integral(d=1E-9, n=pow3) - self.pdf_basis_integral(d=1E10, n=pow3)
+        return (numerator/denominator)**(1.0/(root_power))
+
+    
+    
+    def mean_size_ISO(self, k, r):
+        p = k + r
+        q = r
+        return self.mean_size(p=p, q=q)
+
+
 def pdf_lognormal(d, d_characteristic, s):
     r'''Calculates the probability density function of a lognormal particle
     distribution given a particle diameter `d`, characteristic particle
@@ -525,3 +572,10 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
     t2 = erf((s*s*n - log(d/d_characteristic))/(2.**0.5*s))
     return -0.5*t0*t1*t2
 
+from numpy.testing import assert_allclose
+a = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+d20 = a.mean_size(2, 0)
+assert_allclose(d20, 3.033E-6, rtol=0, atol=1E-9)
+
+d10 = a.mean_size(1, 0)
+assert_allclose(d10, 2.676E-6, rtol=0, atol=1E-9)

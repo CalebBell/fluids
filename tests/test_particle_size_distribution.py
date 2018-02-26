@@ -105,3 +105,32 @@ def test_cdf_lognormal():
 def test_pdf_lognormal_basis_integral():
     ans = pdf_lognormal_basis_integral(d=1E-4, d_characteristic=1E-5, s=1.1, n=-2)
     assert_allclose(ans, 56228306549.263626)
+    
+def test_ParticleSizeDistributionLognormal_mean_sizes_numerical():
+    # ISO standard example, done numerically
+    a = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    ds = a.ds_discrete(dmax=1, pts=1E5)
+    fractions = a.fractions_discrete(ds)
+    
+    disc = ParticleSizeDistribution(ds=ds, fractions=fractions)
+    d20 = disc.mean_size(2, 0)
+    assert_allclose(d20, 3.033E-6, rtol=0, atol=1E-9)
+    
+    d10 = disc.mean_size(1, 0)
+    assert_allclose(d10, 2.676E-6, rtol=0, atol=1E-9)
+    
+    d21 = disc.mean_size(2, 1)
+    assert_allclose(d21, 3.436E-6, rtol=0, atol=1E-9)
+    
+    d32 = disc.mean_size(3, 2)
+    # Does match, need 6E6 pts to get the last digit to round right
+    assert_allclose(d32, 4.412E-6, rtol=0, atol=1E-9)
+    
+    d43 = disc.mean_size(4, 3)
+    assert_allclose(d43, 5.666E-6, rtol=0, atol=1E-9)
+    
+    d33 = disc.mean_size(3.0, 3.0)
+    assert_allclose(d33, 5.000E-6, rtol=0, atol=1E-9)
+    
+    d00 = disc.mean_size(0.0, 0.0)
+    assert_allclose(d00, 2.362E-6, rtol=0, atol=1E-9)
