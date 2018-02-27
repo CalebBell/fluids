@@ -27,6 +27,7 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'ParticleSizeDistributionLognormal']
 
 from math import log, exp, pi, log10
+from scipy.optimize import brenth
 from scipy.integrate import quad
 from scipy.special import erf
 import scipy.stats
@@ -372,6 +373,10 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
         self.d_characteristic = d_characteristic
         self.order = 3
         
+    def dn(self, fraction, n=3):
+        # Newton is just giving math errors, need to use bisection
+        return brenth(lambda d:self.cdf(d) -fraction, 1E-7, 1E10)
+        
     def pdf(self, d):
         return pdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
         
@@ -395,14 +400,14 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
         return fractions
     
     def mean_size(self, p, q):
-        pow1 = q - self.order # -3
+        if p == q:
+            raise Exception(NotImplemented)
+        pow1 = q - self.order 
         denominator = self.pdf_basis_integral(d=1E-9, n=pow1) - self.pdf_basis_integral(d=1E20, n=pow1)
-        root_power = p # -q?
-        pow3 = pow1 + p
+        root_power = p  -q
+        pow3 = p - self.order
         numerator = self.pdf_basis_integral(d=1E-9, n=pow3) - self.pdf_basis_integral(d=1E10, n=pow3)
         return (numerator/denominator)**(1.0/(root_power))
-
-    
     
     def mean_size_ISO(self, k, r):
         p = k + r
