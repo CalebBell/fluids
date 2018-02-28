@@ -27,6 +27,7 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'ParticleSizeDistributionLognormal']
 
 from math import log, exp, pi, log10
+from sys import float_info
 from scipy.optimize import brenth
 from scipy.integrate import quad
 from scipy.special import erf
@@ -36,6 +37,176 @@ import numpy as np
 
 ROOT_TWO_PI = (2.0*pi)**0.5
 
+
+def pdf_lognormal(d, d_characteristic, s):
+    r'''Calculates the probability density function of a lognormal particle
+    distribution given a particle diameter `d`, characteristic particle
+    diameter `d_characteristic`, and distribution standard deviation `s`.
+    
+    .. math::
+        q(d) = \frac{1}{ds\sqrt{2\pi}} \exp\left[-0.5\left(\frac{
+        \ln(d/d_{characteristic})}{s}\right)^2\right]
+        
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    d_characteristic : float
+        Characteristic particle diameter; often D[3, 3] is used for this
+        purpose but not always, [m]
+    s : float
+        Distribution standard deviation, [-]    
+
+    Returns
+    -------
+    pdf : float
+        Lognormal probability density function, [-]
+
+    Notes
+    -----
+    The characteristic diameter can be in terns of number density (denoted 
+    :math:`q_0(d)`), length density (:math:`q_1(d)`), surface area density
+    (:math:`q_2(d)`), or volume density (:math:`q_3(d)`). Volume density is
+    most often used. Interconversions among the distributions is possible but
+    tricky.
+        
+    The standard distribution (i.e. the one used in Scipy) can perform the same
+    computation with :math:`x = d/d_{characteristic}`, `s` unchanged, and
+    the result divided by `d_characteristic` to obtain a compatible answer.
+
+    >>> scipy.stats.lognorm.pdf(x=1E-4/1E-5, s=1.1)/1E-5
+    405.5420921156425
+    
+    Scipy's calculation is over 300 times slower however, and this expression
+    is numerically integrated so speed is required.
+
+    Examples
+    --------
+    >>> pdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
+    405.5420921156425
+
+    References
+    ----------
+    .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size 
+       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and 
+       Moments from Particle Size Distributions.
+    '''
+    try:
+        log_term = log(d/d_characteristic)/s
+    except ValueError:
+        return 0.0
+    return 1./(d*s*ROOT_TWO_PI)*exp(-0.5*log_term*log_term)
+
+
+def cdf_lognormal(d, d_characteristic, s):
+    r'''Calculates the cumulative distribution function of a lognormal particle
+    distribution given a particle diameter `d`, characteristic particle
+    diameter `d_characteristic`, and distribution standard deviation `s`.
+    
+    .. math::
+        Q(d) = 0.5\left(1 + \text{err}\left[\left(\frac{\ln(d/d_c)}{s\sqrt{2}}
+        \right)\right]\right)
+        
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    d_characteristic : float
+        Characteristic particle diameter; often D[3, 3] is used for this
+        purpose but not always, [m]
+    s : float
+        Distribution standard deviation, [-]    
+
+    Returns
+    -------
+    cdf : float
+        Lognormal cummulative density function, [-]
+
+    Notes
+    -----
+    The characteristic diameter can be in terns of number density (denoted 
+    :math:`q_0(d)`), length density (:math:`q_1(d)`), surface area density
+    (:math:`q_2(d)`), or volume density (:math:`q_3(d)`). Volume density is
+    most often used. Interconversions among the distributions is possible but
+    tricky.
+        
+    The standard distribution (i.e. the one used in Scipy) can perform the same
+    computation with :math:`x = d/d_{characteristic}`, and `s` unchanged to 
+    obtain a compatible answer.
+
+    >>> scipy.stats.lognorm.cdf(x=1E-4/1E-5, s=1.1)
+    0.98183698757981774
+    
+    Scipy's calculation is over 100 times slower however.
+
+    Examples
+    --------
+    >>> cdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
+    0.98183698757981763
+
+    References
+    ----------
+    .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size 
+       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and 
+       Moments from Particle Size Distributions.
+    '''
+    try:
+        return 0.5*(1.0 + erf((log(d/d_characteristic))/(s*2.0**0.5)))
+    except:
+        # math error at cdf = 0 (x going as low as possible)
+        return 0.0
+
+
+def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
+    r'''Calculates the integral of the multiplication of d^n by the lognormal
+    pdf, given a particle diameter `d`, characteristic particle
+    diameter `d_characteristic`, distribution standard deviation `s`, and
+    exponent `n`.
+    
+    .. math::
+        \int d^n\cdot q(d)\; dd = -\frac{1}{2} \exp\left(\frac{s^2 n^2}{2}
+        \right)d^n \left(\frac{d}{d_{characteristic}}\right)^{-n}
+        \text{erf}\left[\frac{s^2 n - \log(d/d_{characteristic})}
+        {\sqrt{2} s} \right]
+        
+    This is the crucial integral required for interconversion between different
+    bases such as number density (denoted :math:`q_0(d)`), length density 
+    (:math:`q_1(d)`), surface area density (:math:`q_2(d)`), or volume density 
+    (:math:`q_3(d)`).
+        
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    d_characteristic : float
+        Characteristic particle diameter; often D[3, 3] is used for this
+        purpose but not always, [m]
+    s : float
+        Distribution standard deviation, [-]    
+    n : int
+        Exponent of the multiplied n
+
+    Returns
+    -------
+    pdf_basis_integral : float
+        Integral of pognormal pdf multiplied by d^n, [-]
+
+    Notes
+    -----
+    This integral has been verified numerically. This integral is itself
+    integrated, so it is crucial to obtain an analytical form for at least
+    this integral. 
+
+    Examples
+    --------
+    >>> pdf_lognormal_basis_integral(d=1E-4, d_characteristic=1E-5, s=1.1, n=-2)
+    56228306549.263626
+    '''
+    # TODO: Get a limit as x approaches zero
+    t0 = exp(s*s*n*n*0.5)
+    t1 = d**n*(d/d_characteristic)**-n
+    t2 = erf((s*s*n - log(d/d_characteristic))/(2.**0.5*s))
+    return -0.5*t0*t1*t2
 
 
 
@@ -373,15 +544,41 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
         self.d_characteristic = d_characteristic
         self.order = 3
         
+        # Pick an upper bound for the search algorithm of 15 orders of magnitude larger than
+        # the characteristic diameter; should never be a problem, as diameters can only range
+        # so much, physically.
+        self.d_excessive = 1E15*self.d_characteristic
+        
     def dn(self, fraction, n=3):
-        # Newton is just giving math errors, need to use bisection
-        return brenth(lambda d:self.cdf(d) -fraction, 1E-7, 1E10)
+        if fraction == 1.0:
+            # Avoid returning the maximum value of the search interval
+            fraction = 1.0 - float_info.epsilon
+        if fraction < 0:
+            raise ValueError('Fraction must be more than 0')
+        elif fraction > 1:
+            raise ValueError('Fraction less than 1')
+        return brenth(lambda d:self.cdf(d) -fraction, 0.0, self.d_excessive, maxiter=1000)
         
-    def pdf(self, d):
-        return pdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
+    def pdf(self, d, n=None):
+        # TODO: Documentation
+        ans = pdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
+        if n is not None:
+            power = n - self.order
+            numerator = d**power*ans
+            
+            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
+                            - self.pdf_basis_integral(d=1E-9, n=power))
+            ans = numerator/denominator
+        return ans
         
-    def cdf(self, d):
+    def cdf(self, d, n=None):
+        if n is not None:
+            # Requires a numerical integral unfortunately
+            to_int = lambda x: self.pdf(x, n)
+            return quad(to_int, 0, d)[0]
+            
         return cdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
+            
     
     def pdf_basis_integral(self, d, n):
         return pdf_lognormal_basis_integral(d, d_characteristic=self.d_characteristic, s=self.s, n=n)
@@ -389,13 +586,14 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
     def delta_cdf(self, dmin, dmax):
         return self.cdf(dmax) - self.cdf(dmin)
     
-    def ds_discrete(self, dmax=1E-1, pts=20):
-        return np.logspace(log10(1E-7), log10(dmax), pts).tolist()
+    def ds_discrete(self, dmin=1E-7, dmax=1E-1, pts=20):
+        #  method=('logarithmic', 'geometric', 'linear' 'R5', 'R10')
+        return np.logspace(log10(dmin), log10(dmax), pts).tolist()
     
     def fractions_discrete(self, ds):
-        fractions = [self.delta_cdf(1E-100, ds[0])]
-        for i in range(len(ds)-1):
-            delta = self.delta_cdf(ds[i], ds[i+1])
+        fractions = [self.delta_cdf(0, ds[0])]
+        for i in range(len(ds) - 1):
+            delta = self.delta_cdf(ds[i], ds[i + 1])
             fractions.append(delta)
         return fractions
     
@@ -403,10 +601,10 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
         if p == q:
             raise Exception(NotImplemented)
         pow1 = q - self.order 
-        denominator = self.pdf_basis_integral(d=1E-9, n=pow1) - self.pdf_basis_integral(d=1E20, n=pow1)
-        root_power = p  -q
+        denominator = self.pdf_basis_integral(d=self.d_excessive, n=pow1) - self.pdf_basis_integral(d=1E-9, n=pow1)
+        root_power = p - q
         pow3 = p - self.order
-        numerator = self.pdf_basis_integral(d=1E-9, n=pow3) - self.pdf_basis_integral(d=1E10, n=pow3)
+        numerator = self.pdf_basis_integral(d=self.d_excessive, n=pow3) - self.pdf_basis_integral(d=1E-9, n=pow3)
         return (numerator/denominator)**(1.0/(root_power))
     
     def mean_size_ISO(self, k, r):
@@ -414,173 +612,3 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
         q = r
         return self.mean_size(p=p, q=q)
 
-
-def pdf_lognormal(d, d_characteristic, s):
-    r'''Calculates the probability density function of a lognormal particle
-    distribution given a particle diameter `d`, characteristic particle
-    diameter `d_characteristic`, and distribution standard deviation `s`.
-    
-    .. math::
-        q(d) = \frac{1}{ds\sqrt{2\pi}} \exp\left[-0.5\left(\frac{
-        \ln(d/d_{characteristic})}{s}\right)^2\right]
-        
-    Parameters
-    ----------
-    d : float
-        Specified particle diameter, [m]
-    d_characteristic : float
-        Characteristic particle diameter; often D[3, 3] is used for this
-        purpose but not always, [m]
-    s : float
-        Distribution standard deviation, [-]    
-
-    Returns
-    -------
-    pdf : float
-        Lognormal probability density function, [-]
-
-    Notes
-    -----
-    The characteristic diameter can be in terns of number density (denoted 
-    :math:`q_0(d)`), length density (:math:`q_1(d)`), surface area density
-    (:math:`q_2(d)`), or volume density (:math:`q_3(d)`). Volume density is
-    most often used. Interconversions among the distributions is possible but
-    tricky.
-        
-    The standard distribution (i.e. the one used in Scipy) can perform the same
-    computation with :math:`x = d/d_{characteristic}`, `s` unchanged, and
-    the result divided by `d_characteristic` to obtain a compatible answer.
-
-    >>> scipy.stats.lognorm.pdf(x=1E-4/1E-5, s=1.1)/1E-5
-    405.5420921156425
-    
-    Scipy's calculation is over 300 times slower however, and this expression
-    is numerically integrated so speed is required.
-
-    Examples
-    --------
-    >>> pdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
-    405.5420921156425
-
-    References
-    ----------
-    .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size 
-       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and 
-       Moments from Particle Size Distributions.
-    '''
-    log_term = log(d/d_characteristic)/s
-    return 1./(d*s*ROOT_TWO_PI)*exp(-0.5*log_term*log_term)
-
-
-def cdf_lognormal(d, d_characteristic, s):
-    r'''Calculates the cumulative distribution function of a lognormal particle
-    distribution given a particle diameter `d`, characteristic particle
-    diameter `d_characteristic`, and distribution standard deviation `s`.
-    
-    .. math::
-        Q(d) = 0.5\left(1 + \text{err}\left[\left(\frac{\ln(d/d_c)}{s\sqrt{2}}
-        \right)\right]\right)
-        
-    Parameters
-    ----------
-    d : float
-        Specified particle diameter, [m]
-    d_characteristic : float
-        Characteristic particle diameter; often D[3, 3] is used for this
-        purpose but not always, [m]
-    s : float
-        Distribution standard deviation, [-]    
-
-    Returns
-    -------
-    cdf : float
-        Lognormal cummulative density function, [-]
-
-    Notes
-    -----
-    The characteristic diameter can be in terns of number density (denoted 
-    :math:`q_0(d)`), length density (:math:`q_1(d)`), surface area density
-    (:math:`q_2(d)`), or volume density (:math:`q_3(d)`). Volume density is
-    most often used. Interconversions among the distributions is possible but
-    tricky.
-        
-    The standard distribution (i.e. the one used in Scipy) can perform the same
-    computation with :math:`x = d/d_{characteristic}`, and `s` unchanged to 
-    obtain a compatible answer.
-
-    >>> scipy.stats.lognorm.cdf(x=1E-4/1E-5, s=1.1)
-    0.98183698757981774
-    
-    Scipy's calculation is over 100 times slower however.
-
-    Examples
-    --------
-    >>> cdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
-    0.98183698757981763
-
-    References
-    ----------
-    .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size 
-       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and 
-       Moments from Particle Size Distributions.
-    '''
-    return 0.5*(1.0 + erf((log(d/d_characteristic))/(s*2.0**0.5)))
-
-
-def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
-    r'''Calculates the integral of the multiplication of d^n by the lognormal
-    pdf, given a particle diameter `d`, characteristic particle
-    diameter `d_characteristic`, distribution standard deviation `s`, and
-    exponent `n`.
-    
-    .. math::
-        \int d^n\cdot q(d)\; dd = -\frac{1}{2} \exp\left(\frac{s^2 n^2}{2}
-        \right)d^n \left(\frac{d}{d_{characteristic}}\right)^{-n}
-        \text{erf}\left[\frac{s^2 n - \log(d/d_{characteristic})}
-        {\sqrt{2} s} \right]
-        
-    This is the crucial integral required for interconversion between different
-    bases such as number density (denoted :math:`q_0(d)`), length density 
-    (:math:`q_1(d)`), surface area density (:math:`q_2(d)`), or volume density 
-    (:math:`q_3(d)`).
-        
-    Parameters
-    ----------
-    d : float
-        Specified particle diameter, [m]
-    d_characteristic : float
-        Characteristic particle diameter; often D[3, 3] is used for this
-        purpose but not always, [m]
-    s : float
-        Distribution standard deviation, [-]    
-    n : int
-        Exponent of the multiplied n
-
-    Returns
-    -------
-    pdf_basis_integral : float
-        Integral of pognormal pdf multiplied by d^n, [-]
-
-    Notes
-    -----
-    This integral has been verified numerically. This integral is itself
-    integrated, so it is crucial to obtain an analytical form for at least
-    this integral. 
-
-    Examples
-    --------
-    >>> pdf_lognormal_basis_integral(d=1E-4, d_characteristic=1E-5, s=1.1, n=-2)
-    56228306549.263626
-    '''
-    t0 = exp(s*s*n*n*0.5)
-    t1 = d**n*(d/d_characteristic)**-n
-    t2 = erf((s*s*n - log(d/d_characteristic))/(2.**0.5*s))
-    return -0.5*t0*t1*t2
-
-from numpy.testing import assert_allclose
-a = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
-d20 = a.mean_size(2, 0)
-assert_allclose(d20, 3.033E-6, rtol=0, atol=1E-9)
-
-d10 = a.mean_size(1, 0)
-assert_allclose(d10, 2.676E-6, rtol=0, atol=1E-9)

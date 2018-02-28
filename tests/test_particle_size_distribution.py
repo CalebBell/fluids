@@ -26,6 +26,8 @@ from numpy.testing import assert_allclose
 import pytest
 from fluids.particle_size_distribution import *
 import scipy.stats
+from random import uniform
+from scipy.integrate import quad
 
 
 def test_ParticleSizeDistribution_basic():
@@ -95,6 +97,12 @@ def test_pdf_lognormal():
     pdf_sp = scipy.stats.lognorm.pdf(x=1E-4/1E-5, s=1.1)/1E-5
     assert_allclose(pdf_sp, pdf)
     
+    assert 0.0 == pdf_lognormal(d=0, d_characteristic=1E-5, s=1.1)
+    
+    # Check we can get down almost to zero
+    pdf = pdf_lognormal(d=3.7E-24, d_characteristic=1E-5, s=1.1)
+    assert_allclose(pdf, 4.842842147909424e-301)
+    
     
 def test_cdf_lognormal():
     cdf = cdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
@@ -102,6 +110,9 @@ def test_cdf_lognormal():
     
     cdf_sp = scipy.stats.lognorm.cdf(x=1E-4/1E-5, s=1.1)
     assert_allclose(cdf, cdf_sp)
+    
+    assert cdf_lognormal(d=1e300, d_characteristic=1E-5, s=1.1) == 1.0
+    assert cdf_lognormal(d=0, d_characteristic=1E-5, s=1.1) == 0.0
     
     
 def test_pdf_lognormal_basis_integral():
@@ -148,26 +159,126 @@ def test_ParticleSizeDistributionLognormal_mean_sizes_analytical():
     d20 = disc.mean_size(2, 0)
     assert_allclose(d20, 3.033E-6, rtol=0, atol=1E-9)
     assert_allclose(d20, 3.0326532985631672e-06, rtol=1E-12)
-    
+    assert_allclose(d20, disc.mean_size_ISO(2, 0), rtol=1E-12)
+
+
     d10 = disc.mean_size(1, 0)
     assert_allclose(d10, 2.676E-6, rtol=0, atol=1E-9)
     assert_allclose(d10, 2.6763071425949508e-06, rtol=1E-12)
-    
+    assert_allclose(d10, disc.mean_size_ISO(1, 0), rtol=1E-12)
+
     d21 = disc.mean_size(2, 1)
     assert_allclose(d21, 3.436E-6, rtol=0, atol=1E-9)
     assert_allclose(d21, 3.4364463939548618e-06, rtol=1E-12)
-    
+    assert_allclose(d21, disc.mean_size_ISO(1, 1), rtol=1E-12)
+
+
     d32 = disc.mean_size(3, 2)
     assert_allclose(d32, 4.412E-6, rtol=0, atol=1E-9)
     assert_allclose(d32, 4.4124845129229773e-06, rtol=1E-12)
-    
+    assert_allclose(d32, disc.mean_size_ISO(1, 2), rtol=1E-12)
+
     d43 = disc.mean_size(4, 3)
     assert_allclose(d43, 5.666E-6, rtol=0, atol=1E-9)
     assert_allclose(d43, 5.6657422653341318e-06, rtol=1E-12)
-    
+    assert_allclose(d43, disc.mean_size_ISO(1, 3), rtol=1E-12)
+
     # There guys - need more work
 #    d33 = disc.mean_size(3.0, 3.0)
 #    assert_allclose(d33, 5.000E-6, rtol=0, atol=1E-9)
 #    
 #    d00 = disc.mean_size(0.0, 0.0)
 #    assert_allclose(d00, 2.362E-6, rtol=0, atol=1E-9)
+
+def test_ParticleSizeDistributionLognormal_dn():
+    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    
+    # Test input of 1
+    ans = disc.dn(1)
+    # The answer can vary quite a lot near the end, so it is safest just to 
+    # compare with the reverse, plugging it back to cdf
+    assert_allclose(disc.cdf(ans), 1, rtol=1E-12)
+#    assert_allclose(ans, 0.0002964902595794474)
+    
+    # Test zero input
+    assert_allclose(disc.dn(0), 0)
+    
+    # Test 50% input
+    ans = disc.dn(.5)
+    assert_allclose(ans,  5.0e-06, rtol=1E-6)
+    
+    with pytest.raises(Exception):
+        disc.dn(1.5)
+    with pytest.raises(Exception):
+        disc.dn(-.5)
+        
+    # Other orders of n - there is no comparison data for this yet!!
+    assert_allclose(disc.pdf(1E-5), disc.pdf(1E-5, 3))
+    assert_allclose(disc.pdf(1E-5, 2), 13468.122877854335)
+    assert_allclose(disc.pdf(1E-5, 1), 4628.2482296943508)
+    assert_allclose(disc.pdf(1E-5, 0), 1238.6613794833427)
+        
+
+def test_ParticleSizeDistributionLognormal_dn_order_0_1_2():
+    # Simple point to test where the order of n should be 0
+    # test 2, 0 -> 2, 0
+    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    to_int = lambda d: d**2*disc.pdf(d=d, n=0)
+    points  = [5E-6*i for i in np.linspace(.1, 50, 40)]
+    
+    ans_numerical = (quad(to_int, 1E-7, 5E-3, points=points)[0])**0.5
+    ans_analytical = 3.0326532985631672e-06
+    # The integral is able to give over to decimals!
+    assert_allclose(ans_numerical, ans_analytical, rtol=1E-10)
+       
+    # test 2, 1 -> 1, 1 integrated pdf
+    
+    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    to_int = lambda d: d*disc.pdf(d=d, n=1)
+    points  = [5E-6*i for i in np.linspace(.1, 50, 40)]
+    
+    ans_numerical = (quad(to_int, 1E-7, 5E-3, points=points)[0])**1
+    ans_analytical = 3.4364463939548618e-06
+    assert_allclose(ans_numerical, ans_analytical, rtol=1E-10)
+    
+    # test 3, 2 -> 1, 2 integrated pdf
+    
+    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    to_int = lambda d: d*disc.pdf(d=d, n=2)
+    points  = [5E-6*i for i in np.linspace(.1, 50, 40)]
+    
+    ans_numerical = (quad(to_int, 1E-7, 5E-3, points=points)[0])**1
+    ans_analytical = 4.4124845129229773e-06
+    assert_allclose(ans_numerical, ans_analytical, rtol=1E-8)
+    
+def test_ParticleSizeDistributionLognormal_cdf_orders():
+    # Test cdf of different orders a bunch
+    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    ds = [1E-7, 2E-6, 3E-6, 4E-6, 5E-6, 6E-6, 7E-6, 1E-5, 2E-5, 3E-5, 5E-5, 7E-5, 1E-4, 2E-4, 4E-4, 1E-3]
+    ans_expect = [[1.2740090035844398e-10, 0.36972511868507696, 0.683798998822639, 0.853992808865621, 0.9331927987311158, 0.9688842772998385, 0.9851077516538724, 0.9980509630571116, 0.9999903391682008, 0.9999998147471902, 0.9999999994865438, 0.9999999999939011, 0.9999999999999658, 0.9999999999999998, 0.9999999999999998, 0.9999999999999976], 
+                  [4.425575638185708e-12, 0.2025404083252294, 0.49136307673911184, 0.7101123263984788, 0.8413447460685407, 0.9138173764334354, 0.952830886192076, 0.9914904387439089, 0.9999192187565294, 0.9999977139227383, 0.9999999895974538, 0.9999999998299455, 0.9999999999986156, 0.9999999999999756, 0.9999999999999756, 1.0000000000000004],
+                  [1.203020660462701e-13, 0.09133459573245377, 0.300956587389585, 0.5214180464898827, 0.6914624612740131, 0.8063826493653127, 0.8795909632526651, 0.9703723506333427, 0.9994671628979609, 0.999977820593815, 0.9999998347515282, 0.999999996222884, 0.9999999999574956, 0.9999999999999969, 0.9999999999999984, 0.9999999999999785], 
+                  [2.5576048879037425e-15, 0.03343241840891552, 0.15347299656473007, 0.327694935711541, 0.4999999999999789, 0.6423110862368396, 0.7495086913877351, 0.9171714809982805, 0.9972193821376694, 0.9998305019135533, 0.9999979393566042, 0.999999934740099, 0.9999999989602019, 0.9999999999999197, 1.0, 0.9999999999999992]]
+    calc = []
+    for n in range(0, 4):
+        calc.append([disc.cdf(i, n=n) for i in ds])
+    
+    assert_allclose(ans_expect, calc, rtol=1E-6)    
+    
+    
+def test_ParticleSizeDistributionLognormal_cdf_vs_pdf():
+    
+    # test PDF against CDF
+    
+    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    for i in range(30):
+        # Pick a random start
+        start = uniform(0, 1)
+        end = uniform(start, 1)
+        d_start = disc.dn(start)
+        d_end = disc.dn(end)
+    
+        delta = disc.cdf(d_end) - disc.cdf(d_start)
+        delta_numerical = quad(disc.pdf, d_start, d_end)[0]
+        assert_allclose(delta, delta_numerical)
+    
