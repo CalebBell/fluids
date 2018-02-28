@@ -220,11 +220,15 @@ def test_ParticleSizeDistributionLognormal_dn():
         
 
 def test_ParticleSizeDistributionLognormal_dn_order_0_1_2():
-    # Simple point to test where the order of n should be 0
+    '''Simple point to test where the order of n should be 0
+    
+    Yes, the integrals need this many points (which makes them slow) to get
+    the right accuracy. They've been tested and reduced already quite a bit.
+    '''
     # test 2, 0 -> 2, 0
     disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
     to_int = lambda d: d**2*disc.pdf(d=d, n=0)
-    points  = [5E-6*i for i in np.linspace(.1, 50, 40)]
+    points  = [5E-6*i for i in np.logspace(np.log10(.1), np.log10(50), 8)]
     
     ans_numerical = (quad(to_int, 1E-7, 5E-3, points=points)[0])**0.5
     ans_analytical = 3.0326532985631672e-06
@@ -233,23 +237,18 @@ def test_ParticleSizeDistributionLognormal_dn_order_0_1_2():
        
     # test 2, 1 -> 1, 1 integrated pdf
     
-    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
-    to_int = lambda d: d*disc.pdf(d=d, n=1)
-    points  = [5E-6*i for i in np.linspace(.1, 50, 40)]
-    
+    to_int = lambda d: d*disc.pdf(d=d, n=1)    
     ans_numerical = (quad(to_int, 1E-7, 5E-3, points=points)[0])**1
     ans_analytical = 3.4364463939548618e-06
     assert_allclose(ans_numerical, ans_analytical, rtol=1E-10)
     
     # test 3, 2 -> 1, 2 integrated pdf
     
-    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
-    to_int = lambda d: d*disc.pdf(d=d, n=2)
-    points  = [5E-6*i for i in np.linspace(.1, 50, 40)]
-    
+    to_int = lambda d: d*disc.pdf(d=d, n=2)    
     ans_numerical = (quad(to_int, 1E-7, 5E-3, points=points)[0])**1
     ans_analytical = 4.4124845129229773e-06
     assert_allclose(ans_numerical, ans_analytical, rtol=1E-8)
+    
     
 def test_ParticleSizeDistributionLognormal_cdf_orders():
     # Test cdf of different orders a bunch
@@ -272,7 +271,9 @@ def test_ParticleSizeDistributionLognormal_cdf_vs_pdf():
     # test PDF against CDF
     
     disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
-    for i in range(30):
+    ans_calc = []
+    ans_expect = []
+    for i in range(5):
         # Pick a random start
         start = uniform(0, 1)
         end = uniform(start, 1)
@@ -281,5 +282,7 @@ def test_ParticleSizeDistributionLognormal_cdf_vs_pdf():
     
         delta = disc.cdf(d_end) - disc.cdf(d_start)
         delta_numerical = quad(disc.pdf, d_start, d_end)[0]
-        assert_allclose(delta, delta_numerical)
+        ans_calc.append(delta_numerical)
+        ans_expect.append(delta)
+    assert_allclose(ans_calc, ans_expect)
     

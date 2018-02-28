@@ -586,8 +586,8 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
     def pdf_basis_integral(self, d, n):
         return pdf_lognormal_basis_integral(d, d_characteristic=self.d_characteristic, s=self.s, n=n)
     
-    def delta_cdf(self, dmin, dmax):
-        return self.cdf(dmax) - self.cdf(dmin)
+    def delta_cdf(self, dmin, dmax, n=None):
+        return self.cdf(dmax, n=n) - self.cdf(dmin, n=n)
     
     def ds_discrete(self, dmin=1E-7, dmax=1E-1, pts=20):
         #  method=('logarithmic', 'geometric', 'linear' 'R5', 'R10')
