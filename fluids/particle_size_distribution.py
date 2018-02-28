@@ -573,10 +573,13 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
         
     def cdf(self, d, n=None):
         if n is not None:
-            # Requires a numerical integral unfortunately
-            to_int = lambda x: self.pdf(x, n)
-            return quad(to_int, 0, d)[0]
+            power = n - self.order
+            numerator = self.pdf_basis_integral(d=d, n=power) - self.pdf_basis_integral(d=1E-9, n=power)
             
+            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
+                            - self.pdf_basis_integral(d=1E-9, n=power))
+            return numerator/denominator
+
         return cdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
             
     
