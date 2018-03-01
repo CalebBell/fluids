@@ -15,10 +15,10 @@ branches:
   - release
 matrix:
   fast_finish: true
-  include:
-    - os: "linux"
-      compiler: "2.7"
-      env: SCIPY_VER="scipy=0.18.0" 
+#  include:
+#    - os: "linux"
+#      compiler: "2.7"
+#      env: SCIPY_VER="scipy=0.18.0" 
 notifications:
   email: false
 install:
