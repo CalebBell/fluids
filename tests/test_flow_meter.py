@@ -27,8 +27,8 @@ from scipy.optimize import fsolve
 from numpy.testing import assert_allclose
 import pytest
 
-def test_orifice_discharge():
-    m = orifice_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646, C=0.5988, expansibility=0.9975)
+def test_flow_meter_discharge():
+    m = flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646, C=0.5988, expansibility=0.9975)
     assert_allclose(m, 0.01120390943807026)
     
 def test_orifice_expansibility():

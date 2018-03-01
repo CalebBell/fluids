@@ -31,7 +31,7 @@ from scipy.constants import g, inch
 __all__ = ['C_Reader_Harris_Gallagher',
            'differential_pressure_meter_solver',
            'differential_pressure_meter_dP',
-           'orifice_discharge', 'orifice_expansibility',
+           'flow_meter_discharge', 'orifice_expansibility',
            'Reader_Harris_Gallagher_discharge',
            'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
            'dP_orifice', 'velocity_of_approach_factor', 
@@ -78,7 +78,7 @@ __all__.extend(['ISO_5167_ORIFICE', 'LONG_RADIUS_NOZZLE', 'ISA_1932_NOZZLE',
                 'WEDGE_METER'])
 
 
-def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
+def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
     r'''Calculates the flow rate of an orifice plate based on the geometry
     of the plate, measured pressures of the orifice, and the density of the
     fluid.
@@ -118,7 +118,7 @@ def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
 
     Examples
     --------
-    >>> orifice_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646, 
+    >>> flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646, 
     ... C=0.5988, expansibility=0.9975)
     0.01120390943807026
 
@@ -471,7 +471,7 @@ def Reader_Harris_Gallagher_discharge(D, Do, P1, P2, rho, mu, k, taps='corner'):
         C = C_Reader_Harris_Gallagher(D=D, Do=Do, 
             rho=rho, mu=mu, m=m, taps=taps)
         epsilon = orifice_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
-        m_calc = orifice_discharge(D=D, Do=Do, P1=P1, P2=P2, rho=rho, 
+        m_calc = flow_meter_discharge(D=D, Do=Do, P1=P1, P2=P2, rho=rho, 
                                     C=C, expansibility=epsilon)
         return m - m_calc
     
@@ -1610,7 +1610,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
-            m_calc = orifice_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
             return m - m_calc
         return newton(to_solve, 2.81)
@@ -1619,7 +1619,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
-            m_calc = orifice_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
             return m - m_calc    
         return brenth(to_solve, D*(1-1E-9), D*5E-3)
@@ -1628,7 +1628,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
-            m_calc = orifice_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
             return m - m_calc    
         return brenth(to_solve, P1*(1-1E-9), P1*0.7)
@@ -1637,7 +1637,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
-            m_calc = orifice_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
             return m - m_calc    
         return brenth(to_solve, P2*(1+1E-9), P2*1.4)
