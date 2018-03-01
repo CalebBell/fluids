@@ -843,9 +843,9 @@ inlet pressure; fluid will flow backwards.')
                 return ridder(to_solve, a=P2, b=Pcf)
             except:
                 m_max = isothermal_gas(rho, fd, P1=Pcf, P2=P2, L=L, D=D)
-                raise Exception('The desired mass flow rate cannot be achieved \
-with the specified downstream pressure; the maximum flowrate is %f at an \
-upstream pressure of %f' %(m_max, Pcf))
+                raise Exception('The desired mass flow rate of %f kg/s cannot '
+'be achieved with the specified downstream pressure; the maximum flowrate is '
+'%f kg/s at an upstream pressure of %f Pa' %(m, m_max, Pcf))
     elif P2 is None and (None not in [L, P1, D, m]):
         try:
             Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
@@ -881,9 +881,9 @@ upstream pressure of %f' %(m_max, Pcf))
 #                return m
             except:
                 m_max = isothermal_gas(rho, fd, P1=P1, P2=Pcf, L=L, D=D)
-                raise Exception('The desired mass flow rate cannot be achieved \
-with the specified upstream pressure; the maximum flowrate is %f at an \
-downstream pressure of %f' %(m_max, Pcf))
+                raise Exception('The desired mass flow rate cannot be achieved '
+'with the specified upstream pressure of %f Pa; the maximum flowrate is %f '
+'kg/s at a downstream pressure of %f' %(P1, m_max, Pcf))
             # A solver which respects its boundaries is required here.
             # ridder cuts the time down from 2 ms to 200 mircoseconds.
             # Is is believed Pcf and P1 will always bracked the root, however
