@@ -236,6 +236,10 @@ class ParticleSizeDistribution(object):
  
     Attributes
     ----------
+    length_fractions : list[float]
+        The length fractions of particles in each bin, [-]
+    area_fractions : list[float]
+        The area fractions of particles in each bin, [-]
     size_classes : bool
         Whether or not the diameter bins were set as size classes (as length
         of fractions + 1), [-]
@@ -319,8 +323,20 @@ class ParticleSizeDistribution(object):
             self.count_fractions = [i/count_sum for i in counts]
         elif spec is flows:
             raise Exception(NotImplemented('Flows are not yet supported - TODO'))
-                        
         
+        # Set the length fractions
+        D3s = [self.di_power(i, power=2) for i in range(self.N)]
+        counts = [Vi/Vp for Vi, Vp in zip(self.fractions, D3s)]
+        count_sum = sum(counts)
+        self.length_fractions = [i/count_sum for i in counts]
+        
+        # Set the surface area fractions
+        D3s = [self.di_power(i, power=1) for i in range(self.N)]
+        counts = [Vi/Vp for Vi, Vp in zip(self.fractions, D3s)]
+        count_sum = sum(counts)
+        self.area_fractions = [i/count_sum for i in counts]
+        # Length and surface area fractions verified numerically
+
         self.flows = flows
         self.rho = rho
         self.MW = MW
@@ -593,10 +609,11 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
         #  method=('logarithmic', 'geometric', 'linear' 'R5', 'R10')
         return np.logspace(log10(dmin), log10(dmax), pts).tolist()
     
-    def fractions_discrete(self, ds):
-        fractions = [self.delta_cdf(0, ds[0])]
+    def fractions_discrete(self, ds, n=None):
+        # TODO replace constant
+        fractions = [self.delta_cdf(1E-9, ds[0], n=n)]
         for i in range(len(ds) - 1):
-            delta = self.delta_cdf(ds[i], ds[i + 1])
+            delta = self.delta_cdf(ds[i], ds[i + 1], n=n)
             fractions.append(delta)
         return fractions
     

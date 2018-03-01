@@ -286,3 +286,27 @@ def test_ParticleSizeDistributionLognormal_cdf_vs_pdf():
         ans_expect.append(delta)
     assert_allclose(ans_calc, ans_expect)
     
+
+def test_PSD_PSDlognormal_area_length_count():
+    '''Compare the average difference between the analytical values for a
+    lognormal distribution with those of a discretized form of it.Note simply
+    adding more points did not tend to help reduce the error.
+    For the particle count case, 700 points has the lowest error.
+    '''
+    dist = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    
+    ds = dist.ds_discrete(pts=1000, dmin=2E-7, dmax=1E-4)
+    fractions = dist.fractions_discrete(ds)
+    psd = ParticleSizeDistribution(ds=ds, fractions=fractions)
+    # Trim a few at the start and end
+    ans = np.array(psd.count_fractions)[5:-5]/np.array(dist.fractions_discrete(ds, n=0))[5:-5]
+    avg_err = sum(np.abs(ans - 1))/len(ans)
+    assert 5E-4 > avg_err
+    
+    ans = np.array(psd.length_fractions)[5:-5]/np.array(dist.fractions_discrete(ds, n=1))[5:-5]
+    avg_err = sum(np.abs(ans - 1))/len(ans)
+    assert 1E-4 > avg_err
+    
+    ans = np.array(psd.area_fractions)[5:-5]/np.array(dist.fractions_discrete(ds, n=2))[5:-5]
+    avg_err = sum(np.abs(ans - 1))/len(ans)
+    assert 1E-4 > avg_err
