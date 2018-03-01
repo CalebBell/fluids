@@ -32,7 +32,6 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'differential_pressure_meter_solver',
            'differential_pressure_meter_dP',
            'flow_meter_discharge', 'orifice_expansibility',
-           'Reader_Harris_Gallagher_discharge',
            'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
            'dP_orifice', 'velocity_of_approach_factor', 
            'flow_coefficient', 'nozzle_expansibility',
@@ -415,67 +414,6 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         C += delta_C_diameter
     
     return C
-
-
-def Reader_Harris_Gallagher_discharge(D, Do, P1, P2, rho, mu, k, taps='corner'):
-    r'''Calculates the mass flow rate of fluid through an orifice based on the 
-    geometry of the plate, measured pressures of the orifice, and the density, 
-    viscosity, and isentropic exponent of the fluid. This solves an equation
-    iteratively to obtain the correct flow rate.
-        
-    Parameters
-    ----------
-    D : float
-        Upstream internal pipe diameter, [m]
-    Do : float
-        Diameter of orifice at flow conditions, [m]
-    P1 : float
-        Static pressure of fluid upstream of orifice at the cross-section of
-        the pressure tap, [Pa]
-    P2 : float
-        Static pressure of fluid downstream of orifice at the cross-section of
-        the pressure tap, [Pa]
-    rho : float
-        Density of fluid at `P1`, [kg/m^3]
-    mu : float
-        Viscosity of fluid at `P1`, [Pa*s]
-    k : float
-        Isentropic exponent of fluid, [-]
-    taps : str
-        The orientation of the taps; one of 'corner', 'flange', 'D', or 'D/2',
-        [-]
-        
-    Returns
-    -------
-    m : float
-        Mass flow rate of fluid through the orifice, [kg/s]
-
-    Notes
-    -----
-
-    Examples
-    --------
-    >>> Reader_Harris_Gallagher_discharge(D=0.07366, Do=0.05, P1=200000.0, 
-    ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33, taps='D')
-    7.702338035732167
-    
-    References
-    ----------
-    .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
-       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
-    .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure 
-       Differential Devices Inserted in Circular Cross-Section Conduits Running
-       Full -- Part 2: Orifice Plates.
-    '''
-    def to_solve(m):
-        C = C_Reader_Harris_Gallagher(D=D, Do=Do, 
-            rho=rho, mu=mu, m=m, taps=taps)
-        epsilon = orifice_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
-        m_calc = flow_meter_discharge(D=D, Do=Do, P1=P1, P2=P2, rho=rho, 
-                                    C=C, expansibility=epsilon)
-        return m - m_calc
-    
-    return newton(to_solve, 2.81)
 
 
 def discharge_coefficient_to_K(D, Do, C):
@@ -1575,7 +1513,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         One of `m`, the mass flow rate of the fluid; `P1`, the pressure 
         upstream of the flow meter; `P2`, the second pressure
         tap's value; and `D2`, the diameter of the measuring device; units
-        of respectively, [kg/s], [Pa], [Pa], or [m]
+        of respectively, kg/s, Pa, Pa, or m
 
     Notes
     -----

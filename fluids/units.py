@@ -422,6 +422,8 @@ wrapped_IGT = IGT
 wrapped_nu_mu_converter = nu_mu_converter
 wrapped_SA_tank= SA_tank
 
+wrapped_differential_pressure_meter_solver = differential_pressure_meter_solver
+
 
 def nu_mu_converter(rho, mu=None, nu=None):
     ans = wrapped_nu_mu_converter(rho, mu, nu)
@@ -522,7 +524,19 @@ for wrapper, E in zip(funcs, Es):
 
 # NOTE: class support can't do static methods unless a class is already instantiated
 
-### TODO list
-def differential_pressure_meter_solver(*args, **kwargs):
-    raise Exception(NotImplemented('This function has not been ported to support pint'))
+def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None, 
+                                       m=None, meter_type=None, 
+                                       taps=None): # pragma: no cover
+    ans = wrapped_differential_pressure_meter_solver(D, rho, mu, k, D2=D2, P1=P1, P2=P2, 
+                                       m=m, meter_type=meter_type, 
+                                       taps=taps)  
+    if m is None and (None not in [D, D2, P1, P2]):
+        return ans*u.kg/u.s
+    elif D2 is None and (None not in [D, m, P1, P2]):
+        return ans*u.m
+    elif P2 is None and (None not in [D, D2, P1, m]):
+        return ans*u.Pa
+    elif P1 is None and (None not in [D, D2, m, P2]):
+        return ans*u.Pa
 
+### TODO list
