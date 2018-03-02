@@ -195,7 +195,10 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
     -----
     This integral has been verified numerically. This integral is itself
     integrated, so it is crucial to obtain an analytical form for at least
-    this integral. 
+    this integral.
+    
+    Note overflow or zero division issues may occur for very large values of 
+    `s`, larger than 10.
 
     Examples
     --------
@@ -203,10 +206,13 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
     56228306549.263626
     '''
     # TODO: Get a limit as x approaches zero
-    t0 = exp(s*s*n*n*0.5)
-    t1 = d**n*(d/d_characteristic)**-n
-    t2 = erf((s*s*n - log(d/d_characteristic))/(2.**0.5*s))
-    return -0.5*t0*t1*t2
+    try:
+        t0 = exp(s*s*n*n*0.5)
+        t1 = d**n*(d/d_characteristic)**-n
+        t2 = erf((s*s*n - log(d/d_characteristic))/(2.**0.5*s))
+        return -0.5*t0*t1*t2
+    except (OverflowError, ZeroDivisionError, ValueError):
+        return pdf_lognormal_basis_integral(d=1E-80, d_characteristic=d_characteristic, s=s, n=n)
 
 
 
@@ -550,21 +556,6 @@ class ParticleSizeDistribution(object):
         
     
 class ParticleSizeDistributionContinuous(object):
-    pass
-
-
-class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
-    
-    def __init__(self, d_characteristic, s, order=3):
-        self.s = s
-        self.d_characteristic = d_characteristic
-        self.order = 3
-        
-        # Pick an upper bound for the search algorithm of 15 orders of magnitude larger than
-        # the characteristic diameter; should never be a problem, as diameters can only range
-        # so much, physically.
-        self.d_excessive = 1E15*self.d_characteristic
-        
     def dn(self, fraction, n=3):
         if fraction == 1.0:
             # Avoid returning the maximum value of the search interval
@@ -574,34 +565,7 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
         elif fraction > 1:
             raise ValueError('Fraction less than 1')
         return brenth(lambda d:self.cdf(d) -fraction, 0.0, self.d_excessive, maxiter=1000)
-        
-    def pdf(self, d, n=None):
-        # TODO: Documentation
-        ans = pdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
-        if n is not None:
-            power = n - self.order
-            numerator = d**power*ans
-            
-            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
-                            - self.pdf_basis_integral(d=1E-9, n=power))
-            ans = numerator/denominator
-        return ans
-        
-    def cdf(self, d, n=None):
-        if n is not None:
-            power = n - self.order
-            numerator = self.pdf_basis_integral(d=d, n=power) - self.pdf_basis_integral(d=1E-9, n=power)
-            
-            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
-                            - self.pdf_basis_integral(d=1E-9, n=power))
-            return numerator/denominator
 
-        return cdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
-            
-    
-    def pdf_basis_integral(self, d, n):
-        return pdf_lognormal_basis_integral(d, d_characteristic=self.d_characteristic, s=self.s, n=n)
-    
     def delta_cdf(self, dmin, dmax, n=None):
         return self.cdf(dmax, n=n) - self.cdf(dmin, n=n)
     
@@ -611,7 +575,7 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
     
     def fractions_discrete(self, ds, n=None):
         # TODO replace constant
-        fractions = [self.delta_cdf(1E-9, ds[0], n=n)]
+        fractions = [self.delta_cdf(0.0, ds[0], n=n)]
         for i in range(len(ds) - 1):
             delta = self.delta_cdf(ds[i], ds[i + 1], n=n)
             fractions.append(delta)
@@ -631,4 +595,46 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
         p = k + r
         q = r
         return self.mean_size(p=p, q=q)
+
+
+class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
+    
+    def __init__(self, d_characteristic, s, order=3):
+        self.s = s
+        self.d_characteristic = d_characteristic
+        self.order = 3
+        
+        # Pick an upper bound for the search algorithm of 15 orders of magnitude larger than
+        # the characteristic diameter; should never be a problem, as diameters can only range
+        # so much, physically.
+        self.d_excessive = 1E15*self.d_characteristic
+        
+        
+    def pdf(self, d, n=None):
+        # TODO: Documentation
+        ans = pdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
+        if n is not None:
+            power = n - self.order
+            numerator = d**power*ans
+            
+            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
+                            - self.pdf_basis_integral(d=0.0, n=power))
+            ans = numerator/denominator
+        return ans
+        
+    def cdf(self, d, n=None):
+        if n is not None:
+            power = n - self.order
+            numerator = self.pdf_basis_integral(d=d, n=power) - self.pdf_basis_integral(d=0.0, n=power)
+            
+            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
+                            - self.pdf_basis_integral(d=0.0, n=power))
+            return numerator/denominator
+
+        return cdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
+            
+    
+    def pdf_basis_integral(self, d, n):
+        return pdf_lognormal_basis_integral(d, d_characteristic=self.d_characteristic, s=self.s, n=n)
+    
 
