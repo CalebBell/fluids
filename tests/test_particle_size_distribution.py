@@ -148,6 +148,9 @@ def test_pdf_Gates_Gaudin_Schuhman():
     assert_allclose(pdf, 0)
     
 def test_pdf_Gates_Gaudin_Schuhman_basis_integral():
+    ans =  pdf_Gates_Gaudin_Schuhman_basis_integral(d=0, d_characteristic=1e-3, m=2.3, n=5)
+    assert_allclose(ans, 0)
+    
     for n in [-1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0]:
         # Errors at -2 (well, prevision loss anyway)
         for dmax in [ 1e-3, 1e-2, 2e-2, 3e-2, 4e-2, 5e-2, 6e-2, 7e-2, 8e-2, 1e-1]:

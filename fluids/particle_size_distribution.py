@@ -328,6 +328,41 @@ def cdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
 
 
 def pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic, m, n):
+    r'''Calculates the integral of the multiplication of d^n by the Gates, 
+    Gaudin and Schuhman (GGS) model given a particle diameter `d`,
+    characteristic (maximum) particle diameter `d_characteristic`, and exponent
+    `m`.
+    
+    .. math::
+        \int d^n\cdot q(d)\; dd =\frac{m}{m+n} d^n \left(\frac{d}
+        {d_{characteristic}}\right)^m
+        
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    d_characteristic : float
+        Characteristic particle diameter; in this model, it is the largest 
+        particle size diameter in the distribution, [m]
+    m : float
+        Particle size distribution exponent, [-]    
+    n : int
+        Exponent of the multiplied n, [-]
+
+    Returns
+    -------
+    pdf_basis_integral : float
+        Integral of Rosin Rammler pdf multiplied by d^n, [-]
+
+    Notes
+    -----
+    This integral does not have any numerical issues as `d` approaches 0.
+
+    Examples
+    --------
+    >>> pdf_Gates_Gaudin_Schuhman_basis_integral(d=2E-4, d_characteristic=1E-3, m=2.3, n=-3)
+    -10136984887.543015
+    '''
     return m/(m+n)*d**n*(d/d_characteristic)**m
 
 
