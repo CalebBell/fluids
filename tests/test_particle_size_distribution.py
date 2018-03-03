@@ -214,11 +214,11 @@ def test_pdf_Rosin_Rammler_basis_integral():
             assert_allclose(analytical, numerical, rtol=1E-5)
     
 @pytest.mark.slow
-def test_ParticleSizeDistributionLognormal_mean_sizes_numerical():
+def test_PSDLognormal_mean_sizes_numerical():
     '''Takes like 10 seconds.
     '''
     # ISO standard example, done numerically
-    a = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    a = PSDLognormal(s=0.5, d_characteristic=5E-6)
     ds = a.ds_discrete(dmax=1, pts=1E5)
     fractions = a.fractions_discrete(ds)
     
@@ -246,8 +246,8 @@ def test_ParticleSizeDistributionLognormal_mean_sizes_numerical():
     assert_allclose(d00, 2.362E-6, rtol=0, atol=1E-9)
 
 
-def test_ParticleSizeDistributionLognormal_mean_sizes_analytical():
-    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+def test_PSDLognormal_mean_sizes_analytical():
+    disc = PSDLognormal(s=0.5, d_characteristic=5E-6)
     
     d20 = disc.mean_size(2, 0)
     assert_allclose(d20, 3.033E-6, rtol=0, atol=1E-9)
@@ -283,8 +283,8 @@ def test_ParticleSizeDistributionLognormal_mean_sizes_analytical():
 #    d00 = disc.mean_size(0.0, 0.0)
 #    assert_allclose(d00, 2.362E-6, rtol=0, atol=1E-9)
 
-def test_ParticleSizeDistributionLognormal_dn():
-    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+def test_PSDLognormal_dn():
+    disc = PSDLognormal(s=0.5, d_characteristic=5E-6)
     
     # Test input of 1
     ans = disc.dn(1)
@@ -312,14 +312,14 @@ def test_ParticleSizeDistributionLognormal_dn():
     assert_allclose(disc.pdf(1E-5, 0), 1238.6613794833427)
         
 
-def test_ParticleSizeDistributionLognormal_dn_order_0_1_2():
+def test_PSDLognormal_dn_order_0_1_2():
     '''Simple point to test where the order of n should be 0
     
     Yes, the integrals need this many points (which makes them slow) to get
     the right accuracy. They've been tested and reduced already quite a bit.
     '''
     # test 2, 0 -> 2, 0
-    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    disc = PSDLognormal(s=0.5, d_characteristic=5E-6)
     to_int = lambda d: d**2*disc.pdf(d=d, n=0)
     points  = [5E-6*i for i in np.logspace(np.log10(.1), np.log10(50), 8)]
     
@@ -343,9 +343,9 @@ def test_ParticleSizeDistributionLognormal_dn_order_0_1_2():
     assert_allclose(ans_numerical, ans_analytical, rtol=1E-8)
     
     
-def test_ParticleSizeDistributionLognormal_cdf_orders():
+def test_PSDLognormal_cdf_orders():
     # Test cdf of different orders a bunch
-    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    disc = PSDLognormal(s=0.5, d_characteristic=5E-6)
     # 16 x 4 = 64 points
     ds = [1E-7, 2E-6, 3E-6, 4E-6, 5E-6, 6E-6, 7E-6, 1E-5, 2E-5, 3E-5, 5E-5, 7E-5, 1E-4, 2E-4, 4E-4, 1E-3]
     ans_expect = [[1.2740101403504886e-10, 0.36972511868508068, 0.68379899882263917, 0.8539928088656249, 0.93319279873114203, 0.96888427729983861, 0.98510775165387254, 0.99805096305713792, 0.9999903391682271, 0.99999981474719135, 0.99999999948654394, 0.99999999999391231, 0.99999999999996592, 1.0, 1.0, 1.0], 
@@ -360,11 +360,11 @@ def test_ParticleSizeDistributionLognormal_cdf_orders():
     assert_allclose(ans_expect, calc, rtol=1E-9)    
     
     
-def test_ParticleSizeDistributionLognormal_cdf_vs_pdf():
+def test_PSDLognormal_cdf_vs_pdf():
     
     # test PDF against CDF
     
-    disc = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    disc = PSDLognormal(s=0.5, d_characteristic=5E-6)
     ans_calc = []
     ans_expect = []
     for i in range(5):
@@ -387,7 +387,7 @@ def test_PSD_PSDlognormal_area_length_count():
     adding more points did not tend to help reduce the error.
     For the particle count case, 700 points has the lowest error.
     '''
-    dist = ParticleSizeDistributionLognormal(s=0.5, d_characteristic=5E-6)
+    dist = PSDLognormal(s=0.5, d_characteristic=5E-6)
     
     ds = dist.ds_discrete(pts=1000, dmin=2E-7, dmax=1E-4)
     fractions = dist.fractions_discrete(ds)

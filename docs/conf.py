@@ -49,6 +49,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
     'numpydoc',
     'nbsphinx'
 ]
@@ -200,7 +201,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Fluidsdoc'
+htmlhelp_basename = 'Fluids doc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -282,7 +283,10 @@ texinfo_documents = [
 #texinfo_no_detailmenu = False
 
 html_theme = "nature"
-
+numpydoc_show_class_members = True
+numpydoc_show_inherited_class_members = True
+numpydoc_class_members_toctree = False
+autosummary_generate = True
 from sphinx.ext.autodoc import between
 
 def setup(app):

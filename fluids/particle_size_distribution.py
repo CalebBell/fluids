@@ -22,13 +22,12 @@ SOFTWARE.'''
 from __future__ import division
 
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
+           'PSDLognormal', 'PSDGatesGaudinSchuhman', 'PSDRosinRammler',
            'pdf_lognormal', 'cdf_lognormal', 'pdf_lognormal_basis_integral',
            'pdf_Gates_Gaudin_Schuhman', 'cdf_Gates_Gaudin_Schuhman',
            'pdf_Gates_Gaudin_Schuhman_basis_integral',
            'pdf_Rosin_Rammler', 'cdf_Rosin_Rammler', 
-           'pdf_Rosin_Rammler_basis_integral',
-           'ParticleSizeDistributionContinuous',
-           'ParticleSizeDistributionLognormal']
+           'pdf_Rosin_Rammler_basis_integral']
 
 from math import log, exp, pi, log10
 from sys import float_info
@@ -908,7 +907,7 @@ class ParticleSizeDistributionContinuous(object):
         return self.mean_size(p=p, q=q)
 
 
-class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
+class PSDLognormal(ParticleSizeDistributionContinuous):
     
     def __init__(self, d_characteristic, s, order=3):
         self.s = s
@@ -930,3 +929,39 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
         return pdf_lognormal_basis_integral(d, d_characteristic=self.d_characteristic, s=self.s, n=n)
     
 
+class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
+    def __init__(self, d_characteristic, n, order=3):
+        self.n = n
+        self.d_characteristic = d_characteristic
+        self.order = order
+        
+        # PDF above this is zero
+        self.d_excessive = self.d_characteristic
+
+    def _pdf(self, d, n=None):
+        return pdf_Gates_Gaudin_Schuhman(d, d_characteristic=self.d_characteristic, m=self.m)
+
+    def _cdf(self, d, n=None):
+        return cdf_Gates_Gaudin_Schuhman(d, d_characteristic=self.d_characteristic, m=self.m)
+
+    def pdf_basis_integral(self, d, n):
+        return pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic=self.d_characteristic, m=self.m, n=n)
+
+
+class PSDRosinRammler(ParticleSizeDistributionContinuous):
+    def __init__(self, k, n, order=3):
+        self.n = n
+        self.k = k
+        self.order = order
+        
+        # PDF above this is zero - todo?
+        self.d_excessive = 1e3 
+
+    def _pdf(self, d, n=None):
+        return pdf_Rosin_Rammler(d, k=self.k, m=self.m)
+
+    def _cdf(self, d, n=None):
+        return cdf_Rosin_Rammler(d, k=self.k, m=self.m)
+    
+    def pdf_basis_integral(self, d, n):
+        return pdf_Rosin_Rammler_basis_integral(d, k=self.k, m=self.m, n=n)
