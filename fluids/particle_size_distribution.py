@@ -24,6 +24,7 @@ from __future__ import division
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'pdf_lognormal', 'cdf_lognormal', 'pdf_lognormal_basis_integral',
            'pdf_Gates_Gaudin_Schuhman', 'cdf_Gates_Gaudin_Schuhman',
+           'pdf_Gates_Gaudin_Schuhman_basis_integral',
            'pdf_Rosin_Rammler', 'cdf_Rosin_Rammler', 
            'pdf_Rosin_Rammler_basis_integral',
            'ParticleSizeDistributionContinuous',
@@ -324,6 +325,10 @@ def cdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
         return (d/d_characteristic)**m
     else:
         return 1.0
+
+
+def pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic, m, n):
+    return m/(m+n)*d**n*(d/d_characteristic)**m
 
 
 def pdf_Rosin_Rammler(d, k, m):
