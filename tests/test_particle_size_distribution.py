@@ -140,12 +140,14 @@ def test_cdf_Gates_Gaudin_Schuhman():
     cdf = cdf_Gates_Gaudin_Schuhman(d=1.01e-3, d_characteristic=1E-3, m=2.3)
     assert_allclose(cdf, 1)
     
+    
 def test_pdf_Gates_Gaudin_Schuhman():
     pdf = pdf_Gates_Gaudin_Schuhman(d=2E-4, d_characteristic=1E-3, m=2.3)
     assert_allclose(pdf, 283.8355768512045)
     
     pdf = pdf_Gates_Gaudin_Schuhman(d=2E-3, d_characteristic=1E-3, m=2.3)
     assert_allclose(pdf, 0)
+    
     
 def test_pdf_Gates_Gaudin_Schuhman_basis_integral():
     ans =  pdf_Gates_Gaudin_Schuhman_basis_integral(d=0, d_characteristic=1e-3, m=2.3, n=5)

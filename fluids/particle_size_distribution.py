@@ -845,6 +845,28 @@ class ParticleSizeDistribution(object):
         
     
 class ParticleSizeDistributionContinuous(object):
+    def pdf(self, d, n=None):
+        ans = self._pdf(d=d, n=n)
+        if n is not None:
+            power = n - self.order
+            numerator = d**power*ans
+            
+            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
+                            - self.pdf_basis_integral(d=0.0, n=power))
+            ans = numerator/denominator
+        return ans
+
+    def cdf(self, d, n=None):
+        if n is not None:
+            power = n - self.order
+            numerator = (self.pdf_basis_integral(d=d, n=power)
+                        - self.pdf_basis_integral(d=0.0, n=power))
+            
+            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
+                            - self.pdf_basis_integral(d=0.0, n=power))
+            return numerator/denominator        
+        return self._cdf(d=d, n=n)
+
     def dn(self, fraction, n=3):
         if fraction == 1.0:
             # Avoid returning the maximum value of the search interval
@@ -891,37 +913,18 @@ class ParticleSizeDistributionLognormal(ParticleSizeDistributionContinuous):
     def __init__(self, d_characteristic, s, order=3):
         self.s = s
         self.d_characteristic = d_characteristic
-        self.order = 3
+        self.order = order
         
         # Pick an upper bound for the search algorithm of 15 orders of magnitude larger than
         # the characteristic diameter; should never be a problem, as diameters can only range
         # so much, physically.
         self.d_excessive = 1E15*self.d_characteristic
         
-        
-    def pdf(self, d, n=None):
-        # TODO: Documentation
-        ans = pdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
-        if n is not None:
-            power = n - self.order
-            numerator = d**power*ans
-            
-            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
-                            - self.pdf_basis_integral(d=0.0, n=power))
-            ans = numerator/denominator
-        return ans
-        
-    def cdf(self, d, n=None):
-        if n is not None:
-            power = n - self.order
-            numerator = self.pdf_basis_integral(d=d, n=power) - self.pdf_basis_integral(d=0.0, n=power)
-            
-            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
-                            - self.pdf_basis_integral(d=0.0, n=power))
-            return numerator/denominator
+    def _pdf(self, d, n=None):
+        return pdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
 
+    def _cdf(self, d, n=None):
         return cdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
-            
     
     def pdf_basis_integral(self, d, n):
         return pdf_lognormal_basis_integral(d, d_characteristic=self.d_characteristic, s=self.s, n=n)
