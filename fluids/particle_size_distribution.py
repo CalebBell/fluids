@@ -444,16 +444,25 @@ def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
     This integral was derived using a CAS, and verified numerically.
     The `gammaincc` function is that from scipy.special, and `gamma` from the
     same.
+    
+    For very high powers of `n` or `m` when the diameter is very low, 
+    execeptions may occur.
 
     Examples
     --------
     >>> pdf_Rosin_Rammler_basis_integral(5E-2, 200, 2, 3)
     -0.00045239898439007338
     '''
-    a = (m+n)/m
-    x = d**m*k
-    t1 = gamma(a)*(gammaincc(a, x))
-    return -d**(m+n)*k*(d**m*k)**(-a)*t1
+    # Also not able to compute the limit for d approaching 0.
+    try:
+        a = (m+n)/m
+        x = d**m*k
+        t1 = gamma(a)*(gammaincc(a, x))
+        return -d**(m+n)*k*(d**m*k)**(-a)*t1
+    except (OverflowError, ZeroDivisionError) as e:
+        if d == 1E-40:
+            raise e
+        return pdf_Rosin_Rammler_basis_integral(1E-40, k, m, n)
 
 
 class ParticleSizeDistribution(object):

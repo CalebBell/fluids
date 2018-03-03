@@ -151,6 +151,7 @@ def test_cdf_Rosin_Rammler():
     cdf = cdf_Rosin_Rammler(5E-2, 200, 2)
     assert_allclose(cdf, 0.3934693402873667)
     
+    
 def test_pdf_Rosin_Rammler():
     '''
 from sympy import *
@@ -170,7 +171,16 @@ print(latex(diff(model, d)))    '''
     
     assert 0 == pdf_Rosin_Rammler(0, 200, 2)
     
+    
 def test_pdf_Rosin_Rammler_basis_integral():
+    ans = pdf_Rosin_Rammler_basis_integral(5E-2, 200, 2, 3)
+    assert_allclose(ans, -0.00045239898439007338)
+    
+    # Test no error
+    pdf_Rosin_Rammler_basis_integral(0, 200, 2, 3)
+    
+    
+    
     for n in [1.0, 2.0, 3.0]:
         # Lower dmaxes have 
         for dmax in [ 1e-3, 1e-2, 2e-2, 3e-2, 4e-2, 5e-2, 6e-2, 7e-2, 8e-2, 1e-1]:
