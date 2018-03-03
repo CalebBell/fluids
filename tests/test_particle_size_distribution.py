@@ -124,6 +124,52 @@ def test_pdf_lognormal_basis_integral():
     ans2 = pdf_lognormal_basis_integral(d=1E-120, d_characteristic=1E-5, s=1.1, n=-2)
     assert_allclose(ans, ans2, rtol=1E-12)
     
+    # Couldn't get the limit for pdf_lognormal_basis_integral when d = 0
+    # # with Sympy Or wolfram
+    
+
+def test_cdf_Gates_Gaudin_Schuhman():
+    '''
+    d, dmax, n, m = symbols('d, dmax, n, m')
+    expr = (d/dmax)**n
+    pdf = diff(expr, d)
+    '''
+    cdf = cdf_Gates_Gaudin_Schuhman(d=2E-4, d_characteristic=1E-3, m=2.3)
+    assert_allclose(cdf, 0.024681354508800397)
+    
+    cdf = cdf_Gates_Gaudin_Schuhman(d=1.01e-3, d_characteristic=1E-3, m=2.3)
+    assert_allclose(cdf, 1)
+    
+def test_pdf_Gates_Gaudin_Schuhman():
+    pdf = pdf_Gates_Gaudin_Schuhman(d=2E-4, d_characteristic=1E-3, m=2.3)
+    assert_allclose(pdf, 283.8355768512045)
+    
+    pdf = pdf_Gates_Gaudin_Schuhman(d=2E-3, d_characteristic=1E-3, m=2.3)
+    assert_allclose(pdf, 0)
+    
+def test_cdf_Rosin_Rammler():
+    cdf = cdf_Rosin_Rammler(5E-2, 200, 2)
+    assert_allclose(cdf, 0.3934693402873667)
+    
+def test_pdf_Rosin_Rammler():
+    '''
+from sympy import *
+d, k, n = symbols('d, k, n')
+model = 1 - exp(-k*d**n)
+print(latex(diff(model, d)))    '''
+    pdf = pdf_Rosin_Rammler(1E-3, 200, 2)
+    assert_allclose(pdf, 0.3999200079994667)
+    
+    # quad
+    to_quad = lambda d: pdf_Rosin_Rammler(d, 200, 2)
+    cdf_int = quad(to_quad, 0, 5e-2)[0]
+    cdf_known = cdf_Rosin_Rammler(5E-2, 200, 2)
+    assert_allclose(cdf_int, cdf_known)
+    
+    assert_allclose(1, quad(to_quad, 0, 5)[0])
+    
+    assert 0 == pdf_Rosin_Rammler(0, 200, 2)
+    
 @pytest.mark.slow
 def test_ParticleSizeDistributionLognormal_mean_sizes_numerical():
     '''Takes like 10 seconds.

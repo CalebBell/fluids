@@ -23,6 +23,8 @@ from __future__ import division
 
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'pdf_lognormal', 'cdf_lognormal', 'pdf_lognormal_basis_integral',
+           'pdf_Gates_Gaudin_Schuhman', 'cdf_Gates_Gaudin_Schuhman',
+           'pdf_Rosin_Rammler', 'cdf_Rosin_Rammler',
            'ParticleSizeDistributionContinuous',
            'ParticleSizeDistributionLognormal']
 
@@ -198,14 +200,14 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
     this integral.
     
     Note overflow or zero division issues may occur for very large values of 
-    `s`, larger than 10.
+    `s`, larger than 10. No mathematical limit was able to be obtained with 
+    a CAS.
 
     Examples
     --------
     >>> pdf_lognormal_basis_integral(d=1E-4, d_characteristic=1E-5, s=1.1, n=-2)
     56228306549.263626
     '''
-    # TODO: Get a limit as x approaches zero
     try:
         t0 = exp(s*s*n*n*0.5)
         t1 = d**n*(d/d_characteristic)**-n
@@ -214,6 +216,200 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
     except (OverflowError, ZeroDivisionError, ValueError):
         return pdf_lognormal_basis_integral(d=1E-80, d_characteristic=d_characteristic, s=s, n=n)
 
+
+def pdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
+    r'''Calculates the probability density of a particle
+    distribution following the Gates, Gaudin and Schuhman (GGS) model given a 
+    particle diameter `d`, characteristic (maximum) particle
+    diameter `d_characteristic`, and exponent `m`.
+    
+    .. math::
+        q(d) = \frac{n}{d}\left(\frac{d}{d_{characteristic}}\right)^m 
+        \text{ if } d < d_{characteristic} \text{ else } 0
+        
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    d_characteristic : float
+        Characteristic particle diameter; in this model, it is the largest 
+        particle size diameter in the distribution, [m]
+    m : float
+        Particle size distribution exponent, [-]    
+
+    Returns
+    -------
+    pdf : float
+        GGS probability density function, [-]
+
+    Notes
+    -----
+    The characteristic diameter can be in terns of number density (denoted 
+    :math:`q_0(d)`), length density (:math:`q_1(d)`), surface area density
+    (:math:`q_2(d)`), or volume density (:math:`q_3(d)`). Volume density is
+    most often used. Interconversions among the distributions is possible but
+    tricky.
+
+    Examples
+    --------
+    >>> pdf_Gates_Gaudin_Schuhman(d=2E-4, d_characteristic=1E-3, m=2.3)
+    283.8355768512045
+
+    References
+    ----------
+    .. [1] Schuhmann, R., 1940. Principles of Comminution, I-Size Distribution 
+       and Surface Calculations. American Institute of Mining, Metallurgical 
+       and Petroleum Engineers Technical Publication 1189. Mining Technology, 
+       volume 4, p. 1-11.
+    .. [2] Bayat, Hossein, Mostafa Rastgo, Moharram Mansouri Zadeh, and Harry 
+       Vereecken. "Particle Size Distribution Models, Their Characteristics and
+       Fitting Capability." Journal of Hydrology 529 (October 1, 2015): 872-89.
+    '''
+    if d <= d_characteristic:
+        return m/d*(d/d_characteristic)**m
+    else:
+        return 0.0
+
+
+def cdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
+    r'''Calculates the cumulative distribution function of a particle
+    distribution following the Gates, Gaudin and Schuhman (GGS) model given a 
+    particle diameter `d`, characteristic (maximum) particle
+    diameter `d_characteristic`, and exponent `m`.
+    
+    .. math::
+        Q(d) = \left(\frac{d}{d_{characteristic}}\right)^m \text{ if } 
+        d < d_{characteristic} \text{ else } 1
+        
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    d_characteristic : float
+        Characteristic particle diameter; in this model, it is the largest 
+        particle size diameter in the distribution, [m]
+    m : float
+        Particle size distribution exponent, [-]    
+
+    Returns
+    -------
+    cdf : float
+        GGS cummulative density function, [-]
+
+    Notes
+    -----
+    The characteristic diameter can be in terns of number density (denoted 
+    :math:`q_0(d)`), length density (:math:`q_1(d)`), surface area density
+    (:math:`q_2(d)`), or volume density (:math:`q_3(d)`). Volume density is
+    most often used. Interconversions among the distributions is possible but
+    tricky.
+
+    Examples
+    --------
+    >>> cdf_Gates_Gaudin_Schuhman(d=2E-4, d_characteristic=1E-3, m=2.3)
+    0.024681354508800397
+
+    References
+    ----------
+    .. [1] Schuhmann, R., 1940. Principles of Comminution, I-Size Distribution 
+       and Surface Calculations. American Institute of Mining, Metallurgical 
+       and Petroleum Engineers Technical Publication 1189. Mining Technology, 
+       volume 4, p. 1-11.
+    .. [2] Bayat, Hossein, Mostafa Rastgo, Moharram Mansouri Zadeh, and Harry 
+       Vereecken. "Particle Size Distribution Models, Their Characteristics and
+       Fitting Capability." Journal of Hydrology 529 (October 1, 2015): 872-89.
+    '''
+    if d <= d_characteristic:
+        return (d/d_characteristic)**m
+    else:
+        return 1.0
+
+
+def pdf_Rosin_Rammler(d, k, m):
+    r'''Calculates the probability density of a particle
+    distribution following the Rosin-Rammler (RR) model given a 
+    particle diameter `d`, and the two parameters `k` and `m`.
+    
+    .. math::
+        q(d) = k m d^{(m-1)} \exp(- k d^{m})
+        
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    k : float
+        Parameter in the model, [(1/m)^m]
+    m : float
+        Parameter in the model, [-]
+
+    Returns
+    -------
+    pdf : float
+        RR probability density function, [-]
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> pdf_Rosin_Rammler(1E-3, 200, 2)
+    0.3999200079994667
+
+    References
+    ----------
+    .. [1] Rosin, P. "The Laws Governing the Fineness of Powdered Coal." J. 
+       Inst. Fuel. 7 (1933): 29-36.
+    .. [2] Bayat, Hossein, Mostafa Rastgo, Moharram Mansouri Zadeh, and Harry 
+       Vereecken. "Particle Size Distribution Models, Their Characteristics and
+       Fitting Capability." Journal of Hydrology 529 (October 1, 2015): 872-89.
+    '''
+    return d**(m - 1)*k*m*exp(-d**m*k)
+
+
+def cdf_Rosin_Rammler(d, k, m):
+    r'''Calculates the cumulative distribution function of a particle
+    distribution following the Rosin-Rammler (RR) model given a 
+    particle diameter `d`, and the two parameters `k` and `m`.
+    
+    .. math::
+        Q(d) = 1 - \exp\left(-k d^m\right)
+        
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    k : float
+        Parameter in the model, [(1/m)^m]
+    m : float
+        Parameter in the model, [-]
+
+    Returns
+    -------
+    cdf : float
+        RR cummulative density function, [-]
+
+    Notes
+    -----
+    The characteristic diameter can be in terns of number density (denoted 
+    :math:`q_0(d)`), length density (:math:`q_1(d)`), surface area density
+    (:math:`q_2(d)`), or volume density (:math:`q_3(d)`). Volume density is
+    most often used. Interconversions among the distributions is possible but
+    tricky.
+
+    Examples
+    --------
+    >>> cdf_Rosin_Rammler(5E-2, 200, 2)
+    0.3934693402873667
+
+    References
+    ----------
+    .. [1] Rosin, P. "The Laws Governing the Fineness of Powdered Coal." J. 
+       Inst. Fuel. 7 (1933): 29-36.
+    .. [2] Bayat, Hossein, Mostafa Rastgo, Moharram Mansouri Zadeh, and Harry 
+       Vereecken. "Particle Size Distribution Models, Their Characteristics and
+       Fitting Capability." Journal of Hydrology 529 (October 1, 2015): 872-89.
+    '''
+    return 1.0 - exp(-k*d**m)
 
 
 class ParticleSizeDistribution(object):
