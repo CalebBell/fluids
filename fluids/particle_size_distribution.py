@@ -24,7 +24,8 @@ from __future__ import division
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'pdf_lognormal', 'cdf_lognormal', 'pdf_lognormal_basis_integral',
            'pdf_Gates_Gaudin_Schuhman', 'cdf_Gates_Gaudin_Schuhman',
-           'pdf_Rosin_Rammler', 'cdf_Rosin_Rammler',
+           'pdf_Rosin_Rammler', 'cdf_Rosin_Rammler', 
+           'pdf_Rosin_Rammler_basis_integral',
            'ParticleSizeDistributionContinuous',
            'ParticleSizeDistributionLognormal']
 
@@ -32,7 +33,7 @@ from math import log, exp, pi, log10
 from sys import float_info
 from scipy.optimize import brenth
 from scipy.integrate import quad
-from scipy.special import erf
+from scipy.special import erf, gammaincc, gamma
 import scipy.stats
 from numpy.random import lognormal
 import numpy as np
@@ -191,7 +192,7 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
     Returns
     -------
     pdf_basis_integral : float
-        Integral of pognormal pdf multiplied by d^n, [-]
+        Integral of lognormal pdf multiplied by d^n, [-]
 
     Notes
     -----
@@ -410,6 +411,49 @@ def cdf_Rosin_Rammler(d, k, m):
        Fitting Capability." Journal of Hydrology 529 (October 1, 2015): 872-89.
     '''
     return 1.0 - exp(-k*d**m)
+
+
+def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
+    r'''Calculates the integral of the multiplication of d^n by the Rosin
+    Rammler (RR) pdf, given a particle diameter `d`, and the two parameters `k`
+    and `m`.
+    
+    .. math::
+        \int d^n\cdot q(d)\; dd =-d^{m+n} k(d^mk)^{-\frac{m+n}{m}}\Gamma
+        \left(\frac{m+n}{m}\right)\text{gammaincc}\left[\left(\frac{m+n}{m}
+        \right), kd^m\right]
+    
+    Parameters
+    ----------
+    d : float
+        Specified particle diameter, [m]
+    k : float
+        Parameter in the model, [(1/m)^m]
+    m : float
+        Parameter in the model, [-]
+    n : int
+        Exponent of the multiplied n, [-]
+
+    Returns
+    -------
+    pdf_basis_integral : float
+        Integral of Rosin Rammler pdf multiplied by d^n, [-]
+
+    Notes
+    -----
+    This integral was derived using a CAS, and verified numerically.
+    The `gammaincc` function is that from scipy.special, and `gamma` from the
+    same.
+
+    Examples
+    --------
+    >>> pdf_Rosin_Rammler_basis_integral(5E-2, 200, 2, 3)
+    -0.00045239898439007338
+    '''
+    a = (m+n)/m
+    x = d**m*k
+    t1 = gamma(a)*(gammaincc(a, x))
+    return -d**(m+n)*k*(d**m*k)**(-a)*t1
 
 
 class ParticleSizeDistribution(object):

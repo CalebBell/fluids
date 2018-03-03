@@ -170,6 +170,19 @@ print(latex(diff(model, d)))    '''
     
     assert 0 == pdf_Rosin_Rammler(0, 200, 2)
     
+def test_pdf_Rosin_Rammler_basis_integral():
+    for n in [1.0, 2.0, 3.0]:
+        # Lower dmaxes have 
+        for dmax in [ 1e-3, 1e-2, 2e-2, 3e-2, 4e-2, 5e-2, 6e-2, 7e-2, 8e-2, 1e-1]:
+            analytical = (pdf_Rosin_Rammler_basis_integral(dmax, 200, 2, n)
+                          - pdf_Rosin_Rammler_basis_integral(1E-20, 200, 2, n))
+    
+            to_int = lambda d : d**n*pdf_Rosin_Rammler(d, 200, 2)
+            points = np.logspace(np.log10(dmax/2000), np.log10(dmax*.999), 30)
+        #     print(points, dmax)
+            numerical = quad(to_int, 1E-20, dmax, points=points)[0]
+            assert_allclose(analytical, numerical, rtol=1E-5)
+    
 @pytest.mark.slow
 def test_ParticleSizeDistributionLognormal_mean_sizes_numerical():
     '''Takes like 10 seconds.
