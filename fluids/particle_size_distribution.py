@@ -1236,12 +1236,6 @@ class ParticleSizeDistributionContinuous(object):
             Upper particle size diameter, [m]
         pts : int
             The number of points for values to be calculated, [-]
-
-        Returns
-        -------
-        fractions : float
-            The differences in the cumulative distribution functions at the 
-            specified diameters and order, [-]
         '''
         if not has_matplotlib:
             raise Exception('Optional dependency matplotlib is required for plotting')
@@ -1262,6 +1256,24 @@ class ParticleSizeDistributionContinuous(object):
         plt.show()
     
     def cdf_plot(self, n=(0, 1, 2, 3), dmin=None, dmax=None, pts=500):  # pragma : no cover
+        r'''Plot the cumulative distribution function of the particle size 
+        distribution. The plotted range can be specified using `dmin` and 
+        `dmax`, or estimated automatically. One or more order can be plotted,
+        by providing an iterable of ints as the value of `n` or just one int.
+                
+        Parameters
+        ----------
+        n : tuple(int) or int, optional
+            None (for the `order` specified when the distribution was created),
+            0 (number), 1 (length), 2 (area), 3 (volume/mass),
+            or any integer; as many as desired may be specified, [-]
+        dmin : float, optional
+            Lower particle size diameter, [m]
+        dmax : float, optional
+            Upper particle size diameter, [m]
+        pts : int
+            The number of points for values to be calculated, [-]
+        '''
         if not has_matplotlib:
             raise Exception('Optional dependency matplotlib is required for plotting')
 
