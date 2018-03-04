@@ -464,3 +464,25 @@ def test_PSD_PSDlognormal_area_length_count():
     ans = np.array(psd.area_fractions)[5:-5]/np.array(dist.fractions_discrete(ds, n=2))[5:-5]
     avg_err = sum(np.abs(ans - 1.0))/len(ans)
     assert 1E-4 > avg_err
+    
+def test_psd_spacing():
+    ans_log = psd_spacing(dmin=1, dmax=10, pts=4, method='logarithmic')
+    ans_log_expect = [1.0, 2.154434690031884, 4.641588833612778, 10.0]
+    assert_allclose(ans_log, ans_log_expect)
+    
+    ans_lin = psd_spacing(dmin=0, dmax=10, pts=4, method='linear')
+    ans_lin_expect = [0.0, 3.3333333333333335, 6.666666666666667, 10.0]
+    assert_allclose(ans_lin, ans_lin_expect)
+    
+    with pytest.raises(Exception):
+        psd_spacing(dmin=0, dmax=10, pts=8, method='R5')
+        
+    # This example from an iso standard, ISO 9276-2 2014
+    ans_R5 = psd_spacing(dmax=25, pts=8, method='R5')
+    ans_R5_expect = [0.9952679263837426, 1.5773933612004825, 2.499999999999999, 3.9622329811527823, 6.279716078773949, 9.95267926383743, 15.77393361200483, 25]
+    assert_allclose(ans_R5, ans_R5_expect)
+    ans_R5_reversed = psd_spacing(dmin=0.9952679263837426, pts=8, method='R5')
+    assert_allclose(ans_R5_reversed, ans_R5_expect)
+    
+    ans_R5_float = psd_spacing(dmax=25, pts=8, method='R5.00000001')
+    assert_allclose(ans_R5_float, ans_R5_expect)

@@ -23,6 +23,7 @@ from __future__ import division
 
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'PSDLognormal', 'PSDGatesGaudinSchuhman', 'PSDRosinRammler',
+           'psd_spacing',
            'pdf_lognormal', 'cdf_lognormal', 'pdf_lognormal_basis_integral',
            'pdf_Gates_Gaudin_Schuhman', 'cdf_Gates_Gaudin_Schuhman',
            'pdf_Gates_Gaudin_Schuhman_basis_integral',
@@ -45,6 +46,27 @@ except:
     has_matplotlib = False
 
 ROOT_TWO_PI = (2.0*pi)**0.5
+
+def psd_spacing(dmin=None, dmax=None, pts=20, method='logarithmic'):
+    if method == 'logarithmic':
+        return np.logspace(log10(dmin), log10(dmax), pts).tolist()
+    elif method == 'linear':
+        return np.linspace(dmin, dmax, pts).tolist()
+    elif method[0] in ('R', 'r'):
+        ratio = 10**(1.0/float(method[1:]))
+        if dmin is not None and dmax is not None:
+            raise Exception('For geometric (Renard) series, only '
+                            'one of `dmin` and `dmax` should be provided')
+        if dmin is not None:
+            ds = [dmin]
+            for i in range(pts-1):
+                ds.append(ds[-1]*ratio)
+            return ds
+        elif dmax is not None:
+            ds = [dmax]
+            for i in range(pts-1):
+                ds.append(ds[-1]/ratio)
+            return list(reversed(ds))
 
 
 def pdf_lognormal(d, d_characteristic, s):
