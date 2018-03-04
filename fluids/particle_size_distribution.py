@@ -38,6 +38,12 @@ import scipy.stats
 from numpy.random import lognormal
 import numpy as np
 
+try:
+    import matplotlib.pyplot as plt
+    has_matplotlib = True
+except:
+    has_matplotlib = False
+
 ROOT_TWO_PI = (2.0*pi)**0.5
 
 
@@ -664,7 +670,7 @@ class ParticleSizeDistribution(object):
         elif distribution == 'RR':
             if x0 is None:
                 x0 = [5E-6, 1e-2]
-        return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)
+        return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)['x']
 
     @property
     def Dis(self):
