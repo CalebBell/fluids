@@ -992,6 +992,44 @@ class ParticleSizeDistributionContinuous(object):
         return ans
 
     def cdf(self, d, n=None):
+        r'''Computes the cumulative distribution density funtion of a
+        continuous particle size distribution at a specified particle diameter,
+        an optionally in a specified basis. The evaluation function varies with
+        the distribution chosen.
+        
+        .. math::
+            Q_n(d) = \int_0^d q_n(d)
+        
+        Parameters
+        ----------
+        d : float
+            Particle size diameter, [m]
+        n : int, optional
+            None (for the `order` specified when the distribution was created),
+            0 (number pdf), 1 (length pdf), 2 (area pdf), 3 (volume/mass pdf),
+            or any integer, [-]
+
+        Returns
+        -------
+        cdf : float
+            The cumulative distribution function at the specified diameter and
+            order, [-]
+            
+        Notes
+        -----
+        Analytical integrals can be found for most distributions even when 
+        order conversions are necessary.
+                
+        Examples
+        --------
+        >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
+        >>> for n in (0, 1, 2, 3):
+        ...     print(psd.cdf(5e-6, n))
+        0.933192798731
+        0.841344746069
+        0.691462461274
+        0.5
+        '''
         if n is not None:
             power = n - self.order
             t1 = self._pdf_basis_integral(d=0.0, n=power)
