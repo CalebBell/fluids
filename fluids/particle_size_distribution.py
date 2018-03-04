@@ -913,6 +913,9 @@ class ParticleSizeDistributionContinuous(object):
             return numerator/denominator        
         return self._cdf(d=d, n=n)
 
+    def delta_cdf(self, dmin, dmax, n=None):
+        return self.cdf(dmax, n=n) - self.cdf(dmin, n=n)
+
     def dn(self, fraction, n=None):
         if fraction == 1.0:
             # Avoid returning the maximum value of the search interval
@@ -941,9 +944,6 @@ class ParticleSizeDistributionContinuous(object):
         return brenth(lambda d:self.cdf(d, n=n) -fraction, 
                       0.0, self.d_excessive, maxiter=1000, xtol=1E-200)
     
-    def delta_cdf(self, dmin, dmax, n=None):
-        return self.cdf(dmax, n=n) - self.cdf(dmin, n=n)
-    
     def ds_discrete(self, dmin=None, dmax=None, pts=20, limit=1e-9):
         if dmin is None:
             dmin = self.dn(limit)
@@ -960,6 +960,21 @@ class ParticleSizeDistributionContinuous(object):
     
     def cdf_discrete(self, ds, n=None):
         return [self.cdf(d, n=n) for d in ds]
+    
+    def mean_size(self, p, q):
+        if p == q:
+            raise Exception(NotImplemented)
+        pow1 = q - self.order 
+        denominator = self.pdf_basis_integral(d=self.d_excessive, n=pow1) - self.pdf_basis_integral(d=1E-9, n=pow1)
+        root_power = p - q
+        pow3 = p - self.order
+        numerator = self.pdf_basis_integral(d=self.d_excessive, n=pow3) - self.pdf_basis_integral(d=1E-9, n=pow3)
+        return (numerator/denominator)**(1.0/(root_power))
+    
+    def mean_size_ISO(self, k, r):
+        p = k + r
+        q = r
+        return self.mean_size(p=p, q=q)    
     
     def pdf_plot(self, n=(0, 1, 2, 3), dmin=1E-7, dmax=1E-1, pts=500):
         if not has_matplotlib:
@@ -1002,20 +1017,6 @@ class ParticleSizeDistributionContinuous(object):
         plt.show()
 
     
-    def mean_size(self, p, q):
-        if p == q:
-            raise Exception(NotImplemented)
-        pow1 = q - self.order 
-        denominator = self.pdf_basis_integral(d=self.d_excessive, n=pow1) - self.pdf_basis_integral(d=1E-9, n=pow1)
-        root_power = p - q
-        pow3 = p - self.order
-        numerator = self.pdf_basis_integral(d=self.d_excessive, n=pow3) - self.pdf_basis_integral(d=1E-9, n=pow3)
-        return (numerator/denominator)**(1.0/(root_power))
-    
-    def mean_size_ISO(self, k, r):
-        p = k + r
-        q = r
-        return self.mean_size(p=p, q=q)
 
 
 class PSDLognormal(ParticleSizeDistributionContinuous):
