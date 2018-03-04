@@ -31,7 +31,7 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
 
 from math import log, exp, pi, log10
 from sys import float_info
-from scipy.optimize import brenth
+from scipy.optimize import brenth, minimize
 from scipy.integrate import quad
 from scipy.special import erf, gammaincc, gamma
 import scipy.stats
@@ -637,11 +637,40 @@ class ParticleSizeDistribution(object):
         self.rho = rho
         self.MW = MW
         
+        
+    def _fit_obj_function(self, vals, distribution, n):
+        err = 0.0
+        dist = distribution(*list(vals))
+        for i in range(len(self.fractions)):
+            delta_cdf = dist.delta_cdf(dmin=self.ds[i], dmax=self.ds[i+1])
+            err += abs(delta_cdf - self.fractions[i])
+        return err
+        
+    def fit(self, x0=None, distribution='lognormal', n=None, **kwargs):
+        dist = {'lognormal': PSDLognormal, 
+                'GGS': PSDGatesGaudinSchuhman, 
+                'RR': PSDRosinRammler}[distribution]
+        
+        if distribution == 'lognormal':
+            if x0 is None:
+                d_characteristic = sum([fi*di for fi, di in zip(self.fractions, self.Dis)])
+                s = 0.4
+                x0 = [d_characteristic, s]
+        elif distribution == 'GGS':
+            if x0 is None:
+                d_characteristic = sum([fi*di for fi, di in zip(self.fractions, self.Dis)])
+                m = 1.5
+                x0 = [d_characteristic, m]
+        elif distribution == 'RR':
+            if x0 is None:
+                x0 = [5E-6, 1e-2]
+        return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)
+
     @property
     def Dis(self):
         '''Representative diameters of each bin.
         '''
-        return [self.Di(i, power=1) for i in range(self.N)]
+        return [self.di_power(i, power=1) for i in range(self.N)]
     
     def di_power(self, i, power=1):
         r'''Method to calculate a power of a particle class/bin in a generic
@@ -929,8 +958,8 @@ class PSDLognormal(ParticleSizeDistributionContinuous):
     
 
 class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
-    def __init__(self, d_characteristic, n, order=3):
-        self.n = n
+    def __init__(self, d_characteristic, m, order=3):
+        self.m = m
         self.d_characteristic = d_characteristic
         self.order = order
         
@@ -948,8 +977,8 @@ class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
 
 
 class PSDRosinRammler(ParticleSizeDistributionContinuous):
-    def __init__(self, k, n, order=3):
-        self.n = n
+    def __init__(self, k, m, order=3):
+        self.m = m
         self.k = k
         self.order = order
         
