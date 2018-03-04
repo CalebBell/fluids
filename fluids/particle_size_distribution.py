@@ -896,19 +896,18 @@ class ParticleSizeDistributionContinuous(object):
             power = n - self.order
             numerator = d**power*ans
             
-            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
-                            - self.pdf_basis_integral(d=0.0, n=power))
+            denominator = (self._pdf_basis_integral(d=self.d_excessive, n=power) 
+                            - self._pdf_basis_integral(d=0.0, n=power))
             ans = numerator/denominator
         return ans
 
     def cdf(self, d, n=None):
         if n is not None:
             power = n - self.order
-            t1 = self.pdf_basis_integral(d=0.0, n=power)
-            numerator = (self.pdf_basis_integral(d=d, n=power)
-                        - t1)
+            t1 = self._pdf_basis_integral(d=0.0, n=power)
+            numerator = (self._pdf_basis_integral(d=d, n=power) - t1)
             
-            denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
+            denominator = (self._pdf_basis_integral(d=self.d_excessive, n=power) 
                             - t1)
             return numerator/denominator        
         return self._cdf(d=d, n=n)
@@ -965,10 +964,10 @@ class ParticleSizeDistributionContinuous(object):
         if p == q:
             raise Exception(NotImplemented)
         pow1 = q - self.order 
-        denominator = self.pdf_basis_integral(d=self.d_excessive, n=pow1) - self.pdf_basis_integral(d=1E-9, n=pow1)
+        denominator = self._pdf_basis_integral(d=self.d_excessive, n=pow1) - self._pdf_basis_integral(d=1E-9, n=pow1)
         root_power = p - q
         pow3 = p - self.order
-        numerator = self.pdf_basis_integral(d=self.d_excessive, n=pow3) - self.pdf_basis_integral(d=1E-9, n=pow3)
+        numerator = self._pdf_basis_integral(d=self.d_excessive, n=pow3) - self._pdf_basis_integral(d=1E-9, n=pow3)
         return (numerator/denominator)**(1.0/(root_power))
     
     def mean_size_ISO(self, k, r):
@@ -976,7 +975,7 @@ class ParticleSizeDistributionContinuous(object):
         q = r
         return self.mean_size(p=p, q=q)    
     
-    def pdf_plot(self, n=(0, 1, 2, 3), dmin=1E-7, dmax=1E-1, pts=500):
+    def pdf_plot(self, n=(0, 1, 2, 3), dmin=None, dmax=None, pts=500):
         if not has_matplotlib:
             raise Exception('Optional dependency matplotlib is required for plotting')
             
@@ -1037,7 +1036,7 @@ class PSDLognormal(ParticleSizeDistributionContinuous):
     def _cdf(self, d, n=None):
         return cdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
     
-    def pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d, n):
         return pdf_lognormal_basis_integral(d, d_characteristic=self.d_characteristic, s=self.s, n=n)
     
 
@@ -1057,7 +1056,7 @@ class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
     def _cdf(self, d, n=None):
         return cdf_Gates_Gaudin_Schuhman(d, d_characteristic=self.d_characteristic, m=self.m)
 
-    def pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d, n):
         return pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic=self.d_characteristic, m=self.m, n=n)
 
 
@@ -1078,5 +1077,5 @@ class PSDRosinRammler(ParticleSizeDistributionContinuous):
     def _cdf(self, d, n=None):
         return cdf_Rosin_Rammler(d, k=self.k, m=self.m)
     
-    def pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d, n):
         return pdf_Rosin_Rammler_basis_integral(d, k=self.k, m=self.m, n=n)
