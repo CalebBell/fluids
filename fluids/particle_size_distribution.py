@@ -210,9 +210,11 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
     56228306549.263626
     '''
     try:
-        t0 = exp(s*s*n*n*0.5)
-        t1 = d**n*(d/d_characteristic)**-n
-        t2 = erf((s*s*n - log(d/d_characteristic))/(2.**0.5*s))
+        s2 = s*s
+        t0 = exp(s2*n*n*0.5)
+        d_ratio = d/d_characteristic
+        t1 = (d/(d_ratio))**n
+        t2 = erf((s2*n - log(d_ratio))/(2.**0.5*s))
         return -0.5*t0*t1*t2
     except (OverflowError, ZeroDivisionError, ValueError):
         return pdf_lognormal_basis_integral(d=1E-80, d_characteristic=d_characteristic, s=s, n=n)
@@ -858,11 +860,12 @@ class ParticleSizeDistributionContinuous(object):
     def cdf(self, d, n=None):
         if n is not None:
             power = n - self.order
+            t1 = self.pdf_basis_integral(d=0.0, n=power)
             numerator = (self.pdf_basis_integral(d=d, n=power)
-                        - self.pdf_basis_integral(d=0.0, n=power))
+                        - t1)
             
             denominator = (self.pdf_basis_integral(d=self.d_excessive, n=power) 
-                            - self.pdf_basis_integral(d=0.0, n=power))
+                            - t1)
             return numerator/denominator        
         return self._cdf(d=d, n=n)
 
