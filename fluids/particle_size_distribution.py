@@ -1138,10 +1138,33 @@ class ParticleSizeDistributionContinuous(object):
         return np.logspace(log10(dmin), log10(dmax), pts).tolist()
     
     def fractions_discrete(self, ds, n=None):
-        # I dislike the 0 point - it should could from 0
+        r'''Computes the fractions of the cumulative distribution functions 
+        which lie between the specified specified particle diameters. The first
+        diameter contains the cdf from 0 to it. 
+        
+        Parameters
+        ----------
+        ds : list[float]
+            Particle size diameters, [m]
+        n : int, optional
+            None (for the `order` specified when the distribution was created),
+            0 (number), 1 (length), 2 (area), 3 (volume/mass),
+            or any integer, [-]
+
+        Returns
+        -------
+        fractions : float
+            The differences in the cumulative distribution functions at the 
+            specified diameters and order, [-]
+        
+        Examples
+        --------
+        >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
+        >>> psd.fractions_discrete([1e-6, 1e-5, 1e-4, 1e-3])
+        [0.00064347101291384323, 0.9165280099853876, 0.08282851796190027, 1.039798247504109e-09]
+        '''
         cdfs = [self.cdf(d, n=n) for d in ds]
-        fractions = [cdfs[0]] + np.diff(cdfs).tolist()
-        return fractions
+        return [cdfs[0]] + np.diff(cdfs).tolist()
     
     def cdf_discrete(self, ds, n=None):
         r'''Computes the cumulative distribution functions for a list of 
