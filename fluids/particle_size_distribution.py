@@ -947,7 +947,7 @@ class ParticleSizeDistributionContinuous(object):
             Particle size diameter, [m]
         n : int, optional
             None (for the `order` specified when the distribution was created),
-            0 (number pdf), 1 (length pdf), 2 (area pdf), 3 (volume/mass pdf),
+            0 (number), 1 (length), 2 (area), 3 (volume/mass),
             or any integer, [-]
 
         Returns
@@ -1006,7 +1006,7 @@ class ParticleSizeDistributionContinuous(object):
             Particle size diameter, [m]
         n : int, optional
             None (for the `order` specified when the distribution was created),
-            0 (number pdf), 1 (length pdf), 2 (area pdf), 3 (volume/mass pdf),
+            0 (number), 1 (length), 2 (area), 3 (volume/mass),
             or any integer, [-]
 
         Returns
@@ -1055,7 +1055,7 @@ class ParticleSizeDistributionContinuous(object):
             Upper particle size diameter, [m]
         n : int, optional
             None (for the `order` specified when the distribution was created),
-            0 (number pdf), 1 (length pdf), 2 (area pdf), 3 (volume/mass pdf),
+            0 (number), 1 (length), 2 (area), 3 (volume/mass),
             or any integer, [-]
 
         Returns
@@ -1073,13 +1073,42 @@ class ParticleSizeDistributionContinuous(object):
         return self.cdf(dmax, n=n) - self.cdf(dmin, n=n)
 
     def dn(self, fraction, n=None):
+        r'''Computes the diameter at which a specified `fraction` of the 
+        distribution falls under. Utilizes a bounded solver to search for the
+        desired diameter.
+
+        Parameters
+        ----------
+        fraction : float
+            Fraction of the distribution which should be under the calculated
+            diameter, [-]
+        n : int, optional
+            None (for the `order` specified when the distribution was created),
+            0 (number), 1 (length), 2 (area), 3 (volume/mass),
+            or any integer, [-]
+
+        Returns
+        -------
+        d : float
+            Particle size diameter, [m]
+        
+        Examples
+        --------
+        >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
+        >>> psd.dn(.5)
+        5e-06
+        >>> psd.dn(1)
+        0.00029474365335233776
+        >>> psd.dn(0)
+        0.0
+        '''
         if fraction == 1.0:
             # Avoid returning the maximum value of the search interval
             fraction = 1.0 - float_info.epsilon
         if fraction < 0:
             raise ValueError('Fraction must be more than 0')
         elif fraction == 0: # pragma : no cover
-            return 0
+            return 0.0
             # Solve to float prevision limit - works well, but is there a real
             # point when with mpmath it woule never happen?
             # dist.cdf(dist.dn(0)-1e-35) == 0
@@ -1115,6 +1144,30 @@ class ParticleSizeDistributionContinuous(object):
         return fractions
     
     def cdf_discrete(self, ds, n=None):
+        r'''Computes the cumulative distribution functions for a list of 
+        specified particle diameters.
+                                        
+        Parameters
+        ----------
+        ds : list[float]
+            Particle size diameters, [m]
+        n : int, optional
+            None (for the `order` specified when the distribution was created),
+            0 (number), 1 (length), 2 (area), 3 (volume/mass),
+            or any integer, [-]
+
+        Returns
+        -------
+        cdfs : float
+            The cumulative distribution functions at the specified diameters 
+            and order, [-]
+        
+        Examples
+        --------
+        >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
+        >>> psd.cdf_discrete([1e-6, 1e-5, 1e-4, 1e-3])
+        [0.00064347101291384323, 0.91717148099830148, 0.99999999896020175, 1.0]
+        '''
         return [self.cdf(d, n=n) for d in ds]
     
     def mean_size(self, p, q):
@@ -1164,9 +1217,7 @@ class ParticleSizeDistributionContinuous(object):
     def cdf_plot(self, n=(0, 1, 2, 3), dmin=None, dmax=None, pts=200):
         if not has_matplotlib:
             raise Exception('Optional dependency matplotlib is required for plotting')
-            
-            
-        
+
         ds = self.ds_discrete(dmin=dmin, dmax=dmax, pts=pts)
         try:
             for ni in n:
