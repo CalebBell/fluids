@@ -890,6 +890,28 @@ class ParticleSizeDistribution(object):
         
     
 class ParticleSizeDistributionContinuous(object):
+    r'''Base class representing a continuous particle size distribution
+    specified by a mathematical/statistical function. This class holds the 
+    common methods only.
+ 
+    Notes
+    -----
+    Although the stated units of input are in meters, this class is actually
+    independent of the units provided; all results will be consistent with the
+    provided unit.
+
+    Examples
+    --------
+    Example problem from [1]_.
+    
+    >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
+
+    References
+    ----------
+    .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size 
+       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and 
+       Moments from Particle Size Distributions.
+    '''
     def pdf(self, d, n=None):
         ans = self._pdf(d=d, n=n)
         if n is not None:
