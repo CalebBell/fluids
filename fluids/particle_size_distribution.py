@@ -520,6 +520,82 @@ def _label_distribution_n(n):
     else:
         return 'Order %s distribution' %n
 
+_mean_size_docstring = r'''Calculates the mean particle size according to moment-ratio 
+        notation. This is the more common and often convenient definition.
+            
+        .. math::
+            \left[\bar D_{p,q} \right]^{(p-q)} = \frac{\sum_i n_i  D_i^p }
+            {\sum_i n_i D_i^q}
+            
+            \left[\bar D_{p,p} \right] = \exp\left[\frac{\sum_i n_i  D_i^p\ln 
+            D_i }{\sum_i n_i D_i^p}\right]  \text{, if p = q}
+    
+        Note that :math:`n_i` in the above equation is replaceable with
+        the fraction of particles in that bin.
+    
+        Parameters
+        ----------
+        p : int
+            Power and/or substript of D moment in the above equations, [-]
+        q : int
+            Power and/or substript of D moment in the above equations, [-]
+            
+        Returns
+        -------
+        d_pq : float
+            Mean particle size according to the specified p and q, [m]
+    
+        Notes
+        -----
+        The following is a list of common names for specific mean diameters.
+        
+        * **D[-3, 0]**: arithmetic harmonic mean volume diameter 
+        * **D[-2, 1]**: size-weighted harmonic mean volume diameter 
+        * **D[-1, 2]**: area-weighted harmonic mean volume diameter 
+        * **D[-2, 0]**: arithmetic harmonic mean area diameter 
+        * **D[-1, 1]**: size-weighted harmonic mean area diameter 
+        * **D[-1, 0]**: arithmetic harmonic mean diameter 
+        * **D[0, 0]**: arithmetic geometric mean diameter 
+        * **D[1, 1]**: size-weighted geometric mean diameter 
+        * **D[2, 2]**: area-weighted geometric mean diameter 
+        * **D[3, 3]**: volume-weighted geometric mean diameter 
+        * **D[1, 0]**: arithmetic mean diameter 
+        * **D[2, 1]**: size-weighted mean diameter 
+        * **D[3, 2]**: area-weighted mean diameter, **Sauter mean diameter**
+        * **D[4, 3]**: volume-weighted mean diameter, **De Brouckere diameter**
+        * **D[2, 0]**: arithmetic mean area diameter 
+        * **D[3, 1]**: size-weighted mean area diameter 
+        * **D[4, 2]**: area-weighted mean area diameter 
+        * **D[5, 3]**: volume-weighted mean area diameter 
+        * **D[3, 0]**: arithmetic mean volume diameter
+        * **D[4, 1]**: size-weighted mean volume diameter
+        * **D[5, 2]**: area-weighted mean volume diameter 
+        * **D[6, 3]**: volume-weighted mean volume diameter 
+
+        This notation was first introduced in [1]_.
+        
+        The sum of p and q is called the order of the mean size [3]_.
+        
+        .. math::
+            \bar D_{p,q}  \equiv \bar D_{q, p} 
+    
+        Examples
+        --------
+%s
+        
+        References
+        ----------
+        .. [1] Mugele, R. A., and H. D. Evans. "Droplet Size Distribution in 
+           Sprays." Industrial & Engineering Chemistry 43, no. 6 (June 1951):
+           1317-24. https://doi.org/10.1021/ie50498a023.  
+        .. [2] ASTM E799 - 03(2015) - Standard Practice for Determining Data 
+           Criteria and Processing for Liquid Drop Size Analysis.    
+        .. [3] ISO 9276-2:2014 - Representation of Results of Particle Size 
+           Analysis - Part 2: Calculation of Average Particle Sizes/Diameters  
+           and Moments from Particle Size Distributions.
+'''
+
+
 
 class ParticleSizeDistribution(object):
     r'''Class representing a discrete particle size distribution specified by a
@@ -729,83 +805,12 @@ class ParticleSizeDistribution(object):
             return self.ds[i]**power
         
     def mean_size(self, p, q):
-        r'''Calculates the mean particle size according to moment-ratio 
-        notation. This is the more common and often convenient definition.
-            
-        .. math::
-            \left[\bar D_{p,q} \right]^{(p-q)} = \frac{\sum_i n_i  D_i^p }
-            {\sum_i n_i D_i^q}
-            
-            \left[\bar D_{p,p} \right] = \exp\left[\frac{\sum_i n_i  D_i^p\ln 
-            D_i }{\sum_i n_i D_i^p}\right]  \text{, if p = q}
-    
-        Note that :math:`n_i` in the above equation is replaceable with
-        the fraction of particles in that bin.
-    
-        Parameters
-        ----------
-        p : int
-            Power and/or substript of D moment in the above equations, [-]
-        q : int
-            Power and/or substript of D moment in the above equations, [-]
-            
-        Returns
-        -------
-        d_pq : float
-            Mean particle size according to the specified p and q, [m]
-    
-        Notes
-        -----
-        The following is a list of common names for specific mean diameters.
-        
-        * **D[-3, 0]**: arithmetic harmonic mean volume diameter 
-        * **D[-2, 1]**: size-weighted harmonic mean volume diameter 
-        * **D[-1, 2]**: area-weighted harmonic mean volume diameter 
-        * **D[-2, 0]**: arithmetic harmonic mean area diameter 
-        * **D[-1, 1]**: size-weighted harmonic mean area diameter 
-        * **D[-1, 0]**: arithmetic harmonic mean diameter 
-        * **D[0, 0]**: arithmetic geometric mean diameter 
-        * **D[1, 1]**: size-weighted geometric mean diameter 
-        * **D[2, 2]**: area-weighted geometric mean diameter 
-        * **D[3, 3]**: volume-weighted geometric mean diameter 
-        * **D[1, 0]**: arithmetic mean diameter 
-        * **D[2, 1]**: size-weighted mean diameter 
-        * **D[3, 2]**: area-weighted mean diameter, **Sauter mean diameter**
-        * **D[4, 3]**: volume-weighted mean diameter, **De Brouckere diameter**
-        * **D[2, 0]**: arithmetic mean area diameter 
-        * **D[3, 1]**: size-weighted mean area diameter 
-        * **D[4, 2]**: area-weighted mean area diameter 
-        * **D[5, 3]**: volume-weighted mean area diameter 
-        * **D[3, 0]**: arithmetic mean volume diameter
-        * **D[4, 1]**: size-weighted mean volume diameter
-        * **D[5, 2]**: area-weighted mean volume diameter 
-        * **D[6, 3]**: volume-weighted mean volume diameter 
-
-        This notation was first introduced in [1]_.
-        
-        The sum of p and q is called the order of the mean size [3]_.
-        
-        .. math::
-            \bar D_{p,q}  \equiv \bar D_{q, p} 
-    
-        Examples
-        --------
+        '''        
         >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
         >>> counts = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
         >>> psd = ParticleSizeDistribution(ds=ds, counts=counts)
         >>> psd.mean_size(3, 2)
         0.0022693210317450449
-        
-        References
-        ----------
-        .. [1] Mugele, R. A., and H. D. Evans. "Droplet Size Distribution in 
-           Sprays." Industrial & Engineering Chemistry 43, no. 6 (June 1951):
-           1317-24. https://doi.org/10.1021/ie50498a023.  
-        .. [2] ASTM E799 - 03(2015) - Standard Practice for Determining Data 
-           Criteria and Processing for Liquid Drop Size Analysis.    
-        .. [3] ISO 9276-2:2014 - Representation of Results of Particle Size 
-           Analysis - Part 2: Calculation of Average Particle Sizes/Diameters  
-           and Moments from Particle Size Distributions.
         '''
         if p != q:
             # Note: D(p, q) = D(q, p); in ISO and proven experimentally
@@ -887,8 +892,11 @@ class ParticleSizeDistribution(object):
         p = k + r
         q = r
         return self.mean_size(p=p, q=q)
-        
+
+
+ParticleSizeDistribution.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__doc__)
     
+
 class ParticleSizeDistributionContinuous(object):
     r'''Base class representing a continuous particle size distribution
     specified by a mathematical/statistical function. This class holds the 
@@ -983,6 +991,11 @@ class ParticleSizeDistributionContinuous(object):
         return [self.cdf(d, n=n) for d in ds]
     
     def mean_size(self, p, q):
+        '''        
+        >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
+        >>> psd.mean_size(3, 2)
+        4.4124845129229773e-06
+        '''
         if p == q:
             raise Exception(NotImplemented)
         pow1 = q - self.order 
@@ -1037,7 +1050,8 @@ class ParticleSizeDistributionContinuous(object):
         plt.legend()
         plt.show()
 
-    
+ParticleSizeDistributionContinuous.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistributionContinuous.mean_size.__doc__)
+
 
 
 class PSDLognormal(ParticleSizeDistributionContinuous):
