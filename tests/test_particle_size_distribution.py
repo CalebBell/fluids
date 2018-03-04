@@ -337,6 +337,15 @@ def test_PSDLognormal_dn():
     assert_allclose(disc.pdf(1E-5, 2), 13468.122877854335)
     assert_allclose(disc.pdf(1E-5, 1), 4628.2482296943508)
     assert_allclose(disc.pdf(1E-5, 0), 1238.6613794833427)
+    
+    # Some really large s tests - found some issues with this
+    dist = PSDLognormal(s=4, d_characteristic=5E-6)
+    assert_allclose(dist.dn(1e-15), 8.220922763476676e-20, rtol=1e-3)
+    assert_allclose(dist.dn(.99999999), 28055.285560763594)
+    
+    assert_allclose(dist.dn(1e-9), 1.904197766691136e-16, rtol=1e-4)
+    assert_allclose(dist.dn(1-1e-9), 131288.88851649483, rtol=1e-4)
+    
         
 
 def test_PSDLognormal_dn_order_0_1_2():

@@ -913,20 +913,42 @@ class ParticleSizeDistributionContinuous(object):
             return numerator/denominator        
         return self._cdf(d=d, n=n)
 
-    def dn(self, fraction, n=3):
+    def dn(self, fraction, n=None):
         if fraction == 1.0:
             # Avoid returning the maximum value of the search interval
             fraction = 1.0 - float_info.epsilon
         if fraction < 0:
             raise ValueError('Fraction must be more than 0')
+        elif fraction == 0: # pragma : no cover
+            return 0
+            # Solve to float prevision limit - works well, but is there a real
+            # point when with mpmath it woule never happen?
+            # dist.cdf(dist.dn(0)-1e-35) == 0
+            # dist.cdf(dist.dn(0)-1e-36) == input
+            # dn(0) == 1.9663615597466143e-20
+            def err(d): 
+                cdf = self.cdf(d, n=n)
+                if cdf == 0:
+                    cdf = -1
+                return cdf
+            return brenth(err, 0.0, self.d_excessive, maxiter=1000, xtol=1E-200)
+
         elif fraction > 1:
             raise ValueError('Fraction less than 1')
-        return brenth(lambda d:self.cdf(d) -fraction, 0.0, self.d_excessive, maxiter=1000)
-
+        # As the dn may be incredibly small, it is required for the absolute 
+        # tolerance to not be happy - it needs to continue iterating as long
+        # as necessary to pin down the answer
+        return brenth(lambda d:self.cdf(d, n=n) -fraction, 
+                      0.0, self.d_excessive, maxiter=1000, xtol=1E-200)
+    
     def delta_cdf(self, dmin, dmax, n=None):
         return self.cdf(dmax, n=n) - self.cdf(dmin, n=n)
     
-    def ds_discrete(self, dmin=1E-7, dmax=1E-1, pts=20):
+    def ds_discrete(self, dmin=None, dmax=None, pts=20, limit=1e-9):
+        if dmin is None:
+            dmin = self.dn(limit)
+        if dmax is None:
+            dmax = self.dn(1.0 - limit)
         #  method=('logarithmic', 'geometric', 'linear' 'R5', 'R10')
         return np.logspace(log10(dmin), log10(dmax), pts).tolist()
     
@@ -956,10 +978,12 @@ class ParticleSizeDistributionContinuous(object):
         plt.legend()
         plt.show()
     
-    def cdf_plot(self, n=(0, 1, 2, 3), dmin=1E-7, dmax=1E-1, pts=200):
+    def cdf_plot(self, n=(0, 1, 2, 3), dmin=None, dmax=None, pts=200):
         if not has_matplotlib:
             raise Exception('Optional dependency matplotlib is required for plotting')
             
+            
+        
         ds = self.ds_discrete(dmin=dmin, dmax=dmax, pts=pts)
         try:
             for ni in n:
