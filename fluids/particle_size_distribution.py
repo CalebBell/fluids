@@ -896,10 +896,14 @@ class ParticleSizeDistribution(object):
         q = r
         return self.mean_size(p=p, q=q)
 
-
-ParticleSizeDistribution.mean_size.__func__.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__func__.__doc__)
-ParticleSizeDistribution.mean_size_ISO.__func__.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__func__.__doc__)
-
+try:
+    # Python 2
+    ParticleSizeDistribution.mean_size.__func__.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__func__.__doc__)
+    ParticleSizeDistribution.mean_size_ISO.__func__.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__func__.__doc__)
+except AttributeError:
+    # Python 3
+    ParticleSizeDistribution.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__doc__)
+    ParticleSizeDistribution.mean_size_ISO.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__doc__)
 
 
 class ParticleSizeDistributionContinuous(object):
@@ -927,7 +931,7 @@ class ParticleSizeDistributionContinuous(object):
     '''
     
     def pdf(self, d, n=None):
-        r'''Generic method to compute the probability density funtion of a
+        r'''Computes the probability density funtion of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
         the distribution chosen. The interconversion between distribution 
@@ -999,6 +1003,35 @@ class ParticleSizeDistributionContinuous(object):
         return self._cdf(d=d, n=n)
 
     def delta_cdf(self, dmin, dmax, n=None):
+        r'''Computes the difference in cumulative distribution function between
+        two particle size diameters.
+                    
+        .. math::
+            \Delta Q_n = Q_n(d_{max}) - Q_n(d_{min}) 
+                    
+        Parameters
+        ----------
+        dmin : float
+            Lower particle size diameter, [m]
+        dmax : float
+            Upper particle size diameter, [m]
+        n : int, optional
+            None (for the `order` specified when the distribution was created),
+            0 (number pdf), 1 (length pdf), 2 (area pdf), 3 (volume/mass pdf),
+            or any integer, [-]
+
+        Returns
+        -------
+        delta_cdf : float
+            The difference in the cumulative distribution function for the two
+            diameters specified, [-]
+        
+        Examples
+        --------
+        >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
+        >>> psd.delta_cdf(1e-6, 1e-5)
+        0.91652800998538764
+        '''
         return self.cdf(dmax, n=n) - self.cdf(dmin, n=n)
 
     def dn(self, fraction, n=None):
@@ -1111,10 +1144,14 @@ class ParticleSizeDistributionContinuous(object):
         plt.legend()
         plt.show()
 
-ParticleSizeDistributionContinuous.mean_size.__func__.__doc__ = _mean_size_docstring %(ParticleSizeDistributionContinuous.mean_size.__func__.__doc__)
-ParticleSizeDistributionContinuous.mean_size_ISO.__func__.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistributionContinuous.mean_size_ISO.__func__.__doc__)
-
-
+try:
+    # Python 2
+    ParticleSizeDistributionContinuous.mean_size.__func__.__doc__ = _mean_size_docstring %(ParticleSizeDistributionContinuous.mean_size.__func__.__doc__)
+    ParticleSizeDistributionContinuous.mean_size_ISO.__func__.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistributionContinuous.mean_size_ISO.__func__.__doc__)
+except AttributeError:
+    # Python 3
+    ParticleSizeDistributionContinuous.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistributionContinuous.mean_size.__doc__)
+    ParticleSizeDistributionContinuous.mean_size_ISO.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistributionContinuous.mean_size_ISO.__doc__)
 
 class PSDLognormal(ParticleSizeDistributionContinuous):
     name = 'Lognormal'
