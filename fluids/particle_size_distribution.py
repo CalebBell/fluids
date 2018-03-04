@@ -512,6 +512,15 @@ def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
         return pdf_Rosin_Rammler_basis_integral(1E-40, k, m, n)
 
 
+names = {0: 'Number distribution', 1: 'Length distribution',
+         2: 'Area distribution', 3: 'Volume/Mass distribution'}
+def _label_distribution_n(n):
+    if n in names:
+        return names[n]
+    else:
+        return 'Order %s distribution' %n
+
+
 class ParticleSizeDistribution(object):
     r'''Class representing a discrete particle size distribution specified by a
     series of diameter bins, and the quantity of particles in each bin. The
@@ -922,8 +931,50 @@ class ParticleSizeDistributionContinuous(object):
         return np.logspace(log10(dmin), log10(dmax), pts).tolist()
     
     def fractions_discrete(self, ds, n=None):
-        fractions = np.diff([self.cdf(d, n=n) for d in ds]).tolist()
+        fractions = [0] + np.diff([self.cdf(d, n=n) for d in ds]).tolist()
         return fractions
+    
+    def cdf_discrete(self, ds, n=None):
+        return [self.cdf(d, n=n) for d in ds]
+    
+    def pdf_plot(self, n=(0, 1, 2, 3), dmin=1E-7, dmax=1E-1, pts=500):
+        if not has_matplotlib:
+            raise Exception('Optional dependency matplotlib is required for plotting')
+            
+        ds = self.ds_discrete(dmin=dmin, dmax=dmax, pts=pts)
+        try:
+            for ni in n:
+                fractions = self.fractions_discrete(ds=ds, n=ni)
+                plt.semilogx(ds, fractions, label=_label_distribution_n(ni))
+        except:
+            fractions = self.fractions_discrete(ds=ds, n=n)
+            plt.semilogx(ds, fractions, label=_label_distribution_n(n))
+        plt.ylabel('Probability density function, [-]')
+        plt.xlabel('Particle diameter, [m]')
+        plt.title('Probability density function of %s distribution with '
+                  'parameters %s' %(self.name, self.parameters))
+        plt.legend()
+        plt.show()
+    
+    def cdf_plot(self, n=(0, 1, 2, 3), dmin=1E-7, dmax=1E-1, pts=200):
+        if not has_matplotlib:
+            raise Exception('Optional dependency matplotlib is required for plotting')
+            
+        ds = self.ds_discrete(dmin=dmin, dmax=dmax, pts=pts)
+        try:
+            for ni in n:
+                cdfs = self.cdf_discrete(ds=ds, n=ni)
+                plt.semilogx(ds, cdfs, label=_label_distribution_n(ni))
+        except:
+            cdfs = self.cdf_discrete(ds=ds, n=n)
+            plt.semilogx(ds, cdfs, label=_label_distribution_n(n))
+        plt.ylabel('Cumulative density function, [-]')
+        plt.xlabel('Particle diameter, [m]')
+        plt.title('Cumulative density function of %s distribution with '
+                  'parameters %s' %(self.name, self.parameters))
+        plt.legend()
+        plt.show()
+
     
     def mean_size(self, p, q):
         if p == q:
@@ -942,12 +993,12 @@ class ParticleSizeDistributionContinuous(object):
 
 
 class PSDLognormal(ParticleSizeDistributionContinuous):
-    
+    name = 'Lognormal'
     def __init__(self, d_characteristic, s, order=3):
         self.s = s
         self.d_characteristic = d_characteristic
         self.order = order
-        
+        self.parameters = {'s': s, 'd_characteristic': d_characteristic}
         # Pick an upper bound for the search algorithm of 15 orders of magnitude larger than
         # the characteristic diameter; should never be a problem, as diameters can only range
         # so much, physically.
@@ -964,11 +1015,12 @@ class PSDLognormal(ParticleSizeDistributionContinuous):
     
 
 class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
+    name = 'Gates Gaudin Schuhman'
     def __init__(self, d_characteristic, m, order=3):
         self.m = m
         self.d_characteristic = d_characteristic
         self.order = order
-        
+        self.parameters = {'m': m, 'd_characteristic': d_characteristic}
         # PDF above this is zero
         self.d_excessive = self.d_characteristic
 
@@ -983,10 +1035,12 @@ class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
 
 
 class PSDRosinRammler(ParticleSizeDistributionContinuous):
+    name = 'Rosin Rammler'
     def __init__(self, k, m, order=3):
         self.m = m
         self.k = k
         self.order = order
+        self.parameters = {'m': m, 'k': k}
         
         # PDF above this is zero - todo?
         self.d_excessive = 1e3 
