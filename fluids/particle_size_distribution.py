@@ -514,6 +514,7 @@ def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
 
 names = {0: 'Number distribution', 1: 'Length distribution',
          2: 'Area distribution', 3: 'Volume/Mass distribution'}
+
 def _label_distribution_n(n):
     if n in names:
         return names[n]
@@ -595,6 +596,67 @@ _mean_size_docstring = r'''Calculates the mean particle size according to moment
            and Moments from Particle Size Distributions.
 '''
 
+_mean_size_iso_docstring =  r'''Calculates the mean particle size according to moment 
+        notation (ISO). This system is related to the moment-ratio notation 
+        as follows; see the `mean_size` method for the full formulas.
+        
+        .. math::
+            \bar x_{p-q, q} \equiv \bar x_{k+r, r}  \equiv \bar D_{p,q} 
+            
+        Parameters
+        ----------
+        k : int
+            Power and/or substript of D moment in the above equations, [-]
+        r : int
+            Power and/or substript of D moment in the above equations, [-]
+            
+        Returns
+        -------
+        x_kr : float
+            Mean particle size according to the specified k and r in the ISO
+            series, [m]
+    
+        Notes
+        -----
+        The following is a list of common names for specific mean diameters in
+        the ISO naming convention.
+
+        * **x[-3, 0]**: arithmetic harmonic mean volume diameter 
+        * **x[-3, 1]**: size-weighted harmonic mean volume diameter 
+        * **x[-3, 2]**: area-weighted harmonic mean volume diameter 
+        * **x[-2, 0]**: arithmetic harmonic mean area diameter 
+        * **x[-2, 1]**: size-weighted harmonic mean area diameter 
+        * **x[-1, 0]**: arithmetic harmonic mean diameter 
+        * **x[0, 0]**: arithmetic geometric mean diameter 
+        * **x[0, 1]**: size-weighted geometric mean diameter 
+        * **x[0, 2]**: area-weighted geometric mean diameter 
+        * **x[0, 3]**: volume-weighted geometric mean diameter 
+        * **x[1, 0]**: arithmetic mean diameter 
+        * **x[1, 1]**: size-weighted mean diameter 
+        * **x[1, 2]**: area-weighted mean diameter, **Sauter mean diameter**
+        * **x[1, 3]**: volume-weighted mean diameter, **De Brouckere diameter**
+        * **x[2, 0]**: arithmetic mean area diameter 
+        * **x[1, 1]**: size-weighted mean area diameter 
+        * **x[2, 2]**: area-weighted mean area diameter 
+        * **x[2, 3]**: volume-weighted mean area diameter 
+        * **x[3, 0]**: arithmetic mean volume diameter
+        * **x[3, 1]**: size-weighted mean volume diameter
+        * **x[3, 2]**: area-weighted mean volume diameter 
+        * **x[3, 3]**: volume-weighted mean volume diameter 
+        
+        When working with continuous distributions, the ISO series must be used
+        to perform the actual calculations.
+
+        Examples
+        --------
+%s
+        
+        References
+        ----------
+        .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size 
+           Analysis - Part 2: Calculation of Average Particle Sizes/Diameters  
+           and Moments from Particle Size Distributions.
+        '''
 
 
 class ParticleSizeDistribution(object):
@@ -823,79 +885,22 @@ class ParticleSizeDistribution(object):
             return exp(numerator/denominator)
         
     def mean_size_ISO(self, k, r):
-        r'''Calculates the mean particle size according to moment 
-        notation (ISO). This system is related to the moment-ratio notation 
-        as follows; see `ParticleSizeDistribution.mean_size` for the full
-        formulas.
-        
-        .. math::
-            \bar x_{p-q, q} \equiv \bar x_{k+r, r}  \equiv \bar D_{p,q} 
-            
-        Parameters
-        ----------
-        k : int
-            Power and/or substript of D moment in the above equations, [-]
-        r : int
-            Power and/or substript of D moment in the above equations, [-]
-            
-        Returns
-        -------
-        x_kr : float
-            Mean particle size according to the specified k and r in the ISO
-            series, [m]
-    
-        Notes
-        -----
-        The following is a list of common names for specific mean diameters in
-        the ISO naming convention.
-
-        * **x[-3, 0]**: arithmetic harmonic mean volume diameter 
-        * **x[-3, 1]**: size-weighted harmonic mean volume diameter 
-        * **x[-3, 2]**: area-weighted harmonic mean volume diameter 
-        * **x[-2, 0]**: arithmetic harmonic mean area diameter 
-        * **x[-2, 1]**: size-weighted harmonic mean area diameter 
-        * **x[-1, 0]**: arithmetic harmonic mean diameter 
-        * **x[0, 0]**: arithmetic geometric mean diameter 
-        * **x[0, 1]**: size-weighted geometric mean diameter 
-        * **x[0, 2]**: area-weighted geometric mean diameter 
-        * **x[0, 3]**: volume-weighted geometric mean diameter 
-        * **x[1, 0]**: arithmetic mean diameter 
-        * **x[1, 1]**: size-weighted mean diameter 
-        * **x[1, 2]**: area-weighted mean diameter, **Sauter mean diameter**
-        * **x[1, 3]**: volume-weighted mean diameter, ***De Brouckere diameter**
-        * **x[2, 0]**: arithmetic mean area diameter 
-        * **x[1, 1]**: size-weighted mean area diameter 
-        * **x[2, 2]**: area-weighted mean area diameter 
-        * **x[2, 3]**: volume-weighted mean area diameter 
-        * **x[3, 0]**: arithmetic mean volume diameter
-        * **x[3, 1]**: size-weighted mean volume diameter
-        * **x[3, 2]**: area-weighted mean volume diameter 
-        * **x[3, 3]**: volume-weighted mean volume diameter 
-        
-        When working with continuous distributions, the ISO series must be used
-        to perform the actual calculations.
-
-        Examples
-        --------
+        r'''
         >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
         >>> counts = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
         >>> psd = ParticleSizeDistribution(ds=ds, counts=counts)
         >>> psd.mean_size_ISO(1, 2)
         0.0022693210317450449
-        
-        References
-        ----------
-        .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size 
-           Analysis - Part 2: Calculation of Average Particle Sizes/Diameters  
-           and Moments from Particle Size Distributions.
         '''
         p = k + r
         q = r
         return self.mean_size(p=p, q=q)
 
 
-ParticleSizeDistribution.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__doc__)
-    
+ParticleSizeDistribution.mean_size.__func__.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__func__.__doc__)
+ParticleSizeDistribution.mean_size_ISO.__func__.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__func__.__doc__)
+
+
 
 class ParticleSizeDistributionContinuous(object):
     r'''Base class representing a continuous particle size distribution
@@ -920,7 +925,58 @@ class ParticleSizeDistributionContinuous(object):
        Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and 
        Moments from Particle Size Distributions.
     '''
+    
     def pdf(self, d, n=None):
+        r'''Generic method to compute the probability density funtion of a
+        continuous particle size distribution at a specified particle diameter,
+        an optionally in a specified basis. The evaluation function varies with
+        the distribution chosen. The interconversion between distribution 
+        orders is performed using the following formula [1]_:
+            
+        .. math::
+            q_s(d) = \frac{x^{(s-r)} q_r(d) dd}
+            { \int_0^\infty d^{(s-r)} q_r(d) dd}
+        
+        Parameters
+        ----------
+        d : float
+            Particle size diameter, [m]
+        n : int, optional
+            None (for the `order` specified when the distribution was created),
+            0 (number pdf), 1 (length pdf), 2 (area pdf), 3 (volume/mass pdf),
+            or any integer, [-]
+
+        Returns
+        -------
+        pdf : float
+            The probability density function at the specified diameter and
+            order, [-]
+            
+        Notes
+        -----
+        The pdf order conversions are typically available analytically after 
+        some work. They have been verified numerically. See the various
+        functions with names ending with 'basis_integral' for the formulations.
+        The distributions normally do not have analytical limits for diameters
+        of 0 or infinity, but large values suffice to capture the area of the
+        integral.
+        
+        Examples
+        --------
+        >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
+        >>> psd.pdf(1e-5)
+        30522.765209509154
+        >>> psd.pdf(1e-5, n=3)
+        30522.765209509154
+        >>> psd.pdf(1e-5, n=0)
+        1238.6613794833429
+        
+        References
+        ----------
+        .. [1] Masuda, Hiroaki, Ko Higashitani, and Hideto Yoshida. Powder 
+           Technology: Fundamentals of Particles, Powder Beds, and Particle 
+           Generation. CRC Press, 2006.
+        '''
         ans = self._pdf(d=d, n=n)
         if n is not None:
             power = n - self.order
@@ -1006,6 +1062,11 @@ class ParticleSizeDistributionContinuous(object):
         return (numerator/denominator)**(1.0/(root_power))
     
     def mean_size_ISO(self, k, r):
+        '''        
+        >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
+        >>> psd.mean_size_ISO(1, 2)
+        4.4124845129229773e-06
+        '''
         p = k + r
         q = r
         return self.mean_size(p=p, q=q)    
@@ -1050,7 +1111,8 @@ class ParticleSizeDistributionContinuous(object):
         plt.legend()
         plt.show()
 
-ParticleSizeDistributionContinuous.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistributionContinuous.mean_size.__doc__)
+ParticleSizeDistributionContinuous.mean_size.__func__.__doc__ = _mean_size_docstring %(ParticleSizeDistributionContinuous.mean_size.__func__.__doc__)
+ParticleSizeDistributionContinuous.mean_size_ISO.__func__.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistributionContinuous.mean_size_ISO.__func__.__doc__)
 
 
 
