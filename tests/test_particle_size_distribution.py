@@ -310,6 +310,26 @@ def test_PSDLognormal_mean_sizes_analytical():
 #    d00 = disc.mean_size(0.0, 0.0)
 #    assert_allclose(d00, 2.362E-6, rtol=0, atol=1E-9)
 
+def test_PSDLognormal_ds_discrete():
+    ds_discrete_expect = [2.4920844782646124e-07, 5.870554386661556e-07, 1.3829149496067687e-06, 3.2577055451375563e-06, 7.674112874286059e-06, 1.8077756749742233e-05, 4.258541598963051e-05, 0.0001003176268004454]
+    dist = PSDLognormal(s=0.5, d_characteristic=5E-6)
+    # Test the defaults
+    assert_allclose(dist.ds_discrete(pts=8), ds_discrete_expect, rtol=1e-4)
+    
+    ds_discrete_expect = [1e-07, 1.389495494373139e-07, 1.9306977288832497e-07, 2.6826957952797275e-07, 3.727593720314938e-07, 5.179474679231213e-07, 7.196856730011514e-07, 1e-06]
+    # Test end and minimum points
+    assert_allclose(dist.ds_discrete(dmin=1e-7, dmax=1e-6, pts=8), ds_discrete_expect, rtol=1e-12)
+
+
+def test_PSDLognormal_ds_discrete():
+    # Test the cdf discrete
+    dist = PSDLognormal(s=0.5, d_characteristic=5E-6)
+    ds = dist.ds_discrete(dmin=1e-7, dmax=1e-6, pts=8)
+    ans = dist.fractions_discrete(ds)
+    fractions_expect = [2.55351295663786e-15, 3.831379657981415e-13, 3.762157252396037e-11, 2.41392961175535e-09, 1.01281244724305e-07, 2.7813750147487326e-06, 5.004382447515443e-05, 0.00059054208024234]
+    assert_allclose(fractions_expect, ans, rtol=1e-5)
+
+
 def test_PSDLognormal_dn():
     disc = PSDLognormal(s=0.5, d_characteristic=5E-6)
     

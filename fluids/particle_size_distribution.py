@@ -953,7 +953,9 @@ class ParticleSizeDistributionContinuous(object):
         return np.logspace(log10(dmin), log10(dmax), pts).tolist()
     
     def fractions_discrete(self, ds, n=None):
-        fractions = [0] + np.diff([self.cdf(d, n=n) for d in ds]).tolist()
+        # I dislike the 0 point - it should could from 0
+        cdfs = [self.cdf(d, n=n) for d in ds]
+        fractions = [cdfs[0]] + np.diff(cdfs).tolist()
         return fractions
     
     def cdf_discrete(self, ds, n=None):
