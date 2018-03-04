@@ -884,11 +884,7 @@ class ParticleSizeDistributionContinuous(object):
         return np.logspace(log10(dmin), log10(dmax), pts).tolist()
     
     def fractions_discrete(self, ds, n=None):
-        # TODO replace constant
-        fractions = [self.delta_cdf(0.0, ds[0], n=n)]
-        for i in range(len(ds) - 1):
-            delta = self.delta_cdf(ds[i], ds[i + 1], n=n)
-            fractions.append(delta)
+        fractions = np.diff([self.cdf(d, n=n) for d in ds]).tolist()
         return fractions
     
     def mean_size(self, p, q):

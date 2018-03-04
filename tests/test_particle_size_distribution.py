@@ -150,22 +150,29 @@ def test_pdf_Gates_Gaudin_Schuhman():
     
     
 def test_pdf_Gates_Gaudin_Schuhman_basis_integral():
+    '''Note: Test takes 10x longer with the quad/points.
+    '''
     ans =  pdf_Gates_Gaudin_Schuhman_basis_integral(d=0, d_characteristic=1e-3, m=2.3, n=5)
     assert_allclose(ans, 0)
     
+    analytical_vales = []
+    numerical_values = []
+    
     for n in [-1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0]:
         # Errors at -2 (well, prevision loss anyway)
-        for dmax in [ 1e-3, 1e-2, 2e-2, 3e-2, 4e-2, 5e-2, 6e-2, 7e-2, 8e-2, 1e-1]:
+        for dmax in [1e-3, 1e-2, 2e-2, 3e-2, 4e-2, 5e-2, 6e-2, 7e-2, 8e-2, 1e-1]:
             dmax = dmax/100 # d cannot be larger than dmax
             analytical = (pdf_Gates_Gaudin_Schuhman_basis_integral(dmax, 1E-3, 2.3, n)
                           - pdf_Gates_Gaudin_Schuhman_basis_integral(1E-20, 1E-3, 2.3, n))
     
             to_int = lambda d : d**n*pdf_Gates_Gaudin_Schuhman(d, 1E-3, 2.3)
-            points = np.logspace(np.log10(dmax/2000), np.log10(dmax*.999), 30)
-            numerical = quad(to_int, 1E-20, dmax, points=points)[0]
+#            points = np.logspace(np.log10(dmax/2000), np.log10(dmax*.999), 30)
+            numerical = quad(to_int, 1E-20, dmax)[0] # points=points
+            analytical_vales.append(analytical)
+            numerical_values.append(numerical)
             # The precision here is amazing actually, 1e-14 passes
-            assert_allclose(analytical, numerical, rtol=1E-7)
-    
+#            assert_allclose(analytical, numerical, rtol=1E-7)
+    assert_allclose(analytical_vales, numerical_values, rtol=1E-7)
     
 def test_cdf_Rosin_Rammler():
     cdf = cdf_Rosin_Rammler(5E-2, 200, 2)
@@ -389,7 +396,7 @@ def test_PSD_PSDlognormal_area_length_count():
     '''
     dist = PSDLognormal(s=0.5, d_characteristic=5E-6)
     
-    ds = dist.ds_discrete(pts=1000, dmin=2E-7, dmax=1E-4)
+    ds = dist.ds_discrete(pts=700, dmin=2E-7, dmax=1E-4)
     fractions = dist.fractions_discrete(ds)
     psd = ParticleSizeDistribution(ds=ds, fractions=fractions)
     # Trim a few at the start and end
