@@ -127,6 +127,8 @@ def test_pdf_lognormal_basis_integral():
     # Couldn't get the limit for pdf_lognormal_basis_integral when d = 0
     # # with Sympy Or wolfram
     
+@pytest.mark.fuzz
+@pytest.mark.slow
 def test_pdf_lognormal_basis_integral_fuzz():
     # The actual integral testing
     analytical_vales = []
@@ -170,10 +172,18 @@ def test_pdf_Gates_Gaudin_Schuhman():
     
     
 def test_pdf_Gates_Gaudin_Schuhman_basis_integral():
-    '''Note: Test takes 10x longer with the quad/points.
-    '''
     ans =  pdf_Gates_Gaudin_Schuhman_basis_integral(d=0, d_characteristic=1e-3, m=2.3, n=5)
     assert_allclose(ans, 0)
+    
+    ans = pdf_Gates_Gaudin_Schuhman_basis_integral(d=1e-3, d_characteristic=1e-3, m=2.3, n=5)
+    assert_allclose(ans, 3.1506849315068495e-16)
+    
+    
+@pytest.mark.slow
+@pytest.mark.fuzz
+def test_pdf_Gates_Gaudin_Schuhman_basis_integral_fuzz():
+    '''Note: Test takes 10x longer with the quad/points.
+    '''
     
     analytical_vales = []
     numerical_values = []
@@ -220,14 +230,16 @@ print(latex(diff(model, d)))    '''
     
     
 def test_pdf_Rosin_Rammler_basis_integral():
+
     ans = pdf_Rosin_Rammler_basis_integral(5E-2, 200, 2, 3)
     assert_allclose(ans, -0.00045239898439007338)
     
     # Test no error
     pdf_Rosin_Rammler_basis_integral(0, 200, 2, 3)
-    
-    
-    
+
+@pytest.mark.slow
+@pytest.mark.fuzz
+def test_pdf_Rosin_Rammler_basis_integral_fuzz():
     for n in [1.0, 2.0, 3.0]:
         # Lower dmaxes have 
         for dmax in [ 1e-3, 1e-2, 2e-2, 3e-2, 4e-2, 5e-2, 6e-2, 7e-2, 8e-2, 1e-1]:
@@ -236,10 +248,9 @@ def test_pdf_Rosin_Rammler_basis_integral():
     
             to_int = lambda d : d**n*pdf_Rosin_Rammler(d, 200, 2)
             points = np.logspace(np.log10(dmax/2000), np.log10(dmax*.999), 30)
-        #     print(points, dmax)
             numerical = quad(to_int, 1E-20, dmax, points=points)[0]
             assert_allclose(analytical, numerical, rtol=1E-5)
-    
+
 @pytest.mark.slow
 def test_PSDLognormal_mean_sizes_numerical():
     '''Takes like 10 seconds.
@@ -438,7 +449,7 @@ def test_PSDLognormal_cdf_vs_pdf():
         ans_expect.append(delta)
     assert_allclose(ans_calc, ans_expect)
     
-
+@pytest.mark.slow
 def test_PSD_PSDlognormal_area_length_count():
     '''Compare the average difference between the analytical values for a
     lognormal distribution with those of a discretized form of it.Note simply
