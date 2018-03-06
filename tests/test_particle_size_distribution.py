@@ -30,15 +30,18 @@ from random import uniform
 from scipy.integrate import quad
 
 
+
 def test_ParticleSizeDistribution_basic():
     ds = [240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
-    counts = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
-    
-    # this is calculated from (Ds, counts)
-    count_fractions = [0.010640039286298903, 0.01947945653953184, 0.03797675560648224, 0.06711409395973154, 0.102962841708954, 0.13897528237027337, 0.16205598297593715, 0.160582746767065, 0.13504665247994763, 0.09477819610410869, 0.048616794892781146, 0.01816991324275659, 0.0034375511540350305, 0.0001636929120969062]
+    numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
+    dist = ParticleSizeDistribution(ds=ds, numbers=numbers)
+
+    # this is calculated from (Ds, numbers)
+    number_fractions = [0.010640039286298903, 0.01947945653953184, 0.03797675560648224, 0.06711409395973154, 0.102962841708954, 0.13897528237027337, 0.16205598297593715, 0.160582746767065, 0.13504665247994763, 0.09477819610410869, 0.048616794892781146, 0.01816991324275659, 0.0034375511540350305, 0.0001636929120969062]
     fractions = [4.8560356399310335e-05, 0.00021291794698947167, 0.0008107432330218852, 0.0027975134942445257, 0.00836789808490677, 0.02201901107895143, 0.05010399231412809, 0.0968727835386488, 0.15899879607747244, 0.2178784903712532, 0.21825921197532888, 0.159302671180342, 0.05885464261922434, 0.0054727677290887945]
     
-    opts = [{'count_fractions': count_fractions},  {'counts': counts}, {'fractions': fractions}]
+    
+    opts = [{'number_fractions': number_fractions},  {'numbers': numbers}, {'fractions': fractions}]
     for opt in opts:
         asme_e799 = ParticleSizeDistribution(ds=ds, **opt)
         
@@ -71,7 +74,7 @@ def test_ParticleSizeDistribution_basic():
         assert vol_percents_exp == [round(i*100, 3) for i in asme_e799.fractions]
         
         assert_allclose(asme_e799.fractions, fractions)
-        assert_allclose(asme_e799.count_fractions, count_fractions)
+        assert_allclose(asme_e799.number_fractions, number_fractions)
         
         # i, i distributions
         d00 = asme_e799.mean_size(0, 0)
@@ -283,6 +286,26 @@ def test_PSDLognormal_mean_sizes_numerical():
     d00 = disc.mean_size(0.0, 0.0)
     assert_allclose(d00, 2.362E-6, rtol=0, atol=1E-9)
 
+@pytest.mark.slow
+def test_PSDCustom_mean_sizes_numerical():
+    distribution = scipy.stats.lognorm(s=0.5, scale=5E-6)
+    disc = PSDCustom(distribution)
+    
+    d20 = disc.mean_size(2, 0)
+    assert_allclose(d20, 3.0326532985631672e-06, rtol=1E-8)
+    
+    d10 = disc.mean_size(1, 0)
+    assert_allclose(d10, 2.6763071425949508e-06, rtol=1E-8)
+    
+    d21 = disc.mean_size(2, 1)
+    assert_allclose(d21, 3.4364463939548618e-06, rtol=1E-8)
+    
+    d32 = disc.mean_size(3, 2)
+    assert_allclose(d32, 4.4124845129229773e-06, rtol=1E-8)
+    
+    d43 = disc.mean_size(4, 3)
+    assert_allclose(d43, 5.6657422653341318e-06, rtol=1E-3)
+
 
 def test_PSDLognormal_mean_sizes_analytical():
     disc = PSDLognormal(s=0.5, d_characteristic=5E-6)
@@ -464,7 +487,7 @@ def test_PSD_PSDlognormal_area_length_count():
     fractions = dist.fractions_discrete(ds)
     psd = ParticleSizeDistribution(ds=ds, fractions=fractions)
     # Trim a few at the start and end
-    ans = np.array(psd.count_fractions)[5:-5]/np.array(dist.fractions_discrete(ds, n=0))[5:-5]
+    ans = np.array(psd.number_fractions)[5:-5]/np.array(dist.fractions_discrete(ds, n=0))[5:-5]
     avg_err = sum(np.abs(ans - 1.0))/len(ans)
     assert 5E-4 > avg_err
     
@@ -475,6 +498,83 @@ def test_PSD_PSDlognormal_area_length_count():
     ans = np.array(psd.area_fractions)[5:-5]/np.array(dist.fractions_discrete(ds, n=2))[5:-5]
     avg_err = sum(np.abs(ans - 1.0))/len(ans)
     assert 1E-4 > avg_err
+    
+def test_PSDInterpolated_pchip():
+    '''For this test, ds is the same length as fractions, and we begin the series with the zero point.
+    
+    Half the test is spend on the `dn` solver tests, and the other half is just
+    that these tests are slow.
+    '''
+    ds = [360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
+    ds = np.array(ds)/1e6
+    numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
+    dist = ParticleSizeDistribution(ds=ds, numbers=numbers)
+    psd = PSDInterpolated(dist.Dis, dist.fractions)
+    
+    assert len(psd.fractions) == len(psd.ds)
+    assert len(psd.fractions) == 15
+    # test fractions_discrete vs input
+    assert_allclose(psd.fractions_discrete(ds), dist.fractions)
+    
+    # test cdf_discrete
+    assert_allclose(psd.cdf_discrete(ds), psd.cdf_fractions[1:])
+    
+    # test that dn solves backwards for exactly the right value
+    cumulative_fractions = np.cumsum(dist.fractions)
+    ds_for_fractions = np.array([psd.dn(f) for f in cumulative_fractions])
+    assert_allclose(ds, ds_for_fractions)
+    
+    # test _pdf
+    test_pdf = psd._pdf(1e-3)
+    assert_allclose(test_pdf, 106.28284463095554)
+    
+    # test _cdf
+    test_cdf = psd._cdf(1e-3)
+    assert_allclose(test_cdf, 0.02278897476363087)
+    
+    # test _pdf_basis_integral
+    test_int = psd._pdf_basis_integral(1e-3, 2)
+    assert_allclose(test_int, 1.509707233427664e-08)
+    
+    # Check that the 0 point is created and the points and fractions are the same
+    assert_allclose(psd.ds, [0] + ds.tolist())
+    assert_allclose(psd.fractions, [0] + dist.fractions)
+    
+    # test mean_size
+    test_mean = psd.mean_size(3, 2)
+    assert_allclose(test_mean, 0.002211577679574544)    
+
+
+def test_PSDInterpolated_discrete():
+    ds = [360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
+    ds = np.array(ds)/1e6
+    numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
+    psd = ParticleSizeDistribution(ds=ds, numbers=numbers)
+    # test fractions_discrete vs input
+    assert_allclose(psd.fractions_discrete(ds), psd.fractions)
+    
+    # test cdf_discrete
+    assert_allclose(psd.cdf_discrete(ds), psd.interpolated.cdf_fractions[1:])
+    # test that dn solves backwards for exactly the right value
+    cumulative_fractions = np.cumsum(psd.fractions)
+    ds_for_fractions = np.array([psd.dn(f) for f in cumulative_fractions])
+    assert_allclose(ds, ds_for_fractions)
+    
+    
+    # test _pdf
+    test_pdf = psd.pdf(1e-3)
+    assert_allclose(test_pdf, 106.28284463095554)
+    
+    # test _cdf
+    test_cdf = psd.cdf(1e-3)
+    assert_allclose(test_cdf, 0.02278897476363087)
+    
+    # test _pdf_basis_integral
+    test_int = psd._pdf_basis_integral(1e-3, 2)
+    assert_allclose(test_int, 1.509707233427664e-08)
+    
+    assert not np.isclose(psd.mean_size(3, 2), psd.interpolated.mean_size(3, 2))
+
     
 def test_psd_spacing():
     ans_log = psd_spacing(dmin=1, dmax=10, pts=4, method='logarithmic')

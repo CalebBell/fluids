@@ -23,7 +23,7 @@ from __future__ import division
 
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'PSDLognormal', 'PSDGatesGaudinSchuhman', 'PSDRosinRammler',
-           'psd_spacing',
+           'PSDInterpolated', 'PSDCustom', 'psd_spacing',
            'pdf_lognormal', 'cdf_lognormal', 'pdf_lognormal_basis_integral',
            'pdf_Gates_Gaudin_Schuhman', 'cdf_Gates_Gaudin_Schuhman',
            'pdf_Gates_Gaudin_Schuhman_basis_integral',
@@ -35,6 +35,7 @@ from sys import float_info
 from scipy.optimize import brenth, minimize
 from scipy.integrate import quad
 from scipy.special import erf, gammaincc, gamma
+from scipy.interpolate import UnivariateSpline, InterpolatedUnivariateSpline, PchipInterpolator
 import scipy.stats
 from numpy.random import lognormal
 import numpy as np
@@ -102,10 +103,9 @@ def pdf_lognormal(d, d_characteristic, s):
     tricky.
         
     The standard distribution (i.e. the one used in Scipy) can perform the same
-    computation with :math:`x = d/d_{characteristic}`, `s` unchanged, and
-    the result divided by `d_characteristic` to obtain a compatible answer.
+    computation with  `d_characteristic` as the value of `scale`.
 
-    >>> scipy.stats.lognorm.pdf(x=1E-4/1E-5, s=1.1)/1E-5
+    >>> scipy.stats.lognorm.pdf(x=1E-4, s=1.1, scale=1E-5)
     405.5420921156425
     
     Scipy's calculation is over 300 times slower however, and this expression
@@ -162,10 +162,9 @@ def cdf_lognormal(d, d_characteristic, s):
     tricky.
         
     The standard distribution (i.e. the one used in Scipy) can perform the same
-    computation with :math:`x = d/d_{characteristic}`, and `s` unchanged to 
-    obtain a compatible answer.
+    computation with  `d_characteristic` as the value of `scale`.
 
-    >>> scipy.stats.lognorm.cdf(x=1E-4/1E-5, s=1.1)
+    >>> scipy.stats.lognorm.cdf(x=1E-4, s=1.1, scale=1E-5)
     0.98183698757981774
     
     Scipy's calculation is over 100 times slower however.
@@ -681,251 +680,6 @@ _mean_size_iso_docstring =  r'''Calculates the mean particle size according to m
         '''
 
 
-class ParticleSizeDistribution(object):
-    r'''Class representing a discrete particle size distribution specified by a
-    series of diameter bins, and the quantity of particles in each bin. The
-    quantities may be specified as counts, volume/mass/mole fractions, or count
-    fractions.
-    All parameters are also attributes.
-    
-    In addition to the diameter bins, one of `fractions`, `count_fractions`,
-    or `counts` must be specified.
-            
-    Parameters
-    ----------
-    ds : list[float]
-        Diameter bins; length of the specified quantities, optionally +1 that
-        length to specify a cutoff diameter for the smallest diameter bin, [m]
-    fractions : list[float], optional
-        The mass/mole/volume fractions of each particles in each diameter bin
-        (this class represents particles of the same density and molecular
-        weight, so each of the fractions will be the same), [-]
-    count_fractions : list[float], optional
-        The number fractions by actual number of particles in each bin, [-]
-    counts : lists[float], optional
-        The actual counted number of particles in each bin, [-]
- 
-    Attributes
-    ----------
-    length_fractions : list[float]
-        The length fractions of particles in each bin, [-]
-    area_fractions : list[float]
-        The area fractions of particles in each bin, [-]
-    size_classes : bool
-        Whether or not the diameter bins were set as size classes (as length
-        of fractions + 1), [-]
-    N : int
-        The number of provided points, [-]
-
-    Notes
-    -----
-    Although the stated units of input are in meters, this class is actually
-    independent of the units provided; all results will be consistent with the
-    provided unit.
-
-    Examples
-    --------
-    Example problem from [1]_, calculating several diameters and the cumulative
-    distribution.
-    
-    >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
-    >>> counts = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
-    >>> psd = ParticleSizeDistribution(ds=ds, counts=counts)
-    >>> psd
-    <Particle Size Distribution, points=14, D[3, 3]=0.002451 m>
-
-    References
-    ----------
-    .. [1] ASTM E799 - 03(2015) - Standard Practice for Determining Data 
-       Criteria and Processing for Liquid Drop Size Analysis.    
-    .. [2] ISO 9276-2:2014 - Representation of Results of Particle Size 
-       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and 
-       Moments from Particle Size Distributions.
-    '''
-    def __repr__(self):
-        txt = '<Particle Size Distribution, points=%d, D[3, 3]=%f m>'
-        return txt %(self.N, self.mean_size(p=3, q=3))
-    
-    size_classes = False
-    def __init__(self, ds, fractions=None, count_fractions=None, counts=None, 
-                 flows=None, rho=None, MW=None):
-        '''If given counts or flows, convert to fractions immediately and move 
-        forward with them.
-        '''
-        self.ds = ds
-        
-        specified_quantities = [i for i in (fractions, count_fractions, counts, flows) if i is not None]
-        if len(specified_quantities) > 1:
-            raise Exception('More than one distribution specified')
-        elif len(specified_quantities) == 0:
-            raise Exception('No distribution specified')
-        else:
-            spec = specified_quantities[0]
-        
-        if ds is not None and (len(ds) == len(spec) + 1):
-            self.size_classes = True
-        else:
-            self.size_classes = False
-            
-        self.N = len(spec)
-            
-        if spec is counts:
-            self.counts = counts
-            self.count_sum = sum(self.counts)
-            self.count_fractions = [i/self.count_sum for i in self.counts]
-        
-            d3s = [self.di_power(i, power=3)*self.count_fractions[i] for i in range(self.N)]
-            tot_d3 = sum(d3s)
-            self.fractions = [i/tot_d3 for i in d3s]
-        
-        elif spec is count_fractions:
-            self.count_fractions = count_fractions
-            d3s = [self.di_power(i, power=3)*self.count_fractions[i] for i in range(self.N)]
-            tot_d3 = sum(d3s)
-            self.fractions = [i/tot_d3 for i in d3s]
-        elif spec is fractions:
-            self.fractions = fractions
-            basis = 100 # m^3
-            Vis = [basis*fi for fi in fractions]
-            D3s = [self.di_power(i, power=3) for i in range(self.N)]
-            Vps = [pi/6*Di for Di in D3s]
-            counts = [Vi/Vp for Vi, Vp in zip(Vis, Vps)]
-            count_sum = sum(counts)
-            self.count_fractions = [i/count_sum for i in counts]
-        elif spec is flows:
-            raise Exception(NotImplemented('Flows are not yet supported - TODO'))
-        
-        # Set the length fractions
-        D3s = [self.di_power(i, power=2) for i in range(self.N)]
-        counts = [Vi/Vp for Vi, Vp in zip(self.fractions, D3s)]
-        count_sum = sum(counts)
-        self.length_fractions = [i/count_sum for i in counts]
-        
-        # Set the surface area fractions
-        D3s = [self.di_power(i, power=1) for i in range(self.N)]
-        counts = [Vi/Vp for Vi, Vp in zip(self.fractions, D3s)]
-        count_sum = sum(counts)
-        self.area_fractions = [i/count_sum for i in counts]
-        # Length and surface area fractions verified numerically
-
-        self.flows = flows
-        self.rho = rho
-        self.MW = MW
-        
-        
-    def _fit_obj_function(self, vals, distribution, n):
-        err = 0.0
-        dist = distribution(*list(vals))
-        for i in range(len(self.fractions)):
-            delta_cdf = dist.delta_cdf(dmin=self.ds[i], dmax=self.ds[i+1])
-            err += abs(delta_cdf - self.fractions[i])
-        return err
-        
-    def fit(self, x0=None, distribution='lognormal', n=None, **kwargs):
-        dist = {'lognormal': PSDLognormal, 
-                'GGS': PSDGatesGaudinSchuhman, 
-                'RR': PSDRosinRammler}[distribution]
-        
-        if distribution == 'lognormal':
-            if x0 is None:
-                d_characteristic = sum([fi*di for fi, di in zip(self.fractions, self.Dis)])
-                s = 0.4
-                x0 = [d_characteristic, s]
-        elif distribution == 'GGS':
-            if x0 is None:
-                d_characteristic = sum([fi*di for fi, di in zip(self.fractions, self.Dis)])
-                m = 1.5
-                x0 = [d_characteristic, m]
-        elif distribution == 'RR':
-            if x0 is None:
-                x0 = [5E-6, 1e-2]
-        return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)['x']
-
-    @property
-    def Dis(self):
-        '''Representative diameters of each bin.
-        '''
-        return [self.di_power(i, power=1) for i in range(self.N)]
-    
-    def di_power(self, i, power=1):
-        r'''Method to calculate a power of a particle class/bin in a generic
-        way so as to support when there are as many `ds` as `fractions`,
-        or one more diameter spec than `fractions`.
-        
-        When each bin has a lower and upper bound, the formula is as follows
-        [1]_.
-        
-        .. math::
-            D_i^r = \frac{D_{i, ub}^{(r+1)} - D_{i, lb}^{(r+1)}}
-            {(D_{i, ub} - D_{i, lb})(r+1)}
-            
-        Where `ub` represents the upper bound, and `lb` represents the lower
-        bound. Otherwise, the standard definition is used:
-            
-        .. math::
-            D_i^r = D_i^r
-        
-        Parameters
-        ----------
-        i : int
-            The index of the diameter for the calculation, [-]
-        power : int
-            The exponent, [-]
-
-        Returns
-        -------
-        di_power : float
-            The representative bin diameter raised to  `power`, [m^power] 
-
-        References
-        ----------
-        .. [1] ASTM E799 - 03(2015) - Standard Practice for Determining Data 
-           Criteria and Processing for Liquid Drop Size Analysis.    
-        '''
-        if self.size_classes:
-            rt = power + 1
-            return ((self.ds[i+1]**rt - self.ds[i]**rt)/((self.ds[i+1] - self.ds[i])*rt))
-        else:
-            return self.ds[i]**power
-        
-    def mean_size(self, p, q):
-        '''        
-        >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
-        >>> counts = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
-        >>> psd = ParticleSizeDistribution(ds=ds, counts=counts)
-        >>> psd.mean_size(3, 2)
-        0.0022693210317450449
-        '''
-        if p != q:
-            # Note: D(p, q) = D(q, p); in ISO and proven experimentally
-            numerator = sum(self.di_power(i=i, power=p)*self.count_fractions[i] for i in range(self.N))
-            denominator = sum(self.di_power(i=i, power=q)*self.count_fractions[i] for i in range(self.N))
-            return (numerator/denominator)**(1.0/(p-q))
-        else:
-            numerator = sum(log(self.di_power(i=i, power=1))*self.di_power(i=i, power=p)*self.count_fractions[i] for i in range(self.N))
-            denominator = sum(self.di_power(i=i, power=q)*self.count_fractions[i] for i in range(self.N))
-            return exp(numerator/denominator)
-        
-    def mean_size_ISO(self, k, r):
-        r'''
-        >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
-        >>> counts = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
-        >>> psd = ParticleSizeDistribution(ds=ds, counts=counts)
-        >>> psd.mean_size_ISO(1, 2)
-        0.0022693210317450449
-        '''
-        p = k + r
-        q = r
-        return self.mean_size(p=p, q=q)
-
-try:
-    # Python 2
-    ParticleSizeDistribution.mean_size.__func__.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__func__.__doc__)
-    ParticleSizeDistribution.mean_size_ISO.__func__.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__func__.__doc__)
-except AttributeError:
-    # Python 3
-    ParticleSizeDistribution.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__doc__)
-    ParticleSizeDistribution.mean_size_ISO.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__doc__)
 
 
 class ParticleSizeDistributionContinuous(object):
@@ -951,6 +705,10 @@ class ParticleSizeDistributionContinuous(object):
        Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and 
        Moments from Particle Size Distributions.
     '''
+    def _pdf_basis_integral_definite(self, dmin, dmax, n):
+        # Needed as an api for numerical integrals
+        return (self._pdf_basis_integral(d=dmax, n=n) 
+                - self._pdf_basis_integral(d=dmin, n=n))
     
     def pdf(self, d, n=None):
         r'''Computes the probability density funtion of a
@@ -1003,15 +761,14 @@ class ParticleSizeDistributionContinuous(object):
            Technology: Fundamentals of Particles, Powder Beds, and Particle 
            Generation. CRC Press, 2006.
         '''
-        ans = self._pdf(d=d, n=n)
-        if n is not None:
+        ans = self._pdf(d=d)
+        if n is not None and n != self.order:
             power = n - self.order
             numerator = d**power*ans
-            
-            denominator = (self._pdf_basis_integral(d=self.d_excessive, n=power) 
-                            - self._pdf_basis_integral(d=0.0, n=power))
+            denominator = self._pdf_basis_integral_definite(dmin=0.0, dmax=self.d_excessive, n=power)
             ans = numerator/denominator
-        return ans
+        # Handle splines which might go below zero
+        return max(ans, 0.0)
 
     def cdf(self, d, n=None):
         r'''Computes the cumulative distribution density funtion of a
@@ -1052,15 +809,15 @@ class ParticleSizeDistributionContinuous(object):
         0.691462461274
         0.5
         '''
-        if n is not None:
+        if n is not None and n != self.order:
             power = n - self.order
-            t1 = self._pdf_basis_integral(d=0.0, n=power)
-            numerator = (self._pdf_basis_integral(d=d, n=power) - t1)
-            
-            denominator = (self._pdf_basis_integral(d=self.d_excessive, n=power) 
-                            - t1)
-            return numerator/denominator        
-        return self._cdf(d=d, n=n)
+            # One of the pdf_basis_integral calls could be saved except for 
+            # support for numerical integrals
+            numerator = self._pdf_basis_integral_definite(dmin=0.0, dmax=d, n=power)
+            denominator = self._pdf_basis_integral_definite(dmin=0.0, dmax=self.d_excessive, n=power)
+            return max(numerator/denominator, 0.0)
+        # Handle splines which might go below zero
+        return max(self._cdf(d=d), 0.0)
 
     def delta_cdf(self, dmin, dmax, n=None):
         r'''Computes the difference in cumulative distribution function between
@@ -1224,10 +981,11 @@ class ParticleSizeDistributionContinuous(object):
         if p == q:
             raise Exception(NotImplemented)
         pow1 = q - self.order 
-        denominator = self._pdf_basis_integral(d=self.d_excessive, n=pow1) - self._pdf_basis_integral(d=1E-9, n=pow1)
+        
+        denominator = self._pdf_basis_integral_definite(dmin=0.0, dmax=self.d_excessive, n=pow1)
         root_power = p - q
         pow3 = p - self.order
-        numerator = self._pdf_basis_integral(d=self.d_excessive, n=pow3) - self._pdf_basis_integral(d=1E-9, n=pow3)
+        numerator = self._pdf_basis_integral_definite(dmin=0.0, dmax=self.d_excessive, n=pow3)
         return (numerator/denominator)**(1.0/(root_power))
     
     def mean_size_ISO(self, k, r):
@@ -1307,6 +1065,16 @@ class ParticleSizeDistributionContinuous(object):
         except:
             cdfs = self.cdf_discrete(ds=ds, n=n)
             plt.semilogx(ds, cdfs, label=_label_distribution_n(n))
+        if self.points:
+            plt.plot(self.ds, self.cdf_fractions, '+', label='Volume/Mass points')
+            
+            if hasattr(self, 'area_fractions'):
+                plt.plot(self.ds, np.cumsum(self.area_fractions), '+', label='Area points')
+            if hasattr(self, 'length_fractions'):
+                plt.plot(self.ds, np.cumsum(self.length_fractions), '+', label='Length points')
+            if hasattr(self, 'number_fractions'):
+                plt.plot(self.ds, np.cumsum(self.number_fractions), '+', label='Number points')
+                
         plt.ylabel('Cumulative density function, [-]')
         plt.xlabel('Particle diameter, [m]')
         plt.title('Cumulative density function of %s distribution with '
@@ -1314,17 +1082,298 @@ class ParticleSizeDistributionContinuous(object):
         plt.legend()
         plt.show()
 
+
+class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
+    r'''Class representing a discrete particle size distribution specified by a
+    series of diameter bins, and the quantity of particles in each bin. The
+    quantities may be specified as numbers, volume/mass/mole fractions, or
+    numbers fractions.
+    All parameters are also attributes.
+    
+    In addition to the diameter bins, one of `fractions`, `number_fractions`,
+    or `numbers` must be specified.
+            
+    Parameters
+    ----------
+    ds : list[float]
+        Diameter bins; length of the specified quantities, optionally +1 that
+        length to specify a cutoff diameter for the smallest diameter bin, [m]
+    fractions : list[float], optional
+        The mass/mole/volume fractions of each particles in each diameter bin
+        (this class represents particles of the same density and molecular
+        weight, so each of the fractions will be the same), [-]
+    number_fractions : list[float], optional
+        The number fractions by actual number of particles in each bin, [-]
+    numbers : lists[float], optional
+        The actual counted number of particles in each bin, [-]
+ 
+    Attributes
+    ----------
+    length_fractions : list[float]
+        The length fractions of particles in each bin, [-]
+    area_fractions : list[float]
+        The area fractions of particles in each bin, [-]
+    size_classes : bool
+        Whether or not the diameter bins were set as size classes (as length
+        of fractions + 1), [-]
+    N : int
+        The number of provided points, [-]
+
+    Notes
+    -----
+    Although the stated units of input are in meters, this class is actually
+    independent of the units provided; all results will be consistent with the
+    provided unit.
+
+    Examples
+    --------
+    Example problem from [1]_, calculating several diameters and the cumulative
+    distribution.
+    
+    >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
+    >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
+    >>> psd = ParticleSizeDistribution(ds=ds, numbers=numbers)
+    >>> psd
+    <Particle Size Distribution, points=14, D[3, 3]=0.002451 m>
+
+    References
+    ----------
+    .. [1] ASTM E799 - 03(2015) - Standard Practice for Determining Data 
+       Criteria and Processing for Liquid Drop Size Analysis.    
+    .. [2] ISO 9276-2:2014 - Representation of Results of Particle Size 
+       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and 
+       Moments from Particle Size Distributions.
+    '''
+    def __repr__(self):
+        txt = '<Particle Size Distribution, points=%d, D[3, 3]=%f m>'
+        return txt %(self.N, self.mean_size(p=3, q=3))
+    
+    size_classes = False
+    _interpolated = None
+    points = True
+    name = 'Discrete'
+    def __init__(self, ds, fractions=None, number_fractions=None, numbers=None, 
+                 flows=None, rho=None, MW=None, monotonic=True, cdf=True):
+        '''If given numbers or flows, convert to fractions immediately and move 
+        forward with them.
+        TODO: specify only `fraction`, and also `order`. Then `counts` becomes `flows`.
+        TODO: allow cdf to be specified as well. Use cdf flag to convert 
+        # fractions to other basis if given.
+        TODO: support any basis of input i.e. length, area.
+        '''
+        self.monotonic = monotonic
+        self.ds = ds
+        
+        specified_quantities = [i for i in (fractions, number_fractions, numbers, flows) if i is not None]
+        if len(specified_quantities) > 1:
+            raise Exception('More than one distribution specified')
+        elif len(specified_quantities) == 0:
+            raise Exception('No distribution specified')
+        else:
+            spec = specified_quantities[0]
+        
+        if ds is not None and (len(ds) == len(spec) + 1):
+            self.size_classes = True
+        else:
+            self.size_classes = False
+            
+        self.N = len(spec)
+            
+        if spec is numbers:
+            self.numbers = numbers
+            self.number_sum = sum(self.numbers)
+            self.number_fractions = [i/self.number_sum for i in self.numbers]
+        
+            d3s = [self.di_power(i, power=3)*self.number_fractions[i] for i in range(self.N)]
+            tot_d3 = sum(d3s)
+            self.fractions = [i/tot_d3 for i in d3s]
+        
+        elif spec is number_fractions:
+            self.number_fractions = number_fractions
+            d3s = [self.di_power(i, power=3)*self.number_fractions[i] for i in range(self.N)]
+            tot_d3 = sum(d3s)
+            self.fractions = [i/tot_d3 for i in d3s]
+        elif spec is fractions:
+            self.fractions = fractions
+            basis = 100 # m^3
+            Vis = [basis*fi for fi in fractions]
+            D3s = [self.di_power(i, power=3) for i in range(self.N)]
+            Vps = [pi/6*Di for Di in D3s]
+            numbers = [Vi/Vp for Vi, Vp in zip(Vis, Vps)]
+            number_sum = sum(numbers)
+            self.number_fractions = [i/number_sum for i in numbers]
+        elif spec is flows:
+            raise Exception(NotImplemented('Flows are not yet supported - TODO'))
+        
+        # Set the length fractions
+        D3s = [self.di_power(i, power=2) for i in range(self.N)]
+        numbers = [Vi/Vp for Vi, Vp in zip(self.fractions, D3s)]
+        number_sum = sum(numbers)
+        self.length_fractions = [i/number_sum for i in numbers]
+        
+        # Set the surface area fractions
+        D3s = [self.di_power(i, power=1) for i in range(self.N)]
+        numbers = [Vi/Vp for Vi, Vp in zip(self.fractions, D3s)]
+        number_sum = sum(numbers)
+        self.area_fractions = [i/number_sum for i in numbers]
+        # Length and surface area fractions verified numerically
+
+        self.flows = flows
+        self.rho = rho
+        self.MW = MW
+        
+        # Things for interoperability with the Continuous distribution
+        self.d_excessive = self.ds[-1]
+        self.parameters = {}
+        self.order = 3
+        self.cdf_fractions = np.cumsum(self.fractions)
+
+    @property
+    def interpolated(self):
+        if not self._interpolated:
+            self._interpolated = PSDInterpolated(ds=self.ds, 
+                                                 fractions=self.fractions, 
+                                                 order=3, 
+                                                 monotonic=self.monotonic)            
+        return self._interpolated
+        
+    def _pdf(self, d):
+        return self.interpolated._pdf(d)
+    
+    def _cdf(self, d):
+        return self.interpolated._cdf(d)
+    
+    def _pdf_basis_integral(self, d, n):
+        return self.interpolated._pdf_basis_integral(d, n)
+        
+    def _fit_obj_function(self, vals, distribution, n):
+        err = 0.0
+        dist = distribution(*list(vals))
+        l = len(self.fractions) if self.size_classes else len(self.fractions) - 1
+        for i in range(l):
+            delta_cdf = dist.delta_cdf(dmin=self.ds[i], dmax=self.ds[i+1])
+            err += abs(delta_cdf - self.fractions[i])
+        return err
+        
+    def fit(self, x0=None, distribution='lognormal', n=None, **kwargs):
+        '''Incomplete method to fit experimental values to a curve. It is very
+        hard to get good initial guesses, which are really required for this.
+        Differential evolution is promissing. This API is likely to change in
+        the future.
+        '''
+        dist = {'lognormal': PSDLognormal, 
+                'GGS': PSDGatesGaudinSchuhman, 
+                'RR': PSDRosinRammler}[distribution]
+        
+        if distribution == 'lognormal':
+            if x0 is None:
+                d_characteristic = sum([fi*di for fi, di in zip(self.fractions, self.Dis)])
+                s = 0.4
+                x0 = [d_characteristic, s]
+        elif distribution == 'GGS':
+            if x0 is None:
+                d_characteristic = sum([fi*di for fi, di in zip(self.fractions, self.Dis)])
+                m = 1.5
+                x0 = [d_characteristic, m]
+        elif distribution == 'RR':
+            if x0 is None:
+                x0 = [5E-6, 1e-2]
+        return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)
+
+    @property
+    def Dis(self):
+        '''Representative diameters of each bin.
+        '''
+        return [self.di_power(i, power=1) for i in range(self.N)]
+    
+    def di_power(self, i, power=1):
+        r'''Method to calculate a power of a particle class/bin in a generic
+        way so as to support when there are as many `ds` as `fractions`,
+        or one more diameter spec than `fractions`.
+        
+        When each bin has a lower and upper bound, the formula is as follows
+        [1]_.
+        
+        .. math::
+            D_i^r = \frac{D_{i, ub}^{(r+1)} - D_{i, lb}^{(r+1)}}
+            {(D_{i, ub} - D_{i, lb})(r+1)}
+            
+        Where `ub` represents the upper bound, and `lb` represents the lower
+        bound. Otherwise, the standard definition is used:
+            
+        .. math::
+            D_i^r = D_i^r
+        
+        Parameters
+        ----------
+        i : int
+            The index of the diameter for the calculation, [-]
+        power : int
+            The exponent, [-]
+
+        Returns
+        -------
+        di_power : float
+            The representative bin diameter raised to  `power`, [m^power] 
+
+        References
+        ----------
+        .. [1] ASTM E799 - 03(2015) - Standard Practice for Determining Data 
+           Criteria and Processing for Liquid Drop Size Analysis.    
+        '''
+        if self.size_classes:
+            rt = power + 1
+            return ((self.ds[i+1]**rt - self.ds[i]**rt)/((self.ds[i+1] - self.ds[i])*rt))
+        else:
+            return self.ds[i]**power
+        
+    def mean_size(self, p, q):
+        '''        
+        >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
+        >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
+        >>> psd = ParticleSizeDistribution(ds=ds, numbers=numbers)
+        >>> psd.mean_size(3, 2)
+        0.0022693210317450449
+        '''
+        if p != q:
+            # Note: D(p, q) = D(q, p); in ISO and proven experimentally
+            numerator = sum(self.di_power(i=i, power=p)*self.number_fractions[i] for i in range(self.N))
+            denominator = sum(self.di_power(i=i, power=q)*self.number_fractions[i] for i in range(self.N))
+            return (numerator/denominator)**(1.0/(p-q))
+        else:
+            numerator = sum(log(self.di_power(i=i, power=1))*self.di_power(i=i, power=p)*self.number_fractions[i] for i in range(self.N))
+            denominator = sum(self.di_power(i=i, power=q)*self.number_fractions[i] for i in range(self.N))
+            return exp(numerator/denominator)
+        
+    def mean_size_ISO(self, k, r):
+        r'''
+        >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
+        >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
+        >>> psd = ParticleSizeDistribution(ds=ds, numbers=numbers)
+        >>> psd.mean_size_ISO(1, 2)
+        0.0022693210317450449
+        '''
+        p = k + r
+        q = r
+        return self.mean_size(p=p, q=q)
+
+
 try:
     # Python 2
     ParticleSizeDistributionContinuous.mean_size.__func__.__doc__ = _mean_size_docstring %(ParticleSizeDistributionContinuous.mean_size.__func__.__doc__)
     ParticleSizeDistributionContinuous.mean_size_ISO.__func__.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistributionContinuous.mean_size_ISO.__func__.__doc__)
+    ParticleSizeDistribution.mean_size.__func__.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__func__.__doc__)
+    ParticleSizeDistribution.mean_size_ISO.__func__.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__func__.__doc__)
 except AttributeError:
     # Python 3
     ParticleSizeDistributionContinuous.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistributionContinuous.mean_size.__doc__)
     ParticleSizeDistributionContinuous.mean_size_ISO.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistributionContinuous.mean_size_ISO.__doc__)
+    ParticleSizeDistribution.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__doc__)
+    ParticleSizeDistribution.mean_size_ISO.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__doc__)
 
 class PSDLognormal(ParticleSizeDistributionContinuous):
     name = 'Lognormal'
+    points = False
     def __init__(self, d_characteristic, s, order=3):
         self.s = s
         self.d_characteristic = d_characteristic
@@ -1335,10 +1384,10 @@ class PSDLognormal(ParticleSizeDistributionContinuous):
         # so much, physically.
         self.d_excessive = 1E15*self.d_characteristic
         
-    def _pdf(self, d, n=None):
+    def _pdf(self, d):
         return pdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
 
-    def _cdf(self, d, n=None):
+    def _cdf(self, d):
         return cdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
     
     def _pdf_basis_integral(self, d, n):
@@ -1347,6 +1396,7 @@ class PSDLognormal(ParticleSizeDistributionContinuous):
 
 class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
     name = 'Gates Gaudin Schuhman'
+    points = False
     def __init__(self, d_characteristic, m, order=3):
         self.m = m
         self.d_characteristic = d_characteristic
@@ -1355,10 +1405,10 @@ class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
         # PDF above this is zero
         self.d_excessive = self.d_characteristic
 
-    def _pdf(self, d, n=None):
+    def _pdf(self, d):
         return pdf_Gates_Gaudin_Schuhman(d, d_characteristic=self.d_characteristic, m=self.m)
 
-    def _cdf(self, d, n=None):
+    def _cdf(self, d):
         return cdf_Gates_Gaudin_Schuhman(d, d_characteristic=self.d_characteristic, m=self.m)
 
     def _pdf_basis_integral(self, d, n):
@@ -1367,6 +1417,7 @@ class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
 
 class PSDRosinRammler(ParticleSizeDistributionContinuous):
     name = 'Rosin Rammler'
+    points = False
     def __init__(self, k, m, order=3):
         self.m = m
         self.k = k
@@ -1376,11 +1427,113 @@ class PSDRosinRammler(ParticleSizeDistributionContinuous):
         # PDF above this is zero - todo?
         self.d_excessive = 1e3 
 
-    def _pdf(self, d, n=None):
+    def _pdf(self, d):
         return pdf_Rosin_Rammler(d, k=self.k, m=self.m)
 
-    def _cdf(self, d, n=None):
+    def _cdf(self, d):
         return cdf_Rosin_Rammler(d, k=self.k, m=self.m)
     
     def _pdf_basis_integral(self, d, n):
         return pdf_Rosin_Rammler_basis_integral(d, k=self.k, m=self.m, n=n)
+
+
+'''# These are all brutally slow!
+from scipy.stats import *
+from fluids import *
+distribution = lognorm(s=0.5, scale=5E-6)
+psd = PSDCustom(distribution)
+
+# psd.dn(0.5, n=2.0) # Doesn't work at all, but the main things do including plots
+'''
+
+class PSDCustom(ParticleSizeDistributionContinuous):
+    name = ''
+    points = False
+    
+    def __init__(self, distribution, order=3.0, d_excessive=1.0, name=None):
+        if name:
+            self.name = name
+        else:
+            try:
+                self.name = distribution.dist.__class__.__name__
+            except:
+                pass
+        try:
+            self.parameters = distribution.kwds
+        except:
+            self.parameters = {}
+            
+        self.d_excessive = d_excessive
+        self.distribution = distribution
+        self.order = order
+        
+    def _pdf(self, d):
+        return self.distribution.pdf(d)
+
+    def _cdf(self, d):
+        return self.distribution.cdf(d)
+    
+    def _pdf_basis_integral_definite(self, dmin, dmax, n):
+        # Needed as an api for numerical integrals
+        n = float(n)
+        if dmin == 0:
+            dmin = dmax*1E-12
+        to_int = lambda d : d**n*self._pdf(d)
+        points = np.logspace(np.log10(max(dmax/1000, dmin)), np.log10(dmax*.999), 40)
+        return quad(to_int, dmin, dmax, points=points)[0] # 
+            
+    
+class PSDInterpolated(ParticleSizeDistributionContinuous):
+    name = 'Interpolated'
+    points = True
+    def __init__(self, ds, fractions, order=3, monotonic=True):
+        self.order = order
+        self.monotonic = monotonic
+        self.parameters = {}
+        
+        ds = list(ds)
+        fractions = list(fractions)
+        
+        if ds[0] != 0:
+            ds = [0] + ds
+            if len(ds) != len(fractions):
+                fractions = [0] + fractions
+            
+        self.ds = ds
+        self.fractions = fractions
+
+        self.d_excessive = max(ds)
+            
+        self.cdf_fractions = np.cumsum(fractions)
+        if self.monotonic:
+            self.cdf_spline = PchipInterpolator(ds, self.cdf_fractions, extrapolate=True)
+            self.pdf_spline = PchipInterpolator(ds, self.cdf_fractions, extrapolate=True).derivative(1)
+        else:
+            self.cdf_spline = InterpolatedUnivariateSpline(ds, self.cdf_fractions, ext=3)
+            self.pdf_spline = InterpolatedUnivariateSpline(ds, self.cdf_fractions, ext=3).derivative(1)
+
+        # The pdf basis integral splines will be stored here
+        self.basis_integrals = {}
+        
+                
+    def _pdf(self, d):
+        return max(0.0, float(self.pdf_spline(d)))
+    
+    def _cdf(self, d):
+        return max(0.0, float(self.cdf_spline(d)))
+    
+    def _pdf_basis_integral(self, d, n):
+        # there are slight errors with this approach - but they are OK to 
+        # ignore. 
+        # DO NOT evaluate the first point as it leads to inf values; just set
+        # it to zero
+        if n not in self.basis_integrals:
+            ds = np.array(self.ds[1:])
+            pdf_vals = self.pdf_spline(ds)
+            basis_integral = ds**n*pdf_vals
+            if self.monotonic:
+                self.basis_integrals[n] = PchipInterpolator(ds, basis_integral, extrapolate=True).antiderivative(1)
+            else:
+                self.basis_integrals[n] = UnivariateSpline(ds, basis_integral, ext=3, s=0).antiderivative(n=1)
+        return max(float(self.basis_integrals[n](d)), 0.0)
+    

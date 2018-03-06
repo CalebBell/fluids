@@ -378,7 +378,8 @@ __funcs = {}
 for name in dir(fluids):
     if 'RectangularOffsetStripFinExchanger' in name:
         continue
-    
+    if 'ParticleSizeDistribution' in name:
+        continue
     obj = getattr(fluids, name)
     if isinstance(obj, types.FunctionType):
         obj = wraps_numpydoc(u)(obj)
