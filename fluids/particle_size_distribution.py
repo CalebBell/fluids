@@ -28,17 +28,20 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'pdf_Gates_Gaudin_Schuhman', 'cdf_Gates_Gaudin_Schuhman',
            'pdf_Gates_Gaudin_Schuhman_basis_integral',
            'pdf_Rosin_Rammler', 'cdf_Rosin_Rammler', 
-           'pdf_Rosin_Rammler_basis_integral']
+           'pdf_Rosin_Rammler_basis_integral',
+           'ASTM_E11_sieves', 'Sieve']
 
 from math import log, exp, pi, log10
+from io import open
+import os
 from sys import float_info
+from numpy.random import lognormal
+import numpy as np
 from scipy.optimize import brenth, minimize
 from scipy.integrate import quad
 from scipy.special import erf, gammaincc, gamma
 from scipy.interpolate import UnivariateSpline, InterpolatedUnivariateSpline, PchipInterpolator
 import scipy.stats
-from numpy.random import lognormal
-import numpy as np
 
 try:
     import matplotlib.pyplot as plt
@@ -46,7 +49,116 @@ try:
 except:
     has_matplotlib = False
 
+
+folder = os.path.join(os.path.dirname(__file__), 'data')
+
 ROOT_TWO_PI = (2.0*pi)**0.5
+
+
+class Sieve(object):
+    r'''Class for storing data on sieves. If a property is not available, it is
+    set to None.
+
+    Attributes
+    ----------
+    designation : str
+        The standard name of the sieve - its opening's length in units of 
+        milimeters
+    old_designation : str
+        The older, imperial-esque name of the sieve; in Numbers, or inches for 
+        large sieves
+    opening : float
+        The opening length of the sieve holes, [m]
+    opening_inch : float
+        The opening length of the sieve holes in the rounded inches as stated
+        in common tables (not exactly equal to the `opening`), [inch]
+    Y_variation_avg : float
+        The allowable average variation in the Y direction of the sieve 
+        openings, [m]
+    X_variation_max : float
+        The allowable maximum variation in the X direction of the sieve 
+        openings, [m]
+    max_opening : float
+        The maximum allowable opening of the sieve, [m]
+    calibration_samples : float
+        The number of opening sample inspections required for `calibration`-
+        type sieve openings (per 100 ft^2 of sieve material), [1/(ft^2)]
+    compliance_sd : float
+        The maximum standard deviation of `compliance`-type sieve openings, 
+        [-]
+    inspection_samples : float
+        The number of opening sample inspections required for `inspection`-
+        type sieve openings (based on an 8-inch sieve), [-]
+    inspection_sd : float
+        The maximum standard deviation of `inspection`-type sieve openings, 
+        [-]
+    calibration_samples : float
+        The number of opening sample inspections required for `calibration`-
+        type sieve openings (based on an 8-inch sieve), [-]
+    calibration_sd : float
+        The maximum standard deviation of `calibration`-type sieve openings, 
+        [-]
+    d_wire : float
+        Typical wire diameter of the specified sieve size, [m] 
+    d_wire_min : float
+        Permissible minimum wire diameter of specified sieve size, [m]
+    d_wire_max : float
+        Permissible maximum wire diameter of specified sieve size, [m]
+        
+    '''
+    def __init__(self, designation, old_designation, opening,
+                 opening_inch, Y_variation_avg, X_variation_max,
+                 max_opening, compliance_samples, compliance_sd,
+                 inspection_samples, inspection_sd, calibration_samples,
+                 calibration_sd, d_wire, d_wire_min, d_wire_max):
+        
+        self.designation = designation
+        self.old_designation = old_designation
+        self.opening_inch = opening_inch
+        self.opening = opening
+        
+        self.Y_variation_avg = Y_variation_avg
+        self.X_variation_max = X_variation_max
+        self.max_opening = max_opening
+        
+        self.compliance_samples = compliance_samples
+        self.compliance_sd = compliance_sd
+        
+        self.inspection_samples = inspection_samples 
+        self.inspection_sd = inspection_sd
+        
+        self.calibration_samples = calibration_samples
+        self.calibration_sd = calibration_sd
+        
+        self.d_wire = d_wire
+        self.d_wire_min = d_wire_min
+        self.d_wire_max = d_wire_max
+    
+
+ASTM_E11_sieves = {}
+
+with open(os.path.join(folder, 'ASTM E11 sieves.csv'), encoding='utf-8') as f:    
+    lines = f.readlines()[1:]
+    for line in lines:
+        values = line.strip().split('\t')
+        designation, old_designation, opening = values[0], values[1], float(values[0])*1e-3
+        args = []
+        for arg in values[2:]:
+            try:
+                arg = float(arg)
+            except:
+                arg = None
+            args.append(arg)
+        # First three and last three arguments have units to be changed from mm to m
+        for i in (0, 1, 2, -1, -2, -3):
+            args[i] = args[i]*1e-3
+        
+        # Store the Sieve object
+        s = Sieve(designation, old_designation, opening, *args)
+        ASTM_E11_sieves[designation] = s
+
+
+
 
 def psd_spacing(dmin=None, dmax=None, pts=20, method='logarithmic'):
     if method == 'logarithmic':

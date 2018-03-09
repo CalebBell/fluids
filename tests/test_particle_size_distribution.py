@@ -30,6 +30,21 @@ from random import uniform
 from scipy.integrate import quad
 
 
+def test_ASTM_E11_sieves():
+    sieves = ASTM_E11_sieves.values()
+    tot = sum([i.d_wire for i in sieves])
+    assert_allclose(tot, 0.105963384)
+    
+    tot = sum([i.opening for i in sieves])
+    assert_allclose(tot, 0.9876439999999999)
+
+    # Test but do not validate these properties
+    tot = 0.0
+    for attr in ['Y_variation_avg', 'X_variation_max', 'max_opening', 'd_wire', 'd_wire_min', 'd_wire_max', 'opening', 'opening_inch']:
+        tot += sum(getattr(i, attr) for i in sieves)
+
+
+
 
 def test_ParticleSizeDistribution_basic():
     ds = [240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
