@@ -29,7 +29,9 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'pdf_Gates_Gaudin_Schuhman_basis_integral',
            'pdf_Rosin_Rammler', 'cdf_Rosin_Rammler', 
            'pdf_Rosin_Rammler_basis_integral',
-           'ASTM_E11_sieves', 'Sieve']
+           'ASTM_E11_sieves', 'ISO_3310_1_sieves', 'Sieve',
+           'ISO_3310_1_R20_3', 'ISO_3310_1_R20', 'ISO_3310_1_R10', 
+           'ISO_3310_1_R40_3']
 
 from math import log, exp, pi, log10
 from io import open
@@ -106,11 +108,11 @@ class Sieve(object):
         Permissible maximum wire diameter of specified sieve size, [m]
         
     '''
-    def __init__(self, designation, old_designation, opening,
-                 opening_inch, Y_variation_avg, X_variation_max,
-                 max_opening, compliance_samples, compliance_sd,
-                 inspection_samples, inspection_sd, calibration_samples,
-                 calibration_sd, d_wire, d_wire_min, d_wire_max):
+    def __init__(self, designation, old_designation=None, opening=None,
+                 opening_inch=None, Y_variation_avg=None, X_variation_max=None,
+                 max_opening=None, compliance_samples=None, compliance_sd=None,
+                 inspection_samples=None, inspection_sd=None, calibration_samples=None,
+                 calibration_sd=None, d_wire=None, d_wire_min=None, d_wire_max=None):
         
         self.designation = designation
         self.old_designation = old_designation
@@ -136,8 +138,10 @@ class Sieve(object):
     
 
 ASTM_E11_sieves = {}
+ASTM_E11_sieve_list = []
 
 with open(os.path.join(folder, 'ASTM E11 sieves.csv'), encoding='utf-8') as f:    
+    # All sieves are read in from large to small
     lines = f.readlines()[1:]
     for line in lines:
         values = line.strip().split('\t')
@@ -156,11 +160,102 @@ with open(os.path.join(folder, 'ASTM E11 sieves.csv'), encoding='utf-8') as f:
         # Store the Sieve object
         s = Sieve(designation, old_designation, opening, *args)
         ASTM_E11_sieves[designation] = s
+        ASTM_E11_sieve_list.append(s)
 
 
+
+
+ISO_3310_1_sieves = {}
+ISO_3310_1_sieve_list = []
+
+with open(os.path.join(folder, 'ISO 3310-1 sieves.csv'), encoding='utf-8') as f:    
+    lines = f.readlines()[1:]
+    for line in lines:
+        values = line.strip().split('\t')
+        args = []
+        for arg in values:
+            try:
+                arg = float(arg)
+            except:
+                arg = None
+            args.append(arg)
+        # Key should be size in mm as a string
+        designation = '%g' %(round(args[0]*1000.0, 4))
+        
+        s = Sieve(designation=designation, opening=args[0],
+                  X_variation_max=args[1], Y_variation_avg=args[2], 
+                  compliance_sd=args[3], d_wire=args[4], 
+                  d_wire_max=args[5], d_wire_min=args[6])
+        ISO_3310_1_sieves[designation] = s
+        ISO_3310_1_sieve_list.append(s)
+
+
+ISO_3310_1_R20_3 = ['125', '90', '63', '45', '31.5', '22.4', '16', '11.2', '8', '5.6', '4', '2.8', '2', '1.4', '1', '0.71', '0.5', '0.355', '0.25', '0.18', '0.125', '0.09', '0.063', '0.045']
+ISO_3310_1_R20_3 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R20_3]
+
+ISO_3310_1_R20 = ['125', '112', '100', '90', '80', '71', '63', '56', '50', '45', '40', '35.5', '31.5', '28', '25', '22.4', '20', '18', '16', '14', '12.5', '11.2', '10', '9', '8', '7.1', '6.3', '5.6', '5', '4.5', '4', '3.55', '3.15', '2.8', '2.5', '2.24', '2', '1.8', '1.6', '1.4', '1.25', '1.12', '1', '0.9', '0.8', '0.71', '0.63', '0.56', '0.5', '0.45', '0.4', '0.355', '0.315', '0.28', '0.25', '0.224', '0.2', '0.18', '0.16', '0.14', '0.125', '0.112', '0.1', '0.09', '0.08', '0.071', '0.063', '0.056', '0.05', '0.045', '0.04', '0.036']
+ISO_3310_1_R20 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R20]
+
+ISO_3310_1_R40_3 = ['125', '106', '90', '75', '63', '53', '45', '37.5', '31.5', '26.5', '22.4', '19', '16', '13.2', '11.2', '9.5', '8', '6.7', '5.6', '4.75', '4', '3.35', '2.8', '2.36', '2', '1.7', '1.4', '1.18', '1', '0.85', '0.71', '0.6', '0.5', '0.425', '0.355', '0.3', '0.25', '0.212', '0.18', '0.15', '0.125', '0.106', '0.09', '0.075', '0.063', '0.053', '0.045', '0.038']
+ISO_3310_1_R40_3 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R40_3]
+
+ISO_3310_1_R10 = ['0.036', '0.032', '0.025', '0.02']
+ISO_3310_1_R10 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R10]
+
+sieve_spacing_options = {'ISO 3310-1': ISO_3310_1_sieve_list,
+                         'ISO 3310-1 R20': ISO_3310_1_R20,
+                         'ISO 3310-1 R20/3': ISO_3310_1_R20_3,
+                         'ISO 3310-1 R40/3': ISO_3310_1_R40_3,
+                         'ISO 3310-1 R10': ISO_3310_1_R10,
+                         'ASTM E11': ASTM_E11_sieve_list,}
 
 
 def psd_spacing(dmin=None, dmax=None, pts=20, method='logarithmic'):
+    r'''Create a particle spacing mesh in one of several ways for use in
+    modeling discrete particle size distributions. The allowable meshes are
+    'linear', 'logarithmic', a geometric series specified by a Renard number
+    such as 'R10', or the meshes available in one of several sieve standards.
+    
+    Parameters
+    ----------
+    dmin : float, optional
+        The minimum diameter at which the mesh starts, [m]
+    dmax : float, optional
+        The maximum diameter at which the mesh ends, [m]
+    pts : int, optional
+        The number of points to return for the mesh (note this is not respected
+        by sieve meshes), [-]
+    method : str, optional
+        Either 'linear', 'logarithmic', a Renard number like 'R10' or 'R5' or
+        'R2.5', or one of the sieve standards 'ISO 3310-1 R40/3', 
+        'ISO 3310-1 R20', 'ISO 3310-1 R20/3', 'ISO 3310-1', 'ISO 3310-1 R10', 
+        'ASTM E11', [-]
+
+    Returns
+    -------
+    ds : list[float]
+        The generated mesh diameters, [m]
+
+    Notes
+    -----
+    Note that when specifying a Renard series, only one of `dmin` or `dmax` can
+    be respected! Provide only one of those numbers. 
+    
+    Note that when specifying a sieve standard the number of points is not
+    respected!
+
+    Examples
+    --------
+    >>> psd_spacing(dmin=5e-5, dmax=5e-4, method='ISO 3310-1 R20/3')
+    [6.3e-05, 9e-05, 0.000125, 0.00018, 0.00025, 0.000355, 0.0005]
+
+    References
+    ----------
+    .. [1] ASTM E11 - 17 - Standard Specification for Woven Wire Test Sieve 
+       Cloth and Test Sieves.
+    .. [2] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
+       -- Part 1: Test Sieves of Metal Wire Cloth.
+    '''
     if method == 'logarithmic':
         return np.logspace(log10(dmin), log10(dmax), pts).tolist()
     elif method == 'linear':
@@ -180,6 +275,15 @@ def psd_spacing(dmin=None, dmax=None, pts=20, method='logarithmic'):
             for i in range(pts-1):
                 ds.append(ds[-1]/ratio)
             return list(reversed(ds))
+    elif method in sieve_spacing_options:
+        l = sieve_spacing_options[method]
+        ds = []
+        for sieve in l:
+           if  dmin <= sieve.opening <= dmax:
+               ds.append(sieve.opening)
+        return list(reversed(ds))
+    else:
+        raise Exception('Method not recognized')
 
 
 def pdf_lognormal(d, d_characteristic, s):
@@ -1020,13 +1124,59 @@ class ParticleSizeDistributionContinuous(object):
         return brenth(lambda d:self.cdf(d, n=n) -fraction, 
                       0.0, self.d_excessive, maxiter=1000, xtol=1E-200)
     
-    def ds_discrete(self, dmin=None, dmax=None, pts=20, limit=1e-9):
-        if dmin is None:
-            dmin = self.dn(limit)
-        if dmax is None:
-            dmax = self.dn(1.0 - limit)
-        #  method=('logarithmic', 'geometric', 'linear' 'R5', 'R10')
-        return np.logspace(log10(dmin), log10(dmax), pts).tolist()
+    def ds_discrete(self, dmin=None, dmax=None, pts=20, limit=1e-9, 
+                    method='logarithmic'):
+        r'''Create a particle spacing mesh to perform calculations with, 
+        according to one of several ways. The allowable meshes are
+        'linear', 'logarithmic', a geometric series specified by a Renard 
+        number such as 'R10', or the meshes available in one of several sieve 
+        standards.
+        
+        Parameters
+        ----------
+        dmin : float, optional
+            The minimum diameter at which the mesh starts, [m]
+        dmax : float, optional
+            The maximum diameter at which the mesh ends, [m]
+        pts : int, optional
+            The number of points to return for the mesh (note this is not 
+            respected by sieve meshes), [-]
+        limit : float
+            If `dmin` or `dmax` is not specified, it will be calculated as the
+            `dn` at which this limit or 1-limit exists (this is ignored for 
+            Renard numbers), [-]
+        method : str, optional
+            Either 'linear', 'logarithmic', a Renard number like 'R10' or 'R5' 
+            or'R2.5', or one of the sieve standards 'ISO 3310-1 R40/3', 
+            'ISO 3310-1 R20', 'ISO 3310-1 R20/3', 'ISO 3310-1', 
+            'ISO 3310-1 R10', 'ASTM E11', [-]
+    
+        Returns
+        -------
+        ds : list[float]
+            The generated mesh diameters, [m]
+    
+        Notes
+        -----
+        Note that when specifying a Renard series, only one of `dmin` or `dmax` can
+        be respected! Provide only one of those numbers. 
+        
+        Note that when specifying a sieve standard the number of points is not
+        respected!
+    
+        References
+        ----------
+        .. [1] ASTM E11 - 17 - Standard Specification for Woven Wire Test Sieve 
+           Cloth and Test Sieves.
+        .. [2] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
+           -- Part 1: Test Sieves of Metal Wire Cloth.
+        '''
+        if method[0] not in ('R', 'r'):
+            if dmin is None:
+                dmin = self.dn(limit)
+            if dmax is None:
+                dmax = self.dn(1.0 - limit)
+        return psd_spacing(dmin=dmin, dmax=dmax, pts=pts, method=method)
     
     def fractions_discrete(self, ds, n=None):
         r'''Computes the fractions of the cumulative distribution functions 

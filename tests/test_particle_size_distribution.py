@@ -37,12 +37,32 @@ def test_ASTM_E11_sieves():
     
     tot = sum([i.opening for i in sieves])
     assert_allclose(tot, 0.9876439999999999)
+    
+    assert len(ASTM_E11_sieves) == 56
 
     # Test but do not validate these properties
     tot = 0.0
     for attr in ['Y_variation_avg', 'X_variation_max', 'max_opening', 'd_wire', 'd_wire_min', 'd_wire_max', 'opening', 'opening_inch']:
         tot += sum(getattr(i, attr) for i in sieves)
 
+def test_ISO_3310_2_sieves():
+    sieves = ISO_3310_1_sieves.values()
+    tot = sum([i.d_wire for i in sieves])
+    assert_allclose(tot, 0.17564599999999997)
+    
+    tot = sum([i.opening for i in sieves])
+    assert_allclose(tot, 1.5205579999999994)
+    
+    assert len(ISO_3310_1_sieves) == 99
+
+    # Test but do not validate these properties
+    tot = 0.0
+    for attr in ['Y_variation_avg', 'X_variation_max', 'd_wire', 'd_wire_min', 'd_wire_max', 'opening']:
+        tot += sum(getattr(i, attr) for i in sieves)
+
+    for l in [ISO_3310_1_R20_3, ISO_3310_1_R20, ISO_3310_1_R10, ISO_3310_1_R40_3]:
+        for i in l:
+            assert i.designation in ISO_3310_1_sieves
 
 
 
@@ -268,6 +288,17 @@ def test_pdf_Rosin_Rammler_basis_integral_fuzz():
             points = np.logspace(np.log10(dmax/2000), np.log10(dmax*.999), 30)
             numerical = quad(to_int, 1E-20, dmax, points=points)[0]
             assert_allclose(analytical, numerical, rtol=1E-5)
+
+
+def testPSDLognormal_meshes():
+    a = PSDLognormal(s=0.5, d_characteristic=5E-6)
+    ds_expect = [5.011872336272722e-07, 6.309573444801932e-07, 7.943282347242815e-07, 1e-06]
+    ds = a.ds_discrete(dmax=1e-6, method='R10', pts=4)
+    assert_allclose(ds_expect, ds)
+    
+    ds = a.ds_discrete(dmin=1e-6, method='R10', pts=4)
+    assert_allclose(ds, [1e-06, 1.2589254117941672e-06, 1.5848931924611134e-06, 1.9952623149688796e-06])
+
 
 @pytest.mark.slow
 def test_PSDLognormal_mean_sizes_numerical():
@@ -612,3 +643,18 @@ def test_psd_spacing():
     
     ans_R5_float = psd_spacing(dmax=25, pts=8, method='R5.00000001')
     assert_allclose(ans_R5_float, ans_R5_expect)
+    
+    ans = psd_spacing(dmin=5e-5, dmax=1e-3, method='ISO 3310-1')
+    ans_expect = [5e-05, 5.3e-05, 5.6e-05, 6.3e-05, 7.1e-05, 7.5e-05, 8e-05, 9e-05, 0.0001, 0.000106, 0.000112, 0.000125, 0.00014, 0.00015, 0.00016, 0.00018, 0.0002, 0.000212, 0.000224, 0.00025, 0.00028, 0.0003, 0.000315, 0.000355, 0.0004, 0.000425, 0.00045, 0.0005, 0.00056, 0.0006, 0.00063, 0.00071, 0.0008, 0.00085, 0.0009, 0.001]
+    assert_allclose(ans, ans_expect)
+    assert [] == psd_spacing(dmin=0, dmax=1e-6, method='ISO 3310-1')
+    assert [] == psd_spacing(dmin=1, dmax=1e2, method='ISO 3310-1')
+    
+    assert psd_spacing(dmin=5e-5, dmax=1e-3, method='ISO 3310-1 R20')
+    assert psd_spacing(dmin=5e-5, dmax=1e-3, method='ISO 3310-1 R20/3')
+    assert psd_spacing(dmin=5e-5, dmax=1e-3, method='ISO 3310-1 R40/3')
+    assert psd_spacing(dmin=0e-5, dmax=1e-3, method='ISO 3310-1 R10')
+    
+    ds = psd_spacing(dmin=1e-5, dmax=1e-4, method='ASTM E11')
+    ds_expect = [2e-05, 2.5e-05, 3.2e-05, 3.8e-05, 4.5e-05, 5.3e-05, 6.3e-05, 7.5e-05, 9e-05]
+    assert_allclose(ds, ds_expect)

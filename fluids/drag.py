@@ -1219,7 +1219,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     Examples
     --------
     >>> integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5,
-    ... V=30, distance=True)
+    ... V=30, distance=True) 
     (9.686465044053476, 7.8294546436299175)
     '''
     Re_ish = rho*D/mu
