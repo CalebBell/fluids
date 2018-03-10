@@ -248,6 +248,26 @@ def test_cone_meter_expansibility_Stewart():
     eps = cone_meter_expansibility_Stewart(D=1, Dc=0.8930285549745876, P1=1E6, P2=1E6*.85, k=1.2)
     assert_allclose(eps, 0.91530745625)
 
+def test_wedge_meter_expansibility():
+    data = [[1.0000, 0.9871, 0.9741, 0.9610, 0.9478, 0.9345, 0.9007, 0.8662, 0.8308],
+            [1.0000, 0.9863, 0.9726, 0.9588, 0.9449, 0.9310, 0.8957, 0.8599, 0.8234],
+            [1.0000, 0.9848, 0.9696, 0.9544, 0.9393, 0.9241, 0.8860, 0.8479, 0.8094],
+            [1.0000, 0.9820, 0.9643, 0.9467, 0.9292, 0.9119, 0.8692, 0.8272, 0.7857],
+            [1.0000, 0.9771, 0.9547, 0.9329, 0.9117, 0.8909, 0.8408, 0.7930, 0.7472]]
+
+    h_ds = [0.2, 0.3, 0.4, 0.5, 0.6]
+    pressure_ratios = [1.0, 0.98, 0.96, 0.94, 0.92, 0.9, 0.85, 0.8, 0.75]
+    calculated = []
+    for i, h_d in enumerate(h_ds):
+        row = []
+        beta = diameter_ratio_wedge_meter(D=1, H=h_d)
+        for j, p_ratio in enumerate(pressure_ratios):
+            
+            ans = nozzle_expansibility(D=1, Do=h_d, P1=1E5, P2=1E5*p_ratio, k=1.2, beta=beta)
+            row.append(ans)
+        calculated.append(row)
+        
+    assert_allclose(data, calculated, rtol=1e-4)
 
 def test_dP_cone_meter():
     dP = dP_cone_meter(1, .7, 1E6, 9.5E5)

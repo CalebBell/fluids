@@ -659,7 +659,7 @@ def flow_coefficient(D, Do, C):
     return C*(1.0 - (Do/D)**4)**-0.5
 
 
-def nozzle_expansibility(D, Do, P1, P2, k):
+def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
     r'''Calculates the expansibility factor for a nozzle or venturi nozzle,
     based on the geometry of the plate, measured pressures of the orifice, and
     the isentropic exponent of the fluid.
@@ -684,6 +684,9 @@ def nozzle_expansibility(D, Do, P1, P2, k):
         the pressure tap, [Pa]
     k : float
         Isentropic exponent of fluid, [-]
+    beta : float, optional
+        Optional `beta` ratio, which is useful to specify for wedge meters or
+        flow meters which have a different beta ratio calculation, [-]
 
     Returns
     -------
@@ -708,13 +711,23 @@ def nozzle_expansibility(D, Do, P1, P2, k):
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 3: Nozzles and Venturi Nozzles.
     '''
-    beta = Do/D
+    if beta is None:
+        beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
     tau = P2/P1
     term1 = k*tau**(2.0/k )/(k - 1.0)
     term2 = (1.0 - beta4)/(1.0 - beta4*tau**(2.0/k))
-    term3 = (1.0 - tau**((k - 1.0)/k))/(1.0 - tau)
+    try:
+        term3 = (1.0 - tau**((k - 1.0)/k))/(1.0 - tau)
+    except ZeroDivisionError:
+        '''Obtained with:
+            from sympy import *
+            tau, k = symbols('tau, k')
+            expr = (1 - tau**((k - 1)/k))/(1 - tau)
+            limit(expr, tau, 1)
+        '''
+        term3 = (k - 1.0)/k
     return (term1*term2*term3)**0.5
 
 
