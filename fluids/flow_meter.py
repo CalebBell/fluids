@@ -40,6 +40,7 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter',
            'cone_meter_expansibility_Stewart', 'dP_cone_meter',
            'C_wedge_meter_Miller', 'C_wedge_meter_ISO_5167_6_2017',
+           'dP_wedge_meter',
            'C_Reader_Harris_Gallagher_wet_venturi_tube',
            'dP_Reader_Harris_Gallagher_wet_venturi_tube'
            ]
@@ -1286,6 +1287,54 @@ def C_wedge_meter_ISO_5167_6_2017(D, H):
     return 0.77 - 0.09*beta
 
 
+def dP_wedge_meter(D, H, P1, P2):
+    r'''Calculates the non-recoverable pressure drop of a wedge meter
+    based on the measured pressures before and at the wedge meter, and the 
+    geometry of the wedge meter according to [1]_.
+    
+    .. math::
+        \Delta \bar \omega = (1.09 - 0.79\beta)\Delta P
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    H : float
+        Portion of the diameter of the clear segment of the pipe up to the 
+        wedge blocking flow; the height of the pipe up to the wedge, [m]
+    P1 : float
+        Static pressure of fluid upstream of wedge meter at the cross-section 
+        of the pressure tap, [Pa]
+    P2 : float
+        Static pressure of fluid at the end of the wedge meter pressure tap, [
+        Pa]
+
+    Returns
+    -------
+    dP : float
+        Non-recoverable pressure drop of the wedge meter, [Pa]
+
+    Notes
+    -----
+    The recoverable pressure drop should be recovered by 5 pipe diameters 
+    downstream of the wedge meter.
+    
+    Examples
+    --------
+    >>> dP_wedge_meter(1, .7, 1E6, 9.5E5)
+    20344.849697483587
+    
+    References
+    ----------
+    .. [1] ISO/DIS 5167-6 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running 
+       Full -- Part 6: Wedge Meters.
+    '''
+    dP = P1 - P2
+    beta = diameter_ratio_wedge_meter(D, H)
+    return (1.09 - 0.79*beta)*dP
+
+
 def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     r'''Calculates the coefficient of discharge of the wet gas venturi tube 
     based on the  geometry of the tube, mass flow rates of liquid and vapor
@@ -1670,12 +1719,14 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
         Static pressure of fluid downstream of differential pressure meter or 
         at the prescribed location (varies by type of meter) [Pa]
     C : float, optional
-        Coefficient of discharge of the wedge flow meter, [-]
+        Coefficient of discharge (used only in orifice plates, and venturi
+        nozzles), [-]
     meter_type : str, optional
         One of ('ISO 5167 orifice', 'long radius nozzle', 'ISA 1932 nozzle', 
         'as cast convergent venturi tube', 
         'machined convergent venturi tube', 
-        'rough welded convergent venturi tube', 'cone meter'), [-]
+        'rough welded convergent venturi tube', 'cone meter', 'cone meter'), 
+        [-]
         
     Returns
     -------
@@ -1717,5 +1768,5 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
     elif meter_type == CONE_METER:
         dP = dP_cone_meter(D=D, Dc=D2, P1=P1, P2=P2)
     elif meter_type == WEDGE_METER:
-        raise Exception(NotImplemented)
+        dP = dP_wedge_meter(D=D, H=D2, P1=P1, P2=P2)
     return dP

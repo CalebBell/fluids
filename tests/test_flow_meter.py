@@ -270,6 +270,12 @@ def test_wedge_meter_expansibility():
         
     assert_allclose(data, calculated, rtol=1e-4)
 
+
+def test_dP_wedge_meter():
+    dP = dP_wedge_meter(1, .7, 1E6, 9.5E5)
+    assert_allclose(dP, 20344.849697483587)
+
+
 def test_dP_cone_meter():
     dP = dP_cone_meter(1, .7, 1E6, 9.5E5)
     assert_allclose(dP, 25470.093437973323)
@@ -331,6 +337,9 @@ def test_differential_pressure_meter_dP():
     
     dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=CONE_METER)
     assert_allclose(dP, 8380.848307054845)
+
+    dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=WEDGE_METER)
+    assert_allclose(dP, 7112.927753356824)
 
 
 def test_cone_meter_expansibility_Stewart_full():
