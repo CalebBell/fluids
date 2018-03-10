@@ -39,7 +39,7 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'orifice_expansibility_1989', 'dP_venturi_tube',
            'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter',
            'cone_meter_expansibility_Stewart', 'dP_cone_meter',
-           'C_wedge_meter_Miller',
+           'C_wedge_meter_Miller', 'C_wedge_meter_ISO_5167_6_2017',
            'C_Reader_Harris_Gallagher_wet_venturi_tube',
            'dP_Reader_Harris_Gallagher_wet_venturi_tube'
            ]
@@ -1233,6 +1233,59 @@ def C_wedge_meter_Miller(D, H):
     return C
 
 
+def C_wedge_meter_ISO_5167_6_2017(D, H):
+    r'''Calculates the coefficient of discharge of an wedge flow meter
+    used for measuring flow rate of fluid, based on the geometry of the 
+    differential pressure flow meter according to the ISO 5167-6 standard
+    (draft 2017).
+            
+    .. math::
+        C = 0.77 - 0.09\beta   
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    H : float
+        Portion of the diameter of the clear segment of the pipe up to the 
+        wedge blocking flow; the height of the pipe up to the wedge, [m]
+        
+    Returns
+    -------
+    C : float
+        Coefficient of discharge of the wedge flow meter, [-]
+
+    Notes
+    -----    
+    This standard applies for wedge meters in line sizes between 50 and 600 mm;
+    and height ratios between 0.2 and 0.6. The range of allowable Reynolds 
+    numbers is large; between 1E4 and 9E6. The uncertainty of the flow 
+    coefficient is approximately 4%. Usually a 10:1 span of flow can be 
+    measured accurately. The discharge and entry length of the meters must be
+    at least half a pipe diameter. The wedge angle must be 90 degrees, plus or
+    minus two degrees.
+    
+    The orientation of the wedge meter does not change the accuracy of this 
+    model. 
+    
+    There should be a straight run of 10 pipe diameters before the wedge meter
+    inlet, and two of the same pipe diameters after it.
+    
+    Examples
+    --------
+    >>> C_wedge_meter_ISO_5167_6_2017(D=0.1524, H=0.3*0.1524)
+    0.724792059539853
+    
+    References
+    ----------
+    .. [1] ISO/DIS 5167-6 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running 
+       Full -- Part 6: Wedge Meters.
+    '''
+    beta = diameter_ratio_wedge_meter(D, H)
+    return 0.77 - 0.09*beta
+
+
 def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     r'''Calculates the coefficient of discharge of the wet gas venturi tube 
     based on the  geometry of the tube, mass flow rates of liquid and vapor
@@ -1477,8 +1530,7 @@ def _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, mu, k, meter_type,
     elif meter_type == WEDGE_METER:
         beta = diameter_ratio_wedge_meter(D=D, H=D2)
         epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P1, k=k, beta=beta)
-#        epsilon = orifice_expansibility_1989(D=D, Do=D2, P1=P1, P2=P2, k=k)
-        C = C_wedge_meter_Miller(D=D, H=D2)
+        C = C_wedge_meter_ISO_5167_6_2017(D=D, H=D2)
     return epsilon, C
 
 

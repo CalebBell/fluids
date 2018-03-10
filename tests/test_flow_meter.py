@@ -87,7 +87,7 @@ def test_differential_pressure_meter_discharge():
     
     # wedge meter
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
-    assert_allclose(m, 7.8824968439011345)
+    assert_allclose(m, 8.941980099523539)
 
 
 def test_differential_pressure_meter_diameter():
@@ -120,7 +120,7 @@ def test_differential_pressure_meter_diameter():
     assert_allclose(D2, 0.05)
     
     # wedge meter
-    D2 = differential_pressure_meter_solver(D=0.07366, m=7.8824968439011345, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
+    D2 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
     assert_allclose(D2, 0.05)
 
 
@@ -153,7 +153,7 @@ def test_differential_pressure_meter_P2():
     assert_allclose(P2, 183000.0)
     
     # Wedge meter
-    P2 = differential_pressure_meter_solver(D=0.07366, m=7.8824968439011345, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
+    P2 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
     assert_allclose(P2, 183000.0)
     
 def test_differential_pressure_meter_P1():
@@ -184,7 +184,8 @@ def test_differential_pressure_meter_P1():
     P1 = differential_pressure_meter_solver(D=0.07366, m=9.997923896460703, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
     assert_allclose(P1, 200000)
 
-    P1 = differential_pressure_meter_solver(D=0.07366, m=7.8824968439011345, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
+    # Wedge meter
+    P1 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
     assert_allclose(P1, 200000)
 
 
@@ -279,6 +280,10 @@ def test_C_wedge_meter_Miller():
     C = C_wedge_meter_Miller(D=D, H=0.3*D)
     assert_allclose(C, 0.7267069372687651)
     
+    
+def test_C_wedge_meter_ISO_5167_6_2017():
+    C = C_wedge_meter_ISO_5167_6_2017(D=0.1524, H=0.3*0.1524)
+    assert_allclose(C, 0.724792059539853)
     
 def test_dP_venturi_tube():
     dP = dP_venturi_tube(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0)
