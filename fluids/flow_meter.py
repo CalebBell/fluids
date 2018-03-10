@@ -1475,7 +1475,9 @@ def _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, mu, k, meter_type,
         epsilon = cone_meter_expansibility_Stewart(D=D, Dc=D2, P1=P1, P2=P2, k=k)
         C = CONE_METER_C
     elif meter_type == WEDGE_METER:
-        epsilon = orifice_expansibility_1989(D=D, Do=D2, P1=P1, P2=P2, k=k)
+        beta = diameter_ratio_wedge_meter(D=D, H=D2)
+        epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P1, k=k, beta=beta)
+#        epsilon = orifice_expansibility_1989(D=D, Do=D2, P1=P1, P2=P2, k=k)
         C = C_wedge_meter_Miller(D=D, H=D2)
     return epsilon, C
 
