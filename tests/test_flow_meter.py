@@ -27,8 +27,8 @@ from scipy.optimize import fsolve
 from numpy.testing import assert_allclose
 import pytest
 
-def test_orifice_discharge():
-    m = orifice_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646, C=0.5988, expansibility=0.9975)
+def test_flow_meter_discharge():
+    m = flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646, C=0.5988, expansibility=0.9975)
     assert_allclose(m, 0.01120390943807026)
     
 def test_orifice_expansibility():
@@ -50,10 +50,10 @@ def test_C_Reader_Harris_Gallagher():
     
     C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, taps='flange' )
     assert_allclose(C, 0.5990042535666878)
-
-def test_Reader_Harris_Gallagher_discharge():
-    m = Reader_Harris_Gallagher_discharge(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, taps='D')
-    assert_allclose(m, 7.702338035732167)
+#
+#def test_Reader_Harris_Gallagher_discharge():
+#    m = Reader_Harris_Gallagher_discharge(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, taps='D')
+#    assert_allclose(m, 7.702338035732167)
     
     
 def test_differential_pressure_meter_discharge():
@@ -87,7 +87,7 @@ def test_differential_pressure_meter_discharge():
     
     # wedge meter
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
-    assert_allclose(m, 7.6385189215545415)
+    assert_allclose(m, 8.941980099523539)
 
 
 def test_differential_pressure_meter_diameter():
@@ -120,7 +120,7 @@ def test_differential_pressure_meter_diameter():
     assert_allclose(D2, 0.05)
     
     # wedge meter
-    D2 = differential_pressure_meter_solver(D=0.07366, m=7.6385189215545415, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
+    D2 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
     assert_allclose(D2, 0.05)
 
 
@@ -153,7 +153,7 @@ def test_differential_pressure_meter_P2():
     assert_allclose(P2, 183000.0)
     
     # Wedge meter
-    P2 = differential_pressure_meter_solver(D=0.07366, m=7.6385189215545415, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
+    P2 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
     assert_allclose(P2, 183000.0)
     
 def test_differential_pressure_meter_P1():
@@ -184,7 +184,8 @@ def test_differential_pressure_meter_P1():
     P1 = differential_pressure_meter_solver(D=0.07366, m=9.997923896460703, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
     assert_allclose(P1, 200000)
 
-    P1 = differential_pressure_meter_solver(D=0.07366, m=7.6385189215545415, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
+    # Wedge meter
+    P1 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
     assert_allclose(P1, 200000)
 
 
@@ -248,6 +249,32 @@ def test_cone_meter_expansibility_Stewart():
     eps = cone_meter_expansibility_Stewart(D=1, Dc=0.8930285549745876, P1=1E6, P2=1E6*.85, k=1.2)
     assert_allclose(eps, 0.91530745625)
 
+def test_wedge_meter_expansibility():
+    data = [[1.0000, 0.9871, 0.9741, 0.9610, 0.9478, 0.9345, 0.9007, 0.8662, 0.8308],
+            [1.0000, 0.9863, 0.9726, 0.9588, 0.9449, 0.9310, 0.8957, 0.8599, 0.8234],
+            [1.0000, 0.9848, 0.9696, 0.9544, 0.9393, 0.9241, 0.8860, 0.8479, 0.8094],
+            [1.0000, 0.9820, 0.9643, 0.9467, 0.9292, 0.9119, 0.8692, 0.8272, 0.7857],
+            [1.0000, 0.9771, 0.9547, 0.9329, 0.9117, 0.8909, 0.8408, 0.7930, 0.7472]]
+
+    h_ds = [0.2, 0.3, 0.4, 0.5, 0.6]
+    pressure_ratios = [1.0, 0.98, 0.96, 0.94, 0.92, 0.9, 0.85, 0.8, 0.75]
+    calculated = []
+    for i, h_d in enumerate(h_ds):
+        row = []
+        beta = diameter_ratio_wedge_meter(D=1, H=h_d)
+        for j, p_ratio in enumerate(pressure_ratios):
+            
+            ans = nozzle_expansibility(D=1, Do=h_d, P1=1E5, P2=1E5*p_ratio, k=1.2, beta=beta)
+            row.append(ans)
+        calculated.append(row)
+        
+    assert_allclose(data, calculated, rtol=1e-4)
+
+
+def test_dP_wedge_meter():
+    dP = dP_wedge_meter(1, .7, 1E6, 9.5E5)
+    assert_allclose(dP, 20344.849697483587)
+
 
 def test_dP_cone_meter():
     dP = dP_cone_meter(1, .7, 1E6, 9.5E5)
@@ -259,6 +286,10 @@ def test_C_wedge_meter_Miller():
     C = C_wedge_meter_Miller(D=D, H=0.3*D)
     assert_allclose(C, 0.7267069372687651)
     
+    
+def test_C_wedge_meter_ISO_5167_6_2017():
+    C = C_wedge_meter_ISO_5167_6_2017(D=0.1524, H=0.3*0.1524)
+    assert_allclose(C, 0.724792059539853)
     
 def test_dP_venturi_tube():
     dP = dP_venturi_tube(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0)
@@ -306,6 +337,9 @@ def test_differential_pressure_meter_dP():
     
     dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=CONE_METER)
     assert_allclose(dP, 8380.848307054845)
+
+    dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=WEDGE_METER)
+    assert_allclose(dP, 7112.927753356824)
 
 
 def test_cone_meter_expansibility_Stewart_full():

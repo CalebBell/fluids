@@ -31,8 +31,7 @@ from scipy.constants import g, inch
 __all__ = ['C_Reader_Harris_Gallagher',
            'differential_pressure_meter_solver',
            'differential_pressure_meter_dP',
-           'orifice_discharge', 'orifice_expansibility',
-           'Reader_Harris_Gallagher_discharge',
+           'flow_meter_discharge', 'orifice_expansibility',
            'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
            'dP_orifice', 'velocity_of_approach_factor', 
            'flow_coefficient', 'nozzle_expansibility',
@@ -40,7 +39,8 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'orifice_expansibility_1989', 'dP_venturi_tube',
            'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter',
            'cone_meter_expansibility_Stewart', 'dP_cone_meter',
-           'C_wedge_meter_Miller',
+           'C_wedge_meter_Miller', 'C_wedge_meter_ISO_5167_6_2017',
+           'dP_wedge_meter',
            'C_Reader_Harris_Gallagher_wet_venturi_tube',
            'dP_Reader_Harris_Gallagher_wet_venturi_tube'
            ]
@@ -78,7 +78,7 @@ __all__.extend(['ISO_5167_ORIFICE', 'LONG_RADIUS_NOZZLE', 'ISA_1932_NOZZLE',
                 'WEDGE_METER'])
 
 
-def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
+def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
     r'''Calculates the flow rate of an orifice plate based on the geometry
     of the plate, measured pressures of the orifice, and the density of the
     fluid.
@@ -118,7 +118,7 @@ def orifice_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
 
     Examples
     --------
-    >>> orifice_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646, 
+    >>> flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646, 
     ... C=0.5988, expansibility=0.9975)
     0.01120390943807026
 
@@ -417,67 +417,6 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     return C
 
 
-def Reader_Harris_Gallagher_discharge(D, Do, P1, P2, rho, mu, k, taps='corner'):
-    r'''Calculates the mass flow rate of fluid through an orifice based on the 
-    geometry of the plate, measured pressures of the orifice, and the density, 
-    viscosity, and isentropic exponent of the fluid. This solves an equation
-    iteratively to obtain the correct flow rate.
-        
-    Parameters
-    ----------
-    D : float
-        Upstream internal pipe diameter, [m]
-    Do : float
-        Diameter of orifice at flow conditions, [m]
-    P1 : float
-        Static pressure of fluid upstream of orifice at the cross-section of
-        the pressure tap, [Pa]
-    P2 : float
-        Static pressure of fluid downstream of orifice at the cross-section of
-        the pressure tap, [Pa]
-    rho : float
-        Density of fluid at `P1`, [kg/m^3]
-    mu : float
-        Viscosity of fluid at `P1`, [Pa*s]
-    k : float
-        Isentropic exponent of fluid, [-]
-    taps : str
-        The orientation of the taps; one of 'corner', 'flange', 'D', or 'D/2',
-        [-]
-        
-    Returns
-    -------
-    m : float
-        Mass flow rate of fluid through the orifice, [kg/s]
-
-    Notes
-    -----
-
-    Examples
-    --------
-    >>> Reader_Harris_Gallagher_discharge(D=0.07366, Do=0.05, P1=200000.0, 
-    ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33, taps='D')
-    7.702338035732167
-    
-    References
-    ----------
-    .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
-       Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
-    .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure 
-       Differential Devices Inserted in Circular Cross-Section Conduits Running
-       Full -- Part 2: Orifice Plates.
-    '''
-    def to_solve(m):
-        C = C_Reader_Harris_Gallagher(D=D, Do=Do, 
-            rho=rho, mu=mu, m=m, taps=taps)
-        epsilon = orifice_expansibility(D=D, Do=Do, P1=P1, P2=P2, k=k)
-        m_calc = orifice_discharge(D=D, Do=Do, P1=P1, P2=P2, rho=rho, 
-                                    C=C, expansibility=epsilon)
-        return m - m_calc
-    
-    return newton(to_solve, 2.81)
-
-
 def discharge_coefficient_to_K(D, Do, C):
     r'''Converts a discharge coefficient to a standard loss coefficient,
     for use in computation of the actual pressure drop of an orifice or other
@@ -721,7 +660,7 @@ def flow_coefficient(D, Do, C):
     return C*(1.0 - (Do/D)**4)**-0.5
 
 
-def nozzle_expansibility(D, Do, P1, P2, k):
+def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
     r'''Calculates the expansibility factor for a nozzle or venturi nozzle,
     based on the geometry of the plate, measured pressures of the orifice, and
     the isentropic exponent of the fluid.
@@ -746,6 +685,9 @@ def nozzle_expansibility(D, Do, P1, P2, k):
         the pressure tap, [Pa]
     k : float
         Isentropic exponent of fluid, [-]
+    beta : float, optional
+        Optional `beta` ratio, which is useful to specify for wedge meters or
+        flow meters which have a different beta ratio calculation, [-]
 
     Returns
     -------
@@ -770,13 +712,23 @@ def nozzle_expansibility(D, Do, P1, P2, k):
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 3: Nozzles and Venturi Nozzles.
     '''
-    beta = Do/D
+    if beta is None:
+        beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
     tau = P2/P1
     term1 = k*tau**(2.0/k )/(k - 1.0)
     term2 = (1.0 - beta4)/(1.0 - beta4*tau**(2.0/k))
-    term3 = (1.0 - tau**((k - 1.0)/k))/(1.0 - tau)
+    try:
+        term3 = (1.0 - tau**((k - 1.0)/k))/(1.0 - tau)
+    except ZeroDivisionError:
+        '''Obtained with:
+            from sympy import *
+            tau, k = symbols('tau, k')
+            expr = (1 - tau**((k - 1)/k))/(1 - tau)
+            limit(expr, tau, 1)
+        '''
+        term3 = (k - 1.0)/k
     return (term1*term2*term3)**0.5
 
 
@@ -1282,6 +1234,107 @@ def C_wedge_meter_Miller(D, H):
     return C
 
 
+def C_wedge_meter_ISO_5167_6_2017(D, H):
+    r'''Calculates the coefficient of discharge of an wedge flow meter
+    used for measuring flow rate of fluid, based on the geometry of the 
+    differential pressure flow meter according to the ISO 5167-6 standard
+    (draft 2017).
+            
+    .. math::
+        C = 0.77 - 0.09\beta   
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    H : float
+        Portion of the diameter of the clear segment of the pipe up to the 
+        wedge blocking flow; the height of the pipe up to the wedge, [m]
+        
+    Returns
+    -------
+    C : float
+        Coefficient of discharge of the wedge flow meter, [-]
+
+    Notes
+    -----    
+    This standard applies for wedge meters in line sizes between 50 and 600 mm;
+    and height ratios between 0.2 and 0.6. The range of allowable Reynolds 
+    numbers is large; between 1E4 and 9E6. The uncertainty of the flow 
+    coefficient is approximately 4%. Usually a 10:1 span of flow can be 
+    measured accurately. The discharge and entry length of the meters must be
+    at least half a pipe diameter. The wedge angle must be 90 degrees, plus or
+    minus two degrees.
+    
+    The orientation of the wedge meter does not change the accuracy of this 
+    model. 
+    
+    There should be a straight run of 10 pipe diameters before the wedge meter
+    inlet, and two of the same pipe diameters after it.
+    
+    Examples
+    --------
+    >>> C_wedge_meter_ISO_5167_6_2017(D=0.1524, H=0.3*0.1524)
+    0.724792059539853
+    
+    References
+    ----------
+    .. [1] ISO/DIS 5167-6 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running 
+       Full -- Part 6: Wedge Meters.
+    '''
+    beta = diameter_ratio_wedge_meter(D, H)
+    return 0.77 - 0.09*beta
+
+
+def dP_wedge_meter(D, H, P1, P2):
+    r'''Calculates the non-recoverable pressure drop of a wedge meter
+    based on the measured pressures before and at the wedge meter, and the 
+    geometry of the wedge meter according to [1]_.
+    
+    .. math::
+        \Delta \bar \omega = (1.09 - 0.79\beta)\Delta P
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    H : float
+        Portion of the diameter of the clear segment of the pipe up to the 
+        wedge blocking flow; the height of the pipe up to the wedge, [m]
+    P1 : float
+        Static pressure of fluid upstream of wedge meter at the cross-section 
+        of the pressure tap, [Pa]
+    P2 : float
+        Static pressure of fluid at the end of the wedge meter pressure tap, [
+        Pa]
+
+    Returns
+    -------
+    dP : float
+        Non-recoverable pressure drop of the wedge meter, [Pa]
+
+    Notes
+    -----
+    The recoverable pressure drop should be recovered by 5 pipe diameters 
+    downstream of the wedge meter.
+    
+    Examples
+    --------
+    >>> dP_wedge_meter(1, .7, 1E6, 9.5E5)
+    20344.849697483587
+    
+    References
+    ----------
+    .. [1] ISO/DIS 5167-6 - Measurement of Fluid Flow by Means of Pressure 
+       Differential Devices Inserted in Circular Cross-Section Conduits Running 
+       Full -- Part 6: Wedge Meters.
+    '''
+    dP = P1 - P2
+    beta = diameter_ratio_wedge_meter(D, H)
+    return (1.09 - 0.79*beta)*dP
+
+
 def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     r'''Calculates the coefficient of discharge of the wet gas venturi tube 
     based on the  geometry of the tube, mass flow rates of liquid and vapor
@@ -1524,8 +1577,9 @@ def _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, mu, k, meter_type,
         epsilon = cone_meter_expansibility_Stewart(D=D, Dc=D2, P1=P1, P2=P2, k=k)
         C = CONE_METER_C
     elif meter_type == WEDGE_METER:
-        epsilon = orifice_expansibility_1989(D=D, Do=D2, P1=P1, P2=P2, k=k)
-        C = C_wedge_meter_Miller(D=D, H=D2)
+        beta = diameter_ratio_wedge_meter(D=D, H=D2)
+        epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P1, k=k, beta=beta)
+        C = C_wedge_meter_ISO_5167_6_2017(D=D, H=D2)
     return epsilon, C
 
 
@@ -1575,7 +1629,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         One of `m`, the mass flow rate of the fluid; `P1`, the pressure 
         upstream of the flow meter; `P2`, the second pressure
         tap's value; and `D2`, the diameter of the measuring device; units
-        of respectively, [kg/s], [Pa], [Pa], or [m]
+        of respectively, kg/s, Pa, Pa, or m
 
     Notes
     -----
@@ -1610,7 +1664,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
-            m_calc = orifice_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
             return m - m_calc
         return newton(to_solve, 2.81)
@@ -1619,7 +1673,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
-            m_calc = orifice_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
             return m - m_calc    
         return brenth(to_solve, D*(1-1E-9), D*5E-3)
@@ -1628,7 +1682,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
-            m_calc = orifice_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
             return m - m_calc    
         return brenth(to_solve, P1*(1-1E-9), P1*0.7)
@@ -1637,7 +1691,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
-            m_calc = orifice_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
             return m - m_calc    
         return brenth(to_solve, P2*(1+1E-9), P2*1.4)
@@ -1665,12 +1719,14 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
         Static pressure of fluid downstream of differential pressure meter or 
         at the prescribed location (varies by type of meter) [Pa]
     C : float, optional
-        Coefficient of discharge of the wedge flow meter, [-]
+        Coefficient of discharge (used only in orifice plates, and venturi
+        nozzles), [-]
     meter_type : str, optional
         One of ('ISO 5167 orifice', 'long radius nozzle', 'ISA 1932 nozzle', 
         'as cast convergent venturi tube', 
         'machined convergent venturi tube', 
-        'rough welded convergent venturi tube', 'cone meter'), [-]
+        'rough welded convergent venturi tube', 'cone meter', 'cone meter'), 
+        [-]
         
     Returns
     -------
@@ -1712,5 +1768,5 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
     elif meter_type == CONE_METER:
         dP = dP_cone_meter(D=D, Dc=D2, P1=P1, P2=P2)
     elif meter_type == WEDGE_METER:
-        raise Exception(NotImplemented)
+        dP = dP_wedge_meter(D=D, H=D2, P1=P1, P2=P2)
     return dP
