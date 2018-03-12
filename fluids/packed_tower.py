@@ -18,12 +18,48 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+
+This module contains correlations and functions for calculating pressure drop 
+from packings and demisters; separation efficiency of demisters; demister
+pressure drop; and demister geometry.
+
+For reporting bugs, adding feature requests, or submitting pull requests, 
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+
+.. contents:: :local:
+
+Packing Pressure Drop
+---------------------
+.. autofunction:: fluids.packed_tower.Robbins
+.. autofunction:: fluids.packed_tower.Stichlmair_dry
+.. autofunction:: fluids.packed_tower.Stichlmair_wet
+
+Packing Flooding
+----------------
+.. autofunction:: fluids.packed_tower.Stichlmair_flood
+
+Demister Pressure Drop
+----------------------
+.. autofunction:: fluids.packed_tower.dP_demister_dry_Setekleiv_Svendsen
+.. autofunction:: fluids.packed_tower.dP_demister_dry_Setekleiv_Svendsen_lit
+.. autofunction:: fluids.packed_tower.dP_demister_wet_ElDessouky
+
+Demister Separation Efficiency
+------------------------------
+.. autofunction:: fluids.packed_tower.separation_demister_ElDessouky
+
+Demister Geometry
+-----------------
+.. autofunction:: fluids.packed_tower.voidage_experimental
+.. autofunction:: fluids.packed_tower.specific_area_mesh
+'''
 
 from __future__ import division
 from scipy.constants import g, pi
 from scipy.optimize import fsolve
-
 
 __all__ = ['voidage_experimental', 'specific_area_mesh',
 'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood', 'Robbins',
