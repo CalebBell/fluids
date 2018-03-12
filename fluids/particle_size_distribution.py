@@ -1636,15 +1636,23 @@ except AttributeError:
 class PSDLognormal(ParticleSizeDistributionContinuous):
     name = 'Lognormal'
     points = False
-    def __init__(self, d_characteristic, s, order=3):
+    truncated = False
+    def __init__(self, d_characteristic, s, order=3, d_min=None, d_max=None):
         self.s = s
         self.d_characteristic = d_characteristic
         self.order = order
         self.parameters = {'s': s, 'd_characteristic': d_characteristic}
+        self.d_min = d_min
+        self.d_max = d_max
         # Pick an upper bound for the search algorithm of 15 orders of magnitude larger than
         # the characteristic diameter; should never be a problem, as diameters can only range
         # so much, physically.
-        self.d_excessive = 1E15*self.d_characteristic
+        if self.d_max is not None:
+            self.d_excessive = self.d_max
+        else:
+            self.d_excessive = 1E15*self.d_characteristic
+        
+        # Just do full truncation for now and to begin
         
     def _pdf(self, d):
         return pdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
