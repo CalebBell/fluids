@@ -17,6 +17,8 @@ and more.
 Module Contents:
 
 .. toctree::
+   :maxdepth: 2
+   
    tutorial.rst
    modules.rst
    examples.rst
