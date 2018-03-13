@@ -1217,7 +1217,8 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     This can be relatively slow as drag correlations can be complex.
     
     There are analytical solutions available for the Stokes law regime (Re < 
-    0.3). They were obtained from Wolfram Alpha.
+    0.3). They were obtained from Wolfram Alpha. [1]_ was not used in the
+    derivation, but also describes the derivation fully.
     
     .. math::
         V(t) = \frac{\exp(-at) (V_0 a + b(\exp(at) - 1))}{a}
@@ -1234,6 +1235,12 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     >>> integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5,
     ... V=30, distance=True)
     (9.686465044053476, 7.8294546436299175)
+    
+    References
+    ----------
+    .. [1] Timmerman, Peter, and Jacobus P. van der Weele. "On the Rise and 
+       Fall of a Ball with Linear or Quadratic Drag." American Journal of 
+       Physics 67, no. 6 (June 1999): 538-46. https://doi.org/10.1119/1.19320.
     '''
     if Method == 'Stokes':
         try:
