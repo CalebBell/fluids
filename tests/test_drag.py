@@ -173,5 +173,18 @@ def test_integrate_drag_sphere():
     
     # Check no error when V is zero
     
+    
     ans = integrate_drag_sphere(D=0.001, rhop=1.20001, rho=1.2, mu=1.78E-5, t=0.5, V=0)
     assert_allclose(ans, 3.0607521920092645e-07)
+    
+    # Stokes law regime integration
+    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=0, distance=True, Method='Stokes')
+    assert_allclose(ans, [0.9730274844308592, 0.04876946395795378])
+    
+    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=10, distance=True, Method='Stokes')
+    assert_allclose(ans, [10.828446488771524, 1.041522867361668])
+    
+    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=-10, distance=True, Method='Stokes')
+    assert_allclose(ans, [-8.882391519909806, -0.9439839394457605])
+    
+    

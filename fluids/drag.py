@@ -1215,6 +1215,19 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     Notes
     -----
     This can be relatively slow as drag correlations can be complex.
+    
+    There are analytical solutions available for the Stokes law regime (Re < 
+    0.3). They were obtained from Wolfram Alpha.
+    
+    .. math::
+        V(t) = \frac{\exp(-at) (V_0 a + b(\exp(at) - 1))}{a}
+        
+        x(t) = \frac{\exp(-a t)\left[V_0 a(\exp(a t) - 1) + b\exp(a t)(a t-1) 
+        + b\right]}{a^2}
+    
+        a = \frac{18\mu_f}{D^2\rho_p}
+    
+        b = \frac{g(\rho_p-\rho_f)}{\rho_p}
 
     Examples
     --------
@@ -1222,6 +1235,20 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     ... V=30, distance=True)
     (9.686465044053476, 7.8294546436299175)
     '''
+    if Method == 'Stokes':
+        try:
+            t1 = 18.0*mu/(D*D*rhop)
+            t2 = g*(rhop-rho)/rhop
+            V_end = exp(-t1*t)*(t1*V + t2*(exp(t1*t) - 1.0))/t1
+            x_end = exp(-t1*t)*(V*t1*(exp(t1*t) - 1.0) + t2*exp(t1*t)*(t1*t - 1.0) + t2)/(t1*t1)
+            if distance:
+                return V_end, x_end
+            else:
+                return V_end
+        except OverflowError:
+            # This is a serious problem for small diameters
+            pass
+    
     Re_ish = rho*D/mu
     c1 = g*(rhop-rho)/rhop
     c2 = -0.75*rho/(D*rhop)
@@ -1231,6 +1258,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
             # 64/Re goes to infinity, but gets multiplied by 0 squared.
             t2 = 0.0
         else:
+#            t2 = c2*V*V*Stokes(Re_ish*V)
             t2 = c2*V*V*drag_sphere(Re_ish*V, Method=Method)
         return c1 + t2
 
