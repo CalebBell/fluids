@@ -1415,18 +1415,20 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     points = True
     name = 'Discrete'
     def __init__(self, ds, fractions=None, number_fractions=None, numbers=None, 
-                 flows=None, rho=None, MW=None, monotonic=True, cdf=True):
+                 flows=None, length_fractions=None, area_fractions=None, 
+                 monotonic=True, cdf=False):
         '''If given numbers or flows, convert to fractions immediately and move 
         forward with them.
         TODO: specify only `fraction`, and also `order`. Then `counts` becomes `flows`.
         TODO: allow cdf to be specified as well. Use cdf flag to convert 
+        TODO: normalize i nputs to allow for flows being specified easier.
         # fractions to other basis if given.
         TODO: support any basis of input i.e. length, area.
         '''
         self.monotonic = monotonic
         self.ds = ds
         
-        specified_quantities = [i for i in (fractions, number_fractions, numbers, flows) if i is not None]
+        specified_quantities = [i for i in (fractions, number_fractions, numbers, flows, area_fractions, length_fractions) if i is not None]
         if len(specified_quantities) > 1:
             raise Exception('More than one distribution specified')
         elif len(specified_quantities) == 0:
@@ -1439,8 +1441,24 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         else:
             self.size_classes = False
             
-        self.N = len(spec)
+        if cdf:
+            if len(spec)+1 == len(ds):
+                spec = np.diff(spec).tolist()
+            else:
+                spec = np.diff(spec).tolist()
+                spec.insert(0, 0.0)
             
+        self.N = len(spec)
+        
+        if spec is area_fractions:
+            d3s = [self.di_power(i, power=1)*area_fractions[i] for i in range(self.N)]
+            tot_d3 = sum(d3s)
+            spec = fractions = [i/tot_d3 for i in d3s]
+        elif spec is length_fractions:
+            d3s = [self.di_power(i, power=2)*length_fractions[i] for i in range(self.N)]
+            tot_d3 = sum(d3s)
+            spec = fractions = [i/tot_d3 for i in d3s]
+
         if spec is numbers:
             self.numbers = numbers
             self.number_sum = sum(self.numbers)
@@ -1481,14 +1499,15 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         # Length and surface area fractions verified numerically
 
         self.flows = flows
-        self.rho = rho
-        self.MW = MW
         
         # Things for interoperability with the Continuous distribution
         self.d_excessive = self.ds[-1]
         self.parameters = {}
         self.order = 3
-        self.cdf_fractions = np.cumsum(self.fractions)
+        self.cdf_fractions = self.volume_cdf = np.cumsum(self.fractions)
+        self.area_cdf = np.cumsum(self.area_fractions)
+        self.length_cdf = np.cumsum(self.length_fractions)
+        self.number_cdf = np.cumsum(self.number_fractions)
 
     @property
     def interpolated(self):
@@ -1618,6 +1637,18 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         p = k + r
         q = r
         return self.mean_size(p=p, q=q)
+
+#ds = [240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
+#numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
+#dist = ParticleSizeDistribution(ds=ds, numbers=numbers)
+#
+## this is calculated from (Ds, numbers)
+#number_fractions = [0.010640039286298903, 0.01947945653953184, 0.03797675560648224, 0.06711409395973154, 0.102962841708954, 0.13897528237027337, 0.16205598297593715, 0.160582746767065, 0.13504665247994763, 0.09477819610410869, 0.048616794892781146, 0.01816991324275659, 0.0034375511540350305, 0.0001636929120969062]
+#fractions = [4.8560356399310335e-05, 0.00021291794698947167, 0.0008107432330218852, 0.0027975134942445257, 0.00836789808490677, 0.02201901107895143, 0.05010399231412809, 0.0968727835386488, 0.15899879607747244, 0.2178784903712532, 0.21825921197532888, 0.159302671180342, 0.05885464261922434, 0.0054727677290887945]
+#length_fractions = [0.0022265080273913248, 0.005405749400984079, 0.013173675010801534, 0.02909808308708846, 0.05576732372469186, 0.09403390879219536, 0.1370246122004729, 0.16966553692650058, 0.17831420382670332, 0.15641421494054603, 0.10028800800464328, 0.046849963047687335, 0.011078803825079166, 0.0006594091852147985]
+#area_fractions = [0.0003643458522227456, 0.0011833425086503686, 0.0036047198267710797, 0.009951607879295004, 0.023826910138492176, 0.05018962198499494, 0.09139246506396961, 0.1414069073893575, 0.18572285033413602, 0.20362023102799823, 0.16318760564859225, 0.09528884410476045, 0.028165197280747324, 0.0020953509600122053]
+#
+#asme_e799 = ParticleSizeDistribution(ds=ds, fractions=fractions)
 
 
 try:
