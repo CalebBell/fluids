@@ -1415,8 +1415,8 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     points = True
     name = 'Discrete'
     def __init__(self, ds, fractions=None, number_fractions=None, numbers=None, 
-                 flows=None, length_fractions=None, area_fractions=None, 
-                 monotonic=True, cdf=False):
+                 length_fractions=None, area_fractions=None, 
+                 monotonic=True, cdf=False, order=None):
         '''If given numbers or flows, convert to fractions immediately and move 
         forward with them.
         TODO: specify only `fraction`, and also `order`. Then `counts` becomes `flows`.
@@ -1427,8 +1427,14 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         '''
         self.monotonic = monotonic
         self.ds = ds
+        self.order = order
         
-        specified_quantities = [i for i in (fractions, number_fractions, numbers, flows, area_fractions, length_fractions) if i is not None]
+        # The use of locals means this cannot be a list comprehension
+        specified_quantities = []
+        for i in ('fractions', 'number_fractions', 'numbers', 'area_fractions', 'length_fractions'):
+            if locals()[i] is not None:
+                specified_quantities.append(i)
+        
         if len(specified_quantities) > 1:
             raise Exception('More than one distribution specified')
         elif len(specified_quantities) == 0:
@@ -1436,18 +1442,25 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         else:
             spec = specified_quantities[0]
         
-        if ds is not None and (len(ds) == len(spec) + 1):
+        if ds is not None and (len(ds) == len(locals()[spec]) + 1):
             self.size_classes = True
         else:
             self.size_classes = False
             
         if cdf:
-            if len(spec)+1 == len(ds):
-                spec = np.diff(spec).tolist()
+            s = locals()[spec]
+            if len(s)+1 == len(ds):
+#                print('This is a test', [s[0]] + np.diff(s).tolist())
+                locals()[spec] = [s[0]] + np.diff(s).tolist()
             else:
-                spec = np.diff(spec).tolist()
-                spec.insert(0, 0.0)
+                
+                s = np.diff(s).tolist()
+                s.insert(0, 0.0)
+                locals()[spec] = s
             
+        a = locals()[spec]
+#        print('begin spec', a, 'hi', cdf, spec is fractions)
+        spec = a
         self.N = len(spec)
         
         if spec is area_fractions:
@@ -1482,9 +1495,6 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
             numbers = [Vi/Vp for Vi, Vp in zip(Vis, Vps)]
             number_sum = sum(numbers)
             self.number_fractions = [i/number_sum for i in numbers]
-        elif spec is flows:
-            raise Exception(NotImplemented('Flows are not yet supported - TODO'))
-        
         # Set the length fractions
         D3s = [self.di_power(i, power=2) for i in range(self.N)]
         numbers = [Vi/Vp for Vi, Vp in zip(self.fractions, D3s)]
@@ -1497,8 +1507,6 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         number_sum = sum(numbers)
         self.area_fractions = [i/number_sum for i in numbers]
         # Length and surface area fractions verified numerically
-
-        self.flows = flows
         
         # Things for interoperability with the Continuous distribution
         self.d_excessive = self.ds[-1]
@@ -1638,18 +1646,81 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         q = r
         return self.mean_size(p=p, q=q)
 
+#from numpy.testing import *
 #ds = [240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
 #numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
-#dist = ParticleSizeDistribution(ds=ds, numbers=numbers)
+##dist = ParticleSizeDistribution(ds=ds, numbers=numbers)
 #
 ## this is calculated from (Ds, numbers)
 #number_fractions = [0.010640039286298903, 0.01947945653953184, 0.03797675560648224, 0.06711409395973154, 0.102962841708954, 0.13897528237027337, 0.16205598297593715, 0.160582746767065, 0.13504665247994763, 0.09477819610410869, 0.048616794892781146, 0.01816991324275659, 0.0034375511540350305, 0.0001636929120969062]
-#fractions = [4.8560356399310335e-05, 0.00021291794698947167, 0.0008107432330218852, 0.0027975134942445257, 0.00836789808490677, 0.02201901107895143, 0.05010399231412809, 0.0968727835386488, 0.15899879607747244, 0.2178784903712532, 0.21825921197532888, 0.159302671180342, 0.05885464261922434, 0.0054727677290887945]
 #length_fractions = [0.0022265080273913248, 0.005405749400984079, 0.013173675010801534, 0.02909808308708846, 0.05576732372469186, 0.09403390879219536, 0.1370246122004729, 0.16966553692650058, 0.17831420382670332, 0.15641421494054603, 0.10028800800464328, 0.046849963047687335, 0.011078803825079166, 0.0006594091852147985]
 #area_fractions = [0.0003643458522227456, 0.0011833425086503686, 0.0036047198267710797, 0.009951607879295004, 0.023826910138492176, 0.05018962198499494, 0.09139246506396961, 0.1414069073893575, 0.18572285033413602, 0.20362023102799823, 0.16318760564859225, 0.09528884410476045, 0.028165197280747324, 0.0020953509600122053]
+#fractions = [4.8560356399310335e-05, 0.00021291794698947167, 0.0008107432330218852, 0.0027975134942445257, 0.00836789808490677, 0.02201901107895143, 0.05010399231412809, 0.0968727835386488, 0.15899879607747244, 0.2178784903712532, 0.21825921197532888, 0.159302671180342, 0.05885464261922434, 0.0054727677290887945]
 #
-#asme_e799 = ParticleSizeDistribution(ds=ds, fractions=fractions)
-
+#cdf_fractions = [4.856035639931034e-05, 0.0002614783033887821, 0.0010722215364106676, 0.003869735030655194, 0.012237633115561966, 0.0342566441945134, 0.0843606365086415, 0.18123342004729032, 0.34023221612476284, 0.5581107064960161, 0.7763699184713451, 0.9356725896516871, 0.9945272322709114, 1.0000000000000002]
+#area_cdf = [0.00036434585222274563, 0.0015476883608731143, 0.005152408187644195, 0.015104016066939202, 0.038930926205431385, 0.08912054819042634, 0.18051301325439598, 0.3219199206437535, 0.5076427709778896, 0.7112630020058879, 0.8744506076544801, 0.9697394517592406, 0.9979046490399879, 1.0]
+#length_cdf = [0.0022265080273913248, 0.007632257428375404, 0.020805932439176937, 0.0499040155262654, 0.10567133925095726, 0.1997052480431526, 0.3367298602436255, 0.506395397170126, 0.6847096009968294, 0.8411238159373755, 0.9414118239420188, 0.9882617869897061, 0.9993405908147853, 1.0000000000000002]
+#
+#opts = [
+##        {'numbers': numbers, 'cdf': False, 'order': 0},
+##        {'number_fractions': number_fractions, 'cdf': False, 'order': 0},  
+##        {'fractions': fractions, 'cdf': False, 'order': 3},
+##        {'length_fractions': length_fractions, 'cdf': False, 'order': 1},
+##        {'area_fractions': area_fractions, 'cdf': False, 'order': 2},
+#        
+#        {'fractions': cdf_fractions, 'cdf': True, 'order': 3}]
+##        {'area_cdf': area_cdf, 'cdf': True, 'order': 2},
+##        {'length_cdf': length_cdf, 'cdf': True, 'order': 1}]
+#
+#for opt in opts:
+#    asme_e799 = ParticleSizeDistribution(ds=ds, **opt)
+#    
+#    d10 = asme_e799.mean_size(1, 0)
+#    assert_allclose(d10, 1459.3725650679328)
+#    
+#    d21 = asme_e799.mean_size(2, 1)
+#    assert_allclose(d21, 1857.7888572055529)
+#    d20 = asme_e799.mean_size(2, 0)
+#    assert_allclose(d20, 1646.5740462835831)
+#    
+#    d32 = asme_e799.mean_size(3, 2)
+#    assert_allclose(d32, 2269.3210317450453)
+#    # This one is rounded to 2280 in ASME - weird
+#    
+#    d31 = asme_e799.mean_size(3, 1)
+#    assert_allclose(d31, 2053.2703977309357)
+#    # This one is rounded to 2060 in ASME - weird
+#    
+#    d30 = asme_e799.mean_size(3, 0)
+#    assert_allclose(d30, 1832.39665294744)
+#    
+#    d43 = asme_e799.mean_size(4, 3)
+#    assert_allclose(d43, 2670.751954612969)
+#    # The others are, rounded to the nearest 10, correct.
+#    # There's something weird about the end points of some intermediate values of
+#    #  D3 and D4. Likely just rounding issues.
+#    
+#    vol_percents_exp = [0.005, 0.021, 0.081, 0.280, 0.837, 2.202, 5.010, 9.687, 15.900, 21.788, 21.826, 15.930, 5.885, 0.547]
+#    assert vol_percents_exp == [round(i*100, 3) for i in asme_e799.fractions]
+#    
+#    assert_allclose(asme_e799.fractions, fractions)
+#    assert_allclose(asme_e799.number_fractions, number_fractions)
+#    
+#    # i, i distributions
+#    d00 = asme_e799.mean_size(0, 0)
+#    assert_allclose(d00, 1278.7057976023061)
+#    
+#    d11 = asme_e799.mean_size(1, 1)
+#    assert_allclose(d11, 1654.6665309027303)
+#    
+#    d22 = asme_e799.mean_size(2, 2)
+#    assert_allclose(d22, 2054.3809583432208)
+#    
+#    d33 = asme_e799.mean_size(3, 3)
+#    assert_allclose(d33, 2450.886241250387)
+#    
+#    d44 = asme_e799.mean_size(4, 4)
+#    assert_allclose(d44, 2826.0471682278476)
 
 try:
     # Python 2

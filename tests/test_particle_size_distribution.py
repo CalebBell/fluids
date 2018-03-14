@@ -69,7 +69,7 @@ def test_ISO_3310_2_sieves():
 def test_ParticleSizeDistribution_basic():
     ds = [240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
     numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
-    dist = ParticleSizeDistribution(ds=ds, numbers=numbers)
+    dist = ParticleSizeDistribution(ds=ds, numbers=numbers, order=0)
 
     # this is calculated from (Ds, numbers)
     number_fractions = [0.010640039286298903, 0.01947945653953184, 0.03797675560648224, 0.06711409395973154, 0.102962841708954, 0.13897528237027337, 0.16205598297593715, 0.160582746767065, 0.13504665247994763, 0.09477819610410869, 0.048616794892781146, 0.01816991324275659, 0.0034375511540350305, 0.0001636929120969062]
@@ -315,7 +315,7 @@ def test_PSDLognormal_mean_sizes_numerical():
     ds = a.ds_discrete(dmax=1, pts=1E5)
     fractions = a.fractions_discrete(ds)
     
-    disc = ParticleSizeDistribution(ds=ds, fractions=fractions)
+    disc = ParticleSizeDistribution(ds=ds, fractions=fractions, order=3)
     d20 = disc.mean_size(2, 0)
     assert_allclose(d20, 3.033E-6, rtol=0, atol=1E-9)
     
@@ -537,7 +537,7 @@ def test_PSD_PSDlognormal_area_length_count():
     
     ds = dist.ds_discrete(pts=700, dmin=2E-7, dmax=1E-4)
     fractions = dist.fractions_discrete(ds)
-    psd = ParticleSizeDistribution(ds=ds, fractions=fractions)
+    psd = ParticleSizeDistribution(ds=ds, fractions=fractions, order=3)
     # Trim a few at the start and end
     ans = np.array(psd.number_fractions)[5:-5]/np.array(dist.fractions_discrete(ds, n=0))[5:-5]
     avg_err = sum(np.abs(ans - 1.0))/len(ans)
@@ -560,7 +560,7 @@ def test_PSDInterpolated_pchip():
     ds = [360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
     ds = np.array(ds)/1e6
     numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
-    dist = ParticleSizeDistribution(ds=ds, numbers=numbers)
+    dist = ParticleSizeDistribution(ds=ds, numbers=numbers, order=3)
     psd = PSDInterpolated(dist.Dis, dist.fractions)
     
     assert len(psd.fractions) == len(psd.ds)
@@ -601,7 +601,7 @@ def test_PSDInterpolated_discrete():
     ds = [360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
     ds = np.array(ds)/1e6
     numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
-    psd = ParticleSizeDistribution(ds=ds, numbers=numbers)
+    psd = ParticleSizeDistribution(ds=ds, numbers=numbers, order=3)
     # test fractions_discrete vs input
     assert_allclose(psd.fractions_discrete(ds), psd.fractions)
     
