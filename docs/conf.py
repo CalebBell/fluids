@@ -49,6 +49,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
     'numpydoc',
     'nbsphinx'
 ]
@@ -68,7 +69,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Fluids'
-copyright = u'2016 - 2017, Caleb Bell <Caleb.Andrew.Bell@gmail.com>'
+copyright = u'2016 - 2018, Caleb Bell <Caleb.Andrew.Bell@gmail.com>'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -200,7 +201,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Fluidsdoc'
+htmlhelp_basename = 'Fluids doc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -282,7 +283,14 @@ texinfo_documents = [
 #texinfo_no_detailmenu = False
 
 html_theme = "nature"
+numpydoc_show_class_members = True
+numpydoc_show_inherited_class_members = True
+numpydoc_class_members_toctree = False
+autosummary_generate = True
+add_function_parentheses = False
 
+autodoc_default_flags = ['members', 'undoc-members', 'show-inheritance']
+ 
 from sphinx.ext.autodoc import between
 
 def setup(app):
