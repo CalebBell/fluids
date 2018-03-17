@@ -82,7 +82,7 @@ To report bugs, please use the fluids's Bug Tracker at:
     https://github.com/CalebBell/fluids/issues
     
 If you have further questions about the usage of the library, feel free
-to contact the author at Caleb.Andrew.Bell@gmal.com.
+to contact the author at Caleb.Andrew.Bell@gmail.com.
 
 
 License information
