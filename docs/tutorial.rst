@@ -55,10 +55,10 @@ array([ 0.64      ,  0.064     ,  0.03088295])
 Dimensionless numbers
 ---------------------
 
-More than 30 Dimensionless numbers are available in :ref:`fluids.core <fluids.core>`:
+More than 30 Dimensionless numbers are available in :py:mod:`fluids.core` :
 
-Calculation of Reynolds and Prandtl number for water flowing in a 0.01 m 
-diameter pipe at 1.5 m/s:
+Calculation of :py:func:`~.Reynolds` and :py:func:`~.Prandtl` number for
+water flowing in a 0.01 m diameter pipe at 1.5 m/s:
 
 >>> fluids.core.Reynolds(D=0.01, rho=1000, V=1.5, mu=1E-3)
 15000.0
@@ -74,8 +74,8 @@ Reynolds number calculation, kinematic viscosity could have been used instead:
 15000.0
 
 In the case of groups like the Fourier number, used in both heat and mass
-transfer, two separate functions are available, `Fourier_heat` and 
-`Fourier_mass`. The heat transfer version supports specifying either the 
+transfer, two separate functions are available, :py:func:`~.Fourier_heat` and 
+:py:func:`~.Fourier_mass`. The heat transfer version supports specifying either the 
 density, heat capacity, and thermal conductivity - or just the thermal 
 diffusivity. There is no equivalent set of three parameters for the mass
 transfer version; it always requires mass diffusivity.
@@ -87,19 +87,18 @@ transfer version; it always requires mass diffusivity.
 >>> Fourier_mass(t=1.5, L=2, D=1E-9)
 3.7500000000000005e-10
 
-Among the other coded dimensionless numbers are Grashof, Nusselt, Sherwood, 
-Rayleigh, Schmidt, Weber, Mach, Knudsen, Bond, Dean, Froude, Biot, Stanton, 
-and Euler.
+Among the coded dimensionless numbers are :py:func:`~.Archimedes`, :py:func:`~.Bejan_L`, :py:func:`~.Bejan_p`, :py:func:`~.Biot`, :py:func:`~.Boiling`, :py:func:`~.Bond`, :py:func:`~.Capillary`, :py:func:`~.Cavitation`, :py:func:`~.Confinement`, :py:func:`~.Dean`, :py:func:`~.Drag`, :py:func:`~.Eckert`, :py:func:`~.Euler`, :py:func:`~.Fourier_heat`, :py:func:`~.Fourier_mass`, :py:func:`~.Froude_densimetric`, :py:func:`~.Froude`, :py:func:`~.Graetz_heat`, :py:func:`~.Grashof`, :py:func:`~.Hagen`, :py:func:`~.Jakob`, :py:func:`~.Knudsen`, :py:func:`~.Lewis`, :py:func:`~.Mach`, :py:func:`~.Nusselt`, :py:func:`~.Ohnesorge`, :py:func:`~.Peclet_heat`, :py:func:`~.Peclet_mass`, :py:func:`~.Power_number`, :py:func:`~.Prandtl`, :py:func:`~.Rayleigh`, :py:func:`~.Reynolds`, :py:func:`~.Schmidt`, :py:func:`~.Sherwood`, :py:func:`~.Stanton`, :py:func:`~.Stokes_number`, :py:func:`~.Strouhal`, :py:func:`~.Suratman`, :py:func:`~.Weber`.
 
 Miscellaneous utilities
 -----------------------
-More than just dimensionless groups are implemented in fluids.core.
+More than just dimensionless groups are implemented in :py:mod:`fluids.core`.
 
 Converters between loss coefficient, L/D equivalent, length of pipe, and
 pressure drop are available.
 It is recommended to convert length/diameter equivalents and lengths of pipe
-at specified friction factors to loss coefficients. They can all be summed
-easily afterwards.
+at specified friction factors to loss coefficients using the 
+:py:func:`~.K_from_L_equiv` and :py:func:`~.K_from_f` functions respectively. 
+They can all be summed easily afterwards.
 
 >>> K_from_f(fd=0.018, L=100., D=.3)
 6.0
@@ -107,51 +106,55 @@ easily afterwards.
 4.8
 
 Either head loss or pressure drop can be calculated once the total loss 
-coefficient K is known. Head loss does not require knowledge of the fluid's
+coefficient K is known using :py:func:`~.head_from_K` or :py:func:`~.dP_from_K`
+respectively. Head loss does not require knowledge of the fluid's
 density, but pressure drop does.
-
->>> dP_from_K(K=(6+4.8), rho=1000, V=3)
-48600.0
 
 >>> head_from_K(K=(6+4.8), V=3)
 4.955820795072732
 
-If a K value is known and desired to be converted to a L/D ratio or to an
-equivalent length of pipe, that calculation is available as well:
+>>> dP_from_K(K=(6+4.8), rho=1000, V=3)
+48600.0
 
->>> L_equiv_from_K(3.6, fd=0.02)
-180.0
+If a K value is known and desired to be converted to a L/D ratio or to an
+equivalent length of pipe, that calculation is available as well with
+:py:func:`~.L_from_K` or :py:func:`~.L_equiv_from_K` respectively:
+
 >>> L_from_K(K=6, fd=0.018, D=.3)
 100.0
+>>> L_equiv_from_K(3.6, fd=0.02)
+180.0
 
-Pressure and head are also convertible with the following functions:
+Pressure and head are also convertible with the :py:func:`~.head_from_P`
+and :py:func:`~.P_from_head` functions:
 
 >>> head_from_P(P=98066.5, rho=1000)
 10.000000000000002
 >>> P_from_head(head=5., rho=800.)
 39226.6
 
-Also implemented in fluids.core are the following:
+Also implemented in :py:mod:`fluids.core`. are the following:
 
-Thermal diffisivity:
+:py:func:`~.thermal_diffusivity`:
 
 >>> thermal_diffusivity(k=0.02, rho=1., Cp=1000.)
 2e-05
 
-Speed of sound in an ideal gas (requires temperature, isentropic exponent Cp/Cv):
+Speed of sound in an ideal gas :py:func:`~.c_ideal_gas`: 
+(requires temperature, isentropic exponent Cp/Cv):
 
 >>> c_ideal_gas(T=303, k=1.4, MW=28.96)
 348.9820361755092
 
-A converter between dynamic and kinematic viscosity:
+A converter between dynamic and kinematic viscosity :py:func:`~.nu_mu_converter`:
 
 >>> nu_mu_converter(rho=998., nu=1.0E-6)
 0.000998
 >>> nu_mu_converter(998., mu=0.000998)
 1e-06
 
-Calculation of gravity on earth as a function of height and latitude (input
-in degrees and height in meters):
+Calculation of :py:func:`~.gravity` on earth as a function of height 
+and latitude (input in degrees and height in meters):
 
 >>> gravity(latitude=55, H=1E6)
 6.729011976863571
@@ -159,23 +162,24 @@ in degrees and height in meters):
     
 Friction factors
 ----------------
-
+Friction factor is easily calculable with :py:func:`~.friction_factor`.
 
 >>> epsilon = 1.5E-6 # m, clean steel
 >>> fluids.friction.friction_factor(Re=15000, eD=epsilon/0.01)
 0.02808790938573186
 
 The transition to laminar flow is implemented abruptly at Re=2040,
-one of the latest experimental results which is accurate to +- 10. 
-If the Reynolds number is in the laminar regime, the transition happens 
-automatically and the well-known solution fd = 64/Re is given.
+one of the latest experimental results which is accurate to +/- 10. 
+If the Reynolds number is in the laminar regime, the transition to a
+different correlation happens  automatically and the well-known 
+solution fd = 64/Re is given.
 
 >>> fluids.friction.friction_factor(Re=150)
 0.4266666666666667
 
-Friction factor in curved pipes in available as friction_factor_curved.
-The curved friction factor is applicable for helices and coils, and to a 
-lesser extent curved bends. 
+Friction factor in curved pipes in available as :py:func:`~.friction_factor_curved`.
+The curved friction factor is applicable for helices and coils, and to a
+lesser extent curved bends.
 
 >>> friction_factor_curved(Re=15000, Di=.01, Dc=2.5, roughness=1.5E-6)
 0.02984622907277626
@@ -184,14 +188,15 @@ The critical Reynolds number for curved pipes
 is increased compared to straight pipe flow, and is a function of the 
 curvature of the pipe. The preferred method to calculate the transition 
 (used by default for the automatic regime transition)
-is the method of Schmidt (1967).
+is the method of Schmidt (1967) :py:func:`~.helical_transition_Re_Schmidt`.
 
 >>> helical_transition_Re_Schmidt(Di=.01, Dc=2.5)
 3948.7442097768603
 
 Although roughness is a hard value to know without measuring it for a pipe,
 several hundred pipe conditions have had their roughness values measured in the
-literature, and they can be searched through using fuzzy matching fluids.
+literature, and they can be searched through using fuzzy matching and the
+functions :py:func:`~.nearest_material_roughness` and :py:func:`~.material_roughness`.
 
 >>> nearest_material_roughness('Used water piping', clean=False)
 'Seamless steel tubes, Used water piping'
@@ -208,8 +213,8 @@ As fuzzy string matching is a pretty terrible solution, it is encouraged to find
 desired string in the `actual source code of fluids <https://github.com/CalebBell/fluids/blob/master/fluids/friction.py#L2766>`_.
 
 There is one more way of obtaining the roughness of a clean pipe, developed by
-Farshad and Rieke (2006). It has been established that in commercial pipe,
-the larger the diameter, the larger the roughness. 
+Farshad and Rieke (2006) :py:func:`~.roughness_Farshad`. It has been established 
+that in commercial pipe, the larger the diameter, the larger the roughness. 
 
 >>> roughness_Farshad('Carbon steel, bare', D=0.05)
 3.529128126365038e-05
@@ -227,7 +232,7 @@ Only the following types of clean, new pipe have data available:
 
 There is also a term called `Transmission factor`, used in many pipeline applications.
 It is effectively a variant on friction factor. They can be inter-converted 
-with the transmission_factor function.
+with the :py:func:`~.transmission_factor` function.
 
 >>> transmission_factor(fd=0.0185) # calculate transmission factor
 14.704292441876154
@@ -241,7 +246,7 @@ ASME/ANSI pipe tables from B36.10M-2004 and B36-19M-2004 are implemented
 in fluids.piping.
 
 Piping can be looked up based on nominal pipe size, outer diameter, or
-inner diameter.
+inner diameter with the :py:func:`~.nearest_pipe` function.
 
 >>> nearest_pipe(NPS=2) # returns NPS, inside diameter, outer diameter, wall thickness
 (2, 0.05248, 0.0603, 0.00391) 
@@ -280,8 +285,8 @@ Wire gauges
 
 The construction of mechanical systems often uses the "gauge" sytems, a variety
 of old imperial conversions between plate or wire thickness and a dimensionless
-number. Conversion from and to the gauge system is done by the gauge_from_t and
-t_from_gauge functions.
+number. Conversion from and to the gauge system is done by the :py:func:`~.gauge_from_t` 
+and :py:func:`~.t_from_gauge` functions.
 
 Looking up the gauge from a wire of known diameter approximately 1.2 mm:
 
@@ -311,14 +316,12 @@ Other schedules are also supported:
 0.00102362
 
 
-
-
 Tank geometry
 -------------
 
 Sizing of vessels and storage tanks is implemented in an object-oriented way 
-as TANK in fluids.geometry. All results use the exact equations; all are
-documented in the many functions in :ref:`<fluids.geometry>`
+as :py:class:`~.TANK` in :py:mod:`fluids.geometry`. All results use the exact equations; all are
+documented in the many functions in :py:mod:`fluids.geometry`.
 
 >>> T1 = TANK(D=1.2, L=4, horizontal=False)
 >>> T1.V_total, T1.A # Total volume of the tank and its surface area
@@ -379,19 +382,22 @@ Miscellaneous geometry
 In addition to sizing all sorts of tanks, helical coils are supported and so are 
 a number of other simple calculations.
 
-Sphericity is implemented, requiring a calculated surface area and volume. 
+Sphericity is implemented as :py:func:`~.sphericity`, requiring a calculated
+surface area and volume. 
 For a cube of side length 3, the surface area is 6*a^2=54 and volume a^3=27.
 Its sphericity is then:
 
 >>> sphericity(A=54, V=27)
 0.8059959770082346
 
-Aspect ratio of a rectangle 0.2 m by 2 m:
+Aspect ratio of is implemented as :py:func:`~.aspect_ratio`; for example,
+a rectangle 0.2 m by 2 m:
 
 >>> aspect_ratio(.2, 2)
 0.1
 
-Circularity, a parameter used to characterize 2d images of particles, is implemented.
+Circularity, a parameter used to characterize 2d images of particles, is implemented
+as :py:func:`~.circularity`.
 For a rectangle, one side length = 1, second side length = 100:
 
 >>> D1 = 1
@@ -405,14 +411,14 @@ For a rectangle, one side length = 1, second side length = 100:
 Atmospheric properties
 ----------------------
 Four main classes are available to model the atmosphere. They are the
-US Standard Atmosphere 1976 (ATMOSPHERE_1976), a basic
+US Standard Atmosphere 1976 (:py:class:`~.ATMOSPHERE_1976`), a basic
 but very quick model; the NRLMSISE 00 model, substantially more powerful and
-accurate and still the standard to this day (ATMOSPHERE_NRLMSISE00); and two
-models for wind speed only, Horizontal Wind Model 1993 (hwm93) and 
-Horizontal Wind Model 2014 (hwm14). The two horizontal wind models are actually
-fortran codes, and are not compilled automatically on installation.
+accurate and still the standard to this day (:py:class:`~.ATMOSPHERE_NRLMSISE00`); and two
+models for wind speed only, Horizontal Wind Model 1993 (:py:func:`~.hwm93`) and 
+Horizontal Wind Model 2014 (:py:func:`~.hwm14`). The two horizontal wind models are actually
+fortran codes, and are not compiled automatically on installation.
 
-ATMOSPHERE_1976 is the simplest model, and very suitable for basic engineering
+:py:class:`~.ATMOSPHERE_1976` is the simplest model, and very suitable for basic engineering
 purposes. It supports atmospheric temperature, density, and pressure as a 
 function of elevation. Optionally, a local temperature difference from earth's
 average can be specified to correct the model to local conditions but this is 
@@ -442,12 +448,12 @@ an atmosphere object:
 >>> ATMOSPHERE_1976.thermal_conductivity(T=400)
 0.033657148617592114
 
-ATMOSPHERE_NRLMSISE00 is the recommended model, and calculates atmospheric density,
+:py:class:`~.ATMOSPHERE_NRLMSISE00` is the recommended model, and calculates atmospheric density,
 temperature, and pressure as a function of height, latitude/longitude, day of year, 
 and seconds since start of day. The model can also take into account solar and 
 geomagnetic disturbances which effect the atmosphere at very high elevations
 if more parameters are provided. It is valid up to 1000 km. This model
-is somewhat slow; it is a Python port of the fortran version, created by Joshua 
+is somewhat slow; it is a Python port of the Fortran version, created by Joshua 
 Milas. It does not support gravity profiles or transport properties, but does 
 calculate the composition of the atmosphere (He, O, N2, O2, Ar, H2, N2 as 
 constituents).
@@ -493,12 +499,14 @@ year.
 Compressor sizing
 -----------------
 Both isothermal and isentropic/polytropic compression models are implemented in
-fluids.compressible. Isothermal compression calculates the work required to compress a gas from
+:py:mod:`fluids.compressible`. Isothermal compression calculates the work required to compress a gas from
 one pressure to another at a specified temperature. This is the best possible case 
-for compression; all actual compresssors require more work to do the compression.
+for compression; all actual compressors require more work to do the compression.
 By making the compression take a large number of stages and cooling the gas
 between stages, this can be approached reasonable closely. Integrally 
-geared compressors are often used for this purpose.
+geared compressors are often used for this purpose 
+
+The function :py:func:`~.isothermal_work_compression` provides this calculation.
 
 >>> isothermal_work_compression(P1=1E5, P2=1E6, T=300)
 5743.425357533477
@@ -520,7 +528,7 @@ is changed. The model requires initial temperature, inlet and outlet pressure,
 isentropic exponent or polytropic exponent, and optionally an efficiency.
 
 Compressing air from 1 bar to 10 bar, with inlet temperature of 300 K and
-efficiency of 78%:
+efficiency of 78% with the :py:func:`~.isentropic_work_compression` function:
 
 >>> isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78) # work, J/mol
 10416.873455626454
@@ -536,7 +544,7 @@ instead of the work:
 100014.14833613831
 
 The approximate temperature rise can also be calculated with the function
-isentropic_T_rise_compression.
+:py:func:`~.isentropic_T_rise_compression`.
 
 >>> T2 = isentropic_T_rise_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78)
 >>> T2, T2-300 # outlet temperature and temperature rise, K
@@ -546,7 +554,8 @@ It is more accurate to use an enthalpy-based model which incorporates departure
 functions.
 
 Polytropic exponents and efficiencies are convertible to isentropic exponents and
-efficiencies.  For the above example, with k=1.4 and `eta_s`=0.78:
+efficiencies with :py:func:`~.isentropic_efficiency` and 
+:py:func:`~.polytropic_exponent`. For the above example, with k=1.4 and `eta_s`=0.78:
 
 >>> eta_p = isentropic_efficiency(P1=1E5, P2=1E6, k=1.4, eta_s=0.78) # with eta_s specified, returns polytropic efficiency
 >>> n = polytropic_exponent(k=1.4, eta_p=eta_p)
@@ -591,7 +600,8 @@ Checking the calculated power is the same:
 Gas pipeline sizing
 -------------------
 
-The standard isothermal compressible gas flow is fully implemented, and through
+The standard isothermal compressible gas flow is fully implemented as 
+:py:func:`~.isothermal_gas`, and through
 a variety of numerical and analytical expressions, can solve for any of the
 following parameters:
 
@@ -727,15 +737,15 @@ an accepted input to all models and corrects the ideal gas law's ideality.
 
 The full list of approximate models is as follows:
 
-* Panhandle_A
-* Panhandle_B
-* Weymouth
-* Oliphant
-* Fritzsche
-* Muller
-* IGT
-* Spitzglass_high
-* Spitzglass_low
+* :py:func:`~.Panhandle_A`
+* :py:func:`~.Panhandle_B`
+* :py:func:`~.Weymouth`
+* :py:func:`~.Oliphant`
+* :py:func:`~.Fritzsche`
+* :py:func:`~.Muller`
+* :py:func:`~.IGT`
+* :py:func:`~.Spitzglass_high`
+* :py:func:`~.Spitzglass_low`
 
 As an example, calculating flow for a pipe with diameter 0.34 m, upstream 
 pressure 90 bar and downstream pressure 20 bar, 160 km long, 0.693 specific
@@ -775,7 +785,7 @@ Drag and terminal velocity
 A number of spherical particle drag correlations are implemented.
 
 In the simplest case, consider a spherical particle of diameter D=1 mm,
-density=3400 kg/m^3, traveling at 30 m/s in air with viscosity mu=1E-5 Pa*s
+density=3400 kg/m^3, travelling at 30 m/s in air with viscosity mu=1E-5 Pa*s
 and density 1.2 kg/m^3.
 
 We calculate the particle Reynolds number:
@@ -784,13 +794,14 @@ We calculate the particle Reynolds number:
 >>> Re
 3599.9999999999995
 
-The drag coefficient `Cd` can be calculated with no other parameters:
+The drag coefficient `Cd` can be calculated with no other parameters
+from :py:func:`~.drag_sphere`:
 
 >>> drag_sphere(Re)
 0.3914804681941151
 
 The terminal velocity of the particle is easily calculated with the 
-`v_terminal` function. 
+:py:func:`~.v_terminal` function. 
 
 >>> v_terminal(D=1E-3, rhop=3400, rho=1.2, mu=1E-5)
 8.971223953182939
@@ -801,7 +812,7 @@ never have time to reach terminal conditions. An integrating function is availab
 to do that. Consider that same particle being shot directly down from a helicopter
 100 m high. 
 
-The integrating function, integrate_drag_sphere, performs the integral with respect
+The integrating function, :py:func:`~.integrate_drag_sphere`, performs the integral with respect
 to time. At one second, we can see the (velocity, distance travelled):
 
 >>> integrate_drag_sphere(D=1E-3, rhop=3400., rho=1.2, mu=1E-5, t=1, V=30, distance=True)
@@ -836,7 +847,7 @@ particle to tube diameter and the shape of the particles.
 
 Consider 0.8 mm pebbles with 40% empty space with water flowing through a 2 m  
 column creeping flow at a superficial velocity of 1 mm/s. We can calculate the 
-pressure drop as follows:
+pressure drop using the :py:func:`~.dP_packed_bed` function:
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2)
 2876.565391768883 # Pa
@@ -883,7 +894,9 @@ and determine the voidage experimentally, this does not help in the design proce
 Several authors have methodically filled columns with particles of different sizes and
 created correlations in terms of sphericity and particle to tube diameter ratios.
 Three such correlations are implemented in fluids, one generally using sphericity,
-one for spheres, and one for cylinders.
+one for spheres, and one for cylinders (:py:func:`~.voidage_Benyahia_Oneil`,
+:py:func:`~.voidage_Benyahia_Oneil_spherical` and
+:py:func:`~.voidage_Benyahia_Oneil_cylindrical` respectively).
 
 1 mm spheres in a 5 cm diameter tube:
 
@@ -907,7 +920,8 @@ Same calculation, but using the general correlation for all shapes:
 Pressure drop through piping
 ----------------------------
 It is straightforward to calculate the pressure drop of fluid flowing in a 
-pipeline with any number of fittings using the fluids library.
+pipeline with any number of fittings using the fluids library's 
+:py:mod:`fluids.fittings` submodule.
 
 15 m of piping, with a sharp entrance and sharp exit, two 30 degree miter 
 bends, one rounded bend 45 degrees, 1 sharp contraction to half the pipe
@@ -986,11 +1000,14 @@ of valve coefficients are implemented as well.
 
 There are two forms of loss coefficient used for vales, an imperial and a metric
 variable called "valve flow coefficient". Both can be converted to the standard
-dimensionless loss coefficient. 
+dimensionless loss coefficient.
 
 If one knows the actual loss coefficient of a valve, the valve flow coefficient
 can be calculated in either metric or imperial forms as follows. The flow
-coefficients are specific to the diameter of the valve.
+coefficients are specific to the diameter of the valve. Kv, Cv, and K values
+can be converted easily with the functions :py:func:`~.K_to_Kv`,
+:py:func:`~.K_to_Cv`, :py:func:`~.Cv_to_K`, :py:func:`~.Kv_to_K`,
+:py:func:`~.Cv_to_Kv`, and :py:func:`~.Kv_to_Cv`.
 
 >>> K_to_Kv(K=16, D=0.016)
 2.56
@@ -1092,7 +1109,8 @@ The standard specifies two more parameters specific to a valve:
 Both of these are factors between 0 and 1. In the Emerson handbook, they are 
 not considered in the sizing procedure and set to 1. These factors are also
 a function of the diameter of the valve and are normally tabulated next to the
-values of Cv or Kv for a valve.
+values of Cv or Kv for a valve. Now using :py:func:`~.size_control_valve_l` 
+to solve for the flow coefficient:
 
 >>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)
 109.39701927957765
@@ -1165,7 +1183,7 @@ All three of these are factors between 0 and 1. In the Emerson handbook, FL and 
 not considered in the sizing procedure and set to 1. xT is specified as 0.137
 at full opening. These factors are also a function of the diameter of the 
 valve and are normally tabulated next to the values of Cv or Kv for a valve.
-Performing the calculation:
+Now using :py:func:`~.size_control_valve_g` to solve for the flow coefficient:
 
 >>> Kv = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=1, Fd=1, xT=.137)
 >>> Kv_to_Cv(Kv)
@@ -1216,7 +1234,8 @@ Electric motor sizing
 ---------------------
 Motors are available in standard sizes, mostly as designated by the
 National Electrical Manufacturers Association (NEMA). To easily determine what
-the power of a motor will actually be once purchased, motor_round_size implements
+the power of a motor will actually be once purchased, 
+:py:func:`~.motor_round_size` implements
 rounding up of a motor power to the nearest size. NEMA standard motors are
 specified in terms of horsepower.
 
@@ -1229,7 +1248,7 @@ specified in terms of horsepower.
 Motors are designed to generate a certain amount of power, but they themselves are 
 not 100% efficient at doing this and require more power due to efficiency losses.
 Many minimum values for motor efficiency are standardized. The Canadian standard
-for this is implemented in fluids as CSA_motor_efficiency.
+for this is implemented in fluids as :py:func:`~.CSA_motor_efficiency`.
 
 >>> CSA_motor_efficiency(P=5*hp)
 0.855
@@ -1254,7 +1273,8 @@ normally available at somewhat higher cost:
 A motor will spin at more or less its design frequency, depending on its type.
 However, if it does not meet sufficient resistance, it will not be using its
 design power. This is good and bad - less power is used, but as a motor 
-drops under 50% of its design power, its efficiency becomes terrible. A function
+drops under 50% of its design power, its efficiency becomes terrible. The function
+:py:func:`~.motor_efficiency_underloaded`
 has been written based on generic performance curves to estimate the underloaded
 efficiency of a motor. Just how bad efficiency drops off depends on the design
 power of a motor - higher power motors do better operating at low loads than 
@@ -1282,10 +1302,92 @@ rate can be controlled with the VFD directly.
 The efficiency of a VFD depends on the maximum power it needs to be able to
 generate, and the power it is actually generating at an instant (load).
 A table of typical modern VFD efficiencies is implemented in fluids as
-VFD_efficiency.
+:py:func:`~.VFD_efficiency`.
 
 >>> VFD_efficiency(1E5) # 100 kW
 0.97
 >>> VFD_efficiency(5E3, load=.2) # 5 kW, 20% load
 0.8562
+
+
+Particle Size Distributions
+---------------------------
+Fluids has means for calculating, fitting, and manipulating particle size 
+distributions through the :py:mod:`fluids.particle_size_distribution`
+module. In addition to discrete and continuous distributions, there are
+also means to create interpolating distributions from discrete 
+distributions, and to use any of SciPy's statistical distributions or a
+custom distribution for calculations.
+
+The following example particle size distribution shows some calculations. Note there
+is one more diameter point than number point - this is how the input should be given
+when the analysis provides classes and each bin has a range of sizes representing it.
+Also supported is providing as many diameter values as fraction values.
+
+>>> ds = [240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
+>>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
+>>> psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
+>>> psd
+<Particle Size Distribution, points=14, D[3, 3]=0.002451 m>
+
+In the above example, the analysis available was the number of particles counted
+in each bin. This is equivalent to having normalized the numbers into fractions;
+they are normalized inside the :py:class:`~.ParticleSizeDistribution` class.
+
+If masses in each of the different bins had been known instead, then the same
+constructor would be given except with `order=3`, representing a mass or volume
+distribution (they are the same thing for distributions with the same density for
+all particles).
+
+If the data is available as a cumulative distribution, simple add the flag cdf=True
+and it will be interpreted correctly.
+
+The probability distribution and cumulative distribution can be plotted with 
+:py:meth:`~.plot_pdf` and :py:meth:`~.plot_cdf` respectively.
+
+Important statistical parameters describing the distribution can be calculated
+with the methods :py:meth:`fluids.particle_size_distribution.ParticleSizeDistribution.mean_size`
+or :py:meth:`fluids.particle_size_distribution.ParticleSizeDistribution.mean_size_ISO`.
+The following example shows calculation of the size-weighted mean diameter; 
+arithmetic mean diameter; Sauter mean diameter; and De Brouckere diameter.
+
+>>> psd.mean_size(2, 1)
+1857.788857205553
+>>> psd.mean_size(1, 0)
+1459.3725650679328
+>>> psd.mean_size(1, 2)
+1857.7888572055529
+>>> psd.mean_size(1, 3)
+2053.2703977309357
+
+An interpolated distribution exists underneath the discrete data to allow useful 
+properties to be calculated, such as the D10 or D90:
+
+>>> psd.dn(0.1), psd.dn(0.9)
+(1437.071392769334, 3911.479636364713)
+
+Or probability density functions:
+
+>>> psd.pdf(1000)
+0.00010632384327525043
+>>> psd.cdf(5000)
+0.9897400734854198
+
+Statistical distributions implemented are :py:class:`~.PSDLognormal`,
+:py:class:`~.PSDGatesGaudinSchuhman`, and :py:class:`~.PSDRosinRammler`.
+Discrete and continuous distributions share most methods.
+
+>>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
+>>> psd.pdf(1e-6) # probability density function
+4487.892155358317
+>>> psd.cdf(7e-6) # cumulative distribution function
+0.74950869138681098
+>>> psd.dn(0.1) # At what diameter is this fraction of particles smaller than?
+2.634417591480183e-06
+>>> psd.mean_size(3, 2)
+4.4124845129229773e-06
+>>> ds = psd.ds_discrete(pts=1000) # Compare calculations with the discrete distribution
+>>> fractions = psd.fractions_discrete(ds)
+>>> ParticleSizeDistribution(ds=ds, fractions=fractions, order=3).mean_size(3, 2)
+4.4257436305831372e-06
 
