@@ -35,18 +35,25 @@ or contact the author at Caleb.Andrew.Bell@gmail.com.
 Particle Size Distribution Base Class
 -------------------------------------
 .. autoclass:: ParticleSizeDistributionContinuous
+    :members:
 
 Discrete Particle Size Distributions
 ------------------------------------
 .. autoclass:: ParticleSizeDistribution
+    :members:
 .. autoclass:: PSDInterpolated
+    :members:
 
 Statistical Particle Size Distributions
 ---------------------------------------
 .. autoclass:: PSDLognormal
+    :members:
 .. autoclass:: PSDGatesGaudinSchuhman
+    :members:
 .. autoclass:: PSDRosinRammler
+    :members:
 .. autoclass:: PSDCustom
+    :members:
 
 Helper functions: Lognormal Distribution
 ----------------------------------------

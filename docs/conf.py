@@ -49,7 +49,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
-    #'sphinx.ext.autosummary',
+    'sphinx.ext.autosummary',
     'numpydoc',
     'nbsphinx'
 ]
@@ -286,10 +286,10 @@ html_theme = "nature"
 numpydoc_show_class_members = True
 numpydoc_show_inherited_class_members = True
 numpydoc_class_members_toctree = False
-autosummary_generate = False
+autosummary_generate = True
 add_function_parentheses = False
 
-autodoc_default_flags = ['members', 'undoc-members', 'show-inheritance']
+autodoc_default_flags = ['undoc-members', 'show-inheritance']
  
 from sphinx.ext.autodoc import between
 
