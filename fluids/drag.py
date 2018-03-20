@@ -1159,7 +1159,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     return fsolve(err, 1.)'''
     v_lam = g*D*D*(rhop-rho)/(18*mu)
     Re_lam = Reynolds(V=v_lam, D=D, rho=rho, mu=mu)
-    if Re_lam < 0.01:
+    if Re_lam < 0.01 or Method == 'Stokes':
         return v_lam
 
     Re_almost = rho*D/mu
@@ -1172,6 +1172,26 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     # Begin the solver with 1/100 th the velocity possible at the maximum
     # Reynolds number the correlation is good for
     return float(newton(err, V_max/100, tol=1E-12))
+
+
+def time_v_terminal_Stokes(D, rhop, rho, mu, V0=0, tol=1e-14):
+    '''
+    '''
+    term = D*D*g*rho - D*D*g*rhop 
+    denominator = term + 18.*mu*V0
+    for i in range(50):
+        try: 
+            v_term = g*D*D*(rhop-rho)/(18.*mu)
+            if v_term < V0:
+                v_term *= (1.0 + tol)
+            else:
+                v_term *= (1.0 - tol)
+            numerator = term + 18.*mu*v_term
+            return -1/18.*log(numerator/denominator)*D*D*rhop/mu
+        except ValueError:
+            tol = tol*2
+            if tol > 0.01:
+                raise Exception('Could not find a solution')
 
 
 def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
@@ -1254,7 +1274,24 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
                 return V_end
         except OverflowError:
             # This is a serious problem for small diameters
+            # It would be possible to step slowly, using smaller increments
+            # of time to avlid overflows. However, this unfortunately quickly
+            # gets much, exponentially, slower than just using odeint because
+            # for example solving 10000 seconds might require steps of .0001
+            # seconds at a diameter of 1e-7 meters.
             pass
+#            x = 0.0
+#            subdivisions = 10
+#            dt = t/subdivisions
+#            for i in range(subdivisions):
+#                V, dx = integrate_drag_sphere(D=D, rhop=rhop, rho=rho, mu=mu,
+#                                              t=dt, V=V, distance=True,
+#                                              Method=Method)
+#                x += dx
+#            if distance:
+#                return V, x
+#            else:
+#                return V
     
     Re_ish = rho*D/mu
     c1 = g*(rhop-rho)/rhop

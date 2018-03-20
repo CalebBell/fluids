@@ -188,3 +188,5 @@ def test_integrate_drag_sphere():
     assert_allclose(ans, [-8.882391519909806, -0.9439839394457605])
     
     
+def test_time_v_terminal_Stokes():
+    pass

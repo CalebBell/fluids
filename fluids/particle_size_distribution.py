@@ -1400,6 +1400,32 @@ class ParticleSizeDistributionContinuous(object):
         q = r
         return self.mean_size(p=p, q=q)    
     
+    @property
+    def vssa(self):
+        r'''The volume-specific surface area of a particle size distribution.
+        
+        .. math::
+            \text{VSSA} = \frac{6}{\bar x_{1,2}}
+            
+        Returns
+        -------
+        VSSA : float
+            The volume-specific surface area of the distribution, [m^2/m^3] 
+            
+        Examples
+        --------
+        >>> PSDLognormal(s=0.5, d_characteristic=5E-6).vssa
+        1359778.1436801916
+        
+        References
+        ----------
+        .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size 
+           Analysis - Part 2: Calculation of Average Particle Sizes/Diameters  
+           and Moments from Particle Size Distributions.
+        '''
+        return 6/self.mean_size(3, 2)
+    
+    
     def plot_pdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500):  # pragma: no cover
         r'''Plot the probability density function of the particle size 
         distribution. The plotted range can be specified using `d_min` and 
@@ -1763,6 +1789,31 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         p = k + r
         q = r
         return self.mean_size(p=p, q=q)
+
+    @property
+    def vssa(self):
+        r'''The volume-specific surface area of a particle size distribution.
+        Note this uses the diameters provided by the method `Dis`.
+        
+        .. math::
+            \text{VSSA} = \sum_i \text{fraction}_i \frac{SA_i}{V_i}
+        Returns
+        -------
+        VSSA : float
+            The volume-specific surface area of the distribution, [m^2/m^3] 
+
+        References
+        ----------
+        .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size 
+           Analysis - Part 2: Calculation of Average Particle Sizes/Diameters  
+           and Moments from Particle Size Distributions.
+        '''
+        ds = self.Dis
+        Vs = [pi/6*di**3 for di in ds]
+        SAs = [pi*di**2 for di in ds]
+        SASs = [SA/V for SA, V in zip(SAs, Vs)]
+        VSSA = sum([fi*SASi for fi, SASi in zip(self.fractions, SASs)])
+        return VSSA
 
 try:  # pragma: no cover
     # Python 2

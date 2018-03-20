@@ -141,6 +141,9 @@ def test_ParticleSizeDistribution_basic():
         
         d44 = asme_e799.mean_size(4, 4)
         assert_allclose(d44, 2826.0471682278476)
+        
+        vssa = asme_e799.vssa
+        assert_allclose(vssa, 0.0026656187302839165)
 
 
 def test_pdf_lognormal():
@@ -397,6 +400,8 @@ def test_PSDLognormal_mean_sizes_analytical():
     assert_allclose(d43, 5.666E-6, rtol=0, atol=1E-9)
     assert_allclose(d43, 5.6657422653341318e-06, rtol=1E-12)
     assert_allclose(d43, disc.mean_size_ISO(1, 3), rtol=1E-12)
+    
+    assert_allclose(disc.vssa, 1359778.1436801916)
 
     # There guys - need more work
 #    d33 = disc.mean_size(3.0, 3.0)
