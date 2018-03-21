@@ -1273,13 +1273,25 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
             else:
                 return V_end
         except OverflowError:
+            # It is only necessary to integrate to terminal velocity
+            t_to_terminal = time_v_terminal_Stokes(D, rhop, rho, mu, V0=V, tol=1e-9)
+            if t_to_terminal > t:
+                raise Exception('Should never happen')
+            V_end, x_end = integrate_drag_sphere(D=D, rhop=rhop, rho=rho, mu=mu, t=t_to_terminal, V=V, Method='Stokes', distance=True)
+            # terminal velocity has been reached - V does not change, but x does
+            # No reason to believe this isn't working even though it isn't
+            # matching the ode solver
+            if distance:
+                return V_end, x_end + V_end*(t - t_to_terminal)
+            else:
+                return V_end
+            
             # This is a serious problem for small diameters
             # It would be possible to step slowly, using smaller increments
             # of time to avlid overflows. However, this unfortunately quickly
             # gets much, exponentially, slower than just using odeint because
             # for example solving 10000 seconds might require steps of .0001
             # seconds at a diameter of 1e-7 meters.
-            pass
 #            x = 0.0
 #            subdivisions = 10
 #            dt = t/subdivisions
