@@ -1379,9 +1379,20 @@ class ParticleSizeDistributionContinuous(object):
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
         >>> psd.mean_size(3, 2)
         4.4124845129229773e-06
+        
+        Note that for the case where p == q, a different set of formulas are
+        required - which do not have analytical results for many distributions.
+        Therefore, a close numerical approximation is used instead, to
+        perturb the values of p and q so they are 1E-9 away from each other.
+        This leads only to slight errors, as in the example below where the
+        correct answer is 5E-6.
+        
+        >>> psd.mean_size(3, 3)
+        4.9999999304923345e-06
         '''
         if p == q:
-            raise Exception(NotImplemented)
+            p -= 1e-9
+            q += 1e-9
         pow1 = q - self.order 
         
         denominator = self._pdf_basis_integral_definite(d_min=self.d_minimum, d_max=self.d_excessive, n=pow1)

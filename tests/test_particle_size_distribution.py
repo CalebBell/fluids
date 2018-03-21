@@ -404,11 +404,11 @@ def test_PSDLognormal_mean_sizes_analytical():
     assert_allclose(disc.vssa, 1359778.1436801916)
 
     # There guys - need more work
-#    d33 = disc.mean_size(3.0, 3.0)
-#    assert_allclose(d33, 5.000E-6, rtol=0, atol=1E-9)
+    d33 = disc.mean_size(3.0, 3.0)
+    assert_allclose(d33, 5.000E-6, rtol=0, atol=1E-6)
 #    
-#    d00 = disc.mean_size(0.0, 0.0)
-#    assert_allclose(d00, 2.362E-6, rtol=0, atol=1E-9)
+    d00 = disc.mean_size(0.0, 0.0)
+    assert_allclose(d00, 2.362E-6, rtol=1e-4)
 
 def test_PSDLognormal_ds_discrete():
     ds_discrete_expect = [2.4920844782646124e-07, 5.870554386661556e-07, 1.3829149496067687e-06, 3.2577055451375563e-06, 7.674112874286059e-06, 1.8077756749742233e-05, 4.258541598963051e-05, 0.0001003176268004454]
