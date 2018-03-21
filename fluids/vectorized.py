@@ -23,7 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 import types
 import numpy as np
-import fluids
+import fluids as normal_fluids
 
 '''Basic module which wraps all fluids functions with numpy's vectorize.
 All other object - dicts, classes, etc - are not wrapped. Supports star 
@@ -53,15 +53,19 @@ __all__ = []
 
 __funcs = {}
 
-for name in dir(fluids):
-    obj = getattr(fluids, name)
+bad_names = set(('__file__', '__name__', '__package__', '__cached__'))
+
+for name in dir(normal_fluids):
+    obj = getattr(normal_fluids, name)
     if isinstance(obj, types.FunctionType):
         obj = np.vectorize(obj)
     elif isinstance(obj, str):
-        continue
+        if name in bad_names:
+            continue
     __all__.append(name)
     __funcs.update({name: obj})
 #    globals()[name] = obj
+
 globals().update(__funcs)
 
 
