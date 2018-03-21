@@ -98,4 +98,4 @@ __all__.extend(separator.__all__)
 __all__.extend(particle_size_distribution.__all__)
 
 
-__version__ = '0.1.70'
+__version__ = '0.1.71'
