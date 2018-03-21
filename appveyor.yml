@@ -5,7 +5,7 @@ build: false
 environment:
   matrix:
     - PYTHON: 2.7
-    - PYTHON: 3.3
+#    - PYTHON: 3.3 # 3.3's quad or interpolate worked differently in some cases, not worth testing with
     - PYTHON: 3.5
     - PYTHON: 3.6
 
