@@ -182,7 +182,7 @@ class Sieve(object):
         
     '''
     def __repr__(self):
-        return '<Sieve, designation %g mm, opening %g m>' %(self.designation, self.opening)
+        return '<Sieve, designation %s mm, opening %g m>' %(self.designation, self.opening)
     
     def __init__(self, designation, old_designation=None, opening=None,
                  opening_inch=None, Y_variation_avg=None, X_variation_max=None,

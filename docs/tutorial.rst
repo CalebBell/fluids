@@ -52,6 +52,11 @@ from fluids, the user can import from fluids.vectorized:
 >>> friction_factor(Re=[100, 1000, 10000], eD=0)
 array([ 0.64      ,  0.064     ,  0.03088295])
 
+It is possible to switch back and forth between the namespaces with a subsequent
+import:
+
+>>> from fluids import * 
+
 Dimensionless numbers
 ---------------------
 
@@ -249,7 +254,7 @@ Piping can be looked up based on nominal pipe size, outer diameter, or
 inner diameter with the :py:func:`~.nearest_pipe` function.
 
 >>> nearest_pipe(NPS=2) # returns NPS, inside diameter, outer diameter, wall thickness
-(2, 0.05248, 0.0603, 0.00391) 
+(2, 0.05248, 0.0603, 0.00391)
 
 When looking up by actual diameter, the nearest pipe as large or larger 
 then requested is returned:
@@ -276,8 +281,8 @@ exception is raised:
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
   File "fluids/piping.py", line 276, in nearest_pipe
-    raise ValueError('Pipe input is larger than max of selected scedule')
-ValueError: Pipe input is larger than max of selected scedule
+    raise ValueError('Pipe input is larger than max of selected schedule')
+ValueError: Pipe input is larger than max of selected schedule
 
 
 Wire gauges
@@ -325,7 +330,7 @@ documented in the many functions in :py:mod:`fluids.geometry`.
 
 >>> T1 = TANK(D=1.2, L=4, horizontal=False)
 >>> T1.V_total, T1.A # Total volume of the tank and its surface area
-4.523893421169302, 17.34159144781566
+(4.523893421169302, 17.34159144781566)
 
 By default, tanks are cylinders without heads. Tank heads can be specified
 to be conical, ellipsoidal, torispherical, guppy, or spherical. The heads can 
@@ -488,9 +493,9 @@ Eastward) for 1000 m elevation, 45 degrees latitude and longitude, 150th day
 of year, 0 seconds in, with both models:
 
 >>> hwm93(Z=1000, latitude=45, longitude=45, day=150)
-[-0.0038965975400060415, 3.8324742317199707]
+(-0.0038965975400060415, 3.8324742317199707)
 >>> hwm14(Z=1000, latitude=45, longitude=45, day=150)
-[-0.9920163154602051, 0.4105832874774933]
+(-0.9920163154602051, 0.4105832874774933)
 
 These wind velocities are only historical normals; conditions may vary year to 
 year. 
@@ -590,7 +595,7 @@ Converting polytropic efficiency to isentropic efficiency:
 
 >>> eta_s = isentropic_efficiency(P1=1E5, P2=1E6, k=1.4, eta_p=0.83)
 >>> print(eta_s)
-0.7588999047069671
+0.769683649894
 
 Checking the calculated power is the same:
 
@@ -640,9 +645,17 @@ pressure, chocked flow will develop - that downstream pressure is that
 at which the mass flow rate reaches a maximum. An exception will be
 raised if such an input is specified:
 
->>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, L=1000, D=0.5, m=260)
-Exception: The desired mass flow rate cannot be achieved with the specified upstream pressure; the maximum flowrate is 257.216733 at an downstream pressure of 389699.731765
->>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=3E5, L=1000, D=0.5)
+>>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, L=1000, D=0.5, m=260) # doctest: +IGNORE_EXCEPTION_DETAIL
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "fluids/compressible.py", line 886, in isothermal_gas
+    'kg/s at a downstream pressure of %f' %(P1, m_max, Pcf))
+Exception: The desired mass flow rate cannot be achieved with the specified upstream pressure of 1000000.000000 Pa; the maximum flowrate is 257.216733 kg/s at a downstream pressure of 389699.731765
+>>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=3E5, L=1000, D=0.5) # doctest: +IGNORE_EXCEPTION_DETAIL
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "fluids/compressible.py", line 821, in isothermal_gas
+    due to the formation of choked flow at P2=%f, specified outlet pressure was %f' % (Pcf, P2))
 Exception: Given outlet pressure is not physically possible due to the formation of choked flow at P2=389699.731765, specified outlet pressure was 300000.000000
 
 The downstream pressure at which chocked flow occurs can be calculated directly
@@ -680,7 +693,8 @@ diameter pipeline for 1 km, roughness = 5E-5 m:
 >>> Re = S1.Reynolds(D=D, V=V)
 >>> fd = friction_factor(Re=Re, eD=epsilon/D)
 >>> P2 = isothermal_gas(rho=S1.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)
->>> 877852.8365849017
+>>> P2
+877424.4964411375
 
 In the above example, the friction factor was calculated using the density
 and velocity of the gas when it enters the stream. However, the average values,
@@ -688,22 +702,22 @@ at the middle pressure, and more representative. We can iterate to observe
 the effect of using the average values:
 
 >>> for i in range(10):
->>>     S2 = Stream('natural gas', P=0.5*(P2+S1.P), m=50)
->>>     V = S2.Q/(pi/4*D**2)
->>>     Re = S2.Reynolds(D=D, V=V)
->>>     fd = friction_factor(Re=Re, eD=epsilon/D)
->>>     P2 = isothermal_gas(rho=S2.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)
->>>     print(P2)
-868992.832357
-868300.621412
-868246.236225
-868241.961444
-868241.625427
-868241.599014
-868241.596938
-868241.596775
-868241.596762
-868241.596761
+...     S2 = Stream('natural gas', P=0.5*(P2+S1.P), m=50)
+...     V = S2.Q/(pi/4*D**2)
+...     Re = S2.Reynolds(D=D, V=V)
+...     fd = friction_factor(Re=Re, eD=epsilon/D)
+...     P2 = isothermal_gas(rho=S2.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)
+...     print('%g' %P2)
+868964
+868303
+868251
+868247
+868247
+868247
+868247
+868247
+868247
+868247
 
 As can be seen, the system converges very quickly. The difference in calculated
 pressure drop is approximately 1%.
@@ -816,13 +830,13 @@ The integrating function, :py:func:`~.integrate_drag_sphere`, performs the integ
 to time. At one second, we can see the (velocity, distance travelled):
 
 >>> integrate_drag_sphere(D=1E-3, rhop=3400., rho=1.2, mu=1E-5, t=1, V=30, distance=True)
-(10.561878111154627, 15.60790417764922)
+(10.561878111165333, 15.607904177715518)
 
 After integrating to 10 seconds, we can see the particle has travelled 97 meters and is
 almost on the ground. 
 
 >>> integrate_drag_sphere(D=1E-3, rhop=3400., rho=1.2, mu=1E-5, t=10, V=30, distance=True)
-(8.971223987066322, 97.13276290361276)
+(8.97122398706632, 97.13276290361276)
 
 For this example simply using the terminal velocity would have given an accurate estimation
 of distance travelled:
@@ -847,10 +861,10 @@ particle to tube diameter and the shape of the particles.
 
 Consider 0.8 mm pebbles with 40% empty space with water flowing through a 2 m  
 column creeping flow at a superficial velocity of 1 mm/s. We can calculate the 
-pressure drop using the :py:func:`~.dP_packed_bed` function:
+pressure drop in Pascals using the :py:func:`~.dP_packed_bed` function:
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2)
-2876.565391768883 # Pa
+2876.565391768883
 
 The method can be specified manually as well, for example the commonly used Ergun equation:
 
@@ -868,15 +882,15 @@ input; if not provided, the result will be in terms of Pa/m.
 >>> KTA(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3) # A correlation standardized for use in pebble reactors
 1440.409277034248
 
-If the column diameter was 0.5 m, the flow rate would be:
+If the column diameter was 0.5 m, the flow rate in m^3/s would be:
 
 >>> .001*(pi/4*0.5**2) # superficial_velocity*A_column
-0.00019634954084936208 # m^3/s
+0.00019634954084936208
 
 The holdup (total volume of the column holding fluid not particles) would be:
 
 >>> (pi/4*0.5**2)*(2)*0.4 # A_column*H_column*voidage
-0.15707963267948966 # m^3
+0.15707963267948966
 
 
 Not all particles are spherical. There have been correlations published for 
@@ -1009,6 +1023,7 @@ can be converted easily with the functions :py:func:`~.K_to_Kv`,
 :py:func:`~.K_to_Cv`, :py:func:`~.Cv_to_K`, :py:func:`~.Kv_to_K`,
 :py:func:`~.Cv_to_Kv`, and :py:func:`~.Kv_to_Cv`.
 
+>>> from fluids import *
 >>> K_to_Kv(K=16, D=0.016)
 2.56
 >>> K_to_Cv(K=16, D=0.016)
@@ -1113,12 +1128,13 @@ values of Cv or Kv for a valve. Now using :py:func:`~.size_control_valve_l`
 to solve for the flow coefficient:
 
 >>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)
-109.39701927957765
+>>> Kv
+109.27127420992377
 
 The handbook states the Cv of the valve is 121; we convert Kv to Cv:
 
 >>> Kv_to_Cv(Kv=Kv)
-126.47380957330982
+126.3284357953137
 
 The example in the book calculated Cv = 125.7, but doesn't actually use the 
 full calculation method. Either way, the valve will not carry the desired flow 
@@ -1128,7 +1144,7 @@ example, which has a known Cv of 203.
 >>> d = 4*inch # to m
 >>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)
 >>> Kv_to_Cv(Kv=Kv)
-116.17550388277834
+116.0624409988861
 
 The calculated Cv is well under the valve's maximum Cv; we can select it.
 
@@ -1187,7 +1203,7 @@ Now using :py:func:`~.size_control_valve_g` to solve for the flow coefficient:
 
 >>> Kv = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=1, Fd=1, xT=.137)
 >>> Kv_to_Cv(Kv)
-1563.4479874210986
+1560.9362792230884
 
 The 8-inch valve is rated with Cv = 2190. The valve is adequate to provide 
 the desired flow because the rated Cv is higher. The calculated value in their
@@ -1217,15 +1233,14 @@ are all smooth functions:
 Creating and solving the objective function:
 
 >>> def to_solve(opening):
->>>     Fd = float(Fd_interp(opening))
->>>     Fl = float(Fl_interp(opening))
->>>     xT = float(xT_interp(opening))
->>>     Kv_lookup = float(Kv_interp(opening))
->>>     Kv_calc = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=Fl, Fd=Fd, xT=xT)
->>>     return Kv_calc - Kv_lookup
->>> 
+...     Fd = float(Fd_interp(opening))
+...     Fl = float(Fl_interp(opening))
+...     xT = float(xT_interp(opening))
+...     Kv_lookup = float(Kv_interp(opening))
+...     Kv_calc = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=Fl, Fd=Fd, xT=xT)
+...     return Kv_calc - Kv_lookup 
 >>> newton(to_solve, .8) # initial guess of 80%
-0.7495109870213784
+0.7495168349025819
 
 We see the valve should indeed be set to almost exactly 75% open to provide 
 the desired flow. 
@@ -1239,8 +1254,8 @@ the power of a motor will actually be once purchased,
 rounding up of a motor power to the nearest size. NEMA standard motors are
 specified in terms of horsepower.
 
->>> motor_round_size(1E5) # 100 kW motor
-111854.98073734052 # 11.8% larger than desired
+>>> motor_round_size(1E5) # 100 kW motor; 11.8% larger than desired
+111854.98073734052
 >>> from scipy.constants import hp
 >>> motor_round_size(1E5)/hp # convert to hp
 150.0
@@ -1328,7 +1343,7 @@ Also supported is providing as many diameter values as fraction values.
 >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
 >>> psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
 >>> psd
-<Particle Size Distribution, points=14, D[3, 3]=0.002451 m>
+<Particle Size Distribution, points=14, D[3, 3]=2450.886241 m>
 
 In the above example, the analysis available was the number of particles counted
 in each bin. This is equivalent to having normalized the numbers into fractions;
@@ -1391,3 +1406,27 @@ Discrete and continuous distributions share most methods.
 >>> ParticleSizeDistribution(ds=ds, fractions=fractions, order=3).mean_size(3, 2)
 4.4257436305831372e-06
 
+It is straightforward to calculate descriptions of the distribution using the
+available routines:
+
+Volume specific surface area:
+
+>>> psd.vssa
+1359778.1436801916
+
+Span (D90 - D10):
+
+>>> psd.dn(.9) - psd.dn(0.1)
+6.855345945193373e-06
+
+Relative span (D90 - D10)/D50:
+
+>>> (psd.dn(.9) - psd.dn(0.1))/psd.dn(0.5)
+1.3710691890386744
+
+Percentile ratios, D75/D25 and D90/D10:
+
+>>> psd.dn(0.75)/psd.dn(0.25)
+1.9630310841582574
+>>> psd.dn(0.9)/psd.dn(0.1)
+3.602224479279158
