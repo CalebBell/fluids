@@ -1304,7 +1304,10 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
         b = \frac{g(\rho_p-\rho_f)}{\rho_p}
         
     The analytical solution will automatically be used if the initial and 
-    terminal velocity is show the particle's behavior to be laminar.
+    terminal velocity is show the particle's behavior to be laminar. Note
+    that this behavior requires that the terminal velocity of the particle be
+    solved for - this adds slight (1%) overhead for the cases where particles 
+    are not laminar.
 
     Examples
     --------
@@ -1321,7 +1324,6 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     laminar_initial = Reynolds(V=V, rho=rho, D=D, mu=mu) < 0.01
     v_laminar_end_assumed = v_terminal(D=D, rhop=rhop, rho=rho, mu=mu, Method=Method)
     laminar_end = Reynolds(V=v_laminar_end_assumed, rho=rho, D=D, mu=mu) < 0.01
-    
     if Method == 'Stokes' or (laminar_initial and laminar_end and Method is None):
         try:
             t1 = 18.0*mu/(D*D*rhop)
