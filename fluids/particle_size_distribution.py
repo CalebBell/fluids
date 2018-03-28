@@ -860,14 +860,14 @@ def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
     Examples
     --------
     >>> pdf_Rosin_Rammler_basis_integral(5E-2, 200, 2, 3)
-    -0.00045239898439007338
+    -0.0004523989843900734
     '''
     # Also not able to compute the limit for d approaching 0.
     try:
         a = (m+n)/m
         x = d**m*k
-        t1 = gamma(a)*(gammaincc(a, x))
-        return -d**(m+n)*k*(d**m*k)**(-a)*t1
+        t1 = float(gamma(a)*(gammaincc(a, x)))
+        return (-d**(m+n)*k*(d**m*k)**(-a))*t1
     except (OverflowError, ZeroDivisionError) as e:
         if d == 1E-40:
             raise e
@@ -2032,7 +2032,7 @@ class PSDCustom(ParticleSizeDistributionContinuous):
             d_min = d_max*1E-12
         to_int = lambda d : d**n*self._pdf(d)
         points = np.logspace(np.log10(max(d_max/1000, d_min)), np.log10(d_max*.999), 40)
-        return quad(to_int, d_min, d_max, points=points)[0] # 
+        return float(quad(to_int, d_min, d_max, points=points)[0]) # 
             
     
 class PSDInterpolated(ParticleSizeDistributionContinuous):

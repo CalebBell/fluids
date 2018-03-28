@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,31 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+
+This module contains models of earth's atmosphere. Models are emperical and
+based on extensive research, primarily by NASA. 
+
+For reporting bugs, adding feature requests, or submitting pull requests, 
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+
+.. contents:: :local:
+
+Atmospheres
+-----------
+.. autoclass:: ATMOSPHERE_1976
+    :members:
+.. autoclass:: ATMOSPHERE_NRLMSISE00
+    :members:
+
+Wind Models (requires Fortran compiler!)
+----------------------------------------
+.. autofunction:: hwm93
+.. autofunction:: hwm14
+
+'''
 
 from __future__ import division
 import os
