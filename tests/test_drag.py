@@ -189,4 +189,9 @@ def test_integrate_drag_sphere():
     
     
 def test_time_v_terminal_Stokes():
-    pass
+    t = time_v_terminal_Stokes(D=1e-7, rhop=2200., rho=1.2, mu=1.78E-5, V0=1) 
+    assert_allclose(t, 3.188003113787154e-06)
+    
+    # Very slow - many iterations
+    t = time_v_terminal_Stokes(D=1e-2, rhop=2200., rho=1.2, mu=1.78E-5, V0=1, tol=1e-30)
+    assert_allclose(t, 24800.636391802)

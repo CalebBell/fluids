@@ -28,7 +28,8 @@ from scipy.optimize import newton
 from scipy.integrate import odeint, cumtrapz
 from fluids.core import Reynolds
 
-__all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere', 'Stokes',
+__all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere',
+'time_v_terminal_Stokes', 'Stokes',
 'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
 'Clift_Gauvin', 'Morsi_Alexander', 'Graf', 'Flemmer_Banks', 'Khan_Richardson',
 'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
@@ -1174,24 +1175,76 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     return float(newton(err, V_max/100, tol=1E-12))
 
 
-def time_v_terminal_Stokes(D, rhop, rho, mu, V0=0, tol=1e-14):
-    '''
+def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
+    r'''Calculates the time required for a particle in Stoke's regime only to
+    reach terminal velocity (approximately). An infinitely long period is
+    required theoretically, but with floating points, it is possible to 
+    calculate the time required to come within a specified `tol` of that 
+    terminal velocity.
+    
+    .. math::
+        t_{term} = -\frac{1}{18\mu}\ln \left(\frac{D^2g\rho - D^2 g \rho_p 
+        + 18\mu V_{term}}{D^2g\rho - D^2 g \rho_p + 18\mu V_0 } \right) D^2 
+        \rho_p
+    
+    Parameters
+    ----------
+    D : float
+        Diameter of the sphere, [m]
+    rhop : float
+        Particle density, [kg/m^3]
+    rho : float
+        Density of the surrounding fluid, [kg/m^3]
+    mu : float
+        Viscosity of the surrounding fluid [Pa*s]
+    V0 : float
+        Initial velocity of the particle, [m/s]
+    tol : float, optional
+        How closely to approach the terminal velocity - the target velocity is
+        the terminal velocity multiplied by 1 (+/-) this, dependeing on if the
+        particle is accelerating or decelerating, [-]
+
+    Returns
+    -------
+    t : float
+        Time for the particle to reach the terminal velocity to within the
+        specified or an achievable tolerance, [s]
+
+    Notes
+    -----
+    The symbolic solution was obtained via Wolfram Alpha.
+    
+    If a solution cannot be obtained due to floating point error at very high
+    tolerance, an exception is raised - but first, the tolerance is doubled,
+    up to fifty times in an attempt to obtain the highest possible precision
+    while sill giving an answer. If at any point the tolerance is larger than
+    1%, an exception is also raised.
+
+    Examples
+    --------
+    >>> time_v_terminal_Stokes(D=1e-7, rhop=2200., rho=1.2, mu=1.78E-5, V0=1) 
+    3.188003113787153e-06
+    >>> time_v_terminal_Stokes(D=1e-2, rhop=2200., rho=1.2, mu=1.78E-5, V0=1, 
+    ... tol=1e-30)
+    24800.636391802
     '''
     term = D*D*g*rho - D*D*g*rhop 
     denominator = term + 18.*mu*V0
+    v_term_base = g*D*D*(rhop-rho)/(18.*mu)
+    
     for i in range(50):
         try: 
-            v_term = g*D*D*(rhop-rho)/(18.*mu)
-            if v_term < V0:
-                v_term *= (1.0 + tol)
+            if v_term_base < V0:
+                v_term = v_term_base*(1.0 + tol)
             else:
-                v_term *= (1.0 - tol)
+                v_term = v_term_base*(1.0 - tol)
             numerator = term + 18.*mu*v_term
-            return -1/18.*log(numerator/denominator)*D*D*rhop/mu
+            return log(numerator/denominator)*D*D*rhop/mu*-1/18.
         except ValueError:
             tol = tol*2
             if tol > 0.01:
                 raise Exception('Could not find a solution')
+    raise Exception('Could not find a solution')
 
 
 def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
