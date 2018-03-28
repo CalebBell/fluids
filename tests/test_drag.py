@@ -187,6 +187,10 @@ def test_integrate_drag_sphere():
     ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=-10, distance=True, Method='Stokes')
     assert_allclose(ans, [-8.882391519909806, -0.9439839394457605])
     
+    # Stokes law regime - test case where particle is ensured to be laminar before and after the simulation
+    for m in (None, 'Stokes'):
+        ans = integrate_drag_sphere(D=0.000001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=0, distance=True, Method=m)
+        assert_allclose(ans, [6.729981897140177e-05, 6.729519788530099e-06], rtol=1e-11)
     
 def test_time_v_terminal_Stokes():
     t = time_v_terminal_Stokes(D=1e-7, rhop=2200., rho=1.2, mu=1.78E-5, V0=1) 
