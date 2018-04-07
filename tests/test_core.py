@@ -197,7 +197,8 @@ def test_core_dimensionless():
     Fr = Froude_densimetric(1.83, L=2., rho2=1.2, rho1=800, g=9.81, heavy=False)
     assert_allclose(Fr, 0.016013017679205096)
 
-
+    Mo = Morton(1077.0, 76.5, 4.27E-3, 0.023)
+    assert_allclose(Mo, 2.311183104430743e-07)
     
 
 def test_core_misc2():

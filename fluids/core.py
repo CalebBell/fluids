@@ -27,7 +27,7 @@ import numpy as np
 
 __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
-'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond', 'Dean',
+'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond', 'Dean', 'Morton',
 'Froude', 'Froude_densimetric', 'Strouhal', 'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
 'Jakob', 'Power_number', 'Stokes_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
 'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'Hagen', 'thermal_diffusivity', 'c_ideal_gas',
@@ -716,6 +716,53 @@ def Confinement(D, rhol, rhog, sigma, g=g):
        doi:10.1016/S0301-9322(99)00119-6.
     '''
     return (sigma/(g*(rhol-rhog)))**0.5/D
+
+
+def Morton(rhol, rhog, mul, sigma, g=g):
+    r'''Calculates Morton number or `Mo` for a liquid and vapor with the
+    specified properties, under the influence of gravitational force `g`.
+
+    .. math::
+        Mo = \frac{g \mu_l^4(\rho_l - \rho_g)}{\rho_l^2 \sigma^3}
+        
+    Parameters
+    ----------
+    rhol : float
+        Density of liquid phase, [kg/m^3]
+    rhog : float
+        Density of gas phase, [kg/m^3]
+    mul : float
+        Viscosity of liquid phase, [Pa*s]
+    sigma : float
+        Surface tension between liquid-gas phase, [N/m]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
+
+    Returns
+    -------
+    Mo : float
+        Morton number, [-]
+
+    Notes
+    -----
+    Used in modeling bubbles in liquid.
+
+    Examples
+    --------
+    >>> Morton(1077.0, 76.5, 4.27E-3, 0.023)
+    2.311183104430743e-07
+
+    References
+    ----------
+    .. [1] Kunes, Josef. Dimensionless Physical Quantities in Science and 
+       Engineering. Elsevier, 2012.
+    .. [2] Yan, Xiaokang, Kaixin Zheng, Yan Jia, Zhenyong Miao, Lijun Wang,
+       Yijun Cao, and Jiongtian Liu. “Drag Coefficient Prediction of a Single 
+       Bubble Rising in Liquids.” Industrial & Engineering Chemistry Research, 
+       April 2, 2018. https://doi.org/10.1021/acs.iecr.7b04743.
+    '''
+    mul2 = mul*mul
+    return g*mul2*mul2*(rhol - rhog)/(rhol*rhol*sigma*sigma*sigma)
 
 
 def Knudsen(path, L):
