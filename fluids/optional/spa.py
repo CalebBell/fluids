@@ -427,9 +427,9 @@ NUTATION_YTERM_ARRAY = np.array([
 ])
 
 HELIO_LONG_TABLE_LIST = HELIO_LONG_TABLE.tolist()
+HELIO_RADIUS_TABLE_LIST = HELIO_RADIUS_TABLE.tolist()
 NUTATION_YTERM_LIST = NUTATION_YTERM_ARRAY.tolist()
 NUTATION_ABCD_LIST = NUTATION_ABCD_ARRAY.tolist()
-
 
 @jcompile('float64(int64, int64, int64, int64, int64, int64, int64)',
           nopython=True)
@@ -488,8 +488,12 @@ def heliocentric_longitude(jme):
     l3 = 0.0
     l4 = 0.0
     l5 = 0.0
-    cos = math.cos
-    jme = float(jme)
+    if isinstance(jme, np.ndarray):
+        cos = np.cos
+        rad2deg = np.rad2deg
+    else:
+        cos = math.cos
+        rad2deg = math.degrees
 
     for row in range(64):
         l0 += (HELIO_LONG_TABLE_LIST[0][row][0]
@@ -517,12 +521,50 @@ def heliocentric_longitude(jme):
                         + HELIO_LONG_TABLE_LIST[5][row][2] * jme)
                )
 
-    l_rad = (l0 + l1 * jme + l2 * jme**2 + l3 * jme**3 + l4 * jme**4 +
-             l5 * jme**5)/1E8
-    l = np.rad2deg(l_rad)
+    l_rad = (jme*(jme*(jme*(jme*(jme*l5 + l4) + l3) + l2) + l1) + l0)*1E-8
+    l = rad2deg(l_rad)
     return l % 360
-heliocentric_longitude = np.vectorize(heliocentric_longitude)
 
+@jcompile('float64(float64)', nopython=True)
+def heliocentric_longitude_original(jme):
+    l0 = 0.0
+    l1 = 0.0
+    l2 = 0.0
+    l3 = 0.0
+    l4 = 0.0
+    l5 = 0.0
+
+    for row in range(HELIO_LONG_TABLE.shape[1]):
+        l0 += (HELIO_LONG_TABLE[0, row, 0]
+               * np.cos(HELIO_LONG_TABLE[0, row, 1]
+                        + HELIO_LONG_TABLE[0, row, 2] * jme)
+               )
+        l1 += (HELIO_LONG_TABLE[1, row, 0]
+               * np.cos(HELIO_LONG_TABLE[1, row, 1]
+                        + HELIO_LONG_TABLE[1, row, 2] * jme)
+               )
+        l2 += (HELIO_LONG_TABLE[2, row, 0]
+               * np.cos(HELIO_LONG_TABLE[2, row, 1]
+                        + HELIO_LONG_TABLE[2, row, 2] * jme)
+               )
+        l3 += (HELIO_LONG_TABLE[3, row, 0]
+               * np.cos(HELIO_LONG_TABLE[3, row, 1]
+                        + HELIO_LONG_TABLE[3, row, 2] * jme)
+               )
+        l4 += (HELIO_LONG_TABLE[4, row, 0]
+               * np.cos(HELIO_LONG_TABLE[4, row, 1]
+                        + HELIO_LONG_TABLE[4, row, 2] * jme)
+               )
+        l5 += (HELIO_LONG_TABLE[5, row, 0]
+               * np.cos(HELIO_LONG_TABLE[5, row, 1]
+                        + HELIO_LONG_TABLE[5, row, 2] * jme)
+               )
+
+    l_rad = (l0 + l1 * jme + l2 * jme**2 + l3 * jme**3 + l4 * jme**4 +
+             l5 * jme**5)/10**8
+    l = np.rad2deg(l_rad)
+    ans = l % 360
+    return ans
 
 @jcompile('float64(float64)', nopython=True)
 def heliocentric_latitude(jme):
@@ -550,33 +592,35 @@ def heliocentric_radius_vector(jme):
     r2 = 0.0
     r3 = 0.0
     r4 = 0.0
-    cos = math.cos
-    jme = float(jme)
-    for row in range(HELIO_RADIUS_TABLE.shape[1]):
-        r0 += (HELIO_LONG_TABLE_LIST[0][row][0]
-               * cos(HELIO_LONG_TABLE_LIST[0][row][1]
-                        + HELIO_LONG_TABLE_LIST[0][row][2] * jme)
+    if isinstance(jme, np.ndarray):
+        cos = np.cos
+    else:
+        cos = math.cos
+        
+    for row in range(40):
+        r0 += (HELIO_RADIUS_TABLE_LIST[0][row][0]
+               * cos(HELIO_RADIUS_TABLE_LIST[0][row][1]
+                        + HELIO_RADIUS_TABLE_LIST[0][row][2] * jme)
                )
-        r1 += (HELIO_LONG_TABLE_LIST[1][row][0]
-               * cos(HELIO_LONG_TABLE_LIST[1][row][1]
-                        + HELIO_LONG_TABLE_LIST[1][row][2] * jme)
+        r1 += (HELIO_RADIUS_TABLE_LIST[1][row][0]
+               * cos(HELIO_RADIUS_TABLE_LIST[1][row][1]
+                        + HELIO_RADIUS_TABLE_LIST[1][row][2] * jme)
                )
-        r2 += (HELIO_LONG_TABLE_LIST[2][row][0]
-               * cos(HELIO_LONG_TABLE_LIST[2][row][1]
-                        + HELIO_LONG_TABLE_LIST[2][row][2] * jme)
+        r2 += (HELIO_RADIUS_TABLE_LIST[2][row][0]
+               * cos(HELIO_RADIUS_TABLE_LIST[2][row][1]
+                        + HELIO_RADIUS_TABLE_LIST[2][row][2] * jme)
                )
-        r3 += (HELIO_LONG_TABLE_LIST[3][row][0]
-               * cos(HELIO_LONG_TABLE_LIST[3][row][1]
-                        + HELIO_LONG_TABLE_LIST[3][row][2] * jme)
+        r3 += (HELIO_RADIUS_TABLE_LIST[3][row][0]
+               * cos(HELIO_RADIUS_TABLE_LIST[3][row][1]
+                        + HELIO_RADIUS_TABLE_LIST[3][row][2] * jme)
                )
-        r4 += (HELIO_LONG_TABLE_LIST[4][row][0]
-               * cos(HELIO_LONG_TABLE_LIST[4][row][1]
-                        + HELIO_LONG_TABLE_LIST[4][row][2] * jme)
+        r4 += (HELIO_RADIUS_TABLE_LIST[4][row][0]
+               * cos(HELIO_RADIUS_TABLE_LIST[4][row][1]
+                        + HELIO_RADIUS_TABLE_LIST[4][row][2] * jme)
                )
-
+#    r = (jme*(jme*(jme*(jme*r4 + r3) + r2) + r1) + r0)*1E-8
     r = (r0 + r1 * jme + r2 * jme**2 + r3 * jme**3 + r4 * jme**4)/10**8
     return r
-heliocentric_radius_vector = np.vectorize(heliocentric_radius_vector)
 
 
 @jcompile('float64(float64)', nopython=True)
@@ -636,49 +680,40 @@ def moon_ascending_longitude(julian_ephemeris_century):
     return x4
 
 
-
 @jcompile('float64(float64, float64, float64, float64, float64, float64)',
           nopython=True)
 def longitude_nutation(julian_ephemeris_century, x0, x1, x2, x3, x4):
     delta_psi_sum = 0
-    sin = math.sin
-    radians = math.radians
-    julian_ephemeris_century, x0, x1, x2, x3, x4 = float(julian_ephemeris_century), float(x0), float(x1), float(x2), float(x3), float(x4)
     for row in range(NUTATION_YTERM_ARRAY.shape[0]):
-        a = NUTATION_ABCD_LIST[row][0]
-        b = NUTATION_ABCD_LIST[row][1]
-        argsin = (NUTATION_YTERM_LIST[row][0]*x0 +
-                  NUTATION_YTERM_LIST[row][1]*x1 +
-                  NUTATION_YTERM_LIST[row][2]*x2 +
-                  NUTATION_YTERM_LIST[row][3]*x3 +
-                  NUTATION_YTERM_LIST[row][4]*x4)
-        term = (a + b * julian_ephemeris_century) * sin(radians(argsin))
+        a = NUTATION_ABCD_ARRAY[row, 0]
+        b = NUTATION_ABCD_ARRAY[row, 1]
+        argsin = (NUTATION_YTERM_ARRAY[row, 0]*x0 +
+                  NUTATION_YTERM_ARRAY[row, 1]*x1 +
+                  NUTATION_YTERM_ARRAY[row, 2]*x2 +
+                  NUTATION_YTERM_ARRAY[row, 3]*x3 +
+                  NUTATION_YTERM_ARRAY[row, 4]*x4)
+        term = (a + b * julian_ephemeris_century) * np.sin(np.radians(argsin))
         delta_psi_sum += term
-    delta_psi = delta_psi_sum/36000000.0
+    delta_psi = delta_psi_sum*1.0/36000000
     return delta_psi
-longitude_nutation = np.vectorize(longitude_nutation)
 
 
 @jcompile('float64(float64, float64, float64, float64, float64, float64)',
           nopython=True)
 def obliquity_nutation(julian_ephemeris_century, x0, x1, x2, x3, x4):
     delta_eps_sum = 0.0
-    cos = math.cos
-    radians = math.radians
-    julian_ephemeris_century, x0, x1, x2, x3, x4 = float(julian_ephemeris_century), float(x0), float(x1), float(x2), float(x3), float(x4)
     for row in range(NUTATION_YTERM_ARRAY.shape[0]):
-        c = NUTATION_ABCD_LIST[row][2]
-        d = NUTATION_ABCD_LIST[row][3]
-        argcos = (NUTATION_YTERM_LIST[row][0]*x0 +
-                  NUTATION_YTERM_LIST[row][1]*x1 +
-                  NUTATION_YTERM_LIST[row][2]*x2 +
-                  NUTATION_YTERM_LIST[row][3]*x3 +
-                  NUTATION_YTERM_LIST[row][4]*x4)
-        term = (c + d * julian_ephemeris_century) * cos(radians(argcos))
+        c = NUTATION_ABCD_ARRAY[row, 2]
+        d = NUTATION_ABCD_ARRAY[row, 3]
+        argcos = (NUTATION_YTERM_ARRAY[row, 0]*x0 +
+                  NUTATION_YTERM_ARRAY[row, 1]*x1 +
+                  NUTATION_YTERM_ARRAY[row, 2]*x2 +
+                  NUTATION_YTERM_ARRAY[row, 3]*x3 +
+                  NUTATION_YTERM_ARRAY[row, 4]*x4)
+        term = (c + d * julian_ephemeris_century) * np.cos(np.radians(argcos))
         delta_eps_sum += term
-    delta_eps = delta_eps_sum/36000000.0
+    delta_eps = delta_eps_sum*1.0/36000000
     return delta_eps
-obliquity_nutation = np.vectorize(obliquity_nutation)
 
 
 @jcompile('float64(float64)', nopython=True)
