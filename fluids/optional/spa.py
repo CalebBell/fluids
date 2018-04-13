@@ -525,46 +525,6 @@ def heliocentric_longitude(jme):
     l = rad2deg(l_rad)
     return l % 360
 
-@jcompile('float64(float64)', nopython=True)
-def heliocentric_longitude_original(jme):
-    l0 = 0.0
-    l1 = 0.0
-    l2 = 0.0
-    l3 = 0.0
-    l4 = 0.0
-    l5 = 0.0
-
-    for row in range(HELIO_LONG_TABLE.shape[1]):
-        l0 += (HELIO_LONG_TABLE[0, row, 0]
-               * np.cos(HELIO_LONG_TABLE[0, row, 1]
-                        + HELIO_LONG_TABLE[0, row, 2] * jme)
-               )
-        l1 += (HELIO_LONG_TABLE[1, row, 0]
-               * np.cos(HELIO_LONG_TABLE[1, row, 1]
-                        + HELIO_LONG_TABLE[1, row, 2] * jme)
-               )
-        l2 += (HELIO_LONG_TABLE[2, row, 0]
-               * np.cos(HELIO_LONG_TABLE[2, row, 1]
-                        + HELIO_LONG_TABLE[2, row, 2] * jme)
-               )
-        l3 += (HELIO_LONG_TABLE[3, row, 0]
-               * np.cos(HELIO_LONG_TABLE[3, row, 1]
-                        + HELIO_LONG_TABLE[3, row, 2] * jme)
-               )
-        l4 += (HELIO_LONG_TABLE[4, row, 0]
-               * np.cos(HELIO_LONG_TABLE[4, row, 1]
-                        + HELIO_LONG_TABLE[4, row, 2] * jme)
-               )
-        l5 += (HELIO_LONG_TABLE[5, row, 0]
-               * np.cos(HELIO_LONG_TABLE[5, row, 1]
-                        + HELIO_LONG_TABLE[5, row, 2] * jme)
-               )
-
-    l_rad = (l0 + l1 * jme + l2 * jme**2 + l3 * jme**3 + l4 * jme**4 +
-             l5 * jme**5)/10**8
-    l = np.rad2deg(l_rad)
-    ans = l % 360
-    return ans
 
 @jcompile('float64(float64)', nopython=True)
 def heliocentric_latitude(jme):
@@ -778,12 +738,28 @@ def apparent_sidereal_time(mean_sidereal_time, longitude_nutation,
 def geocentric_sun_right_ascension(apparent_sun_longitude,
                                    true_ecliptic_obliquity,
                                    geocentric_latitude):
-    num = (np.sin(np.radians(apparent_sun_longitude))
-           * np.cos(np.radians(true_ecliptic_obliquity))
-           - np.tan(np.radians(geocentric_latitude))
-           * np.sin(np.radians(true_ecliptic_obliquity)))
-    alpha = np.degrees(np.arctan2(num, np.cos(
-        np.radians(apparent_sun_longitude))))
+
+    if isinstance(apparent_sun_longitude, np.ndarray):
+        sin = np.sin
+        cos = np.cos
+        tan = np.tan
+        radians = np.radians
+        degrees = np.degrees
+        arctan2 = np.arctan2
+    else:
+        sin = math.sin
+        cos = math.cos
+        tan = math.tan
+        radians = math.radians
+        degrees = math.degrees
+        arctan2 = math.atan2
+
+    num = (sin(radians(apparent_sun_longitude))
+           * cos(radians(true_ecliptic_obliquity))
+           - tan(radians(geocentric_latitude))
+           * sin(radians(true_ecliptic_obliquity)))
+    alpha = degrees(arctan2(num, cos(
+        radians(apparent_sun_longitude))))
     return alpha % 360
 
 
