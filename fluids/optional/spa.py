@@ -859,13 +859,26 @@ def topocentric_sun_declination(geocentric_sun_declination, xterm, yterm,
                                 equatorial_horizontal_parallax,
                                 parallax_sun_right_ascension,
                                 local_hour_angle):
-    num = ((np.sin(np.radians(geocentric_sun_declination)) - yterm
-            * np.sin(np.radians(equatorial_horizontal_parallax)))
-           * np.cos(np.radians(parallax_sun_right_ascension)))
-    denom = (np.cos(np.radians(geocentric_sun_declination)) - xterm
-             * np.sin(np.radians(equatorial_horizontal_parallax))
-             * np.cos(np.radians(local_hour_angle)))
-    delta = np.degrees(np.arctan2(num, denom))
+    if isinstance(geocentric_sun_declination, np.ndarray):
+        sin = np.sin
+        cos = np.cos
+        radians = np.radians
+        degrees = np.degrees
+        arctan2 = np.arctan2
+    else:
+        sin = math.sin
+        cos = math.cos
+        radians = math.radians
+        degrees = math.degrees
+        arctan2 = math.atan2
+
+    num = ((sin(radians(geocentric_sun_declination)) - yterm
+            * sin(radians(equatorial_horizontal_parallax)))
+           * cos(radians(parallax_sun_right_ascension)))
+    denom = (cos(radians(geocentric_sun_declination)) - xterm
+             * sin(radians(equatorial_horizontal_parallax))
+             * cos(radians(local_hour_angle)))
+    delta = degrees(arctan2(num, denom))
     return delta
 
 
