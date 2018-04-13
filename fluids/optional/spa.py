@@ -684,17 +684,23 @@ def moon_ascending_longitude(julian_ephemeris_century):
           nopython=True)
 def longitude_nutation(julian_ephemeris_century, x0, x1, x2, x3, x4):
     delta_psi_sum = 0
-    for row in range(NUTATION_YTERM_ARRAY.shape[0]):
-        a = NUTATION_ABCD_ARRAY[row, 0]
-        b = NUTATION_ABCD_ARRAY[row, 1]
-        argsin = (NUTATION_YTERM_ARRAY[row, 0]*x0 +
-                  NUTATION_YTERM_ARRAY[row, 1]*x1 +
-                  NUTATION_YTERM_ARRAY[row, 2]*x2 +
-                  NUTATION_YTERM_ARRAY[row, 3]*x3 +
-                  NUTATION_YTERM_ARRAY[row, 4]*x4)
-        term = (a + b * julian_ephemeris_century) * np.sin(np.radians(argsin))
+    if isinstance(julian_ephemeris_century, np.ndarray):
+        sin = np.sin
+        radians = np.radians
+    else:
+        sin = math.sin
+        radians = math.radians
+    for row in range(63):
+        a = NUTATION_ABCD_LIST[row][0]
+        b = NUTATION_ABCD_LIST[row][1]
+        argsin = (NUTATION_YTERM_LIST[row][0]*x0 +
+                  NUTATION_YTERM_LIST[row][1]*x1 +
+                  NUTATION_YTERM_LIST[row][2]*x2 +
+                  NUTATION_YTERM_LIST[row][3]*x3 +
+                  NUTATION_YTERM_LIST[row][4]*x4)
+        term = (a + b * julian_ephemeris_century) * sin(radians(argsin))
         delta_psi_sum += term
-    delta_psi = delta_psi_sum*1.0/36000000
+    delta_psi = delta_psi_sum/36000000.0
     return delta_psi
 
 
@@ -702,17 +708,23 @@ def longitude_nutation(julian_ephemeris_century, x0, x1, x2, x3, x4):
           nopython=True)
 def obliquity_nutation(julian_ephemeris_century, x0, x1, x2, x3, x4):
     delta_eps_sum = 0.0
-    for row in range(NUTATION_YTERM_ARRAY.shape[0]):
-        c = NUTATION_ABCD_ARRAY[row, 2]
-        d = NUTATION_ABCD_ARRAY[row, 3]
-        argcos = (NUTATION_YTERM_ARRAY[row, 0]*x0 +
-                  NUTATION_YTERM_ARRAY[row, 1]*x1 +
-                  NUTATION_YTERM_ARRAY[row, 2]*x2 +
-                  NUTATION_YTERM_ARRAY[row, 3]*x3 +
-                  NUTATION_YTERM_ARRAY[row, 4]*x4)
-        term = (c + d * julian_ephemeris_century) * np.cos(np.radians(argcos))
+    if isinstance(julian_ephemeris_century, np.ndarray):
+        cos = np.cos
+        radians = np.radians
+    else:
+        cos = math.cos
+        radians = math.radians
+    for row in range(63):
+        c = NUTATION_ABCD_LIST[row][2]
+        d = NUTATION_ABCD_LIST[row][3]
+        argcos = (NUTATION_YTERM_LIST[row][0]*x0 +
+                  NUTATION_YTERM_LIST[row][1]*x1 +
+                  NUTATION_YTERM_LIST[row][2]*x2 +
+                  NUTATION_YTERM_LIST[row][3]*x3 +
+                  NUTATION_YTERM_LIST[row][4]*x4)
+        term = (c + d * julian_ephemeris_century) * cos(radians(argcos))
         delta_eps_sum += term
-    delta_eps = delta_eps_sum*1.0/36000000
+    delta_eps = delta_eps_sum/36000000.0
     return delta_eps
 
 
