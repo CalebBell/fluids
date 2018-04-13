@@ -823,12 +823,26 @@ def yterm(u, observer_latitude, observer_elevation):
 @jcompile('float64(float64, float64,float64, float64)', nopython=True)
 def parallax_sun_right_ascension(xterm, equatorial_horizontal_parallax,
                                  local_hour_angle, geocentric_sun_declination):
-    num = (-xterm * np.sin(np.radians(equatorial_horizontal_parallax))
-           * np.sin(np.radians(local_hour_angle)))
-    denom = (np.cos(np.radians(geocentric_sun_declination))
-             - xterm * np.sin(np.radians(equatorial_horizontal_parallax))
-             * np.cos(np.radians(local_hour_angle)))
-    delta_alpha = np.degrees(np.arctan2(num, denom))
+    if isinstance(xterm, np.ndarray):
+        sin = np.sin
+        cos = np.cos
+        radians = np.radians
+        degrees = np.degrees
+        arctan2 = np.arctan2
+    else:
+        sin = math.sin
+        cos = math.cos
+        radians = math.radians
+        degrees = math.degrees
+        arctan2 = math.atan2
+
+
+    num = (-xterm * sin(radians(equatorial_horizontal_parallax))
+           * sin(radians(local_hour_angle)))
+    denom = (cos(radians(geocentric_sun_declination))
+             - xterm * sin(radians(equatorial_horizontal_parallax))
+             * cos(radians(local_hour_angle)))
+    delta_alpha = degrees(arctan2(num, denom))
     return delta_alpha
 
 
