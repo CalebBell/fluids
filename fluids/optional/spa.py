@@ -766,11 +766,23 @@ def geocentric_sun_right_ascension(apparent_sun_longitude,
 @jcompile('float64(float64, float64, float64)', nopython=True)
 def geocentric_sun_declination(apparent_sun_longitude, true_ecliptic_obliquity,
                                geocentric_latitude):
-    delta = np.degrees(np.arcsin(np.sin(np.radians(geocentric_latitude)) *
-                                 np.cos(np.radians(true_ecliptic_obliquity)) +
-                                 np.cos(np.radians(geocentric_latitude)) *
-                                 np.sin(np.radians(true_ecliptic_obliquity)) *
-                                 np.sin(np.radians(apparent_sun_longitude))))
+    if isinstance(apparent_sun_longitude, np.ndarray):
+        sin = np.sin
+        cos = np.cos
+        radians = np.radians
+        degrees = np.degrees
+        arcsin = np.arcsin
+    else:
+        sin = math.sin
+        cos = math.cos
+        radians = math.radians
+        degrees = math.degrees
+        arcsin = math.asin
+    delta = degrees(arcsin(sin(radians(geocentric_latitude)) *
+                                 cos(radians(true_ecliptic_obliquity)) +
+                                 cos(radians(geocentric_latitude)) *
+                                 sin(radians(true_ecliptic_obliquity)) *
+                                 sin(radians(apparent_sun_longitude))))
     return delta
 
 
