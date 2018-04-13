@@ -430,6 +430,7 @@ HELIO_LONG_TABLE_LIST = HELIO_LONG_TABLE.tolist()
 HELIO_RADIUS_TABLE_LIST = HELIO_RADIUS_TABLE.tolist()
 NUTATION_YTERM_LIST = NUTATION_YTERM_ARRAY.tolist()
 NUTATION_ABCD_LIST = NUTATION_ABCD_ARRAY.tolist()
+HELIO_LAT_TABLE_LIST = HELIO_LAT_TABLE.tolist()
 
 @jcompile('float64(int64, int64, int64, int64, int64, int64, int64)',
           nopython=True)
@@ -530,18 +531,25 @@ def heliocentric_longitude(jme):
 def heliocentric_latitude(jme):
     b0 = 0.0
     b1 = 0.0
-    for row in range(HELIO_LAT_TABLE.shape[1]):
-        b0 += (HELIO_LAT_TABLE[0, row, 0]
-               * np.cos(HELIO_LAT_TABLE[0, row, 1]
-                        + HELIO_LAT_TABLE[0, row, 2] * jme)
+    if isinstance(jme, np.ndarray):
+        cos = np.cos
+        rad2deg = np.rad2deg
+    else:
+        cos = math.cos
+        rad2deg = math.degrees
+    
+    for row in range(5):
+        b0 += (HELIO_LAT_TABLE_LIST[0][row][0]
+               * cos(HELIO_LAT_TABLE_LIST[0][row][1]
+                        + HELIO_LAT_TABLE_LIST[0][row][2] * jme)
                )
-        b1 += (HELIO_LAT_TABLE[1, row, 0]
-               * np.cos(HELIO_LAT_TABLE[1, row, 1]
-                        + HELIO_LAT_TABLE[1, row, 2] * jme)
+        b1 += (HELIO_LAT_TABLE_LIST[1][row][0]
+               * cos(HELIO_LAT_TABLE_LIST[1][row][1]
+                        + HELIO_LAT_TABLE_LIST[1][row][2] * jme)
                )
 
-    b_rad = (b0 + b1 * jme)/10**8
-    b = np.rad2deg(b_rad)
+    b_rad = (b0 + b1 * jme)*1E-8
+    b = rad2deg(b_rad)
     return b
 
 
