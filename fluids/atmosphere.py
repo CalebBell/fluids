@@ -42,6 +42,10 @@ Wind Models (requires Fortran compiler!)
 .. autofunction:: hwm93
 .. autofunction:: hwm14
 
+Solar Models
+------------
+.. autofunction:: earthsun_distance
+.. autofunction:: solar_position
 '''
 
 from __future__ import division
@@ -55,7 +59,7 @@ from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, a
 from fluids.optional import spa
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
-           'earthsun_distance']
+           'earthsun_distance', 'solar_position']
 
 no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
@@ -680,3 +684,71 @@ def earthsun_distance(moment):
     unixtime = time.mktime(moment.timetuple())
     # Convert datetime object to unixtime
     return float(spa.earthsun_distance(unixtime, delta_t=delta_t, numthreads=1)*au)
+
+
+def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0, 
+                           atmos_refract=0.5667):
+    r''' 
+    
+    Parameters
+    ----------
+    moment : datetime
+        Time and date for the calculation, in UTC time, [-]
+    latitude : float
+        Latitude, between -90 and 90 [degrees]
+    longitude : float
+        Longitude, between -180 and 180, [degrees]
+    Z : float, optional
+        Elevation above sea level for the solar position calculation, [m]
+    T : float, optional
+        Temperature of atmosphere at ground level, [K]
+    P : float, optional
+        Pressure of atmosphere at ground level, [Pa]
+    atmos_refract : float, optional
+        Atmospheric refractivity, [degrees]
+
+    Returns
+    -------
+    apparent_zenith : float
+        Zenith of the sun as observed from the ground based after accounting
+        for atmospheric refraction, [degrees]
+    zenith : float
+        Actual zenith of the sun (ignores atmospheric refraction), [degrees]
+    apparent_elevation : float
+        Elevation of the sun as observed from the ground based after accounting
+        for atmospheric refraction, [degrees]
+    elevation : float
+        Actual elevation of the sun (ignores atmospheric refraction), [degrees]
+    azimuth : float
+        The azimuth of the sun, [degrees]
+    equation_of_time : float
+        Equation of time - the number of seconds to be added to the day's
+        mean solar time to obtain the apparent solar noon time, [seconds]
+
+    Examples
+    --------
+    >>> solar_position(datetime(2003, 10, 17, 13, 30, 30), 45, 45)
+    [140.8367913391112, 140.8367913391112, -50.83679133911118, -50.83679133911118, 329.9096671679604, 878.490295098145]
+
+    Notes
+    -----
+
+    References
+    ----------
+    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for 
+       Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
+       577-89. https://doi.org/10.1016/j.solener.2003.12.003.
+    '''
+    delta_t = spa.calculate_deltat(moment.year, moment.month)
+    unixtime = time.mktime(moment.timetuple())
+    
+    # Input pressure in milibar; input temperature in deg C
+    result = spa.solar_position(unixtime, lat=latitude, lon=longitude, elev=Z, 
+                          pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
+                          atmos_refract=atmos_refract, sst=False, esd=False)
+    result = result.tolist()
+    # confirmed equation of time https://www.minasi.com/figeot.asp
+    # Convert minutes to seconds; sometimes negative, sometimes positive
+
+    result[-1] = result[-1]*60.0 
+    return result

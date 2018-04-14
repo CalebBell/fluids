@@ -1279,8 +1279,12 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
     tuple : (transit, sunrise, sunset) localized to UTC
 
     """
-
-    if ((dates % 86400) != 0.0).any():
+    isnumpy = isinstance(dates, np.ndarray)
+    if isnumpy:
+        condition = ((dates % 86400) != 0.0).any()
+    else:
+        condition = (dates % 86400) != 0.0
+    if condition:
         raise ValueError('Input dates must be at 00:00 UTC')
 
     utday = (dates // 86400) * 86400
@@ -1303,10 +1307,18 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
     cos_arg = ((np.sin(np.radians(-0.8333)) - np.sin(np.radians(lat))
                * np.sin(np.radians(ttday0_res[2]))) /
                (np.cos(np.radians(lat)) * np.cos(np.radians(ttday0_res[2]))))
-    cos_arg[abs(cos_arg) > 1] = np.nan
+    if isnumpy:
+        cos_arg[abs(cos_arg) > 1] = np.nan
+    else:
+        if abs(cos_arg) > 1:
+            cos_arg = np.nan
+    
     H0 = np.degrees(np.arccos(cos_arg)) % 180
 
-    m = np.empty((3, len(utday)))
+    if isnumpy:
+        m = np.empty((3, len(utday)))
+    else:
+        m = np.empty((3, 1))
     m[0] = m0 % 1
     m[1] = (m[0] - H0 / 360)
     m[2] = (m[0] + H0 / 360)
@@ -1321,6 +1333,8 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
     n = m + delta_t / 86400
 
     a = ttday0_res[1] - ttdayn1_res[1]
+    
+    # TODO: this is not float-compatible
     a[abs(a) > 2] = a[abs(a) > 2] % 1
     ap = ttday0_res[2] - ttdayn1_res[2]
     ap[abs(ap) > 2] = ap[abs(ap) > 2] % 1
@@ -1328,6 +1342,8 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
     b[abs(b) > 2] = b[abs(b) > 2] % 1
     bp = ttdayp1_res[2] - ttday0_res[2]
     bp[abs(bp) > 2] = bp[abs(bp) > 2] % 1
+    
+    
     c = b - a
     cp = bp - ap
 
@@ -1526,21 +1542,3 @@ def calculate_deltat(year, month):
     return deltat
 
 
-def solar_position_wrapper(t, latitude, longitude, H=0, T=298.15, P=101325.0, 
-                           atmos_refract=0.5667):
-    '''Datetime should be in UTC timezone, strictly with no daylight savings or 
-    other bogus changes.
-    
-    Lat, lon in degrees. H in meters.
-    T in K. 
-    P in Pascals.
-    Atmospheric refrac - probably radians ?
-    '''
-    delta_t = calculate_deltat(t.year, t.month)
-    unixtime = time.mktime(t.timetuple())
-    
-    return solar_position(unixtime, lat=latitude, lon=longitude, elev=H, 
-                          pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
-                          atmos_refract=atmos_refract, sst=False, esd=False)
-
-solar_position_wrapper(datetime(2003, 10, 17, 13, 30, 30), 45, 45)
