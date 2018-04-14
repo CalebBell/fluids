@@ -8,6 +8,8 @@ numpy arrays or compiling the code to machine language with numba.
 
 from __future__ import division
 import os
+import time
+from datetime import datetime
 import threading
 import warnings
 import logging
@@ -1522,3 +1524,23 @@ def calculate_deltat(year, month):
         else deltat
 
     return deltat
+
+
+def solar_position_wrapper(t, latitude, longitude, H=0, T=298.15, P=101325.0, 
+                           atmos_refract=0.5667):
+    '''Datetime should be in UTC timezone, strictly with no daylight savings or 
+    other bogus changes.
+    
+    Lat, lon in degrees. H in meters.
+    T in K. 
+    P in Pascals.
+    Atmospheric refrac - probably radians ?
+    '''
+    delta_t = calculate_deltat(t.year, t.month)
+    unixtime = time.mktime(t.timetuple())
+    
+    return solar_position(unixtime, lat=latitude, lon=longitude, elev=H, 
+                          pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
+                          atmos_refract=atmos_refract, sst=False, esd=False)
+
+solar_position_wrapper(datetime(2003, 10, 17, 13, 30, 30), 45, 45)
