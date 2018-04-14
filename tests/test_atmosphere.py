@@ -21,7 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from numpy.testing import assert_allclose
-from fluids.atmosphere import ATMOSPHERE_1976, hwm93, hwm14
+from fluids.atmosphere import ATMOSPHERE_1976, hwm93, hwm14, earthsun_distance
+from datetime import datetime
 
 
 
@@ -172,3 +173,15 @@ def test_hwm14():
         assert_allclose(ZON_CALC, AP_PROFILE_ZON)
     except:
         pass
+    
+    
+def test_earthsun_distance():
+    dt = earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
+    assert_allclose(dt, 149080606927.64243)
+
+    dt = earthsun_distance(datetime(2013, 1, 1, 21, 21, 0, 0))
+    assert_allclose(dt, 147098089490.81647)
+    
+    dt = earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
+    assert_allclose(dt, 152097354414.21094)
+    

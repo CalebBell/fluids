@@ -46,12 +46,16 @@ Wind Models (requires Fortran compiler!)
 
 from __future__ import division
 import os
+import time
+from datetime import datetime
 from math import exp
 import numpy as np
-from scipy.constants import N_A, R
+from scipy.constants import N_A, R, au
 from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
+from fluids.optional import spa
 
-__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14']
+__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
+           'earthsun_distance']
 
 no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
@@ -627,3 +631,52 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     ans = optional.hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
                0, np.array([np.nan, geomagnetic_disturbance_index]))
     return tuple(ans.tolist())
+
+
+def earthsun_distance(moment):
+    r'''Calculates the distance between the earth and the sun as a function 
+    of date and time. Uses the model described in [1]_, from the pvlib library.
+    
+    Parameters
+    ----------
+    moment : datetime
+        Time and date for the calculation, in UTC time, [-]
+        
+    Returns
+    -------
+    distance : float
+        Distance between the center of the earth and the center of the sun,
+        [m]        
+
+    Examples
+    --------
+    >>> earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
+    149080606927.64243
+    
+    Perihelion - the real value is January 2, 04:38.
+    
+    >>> earthsun_distance(datetime(2013, 1, 1, 21, 21, 0, 0))
+    147098089490.81647
+    
+    Aphelion - the real value is July 5, 14:44.
+    
+    >>> earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
+    152097354414.21094
+    
+    Note this function is not continuous.
+    
+    Notes
+    -----
+    This function is relatively accurate - to within a 5 or 10 hours of 
+    accuracy. The difference comes from the impact of the moon.
+
+    References
+    ----------
+    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for 
+       Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
+       577-89. https://doi.org/10.1016/j.solener.2003.12.003.
+    '''
+    delta_t = spa.calculate_deltat(moment.year, moment.month)
+    unixtime = time.mktime(moment.timetuple())
+    # Convert datetime object to unixtime
+    return float(spa.earthsun_distance(unixtime, delta_t=delta_t, numthreads=1)*au)
