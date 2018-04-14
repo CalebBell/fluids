@@ -833,7 +833,8 @@ def yterm(u, observer_latitude, observer_elevation):
 @jcompile('float64(float64, float64,float64, float64)', nopython=True)
 def parallax_sun_right_ascension(xterm, equatorial_horizontal_parallax,
                                  local_hour_angle, geocentric_sun_declination):
-    if isinstance(xterm, np.ndarray):
+    if any(isinstance(i, np.ndarray) for i in (xterm, equatorial_horizontal_parallax,
+                                 local_hour_angle, geocentric_sun_declination)):
         sin = np.sin
         cos = np.cos
         radians = np.radians
