@@ -10,7 +10,7 @@ except ImportError:
         pass
 
 import numpy as np
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_allclose
 import pandas as pd
 
 import unittest
@@ -24,6 +24,7 @@ try:
 except ImportError:
     numba_version_int = 0
 
+from fluids.optional import spa
 
 times = (pd.date_range('2003-10-17 12:30:30', periods=1, freq='D')
            .tz_localize('MST'))
@@ -416,3 +417,24 @@ class NumbaSpaTest(unittest.TestCase, SpaBase):
                 times, lat, lon, elev, pressure, temp, delta_t,
                 atmos_refract, numthreads=8, sst=True)[:3], 5)
 
+
+
+def test_deltat_astropy():
+    # Can't do a full range of tests because astropy doesn't have 
+    # answers before 1960, after 1999 in this version
+    from astropy.time import Time
+    from datetime import datetime
+    def delta_t_astropy(dt):
+        t = Time(dt, scale='utc')
+        return -(dt - t.tt.value).total_seconds()
+    
+#    years = range(1, 3000, 100) + [3000]
+    years = range(1960, 1999, 1)
+    
+    months = range(1, 13)
+    for year in years:
+        for month in months:
+            delta_t_pvlib = spa.calculate_deltat(year, month)
+            dt = datetime(year, month, 1)
+            delta_t_external = delta_t_astropy(dt)
+            assert_allclose(delta_t_pvlib, delta_t_external, atol=.5, rtol=.01)

@@ -1393,8 +1393,9 @@ def earthsun_distance(unixtime, delta_t, numthreads):
 
 
 def calculate_deltat(year, month):
-    """Calculate the difference between Terrestrial Dynamical Time (TD)
-    and Universal Time (UT).
+    """Calculate the difference between Terrestrial Time (TT)
+    and Universal Time (UT). Note TT used to be called Terrestrial Dynamical 
+    Time (TDT).
 
     Note: This function is not yet compatible for calculations using
     Numba.
