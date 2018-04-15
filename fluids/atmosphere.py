@@ -46,6 +46,7 @@ Solar Models
 ------------
 .. autofunction:: earthsun_distance
 .. autofunction:: solar_position
+.. autofunction:: solar_irradiation
 '''
 
 from __future__ import division
@@ -59,7 +60,7 @@ from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, a
 from fluids.optional import spa
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
-           'earthsun_distance', 'solar_position']
+           'earthsun_distance', 'solar_position', 'solar_irradiation']
 
 no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
@@ -396,6 +397,8 @@ class ATMOSPHERE_NRLMSISE00(object):
     
     This model is based on measurements other than gravity; it does not provide
     a calculation method for `g`. It does not provide transport properties.
+    
+    This model takes on the order of ~2 ms.
     
     References
     ----------
@@ -790,3 +793,74 @@ def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0,
 
     result[-1] = result[-1]*60.0 
     return result
+
+
+apparent_zenith_airmass_models = set(['simple', 'kasten1966', 'kastenyoung1989',
+                                   'gueymard1993', 'pickering2002'])
+true_zenith_airmass_models = set(['youngirvine1967', 'young1994'])
+
+
+def solar_irradiation(Z, latitude, longitude, moment, surface_tilt, 
+                      surface_azimuth, T=None, P=None, solar_constant=1366.1,
+                      atmos_refract=0.5667, albedo=0.25, linke_turbidity=None, 
+                      extraradiation_method='spencer',
+                      airmass_model='kastenyoung1989'):
+    from pvlib.irradiance import extraradiation, total_irrad
+    from pvlib.atmosphere import relativeairmass, absoluteairmass
+    from pvlib.clearsky import ineichen
+    
+    dni_extra = extraradiation(moment, solar_constant=solar_constant, 
+                               method=extraradiation_method, 
+                               epoch_year=moment.year)
+    
+    moment_timetuple = moment.timetuple()
+    atmosphere = ATMOSPHERE_NRLMSISE00(Z=Z, latitude=latitude, 
+                                       longitude=longitude, 
+                                       day=moment_timetuple.tm_yday)
+    if T is None:
+        T = atmosphere.T
+    if P is None:
+        P = atmosphere.P
+    
+    apparent_zenith, zenith, _, _, azimuth, _ = solar_position(moment=moment,
+                                                               latitude=latitude, 
+                                                               longitude=longitude,
+                                                               Z=Z, T=T, P=P, 
+                                                               atmos_refract=atmos_refract)
+    
+    if linke_turbidity is None:
+        from pvlib.clearsky import lookup_linke_turbidity
+        import pandas as pd
+        linke_turbidity = float(lookup_linke_turbidity(pd.DatetimeIndex([moment]), latitude, longitude).values)
+
+        
+    if airmass_model in apparent_zenith_airmass_models:
+        used_zenith = apparent_zenith
+    elif airmass_model in true_zenith_airmass_models:
+        used_zenith = zenith
+    else:
+        raise Exception('Unrecognized airmass model')
+        
+    relative_airmass = relativeairmass(used_zenith, model=airmass_model)
+    airmass_absolute = absoluteairmass(relative_airmass, pressure=P)
+
+    ans = ineichen(apparent_zenith=apparent_zenith,
+                   airmass_absolute=airmass_absolute, 
+                   linke_turbidity=linke_turbidity,
+                   altitude=Z, dni_extra=solar_constant)
+    ghi = ans['ghi']
+    dni = ans['dni']
+    dhi = ans['dhi']
+    
+    ans = total_irrad(surface_tilt=surface_tilt, 
+                      surface_azimuth=surface_azimuth,
+                      apparent_zenith=apparent_zenith, azimuth=azimuth,
+                      dni=dni, ghi=ghi, dhi=dhi, dni_extra=dni_extra, 
+                      airmass=airmass_absolute, albedo=albedo)
+    poa_global = float(ans['poa_global'])
+    poa_direct = float(ans['poa_direct'])
+    poa_diffuse = float(ans['poa_diffuse'])
+    poa_sky_diffuse = float(ans['poa_sky_diffuse'])
+    poa_ground_diffuse = float(ans['poa_ground_diffuse'])
+    return (poa_global, poa_direct, poa_diffuse, poa_sky_diffuse, 
+            poa_ground_diffuse)

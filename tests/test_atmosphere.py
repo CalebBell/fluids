@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from numpy.testing import assert_allclose
-from fluids.atmosphere import ATMOSPHERE_1976, hwm93, hwm14, earthsun_distance
+from fluids.atmosphere import ATMOSPHERE_1976, hwm93, hwm14, earthsun_distance, solar_irradiation
 from datetime import datetime
 
 
@@ -185,3 +185,9 @@ def test_earthsun_distance():
     dt = earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
     assert_allclose(dt, 152097354414.21094)
     
+    
+def test_solar_irradiation():
+    ans = solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, moment=datetime(2018, 4, 15, 13, 43, 5), surface_tilt=41.0,  surface_azimuth=180.0)
+    ans_expect = [1065.7622492480543, 945.2657257434173, 120.49652350463705, 95.31534254980346, 25.18118095483359]
+    
+    assert_allclose(ans, ans_expect, rtol=1e-5)
