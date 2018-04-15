@@ -688,12 +688,21 @@ def earthsun_distance(moment):
 
 def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0, 
                            atmos_refract=0.5667):
-    r''' 
+    r'''Calculate the position of the sun in the sky. It is defined in terms of
+    two angles - the zenith and the azimith. The azimuth tells where a sundial
+    would see the sun as coming from; the zenith tells how high in the sky it
+    is. The solar elevation angle is returned for convinience; it is the 
+    complimentary angle of the zenith.
+    
+    The sun's refraction changes how high it appears as though the sun is;
+    so values are returned with an optional conversion to the aparent angle.
+    This impacts only the zenith/elevation
     
     Parameters
     ----------
     moment : datetime
-        Time and date for the calculation, in UTC time, [-]
+        Time and date for the calculation, in local UTC time (not daylight 
+        savings time), [-]
     latitude : float
         Latitude, between -90 and 90 [degrees]
     longitude : float
@@ -714,11 +723,11 @@ def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0,
         for atmospheric refraction, [degrees]
     zenith : float
         Actual zenith of the sun (ignores atmospheric refraction), [degrees]
-    apparent_elevation : float
-        Elevation of the sun as observed from the ground based after accounting
+    apparent_altitude : float
+        Altitude of the sun as observed from the ground based after accounting
         for atmospheric refraction, [degrees]
-    elevation : float
-        Actual elevation of the sun (ignores atmospheric refraction), [degrees]
+    altitude : float
+        Actual altitude of the sun (ignores atmospheric refraction), [degrees]
     azimuth : float
         The azimuth of the sun, [degrees]
     equation_of_time : float
@@ -730,14 +739,43 @@ def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0,
     >>> solar_position(datetime(2003, 10, 17, 13, 30, 30), 45, 45)
     [140.8367913391112, 140.8367913391112, -50.83679133911118, -50.83679133911118, 329.9096671679604, 878.490295098145]
 
+    Sunrise occurs when the zenith is 90 degrees (Calgary, AB):
+    
+    >>> solar_position(datetime(2018, 04, 15, 6, 43, 5), 51.0486, -114.07)[0]
+    90.00054676987014
+    
+    Sunrise also occurs when the zenith is 90 degrees (13.5 hours later):
+        
+    >>> solar_position(datetime(2018, 04, 15, 20, 30, 28), 51.0486, -114.07)
+    [89.9995695661236, 90.54103812161853, 0.00043043387640950836, -0.5410381216185247, 286.8313781904518, 6.631429525878048]
+    
     Notes
-    -----
+    -----    
+    If you were standing at the same longitude of the sun such that it was no
+    further east or west than you were, the amount of angle it was south or 
+    north of you is the *zenith*. If it were directly overhead it would be 0°;
+    a little north or south and it would be a little positive;
+    near sunset or sunrise, near 90°; and at night, between 90° and 180°.
+    
+    The *solar altitude angle* is defined as 90° -`zenith`.
+    Note the *elevation* angle is just another name for the *altitude* angle.
+    
+    The *azimuth* the angle in degrees that the sun is East of the North angle.
+    It is positive North eastwards 0° to 360°. Other conventions may be used.
+    
+    Note that due to differences in atmospheric refractivity, estimation of
+    sunset and sunrise are accuract to no more than one minute. Refraction
+    conditions truly vary across the atmosphere; so characterizing it by an
+    average value is limiting as well.
 
     References
     ----------
     .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for 
        Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
        577-89. https://doi.org/10.1016/j.solener.2003.12.003.
+    .. [2] "Navigation - What Azimuth Description Systems Are in Use? - 
+       Astronomy Stack Exchange." 
+       https://astronomy.stackexchange.com/questions/237/what-azimuth-description-systems-are-in-use?rq=1.
     '''
     delta_t = spa.calculate_deltat(moment.year, moment.month)
     unixtime = time.mktime(moment.timetuple())
