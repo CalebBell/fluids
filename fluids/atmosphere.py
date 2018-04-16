@@ -660,22 +660,26 @@ def earthsun_distance(moment):
     >>> earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
     149080606927.64243
     
-    Perihelion - the real value is January 2, 04:38.
-    
+    The distance at perihelion, which occurs at 21:21 according to this
+    algorithm. The real value is 04:38 (January 2nd).
+        
     >>> earthsun_distance(datetime(2013, 1, 1, 21, 21, 0, 0))
     147098089490.81647
     
-    Aphelion - the real value is July 5, 14:44.
+    The distance at aphelion, which occurs at 8:44 AM according to this
+    algorithm. The real value is 14:44 (July 5).
     
     >>> earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
     152097354414.21094
-    
-    Note this function is not continuous.
-    
+        
     Notes
     -----
-    This function is relatively accurate - to within a 5 or 10 hours of 
+    This function is relatively accurate - to within 5 or 10 hours of 
     accuracy. The difference comes from the impact of the moon.
+
+    Note this function is not continuous; the sun-earth distance is not 
+    sufficiently accurately modeled for the change to be continuous throughout
+    each day.
 
     References
     ----------
