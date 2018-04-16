@@ -814,13 +814,14 @@ def solar_irradiation(Z, latitude, longitude, moment, surface_tilt,
                                epoch_year=moment.year)
     
     moment_timetuple = moment.timetuple()
-    atmosphere = ATMOSPHERE_NRLMSISE00(Z=Z, latitude=latitude, 
-                                       longitude=longitude, 
-                                       day=moment_timetuple.tm_yday)
-    if T is None:
-        T = atmosphere.T
-    if P is None:
-        P = atmosphere.P
+    if T is None or P is None:
+        atmosphere = ATMOSPHERE_NRLMSISE00(Z=Z, latitude=latitude, 
+                                           longitude=longitude, 
+                                           day=moment_timetuple.tm_yday)
+        if T is None:
+            T = atmosphere.T
+        if P is None:
+            P = atmosphere.P
     
     apparent_zenith, zenith, _, _, azimuth, _ = solar_position(moment=moment,
                                                                latitude=latitude, 
