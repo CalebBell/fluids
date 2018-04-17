@@ -666,7 +666,7 @@ def earthsun_distance(moment):
     >>> earthsun_distance(datetime(2013, 1, 1, 21, 21, 0, 0))
     147098089490.81647
     
-    The distance at aphelion, which occurs at 8:44 AM according to this
+    The distance at aphelion, which occurs at 08:44 according to this
     algorithm. The real value is 14:44 (July 5).
     
     >>> earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
@@ -692,6 +692,7 @@ def earthsun_distance(moment):
     # Convert datetime object to unixtime
     return float(spa.earthsun_distance(unixtime, delta_t=delta_t, numthreads=1)*au)
 
+PVLIB_MISSING_MSG = 'The module pvlib is required for this function; install it first'
 
 def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0, 
                            atmos_refract=0.5667):
@@ -804,11 +805,124 @@ apparent_zenith_airmass_models = set(['simple', 'kasten1966', 'kastenyoung1989',
 true_zenith_airmass_models = set(['youngirvine1967', 'young1994'])
 
 
-def solar_irradiation(Z, latitude, longitude, moment, surface_tilt, 
+def solar_irradiation(latitude, longitude, Z, moment, surface_tilt, 
                       surface_azimuth, T=None, P=None, solar_constant=1366.1,
                       atmos_refract=0.5667, albedo=0.25, linke_turbidity=None, 
                       extraradiation_method='spencer',
                       airmass_model='kastenyoung1989'):
+    r'''Calculates the amount of solar radiation and radiation reflected back
+    the atmosphere which hits a surface at a specified tilt, and facing a
+    specified azimuth. This functions is a wrapper for the incredibly 
+    comprehensive `pvlib` library, and requires it to be installed.
+    
+    Parameters
+    ----------
+    latitude : float
+        Latitude, between -90 and 90 [degrees]
+    longitude : float
+        Longitude, between -180 and 180, [degrees]
+    Z : float, optional
+        Elevation above sea level for the position, [m]
+    moment : datetime
+        Time and date for the calculation, in local UTC time (not daylight 
+        savings time), [-]
+    surface_tilt : float
+        The angle above the horizontal of the object being hit by radiation,
+        [degrees]
+    surface_azimuth : float
+        The angle the object is facing (positive North eastwards 0° to 360°),
+        [degrees]
+    T : float, optional
+        Temperature of atmosphere at ground level, [K]
+    P : float, optional
+        Pressure of atmosphere at ground level, [Pa]
+    solar_constant : float, optional
+        The amount of solar radiation which reaches earth's disk (at a 
+        standardized distance of 1 AU); this constant is independent of 
+        activity or conditions on earth, but will vary throughout the sun's
+        lifetime and may increase or decrease slightly due to solar activity,
+        [W/m^2]
+    atmos_refract : float, optional
+        Atmospheric refractivity at sunrise/sunset (0.5667 deg is an often used
+        value; this varies substantially and has an impact of a few minutes on 
+        when sunrise and sunset is), [degrees]
+    albedo : float, optional
+        The average amount of reflection of the terrain surrounding the object
+        at quite a distance; this impacts how much sunlight reflected off the
+        ground, gest reflected back off clouds, [-]
+    linke_turbidity : float, optional
+        The amount of pollution/water in the sky versus a perfect clear sky;
+        If not specified, this will be retrieved from a historical grid;
+        typical values are 3 for cloudy, and 7 for severe pollution around a
+        city, [-]
+    extraradiation_method : str, optional
+        The specified method to calculate the effect of earth's position on the
+        amount of radiation which reaches earth according to the methods 
+        available in the `pvlib` library, [-]
+    airmass_model : str, optional
+        The specified method to calculate the amount of air the sunlight
+        needs to travel through to reach the earth according to the methods 
+        available in the `pvlib` library, [-]
+
+    Returns
+    -------
+    poa_global : float
+        The total irradiance in the plane of the surface, [W/m^2]
+    poa_direct : float
+        The total beam irradiance in the plane of the surface, [W/m^2]
+    poa_diffuse : float
+        The total diffuse irradiance in the plane of the surface, [W/m^2]
+    poa_sky_diffuse : float
+        The sky component of the diffuse irradiance, excluding the impact 
+        from the ground, [W/m^2]
+    poa_ground_diffuse : float
+        The ground-sky diffuse irradiance component, [W/m^2]
+
+    Examples
+    --------
+    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
+    ... moment=datetime(2018, 4, 15, 13, 43, 5), surface_tilt=41.0, 
+    ... surface_azimuth=180.0)
+    (1065.7622492480543, 945.2657257434173, 120.49652350463705, 95.31534254980346, 25.18118095483359)
+    
+    At night, there is no solar radiation and this function returns zeros:
+        
+    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
+    ... moment=datetime(2018, 4, 15, 2, 43, 5), surface_tilt=41.0, 
+    ... surface_azimuth=180.0)
+    (0.0, -0.0, 0.0, 0.0, 0.0)
+
+    Notes
+    -----    
+    The retrieval of `linke_turbidity` requires the pytables library; if it is
+    not installed, specify a value of `linke_turbidity` to avoid the 
+    dependency.
+    
+    There is some redundancy of the calculated results, according to the 
+    following relations. The total irradiance is normally that desired for 
+    engineering calculations.
+    
+    poa_diffuse = poa_ground_diffuse + poa_sky_diffuse
+    
+    poa_global = poa_direct + poa_diffuse
+    
+    FOr a surface such as a pipe or vessel, an approach would be to split it
+    into a number of rectangles and sum up the radiation absorbed by each.
+    
+    This calculation is fairly slow. If a large number of points are desired,
+    the `pvlib` library can be used directly - it works with vectorized
+    inputs.
+    
+
+    References
+    ----------
+    .. [1]
+    '''
+    # Atmospheric refraction at sunrise/sunset (0.5667 deg is an often used value)
+    try:
+        import pvlib
+    except:
+        raise ImportError(PVLIB_MISSING_MSG)
     from pvlib.irradiance import extraradiation, total_irrad
     from pvlib.atmosphere import relativeairmass, absoluteairmass
     from pvlib.clearsky import ineichen
