@@ -916,7 +916,9 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
 
     References
     ----------
-    .. [1]
+    .. [1] Will Holmgren, Calama-Consulting, Tony Lorenzo, Uwe Krien, bmu, 
+       DaCoEx, mayudong, et al. Pvlib/Pvlib-Python: 0.5.1. Zenodo, 2017. 
+       https://doi.org/10.5281/zenodo.1016425.
     '''
     # Atmospheric refraction at sunrise/sunset (0.5667 deg is an often used value)
     try:
