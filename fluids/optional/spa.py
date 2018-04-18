@@ -5,6 +5,7 @@ numpy arrays or compiling the code to machine language with numba.
 
 # Contributors:
 # Created by Tony Lorenzo (@alorenzo175), Univ. of Arizona, 2015
+# Licensed under the BSD 3-clause license
 
 from __future__ import division
 import os
