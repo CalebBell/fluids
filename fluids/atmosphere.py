@@ -42,11 +42,13 @@ Wind Models (requires Fortran compiler!)
 .. autofunction:: hwm93
 .. autofunction:: hwm14
 
-Solar Models
-------------
-.. autofunction:: earthsun_distance
+Solar Radiation and Position
+----------------------------
 .. autofunction:: solar_position
 .. autofunction:: solar_irradiation
+.. autofunction:: sunrise_sunset
+.. autofunction:: earthsun_distance
+
 '''
 
 from __future__ import division
@@ -60,7 +62,8 @@ from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, a
 from fluids.optional import spa
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
-           'earthsun_distance', 'solar_position', 'solar_irradiation']
+           'earthsun_distance', 'solar_position', 'solar_irradiation',
+           'sunrise_sunset']
 
 no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
@@ -640,6 +643,9 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     return tuple(ans.tolist())
 
 
+PVLIB_MISSING_MSG = 'The module pvlib is required for this function; install it first'
+
+
 def earthsun_distance(moment):
     r'''Calculates the distance between the earth and the sun as a function 
     of date and time. Uses the model described in [1]_, from the pvlib library.
@@ -692,7 +698,6 @@ def earthsun_distance(moment):
     # Convert datetime object to unixtime
     return float(spa.earthsun_distance(unixtime, delta_t=delta_t, numthreads=1)*au)
 
-PVLIB_MISSING_MSG = 'The module pvlib is required for this function; install it first'
 
 def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0, 
                            atmos_refract=0.5667):
@@ -798,6 +803,18 @@ def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0,
 
     result[-1] = result[-1]*60.0 
     return result
+
+
+def sunrise_sunset(moment, latitude, longitude):
+    delta_t = spa.calculate_deltat(moment.year, moment.month)
+    unixtime = time.mktime(moment.timetuple())
+    unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
+    transit, sunrise, sunset = spa.transit_sunrise_sunset(np.array([unixtime]), lat=latitude, lon=longitude, delta_t=delta_t, numthreads=1)
+    
+    transit = datetime.fromtimestamp(float(transit))
+    sunrise = datetime.fromtimestamp(float(sunrise))
+    sunset = datetime.fromtimestamp(float(sunset))
+    return sunrise, sunset, transit
 
 
 apparent_zenith_airmass_models = set(['simple', 'kasten1966', 'kastenyoung1989',

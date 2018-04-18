@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from numpy.testing import assert_allclose
-from fluids.atmosphere import ATMOSPHERE_1976, hwm93, hwm14, earthsun_distance, solar_irradiation
+from fluids.atmosphere import *
 from datetime import datetime
 
 
@@ -191,3 +191,12 @@ def test_solar_irradiation():
     ans_expect = [1065.7622492480543, 945.2657257434173, 120.49652350463705, 95.31534254980346, 25.18118095483359]
     
     assert_allclose(ans, ans_expect, rtol=1e-5)
+    
+def test_sunrise_sunset():
+    sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17, 13, 43, 5), 51.0486,  -114.07)
+    sunrise_expected = datetime(2018, 4, 17, 6, 36, 55, 782660)
+    sunset_expected = datetime(2018, 4, 17, 20, 34, 4, 249326)
+    transit_expected = datetime(2018, 4, 17, 13, 35, 46, 686265)
+    assert sunrise == sunrise_expected
+    assert sunset == sunset_expected
+    assert transit == transit_expected
