@@ -1335,14 +1335,27 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
 
     a = ttday0_res[1] - ttdayn1_res[1]
     
-    # TODO: this is not float-compatible
-    a[abs(a) > 2] = a[abs(a) > 2] % 1
-    ap = ttday0_res[2] - ttdayn1_res[2]
-    ap[abs(ap) > 2] = ap[abs(ap) > 2] % 1
-    b = ttdayp1_res[1] - ttday0_res[1]
-    b[abs(b) > 2] = b[abs(b) > 2] % 1
-    bp = ttdayp1_res[2] - ttday0_res[2]
-    bp[abs(bp) > 2] = bp[abs(bp) > 2] % 1
+    if isnumpy:
+        a[abs(a) > 2] = a[abs(a) > 2] % 1
+        ap = ttday0_res[2] - ttdayn1_res[2] 
+        ap[abs(ap) > 2] = ap[abs(ap) > 2] % 1
+        b = ttdayp1_res[1] - ttday0_res[1]
+        b[abs(b) > 2] = b[abs(b) > 2] % 1
+        
+        bp = ttdayp1_res[2] - ttday0_res[2]
+        bp[abs(bp) > 2] = bp[abs(bp) > 2] % 1
+    else:
+        if abs(a) > 2:
+            a = a %1
+        ap = ttday0_res[2] - ttdayn1_res[2]
+        if (abs(ap) > 2):
+            ap = ap % 1
+        b = ttdayp1_res[1] - ttday0_res[1]
+        if (abs(b) > 2):
+            b = b % 1
+        bp = ttdayp1_res[2] - ttday0_res[2]
+        if abs(bp) > 2:
+            bp = bp % 1
     
     
     c = b - a

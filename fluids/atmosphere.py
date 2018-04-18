@@ -806,6 +806,50 @@ def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0,
 
 
 def sunrise_sunset(moment, latitude, longitude):
+    r'''Calculates the times at which the sun is at sunset; sunrise; and 
+    halfway between sunrise and sunset (transit). This routine uses the SPA
+    algorithm, as incorporated in pvlib.
+
+    Parameters
+    ----------
+    moment : datetime
+        Date for the calculation, in local UTC time, [-]
+    latitude : float
+        Latitude, between -90 and 90 [degrees]
+    longitude : float
+        Longitude, between -180 and 180, [degrees]
+
+    Returns
+    -------
+    sunrise : datetime
+        The time at the specified day when the sun rises, [-]
+    sunset : datetime
+        The time at the specified day when the sun sets, [-]
+    transit : datetime
+        The time at the specified day when the sun is at solar noon - halfway 
+        between sunrise and sunset, [-]
+
+    Examples
+    --------
+    >>> sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17, 13, 
+    ... 43, 5), 51.0486, -114.07)
+    >>> sunrise
+    datetime.datetime(2018, 4, 17, 6, 36, 55, 782660)
+    >>> sunset
+    datetime.datetime(2018, 4, 17, 20, 34, 4, 249326)
+    >>> transit
+    datetime.datetime(2018, 4, 17, 13, 35, 46, 686265)
+    
+    Notes
+    -----    
+    This functions is quite slow at present.
+
+    References
+    ----------
+    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for 
+       Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
+       577-89. https://doi.org/10.1016/j.solener.2003.12.003.
+    '''
     delta_t = spa.calculate_deltat(moment.year, moment.month)
     unixtime = time.mktime(moment.timetuple())
     unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
