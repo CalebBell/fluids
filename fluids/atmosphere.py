@@ -37,17 +37,17 @@ Atmospheres
 .. autoclass:: ATMOSPHERE_NRLMSISE00
     :members:
 
-Wind Models (requires Fortran compiler!)
-----------------------------------------
-.. autofunction:: hwm93
-.. autofunction:: hwm14
-
 Solar Radiation and Position
 ----------------------------
 .. autofunction:: solar_position
 .. autofunction:: solar_irradiation
 .. autofunction:: sunrise_sunset
 .. autofunction:: earthsun_distance
+
+Wind Models (requires Fortran compiler!)
+----------------------------------------
+.. autofunction:: hwm93
+.. autofunction:: hwm14
 
 '''
 
@@ -842,7 +842,7 @@ def sunrise_sunset(moment, latitude, longitude):
     
     Notes
     -----    
-    This functions is quite slow at present.
+    This functions takes on the order of 2 ms per calculation.
 
     References
     ----------
