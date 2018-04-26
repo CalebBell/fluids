@@ -342,6 +342,17 @@ def test_differential_pressure_meter_dP():
     assert_allclose(dP, 7112.927753356824)
 
 
+def test_differential_pressure_meter_beta():
+    beta = differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=LONG_RADIUS_NOZZLE)
+    assert_allclose(beta, 0.7145631067961165)
+    
+    beta = differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=WEDGE_METER)
+    assert_allclose(beta, 0.8743896375172885)
+    
+    beta = differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=CONE_METER)
+    assert_allclose(beta, 0.6995709873957624)
+
+
 def test_cone_meter_expansibility_Stewart_full():
     err = lambda Dc, beta : diameter_ratio_cone_meter(D=1, Dc=Dc) - beta
     

@@ -42,7 +42,9 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'C_wedge_meter_Miller', 'C_wedge_meter_ISO_5167_6_2017',
            'dP_wedge_meter',
            'C_Reader_Harris_Gallagher_wet_venturi_tube',
-           'dP_Reader_Harris_Gallagher_wet_venturi_tube'
+           'dP_Reader_Harris_Gallagher_wet_venturi_tube',
+           'differential_pressure_meter_C_epsilon',
+           'differential_pressure_meter_beta'
            ]
 
 
@@ -1546,9 +1548,113 @@ MACHINED_CONVERGENT_VENTURI_TUBE_C = 0.995
 AS_CAST_VENTURI_TUBE_C = 0.984
 
 
-def _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, mu, k, meter_type, 
-                                     taps=None):
-    '''Helper function only.
+beta_simple_meters = set([ISO_5167_ORIFICE, LONG_RADIUS_NOZZLE, 
+                          ISA_1932_NOZZLE, VENTURI_NOZZLE,
+                          AS_CAST_VENTURI_TUBE, 
+                          MACHINED_CONVERGENT_VENTURI_TUBE, 
+                          ROUGH_WELDED_CONVERGENT_VENTURI_TUBE])
+
+
+def differential_pressure_meter_beta(D, D2, meter_type):
+    r'''Calculates the beta ratio of a differential pressure meter.
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    D2 : float
+        Diameter of orifice, or venturi meter orifice, or flow tube orifice,
+        or cone meter end diameter, or wedge meter fluid flow height, [m]
+    meter_type : str
+        One of ('ISO 5167 orifice', 'long radius nozzle', 'ISA 1932 nozzle', 
+        'venuri nozzle', 'as cast convergent venturi tube', 
+        'machined convergent venturi tube', 
+        'rough welded convergent venturi tube', 'cone meter',
+        'wedge meter'), [-]
+
+    Returns
+    -------
+    beta : float
+        Differential pressure meter diameter ratio, [-]
+
+    Notes
+    -----
+    
+    Examples
+    --------
+    >>> differential_pressure_meter_beta(D=0.2575, D2=0.184, 
+    ... meter_type='cone meter')
+    0.6995709873957624
+    '''
+    if meter_type in beta_simple_meters:
+        beta = D2/D      
+    elif meter_type == CONE_METER:
+        beta = diameter_ratio_cone_meter(D=D, Dc=D2)
+    elif meter_type == WEDGE_METER:
+        beta = diameter_ratio_wedge_meter(D=D, H=D2)
+    return beta
+
+
+def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k, 
+                                          meter_type, taps=None):
+    r'''Calculates the discharge coefficient and expansibility of a flow
+    meter given the mass flow rate, the upstream pressure, the second
+    pressure value, and the orifice diameter for a differential
+    pressure flow meter based on the geometry of the meter, measured pressures 
+    of the meter, and the density, viscosity, and isentropic exponent of the 
+    fluid. 
+    
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    D2 : float
+        Diameter of orifice, or venturi meter orifice, or flow tube orifice,
+        or cone meter end diameter, or wedge meter fluid flow height, [m]
+    m : float
+        Mass flow rate of fluid through the flow meter, [kg/s]
+    P1 : float
+        Static pressure of fluid upstream of differential pressure meter at the
+        cross-section of the pressure tap, [Pa]
+    P2 : float
+        Static pressure of fluid downstream of differential pressure meter or 
+        at the prescribed location (varies by type of meter) [Pa]
+    rho : float
+        Density of fluid at `P1`, [kg/m^3]
+    mu : float
+        Viscosity of fluid at `P1`, [Pa*s]
+    k : float
+        Isentropic exponent of fluid, [-]
+    meter_type : str
+        One of ('ISO 5167 orifice', 'long radius nozzle', 'ISA 1932 nozzle', 
+        'venuri nozzle', 'as cast convergent venturi tube', 
+        'machined convergent venturi tube', 
+        'rough welded convergent venturi tube', 'cone meter',
+        'wedge meter'), [-]
+    taps : str, optional
+        The orientation of the taps; one of 'corner', 'flange', 'D', or 'D/2';
+        applies for orifice meters only, [-]
+        
+    Returns
+    -------
+    C : float
+        Coefficient of discharge of the specified flow meter type at the
+        specified conditions, [-]
+    expansibility : float
+        Expansibility factor (1 for incompressible fluids, less than 1 for
+        real fluids), [-]
+
+    Notes
+    -----
+    This function should be called by an outer loop when solving for a 
+    variable.
+    
+    Examples
+    --------
+    >>> differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168,
+    ... meter_type='ISO 5167 orifice', taps='D')
+    (0.6151252900244296, 0.9711026966676307)
     '''
     if meter_type == ISO_5167_ORIFICE:
         C = C_Reader_Harris_Gallagher(D=D, Do=D2, rho=rho, mu=mu, m=m, taps=taps)
@@ -1580,7 +1686,7 @@ def _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, mu, k, meter_type,
         beta = diameter_ratio_wedge_meter(D=D, H=D2)
         epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P1, k=k, beta=beta)
         C = C_wedge_meter_ISO_5167_6_2017(D=D, H=D2)
-    return epsilon, C
+    return C, epsilon
 
 
 def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None, 
@@ -1661,7 +1767,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
     '''
     if m is None:
         def to_solve(m):
-            C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
+            epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
@@ -1670,7 +1776,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         return newton(to_solve, 2.81)
     elif D2 is None:
         def to_solve(D2):
-            C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
+            epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
@@ -1679,7 +1785,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         return brenth(to_solve, D*(1-1E-9), D*5E-3)
     elif P2 is None:
         def to_solve(P2):
-            C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
+            epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
@@ -1688,7 +1794,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         return brenth(to_solve, P1*(1-1E-9), P1*0.7)
     elif P1 is None:
         def to_solve(P1):
-            C, epsilon = _differential_pressure_C_epsilon(D, D2, m, P1, P2, rho, 
+            epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
