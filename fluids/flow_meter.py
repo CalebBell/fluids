@@ -1791,7 +1791,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
             return m - m_calc    
-        return brenth(to_solve, P1*(1-1E-9), P1*0.7)
+        return brenth(to_solve, P1*(1-1E-9), P1*0.5)
     elif P1 is None:
         def to_solve(P1):
             epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
