@@ -34,9 +34,72 @@ __all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underload
 'specific_speed', 'specific_diameter', 'speed_synchronous', 'nema_sizes',
 'nema_sizes_hp', 'motor_round_size', 'nema_min_P', 'nema_high_P', 'plug_types',
 'voltages_1_phase_residential', 'voltages_3_phase', 'frequencies',
-'residential_power', 'industrial_power', 'current_ideal']
+'residential_power', 'industrial_power', 'current_ideal', 
+'liquid_jet_pump']
 
 folder = os.path.join(os.path.dirname(__file__), 'data')
+
+
+def liquid_jet_pump(rhop, rhos, Km=.15, Kd=0.1, Ks=0.1, Kp=0.0, 
+                     d_nozzle=None, d_mixing=None, d_diffuser=None,
+                     Qs=None, Qp=None, P1=None, P2=None, P5=None,
+                     nozzle_retracted=True):
+    C = rhos/rhop
+    if nozzle_retracted:
+        j = 0.0
+    else:
+        j = 1.0
+    # The diffuser diameter has little effect - it can be specified, and the 
+    # results will be a little more accurate - or it can be omitted and it 
+    # will be set to a large value so it is ignored in the calculations.
+    if d_diffuser is None:
+        if d_mixing is not None:
+            d_diffuser = d_mixing*1E3
+        elif d_nozzle is not None:
+            d_diffuser = d_nozzle*1E3
+            
+    unknowns = sum(i is not None for i in (d_nozzle, d_mixing, Qs, Qp, P1, P2, P5))
+    if unknowns < 1:
+        raise Exception('Too many unknowns')
+    elif unknowns < 1:
+        raise Exception('Overspecified')
+    if P1 is None or P2 is None or P5 is None:
+        # Direct solution - easy
+        R = d_nozzle**2/d_mixing**2
+        alpha = d_mixing**2/d_diffuser**2
+        M = Qs/Qp
+        
+        M2, R2, alpha2 = M*M, R*R, alpha*alpha
+        num = 2.0*R + 2*C*M2*R2/(1.0 - R)
+        num -= R2*(1.0 + C*M)*(1.0 + M)*(1.0 + Km + Kd + alpha2)
+        num -= C*M2*R2/(1.0 - R)**2*(1.0 + Ks)
+        
+        den = (1.0 + Kp) - 2.0*R - 2.0*C*M2*R2/(1.0 - R)
+        den += R2*(1.0 + C*M)*(1.0 + M)*(1.0 + Km + Kd + alpha2)
+        den += (1.0 - j)*(C*M2/((1.0 - R)/R)**2)*(1.0 - Ks)
+        N = num/den
+        if P1 is None:
+            P1 = (-P2 + P5*N + P5)/N
+        elif P2 is None:
+            P2 = -P1*N + P5*N + P5
+        elif P5 is None:
+            P5 = (P1*N + P2)/(N + 1.0)
+            
+    solution = {}
+    solution['P1'] = P1
+    solution['P2'] = P2
+    solution['P5'] = P5
+    solution['d_nozzle'] = d_nozzle
+    solution['d_mixing'] = d_mixing
+    solution['d_diffuser'] = d_diffuser
+    solution['Qs'] = Qs
+    solution['Qp'] = Qp
+    solution['N'] = N
+    solution['M'] = M
+    solution['R'] = R
+    solution['alpha'] = alpha
+    solution['efficiency'] = M*N
+    return solution
 
 
 def Corripio_pump_efficiency(Q):
