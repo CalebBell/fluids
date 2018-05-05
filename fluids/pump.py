@@ -27,6 +27,7 @@ from scipy.interpolate import interp1d, interp2d
 from scipy.constants import hp
 import os
 from io import open
+from pprint import pprint
 
 
 __all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
@@ -42,8 +43,124 @@ folder = os.path.join(os.path.dirname(__file__), 'data')
 
 def liquid_jet_pump(rhop, rhos, Km=.15, Kd=0.1, Ks=0.1, Kp=0.0, 
                      d_nozzle=None, d_mixing=None, d_diffuser=None,
-                     Qs=None, Qp=None, P1=None, P2=None, P5=None,
+                     Qp=None, Qs=None, P1=None, P2=None, P5=None,
                      nozzle_retracted=True):
+    r'''Calculate the remaining variable in a liquid jet pump, using a model
+    presented in [1]_ as well as [2]_, [3]_, and [4]_.
+    
+    .. math::
+        N = \frac{2R + \frac{2 C M^2 R^2}{1-R} - R^2 (1+CM) (1+M) (1 + K_m 
+        + K_d + \alpha^2) - \frac{CM^2R^2}{(1-R)^2} (1+K_s)}
+        {(1+K_p) - 2R - \frac{2CM^2R^2}{1-R} + R^2(1+CM)(1+M)(1+K_m + K_d 
+        + \alpha^2) + (1-j)\left(\frac{CM^2R^2}{({1-R})^2} \right)(1+K_s)}
+        
+        \text{Pressure ratio} = N = \frac{P_5 - P_2}{P_1 - P_5}
+        
+        \text{Volume flow ratio} = M =  \frac{Q_s}{Q_p}
+        
+        \text{Jet pump efficiency} = \eta = M\cdot N = 
+        \frac{Q_s(P_5-P_2)}{Q_p(P_1 - P_5)}
+        
+        R = \frac{A_n}{A_m}
+        
+        C = \frac{\rho_s}{\rho_p}
+    
+    Parameters
+    ----------
+    rhop : float
+        The density of the primary (motive) fluid, [kg/m^3]
+    rhos : float
+        The density of the secondary fluid (drawn from the vacuum chamber),
+        [kg/m^3]
+    Km : float, optional
+        The mixing chamber loss coefficient, [-]
+    Kd : float, optional
+        The diffuser loss coefficient, [-]
+    Ks : float, optional
+        The secondary inlet loss coefficient, [-]
+    Kp : float, optional
+        The primary nozzle loss coefficient, [-]
+    d_nozzle : float, optional
+        The inside diameter of the primary fluid's nozle, [m]
+    d_mixing : float, optional
+        The diameter of the mixing chamber, [m]
+    d_diffuser : float, optional
+        The diameter of the diffuser at its exit, [m]
+    Qp : float, optional
+        The volumetric flow rate of the primary fluid, [m^3/s]
+    Qs : float, optional
+        The volumetric flow rate of the secondary fluid, [m^3/s]
+    P1 : float, optional
+        The pressure of the primary fluid entering its nozzle, [Pa]
+    P2 : float, optional
+        The pressure of the secondary fluid at the entry of the ejector, [Pa]
+    P5 : float, optional
+        The pressure at the exit of the diffuser, [Pa]
+    nozzle_retracted : bool, optional
+        Whether or not the primary nozzle's exit is before the mixing chamber,
+        or somewhat inside it, [-]
+        
+    Returns
+    -------
+    solution : dict
+        Dictionary of calculated parameters, [-]
+
+    Notes
+    -----
+    
+    The assumptions of the model are:
+        
+    * The flows are one dimensional except in the mixing chamber.
+    * The mixing chamber has constant cross-sectional area.
+    * The mixing happens entirely in the mixing chamber, prior to entry into
+      the diffuser.
+    * The primary nozzle is in a straight line with the middle of the mixing 
+      chamber.
+    * Both fluids are incompressible, and have no excess volume on mixing.
+    * Primary and secondary flows both enter the mixing throat with their
+      own uniform velocity distribution; the mixed stream leaves with a uniform
+      velocity profile.
+    * If the secondary fluid is a gas, it undergoes isothermal compression in
+      the throat and diffuser. 
+    * If the secondary fluid is a gas or contains a bubbly gas, it is
+      homogeneously distributed in a continuous liquid phase.
+    * Heat transfer between the fluids is negligible - there is no change in
+      density due to temperature changes
+    * The change in the solubility of a disolved gas, if there is one, is
+      negigibly changed by temperature or pressure changes.
+
+    Examples
+    --------
+    >>> pprint(liquid_jet_pump(rhop=998., rhos=1098., Km=.186, Kd=0.12, Ks=0.11, 
+    ... Kp=0.04, d_nozzle=0.0223, d_mixing=0.045, Qs=0.01, Qp=.01, P2=133600, 
+    ... P5=200E3, nozzle_retracted=False))
+    {'M': 1.0,
+     'N': 0.2938665390183575,
+     'P1': 425952.91121542786,
+     'P2': 133600,
+     'P5': 200000.0,
+     'Qp': 0.01,
+     'Qs': 0.01,
+     'R': 0.24557530864197535,
+     'alpha': 1e-06,
+     'd_diffuser': 45.0,
+     'd_mixing': 0.045,
+     'd_nozzle': 0.0223,
+     'efficiency': 0.2938665390183575}
+
+    References
+    ----------
+    .. [1] Karassik, Igor J., Joseph P. Messina, Paul Cooper, and Charles C. 
+       Heald. Pump Handbook. 4th edition. New York: McGraw-Hill Education, 2007.
+    .. [2] Winoto S. H., Li H., and Shah D. A. "Efficiency of Jet Pumps." 
+       Journal of Hydraulic Engineering 126, no. 2 (February 1, 2000): 150-56. 
+       https://doi.org/10.1061/(ASCE)0733-9429(2000)126:2(150).
+    .. [3] Elmore, Emily, Khalid Al-Mutairi, Bilal Hussain, and A. Sherif
+       El-Gizawy. "Development of Analytical Model for Predicting Dual-Phase
+       Ejector Performance," November 11, 2016, V007T09A013.
+    .. [4] Ejectors and Jet Pumps. Design and Performance for Incompressible 
+       Liquid Flow. 85032. ESDU International PLC, 1985.
+    '''
     C = rhos/rhop
     if nozzle_retracted:
         j = 0.0
