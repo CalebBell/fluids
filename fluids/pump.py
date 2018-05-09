@@ -175,8 +175,8 @@ def liquid_jet_pump(rhop, rhos, Km=.15, Kd=0.1, Ks=0.1, Kp=0.0,
         elif d_nozzle is not None:
             d_diffuser = d_nozzle*1E3
             
-    unknowns = sum(i is not None for i in (d_nozzle, d_mixing, Qs, Qp, P1, P2, P5))
-    if unknowns < 1:
+    unknowns = sum(i is None for i in (d_nozzle, d_mixing, Qs, Qp, P1, P2, P5))
+    if unknowns > 1:
         raise Exception('Too many unknowns')
     elif unknowns < 1:
         raise Exception('Overspecified')
