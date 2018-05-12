@@ -10,6 +10,7 @@
    fluids.flow_meter
    fluids.friction
    fluids.geometry
+   fluids.jet_pump
    fluids.mixing
    fluids.open_flow
    fluids.packed_bed

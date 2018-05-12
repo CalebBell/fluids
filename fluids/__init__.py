@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +43,7 @@ from . import drag
 from . import saltation
 from . import separator
 from . import particle_size_distribution
+from . import jet_pump
 
 
 from .atmosphere import *
@@ -67,12 +68,14 @@ from .two_phase_voidage import *
 from .drag import *
 from .saltation import *
 from .separator import *
+from .jet_pump import *
 
 
 __all__ = ['atmosphere', 'compressible', 'control_valve', 'core', 'filters', 'fittings',
 'friction', 'geometry', 'mixing', 'open_flow', 'packed_bed', 'piping',
 'pump', 'safety_valve', 'packed_tower', 'two_phase', 'two_phase_voidage', 
-'drag', 'saltation', 'separator', 'flow_meter', 'particle_size_distribution']
+'drag', 'saltation', 'separator', 'flow_meter', 'particle_size_distribution',
+'jet_pump']
 
 __all__.extend(atmosphere.__all__)
 __all__.extend(compressible.__all__)
@@ -96,6 +99,7 @@ __all__.extend(drag.__all__)
 __all__.extend(saltation.__all__)
 __all__.extend(separator.__all__)
 __all__.extend(particle_size_distribution.__all__)
+__all__.extend(jet_pump.__all__)
 
 
 __version__ = '0.1.72'
