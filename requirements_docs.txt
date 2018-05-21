@@ -4,3 +4,4 @@ numpydoc
 pint
 nbsphinx
 ipython
+sphinxcontrib-katex

@@ -56,7 +56,7 @@ def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
         P_1 - P_2 = \frac{1}{2}\rho_p \left(\frac{Q_p}{A_n}\right)^2
         \left[(1+K_p) - C(1+K_s) \left(\frac{MR}{1-R}\right)^2\right]
 
-    For `P`, `P2, `Qs`, and `Qp`, the equation can be rearranged explicitly 
+    For `P`, `P2`, `Qs`, and `Qp`, the equation can be rearranged explicitly 
     for them. For `d_mixing` and `d_nozzle`, a bounded solver is used searching
     between 1E-9 m and 20 times the other diameter which was specified.
 
@@ -523,7 +523,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
         pass
     
     # Tying different guesses with fsolve is faster than trying different solvers
-    for meth in ['hybr', 'lm', 'broyden1', 'broyden2']:
+    for meth in ['hybr', 'lm', 'broyden1', 'broyden2']: #  
         try:
             res = root(obj_err, var_guesses, method=meth, tol=1E-9)
             if sum(abs(res['fun'])) > 1E-7:
