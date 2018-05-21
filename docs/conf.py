@@ -52,7 +52,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'numpydoc',
     'nbsphinx',
-    'sphinxcontrib.katex',
+    #'sphinxcontrib.katex',
 ]
 
 
