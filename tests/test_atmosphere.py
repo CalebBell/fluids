@@ -72,6 +72,12 @@ def test_airmass():
     m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, .1)
     assert_allclose(m, 379082.24065519444) # vs 378596
     
+    # airmass(lambda Z : ATMOSPHERE_1976(Z).rho, .1, RI=1.0016977377367)
+    # As refractive index increases, the atmospheric mass increases drastically. An exception is being raised numerically, not sure why
+    # 7966284.95792788 - that's an 800x atmospheric increase.
+        
+    
+    
 def test_hwm93():
     # pass on systems without f2py for now
     try:

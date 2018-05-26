@@ -719,7 +719,6 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
        1989): 4735-38. https://doi.org/10.1364/AO.28.004735.
     '''
     delta0 = RI - 1.0
-    delta0 = 2.76E-4 # dimensionless
     rho0 = func(0.0)
     angle_term = cos(radians(angle)) 
     
