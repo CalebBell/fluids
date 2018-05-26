@@ -2655,7 +2655,6 @@ def F2K(F):
 
     """
     return (np.asanyarray(F) - 32.0)/1.8 + zero_Celsius
-    return C2K(F2C(np.asanyarray(F)))
 
 
 def K2F(K):
@@ -2773,7 +2772,7 @@ def F2R(F):
     array([559.67, 459.67])
 
     """
-    return K2R(F2K(np.asanyarray(F)))
+    return np.asanyarray(F) - 32.0 + 1.8 * zero_Celsius
 
 
 def R2C(Ra):
@@ -2861,4 +2860,4 @@ def R2F(Ra):
     array([ 32., 100.])
 
     """
-    return C2F(R2C(np.asanyarray(Ra)))
+    return np.asanyarray(Ra) - 1.8 * zero_Celsius + 32.0
