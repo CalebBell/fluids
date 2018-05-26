@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from numpy.testing import assert_allclose
-from fluids.atmosphere import ATMOSPHERE_1976, hwm93, hwm14
+from fluids.atmosphere import ATMOSPHERE_1976, hwm93, hwm14, airmass
 
 
 
@@ -60,6 +60,17 @@ def test_ATMOSPHERE_1976():
     assert_allclose(delta_P, 1451.9583061008857)
     
     
+def test_airmass():
+    m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90)
+    assert_allclose(m, 10356.127665863998) # vs 10356
+    m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 60)
+    assert_allclose(m, 11954.138271601627) # vs 11954
+    
+    m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 5)
+    assert_allclose(m, 106861.56335489497) # vs 106837
+    
+    m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, .1)
+    assert_allclose(m, 379082.24065519444) # vs 378596
     
 def test_hwm93():
     # pass on systems without f2py for now

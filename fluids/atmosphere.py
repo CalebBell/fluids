@@ -46,14 +46,14 @@ Wind Models (requires Fortran compiler!)
 
 from __future__ import division
 import os
-from math import exp
+from math import exp, cos, radians
 import numpy as np
 from scipy.constants import N_A, R
 from scipy.optimize import brenth
 from scipy.integrate import quad
 from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
 
-__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14']
+__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14', 'airmass']
 
 no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
@@ -667,3 +667,67 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     ans = optional.hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
                0, np.array([np.nan, geomagnetic_disturbance_index]))
     return tuple(ans.tolist())
+
+
+def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
+    r'''Calculates mass of air per square meter in the atmosphere using a 
+    provided atmospheric model. The lowest air mass is calculated straight up;
+    as the angle is lowered to nearer and nearer the horizon, the air mass
+    increases, and can approach 40x or more the minimum airmass.
+
+    .. math::
+        m(\gamma) = \int_0^\infty \rho \left\{1 - \left[1 + 2(\text{RI}-1)
+        (1-\rho/\rho_0)\right]
+        \left[\frac{\cos \gamma}{(1+h/R)}\right]^2\right\}^{-1/2} dH
+
+    Parameters
+    ----------
+    func : float
+        Function which returns the density of the atmosphere as a function of
+        elevation
+    angle : float
+        Degrees above the horizon (90 = straight up), [degrees]
+    H_max : float, optional
+        Maximum height to compute the integration up to before the contribution
+        of density becomes negligible, [m]
+    R_planet : float, optional
+        The radius of the planet for which the integration is being performed,
+        [m]
+    RI : float, optional
+        The refractive index of the atmosphere (air on earth at 0.7 um as 
+        default) assumed a constant, [-]
+
+    Returns
+    -------
+    m : float
+        Mass of air per square meter in the atmosphere, [kg/m^2]
+
+    Notes
+    -----
+    Numerical integration via SciPy's `quad` is used to perform the 
+    calculation.
+
+    Examples
+    --------
+    >>> airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90)
+    10356.127665863998
+    
+    References
+    ----------
+    .. [1] Kasten, Fritz, and Andrew T. Young. "Revised Optical Air Mass Tables
+       and Approximation Formula." Applied Optics 28, no. 22 (November 15, 
+       1989): 4735-38. https://doi.org/10.1364/AO.28.004735.
+    '''
+    delta0 = RI - 1.0
+    delta0 = 2.76E-4 # dimensionless
+    rho0 = func(0.0)
+    angle_term = cos(radians(angle)) 
+    
+    def to_int(Z):
+        rho = func(Z)
+        t1 = (1.0 + 2.0*delta0*(1.0 - rho/rho0))
+        t2 = (angle_term/(1.0 + Z/R_planet))**2
+        t3 = (1.0 - t1*t2)**-0.5
+        return rho*t3
+
+    return float(quad(to_int, 0, 86400.0)[0])
