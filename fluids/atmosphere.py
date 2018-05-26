@@ -36,6 +36,8 @@ Atmospheres
     :members:
 .. autoclass:: ATMOSPHERE_NRLMSISE00
     :members:
+.. autofunction:: airmass
+        
 
 Wind Models (requires Fortran compiler!)
 ----------------------------------------
