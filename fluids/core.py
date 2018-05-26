@@ -2508,11 +2508,10 @@ Pr = Prandtl # Synonym
 # Also from https://github.com/scipy/scipy/pull/5292
 # by Gillu13  (Gilles Aouizerate)
 # Copyright individual contributors to SciPy
-#
 
 # temperature in kelvin
 zero_Celsius = 273.15
-degree_Fahrenheit = 1/1.8 # only for differences
+degree_Fahrenheit = 1.0/1.8 # only for differences
 
 def C2K(C):
     """
@@ -2597,7 +2596,7 @@ def F2C(F):
     array([-40.        ,   4.44444444])
 
     """
-    return (np.asanyarray(F) - 32) / 1.8
+    return (np.asanyarray(F) - 32.0) / 1.8
 
 
 def C2F(C):
@@ -2625,7 +2624,7 @@ def C2F(C):
     array([-40., 104.])
 
     """
-    return 1.8 * np.asanyarray(C) + 32
+    return 1.8 * np.asanyarray(C) + 32.0
 
 
 def F2K(F):
@@ -2655,6 +2654,7 @@ def F2K(F):
     array([233.15, 313.15])
 
     """
+    return (np.asanyarray(F) - 32.0)/1.8 + zero_Celsius
     return C2K(F2C(np.asanyarray(F)))
 
 
@@ -2685,7 +2685,7 @@ def K2F(K):
     array([-40., 104.])
 
     """
-    return C2F(K2C(np.asanyarray(K)))
+    return 1.8*(np.asanyarray(K) - zero_Celsius) + 32.0
 
 
 def C2R(C):

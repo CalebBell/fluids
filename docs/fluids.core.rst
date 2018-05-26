@@ -1,4 +1,4 @@
-Dimentionless numbers (fluids.core)
+Dimensionless numbers (fluids.core)
 ===================================
 
 .. automodule:: fluids.core
