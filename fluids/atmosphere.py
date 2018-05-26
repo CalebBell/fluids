@@ -49,6 +49,8 @@ import os
 from math import exp
 import numpy as np
 from scipy.constants import N_A, R
+from scipy.optimize import brenth
+from scipy.integrate import quad
 from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14']
@@ -257,6 +259,44 @@ class ATMOSPHERE_1976(object):
         '''        
         return g0*(r0/(r0+Z))**2
 
+    @staticmethod
+    def pressure_integral(T1, P1, dH):
+        r'''Method to compute an integral of the pressure differential of an
+        elevation difference with a base elevation defined by temperature `T1`
+        and pressure `P1`. This is 
+        similar to subtracting the pressures at two different elevations,
+        except it allows for local conditions (temperature and pressure) to be
+        taken into account. This is useful for e.x. evaluating the pressure
+        difference between the top and bottom of a natural draft cooling tower.
+        
+    
+        Parameters
+        ----------
+        T1 : float
+            Temperature at the lower elevation condition, [K]
+        P1 : float
+            Pressure at the lower elevation condition, [Pa]
+        dH : float
+            Elevation difference for which to evaluate the pressure difference,
+            [m]
+            
+        Returns
+        -------
+        delta_P : float
+            Pressure difference between the elevations, [Pa]
+        '''
+        # Compute the elevation to obtain the pressure specified
+        def to_solve(H):
+            return ATMOSPHERE_1976(H).P - P1
+        H_ref = brenth(to_solve, -610.0, 86000)
+        
+        # Compute the temperature delta
+        dT = T1 - ATMOSPHERE_1976(H_ref).T
+        
+        def to_int(Z):
+            atm = ATMOSPHERE_1976(Z, dT=dT)
+            return atm.g*atm.rho
+        return float(quad(to_int, H_ref, H_ref+dH)[0])
 
     def __init__(self, Z, dT=0):
         self.Z = Z

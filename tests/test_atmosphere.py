@@ -56,6 +56,8 @@ def test_ATMOSPHERE_1976():
     # mean air particle speed; mean collision frequency; mean free path; mole volume; total number density
 
 
+    delta_P = ATMOSPHERE_1976.pressure_integral(288.6, 84100.0, 147.0)
+    assert_allclose(delta_P, 1451.9583061008857)
     
     
     
