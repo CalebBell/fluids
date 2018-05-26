@@ -513,3 +513,7 @@ def test_RectangularOffsetStripFinExchanger():
     # With layers, plate thickness, width (fully defined)
 #    ROSFE = RectangularOffsetStripFinExchanger(fin_length=.05, fin_height=.01, fin_thickness=.003, fin_spacing=.05, length=1.2, width=2.401, plate_thickness=.005, layers=40)
 #    assert_allclose(ROSFE.A_HX_layer, 0.267552)
+
+
+def test_HyperbolicCoolingTower():
+    pass
