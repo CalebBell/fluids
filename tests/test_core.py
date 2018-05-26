@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from fluids import *
-from numpy.testing import assert_allclose
+from numpy.testing import assert_allclose, assert_equal
 import pytest
 
 def test_core_misc():
@@ -236,3 +236,66 @@ def test_core_misc2():
 
     P = P_from_head(head=5., rho=800.)
     assert_allclose(P, 39226.6)
+
+
+
+from fluids.core import C2K, K2C, F2C, C2F, F2K, K2F, C2R, K2R, F2R, R2C, R2K, R2F
+
+# The following are tests which were deprecated from scipy
+# but are still desired to be here
+# Taken from scipy/constants/constants.py as in commit 
+# https://github.com/scipy/scipy/commit/4b7d325cd50e8828b06d628e69426a18283dc5b5
+# Also from https://github.com/scipy/scipy/pull/5292
+# by Gillu13  (Gilles Aouizerate)
+# Copyright individual contributors to SciPy
+
+
+def test_fahrenheit_to_celcius():
+    assert_equal(F2C(32), 0)
+    assert_equal(F2C([32, 32]), [0, 0])
+
+
+def test_celcius_to_kelvin():
+    assert_equal(C2K([0, 0]), [273.15, 273.15])
+
+
+def test_kelvin_to_celcius():
+    assert_equal(K2C([0, 0]), [-273.15, -273.15])
+
+
+def test_fahrenheit_to_kelvin():
+    assert_equal(F2K([32, 32]), [273.15, 273.15])
+
+
+def test_kelvin_to_fahrenheit():
+    assert_equal(K2F([273.15, 273.15]), [32, 32])
+
+
+def test_celcius_to_fahrenheit():
+    assert_equal(C2F([0, 0]), [32, 32])
+
+
+def test_celcius_to_rankine():
+    assert_allclose(C2R([0, 0]), [491.67, 491.67], rtol=0., atol=1e-13)
+
+
+def test_kelvin_to_rankine():
+    assert_allclose(K2R([273.15, 273.15]), [491.67, 491.67], rtol=0., 
+                    atol=1e-13)
+
+
+def test_fahrenheit_to_rankine():
+    assert_allclose(F2R([32, 32]), [491.67, 491.67], rtol=0., atol=1e-13)
+
+
+def test_rankine_to_fahrenheit():
+    assert_allclose(R2F([491.67, 491.67]), [32., 32.], rtol=0., 
+                    atol=1e-13)
+
+
+def test_rankine_to_celcius():
+    assert_allclose(R2C([491.67, 491.67]), [0., 0.], rtol=0., atol=1e-13)
+
+
+def test_rankine_to_kelvin():
+    assert_allclose(R2K([491.67, 0.]), [273.15, 0.], rtol=0., atol=1e-13)

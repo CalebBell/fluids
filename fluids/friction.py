@@ -1620,7 +1620,7 @@ def Prandtl_von_Karman_Nikuradse(Re):
     Examples
     --------
     >>> Prandtl_von_Karman_Nikuradse(1E7)
-    0.0081026694308749137
+    0.008102669430874914
 
     References
     ----------

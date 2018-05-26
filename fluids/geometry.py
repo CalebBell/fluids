@@ -2064,7 +2064,7 @@ class PlateExchanger(object):
     --------
     >>> PlateExchanger(amplitude=5E-4, wavelength=3.7E-3, length=1.2, width=.3,
     ... d_port=.05, plates=51)
-    <Plate heat exchanger, amplitude=0.0005 m, wavelength=0.0037 m, chevron_angles=45/45 degrees, area enhancement factor=1.16118620345, width=0.3 m, length=1.2 m, port diameter=0.05 m, heat transfer area=20.4833246289 m^2, 51 plates>
+    <Plate heat exchanger, amplitude=0.0005 m, wavelength=0.0037 m, chevron_angles=45/45 degrees, area enhancement factor=1.16119, width=0.3 m, length=1.2 m, port diameter=0.05 m, heat transfer area=20.4833 m^2, 51 plates>
 
     References
     ----------
@@ -2074,14 +2074,14 @@ class PlateExchanger(object):
        Refrigeration 61 (January 2016): 166-84. doi:10.1016/j.ijrefrig.2015.07.010.
     '''
     def __repr__(self):  # pragma : no cover
-        s = '<Plate heat exchanger, amplitude=%s m, wavelength=%s m, \
-chevron_angles=%s degrees, area enhancement factor=%s' %(self.a, self.wavelength, '/'.join([str(i) for i in self.chevron_angles]), self.plate_enlargement_factor)
+        s = '<Plate heat exchanger, amplitude=%g m, wavelength=%g m, \
+chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength, '/'.join([str(i) for i in self.chevron_angles]), self.plate_enlargement_factor)
         if self.width and self.length:
-            s += ', width=%s m, length=%s m' %(self.width, self.length)
+            s += ', width=%g m, length=%g m' %(self.width, self.length)
         if self.d_port:
-            s += ', port diameter=%s m' %(self.d_port)
+            s += ', port diameter=%g m' %(self.d_port)
         if self.plates:
-            s += ', heat transfer area=%s m^2, %s plates>' %(self.A_heat_transfer, self.plates)
+            s += ', heat transfer area=%g m^2, %g plates>' %(self.A_heat_transfer, self.plates)
         else: 
             s += '>'
         return s

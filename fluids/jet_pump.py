@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import log, pi, sqrt
-from random import uniform
+from random import uniform, seed
 from pprint import pprint
 from scipy.optimize import brenth, newton, fsolve, root
 
@@ -329,22 +329,14 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
 
     Examples
     --------
-    >>> pprint(liquid_jet_pump(rhop=998., rhos=1098., Km=.186, Kd=0.12, Ks=0.11, 
+    >>> ans = liquid_jet_pump(rhop=998., rhos=1098., Km=.186, Kd=0.12, Ks=0.11, 
     ... Kp=0.04, d_mixing=0.045, Qs=0.01, Qp=.01, P2=133600, 
-    ... P5=200E3, nozzle_retracted=False))
-    {'M': 1.0,
-     'N': 0.29347267312775555,
-     'P1': 426256.1597041593,
-     'P2': 133600,
-     'P5': 200000.0,
-     'Qp': 0.01,
-     'Qs': 0.01,
-     'R': 0.24740363879291274,
-     'alpha': 1e-06,
-     'd_diffuser': 45.0,
-     'd_mixing': 0.045,
-     'd_nozzle': 0.022382858811055575,
-     'efficiency': 0.29347267312775555}
+    ... P5=200E3, nozzle_retracted=False, max_variations=10000)
+    >>> s = []
+    >>> for key, value in ans.items():
+    ...     s.append('%s: %g' %(key, value))
+    >>> sorted(s)
+    ['M: 1', 'N: 0.293473', 'P1: 426256', 'P2: 133600', 'P5: 200000', 'Qp: 0.01', 'Qs: 0.01', 'R: 0.247404', 'alpha: 1e-06', 'd_diffuser: 45', 'd_mixing: 0.045', 'd_nozzle: 0.0223829', 'efficiency: 0.293473']
 
     References
     ----------
@@ -538,7 +530,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
     # Just do variations on this until it works
     for _ in range(int(max_variations/8)):
         for idx in [0, 1]:
-            for r in [(1, 10), (0.1, 10)]:
+            for r in [(1, 10), (0.1, 1)]:
                 i = uniform(*r)
                 try:
                     l = list(var_guesses)
@@ -546,6 +538,17 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
                     return solve_with_fsolve(l)
                 except:
                     pass
-    # If more bad problems are found, try different guesses for both parameters
-    # at once (to be coded when needed)
+    # Vary both parameters at once
+    for _ in range(int(max_variations/8)):
+        for r in [(1, 10), (0.1, 1)]:
+            i = uniform(*r)
+            for s in [(1, 10), (0.1, 1)]:
+                j = uniform(*s)
+                try:
+                    l = list(var_guesses)
+                    l[0] = l[0]*i
+                    l[1] = l[1]*j
+                    return solve_with_fsolve(l)
+                except:
+                    pass
     raise ValueError('Could not solve')

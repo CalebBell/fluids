@@ -506,14 +506,14 @@ def cdf_lognormal(d, d_characteristic, s):
     computation with  `d_characteristic` as the value of `scale`.
 
     >>> scipy.stats.lognorm.cdf(x=1E-4, s=1.1, scale=1E-5)
-    0.98183698757981774
+    0.9818369875798177
     
     Scipy's calculation is over 100 times slower however.
 
     Examples
     --------
     >>> cdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
-    0.98183698757981763
+    0.9818369875798176
 
     References
     ----------
@@ -1094,7 +1094,7 @@ class ParticleSizeDistributionContinuous(object):
         >>> psd.pdf(1e-5, n=3)
         30522.765209509154
         >>> psd.pdf(1e-5, n=0)
-        1238.6613794833429
+        1238.661379483343
         
         References
         ----------
@@ -1150,9 +1150,9 @@ class ParticleSizeDistributionContinuous(object):
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> for n in (0, 1, 2, 3):
         ...     print(psd.cdf(5e-6, n))
-        0.933192798731
-        0.841344746069
-        0.691462461274
+        0.933192798731142
+        0.8413447460685429
+        0.691462461274013
         0.5
         '''
         if n is not None and n != self.order:
@@ -1201,7 +1201,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.delta_cdf(1e-6, 1e-5)
-        0.91652800998538764
+        0.9165280099853876
         '''
         return self.cdf(d_max, n=n) - self.cdf(d_min, n=n)
 
@@ -1342,7 +1342,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.fractions_discrete([1e-6, 1e-5, 1e-4, 1e-3])
-        [0.00064347101291384323, 0.9165280099853876, 0.08282851796190027, 1.039798247504109e-09]
+        [0.0006434710129138432, 0.9165280099853876, 0.08282851796190027, 1.039798247504109e-09]
         '''
         cdfs = [self.cdf(d, n=n) for d in ds]
         return [cdfs[0]] + np.diff(cdfs).tolist()
@@ -1370,7 +1370,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.cdf_discrete([1e-6, 1e-5, 1e-4, 1e-3])
-        [0.00064347101291384323, 0.91717148099830148, 0.99999999896020175, 1.0]
+        [0.0006434710129138432, 0.9171714809983015, 0.9999999989602018, 1.0]
         '''
         return [self.cdf(d, n=n) for d in ds]
     
@@ -1378,7 +1378,7 @@ class ParticleSizeDistributionContinuous(object):
         '''        
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
         >>> psd.mean_size(3, 2)
-        4.4124845129229773e-06
+        4.412484512922977e-06
         
         Note that for the case where p == q, a different set of formulas are
         required - which do not have analytical results for many distributions.
@@ -1405,7 +1405,7 @@ class ParticleSizeDistributionContinuous(object):
         '''        
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
         >>> psd.mean_size_ISO(1, 2)
-        4.4124845129229773e-06
+        4.412484512922977e-06
         '''
         p = k + r
         q = r
