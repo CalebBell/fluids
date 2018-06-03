@@ -22,12 +22,17 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import log10
-from scipy.constants import R
+from scipy.constants import R, psi, gallon, minute
+from scipy.interpolate import UnivariateSpline, interp1d
+from fluids.fittings import Cv_to_Kv, Kv_to_Cv
 
 __all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index',
            'FF_critical_pressure_ratio_l', 'is_choked_turbulent_l', 
            'is_choked_turbulent_g', 'Reynolds_valve', 
-           'loss_coefficient_piping', 'Reynolds_factor']
+           'loss_coefficient_piping', 'Reynolds_factor',
+           'Cv_char_quick_opening', 'Cv_char_linear', 
+           'Cv_char_equal_percentage',
+           'convert_flow_coefficient']
 
 N1 = 0.1 # m^3/hr, kPa
 N2 = 1.6E-3 # mm
@@ -658,3 +663,77 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
         C = iterate_piping_laminar(C)
     return C
 
+
+
+# Valve data from Emerson Valve Handbook 5E
+opening_quick = [0.0, 0.0136, 0.02184, 0.03256, 0.04575, 0.06221, 0.07459, 0.0878, 0.10757, 0.12654, 0.14301, 0.16032, 0.18009, 0.18999, 0.20233, 0.23105, 0.25483, 0.28925, 0.32365, 0.36541, 0.42188, 0.46608, 0.53319, 0.61501, 0.7034, 0.78033, 0.84415, 0.91944, 1.000]
+frac_CV_quick = [0.0, 0.04984, 0.07582, 0.12044, 0.16614, 0.21707, 0.26998, 0.32808, 0.39353, 0.46516, 0.52125, 0.58356, 0.64798, 0.68845, 0.72277, 0.76565, 0.79399, 0.82459, 0.84589, 0.86732, 0.88078, 0.89399, 0.90867, 0.92053, 0.93973, 0.95872, 0.96817, 0.98611, 1.0]
+Cv_char_quick_opening = UnivariateSpline(opening_quick, frac_CV_quick, s=0.0)
+
+opening_linear = [0., 1.0]
+frac_CV_linear = [0, 1]
+Cv_char_linear = interp1d(opening_linear, frac_CV_linear, kind='linear')
+
+opening_equal = [0.0, 0.05523, 0.09287, 0.15341, 0.18942, 0.22379, 0.25816, 0.29582, 0.33348, 0.34985, 0.3826, 0.45794, 0.49235, 0.51365, 0.54479, 0.57594, 0.60218, 0.62843, 0.77628, 0.796, 0.83298, 0.86995, 0.90936, 0.95368, 1.00]
+frac_CV_equal = [0.0, 0.00845, 0.01339, 0.01877, 0.02579, 0.0349, 0.04189, 0.05528, 0.07079, 0.07533, 0.09074, 0.13444, 0.15833, 0.17353, 0.20159, 0.23388, 0.26819, 0.30461, 0.60113, 0.64588, 0.72583, 0.80788, 0.87519, 0.94999, 1.]
+Cv_char_equal_percentage = UnivariateSpline(opening_equal, frac_CV_equal, s=0.0)
+
+
+def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
+    '''Convert from one flow coefficient scale to another; supports the `Kv`
+    `Cv`, and `Av` scales.
+    
+    Other scales are `Qn` and `Cg`, but clear definitions have yet to be
+    found.
+    
+    Parameters
+    ----------
+    flow_coefficient : float
+        Value of the flow coefficient to be converted, expressed in the 
+        original scale.
+    old_scale : str
+        String specifing the original scale; one of 'Av', 'Cv', or 'Kv', [-]
+    new_scale : str
+        String specifing the new scale; one of 'Av', 'Cv', or 'Kv', [-]
+    
+    Returns
+    -------
+    converted_flow_coefficient : float 
+        Flow coefficient converted to the specified scale.
+    
+    Notes
+    -----
+    `Qn` is a scale based on a flow of air in units of L/minute as air travels
+    through a valve and loses one bar of pressure (initially 7 bar absolute,
+    to 6 bar absolute). No consistent conversion factors have been found and 
+    those from theory do not match what have been found. Some uses of `Qn` use
+    its flow rate as in normal (STP reference conditions) flow rate of air;
+    others use something like the 7 bar absolute condition.
+
+    Examples
+    --------
+    >>> convert_flow_coefficient(10, 'Kv', 'Av')
+    0.0002776532068951358
+    '''
+    # Convert from `old_scale` to Kv
+    if old_scale == 'Cv':
+        Kv = Cv_to_Kv(flow_coefficient)
+    elif old_scale == 'Kv':
+        Kv = flow_coefficient
+    elif old_scale == 'Av':
+        Cv = flow_coefficient/((rho0/psi)**0.5*gallon/minute)
+        Kv = Cv_to_Kv(Cv)
+    else:
+        raise NotImplementedError("%s scale is unsupported" %old_scale)
+
+    if new_scale == 'Cv':
+        ans = Kv_to_Cv(Kv)
+    elif new_scale == 'Kv':
+        ans = Kv
+    elif new_scale == 'Av':
+        Cv = Kv_to_Cv(Kv)
+        ans = Cv*((rho0/psi)**0.5*gallon/minute)
+    else:
+        raise NotImplementedError("%s scale is unsupported" %old_scale)
+
+    return ans
