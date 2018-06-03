@@ -83,6 +83,10 @@ def test_control_valve_size_l():
     Kv = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.15, D2=0.15, d=0.15, FL=0.9, Fd=0.46)
     assert_allclose(Kv, 164.9954763704956)
 
+    # Same as above - diameters removed
+    Kv = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, FL=0.9, Fd=0.46)
+    assert_allclose(Kv, 164.9954763704956)
+
     # From [1]_, matching example 2 for a ball, segmented ball,
     # flow-to-open valve.
 
@@ -156,10 +160,22 @@ def test_control_valve_size_g():
 
     Kv = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=1.3E5, Q=0.46/3600., D1=0.015, D2=0.015, d=0.015, FL=0.98, Fd=0.07, xT=0.8)
     assert_allclose(Kv, 0.016498765335995726)
+    
+    # Diameters removed
+    Kv = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=1.3E5, Q=0.46/3600., FL=0.98, Fd=0.07, xT=0.8)
+    assert_allclose(Kv, 0.012691357950765944)
+    ans = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=1.3E5, Q=0.46/3600., FL=0.98, Fd=0.07, xT=0.8, full_output=True)
+    assert ans['laminar'] == False
+    assert ans['choked'] == False
+    assert ans['FP'] is None
+    assert ans['FR'] is None
+    assert ans['xTP'] is None
+    assert ans['Rev'] is None
 
     # Choked custom example
     Kv = size_control_valve_g(T=433., MW=44.01, mu=1.4665E-4, gamma=1.30, Z=0.988, P1=680E3, P2=30E3, Q=38/36., D1=0.08, D2=0.1, d=0.05, FL=0.85, Fd=0.42, xT=0.60)
     assert_allclose(Kv, 70.67468803987839)
+    
 
     # Laminar custom example
     Kv = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=1.3E5, Q=0.46/3600., D1=0.015, D2=0.015, d=0.001, FL=0.98, Fd=0.07, xT=0.8)

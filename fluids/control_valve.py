@@ -418,9 +418,9 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
     return FR
 
 
-def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd,
-                         allow_choked=True, allow_laminar=True, 
-                         full_output=False):
+def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
+                         d=None, FL=0.9, Fd=1, allow_choked=True, 
+                         allow_laminar=True, full_output=False):
     r'''Calculates flow coefficient of a control valve passing a liquid
     according to IEC 60534. Uses a large number of inputs in SI units. Note the
     return value is not standard SI. All parameters are required.
@@ -444,17 +444,19 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd,
         Outlet pressure of the fluid after valves and reducers [Pa]
     Q : float
         Volumetric flow rate of the fluid [m^3/s]
-    D1 : float
+    D1 : float, optional
         Diameter of the pipe before the valve [m]
-    D2 : float
+    D2 : float, optional
         Diameter of the pipe after the valve [m]
-    d : float
+    d : float, optional
         Diameter of the valve [m]
-    FL : float
+    FL : float, optional
         Liquid pressure recovery factor of a control valve without attached 
-        fittings []
-    Fd : float
-        Valve style modifier []
+        fittings (normally 0.8-0.9 at full open and decreasing as opened 
+        further to below 0.5; use default very cautiously!) []
+    Fd : float, optional
+        Valve style modifier (0.1 to 1; varies tremendously depending on the
+        type of valve and position; do not use the default at all!) []
     allow_choked : bool, optional
         Overrides the automatic transition into the choked regime if this is
         False and returns as if choked flow does not exist
@@ -472,6 +474,12 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd,
     C : float
         Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
         of 1 bar) [m^3/hr]
+        
+    Notes
+    -----
+    It is possible to use this model without any diameters specified; in that
+    case, turbulent flow is assumed. Choked flow can still be modeled. This is
+    not recommended. All three diameters need to be None for this to work.
 
     Examples
     --------
@@ -490,7 +498,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd,
     ... P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.1,
     ... FL=0.6, Fd=0.98)
     238.05817216710483
-
+    
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
@@ -499,8 +507,6 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd,
         ans = {'FLP': None, 'FP': None, 'FR': None}
     # Pa to kPa, according to constants in standard
     P1, P2, Psat, Pc = P1/1000., P2/1000., Psat/1000., Pc/1000.
-    # m to mm, according to constants in standard
-    D1, D2, d = D1*1000., D2*1000., d*1000.
     Q = Q*3600. # m^3/s to m^3/hr, according to constants in standard
     nu = mu/rho # kinematic viscosity used in standard
 
@@ -509,53 +515,60 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd,
     choked = is_choked_turbulent_l(dP=dP, P1=P1, Psat=Psat, FF=FF, FL=FL)
     if choked and allow_choked:
         # Choked flow, equation 3
-        C = Q/N1/FL*(rho/rho0/(P1-FF*Psat))**0.5
+        C = Q/N1/FL*(rho/rho0/(P1 - FF*Psat))**0.5
     else:
         # non-choked flow, eq 1
         C = Q/N1*(rho/rho0/dP)**0.5
-    Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
-    if (Rev > 10000 or not allow_laminar) and (D1 != d or D2 != d):
-        # liquid, using Fp and FLP
-        FP = 1
-        Ci = C
-        def iterate_piping_turbulent(Ci):
-            loss = loss_coefficient_piping(d, D1, D2)
-            FP = (1 + loss/N2*(Ci/d**2)**2)**-0.5
-            loss_upstream = loss_coefficient_piping(d, D1)
-            FLP = FL*(1 + FL**2/N2*loss_upstream*(Ci/d**2)**2)**-0.5
-            choked = is_choked_turbulent_l(dP, P1, Psat, FF, FLP=FLP, FP=FP)
-            if choked:
-                # Choked flow with piping, equation 4
-                C = Q/N1/FLP*(rho/rho0/(P1-FF*Psat))**0.5
-            else:
-                # Non-Choked flow with piping, equation 4
-                C = Q/N1/FP*(rho/rho0/dP)**0.5
-            if Ci/C < 0.99:
-                C = iterate_piping_turbulent(C)
-                
-            if full_output:
-                ans['FLP'] = FLP
-                ans['FP'] = FP
-            return C
-
-        C = iterate_piping_turbulent(Ci)
-    elif Rev <= 10000 and allow_laminar:
-        # Laminar
-        def iterate_piping_laminar(C):
-            Ci = 1.3*C
-            Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)                
-            if Ci/d**2 > 0.016*N18:
-                FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=False)
-            else:
-                FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)
-            if C/FR >= Ci:
-                Ci = iterate_piping_laminar(Ci) # pragma: no cover
-                
-            if full_output:
-                ans['Rev'] = Rev
-                ans['FR'] = FR
-            return Ci
-        C = iterate_piping_laminar(C)
+    if D1 is None and D2 is None and d is None:
+        # Assume turbulent if no diameters are provided, no other calculations
+        Rev = 1e5
+    else:
+        # m to mm, according to constants in standard
+        D1, D2, d = D1*1000., D2*1000., d*1000.
+        Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
+        # normal calculation path
+        if (Rev > 10000 or not allow_laminar) and (D1 != d or D2 != d):
+            # liquid, using Fp and FLP
+            FP = 1
+            Ci = C
+            def iterate_piping_turbulent(Ci):
+                loss = loss_coefficient_piping(d, D1, D2)
+                FP = (1 + loss/N2*(Ci/d**2)**2)**-0.5
+                loss_upstream = loss_coefficient_piping(d, D1)
+                FLP = FL*(1 + FL**2/N2*loss_upstream*(Ci/d**2)**2)**-0.5
+                choked = is_choked_turbulent_l(dP, P1, Psat, FF, FLP=FLP, FP=FP)
+                if choked:
+                    # Choked flow with piping, equation 4
+                    C = Q/N1/FLP*(rho/rho0/(P1-FF*Psat))**0.5
+                else:
+                    # Non-Choked flow with piping, equation 4
+                    C = Q/N1/FP*(rho/rho0/dP)**0.5
+                if Ci/C < 0.99:
+                    C = iterate_piping_turbulent(C)
+                    
+                if full_output:
+                    ans['FLP'] = FLP
+                    ans['FP'] = FP
+                return C
+    
+            C = iterate_piping_turbulent(Ci)
+        elif Rev <= 10000 and allow_laminar:
+            # Laminar
+            def iterate_piping_laminar(C):
+                Ci = 1.3*C
+                Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)                
+                if Ci/d**2 > 0.016*N18:
+                    FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=False)
+                else:
+                    FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)
+                if C/FR >= Ci:
+                    Ci = iterate_piping_laminar(Ci) # pragma: no cover
+                    
+                if full_output:
+                    ans['Rev'] = Rev
+                    ans['FR'] = FR
+                return Ci
+            C = iterate_piping_laminar(C)
     if full_output:
         ans['FF'] = FF
         ans['choked'] = choked
@@ -570,9 +583,9 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd,
         return C
 
 
-def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT,
-                         allow_choked=True, allow_laminar=True, 
-                         full_output=False):
+def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None, 
+                         d=None, FL=0.9, Fd=1, xT=0.7, allow_choked=True, 
+                         allow_laminar=True, full_output=False):
     r'''Calculates flow coefficient of a control valve passing a gas
     according to IEC 60534. Uses a large number of inputs in SI units. Note the
     return value is not standard SI. All parameters are required. For details
@@ -597,20 +610,24 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT,
     Q : float
         Volumetric flow rate of the gas at *273.15 K* and 1 atm specifically
         [m^3/s]
-    D1 : float
+    D1 : float, optional
         Diameter of the pipe before the valve [m]
-    D2 : float
+    D2 : float, optional
         Diameter of the pipe after the valve [m]
-    d : float
-        Diameter of the valve [m]
-    FL : float
-        Liquid pressure recovery factor of a control valve without attached
-        fittings [-]
-    Fd : float
-        Valve style modifier [-]
-    xT : float
+    d : float, optional
+        Diameter of the valve [m]        
+    FL : float, optional
+        Liquid pressure recovery factor of a control valve without attached 
+        fittings (normally 0.8-0.9 at full open and decreasing as opened 
+        further to below 0.5; use default very cautiously!) []
+    Fd : float, optional
+        Valve style modifier (0.1 to 1; varies tremendously depending on the
+        type of valve and position; do not use the default at all!) []
+    xT : float, optional
         Pressure difference ratio factor of a valve without fittings at choked
-        flow [-]
+        flow (increasing to 0.9 or higher as the valve is closed further and 
+        decreasing to 0.1 or lower as the valve is opened further; use default
+        very cautiously!) [-]
     allow_choked : bool, optional
         Overrides the automatic transition into the choked regime if this is
         False and returns as if choked flow does not exist
@@ -628,6 +645,12 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT,
     C : float
         Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
         of 1 bar) [m^3/hr]
+
+    Notes
+    -----
+    It is possible to use this model without any diameters specified; in that
+    case, turbulent flow is assumed. Choked flow can still be modeled. This is
+    not recommended. All three diameters need to be None for this to work.
 
     Examples
     --------
@@ -654,8 +677,6 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT,
     '''
     # Pa to kPa, according to constants in standard
     P1, P2 = P1/1000., P2/1000.
-    # m to mm, according to constants in standard
-    D1, D2, d = D1*1000., D2*1000., d*1000.
     Q = Q*3600. # m^3/s to m^3/hr, according to constants in standard
     # Convert dynamic viscosity to kinematic viscosity
     Vm = Z*R*T/(P1*1000)
@@ -675,51 +696,62 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT,
         # Non-choked, and flow coefficient from eq 8a
         C = Q/(N9*P1*Y)*(MW*T*Z/x)**0.5
 
-    Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
-    
+
     if full_output:
-        ans = {'FP': None, 'xTP': None, 'FR': None, 'Rev': Rev,
+        ans = {'FP': None, 'xTP': None, 'FR': None, 
                'choked': choked, 'Y': Y}
-    
-    if (Rev > 10000 or not allow_laminar) and (D1 != d or D2 != d):
-        # gas, using xTP and FLP
-        FP = 1.
-        def iterate_piping_coef(Ci):
-            loss = loss_coefficient_piping(d, D1, D2)
-            FP = (1. + loss/N2*(Ci/d**2)**2)**-0.5
-            loss_upstream = loss_coefficient_piping(d, D1)
-            xTP = xT/FP**2/(1 + xT*loss_upstream/N5*(Ci/d**2)**2)
-            choked = is_choked_turbulent_g(x, Fgamma, xTP=xTP)
-            if choked:
-                # Choked flow with piping, equation 17a
-                C = Q/(N9*FP*P1*Y)*(MW*T*Z/xTP/Fgamma)**0.5
-            else:
-                # Non-choked flow with piping, equation 11a
-                C = Q/(N9*FP*P1*Y)*(MW*T*Z/x)**0.5
-            if Ci/C < 0.99:
-                C = iterate_piping_coef(C)
-            if full_output:
-                ans['xTP'] = xTP
-                ans['FP'] = FP
-                ans['choked'] = choked
-            return C
-        C = iterate_piping_coef(C)
-    elif Rev <= 10000 and allow_laminar:
-        # Laminar;
-        def iterate_piping_laminar(C):
-            Ci = 1.3*C
-            Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)
-            if Ci/d**2 > 0.016*N18:
-                FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=False)
-            else:
-                FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)
-            if C/FR >= Ci:
-                Ci = iterate_piping_laminar(Ci)
-            if full_output:
-                ans['FR'] = FR
-                ans['Rev'] = Rev
-            return Ci
-        C = iterate_piping_laminar(C)
+
+    if D1 is None and D2 is None and d is None:
+        # Assume turbulent if no diameters are provided, no other calculations
+        Rev = 1e5
+        if full_output:
+            ans['Rev'] = None
+    else:
+        # m to mm, according to constants in standard
+        D1, D2, d = D1*1000., D2*1000., d*1000. # Convert diameters to mm which is used in the standard
+        Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
+        if full_output:
+            ans['Rev'] = Rev
+
+        if (Rev > 10000 or not allow_laminar) and (D1 != d or D2 != d):
+            # gas, using xTP and FLP
+            FP = 1.
+            def iterate_piping_coef(Ci):
+                loss = loss_coefficient_piping(d, D1, D2)
+                FP = (1. + loss/N2*(Ci/d**2)**2)**-0.5
+                loss_upstream = loss_coefficient_piping(d, D1)
+                xTP = xT/FP**2/(1 + xT*loss_upstream/N5*(Ci/d**2)**2)
+                choked = is_choked_turbulent_g(x, Fgamma, xTP=xTP)
+                if choked:
+                    # Choked flow with piping, equation 17a
+                    C = Q/(N9*FP*P1*Y)*(MW*T*Z/xTP/Fgamma)**0.5
+                else:
+                    # Non-choked flow with piping, equation 11a
+                    C = Q/(N9*FP*P1*Y)*(MW*T*Z/x)**0.5
+                if Ci/C < 0.99:
+                    C = iterate_piping_coef(C)
+                if full_output:
+                    ans['xTP'] = xTP
+                    ans['FP'] = FP
+                    ans['choked'] = choked
+                return C
+            C = iterate_piping_coef(C)
+        elif Rev <= 10000 and allow_laminar:
+            # Laminar;
+            def iterate_piping_laminar(C):
+                Ci = 1.3*C
+                Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)
+                if Ci/d**2 > 0.016*N18:
+                    FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=False)
+                else:
+                    FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)
+                if C/FR >= Ci:
+                    Ci = iterate_piping_laminar(Ci)
+                if full_output:
+                    ans['FR'] = FR
+                    ans['Rev'] = Rev
+                return Ci
+            C = iterate_piping_laminar(C)
     if full_output:
         ans['C'] = C
         ans['laminar'] = Rev <= 10000
