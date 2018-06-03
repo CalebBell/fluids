@@ -22,6 +22,7 @@ SOFTWARE.'''
 
 from fluids import *
 from numpy.testing import assert_allclose
+import numpy as np
 import pytest
 
 def test_control_valve():
@@ -97,6 +98,18 @@ def test_control_valve_size_l():
 
     Kv = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.95, FL=0.6, Fd=0.98)
     assert_allclose(Kv, 230.1734424266345)
+    
+    # Same, test intermediate values
+    ans = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.95, FL=0.6, Fd=0.98, full_output=True)
+    del ans['choked']
+    del ans['FR']
+    ans_expect = {'C': 230.1734424266345,
+                 'FF': 0.9442375225233299,
+                 'FLP': 0.620553360954273,
+                 'FP': 0.8112169324177585,
+                 'Rev': 6596962.21111206}
+    for k in ans_expect.keys():
+        assert_allclose(ans[k], ans_expect[k])
 
     # Modified example 2 with laminar flow at 100x viscosity, 100th flow rate, and 1/10th diameters:
 
@@ -111,6 +124,23 @@ def test_control_valve_size_l():
     # if C/FR >= Ci:
     #    Ci = iterate_piping_laminar(Ci)
     # Efforts to make this happen have been unsuccessful.
+
+
+
+    # Test the ignore choked option
+    ans = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.1, FL=0.6, Fd=0.98, allow_choked=False, full_output=True)
+    assert_allclose(ans['C'], 164.9954763704956)
+    assert_allclose(ans['Rev'], 7805019.992655547)
+    assert ans['choked'] == True # Still true even though the choke is ignored
+    assert ans['FF']
+    assert ans['FLP'] is None
+    assert ans['FP'] is None
+    assert ans['FR'] is None
+    
+    # Test the laminar switch
+    for C, boolean in zip((0.014547698964079439, 0.011190537664676491), (True, False)):
+        ans = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=670E3, Q=0.000001, D1=0.1, D2=0.1, d=0.1, FL=0.6, Fd=0.98, allow_laminar=boolean, full_output=True)
+        assert_allclose(ans['C'], C)
 
 
 def test_control_valve_size_g():
@@ -138,3 +168,20 @@ def test_control_valve_size_g():
     # Laminar custom example with iteration
     Kv = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=2.7E5, Q=0.1/3600., D1=0.015, D2=0.015, d=0.001, FL=0.98, Fd=0.07, xT=0.8)
     assert_allclose(Kv, 0.989125783445497)
+    
+    # test not allowing chokes
+    ans_choked = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=1e4, Q=0.46/3600., D1=0.015, D2=0.015, d=0.015, FL=0.98, Fd=0.07, xT=0.8, full_output=True, allow_choked=True)
+    ans = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=1e4, Q=0.46/3600., D1=0.015, D2=0.015, d=0.015, FL=0.98, Fd=0.07, xT=0.8, full_output=True, allow_choked=False)
+    assert not np.isclose(ans_choked['C'], ans['C'], rtol=1E-4)
+    
+    # Test not allowing laminar
+    for C, boolean in zip((0.001179609179354541, 0.00090739167642657), (True, False)):
+        ans = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=1e4, Q=1e-5, D1=0.015, D2=0.015, d=0.015, FL=0.98, Fd=0.07, xT=0.8, full_output=True, allow_laminar=boolean)
+        assert_allclose(C, ans['C'])
+    
+    assert ans['choked'] # Still true even though the choke is ignored
+    assert ans['xTP'] is None
+    assert ans['Y'] 
+    assert ans['FP'] is None
+    assert ans['FR'] is None
+    assert ans['Rev']

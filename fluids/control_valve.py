@@ -418,7 +418,9 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
     return FR
 
 
-def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd):
+def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd,
+                         allow_choked=True, allow_laminar=True, 
+                         full_output=False):
     r'''Calculates flow coefficient of a control valve passing a liquid
     according to IEC 60534. Uses a large number of inputs in SI units. Note the
     return value is not standard SI. All parameters are required.
@@ -453,6 +455,17 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd):
         fittings []
     Fd : float
         Valve style modifier []
+    allow_choked : bool, optional
+        Overrides the automatic transition into the choked regime if this is
+        False and returns as if choked flow does not exist
+    allow_laminar : bool, optional
+        Overrides the automatic transition into the laminar regime if this is
+        False and returns as if laminar flow does not exist
+    full_output : bool, optional
+        If True, returns intermediate calculation values as
+        well as C in the form of a dictionary containing 'C', 'Rev', 'choked',
+        'FL', 'FLP', 'FR', 'FP', and 'laminar'. Some may be None if they are 
+        not used in the calculation.
 
     Returns
     -------
@@ -482,6 +495,8 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd):
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
+    if full_output:
+        ans = {'FLP': None, 'FP': None, 'FR': None}
     # Pa to kPa, according to constants in standard
     P1, P2, Psat, Pc = P1/1000., P2/1000., Psat/1000., Pc/1000.
     # m to mm, according to constants in standard
@@ -492,14 +507,14 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd):
     dP = P1 - P2
     FF = FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
     choked = is_choked_turbulent_l(dP=dP, P1=P1, Psat=Psat, FF=FF, FL=FL)
-    if choked:
+    if choked and allow_choked:
         # Choked flow, equation 3
         C = Q/N1/FL*(rho/rho0/(P1-FF*Psat))**0.5
     else:
         # non-choked flow, eq 1
         C = Q/N1*(rho/rho0/dP)**0.5
     Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
-    if Rev > 10000 and (D1 != d or D2 != d):
+    if (Rev > 10000 or not allow_laminar) and (D1 != d or D2 != d):
         # liquid, using Fp and FLP
         FP = 1
         Ci = C
@@ -517,26 +532,47 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL, Fd):
                 C = Q/N1/FP*(rho/rho0/dP)**0.5
             if Ci/C < 0.99:
                 C = iterate_piping_turbulent(C)
+                
+            if full_output:
+                ans['FLP'] = FLP
+                ans['FP'] = FP
             return C
 
         C = iterate_piping_turbulent(Ci)
-    elif Rev <= 10000:
+    elif Rev <= 10000 and allow_laminar:
         # Laminar
         def iterate_piping_laminar(C):
             Ci = 1.3*C
-            Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)
+            Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)                
             if Ci/d**2 > 0.016*N18:
                 FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=False)
             else:
                 FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)
             if C/FR >= Ci:
                 Ci = iterate_piping_laminar(Ci) # pragma: no cover
+                
+            if full_output:
+                ans['Rev'] = Rev
+                ans['FR'] = FR
             return Ci
         C = iterate_piping_laminar(C)
-    return C
+    if full_output:
+        ans['FF'] = FF
+        ans['choked'] = choked
+        ans['C'] = C
+        ans['laminar'] = Rev <= 10000
+        
+        # For the laminar case this is already set and needs to not be overwritten
+        if 'Rev' not in ans:
+            ans['Rev'] = Rev
+        return ans
+    else:
+        return C
 
 
-def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
+def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT,
+                         allow_choked=True, allow_laminar=True, 
+                         full_output=False):
     r'''Calculates flow coefficient of a control valve passing a gas
     according to IEC 60534. Uses a large number of inputs in SI units. Note the
     return value is not standard SI. All parameters are required. For details
@@ -575,7 +611,18 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
     xT : float
         Pressure difference ratio factor of a valve without fittings at choked
         flow [-]
-
+    allow_choked : bool, optional
+        Overrides the automatic transition into the choked regime if this is
+        False and returns as if choked flow does not exist
+    allow_laminar : bool, optional
+        Overrides the automatic transition into the laminar regime if this is
+        False and returns as if laminar flow does not exist
+    full_output : bool, optional
+        If True, returns intermediate calculation values as
+        well as C in the form of a dictionary containing 'C', 'Rev', 'choked',
+        'Y', 'FR', 'FP', 'xTP', and 'laminar'. Some may be None if they are 
+        not used in the calculation.
+        
     Returns
     -------
     C : float
@@ -621,7 +668,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
     Y = max(1 - x/(3*Fgamma*xT), 2/3.)
 
     choked = is_choked_turbulent_g(x, Fgamma, xT)
-    if choked:
+    if choked and allow_choked:
         # Choked, and flow coefficient from eq 14a
         C = Q/(N9*P1*Y)*(MW*T*Z/xT/Fgamma)**0.5
     else:
@@ -629,7 +676,12 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
         C = Q/(N9*P1*Y)*(MW*T*Z/x)**0.5
 
     Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
-    if Rev > 10000 and (D1 != d or D2 != d):
+    
+    if full_output:
+        ans = {'FP': None, 'xTP': None, 'FR': None, 'Rev': Rev,
+               'choked': choked, 'Y': Y}
+    
+    if (Rev > 10000 or not allow_laminar) and (D1 != d or D2 != d):
         # gas, using xTP and FLP
         FP = 1.
         def iterate_piping_coef(Ci):
@@ -646,9 +698,13 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
                 C = Q/(N9*FP*P1*Y)*(MW*T*Z/x)**0.5
             if Ci/C < 0.99:
                 C = iterate_piping_coef(C)
+            if full_output:
+                ans['xTP'] = xTP
+                ans['FP'] = FP
+                ans['choked'] = choked
             return C
         C = iterate_piping_coef(C)
-    elif Rev <= 10000:
+    elif Rev <= 10000 and allow_laminar:
         # Laminar;
         def iterate_piping_laminar(C):
             Ci = 1.3*C
@@ -659,9 +715,17 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL, Fd, xT):
                 FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)
             if C/FR >= Ci:
                 Ci = iterate_piping_laminar(Ci)
+            if full_output:
+                ans['FR'] = FR
+                ans['Rev'] = Rev
             return Ci
         C = iterate_piping_laminar(C)
-    return C
+    if full_output:
+        ans['C'] = C
+        ans['laminar'] = Rev <= 10000
+        return ans
+    else:
+        return C
 
 
 
