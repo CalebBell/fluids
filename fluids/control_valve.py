@@ -24,6 +24,7 @@ from __future__ import division
 from math import log10
 from scipy.constants import R, psi, gallon, minute
 from scipy.interpolate import UnivariateSpline, interp1d
+from scipy.optimize import brenth
 from fluids.fittings import Cv_to_Kv, Kv_to_Cv
 
 __all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index',
@@ -32,7 +33,7 @@ __all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index',
            'loss_coefficient_piping', 'Reynolds_factor',
            'Cv_char_quick_opening', 'Cv_char_linear', 
            'Cv_char_equal_percentage',
-           'convert_flow_coefficient']
+           'convert_flow_coefficient', 'control_valve_choke_P_l']
 
 N1 = 0.1 # m^3/hr, kPa
 N2 = 1.6E-3 # mm
@@ -137,6 +138,80 @@ def FF_critical_pressure_ratio_l(Psat, Pc):
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
     return 0.96 - 0.28*(Psat/Pc)**0.5
+
+
+def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
+    r'''Calculates either the upstream or downstream pressure at which choked
+    flow though a liquid control valve occurs, given either a set upstream or 
+    downstream pressure. Implements an analytical solution of 
+    the needed equations from the full function
+    :py:func:`~.size_control_valve_l`. For some pressures, no choked flow 
+    is possible; for choked flow to occur the direction if flow must be 
+    reversed. If `disp` is True, an exception will be raised for these
+    conditions.
+    
+    Parameters
+    ----------
+    Psat : float
+        Saturation pressure of the liquid at inlet temperature [Pa]
+    Pc : float
+        Critical pressure of the liquid [Pa]
+    FL : float, optional
+        Liquid pressure recovery factor of a control valve without attached 
+        fittings [-]
+    P1 : float, optional
+        Absolute pressure upstream of the valve [Pa]
+    P2 : float, optional
+        Absolute pressure downstream of the valve [Pa]
+    disp : bool, optional
+        Whether or not to raise an exception on flow reversal, [-]
+
+    Returns
+    -------
+    P_choke : float
+        Pressure at which a choke occurs in the liquid valve [Pa]
+
+    Notes
+    -----
+    Extremely cheap to compute.
+    
+    Examples
+    --------
+    >>> control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6, 680000.0)
+    458887.5306077305
+    >>> control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6, P2=458887.5306077305)
+    680000.0
+    '''
+    FF = FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
+    Pmin_absolute = FF*Psat
+    if P2 is None:
+        ans = P2 = FF*FL*FL*Psat - FL*FL*P1 + P1
+    elif P1 is None:
+        ans = P1 = (FF*FL*FL*Psat - P2)/(FL*FL - 1.0)
+    else:
+        raise Exception('Either P1 or P2 needs to be specified')
+    if P2 > P1 and disp:
+        raise Exception('Specified P1 is too low for choking to occur '
+                        'at any downstream pressure; minimum '
+                        'upstream pressure for choking to be possible '
+                        'is %g Pa.' %Pmin_absolute)
+    return ans
+#    if P2 is None:
+#        def is_choking(P2, P1, Psat, Pc, FL):
+#            dP = P1 - P2
+#            FF = FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
+#            return dP - FL*FL*(P1 - FF*Psat)
+#        Pmax, Pmin, Parg = P1*(1.0 - 1E-14), P1/bound_factor, P1
+#    elif P1 is None:
+#        def is_choking(P1, P2, Psat, Pc, FL):
+#            dP = P1 - P2
+#            FF = FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
+#            return dP - FL*FL*(P1 - FF*Psat)
+#        Pmin, Pmax, Parg = P2*(1.0 + 1E-14), P2*bound_factor, P2
+#    else:
+#        raise Exception('Either P1 or P2 needs to be specified')
+#        
+#    return brenth(is_choking, Pmin, Pmax, args=(Parg, Psat, Pc, FL))
 
 
 def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
