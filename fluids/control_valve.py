@@ -33,7 +33,8 @@ __all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index',
            'loss_coefficient_piping', 'Reynolds_factor',
            'Cv_char_quick_opening', 'Cv_char_linear', 
            'Cv_char_equal_percentage',
-           'convert_flow_coefficient', 'control_valve_choke_P_l']
+           'convert_flow_coefficient', 'control_valve_choke_P_l',
+           'control_valve_choke_P_g']
 
 N1 = 0.1 # m^3/hr, kPa
 N2 = 1.6E-3 # mm
@@ -150,6 +151,11 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
     reversed. If `disp` is True, an exception will be raised for these
     conditions.
     
+    .. math::
+        P_1 = \frac{F_{F} F_{L}^{2} P_{sat} - P_{2}}{F_{L}^{2} - 1}
+        
+        P_2 = F_{F} F_{L}^{2} P_{sat} - F_{L}^{2} P_{1} + P_{1}
+    
     Parameters
     ----------
     Psat : float
@@ -196,22 +202,56 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
                         'upstream pressure for choking to be possible '
                         'is %g Pa.' %Pmin_absolute)
     return ans
-#    if P2 is None:
-#        def is_choking(P2, P1, Psat, Pc, FL):
-#            dP = P1 - P2
-#            FF = FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
-#            return dP - FL*FL*(P1 - FF*Psat)
-#        Pmax, Pmin, Parg = P1*(1.0 - 1E-14), P1/bound_factor, P1
-#    elif P1 is None:
-#        def is_choking(P1, P2, Psat, Pc, FL):
-#            dP = P1 - P2
-#            FF = FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
-#            return dP - FL*FL*(P1 - FF*Psat)
-#        Pmin, Pmax, Parg = P2*(1.0 + 1E-14), P2*bound_factor, P2
-#    else:
-#        raise Exception('Either P1 or P2 needs to be specified')
-#        
-#    return brenth(is_choking, Pmin, Pmax, args=(Parg, Psat, Pc, FL))
+
+
+def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
+    r'''Calculates either the upstream or downstream pressure at which choked
+    flow though a gas control valve occurs, given either a set upstream or 
+    downstream pressure. Implements an analytical solution of 
+    the needed equations from the full function
+    :py:func:`~.size_control_valve_g`. A singularity arises as `xT` goes to 1
+    and `gamma` goes to 1.4.
+    
+    .. math::
+        P_1 = - \frac{7 P_{2}}{5 \gamma x_T - 7}
+        
+        P_2 = \frac{P_{1}}{7} \left(- 5 \gamma x_T + 7\right)
+    
+    Parameters
+    ----------
+    gamma : float
+        Specific heat capacity ratio [-]
+    xT : float, optional
+        Pressure difference ratio factor of a valve without fittings at choked
+        flow [-]
+    P1 : float, optional
+        Absolute pressure upstream of the valve [Pa]
+    P2 : float, optional
+        Absolute pressure downstream of the valve [Pa]
+
+    Returns
+    -------
+    P_choke : float
+        Pressure at which a choke occurs in the gas valve [Pa]
+
+    Notes
+    -----
+    Extremely cheap to compute.
+    
+    Examples
+    --------
+    >>> control_valve_choke_P_g(1, 1.3, 1E5)
+    7142.857142857143
+    >>> control_valve_choke_P_g(1, 1.3, P2=7142.857142857143)
+    100000.0
+    '''
+    if P2 is None:
+        ans = P2 = P1*(-5.0*gamma*xT + 7.0)/7.0
+    elif P1 is None:
+        ans = P1 = -7.0*P2/(5.0*gamma*xT - 7.0)
+    else:
+        raise Exception('Either P1 or P2 needs to be specified')
+    return ans
 
 
 def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
