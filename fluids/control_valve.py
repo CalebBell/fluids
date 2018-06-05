@@ -219,11 +219,11 @@ def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
     
     Parameters
     ----------
-    gamma : float
-        Specific heat capacity ratio [-]
     xT : float, optional
         Pressure difference ratio factor of a valve without fittings at choked
         flow [-]
+    gamma : float
+        Specific heat capacity ratio [-]
     P1 : float, optional
         Absolute pressure upstream of the valve [Pa]
     P2 : float, optional

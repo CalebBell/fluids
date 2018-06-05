@@ -213,3 +213,16 @@ def test_control_valve_size_g():
             'xT': 0.6, 'D1': 0.08}
     ans = size_control_valve_g(P2=678000., **args)
     assert ans['warning']
+
+
+def test_control_valve_choke_P_l():
+    P2 = control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6, 680000.0)
+    assert_allclose(P2, 458887.5306077305)
+    P1 = control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6, P2=P2)
+    assert_allclose(P1, 680000.0)
+
+def test_control_valve_choke_P_g():
+    P2 = control_valve_choke_P_g(1, 1.3, 1E5)
+    assert_allclose(P2, 7142.857142857143)
+    P1 = control_valve_choke_P_g(1, 1.3, P2=P2)
+    assert_allclose(P1, 100000.0)
