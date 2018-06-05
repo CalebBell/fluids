@@ -465,13 +465,13 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
         False and returns as if laminar flow does not exist
     full_output : bool, optional
         If True, returns intermediate calculation values as
-        well as C in the form of a dictionary containing 'C', 'Rev', 'choked',
+        well as Kv in the form of a dictionary containing 'Kv', 'Rev', 'choked',
         'FL', 'FLP', 'FR', 'FP', and 'laminar'. Some may be None if they are 
         not used in the calculation.
 
     Returns
     -------
-    C : float
+    Kv : float
         Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
         of 1 bar) [m^3/hr]
         
@@ -479,7 +479,9 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
     -----
     It is possible to use this model without any diameters specified; in that
     case, turbulent flow is assumed. Choked flow can still be modeled. This is
-    not recommended. All three diameters need to be None for this to work.
+    not recommended. All three diameters need to be None for this to work. 
+    `FL` and `Fd` are not used by the models when the diameters are not 
+    specified.
 
     Examples
     --------
@@ -572,7 +574,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
     if full_output:
         ans['FF'] = FF
         ans['choked'] = choked
-        ans['C'] = C
+        ans['Kv'] = C
         ans['laminar'] = Rev <= 10000
         
         # For the laminar case this is already set and needs to not be overwritten
@@ -636,13 +638,13 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
         False and returns as if laminar flow does not exist
     full_output : bool, optional
         If True, returns intermediate calculation values as
-        well as C in the form of a dictionary containing 'C', 'Rev', 'choked',
+        well as Kv in the form of a dictionary containing 'Kv', 'Rev', 'choked',
         'Y', 'FR', 'FP', 'xTP', and 'laminar'. Some may be None if they are 
         not used in the calculation.
         
     Returns
     -------
-    C : float
+    Kv : float
         Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
         of 1 bar) [m^3/hr]
 
@@ -651,7 +653,9 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     It is possible to use this model without any diameters specified; in that
     case, turbulent flow is assumed. Choked flow can still be modeled. This is
     not recommended. All three diameters need to be None for this to work.
-
+    `FL` and `Fd` are not used by the models when the diameters are not 
+    specified, but `xT` definitely is used by the model.
+    
     Examples
     --------
     From [1]_, matching example 3 for non-choked gas flow with attached
@@ -716,7 +720,8 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
         if (Rev > 10000 or not allow_laminar) and (D1 != d or D2 != d):
             # gas, using xTP and FLP
             FP = 1.
-            def iterate_piping_coef(Ci):
+            MAX_ITER = 20
+            def iterate_piping_coef(Ci, iterations):
                 loss = loss_coefficient_piping(d, D1, D2)
                 FP = (1. + loss/N2*(Ci/d**2)**2)**-0.5
                 loss_upstream = loss_coefficient_piping(d, D1)
@@ -728,14 +733,16 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
                 else:
                     # Non-choked flow with piping, equation 11a
                     C = Q/(N9*FP*P1*Y)*(MW*T*Z/x)**0.5
-                if Ci/C < 0.99:
-                    C = iterate_piping_coef(C)
+                if Ci/C < 0.99 and iterations < MAX_ITER:
+                    C = iterate_piping_coef(C, iterations+1)
                 if full_output:
                     ans['xTP'] = xTP
                     ans['FP'] = FP
                     ans['choked'] = choked
+                    if MAX_ITER == iterations:
+                        ans['warning'] = 'Not converged in inner loop'
                 return C
-            C = iterate_piping_coef(C)
+            C = iterate_piping_coef(C, 0)
         elif Rev <= 10000 and allow_laminar:
             # Laminar;
             def iterate_piping_laminar(C):
@@ -753,7 +760,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
                 return Ci
             C = iterate_piping_laminar(C)
     if full_output:
-        ans['C'] = C
+        ans['Kv'] = C
         ans['laminar'] = Rev <= 10000
         return ans
     else:
