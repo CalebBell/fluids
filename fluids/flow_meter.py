@@ -345,7 +345,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     * Reynolds number larger than 5000 and also larger than
       :math:`170000\beta^2 D`.
       
-    This is also presented in Crane's TP410 (2009)publication, whereas the
+    This is also presented in Crane's TP410 (2009) publication, whereas the
     1999 and 1982 editions showed only a graph for discharge coefficients.
     
     Examples

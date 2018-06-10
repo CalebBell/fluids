@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import log10
+from math import log10, exp, pi
 from scipy.constants import R, psi, gallon, minute
 from scipy.interpolate import UnivariateSpline, interp1d
 from scipy.optimize import brenth
@@ -34,7 +34,7 @@ __all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index',
            'Cv_char_quick_opening', 'Cv_char_linear', 
            'Cv_char_equal_percentage',
            'convert_flow_coefficient', 'control_valve_choke_P_l',
-           'control_valve_choke_P_g']
+           'control_valve_choke_P_g', 'control_valve_noise_l_2015']
 
 N1 = 0.1 # m^3/hr, kPa
 N2 = 1.6E-3 # mm
@@ -794,6 +794,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
+    MAX_C_POSSIBLE = 1E40 # Quit iterations if C reaches this high
     # Pa to kPa, according to constants in standard
     P1, P2 = P1/1000., P2/1000.
     Q = Q*3600. # m^3/s to m^3/hr, according to constants in standard
@@ -848,13 +849,13 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
                 else:
                     # Non-choked flow with piping, equation 11a
                     C = Q/(N9*FP*P1*Y)*(MW*T*Z/x)**0.5
-                if Ci/C < 0.99 and iterations < MAX_ITER:
+                if Ci/C < 0.99 and iterations < MAX_ITER and Ci < MAX_C_POSSIBLE:
                     C = iterate_piping_coef(C, iterations+1)
                 if full_output:
                     ans['xTP'] = xTP
                     ans['FP'] = FP
                     ans['choked'] = choked
-                    if MAX_ITER == iterations:
+                    if MAX_ITER == iterations or Ci >= MAX_C_POSSIBLE:
                         ans['warning'] = 'Not converged in inner loop'
                 return C
             C = iterate_piping_coef(C, 0)
@@ -955,3 +956,175 @@ def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
         raise NotImplementedError("%s scale is unsupported" %old_scale)
 
     return ans
+
+
+# Third octave center frequency fi Hz
+fis_l_2015 = [12.5, 16, 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 
+              315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 
+              4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000]
+# dLa(fi), dB
+A_weights_l_2015 = [-63.4, -56.7, -50.5, -44.7, -39.4, -34.6, -30.2, -26.2, 
+                    -22.5, -19.1, -16.1, -13.4, -10.9, -8.6, -6.6, -4.8, -3.2, 
+                    -1.9, -0.8, 0, 0.6, 1, 1.2, 1.3, 1.2, 1, 0.5, -0.1, -1.1, 
+                    -2.5, -4.3, -6.6, -9.3]
+
+
+def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
+                               t_pipe, rho_pipe=7800.0, c_pipe=5000.0, 
+                               rho_air=1.2, c_air=343.0, xFz=None, An=-4.6):
+    r'''Calculates the sound made by a fluid flowing through a control valve
+    according to the standard IEC 60534-8-4 (2015) [1]_.
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of liquid trough the control valve, [kg/s]
+    P1 : float
+        Inlet pressure of the fluid before valves and reducers [Pa]
+    P2 : float
+        Outlet pressure of the fluid after valves and reducers [Pa]
+    Psat : float
+        Saturation pressure of the fluid at inlet temperature [Pa]
+    rho : float
+        Density of the liquid at the inlet [kg/m^3]
+    c : float
+        Speed of sound of the liquid at the inlet conditions [m/s]
+    Kv : float
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        of 1 bar) [m^3/hr]
+    d : float
+        Diameter of the valve [m]
+    Di : float
+        Internal diameter of the pipe before and after the valve [m]
+    FL : float, optional
+        Liquid pressure recovery factor of a control valve without attached 
+        fittings (normally 0.8-0.9 at full open and decreasing as opened 
+        further to below 0.5; use default very cautiously!) [-]
+    Fd : float, optional
+        Valve style modifier (0.1 to 1; varies tremendously depending on the
+        type of valve and position; do not use the default at all!) [-]
+    t_pipe : float
+        Wall thickness of the pipe after the valve, [m]
+    rho_pipe : float, optional
+        Density of the pipe wall material at flowing conditions, [kg/m^3]
+    c_pipe : float, optional
+        Speed of sound of the pipe wall material at flowing conditions, [m/s]
+    rho_air : float, optional
+        Density of the air surrounding the valve and pipe wall, [kg/m^3]
+    c_air : float, optional
+        Speed of sound of the air surrounding the valve and pipe wall, [m/s]
+    xFz : float, optional
+        If specified, this value `xFz` is used instead of estimated; the 
+        calculation is sensitive to this value, [-]
+    An : float, optional
+        Valve correction factor for acoustic efficiency
+
+    Returns
+    -------
+    LpAe1m : float
+        A weighted sound pressure level 1 m from the pipe wall, 1 m distance
+        dowstream of the valve (at reference sound pressure level 2E-5), [dBA]
+        
+    Notes
+    -----
+    For formulas see [1]_. This takes on the order of 100 us to compute.
+    This model can also tell if noise is being produced in a valve just due to
+    turbulent flow, or cavitation. For values of `An`, see [1]_; it is
+    normally -4.6 for globel valves, -4.3 for butterfly valves, and -4.0 for
+    expanders.
+    
+    This model was checked against three examples in [1]_; they match to all
+    given decimals.
+    
+    A formula is given in [1]_ for multihole trim valves to estimate `xFz`
+    as well; this is not implemented here and `xFz` must be calculated by the
+    user separately. The formula is
+    
+    .. math::
+        x_{Fz} = \left(4.5 + 1650\frac{N_0d_H^2}{F_L}\right)^{-1/2}
+        
+    Where `N0` is the number of open channels and `dH` is the multihole trim
+    hole diameter.
+
+    Examples
+    --------
+    >>> control_valve_noise_l_2015(m=40, P1=1E6, P2=6.5E5, Psat=2.32E3, 
+    ... rho=997, c=1400, Kv=77.848, d=0.1, Di=0.1071, FL=0.92, Fd=0.42, 
+    ... t_pipe=0.0036, rho_pipe=7800.0, c_pipe=5000.0,rho_air=1.293, 
+    ... c_air=343.0, An=-4.6)
+    81.58200097996539
+
+    References
+    ----------
+    .. [1] IEC 60534-8-4 : Industrial-Process Control Valves - Part 8-4: Noise 
+       Considerations - Prediction of Noise Generated by Hydrodynamic Flow.
+       (2015)
+    '''
+    # Convert Kv to Cv as C
+    N34 = 1.17 # for Cv - conversion constant but not to many decimals
+    N14 = 0.0046
+    
+    C = Kv_to_Cv(Kv)
+    xF = (P1-P2)/(P1-Psat)
+    dPc = min(P1-P2, FL*FL*(P1 - Psat))
+    
+    if xFz is None:
+        xFz = 0.9*(1.0 + 3.0*Fd*(C/(N34*FL))**0.5)**-0.5
+    xFzp1 = xFz*(6E5/P1)**0.125
+    
+    Dj = N14*Fd*(C*FL)**0.5
+    
+    Uvc = 1.0/FL*(2*dPc/rho)**0.5
+    Wm = 0.5*m*Uvc*Uvc*FL*FL
+    cavitating = False if xF <= xFzp1 else True
+    
+    eta_turb = 10.0**An*Uvc/c
+    
+    if cavitating:
+    	eta_cav = 0.32*eta_turb*((P1-P2)/(dPc*xFzp1))**0.5*exp(5*xFzp1)*((1.0 
+                 - xFzp1)/(1.0 - xF))**0.5*(xF/xFzp1)**5*(xF - xFzp1)**1.5
+    	Wa = (eta_turb+eta_cav)*Wm
+    else:
+    	Wa = eta_turb*Wm
+    
+    Lpi = 10*log10(3.2E9*Wa*rho*c/(Di*Di))
+    Stp = 0.036*FL*FL*C*Fd**0.75/(N34*xFzp1**1.5*d*d)*(1.0/(P1-Psat))**0.57
+    f_p_turb = Stp*Uvc/Dj
+    
+    if cavitating:
+    	f_p_cav = 6*f_p_turb*((1.0 - xF)/(1.0 - xFzp1))**2*(xFzp1/xF)**2.5
+    	f_p_cav
+    
+    fr = c_pipe/(pi*Di)    
+    TL_fr = -10.0 - 10.0*log10(c_pipe*rho_pipe*t_pipe/(c_air*rho_air*Di))
+
+    F_cavs = []
+    F_turbs = []
+    LPis = []
+    TL_fis = []
+    L_pe1m_fis = []
+    LpAe1m_sum = 0.0
+    
+    for fi, A in zip(fis_l_2015, A_weights_l_2015):
+        fi_turb_ratio = fi/f_p_turb
+        F_turb = -8.0 - 10.0*log10(0.25*(fi_turb_ratio)**3 + 1.0/fi_turb_ratio)
+        F_turbs.append(F_turb)
+        if cavitating:
+            fi_cav_ratio = (fi/f_p_cav)**1.5
+            F_cav = -9.0 - 10.0*log10(0.25*fi_cav_ratio + 1.0/fi_cav_ratio)
+            LPif = (Lpi + 10.0*log10(eta_turb/(eta_turb + eta_cav)*10.0**(0.1*F_turb)
+                    + eta_cav/(eta_turb + eta_cav)*10.0**(0.1*F_cav)))
+        else:
+            LPif = Lpi + F_turb
+        LPis.append(LPif)
+        TL_fi = TL_fr - 20.0*log10((fr/fi) + (fi/fr)**1.5)
+        TL_fis.append(TL_fi)
+        
+        L_pe1m_fi = LPif + TL_fi - 10.0*log10((Di + 2.0*t_pipe + 2.0)/(Di + 2.0*t_pipe))
+        L_pe1m_fis.append(L_pe1m_fi)
+        
+        LpAe1m_sum += 10.0**(0.1*(L_pe1m_fi + A))
+    LpAe1m = 10.0*log10(LpAe1m_sum)
+    return LpAe1m
+
+

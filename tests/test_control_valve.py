@@ -213,6 +213,10 @@ def test_control_valve_size_g():
             'xT': 0.6, 'D1': 0.08}
     ans = size_control_valve_g(P2=678000., **args)
     assert ans['warning']
+    
+    # Test Kv does not reach infinity
+    kwargs = {'P2': 310000.0028935982, 'P1': 680000.0, 'full_output': True, 'allow_choked': True, 'T': 433.0, 'Z': 0.9896087377962123, 'FL': 0.85, 'allow_laminar': True, 'd': 0.05, 'mu': 2.119519588834806e-05, 'MW': 44.0095, 'Fd': 0.42, 'gamma': 1.2431389717945152, 'D2': 0.1, 'xT': 0.6, 'D1': 0.08}
+    size_control_valve_g(Q=1000000000.0, **kwargs)
 
 
 def test_control_valve_choke_P_l():
@@ -226,3 +230,45 @@ def test_control_valve_choke_P_g():
     assert_allclose(P2, 7142.857142857143)
     P1 = control_valve_choke_P_g(1, 1.3, P2=P2)
     assert_allclose(P1, 100000.0)
+
+
+def test_control_valve_noise_l_2015():
+    m = 30 # kg/s
+    P1 = 1E6
+    P2 = 8E5
+    
+    Psat = 2.32E3
+    rho = 997.0
+    c = 1400.0
+    Kv = Cv_to_Kv(90)
+    d = .1
+    Di =.1071
+    FL = 0.92
+    Fd = 0.42
+    rho_air = 1.293
+    c_air = 343.0
+    t_pipe = .0036
+    
+    # Example 1
+    noise = control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
+                                   t_pipe, rho_pipe=7800.0, c_pipe=5000.0, 
+                                   rho_air=rho_air, c_air=343.0, xFz=None, An=-4.6)
+    assert_allclose(noise, 65.47210071692108)
+    
+    # Example 2
+    m = 40 # kg/s
+    P1 = 1E6
+    P2 = 6.5E5
+    noise = control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
+                                   t_pipe, rho_pipe=7800.0, c_pipe=5000.0, 
+                                   rho_air=rho_air, c_air=343.0, xFz=None, An=-4.6)
+    assert_allclose(noise, 81.58199982219298)
+
+    # Example 3
+    m = 40 # kg/s
+    P1 = 1E6
+    P2 = 6.5E5
+    noise = control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
+                                   t_pipe, rho_pipe=7800.0, c_pipe=5000.0, 
+                                   rho_air=rho_air, c_air=343.0, xFz=0.254340899267+0.1, An=-4.6)
+    assert_allclose(noise, 69.93930269695811)
