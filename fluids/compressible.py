@@ -285,7 +285,7 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
     k : float
         Isentropic exponent of the gas (Cp/Cv) [-]
     eta_s : float, optional
-        Isentropic efficiency of the process, [-]
+        Isentropic (adiabatic) efficiency of the process, [-]
     eta_p : float, optional
         Polytropic efficiency of the process, [-]
 
@@ -310,10 +310,10 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
        Professional Publishing, 2009.
     '''
     if eta_s is None and eta_p:
-        return ((P2/P1)**((k-1)/k)-1)/((P2/P1)**((k-1)/(k*eta_p))-1)
+        return ((P2/P1)**((k-1.0)/k)-1.0)/((P2/P1)**((k-1.0)/(k*eta_p))-1.0)
     elif eta_p is None and eta_s:
-        return (k - 1.)*log(P2/P1)/(k*log(
-            (eta_s + (P2/P1)**((k - 1.)/k) - 1.)/eta_s))
+        return (k - 1.0)*log(P2/P1)/(k*log(
+            (eta_s + (P2/P1)**((k - 1.0)/k) - 1.0)/eta_s))
     else:
         raise Exception('Either eta_s or eta_p is required')
 

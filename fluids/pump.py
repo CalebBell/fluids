@@ -234,7 +234,7 @@ def motor_round_size(P):
     for P_actual in nema_sizes:
         if P_actual >= P:
             return P_actual
-    raise Exception('Required power is larger than can be provided with one valve')
+    raise Exception('Required power is larger than can be provided with one motor')
 
 
 nema_high_P = [1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200]

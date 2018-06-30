@@ -60,7 +60,10 @@ match_units = re.compile('\[[a-zA-Z0-9()./*^\- ]*\]')
 
 
 def parse_numpydoc_variables_units(func):
-    text = func.__doc__
+    try:
+        text = func.__doc__
+    except:
+        text = ''
     if text is None:
         text = ''
     section_names = [i.replace('-', '').strip() for i in match_sections.findall(text)]
