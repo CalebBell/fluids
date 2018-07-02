@@ -979,7 +979,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     Parameters
     ----------
     m : float
-        Mass flow rate of liquid trough the control valve, [kg/s]
+        Mass flow rate of liquid through the control valve, [kg/s]
     P1 : float
         Inlet pressure of the fluid before valves and reducers [Pa]
     P2 : float
@@ -1138,7 +1138,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     Parameters
     ----------
     m : float
-        Mass flow rate of gas trough the control valve, [kg/s]
+        Mass flow rate of gas through the control valve, [kg/s]
     P1 : float
         Inlet pressure of the gas before valves and reducers [Pa]
     P2 : float
