@@ -34,7 +34,8 @@ __all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index',
            'Cv_char_quick_opening', 'Cv_char_linear', 
            'Cv_char_equal_percentage',
            'convert_flow_coefficient', 'control_valve_choke_P_l',
-           'control_valve_choke_P_g', 'control_valve_noise_l_2015']
+           'control_valve_choke_P_g', 'control_valve_noise_l_2015',
+           'control_valve_noise_g_2011']
 
 N1 = 0.1 # m^3/hr, kPa
 N2 = 1.6E-3 # mm
@@ -972,7 +973,7 @@ A_weights_l_2015 = [-63.4, -56.7, -50.5, -44.7, -39.4, -34.6, -30.2, -26.2,
 def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
                                t_pipe, rho_pipe=7800.0, c_pipe=5000.0, 
                                rho_air=1.2, c_air=343.0, xFz=None, An=-4.6):
-    r'''Calculates the sound made by a fluid flowing through a control valve
+    r'''Calculates the sound made by a liquid flowing through a control valve
     according to the standard IEC 60534-8-4 (2015) [1]_.
 
     Parameters
@@ -999,10 +1000,9 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     FL : float, optional
         Liquid pressure recovery factor of a control valve without attached 
         fittings (normally 0.8-0.9 at full open and decreasing as opened 
-        further to below 0.5; use default very cautiously!) [-]
+        further to below 0.5) [-]
     Fd : float, optional
-        Valve style modifier (0.1 to 1; varies tremendously depending on the
-        type of valve and position; do not use the default at all!) [-]
+        Valve style modifier [-]
     t_pipe : float
         Wall thickness of the pipe after the valve, [m]
     rho_pipe : float, optional
@@ -1093,7 +1093,6 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     
     if cavitating:
     	f_p_cav = 6*f_p_turb*((1.0 - xF)/(1.0 - xFzp1))**2*(xFzp1/xF)**2.5
-    	f_p_cav
     
     fr = c_pipe/(pi*Di)    
     TL_fr = -10.0 - 10.0*log10(c_pipe*rho_pipe*t_pipe/(c_air*rho_air*Di))
@@ -1127,4 +1126,296 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     LpAe1m = 10.0*log10(LpAe1m_sum)
     return LpAe1m
 
+
+def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv, 
+                               d, Di, t_pipe, Fd, FL, FLP=None, FP=None,
+                               rho_pipe=7800.0, c_pipe=5000.0, 
+                               P_air=101325.0, rho_air=1.2, c_air=343.0, 
+                               An=-3.8, Stp=0.2, T2=None, beta=0.93):
+    r'''Calculates the sound made by a gas flowing through a control valve
+    according to the standard IEC 60534-8-3 (2011) [1]_.
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of gas trough the control valve, [kg/s]
+    P1 : float
+        Inlet pressure of the gas before valves and reducers [Pa]
+    P2 : float
+        Outlet pressure of the gas after valves and reducers [Pa]
+    T1 : float
+        Inlet gas temperature, [K]
+    rho : float
+        Density of the gas at the inlet [kg/m^3]
+    gamma : float
+        Specific heat capacity ratio [-]
+    MW : float
+        Molecular weight of the gas [g/mol]
+    Kv : float
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        of 1 bar) [m^3/hr]
+    d : float
+        Diameter of the valve [m]
+    Di : float
+        Internal diameter of the pipe before and after the valve [m]
+    t_pipe : float
+        Wall thickness of the pipe after the valve, [m]
+    Fd : float
+        Valve style modifier (0.1 to 1; varies tremendously depending on the
+        type of valve and position; do not use the default at all!) [-]
+    FL : float
+        Liquid pressure recovery factor of a control valve without attached 
+        fittings (normally 0.8-0.9 at full open and decreasing as opened 
+        further to below 0.5; use default very cautiously!) [-]
+    FLP : float, optional
+        Combined liquid pressure recovery factor with piping geometry factor,
+        for a control valve with attached fittings [-]
+    FP : float, optional
+        Piping geometry factor [-]
+    rho_pipe : float, optional
+        Density of the pipe wall material at flowing conditions, [kg/m^3]
+    c_pipe : float, optional
+        Speed of sound of the pipe wall material at flowing conditions, [m/s]
+    P_air : float, optional
+        Pressure of the air surrounding the valve and pipe wall, [Pa]
+    rho_air : float, optional
+        Density of the air surrounding the valve and pipe wall, [kg/m^3]
+    c_air : float, optional
+        Speed of sound of the air surrounding the valve and pipe wall, [m/s]
+    An : float, optional
+        Valve correction factor for acoustic efficiency
+    Stp : float, optional
+        Strouhal number at the peak `fp`; between 0.1 and 0.3 typically, [-]
+    T2 : float, optional
+        Outlet gas temperature; assumed `T1` if not provided (a PH flash 
+        should be uesd to obtain this if possible), [K]
+    beta : float, optional
+        Valve outlet / expander inlet contraction coefficient, [-]
+
+    Returns
+    -------
+    LpAe1m : float
+        A weighted sound pressure level 1 m from the pipe wall, 1 m distance
+        dowstream of the valve (at reference sound pressure level 2E-5), [dBA]
+        
+    Notes
+    -----
+    For formulas see [1]_. This takes on the order of 100 us to compute.
+    For values of `An`, see [1]_.
+    
+    This model was checked against six examples in [1]_; they match to all
+    given decimals.
+    
+    Several additional formulas are given for multihole trim valves,
+    control valves with two or more fixed area stages, and multipath,
+    multistage trim valves. 
+    
+    Examples
+    --------
+    >>> control_valve_noise_g_2011(m=2.22, P1=1E6, P2=7.2E5, T1=450, rho=5.3, 
+    ... gamma=1.22, MW=19.8, Kv=77.85,  d=0.1, Di=0.2031, FL=None, FLP=0.792, 
+    ... FP=0.98, Fd=0.296, t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, 
+    ... rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
+    91.67702567004144
+
+    References
+    ----------
+    .. [1] IEC 60534-8-3 : Industrial-Process Control Valves - Part 8-3: Noise 
+       Considerations - Control Valve Aerodynamic Noise Prediction Method."
+    '''
+    k = gamma # alias
+    C = Kv_to_Cv(Kv)
+    N14 = 4.6E-3
+    N16 = 4.89E4
+    fs = 1.0 # structural loss factor reference frequency, Hz
+    P_air_std = 101325.0
+    if T2 is None:
+        T2 = T1
+    x = (P1 - P2)/P1
+    
+
+    # FLP/FP when fittings attached
+    FL_term = FLP/FP if FP is not None else FL
+
+    P_vc = P1*(1.0 - x/FL_term**2)
+
+    x_vcc = 1.0 - (2.0/(k + 1.0))**(k/(k - 1.0)) # mostly matches
+    xc = FL_term**2*x_vcc
+    alpha = (1.0 - x_vcc)/(1.0 - xc)
+    xB = 1.0 - 1.0/alpha*(1.0/k)**((k/(k - 1.0)))
+    xCE = 1.0 - 1.0/(22.0*alpha)
+
+    # Regime determination check - should be ordered or won't work
+    assert xc < x_vcc
+    assert x_vcc < xB
+    assert xB < xCE
+    regime = None
+    if x <= xc:
+        regime = 1
+    elif xc < x <= x_vcc:
+        regime = 2
+    elif x_vcc < x <= xB:
+        regime = 3
+    elif xB < x <= xCE:
+        regime = 4
+    else:
+        regime = 5
+#     print('regime', regime)
+
+    Dj = N14*Fd*(C*(FL_term))**0.5
+
+    Mj5 = (2.0/(k - 1.0)*( 22.0**((k-1.0)/k) - 1.0  ))**0.5
+    if regime == 1:
+        Mvc = ( (2.0/(k-1.0)) *((1.0 - x/FL_term**2)**((1.0 - k)/k)   - 1.0)   )**0.5 # Not match
+    elif regime in (2, 3, 4):
+        Mj = ( (2.0/(k-1.0))*((1.0/(alpha*(1.0-x)))**((k - 1.0)/k) - 1.0)   )**0.5 # Not match
+        Mj = min(Mj, Mj5)
+    elif regime == 5:
+        pass
+
+    if regime == 1:
+        Tvc = T1*(1.0 - x/(FL_term)**2)**((k - 1.0)/k)
+        cvc = (k*P1/rho*(1 - x/(FL_term)**2)**((k-1.0)/k))**0.5
+        Wm = 0.5*m*(Mvc*cvc)**2
+    else:
+        Tvcc = 2.0*T1/(k + 1.0)
+        cvcc = (2.0*k*P1/(k+1.0)/rho)**0.5
+        Wm = 0.5*m*cvcc*cvcc
+#     print('Wm', Wm)
+
+    if regime == 1:
+        fp = Stp*Mvc*cvc/Dj
+    elif regime in (2, 3):
+        fp = Stp*Mj*cvcc/Dj
+    elif regime == 4:
+        fp = 1.4*Stp*cvcc/Dj/(Mj*Mj - 1.0)**0.5
+    elif regime == 5:
+        fp = 1.4*Stp*cvcc/Dj/(Mj5*Mj5 - 1.0)**0.5
+#     print('fp', fp)
+
+    if regime == 1:
+        eta = 10.0**An*FL_term**2*(Mvc)**3
+    elif regime == 2:
+        eta = 10.0**An*x/x_vcc*Mj**(6.6*FL_term*FL_term)
+    elif regime == 3:
+        eta = 10.0**An*Mj**(6.6*FL_term*FL_term)
+    elif regime == 4:
+        eta = 0.5*10.0**An*Mj*Mj*(2.0**0.5)**(6.6*FL_term*FL_term)
+    elif regime == 5:
+        eta = 0.5*10.0**An*Mj5*Mj5*(2.0**0.5)**(6.6*FL_term*FL_term)
+#     print('eta', eta)
+
+    Wa = eta*Wm
+
+    rho2 = rho*(P2/P1)
+    # Speed of sound
+    c2 = (k*R*T2/(MW/1000.))**0.5
+
+    Mo = 4.0*m/(pi*d*d*rho2*c2)
+
+    M2 = 4.0*m/(pi*Di*Di*rho2*c2)
+#     print('M2', M2)
+
+    Lg = 16.0*log10(1.0/(1.0 - min(M2, 0.3))) # dB
+    
+    if M2 > 0.3:
+        Up = 4*m/(pi*rho2*Di*Di)
+        UR = Up*Di*Di/(beta*d*d)
+        WmR = 0.5*m*UR*UR*( (1.0 - d*d/(Di*Di))**2 + 0.2)
+        fpR = Stp*UR/d
+        MR = UR/c2
+        # Value listed in appendix here is wrong, "based on another
+        # earlier standard. Calculation thereon is wrong". Assumed
+        # correct, matches spreadsheet to three decimals.
+        eta_R = 10**An*MR**3
+        WaR = eta_R*WmR
+        L_piR = 10.0*log10((3.2E9)*WaR*rho2*c2/(Di*Di)) + Lg
+#         print('Up', Up)
+#         print('UR', UR)
+#         print('WmR', WmR)
+#         print('fpR', fpR)
+#         print('MR', MR)
+#         print('eta_R', eta_R, eta_R/8.8E-4)
+#         print('WaR', WaR)
+#         print('L_piR', L_piR)
+
+    L_pi = 10.0*log10((3.2E9)*Wa*rho2*c2/(Di*Di)) + Lg
+#     print('L_pi', L_pi)
+
+    fr = c_pipe/(pi*Di) 
+    fo = 0.25*fr*(c2/c_air)
+    fg = 3**0.5*c_air**2/(pi*t_pipe*c_pipe)
+
+    if d > 0.15:
+        dTL = 0.0
+    elif 0.05 <= d <= 0.15:
+        dTL = -16660.0*d**3 + 6370.0*d**2 - 813.0*d + 35.8
+    else:
+        dTL = 9.0
+#     print(dTL, 'dTL')
+
+    P_air_ratio = P_air/P_air_std
+
+    LpAe1m_sum = 0.0
+    LPis = []
+    LPIRs = []
+    L_pe1m_fis = []
+    for fi, A_weight in zip(fis_l_2015, A_weights_l_2015):
+        # This gets adjusted when Ma > 0.3
+        fi_turb_ratio = fi/fp
+
+        t1 = 1.0 + (0.5*fi_turb_ratio)**2.5
+        t2 = 1.0 + (0.5/fi_turb_ratio)**1.7
+
+        # Formula forgot to use log10, but log10 is needed for the numbers
+        Lpif = L_pi - 8.0 - 10.0*log10(t1*t2)
+#         print(Lpif, 'Lpif')
+        LPis.append(Lpif)
+    
+        if M2 > 0.3:
+            fiR_turb_ratio = fi/fpR
+            t1 = 1.0 + (0.5*fiR_turb_ratio)**2.5
+            t2 = 1.0 + (0.5/fiR_turb_ratio)**1.7
+            # Again, log10 is missing
+            LpiRf = L_piR - 8.0 - 10.0*log10(t1*t2)
+            LPIRs.append(LpiRf)
+            
+            LpiSf = 10.0*log10( 10**(0.1*Lpif) + 10.0**(0.1*LpiRf) )
+            
+        if fi < fo:
+            Gx = (fo/fr)**(2.0/3.0)*(fi/fo)**4.0
+            if fo < fg:
+                Gy = (fo/fg)
+            else:
+                Gy = 1.0
+        else:
+            if fi < fr:
+                Gx = (fi/fr)**0.5
+            else:
+                Gx = 1.0
+            if fi < fg:
+                Gy = fi/fg
+            else:
+                Gy = 1.0
+
+        eta_s = (0.01/fi)**0.5
+#         print('eta_s', eta_s)
+        # up to eta_s is good
+
+        den = (rho2*c2 + 2.0*pi*t_pipe*fi*rho_pipe*eta_s)/(415.0*Gy) + 1.0
+        TL_fi = 10.0*log10(8.25E-7*(c2/(t_pipe*fi))**2*Gx/den*P_air_ratio) - dTL
+
+        # Formula forgot to use log10, but log10 is needed for the numbers
+        if M2 > 0.3:
+            term = LpiSf
+        else:
+            term = Lpif
+        
+        L_pe1m_fi = term + TL_fi - 10.0*log10((Di + 2.0*t_pipe + 2.0)/(Di + 2.0*t_pipe))
+        L_pe1m_fis.append(L_pe1m_fi)
+#         print(L_pe1m_fi)
+
+        LpAe1m_sum += 10.0**(0.1*(L_pe1m_fi + A_weight))
+    LpAe1m = 10.0*log10(LpAe1m_sum)
+    return LpAe1m
 

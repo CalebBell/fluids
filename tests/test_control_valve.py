@@ -272,3 +272,54 @@ def test_control_valve_noise_l_2015():
                                    t_pipe, rho_pipe=7800.0, c_pipe=5000.0, 
                                    rho_air=rho_air, c_air=343.0, xFz=0.254340899267+0.1, An=-4.6)
     assert_allclose(noise, 69.93930269695811)
+
+def test_control_valve_noise_g_2011():
+    
+    ans = control_valve_noise_g_2011(m=2.22, P1=1E6, P2=7.2E5, T1=450, rho=5.3, 
+                                     gamma=1.22, MW=19.8, Kv=Cv_to_Kv(90.0), 
+                                   d=0.1, Di=0.2031, FL=None, FLP=0.792, FP=0.98,
+                                   Fd=0.2959450058448346,
+                                   t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, 
+                                   rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
+    assert_allclose(ans, 91.67631681476502)
+    
+    ans = control_valve_noise_g_2011(m=2.29, P1=1E6, P2=6.9E5, T1=450, rho=5.3,
+                                     gamma=1.22, MW=19.8, Kv=Cv_to_Kv(90.0), 
+                               d=0.1, Di=0.2031, FL=None, FLP=0.792, FP=0.98,
+                               Fd=0.2959450058448346,
+                               t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, 
+                               rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
+    assert_allclose(ans, 92.80027236454005)
+    
+    ans = control_valve_noise_g_2011(m=2.59, P1=1E6, P2=4.8E5, T1=450, rho=5.3,
+                                     gamma=1.22, MW=19.8, Kv=Cv_to_Kv(90.0), 
+                               d=0.1, Di=0.2031, FL=None, FLP=0.792, FP=0.98,
+                               Fd=0.2959450058448346,
+                               t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, 
+                               rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
+    assert_allclose(97.65988432967984, ans)
+    
+    ans = control_valve_noise_g_2011(m=1.18, P1=1E6, P2=4.2E5, T1=450, rho=5.3, 
+                                     gamma=1.22, MW=19.8, Kv=Cv_to_Kv(40.0), 
+                               d=0.2031, Di=0.2031, FL=None, FLP=0.792, FP=0.98,
+                               Fd=0.2959450058448346,
+                               t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, 
+                               rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
+    assert_allclose(94.16189978031449, ans)# should be 94
+    
+    ans = control_valve_noise_g_2011(m=1.19, P1=1E6, P2=5E4, T1=450, rho=5.3,
+                                     gamma=1.22, MW=19.8, Kv=Cv_to_Kv(40.0), 
+                               d=0.2031, Di=0.2031, FL=None, FLP=0.792, FP=0.98,
+                               Fd=0.2959450058448346,
+                               t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, 
+                               rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
+    assert_allclose(ans, 97.48317214321824)
+    
+    ans = control_valve_noise_g_2011(m=0.89, P1=1E6, P2=5E4, T1=450, rho=5.3,
+                                     gamma=1.22, MW=19.8, Kv=Cv_to_Kv(30.0), 
+                               d=0.1, Di=0.15, FL=None, FLP=0.792, FP=0.98,
+                               Fd=0.2959450058448346,
+                               t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, 
+                               rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
+    assert_allclose(ans, 93.38835049261132)
+    
