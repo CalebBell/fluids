@@ -214,8 +214,9 @@ def test_liquid_jet_pump_examples_round_robin():
      'd_nozzle': 0.0048}
     
     validate_liquid_jet_pump(rhop=790.5, rhos=790.5, Km=.1, Kd=0.1, Ks=0.1, Kp=0.03, nozzle_retracted=False, solution_vars=solution_vars)
-   
-    
+
+
+@pytest.mark.slow
 def test_liquid_jet_pump_examples_round_robin_Ex3():
     # Example 3
     rhop=765.0
