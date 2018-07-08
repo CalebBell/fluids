@@ -352,7 +352,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
        Liquid Flow. 85032. ESDU International PLC, 1985.
     ''' 
     solution_vars = ['d_nozzle', 'd_mixing', 'Qp', 'Qs', 'P1', 'P2', 'P5']
-    unknown_vars = [i for i in solution_vars if locals()[i] is None]
+    unknown_vars = [i for i in solution_vars if globals()[i] is None]
     
     if len(unknown_vars) > 2:
         raise Exception('Too many unknowns')
