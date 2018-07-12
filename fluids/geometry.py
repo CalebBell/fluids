@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import pi, sin, cos, tan, asin, acos, atan, acosh, log
+from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
+                  degrees)
 import numpy as np
 from numpy.polynomial.chebyshev import chebval
 from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
@@ -32,6 +33,7 @@ from fluids.optional.pychebfun import Chebfun
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
+           'AirCooledExchanger',
            'SA_partial_sphere', 
            'V_partial_sphere', 'V_horiz_conical',
            'V_horiz_ellipsoidal', 'V_horiz_guppy', 'V_horiz_spherical',
@@ -44,7 +46,8 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'SA_torispheroidal', 'V_from_h', 'SA_tank', 'sphericity', 
            'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder', 
            'A_hollow_cylinder', 'V_hollow_cylinder', 
-           'A_multiple_hole_cylinder', 'V_multiple_hole_cylinder']
+           'A_multiple_hole_cylinder', 'V_multiple_hole_cylinder',
+           'pitch_angle_solver']
 
 
 ### Spherical Vessels, partially filled
@@ -2546,8 +2549,346 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
         else:
             H = H - self.H_throat
             b = self.b_upper
-        R = self.D_throat*(H*H + b*b)**0.5/(2*b)
-        return R*2
+        R = self.D_throat*(H*H + b*b)**0.5/(2.0*b)
+        return R*2.0
+
+
+class AirCooledExchanger(object):
+    r'''Class representing the geometry of an air cooled heat exchanger with 
+    one or more tube bays, fans, or bundles.
+    All parameters are also attributes.
+            
+    Parameters
+    ----------
+    tube_rows : int
+        Number of tube rows per bundle, [-]
+    tube_passes : int
+        Number of tube passes (straight across only = 1, 2 row U tube = 2, 
+        etc.), [-]
+    tubes_per_row : float
+        Number of tubes per row per bundle, [-]
+    tube_length : float
+        Total length of the tube bundle tubes, [m]
+    tube_diameter : float
+        Diameter of the bare tube, [m]
+    fin_thickness : float
+        Thickness of the fins, [m]
+    angle : float, optional
+        Angle of the tube layout, [degrees] 
+    pitch : float, optional
+        Shortest distance between tube centers; defined in relation to the 
+        flow direction only, [m]
+    pitch_parallel : float, optional
+        Distance between tube center along a line parallel to the flow;
+        has been called `longitudinal` pitch, `pp`, `s2`, `SL`, and `p2`, [m]
+    pitch_normal : float, optional
+        Distance between tube centers in a line 90° to the line of flow;
+        has been called the `transverse` pitch, `pn`, `s1`, `ST`, and `p1`, [m]
+    pitch_ratio : float, optional
+        Ratio of the pitch to bare tube diameter, [-] 
+    fin_diameter : float, optional
+        Outer diameter of each tube after including the fin on both sides,
+        [m]
+    fin_height : float, optional
+        Height above bare tube of the tube fins, [m]
+    fin_density : float, optional
+        Number of fins per meter of tube, [1/m]
+    fin_interval : float, optional
+        Space between each fin, including the thickness of one fin at its
+        base, [m]
+    parallel_bays : int, optional
+        Number of bays in the unit, [-]
+    bundles_per_bay : int, optional
+        Number of tube bundles per bay, [-]
+    fans_per_bay : int, optional
+        Number of fans per bay, [-]
+    corbels : bool, optional
+        Whether or not the air cooler has corbels, which increase the air 
+        velocity by adding half a tube to the sides for the case of 
+        non-rectangular tube layouts, [-]
+    tube_thickness : float, optional
+        Thickness of the bare metal tubes, [m]
+ 
+    Attributes
+    ----------
+    bare_length : float
+        Length of bare tube between two fins, [m]
+    tubes_per_bundle : float
+        Total number of tubes per bundle, [-]
+    tubes_per_bay : float
+        Total number of tubes per bay, [-]
+    tubes : float
+        Total number of tubes in all bundles in all bays combined, [-]
+    
+    A_bare_tube_per_tube : float
+        Area of the bare tube including the portion hidden by the fin per 
+        tube, [m^2]
+    A_bare_tube_per_row : float
+        Area of the bare tube including the portion hidden by the fin per
+        tube row, [m^2]
+    A_bare_tube_per_bundle : float
+        Area of the bare tube including the portion hidden by the fin per 
+        bundle, [m^2]
+    A_bare_tube_per_bay : float
+        Area of the bare tube including the portion hidden by the fin per
+        bay, [m^2]
+    A_bare_tube : float
+        Area of the bare tube including the portion hidden by the fin per
+        in all bundles and bays
+        combined, [m^2]
+
+    A_tube_showing_per_tube : float
+        Area of the bare tube which is exposed per tube, [m^2]
+    A_tube_showing_per_row : float
+        Area of the bare tube which is exposed per tube row, [m^2]
+    A_tube_showing_per_bundle : float
+        Area of the bare tube which is exposed per bundle, [m^2]
+    A_tube_showing_per_bay : float
+        Area of the bare tube which is exposed per bay, [m^2]
+    A_tube_showing : float
+        Area of the bare tube which is exposed in all bundles and bays
+        combined, [m^2]
+        
+    A_per_fin : float
+        Surface area per fin, [m^2]
+    A_fin_per_tube : float
+        Surface area of all fins per tube, [m^2]
+    A_fin_per_row : float
+        Surface area of all fins per row, [m^2]
+    A_fin_per_bundle : float
+        Surface area of all fins per bundle, [m^2]
+    A_fin_per_bay : float
+        Surface area of all fins per bay, [m^2]
+    A_fin : float
+        Surface area of all fins in all bundles and bays combined, [m^2]
+        
+    A_per_tube : float
+        Surface area of combined finned and non-fined area exposed for heat
+        transfer per tube, [m^2]
+    A_per_row : float
+        Surface area of combined finned and non-finned area exposed for heat
+        transfer per tube row, [m^2]
+    A_per_bundle : float
+        Surface area of combined finned and non-finned area exposed for heat
+        transfer per tube bundle, [m^2]
+    A_per_bay : float
+        Surface area of combined finned and non-finned area exposed for heat
+        transfer per bay, [m^2]
+    A : float
+        Surface area of combined finned and non-finned area exposed for heat
+        transfer in all bundles and bays combined, [m^2]
+    A_increase : float
+        Ratio of bare tube surface area to actual surface area, [-]
+
+    
+
+    Notes
+    -----
+    TODO: fin type, Fan diameter, tube volume, flow area, A_flow_min, A_frontal
+
+    Examples
+    --------
+
+    References
+    ----------
+    .. [1] Schlunder, Ernst U, and International Center for Heat and Mass
+       Transfer. Heat Exchanger Design Handbook. Washington:
+       Hemisphere Pub. Corp., 1983.
+    '''
+    def __repr__(self):
+        s = '<Air Cooler Geometry, %s>'
+        t = ''
+        for k, v in self.__dict__.items():
+            try:
+                t += '%s=%g, ' %(k, v)
+            except:
+                t += '%s=%s, ' %(k, v)
+        t = t[0:-2]
+        return s%t
+    
+    def __init__(self, tube_rows, tube_passes, tubes_per_row, tube_length, 
+                 tube_diameter, fin_thickness,
+                 
+                 angle=None, pitch=None, pitch_parallel=None, pitch_normal=None,
+                 pitch_ratio=None,
+                 
+                 fin_diameter=None, fin_height=None,
+                 
+                 fin_density=None, fin_interval=None,
+                 
+                 parallel_bays=1, bundles_per_bay=1, fans_per_bay=1, 
+                 corbels=False, tube_thickness=None):
+        self.tube_rows = tube_rows
+        self.tube_passes = tube_passes
+        self.tubes_per_row = tubes_per_row
+        self.tube_length = tube_length
+        self.tube_diameter = tube_diameter
+        self.fin_thickness = fin_thickness
+        
+        if pitch_ratio is not None:
+            if pitch is not None:
+                pitch = self.tube_diameter*pitch_ratio
+            else:
+                raise Exception('Specify only one of `pitch_ratio` or `pitch`')
+        
+        
+        angle, pitch, pitch_parallel, pitch_normal = pitch_angle_solver(
+            angle=angle, pitch=pitch, pitch_parallel=pitch_parallel,
+            pitch_normal=pitch_normal)
+        self.angle = angle
+        self.pitch = pitch
+        self.pitch_parallel = pitch_parallel
+        self.pitch_normal = pitch_normal
+        
+        if fin_diameter is None and fin_height is None:
+            raise Exception('Specify only one of `fin_diameter` or `fin_height`')
+        elif fin_diameter is not None:
+            fin_height = 0.5*(fin_diameter - tube_diameter)
+        elif fin_height is not None:
+            fin_diameter = tube_diameter + 2.0*fin_height
+        self.fin_height = fin_height
+        self.fin_diameter = fin_diameter
+        
+        if fin_density is None and fin_interval is None:
+            raise Exception('Specify only one of `fin_density` or `fin_interval`')
+        elif fin_density is not None:
+            fin_interval = 1.0/fin_density
+        elif fin_interval is not None:
+            fin_density = 1.0/fin_interval
+        self.fin_interval = fin_interval
+        self.fin_density = fin_density
+            
+        self.parallel_bays = parallel_bays
+        self.bundles_per_bay = bundles_per_bay
+        self.fans_per_bay = fans_per_bay
+        
+        self.corbels = corbels
+        self.tube_thickness = tube_thickness
+        
+        
+        if self.fin_interval:
+            self.bare_length = self.fin_interval - self.fin_thickness
+        else:
+            self.bare_length = None
+            
+        self.tubes_per_bundle = self.tubes_per_row*self.tube_rows
+        self.tubes_per_bay = self.tubes_per_bundle*self.bundles_per_bay
+        self.tubes = self.tubes_per_bay*self.parallel_bays
+        
+        
+        self.A_bare_tube_per_tube = pi*self.tube_diameter*self.tube_length
+        self.A_bare_tube_per_row = self.A_bare_tube_per_tube*self.tubes_per_row
+        self.A_bare_tube_per_bundle = self.A_bare_tube_per_tube*self.tubes_per_bundle
+        self.A_bare_tube_per_bay = self.A_bare_tube_per_tube*self.tubes_per_bay
+        self.A_bare_tube = self.A_bare_tube_per_tube*self.tubes
+        
+        self.A_tube_showing_per_tube = pi*self.tube_diameter*self.tube_length*(1.0 - self.fin_thickness/self.fin_interval)
+        self.A_tube_showing_per_row = self.A_tube_showing_per_tube*self.tubes_per_row
+        self.A_tube_showing_per_bundle = self.A_tube_showing_per_tube*self.tubes_per_bundle
+        self.A_tube_showing_per_bay = self.A_tube_showing_per_tube*self.tubes_per_bay
+        self.A_tube_showing = self.A_tube_showing_per_tube*self.tubes
+
+        self.A_per_fin = (2.0*pi/4.0*(self.fin_diameter**2 - self.tube_diameter**2)
+                     + pi*self.fin_diameter*self.fin_thickness) # pi*D*L(fin)
+        self.A_fin_per_tube = self.fin_density*self.tube_length*self.A_per_fin
+        self.A_fin_per_row = self.A_fin_per_tube*self.tubes_per_row
+        self.A_fin_per_bundle = self.A_fin_per_tube*self.tubes_per_bundle
+        self.A_fin_per_bay = self.A_fin_per_tube*self.tubes_per_bay
+        self.A_fin = self.A_fin_per_tube*self.tubes
+
+        self.A_per_tube = self.A_tube_showing_per_tube + self.A_fin_per_tube
+        self.A_per_row = self.A_tube_showing_per_row + self.A_fin_per_row
+        self.A_per_bundle = self.A_tube_showing_per_bundle + self.A_fin_per_bundle
+        self.A_per_bay = self.A_tube_showing_per_bay + self.A_fin_per_bay
+        self.A = self.A_tube_showing + self.A_fin
+
+        self.A_increase = self.A/self.A_bare_tube
+    
+
+def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
+                       pitch_normal=None):
+    r'''Utility to take any two of `angle`, `pitch`, `pitch_parallel`, and
+    `pitch_normal` and calculate the other two. This is useful for applications
+    with tube banks, as in shell and tube heat exchangers or air coolers and
+    allows for a wider range of user input. 
+
+    .. math::
+        \text{pitch normal} = \text{pitch} \cdot \sin(\text{angle})
+        
+        \text{pitch parallel} = \text{pitch} \cdot \cos(\text{angle})
+        
+    Parameters
+    ----------
+    angle : float, optional
+        The angle of the tube layout, [degrees] 
+    pitch : float, optional
+        The shortest distance between tube centers; defined in relation to the 
+        flow direction only, [m]
+    pitch_parallel : float, optional
+        The distance between tube center along a line parallel to the flow;
+        has been called `longitudinal` pitch, `pp`, `s2`, `SL`, and `p2`, [m]
+    pitch_normal : float, optional
+        The distance between tube centers in a line 90° to the line of flow;
+        has been called the `transverse` pitch, `pn`, `s1`, `ST`, and `p1`, [m]
+
+    Returns
+    -------
+    angle : float
+        The angle of the tube layout, [degrees] 
+    pitch : float
+        The shortest distance between tube centers; defined in relation to the 
+        flow direction only, [m]
+    pitch_parallel : float
+        The distance between tube center along a line parallel to the flow;
+        has been called `longitudinal` pitch, `pp`, `s2`, `SL`, and `p2`, [m]
+    pitch_normal : float
+        The distance between tube centers in a line 90° to the line of flow;
+        has been called the `transverse` pitch, `pn`, `s1`, `ST`, and `p1`, [m]
+        
+    Notes
+    -----
+    For the 90 and 0 degree case, the normal or parallel pitches can be zero;
+    given the angle and the zero value, obviously is it not possible to
+    calculate the pitch and a math error will be raised.
+    
+    No exception will be raised if three or four inputs are provided; the other
+    two will simply be calculated according to the list of if statements used.
+    
+    An exception will be raised if only one input is provided.
+        
+    Examples
+    --------
+    >>> pitch_angle_solver(pitch=1, angle=30)
+    (30, 1, 0.8660254037844387, 0.49999999999999994)
+
+    References
+    ----------
+    .. [1] Schlunder, Ernst U, and International Center for Heat and Mass
+       Transfer. Heat Exchanger Design Handbook. Washington:
+       Hemisphere Pub. Corp., 1983.
+    '''
+    if angle is not None and pitch is not None:
+        pitch_normal = pitch*sin(radians(angle))
+        pitch_parallel = pitch*cos(radians(angle))
+    elif angle is not None and pitch_normal is not None:
+        pitch = pitch_normal/sin(radians(angle))
+        pitch_parallel = pitch*cos(radians(angle))
+    elif angle is not None and pitch_parallel is not None:
+        pitch = pitch_parallel/cos(radians(angle))
+        pitch_normal = pitch*sin(radians(angle))
+    elif pitch_normal is not None and pitch is not None:
+        angle = degrees(asin(pitch_normal/pitch))
+        pitch_parallel = pitch*cos(radians(angle))
+    elif pitch_parallel is not None and pitch is not None:
+        angle = degrees(acos(pitch_parallel/pitch))
+        pitch_normal = pitch*sin(radians(angle))
+    elif pitch_parallel is not None and pitch_normal is not None:
+        angle = degrees(asin(pitch_normal/(pitch_normal**2 + pitch_parallel**2)**0.5))
+        pitch = (pitch_normal**2 + pitch_parallel**2)**0.5
+    else:
+        raise Exception('Two of the arguments are required')
+    return angle, pitch, pitch_parallel, pitch_normal
+
 
 def sphericity(A, V):
     r'''Returns the sphericity of a particle of surface area `A` and volume

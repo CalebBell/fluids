@@ -23,6 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from fluids import *
 from math import *
+from scipy.constants import *
 import numpy as np
 from scipy.integrate import quad
 from numpy.testing import assert_allclose
@@ -230,6 +231,46 @@ def test_geometry():
 
     with pytest.raises(Exception):
         V_from_h(h=7, D=1.5, L=5., horizontal=False)
+
+def test_pitch_angle_solver():
+    ans = [{'angle': 30, 'pitch': 2., 'pitch_parallel': 1.7320508075688774, 'pitch_normal': 1.},
+           {'angle': 60, 'pitch': 2., 'pitch_parallel': 1., 'pitch_normal': 1.7320508075688774},
+           {'angle': 45, 'pitch': 2., 'pitch_parallel': 1.414213562373095, 'pitch_normal': 1.414213562373095},
+           {'angle': 90, 'pitch': 1., 'pitch_parallel': 0., 'pitch_normal': 1.},
+           {'angle': 0, 'pitch': 1., 'pitch_parallel': 1., 'pitch_normal': 0.},
+           ]
+    for ans_set in ans:
+        for k1, v1 in ans_set.items():
+            for k2, v2 in ans_set.items():
+                if k1 != k2 and v1 != 0 and v2 != 0:
+                    angle, pitch, pitch_parallel, pitch_normal = pitch_angle_solver(**{k1:v1, k2:v2})
+                    assert_allclose(ans_set['angle'], angle, atol=1e-16)
+                    assert_allclose(ans_set['pitch'], pitch, atol=1e-16)
+                    assert_allclose(ans_set['pitch_parallel'], pitch_parallel, atol=1e-16)
+                    assert_allclose(ans_set['pitch_normal'], pitch_normal, atol=1e-16)
+                
+    with pytest.raises(Exception):
+        pitch_angle_solver(30)
+
+
+def test_AirCooledExchanger():
+    # Full solution
+    AC = AirCooledExchanger(tube_rows=1, tube_passes=1, tubes_per_row=56, tube_length=10.9728, 
+                              tube_diameter=1*inch, fin_thickness=0.013*inch, fin_density=10/inch,
+                              angle=30, pitch=2.5*inch, fin_height=0.625*inch, tube_thickness=0.00338)
+    
+    assert_allclose(AC.A_fin_per_tube, 18.041542744557212)
+    
+    
+    # Minimal solution
+    AC = AirCooledExchanger(tube_rows=1, tube_passes=1, tubes_per_row=56, tube_length=10.9728, 
+                              tube_diameter=1*inch, fin_thickness=0.013*inch, fin_density=10/inch,
+                              angle=30, pitch=2.5*inch, fin_height=0.625*inch)
+    
+    with pytest.raises(Exception):
+        AirCooledExchanger(tube_rows=1, tube_passes=1, tubes_per_row=56, tube_length=10.9728, 
+                              tube_diameter=1*inch, fin_thickness=0.013*inch, fin_density=10/inch,
+                              angle=30, pitch=2.5*inch)
 
 
 def test_geometry_tank():
