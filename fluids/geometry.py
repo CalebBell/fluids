@@ -2608,6 +2608,8 @@ class AirCooledExchanger(object):
         non-rectangular tube layouts, [-]
     tube_thickness : float, optional
         Thickness of the bare metal tubes, [m]
+    fan_diameter : float, optional
+        Diameter of air cooler fan, [m]
  
     Attributes
     ----------
@@ -2680,11 +2682,27 @@ class AirCooledExchanger(object):
     A_increase : float
         Ratio of bare tube surface area to actual surface area, [-]
 
-    
+    A_tube_flow : float
+        The area for the fluid to flow in one tube, :math:`\pi/4\cdot D_i^2`,
+        [m^2]
+    channels : int
+        The number of tubes the fluid flows through at the inlet header, [-]
+
+    tube_volume_per_tube : float
+        Fluid volume per tube inside, [m^3]
+    tube_volume_per_row : float
+        Fluid volume of tubes per row, [m^3]
+    tube_volume_per_bundle : float
+        Fluid volume of tubes per bundle, [m^3]
+    tube_volume_per_bay : float
+        Fluid volume of tubes per bay, [m^3]
+    tube_volume : float
+        Fluid volume of tubes in all bundles and bays combined, [m^3]
+
 
     Notes
     -----
-    TODO: fin type, Fan diameter, tube volume, flow area, A_flow_min, A_frontal
+    TODO: fin type, A_flow_min, A_frontal, layout string
 
     Examples
     --------
@@ -2717,13 +2735,14 @@ class AirCooledExchanger(object):
                  fin_density=None, fin_interval=None,
                  
                  parallel_bays=1, bundles_per_bay=1, fans_per_bay=1, 
-                 corbels=False, tube_thickness=None):
+                 corbels=False, tube_thickness=None, fan_diameter=None):
         self.tube_rows = tube_rows
         self.tube_passes = tube_passes
         self.tubes_per_row = tubes_per_row
         self.tube_length = tube_length
         self.tube_diameter = tube_diameter
         self.fin_thickness = fin_thickness
+        self.fan_diameter = fan_diameter
         
         if pitch_ratio is not None:
             if pitch is not None:
@@ -2803,7 +2822,49 @@ class AirCooledExchanger(object):
         self.A = self.A_tube_showing + self.A_fin
 
         self.A_increase = self.A/self.A_bare_tube
+        
+        if self.tube_thickness is not None:
+            self.Di = self.tube_diameter - self.tube_thickness*2.0
+            self.A_tube_flow = pi/4.0*self.Di*self.Di
+            
+            self.tube_volume_per_tube = self.A_tube_flow*self.tube_length
+            self.tube_volume_per_row = self.tube_volume_per_tube*self.tubes_per_row
+            self.tube_volume_per_bundle = self.tube_volume_per_tube*self.tubes_per_bundle
+            self.tube_volume_per_bay = self.tube_volume_per_tube*self.tubes_per_bay
+            self.tube_volume = self.tube_volume_per_tube*self.tubes
+        else:
+            self.Di = None
+            self.A_tube_flow = None
+            
+            self.tube_volume_per_tube = None
+            self.tube_volume_per_row = None
+            self.tube_volume_per_bundle = None
+            self.tube_volume_per_bay = None
+            self.tube_volume = None
+        
+        # TODO: Support different numbers of tube rows per pass - maybe pass
+        # a list of rows per pass to tube_passes?
+        if self.tube_rows % self.tube_passes == 0:
+            self.channels = self.tube_rows/self.tube_passes
+        else:
+            self.channels = self.tubes_per_row
     
+        if self.angle == 30:
+            self.pitch_str = 'triangular'
+            self.pitch_class = 'staggered'
+        elif self.angle == 60:
+            self.pitch_str = 'rotated triangular'
+            self.pitch_class = 'staggered'
+        elif self.angle == 45:
+            self.pitch_str = 'rotated square'
+            self.pitch_class = 'in-line'
+        elif self.angle == 90:
+            self.pitch_str == 'square'
+            self.pitch_class = 'in-line'
+        else:
+            self.pitch_str == 'custom'
+            self.pitch_class = 'custom'
+
 
 def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
                        pitch_normal=None):
