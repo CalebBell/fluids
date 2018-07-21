@@ -2621,6 +2621,13 @@ class AirCooledExchanger(object):
         Total number of tubes per bay, [-]
     tubes : float
         Total number of tubes in all bundles in all bays combined, [-]
+        
+        
+    pitch_diagonal : float
+        Distance between tube centers in a diagonal line between one normal
+        tube and one parallel tube; 
+        :math:`s_D = \left[s_L^2 + \left(\frac{s_T}{2}\right)^2\right]^{0.5}`,
+        [m]
     
     A_bare_tube_per_tube : float
         Area of the bare tube including the portion hidden by the fin per 
@@ -2700,9 +2707,36 @@ class AirCooledExchanger(object):
         Fluid volume of tubes in all bundles and bays combined, [m^3]
 
 
+    A_diagonal_per_bundle : float
+        Air flow area along the diagonal plane per bundle 
+        :math:`A_d = 2 N_{tubes/row} L_{tube} (P_d - D_{tube} - 2 N_{fins/m} h_{fin} t_{fin}) + A_\text{extra,side}`, [m^2] 
+    A_normal_per_bundle : float
+        Air flow area along the normal (transverse) plane; this is normally
+        the minimum flow area, except for some staggered configurations 
+        :math:`A_t = N_{tubes/row} L_{tube} (P_t - D_{tube} - 2 N_{fins/m} h_{fin} t_{fin}) + A_\text{extra,side}`, [m^2]
+    A_min_per_bundle : float
+        Minimum air flow area per bundle; this is the characteristic area for 
+        velocity calculation in most finned tube convection correlations 
+        :math:`A_{min} = min(A_d, A_t)`, [m^2]
+    A_min_per_bay : float
+        Minimum air flow area per bay, [m^2]
+    A_min : float
+        Minimum air flow area, [m^2]
+        
+    A_face_per_bundle : float
+        Face area per bundle :math:`A_{face} = P_{T} N_{tubes/row} L_{tube}`,
+        [m^2]
+    A_face_per_bay : float
+        Face area per bay, [m^2]
+    A_face : float
+        Total face area, [m^2]
+    flow_area_contraction_ratio : float
+        Ratio of `A_min` to `A_face`, [-]
+
+
     Notes
     -----
-    TODO: fin type, A_flow_min, A_frontal, layout string
+    TODO: fin types
 
     Examples
     --------
@@ -2758,6 +2792,9 @@ class AirCooledExchanger(object):
         self.pitch = pitch
         self.pitch_parallel = pitch_parallel
         self.pitch_normal = pitch_normal
+        
+        self.pitch_diagonal = (pitch_parallel**2 + (0.5*pitch_normal)**2)**0.5
+        
         
         if fin_diameter is None and fin_height is None:
             raise Exception('Specify only one of `fin_diameter` or `fin_height`')
@@ -2823,6 +2860,22 @@ class AirCooledExchanger(object):
 
         self.A_increase = self.A/self.A_bare_tube
         
+        
+        # TODO A_extra could be calculated based on a fixed width and height of the bay
+        A_extra = 0.0
+        self.A_diagonal_per_bundle = 2.0*self.tubes_per_row*self.tube_length*(self.pitch_diagonal - self.tube_diameter - 2.0*fin_density*self.fin_height*self.fin_thickness) + A_extra
+        self.A_normal_per_bundle = self.tubes_per_row*self.tube_length*(self.pitch_normal - self.tube_diameter - 2.0*fin_density*self.fin_height*self.fin_thickness) + A_extra
+        self.A_min_per_bundle = min(self.A_diagonal_per_bundle, self.A_normal_per_bundle)
+        self.A_min_per_bay = self.A_min_per_bundle*self.bundles_per_bay
+        self.A_min = self.A_min_per_bay*self.parallel_bays
+        
+        
+        self.A_face_per_bundle = self.pitch_normal*self.tubes_per_row*self.tube_length
+        self.A_face_per_bay = self.A_face_per_bundle*self.bundles_per_bay
+        self.A_face = self.A_face_per_bay*self.parallel_bays
+        
+        self.flow_area_contraction_ratio = self.A_min/self.A_face
+        
         if self.tube_thickness is not None:
             self.Di = self.tube_diameter - self.tube_thickness*2.0
             self.A_tube_flow = pi/4.0*self.Di*self.Di
@@ -2859,11 +2912,13 @@ class AirCooledExchanger(object):
             self.pitch_str = 'rotated square'
             self.pitch_class = 'in-line'
         elif self.angle == 90:
-            self.pitch_str == 'square'
+            self.pitch_str = 'square'
             self.pitch_class = 'in-line'
         else:
-            self.pitch_str == 'custom'
+            self.pitch_str = 'custom'
             self.pitch_class = 'custom'
+            
+
 
 
 def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,

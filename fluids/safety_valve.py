@@ -462,7 +462,7 @@ def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
     r'''Calculates required relief valve area for an API 520 valve passing
     a gas or a vapor, at either critical or sub-critical flow.
 
-    For Critical flow:
+    For critical flow:
 
     .. math::
         A = \frac{m}{CK_dP_1K_bK_c}\sqrt{\frac{TZ}{M}}

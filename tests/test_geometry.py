@@ -254,7 +254,7 @@ def test_pitch_angle_solver():
 
 
 def test_AirCooledExchanger():
-    # Full solution
+    # Full solution, exchanger in Serth
     AC = AirCooledExchanger(tube_rows=1, tube_passes=1, tubes_per_row=56, tube_length=10.9728, 
                               tube_diameter=1*inch, fin_thickness=0.013*inch, fin_density=10/inch,
                               angle=30, pitch=2.5*inch, fin_height=0.625*inch, tube_thickness=0.00338)
@@ -271,6 +271,13 @@ def test_AirCooledExchanger():
         AirCooledExchanger(tube_rows=1, tube_passes=1, tubes_per_row=56, tube_length=10.9728, 
                               tube_diameter=1*inch, fin_thickness=0.013*inch, fin_density=10/inch,
                               angle=30, pitch=2.5*inch)
+        
+    # test AC with geometry whose minimum area is lower on the diagonal plane
+    AC = AirCooledExchanger(tube_rows=1, tube_passes=1, tubes_per_row=56, tube_length=10.9728, 
+                              tube_diameter=1*inch, fin_thickness=0.013*inch, fin_density=10/inch,
+                              angle=60, pitch=2.2*inch, fin_height=0.625*inch, tube_thickness=0.00338)
+    
+    assert_allclose(AC.A_diagonal_per_bundle, AC.A_min_per_bundle)
 
 
 def test_geometry_tank():

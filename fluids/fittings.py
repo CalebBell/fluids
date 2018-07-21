@@ -603,11 +603,11 @@ def contraction_sharp(Di1, Di2):
     as shown in [1]_.
 
     .. math::
-        K = 0.0696(1-\beta^5)\lambda^2 + (\lambda-1)^2
+        &K = 0.0696(1-\beta^5)\lambda^2 + (\lambda-1)^2
 
-        \lambda = 1 + 0.622(1-0.215\beta^2 -  0.785\beta^5)
+        &\lambda = 1 + 0.622(1-0.215\beta^2 -  0.785\beta^5) 
 
-        \beta = d_2/d_1
+        &\beta = d_2/d_1
 
     .. figure:: fittings/contraction_sharp.png
        :scale: 40 %
