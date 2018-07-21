@@ -280,6 +280,66 @@ def test_AirCooledExchanger():
     assert_allclose(AC.A_diagonal_per_bundle, AC.A_min_per_bundle)
 
 
+def test_AirCooledExchangerFull():
+    AC = AirCooledExchanger(tube_rows=4, tube_passes=4, tubes_per_row=56, tube_length=10.9728, 
+                            tube_diameter=1*inch, fin_thickness=0.013*inch, fin_density=10/inch,
+                            angle=30, pitch=2.5*inch, fin_height=0.625*inch, tube_thickness=0.00338,
+                            bundles_per_bay=2, parallel_bays=3)
+    assert_allclose(AC.bare_length, 0.0022097999999999996)
+    assert AC.tubes_per_bundle == 224
+    assert AC.tubes_per_bay == 224*2
+    assert AC.tubes == 224*2*3
+    
+    assert_allclose(AC.pitch_diagonal, 0.057238126497990836)
+    
+    assert_allclose(AC.A_bare_tube_per_tube, 0.875590523880476)
+    assert_allclose(AC.A_bare_tube_per_row, AC.A_bare_tube_per_tube*AC.tubes_per_row)
+    assert_allclose(AC.A_bare_tube_per_bundle, AC.A_bare_tube_per_tube*AC.tubes_per_bundle)
+    assert_allclose(AC.A_bare_tube_per_bay, AC.A_bare_tube_per_tube*AC.tubes_per_bay)
+    assert_allclose(AC.A_bare_tube, AC.A_bare_tube_per_tube*AC.tubes)
+    
+    assert_allclose(AC.A_tube_showing_per_tube, 0.7617637557760141)
+    assert_allclose(AC.A_tube_showing_per_row, AC.A_tube_showing_per_tube*AC.tubes_per_row)
+    assert_allclose(AC.A_tube_showing_per_bundle, AC.A_tube_showing_per_tube*AC.tubes_per_bundle)
+    assert_allclose(AC.A_tube_showing_per_bay, AC.A_tube_showing_per_tube*AC.tubes_per_bay)
+    assert_allclose(AC.A_tube_showing, AC.A_tube_showing_per_tube*AC.tubes)
+    
+    assert_allclose(AC.A_per_fin, 0.0041762830427215765)
+    assert_allclose(AC.A_fin_per_tube, 18.041542744557212)
+    assert_allclose(AC.A_fin_per_row, AC.A_fin_per_tube*AC.tubes_per_row)
+    assert_allclose(AC.A_fin_per_bundle, AC.A_fin_per_tube*AC.tubes_per_bundle)
+    assert_allclose(AC.A_fin_per_bay, AC.A_fin_per_tube*AC.tubes_per_bay)
+    assert_allclose(AC.A_fin, AC.A_fin_per_tube*AC.tubes)
+    
+    assert_allclose(AC.A_per_tube, 18.803306500333225)
+    assert_allclose(AC.A_per_row, AC.A_per_tube*AC.tubes_per_row)
+    assert_allclose(AC.A_per_bundle, AC.A_per_tube*AC.tubes_per_bundle)
+    assert_allclose(AC.A_per_bay, AC.A_per_tube*AC.tubes_per_bay)
+    assert_allclose(AC.A, AC.A_per_tube*AC.tubes)
+    assert_allclose(AC.A_increase, 21.47500000000001)
+    
+    assert_allclose(AC.A_diagonal_per_bundle, 34.05507419296123)
+    assert_allclose(AC.A_normal_per_bundle, 1.365674687999997)
+    assert_allclose(AC.A_normal_per_bundle, AC.A_normal_per_bundle)
+    assert_allclose(AC.A_min_per_bay, AC.A_min_per_bundle*AC.bundles_per_bay)
+    assert_allclose(AC.A_min, AC.A_min_per_bay*AC.parallel_bays)
+    
+    assert_allclose(AC.A_face_per_bundle, 19.509638399999993)
+    assert_allclose(AC.A_face_per_bay, AC.A_face_per_bundle*AC.bundles_per_bay)
+    assert_allclose(AC.A_face, AC.A_face_per_bay*AC.parallel_bays)
+    assert_allclose(AC.flow_area_contraction_ratio, 0.07)
+    
+    assert_allclose(AC.Di, 0.018639999999999997)
+    assert_allclose(AC.A_tube_flow, 0.00027288627771317794)
+    assert_allclose(AC.tube_volume_per_tube, 0.0029943265480911587)
+    assert_allclose(AC.tube_volume_per_row, AC.tube_volume_per_tube*AC.tubes_per_row)
+    assert_allclose(AC.tube_volume_per_bundle, AC.tube_volume_per_tube*AC.tubes_per_bundle)
+    assert_allclose(AC.tube_volume, AC.tube_volume_per_tube*AC.tubes)
+    
+    assert AC.channels == 56
+    assert AC.pitch_str == 'triangular'
+    assert AC.pitch_class == 'staggered'
+
 def test_geometry_tank():
     V1 = TANK(D=1.2, L=4, horizontal=False).V_total
     assert_allclose(V1, 4.523893421169302)

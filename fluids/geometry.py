@@ -2563,8 +2563,8 @@ class AirCooledExchanger(object):
     tube_rows : int
         Number of tube rows per bundle, [-]
     tube_passes : int
-        Number of tube passes (straight across only = 1, 2 row U tube = 2, 
-        etc.), [-]
+        Number of tube passes (times the fluid travels across one tube length),
+        [-]
     tubes_per_row : float
         Number of tubes per row per bundle, [-]
     tube_length : float
@@ -2614,14 +2614,17 @@ class AirCooledExchanger(object):
     Attributes
     ----------
     bare_length : float
-        Length of bare tube between two fins, [m]
+        Length of bare tube between two fins 
+        :math:`\text{bare length} = \text{fin interval} - t_{fin}`, [m]
     tubes_per_bundle : float
-        Total number of tubes per bundle, [-]
+        Total number of tubes per bundle 
+        :math:`N_{tubes/bundle} = N_{tubes/row} \cdot N_{rows}`, [-]
     tubes_per_bay : float
-        Total number of tubes per bay, [-]
+        Total number of tubes per bay
+        :math:`N_{tubes/bay} = N_{tubes/bundle} \cdot N_{bundles/bay}`, [-]
     tubes : float
-        Total number of tubes in all bundles in all bays combined, [-]
-        
+        Total number of tubes in all bundles in all bays combined
+        :math:`N_{tubes} = N_{tubes/bay} \cdot N_{bays}`, [-]
         
     pitch_diagonal : float
         Distance between tube centers in a diagonal line between one normal
@@ -2631,23 +2634,28 @@ class AirCooledExchanger(object):
     
     A_bare_tube_per_tube : float
         Area of the bare tube including the portion hidden by the fin per 
-        tube, [m^2]
+        tube :math:`A_{bare,total/tube} = \pi D_{tube} L_{tube}`, [m^2]
     A_bare_tube_per_row : float
         Area of the bare tube including the portion hidden by the fin per
-        tube row, [m^2]
+        tube row 
+        :math:`A_{bare,total/row} = \pi D_{tube} L_{tube} N_{tubes/row}`, [m^2]
     A_bare_tube_per_bundle : float
         Area of the bare tube including the portion hidden by the fin per 
-        bundle, [m^2]
+        bundle :math:`A_{bare,total/bundle} = \pi D_{tube} L_{tube}
+        N_{tubes/bundle}`, [m^2]
     A_bare_tube_per_bay : float
         Area of the bare tube including the portion hidden by the fin per
-        bay, [m^2]
+        bay :math:`A_{bare,total/bay} = \pi D_{tube} L_{tube} N_{tubes/bay}`,
+        [m^2]
     A_bare_tube : float
         Area of the bare tube including the portion hidden by the fin per
-        in all bundles and bays
-        combined, [m^2]
+        in all bundles and bays combined :math:`A_{bare,total} = \pi D_{tube}
+        L_{tube} N_{tubes}`, [m^2]
 
     A_tube_showing_per_tube : float
-        Area of the bare tube which is exposed per tube, [m^2]
+        Area of the bare tube which is exposed per tube :math:`A_{bare, 
+        showing/tube} = \pi D_{tube} L_{tube}  \left(1 - \frac{t_{fin}} 
+        {\text{fin interval}} \right)`, [m^2]
     A_tube_showing_per_row : float
         Area of the bare tube which is exposed per tube row, [m^2]
     A_tube_showing_per_bundle : float
@@ -2659,9 +2667,11 @@ class AirCooledExchanger(object):
         combined, [m^2]
         
     A_per_fin : float
-        Surface area per fin, [m^2]
+        Surface area per fin :math:`A_{fin} = 2 \frac{\pi}{4} (D_{fin}^2 - 
+        D_{tube}^2) + \pi D_{fin} t_{fin}`, [m^2]
     A_fin_per_tube : float
-        Surface area of all fins per tube, [m^2]
+        Surface area of all fins per tube 
+        :math:`A_{fin/tube} = N_{fins/m} L_{tube} A_{fin}`, [m^2]
     A_fin_per_row : float
         Surface area of all fins per row, [m^2]
     A_fin_per_bundle : float
@@ -2673,7 +2683,8 @@ class AirCooledExchanger(object):
         
     A_per_tube : float
         Surface area of combined finned and non-fined area exposed for heat
-        transfer per tube, [m^2]
+        transfer per tube :math:`A_{tube} = A_{bare, showing/tube} 
+        + A_{fin/tube}`, [m^2]
     A_per_row : float
         Surface area of combined finned and non-finned area exposed for heat
         transfer per tube row, [m^2]
@@ -2687,7 +2698,8 @@ class AirCooledExchanger(object):
         Surface area of combined finned and non-finned area exposed for heat
         transfer in all bundles and bays combined, [m^2]
     A_increase : float
-        Ratio of bare tube surface area to actual surface area, [-]
+        Ratio of actual surface area to bare tube surface area
+        :math:`A_{increase} = \frac{A_{tube}}{A_{bare, total/tube}}`, [-]
 
     A_tube_flow : float
         The area for the fluid to flow in one tube, :math:`\pi/4\cdot D_i^2`,
@@ -2696,7 +2708,8 @@ class AirCooledExchanger(object):
         The number of tubes the fluid flows through at the inlet header, [-]
 
     tube_volume_per_tube : float
-        Fluid volume per tube inside, [m^3]
+        Fluid volume per tube inside :math:`V_{tube, flow} = \frac{\pi}{4} 
+        D_{i}^2 L_{tube}`, [m^3]
     tube_volume_per_row : float
         Fluid volume of tubes per row, [m^3]
     tube_volume_per_bundle : float
@@ -2898,7 +2911,7 @@ class AirCooledExchanger(object):
         # TODO: Support different numbers of tube rows per pass - maybe pass
         # a list of rows per pass to tube_passes?
         if self.tube_rows % self.tube_passes == 0:
-            self.channels = self.tube_rows/self.tube_passes
+            self.channels = self.tubes_per_bundle/self.tube_passes
         else:
             self.channels = self.tubes_per_row
     
