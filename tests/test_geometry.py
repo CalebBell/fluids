@@ -324,10 +324,10 @@ def test_AirCooledExchangerFull():
     assert_allclose(AC.A_min_per_bay, AC.A_min_per_bundle*AC.bundles_per_bay)
     assert_allclose(AC.A_min, AC.A_min_per_bay*AC.parallel_bays)
     
-    assert_allclose(AC.A_face_per_bundle, 19.509638399999993)
+    assert_allclose(AC.A_face_per_bundle, 19.858025)
     assert_allclose(AC.A_face_per_bay, AC.A_face_per_bundle*AC.bundles_per_bay)
     assert_allclose(AC.A_face, AC.A_face_per_bay*AC.parallel_bays)
-    assert_allclose(AC.flow_area_contraction_ratio, 0.07)
+    assert_allclose(AC.flow_area_contraction_ratio, 0.06877192982456128)
     
     assert_allclose(AC.Di, 0.018639999999999997)
     assert_allclose(AC.A_tube_flow, 0.00027288627771317794)
@@ -339,6 +339,14 @@ def test_AirCooledExchangerFull():
     assert AC.channels == 56
     assert AC.pitch_str == 'triangular'
     assert AC.pitch_class == 'staggered'
+    
+    # test with corbels
+    AC = AirCooledExchanger(tube_rows=4, tube_passes=4, tubes_per_row=56, tube_length=10.9728, 
+                            tube_diameter=1*inch, fin_thickness=0.013*inch, fin_density=10/inch,
+                            angle=30, pitch=2.5*inch, fin_height=0.625*inch, tube_thickness=0.00338,
+                            bundles_per_bay=2, parallel_bays=3, corbels=True)
+    assert_allclose(AC.A_face_per_bundle, 19.683831599999998)
+
 
 def test_geometry_tank():
     V1 = TANK(D=1.2, L=4, horizontal=False).V_total

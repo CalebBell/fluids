@@ -2557,6 +2557,21 @@ class AirCooledExchanger(object):
     r'''Class representing the geometry of an air cooled heat exchanger with 
     one or more tube bays, fans, or bundles.
     All parameters are also attributes.
+    
+    The minimum information required to describe an air cooler is as follows:
+        
+    * `tube_rows`
+    * `tube_passes`
+    * `tubes_per_row`
+    * `tube_length`
+    * `tube_diameter`
+    * `fin_thickness`
+    
+    Two of `angle`, `pitch`, `pitch_parallel`, and `pitch_normal` 
+    (`pitch_ratio` may take the place of `pitch`)
+    
+    Either `fin_diameter` or `fin_height`.
+    Either `fin_density` or `fin_interval`.
             
     Parameters
     ----------
@@ -2737,7 +2752,8 @@ class AirCooledExchanger(object):
         Minimum air flow area, [m^2]
         
     A_face_per_bundle : float
-        Face area per bundle :math:`A_{face} = P_{T} N_{tubes/row} L_{tube}`,
+        Face area per bundle :math:`A_{face} = P_{T} (1+N_{tubes/row}) 
+        L_{tube}`; if corbels are used, add 0.5 to tubes/row instead of 1,
         [m^2]
     A_face_per_bay : float
         Face area per bay, [m^2]
@@ -2749,10 +2765,14 @@ class AirCooledExchanger(object):
 
     Notes
     -----
-    TODO: fin types
 
     Examples
     --------
+    >>> AC = AirCooledExchanger(tube_rows=4, tube_passes=4, tubes_per_row=56, tube_length=10.9728, 
+    ... tube_diameter=1*inch, fin_thickness=0.013*inch, fin_density=10/inch,
+    ... angle=30, pitch=2.5*inch, fin_height=0.625*inch, tube_thickness=0.00338,
+    ... bundles_per_bay=2, parallel_bays=3, corbels=True)
+
 
     References
     ----------
@@ -2783,6 +2803,8 @@ class AirCooledExchanger(object):
                  
                  parallel_bays=1, bundles_per_bay=1, fans_per_bay=1, 
                  corbels=False, tube_thickness=None, fan_diameter=None):
+        # TODO: fin types
+
         self.tube_rows = tube_rows
         self.tube_passes = tube_passes
         self.tubes_per_row = tubes_per_row
@@ -2882,8 +2904,8 @@ class AirCooledExchanger(object):
         self.A_min_per_bay = self.A_min_per_bundle*self.bundles_per_bay
         self.A_min = self.A_min_per_bay*self.parallel_bays
         
-        
-        self.A_face_per_bundle = self.pitch_normal*self.tubes_per_row*self.tube_length
+        i = 0.5 if self.corbels else 1.0
+        self.A_face_per_bundle = self.pitch_normal*self.tube_length*(self.tubes_per_row + i)
         self.A_face_per_bay = self.A_face_per_bundle*self.bundles_per_bay
         self.A_face = self.A_face_per_bay*self.parallel_bays
         
