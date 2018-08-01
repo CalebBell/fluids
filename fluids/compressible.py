@@ -197,13 +197,13 @@ def isentropic_work_compression(T1, k, Z=1, P1=None, P2=None, W=None, eta=None):
        Professional Publishing, 2009.
     '''
     if W is None and (None not in [eta, P1, P2]):
-        return k/(k-1)*Z*R*T1*((P2/P1)**((k-1.)/k) - 1)/eta
+        return k/(k - 1.0)*Z*R*T1*((P2/P1)**((k-1.)/k) - 1.0)/eta
     elif P1 is None and (None not in [eta, W, P2]):
-        return P2*(1 + W*eta/(R*T1*Z) - W*eta/(R*T1*Z*k))**(-k/(k - 1))
+        return P2*(1.0 + W*eta/(R*T1*Z) - W*eta/(R*T1*Z*k))**(-k/(k - 1.0))
     elif P2 is None and (None not in [eta, W, P1]):
-        return P1*(1 + W*eta/(R*T1*Z) - W*eta/(R*T1*Z*k))**(k/(k - 1))
+        return P1*(1.0 + W*eta/(R*T1*Z) - W*eta/(R*T1*Z*k))**(k/(k - 1.0))
     elif eta is None and (None not in [P1, P2, W]):
-        return R*T1*Z*k*((P2/P1)**((k - 1)/k) - 1)/(W*(k - 1))
+        return R*T1*Z*k*((P2/P1)**((k - 1.0)/k) - 1.0)/(W*(k - 1.0))
     else:
         raise Exception('Three of W, P1, P2, and eta must be specified.')
 
@@ -259,7 +259,7 @@ def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
     .. [2] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
        Suppliers Association, Tulsa, OK, 2012.
     '''
-    dT = T1*((P2/P1)**((k-1)/k)-1)/eta
+    dT = T1*((P2/P1)**((k - 1.0)/k) - 1.0)/eta
     return T1 + dT
 
 
@@ -359,9 +359,9 @@ def polytropic_exponent(k, n=None, eta_p=None):
        Professional Publishing, 2009.
     '''
     if n is None and eta_p:
-        return k*eta_p/(1 - k*(1-eta_p))
+        return k*eta_p/(1.0 - k*(1.0 - eta_p))
     elif eta_p is None and n:
-        return n*(k-1)/(k*(n-1))
+        return n*(k - 1.0)/(k*(n - 1.0))
     else:
         raise Exception('Either n or eta_p is required')
 
@@ -403,7 +403,7 @@ def T_critical_flow(T, k):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return T*2/(k+1.)
+    return T*2.0/(k + 1.0)
 
 
 def P_critical_flow(P, k):
@@ -443,7 +443,7 @@ def P_critical_flow(P, k):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return P*(2/(k+1.))**(k/(k-1))
+    return P*(2.0/(k + 1.))**(k/(k - 1.0))
 
 
 def P_isothermal_critical_flow(P, fd, D, L):
@@ -493,7 +493,7 @@ def P_isothermal_critical_flow(P, fd, D, L):
     '''
     # Correct branch of lambertw found by trial and error
     lambert_term = float(lambertw(-exp((-D - L*fd)/D), -1).real)
-    return P*exp((D*(lambert_term + 1) + L*fd)/(2.*D))
+    return P*exp((D*(lambert_term + 1.0) + L*fd)/(2.0*D))
 
 
 def P_upstream_isothermal_critical_flow(P, fd, D, L):
@@ -625,7 +625,7 @@ def P_stagnation(P, T, Tst, k):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return P*(Tst/T)**(k/(k-1))
+    return P*(Tst/T)**(k/(k - 1.0))
 
 
 def T_stagnation(T, P, Pst, k):
@@ -668,7 +668,7 @@ def T_stagnation(T, P, Pst, k):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return T*(Pst/P)**((k - 1)/k)
+    return T*(Pst/P)**((k - 1.0)/k)
 
 
 def T_stagnation_ideal(T, V, Cp):
@@ -822,9 +822,9 @@ due to the formation of choked flow at P2=%f, specified outlet pressure was %f' 
         if P2 > P1:
             raise Exception('Specified outlet pressure is larger than the \
 inlet pressure; fluid will flow backwards.')
-        return (pi**2/16*D**4*rho/P1/(fd*L/D + 2*log(P1/P2))*(P1**2-P2**2))**0.5
+        return (0.0625*pi*pi*D**4*rho/(P1*(fd*L/D + 2.0*log(P1/P2)))*(P1*P1 - P2*P2))**0.5
     elif L is None and (None not in [P1, P2, D, m]):
-        return D*(pi**2*D**4*rho*(P1**2 - P2**2) - 32*P1*m**2*log(P1/P2))/(16*P1*fd*m**2)
+        return D*(pi*pi*D**4*rho*(P1*P1 - P2*P2) - 32.0*P1*m*m*log(P1/P2))/(16.0*P1*fd*m*m)
     elif P1 is None and (None not in [L, P2, D, m]):
         Pcf = P_upstream_isothermal_critical_flow(P=P2, fd=fd, D=D, L=L)
 

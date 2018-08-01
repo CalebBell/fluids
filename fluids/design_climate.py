@@ -205,6 +205,13 @@ class IntegratedSurfaceDatabaseStation(object):
     
     License information for the database can be found at the following link:
     https://data.noaa.gov/dataset/global-surface-summary-of-the-day-gsod
+    
+    Note: Of the 28000 + stations in the database, approximately 3000 have WBAN
+    identifiers; 26000 have unique names; 24000 have USAF identifiers; and 
+    there are only 25800 unique lat/lon pairs.
+    
+    To uniquely represent a weather station, a combination of identifiers 
+    must be used. (Name, USAF, WBAN) makes a good choice.
 
     Parameters
     ----------
