@@ -21,6 +21,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
+
+__all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
+           'get_closest_station', 'get_station_year_text', 'gsod_day_parser',
+           'StationDataGSOD', 'heating_degree_days', 'cooling_degree_days', 'stations',
+           'geopy_geolocator', 'geopy_cache', 'SimpleGeolocatorCache', 'geocode']
+
 try: # pragma: no cover
     from cStringIO import StringIO
 except: # pragma: no cover
@@ -51,11 +57,90 @@ try:  # pragma: no cover
 except ImportError:  # pragma: no cover
     data_dir = ''
     pass
-# TODO: Import ephem and get hours/minutes of sunlight per day.
+
+try:  # pragma: no cover
+    import geopy
+    from geopy.location import Location
+    # No point loading cPickle or sqlite for this reason
+    import cPickle as pickle
+    import sqlite3
+except ImportError:  # pragma: no cover
+    geopy = None
+    Location = None
+
+
+# Geopy cache/lookup layer, also requires appdirs for caching, can work without
+global geolocator
+geolocator = None
+geolocator_user_agent = 'fluids'
+geolocator_disk_cache_name = 'simple_geolocator_cache.sqlite3'
+geolocator_disk_cache_loc = os.path.join(data_dir, geolocator_disk_cache_name)
+
+global simple_geopy_cache
+simple_geopy_cache = None
+
+
+def geopy_geolocator():
+    global geolocator
+    if geolocator is None:
+        try:
+            from geopy.geocoders import Nominatim
+        except ImportError:
+            return None
+        geolocator = Nominatim(user_agent=geolocator_user_agent)
+        return geolocator
+    return geolocator
+
+
+def geopy_cache():
+    global simple_geopy_cache
+    if simple_geopy_cache is None:
+        simple_geopy_cache = SimpleGeolocatorCache(geolocator_disk_cache_loc)
+        return simple_geopy_cache
+    return simple_geopy_cache
+
+
+class SimpleGeolocatorCache(object):
+    def __init__(self, file_name):
+        self.connection = conn = sqlite3.connect(file_name)
+        cursor = self.connection.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS geopy ( '
+                       'address STRING PRIMARY KEY, latitude real, longitude real )')
+#        cursor.execute('CREATE TABLE IF NOT EXISTS geopy ( '
+#                       'address STRING PRIMARY KEY, location BLOB )')
+        # 
+        self.connection.commit()
+
+    def cached_address(self, address):
+        cursor = self.connection.cursor()
+        cursor.execute('SELECT latitude, longitude FROM geopy WHERE address=?', (address, ))
+        res = cursor.fetchone()
+        if res is None: 
+            return None
+        return res
+#        return pickle.load(StringIO(res[0]))
+
+    def cache_address(self, address, latitude, longitude):
+        cursor = self.connection.cursor()
+        cursor.execute('INSERT INTO geopy(address, latitude, longitude) VALUES(?, ?, ?)',
+                       (address, latitude, longitude))
+#        cursor.execute('INSERT INTO geopy(address, location) VALUES(?, ?)',
+#                       (address, sqlite3.Binary(pickle.dumps((latitude, 
+#                                                              longitude), -1))))
+        self.connection.commit()
+
+
+def geocode(address):
+    cache = geopy_cache()
+    loc_tuple = cache.cached_address(address)
+    if loc_tuple is not None:
+        return loc_tuple
+    else:
+        location = geopy_geolocator().geocode(address)
+        cache.cache_address(address, location.latitude, location.longitude)
+        return (location.latitude, location.longitude)
+
     
-__all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
-           'get_closest_station', 'get_station_year_text', 'gsod_day_parser',
-           'StationDataGSOD', 'heating_degree_days', 'cooling_degree_days', 'stations']
 
 folder = os.path.join(os.path.dirname(__file__), 'data')
 
