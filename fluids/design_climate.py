@@ -25,7 +25,8 @@ from __future__ import division
 __all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
            'get_closest_station', 'get_station_year_text', 'gsod_day_parser',
            'StationDataGSOD', 'heating_degree_days', 'cooling_degree_days', 'stations',
-           'geopy_geolocator', 'geopy_cache', 'SimpleGeolocatorCache', 'geocode']
+#           'geopy_geolocator', 'geopy_cache', 'SimpleGeolocatorCache', 
+           'geocode']
 
 try: # pragma: no cover
     from cStringIO import StringIO
@@ -62,12 +63,15 @@ try:  # pragma: no cover
     import geopy
     from geopy.location import Location
     # No point loading cPickle or sqlite for this reason
-    import cPickle as pickle
     import sqlite3
 except ImportError:  # pragma: no cover
     geopy = None
     Location = None
-
+try:  # pragma: no cover
+    # python 3 compat
+    import cPickle as pickle
+except:  # pragma: no cover
+    import pickle
 
 # Geopy cache/lookup layer, also requires appdirs for caching, can work without
 global geolocator
@@ -79,8 +83,13 @@ geolocator_disk_cache_loc = os.path.join(data_dir, geolocator_disk_cache_name)
 global simple_geopy_cache
 simple_geopy_cache = None
 
+geopy_missing_msg = '''Geocoder module `geopy` is required for this 
+functionality.'''
 
 def geopy_geolocator():
+    '''Lazy loader for geocoder from geopy. This currently loads the 
+    `Nominatim` geocode and returns an instance of it, taking ~2 us.
+    '''
     global geolocator
     if geolocator is None:
         try:
@@ -93,6 +102,9 @@ def geopy_geolocator():
 
 
 def geopy_cache():
+    '''Lazy loader for the singleton `SimpleGeolocatorCache`. This creates a
+    sqlite database if one does not exist and initializes a connection to it.
+    '''
     global simple_geopy_cache
     if simple_geopy_cache is None:
         simple_geopy_cache = SimpleGeolocatorCache(geolocator_disk_cache_loc)
@@ -101,14 +113,15 @@ def geopy_cache():
 
 
 class SimpleGeolocatorCache(object):
+    '''Very basic on-disk address -> (lat, lon) cache, using Python's sqlite 
+    database for on-disk persistence. Offers very reasonable performance 
+    compared to online lookups.
+    '''
     def __init__(self, file_name):
         self.connection = conn = sqlite3.connect(file_name)
         cursor = self.connection.cursor()
         cursor.execute('CREATE TABLE IF NOT EXISTS geopy ( '
                        'address STRING PRIMARY KEY, latitude real, longitude real )')
-#        cursor.execute('CREATE TABLE IF NOT EXISTS geopy ( '
-#                       'address STRING PRIMARY KEY, location BLOB )')
-        # 
         self.connection.commit()
 
     def cached_address(self, address):
@@ -118,26 +131,61 @@ class SimpleGeolocatorCache(object):
         if res is None: 
             return None
         return res
-#        return pickle.load(StringIO(res[0]))
 
     def cache_address(self, address, latitude, longitude):
         cursor = self.connection.cursor()
         cursor.execute('INSERT INTO geopy(address, latitude, longitude) VALUES(?, ?, ?)',
                        (address, latitude, longitude))
-#        cursor.execute('INSERT INTO geopy(address, location) VALUES(?, ?)',
-#                       (address, sqlite3.Binary(pickle.dumps((latitude, 
-#                                                              longitude), -1))))
         self.connection.commit()
 
 
 def geocode(address):
-    cache = geopy_cache()
-    loc_tuple = cache.cached_address(address)
+    '''Query function to obtain a latitude and longitude from a location
+    string such as `Houston, TX` or`Colombia`. This uses an online lookup,
+    currently wrapping the `geopy` library, and providing an on-disk cache
+    of queries.
+    
+    Parameters
+    ----------
+    address : str
+        Search string to retrieve the location, [-]
+        
+    Returns
+    -------
+    latitude : float
+        Latitude of address, [degrees]
+    longitude : float
+        Longitude of address, [degrees]
+        
+    Notes
+    -----
+    If a query has been retrieved before, this function will take under 1 ms;
+    it takes several seconds otherwise.
+    
+    Examples
+    --------
+    >>> geocode('Fredericton, NB')
+    (45.966425, -66.645813)
+    '''
+    loc_tuple = None
+    try:
+        cache = geopy_cache()
+        loc_tuple = cache.cached_address(address)
+    except:
+        # Handle bugs in the cache, i.e. if there is no space on disk to create
+        # the database, by ignoring them
+        pass
     if loc_tuple is not None:
         return loc_tuple
     else:
-        location = geopy_geolocator().geocode(address)
-        cache.cache_address(address, location.latitude, location.longitude)
+        geocoder = geopy_geolocator()
+        if geocoder is None:
+            return geopy_missing_msg
+        location = geocoder.geocode(address)
+        try:
+            cache.cache_address(address, location.latitude, location.longitude)
+        except:
+            pass
         return (location.latitude, location.longitude)
 
     

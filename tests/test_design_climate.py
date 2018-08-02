@@ -456,3 +456,9 @@ def test_get_station_year_text():
     with pytest.raises(Exception):
         get_station_year_text(712650, 99999, 19999999999)
 
+
+@pytest.mark.slow
+@pytest.mark.online
+def test_geocode():
+    latlon = geocode('Fredericton, NB')
+    assert_allclose(latlon, (45.966425, -66.645813), rtol=1e-4)
