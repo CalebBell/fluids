@@ -82,7 +82,21 @@ def test_friction():
     assert_allclose(friction_factor(Re=1E5, eD=0, Method=None), 0.01798977308427384)
     
 
+def test_one_phase_dP():
+    dP = one_phase_dP(10.0, 1000, 1E-5, .1, L=1)
+    assert_allclose(dP, 63.43447321097365)
+    
+def test_one_phase_dP_gravitational():
+    dP = one_phase_dP_gravitational(angle=90, rho=2.6)
+    assert_allclose(dP, 25.49729)
 
+    dP = one_phase_dP_gravitational(angle=90, rho=2.6, L=2)
+    assert_allclose(dP, 25.49729*2)
+
+def test_one_phase_dP_dz_acceleration():
+    dP = one_phase_dP_dz_acceleration(m=1, D=0.1, rho=827.1)
+    assert_allclose(dP, 19.600277333785566)
+    
 def test_transmission_factor():
     assert_allclose(transmission_factor(fd=0.0185), 14.704292441876154)
     assert_allclose(transmission_factor(F=14.704292441876154), 0.0185)

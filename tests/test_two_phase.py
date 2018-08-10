@@ -28,8 +28,15 @@ import pytest
 
 
 def test_Friedel():
-    dP = Friedel(m=10, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.3, roughness=0, L=1)
-    assert_allclose(dP, 274.21322116878406)
+    kwargs = dict(m=10, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.3, roughness=0, L=1)
+    dP = Friedel(**kwargs)
+    dP_expect = 274.21322116878406
+    assert_allclose(dP, dP_expect)
+    
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Friedel(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
     # Example 4 in [6]_:
     dP = Friedel(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
@@ -39,8 +46,15 @@ def test_Friedel():
 
 
 def test_Gronnerud():
-    dP = Gronnerud(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Gronnerud(**kwargs)
+    dP_expect = 384.125411444741
     assert_allclose(dP, 384.125411444741)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Gronnerud(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
     dP = Gronnerud(m=5, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 26650.676132410194)
@@ -70,8 +84,15 @@ def test_Chisholm():
     assert_allclose(dP, 8743.742915625126)
 
     # Roughness correction
-    dP = Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=1E-4, L=1, rough_correction=True)
-    assert_allclose(dP, 846.6778299960783)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=1E-4, L=1, rough_correction=True)
+    dP = Chisholm(**kwargs)
+    dP_expect = 846.6778299960783
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Chisholm(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Baroczy_Chisholm():
@@ -83,18 +104,39 @@ def test_Baroczy_Chisholm():
     dP = Baroczy_Chisholm(m=5, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 3414.1123536958203)
 
-    dP = Baroczy_Chisholm(m=1, x=0.1, rhol=915., rhog=0.1, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
-    assert_allclose(dP, 8743.742915625126)
+    kwargs = dict(m=1, x=0.1, rhol=915., rhog=0.1, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Baroczy_Chisholm(**kwargs)
+    dP_expect = 8743.742915625126
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Baroczy_Chisholm(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Muller_Steinhagen_Heck():
-    dP = Muller_Steinhagen_Heck(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
-    assert_allclose(dP, 793.4465457435081)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Muller_Steinhagen_Heck(**kwargs)
+    dP_expect = 793.4465457435081
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Muller_Steinhagen_Heck(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Lombardi_Pedrocchi():
-    dP = Lombardi_Pedrocchi(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1)
-    assert_allclose(dP, 1567.328374498781)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1)
+    dP = Lombardi_Pedrocchi(**kwargs)
+    dP_expect = 1567.328374498781
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Lombardi_Pedrocchi(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Theissing():
@@ -105,58 +147,128 @@ def test_Theissing():
     dP = Theissing(m=0.6, x=1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 4012.248776469056)
 
-    dP = Theissing(m=0.6, x=0, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
-    assert_allclose(dP, 19.00276790390895)
+    kwargs = dict(m=0.6, x=0, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Theissing(**kwargs)
+    dP_expect = 19.00276790390895
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Theissing(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Jung_Radermacher():
-    dP = Jung_Radermacher(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
-    assert_allclose(dP, 552.068612372557)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Jung_Radermacher(**kwargs)
+    dP_expect = 552.068612372557
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Jung_Radermacher(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Tran():
-    dP = Tran(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
-    assert_allclose(dP, 423.2563312951231)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    dP = Tran(**kwargs)
+    dP_expect = 423.2563312951231
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Tran(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Chen_Friedel():
     dP = Chen_Friedel(m=.0005, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.003, roughness=0, L=1)
     assert_allclose(dP, 6249.247540588871)
 
-    dP = Chen_Friedel(m=.1, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.03, roughness=0, L=1)
-    assert_allclose(dP, 3541.7714973093725)
+    kwargs = dict(m=.1, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.03, roughness=0, L=1)
+    dP = Chen_Friedel(**kwargs)
+    dP_expect = 3541.7714973093725
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Chen_Friedel(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Zhang_Webb():
-    dP = Zhang_Webb(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000, D=0.05, roughness=0, L=1)
-    assert_allclose(dP, 712.0999804205619)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000, D=0.05, roughness=0, L=1)
+    dP = Zhang_Webb(**kwargs)
+    dP_expect = 712.0999804205619
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Zhang_Webb(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Bankoff():
-    dP = Bankoff(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
-    assert_allclose(dP, 4746.059442453398)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Bankoff(**kwargs)
+    dP_expect = 4746.059442453398
+    assert_allclose(dP, dP_expect)
 
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Bankoff(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 def test_Xu_Fang():
-    dP = Xu_Fang(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
-    assert_allclose(dP, 604.0595632116267)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    dP = Xu_Fang(**kwargs)
+    dP_expect = 604.0595632116267
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Xu_Fang(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 def test_Yu_France():
-    dP = Yu_France(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
-    assert_allclose(dP, 1146.983322553957)
+    kwargs = dict(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Yu_France(**kwargs)
+    dP_expect = 1146.983322553957
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Yu_France(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Wang_Chiang_Lu():
     dP = Wang_Chiang_Lu(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 448.29981978639154)
 
-    dP = Wang_Chiang_Lu(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
-    assert_allclose(dP, 3.3087255464765417)
+    kwargs = dict(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Wang_Chiang_Lu(**kwargs)
+    dP_expect = 3.3087255464765417
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Wang_Chiang_Lu(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Hwang_Kim():
-    dP = Hwang_Kim(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1)
-    assert_allclose(dP, 798.302774184557)
+    kwargs = dict(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1)
+    dP = Hwang_Kim(**kwargs)
+    dP_expect = 798.302774184557
+    assert_allclose(dP, dP_expect)
+    
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Hwang_Kim(**kwargs)
+    assert_allclose(dP, dP_expect*10)
+
 
 
 def test_Zhang_Hibiki_Mishima():
@@ -166,8 +278,15 @@ def test_Zhang_Hibiki_Mishima():
     dP = Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1, flowtype='adiabatic gas')
     assert_allclose(dP, 1109.1976111277042)
 
-    dP = Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1, flowtype='flow boiling')
-    assert_allclose(dP, 770.0975665928916)
+    kwargs = dict(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1, flowtype='flow boiling')
+    dP = Zhang_Hibiki_Mishima(**kwargs)
+    dP_expect = 770.0975665928916
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Zhang_Hibiki_Mishima(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
     with pytest.raises(Exception):
         Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1, flowtype='BADMETHOD')
@@ -191,9 +310,15 @@ def test_Kim_Mudawar():
     assert_allclose(dP, 0.005121833671658875)
 
     # Test friction Re < 20000
-    dP = Kim_Mudawar(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+    kwargs = dict(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+    dP = Kim_Mudawar(**kwargs)
+    dP_expect = 33.74875494223592
+    assert_allclose(dP, dP_expect)
 
-    assert_allclose(dP, 33.74875494223592)
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Kim_Mudawar(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Lockhart_Martinelli():
@@ -209,13 +334,27 @@ def test_Lockhart_Martinelli():
     assert_allclose(dP, 8.654579552636214e-06)
 
     # Gas laminar, liquid turbulent
-    dP = Lockhart_Martinelli(m=0.6, x=0.05, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=2, L=1)
-    assert_allclose(dP, 4.56627076018814e-06)
+    kwargs = dict(m=0.6, x=0.05, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=2, L=1)
+    dP = Lockhart_Martinelli(**kwargs)
+    dP_expect = 4.56627076018814e-06
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Lockhart_Martinelli(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 def test_Mishima_Hibiki():
-    dP = Mishima_Hibiki(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
-    assert_allclose(dP, 732.4268200606265)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    dP = Mishima_Hibiki(**kwargs)
+    dP_expect = 732.4268200606265
+    assert_allclose(dP, dP_expect)
+
+    # Internal consistency for length dependence
+    kwargs['L'] *= 10
+    dP = Mishima_Hibiki(**kwargs)
+    assert_allclose(dP, dP_expect*10)
 
 
 

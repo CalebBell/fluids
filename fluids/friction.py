@@ -21,10 +21,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import log, log10, exp, cos, sin, tan, pi
+from math import log, log10, exp, cos, sin, tan, pi, radians
 from scipy.special import lambertw
-from scipy.constants import inch
-from fluids.core import Dean
+from scipy.constants import inch, g
+from fluids.core import Dean, Reynolds
 
 try:
     from fuzzywuzzy import process, fuzz
@@ -34,7 +34,8 @@ except ImportError: # pragma: no cover
     fuzzy_match = lambda name, strings: difflib.get_close_matches(name, strings, n=1, cutoff=0)[0]
 
 __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 'Clamond',
-           'friction_laminar',
+           'friction_laminar', 'one_phase_dP', 'one_phase_dP_gravitational',
+           'one_phase_dP_dz_acceleration', 'one_phase_dP_acceleration',
            'transmission_factor', 'material_roughness', 
            'nearest_material_roughness', 'roughness_Farshad', 
            '_Farshad_roughness', '_roughness', 'HHR_roughness',
@@ -1693,7 +1694,7 @@ def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=Fal
     Re : float
         Reynolds number, [-]
     eD : float, optional
-        Relative roughness of the wall, []
+        Relative roughness of the wall, [-]
 
     Returns
     -------
@@ -3592,4 +3593,165 @@ def transmission_factor(fd=None, F=None):
         raise Exception('Either Darcy friction factor or transmission factor is needed')
 
 
+def one_phase_dP(m, rho, mu, D, roughness=0, L=1, Method=None):
+    r'''Calculates single-phase pressure drop. This is a wrapper
+    around other methods.
 
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    rho : float
+        Density of fluid, [kg/m^3]
+    mu : float
+        Viscosity of fluid, [Pa*s]
+    D : float
+        Diameter of pipe, [m]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+    Method : string, optional
+        A string of the function name to use
+
+    Returns
+    -------
+    dP : float
+        Pressure drop of the single-phase flow, [Pa]
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> one_phase_dP(10.0, 1000, 1E-5, .1, L=1)
+    63.43447321097365
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    D2 = D*D
+    V = m/(0.25*pi*D2*rho)
+#    print('V', V, 'rho', rho, 'mu', mu, 'D', D)
+    Re = Reynolds(V=V, rho=rho, mu=mu, D=D)
+    fd = friction_factor(Re=Re, eD=roughness/D, Method=Method)
+    dP = fd*L/D*(0.5*rho*V*V)
+#    print('fd', fd, 'dP', dP, 'V', V, 'Re', Re)
+    return dP
+
+
+def one_phase_dP_acceleration(m, D, rho_o, rho_i):
+    r'''This function handles calculation of one-phase fluid pressure drop
+    due to acceleration for flow inside channels. This is a discrete 
+    calculation, providing the total differential in pressure for a given lenth 
+    and should be called as part of a segment solver routine.
+    
+    .. math::
+        - \left(\frac{d P}{dz}\right)_{acc} = G^2 \frac{d}{dz} \left[\frac{
+        1}{\rho_o} - \frac{1}{\rho_i} \right]
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    D : float
+        Diameter of pipe, [m]
+    rho_o : float
+        Fluid density out, [kg/m^3]
+    rho_i : float
+        Fluid density int, [kg/m^3]
+        
+    Returns
+    -------
+    dP : float
+        Acceleration component of pressure drop for one-phase flow, [Pa]
+        
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> one_phase_dP_acceleration(m=1, D=0.1, rho_o=827.1, rho_i=830)
+    0.06848289670840459
+    '''
+    G = 4.0*m/(pi*D*D)
+    return G*G*(1.0/rho_o - 1.0/rho_i)
+
+
+def one_phase_dP_dz_acceleration(m, D, rho):
+    r'''This function handles calculation of one-phase fluid pressure drop
+    due to acceleration for flow inside channels. This is a continuous 
+    calculation, providing the differential in pressure per unit lenth and
+    should be called as part of an integration routine ([1]_, [2]_).
+    
+    .. math::
+        - \left(\frac{d P}{dz}\right)_{acc} = G^2 \frac{d}{dz} \left[\frac{
+        1}{\rho} \right]
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    D : float
+        Diameter of pipe, [m]
+    rho : float
+        Fluid density, [kg/m^3]
+
+    Returns
+    -------
+    dP_dz : float
+        Acceleration component of pressure drop for one-phase flow, [Pa/m]
+        
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> one_phase_dP_dz_acceleration(m=1, D=0.1, rho=827.1)
+    19.600277333785566
+    '''
+    G = 4.0*m/(pi*D*D)
+    return G*G*(1.0/rho)
+
+
+def one_phase_dP_gravitational(angle, rho, L=1.0, g=g):
+    r'''This function handles calculation of one-phase liquid-gas pressure drop
+    due to gravitation for flow inside channels. This is either a differential 
+    calculation for a segment with an infinitesimal difference in elevation (if
+    `L`=1 or a discrete calculation.
+    
+    .. math::
+        -\left(\frac{dP}{dz} \right)_{grav} =  \rho g \sin \theta
+    
+    .. math::
+        -\left(\Delta P \right)_{grav} =  L \rho g \sin \theta
+    
+    Parameters
+    ----------
+    angle : float
+        The angle of the pipe with respect to the horizontal, [degrees]
+    rho : float
+        Fluid density, [kg/m^3]
+    L : float, optional
+        Length of pipe, [m]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
+
+    Returns
+    -------
+    dP : float
+        Gravitational component of pressure drop for one-phase flow, [Pa/m] or
+        [Pa]
+        
+    Notes
+    -----
+        
+    Examples
+    --------    
+    >>> one_phase_dP_gravitational(angle=90, rho=2.6)
+    25.49729
+    '''
+    angle = radians(angle)
+    return L*g*sin(angle)*rho
