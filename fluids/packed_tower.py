@@ -369,7 +369,7 @@ def specific_area_mesh(voidage, d):
 
     Notes
     -----
-    Should be prefered over manufacturer data. Can also be used to show that
+    Should be preferred over manufacturer data. Can also be used to show that
     manufacturer's data is inconsistent with their claimed voidage and wire
     diameter.
 

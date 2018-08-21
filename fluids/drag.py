@@ -95,7 +95,7 @@ def Barati(Re):
 
     Examples
     --------
-    Maching example in [1]_, in a table of calculated values.
+    Matching example in [1]_, in a table of calculated values.
 
     >>> Barati(200.)
     0.7682237950389874
@@ -145,7 +145,7 @@ def Barati_high(Re):
 
     Examples
     --------
-    Maching example in [1]_, in a table of calculated values.
+    Matching example in [1]_, in a table of calculated values.
 
     >>> Barati_high(200.)
     0.7730544082789523

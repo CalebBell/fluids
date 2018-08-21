@@ -308,7 +308,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
       homogeneously distributed in a continuous liquid phase.
     * Heat transfer between the fluids is negligible - there is no change in
       density due to temperature changes
-    * The change in the solubility of a disolved gas, if there is one, is
+    * The change in the solubility of a dissolved gas, if there is one, is
       negigibly changed by temperature or pressure changes.
 
     The model can be derived from the equations in 
@@ -345,7 +345,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
     .. [2] Winoto S. H., Li H., and Shah D. A. "Efficiency of Jet Pumps." 
        Journal of Hydraulic Engineering 126, no. 2 (February 1, 2000): 150-56. 
        https://doi.org/10.1061/(ASCE)0733-9429(2000)126:2(150).
-    .. [3] Elmore, Emily, Khalid Al-Mutairi, Bilal Hussain, and A. Sherif
+    .. [3] Elmore, Emily, Khalid Al-Mutairi, Bilal Hussain, and A. Sheriff
        El-Gizawy. "Development of Analytical Model for Predicting Dual-Phase
        Ejector Performance," November 11, 2016, V007T09A013.
     .. [4] Ejectors and Jet Pumps. Design and Performance for Incompressible 

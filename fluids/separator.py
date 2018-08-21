@@ -252,7 +252,7 @@ def K_separator_demister_York(P, horizontal=False):
 def v_Sounders_Brown(K, rhol, rhog):
     r'''Calculates the maximum allowable vapor velocity in a two-phase 
     separator to permit separation between entrained droplets and the gas
-    using an emperical `K` factor, named after Sounders and Brown [1]_.
+    using an empirical `K` factor, named after Sounders and Brown [1]_.
     This is a simplifying expression for terminal velocity and drag on 
     particles.
     
