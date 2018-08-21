@@ -106,8 +106,8 @@ def Q_weir_V_Shen(h1, angle=90):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    C = Cs_Shen_i(angle)
-    k = k_Shen_i(angle)
+    C = float(Cs_Shen_i(angle))
+    k = float(k_Shen_i(angle))
     return C*tan(radians(angle)/2)*g**0.5*(h1 + k)**2.5
 
 

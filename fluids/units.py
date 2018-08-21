@@ -48,6 +48,15 @@ except ImportError: # pragma: no cover
 '''
 # is_critical_flow is broken
 
+def func_args(func):
+    '''Basic function which returns a tuple of arguments of a function or
+    method.
+    '''
+    try:
+        return tuple(inspect.signature(func).parameters)
+    except:
+        return tuple(inspect.getargspec(func).args)
+
 u.autoconvert_offset_to_baseunit = True
 
 
