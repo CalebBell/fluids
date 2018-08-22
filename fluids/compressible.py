@@ -67,6 +67,7 @@ def isothermal_work_compression(P1, P2, T, Z=1):
     .. math::
         W = \int_{P_1}^{P_2} V dP = zRT\int_{P_1}^{P_2} \frac{1}{P} dP
 
+    .. math::
         W = zRT\ln\left(\frac{P_2}{P_1}\right) = P_1 V_1 \ln\left(\frac{P_2}
         {P_1}\right) = P_2 V_2 \ln\left(\frac{P_2}{P_1}\right)
 
@@ -155,9 +156,11 @@ def isentropic_work_compression(T1, k, Z=1, P1=None, P2=None, W=None, eta=None):
     .. math::
         V = \frac{P_1^{1/k}V_1}{P^{1/k}}
 
+    .. math::
         W = \int_{P_1}^{P_2} V dP = \int_{P_1}^{P_2}\frac{P_1^{1/k}V_1}
         {P^{1/k}}dP
 
+    .. math::
         W = \frac{P_1^{1/k} V_1}{1 - \frac{1}{k}}\left[P_2^{1-1/k} -
         P_1^{1-1/k}\right]
 
@@ -271,6 +274,7 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
         \eta_s = \frac{(P_2/P_1)^{(k-1)/k}-1}
         {(P_2/P_1)^{\frac{k-1}{k\eta_p}}-1}
 
+    .. math::
         \eta_p = \frac{\left(k - 1\right) \log{\left (\frac{P_{2}}{P_{1}}
         \right )}}{k \log{\left (\frac{1}{\eta_{s}} \left(\eta_{s}
         + \left(\frac{P_{2}}{P_{1}}\right)^{\frac{1}{k} \left(k - 1\right)}
@@ -325,10 +329,11 @@ def polytropic_exponent(k, n=None, eta_p=None):
         * Polytropic efficiency from the polytropic exponent
 
     .. math::
-            n = \frac{k\eta_p}{1 - k(1-\eta_p)}
+        n = \frac{k\eta_p}{1 - k(1-\eta_p)}
 
-            \eta_p = \frac{\left(\frac{n}{n-1}\right)}{\left(\frac{k}{k-1}
-            \right)} = \frac{n(k-1)}{k(n-1)}
+    .. math::
+        \eta_p = \frac{\left(\frac{n}{n-1}\right)}{\left(\frac{k}{k-1}
+        \right)} = \frac{n(k-1)}{k(n-1)}
 
     Parameters
     ----------
@@ -759,8 +764,10 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
         +\text{ lambertW} \left(-{\frac {BP_1}{{m}^{2}}{{ e}^{-{\frac {-C{m}^{
         2}+BP_1}{{m}^{2}}}}}}\right){}{m}^{2}+BP_1 \right) }}} \right) ^{-1}}
 
+    .. math::
        B = \frac{\pi^2 D^4}{4^2} \rho_{avg}
 
+    .. math::
        C = f_d \frac{L}{D}
 
     A wide range of conditions are impossible due to choked flow. See

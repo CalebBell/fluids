@@ -400,6 +400,7 @@ def Flemmer_Banks(Re):
     .. math::
         C_D = \frac{24}{Re}10^E
 
+    .. math::
         E = 0.383Re^{0.356}-0.207Re^{0.396} - \frac{0.143}{1+(\log_{10} Re)^2}
 
     Parameters
@@ -854,12 +855,16 @@ def Almedeij(Re):
     .. math::
         C_D = \left[\frac{1}{(\phi_1 + \phi_2)^{-1} + (\phi_3)^{-1}} + \phi_4\right]^{0.1}
 
+    .. math::
         \phi_1 = (24Re^{-1})^{10} + (21Re^{-0.67})^{10} + (4Re^{-0.33})^{10} + 0.4^{10}
 
+    .. math::
         \phi_2 = \left[(0.148Re^{0.11})^{-10} + (0.5)^{-10}\right]^{-1}
 
+    .. math::
         \phi_3 = (1.57\times10^8Re^{-1.625})^{10}
 
+    .. math::
         \phi_4 = \left[(6\times10^{-17}Re^{2.63})^{-10} + (0.2)^{-10}\right]^{-1}
 
     Parameters
@@ -1296,11 +1301,14 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     .. math::
         V(t) = \frac{\exp(-at) (V_0 a + b(\exp(at) - 1))}{a}
         
+    .. math::
         x(t) = \frac{\exp(-a t)\left[V_0 a(\exp(a t) - 1) + b\exp(a t)(a t-1) 
         + b\right]}{a^2}
     
+    .. math::
         a = \frac{18\mu_f}{D^2\rho_p}
     
+    .. math::
         b = \frac{g(\rho_p-\rho_f)}{\rho_p}
         
     The analytical solution will automatically be used if the initial and 

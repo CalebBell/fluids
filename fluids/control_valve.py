@@ -155,6 +155,7 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
     .. math::
         P_1 = \frac{F_{F} F_{L}^{2} P_{sat} - P_{2}}{F_{L}^{2} - 1}
         
+    .. math::
         P_2 = F_{F} F_{L}^{2} P_{sat} - F_{L}^{2} P_{1} + P_{1}
     
     Parameters
@@ -216,6 +217,7 @@ def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
     .. math::
         P_1 = - \frac{7 P_{2}}{5 \gamma x_T - 7}
         
+    .. math::
         P_2 = \frac{P_{1}}{7} \left(- 5 \gamma x_T + 7\right)
     
     Parameters
@@ -264,6 +266,7 @@ def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
     .. math::
         \Delta P > F_L^2(P_1 - F_F P_{sat})
 
+    .. math::
         \Delta P >= \left(\frac{F_{LP}}{F_P}\right)^2(P_1 - F_F P_{sat})
 
     Parameters
@@ -316,6 +319,7 @@ def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
     .. math::
         x \ge F_\gamma x_T
 
+    .. math::
         x \ge F_\gamma x_{TP}
 
     Parameters
@@ -408,12 +412,16 @@ def loss_coefficient_piping(d, D1=None, D2=None):
     .. math::
         \Sigma \xi = \xi_1 + \xi_2 + \xi_{B1} - \xi_{B2}
 
+    .. math::
         \xi_1 = 0.5\left[1 -\left(\frac{d}{D_1}\right)^2\right]^2
 
+    .. math::
         \xi_2 = 1.0\left[1 -\left(\frac{d}{D_2}\right)^2\right]^2
 
+    .. math::
         \xi_{B1} = 1 - \left(\frac{d}{D_1}\right)^4
 
+    .. math::
         \xi_{B2} = 1 - \left(\frac{d}{D_2}\right)^4
 
     Parameters
@@ -464,10 +472,13 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
         F_{R,1a} = 1 + \left(\frac{0.33F_L^{0.5}}{n_1^{0.25}}\right)\log_{10}
         \left(\frac{Re_v}{10000}\right)
 
+    .. math::
         F_{R,2} = \min(\frac{0.026}{F_L}\sqrt{n_1 Re_v},\; 1)
 
+    .. math::
         n_1 = \frac{N_2}{\left(\frac{C}{d^2}\right)^2}
 
+    .. math::
         F_R = F_{R,2} \text{ if Rev < 10 else } \min(F_{R,1a}, F_{R,2})
 
     Otherwise :
@@ -476,10 +487,13 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
         F_{R,3a} = 1 + \left(\frac{0.33F_L^{0.5}}{n_2^{0.25}}\right)\log_{10}
         \left(\frac{Re_v}{10000}\right)
 
+    .. math::
         F_{R,4} = \frac{0.026}{F_L}\sqrt{n_2 Re_v}
 
+    .. math::
         n_2 = 1 + N_{32}\left(\frac{C}{d}\right)^{2/3}
 
+    .. math::
         F_R = F_{R,4} \text{ if Rev < 10 else } \min(F_{R,3a}, F_{R,4})
 
     Parameters

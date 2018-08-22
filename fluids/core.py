@@ -427,6 +427,7 @@ def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
         Gz = \frac{\text{Time for radial heat diffusion in a fluid by conduction}}
         {\text{Time taken by fluid to reach distance x}}
 
+    .. math::
         Gz = \frac{D}{x}RePr
 
     An error is raised if none of the required input sets are provided.
@@ -2162,6 +2163,7 @@ def nu_mu_converter(rho, mu=None, nu=None):
     .. math::
         \nu = \frac{\mu}{\rho}
 
+    .. math::
         \mu = \nu\rho
 
     Parameters
