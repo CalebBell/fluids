@@ -1203,15 +1203,20 @@ def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     .. math::
         \Delta P = \Delta P_{lo} \phi_{lo}^2
 
+    .. math::
         \phi_{lo}^2 = Y^2x^3 + (1-x^{2.59})^{0.632}[1 + 2x^{1.17}(Y^2-1)
         + 0.00775x^{-0.475} Fr_{tp}^{0.535} We_{tp}^{0.188}]
 
+    .. math::
         Y^2 = \frac{\Delta P_{go}}{\Delta P_{lo}}
 
+    .. math::
         Fr_{tp} = \frac{G_{tp}^2}{gD\rho_{tp}^2}
 
+    .. math::
         We_{tp} = \frac{G_{tp}^2 D}{\sigma \rho_{tp}}
 
+    .. math::
         \frac{1}{\rho_{tp}} = \frac{1-x}{\rho_l} + \frac{x}{\rho_g}
 
     Parameters
@@ -1295,8 +1300,10 @@ def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     .. math::
         \Delta P = \Delta P_{l} \phi_{l}^2
 
+    .. math::
         \phi_l^2 = X^{-1.9}
 
+    .. math::
         X = 18.65\left(\frac{\rho_g}{\rho_l}\right)^{0.5}\left(\frac{1-x}{x}
         \right)\frac{Re_{g}^{0.1}}{Re_l^{0.5}}
 
@@ -1373,13 +1380,17 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     .. math::
         \Delta P = \Delta P_{g} \phi_g^2
 
+    .. math::
         \phi_g^2 = 1 + 9.397X^{0.62} + 0.564X^{2.45} \text{ for } G >= 200 kg/m^2/s
 
+    .. math::
         \phi_g^2 = 1 + CX + X^2 \text{ for lower mass fluxes}
 
+    .. math::
         C = 0.000004566X^{0.128}Re_{lo}^{0.938}\left(\frac{\rho_l}{\rho_g}
         \right)^{-2.15}\left(\frac{\mu_l}{\mu_g}\right)^{5.1}
 
+    .. math::
         X^2 = \frac{\Delta P_l}{\Delta P_g}
 
     Parameters
@@ -1467,10 +1478,13 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     .. math::
         \Delta P = \Delta P_{l} \phi_{l}^2
 
+    .. math::
         C = 0.227 Re_{lo}^{0.452} X^{-0.32} Co^{-0.82}
 
+    .. math::
         \phi_l^2 = 1 + \frac{C}{X} + \frac{1}{X^2}
 
+    .. math::
         X^2 = \frac{\Delta P_l}{\Delta P_g}
 
     Parameters
@@ -1560,8 +1574,10 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0,
     .. math::
         \Delta P = \Delta P_{l} \phi_{l}^2
 
+    .. math::
         \phi_l^2 = 1 + \frac{C}{X} + \frac{1}{X^2}
 
+    .. math::
         X^2 = \frac{\Delta P_l}{\Delta P_g}
 
     For adiabatic liquid-vapor two-phase flow:
@@ -1672,10 +1688,13 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     .. math::
         \Delta P = \Delta P_{l} \phi_{l}^2
 
+    .. math::
         C = 21[1 - \exp(-319D)]
 
+    .. math::
         \phi_l^2 = 1 + \frac{C}{X} + \frac{1}{X^2}
 
+    .. math::
         X^2 = \frac{\Delta P_l}{\Delta P_g}
 
     Parameters
@@ -1757,8 +1776,10 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1):
     .. math::
         \Delta P = \Delta P_{l} \phi_{l}^2
 
+    .. math::
         \phi_l^2 = 1 + \frac{C}{X} + \frac{1}{X^2}
 
+    .. math::
         X^2 = \frac{\Delta P_l}{\Delta P_g}
 
     For turbulent liquid, turbulent gas:
@@ -1903,8 +1924,10 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
     .. math::
         \Delta P = \Delta P_{l} \phi_{l}^2
 
+    .. math::
         \phi_l^2 = 1 + \frac{C}{X} + \frac{1}{X^2}
 
+    .. math::
         X^2 = \frac{\Delta P_l}{\Delta P_g}
 
     +---------+---------+--+

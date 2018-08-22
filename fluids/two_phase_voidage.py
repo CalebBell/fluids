@@ -707,6 +707,7 @@ def Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug, pow_x=0.9, pow_rho=0.5,
         X_{tt} = \left(\frac{1-x}{x}\right)^{0.9} \left(\frac{\rho_g}{\rho_l}
         \right)^{0.5}\left(\frac{\mu_l}{\mu_g}\right)^{0.1}
         
+    .. math::
         X_{tt} = \left(\frac{1-x}{x}\right)^{(2-n)/2} \left(\frac{\rho_g}
         {\rho_l}\right)^{0.5}\left(\frac{\mu_l}{\mu_g}\right)^{n/2}
         
@@ -914,6 +915,7 @@ def Harms(x, rhol, rhog, mul, mug, m, D):
         \alpha = \left[1 - 10.06Re_l^{-0.875}(1.74 + 0.104Re_l^{0.5})^2
         \left(1.376 + \frac{7.242}{X_{tt}^{1.655}}\right)^{-0.5}\right]^2
         
+    .. math::
         Re_l = \frac{G_{tp}(1-x)D}{\mu_l}
 
     Parameters
@@ -1043,8 +1045,10 @@ def Graham(x, rhol, rhog, mul, mug, m, D, g=g):
     .. math::
         \alpha = 1 - \exp\{-1 - 0.3\ln(Ft) - 0.0328[\ln(Ft)]^2\}
         
+    .. math::
         Ft = \left[\frac{G_{tp}^2 x^3}{(1-x)\rho_g^2gD}\right]^{0.5}
         
+    .. math::
         \alpha = 0 \text{ for } F_t \le 0.01032
         
     Parameters
@@ -1111,6 +1115,7 @@ def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
     .. math::
         \alpha = \left[1 + \frac{1}{Ft} + X_{tt}\right]^{-0.321}
         
+    .. math::
         Ft = \left[\frac{G_{tp}^2 x^3}{(1-x)\rho_g^2gD}\right]^{0.5}
                 
     Parameters
@@ -1231,8 +1236,10 @@ def Kopte_Newell_Chato(x, rhol, rhog, mul, mug, m, D, g=g):
         \alpha = 1.045 - \exp\{-1 - 0.342\ln(Ft) - 0.0268[\ln(Ft)]^2 
         + 0.00597[\ln(Ft)]^3\}
         
+    .. math::
         Ft = \left[\frac{G_{tp}^2 x^3}{(1-x)\rho_g^2gD}\right]^{0.5}
         
+    .. math::
         \alpha = \alpha_h \text{ for } F_t \le 0.044
         
     Parameters
@@ -1297,8 +1304,10 @@ def Steiner(x, rhol, rhog, sigma, m, D, g=g):
         \alpha = \frac{x}{\rho_g}\left[C_0\left(\frac{x}{\rho_g} + \frac{1-x}
         {\rho_l}\right) +\frac{v_{gm}}{G} \right]^{-1}
         
+    .. math::
         v_{gm} = \frac{1.18(1-x)}{\rho_l^{0.5}}[g\sigma(\rho_l-\rho_g)]^{0.25}
 
+    .. math::
         C_0 = 1 + 0.12(1-x)
         
     Parameters
@@ -1359,8 +1368,10 @@ def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
         \alpha = \frac{x}{\rho_g}\left[C_0\left(\frac{x}{\rho_g} + \frac{1-x}
         {\rho_l}\right) +\frac{v_{gm}}{G} \right]^{-1}
         
+    .. math::
         v_{gm} = \frac{1.18(1-x)}{\rho_l^{0.5}}[g\sigma(\rho_l-\rho_g)]^{0.25}
 
+    .. math::
         C_0 = 1 + 0.2(1-x)
         
     Parameters
@@ -1422,8 +1433,10 @@ def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
         \alpha = \frac{x}{\rho_g}\left[C_0\left(\frac{x}{\rho_g} + \frac{1-x}
         {\rho_l}\right) +\frac{v_{gm}}{G} \right]^{-1}
         
+    .. math::
         v_{gm} = \frac{1.18(1-x)}{\rho_l^{0.5}}[g\sigma(\rho_l-\rho_g)]^{0.25}
 
+    .. math::
         C_0 = 1 + 0.2(1-x)(gD)^{0.25}\left(\frac{\rho_l}{G_{tp}}\right)^{0.5}
         
     Parameters
@@ -1485,8 +1498,10 @@ def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
         \alpha = \frac{x}{\rho_g}\left[C_0\left(\frac{x}{\rho_g} + \frac{1-x}
         {\rho_l}\right) +\frac{v_{gm}}{G} \right]^{-1}
         
+    .. math::
         v_{gm} = 0.35\sqrt{gD}
 
+    .. math::
         C_0 = 1.2
         
     Parameters
@@ -1543,8 +1558,10 @@ def Gregory_Scott(x, rhol, rhog):
         \alpha = \frac{x}{\rho_g}\left[C_0\left(\frac{x}{\rho_g} + \frac{1-x}
         {\rho_l}\right) +\frac{v_{gm}}{G} \right]^{-1}
         
+    .. math::
         v_{gm} = 0
 
+    .. math::
         C_0 = 1.19
         
     Parameters
@@ -1595,15 +1612,20 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
         \alpha = \frac{x}{\rho_g}\left[C_0\left(\frac{x}{\rho_g} + \frac{1-x}
         {\rho_l}\right) +\frac{v_{gm}}{G} \right]^{-1}
         
+    .. math::
         v_{gm} = 2.9\left(g\sigma\frac{\rho_l-\rho_g}{\rho_l^2}\right)^{0.25}
 
+    .. math::
         C_0 = \frac{v_{sg}}{v_m}\left[1 + \left(\frac{v_{sl}}{v_{sg}}\right)
         ^{\left(\left(\frac{\rho_g}{\rho_l}\right)^{0.1}\right)}\right]
 
+    .. math::
         v_{gs} = \frac{mx}{\rho_g \frac{\pi}{4}D^2}
         
+    .. math::
         v_{ls} = \frac{m(1-x)}{\rho_l \frac{\pi}{4}D^2}
         
+    .. math::
         v_m = v_{gs} + v_{ls}
         
     Parameters
@@ -1666,8 +1688,10 @@ def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
         \alpha = \frac{x}{\rho_g}\left[C_0\left(\frac{x}{\rho_g} + \frac{1-x}
         {\rho_l}\right) +\frac{v_{gm}}{G} \right]^{-1}
         
+    .. math::
         v_{gm} = 1.41\left[\frac{g\sigma(\rho_l-\rho_g)}{\rho_l^2}\right]^{0.25}
         
+    .. math::
         C_0 = \left(0.82 + 0.18\frac{P}{P_c}\right)^{-1}
         
     Parameters
@@ -1789,8 +1813,10 @@ def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
         + 2.9\left[\frac{gD\sigma(1+\cos\theta)(\rho_l-\rho_g)}
         {\rho_l^2}\right]^{0.25}(1.22 + 1.22\sin\theta)^{\frac{P}{P_{atm}}}}
         
+    .. math::
         v_{gs} = \frac{mx}{\rho_g \frac{\pi}{4}D^2}
         
+    .. math::
         v_{ls} = \frac{m(1-x)}{\rho_l \frac{\pi}{4}D^2}
         
         
@@ -2067,6 +2093,7 @@ def Beattie_Whalley(x, mul, mug, rhol, rhog):
     .. math::
         \mu_m = \mu_l(1-\alpha_m)(1 + 2.5\alpha_m) + \mu_g\alpha_m
         
+    .. math::
         \alpha_m = \frac{1}{1 + \left(\frac{1-x}{x}\right)\frac{\rho_g}{\rho_l}}
         \text{(homogeneous model)}
 
