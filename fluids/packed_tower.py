@@ -401,8 +401,10 @@ def Stichlmair_dry(Vg, rhog, mug, voidage, specific_area, C1, C2, C3, H=1.):
         \Delta P_{dry} = \frac{3}{4} f_0 \frac{1-\epsilon}{\epsilon^{4.65}}
         \rho_G \frac{H}{d_p}V_g^2
 
+    .. math::
         f_0 = \frac{C_1}{Re_g} + \frac{C_2}{Re_g^{0.5}} + C_3
 
+    .. math::
         d_p = \frac{6(1-\epsilon)}{a}
 
     Parameters
@@ -468,19 +470,26 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
         {1-\epsilon + h_T}{1-\epsilon}\right)^{(2+c)/3}
         \left(\frac{\epsilon}{\epsilon-h_T}\right)^{4.65}
 
+    .. math::
         h_T = h_0\left[1 + 20\left(\frac{\Delta Pirr}{H\rho_L g}\right)^2\right]
 
+    .. math::
         Fr_L = \frac{V_L^2 a}{g \epsilon^{4.65}}
 
+    .. math::
         h_0 = 0.555 Fr_L^{1/3}
 
+    .. math::
         c = \frac{-C_1/Re_g - C_2/(2Re_g^{0.5})}{f_0}
 
+    .. math::
         \Delta P_{dry} = \frac{3}{4} f_0 \frac{1-\epsilon}{\epsilon^{4.65}}
         \rho_G \frac{H}{d_p}V_g^2
 
+    .. math::
         f_0 = \frac{C_1}{Re_g} + \frac{C_2}{Re_g^{0.5}} + C_3
 
+    .. math::
         d_p = \frac{6(1-\epsilon)}{a}
 
     Parameters
@@ -567,19 +576,26 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
         {1-\epsilon + h_T}{1-\epsilon}\right)^{(2+c)/3}
         \left(\frac{\epsilon}{\epsilon-h_T}\right)^{4.65}
 
+    .. math::
         h_T = h_0\left[1 + 20\left(\frac{\Delta Pirr}{H\rho_L g}\right)^2\right]
 
+    .. math::
         Fr_L = \frac{V_L^2 a}{g \epsilon^{4.65}}
 
+    .. math::
         h_0 = 0.555 Fr_L^{1/3}
 
+    .. math::
         c = \frac{-C_1/Re_g - C_2/(2Re_g^{0.5})}{f_0}
 
+    .. math::
         \Delta P_{dry} = \frac{3}{4} f_0 \frac{1-\epsilon}{\epsilon^{4.65}}
         \rho_G \frac{H}{d_p}V_g^2
 
+    .. math::
         f_0 = \frac{C_1}{Re_g} + \frac{C_2}{Re_g^{0.5}} + C_3
 
+    .. math::
         d_p = \frac{6(1-\epsilon)}{a}
 
     Parameters
@@ -659,10 +675,13 @@ def Robbins(L, G, rhol, rhog, mul, H=1, Fpd=24):
     .. math::
         \Delta P = C_3 G_f^2 10^{C_4L_f}+0.4[L_f/20000]^{0.1}[C_3G_f^210^{C_4L_f}]^4
 
+    .. math::
         G_f=G[0.075/\rho_g]^{0.5}[F_{pd}/20]^{0.5}=986F_s[F_{pd}/20]^{0.5}
 
+    .. math::
         L_f=L[62.4/\rho_L][F_{pd}/20]^{0.5}\mu^{0.1}
 
+    .. math::
         F_s=V_s\rho_g^{0.5}
 
     Parameters

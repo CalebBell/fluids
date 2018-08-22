@@ -45,12 +45,16 @@ def agitator_time_homogeneous(N, P, T, H, mu, rho, D=None, homogeneity=.95):
     .. math::
         N_p = \frac{Pg}{\rho N^3 D^5}
 
+    .. math::
         Re_{imp} = \frac{\rho D^2 N}{\mu}
 
+    .. math::
         \text{constant} = N_p^{1/3} Re_{imp}
 
+    .. math::
         Fo = 5.2/\text{constant} \text{for turbulent regime}
 
+    .. math::
         Fo = (183/\text{constant})^2 \text{for transition regime}
 
     Parameters

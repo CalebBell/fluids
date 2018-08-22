@@ -44,19 +44,26 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     .. math::
         \Delta P_{friction} = \Delta P_{lo} \phi_{lo}^2
 
+    .. math::
         \phi_{lo}^2 = E + \frac{3.24FH}{Fr^{0.0454} We^{0.035}}
 
+    .. math::
         H = \left(\frac{\rho_l}{\rho_g}\right)^{0.91}\left(\frac{\mu_g}{\mu_l}
         \right)^{0.19}\left(1 - \frac{\mu_g}{\mu_l}\right)^{0.7}
 
+    .. math::
         F = x^{0.78}(1 - x)^{0.224}
 
+    .. math::
         E = (1-x)^2 + x^2\left(\frac{\rho_l f_{d,go}}{\rho_g f_{d,lo}}\right)
 
+    .. math::
         Fr = \frac{G_{tp}^2}{gD\rho_H^2}
 
+    .. math::
         We = \frac{G_{tp}^2 D}{\sigma \rho_H}
 
+    .. math::
         \rho_H = \left(\frac{x}{\rho_g} + \frac{1-x}{\rho_l}\right)^{-1}
 
     Parameters
@@ -161,15 +168,19 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     .. math::
         \Delta P_{friction} = \Delta P_{gd} \phi_{lo}^2
 
+    .. math::
         \phi_{gd} = 1 + \left(\frac{dP}{dL}\right)_{Fr}\left[
         \frac{\frac{\rho_l}{\rho_g}}{\left(\frac{\mu_l}{\mu_g}\right)^{0.25}}
         -1\right]
 
+    .. math::
         \left(\frac{dP}{dL}\right)_{Fr} = f_{Fr}\left[x+4(x^{1.8}-x^{10}
         f_{Fr}^{0.5})\right]
 
+    .. math::
         f_{Fr} = Fr_l^{0.3} + 0.0055\left(\ln \frac{1}{Fr_l}\right)^2
 
+    .. math::
         Fr_l = \frac{G_{tp}^2}{gD\rho_l^2}
 
     Parameters
@@ -250,9 +261,11 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1,
     .. math::
         \frac{\Delta P_{tp}}{\Delta P_{lo}} = \phi_{ch}^2
 
+    .. math::
         \phi_{ch}^2 = 1 + (\Gamma^2 -1)\left\{B x^{(2-n)/2} (1-x)^{(2-n)/2}
         + x^{2-n} \right\}
 
+    .. math::
         \Gamma ^2 = \frac{\left(\frac{\Delta P}{L}\right)_{go}}{\left(\frac{
         \Delta P}{L}\right)_{lo}}
 
@@ -261,8 +274,10 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1,
     .. math::
         B = \frac{55}{G_{tp}^{0.5}} \text{ for } G_{tp} > 1900
 
+    .. math::
         B = \frac{2400}{G_{tp}} \text{ for } 500 < G_{tp} < 1900
 
+    .. math::
         B = 4.8 \text{ for } G_{tp} < 500
 
     For 9.5 < Gamma < 28:
@@ -270,6 +285,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1,
     .. math::
         B = \frac{520}{\Gamma G_{tp}^{0.5}} \text{ for } G_{tp} < 600
 
+    .. math::
         B = \frac{21}{\Gamma} \text{ for } G_{tp} > 600
 
     For Gamma > 28:
@@ -284,6 +300,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1,
         {\mu_l}\right)^2 + 10^{-600\epsilon/D}\right\}\right]^{\frac{0.25-n}
         {0.25}}
 
+    .. math::
         n = \frac{\log \frac{f_{d,lo}}{f_{d,go}}}{\log \frac{Re_{go}}{Re_{lo}}}
 
     Parameters
@@ -391,9 +408,11 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     .. math::
         \frac{\Delta P_{tp}}{\Delta P_{lo}} = \phi_{ch}^2
 
+    .. math::
         \phi_{ch}^2 = 1 + (\Gamma^2 -1)\left\{B x^{(2-n)/2} (1-x)^{(2-n)/2}
         + x^{2-n} \right\}
 
+    .. math::
         \Gamma ^2 = \frac{\left(\frac{\Delta P}{L}\right)_{go}}{\left(\frac{
         \Delta P}{L}\right)_{lo}}
 
@@ -493,6 +512,7 @@ def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     .. math::
         \Delta P_{tp} = G_{MSH}(1-x)^{1/3} + \Delta P_{go}x^3
 
+    .. math::
         G_{MSH} = \Delta P_{lo} + 2\left[\Delta P_{go} - \Delta P_{lo}\right]x
 
     Parameters
@@ -630,17 +650,21 @@ def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
         x} \right)^{{1/\epsilon}} + \Delta P_{{go}}^{{1/
         {(n\epsilon)}}} x^{{1/\epsilon}}} \right]^{n\epsilon}
 
+    .. math::
         \epsilon = 3 - 2\left({\frac{{2\sqrt {{{\rho_{{l}}}/
         {\rho_{{g}}}}}}}{{1 + {{\rho_{{l}}}/{\rho_{{g}}}}}}}
         \right)^{{{0.7}/n}}
 
+    .. math::
         n = \frac{{n_1 + n_2 \left({{{\Delta P_{{g}}}/{\Delta
         P_{{l}}}}} \right)^{0.1}}}{{1 + \left({{{\Delta P_{{g}}} /
         {\Delta P_{{l}}}}} \right)^{0.1}}}
 
+    .. math::
         n_1 = \frac{{\ln \left({{{\Delta P_{{l}}}/
         {\Delta P_{{lo}}}}} \right)}}{{\ln \left({1 - x} \right)}}
 
+    .. math::
         n_2 = \frac{\ln \left({\Delta P_{{g}} / \Delta P_{{go}}}
         \right)}{{\ln x}}
 
@@ -743,6 +767,7 @@ def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     .. math::
         \frac{\Delta P_{tp}}{\Delta P_{lo}} = \phi_{tp}^2
 
+    .. math::
         \phi_{tp}^2 = 12.82X_{tt}^{-1.47}(1-x)^{1.8}
 
     Parameters
@@ -815,9 +840,11 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     .. math::
         \Delta P = dP_{lo} \phi_{lo}^2
 
+    .. math::
         \phi_{lo}^2 = 1 + (4.3\Gamma^2-1)[\text{Co} \cdot x^{0.875}
         (1-x)^{0.875}+x^{1.75}]
 
+    .. math::
         \Gamma ^2 = \frac{\left(\frac{\Delta P}{L}\right)_{go}}{\left(\frac
         {\Delta P}{L}\right)_{lo}}
 
@@ -1097,10 +1124,12 @@ def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     .. math::
         \Delta P_{tp} = \phi_{l}^{7/4} \Delta P_{l}
 
+    .. math::
         \phi_l = \frac{1}{1-x}\left[1 - \gamma\left(1 - \frac{\rho_g}{\rho_l}
         \right)\right]^{3/7}\left[1 + x\left(\frac{\rho_l}{\rho_g} - 1\right)
         \right]
 
+    .. math::
         \gamma = \frac{0.71 + 2.35\left(\frac{\rho_g}{\rho_l}\right)}
         {1 + \frac{1-x}{x} \cdot \frac{\rho_g}{\rho_l}}
 

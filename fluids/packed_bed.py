@@ -56,8 +56,10 @@ def Ergun(dp, voidage, vs, rho, mu, L=1):
         f_p = \left(150 + 1.75\left(\frac{Re}{1-\epsilon}\right)\right)
         \frac{(1-\epsilon)^2}{\epsilon^3 Re}
 
+    .. math::
         f_p = \frac{\Delta P d_p}{\rho v_s^2 L}
 
+    .. math::
         Re = \frac{\rho v_s  d_p}{\mu}
 
     Parameters
@@ -120,8 +122,10 @@ def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1):
         f_p = \left(276.23 + 5.05\left(\frac{Re}{1-\epsilon}\right)^{0.87}
         \right)\frac{(1-\epsilon)^2}{\epsilon^3 Re}
 
+    .. math::
         f_p = \frac{\Delta P d_p}{\rho v_s^2 L}
 
+    .. math::
         Re = \frac{\rho v_s  d_p}{\mu}
 
     Parameters
@@ -183,8 +187,10 @@ def Jones_Krier(dp, voidage, vs, rho, mu, L=1):
         f_p = \left(150 + 3.89\left(\frac{Re}{1-\epsilon}\right)^{0.87}\right)
         \frac{(1-\epsilon)^2}{\epsilon^3 Re}
 
+    .. math::
         f_p = \frac{\Delta P d_p}{\rho v_s^2 L}
 
+    .. math::
         Re = \frac{\rho v_s  d_p}{\mu}
 
     Parameters
@@ -243,8 +249,10 @@ def Carman(dp, voidage, vs, rho, mu, L=1):
         f_p = \left(180 + 2.871\left(\frac{Re}{1-\epsilon}\right)^{0.9}\right)
         \frac{(1-\epsilon)^2}{\epsilon^3 Re}
 
+    .. math::
         f_p = \frac{\Delta P d_p}{\rho v_s^2 L}
 
+    .. math::
         Re = \frac{\rho v_s  d_p}{\mu}
 
     Parameters
@@ -303,8 +311,10 @@ def Hicks(dp, voidage, vs, rho, mu, L=1):
     .. math::
         f_p = 6.8 \frac{(1-\epsilon)^{1.2}}{Re^{0.2}\epsilon^3}
 
+    .. math::
         f_p = \frac{\Delta P d_p}{\rho v_s^2 L}
 
+    .. math::
         Re = \frac{\rho v_s  d_p}{\mu}
 
     Parameters
@@ -365,8 +375,10 @@ def Brauer(dp, voidage, vs, rho, mu, L=1):
         f_p = \left(160 + 3\left(\frac{Re}{1-\epsilon}\right)^{0.9}\right)
         \frac{(1-\epsilon)^2}{\epsilon^3 Re}
 
+    .. math::
         f_p = \frac{\Delta P d_p}{\rho v_s^2 L}
 
+    .. math::
         Re = \frac{\rho v_s  d_p}{\mu}
 
     Parameters
@@ -427,8 +439,10 @@ def KTA(dp, voidage, vs, rho, mu, L=1):
         f_p = \left(160 + 3\left(\frac{Re}{1-\epsilon}\right)^{0.9}\right)
         \frac{(1-\epsilon)^2}{\epsilon^3 Re}
 
+    .. math::
         f_p = \frac{\Delta P d_p}{\rho v_s^2 L}
 
+    .. math::
         Re= \frac{\rho v_s  d_p}{\mu}
 
     Parameters
@@ -486,8 +500,10 @@ def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1):
     .. math::
         f_v = 160 + 2.81Re_{Erg}^{0.904}
 
+    .. math::
         f_v = \frac{\Delta P d_p^2}{\mu v_s L}\frac{\epsilon^3}{(1-\epsilon)^2}
 
+    .. math::
         Re_{Erg} = \frac{\rho v_s  d_p}{\mu(1-\epsilon)}
 
     Parameters
@@ -545,16 +561,22 @@ def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1):
         f_p = \left(q\frac{f_{1L}}{Re_{Erg}} + (1-q)\left(f_2 + \frac{f_{1T}}
         {Re_{Erg}}\right)\right)\frac{1-\epsilon}{\epsilon^3}
 
+    .. math::
         q = \exp\left(-\frac{\epsilon^2(1-\epsilon)}{12.6}Re_{Erg}\right)
 
+    .. math::
         f_{1L}=\frac{136}{(1-\epsilon)^{0.38}}
 
+    .. math::
         f_{1T} = \frac{29}{(1-\epsilon)^{1.45}\epsilon^2}
 
+    .. math::
         f_2 = \frac{1.87\epsilon^{0.75}}{(1-\epsilon)^{0.26}}
 
+    .. math::
         f_p = \frac{\Delta P d_p}{\rho v_s^2 L}
 
+    .. math::
         Re_{Erg} = \frac{\rho v_s  d_p}{\mu(1-\epsilon)}
 
     Parameters
@@ -613,8 +635,10 @@ def Idelchik(dp, voidage, vs, rho, mu, L=1):
         \frac{\Delta P}{L\rho v_s^2} d_p  = \frac{0.765}{\epsilon^{4.2}}
         \left(\frac{30}{Re_l} + \frac{3}{Re_l^{0.7}} + 0.3\right)
 
+    .. math::
         Re_l = (0.45/\epsilon^{0.5})Re_{Erg}
 
+    .. math::
         Re_{Erg} = \frac{\rho v_s  D_p}{\mu(1-\epsilon)}
 
     Parameters
@@ -675,12 +699,16 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
         f_p = \left(119.8A + 4.63B\left(\frac{Re}{1-\epsilon}\right)^{5/6}
         \right)\frac{(1-\epsilon)^2}{\epsilon^3 Re}
 
+    .. math::
         A = \left(1 + \pi \frac{d_p}{6(1-\epsilon)D_t}\right)^2
 
+    .. math::
         B = 1 - \frac{\pi^2 d_p}{24D_t}\left(1 - \frac{0.5d_p}{D_t}\right)
 
+    .. math::
         f_p = \frac{\Delta P d_p}{\rho v_s^2 L}
 
+    .. math::
         Re = \frac{\rho v_s  d_p}{\mu}
 
     Parameters
@@ -748,6 +776,7 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
         = a\left(\frac{D_c}{D_p}\right)^{0.20}
         \left(\frac{1000}{Re_{p}} + \frac{60}{Re_{p}^{0.5}} + 12 \right)
 
+    .. math::
         Re_{p} = \frac{\rho v_s  D_p}{\mu}
 
     Parameters
@@ -823,8 +852,10 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1):
     .. math::
         f_v = 180 + \left(9.5374\frac{d_p}{D_t} - 2.8054\right)Re_{Erg}^{0.97}
         
+    .. math::
         f_v = \frac{\Delta P d_p^2}{\mu v_s L}\frac{\epsilon^3}{(1-\epsilon)^2}
 
+    .. math::
         Re_{Erg} = \frac{\rho v_s  d_p}{\mu(1-\epsilon)}
 
     Parameters

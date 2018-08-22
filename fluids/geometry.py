@@ -63,6 +63,7 @@ def SA_partial_sphere(D, h):
     .. math::
         a = \sqrt{h(2r - h)}
 
+    .. math::
         A = \pi(a^2 + h^2)
 
     Parameters
@@ -100,6 +101,7 @@ def V_partial_sphere(D, h):
     .. math::
         a = \sqrt{h(2r - h)}
 
+    .. math::
         V = 1/6 \pi h(3a^2 + h^2)
 
     Parameters
@@ -162,14 +164,19 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     .. math::
         V_f = A_fL + \frac{2aR^2}{3}K, \;\;0 \le h < R\\
 
+    .. math::
         V_f = A_fL + \frac{2aR^2}{3}\pi/2,\;\; h = R\\
 
+    .. math::
         V_f = A_fL + \frac{2aR^2}{3}(\pi-K), \;\; R< h \le 2R
 
+    .. math::
         K = \cos^{-1} M + M^3\cosh^{-1} \frac{1}{M} - 2M\sqrt{1 - M^2}
 
+    .. math::
         M = \left|\frac{R-h}{R}\right|
 
+    .. math::
         Af = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
 
     Parameters
@@ -225,6 +232,7 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
     .. math::
         V_f = A_fL + \pi a h^2\left(1 - \frac{h}{3R}\right)
 
+    .. math::
         Af = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
 
     Parameters
@@ -273,6 +281,7 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
         V_f = A_fL + \frac{2aR^2}{3}\cos^{-1}\left(1 - \frac{h}{R}\right)
         +\frac{2a}{9R}\sqrt{2Rh - h^2}(2h-3R)(h+R)
 
+    .. math::
         Af = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
 
     Parameters
@@ -320,11 +329,14 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     .. math::
         V_f = A_fL + \frac{\pi a}{6}(3R^2 + a^2),\;\; h = R, |a|\le R
 
+    .. math::
         V_f = A_fL + \frac{\pi a}{3}(3R^2 + a^2),\;\; h = D, |a|\le R
 
+    .. math::
         V_f = A_fL + \pi a h^2\left(1 - \frac{h}{3R}\right),\;\; h = 0,
         \text{ or } |a| = 0, R, -R
 
+    .. math::
         V_f = A_fL + \frac{a}{|a|}\left\{\frac{2r^3}{3}\left[\cos^{-1}
         \frac{R^2 - rw}{R(w-r)} + \cos^{-1}\frac{R^2 + rw}{R(w+r)}
         - \frac{z}{r}\left(2 + \left(\frac{R}{r}\right)^2\right)
@@ -332,18 +344,24 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
         \tan^{-1}\frac{y}{z} + \frac{4wyz}{3}\right\}
         ,\;\; h \ne R, D; a \ne 0, R, -R, |a| \ge 0.01D
 
+    .. math::
         V_f = A_fL + \frac{a}{|a|}\left[2\int_w^R(r^2 - x^2)\tan^{-1}
         \sqrt{\frac{R^2-x^2}{r^2-R^2}}dx - A_f z\right]
         ,\;\; h \ne R, D; a \ne 0, R, -R, |a| < 0.01D
 
+    .. math::
         Af = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
 
+    .. math::
         r = \frac{a^2 + R^2}{2|a|}
 
+    .. math::
         w = R - h
 
+    .. math::
         y = \sqrt{2Rh-h^2}
 
+    .. math::
         z = \sqrt{r^2 - R^2}
 
     Parameters
@@ -414,37 +432,51 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         V_f  = A_fL + 2[2V_{1,max} - V_1(h=D-h) + V_{2,max} + V_{3,max}]
         , \;\; h_2 \le h \le D
 
+    .. math::
         V_1 = \int_0^{\sqrt{2kDh - h^2}} \left[n^2\sin^{-1}\frac{\sqrt
         {n^2-w^2}}{n} - w\sqrt{n^2-w^2}\right]dx
 
+    .. math::
         V_2 = \int_0^{kD\cos\alpha}\left[n^2\left(\cos^{-1}\frac{w}{n}
         - \cos^{-1}\frac{g}{n}\right) - w\sqrt{n^2 - w^2} + g\sqrt{n^2
         - g^2}\right]dx
 
+    .. math::
         V_3 = \int_w^g(r^2 - x^2)\tan^{-1}\frac{\sqrt{g^2 - x^2}}{z}dx
         - \frac{z}{2}\left(g^2\cos^{-1}\frac{w}{g} - w\sqrt{2g(h-h_1)
         - (h-h_1)^2}\right)
 
+    .. math::
         V_{1,max} = v_1(h=h_1)
 
+    .. math::
         v_{2,max} = v_2(h=h_2)
 
+    .. math::
         v_{3,max} = \frac{\pi a_1}{6}(3g^2 + a_1^2)
 
+    .. math::
         a_1 = fD(1-\cos\alpha)
 
+    .. math::
         \alpha = \sin^{-1}\frac{1-2k}{2(f-k)}
 
+    .. math::
         n = R - kD + \sqrt{k^2D^2-x^2}
 
+    .. math::
         g = r\sin\alpha
 
+    .. math::
         r = fD
 
+    .. math::
         h_2 = D - h_1
 
+    .. math::
         w = R - h
 
+    .. math::
         z = \sqrt{r^2- g^2}
 
     Parameters
@@ -542,6 +574,7 @@ def V_vertical_conical(D, a, h):
     .. math::
         V_f = \frac{\pi}{4}\left(\frac{Dh}{a}\right)^2\left(\frac{h}{3}\right),\; h < a
 
+    .. math::
         V_f = \frac{\pi D^2}{4}\left(h - \frac{2a}{3}\right),\; h\ge a
 
     Parameters
@@ -583,6 +616,7 @@ def V_vertical_ellipsoidal(D, a, h):
     .. math::
         V_f = \frac{\pi}{4}\left(\frac{Dh}{a}\right)^2 \left(a - \frac{h}{3}\right),\; h < a
 
+    .. math::
         V_f = \frac{\pi D^2}{4}\left(h - \frac{a}{3}\right),\; h \ge a
 
     Parameters
@@ -624,6 +658,7 @@ def V_vertical_spherical(D, a, h):
     .. math::
         V_f = \frac{\pi h^2}{4}\left(2a + \frac{D^2}{2a} - \frac{4h}{3}\right),\; h < a
 
+    .. math::
         V_f = \frac{\pi}{4}\left(\frac{2a^3}{3} - \frac{aD^2}{2} + hD^2\right),\; h\ge a
 
     Parameters
@@ -666,6 +701,7 @@ def V_vertical_torispherical(D, f, k, h):
         V_f = \frac{\pi h^2}{4}\left(2a_1 + \frac{D_1^2}{2a_1}
         - \frac{4h}{3}\right),\; 0 \le h \le a_1
 
+    .. math::
         V_f = \frac{\pi}{4}\left(\frac{2a_1^3}{3} + \frac{a_1D_1^2}{2}\right)
         +\pi u\left[\left(\frac{D}{2}-kD\right)^2 +s\right]
         + \frac{\pi tu^2}{2} - \frac{\pi u^3}{3} + \pi D(1-2k)\left[
@@ -673,24 +709,32 @@ def V_vertical_torispherical(D, f, k, h):
         + \frac{k^2D^2}{2}\left(\cos^{-1}\frac{t-2u}{2kD}-\alpha\right)\right]
         ,\; a_1 < h \le a_1 + a_2
 
+    .. math::
         V_f = \frac{\pi}{4}\left(\frac{2a_1^3}{3} + \frac{a_1D_1^2}{2}\right)
         +\frac{\pi t}{2}\left[\left(\frac{D}{2}-kD\right)^2 +s\right]
         +\frac{\pi  t^3}{12} + \pi D(1-2k)\left[\frac{t\sqrt{s}}{4}
         + \frac{k^2D^2}{2}\sin^{-1}(\cos\alpha)\right]
         + \frac{\pi D^2}{4}[h-(a_1+a_2)] ,\;  a_1 + a_2 < h
 
+    .. math::
         \alpha = \sin^{-1}\frac{1-2k}{2(f-k)}
 
+    .. math::
         a_1 = fD(1-\cos\alpha)
 
+    .. math::
         a_2 = kD\cos\alpha
 
+    .. math::
         D_1 = 2fD\sin\alpha
 
+    .. math::
         s = (kD\sin\alpha)^2
 
+    .. math::
         t = 2a_2
 
+    .. math::
         u = h - fD(1-\cos\alpha)
 
     Parameters
@@ -751,6 +795,7 @@ def V_vertical_conical_concave(D, a, h):
         V = \frac{\pi D^2}{12} \left(3h + a - \frac{(a+h)^3}{a^2}\right)
         ,\;\; 0 \le h < |a|
 
+    .. math::
         V = \frac{\pi D^2}{12} (3h + a ),\;\; h \ge |a|
 
     Parameters
@@ -795,6 +840,7 @@ def V_vertical_ellipsoidal_concave(D, a, h):
         V = \frac{\pi D^2}{12} \left(3h + 2a - \frac{(a+h)^2(2a-h)}{a^2}\right)
         ,\;\; 0 \le h < |a|
 
+    .. math::
         V = \frac{\pi D^2}{12} (3h + 2a ),\;\; h \ge |a|
 
     Parameters
@@ -839,6 +885,7 @@ def V_vertical_spherical_concave(D, a, h):
         V = \frac{\pi}{12}\left[3D^2h + \frac{a}{2}(3D^2 + 4a^2) + (a+h)^3
         \left(4 - \frac{3D^2 + 12a^2}{2a(a+h)}\right)\right],\;\; 0 \le h < |a|
 
+    .. math::
         V = \frac{\pi}{12}\left[3D^2h + \frac{a}{2}(3D^2 + 4a^2) \right]
         ,\;\;  h \ge |a|
 
@@ -883,30 +930,41 @@ def V_vertical_torispherical_concave(D, f, k, h):
     .. math::
         V = \frac{\pi D^2 h}{4} - v_1(h=a_1+a_2) + v_1(h=a_1 + a_2 -h),\; 0 \le h < a_2
 
+    .. math::
         V = \frac{\pi D^2 h}{4} - v_1(h=a_1+a_2) + v_2(h=a_1 + a_2 -h),\; a_2 \le h < a_1 + a_2
 
+    .. math::
         V = \frac{\pi D^2 h}{4} - v_1(h=a_1+a_2) + 0,\; h \ge a_1 + a_2
 
+    .. math::
         v_1 = \frac{\pi}{4}\left(\frac{2a_1^3}{3} + \frac{a_1D_1^2}{2}\right)
         +\pi u\left[\left(\frac{D}{2}-kD\right)^2 +s\right]
         + \frac{\pi tu^2}{2} - \frac{\pi u^3}{3} + \pi D(1-2k)\left[
         \frac{2u-t}{4}\sqrt{s+tu-u^2} + \frac{t\sqrt{s}}{4}
         + \frac{k^2D^2}{2}\left(\cos^{-1}\frac{t-2u}{2kD}-\alpha\right)\right]
 
+    .. math::
         v_2 = \frac{\pi h^2}{4}\left(2a_1 + \frac{D_1^2}{2a_1} - \frac{4h}{3}\right)
 
+    .. math::
         \alpha = \sin^{-1}\frac{1-2k}{2(f-k)}
 
+    .. math::
         a_1 = fD(1-\cos\alpha)
 
+    .. math::
         a_2 = kD\cos\alpha
 
+    .. math::
         D_1 = 2fD\sin\alpha
 
+    .. math::
         s = (kD\sin\alpha)^2
 
+    .. math::
         t = 2a_2
 
+    .. math::
         u = h - fD(1-\cos\alpha)
 
     Parameters
@@ -975,6 +1033,7 @@ def SA_ellipsoidal_head(D, a):
     .. math::
         SA = 2\pi a^2 + \frac{\pi c^2}{e_1}\ln\left(\frac{1+e_1}{1-e_1}\right)
 
+    .. math::
         e_1 = \sqrt{1 - \frac{c^2}{a^2}}
 
     Parameters
@@ -1078,17 +1137,22 @@ def SA_torispheroidal(D, fd, fk):
     .. math::
         SA = S_1 + S_2
 
+    .. math::
         S_1 = 2\pi D^2 f_d \alpha
 
+    .. math::
         S_2 = 2\pi D^2 f_k\left(\alpha - \alpha_1 + (0.5 - f_k)\left(\sin^{-1}
         \left(\frac{\alpha-\alpha_2}{f_k}\right) - \sin^{-1}\left(\frac{
         \alpha_1-\alpha_2}{f_k}\right)\right)\right)
 
+    .. math::
         \alpha_1 = f_d\left(1 - \sqrt{1 - \left(\frac{0.5 - f_k}{f_d-f_k}
         \right)^2}\right)
 
+    .. math::
         \alpha_2 = f_d - \sqrt{f_d^2 - 2f_d f_k + f_k - 0.25}
 
+    .. math::
         \alpha = \frac{a}{D_i}
 
     Parameters
@@ -1232,10 +1296,13 @@ def a_torispherical(D, f, k):
     .. math::
         a = a_1 + a_2
 
+    .. math::
         \alpha = \sin^{-1}\frac{1-2k}{2(f-k)}
 
+    .. math::
         a_1 = fD(1-\cos\alpha)
 
+    .. math::
         a_2 = kD\cos\alpha
 
     Parameters
@@ -2113,6 +2180,7 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
             = \frac{\int_0^\lambda\sqrt{1 + \left(\frac{\gamma\pi}{2}\right)^2
             \cos^2\left(\frac{2\pi}{\lambda}x\right)}dx}{\lambda}
             
+    .. math::
             \gamma = \frac{4a}{\lambda}
             
         The solution to the integral is:
@@ -2967,6 +3035,7 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
     .. math::
         \text{pitch normal} = \text{pitch} \cdot \sin(\text{angle})
         
+    .. math::
         \text{pitch parallel} = \text{pitch} \cdot \cos(\text{angle})
         
     Parameters

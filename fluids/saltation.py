@@ -34,8 +34,10 @@ def Rizk(mp, dp, rhog, D):
     .. math::
         \mu=\left(\frac{1}{10^{1440d_p+1.96}}\right)\left(Fr_s\right)^{1100d_p+2.5}
 
+    .. math::
         Fr_s = \frac{V_{salt}}{\sqrt{gD}}
 
+    .. math::
         \mu = \frac{m_p}{\frac{\pi}{4}D^2V \rho_f}
 
     Parameters
@@ -93,10 +95,13 @@ def Matsumoto_1974(mp, rhop, dp, rhog, D, Vterminal=1):
         \mu = 0.448 \left(\frac{\rho_p}{\rho_f}\right)^{0.50}\left(\frac{Fr_p}
         {10}\right)^{-1.75}\left(\frac{Fr_s}{10}\right)^{3}
 
+    .. math::
         Fr_s = \frac{V_{salt}}{\sqrt{gD}}
 
+    .. math::
         Fr_p = \frac{V_{terminal}}{\sqrt{gd_p}}
 
+    .. math::
         \mu = \frac{m_p}{\frac{\pi}{4}D^2V \rho_f}
 
     Parameters
@@ -158,10 +163,13 @@ def Matsumoto_1975(mp, rhop, dp, rhog, D, Vterminal=1):
         \mu = 1.11 \left(\frac{\rho_p}{\rho_f}\right)^{0.55}\left(\frac{Fr_p}
         {10}\right)^{-2.3}\left(\frac{Fr_s}{10}\right)^{3}
 
+    .. math::
         Fr_s = \frac{V_{salt}}{\sqrt{gD}}
 
+    .. math::
         Fr_p = \frac{V_{terminal}}{\sqrt{gd_p}}
 
+    .. math::
         \mu = \frac{m_p}{\frac{\pi}{4}D^2V \rho_f}
 
     Parameters
@@ -225,15 +233,20 @@ def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
     .. math::
         \mu = 5560\left(\frac{d_p}{D}\right)^{1.43}\left(\frac{Fr_s}{10}\right)^4
 
+    .. math::
         \mu = 0.373 \left(\frac{\rho_p}{\rho_f}\right)^{1.06}\left(\frac{Fr_p}
         {10}\right)^{-3.7}\left(\frac{Fr_s}{10}\right)^{3.61}
 
+    .. math::
         \frac{d_p^*}{D} = 1.39\left(\frac{\rho_p}{\rho_f}\right)^{-0.74}
 
+    .. math::
         Fr_s = \frac{V_{salt}}{\sqrt{gD}}
 
+    .. math::
         Fr_p = \frac{V_{terminal}}{\sqrt{gd_p}}
 
+    .. math::
         \mu = \frac{m_p}{\frac{\pi}{4}D^2V \rho_f}
 
     Parameters
@@ -312,8 +325,10 @@ def Schade(mp, rhop, dp, rhog, D):
         Fr_s = \mu^{0.11}\left(\frac{D}{d_p}\right)^{0.025}\left(\frac{\rho_p}
         {\rho_f}\right)^{0.34}
 
+    .. math::
         Fr_s = \frac{V_{salt}}{\sqrt{gD}}
 
+    .. math::
         \mu = \frac{m_p}{\frac{\pi}{4}D^2V \rho_f}
 
     Parameters
@@ -382,10 +397,13 @@ def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
         Fr_s = \left(7 + \frac{8}{3}V_{terminal}\right)\mu^{0.25}
         \left(\frac{d_p}{D}\right)^{0.1}
 
+    .. math::
         Fr_s = 15\mu^{0.25}\left(\frac{d_p}{D}\right)^{0.1}
 
+    .. math::
         Fr_s = \frac{V_{salt}}{\sqrt{gD}}
 
+    .. math::
         \mu = \frac{m_p}{\frac{\pi}{4}D^2V \rho_f}
 
     Parameters
@@ -459,14 +477,19 @@ def Geldart_Ling(mp, rhog, D, mug):
     .. math::
         V_{salt} = 1.5G_s^{0.465}D^{-0.01} \mu^{0.055}\rho_f^{-0.42}
 
+    .. math::
         V_{salt} = 8.7G_s^{0.302}D^{0.153} \mu^{0.055}\rho_f^{-0.42}
 
+    .. math::
         Fr_s = 15\mu^{0.25}\left(\frac{d_p}{D}\right)^{0.1}
 
+    .. math::
         Fr_s = \frac{V_{salt}}{\sqrt{gD}}
 
+    .. math::
         \mu = \frac{m_p}{\frac{\pi}{4}D^2V \rho_f}
 
+    .. math::
         G_s = \frac{m_p}{A}
 
     Parameters

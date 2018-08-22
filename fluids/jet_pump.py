@@ -226,19 +226,25 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
         {(1+K_p) - 2R - \frac{2CM^2R^2}{1-R} + R^2(1+CM)(1+M)(1+K_m + K_d 
         + \alpha^2) + (1-j)\left(\frac{CM^2R^2}{({1-R})^2} \right)(1+K_s)}
         
+    .. math::
         P_1 - P_2 = \frac{1}{2}\rho_p \left(\frac{Q_p}{A_n}\right)^2
         \left[(1+K_p) - C(1+K_s) \left(\frac{MR}{1-R}\right)^2\right]
     
     
+    .. math::
         \text{Pressure ratio} = N = \frac{P_5 - P_2}{P_1 - P_5}
         
+    .. math::
         \text{Volume flow ratio} = M =  \frac{Q_s}{Q_p}
         
+    .. math::
         \text{Jet pump efficiency} = \eta = M\cdot N = 
         \frac{Q_s(P_5-P_2)}{Q_p(P_1 - P_5)}
         
+    .. math::
         R = \frac{A_n}{A_m}
         
+    .. math::
         C = \frac{\rho_s}{\rho_p}
         
     There is no guarantee a solution will be found for the provided variable
@@ -318,8 +324,10 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
     .. math::
         P_1 = P_3 + \frac{1}{2}\rho_p V_n^2 + K_p\left(\frac{1}{2}\rho_p V_n^2\right)
         
+    .. math::
         P_2 = P_3 + \frac{1}{2}\rho_s V_3^2 + K_s\left(\frac{1}{2}\rho_s V_3^2\right)
         
+    .. math::
         P_5 = P_4 + \frac{1}{2}\rho_d V_4^2 - K_d\left(\frac{1}{2}\rho_d V_4^2\right)
         
     Continuity of the ejector:

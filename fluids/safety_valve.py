@@ -135,6 +135,7 @@ def API520_F2(k, P1, P2):
         F_2 = \sqrt{\left(\frac{k}{k-1}\right)r^\frac{2}{k}
         \left[\frac{1-r^\frac{k-1}{k}}{1-r}\right]}
 
+    .. math::
         r = \frac{P_2}{P_1}
 
     Parameters
