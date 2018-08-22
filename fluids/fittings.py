@@ -228,6 +228,7 @@ def entrance_rounded(Di, rc):
     .. math::
         K = 0.0696\left(1 - 0.569\frac{r}{d}\right)\lambda^2 + (\lambda-1)^2
 
+    .. math::
         \lambda = 1 + 0.622\left(1 - 0.30\sqrt{\frac{r}{d}}
         - 0.70\frac{r}{d}\right)^4
         
@@ -275,9 +276,11 @@ def entrance_beveled(Di, l, angle):
     .. math::
         K = 0.0696\left(1 - C_b\frac{l}{d}\right)\lambda^2 + (\lambda-1)^2
 
+    .. math::
         \lambda = 1 + 0.622\left[1-1.5C_b\left(\frac{l}{d}
         \right)^{\frac{1-(l/d)^{1/4}}{2}}\right]
 
+    .. math::
         C_b = \left(1 - \frac{\theta}{90}\right)\left(\frac{\theta}{90}
         \right)^{\frac{1}{1+l/d}}
 
@@ -327,9 +330,11 @@ def entrance_beveled_orifice(Di, do, l, angle):
         K = 0.0696\left(1 - C_b\frac{l}{d_o}\right)\lambda^2 + \left(\lambda
         -\left(\frac{d_o}{D_i}\right)^2\right)^2
         
+    .. math::
         \lambda = 1 + 0.622\left[1-C_b\left(\frac{l}{d_o}\right)^{\frac{1-
         (l/d_o)^{0.25}}{2}}\right]
     
+    .. math::
         C_b = \left(1 - \frac{\Psi}{90}\right)\left(\frac{\Psi}{90}
         \right)^{\frac{1}{1+l/d_o}}
         
@@ -603,11 +608,13 @@ def contraction_sharp(Di1, Di2):
     as shown in [1]_.
 
     .. math::
-        &K = 0.0696(1-\beta^5)\lambda^2 + (\lambda-1)^2
+        K = 0.0696(1-\beta^5)\lambda^2 + (\lambda-1)^2
 
-        &\lambda = 1 + 0.622(1-0.215\beta^2 -  0.785\beta^5) 
+    .. math::
+        \lambda = 1 + 0.622(1-0.215\beta^2 -  0.785\beta^5) 
 
-        &\beta = d_2/d_1
+    .. math::
+        \beta = d_2/d_1
 
     .. figure:: fittings/contraction_sharp.png
        :scale: 40 %
@@ -652,9 +659,11 @@ def contraction_round(Di1, Di2, rc):
         K = 0.0696\left(1 - 0.569\frac{r}{d_2}\right)\left(1-\sqrt{\frac{r}
         {d_2}}\beta\right)(1-\beta^5)\lambda^2 + (\lambda-1)^2
 
+    .. math::
         \lambda = 1 + 0.622\left(1 - 0.30\sqrt{\frac{r}{d_2}}
         - 0.70\frac{r}{d_2}\right)^4 (1-0.215\beta^2-0.785\beta^5)
 
+    .. math::
         \beta = d_2/d_1
 
     .. figure:: fittings/contraction_round.png
@@ -702,8 +711,10 @@ def contraction_conical(Di1, Di2, fd, l=None, angle=None):
     .. math::
         K = 0.0696[1+C_B(\sin(\alpha/2)-1)](1-\beta^5)\lambda^2 + (\lambda-1)^2
 
+    .. math::
         \lambda = 1 + 0.622(\alpha/180)^{0.8}(1-0.215\beta^2-0.785\beta^5)
 
+    .. math::
         \beta = d_2/d_1
 
     .. figure:: fittings/contraction_conical.png
@@ -762,11 +773,14 @@ def contraction_beveled(Di1, Di2, l=None, angle=None):
     .. math::
         K = 0.0696[1+C_B(\sin(\alpha/2)-1)](1-\beta^5)\lambda^2 + (\lambda-1)^2
 
+    .. math::
         \lambda = 1 + 0.622\left[1+C_B\left(\left(\frac{\alpha}{180}
         \right)^{0.8}-1\right)\right](1-0.215\beta^2-0.785\beta^5)
 
+    .. math::
         C_B = \frac{l}{d_2}\frac{2\beta\tan(\alpha/2)}{1-\beta}
 
+    .. math::
         \beta = d_2/d_1
 
     .. figure:: fittings/contraction_beveled.png
@@ -1002,6 +1016,7 @@ def diffuser_curved(Di1, Di2, l):
     .. math::
         K_1 = \phi(1.43-1.3\beta^2)(1-\beta^2)^2
 
+    .. math::
         \phi = 1.01 - 0.624\frac{l}{d_1} + 0.30\left(\frac{l}{d_1}\right)^2
         - 0.074\left(\frac{l}{d_1}\right)^3 + 0.0070\left(\frac{l}{d_1}\right)^4
 
@@ -1052,6 +1067,7 @@ def diffuser_pipe_reducer(Di1, Di2, l, fd1, fd2=None):
         K_f = f_1\frac{0.20l}{d_1} + \frac{f_1(1-\beta)}{8\sin(\alpha/2)}
         + f_2\frac{0.20l}{d_2}\beta^4
 
+    .. math::
         \alpha = 2\tan^{-1}\left(\frac{d_1-d_2}{1.20l}\right)
 
     Parameters
@@ -2399,6 +2415,7 @@ def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
         \right)^2 - \frac{F}{\beta_{branch}^2} \left(\frac{Q_{branch}}
         {Q_{comb}}\right)^2\right]
             
+    .. math::
         \beta_{branch} = \frac{D_{branch}}{D_{comb}}
     
     In the above equation, D = 1, E = 2. See the notes for definitions of F and
@@ -2501,6 +2518,7 @@ def K_run_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
         \right)^2 - \frac{F}{\beta_{branch}^2} \left(\frac{Q_{branch}}
         {Q_{comb}}\right)^2\right]
             
+    .. math::
         \beta_{branch} = \frac{D_{branch}}{D_{comb}}
     
     In the above equation, C=1, D=0, E=1. See the notes for definitions of F 
@@ -2590,6 +2608,7 @@ def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
         \beta_{branch}^2}\right)^2 - J\left(\frac{Q_{branch}}{Q_{comb}
         \beta_{branch}^2}\right)\cos\theta\right]
             
+    .. math::
         \beta_{branch} = \frac{D_{branch}}{D_{comb}}
     
     See the notes for definitions of H, J, and G.
@@ -2697,6 +2716,7 @@ def K_run_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     .. math::
         K_{run} = M \left(\frac{Q_{branch}}{Q_{comb}}\right)^2
             
+    .. math::
         \beta_{branch} = \frac{D_{branch}}{D_{comb}}
     
     See the notes for the definition of M.
@@ -2769,10 +2789,10 @@ def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
     or other controlling element of a check valve to a fully open, stable,
     position according to the Crane method [1]_.
     
-    .. math::
-        
+    .. math::        
         v_{min} = N\cdot \text{m/s} \cdot \sqrt{\frac{\text{kg/m}^3}{\rho}}
     
+    .. math::
         v_{min} = N\beta^2 \cdot \text{m/s} \cdot \sqrt{\frac{\text{kg/m}^3}{\rho}}
         
     See the notes for the definition of values of N and which check valves use 

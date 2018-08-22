@@ -271,8 +271,10 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     .. math::
         M_2' = \frac{2L_2'}{1-\beta}
         
+    .. math::
         A = \left(\frac{19000\beta}{Re_{D}}\right)^{0.8}
         
+    .. math::
         Re_D = \frac{\rho v D}{\mu}
         
         
@@ -291,6 +293,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     .. math::
         L_1 = 1
         
+    .. math::
         L_2' = 0.47
     
     If the orifice has Flange taps:
@@ -1347,18 +1350,24 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
         C = 1 - 0.0463\exp(-0.05Fr_{gas, th}) \cdot \min\left(1, 
         \sqrt{\frac{X}{0.016}}\right)
         
+    .. math::
         Fr_{gas, th} = \frac{Fr_{\text{gas, densionetric }}}{\beta^{2.5}}
         
+    .. math::
         \phi = \sqrt{1 + C_{Ch} X + X^2}
         
+    .. math::
         C_{Ch} = \left(\frac{\rho_l}{\rho_{1,g}}\right)^n + 
         \left(\frac{\rho_{1, g}}{\rho_{l}}\right)^n
         
+    .. math::
         n = \max\left[0.583 - 0.18\beta^2 - 0.578\exp\left(\frac{-0.8 
         Fr_{\text{gas, densiometric}}}{H}\right),0.392 - 0.18\beta^2 \right]
             
+    .. math::
         X = \left(\frac{m_l}{m_g}\right) \sqrt{\frac{\rho_{1,g}}{\rho_l}}
         
+    .. math::
         {Fr_{\text{gas, densiometric}}} = \frac{v_{gas}}{\sqrt{gD}}
         \sqrt{\frac{\rho_{1,g}}{\rho_l - \rho_{1,g}}}
         =  \frac{4m_g}{\rho_{1,g} \pi D^2 \sqrt{gD}}
@@ -1399,12 +1408,16 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     .. math::
         0.4 \le \beta \le 0.75
         
+    .. math::
         0 < X \le 0.3
         
+    .. math::
         Fr_{gas, th} > 3
         
+    .. math::
         \frac{\rho_g}{\rho_l} > 0.02
         
+    .. math::
         D \ge 50 \text{ mm}
     
     Examples
@@ -1447,14 +1460,18 @@ def dP_Reader_Harris_Gallagher_wet_venturi_tube(D, Do, P1, P2, ml, mg, rhol,
     .. math::
         Y = \frac{\Delta \bar \omega}{\Delta P} - 0.0896 - 0.48\beta^9
         
+    .. math::
         Y_{max} = 0.61\exp\left[-11\frac{\rho_{1,g}}{\rho_l}
         - 0.045 \frac{Fr_{gas}}{H}\right]
         
+    .. math::
         \frac{Y}{Y_{max}} = 1 - \exp\left[-35 X^{0.75} \exp
         \left( \frac{-0.28Fr_{gas}}{H}\right)\right]
             
+    .. math::
         X = \left(\frac{m_l}{m_g}\right) \sqrt{\frac{\rho_{1,g}}{\rho_l}}
         
+    .. math::
         {Fr_{\text{gas, densiometric}}} = \frac{v_{gas}}{\sqrt{gD}}
         \sqrt{\frac{\rho_{1,g}}{\rho_l - \rho_{1,g}}}
         =  \frac{4m_g}{\rho_{1,g} \pi D^2 \sqrt{gD}}

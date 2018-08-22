@@ -381,6 +381,7 @@ def Wood_1966(Re, eD):
         f_d = 0.094(\frac{\epsilon}{D})^{0.225} + 0.53(\frac{\epsilon}{D})
         + 88(\frac{\epsilon}{D})^{0.4}Re^{-A_1}
 
+    .. math::
         A_1 = 1.62(\frac{\epsilon}{D})^{0.134}
 
     Parameters
@@ -591,9 +592,11 @@ def Churchill_1977(Re, eD):
     .. math::
         f_f = 2\left[(\frac{8}{Re})^{12} + (A_2 + A_3)^{-1.5}\right]^{1/12}
 
+    .. math::
         A_2 = \left\{2.457\ln\left[(\frac{7}{Re})^{0.9}
         + 0.27\frac{\epsilon}{D}\right]\right\}^{16}
 
+    .. math::
         A_3 = \left( \frac{37530}{Re}\right)^{16}
 
     Parameters
@@ -640,6 +643,7 @@ def Chen_1979(Re, eD):
         \frac{1}{\sqrt{f_f}} = -4\log\left[\frac{\epsilon}{3.7065D}
         -\frac{5.0452}{Re}\log A_4\right]
 
+    .. math::
         A_4 = \frac{(\epsilon/D)^{1.1098}}{2.8257}
         + \left(\frac{7.149}{Re}\right)^{0.8981}
 
@@ -866,8 +870,10 @@ def Zigrang_Sylvester_2(Re, eD):
         \frac{1}{\sqrt{f_f}} = -4\log\left[\frac{\epsilon}{3.7D}
         - \frac{5.02}{Re}\log A_6\right]
 
+    .. math::
         A_6 = \frac{\epsilon}{3.7D} - \frac{5.02}{Re}\log A_5
 
+    .. math::
         A_5 = \frac{\epsilon}{3.7D} + \frac{13}{Re}
 
     Parameters
@@ -957,10 +963,13 @@ def Serghides_1(Re, eD):
     .. math::
         f=\left[A-\frac{(B-A)^2}{C-2B+A}\right]^{-2}
 
+    .. math::
         A=-2\log_{10}\left[\frac{\epsilon/D}{3.7}+\frac{12}{Re}\right]
 
+    .. math::
         B=-2\log_{10}\left[\frac{\epsilon/D}{3.7}+\frac{2.51A}{Re}\right]
 
+    .. math::
         C=-2\log_{10}\left[\frac{\epsilon/D}{3.7}+\frac{2.51B}{Re}\right]
 
     Parameters
@@ -1007,8 +1016,10 @@ def Serghides_2(Re, eD):
         f_d = \left[ 4.781 - \frac{(A - 4.781)^2}
         {B-2A+4.781}\right]^{-2}
 
+    .. math::
         A=-2\log_{10}\left[\frac{\epsilon/D}{3.7}+\frac{12}{Re}\right]
 
+    .. math::
         B=-2\log_{10}\left[\frac{\epsilon/D}{3.7}+\frac{2.51A}{Re}\right]
 
 
@@ -1054,9 +1065,9 @@ def Tsal_1989(Re, eD):
     .. math::
         A = 0.11(\frac{68}{Re} + \frac{\epsilon}{D})^{0.25}
 
-    if A >= 0.018 then fd = A
+    if :math:`A >= 0.018` then `fd = A`;
     
-    if A < 0.018 then fd = 0.0028 + 0.85 A
+    if :math:`A < 0.018` then :math:`fd = 0.0028 + 0.85 A`.
 
     Parameters
     ----------
@@ -1189,6 +1200,7 @@ def Sonnad_Goudar_2006(Re, eD):
     .. math::
         \frac{1}{\sqrt{f_d}} = 0.8686\ln\left(\frac{0.4587Re}{S^{S/(S+1)}}\right)
 
+    .. math::
         S = 0.1240\times\frac{\epsilon}{D}\times Re + \ln(0.4587Re)
 
     Parameters
@@ -1235,6 +1247,7 @@ def Rao_Kumar_2007(Re, eD):
         \frac{1}{\sqrt{f_d}} = 2\log\left(\frac{(2\frac{\epsilon}{D})^{-1}}
         {\left(\frac{0.444 + 0.135Re}{Re}\right)\beta}\right)
 
+    .. math::
         \beta = 1 - 0.55\exp(-0.33\ln\left[\frac{Re}{6.5}\right]^2)
 
     Parameters
@@ -1283,8 +1296,10 @@ def Buzzelli_2008(Re, eD):
         \frac{1}{\sqrt{f_d}} = B_1 - \left[\frac{B_1 +2\log(\frac{B_2}{Re})}
         {1 + \frac{2.18}{B_2}}\right]
 
+    .. math::
         B_1 = \frac{0.774\ln(Re)-1.41}{1+1.32\sqrt{\frac{\epsilon}{D}}}
 
+    .. math::
         B_2 = \frac{\epsilon}{3.7D}Re+2.51\times B_1
 
     Parameters
@@ -1416,6 +1431,7 @@ def Brkic_2011_1(Re, eD):
     .. math::
         f_d = [-2\log(10^{-0.4343\beta} + \frac{\epsilon}{3.71D})]^{-2}
 
+    .. math::
         \beta = \ln \frac{Re}{1.816\ln\left(\frac{1.1Re}{\ln(1+1.1Re)}\right)}
 
     Parameters
@@ -1461,6 +1477,7 @@ def Brkic_2011_2(Re, eD):
     .. math::
         f_d = [-2\log(\frac{2.18\beta}{Re}+ \frac{\epsilon}{3.71D})]^{-2}
 
+    .. math::
         \beta = \ln \frac{Re}{1.816\ln\left(\frac{1.1Re}{\ln(1+1.1Re)}\right)}
 
     Parameters
@@ -2777,12 +2794,16 @@ def friction_plate_Martin_1999(Re, plate_enlargement_factor):
         \frac{1}{\sqrt{f_f}} = \frac{\cos \phi}{\sqrt{0.045\tan\phi
         + 0.09\sin\phi + f_0/\cos(\phi)}} + \frac{1-\cos\phi}{\sqrt{3.8f_1}}
         
+    .. math::
         f_0 = 16/Re \text{ for } Re < 2000
         
+    .. math::
         f_0 = (1.56\ln Re - 3)^{-2} \text{ for } Re \ge 2000
         
+    .. math::
         f_1 = \frac{149}{Re} + 0.9625 \text{ for } Re < 2000
         
+    .. math::
         f_1 = \frac{9.75}{Re^{0.289}} \text{ for } Re \ge 2000
         
     Parameters
@@ -2858,12 +2879,16 @@ def friction_plate_Martin_VDI(Re, plate_enlargement_factor):
         \frac{1}{\sqrt{f_d}} = \frac{\cos \phi}{\sqrt{0.28\tan\phi
         + 0.36\sin\phi + f_0/\cos(\phi)}} + \frac{1-\cos\phi}{\sqrt{3.8f_1}}
         
+    .. math::
         f_0 = 64/Re \text{ for } Re < 2000
         
+    .. math::
         f_0 = (1.56\ln Re - 3)^{-2} \text{ for } Re \ge 2000
         
+    .. math::
         f_1 = \frac{597}{Re} + 3.85 \text{ for } Re < 2000
         
+    .. math::
         f_1 = \frac{39}{Re^{0.289}} \text{ for } Re \ge 2000
         
     Parameters
@@ -3558,6 +3583,7 @@ def transmission_factor(fd=None, F=None):
     .. math::
         F = \frac{2}{\sqrt{f_d}}
 
+    .. math::
         f_d = \frac{4}{F^2}
 
     Parameters
