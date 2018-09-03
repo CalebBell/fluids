@@ -21,9 +21,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import log, log10, exp, cos, sin, tan, pi, radians
+from math import log, log10, exp, cos, sin, tan, pi, radians, isinf
 from scipy.special import lambertw
 from scipy.constants import inch, g
+from scipy.optimize import newton, fsolve
 from fluids.core import Dean, Reynolds
 
 try:
@@ -33,7 +34,8 @@ except ImportError: # pragma: no cover
     import difflib
     fuzzy_match = lambda name, strings: difflib.get_close_matches(name, strings, n=1, cutoff=0)[0]
 
-__all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 'Clamond',
+__all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 
+           'Clamond',
            'friction_laminar', 'one_phase_dP', 'one_phase_dP_gravitational',
            'one_phase_dP_dz_acceleration', 'one_phase_dP_acceleration',
            'transmission_factor', 'material_roughness', 
@@ -174,10 +176,11 @@ def Blasius(Re):
     return 0.3164*Re**-0.25
 
 
-def Colebrook(Re, eD):
-    r'''Calculates Darcy friction factor using an exact solution to the 
-    Colebrook equation, derived with a CAS. Relatively slow despite its
-    explicit form. 
+def Colebrook(Re, eD, tol=None):
+    r'''Calculates Darcy friction factor using the Colebrook equation 
+    originally published in [1]_. Normally, this function uses an exact 
+    solution to the Colebrook equation, derived with a CAS. A numerical can
+    also be used.
 
     .. math::
         \frac{1}{\sqrt{f}}=-2\log_{10}\left(\frac{\epsilon/D}{3.7}
@@ -189,6 +192,10 @@ def Colebrook(Re, eD):
         Reynolds number, [-]
     eD : float
         Relative roughness, [-]
+    tol : float, optional
+        None for analytical solution (default); user specified value to use the
+        numerical solution; 0 to use `mpmath` and provide a bit-correct exact
+        solution to the maximum fidelity of the system's `float`, [-]
 
     Returns
     -------
@@ -213,9 +220,28 @@ def Colebrook(Re, eD):
         y = x\exp(x)
         
         \text{lambertW}(y) = x
-
-    For high relative roughness and Reynolds numbers, an OverflowError is 
-    raised in solution of this equation. 
+        
+    This is relatively slow despite its explicit form as it uses the 
+    mathematical function `lambertw` which is expensive to compute. 
+    
+    For high relative roughness and Reynolds numbers, an OverflowError can be 
+    encountered in the solution of this equation. The numerical solution is 
+    then used.
+    
+    The numerical solution provides values which are generally within an 
+    rtol of 1E-12 to the analytical solution; however, due to the different 
+    rounding order, it is possible for them to be as different as rtol 1E-5 or
+    higher. The 1E-5 accuracy regime has been tested and confirmed numerically 
+    for hundreds of thousand of points within the region 1E-12 < Re < 1E12
+    and 0 < eD < 0.1.
+    
+    The numerical solution attempts the secant method using `scipy`'s `newton`
+    solver, and in the event of nonconvergence, attempts the `fsolve` solver
+    as well. An initial guess is provided via the `Clamond` function.
+    
+    The numerical and analytical solution take similar amounts of time; the
+    `mpmath` solution used when `tol=0` is approximately 45 times slower. This
+    function takes approximately 8 us normally.
 
     Examples
     --------
@@ -224,20 +250,70 @@ def Colebrook(Re, eD):
 
     References
     ----------
-    .. [1] Colebrook, C F."Turbulent Flow in Pipes, with Particular Reference to
-       the Transition Region Between the Smooth and Rough Pipe Laws." Journal 
-       of the ICE 11, no. 4 (February 1, 1939): 133-156. 
+    .. [1] Colebrook, C F."Turbulent Flow in Pipes, with Particular Reference 
+       to the Transition Region Between the Smooth and Rough Pipe Laws."  
+       Journal of the ICE 11, no. 4 (February 1, 1939): 133-156. 
        doi:10.1680/ijoti.1939.13150.
     '''
-    # 9.287 = 2.51*3.7; 6.3001 = 2.51**2
-    sub = 10**(eD*Re/9.287)*Re**2/6.3001 
-    # 1.15129... = log(sqrt(10))
-    lambert_term = lambertw(1.151292546497022950546806896454654633998870849609375*sub**0.5).real 
-    # log(10) = 2.302585...; 2*2.51*3.7 = 18.574
-    # 457.28... = log(10)**2*3.7**2*2.51**2
-    return (457.28006463294371997108100913465023040771484375
-            /(2.30258509299404590109361379290930926799774169921875*eD*Re - 18.574*lambert_term)**2)
-
+    if tol == 0:
+#        from sympy import LambertW, Rational, log, sqrt
+#        Re = Rational(Re)
+#        eD_Re = Rational(eD)*Re
+#        sub = 1/Rational('6.3001')*10**(1/Rational('9.287')*eD_Re)*Re*Re
+#        lambert_term = LambertW(log(sqrt(10))*sqrt(sub))
+#        den = log(10)*eD_Re - 18.574*lambert_term
+#        return float(log(10)**2*Rational('3.7')**2*Rational('2.51')**2/(den*den))
+        try:
+            from mpmath import mpf, log, sqrt, mp
+            from mpmath import lambertw as mp_lambertw
+        except:
+            raise ImportError('For exact solutions, the `mpmath` library is '
+                              'required')
+        mp.dps = 50
+        Re = mpf(Re)
+        eD_Re = mpf(eD)*Re
+        sub = 1/mpf('6.3001')*10**(1/mpf('9.287')*eD_Re)*Re*Re
+        lambert_term = mp_lambertw(log(sqrt(10))*sqrt(sub))
+        den = log(10)*eD_Re - 18.574*lambert_term
+        return float(log(10)**2*mpf('3.7')**2*mpf('2.51')**2/(den*den))
+    if tol is None:
+        try:
+            eD_Re = eD*Re
+            # 9.287 = 2.51*3.7; 6.3001 = 2.51**2
+            # xn = 1/6.3001 = 0.15872763924382155
+            # 1/9.287 = 0.10767739851405189
+            sub = 0.15872763924382155*10.0**(0.10767739851405189*eD_Re)*Re*Re
+            if isinf(sub):
+                #  Can't continue, need numerical approach
+                raise OverflowError
+            # 1.15129... = log(sqrt(10))
+            lambert_term = float(lambertw(1.151292546497022950546806896454654633998870849609375*sub**0.5).real)
+            # log(10) = 2.302585...; 2*2.51*3.7 = 18.574
+            # 457.28... = log(10)**2*3.7**2*2.51**2
+            den = 2.30258509299404590109361379290930926799774169921875*eD_Re - 18.574*lambert_term
+            return 457.28006463294371997108100913465023040771484375/(den*den)
+        except OverflowError:
+            pass
+    # Either user-specified tolerance, or an error in the analytical solution
+    if tol is None:
+        tol = 1e-12
+    try:
+        fd_guess = Clamond(Re, eD)
+    except ValueError:
+        fd_guess = Blasius(Re)
+    def err(x):
+        # Convert the newton search domain to always positive
+        f_12_inv = abs(x)**-0.5
+        # 0.27027027027027023 = 1/3.7
+        return f_12_inv + 2.0*log10(eD*0.27027027027027023 + 2.51/Re*f_12_inv)
+    try:
+        fd = abs(newton(err, fd_guess, tol=tol))
+        if fd > 1E10:
+            raise ValueError
+        return fd
+    except:
+        return abs(float(fsolve(err, fd_guess, xtol=tol)))
+    
 
 def Clamond(Re, eD):
     r'''Calculates Darcy friction factor using a solution accurate to almost
@@ -284,12 +360,12 @@ def Clamond(Re, eD):
     X1F1 = 1. + X1F
     
     E = (log(X1F) - 0.2)/(X1F1)
-    F = F - (X1F1 + 0.5*E)*E*(X1F)/ (X1F1 + E*(1. + E/3.))
+    F = F - (X1F1 + 0.5*E)*E*(X1F)/(X1F1 + E*(1. + E/3.))
 
     X1F = X1 + F
     X1F1 = 1. + X1F
     E = (log(X1F) + F - X2)/(X1F1)
-    F = F - (X1F1 + 0.5*E)*E*(X1F)/ (X1F1 + E*(1. + E/3.))
+    F = F - (X1F1 + 0.5*E)*E*(X1F)/(X1F1 + E*(1. + E/3.))
 
     return 1.325474527619599502640416597148504422899/(F*F) # ((0.5*log(10))**2).evalf(40)
 
@@ -3706,15 +3782,16 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i):
     return G*G*(1.0/rho_o - 1.0/rho_i)
 
 
-def one_phase_dP_dz_acceleration(m, D, rho):
+def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, A, dA_dL):
     r'''This function handles calculation of one-phase fluid pressure drop
     due to acceleration for flow inside channels. This is a continuous 
     calculation, providing the differential in pressure per unit lenth and
     should be called as part of an integration routine ([1]_, [2]_).
     
     .. math::
-        - \left(\frac{d P}{dz}\right)_{acc} = G^2 \frac{d}{dz} \left[\frac{
-        1}{\rho} \right]
+        -\left(\frac{\partial P}{\partial L}\right)_{A} = G^2
+        \frac{\partial P}{\partial L}\left[\frac{\partial (1/\rho)}{\partial P}
+        \right]- \frac{G^2}{\rho}\frac{1}{A}\frac{\partial A}{\partial L}
 
     Parameters
     ----------
@@ -3724,6 +3801,15 @@ def one_phase_dP_dz_acceleration(m, D, rho):
         Diameter of pipe, [m]
     rho : float
         Fluid density, [kg/m^3]
+    dv_dP : float
+        Derivative of mass specific volume of the fluid with respect to 
+        pressure, [m^3/(kg*Pa)]
+    dP_dL : float
+        Pressure drop per unit length of pipe, [Pa/m]
+    A : float
+        Pipe flow area, [m^2]
+    dA_dL : float
+        Change in area of pipe per unit length of pipe, [m^2/m]
 
     Returns
     -------
@@ -3732,14 +3818,25 @@ def one_phase_dP_dz_acceleration(m, D, rho):
         
     Notes
     -----
-
+    The value returned here is positive for pressure loss and negative for
+    pressure increase.
+    As `dP_dL` is not known and needs to be solved for in a more complicated
+    way than this function provides.
+    
     Examples
     --------
-    >>> one_phase_dP_dz_acceleration(m=1, D=0.1, rho=827.1)
-    19.600277333785566
+    >>> one_phase_dP_dz_acceleration(m=1, D=0.1, rho=827.1, dv_dP=-1.1E-5, 
+    ... dP_dL=5E5, A=-0.001, dA_dL=0.0001)
+    89160.68157752385
+
+    References
+    ----------
+    .. [1] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in 
+       Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
+       2006.
     '''
     G = 4.0*m/(pi*D*D)
-    return G*G*(1.0/rho)
+    return -G*G*(dP_dL*dv_dP - dA_dL/(rho*A))
 
 
 def one_phase_dP_gravitational(angle, rho, L=1.0, g=g):

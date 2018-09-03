@@ -80,7 +80,43 @@ def test_friction():
     assert_allclose(friction_factor(Re=128), 0.5)
     
     assert_allclose(friction_factor(Re=1E5, eD=0, Method=None), 0.01798977308427384)
+
+@pytest.mark.slow
+@pytest.mark.mpmath
+def test_Colebrook_numerical_mpmath():
+    # tested at n=500 for both Re and eD
+    Res = np.logspace(np.log10(1e-12), np.log10(1E12), 30) # 1E12 is too large for sympy - it slows down too much
+    eDs = np.logspace(np.log10(1e-20), np.log10(.1), 21) # 1-1e-9    
+    for Re in Res:
+        for eD in eDs:
+            fd_exact = Colebrook(Re, eD, tol=0)
+            fd_numerical = Colebrook(Re, eD, tol=1e-12)
+            assert_allclose(fd_exact, fd_numerical, rtol=1e-5)
+
+@pytest.mark.slow
+@pytest.mark.mpmath
+def test_Colebrook_scipy_mpmath():
+    # Faily grueling test - check the lambertw implementations are matching mostly
+    # NOTE the test is to Re = 1E7; at higher Res the numerical solver is almost
+    # always used
+    Res = np.logspace(np.log10(1e-12), np.log10(1e7), 20) # 1E12 is too large for sympy
+    eDs = np.logspace(np.log10(1e-20), np.log10(.1), 19) # 1-1e-9
     
+    for Re in Res:
+        for eD in eDs:
+            Re = float(Re)
+            eD = float(eD)
+            fd_exact = Colebrook(Re, eD, tol=0)
+            fd_scipy = Colebrook(Re, eD)
+            assert_allclose(fd_exact, fd_scipy, rtol=1e-9)
+
+
+
+@pytest.mark.mpmath
+def test_Colebrook_hard_regimes():
+    fd_inf_regime = Colebrook(104800000000, 2.55e-08)
+    assert_allclose(fd_inf_regime, 0.0037751087365339906, rtol=1e-10)
+
 
 def test_one_phase_dP():
     dP = one_phase_dP(10.0, 1000, 1E-5, .1, L=1)
@@ -93,9 +129,49 @@ def test_one_phase_dP_gravitational():
     dP = one_phase_dP_gravitational(angle=90, rho=2.6, L=2)
     assert_allclose(dP, 25.49729*2)
 
-def test_one_phase_dP_dz_acceleration():
-    dP = one_phase_dP_dz_acceleration(m=1, D=0.1, rho=827.1)
-    assert_allclose(dP, 19.600277333785566)
+@pytest.mark.slow
+@pytest.mark.thermo
+def test_one_phase_dP_dz_acceleration_example():
+    # This requires thermo!
+    from thermo import Stream, Vm_to_rho
+    from fluids import one_phase_dP, one_phase_dP_acceleration
+    import numpy as np
+    from scipy.integrate import odeint
+    from numpy.testing import assert_allclose
+
+    P0 = 1E5
+    s = Stream(['nitrogen', 'methane'], T=300, P=P0, zs=[0.5, 0.5], m=1)
+    rho0 = s.rho
+    D = 0.1
+    def dP_dz(P, L, acc=False):
+        s.flash(P=float(P), Hm=s.Hm)
+        dPf = one_phase_dP(m=s.m, rho=s.rhog, mu=s.rhog, D=D, roughness=0, L=1)
+    
+        if acc:
+            G = 4.0*s.m/(np.pi*D*D)
+            der = s.VolumeGasMixture.property_derivative_P(P=s.P, T=s.T, zs=s.zs, ws=s.ws)
+            der = 1/Vm_to_rho(der, s.MW)
+            factor = G*G*der
+            dP = dPf/(1.0 + factor)
+            return -dP
+        return -dPf
+    
+    ls = np.linspace(0, .01)
+    
+    dP_noacc = odeint(dP_dz, s.P, ls, args=(False,))[-1]
+    s.flash(P=float(P0), Hm=s.Hm) # Reset the stream object
+    profile = odeint(dP_dz, s.P, ls, args=(True,))
+    
+    dP_acc = profile[-1]
+    
+    s.flash(P=dP_acc, Hm=s.Hm)
+    rho1 = s.rho
+    
+    dP_acc_numerical = dP_noacc - dP_acc
+    dP_acc_basic = one_phase_dP_acceleration(m=s.m, D=D, rho_o=rho1, rho_i=rho0)
+    
+    assert_allclose(dP_acc_basic, dP_acc_numerical, rtol=1E-4)
+    
     
 def test_transmission_factor():
     assert_allclose(transmission_factor(fd=0.0185), 14.704292441876154)
@@ -345,4 +421,5 @@ def test_friction_Kumar():
         
     assert_allclose(all_ans, all_ans_expect)
 
+    
     
