@@ -341,6 +341,18 @@ def Clamond(Re, eD):
     The code used here is only slightly modified than that in [1]_, for further
     performance improvements. 
     
+    For 10 < Re < 1E12, and 0 < eD < 0.01, this equation has been confirmed
+    numerically to provide a solution to the Colebrook equation accurate to an 
+    rtol of 1E-9 or better - the same level of accuracy as the analytical 
+    solution to the Colebrook equation due to floating point precision.
+    
+    Comparing this to the numerical solution of the Colebrook equation,
+    identical values are given accurate to an rtol of 1E-9 for 10 < Re < 1E100, 
+    and 0 < eD < 1 and beyond.
+    
+    However, for values of Re under 10, different answers from the `Colebrook`
+    equation appear and then quickly a ValueError is raised. 
+    
     Examples
     --------
     >>> Clamond(1E5, 1E-4)

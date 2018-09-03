@@ -111,6 +111,21 @@ def test_Colebrook_scipy_mpmath():
             assert_allclose(fd_exact, fd_scipy, rtol=1e-9)
 
 
+@pytest.mark.slow
+def test_Colebrook_vs_Clamond():
+    Res = np.logspace(np.log10(10), np.log10(1E50), 40).tolist() 
+    eDs = np.logspace(np.log10(1e-20), np.log10(1), 40).tolist()
+    for Re in Res:
+        for eD in eDs:
+            fd_exact = Colebrook(Re, eD)
+            fd_clamond = Clamond(Re, eD)
+            # Interestingly, matches to rtol=1e-9 vs. numerical solver
+            # But does not have such accuracy compared to mpmath 
+            assert_allclose(fd_exact, fd_clamond, rtol=1e-9)
+            # If rtol is moved to 1E-7, eD can be increased to 1
+
+
+
 
 @pytest.mark.mpmath
 def test_Colebrook_hard_regimes():
