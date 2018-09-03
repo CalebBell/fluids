@@ -195,7 +195,9 @@ def Colebrook(Re, eD, tol=None):
     tol : float, optional
         None for analytical solution (default); user specified value to use the
         numerical solution; 0 to use `mpmath` and provide a bit-correct exact
-        solution to the maximum fidelity of the system's `float`, [-]
+        solution to the maximum fidelity of the system's `float`;
+        -1 to apply the Clamond solution where appropriate for greater speed
+        (Re > 10), [-]
 
     Returns
     -------
@@ -255,7 +257,12 @@ def Colebrook(Re, eD, tol=None):
        Journal of the ICE 11, no. 4 (February 1, 1939): 133-156. 
        doi:10.1680/ijoti.1939.13150.
     '''
-    if tol == 0:
+    if tol == -1:
+        if Re > 10:
+            return Clamond(Re, eD)
+        else:
+            tol = None
+    elif tol == 0:
 #        from sympy import LambertW, Rational, log, sqrt
 #        Re = Rational(Re)
 #        eD_Re = Rational(eD)*Re

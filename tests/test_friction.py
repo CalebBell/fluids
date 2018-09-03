@@ -61,6 +61,12 @@ def test_friction():
     assert_allclose(Fang_2011(1E5, 1E-4), 0.018481390682985432)
     assert_allclose(Clamond(1E5, 1E-4), 0.01851386607747165)
     assert_allclose(Colebrook(1E5, 1E-4), 0.018513866077471648)
+    
+    # Test the colebrook is the clamond when tol=-1
+    assert Colebrook(1E5, 1E-4, -1) == Clamond(1E5, 1E-4)
+    # Test the colebrook is the analytical solution when Re < 10 
+    # even when the clamond solution is specified
+    assert Colebrook(1, 1E-4, -1) == Colebrook(1, 1e-4)
 
     assert_allclose(friction_laminar(128), 0.5)
 
