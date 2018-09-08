@@ -434,8 +434,8 @@ def test_two_phase_dP_acceleration():
 
 
 def test_two_phase_dP_dz_acceleration():
-    dP_dz = two_phase_dP_dz_acceleration(m=1, D=0.1, x=0.372, rhol=827.1, rhog=3.919, alpha=0.992)
-    assert_allclose(dP_dz, 1543.3120935618122)
+    dP_dz = two_phase_dP_dz_acceleration(m=1, D=0.1, x=0.372, rhol=827.1, rhog=3.919, dv_dP_l=-5e-12, dv_dP_g=-4e-7, dx_dP=-2e-7, dP_dL=120.0, dA_dL=0.0001)
+    assert_allclose(dP_dz, 20.137876617489034)
     
     
 def test_two_phase_dP_gravitational():

@@ -149,6 +149,12 @@ def test_one_phase_dP_gravitational():
 
     dP = one_phase_dP_gravitational(angle=90, rho=2.6, L=2)
     assert_allclose(dP, 25.49729*2)
+    
+    
+def test_one_phase_dP_dz_acceleration():
+    dP = one_phase_dP_dz_acceleration(m=1, D=0.1, rho=827.1, dv_dP=-1.1E-5, dP_dL=5E5, dA_dL=0.0001)
+    assert_allclose(dP, 89162.89116373913)
+    
 
 @pytest.mark.slow
 @pytest.mark.thermo

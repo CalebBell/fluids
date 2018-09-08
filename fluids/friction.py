@@ -66,8 +66,8 @@ __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook',
 LAMINAR_TRANSITION_PIPE = 2040.
 '''Believed to be the most accurate result to date. Accurate to +/- 10.
 Avila, Kerstin, David Moxey, Alberto de Lozar, Marc Avila, Dwight Barkley, and
-Björn Hof. “The Onset of Turbulence in Pipe Flow.” Science 333, no. 6039 
-(July 8, 2011): 192–96. doi:10.1126/science.1203223.
+Björn Hof. "The Onset of Turbulence in Pipe Flow." Science 333, no. 6039 
+(July 8, 2011): 192-196. doi:10.1126/science.1203223.
 '''
 
 oregon_Res = [11.21, 20.22, 29.28, 43.19, 57.73, 64.58, 86.05, 113.3, 135.3, 
@@ -3755,11 +3755,9 @@ def one_phase_dP(m, rho, mu, D, roughness=0, L=1, Method=None):
     '''
     D2 = D*D
     V = m/(0.25*pi*D2*rho)
-#    print('V', V, 'rho', rho, 'mu', mu, 'D', D)
     Re = Reynolds(V=V, rho=rho, mu=mu, D=D)
     fd = friction_factor(Re=Re, eD=roughness/D, Method=Method)
     dP = fd*L/D*(0.5*rho*V*V)
-#    print('fd', fd, 'dP', dP, 'V', V, 'Re', Re)
     return dP
 
 
@@ -3801,10 +3799,10 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i):
     return G*G*(1.0/rho_o - 1.0/rho_i)
 
 
-def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, A, dA_dL):
+def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, dA_dL):
     r'''This function handles calculation of one-phase fluid pressure drop
     due to acceleration for flow inside channels. This is a continuous 
-    calculation, providing the differential in pressure per unit lenth and
+    calculation, providing the differential in pressure per unit length and
     should be called as part of an integration routine ([1]_, [2]_).
     
     .. math::
@@ -3825,8 +3823,6 @@ def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, A, dA_dL):
         pressure, [m^3/(kg*Pa)]
     dP_dL : float
         Pressure drop per unit length of pipe, [Pa/m]
-    A : float
-        Pipe flow area, [m^2]
     dA_dL : float
         Change in area of pipe per unit length of pipe, [m^2/m]
 
@@ -3839,14 +3835,16 @@ def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, A, dA_dL):
     -----
     The value returned here is positive for pressure loss and negative for
     pressure increase.
-    As `dP_dL` is not known and needs to be solved for in a more complicated
-    way than this function provides.
+    
+    As `dP_dL` is not known, this equation is normally used in a more 
+    complicated way than this function provides; this method can be used to 
+    check the consistency of that routine.
     
     Examples
     --------
     >>> one_phase_dP_dz_acceleration(m=1, D=0.1, rho=827.1, dv_dP=-1.1E-5, 
-    ... dP_dL=5E5, A=-0.001, dA_dL=0.0001)
-    89160.68157752385
+    ... dP_dL=5E5, dA_dL=0.0001)
+    89162.89116373913
 
     References
     ----------
@@ -3854,7 +3852,8 @@ def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, A, dA_dL):
        Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
        2006.
     '''
-    G = 4.0*m/(pi*D*D)
+    A = 0.25*pi*D*D
+    G = m/A
     return -G*G*(dP_dL*dv_dP - dA_dL/(rho*A))
 
 
@@ -3894,6 +3893,8 @@ def one_phase_dP_gravitational(angle, rho, L=1.0, g=g):
     --------    
     >>> one_phase_dP_gravitational(angle=90, rho=2.6)
     25.49729
+    >>> one_phase_dP_gravitational(angle=90, rho=2.6, L=4)
+    101.98916
     '''
     angle = radians(angle)
     return L*g*sin(angle)*rho

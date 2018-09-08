@@ -2308,15 +2308,21 @@ def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
     return G*G*(out_term - in_term)
 
 
-def two_phase_dP_dz_acceleration(m, D, x, alpha, rhol, rhog):
+def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
+                                 dP_dL, dA_dL):
     r'''This function handles calculation of two-phase liquid-gas pressure drop
     due to acceleration for flow inside channels. This is a continuous 
     calculation, providing the differential in pressure per unit lenth and
-    should be called as part of an integration routine ([1]_, [2]_).
+    should be called as part of an integration routine ([1]_, [2]_, [3]_).
     
     .. math::
-        - \left(\frac{d P}{dz}\right)_{acc} = G^2 \frac{d}{dz} \left[\frac{
-        (1-x)^2}{\rho_l(1-\alpha)} + \frac{x^2}{\rho_g\alpha}\right]
+        -\left(\frac{\partial P}{\partial L}\right)_{A} = G^2
+        \left(\left(\frac{1}{\rho_g} - \frac{1}{\rho_l}\right)\frac{\partial P}
+        {\partial L}\frac{\partial x}{\partial P} + 
+        \frac{\partial P}{\partial L}\left[x \frac{\partial (1/\rho_g)}
+        {\partial P}  + (1-x) \frac{\partial (1/\rho_l)}{\partial P}
+        \right] \right) - \frac{G^2}{\rho_{hom}}\frac{1}{A}\frac{\partial A}
+        {\partial L} 
 
     Parameters
     ----------
@@ -2326,12 +2332,23 @@ def two_phase_dP_dz_acceleration(m, D, x, alpha, rhol, rhog):
         Diameter of pipe, [m]
     x : float
         Quality of fluid [-]
-    alpha : float
-        Void fraction  (area of gas / total area of channel), [-]
     rhol : float
         Liquid density, [kg/m^3]
     rhog : float
         Gas density, [kg/m^3]
+    dv_dP_l : float
+        Derivative of mass specific volume of the liquid phase with respect to 
+        pressure, [m^3/(kg*Pa)]
+    dv_dP_g : float
+        Derivative of mass specific volume of the gas phase with respect to 
+        pressure, [m^3/(kg*Pa)]
+    dx_dP : float
+        Derivative of mass quality of the two-phase fluid with respect to 
+        pressure (numerical derivatives may be convenient for this), [1/Pa]
+    dP_dL : float
+        Pressure drop per unit length of pipe, [Pa/m]
+    dA_dL : float
+        Change in area of pipe per unit length of pipe, [m^2/m]
 
     Returns
     -------
@@ -2340,24 +2357,39 @@ def two_phase_dP_dz_acceleration(m, D, x, alpha, rhol, rhog):
         
     Notes
     -----
-
+    This calculation has the `homogeneous` model built in to it as its
+    derivation is shown in [1]_. The discrete calculation is more flexible as
+    different void fractions may be used.
+    
     Examples
     --------
-    >>> two_phase_dP_dz_acceleration(m=1, D=0.1, x=0.372, rhol=827.1, rhog=3.919, alpha=0.992)
-    1543.3120935618122
+    >>> two_phase_dP_dz_acceleration(m=1, D=0.1, x=0.372, rhol=827.1, 
+    ... rhog=3.919, dv_dP_l=-5e-12, dv_dP_g=-4e-7, dx_dP=-2e-7, dP_dL=120.0,
+    ... dA_dL=0.0001)
+    20.137876617489034
     
     References
     ----------
-    .. [1] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
+    .. [1] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in 
+       Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
+       2006.
+    .. [2] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
        Transfer, 3E. New York: McGraw-Hill, 1998.
-    .. [2] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and
+    .. [3] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and
        Predictive Methods for Pressure Drop in Adiabatic, Condensing and
        Boiling Mini/Micro-Channel Flows." International Journal of Heat and
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
-    '''
-    G = 4*m/(pi*D*D)
-    return G*G*((1. - x)**2/(rhol*(1. - alpha)) + x*x/(rhog*alpha))
+    '''  
+    A = 0.25*pi*D*D
+    G = m/A
+    t1 = (1.0/rhog - 1.0/rhol)*dP_dL*dx_dP + dP_dL*(x*dv_dP_g + (1.0 - x)*dv_dP_l)
+
+    voidage_h = homogeneous(x, rhol, rhog)
+    rho_h = rhol*(1.0 - voidage_h) + rhog*voidage_h
+    return -G*G*(t1 - dA_dL/(rho_h*A))
+    
+    
 
 
 def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,  
