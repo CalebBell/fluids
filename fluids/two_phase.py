@@ -84,6 +84,9 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     The original acceleration formula is fairly primitive and normally
     neglected. The model was developed assuming smooth pipe, so leaving
     `roughness` to zero may be wise.
+    
+    Note this is a "mechanistic" pressure drop model - the gravitational 
+    pressure drop cannot be separated from the frictional pressure drop.
 
     Examples
     --------
@@ -183,10 +186,11 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     dP_ele = g*sin(angle)*rhos*L
     dP_fric = ftp*L/D*0.5*rhom*Vm*Vm
     # rhos here is pretty clearly rhos according to Shoham
-    Ek = Vsg*Vm*rhos/P  # Confirmed this expression is dimensionless
     if not acceleration:
-        return dP_fric
-    dP = (dP_ele + dP_fric)/(1.0 - Ek)
+        dP = dP_ele + dP_fric
+    else:
+        Ek = Vsg*Vm*rhos/P  # Confirmed this expression is dimensionless
+        dP = (dP_ele + dP_fric)/(1.0 - Ek)
     return dP
 
 
