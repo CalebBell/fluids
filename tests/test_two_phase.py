@@ -35,7 +35,8 @@ def log_uniform(low, high):
 def test_Beggs_Brill():
     kwargs = dict(m=1.163125, x=0.30370768404083825, rhol=613.8,
                       rhog=141.3, sigma=0.028, D=0.077927, angle=90.0,
-                      mul=0.0005, mug=2E-5, P=119E5, roughness=1.8E-6, L=100)
+                      mul=0.0005, mug=2E-5, P=119E5, roughness=1.8E-6, L=100, 
+                      acceleration=True)
     dP = Beggs_Brill(**kwargs)
     assert_allclose(dP, 384066.2949427367)
     kwargs['angle'] = 45

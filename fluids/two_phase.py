@@ -2206,6 +2206,8 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
     return dP_l*phi_l2
 
 
+
+
 two_phase_correlations = {
     # 0 index, args are: m, x, rhol, mul, P, Pc, D, roughness=0, L=1
     'Zhang_Webb': (Zhang_Webb, 0),
@@ -2236,12 +2238,13 @@ two_phase_correlations = {
     # Misc indexes:
     'Chisholm rough': (Chisholm, 101),
     'Zhang_Hibiki_Mishima adiabatic gas': (Zhang_Hibiki_Mishima, 102),
-    'Zhang_Hibiki_Mishima flow boiling': (Zhang_Hibiki_Mishima, 103)
+    'Zhang_Hibiki_Mishima flow boiling': (Zhang_Hibiki_Mishima, 103),
+    'Beggs-Brill': (Beggs_Brill, 104)
 }
 
 
 def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
-                 P=None, Pc=None, roughness=0, Method=None, 
+                 P=None, Pc=None, roughness=0, angle=0, Method=None, 
                  AvailableMethods=False):
     r'''This function handles calculation of two-phase liquid-gas pressure drop
     for flow inside channels. 23 calculation methods are available, with
@@ -2283,7 +2286,9 @@ def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
         Critical pressure of fluid, [Pa]
     roughness : float, optional
         Roughness of pipe for use in calculating friction factor, [m]
-
+    angle : float, optional
+        The angle of the pipe with respect to the horizontal, [degrees]
+        
     Returns
     -------
     dP : float
@@ -2326,6 +2331,8 @@ def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
             usable_indices.extend([1,2, 101]) # Differs only in the addition of roughness
         if all([mul, P, Pc]):
             usable_indices.append(0)
+        if all([rhog, mul, mug, sigma, P, angle]):
+            usable_indices.append(104)
         return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
 
     if AvailableMethods:
@@ -2371,6 +2378,10 @@ than provided; provide more inputs!')
             return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
                      sigma=sigma, D=D, L=L, roughness=roughness,
                      flowtype='flow boiling')
+        elif i == 104:
+            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
+                     sigma=sigma, P=P, D=D, angle=angle, L=L, 
+                     roughness=roughness, acceleration=False, g=g)
     else:
         raise Exception('Failure in in function')
 
