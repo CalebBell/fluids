@@ -21,10 +21,72 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
+from math import log, log10
+from random import uniform
 from fluids import *
 import numpy as np
 from numpy.testing import assert_allclose
 import pytest
+
+def log_uniform(low, high):
+    return 10**uniform(log10(low), log10(high))
+
+
+def test_Beggs_Brill():
+    kwargs = dict(m=1.163125, x=0.30370768404083825, rhol=613.8,
+                      rhog=141.3, sigma=0.028, D=0.077927, angle=90.0,
+                      mul=0.0005, mug=2E-5, P=119E5, roughness=1.8E-6, L=100)
+    dP = Beggs_Brill(**kwargs)
+    assert_allclose(dP, 384066.2949427367)
+    kwargs['angle'] = 45
+    dP = Beggs_Brill(**kwargs)
+    assert_allclose(dP, 289002.94186339306)
+    kwargs['x'] = 0.6
+    dP = Beggs_Brill(**kwargs)
+    assert_allclose(dP, 220672.4414664162)
+    kwargs['x'] = 0.9
+    dP = Beggs_Brill(**kwargs)
+    assert_allclose(dP, 240589.47045109692)
+    kwargs['angle'] = 0
+    dP = Beggs_Brill(**kwargs)
+    assert_allclose(dP, 4310.718513863349)
+    kwargs['x'] = 1e-7
+    dP = Beggs_Brill(**kwargs)
+    assert_allclose(dP, 1386.362401988662)
+    kwargs['angle'] = -15
+    dP = Beggs_Brill(**kwargs)
+    assert_allclose(dP, -154405.0395988586)
+    
+    kwargs['m'] = 100
+    kwargs['x'] = 0.3
+    kwargs['angle'] = 0
+    dP = Beggs_Brill(**kwargs)
+    assert_allclose(dP, 15382421.32990976)
+
+    kwargs['angle'] = 10
+    dP = Beggs_Brill(**kwargs)
+    assert_allclose(dP, 15439041.350531114)
+    
+    kwargs = {'rhol': 2250.004745138356, 'rhog': 58.12314177331951, 'L': 111.74530635808999, 'sigma': 0.5871528902653206, 'P': 9587894383.375906, 'm': 0.005043652829299738, 'roughness': 0.07803567727862296, 'x': 0.529765332332195, 'mug': 1.134544741297285e-06, 'mul': 0.12943468582774414, 'D': 1.9772420342193617, 'angle': -77.18096944813536}
+    dP = Beggs_Brill(**kwargs)
+    # Check this calculation works - S gets too large, overflows in this region
+
+def test_fuzz_Beggs_Brill():
+    for i in range(1000):
+        m = log_uniform(1e-5, 100)
+        x = uniform(0, 1)
+        rhol = log_uniform(100, 4000)
+        rhog = log_uniform(0.01, 200)
+        sigma = log_uniform(1e-3, 1)
+        D = log_uniform(1e-5, 5)
+        angle = uniform(-90, 90)
+        mul = log_uniform(1e-5, 1)
+        mug = log_uniform(5e-7, 1e-3)
+        P = log_uniform(1E8, 1e10)
+        roughness = log_uniform(1e-5, D-1e-10)
+        L = uniform(0, 1000)
+        kwargs = dict(m=m, x=x, rhol=rhol, rhog=rhog, sigma=sigma, D=D, angle=angle, mul=mul, mug=mug, P=P, roughness=roughness, L=L)
+        Beggs_Brill(**kwargs)
 
 
 def test_Friedel():

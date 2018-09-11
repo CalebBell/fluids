@@ -24,7 +24,7 @@ from __future__ import division
 __all__ = ['two_phase_dP', 'two_phase_dP_acceleration', 
            'two_phase_dP_dz_acceleration', 'two_phase_dP_gravitational',
            'two_phase_dP_dz_gravitational',
-           'Lockhart_Martinelli', 'Friedel', 'Chisholm', 
+           'Beggs_Brill', 'Lockhart_Martinelli', 'Friedel', 'Chisholm', 
            'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
@@ -36,6 +36,158 @@ from scipy.constants import g
 from fluids.friction import friction_factor
 from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
 from fluids.two_phase_voidage import homogeneous, Lockhart_Martinelli_Xtt
+
+
+def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
+                L=1.0, g=g, acceleration=True):
+    r'''Calculates the two-phase pressure drop according to the Beggs-Brill
+    correlation ([1]_, [2]_, [3]_).
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Mass quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    sigma : float
+        Surface tension, [N/m]
+    P : float
+        Pressure of fluid (used only if `acceleration=True`), [Pa]
+    D : float
+        Diameter of pipe, [m]
+    angle : float
+        The angle of the pipe with respect to the horizontal, [degrees]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    L : float, optional
+        Length of pipe, [m]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
+    acceleration : bool
+        Whether or not to include the original acceleration component, [-]
+        
+    Returns
+    -------
+    dP : float
+        Pressure drop of the two-phase flow, [Pa]
+
+    Notes
+    -----
+    The original acceleration formula is fairly primitive and normally
+    neglected. The model was developed assuming smooth pipe, so leaving
+    `roughness` to zero may be wise.
+
+    Examples
+    --------
+    >>> Beggs_Brill(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
+    ... sigma=0.0487, P=1E7, D=0.05, angle=0, roughness=0, L=1)
+    686.9724506803472
+
+    References
+    ----------
+    .. [1] Beggs, D.H., and J.P. Brill. "A Study of Two-Phase Flow in Inclined 
+       Pipes." Journal of Petroleum Technology 25, no. 05 (May 1, 1973): 
+       607-17. https://doi.org/10.2118/4007-PA.
+    .. [2] Brill, James P., and Howard Dale Beggs. Two-Phase Flow in Pipes,
+       1994.
+    .. [3] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in 
+       Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
+       2006.
+    '''
+    dat = {'segregated': (0.98, 0.4846, 0.0868),
+    'intermittent': (0.845, 0.5351, 0.0173),
+    'distributed': (1.065, 0.5824, 0.0609)}
+    qg = x*m/rhog
+    ql = (1.0 - x)*m/rhol
+    
+    A = 0.25*pi*D*D
+    Vsg = qg/A
+    Vsl = ql/A
+    Vm = Vsg + Vsl
+    Fr = Vm*Vm/(g*D)
+    lambda_L = Vsl/Vm # no slip liquid holdup
+
+    L1 = 316.0*lambda_L**0.302
+    L2 = 0.0009252*lambda_L**-2.4684
+    L3 = 0.1*lambda_L**-1.4516
+    L4 = 0.5*lambda_L**-6.738
+    if (lambda_L < 0.01 and Fr < L1) or (lambda_L >= 0.01 and Fr < L2):
+        regime = 'segregated'
+    elif (lambda_L >= 0.01 and L2 <= Fr <= L3):
+        regime = 'transition'
+    elif (0.01 <= lambda_L < 0.4 and L3 < Fr <= L1) or (lambda_L >= 0.4 and L3 < Fr <= L4):
+        regime = 'intermittent'
+    elif (lambda_L < 0.4 and Fr >= L1) or (lambda_L >= 0.4 and Fr > L4):
+        regime = 'distributed'
+    else:
+        raise Exception('Outside regime ranges')
+
+    LV = Vsl*(rhol/(g*sigma))**0.25
+    angle = radians(angle)
+    
+    def holdup(regime):
+        a, b, c = dat[regime]
+        HL0 = a*lambda_L**b*Fr**-c
+        if HL0 < lambda_L:
+            HL0 = lambda_L
+
+        if angle > 0: # uphill
+            # h used instead of g to avoid conflict with gravitational constant
+            if regime == 'segregated':
+                d, e, f, h = 0.011, -3.768, 3.539, -1.614
+            elif regime == 'intermittent':
+                d, e, f, h = 2.96, 0.305, -0.4473, 0.0978
+            elif regime == 'distributed':
+                # Dummy values for distributed - > psi = 1.
+                d, e, f, h = 2.96, 0.305, -0.4473, 0.0978
+        elif angle <= 0: # downhill
+            d, e, f, h = 4.70, -0.3692, 0.1244, -0.5056
+    
+        C = (1.0 - lambda_L)*log(d*lambda_L**e*LV**f*Fr**h)
+        if C < 0.0:
+            C = 0.0
+        
+        # Correction factor for inclination angle
+        Psi = 1.0 + C*(sin(1.8*angle) - 1.0/3.0*sin(1.8*angle)**3)
+        if (angle > 0 and regime == 'distributed') or angle == 0:
+            Psi = 1.0
+        Hl = HL0*Psi
+        return Hl
+    if regime != 'transition':
+        Hl = holdup(regime)
+    else:
+        A = (L3 - Fr)/(L3 - L2)
+        Hl = A*holdup('segregated') + (1.0 - A)*holdup('intermittent')
+
+    rhos = rhol*Hl + rhog*(1.0 - Hl)
+    mum = mul*lambda_L +  mug*(1.0 - lambda_L)
+    rhom = rhol*lambda_L +  rhog*(1.0 - lambda_L)
+    Rem = rhom*D/mum*Vm
+    fn = friction_factor(Re=Rem, eD=roughness/D)
+    x = lambda_L/(Hl*Hl)
+    if 1.0 < x < 1.2:
+        S = log(2.2*x - 1.2)
+    else:
+        S = log(x)/(-0.0523 + 3.182*log(x) - 0.8725*log(x)**2 + 0.01853*log(x)**4)
+    if S > 7.0:
+        S = 7.0  # Truncate S to avoid exp(S) overflowing
+    ftp = fn*exp(S)
+    dP_ele = g*sin(angle)*rhos*L
+    dP_fric = ftp*L/D*0.5*rhom*Vm*Vm
+    # rhos here is pretty clearly rhos according to Shoham
+    Ek = Vsg*Vm*rhos/P  # Confirmed this expression is dimensionless
+    if not acceleration:
+        return dP_fric
+    dP = (dP_ele + dP_fric)/(1.0 - Ek)
+    return dP
 
 
 def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
