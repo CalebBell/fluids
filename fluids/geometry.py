@@ -1795,7 +1795,7 @@ class TANK(object):
         Raises an error if the head ratios are not provided.
 
         Calculates initial guesses assuming no heads are present, and then uses
-        fsolve to determine the correct dimentions for the tank.
+        fsolve to determine the correct dimensions for the tank.
 
         Tested, but bugs and limitations are expected here.
         '''

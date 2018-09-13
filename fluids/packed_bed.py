@@ -902,7 +902,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
     to use if none is provided. Returns None if insufficient information is
     provided.
 
-    Prefered correlations are 'Erdim, Akgiray & Demir' when tube
+    Preferred correlations are 'Erdim, Akgiray & Demir' when tube
     diameter is not provided, and 'Harrison, Brunner & Hecker' when tube
     diameter is provided. If you are using a particles in a narrow tube 
     between 2 and 3 particle diameters, expect higher than normal voidages 

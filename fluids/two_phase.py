@@ -2259,7 +2259,7 @@ def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
 def two_phase_dP_dz_acceleration(m, D, x, alpha, rhol, rhog):
     r'''This function handles calculation of two-phase liquid-gas pressure drop
     due to acceleration for flow inside channels. This is a continuous 
-    calculation, providing the differential in pressure per unit lenth and
+    calculation, providing the differential in pressure per unit length and
     should be called as part of an integration routine ([1]_, [2]_).
     
     .. math::
