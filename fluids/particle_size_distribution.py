@@ -855,7 +855,7 @@ def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
     same.
     
     For very high powers of `n` or `m` when the diameter is very low, 
-    execeptions may occur.
+    exceptions may occur.
 
     Examples
     --------

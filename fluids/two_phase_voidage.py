@@ -2416,7 +2416,7 @@ def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None,
     flag.
     
     **ALL OF THESE METHODS ARE ONLY SUGGESTED DEFINITIONS, POTENTIALLY 
-    USEFUL FOR EMPERICAL WORK ONLY!**
+    USEFUL FOR EMPIRICAL WORK ONLY!**
 
     Parameters
     ----------

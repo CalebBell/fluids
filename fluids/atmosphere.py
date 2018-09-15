@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-This module contains models of earth's atmosphere. Models are emperical and
+This module contains models of earth's atmosphere. Models are empirical and
 based on extensive research, primarily by NASA. 
 
 For reporting bugs, adding feature requests, or submitting pull requests, 

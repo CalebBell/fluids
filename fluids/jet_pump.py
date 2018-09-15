@@ -308,7 +308,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
       homogeneously distributed in a continuous liquid phase.
     * Heat transfer between the fluids is negligible - there is no change in
       density due to temperature changes
-    * The change in the solubility of a disolved gas, if there is one, is
+    * The change in the solubility of a dissolved gas, if there is one, is
       negigibly changed by temperature or pressure changes.
 
     The model can be derived from the equations in 

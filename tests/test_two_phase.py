@@ -245,7 +245,7 @@ def test_two_phase_dP():
     dP = two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
     assert_allclose(dP, 1084.1489922923736)
 
-    # Prefered choice, Kim_Mudawar
+    # Preferred choice, Kim_Mudawar
     dP = two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
     assert_allclose(dP, 840.4137796786074)
 

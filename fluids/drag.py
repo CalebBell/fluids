@@ -95,7 +95,7 @@ def Barati(Re):
 
     Examples
     --------
-    Maching example in [1]_, in a table of calculated values.
+    Matching example in [1]_, in a table of calculated values.
 
     >>> Barati(200.)
     0.7682237950389874
@@ -145,7 +145,7 @@ def Barati_high(Re):
 
     Examples
     --------
-    Maching example in [1]_, in a table of calculated values.
+    Matching example in [1]_, in a table of calculated values.
 
     >>> Barati_high(200.)
     0.7730544082789523
@@ -1201,7 +1201,7 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
         Initial velocity of the particle, [m/s]
     tol : float, optional
         How closely to approach the terminal velocity - the target velocity is
-        the terminal velocity multiplied by 1 (+/-) this, dependeing on if the
+        the terminal velocity multiplied by 1 (+/-) this, depending on if the
         particle is accelerating or decelerating, [-]
 
     Returns

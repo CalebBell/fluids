@@ -912,9 +912,9 @@ def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
         Value of the flow coefficient to be converted, expressed in the 
         original scale.
     old_scale : str
-        String specifing the original scale; one of 'Av', 'Cv', or 'Kv', [-]
+        String specifying the original scale; one of 'Av', 'Cv', or 'Kv', [-]
     new_scale : str
-        String specifing the new scale; one of 'Av', 'Cv', or 'Kv', [-]
+        String specifying the new scale; one of 'Av', 'Cv', or 'Kv', [-]
     
     Returns
     -------
@@ -1188,7 +1188,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
         Strouhal number at the peak `fp`; between 0.1 and 0.3 typically, [-]
     T2 : float, optional
         Outlet gas temperature; assumed `T1` if not provided (a PH flash 
-        should be uesd to obtain this if possible), [K]
+        should be used to obtain this if possible), [K]
     beta : float, optional
         Valve outlet / expander inlet contraction coefficient, [-]
 

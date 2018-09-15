@@ -94,7 +94,7 @@ def test_hwm93():
 
 def test_hwm14():
     # Data in checkhwm14.f90; all checks out.
-    # Disturbance wind model checks are not seperately implemented.
+    # Disturbance wind model checks are not separately implemented.
     try:
     
         # Height profile

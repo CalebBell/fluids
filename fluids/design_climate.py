@@ -342,7 +342,7 @@ class StationDataGSOD(object):
             for i, day in enumerate(data):
                 if day is None:
                     continue
-                # Don't do these comparisions to make it fast
+                # Don't do these comparisons to make it fast
                 if day.DATE.year < older_year or day.DATE.year > newer_year:
                     continue # Ignore out-of-range days as possible
                     
@@ -406,7 +406,7 @@ class StationDataGSOD(object):
             for i, day in enumerate(data):
                 if day is None:
                     continue
-                # Don't do these comparisions to make it fast
+                # Don't do these comparisons to make it fast
                 if day.DATE.year < older_year or day.DATE.year > newer_year:
                     continue # Ignore out-of-range days as possible
                     
@@ -558,10 +558,10 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
                     'specified near the specified coordinates.')
 
 
-# This should be agressively cached
+# This should be aggressively cached
 def get_station_year_text(WMO, WBAN, year):
     '''Basic method to download data from the GSOD database, given a 
-    station idenfifier and year. 
+    station identifier and year. 
 
     Parameters
     ----------
