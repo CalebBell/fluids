@@ -21,10 +21,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import cos, sin, tan, atan, pi, radians
+from math import cos, sin, tan, atan, pi, radians, log10
 import numpy as np
 from scipy.constants import inch
+from scipy.interpolate import splev, bisplev
 from fluids.friction import friction_factor
+from fluids.core import horner
 
 __all__ = ['contraction_sharp', 'contraction_round',
 'contraction_conical', 'contraction_beveled',  'diffuser_sharp',
@@ -32,7 +34,7 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'diffuser_pipe_reducer',
 'entrance_sharp', 'entrance_distance', 'entrance_angled',
 'entrance_rounded', 'entrance_beveled', 'entrance_beveled_orifice', 
-'exit_normal', 'bend_rounded',
+'exit_normal', 'bend_rounded', 'bend_rounded_Miller',
 'bend_miter', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
 'Kv_to_K', 'K_to_Kv', 'Cv_to_K', 'K_to_Cv', 'change_K_basis', 'Darby', 
 'Hooper', 'K_gate_valve_Crane', 'K_angle_valve_Crane', 'K_globe_valve_Crane',
@@ -408,7 +410,222 @@ def exit_normal():
     '''
     return 1.0
 
+
 ### Bends
+
+
+tck_bend_rounded_Miller = [np.array([0.500967, 0.500967, 0.500967, 0.500967, 0.5572659504420276, 0.6220535279438968, 0.6876695918008857, 
+     0.8109956990835443, 0.8966138996017785, 1.0418136796591293, 1.2129808986390955, 1.4328097893561944, 
+     2.684491977649823, 3.496050493509287, 4.245254058334557, 10.0581, 10.0581, 10.0581, 10.0581]), 
+   np.array([10.0022, 10.0022, 10.0022, 10.0022, 26.661576730080427, 35.71142422728946, 46.22896414495794, 54.476944091380965, 
+     67.28681897720492, 79.96560467244989, 88.89484575805731, 104.37345376723293, 113.75217318286595, 121.36638011164008, 
+     139.53481668808192, 180.502, 180.502, 180.502, 180.502]), 
+   np.array([0.02844925354339322, 0.032368056788003474, 0.06341726367587057, 0.18372991235687228, 0.27828335685928296, 
+     0.4184452895626468, 0.5844709012848479, 0.8517327028006999, 1.0883889837806633, 1.003595822015052, 1.2959349743905006,
+     1.3631701864169843, 3.2579960738248563, 8.188259745620396, 6.370167194425542, 0.026614405579949103, 0.03578575879432178,
+     0.05399131725104529, 0.17357295746658216, 0.2597698136964017, 0.384398460262134, 0.5537955210508835, 0.842964805734998, 
+     1.1076060802420074, 1.0500502914944205, 1.2160489773171173, 1.2940140217639442, 2.5150913200614293, 5.987790923112488,
+     4.791049223949247, 0.026866783841898684, 0.03061409809632371, 0.054698306220358, 0.14037162784411245, 0.23981090432386729, 
+     0.31617091309760137, 0.47435842573782666, 0.7484605121106159, 0.9223888516911868, 1.0345139221619066, 1.0709769967277933, 
+     1.1489283659291687, 1.4249255928619116, 2.6908421883082823, 2.3898833324508804, 0.019707980719056793, 0.03350958504709355,
+     0.0457699204936841, 0.1180773988295937, 0.18163838540491214, 0.2955424583244998, 0.3178086095370295, 0.54907384767895, 
+     0.7497276995283433, 0.8353766950608585, 0.8907203653185313, 0.941376749552297, 0.8755423259796333, 0.8987849646797164, 
+     0.9905785504810203, 0.018632197087313764, 0.0275473376021632, 0.046686663726990756, 0.09334625398868963, 
+     0.15009471210360348, 0.21438462374865175, 0.310541469358518, 0.27652184608845864, 0.4703245212932829, 
+     0.5612926929410017, 0.6344189573543495, 0.6897616299237337, 0.8553230255854581, 0.8050040042565408,
+     0.7800498994134173, 0.017040716941189974, 0.027163747207842776, 0.04233976165781228, 0.08546809847236579, 
+     0.11872359104267481, 0.1748602349243538, 0.248787221592314, 0.3166892465009758, 0.2894990945943436, 
+     0.35635089905047324, 0.3942719381041552, 0.4019846022857163, 0.4910888827789205, 0.4424331343990761, 
+     0.5367477778555589, 0.017232689797500957, 0.024595005629126976, 0.04235982677436609, 0.0748705682747817,
+     0.11096283696103083, 0.13900984487771062, 0.18773056195495877, 0.2400721832034611, 0.28581377924973544, 
+     0.282839816159864, 0.2907117502580411, 0.3035848810896592, 0.31268019467513564, 0.3365050687225188, 0.2836774098946595, 
+     0.017462451480157917, 0.02373981127475937, 0.04248526591300313, 0.07305722078054935, 0.09424065630357203, 
+     0.13682400355164548, 0.15020534827616405, 0.2100221959547714, 0.23136495625582817, 0.24417894312621574,
+     0.2505645472554214, 0.24143469557592281, 0.24722191256497117, 0.2195110087547775, 0.29557609063213136,
+     0.017605444779345832, 0.026265210174737128, 0.0445497171166642, 0.07254637551095446, 0.08779690828578819,
+     0.11992614224260065, 0.14501268843599757, 0.17386066713179812, 0.21657094190224363, 0.21594544490951023, 0.22661999176624517,
+     0.23759356544596819, 0.23887614636323537, 0.25802515101229484, 0.20566480389514516, 0.01928450591486404, 0.03264367752872495, 
+     0.05391006363370407, 0.07430728218140033, 0.08818045730326454, 0.09978389535000864, 0.12544634357734885, 0.13365159719049172, 
+     0.15802979203343911, 0.17543365869590444, 0.17531453508236272, 0.1706085325985479, 0.15983319357859727, 0.16872558079206196,
+     0.19799750352823683, 0.020835891827102552, 0.047105767455498285, 0.05307639179638059, 0.07839236342751181, 0.09519829368423402,
+     0.10189528661430994, 0.12852821694010982, 0.13195311029179943, 0.1594822363328695, 0.15660304273110143, 0.15934161651984413,
+     0.17702957118830723, 0.1892675345030034, 0.19710951153945122, 0.1897835097361326, 0.031571285288316195, 0.04810266172763896,
+     0.05660304311192384, 0.09317293919692342, 0.08967028392412497, 0.12028974875677166, 0.1182836264474129, 0.13845925262729528, 
+     0.15739100571169004, 0.17649056196464383, 0.20171423738165223, 0.20947832805305883, 0.22837004534830094, 0.23661874048689152, 
+     0.24537433391842686, 0.042992073811512765, 0.045958026954244176, 0.08988351069774198, 0.08320361205549355, 0.1253881915447805, 
+     0.12765039447605908, 0.1632907944306065, 0.17922551055575348, 0.20436939408609628, 0.23133806857897737, 0.22837190631962206,
+     0.2611718034649056, 0.30462224139228183, 0.3277471634644065, 0.3595577208662931, 0.042671097083349346, 0.06027193387363409,
+     0.07182684474072856, 0.12072547771177115, 0.1331787059163636, 0.16137414417679433, 0.1780034002291815, 0.19820571860540606, 
+     0.2294059556234193, 0.23221403415772682, 0.2697708431035234, 0.2813760107306456, 0.28992333749905363, 0.3650401400682786, 
+     0.8993207970132076, 0.045660964207664585, 0.06299599466264151, 0.09193684371316964, 0.12747145786167088, 0.14606550538249963, 
+     0.172664884028299, 0.19152378303841075, 0.2212007207927944, 0.23752800077573005, 0.26289800433018995, 0.2772198641539113,
+     0.2995308585350757, 0.3549459028594012, 0.8032461437896778, 3.330618601208751]), 
+   3, 3]
+bend_rounded_Miller_Kb = lambda rc_D, angle : bisplev(rc_D, angle, tck_bend_rounded_Miller)
+
+tck_bend_rounded_Miller_C_Re = [np.array([4.0, 4.0, 4.0, 4.0, 8.0, 8.0, 8.0, 8.0]), 
+                                np.array([1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0]), 
+                                np.array([2.177340320782947, 2.185952396281732, 2.185952396281732, 2.1775876405173977,
+  0.6513348082098823, 0.7944713057222101, 0.7944713057222103, 1.0526247737400114,
+  0.6030278030721317, 1.3741240162063968, 1.3741240162063992, 0.7693594604301893, 
+  -2.1663631289607883, -1.9474318981548622, -1.9474318981548622, 0.4196741237602154]), 
+   3, 3]
+                                
+bend_rounded_Miller_C_Re = lambda Re, rc_D : bisplev(log10(Re), rc_D, tck_bend_rounded_Miller_C_Re)
+
+
+tck_bend_rounded_Miller_C_o_0_1 = [np.array([9.975803953769495e-06, 9.975803953769495e-06, 9.975803953769495e-06,
+        9.975803953769495e-06, 0.5259485989276764, 1.3157845547408782, 3.220104449183945, 6.133677908951886,
+        30.260656153593906, 30.260656153593906, 30.260656153593906, 30.260656153593906]),
+np.array([0.6179524338907976, 0.6000479624108129, 0.49299050530751654, 0.4820011733402483, 0.5584830305084972,
+        0.7496716557444135, 0.8977538553873484, 0.9987218804089956, 0.0, 0.0, 0.0, 0.0]),
+3]
+tck_bend_rounded_Miller_C_o_0_15 = [np.array([0.0025931401409935687, 0.0025931401409935687, 0.0025931401409935687,
+        0.0025931401409935687, 0.26429667728434275, 0.5188174292838083, 1.469212480387932, 4.269571348168375,
+        13.268280073552294, 26.28093462852014, 26.28093462852014, 26.28093462852014, 26.28093462852014]),
+np.array([0.8691924906711972, 0.8355177386350426, 0.7617588987656675, 0.5853012015918869, 0.5978128647571033,
+        0.7366100253604377, 0.8229203841913866, 0.9484887080989913, 1.0003643259424702, 0.0, 0.0, 0.0, 0.0]),
+3]
+tck_bend_rounded_Miller_C_o_0_2 = [np.array([-0.001273275512351991, -0.001273275512351991, -0.001273275512351991, -
+        0.001273275512351991, 0.36379835796750504, 0.7789151587713531, 1.7319487323386349, 3.559883175039053,
+        22.10600230228466, 22.10600230228466, 22.10600230228466, 22.10600230228466]),
+np.array([1.2055892891232, 1.1810797953131011, 0.8556056552110055, 0.6595884323229468, 0.6669634037761268,
+        0.8636791463334055, 0.8855712717206472, 0.9992625616471772, 0.0, 0.0, 0.0, 0.0]),
+3]
+tck_bend_rounded_Miller_C_o_0_25 = [np.array([0.0025931401409935687, 0.0025931401409935687, 0.0025931401409935687,
+        0.0025931401409935687, 0.2765978180291006, 0.5010875816968301, 0.6395222359284018, 0.661563946104784,
+        0.6887462820881093, 0.7312909084975013, 0.7605490601821624, 0.8078652661481783, 0.8553090397903271,
+        1.024376958429362, 1.4748577103270428, 2.052843716337269, 3.9670225184835175, 6.951737782758053,
+        16.770001745987884, 16.770001745987884, 16.770001745987884, 16.770001745987884]),
+np.array([2.7181584441006414, 2.6722855229796196, 2.510271857479865, 2.162580617260359, 1.8234805515473758,
+        1.5274137403431902, 1.3876379087140025, 1.2712745614209848, 1.1478416325256429, 1.015542018903243,
+        0.8445749706812837, 0.7368799268423506, 0.7061205857035833, 0.7381928947255646, 0.7960778489514514,
+        0.878729192230999, 0.9281388590439098, 0.9825611959699471, 0.0, 0.0, 0.0, 0.0]),
+3]
+tck_bend_rounded_Miller_C_o_1_0 = [np.array([0.0025931401409935687, 0.0025931401409935687, 0.0025931401409935687,
+        0.0025931401409935687, 0.4940382602529053, 0.7383107558560895, 0.8929948619544391, 0.9910262538499016,
+        1.1035407055233972, 1.2685727302009009, 2.190931635360523, 3.718073594472333, 6.026458907878363,
+        13.268280073552294, 13.268280073552294, 13.268280073552294, 13.268280073552294]),
+np.array([2.713127433391318, 2.6799201583608965, 2.4446034702691906, 2.0505313661892837, 1.7853408404592677,
+        1.5802763594858027, 1.395503315683405, 1.0504150726350026, 0.9294800209596744, 0.8937523212160566,
+        0.9339124388590752, 0.9769117997985829, 0.9948478073955791, 0.0, 0.0, 0.0, 0.0]),
+3]
+
+tck_bend_rounded_Miller_C_os = [tck_bend_rounded_Miller_C_o_0_1, tck_bend_rounded_Miller_C_o_0_15, 
+                                tck_bend_rounded_Miller_C_o_0_2, tck_bend_rounded_Miller_C_o_0_25,
+                                tck_bend_rounded_Miller_C_o_1_0]
+bend_rounded_Miller_C_o_Kbs = [.1, .15, .2, .25, 1]
+bend_rounded_Miller_C_o_limits = [30, 26.28093462852014, 22.10600230228466, 16.770001745987884, 13.268280073552294]
+bend_rounded_Miller_C_o_limit_0_01 = [0.6169055099514943, 0.8663244713199465, 1.2029584898712695, 2.7143438886138744, 2.7115417734646114]
+bend_rounded_Miller_C_o_limit_1 = [2428087.757821312, -13637184.203693766, 28450331.830760233, -25496945.91463643, 8471761.477755375]
+
+
+def bend_rounded_Miller(Di, angle, Re, roughness, rc=None, bend_diameters=5,
+                        L_unimpeded=None):
+    # Includes the effect of friction for the straight pipe itself
+    if not rc:
+        rc = Di*bend_diameters
+    
+    radius_ratio = rc/Di
+    
+    if L_unimpeded is None:
+        # Assumption - smooth outlet
+        L_unimpeded = 20*Di
+    
+    # Graph is defined for angles 10 to 180 degrees, ratios 0.5 to 10
+    if radius_ratio < 0.5:
+        radius_ratio = 0.5
+    if radius_ratio > 10.0:
+        radius_ratio = 10.0
+    if angle < 10.0:
+        angle = 10.0
+    
+    # Curve fit in terms of degrees
+    # Caching could work here - angle, radius ratio does not change often
+    Kb = bend_rounded_Miller_Kb(radius_ratio, angle) 
+    
+    # Section 9.2.4 - Roughness correction
+    # Re limited to under 1E6 in friction factor falculations
+    # Use a cached smooth fd value if Re too high
+    Re_fd_min = min(1E6, Re)
+    fd_smoth = friction_factor(Re=Re_fd_min, eD=0.0) if Re_fd_min < 1E6 else 0.011645040997991626
+    fd_rough = friction_factor(Re=Re_fd_min, eD=roughness/Di)
+    C_roughness = fd_rough/fd_smoth
+    
+    '''Section 9.2.2 - Reynolds Number Correction
+    Allow some extrapolation up to 1E8 (1E7 max in graph but the trend looks good)
+    '''
+    Re_C_Re = min(max(Re, 1E4), 1E8)
+    if radius_ratio >= 2.0:
+        if Re_C_Re == 1E8:
+            C_Re = 0.4196741237602154 # bend_rounded_Miller_C_Re(1e8, 2.0)
+        elif Re_C_Re == 1E4:
+            C_Re = 2.1775876405173977 # bend_rounded_Miller_C_Re(1e4, 2.0)
+        else:
+            C_Re = bend_rounded_Miller_C_Re(Re_C_Re, 2.0)
+    elif radius_ratio <= 1.0:
+        # newton(lambda x: bend_rounded_Miller_C_Re(x, 1.0)-1, 2e5) to get the boundary value
+        C_Re_1 = bend_rounded_Miller_C_Re(Re_C_Re, 1.0) if Re_C_Re < 207956.58904584477 else 1.0
+        if radius_ratio > 0.7 or Kb < 0.4:
+            C_Re = C_Re_1
+        else:
+            C_Re = Kb/(Kb - 0.2*C_Re_1 + 0.2)
+    else:
+        # regardless of ratio - 1
+        if Re_C_Re > 1048884.4656835075:
+            C_Re = 1.0
+        elif Re_C_Re > horner(bend_rounded_Miller_C_o_limit_1, radius_ratio):
+            C_Re = 1.0
+#            ps = np.linspace(1, 2)
+#            qs = [newton(lambda x: bend_rounded_Miller_C_Re(x, i)-1, 2e5) for i in ps]
+#            np.polyfit(ps, qs, 4).tolist()
+            # Line of C_Re=1 as a function of r_d between 0 and 1
+        else:
+            C_Re = bend_rounded_Miller_C_Re(Re_C_Re, radius_ratio)
+    
+    
+    '''Limitations as follows:
+    * Ratio not over 30
+    * If ratio under 0.01, tabulated values are used near the limits 
+      (discontinuity in graph anyway)
+    * If ratio for a tried curve larger than max value, max value is used
+      instead of calculating it
+    * Kb limited to between 0.1 and 1.0
+    * When between two Kb curves, interpolate linearly after evaluating both
+      splines appropriately
+    '''
+    if Kb < 0.1:
+        Kb_C_o = 0.1
+    elif Kb > 1:
+        Kb_C_o = 1.0
+    else:
+        Kb_C_o = Kb
+
+    L_unimpeded_ratio = L_unimpeded/Di
+    if L_unimpeded_ratio > 30:
+        L_unimpeded_ratio = 30.0
+        
+    for i in range(len(bend_rounded_Miller_C_o_Kbs)):        
+        Kb_low, Kb_high = bend_rounded_Miller_C_o_Kbs[i], bend_rounded_Miller_C_o_Kbs[i+1]
+        if Kb_low <= Kb_C_o <= Kb_high:
+            if L_unimpeded_ratio >= bend_rounded_Miller_C_o_limits[i]:
+                Co_low = 1.0
+            elif L_unimpeded_ratio <= 0.01:
+                Co_low = bend_rounded_Miller_C_o_limit_0_01[i]
+            else:
+                Co_low = splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i])
+            if L_unimpeded_ratio >= bend_rounded_Miller_C_o_limits[i+1]:
+                Co_high = 1.0
+            elif L_unimpeded_ratio <= 0.01:
+                Co_high = bend_rounded_Miller_C_o_limit_0_01[i+1]
+            else:
+                Co_high = splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i+1])
+#            print(Kb_C_o, [Kb_low, Kb_high], [Co_low, Co_high])
+            C_o = Co_low + (Kb_C_o - Kb_low)*(Co_high - Co_low)/(Kb_high - Kb_low)
+            break
+#    print('Kb=%g, C Re=%g, C rough =%g, Co=%g' %(Kb, C_Re, C_roughness, C_o))
+    return Kb*C_Re*C_roughness*C_o
+
 
 def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
     r'''Returns loss coefficient for any rounded bend in a pipe
@@ -446,13 +663,17 @@ def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
     When inputting bend diameters, note that manufacturers often specify
     this as a multiplier of nominal diameter, which is different than actual
     diameter. Those require that rc be specified.
+    
+    `rc` is limited to 0.5 or above; which represents a sharp, square, inner 
+    edge - and an outer bend radius of 1.0. Losses are at a minimum when this
+    value is large.
 
     First term represents surface friction loss; the second, secondary flows;
     and the third, flow separation.
     Encompasses the entire range of elbow and pipe bend configurations.
     
     This was developed for bend angles between 0 and 180 degrees; and r/D
-    ratios above 0.5.
+    ratios above 0.5. Only smooth pipe data was used in its development.
     
     Note the loss coefficient includes the surface friction of the pipe as if
     it was straight.

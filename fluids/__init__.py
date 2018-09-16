@@ -20,6 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
+import os
 
 from . import atmosphere
 from . import compressible
@@ -103,3 +104,7 @@ __all__.extend(jet_pump.__all__)
 
 
 __version__ = '0.1.72'
+
+fluids_dir = os.path.dirname(__file__)
+fluids_data_dir = os.path.join(os.path.dirname(__file__), 'data')
+

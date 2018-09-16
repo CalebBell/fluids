@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
+import os
 from fluids import *
 from math import pi
 from numpy.testing import assert_allclose
@@ -148,6 +149,34 @@ def test_fittings():
     K2 = change_K_basis(K1=32.68875692997804, D1=.01, D2=.02)
     assert_allclose(K2, 523.0201108796487)
         
+
+
+def test_bend_rounded_Miller_K():
+    from fluids import fluids_data_dir
+    from fluids.core import Engauge_2d_parser
+    from scipy.interpolate import bisplrep
+    from fluids.fittings import tck_bend_rounded_Miller
+    Kb_curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 smooth bends Kb.csv')
+    lines = open(Kb_curve_path).readlines()
+    all_zs, all_xs, all_ys = Engauge_2d_parser(lines, flat=True)
+    
+    tck_recalc = bisplrep(all_xs, all_ys, all_zs, kx=3, ky=3, s=.001)
+    [assert_allclose(i, j) for i, j in zip(tck_bend_rounded_Miller, tck_recalc)]
+    
+
+def test_bend_rounded_Miller():
+    # Miller examples - 9.12
+    D = .6
+    Re = Reynolds(V=4, D=D, nu=1.14E-6)
+    kwargs = dict(Di=D, bend_diameters=2, angle=90,  Re=Re, roughness=.02E-3)
+    
+    K = bend_rounded_Miller(L_unimpeded=30*D, **kwargs)
+    assert_allclose(K, 0.1513266131915296, rtol=1e-4)# 0.150 in Miller- 1% difference due to fd
+    K = bend_rounded_Miller(L_unimpeded=0*D, **kwargs)
+    assert_allclose(K, 0.1414607344374372, rtol=1e-4) # 0.135 in Miller - Difference mainly from Co interpolation method, OK with that
+    K = bend_rounded_Miller(L_unimpeded=2*D, **kwargs)
+    assert_allclose(K, 0.09343184457353562, rtol=1e-4) # 0.093 in miller
+
 
 
 def test_valve_coefficients():
