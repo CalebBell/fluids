@@ -520,10 +520,71 @@ bend_rounded_Miller_C_o_limits = [30.260656153593906, 26.28093462852014, 22.1060
 bend_rounded_Miller_C_o_limit_0_01 = [0.6169055099514943, 0.8663244713199465, 1.2029584898712695, 2.7143438886138744, 2.7115417734646114]
 
 
-def bend_rounded_Miller(Di, angle, Re, roughness, rc=None, bend_diameters=5,
-                        L_unimpeded=None):
-    # Includes the effect of friction for the straight pipe itself
+def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None, 
+                        roughness=0, L_unimpeded=None):
+    r'''Calculates the loss coefficient for a rounded pipe bend according to 
+    Miller [1]_. This is a sophisticated model which uses corrections for
+    pipe roughness, the length of the pipe downstream before another 
+    interruption, and a correction for Reynolds number. It interpolates several
+    times using several corrections graphs in [1]_.
+    
+    Parameters
+    ----------
+    Di : float
+        Inside diameter of pipe, [m]
+    angle : float
+        Angle of bend, [degrees]
+    Re : float
+        Reynolds number of the pipe (no specification if inlet or outlet
+        properties should be used), [m]
+    rc : float, optional
+        Radius of curvature of the entrance, [m]
+    bend_diameters : float, optional
+        Number of diameters of pipe making up the bend radius  (used if rc not 
+        provided; defaults to 5), [-]
+    roughness : float, optional
+        Roughness of bend wall, [m]   
+    L_unimpeded : float, optional
+        The length of unimpeded pipe without any fittings, instrumentation,
+        or flow disturbances downstream (assumed 20 diameters if not 
+        specified), [m]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient [-]
+
+    Notes
+    -----
+    When inputting bend diameters, note that manufacturers often specify
+    this as a multiplier of nominal diameter, which is different than actual
+    diameter. Those require that rc be specified.
+    
+    `rc` is limited to 0.5 or above; which represents a sharp, square, inner 
+    edge - and an outer bend radius of 1.0. Losses are at a minimum when this
+    value is large.
+    
+    This was developed for bend angles between 10 and 180 degrees; and r/D
+    ratios between 0.5 and 10. Both smooth and rough data was used in its 
+    development from several sources..
+    
+    Note the loss coefficient includes the surface friction of the pipe as if
+    it was straight.
+   
+    Examples
+    --------
+    >>> bend_rounded_Miller(Di=.6, bend_diameters=2, angle=90,  Re=2e6,
+    ... roughness=2E-5, L_unimpeded=30*.6)
+    0.152618207051459
+    
+    References
+    ----------
+    .. [1] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
+    '''
     if not rc:
+        if bend_diameters is None:
+            bend_diameters = 5
         rc = Di*bend_diameters
     
     radius_ratio = rc/Di
