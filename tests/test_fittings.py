@@ -334,9 +334,9 @@ def test_bend_rounded_Miller():
     assert_allclose(K, 0.09343184457353562, rtol=1e-4) # 0.093 in miller
 
 
-
 def log_uniform(low, high):
     return 10**uniform(log10(low), log10(high))
+
 
 def test_bend_rounded_Miller_fuzz():
     # Tested for quite a while without problems
@@ -370,10 +370,12 @@ def test_bend_miter_Miller_coefficients():
     from fluids.fittings import bend_miter_Miller_coeffs
     assert_allclose(bend_miter_Miller_coeffs, recalc_coeffs)
 
+
 def test_bend_miter_Miller():
     K = bend_miter_Miller(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20)
     assert_allclose(K, 0.2944060416245167)
  
+    
 def test_bend_miter_Miller_fuzz():
     # Tested for quite a while without problems
     answers = []
@@ -680,3 +682,61 @@ def test_v_lift_valve_Crane():
     
     v = v_lift_valve_Crane(rho=998.2, style='swing check angled')
     assert_allclose(v, 1.4243074011010037)
+    
+    
+def test_contraction_abrupt_Miller_data():
+    from fluids.fittings import tck_contraction_abrupt_Miller
+    curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 abrupt contraction K.csv')
+    text = open(curve_path).readlines()
+    
+    zs, x_lists, y_lists = Engauge_2d_parser(text)
+    for xs, values in zip(x_lists, y_lists):
+        values[-1] = 0
+        low = 1e-8
+        for i in range(2):
+            low = low/10
+            values.insert(-1, low)
+            xs.insert(-1, 1-low)
+        xs[-1] = 1
+
+    inter_objs = []
+    for rd, As, Ks in zip(zs, x_lists, y_lists):
+        univar = UnivariateSpline(As, Ks, s=1e-5)
+        inter_objs.append(univar)
+    
+    # make a rectangular grid
+    As = np.linspace(0, 1, 1000)
+    Ks_stored = []
+    for obj in inter_objs:
+        Ks_smoothed = obj(As)
+        Ks_smoothed[Ks_smoothed < 0] = 0 # Avoid zeros
+        Ks_stored.append(Ks_smoothed)
+    
+    # Flatten the data to the form used in creating the spline
+    all_zs = []
+    all_xs = []
+    all_ys = []
+    for z, x, ys in zip(zs, As, Ks_stored):
+        for x, y in zip(As, ys):
+            all_zs.append(z)
+            all_xs.append(x)
+            all_ys.append(y)
+    tck_recalc = bisplrep(all_xs, all_zs, all_ys, s=5e-4)
+    [assert_allclose(i, j) for i, j in zip(tck_contraction_abrupt_Miller, tck_recalc)]
+    
+#   Plotting code
+#     print([i.tolist() for i in tck[:3]])
+#    for i, (rd, As, Ks) in enumerate(zip(zs, x_lists, y_lists)):
+#        plt.plot(As, Ks, '.')
+#        univar = inter_objs[i]
+#        As2 = np.linspace(0, 1, 1000)
+#        Ks_smoothed = univar(As2)
+#        plt.plot(As2, Ks_smoothed)
+#        # Compute with the spline
+#        Ks_new = bisplev(As2, rd, tck)
+#        plt.plot(As2, Ks_new)
+#    for rd in np.linspace(.1, 0, 100):
+#        As2 = np.linspace(0, 1, 1000)
+#        Ks_new = bisplev(As2, rd, tck)
+#        plt.plot(As2, Ks_new)
+#    plt.show()
