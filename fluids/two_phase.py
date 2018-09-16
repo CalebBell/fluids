@@ -29,10 +29,13 @@ __all__ = ['two_phase_dP', 'two_phase_dP_acceleration',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
            'Yu_France', 'Wang_Chiang_Lu', 'Hwang_Kim', 'Zhang_Hibiki_Mishima',
-           'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations']
+           'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations', 
+           'Taitel_Dukler_regime', 'Mandhane_Gregory_Aziz_regime']
 
-from math import pi, log, exp, sin, radians
+from math import pi, log, exp, sin, cos, radians, log10
+import numpy as np
 from scipy.constants import g
+from scipy.interpolate import splev
 from fluids.friction import friction_factor
 from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
 from fluids.two_phase_voidage import homogeneous, Lockhart_Martinelli_Xtt
@@ -2700,3 +2703,302 @@ def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
     angle = radians(angle)
     return g*sin(angle)*(alpha*rhog + (1. - alpha)*rhol)
 
+
+Dukler_XA_tck = [np.array([-2.4791105294648372, -2.4791105294648372, -2.4791105294648372, 
+                           -2.4791105294648372, 0.14360803483759585, 1.7199938263676038, 
+                           1.7199938263676038, 1.7199938263676038, 1.7199938263676038]),
+                 np.array([0.21299880246561081, 0.16299733301915248, -0.042340970712679615, 
+                           -1.9967836909384598, -2.9917366639619414, 0.0, 0.0, 0.0, 0.0]),
+                 3]
+Dukler_XC_tck = [np.array([-1.8323873272724698, -1.8323873272724698, -1.8323873272724698, 
+                           -1.8323873272724698, -0.15428198203334137, 1.7031193462360779,
+                           1.7031193462360779, 1.7031193462360779, 1.7031193462360779]),
+                 np.array([0.2827776229531682, 0.6207113329042158, 1.0609541626742232, 
+                           0.44917638072891825, 0.014664597632360495, 0.0, 0.0, 0.0, 0.0]), 
+                 3]
+Dukler_XD_tck = [np.array([0.2532652936901574, 0.2532652936901574, 0.2532652936901574,
+                           0.2532652936901574, 3.5567847823070253, 3.5567847823070253, 
+                           3.5567847823070253, 3.5567847823070253]),
+                 np.array([0.09054274779541564, -0.05102629221303253, -0.23907463153703945,
+                           -0.7757156285450911, 0.0, 0.0, 0.0, 0.0]),
+                 3]
+
+XA_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XA_tck))
+XC_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XC_tck))
+XD_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XD_tck))
+
+
+def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug,  D, angle, roughness=0, 
+                         g=g, full_output=False):
+    r'''Classifies the regime of a two-phase flow according to Taitel and
+    Dukler (1976) ([1]_, [2]_).
+    
+    The flow regimes in this method are 'annular', 'bubbly', 'intermittent', 
+    'stratified wavy', and 'stratified smooth'.
+    
+    The parameters used are 'X', 'T', 'F', and 'K'.
+    
+    .. math::
+        X = \left[\frac{(dP/dL)_{l,s,f}}{(dP/dL)_{g,s,f}}\right]^{0.5}
+        
+    .. math::
+        T = \left[\frac{(dP/dL)_{l,s,f}}{(\rho_l-\rho_g)g\cos\theta}\right]^{0.5}
+        
+    .. math::
+        F = \sqrt{\frac{\rho_g}{(\rho_l-\rho_g)}} \frac{v_{g,s}}{\sqrt{D g \cos\theta}}
+        
+    .. math::
+        K = F\left[\frac{D v_{l,s}}{\nu_l}  \right]^{0.5} = F \sqrt{Re_{l,s}}
+        
+    Note that 'l' refers to liquid, 'g' gas, 'f' friction-only, and 's' 
+    superficial (i.e. if only the mass flow of that phase were flowing in the
+    pipe).
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Mass quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    D : float
+        Diameter of pipe, [m]
+    angle : float
+        The angle of the pipe with respect to the horizontal, [degrees]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
+    full_output : bool, optional
+        When True, returns a dictionary with the values 'F', 'X', 'T', and 'K'
+        - the parameters used internally to determine where on the plot the
+        regime occurs, [-]
+    
+    Returns
+    -------
+    regime : str
+        One of 'annular', 'bubbly', 'intermittent', 'stratified wavy',
+        'stratified smooth', [-]
+
+    Notes
+    -----
+    The original friction factor used in this model is that of Blasius.
+
+    Examples
+    --------
+    >>> Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,
+    ... mul=180E-6, mug=14E-6, D=0.05, roughness=0, angle=0)
+    'annular'
+    
+    References
+    ----------
+    .. [1] Taitel, Yemada, and A. E. Dukler. "A Model for Predicting Flow 
+       Regime Transitions in Horizontal and near Horizontal Gas-Liquid Flow." 
+       AIChE Journal 22, no. 1 (January 1, 1976): 47-55.
+       doi:10.1002/aic.690220105. 
+    .. [2] Brill, James P., and Howard Dale Beggs. Two-Phase Flow in Pipes,
+       1994.
+    .. [3] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in 
+       Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
+       2006.
+    '''
+    angle = radians(angle)
+    A = 0.25*pi*D*D
+    # Liquid-superficial properties, for calculation of dP_ls, dP_ls
+    # Paper and Brill Beggs 1991 confirms not v_lo but v_sg
+    v_ls =  m*(1.0 - x)/(rhol*A)
+    Re_ls = Reynolds(V=v_ls, rho=rhol, mu=mul, D=D)
+    fd_ls = friction_factor(Re=Re_ls, eD=roughness/D)
+    dP_ls = fd_ls/D*(0.5*rhol*v_ls*v_ls)
+
+    # Gas-superficial properties, for calculation of dP_gs
+    v_gs = m*x/(rhog*A)
+    Re_gs = Reynolds(V=v_gs, rho=rhog, mu=mug, D=D)
+    fd_gs = friction_factor(Re=Re_gs, eD=roughness/D)
+    dP_gs = fd_gs/D*(0.5*rhog*v_gs*v_gs)
+    
+    X = (dP_ls/dP_gs)**0.5
+    
+    F = (rhog/(rhol-rhog))**0.5*v_gs*(D*g*cos(angle))**-0.5
+    
+    # Paper only uses kinematic viscosity
+    nul = mul/rhol
+
+    T = (dP_ls/((rhol-rhog)*g*cos(angle)))**0.5    
+    K = (rhog*v_gs*v_gs*v_ls/((rhol-rhog)*g*nul*cos(angle)))**0.5
+    
+    F_A_at_X = XA_interp_obj(X)
+    
+    X_B_transition = 1.7917 # Roughly
+    
+    if F >= F_A_at_X and X <= X_B_transition:
+        regime = 'annular'
+    elif F >= F_A_at_X:
+        T_D_at_X = XD_interp_obj(X)
+        if T >= T_D_at_X:
+            regime = 'bubbly'
+        else:
+            regime = 'intermittent'
+    else:
+        K_C_at_X = XC_interp_obj(X)
+        if K >= K_C_at_X:
+            regime = 'stratified wavy'
+        else:
+            regime = 'stratified smooth'
+            
+    if full_output:
+        res = {}
+        res['F'] = F
+        res['T'] = T
+        res['K'] = K
+        res['X'] = X
+
+    if full_output:
+        return regime, res
+    return regime
+
+
+def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D, 
+                                 full_output=False):
+    r'''Classifies the regime of a two-phase flow according to Mandhane, 
+    Gregory, and Azis  (1974) flow map.
+    
+    The flow regimes in this method are 'elongated bubble', 'stratified', 
+    'annular mist', 'slug', 'dispersed bubble', and 'wave'.
+    
+    The parameters used are just the superficial liquid and gas velocity (i.e.
+    if only the mass flow of that phase were flowing in the pipe).
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Mass quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    mul : float
+        Viscosity of liquid, [Pa*s]
+    mug : float
+        Viscosity of gas, [Pa*s]
+    sigma : float
+        Surface tension, [N/m]
+    D : float
+        Diameter of pipe, [m]
+    full_output : bool, optional
+        When True, returns a dictionary with the values 'v_gs', 'v_ls',
+        - the parameters used internally to determine where on the plot the
+        regime occurs, [-]
+    
+    Returns
+    -------
+    regime : str
+        One of 'elongated bubble', 'stratified', 'annular mist', 'slug', 
+        'dispersed bubble', or 'wave', [-]
+
+    Notes
+    -----
+    [1]_ contains a Fortran implementation of this model, which this has been 
+    validated against. This is a very fast flow map as all transitions were
+    spelled out with clean transitions.
+
+    Examples
+    --------
+    >>> Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, 
+    ... mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)
+    'slug'
+    
+    References
+    ----------
+    .. [1] Mandhane, J. M., G. A. Gregory, and K. Aziz. "A Flow Pattern Map for
+       Gas-liquid Flow in Horizontal Pipes."  International Journal of 
+       Multiphase Flow 1, no. 4 (October 30, 1974): 537-53. 
+       doi:10.1016/0301-9322(74)90006-8.
+    '''
+    ''' Example is from article. It matches.
+    After plotting the functions, it is believed that the flow map works.
+    >>> Mandhane_Gregory_Aziz(Vsl=1*0.3048, Vsg=10*0.3048, rhol=55*16.018463, rhog=0.04*16.018463, mul=5E-3, mug=0.01E-3, sigma=0.065)
+    'slug'
+    '''
+    A = 0.25*pi*D*D
+    Vsl =  m*(1.0 - x)/(rhol*A)
+    Vsg = m*x/(rhog*A)
+    
+    # Convert to imperial units
+    Vsl, Vsg = Vsl/0.3048, Vsg/0.3048
+#    X1 = (rhog/0.0808)**0.333 * (rhol*72.4/62.4/sigma)**0.25 * (mug/0.018)**0.2
+#    Y1 = (rhol*72.4/62.4/sigma)**0.25 * (mul/1.)**0.2
+    X1 = (rhog/1.294292)**0.333 * (rhol*0.0724/999.552/sigma)**0.25 * (mug/1.8E-5)**0.2
+    Y1 = (rhol*0.0724/999.552/sigma)**0.25 * (mul/1E-3)**0.2
+
+    if Vsl < 14.0*Y1:
+        if Vsl <= 0.1:
+            Y1345 = 14.0*(Vsl/0.1)**-0.368
+        elif Vsl <= 0.2:
+            Y1345 = 14.0*(Vsl/0.1)**-0.415
+        elif Vsl <= 1.15:
+            Y1345 = 10.5*(Vsl/0.2)**-0.816
+        elif Vsl <= 4.8:
+            Y1345 = 2.5
+        else:
+            Y1345 = 2.5*(Vsl/4.8)**0.248
+
+        if Vsl <= 0.1:
+            Y456 = 70.0*(Vsl/0.01)**-0.0675
+        elif Vsl <= 0.3:
+            Y456 = 60.0*(Vsl/0.1)**-0.415
+        elif Vsl <= 0.56:
+            Y456 = 38.0*(Vsl/0.3)**0.0813
+        elif Vsl <= 1.0:
+            Y456 = 40.0*(Vsl/0.56)**0.385
+        elif Vsl <= 2.5:
+            Y456 = 50.0*(Vsl/1.)**0.756
+        else:
+            Y456 = 100.0*(Vsl/2.5)**0.463
+
+        Y45 = 0.3*Y1
+        Y31 = 0.5/Y1
+        Y1345 = Y1345*X1
+        Y456 = Y456*X1
+
+        if Vsg <= Y1345 and Vsl >= Y31:
+            regime = 'elongated bubble'
+        elif Vsg <= Y1345 and Vsl <= Y31:
+            regime = 'stratified'
+        elif Vsg >= Y1345 and Vsg <= Y456 and Vsl > Y45:
+            regime = 'slug'
+        elif Vsg >= Y1345 and Vsg <= Y456 and Vsl <= Y45:
+            regime = 'wave'
+        else:
+            regime = 'annular mist'
+    elif Vsg <= (230.*(Vsl/14.)**0.206)*X1:
+        regime = 'dispersed bubble'
+    else:
+        regime = 'annular mist'
+    if full_output:
+        return regime, {'v_ls': Vsl, 'v_gs': Vsg}
+    return regime
+
+Mandhane_Gregory_Aziz_regimes = {'elongated bubble': 1, 'stratified': 2,
+                                 'slug':3, 'wave': 4,
+                                 'annular mist': 5, 'dispersed bubble': 6}
+
+#import matplotlib.pyplot as plt
+#import numpy as np
+#
+## Sample chart
+##dat = [[regions[Mandhane_Gregory_Aziz(Vsl=i*0.3048, Vsg=j*0.3048, rhol=55*16.018463, rhog=0.04*16.018463, mul=5E-3, mug=0.01E-3, sigma=0.065)] for j in np.logspace(-1,2.7, 1000)] for i in np.logspace(1.4,-2, 1000)]
+#
+## Water-air chart
+#dat = [[regions[Mandhane_Gregory_Aziz_regime(m=float(i), x=float(j), D=0.1, rhol=999.552, rhog=1.294292, mul=1E-3, mug=1.8E-5, sigma=0.0724)] for j in np.logspace(np.log10(1e-5),np.log10(1-1e-5), 100)] for i in np.logspace(np.log10(1e-2),np.log10(10), 100)]
+#plt.imshow(dat, interpolation='nearest')
+#plt.show()
