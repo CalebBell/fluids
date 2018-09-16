@@ -34,8 +34,8 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'diffuser_pipe_reducer',
 'entrance_sharp', 'entrance_distance', 'entrance_angled',
 'entrance_rounded', 'entrance_beveled', 'entrance_beveled_orifice', 
-'exit_normal', 'bend_rounded', 'bend_rounded_Miller',
-'bend_miter', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
+'exit_normal', 'bend_rounded', 'bend_rounded_Miller', 'bend_miter', 
+'bend_miter_Miller', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
 'Kv_to_K', 'K_to_Kv', 'Cv_to_K', 'K_to_Cv', 'change_K_basis', 'Darby', 
 'Hooper', 'K_gate_valve_Crane', 'K_angle_valve_Crane', 'K_globe_valve_Crane',
 'K_swing_check_valve_Crane', 'K_lift_check_valve_Crane',
@@ -520,6 +520,62 @@ bend_rounded_Miller_C_o_limits = [30.260656153593906, 26.28093462852014, 22.1060
 bend_rounded_Miller_C_o_limit_0_01 = [0.6169055099514943, 0.8663244713199465, 1.2029584898712695, 2.7143438886138744, 2.7115417734646114]
 
 
+def Miller_bend_roughness_correction(Re, Di, roughness):
+    # Section 9.2.4 - Roughness correction
+    # Re limited to under 1E6 in friction factor falculations
+    # Use a cached smooth fd value if Re too high
+    Re_fd_min = min(1E6, Re)
+    if Re_fd_min < 1E6:
+        fd_smoth = friction_factor(Re=Re_fd_min, eD=0.0)
+    else:
+        fd_smoth = 0.011645040997991626
+    fd_rough = friction_factor(Re=Re_fd_min, eD=roughness/Di)
+    C_roughness = fd_rough/fd_smoth
+    return C_roughness
+
+
+def Miller_bend_unimpeded_correction(Kb, Di, L_unimpeded):
+    '''Limitations as follows:
+    * Ratio not over 30
+    * If ratio under 0.01, tabulated values are used near the limits 
+      (discontinuity in graph anyway)
+    * If ratio for a tried curve larger than max value, max value is used
+      instead of calculating it
+    * Kb limited to between 0.1 and 1.0
+    * When between two Kb curves, interpolate linearly after evaluating both
+      splines appropriately
+    '''
+    if Kb < 0.1:
+        Kb_C_o = 0.1
+    elif Kb > 1:
+        Kb_C_o = 1.0
+    else:
+        Kb_C_o = Kb
+
+    L_unimpeded_ratio = L_unimpeded/Di
+    if L_unimpeded_ratio > 30:
+        L_unimpeded_ratio = 30.0
+        
+    for i in range(len(bend_rounded_Miller_C_o_Kbs)):        
+        Kb_low, Kb_high = bend_rounded_Miller_C_o_Kbs[i], bend_rounded_Miller_C_o_Kbs[i+1]
+        if Kb_low <= Kb_C_o <= Kb_high:
+            if L_unimpeded_ratio >= bend_rounded_Miller_C_o_limits[i]:
+                Co_low = 1.0
+            elif L_unimpeded_ratio <= 0.01:
+                Co_low = bend_rounded_Miller_C_o_limit_0_01[i]
+            else:
+                Co_low = splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i])
+            if L_unimpeded_ratio >= bend_rounded_Miller_C_o_limits[i+1]:
+                Co_high = 1.0
+            elif L_unimpeded_ratio <= 0.01:
+                Co_high = bend_rounded_Miller_C_o_limit_0_01[i+1]
+            else:
+                Co_high = splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i+1])
+#            print(Kb_C_o, [Kb_low, Kb_high], [Co_low, Co_high])
+            C_o = Co_low + (Kb_C_o - Kb_low)*(Co_high - Co_low)/(Kb_high - Kb_low)
+            return C_o
+
+
 def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None, 
                         roughness=0, L_unimpeded=None):
     r'''Calculates the loss coefficient for a rounded pipe bend according to 
@@ -566,7 +622,7 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
     
     This was developed for bend angles between 10 and 180 degrees; and r/D
     ratios between 0.5 and 10. Both smooth and rough data was used in its 
-    development from several sources..
+    development from several sources.
     
     Note the loss coefficient includes the surface friction of the pipe as if
     it was straight.
@@ -605,14 +661,9 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
     # Caching could work here - angle, radius ratio does not change often
     Kb = bend_rounded_Miller_Kb(radius_ratio, angle) 
     
-    # Section 9.2.4 - Roughness correction
-    # Re limited to under 1E6 in friction factor falculations
-    # Use a cached smooth fd value if Re too high
-    Re_fd_min = min(1E6, Re)
-    fd_smoth = friction_factor(Re=Re_fd_min, eD=0.0) if Re_fd_min < 1E6 else 0.011645040997991626
-    fd_rough = friction_factor(Re=Re_fd_min, eD=roughness/Di)
-    C_roughness = fd_rough/fd_smoth
-    
+    C_roughness = Miller_bend_roughness_correction(Re=Re, Di=Di, 
+                                                   roughness=roughness)
+
     '''Section 9.2.2 - Reynolds Number Correction
     Allow some extrapolation up to 1E8 (1E7 max in graph but the trend looks good)
     '''
@@ -631,6 +682,8 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
             C_Re = C_Re_1
         else:
             C_Re = Kb/(Kb - 0.2*C_Re_1 + 0.2)
+            if C_Re > 2.2 or C_Re < 0:
+                C_Re = 2.2
     else:
         # regardless of ratio - 1
         if Re_C_Re > 1048884.4656835075:
@@ -643,47 +696,77 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
             # Line of C_Re=1 as a function of r_d between 0 and 1
         else:
             C_Re = bend_rounded_Miller_C_Re(Re_C_Re, radius_ratio)
+    C_o =  Miller_bend_unimpeded_correction(Kb=Kb, Di=Di, L_unimpeded=L_unimpeded)
     
-    
-    '''Limitations as follows:
-    * Ratio not over 30
-    * If ratio under 0.01, tabulated values are used near the limits 
-      (discontinuity in graph anyway)
-    * If ratio for a tried curve larger than max value, max value is used
-      instead of calculating it
-    * Kb limited to between 0.1 and 1.0
-    * When between two Kb curves, interpolate linearly after evaluating both
-      splines appropriately
-    '''
-    if Kb < 0.1:
-        Kb_C_o = 0.1
-    elif Kb > 1:
-        Kb_C_o = 1.0
-    else:
-        Kb_C_o = Kb
+#    print('Kb=%g, C Re=%g, C rough =%g, Co=%g' %(Kb, C_Re, C_roughness, C_o))
+    return Kb*C_Re*C_roughness*C_o
 
-    L_unimpeded_ratio = L_unimpeded/Di
-    if L_unimpeded_ratio > 30:
-        L_unimpeded_ratio = 30.0
-        
-    for i in range(len(bend_rounded_Miller_C_o_Kbs)):        
-        Kb_low, Kb_high = bend_rounded_Miller_C_o_Kbs[i], bend_rounded_Miller_C_o_Kbs[i+1]
-        if Kb_low <= Kb_C_o <= Kb_high:
-            if L_unimpeded_ratio >= bend_rounded_Miller_C_o_limits[i]:
-                Co_low = 1.0
-            elif L_unimpeded_ratio <= 0.01:
-                Co_low = bend_rounded_Miller_C_o_limit_0_01[i]
-            else:
-                Co_low = splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i])
-            if L_unimpeded_ratio >= bend_rounded_Miller_C_o_limits[i+1]:
-                Co_high = 1.0
-            elif L_unimpeded_ratio <= 0.01:
-                Co_high = bend_rounded_Miller_C_o_limit_0_01[i+1]
-            else:
-                Co_high = splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i+1])
-#            print(Kb_C_o, [Kb_low, Kb_high], [Co_low, Co_high])
-            C_o = Co_low + (Kb_C_o - Kb_low)*(Co_high - Co_low)/(Kb_high - Kb_low)
-            break
+
+bend_miter_Miller_coeffs = [-12.050299402650126, -4.472433689233185, 50.51478860493546, 18.246302079077196, 
+                            -84.61426660754049, -28.9340865412371, 71.07345367553872, 21.354010992349565, 
+                            -30.239604839338, -5.855129345095336, 5.465131779316523, -1.0881363712712555, 
+                            -0.3635431075401224, 0.5120065303391261, 0.46818214491579246, 0.9789177645343993,
+                            0.5080285124448385]
+
+def bend_miter_Miller(Di, angle, Re, roughness=0, L_unimpeded=None):
+    r'''Calculates the loss coefficient for a single mitre bend according to 
+    Miller [1]_. This is a sophisticated model which uses corrections for
+    pipe roughness, the length of the pipe downstream before another 
+    interruption, and a correction for Reynolds number. It interpolates several
+    times using several corrections graphs in [1]_.
+    
+    Parameters
+    ----------
+    Di : float
+        Inside diameter of pipe, [m]
+    angle : float
+        Angle of miter bend, [degrees]
+    Re : float
+        Reynolds number of the pipe (no specification if inlet or outlet
+        properties should be used), [m]
+    roughness : float, optional
+        Roughness of bend wall, [m]   
+    L_unimpeded : float, optional
+        The length of unimpeded pipe without any fittings, instrumentation,
+        or flow disturbances downstream (assumed 20 diameters if not 
+        specified), [m]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient [-]
+
+    Notes
+    -----    
+    Note the loss coefficient includes the surface friction of the pipe as if
+    it was straight.
+   
+    Examples
+    --------
+    >>> bend_miter_Miller(Di=.6, angle=90, Re=2e6, roughness=2e-5, 
+    ... L_unimpeded=30*.6)
+    1.1921574594947668
+    
+    References
+    ----------
+    .. [1] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
+    '''
+    if L_unimpeded is None:
+        L_unimpeded = 20*Di
+    if angle > 120:
+        angle = 120
+    
+    Kb = horner(bend_miter_Miller_coeffs, 0.0166666666666666664*(angle-60.000000))
+    
+    C_o =  Miller_bend_unimpeded_correction(Kb=Kb, Di=Di, L_unimpeded=L_unimpeded)
+    C_roughness = Miller_bend_roughness_correction(Re=Re, Di=Di, 
+                                                   roughness=roughness)
+    Re_C_Re = min(max(Re, 1E4), 1E8)
+    C_Re_1 = bend_rounded_Miller_C_Re(Re_C_Re, 1.0) if Re_C_Re < 207956.58904584477 else 1.0
+    C_Re = Kb/(Kb - 0.2*C_Re_1 + 0.2)
+    if C_Re > 2.2 or C_Re < 0:
+        C_Re = 2.2
 #    print('Kb=%g, C Re=%g, C rough =%g, Co=%g' %(Kb, C_Re, C_roughness, C_o))
     return Kb*C_Re*C_roughness*C_o
 
@@ -2683,6 +2766,123 @@ def K_plug_valve_Crane(D1, D2, angle, fd, style=0):
         return (K + 0.5*(sin(angle/2))**0.5 * (1 - beta**2) + (1-beta**2)**2)/beta**4
 
 
+def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
+    r'''Calculates the approximate minimum velocity required to lift the disk 
+    or other controlling element of a check valve to a fully open, stable,
+    position according to the Crane method [1]_.
+    
+    .. math::        
+        v_{min} = N\cdot \text{m/s} \cdot \sqrt{\frac{\text{kg/m}^3}{\rho}}
+    
+    .. math::
+        v_{min} = N\beta^2 \cdot \text{m/s} \cdot \sqrt{\frac{\text{kg/m}^3}{\rho}}
+        
+    See the notes for the definition of values of N and which check valves use 
+    which formulas.
+
+    Parameters
+    ----------
+    rho : float
+        Density of the fluid [kg/m^3]
+    D1 : float, optional
+        Diameter of the valve bore (must be equal to or smaller than 
+        `D2`), [m]
+    D2 : float, optional
+        Diameter of the pipe attached to the valve, [m]
+    style : str
+        The type of valve; one of ['swing check angled', 'swing check straight',
+        'swing check UL', 'lift check straight', 'lift check angled', 
+        'tilting check 5°', 'tilting check 15°', 'stop check globe 1', 
+        'stop check angle 1', 'stop check globe 2',  'stop check angle 2', 
+        'stop check globe 3', 'stop check angle 3', 'foot valve poppet disc', 
+        'foot valve hinged disc'], [-]
+
+    Returns
+    -------
+    v_min : float
+        Approximate minimum velocity required to keep the disc fully lifted,
+        preventing chattering and wear [m/s]
+
+    Notes
+    -----
+    This equation is not dimensionless.
+
+    +--------------------------+-----+------+
+    | Name/string              | N   | Full |
+    +==========================+=====+======+
+    | 'swing check angled'     | 45  | No   |
+    +--------------------------+-----+------+
+    | 'swing check straight'   | 75  | No   |
+    +--------------------------+-----+------+
+    | 'swing check UL'         | 120 | No   |
+    +--------------------------+-----+------+
+    | 'lift check straight'    | 50  | Yes  |
+    +--------------------------+-----+------+
+    | 'lift check angled'      | 170 | Yes  |
+    +--------------------------+-----+------+
+    | 'tilting check 5°'       | 100 | No   |
+    +--------------------------+-----+------+
+    | 'tilting check 15°'      | 40  | No   |
+    +--------------------------+-----+------+
+    | 'stop check globe 1'     | 70  | Yes  |
+    +--------------------------+-----+------+
+    | 'stop check angle 1'     | 95  | Yes  |
+    +--------------------------+-----+------+
+    | 'stop check globe 2'     | 75  | Yes  |
+    +--------------------------+-----+------+
+    | 'stop check angle 2'     | 75  | Yes  |
+    +--------------------------+-----+------+
+    | 'stop check globe 3'     | 170 | Yes  |
+    +--------------------------+-----+------+
+    | 'stop check angle 3'     | 170 | Yes  |
+    +--------------------------+-----+------+
+    | 'foot valve poppet disc' | 20  | No   |
+    +--------------------------+-----+------+
+    | 'foot valve hinged disc' | 45  | No   |
+    +--------------------------+-----+------+
+
+    Examples
+    --------
+    >>> v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style='lift check straight')
+    1.0252301935349286
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    specific_volume = 1./rho
+    if D1 is not None and D2 is not None:
+        beta = D1/D2
+        beta2 = beta*beta
+    if style == 'swing check angled':
+        return 45*specific_volume**0.5
+    elif style == 'swing check straight':
+        return 75*specific_volume**0.5
+    elif style == 'swing check UL':
+        return 120*specific_volume**0.5
+    elif style == 'lift check straight':
+        return 50.*beta2*specific_volume**0.5
+    elif style == 'lift check angled':
+        return 170.*beta2*specific_volume**0.5
+    elif style == 'tilting check 5°':
+        return 100*specific_volume**0.5
+    elif style == 'tilting check 15°':
+        return 40*specific_volume**0.5
+    elif style == 'stop check globe 1':
+        return 70*beta2*specific_volume**0.5
+    elif style == 'stop check angle 1':
+        return 95*beta2*specific_volume**0.5
+    elif style in ['stop check globe 2', 'stop check angle 2']:
+        return 75*beta2*specific_volume**0.5
+    elif style in ['stop check globe 3', 'stop check angle 3']:
+        return 170*beta2*specific_volume**0.5
+    elif style == 'foot valve poppet disc':
+        return 20*specific_volume**0.5
+    elif style == 'foot valve hinged disc':
+        return 45*specific_volume**0.5
+
+
 branch_converging_Crane_Fs = np.array([1.74, 1.41, 1, 0])
 branch_converging_Crane_angles = np.array([30, 45, 60, 90])
 
@@ -3066,120 +3266,3 @@ def K_run_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     return M*Q_ratio*Q_ratio
 
 
-def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
-    r'''Calculates the approximate minimum velocity required to lift the disk 
-    or other controlling element of a check valve to a fully open, stable,
-    position according to the Crane method [1]_.
-    
-    .. math::        
-        v_{min} = N\cdot \text{m/s} \cdot \sqrt{\frac{\text{kg/m}^3}{\rho}}
-    
-    .. math::
-        v_{min} = N\beta^2 \cdot \text{m/s} \cdot \sqrt{\frac{\text{kg/m}^3}{\rho}}
-        
-    See the notes for the definition of values of N and which check valves use 
-    which formulas.
-
-    Parameters
-    ----------
-    rho : float
-        Density of the fluid [kg/m^3]
-    D1 : float, optional
-        Diameter of the valve bore (must be equal to or smaller than 
-        `D2`), [m]
-    D2 : float, optional
-        Diameter of the pipe attached to the valve, [m]
-    style : str
-        The type of valve; one of ['swing check angled', 'swing check straight',
-        'swing check UL', 'lift check straight', 'lift check angled', 
-        'tilting check 5°', 'tilting check 15°', 'stop check globe 1', 
-        'stop check angle 1', 'stop check globe 2',  'stop check angle 2', 
-        'stop check globe 3', 'stop check angle 3', 'foot valve poppet disc', 
-        'foot valve hinged disc'], [-]
-
-    Returns
-    -------
-    v_min : float
-        Approximate minimum velocity required to keep the disc fully lifted,
-        preventing chattering and wear [m/s]
-
-    Notes
-    -----
-    This equation is not dimensionless.
-
-    +--------------------------+-----+------+
-    | Name/string              | N   | Full |
-    +==========================+=====+======+
-    | 'swing check angled'     | 45  | No   |
-    +--------------------------+-----+------+
-    | 'swing check straight'   | 75  | No   |
-    +--------------------------+-----+------+
-    | 'swing check UL'         | 120 | No   |
-    +--------------------------+-----+------+
-    | 'lift check straight'    | 50  | Yes  |
-    +--------------------------+-----+------+
-    | 'lift check angled'      | 170 | Yes  |
-    +--------------------------+-----+------+
-    | 'tilting check 5°'       | 100 | No   |
-    +--------------------------+-----+------+
-    | 'tilting check 15°'      | 40  | No   |
-    +--------------------------+-----+------+
-    | 'stop check globe 1'     | 70  | Yes  |
-    +--------------------------+-----+------+
-    | 'stop check angle 1'     | 95  | Yes  |
-    +--------------------------+-----+------+
-    | 'stop check globe 2'     | 75  | Yes  |
-    +--------------------------+-----+------+
-    | 'stop check angle 2'     | 75  | Yes  |
-    +--------------------------+-----+------+
-    | 'stop check globe 3'     | 170 | Yes  |
-    +--------------------------+-----+------+
-    | 'stop check angle 3'     | 170 | Yes  |
-    +--------------------------+-----+------+
-    | 'foot valve poppet disc' | 20  | No   |
-    +--------------------------+-----+------+
-    | 'foot valve hinged disc' | 45  | No   |
-    +--------------------------+-----+------+
-
-    Examples
-    --------
-    >>> v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style='lift check straight')
-    1.0252301935349286
-    
-    References
-    ----------
-    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
-       2009.
-    '''
-    specific_volume = 1./rho
-    if D1 is not None and D2 is not None:
-        beta = D1/D2
-        beta2 = beta*beta
-    if style == 'swing check angled':
-        return 45*specific_volume**0.5
-    elif style == 'swing check straight':
-        return 75*specific_volume**0.5
-    elif style == 'swing check UL':
-        return 120*specific_volume**0.5
-    elif style == 'lift check straight':
-        return 50.*beta2*specific_volume**0.5
-    elif style == 'lift check angled':
-        return 170.*beta2*specific_volume**0.5
-    elif style == 'tilting check 5°':
-        return 100*specific_volume**0.5
-    elif style == 'tilting check 15°':
-        return 40*specific_volume**0.5
-    elif style == 'stop check globe 1':
-        return 70*beta2*specific_volume**0.5
-    elif style == 'stop check angle 1':
-        return 95*beta2*specific_volume**0.5
-    elif style in ['stop check globe 2', 'stop check angle 2']:
-        return 75*beta2*specific_volume**0.5
-    elif style in ['stop check globe 3', 'stop check angle 3']:
-        return 170*beta2*specific_volume**0.5
-    elif style == 'foot valve poppet disc':
-        return 20*specific_volume**0.5
-    elif style == 'foot valve hinged disc':
-        return 45*specific_volume**0.5
-        
-    

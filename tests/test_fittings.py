@@ -30,6 +30,8 @@ from numpy.testing import assert_allclose
 from scipy.constants import *
 from scipy.optimize import *
 from scipy.interpolate import *
+from fluids import fluids_data_dir
+from fluids.core import Engauge_2d_parser
 
 import pytest
 
@@ -233,8 +235,6 @@ def test_bend_rounded_Miller_Re_correction():
 
 
 def test_bend_rounded_Miller_outlet_tangent_correction():
-    from fluids import fluids_data_dir
-    from fluids.core import Engauge_2d_parser
     from fluids.fittings import tck_bend_rounded_Miller_C_Re
     Re_curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 smooth bends outlet tangent length correction.csv')
     text = open(Re_curve_path).readlines()
@@ -353,6 +353,40 @@ def test_bend_rounded_Miller_fuzz():
             raise Exception
         answers.append(ans)
         
+    assert min(answers) >= 0
+    assert max(answers) < 1E10
+
+
+def test_bend_miter_Miller_coefficients():
+    from fluids.optional.pychebfun import chebfun, chebfun_to_poly
+    curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 Kb mitre bend.csv')
+    text = open(curve_path).readlines()
+    zs, x_lists, y_lists = Engauge_2d_parser(text)
+    x_raw, y_raw = x_lists[0], y_lists[0]
+    univar = UnivariateSpline(x_raw, y_raw, s=1e-4)
+    fun = chebfun(f=univar, domain=[0,120], N=15) # 15 max for many coeffs
+    
+    recalc_coeffs = chebfun_to_poly(fun)
+    from fluids.fittings import bend_miter_Miller_coeffs
+    assert_allclose(bend_miter_Miller_coeffs, recalc_coeffs)
+
+def test_bend_miter_Miller():
+    K = bend_miter_Miller(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20)
+    assert_allclose(K, 0.2944060416245167)
+ 
+def test_bend_miter_Miller_fuzz():
+    # Tested for quite a while without problems
+    answers = []
+    for i in range(10**3):
+        Di = log_uniform(1e-5, 100)
+        angle = uniform(0, 120) 
+        Re = log_uniform(1e-5, 1E15)
+        roughness = uniform(1e-10, Di*.95)
+        L_unimpeded = log_uniform(1e-10, Di*1000)
+        ans = bend_miter_Miller(Di=Di, angle=angle, Re=Re, roughness=roughness, L_unimpeded=L_unimpeded)
+        if np.isnan(ans) or np.isinf(ans):
+            raise Exception
+        answers.append(ans)
     assert min(answers) >= 0
     assert max(answers) < 1E10
 

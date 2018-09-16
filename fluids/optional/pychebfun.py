@@ -42,6 +42,22 @@ import sys
 emach = sys.float_info.epsilon # machine epsilon
 
 
+def chebfun_to_poly(fun, text=False):
+    from numpy.polynomial.chebyshev import cheb2poly
+    low, high = fun._domain
+    # Reverse the coefficients, and use cheb2poly to make it in the polynomial domain
+    poly_coeffs = cheb2poly(fun.coefficients())[::-1].tolist()
+    if not text:
+        return poly_coeffs
+    s = 'coeffs = %s\n' %poly_coeffs
+    delta = high - low
+    delta_sum = high + low
+    # Generate the expression
+    s += 'horner(coeffs, %.18g*(x-%.18g))' %(2.0/delta, 0.5*delta_sum)
+    # return the string
+    return s
+
+
 def cast_scalar(method):
     """
     Cast scalars to constant interpolating objects
