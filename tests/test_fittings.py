@@ -24,7 +24,8 @@ from __future__ import division
 import os
 from fluids import *
 import numpy as np
-from math import pi
+from math import pi, log10
+from random import uniform
 from numpy.testing import assert_allclose
 from scipy.constants import *
 from scipy.optimize import *
@@ -332,6 +333,28 @@ def test_bend_rounded_Miller():
     K = bend_rounded_Miller(L_unimpeded=2*D, **kwargs)
     assert_allclose(K, 0.09343184457353562, rtol=1e-4) # 0.093 in miller
 
+
+
+def log_uniform(low, high):
+    return 10**uniform(log10(low), log10(high))
+
+def test_bend_rounded_Miller_fuzz():
+    # Tested for quite a while without problems
+    answers = []
+    for i in range(500):
+        Di = log_uniform(1e-5, 100)
+        rc = uniform(0, 100)
+        angle = uniform(0, 180) 
+        Re = log_uniform(1e-5, 1E15)
+        roughness = uniform(1e-10, Di*.95)
+        L_unimpeded = log_uniform(1e-10, Di*1000)
+        ans = bend_rounded_Miller(Di=Di, rc=rc, angle=angle, Re=Re, roughness=roughness, L_unimpeded=L_unimpeded)
+        if np.isnan(ans) or np.isinf(ans):
+            raise Exception
+        answers.append(ans)
+        
+    assert min(answers) >= 0
+    assert max(answers) < 1E10
 
 
 def test_valve_coefficients():
