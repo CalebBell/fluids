@@ -23,9 +23,13 @@ SOFTWARE.'''
 from __future__ import division
 import os
 from fluids import *
+import numpy as np
 from math import pi
 from numpy.testing import assert_allclose
 from scipy.constants import *
+from scipy.optimize import *
+from scipy.interpolate import *
+
 import pytest
 
 def test_fittings():
@@ -154,7 +158,6 @@ def test_fittings():
 def test_bend_rounded_Miller_K():
     from fluids import fluids_data_dir
     from fluids.core import Engauge_2d_parser
-    from scipy.interpolate import bisplrep
     from fluids.fittings import tck_bend_rounded_Miller
     Kb_curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 smooth bends Kb.csv')
     lines = open(Kb_curve_path).readlines()
@@ -163,6 +166,158 @@ def test_bend_rounded_Miller_K():
     tck_recalc = bisplrep(all_xs, all_ys, all_zs, kx=3, ky=3, s=.001)
     [assert_allclose(i, j) for i, j in zip(tck_bend_rounded_Miller, tck_recalc)]
     
+    
+def test_bend_rounded_Miller_Re_correction():
+    from fluids import fluids_data_dir
+    from fluids.core import Engauge_2d_parser
+    from fluids.fittings import tck_bend_rounded_Miller_C_Re
+    Re_curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 smooth bends Re correction.csv')
+    text = open(Re_curve_path).readlines()
+    rds, Re_lists, C_lists = Engauge_2d_parser(text)
+    
+    inter_objs = []
+    for rd, Res, Cs in zip(rds, Re_lists, C_lists):
+        univar = UnivariateSpline(np.log10(Res), Cs) # Default smoothing is great!
+        inter_objs.append(univar)
+        
+    for i, (rd, Res, Cs) in enumerate(zip(rds, Re_lists, C_lists)):
+    #     plt.semilogx(Res, Cs)
+        univar = inter_objs[i]
+        Cs_smoothed = univar(np.log10(Res))
+    #     plt.semilogx(Res, Cs_smoothed)
+    #     print(univar.get_coeffs(), univar.get_knots())
+    # plt.show()
+    
+    # make a rectangular grid
+    Res = np.logspace(np.log10(1E4), np.log10(1E8), 100)
+    Cs_stored = []
+    for obj in inter_objs:
+        Cs_smoothed = obj(np.log10(Res))
+#        plt.semilogx(Res, Cs_smoothed)
+        Cs_stored.append(Cs_smoothed)
+#    plt.show()
+
+    # Flatten the data to the form used in creating the spline
+    all_zs = []
+    all_xs = []
+    all_ys = []
+    for z, x, ys in zip(rds, Res, Cs_stored):
+        for x, y in zip(Res, ys):
+            all_zs.append(z)
+            all_xs.append(x)
+            all_ys.append(y)
+
+    tck_recalc = bisplrep(np.log10(all_xs), all_zs, all_ys)
+    [assert_allclose(i, j) for i, j in zip(tck_bend_rounded_Miller_C_Re, tck_recalc)]
+    
+    spline_obj = lambda Re, r_D : bisplev(np.log10(Re), r_D, tck_recalc)
+    Res = np.logspace(np.log10(1E4), np.log10(1E8), 100)
+    for obj, r_d in zip(inter_objs, rds):
+        Cs_smoothed = obj(np.log10(Res))
+#        plt.semilogx(Res, Cs_smoothed)
+    #     Cs_spline = spline_obj(Res, r_d)
+    #     plt.semilogx(Res, Cs_spline, '--')
+    for r in np.linspace(1, 2, 10):
+        Cs_spline = spline_obj(Res, r)
+#        plt.semilogx(Res, Cs_spline, '-')
+#    plt.show()
+
+    from fluids.fittings import bend_rounded_Miller_C_Re_limit_1
+    from fluids.fittings import bend_rounded_Miller_C_Re
+    ps = np.linspace(1, 2)
+    qs = [newton(lambda x: bend_rounded_Miller_C_Re(x, i)-1, 2e5) for i in ps]
+    rs = np.polyfit(ps, qs, 4).tolist()
+    assert_allclose(rs, bend_rounded_Miller_C_Re_limit_1)
+
+
+
+def test_bend_rounded_Miller_outlet_tangent_correction():
+    from fluids import fluids_data_dir
+    from fluids.core import Engauge_2d_parser
+    from fluids.fittings import tck_bend_rounded_Miller_C_Re
+    Re_curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 smooth bends outlet tangent length correction.csv')
+    text = open(Re_curve_path).readlines()
+    
+    Kbs, length_ratio_lists, Co_lists = Engauge_2d_parser(text)
+    
+    def BioScience_GeneralizedSubstrateDepletion_model(x_in):
+        '''Fit created using zunzun.com, comparing the non-linear,
+        non-logarithmic plot values with pixel positions on the graph.
+        
+        0	0.00
+        1	311
+        2	493
+        4	721
+        6	872
+        10	1074
+        20	1365
+        30	1641
+        40	1661
+        '''
+        temp = 0.0
+        a = 1.0796070184265327E+03
+        b = 2.7557612059844967E+00
+        c = -2.1529870432577212E+01
+        d = 4.1229208061974096E-03
+        temp = (a * x_in) / (b + x_in) - (c * x_in) - d
+        return temp
+    
+    def fix(y):
+        # Reverse the plot
+        # Convert input "y" to between 0 and 1661
+        y = y/30 # 0-1 linear
+        y *= 1641 # to max
+        err = lambda x: BioScience_GeneralizedSubstrateDepletion_model(x) - y
+        return float(fsolve(err, 1))
+
+    for values in length_ratio_lists:
+        for i in range(len(values)):
+            x = min(values[i], 30) # Do not allow values over 30
+            values[i] = fix(x)
+
+    
+#     Plotting code
+#    inter_objs = []
+#    for Kb, lrs, Cos in zip(Kbs, length_ratio_lists, Co_lists):
+#        univar = UnivariateSpline(lrs, Cos, s=4e-4) # Default smoothing is great!
+#        inter_objs.append(univar)
+#    for i, (Kb, lrs, Cos) in enumerate(zip(Kbs, length_ratio_lists, Co_lists)):
+#        plt.semilogx(lrs, Cos, 'x')
+#        univar = inter_objs[i]
+#        Cs_smoothed = univar(lrs)
+#        plt.semilogx(lrs, Cs_smoothed)
+    # plt.ylim([0.3, 3])
+    # plt.xlim([0.1, 30])
+    # plt.show()
+
+#   Code to literally write the code
+    min_vals = []
+    tcks = []
+    for Kb, lrs, Cos in zip(Kbs, length_ratio_lists, Co_lists):
+        univar = splrep(lrs, Cos, s=4e-4) # Default smoothing is great!
+        s = ('tck_bend_rounded_Miller_C_o_%s = ' %str(Kb).replace('.', '_'))
+        template = 'np.array(%s),\n'
+        t1 = template%str(univar[0].tolist())
+        t2 = template%str(univar[1].tolist())
+        s = s + '[%s%s3]' %(t1, t2)
+#        print(s)
+        min_vals.append(float(splev(0.01, univar)))
+        tcks.append(univar)
+    
+    # Check the fixed constants above the function
+    from fluids.fittings import tck_bend_rounded_Miller_C_os
+    for tck, tck_recalc in zip(tck_bend_rounded_Miller_C_os, tcks):
+        [assert_allclose(i, j) for i, j in zip(tck, tck_recalc)]
+
+
+    from fluids.fittings import bend_rounded_Miller_C_o_limit_0_01
+    assert_allclose(min_vals, bend_rounded_Miller_C_o_limit_0_01)
+    
+    from fluids.fittings import bend_rounded_Miller_C_o_limits
+    max_ratios = [i[-1] for i in length_ratio_lists]
+    assert_allclose(max_ratios, bend_rounded_Miller_C_o_limits)
+
+
 
 def test_bend_rounded_Miller():
     # Miller examples - 9.12

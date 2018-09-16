@@ -472,6 +472,7 @@ tck_bend_rounded_Miller_C_Re = [np.array([4.0, 4.0, 4.0, 4.0, 8.0, 8.0, 8.0, 8.0
    3, 3]
                                 
 bend_rounded_Miller_C_Re = lambda Re, rc_D : bisplev(log10(Re), rc_D, tck_bend_rounded_Miller_C_Re)
+bend_rounded_Miller_C_Re_limit_1 = [2428087.757821312, -13637184.203693766, 28450331.830760233, -25496945.91463643, 8471761.477755375]
 
 
 tck_bend_rounded_Miller_C_o_0_1 = [np.array([9.975803953769495e-06, 9.975803953769495e-06, 9.975803953769495e-06,
@@ -515,9 +516,8 @@ tck_bend_rounded_Miller_C_os = [tck_bend_rounded_Miller_C_o_0_1, tck_bend_rounde
                                 tck_bend_rounded_Miller_C_o_0_2, tck_bend_rounded_Miller_C_o_0_25,
                                 tck_bend_rounded_Miller_C_o_1_0]
 bend_rounded_Miller_C_o_Kbs = [.1, .15, .2, .25, 1]
-bend_rounded_Miller_C_o_limits = [30, 26.28093462852014, 22.10600230228466, 16.770001745987884, 13.268280073552294]
+bend_rounded_Miller_C_o_limits = [30.260656153593906, 26.28093462852014, 22.10600230228466, 16.770001745987884, 13.268280073552294]
 bend_rounded_Miller_C_o_limit_0_01 = [0.6169055099514943, 0.8663244713199465, 1.2029584898712695, 2.7143438886138744, 2.7115417734646114]
-bend_rounded_Miller_C_o_limit_1 = [2428087.757821312, -13637184.203693766, 28450331.830760233, -25496945.91463643, 8471761.477755375]
 
 
 def bend_rounded_Miller(Di, angle, Re, roughness, rc=None, bend_diameters=5,
@@ -574,7 +574,7 @@ def bend_rounded_Miller(Di, angle, Re, roughness, rc=None, bend_diameters=5,
         # regardless of ratio - 1
         if Re_C_Re > 1048884.4656835075:
             C_Re = 1.0
-        elif Re_C_Re > horner(bend_rounded_Miller_C_o_limit_1, radius_ratio):
+        elif Re_C_Re > horner(bend_rounded_Miller_C_Re_limit_1, radius_ratio):
             C_Re = 1.0
 #            ps = np.linspace(1, 2)
 #            qs = [newton(lambda x: bend_rounded_Miller_C_Re(x, i)-1, 2e5) for i in ps]
