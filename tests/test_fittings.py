@@ -455,6 +455,11 @@ def test_K_gate_valve_Crane():
     assert_allclose(K, 2.5719286772143595)
 
 
+def test_contraction_round_Miller():
+    K = contraction_round_Miller(Di1=1, Di2=0.4, rc=0.04)
+    assert_allclose(K, 0.085659530512986387)
+    
+
 def test_K_globe_valve_Crane():
     K =  K_globe_valve_Crane(.01, .02, fd=.015)
     assert_allclose(K, 87.1)

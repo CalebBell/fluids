@@ -28,7 +28,8 @@ from scipy.interpolate import splev, bisplev
 from fluids.friction import friction_factor
 from fluids.core import horner
 
-__all__ = ['contraction_sharp', 'contraction_round',
+__all__ = ['contraction_sharp', 'contraction_round', 
+           'contraction_round_Miller',
 'contraction_conical', 'contraction_beveled',  'diffuser_sharp',
 'diffuser_conical', 'diffuser_conical_staged', 'diffuser_curved',
 'diffuser_pipe_reducer',
@@ -981,6 +982,54 @@ tck_contraction_abrupt_Miller = [
             0.010870991979047888, 0.0015100946100218284, -0.0005221250682760256, -0.0006447517875307877,
             -0.0007846123907797336, 0.0024459067063225485, -0.0019102888752274472, -0.0001356300464508266]),
           3, 3]
+
+
+def contraction_round_Miller(Di1, Di2, rc):
+    r'''Returns loss coefficient for any round edged pipe contraction
+    using the method of Miller [1]_. This method uses a spline fit to a graph
+    with area ratios 0 to 1, and radius ratios (rc/Di2) from 0.1 to 0.
+
+    .. figure:: fittings/contraction_round.png
+       :scale: 30 %
+       :alt: Cirucular round contraction; after [1]_
+
+    Parameters
+    ----------
+    Di1 : float
+        Inside diameter of original pipe, [m]
+    Di2 : float
+        Inside diameter of following pipe, [m]
+    rc : float
+        Radius of curvature of the contraction, [m]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient in terms of the following pipe, [-]
+
+    Notes
+    -----
+    This method normally gives lower losses than the Rennels formulation.
+
+    Examples
+    --------
+    >>> contraction_round_Miller(Di1=1, Di2=0.4, rc=0.04)
+    0.08565953051298639
+
+    References
+    ----------
+    .. [1] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
+    '''
+    A_ratio = Di2*Di2/(Di1*Di1)
+    radius_ratio = rc/Di2
+    if radius_ratio > 0.1:
+        radius_ratio = 0.1
+    Ks = bisplev(A_ratio, radius_ratio, tck_contraction_abrupt_Miller)
+    # For some near-1 ratios, can get negative Ks due to th epsline... fix it in post
+    if Ks < 0.0:
+        Ks = 0.0
+    return Ks
 
 
 def contraction_sharp(Di1, Di2):
