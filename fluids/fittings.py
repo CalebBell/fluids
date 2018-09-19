@@ -30,7 +30,7 @@ from fluids.core import horner
 
 __all__ = ['contraction_sharp', 'contraction_round', 
            'contraction_round_Miller',
-'contraction_conical', 'contraction_beveled',  'diffuser_sharp',
+'contraction_conical', 'contraction_conical_Crane', 'contraction_beveled',  'diffuser_sharp',
 'diffuser_conical', 'diffuser_conical_staged', 'diffuser_curved',
 'diffuser_pipe_reducer',
 'entrance_sharp', 'entrance_distance', 'entrance_angled',
@@ -1153,9 +1153,9 @@ def contraction_conical(Di1, Di2, fd, l=None, angle=None):
     Parameters
     ----------
     Di1 : float
-        Inside diameter of original pipe, [m]
+        Inside pipe diameter of the larger, upstream, pipe, [m]    
     Di2 : float
-        Inside diameter of following pipe, [m]
+        Inside pipe diameter of the smaller, downstream, pipe, [m]    
     fd : float
         Darcy friction factor [-]
     l : float
@@ -1183,16 +1183,94 @@ def contraction_conical(Di1, Di2, fd, l=None, angle=None):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     beta = Di2/Di1
-    if angle:
-        angle = angle/(180/pi)
-        l = (Di1 - Di2)/(2*tan(angle/2))
-    elif l:
-        angle = 2*atan((Di1-Di2)/2/l)
+    if angle is not None:
+        angle = radians(angle)
+        l = (Di1 - Di2)/(2.0*tan(0.5*angle))
+    elif l is not None:
+        try:
+            angle = 2.0*atan((Di1-Di2)/(2.0*l))
+        except ZeroDivisionError:
+            angle = pi
     else:
         raise Exception('Either l or angle is required')
 
     lbd = 1 + 0.622*(angle/pi)**0.8*(1-0.215*beta**2 - 0.785*beta**5)
     return fd*(1-beta**4)/(8*sin(angle/2)) + 0.0696*sin(angle/2)*(1-beta**5)*lbd**2 + (lbd-1)**2
+
+
+def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
+    r'''Returns loss coefficient for a conical pipe contraction
+    as shown in Crane TP 410M [1]_ between 0 and 180 degrees.
+
+    If :math:`\theta < 45^{\circ}`:
+        
+    .. math::
+        K_2 = {0.8 \sin \frac{\theta}{2}(1 - \beta^2)}
+
+    otherwise:
+        
+    .. math::
+        K_2 = {0.5\sqrt{\sin \frac{\theta}{2}} (1 - \beta^2)}
+        
+    .. math::
+        \beta = d_2/d_1
+
+    .. figure:: fittings/contraction_conical.png
+       :scale: 30 %
+       :alt: contraction conical; after [1]_
+
+    Parameters
+    ----------
+    Di1 : float
+        Inside pipe diameter of the larger, upstream, pipe, [m]    
+    Di2 : float
+        Inside pipe diameter of the smaller, downstream, pipe, [m]    
+    l : float
+        Length of the contraction, optional [m]
+    angle : float
+        Angle of contraction, optional [degrees]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient in terms of the following (smaller) pipe [-]
+
+    Notes
+    -----
+    Cheap and has substantial impact on pressure drop. Note that the 
+    nomenclature in [1]_ is somewhat different - the smaller pipe is called 1,
+    and the larger pipe is called 2; and so the beta ratio is reversed, and the
+    fourth power of beta used in their equation is not necessary.
+
+    Examples
+    --------
+    >>> contraction_conical_Crane(Di1=0.0779, Di2=0.0525, l=0)
+    0.2729017979998056
+
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    if l is None and angle is None:
+        raise Exception('One of `l` or `angle` must be specified')
+    beta = Di2/Di1
+    beta2 = beta*beta
+    if angle is not None:
+        angle = radians(angle)
+        l = (Di1 - Di2)/(2.0*tan(0.5*angle))
+    elif l is not None:
+        try:
+            angle = 2.0*atan((Di1-Di2)/(2.0*l))
+        except ZeroDivisionError:
+            angle = pi
+    if angle < 0.25*pi:
+        # Formula 1
+        K2 = 0.8*sin(0.5*angle)*(1.0 - beta2)
+    else:
+        # Formula 2
+        K2 = 0.5*(sin(0.5*angle)**0.5*(1.0 - beta2))
+    return K2
 
 
 def contraction_beveled(Di1, Di2, l=None, angle=None):

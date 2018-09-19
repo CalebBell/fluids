@@ -35,6 +35,10 @@ from fluids.core import Engauge_2d_parser
 
 import pytest
 
+def test_contraction_conical_Crane():
+    K2 = contraction_conical_Crane(Di1=0.0779, Di2=0.0525, l=0)
+    assert_allclose(K2, 0.2729017979998056)
+    
 def test_fittings():
     assert_allclose(entrance_sharp(), 0.57)
 
