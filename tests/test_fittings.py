@@ -32,26 +32,129 @@ from scipy.optimize import *
 from scipy.interpolate import *
 from fluids import fluids_data_dir
 from fluids.core import Engauge_2d_parser
+from fluids.optional.pychebfun import *
 
 import pytest
 
 def test_contraction_conical_Crane():
     K2 = contraction_conical_Crane(Di1=0.0779, Di2=0.0525, l=0)
     assert_allclose(K2, 0.2729017979998056)
+        
+def test_entrance_distance_Miller_coeffs():
+    from fluids.fittings import entrance_distance_Miller_coeffs
+    t_ds = [0.006304, 0.007586, 0.009296, 0.011292, 0.013288, 0.015284, 0.019565, 0.022135, 0.024991, 0.02842, 0.032136, 0.036426, 0.040145, 0.043149, 0.048446, 0.054745, 0.061332, 0.067919, 0.075081, 0.081957, 0.089121, 0.096284, 0.099722, 0.106886, 0.110897, 0.118061, 0.125224, 0.132101, 0.139264, 0.147, 0.153877, 0.16104, 0.167917, 0.175081, 0.181957, 0.189121, 0.196284, 0.199723, 0.206886, 0.214049, 0.221213, 0.228376, 0.235539, 0.242416, 0.249579, 0.250726, 0.257889, 0.264766, 0.271929, 0.279093, 0.286256, 0.293419, 0.300009]
+    Ks = [1.00003, 0.97655, 0.94239, 0.90824, 0.87408, 0.83993, 0.78301, 0.75028, 0.71756, 0.68626, 0.65638, 0.62793, 0.6066, 0.59166, 0.57532, 0.56111, 0.54833, 0.5384, 0.53416, 0.53135, 0.53138, 0.53142, 0.53143, 0.53147, 0.53149, 0.53152, 0.53156, 0.53159, 0.53162, 0.53023, 0.53027, 0.5303, 0.53033, 0.53179, 0.5304, 0.53186, 0.53189, 0.53191, 0.53194, 0.53198, 0.53201, 0.53347, 0.53208, 0.53353, 0.53215, 0.53215, 0.53218, 0.53364, 0.53367, 0.53371, 0.53374, 0.53378, 0.5331]
+    # plt.plot(t_ds, Ks)
+    t_ds2 = np.linspace(t_ds[0], t_ds[-1], 1000)
+#    Ks_Rennels = [entrance_distance(Di=1, t=t) for t in t_ds2]
+    # plt.plot(t_ds2, Ks_Rennels)
+    # plt.show()
     
-def test_fittings():
-    assert_allclose(entrance_sharp(), 0.57)
+    obj = UnivariateSpline(t_ds, Ks, s=3e-5)
+    # print(len(obj.get_coeffs()), len(obj.get_knots()))
+    # plt.plot(t_ds2, obj(t_ds2))
+    
+    fun = chebfun(f=obj, domain=[0,.3], N=15)
+    coeffs = chebfun_to_poly(fun, text=False)
+    assert_allclose(coeffs, entrance_distance_Miller_coeffs)
 
+def test_entrance_distance_45_Miller():
+    from fluids.fittings import entrance_distance_45_Miller
+    K = entrance_distance_45_Miller(Di=0.1, Di0=0.14)
+    assert_allclose(K, 0.24407641818143339)
+
+def test_entrance_distance_45_Miller_coeffs():
+    from fluids.fittings import entrance_distance_45_Miller_coeffs
+    t_ds_re_entrant_45 = [0.006375, 0.007586, 0.009296, 0.011292, 0.013288, 0.015284, 0.019565, 0.022135, 0.024991, 0.02842, 0.032136, 0.036426, 0.040109, 0.043328, 0.046868, 0.048443, 0.053379, 0.053594, 0.059318, 0.059855, 0.065044, 0.068836, 0.070768, 0.07678, 0.082793, 0.088805, 0.089663, 0.095963, 0.104267, 0.110566, 0.116866, 0.123451, 0.129751, 0.136337, 0.142637, 0.146933, 0.153807, 0.160394, 0.167268, 0.174143, 0.181018, 0.187893, 0.194769, 0.199927, 0.20709, 0.213966, 0.221129, 0.228292, 0.235455, 0.242332, 0.249495, 0.250641, 0.257804, 0.264967, 0.27213, 0.279006, 0.286169, 0.293333, 0.299815]
+    Ks_re_entrant_45 = [1.0, 0.97655, 0.94239, 0.90824, 0.87408, 0.83993, 0.78301, 0.75028, 0.71756, 0.68626, 0.65638, 0.62793, 0.60642, 0.59113, 0.57033, 0.56535, 0.54225, 0.54403, 0.52128, 0.52003, 0.5028, 0.48752, 0.48147, 0.463, 0.44737, 0.42889, 0.4232, 0.41184, 0.39053, 0.3749, 0.3607, 0.34507, 0.33086, 0.31666, 0.30388, 0.29678, 0.28685, 0.27549, 0.26699, 0.25848, 0.25282, 0.24715, 0.24434, 0.24437, 0.24298, 0.24158, 0.2402, 0.24023, 0.23884, 0.23745, 0.23606, 0.23606, 0.2361, 0.23329, 0.23332, 0.23193, 0.23054, 0.23057, 0.22989]
+#    plt.plot(t_ds_re_entrant_45, Ks_re_entrant_45)
+    
+    obj = UnivariateSpline(t_ds_re_entrant_45, Ks_re_entrant_45, s=1e-4)
+    t_ds_re_entrant_45_long = np.linspace(0, 0.3, 1000)
+#    plt.plot(t_ds_re_entrant_45_long, obj(t_ds_re_entrant_45_long))
+    
+    fun = chebfun(f=obj, domain=[0,.3], N=15)
+    
+#    plt.plot(t_ds_re_entrant_45_long, fun(t_ds_re_entrant_45_long), '--')
+#    plt.show()
+    
+    coeffs = chebfun_to_poly(fun)
+    assert_allclose(coeffs, entrance_distance_45_Miller_coeffs)
+
+
+def test_entrance_distance():
     K1 = entrance_distance(0.1, t=0.0005)
     assert_allclose(K1, 1.0154100000000004)
     
     assert_allclose(entrance_distance(Di=0.1, t=0.05), 0.57)
-    
-    assert_allclose(entrance_angled(30), 0.9798076211353316)
 
+    K = entrance_distance(Di=0.1, t=0.0005, method='Miller')
+    assert_allclose(K, 1.0280427936730414)
+    
+    K = entrance_distance(Di=0.1, t=0.0005, method='Idelchik')
+    assert_allclose(K, 0.9249999999999999)
+    K = entrance_distance(Di=0.1, t=0.0005, l=.02, method='Idelchik')
+    assert_allclose(K, 0.8475000000000001)
+    
+    K = entrance_distance(Di=0.1, t=0.0005, method='Harris')
+    assert_allclose(K, 0.8705806231290558, 3e-3)
+    
+    with pytest.raises(Exception):
+        entrance_distance(Di=0.1, t=0.01, method='BADMETHOD')
+
+
+def test_entrance_rounded():
     K =  entrance_rounded(Di=0.1, rc=0.0235)
     assert_allclose(K, 0.09839534618360923)
     assert_allclose(entrance_rounded(Di=0.1, rc=0.2), 0.03)
+
+    K = entrance_rounded(Di=0.1, rc=0.0235, method='Miller')
+    assert_allclose(K, 0.057734448458542094)
+    
+    K = entrance_rounded(Di=0.1, rc=0.0235, method='Swamee')
+    assert_allclose(K, 0.06818838227156554)
+    
+    K = entrance_rounded(Di=0.1, rc=0.01, method='Crane')
+    assert_allclose(K, .09)
+    
+    K = entrance_rounded(Di=0.1, rc=0.01, method='Harris')
+    assert_allclose(K, 0.04864878230217168)
+    
+    K = entrance_rounded(Di=0.1, rc=0.01, method='Idelchik')
+    assert_allclose(K, 0.11328005177738182)
+    
+    with pytest.raises(Exception):
+        entrance_rounded(Di=0.1, rc=0.01, method='BADMETHOD')
+    
+
+def test_entrance_rounded_Miller_coeffs():
+    from fluids.fittings import entrance_rounded_Miller_coeffs
+    path = os.path.join(fluids_data_dir, 'Miller 2E 1990 entrances rounded beveled K.csv')
+    lines = open(path).readlines()
+    _, ratios, Ks = Engauge_2d_parser(lines)
+    ratios_45, ratios_30, ratios_round = ratios
+    Ks_45, Ks_30, Ks_round = Ks
+    
+#    plt.plot(ratios_round, Ks_round)
+    t_ds2 = np.linspace(ratios_round[0], ratios_round[1], 1000)
+#    Ks_Rennels = [entrance_rounded(Di=1, rc=t) for t in t_ds2]
+#    plt.plot(t_ds2, Ks_Rennels)
+    obj = UnivariateSpline(ratios_round, Ks_round, s=6e-5)
+#    plt.plot(t_ds2, obj(t_ds2))
+    fun = chebfun(f=obj, domain=[0,.3], N=8)    
+#    plt.plot(t_ds2, fun(t_ds2), '--')
+#    plt.show()
+    coeffs = chebfun_to_poly(fun)
+    assert_allclose(coeffs, entrance_rounded_Miller_coeffs)
+
+
+
+
+
+def test_fittings():
+    assert_allclose(entrance_sharp(), 0.57)
+    
+    assert_allclose(entrance_angled(30), 0.9798076211353316)
 
     K = entrance_beveled(Di=0.1, l=0.003, angle=45)
     assert_allclose(K, 0.45086864221916984)

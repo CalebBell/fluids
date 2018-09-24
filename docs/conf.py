@@ -52,6 +52,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'numpydoc',
     'nbsphinx',
+    'matplotlib.sphinxext.plot_directive',
     #'sphinxcontrib.katex',
 ]
 

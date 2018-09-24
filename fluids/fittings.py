@@ -24,7 +24,7 @@ from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, log10
 import numpy as np
 from scipy.constants import inch
-from scipy.interpolate import splev, bisplev
+from scipy.interpolate import splev, bisplev, UnivariateSpline, RectBivariateSpline
 from fluids.friction import friction_factor
 from fluids.core import horner
 
@@ -133,9 +133,71 @@ def entrance_sharp():
     return 0.57
 
 
-def entrance_distance(Di, t):
+entrance_distance_Miller_coeffs = [3.5979871366071166, -2.735407311020481, -14.08678246875138, 
+                                   10.637236472292983, 21.99568490754116, -16.38501138746954,
+                                   -17.62779826803278, 12.945551397987447, 7.715463242992863,
+                                   -5.850893341031715, -1.3809402870404826, 1.179637166644488,
+                                   0.08781141316107932, -0.09751968111743672, 0.00501792061942849,
+                                   0.0026378278251172615, 0.5309019247035696]
+
+entrance_distance_Idelchik_l_Di = [0.0, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1,
+                                   0.2, 0.3, 0.5, 10.0] # last point infinity
+entrance_distance_Idelchik_t_Di = [0.0, 0.004, 0.008, 0.012, 0.016, 0.02, 0.024,
+                                   0.03, 0.04, 0.05, 1.0] # last point infinity
+                                   
+entrance_distance_Idelchik_dat = np.array([
+    [0.5, 0.57, 0.63, 0.68, 0.73, 0.8, 0.86, 0.92, 0.97, 1, 1],
+    [0.5, 0.54, 0.58, 0.63, 0.67, 0.74, 0.8, 0.86, 0.9, 0.94, 0.94],
+    [0.5, 0.53, 0.55, 0.58, 0.62, 0.68, 0.74, 0.81, 0.85, 0.88, 0.88],
+    [0.5, 0.52, 0.53, 0.55, 0.58, 0.63, 0.68, 0.75, 0.79, 0.83, 0.83],
+    [0.5, 0.51, 0.51, 0.53, 0.55, 0.58, 0.64, 0.7, 0.74, 0.77, 0.77],
+    [0.5, 0.51, 0.51, 0.52, 0.53, 0.55, 0.6, 0.66, 0.69, 0.72, 0.72],
+    [0.5, 0.5, 0.5, 0.51, 0.52, 0.53, 0.58, 0.62, 0.65, 0.68, 0.68],
+    [0.5, 0.5, 0.5, 0.51, 0.52, 0.52, 0.54, 0.57, 0.59, 0.61, 0.61],
+    [0.5, 0.5, 0.5, 0.51, 0.51, 0.51, 0.51, 0.52, 0.52, 0.54, 0.54],
+    [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+    [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]])
+
+
+entrance_distance_Idelchik_obj = RectBivariateSpline(entrance_distance_Idelchik_t_Di, 
+                                                     entrance_distance_Idelchik_l_Di, 
+                                                     entrance_distance_Idelchik_dat,
+                                                     kx=1, ky=1)
+
+entrance_distance_Harris_t_Di = np.array([0.00322, 0.007255, 0.01223, 0.018015,
+    0.021776, 0.029044, 0.039417, 0.049519, 0.058012, 0.066234,
+    0.076747, 0.088337, 0.098714, 0.109497, 0.121762, 0.130655, 0.14036,
+    0.148986, 0.159902, 0.17149, 0.179578, 0.189416, 0.200602, 0.208148,
+    0.217716, 0.228232, 0.239821, 0.250063, 0.260845, 0.270818,
+    0.280116, 0.289145])
+entrance_distance_Harris_Ks = np.array([0.894574, 0.832435, 0.749768, 0.671543,
+    0.574442, 0.508432, 0.476283, 0.430261, 0.45027, 0.45474, 0.461993,
+    0.457042, 0.458745, 0.464889, 0.471594, 0.461638, 0.467778,
+    0.475024, 0.474509, 0.456239, 0.466258, 0.467959, 0.466336,
+    0.459705, 0.454746, 0.478092, 0.468701, 0.467074, 0.468779,
+    0.467151, 0.46441, 0.458894])
+
+entrance_distance_Harris_obj = UnivariateSpline(entrance_distance_Harris_t_Di,
+                                                entrance_distance_Harris_Ks, s=0)
+
+
+entrance_distance_methods = ['Rennels', 'Miller', 'Idelchik', 'Harris']
+
+
+def entrance_distance(Di, t, l=None, method='Rennels'):
     r'''Returns loss coefficient for a sharp entrance to a pipe at a distance
-    from the wall of a reservoir, as shown in [1]_.
+    from the wall of a reservoir. This calculation has four methods available;
+    all but 'Idelchik' require the pipe to be at least `Di/2` into the
+    reservoir.
+
+    The most conservative formulation is that of Rennels; with Miller being
+    almost identical until `t/Di` reaches 0.05, when it continues settling to
+    K = 0.53 compared to K = 0.57 for 'Rennels'. 'Idelchik' is offset lower
+    by about 0.03 and settles to 0.50. The 'Harris' method is a straight
+    interpolation from experimental results with smoothing, and it is the 
+    lowest at all points.
+    
+    The Rennels [1]_ formula is:
 
     .. math::
         K = 1.12 - 22\frac{t}{d} + 216\left(\frac{t}{d}\right)^2 +
@@ -144,14 +206,19 @@ def entrance_distance(Di, t):
     .. figure:: fittings/sharp_edged_entrace_extended_mount.png
        :scale: 30 %
        :alt: sharp edged entrace, extended mount; after [1]_
-
+        
     Parameters
     ----------
     Di : float
         Inside diameter of pipe, [m]
     t : float
         Thickness of pipe wall, [m]
-
+    l : float, optional
+        The distance the pipe extends into the reservoir; used only in the
+        'Idelchik' method, defaults to `Di`, [m]
+    method : str, optional
+        One of 'Rennels', 'Miller', 'Idelchik', 'Harris'.
+        
     Returns
     -------
     K : float
@@ -159,34 +226,121 @@ def entrance_distance(Di, t):
 
     Notes
     -----
-    Recommended for cases where the length of the inlet pipe extending into a 
-    tank divided by the inner diameter of the pipe is larger than 0.5.
-    If the pipe is 10 cm in diameter, the pipe should extend into the tank 
-    at least 5 cm. This type of inlet is also known as a Borda's mouthpiece.
+    This type of inlet is also known as a Borda's mouthpiece.
     It is not of practical interest according to [1]_.
     
-    If the pipe wall thickness to diameter ratio `t`/`Di` is larger than 0.05,
-    it is rounded to 0.05; the effect levels off at that ratio and K=0.57.
-
+    The 'Idelchik' [3]_ data is recommended in [5]_; it also provides rounded
+    values for the 'Harris. method.
+    
+    .. plot:: plots/entrance_distance.py
+    
     Examples
     --------
     >>> entrance_distance(Di=0.1, t=0.0005)
     1.0154100000000001
+    >>> entrance_distance(Di=0.1, t=0.0005, method='Idelchik')
+    0.9249999999999999
+    >>> entrance_distance(Di=0.1, t=0.0005, l=.02, method='Idelchik')
+    0.8475000000000001
 
     References
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
+    .. [3] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of 
+       Local Resistance and of Friction (Spravochnik Po Gidravlicheskim 
+       Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
+       Treniya). National technical information Service, 1966.
+    .. [4] Harris, Charles William. The Influence of Pipe Thickness on 
+       Re-Entrant Intake Losses. Vol. 48. University of Washington, 1928.
+    .. [5] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
+       Van Nostrand Reinhold Co., 1984.
     '''
-    ratio = t/Di
-    if ratio > 0.05:
-        ratio = 0.05
-    return 1.12 - 22.*ratio + 216.*ratio**2 + 80*ratio**3
+    if method == 'Rennels':
+        t_Di = t/Di
+        if t_Di > 0.05:
+            t_Di = 0.05
+        return 1.12 + t_Di*(t_Di*(80.0*t_Di + 216.0) - 22.0)
+    elif method == 'Miller':
+        t_Di = t/Di
+        if t_Di > 0.3:
+            t_Di = 0.3
+        return horner(entrance_distance_Miller_coeffs, 20.0/3.0*(t_Di - 0.15))
+    elif method == 'Idelchik':
+        if l is None:
+            l = Di
+        t_Di = min(t/Di, 1.0)
+        l_Di = min(l/Di, 10.0)
+        K = float(entrance_distance_Idelchik_obj(t_Di, l_Di))
+        if K < 0.0:
+            K = 0.0
+        return K
+    elif method == 'Harris':
+        ratio = min(t/Di, 0.289145) # max value for interpolation - extrapolation looks bad
+        K = float(entrance_distance_Harris_obj(ratio))
+        return K
+    else:
+        raise ValueError('Specified method not recognized; methods are %s'
+                         %(entrance_distance_methods))
+
+
+entrance_distance_45_Miller_coeffs = [1.866792110435199, -2.8873199398381075, -4.814715029513536, 
+                                      10.49562589373457, 1.40401776402922, -14.035912282651882,
+                                      6.576826918678071, 7.854645523152614, -8.044860164646053,
+                                      -1.1515885154512326, 4.145420152553604, -0.7994793202964967,
+                                      -1.1034822877774095, 0.32764916637953573, 0.367065452438954,
+                                      -0.2614447909010587, 0.29084476697430256]
+
+
+def entrance_distance_45_Miller(Di, Di0):
+    r'''Returns loss coefficient for a sharp entrance to a pipe at a distance
+    from the wall of a reservoir with an initial 45 degree slope conical 
+    section of diameter `Di0` added to reduce the overall loss coefficient.
+    
+    This method is as shown in Miller's Internal Flow Systems
+    [1]_. This method is a curve fit to a graph in [1]_ which was digitized.
+
+    Parameters
+    ----------
+    Di : float
+        Inside diameter of pipe, [m]
+    Di0 : float
+        Initial inner diameter of the welded conical section of the entrance
+        of the distant (re-entrant) pipe, [m]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the main pipe diameter `Di`, [-]
+
+    Notes
+    -----
+    The graph predicts an almost constant loss coefficient once the thickness
+    of pipe wall to pipe diameter ratio becomes ~0.02.
+
+    Examples
+    --------
+    >>> entrance_distance_45_Miller(Di=0.1, Di0=0.14)
+    0.24407641818143339
+
+    References
+    ----------
+    .. [1] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
+    '''
+    t = 0.5*(Di0 - Di)
+    t_Di = t/Di
+    if t_Di > 0.3:
+        t_Di = 0.3
+    return horner(entrance_distance_45_Miller_coeffs, 6.66666666666666696*(t_Di-0.15))
 
 
 def entrance_angled(angle):
     r'''Returns loss coefficient for a sharp, angled entrance to a pipe
-    flush with the wall of a reservoir, as shown in [1]_.
+    flush with the wall of a reservoir. First published in [2]_, it has been
+    recommended in [3]_ as well as in [1]_.
 
     .. math::
         K = 0.57 + 0.30\cos(\theta) + 0.20\cos(\theta)^2
@@ -213,27 +367,82 @@ def entrance_angled(angle):
     Examples
     --------
     >>> entrance_angled(30)
-    0.9798076211353316
+    0.9798076211353315
 
     References
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of 
+       Local Resistance and of Friction (Spravochnik Po Gidravlicheskim 
+       Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
+       Treniya). National technical information Service, 1966.
+    .. [3] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
+       Van Nostrand Reinhold Co., 1984.
     '''
-    angle = angle/(180/pi)
-    return 0.57 + 0.30*cos(angle) + 0.20*cos(angle)**2
+    cos_term = cos(radians(angle))
+    return 0.57 + cos_term*(0.2*cos_term + 0.3)
 
 
-def entrance_rounded(Di, rc):
+entrance_rounded_Miller_coeffs = [1.3127209945178038, 0.19963046592715727, -6.49081916725612, 
+                                  -0.10347409377743588, 12.68369791325003, -0.9435681020599904
+                                  , -12.44320584089916, 1.328251365167716, 6.668390027065714, 
+                                  -0.4356382649470076, -2.209229212394282, -0.07222448354500295,
+                                  0.6786898049825905, -0.18686362789567468, 0.020064570486606065,
+                                  -0.013120241146656442, 0.061951596342059975]
+
+entrance_rounded_ratios_Idelchik = [0, .01, .02, .03, .04, .05, .06, .08, .12, 
+                                    .16, .2]
+entrance_rounded_Ks_Idelchik = [.5, .44, .37, .31, .26, .22, .2, .15, .09, .06,
+                                .03]
+entrance_rounded_Idelchik = UnivariateSpline(entrance_rounded_ratios_Idelchik,
+                                             entrance_rounded_Ks_Idelchik, 
+                                             s=0, k=2, ext=3)
+
+entrance_rounded_ratios_Crane = [0.0, .02, .04, .06, .1, .15]
+entrance_rounded_Ks_Crane = [.5, .28, .24, .15, .09, .04]
+entrance_rounded_Crane = UnivariateSpline(entrance_rounded_ratios_Crane,
+                                          entrance_rounded_Ks_Crane,
+                                          s=0, k=1, ext=3)
+
+entrance_rounded_ratios_Harris = [0.0, .01, .02, .03, .04, .05, .06, .08, .12, 
+                                  .16]
+entrance_rounded_Ks_Harris = [.44, .35, .28, .22, .17, .13, .1, .07, .03, 0.0]
+entrance_rounded_Harris = UnivariateSpline(entrance_rounded_ratios_Harris, 
+                                           entrance_rounded_Ks_Harris,
+                                           s=0, k=2, ext=3)
+
+entrance_rounded_methods = ['Rennels', 'Crane', 'Miller', 'Idelchik', 'Harris',
+                            'Swamee']
+
+
+def entrance_rounded(Di, rc, method='Rennels'):
     r'''Returns loss coefficient for a rounded entrance to a pipe
-    flush with the wall of a reservoir, as shown in [1]_.
-
+    flush with the wall of a reservoir. This calculation has six methods
+    available.
+    
+    The most conservative formulation is that of Rennels; with the Swammee 
+    correlation being 0.02-0.07 lower. They were published in 2012 and 2008
+    respectively, and for this reason could be regarded as more reliable.
+    
+    The Idel'chik correlation appears based on the Hamilton data; and the 
+    Miller correlation as well, except a little more conservative. The Crane  
+    model trends similarly but only has a few points. The Harris data set is 
+    the lowest.
+    
+    The Rennels [1]_ formulas are:
+    
     .. math::
         K = 0.0696\left(1 - 0.569\frac{r}{d}\right)\lambda^2 + (\lambda-1)^2
 
     .. math::
         \lambda = 1 + 0.622\left(1 - 0.30\sqrt{\frac{r}{d}}
         - 0.70\frac{r}{d}\right)^4
+        
+    The Swamee [5]_ formula is:
+        
+    .. math::
+        K = 0.5\left[1 + 36\left(\frac{r}{D}\right)^{1.2}\right]^{-1}
         
     .. figure:: fittings/flush_mounted_rounded_entrance.png
        :scale: 30 %
@@ -245,6 +454,8 @@ def entrance_rounded(Di, rc):
         Inside diameter of pipe, [m]
     rc : float
         Radius of curvature of the entrance, [m]
+    method : str, optional
+        One of 'Rennels', 'Crane', 'Miller', 'Idelchik', 'Harris', or 'Swamee'.
 
     Returns
     -------
@@ -253,11 +464,23 @@ def entrance_rounded(Di, rc):
 
     Notes
     -----
-    For generously rounded entrance (rc/Di >= 1), the loss coefficient converges
-    to 0.03.
+    For generously rounded entrance (rc/Di >= 1), the loss coefficient 
+    converges to 0.03 in the Rennels method.
+    
+    The Rennels formulation was derived primarily from data and theoretical 
+    analysis from different flow scenarios than a rounded pipe entrance; the  
+    only available data in [2]_ is quite old and [1]_ casts doubt on it.
+        
+    The Hamilton data set is available in [1]_ and [6]_.
+    
+    .. plot:: plots/entrance_rounded.py
 
+    
     Examples
     --------
+    Point from Diagram 9.2 in [1]_, which was used to confirm the Rennels
+    model implementation :
+    
     >>> entrance_rounded(Di=0.1, rc=0.0235)
     0.09839534618360923
 
@@ -265,11 +488,42 @@ def entrance_rounded(Di, rc):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Hamilton, James Baker. Suppression of Pipe Intake Losses by Various
+       Degrees of Rounding. Seattle: Published by the University of Washington, 
+       1929. https://search.library.wisc.edu/catalog/999823652202121.
+    .. [3] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
+    .. [4] Harris, Charles William. Elimination of Hydraulic Eddy Current Loss 
+       at Intake, Agreement of Theory and Experiment. University of Washington,
+       1930.
+    .. [5] Swamee, Prabhata K., and Ashok K. Sharma. Design of Water Supply 
+       Pipe Networks. John Wiley & Sons, 2008.
+    .. [6] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    .. [7] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
+       Van Nostrand Reinhold Co., 1984.
     '''
-    if rc/Di > 1:
-        return 0.03
-    lbd = 1. + 0.622*(1. - 0.30*(rc/Di)**0.5 - 0.70*(rc/Di))**4
-    return 0.0696*(1. - 0.569*rc/Di)*lbd**2 + (lbd - 1.)**2
+    if method == 'Rennels':
+        if rc/Di > 1.0:
+            return 0.03
+        lbd = 1.0 + 0.622*(1.0 - 0.30*(rc/Di)**0.5 - 0.70*(rc/Di))**4.0
+        return 0.0696*(1.0 - 0.569*rc/Di)*lbd**2.0 + (lbd - 1.0)**2
+    elif method == 'Swamee':
+        return 0.5/(1.0 + 36.0*(rc/Di)**1.2)
+    elif method == 'Crane':
+        return float(entrance_rounded_Crane(rc/Di))
+    elif method == 'Miller':
+        rc_Di = rc/Di
+        if rc_Di > 0.3:
+            rc_Di = 0.3
+        return horner(entrance_rounded_Miller_coeffs, 20.0/3.0*(rc_Di - 0.15))
+    elif method == 'Harris':
+        return float(entrance_rounded_Harris(rc/Di))
+    elif method == 'Idelchik':
+        return float(entrance_rounded_Idelchik(rc/Di))
+    else:
+        raise ValueError('Specified method not recognized; methods are %s'
+                         %(entrance_rounded_methods))
 
 
 def entrance_beveled(Di, l, angle):
@@ -1025,7 +1279,7 @@ def contraction_round_Miller(Di1, Di2, rc):
     radius_ratio = rc/Di2
     if radius_ratio > 0.1:
         radius_ratio = 0.1
-    Ks = bisplev(A_ratio, radius_ratio, tck_contraction_abrupt_Miller)
+    Ks = float(bisplev(A_ratio, radius_ratio, tck_contraction_abrupt_Miller))
     # For some near-1 ratios, can get negative Ks due to th epsline... fix it in post
     if Ks < 0.0:
         Ks = 0.0
@@ -2998,31 +3252,31 @@ def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
         beta = D1/D2
         beta2 = beta*beta
     if style == 'swing check angled':
-        return 45*specific_volume**0.5
+        return 45.0*specific_volume**0.5
     elif style == 'swing check straight':
-        return 75*specific_volume**0.5
+        return 75.0*specific_volume**0.5
     elif style == 'swing check UL':
-        return 120*specific_volume**0.5
+        return 120.0*specific_volume**0.5
     elif style == 'lift check straight':
-        return 50.*beta2*specific_volume**0.5
+        return 50.0*beta2*specific_volume**0.5
     elif style == 'lift check angled':
-        return 170.*beta2*specific_volume**0.5
+        return 170.0*beta2*specific_volume**0.5
     elif style == 'tilting check 5°':
-        return 100*specific_volume**0.5
+        return 100.0*specific_volume**0.5
     elif style == 'tilting check 15°':
-        return 40*specific_volume**0.5
+        return 40.0*specific_volume**0.5
     elif style == 'stop check globe 1':
-        return 70*beta2*specific_volume**0.5
+        return 70.0*beta2*specific_volume**0.5
     elif style == 'stop check angle 1':
-        return 95*beta2*specific_volume**0.5
-    elif style in ['stop check globe 2', 'stop check angle 2']:
-        return 75*beta2*specific_volume**0.5
-    elif style in ['stop check globe 3', 'stop check angle 3']:
-        return 170*beta2*specific_volume**0.5
+        return 95.0*beta2*specific_volume**0.5
+    elif style in ('stop check globe 2', 'stop check angle 2'):
+        return 75.0*beta2*specific_volume**0.5
+    elif style in ('stop check globe 3', 'stop check angle 3'):
+        return 170.0*beta2*specific_volume**0.5
     elif style == 'foot valve poppet disc':
-        return 20*specific_volume**0.5
+        return 20.0*specific_volume**0.5
     elif style == 'foot valve hinged disc':
-        return 45*specific_volume**0.5
+        return 45.0*specific_volume**0.5
 
 
 branch_converging_Crane_Fs = np.array([1.74, 1.41, 1, 0])
