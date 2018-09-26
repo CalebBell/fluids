@@ -25,7 +25,7 @@ from math import cos, sin, tan, atan, pi, radians, log10
 import numpy as np
 from scipy.constants import inch
 from scipy.interpolate import splev, bisplev, UnivariateSpline, RectBivariateSpline
-from fluids.friction import friction_factor
+from fluids.friction import friction_factor, ft_Crane
 from fluids.core import horner
 
 __all__ = ['contraction_sharp', 'contraction_round', 
@@ -2402,7 +2402,7 @@ def Cv_to_K(Cv, D):
     return 1.6E9*D**4*(Cv/1.1560992283536566)**-2
 
 
-def K_gate_valve_Crane(D1, D2, angle, fd):
+def K_gate_valve_Crane(D1, D2, angle, fd=None):
     r'''Returns loss coefficient for a gate valve of types wedge disc, double
     disc, or plug type, as shown in [1]_.
 
@@ -2431,10 +2431,11 @@ def K_gate_valve_Crane(D1, D2, angle, fd):
         Diameter of the pipe attached to the valve, [m]
     angle : float
         Angle formed by the reducer in the valve, [degrees]
-    fd : float
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify to use the original Crane friction factor!
+        [-]
 
     Returns
     -------
@@ -2448,16 +2449,17 @@ def K_gate_valve_Crane(D1, D2, angle, fd):
     
     Examples
     --------
-    Example 7-4 in [1]_; a 150 by 100 mm glass 600 steel gate valve, conically
+    Example 7-4 in [1]_; a 150 by 100 mm class 600 steel gate valve, conically
     tapered ports, length 550 mm, back of sear ring ~150 mm. The valve is 
     connected to 146 mm schedule 80 pipe. The angle can be calculated to be 
     13 degrees. The valve is specified to be operating in turbulent conditions.
     
-    >>> K_gate_valve_Crane(D1=.1, D2=.146, angle=13.115, fd=0.015)
-    1.145830368873396
+    >>> K_gate_valve_Crane(D1=.1, D2=.146, angle=13.115)
+    1.1466029421844073
     
     The calculated result is lower than their value of 1.22; the difference is
-    due to intermediate rounding.
+    due to Crane's generous intermediate rounding. A later, Imperial edition of
+    Crane rounds differently - and comes up with K=1.06.
     
     References
     ----------
@@ -2469,7 +2471,9 @@ def K_gate_valve_Crane(D1, D2, angle, fd):
     '''
     angle = radians(angle)
     beta = D1/D2
-    K1 = 8*fd # This does not refer to upstream loss per se
+    if fd is None:
+        fd = ft_Crane(D2)
+    K1 = 8.0*fd # This does not refer to upstream loss per se
     if beta == 1 or angle == 0:
         return K1 # upstream and down
     else:
@@ -2480,7 +2484,7 @@ def K_gate_valve_Crane(D1, D2, angle, fd):
     return K
 
 
-def K_globe_valve_Crane(D1, D2, fd):
+def K_globe_valve_Crane(D1, D2, fd=None):
     r'''Returns the loss coefficient for all types of globe valve, (reduced 
     seat or throttled) as shown in [1]_.
 
@@ -2503,7 +2507,7 @@ def K_globe_valve_Crane(D1, D2, fd):
     fd : float
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify to use the original Crane friction factor!, [-]
 
     Returns
     -------
@@ -2517,8 +2521,8 @@ def K_globe_valve_Crane(D1, D2, fd):
 
     Examples
     --------
-    >>> K_globe_valve_Crane(.01, .02, fd=.015)
-    87.1
+    >>> K_globe_valve_Crane(.01, .02)
+    135.9200548324305
     
     References
     ----------
@@ -2526,7 +2530,9 @@ def K_globe_valve_Crane(D1, D2, fd):
        2009.
     '''
     beta = D1/D2
-    K1 = 340*fd 
+    if fd is None:
+        fd = ft_Crane(D2)
+    K1 = 340.0*fd 
     if beta == 1:
         return K1 # upstream and down
     else:
