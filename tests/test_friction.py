@@ -60,6 +60,7 @@ def test_friction():
     assert_allclose(Brkic_2011_2(1E5, 1E-4), 0.018619745410688716)
     assert_allclose(Fang_2011(1E5, 1E-4), 0.018481390682985432)
     assert_allclose(Clamond(1E5, 1E-4), 0.01851386607747165)
+    assert_allclose(Clamond(1E5, 1E-4, fast=True), 0.01851486771096876)
     assert_allclose(Colebrook(1E5, 1E-4), 0.018513866077471648)
     
     # Test the colebrook is the clamond when tol=-1
@@ -82,10 +83,18 @@ def test_friction():
     methods_2.sort()
     assert methods_1 == methods_2
 
-    assert_allclose(friction_factor(Re=1E5, eD=1E-4, Darcy=False), 0.01851386607747165*4)
+    assert_allclose(friction_factor(Re=1E5, eD=1E-4, Darcy=False), 0.01851386607747165/4)
     assert_allclose(friction_factor(Re=128), 0.5)
     
     assert_allclose(friction_factor(Re=1E5, eD=0, Method=None), 0.01798977308427384)
+    
+    
+    fd = ft_Crane(.1)
+    assert_allclose(fd, 0.01628845962146481)
+    Di = 0.1
+    fd_act = Colebrook(7.5E6*Di, eD=roughness_Farshad(ID='Carbon steel, bare', D=Di)/Di)
+    assert_allclose(fd, fd_act, rtol=5e-6)
+
 
 @pytest.mark.slow
 @pytest.mark.mpmath
@@ -264,7 +273,7 @@ def test_von_Karman():
 def Prandtl_von_Karman_Nikuradse_numeric(Re):
     def to_solve(f):
         # Good to 1E75, down to 1E-17
-        return 1./f**0.5 + 2*log10(2.51/Re/f**0.5)
+        return 1./f**0.5 + 2.0*log10(2.51/Re/f**0.5)
     return newton(to_solve, 0.000001)
 
 
@@ -273,10 +282,14 @@ def test_Prandtl_von_Karman_Nikuradse():
     assert_allclose(Prandtl_von_Karman_Nikuradse_numeric(Re),  Prandtl_von_Karman_Nikuradse(Re))
 
 
-@pytest.mark.slow
 def test_Prandtl_von_Karman_Nikuradse_full():
-    for Re in np.logspace(1E-15,30,200):
-        assert_allclose(Prandtl_von_Karman_Nikuradse_numeric(Re), Prandtl_von_Karman_Nikuradse(Re))
+    # Tested to a very high number of points
+    fds = []
+    fds_numeric = []
+    for Re in np.logspace(1E-15, 30, 40):
+        fds.append(Prandtl_von_Karman_Nikuradse_numeric(Re))
+        fds_numeric.append(Prandtl_von_Karman_Nikuradse(Re))
+    assert_allclose(fds, fds_numeric)
 
 
 def test_helical_laminar_fd_White():
@@ -297,6 +310,10 @@ def test_helical_laminar_fd_Schmidt():
     # Test convergence at low curvature 
     assert_allclose(helical_laminar_fd_Schmidt(250, 1, 1E10), friction_laminar(250))
     
+    
+def test_helical_turbulent_fd_Srinivasan():
+    fd = helical_turbulent_fd_Srinivasan(1E4, 0.01, .02)
+    assert_allclose(fd, 0.0570745212117107)
     
 def test_helical_turbulent_fd_Schmidt():
     fd = helical_turbulent_fd_Schmidt(1E4, 0.01, .02)
@@ -393,13 +410,13 @@ def test_friction_factor_curved():
     assert_allclose(fd_rough_false, 0.1014240343662085)
     
     methods = friction_factor_curved(20000, 0.01, .02, AvailableMethods=True)
-    assert sorted(methods) == sorted(['Guo','Ju','Schmidt turbulent','Prasad','Mandel Nigam','Mori Nakayama turbulent','Czop'])
+    assert sorted(methods) == sorted(['Guo','Ju','Schmidt turbulent','Prasad','Mandel Nigam','Mori Nakayama turbulent','Czop', 'Srinivasan turbulent'])
     methods = friction_factor_curved(2000, 0.01, .02, AvailableMethods=True)
     assert sorted(methods) == sorted(['White', 'Schmidt laminar', 'Mori Nakayama laminar'])
     
     # Test the Fanning case
     fd = friction_factor_curved(2E4, 0.01, .02, Darcy=False)
-    assert_allclose(fd, 0.2005385864864121)
+    assert_allclose(fd, 0.012533661655400756)
     
 def test_friction_plate():
     fd = friction_plate_Martin_1999(Re=20000, plate_enlargement_factor=1.15)

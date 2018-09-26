@@ -502,6 +502,10 @@ def entrance_rounded(Di, rc, method='Rennels'):
        2009.
     .. [7] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
        Van Nostrand Reinhold Co., 1984.
+    .. [8] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of 
+       Local Resistance and of Friction (Spravochnik Po Gidravlicheskim 
+       Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
+       Treniya). National technical information Service, 1966.
     '''
     if method == 'Rennels':
         if rc/Di > 1.0:
@@ -526,9 +530,37 @@ def entrance_rounded(Di, rc, method='Rennels'):
                          %(entrance_rounded_methods))
 
 
-def entrance_beveled(Di, l, angle):
+entrance_beveled_methods = ['Rennels', 'Idelchik']
+
+entrance_beveled_Idelchik_l_Di = [0.025, 0.05, 0.075, 0.1, 0.15, 0.6]
+entrance_beveled_Idelchik_angles = [0.0, 10.0, 20.0, 30.0, 40.0, 60.0, 100.0, 
+                                    140.0, 180.0] 
+                                   
+entrance_beveled_Idelchik_dat = np.array([
+    [0.5, 0.47, 0.45, 0.43, 0.41, 0.4, 0.42, 0.45, 0.5],
+    [0.5, 0.45, 0.41, 0.36, 0.33, 0.3, 0.35, 0.42, 0.5],
+    [0.5, 0.42, 0.35, 0.3, 0.26, 0.23, 0.3, 0.4, 0.5],
+    [0.5, 0.39, 0.32, 0.25, 0.22, 0.18, 0.27, 0.38, 0.5],
+    [0.5, 0.37, 0.27, 0.2, 0.16, 0.15, 0.25, 0.37, 0.5],
+    [0.5, 0.27, 0.18, 0.13, 0.11, 0.12, 0.23, 0.36, 0.5]])
+
+
+entrance_beveled_Idelchik_obj = RectBivariateSpline(entrance_beveled_Idelchik_l_Di, 
+                                                    entrance_beveled_Idelchik_angles, 
+                                                    entrance_beveled_Idelchik_dat,
+                                                    kx=1, ky=1)
+
+
+def entrance_beveled(Di, l, angle, method='Rennels'):
     r'''Returns loss coefficient for a beveled or chamfered entrance to a pipe
-    flush with the wall of a reservoir, as shown in [1]_.
+    flush with the wall of a reservoir. This calculation has two methods
+    available.
+    
+    The 'Rennels' and 'Idelchik' methods have similar trends, but the 'Rennels'
+    formulation is centered around a straight loss coefficient of 0.57, so it
+    is normally at least 0.07 higher.
+    
+    The Rennels [1]_ formulas are:
 
     .. math::
         K = 0.0696\left(1 - C_b\frac{l}{d}\right)\lambda^2 + (\lambda-1)^2
@@ -553,6 +585,8 @@ def entrance_beveled(Di, l, angle):
         Length of bevel measured parallel to the pipe length, [m]
     angle : float
         Angle of bevel with respect to the pipe length, [degrees]
+    method : str, optional
+        One of 'Rennels', or 'Idelchik', [-]
 
     Returns
     -------
@@ -563,20 +597,38 @@ def entrance_beveled(Di, l, angle):
     -----
     A cheap way of getting a lower pressure drop.
     Little credible data is available.
+    
+    The table of data in [2]_ uses the angle for both bevels, so it runs from 0
+    to 180 degrees; this function follows the convention in [1]_ which uses
+    only one angle, with the angle varying from 0 to 90 degrees.
+
+    .. plot:: plots/entrance_beveled.py
 
     Examples
     --------
     >>> entrance_beveled(Di=0.1, l=0.003, angle=45)
     0.45086864221916984
-
+    >>> entrance_beveled(Di=0.1, l=0.003, angle=45, method='Idelchik')
+    0.3995000000000001
+    
     References
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of 
+       Local Resistance and of Friction (Spravochnik Po Gidravlicheskim 
+       Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
+       Treniya). National technical information Service, 1966.
     '''
-    Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/Di ))
-    lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1 - (l/Di)**0.25)/2.))
-    return 0.0696*(1 - Cb*l/Di)*lbd**2 + (lbd - 1.)**2
+    if method == 'Rennels':
+        Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/Di ))
+        lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1 - (l/Di)**0.25)/2.))
+        return 0.0696*(1 - Cb*l/Di)*lbd**2 + (lbd - 1.)**2
+    elif method == 'Idelchik':
+        return float(entrance_beveled_Idelchik_obj(l/Di, angle*2.0))
+    else:
+        raise ValueError('Specified method not recognized; methods are %s'
+                         %(entrance_beveled_methods))
 
 
 def entrance_beveled_orifice(Di, do, l, angle):
@@ -957,6 +1009,74 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
     return Kb*C_Re*C_roughness*C_o
 
 
+def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
+    r'''Returns loss coefficient for any rounded bend in a pipe
+    as shown in [1]_.
+
+    .. math::
+        K = f\alpha\frac{r}{d} + (0.10 + 2.4f)\sin(\alpha/2)
+        + \frac{6.6f(\sqrt{\sin(\alpha/2)}+\sin(\alpha/2))}
+        {(r/d)^{\frac{4\alpha}{\pi}}}
+
+    .. figure:: fittings/bend_rounded.png
+       :scale: 30 %
+       :alt: rounded bend; after [1]_
+
+    Parameters
+    ----------
+    Di : float
+        Inside diameter of pipe, [m]
+    angle : float
+        Angle of bend, [degrees]
+    fd : float
+        Darcy friction factor [-]
+    rc : float, optional
+        Radius of curvature of the entrance, optional [m]
+    bend_diameters : float, optional (used if rc not provided)
+        Number of diameters of pipe making up the bend radius [-]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient [-]
+
+    Notes
+    -----
+    When inputting bend diameters, note that manufacturers often specify
+    this as a multiplier of nominal diameter, which is different than actual
+    diameter. Those require that rc be specified.
+    
+    `rc` is limited to 0.5 or above; which represents a sharp, square, inner 
+    edge - and an outer bend radius of 1.0. Losses are at a minimum when this
+    value is large.
+
+    First term represents surface friction loss; the second, secondary flows;
+    and the third, flow separation.
+    Encompasses the entire range of elbow and pipe bend configurations.
+    
+    This was developed for bend angles between 0 and 180 degrees; and r/D
+    ratios above 0.5. Only smooth pipe data was used in its development.
+    
+    Note the loss coefficient includes the surface friction of the pipe as if
+    it was straight.
+   
+    Examples
+    --------
+    >>> bend_rounded(Di=4.020, rc=4.0*5, angle=30, fd=0.0163)
+    0.10680196344492195
+
+    References
+    ----------
+    .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
+       and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    '''
+    angle = angle/(180/pi)
+    if not rc:
+        rc = Di*bend_diameters
+    return (fd*angle*rc/Di + (0.10 + 2.4*fd)*sin(angle/2.)
+    + 6.6*fd*(sin(angle/2.)**0.5 + sin(angle/2.))/(rc/Di)**(4.*angle/pi))
+
+
 bend_miter_Miller_coeffs = [-12.050299402650126, -4.472433689233185, 50.51478860493546, 18.246302079077196, 
                             -84.61426660754049, -28.9340865412371, 71.07345367553872, 21.354010992349565, 
                             -30.239604839338, -5.855129345095336, 5.465131779316523, -1.0881363712712555, 
@@ -1024,74 +1144,6 @@ def bend_miter_Miller(Di, angle, Re, roughness=0, L_unimpeded=None):
         C_Re = 2.2
 #    print('Kb=%g, C Re=%g, C rough =%g, Co=%g' %(Kb, C_Re, C_roughness, C_o))
     return Kb*C_Re*C_roughness*C_o
-
-
-def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
-    r'''Returns loss coefficient for any rounded bend in a pipe
-    as shown in [1]_.
-
-    .. math::
-        K = f\alpha\frac{r}{d} + (0.10 + 2.4f)\sin(\alpha/2)
-        + \frac{6.6f(\sqrt{\sin(\alpha/2)}+\sin(\alpha/2))}
-        {(r/d)^{\frac{4\alpha}{\pi}}}
-
-    .. figure:: fittings/bend_rounded.png
-       :scale: 30 %
-       :alt: rounded bend; after [1]_
-
-    Parameters
-    ----------
-    Di : float
-        Inside diameter of pipe, [m]
-    angle : float
-        Angle of bend, [degrees]
-    fd : float
-        Darcy friction factor [-]
-    rc : float, optional
-        Radius of curvature of the entrance, optional [m]
-    bend_diameters : float, optional (used if rc not provided)
-        Number of diameters of pipe making up the bend radius [-]
-
-    Returns
-    -------
-    K : float
-        Loss coefficient [-]
-
-    Notes
-    -----
-    When inputting bend diameters, note that manufacturers often specify
-    this as a multiplier of nominal diameter, which is different than actual
-    diameter. Those require that rc be specified.
-    
-    `rc` is limited to 0.5 or above; which represents a sharp, square, inner 
-    edge - and an outer bend radius of 1.0. Losses are at a minimum when this
-    value is large.
-
-    First term represents surface friction loss; the second, secondary flows;
-    and the third, flow separation.
-    Encompasses the entire range of elbow and pipe bend configurations.
-    
-    This was developed for bend angles between 0 and 180 degrees; and r/D
-    ratios above 0.5. Only smooth pipe data was used in its development.
-    
-    Note the loss coefficient includes the surface friction of the pipe as if
-    it was straight.
-   
-    Examples
-    --------
-    >>> bend_rounded(Di=4.020, rc=4.0*5, angle=30, fd=0.0163)
-    0.10680196344492195
-
-    References
-    ----------
-    .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
-       and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
-    angle = angle/(180/pi)
-    if not rc:
-        rc = Di*bend_diameters
-    return (fd*angle*rc/Di + (0.10 + 2.4*fd)*sin(angle/2.)
-    + 6.6*fd*(sin(angle/2.)**0.5 + sin(angle/2.))/(rc/Di)**(4.*angle/pi))
 
 
 def bend_miter(angle):
@@ -3378,7 +3430,7 @@ def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     else:
         C = 0.55
     D, E = 1., 2.
-    F = np.interp(angle, branch_converging_Crane_angles, branch_converging_Crane_Fs)
+    F = float(np.interp(angle, branch_converging_Crane_angles, branch_converging_Crane_Fs))
     K = C*(1. + D*(Q_ratio/beta2)**2 - E*(1. - Q_ratio)**2 - F/beta2*Q_ratio**2)
     return K
 
@@ -3466,13 +3518,13 @@ def K_run_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     beta2 = beta*beta
     Q_comb = Q_run + Q_branch
     Q_ratio = Q_branch/Q_comb
-    if angle < 75.:
-        C = 1
+    if angle < 75.0:
+        C = 1.0
     else:
         return 1.55*(Q_ratio) - Q_ratio*Q_ratio
 
-    D, E = 0, 1
-    F = np.interp(angle, run_converging_Crane_angles, run_converging_Crane_Fs)
+    D, E = 0.0, 1.0
+    F = float(np.interp(angle, run_converging_Crane_angles, run_converging_Crane_Fs))
     K = C*(1. + D*(Q_ratio/beta2)**2 - E*(1. - Q_ratio)**2 - F/beta2*Q_ratio**2)
     return K
 

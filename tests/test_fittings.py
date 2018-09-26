@@ -125,7 +125,13 @@ def test_entrance_rounded():
     
     with pytest.raises(Exception):
         entrance_rounded(Di=0.1, rc=0.01, method='BADMETHOD')
-    
+
+def test_entrance_beveled():
+    K = entrance_beveled(Di=0.1, l=0.003, angle=45)
+    assert_allclose(K, 0.45086864221916984)
+
+    K = entrance_beveled(Di=0.1, l=0.003, angle=45, method='Idelchik')
+    assert_allclose(K, 0.3995000000000001)
 
 def test_entrance_rounded_Miller_coeffs():
     from fluids.fittings import entrance_rounded_Miller_coeffs
@@ -156,8 +162,6 @@ def test_fittings():
     
     assert_allclose(entrance_angled(30), 0.9798076211353316)
 
-    K = entrance_beveled(Di=0.1, l=0.003, angle=45)
-    assert_allclose(K, 0.45086864221916984)
     
     K = entrance_beveled_orifice(Di=0.1, do=.07, l=0.003, angle=45)
     assert_allclose(K, 1.2987552913818574)

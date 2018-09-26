@@ -49,11 +49,12 @@ __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook',
 'Manadilli_1997', 'Romeo_2002', 'Sonnad_Goudar_2006', 'Rao_Kumar_2007',
 'Buzzelli_2008', 'Avci_Karagoz_2009', 'Papaevangelo_2010', 'Brkic_2011_1',
 'Brkic_2011_2', 'Fang_2011', 'Blasius', 'von_Karman', 
-'Prandtl_von_Karman_Nikuradse', 'helical_laminar_fd_White',
+'Prandtl_von_Karman_Nikuradse', 'ft_Crane', 'helical_laminar_fd_White',
 'helical_laminar_fd_Mori_Nakayama', 'helical_laminar_fd_Schmidt',
 'helical_turbulent_fd_Schmidt', 'helical_turbulent_fd_Mori_Nakayama',
 'helical_turbulent_fd_Prasad', 'helical_turbulent_fd_Czop',
-'helical_turbulent_fd_Guo', 'helical_turbulent_fd_Ju',
+'helical_turbulent_fd_Guo', 'helical_turbulent_fd_Ju', 
+'helical_turbulent_fd_Srinivasan',
 'helical_turbulent_fd_Mandal_Nigam', 'helical_transition_Re_Seth_Stahel', 
 'helical_transition_Re_Ito', 'helical_transition_Re_Kubair_Kuloor', 
 'helical_transition_Re_Kutateladze_Borishanskii', 
@@ -322,7 +323,7 @@ def Colebrook(Re, eD, tol=None):
         return abs(float(fsolve(err, fd_guess, xtol=tol)))
     
 
-def Clamond(Re, eD):
+def Clamond(Re, eD, fast=False):
     r'''Calculates Darcy friction factor using a solution accurate to almost
     machine precision. Recommended very strongly. For details of the algorithm,
     see [1]_. 
@@ -333,6 +334,9 @@ def Clamond(Re, eD):
         Reynolds number, [-]
     eD : float
         Relative roughness, [-]
+    fast : bool, optional
+        If true, performs only one iteration, which gives roughly half the
+        number of decimals of accuracy, [-]
 
     Returns
     -------
@@ -379,12 +383,13 @@ def Clamond(Re, eD):
     X1F1 = 1. + X1F
     
     E = (log(X1F) - 0.2)/(X1F1)
-    F = F - (X1F1 + 0.5*E)*E*(X1F)/(X1F1 + E*(1. + E/3.))
-
-    X1F = X1 + F
-    X1F1 = 1. + X1F
-    E = (log(X1F) + F - X2)/(X1F1)
-    F = F - (X1F1 + 0.5*E)*E*(X1F)/(X1F1 + E*(1. + E/3.))
+    F = F - (X1F1 + 0.5*E)*E*(X1F)/(X1F1 + E*(1. + E*0.3333333333333333))
+    
+    if not fast:
+        X1F = X1 + F
+        X1F1 = 1. + X1F
+        E = (log(X1F) + F - X2)/(X1F1)
+        F = F - (X1F1 + 0.5*E)*E*(X1F)/(X1F1 + E*(1. + E*0.3333333333333333))
 
     return 1.325474527619599502640416597148504422899/(F*F) # ((0.5*log(10))**2).evalf(40)
 
@@ -1748,6 +1753,94 @@ def Prandtl_von_Karman_Nikuradse(Re):
     return c2/(lambertw((c1*Re)/2.51).real)**2
 
 
+Crane_fts_nominal_Ds = [.015, .02, .025, .032, .04, .05, .065, .08, .1, .125,
+                        .15, .2, .25, .35, .4, .55, .6, .9]
+
+Crane_fts_Ds = [0.01576, 0.02096, 0.02664, 0.03508, 0.04094, 0.05248, 0.06268,
+                0.07792, 0.10226, 0.1282, 0.154, 0.20274, 0.25446, 0.33334,
+                0.381, 0.53994, 0.57504, 0.8759]
+
+Crane_fts = [.026, .024, .022, .021, .02, .019, .018, .017, .016, .015, .015, 
+             .014, .013, .013, .012, .012, .011, .011]
+
+
+def ft_Crane(D):
+    r'''Calculates the Crane fully turbulent Darcy friction factor for flow in
+    commercial pipe, as used in the Crane formulas for loss coefficients in 
+    various fittings. Note that this is **not generally applicable to loss
+    due to friction in pipes**, as it does not take into account the roughness
+    of various pipe materials. But for fittings in any type of pipe, this is
+    the friction factor to use in the Crane [1]_ method to get their loss 
+    coefficients.
+    
+    Parameters
+    ----------
+    D : float
+        Pipe inner diameter, [m]
+
+    Returns
+    -------
+    fd : float
+        Darcy Crane friction factor for fully turbulent flow, [-]
+
+    Notes
+    -----
+    There is confusion and uncertainty regarding the friction factor table 
+    given in Crane TP 410M [1]_. This function does not help: it implements a
+    new way to obtain Crane friction factors, so that it can better be based in
+    theory and give more precision (not accuracy) and trend better with 
+    diameters not tabulated in [1]_.
+    
+    The data in [1]_ was digitized, and nominal pipe diameters were converted
+    to actual pipe diameters. An objective function was sought which would
+    produce the exact same values as in [1]_ when rounded to the same decimal
+    place. One was found fairly easily by using the standard `Colebrook` 
+    friction factor formula, and using the diameter-dependent roughness values
+    calculated with the `roughness_Farshad` method for bare Carbon steel. A
+    diameter-dependent Reynolds number was required to match the values;
+    the :math:`\rho V/\mu` term is set to 7.5E6.
+    
+    The formula given in [1]_ is:
+        
+    .. math::
+        f_T = \frac{0.25}{\left[\log_{10}\left(\frac{\epsilon/D}{3.7}\right)
+        \right]^2}
+    
+    However, this function does not match the rounded values in [1]_ well and
+    it is not very clear which roughness to use. Using both the value for new
+    commercial steel (.05 mm) or a diameter-dependent value 
+    (`roughness_Farshad`), values were found to be too high and too low 
+    respectively. That function is based in theory - the limit of the 
+    `Colebrook` equation when `Re` goes to infinity - but in the end real pipe
+    flow is not infinity, and so a large error occurs from that use.
+    
+    The following plot shows all these options, and that the method implemented
+    here matches perfectly the rounded values in [1]_.
+    
+    .. plot:: plots/ft_Crane.py
+
+    Examples
+    --------
+    >>> ft_Crane(.1)
+    0.01628845962146481
+    
+    Explicitly spelling out the function (note the exact same answer is not
+    returned; it is accurate to 5-8 decimals however, for increased speed):
+        
+    >>> Di = 0.1
+    >>> Colebrook(7.5E6*Di, eD=roughness_Farshad(ID='Carbon steel, bare', D=Di)/Di)
+    0.01628842543122547
+    
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    fast = True
+    if D < 1E-2:
+        fast = False
+    return Clamond(7.5E6*D, 3.4126825352925e-5*D**-1.0112, fast)
+
 
 
 ### Main functions
@@ -1918,7 +2011,7 @@ def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=Fal
     else:
         f = globals()[Method](Re=Re, eD=eD)
     if not Darcy:
-        f *= 4
+        f *= 0.25
     return f
 
 fd = friction_factor # shortcut
@@ -1955,7 +2048,10 @@ def helical_laminar_fd_White(Re, Di, Dc):
     :math:`3.878\times 10^{-4}<D_i/D_c < 0.066`.
     
     The form of the equation means it yields nonsense results for De < 11.6;
-    at De < 11.6, the equation is modified to return the straight pipe value.    
+    at De < 11.6, the equation is modified to return the straight pipe value.  
+    
+    This model is recommended in [3]_, with a slight modification for Dean 
+    numbers larger than 2000.
 
     Examples
     --------
@@ -1972,12 +2068,14 @@ def helical_laminar_fd_White(Re, Di, Dc):
        Correlations for Convection Heat Transfer and Pressure Losses in 
        Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
+    .. [3] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
+       Van Nostrand Reinhold Co., 1984.
     '''
     De = Dean(Re=Re, Di=Di, D=Dc)
     fd = friction_laminar(Re)
     if De < 11.6:
-        De = 11.6
-    return fd/(1. - (1. - (11.6/De)**0.45)**(1./0.45))
+        return fd
+    return fd/(1. - (1. - (11.6/De)**0.45)**(1./0.45)) # 1/.45 sometimes said to be 2.2
 
 
 def helical_laminar_fd_Mori_Nakayama(Re, Di, Dc):
@@ -2094,6 +2192,57 @@ def helical_laminar_fd_Schmidt(Re, Di, Dc):
     fd = friction_laminar(Re)
     D_ratio = Di/Dc
     return fd*(1. + 0.14*D_ratio**0.97*Re**(1. - 0.644*D_ratio**0.312))
+
+
+def helical_turbulent_fd_Srinivasan(Re, Di, Dc):
+    r'''Calculates Darcy friction factor for a fluid flowing inside a curved 
+    pipe such as a helical coil under turbulent conditions, using the method of 
+    Srinivasan [1]_, as shown in [2]_ and [3]_.
+    
+    .. math::
+        f_d = \frac{0.336}{{\left[Re\sqrt{\frac{D_i}{D_c}}\right]^{0.2}}}
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with `D=Di`, [-]
+    Di : float
+        Inner diameter of the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor for a curved pipe [-]
+
+    Notes
+    -----    
+    Valid for 0.01 < Di/Dc < 0.15, with no Reynolds number criteria given in
+    [2]_ or [3]_.
+    
+    [2]_ recommends this method, using the transition criteria of Srinivasan as
+    well. [3]_ recommends using either this method or the Ito method. This
+    method did not make it into the popular review articles on curved flow.
+
+    Examples
+    --------
+    >>> helical_turbulent_fd_Srinivasan(1E4, 0.01, .02)
+    0.0570745212117107
+
+    References
+    ----------
+    .. [1] Srinivasan, PS, SS Nandapurkar, and FA Holland. "Friction Factors 
+       for Coils." TRANSACTIONS OF THE INSTITUTION OF CHEMICAL ENGINEERS AND
+       THE CHEMICAL ENGINEER 48, no. 4-6 (1970): T156
+    .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
+       Van Nostrand Reinhold Co., 1984.
+    .. [3] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
+       Transfer, 3E. New York: McGraw-Hill, 1998.
+    '''
+    De = Dean(Re=Re, Di=Di, D=Dc)
+    return 0.336*De**-0.2
 
 
 def helical_turbulent_fd_Schmidt(Re, Di, Dc, roughness=0):
@@ -2743,7 +2892,8 @@ curved_friction_turbulent_methods = {'Schmidt turbulent': (helical_turbulent_fd_
                                      'Czop': (helical_turbulent_fd_Czop, False),
                                      'Guo': (helical_turbulent_fd_Guo, False),
                                      'Ju': (helical_turbulent_fd_Ju, True),
-                                     'Mandel Nigam': (helical_turbulent_fd_Mandal_Nigam, True)}
+                                     'Mandel Nigam': (helical_turbulent_fd_Mandal_Nigam, True),
+                                     'Srinivasan turbulent': (helical_turbulent_fd_Srinivasan, False)}
 
 curved_friction_transition_methods = {'Seth Stahel': helical_transition_Re_Seth_Stahel,
                                       'Ito': helical_transition_Re_Ito,
@@ -2753,7 +2903,7 @@ curved_friction_transition_methods = {'Seth Stahel': helical_transition_Re_Seth_
                                       'Srinivasan': helical_transition_Re_Srinivasan}
 
 
-def friction_factor_curved(Re, Di, Dc, roughness=0, Method=None, 
+def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None, 
                            Rec_method='Schmidt', 
                            laminar_method='Schmidt laminar',
                            turbulent_method='Schmidt turbulent', Darcy=True, 
@@ -2819,6 +2969,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0, Method=None,
     --------
     fluids.geometry.HelicalCoil
     helical_turbulent_fd_Schmidt
+    helical_turbulent_fd_Srinivasan
     helical_turbulent_fd_Mandal_Nigam
     helical_turbulent_fd_Ju
     helical_turbulent_fd_Guo
@@ -2876,7 +3027,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0, Method=None,
         raise Exception('Invalid method for friction factor calculation')
         
     if not Darcy:
-        f *= 4
+        f *= 0.25
     return f
 
 ### Plate heat exchanger single phase
