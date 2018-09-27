@@ -35,7 +35,7 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'diffuser_pipe_reducer',
 'entrance_sharp', 'entrance_distance', 'entrance_angled',
 'entrance_rounded', 'entrance_beveled', 'entrance_beveled_orifice', 
-'exit_normal', 'bend_rounded', 'bend_rounded_Miller', 'bend_miter', 
+'exit_normal', 'bend_rounded', 'bend_rounded_Miller', 'bend_rounded_Crane', 'bend_miter', 
 'bend_miter_Miller', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
 'Kv_to_K', 'K_to_Kv', 'Cv_to_K', 'K_to_Cv', 'change_K_basis', 'Darby', 
 'Hooper', 'K_gate_valve_Crane', 'K_angle_valve_Crane', 'K_globe_valve_Crane',
@@ -217,7 +217,7 @@ def entrance_distance(Di, t, l=None, method='Rennels'):
         The distance the pipe extends into the reservoir; used only in the
         'Idelchik' method, defaults to `Di`, [m]
     method : str, optional
-        One of 'Rennels', 'Miller', 'Idelchik', 'Harris'.
+        One of 'Rennels', 'Miller', 'Idelchik', 'Harris', [-]
         
     Returns
     -------
@@ -1009,7 +1009,87 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
     return Kb*C_Re*C_roughness*C_o
 
 
-def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
+bend_rounded_Crane_ratios = [1.0, 1.5, 2.0, 3.0, 4.0, 6.0, 8.0, 10.0, 12.0,
+                             14.0, 16.0, 20.0]
+bend_rounded_Crane_fds = [20.0, 14.0, 12.0, 12.0, 14.0, 17.0, 24.0, 30.0, 34.0,
+                          38.0, 42.0, 50.0]
+
+bend_rounded_Crane_coeffs = [111.75011378177442, -331.89911345404107, -27.841951521656483,
+                             1066.8916917931147, -857.8702190626232, -1151.4621655498092,
+                             1775.2416673594603, 216.37911821941805, -1458.1661519377653,
+                             447.169127650163, 515.361158769082, -322.58377486107577, 
+                             -38.38349416327068, 71.12796602489138, -16.198233745350535, 
+                             19.377150177339015, 31.107110520349494]
+
+
+def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
+    r'''Calculates the loss coefficient for any rounded bend in a pipe
+    according to the Crane TP 410M [1]_ method. This method effectively uses
+    an interpolation from tabulated values in [1]_ for friction factor
+    multipliers vs. curvature radius.
+    
+    .. figure:: fittings/bend_rounded.png
+       :scale: 30 %
+       :alt: rounded bend; after [1]_
+
+    Parameters
+    ----------
+    Di : float
+        Inside diameter of pipe, [m]
+    angle : float
+        Angle of bend, [degrees]
+    rc : float, optional
+        Radius of curvature of the entrance, optional [m]
+    bend_diameters : float, optional (used if rc not provided)
+        Number of diameters of pipe making up the bend radius [-]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient [-]
+
+    Notes
+    -----
+    The Crane method does match the trend of increased pressure drop as
+    roughness increases.
+
+    The points in [1]_ are extrapolated to other angles via a well-fitting
+    Chebyshev approximation, whose accuracy can be seen in the below plot.
+
+    .. plot:: plots/bend_rounded_Crane.py
+    
+    Examples
+    --------
+    >>> bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30)
+    0.09321910015613409
+
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
+    if not rc:
+        if bend_diameters is None:
+            bend_diameters = 5.0
+        rc = Di*bend_diameters
+    fd = ft_Crane(Di)
+    
+    radius_ratio = rc/Di
+    if radius_ratio < 1.0:
+        radius_ratio = 1.0
+    elif radius_ratio > 20.0:
+        radius_ratio = 20.0
+    factor = horner(bend_rounded_Crane_coeffs, 0.105263157894736836*(radius_ratio - 10.5))
+    K = fd*factor
+    K = (angle/90.0 - 1.0)*(0.25*pi*fd*radius_ratio + 0.5*K) + K
+    return K
+
+
+bend_rounded_methods = ['Rennels', 'Crane', 'Miller', 'Swamee']
+
+
+def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
+                 Re=None, roughness=0.0, L_unimpeded=None, method='Rennels'):
     r'''Returns loss coefficient for any rounded bend in a pipe
     as shown in [1]_.
 
@@ -1028,12 +1108,25 @@ def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
         Inside diameter of pipe, [m]
     angle : float
         Angle of bend, [degrees]
-    fd : float
-        Darcy friction factor [-]
+    fd : float, optional
+        Darcy friction factor; used only in Rennels method; calculated if not
+        provided from Reynolds number, diameter, and roughness [-]
     rc : float, optional
         Radius of curvature of the entrance, optional [m]
     bend_diameters : float, optional (used if rc not provided)
         Number of diameters of pipe making up the bend radius [-]
+    Re : float, optional
+        Reynolds number of the pipe (used in Miller method primarily, and
+        Rennels method if no friction factor given), [m]
+    roughness : float, optional
+        Roughness of bend wall (used in Miller method primarily, and
+        Rennels method if no friction factor given), [m]   
+    L_unimpeded : float, optional
+        The length of unimpeded pipe without any fittings, instrumentation,
+        or flow disturbances downstream (assumed 20 diameters if not 
+        specified); used only in Miller method, [m]
+    method : str, optional
+        One of 'Rennels', 'Miller', 'Crane', or 'Swamee', [-]
 
     Returns
     -------
@@ -1070,11 +1163,27 @@ def bend_rounded(Di, angle, fd, rc=None, bend_diameters=5):
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    angle = angle/(180/pi)
-    if not rc:
-        rc = Di*bend_diameters
-    return (fd*angle*rc/Di + (0.10 + 2.4*fd)*sin(angle/2.)
-    + 6.6*fd*(sin(angle/2.)**0.5 + sin(angle/2.))/(rc/Di)**(4.*angle/pi))
+    if method == 'Rennels':
+        angle = angle/(180/pi)
+        if not rc:
+            rc = Di*bend_diameters
+        return (fd*angle*rc/Di + (0.10 + 2.4*fd)*sin(angle/2.)
+        + 6.6*fd*(sin(angle/2.)**0.5 + sin(angle/2.))/(rc/Di)**(4.*angle/pi))
+    elif method == 'Miller':
+        if Re is None:
+            raise ValueError('Miller method requires Reynolds number')
+        return bend_rounded_Miller(Di=Di, angle=angle, Re=Re, rc=rc, 
+                                   bend_diameters=bend_diameters, 
+                                   roughness=roughness, 
+                                   L_unimpeded=L_unimpeded)
+    elif method == 'Crane':
+        return bend_rounded_Crane(Di=Di, angle=angle, rc=rc, 
+                                  bend_diameters=bend_diameters)
+    elif method == 'Swamee':
+        return (0.0733 + 0.923*(rc/Di)**3.5)*radians(angle)**0.5
+    else:
+        raise ValueError('Specified method not recognized; methods are %s'
+                         %(bend_rounded_methods))
 
 
 bend_miter_Miller_coeffs = [-12.050299402650126, -4.472433689233185, 50.51478860493546, 18.246302079077196, 
@@ -2434,7 +2543,7 @@ def K_gate_valve_Crane(D1, D2, angle, fd=None):
     fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region; do not specify to use the original Crane friction factor!
+        region; do not specify this to use the original Crane friction factor!
         [-]
 
     Returns
@@ -2477,10 +2586,12 @@ def K_gate_valve_Crane(D1, D2, angle, fd=None):
     if beta == 1 or angle == 0:
         return K1 # upstream and down
     else:
-        if angle <= pi/4:
-            K = (K1 + sin(angle/2)*(0.8*(1-beta**2) + 2.6*(1-beta**2)**2))/beta**4
+        beta2 = beta*beta
+        one_m_beta2 = 1.0 - beta2
+        if angle <= 0.7853981633974483:
+            K = (K1 + sin(0.5*angle)*(0.8*one_m_beta2 + 2.6*one_m_beta2*one_m_beta2))/(beta2*beta2)
         else:
-            K = (K1 + 0.5*(sin(angle/2))**0.5 * (1 - beta**2) + (1-beta**2)**2)/beta**4
+            K = (K1 + 0.5*(sin(0.5*angle))**0.5*one_m_beta2 + one_m_beta2*one_m_beta2)/(beta2*beta2)
     return K
 
 
@@ -2504,10 +2615,11 @@ def K_globe_valve_Crane(D1, D2, fd=None):
         Diameter of the valve seat bore (must be smaller or equal to `D2`), [m]
     D2 : float
         Diameter of the pipe attached to the valve, [m]
-    fd : float
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region; do not specify to use the original Crane friction factor!, [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
 
     Returns
     -------
@@ -2539,7 +2651,7 @@ def K_globe_valve_Crane(D1, D2, fd=None):
         return (K1 + beta*(0.5*(1-beta)**2 + (1-beta**2)**2))/beta**4
 
 
-def K_angle_valve_Crane(D1, D2, fd, style=0):
+def K_angle_valve_Crane(D1, D2, fd=None, style=0):
     r'''Returns the loss coefficient for all types of angle valve, (reduced 
     seat or throttled) as shown in [1]_.
 
@@ -2561,10 +2673,11 @@ def K_angle_valve_Crane(D1, D2, fd, style=0):
         Diameter of the valve seat bore (must be smaller or equal to `D2`), [m]
     D2 : float
         Diameter of the pipe attached to the valve, [m]
-    fd : float
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
     style : int, optional
         One of 0, 1, or 2; refers to three different types of angle valves
         as shown in [1]_ [-]
@@ -2581,8 +2694,8 @@ def K_angle_valve_Crane(D1, D2, fd, style=0):
 
     Examples
     --------
-    >>> K_angle_valve_Crane(.01, .02, fd=.016)
-    19.58
+    >>> K_angle_valve_Crane(.01, .02)
+    26.597361811128465
     
     References
     ----------
@@ -2590,19 +2703,22 @@ def K_angle_valve_Crane(D1, D2, fd, style=0):
        2009.
     '''
     beta = D1/D2
-    if style not in [0, 1, 2]:
+    if style not in (0, 1, 2):
         raise Exception('Valve style should be 0, 1, or 2')
+    if fd is None:
+        fd = ft_Crane(D2)
+
     if style == 0 or style == 2:
-        K1 = 55*fd
+        K1 = 55.0*fd
     else:
-        K1 = 150*fd
+        K1 = 150.0*fd
     if beta == 1:
         return K1 # upstream and down
     else:
         return (K1 + beta*(0.5*(1-beta)**2 + (1-beta**2)**2))/beta**4
 
 
-def K_swing_check_valve_Crane(fd, angled=True):
+def K_swing_check_valve_Crane(D=None, fd=None, angled=True):
     r'''Returns the loss coefficient for a swing check valve as shown in [1]_.
         
     .. math::
@@ -2612,10 +2728,13 @@ def K_swing_check_valve_Crane(fd, angled=True):
     
     Parameters
     ----------
-    fd : float
+    D : float, optional
+        Diameter of the pipe attached to the valve, [m]
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
     angled : bool, optional
         If True, returns a value 2x the unangled value; the style of the valve
         [-]
@@ -2632,20 +2751,24 @@ def K_swing_check_valve_Crane(fd, angled=True):
 
     Examples
     --------
-    >>> K_swing_check_valve_Crane(fd=.016)
-    1.6
+    >>> K_swing_check_valve_Crane(D=.02)
+    2.3974274785373257
     
     References
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
+    if D is None and fd is None:
+        raise ValueError('Either `D` or `fd` must be specified')
+    if fd is None:
+        fd = ft_Crane(D)
     if angled:
         return 100.*fd
     return 50.*fd
 
 
-def K_lift_check_valve_Crane(D1, D2, fd, angled=True):
+def K_lift_check_valve_Crane(D1, D2, fd=None, angled=True):
     r'''Returns the loss coefficient for a lift check valve as shown in [1]_.
         
     If β = 1:
@@ -2658,7 +2781,6 @@ def K_lift_check_valve_Crane(D1, D2, fd, angled=True):
     .. math::
         K_2 = \frac{K + \left[0.5(1-\beta^2) + (1-\beta^2)^2\right]}{\beta^4}
         
-        
     For angled lift check valves N = 55; for straight valves, N = 600.
     
     Parameters
@@ -2667,10 +2789,11 @@ def K_lift_check_valve_Crane(D1, D2, fd, angled=True):
         Diameter of the valve seat bore (must be smaller or equal to `D2`), [m]
     D2 : float
         Diameter of the pipe attached to the valve, [m]
-    fd : float
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
     angled : bool, optional
         If True, returns a value 2x the unangled value; the style of the valve
         [-]
@@ -2687,8 +2810,8 @@ def K_lift_check_valve_Crane(D1, D2, fd, angled=True):
 
     Examples
     --------
-    >>> K_lift_check_valve_Crane(.01, .02, fd=.016)
-    21.58
+    >>> K_lift_check_valve_Crane(.01, .02)
+    28.597361811128465
     
     References
     ----------
@@ -2696,6 +2819,8 @@ def K_lift_check_valve_Crane(D1, D2, fd, angled=True):
        2009.
     '''
     beta = D1/D2
+    if fd is None:
+        fd = ft_Crane(D2)
     if angled:
         K1 = 55*fd
         if beta == 1:
@@ -2710,7 +2835,7 @@ def K_lift_check_valve_Crane(D1, D2, fd, angled=True):
             return (K1 + beta*(0.5*(1 - beta**2) + (1 - beta**2)**2))/beta**4
             
         
-def K_tilting_disk_check_valve_Crane(D, angle, fd):
+def K_tilting_disk_check_valve_Crane(D, angle, fd=None):
     r'''Returns the loss coefficient for a tilting disk check valve as shown in
     [1]_. Results are specified in [1]_ to be for the disk's resting position
     to be at 5 or 25 degrees to the flow direction.  The model is implemented
@@ -2742,10 +2867,11 @@ def K_tilting_disk_check_valve_Crane(D, angle, fd):
     angle : float
         Angle of the tilting disk to the flow direction; nominally 5 or 15
         degrees [degrees]
-    fd : float
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
         
     Returns
     -------
@@ -2759,14 +2885,16 @@ def K_tilting_disk_check_valve_Crane(D, angle, fd):
 
     Examples
     --------
-    >>> K_tilting_disk_check_valve_Crane(.01, 5, fd=.016)
-    0.64
+    >>> K_tilting_disk_check_valve_Crane(.01, 5)
+    1.1626516551826345
     
     References
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
+    if fd is None:
+        fd = ft_Crane(D)
     if angle < 10:
         # 5 degree case
         if D <= 0.2286:
@@ -2791,7 +2919,10 @@ def K_tilting_disk_check_valve_Crane(D, angle, fd):
             return 60*fd
 
 
-def K_globe_stop_check_valve_Crane(D1, D2, fd, style=0):
+globe_stop_check_valve_Crane_coeffs = {0: 400.0, 1: 300.0, 2: 55.0}
+
+
+def K_globe_stop_check_valve_Crane(D1, D2, fd=None, style=0):
     r'''Returns the loss coefficient for a globe stop check valve as shown in 
     [1]_.
         
@@ -2816,10 +2947,11 @@ def K_globe_stop_check_valve_Crane(D1, D2, fd, style=0):
         Diameter of the valve seat bore (must be smaller or equal to `D2`), [m]
     D2 : float
         Diameter of the pipe attached to the valve, [m]
-    fd : float
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
     style : int, optional
         One of 0, 1, or 2; refers to three different types of angle valves
         as shown in [1]_ [-]
@@ -2836,17 +2968,18 @@ def K_globe_stop_check_valve_Crane(D1, D2, fd, style=0):
 
     Examples
     --------
-    >>> K_globe_stop_check_valve_Crane(.1, .02, .0165, style=1)
-    4.51992
+    >>> K_globe_stop_check_valve_Crane(.1, .02, style=1)
+    4.5235076518969795
     
     References
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
-    coeffs = {0: 400, 1: 300, 2: 55}
+    if fd is None:
+        fd = ft_Crane(D2)
     try:
-        K = coeffs[style]*fd
+        K = globe_stop_check_valve_Crane_coeffs[style]*fd
     except KeyError:
         raise KeyError('Accepted valve styles are 0, 1, and 2 only')
     beta = D1/D2
@@ -2856,7 +2989,10 @@ def K_globe_stop_check_valve_Crane(D1, D2, fd, style=0):
         return (K + beta*(0.5*(1 - beta**2) + (1 - beta**2)**2))/beta**4
 
 
-def K_angle_stop_check_valve_Crane(D1, D2, fd, style=0):
+angle_stop_check_valve_Crane_coeffs = {0: 200.0, 1: 350.0, 2: 55.0}
+
+
+def K_angle_stop_check_valve_Crane(D1, D2, fd=None, style=0):
     r'''Returns the loss coefficient for a angle stop check valve as shown in 
     [1]_.
         
@@ -2881,10 +3017,11 @@ def K_angle_stop_check_valve_Crane(D1, D2, fd, style=0):
         Diameter of the valve seat bore (must be smaller or equal to `D2`), [m]
     D2 : float
         Diameter of the pipe attached to the valve, [m]
-    fd : float
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
     style : int, optional
         One of 0, 1, or 2; refers to three different types of angle valves
         as shown in [1]_ [-]
@@ -2901,17 +3038,18 @@ def K_angle_stop_check_valve_Crane(D1, D2, fd, style=0):
 
     Examples
     --------
-    >>> K_angle_stop_check_valve_Crane(.1, .02, .0165, style=1)
-    4.52124
+    >>> K_angle_stop_check_valve_Crane(.1, .02, style=1)
+    4.525425593879809
     
     References
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
-    coeffs = {0: 200, 1: 350, 2: 55}
+    if fd is None:
+        fd = ft_Crane(D2)
     try:
-        K = coeffs[style]*fd
+        K = angle_stop_check_valve_Crane_coeffs[style]*fd
     except KeyError:
         raise KeyError('Accepted valve styles are 0, 1, and 2 only')
 
@@ -2919,10 +3057,10 @@ def K_angle_stop_check_valve_Crane(D1, D2, fd, style=0):
     if beta == 1:
         return K
     else:
-        return (K + beta*(0.5*(1 - beta**2) + (1 - beta**2)**2))/beta**4
+        return (K + beta*(0.5*(1.0 - beta**2) + (1.0 - beta**2)**2))/beta**4
 
 
-def K_ball_valve_Crane(D1, D2, angle, fd):
+def K_ball_valve_Crane(D1, D2, angle, fd=None):
     r'''Returns the loss coefficient for a ball valve as shown in [1]_.
 
     If β = 1:
@@ -2951,10 +3089,11 @@ def K_ball_valve_Crane(D1, D2, angle, fd):
         Diameter of the pipe attached to the valve, [m]
     angle : float
         Angle formed by the reducer in the valve, [degrees]
-    fd : float
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
 
     Returns
     -------
@@ -2968,14 +3107,16 @@ def K_ball_valve_Crane(D1, D2, angle, fd):
 
     Examples
     --------
-    >>> K_ball_valve_Crane(.01, .02, 50, .025)
-    14.100545785228675
+    >>> K_ball_valve_Crane(.01, .02, 50)
+    14.051310974926592
     
     References
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
+    if fd is None:
+        fd = ft_Crane(D2)
     beta = D1/D2
     K1 = 3*fd
     angle = radians(angle)
@@ -2988,7 +3129,10 @@ def K_ball_valve_Crane(D1, D2, angle, fd):
             return (K1 + 0.5*(sin(angle/2))**0.5 * (1 - beta**2) + (1-beta**2)**2)/beta**4
 
 
-def K_diaphragm_valve_Crane(fd, style=0):
+diaphragm_valve_Crane_coeffs = {0: 149.0, 1: 39.0}
+
+
+def K_diaphragm_valve_Crane(D=None, fd=None, style=0):
     r'''Returns the loss coefficient for a diaphragm valve of either weir
     (`style` = 0) or straight-through (`style` = 1) as shown in [1]_.
         
@@ -2999,10 +3143,14 @@ def K_diaphragm_valve_Crane(fd, style=0):
     
     Parameters
     ----------
-    fd : float
+    D : float, optional
+        Diameter of the pipe section the valve in mounted in; the
+        same as the line size [m]
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
     style : int, optional
         Either 0 (weir type valve) or 1 (straight through weir valve) [-]
         
@@ -3018,23 +3166,29 @@ def K_diaphragm_valve_Crane(fd, style=0):
 
     Examples
     --------
-    >>> K_diaphragm_valve_Crane(0.015, style=0)
-    2.235
+    >>> K_diaphragm_valve_Crane(D=.1, style=0)
+    2.4269804835982565
     
     References
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
-    coeffs = {0: 149, 1: 39}
+    if D is None and fd is None:
+        raise ValueError('Either `D` or `fd` must be specified')
+    if fd is None:
+        fd = ft_Crane(D)
     try:
-        K = coeffs[style]*fd
+        K = diaphragm_valve_Crane_coeffs[style]*fd
     except KeyError:
         raise KeyError('Accepted valve styles are 0 (weir) or 1 (straight through) only')
     return K
 
 
-def K_foot_valve_Crane(fd, style=0):
+foot_valve_Crane_coeffs = {0: 420.0, 1: 75.0}
+
+
+def K_foot_valve_Crane(D=None, fd=None, style=0):
     r'''Returns the loss coefficient for a foot valve of either poppet disc
     (`style` = 0) or hinged-disk (`style` = 1) as shown in [1]_. Both valves
     are specified include the loss of the attached strainer.
@@ -3046,10 +3200,14 @@ def K_foot_valve_Crane(fd, style=0):
     
     Parameters
     ----------
-    fd : float
+    D : float, optional
+        Diameter of the pipe section the valve in mounted in; the
+        same as the line size [m]
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
     style : int, optional
         Either 0 (poppet disk foot valve) or 1 (hinged disk foot valve) [-]
         
@@ -3065,23 +3223,30 @@ def K_foot_valve_Crane(fd, style=0):
 
     Examples
     --------
-    >>> K_foot_valve_Crane(0.015, style=0)
-    6.3
+    >>> K_foot_valve_Crane(D=0.2, style=0)
+    5.912221498436275
     
     References
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
-    coeffs = {0: 420, 1: 75}
+    if D is None and fd is None:
+        raise ValueError('Either `D` or `fd` must be specified')
+    if fd is None:
+        fd = ft_Crane(D)
     try:
-        K = coeffs[style]*fd
+        K = foot_valve_Crane_coeffs[style]*fd
     except KeyError:
         raise KeyError('Accepted valve styles are 0 (poppet disk) or 1 (hinged disk) only')
     return K
 
 
-def K_butterfly_valve_Crane(D, fd, style=0):
+butterfly_valve_Crane_coeffs = {0: (45.0, 35.0, 25.0), 1: (74.0, 52.0, 43.0),
+                                2: (218.0, 96.0, 55.0)}
+
+
+def K_butterfly_valve_Crane(D, fd=None, style=0):
     r'''Returns the loss coefficient for a butterfly valve as shown in
     [1]_. Three different types are supported; Centric (`style` = 0),
     double offset (`style` = 1), and triple offset (`style` = 2).
@@ -3108,10 +3273,11 @@ def K_butterfly_valve_Crane(D, fd, style=0):
     D : float
         Diameter of the pipe section the valve in mounted in; the
         same as the line size [m]
-    fd : float
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
     style : int, optional
         Either 0 (centric), 1 (double offset), or 2 (triple offset) [-]
 
@@ -3127,17 +3293,18 @@ def K_butterfly_valve_Crane(D, fd, style=0):
 
     Examples
     --------
-    >>> K_butterfly_valve_Crane(.01, .016, style=2)
-    3.488
+    >>> K_butterfly_valve_Crane(D=.1, style=2)
+    3.5508841974793284
     
     References
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
-    coeffs = {0: (45, 35, 25), 1: (74, 52, 43), 2: (218, 96, 55)}
+    if fd is None:
+        fd = ft_Crane(D)
     try:
-        c1, c2, c3 = coeffs[style]
+        c1, c2, c3 = butterfly_valve_Crane_coeffs[style]
     except KeyError:
         raise KeyError('Accepted valve styles are 0 (centric), 1 (double offset), or 2 (triple offset) only.')
     if D <= 0.2286:
@@ -3150,8 +3317,11 @@ def K_butterfly_valve_Crane(D, fd, style=0):
         # 16-18 inches
         return c3*fd
     
-    
-def K_plug_valve_Crane(D1, D2, angle, fd, style=0):
+
+plug_valve_Crane_coeffs = {0: 18.0, 1: 30.0, 2: 90.0}
+
+
+def K_plug_valve_Crane(D1, D2, angle, fd=None, style=0):
     r'''Returns the loss coefficient for a plug valve or cock valve as shown in
     [1]_.
 
@@ -3179,10 +3349,11 @@ def K_plug_valve_Crane(D1, D2, angle, fd, style=0):
         Diameter of the pipe attached to the valve, [m]
     angle : float
         Angle formed by the reducer in the valve, [degrees]
-    fd : float
+    fd : float, optional
         Darcy friction factor calculated for the actual pipe flow in clean 
         steel (roughness = 0.0018 inch) in the fully developed turbulent 
-        region [-]
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
     style : int, optional
         Either 0 (straight-through), 1 (3-way, flow straight-through), or 2 
         (3-way, flow 90°) [-]
@@ -3199,18 +3370,19 @@ def K_plug_valve_Crane(D1, D2, angle, fd, style=0):
 
     Examples
     --------
-    >>> K_plug_valve_Crane(.01, .02, 50, .025)
-    20.100545785228675
+    >>> K_plug_valve_Crane(D1=.01, D2=.02, angle=50)
+    19.80513692341617
     
     References
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
-    coeffs = {0: 18, 1: 30, 2: 90}
+    if fd is None:
+        fd = ft_Crane(D2)
     beta = D1/D2
     try:
-        K = coeffs[style]*fd
+        K = plug_valve_Crane_coeffs[style]*fd
     except KeyError:
         raise KeyError('Accepted valve styles are 0 (straight-through), 1 (3-way, flow straight-through), or 2 (3-way, flow 90°)')
     angle = radians(angle)

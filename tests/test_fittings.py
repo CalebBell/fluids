@@ -268,6 +268,28 @@ def test_fittings():
     assert_allclose(K2, 523.0201108796487)
         
 
+def test_bend_rounded_Crane():
+    K = bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30)
+    assert_allclose(K, 0.09321910015613409)
+    
+    K_max = bend_rounded_Crane(Di=.400, rc=.4*25, angle=30)
+    K_limit = bend_rounded_Crane(Di=.400, rc=.4*20, angle=30)
+    assert_allclose(K_max, K_limit)
+
+def test_bend_rounded_Crane_coefficients(): 
+    from fluids.fittings import bend_rounded_Crane_ratios, bend_rounded_Crane_fds, bend_rounded_Crane_coeffs
+    bend_rounded_Crane_obj = UnivariateSpline(bend_rounded_Crane_ratios, bend_rounded_Crane_fds, s=0)
+
+    fun = chebfun(f=bend_rounded_Crane_obj, domain=[1,20], N=10)
+    coeffs = chebfun_to_poly(fun)
+    assert_allclose(coeffs, bend_rounded_Crane_coeffs)
+    
+    xs = np.linspace(1, 20, 2000)
+    diffs = (abs(fun(xs)-bend_rounded_Crane_obj(xs))/bend_rounded_Crane_obj(xs))
+    assert np.max(diffs) < .02
+    assert np.mean(diffs) < .002
+
+
 
 def test_bend_rounded_Miller_K():
     from fluids import fluids_data_dir
@@ -596,13 +618,19 @@ def test_K_angle_valve_Crane():
     
     with pytest.raises(Exception):
         K_angle_valve_Crane(.01, .02, fd=.016, style=-1)
+        
+    K = K_angle_valve_Crane(.01, .02)
+    assert_allclose(K, 26.597361811128465)
     
     
 def test_K_swing_check_valve_Crane():
-    K = K_swing_check_valve_Crane(fd=.016)
+    K = K_swing_check_valve_Crane(D=.1, fd=.016)
     assert_allclose(K, 1.6)
-    K = K_swing_check_valve_Crane(fd=.016, angled=False)
+    K = K_swing_check_valve_Crane(D=.1, fd=.016, angled=False)
     assert_allclose(K, 0.8)
+    
+    K = K_swing_check_valve_Crane(D=.02)
+    assert_allclose(K, 2.3974274785373257)
     
     
 def test_K_lift_check_valve_Crane():
@@ -617,6 +645,9 @@ def test_K_lift_check_valve_Crane():
     
     K = K_lift_check_valve_Crane(.01, .02, fd=.016, angled=False)
     assert_allclose(K, 161.1)
+    
+    K = K_lift_check_valve_Crane(.01, .02)
+    assert_allclose(K, 28.597361811128465)
     
     
 def test_K_tilting_disk_check_valve_Crane():
@@ -638,6 +669,9 @@ def test_K_tilting_disk_check_valve_Crane():
     K = K_tilting_disk_check_valve_Crane(.9, 15, fd=.016)
     assert_allclose(K, 0.96)
     
+    K =  K_tilting_disk_check_valve_Crane(.01, 5)
+    assert_allclose(K, 1.1626516551826345)
+    
 
 def test_K_globe_stop_check_valve_Crane():
     K = K_globe_stop_check_valve_Crane(.1, .02, .0165)
@@ -654,6 +688,9 @@ def test_K_globe_stop_check_valve_Crane():
         
     K = K_globe_stop_check_valve_Crane(.1, .1, .0165)
     assert_allclose(K, 6.6)
+    
+    K = K_globe_stop_check_valve_Crane(.1, .02, style=1)
+    assert_allclose(K, 4.5235076518969795)
         
         
 def test_K_angle_stop_check_valve_Crane():
@@ -671,6 +708,9 @@ def test_K_angle_stop_check_valve_Crane():
     
     K = K_angle_stop_check_valve_Crane(.1, .1, .0165)
     assert_allclose(K, 3.3)
+    
+    K =  K_angle_stop_check_valve_Crane(.1, .02, style=1)
+    assert_allclose(K, 4.525425593879809)
 
 
 def test_K_ball_valve_Crane():
@@ -683,27 +723,36 @@ def test_K_ball_valve_Crane():
     K = K_ball_valve_Crane(.01, .01, 0, .025)
     assert_allclose(K, 0.07500000000000001)
     
+    K = K_ball_valve_Crane(.01, .02, 50)
+    assert_allclose(K, 14.051310974926592)
+    
     
 def test_K_diaphragm_valve_Crane():
-    K = K_diaphragm_valve_Crane(0.015, style=0)
+    K = K_diaphragm_valve_Crane(fd=0.015, style=0)
     assert_allclose(2.235, K)
     
-    K = K_diaphragm_valve_Crane(0.015, style=1)
+    K = K_diaphragm_valve_Crane(fd=0.015, style=1)
     assert_allclose(K, 0.585)
     
     with pytest.raises(Exception):
-        K_diaphragm_valve_Crane(0.015, style=-1)
+        K_diaphragm_valve_Crane(fd=0.015, style=-1)
+    
+    K = K_diaphragm_valve_Crane(D=.1, style=0)
+    assert_allclose(K, 2.4269804835982565)
     
     
 def test_K_foot_valve_Crane():
-    K = K_foot_valve_Crane(0.015, style=0)
+    K = K_foot_valve_Crane(fd=0.015, style=0)
     assert_allclose(K, 6.3)
     
-    K = K_foot_valve_Crane(0.015, style=1)
+    K = K_foot_valve_Crane(fd=0.015, style=1)
     assert_allclose(K, 1.125)
     
     with pytest.raises(Exception):
-        K_foot_valve_Crane(0.015, style=-1)
+        K_foot_valve_Crane(fd=0.015, style=-1)
+        
+    K = K_foot_valve_Crane(D=0.2, style=0)
+    assert_allclose(K, 5.912221498436275)
         
         
 def test_K_butterfly_valve_Crane():
@@ -718,6 +767,9 @@ def test_K_butterfly_valve_Crane():
     
     with pytest.raises(Exception):
         K_butterfly_valve_Crane(.6, 0.0165, style=-1)
+        
+    K = K_butterfly_valve_Crane(D=.1, style=2)
+    assert_allclose(K, 3.5508841974793284)
         
         
 def test_K_plug_valve_Crane():
@@ -736,6 +788,9 @@ def test_K_plug_valve_Crane():
     
     with pytest.raises(Exception):
         K_plug_valve_Crane(.01, .01, 50, .025, style=-1)
+        
+    K = K_plug_valve_Crane(D1=.01, D2=.02, angle=50)
+    assert_allclose(K, 19.80513692341617)
 
 
 def test_K_branch_converging_Crane():
