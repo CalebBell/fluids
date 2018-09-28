@@ -169,17 +169,6 @@ def test_fittings():
     ### Exits
     assert_allclose(exit_normal(), 1.0)
 
-    ### Bends
-    K_5_rc = [bend_rounded(Di=4.020, rc=4.0*5, angle=i, fd=0.0163) for i in [15, 30, 45, 60, 75, 90]]
-    K_5_rc_values = [0.07038212630028828, 0.10680196344492195, 0.13858204974134541, 0.16977191374717754, 0.20114941557508642, 0.23248382866658507]
-    assert_allclose(K_5_rc, K_5_rc_values)
-
-    K_10_rc = [bend_rounded(Di=34.500, rc=36*10, angle=i, fd=0.0106) for i in [15, 30, 45, 60, 75, 90]]
-    K_10_rc_values =  [0.061075866683922314, 0.10162621862720357, 0.14158887563243763, 0.18225270014527103, 0.22309967045081655, 0.26343782210280947]
-    assert_allclose(K_10_rc, K_10_rc_values)
-
-    K = bend_rounded(Di=4.020, bend_diameters=5, angle=30, fd=0.0163)
-    assert_allclose(K, 0.106920213333191)
 
     K_miters =  [bend_miter(i) for i in [150, 120, 90, 75, 60, 45, 30, 15]]
     K_miter_values = [2.7128147734758103, 2.0264994448555864, 1.2020815280171306, 0.8332188430731828, 0.5299999999999998, 0.30419633092708653, 0.15308822558050816, 0.06051389308126326]
@@ -465,6 +454,35 @@ def test_bend_rounded_Miller():
     assert_allclose(K, 0.1414607344374372, rtol=1e-4) # 0.135 in Miller - Difference mainly from Co interpolation method, OK with that
     K = bend_rounded_Miller(L_unimpeded=2*D, **kwargs)
     assert_allclose(K, 0.09343184457353562, rtol=1e-4) # 0.093 in miller
+
+def test_bend_rounded():
+    ### Bends
+    K_5_rc = [bend_rounded(Di=4.020, rc=4.0*5, angle=i, fd=0.0163) for i in [15, 30, 45, 60, 75, 90]]
+    K_5_rc_values = [0.07038212630028828, 0.10680196344492195, 0.13858204974134541, 0.16977191374717754, 0.20114941557508642, 0.23248382866658507]
+    assert_allclose(K_5_rc, K_5_rc_values)
+
+    K_10_rc = [bend_rounded(Di=34.500, rc=36*10, angle=i, fd=0.0106) for i in [15, 30, 45, 60, 75, 90]]
+    K_10_rc_values =  [0.061075866683922314, 0.10162621862720357, 0.14158887563243763, 0.18225270014527103, 0.22309967045081655, 0.26343782210280947]
+    assert_allclose(K_10_rc, K_10_rc_values)
+
+    K = bend_rounded(Di=4.020, bend_diameters=5, angle=30, fd=0.0163)
+    assert_allclose(K, 0.106920213333191)
+    
+    K = bend_rounded(Di=4.020, bend_diameters=5, angle=30, Re=1E5)
+    assert_allclose(K, 0.11532121658742862)
+    
+    K = bend_rounded(Di=4.020, bend_diameters=5, angle=30, Re=1E5, method='Miller')
+    assert_allclose(K, 0.10276501180879682)
+    
+    K = bend_rounded(Di=.5, bend_diameters=5, angle=30, Re=1E5, method='Crane')
+    assert_allclose(K, 0.08959057097762159)
+    
+    K = bend_rounded(Di=.5, bend_diameters=5, angle=30, Re=1E5, method='Ito')
+    assert_allclose(K, 0.10457946464978755)
+    
+    K = bend_rounded(Di=.5, bend_diameters=5, angle=30, Re=1E5, method='Swamee')
+    assert_allclose(K, 0.055429466248839564)
+
 
 
 def log_uniform(low, high):

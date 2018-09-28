@@ -25,8 +25,8 @@ from math import cos, sin, tan, atan, pi, radians, log10
 import numpy as np
 from scipy.constants import inch
 from scipy.interpolate import splev, bisplev, UnivariateSpline, RectBivariateSpline
-from fluids.friction import friction_factor, ft_Crane
-from fluids.core import horner
+from fluids.friction import friction_factor, Colebrook, friction_factor_curved, ft_Crane
+from fluids.core import horner, deg_to_rad
 
 __all__ = ['contraction_sharp', 'contraction_round', 
            'contraction_round_Miller',
@@ -1085,19 +1085,70 @@ def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
     return K
 
 
-bend_rounded_methods = ['Rennels', 'Crane', 'Miller', 'Swamee']
+def bend_rounded_Ito(Di, angle, Re, rc=None, bend_diameters=None, 
+                     roughness=0.0):
+    if not rc:
+        if bend_diameters is None:
+            bend_diameters = 5.0
+        rc = Di*bend_diameters
+    
+    radius_ratio = rc/Di
+    angle_rad = radians(angle)
+    De2 = Re*(Di/rc)**2.0
+    if rc > 50.0*Di:
+        alpha = 1.0
+    else:
+        # Alpha is up to 6, as ratio gets higher, can go down to 1
+        alpha_45 = 1.0 + 5.13*(Di/rc)**1.47
+        alpha_90 = 0.95 + 4.42*(Di/rc)**1.96 if rc/Di < 9.85 else 1.0
+        alpha_180 = 1.0 + 5.06*(Di/rc)**4.52
+        alpha = float(np.interp(angle, [45, 90, 180], [alpha_45, alpha_90, alpha_180]))
+    
+    if De2 <= 360.0:
+        fc = friction_factor_curved(Re=Re, Di=Di, Dc=2.0*rc,
+                                    roughness=roughness,
+                                    Rec_method='Srinivasan', 
+                                    laminar_method='White',
+                                    turbulent_method='Srinivasan turbulent')
+        K = 0.0175*alpha*fc*angle*rc/Di
+    else:
+        K = 0.00431*alpha*angle*Re**-0.17*(rc/Di)**0.84
+    return K
+
+
+bend_rounded_methods = ['Rennels', 'Crane', 'Miller', 'Swamee', 'Ito']
 
 
 def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
                  Re=None, roughness=0.0, L_unimpeded=None, method='Rennels'):
-    r'''Returns loss coefficient for any rounded bend in a pipe
-    as shown in [1]_.
-
+    r'''Returns loss coefficient for rounded bend in a pipe of diameter `Di`,
+    `angle`, with a specified either radius of curvature `rc` or curvature 
+    defined by `bend_diameters`, Reynolds number `Re` and optionally pipe
+    roughness, unimpeded length downstrean, and with the specified method.
+    This calculation has five methods available.
+    
+    It is hard to describe one method as more conservative than another as
+    depending on the conditions, the relative results change significantly.
+    
+    The 'Miller' method is the most complicated and slowest method; the 'Ito'
+    method comprehensive as well and a source of original data, and the primary
+    basis for the 'Rennels' method. The 'Swamee' method is very simple and
+    generally does not match the other methods. The 'Crane' method may match 
+    or not match other methods depending on the inputs.
+    
+    The Rennels [1]_ formula is:
+    
     .. math::
         K = f\alpha\frac{r}{d} + (0.10 + 2.4f)\sin(\alpha/2)
         + \frac{6.6f(\sqrt{\sin(\alpha/2)}+\sin(\alpha/2))}
         {(r/d)^{\frac{4\alpha}{\pi}}}
 
+    The Swamee [5]_ formula is:
+        
+    .. math::
+        K = \left[0.0733 + 0.923 \left(\frac{d}{rc}\right)^{3.5} \right]
+        \theta^{0.5}
+        
     .. figure:: fittings/bend_rounded.png
        :scale: 30 %
        :alt: rounded bend; after [1]_
@@ -1116,17 +1167,17 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
     bend_diameters : float, optional (used if rc not provided)
         Number of diameters of pipe making up the bend radius [-]
     Re : float, optional
-        Reynolds number of the pipe (used in Miller method primarily, and
+        Reynolds number of the pipe (used in Miller, Ito methods primarily, and
         Rennels method if no friction factor given), [m]
     roughness : float, optional
-        Roughness of bend wall (used in Miller method primarily, and
+        Roughness of bend wall (used in Miller, Ito methods primarily, and
         Rennels method if no friction factor given), [m]   
     L_unimpeded : float, optional
         The length of unimpeded pipe without any fittings, instrumentation,
         or flow disturbances downstream (assumed 20 diameters if not 
         specified); used only in Miller method, [m]
     method : str, optional
-        One of 'Rennels', 'Miller', 'Crane', or 'Swamee', [-]
+        One of 'Rennels', 'Miller', 'Crane', 'Ito', or 'Swamee', [-]
 
     Returns
     -------
@@ -1139,36 +1190,48 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
     this as a multiplier of nominal diameter, which is different than actual
     diameter. Those require that rc be specified.
     
-    `rc` is limited to 0.5 or above; which represents a sharp, square, inner 
-    edge - and an outer bend radius of 1.0. Losses are at a minimum when this
-    value is large.
-
-    First term represents surface friction loss; the second, secondary flows;
-    and the third, flow separation.
-    Encompasses the entire range of elbow and pipe bend configurations.
-    
-    This was developed for bend angles between 0 and 180 degrees; and r/D
+    In the 'Rennels' method, `rc` is limited to 0.5 or above; which represents 
+    a sharp, square, inner edge - and an outer bend radius of 1.0. Losses are 
+    at a minimum when this value is large. Its first term represents surface 
+    friction loss; the second, secondary flows; and the third, flow separation.
+    It encompasses the entire range of elbow and pipe bend configurations.
+    It was developed for bend angles between 0 and 180 degrees; and r/D
     ratios above 0.5. Only smooth pipe data was used in its development.
-    
     Note the loss coefficient includes the surface friction of the pipe as if
     it was straight.
    
     Examples
     --------
-    >>> bend_rounded(Di=4.020, rc=4.0*5, angle=30, fd=0.0163)
-    0.10680196344492195
+    >>> bend_rounded(Di=4.020, rc=4.0*5, angle=30, Re=1E5)
+    0.11519070808085191
 
     References
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
+    .. [3] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    .. [4] Swamee, Prabhata K., and Ashok K. Sharma. Design of Water Supply 
+       Pipe Networks. John Wiley & Sons, 2008.
+    .. [5] Itō, H."Pressure Losses in Smooth Pipe Bends." Journal of Fluids 
+       Engineering 82, no. 1 (March 1, 1960): 131-40. doi:10.1115/1.3662501
+    .. [6] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
+       Van Nostrand Reinhold Co., 1984.
     '''
+    if rc is None:
+        rc = Di*bend_diameters
     if method == 'Rennels':
-        angle = angle/(180/pi)
-        if not rc:
-            rc = Di*bend_diameters
-        return (fd*angle*rc/Di + (0.10 + 2.4*fd)*sin(angle/2.)
-        + 6.6*fd*(sin(angle/2.)**0.5 + sin(angle/2.))/(rc/Di)**(4.*angle/pi))
+        angle = angle*deg_to_rad
+        if fd is None:
+            if Re is None:
+                raise ValueError("The `Rennels` method requires either a "
+                                 "specified friction factor or `Re`")
+            fd = Colebrook(Re=Re, eD=roughness/Di, tol=-1)
+        sin_term = sin(0.5*angle)
+        return (fd*angle*rc/Di + (0.10 + 2.4*fd)*sin_term
+        + 6.6*fd*(sin_term**0.5 + sin_term)/(rc/Di)**(4.*angle/pi))
     elif method == 'Miller':
         if Re is None:
             raise ValueError('Miller method requires Reynolds number')
@@ -1179,8 +1242,13 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
     elif method == 'Crane':
         return bend_rounded_Crane(Di=Di, angle=angle, rc=rc, 
                                   bend_diameters=bend_diameters)
+    elif method == 'Ito':
+        if Re is None:
+            raise ValueError("The `Iso` method requires`Re`")
+        return bend_rounded_Ito(Di=Di, angle=angle, Re=Re, rc=rc, bend_diameters=bend_diameters, 
+                     roughness=roughness)
     elif method == 'Swamee':
-        return (0.0733 + 0.923*(rc/Di)**3.5)*radians(angle)**0.5
+        return (0.0733 + 0.923*(Di/rc)**3.5)*radians(angle)**0.5
     else:
         raise ValueError('Specified method not recognized; methods are %s'
                          %(bend_rounded_methods))

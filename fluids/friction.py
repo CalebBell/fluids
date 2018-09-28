@@ -259,7 +259,7 @@ def Colebrook(Re, eD, tol=None):
        doi:10.1680/ijoti.1939.13150.
     '''
     if tol == -1:
-        if Re > 10:
+        if Re > 10.0:
             return Clamond(Re, eD)
         else:
             tol = None
