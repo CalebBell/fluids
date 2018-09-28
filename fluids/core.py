@@ -36,8 +36,6 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'head_from_K', 'head_from_P',
 'P_from_head', 'Eotvos']
 
-deg_to_rad = pi/180.0
-
 ### Not quite dimensionless groups
 def thermal_diffusivity(k, rho, Cp):
     r'''Calculates thermal diffusivity or `alpha` for a fluid with the given

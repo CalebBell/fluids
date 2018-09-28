@@ -26,7 +26,7 @@ import numpy as np
 from scipy.constants import inch
 from scipy.interpolate import splev, bisplev, UnivariateSpline, RectBivariateSpline
 from fluids.friction import friction_factor, Colebrook, friction_factor_curved, ft_Crane
-from fluids.core import horner, deg_to_rad
+from fluids.core import horner
 
 __all__ = ['contraction_sharp', 'contraction_round', 
            'contraction_round_Miller',
@@ -1223,7 +1223,7 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
     if rc is None:
         rc = Di*bend_diameters
     if method == 'Rennels':
-        angle = angle*deg_to_rad
+        angle = radians(angle)
         if fd is None:
             if Re is None:
                 raise ValueError("The `Rennels` method requires either a "
@@ -1806,11 +1806,13 @@ def contraction_beveled(Di1, Di2, l=None, angle=None):
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    angle = angle/(180/pi)
+    angle = radians(angle)
     beta = Di2/Di1
-    CB = l/Di2*2*beta*tan(angle/2)/(1-beta)
-    lbd  = 1 + 0.622*(1 + CB*((angle/pi)**0.8-1))*(1-0.215*beta**2-0.785*beta**5)
-    return 0.0696*(1 + CB*(sin(angle/2)-1))*(1-beta**5)*lbd**2 + (lbd-1)**2
+    CB = l/Di2*2.0*beta*tan(0.5*angle)/(1.0 - beta)
+    beta2 = beta*beta
+    beta5 = beta2*beta2*beta
+    lbd = 1.0 + 0.622*(1.0 + CB*((angle/pi)**0.8 - 1.0))*(1.0 - 0.215*beta2 - 0.785*beta5)
+    return 0.0696*(1.0 + CB*(sin(0.5*angle) - 1.0))*(1.0 - beta5)*lbd*lbd + (lbd-1.0)**2
 
 ### Expansions (diffusers)
 
@@ -1848,10 +1850,10 @@ def diffuser_sharp(Di1, Di2):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     beta = Di1/Di2
-    return (1. - beta*beta)**2
+    return (1.0 - beta*beta)**2
 
 
-def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None):
+def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, method='Rennels'):
     r'''Returns loss coefficient for any conical pipe expansion
     as shown in [1]_. Five different formulas are used, depending on
     the angle and the ratio of diameters.
@@ -1902,6 +1904,8 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None):
         Angle of contraction, [degrees]
     fd : float
         Darcy friction factor [-]
+    method : str
+        The method to use for the calculation; one of 'Rennels'
 
     Returns
     -------
@@ -1925,7 +1929,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None):
     beta = Di1/Di2
 
     if angle is not None:
-        angle_rad = angle/(180/pi)
+        angle_rad = radians(angle)
         l = (Di2 - Di1)/(2*tan(angle_rad/2))
     elif l is not None:
         angle_rad = 2*atan((Di2-Di1)/2/l)
@@ -1933,23 +1937,25 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None):
     else:
         raise Exception('Either `l` or `angle` must be specified')
 
-    if 0 < angle <= 20:
-        K = 8.30*tan(angle_rad/2)**1.75*(1-beta**2)**2 + fd*(1-beta**4)/8./sin(angle_rad/2)
-    elif 20 < angle <= 60 and 0 <= beta < 0.5:
-        K = (1.366*sin(2*pi*(angle-15)/180.)**0.5-0.170
-        - 3.28*(0.0625-beta**4)*((angle-20)/40.)**0.5)*(1-beta**2)**2 + fd*(1-beta**4)/8./sin(angle_rad/2)
-    elif 20 < angle <= 60 and beta >= 0.5:
-        K = (1.366*sin(2*pi*(angle-15)/180.)**0.5-0.170)*(1-beta**2)**2 + fd*(1-beta**4)/8./sin(angle_rad/2)
-    elif 60 < angle <= 180 and 0 <= beta < 0.5:
-        K = (1.205 - 3.28*(0.0625-beta**4) - 12.8*beta**6*((angle-60)/120.)**0.5)*(1-beta**2)**2
-    elif 60 < angle <= 180 and beta >= 0.5:
-        K = (1.205 - 0.20*((angle-60)/120.)**0.5)*(1-beta**2)**2
+    beta2 = beta*beta
+    if 0.0 < angle <= 20.0:
+        K = 8.30*tan(0.5*angle_rad)**1.75*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
+    elif 20.0 < angle <= 60.0 and 0.0 <= beta < 0.5:
+        K = (1.366*sin(2.0*pi*(angle - 15.0)/180.)**0.5 - 0.170
+        - 3.28*(0.0625-beta**4)*(0.025*(angle-20.0))**0.5)*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
+    elif 20.0 < angle <= 60.0 and beta >= 0.5:
+        K = (1.366*sin(2.0*pi*(angle - 15.0)/180.0)**0.5 - 0.170)*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
+    elif 60.0 < angle <= 180.0 and 0.0 <= beta < 0.5:
+        beta4 = beta2*beta2
+        K = (1.205 - 3.28*(0.0625 - beta4) - 12.8*beta4*beta2*((angle - 60.0)/120.)**0.5)*(1.0 - beta2)**2
+    elif 60.0 < angle <= 180.0 and beta >= 0.5:
+        K = (1.205 - 0.20*((angle - 60.0)/120.)**0.5)*(1.0 - beta**2)**2
     else:
         raise Exception('Conical diffuser inputs incorrect')
     return K
 
 
-def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None):
+def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
     r'''Returns loss coefficient for any series of staged conical pipe expansions
     as shown in [1]_. Five different formulas are used, depending on
     the angle and the ratio of diameters. This function calls diffuser_conical.
@@ -1966,6 +1972,8 @@ def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None):
         Lengths of the various sections, [m]
     fd : float
         Darcy friction factor [-]
+    method : str
+        The method to use for the calculation; one of 'Rennels'
 
     Returns
     -------
@@ -1995,7 +2003,7 @@ def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None):
     DEs.insert(0, Di1)
     DEs.append(Di2)
     for i in range(len(ls)):
-        K += diffuser_conical(Di1=float(DEs[i]), Di2=float(DEs[i+1]), l=float(ls[i]), fd=fd)
+        K += diffuser_conical(Di1=float(DEs[i]), Di2=float(DEs[i+1]), l=float(ls[i]), fd=fd, method=method)
     return K
 
 
