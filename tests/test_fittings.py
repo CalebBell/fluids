@@ -184,9 +184,6 @@ def test_fittings():
     K_sharp = contraction_sharp(Di1=1, Di2=0.4)
     assert_allclose(K_sharp, 0.5301269161591805)
 
-    K_round = contraction_round(Di1=1, Di2=0.4, rc=0.04)
-    assert_allclose(K_round, 0.1783332490866574)
-
     K_conical1 = contraction_conical(Di1=0.1, Di2=0.04, l=0.04, fd=0.0185)
     K_conical2 = contraction_conical(Di1=0.1, Di2=0.04, angle=73.74, fd=0.0185)
     assert_allclose([K_conical1, K_conical2], [0.15779041548350314, 0.15779101784158286])
@@ -609,10 +606,23 @@ def test_K_gate_valve_Crane():
     assert_allclose(K, 1.1466029421844073, rtol=1e-4)
 
 
+def test_contraction_round():
+    K_round = contraction_round(Di1=1, Di2=0.4, rc=0.04)
+    assert_allclose(K_round, 0.1783332490866574)
+
+    K = contraction_round(Di1=1, Di2=0.4, rc=0.04, method='Miller')
+    assert_allclose(K, 0.085659530512986387)
+
+    K = contraction_round(Di1=1, Di2=0.4, rc=0.04, method='Idelchik')
+    assert_allclose(K, 0.1008)
+    
+    with pytest.raises(Exception):
+        contraction_round(Di1=1, Di2=0.4, rc=0.04, method='BADMETHOD')
+
 def test_contraction_round_Miller():
     K = contraction_round_Miller(Di1=1, Di2=0.4, rc=0.04)
     assert_allclose(K, 0.085659530512986387)
-    
+
 
 def test_K_globe_valve_Crane():
     K =  K_globe_valve_Crane(.01, .02, fd=.015)

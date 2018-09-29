@@ -1563,10 +1563,26 @@ def contraction_sharp(Di1, Di2):
     return 0.0696*(1-beta**5)*lbd**2 + (lbd-1)**2
 
 
-def contraction_round(Di1, Di2, rc):
-    r'''Returns loss coefficient for any round edged pipe contraction
-    as shown in [1]_.
+contraction_round_Idelchik_ratios = [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 
+                                     0.08, 0.12, 0.16, 0.2]
+contraction_round_Idelchik_factors = [0.5, 0.43, 0.37, 0.31, 0.26, 0.22, 0.20, 
+                                      0.15, 0.09, 0.06, 0.03] 
+# Third factor is 0.36 in 1960 edition, 0.37 in Design Guide
 
+contraction_round_methods = ['Rennels', 'Miller', 'Idelchik']
+
+def contraction_round(Di1, Di2, rc, method='Rennels'):
+    r'''Returns loss coefficient for any any round edged pipe contraction.
+    This calculation has three methods available. The 'Miller' [2]_ method is a 
+    bivariate spline digitization of a graph; the 'Idelchik' [3]_ method is an
+    interpolation using a formula and a table of values.
+
+    The most conservative formulation is that of Rennels; with fairly similar.
+    The 'Idelchik' method is more conservative and less complex; it offers a
+    straight-line curve where the others curves are curved.
+    
+    The Rennels [1]_ formulas are:
+        
     .. math::
         K = 0.0696\left(1 - 0.569\frac{r}{d_2}\right)\left(1-\sqrt{\frac{r}
         {d_2}}\beta\right)(1-\beta^5)\lambda^2 + (\lambda-1)^2
@@ -1590,6 +1606,9 @@ def contraction_round(Di1, Di2, rc):
         Inside diameter of following pipe, [m]
     rc : float
         Radius of curvature of the contraction, [m]
+    method : str
+        The calculation method to use; one of 'Rennels', 'Miller', or 
+        'Idelchik', [-]
 
     Returns
     -------
@@ -1600,6 +1619,8 @@ def contraction_round(Di1, Di2, rc):
     -----
     Rounding radius larger than 0.14Di2 prevents flow separation from the wall.
     Further increase in rounding radius continues to reduce loss coefficient.
+    
+    .. plot:: plots/contraction_round.py
 
     Examples
     --------
@@ -1610,75 +1631,26 @@ def contraction_round(Di1, Di2, rc):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
+    .. [3] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of 
+       Local Resistance and of Friction (Spravochnik Po Gidravlicheskim 
+       Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
+       Treniya). National technical information Service, 1966.
     '''
     beta = Di2/Di1
-    lbd = 1 + 0.622*(1 - 0.30*(rc/Di2)**0.5 - 0.70*rc/Di2)**4*(1-0.215*beta**2 - 0.785*beta**5)
-    return 0.0696*(1-0.569*rc/Di2)*(1-(rc/Di2)**0.5*beta)*(1-beta**5)*lbd**2 + (lbd-1)**2
-
-
-def contraction_conical(Di1, Di2, fd, l=None, angle=None):
-    r'''Returns loss coefficient for any conical pipe contraction
-    as shown in [1]_.
-
-    .. math::
-        K = 0.0696[1+C_B(\sin(\alpha/2)-1)](1-\beta^5)\lambda^2 + (\lambda-1)^2
-
-    .. math::
-        \lambda = 1 + 0.622(\alpha/180)^{0.8}(1-0.215\beta^2-0.785\beta^5)
-
-    .. math::
-        \beta = d_2/d_1
-
-    .. figure:: fittings/contraction_conical.png
-       :scale: 30 %
-       :alt: contraction conical; after [1]_
-
-    Parameters
-    ----------
-    Di1 : float
-        Inside pipe diameter of the larger, upstream, pipe, [m]    
-    Di2 : float
-        Inside pipe diameter of the smaller, downstream, pipe, [m]    
-    fd : float
-        Darcy friction factor [-]
-    l : float
-        Length of the contraction, optional [m]
-    angle : float
-        Angle of contraction, optional [degrees]
-
-    Returns
-    -------
-    K : float
-        Loss coefficient in terms of the following pipe [-]
-
-    Notes
-    -----
-    Cheap and has substantial impact on pressure drop.
-
-    Examples
-    --------
-    >>> contraction_conical(Di1=0.1, Di2=0.04, l=0.04, fd=0.0185)
-    0.15779041548350314
-
-    References
-    ----------
-    .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
-       and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
-    beta = Di2/Di1
-    if angle is not None:
-        angle = radians(angle)
-        l = (Di1 - Di2)/(2.0*tan(0.5*angle))
-    elif l is not None:
-        try:
-            angle = 2.0*atan((Di1-Di2)/(2.0*l))
-        except ZeroDivisionError:
-            angle = pi
+    if method == 'Rennels':
+        lbd = 1.0 + 0.622*(1.0 - 0.30*(rc/Di2)**0.5 - 0.70*rc/Di2)**4*(1.0 - 0.215*beta**2 - 0.785*beta**5)
+        return 0.0696*(1.0 - 0.569*rc/Di2)*(1.0 - (rc/Di2)**0.5*beta)*(1.0 - beta**5)*lbd*lbd + (lbd - 1.0)**2
+    elif method == 'Miller':
+        return contraction_round_Miller(Di1=Di1, Di2=Di2, rc=rc)
+    elif method == 'Idelchik':
+        # Di2, ratio defined in terms over diameter
+        K0 = np.interp(rc/Di2, contraction_round_Idelchik_ratios, contraction_round_Idelchik_factors)
+        return K0*(1.0 - beta*beta)
     else:
-        raise Exception('Either l or angle is required')
-
-    lbd = 1 + 0.622*(angle/pi)**0.8*(1-0.215*beta**2 - 0.785*beta**5)
-    return fd*(1-beta**4)/(8*sin(angle/2)) + 0.0696*sin(angle/2)*(1-beta**5)*lbd**2 + (lbd-1)**2
+        raise ValueError('Specified method not recognized; methods are %s'
+                         %(contraction_round_methods))
 
 
 def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
@@ -1741,7 +1713,7 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
     beta2 = beta*beta
     if angle is not None:
         angle = radians(angle)
-        l = (Di1 - Di2)/(2.0*tan(0.5*angle))
+        #l = (Di1 - Di2)/(2.0*tan(0.5*angle)) # L is not needed in this calculation
     elif l is not None:
         try:
             angle = 2.0*atan((Di1-Di2)/(2.0*l))
@@ -1754,6 +1726,89 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
         # Formula 2
         K2 = 0.5*(sin(0.5*angle)**0.5*(1.0 - beta2))
     return K2
+
+
+def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
+                        Re=None, roughness=0.0, method='Rennels'):
+    r'''Returns loss coefficient for any conical pipe contraction
+    as shown in [1]_.
+
+    .. math::
+        K = 0.0696[1+C_B(\sin(\alpha/2)-1)](1-\beta^5)\lambda^2 + (\lambda-1)^2
+
+    .. math::
+        \lambda = 1 + 0.622(\alpha/180)^{0.8}(1-0.215\beta^2-0.785\beta^5)
+
+    .. math::
+        \beta = d_2/d_1
+        
+    The 'Swamee' formula is:
+    
+    .. math::
+        K = 0.315 \theta^{1/3}
+
+    .. figure:: fittings/contraction_conical.png
+       :scale: 30 %
+       :alt: contraction conical; after [1]_
+
+    Parameters
+    ----------
+    Di1 : float
+        Inside pipe diameter of the larger, upstream, pipe, [m]    
+    Di2 : float
+        Inside pipe diameter of the smaller, downstream, pipe, [m]    
+    fd : float, optional
+        Darcy friction factor [-]
+    l : float, optional
+        Length of the contraction, optional [m]
+    angle : float, optional
+        Angle of contraction, optional [degrees]
+    method : str, optional
+        The method to use for the calculation; one of 'Rennels'
+
+    Returns
+    -------
+    K : float
+        Loss coefficient in terms of the following pipe [-]
+
+    Notes
+    -----
+    Cheap and has substantial impact on pressure drop.
+
+    Examples
+    --------
+    >>> contraction_conical(Di1=0.1, Di2=0.04, l=0.04, fd=0.0185)
+    0.15779041548350314
+
+    References
+    ----------
+    .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
+       and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    '''
+    beta = Di2/Di1
+    if angle is not None:
+        angle_rad = radians(angle)
+        l = (Di1 - Di2)/(2.0*tan(0.5*angle_rad))
+    elif l is not None:
+        try:
+            angle_rad = 2.0*atan((Di1-Di2)/(2.0*l))
+        except ZeroDivisionError:
+            angle_rad = pi
+    else:
+        raise Exception('Either l or angle is required')
+
+    if method == 'Rennels':
+        if fd is None:
+            if Re is None:
+                raise ValueError("The `Rennels` method requires either a "
+                                 "specified friction factor or `Re`")
+            fd = Colebrook(Re=Re, eD=roughness/Di, tol=-1)
+        lbd = 1 + 0.622*(angle_rad/pi)**0.8*(1-0.215*beta**2 - 0.785*beta**5)
+        return fd*(1-beta**4)/(8*sin(angle_rad/2)) + 0.0696*sin(angle_rad/2)*(1-beta**5)*lbd**2 + (lbd-1)**2
+    elif method == 'Crane':
+        return contraction_conical_Crane(Di1=Di1, Di2=Di2, angle=angle)
+    elif method == 'Swamee':
+        return 0.315*angle_rad**(1.0/3.0)
 
 
 def contraction_beveled(Di1, Di2, l=None, angle=None):
