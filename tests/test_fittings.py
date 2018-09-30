@@ -631,7 +631,7 @@ def test_contraction_conical():
     assert_allclose(K, 0.47462419839494946)
     
     K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Idelchik')
-    assert_allclose(K, 0.43)
+    assert_allclose(K, 0.391723)
     
     K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Crane')
     assert_allclose(K, 0.41815380146594)
@@ -640,7 +640,7 @@ def test_contraction_conical():
     assert_allclose(K, 0.4479863925376303)
     
     K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Blevins')
-    assert_allclose(K, 0.3598137894417477)
+    assert_allclose(K, 0.365)
 
 
 def test_K_globe_valve_Crane():

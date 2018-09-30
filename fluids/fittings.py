@@ -1728,7 +1728,7 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
     return K2
 
 contraction_conical_angles_Idelchik = [2, 3, 6, 8, 10, 12, 14, 16, 20]
-contraction_conical_ratios_Idelchik = [0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6]
+contraction_conical_A_ratios_Idelchik = [0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6]
 
 contraction_conical_friction_Idelchik = np.array([
     [0.14, 0.1, 0.05, 0.04, 0.03, 0.03, 0.02, 0.02, 0.01],
@@ -1742,7 +1742,7 @@ contraction_conical_friction_Idelchik = np.array([
     [0.11, 0.07, 0.04, 0.03, 0.02, 0.02, 0.02, 0.02, 0.01],
     [0.09, 0.06, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02, 0.01]])
 
-contraction_conical_frction_Idelchik_obj = RectBivariateSpline(contraction_conical_ratios_Idelchik,
+contraction_conical_frction_Idelchik_obj = RectBivariateSpline(contraction_conical_A_ratios_Idelchik,
                                                                contraction_conical_angles_Idelchik,
                                                                contraction_conical_friction_Idelchik)
 
@@ -1763,22 +1763,29 @@ contraction_conical_methods = ['Rennels', 'Idelchik', 'Crane', 'Swamee', 'Blevin
 def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
                         Re=None, roughness=0.0, method='Rennels'):
     r'''Returns the loss coefficient for any conical pipe contraction.
-    This calculation has fice methods available. The 'Idelchik' and 'Blevins'
-    methods use interpolation among tables of values; the 'Rennels', 'Crane',
-    and 'Swamee' methods use formulas for their calculations.
+    This calculation has fice methods available. The 'Idelchik' [2]_ and 
+    'Blevins' [3]_ methods use interpolation among tables of values; the 
+    'Rennels' [1]_, 'Crane' [4]_, and 'Swamee' [5]_ methods use formulas for
+    their calculations.
     
-    The Rennels [1]_ formulas are:
+    The 'Rennels' [1]_ formulas are:
 
     .. math::
-        K = 0.0696[1+C_B(\sin(\alpha/2)-1)](1-\beta^5)\lambda^2 + (\lambda-1)^2
+        K_2 = K_{fr,2} + K_{conv,2}
+        
+    .. math::
+        K_{fr,2} = \frac{f_d}{1 - \beta^4}{8\sin(\theta/2)}
+        
+    .. math::
+        K_{conv,2} = 0.0696[1+C_B(\sin(\alpha/2)-1)](1-\beta^5)\lambda^2 + (\lambda-1)^2
 
     .. math::
         \lambda = 1 + 0.622(\alpha/180)^{0.8}(1-0.215\beta^2-0.785\beta^5)
 
     .. math::
         \beta = d_2/d_1
-        
-    The 'Swamee' formula is:
+    
+    The 'Swamee' [5]_ formula is:
     
     .. math::
         K = 0.315 \theta^{1/3}
@@ -1799,7 +1806,8 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     l : float, optional
         Length of the contraction, optional [m]
     angle : float, optional
-        Angle of contraction, optional [degrees]
+        Angle of contraction (180 = sharp, 0 = infinitly long contraction),
+        optional [degrees]
     Re : float, optional
         Reynolds number of the pipe (used in Rennels method only if no friction
         factor given), [m]
@@ -1819,6 +1827,15 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     -----
     Cheap and has substantial impact on pressure drop.
     
+    The 'Idelchik' method includes two tabular interpolations; its friction
+    term is limited to angles between 2 and 20 degrees and area ratios 0.05 to
+    0.6, while its main term is limited to length over diameter ratios 0.025 to
+    0.6. This seems to give it high results for angles < 25 degrees.
+    
+    The 'Blevins' method is based on Idelchik data; it should not be used, 
+    because its data jumps around and its data is limited to area ratios .1 to
+    0.83, and length over diameter ratios 0 to 0.6.
+    
     There is quite a bit of variance in the predictions of the methods, as 
     demonstrated by the following figure.
 
@@ -1833,6 +1850,16 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of 
+       Local Resistance and of Friction (Spravochnik Po Gidravlicheskim 
+       Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
+       Treniya). National technical information Service, 1966.
+    .. [3] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
+       Van Nostrand Reinhold Co., 1984.
+    .. [4] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    .. [5] Swamee, Prabhata K., and Ashok K. Sharma. Design of Water Supply 
+       Pipe Networks. John Wiley & Sons, 2008.
     '''
     beta = Di2/Di1
     if angle is not None:
@@ -1854,11 +1881,9 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
                 raise ValueError("The `Rennels` method requires either a "
                                  "specified friction factor or `Re`")
             fd = Colebrook(Re=Re, eD=roughness/Di2, tol=-1)
-#        print(angle, 'angle', 'beta', beta, 'beta2', beta*beta, 'l/D2', l/Di2)
         lbd = 1 + 0.622*(angle_rad/pi)**0.8*(1-0.215*beta**2 - 0.785*beta**5)
         K_fr2 = fd*(1-beta**4)/(8*sin(angle_rad/2))
         K_conv2 = 0.0696*sin(angle_rad/2)*(1-beta**5)*lbd**2 + (lbd-1)**2
-#        print(K_fr2, K_conv2)
         return K_fr2 + K_conv2
     elif method == 'Crane':
         return contraction_conical_Crane(Di1=Di1, Di2=Di2, l=l, angle=angle)
@@ -1866,10 +1891,24 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         return 0.315*angle_rad**(1.0/3.0)
     elif method == 'Idelchik':
         # Diagram 3-6; already digitized for beveled entrance
-        # TODO: limits; is angle divided by 2?
-        K0 = float(entrance_beveled_Idelchik_obj(l/Di2, angle*2.0))
-        K_fr = float(contraction_conical_frction_Idelchik_obj(l/Di2, angle*2.0))
-        return K0*(1.0 - Di2*Di2/(Di1*Di1)) + K_fr
+        K0 = float(entrance_beveled_Idelchik_obj(l/Di2, angle))
+        
+        # Angles 0 to 20, ratios 0.05 to 0.06
+        if angle > 20.0:
+            angle_fric = 20.0
+        elif angle < 2.0:
+            angle_fric = 2.0
+        else:
+            angle_fric = angle
+            
+        A_ratio = A_ratio_fric = Di2*Di2/(Di1*Di1)
+        if A_ratio_fric < 0.05:
+            A_ratio_fric = 0.05
+        elif A_ratio_fric > 0.6:
+            A_ratio_fric = 0.6
+            
+        K_fr = float(contraction_conical_frction_Idelchik_obj(A_ratio_fric, angle_fric))
+        return K0*(1.0 - A_ratio) + K_fr
     elif method == 'Blevins':
         A_ratio = Di1*Di1/(Di2*Di2)
         if A_ratio < 1.2:
