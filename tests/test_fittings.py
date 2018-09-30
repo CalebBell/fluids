@@ -641,8 +641,10 @@ def test_contraction_conical():
     
     K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Blevins')
     assert_allclose(K, 0.365)
-
-
+    
+    with pytest.raises(Exception):
+        contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='BADMETHOD')
+        
 def test_K_globe_valve_Crane():
     K =  K_globe_valve_Crane(.01, .02, fd=.015)
     assert_allclose(K, 87.1)

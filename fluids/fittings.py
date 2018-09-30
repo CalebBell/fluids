@@ -1844,7 +1844,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     Examples
     --------
     >>> contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1E6)
-    0.15639885880609541
+    0.15639885880609544
 
     References
     ----------
@@ -1881,9 +1881,14 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
                 raise ValueError("The `Rennels` method requires either a "
                                  "specified friction factor or `Re`")
             fd = Colebrook(Re=Re, eD=roughness/Di2, tol=-1)
-        lbd = 1 + 0.622*(angle_rad/pi)**0.8*(1-0.215*beta**2 - 0.785*beta**5)
-        K_fr2 = fd*(1-beta**4)/(8*sin(angle_rad/2))
-        K_conv2 = 0.0696*sin(angle_rad/2)*(1-beta**5)*lbd**2 + (lbd-1)**2
+            
+        beta2 = beta*beta
+        beta4 = beta2*beta2
+        beta5 = beta4*beta
+        lbd = 1.0 + 0.622*(angle_rad/pi)**0.8*(1.0 - 0.215*beta2 - 0.785*beta5)
+        sin_half_angle = sin(0.5*angle_rad)
+        K_fr2 = fd*(1.0 - beta4)/(8.0*sin_half_angle)
+        K_conv2 = 0.0696*sin_half_angle*(1.0 - beta5)*lbd*lbd + (lbd - 1.0)**2
         return K_fr2 + K_conv2
     elif method == 'Crane':
         return contraction_conical_Crane(Di1=Di1, Di2=Di2, l=l, angle=angle)
