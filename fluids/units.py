@@ -130,8 +130,8 @@ def check_args_order(func):
         parsed_units += parsed_data['Other Parameters']['units']
     
     if argspec.args != parsed_parameters: # pragma: no cover
-        raise Exception('Function signature is not the same as the documentation'
-                        ' signature = %s; documentation = %s' %(argspec.args, parsed_parameters))
+        raise Exception('Function %s signature is not the same as the documentation'
+                        ' signature = %s; documentation = %s' %(func.__name__, argspec.args, parsed_parameters))
     
     
 def match_parse_units(doc, i=-1):

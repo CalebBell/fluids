@@ -1763,6 +1763,12 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         Length of the contraction, optional [m]
     angle : float, optional
         Angle of contraction, optional [degrees]
+    Re : float, optional
+        Reynolds number of the pipe (used in Miller, Ito methods primarily, and
+        Rennels method if no friction factor given), [m]
+    roughness : float, optional
+        Roughness of bend wall (used in Miller, Ito methods primarily, and
+        Rennels method if no friction factor given), [m]   
     method : str, optional
         The method to use for the calculation; one of 'Rennels'
 
