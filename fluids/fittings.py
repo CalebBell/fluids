@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import cos, sin, tan, atan, pi, radians, log10
+from math import cos, sin, tan, atan, pi, radians, degrees, log10
 import numpy as np
 from scipy.constants import inch
 from scipy.interpolate import splev, bisplev, UnivariateSpline, RectBivariateSpline
@@ -1727,11 +1727,47 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
         K2 = 0.5*(sin(0.5*angle)**0.5*(1.0 - beta2))
     return K2
 
+contraction_conical_angles_Idelchik = [2, 3, 6, 8, 10, 12, 14, 16, 20]
+contraction_conical_ratios_Idelchik = [0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6]
+
+contraction_conical_friction_Idelchik = np.array([
+    [0.14, 0.1, 0.05, 0.04, 0.03, 0.03, 0.02, 0.02, 0.01],
+    [0.14, 0.1, 0.05, 0.04, 0.03, 0.02, 0.02, 0.02, 0.01],
+    [0.14, 0.1, 0.05, 0.04, 0.03, 0.02, 0.02, 0.02, 0.01],
+    [0.14, 0.1, 0.05, 0.04, 0.03, 0.02, 0.02, 0.02, 0.01],
+    [0.14, 0.1, 0.05, 0.03, 0.03, 0.02, 0.02, 0.02, 0.01],
+    [0.14, 0.1, 0.05, 0.03, 0.03, 0.02, 0.02, 0.02, 0.01],
+    [0.13, 0.09, 0.04, 0.03, 0.03, 0.02, 0.02, 0.02, 0.01],
+    [0.12, 0.08, 0.04, 0.03, 0.02, 0.02, 0.02, 0.02, 0.01],
+    [0.11, 0.07, 0.04, 0.03, 0.02, 0.02, 0.02, 0.02, 0.01],
+    [0.09, 0.06, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02, 0.01]])
+
+contraction_conical_frction_Idelchik_obj = RectBivariateSpline(contraction_conical_ratios_Idelchik,
+                                                               contraction_conical_angles_Idelchik,
+                                                               contraction_conical_friction_Idelchik)
+
+contraction_conical_A_ratios_Blevins = [1.2, 1.5, 2.0, 3.0, 5.0, 10.0]
+contraction_conical_l_ratios_Blevins = [0.0, 0.05, 0.1, 0.15, 0.6]
+contraction_conical_Ks_Blevins = np.array([[.08, .06, .04, .03, .03],
+                                  [.17, .12, .09, .07, .06],
+                                  [.25, .23, .17, .14, .06],
+                                  [.33, .31, .27, .23, .08],
+                                  [.4, .38, .35, .31, .18],
+                                  [.45, .45, .41, .39, .27]])
+contraction_conical_Blevins_obj = RectBivariateSpline(contraction_conical_A_ratios_Blevins, 
+                                                      contraction_conical_l_ratios_Blevins, 
+                                                      contraction_conical_Ks_Blevins, kx=1, ky=1)
+contraction_conical_methods = ['Rennels', 'Idelchik', 'Crane', 'Swamee', 'Blevins']
+
 
 def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
                         Re=None, roughness=0.0, method='Rennels'):
-    r'''Returns loss coefficient for any conical pipe contraction
-    as shown in [1]_.
+    r'''Returns the loss coefficient for any conical pipe contraction.
+    This calculation has fice methods available. The 'Idelchik' and 'Blevins'
+    methods use interpolation among tables of values; the 'Rennels', 'Crane',
+    and 'Swamee' methods use formulas for their calculations.
+    
+    The Rennels [1]_ formulas are:
 
     .. math::
         K = 0.0696[1+C_B(\sin(\alpha/2)-1)](1-\beta^5)\lambda^2 + (\lambda-1)^2
@@ -1758,19 +1794,21 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     Di2 : float
         Inside pipe diameter of the smaller, downstream, pipe, [m]    
     fd : float, optional
-        Darcy friction factor [-]
+        Darcy friction factor; used only in the Rennels method and will be 
+        calculated if not given, [-]
     l : float, optional
         Length of the contraction, optional [m]
     angle : float, optional
         Angle of contraction, optional [degrees]
     Re : float, optional
-        Reynolds number of the pipe (used in Miller, Ito methods primarily, and
-        Rennels method if no friction factor given), [m]
+        Reynolds number of the pipe (used in Rennels method only if no friction
+        factor given), [m]
     roughness : float, optional
-        Roughness of bend wall (used in Miller, Ito methods primarily, and
-        Rennels method if no friction factor given), [m]   
+        Roughness of bend wall (used in Rennel method if no friction factor 
+        given), [m]   
     method : str, optional
-        The method to use for the calculation; one of 'Rennels'
+        The method to use for the calculation; one of 'Rennels', 'Idelchik',
+        'Crane', 'Swamee' or 'Blevins', [-]
 
     Returns
     -------
@@ -1780,11 +1818,16 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     Notes
     -----
     Cheap and has substantial impact on pressure drop.
+    
+    There is quite a bit of variance in the predictions of the methods, as 
+    demonstrated by the following figure.
+
+    .. plot:: plots/contraction_conical.py
 
     Examples
     --------
-    >>> contraction_conical(Di1=0.1, Di2=0.04, l=0.04, fd=0.0185)
-    0.15779041548350314
+    >>> contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1E6)
+    0.15639885880609541
 
     References
     ----------
@@ -1794,12 +1837,14 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     beta = Di2/Di1
     if angle is not None:
         angle_rad = radians(angle)
-        l = (Di1 - Di2)/(2.0*tan(0.5*angle_rad))
+        l = (Di1 - Di2)/(2.0*tan(0.5*angle_rad)) 
     elif l is not None:
         try:
             angle_rad = 2.0*atan((Di1-Di2)/(2.0*l))
+            angle = degrees(angle_rad)
         except ZeroDivisionError:
             angle_rad = pi
+            angle = 180.0
     else:
         raise Exception('Either l or angle is required')
 
@@ -1808,13 +1853,37 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
             if Re is None:
                 raise ValueError("The `Rennels` method requires either a "
                                  "specified friction factor or `Re`")
-            fd = Colebrook(Re=Re, eD=roughness/Di, tol=-1)
+            fd = Colebrook(Re=Re, eD=roughness/Di2, tol=-1)
+#        print(angle, 'angle', 'beta', beta, 'beta2', beta*beta, 'l/D2', l/Di2)
         lbd = 1 + 0.622*(angle_rad/pi)**0.8*(1-0.215*beta**2 - 0.785*beta**5)
-        return fd*(1-beta**4)/(8*sin(angle_rad/2)) + 0.0696*sin(angle_rad/2)*(1-beta**5)*lbd**2 + (lbd-1)**2
+        K_fr2 = fd*(1-beta**4)/(8*sin(angle_rad/2))
+        K_conv2 = 0.0696*sin(angle_rad/2)*(1-beta**5)*lbd**2 + (lbd-1)**2
+#        print(K_fr2, K_conv2)
+        return K_fr2 + K_conv2
     elif method == 'Crane':
-        return contraction_conical_Crane(Di1=Di1, Di2=Di2, angle=angle)
+        return contraction_conical_Crane(Di1=Di1, Di2=Di2, l=l, angle=angle)
     elif method == 'Swamee':
         return 0.315*angle_rad**(1.0/3.0)
+    elif method == 'Idelchik':
+        # Diagram 3-6; already digitized for beveled entrance
+        # TODO: limits; is angle divided by 2?
+        K0 = float(entrance_beveled_Idelchik_obj(l/Di2, angle*2.0))
+        K_fr = float(contraction_conical_frction_Idelchik_obj(l/Di2, angle*2.0))
+        return K0*(1.0 - Di2*Di2/(Di1*Di1)) + K_fr
+    elif method == 'Blevins':
+        A_ratio = Di1*Di1/(Di2*Di2)
+        if A_ratio < 1.2:
+            A_ratio = 1.2
+        elif A_ratio > 10.0:
+            A_ratio = 10.0
+        
+        l_ratio = l/Di2
+        if l_ratio > 0.6:
+            l_ratio= 0.6
+        return float(contraction_conical_Blevins_obj(A_ratio, l_ratio))
+    else:
+        raise ValueError('Specified method not recognized; methods are %s'
+                         %(contraction_conical_methods))
 
 
 def contraction_beveled(Di1, Di2, l=None, angle=None):

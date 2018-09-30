@@ -184,11 +184,6 @@ def test_fittings():
     K_sharp = contraction_sharp(Di1=1, Di2=0.4)
     assert_allclose(K_sharp, 0.5301269161591805)
 
-    K_conical1 = contraction_conical(Di1=0.1, Di2=0.04, l=0.04, fd=0.0185)
-    K_conical2 = contraction_conical(Di1=0.1, Di2=0.04, angle=73.74, fd=0.0185)
-    assert_allclose([K_conical1, K_conical2], [0.15779041548350314, 0.15779101784158286])
-    with pytest.raises(Exception):
-        contraction_conical(Di1=0.1, Di2=0.04, fd=0.0185)
 
     K_beveled = contraction_beveled(Di1=0.5, Di2=0.1, l=.7*.1, angle=120)
     assert_allclose(K_beveled, 0.40946469413070485)
@@ -622,6 +617,30 @@ def test_contraction_round():
 def test_contraction_round_Miller():
     K = contraction_round_Miller(Di1=1, Di2=0.4, rc=0.04)
     assert_allclose(K, 0.085659530512986387)
+
+
+def test_contraction_conical():
+    K_conical1 = contraction_conical(Di1=0.1, Di2=0.04, l=0.04, fd=0.0185)
+    K_conical2 = contraction_conical(Di1=0.1, Di2=0.04, angle=73.74, fd=0.0185)
+    assert_allclose([K_conical1, K_conical2], [0.15779041548350314, 0.15779101784158286])
+    
+    with pytest.raises(Exception):
+        contraction_conical(Di1=0.1, Di2=0.04, fd=0.0185)
+
+    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Rennels')
+    assert_allclose(K, 0.47462419839494946)
+    
+    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Idelchik')
+    assert_allclose(K, 0.43)
+    
+    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Crane')
+    assert_allclose(K, 0.41815380146594)
+    
+    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Swamee')
+    assert_allclose(K, 0.4479863925376303)
+    
+    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Blevins')
+    assert_allclose(K, 0.3598137894417477)
 
 
 def test_K_globe_valve_Crane():
