@@ -192,23 +192,6 @@ def test_fittings():
     K_sharp = diffuser_sharp(Di1=.5, Di2=1)
     assert_allclose(K_sharp, 0.5625)
 
-    K1 = diffuser_conical(Di1=.1**0.5, Di2=1, angle=10., fd=0.020)
-    K2 = diffuser_conical(Di1=1/3., Di2=1, angle=50, fd=0.03) # 2
-    K3 = diffuser_conical(Di1=2/3., Di2=1, angle=40, fd=0.03) # 3
-    K4 = diffuser_conical(Di1=1/3., Di2=1, angle=120, fd=0.0185) # #4
-    K5 = diffuser_conical(Di1=2/3., Di2=1, angle=120, fd=0.0185) # Last
-    K6 = diffuser_conical(Di1=.1**0.5, Di2=1, l=3.908, fd=0.020)
-    Ks = [0.12301652230915454, 0.8081340270019336, 0.32533470783539786, 0.812308728765127, 0.3282650135070033, 0.12300865396254032]
-    assert_allclose([K1, K2, K3, K4, K5, K6], Ks)
-    with pytest.raises(Exception):
-        diffuser_conical(Di1=.1, Di2=0.1, angle=1800., fd=0.020)
-    with pytest.raises(Exception):
-        diffuser_conical(Di1=.1, Di2=0.1, fd=0.020)
-
-    K1 = diffuser_conical_staged(Di1=1., Di2=10., DEs=[2,3,4,5,6,7,8,9], ls=[1,1,1,1,1,1,1,1,1], fd=0.01)
-    K2 = diffuser_conical(Di1=1., Di2=10.,l=9, fd=0.01)
-    Ks = [1.7681854713484308, 0.973137914861591]
-    assert_allclose([K1, K2], Ks)
 
     K = diffuser_curved(Di1=.25**0.5, Di2=1., l=2.)
     assert_allclose(K, 0.2299781250000002)
@@ -269,6 +252,27 @@ def test_bend_rounded_Crane_coefficients():
     diffs = (abs(fun(xs)-bend_rounded_Crane_obj(xs))/bend_rounded_Crane_obj(xs))
     assert np.max(diffs) < .02
     assert np.mean(diffs) < .002
+
+
+def test_diffuser_conical():
+    K1 = diffuser_conical(Di1=.1**0.5, Di2=1, angle=10., fd=0.020)
+    K2 = diffuser_conical(Di1=1/3., Di2=1, angle=50, fd=0.03) # 2
+    K3 = diffuser_conical(Di1=2/3., Di2=1, angle=40, fd=0.03) # 3
+    K4 = diffuser_conical(Di1=1/3., Di2=1, angle=120, fd=0.0185) # #4
+    K5 = diffuser_conical(Di1=2/3., Di2=1, angle=120, fd=0.0185) # Last
+    K6 = diffuser_conical(Di1=.1**0.5, Di2=1, l=3.908, fd=0.020)
+    Ks = [0.12301652230915454, 0.8081340270019336, 0.32533470783539786, 0.812308728765127, 0.3282650135070033, 0.12300865396254032]
+    assert_allclose([K1, K2, K3, K4, K5, K6], Ks)
+    with pytest.raises(Exception):
+        diffuser_conical(Di1=.1, Di2=0.1, angle=1800., fd=0.020)
+    with pytest.raises(Exception):
+        diffuser_conical(Di1=.1, Di2=0.1, fd=0.020)
+
+    K1 = diffuser_conical_staged(Di1=1., Di2=10., DEs=[2,3,4,5,6,7,8,9], ls=[1,1,1,1,1,1,1,1,1], fd=0.01)
+    K2 = diffuser_conical(Di1=1., Di2=10.,l=9, fd=0.01)
+    Ks = [1.7681854713484308, 0.973137914861591]
+    assert_allclose([K1, K2], Ks)
+
 
 
 
