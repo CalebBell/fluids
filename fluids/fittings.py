@@ -1260,7 +1260,7 @@ bend_miter_Miller_coeffs = [-12.050299402650126, -4.472433689233185, 50.51478860
                             -0.3635431075401224, 0.5120065303391261, 0.46818214491579246, 0.9789177645343993,
                             0.5080285124448385]
 
-def bend_miter_Miller(Di, angle, Re, roughness=0, L_unimpeded=None):
+def bend_miter_Miller(Di, angle, Re, roughness=0.0, L_unimpeded=None):
     r'''Calculates the loss coefficient for a single mitre bend according to 
     Miller [1]_. This is a sophisticated model which uses corrections for
     pipe roughness, the length of the pipe downstream before another 
@@ -1305,9 +1305,9 @@ def bend_miter_Miller(Di, angle, Re, roughness=0, L_unimpeded=None):
        Prediction. Gulf Publishing Company, 1990.
     '''
     if L_unimpeded is None:
-        L_unimpeded = 20*Di
+        L_unimpeded = 20.0*Di
     if angle > 120:
-        angle = 120
+        angle = 120.0
     
     Kb = horner(bend_miter_Miller_coeffs, 0.0166666666666666664*(angle-60.0))
     
@@ -1322,8 +1322,17 @@ def bend_miter_Miller(Di, angle, Re, roughness=0, L_unimpeded=None):
 #    print('Kb=%g, C Re=%g, C rough =%g, Co=%g' %(Kb, C_Re, C_roughness, C_o))
     return Kb*C_Re*C_roughness*C_o
 
+bend_mitre_Crane_angles = np.array([0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0])
+bend_mitre_Crane_fds = np.array([2.0, 4.0, 8.0, 15.0, 25.0, 40.0, 60.0])
 
-def bend_miter(angle):
+bend_mitre_Blevins_angles = np.array([0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 120.0])
+bend_mitre_Blevins_Ks = np.array([0.0, .025, .055, .1, .2, .35, .5, .7, .9, 1.1, 1.5])
+
+bend_miter_methods = ['Rennels', 'Miller', 'Crane', 'Blevins']
+
+
+def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
+               method='Rennels'):
     r'''Returns loss coefficient for any single-joint miter bend in a pipe
     as shown in [1]_.
 
@@ -1338,6 +1347,19 @@ def bend_miter(angle):
     ----------
     angle : float
         Angle of bend, [degrees]
+    Di : float, optiona
+        Inside diameter of pipe, [m]
+    Re : float, optional
+        Reynolds number of the pipe (no specification if inlet or outlet
+        properties should be used), [m]
+    roughness : float, optional
+        Roughness of bend wall, [m]   
+    L_unimpeded : float, optional
+        The length of unimpeded pipe without any fittings, instrumentation,
+        or flow disturbances downstream (assumed 20 diameters if not 
+        specified), [m]
+    method : str, optional
+        The specified method to use, [-]
 
     Returns
     -------
@@ -1358,9 +1380,27 @@ def bend_miter(angle):
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    angle = angle/(180/pi)
-    return 0.42*sin(angle*0.5) + 2.56*sin(angle*0.5)**3
-
+    # Not in Swamee
+    if method == 'Rennels':
+        angle_rad = radians(angle)
+        sin_half_angle = sin(angle_rad*0.5)
+        return 0.42*sin_half_angle + 2.56*sin_half_angle*sin_half_angle*sin_half_angle
+    elif method == 'Crane':
+        factor = float(np.interp(angle, bend_mitre_Crane_angles, bend_mitre_Crane_fds))
+        K = ft_Crane(Di)*factor
+        return K
+    elif method == 'Miller':
+        return bend_miter_Miller(Di=Di, angle=angle, Re=Re, roughness=roughness, L_unimpeded=L_unimpeded)
+    elif method == 'Blevins':
+        # data from Idelchik, Miller, an earlier ASME publication
+        # For 90-120 degrees, a polynomial/spline would be better than a linear fit
+        K_base = float(np.interp(angle, bend_mitre_Blevins_angles, bend_mitre_Blevins_Ks))
+        K = K_base*(2E5/Re)**0.2
+        return K
+    else:
+        raise ValueError('Specified method not recognized; methods are %s'
+                         %(bend_miter_methods))
+    
 
 def helix(Di, rs, pitch, N, fd):
     r'''Returns loss coefficient for any size constant-pitch helix
@@ -2093,11 +2133,13 @@ tck_diffuser_conical_Miller = [
     ]), 3, 3
 ]
 
+diffuser_conical_methods = ['Rennels', 'Crane', 'Miller', 'Swamee']
+
 
 def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
                      roughness=0.0, method='Rennels'):
     r'''Returns loss coefficient for any conical pipe expansion
-    as shown in [1]_. Five different formulas are used, depending on
+    as shown in [1]_. Three different formulas are used, depending on
     the angle and the ratio of diameters.
 
     For 0 to 20 degrees, all aspect ratios:
@@ -2153,7 +2195,8 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         Roughness of bend wall (used in Rennel method if no friction factor 
         given), [m]   
     method : str
-        The method to use for the calculation; one of 'Rennels'
+        The method to use for the calculation; one of 'Rennels', 'Crane',
+        'Miller'
 
     Returns
     -------
@@ -2210,7 +2253,28 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         return K
     elif method == 'Crane':
         return diffuser_conical_Crane(Di1=Di1, Di2=Di2, l=l, angle=angle)
-    return K
+    elif method == 'Miller':
+        A_ratio = 1.0/beta2
+        if A_ratio > 4.0:
+            A_ratio = 4.0
+        elif A_ratio < 1.1:
+            A_ratio = 1.1
+        
+        l_R1_ratio = l/(0.5*Di1)
+        if l_R1_ratio < 0.1:
+            l_R1_ratio = 0.1
+        elif l_R1_ratio > 20.0:
+            l_R1_ratio = 20.0
+        Kd = float(bisplev(log(l_R1_ratio), log(A_ratio), tck_diffuser_conical_Miller))
+        return Kd
+    elif method == 'Swamee':
+        # Really starting to thing Swamee uses a different definition of loss coefficient!
+        r = Di2/Di1
+        K = (0.25*angle_rad**-3*(1.0 + 0.6*r**(-1.67)*(pi-angle_rad)/angle_rad)**(0.533*r - 2.6))**-0.5
+        return K
+    else:
+        raise ValueError('Specified method not recognized; methods are %s'
+                         %(diffuser_conical_methods))
 
 
 def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
