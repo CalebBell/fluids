@@ -36,6 +36,75 @@ from fluids.optional.pychebfun import *
 
 import pytest
 
+def test_contraction_conical_Miller_coefficients():
+    from fluids.fittings import tck_diffuser_conical_Miller
+    path = os.path.join(fluids_data_dir, 'Miller 2E 1990 conical contraction Kd.csv')
+    Kds, l_ratios, A_ratios = Engauge_2d_parser(open(path).readlines())
+    # Fixup stupidity
+    A_ratios = [[i+1.0 for i in j] for j in A_ratios]
+#    for K, ls, As in zip(Kds, l_ratios, A_ratios):
+#        plt.loglog(ls, np.array(As)-1)
+#    plt.show()
+
+    interp_objs = []
+    for K, ls, As in zip(Kds, l_ratios, A_ratios):
+        univar = UnivariateSpline(np.log10(ls), np.log10(As), s=4e-5)
+        interp_objs.append(univar)
+    
+    # Extrapolation to the left and right looks bad
+    # Extrapolation upwards looks bad too
+    ls_full = np.logspace(np.log10(0.1), np.log10(20))
+    ls_stored = []
+    As_stored = []
+    for i, (K, ls, As) in enumerate(zip(Kds, l_ratios, A_ratios)):
+#        plt.loglog(ls, As)
+        univar = interp_objs[i]
+        As_full = 10**univar(np.log10(ls_full))
+    #     plt.loglog(ls_full, As_full)
+    #     print(len(univar.get_coeffs()), len(univar.get_knots()))
+        ls_smoothed = np.logspace(np.log10(ls[0]), np.log10(ls[-1]), 100)
+        As_smoothed = 10**univar(np.log10(ls_smoothed))
+    #     plt.loglog(ls_smoothed, As_smoothed)
+        ls_stored.append(ls_smoothed)
+        As_stored.append(As_smoothed)
+    
+    # plt.show()
+    all_zs = []
+    all_xs = []
+    all_ys = []
+    for z, xs, ys in zip(Kds, ls_stored, As_stored):
+        for x, y in zip(xs, ys):
+            all_zs.append(z)
+            all_xs.append(x)
+            all_ys.append(y)
+    
+    tck_recalc = bisplrep(np.log(all_xs), np.log(all_ys), all_zs, s=.002)
+    [assert_allclose(i, j) for i, j in zip(tck_diffuser_conical_Miller, tck_recalc)]
+
+    # Plotting code to re-create the graph through solving for points
+#    print([len(i) for i in tck[0:3]])
+#    
+#    for K, ls in zip(Kds, ls_stored):
+#        def get_right_y(l, K_goal):
+#            try:
+#                def err(y_guess):
+#                    if y_guess <= 1.1:
+#                        y_guess = 1.1
+#                    if y_guess > 4:
+#                        y_guess = 4
+#                    return bisplev(log(l), log(y_guess), tck) - K_goal
+#    #             ans = newton(err, 1.3)
+#                ans = bisect(err, 1.1, 4)
+#                
+#    #             if abs(err(ans)) > .1:
+#    #                 ans = None
+#                return ans
+#            except:
+#                return None
+#        As_needed = [get_right_y(l, K) for l in ls]
+#        plt.loglog(ls, As_needed, 'x')
+#    plt.show()
+    
 def test_contraction_conical_Crane():
     K2 = contraction_conical_Crane(Di1=0.0779, Di2=0.0525, l=0)
     assert_allclose(K2, 0.2729017979998056)
@@ -168,11 +237,6 @@ def test_fittings():
 
     ### Exits
     assert_allclose(exit_normal(), 1.0)
-
-
-    K_miters =  [bend_miter(i) for i in [150, 120, 90, 75, 60, 45, 30, 15]]
-    K_miter_values = [2.7128147734758103, 2.0264994448555864, 1.2020815280171306, 0.8332188430731828, 0.5299999999999998, 0.30419633092708653, 0.15308822558050816, 0.06051389308126326]
-    assert_allclose(K_miters, K_miter_values)
 
     K_helix = helix(Di=0.01, rs=0.1, pitch=.03, N=10, fd=.0185)
     assert_allclose(K_helix, 14.525134924495514)
@@ -518,10 +582,37 @@ def test_bend_miter_Miller_coefficients():
     assert_allclose(bend_miter_Miller_coeffs, recalc_coeffs)
 
 
+
+def test_bend_miter():
+    K_miters =  [bend_miter(i) for i in [150, 120, 90, 75, 60, 45, 30, 15]]
+    K_miter_values = [2.7128147734758103, 2.0264994448555864, 1.2020815280171306, 0.8332188430731828, 0.5299999999999998, 0.30419633092708653, 0.15308822558050816, 0.06051389308126326]
+    assert_allclose(K_miters, K_miter_values)
+    
+    K = bend_miter(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20, method='Miller')
+    assert_allclose(K, 0.2944060416245167)
+    
+    K = bend_miter(Di=.05, angle=45, Re=1e6, roughness=1e-5, method='Crane')
+    assert_allclose(K, 0.28597953150073047)
+    
+    K = bend_miter(angle=45, Re=1e6, method='Rennels')
+    assert_allclose(K, 0.30419633092708653)
+    
+    with pytest.raises(Exception):
+        bend_miter(angle=45, Re=1e6, method='BADMETHOD')
+
+
+
 def test_bend_miter_Miller():
     K = bend_miter_Miller(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20)
     assert_allclose(K, 0.2944060416245167)
- 
+    K_default_L_unimpeded = bend_miter_Miller(Di=.6, angle=45, Re=1e6, roughness=1e-5)
+    assert_allclose(K, K_default_L_unimpeded)
+    
+    
+    K_high_angle = bend_miter_Miller(Di=.6, angle=120, Re=1e6, roughness=1e-5, L_unimpeded=20)
+    K_higher_angle = bend_miter_Miller(Di=.6, angle=150, Re=1e6, roughness=1e-5, L_unimpeded=20)
+    assert_allclose(K_high_angle, K_higher_angle)
+    
     
 def test_bend_miter_Miller_fuzz():
     # Tested for quite a while without problems

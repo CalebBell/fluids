@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import cos, sin, tan, atan, pi, radians, degrees, log10
+from math import cos, sin, tan, atan, pi, radians, degrees, log10, log
 import numpy as np
 from scipy.constants import inch
 from scipy.interpolate import splev, bisplev, UnivariateSpline, RectBivariateSpline
@@ -1309,7 +1309,7 @@ def bend_miter_Miller(Di, angle, Re, roughness=0.0, L_unimpeded=None):
     if angle > 120:
         angle = 120.0
     
-    Kb = horner(bend_miter_Miller_coeffs, 0.0166666666666666664*(angle-60.0))
+    Kb = horner(bend_miter_Miller_coeffs, 1.0/60.0*(angle-60.0))
     
     C_o =  Miller_bend_unimpeded_correction(Kb=Kb, Di=Di, L_unimpeded=L_unimpeded)
     C_roughness = Miller_bend_roughness_correction(Re=Re, Di=Di, 
@@ -1319,8 +1319,8 @@ def bend_miter_Miller(Di, angle, Re, roughness=0.0, L_unimpeded=None):
     C_Re = Kb/(Kb - 0.2*C_Re_1 + 0.2)
     if C_Re > 2.2 or C_Re < 0:
         C_Re = 2.2
-#    print('Kb=%g, C Re=%g, C rough =%g, Co=%g' %(Kb, C_Re, C_roughness, C_o))
     return Kb*C_Re*C_roughness*C_o
+
 
 bend_mitre_Crane_angles = np.array([0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0])
 bend_mitre_Crane_fds = np.array([2.0, 4.0, 8.0, 15.0, 25.0, 40.0, 60.0])
@@ -1334,10 +1334,20 @@ bend_miter_methods = ['Rennels', 'Miller', 'Crane', 'Blevins']
 def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
                method='Rennels'):
     r'''Returns loss coefficient for any single-joint miter bend in a pipe
-    as shown in [1]_.
-
+    of angle `angle`, diameter `Di`, Reynolds number `Re`, roughness
+    `roughness` unimpeded downstream length `L_unimpeded`, and using the 
+    specified method. This calculation has four methods available.
+    The 'Rennels' method is based on a formula and extends to angles up to 
+    150 degrees. The 'Crane' method extends only to 90 degrees; the 'Miller'
+    and 'Blevins' methods extend to 120 degrees.
+    
+    The Rennels [1]_ formula is:
+        
     .. math::
         K = 0.42\sin(\alpha/2) + 2.56\sin^3(\alpha/2)
+
+    The 'Crane', 'Miller', and 'Blevins' methods are all in part graph or 
+    tabular based and do not have straightforward formulas.
 
     .. figure:: fittings/bend_mitre.png
        :scale: 25 %
@@ -1347,7 +1357,7 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
     ----------
     angle : float
         Angle of bend, [degrees]
-    Di : float, optiona
+    Di : float, optional
         Inside diameter of pipe, [m]
     Re : float, optional
         Reynolds number of the pipe (no specification if inlet or outlet
@@ -1359,26 +1369,46 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
         or flow disturbances downstream (assumed 20 diameters if not 
         specified), [m]
     method : str, optional
-        The specified method to use, [-]
+        The specified method to use; one of 'Rennels', 'Miller', 'Crane', 
+        or 'Blevins', [-]
 
     Returns
     -------
     K : float
-        Loss coefficient [-]
+        Loss coefficient with respect to either upstream or downstream 
+        diameter, [-]
 
     Notes
     -----
-    Applies for bends from 0 to 150 degrees. One joint only.
+    This method is designed only for single-jointed mitre bends. It is common
+    for mitre bends to have two or three sections, to further reduce the loss
+    coefficient. Some methods exist in [2]_ for taking this into account. 
+    Because the additional configurations reduce the pressure loss, it is
+    "common practice" to simply ignore their effect and accept the slight
+    overdesign.
+    
+    The following figure illustrates the different methods.
+
+    .. plot:: plots/bend_miter.py
 
     Examples
     --------
     >>> bend_miter(150)
     2.7128147734758103
+    >>> bend_miter(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20, 
+    ... method='Miller')
+    0.2944060416245167
 
     References
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
+    .. [3] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    .. [4] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
+       Van Nostrand Reinhold Co., 1984.
     '''
     # Not in Swamee
     if method == 'Rennels':
@@ -1387,16 +1417,14 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
         return 0.42*sin_half_angle + 2.56*sin_half_angle*sin_half_angle*sin_half_angle
     elif method == 'Crane':
         factor = float(np.interp(angle, bend_mitre_Crane_angles, bend_mitre_Crane_fds))
-        K = ft_Crane(Di)*factor
-        return K
+        return ft_Crane(Di)*factor
     elif method == 'Miller':
         return bend_miter_Miller(Di=Di, angle=angle, Re=Re, roughness=roughness, L_unimpeded=L_unimpeded)
     elif method == 'Blevins':
         # data from Idelchik, Miller, an earlier ASME publication
         # For 90-120 degrees, a polynomial/spline would be better than a linear fit
         K_base = float(np.interp(angle, bend_mitre_Blevins_angles, bend_mitre_Blevins_Ks))
-        K = K_base*(2E5/Re)**0.2
-        return K
+        return K_base*(2E5/Re)**0.2
     else:
         raise ValueError('Specified method not recognized; methods are %s'
                          %(bend_miter_methods))
@@ -2206,6 +2234,8 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
     Notes
     -----
     For angles above 60 degrees, friction factor is not used.
+
+    .. plot:: plots/diffuser_conical.py
 
     Examples
     --------
