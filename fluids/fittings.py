@@ -1540,10 +1540,6 @@ def contraction_round_Miller(Di1, Di2, rc):
     using the method of Miller [1]_. This method uses a spline fit to a graph
     with area ratios 0 to 1, and radius ratios (rc/Di2) from 0.1 to 0.
 
-    .. figure:: fittings/contraction_round.png
-       :scale: 30 %
-       :alt: Cirucular round contraction; after [1]_
-
     Parameters
     ----------
     Di1 : float
@@ -1714,7 +1710,8 @@ def contraction_round(Di1, Di2, rc, method='Rennels'):
         return contraction_round_Miller(Di1=Di1, Di2=Di2, rc=rc)
     elif method == 'Idelchik':
         # Di2, ratio defined in terms over diameter
-        K0 = np.interp(rc/Di2, contraction_round_Idelchik_ratios, contraction_round_Idelchik_factors)
+        K0 = float(np.interp(rc/Di2, contraction_round_Idelchik_ratios, 
+                             contraction_round_Idelchik_factors))
         return K0*(1.0 - beta*beta)
     else:
         raise ValueError('Specified method not recognized; methods are %s'
@@ -1737,10 +1734,6 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
         
     .. math::
         \beta = d_2/d_1
-
-    .. figure:: fittings/contraction_conical.png
-       :scale: 30 %
-       :alt: contraction conical; after [1]_
 
     Parameters
     ----------
@@ -1831,7 +1824,7 @@ contraction_conical_methods = ['Rennels', 'Idelchik', 'Crane', 'Swamee', 'Blevin
 def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
                         Re=None, roughness=0.0, method='Rennels'):
     r'''Returns the loss coefficient for any conical pipe contraction.
-    This calculation has fice methods available. The 'Idelchik' [2]_ and 
+    This calculation has five methods available. The 'Idelchik' [2]_ and 
     'Blevins' [3]_ methods use interpolation among tables of values; the 
     'Rennels' [1]_, 'Crane' [4]_, and 'Swamee' [5]_ methods use formulas for
     their calculations.
@@ -1874,7 +1867,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     l : float, optional
         Length of the contraction, optional [m]
     angle : float, optional
-        Angle of contraction (180 = sharp, 0 = infinitly long contraction),
+        Angle of contraction (180 = sharp, 0 = infinitely long contraction),
         optional [degrees]
     Re : float, optional
         Reynolds number of the pipe (used in Rennels method only if no friction
