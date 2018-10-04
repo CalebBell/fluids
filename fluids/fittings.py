@@ -2213,8 +2213,27 @@ tck_diffuser_conical_Miller = [
     ]), 3, 3
 ]
 
+diffuser_conical_Idelchik_angles = np.array([3, 6, 8, 10, 12, 14, 16, 20, 24, 30, 40, 60, 90, 180])
+diffuser_conical_Idelchik_A_ratios = np.array([0, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6])
+diffuser_conical_Idelchik_data = np.array([
+    [0.03, 0.08, 0.11, 0.15, 0.19, 0.23, 0.27, 0.36, 0.47, 0.65, 0.92, 1.15, 1.1, 1.02],
+    [0.03, 0.07, 0.1, 0.14, 0.16, 0.2, 0.24, 0.32, 0.42, 0.58, 0.83, 1.04, 0.99, 0.92],
+    [0.03, 0.07, 0.09, 0.13, 0.16, 0.19, 0.23, 0.3, 0.4, 0.55, 0.79, 0.99, 0.95, 0.88],
+    [0.03, 0.07, 0.09, 0.12, 0.15, 0.18, 0.22, 0.29, 0.38, 0.52, 0.75, 0.93, 0.89, 0.83],
+    [0.02, 0.06, 0.08, 0.11, 0.14, 0.17, 0.2, 0.26, 0.34, 0.46, 0.67, 0.84, 0.79, 0.74],
+    [0.02, 0.05, 0.07, 0.1, 0.12, 0.15, 0.17, 0.23, 0.3, 0.41, 0.59, 0.74, 0.7, 0.65],
+    [0.02, 0.05, 0.06, 0.08, 0.1, 0.13, 0.15, 0.2, 0.26, 0.35, 0.47, 0.65, 0.62, 0.58],
+    [0.02, 0.04, 0.05, 0.07, 0.09, 0.11, 0.13, 0.18, 0.23, 0.31, 0.4, 0.57, 0.54, 0.5],
+    [0.01, 0.03, 0.04, 0.06, 0.07, 0.08, 0.1, 0.13, 0.17, 0.23, 0.33, 0.41, 0.39, 0.37],
+    [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.09, 0.12, 0.16, 0.23, 0.29, 0.28, 0.26],
+    [0.01, 0.01, 0.02, 0.03, 0.03, 0.04, 0.05, 0.06, 0.08, 0.1, 0.15, 0.18, 0.17, 0.16]])
 
-diffuser_conical_methods = ['Rennels', 'Crane', 'Miller', 'Swamee']
+diffuser_conical_Idelchik_obj = RectBivariateSpline(diffuser_conical_Idelchik_A_ratios,
+                                                    diffuser_conical_Idelchik_angles, 
+                                                    diffuser_conical_Idelchik_data,
+                                                    kx=3, ky=1)
+
+diffuser_conical_methods = ['Rennels', 'Crane', 'Miller', 'Swamee', 'Idelchik']
 
 
 def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
@@ -2254,6 +2273,13 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
     .. math::
         K_1 = \left[1.205 - 0.20\sqrt{\frac{\alpha-60^\circ}{120^\circ}}
         \right](1-\beta^2)^2
+        
+    The Swamee [5]_ formula is:
+        
+    .. math::
+        K = \left\{\frac{0.25}{\theta^3}\left[1 + \frac{0.6}{r^{1.67}}
+        \left(\frac{\pi-\theta}{\theta} \right) \right]^{0.533r - 2.6} 
+        \right\}^{-0.5}
 
     .. figure:: fittings/diffuser_conical.png
        :scale: 60 %
@@ -2266,7 +2292,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
     Di2 : float
         Inside diameter of following pipe (larger), [m]
     l : float, optional
-        Length of the contraction along the pipe axis, optional[m]
+        Length of the contraction along the pipe axis, optional, [m]
     angle : float, optional
         Angle of contraction, [degrees]
     fd : float, optional
@@ -2279,7 +2305,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         given), [m]   
     method : str
         The method to use for the calculation; one of 'Rennels', 'Crane',
-        'Miller', [-]
+        'Miller', 'Swamee', or 'Idelchik' [-]
 
     Returns
     -------
@@ -2288,6 +2314,10 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
 
     Notes
     -----
+    The Miller method changes around quite a bit.
+    
+    There is quite a bit of variance in the predictions of the methods, as 
+    demonstrated by the following figure.
 
     .. plot:: plots/diffuser_conical.py
 
@@ -2300,6 +2330,16 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of 
+       Local Resistance and of Friction (Spravochnik Po Gidravlicheskim 
+       Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
+       Treniya). National technical information Service, 1966.
+    .. [3] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    .. [4] Swamee, Prabhata K., and Ashok K. Sharma. Design of Water Supply 
+       Pipe Networks. John Wiley & Sons, 2008.
+    .. [5] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
     '''
     beta = Di1/Di2
 
@@ -2349,8 +2389,29 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
             l_R1_ratio = 0.1
         elif l_R1_ratio > 20.0:
             l_R1_ratio = 20.0
-        Kd = float(bisplev(log(l_R1_ratio), log(A_ratio), tck_diffuser_conical_Miller))
+        Kd = max(float(bisplev(log(l_R1_ratio), log(A_ratio), tck_diffuser_conical_Miller)), 0)
         return Kd
+    elif method == 'Idelchik':
+        A_ratio = beta2
+
+        # Angles 0 to 20, ratios 0.05 to 0.06
+        if angle > 20.0:
+            angle_fric = 20.0
+        elif angle < 2.0:
+            angle_fric = 2.0
+        else:
+            angle_fric = angle
+            
+        A_ratio_fric = A_ratio
+        if A_ratio_fric < 0.05:
+            A_ratio_fric = 0.05
+        elif A_ratio_fric > 0.6:
+            A_ratio_fric = 0.6
+        
+        K_fr = float(contraction_conical_frction_Idelchik_obj(A_ratio_fric, angle_fric))
+        K_exp = float(diffuser_conical_Idelchik_obj(min(0.6, A_ratio), max(3.0, angle)))
+        return K_fr + K_exp
+        
     elif method == 'Swamee':
         # Really starting to thing Swamee uses a different definition of loss coefficient!
         r = Di2/Di1
@@ -2379,7 +2440,8 @@ def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
     fd : float
         Darcy friction factor [-]
     method : str
-        The method to use for the calculation; one of 'Rennels'
+        The method to use for the calculation; one of 'Rennels', 'Crane',
+        'Miller', 'Swamee', or 'Idelchik' [-]
 
     Returns
     -------
