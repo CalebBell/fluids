@@ -24,7 +24,7 @@ from __future__ import division
 import os
 from fluids import *
 import numpy as np
-from math import pi, log10
+from math import pi, log10, log
 from random import uniform
 from numpy.testing import assert_allclose
 from scipy.constants import *
@@ -36,9 +36,69 @@ from fluids.optional.pychebfun import *
 
 import pytest
 
+
 def test_contraction_conical_Miller_coefficients():
+    from fluids.fittings import contraction_conical_Miller_tck
+    path = os.path.join(fluids_data_dir, 'Miller 2E 1990 conical contractions K part 1.csv')
+    Kds, l_ratios, A_ratios = Engauge_2d_parser(open(path).readlines())
+    path = os.path.join(fluids_data_dir, 'Miller 2E 1990 conical contractions K part 2.csv')
+    Kd2, l_ratio2, A_ratio2 = Engauge_2d_parser(open(path).readlines())
+    Kds.extend(Kd2)
+    l_ratios.extend(l_ratio2)
+    A_ratios.extend(A_ratio2)
+    A_ratios = [[i+1.0 for i in j] for j in A_ratios]
+    
+    #    # The second set of data obviously looks terirble when plotted
+    #    # Normally the data should be smoothed, but, well, the smoothing
+    #    # function also requires smooth functions.
+    #    for K, ls, As in zip(Kds, l_ratios, A_ratios):
+    #        plt.loglog(ls, np.array(As)-1, label=str(K))
+    #    plt.legend()
+    #    plt.show()
+    
+    all_zs = []
+    all_xs = []
+    all_ys = []
+    for z, xs, ys in zip(Kds, l_ratios, A_ratios):
+        for x, y in zip(xs, ys):
+            all_zs.append(z)
+            all_xs.append(x)
+            all_ys.append(y)
+
+    tck = bisplrep(np.log(all_xs), np.log(all_ys), all_zs, kx=3, ky=1, s=.0001)
+    [assert_allclose(i, j) for i, j in zip(contraction_conical_Miller_tck, tck)]
+
+#    err = 0.0
+#    n = 0
+#    for z, xs, ys in zip(Kds, l_ratios, A_ratios):
+#        for x, y in zip(xs, ys):
+#            predict = bisplev(log(x), log(y), tck)
+#            err += abs(predict - z)/z
+#            n += 1
+    # 5% relative error seems like the sweetspot
+#    print(err/n, n, err)
+
+#    import matplotlib.pyplot as plt
+#    ax = plt.gca()
+#    ax.set_xscale("log")
+#    ax.set_yscale("log") 
+#    x = np.logspace(np.log10(.1), np.log10(10), 200)
+#    y = np.logspace(np.log10(1.1), np.log10(4), 200)
+#    X, Y = np.meshgrid(x, y, indexing='ij')
+#    func = np.vectorize(lambda x, y: max(min(bisplev(log(x), log(y), tck), .5), 0))
+#    
+#    Z = func(X.ravel(), Y.ravel())
+#    Z = [[func(xi, yi) for yi in y.tolist()] for xi in x]
+#    
+#    levels = [.001, .01, .03, .04, .05, .1, .2, .3, .4]
+#    plt.contourf(X, Y-1, Z, levels=levels, cmap='RdGy')
+#    plt.colorbar()
+#    plt.show()
+
+
+def test_diffuser_conical_Miller_coefficients():
     from fluids.fittings import tck_diffuser_conical_Miller
-    path = os.path.join(fluids_data_dir, 'Miller 2E 1990 conical contraction Kd.csv')
+    path = os.path.join(fluids_data_dir, 'Miller 2E 1990 conical diffuser Kd.csv')
     Kds, l_ratios, A_ratios = Engauge_2d_parser(open(path).readlines())
     # Fixup stupidity
     A_ratios = [[i+1.0 for i in j] for j in A_ratios]
@@ -736,6 +796,25 @@ def test_contraction_conical():
     
     K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Blevins')
     assert_allclose(K, 0.365)
+    
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1E6, method='Miller')
+    assert_allclose(K, 0.0918289683812792)
+
+    # high l ratio rounding    
+    K = contraction_conical(Di1=0.1, Di2=0.06, l=0.04, Re=1E6, method='Miller')
+    assert_allclose(K, 0.08651515699621345)
+
+    # low a ratio rounding
+    K = contraction_conical(Di1=0.1, Di2=0.099, l=0.04, Re=1E6, method='Miller')
+    assert_allclose(K, 0.03065262382984957)
+    
+    # low l ratio
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=0.001, Re=1E6, method='Miller')
+    assert_allclose(K, 0.5)
+    
+    # high l ratio rounding
+    K = contraction_conical(Di1=0.1, Di2=0.05, l=1, Re=1E6, method='Miller')
+    assert_allclose(K, 0.04497085709551787)
     
     with pytest.raises(Exception):
         contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='BADMETHOD')

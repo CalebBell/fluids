@@ -1788,6 +1788,7 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
         K2 = 0.5*(sin(0.5*angle)**0.5*(1.0 - beta2))
     return K2
 
+
 contraction_conical_angles_Idelchik = [2, 3, 6, 8, 10, 12, 14, 16, 20]
 contraction_conical_A_ratios_Idelchik = [0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6]
 
@@ -1818,14 +1819,54 @@ contraction_conical_Ks_Blevins = np.array([[.08, .06, .04, .03, .03],
 contraction_conical_Blevins_obj = RectBivariateSpline(contraction_conical_A_ratios_Blevins, 
                                                       contraction_conical_l_ratios_Blevins, 
                                                       contraction_conical_Ks_Blevins, kx=1, ky=1)
-contraction_conical_methods = ['Rennels', 'Idelchik', 'Crane', 'Swamee', 'Blevins']
+
+
+contraction_conical_Miller_tck = [
+    np.array([
+        -2.2990613088204293, -2.2990613088204293, -2.2990613088204293, -2.2990613088204293, -1.9345621970869704,
+        -1.404550366067981, -1.1205580332553446, -0.7202074014540876, -0.18305354619604816, 0.5791478950190209,
+        1.2576636025381396, 2.2907351590368092, 2.2907351590368092, 2.2907351590368092, 2.2907351590368092]),
+    np.array([
+        0.09564194294666524, 0.09564194294666524, 0.17553288711543455, 0.263895293813645, 0.3890819147022019,
+        0.46277323951998217, 0.5504296236707121, 0.7265657737596892, 1.0772357648098938, 1.2566022106161683,
+        1.3896885941879062, 1.3896885941879062]),
+    np.array([
+        -0.019518693251672135, 0.04439613867473242, 0.11549650174721836, 0.21325506677861075, 0.268179723158688,
+        0.31125301421509866, 0.38394595875289805, 0.4808287074532006, 0.5205981039085685, 0.5444079315893322,
+        -0.016435668699253902, 0.036132755789022385, 0.09344296094392814, 0.18264727448046977, 0.23460506265914166,
+        0.2772896726095435, 0.3475409775384636, 0.45339837219176454, 0.49766916609817535, 0.533981552804865,
+        -0.006524265764454468, 0.024107195694715193, 0.05862956870028131, 0.12122104285943507, 0.17207312024278762,
+        0.2175356288866053, 0.282297563080016, 0.3995008583081823, 0.4563724107887528, 0.5175856070810377,
+        0.00971345082784277, 0.025981390544674948, 0.0438578322196561, 0.08103403101086341, 0.11351528283253318,
+        0.16873088559958743, 0.2347695003589526, 0.3428907161435351, 0.42017998591926276, 0.49784770602295325,
+        0.022572122504756167, 0.0277671279384801, 0.033512283408629495, 0.05470423531298454, 0.06485563480390757,
+        0.10483763206962131, 0.1802208799223503, 0.29075723837012296, 0.35502824385155335, 0.4460106883062252,
+        0.030312717163327077, 0.03080869253188484, 0.03583128286874324, 0.04627567520803308, 0.050501484562613955,
+        0.05683263025468022, 0.12297253802915259, 0.2415222338797251, 0.3025777968736861, 0.3724407040165538,
+        0.03115993727503623, 0.03443665864698284, 0.03574452046031886, 0.03995718256281492, 0.04759698369059247,
+        0.050404788737262694, 0.052375330859925545, 0.1356057568743366, 0.20463667731329582, 0.26043914743762864,
+        0.02844193432840707, 0.0219797618956514, 0.013352154001094038, 0.018393840217638825, 0.02448602185526976,
+        0.038812331325140816, 0.0522197430071833, 0.057132169238281294, 0.06871138075102912, 0.09334527259294226,
+        0.04089985439478869, 0.07148502476706058, 0.06750266344761692, 0.038560772865945815, 0.020172054809734774,
+        0.01596047961326318, 0.033338955878272625, 0.058808731166289874, 0.055802602927507314, 0.025265841939291166,
+        0.11200365568168691, 0.11945663812857424, 0.10673570013847415, 0.07758458179796549, 0.055266607234870514,
+        0.03072901347153607, 0.025790727504652375, 0.037031664564632104, 0.0601306808668177, 0.07612350738135039,
+        0.0964900248905913, 0.11088549072803407, 0.10778442024110846, 0.09386482850507959, 0.06940476627270852,
+        0.04434507143623664, 0.03331958878624311, 0.01854072032522763, 0.027553821071285824, 0.045426686375783926]),
+    3, 1]
+
+contraction_conical_Miller_obj = lambda l_r2, A_ratio: max(min(float(bisplev(log(l_r2), log(A_ratio), contraction_conical_Miller_tck)), .5), 0)
+
+contraction_conical_methods = ['Rennels', 'Idelchik', 'Crane', 'Swamee', 
+                               'Blevins', 'Miller']
 
 
 def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
                         Re=None, roughness=0.0, method='Rennels'):
     r'''Returns the loss coefficient for any conical pipe contraction.
     This calculation has five methods available. The 'Idelchik' [2]_ and 
-    'Blevins' [3]_ methods use interpolation among tables of values; the 
+    'Blevins' [3]_ methods use interpolation among tables of values; 'Miller' 
+    uses a 2d spline representation of a graph; and the 
     'Rennels' [1]_, 'Crane' [4]_, and 'Swamee' [5]_ methods use formulas for
     their calculations.
     
@@ -1895,7 +1936,10 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     
     The 'Blevins' method is based on Idelchik data; it should not be used, 
     because its data jumps around and its data is limited to area ratios .1 to
-    0.83, and length over diameter ratios 0 to 0.6.
+    0.83, and length over diameter ratios 0 to 0.6. The 'Miller' method jumps
+    around as well. Unlike most of Miller's method, there is no correction for 
+    Reynolds number.
+
     
     There is quite a bit of variance in the predictions of the methods, as 
     demonstrated by the following figure.
@@ -1921,6 +1965,8 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
        2009.
     .. [5] Swamee, Prabhata K., and Ashok K. Sharma. Design of Water Supply 
        Pipe Networks. John Wiley & Sons, 2008.
+    .. [6] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
     '''
     beta = Di2/Di1
     if angle is not None:
@@ -1986,6 +2032,19 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         if l_ratio > 0.6:
             l_ratio= 0.6
         return float(contraction_conical_Blevins_obj(A_ratio, l_ratio))
+    elif method == 'Miller':
+        A_ratio = Di1*Di1/(Di2*Di2)
+        if A_ratio > 4.0:
+            A_ratio = 4.0
+        elif A_ratio < 1.1:
+            A_ratio = 1.1
+        l_ratio = l/(Di2*0.5)
+        if l_ratio < 0.1:
+            l_ratio = 0.1
+        elif l_ratio > 10.0:
+            l_ratio = 10.0
+        # Turning on ofr off the limits - little difference in plot
+        return contraction_conical_Miller_obj(l_ratio, A_ratio)
     else:
         raise ValueError('Specified method not recognized; methods are %s'
                          %(contraction_conical_methods))
@@ -2154,14 +2213,17 @@ tck_diffuser_conical_Miller = [
     ]), 3, 3
 ]
 
+
 diffuser_conical_methods = ['Rennels', 'Crane', 'Miller', 'Swamee']
 
 
 def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
                      roughness=0.0, method='Rennels'):
-    r'''Returns loss coefficient for any conical pipe expansion
-    as shown in [1]_. Three different formulas are used, depending on
-    the angle and the ratio of diameters.
+    r'''Returns the loss coefficient for any conical pipe diffuser.
+    This calculation has four methods available.
+    
+    The 'Rennels' [1]_ formulas are as follows (three different formulas are
+    used, depending on the angle and the ratio of diameters):
 
     For 0 to 20 degrees, all aspect ratios:
 
@@ -2217,7 +2279,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         given), [m]   
     method : str
         The method to use for the calculation; one of 'Rennels', 'Crane',
-        'Miller'
+        'Miller', [-]
 
     Returns
     -------
@@ -2226,7 +2288,6 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
 
     Notes
     -----
-    For angles above 60 degrees, friction factor is not used.
 
     .. plot:: plots/diffuser_conical.py
 
