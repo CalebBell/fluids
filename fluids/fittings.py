@@ -100,8 +100,8 @@ def change_K_basis(K1, D1, D2):
 
 ### Entrances
 
-entrance_sharp_methods = ['Rennels', 'Swamee', 'Blevins', 
-        'Idelchik', 'Crane', 'Miller']
+entrance_sharp_methods = ['Rennels', 'Swamee', 'Blevins', 'Idelchik', 'Crane', 
+                          'Miller']
 
 
 def entrance_sharp(method='Rennels'):
