@@ -288,7 +288,7 @@ ValueError: Pipe input is larger than max of selected schedule
 Wire gauges
 -----------
 
-The construction of mechanical systems often uses the "gauge" sytems, a variety
+The construction of mechanical systems often uses the "gauge" systems, a variety
 of old imperial conversions between plate or wire thickness and a dimensionless
 number. Conversion from and to the gauge system is done by the :py:func:`~.gauge_from_t` 
 and :py:func:`~.t_from_gauge` functions.

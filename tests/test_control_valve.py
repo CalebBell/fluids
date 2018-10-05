@@ -202,7 +202,7 @@ def test_control_valve_size_g():
     assert ans['FR'] is None
     assert ans['Rev']
     
-    # Test a warning is issued and a solution is stil returned when in an unending loop
+    # Test a warning is issued and a solution is still returned when in an unending loop
     # Ends with C ratio converged to 0.907207790871228
     
     

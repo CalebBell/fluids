@@ -1206,7 +1206,7 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
         Initial velocity of the particle, [m/s]
     tol : float, optional
         How closely to approach the terminal velocity - the target velocity is
-        the terminal velocity multiplied by 1 (+/-) this, dependeing on if the
+        the terminal velocity multiplied by 1 (+/-) this, depending on if the
         particle is accelerating or decelerating, [-]
 
     Returns

@@ -195,8 +195,6 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
         Ek = Vsg*Vm*rhos/P  # Confirmed this expression is dimensionless
         dP = (dP_ele + dP_fric)/(1.0 - Ek)
     return dP
-
-
 def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     r'''Calculates two-phase pressure drop with the Friedel correlation.
 
@@ -2213,8 +2211,6 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
     return dP_l*phi_l2
 
 
-
-
 two_phase_correlations = {
     # 0 index, args are: m, x, rhol, mul, P, Pc, D, roughness=0, L=1
     'Zhang_Webb': (Zhang_Webb, 0),
@@ -2293,6 +2289,7 @@ def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
         Critical pressure of fluid, [Pa]
     roughness : float, optional
         Roughness of pipe for use in calculating friction factor, [m]
+
     angle : float, optional
         The angle of the pipe with respect to the horizontal, [degrees]
         
@@ -2527,6 +2524,7 @@ def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
         
     Notes
     -----
+
     This calculation has the `homogeneous` model built in to it as its
     derivation is shown in [1]_. The discrete calculation is more flexible as
     different void fractions may be used.
@@ -2702,7 +2700,6 @@ def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
     '''
     angle = radians(angle)
     return g*sin(angle)*(alpha*rhog + (1. - alpha)*rhol)
-
 
 Dukler_XA_tck = [np.array([-2.4791105294648372, -2.4791105294648372, -2.4791105294648372, 
                            -2.4791105294648372, 0.14360803483759585, 1.7199938263676038, 

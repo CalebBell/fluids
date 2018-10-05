@@ -320,8 +320,8 @@ def API520_SH(T1, P1):
     Notes
     -----
     For P above 20679 kPag, use the critical flow model.
-    Superheat cannot be above 649 degrees Celcius.
-    If T1 is above 149 degrees Celcius, returns 1.
+    Superheat cannot be above 649 degrees Celsius.
+    If T1 is above 149 degrees Celsius, returns 1.
 
     Examples
     --------

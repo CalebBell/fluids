@@ -701,7 +701,7 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
 # This should be aggressively cached
 def get_station_year_text(WMO, WBAN, year):
     '''Basic method to download data from the GSOD database, given a 
-    station idenfifier and year. 
+    station identifier and year. 
 
     Parameters
     ----------

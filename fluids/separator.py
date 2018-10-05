@@ -207,7 +207,7 @@ def K_separator_demister_York(P, horizontal=False):
     -------
     K : float
         Sounders Brown Horizontal or vertical `K` factor for two-phase
-        seperator design with a demister, [m/s]
+        separator design with a demister, [m/s]
 
     Notes
     -----
