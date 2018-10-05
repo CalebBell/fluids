@@ -100,16 +100,25 @@ def change_K_basis(K1, D1, D2):
 
 ### Entrances
 
-def entrance_sharp():
-    r'''Returns loss coefficient for a sharp entrance to a pipe
-    as shown in [1]_.
+entrance_sharp_methods = ['Rennels', 'Swamee', 'Blevins', 
+        'Idelchik', 'Crane', 'Miller']
 
-    .. math::
-        K = 0.57
+
+def entrance_sharp(method='Rennels'):
+    r'''Returns loss coefficient for a sharp entrance to a pipe.
+    Six sources are available; four of them recommending K = 0.5,
+    the most recent 'Rennels', method recommending K = 0.57, the the
+    'Miller' method recommending ~0.51 as read from a graph.
 
     .. figure:: fittings/flush_mounted_sharp_edged_entrance.png
        :scale: 30 %
        :alt: flush mounted sharp edged entrance; after [1]_
+
+    Parameters
+    ----------
+    method : str, optional
+        The method to use; one of 'Rennels', 'Swamee', 'Blevins', 
+        'Idelchik', 'Crane', or 'Miller, [-]
 
     Returns
     -------
@@ -118,8 +127,9 @@ def entrance_sharp():
 
     Notes
     -----
-    Other values used have been 0.5.
-
+    0.5 is the result for  'Swamee', 'Blevins', 'Idelchik', and 'Crane';
+    'Miller' returns 0.5093, and 'Rennels' returns 0.57.
+    
     Examples
     --------
     >>> entrance_sharp()
@@ -129,9 +139,29 @@ def entrance_sharp():
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Miller, Donald S. Internal Flow Systems: Design and Performance
+       Prediction. Gulf Publishing Company, 1990.
+    .. [3] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of 
+       Local Resistance and of Friction (Spravochnik Po Gidravlicheskim 
+       Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
+       Treniya). National technical information Service, 1966.
+    .. [4] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
+       Van Nostrand Reinhold Co., 1984.
+    .. [5] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    .. [6] Swamee, Prabhata K., and Ashok K. Sharma. Design of Water Supply 
+       Pipe Networks. John Wiley & Sons, 2008.
     '''
-    return 0.57
-
+    if method in ('Swamee', 'Blevins', 'Crane', 'Idelchik'):
+        return 0.50
+    elif method == 'Miller':
+        # From entrance_rounded(Di=0.9, rc=0.0, method='Miller'); Not saying it's right
+        return 0.5092676683721356 
+    elif method == 'Rennels':
+        return 0.57
+    else:
+        raise ValueError('Specified method not recognized; methods are %s'
+                         %(entrance_sharp_methods))
 
 entrance_distance_Miller_coeffs = [3.5979871366071166, -2.735407311020481, -14.08678246875138, 
                                    10.637236472292983, 21.99568490754116, -16.38501138746954,
@@ -337,7 +367,10 @@ def entrance_distance_45_Miller(Di, Di0):
     return horner(entrance_distance_45_Miller_coeffs, 6.66666666666666696*(t_Di-0.15))
 
 
-def entrance_angled(angle):
+entrance_angled_methods = ['Idelchik']
+
+
+def entrance_angled(angle, method='Idelchik'):
     r'''Returns loss coefficient for a sharp, angled entrance to a pipe
     flush with the wall of a reservoir. First published in [2]_, it has been
     recommended in [3]_ as well as in [1]_.
@@ -353,6 +386,8 @@ def entrance_angled(angle):
     ----------
     angle : float
         Angle of inclination (90=straight, 0=parallel to pipe wall) [degrees]
+    method : str, optional
+        The method to use; only 'Idelchik' is supported
 
     Returns
     -------
@@ -380,8 +415,12 @@ def entrance_angled(angle):
     .. [3] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
        Van Nostrand Reinhold Co., 1984.
     '''
-    cos_term = cos(radians(angle))
-    return 0.57 + cos_term*(0.2*cos_term + 0.3)
+    if method == 'Idelchik':
+        cos_term = cos(radians(angle))
+        return 0.57 + cos_term*(0.2*cos_term + 0.3)
+    else:
+        raise ValueError('Specified method not recognized; methods are %s'
+                         %(entrance_angled_methods))
 
 
 entrance_rounded_Miller_coeffs = [1.3127209945178038, 0.19963046592715727, -6.49081916725612, 

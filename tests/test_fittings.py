@@ -284,12 +284,24 @@ def test_entrance_rounded_Miller_coeffs():
 
 
 
+def test_entrance_sharp():
+    assert_allclose(entrance_sharp(), 0.57)
+    
+    with pytest.raises(Exception):
+        entrance_sharp(method='BADMETHOD')
+
+    for method in ['Swamee', 'Blevins', 'Idelchik', 'Crane']:
+        assert_allclose(0.5, entrance_sharp(method=method))
+        
+    entrance_sharp(method='Miller') # Don't bother checking a value for the Miller method
 
 
 def test_fittings():
-    assert_allclose(entrance_sharp(), 0.57)
     
     assert_allclose(entrance_angled(30), 0.9798076211353316)
+    
+    with pytest.raises(Exception):
+        entrance_angled(30, method='BADMETHOD')
 
     
     K = entrance_beveled_orifice(Di=0.1, do=.07, l=0.003, angle=45)
