@@ -135,7 +135,7 @@ def test_contraction_abrupt_Miller_coefficients():
             all_xs.append(x)
             all_ys.append(y)
     tck_recalc = bisplrep(all_xs, all_zs, all_ys, s=5e-4)
-    [assert_allclose(i, j) for i, j in zip(tck_contraction_abrupt_Miller, tck_recalc)]
+    [assert_allclose(i, j, rtol=1e-2) for i, j in zip(tck_contraction_abrupt_Miller, tck_recalc)]
     
 #   Plotting code
 #     print([i.tolist() for i in tck[:3]])
@@ -199,7 +199,7 @@ def test_diffuser_conical_Miller_coefficients():
             all_ys.append(y)
     
     tck_recalc = bisplrep(np.log(all_xs), np.log(all_ys), all_zs, s=.002)
-    [assert_allclose(i, j) for i, j in zip(tck_diffuser_conical_Miller, tck_recalc)]
+    [assert_allclose(i, j, rtol=1e-2) for i, j in zip(tck_diffuser_conical_Miller, tck_recalc)]
 
     # Plotting code to re-create the graph through solving for points
 #    print([len(i) for i in tck[0:3]])

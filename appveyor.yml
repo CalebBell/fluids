@@ -27,7 +27,7 @@ install:
   - cmd: python setup.py install
 
 test_script:
-  - cmd: py.test --cov-report html --cov=fluids 
+  - cmd: py.test --cov-report html --cov=fluids -m "not online and not thermo"
 branches:
   only:
     - release
