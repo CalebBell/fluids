@@ -35,6 +35,7 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'diffuser_pipe_reducer',
 'entrance_sharp', 'entrance_distance', 'entrance_angled',
 'entrance_rounded', 'entrance_beveled', 'entrance_beveled_orifice', 
+'entrance_distance_45_Miller',
 'exit_normal', 'bend_rounded', 'bend_rounded_Miller', 'bend_rounded_Crane', 'bend_miter', 
 'bend_miter_Miller', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
 'Kv_to_K', 'K_to_Kv', 'Cv_to_K', 'K_to_Cv', 'change_K_basis', 'Darby', 
@@ -107,7 +108,7 @@ entrance_sharp_methods = ['Rennels', 'Swamee', 'Blevins', 'Idelchik', 'Crane',
 def entrance_sharp(method='Rennels'):
     r'''Returns loss coefficient for a sharp entrance to a pipe.
     Six sources are available; four of them recommending K = 0.5,
-    the most recent 'Rennels', method recommending K = 0.57, the the
+    the most recent 'Rennels', method recommending K = 0.57, and the
     'Miller' method recommending ~0.51 as read from a graph.
 
     .. figure:: fittings/flush_mounted_sharp_edged_entrance.png
@@ -215,7 +216,7 @@ entrance_distance_methods = ['Rennels', 'Miller', 'Idelchik', 'Harris']
 
 
 def entrance_distance(Di, t, l=None, method='Rennels'):
-    r'''Returns loss coefficient for a sharp entrance to a pipe at a distance
+    r'''Returns the loss coefficient for a sharp entrance to a pipe at a distance
     from the wall of a reservoir. This calculation has four methods available;
     all but 'Idelchik' require the pipe to be at least `Di/2` into the
     reservoir.
@@ -385,7 +386,8 @@ def entrance_angled(angle, method='Idelchik'):
     Parameters
     ----------
     angle : float
-        Angle of inclination (90=straight, 0=parallel to pipe wall) [degrees]
+        Angle of inclination (90° = straight, 0° = parallel to pipe wall),
+        [degrees]
     method : str, optional
         The method to use; only 'Idelchik' is supported
 
@@ -518,7 +520,7 @@ def entrance_rounded(Di, rc, method='Rennels'):
     Examples
     --------
     Point from Diagram 9.2 in [1]_, which was used to confirm the Rennels
-    model implementation :
+    model implementation:
     
     >>> entrance_rounded(Di=0.1, rc=0.0235)
     0.09839534618360923
@@ -917,13 +919,12 @@ def Miller_bend_unimpeded_correction(Kb, Di, L_unimpeded):
                 Co_high = bend_rounded_Miller_C_o_limit_0_01[i+1]
             else:
                 Co_high = splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i+1])
-#            print(Kb_C_o, [Kb_low, Kb_high], [Co_low, Co_high])
             C_o = Co_low + (Kb_C_o - Kb_low)*(Co_high - Co_low)/(Kb_high - Kb_low)
             return C_o
 
 
 def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None, 
-                        roughness=0, L_unimpeded=None):
+                        roughness=0.0, L_unimpeded=None):
     r'''Calculates the loss coefficient for a rounded pipe bend according to 
     Miller [1]_. This is a sophisticated model which uses corrections for
     pipe roughness, the length of the pipe downstream before another 
@@ -1126,6 +1127,9 @@ def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
 
 def bend_rounded_Ito(Di, angle, Re, rc=None, bend_diameters=None, 
                      roughness=0.0):
+    '''Ito method as shown in Blevins. Curved friction factor as given in 
+    Blevins, with minor tweaks to be more accurate to the original methods.
+    '''
     if not rc:
         if bend_diameters is None:
             bend_diameters = 5.0
@@ -1449,7 +1453,6 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
     .. [4] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
        Van Nostrand Reinhold Co., 1984.
     '''
-    # Not in Swamee
     if method == 'Rennels':
         angle_rad = radians(angle)
         sin_half_angle = sin(angle_rad*0.5)
@@ -1612,7 +1615,7 @@ def contraction_round_Miller(Di1, Di2, rc):
     if radius_ratio > 0.1:
         radius_ratio = 0.1
     Ks = float(bisplev(A_ratio, radius_ratio, tck_contraction_abrupt_Miller))
-    # For some near-1 ratios, can get negative Ks due to th epsline... fix it in post
+    # For some near-1 ratios, can get negative Ks due to the spline.
     if Ks < 0.0:
         Ks = 0.0
     return Ks
