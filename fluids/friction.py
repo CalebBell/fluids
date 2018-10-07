@@ -3915,8 +3915,8 @@ def one_phase_dP(m, rho, mu, D, roughness=0, L=1, Method=None):
 def one_phase_dP_acceleration(m, D, rho_o, rho_i):
     r'''This function handles calculation of one-phase fluid pressure drop
     due to acceleration for flow inside channels. This is a discrete 
-    calculation, providing the total differential in pressure for a given lenth 
-    and should be called as part of a segment solver routine.
+    calculation, providing the total differential in pressure for a given  
+    length and should be called as part of a segment solver routine.
     
     .. math::
         - \left(\frac{d P}{dz}\right)_{acc} = G^2 \frac{d}{dz} \left[\frac{

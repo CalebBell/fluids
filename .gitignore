@@ -51,3 +51,4 @@ ehthumbs.db
 Thumbs.db
 
 .pytest_cache/
+word_whitelist.txt

@@ -1304,7 +1304,7 @@ bend_miter_Miller_coeffs = [-12.050299402650126, -4.472433689233185, 50.51478860
                             0.5080285124448385]
 
 def bend_miter_Miller(Di, angle, Re, roughness=0.0, L_unimpeded=None):
-    r'''Calculates the loss coefficient for a single mitre bend according to 
+    r'''Calculates the loss coefficient for a single miter bend according to 
     Miller [1]_. This is a sophisticated model which uses corrections for
     pipe roughness, the length of the pipe downstream before another 
     interruption, and a correction for Reynolds number. It interpolates several
@@ -1365,11 +1365,11 @@ def bend_miter_Miller(Di, angle, Re, roughness=0.0, L_unimpeded=None):
     return Kb*C_Re*C_roughness*C_o
 
 
-bend_mitre_Crane_angles = np.array([0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0])
-bend_mitre_Crane_fds = np.array([2.0, 4.0, 8.0, 15.0, 25.0, 40.0, 60.0])
+bend_miter_Crane_angles = np.array([0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0])
+bend_miter_Crane_fds = np.array([2.0, 4.0, 8.0, 15.0, 25.0, 40.0, 60.0])
 
-bend_mitre_Blevins_angles = np.array([0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 120.0])
-bend_mitre_Blevins_Ks = np.array([0.0, .025, .055, .1, .2, .35, .5, .7, .9, 1.1, 1.5])
+bend_miter_Blevins_angles = np.array([0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 120.0])
+bend_miter_Blevins_Ks = np.array([0.0, .025, .055, .1, .2, .35, .5, .7, .9, 1.1, 1.5])
 
 bend_miter_methods = ['Rennels', 'Miller', 'Crane', 'Blevins']
 
@@ -1392,7 +1392,7 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
     The 'Crane', 'Miller', and 'Blevins' methods are all in part graph or 
     tabular based and do not have straightforward formulas.
 
-    .. figure:: fittings/bend_mitre.png
+    .. figure:: fittings/bend_miter.png
        :scale: 25 %
        :alt: Miter bend, one joint only; after [1]_
 
@@ -1423,8 +1423,8 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
 
     Notes
     -----
-    This method is designed only for single-jointed mitre bends. It is common
-    for mitre bends to have two or three sections, to further reduce the loss
+    This method is designed only for single-jointed miter bends. It is common
+    for miter bends to have two or three sections, to further reduce the loss
     coefficient. Some methods exist in [2]_ for taking this into account. 
     Because the additional configurations reduce the pressure loss, it is
     "common practice" to simply ignore their effect and accept the slight
@@ -1458,14 +1458,14 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
         sin_half_angle = sin(angle_rad*0.5)
         return 0.42*sin_half_angle + 2.56*sin_half_angle*sin_half_angle*sin_half_angle
     elif method == 'Crane':
-        factor = float(np.interp(angle, bend_mitre_Crane_angles, bend_mitre_Crane_fds))
+        factor = float(np.interp(angle, bend_miter_Crane_angles, bend_miter_Crane_fds))
         return ft_Crane(Di)*factor
     elif method == 'Miller':
         return bend_miter_Miller(Di=Di, angle=angle, Re=Re, roughness=roughness, L_unimpeded=L_unimpeded)
     elif method == 'Blevins':
         # data from Idelchik, Miller, an earlier ASME publication
         # For 90-120 degrees, a polynomial/spline would be better than a linear fit
-        K_base = float(np.interp(angle, bend_mitre_Blevins_angles, bend_mitre_Blevins_Ks))
+        K_base = float(np.interp(angle, bend_miter_Blevins_angles, bend_miter_Blevins_Ks))
         return K_base*(2E5/Re)**0.2
     else:
         raise ValueError('Specified method not recognized; methods are %s'
