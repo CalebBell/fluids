@@ -103,7 +103,7 @@ __all__.extend(particle_size_distribution.__all__)
 __all__.extend(jet_pump.__all__)
 
 
-__version__ = '0.1.72'
+__version__ = '0.1.73'
 
 fluids_dir = os.path.dirname(__file__)
 fluids_data_dir = os.path.join(os.path.dirname(__file__), 'data')
