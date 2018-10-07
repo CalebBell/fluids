@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -1913,6 +1913,11 @@ def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
     varying input requirements. A correlation will be automatically selected if
     none is specified. The full list of correlation can be obtained with the 
     `AvailableMethods` flag.
+    
+    This function is used to calculate the (liquid) holdup as well, as:
+        
+    .. math::
+        \text{holdup} = 1 - \text{voidage}
 
     If no correlation is selected, the following rules are used, with the 
     earlier options attempted first:

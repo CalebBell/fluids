@@ -299,3 +299,9 @@ def test_rankine_to_celcius():
 
 def test_rankine_to_kelvin():
     assert_allclose(R2K([491.67, 0.]), [273.15, 0.], rtol=0., atol=1e-13)
+    
+    
+def test_horner():
+    from fluids.core import horner
+    assert_allclose(horner([1.0, 3.0], 2.0), 5.0)
+    assert_allclose(horner([3.0], 2.0), 3.0)

@@ -2907,9 +2907,56 @@ def Engauge_2d_parser(lines, flat=False):
 
     return z_values, x_lists, y_lists
 
+
 def horner(coeffs, x):
-    # TODO: document
-    tot = 0.
+    r'''Evaluates a polynomial defined by coefficienfs `coeffs` at a specified
+    scalar `x` value, using the horner method. This is the most efficient 
+    formula to evaluate a polynomial (assuming non-zero coefficients for all
+    terms). This has been added to the `fluids` library because of the need to
+    frequently evaluate polynomials; and `NumPy`'s polyval is actually quite 
+    slow for scalar values.
+    
+    Note that the coefficients are reversed compared to the common form; the
+    first value is the coefficient of the highest-powered x term, and the last
+    value in `coeffs` is the constant offset value.
+
+    Parameters
+    ----------
+    coeffs : iterable[float]
+        Coefficients of polynomial, [-]
+    x : float
+        Point at which to evaluate the polynomial, [-]
+
+    Returns
+    -------
+    val : float
+        The evaluated value of the polynomial, [-]
+
+    Notes
+    -----
+    For maximum speed, provide a list of Python floats and `x` should also be
+    of type `float` to avoid either `NumPy` types or slow python ints. 
+
+    Compare the speed with numpy via:
+        
+    >>> coeffs = np.random.uniform(0, 1, size=15)
+    >>> coeffs_list = coeffs.tolist()
+    
+    %timeit np.polyval(coeffs, 10.0)
+    
+    `np.polyval` takes on the order of 15 us; `horner`, 1 us.
+    
+    Examples
+    --------
+    >>> horner([1.0, 3.0], 2.0)
+    5.0
+
+    References
+    ----------
+    .. [1] "Horner’s Method." Wikipedia, October 6, 2018. 
+    https://en.wikipedia.org/w/index.php?title=Horner%27s_method&oldid=862709437.
+    '''
+    tot = 0.0
     for c in coeffs:
         tot = tot*x + c
     return tot

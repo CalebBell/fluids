@@ -50,7 +50,7 @@ from fluids, the user can import from fluids.vectorized:
 
 >>> from fluids.vectorized import *
 >>> friction_factor(Re=[100, 1000, 10000], eD=0)
-array([ 0.64      ,  0.064     ,  0.03088295])
+array([0.64      , 0.064     , 0.03088295])
 
 It is possible to switch back and forth between the namespaces with a subsequent
 import:
@@ -1396,15 +1396,15 @@ Discrete and continuous distributions share most methods.
 >>> psd.pdf(1e-6) # probability density function
 4487.892155358317
 >>> psd.cdf(7e-6) # cumulative distribution function
-0.74950869138681098
+0.749508691386811
 >>> psd.dn(0.1) # At what diameter is this fraction of particles smaller than?
 2.634417591480183e-06
 >>> psd.mean_size(3, 2)
-4.4124845129229773e-06
+4.412484512922977e-06
 >>> ds = psd.ds_discrete(pts=1000) # Compare calculations with the discrete distribution
 >>> fractions = psd.fractions_discrete(ds)
 >>> ParticleSizeDistribution(ds=ds, fractions=fractions, order=3).mean_size(3, 2)
-4.4257436305831372e-06
+4.425743630583137e-06
 
 It is straightforward to calculate descriptions of the distribution using the
 available routines:
