@@ -518,6 +518,7 @@ def test_two_phase_dP_dz_gravitational():
     
     
 def test_Taitel_Dukler_regime():
+    from fluids.two_phase import Taitel_Dukler_regime
     
     regime = Taitel_Dukler_regime(m=1, x=0.05, rhol=600.12, rhog=80.67, mul=180E-6,
                                    mug=14E-6, D=0.02, roughness=0, angle=0)
@@ -604,6 +605,7 @@ def plot_Taitel_Dukler_splines():
     return plt
 
 def test_Mandhane_Gregory_Aziz_regime():
+    from fluids.two_phase import Mandhane_Gregory_Aziz_regime
     regime = Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,  mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)
     assert regime == 'slug'
     

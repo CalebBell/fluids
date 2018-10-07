@@ -29,8 +29,7 @@ __all__ = ['two_phase_dP', 'two_phase_dP_acceleration',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
            'Yu_France', 'Wang_Chiang_Lu', 'Hwang_Kim', 'Zhang_Hibiki_Mishima',
-           'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations', 
-           'Taitel_Dukler_regime', 'Mandhane_Gregory_Aziz_regime']
+           'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations']
 
 from math import pi, log, exp, sin, cos, radians, log10
 import numpy as np
@@ -2921,11 +2920,6 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D,
        Multiphase Flow 1, no. 4 (October 30, 1974): 537-53. 
        doi:10.1016/0301-9322(74)90006-8.
     '''
-    ''' Example is from article. It matches.
-    After plotting the functions, it is believed that the flow map works.
-    >>> Mandhane_Gregory_Aziz(Vsl=1*0.3048, Vsg=10*0.3048, rhol=55*16.018463, rhog=0.04*16.018463, mul=5E-3, mug=0.01E-3, sigma=0.065)
-    'slug'
-    '''
     A = 0.25*pi*D*D
     Vsl =  m*(1.0 - x)/(rhol*A)
     Vsg = m*x/(rhog*A)
@@ -2988,14 +2982,3 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D,
 Mandhane_Gregory_Aziz_regimes = {'elongated bubble': 1, 'stratified': 2,
                                  'slug':3, 'wave': 4,
                                  'annular mist': 5, 'dispersed bubble': 6}
-
-#import matplotlib.pyplot as plt
-#import numpy as np
-#
-## Sample chart
-##dat = [[regions[Mandhane_Gregory_Aziz(Vsl=i*0.3048, Vsg=j*0.3048, rhol=55*16.018463, rhog=0.04*16.018463, mul=5E-3, mug=0.01E-3, sigma=0.065)] for j in np.logspace(-1,2.7, 1000)] for i in np.logspace(1.4,-2, 1000)]
-#
-## Water-air chart
-#dat = [[regions[Mandhane_Gregory_Aziz_regime(m=float(i), x=float(j), D=0.1, rhol=999.552, rhog=1.294292, mul=1E-3, mug=1.8E-5, sigma=0.0724)] for j in np.logspace(np.log10(1e-5),np.log10(1-1e-5), 100)] for i in np.logspace(np.log10(1e-2),np.log10(10), 100)]
-#plt.imshow(dat, interpolation='nearest')
-#plt.show()
