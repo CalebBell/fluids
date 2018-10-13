@@ -158,11 +158,12 @@ def Barati_high(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = (8E-6*((Re/6530.)**2 + tanh(Re) - 8*log(Re)/log(10.))
-    - 0.4119*exp(-2.08E43/(Re+Re**2)**4)
-    - 2.1344*exp(-((log(Re**2 + 10.7563)/log(10))**2 + 9.9867)/Re)
+    Re2 = Re*Re
+    Cd = (8E-6*((Re/6530.)**2 + tanh(Re) - 8.0*log10(Re))
+    - 0.4119*exp(-2.08E43/(Re+Re2)**4)
+    - 2.1344*exp(-((log10(Re2 + 10.7563))**2 + 9.9867)/Re)
     + 0.1357*exp(-((Re/1620.)**2 + 10370.)/Re)
-    - 8.5E-3*(2*log(tanh(tanh(Re)))/log(10) - 2825.7162)/Re + 2.4795)
+    - 8.5E-3*(2*log10(tanh(tanh(Re))) - 2825.7162)/Re + 2.4795)
     return Cd
 
 

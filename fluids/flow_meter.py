@@ -134,7 +134,8 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
     '''
     dP = P1 - P2
     beta = Do/D
-    return (pi*Do*Do/4.)*C*(2*dP*rho)**0.5/(1.0 - beta**4)**0.5*expansibility
+    beta2 = beta*beta
+    return (0.25*pi*Do*Do)*C*(2.0*dP*rho)**0.5*(1.0 - beta2*beta2)**-0.5*expansibility
 
 
 def orifice_expansibility(D, Do, P1, P2, k):
@@ -187,7 +188,9 @@ def orifice_expansibility(D, Do, P1, P2, k):
        Full -- Part 2: Orifice Plates.
     '''
     beta = Do/D
-    return (1.0 - (0.351 + 0.256*beta**4 + 0.93*beta**8)*(
+    beta2 = beta*beta
+    beta4 = beta2*beta2
+    return (1.0 - (0.351 + 0.256*beta4 + 0.93*beta4*beta4)*(
             1.0 - (P2/P1)**(1./k)))
 
 
@@ -981,7 +984,7 @@ def dP_venturi_tube(D, Do, P1, P2):
     epsilon_D65 = np.interp(beta, venturi_tube_betas, venturi_tube_dP_high)
     epsilon_D500 = np.interp(beta, venturi_tube_betas, venturi_tube_dP_low)
     epsilon = np.interp(D, D_bound_venturi_tube, [epsilon_D65, epsilon_D500])
-    return epsilon*(P1 - P2)
+    return float(epsilon)*(P1 - P2)
 
 
 def diameter_ratio_cone_meter(D, Dc):
@@ -1775,7 +1778,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
     >>> differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, 
     ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
     ... meter_type='ISO 5167 orifice', taps='D')
-    7.702338035732168
+    7.702338035732166
     
     >>> differential_pressure_meter_solver(D=0.07366, m=7.702338, P1=200000.0, 
     ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 

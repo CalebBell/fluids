@@ -22,8 +22,9 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import sin, exp, pi
-from scipy.constants import g, R
+import platform    
 import numpy as np
+from scipy.constants import g, R
 
 __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
@@ -35,6 +36,13 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'L_from_K', 'dP_from_K', 
 'head_from_K', 'head_from_P',
 'P_from_head', 'Eotvos']
+
+try:
+    implementation = platform.python_implementation()
+    IS_PYPY = implementation == 'PyPy'
+except AttributeError:
+    IS_PYPY = False
+        
 
 ### Not quite dimensionless groups
 def thermal_diffusivity(k, rho, Cp):
@@ -2960,3 +2968,76 @@ def horner(coeffs, x):
     for c in coeffs:
         tot = tot*x + c
     return tot
+
+
+# Code from numpypy, modified; its statement says it was
+# translated from numpy/lib/src/_compiled_base.c
+def binary_search(key, arr, length):
+    imin = 0
+    imax = length
+    if key > arr[length - 1]:
+        return length
+    while imin < imax:
+        imid = imin + ((imax - imin) >> 1)
+        if key >= arr[imid]:
+            imin = imid + 1
+        else:
+            imax = imid
+    return imin - 1
+
+
+def interp(x, dx, dy, left=None, right=None):
+    '''One-dimensional linear interpolation routine inspired/
+    reimplemented from NumPy for extra speed for scalar values
+    (and also numpy).
+    
+    Returns the one-dimensional piecewise linear interpolant to a function
+    with a given value at discrete data-points.
+    
+    Parameters
+    ----------
+    x : float
+        X-coordinate of the interpolated values, [-]
+    dx : list[float]
+        X-coordinates of the data points, must be increasing, [-]
+    dy : list[float]
+        Y-coordinates of the data points; same length as `dx`, [-]
+    left : float, optional
+        Value to return for `x < dx[0]`, default is `dy[0]`, [-]
+    right : float, optional
+        Value to return for `x > dx[-1]`, default is `dy[-1]`, [-]
+
+    Returns
+    -------
+    y : float
+        The interpolated value, [-]
+    
+    Notes
+    -----
+    This function is "unsafe" in that it assumes the x-coordinates
+    are increasing. It also does not check for nan's, that `dx` and `dy`
+    are the same length, and that `x` is scalar.
+    
+    Performance is 40-50% of that of NumPy under CPython.
+    
+    Examples
+    --------
+    >>> interp(2.5, [1, 2, 3], [3, 2, 0])
+    1.0
+    '''
+    lendx = len(dx)
+    j = binary_search(x, dx, lendx)
+    if (j == -1):
+        if left is not None:
+            return left
+        else:
+            return dy[0]
+    elif (j == lendx - 1):
+        return dy[j]
+    elif (j == lendx):
+        if right is not None:
+            return right
+        else:
+            return dy[-1]
+    else:
+        return (dy[j + 1] - dy[j])/(dx[j + 1] - dx[j])*(x - dx[j]) + dy[j]
