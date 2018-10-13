@@ -153,6 +153,8 @@ def entrance_sharp(method='Rennels'):
     .. [6] Swamee, Prabhata K., and Ashok K. Sharma. Design of Water Supply 
        Pipe Networks. John Wiley & Sons, 2008.
     '''
+    if method is None:
+        method = 'Rennels'
     if method in ('Swamee', 'Blevins', 'Crane', 'Idelchik'):
         return 0.50
     elif method == 'Miller':
@@ -289,6 +291,8 @@ def entrance_distance(Di, t, l=None, method='Rennels'):
     .. [5] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
        Van Nostrand Reinhold Co., 1984.
     '''
+    if method is None:
+        method = 'Rennels'
     if method == 'Rennels':
         t_Di = t/Di
         if t_Di > 0.05:
@@ -417,6 +421,8 @@ def entrance_angled(angle, method='Idelchik'):
     .. [3] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
        Van Nostrand Reinhold Co., 1984.
     '''
+    if method is None:
+         method = 'Idelchik'
     if method == 'Idelchik':
         cos_term = cos(radians(angle))
         return 0.57 + cos_term*(0.2*cos_term + 0.3)
@@ -548,6 +554,8 @@ def entrance_rounded(Di, rc, method='Rennels'):
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
     '''
+    if method is None:
+        method = 'Rennels'
     if method == 'Rennels':
         if rc/Di > 1.0:
             return 0.03
@@ -661,6 +669,8 @@ def entrance_beveled(Di, l, angle, method='Rennels'):
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
     '''
+    if method is None:
+        method = 'Rennels'
     if method == 'Rennels':
         Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/Di ))
         lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1 - (l/Di)**0.25)/2.))
@@ -1263,6 +1273,8 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
     .. [6] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
        Van Nostrand Reinhold Co., 1984.
     '''
+    if method is None:
+        method = 'Rennels'
     if rc is None:
         rc = Di*bend_diameters
     if method == 'Rennels':
@@ -1453,6 +1465,8 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
     .. [4] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
        Van Nostrand Reinhold Co., 1984.
     '''
+    if method is None:
+        method = 'Rennels'
     if method == 'Rennels':
         angle_rad = radians(angle)
         sin_half_angle = sin(angle_rad*0.5)
@@ -1745,6 +1759,8 @@ def contraction_round(Di1, Di2, rc, method='Rennels'):
        Treniya). National technical information Service, 1966.
     '''
     beta = Di2/Di1
+    if method is None:
+        method = 'Rennels'
     if method == 'Rennels':
         lbd = 1.0 + 0.622*(1.0 - 0.30*(rc/Di2)**0.5 - 0.70*rc/Di2)**4*(1.0 - 0.215*beta**2 - 0.785*beta**5)
         return 0.0696*(1.0 - 0.569*rc/Di2)*(1.0 - (rc/Di2)**0.5*beta)*(1.0 - beta**5)*lbd*lbd + (lbd - 1.0)**2
@@ -2023,6 +2039,8 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
             angle = 180.0
     else:
         raise Exception('Either l or angle is required')
+    if method is None:
+        method == 'Rennels'
 
     if method == 'Rennels':
         if fd is None:
@@ -2384,7 +2402,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
        Prediction. Gulf Publishing Company, 1990.
     '''
     beta = Di1/Di2
-
+    beta2 = beta*beta
     if angle is not None:
         angle_rad = radians(angle)
         l = (Di2 - Di1)/(2.0*tan(0.5*angle_rad))
@@ -2393,8 +2411,8 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         angle = degrees(angle_rad)
     else:
         raise Exception('Either `l` or `angle` must be specified')
-
-    beta2 = beta*beta
+    if method is None:
+        method == 'Rennels'
     if method == 'Rennels':
         if fd is None:
             if Re is None:
@@ -4477,4 +4495,4 @@ def K_run_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
         M = 0.3*(2.*Q_ratio - 1.)
     return M*Q_ratio*Q_ratio
 
-
+ 
