@@ -25,6 +25,7 @@ from math import cos, sin, tan, atan, pi, radians, exp, acos, log10
 import numpy as np
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
+from fluids.core import interp
 from scipy.optimize import newton, brenth
 from scipy.constants import g, inch
 
@@ -888,18 +889,16 @@ def C_venturi_nozzle(D, Do):
 # low high losses corresponding to large diameters
 # Interpolation can be performed.
 
-venturi_tube_betas = np.array(
-        [0.299160, 0.299470, 0.312390, 0.319010, 0.326580, 0.337290, 
+venturi_tube_betas = [0.299160, 0.299470, 0.312390, 0.319010, 0.326580, 0.337290, 
           0.342020, 0.347060, 0.359030, 0.365960, 0.372580, 0.384870, 
           0.385810, 0.401250, 0.405350, 0.415740, 0.424250, 0.434010, 
           0.447880, 0.452590, 0.471810, 0.473090, 0.493540, 0.499240,
           0.516530, 0.523800, 0.537630, 0.548060, 0.556840, 0.573890,
           0.582350, 0.597820, 0.601560, 0.622650, 0.626490, 0.649480, 
           0.650990, 0.668700, 0.675870, 0.688550, 0.693180, 0.706180, 
-          0.713330, 0.723510, 0.749540, 0.749650])
+          0.713330, 0.723510, 0.749540, 0.749650]
             
-venturi_tube_dP_high = np.array(
-        [0.164534, 0.164504, 0.163591, 0.163508, 0.163439,
+venturi_tube_dP_high = [0.164534, 0.164504, 0.163591, 0.163508, 0.163439,
         0.162652, 0.162224, 0.161866, 0.161238, 0.160786,
         0.160295, 0.159280, 0.159193, 0.157776, 0.157467, 
         0.156517, 0.155323, 0.153835, 0.151862, 0.151154, 
@@ -908,10 +907,9 @@ venturi_tube_dP_high = np.array(
         0.127637, 0.124758, 0.124006, 0.119269, 0.118449,
         0.113605, 0.113269, 0.108995, 0.107109, 0.103688, 
         0.102529, 0.099567, 0.097791, 0.095055, 0.087681, 
-        0.087648])
+        0.087648]
             
-venturi_tube_dP_low = np.array(
-    [0.089232, 0.089218, 0.088671, 0.088435, 0.088206,
+venturi_tube_dP_low = [0.089232, 0.089218, 0.088671, 0.088435, 0.088206,
    0.087853, 0.087655, 0.087404, 0.086693, 0.086241,
    0.085813, 0.085142, 0.085102, 0.084446, 0.084202, 
    0.083301, 0.082470, 0.081650, 0.080582, 0.080213, 
@@ -920,10 +918,10 @@ venturi_tube_dP_low = np.array(
    0.063298, 0.060872, 0.060378, 0.057879, 0.057403, 
    0.054091, 0.053879, 0.051726, 0.050931, 0.049362, 
    0.048675, 0.046522, 0.045381, 0.043840, 0.039913, 
-   0.039896])
+   0.039896]
             
 #ratios_average = 0.5*(ratios_high + ratios_low)
-D_bound_venturi_tube = np.array([0.065, 0.5])
+D_bound_venturi_tube = [0.065, 0.5]
 
 
 def dP_venturi_tube(D, Do, P1, P2):
@@ -981,10 +979,10 @@ def dP_venturi_tube(D, Do, P1, P2):
     '''
     # Effect of Re is not currently included
     beta = Do/D
-    epsilon_D65 = np.interp(beta, venturi_tube_betas, venturi_tube_dP_high)
-    epsilon_D500 = np.interp(beta, venturi_tube_betas, venturi_tube_dP_low)
-    epsilon = np.interp(D, D_bound_venturi_tube, [epsilon_D65, epsilon_D500])
-    return float(epsilon)*(P1 - P2)
+    epsilon_D65 = interp(beta, venturi_tube_betas, venturi_tube_dP_high)
+    epsilon_D500 = interp(beta, venturi_tube_betas, venturi_tube_dP_low)
+    epsilon = interp(D, D_bound_venturi_tube, [epsilon_D65, epsilon_D500])
+    return epsilon*(P1 - P2)
 
 
 def diameter_ratio_cone_meter(D, Dc):
