@@ -550,16 +550,16 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
        Absorption Towers." The Canadian Journal of Chemical Engineering 79,
        no. 4 (August 1, 2001): 584-94. doi:10.1002/cjce.5450790417.
     '''
-    dp = 6*(1-voidage)/specific_area
+    dp = 6.0*(1.0 - voidage)/specific_area
     Re = Vg*rhog*dp/mug
     f0 = C1/Re + C2/Re**0.5 + C3
-    dP_dry = 3/4.*f0*(1-voidage)/voidage**4.65*rhog*H/dp*Vg**2
+    dP_dry = 3/4.*f0*(1-voidage)/voidage**4.65*rhog*H/dp*Vg*Vg
     c = (-C1/Re - C2/(2*Re**0.5))/f0
     Frl = Vl**2*specific_area/(g*voidage**4.65)
     h0 = 0.555*Frl**(1/3.)
     def to_zero(dP_irr):
-        hT = h0*(1 + 20*(dP_irr/H/rhol/g)**2)
-        err = dP_dry/H*((1-voidage+hT)/(1-voidage))**((2+c)/3.)*(voidage/(voidage-hT))**4.65 -dP_irr/H
+        hT = h0*(1.0 + 20.0*(dP_irr/H/rhol/g)**2)
+        err = dP_dry/H*((1-voidage+hT)/(1.0 - voidage))**((2.0 + c)/3.)*(voidage/(voidage-hT))**4.65 -dP_irr/H
         return err
     return float(fsolve(to_zero, dP_dry))
 
@@ -636,7 +636,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
 
     >>> Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5,
     ... voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
-    0.6394323542687361
+    0.639432354268736
 
     References
     ----------
@@ -646,24 +646,21 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
        19-28. doi:10.1016/0950-4214(89)80016-7.
     '''
     def to_zero(inputs):
-        Vg, dP_irr = inputs
-        dp = 6*(1-voidage)/specific_area
+        Vg, dP_irr = float(inputs[0]), float(inputs[1])
+        dp = 6.0*(1.0 - voidage)/specific_area
         Re = Vg*rhog*dp/mug
         f0 = C1/Re + C2/Re**0.5 + C3
-        dP_dry = 3/4.*f0*(1-voidage)/voidage**4.65*rhog*H/dp*Vg**2
-        c = (-C1/Re - C2/(2*Re**0.5))/f0
-        Frl = Vl**2*specific_area/(g*voidage**4.65)
+        dP_dry = 0.75*f0*(1.0 - voidage)/voidage**4.65*rhog*H/dp*Vg*Vg
+        c = (-C1/Re - 0.5*C2*Re**-0.5)/f0
+        Frl = Vl*Vl*specific_area/(g*voidage**4.65)
         h0 = 0.555*Frl**(1/3.)
-        hT = h0*(1 + 20*(dP_irr/H/rhol/g)**2)
-        err1 = dP_dry/H*((1-voidage+hT)/(1-voidage))**((2+c)/3.)*(voidage/(voidage-hT))**4.65 -dP_irr/H
+        hT = h0*(1.0 + 20.0*(dP_irr/H/rhol/g)**2)
+        err1 = dP_dry/H*((1.0 - voidage + hT)/(1.0 - voidage))**((2.0 + c)/3.)*(voidage/(voidage-hT))**4.65 - dP_irr/H
         term = (dP_irr/(rhol*g*H))**2
-        err2 = (1./term - 40*((2+c)/3.)*h0/(1 - voidage + h0*(1 + 20*term))
-        - 186*h0/(voidage - h0*(1 + 20*term)))
+        err2 = (1./term - 40.0*((2.0+c)/3.)*h0/(1.0 - voidage + h0*(1.0 + 20.0*term))
+        - 186.0*h0/(voidage - h0*(1.0 + 20.0*term)))
         return err1, err2
     return float(fsolve(to_zero, [Vl*100., 1000])[0])
-
-#print [Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)]
-
 
 
 def Robbins(L, G, rhol, rhog, mul, H=1, Fpd=24):
