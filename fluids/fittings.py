@@ -26,7 +26,7 @@ import numpy as np
 from scipy.constants import inch
 from scipy.interpolate import splev, bisplev, UnivariateSpline, RectBivariateSpline
 from fluids.friction import friction_factor, Colebrook, friction_factor_curved, ft_Crane
-from fluids.core import horner
+from fluids.core import horner, interp
 
 __all__ = ['contraction_sharp', 'contraction_round', 
            'contraction_round_Miller',
@@ -1135,6 +1135,7 @@ def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
     return K
 
 
+_Ito_angles = [45.0, 90.0, 180.0]
 def bend_rounded_Ito(Di, angle, Re, rc=None, bend_diameters=None, 
                      roughness=0.0):
     '''Ito method as shown in Blevins. Curved friction factor as given in 
@@ -1155,7 +1156,7 @@ def bend_rounded_Ito(Di, angle, Re, rc=None, bend_diameters=None,
         alpha_45 = 1.0 + 5.13*(Di/rc)**1.47
         alpha_90 = 0.95 + 4.42*(Di/rc)**1.96 if rc/Di < 9.85 else 1.0
         alpha_180 = 1.0 + 5.06*(Di/rc)**4.52
-        alpha = float(np.interp(angle, [45, 90, 180], [alpha_45, alpha_90, alpha_180]))
+        alpha = interp(angle, _Ito_angles, [alpha_45, alpha_90, alpha_180])
     
     if De2 <= 360.0:
         fc = friction_factor_curved(Re=Re, Di=Di, Dc=2.0*rc,
@@ -1377,11 +1378,11 @@ def bend_miter_Miller(Di, angle, Re, roughness=0.0, L_unimpeded=None):
     return Kb*C_Re*C_roughness*C_o
 
 
-bend_miter_Crane_angles = np.array([0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0])
-bend_miter_Crane_fds = np.array([2.0, 4.0, 8.0, 15.0, 25.0, 40.0, 60.0])
+bend_miter_Crane_angles = [0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0]
+bend_miter_Crane_fds = [2.0, 4.0, 8.0, 15.0, 25.0, 40.0, 60.0]
 
-bend_miter_Blevins_angles = np.array([0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 120.0])
-bend_miter_Blevins_Ks = np.array([0.0, .025, .055, .1, .2, .35, .5, .7, .9, 1.1, 1.5])
+bend_miter_Blevins_angles = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 120.0]
+bend_miter_Blevins_Ks = [0.0, .025, .055, .1, .2, .35, .5, .7, .9, 1.1, 1.5]
 
 bend_miter_methods = ['Rennels', 'Miller', 'Crane', 'Blevins']
 
@@ -1472,14 +1473,14 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
         sin_half_angle = sin(angle_rad*0.5)
         return 0.42*sin_half_angle + 2.56*sin_half_angle*sin_half_angle*sin_half_angle
     elif method == 'Crane':
-        factor = float(np.interp(angle, bend_miter_Crane_angles, bend_miter_Crane_fds))
+        factor = interp(angle, bend_miter_Crane_angles, bend_miter_Crane_fds)
         return ft_Crane(Di)*factor
     elif method == 'Miller':
         return bend_miter_Miller(Di=Di, angle=angle, Re=Re, roughness=roughness, L_unimpeded=L_unimpeded)
     elif method == 'Blevins':
         # data from Idelchik, Miller, an earlier ASME publication
         # For 90-120 degrees, a polynomial/spline would be better than a linear fit
-        K_base = float(np.interp(angle, bend_miter_Blevins_angles, bend_miter_Blevins_Ks))
+        K_base = interp(angle, bend_miter_Blevins_angles, bend_miter_Blevins_Ks)
         return K_base*(2E5/Re)**0.2
     else:
         raise ValueError('Specified method not recognized; methods are %s'
@@ -1768,8 +1769,8 @@ def contraction_round(Di1, Di2, rc, method='Rennels'):
         return contraction_round_Miller(Di1=Di1, Di2=Di2, rc=rc)
     elif method == 'Idelchik':
         # Di2, ratio defined in terms over diameter
-        K0 = float(np.interp(rc/Di2, contraction_round_Idelchik_ratios, 
-                             contraction_round_Idelchik_factors))
+        K0 = interp(rc/Di2, contraction_round_Idelchik_ratios, 
+                    contraction_round_Idelchik_factors)
         return K0*(1.0 - beta*beta)
     else:
         raise ValueError('Specified method not recognized; methods are %s'
@@ -4113,8 +4114,8 @@ def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
         return 45.0*specific_volume**0.5
 
 
-branch_converging_Crane_Fs = np.array([1.74, 1.41, 1, 0])
-branch_converging_Crane_angles = np.array([30, 45, 60, 90])
+branch_converging_Crane_Fs = [1.74, 1.41, 1, 0]
+branch_converging_Crane_angles = [30, 45, 60, 90]
 
 
 def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
@@ -4212,13 +4213,13 @@ def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     else:
         C = 0.55
     D, E = 1., 2.
-    F = float(np.interp(angle, branch_converging_Crane_angles, branch_converging_Crane_Fs))
+    F = interp(angle, branch_converging_Crane_angles, branch_converging_Crane_Fs)
     K = C*(1. + D*(Q_ratio/beta2)**2 - E*(1. - Q_ratio)**2 - F/beta2*Q_ratio**2)
     return K
 
 
-run_converging_Crane_Fs = np.array([1.74, 1.41, 1])
-run_converging_Crane_angles = np.array([30, 45, 60])
+run_converging_Crane_Fs = [1.74, 1.41, 1.0]
+run_converging_Crane_angles = [30.0, 45.0, 60.0]
 
 def K_run_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     r'''Returns the loss coefficient for the run of a converging tee or wye
@@ -4306,7 +4307,7 @@ def K_run_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
         return 1.55*(Q_ratio) - Q_ratio*Q_ratio
 
     D, E = 0.0, 1.0
-    F = float(np.interp(angle, run_converging_Crane_angles, run_converging_Crane_Fs))
+    F = interp(angle, run_converging_Crane_angles, run_converging_Crane_Fs)
     K = C*(1. + D*(Q_ratio/beta2)**2 - E*(1. - Q_ratio)**2 - F/beta2*Q_ratio**2)
     return K
 
