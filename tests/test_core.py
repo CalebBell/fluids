@@ -330,3 +330,42 @@ def test_interp():
     ys_numpy = np.interp(xs, a, b)
     assert_allclose(ys, ys_numpy, atol=1e-12, rtol=1e-11)
     
+    
+def test_splev():
+    from fluids.core import splev as my_splev
+    from scipy.interpolate import splev
+    # Originally Dukler_XA_tck
+    tck = [np.array([-2.4791105294648372, -2.4791105294648372, -2.4791105294648372, 
+                               -2.4791105294648372, 0.14360803483759585, 1.7199938263676038, 
+                               1.7199938263676038, 1.7199938263676038, 1.7199938263676038]),
+                     np.array([0.21299880246561081, 0.16299733301915248, -0.042340970712679615, 
+                               -1.9967836909384598, -2.9917366639619414, 0.0, 0.0, 0.0, 0.0]),
+                     3]
+    my_tck = [tck[0].tolist(), tck[1].tolist(), tck[2]]
+    
+    xs = np.linspace(-3, 2, 100)
+    
+    # test extrapolation
+    ys_scipy = splev(xs, tck, ext=0)
+    ys = my_splev(xs, my_tck, ext=0)
+    assert_allclose(ys, ys_scipy)
+    
+    # test truncating to side values
+    ys_scipy = splev(xs, tck, ext=3)
+    ys = my_splev(xs, my_tck, ext=3)
+    assert_allclose(ys, ys_scipy)
+
+    
+    # Test returning zeros for bad values
+    ys_scipy = splev(xs, tck, ext=1)
+    ys = my_splev(xs, my_tck, ext=1)
+    assert_allclose(ys, ys_scipy)
+    
+    # Test raising an error when extrapolating is not allowed
+    with pytest.raises(ValueError):
+        my_splev(xs, my_tck, ext=2)
+    with pytest.raises(ValueError):
+        splev(xs, my_tck, ext=2)
+    
+    
+     

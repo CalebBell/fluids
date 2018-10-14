@@ -3135,9 +3135,10 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
             z[j*mx + i] += sp
     return z
 
-def splev(x, tck, e=0):
+def splev(x, tck, ext=0):
 # def splev_port(t, c, k, x, e=0):
     # Works for 'x' lists only!
+    e = ext
     t, c, k = tck
     if isinstance(x, (float, int, complex)):
         x = [x]
@@ -3183,9 +3184,11 @@ def splev(x, tck, e=0):
             if e == 0:
                 arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
             elif e == 1:
-                y[i] = 0.0
+                y.append(0.0)
+                continue
             elif e == 2:
-                return
+                raise ValueError("X value not in domain; set `ext` to 0 to "
+                                 "extrapolate")
             elif e == 3:
                 if arg < tb:
                     arg = tb
