@@ -21,10 +21,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from scipy.interpolate import interp1d
+from math import tan, radians
 from scipy.optimize import fsolve
 from scipy.constants import g
-from math import tan, radians
+from fluids.core import interp
 
 __all__ = ['Q_weir_V_Shen',
 'Q_weir_rectangular_Kindsvater_Carter', 'Q_weir_rectangular_SIA',
@@ -43,9 +43,6 @@ weir_types = ['V-notch', 'rectangular', 'rectangular full-channel',
 angles_Shen = [20, 40, 60, 80, 100]
 Cs_Shen = [0.59, 0.58, 0.575, 0.575, 0.58]
 k_Shen = [0.0028, 0.0017, 0.0012, 0.001, 0.001]
-
-Cs_Shen_i = interp1d(angles_Shen, Cs_Shen)
-k_Shen_i = interp1d(angles_Shen, k_Shen)
 
 
 ### V-Notch Weirs (Triangular weir)
@@ -106,8 +103,8 @@ def Q_weir_V_Shen(h1, angle=90):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    C = float(Cs_Shen_i(angle))
-    k = float(k_Shen_i(angle))
+    C = interp(angle, angles_Shen, Cs_Shen)
+    k = interp(angle, angles_Shen, k_Shen)    
     return C*tan(radians(angle)/2)*g**0.5*(h1 + k)**2.5
 
 

@@ -26,7 +26,7 @@ from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
 import numpy as np
 from numpy.polynomial.chebyshev import chebval
 from scipy.constants import inch
-from scipy.interpolate import interp1d, InterpolatedUnivariateSpline
+from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.integrate import quad
 from scipy.optimize import newton, brenth
 from scipy.special import ellipe
