@@ -23,7 +23,8 @@ SOFTWARE.'''
 from __future__ import division
 from math import log
 from collections import namedtuple
-from scipy.interpolate import interp1d, interp2d
+from scipy.interpolate import interp2d
+from fluids.core import interp
 from scipy.constants import hp
 import os
 from io import open
@@ -67,7 +68,7 @@ def Corripio_pump_efficiency(Q):
     Examples
     --------
     >>> Corripio_pump_efficiency(461./15850.323)
-    0.7058888670951621
+    0.705888867095162
 
     References
     ----------
@@ -79,7 +80,8 @@ def Corripio_pump_efficiency(Q):
        February 22 (1982).
     '''
     Q *= 15850.323
-    return -0.316 + 0.24015*log(Q) - 0.01199*log(Q)**2
+    logQ = log(Q)
+    return -0.316 + 0.24015*logQ - 0.01199*logQ*logQ
 
 
 def Corripio_motor_efficiency(P):
@@ -245,13 +247,6 @@ nema_high_full_closed_2p = [0.77, 0.84, 0.855, 0.865, 0.885, 0.885, 0.885, 0.895
 nema_high_full_closed_4p = [0.855, 0.865, 0.865, 0.895, 0.895, 0.895, 0.895, 0.917, 0.917, 0.924, 0.93, 0.936, 0.936, 0.941, 0.945, 0.95, 0.954, 0.954, 0.954, 0.958, 0.962, 0.962]
 nema_high_full_closed_6p = [0.825, 0.875, 0.885, 0.895, 0.895, 0.895, 0.895, 0.91, 0.91, 0.917, 0.917, 0.93, 0.93, 0.941, 0.941, 0.945, 0.945, 0.95, 0.95, 0.958, 0.958, 0.958]
 
-nema_high_full_open_2p_i = interp1d(nema_high_P, nema_high_full_open_2p)
-nema_high_full_open_4p_i = interp1d(nema_high_P, nema_high_full_open_4p)
-nema_high_full_open_6p_i = interp1d(nema_high_P, nema_high_full_open_6p)
-
-nema_high_full_closed_2p_i = interp1d(nema_high_P, nema_high_full_closed_2p)
-nema_high_full_closed_4p_i = interp1d(nema_high_P, nema_high_full_closed_4p)
-nema_high_full_closed_6p_i = interp1d(nema_high_P, nema_high_full_closed_6p)
 
 nema_min_P = [1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500]
 nema_min_full_open_2p  = [0.755, 0.825, 0.84, 0.84, 0.84, 0.855, 0.855, 0.875, 0.885, 0.895, 0.902, 0.91, 0.91, 0.917, 0.924, 0.93, 0.93, 0.93, 0.936, 0.936, 0.945, 0.945, 0.945, 0.95, 0.95, 0.954, 0.958, 0.958]
@@ -263,15 +258,15 @@ nema_min_full_closed_4p = [0.825, 0.84, 0.84, 0.875, 0.875, 0.875, 0.875, 0.895,
 nema_min_full_closed_6p = [0.8, 0.855, 0.865, 0.875, 0.875, 0.875, 0.875, 0.895, 0.895, 0.902, 0.902, 0.917, 0.917, 0.93, 0.93, 0.936, 0.936, 0.941, 0.941, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95, 0.95]
 nema_min_full_closed_8p = [0.74, 0.77, 0.825, 0.84, 0.84, 0.855, 0.855, 0.855, 0.885, 0.885, 0.895, 0.895, 0.91, 0.91, 0.917, 0.917, 0.93, 0.93, 0.936, 0.936, 0.941, 0.941, 0.945, 0.945, 0.945, 0.945, 0.945, 0.945]
 
-nema_min_full_open_2p_i = interp1d(nema_min_P, nema_min_full_open_2p)
-nema_min_full_open_4p_i = interp1d(nema_min_P, nema_min_full_open_4p)
-nema_min_full_open_6p_i = interp1d(nema_min_P, nema_min_full_open_6p)
-nema_min_full_open_8p_i = interp1d(nema_min_P, nema_min_full_open_8p)
+nema_min_full_open_2p_i = (nema_min_P, nema_min_full_open_2p)
+nema_min_full_open_4p_i = (nema_min_P, nema_min_full_open_4p)
+nema_min_full_open_6p_i = (nema_min_P, nema_min_full_open_6p)
+nema_min_full_open_8p_i = (nema_min_P, nema_min_full_open_8p)
 
-nema_min_full_closed_2p_i = interp1d(nema_min_P, nema_min_full_closed_2p)
-nema_min_full_closed_4p_i = interp1d(nema_min_P, nema_min_full_closed_4p)
-nema_min_full_closed_6p_i = interp1d(nema_min_P, nema_min_full_closed_6p)
-nema_min_full_closed_8p_i = interp1d(nema_min_P, nema_min_full_closed_8p)
+nema_min_full_closed_2p_i = (nema_min_P, nema_min_full_closed_2p)
+nema_min_full_closed_4p_i = (nema_min_P, nema_min_full_closed_4p)
+nema_min_full_closed_6p_i = (nema_min_P, nema_min_full_closed_6p)
+nema_min_full_closed_8p_i = (nema_min_P, nema_min_full_closed_8p)
 
 
 def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
@@ -331,37 +326,38 @@ def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
     if high_efficiency:
         if closed:
             if poles == 2:
-                efficiency = nema_high_full_closed_2p_i(P)
+                efficiency = interp(P, nema_high_P, nema_high_full_closed_2p)
             elif poles == 4:
-                efficiency = nema_high_full_closed_4p_i(P)
+                efficiency = interp(P, nema_high_P, nema_high_full_closed_4p)
             elif poles == 6:
-                efficiency = nema_high_full_closed_6p_i(P)
+                efficiency = interp(P, nema_high_P, nema_high_full_closed_6p)
         else:
             if poles == 2:
-                efficiency = nema_high_full_open_2p_i(P)
+                efficiency = interp(P, nema_high_P, nema_high_full_open_2p)
             elif poles == 4:
-                efficiency = nema_high_full_open_4p_i(P)
+                efficiency = interp(P, nema_high_P, nema_high_full_open_4p)
             elif poles == 6:
-                efficiency = nema_high_full_open_6p_i(P)
+                efficiency = interp(P, nema_high_P, nema_high_full_open_6p)
     else:
         if closed:
             if poles == 2:
-                efficiency = nema_min_full_closed_2p_i(P)
+                efficiency = interp(P, nema_min_P, nema_min_full_closed_2p)
             elif poles == 4:
-                efficiency = nema_min_full_closed_4p_i(P)
+                efficiency = interp(P, nema_min_P, nema_min_full_closed_4p)
             elif poles == 6:
-                efficiency = nema_min_full_closed_6p_i(P)
+                efficiency = interp(P, nema_min_P, nema_min_full_closed_6p)
             elif poles == 8:
-                efficiency = nema_min_full_closed_8p_i(P)
+                efficiency = interp(P, nema_min_P, nema_min_full_closed_8p)
         else:
             if poles == 2:
-                efficiency = nema_min_full_open_2p_i(P)
+                efficiency = interp(P, nema_min_P, nema_min_full_open_2p)
             elif poles == 4:
-                efficiency = nema_min_full_open_4p_i(P)
+                efficiency = interp(P, nema_min_P, nema_min_full_open_4p)
             elif poles == 6:
-                efficiency = nema_min_full_open_6p_i(P)
+                efficiency = interp(P, nema_min_P, nema_min_full_open_6p)
             elif poles == 8:
-                efficiency = nema_min_full_open_8p_i(P)
+                efficiency = interp(P, nema_min_P, nema_min_full_open_8p)
+    
     return round(float(efficiency), 4)
 
 # Test high efficiency:

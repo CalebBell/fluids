@@ -26,7 +26,7 @@ import numpy as np
 from scipy.constants import inch
 from scipy.interpolate import splev, bisplev, UnivariateSpline, RectBivariateSpline
 from fluids.friction import friction_factor, Colebrook, friction_factor_curved, ft_Crane
-from fluids.core import horner, interp, bisplev
+from fluids.core import horner, interp
 from fluids.core import IS_PYPY
 
 __all__ = ['contraction_sharp', 'contraction_round', 
