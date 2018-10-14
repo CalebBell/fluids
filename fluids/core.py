@@ -3050,8 +3050,9 @@ def bisplev(x, y, tck, dx=0, dy=0):
     if isinstance(y, (float, int)):
         y = [y]
 
-    z = cy_bispev(tx, ty, c, kx, ky, x, y)
+    z = [[cy_bispev(tx, ty, c, kx, ky, [xi], [yi])[0] for yi in y] for xi in x]
     return z
+
 
 def fpbspl(t, n, k, x, l, h, hh):
     """
@@ -3071,7 +3072,8 @@ def fpbspl(t, n, k, x, l, h, hh):
             f = hh[i]/(t[li] - t[li - j])
             h[i] = h[i] + f*(t[li] - x)
             h[i + 1] = f*(x - t[li - j])
-            
+
+
 def init_w(t, k, x, lx, w):
     tb = t[k]
     n = len(t)
@@ -3096,6 +3098,7 @@ def init_w(t, k, x, lx, w):
         for j in range(k + 1):
             w[i][j] = h[j]
 
+
 def cy_bispev(tx, ty, c, kx, ky, x, y):
     '''Possible optimization: Do not evaluate derivatives, ever.
     '''
@@ -3112,8 +3115,8 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
     
     wx = [[0.0]*kx1]*mx
     wy = [[0.0]*ky1]*my
-    lx = [0.0]*mx
-    ly = [0.0]*my
+    lx = [0]*mx
+    ly = [0]*my
 
     size_z = mx*my
     
@@ -3127,13 +3130,14 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
             err = 0.0
             for i1 in range(kx1):
                 for j1 in range(ky1):
-                    l2 = lx[i]*nky1 + ly[j] + i1 * nky1 + j1
+                    l2 = lx[i]*nky1 + ly[j] + i1*nky1 + j1
                     a = c[l2]*wx[i][i1]*wy[j][j1] - err
                     tmp = sp + a
                     err = (tmp - sp) - a
                     sp = tmp
             z[j*mx + i] += sp
     return z
+
 
 def splev(x, tck, ext=0):
 # def splev_port(t, c, k, x, e=0):

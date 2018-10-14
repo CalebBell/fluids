@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -367,5 +367,30 @@ def test_splev():
     with pytest.raises(ValueError):
         splev(xs, my_tck, ext=2)
     
+
+def test_bisplev():
+    from fluids.core import bisplev as my_bisplev
+    from scipy.interpolate import bisplev
     
-     
+    tck = [np.array([0.0, 0.0, 0.0, 0.0, 0.0213694, 0.0552542, 0.144818, 
+                                     0.347109, 0.743614, 0.743614, 0.743614, 0.743614]), 
+           np.array([0.0, 0.0, 0.25, 0.5, 0.75, 1.0, 1.0]),
+           np.array([1.0001228445490002, 0.9988161050974387, 0.9987070557919563, 0.9979385859402731, 
+                     0.9970983069823832, 0.96602540121758, 0.955136014969614, 0.9476842472211648, 
+                     0.9351143114374392, 0.9059649602818451, 0.9218915266550902, 0.9086000082864022, 
+                     0.8934758292610783, 0.8737960765592091, 0.83185251064324, 0.8664296734965998, 
+                     0.8349705397843921, 0.809133298969704, 0.7752206120745123, 0.7344035693011536,
+                     0.817047920445813, 0.7694560150930563, 0.7250979336267909, 0.6766754605968431, 
+                     0.629304180420512, 0.7137237030611423, 0.6408238328161417, 0.5772000233279148, 
+                     0.504889627280836, 0.440579886434288, 0.6239736474980684, 0.5273646894226224, 
+                     0.43995388722059986, 0.34359277007615313, 0.26986439252143746, 0.5640689738382749, 
+                     0.4540959882735219, 0.35278120580740957, 0.24364672351604122, 0.1606942128340308]),
+           3, 1]
+    my_tck = [tck[0].tolist(), tck[1].tolist(), tck[2].tolist(), tck[3], tck[4]]
+    
+    xs = np.linspace(0, 1, 50)
+    zs = np.linspace(0, 1, 50)
+    
+    ys_scipy = bisplev(xs, zs, tck)
+    ys = my_bisplev(xs, zs, my_tck)
+    assert_allclose(ys, ys_scipy)
