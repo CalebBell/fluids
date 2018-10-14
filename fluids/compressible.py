@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import log, pi, exp
+from math import log, pi, exp, isinf
 import numpy as np
 from scipy.optimize import newton, ridder
 from scipy.constants import R
@@ -865,14 +865,12 @@ inlet pressure; fluid will flow backwards.')
             # Consider the two real branches of the lambertw function.
             # The k=-1 branch produces the higher P2 values; the k=0 branch is
             # physically impossible.
-            lambert_ans = float(lambertw(arg,k=-1).real)
+            lambert_ans = float(lambertw(arg, k=-1).real)
             # Large overflow problem here; also divide by zero problems!
             # Fail and try a numerical solution if it doesn't work.
-            assert np.isfinite(lambert_ans)
+            assert not math.isinf(lambert_ans)
             P2 = P1/exp((-C*m**2+lambert_ans*m**2+B*P1)/m**2/2.)
             assert P2 < P1
-            
-
             return P2
         except:
             Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)

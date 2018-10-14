@@ -23,8 +23,8 @@ SOFTWARE.'''
 from __future__ import division
 from math import log10, exp, pi
 from scipy.constants import R, psi, gallon, minute
-from scipy.interpolate import UnivariateSpline, interp1d
-from scipy.optimize import brenth
+from scipy.interpolate import UnivariateSpline
+from fluids.core import interp
 from fluids.fittings import Cv_to_Kv, Kv_to_Cv
 
 __all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index',
@@ -906,7 +906,7 @@ Cv_char_quick_opening = UnivariateSpline(opening_quick, frac_CV_quick, s=0.0)
 
 opening_linear = [0., 1.0]
 frac_CV_linear = [0, 1]
-Cv_char_linear = interp1d(opening_linear, frac_CV_linear, kind='linear')
+Cv_char_linear = lambda opening: interp(opening, opening_linear, frac_CV_linear)
 
 opening_equal = [0.0, 0.05523, 0.09287, 0.15341, 0.18942, 0.22379, 0.25816, 0.29582, 0.33348, 0.34985, 0.3826, 0.45794, 0.49235, 0.51365, 0.54479, 0.57594, 0.60218, 0.62843, 0.77628, 0.796, 0.83298, 0.86995, 0.90936, 0.95368, 1.00]
 frac_CV_equal = [0.0, 0.00845, 0.01339, 0.01877, 0.02579, 0.0349, 0.04189, 0.05528, 0.07079, 0.07533, 0.09074, 0.13444, 0.15833, 0.17353, 0.20159, 0.23388, 0.26819, 0.30461, 0.60113, 0.64588, 0.72583, 0.80788, 0.87519, 0.94999, 1.]

@@ -217,7 +217,7 @@ def test_check_signatures():
     from fluids.units import check_args_order
     for name in dir(fluids):
         obj = getattr(fluids, name)
-        if isinstance(obj, types.FunctionType):
+        if isinstance(obj, types.FunctionType) and not isinstance(obj, types.LambdaType):
             check_args_order(obj)
 
 def test_Tank_units_full():
