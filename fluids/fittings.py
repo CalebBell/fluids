@@ -26,7 +26,8 @@ import numpy as np
 from scipy.constants import inch
 from scipy.interpolate import splev, bisplev, UnivariateSpline, RectBivariateSpline
 from fluids.friction import friction_factor, Colebrook, friction_factor_curved, ft_Crane
-from fluids.core import horner, interp
+from fluids.core import horner, interp, bisplev
+from fluids.core import IS_PYPY
 
 __all__ = ['contraction_sharp', 'contraction_round', 
            'contraction_round_Miller',
@@ -819,6 +820,12 @@ tck_bend_rounded_Miller = [np.array([0.500967, 0.500967, 0.500967, 0.500967, 0.5
      0.172664884028299, 0.19152378303841075, 0.2212007207927944, 0.23752800077573005, 0.26289800433018995, 0.2772198641539113,
      0.2995308585350757, 0.3549459028594012, 0.8032461437896778, 3.330618601208751]), 
    3, 3]
+   
+if IS_PYPY:
+    tck_bend_rounded_Miller[0] = tck_bend_rounded_Miller[0].tolist()
+    tck_bend_rounded_Miller[1] = tck_bend_rounded_Miller[1].tolist()
+    tck_bend_rounded_Miller[2] = tck_bend_rounded_Miller[2].tolist()
+
 bend_rounded_Miller_Kb = lambda rc_D, angle : bisplev(rc_D, angle, tck_bend_rounded_Miller)
 
 tck_bend_rounded_Miller_C_Re = [np.array([4.0, 4.0, 4.0, 4.0, 8.0, 8.0, 8.0, 8.0]), 

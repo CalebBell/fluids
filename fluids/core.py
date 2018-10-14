@@ -3041,3 +3041,96 @@ def interp(x, dx, dy, left=None, right=None):
             return dy[-1]
     else:
         return (dy[j + 1] - dy[j])/(dx[j + 1] - dx[j])*(x - dx[j]) + dy[j]
+
+
+def bisplev(x, y, tck, dx=0, dy=0):
+    tx, ty, c, kx, ky = tck
+    if isinstance(x, (float, int)):
+        x = [x]
+    if isinstance(y, (float, int)):
+        y = [y]
+
+    z = cy_bispev(tx, ty, c, kx, ky, x, y)
+    return z
+
+def fpbspl(t, n, k, x, l, h, hh):
+    """
+    subroutine fpbspl evaluates the (k+1) non-zero b-splines of
+    degree k at t(l) <= x < t(l+1) using the stable recurrence
+    relation of de boor and cox.
+    
+    All arrays are 1d!
+    Optimized the assignment and order and so on.
+    """
+    h[0] = 1.0
+    for j in range(1, k + 1):
+        hh[0:j] = h[0:j]
+        h[0] = 0.0
+        for i in range(j):
+            li = l+i
+            f = hh[i]/(t[li] - t[li - j])
+            h[i] = h[i] + f*(t[li] - x)
+            h[i + 1] = f*(x - t[li - j])
+            
+def init_w(t, k, x, lx, w):
+    tb = t[k]
+    n = len(t)
+    m = len(x)
+    h = [0]*6 
+    hh = [0]*5 
+    te = t[n - k - 1]
+    l1 = k + 1
+    l2 = l1 + 1
+    for i in range(m):
+        arg = x[i]
+        if arg < tb:
+            arg = tb
+        if arg > te:
+            arg = te
+        while not (arg < t[l1] or l1 == (n - k - 1)):
+            l1 = l2
+            l2 = l1 + 1
+        fpbspl(t, n, k, arg, l1, h, hh)
+
+        lx[i] = l1 - k - 1
+        for j in range(k + 1):
+            w[i][j] = h[j]
+
+def cy_bispev(tx, ty, c, kx, ky, x, y):
+    '''Possible optimization: Do not evaluate derivatives, ever.
+    '''
+    nx = len(tx)
+    ny = len(ty)
+    mx = len(x)
+    my = len(y)
+
+    kx1 = kx + 1
+    ky1 = ky + 1
+
+    nkx1 = nx - kx1
+    nky1 = ny - ky1
+    
+    wx = [[0.0]*kx1]*mx
+    wy = [[0.0]*ky1]*my
+    lx = [0.0]*mx
+    ly = [0.0]*my
+
+    size_z = mx*my
+    
+    z = [0.0]*size_z
+    init_w(tx, kx, x, lx, wx)
+    init_w(ty, ky, y, ly, wy)
+    
+    for j in range(my):
+        for i in range(mx):
+            sp = 0.0
+            err = 0.0
+            for i1 in range(kx1):
+                for j1 in range(ky1):
+                    l2 = lx[i]*nky1 + ly[j] + i1 * nky1 + j1
+                    a = c[l2]*wx[i][i1]*wy[j][j1] - err
+                    tmp = sp + a
+                    err = (tmp - sp) - a
+                    sp = tmp
+            z[j*mx + i] += sp
+    return z

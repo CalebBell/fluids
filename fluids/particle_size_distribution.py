@@ -118,6 +118,12 @@ from scipy.special import erf, gammaincc, gamma
 from scipy.interpolate import UnivariateSpline, InterpolatedUnivariateSpline, PchipInterpolator
 import scipy.stats
 
+# TODO - investigate; a few tests fail
+#try:
+#    from math import erf
+#except:
+#    from scipy.special import erf
+
 try:
     import matplotlib.pyplot as plt
     has_matplotlib = True
