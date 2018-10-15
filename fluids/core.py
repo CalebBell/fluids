@@ -35,7 +35,8 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'relative_roughness', 'nu_mu_converter', 'gravity',
 'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'L_from_K', 'dP_from_K', 
 'head_from_K', 'head_from_P',
-'P_from_head', 'Eotvos']
+'P_from_head', 'Eotvos',
+]
 
 try:
     implementation = platform.python_implementation()
@@ -3041,6 +3042,28 @@ def interp(x, dx, dy, left=None, right=None):
             return dy[-1]
     else:
         return (dy[j + 1] - dy[j])/(dx[j + 1] - dx[j])*(x - dx[j]) + dy[j]
+
+
+def implementation_optimize_tck(tck):
+    '''Converts 1-d or 2-d splines calculated with SciPy's `splrep` or
+    `bisplrep` to a format for fastest computation - lists in PyPy, and numpy
+    arrays otherwise.
+    
+    Only implemented for 3 and 5 length `tck`s.
+    '''
+    if IS_PYPY:
+        return tck
+    else:
+        if len(tck) == 3:
+            tck[0] = np.array(tck[0])
+            tck[1] = np.array(tck[1])
+        elif len(tck) == 5:
+            tck[0] = np.array(tck[0])
+            tck[1] = np.array(tck[1])
+            tck[2] = np.array(tck[2])
+        else:
+            raise NotImplementedError
+    return tck
 
 
 def splev(x, tck, ext=0):
