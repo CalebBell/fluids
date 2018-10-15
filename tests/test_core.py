@@ -394,3 +394,7 @@ def test_bisplev():
     ys_scipy = bisplev(xs, zs, tck)
     ys = my_bisplev(xs, zs, my_tck)
     assert_allclose(ys, ys_scipy)
+
+    ys_scipy = bisplev(0.5, .7, tck)
+    ys = my_bisplev(.5, .7, my_tck)
+    assert_allclose(ys, ys_scipy)

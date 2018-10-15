@@ -3043,7 +3043,148 @@ def interp(x, dx, dy, left=None, right=None):
         return (dy[j + 1] - dy[j])/(dx[j + 1] - dx[j])*(x - dx[j]) + dy[j]
 
 
+def splev(x, tck, ext=0):
+    '''Evaluate a B-spline using a pure-python port of FITPACK's splev. This is
+    not fully featured in that it does not support calculating derivatives.
+    Takes the knots and coefficients of a B-spline tuple, and returns 
+    the value of the smoothing polynomial.  
+    
+    Parameters
+    ----------
+    x : float or list[float]
+        An point or array of points at which to calculate and return the value 
+        of the  spline, [-]
+    tck : 3-tuple
+        Ssequence of length 3 returned by
+        `splrep` containing the knots, coefficients, and degree
+        of the spline, [-]
+    ext : int, optional, default 0
+        If `x` is not within the range of the spline, this handles the 
+        calculation of the results.
+    
+        * For ext=0, extrapolate the value
+        * For ext=1, return 0 as the value
+        * For ext=2, raise a ValueError on that point and fail to return values
+        * For ext=3, return the boundary value as the value
+    
+    Returns
+    -------
+    y : list
+        The array of calculated values; the spline function evaluated at
+        the points in `x`, [-]
+    
+    Notes
+    -----
+    The speed of this for a scalar value in CPython is approximately 15% 
+    slower than SciPy's FITPACK interface. In PyPy, this is 10-20 times faster 
+    than using it (benchmarked on PyPy 6).
+    
+    There could be more bugs in this port.
+    '''
+    e = ext
+    t, c, k = tck
+    if isinstance(x, (float, int, complex)):
+        x = [x]
+
+    # NOTE: the first value of each array is used; it is only the indexes that 
+    # are adjusted for fortran
+    def func_35(arg, t, l, l1, k2, nk1):    
+        # minus 1 index
+        if arg >= t[l-1] or l1 == k2:
+            arg, t, l, l1, nk1, leave = func_40(arg, t, l, l1, nk1)
+            # Always leaves here
+            return arg, t, l, l1, k2, nk1
+        
+        l1 = l
+        l = l - 1
+        arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
+        return arg, t, l, l1, k2, nk1
+    
+    def func_40(arg, t, l, l1, nk1):
+        if arg < t[l1-1] or l == nk1: # minus 1 index
+            return arg, t, l, l1, nk1, 1
+        l = l1
+        l1 = l + 1
+        arg, t, l, l1, nk1, leave = func_40(arg, t, l, l1, nk1)
+        return arg, t, l, l1, nk1, leave
+    
+    m = len(x)
+    n = len(t)
+    y = [] # output array
+    
+    k1 = k + 1
+    k2 = k1 + 1
+    nk1 = n - k1
+    tb = t[k1-1] # -1 to get right index
+    te = t[nk1 ]  # -1 to get right index; + 1 - 1
+    l = k1
+    l1 = l + 1
+
+    for i in range(0, m): # m is only 1
+        # i only used in loop for 1
+        arg = x[i]
+        if arg < tb or arg > te:
+            if e == 0:
+                arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
+            elif e == 1:
+                y.append(0.0)
+                continue
+            elif e == 2:
+                raise ValueError("X value not in domain; set `ext` to 0 to "
+                                 "extrapolate")
+            elif e == 3:
+                if arg < tb:
+                    arg = tb
+                else:
+                    arg = te
+                arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
+        else:
+            arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
+
+        # Local arrays used in fpbspl and to carry its result
+        h = [0.0]*20
+        hh = [0.0]*19
+
+        fpbspl(t, n, k, arg, l, h, hh)
+        sp = 0.0E0
+        ll = l - k1
+        for j in range(0, k1):
+            ll = ll + 1
+            sp = sp + c[ll-1]*h[j] # -1 to get right index
+        y.append(sp)
+    return y
+
+
 def bisplev(x, y, tck, dx=0, dy=0):
+    '''Evaluate a bivariate B-spline or its derivatives.
+    For scalars, returns a float; for other inputs, mimics the formats of 
+    SciPy's `bisplev`.
+    
+    Parameters
+    ----------
+    x : float or list[float]
+        x value (rank 1), [-]
+    y : float or list[float]
+        y value (rank 1), [-]
+    tck : tuple(list, list, list, int, int)
+        Tuple of knot locations, coefficients, and the degree of the spline,
+        [tx, ty, c, kx, ky], [-]
+    dx : int, optional
+        Order of partial derivative with respect to `x`, [-]
+    dy : int, optional
+        Order of partial derivative with respect to `y`, [-]
+    
+    Returns
+    -------
+    values : float or list[list[float]]
+        Calculated values from spline or their derivatives; according to the
+        same format as SciPy's `bisplev`, [-]
+    
+    Notes
+    -----
+    Use `bisplrep` to generate the `tck` representation; there is no Python
+    port of it.
+    '''
     tx, ty, c, kx, ky = tck
     if isinstance(x, (float, int)):
         x = [x]
@@ -3051,6 +3192,8 @@ def bisplev(x, y, tck, dx=0, dy=0):
         y = [y]
 
     z = [[cy_bispev(tx, ty, c, kx, ky, [xi], [yi])[0] for yi in y] for xi in x]
+    if len(x) == len(y) == 1:
+        return z[0][0]
     return z
 
 
@@ -3139,78 +3282,3 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
     return z
 
 
-def splev(x, tck, ext=0):
-# def splev_port(t, c, k, x, e=0):
-    # Works for 'x' lists only!
-    e = ext
-    t, c, k = tck
-    if isinstance(x, (float, int, complex)):
-        x = [x]
-
-    # NOTE: the first value of each array is used; it is only the indexes that are adjusted for fortran
-    def func_35(arg, t, l, l1, k2, nk1):    
-        # minus 1 index
-        if arg >= t[l-1] or l1 == k2:
-            arg, t, l, l1, nk1, leave = func_40(arg, t, l, l1, nk1)
-            # Always leaves here
-            return arg, t, l, l1, k2, nk1
-        
-        l1 = l
-        l = l - 1
-        arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
-        return arg, t, l, l1, k2, nk1
-    
-    def func_40(arg, t, l, l1, nk1):
-        if arg < t[l1-1] or l == nk1: # minus 1 index
-            # Continue
-            return arg, t, l, l1, nk1, 1
-        l = l1
-        l1 = l + 1
-        arg, t, l, l1, nk1, leave = func_40(arg, t, l, l1, nk1)
-        return arg, t, l, l1, nk1, leave
-    
-    m = len(x)
-    n = len(t)
-    y = [] # output array
-    
-    k1 = k + 1
-    k2 = k1 + 1
-    nk1 = n - k1
-    tb = t[k1-1] # -1 to get right index
-    te = t[nk1 + 1 -1]  # -1 to get right index
-    l = k1
-    l1 = l + 1
-
-    for i in range(0, m): # m is only 1
-        # i only used in loop for 1
-        arg = x[i]
-        if arg < tb or arg > te:
-            if e == 0:
-                arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
-            elif e == 1:
-                y.append(0.0)
-                continue
-            elif e == 2:
-                raise ValueError("X value not in domain; set `ext` to 0 to "
-                                 "extrapolate")
-            elif e == 3:
-                if arg < tb:
-                    arg = tb
-                else:
-                    arg = te
-                arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
-        else:
-            arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
-
-        # Local arrays used in fpbspl and to carry its result
-        h = [0.0]*20
-        hh = [0.0]*19
-
-        fpbspl(t, n, k, arg, l, h, hh)
-        sp = 0.0E0
-        ll = l - k1
-        for j in range(0, k1):
-            ll = ll + 1
-            sp = sp + c[ll-1]*h[j] # -1 to get right index
-        y.append(sp)
-    return y
