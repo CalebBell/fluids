@@ -388,8 +388,8 @@ def test_bisplev():
            3, 1]
     my_tck = [tck[0].tolist(), tck[1].tolist(), tck[2].tolist(), tck[3], tck[4]]
     
-    xs = np.linspace(0, 1, 50)
-    zs = np.linspace(0, 1, 50)
+    xs = np.linspace(0, 1, 10)
+    zs = np.linspace(0, 1, 10)
     
     ys_scipy = bisplev(xs, zs, tck)
     ys = my_bisplev(xs, zs, my_tck)

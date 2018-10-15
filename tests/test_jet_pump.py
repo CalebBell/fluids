@@ -171,7 +171,7 @@ def validate_liquid_jet_pump(rhop, rhos, Ks, Kp, Km, Kd, nozzle_retracted,
     return same, different
 
 
-
+@pytest.mark.slow
 def test_liquid_jet_pump_examples_round_robin():
 
     # Example one and two variants
