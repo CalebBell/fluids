@@ -110,13 +110,12 @@ from math import log, exp, pi, log10
 from io import open
 import os
 from sys import float_info
-from numpy.random import lognormal
 import numpy as np
 
-from scipy.optimize import brenth, minimize
+from scipy.optimize import minimize
 from scipy.integrate import quad
 from scipy.special import gammaincc, gamma
-from scipy.interpolate import UnivariateSpline, InterpolatedUnivariateSpline, PchipInterpolator
+from scipy.interpolate import UnivariateSpline, PchipInterpolator
 import scipy.stats
 from fluids.numerics import brenth
 
@@ -2073,8 +2072,8 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
             self.cdf_spline = PchipInterpolator(ds, self.fraction_cdf, extrapolate=True)
             self.pdf_spline = PchipInterpolator(ds, self.fraction_cdf, extrapolate=True).derivative(1)
         else:
-            self.cdf_spline = InterpolatedUnivariateSpline(ds, self.fraction_cdf, ext=3)
-            self.pdf_spline = InterpolatedUnivariateSpline(ds, self.fraction_cdf, ext=3).derivative(1)
+            self.cdf_spline = UnivariateSpline(ds, self.fraction_cdf, ext=3, s=0)
+            self.pdf_spline = UnivariateSpline(ds, self.fraction_cdf, ext=3, s=0).derivative(1)
 
         # The pdf basis integral splines will be stored here
         self.basis_integrals = {}
