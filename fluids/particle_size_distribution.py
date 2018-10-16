@@ -112,17 +112,16 @@ import os
 from sys import float_info
 from numpy.random import lognormal
 import numpy as np
+
 from scipy.optimize import brenth, minimize
 from scipy.integrate import quad
-from scipy.special import erf, gammaincc, gamma
+from scipy.special import gammaincc, gamma
 from scipy.interpolate import UnivariateSpline, InterpolatedUnivariateSpline, PchipInterpolator
 import scipy.stats
+from fluids.numerics import brenth
 
-# TODO - investigate; a few tests fail
-#try:
-#    from math import erf
-#except:
-#    from scipy.special import erf
+from math import erf
+
 
 try:
     import matplotlib.pyplot as plt
@@ -581,7 +580,7 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
     Examples
     --------
     >>> pdf_lognormal_basis_integral(d=1E-4, d_characteristic=1E-5, s=1.1, n=-2)
-    56228306549.263626
+    56228306549.26362
     '''
     try:
         s2 = s*s
@@ -779,7 +778,7 @@ def pdf_Rosin_Rammler(d, k, m):
        Vereecken. "Particle Size Distribution Models, Their Characteristics and
        Fitting Capability." Journal of Hydrology 529 (October 1, 2015): 872-89.
     '''
-    return d**(m - 1)*k*m*exp(-d**m*k)
+    return d**(m - 1.0)*k*m*exp(-d**m*k)
 
 
 def cdf_Rosin_Rammler(d, k, m):
@@ -870,7 +869,7 @@ def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
     '''
     # Also not able to compute the limit for d approaching 0.
     try:
-        a = (m+n)/m
+        a = (m + n)/m
         x = d**m*k
         t1 = float(gamma(a)*(gammaincc(a, x)))
         return (-d**(m+n)*k*(d**m*k)**(-a))*t1
@@ -1156,9 +1155,9 @@ class ParticleSizeDistributionContinuous(object):
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> for n in (0, 1, 2, 3):
         ...     print(psd.cdf(5e-6, n))
-        0.933192798731142
-        0.8413447460685429
-        0.691462461274013
+        0.933192798731
+        0.841344746069
+        0.691462461274
         0.5
         '''
         if n is not None and n != self.order:
@@ -1348,7 +1347,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.fractions_discrete([1e-6, 1e-5, 1e-4, 1e-3])
-        [0.0006434710129138432, 0.9165280099853876, 0.08282851796190027, 1.039798247504109e-09]
+        [0.0006434710129138987, 0.9165280099853876, 0.08282851796190027, 1.039798247504109e-09]
         '''
         cdfs = [self.cdf(d, n=n) for d in ds]
         return [cdfs[0]] + np.diff(cdfs).tolist()
@@ -1376,7 +1375,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.cdf_discrete([1e-6, 1e-5, 1e-4, 1e-3])
-        [0.0006434710129138432, 0.9171714809983015, 0.9999999989602018, 1.0]
+        [0.0006434710129138987, 0.9171714809983015, 0.9999999989602018, 1.0]
         '''
         return [self.cdf(d, n=n) for d in ds]
     

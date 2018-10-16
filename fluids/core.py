@@ -47,6 +47,7 @@ except AttributeError:
 
 from fluids.numerics import interp, horner, implementation_optimize_tck
 
+
 ### Not quite dimensionless groups
 def thermal_diffusivity(k, rho, Cp):
     r'''Calculates thermal diffusivity or `alpha` for a fluid with the given

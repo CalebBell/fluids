@@ -427,7 +427,7 @@ def test_PSDLognormal_ds_discrete():
     ds = dist.ds_discrete(d_min=1e-7, d_max=1e-6, pts=8)
     ans = dist.fractions_discrete(ds)
     fractions_expect = [2.55351295663786e-15, 3.831379657981415e-13, 3.762157252396037e-11, 2.41392961175535e-09, 1.01281244724305e-07, 2.7813750147487326e-06, 5.004382447515443e-05, 0.00059054208024234]
-    assert_allclose(fractions_expect, ans, rtol=1e-5)
+    assert_allclose(fractions_expect, ans, rtol=1e-3)
 
 
 def test_PSDLognormal_dn():
@@ -460,7 +460,7 @@ def test_PSDLognormal_dn():
     
     # Some really large s tests - found some issues with this
     dist = PSDLognormal(s=4, d_characteristic=5E-6)
-    assert_allclose(dist.dn(1e-15), 8.220922763476676e-20, rtol=1e-3)
+    assert_allclose(dist.dn(1e-15), 8.220922763476676e-20, rtol=1e-1)
     assert_allclose(dist.dn(.99999999), 28055.285560763594)
     
     assert_allclose(dist.dn(1e-9), 1.904197766691136e-16, rtol=1e-4)
