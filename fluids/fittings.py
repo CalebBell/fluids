@@ -24,9 +24,9 @@ from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, degrees, log10, log
 import numpy as np
 from scipy.constants import inch
-from scipy.interpolate import splev, bisplev, UnivariateSpline, RectBivariateSpline
+from scipy.interpolate import UnivariateSpline, RectBivariateSpline
 from fluids.friction import friction_factor, Colebrook, friction_factor_curved, ft_Crane
-from fluids.core import horner, interp
+from fluids.numerics import horner, interp, splev, bisplev
 from fluids.core import IS_PYPY, implementation_optimize_tck
 
 __all__ = ['contraction_sharp', 'contraction_round', 

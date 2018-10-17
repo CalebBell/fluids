@@ -25,8 +25,7 @@ from math import cos, sin, tan, atan, pi, radians, exp, acos, log10
 import numpy as np
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
-from fluids.core import interp
-from scipy.optimize import newton, brenth
+from fluids.numerics import interp, newton, brenth
 from scipy.constants import g, inch
 
 __all__ = ['C_Reader_Harris_Gallagher',
@@ -133,10 +132,10 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 2: Orifice Plates.
     '''
-    dP = P1 - P2
     beta = Do/D
     beta2 = beta*beta
-    return (0.25*pi*Do*Do)*C*(2.0*dP*rho)**0.5*(1.0 - beta2*beta2)**-0.5*expansibility
+    return (0.25*pi*Do*Do)*C*expansibility*(
+            (2.0*rho*(P1 - P2))/(1.0 - beta2*beta2))**0.5
 
 
 def orifice_expansibility(D, Do, P1, P2, k):
@@ -374,7 +373,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     .. [4] Reader-Harris, Michael. Orifice Plates and Venturi Tubes. Springer, 
        2015.
     '''
-    A_pipe = pi/4.*D*D
+    A_pipe = 0.25*pi*D*D
     v = m/(A_pipe*rho)
     Re_D = rho*v*D/mu
     
@@ -394,24 +393,29 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     beta8 = beta4*beta4
     
     A = (19000.0*beta/Re_D)**0.8
-    M2_prime = 2*L2_prime/(1.0 - beta)
+    M2_prime = 2.0*L2_prime/(1.0 - beta)
     
     delta_C_upstream = ((0.043 + 0.080*exp(-1E1*L1) - 0.123*exp(-7.0*L1))
             *(1.0 - 0.11*A)*beta4/(1.0 - beta4))
     
     # The max part is not in the ISO standard
+    t1 = log10(3700./Re_D)
+    if t1 < 0.0:
+        t1 = 0.0
     delta_C_downstream = (-0.031*(M2_prime - 0.8*M2_prime**1.1)*beta**1.3
-                          *(1.0 + 8*max(log10(3700./Re_D), 0.0)))
+                          *(1.0 + 8.0*t1))
     
     # C_inf is discharge coefficient with corner taps for infinite Re
     # Cs, slope term, provides increase in discharge coefficient for lower
     # Reynolds numbers.
-    
+    x1 = (1E6/Re_D)**0.3
+    x2 = 22.7 - 4700.0*(Re_D/1E6)
+    t2 = x1 if x1 > x2 else x2
     # max term is not in the ISO standard
     C_inf_C_s = (0.5961 + 0.0261*beta2 - 0.216*beta8 
                  + 0.000521*(1E6*beta/Re_D)**0.7
                  + (0.0188 + 0.0063*A)*beta**3.5*(
-                 max((1E6/Re_D)**0.3, 22.7 - 4700.0*(Re_D/1E6))))
+                 t2))
     
     C = (C_inf_C_s + delta_C_upstream + delta_C_downstream)
     if D < 0.07112:
@@ -420,7 +424,10 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         # Suggested to be required not becausue of any effect of small
         # diameters themselves, but because of edge radius differences.
         # max term is given in [4]_ Reader-Harris, Michael book
-        delta_C_diameter = 0.011*(0.75 - beta)*max((2.8 - D/0.0254), 0.0)
+        t3 = (2.8 - D/0.0254)
+        if t3 < 0.0:
+            t3 = 0.0
+        delta_C_diameter = 0.011*(0.75 - beta)*t3
         C += delta_C_diameter
     
     return C
@@ -1675,8 +1682,8 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
     (0.6151252900244296, 0.9711026966676307)
     '''
     if meter_type == ISO_5167_ORIFICE:
-        C = C_Reader_Harris_Gallagher(D=D, Do=D2, rho=rho, mu=mu, m=m, taps=taps)
-        epsilon = orifice_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+        C = C_Reader_Harris_Gallagher(D, D2, rho, mu, m, taps)
+        epsilon = orifice_expansibility(D, D2, P1, P2, k)
     elif meter_type == LONG_RADIUS_NOZZLE:
         epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
         C = C_long_radius_nozzle(D=D, Do=D2, rho=rho, mu=mu, m=m)
@@ -1776,7 +1783,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
     >>> differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, 
     ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
     ... meter_type='ISO 5167 orifice', taps='D')
-    7.702338035732166
+    7.702338035732167
     
     >>> differential_pressure_meter_solver(D=0.07366, m=7.702338, P1=200000.0, 
     ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 

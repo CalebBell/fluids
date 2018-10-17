@@ -24,7 +24,9 @@ from __future__ import division
 from math import log, pi, sqrt
 from random import uniform, seed
 from pprint import pprint
-from scipy.optimize import brenth, newton, fsolve, root
+from scipy.optimize import fsolve, root
+from fluids.numerics import newton, brenth
+
 
 __all__ = ['liquid_jet_pump', 'liquid_jet_pump_ancillary']
 

@@ -23,9 +23,9 @@ SOFTWARE.'''
 from __future__ import division
 from math import log, pi, exp, isinf
 import numpy as np
-from scipy.optimize import newton, ridder
 from scipy.constants import R
 from scipy.special import lambertw
+from fluids.numerics import newton, ridder
 
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT', 'isothermal_gas',

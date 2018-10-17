@@ -22,7 +22,6 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import tan, radians
-from scipy.optimize import fsolve
 from scipy.constants import g
 from fluids.core import interp
 

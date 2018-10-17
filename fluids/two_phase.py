@@ -34,7 +34,7 @@ __all__ = ['two_phase_dP', 'two_phase_dP_acceleration',
 from math import pi, log, exp, sin, cos, radians, log10
 import numpy as np
 from scipy.constants import g
-from scipy.interpolate import splev
+from fluids.numerics import splev
 from fluids.friction import friction_factor
 from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
 from fluids.two_phase_voidage import homogeneous, Lockhart_Martinelli_Xtt

@@ -26,10 +26,10 @@ from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
 import numpy as np
 from numpy.polynomial.chebyshev import chebval
 from scipy.constants import inch
-from scipy.interpolate import InterpolatedUnivariateSpline
+from scipy.interpolate import UnivariateSpline
 from scipy.integrate import quad
-from scipy.optimize import newton, brenth
 from scipy.special import ellipe
+from fluids.numerics import newton, brenth
 from fluids.optional.pychebfun import Chebfun
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
@@ -1800,7 +1800,7 @@ class TANK(object):
         else:
             self.heights = np.linspace(0, self.h_max, n)
         self.volumes = [self.V_from_h(h) for h in self.heights]
-        self.interp_h_from_V = InterpolatedUnivariateSpline(self.volumes, self.heights, ext=3)
+        self.interp_h_from_V = UnivariateSpline(self.volumes, self.heights, ext=3, s=0.0)
         self.table = True
         
     def set_chebyshev_approximators(self, deg_forward=50, deg_backwards=200):        

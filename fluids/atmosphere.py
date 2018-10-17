@@ -51,8 +51,8 @@ import os
 from math import exp, cos, radians
 import numpy as np
 from scipy.constants import N_A, R
-from scipy.optimize import brenth
 from scipy.integrate import quad
+from fluids.numerics import brenth
 from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14', 'airmass']
