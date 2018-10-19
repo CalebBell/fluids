@@ -134,6 +134,9 @@ def test_entrance_distance():
     K = entrance_distance(Di=0.1, t=0.0005, method='Harris')
     assert_allclose(K, 0.8705806231290558, 3e-3)
     
+    K = entrance_distance(Di=0.1, method='Crane')
+    assert_allclose(K, 0.78)
+    
     with pytest.raises(Exception):
         entrance_distance(Di=0.1, t=0.01, method='BADMETHOD')
 

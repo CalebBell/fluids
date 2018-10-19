@@ -215,12 +215,13 @@ entrance_distance_Harris_obj = UnivariateSpline(entrance_distance_Harris_t_Di,
                                                 entrance_distance_Harris_Ks, s=0)
 
 
-entrance_distance_methods = ['Rennels', 'Miller', 'Idelchik', 'Harris']
+entrance_distance_methods = ['Rennels', 'Miller', 'Idelchik', 'Harris',
+                             'Crane']
 
 
-def entrance_distance(Di, t, l=None, method='Rennels'):
+def entrance_distance(Di, t=None, l=None, method='Rennels'):
     r'''Returns the loss coefficient for a sharp entrance to a pipe at a distance
-    from the wall of a reservoir. This calculation has four methods available;
+    from the wall of a reservoir. This calculation has five methods available;
     all but 'Idelchik' require the pipe to be at least `Di/2` into the
     reservoir.
 
@@ -229,7 +230,7 @@ def entrance_distance(Di, t, l=None, method='Rennels'):
     K = 0.53 compared to K = 0.57 for 'Rennels'. 'Idelchik' is offset lower
     by about 0.03 and settles to 0.50. The 'Harris' method is a straight
     interpolation from experimental results with smoothing, and it is the 
-    lowest at all points.
+    lowest at all points. The 'Crane' [6]_ method returns 0.78 for all cases.
     
     The Rennels [1]_ formula is:
 
@@ -245,13 +246,13 @@ def entrance_distance(Di, t, l=None, method='Rennels'):
     ----------
     Di : float
         Inside diameter of pipe, [m]
-    t : float
-        Thickness of pipe wall, [m]
+    t : float, optional
+        Thickness of pipe wall, used in all but 'Crane' method, [m]
     l : float, optional
         The distance the pipe extends into the reservoir; used only in the
         'Idelchik' method, defaults to `Di`, [m]
     method : str, optional
-        One of 'Rennels', 'Miller', 'Idelchik', 'Harris', [-]
+        One of 'Rennels', 'Miller', 'Idelchik', 'Harris', 'Crane', [-]
         
     Returns
     -------
@@ -291,6 +292,8 @@ def entrance_distance(Di, t, l=None, method='Rennels'):
        Re-Entrant Intake Losses. Vol. 48. University of Washington, 1928.
     .. [5] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
        Van Nostrand Reinhold Co., 1984.
+    .. [6] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
     '''
     if method is None:
         method = 'Rennels'
@@ -317,6 +320,8 @@ def entrance_distance(Di, t, l=None, method='Rennels'):
         ratio = min(t/Di, 0.289145) # max value for interpolation - extrapolation looks bad
         K = float(entrance_distance_Harris_obj(ratio))
         return K
+    elif method == 'Crane':
+        return 0.78
     else:
         raise ValueError('Specified method not recognized; methods are %s'
                          %(entrance_distance_methods))
