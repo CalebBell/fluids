@@ -447,7 +447,7 @@ class ATMOSPHERE_NRLMSISE00(object):
              'O_density', 'H_density', 'N_density']
     MWs = [28.0134, 31.9988, 39.948, 4.002602, 15.9994, 1.00794, 14.0067]
     
-    def __init__(self, Z, latitude=0, longitude=0, day=0, seconds=0, 
+    def __init__(self, Z, latitude=0.0, longitude=0.0, day=0, seconds=0.0, 
                  f107=150., f107_avg=150., geomagnetic_disturbance_indices=None):
         self.Z = Z
         self.latitude = latitude

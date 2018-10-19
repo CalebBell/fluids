@@ -1238,12 +1238,12 @@ def C_wedge_meter_Miller(D, H):
     beta = diameter_ratio_wedge_meter(D, H)
     if D <= 0.7*inch:
         # suggested limit 0.5 inch for this equation
-        C = 0.7883 + 0.107*(1 - beta*beta)
+        C = 0.7883 + 0.107*(1.0 - beta*beta)
     elif D <= 1.4*inch:
         # Suggested limit is under 1.5 inches
-        C = 0.6143 + 0.718*(1 - beta*beta)
+        C = 0.6143 + 0.718*(1.0 - beta*beta)
     else:
-        C = 0.5433 + 0.2453*(1 - beta*beta)
+        C = 0.5433 + 0.2453*(1.0 - beta*beta)
     return C
 
 

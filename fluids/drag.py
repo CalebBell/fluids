@@ -159,11 +159,16 @@ def Barati_high(Re):
        doi:10.1016/j.powtec.2014.02.045.
     '''
     Re2 = Re*Re
-    Cd = (8E-6*((Re/6530.)**2 + tanh(Re) - 8.0*log10(Re))
+    t0 = 1.0/Re
+    t1 = (Re/6530.)
+    t2 = (Re/1620.)
+    t3 = log10(Re2 + 10.7563)
+    tanhRe = tanh(Re)
+    Cd = (8E-6*(t1*t1 + tanhRe - 8.0*log10(Re))
     - 0.4119*exp(-2.08E43/(Re+Re2)**4)
-    - 2.1344*exp(-((log10(Re2 + 10.7563))**2 + 9.9867)/Re)
-    + 0.1357*exp(-((Re/1620.)**2 + 10370.)/Re)
-    - 8.5E-3*(2*log10(tanh(tanh(Re))) - 2825.7162)/Re + 2.4795)
+    - 2.1344*exp(-t0*(t3*t3 + 9.9867))
+    + 0.1357*exp(-t0*(t2*t2 + 10370.))
+    - 8.5E-3*t0*(2.0*log10(tanh(tanhRe)) - 2825.7162) + 2.4795)
     return Cd
 
 
