@@ -804,17 +804,3 @@ n_dicts = [n_natural, n_excavated_dredged, n_lined_built, n_closed_conduit]
 # TODO lookup function to determine the nearest hit based on string matching
 
 
-#tot = 0
-#for thing in n_dicts:
-#    for val in thing.values():
-#        tot += sum(val.values()[0])
-
-#print tot
-#    for i in thing:
-#        print i, thing[i].keys()
-#        p += len(thing[i].keys())
-##print p*3
-#import numpy as np
-#
-##print '2'
-#print np.sum(np.array([val.values()[0] for thing in n_dicts for val in thing.values()]))
