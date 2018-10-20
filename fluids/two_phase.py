@@ -32,9 +32,8 @@ __all__ = ['two_phase_dP', 'two_phase_dP_acceleration',
            'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations']
 
 from math import pi, log, exp, sin, cos, radians, log10
-import numpy as np
 from scipy.constants import g
-from fluids.numerics import splev
+from fluids.numerics import splev, implementation_optimize_tck
 from fluids.friction import friction_factor
 from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
 from fluids.two_phase_voidage import homogeneous, Lockhart_Martinelli_Xtt
@@ -2700,24 +2699,24 @@ def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
     angle = radians(angle)
     return g*sin(angle)*(alpha*rhog + (1. - alpha)*rhol)
 
-Dukler_XA_tck = [np.array([-2.4791105294648372, -2.4791105294648372, -2.4791105294648372, 
+Dukler_XA_tck = implementation_optimize_tck([[-2.4791105294648372, -2.4791105294648372, -2.4791105294648372, 
                            -2.4791105294648372, 0.14360803483759585, 1.7199938263676038, 
-                           1.7199938263676038, 1.7199938263676038, 1.7199938263676038]),
-                 np.array([0.21299880246561081, 0.16299733301915248, -0.042340970712679615, 
-                           -1.9967836909384598, -2.9917366639619414, 0.0, 0.0, 0.0, 0.0]),
-                 3]
-Dukler_XC_tck = [np.array([-1.8323873272724698, -1.8323873272724698, -1.8323873272724698, 
+                           1.7199938263676038, 1.7199938263676038, 1.7199938263676038],
+                 [0.21299880246561081, 0.16299733301915248, -0.042340970712679615, 
+                           -1.9967836909384598, -2.9917366639619414, 0.0, 0.0, 0.0, 0.0],
+                 3])
+Dukler_XC_tck = implementation_optimize_tck([[-1.8323873272724698, -1.8323873272724698, -1.8323873272724698, 
                            -1.8323873272724698, -0.15428198203334137, 1.7031193462360779,
-                           1.7031193462360779, 1.7031193462360779, 1.7031193462360779]),
-                 np.array([0.2827776229531682, 0.6207113329042158, 1.0609541626742232, 
-                           0.44917638072891825, 0.014664597632360495, 0.0, 0.0, 0.0, 0.0]), 
-                 3]
-Dukler_XD_tck = [np.array([0.2532652936901574, 0.2532652936901574, 0.2532652936901574,
+                           1.7031193462360779, 1.7031193462360779, 1.7031193462360779],
+                 [0.2827776229531682, 0.6207113329042158, 1.0609541626742232, 
+                           0.44917638072891825, 0.014664597632360495, 0.0, 0.0, 0.0, 0.0], 
+                 3])
+Dukler_XD_tck = implementation_optimize_tck([[0.2532652936901574, 0.2532652936901574, 0.2532652936901574,
                            0.2532652936901574, 3.5567847823070253, 3.5567847823070253, 
-                           3.5567847823070253, 3.5567847823070253]),
-                 np.array([0.09054274779541564, -0.05102629221303253, -0.23907463153703945,
-                           -0.7757156285450911, 0.0, 0.0, 0.0, 0.0]),
-                 3]
+                           3.5567847823070253, 3.5567847823070253],
+                 [0.09054274779541564, -0.05102629221303253, -0.23907463153703945,
+                           -0.7757156285450911, 0.0, 0.0, 0.0, 0.0],
+                 3])
 
 XA_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XA_tck))
 XC_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XC_tck))

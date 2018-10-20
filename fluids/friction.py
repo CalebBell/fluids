@@ -24,7 +24,6 @@ from __future__ import division
 from math import log, log10, exp, cos, sin, tan, pi, radians, isinf
 from scipy.special import lambertw
 from scipy.constants import inch, g
-from scipy.optimize import fsolve
 from fluids.numerics import newton
 from fluids.core import Dean, Reynolds
 
@@ -321,6 +320,7 @@ def Colebrook(Re, eD, tol=None):
             raise ValueError
         return fd
     except:
+        from scipy.optimize import fsolve
         return abs(float(fsolve(err, fd_guess, xtol=tol)))
     
 

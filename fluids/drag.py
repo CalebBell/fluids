@@ -24,7 +24,6 @@ from __future__ import division
 from math import exp, log, log10, tanh
 import numpy as np
 from scipy.constants import g
-from scipy.integrate import odeint, cumtrapz
 from fluids.numerics import newton
 from fluids.core import Reynolds
 
@@ -1399,6 +1398,9 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     # For an accurate integration of the particle's distance traveled
     pts = 1000 if distance else 2
     ts = np.linspace(0, t, pts)
+    
+    # Delayed import of necessaray functions
+    from scipy.integrate import odeint, cumtrapz
 
     # Perform the integration
     Vs = odeint(dv_dt, [V], ts)

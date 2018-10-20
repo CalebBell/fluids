@@ -24,7 +24,6 @@ from __future__ import division
 from math import log, pi, sqrt
 from random import uniform, seed
 from pprint import pprint
-from scipy.optimize import fsolve, root
 from fluids.numerics import newton, brenth
 
 
@@ -513,6 +512,8 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
         return vals
     
     
+    from scipy.optimize import fsolve, root
+
     def solve_with_fsolve(var_guesses):
         res = fsolve(obj_err, var_guesses, full_output=True)
         if sum(abs(res[1]['fvec'])) > 1E-7:

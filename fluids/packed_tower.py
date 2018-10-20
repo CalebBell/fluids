@@ -59,7 +59,7 @@ Demister Geometry
 
 from __future__ import division
 from scipy.constants import g, pi
-from scipy.optimize import fsolve
+from fluids.numerics import newton
 
 __all__ = ['voidage_experimental', 'specific_area_mesh',
 'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood', 'Robbins',
@@ -561,7 +561,7 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
         hT = h0*(1.0 + 20.0*(dP_irr/H/rhol/g)**2)
         err = dP_dry/H*((1-voidage+hT)/(1.0 - voidage))**((2.0 + c)/3.)*(voidage/(voidage-hT))**4.65 -dP_irr/H
         return err
-    return float(fsolve(to_zero, dP_dry))
+    return float(newton(to_zero, dP_dry))
 
 
 def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=1):
@@ -660,6 +660,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
         err2 = (1./term - 40.0*((2.0+c)/3.)*h0/(1.0 - voidage + h0*(1.0 + 20.0*term))
         - 186.0*h0/(voidage - h0*(1.0 + 20.0*term)))
         return err1, err2
+    from scipy.optimize import fsolve
     return float(fsolve(to_zero, [Vl*100., 1000])[0])
 
 

@@ -112,9 +112,7 @@ import os
 from sys import float_info
 import numpy as np
 
-from scipy.optimize import minimize
 from scipy.special import gammaincc, gamma
-from scipy.interpolate import UnivariateSpline, PchipInterpolator
 from fluids.numerics import brenth
 
 from math import erf
@@ -1726,6 +1724,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         elif distribution == 'RR':
             if x0 is None:
                 x0 = [5E-6, 1e-2]
+        from scipy.optimize import minimize
         return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)
 
     @property
@@ -2070,9 +2069,15 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
 
         self.fraction_cdf = np.cumsum(fractions)
         if self.monotonic:
+            from scipy.interpolate import PchipInterpolator
+            globals()['PchipInterpolator'] = PchipInterpolator
+
             self.cdf_spline = PchipInterpolator(ds, self.fraction_cdf, extrapolate=True)
             self.pdf_spline = PchipInterpolator(ds, self.fraction_cdf, extrapolate=True).derivative(1)
         else:
+            from scipy.interpolate import UnivariateSpline
+            globals()['UnivariateSpline'] = UnivariateSpline
+            
             self.cdf_spline = UnivariateSpline(ds, self.fraction_cdf, ext=3, s=0)
             self.pdf_spline = UnivariateSpline(ds, self.fraction_cdf, ext=3, s=0).derivative(1)
 

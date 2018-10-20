@@ -131,7 +131,7 @@ def test_sample_cases():
     assert dict(t.dimensionality) == {u'[time]': 1.0}
     
     K = K_separator_Watkins(0.88*u.dimensionless, 985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, horizontal=True)
-    assert_allclose(K.to_base_units().magnitude, 0.07944704064029771)
+    assert_allclose(K.to_base_units().magnitude, 0.07951613600476297, rtol=1e-2)
     assert dict(K.dimensionality) == {u'[length]': 1.0, u'[time]': -1.0}
 
     A = current_ideal(V=120*u.V, P=1E4*u.W, PF=1, phase=1)
