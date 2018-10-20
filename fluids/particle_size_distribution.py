@@ -113,10 +113,8 @@ from sys import float_info
 import numpy as np
 
 from scipy.optimize import minimize
-from scipy.integrate import quad
 from scipy.special import gammaincc, gamma
 from scipy.interpolate import UnivariateSpline, PchipInterpolator
-import scipy.stats
 from fluids.numerics import brenth
 
 from math import erf
@@ -449,7 +447,8 @@ def pdf_lognormal(d, d_characteristic, s):
         
     The standard distribution (i.e. the one used in Scipy) can perform the same
     computation with  `d_characteristic` as the value of `scale`.
-
+    
+    >>> import scipy.stats
     >>> scipy.stats.lognorm.pdf(x=1E-4, s=1.1, scale=1E-5)
     405.5420921156425
     
@@ -509,6 +508,7 @@ def cdf_lognormal(d, d_characteristic, s):
     The standard distribution (i.e. the one used in Scipy) can perform the same
     computation with  `d_characteristic` as the value of `scale`.
 
+    >>> import scipy.stats
     >>> scipy.stats.lognorm.cdf(x=1E-4, s=1.1, scale=1E-5)
     0.9818369875798177
     
@@ -2036,6 +2036,7 @@ class PSDCustom(ParticleSizeDistributionContinuous):
             d_min = d_max*1E-12
         to_int = lambda d : d**n*self._pdf(d)
         points = np.logspace(np.log10(max(d_max/1000, d_min)), np.log10(d_max*.999), 40)
+        from scipy.integrate import quad
         return float(quad(to_int, d_min, d_max, points=points)[0]) # 
             
     

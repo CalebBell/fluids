@@ -27,7 +27,6 @@ import numpy as np
 from numpy.polynomial.chebyshev import chebval
 from scipy.constants import inch
 from scipy.interpolate import UnivariateSpline
-from scipy.integrate import quad
 from scipy.special import ellipe
 from fluids.numerics import newton, brenth
 from fluids.optional.pychebfun import Chebfun
@@ -414,6 +413,7 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     else:
         def V_horiz_spherical_toint(x):
             return (r**2 - x**2)*atan(((R**2 - x**2)/(r**2 - R**2))**0.5)
+        from scipy.integrate import quad
         integrated = quad(V_horiz_spherical_toint, w, R)[0]
         Vf = a/abs(a)*(2*integrated - Af*z)
     if headonly:
@@ -537,6 +537,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         ans = (r**2-x**2)*atan((g**2-x**2)**0.5/z)
         return ans
 
+    from scipy.integrate import quad
     if 0 <= h <= h1:
         w = R - h
         Vf = 2*quad(V1_toint, 0, (2*k*D*h-h**2)**0.5, w)[0]

@@ -51,7 +51,6 @@ import os
 from math import exp, cos, radians
 import numpy as np
 from scipy.constants import N_A, R
-from scipy.integrate import quad
 from fluids.numerics import brenth
 from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
 
@@ -298,6 +297,7 @@ class ATMOSPHERE_1976(object):
         def to_int(Z):
             atm = ATMOSPHERE_1976(Z, dT=dT)
             return atm.g*atm.rho
+        from scipy.integrate import quad
         return float(quad(to_int, H_ref, H_ref+dH)[0])
 
     def __init__(self, Z, dT=0):
@@ -731,4 +731,5 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
         t3 = (1.0 - t1*t2)**-0.5
         return rho*t3
 
+    from scipy.integrate import quad
     return float(quad(to_int, 0, 86400.0)[0])
