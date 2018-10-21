@@ -197,7 +197,7 @@ def square_edge_screen(alpha):
     Examples
     --------
     >>> square_edge_screen(0.99)
-    0.008000000000000009
+    0.008000000000000007
 
     References
     ----------

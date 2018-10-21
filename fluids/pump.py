@@ -27,7 +27,6 @@ import os
 from io import open
 from fluids.constants import hp
 from fluids.numerics import interp, tck_interp2d_linear, bisplev
-from scipy.interpolate import interp2d
 
 __all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
 'Corripio_pump_efficiency', 'Corripio_motor_efficiency',
@@ -122,9 +121,6 @@ def Corripio_motor_efficiency(P):
     logP = log(P)
     return 0.8 + 0.0319*logP - 0.00182*logP*logP
 
-#print [Corripio_motor_efficiency(137*745.7)]
-
-
 VFD_efficiencies = [[0.31, 0.77, 0.86, 0.9, 0.91, 0.93, 0.94],
                     [0.35, 0.8, 0.88, 0.91, 0.92, 0.94, 0.95],
                     [0.41, 0.83, 0.9, 0.93, 0.94, 0.95, 0.96],
@@ -142,10 +138,6 @@ VFD_efficiency_powers = [3.0, 5.0, 10.0, 20.0, 30.0, 50.0, 60.0, 75.0,
 VFD_efficiency_tck = tck_interp2d_linear(VFD_efficiency_loads, 
                                          VFD_efficiency_powers, 
                                          VFD_efficiencies)
-
-VFD_efficiency_interp = interp2d(VFD_efficiency_loads,
-                                 VFD_efficiency_powers,
-                                 VFD_efficiencies, kind='linear')
 
 
 def VFD_efficiency(P, load=1):
@@ -199,8 +191,7 @@ def VFD_efficiency(P, load=1):
         P = 400
     if load < 0.016:
         load = 0.016
-#    return round(bisplev(load, P, VFD_efficiency_tck), 4)
-    return round(float(VFD_efficiency_interp(load, P)), 4)
+    return round(bisplev(load, P, VFD_efficiency_tck), 4)
 
 
 nema_sizes_hp = [.25, 1/3., .5, .75, 1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500]

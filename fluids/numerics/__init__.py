@@ -338,6 +338,7 @@ def implementation_optimize_tck(tck):
 def tck_interp2d_linear(x, y, z, kx=1, ky=1):
     if kx != 1 or ky != 1:
         raise ValueError("Only linear formulations are currently implemented")
+    # copy is not a method of lists in python 2
     x = list(x)
     x.insert(0, x[0])
     x.append(x[-1])
@@ -346,9 +347,8 @@ def tck_interp2d_linear(x, y, z, kx=1, ky=1):
     y.insert(0, y[0])
     y.append(y[-1])
     
-    c = []
-    for i in z:
-        c.extend(i)
+    # c needs to be transposed, and made 1d
+    c = [z[j][i] for i in range(len(z[0])) for j in range(len(z))]
     
     tck = (x, y, c, 1, 1)
     return implementation_optimize_tck(tck)

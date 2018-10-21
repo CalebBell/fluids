@@ -112,7 +112,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
     Examples
     --------
     >>> K_separator_Watkins(0.88, 985.4, 1.3, horizontal=True)
-    0.07944704064029771
+    0.07951613600476297
 
     References
     ----------
