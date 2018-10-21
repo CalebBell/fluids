@@ -22,10 +22,10 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import exp, log, log10, tanh
-import numpy as np
-from scipy.constants import g
+from fluids.constants import g
 from fluids.numerics import newton
 from fluids.core import Reynolds
+import numpy as np
 
 __all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere',
 'time_v_terminal_Stokes', 'Stokes',

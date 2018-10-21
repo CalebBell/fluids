@@ -23,11 +23,11 @@ SOFTWARE.'''
 from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
+from fluids.constants import inch
+from fluids.numerics import newton, brenth
 import numpy as np
 from numpy.polynomial.chebyshev import chebval
-from scipy.constants import inch
 from scipy.special import ellipe
-from fluids.numerics import newton, brenth
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',

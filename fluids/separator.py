@@ -22,9 +22,8 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import log, exp, pi
-from scipy.constants import g, foot, psi
+from fluids.constants import g, foot, psi
 from fluids.numerics import splev, implementation_optimize_tck
-from scipy.interpolate import UnivariateSpline
 
 __all__ = ['v_Sounders_Brown', 'K_separator_Watkins',
            'K_separator_demister_York', 'K_Sounders_Brown_theoretical']

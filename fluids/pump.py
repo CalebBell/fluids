@@ -23,12 +23,11 @@ SOFTWARE.'''
 from __future__ import division
 from math import log
 from collections import namedtuple
-from scipy.interpolate import interp2d
-from fluids.core import interp
-from scipy.constants import hp
 import os
 from io import open
-
+from fluids.constants import hp
+from fluids.numerics import interp, tck_interp2d_linear, bisplev
+from scipy.interpolate import interp2d
 
 __all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
 'Corripio_pump_efficiency', 'Corripio_motor_efficiency',
@@ -120,7 +119,8 @@ def Corripio_motor_efficiency(P):
        February 22 (1982).
     '''
     P = P/745.69987
-    return 0.8 + 0.0319*log(P) - 0.00182*log(P)**2
+    logP = log(P)
+    return 0.8 + 0.0319*logP - 0.00182*logP*logP
 
 #print [Corripio_motor_efficiency(137*745.7)]
 
@@ -136,10 +136,16 @@ VFD_efficiencies = [[0.31, 0.77, 0.86, 0.9, 0.91, 0.93, 0.94],
                     [0.55, 0.89, 0.94, 0.95, 0.96, 0.97, 0.97],
                     [0.61, 0.91, 0.95, 0.96, 0.96, 0.97, 0.97],
                     [0.61, 0.91, 0.95, 0.96, 0.96, 0.97, 0.97]]
-VFD_efficiency_interp = interp2d([0.016, 0.125, 0.25, 0.42, 0.5, 0.75, 1.0],
-                                 [3.0, 5.0, 10.0, 20.0, 30.0, 50.0, 60.0, 75.0, 
-                                  100.0, 200.0, 400.0],
-                                 VFD_efficiencies)
+VFD_efficiency_loads = [0.016, 0.125, 0.25, 0.42, 0.5, 0.75, 1.0]
+VFD_efficiency_powers = [3.0, 5.0, 10.0, 20.0, 30.0, 50.0, 60.0, 75.0, 
+                         100.0, 200.0, 400.0]
+VFD_efficiency_tck = tck_interp2d_linear(VFD_efficiency_loads, 
+                                         VFD_efficiency_powers, 
+                                         VFD_efficiencies)
+
+VFD_efficiency_interp = interp2d(VFD_efficiency_loads,
+                                 VFD_efficiency_powers,
+                                 VFD_efficiencies, kind='linear')
 
 
 def VFD_efficiency(P, load=1):
@@ -186,13 +192,14 @@ def VFD_efficiency(P, load=1):
     .. [1] GoHz.com. Variable Frequency Drive Efficiency.
        http://www.variablefrequencydrive.org/vfd-efficiency
     '''
-    P = P/hp
+    P = P/hp # convert to hp
     if P < 3:
         P = 3
     elif P > 400:
         P = 400
     if load < 0.016:
         load = 0.016
+#    return round(bisplev(load, P, VFD_efficiency_tck), 4)
     return round(float(VFD_efficiency_interp(load, P)), 4)
 
 

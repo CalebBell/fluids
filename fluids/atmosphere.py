@@ -49,10 +49,10 @@ Wind Models (requires Fortran compiler!)
 from __future__ import division
 import os
 from math import exp, cos, radians
-import numpy as np
-from scipy.constants import N_A, R
+from fluids.constants import N_A, R
 from fluids.numerics import brenth
 from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
+import numpy as np
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14', 'airmass']
 

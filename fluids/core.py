@@ -23,9 +23,9 @@ SOFTWARE.'''
 from __future__ import division
 from math import sin, exp, pi, fabs, copysign
 from sys import float_info
-import platform    
 import numpy as np
-from scipy.constants import g, R
+from fluids.constants import g, R
+from fluids.numerics import interp, horner, implementation_optimize_tck
 
 __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
@@ -38,14 +38,6 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'head_from_K', 'head_from_P',
 'P_from_head', 'Eotvos',
 ]
-
-try:
-    implementation = platform.python_implementation()
-    IS_PYPY = implementation == 'PyPy'
-except AttributeError:
-    IS_PYPY = False
-
-from fluids.numerics import interp, horner, implementation_optimize_tck
 
 
 ### Not quite dimensionless groups

@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import tan, radians
-from scipy.constants import g
+from fluids.constants import g
 from fluids.core import interp
 
 __all__ = ['Q_weir_V_Shen',

@@ -58,7 +58,7 @@ Demister Geometry
 '''
 
 from __future__ import division
-from scipy.constants import g, pi
+from fluids.constants import g, pi
 from fluids.numerics import newton
 
 __all__ = ['voidage_experimental', 'specific_area_mesh',

@@ -32,7 +32,7 @@ __all__ = ['two_phase_dP', 'two_phase_dP_acceleration',
            'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations']
 
 from math import pi, log, exp, sin, cos, radians, log10
-from scipy.constants import g
+from fluids.constants import g
 from fluids.numerics import splev, implementation_optimize_tck
 from fluids.friction import friction_factor
 from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman

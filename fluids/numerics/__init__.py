@@ -22,19 +22,20 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import sin, exp, pi, fabs, copysign
+import sys
 from sys import float_info
-import platform    
 
 __all__ = ['horner', 'interp',
-           'implementation_optimize_tck',
+           'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 
            'splev', 'bisplev', 'derivative',
            'IS_PYPY',
            ]
 
 try:
-    implementation = platform.python_implementation()
-    IS_PYPY = implementation == 'PyPy'
+    # The right way imports the platform module which costs to ms to load!
+    #     implementation = platform.python_implementation()
+    IS_PYPY = 'PyPy' in sys.version
 except AttributeError:
     IS_PYPY = False
   
@@ -333,6 +334,24 @@ def implementation_optimize_tck(tck):
             raise NotImplementedError
     return tck
 
+
+def tck_interp2d_linear(x, y, z, kx=1, ky=1):
+    if kx != 1 or ky != 1:
+        raise ValueError("Only linear formulations are currently implemented")
+    x = list(x)
+    x.insert(0, x[0])
+    x.append(x[-1])
+    
+    y = list(y)
+    y.insert(0, y[0])
+    y.append(y[-1])
+    
+    c = []
+    for i in z:
+        c.extend(i)
+    
+    tck = (x, y, c, 1, 1)
+    return implementation_optimize_tck(tck)
 
 
 def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,

@@ -22,17 +22,11 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import log, log10, exp, cos, sin, tan, pi, radians, isinf
-from scipy.special import lambertw
-from scipy.constants import inch, g
+from fluids.constants import inch, g
 from fluids.numerics import newton
 from fluids.core import Dean, Reynolds
+from scipy.special import lambertw
 
-try:
-    from fuzzywuzzy import process, fuzz
-    fuzzy_match = lambda name, strings: process.extractOne(name, strings, scorer=fuzz.partial_ratio)[0]
-except ImportError: # pragma: no cover
-    import difflib
-    fuzzy_match = lambda name, strings: difflib.get_close_matches(name, strings, n=1, cutoff=0)[0]
 
 __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 
            'Clamond',
@@ -63,6 +57,20 @@ __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook',
 'friction_plate_Martin_1999', 'friction_plate_Martin_VDI',
 'friction_plate_Kumar', 'friction_plate_Muley_Manglik']
 
+global fuzzy_match_fun
+fuzzy_match_fun = None
+def fuzzy_match(name, strings):
+    global fuzzy_match_fun
+    if fuzzy_match_fun is not None:
+        return fuzzy_match_fun(name, strings)
+
+    try:
+        from fuzzywuzzy import process, fuzz
+        fuzzy_match_fun = lambda name, strings: process.extractOne(name, strings, scorer=fuzz.partial_ratio)[0]
+    except ImportError: # pragma: no cover
+        import difflib
+        fuzzy_match_fun = lambda name, strings: difflib.get_close_matches(name, strings, n=1, cutoff=0)[0]
+    return fuzzy_match_fun(name, strings)
 
 LAMINAR_TRANSITION_PIPE = 2040.
 '''Believed to be the most accurate result to date. Accurate to +/- 10.

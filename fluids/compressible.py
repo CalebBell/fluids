@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import log, pi, exp, isinf
-from scipy.constants import R
+from fluids.constants import R
 from scipy.special import lambertw
 from fluids.numerics import newton, ridder
 

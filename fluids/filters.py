@@ -21,44 +21,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from scipy.interpolate import interp1d, UnivariateSpline
 from math import radians, cos
+from fluids.numerics import interp
+from scipy.interpolate import UnivariateSpline
 
 __all__ = ['round_edge_screen', 'round_edge_open_mesh', 'square_edge_screen',
 'square_edge_grill', 'round_edge_grill']
 
-round_Res = [20, 30, 40, 60, 80, 100, 200, 400]
+round_Res = [20.0, 30.0, 40.0, 60.0, 80.0, 100.0, 200.0, 400.0]
 round_betas = [1.3, 1.1, 0.95, 0.83, 0.75, 0.7, 0.6, 0.52]
-#round_interp = interp1d(round_Res, round_betas, kind='linear')
 '''Quadratic interpolation with no smoothing, constant value extremities
 returned when outside table limits'''
-round_interp = UnivariateSpline(round_Res, round_betas, s=0, k=1)
 
 
-round_thetas = [0, 10, 20, 30, 40, 50, 60, 70, 80, 85]
-round_gammas = [1, 0.97, 0.88, 0.75, 0.59, 0.45, 0.3, 0.23, 0.15, 0.09]
-#inclined_round_interp = interp1d(round_thetas, round_gammas, kind='linear')
+round_thetas = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 85.0]
+round_gammas = [1.0, 0.97, 0.88, 0.75, 0.59, 0.45, 0.3, 0.23, 0.15, 0.09]
 '''Quadratic interpolation with no smoothing, constant value extremities
 returned when outside table limits'''
-inclined_round_interp = UnivariateSpline(round_thetas, round_gammas, s=0, k=1)
 
-#square_alphas = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.]
-#square_Ks = [100000., 1000., 250., 85., 52., 30., 17., 11., 7.7, 5.5, 3.8, 2.8, 2, 1.5, 1.1, 0.78, 0.53, 0.35, 0.08, 0.]
-#square_interp = interp1d(square_alphas, square_Ks, kind='linear')
 '''Quadratic interpolation with no smoothing, constant value extremities
 returned when outside table limits. Last actual value in the original table is
 K=1000 at alpha=0.05; the rest are extrapolated.'''
 square_alphas = [0.0015625, 0.003125, 0.00625, 0.0125, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.]
-square_Ks = [1024000.,256000, 64000, 16000, 4000, 1000., 250., 85., 52., 30., 17., 11., 7.7, 5.5, 3.8, 2.8, 2, 1.5, 1.1, 0.78, 0.53, 0.35, 0.08, 0.]
-square_interp = UnivariateSpline(square_alphas, square_Ks, s=0, k=1)
+square_Ks = [1024000., 256000, 64000, 16000, 4000, 1000., 250., 85., 52., 30., 17., 11., 7.7, 5.5, 3.8, 2.8, 2, 1.5, 1.1, 0.78, 0.53, 0.35, 0.08, 0.]
 
 
 grills_rounded_alphas = [0.3, 0.4, 0.5, 0.6, 0.7]
 grills_rounded_Ks = [2, 1, 0.6, 0.4, 0.2]
-#grills_rounded_interp = interp1d(grills_rounded_alphas, grills_rounded_Ks, kind='linear')
 '''Cubic interpolation with no smoothing, constant value extremities
 returned when outside table limits'''
 grills_rounded_interp = UnivariateSpline(grills_rounded_alphas, grills_rounded_Ks, s=0, k=2)
+
 
 def round_edge_screen(alpha, Re, angle=0):
     r'''Returns the loss coefficient for a round edged wire screen or bar
@@ -99,13 +92,14 @@ def round_edge_screen(alpha, Re, angle=0):
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    beta = float(round_interp(Re))
-    K = beta*(1 - alpha**2)/alpha**2
+    beta = interp(Re, round_Res, round_betas)
+    alpha2 = alpha*alpha
+    K = beta*(1.0 - alpha2)/alpha2
     if angle:
         if angle <= 45:
             K *= cos(radians(angle))**2
         else:
-            K *= float(inclined_round_interp(angle))
+            K *= interp(angle, round_thetas, round_gammas)
     return K
 
 
@@ -178,7 +172,7 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0):
         if angle < 45:
             K *= cos(radians(angle))**2
         else:
-            K *= float(inclined_round_interp(angle))
+            K *= interp(angle, round_thetas, round_gammas)
     return K
 
 
@@ -210,7 +204,7 @@ def square_edge_screen(alpha):
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    return float(square_interp(alpha))
+    return interp(alpha, square_alphas, square_Ks)
 
 
 def square_edge_grill(alpha, l=None, Dh=None, fd=None):

@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import exp, log, pi, sin, cos, radians
-from scipy.constants import g
+from fluids.constants import g
 from fluids.core import Froude
 
 

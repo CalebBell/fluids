@@ -22,12 +22,11 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, degrees, log10, log
-import numpy as np
-from scipy.constants import inch
-from scipy.interpolate import UnivariateSpline, RectBivariateSpline
+from fluids.constants import inch
 from fluids.friction import friction_factor, Colebrook, friction_factor_curved, ft_Crane
-from fluids.numerics import horner, interp, splev, bisplev
-from fluids.core import IS_PYPY, implementation_optimize_tck
+from fluids.numerics import horner, interp, splev, bisplev, implementation_optimize_tck
+import numpy as np
+from scipy.interpolate import UnivariateSpline, RectBivariateSpline
 
 __all__ = ['contraction_sharp', 'contraction_round', 
            'contraction_round_Miller',
@@ -212,7 +211,8 @@ entrance_distance_Harris_Ks = [0.894574, 0.832435, 0.749768, 0.671543,
     0.467151, 0.46441, 0.458894]
 
 entrance_distance_Harris_obj = UnivariateSpline(entrance_distance_Harris_t_Di,
-                                                entrance_distance_Harris_Ks, s=0)
+                                                entrance_distance_Harris_Ks, 
+                                                s=0, k=3)
 
 
 entrance_distance_methods = ['Rennels', 'Miller', 'Idelchik', 'Harris',
@@ -454,9 +454,6 @@ entrance_rounded_Idelchik = UnivariateSpline(entrance_rounded_ratios_Idelchik,
 
 entrance_rounded_ratios_Crane = [0.0, .02, .04, .06, .1, .15]
 entrance_rounded_Ks_Crane = [.5, .28, .24, .15, .09, .04]
-entrance_rounded_Crane = UnivariateSpline(entrance_rounded_ratios_Crane,
-                                          entrance_rounded_Ks_Crane,
-                                          s=0, k=1, ext=3)
 
 entrance_rounded_ratios_Harris = [0.0, .01, .02, .03, .04, .05, .06, .08, .12, 
                                   .16]
@@ -570,7 +567,14 @@ def entrance_rounded(Di, rc, method='Rennels'):
     elif method == 'Swamee':
         return 0.5/(1.0 + 36.0*(rc/Di)**1.2)
     elif method == 'Crane':
-        return float(entrance_rounded_Crane(rc/Di))
+        ratio = rc/Di
+        if ratio < 0:
+            return 0.5 
+        elif ratio > 0.15:
+            return 0.04
+        else:
+            return interp(ratio, entrance_rounded_ratios_Crane,
+                          entrance_rounded_Ks_Crane)
     elif method == 'Miller':
         rc_Di = rc/Di
         if rc_Di > 0.3:

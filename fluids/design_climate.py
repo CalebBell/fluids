@@ -40,7 +40,7 @@ from collections import namedtuple
 
 import numpy as np
 from fluids.core import F2K
-from scipy.constants import mile, knot, inch
+from fluids.constants import mile, knot, inch
 from scipy.spatial import KDTree, cKDTree
 from scipy.stats import scoreatpercentile
 

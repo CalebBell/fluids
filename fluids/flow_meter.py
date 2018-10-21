@@ -22,11 +22,10 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, exp, acos, log10
-import numpy as np
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
 from fluids.numerics import interp, newton, brenth
-from scipy.constants import g, inch
+from fluids.constants import g, inch
 
 __all__ = ['C_Reader_Harris_Gallagher',
            'differential_pressure_meter_solver',

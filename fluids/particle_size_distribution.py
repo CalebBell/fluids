@@ -118,16 +118,11 @@ from fluids.numerics import brenth
 from math import erf
 
 
-try:
-    import matplotlib.pyplot as plt
-    has_matplotlib = True
-except:  # pragma: no cover
-    has_matplotlib = False
-
-
 folder = os.path.join(os.path.dirname(__file__), 'data')
 
 ROOT_TWO_PI = (2.0*pi)**0.5
+
+NO_MATPLOTLIB_MSG = 'Optional dependency matplotlib is required for plotting'
 
 
 class Sieve(object):
@@ -1458,9 +1453,10 @@ class ParticleSizeDistributionContinuous(object):
         pts : int
             The number of points for values to be calculated, [-]
         '''
-        if not has_matplotlib:
-            raise Exception('Optional dependency matplotlib is required for plotting')
-            
+        try:
+            import matplotlib.pyplot as plt
+        except:  # pragma: no cover
+            raise Exception(NO_MATPLOTLIB_MSG)            
         ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts)
         try:
             for ni in n:
@@ -1495,8 +1491,10 @@ class ParticleSizeDistributionContinuous(object):
         pts : int
             The number of points for values to be calculated, [-]
         '''
-        if not has_matplotlib:
-            raise Exception('Optional dependency matplotlib is required for plotting')
+        try:
+            import matplotlib.pyplot as plt
+        except:  # pragma: no cover
+            raise Exception(NO_MATPLOTLIB_MSG)            
 
         ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts)
         try:
