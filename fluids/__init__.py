@@ -24,7 +24,6 @@ import os
 
 from . import atmosphere
 from . import compressible
-from . import control_valve
 from . import core
 from . import filters
 from . import fittings
@@ -45,6 +44,7 @@ from . import saltation
 from . import separator
 from . import particle_size_distribution
 from . import jet_pump
+from . import control_valve
 
 
 from .atmosphere import *

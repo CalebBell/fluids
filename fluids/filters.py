@@ -22,8 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import radians, cos
-from fluids.numerics import interp
-from scipy.interpolate import UnivariateSpline
+from fluids.numerics import interp, implementation_optimize_tck, splev
 
 __all__ = ['round_edge_screen', 'round_edge_open_mesh', 'square_edge_screen',
 'square_edge_grill', 'round_edge_grill']
@@ -50,7 +49,10 @@ grills_rounded_alphas = [0.3, 0.4, 0.5, 0.6, 0.7]
 grills_rounded_Ks = [2, 1, 0.6, 0.4, 0.2]
 '''Cubic interpolation with no smoothing, constant value extremities
 returned when outside table limits'''
-grills_rounded_interp = UnivariateSpline(grills_rounded_alphas, grills_rounded_Ks, s=0, k=2)
+grills_rounded_tck = implementation_optimize_tck([[0.3, 0.3, 0.3, 0.45, 0.55, 0.7, 0.7, 0.7], 
+                                                  [2.0, 1.0014285714285716, 0.5799999999999998, 
+                                                   0.3585714285714287, 0.2, 0.0, 0.0, 0.0],
+                                                   2])
 
 
 def round_edge_screen(alpha, Re, angle=0):
@@ -314,8 +316,8 @@ def round_edge_grill(alpha, l=None, Dh=None, fd=None):
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
+    t1 = float(splev(alpha, grills_rounded_tck))
     if Dh and l and fd and l > 50*Dh:
-        return float(grills_rounded_interp(alpha)) + fd*l/Dh
+        return t1 + fd*l/Dh
     else:
-        return float(grills_rounded_interp(alpha))
-
+        return t1
