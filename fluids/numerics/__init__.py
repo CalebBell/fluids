@@ -44,12 +44,14 @@ try:
 except ImportError:
     IS_PYPY = True
 
-IS_PYPY = True
+#IS_PYPY = True
+
+epsilon = float_info.epsilon
 _iter = 100
 _xtol = 1e-12
 _rtol = float_info.epsilon*2.0
-one_epsilon_larger = 1 + float_info.epsilon
-one_epsilon_smaller = 1 - float_info.epsilon
+one_epsilon_larger = 1.0 + float_info.epsilon
+one_epsilon_smaller = 1.0 - float_info.epsilon
 
 
 def product(l):
@@ -350,7 +352,7 @@ def tck_interp2d_linear(x, y, z, kx=1, ky=1):
     # c needs to be transposed, and made 1d
     c = [z[j][i] for i in range(len(z[0])) for j in range(len(z))]
     
-    tck = (x, y, c, 1, 1)
+    tck = [x, y, c, 1, 1]
     return implementation_optimize_tck(tck)
 
 

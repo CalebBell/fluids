@@ -25,7 +25,6 @@ from math import exp, log, pi, sin, cos, radians
 from fluids.constants import g
 from fluids.core import Froude
 
-
 __all__ = ['Thom', 'Zivi', 'Smith', 'Fauske', 'Chisholm_voidage', 'Turner_Wallis',
            'homogeneous', 'Chisholm_Armand', 'Armand', 'Nishino_Yamazaki',
            'Guzhov', 'Kawahara', 'Baroczy', 'Tandon_Varma_Gupta', 'Harms',

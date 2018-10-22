@@ -107,15 +107,12 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'ISO_3310_1_R40_3']
 
 from math import log, exp, pi, log10
+from math import erf # new in version 2.7
 from io import open
 import os
-from sys import float_info
-import numpy as np
-
+from fluids.numerics import brenth, epsilon
 from scipy.special import gammaincc, gamma
-from fluids.numerics import brenth
-
-from math import erf
+import numpy as np
 
 
 folder = os.path.join(os.path.dirname(__file__), 'data')
@@ -1234,7 +1231,7 @@ class ParticleSizeDistributionContinuous(object):
         '''
         if fraction == 1.0:
             # Avoid returning the maximum value of the search interval
-            fraction = 1.0 - float_info.epsilon
+            fraction = 1.0 - epsilon
         if fraction < 0:
             raise ValueError('Fraction must be more than 0')
         elif fraction == 0:  # pragma: no cover

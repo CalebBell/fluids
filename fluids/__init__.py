@@ -22,6 +22,9 @@ SOFTWARE.'''
 
 import os
 
+from . import numerics
+from . import constants
+
 from . import atmosphere
 from . import compressible
 from . import core
@@ -106,5 +109,5 @@ __all__.extend(jet_pump.__all__)
 __version__ = '0.1.73'
 
 fluids_dir = os.path.dirname(__file__)
-fluids_data_dir = os.path.join(os.path.dirname(__file__), 'data')
+fluids_data_dir = os.path.join(fluids_dir, 'data')
 
