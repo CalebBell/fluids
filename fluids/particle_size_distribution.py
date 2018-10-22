@@ -294,28 +294,6 @@ ASTM_E11_sieve_designations = ['125', '106', '100', '90', '75', '63', '53',
 
 ASTM_E11_sieve_list = [ASTM_E11_sieves[i] for i in ASTM_E11_sieve_designations]
 
-#with open(os.path.join(folder, 'ASTM E11 sieves.csv'), encoding='utf-8') as f:    
-#    # All sieves are read in from large to small
-#    lines = f.readlines()[1:]
-#    for line in lines:
-#        values = line.strip().split('\t')
-#        designation, old_designation, opening = values[0], values[1], float(values[0])*1e-3
-#        args = []
-#        for arg in values[2:]:
-#            try:
-#                arg = float(arg)
-#            except:
-#                arg = None
-#            args.append(arg)
-#        # First three and last three arguments have units to be changed from mm to m
-#        for i in (0, 1, 2, -1, -2, -3):
-#            args[i] = args[i]*1e-3
-#        
-#        # Store the Sieve object
-#        s = Sieve(designation, old_designation, opening, *args)
-#        ASTM_E11_sieves[designation] = s
-#        ASTM_E11_sieve_list.append(s)
-
 
 
 
@@ -448,27 +426,6 @@ ISO_3310_1_sieve_designations  = ['125', '112', '106', '100', '90', '80', '75',
                                   '0.036', '0.032', '0.025', '0.02']
 
 ISO_3310_1_sieve_list = [ISO_3310_1_sieves[i] for i in ISO_3310_1_sieve_designations]
-#
-#with open(os.path.join(folder, 'ISO 3310-1 sieves.csv'), encoding='utf-8') as f:    
-#    lines = f.readlines()[1:]
-#    for line in lines:
-#        values = line.strip().split('\t')
-#        args = []
-#        for arg in values:
-#            try:
-#                arg = float(arg)
-#            except:
-#                arg = None
-#            args.append(arg)
-#        # Key should be size in mm as a string
-#        designation = '%g' %(round(args[0]*1000.0, 4))
-#        
-#        s = Sieve(designation=designation, opening=args[0],
-#                  X_variation_max=args[1], Y_variation_avg=args[2], 
-#                  compliance_sd=args[3], d_wire=args[4], 
-#                  d_wire_max=args[5], d_wire_min=args[6])
-#        ISO_3310_1_sieves[designation] = s
-#        ISO_3310_1_sieve_list.append(s)
 
 
 ISO_3310_1_R20_3 = ['125', '90', '63', '45', '31.5', '22.4', '16', '11.2', '8', '5.6', '4', '2.8', '2', '1.4', '1', '0.71', '0.5', '0.355', '0.25', '0.18', '0.125', '0.09', '0.063', '0.045']
