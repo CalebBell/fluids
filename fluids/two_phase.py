@@ -193,6 +193,8 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
         Ek = Vsg*Vm*rhos/P  # Confirmed this expression is dimensionless
         dP = (dP_ele + dP_fric)/(1.0 - Ek)
     return dP
+
+
 def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     r'''Calculates two-phase pressure drop with the Friedel correlation.
 

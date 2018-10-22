@@ -133,4 +133,4 @@ def test_power_sources():
     assert len(industrial_power) == 197
 
     ca = industrial_power['ca']
-    assert (ca.voltage, ca.freq) == ([120, 208, 240, 480, 347, 600], 60)
+    assert (ca.voltage, ca.freq) == ((120, 208, 240, 480, 347, 600), 60)
