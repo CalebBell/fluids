@@ -51,7 +51,6 @@ import os
 from math import exp, cos, radians
 from fluids.constants import N_A, R
 from fluids.numerics import brenth
-from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
 import numpy as np
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14', 'airmass']
@@ -458,6 +457,8 @@ class ATMOSPHERE_NRLMSISE00(object):
         self.f107_avg = f107_avg
         self.geomagnetic_disturbance_indices = geomagnetic_disturbance_indices
         
+        from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
+
         alt = Z/1000.
         output_obj = nrlmsise_output()
         input_obj = nrlmsise_input()

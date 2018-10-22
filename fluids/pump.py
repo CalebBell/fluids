@@ -194,7 +194,9 @@ def VFD_efficiency(P, load=1):
     return round(bisplev(load, P, VFD_efficiency_tck), 4)
 
 
-nema_sizes_hp = [.25, 1/3., .5, .75, 1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500]
+nema_sizes_hp = [.25, 1/3., .5, .75, 1, 1.5, 2, 3, 4, 5, 5.5, 7.5, 10, 15, 20,
+                 25, 30, 40, 50, 60, 75, 100, 125, 150, 175, 200, 250, 300,
+                 350, 400, 450, 500]
 '''list: all NEMA motor sizes in increasing order, in horsepower.
 '''
 nema_sizes = [i*hp for i in nema_sizes_hp]
@@ -506,7 +508,7 @@ def specific_diameter(Q, H, D):
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    return D*H**0.25/Q**0.5
+    return D*H**0.25*Q**-0.5
 
 
 def speed_synchronous(f, poles=2, phase=3):
@@ -604,20 +606,229 @@ def current_ideal(P, V, phase=3, PF=1):
         return P/(V*PF)
 
 
-with open(os.path.join(folder, 'residential power.csv'), encoding='utf-8') as f:
-    residential_power_raw = f.read()
-
+class ResidentialPower(object):
+    __slots__ = ('plugs', 'voltage', 'freq', 'country')
+    
+    def __repr__(self):
+        return ('ResidentialPower(plugs=%s, voltage=%d, freq=%d, country="%s")' 
+                %(self.plugs, self.voltage, self.freq, self.country))
+    def __init__(self, plugs, voltage, freq, country):
+        self.plugs = tuple(plugs)
+        self.voltage = voltage
+        self.freq = freq
+        self.country = country
+        
 with open(os.path.join(folder, '3 phase power.csv'), encoding='utf-8') as f:
     industrial_power_raw = f.read()
 
-residential_power = {}
+residential_power = {"at": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Austria"),
+    "bj": ResidentialPower(plugs=('C', 'E'), voltage=220, freq=50, country="Benin"),
+    "gh": ResidentialPower(plugs=('D', 'G'), voltage=230, freq=50, country="Ghana"),
+    "sc": ResidentialPower(plugs=('G',), voltage=240, freq=50, country="Seychelles"),
+    "bg": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Bulgaria"),
+    "me": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Montenegro"),
+    "fo": ResidentialPower(plugs=('C', 'E', 'F', 'K'), voltage=230, freq=50, country="Faroe Islands"),
+    "ne": ResidentialPower(plugs=('A', 'B', 'C', 'D', 'E', 'F'), voltage=220, freq=50, country="Niger"),
+    "za": ResidentialPower(plugs=('C', 'F', 'M', 'N'), voltage=230, freq=50, country="South Africa"),
+    "az": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Azerbaijan"),
+    "so": ResidentialPower(plugs=('C',), voltage=220, freq=50, country="Somalia"),
+    "sn": ResidentialPower(plugs=('C', 'D', 'E', 'K'), voltage=230, freq=50, country="Senegal"),
+    "np": ResidentialPower(plugs=('C', 'D', 'M'), voltage=230, freq=50, country="Nepal"),
+    "sl": ResidentialPower(plugs=('D', 'G'), voltage=230, freq=50, country="Sierra Leone"),
+    "be": ResidentialPower(plugs=('C', 'E'), voltage=230, freq=50, country="Belgium"),
+    "vg": ResidentialPower(plugs=('A', 'B'), voltage=110, freq=60, country="British Virgin Islands"),
+    "bz": ResidentialPower(plugs=('A', 'B', 'G'), voltage=110, freq=60, country="Belize"),
+    "tw": ResidentialPower(plugs=('A', 'B'), voltage=110, freq=60, country="Taiwan"),
+    "bf": ResidentialPower(plugs=('C', 'E'), voltage=220, freq=50, country="Burkina Faso"),
+    "ao": ResidentialPower(plugs=('C',), voltage=220, freq=50, country="Angola"),
+    "gi": ResidentialPower(plugs=('C', 'G'), voltage=240, freq=50, country="Gibraltar"),
+    "ee": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Estonia"),
+    "bs": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Bahamas"),
+    "ir": ResidentialPower(plugs=('C', 'F'), voltage=220, freq=50, country="Iran"),
+    "sv": ResidentialPower(plugs=('A', 'B'), voltage=115, freq=60, country="El Salvador"),
+    "am": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Armenia"),
+    "is": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Iceland"),
+    "uy": ResidentialPower(plugs=('C', 'F', 'I', 'L'), voltage=230, freq=50, country="Uruguay"),
+    "mc": ResidentialPower(plugs=('C', 'D', 'E', 'F'), voltage=230, freq=50, country="Monaco"),
+    "jm": ResidentialPower(plugs=('A', 'B'), voltage=110, freq=50, country="Jamaica"),
+    "im": ResidentialPower(plugs=('G',), voltage=240, freq=50, country="Isle of Man"),
+    "dm": ResidentialPower(plugs=('D', 'G'), voltage=230, freq=50, country="Dominica"),
+    "mu": ResidentialPower(plugs=('C', 'G'), voltage=230, freq=50, country="Mauritius"),
+    "cz": ResidentialPower(plugs=('C', 'E'), voltage=230, freq=50, country="Czech Republic"),
+    "kh": ResidentialPower(plugs=('A', 'C', 'G'), voltage=230, freq=50, country="Cambodia"),
+    "cf": ResidentialPower(plugs=('C', 'E'), voltage=220, freq=50, country="Central African Republic"),
+    "se": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Sweden"),
+    "uz": ResidentialPower(plugs=('C', 'I'), voltage=220, freq=50, country="Uzbekistan"),
+    "sk": ResidentialPower(plugs=('C', 'E'), voltage=230, freq=50, country="Slovakia"),
+    "ky": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Cayman Islands"),
+    "tn": ResidentialPower(plugs=('C', 'E'), voltage=230, freq=50, country="Tunisia"),
+    "do": ResidentialPower(plugs=('A', 'B'), voltage=110, freq=60, country="Dominican Republic"),
+    "hu": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Hungary"),
+    "af": ResidentialPower(plugs=('C', 'F'), voltage=220, freq=50, country="Afghanistan"),
+    "et": ResidentialPower(plugs=('C', 'E', 'F', 'L'), voltage=220, freq=50, country="Ethiopia"),
+    "tv": ResidentialPower(plugs=('I',), voltage=220, freq=50, country="Tuvalu"),
+    "ad": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Andorra"),
+    "hn": ResidentialPower(plugs=('A', 'B'), voltage=110, freq=60, country="Honduras"),
+    "ls": ResidentialPower(plugs=('M',), voltage=220, freq=50, country="Lesotho"),
+    "na": ResidentialPower(plugs=('D', 'M'), voltage=220, freq=50, country="Namibia"),
+    "jo": ResidentialPower(plugs=('B', 'C', 'D', 'F', 'G', 'J'), voltage=230, freq=50, country="Jordan"),
+    "pl": ResidentialPower(plugs=('C', 'E'), voltage=230, freq=50, country="Poland"),
+    "bt": ResidentialPower(plugs=('C', 'D', 'F', 'G', 'M'), voltage=230, freq=50, country="Bhutan"),
+    "fm": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Micronesia"),
+    "no": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Norway"),
+    "fk": ResidentialPower(plugs=('G',), voltage=240, freq=50, country="Falkland Islands"),
+    "je": ResidentialPower(plugs=('G',), voltage=230, freq=50, country="Jersey"),
+    "ye": ResidentialPower(plugs=('A', 'D', 'G'), voltage=230, freq=50, country="Yemen"),
+    "cm": ResidentialPower(plugs=('C', 'E'), voltage=220, freq=50, country="Cameroon"),
+    "md": ResidentialPower(plugs=('C', 'F'), voltage=220, freq=50, country="Moldova"),
+    "cn": ResidentialPower(plugs=('A', 'I', 'C'), voltage=220, freq=50, country="China"),
+    "gm": ResidentialPower(plugs=('G',), voltage=230, freq=50, country="Gambia"),
+    "sg": ResidentialPower(plugs=('C', 'G', 'M'), voltage=230, freq=50, country="Singapore"),
+    "tj": ResidentialPower(plugs=('C', 'F', 'I'), voltage=220, freq=50, country="Tajikistan"),
+    "gt": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Guatemala"),
+    "ma": ResidentialPower(plugs=('C', 'E'), voltage=220, freq=50, country="Morocco"),
+    "mv": ResidentialPower(plugs=('D', 'G', 'J', 'K', 'L'), voltage=230, freq=50, country="Maldives"),
+    "ga": ResidentialPower(plugs=('C',), voltage=220, freq=50, country="Gabon"),
+    "bo": ResidentialPower(plugs=('A', 'C'), voltage=115, freq=50, country="Bolivia"),
+    "ly": ResidentialPower(plugs=('C', 'D', 'F', 'L'), voltage=127, freq=50, country="Libya"),
+    "rw": ResidentialPower(plugs=('C', 'J'), voltage=230, freq=50, country="Rwanda"),
+    "cg": ResidentialPower(plugs=('C', 'E'), voltage=230, freq=50, country="Congo, Republic of the"),
+    "kz": ResidentialPower(plugs=('C', 'F'), voltage=220, freq=50, country="Kazakhstan"),
+    "jp": ResidentialPower(plugs=('A', 'B'), voltage=100, freq=50, country="Japan"),
+    "co": ResidentialPower(plugs=('A', 'B'), voltage=110, freq=60, country="Colombia"),
+    "sm": ResidentialPower(plugs=('C', 'F', 'L'), voltage=230, freq=50, country="San Marino"),
+    "rs": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Serbia"),
+    "gw": ResidentialPower(plugs=('C',), voltage=220, freq=50, country="Guinea-Bissau"),
+    "kr": ResidentialPower(plugs=('C', 'F'), voltage=220, freq=60, country="South Korea"),
+    "py": ResidentialPower(plugs=('C',), voltage=220, freq=50, country="Paraguay"),
+    "lt": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Lithuania"),
+    "tr": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Turkey"),
+    "pa": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Panama"),
+    "ba": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Bosnia and Herzegovina"),
+    "vn": ResidentialPower(plugs=('A', 'C', 'G'), voltage=220, freq=50, country="Vietnam"),
+    "iq": ResidentialPower(plugs=('C', 'D', 'G'), voltage=230, freq=50, country="Iraq"),
+    "pk": ResidentialPower(plugs=('C', 'D', 'G', 'M'), voltage=230, freq=50, country="Pakistan"),
+    "li": ResidentialPower(plugs=('C', 'J'), voltage=230, freq=50, country="Liechtenstein"),
+    "mz": ResidentialPower(plugs=('C', 'F', 'M'), voltage=220, freq=50, country="Mozambique"),
+    "au": ResidentialPower(plugs=('I',), voltage=230, freq=50, country="Australia"),
+    "ws": ResidentialPower(plugs=('I',), voltage=230, freq=50, country="Samoa"),
+    "sr": ResidentialPower(plugs=('C', 'F'), voltage=127, freq=60, country="Suriname"),
+    "mn": ResidentialPower(plugs=('C', 'E'), voltage=220, freq=50, country="Mongolia"),
+    "bw": ResidentialPower(plugs=('D', 'G', 'M'), voltage=230, freq=50, country="Botswana"),
+    "gb": ResidentialPower(plugs=('G',), voltage=230, freq=50, country="United Kingdom"),
+    "pg": ResidentialPower(plugs=('I',), voltage=240, freq=50, country="Papua New Guinea"),
+    "dj": ResidentialPower(plugs=('C', 'E'), voltage=220, freq=50, country="Djibouti"),
+    "th": ResidentialPower(plugs=('A', 'B', 'C', 'F'), voltage=220, freq=50, country="Thailand"),
+    "us": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="United States"),
+    "gr": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Greece"),
+    "kn": ResidentialPower(plugs=('A', 'B', 'D', 'G'), voltage=110, freq=60, country="St. Kitts and Nevis"),
+    "ug": ResidentialPower(plugs=('G',), voltage=240, freq=50, country="Uganda"),
+    "ie": ResidentialPower(plugs=('G',), voltage=230, freq=50, country="Ireland"),
+    "tg": ResidentialPower(plugs=('C',), voltage=220, freq=50, country="Togo"),
+    "td": ResidentialPower(plugs=('C', 'D', 'E', 'F'), voltage=220, freq=50, country="Chad"),
+    "la": ResidentialPower(plugs=('C', 'E', 'F'), voltage=230, freq=50, country="Laos"),
+    "sy": ResidentialPower(plugs=('C', 'E', 'L'), voltage=220, freq=50, country="Syria"),
+    "bm": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Bermuda"),
+    "il": ResidentialPower(plugs=('C', 'H', 'M'), voltage=230, freq=50, country="Israel"),
+    "nz": ResidentialPower(plugs=('I',), voltage=230, freq=50, country="New Zealand"),
+    "mg": ResidentialPower(plugs=('C', 'D', 'E', 'J', 'K'), voltage=220, freq=50, country="Madagascar"),
+    "ve": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Venezuela"),
+    "dk": ResidentialPower(plugs=('C', 'E', 'F', 'K'), voltage=230, freq=50, country="Denmark"),
+    "lb": ResidentialPower(plugs=('A', 'B', 'C', 'D', 'G'), voltage=220, freq=50, country="Lebanon"),
+    "kp": ResidentialPower(plugs=('A', 'C', 'F'), voltage=110, freq=60, country="North Korea"),
+    "vu": ResidentialPower(plugs=('C', 'G', 'I'), voltage=220, freq=50, country="Vanuatu"),
+    "cu": ResidentialPower(plugs=('A', 'B', 'C'), voltage=110, freq=60, country="Cuba"),
+    "pt": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Portugal"),
+    "kw": ResidentialPower(plugs=('C', 'G'), voltage=240, freq=50, country="Kuwait"),
+    "cd": ResidentialPower(plugs=('C', 'D', 'E'), voltage=220, freq=50, country="Congo, Democratic Republic of the"),
+    "nr": ResidentialPower(plugs=('I',), voltage=240, freq=50, country="Nauru"),
+    "si": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Slovenia"),
+    "bd": ResidentialPower(plugs=('C', 'D', 'G', 'K'), voltage=220, freq=50, country="Bangladesh"),
+    "al": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Albania"),
+    "ec": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Ecuador"),
+    "gy": ResidentialPower(plugs=('A', 'B', 'D', 'G'), voltage=110, freq=60, country="Guyana"),
+    "bb": ResidentialPower(plugs=('A', 'B'), voltage=115, freq=50, country="Barbados"),
+    "ke": ResidentialPower(plugs=('G',), voltage=240, freq=50, country="Kenya"),
+    "mx": ResidentialPower(plugs=('A', 'B'), voltage=127, freq=60, country="Mexico"),
+    "gq": ResidentialPower(plugs=('C', 'E'), voltage=220, freq=50, country="Equatorial Guinea"),
+    "gn": ResidentialPower(plugs=('C', 'F', 'K'), voltage=220, freq=50, country="Guinea"),
+    "bi": ResidentialPower(plugs=('C', 'E'), voltage=220, freq=50, country="Burundi"),
+    "lv": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Latvia"),
+    "fj": ResidentialPower(plugs=('I',), voltage=240, freq=50, country="Fiji"),
+    "ci": ResidentialPower(plugs=('C', 'E'), voltage=230, freq=50, country="Côte d'Ivoire"),
+    "ai": ResidentialPower(plugs=('A',), voltage=110, freq=60, country="Anguilla"),
+    "gu": ResidentialPower(plugs=('A', 'B'), voltage=110, freq=60, country="Guam"),
+    "lr": ResidentialPower(plugs=('A', 'B', 'C', 'E', 'F'), voltage=120, freq=60, country="Liberia"),
+    "br": ResidentialPower(plugs=('C', 'N'), voltage=220, freq=60, country="Brazil"),
+    "cv": ResidentialPower(plugs=('C', 'F'), voltage=220, freq=50, country="Cape Verde"),
+    "cl": ResidentialPower(plugs=('L',), voltage=220, freq=50, country="Chile"),
+    "in": ResidentialPower(plugs=('C', 'D', 'M'), voltage=230, freq=50, country="India"),
+    "gg": ResidentialPower(plugs=('G',), voltage=230, freq=50, country="Guernsey"),
+    "tt": ResidentialPower(plugs=('A', 'B'), voltage=115, freq=60, country="Trinidad & Tobago"),
+    "de": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Germany"),
+    "qa": ResidentialPower(plugs=('D', 'G'), voltage=240, freq=50, country="Qatar"),
+    "ph": ResidentialPower(plugs=('A', 'B'), voltage=220, freq=60, country="Philippines"),
+    "sd": ResidentialPower(plugs=('C', 'D'), voltage=230, freq=50, country="Sudan"),
+    "mm": ResidentialPower(plugs=('C', 'D', 'F', 'G'), voltage=230, freq=50, country="Myanmar"),
+    "gd": ResidentialPower(plugs=('G',), voltage=230, freq=50, country="Grenada"),
+    "st": ResidentialPower(plugs=('C', 'F'), voltage=220, freq=50, country="São Tomé and Príncipe"),
+    "sz": ResidentialPower(plugs=('M',), voltage=230, freq=50, country="Swaziland"),
+    "ro": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Romania"),
+    "xk": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Kosovo"),
+    "cy": ResidentialPower(plugs=('G',), voltage=240, freq=50, country="Cyprus"),
+    "dz": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Algeria"),
+    "zm": ResidentialPower(plugs=('C', 'D', 'G'), voltage=230, freq=50, country="Zambia"),
+    "by": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Belarus"),
+    "hr": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Croatia"),
+    "lu": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Luxembourg"),
+    "fi": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Finland"),
+    "zw": ResidentialPower(plugs=('D', 'G'), voltage=220, freq=50, country="Zimbabwe"),
+    "km": ResidentialPower(plugs=('C', 'E'), voltage=220, freq=50, country="Comoros"),
+    "tl": ResidentialPower(plugs=('C', 'E', 'F', 'I'), voltage=220, freq=50, country="Timor-Leste "),
+    "tz": ResidentialPower(plugs=('D', 'G'), voltage=230, freq=50, country="Tanzania"),
+    "ht": ResidentialPower(plugs=('A', 'B'), voltage=110, freq=60, country="Haiti"),
+    "vc": ResidentialPower(plugs=('C', 'E', 'G', 'I', 'K'), voltage=230, freq=50, country="St. Vincent and the Grenadines"),
+    "es": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Spain"),
+    "my": ResidentialPower(plugs=('C', 'G', 'M'), voltage=230, freq=50, country="Malaysia"),
+    "lc": ResidentialPower(plugs=('G',), voltage=240, freq=50, country="St. Lucia"),
+    "tm": ResidentialPower(plugs=('B', 'C', 'F'), voltage=220, freq=50, country="Turkmenistan"),
+    "pe": ResidentialPower(plugs=('A', 'B', 'C'), voltage=220, freq=60, country="Peru"),
+    "ua": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Ukraine"),
+    "eg": ResidentialPower(plugs=('C', 'F'), voltage=220, freq=50, country="Egypt"),
+    "sb": ResidentialPower(plugs=('I', 'G'), voltage=220, freq=50, country="Solomon Islands"),
+    "to": ResidentialPower(plugs=('I',), voltage=240, freq=50, country="Tonga"),
+    "fr": ResidentialPower(plugs=('C', 'E'), voltage=230, freq=50, country="France"),
+    "ng": ResidentialPower(plugs=('D', 'G'), voltage=240, freq=50, country="Nigeria"),
+    "sh": ResidentialPower(plugs=('G',), voltage=240, freq=50, country="Saint Helena, Ascension and Tristan da Cunha"),
+    "mw": ResidentialPower(plugs=('G',), voltage=230, freq=50, country="Malawi"),
+    "ms": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Montserrat"),
+    "ae": ResidentialPower(plugs=('C', 'D', 'G'), voltage=220, freq=50, country="United Arab Emirates"),
+    "nl": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Netherlands"),
+    "id": ResidentialPower(plugs=('C', 'F', 'G'), voltage=230, freq=50, country="Indonesia"),
+    "ru": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Russia"),
+    "ar": ResidentialPower(plugs=('C', 'I'), voltage=220, freq=50, country="Argentina"),
+    "bn": ResidentialPower(plugs=('G',), voltage=240, freq=50, country="Brunei"),
+    "pw": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Palau"),
+    "kg": ResidentialPower(plugs=('C', 'F'), voltage=220, freq=50, country="Kyrgyzstan"),
+    "bh": ResidentialPower(plugs=('G',), voltage=230, freq=50, country="Bahrain"),
+    "ml": ResidentialPower(plugs=('C', 'E'), voltage=220, freq=50, country="Mali"),
+    "it": ResidentialPower(plugs=('C', 'F', 'L'), voltage=230, freq=50, country="Italy"),
+    "sa": ResidentialPower(plugs=('A', 'B', 'G'), voltage=220, freq=60, country="Saudi Arabia"),
+    "ag": ResidentialPower(plugs=('A', 'B'), voltage=230, freq=60, country="Antigua and Barbuda"),
+    "mr": ResidentialPower(plugs=('C',), voltage=220, freq=50, country="Mauritania"),
+    "om": ResidentialPower(plugs=('C', 'G'), voltage=240, freq=50, country="Oman"),
+    "lk": ResidentialPower(plugs=('D', 'G', 'M'), voltage=230, freq=50, country="Sri Lanka"),
+    "er": ResidentialPower(plugs=('C', 'L'), voltage=230, freq=50, country="Eritrea"),
+    "mk": ResidentialPower(plugs=('C', 'F'), voltage=230, freq=50, country="Macedonia"),
+    "ni": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Nicaragua"),
+    "ch": ResidentialPower(plugs=('C', 'J'), voltage=230, freq=50, country="Switzerland"),
+    "ca": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Canada"),
+    "cr": ResidentialPower(plugs=('A', 'B'), voltage=120, freq=60, country="Costa Rica")
+}
+
 industrial_power = {}
-residential_power_data = namedtuple('residential_power_data', ['plugs', 'voltage', 'freq', 'country'])
 industrial_power_data = namedtuple('industrial_power_data', ['voltage', 'freq', 'country'])
-for line in residential_power_raw.split('\n')[1:]:
-    country, code, plugs, voltage, freq = line.split('\t')
-    plugs = plugs.replace(' ', '').split(',')
-    residential_power[code] = residential_power_data(plugs, int(voltage), int(freq), country)
+
 for line in industrial_power_raw.split('\n')[1:]:
     code, country, voltage, freq = line.split('\t')
     voltage = [int(i) for i in voltage.replace(' ', '').split(',')]

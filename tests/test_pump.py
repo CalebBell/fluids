@@ -126,7 +126,7 @@ def test_power_sources():
     assert len(residential_power) == 203
 
     ca = residential_power['ca']
-    assert (ca.voltage, ca.freq, ca.plugs) == (120, 60, ['A', 'B'])
+    assert (ca.voltage, ca.freq, ca.plugs) == (120, 60, ('A', 'B'))
 
     assert sum([sum(i.voltage) for i in industrial_power.values()]) == 82144
     assert sum([i.freq for i in industrial_power.values()]) == 10210
