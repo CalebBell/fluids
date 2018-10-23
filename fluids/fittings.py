@@ -1870,7 +1870,7 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
 contraction_conical_angles_Idelchik = [2, 3, 6, 8, 10, 12, 14, 16, 20]
 contraction_conical_A_ratios_Idelchik = [0.05, 0.075, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6]
 
-contraction_conical_friction_Idelchik = np.array([
+contraction_conical_friction_Idelchik = [
     [0.14, 0.1, 0.05, 0.04, 0.03, 0.03, 0.02, 0.02, 0.01],
     [0.14, 0.1, 0.05, 0.04, 0.03, 0.02, 0.02, 0.02, 0.01],
     [0.14, 0.1, 0.05, 0.04, 0.03, 0.02, 0.02, 0.02, 0.01],
@@ -1880,12 +1880,13 @@ contraction_conical_friction_Idelchik = np.array([
     [0.13, 0.09, 0.04, 0.03, 0.03, 0.02, 0.02, 0.02, 0.01],
     [0.12, 0.08, 0.04, 0.03, 0.02, 0.02, 0.02, 0.02, 0.01],
     [0.11, 0.07, 0.04, 0.03, 0.02, 0.02, 0.02, 0.02, 0.01],
-    [0.09, 0.06, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02, 0.01]])
+    [0.09, 0.06, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02, 0.01]]
 
-contraction_conical_frction_Idelchik_obj = RectBivariateSpline(contraction_conical_A_ratios_Idelchik,
-                                                               contraction_conical_angles_Idelchik,
+contraction_conical_frction_Idelchik_tck = tck_interp2d_linear(contraction_conical_angles_Idelchik,
+                                                               contraction_conical_A_ratios_Idelchik,
                                                                contraction_conical_friction_Idelchik,
-                                                               kx=1, ky=1, s=0)
+                                                               kx=1, ky=1)
+contraction_conical_frction_Idelchik_obj = lambda x, y : float(bisplev(x, y, contraction_conical_frction_Idelchik_tck))
 
 contraction_conical_A_ratios_Blevins = [1.2, 1.5, 2.0, 3.0, 5.0, 10.0]
 contraction_conical_l_ratios_Blevins = [0.0, 0.05, 0.1, 0.15, 0.6]
@@ -2100,7 +2101,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         elif A_ratio_fric > 0.6:
             A_ratio_fric = 0.6
             
-        K_fr = float(contraction_conical_frction_Idelchik_obj(A_ratio_fric, angle_fric))
+        K_fr = float(contraction_conical_frction_Idelchik_obj(angle_fric, A_ratio_fric))
         return K0*(1.0 - A_ratio) + K_fr
     elif method == 'Blevins':
         A_ratio = Di1*Di1/(Di2*Di2)
@@ -2489,7 +2490,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         elif A_ratio_fric > 0.6:
             A_ratio_fric = 0.6
         
-        K_fr = float(contraction_conical_frction_Idelchik_obj(A_ratio_fric, angle_fric))
+        K_fr = float(contraction_conical_frction_Idelchik_obj(angle_fric, A_ratio_fric))
         K_exp = float(diffuser_conical_Idelchik_obj(min(0.6, A_ratio), max(3.0, angle)))
         return K_fr + K_exp
         
