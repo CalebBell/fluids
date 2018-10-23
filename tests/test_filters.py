@@ -24,6 +24,7 @@ from __future__ import division
 from fluids import *
 from numpy.testing import assert_allclose
 import pytest
+from scipy.interpolate import splrep
 
 
 def test_filters():
@@ -54,3 +55,10 @@ def test_filters():
     K1 = round_edge_grill(.4)
     K2 = round_edge_grill(.4, l=.15, Dh=.002, fd=.0185)
     assert_allclose([K1, K2], [1.0, 2.3874999999999997])
+
+
+def test_grills_rounded():
+    from fluids.filters import grills_rounded_tck, grills_rounded_alphas, grills_rounded_Ks
+    tck_recalc = splrep(grills_rounded_alphas, grills_rounded_Ks, s=0, k=2)
+    [assert_allclose(i, j) for i, j in zip(grills_rounded_tck, tck_recalc)]
+

@@ -170,21 +170,27 @@ class Sieve(object):
         Permissible maximum wire diameter of specified sieve size, [m]
         
     '''
-    def __repr__(self):
-        s = 'Sieve(%s)' 
-        s2 = ''
-        for attr, value in self.__dict__.items():
-            if value is not None:
-                if type(value) == float:
-                    value = round(value, 8)
-                elif type(value) == str:
-                    value = "'" + value + "'"
-                s2 += '%s=%s, '%(attr, value)
-        s2 = s2[0:-2]
-        return s %(s2)
+    __slots__ = ('designation', 'old_designation', 'opening', 'opening_inch', 
+                 'Y_variation_avg', 'X_variation_max', 'max_opening', 
+                 'calibration_samples', 'compliance_sd', 'inspection_samples', 
+                 'inspection_sd', 'calibration_samples', 'calibration_sd', 
+                 'd_wire', 'd_wire_min', 'd_wire_max', 'compliance_samples')
     
 #    def __repr__(self):
-#        return '<Sieve, designation %s mm, opening %g m>' %(self.designation, self.opening)
+#        s = 'Sieve(%s)' 
+#        s2 = ''
+#        for attr, value in self.__dict__.items():
+#            if value is not None:
+#                if type(value) == float:
+#                    value = round(value, 8)
+#                elif type(value) == str:
+#                    value = "'" + value + "'"
+#                s2 += '%s=%s, '%(attr, value)
+#        s2 = s2[0:-2]
+#        return s %(s2)
+    
+    def __repr__(self):
+        return '<Sieve, designation %s mm, opening %g m>' %(self.designation, self.opening)
     
     def __init__(self, designation, old_designation=None, opening=None,
                  opening_inch=None, Y_variation_avg=None, X_variation_max=None,

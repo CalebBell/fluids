@@ -46,7 +46,7 @@ square_Ks = [1024000., 256000, 64000, 16000, 4000, 1000., 250., 85., 52., 30., 1
 
 
 grills_rounded_alphas = [0.3, 0.4, 0.5, 0.6, 0.7]
-grills_rounded_Ks = [2, 1, 0.6, 0.4, 0.2]
+grills_rounded_Ks = [2.0, 1.0, 0.6, 0.4, 0.2]
 '''Cubic interpolation with no smoothing, constant value extremities
 returned when outside table limits'''
 grills_rounded_tck = implementation_optimize_tck([[0.3, 0.3, 0.3, 0.45, 0.55, 0.7, 0.7, 0.7], 

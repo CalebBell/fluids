@@ -18,6 +18,7 @@ __pycache__
 *.exe
 *.o
 *.so
+*.pyo
  
 # Packages #
 ############

@@ -24,6 +24,7 @@ from fluids import *
 from numpy.testing import assert_allclose
 import numpy as np
 import pytest
+from scipy.interpolate import splrep
 
 def test_control_valve():
     from fluids.control_valve import cavitation_index, FF_critical_pressure_ratio_l, is_choked_turbulent_l, is_choked_turbulent_g, Reynolds_valve, loss_coefficient_piping, Reynolds_factor
@@ -323,3 +324,13 @@ def test_control_valve_noise_g_2011():
                                rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
     assert_allclose(ans, 93.38835049261132)
     
+
+def test_opening_quick_data():
+    from fluids.control_valve import opening_quick_tck, opening_quick, frac_CV_quick
+    tck_recalc = splrep(opening_quick, frac_CV_quick, k=3, s=0)
+    [assert_allclose(i, j) for i, j in zip(opening_quick_tck, tck_recalc)]
+
+def test_opening_equal_data():
+    from fluids.control_valve import opening_equal, frac_CV_equal, opening_equal_tck
+    tck_recalc = splrep(opening_equal, frac_CV_equal, k=3, s=0)
+    [assert_allclose(i, j) for i, j in zip(opening_equal_tck, tck_recalc)]

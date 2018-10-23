@@ -897,8 +897,8 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
         return C
 
 
-# TODO: refit in unit testing
 # Valve data from Emerson Valve Handbook 5E
+# Quick opening valve data, spline fit, and interpolating function
 opening_quick = [0.0, 0.0136, 0.02184, 0.03256, 0.04575, 0.06221, 0.07459, 0.0878, 0.10757, 0.12654, 0.14301, 0.16032,
     0.18009, 0.18999, 0.20233, 0.23105, 0.25483, 0.28925, 0.32365, 0.36541, 0.42188, 0.46608, 0.53319, 0.61501,
     0.7034, 0.78033, 0.84415, 0.91944, 1.000]
@@ -921,6 +921,7 @@ opening_linear = [0., 1.0]
 frac_CV_linear = [0, 1]
 Cv_char_linear = lambda opening: interp(opening, opening_linear, frac_CV_linear)
 
+# Equal opening valve data, spline fit, and interpolating function
 opening_equal = [0.0, 0.05523, 0.09287, 0.15341, 0.18942, 0.22379, 0.25816, 0.29582, 0.33348, 0.34985, 0.3826, 0.45794,
     0.49235, 0.51365, 0.54479, 0.57594, 0.60218, 0.62843, 0.77628, 0.796, 0.83298, 0.86995, 0.90936, 0.95368, 1.00]
 frac_CV_equal = [0.0, 0.00845, 0.01339, 0.01877, 0.02579, 0.0349, 0.04189, 0.05528, 0.07079, 0.07533, 0.09074, 0.13444,
