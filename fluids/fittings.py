@@ -601,20 +601,20 @@ entrance_beveled_Idelchik_l_Di = [0.025, 0.05, 0.075, 0.1, 0.15, 0.6]
 entrance_beveled_Idelchik_angles = [0.0, 10.0, 20.0, 30.0, 40.0, 60.0, 100.0, 
                                     140.0, 180.0] 
                                    
-entrance_beveled_Idelchik_dat = np.array([
+entrance_beveled_Idelchik_dat = [
     [0.5, 0.47, 0.45, 0.43, 0.41, 0.4, 0.42, 0.45, 0.5],
     [0.5, 0.45, 0.41, 0.36, 0.33, 0.3, 0.35, 0.42, 0.5],
     [0.5, 0.42, 0.35, 0.3, 0.26, 0.23, 0.3, 0.4, 0.5],
     [0.5, 0.39, 0.32, 0.25, 0.22, 0.18, 0.27, 0.38, 0.5],
     [0.5, 0.37, 0.27, 0.2, 0.16, 0.15, 0.25, 0.37, 0.5],
-    [0.5, 0.27, 0.18, 0.13, 0.11, 0.12, 0.23, 0.36, 0.5]])
+    [0.5, 0.27, 0.18, 0.13, 0.11, 0.12, 0.23, 0.36, 0.5]]
 
 
-entrance_beveled_Idelchik_obj = RectBivariateSpline(entrance_beveled_Idelchik_l_Di, 
-                                                    entrance_beveled_Idelchik_angles, 
+entrance_beveled_Idelchik_tck = tck_interp2d_linear(entrance_beveled_Idelchik_angles,
+                                                    entrance_beveled_Idelchik_l_Di, 
                                                     entrance_beveled_Idelchik_dat,
                                                     kx=1, ky=1)
-
+entrance_beveled_Idelchik_obj = lambda x, y : float(bisplev(x, y, entrance_beveled_Idelchik_tck))
 
 def entrance_beveled(Di, l, angle, method='Rennels'):
     r'''Returns loss coefficient for a beveled or chamfered entrance to a pipe
@@ -692,7 +692,7 @@ def entrance_beveled(Di, l, angle, method='Rennels'):
         lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1 - (l/Di)**0.25)/2.))
         return 0.0696*(1 - Cb*l/Di)*lbd**2 + (lbd - 1.)**2
     elif method == 'Idelchik':
-        return float(entrance_beveled_Idelchik_obj(l/Di, angle*2.0))
+        return float(entrance_beveled_Idelchik_obj(angle*2.0, l/Di))
     else:
         raise ValueError('Specified method not recognized; methods are %s'
                          %(entrance_beveled_methods))
@@ -2084,7 +2084,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         return 0.315*angle_rad**(1.0/3.0)
     elif method == 'Idelchik':
         # Diagram 3-6; already digitized for beveled entrance
-        K0 = float(entrance_beveled_Idelchik_obj(l/Di2, angle))
+        K0 = float(entrance_beveled_Idelchik_obj(angle, l/Di2))
         
         # Angles 0 to 20, ratios 0.05 to 0.06
         if angle > 20.0:
