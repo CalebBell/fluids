@@ -23,8 +23,10 @@ SOFTWARE.'''
 from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, degrees, log10, log
 from fluids.constants import inch
-from fluids.friction import friction_factor, Colebrook, friction_factor_curved, ft_Crane
-from fluids.numerics import horner, interp, splev, bisplev, implementation_optimize_tck
+from fluids.friction import (friction_factor, Colebrook, 
+                             friction_factor_curved, ft_Crane)
+from fluids.numerics import (horner, interp, splev, bisplev, 
+                             implementation_optimize_tck, tck_interp2d_linear)
 import numpy as np
 from scipy.interpolate import UnivariateSpline, RectBivariateSpline
 
@@ -178,7 +180,7 @@ entrance_distance_Idelchik_l_Di = [0.0, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1,
 entrance_distance_Idelchik_t_Di = [0.0, 0.004, 0.008, 0.012, 0.016, 0.02, 0.024,
                                    0.03, 0.04, 0.05, 1.0] # last point infinity
                                    
-entrance_distance_Idelchik_dat = np.array([
+entrance_distance_Idelchik_dat = [
     [0.5, 0.57, 0.63, 0.68, 0.73, 0.8, 0.86, 0.92, 0.97, 1, 1],
     [0.5, 0.54, 0.58, 0.63, 0.67, 0.74, 0.8, 0.86, 0.9, 0.94, 0.94],
     [0.5, 0.53, 0.55, 0.58, 0.62, 0.68, 0.74, 0.81, 0.85, 0.88, 0.88],
@@ -189,13 +191,17 @@ entrance_distance_Idelchik_dat = np.array([
     [0.5, 0.5, 0.5, 0.51, 0.52, 0.52, 0.54, 0.57, 0.59, 0.61, 0.61],
     [0.5, 0.5, 0.5, 0.51, 0.51, 0.51, 0.51, 0.52, 0.52, 0.54, 0.54],
     [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-    [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]])
+    [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
 
 
-entrance_distance_Idelchik_obj = RectBivariateSpline(entrance_distance_Idelchik_t_Di, 
-                                                     entrance_distance_Idelchik_l_Di, 
-                                                     entrance_distance_Idelchik_dat,
-                                                     kx=1, ky=1)
+entrance_distance_Idelchik_tck = tck_interp2d_linear(entrance_distance_Idelchik_l_Di, 
+                                                     entrance_distance_Idelchik_t_Di,
+            													entrance_distance_Idelchik_dat,
+													          kx=1, ky=1)
+
+entrance_distance_Idelchik_obj = lambda x, y: float(bisplev(x, y, entrance_distance_Idelchik_tck))
+
+
 
 entrance_distance_Harris_t_Di = [0.00322, 0.007255, 0.01223, 0.018015,
     0.021776, 0.029044, 0.039417, 0.049519, 0.058012, 0.066234,
@@ -276,7 +282,7 @@ def entrance_distance(Di, t=None, l=None, method='Rennels'):
     >>> entrance_distance(Di=0.1, t=0.0005, method='Idelchik')
     0.9249999999999999
     >>> entrance_distance(Di=0.1, t=0.0005, l=.02, method='Idelchik')
-    0.8475000000000001
+    0.8474999999999999
 
     References
     ----------
@@ -312,7 +318,7 @@ def entrance_distance(Di, t=None, l=None, method='Rennels'):
             l = Di
         t_Di = min(t/Di, 1.0)
         l_Di = min(l/Di, 10.0)
-        K = float(entrance_distance_Idelchik_obj(t_Di, l_Di))
+        K = float(entrance_distance_Idelchik_obj(l_Di, t_Di))
         if K < 0.0:
             K = 0.0
         return K
@@ -1878,7 +1884,8 @@ contraction_conical_friction_Idelchik = np.array([
 
 contraction_conical_frction_Idelchik_obj = RectBivariateSpline(contraction_conical_A_ratios_Idelchik,
                                                                contraction_conical_angles_Idelchik,
-                                                               contraction_conical_friction_Idelchik)
+                                                               contraction_conical_friction_Idelchik,
+                                                               kx=1, ky=1, s=0)
 
 contraction_conical_A_ratios_Blevins = [1.2, 1.5, 2.0, 3.0, 5.0, 10.0]
 contraction_conical_l_ratios_Blevins = [0.0, 0.05, 0.1, 0.15, 0.6]
@@ -1890,7 +1897,7 @@ contraction_conical_Ks_Blevins = np.array([[.08, .06, .04, .03, .03],
                                   [.45, .45, .41, .39, .27]])
 contraction_conical_Blevins_obj = RectBivariateSpline(contraction_conical_A_ratios_Blevins, 
                                                       contraction_conical_l_ratios_Blevins, 
-                                                      contraction_conical_Ks_Blevins, kx=1, ky=1)
+                                                      contraction_conical_Ks_Blevins, kx=1, ky=1, s=0)
 
 
 contraction_conical_Miller_tck = implementation_optimize_tck([
