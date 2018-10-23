@@ -1888,17 +1888,18 @@ contraction_conical_frction_Idelchik_tck = tck_interp2d_linear(contraction_conic
                                                                kx=1, ky=1)
 contraction_conical_frction_Idelchik_obj = lambda x, y : float(bisplev(x, y, contraction_conical_frction_Idelchik_tck))
 
-contraction_conical_A_ratios_Blevins = [1.2, 1.5, 2.0, 3.0, 5.0, 10.0]
 contraction_conical_l_ratios_Blevins = [0.0, 0.05, 0.1, 0.15, 0.6]
-contraction_conical_Ks_Blevins = np.array([[.08, .06, .04, .03, .03],
+contraction_conical_A_ratios_Blevins = [1.2, 1.5, 2.0, 3.0, 5.0, 10.0]
+contraction_conical_Ks_Blevins = [[.08, .06, .04, .03, .03],
                                   [.17, .12, .09, .07, .06],
                                   [.25, .23, .17, .14, .06],
                                   [.33, .31, .27, .23, .08],
                                   [.4, .38, .35, .31, .18],
-                                  [.45, .45, .41, .39, .27]])
-contraction_conical_Blevins_obj = RectBivariateSpline(contraction_conical_A_ratios_Blevins, 
-                                                      contraction_conical_l_ratios_Blevins, 
-                                                      contraction_conical_Ks_Blevins, kx=1, ky=1, s=0)
+                                  [.45, .45, .41, .39, .27]]
+contraction_conical_Blevins_tck = tck_interp2d_linear(contraction_conical_l_ratios_Blevins,
+                                                      contraction_conical_A_ratios_Blevins, 
+                                                      contraction_conical_Ks_Blevins, kx=1, ky=1)
+contraction_conical_Blevins_obj = lambda x, y: float(bisplev(x, y, contraction_conical_Blevins_tck))
 
 
 contraction_conical_Miller_tck = implementation_optimize_tck([
@@ -2113,7 +2114,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         l_ratio = l/Di2
         if l_ratio > 0.6:
             l_ratio= 0.6
-        return float(contraction_conical_Blevins_obj(A_ratio, l_ratio))
+        return float(contraction_conical_Blevins_obj(l_ratio, A_ratio))
     elif method == 'Miller':
         A_ratio = Di1*Di1/(Di2*Di2)
         if A_ratio > 4.0:
