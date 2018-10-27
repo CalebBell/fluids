@@ -28,10 +28,10 @@ from . import constants
 from . import atmosphere
 from . import compressible
 from . import core
+from . import friction
 from . import filters
 from . import fittings
 from . import flow_meter
-from . import friction
 from . import geometry
 from . import mixing
 from . import open_flow

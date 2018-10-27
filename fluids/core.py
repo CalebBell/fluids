@@ -23,9 +23,9 @@ SOFTWARE.'''
 from __future__ import division
 from math import sin, exp, pi, fabs, copysign
 from sys import float_info
-import numpy as np
 from fluids.constants import g, R
 from fluids.numerics import interp, horner, implementation_optimize_tck
+from fluids.numerics import numpy as np
 
 __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',

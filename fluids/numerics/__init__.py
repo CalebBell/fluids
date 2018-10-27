@@ -30,31 +30,54 @@ __all__ = ['horner', 'interp',
            'bisect', 'ridder', 'brenth', 'newton', 
            'splev', 'bisplev', 'derivative',
            'IS_PYPY',
+           'lambertw', 'ellipe', 'gamma', 'gammainc', 'erf',
+           'i1', 'i0', 'k1', 'k0', 'iv',
+           'numpy',
            ]
+
+
+class FakePackage(object):
+    pkg = None
+    def __getattr__(self, name):
+        raise ImportError('%s in not installed and required by this feature' %(self.pkg))
+        
+    def __init__(self, pkg):
+        self.pkg = pkg
+
 
 try:
     # The right way imports the platform module which costs to ms to load!
-    #     implementation = platform.python_implementation()
+    # implementation = platform.python_implementation()
     IS_PYPY = 'PyPy' in sys.version
 except AttributeError:
     IS_PYPY = False
   
 try:
-    import numpy as np
+    # Regardless of actual interpreter, fall back to pure python implementations
+    # if scipy and numpy are not available.
+    import numpy
+    import scipy
 except ImportError:
+    # Allow a fake numpy to be imported, but will raise an excption on any use
+    numpy = FakePackage('numpy')
     IS_PYPY = True
+
+np = numpy
 
 #IS_PYPY = True
 
 epsilon = float_info.epsilon
-_iter = 100
-_xtol = 1e-12
-_rtol = float_info.epsilon*2.0
 one_epsilon_larger = 1.0 + float_info.epsilon
 one_epsilon_smaller = 1.0 - float_info.epsilon
 
+_iter = 100
+_xtol = 1e-12
+_rtol = float_info.epsilon*2.0
+
+
 
 def product(l):
+    # Helper in some functions
     tot = 1.0
     for i in l:
         tot *= i
@@ -812,10 +835,57 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
     return z
 
 
+    
 # interp, horner, derivative methods (and maybe newton?) should always be used.
 if not IS_PYPY:
     from scipy.interpolate import splev, bisplev
     from scipy.optimize import newton, bisect, ridder, brenth
+    
 else:
     splev, bisplev = py_splev, py_bisplev
     newton, bisect, ridder, brenth = py_newton, py_bisect, py_ridder, py_brenth
+    
+    # Try out mpmath for special functions anyway
+has_scipy = False
+try:
+    import scipy
+    has_scipy = True
+except ImportError:
+    has_scipy = False
+    
+erf = None
+try:
+    from math import erf
+except ImportError:
+    # python 2.6 or other implementations?
+    pass
+
+
+from math import gamma # Been there a while
+
+
+
+
+#has_scipy = False
+
+if has_scipy:
+    from scipy.special import lambertw, ellipe, gammainc, gamma # fluids
+    from scipy.special import i1, i0, k1, k0, iv # ht
+    from scipy.special import hyp2f1    
+    if erf is None:
+        from scipy.special import erf
+else:
+    import mpmath
+    # scipy is not available... fall back to mpmath as a Pure-Python implementation
+    from mpmath import lambertw # Same branches as scipy, supports .real
+    from mpmath import ellipe # seems the same so far        
+    
+    gammainc = lambda a, x: mpmath.gammainc(a, b=x)
+    iv = mpmath.besseli
+    i1 = lambda x: mpmath.besseli(1, x)
+    i0 = lambda x: mpmath.besseli(0, x)
+    k1 = lambda x: mpmath.besselk(1, x)
+    k0 = lambda x: mpmath.besselk(0, x)
+    
+    if erf is None:
+        from mpmath import erf

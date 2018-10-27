@@ -107,9 +107,8 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'ISO_3310_1_R40_3']
 
 from math import log, exp, pi, log10
-from math import erf # new in version 2.7
-from fluids.numerics import brenth, epsilon
-from scipy.special import gammaincc, gamma
+from fluids.numerics import brenth, epsilon, gamma, erf
+from scipy.special import gammaincc
 import numpy as np
 
 
@@ -1013,13 +1012,13 @@ def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
     Examples
     --------
     >>> pdf_Rosin_Rammler_basis_integral(5E-2, 200, 2, 3)
-    -0.0004523989843900734
+    -0.00045239898439007343
     '''
     # Also not able to compute the limit for d approaching 0.
     try:
         a = (m + n)/m
         x = d**m*k
-        t1 = float(gamma(a)*(gammaincc(a, x)))
+        t1 = float(gamma(a))*float(gammaincc(a, x))
         return (-d**(m+n)*k*(d**m*k)**(-a))*t1
     except (OverflowError, ZeroDivisionError) as e:
         if d == 1E-40:

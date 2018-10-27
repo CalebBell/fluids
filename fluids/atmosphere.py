@@ -51,7 +51,7 @@ import os
 from math import exp, cos, radians
 from fluids.constants import N_A, R
 from fluids.numerics import brenth
-import numpy as np
+from fluids.numerics import numpy as np
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14', 'airmass']
 

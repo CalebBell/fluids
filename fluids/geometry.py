@@ -24,10 +24,9 @@ from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
 from fluids.constants import inch
-from fluids.numerics import newton, brenth
+from fluids.numerics import newton, brenth, ellipe
 import numpy as np
 from numpy.polynomial.chebyshev import chebval
-from scipy.special import ellipe
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
@@ -2226,7 +2225,7 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
         1.1611862034509677
         '''
         b = 2.*amplitude
-        return 2.*ellipe(-b*b*pi*pi/(wavelength*wavelength))/pi
+        return 2.*float(ellipe(-b*b*pi*pi/(wavelength*wavelength)))/pi
     
     def __init__(self, amplitude, wavelength, chevron_angle=45, width=None,
                  length=None, thickness=None, d_port=None, plates=None):

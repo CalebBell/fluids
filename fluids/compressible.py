@@ -23,8 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from math import log, pi, exp, isinf
 from fluids.constants import R
-from scipy.special import lambertw
-from fluids.numerics import newton, ridder
+from fluids.numerics import newton, ridder, lambertw
 
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT', 'isothermal_gas',

@@ -23,9 +23,8 @@ SOFTWARE.'''
 from __future__ import division
 from math import log, log10, exp, cos, sin, tan, pi, radians, isinf
 from fluids.constants import inch, g
-from fluids.numerics import newton
+from fluids.numerics import newton, lambertw
 from fluids.core import Dean, Reynolds
-from scipy.special import lambertw
 
 
 __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 
@@ -1759,7 +1758,7 @@ def Prandtl_von_Karman_Nikuradse(Re):
     # Good 1E150 to 1E-150
     c1 = 1.151292546497022842008995727342182103801 # log(10)/2
     c2 = 1.325474527619599502640416597148504422899 # log(10)**2/4
-    return c2/(lambertw((c1*Re)/2.51).real)**2
+    return c2/float(lambertw((c1*Re)/2.51).real)**2
 
 
 Crane_fts_nominal_Ds = [.015, .02, .025, .032, .04, .05, .065, .08, .1, .125,

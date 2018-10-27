@@ -27,7 +27,7 @@ from fluids.friction import (friction_factor, Colebrook,
                              friction_factor_curved, ft_Crane)
 from fluids.numerics import (horner, interp, splev, bisplev, 
                              implementation_optimize_tck, tck_interp2d_linear)
-import numpy as np
+from fluids.numerics import numpy as np
 from scipy.interpolate import UnivariateSpline, RectBivariateSpline
 
 __all__ = ['contraction_sharp', 'contraction_round', 
