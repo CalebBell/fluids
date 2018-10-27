@@ -1011,8 +1011,8 @@ def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
 
     Examples
     --------
-    >>> pdf_Rosin_Rammler_basis_integral(5E-2, 200, 2, 3)
-    -0.00045239898439007343
+    >>> "{:g}".format(pdf_Rosin_Rammler_basis_integral(5E-2, 200, 2, 3))
+    '-0.000452399'
     '''
     # Also not able to compute the limit for d approaching 0.
     try:
