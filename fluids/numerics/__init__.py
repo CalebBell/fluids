@@ -898,7 +898,9 @@ else:
     from mpmath import lambertw # Same branches as scipy, supports .real
     from mpmath import ellipe # seems the same so far        
     
-    gammaincc = lambda a, x: mpmath.gammainc(a, b=x)
+
+    # Figured out this definition from test_precompute_gammainc.py in scipy
+    gammaincc = lambda a, x: mpmath.gammainc(a, a=x, regularized=True)
     iv = mpmath.besseli
     i1 = lambda x: mpmath.besseli(1, x)
     i0 = lambda x: mpmath.besseli(0, x)
