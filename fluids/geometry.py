@@ -24,9 +24,8 @@ from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
 from fluids.constants import inch
-from fluids.numerics import newton, brenth, ellipe
+from fluids.numerics import newton, brenth, ellipe, horner, chebval
 import numpy as np
-from numpy.polynomial.chebyshev import chebval
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
@@ -1828,14 +1827,17 @@ class TANK(object):
         '''
         from fluids.optional.pychebfun import Chebfun
         to_fit = lambda h: self.V_from_h(h, 'full')
-        self.c_forward = np.array(Chebfun.from_function(np.vectorize(to_fit), 
-                                          [0.0, self.h_max], N=deg_forward).coefficients())
+        
+        # These high-degree polynomials cannot safety be evaluated using Horner's methods     
+        # chebval is 2.5x as slow but 100% required; around 40 coefficients results are junk
+        self.c_forward = Chebfun.from_function(np.vectorize(to_fit), 
+                                               [0.0, self.h_max], N=deg_forward).coefficients().tolist()
+
         self.V_from_h_cheb = lambda x : chebval((2.0*x-self.h_max)/(self.h_max), self.c_forward)
         
         to_fit = lambda h: self.h_from_V(h, 'brenth')
-        self.c_backward = Chebfun.from_function(np.vectorize(to_fit), [0.0, self.V_total], N=deg_backwards).coefficients()
+        self.c_backward = Chebfun.from_function(np.vectorize(to_fit), [0.0, self.V_total], N=deg_backwards).coefficients().tolist()
         self.h_from_V_cheb = lambda x : chebval((2.0*x-self.V_total)/(self.V_total), self.c_backward)
-
         self.chebyshev = True
 
     def _V_solver_error(self, Vtarget, D, L, horizontal, sideA, sideB, sideA_a,

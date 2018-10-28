@@ -392,16 +392,21 @@ def test_geometry_tank():
         TANK(V=10, L=10, sideA='conical', sideA_a_ratio=None)
    
      
-@pytest.mark.slow       
+#@pytest.mark.slow       
 def test_geometry_tank_chebyshev():
     # Test auto set Chebyshev table
     T = TANK(L=1.2, L_over_D=3.5)
     assert_allclose(T.h_from_V(T.V_total, 'chebyshev'), T.h_max)
+    
+    assert_allclose(T.h_from_V(.1, 'chebyshev'), 0.2901805880470152, rtol=1e-4)
+    assert_allclose(T.h_from_V(.05, 'chebyshev'), 0.15830377515496144, rtol=1e-4)
+    assert_allclose(T.h_from_V(.02, 'chebyshev'), 0.08101343184833742, rtol=1e-4)
+
     T = TANK(L=1.2, L_over_D=3.5)
     assert_allclose(T.V_from_h(T.h_max, 'chebyshev'), T.V_total)
 
 
-@pytest.mark.slow
+#@pytest.mark.slow
 def test_geometry_tank_fuzz_h_from_V():
     T = TANK(L=1.2, L_over_D=3.5, sideA='torispherical', sideB='torispherical', sideA_f=1., horizontal=True, sideA_k=0.06, sideB_f=1., sideB_k=0.06)
     T.set_chebyshev_approximators(deg_forward=100, deg_backwards=600)

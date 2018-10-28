@@ -25,7 +25,7 @@ from math import sin, exp, pi, fabs, copysign
 import sys
 from sys import float_info
 
-__all__ = ['horner', 'interp',
+__all__ = ['horner', 'chebval', 'interp',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 
            'splev', 'bisplev', 'derivative',
@@ -265,6 +265,23 @@ def horner(coeffs, x):
     for c in coeffs:
         tot = tot*x + c
     return tot
+
+
+def chebval(x, c):    
+    # Pure Python implementation of numpy.polynomial.chebyshev.chebval
+    len_c = len(c)
+    if len_c == 1:
+        c0, c1 = c[0], 0.0
+    elif len_c == 2:
+        c0, c1 = c[0], c[1]
+    else:
+        x2 = 2.0*x
+        c0, c1 = c[-2], c[-1]
+        for i in range(3, len_c + 1):
+            c0_prev = c0
+            c0 = c[-i] - c1
+            c1 = c0_prev + c1*x2
+    return c0 + c1*x
 
 
 def binary_search(key, arr, size=None):
