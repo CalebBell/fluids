@@ -27,7 +27,6 @@ from fluids.friction import (friction_factor, Colebrook,
                              friction_factor_curved, ft_Crane)
 from fluids.numerics import (horner, interp, splev, bisplev, 
                              implementation_optimize_tck, tck_interp2d_linear)
-from scipy.interpolate import UnivariateSpline
 
 __all__ = ['contraction_sharp', 'contraction_round', 
            'contraction_round_Miller',
@@ -215,9 +214,27 @@ entrance_distance_Harris_Ks = [0.894574, 0.832435, 0.749768, 0.671543,
     0.459705, 0.454746, 0.478092, 0.468701, 0.467074, 0.468779,
     0.467151, 0.46441, 0.458894]
 
-entrance_distance_Harris_obj = UnivariateSpline(entrance_distance_Harris_t_Di,
-                                                entrance_distance_Harris_Ks, 
-                                                s=0, k=3)
+entrance_distance_Harris_tck = implementation_optimize_tck([
+    [0.00322, 0.00322, 0.00322, 0.00322, 0.01223, 0.018015, 0.021776, 0.029044,
+     0.039417, 0.049519, 0.058012, 0.066234, 0.076747, 0.088337, 0.098714, 
+     0.109497, 0.121762, 0.130655, 0.14036, 0.148986, 0.159902, 0.17149,
+     0.179578, 0.189416, 0.200602, 0.208148, 0.217716, 0.228232, 0.239821,
+     0.250063, 0.260845, 0.270818, 0.289145, 0.289145, 0.289145, 0.289145], 
+     [0.894574, 0.8607821362959746, 0.7418364422223542, 0.7071594764719331, 
+      0.5230593641637336, 0.5053866365045014, 0.4869380604512194, 
+      0.40993425463761973, 0.4588732899536263, 0.45115886608796796, 
+      0.4672085434114074, 0.45422360120010624, 0.45882234693051327,
+      0.4633823025024543, 0.4785594597978615, 0.45603301615693537, 
+      0.46825191653436804, 0.4759245648612374, 0.4816400424293727,
+      0.4467699156979281, 0.4713316096394432, 0.4667017151264001, 
+      0.4686302748435692, 0.4597796190662107, 0.445267522727416,
+      0.491034205369033, 0.4641178520412072, 0.46721810151497395,
+      0.46958841021674314, 0.4664976446563455, 0.46420067427943945,
+      0.458894, 0.0, 0.0, 0.0, 0.0],
+      3])
+
+entrance_distance_Harris_obj = lambda x : float(splev(x, entrance_distance_Harris_tck))
+
 
 
 entrance_distance_methods = ['Rennels', 'Miller', 'Idelchik', 'Harris',
@@ -453,9 +470,16 @@ entrance_rounded_ratios_Idelchik = [0, .01, .02, .03, .04, .05, .06, .08, .12,
                                     .16, .2]
 entrance_rounded_Ks_Idelchik = [.5, .44, .37, .31, .26, .22, .2, .15, .09, .06,
                                 .03]
-entrance_rounded_Idelchik = UnivariateSpline(entrance_rounded_ratios_Idelchik,
-                                             entrance_rounded_Ks_Idelchik, 
-                                             s=0, k=2, ext=3)
+
+entrance_rounded_Idelchik_tck = implementation_optimize_tck([[0.0, 0.0, 0.0, 0.015, 0.025, 0.035, 0.045, 0.055,
+                                                              0.07, 0.1, 0.14, 0.2, 0.2, 0.2], 
+        [0.5, 0.46003224474143023, 0.3682580956033294, 0.30877401146621397, 0.2590978355993873, 
+         0.2166389749374616, 0.19717564973543905, 0.1332971654240214, 0.08659056691519569,
+         0.05396118560777325, 0.03, 0.0, 0.0, 0.0],
+         2])
+
+entrance_rounded_Idelchik = lambda x : float(splev(x, entrance_rounded_Idelchik_tck))
+
 
 entrance_rounded_ratios_Crane = [0.0, .02, .04, .06, .1, .15]
 entrance_rounded_Ks_Crane = [.5, .28, .24, .15, .09, .04]
@@ -463,9 +487,15 @@ entrance_rounded_Ks_Crane = [.5, .28, .24, .15, .09, .04]
 entrance_rounded_ratios_Harris = [0.0, .01, .02, .03, .04, .05, .06, .08, .12, 
                                   .16]
 entrance_rounded_Ks_Harris = [.44, .35, .28, .22, .17, .13, .1, .07, .03, 0.0]
-entrance_rounded_Harris = UnivariateSpline(entrance_rounded_ratios_Harris, 
-                                           entrance_rounded_Ks_Harris,
-                                           s=0, k=2, ext=3)
+
+entrance_rounded_Harris_tck = implementation_optimize_tck([[0.0, 0.0, 0.0, 0.015, 0.025, 0.035, 0.045, 
+                                                            0.055, 0.07, 0.1, 0.16, 0.16, 0.16], 
+    [0.44, 0.36435669860605086, 0.2790010365858813, 0.2187082142826953, 0.16874967771794716, 
+     0.1287937194096216, 0.09091157742799895, 0.06354756460434334, 0.01885121769782832, 
+     0.0, 0.0, 0.0, 0.0], 
+    2])
+
+entrance_rounded_Harris = lambda x : float(splev(x, entrance_rounded_Harris_tck))
 
 entrance_rounded_methods = ['Rennels', 'Crane', 'Miller', 'Idelchik', 'Harris',
                             'Swamee']
@@ -586,9 +616,15 @@ def entrance_rounded(Di, rc, method='Rennels'):
             rc_Di = 0.3
         return horner(entrance_rounded_Miller_coeffs, 20.0/3.0*(rc_Di - 0.15))
     elif method == 'Harris':
-        return float(entrance_rounded_Harris(rc/Di))
+        ratio = rc/Di
+        if ratio > .16:
+            return 0.0
+        return float(entrance_rounded_Harris(ratio))
     elif method == 'Idelchik':
-        return float(entrance_rounded_Idelchik(rc/Di))
+        ratio = rc/Di
+        if ratio > .2:
+            return entrance_rounded_Ks_Idelchik[-1]
+        return float(entrance_rounded_Idelchik(ratio))
     else:
         raise ValueError('Specified method not recognized; methods are %s'
                          %(entrance_rounded_methods))

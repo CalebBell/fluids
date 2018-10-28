@@ -486,3 +486,34 @@ def test_diffuser_conical_Idelchik_coefficients():
     
     [assert_allclose(i, j) for i, j in zip(diffuser_conical_Idelchik_obj.tck, diffuser_conical_Idelchik_tck)]
 
+
+def test_entrance_rounded_Idelchik_coeffs():
+    from fluids.fittings import entrance_rounded_ratios_Idelchik, entrance_rounded_Ks_Idelchik, entrance_rounded_Idelchik_tck
+    
+    tck_refit = splrep(entrance_rounded_ratios_Idelchik, entrance_rounded_Ks_Idelchik, s=0, k=2)
+    [assert_allclose(i, j, rtol=1e-3) for i, j in zip(tck_refit, entrance_rounded_Idelchik_tck)]
+    #entrance_rounded_Idelchik = UnivariateSpline(entrance_rounded_ratios_Idelchik,
+#                                             entrance_rounded_Ks_Idelchik, 
+#                                             s=0, k=2, ext=3)
+#
+def test_entrance_rounded_Harris_coeffs():
+    from fluids.fittings import entrance_rounded_ratios_Harris, entrance_rounded_Ks_Harris, entrance_rounded_Harris_tck
+    
+    tck_refit = splrep(entrance_rounded_ratios_Harris, entrance_rounded_Ks_Harris, s=0, k=2)
+    [assert_allclose(i, j, rtol=1e-3) for i, j in zip(tck_refit, entrance_rounded_Harris_tck)]
+
+
+#entrance_rounded_Harris = UnivariateSpline(entrance_rounded_ratios_Harris, 
+#                                           entrance_rounded_Ks_Harris,
+#                                           s=0, k=2, ext=3)
+
+def test_entrance_distance_Harris_coeffs():
+    from fluids.fittings import( entrance_distance_Harris_t_Di, 
+                                entrance_distance_Harris_Ks, 
+                                entrance_distance_Harris_tck)
+    
+    tck_refit = splrep(entrance_distance_Harris_t_Di, entrance_distance_Harris_Ks, s=0, k=3)
+    [assert_allclose(i, j, rtol=1e-3) for i, j in zip(tck_refit, entrance_distance_Harris_tck)]
+#entrance_distance_Harris_obj = UnivariateSpline(entrance_distance_Harris_t_Di,
+#                                                entrance_distance_Harris_Ks, 
+#                                                s=0, k=3)

@@ -158,8 +158,16 @@ def test_entrance_rounded():
     K = entrance_rounded(Di=0.1, rc=0.01, method='Harris')
     assert_allclose(K, 0.04864878230217168)
     
+    # Limiting condition
+    K = entrance_rounded(Di=0.1, rc=0.0235, method='Harris')
+    assert_allclose(K, 0.0)
+    
     K = entrance_rounded(Di=0.1, rc=0.01, method='Idelchik')
     assert_allclose(K, 0.11328005177738182)
+    
+    # Limiting condition
+    K = entrance_rounded(Di=0.1, rc=0.0235, method='Idelchik')
+    assert_allclose(K, 0.03)
     
     with pytest.raises(Exception):
         entrance_rounded(Di=0.1, rc=0.01, method='BADMETHOD')
