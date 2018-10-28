@@ -269,6 +269,7 @@ def horner(coeffs, x):
 
 def chebval(x, c):    
     # Pure Python implementation of numpy.polynomial.chebyshev.chebval
+    # This routine is faster in CPython as well as PyPy
     len_c = len(c)
     if len_c == 1:
         c0, c1 = c[0], 0.0

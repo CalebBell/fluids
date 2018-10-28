@@ -340,6 +340,13 @@ def test_diffuser_conical():
     K2 = diffuser_conical(Di1=1., Di2=10.,l=9, fd=0.01)
     Ks = [1.7681854713484308, 0.973137914861591]
     assert_allclose([K1, K2], Ks)
+    
+    # Idelchilk
+    Ks_Idelchik = [diffuser_conical(Di1=.1**0.5, Di2=1, l=l,  method='Idelchik') for l in [.1, .5, 1, 2, 3, 4, 5, 20]]
+    Ks_Idelchik_expect = [0.8617385829640242, 0.9283647028367953, 0.7082429168951839, 0.291016580744589, 0.18504484868875992, 0.147705693811332, 0.12911637682462676, 0.17]
+    assert_allclose(Ks_Idelchik, Ks_Idelchik_expect, rtol=1e-2)
+
+
 
 
 ### Contractions

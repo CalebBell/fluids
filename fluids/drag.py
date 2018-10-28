@@ -25,7 +25,7 @@ from math import exp, log, log10, tanh
 from fluids.constants import g
 from fluids.numerics import newton
 from fluids.core import Reynolds
-import numpy as np
+from fluids.numerics import numpy as np
 
 __all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere',
 'time_v_terminal_Stokes', 'Stokes',

@@ -475,3 +475,14 @@ def test_bend_miter_Miller_coefficients():
 
 
 
+def test_diffuser_conical_Idelchik_coefficients():
+    from fluids.fittings import diffuser_conical_Idelchik_tck, diffuser_conical_Idelchik_angles, diffuser_conical_Idelchik_A_ratios, diffuser_conical_Idelchik_data
+    
+    diffuser_conical_Idelchik_obj = RectBivariateSpline(np.array(diffuser_conical_Idelchik_A_ratios),
+                                                    np.array(diffuser_conical_Idelchik_angles), 
+                                                    np.array(diffuser_conical_Idelchik_data),
+                                                    kx=3, ky=1)
+    
+    
+    [assert_allclose(i, j) for i, j in zip(diffuser_conical_Idelchik_obj.tck, diffuser_conical_Idelchik_tck)]
+
