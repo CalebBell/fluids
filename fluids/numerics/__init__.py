@@ -887,7 +887,7 @@ from math import gamma # Been there a while
 #has_scipy = False
 
 if has_scipy:
-    from scipy.special import lambertw, ellipe, gammainc, gamma # fluids
+    from scipy.special import lambertw, ellipe, gammaincc, gamma # fluids
     from scipy.special import i1, i0, k1, k0, iv # ht
     from scipy.special import hyp2f1    
     if erf is None:
@@ -898,7 +898,7 @@ else:
     from mpmath import lambertw # Same branches as scipy, supports .real
     from mpmath import ellipe # seems the same so far        
     
-    gammainc = lambda a, x: mpmath.gammainc(a, b=x)
+    gammaincc = lambda a, x: mpmath.gammainc(a, b=x)
     iv = mpmath.besseli
     i1 = lambda x: mpmath.besseli(1, x)
     i0 = lambda x: mpmath.besseli(0, x)

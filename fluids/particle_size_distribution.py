@@ -107,9 +107,8 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'ISO_3310_1_R40_3']
 
 from math import log, exp, pi, log10
-from fluids.numerics import brenth, epsilon, gamma, erf
-from scipy.special import gammaincc
-import numpy as np
+from fluids.numerics import brenth, epsilon, gamma, erf, gammaincc
+from fluids.numerics import numpy as np
 
 
 

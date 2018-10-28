@@ -25,7 +25,7 @@ from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
                   degrees)
 from fluids.constants import inch
 from fluids.numerics import newton, brenth, ellipe, horner, chebval
-import numpy as np
+from fluids.numerics import numpy as np
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
