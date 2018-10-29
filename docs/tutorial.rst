@@ -415,13 +415,14 @@ For a rectangle, one side length = 1, second side length = 100:
 
 Atmospheric properties
 ----------------------
-Four main classes are available to model the atmosphere. They are the
+Various main classes are available to model the atmosphere, of varying accuracy. They are the
 US Standard Atmosphere 1976 (:py:class:`~.ATMOSPHERE_1976`), a basic
 but very quick model; the NRLMSISE 00 model, substantially more powerful and
 accurate and still the standard to this day (:py:class:`~.ATMOSPHERE_NRLMSISE00`); and two
 models for wind speed only, Horizontal Wind Model 1993 (:py:func:`~.hwm93`) and 
 Horizontal Wind Model 2014 (:py:func:`~.hwm14`). The two horizontal wind models are actually
-fortran codes, and are not compiled automatically on installation.
+fortran codes, and are not compiled automatically on installation. Solar models are :py:func:`~.earthsun_distance`,
+:py:func:`~.solar_position`, :py:func:`~.sunrise_sunset` and :py:func:`~.solar_irradiation`.
 
 :py:class:`~.ATMOSPHERE_1976` is the simplest model, and very suitable for basic engineering
 purposes. It supports atmospheric temperature, density, and pressure as a 
@@ -499,6 +500,84 @@ of year, 0 seconds in, with both models:
 
 These wind velocities are only historical normals; conditions may vary year to 
 year. 
+
+The solar radiation model is based around the Sun Position Algorithm (SPA)
+developed by NREL; it can calculate the position of the sun in the sky at
+any time for any place on Earth, and can calculate how far away the sun is
+from Earth. The python implementation used is a slightly modified version
+of the Python implementation written by Tony Lorenzo and released under
+the BSD 3-clause license. The algorithm is published with the excellent
+`pvlib <https://github.com/pvlib/pvlib-python>`_ library for solar 
+energy modelling applications. 
+
+To determine the distance of earth and the sun, use the 
+:py:func:`~.earthsun_distance` function which accepts a single datetime
+object and returns the distance in meters.
+
+>>> from datetime import datetime
+>>> earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
+149080606927.64243
+
+To determine when the sun rises, sets, and is at solar noon, use the
+:py:func:`~.sunrise_sunset` function, which accepts a datetime 
+instance, a latitude, and a longitude in degrees. Note the datetime
+for all solar calculations should be in the local time zone - but never
+in daylight savings time.
+
+>>> sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17, 13, 
+... 43, 5), 51.0486, -114.07)
+>>> sunrise
+datetime.datetime(2018, 4, 17, 6, 36, 55, 782660)
+>>> sunset
+datetime.datetime(2018, 4, 17, 20, 34, 4, 249326)
+>>> transit
+datetime.datetime(2018, 4, 17, 13, 35, 46, 686265)
+
+To determine where in the sky the sun appears at any location and 
+time, use the :py:func:`~.solar_position` function, which requires 
+a datetime instance, a latitude, and a longitude.
+
+>>> apparent_zenith, _, _, _, azimuth, _ = solar_position(datetime(2003, 10, 17, 13, 30, 30), 51.0486, -114.07)
+>>> apparent_zenith, azimuth
+(60.36742528727301, 182.5136775668768)
+
+The function returns several other properties which may be of interest.
+Its first return value, apparent_zenith, is the zenith which an observer
+on the ground would see the sun at after accounting for atmospheric
+refraction. To more accurately calculate the solar position, the temperature
+and pressure at ground level are required as well - as they impact the 
+refraction as well; these arguments are accepted as well by :py:func:`~.solar_position` for more accuracy. 
+When specifying pressure, be sure to use the real pressure of the site - not an adjusted to
+standard conditions one as reported by weather stations!
+
+>>> solar_position(datetime(2003, 10, 17, 13, 30, 30), 51.0486, -114.07, T=290, P=8.9E4)[0]
+60.3701556038549
+
+The primary application of sun position is for calculating the amount of sunlight received
+by an object, via the :py:func:`~.solar_irradiation` function. Unlike the previous functions,
+it requires an installation of `pvlib <https://github.com/pvlib/pvlib-python>`_ to work.
+
+In addition to the arguments previously discussed, the surface_tilt and surface_azimuth
+of the object are required. The object is assumed to be a plane only - other objects 
+need to be discretized into planes through finite-element calculations. The elevation
+is required, as well as the average albedo of the ground surrounding the object (not
+immediately; within several kilometers). The calculation is then straightforward:
+
+>>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07,
+... moment=datetime(2018, 4, 15, 13, 43, 5), surface_tilt=41.0,
+... surface_azimuth=180.0, albedo=0.25)
+(1065.7622492480543, 945.2657257434173, 120.49652350463705, 95.31534254980346, 25.18118095483359)
+
+The first return value is the solar radiation which hits the object, in W/m^2.
+The next two are the components of the radiation that comes 1) directly from
+the sun and 2) diffusely, after being reflected from some other object. The final
+two return values break up the diffuse light into 3) a component reflected only
+in the sky and clouds and 4) a component caused by earth's albedo, bounding off
+the surface, then the sky, before hitting the object.
+
+Note that if not provided, the temperature and pressure of the ground
+are obtained via the :py:class:`~.ATMOSPHERE_NRLMSISE00` class, but this 
+quadruples the time required for the calculation.
 
 
 Compressor sizing
