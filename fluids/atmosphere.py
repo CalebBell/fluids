@@ -61,7 +61,6 @@ import os
 from fluids.constants import N_A, R, au
 from fluids.numerics import brenth
 from fluids.numerics import numpy as np
-from fluids.optional import spa
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
            'earthsun_distance', 'solar_position', 'solar_irradiation',
@@ -685,6 +684,8 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     ans = optional.hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
                0, np.array([np.nan, geomagnetic_disturbance_index]))
     return tuple(ans.tolist())
+
+
 def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
     r'''Calculates mass of air per square meter in the atmosphere using a 
     provided atmospheric model. The lowest air mass is calculated straight up;
@@ -771,13 +772,13 @@ def earthsun_distance(moment):
     Examples
     --------
     >>> earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
-    149080606927.64243
+    149080606927.64246
     
     The distance at perihelion, which occurs at 21:21 according to this
     algorithm. The real value is 04:38 (January 2nd).
         
     >>> earthsun_distance(datetime(2013, 1, 1, 21, 21, 0, 0))
-    147098089490.81647
+    147098089490.8165
     
     The distance at aphelion, which occurs at 08:44 according to this
     algorithm. The real value is 14:44 (July 5).
@@ -800,6 +801,7 @@ def earthsun_distance(moment):
        Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
        577-89. https://doi.org/10.1016/j.solener.2003.12.003.
     '''
+    from fluids.optional import spa
     delta_t = spa.calculate_deltat(moment.year, moment.month)
     unixtime = time.mktime(moment.timetuple())
     # Convert datetime object to unixtime
@@ -857,16 +859,16 @@ def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0,
     Examples
     --------
     >>> solar_position(datetime(2003, 10, 17, 13, 30, 30), 45, 45)
-    [140.8367913391112, 140.8367913391112, -50.83679133911118, -50.83679133911118, 329.9096671679604, 878.490295098145]
+    [140.8367913391112, 140.8367913391112, -50.83679133911118, -50.83679133911118, 329.9096671679604, 878.4902950980904]
 
     Sunrise occurs when the zenith is 90 degrees (Calgary, AB):
     
-    >>> solar_position(datetime(2018, 04, 15, 6, 43, 5), 51.0486, -114.07)[0]
+    >>> solar_position(datetime(2018, 4, 15, 6, 43, 5), 51.0486, -114.07)[0]
     90.00054676987014
     
     Sunrise also occurs when the zenith is 90 degrees (13.5 hours later):
         
-    >>> solar_position(datetime(2018, 04, 15, 20, 30, 28), 51.0486, -114.07)
+    >>> solar_position(datetime(2018, 4, 15, 20, 30, 28), 51.0486, -114.07)
     [89.9995695661236, 90.54103812161853, 0.00043043387640950836, -0.5410381216185247, 286.8313781904518, 6.631429525878048]
     
     Notes
@@ -897,14 +899,14 @@ def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0,
        Astronomy Stack Exchange." 
        https://astronomy.stackexchange.com/questions/237/what-azimuth-description-systems-are-in-use?rq=1.
     '''
+    from fluids.optional import spa
     delta_t = spa.calculate_deltat(moment.year, moment.month)
     unixtime = time.mktime(moment.timetuple())
     
     # Input pressure in milibar; input temperature in deg C
-    result = spa.solar_position(unixtime, lat=latitude, lon=longitude, elev=Z, 
+    result = spa.solar_position_numpy(unixtime, lat=latitude, lon=longitude, elev=Z, 
                           pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
                           atmos_refract=atmos_refract, sst=False, esd=False)
-    result = result.tolist()
     # confirmed equation of time https://www.minasi.com/figeot.asp
     # Convert minutes to seconds; sometimes negative, sometimes positive
 
@@ -957,6 +959,7 @@ def sunrise_sunset(moment, latitude, longitude):
        Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
        577-89. https://doi.org/10.1016/j.solener.2003.12.003.
     '''
+    from fluids.optional import spa
     delta_t = spa.calculate_deltat(moment.year, moment.month)
     unixtime = time.mktime(moment.timetuple())
     unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
@@ -1089,15 +1092,16 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
        https://doi.org/10.5281/zenodo.1016425.
     '''
     # Atmospheric refraction at sunrise/sunset (0.5667 deg is an often used value)
+    from fluids.optional import spa
     try:
         import pvlib
     except:
         raise ImportError(PVLIB_MISSING_MSG)
-    from pvlib.irradiance import extraradiation, total_irrad
-    from pvlib.atmosphere import relativeairmass, absoluteairmass
+    from pvlib.irradiance import get_extra_radiation, total_irrad, get_total_irradiance
+    from pvlib.atmosphere import get_relative_airmass, get_absolute_airmass
     from pvlib.clearsky import ineichen
     
-    dni_extra = extraradiation(moment, solar_constant=solar_constant, 
+    dni_extra = get_extra_radiation(moment, solar_constant=solar_constant, 
                                method=extraradiation_method, 
                                epoch_year=moment.year)
     
@@ -1130,20 +1134,23 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     else:
         raise Exception('Unrecognized airmass model')
         
-    relative_airmass = relativeairmass(used_zenith, model=airmass_model)
-    airmass_absolute = absoluteairmass(relative_airmass, pressure=P)
+    relative_airmass = get_relative_airmass(used_zenith, model=airmass_model)
+    airmass_absolute = get_absolute_airmass(relative_airmass, pressure=P)
 
     ans = ineichen(apparent_zenith=apparent_zenith,
                    airmass_absolute=airmass_absolute, 
                    linke_turbidity=linke_turbidity,
-                   altitude=Z, dni_extra=solar_constant)
+                   altitude=Z, dni_extra=solar_constant, perez_enhancement=True)
     ghi = ans['ghi']
     dni = ans['dni']
     dhi = ans['dhi']
     
-    ans = total_irrad(surface_tilt=surface_tilt, 
+    
+        
+        
+    ans = get_total_irradiance(surface_tilt=surface_tilt, 
                       surface_azimuth=surface_azimuth,
-                      apparent_zenith=apparent_zenith, azimuth=azimuth,
+                      solar_zenith=apparent_zenith, solar_azimuth=azimuth,
                       dni=dni, ghi=ghi, dhi=dhi, dni_extra=dni_extra, 
                       airmass=airmass_absolute, albedo=albedo)
     poa_global = float(ans['poa_global'])
