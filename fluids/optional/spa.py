@@ -566,6 +566,7 @@ def heliocentric_radius_vector(jme):
     else:
         cos = math.cos
     
+    # Would be possible to save a few multiplies of table1row[2]*jme, table1row[1]*jme as they are dups
     table0, table1, table2, table3, table4 = HELIO_RADIUS_TABLE_LIST[0:5]
     for row in range(40):
         table0row = table0[row]
@@ -582,9 +583,8 @@ def heliocentric_radius_vector(jme):
         
     table4row = table4[0]
     r4 = (table4row[0]*cos(table4row[1] + table4row[2]*jme))
-    r = (jme*(jme*(jme*(jme*r4 + r3) + r2) + r1) + r0)*1E-8
+    return (jme*(jme*(jme*(jme*r4 + r3) + r2) + r1) + r0)*1E-8
 #    r = (r0 + r1 * jme + r2 * jme**2 + r3 * jme**3 + r4 * jme**4)/10**8
-    return r
 
 
 #@jcompile('float64(float64)', nopython=True)
