@@ -600,6 +600,21 @@ def current_ideal(P, V, phase=3, PF=1):
 
 
 class CountryPower(object):
+    '''Class to hold information on the residential or electrical data of
+    a country. Data from Wikipedia, obtained in 2017.
+    
+    Parameters
+    ----------
+    plugs : tuple(str)
+        Tuple of residential plug letter codes in use in the country, [-]
+    voltage : float or tuple(float)
+        Voltage or voltages in common use of the country (residential data
+        has one voltage; industrial data has multiple often), [V]
+    freq : float
+        The electrical frequency in use in the country, [Hz]
+    country : str
+        The name of the country, [-]
+        '''
     __slots__ = ('plugs', 'voltage', 'freq', 'country')
     
     def __repr__(self):
@@ -1017,13 +1032,6 @@ industrial_power = {
     "ca": CountryPower(voltage=(120, 208, 240, 480, 347, 600), freq=60, country='Canada'),
     "cr": CountryPower(voltage=(240,), freq=60, country='Costa Rica')
 }
-#industrial_power_data = namedtuple('industrial_power_data', ['voltage', 'freq', 'country'])
-
-#for line in industrial_power_raw.split('\n')[1:]:
-#    code, country, voltage, freq = line.split('\t')
-#    voltage = [int(i) for i in voltage.replace(' ', '').split(',')]
-#    industrial_power[code] = industrial_power_data(voltage, int(freq), country)
-#
 
 plug_types = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']
 voltages_1_phase_residential = [100, 110, 115, 120, 127, 220, 230, 240]
@@ -1174,7 +1182,6 @@ fan_centrifugal_backward_efficiencies = {'FMEG35': FMEG35,
                                          'FMEG46': FMEG46,
                                          'FMEG50': FMEG50,
                                          'FMEG53': FMEG53,
-                                         'FMEG55': FMEG55,
                                          'FMEG55': FMEG55,
                                          'FMEG58': FMEG58,
                                          'FMEG60': FMEG60,

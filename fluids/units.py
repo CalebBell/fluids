@@ -378,10 +378,10 @@ def wrap_numpydoc_obj(obj_to_wrap):
             property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
 
     name = obj_to_wrap.__name__
-    locals()[name] = type(name, (UnitAwareClass,), 
+    fun = type(name, (UnitAwareClass,), 
            {'wrapped': obj_to_wrap, #'__doc__': obj_to_wrap.__doc__,
             'property_units': property_unit_map, 'method_units': callable_methods})
-    return locals()[name]
+    return fun
 
 
 __funcs = {}
