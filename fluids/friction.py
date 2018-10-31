@@ -56,7 +56,6 @@ __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook',
 'friction_plate_Martin_1999', 'friction_plate_Martin_VDI',
 'friction_plate_Kumar', 'friction_plate_Muley_Manglik']
 
-global fuzzy_match_fun
 fuzzy_match_fun = None
 def fuzzy_match(name, strings):
     global fuzzy_match_fun
@@ -3199,7 +3198,6 @@ def friction_plate_Martin_VDI(Re, plate_enlargement_factor):
         f0 = 64./Re
         f1 = 597./Re + 3.85
     else:
-        f0 = (1.56*log(Re) - 3.0)**-2
         f0 = (1.8*log10(Re) - 1.5)**-2
         f1 = 39.*Re**-0.289
         

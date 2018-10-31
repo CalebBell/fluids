@@ -1032,7 +1032,7 @@ def _label_distribution_n(n):  # pragma: no cover
     if n in names:
         return names[n]
     else:
-        return 'Order %s distribution' %n
+        return 'Order %s distribution' %str(n)
 
 _mean_size_docstring = r'''Calculates the mean particle size according to moment-ratio 
         notation. This is the more common and often convenient definition.
@@ -1400,12 +1400,12 @@ class ParticleSizeDistributionContinuous(object):
             # dist.cdf(dist.dn(0)-1e-35) == 0
             # dist.cdf(dist.dn(0)-1e-36) == input
             # dn(0) == 1.9663615597466143e-20
-            def err(d): 
-                cdf = self.cdf(d, n=n)
-                if cdf == 0:
-                    cdf = -1
-                return cdf
-            return brenth(err, self.d_minimum, self.d_excessive, maxiter=1000, xtol=1E-200)
+#            def err(d): 
+#                cdf = self.cdf(d, n=n)
+#                if cdf == 0:
+#                    cdf = -1
+#                return cdf
+#            return brenth(err, self.d_minimum, self.d_excessive, maxiter=1000, xtol=1E-200)
 
         elif fraction > 1:
             raise ValueError('Fraction less than 1')

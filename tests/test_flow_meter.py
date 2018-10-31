@@ -54,7 +54,15 @@ def test_C_Reader_Harris_Gallagher():
 #def test_Reader_Harris_Gallagher_discharge():
 #    m = Reader_Harris_Gallagher_discharge(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, taps='D')
 #    assert_allclose(m, 7.702338035732167)
+
+    with pytest.raises(Exception):
+        C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5,  m=0.12, taps='NOTALOCATION') 
     
+    # Test continuity at the low-diameter function
+    kwargs = dict(Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, taps='corner')
+    C1 = C_Reader_Harris_Gallagher(D=0.07112, **kwargs)
+    C2 = C_Reader_Harris_Gallagher(D=0.07112-1e-13, **kwargs)
+    assert_allclose(C1, C2)
     
 def test_differential_pressure_meter_discharge():
     # Orifice
@@ -88,6 +96,9 @@ def test_differential_pressure_meter_discharge():
     # wedge meter
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
     assert_allclose(m, 8.941980099523539)
+    
+    with pytest.raises(ValueError):
+        differential_pressure_meter_solver(D=.07366, m=7.702338, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
 
 
 def test_differential_pressure_meter_diameter():
@@ -282,9 +293,18 @@ def test_dP_cone_meter():
 
 
 def test_C_wedge_meter_Miller():
+    # Large bore
     D = 0.15239999999999998
     C = C_wedge_meter_Miller(D=D, H=0.3*D)
     assert_allclose(C, 0.7267069372687651)
+    
+    # Tiny bore
+    C = C_wedge_meter_Miller(D=.6*inch, H=0.3*.6*inch)
+    assert_allclose(C, 0.8683022107124251)
+    
+    # Medium bore
+    C = C_wedge_meter_Miller(D=1.3*inch, H=0.3*1.3*inch)
+    assert_allclose(C, 1.15113726440674)
     
     
 def test_C_wedge_meter_ISO_5167_6_2017():
@@ -340,6 +360,9 @@ def test_differential_pressure_meter_dP():
 
     dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=WEDGE_METER)
     assert_allclose(dP, 7112.927753356824)
+    
+    with pytest.raises(Exception):
+        differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, meter_type=VENTURI_NOZZLE) 
 
 
 def test_differential_pressure_meter_beta():

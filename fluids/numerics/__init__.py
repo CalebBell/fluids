@@ -30,7 +30,7 @@ __all__ = ['horner', 'chebval', 'interp',
            'bisect', 'ridder', 'brenth', 'newton', 
            'splev', 'bisplev', 'derivative',
            'IS_PYPY',
-           'lambertw', 'ellipe', 'gamma', 'gammainc', 'erf',
+           'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv',
            'numpy',
            ]
