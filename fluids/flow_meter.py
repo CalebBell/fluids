@@ -280,7 +280,8 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         Re_D = \frac{\rho v D}{\mu}
         
         
-    If D < 71.12 mm (2.8 in.):
+    If D < 71.12 mm (2.8 in.) (Note this is a continuous addition; there is no
+    discontinuity):
         
     .. math::
         C += 0.11(0.75-\beta)\left(2.8-\frac{D}{0.0254}\right)
@@ -423,9 +424,10 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         # Suggested to be required not becausue of any effect of small
         # diameters themselves, but because of edge radius differences.
         # max term is given in [4]_ Reader-Harris, Michael book
+        # There is a check for t3 being negative and setting it to zero if so
+        # in some sources but that only occurs when t3 is exactly the limit
+        # (0.07112) so it is not needed
         t3 = (2.8 - D/0.0254)
-        if t3 < 0.0:
-            t3 = 0.0
         delta_C_diameter = 0.011*(0.75 - beta)*t3
         C += delta_C_diameter
     
@@ -1789,7 +1791,8 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
     ... meter_type='ISO 5167 orifice', taps='D')
     0.04999999990831885
     '''
-    if m is None:
+    if m is None and None not in (D, D2, P1, P2):
+        
         def to_solve(m):
             epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
@@ -1798,7 +1801,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
                                         C=C, expansibility=epsilon)
             return m - m_calc
         return newton(to_solve, 2.81)
-    elif D2 is None:
+    elif D2 is None and None not in (D, m, P1, P2):
         def to_solve(D2):
             epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
@@ -1807,7 +1810,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
                                         C=C, expansibility=epsilon)
             return m - m_calc    
         return brenth(to_solve, D*(1-1E-9), D*5E-3)
-    elif P2 is None:
+    elif P2 is None and None not in (D, D2, m, P1):
         def to_solve(P2):
             epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
@@ -1816,7 +1819,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
                                         C=C, expansibility=epsilon)
             return m - m_calc    
         return brenth(to_solve, P1*(1-1E-9), P1*0.5)
-    elif P1 is None:
+    elif P1 is None and None not in (D, D2, m, P2):
         def to_solve(P1):
             epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
@@ -1826,7 +1829,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             return m - m_calc    
         return brenth(to_solve, P2*(1+1E-9), P2*1.4)
     else:
-        raise Exception('Solver is capable of solving for one of P2, D2, or m only.')
+        raise ValueError('Solver is capable of solving for one of P2, D2, or m only.')
     
 
 def differential_pressure_meter_dP(D, D2, P1, P2, C=None, 

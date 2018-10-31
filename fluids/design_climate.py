@@ -57,7 +57,6 @@ try:  # pragma: no cover
     data_dir = user_config_dir('fluids')
 except ImportError:  # pragma: no cover
     data_dir = ''
-    pass
 
 try:  # pragma: no cover
     import geopy
@@ -74,13 +73,11 @@ except:  # pragma: no cover
     import pickle
 
 # Geopy cache/lookup layer, also requires appdirs for caching, can work without
-global geolocator
 geolocator = None
 geolocator_user_agent = 'fluids'
 geolocator_disk_cache_name = 'simple_geolocator_cache.sqlite3'
 geolocator_disk_cache_loc = os.path.join(data_dir, geolocator_disk_cache_name)
 
-global simple_geopy_cache
 simple_geopy_cache = None
 
 geopy_missing_msg = '''Geocoder module `geopy` is required for this 
