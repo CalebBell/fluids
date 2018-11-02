@@ -291,6 +291,9 @@ def test_isothermal_gas():
     assert_allclose(isothermal_gas(11.3, 0.00185, P1=1E6, m=145.484757264, L=1000., D=0.5), 9E5)
     assert_allclose(isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, m=145.484757264, L=1000.), 0.5)
     
+    P2_calc = isothermal_gas(rho=109.3, fd=0.000185, P1=1E6, m=130000.4847572636031, L=1, D=4)
+    assert_allclose(P2_calc, 998851.2525573325)
+    
     with pytest.raises(Exception):
         isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000)        
     with pytest.raises(Exception):

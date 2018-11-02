@@ -866,11 +866,13 @@ inlet pressure; fluid will flow backwards.')
             lambert_ans = float(lambertw(arg, k=-1).real)
             # Large overflow problem here; also divide by zero problems!
             # Fail and try a numerical solution if it doesn't work.
-            assert not math.isinf(lambert_ans)
+            if isinf(lambert_ans):
+                raise ValueError
             P2 = P1/exp((-C*m**2+lambert_ans*m**2+B*P1)/m**2/2.)
-            assert P2 < P1
+            if P1 < P2:
+                raise ValueError
             return P2
-        except:
+        except (ValueError, OverflowError):
             Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
             def to_solve(P2):
                 return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)

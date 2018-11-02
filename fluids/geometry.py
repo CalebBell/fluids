@@ -203,17 +203,19 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
-    R = D/2.
-    Af = R*R*acos((R-h)/R) - (R-h)*(2*R*h - h*h)**0.5
+    R = 0.5*D
+    R2 = R*R
+    Af = R2*acos((R-h)/R) - (R-h)*(2.0*R*h - h*h)**0.5
     M = abs((R-h)/R)
     if h == R:
-        Vf = a*R*R/3.*pi
+        Vf = a*R2/3.*pi
     else:
-        K = acos(M) + M*M*M*acosh(1./M) - 2.*M*(1.-M*M)**0.5
+        M2 = M*M
+        K = acos(M) + M*M2*acosh(1./M) - 2.*M*(1.-M2)**0.5
         if 0. <= h < R:
-            Vf = 2.*a*R*R/3*K
-        elif R < h <= 2*R:
-            Vf = 2.*a*R*R/3*(pi - K)
+            Vf = 2.*a*R2/3*K
+        elif R < h <= 2.0*R:
+            Vf = 2.*a*R2/3*(pi - K)
     if headonly:
         Vf = 0.5*Vf
     else:
@@ -993,28 +995,29 @@ def V_vertical_torispherical_concave(D, f, k, h):
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
     '''
-    alpha = asin((1-2*k)/(2.*(f-k)))
-    a1 = f*D*(1-cos(alpha))
+    alpha = asin((1.0 - 2.0*k)/(2.*(f-k)))
+    a1 = f*D*(1.0 - cos(alpha))
     a2 = k*D*cos(alpha)
-    D1 = 2*f*D*sin(alpha)
+    D1 = 2.0*f*D*sin(alpha)
     s = (k*D*sin(alpha))**2
-    t = 2*a2
+    t = 2.0*a2
     def V1(h):
-        u = h-f*D*(1-cos(alpha))
-        v1 = pi/4*(2*a1**3/3. + a1*D1**2/2.) + pi*u*((D/2.-k*D)**2 +s)
-        v1 += pi*t*u**2/2. - pi*u**3/3.
-        v1 += pi*D*(1-2*k)*((2*u-t)/4.*(s+t*u-u**2)**0.5 + t*s**0.5/4.
-        + k**2*D**2/2.*(acos((t-2*u)/(2*k*D)) -alpha))
+        u = h-f*D*(1.0 - cos(alpha))
+        u2 = u*u
+        v1 = 0.25*pi*(2.0*a1*a1*a1/3. + 0.5*a1*D1*D1) + pi*u*((0.5*D-k*D)**2 +s)
+        v1 += 0.5*pi*t*u2 - pi*u2*u/3.
+        v1 += pi*D*(1.0 - 2.0*k)*(0.25*(2.0*u-t)*(s+t*u-u2)**0.5 + 0.25*t*s**0.5
+        + 0.5*k*k*D*D*(acos((t-2.0*u)/(2.0*k*D)) - alpha))
         return v1
     def V2(h):
-        v2 = pi*h**2/4.*(2*a1 + D1**2/(2.*a1) - 4*h/3.)
+        v2 = pi*h*h/4.*(2.0*a1 + D1*D1/(2.*a1) - 4.0*h/3.)
         return v2
     if 0 <= h < a2:
-        Vf = pi*D**2*h/4 - V1(a1+a2) + V1(a1+a2-h)
+        Vf = 0.25*pi*D*D*h - V1(a1+a2) + V1(a1+a2-h)
     elif a2 <= h < a1 + a2:
-        Vf = pi*D**2*h/4 - V1(a1+a2) + V2(a1+a2-h)
+        Vf = 0.25*pi*D*D*h - V1(a1+a2) + V2(a1+a2-h)
     else:
-        Vf = pi*D**2*h/4 - V1(a1+a2)
+        Vf = 0.25*pi*D*D*h - V1(a1+a2)
     return Vf
 
 

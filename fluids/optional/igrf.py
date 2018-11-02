@@ -296,7 +296,9 @@ def igrf12syn(isv, date, itype, alt, lat, elong):
     #
     return x, y, z, f
     
-    
+
+
+
 def igrf_value(lat, lon, alt=0., year=2005.):
     """
     :return
@@ -314,6 +316,21 @@ def igrf_value(lat, lon, alt=0., year=2005.):
     I = FACT * atan2(Z, H)
     return D, I, H, X, Y, Z, F
 
+
+def igrf_values(lat, lon, alt=0., year=2005.):
+    # from igrf_value
+    X, Y, Z, F = igrf12syn(0, year, 1, alt, lat, lon)
+    D = FACT * atan2(Y, X)
+    H = sqrt(X * X + Y * Y)
+    I = FACT * atan2(Z, H)
+
+    DX, DY, DZ, DF = igrf12syn(1, year, 1, alt, lat, lon)
+    DD = (60.0 * FACT * (X * DY - Y * DX)) / (H * H)
+    DH = (X * DX + Y * DY) / H
+    DS = (60.0 * FACT * (H * DZ - Z * DH)) / (F * F)
+    DF = (H * DH + Z * DZ) / F
+    
+    return (D, I, H, X, Y, Z, F), (DD, DS, DH, DX, DY, DZ, DF)
 
 def igrf_variation(lat, lon, alt=0., year=2005):
     """

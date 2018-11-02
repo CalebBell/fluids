@@ -280,7 +280,7 @@ def Colebrook(Re, eD, tol=None):
         try:
             from mpmath import mpf, log, sqrt, mp
             from mpmath import lambertw as mp_lambertw
-        except:
+        except: # pragma: no cover
             raise ImportError('For exact solutions, the `mpmath` library is '
                               'required')
         mp.dps = 50

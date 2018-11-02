@@ -178,6 +178,9 @@ def test_entrance_beveled():
 
     K = entrance_beveled(Di=0.1, l=0.003, angle=45, method='Idelchik')
     assert_allclose(K, 0.3995000000000001)
+    
+    with pytest.raises(Exception):
+        entrance_beveled(Di=0.1, l=0.003, angle=45, method='BADMETHOD') 
 
 
 def test_entrance_sharp():

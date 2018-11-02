@@ -52,6 +52,7 @@ from math import exp, cos, radians
 from fluids.constants import N_A, R
 from fluids.numerics import brenth
 from fluids.numerics import numpy as np
+from datetime import datetime
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14', 'airmass']
 
@@ -503,6 +504,79 @@ class ATMOSPHERE_NRLMSISE00(object):
         self.particle_density = sum(getattr(self, a) for a in self.atrrs)
         self.zs = [getattr(self, a)/self.particle_density for a in self.atrrs]
 
+
+class MagnetosphereIGRF(object):
+    r'''Class representing earth's magnetosphere's properties at a single
+    point of specified latitute, longitude, altitude `Z`, and year.
+    
+    Parameters
+    ----------
+    latitude : float
+        Latitude, between -90 and 90 [degrees]
+    longitude : float
+        Longitude, between -180 and 180 or 0 and 360, [degrees]
+    Z : float, optional
+        Elevation, [m]
+    year : float, optional
+        The year for which to calculate the properties; the day of year should
+        be included as a fraction of the year, [date]
+        
+    Attributes
+    ----------
+    D : float
+        Declination, [nT]
+    I : float
+        Inclination, [nT]
+    H : float
+        Horizontal intensity, [nT]
+    X : float
+        North component, [nT]
+    Y : float
+        East component, [nT]
+    Z : float
+        Vertical component, [nT]
+    F : float
+        Total intensity, [nT]
+
+    Examples
+    --------
+    
+    Notes
+    -----
+    
+    References
+    ----------
+    .. [1] 
+    '''        
+    def __init__(self, latitude, longitude, Z=0., year=None):
+        self.latitude = latitude
+        self.longitude = longitude
+        self.Z = Z
+        if isinstance(year, datetime):
+            year = year.year # TODO fraction of a year
+        self.year = year
+        
+        from fluids.optional import igrf
+        
+        (D, I, H, X, Y, Z, F), (DD, DS, DH, DX, DY, DZ, DF) = igrf.igrf_values(
+                latitude, longitude, Z, self.year)
+        self.D = D
+        self.I = I
+        self.H = H
+        self.X = X
+        self.Y = Y
+        self.Z = Z
+        self.F = F
+        
+        self.DD = DD
+        self.DS = DS
+        self.DH = DH
+        self.DX = DX
+        self.DY = DY
+        self.DZ = DZ
+        self.DF = DF
+        
+        
 
 def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150., 
           f107_avg=150., geomagnetic_disturbance_index=4):

@@ -138,12 +138,14 @@ def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
             R = A_nozzle/A_mixing
             
     if P1 is None:        
-        return rhop/2*(Qp/A_nozzle)**2*((1+Kp) - C*(1 + Ks)*((M*R)/(1-R))**2 ) + P2
+        return rhop/2*(Qp/A_nozzle)**2*((1.0+Kp) - C*(1.0 + Ks)*((M*R)/(1.0-R))**2 ) + P2
     elif P2 is None:
-        return -rhop/2*(Qp/A_nozzle)**2*((1+Kp) - C*(1 + Ks)*((M*R)/(1-R))**2 ) + P1
+        return -rhop/2*(Qp/A_nozzle)**2*((1.0+Kp) - C*(1.0 + Ks)*((M*R)/(1.0-R))**2 ) + P1
     elif Qs is None:
         try:
-            return ((-2*A_nozzle**2*P1 + 2*A_nozzle**2*P2 + Kp*Qp**2*rhop + Qp**2*rhop)/(C*rhop*(Ks + 1)))**0.5*(A_mixing - A_nozzle)/A_nozzle
+            A_nozzle2 = A_nozzle*A_nozzle
+            Qp2 = Qp*Qp
+            return ((-2.0*A_nozzle2*P1 + 2.0*A_nozzle2*P2 + Kp*Qp2*rhop + Qp2*rhop)/(C*rhop*(Ks + 1.0)))**0.5*(A_mixing - A_nozzle)/A_nozzle
         except ValueError:
             return -1j
     elif Qp is None:

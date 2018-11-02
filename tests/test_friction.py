@@ -94,6 +94,13 @@ def test_friction():
     Di = 0.1
     fd_act = Colebrook(7.5E6*Di, eD=roughness_Farshad(ID='Carbon steel, bare', D=Di)/Di)
     assert_allclose(fd, fd_act, rtol=5e-6)
+    
+    # There is a tiny discontinuity in this function at D = 1 cm of .0004% as the
+    # method switches between the 1 iter Clamond and the two iter Clamond.
+
+    fd_fast_limit = ft_Crane(.01)
+    fd_slow_tick = ft_Crane(.01-1e-15)
+    assert_allclose(fd_fast_limit, fd_slow_tick, rtol=4e-6)
 
 
 @pytest.mark.slow
