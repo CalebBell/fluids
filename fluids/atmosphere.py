@@ -54,7 +54,7 @@ Wind Models (requires Fortran compiler!)
 
 from __future__ import division
 
-from math import exp, cos, radians
+from math import exp, cos, radians, pi, sin
 import time
 from datetime import datetime
 import os
@@ -976,6 +976,27 @@ apparent_zenith_airmass_models = set(['simple', 'kasten1966', 'kastenyoung1989',
 true_zenith_airmass_models = set(['youngirvine1967', 'young1994'])
 
 
+def get_extra_radiation_shim(datetime_or_doy, solar_constant=1366.1,
+    method='spencer', epoch_year=2014, **kwargs):
+    if method == 'spencer':
+        if not isinstance(datetime_or_doy, (float, int)):
+            dayofyear = datetime_or_doy.timetuple().tm_yday
+        else:
+            dayofyear = datetime_or_doy
+        B = (2.*pi/365.)*(dayofyear - 1)
+        RoverR0sqrd = (1.00011 + 0.034221*cos(B) + 0.00128*sin(B) +
+        0.000719*cos(2.0*B) + 7.7e-05*sin(2.0*B))
+
+        Ea = solar_constant * RoverR0sqrd
+        return Ea
+    from pvlib import get_extra_radiation
+    return get_extra_radiation(datetime_or_doy=datetime_or_doy,
+                              solar_constant=solar_constant,
+                              method=method,
+                              epoch_year=epoch_year,
+                              **kwargs)
+
+
 def solar_irradiation(latitude, longitude, Z, moment, surface_tilt, 
                       surface_azimuth, T=None, P=None, solar_constant=1366.1,
                       atmos_refract=0.5667, albedo=0.25, linke_turbidity=None, 
@@ -1100,12 +1121,15 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     from pvlib.irradiance import get_extra_radiation, total_irrad, get_total_irradiance
     from pvlib.atmosphere import get_relative_airmass, get_absolute_airmass
     from pvlib.clearsky import ineichen
-    
-    dni_extra = get_extra_radiation(moment, solar_constant=solar_constant, 
+
+    moment_timetuple = moment.timetuple()
+    moment_arg_dni = (moment_timetuple.tm_yday if 
+                      extraradiation_method == 'spencer' else moment)
+
+    dni_extra = get_extra_radiation_shim(moment_arg_dni, solar_constant=solar_constant, 
                                method=extraradiation_method, 
                                epoch_year=moment.year)
     
-    moment_timetuple = moment.timetuple()
     if T is None or P is None:
         atmosphere = ATMOSPHERE_NRLMSISE00(Z=Z, latitude=latitude, 
                                            longitude=longitude, 
