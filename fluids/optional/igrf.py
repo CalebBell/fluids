@@ -40,9 +40,6 @@ SOFTWARE.
 """
 
 from __future__ import division
-
-
-import numpy as np
 from math import pi, sin, cos, atan2, sqrt
 import os
 
@@ -64,7 +61,9 @@ def loadCoeffs(filename):
                 b = a.split()[3:]
                 b = [float(x) for x in b]
                 gh2arr.append(b)
-        gh2arr = np.array(gh2arr).transpose().tolist()
+        # Transpose the matrix
+        gh2arr = [[gh2arr[j][i] for j in range(len(gh2arr))] for i in range(len(gh2arr[0])) ]
+        
         N = len(gh2arr)
         for i in range(N):
             if i < 19:
