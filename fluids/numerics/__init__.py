@@ -26,6 +26,7 @@ import sys
 from sys import float_info
 
 __all__ = ['horner', 'chebval', 'interp',
+           'linspace', 'logspace', 'cumsum', 'diff',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 
            'splev', 'bisplev', 'derivative',
@@ -35,6 +36,7 @@ __all__ = ['horner', 'chebval', 'interp',
            'numpy',
            ]
 
+nan = float("nan")
 
 class FakePackage(object):
     pkg = None
@@ -75,6 +77,44 @@ _xtol = 1e-12
 _rtol = float_info.epsilon*2.0
 
 
+def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
+    '''Port of numpy's linspace to pure python. Does not support dtype, and 
+    returns lists of floats.
+    '''
+    num = int(num)
+    start = start * 1.
+    stop = stop * 1.
+
+    if num <= 0:
+        return []
+    if endpoint:
+        if num == 1:
+            return [start]
+        step = (stop-start)/float((num-1))
+        if num == 1:
+            step = nan
+        
+        y = [start]
+        for _ in range(num-2):
+            y.append(y[-1] + step)
+        y.append(stop)
+    else:
+        step = (stop-start)/float(num)
+        if num == 1:
+            step = nan
+        y = [start]
+        for _ in range(num-1):
+            y.append(y[-1] + step)
+    if retstep:
+        return y, step
+    else:
+        return y
+
+
+def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None):
+    y = linspace(start, stop, num=num, endpoint=endpoint)
+    return [base**yi for yi in y]
+
 
 def product(l):
     # Helper in some functions
@@ -82,6 +122,33 @@ def product(l):
     for i in l:
         tot *= i
     return tot
+
+
+def cumsum(a):
+    # Does not support multiple dimensions
+    sums = [a[0]]
+    for i in a[1:]:
+        sums.append(sums[-1] + i)
+    return sums
+
+
+def diff(a, n=1, axis=-1):
+    if n == 0:
+        return a
+    if n < 0:
+        raise ValueError(
+            "order must be non-negative but got %s" %(n))
+#    nd = 1 # hardcode
+    diffs = []
+    for i in range(1, len(a)):
+        delta = a[i] - a[i-1]
+        diffs.append(delta)
+    
+    if n > 1:
+        return diff(diffs, n-1)
+    return diffs
+
+
 
 central_diff_weights_precomputed = {
  (1, 3): [-0.5, 0.0, 0.5],
