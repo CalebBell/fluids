@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from numpy.testing import assert_allclose
-from fluids.atmosphere import ATMOSPHERE_1976, hwm93, hwm14, airmass
-
+from fluids.atmosphere import ATMOSPHERE_1976, MagnetosphereIGRF, hwm93, hwm14, airmass
+import numpy as np
 
 
 def test_ATMOSPHERE_1976():
@@ -191,3 +191,114 @@ def test_hwm14():
         assert_allclose(ZON_CALC, AP_PROFILE_ZON)
     except:
         pass
+
+
+def test_igrf_datetime():
+    # Test two calls get different results
+    import datetime
+    ans1 = MagnetosphereIGRF(-45, 50, 0, datetime.datetime.now()).total_intensity
+    ans2 = MagnetosphereIGRF(-45, 50, 0, datetime.datetime.now()).total_intensity
+    assert ans1 != ans2
+    
+    
+def test_igrf():
+    # 1 Height, km
+    # 2 B_total, nT
+    # 3 B_north, nT
+    # 4 B_east, nT
+    # 5 B_down, nT
+    # 6 DIP_Inclination, deg
+    # 7 DIP_Declination, deg.
+    
+    txt = '''0.  37750.8  11326.4 -13042.3 -33566.9  -62.8  -49.0
+         100.  36345.2  10998.5 -12199.3 -32422.0  -63.1  -48.0
+         200.  35003.3  10677.2 -11425.9 -31315.7  -63.5  -46.9
+         300.  33721.6  10363.3 -10715.3 -30247.8  -63.8  -46.0
+         400.  32497.1  10056.9 -10061.4 -29217.9  -64.0  -45.0
+         500.  31326.7   9758.4  -9458.7 -28225.3  -64.3  -44.1
+         600.  30207.7   9468.0  -8902.5 -27269.2  -64.5  -43.2
+         700.  29137.5   9185.7  -8388.3 -26348.7  -64.7  -42.4
+         800.  28113.8   8911.7  -7912.4 -25462.9  -64.9  -41.6
+         900.  27134.1   8645.8  -7471.4 -24610.7  -65.1  -40.8
+        1000.  26196.4   8388.2  -7062.0 -23791.2  -65.3  -40.1'''
+    to_1000_km = np.fromstring(txt, sep=' ')
+    to_1000_km = to_1000_km.reshape(11, 7)
+    
+    txt = '''1000.  19247.8  17621.0  -1444.8  -7608.6  -23.3   -4.7
+        3900.   6655.0   6457.6   -755.0  -1420.8  -12.3   -6.7
+        6800.   3147.9   3095.4   -413.9   -395.3   -7.2   -7.6
+        9700.   1744.5   1721.9   -245.6   -134.4   -4.4   -8.1
+       12600.   1068.4   1055.7   -156.3    -50.2   -2.7   -8.4
+       15500.    701.7    693.6   -105.1    -18.8   -1.5   -8.6
+       18400.    485.6    479.9    -73.9     -6.0   -0.7   -8.7
+       21300.    350.0    345.8    -53.8     -0.5   -0.1   -8.8
+       24200.    260.5    257.3    -40.4      1.8    0.4   -8.9
+       27100.    199.1    196.7    -31.1      2.7    0.8   -9.0
+       30000.    155.6    153.6    -24.4      3.0    1.1   -9.0'''
+    to_30000_km = np.fromstring(txt, sep=' ')
+    to_30000_km = to_30000_km.reshape(11, 7)
+    
+    txt = '''0.  33328.9  28850.0   4601.2  16041.2   28.8    9.1
+           0.  33327.4  28848.8   4601.1  16040.3   28.8    9.1
+           0.  33325.8  28847.5   4600.9  16039.4   28.8    9.1
+           0.  33324.3  28846.3   4600.7  16038.6   28.8    9.1
+           0.  33322.8  28845.0   4600.6  16037.7   28.8    9.1
+           1.  33321.3  28843.7   4600.4  16036.9   28.8    9.1
+           1.  33319.7  28842.5   4600.2  16036.0   28.8    9.1
+           1.  33318.2  28841.2   4600.1  16035.2   28.8    9.1
+           1.  33316.7  28839.9   4599.9  16034.3   28.8    9.1
+           1.  33315.1  28838.7   4599.7  16033.4   28.8    9.1
+           1.  33313.6  28837.4   4599.6  16032.6   28.8    9.1'''
+    to_1_km = np.fromstring(txt, sep=' ')
+    to_1_km = to_1_km.reshape(11, 7)
+    
+    # One bug found (at least vs. reference fortran code)
+    #    -90.00  56594.5  -7540.3 -14452.7 -54196.0  -73.3  -62.4
+    # -80.00  57699.8  -3291.2 -14982.0 -55623.5  -74.6  -77.6
+    txt = '''
+       -70.00  58317.1    457.0 -14882.8 -56384.2  -75.2  -88.2
+       -60.00  58437.3   4566.8 -13966.8 -56559.7  -75.4  -71.9
+       -50.00  57619.3   9312.7 -12284.3 -55518.9  -74.5  -52.8
+       -40.00  55785.5  14631.1 -10067.3 -52882.9  -71.4  -34.5
+       -30.00  53064.8  20673.4  -7604.5 -48276.9  -65.5  -20.2
+       -20.00  49452.1  27404.5  -5215.9 -40832.6  -55.7  -10.8
+       -10.00  45240.4  33980.3  -3247.8 -29689.8  -41.0   -5.5
+         0.00  41736.0  38928.0  -1922.1 -14926.9  -21.0   -2.8
+        10.00  40981.5  40909.8  -1155.4   2129.9    3.0   -1.6
+        20.00  43884.8  39377.8   -614.8  19361.8   26.2   -0.9
+        30.00  49111.8  34769.6     -0.2  34684.9   44.9    0.0
+        40.00  54570.1  28145.2    747.5  46745.9   58.9    1.5
+        50.00  58722.6  20584.6   1483.1  54976.5   69.4    4.1
+        60.00  60643.2  13045.6   2006.6  59189.4   77.4    8.7
+        70.00  60084.6   6700.8   2190.3  59669.6   83.3   18.1
+        80.00  57982.3   2724.6   2072.6  57881.2   86.6   37.3
+        90.00  56396.8   1161.1   1848.2  56354.5   87.8   57.9'''
+    latitude_variation = np.fromstring(txt, sep=' ')
+    # 90 row breaks
+    latitude_variation = latitude_variation.reshape(17, 7)
+    
+    
+    def validate_row(atm, row):
+        assert_allclose(round(atm.declination, 1), row[6])
+        assert_allclose(round(atm.inclination, 1), row[5])
+        assert_allclose(round(atm.total_intensity, 1), row[1], rtol=1e-4)
+        assert_allclose(round(atm.north_intensity, 1), row[2], rtol=1e-4)
+        assert_allclose(round(atm.east_intensity, 1), row[3], rtol=1e-4, atol=.1)
+        assert_allclose(round(atm.vertical_intensity, 1), row[4], rtol=1e-4, atol=.1)
+    
+    def ccmc_validate_H(lat, lon, year, Hs, array):
+        for H, row in zip(Hs, array):
+            atm = MagnetosphereIGRF(lat, lon, H, year)
+            validate_row(atm, row)
+    
+    def ccmc_validate_lat(lats, lon, year, H, array):
+        for lat, row in zip(lats, array):
+            atm = MagnetosphereIGRF(lat, lon, H, year)
+            validate_row(atm, row)
+
+    ccmc_validate_H(-45, 50, 2018, np.linspace(0, 1e6, 11).tolist(), to_1000_km )
+    ccmc_validate_H(0, 5, 2016, np.linspace(1000*1000, 30000*1000, 11).tolist(), to_30000_km)
+    ccmc_validate_H(15, 200, 2012, np.linspace(0, 1000, 11).tolist(), to_1_km )
+    
+    ccmc_validate_lat(np.linspace(-90, 90, 19).tolist()[2:],
+                     90, 1990, 0, latitude_variation)

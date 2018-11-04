@@ -36,6 +36,9 @@ Atmospheres
     :members:
 .. autoclass:: ATMOSPHERE_NRLMSISE00
     :members:
+.. autoclass:: MagnetosphereIGRF
+    :members:
+        
 .. autofunction:: airmass
         
 
@@ -49,12 +52,14 @@ Wind Models (requires Fortran compiler!)
 from __future__ import division
 import os
 from math import exp, cos, radians
-from fluids.constants import N_A, R
+from fluids.constants import N_A, R, day
 from fluids.numerics import brenth
 from fluids.numerics import numpy as np
 from datetime import datetime
 
-__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14', 'airmass']
+__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 
+           'hwm93', 'hwm14', 'airmass', 
+           'MagnetosphereIGRF']
 
 no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
@@ -517,57 +522,80 @@ class MagnetosphereIGRF(object):
         Longitude, between -180 and 180 or 0 and 360, [degrees]
     Z : float, optional
         Elevation, [m]
-    year : float, optional
+    year : float or datetime, optional
         The year for which to calculate the properties; the day of year should
-        be included as a fraction of the year, [date]
+        be included as a fraction of the year (datetimes are also accepted and
+        should be in GMT0 time i.e. timezone unaware), [year]
         
     Attributes
     ----------
-    D : float
-        Declination, [nT]
-    I : float
-        Inclination, [nT]
-    H : float
-        Horizontal intensity, [nT]
-    X : float
+    declination : float
+        Declination, [degrees]
+    inclination : float
+        Inclination, [degrees]
+    
+    north_intensity : float
         North component, [nT]
-    Y : float
+    east_intensity : float
         East component, [nT]
-    Z : float
+    vertical_intensity : float
         Vertical component, [nT]
-    F : float
+    
+    total_intensity : float
         Total intensity, [nT]
+    horizontal_intensity : float
+        Horizontal intensity 
+        :math:`\sqrt{(\text{north intensity})^2 + (\text{east intensity})^2}`,
+        [nT]
 
     Examples
     --------
+    >>> MagnetosphereIGRF(-45, 50, 0, 2018).total_intensity
+    37751.163540564965
+    >>> MagnetosphereIGRF(-45, 50, 0, datetime(2013, 2, 13)).north_intensity
+    4277.699721647899
     
     Notes
     -----
+    This model takes on the order of 700 us to compute a point. Note the units
+    are in nanoteslas!
     
     References
     ----------
-    .. [1] 
+    .. [1] Thébault, Erwan, Christopher C. Finlay, Ciarán D. Beggan, Patrick 
+       Alken, Julien Aubert, Olivier Barrois, Francois Bertrand, et al. 
+       "International Geomagnetic Reference Field: The 12th Generation." 
+       Earth, Planets and Space 67, no. 1 (May 27, 2015): 79. 
+       https://doi.org/10.1186/s40623-015-0228-9.
     '''        
     def __init__(self, latitude, longitude, Z=0., year=None):
         self.latitude = latitude
         self.longitude = longitude
         self.Z = Z
         if isinstance(year, datetime):
-            year = year.year # TODO fraction of a year
+            # Get the day's fraction
+            seconds_since_year = (year - year.replace(day=1, month=1, hour=0, 
+                                                      minute=0, second=0, 
+                                                      microsecond=0)).total_seconds()
+            seconds_in_year = day*(366.0 if (year.year % 4 == 0 and 
+                    (year.year % 100 != 0 or year.year % 400 == 0)) else 365.0)
+            year = year.year + seconds_since_year/seconds_in_year
         self.year = year
         
         from fluids.optional import igrf
         
         (D, I, H, X, Y, Z, F), (DD, DS, DH, DX, DY, DZ, DF) = igrf.igrf_values(
-                latitude, longitude, Z, self.year)
-        self.D = D
-        self.I = I
-        self.H = H
-        self.X = X
-        self.Y = Y
-        self.Z = Z
-        self.F = F
+                latitude, longitude, Z*1e-3, self.year)
+        self.declination = D
+        self.inclination = I
+        self.horizontal_intensity = H
+        self.north_intensity = X
+        self.east_intensity = Y
+        self.vertical_intensity = Z
+        self.total_intensity = F
         
+        # The derivatives are available but undocumented as they are not likely
+        # to be used
         self.DD = DD
         self.DS = DS
         self.DH = DH

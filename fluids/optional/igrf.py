@@ -1,4 +1,47 @@
- 
+# -*- coding: utf-8 -*-
+"""
+igrf module
+==============
+Vendorized version from:
+https://github.com/zzyztyy/pyIGRF
+
+Copyright (c) 2018 zzyztyy
+
+The rational for not including this library as a strict dependency is that
+the module is small and straightforward and various changes were made to make 
+it run without NumPy and fast under PyPy.
+
+.. moduleauthor :: zzyztyy <2375672032@qq.com>
+
+The copyright notice (MIT) is as follows:
+    
+MIT License
+
+Copyright (c) 2018 zzyztyy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+"""
+
+from __future__ import division
+
+
 import numpy as np
 from math import pi, sin, cos, atan2, sqrt
 import os
@@ -39,16 +82,16 @@ coeff_path = os.path.join(os.path.dirname(__file__), 'igrf12coeffs.txt')
 gh = loadCoeffs(coeff_path)
 
 
-def getCoeffs(date):
+def getCoeffs(date):  # pragma: no cover
     """
+    Not used.
+    
     :param gh: list from loadCoeffs
     :param date: float
     :return: list: g, list: h
     """
     if date < 1900.0 or date > 2025.0:
-        print('This subroutine will not work with a date of ' + str(date))
-        print('Date must be in the range 1900.0 <= date <= 2025.0')
-        print('On return [], []')
+        raise ValueError("Date must be in the range 1900.0 <= date <= 2025.0; date was %s" %(date))
         return [], []
     elif date >= 2015.0:
         if date > 2020.0:
@@ -90,12 +133,10 @@ def getCoeffs(date):
                 g[n].append(tc*gh[temp] + t*gh[temp+nc])
                 h[n].append(tc*gh[temp+1] + t*gh[temp+nc+1])
                 temp += 2
-                # print(n, m, g[n][m], h[n][m])
             else:
                 g[n].append(tc*gh[temp] + t*gh[temp+nc])
                 h[n].append(None)
                 temp += 1
-                # print(n, m, g[n][m], h[n][m])
     return g, h
     
 
@@ -128,7 +169,9 @@ def geodetic2geocentric(theta, alt):
 
 
 def igrf12syn(isv, date, itype, alt, lat, elong):
-    """
+    """Commenf from NASA (public domain)
+    https://www.ngdc.noaa.gov/IAGA/vmod/igrf12.f
+    
      This is a synthesis routine for the 12th generation IGRF as agreed
      in December 2014 by IAGA Working Group V-MOD. It is valid 1900.0 to
      2020.0 inclusive. Values for dates from 1945.0 to 2010.0 inclusive are
@@ -299,7 +342,7 @@ def igrf12syn(isv, date, itype, alt, lat, elong):
 
 
 
-def igrf_value(lat, lon, alt=0., year=2005.):
+def igrf_value(lat, lon, alt=0., year=2005.):  # pragma: no cover
     """
     :return
          D is declination (+ve east)
@@ -316,21 +359,6 @@ def igrf_value(lat, lon, alt=0., year=2005.):
     I = FACT * atan2(Z, H)
     return D, I, H, X, Y, Z, F
 
-
-def igrf_values(lat, lon, alt=0., year=2005.):
-    # from igrf_value
-    X, Y, Z, F = igrf12syn(0, year, 1, alt, lat, lon)
-    D = FACT * atan2(Y, X)
-    H = sqrt(X * X + Y * Y)
-    I = FACT * atan2(Z, H)
-
-    DX, DY, DZ, DF = igrf12syn(1, year, 1, alt, lat, lon)
-    DD = (60.0 * FACT * (X * DY - Y * DX)) / (H * H)
-    DH = (X * DX + Y * DY) / H
-    DS = (60.0 * FACT * (H * DZ - Z * DH)) / (F * F)
-    DF = (H * DH + Z * DZ) / F
-    
-    return (D, I, H, X, Y, Z, F), (DD, DS, DH, DX, DY, DZ, DF)
 
 def igrf_variation(lat, lon, alt=0., year=2005):
     """
@@ -351,3 +379,22 @@ def igrf_variation(lat, lon, alt=0., year=2005):
     DS = (60.0 * FACT * (H * DZ - Z * DH)) / (F * F)
     DF = (H * DH + Z * DZ) / F
     return DD, DS, DH, DX, DY, DZ, DF
+
+
+def igrf_values(lat, lon, alt=0., year=2005.):  # pragma: no cover
+    '''Combination of "igrf_value" and "igrf_variation" into one file.
+    '''
+    # from igrf_value
+    X, Y, Z, F = igrf12syn(0, year, 1, alt, lat, lon)
+    D = FACT * atan2(Y, X)
+    H = sqrt(X * X + Y * Y)
+    I = FACT * atan2(Z, H)
+
+    DX, DY, DZ, DF = igrf12syn(1, year, 1, alt, lat, lon)
+    DD = (60.0 * FACT * (X * DY - Y * DX)) / (H * H)
+    DH = (X * DX + Y * DY) / H
+    DS = (60.0 * FACT * (H * DZ - Z * DH)) / (F * F)
+    DF = (H * DH + Z * DZ) / F
+    
+    return (D, I, H, X, Y, Z, F), (DD, DS, DH, DX, DY, DZ, DF)
+
