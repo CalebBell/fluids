@@ -124,3 +124,101 @@ def test_bisplev():
     ys_scipy = bisplev(0.5, .7, tck)
     ys = my_bisplev(.5, .7, my_tck)
     assert_allclose(ys, ys_scipy)
+
+
+def test_linspace():
+    from fluids.numerics import linspace
+    calc = linspace(-3,10, endpoint=True, num=8)
+    expect = np.linspace(-3,10, endpoint=True, num=8)
+    assert_allclose(calc, expect)
+    
+    calc = linspace(-3,10, endpoint=False, num=20)
+    expect = np.linspace(-3,10, endpoint=False, num=20)
+    assert_allclose(calc, expect)
+
+    calc = linspace(0,1e-10, endpoint=False, num=3)
+    expect = np.linspace(0,1e-10, endpoint=False, num=3)
+    assert_allclose(calc, expect)
+    
+    calc = linspace(0,1e-10, endpoint=False, num=2)
+    expect = np.linspace(0,1e-10, endpoint=False, num=2)
+    assert_allclose(calc, expect)
+    
+    calc = linspace(0,1e-10, endpoint=False, num=1)
+    expect = np.linspace(0,1e-10, endpoint=False, num=1)
+    assert_allclose(calc, expect)
+    
+    calc, calc_step = linspace(0,1e-10, endpoint=False, num=2, retstep=True)
+    expect, expect_step = np.linspace(0,1e-10, endpoint=False, num=2, retstep=True)
+    assert_allclose(calc, expect)
+    assert_allclose(calc_step, expect_step)
+
+    calc, calc_step = linspace(0,1e-10, endpoint=False, num=1, retstep=True)
+    expect, expect_step = np.linspace(0,1e-10, endpoint=False, num=1, retstep=True)
+    assert_allclose(calc, expect)
+    assert_allclose(calc_step, expect_step)
+
+    calc, calc_step = linspace(100, 1000, endpoint=False, num=21, retstep=True)
+    expect, expect_step = np.linspace(100, 1000, endpoint=False, num=21, retstep=True)
+    assert_allclose(calc, expect)
+    assert_allclose(calc_step, expect_step)
+
+
+def test_logspace():
+    from fluids.numerics import logspace
+    calc = logspace(3,10, endpoint=True, num=8)
+    expect = np.logspace(3,10, endpoint=True, num=8)
+    assert_allclose(calc, expect)
+    
+    calc = logspace(3,10, endpoint=False, num=20)
+    expect = np.logspace(3,10, endpoint=False, num=20)
+    assert_allclose(calc, expect)
+
+    calc = logspace(0,1e-10, endpoint=False, num=3)
+    expect = np.logspace(0,1e-10, endpoint=False, num=3)
+    assert_allclose(calc, expect)
+    
+    calc = logspace(0,1e-10, endpoint=False, num=2)
+    expect = np.logspace(0,1e-10, endpoint=False, num=2)
+    assert_allclose(calc, expect)
+    
+    calc = logspace(0,1e-10, endpoint=False, num=1)
+    expect = np.logspace(0,1e-10, endpoint=False, num=1)
+    assert_allclose(calc, expect)
+    
+    calc = logspace(0,1e-10, endpoint=False, num=2)
+    expect = np.logspace(0,1e-10, endpoint=False, num=2)
+    assert_allclose(calc, expect)
+
+    calc = logspace(0,1e-10, endpoint=False, num=1)
+    expect = np.logspace(0,1e-10, endpoint=False, num=1)
+    assert_allclose(calc, expect)
+
+    calc = logspace(100, 200, endpoint=False, num=21)
+    expect = np.logspace(100, 200, endpoint=False, num=21)
+    assert_allclose(calc, expect)
+
+
+def test_diff():
+    from fluids.numerics import diff
+    
+    test_arrs = [np.ones(10),
+                 np.zeros(10), 
+                 np.arange(1, 10),
+                 np.arange(1, 10)*25.1241251,
+                 (np.arange(1, 10)**1.2),
+                 (10.1 + np.arange(1, 10)**20),
+                 (10.1 + np.linspace(-100, -10, 9)),
+                 (np.logspace(-10, -100, 19)**1.241),
+                 (np.logspace(10, 100, 15)**1.241)
+    ]
+    for test_arr in test_arrs:
+        arr = test_arr.tolist()
+        for n in range(5):
+            diff_np = np.diff(arr, n=n)
+            diff_py = diff(arr, n=n)
+            assert_allclose(diff_np, diff_py)
+
+    assert tuple(diff([1,2,3], n=0)) == tuple([1,2,3])
+    with pytest.raises(Exception):
+        diff([1,2,3], n=-1)

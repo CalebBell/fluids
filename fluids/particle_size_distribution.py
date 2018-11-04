@@ -107,7 +107,8 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'ISO_3310_1_R40_3']
 
 from math import log, exp, pi, log10
-from fluids.numerics import brenth, epsilon, gamma, erf, gammaincc
+from fluids.numerics import (brenth, epsilon, gamma, erf, gammaincc,
+                             linspace, logspace, cumsum, diff)
 from fluids.numerics import numpy as np
 
 
@@ -531,9 +532,9 @@ def psd_spacing(d_min=None, d_max=None, pts=20, method='logarithmic'):
        -- Part 1: Test Sieves of Metal Wire Cloth.
     '''
     if method == 'logarithmic':
-        return np.logspace(log10(d_min), log10(d_max), pts).tolist()
+        return logspace(log10(d_min), log10(d_max), pts)
     elif method == 'linear':
-        return np.linspace(d_min, d_max, pts).tolist()
+        return linspace(d_min, d_max, pts)
     elif method[0] in ('R', 'r'):
         ratio = 10**(1.0/float(method[1:]))
         if d_min is not None and d_max is not None:
@@ -1496,7 +1497,7 @@ class ParticleSizeDistributionContinuous(object):
         [0.0006434710129138987, 0.9165280099853876, 0.08282851796190027, 1.039798247504109e-09]
         '''
         cdfs = [self.cdf(d, n=n) for d in ds]
-        return [cdfs[0]] + np.diff(cdfs).tolist()
+        return [cdfs[0]] + diff(cdfs)
     
     def cdf_discrete(self, ds, n=None):
         r'''Computes the cumulative distribution functions for a list of 
@@ -1662,11 +1663,11 @@ class ParticleSizeDistributionContinuous(object):
             plt.plot(self.ds, self.fraction_cdf, '+', label='Volume/Mass points')
             
             if hasattr(self, 'area_fractions'):
-                plt.plot(self.ds, np.cumsum(self.area_fractions), '+', label='Area points')
+                plt.plot(self.ds, cumsum(self.area_fractions), '+', label='Area points')
             if hasattr(self, 'length_fractions'):
-                plt.plot(self.ds, np.cumsum(self.length_fractions), '+', label='Length points')
+                plt.plot(self.ds, cumsum(self.length_fractions), '+', label='Length points')
             if hasattr(self, 'number_fractions'):
-                plt.plot(self.ds, np.cumsum(self.number_fractions), '+', label='Number points')
+                plt.plot(self.ds, cumsum(self.number_fractions), '+', label='Number points')
                 
         plt.ylabel('Cumulative density function, [-]')
         plt.xlabel('Particle diameter, [m]')
@@ -1778,9 +1779,9 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         if cdf:
             # Convert a cdf to fraction set
             if len(fractions)+1 == len(ds):
-                fractions = [fractions[0]] + np.diff(fractions).tolist()
+                fractions = [fractions[0]] + diff(fractions)
             else:
-                fractions = np.diff(fractions).tolist()
+                fractions = diff(fractions)
                 fractions.insert(0, 0.0)
         elif sum(fractions) != 1.0:
             # Normalize flow inputs
@@ -1821,10 +1822,10 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         self.d_minimum = 0.0
         self.parameters = {}
         self.order = 3
-        self.fraction_cdf = self.volume_cdf = np.cumsum(self.fractions)
-        self.area_cdf = np.cumsum(self.area_fractions)
-        self.length_cdf = np.cumsum(self.length_fractions)
-        self.number_cdf = np.cumsum(self.number_fractions)
+        self.fraction_cdf = self.volume_cdf = cumsum(self.fractions)
+        self.area_cdf = cumsum(self.area_fractions)
+        self.length_cdf = cumsum(self.length_fractions)
+        self.number_cdf = cumsum(self.number_fractions)
 
     @property
     def interpolated(self):
@@ -2186,7 +2187,7 @@ class PSDCustom(ParticleSizeDistributionContinuous):
         if d_min == 0:
             d_min = d_max*1E-12
         to_int = lambda d : d**n*self._pdf(d)
-        points = np.logspace(np.log10(max(d_max/1000, d_min)), np.log10(d_max*.999), 40)
+        points = logspace(log10(max(d_max/1000, d_min)), log10(d_max*.999), 40)
         from scipy.integrate import quad
         return float(quad(to_int, d_min, d_max, points=points)[0]) # 
             
@@ -2219,7 +2220,7 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
         self.d_excessive = max(ds)
         
 
-        self.fraction_cdf = np.cumsum(fractions)
+        self.fraction_cdf = cumsum(fractions)
         if self.monotonic:
             from scipy.interpolate import PchipInterpolator
             globals()['PchipInterpolator'] = PchipInterpolator
