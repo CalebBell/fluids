@@ -1161,6 +1161,8 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     relative_airmass = get_relative_airmass(used_zenith, model=airmass_model)
     airmass_absolute = get_absolute_airmass(relative_airmass, pressure=P)
 
+    from fluids.optional.irradiance import ineichen
+
     ans = ineichen(apparent_zenith=apparent_zenith,
                    airmass_absolute=airmass_absolute, 
                    linke_turbidity=linke_turbidity,
@@ -1171,7 +1173,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     
     
         
-        
+#    from fluids.optional.irradiance import get_total_irradiance
     ans = get_total_irradiance(surface_tilt=surface_tilt, 
                       surface_azimuth=surface_azimuth,
                       solar_zenith=apparent_zenith, solar_azimuth=azimuth,
