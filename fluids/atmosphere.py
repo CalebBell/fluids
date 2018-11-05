@@ -1001,7 +1001,8 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
                       surface_azimuth, T=None, P=None, solar_constant=1366.1,
                       atmos_refract=0.5667, albedo=0.25, linke_turbidity=None, 
                       extraradiation_method='spencer',
-                      airmass_model='kastenyoung1989'):
+                      airmass_model='kastenyoung1989',
+                      cache=None):
     r'''Calculates the amount of solar radiation and radiation reflected back
     the atmosphere which hits a surface at a specified tilt, and facing a
     specified azimuth. This functions is a wrapper for the incredibly 
@@ -1055,6 +1056,9 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         The specified method to calculate the amount of air the sunlight
         needs to travel through to reach the earth according to the methods 
         available in the `pvlib` library, [-]
+    cache : dict, optional
+        Dictionary to to check for values to use to skip some calculations
+        `apparent_zenith`, `zenith`, `azimuth` supported, [-]
 
     Returns
     -------
@@ -1077,12 +1081,21 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     ... surface_azimuth=180.0)
     (1065.7622492480543, 945.2657257434173, 120.49652350463705, 95.31534254980346, 25.18118095483359)
     
+    >>> cache = {'apparent_zenith': 41.099082295767545, 'zenith': 41.11285376417578, 'azimuth': 182.5631874250523}
+    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
+    ... moment=datetime(2018, 4, 15, 13, 43, 5), surface_tilt=41.0, 
+    ... linke_turbidity=3, T=300, P=1E5,
+    ... surface_azimuth=180.0, cache=cache)
+    (1042.5677703677097, 918.2377548545295, 124.33001551318027, 99.6228657378363, 24.70714977534396)
+
     At night, there is no solar radiation and this function returns zeros:
         
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
     ... moment=datetime(2018, 4, 15, 2, 43, 5), surface_tilt=41.0, 
     ... surface_azimuth=180.0)
     (0.0, -0.0, 0.0, 0.0, 0.0)
+    
+    
 
     Notes
     -----    
@@ -1114,13 +1127,15 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     '''
     # Atmospheric refraction at sunrise/sunset (0.5667 deg is an often used value)
     from fluids.optional import spa
-    try:
-        import pvlib
-    except:
-        raise ImportError(PVLIB_MISSING_MSG)
-    from pvlib.irradiance import get_extra_radiation, total_irrad, get_total_irradiance
-    from pvlib.atmosphere import get_relative_airmass, get_absolute_airmass
-    from pvlib.clearsky import ineichen
+    from fluids.optional.irradiance import get_relative_airmass, get_absolute_airmass, ineichen, get_relative_airmass, get_absolute_airmass, get_total_irradiance
+
+#    try:
+#        import pvlib
+#    except:
+#        raise ImportError(PVLIB_MISSING_MSG)
+#    from pvlib.irradiance import get_total_irradiance
+#    from pvlib.atmosphere import get_relative_airmass, get_absolute_airmass
+#    from pvlib.clearsky import ineichen
 
     moment_timetuple = moment.timetuple()
     moment_arg_dni = (moment_timetuple.tm_yday if 
@@ -1139,11 +1154,16 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         if P is None:
             P = atmosphere.P
     
-    apparent_zenith, zenith, _, _, azimuth, _ = solar_position(moment=moment,
-                                                               latitude=latitude, 
-                                                               longitude=longitude,
-                                                               Z=Z, T=T, P=P, 
-                                                               atmos_refract=atmos_refract)
+    if cache is not None and 'zenith' in cache:
+        zenith = cache['zenith']
+        apparent_zenith = cache['apparent_zenith']
+        azimuth = cache['azimuth']
+    else:
+        apparent_zenith, zenith, _, _, azimuth, _ = solar_position(moment=moment,
+                                                                   latitude=latitude, 
+                                                                   longitude=longitude,
+                                                                   Z=Z, T=T, P=P, 
+                                                                   atmos_refract=atmos_refract)
     
     if linke_turbidity is None:
         from pvlib.clearsky import lookup_linke_turbidity
@@ -1157,11 +1177,10 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         used_zenith = zenith
     else:
         raise Exception('Unrecognized airmass model')
-        
+    
     relative_airmass = get_relative_airmass(used_zenith, model=airmass_model)
     airmass_absolute = get_absolute_airmass(relative_airmass, pressure=P)
 
-    from fluids.optional.irradiance import ineichen
 
     ans = ineichen(apparent_zenith=apparent_zenith,
                    airmass_absolute=airmass_absolute, 
@@ -1172,8 +1191,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     dhi = ans['dhi']
     
     
-        
-#    from fluids.optional.irradiance import get_total_irradiance
+#    from pvlib.irradiance import get_total_irradiance
     ans = get_total_irradiance(surface_tilt=surface_tilt, 
                       surface_azimuth=surface_azimuth,
                       solar_zenith=apparent_zenith, solar_azimuth=azimuth,

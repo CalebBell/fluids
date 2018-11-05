@@ -6,20 +6,20 @@ import time
 from datetime import datetime
 import math
 from math import degrees, sin, cos, tan, radians, asin, atan2, radians, exp, isnan
-
+nan = float("nan")
 
 import numpy as np
 
 
 from math import degrees, acos
-from collections import OrderedDict
+#from collections import OrderedDict
 
 
 def aoi_projection(surface_tilt, surface_azimuth, solar_zenith, solar_azimuth):
     projection = (
         cos(radians(surface_tilt)) * cos(radians(solar_zenith)) +
         sin(radians(surface_tilt)) * sin(radians(solar_zenith)) *
-        cos(radians(solar_azimuth) - surface_azimuth))
+        cos(radians(solar_azimuth - surface_azimuth)))
     return projection
 
 
@@ -31,11 +31,17 @@ def aoi(surface_tilt, surface_azimuth, solar_zenith, solar_azimuth):
 
 
 def poa_components(aoi, dni, poa_sky_diffuse, poa_ground_diffuse):
+#    print(aoi, dni, poa_sky_diffuse, poa_ground_diffuse)
+    # max?
     poa_direct = max(dni * cos(radians(aoi)), 0)
-    poa_diffuse = poa_sky_diffuse + poa_ground_diffuse
+    
+    if poa_sky_diffuse is not None:
+        poa_diffuse = poa_sky_diffuse + poa_ground_diffuse
+    else:
+        poa_diffuse = poa_ground_diffuse
     poa_global = poa_direct + poa_diffuse
 
-    irrads = OrderedDict()
+    irrads = {}
     irrads['poa_global'] = poa_global
     irrads['poa_direct'] = poa_direct
     irrads['poa_diffuse'] = poa_diffuse
@@ -58,7 +64,7 @@ def get_sky_diffuse(surface_tilt, surface_azimuth,
                     solar_zenith, solar_azimuth, airmass,
                     model=model_perez)
     if model == 'isotropic':
-        sky = isotropic(surface_tilt, dhi)    
+        return isotropic(surface_tilt, dhi)    
     else:
         from pvlib import get_sky_diffuse
         return get_sky_diffuse(surface_tilt, surface_azimuth,
@@ -80,8 +86,16 @@ def get_relative_airmass(zenith, model='kastenyoung1989'):
     zenith_rad = radians(z)
 
     if 'kastenyoung1989' == model:
-        am = (1.0 / (cos(zenith_rad) +
-              0.50572*(((6.07995 + (90.0 - z))**-1.6364))))
+#        if zenith > 90.0:
+#            z = 90.0
+#            zenith_rad = radians(z)
+        try:
+            am = (1.0 / (cos(zenith_rad) +
+                  0.50572*(((6.07995 + (90.0 - z))**-1.6364))))
+        except:
+            am = nan
+        if isinstance(am, complex):
+            am = nan
     else:
         raise ValueError('%s is not a valid model for relativeairmass', model)
 
@@ -207,6 +221,9 @@ def get_total_irradiance(surface_tilt, surface_azimuth,
                          albedo=.25, surface_type=None,
                          model='isotropic',
                          model_perez='allsitescomposite1990', **kwargs):
+#    print(surface_tilt, surface_azimuth,
+#						 solar_zenith, solar_azimuth,
+#						 dni, ghi, dhi, dni_extra, airmass)
     poa_sky_diffuse = get_sky_diffuse(
         surface_tilt, surface_azimuth, solar_zenith, solar_azimuth,
         dni, ghi, dhi, dni_extra=dni_extra, airmass=airmass, model=model,
@@ -216,6 +233,8 @@ def get_total_irradiance(surface_tilt, surface_azimuth,
                                             surface_type)
     aoi_ = aoi(surface_tilt, surface_azimuth, solar_zenith, solar_azimuth)
     irrads = poa_components(aoi_, dni, poa_sky_diffuse, poa_ground_diffuse)
+#    print(poa_sky_diffuse, poa_ground_diffuse, aoi_)
+    # issue in aoi_
     return irrads
 
 
@@ -286,18 +305,19 @@ def ineichen(apparent_zenith, airmass_absolute, linke_turbidity,
     dhi = ghi - dni*cos_zenith
 
 
-#     return {'ghi': ghi, 'dni': dni, 'dhi': dhi}
-    irrads = OrderedDict()
-    irrads['ghi'] = ghi
-    irrads['dni'] = dni
-    irrads['dhi'] = dhi
-    return irrads
+    return {'ghi': ghi, 'dni': dni, 'dhi': dhi}
+#    irrads = OrderedDict()
+#    irrads['ghi'] = ghi
+#    irrads['dni'] = dni
+#    irrads['dhi'] = dhi
+#    return irrads
 
 
 
 def perez(surface_tilt, surface_azimuth, dhi, dni, dni_extra,
           solar_zenith, solar_azimuth, airmass,
           model='allsitescomposite1990', return_components=False):
+    raise ValueError
     kappa = 1.041  # for solar_zenith in radians
     z = radians(solar_zenith)  # convert to radians
 
