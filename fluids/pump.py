@@ -321,6 +321,7 @@ def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
        https://www.nrcan.gc.ca/energy/regulations-codes-standards/products/6885
     '''
     P = P/hp
+    # This could be replaced by a dict and a jump list
     if high_efficiency:
         if closed:
             if poles == 2:
@@ -356,7 +357,7 @@ def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
             elif poles == 8:
                 efficiency = interp(P, nema_min_P, nema_min_full_open_8p)
     
-    return round(float(efficiency), 4)
+    return round(efficiency, 4)
 
 
 _to_1 = [0.015807118828266818, 4.3158627514876216, -8.5612097969025438, 8.2040355039147386, -3.0147603718043068]
