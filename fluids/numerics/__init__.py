@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import sin, exp, pi, fabs, copysign
+from math import sin, exp, pi, fabs, copysign, log
 import sys
 from sys import float_info
 
@@ -34,6 +34,7 @@ __all__ = ['horner', 'chebval', 'interp',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv',
            'numpy',
+           'polyint_over_x', 'horner_log', 'polyint',
            ]
 
 nan = float("nan")
@@ -322,7 +323,9 @@ def horner(coeffs, x):
     --------
     >>> horner([1.0, 3.0], 2.0)
     5.0
-
+    >>> horner([21.24288737657324, -31.326919865992743, 23.490607246508382, -14.318875366457021, 6.993092901276407, -2.6446094897570775, 0.7629439408284319, -0.16825320656035953, 0.02866101768198035, -0.0038190069303978003, 0.0004027586707189051, -3.394447111198843e-05, 2.302586717011523e-06, -1.2627393196517083e-07, 5.607585274731649e-09, -2.013760843818914e-10, 5.819957519561292e-12, -1.3414794055766234e-13, 2.430101267966631e-15, -3.381444175898971e-17, 3.4861255675373234e-19, -2.5070616549039004e-21, 1.122234904781319e-23, -2.3532795334141448e-26], 300.0)
+    1.9900667478569642e+58
+    
     References
     ----------
     .. [1] "Horner’s Method." Wikipedia, October 6, 2018. 
@@ -331,6 +334,82 @@ def horner(coeffs, x):
     tot = 0.0
     for c in coeffs:
         tot = tot*x + c
+    return tot
+
+def polyint(coeffs):
+    '''not quite a copy of numpy's version because this was faster to implement'''
+    return ([0.0] + [c/(i+1) for i, c in enumerate(coeffs[::-1])])[::-1]
+
+
+def polyint_over_x(coeffs):
+    coeffs = coeffs[::-1]
+    log_coef = coeffs[0]
+    poly_terms = [0.0]
+    for i in range(1, len(coeffs)):
+        poly_terms.append(coeffs[i]/i)
+    return list(reversed(poly_terms)), log_coef
+
+
+def horner_log(coeffs, log_coeff, x):
+    '''Technically possible to save one addition of the last term of 
+    coeffs is removed but benchmarks said nothing was saved'''
+    tot = 0.0
+    for c in coeffs:
+        tot = tot*x + c
+    return tot + log_coeff*log(x)
+
+
+def fit_integral_linear_extrapolation(T1, T2, int_coeffs, Tmin, Tmax, 
+                                      Tmin_value, Tmax_value, 
+                                      Tmin_slope, Tmax_slope):
+    # Order T1, T2 so T2 is always larger for simplicity
+    flip = T1 > T2
+    if flip:
+        T1, T2 = T2, T1
+    
+    tot = 0.0
+    if T1 < Tmin:
+        T2_low = T2 if T2 < Tmin else Tmin
+        x1 = Tmin_value - Tmin_slope*Tmin
+        tot += T2_low*(0.5*Tmin_slope*T2_low + x1) - T1*(0.5*Tmin_slope*T1 + x1)
+    if (Tmin <= T1 <= Tmax) or (Tmin <= T2 <= Tmax) or (T1 <= Tmin and T2 >= Tmax):
+        T1_mid = T1 if T1 > Tmin else Tmin
+        T2_mid = T2 if T2 < Tmax else Tmax
+        tot += (horner(int_coeffs, T2_mid) - horner(int_coeffs, T1_mid))
+        
+    if T2 > Tmax:
+        T1_high = T1 if T1 > Tmax else Tmax
+        x1 = Tmax_value - Tmax_slope*Tmax
+        tot += T2*(0.5*Tmax_slope*T2 + x1) - T1_high*(0.5*Tmax_slope*T1_high + x1)
+    if flip:
+        return -tot
+    return tot
+
+def fit_integral_over_T_linear_extrapolation(T1, T2, T_int_T_coeffs,
+                                            best_fit_log_coeff, Tmin, Tmax, 
+                                      Tmin_value, Tmax_value, 
+                                      Tmin_slope, Tmax_slope):
+    # Order T1, T2 so T2 is always larger for simplicity
+    flip = T1 > T2
+    if flip:
+        T1, T2 = T2, T1
+    
+    tot = 0.0
+    if T1 < Tmin:
+        T2_low = T2 if T2 < Tmin else Tmin        
+        x1 = Tmin_value - Tmin_slope*Tmin
+        tot += (Tmin_slope*T2_low + x1*log(T2_low)) - (Tmin_slope*T1 + x1*log(T1))
+    if (Tmin <= T1 <= Tmax) or (Tmin <= T2 <= Tmax) or (T1 <= Tmin and T2 >= Tmax):
+        T1_mid = T1 if T1 > Tmin else Tmin
+        T2_mid = T2 if T2 < Tmax else Tmax
+        tot += (horner_log(T_int_T_coeffs, best_fit_log_coeff, T2_mid) 
+                    - horner_log(T_int_T_coeffs, best_fit_log_coeff, T1_mid))
+    if T2 > Tmax:
+        T1_high = T1 if T1 > Tmax else Tmax
+        x1 = Tmax_value - Tmax_slope*Tmax
+        tot += (Tmax_slope*T2 + x1*log(T2)) - (Tmax_slope*T1_high + x1*log(T1_high))
+    if flip:
+        return -tot
     return tot
 
 
@@ -950,6 +1029,10 @@ from math import gamma # Been there a while
 
 
 
+def my_lambertw(y):
+    def err(x):
+        return x*exp(x) - y
+    return py_brenth(err, 1e-300, 700.0)
 
 #has_scipy = False
 
@@ -963,6 +1046,7 @@ else:
     import mpmath
     # scipy is not available... fall back to mpmath as a Pure-Python implementation
     from mpmath import lambertw # Same branches as scipy, supports .real
+    lambertw = my_lambertw
     from mpmath import ellipe # seems the same so far        
     
 

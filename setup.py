@@ -71,6 +71,6 @@ setup(
   url = 'https://github.com/CalebBell/fluids',
   keywords = 'fluid dynamics atmosphere pipe fluids compressible fluid dynamics chemical engineering mechanical engineering valve open channel tank friction pressure drop two phase pump drag reynolds sedimentation engineering pipeline process simulation particle size distribution',
   classifiers = classifiers,
-  package_data={'fluids': ['data/*', 'nrlmsise00/*', 'optional/*']},
+  package_data={'fluids': ['data/*', 'nrlmsise00/*', 'optional/*', 'numerics/*', 'constants/*']},
 )
 
