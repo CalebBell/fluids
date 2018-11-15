@@ -39,6 +39,11 @@ from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
 from fluids.two_phase_voidage import homogeneous, Lockhart_Martinelli_Xtt
 
 
+Beggs_Brill_dat = {'segregated': (0.98, 0.4846, 0.0868),
+'intermittent': (0.845, 0.5351, 0.0173),
+'distributed': (1.065, 0.5824, 0.0609)}
+
+
 def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
                 L=1.0, g=g, acceleration=True):
     r'''Calculates the two-phase pressure drop according to the Beggs-Brill
@@ -106,9 +111,6 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
        Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
        2006.
     '''
-    dat = {'segregated': (0.98, 0.4846, 0.0868),
-    'intermittent': (0.845, 0.5351, 0.0173),
-    'distributed': (1.065, 0.5824, 0.0609)}
     qg = x*m/rhog
     ql = (1.0 - x)*m/rhol
     
@@ -138,12 +140,12 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     angle = radians(angle)
     
     def holdup(regime):
-        a, b, c = dat[regime]
+        a, b, c = Beggs_Brill_dat[regime]
         HL0 = a*lambda_L**b*Fr**-c
         if HL0 < lambda_L:
             HL0 = lambda_L
 
-        if angle > 0: # uphill
+        if angle > 0.0: # uphill
             # h used instead of g to avoid conflict with gravitational constant
             if regime == 'segregated':
                 d, e, f, h = 0.011, -3.768, 3.539, -1.614
@@ -177,10 +179,14 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     Rem = rhom*D/mum*Vm
     fn = friction_factor(Re=Rem, eD=roughness/D)
     x = lambda_L/(Hl*Hl)
+    
+    
     if 1.0 < x < 1.2:
         S = log(2.2*x - 1.2)
     else:
-        S = log(x)/(-0.0523 + 3.182*log(x) - 0.8725*log(x)**2 + 0.01853*log(x)**4)
+        logx = log(x)
+        # from horner(-0.0523 + 3.182*log(x) - 0.8725*log(x)**2 + 0.01853*log(x)**4, x)
+        S = logx/(logx*(logx*(0.01853*logx*logx - 0.8725) + 3.182) - 0.0523)
     if S > 7.0:
         S = 7.0  # Truncate S to avoid exp(S) overflowing
     ftp = fn*exp(S)

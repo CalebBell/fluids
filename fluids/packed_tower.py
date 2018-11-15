@@ -724,11 +724,15 @@ def Robbins(L, G, rhol, rhog, mul, H=1, Fpd=24):
     G = G*737.33812 # kg/s/m^2 to lb/hr/ft^2
     rhol = rhol*0.062427961 # kg/m^3 to lb/ft^3
     rhog = rhog*0.062427961 # kg/m^3 to lb/ft^3
-    mul = mul*1000 # Pa*s to cP
+    mul = mul*1000.0 # Pa*s to cP
 
     C3 = 7.4E-8
     C4 = 2.7E-5
-    Lf = L *(62.4/rhol)*(Fpd/20.)**0.5*mul**0.1
-    Gf = G*(0.075/rhog)**0.5*(Fpd/20.)**0.5
-    dP = C3*Gf**2*10**(C4*Lf) + 0.4*(Lf/20000.)**0.1*(C3*Gf**2*10**(C4*Lf))**4
+    Fpd_root_term = (Fpd/20.)**0.5
+    Lf = L*(62.4/rhol)*Fpd_root_term*mul**0.1
+    Gf = G*(0.075/rhog)**0.5*Fpd_root_term
+    Gf2 = Gf*Gf
+    C4LF_10_GF2_C3 = C3*Gf2*10.0**(C4*Lf)
+    C4LF_10_GF2_C3_2 = C4LF_10_GF2_C3*C4LF_10_GF2_C3
+    dP = C4LF_10_GF2_C3 + 0.4*(Lf/20000.)**0.1*(C4LF_10_GF2_C3_2*C4LF_10_GF2_C3_2)
     return dP*817.22083*H # in. H2O to Pa/m
