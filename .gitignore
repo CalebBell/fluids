@@ -9,7 +9,7 @@ htmlcov
 __pycache__
 *kate-swp
 .spyproject
-
+.asv
 # Compiled source #
 ###################
 *.com
