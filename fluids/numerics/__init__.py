@@ -691,7 +691,7 @@ def py_brenth(f, xa, xb, args=(),
 
 
 def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
-              fprime2=None, low=None, high=None, damping=1.0):
+              fprime2=None, low=None, high=None, damping=1.0, xtol=0.0):
     '''Newton's method designed to be mostly compatible with SciPy's 
     implementation, with a few features added and others now implemented.
     
@@ -738,7 +738,13 @@ def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
         if high is not None and p1 > high:
             p1 = high
         q0 = func(p0, *args)
+        if abs(q0) < xtol:
+            return p0
+        
         q1 = func(p1, *args)
+        if abs(q1) < xtol:
+            return p1
+        
         for _ in range(maxiter):
             if q1 == q0:
                 return 0.5*(p1 + p0)
@@ -755,6 +761,8 @@ def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
             q0 = q1
             p1 = p
             q1 = func(p1, *args)
+            if abs(q1) < xtol:
+                return p1
     raise ValueError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
 

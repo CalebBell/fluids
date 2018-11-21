@@ -31,9 +31,7 @@ def aoi(surface_tilt, surface_azimuth, solar_zenith, solar_azimuth):
 
 
 def poa_components(aoi, dni, poa_sky_diffuse, poa_ground_diffuse):
-#    print(aoi, dni, poa_sky_diffuse, poa_ground_diffuse)
-    # max?
-    poa_direct = max(dni * cos(radians(aoi)), 0)
+    poa_direct = max(dni * cos(radians(aoi)), 0.0)
     
     if poa_sky_diffuse is not None:
         poa_diffuse = poa_sky_diffuse + poa_ground_diffuse
