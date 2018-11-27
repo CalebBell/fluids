@@ -24,7 +24,8 @@ from __future__ import division
 from math import exp, pi
 
 __all__ = ['dP_packed_bed', 'Ergun', 'Kuo_Nydegger', 'Jones_Krier', 'Carman', 'Hicks',
-           'Brauer', 'KTA', 'Erdim_Akgiray_Demir', 'Fahien_Schriver', 'Idelchik',
+           'Brauer', 'KTA', 'Erdim_Akgiray_Demir', 'Fahien_Schriver', 
+           'Tallmadge', 'Idelchik',
            'Harrison_Brunner_Hecker', 'Montillet_Akkari_Comiti', 'Guo_Sun',
             'voidage_Benyahia_Oneil',
            'voidage_Benyahia_Oneil_spherical', 'voidage_Benyahia_Oneil_cylindrical']
@@ -175,6 +176,69 @@ def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1):
     '''
     Re = dp*rho*vs/mu
     fp = (276.23 + 5.05*(Re/(1-voidage))**0.87)*(1-voidage)**2/(voidage**3*Re)
+    return fp*rho*vs**2*L/dp
+
+
+def Tallmadge(dp, voidage, vs, rho, mu, L=1):
+    r'''Calculates pressure drop across a packed bed of spheres using a
+    correlation developed in [1]_, as shown in [2]_ and [3]. 
+
+    .. math::
+        f_p = \left(150 + 4.2\left(\frac{Re}{1-\epsilon}\right)^{5/6} \right)
+        \frac{(1-\epsilon)^2}{\epsilon^3 Re}
+        
+    .. math::
+        f_p = \frac{\Delta P d_p}{\rho v_s^2 L}
+
+    .. math::
+        Re = \frac{\rho v_s  d_p}{\mu}
+
+    Parameters
+    ----------
+    dp : float
+        Particle diameter of spheres [m]
+    voidage : float
+        Void fraction of bed packing [-]
+    vs : float
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area)[m/s]
+    rho : float
+        Density of the fluid [kg/m^3]
+    mu : float
+        Viscosity of the fluid, [Pa*s]
+    L : float, optional
+        Length the fluid flows in the packed bed [m]
+
+    Returns
+    -------
+    dP : float
+        Pressure drop across the bed [Pa]
+
+    Notes
+    -----
+    The validity range shown in [2]_ is a range of
+    :math:`0.1 < Re < 100000`.
+
+    Examples
+    --------
+    >>> Tallmadge(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    1365.2739144209424
+
+    References
+    ----------
+    .. [1] Tallmadge, J. A. "Packed Bed Pressure Drop-an Extension to Higher 
+       Reynolds Numbers." AIChE Journal 16, no. 6 (November 1, 1970): 1092-93.
+    .. [2] Erdim, Esra, Ömer Akgiray, and İbrahim Demir. "A Revisit of Pressure
+       Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
+       Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
+    .. [3] Montillet, A., E. Akkari, and J. Comiti. "About a Correlating
+       Equation for Predicting Pressure Drops through Packed Beds of Spheres
+       in a Large Range of Reynolds Numbers." Chemical Engineering and
+       Processing: Process Intensification 46, no. 4 (April 2007): 329-33.
+       doi:10.1016/j.cep.2006.07.002.
+    '''
+    Re = dp*rho*vs/mu
+    fp = (150.0 + 4.2*(Re/(1-voidage))**(5.0/6.0))*(1-voidage)**2/(voidage**3*Re)
     return fp*rho*vs**2*L/dp
 
 
@@ -912,6 +976,7 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1):
 # Format: Nice nane : (formula, uses_dt)
 packed_beds_correlations = {
 'Ergun': (Ergun, False),
+'Tallmadge': (Tallmadge, False),
 'Kuo & Nydegger': (Kuo_Nydegger, False),
 'Jones & Krier': (Jones_Krier, False),
 'Carman': (Carman, False),

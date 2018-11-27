@@ -49,6 +49,9 @@ def test_packed_bed():
 
     dP = Erdim_Akgiray_Demir(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
     assert_allclose(dP, 1438.2826958844414)
+    
+    dP = Tallmadge(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
+    assert_allclose(dP, 1365.2739144209424)
 
     dP = Fahien_Schriver(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
     assert_allclose(dP, 1470.6175541844711)
@@ -74,7 +77,7 @@ def test_packed_bed():
 
     methods_dP = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, AvailableMethods=True)
     methods_dP.sort()
-    methods_dP_val = ['Harrison, Brunner & Hecker', 'Carman', 'Guo, Sun, Zhang, Ding & Liu', 'Hicks', 'Montillet, Akkari & Comiti', 'Idelchik', 'Erdim, Akgiray & Demir', 'KTA', 'Kuo & Nydegger', 'Ergun', 'Brauer', 'Fahien & Schriver', 'Jones & Krier']
+    methods_dP_val = ['Harrison, Brunner & Hecker', 'Carman', 'Guo, Sun, Zhang, Ding & Liu', 'Hicks', 'Montillet, Akkari & Comiti', 'Idelchik', 'Erdim, Akgiray & Demir', 'KTA', 'Kuo & Nydegger', 'Ergun', 'Brauer', 'Fahien & Schriver', 'Jones & Krier', 'Tallmadge']
     methods_dP_val.sort()
     assert methods_dP == methods_dP_val
 
