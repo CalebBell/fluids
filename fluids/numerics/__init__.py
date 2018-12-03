@@ -21,11 +21,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import sin, exp, pi, fabs, copysign, log
+from math import sin, exp, pi, fabs, copysign, log, isinf
 import sys
 from sys import float_info
 
-__all__ = ['horner', 'chebval', 'interp',
+__all__ = ['isclose', 'horner', 'chebval', 'interp',
            'linspace', 'logspace', 'cumsum', 'diff',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 
@@ -444,6 +444,47 @@ def binary_search(key, arr, size=None):
         else: imax = imid
     return imin - 1
 
+
+
+def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
+    '''Pure python and therefore slow version of the standard library isclose.
+    Works on older versions of python though! Hasn't been unit tested, but has
+    been tested.
+    
+    manual unit testing:
+        
+    from math import isclose as isclose2
+    from random import uniform
+    for i in range(10000000):
+        a = uniform(-1, 1)
+        b = uniform(-1, 1)
+        rel_tol = uniform(0, 1)
+        abs_tol = uniform(0, .001)
+        ans1 = isclose(a, b, rel_tol, abs_tol)
+        ans2 = isclose2(a, b, rel_tol=rel_tol, abs_tol=abs_tol)
+        try:
+            assert ans1 == ans2
+        except:
+            print(a, b, rel_tol, abs_tol)
+    
+    '''
+    if (rel_tol < 0.0 or abs_tol < 0.0 ):
+        raise ValueError('Negative tolerances')
+        
+    if ((a.real == b.real) and (a.imag == b.imag)):
+        return True
+    
+    if (isinf(a.real) or isinf(a.imag) or
+        isinf(b.real) or isinf(b.imag)):
+        return False
+
+    diff = abs(a - b)
+    return (((diff <= rel_tol*abs(b)) or
+             (diff <= rel_tol*abs(a))) or (diff <= abs_tol))
+try:
+    from math import isclose
+except ImportError:
+    pass
 
 def interp(x, dx, dy, left=None, right=None):
     '''One-dimensional linear interpolation routine inspired/
