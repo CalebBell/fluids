@@ -664,7 +664,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
     return float(fsolve(to_zero, [Vl*100., 1000])[0])
 
 
-def Robbins(L, G, rhol, rhog, mul, H=1, Fpd=24):
+def Robbins(L, G, rhol, rhog, mul, H=1.0, Fpd=24.0):
     r'''Calculates pressure drop across a packed column, using the Robbins
     equation.
 
@@ -711,7 +711,7 @@ def Robbins(L, G, rhol, rhog, mul, H=1, Fpd=24):
 
     Examples
     --------
-    >>> Robbins(L=12.2, G=2.03, rhol=1000., rhog=1.1853, mul=0.001, H=2, Fpd=24)
+    >>> Robbins(L=12.2, G=2.03, rhol=1000., rhog=1.1853, mul=0.001, H=2.0, Fpd=24.0)
     619.6624593438099
 
     References
