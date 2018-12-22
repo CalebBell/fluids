@@ -1079,7 +1079,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
     ... moment=datetime(2018, 4, 15, 13, 43, 5), surface_tilt=41.0, 
     ... surface_azimuth=180.0)
-    (1065.7622492480543, 945.2657257434173, 120.49652350463705, 95.31534254980346, 25.18118095483359)
+    (1065.7621896280812, 945.2656564506323, 120.49653317744884, 95.31535344213178, 25.181179735317063)
     
     >>> cache = {'apparent_zenith': 41.099082295767545, 'zenith': 41.11285376417578, 'azimuth': 182.5631874250523}
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 

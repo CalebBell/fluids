@@ -1256,7 +1256,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     ... gamma=1.22, MW=19.8, Kv=77.85,  d=0.1, Di=0.2031, FL=None, FLP=0.792, 
     ... FP=0.98, Fd=0.296, t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, 
     ... rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
-    91.67702567004144
+    91.67702674629604
 
     References
     ----------
