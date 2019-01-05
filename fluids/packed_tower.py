@@ -712,7 +712,7 @@ def Robbins(L, G, rhol, rhog, mul, H=1.0, Fpd=24.0):
     Examples
     --------
     >>> Robbins(L=12.2, G=2.03, rhol=1000., rhog=1.1853, mul=0.001, H=2.0, Fpd=24.0)
-    619.6624593438099
+    619.6624593438102
 
     References
     ----------
@@ -728,11 +728,11 @@ def Robbins(L, G, rhol, rhog, mul, H=1.0, Fpd=24.0):
 
     C3 = 7.4E-8
     C4 = 2.7E-5
-    Fpd_root_term = (Fpd/20.)**0.5
+    Fpd_root_term = (.05*Fpd)**0.5
     Lf = L*(62.4/rhol)*Fpd_root_term*mul**0.1
     Gf = G*(0.075/rhog)**0.5*Fpd_root_term
     Gf2 = Gf*Gf
     C4LF_10_GF2_C3 = C3*Gf2*10.0**(C4*Lf)
     C4LF_10_GF2_C3_2 = C4LF_10_GF2_C3*C4LF_10_GF2_C3
-    dP = C4LF_10_GF2_C3 + 0.4*(Lf/20000.)**0.1*(C4LF_10_GF2_C3_2*C4LF_10_GF2_C3_2)
+    dP = C4LF_10_GF2_C3 + 0.4*(5e-5*Lf)**0.1*(C4LF_10_GF2_C3_2*C4LF_10_GF2_C3_2)
     return dP*817.22083*H # in. H2O to Pa/m

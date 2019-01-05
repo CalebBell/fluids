@@ -1785,8 +1785,8 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
                 fractions.insert(0, 0.0)
         elif sum(fractions) != 1.0:
             # Normalize flow inputs
-            tot = sum(fractions)
-            fractions = [i/tot if i != 0.0 else 0.0 for i in fractions]
+            tot_inv = 1.0/sum(fractions)
+            fractions = [i*tot_inv if i != 0.0 else 0.0 for i in fractions]
             
         self.N = len(fractions)
                 
@@ -1933,7 +1933,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
         >>> psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
         >>> psd.mean_size(3, 2)
-        0.0022693210317450453
+        0.002269321031745045
         '''
         if p != q:
             # Note: D(p, q) = D(q, p); in ISO and proven experimentally
@@ -1951,7 +1951,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
         >>> psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
         >>> psd.mean_size_ISO(1, 2)
-        0.0022693210317450453
+        0.002269321031745045
         '''
         p = k + r
         q = r
