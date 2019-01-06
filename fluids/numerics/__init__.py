@@ -30,7 +30,7 @@ __all__ = ['isclose', 'horner', 'chebval', 'interp',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 
            'splev', 'bisplev', 'derivative',
-           'IS_PYPY', 'roots_cubic',
+           'IS_PYPY', 'roots_cubic', 'newton_system',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv',
            'numpy',
@@ -1025,10 +1025,53 @@ def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
             p1 = p
             q1 = func(p1, *args)
             
+#            if abs(p - p1) < tol:
+#            if abs(q1) < ytol:
+#            if abs(p - p1) < tol or abs(q1) < ytol:
             if abs(p - p1) < tol and abs(q1) < ytol:
                 return p
             
     raise ValueError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
+
+
+def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100):
+    jac_also = True if jac == True else False
+    
+    def err(F):
+        err = sum([abs(i) for i in F])
+        return err
+
+    if jac_also:
+        fcur, j = f(x0)
+    else:
+        fcur = f(x0)
+        
+    if ytol is not None and err(fcur) < ytol:
+        return x0, 0
+    else:
+        x = x0
+        if not jac_also:
+            j = jac(x)
+            
+    iter = 0
+    while iter < maxiter:
+        dx = np.linalg.solve(j, -np.array(fcur))
+        x = x + dx        
+        if jac_also:
+            fcur, j = f(x)
+        else:
+            fcur = f(x)
+        
+        iter += 1
+        
+        if xtol is not None and np.linalg.norm(fcur, ord=2) < xtol:
+            break
+        if ytol is not None and err(fcur) < ytol:
+            break
+            
+        if not jac_also:
+            j = jac(x)
+    return x, iter
 
 
 def py_splev(x, tck, ext=0):
