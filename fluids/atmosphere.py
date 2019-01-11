@@ -1127,7 +1127,9 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     '''
     # Atmospheric refraction at sunrise/sunset (0.5667 deg is an often used value)
     from fluids.optional import spa
-    from fluids.optional.irradiance import get_relative_airmass, get_absolute_airmass, ineichen, get_relative_airmass, get_absolute_airmass, get_total_irradiance
+    from fluids.optional.irradiance import (get_relative_airmass, get_absolute_airmass,
+                                            ineichen, get_relative_airmass, 
+                                            get_absolute_airmass, get_total_irradiance)
 
 #    try:
 #        import pvlib

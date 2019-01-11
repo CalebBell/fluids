@@ -24,6 +24,7 @@ from __future__ import division
 from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
 from sys import float_info
+from .arrays import solve as py_solve
 
 __all__ = ['isclose', 'horner', 'chebval', 'interp',
            'linspace', 'logspace', 'cumsum', 'diff',
@@ -166,11 +167,11 @@ def roots_cubic(a, b, c, d):
     -----
     For maximum speed, provide Python floats. Compare the speed with numpy via:
         
-    >>> %timeit roots_cubic(1.0, 100.0, 1000.0, 10.0)
-    >>> %timeit np.roots([1.0, 100.0, 1000.0, 10.0])
+    %timeit roots_cubic(1.0, 100.0, 1000.0, 10.0)
+    %timeit np.roots([1.0, 100.0, 1000.0, 10.0])
     
-    >>> %timeit roots_cubic(1.0, 2.0, 3.0, 4.0)
-    >>> %timeit np.roots([1.0, 2.0, 3.0, 4.0])
+    %timeit roots_cubic(1.0, 2.0, 3.0, 4.0)
+    %timeit np.roots([1.0, 2.0, 3.0, 4.0])
     
     The speed is ~15-35 times faster; or using PyPy, 240-370 times faster.
     
@@ -268,15 +269,17 @@ def roots_cubic(a, b, c, d):
         choice_term = -18.0*a*b*c*d + 4.0*a*t10*c + 4.0*t15*d - t14*t10 + 27.0*t2*t3
         if abs(choice_term) > 1e-12 or abs(b + 1.0) < 1e-7:
 #            print('mine')
+            t32 = 1.0/a
             t20 = csqrt(choice_term)
             t31 = (36.0*c*b*a + 12.0*root_three*t20*a - 108.0*d*t2 - 8.0*t15)**third
-            t32 = 1.0/a
-            x1 = (t31*t32*sixth - two_thirds*( 3.0*a*c - t14)*t32/t31 - b*t32*third).real
             t33 = t31*t32
-            t40 = (3.0*a*c - t14)*t32/t31
+            t32_t31 = t32/t31
+            
+            x1 = (t33*sixth - two_thirds*(3.0*a*c - t14)*t32_t31 - b*t32*third).real
+            t40 = (3.0*a*c - t14)*t32_t31
             
             t50 = -t33*twelfth + t40*third - b*t32*third
-            t51 = 0.5j*root_three *(t33*sixth + two_thirds*t40)
+            t51 = 0.5j*root_three*(t33*sixth + two_thirds*t40)
             x2 = (t50 + t51).real
             x3 = (t50 - t51).real
         else:
@@ -1034,7 +1037,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
     raise ValueError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
 
-def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100):
+def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0):
     jac_also = True if jac == True else False
     
     def err(F):
@@ -1055,8 +1058,8 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100):
             
     iter = 0
     while iter < maxiter:
-        dx = np.linalg.solve(j, -np.array(fcur))
-        x = x + dx        
+        dx = py_solve(j, [-v for v in fcur])
+        x = [xi + dxi*damping for xi, dxi in zip(x, dx)]
         if jac_also:
             fcur, j = f(x)
         else:
