@@ -30,20 +30,22 @@ __all__ = ['dot', 'inv', 'det', 'solve']
 def det(matrix):
     '''Seem sto work fine.
     
-    
-    >>> Matrix([[a, b], [c, d]]).det()
+    >> from sympy import *
+    >> from sympy.abc import *
+    >> Matrix([[a, b], [c, d]]).det()
     a*d - b*c
-    >>> Matrix([[a, b, c], [d, e, f], [g, h, i]]).det()
+    >> Matrix([[a, b, c], [d, e, f], [g, h, i]]).det()
     a*e*i - a*f*h - b*d*i + b*f*g + c*d*h - c*e*g
     
     A few terms can be slightly factored out of the 3x dim.
     
-    >>> Matrix([[a, b, c, d], [e, f, g, h], [i, j, k, l], [m, n, o, p]]).det()
+    >> Matrix([[a, b, c, d], [e, f, g, h], [i, j, k, l], [m, n, o, p]]).det()
     a*f*k*p - a*f*l*o - a*g*j*p + a*g*l*n + a*h*j*o - a*h*k*n - b*e*k*p + b*e*l*o + b*g*i*p - b*g*l*m - b*h*i*o + b*h*k*m + c*e*j*p - c*e*l*n - c*f*i*p + c*f*l*m + c*h*i*n - c*h*j*m - d*e*j*o + d*e*k*n + d*f*i*o - d*f*k*m - d*g*i*n + d*g*j*m
+
     72 mult vs ~48 in cse'd version'
     
     Commented out - takes a few seconds
-    >>> #Matrix([[a, b, c, d, e], [f, g, h, i, j], [k, l, m, n, o], [p, q, r, s, t], [u, v, w, x, y]]).det()
+    >> #Matrix([[a, b, c, d, e], [f, g, h, i, j], [k, l, m, n, o], [p, q, r, s, t], [u, v, w, x, y]]).det()
     
     260 multiplies with cse; 480 without it.
     '''
@@ -173,20 +175,21 @@ def det(matrix):
 def inv(matrix):
     '''
     5 has way too many multiplies.
-    
-    >>> Matrix([a]).inv()
+    >> from sympy import *
+    >> from sympy.abc import *
+    >> Matrix([a]).inv()
     Matrix([[1/a]])
     
-    >>> cse(Matrix([[a, b], [c, d]]).inv())
+    >> cse(Matrix([[a, b], [c, d]]).inv())
     Matrix([
     [1/a + b*c/(a**2*(d - b*c/a)), -b/(a*(d - b*c/a))],
     [          -c/(a*(d - b*c/a)),      1/(d - b*c/a)]])
     
-    >>> m_3 = Matrix([[a, b, c], [d, e, f], [g, h, i]])
-    >>> #cse(m_3.inv())
+    >> m_3 = Matrix([[a, b, c], [d, e, f], [g, h, i]])
+    >> #cse(m_3.inv())
 
-    >>> m_4 = Matrix([[a, b, c, d], [e, f, g, h], [i, j, k, l], [m, n, o, p]])
-    >>> cse(m_4.inv())
+    >> m_4 = Matrix([[a, b, c, d], [e, f, g, h], [i, j, k, l], [m, n, o, p]])
+    >> cse(m_4.inv())
     
     # Note: for 3, 4 - forgot to generate code using optimizations='basic'
     '''

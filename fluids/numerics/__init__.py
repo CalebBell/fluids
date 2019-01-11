@@ -1037,7 +1037,8 @@ def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
     raise ValueError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
 
-def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0):
+def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
+                  args=(),):
     jac_also = True if jac == True else False
     
     def err(F):
@@ -1045,25 +1046,25 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0):
         return err
 
     if jac_also:
-        fcur, j = f(x0)
+        fcur, j = f(x0, *args)
     else:
-        fcur = f(x0)
+        fcur = f(x0, *args)
         
     if ytol is not None and err(fcur) < ytol:
         return x0, 0
     else:
         x = x0
         if not jac_also:
-            j = jac(x)
+            j = jac(x, *args)
             
     iter = 0
     while iter < maxiter:
         dx = py_solve(j, [-v for v in fcur])
         x = [xi + dxi*damping for xi, dxi in zip(x, dx)]
         if jac_also:
-            fcur, j = f(x)
+            fcur, j = f(x, *args)
         else:
-            fcur = f(x)
+            fcur = f(x, *args)
         
         iter += 1
         
@@ -1073,7 +1074,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0):
             break
             
         if not jac_also:
-            j = jac(x)
+            j = jac(x, *args)
     return x, iter
 
 

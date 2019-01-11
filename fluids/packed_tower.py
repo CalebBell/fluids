@@ -58,8 +58,9 @@ Demister Geometry
 '''
 
 from __future__ import division
+from math import log
 from fluids.constants import g, pi
-from fluids.numerics import newton
+from fluids.numerics import newton, newton_system
 
 __all__ = ['voidage_experimental', 'specific_area_mesh',
 'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood', 'Robbins',
@@ -564,7 +565,84 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
     return float(newton(to_zero, dP_dry))
 
 
-def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=1):
+def Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area, C1, 
+                         C2, C3, H):
+    Vg, dP_irr = float(inputs[0]), float(inputs[1])
+    dp = 6.0*(1.0 - voidage)/specific_area
+    Re = Vg*rhog*dp/mug
+    f0 = C1/Re + C2/Re**0.5 + C3
+    dP_dry = 0.75*f0*(1.0 - voidage)/voidage**4.65*rhog*H/dp*Vg*Vg
+    c = (-C1/Re - 0.5*C2*Re**-0.5)/f0
+    Frl = Vl*Vl*specific_area/(g*voidage**4.65)
+    h0 = 0.555*Frl**(1/3.)
+    hT = h0*(1.0 + 20.0*(dP_irr/H/rhol/g)**2)
+    err1 = dP_dry/H*((1.0 - voidage + hT)/(1.0 - voidage))**((2.0 + c)/3.)*(voidage/(voidage-hT))**4.65 - dP_irr/H
+    term = (dP_irr/(rhol*g*H))**2
+    err2 = (1./term - 40.0*((2.0+c)/3.)*h0/(1.0 - voidage + h0*(1.0 + 20.0*term))
+    - 186.0*h0/(voidage - h0*(1.0 + 20.0*term)))
+    return err1, err2
+
+def Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage, 
+                               specific_area, C1, C2, C3, H):
+    Vg, dP_irr = float(inputs[0]), float(inputs[1])
+    x0 = 1.0/H
+    x1 = Vg*Vg
+    x2 = voidage**(-4.65)
+    x3 = specific_area*x2
+    x4 = Vl*Vl*x3/g
+    x5 = x4**0.333333333333333
+    x6 = dP_irr*dP_irr
+    x7 = H*H
+    x8 = 1.0/x7
+    x9 = g*g
+    x10 = 1.0/x9
+    x11 = rhol*rhol
+    x12 = 1.0/x11
+    x13 = x5*(20.0*x10*x12*x6*x8 + 1.0)
+    x14 = 0.555*x13
+    x15 = (voidage/(voidage - x14))**4.65
+    x16 = 1.0/Vg
+    x17 = 1.0/rhog
+    x18 = voidage - 1.0
+    x19 = 1.0/x18
+    x20 = C1*mug*specific_area*x16*x17*x19
+    x21 = 2.44948974278318*C2
+    x22 = Vg*rhog/(mug*specific_area)
+    x23 = x21*(-x18*x22)**-0.5
+    x24 = 6.0*C3 - x20 + x23
+    x25 = 1.0 - voidage 
+    x26 = x14 + x25
+    x27 = -x19*x26
+    x28 = 2.0*C1*mug*specific_area*x16*x17/x25 + x21*(x22*x25)**-0.5
+    x29 = 1.0/x24
+    x30 = x28*x29
+    x31 = x27**(-0.166666666666667*x30 + 0.666666666666667)
+    x32 = x11*x7*x9
+    x33 = 200.0*voidage
+    x34 = 111.0*x13
+    x35 = x33 - x34
+    x36 = 1.0/x35
+    x37 = -x33 + x34 + 200.0
+    x38 = 1.0/x37
+    x39 = 2.0*x20
+    x40 = -4.0*x20 + x23 + x29*(-x23 + x39)*(x23 - x39)
+    x41 = dP_irr*rhog*specific_area*x0*x1*x10*x12*x15*x2*x24*x31
+    x42 = dP_irr*x10*x12*x4**0.666666666666667*x8
+    
+    F1, F2, dF1_dVg, dF2_dVg, dF1_dP_irr, dF2_dP_irr = (
+            -dP_irr*x0 + 0.0208333333333333*rhog*specific_area*x1*x15*x2*x24*x31,
+             x32/x6 - 20646.0*x36*x5 - x38*x5*(2960.0 - 740.0*x28*x29),
+             0.00173611111111111*Vg*rhog*x15*x3*x31*(144.0*C3 - 12.0*x20 + 18.0*x23 + x40*log(x27)),
+             x0*(430.125*x36*x41*x5 - 15.4166666666667*x38*x41*x5*(x30 - 4.0) - 1.0),
+             -1.85*x16*x29*x40*x5/x26,
+             3285600.0*x42*(-x30 + 4.0)*x38*x38- 91668240.0*x42*x36*x36 - 2.0*x32/(dP_irr*x6))
+    
+    return [F1, F2], [[dF1_dVg, dF2_dVg], [dF1_dP_irr, dF2_dP_irr]]
+
+
+    
+def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3,
+                     H=1.0):
     r'''Calculates gas rate for flooding of a packed column, using the
     Stichlmair [1]_ correlation. Uses three regressed constants for each
     type of packing, and voidage and specific area.
@@ -636,7 +714,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
 
     >>> Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5,
     ... voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
-    0.639432354268736
+    0.6394323542746928
 
     References
     ----------
@@ -645,23 +723,14 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=
        Packed Columns." Gas Separation & Purification 3, no. 1 (March 1989):
        19-28. doi:10.1016/0950-4214(89)80016-7.
     '''
-    def to_zero(inputs):
-        Vg, dP_irr = float(inputs[0]), float(inputs[1])
-        dp = 6.0*(1.0 - voidage)/specific_area
-        Re = Vg*rhog*dp/mug
-        f0 = C1/Re + C2/Re**0.5 + C3
-        dP_dry = 0.75*f0*(1.0 - voidage)/voidage**4.65*rhog*H/dp*Vg*Vg
-        c = (-C1/Re - 0.5*C2*Re**-0.5)/f0
-        Frl = Vl*Vl*specific_area/(g*voidage**4.65)
-        h0 = 0.555*Frl**(1/3.)
-        hT = h0*(1.0 + 20.0*(dP_irr/H/rhol/g)**2)
-        err1 = dP_dry/H*((1.0 - voidage + hT)/(1.0 - voidage))**((2.0 + c)/3.)*(voidage/(voidage-hT))**4.65 - dP_irr/H
-        term = (dP_irr/(rhol*g*H))**2
-        err2 = (1./term - 40.0*((2.0+c)/3.)*h0/(1.0 - voidage + h0*(1.0 + 20.0*term))
-        - 186.0*h0/(voidage - h0*(1.0 + 20.0*term)))
-        return err1, err2
-    from scipy.optimize import fsolve
-    return float(fsolve(to_zero, [Vl*100., 1000])[0])
+    guess =  [Vl*100., 1000.0]
+    return newton_system(Stichlmair_flood_f_and_jac, x0=guess, jac=True,
+                         args=(Vl, rhog, rhol, mug, voidage, specific_area, C1, 
+                         C2, C3, H), ytol=1e-11)[0][0]
+#    from scipy.optimize import fsolve
+#    return float(fsolve(Stichlmair_flood_f, guess,
+#                        args=(Vl, rhog, rhol, mug, voidage, specific_area, C1, 
+#                         C2, C3, H))[0])
 
 
 def Robbins(L, G, rhol, rhog, mul, H=1.0, Fpd=24.0):
