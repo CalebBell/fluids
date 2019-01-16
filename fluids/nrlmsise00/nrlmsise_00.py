@@ -149,9 +149,9 @@ def ccor(alt, r, h1, zh):
  */
  """
     e = (alt - zh) / h1
-    if(e>70):
-        return exp(0) # pragma: no cover
-    if (e<-70):
+    if(e>70.0):
+        return 1.0 # exp(0) # pragma: no cover
+    elif (e < -70.0):
         return exp(r)
     ex = exp(e)
     e = r / (1.0 + ex)
@@ -174,8 +174,8 @@ def ccor2(alt, r, h1, zh, h2):
  '''
     e1 = (alt - zh) / h1;
     e2 = (alt - zh) / h2;
-    if ((e1 > 70) or (e2 > 70)): # pragma: no cover
-        return exp(0)
+    if ((e1 > 70.0) or (e2 > 70)): # pragma: no cover
+        return 1.0 # exp(0)
     if ((e1 < -70) and (e2 < -70)): # pragma: no cover
         return exp(r)
     ex1 = exp(e1);
@@ -193,7 +193,7 @@ def ccor2(alt, r, h1, zh, h2):
 def scalh(alt, xm, temp):
     #rgas = 831.44621    #maybe make this a global constant?
     rgas = 831.4
-    g = gsurf[0] / (pow((1.0 + alt/re[0]),2.0))
+    g = gsurf[0] / (pow( (1.0 + alt/re[0]),2.0))
     g = rgas * temp / (g * xm)
     return g
 
@@ -225,9 +225,9 @@ def dnet(dd, dm, zhm, xmm, xm):
             return dm
 
     ylog = a * log(dm/dd)
-    if(ylog < -10):
+    if(ylog < -10.0):
         return dd
-    if(ylog>10): # pragma: no cover
+    if(ylog>10.0): # pragma: no cover
         return dm
     a = dd*pow((1.0 + exp(ylog)),(1.0/a))
     return a

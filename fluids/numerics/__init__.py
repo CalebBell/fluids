@@ -193,8 +193,6 @@ def roots_cubic(a, b, c, d):
     1, -0.999999999978168, 1.698247818501352e-11, -8.47396642608142e-17
     Errors grown unbound, starting when b is -.99999 and close to 1.
     '''
-    a_inv = 1.0/a
-    a_inv2 = a_inv*a_inv
     if b == 0.0 and a == 0.0: 
         return (-d/c, )
     elif a == 0.0:
@@ -209,6 +207,8 @@ def roots_cubic(a, b, c, d):
             x1 = (D - c)*b_inv_2
             x2 = -(c + D)*b_inv_2
         return (x1, x2)
+    a_inv = 1.0/a
+    a_inv2 = a_inv*a_inv
     bb = b*b
     '''Herbie modifications for f:
     c*a_inv - b_a*b_a*third
@@ -966,30 +966,43 @@ def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
     1) No tracking ofo how many iterations have progressed.
     2) No ability to return a RootResults object
     3) No warnings on some cases of bad input ( low tolerance, no iterations)
-    4) 
+    4) Ability to accept True for either fprime or fprime2, which means that
+       they are included in the return value of func
     
     From scipy, with very minor modifications!
     https://github.com/scipy/scipy/blob/v1.1.0/scipy/optimize/zeros.py#L66-L206
     '''
     p0 = 1.0*x0
     if fprime is not None:
+        fprime2_included = fprime2 == True
+        fprime_included = fprime == True
+        
         for iter in range(maxiter):
-            fder = fprime(p0, *args)
+            if fprime2_included:
+                fval, fder, fder2 = func(p0, *args)
+            elif fprime_included:
+                fval, fder = func(p0, *args)
+            elif fprime2 is not None:
+                fval = func(p0, *args)
+                fder = fprime(p0, *args)
+                fder2 = fprime2(p0, *args)
+            else:
+                fval = func(p0, *args)
+                fder = fprime(p0, *args)
+            
             if fder == 0.0:
                 # Cannot coninue
                 return p0
-            fval = func(p0, *args)
             step = fval/fder*damping
             if fprime2 is None:
                 p = p0 - step
             else:
-                fder2 = fprime2(p0, *args)
                 p = p0 - step/(1.0 - 0.5*step*fder2/fder)
                 
-                if low is not None and p < low:
-                    p = low
-                if high is not None and p > high:
-                    p = high
+            if low is not None and p < low:
+                p = low
+            if high is not None and p > high:
+                p = high
                         
             if abs(p - p0) < tol:
                 # complete
