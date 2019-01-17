@@ -1615,10 +1615,12 @@ class ParticleSizeDistributionContinuous(object):
         ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts)
         try:
             for ni in n:
-                fractions = self.fractions_discrete(ds=ds, n=ni)
+                fractions = [self.pdf(d, n=ni) for d in ds]
+#                fractions = self.fractions_discrete(ds=ds, n=ni)
                 plt.semilogx(ds, fractions, label=_label_distribution_n(ni))
         except:
-            fractions = self.fractions_discrete(ds=ds, n=n)
+            fractions = [self.pdf(d, n=n) for d in ds]
+#            fractions = self.fractions_discrete(ds=ds, n=n)
             plt.semilogx(ds, fractions, label=_label_distribution_n(n))
         plt.ylabel('Probability density function, [-]')
         plt.xlabel('Particle diameter, [m]')

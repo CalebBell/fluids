@@ -968,6 +968,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
     3) No warnings on some cases of bad input ( low tolerance, no iterations)
     4) Ability to accept True for either fprime or fprime2, which means that
        they are included in the return value of func
+    5) No handling for inf or nan!
     
     From scipy, with very minor modifications!
     https://github.com/scipy/scipy/blob/v1.1.0/scipy/optimize/zeros.py#L66-L206
