@@ -30,8 +30,8 @@ __all__ = ['isclose', 'horner', 'chebval', 'interp',
            'linspace', 'logspace', 'cumsum', 'diff',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 
-           'splev', 'bisplev', 'derivative',
-           'IS_PYPY', 'roots_cubic', 'newton_system',
+           'splev', 'bisplev', 'derivative', 'normalize',
+           'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv',
            'numpy',
@@ -84,6 +84,7 @@ sixth = 1.0/6.0
 ninth = 1.0/9.0
 twelfth = 1.0/12.0
 two_thirds = 2.0/3.0
+four_thirds = 4.0/3.0
 
 root_three = (3.0)**0.5
 one_27 = 1.0/27.0
@@ -303,6 +304,54 @@ def roots_cubic(a, b, c, d):
             x2 = L*(M + N) + P
             x3 = L*(M - N) + P
     return (x1, x2, x3)
+
+
+def roots_quartic(a, b, c, d, e):
+    # There is no divide by zero check. A should be 1 for best numerical results
+    # Multiple order of magnitude differences still can cause problems 
+    # Like  [1, 0.0016525874561771799, 106.8665062954208, 0.0032802613917246727, 0.16036091315844248]
+    x0 = 1.0/a
+    x1 = b*x0
+    x2 = -x1*0.25
+    x3 = c*x0
+    x4 = b*b*x0*x0
+    x5 = -two_thirds*x3 + 0.25*x4
+    x6 = x3 - 0.375*x4
+    x6_2 = x6*x6
+    x7 = x6_2*x6
+    x8 = d*x0
+    x9 = x1*(-0.5*x3 + 0.125*x4)
+    x10 = (x8 + x9)*(x8 + x9)
+    x11 = e*x0
+    x12 = x1*(x1*(-0.0625*x3 + 0.01171875*x4) + 0.25*x8) # 0.01171875 = 3/256
+    x13 = x6*(x11 - x12)
+    x14 = -.125*x10 + x13*third - x7/108.0
+    x15 = 2.0*x14**(third)
+    x16 = csqrt(-x15 + x5)
+    x17 = 0.5*x16
+    x18 = -x17 + x2
+    x19 = -four_thirds*x3
+    x20 = 0.5*x4
+    x21 = x15 + x19 + x20
+    x22 = 2.0*x8 + 2.0*x9
+    x23 = x22/x16
+    x24 = csqrt(x21 + x23)*0.5
+    x25 = -x11 + x12 - twelfth*x6_2
+    x27 = (0.0625*x10 - x13*sixth + x7/216 + csqrt(0.25*x14*x14 + one_27*x25*x25*x25))**(third)
+    x28 = 2.0*x27
+    x29 = two_thirds*x25/(x27)
+    x30 = csqrt(x28 - x29 + x5)
+    x31 = 0.5*x30
+    x32 = x2 - x31
+    x33 = x19 + x20 - x28 + x29
+    x34 = x22/x30
+    x35 = csqrt(x33 + x34)*0.5
+    x36 = x17 + x2
+    x37 = csqrt(x21 - x23)*0.5
+    x38 = x2 + x31
+    x39 = csqrt(x33 - x34)*0.5
+    return ((x32 - x35), (x32 + x35), (x38 - x39), (x38 + x39))
+
 
 
 def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
@@ -1052,7 +1101,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
 
 
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
-                  args=(),):
+                  args=(), damping_func=None):
     jac_also = True if jac == True else False
     
     def err(F):
@@ -1074,7 +1123,10 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
     iter = 0
     while iter < maxiter:
         dx = py_solve(j, [-v for v in fcur])
-        x = [xi + dxi*damping for xi, dxi in zip(x, dx)]
+        if damping_func is None:
+            x = [xi + dxi*damping for xi, dxi in zip(x, dx)]
+        else:
+            x = damping_func(x, dx, damping)
         if jac_also:
             fcur, j = f(x, *args)
         else:
@@ -1091,6 +1143,34 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             j = jac(x, *args)
     return x, iter
 
+def normalize(values):
+    r'''Simple function which normalizes a series of values to be from 0 to 1,
+    and for their sum to add to 1.
+
+    .. math::
+        x = \frac{x}{sum_i x_i}
+
+    Parameters
+    ----------
+    values : array-like
+        array of values
+
+    Returns
+    -------
+    fractions : array-like
+        Array of values from 0 to 1
+
+    Notes
+    -----
+    Does not work on negative values, or handle the case where the sum is zero.
+
+    Examples
+    --------
+    >>> normalize([3, 2, 1])
+    [0.5, 0.3333333333333333, 0.16666666666666666]
+    '''
+    tot_inv = 1.0/sum(values)
+    return [i*tot_inv for i in values]
 
 def py_splev(x, tck, ext=0):
     '''Evaluate a B-spline using a pure-python port of FITPACK's splev. This is

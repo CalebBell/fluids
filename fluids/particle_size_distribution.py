@@ -108,7 +108,7 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
 
 from math import log, exp, pi, log10
 from fluids.numerics import (brenth, epsilon, gamma, erf, gammaincc,
-                             linspace, logspace, cumsum, diff)
+                             linspace, logspace, cumsum, diff, normalize)
 from fluids.numerics import numpy as np
 
 
@@ -1611,15 +1611,21 @@ class ParticleSizeDistributionContinuous(object):
         try:
             import matplotlib.pyplot as plt
         except:  # pragma: no cover
-            raise Exception(NO_MATPLOTLIB_MSG)            
-        ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts)
+            raise Exception(NO_MATPLOTLIB_MSG)           
+        import numpy as np
+        ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts, method='linear')
         try:
             for ni in n:
                 fractions = [self.pdf(d, n=ni) for d in ds]
+                fractions = normalize(fractions)
+#                fractions = np.array(fractions)*np.diff([0] + ds)
 #                fractions = self.fractions_discrete(ds=ds, n=ni)
                 plt.semilogx(ds, fractions, label=_label_distribution_n(ni))
         except:
+            
             fractions = [self.pdf(d, n=n) for d in ds]
+            fractions = normalize(fractions)
+#            fractions = np.array(fractions)*np.diff([0] + ds)
 #            fractions = self.fractions_discrete(ds=ds, n=n)
             plt.semilogx(ds, fractions, label=_label_distribution_n(n))
         plt.ylabel('Probability density function, [-]')
@@ -1628,6 +1634,7 @@ class ParticleSizeDistributionContinuous(object):
                   'parameters %s' %(self.name, self.parameters))
         plt.legend()
         plt.show()
+        return fractions
     
     def plot_cdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500):   # pragma: no cover
         r'''Plot the cumulative distribution function of the particle size 
