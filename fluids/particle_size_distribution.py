@@ -1589,7 +1589,8 @@ class ParticleSizeDistributionContinuous(object):
         return 6/self.mean_size(3, 2)
     
     
-    def plot_pdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500):  # pragma: no cover
+    def plot_pdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500,
+                 normalized=False, method='linear'):  # pragma: no cover
         r'''Plot the probability density function of the particle size 
         distribution. The plotted range can be specified using `d_min` and 
         `d_max`, or estimated automatically. One or more order can be plotted,
@@ -1605,28 +1606,36 @@ class ParticleSizeDistributionContinuous(object):
             Lower particle size diameter, [m]
         d_max : float, optional
             Upper particle size diameter, [m]
-        pts : int
+        pts : int, optional
             The number of points for values to be calculated, [-]
+        normalized : bool, optional
+            Whether to display the actual probability density function, which
+            may have a huge magnitude - or to divide each point by the sum
+            of all the points. Doing this is a common practice, but the values
+            at each point are dependent on the number of points being plotted,
+            and the distribution of the points;
+            [-]
+        method : str, optional
+            Either 'linear', 'logarithmic', a Renard number like 'R10' or 'R5' 
+            or'R2.5', or one of the sieve standards 'ISO 3310-1 R40/3', 
+            'ISO 3310-1 R20', 'ISO 3310-1 R20/3', 'ISO 3310-1', 
+            'ISO 3310-1 R10', 'ASTM E11', [-]
         '''
         try:
             import matplotlib.pyplot as plt
         except:  # pragma: no cover
             raise Exception(NO_MATPLOTLIB_MSG)           
-        import numpy as np
-        ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts, method='linear')
+        ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts, method=method)
         try:
             for ni in n:
                 fractions = [self.pdf(d, n=ni) for d in ds]
-                fractions = normalize(fractions)
-#                fractions = np.array(fractions)*np.diff([0] + ds)
-#                fractions = self.fractions_discrete(ds=ds, n=ni)
+                if normalized:
+                    fractions = normalize(fractions)
                 plt.semilogx(ds, fractions, label=_label_distribution_n(ni))
-        except:
-            
+        except Exception as e:
             fractions = [self.pdf(d, n=n) for d in ds]
-            fractions = normalize(fractions)
-#            fractions = np.array(fractions)*np.diff([0] + ds)
-#            fractions = self.fractions_discrete(ds=ds, n=n)
+            if normalized:
+                fractions = normalize(fractions)
             plt.semilogx(ds, fractions, label=_label_distribution_n(n))
         plt.ylabel('Probability density function, [-]')
         plt.xlabel('Particle diameter, [m]')
@@ -1636,7 +1645,8 @@ class ParticleSizeDistributionContinuous(object):
         plt.show()
         return fractions
     
-    def plot_cdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500):   # pragma: no cover
+    def plot_cdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500,
+                 method='logarithmic'):   # pragma: no cover
         r'''Plot the cumulative distribution function of the particle size 
         distribution. The plotted range can be specified using `d_min` and 
         `d_max`, or estimated automatically. One or more order can be plotted,
@@ -1652,15 +1662,20 @@ class ParticleSizeDistributionContinuous(object):
             Lower particle size diameter, [m]
         d_max : float, optional
             Upper particle size diameter, [m]
-        pts : int
+        pts : int, optional
             The number of points for values to be calculated, [-]
+        method : str, optional
+            Either 'linear', 'logarithmic', a Renard number like 'R10' or 'R5' 
+            or'R2.5', or one of the sieve standards 'ISO 3310-1 R40/3', 
+            'ISO 3310-1 R20', 'ISO 3310-1 R20/3', 'ISO 3310-1', 
+            'ISO 3310-1 R10', 'ASTM E11', [-]
         '''
         try:
             import matplotlib.pyplot as plt
         except:  # pragma: no cover
-            raise Exception(NO_MATPLOTLIB_MSG)            
+            raise Exception(NO_MATPLOTLIB_MSG)
 
-        ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts)
+        ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts, method=method)
         try:
             for ni in n:
                 cdfs = self.cdf_discrete(ds=ds, n=ni)
