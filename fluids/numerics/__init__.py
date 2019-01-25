@@ -1007,8 +1007,9 @@ def py_brenth(f, xa, xb, args=(),
     raise ValueError("Failed to converge after %d iterations" %maxiter)
 
 
-def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
-              fprime2=None, low=None, high=None, damping=1.0, ytol=0.0):
+def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
+              fprime2=None, low=None, high=None, damping=1.0, ytol=0.0,
+              xtol=1.48e-8):
     '''Newton's method designed to be mostly compatible with SciPy's 
     implementation, with a few features added and others now implemented.
     
@@ -1022,6 +1023,8 @@ def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
     From scipy, with very minor modifications!
     https://github.com/scipy/scipy/blob/v1.1.0/scipy/optimize/zeros.py#L66-L206
     '''
+    if tol is not None:
+        xtol = tol
     p0 = 1.0*x0
     if fprime is not None:
         fprime2_included = fprime2 == True
@@ -1054,7 +1057,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
             if high is not None and p > high:
                 p = high
                         
-            if abs(p - p0) < tol:
+            if abs(p - p0) < xtol:
                 # complete
                 return p
             p0 = p
@@ -1094,7 +1097,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=1.48e-8, maxiter=_iter,
 #            if abs(p - p1) < tol:
 #            if abs(q1) < ytol:
 #            if abs(p - p1) < tol or abs(q1) < ytol:
-            if abs(p - p1) < tol and abs(q1) < ytol:
+            if abs(p - p1) < xtol and abs(q1) < ytol:
                 return p
             
     raise ValueError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
@@ -1120,7 +1123,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         if not jac_also:
             j = jac(x, *args)
             
-    iter = 0
+    iter = 1
     while iter < maxiter:
         dx = py_solve(j, [-v for v in fcur])
         if damping_func is None:
@@ -1133,7 +1136,6 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             fcur = f(x, *args)
         
         iter += 1
-        
         if xtol is not None and np.linalg.norm(fcur, ord=2) < xtol:
             break
         if ytol is not None and err(fcur) < ytol:

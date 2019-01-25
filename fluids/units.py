@@ -397,6 +397,10 @@ for name in dir(fluids):
         obj = wraps_numpydoc(u)(obj)
     elif type(obj) == type:
         obj = wrap_numpydoc_obj(obj)
+    elif type(obj) is types.ModuleType:
+        # Functions accessed with the namespace like friction.friction_factor
+        # would call the original function - that's no good
+        continue
     elif isinstance(obj, str):
         continue
     if name == '__all__':
