@@ -38,6 +38,12 @@ Atmospheres
     :members:
 .. autofunction:: airmass
         
+Solar Radiation and Position
+----------------------------
+.. autofunction:: solar_position
+.. autofunction:: solar_irradiation
+.. autofunction:: sunrise_sunset
+.. autofunction:: earthsun_distance
 
 Wind Models (requires Fortran compiler!)
 ----------------------------------------
@@ -47,19 +53,26 @@ Wind Models (requires Fortran compiler!)
 '''
 
 from __future__ import division
+
+from math import exp, cos, radians, pi, sin
+import time
+from datetime import datetime
 import os
-from math import exp, cos, radians
-from fluids.constants import N_A, R
+from fluids.constants import N_A, R, au
 from fluids.numerics import brenth
 from fluids.numerics import numpy as np
 
-__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14', 'airmass']
+__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
+           'earthsun_distance', 'solar_position', 'solar_irradiation',
+           'sunrise_sunset']
 
 no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
 this routine. '''
 
 
+# Needed by hwm14
+os.environ["HWMPATH"] = os.path.join(os.path.dirname(__file__), 'optional')
 
 
 
@@ -428,6 +441,8 @@ class ATMOSPHERE_NRLMSISE00(object):
     This model is based on measurements other than gravity; it does not provide
     a calculation method for `g`. It does not provide transport properties.
     
+    This model takes on the order of ~2 ms.
+    
     References
     ----------
     .. [1] Picone, J. M., A. E. Hedin, D. P. Drob, and A. C. Aikin. 
@@ -456,7 +471,6 @@ class ATMOSPHERE_NRLMSISE00(object):
         self.geomagnetic_disturbance_indices = geomagnetic_disturbance_indices
         
         from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
-
         alt = Z/1000.
         output_obj = nrlmsise_output()
         input_obj = nrlmsise_input()
@@ -734,3 +748,466 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
 
     from scipy.integrate import quad
     return float(quad(to_int, 0, 86400.0)[0])
+
+
+
+PVLIB_MISSING_MSG = 'The module pvlib is required for this function; install it first'
+
+
+def earthsun_distance(moment):
+    r'''Calculates the distance between the earth and the sun as a function 
+    of date and time. Uses the Reda and Andreas (2004) model described in [1]_, 
+    originally incorporated into the excellent 
+    `pvlib library <https://github.com/pvlib/pvlib-python>`_
+    
+    Parameters
+    ----------
+    moment : datetime
+        Time and date for the calculation, in UTC time, [-]
+        
+    Returns
+    -------
+    distance : float
+        Distance between the center of the earth and the center of the sun,
+        [m]        
+
+    Examples
+    --------
+    >>> earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
+    149080606927.64246
+    
+    The distance at perihelion, which occurs at 21:21 according to this
+    algorithm. The real value is 04:38 (January 2nd).
+        
+    >>> earthsun_distance(datetime(2013, 1, 1, 21, 21, 0, 0))
+    147098089490.8165
+    
+    The distance at aphelion, which occurs at 08:44 according to this
+    algorithm. The real value is 14:44 (July 5).
+    
+    >>> earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
+    152097354414.21094
+        
+    Notes
+    -----
+    This function is relatively accurate - to within 5 or 10 hours of 
+    accuracy. The difference comes from the impact of the moon.
+
+    Note this function is not continuous; the sun-earth distance is not 
+    sufficiently accurately modeled for the change to be continuous throughout
+    each day.
+
+    References
+    ----------
+    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for 
+       Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
+       577-89. https://doi.org/10.1016/j.solener.2003.12.003.
+    '''
+    from fluids.optional import spa
+    delta_t = spa.calculate_deltat(moment.year, moment.month)
+    unixtime = time.mktime(moment.timetuple())
+    # Convert datetime object to unixtime
+    return float(spa.earthsun_distance(unixtime, delta_t=delta_t))*au
+
+
+def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0, 
+                           atmos_refract=0.5667):
+    r'''Calculate the position of the sun in the sky. It is defined in terms of
+    two angles - the zenith and the azimith. The azimuth tells where a sundial
+    would see the sun as coming from; the zenith tells how high in the sky it
+    is. The solar elevation angle is returned for convinience; it is the 
+    complimentary angle of the zenith.
+    
+    The sun's refraction changes how high it appears as though the sun is;
+    so values are returned with an optional conversion to the aparent angle.
+    This impacts only the zenith/elevation.
+    
+    Uses the Reda and Andreas (2004) model described in [1]_, 
+    originally incorporated into the excellent 
+    `pvlib library <https://github.com/pvlib/pvlib-python>`_    
+    
+    Parameters
+    ----------
+    moment : datetime
+        Time and date for the calculation, in local UTC time (not daylight 
+        savings time), [-]
+    latitude : float
+        Latitude, between -90 and 90 [degrees]
+    longitude : float
+        Longitude, between -180 and 180, [degrees]
+    Z : float, optional
+        Elevation above sea level for the solar position calculation, [m]
+    T : float, optional
+        Temperature of atmosphere at ground level, [K]
+    P : float, optional
+        Pressure of atmosphere at ground level, [Pa]
+    atmos_refract : float, optional
+        Atmospheric refractivity, [degrees]
+
+    Returns
+    -------
+    apparent_zenith : float
+        Zenith of the sun as observed from the ground based after accounting
+        for atmospheric refraction, [degrees]
+    zenith : float
+        Actual zenith of the sun (ignores atmospheric refraction), [degrees]
+    apparent_altitude : float
+        Altitude of the sun as observed from the ground based after accounting
+        for atmospheric refraction, [degrees]
+    altitude : float
+        Actual altitude of the sun (ignores atmospheric refraction), [degrees]
+    azimuth : float
+        The azimuth of the sun, [degrees]
+    equation_of_time : float
+        Equation of time - the number of seconds to be added to the day's
+        mean solar time to obtain the apparent solar noon time, [seconds]
+
+    Examples
+    --------
+    >>> solar_position(datetime(2003, 10, 17, 13, 30, 30), 45, 45)
+    [140.8367913391112, 140.8367913391112, -50.83679133911118, -50.83679133911118, 329.9096671679604, 878.4902950980904]
+
+    Sunrise occurs when the zenith is 90 degrees (Calgary, AB):
+    
+    >>> solar_position(datetime(2018, 4, 15, 6, 43, 5), 51.0486, -114.07)[0]
+    90.00054676987014
+    
+    Sunrise also occurs when the zenith is 90 degrees (13.5 hours later):
+        
+    >>> solar_position(datetime(2018, 4, 15, 20, 30, 28), 51.0486, -114.07)
+    [89.9995695661236, 90.54103812161853, 0.00043043387640950836, -0.5410381216185247, 286.8313781904518, 6.631429525878048]
+    
+    Notes
+    -----    
+    If you were standing at the same longitude of the sun such that it was no
+    further east or west than you were, the amount of angle it was south or 
+    north of you is the *zenith*. If it were directly overhead it would be 0°;
+    a little north or south and it would be a little positive;
+    near sunset or sunrise, near 90°; and at night, between 90° and 180°.
+    
+    The *solar altitude angle* is defined as 90° -`zenith`.
+    Note the *elevation* angle is just another name for the *altitude* angle.
+    
+    The *azimuth* the angle in degrees that the sun is East of the North angle.
+    It is positive North eastwards 0° to 360°. Other conventions may be used.
+    
+    Note that due to differences in atmospheric refractivity, estimation of
+    sunset and sunrise are accuract to no more than one minute. Refraction
+    conditions truly vary across the atmosphere; so characterizing it by an
+    average value is limiting as well.
+
+    References
+    ----------
+    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for 
+       Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
+       577-89. https://doi.org/10.1016/j.solener.2003.12.003.
+    .. [2] "Navigation - What Azimuth Description Systems Are in Use? - 
+       Astronomy Stack Exchange." 
+       https://astronomy.stackexchange.com/questions/237/what-azimuth-description-systems-are-in-use?rq=1.
+    '''
+    from fluids.optional import spa
+    delta_t = spa.calculate_deltat(moment.year, moment.month)
+    unixtime = time.mktime(moment.timetuple())
+    
+    # Input pressure in milibar; input temperature in deg C
+    result = spa.solar_position_numpy(unixtime, lat=latitude, lon=longitude, elev=Z, 
+                          pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
+                          atmos_refract=atmos_refract, sst=False, esd=False)
+    # confirmed equation of time https://www.minasi.com/figeot.asp
+    # Convert minutes to seconds; sometimes negative, sometimes positive
+
+    result[-1] = result[-1]*60.0 
+    return result
+
+
+def sunrise_sunset(moment, latitude, longitude):
+    r'''Calculates the times at which the sun is at sunset; sunrise; and 
+    halfway between sunrise and sunset (transit).
+    
+    Uses the Reda and Andreas (2004) model described in [1]_, 
+    originally incorporated into the excellent 
+    `pvlib library <https://github.com/pvlib/pvlib-python>`_    
+
+    Parameters
+    ----------
+    moment : datetime
+        Date for the calculation, in local UTC time, [-]
+    latitude : float
+        Latitude, between -90 and 90 [degrees]
+    longitude : float
+        Longitude, between -180 and 180, [degrees]
+
+    Returns
+    -------
+    sunrise : datetime
+        The time at the specified day when the sun rises, [-]
+    sunset : datetime
+        The time at the specified day when the sun sets, [-]
+    transit : datetime
+        The time at the specified day when the sun is at solar noon - halfway 
+        between sunrise and sunset, [-]
+
+    Examples
+    --------
+    >>> sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17, 13, 
+    ... 43, 5), 51.0486, -114.07)
+    >>> sunrise
+    datetime.datetime(2018, 4, 17, 6, 36, 55, 782660)
+    >>> sunset
+    datetime.datetime(2018, 4, 17, 20, 34, 4, 249326)
+    >>> transit
+    datetime.datetime(2018, 4, 17, 13, 35, 46, 686265)
+    
+    Notes
+    -----    
+    This functions takes on the order of 2 ms per calculation.
+
+    References
+    ----------
+    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for 
+       Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
+       577-89. https://doi.org/10.1016/j.solener.2003.12.003.
+    '''
+    from fluids.optional import spa
+    delta_t = spa.calculate_deltat(moment.year, moment.month)
+    unixtime = time.mktime(moment.timetuple())
+    unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
+    transit, sunrise, sunset = spa.transit_sunrise_sunset(np.array([unixtime]), lat=latitude, lon=longitude, delta_t=delta_t, numthreads=1)
+    
+    transit = datetime.fromtimestamp(float(transit))
+    sunrise = datetime.fromtimestamp(float(sunrise))
+    sunset = datetime.fromtimestamp(float(sunset))
+    return sunrise, sunset, transit
+
+
+apparent_zenith_airmass_models = set(['simple', 'kasten1966', 'kastenyoung1989',
+                                   'gueymard1993', 'pickering2002'])
+true_zenith_airmass_models = set(['youngirvine1967', 'young1994'])
+
+
+def _get_extra_radiation_shim(datetime_or_doy, solar_constant=1366.1,
+    method='spencer', epoch_year=2014, **kwargs):
+    if method == 'spencer':
+        if not isinstance(datetime_or_doy, (float, int)):
+            dayofyear = datetime_or_doy.timetuple().tm_yday
+        else:
+            dayofyear = datetime_or_doy
+        B = (2.*pi/365.)*(dayofyear - 1)
+        RoverR0sqrd = (1.00011 + 0.034221*cos(B) + 0.00128*sin(B) +
+        0.000719*cos(2.0*B) + 7.7e-05*sin(2.0*B))
+
+        Ea = solar_constant * RoverR0sqrd
+        return Ea
+    from pvlib import get_extra_radiation
+    return get_extra_radiation(datetime_or_doy=datetime_or_doy,
+                              solar_constant=solar_constant,
+                              method=method,
+                              epoch_year=epoch_year,
+                              **kwargs)
+
+
+def solar_irradiation(latitude, longitude, Z, moment, surface_tilt, 
+                      surface_azimuth, T=None, P=None, solar_constant=1366.1,
+                      atmos_refract=0.5667, albedo=0.25, linke_turbidity=None, 
+                      extraradiation_method='spencer',
+                      airmass_model='kastenyoung1989',
+                      cache=None):
+    r'''Calculates the amount of solar radiation and radiation reflected back
+    the atmosphere which hits a surface at a specified tilt, and facing a
+    specified azimuth. 
+    
+    This functions is a wrapper for the incredibly 
+    comprehensive `pvlib library <https://github.com/pvlib/pvlib-python>`_, 
+    and requires it to be installed.
+    
+    Parameters
+    ----------
+    latitude : float
+        Latitude, between -90 and 90 [degrees]
+    longitude : float
+        Longitude, between -180 and 180, [degrees]
+    Z : float, optional
+        Elevation above sea level for the position, [m]
+    moment : datetime
+        Time and date for the calculation, in local UTC time (not daylight 
+        savings time), [-]
+    surface_tilt : float
+        The angle above the horizontal of the object being hit by radiation,
+        [degrees]
+    surface_azimuth : float
+        The angle the object is facing (positive North eastwards 0° to 360°),
+        [degrees]
+    T : float, optional
+        Temperature of atmosphere at ground level, [K]
+    P : float, optional
+        Pressure of atmosphere at ground level, [Pa]
+    solar_constant : float, optional
+        The amount of solar radiation which reaches earth's disk (at a 
+        standardized distance of 1 AU); this constant is independent of 
+        activity or conditions on earth, but will vary throughout the sun's
+        lifetime and may increase or decrease slightly due to solar activity,
+        [W/m^2]
+    atmos_refract : float, optional
+        Atmospheric refractivity at sunrise/sunset (0.5667 deg is an often used
+        value; this varies substantially and has an impact of a few minutes on 
+        when sunrise and sunset is), [degrees]
+    albedo : float, optional
+        The average amount of reflection of the terrain surrounding the object
+        at quite a distance; this impacts how much sunlight reflected off the
+        ground, gest reflected back off clouds, [-]
+    linke_turbidity : float, optional
+        The amount of pollution/water in the sky versus a perfect clear sky;
+        If not specified, this will be retrieved from a historical grid;
+        typical values are 3 for cloudy, and 7 for severe pollution around a
+        city, [-]
+    extraradiation_method : str, optional
+        The specified method to calculate the effect of earth's position on the
+        amount of radiation which reaches earth according to the methods 
+        available in the `pvlib` library, [-]
+    airmass_model : str, optional
+        The specified method to calculate the amount of air the sunlight
+        needs to travel through to reach the earth according to the methods 
+        available in the `pvlib` library, [-]
+    cache : dict, optional
+        Dictionary to to check for values to use to skip some calculations;
+        `apparent_zenith`, `zenith`, `azimuth` supported, [-]
+
+    Returns
+    -------
+    poa_global : float
+        The total irradiance in the plane of the surface, [W/m^2]
+    poa_direct : float
+        The total beam irradiance in the plane of the surface, [W/m^2]
+    poa_diffuse : float
+        The total diffuse irradiance in the plane of the surface, [W/m^2]
+    poa_sky_diffuse : float
+        The sky component of the diffuse irradiance, excluding the impact 
+        from the ground, [W/m^2]
+    poa_ground_diffuse : float
+        The ground-sky diffuse irradiance component, [W/m^2]
+
+    Examples
+    --------
+    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
+    ... moment=datetime(2018, 4, 15, 13, 43, 5), surface_tilt=41.0, 
+    ... surface_azimuth=180.0)
+    (1065.7621896280812, 945.2656564506323, 120.49653317744884, 95.31535344213178, 25.181179735317063)
+    
+    >>> cache = {'apparent_zenith': 41.099082295767545, 'zenith': 41.11285376417578, 'azimuth': 182.5631874250523}
+    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
+    ... moment=datetime(2018, 4, 15, 13, 43, 5), surface_tilt=41.0, 
+    ... linke_turbidity=3, T=300, P=1E5,
+    ... surface_azimuth=180.0, cache=cache)
+    (1042.5677703677097, 918.2377548545295, 124.33001551318027, 99.6228657378363, 24.70714977534396)
+
+    At night, there is no solar radiation and this function returns zeros:
+        
+    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
+    ... moment=datetime(2018, 4, 15, 2, 43, 5), surface_tilt=41.0, 
+    ... surface_azimuth=180.0)
+    (0.0, -0.0, 0.0, 0.0, 0.0)
+    
+
+    Notes
+    -----    
+    The retrieval of `linke_turbidity` requires the pytables library (and 
+    Pandas); if it is not installed, specify a value of `linke_turbidity` to 
+    avoid the dependency.
+    
+    There is some redundancy of the calculated results, according to the 
+    following relations. The total irradiance is normally that desired for 
+    engineering calculations.
+    
+    poa_diffuse = poa_ground_diffuse + poa_sky_diffuse
+    
+    poa_global = poa_direct + poa_diffuse
+    
+    FOr a surface such as a pipe or vessel, an approach would be to split it
+    into a number of rectangles and sum up the radiation absorbed by each.
+    
+    This calculation is fairly slow. 
+
+    References
+    ----------
+    .. [1] Will Holmgren, Calama-Consulting, Tony Lorenzo, Uwe Krien, bmu, 
+       DaCoEx, mayudong, et al. Pvlib/Pvlib-Python: 0.5.1. Zenodo, 2017. 
+       https://doi.org/10.5281/zenodo.1016425.
+    '''
+    # Atmospheric refraction at sunrise/sunset (0.5667 deg is an often used value)
+    from fluids.optional import spa
+    from fluids.optional.irradiance import (get_relative_airmass, get_absolute_airmass,
+                                            ineichen, get_relative_airmass, 
+                                            get_absolute_airmass, get_total_irradiance)
+#    try:
+#        import pvlib
+#    except:
+#        raise ImportError(PVLIB_MISSING_MSG)
+
+    moment_timetuple = moment.timetuple()
+    moment_arg_dni = (moment_timetuple.tm_yday if 
+                      extraradiation_method == 'spencer' else moment)
+
+    dni_extra = _get_extra_radiation_shim(moment_arg_dni, solar_constant=solar_constant, 
+                               method=extraradiation_method, 
+                               epoch_year=moment.year)
+    
+    if T is None or P is None:
+        atmosphere = ATMOSPHERE_NRLMSISE00(Z=Z, latitude=latitude, 
+                                           longitude=longitude, 
+                                           day=moment_timetuple.tm_yday)
+        if T is None:
+            T = atmosphere.T
+        if P is None:
+            P = atmosphere.P
+    
+    if cache is not None and 'zenith' in cache:
+        zenith = cache['zenith']
+        apparent_zenith = cache['apparent_zenith']
+        azimuth = cache['azimuth']
+    else:
+        apparent_zenith, zenith, _, _, azimuth, _ = solar_position(moment=moment,
+                                                                   latitude=latitude, 
+                                                                   longitude=longitude,
+                                                                   Z=Z, T=T, P=P, 
+                                                                   atmos_refract=atmos_refract)
+    
+    if linke_turbidity is None:
+        from pvlib.clearsky import lookup_linke_turbidity
+        import pandas as pd
+        linke_turbidity = float(lookup_linke_turbidity(
+            pd.DatetimeIndex([moment]), latitude, longitude).values)
+
+        
+    if airmass_model in apparent_zenith_airmass_models:
+        used_zenith = apparent_zenith
+    elif airmass_model in true_zenith_airmass_models:
+        used_zenith = zenith
+    else:
+        raise Exception('Unrecognized airmass model')
+    
+    relative_airmass = get_relative_airmass(used_zenith, model=airmass_model)
+    airmass_absolute = get_absolute_airmass(relative_airmass, pressure=P)
+
+
+    ans = ineichen(apparent_zenith=apparent_zenith,
+                   airmass_absolute=airmass_absolute, 
+                   linke_turbidity=linke_turbidity,
+                   altitude=Z, dni_extra=solar_constant, perez_enhancement=True)
+    ghi = ans['ghi']
+    dni = ans['dni']
+    dhi = ans['dhi']
+    
+    
+#    from pvlib.irradiance import get_total_irradiance
+    ans = get_total_irradiance(surface_tilt=surface_tilt, 
+                      surface_azimuth=surface_azimuth,
+                      solar_zenith=apparent_zenith, solar_azimuth=azimuth,
+                      dni=dni, ghi=ghi, dhi=dhi, dni_extra=dni_extra, 
+                      airmass=airmass_absolute, albedo=albedo)
+    poa_global = float(ans['poa_global'])
+    poa_direct = float(ans['poa_direct'])
+    poa_diffuse = float(ans['poa_diffuse'])
+    poa_sky_diffuse = float(ans['poa_sky_diffuse'])
+    poa_ground_diffuse = float(ans['poa_ground_diffuse'])
+    return (poa_global, poa_direct, poa_diffuse, poa_sky_diffuse, 
+            poa_ground_diffuse)

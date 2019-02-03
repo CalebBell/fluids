@@ -37,6 +37,7 @@ def test_packed_tower():
     S = specific_area_mesh(voidage=.934, d=3e-4)
     assert_allclose(S, 879.9999999999994)
 
+def test_Stichlmair():
     dP_dry = Stichlmair_dry(Vg=0.4, rhog=5., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7, C3=1)
     assert_allclose(dP_dry, 236.80904286559885)
 

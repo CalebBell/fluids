@@ -1114,28 +1114,34 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     
     Dj = N14*Fd*(C*FL)**0.5
     
-    Uvc = 1.0/FL*(2*dPc/rho)**0.5
+    Uvc = 1.0/FL*(2.0*dPc/rho)**0.5
     Wm = 0.5*m*Uvc*Uvc*FL*FL
     cavitating = False if xF <= xFzp1 else True
     
     eta_turb = 10.0**An*Uvc/c
     
     if cavitating:
-    	eta_cav = 0.32*eta_turb*((P1 - P2)/(dPc*xFzp1))**0.5*exp(5*xFzp1)*((1.0 
+    	eta_cav = 0.32*eta_turb*((P1 - P2)/(dPc*xFzp1))**0.5*exp(5.0*xFzp1)*((1.0 
                  - xFzp1)/(1.0 - xF))**0.5*(xF/xFzp1)**5*(xF - xFzp1)**1.5
     	Wa = (eta_turb+eta_cav)*Wm
     else:
     	Wa = eta_turb*Wm
     
-    Lpi = 10*log10(3.2E9*Wa*rho*c/(Di*Di))
+    Lpi = 10.0*log10(3.2E9*Wa*rho*c/(Di*Di))
     Stp = 0.036*FL*FL*C*Fd**0.75/(N34*xFzp1**1.5*d*d)*(1.0/(P1 - Psat))**0.57
     f_p_turb = Stp*Uvc/Dj
     
     if cavitating:
-    	f_p_cav = 6*f_p_turb*((1.0 - xF)/(1.0 - xFzp1))**2*(xFzp1/xF)**2.5
-    
+        f_p_cav = 6*f_p_turb*((1.0 - xF)/(1.0 - xFzp1))**2*(xFzp1/xF)**2.5
+        f_p_cav_inv = 1.0/f_p_cav
+        t1 = eta_turb/(eta_turb + eta_cav)
+        t2 = eta_cav/(eta_turb + eta_cav)
+
     fr = c_pipe/(pi*Di)    
+    fr_inv = 1.0/fr
     TL_fr = -10.0 - 10.0*log10(c_pipe*rho_pipe*t_pipe/(c_air*rho_air*Di))
+    
+    t3 = - 10.0*log10((Di + 2.0*t_pipe + 2.0)/(Di + 2.0*t_pipe))
 
     F_cavs = []
     F_turbs = []
@@ -1144,22 +1150,28 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     L_pe1m_fis = []
     LpAe1m_sum = 0.0
     
+    f_p_turb_inv = 1.0/f_p_turb
+    
+    
+    
     for fi, A in zip(fis_l_2015, A_weights_l_2015):
-        fi_turb_ratio = fi/f_p_turb
-        F_turb = -8.0 - 10.0*log10(0.25*(fi_turb_ratio)**3 + 1.0/fi_turb_ratio)
+        fi_inv = 1.0/fi
+        fi_turb_ratio = fi*f_p_turb_inv
+        F_turb = -8.0 - 10.0*log10(0.25*fi_turb_ratio*fi_turb_ratio*fi_turb_ratio
+                                   + fi_inv*f_p_turb) 
         F_turbs.append(F_turb)
         if cavitating:
-            fi_cav_ratio = (fi/f_p_cav)**1.5
+            fi_cav_ratio = (fi*f_p_cav_inv)**1.5
             F_cav = -9.0 - 10.0*log10(0.25*fi_cav_ratio + 1.0/fi_cav_ratio)
-            LPif = (Lpi + 10.0*log10(eta_turb/(eta_turb + eta_cav)*10.0**(0.1*F_turb)
-                    + eta_cav/(eta_turb + eta_cav)*10.0**(0.1*F_cav)))
+            LPif = (Lpi + 10.0*log10(t1*10.0**(0.1*F_turb)
+                    + t2*10.0**(0.1*F_cav)))
         else:
             LPif = Lpi + F_turb
         LPis.append(LPif)
-        TL_fi = TL_fr - 20.0*log10((fr/fi) + (fi/fr)**1.5)
+        TL_fi = TL_fr - 20.0*log10((fr*fi_inv) + (fi*fr_inv)**1.5)
         TL_fis.append(TL_fi)
         
-        L_pe1m_fi = LPif + TL_fi - 10.0*log10((Di + 2.0*t_pipe + 2.0)/(Di + 2.0*t_pipe))
+        L_pe1m_fi = LPif + TL_fi + t3
         L_pe1m_fis.append(L_pe1m_fi)
         
         LpAe1m_sum += 10.0**(0.1*(L_pe1m_fi + A))
@@ -1256,7 +1268,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     ... gamma=1.22, MW=19.8, Kv=77.85,  d=0.1, Di=0.2031, FL=None, FLP=0.792, 
     ... FP=0.98, Fd=0.296, t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, 
     ... rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
-    91.67702567004144
+    91.67702674629604
 
     References
     ----------
@@ -1359,7 +1371,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     Lg = 16.0*log10(1.0/(1.0 - min(M2, 0.3))) # dB
     
     if M2 > 0.3:
-        Up = 4*m/(pi*rho2*Di*Di)
+        Up = 4.0*m/(pi*rho2*Di*Di)
         UR = Up*Di*Di/(beta*d*d)
         WmR = 0.5*m*UR*UR*( (1.0 - d*d/(Di*Di))**2 + 0.2)
         fpR = Stp*UR/d

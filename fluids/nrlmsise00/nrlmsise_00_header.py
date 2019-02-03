@@ -92,7 +92,7 @@ class nrlmsise_flags(object):
         self.swc = [0.0]*24
 
 
-class ap_array:
+class ap_array(object):
     """
  * Array containing the following magnetic values:
  *   0 : daily AP
@@ -109,7 +109,7 @@ class ap_array:
         self.a = [0.0]*7
 
 
-class nrlmsise_input:
+class nrlmsise_input(object):
     """
 /*
  *   NOTES ON INPUT VARIABLES:
@@ -152,7 +152,7 @@ class nrlmsise_input:
 #/* ------------------------------ OUTPUT ----------------------------- */
 #/* ------------------------------------------------------------------- */
 
-class nrlmsise_output:
+class nrlmsise_output(object):
     """
 /*
  *   OUTPUT VARIABLES:

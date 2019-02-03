@@ -108,7 +108,7 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
 
 from math import log, exp, pi, log10
 from fluids.numerics import (brenth, epsilon, gamma, erf, gammaincc,
-                             linspace, logspace, cumsum, diff)
+                             linspace, logspace, cumsum, diff, normalize)
 from fluids.numerics import numpy as np
 
 
@@ -1589,7 +1589,8 @@ class ParticleSizeDistributionContinuous(object):
         return 6/self.mean_size(3, 2)
     
     
-    def plot_pdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500):  # pragma: no cover
+    def plot_pdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500,
+                 normalized=False, method='linear'):  # pragma: no cover
         r'''Plot the probability density function of the particle size 
         distribution. The plotted range can be specified using `d_min` and 
         `d_max`, or estimated automatically. One or more order can be plotted,
@@ -1605,20 +1606,36 @@ class ParticleSizeDistributionContinuous(object):
             Lower particle size diameter, [m]
         d_max : float, optional
             Upper particle size diameter, [m]
-        pts : int
+        pts : int, optional
             The number of points for values to be calculated, [-]
+        normalized : bool, optional
+            Whether to display the actual probability density function, which
+            may have a huge magnitude - or to divide each point by the sum
+            of all the points. Doing this is a common practice, but the values
+            at each point are dependent on the number of points being plotted,
+            and the distribution of the points;
+            [-]
+        method : str, optional
+            Either 'linear', 'logarithmic', a Renard number like 'R10' or 'R5' 
+            or'R2.5', or one of the sieve standards 'ISO 3310-1 R40/3', 
+            'ISO 3310-1 R20', 'ISO 3310-1 R20/3', 'ISO 3310-1', 
+            'ISO 3310-1 R10', 'ASTM E11', [-]
         '''
         try:
             import matplotlib.pyplot as plt
         except:  # pragma: no cover
-            raise Exception(NO_MATPLOTLIB_MSG)            
-        ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts)
+            raise Exception(NO_MATPLOTLIB_MSG)           
+        ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts, method=method)
         try:
             for ni in n:
-                fractions = self.fractions_discrete(ds=ds, n=ni)
+                fractions = [self.pdf(d, n=ni) for d in ds]
+                if normalized:
+                    fractions = normalize(fractions)
                 plt.semilogx(ds, fractions, label=_label_distribution_n(ni))
-        except:
-            fractions = self.fractions_discrete(ds=ds, n=n)
+        except Exception as e:
+            fractions = [self.pdf(d, n=n) for d in ds]
+            if normalized:
+                fractions = normalize(fractions)
             plt.semilogx(ds, fractions, label=_label_distribution_n(n))
         plt.ylabel('Probability density function, [-]')
         plt.xlabel('Particle diameter, [m]')
@@ -1626,8 +1643,10 @@ class ParticleSizeDistributionContinuous(object):
                   'parameters %s' %(self.name, self.parameters))
         plt.legend()
         plt.show()
+        return fractions
     
-    def plot_cdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500):   # pragma: no cover
+    def plot_cdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500,
+                 method='logarithmic'):   # pragma: no cover
         r'''Plot the cumulative distribution function of the particle size 
         distribution. The plotted range can be specified using `d_min` and 
         `d_max`, or estimated automatically. One or more order can be plotted,
@@ -1643,15 +1662,20 @@ class ParticleSizeDistributionContinuous(object):
             Lower particle size diameter, [m]
         d_max : float, optional
             Upper particle size diameter, [m]
-        pts : int
+        pts : int, optional
             The number of points for values to be calculated, [-]
+        method : str, optional
+            Either 'linear', 'logarithmic', a Renard number like 'R10' or 'R5' 
+            or'R2.5', or one of the sieve standards 'ISO 3310-1 R40/3', 
+            'ISO 3310-1 R20', 'ISO 3310-1 R20/3', 'ISO 3310-1', 
+            'ISO 3310-1 R10', 'ASTM E11', [-]
         '''
         try:
             import matplotlib.pyplot as plt
         except:  # pragma: no cover
-            raise Exception(NO_MATPLOTLIB_MSG)            
+            raise Exception(NO_MATPLOTLIB_MSG)
 
-        ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts)
+        ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts, method=method)
         try:
             for ni in n:
                 cdfs = self.cdf_discrete(ds=ds, n=ni)
@@ -1785,8 +1809,8 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
                 fractions.insert(0, 0.0)
         elif sum(fractions) != 1.0:
             # Normalize flow inputs
-            tot = sum(fractions)
-            fractions = [i/tot if i != 0.0 else 0.0 for i in fractions]
+            tot_inv = 1.0/sum(fractions)
+            fractions = [i*tot_inv if i != 0.0 else 0.0 for i in fractions]
             
         self.N = len(fractions)
                 
@@ -1933,7 +1957,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
         >>> psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
         >>> psd.mean_size(3, 2)
-        0.0022693210317450453
+        0.002269321031745045
         '''
         if p != q:
             # Note: D(p, q) = D(q, p); in ISO and proven experimentally
@@ -1951,7 +1975,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
         >>> psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
         >>> psd.mean_size_ISO(1, 2)
-        0.0022693210317450453
+        0.002269321031745045
         '''
         p = k + r
         q = r

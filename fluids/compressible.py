@@ -91,7 +91,7 @@ def isothermal_work_compression(P1, P2, T, Z=1):
     Examples
     --------
     >>> isothermal_work_compression(1E5, 1E6, 300)
-    5743.425357533477
+    5743.427304244769
 
     References
     ----------
@@ -189,7 +189,7 @@ def isentropic_work_compression(T1, k, Z=1, P1=None, P2=None, W=None, eta=None):
     Examples
     --------
     >>> isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78)
-    10416.873455626454
+    10416.876986384483
 
     References
     ----------

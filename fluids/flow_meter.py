@@ -376,6 +376,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     A_pipe = 0.25*pi*D*D
     v = m/(A_pipe*rho)
     Re_D = rho*v*D/mu
+    Re_D_inv = 1.0/Re_D
     
     beta = Do/D
     if taps == 'corner':
@@ -392,14 +393,14 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     beta4 = beta2*beta2
     beta8 = beta4*beta4
     
-    A = (19000.0*beta/Re_D)**0.8
+    A = (19000.0*beta*Re_D_inv)**0.8
     M2_prime = 2.0*L2_prime/(1.0 - beta)
     
     delta_C_upstream = ((0.043 + 0.080*exp(-1E1*L1) - 0.123*exp(-7.0*L1))
             *(1.0 - 0.11*A)*beta4/(1.0 - beta4))
     
     # The max part is not in the ISO standard
-    t1 = log10(3700./Re_D)
+    t1 = log10(3700.*Re_D_inv)
     if t1 < 0.0:
         t1 = 0.0
     delta_C_downstream = (-0.031*(M2_prime - 0.8*M2_prime**1.1)*beta**1.3
@@ -408,12 +409,12 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     # C_inf is discharge coefficient with corner taps for infinite Re
     # Cs, slope term, provides increase in discharge coefficient for lower
     # Reynolds numbers.
-    x1 = (1E6/Re_D)**0.3
-    x2 = 22.7 - 4700.0*(Re_D/1E6)
+    x1 = (1E6*Re_D_inv)**0.3
+    x2 = 22.7 - 0.0047*Re_D
     t2 = x1 if x1 > x2 else x2
     # max term is not in the ISO standard
     C_inf_C_s = (0.5961 + 0.0261*beta2 - 0.216*beta8 
-                 + 0.000521*(1E6*beta/Re_D)**0.7
+                 + 0.000521*(1E6*beta*Re_D_inv)**0.7
                  + (0.0188 + 0.0063*A)*beta**3.5*(
                  t2))
     
