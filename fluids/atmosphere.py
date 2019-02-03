@@ -763,7 +763,8 @@ def earthsun_distance(moment):
     Parameters
     ----------
     moment : datetime
-        Time and date for the calculation, in UTC time, [-]
+        Time and date for the calculation, in UTC time (or GMT, which is
+        almost the same thing); not local time, [-]
         
     Returns
     -------
@@ -774,24 +775,24 @@ def earthsun_distance(moment):
     Examples
     --------
     >>> earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
-    149080606927.64246
+    149090925951.18338
     
-    The distance at perihelion, which occurs at 21:21 according to this
+    The distance at perihelion, which occurs at 4:21 according to this
     algorithm. The real value is 04:38 (January 2nd).
         
-    >>> earthsun_distance(datetime(2013, 1, 1, 21, 21, 0, 0))
-    147098089490.8165
+    >>> earthsun_distance(datetime(2013, 1, 2, 4, 21, 50))
+    147098089490.67123
     
-    The distance at aphelion, which occurs at 08:44 according to this
-    algorithm. The real value is 14:44 (July 5).
+    The distance at aphelion, which occurs at 14:44 according to this
+    algorithm. The real value is dead on - 14:44 (July 5).
     
-    >>> earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
-    152097354414.21094
+    >>> earthsun_distance(datetime(2013, 7, 5, 14, 44, 51, 0))
+    152097354414.36044
         
     Notes
     -----
-    This function is relatively accurate - to within 5 or 10 hours of 
-    accuracy. The difference comes from the impact of the moon.
+    This function is quite accurate. The difference comes from the impact of 
+    the moon.
 
     Note this function is not continuous; the sun-earth distance is not 
     sufficiently accurately modeled for the change to be continuous throughout
@@ -805,7 +806,8 @@ def earthsun_distance(moment):
     '''
     from fluids.optional import spa
     delta_t = spa.calculate_deltat(moment.year, moment.month)
-    unixtime = time.mktime(moment.timetuple())
+    import calendar
+    unixtime = calendar.timegm(moment.timetuple())
     # Convert datetime object to unixtime
     return float(spa.earthsun_distance(unixtime, delta_t=delta_t))*au
 
@@ -907,8 +909,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     '''
     from fluids.optional import spa
     delta_t = spa.calculate_deltat(moment.year, moment.month)
-    unixtime = time.mktime(moment.timetuple())
-    
+    unixtime = time.mktime(moment.timetuple())    
     # Input pressure in milibar; input temperature in deg C
     result = spa.solar_position_numpy(unixtime, lat=latitude, lon=longitude, elev=Z, 
                           pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
@@ -931,7 +932,8 @@ def sunrise_sunset(moment, latitude, longitude):
     Parameters
     ----------
     moment : datetime
-        Date for the calculation, in local UTC time, [-]
+        Date for the calculationl; needs to contain only the year, month, and
+        day, [-]
     latitude : float
         Latitude, between -90 and 90 [degrees]
     longitude : float
@@ -949,8 +951,8 @@ def sunrise_sunset(moment, latitude, longitude):
 
     Examples
     --------
-    >>> sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17, 13, 
-    ... 43, 5), 51.0486, -114.07)
+    >>> sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17), 
+    ... 51.0486, -114.07)
     >>> sunrise
     datetime.datetime(2018, 4, 17, 6, 36, 55, 782660)
     >>> sunset
@@ -970,7 +972,10 @@ def sunrise_sunset(moment, latitude, longitude):
     '''
     from fluids.optional import spa
     delta_t = spa.calculate_deltat(moment.year, moment.month)
-    unixtime = time.mktime(moment.timetuple())
+    # Strip the part of the day
+    moment = datetime(moment.year, moment.month, moment.day)
+    import calendar
+    unixtime = calendar.timegm(moment.timetuple())
     unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
     transit, sunrise, sunset = spa.transit_sunrise_sunset(np.array([unixtime]), lat=latitude, lon=longitude, delta_t=delta_t, numthreads=1)
     

@@ -204,13 +204,13 @@ def test_hwm14():
     
 def test_earthsun_distance():
     dt = earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
-    assert_allclose(dt, 149080606927.64243)
+    assert_allclose(dt, 149090925951.18338)
 
     dt = earthsun_distance(datetime(2013, 1, 1, 21, 21, 0, 0))
-    assert_allclose(dt, 147098089490.81647)
+    assert_allclose(dt, 147098127628.8943)
     
     dt = earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
-    assert_allclose(dt, 152097354414.21094)
+    assert_allclose(dt, 152097326908.20578)
 
 
 @pytest.mark.skipif(not has_pvlib,
