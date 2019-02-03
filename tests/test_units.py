@@ -219,7 +219,9 @@ def test_check_signatures():
         obj = getattr(fluids, name)
         if isinstance(obj, types.FunctionType):
             if hasattr(obj, 'func_name') and obj.func_name == '<lambda>':
-                continue
+                continue  # 2
+            if hasattr(obj, '__name__') and obj.__name__ == '<lambda>':
+                continue # 3
             check_args_order(obj)
 
 def test_Tank_units_full():
