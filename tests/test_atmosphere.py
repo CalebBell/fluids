@@ -224,9 +224,9 @@ def test_solar_irradiation():
 
 def test_sunrise_sunset():
     sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17, 13, 43, 5), 51.0486,  -114.07)
-    sunrise_expected = datetime(2018, 4, 17, 6, 36, 55, 782660)
-    sunset_expected = datetime(2018, 4, 17, 20, 34, 4, 249326)
-    transit_expected = datetime(2018, 4, 17, 13, 35, 46, 686265)
+    sunrise_expected = datetime(2018, 4, 17, 12, 36, 55, 782660)
+    sunset_expected = datetime(2018, 4, 18, 2, 34, 4, 249326)
+    transit_expected = datetime(2018, 4, 17, 19, 35, 46, 686265)
     assert sunrise == sunrise_expected
     assert sunset == sunset_expected
     assert transit == transit_expected

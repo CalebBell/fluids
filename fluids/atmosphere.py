@@ -942,27 +942,31 @@ def sunrise_sunset(moment, latitude, longitude):
     Returns
     -------
     sunrise : datetime
-        The time at the specified day when the sun rises, [-]
+        The time at the specified day when the sun rises **IN UTC**, [-]
     sunset : datetime
-        The time at the specified day when the sun sets, [-]
+        The time at the specified day when the sun sets **IN UTC**, [-]
     transit : datetime
         The time at the specified day when the sun is at solar noon - halfway 
-        between sunrise and sunset, [-]
+        between sunrise and sunset **IN UTC**, [-]
 
     Examples
     --------
     >>> sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17), 
     ... 51.0486, -114.07)
     >>> sunrise
-    datetime.datetime(2018, 4, 17, 6, 36, 55, 782660)
+    datetime.datetime(2018, 4, 17, 12, 36, 55, 782660)
     >>> sunset
-    datetime.datetime(2018, 4, 17, 20, 34, 4, 249326)
+    datetime.datetime(2018, 4, 18, 2, 34, 4, 249326)
     >>> transit
-    datetime.datetime(2018, 4, 17, 13, 35, 46, 686265)
+    datetime.datetime(2018, 4, 17, 19, 35, 46, 686265)
     
     Notes
     -----    
     This functions takes on the order of 2 ms per calculation.
+    
+    The reason the function cannot return the time correct the local
+    timezone is that the function does not know the timezone at the specified
+    lat/long.
 
     References
     ----------
@@ -974,14 +978,14 @@ def sunrise_sunset(moment, latitude, longitude):
     delta_t = spa.calculate_deltat(moment.year, moment.month)
     # Strip the part of the day
     moment = datetime(moment.year, moment.month, moment.day)
-    import calendar
+    import calendar 
     unixtime = calendar.timegm(moment.timetuple())
     unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
     transit, sunrise, sunset = spa.transit_sunrise_sunset(np.array([unixtime]), lat=latitude, lon=longitude, delta_t=delta_t, numthreads=1)
     
-    transit = datetime.fromtimestamp(float(transit))
-    sunrise = datetime.fromtimestamp(float(sunrise))
-    sunset = datetime.fromtimestamp(float(sunset))
+    transit = datetime.utcfromtimestamp(float(transit))
+    sunrise = datetime.utcfromtimestamp(float(sunrise))
+    sunset = datetime.utcfromtimestamp(float(sunset))
     return sunrise, sunset, transit
 
 
