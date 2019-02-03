@@ -22,7 +22,7 @@ init:
 
 install:
   - cmd: activate condaenv
-  - cmd: conda install -yq numpy scipy pip pytest
+  - cmd: conda install -yq numpy scipy pip pytest pandas
   - cmd: pip install pytest-cov coveralls sympy fuzzywuzzy pint
   - cmd: python setup.py install
 
