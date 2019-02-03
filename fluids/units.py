@@ -399,7 +399,7 @@ for name in dir(fluids):
         obj = wrap_numpydoc_obj(obj)
     elif type(obj) is types.ModuleType:
         # Functions accessed with the namespace like friction.friction_factor
-        # would call the original function - that's no good
+        # would call the original function - leads to user confusion if they are exposed
         continue
     elif isinstance(obj, str):
         continue
