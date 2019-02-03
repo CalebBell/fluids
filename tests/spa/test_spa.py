@@ -1,3 +1,56 @@
+# -*- coding: utf-8 -*-
+"""
+test_spa unit test suite from pvlib
+===================================
+Vendorized version from:
+https://github.com/pvlib/pvlib-python/
+
+The rational for not including this library as a strict dependency is to avoid
+including a dependency on pandas, keeping load time low, and PyPy compatibility
+.
+
+.. moduleauthor :: Tony Lorenzo <atlorenzo@email.arizona.edu>
+.. moduleauthor :: Will Holmgren <william.holmgren@gmail.com>
+.. moduleauthor :: Volker Beutner < VolkerBeu@gmail.com >
+
+Some tests were changed and added as well.
+
+
+The copyright notice (BSD-3 clause) is as follows:
+    
+BSD 3-Clause License
+
+Copyright (c) 2013-2018, Sandia National Laboratories and pvlib python Development Team
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+  Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+  Redistributions in binary form must reproduce the above copyright notice, this
+  list of conditions and the following disclaimer in the documentation and/or
+  other materials provided with the distribution.
+
+  Neither the name of the {organization} nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
+    
+
+    
 import os
 import datetime as dt
 
@@ -358,14 +411,13 @@ class NumpySpaTest(unittest.TestCase, SpaBase):
     """Import spa without compiling to numba then run tests"""
     @classmethod
     def setUpClass(self):
-        os.environ['PVLIB_USE_NUMBA'] = '0'
         from fluids.optional import spa
         spa = reload(spa)
         self.spa = spa
 
     @classmethod
     def tearDownClass(self):
-        del os.environ['PVLIB_USE_NUMBA']
+        pass
 
     def test_julian_day(self):
         assert_almost_equal(JD, self.spa.julian_day(unixtimes)[0], 6)
@@ -377,7 +429,6 @@ class NumbaSpaTest(unittest.TestCase, SpaBase):
     """Import spa, compiling to numba, and run tests"""
     @classmethod
     def setUpClass(self):
-        os.environ['PVLIB_USE_NUMBA'] = '1'
         if numba_version_int >= 17:
             from fluids.optional import spa
             spa = reload(spa)
@@ -385,7 +436,7 @@ class NumbaSpaTest(unittest.TestCase, SpaBase):
 
     @classmethod
     def tearDownClass(self):
-        del os.environ['PVLIB_USE_NUMBA']
+        pass
 
     def test_julian_day(self):
         assert_almost_equal(JD, self.spa.julian_day(unixtimes[0]), 6)
@@ -418,7 +469,11 @@ class NumbaSpaTest(unittest.TestCase, SpaBase):
                 atmos_refract, numthreads=8, sst=True)[:3], 5)
 
 
-
+try:
+    import astropy
+except:
+    astropy = None
+@pytest.mark.skipif(astropy is None, reason='Astropy is not installed')
 def test_deltat_astropy():
     # Can't do a full range of tests because astropy doesn't have 
     # answers before 1960, after 1999 in this version

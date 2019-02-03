@@ -756,7 +756,9 @@ PVLIB_MISSING_MSG = 'The module pvlib is required for this function; install it 
 
 def earthsun_distance(moment):
     r'''Calculates the distance between the earth and the sun as a function 
-    of date and time. Uses the model described in [1]_, from the pvlib library.
+    of date and time. Uses the Reda and Andreas (2004) model described in [1]_, 
+    originally incorporated into the excellent 
+    `pvlib library <https://github.com/pvlib/pvlib-python>`_
     
     Parameters
     ----------
@@ -805,10 +807,10 @@ def earthsun_distance(moment):
     delta_t = spa.calculate_deltat(moment.year, moment.month)
     unixtime = time.mktime(moment.timetuple())
     # Convert datetime object to unixtime
-    return float(spa.earthsun_distance(unixtime, delta_t=delta_t, numthreads=1)*au)
+    return float(spa.earthsun_distance(unixtime, delta_t=delta_t))*au
 
 
-def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0, 
+def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0, 
                            atmos_refract=0.5667):
     r'''Calculate the position of the sun in the sky. It is defined in terms of
     two angles - the zenith and the azimith. The azimuth tells where a sundial
@@ -818,7 +820,11 @@ def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0,
     
     The sun's refraction changes how high it appears as though the sun is;
     so values are returned with an optional conversion to the aparent angle.
-    This impacts only the zenith/elevation
+    This impacts only the zenith/elevation.
+    
+    Uses the Reda and Andreas (2004) model described in [1]_, 
+    originally incorporated into the excellent 
+    `pvlib library <https://github.com/pvlib/pvlib-python>`_    
     
     Parameters
     ----------
@@ -916,8 +922,11 @@ def solar_position(moment, latitude, longitude, Z=0, T=298.15, P=101325.0,
 
 def sunrise_sunset(moment, latitude, longitude):
     r'''Calculates the times at which the sun is at sunset; sunrise; and 
-    halfway between sunrise and sunset (transit). This routine uses the SPA
-    algorithm, as incorporated in pvlib.
+    halfway between sunrise and sunset (transit).
+    
+    Uses the Reda and Andreas (2004) model described in [1]_, 
+    originally incorporated into the excellent 
+    `pvlib library <https://github.com/pvlib/pvlib-python>`_    
 
     Parameters
     ----------
@@ -976,7 +985,7 @@ apparent_zenith_airmass_models = set(['simple', 'kasten1966', 'kastenyoung1989',
 true_zenith_airmass_models = set(['youngirvine1967', 'young1994'])
 
 
-def get_extra_radiation_shim(datetime_or_doy, solar_constant=1366.1,
+def _get_extra_radiation_shim(datetime_or_doy, solar_constant=1366.1,
     method='spencer', epoch_year=2014, **kwargs):
     if method == 'spencer':
         if not isinstance(datetime_or_doy, (float, int)):
@@ -1005,8 +1014,11 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
                       cache=None):
     r'''Calculates the amount of solar radiation and radiation reflected back
     the atmosphere which hits a surface at a specified tilt, and facing a
-    specified azimuth. This functions is a wrapper for the incredibly 
-    comprehensive `pvlib` library, and requires it to be installed.
+    specified azimuth. 
+    
+    This functions is a wrapper for the incredibly 
+    comprehensive `pvlib library <https://github.com/pvlib/pvlib-python>`_, 
+    and requires it to be installed.
     
     Parameters
     ----------
@@ -1057,7 +1069,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         needs to travel through to reach the earth according to the methods 
         available in the `pvlib` library, [-]
     cache : dict, optional
-        Dictionary to to check for values to use to skip some calculations
+        Dictionary to to check for values to use to skip some calculations;
         `apparent_zenith`, `zenith`, `azimuth` supported, [-]
 
     Returns
@@ -1095,13 +1107,12 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     ... surface_azimuth=180.0)
     (0.0, -0.0, 0.0, 0.0, 0.0)
     
-    
 
     Notes
     -----    
-    The retrieval of `linke_turbidity` requires the pytables library; if it is
-    not installed, specify a value of `linke_turbidity` to avoid the 
-    dependency.
+    The retrieval of `linke_turbidity` requires the pytables library (and 
+    Pandas); if it is not installed, specify a value of `linke_turbidity` to 
+    avoid the dependency.
     
     There is some redundancy of the calculated results, according to the 
     following relations. The total irradiance is normally that desired for 
@@ -1114,10 +1125,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     FOr a surface such as a pipe or vessel, an approach would be to split it
     into a number of rectangles and sum up the radiation absorbed by each.
     
-    This calculation is fairly slow. If a large number of points are desired,
-    the `pvlib` library can be used directly - it works with vectorized
-    inputs.
-    
+    This calculation is fairly slow. 
 
     References
     ----------
@@ -1130,20 +1138,16 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     from fluids.optional.irradiance import (get_relative_airmass, get_absolute_airmass,
                                             ineichen, get_relative_airmass, 
                                             get_absolute_airmass, get_total_irradiance)
-
 #    try:
 #        import pvlib
 #    except:
 #        raise ImportError(PVLIB_MISSING_MSG)
-#    from pvlib.irradiance import get_total_irradiance
-#    from pvlib.atmosphere import get_relative_airmass, get_absolute_airmass
-#    from pvlib.clearsky import ineichen
 
     moment_timetuple = moment.timetuple()
     moment_arg_dni = (moment_timetuple.tm_yday if 
                       extraradiation_method == 'spencer' else moment)
 
-    dni_extra = get_extra_radiation_shim(moment_arg_dni, solar_constant=solar_constant, 
+    dni_extra = _get_extra_radiation_shim(moment_arg_dni, solar_constant=solar_constant, 
                                method=extraradiation_method, 
                                epoch_year=moment.year)
     
@@ -1170,7 +1174,8 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     if linke_turbidity is None:
         from pvlib.clearsky import lookup_linke_turbidity
         import pandas as pd
-        linke_turbidity = float(lookup_linke_turbidity(pd.DatetimeIndex([moment]), latitude, longitude).values)
+        linke_turbidity = float(lookup_linke_turbidity(
+            pd.DatetimeIndex([moment]), latitude, longitude).values)
 
         
     if airmass_model in apparent_zenith_airmass_models:

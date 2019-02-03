@@ -169,6 +169,7 @@ def test_one_phase_dP_dz_acceleration():
 
 @pytest.mark.slow
 @pytest.mark.thermo
+@pytest.mark.skip
 def test_one_phase_dP_dz_acceleration_example():
     # This requires thermo!
     from thermo import Stream, Vm_to_rho

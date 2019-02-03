@@ -24,6 +24,7 @@ from numpy.testing import assert_allclose
 import os
 from fluids.atmosphere import *
 import fluids
+import fluids.optional
 from datetime import datetime
 import pytest
 try:
@@ -86,7 +87,7 @@ def test_airmass():
     # 7966284.95792788 - that's an 800x atmospheric increase.
         
     
-    
+
 hwm93_compiled = os.path.exists(os.path.join(os.path.dirname(fluids.optional.__file__), 'hwm93.so'))
 hwm14_compiled = os.path.exists(os.path.join(os.path.dirname(fluids.optional.__file__), 'hwm14.so'))
 
