@@ -169,6 +169,15 @@ def convert_input(val, unit, ureg, strict=True):
         else:
             return val
 
+pint_expression_cache = {}
+
+def parse_expression_cached(unit, ureg):
+    if unit in pint_expression_cache:
+        return pint_expression_cache[unit]
+    ans = ureg.parse_expression(unit)
+    pint_expression_cache[unit] = ans
+    return ans
+    
 
 def convert_output(result, out_units, out_vars, ureg):
     # Attempt to handle multiple return values
@@ -179,15 +188,15 @@ def convert_output(result, out_units, out_vars, ureg):
     elif t == dict:
         for key, ans in result.items():
             unit = out_units[out_vars.index(key)]
-            result[key] = ans*ureg.parse_expression(unit)
+            result[key] = ans*parse_expression_cached(unit, ureg)
         return result
     elif isinstance(result, collections.Iterable):
         conveted_result = []
         for ans, unit in zip(result, out_units):
-            conveted_result.append(ans*ureg.parse_expression(unit))
+            conveted_result.append(ans*parse_expression_cached(unit, ureg))
         return conveted_result
     else:
-        return result*ureg.parse_expression(out_units[0])
+        return result*parse_expression_cached(out_units[0], ureg)
 
 
 def wraps_numpydoc(ureg, strict=True):    

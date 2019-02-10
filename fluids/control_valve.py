@@ -1134,8 +1134,9 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     if cavitating:
         f_p_cav = 6*f_p_turb*((1.0 - xF)/(1.0 - xFzp1))**2*(xFzp1/xF)**2.5
         f_p_cav_inv = 1.0/f_p_cav
-        t1 = eta_turb/(eta_turb + eta_cav)
-        t2 = eta_cav/(eta_turb + eta_cav)
+        eta_denom = 1.0/(eta_turb + eta_cav)
+        t1 = eta_turb*eta_denom
+        t2 = eta_cav*eta_denom
 
     fr = c_pipe/(pi*Di)    
     fr_inv = 1.0/fr
@@ -1143,11 +1144,11 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     
     t3 = - 10.0*log10((Di + 2.0*t_pipe + 2.0)/(Di + 2.0*t_pipe))
 
-    F_cavs = []
-    F_turbs = []
-    LPis = []
-    TL_fis = []
-    L_pe1m_fis = []
+#    F_cavs = []
+#    F_turbs = []
+#    LPis = []
+#    TL_fis = []
+#    L_pe1m_fis = []
     LpAe1m_sum = 0.0
     
     f_p_turb_inv = 1.0/f_p_turb
@@ -1159,7 +1160,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
         fi_turb_ratio = fi*f_p_turb_inv
         F_turb = -8.0 - 10.0*log10(0.25*fi_turb_ratio*fi_turb_ratio*fi_turb_ratio
                                    + fi_inv*f_p_turb) 
-        F_turbs.append(F_turb)
+#        F_turbs.append(F_turb)
         if cavitating:
             fi_cav_ratio = (fi*f_p_cav_inv)**1.5
             F_cav = -9.0 - 10.0*log10(0.25*fi_cav_ratio + 1.0/fi_cav_ratio)
@@ -1167,12 +1168,12 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
                     + t2*10.0**(0.1*F_cav)))
         else:
             LPif = Lpi + F_turb
-        LPis.append(LPif)
+#        LPis.append(LPif)
         TL_fi = TL_fr - 20.0*log10((fr*fi_inv) + (fi*fr_inv)**1.5)
-        TL_fis.append(TL_fi)
+#        TL_fis.append(TL_fi)
         
         L_pe1m_fi = LPif + TL_fi + t3
-        L_pe1m_fis.append(L_pe1m_fi)
+#        L_pe1m_fis.append(L_pe1m_fi)
         
         LpAe1m_sum += 10.0**(0.1*(L_pe1m_fi + A))
     LpAe1m = 10.0*log10(LpAe1m_sum)
