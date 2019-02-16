@@ -1051,7 +1051,7 @@ def py_brenth(f, xa, xb, args=(),
 
 
 def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
-           xtol=1.48e-8, ytol=None, x1=None):
+           xtol=1.48e-8, ytol=None, x1=None, require_eval=False):
     p0 = 1.0*x0
     # Logic to take a small step to calculate the approximate derivative
     if x1 is not None:
@@ -1077,35 +1077,49 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
     if ytol is not None and abs(q1) < ytol:
         return p1
 
-    for _ in range(maxiter):
-        if q1 == q0:
-            # Cannot proceed, raise an error
-            raise ValueError("Convergence failed - previous points are the same (%g at %g, %g at %g)"%(q1, p1, q0, p0) )
-        
+    for _ in range(maxiter):        
         # Calculate new point, and truncate if necessary
-        p = p1 - q1*(p1 - p0)/(q1 - q0)*damping
         
+        if q1 != q0:
+            p = p1 - q1*(p1 - p0)/(q1 - q0)*damping
+        else:
+            p = p1
+            
         if low is not None and p < low:
             p = low
         if high is not None and p > high:
             p = high
 
+        # Check the exit conditions
+        if ytol is not None and xtol is not None:
+            # Meet both tolerance - new value is under ytol, and old value
+            if abs(p0 - p1) < xtol and abs(q1) < ytol:
+                if require_eval:
+                    return p1
+                return p
+        elif xtol is not None:
+            if abs(p0 - p1) < xtol:
+                if require_eval:
+                    return p1
+                return p
+        elif ytol is not None:
+            if abs(q1) < ytol:
+                if require_eval:
+                    return p1
+                return p
+        
+        # Check to quit after convergence check - may meet criteria 
+        if q1 == q0:
+            # Cannot proceed, raise an error
+            raise ValueError("Convergence failed - previous points are the same (%g at %g, %g at %g)"%(q1, p1, q0, p0) )
+            
+            
+        # Swap the points around
         p0 = p1
         q0 = q1
         p1 = p
         q1 = func(p1, *args)
 
-        # Check the exit conditions
-        if ytol is not None and xtol is not None:
-            # Meet both tolerance - new value is under ytol, and old value
-            if abs(p0 - p1) < xtol and abs(q1) < ytol:
-                return p1
-        elif xtol is not None:
-            if abs(p0 - p1) < xtol:
-                return p1
-        elif ytol is not None:
-            if abs(q1) < ytol:
-                return p1
 
     raise ValueError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
