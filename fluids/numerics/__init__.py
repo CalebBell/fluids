@@ -29,8 +29,9 @@ from .arrays import solve as py_solve
 __all__ = ['isclose', 'horner', 'chebval', 'interp',
            'linspace', 'logspace', 'cumsum', 'diff',
            'implementation_optimize_tck', 'tck_interp2d_linear',
-           'bisect', 'ridder', 'brenth', 'newton', 
+           'bisect', 'ridder', 'brenth', 'newton', 'secant',
            'splev', 'bisplev', 'derivative', 'normalize',
+           'oscillation_checker',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv',
@@ -857,8 +858,43 @@ def tck_interp2d_linear(x, y, z, kx=1, ky=1):
     return implementation_optimize_tck(tck)
 
 
+def oscillation_checker(minimum_progress=0.3, both_sides=False):    
+    xs_neg = []
+    xs_pos = []
+    
+    ys_neg = []
+    ys_pos = []
+    def is_solve_oscilating(x, y):
+        if y < 0:
+            xs_neg.append(x)
+            ys_neg.append(y)
+        else:
+            xs_pos.append(x)
+            ys_pos.append(y)
+        if len(xs_pos) > 1 and len(xs_neg) > 1:
+            if y < 0:
+                dy_cur = y - ys_neg[-2]
+                dy_other = ys_pos[-1] - ys_pos[-2]
+                gain_neg = abs(dy_cur/y)
+                gain_pos = abs(dy_other/ys_pos[-1])
+            else:
+                dy_cur = y - ys_pos[-2]
+                dy_other = ys_neg[-1] - ys_neg[-2]
+                gain_pos = abs(dy_cur/y)
+                gain_neg = abs(dy_other/ys_neg[-1])
+            
+#            print(gain_pos, gain_neg, y)
+            if both_sides:
+                if gain_pos < minimum_progress and gain_neg < minimum_progress:
+                    return True
+            else:
+                if gain_pos < minimum_progress or gain_neg < minimum_progress:
+                    return True
+        return False
+    return is_solve_oscilating
+
 def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
-           full_output=False, disp=True):
+              ytol=None, full_output=False, disp=True):
     '''Port of SciPy's C bisect routine.
     '''
     fa = f(a, *args)
@@ -880,7 +916,13 @@ def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
         if fm*fa >= 0.0:
             a = xm
         abs_dm = fabs(dm)
-        if (fm == 0.0 or (abs_dm < xtol + rtol*abs_dm)):
+        
+        if fm == 0.0:
+            return xm
+        elif ytol is not None:
+            if (abs_dm < xtol + rtol*abs_dm) and abs(fm) < ytol:
+                return xm
+        elif (abs_dm < xtol + rtol*abs_dm):
             return xm
     raise ValueError("Failed to converge after %d iterations" %maxiter)
 
@@ -927,7 +969,7 @@ def py_ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
 
 
 def py_brenth(f, xa, xb, args=(),
-            xtol=_xtol, rtol=_rtol, maxiter=_iter,
+            xtol=_xtol, rtol=_rtol, maxiter=_iter, ytol=None,
             full_output=False, disp=True, q=False):
     xpre = xa
     xcur = xb
@@ -962,8 +1004,12 @@ def py_brenth(f, xa, xb, args=(),
         delta = 0.5*(xtol + rtol*fabs(xcur))
         sbis = 0.5*(xblk - xcur)
         
-        if fcur == 0.0 or (fabs(sbis) < delta):
-            return xcur
+        if ytol is not None:
+            if fcur == 0.0 or (fabs(sbis) < delta) and abs(fcur) < ytol:
+                return xcur
+        else:
+            if fcur == 0.0 or (fabs(sbis) < delta):
+                return xcur
         
         if (fabs(spre) > delta and fabs(fcur) < fabs(fpre)):
             if xpre == xblk:
@@ -1004,9 +1050,70 @@ def py_brenth(f, xa, xb, args=(),
     raise ValueError("Failed to converge after %d iterations" %maxiter)
 
 
+def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
+           xtol=1.48e-8, ytol=None, x1=None):
+    p0 = 1.0*x0
+    # Logic to take a small step to calculate the approximate derivative
+    if x1 is not None:
+        p1 = x1
+    else:
+        if x0 >= 0.0:
+            p1 = x0*1.0001 + 1e-4
+        else:
+            p1 = x0*1.0001 - 1e-4
+        # May need to truncate p1
+        if low is not None and p1 < low:
+            p1 = low
+        if high is not None and p1 > high:
+            p1 = high
+            
+    # Are we already converged on either point? Do not consider checking xtol 
+    # if so.
+    q0 = func(p0, *args)
+    if ytol is not None and abs(q0) < ytol:
+        return p0
+    
+    q1 = func(p1, *args)
+    if ytol is not None and abs(q1) < ytol:
+        return p1
+
+    for _ in range(maxiter):
+        if q1 == q0:
+            # Cannot proceed, raise an error
+            raise ValueError("Convergence failed - previous points are the same (%g at %g, %g at %g)"%(q1, p1, q0, p0) )
+        
+        # Calculate new point, and truncate if necessary
+        p = p1 - q1*(p1 - p0)/(q1 - q0)*damping
+        
+        if low is not None and p < low:
+            p = low
+        if high is not None and p > high:
+            p = high
+
+        p0 = p1
+        q0 = q1
+        p1 = p
+        q1 = func(p1, *args)
+
+        # Check the exit conditions
+        if ytol is not None and xtol is not None:
+            # Meet both tolerance - new value is under ytol, and old value
+            if abs(p0 - p1) < xtol and abs(q1) < ytol:
+                return p1
+        elif xtol is not None:
+            if abs(p0 - p1) < xtol:
+                return p1
+        elif ytol is not None:
+            if abs(q1) < ytol:
+                return p1
+
+    raise ValueError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
+
+
+
 def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
-              fprime2=None, low=None, high=None, damping=1.0, ytol=0.0,
-              xtol=1.48e-8):
+              fprime2=None, low=None, high=None, damping=1.0, ytol=None,
+              xtol=1.48e-8, require_eval=False):
     '''Newton's method designed to be mostly compatible with SciPy's 
     implementation, with a few features added and others now implemented.
     
@@ -1041,62 +1148,48 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
                 fder = fprime(p0, *args)
             
             if fder == 0.0:
-                # Cannot coninue
-                return p0
-            step = fval/fder*damping
+                return p0 # Cannot coninue
+            
+            
+            fder_inv = 1.0/fder
+            # Compute the next point
+            step = fval*fder_inv
             if fprime2 is None:
-                p = p0 - step
+                p = p0 - step*damping
             else:
-                p = p0 - step/(1.0 - 0.5*step*fder2/fder)
+                p = p0 - step/(1.0 - 0.5*step*fder2*fder_inv)*damping
                 
             if low is not None and p < low:
                 p = low
             if high is not None and p > high:
                 p = high
-                        
-            if abs(p - p0) < xtol:
-                # complete
-                return p
+            
+            # p0 is last point (fval at that point), p is new 
+                      
+            
+            if ytol is not None and xtol is not None:
+                # Meet both tolerance - new value is under ytol, and old value
+                if abs(p - p0) < xtol and abs(fval) < ytol:
+                    if require_eval:
+                        return p0
+                    return p
+            elif xtol is not None:
+                if abs(p - p0) < xtol:
+                    if require_eval:
+                        return p0
+                    return p
+            elif ytol is not None:
+                if abs(fval) < ytol:
+                    if require_eval:
+                        return p0
+                    return p
+            
             p0 = p
     else:
-        # Logic to take a small step to calculate the approximate derivative
-        if x0 >= 0.0:
-            p1 = x0*1.0001 + 1e-4
-        else:
-            p1 = x0*1.0001 - 1e-4
-        if low is not None and p1 < low:
-            p1 = low
-        if high is not None and p1 > high:
-            p1 = high
-        q0 = func(p0, *args)
-        if abs(q0) < ytol:
-            return p0
-        
-        q1 = func(p1, *args)
-        if abs(q1) < ytol:
-            return p1
-        
-        for _ in range(maxiter):
-            if q1 == q0:
-                return 0.5*(p1 + p0)
-            else:
-                p = p1 - q1*(p1 - p0)/(q1 - q0)*damping
-            if low is not None and p < low:
-                p = low
-            if high is not None and p > high:
-                p = high
+        return secant(func, x0, args=args, maxiter=maxiter, low=low, high=high,
+                      damping=damping,
+                      xtol=xtol, ytol=ytol)
 
-            p0 = p1
-            q0 = q1
-            p1 = p
-            q1 = func(p1, *args)
-            
-#            if abs(p - p1) < tol:
-#            if abs(q1) < ytol:
-#            if abs(p - p1) < tol or abs(q1) < ytol:
-            if abs(p - p1) < xtol and abs(q1) < ytol:
-                return p
-            
     raise ValueError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
 
