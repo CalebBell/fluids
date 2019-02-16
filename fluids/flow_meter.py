@@ -24,7 +24,7 @@ from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, exp, acos, log10
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
-from fluids.numerics import interp, newton, brenth
+from fluids.numerics import interp, py_newton as newton, py_brenth as brenth
 from fluids.constants import g, inch
 
 __all__ = ['C_Reader_Harris_Gallagher',
@@ -1794,14 +1794,20 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
     '''
     if m is None and None not in (D, D2, P1, P2):
         
-        def to_solve(m):
+        def to_solve(m_D):
+            m = m_D*D
             epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
-            return m - m_calc
-        return newton(to_solve, 2.81)
+            err =  m - m_calc
+            return err
+        # Diameter to mass flow ratio
+        m_D_guess = 40
+        if rho < 100.0:
+            m_D_guess *= 1e-2
+        return newton(to_solve, m_D_guess)*D
     elif D2 is None and None not in (D, m, P1, P2):
         def to_solve(D2):
             epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 

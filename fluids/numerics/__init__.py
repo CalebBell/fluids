@@ -1093,12 +1093,14 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
         # Check the exit conditions
         if ytol is not None and xtol is not None:
             # Meet both tolerance - new value is under ytol, and old value
-            if abs(p0 - p1) < xtol and abs(q1) < ytol:
+            
+            
+            if abs(p0 - p1) < abs(xtol*p0) and abs(q1) < ytol:
                 if require_eval:
                     return p1
                 return p
         elif xtol is not None:
-            if abs(p0 - p1) < xtol:
+            if abs(p0 - p1) < abs(xtol*p0):
                 if require_eval:
                     return p1
                 return p
@@ -1180,15 +1182,14 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
             
             # p0 is last point (fval at that point), p is new 
                       
-            
             if ytol is not None and xtol is not None:
                 # Meet both tolerance - new value is under ytol, and old value
-                if abs(p - p0) < xtol and abs(fval) < ytol:
+                if abs(p - p0) < abs(xtol*p) and abs(fval) < ytol:
                     if require_eval:
                         return p0
                     return p
             elif xtol is not None:
-                if abs(p - p0) < xtol:
+                if abs(p - p0) < abs(xtol*p):
                     if require_eval:
                         return p0
                     return p
