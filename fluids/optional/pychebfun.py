@@ -58,6 +58,20 @@ def chebfun_to_poly(fun, text=False):
     return s
 
 
+def cheb_range_simplifier(low, high, text=False):
+    '''
+    >>> low, high = 0.0023046250851646434, 4.7088985707840125
+    >>> cheb_range_simplifier(low, high, text=True)
+    'chebval(0.42493574399544564724*(x + -2.3556015979345885647), coeffs)'
+    '''
+    constant = 0.5*(-low-high)
+    factor = 2.0/(high-low)
+    if text:
+        return 'chebval(%.20g*(x + %.20g), coeffs)' %(factor, constant)
+    return constant, factor
+    
+
+
 def cast_scalar(method):
     """
     Cast scalars to constant interpolating objects

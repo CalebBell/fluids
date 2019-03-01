@@ -36,10 +36,12 @@ __all__ = ['isclose', 'horner', 'chebval', 'interp',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv',
            'numpy',
-           'polyint_over_x', 'horner_log', 'polyint',
+           'polyint_over_x', 'horner_log', 'polyint', 'chebder',
+           'polyder'
            ]
 
 nan = float("nan")
+inf = float("inf")
 
 class FakePackage(object):
     pkg = None
@@ -120,7 +122,7 @@ def roots_cubic_a2(a, b, c, d):
     t20 = csqrt(-18.0*a*b*c*d + 4.0*a*t10*c + 4.0*t15*d - t14*t10 + 27.0*t2*t3)
     t31 = (36.0*c*b*a + 12.0*root_three*t20*a - 108.0*d*t2 - 8.0*t15)**third
     t32 = 1.0/a
-    root1 = t31*t32*sixth - two_thirds*( 3.0*a*c - t14)*t32/t31 - b*t32*third
+    root1 = t31*t32*sixth - two_thirds*(3.0*a*c - t14)*t32/t31 - b*t32*third
     t33 = t31*t32
     t40 = (3.0*a*c - t14)*t32/t31
     
@@ -612,6 +614,28 @@ def horner(coeffs, x):
         tot = tot*x + c
     return tot
 
+def polyder(c, m=1, scl=1, axis=0):
+    '''not quite a copy of numpy's version because this was faster to implement.
+    '''
+    c = list(c)
+    cnt = int(m)
+
+    if cnt == 0:
+        return c
+
+    n = len(c)
+    if cnt >= n:
+        c = c[:1]*0
+    else:
+        for i in range(cnt):
+            n = n - 1
+            c *= scl
+            der = [0.0 for _ in range(n)]
+            for j in range(n, 0, -1):
+                der[j - 1] = j*c[j]
+            c = der
+    return c
+
 def polyint(coeffs):
     '''not quite a copy of numpy's version because this was faster to implement'''
     return ([0.0] + [c/(i+1) for i, c in enumerate(coeffs[::-1])])[::-1]
@@ -625,6 +649,29 @@ def polyint_over_x(coeffs):
         poly_terms.append(coeffs[i]/i)
     return list(reversed(poly_terms)), log_coef
 
+def chebder(c, m=1, scl=1):
+    '''not quite a copy of numpy's version because this was faster to implement'''
+    c = list(c)
+    cnt = int(m)
+    if cnt == 0:
+        return c
+
+    n = len(c)
+    if cnt >= n:
+        c = c[:1]*0
+    else:
+        for i in range(cnt):
+            n = n - 1
+            c *= scl
+            der = [0.0 for _ in range(n)]
+            for j in range(n, 2, -1):
+                der[j - 1] = (j + j)*c[j]
+                c[j - 2] += (j*c[j])/(j - 2.0)
+            if n > 1:
+                der[1] = 4.0*c[2]
+            der[0] = c[1]
+            c = der
+    return c
 
 def horner_log(coeffs, log_coeff, x):
     '''Technically possible to save one addition of the last term of 
@@ -858,13 +905,27 @@ def tck_interp2d_linear(x, y, z, kx=1, ky=1):
     return implementation_optimize_tck(tck)
 
 
-def oscillation_checker(minimum_progress=0.3, both_sides=False):    
-    xs_neg = []
-    xs_pos = []
-    
-    ys_neg = []
-    ys_pos = []
-    def is_solve_oscilating(x, y):
+class oscillation_checker(object):    
+    def __init__(self, minimum_progress=0.3, both_sides=False):
+        self.minimum_progress = minimum_progress
+        self.both_sides = both_sides
+        self.xs_neg = []
+        self.xs_pos = []
+        
+        self.ys_neg = []
+        self.ys_pos = []
+        
+    def clear(self):
+        self.xs_neg = []
+        self.xs_pos = []
+        
+        self.ys_neg = []
+        self.ys_pos = []
+
+    def is_solve_oscilating(self, x, y):
+        xs_neg, xs_pos, ys_neg, ys_pos = self.xs_neg, self.xs_pos, self.ys_neg, self.ys_pos
+        minimum_progress = self.minimum_progress
+        
         if y < 0:
             xs_neg.append(x)
             ys_neg.append(y)
@@ -884,14 +945,15 @@ def oscillation_checker(minimum_progress=0.3, both_sides=False):
                 gain_neg = abs(dy_other/ys_neg[-1])
             
 #            print(gain_pos, gain_neg, y)
-            if both_sides:
+            if self.both_sides:
                 if gain_pos < minimum_progress and gain_neg < minimum_progress:
                     return True
             else:
                 if gain_pos < minimum_progress or gain_neg < minimum_progress:
                     return True
         return False
-    return is_solve_oscilating
+    
+    __call__ = is_solve_oscilating
 
 def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
               ytol=None, full_output=False, disp=True):
@@ -1093,14 +1155,12 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
         # Check the exit conditions
         if ytol is not None and xtol is not None:
             # Meet both tolerance - new value is under ytol, and old value
-            
-            
-            if abs(p0 - p1) < abs(xtol*p0) and abs(q1) < ytol:
+            if abs(p0 - p1) <= abs(xtol*p0) and abs(q1) < ytol:
                 if require_eval:
                     return p1
                 return p
         elif xtol is not None:
-            if abs(p0 - p1) < abs(xtol*p0):
+            if abs(p0 - p1) <= abs(xtol*p0):
                 if require_eval:
                     return p1
                 return p
@@ -1129,7 +1189,7 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
 
 def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
               fprime2=None, low=None, high=None, damping=1.0, ytol=None,
-              xtol=1.48e-8, require_eval=False):
+              xtol=1.48e-8, require_eval=False, damping_func=None):
     '''Newton's method designed to be mostly compatible with SciPy's 
     implementation, with a few features added and others now implemented.
     
@@ -1163,14 +1223,20 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
                 fval = func(p0, *args)
                 fder = fprime(p0, *args)
             
-            if fder == 0.0:
-                return p0 # Cannot coninue
+            if fder == 0.0 or fval == 0.0:
+                return p0 # Cannot coninue or already finished
             
             
             fder_inv = 1.0/fder
             # Compute the next point
             step = fval*fder_inv
-            if fprime2 is None:
+            if damping_func is not None:
+                if fprime2 is not None:
+                    step = step/(1.0 - 0.5*step*fder2*fder_inv)
+                p = damping_func(p0, -step, damping)
+#                variable, derivative, damping_factor
+                
+            elif fprime2 is None:
                 p = p0 - step*damping
             else:
                 p = p0 - step/(1.0 - 0.5*step*fder2*fder_inv)*damping
@@ -1179,6 +1245,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
                 p = low
             if high is not None and p > high:
                 p = high
+            
             
             # p0 is last point (fval at that point), p is new 
                       
