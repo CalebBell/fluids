@@ -25,6 +25,7 @@ from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
 from sys import float_info
 from .arrays import solve as py_solve
+from functools import wraps
 
 __all__ = ['isclose', 'horner', 'chebval', 'interp',
            'linspace', 'logspace', 'cumsum', 'diff',
@@ -37,7 +38,9 @@ __all__ = ['isclose', 'horner', 'chebval', 'interp',
            'i1', 'i0', 'k1', 'k0', 'iv',
            'numpy',
            'polyint_over_x', 'horner_log', 'polyint', 'chebder',
-           'polyder'
+           'polyder',
+           'OscillationError', 'UnconvergedError', 'caching_decorator',
+           'damping_maintain_sign', 'oscillation_checking_wrapper',
            ]
 
 nan = float("nan")
@@ -905,6 +908,100 @@ def tck_interp2d_linear(x, y, z, kx=1, ky=1):
     return implementation_optimize_tck(tck)
 
 
+
+def caching_decorator(f, full=False):
+    cache = {}
+    info_cache = {}
+    @wraps(f)
+    def wrapper(x, *args, **kwargs):
+        has_info = 'info' in kwargs
+        if x in cache:
+            if 'info' in kwargs:
+                kwargs['info'][:] = info_cache[x]
+            return cache[x]
+        
+        err = f(x, *args, **kwargs)
+        cache[x] = err
+        if has_info:
+            info_cache[x] = list(kwargs['info'])
+        return err
+    if full:
+        return wrapper, cache, info_cache
+    return wrapper
+
+
+class OscillationError(Exception):
+    '''Error raised when a derivative-based method is not converging.
+    '''
+
+class UnconvergedError(Exception):
+    '''Error raised when maxiter has been reached in an optimization problem.
+    '''
+
+def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
+    '''Famping function which will maintain the sign of the variable being
+    manipulated. If the step puts it at the other sign, the distance between
+    `x` and `step` will be shortened by the multiple of `factor`; i.e. if 
+    factor is `x`, the new value of `x` will be 0 exactly.
+    
+    The provided `damping` is applied as well.
+    
+    Parameters
+    ----------
+    x : float
+        Previous value in iteration, [-]
+    step : float
+        Change in `x`, [-]
+    damping : float, optional
+        The damping factor to be applied always, [-]
+    factor : float, optional
+        If the calculated step changes sign, this factor will be used instead
+        of the step, [-]
+
+    Returns
+    -------
+    x_new : float
+        The new value in the iteration, [-]
+    
+    Notes
+    -----
+    
+    Examples
+    --------
+    >>> damping_maintain_sign(100, -200, factor=.5)
+    50.0
+    '''
+    positive = x > 0.0
+    step_x = x + step
+    
+    if (positive and step_x < 0) or (not positive and step_x > 0.0):
+        step = -factor*x
+    return x + step*damping
+
+
+def oscillation_checking_wrapper(f, minimum_progress=0.3, 
+                                 both_sides=False, full=True):
+    checker = oscillation_checker(minimum_progress=minimum_progress,
+                                 both_sides=both_sides)
+    @wraps(f)
+    def wrapper(x, *args, **kwargs):
+        err_test = err = f(x, *args, **kwargs)
+        if not isinstance(err, (float, int, complex)):
+            err_test = err[0]
+        try:
+            oscillating = checker(x, err_test)
+        except:
+            oscillating = False # Zero division error probably
+        
+        if oscillating:
+            raise OscillationError("Oscillating")
+        
+        return err
+    if full:
+        return wrapper, checker
+    return wrapper
+
+
 class oscillation_checker(object):    
     def __init__(self, minimum_progress=0.3, both_sides=False):
         self.minimum_progress = minimum_progress
@@ -923,6 +1020,8 @@ class oscillation_checker(object):
         self.ys_pos = []
 
     def is_solve_oscilating(self, x, y):
+        if y == 0.0:
+            return False
         xs_neg, xs_pos, ys_neg, ys_pos = self.xs_neg, self.xs_pos, self.ys_neg, self.ys_pos
         minimum_progress = self.minimum_progress
         
@@ -986,7 +1085,7 @@ def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
                 return xm
         elif (abs_dm < xtol + rtol*abs_dm):
             return xm
-    raise ValueError("Failed to converge after %d iterations" %maxiter)
+    raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
 
 
 def py_ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
@@ -1027,20 +1126,29 @@ def py_ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
         tol = xtol + rtol*xn
         if (fn == 0.0 or fabs(b - a) < tol):
             return xn
-    raise ValueError("Failed to converge after %d iterations" %maxiter)
+    raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
 
 
 def py_brenth(f, xa, xb, args=(),
             xtol=_xtol, rtol=_rtol, maxiter=_iter, ytol=None,
-            full_output=False, disp=True, q=False):
+            full_output=False, disp=True, q=False,
+            fa=None, fb=None, kwargs={}):
     xpre = xa
     xcur = xb
     xblk = 0.0
     fblk = 0.0
     spre = 0.0
     scur = 0.0
-    fpre = f(xpre, *args)
-    fcur = f(xcur, *args)
+    
+    if fa is None:
+        fpre = f(xpre, *args, **kwargs)
+    else:
+        fpre = fa
+    
+    if fb is None:
+        fcur = f(xcur, *args, **kwargs)
+    else:
+        fcur = fb
 
     if fpre*fcur > 0.0:
         raise ValueError("f(a) and f(b) must have different signs") 
@@ -1108,12 +1216,12 @@ def py_brenth(f, xa, xb, args=(),
             else:
                 xcur -= delta
         
-        fcur = f(xcur, *args)
-    raise ValueError("Failed to converge after %d iterations" %maxiter)
+        fcur = f(xcur, *args, **kwargs)
+    raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
 
 
 def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
-           xtol=1.48e-8, ytol=None, x1=None, require_eval=False):
+           xtol=1.48e-8, ytol=None, x1=None, require_eval=False, kwargs={}):
     p0 = 1.0*x0
     # Logic to take a small step to calculate the approximate derivative
     if x1 is not None:
@@ -1135,7 +1243,7 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
     if ytol is not None and abs(q0) < ytol:
         return p0
     
-    q1 = func(p1, *args)
+    q1 = func(p1, *args, **kwargs)
     if ytol is not None and abs(q1) < ytol:
         return p1
 
@@ -1180,16 +1288,17 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
         p0 = p1
         q0 = q1
         p1 = p
-        q1 = func(p1, *args)
+        q1 = func(p1, *args, **kwargs)
 
 
-    raise ValueError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
+    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
 
 
 def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
               fprime2=None, low=None, high=None, damping=1.0, ytol=None,
-              xtol=1.48e-8, require_eval=False, damping_func=None):
+              xtol=1.48e-8, require_eval=False, damping_func=None,
+              kwargs={}):
     '''Newton's method designed to be mostly compatible with SciPy's 
     implementation, with a few features added and others now implemented.
     
@@ -1206,22 +1315,24 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
     if tol is not None:
         xtol = tol
     p0 = 1.0*x0
+#    p1 = p0 = 1.0*x0
+#    fval0 = None
     if fprime is not None:
         fprime2_included = fprime2 == True
         fprime_included = fprime == True
         
         for iter in range(maxiter):
             if fprime2_included:
-                fval, fder, fder2 = func(p0, *args)
+                fval, fder, fder2 = func(p0, *args, **kwargs)
             elif fprime_included:
-                fval, fder = func(p0, *args)
+                fval, fder = func(p0, *args, **kwargs)
             elif fprime2 is not None:
-                fval = func(p0, *args)
-                fder = fprime(p0, *args)
-                fder2 = fprime2(p0, *args)
+                fval = func(p0, *args, **kwargs)
+                fder = fprime(p0, *args, **kwargs)
+                fder2 = fprime2(p0, *args, **kwargs)
             else:
-                fval = func(p0, *args)
-                fder = fprime(p0, *args)
+                fval = func(p0, *args, **kwargs)
+                fder = fprime(p0, *args, **kwargs)
             
             if fder == 0.0 or fval == 0.0:
                 return p0 # Cannot coninue or already finished
@@ -1245,7 +1356,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
                 p = low
             if high is not None and p > high:
                 p = high
-            
+
             
             # p0 is last point (fval at that point), p is new 
                       
@@ -1266,13 +1377,16 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
                         return p0
                     return p
             
+#            fval0, fval1 = fval, fval0
+#            p0, p1 = p, p0
+# need a history of fval also
             p0 = p
     else:
         return secant(func, x0, args=args, maxiter=maxiter, low=low, high=high,
                       damping=damping,
-                      xtol=xtol, ytol=ytol)
+                      xtol=xtol, ytol=ytol, kwargs=kwargs)
 
-    raise ValueError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
+    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
 
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
