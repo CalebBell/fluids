@@ -975,6 +975,7 @@ def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
     step_x = x + step
     
     if (positive and step_x < 0) or (not positive and step_x > 0.0):
+#        print('damping')
         step = -factor*x
     return x + step*damping
 
@@ -1162,7 +1163,7 @@ def py_brenth(f, xa, xb, args=(),
             xblk = xpre
             fblk = fpre
             spre = scur = xcur - xpre
-        if fabs(fblk) < fabs(fcur):
+        if abs(fblk) < abs(fcur):
             xpre = xcur
             xcur = xblk
             xblk = xpre
@@ -1171,17 +1172,17 @@ def py_brenth(f, xa, xb, args=(),
             fcur = fblk
             fblk = fpre
         
-        delta = 0.5*(xtol + rtol*fabs(xcur))
+        delta = 0.5*(xtol + rtol*abs(xcur))
         sbis = 0.5*(xblk - xcur)
         
         if ytol is not None:
-            if fcur == 0.0 or (fabs(sbis) < delta) and abs(fcur) < ytol:
+            if fcur == 0.0 or (abs(sbis) < delta) and abs(fcur) < ytol:
                 return xcur
         else:
-            if fcur == 0.0 or (fabs(sbis) < delta):
+            if fcur == 0.0 or (abs(sbis) < delta):
                 return xcur
         
-        if (fabs(spre) > delta and fabs(fcur) < fabs(fpre)):
+        if (abs(spre) > delta and abs(fcur) < abs(fpre)):
             if xpre == xblk:
                 # interpolate
                 stry = -fcur*(xcur - xpre)/(fcur - fpre)
@@ -1193,7 +1194,7 @@ def py_brenth(f, xa, xb, args=(),
                     stry = -fcur*(fblk*dblk - fpre*dpre)/(dblk*dpre*(fblk - fpre))
                 else:
                     stry = -fcur*(fblk - fpre)/(fblk*dpre - fpre*dblk)
-            if (2.0*fabs(stry) < min(fabs(spre), 3.0*fabs(sbis) - delta)):
+            if (abs(stry + stry) < min(abs(spre), 3.0*abs(sbis) - delta)):
                 # accept step
                 spre = scur
                 scur = stry
@@ -1208,7 +1209,7 @@ def py_brenth(f, xa, xb, args=(),
             
         xpre = xcur
         fpre = fcur
-        if fabs(scur) > delta:
+        if abs(scur) > delta:
             xcur += scur
         else:
             if sbis > 0.0:
@@ -1298,6 +1299,7 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
 def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
               fprime2=None, low=None, high=None, damping=1.0, ytol=None,
               xtol=1.48e-8, require_eval=False, damping_func=None,
+              bisection=False,
               kwargs={}):
     '''Newton's method designed to be mostly compatible with SciPy's 
     implementation, with a few features added and others now implemented.
@@ -1317,6 +1319,8 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
     p0 = 1.0*x0
 #    p1 = p0 = 1.0*x0
 #    fval0 = None
+    if bisection:
+        a, b = None, None
     if fprime is not None:
         fprime2_included = fprime2 == True
         fprime_included = fprime == True
@@ -1336,7 +1340,13 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
             
             if fder == 0.0 or fval == 0.0:
                 return p0 # Cannot coninue or already finished
-            
+            if bisection:
+                if fval < 0.0:
+                    a = p0
+#                    f_a = fval
+                else:
+                    b = p0
+#                    f_b = fval
             
             fder_inv = 1.0/fder
             # Compute the next point
@@ -1351,11 +1361,24 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
                 p = p0 - step*damping
             else:
                 p = p0 - step/(1.0 - 0.5*step*fder2*fder_inv)*damping
+            
+            if bisection and a is not None and b is not None:
+                if not (a < p < b) or (b < p < a):
+#                if p < 0.0:
+#                    if p < a:
+#                    print('bisecting')
+                    p = 0.5*(a + b)
+#                else:
+#                    if p > b:
+#                        p = 0.5*(a + b)
+            
                 
             if low is not None and p < low:
                 p = low
             if high is not None and p > high:
                 p = high
+                
+            
 
             
             # p0 is last point (fval at that point), p is new 
