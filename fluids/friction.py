@@ -1760,6 +1760,7 @@ def Prandtl_von_Karman_Nikuradse(Re):
     return c2/float(lambertw((c1*Re)/2.51).real)**2
 
 
+# Values still in table at least to 2013
 Crane_fts_nominal_Ds = [.015, .02, .025, .032, .04, .05, .065, .08, .1, .125,
                         .15, .2, .25, .35, .4, .55, .6, .9]
 

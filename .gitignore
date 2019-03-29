@@ -19,6 +19,7 @@ __pycache__
 *.o
 *.so
 *.pyo
+*.idea
  
 # Packages #
 ############

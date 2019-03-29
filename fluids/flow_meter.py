@@ -189,7 +189,7 @@ def orifice_expansibility(D, Do, P1, P2, k):
     beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
-    return (1.0 - (0.351 + 0.256*beta4 + 0.93*beta4*beta4)*(
+    return (1.0 - (0.351 + beta4*(0.93*beta4 + 0.256))*(
             1.0 - (P2/P1)**(1./k)))
 
 
@@ -481,7 +481,8 @@ def discharge_coefficient_to_K(D, Do, C):
     beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
-    return ((1.0 - beta4*(1.0 - C*C))**0.5/(C*beta2) - 1.0)**2
+    root_K = ((1.0 - beta4*(1.0 - C*C))**0.5/(C*beta2) - 1.0)
+    return root_K*root_K
 
 
 def K_to_discharge_coefficient(D, Do, K):
@@ -533,8 +534,8 @@ def K_to_discharge_coefficient(D, Do, K):
     beta2 = beta*beta
     beta4 = beta2*beta2
     root_K = K**0.5
-    common_term = 2.0*root_K*beta4 + K*beta4
-    return (-beta4/(common_term) + 1.0/(common_term))**0.5
+    return ((1.0 - beta4)/(2.0*root_K*beta4 + K*beta4))**0.5
+    return (common_term - beta4*common_term)**0.5
 
 
 def dP_orifice(D, Do, P1, P2, C):
