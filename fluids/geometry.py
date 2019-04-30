@@ -1025,7 +1025,7 @@ def SA_ellipsoidal_head(D, a):
     Formula below is for the full shape, the result of which is halved. The
     formula also does not support `D` being larger than `a`; this is ensured
     by simply swapping the variables if necessary, as geometrically the result
-    is the same. In the equations
+    is the same. In the equations, `a` is the same and `c` is `D`.
 
     .. math::
         SA = 2\pi a^2 + \frac{\pi c^2}{e_1}\ln\left(\frac{1+e_1}{1-e_1}\right)
@@ -1062,7 +1062,15 @@ def SA_ellipsoidal_head(D, a):
     D = D/2.
     D, a = min((D, a)), max((D, a))
     e1 = (1 - D**2/a**2)**0.5
-    return (2*pi*a**2 + pi*D**2/e1*log((1+e1)/(1-e1)))/2.
+    
+    try:
+        log_term = log((1+e1)/(1-e1))
+    except ZeroDivisionError:
+        # Limit as a goes to zero relative to D; may only be ~6 orders of 
+        # magnitude smaller than D and will still occur
+        log_term = 0.0
+    
+    return (2*pi*a**2 + pi*D**2/e1*log_term)/2.
 
 
 def SA_conical_head(D, a):
@@ -1179,7 +1187,7 @@ def SA_torispheroidal(D, fd, fk):
        Vessels with Dished Heads". https://www.honeywellprocess.com/library/marketing/whitepapers/WP-VesselsWithDishedHeads-UniSimDesign.pdf
        Whitepaper. 2014.
     '''
-    alpha_1 = fd*(1 - (1 - ((0.5-fk)/(fd-fk))**2)**0.5)
+    alpha_1 = fd*(1 - (1 - ((0.5 - fk)/(fd-fk))**2)**0.5)
     alpha_2 = fd - (fd**2 - 2*fd*fk + fk - 0.25)**0.5
     alpha = alpha_1 # Up to top of dome
     S1 = 2*pi*D**2*fd*alpha_1
@@ -1613,9 +1621,9 @@ class TANK(object):
 
 
     def __init__(self, D=None, L=None, horizontal=True,
-                 sideA=None, sideB=None, sideA_a=0, sideB_a=0,
-                 sideA_f=1., sideA_k=0.06, sideB_f=1., sideB_k=0.06,
-                 sideA_a_ratio=0.25, sideB_a_ratio=0.25, L_over_D=None, V=None):
+                 sideA=None, sideB=None, sideA_a=None, sideB_a=None,
+                 sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
+                 sideA_a_ratio=None, sideB_a_ratio=None, L_over_D=None, V=None):
         self.D = D
         self.L = L
         self.L_over_D = L_over_D
@@ -1623,16 +1631,40 @@ class TANK(object):
         self.horizontal = horizontal
 
         self.sideA = sideA
+        if sideA is None and sideA_a is None:
+            sideA_a = 0.0
+        
         self.sideA_a = sideA_a
+        if sideA_a is None and sideA_a_ratio is None and (sideA is not None and sideA != 'torispherical'):
+            sideA_a_ratio = 0.25
+        self.sideA_a_ratio = sideA_a_ratio
+        
+        if sideA_a is None and sideA == 'torispherical':
+            if sideA_f is None:
+                sideA_f = 1.0
+            if sideA_k is None:
+                sideA_k = 0.06
+        
         self.sideA_f = sideA_f
         self.sideA_k = sideA_k
-        self.sideA_a_ratio = sideA_a_ratio
 
         self.sideB = sideB
+        if sideB is None and sideB_a is None:
+            sideB_a = 0.0
         self.sideB_a = sideB_a
+        
+        if sideB_a is None and sideB_a_ratio is None and (sideB is not None and sideB != 'torispherical'):
+            sideB_a_ratio = 0.25
+        self.sideB_a_ratio = sideB_a_ratio
+
+        if sideB_a is None and sideB == 'torispherical':
+            if sideB_f is None:
+                sideB_f = 1.0
+            if sideB_k is None:
+                sideB_k = 0.06
+
         self.sideB_f = sideB_f
         self.sideB_k = sideB_k
-        self.sideB_a_ratio = sideB_a_ratio
 
         if self.horizontal:
             self.vertical = False
@@ -1677,10 +1709,10 @@ class TANK(object):
 
         # If a_ratio is provided for either heads, use it.
         if self.sideA and self.D:
-            if not self.sideA_a and self.sideA in ['conical', 'ellipsoidal', 'guppy', 'spherical']:
+            if not self.sideA_a and self.sideA in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
                 self.sideA_a = self.D*self.sideA_a_ratio
         if self.sideB and self.D:
-            if not self.sideB_a and self.sideB in ['conical', 'ellipsoidal', 'guppy', 'spherical']:
+            if not self.sideB_a and self.sideB in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
                 self.sideB_a = self.D*self.sideB_a_ratio
 
         # Calculate a for torispherical heads
@@ -1688,6 +1720,18 @@ class TANK(object):
             self.sideA_a = a_torispherical(self.D, self.sideA_f, self.sideA_k)
         if self.sideB == 'torispherical' and self.sideB_f and self.sideB_k:
             self.sideB_a = a_torispherical(self.D, self.sideB_f, self.sideB_k)
+
+        # Ensure the correct a_ratios are set, whether there is a default being used or not
+        if self.sideA_a_ratio is None and self.sideA_a is not None:
+            self.sideA_a_ratio = self.sideA_a/self.D
+        elif self.sideA_a_ratio is not None and self.sideA_a is not None and self.sideA_a != self.D*self.sideA_a_ratio:
+            self.sideA_a_ratio = self.sideA_a/self.D
+
+        if self.sideB_a_ratio is None and self.sideB_a is not None:
+            self.sideB_a_ratio = self.sideB_a/self.D
+        elif self.sideB_a_ratio is not None and self.sideB_a is not None and self.sideB_a != self.D*self.sideB_a_ratio:
+            self.sideB_a_ratio = self.sideB_a/self.D
+
 
         # Calculate maximum tank height, h_max
         if self.horizontal:
@@ -1709,6 +1753,52 @@ class TANK(object):
         sideB_f=self.sideB_f, sideB_k=self.sideB_k,
              full_output=True)
 
+    def add_thickness(self, thickness):
+        r'''Method to create a new tank instance with the same parameters as
+        itself, except with an added thickness to it. This is useful to obtain
+        ex. the inside of a tank and the outside; their different in volumes is
+        the volume of the shell, and could be used to determine weight.
+        
+        Parameters
+        ----------
+        thickness : float
+            Thickness to add to the tank, [m]
+        
+        Returns
+        -------
+        TANK : TANK
+            Tank object, [-]
+            
+        Notes
+        -----
+        Be careful not to specify a negative thickness larger than the heads'
+        lengths, or the head will become concave! The same applies to adding
+        a thickness to convex heads - they can become convex.
+        
+        '''
+        kwargs = dict(D=self.D, L=self.L, horizontal=self.horizontal,
+                 sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a, 
+                 sideB_a=self.sideB_a, sideA_f=self.sideA_f, 
+                 sideA_k=self.sideA_k, sideB_f=self.sideB_f, sideB_k=self.sideB_k)
+        # Do not transfer a_ratios or volume or L_over_D
+        kwargs['D'] += 2.0*thickness
+        kwargs['L'] += 2.0*thickness
+        
+        # For torispherical vessels, the heads are defined from the `f` and `k`
+        # parameters which are already functions of diameter, and so will be
+        # fixed automatically; if the `a` parameters are specified they would
+        # not be corrected
+        if self.sideA != 'torispherical':
+            kwargs['sideA_a'] += thickness
+        else:
+            del kwargs['sideA_a']
+        
+        if self.sideB != 'torispherical':
+            kwargs['sideB_a'] += thickness
+        else:
+            del kwargs['sideB_a']
+        return TANK(**kwargs)
+        
 
     def V_from_h(self, h, method='full'):
         r'''Method to calculate the volume of liquid in a fully defined tank
@@ -1877,7 +1967,8 @@ class TANK(object):
         if (self.D and self.L) or (self.D and self.L_over_D) or (self.L and self.L_over_D):
             raise Exception('Only one of D, L, or L_over_D can be specified\
             when solving for V')
-        if ((self.sideA and not self.sideA_a_ratio) or (self.sideB and not self.sideB_a_ratio)):
+        if ((self.sideA is not None and (self.sideA_a_ratio is None and self.sideA_a is None))
+             or (self.sideB is not None and (self.sideB_a_ratio is None and self.sideB_a is None))):
             raise Exception('When heads are specified, head parameter ratios are required')
 
         if self.D:

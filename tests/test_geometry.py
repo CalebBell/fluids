@@ -144,6 +144,9 @@ def test_geometry():
     SA2 = SA_ellipsoidal_head(2, 0.999)
     SAs = [6.283185307179586, 6.278996936093318]
     assert_allclose([SA1, SA2], SAs)
+    
+    # Check code avoids zero division error
+    assert_allclose(SA_ellipsoidal_head(2, 1e-8), pi)
 
     SA1 = SA_conical_head(2, 1)
     SAs = 4.442882938158366
@@ -381,6 +384,9 @@ def test_geometry_tank():
     # Test toripsherical a calculation
     V = TANK(L=1.2, L_over_D=3.5, sideA='torispherical', sideB='torispherical', sideA_f=1.,  sideA_k=0.06, sideB_f=1., sideB_k=0.06).V_total
     assert_allclose(V, 0.117318265914)
+    
+    # Test default a_ratio
+    assert_allclose(0.25, TANK(V=10, L=10, sideA='conical', sideA_a_ratio=None).sideA_a_ratio)
 
     with pytest.raises(Exception):
         # Test overdefinition case
@@ -388,10 +394,54 @@ def test_geometry_tank():
     with pytest.raises(Exception):
         # Test sides specified with V solving
         TANK(V=10, L=10, sideA='conical', sideB_a=0.5)
-    with pytest.raises(Exception):
-        TANK(V=10, L=10, sideA='conical', sideA_a_ratio=None)
    
      
+def assert_TANKs_equal(T1, T2):
+    for k, v in T1.__dict__.items():
+        if isinstance(v, (float, int)):
+            assert_allclose(v, T2.__dict__[k])
+        else:
+            assert v == T2.__dict__[k]
+          
+def test_add_thickness():
+    t = 1e-4
+    T1 = TANK(L=3, D=.6, sideA='ellipsoidal', sideA_a = .2, sideB='conical', sideB_a=0.5)
+    T1 = T1.add_thickness(t)
+    T2 = TANK(L=3+2*t, D=.6+2*t, sideA='ellipsoidal', sideA_a = .2+t, sideB='conical', sideB_a=0.5+t)
+    assert_TANKs_equal(T1, T2)
+    
+    # Also add a test that there are no default values for `k` and `f` when the tank is not torispherical
+    # and the `a` ratios are correctly calculated not default values
+    for T in (T1, T2):
+        assert T.sideA_f is None
+        assert T.sideA_k is None
+        assert T.sideB_f is None
+        assert T.sideB_k is None
+        assert_allclose(T.sideA_a_ratio, 0.3333888703765412)
+        assert_allclose(T.sideB_a_ratio, 0.8332222592469177)
+        
+    t = .1
+    T1 = TANK(L=3, D=.6, sideA='spherical', sideA_a = .2, sideB='guppy', sideB_a=0.5)
+    T1 = T1.add_thickness(t)
+    T2 = TANK(L=3+2*t, D=.6+2*t, sideA='spherical', sideA_a = .2+t, sideB='guppy', sideB_a=0.5+t)
+    assert_TANKs_equal(T1, T2)
+    for T in (T1, T2):
+        assert T.sideA_f is None
+        assert T.sideA_k is None
+        assert T.sideB_f is None
+        assert T.sideB_k is None
+        assert_allclose(T.sideA_a_ratio, 0.375)
+        assert_allclose(T.sideB_a_ratio, .75)
+        
+    # Torispherical as well
+    t = .15311351231
+    T1 = TANK(L=3, D=.6, sideA='torispherical', sideB='torispherical', 
+             sideA_f=0.9, sideA_k=0.17)
+    T1 = T1.add_thickness(t)
+    T2 = TANK(L=3+2*t, D=.6+2*t, sideA='torispherical', sideA_f=0.9, sideA_k=0.17, sideB='torispherical')
+    assert_TANKs_equal(T1, T2)
+
+
 @pytest.mark.slow       
 def test_geometry_tank_chebyshev():
     # Test auto set Chebyshev table

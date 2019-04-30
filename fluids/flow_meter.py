@@ -535,7 +535,6 @@ def K_to_discharge_coefficient(D, Do, K):
     beta4 = beta2*beta2
     root_K = K**0.5
     return ((1.0 - beta4)/(2.0*root_K*beta4 + K*beta4))**0.5
-    return (common_term - beta4*common_term)**0.5
 
 
 def dP_orifice(D, Do, P1, P2, C):
