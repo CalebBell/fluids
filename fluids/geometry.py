@@ -1753,7 +1753,8 @@ class TANK(object):
         sideB_f=self.sideB_f, sideB_k=self.sideB_k,
              full_output=True)
 
-    def add_thickness(self, thickness):
+    def add_thickness(self, thickness, sideA_thickness=None, 
+                      sideB_thickness=None):
         r'''Method to create a new tank instance with the same parameters as
         itself, except with an added thickness to it. This is useful to obtain
         ex. the inside of a tank and the outside; their different in volumes is
@@ -1762,7 +1763,13 @@ class TANK(object):
         Parameters
         ----------
         thickness : float
-            Thickness to add to the tank, [m]
+            Thickness to add to the tank diameter, [m]
+        sideA_thickness : float, optional
+            The thickness to add to the sideA head; if not specified,
+            it will be `thickness`, [m]
+        sideB_thickness : float, optional
+            The thickness to add to the sideB head; if not specified,
+            it will be `thickness`, [m]
         
         Returns
         -------
@@ -1780,21 +1787,26 @@ class TANK(object):
                  sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a, 
                  sideB_a=self.sideB_a, sideA_f=self.sideA_f, 
                  sideA_k=self.sideA_k, sideB_f=self.sideB_f, sideB_k=self.sideB_k)
+        if sideA_thickness is None:
+            sideA_thickness = thickness
+        if sideB_thickness is None:
+            sideB_thickness = thickness
+
         # Do not transfer a_ratios or volume or L_over_D
         kwargs['D'] += 2.0*thickness
-        kwargs['L'] += 2.0*thickness
+        kwargs['L'] += sideA_thickness + sideB_thickness
         
         # For torispherical vessels, the heads are defined from the `f` and `k`
         # parameters which are already functions of diameter, and so will be
         # fixed automatically; if the `a` parameters are specified they would
         # not be corrected
         if self.sideA != 'torispherical':
-            kwargs['sideA_a'] += thickness
+            kwargs['sideA_a'] += sideA_thickness
         else:
             del kwargs['sideA_a']
         
         if self.sideB != 'torispherical':
-            kwargs['sideB_a'] += thickness
+            kwargs['sideB_a'] += sideB_thickness
         else:
             del kwargs['sideB_a']
         return TANK(**kwargs)
