@@ -284,7 +284,7 @@ class UnitAwareClass(object):
         try:
             value = getattr(self.wrapped, name)
         except Exception as e:
-            raise Exception('Failed to get property %s with error %s' %(str(name), str(e)))
+            raise AttributeError('Failed to get property %s with error %s' %(str(name), str(e)))
         if value is not None:
             if name in self.property_units:
                 if type(value) == dict:
@@ -314,7 +314,7 @@ class UnitAwareClass(object):
                         return convert_output(result, out_units, out_vars, self.ureg)
                         
                     return call_func_with_inputs_to_SI
-                raise Exception('Error: Property does not yet have units attached')
+                raise AttributeError('Error: Property does not yet have units attached')
         else:
             return value
         

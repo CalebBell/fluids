@@ -932,7 +932,7 @@ def sunrise_sunset(moment, latitude, longitude):
     Parameters
     ----------
     moment : datetime
-        Date for the calculationl; needs to contain only the year, month, and
+        Date for the calculation; needs to contain only the year, month, and
         day, [-]
     latitude : float
         Latitude, between -90 and 90 [degrees]

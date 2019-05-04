@@ -294,6 +294,12 @@ def test_ATMOSPHERE_1976_units():
     assert_pint_allclose(five_km.k, 0.0227319029514, u.W/u.K/u.m)
     assert_pint_allclose(five_km.v_sonic, 320.54551967, u.m/u.s)
     assert_pint_allclose(five_km.sonic_velocity(300*u.K), 347.220809082, u.m/u.s)
+    
+    # Check AttribtueError is property raised on __getstate__ for classes
+    # as they now have a __getattr_ method
+    import copy
+    copy.copy(five_km)
+    copy.deepcopy(five_km)
 
 
 def test_ATMOSPHERE_NRLMSISE00():
