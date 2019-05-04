@@ -55,6 +55,11 @@ If you have an installation of Python with pip, simple install it with:
 
     $ pip install fluids
 
+Alternatively, if you are using `conda <https://conda.io/en/latest/>`_ as your package management, you can simply
+install fluids in your environment from `conda-forge <https://conda-forge.org/>`_ channel with:
+
+    $ conda install -c conda-forge fluids 
+
 To get the git version, run:
 
     $ git clone git://github.com/CalebBell/fluids.git
