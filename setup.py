@@ -58,7 +58,7 @@ setup(
   name = 'fluids',
   packages = ['fluids'],
   license='MIT',
-  version = '0.1.74',
+  version = '0.1.75',
   download_url = 'https://github.com/CalebBell/fluids/tarball/0.1.74',
   description = 'Fluid dynamics component of Chemical Engineering Design Library (ChEDL)',
   long_description=open('README.rst').read(),
