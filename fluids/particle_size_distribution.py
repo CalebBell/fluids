@@ -1383,7 +1383,7 @@ class ParticleSizeDistributionContinuous(object):
         >>> psd.dn(.5)
         5e-06
         >>> psd.dn(1)
-        0.00029474365335233776
+        0.0002947436533523378
         >>> psd.dn(0)
         0.0
         '''
