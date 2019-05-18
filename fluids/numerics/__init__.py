@@ -31,8 +31,8 @@ __all__ = ['isclose', 'horner', 'chebval', 'interp',
            'linspace', 'logspace', 'cumsum', 'diff',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 'secant',
-           'splev', 'bisplev', 'derivative', 'normalize',
-           'oscillation_checker',
+           'splev', 'bisplev', 'derivative', 'jacobian', 'hessian', 
+           'normalize', 'oscillation_checker',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv',
@@ -263,7 +263,8 @@ def roots_cubic(a, b, c, d):
         # x1 is OK actually in some tests? the issue is x2, x3?
         x2 = t1 + t2
         x3 = t1 - t2
-    elif h <= 0.0:
+    else:
+#    elif h <= 0.0:
         t2 = a*a
         t3 = d*d
         t10 = c*c
@@ -301,12 +302,13 @@ def roots_cubic(a, b, c, d):
             L = -j
     
             # Would be nice to be able to compute the sin and cos at the same time
-            M = cos(k*third)
-            N = root_three*sin(k*third)
-            P = -(b*(third*a_inv))
+            k_third = k*third
+            M = cos(k_third)
+            N = root_three*sin(k_third)
+            P = -b_a*third
     
             # Direct formula for x1
-            x1 = 2.0*j*M - b*(third*a_inv)
+            x1 = 2.0*j*M - b_a*third
             x2 = L*(M + N) + P
             x3 = L*(M - N) + P
     return (x1, x2, x3)
@@ -559,6 +561,124 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3):
     for k in range(order):
         tot += weights[k]*func(x0 + (k - ho)*dx, *args)
     return tot/product([dx]*n)
+
+
+def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(),
+             **kwargs):
+    '''
+    def test_fun(x):
+    # test case - 2 inputs, 3 outputs - should work fine
+    x2 = x[0]*x[0]
+    return np.array([x2*exp(x[1]), x2*sin(x[1]), x2*cos(x[1])])
+
+    def easy_fun(x):
+        x = x[0]
+        return 5*x*x - 3*x - 100
+    '''
+    # For scalar - returns list, size of input variables
+    # For vector - returns list of list - size of input variables * output variables
+    # Could add backwards/complex, multiple evaluations, detection of poor condition
+    # types and limits
+    base = f(x0, *args, **kwargs)
+    x = list(x0)
+    nx = len(x0)
+    
+    gradient = []
+    for i in range(nx):
+        delta = x0[i]*(perturbation)
+        if delta == 0:
+            delta = zero_offset
+        
+        x[i] += delta
+        
+        point = f(x, *args, **kwargs)
+        if scalar:
+            dy = (point - base)/delta
+            gradient.append(dy)
+        else:
+            delta_inv = 1.0/delta
+            dys = [delta_inv*(p - b) for p, b in zip(point, base)]
+            gradient.append(dys)
+            
+        x[i] -= delta
+    if not scalar:
+        # Transpose to be in standard form
+        return list(map(list, zip(*gradient)))
+    return gradient
+
+
+def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, args=(), **kwargs):
+    # Takes n**2/2 + 3*n/2 + 1 function evaluations! Can still be quite fast.
+    # For scalar - returns list[list], size of input variables
+    # For vector - returns list of list of list - size of input variables * input variables * output variables
+    # Could add backwards/complex, multiple evaluations, detection of poor condition
+    # types and limits, jacobian as output, fevals
+    
+    
+    base = f(x0, *args, **kwargs)
+    nx = len(x0)
+    
+    if not isinstance(base, (float, int, complex)):
+        ny = len(base)
+    else:
+        ny = 1
+    
+    deltas = []
+    for i in range(nx):
+        delta = x0[i]*(perturbation)
+        if delta == 0.0:
+            delta = zero_offset
+        deltas.append(delta)
+    deltas_inv = [1.0/di for di in deltas]
+
+    
+    x_perturb = list(x0)
+    
+    fs_perturb_i = []
+    for i in range(nx):
+        x_perturb[i] += deltas[i]
+        f_perturb_i = f(x_perturb, *args, **kwargs)
+        fs_perturb_i.append(f_perturb_i)
+        x_perturb[i] -= deltas[i]
+    
+    if full:
+        hessian = [[None]*nx for _ in range(nx)]
+    else:
+        hessian = []
+    
+    for i in range(nx):
+        if not full:
+            row = []
+        f_perturb_i = fs_perturb_i[i]
+        x_perturb[i] += deltas[i]
+        
+        for j in range(i+1):
+            f_perturb_j = fs_perturb_i[j]
+            x_perturb[j] += deltas[j]
+            f_perturb_ij = f(x_perturb, *args, **kwargs)
+
+            if scalar:
+                dii0 = (f_perturb_i - base)*deltas_inv[i]
+                dii1 = (f_perturb_ij - f_perturb_j)*deltas_inv[i]
+                dij = (dii1 - dii0)*deltas_inv[j]
+            else:
+#                 dii0s = [(fi - bi)*deltas_inv[i] for fi, bi in zip(f_perturb_i, base)]
+#                 dii1s = [(fij - fj)*deltas_inv[i] for fij, fj in zip(f_perturb_ij, f_perturb_j)]
+#                 dij = [(di1 - di0)*deltas_inv[j] for di1, di0 in zip(dii1s, dii0s)]
+                # Saves a good amount of time
+                dij = [((f_perturb_ij[m] - f_perturb_j[m]) - (f_perturb_i[m] - base[m]))*deltas_inv[j]*deltas_inv[i] 
+                       for m in range(ny)]
+            
+            if not full:
+                row.append(dij)
+            else:
+                hessian[i][j] = hessian[j][i] = dij
+                
+            x_perturb[j] -= deltas[j]
+        if not full:
+            hessian.append(row)
+        x_perturb[i] -= deltas[i]
+    return hessian
 
 
 def horner(coeffs, x):
@@ -1723,11 +1843,11 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
     return z
 
 
-    
+brenth = py_brenth
 # interp, horner, derivative methods (and maybe newton?) should always be used.
 if not IS_PYPY:
     from scipy.interpolate import splev, bisplev
-    from scipy.optimize import newton, bisect, ridder, brenth
+    from scipy.optimize import newton, bisect, ridder#, brenth
     
 else:
     splev, bisplev = py_splev, py_bisplev
