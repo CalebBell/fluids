@@ -313,9 +313,78 @@ def dot(a, b):
     ab = [sum([ri*bi for ri, bi in zip(row, b)]) for row in a]
     return ab
 
+
+
+def inplace_LU(A, ipivot, N):
+    Np1 = N+1
+    
+    for j in range(1, Np1):
+        for i in range(1, j):
+            tot = A[i][j]
+            for k in range(1, i):
+                tot -= A[i][k]*A[k][j]
+            A[i][j] = tot
+
+        apiv = 0.0
+        for i in range(j, Np1):
+            tot = A[i][j]
+            for k in range(1, j):
+                tot -= A[i][k]*A[k][j]
+            A[i][j] = tot
+            
+            if apiv < abs(A[i][j]):
+                apiv, ipiv = abs(A[i][j]), i
+        if apiv == 0:
+            raise ValueError("Singular matrix")
+        ipivot[j] = ipiv
+        
+        if ipiv != j:
+            for k in range(1, Np1):
+                t = A[ipiv][k]
+                A[ipiv][k] = A[j][k]
+                A[j][k] = t
+
+        Ajjinv = 1.0/A[j][j]
+        for i in range(j+1, Np1):
+            A[i][j] *= Ajjinv
+    return None
+                
+
+def solve_from_lu(A, pivots, b, N):
+    Np1 = N+1
+    b = [0.0] + list(b)
+    for i in range(1, Np1):
+        sum = b[pivots[i]]
+        b[pivots[i]] = b[i]
+        for j in range(1, i):
+            sum -= A[i][j]*b[j]
+        b[i] = sum
+        
+    for i in range(N, 0, -1):
+        sum = b[i]
+        for j in range(i+1, Np1):
+            sum -= A[i][j]*b[j]
+        b[i] = sum/A[i][i]
+    return b
+
+def solve_LU_decomposition(A, b):
+    N = len(b)
+    
+    A_copy = [[0.0]*(N+1)]
+    for row in A:
+        r = list(row)
+        r.insert(0, 0.0)
+        A_copy.append(r)
+    
+    pivots = [0.0]*(N+1)
+    inplace_LU(A_copy, pivots, N)
+    return solve_from_lu(A_copy, pivots, b, N)[1:]
+
+
 def solve(a, b):
     if len(a) > 4:
-        import numpy as np
-        return np.linalg.solve(a, b).tolist()
+        return solve_LU_decomposition(a, b)
+#        import numpy as np
+#        return np.linalg.solve(a, b).tolist()
     else:
         return dot(inv(a), b)
