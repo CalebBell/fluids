@@ -1796,7 +1796,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         
         def to_solve(m_D):
             m = m_D*D
-            epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
+            C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
@@ -1810,7 +1810,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         return secant(to_solve, m_D_guess)*D
     elif D2 is None and None not in (D, m, P1, P2):
         def to_solve(D2):
-            epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
+            C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
@@ -1819,7 +1819,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         return brenth(to_solve, D*(1-1E-9), D*5E-3)
     elif P2 is None and None not in (D, D2, m, P1):
         def to_solve(P2):
-            epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
+            C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
@@ -1828,7 +1828,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         return brenth(to_solve, P1*(1-1E-9), P1*0.5)
     elif P1 is None and None not in (D, D2, m, P2):
         def to_solve(P1):
-            epsilon, C = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
+            C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                           mu, k, meter_type, 
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
