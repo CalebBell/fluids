@@ -25,7 +25,7 @@ from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
 from sys import float_info
 
-__all__ = ['dot', 'inv', 'det', 'solve']
+__all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product']
 
 def det(matrix):
     '''Seem sto work fine.
@@ -307,12 +307,17 @@ def inv(matrix):
     else:
         # TODO algorithm?
         import numpy as np
-        return np.linalg.inv(matrix)
+        return np.linalg.inv(matrix).tolist()
         
 def dot(a, b):
     ab = [sum([ri*bi for ri, bi in zip(row, b)]) for row in a]
     return ab
 
+def inner_product(a, b):
+    tot = 0.0
+    for i in range(len(a)):
+        tot += a[i]*b[i]
+    return tot
 
 
 def inplace_LU(A, ipivot, N):
@@ -388,3 +393,11 @@ def solve(a, b):
 #        return np.linalg.solve(a, b).tolist()
     else:
         return dot(inv(a), b)
+    
+
+
+def norm2(arr):
+    tot = 0.0
+    for i in arr:
+        tot += i*i
+    return tot**0.5

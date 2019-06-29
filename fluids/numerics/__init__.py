@@ -24,16 +24,17 @@ from __future__ import division
 from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
 from sys import float_info
-from .arrays import solve as py_solve
+from .arrays import solve as py_solve, inv, dot, norm2, inner_product
 from functools import wraps
 
-__all__ = ['isclose', 'horner', 'chebval', 'interp',
+__all__ = ['isclose', 'horner', 'horner_and_der', 'chebval', 'interp',
            'linspace', 'logspace', 'cumsum', 'diff',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 'secant',
            'splev', 'bisplev', 'derivative', 'jacobian', 'hessian', 
            'normalize', 'oscillation_checker',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
+           'broyden2',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv',
            'numpy',
@@ -619,7 +620,10 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
     nx = len(x0)
     
     if not isinstance(base, (float, int, complex)):
-        ny = len(base)
+        try:
+            ny = len(base)
+        except:
+            ny = 1
     else:
         ny = 1
     
@@ -736,6 +740,16 @@ def horner(coeffs, x):
     for c in coeffs:
         tot = tot*x + c
     return tot
+
+def horner_and_der(coeffs, x):
+    # Coefficients in same order as for horner
+    f = 0.0
+    der = 0.0
+    for a in coeffs:
+        der = x*der + f
+        f = x*f + a
+    return (f, der)
+
 
 def polyder(c, m=1, scl=1, axis=0):
     '''not quite a copy of numpy's version because this was faster to implement.
@@ -1565,7 +1579,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             fcur = f(x, *args)
         
         iter += 1
-        if xtol is not None and np.linalg.norm(fcur, ord=2) < xtol:
+        if xtol is not None and norm2(fcur) < xtol:
             break
         if ytol is not None and err(fcur) < ytol:
             break
@@ -1573,6 +1587,52 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         if not jac_also:
             j = jac(x, *args)
     return x, iter
+
+def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False):
+    iter = 0
+    if jac_has_fun:
+        fcur, J = jac(xs)
+        J = inv(J)
+    else:
+        fcur = fun(xs)
+        J = inv(jac(xs))
+
+    N = len(fcur)
+    eqns = range(N)
+
+    err = 0.0
+    for fi in fcur:
+        err += abs(fi)
+ 
+    while err > xtol and iter < maxiter:
+        s = dot(J, fun(xs))
+        
+        xs = [xs[i] - s[i] for i in eqns]
+ 
+        fnew = fun(xs)
+        z = [fnew[i] - fcur[i] for i in eqns]
+ 
+        u = dot(J, z)
+    
+        d = [-i for i in s]
+        
+        
+        dmu = [d[i]-u[i] for i in eqns]
+        dmu_d = inner_product(dmu, d)        
+        den_inv = 1.0/inner_product(d, u)
+        factor = den_inv*dmu_d
+        J_delta = [[factor*j for j in row] for row in J]
+        for i in eqns:
+            for j in eqns:
+                J[i][j] += J_delta[i][j]
+        
+        fcur = fnew
+        iter += 1
+        err = 0.0
+        for fi in fcur:
+            err += abs(fi)
+ 
+    return xs, iter
 
 def normalize(values):
     r'''Simple function which normalizes a series of values to be from 0 to 1,
@@ -1602,6 +1662,7 @@ def normalize(values):
     '''
     tot_inv = 1.0/sum(values)
     return [i*tot_inv for i in values]
+
 def py_splev(x, tck, ext=0):
     '''Evaluate a B-spline using a pure-python port of FITPACK's splev. This is
     not fully featured in that it does not support calculating derivatives.
