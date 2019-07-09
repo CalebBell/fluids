@@ -25,7 +25,8 @@ from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
 from sys import float_info
 
-__all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product']
+__all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product',
+           'eye']
 
 def det(matrix):
     '''Seem sto work fine.
@@ -302,13 +303,22 @@ def inv(matrix):
         x63 = x34*x58
         return [[x0 - x24*x8 - x30*x53 + x1*x3*x0*x0, -x11 + x12*x55 - x35*x57, -x24 + x35*x59, -x53],
              [-x30*x62 - x60*x8 - x7, x10*x23*x5*x2**-2 + x3 - x56*x62, x59*x61 - x60, -x62],
-             [x29 - x30*x63, -x55 - x56*x63, x14**2*x22*x28*x34*x51 + x23, -x63],
+             [x29 - x30*x63, -x55 - x56*x63, x14*x14*x22*x28*x34*x51 + x23, -x63],
              [x30*x52, x57, -x59, x52]]
     else:
+        return inv_lu(matrix)
         # TODO algorithm?
-        import numpy as np
-        return np.linalg.inv(matrix).tolist()
-        
+#        import numpy as np
+#        return np.linalg.inv(matrix).tolist()
+
+def eye(N):
+    mat = []
+    for i in range(N):
+        r = [0.0]*N
+        r[i] = 1.0
+        mat.append(r)
+    return mat
+   
 def dot(a, b):
     ab = [sum([ri*bi for ri, bi in zip(row, b)]) for row in a]
     return ab
@@ -356,20 +366,20 @@ def inplace_LU(A, ipivot, N):
                 
 
 def solve_from_lu(A, pivots, b, N):
-    Np1 = N+1
+    Np1 = N + 1
     b = [0.0] + list(b)
     for i in range(1, Np1):
-        sum = b[pivots[i]]
+        tot = b[pivots[i]]
         b[pivots[i]] = b[i]
         for j in range(1, i):
-            sum -= A[i][j]*b[j]
-        b[i] = sum
+            tot -= A[i][j]*b[j]
+        b[i] = tot
         
     for i in range(N, 0, -1):
-        sum = b[i]
+        tot = b[i]
         for j in range(i+1, Np1):
-            sum -= A[i][j]*b[j]
-        b[i] = sum/A[i][i]
+            tot -= A[i][j]*b[j]
+        b[i] = tot/A[i][i]
     return b
 
 def solve_LU_decomposition(A, b):
@@ -384,6 +394,30 @@ def solve_LU_decomposition(A, b):
     pivots = [0.0]*(N+1)
     inplace_LU(A_copy, pivots, N)
     return solve_from_lu(A_copy, pivots, b, N)[1:]
+
+
+def inv_lu(a):
+    N = len(a)
+    Np1 = N + 1
+    A_copy = [[0.0]*Np1]
+    for row in a:
+        r = list(row)
+        r.insert(0, 0.0)
+        A_copy.append(r)
+    a = A_copy
+    
+    ainv = [[0.0]*N for i in range(N)]
+    pivots = [0]*Np1
+    inplace_LU(a, pivots, N)
+    
+    for j in range(N):
+        b = [0.0]*N
+        b[j] = 1.0                          
+        b = solve_from_lu(a, pivots, b, N)[1:]
+        for i in range(N): 
+            ainv[i][j] = b[i]
+            
+    return ainv
 
 
 def solve(a, b):

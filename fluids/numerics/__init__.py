@@ -24,7 +24,7 @@ from __future__ import division
 from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
 from sys import float_info
-from .arrays import solve as py_solve, inv, dot, norm2, inner_product
+from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye
 from functools import wraps
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'chebval', 'interp',
@@ -547,7 +547,7 @@ def central_diff_weights(points, divisions=1):
     return w
 
 
-def derivative(func, x0, dx=1.0, n=1, args=(), order=3):
+def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True):
     '''Reimplementation of SciPy's derivative function, with more cached
     coefficients and without using numpy. If new coefficients not cached are
     needed, they are only calculated once and are remembered.
@@ -557,11 +557,21 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3):
     if order % 2 == 0:
         raise ValueError
     weights = central_diff_weights(order, n)
-    tot = 0.0
     ho = order >> 1
-    for k in range(order):
-        tot += weights[k]*func(x0 + (k - ho)*dx, *args)
-    return tot/product([dx]*n)
+    denominator = 1.0/product([dx]*n)
+    if scalar:
+        tot = 0.0
+        for k in range(order):
+            tot += weights[k]*func(x0 + (k - ho)*dx, *args)
+        return tot*denominator
+    else:
+        fs = [func(x0 + (k - ho)*dx, *args) for k in range(order)]
+        N = len(fs[0])
+        numerators = [0.0]*N
+        for k in range(order):
+            for i in range(N):
+                numerators[i] += weights[k]*fs[k][i]
+        return [num*denominator for num in numerators]
 
 
 def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(),
@@ -1588,9 +1598,15 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             j = jac(x, *args)
     return x, iter
 
-def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False):
+
+def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
+             skip_J=False):
     iter = 0
-    if jac_has_fun:
+    if skip_J:
+        fcur = fun(xs)
+        N = len(fcur)
+        J = eye(N)
+    elif jac_has_fun:
         fcur, J = jac(xs)
         J = inv(J)
     else:
@@ -1605,7 +1621,7 @@ def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False):
         err += abs(fi)
  
     while err > xtol and iter < maxiter:
-        s = dot(J, fun(xs))
+        s = dot(J, fcur)
         
         xs = [xs[i] - s[i] for i in eqns]
  
