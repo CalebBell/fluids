@@ -540,9 +540,15 @@ def central_diff_weights(points, divisions=1):
         line = [1.0] + [xi[0]**k for k in range(1, points)]
         X.append(line)
     factor = product(range(1, divisions + 1))
-    from scipy.linalg import inv
+#    from scipy.linalg import inv
+    from sympy import Matrix
     # The above coefficients were generated from a routine which used Fractions
-    w = [i*factor for i in (inv(X)[divisions]).tolist()]
+    # Additional coefficients cannot reliable be computed with numpy or floating
+    # point numbers - the error is too great
+    # sympy must be used for reliability
+    inverted = [[float(j) for j in i] for i in Matrix(X).inv().tolist()]
+    w = [i*factor for i in inverted[divisions]]
+#    w = [i*factor for i in (inv(X)[divisions]).tolist()]
     central_diff_weights_precomputed[(divisions, points)] = w
     return w
 
