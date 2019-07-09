@@ -551,6 +551,8 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True):
     '''Reimplementation of SciPy's derivative function, with more cached
     coefficients and without using numpy. If new coefficients not cached are
     needed, they are only calculated once and are remembered.
+    
+    Support for vector value functions has also been added.
     '''
     if order < n + 1:
         raise ValueError
@@ -565,12 +567,14 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True):
             tot += weights[k]*func(x0 + (k - ho)*dx, *args)
         return tot*denominator
     else:
-        fs = [func(x0 + (k - ho)*dx, *args) for k in range(order)]
-        N = len(fs[0])
-        numerators = [0.0]*N
+        numerators = None
         for k in range(order):
+            f = func(x0 + (k - ho)*dx, *args)
+            if numerators is None:
+                N = len(f)
+                numerators = [0.0]*N
             for i in range(N):
-                numerators[i] += weights[k]*fs[k][i]
+                numerators[i] += weights[k]*f[i]
         return [num*denominator for num in numerators]
 
 
