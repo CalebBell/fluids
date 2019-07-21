@@ -565,4 +565,3 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
     elif P1 is None and (None not in [D, D2, m, P2]):
         return ans*u.Pa
 
-### TODO list
