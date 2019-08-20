@@ -25,13 +25,17 @@ from fluids import *
 from numpy.testing import assert_allclose
 import pytest
 import numpy as np
-
-
+from fluids.numerics import *
+from scipy.integrate import quad
 
 def test_horner():
     from fluids.numerics import horner
     assert_allclose(horner([1.0, 3.0], 2.0), 5.0)
     assert_allclose(horner([3.0], 2.0), 3.0)
+    
+    poly = [1.12, 432.32, 325.5342, .235532, 32.235]
+    assert_allclose(horner_and_der2(poly, 3.0), (14726.109396, 13747.040732, 8553.7884))
+    
     
     
 def test_interp():
@@ -222,3 +226,87 @@ def test_diff():
     assert tuple(diff([1,2,3], n=0)) == tuple([1,2,3])
     with pytest.raises(Exception):
         diff([1,2,3], n=-1)
+        
+        
+def test_fit_integral_linear_extrapolation():
+    coeffs = [-6.496329615255804e-23,2.1505678500404716e-19, -2.2204849352453665e-16,
+              1.7454757436517406e-14, 9.796496485269412e-11, -4.7671178529502835e-08,
+              8.384926355629239e-06, -0.0005955479316119903, 29.114778709934264]
+    
+    Tmin, Tmax = 50.0, 1000.0
+    Tmin_value, Tmax_value = 29.10061916353635, 32.697696220612684
+    Tmin_slope, Tmax_slope = 9.512557609301246e-06, 0.005910807286115391
+    
+    int_coeffs = polyint(coeffs)
+    T_int_T_coeffs, log_coeff = polyint_over_x(coeffs)
+    def func(T):
+        if T < Tmin:
+            Cp = (T - Tmin)*Tmin_slope + Tmin_value
+        elif T > Tmax:
+            Cp = (T - Tmax)*Tmax_slope + Tmax_value
+        else:
+            Cp = horner(coeffs, T)
+        return Cp
+    
+    assert_allclose(func(300), 29.12046448327871, rtol=1e-12)
+    Ts = [0, 1, 25, 49, 50, 51, 500, 999, 1000, 1001, 2000, 50000]
+    T_ends = [0, Tmin, Tmin*2, Tmax, Tmax*2]
+    
+    numericals = []
+    analyticals = []
+    analyticals2 = []
+    for Tend in T_ends:
+        for Tdiff in Ts:
+            for (T1, T2) in zip([Tend, Tdiff], [Tdiff, Tend]):
+                analytical = fit_integral_linear_extrapolation(T1, T2, int_coeffs, Tmin, Tmax, 
+                                              Tmin_value, Tmax_value, 
+                                              Tmin_slope, Tmax_slope)
+                analytical2 = (best_fit_integral_value(T2, int_coeffs, Tmin, Tmax, 
+                              Tmin_value, Tmax_value, 
+                              Tmin_slope, Tmax_slope)
+                              - best_fit_integral_value(T1, int_coeffs, Tmin, Tmax, 
+                              Tmin_value, Tmax_value, 
+                              Tmin_slope, Tmax_slope))
+                
+                
+                numerical = quad(func, T1, T2, epsabs=1.49e-14, epsrel=1.49e-14)[0]
+                numericals.append(numerical)
+                analyticals.append(analytical)
+                analyticals2.append(analytical2)
+    assert_allclose(analyticals, numericals, rtol=1e-7)
+    assert_allclose(analyticals2, numericals, rtol=1e-7)
+    
+    
+    
+    
+
+    # Cannot have temperatures of 0 absolute for integrals over T cases
+    Ts = [1e-9, 1, 25, 49, 50, 51, 500, 999, 1000, 1001, 2000, 50000]
+    T_ends = [1e-9, Tmin, Tmin*2, Tmax, Tmax*2]
+    numericals = []
+    analyticals = []
+    analyticals2 = []
+    for Tend in T_ends:
+        for Tdiff in Ts:
+            for (T1, T2) in zip([Tend, Tdiff], [Tdiff, Tend]):
+                analytical = fit_integral_over_T_linear_extrapolation(T1, T2, T_int_T_coeffs, log_coeff, 
+                                                                      Tmin, Tmax, 
+                                              Tmin_value, Tmax_value, 
+                                              Tmin_slope, Tmax_slope)
+                analytical2 = (best_fit_integral_over_T_value(T2, T_int_T_coeffs, log_coeff, 
+                                                                      Tmin, Tmax, 
+                                              Tmin_value, Tmax_value, 
+                                              Tmin_slope, Tmax_slope) - best_fit_integral_over_T_value(T1, T_int_T_coeffs, log_coeff, 
+                                                                      Tmin, Tmax, 
+                                              Tmin_value, Tmax_value, 
+                                              Tmin_slope, Tmax_slope))
+                
+                numerical = quad(lambda T: func(T)/T, T1, T2, epsabs=1.49e-12, epsrel=1.49e-14)[0]
+                
+                
+                
+                numericals.append(numerical)
+                analyticals.append(analytical)
+                analyticals2.append(analytical2)
+    assert_allclose(analyticals, numericals, rtol=1e-7)
+    assert_allclose(analyticals2, numericals, rtol=1e-7)

@@ -27,7 +27,8 @@ from sys import float_info
 from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye
 from functools import wraps
 
-__all__ = ['isclose', 'horner', 'horner_and_der', 'chebval', 'interp',
+__all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
+           'chebval', 'interp',
            'linspace', 'logspace', 'cumsum', 'diff',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 'secant',
@@ -42,6 +43,9 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'chebval', 'interp',
            'polyder',
            'OscillationError', 'UnconvergedError', 'caching_decorator',
            'damping_maintain_sign', 'oscillation_checking_wrapper',
+           'trunc_exp', 'trunc_log', 'fit_integral_linear_extrapolation', 
+           'fit_integral_over_T_linear_extrapolation',
+           'best_fit_integral_value', 'best_fit_integral_over_T_value',
            ]
 
 nan = float("nan")
@@ -96,6 +100,23 @@ four_thirds = 4.0/3.0
 root_three = (3.0)**0.5
 one_27 = 1.0/27.0
 complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
+
+def trunc_exp(x):
+    try:
+        return exp(x)
+    except OverflowError:
+        # Really exp(709.7) 1.6549840276802644e+308
+        return 1e30
+
+def trunc_log(x):
+    try:
+        return log(x)
+    except ValueError as e:
+        if x == 0:
+            # -30 is like log(1e-14) but the real answer is ~log(1e-300) = -690.7
+            return -670.0
+        else:
+            raise e
 
 from cmath import sqrt as csqrt
 def roots_cubic_a1(b, c, d):
@@ -761,6 +782,7 @@ def horner(coeffs, x):
         tot = tot*x + c
     return tot
 
+
 def horner_and_der(coeffs, x):
     # Coefficients in same order as for horner
     f = 0.0
@@ -769,6 +791,15 @@ def horner_and_der(coeffs, x):
         der = x*der + f
         f = x*f + a
     return (f, der)
+
+def horner_and_der2(coeffs, x):
+    # Coefficients in same order as for horner
+    f, der, der2 = 0.0, 0.0, 0.0
+    for a in coeffs:
+        der2 = x*der2 + der
+        der = x*der + f
+        f = x*f + a
+    return (f, der, der2 + der2)
 
 
 def polyder(c, m=1, scl=1, axis=0):
@@ -865,6 +896,28 @@ def fit_integral_linear_extrapolation(T1, T2, int_coeffs, Tmin, Tmax,
         return -tot
     return tot
 
+def best_fit_integral_value(T, int_coeffs, Tmin, Tmax, Tmin_value, Tmax_value, 
+                            Tmin_slope, Tmax_slope):
+    # Can still save 1 horner evaluation (all of them for hight T), but will be VERY messy.
+    if T < Tmin:
+        x1 = Tmin_value - Tmin_slope*Tmin
+        tot = T*(0.5*Tmin_slope*T + x1)
+        return tot
+    if (Tmin <= T <= Tmax):
+        tot1 = horner(int_coeffs, T) - horner(int_coeffs, Tmin)
+        x1 = Tmin_value - Tmin_slope*Tmin
+        tot = Tmin*(0.5*Tmin_slope*Tmin + x1)
+        return tot + tot1
+    else:        
+        x1 = Tmin_value - Tmin_slope*Tmin
+        tot = Tmin*(0.5*Tmin_slope*Tmin + x1)
+
+        tot1 = horner(int_coeffs, Tmax) - horner(int_coeffs, Tmin)
+        
+        x1 = Tmax_value - Tmax_slope*Tmax
+        tot2 = T*(0.5*Tmax_slope*T + x1) - Tmax*(0.5*Tmax_slope*Tmax + x1)
+        return tot1 + tot + tot2
+
 def fit_integral_over_T_linear_extrapolation(T1, T2, T_int_T_coeffs,
                                             best_fit_log_coeff, Tmin, Tmax, 
                                       Tmin_value, Tmax_value, 
@@ -892,6 +945,30 @@ def fit_integral_over_T_linear_extrapolation(T1, T2, T_int_T_coeffs,
         return -tot
     return tot
 
+
+def best_fit_integral_over_T_value(T, T_int_T_coeffs, best_fit_log_coeff,
+                                   Tmin, Tmax, Tmin_value, Tmax_value, 
+                                   Tmin_slope, Tmax_slope):
+    if T < Tmin:
+        x1 = Tmin_value - Tmin_slope*Tmin
+        tot = (Tmin_slope*T + x1*log(T))
+        return tot
+    if (Tmin <= T <= Tmax):
+        tot1 = (horner_log(T_int_T_coeffs, best_fit_log_coeff, T) 
+                    - horner_log(T_int_T_coeffs, best_fit_log_coeff, Tmin))
+
+        x1 = Tmin_value - Tmin_slope*Tmin
+        tot = (Tmin_slope*Tmin + x1*log(Tmin))
+        return tot + tot1
+    else:        
+        x1 = Tmin_value - Tmin_slope*Tmin
+        tot = (Tmin_slope*Tmin + x1*log(Tmin))
+
+        tot1 = (horner_log(T_int_T_coeffs, best_fit_log_coeff, Tmax) 
+                    - horner_log(T_int_T_coeffs, best_fit_log_coeff, Tmin))
+        x2 = Tmax_value -Tmax*Tmax_slope
+        tot2 = (-Tmax_slope*(Tmax - T) + x2*log(T) - x2*log(Tmax))
+        return tot1 + tot + tot2
 
 def chebval(x, c):    
     # Pure Python implementation of numpy.polynomial.chebyshev.chebval
