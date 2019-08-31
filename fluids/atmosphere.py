@@ -678,10 +678,13 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     # Needed by hwm14
     os.environ["HWMPATH"] = os.path.join(os.path.dirname(__file__), 'optional')
     try:
-        import optional.hwm14
+        try:
+            from .optional import hwm14
+        except:
+            import optional.hwm14
     except: # pragma: no cover
         raise ImportError(no_gfortran_error)
-    ans = optional.hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
+    ans = hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
                0, np.array([np.nan, geomagnetic_disturbance_index]))
     return tuple(ans.tolist())
 

@@ -1000,13 +1000,20 @@ def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
 
 
 # Third octave center frequency fi Hz
-fis_l_2015 = [12.5, 16, 20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 
-              315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 
-              4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000]
+fis_l_2015 = [12.5, 16, 20, 25, 31.5, 40.0, 50.0, 63.0, 80.0, 100.0, 125.0, 
+              160.0, 200.0, 250.0, 315.0, 400.0, 500.0, 630.0, 800.0, 1000.0, 
+              1250.0, 1600.0, 2000.0, 2500.0, 3150.0, 4000.0, 5000.0, 6300.0, 
+              8000.0, 10000.0, 12500.0, 16000.0, 20000.0]
+fis_l_2015_inv = [1.0/fi for fi in fis_l_2015]
+fis_l_2015_1_5 = [fi**1.5 for fi in fis_l_2015]
+fis_l_2015_n1_5 = [fi**-1.5 for fi in fis_l_2015]
+fis_length = 33
+
+
 # dLa(fi), dB
 A_weights_l_2015 = [-63.4, -56.7, -50.5, -44.7, -39.4, -34.6, -30.2, -26.2, 
                     -22.5, -19.1, -16.1, -13.4, -10.9, -8.6, -6.6, -4.8, -3.2, 
-                    -1.9, -0.8, 0, 0.6, 1, 1.2, 1.3, 1.2, 1, 0.5, -0.1, -1.1, 
+                    -1.9, -0.8, 0.0, 0.6, 1, 1.2, 1.3, 1.2, 1, 0.5, -0.1, -1.1, 
                     -2.5, -4.3, -6.6, -9.3]
 
 
@@ -1132,11 +1139,16 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     f_p_turb = Stp*Uvc/Dj
     
     if cavitating:
-        f_p_cav = 6*f_p_turb*((1.0 - xF)/(1.0 - xFzp1))**2*(xFzp1/xF)**2.5
+        f_p_cav = 6.0*f_p_turb*((1.0 - xF)/(1.0 - xFzp1))**2*(xFzp1/xF)**2.5
         f_p_cav_inv = 1.0/f_p_cav
+        f_p_cav_inv_1_5 = f_p_cav_inv**1.5
+        f_p_cav_inv_1_5_1_4 = 0.25*f_p_cav_inv_1_5
+        f_p_cav_1_5 = 1.0/f_p_cav_inv_1_5
         eta_denom = 1.0/(eta_turb + eta_cav)
         t1 = eta_turb*eta_denom
         t2 = eta_cav*eta_denom
+        log10_t1 = log10(t1)
+        
 
     fr = c_pipe/(pi*Di)    
     fr_inv = 1.0/fr
@@ -1153,23 +1165,26 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     
     f_p_turb_inv = 1.0/f_p_turb
     
+    fr_inv_1_5 = fr_inv**1.5
     
     
-    for fi, A in zip(fis_l_2015, A_weights_l_2015):
-        fi_inv = 1.0/fi
-        fi_turb_ratio = fi*f_p_turb_inv
+#    for i in range(fis_length):
+    for fi, fi_inv, fi_1_5, fi_1_5_inv, A in zip(fis_l_2015, fis_l_2015_inv, fis_l_2015_1_5, fis_l_2015_n1_5, A_weights_l_2015):
+#        fi_inv = 1.0/fi
+        fi_turb_ratio = fis_l_2015[i]*f_p_turb_inv
+#        fi_turb_ratio = fi*f_p_turb_inv
         F_turb = -8.0 - 10.0*log10(0.25*fi_turb_ratio*fi_turb_ratio*fi_turb_ratio
                                    + fi_inv*f_p_turb) 
 #        F_turbs.append(F_turb)
         if cavitating:
-            fi_cav_ratio = (fi*f_p_cav_inv)**1.5
-            F_cav = -9.0 - 10.0*log10(0.25*fi_cav_ratio + 1.0/fi_cav_ratio)
-            LPif = (Lpi + 10.0*log10(t1*10.0**(0.1*F_turb)
-                    + t2*10.0**(0.1*F_cav)))
+#            fi_cav_ratio = fi_1_5*f_p_cav_inv_1_5#   (fi*f_p_cav_inv)**1.5
+            F_cav = -9.0 - 10.0*log10(f_p_cav_inv_1_5_1_4*fi_1_5 + fi_1_5_inv*f_p_cav_1_5) # 1.0/fi_cav_ratio, fi_1_5_inv*f_p_cav_1_5
+            LPif = (Lpi + 10.0*log10(t1*10.0**(0.1*F_turb)  + t2*10.0**(0.1*F_cav)))
+            # Shoule be able to save 1 power in the above function somehow, combine the tow terms in exponent
         else:
             LPif = Lpi + F_turb
 #        LPis.append(LPif)
-        TL_fi = TL_fr - 20.0*log10((fr*fi_inv) + (fi*fr_inv)**1.5)
+        TL_fi = TL_fr - 20.0*log10(fr*fi_inv + fi_1_5*fr_inv_1_5) #  (fi*fr_inv)**1.5
 #        TL_fis.append(TL_fi)
         
         L_pe1m_fi = LPif + TL_fi + t3
