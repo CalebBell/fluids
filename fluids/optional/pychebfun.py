@@ -36,6 +36,9 @@ from scipy import linalg
 
 from scipy.interpolate import BarycentricInterpolator as Bary
 import numpy.polynomial as poly
+from numpy.polynomial.chebyshev import cheb2poly
+from numpy.polynomial.polynomial import Polynomial
+
 import scipy.fftpack as fftpack
 
 import sys
@@ -43,7 +46,6 @@ emach = sys.float_info.epsilon # machine epsilon
 
 
 def chebfun_to_poly(fun, text=False):
-    from numpy.polynomial.chebyshev import cheb2poly
     low, high = fun._domain
     # Reverse the coefficients, and use cheb2poly to make it in the polynomial domain
     poly_coeffs = cheb2poly(fun.coefficients())[::-1].tolist()
@@ -56,6 +58,24 @@ def chebfun_to_poly(fun, text=False):
     s += 'horner(coeffs, %.18g*(x - %.18g))' %(2.0/delta, 0.5*delta_sum)
     # return the string
     return s
+
+def cheb_to_poly(coeffs_or_fun, domain=None):
+    '''Just call horner on the outputs!
+    '''
+    from fluids.numerics import horner as horner_poly
+    
+    if isinstance(coeffs_or_fun, Chebfun):
+        coeffs = coeffs_or_fun.coefficients()
+        domain = coeffs_or_fun._domain
+    else:
+        coeffs = coeffs_or_fun
+
+    low, high = domain
+    coeffs = cheb2poly(coeffs)[::-1].tolist() # Convert to polynomial basis
+    # Mix in limits to make it a normal polynomial
+    my_poly = Polynomial([-0.5*(high + low)*2.0/(high - low), 2.0/(high - low)])
+    poly_coeffs = horner_poly(coeffs, my_poly).coef[::-1].tolist()
+    return poly_coeffs
 
 
 def cheb_range_simplifier(low, high, text=False):

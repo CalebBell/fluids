@@ -149,6 +149,35 @@ class ATMOSPHERE_1976(object):
        http://www.dtic.mil/cgi-bin/GetTRDoc?AD=ADA588839
     '''
     R = 8314.32
+
+    def __init__(self, Z, dT=0.0):
+        self.Z = Z
+        self.dT = dT
+        self.H = r0*Z/(r0+Z)
+
+        i = self._get_ind_from_H(self.H)
+        self.T_layer = T_std[i]
+        self.T_increase = T_grad[i]
+        self.P_layer = P_std[i]
+        self.H_layer = H_std[i]
+
+        self.H_above_layer = self.H - self.H_layer
+        self.T = self.T_layer + self.T_increase*self.H_above_layer
+
+        if self.T_increase == 0:
+            self.P = self.P_layer*exp(-g0*M0*(self.H_above_layer)/(self.R*self.T_layer))
+        else:
+            self.P = self.P_layer*(self.T_layer/self.T)**(g0*M0/(self.R*self.T_increase))
+
+        # Affects only the following properties
+        self.T += dT
+            
+            
+        self.rho = self.density(self.T, self.P)
+        self.v_sonic = self.sonic_velocity(self.T)
+        self.mu = self.viscosity(self.T)
+        self.k = self.thermal_conductivity(self.T)
+        self.g = self.gravity(self.Z)
     
     @staticmethod
     def _get_ind_from_H(H):
@@ -267,7 +296,8 @@ class ATMOSPHERE_1976(object):
         -------
         g : float
             Acceleration due to gravity, [m/s^2]
-        '''        
+        '''
+        
         return g0*(r0/(r0+Z))**2
 
     @staticmethod
@@ -310,34 +340,6 @@ class ATMOSPHERE_1976(object):
         from scipy.integrate import quad
         return float(quad(to_int, H_ref, H_ref+dH)[0])
 
-    def __init__(self, Z, dT=0):
-        self.Z = Z
-        self.dT = dT
-        self.H = r0*self.Z/(r0+self.Z)
-
-        i = self._get_ind_from_H(self.H)
-        self.T_layer = T_std[i]
-        self.T_increase = T_grad[i]
-        self.P_layer = P_std[i]
-        self.H_layer = H_std[i]
-
-        self.H_above_layer = self.H - self.H_layer
-        self.T = self.T_layer + self.T_increase*self.H_above_layer
-
-        if self.T_increase == 0:
-            self.P = self.P_layer*exp(-g0*M0*(self.H_above_layer)/self.R/self.T_layer)
-        else:
-            self.P = self.P_layer*(self.T_layer/self.T)**(g0*M0/self.R/self.T_increase)
-
-        if dT: # Affects only the following properties
-            self.T += dT
-            
-            
-        self.rho = self.density(self.T, self.P)
-        self.v_sonic = self.sonic_velocity(self.T)
-        self.mu = self.viscosity(self.T)
-        self.k = self.thermal_conductivity(self.T)
-        self.g = self.gravity(self.Z)
     
 
 class ATMOSPHERE_NRLMSISE00(object):

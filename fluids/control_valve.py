@@ -1168,29 +1168,27 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     fr_inv_1_5 = fr_inv**1.5
     
     
-#    for i in range(fis_length):
-    for fi, fi_inv, fi_1_5, fi_1_5_inv, A in zip(fis_l_2015, fis_l_2015_inv, fis_l_2015_1_5, fis_l_2015_n1_5, A_weights_l_2015):
+    for i in range(fis_length):
+#    for fi, fi_inv, fi_1_5, fi_1_5_inv, A in zip(fis_l_2015, fis_l_2015_inv, fis_l_2015_1_5, fis_l_2015_n1_5, A_weights_l_2015):
 #        fi_inv = 1.0/fi
         fi_turb_ratio = fis_l_2015[i]*f_p_turb_inv
 #        fi_turb_ratio = fi*f_p_turb_inv
         F_turb = -8.0 - 10.0*log10(0.25*fi_turb_ratio*fi_turb_ratio*fi_turb_ratio
-                                   + fi_inv*f_p_turb) 
+                                   + fis_l_2015_inv[i]*f_p_turb) 
 #        F_turbs.append(F_turb)
         if cavitating:
 #            fi_cav_ratio = fi_1_5*f_p_cav_inv_1_5#   (fi*f_p_cav_inv)**1.5
-            F_cav = -9.0 - 10.0*log10(f_p_cav_inv_1_5_1_4*fi_1_5 + fi_1_5_inv*f_p_cav_1_5) # 1.0/fi_cav_ratio, fi_1_5_inv*f_p_cav_1_5
+            F_cav = -9.0 - 10.0*log10(f_p_cav_inv_1_5_1_4*fis_l_2015_1_5[i] + fis_l_2015_n1_5[i]*f_p_cav_1_5) # 1.0/fi_cav_ratio, fi_1_5_inv*f_p_cav_1_5
             LPif = (Lpi + 10.0*log10(t1*10.0**(0.1*F_turb)  + t2*10.0**(0.1*F_cav)))
             # Shoule be able to save 1 power in the above function somehow, combine the tow terms in exponent
         else:
             LPif = Lpi + F_turb
 #        LPis.append(LPif)
-        TL_fi = TL_fr - 20.0*log10(fr*fi_inv + fi_1_5*fr_inv_1_5) #  (fi*fr_inv)**1.5
+        TL_fi = TL_fr - 20.0*log10(fr*fis_l_2015_inv[i] + fis_l_2015_1_5[i]*fr_inv_1_5) #  (fi*fr_inv)**1.5
 #        TL_fis.append(TL_fi)
-        
         L_pe1m_fi = LPif + TL_fi + t3
 #        L_pe1m_fis.append(L_pe1m_fi)
-        
-        LpAe1m_sum += 10.0**(0.1*(L_pe1m_fi + A))
+        LpAe1m_sum += 10.0**(0.1*(L_pe1m_fi + A_weights_l_2015[i]))
     LpAe1m = 10.0*log10(LpAe1m_sum)
     return LpAe1m
 

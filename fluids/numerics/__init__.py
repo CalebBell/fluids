@@ -46,6 +46,9 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'trunc_exp', 'trunc_log', 'fit_integral_linear_extrapolation', 
            'fit_integral_over_T_linear_extrapolation',
            'best_fit_integral_value', 'best_fit_integral_over_T_value',
+           'evaluate_linear_fits', 'evaluate_linear_fits_d',
+           'evaluate_linear_fits_d2'
+           
            ]
 
 nan = float("nan")
@@ -970,6 +973,53 @@ def best_fit_integral_over_T_value(T, T_int_T_coeffs, best_fit_log_coeff,
         tot2 = (-Tmax_slope*(Tmax - T) + x2*log(T) - x2*log(Tmax))
         return tot1 + tot + tot2
 
+
+
+def evaluate_linear_fits(data, x):
+    calc = []
+    low_limits, high_limits, coeffs = data[0], data[3], data[6]
+    for i in range(len(data[0])):
+        if x < low_limits[i]:
+            v = (x - low_limits[i])*data[1][i] + data[2][i]
+        elif x > high_limits[i]:
+            v = (x - high_limits[i])*data[4][i] + data[5][i]
+        else:
+            v = 0.0
+            for c in coeffs[i]:
+                v = v*x + c
+#               v = horner(coeffs[i], x)
+        calc.append(v)
+    return calc
+
+
+def evaluate_linear_fits_d(data, x):
+    calc = []
+    low_limits, high_limits, dcoeffs = data[0], data[3], data[7]
+    for i in range(len(data[0])):
+        if x < low_limits[i]:
+            dv = data[1][i]
+        elif x > high_limits[i]:
+            dv = data[4][i]
+        else:
+            dv = 0.0
+            for c in dcoeffs[i]:
+                dv = dv*x + c
+        calc.append(dv)
+    return calc
+
+
+def evaluate_linear_fits_d2(data, x):
+    calc = []
+    low_limits, high_limits, d2coeffs = data[0], data[3], data[8]
+    for i in range(len(data[0])):
+        d2v = 0.0
+        if low_limits[i] < x < high_limits[i]:
+            for c in d2coeffs[i]:
+                d2v = d2v*x + c
+        calc.append(d2v)
+    return calc
+
+
 def chebval(x, c):    
     # Pure Python implementation of numpy.polynomial.chebyshev.chebval
     # This routine is faster in CPython as well as PyPy
@@ -1472,11 +1522,11 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
     # Are we already converged on either point? Do not consider checking xtol 
     # if so.
     q0 = func(p0, *args)
-    if ytol is not None and abs(q0) < ytol:
+    if ytol is not None and abs(q0) < ytol or q0 == 0.0:
         return p0
     
     q1 = func(p1, *args, **kwargs)
-    if ytol is not None and abs(q1) < ytol:
+    if ytol is not None and abs(q1) < ytol or q1 == 0.0:
         return p1
 
     for _ in range(maxiter):        
@@ -1535,7 +1585,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
     '''Newton's method designed to be mostly compatible with SciPy's 
     implementation, with a few features added and others now implemented.
     
-    1) No tracking ofo how many iterations have progressed.
+    1) No tracking of how many iterations have progressed.
     2) No ability to return a RootResults object
     3) No warnings on some cases of bad input ( low tolerance, no iterations)
     4) Ability to accept True for either fprime or fprime2, which means that

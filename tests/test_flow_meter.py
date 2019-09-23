@@ -567,9 +567,9 @@ def test_fuzz_K_to_discharge_coefficient():
     print(latex(solve(expr, C)[3]))
     '''
     
-    Ds = np.logspace(np.log10(1-1E-9), np.log10(1E-9))
+    Ds = np.logspace(np.log10(1-1E-9), np.log10(1E-9), 8)
     for D_ratio in Ds:
-        Ks = np.logspace(np.log10(1E-9), np.log10(50000))
+        Ks = np.logspace(np.log10(1E-9), np.log10(50000), 8)
         Ks_recalc = []
         for K in Ks:
             C = K_to_discharge_coefficient(D=1, Do=D_ratio, K=K)
