@@ -104,12 +104,12 @@ root_three = (3.0)**0.5
 one_27 = 1.0/27.0
 complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
 
-def trunc_exp(x):
+def trunc_exp(x, trunc=1e30):
     try:
         return exp(x)
     except OverflowError:
         # Really exp(709.7) 1.6549840276802644e+308
-        return 1e30
+        return trunc
 
 def trunc_log(x):
     try:

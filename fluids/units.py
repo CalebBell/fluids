@@ -135,7 +135,10 @@ def check_args_order(func):
     
     
 def match_parse_units(doc, i=-1):
-    matches = match_units.findall(doc)
+    if doc is None:
+        matches = ['[]']
+    else:
+        matches = match_units.findall(doc)
     if len(matches) == 0:
         # If there is no unit listed, assume it's dimensionless (probably a string)
         matches = ['[]']
@@ -361,12 +364,12 @@ def wrap_numpydoc_obj(obj_to_wrap):
     for i in dir(obj_to_wrap):
         attr = getattr(obj_to_wrap, i)
         if isinstance(attr, types.FunctionType) or isinstance(attr, types.MethodType) or type(attr) == property:
-            if type(attr) == property:
+            if type(attr) is property:
                 name = attr.fget.__name__
             else:
                 name = attr.__name__
             if hasattr(attr, '__doc__'):
-                if type(attr) == property:
+                if type(attr) is property:
                     property_unit_map[name] = u(match_parse_units(attr.fget.__doc__, i=0))
                 else:
                     parsed = parse_numpydoc_variables_units(attr)
