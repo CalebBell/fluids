@@ -27,6 +27,7 @@ import pytest
 import numpy as np
 from fluids.numerics import *
 from scipy.integrate import quad
+from math import *
 
 def test_horner():
     from fluids.numerics import horner
@@ -310,3 +311,27 @@ def test_fit_integral_linear_extrapolation():
                 analyticals2.append(analytical2)
     assert_allclose(analyticals, numericals, rtol=1e-7)
     assert_allclose(analyticals2, numericals, rtol=1e-7)
+
+
+
+def test_best_bounding_bounds():
+    def to_solve(x):
+        return exp(x) - 100
+
+
+    vals = best_bounding_bounds(0, 5, to_solve, xs_pos=[4.831, 4.6054], ys_pos= [25.38, 0.0288],
+                        xs_neg=[4, 4.533, 4.6051690], ys_neg=[-45.40, -6.933, -0.0001139])
+    assert_allclose(vals, (4.605169, 4.6054, -0.0001139, 0.0288), rtol=1e-12)
+    
+    vals = best_bounding_bounds(4.60517018598, 5, to_solve, xs_pos=[4.831, 4.6054], ys_pos= [25.38, 0.0288],
+                        xs_neg=[4, 4.533, 4.6051690], ys_neg=[-45.40, -6.933, -0.0001139])
+    assert_allclose(vals, (4.60517018598, 4.6054, -8.091802783383173e-10, 0.0288), rtol=1e-12)
+    
+    vals = best_bounding_bounds(0, 4.60517018599, to_solve, xs_pos=[4.831, 4.6054], ys_pos= [25.38, 0.0288],
+                        xs_neg=[4, 4.533, 4.6051690], ys_neg=[-45.40, -6.933, -0.0001139])
+    assert_allclose(vals, (4.605169, 4.60517018599, -0.0001139, 1.908233571157325e-10), rtol=1e-12)
+    
+    vals = best_bounding_bounds(0, 4.60517018599, fa=to_solve(0), fb=to_solve(4.60517018599),
+                                xs_pos=[4.831, 4.6054], ys_pos= [25.38, 0.0288],
+                        xs_neg=[4, 4.533, 4.6051690], ys_neg=[-45.40, -6.933, -0.0001139])
+    assert_allclose(vals, (4.605169, 4.60517018599, -0.0001139, 1.908233571157325e-10), rtol=1e-12)

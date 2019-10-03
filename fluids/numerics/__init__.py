@@ -47,7 +47,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'fit_integral_over_T_linear_extrapolation',
            'best_fit_integral_value', 'best_fit_integral_over_T_value',
            'evaluate_linear_fits', 'evaluate_linear_fits_d',
-           'evaluate_linear_fits_d2'
+           'evaluate_linear_fits_d2',
+           'best_bounding_bounds'
            
            ]
 
@@ -1335,6 +1336,99 @@ class oscillation_checker(object):
         return False
     
     __call__ = is_solve_oscilating
+    
+    
+def best_bounding_bounds(low, high, f=None, xs_pos=None, ys_pos=None, 
+                         xs_neg=None, ys_neg=None, fa=None, fb=None):
+    r'''Given:
+        1) A presumed bracketing interval such as very far out limits on
+           physical bounds
+        2) A history of a non-bounded search algorithm which did not converge
+        
+    Find the best bracketing points which get the algorithm as close to the
+    solution as possible.
+
+    Parameters
+    ----------
+    low : float
+        Low bracketing interval (`f` has oposite sign at `low` than `high`), 
+        [-]
+    high : float
+        High bracketing interval (`f` has oposite sign at `high` than `low`), 
+        [-]
+    f : callable, optional
+        1D function to be solved, [-]
+    xs_pos : list[float]
+        Unsorted list of `x` values of points with positive `y` values 
+        previously evaluated, [-]
+    ys_pos : list[float]
+        Unsorted list of `y` values of points with positive `y` values 
+        previously evaluated, [-]
+    xs_neg : list[float]
+        Unsorted list of `x` values of points with negative `y` values 
+        previously evaluated, [-]
+    ys_neg : list[float]
+        Unsorted list of `y` values of points with negative `y` values 
+        previously evaluated, [-]
+    fa : float, optional
+        Value of function at `low`, used instead of recalculating if provided,
+        [-]
+    fb : float, optional
+        Value of function at `high`, used instead of recalculating if provided,
+        [-]
+        
+    Returns
+    -------
+    low : float
+        Low bracketing interval (`f` has oposite sign at `low` than `high`), 
+        [-]
+    high : float
+        High bracketing interval (`f` has oposite sign at `high` than `low`), 
+        [-]
+    fa : float
+        Value of function at `low`, [-]
+    fb : float, optional
+        Value of function at `high`, [-]
+
+    Notes
+    -----
+    Negative and/or positive history values can be omitted, but both the `x`
+    and `y` lists should be skipped if so.
+    
+    More work could be done to handle better the case if the bounds not 
+    bracketing the root but the function history doing so.
+    '''
+    if fa is None:
+        fa = f(low)
+    if fb is None:
+        fb = f(high)
+
+    if ys_pos:
+        y_min_pos = min(ys_pos)
+        x_min_pos = xs_pos[ys_pos.index(y_min_pos)]
+        
+        if fa > 0:
+            if y_min_pos < fa:
+                fa, low = y_min_pos, x_min_pos
+        else:
+            if y_min_pos < fb:
+                fb, high = y_min_pos, x_min_pos
+                
+    if ys_neg:
+        y_min_neg = max(ys_neg)
+        x_min_neg = xs_neg[ys_neg.index(y_min_neg)]
+
+        if fa < 0:
+            if y_min_neg > fa:
+                fa, low = y_min_neg, x_min_neg
+        else:
+            if y_min_pos > fb:
+                fb, high = y_min_neg, x_min_neg
+
+    if fa*fb > 0:
+        raise ValueError("Bounds and previous history do not contain bracketing points")
+    return low, high, fa, fb
+
 
 def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
               ytol=None, full_output=False, disp=True):
@@ -1503,7 +1597,8 @@ def py_brenth(f, xa, xb, args=(),
 
 
 def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
-           xtol=1.48e-8, ytol=None, x1=None, require_eval=False, kwargs={}):
+           xtol=1.48e-8, ytol=None, x1=None, require_eval=False, 
+           f0=None, f1=None, bisection=False, kwargs={}):
     p0 = 1.0*x0
     # Logic to take a small step to calculate the approximate derivative
     if x1 is not None:
@@ -1521,14 +1616,31 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
             
     # Are we already converged on either point? Do not consider checking xtol 
     # if so.
-    q0 = func(p0, *args)
+    if f0 is None:
+        q0 = func(p0, *args)
+    else:
+        q0 = f0
     if ytol is not None and abs(q0) < ytol or q0 == 0.0:
         return p0
     
-    q1 = func(p1, *args, **kwargs)
+    if f1 is None:
+        q1 = func(p1, *args, **kwargs)
+    else:
+        q1 = f1
     if ytol is not None and abs(q1) < ytol or q1 == 0.0:
         return p1
-
+    
+    if bisection:
+        a, b = None, None
+        if q1 < 0.0:
+            a = p1
+        else:
+            b = p1
+        if q0 < 0.0:
+            a = p0
+        else:
+            b = p0
+    
     for _ in range(maxiter):        
         # Calculate new point, and truncate if necessary
         
@@ -1541,6 +1653,11 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
             p = low
         if high is not None and p > high:
             p = high
+
+        # After computing new point
+        if bisection and a is not None and b is not None:
+            if not (a < p < b) or (b < p < a):
+                p = 0.5*(a + b)
 
         # Check the exit conditions
         if ytol is not None and xtol is not None:
@@ -1571,7 +1688,11 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
         q0 = q1
         p1 = p
         q1 = func(p1, *args, **kwargs)
-
+        if bisection:
+            if q1 < 0.0:
+                a = p1
+            else:
+                b = p1
 
     raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
