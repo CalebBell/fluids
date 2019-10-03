@@ -672,7 +672,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
                     # Choked flow with piping, equation 4
                     C = Q/N1/FLP*(rho/rho0/(P1-FF*Psat))**0.5
                 else:
-                    # Non-Choked flow with piping, equation 4
+                    # Non-Choked flow with piping, equation 5
                     C = Q/N1/FP*(rho/rho0/dP)**0.5
                 if Ci/C < 0.99:
                     C = iterate_piping_turbulent(C)
