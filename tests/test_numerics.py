@@ -36,7 +36,7 @@ def test_horner():
     
     poly = [1.12, 432.32, 325.5342, .235532, 32.235]
     assert_allclose(horner_and_der2(poly, 3.0), (14726.109396, 13747.040732, 8553.7884))
-    
+    assert_allclose(horner_and_der3(poly, 3.0), (14726.109396, 13747.040732, 8553.7884, 2674.56))
     
     
 def test_interp():
@@ -335,3 +335,18 @@ def test_best_bounding_bounds():
                                 xs_pos=[4.831, 4.6054], ys_pos= [25.38, 0.0288],
                         xs_neg=[4, 4.533, 4.6051690], ys_neg=[-45.40, -6.933, -0.0001139])
     assert_allclose(vals, (4.605169, 4.60517018599, -0.0001139, 1.908233571157325e-10), rtol=1e-12)
+    
+    
+def test_is_poly_positive():
+    assert not is_poly_positive([4, 3, 2, 1])
+    for high in range(0, 100, 5):
+        assert is_poly_positive([4, 3, 2, 1], domain=(0, 10**high))
+    
+    coeffs_4alpha = [2.1570803657937594e-10, 2.008831101045556e-06, -0.004656598178209313, 2.8575882247542514]
+    assert not is_poly_positive(coeffs_4alpha)
+    assert is_poly_positive(coeffs_4alpha, domain=(0, 511))
+    assert is_poly_positive(coeffs_4alpha, domain=(-10000, 511))
+    assert not is_poly_positive(coeffs_4alpha, domain=(-20000, 511))
+    assert not is_poly_positive(coeffs_4alpha, domain=(-15000, 511))
+    assert not is_poly_positive(coeffs_4alpha, domain=(-13000, 511))
+    assert not is_poly_positive(coeffs_4alpha, domain=(-11500, 511))

@@ -28,8 +28,9 @@ from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye
 from functools import wraps
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
-           'chebval', 'interp',
+           'horner_and_der3', 'chebval', 'interp',
            'linspace', 'logspace', 'cumsum', 'diff',
+           'is_poly_negative', 'is_poly_positive',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 'secant',
            'splev', 'bisplev', 'derivative', 'jacobian', 'hessian', 
@@ -805,6 +806,49 @@ def horner_and_der2(coeffs, x):
         f = x*f + a
     return (f, der, der2 + der2)
 
+def horner_and_der3(coeffs, x):
+    # Coefficients in same order as for horner
+    # Tested
+    f, der, der2, der3 = 0.0, 0.0, 0.0, 0.0
+    for a in coeffs:
+        der3 = x*der3 + der2
+        der2 = x*der2 + der
+        der = x*der + f
+        f = x*f + a
+    return (f, der, der2 + der2, der3*6.0)
+
+
+def is_poly_positive(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1e-12):
+    # Returns True if positive everywhere in the specified domain (or globally)
+    if domain is None:
+        # 1e-100 to 1e100
+        pts = logspace(-100, 100, rand_pts//2)
+        pts += [-i for i in pts]
+    else:
+        pts = linspace(domain[0], domain[1], rand_pts)
+    
+    for p in pts:
+        if horner(poly, p) < 0.0:
+            return False
+    
+    roots = np.roots(poly)
+    for root in roots:
+        r = root.real
+        if abs(root.imag/r) < j_tol:
+            if (domain is not None) and (r < domain[0] or r > domain[1]):
+                continue
+            eps_high, eps_low = r*(1.0 + root_perturb), r*(1.0 - root_perturb)
+            if horner(poly, eps_high) < 0:
+                return False
+            if horner(poly, eps_low) < 0:
+                return False
+    return True
+
+def is_poly_negative(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1e-12):
+    # Returns True if negative everywhere in the specified domain (or globally)
+    poly = [-i for i in poly]# Changes the sign of all polynomial calculated values
+    return is_poly_positive(poly, domain=domain, rand_pts=rand_pts, j_tol=j_tol, root_perturb=root_perturb)
+
 
 def polyder(c, m=1, scl=1, axis=0):
     '''not quite a copy of numpy's version because this was faster to implement.
@@ -1457,9 +1501,9 @@ def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
         if fm == 0.0:
             return xm
         elif ytol is not None:
-            if (abs_dm < xtol + rtol*abs_dm) and abs(fm) < ytol:
+            if (abs_dm < (xtol + rtol*abs_dm)) and abs(fm) < ytol:
                 return xm
-        elif (abs_dm < xtol + rtol*abs_dm):
+        elif (abs_dm < (xtol + rtol*abs_dm)):
             return xm
     raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
 
@@ -1708,12 +1752,19 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
     
     1) No tracking of how many iterations have progressed.
     2) No ability to return a RootResults object
-    3) No warnings on some cases of bad input ( low tolerance, no iterations)
+    3) No warnings on some cases of bad input (low tolerance, no iterations)
     4) Ability to accept True for either fprime or fprime2, which means that
        they are included in the return value of func
     5) No handling for inf or nan!
+    6) Special handling for functions which need to ensure an evaluation at 
+       the final point
+    7) Damping as a constant or a fraction
+    8) Ability to perform bisection, optionally specifying a maximum range
+    9) Ability to specify minimum and maximum iteration values 
+    10) Ability to specify a tolerance in the `y` direction
+    11) Ability to pass in keyword arguments as well as positional arguments 
     
-    From scipy, with very minor modifications!
+    From scipy, with some modifications!
     https://github.com/scipy/scipy/blob/v1.1.0/scipy/optimize/zeros.py#L66-L206
     '''
     if tol is not None:
