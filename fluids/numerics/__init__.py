@@ -43,6 +43,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'polyint_over_x', 'horner_log', 'polyint', 'chebder',
            'polyder',
            'OscillationError', 'UnconvergedError', 'caching_decorator',
+           'NoSolutionError',
            'damping_maintain_sign', 'oscillation_checking_wrapper',
            'trunc_exp', 'trunc_log', 'fit_integral_linear_extrapolation', 
            'fit_integral_over_T_linear_extrapolation',
@@ -1264,6 +1265,11 @@ class UnconvergedError(Exception):
     '''Error raised when maxiter has been reached in an optimization problem.
     '''
 
+
+class NoSolutionError(Exception):
+    '''Error raised when detected that there is no actual solution to a problem.
+    '''
+
 def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
     '''Famping function which will maintain the sign of the variable being
     manipulated. If the step puts it at the other sign, the distance between
@@ -1307,9 +1313,10 @@ def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
 
 
 def oscillation_checking_wrapper(f, minimum_progress=0.3, 
-                                 both_sides=False, full=True):
+                                 both_sides=False, full=True,
+                                 good_err=None):
     checker = oscillation_checker(minimum_progress=minimum_progress,
-                                 both_sides=both_sides)
+                                 both_sides=both_sides, good_err=good_err)
     @wraps(f)
     def wrapper(x, *args, **kwargs):
         err_test = err = f(x, *args, **kwargs)
@@ -1330,7 +1337,7 @@ def oscillation_checking_wrapper(f, minimum_progress=0.3,
 
 
 class oscillation_checker(object):    
-    def __init__(self, minimum_progress=0.3, both_sides=False):
+    def __init__(self, minimum_progress=0.3, both_sides=False, good_err=None):
         self.minimum_progress = minimum_progress
         self.both_sides = both_sides
         self.xs_neg = []
@@ -1338,6 +1345,11 @@ class oscillation_checker(object):
         
         self.ys_neg = []
         self.ys_pos = []
+
+        # Provide a number that if the error is under this, no longer be able to return False
+        # For example, near phase boundaries newton could be bisecting as it overshoots
+        # each step, but is still converging fine
+        self.good_err = good_err
         
     def clear(self):
         self.xs_neg = []
@@ -1352,7 +1364,7 @@ class oscillation_checker(object):
         xs_neg, xs_pos, ys_neg, ys_pos = self.xs_neg, self.xs_pos, self.ys_neg, self.ys_pos
         minimum_progress = self.minimum_progress
         
-        if y < 0:
+        if y < 0.0:
             xs_neg.append(x)
             ys_neg.append(y)
         else:
@@ -1373,9 +1385,13 @@ class oscillation_checker(object):
 #            print(gain_pos, gain_neg, y)
             if self.both_sides:
                 if gain_pos < minimum_progress and gain_neg < minimum_progress:
+                    if self.good_err is not None and min(abs(ys_neg[-1]), abs(ys_pos[-1])) < self.good_err:
+                        return False
                     return True
             else:
                 if gain_pos < minimum_progress or gain_neg < minimum_progress:
+                    if self.good_err is not None and min(abs(ys_neg[-1]), abs(ys_pos[-1])) < self.good_err:
+                        return False
                     return True
         return False
     
@@ -1582,6 +1598,9 @@ def py_brenth(f, xa, xb, args=(),
             xblk = xpre
             fblk = fpre
             spre = scur = xcur - xpre
+        # Breaks a bunch of tests
+#        if fpre == fcur:
+#            raise UnconvergedError("Failed to converge - reached equal points after %d iterations" %i)
         if abs(fblk) < abs(fcur):
             xpre = xcur
             xcur = xblk
@@ -1798,7 +1817,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
                     a = p0
 #                    f_a = fval
                 else:
-                    b = p0
+                    b = p0 # b always has positive value of error
 #                    f_b = fval
             
             fder_inv = 1.0/fder
