@@ -1992,7 +1992,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         K_2 = K_{fr,2} + K_{conv,2}
         
     .. math::
-        K_{fr,2} = \frac{f_d}{1 - \beta^4}{8\sin(\theta/2)}
+        K_{fr,2} = \frac{f_d ({1 - \beta^4})}{8\sin(\theta/2)}
         
     .. math::
         K_{conv,2} = 0.0696[1+C_B(\sin(\alpha/2)-1)](1-\beta^5)\lambda^2 + (\lambda-1)^2

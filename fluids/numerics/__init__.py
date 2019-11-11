@@ -1270,6 +1270,11 @@ class NoSolutionError(Exception):
     '''Error raised when detected that there is no actual solution to a problem.
     '''
 
+class NotBoundedError(Exception):
+    '''Error raised when a bisection type algorithm fails because its initial
+    bounds do not bound the solution.
+    '''
+
 def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
     '''Famping function which will maintain the sign of the variable being
     manipulated. If the step puts it at the other sign, the distance between
@@ -1587,7 +1592,7 @@ def py_brenth(f, xa, xb, args=(),
         fcur = fb
 
     if fpre*fcur > 0.0:
-        raise ValueError("f(a) and f(b) must have different signs") 
+        raise NotBoundedError("f(a) and f(b) must have different signs") 
     elif fpre == 0.0:
         return xa
     elif fcur == 0.0:
@@ -1730,7 +1735,7 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
                     return p1
                 return p
         elif xtol is not None:
-            if abs(p0 - p1) <= abs(xtol*p0):
+            if abs(p0 - p1) <= abs(xtol*p0) and not (p0 == p1 and (p0 == low or p0 == high)):
                 if require_eval:
                     return p1
                 return p
