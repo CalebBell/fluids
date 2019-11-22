@@ -1274,7 +1274,11 @@ class NotBoundedError(Exception):
     '''Error raised when a bisection type algorithm fails because its initial
     bounds do not bound the solution.
     '''
-
+class DiscontinuityError(Exception):
+    '''Error raised when a bisection type algorithm fails because there is a 
+    discontinuity.
+    '''
+    
 def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
     '''Famping function which will maintain the sign of the variable being
     manipulated. If the step puts it at the other sign, the distance between
@@ -1496,7 +1500,8 @@ def best_bounding_bounds(low, high, f=None, xs_pos=None, ys_pos=None,
 
 
 def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
-              ytol=None, full_output=False, disp=True):
+              ytol=None, full_output=False, disp=True, gap_detection=False,
+              dy_dx_limit=1e100):
     '''Port of SciPy's C bisect routine.
     '''
     fa = f(a, *args)
@@ -1526,11 +1531,16 @@ def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
                 return xm
         elif (abs_dm < (xtol + rtol*abs_dm)):
             return xm
+        elif gap_detection:
+            dy_dx = abs((fm - fa)/(a-b))
+            if dy_dx > dy_dx_limit:
+                raise DiscontinuityError("Discontinuity detected")
+            
     raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
 
 
 def py_ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
-           full_output=False, disp=True):
+              full_output=False, disp=True):
     a_abs, b_abs = fabs(a), fabs(b)
     tol = xtol + rtol*(a_abs if a_abs < b_abs else b_abs)
     
@@ -1666,7 +1676,7 @@ def py_brenth(f, xa, xb, args=(),
 
 def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
            xtol=1.48e-8, ytol=None, x1=None, require_eval=False, 
-           f0=None, f1=None, bisection=False, kwargs={}):
+           f0=None, f1=None, bisection=False, same_tol=1.0, kwargs={}):
     p0 = 1.0*x0
     # Logic to take a small step to calculate the approximate derivative
     if x1 is not None:
@@ -1747,6 +1757,29 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
         
         # Check to quit after convergence check - may meet criteria 
         if q1 == q0:
+            # Are we close enough? Run the checks again
+            if xtol is not None:
+                xtol *= same_tol
+            if ytol is not None:
+                ytol *= same_tol
+
+            if ytol is not None and xtol is not None:
+                # Meet both tolerance - new value is under ytol, and old value
+                if abs(p0 - p1) <= abs(xtol * p0) and abs(q1) < ytol:
+                    if require_eval:
+                        return p1
+                    return p
+            elif xtol is not None:
+                if abs(p0 - p1) <= abs(xtol * p0) and not (p0 == p1 and (p0 == low or p0 == high)):
+                    if require_eval:
+                        return p1
+                    return p
+            elif ytol is not None:
+                if abs(q1) < ytol:
+                    if require_eval:
+                        return p1
+                    return p
+
             # Cannot proceed, raise an error
             raise ValueError("Convergence failed - previous points are the same (%g at %g, %g at %g)"%(q1, p1, q0, p0) )
             
@@ -1769,7 +1802,7 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
 def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
               fprime2=None, low=None, high=None, damping=1.0, ytol=None,
               xtol=1.48e-8, require_eval=False, damping_func=None,
-              bisection=False,
+              bisection=False, gap_detection=False, dy_dx_limit=1e100,
               kwargs={}):
     '''Newton's method designed to be mostly compatible with SciPy's 
     implementation, with a few features added and others now implemented.
@@ -1798,6 +1831,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
 #    fval0 = None
     if bisection:
         a, b = None, None
+        fa, fb = None, None
     if fprime is not None:
         fprime2_included = fprime2 == True
         fprime_included = fprime == True
@@ -1820,10 +1854,10 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
             if bisection:
                 if fval < 0.0:
                     a = p0
-#                    f_a = fval
+                    fa = fval
                 else:
                     b = p0 # b always has positive value of error
-#                    f_b = fval
+                    fb = fval
             
             fder_inv = 1.0/fder
             # Compute the next point
@@ -1848,7 +1882,11 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
 #                else:
 #                    if p > b:
 #                        p = 0.5*(a + b)
-            
+                    if gap_detection:
+                        # Change in function value required to get goal in worst case
+                        dy_dx = abs((fa- fb)/(a-b))
+                        if dy_dx > dy_dx_limit: #or dy_dx > abs(fder)*10:
+                            raise DiscontinuityError("Discontinuity detected")
                 
             if low is not None and p < low:
                 p = low

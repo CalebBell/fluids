@@ -36,7 +36,7 @@ from scipy import linalg
 
 from scipy.interpolate import BarycentricInterpolator as Bary
 import numpy.polynomial as poly
-from numpy.polynomial.chebyshev import cheb2poly
+from numpy.polynomial.chebyshev import cheb2poly, Chebyshev
 from numpy.polynomial.polynomial import Polynomial
 
 import scipy.fftpack as fftpack
@@ -44,6 +44,32 @@ import scipy.fftpack as fftpack
 import sys
 emach = sys.float_info.epsilon # machine epsilon
 
+
+def build_pychebfun(f, domain, N=15):
+    fvec = lambda xs: [f(xi) for xi in xs]
+    return chebfun(f=fvec, domain=domain, N=N)
+
+
+def build_solve_pychebfun(f, goal, domain, N=15, N_max=100, find_roots=2):
+    cache = {}
+    def cached_fun(x):
+        # Almost half the points are cached!
+        if x in cache:
+            return cache[x]
+        val = f(x)
+        cache[x] = val
+        return val
+    
+    fun = build_pychebfun(cached_fun, domain, N=N)
+    roots = (fun - goal).roots()
+    
+    while (len(roots) < find_roots and len(fun._values) < N_max):
+        N *= 2
+        fun = build_pychebfun(cached_fun, domain, N=N)
+        roots = (fun - goal).roots()
+        roots = [i for i in roots if domain[0] < i < domain[1]]
+        
+    return roots, fun
 
 def chebfun_to_poly(fun, text=False):
     low, high = fun._domain
@@ -534,12 +560,18 @@ class Chebfun(Polyfun):
             scaled_roots = self._ui_to_ab(np.array(roots))
             return scaled_roots
         else:
-            # divide at a close-to-zero split-point
-            split_point = self._ui_to_ab(0.0123456789)
-            return np.concatenate(
-                (self.restrict([self._domain[0],split_point]).roots(),
-                 self.restrict([split_point,self._domain[1]]).roots())
-            )
+            try:
+                # divide at a close-to-zero split-point
+                split_point = self._ui_to_ab(0.0123456789)
+                return np.concatenate(
+                    (self.restrict([self._domain[0],split_point]).roots(),
+                     self.restrict([split_point,self._domain[1]]).roots()))
+            except:
+                # Seems to have many fake roots for high degree fits
+                coeffs = self.coefficients()
+                domain = self._domain
+                possibilities =  Chebyshev(coeffs, domain).roots()
+                return np.array([float(i.real) for i in possibilities if i.imag == 0.0])
 
     # ----------------------------------------------------------------
     # Interpolation and evaluation (go from values to coefficients)
@@ -717,6 +749,8 @@ for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh
 # ----------------------------------------------------------------
 # Constructor inspired by the Matlab version
 # ----------------------------------------------------------------
+
+
 
 def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
     """

@@ -395,6 +395,10 @@ def test_geometry_tank():
         # Test sides specified with V solving
         TANK(V=10, L=10, sideA='conical', sideB_a=0.5)
    
+def test_TANK_issues():
+    # GH issue 31
+    Tk = TANK(L=3, D=5, horizontal=False,  sideA='torispherical', sideA_f=1, sideA_k=0.1, sideB='torispherical', sideB_f=1, sideB_k=0.1) #DIN28011
+    assert_allclose(Tk.V_total, Tk.V_from_h(Tk.h_max*.9999999999), rtol=1e-12)
      
 def assert_TANKs_equal(T1, T2):
     for k, v in T1.__dict__.items():

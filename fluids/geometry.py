@@ -120,6 +120,8 @@ def V_partial_sphere(D, h):
     ----------
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
        http://mathworld.wolfram.com/SphericalCap.html.'''
+    if h < 0.0:
+        return 0.0
     r = 0.5*D
     a = (h*(2.*r - h))**0.5
     return 1/6.*pi*h*(3.*a*a + h*h)
@@ -203,6 +205,8 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+    if h < 0.0:
+        return 0.0
     R = D/2.
     Af = R*R*acos((R-h)/R) - (R-h)*(2*R*h - h*h)**0.5
     M = abs((R-h)/R)
@@ -259,6 +263,8 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+    if h < 0.0:
+        return 0.0
     R = 0.5*D
     Af = R*R*acos((R-h)/R) - (R-h)*(2*R*h - h*h)**0.5
     Vf = pi*a*h*h*(1 - h/(3.*R))
@@ -308,6 +314,8 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+    if h < 0.0:
+        return 0.0
     R = 0.5*D
     Af = R*R*acos((R-h)/R) - (R-h)*(2.*R*h - h*h)**0.5
     Vf = 2.*a*R*R/3.*acos(1. - h/R) + 2.*a/9./R*(2*R*h - h**2)**0.5*(2*h - 3*R)*(h + R)
@@ -388,6 +396,8 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+    if h < 0.0:
+        return 0.0
     R = D/2.
     r = (a**2 + R**2)/2./abs(a)
     w = R - h
@@ -506,6 +516,8 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+    if h < 0.0:
+        return 0.0
     R = D/2.
     Af = R**2*acos((R-h)/R) - (R-h)*(2*R*h - h**2)**0.5
     r = f*D
@@ -599,6 +611,8 @@ def V_vertical_conical(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+    if h < 0.0:
+        return 0.0
     if h < a:
         Vf = pi/4*(D*h/a)**2*(h/3.)
     else:
@@ -641,6 +655,8 @@ def V_vertical_ellipsoidal(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+    if h < 0.0:
+        return 0.0
     if h < a:
         Vf = pi/4*(D*h/a)**2*(a - h/3.)
     else:
@@ -683,6 +699,8 @@ def V_vertical_spherical(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+    if h < 0.0:
+        return 0.0
     if h < a:
         Vf = pi*h**2/4*(2*a + D**2/2/a - 4*h/3)
     else:
@@ -761,6 +779,8 @@ def V_vertical_torispherical(D, f, k, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+    if h < 0.0:
+        return 0.0
     alpha = asin((1-2*k)/(2*(f-k)))
     a1 = f*D*(1 - cos(alpha))
     a2 = k*D*cos(alpha)
@@ -822,6 +842,8 @@ def V_vertical_conical_concave(D, a, h):
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
     '''
+    if h < 0.0:
+        return 0.0
     if h < abs(a):
         Vf = pi*D**2/12.*(3*h + a - (a+h)**3/a**2)
     else:
@@ -867,6 +889,8 @@ def V_vertical_ellipsoidal_concave(D, a, h):
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
     '''
+    if h < 0.0:
+        return 0.0
     if h < abs(a):
         Vf = pi*D**2/12.*(3*h + 2*a - (a+h)**2*(2*a-h)/a**2)
     else:
@@ -913,6 +937,8 @@ def V_vertical_spherical_concave(D, a, h):
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
     '''
+    if h < 0.0:
+        return 0.0
     if h < abs(a):
         Vf = pi/12*(3*D**2*h + a/2.*(3*D**2 + 4*a**2) + (a+h)**3*(4 - (3*D**2+12*a**2)/(2.*a*(a+h))))
     else:
@@ -993,6 +1019,8 @@ def V_vertical_torispherical_concave(D, f, k, h):
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
     '''
+    if h < 0.0:
+        return 0.0
     alpha = asin((1-2*k)/(2.*(f-k)))
     a1 = f*D*(1-cos(alpha))
     a2 = k*D*cos(alpha)
@@ -1460,7 +1488,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
                 V -= V_vertical_spherical(D, sideB_a, h=h2)
             if sideB == 'torispherical':
                 V += V_vertical_torispherical(D, sideB_f, sideB_k, h=sideB_a)
-                V -= V_vertical_torispherical(D, sideB_f, sideB_k, h=h2)
+                V -= max(0.0, V_vertical_torispherical(D, sideB_f, sideB_k, h=h2))
         if h > L + sideA_a + sideB_a:
             raise Exception('Input height is above top of tank')
     return V
