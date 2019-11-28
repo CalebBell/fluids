@@ -55,7 +55,7 @@ def func_args(func):
     try:
         return tuple(inspect.signature(func).parameters)
     except:
-        return tuple(inspect.getargspec(func).args)
+        return tuple(inspect.getfullargspec(func).args)
 
 u.autoconvert_offset_to_baseunit = True
 
@@ -65,7 +65,7 @@ expr2 = re.compile('Returns *\n *-+\n +')
 match_sections = re.compile('\n *[A-Za-z ]+ *\n +-+')
 match_section_names = re.compile('\n *[A-Za-z]+ *\n +-+')
 variable = re.compile('[a-zA-Z_0-9]* : ')
-match_units = re.compile('\[[a-zA-Z0-9()./*^\- ]*\]')
+match_units = re.compile(r'\[[a-zA-Z0-9().\/*^\- ]*\]')
 
 
 def parse_numpydoc_variables_units(func):
@@ -120,7 +120,7 @@ def check_args_order(func):
     
     >>> check_args_order(fluids.core.Reynolds)
     '''
-    argspec = inspect.getargspec(func)
+    argspec = inspect.getfullargspec(func)
     parsed_data = parse_numpydoc_variables_units(func)
     # compare the parsed arguments with those actually defined
     parsed_units = parsed_data['Parameters']['units']

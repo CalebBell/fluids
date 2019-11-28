@@ -1,6 +1,5 @@
 import matplotlib
 import matplotlib.pyplot as plt
-matplotlib.use('QT4Agg')
 import numpy as np
 from fluids.fittings import entrance_rounded_methods
 from fluids.fittings import entrance_rounded

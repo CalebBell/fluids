@@ -47,6 +47,8 @@ def test_geometry():
     V_head1 = V_horiz_conical(D=108., L=156., a=42., h=84., headonly=True)/231.
     V_head2 = V_horiz_conical(108., 156., 42., 84., headonly=True)/231.
     assert_allclose([V_head1, V_head2], [508.8239000645628]*2)
+    
+    assert V_horiz_conical(D=108., L=156., a=42., h=0, headonly=True) == 0.0
 
     # Two examples from [1]_, and at midway, full, and empty.
     Vs_horiz_ellipsoidal = [V_horiz_ellipsoidal(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)]
@@ -57,6 +59,7 @@ def test_geometry():
     V_head1 = V_horiz_ellipsoidal(D=108., L=156., a=42., h=84., headonly=True)/231.
     V_head2 = V_horiz_ellipsoidal(108., 156., 42., 84., headonly=True)/231.
     assert_allclose([V_head1, V_head2], [970.2761310723387]*2)
+    assert 0.0 == V_horiz_ellipsoidal(108., 156., 42., 0., headonly=True)
 
     # Two examples from [1]_, and at midway, full, and empty.
     V_calc = [V_horiz_guppy(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)]
@@ -67,12 +70,13 @@ def test_geometry():
     V_head1 = V_horiz_guppy(D=108., L=156., a=42., h=36, headonly=True)/231.
     V_head2 = V_horiz_guppy(108., 156., 42., 36, headonly=True)/231.
     assert_allclose([V_head1, V_head2], [63.266257496613804]*2)
-
+    assert 0.0 == V_horiz_guppy(108., 156., 42., 0.0, headonly=True) 
 
     # Two examples from [1]_, and at midway, full, and empty.
     V_calc = [V_horiz_spherical(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)]
     Vs = [2303.9615116986183, 6935.163365275476, 4094.025626387197, 8188.051252774394, 0.0]
     assert_allclose(V_calc, Vs)
+    assert 0.0 == V_horiz_spherical(D=108., L=156., a=42., h=0)
 
     # Test when the integration function is called, on its limits:
     # The integral can be done analytically, but there's a zero to the power of negative integer error
@@ -99,46 +103,55 @@ def test_geometry():
     V_head1 = V_horiz_torispherical(D=108., L=156., f=1., k=0.06, h=36, headonly=True)/231.
     V_head2 = V_horiz_torispherical(108., 156., 1., 0.06, 36, headonly=True)/231.
     assert_allclose([V_head1, V_head2], [111.71919144384525]*2)
+    assert 0.0 == V_horiz_torispherical(108., 156., 1., 0.06, 0.0)
 
     # Two examples from [1]_, and at empty and h=D.
     Vs_calc = [V_vertical_conical(132., 33., i)/231. for i in [24, 60, 0, 132]]
     Vs = [250.67461381371024, 2251.175535772343, 0.0, 6516.560761446257]
     assert_allclose(Vs_calc, Vs)
+    assert 0.0 == V_vertical_conical(132., 33., 0.0)
 
     # Two examples from [1]_, and at empty and h=D.
     Vs_calc = [V_vertical_ellipsoidal(132., 33., i)/231. for i in [24, 60, 0, 132]]
     Vs = [783.3581681678445, 2902.831611916969, 0.0, 7168.216837590883]
     assert_allclose(Vs_calc, Vs)
+    assert 0.0 == V_vertical_ellipsoidal(132., 33., 0.0)
 
     # Two examples from [1]_, and at empty and h=D.
     Vs_calc = [V_vertical_spherical(132., 33., i)/231. for i in [24, 60, 0, 132]]
     Vs = [583.6018352850442, 2658.4605833627343, 0.0, 6923.845809036648]
     assert_allclose(Vs_calc, Vs)
+    assert 0.0 == V_vertical_spherical(132., 33., 0.0)
 
     # Two examples from [1]_, and at empty, 1, 22, and h=D.
     Vs_calc = [V_vertical_torispherical(132., 1.0, 0.06, i)/231. for i in [24, 60, 0, 1, 22, 132]]
     Vs = [904.0688283793511, 3036.7614412163075, 0.0, 1.7906624793188568, 785.587561468186, 7302.146666890221]
     assert_allclose(Vs_calc, Vs)
+    assert 0.0 == V_vertical_torispherical(132., 1.0, 0.06, 0.0)
 
     # Three examples from [1]_, and at empty and with h=D.
     Vs_calc = [V_vertical_conical_concave(113., -33, i)/231 for i in [15., 25., 50., 0, 113]]
     Vs = [251.15825565795188, 614.6068425492208, 1693.1654406426783, 0.0, 4428.278844757774]
     assert_allclose(Vs_calc, Vs)
+    assert 0.0 == V_vertical_conical_concave(113., -33, 0.0)
 
     # Three examples from [1]_, and at empty and with h=D.
     Vs_calc = [V_vertical_ellipsoidal_concave(113., -33, i)/231 for i in [15., 25., 50., 0, 113]]
     Vs = [44.84968851034856, 207.6374468071692, 1215.605957384487, 0.0, 3950.7193614995826]
     assert_allclose(Vs_calc, Vs)
+    assert 0.0 == V_vertical_ellipsoidal_concave(113., -33, 0.0)
 
     # Three examples from [1]_, and at empty and with h=D.
     Vs_calc = [V_vertical_spherical_concave(113., -33, i)/231 for i in [15., 25., 50., 0, 113]]
     Vs = [112.81405437348528, 341.7056403375114, 1372.9286894955042, 0.0, 4108.042093610599]
     assert_allclose(Vs_calc, Vs)
+    assert 0.0 == V_vertical_spherical_concave(113., -33, 0.0)
 
     # Three examples from [1]_, and at empty and with h=D.
     Vs_calc = [V_vertical_torispherical_concave(D=113., f=0.71, k=0.081, h=i)/231 for i in [15., 25., 50., 0, 113]]
     Vs = [103.88569287163769, 388.72142877582087, 1468.762358198084, 0.0, 4203.87576231318]
     assert_allclose(Vs_calc, Vs)
+    assert 0.0 == V_vertical_torispherical_concave(D=113., f=0.71, k=0.081, h=0.0)
 
     SA1 = SA_ellipsoidal_head(2, 1)
     SA2 = SA_ellipsoidal_head(2, 0.999)

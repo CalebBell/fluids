@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2019 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -207,17 +207,19 @@ def V_horiz_conical(D, L, a, h, headonly=False):
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
     if h < 0.0:
         return 0.0
-    R = D/2.
-    Af = R*R*acos((R-h)/R) - (R-h)*(2*R*h - h*h)**0.5
-    M = abs((R-h)/R)
+    R = 0.5*D
+    R_third = R/3.0
+    t0 = (R-h)/R
+    Af = R*R*acos(t0) - (R-h)*(h*(R + R - h))**0.5
+    M = abs(t0)
     if h == R:
-        Vf = a*R*R/3.*pi
+        Vf = a*R*R_third*pi
     else:
         K = acos(M) + M*M*M*acosh(1./M) - 2.*M*(1.-M*M)**0.5
         if 0. <= h < R:
-            Vf = 2.*a*R*R/3*K
-        elif R < h <= 2*R:
-            Vf = 2.*a*R*R/3*(pi - K)
+            Vf = 2.*a*R*R_third*K
+        elif R < h <= 2.0*R:
+            Vf = 2.*a*R*R_third*(pi - K)
     if headonly:
         Vf = 0.5*Vf
     else:
