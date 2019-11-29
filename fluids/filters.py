@@ -81,6 +81,9 @@ def round_edge_screen(alpha, Re, angle=0):
     should be adequate.
     alpha should be between 0.05 and 0.8.
     If angle is over 85 degrees, the value at 85 degrees is used.
+    
+    The velocity the loss coefficient relates to is the approach velocity
+    before the screen.
 
     Examples
     --------
@@ -150,6 +153,9 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0):
     `alpha` should be between 0.85 and 1 for these correlations.
     Flow should be turbulent, with Re > 500.
 
+    The velocity the loss coefficient relates to is the approach velocity
+    before the mesh.
+    
     Examples
     --------
     >>> round_edge_open_mesh(0.96, angle=33.)
@@ -195,6 +201,8 @@ def square_edge_screen(alpha):
     Notes
     -----
     Linear interpolation between a table of values.
+    The velocity the loss coefficient relates to is the approach velocity
+    before the screen.
 
     Examples
     --------
@@ -246,6 +254,9 @@ def square_edge_grill(alpha, l=None, Dh=None, fd=None):
     The alteration of the expression to include friction factor is there
     if the grill is long enough to have considerable friction along the
     surface of the grill.
+
+    The velocity the loss coefficient relates to is the approach velocity
+    before the grill.
 
     Examples
     --------
@@ -303,6 +314,9 @@ def round_edge_grill(alpha, l=None, Dh=None, fd=None):
     if the grill is long enough to have considerable friction along the
     surface of the grill.
     alpha must be between 0.3 and 0.7.
+
+    The velocity the loss coefficient relates to is the approach velocity
+    before the grill.
 
     Examples
     --------

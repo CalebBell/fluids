@@ -37,6 +37,7 @@ def test_geometry():
 
     V1 = V_partial_sphere(1., 0.7)
     assert_allclose(V1, 0.4105014400690663)
+    assert 0.0 == V_partial_sphere(1., 0.0)
 
     # Two examples from [1]_, and at midway, full, and empty.
     Vs_horiz_conical1 = [V_horiz_conical(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)]
@@ -77,6 +78,16 @@ def test_geometry():
     Vs = [2303.9615116986183, 6935.163365275476, 4094.025626387197, 8188.051252774394, 0.0]
     assert_allclose(V_calc, Vs)
     assert 0.0 == V_horiz_spherical(D=108., L=156., a=42., h=0)
+
+    # Test z = 0 zero division error
+    base = V_horiz_spherical(D=108., L=156., a=54, h=36, headonly=True)
+    perturbed = V_horiz_spherical(D=108., L=156., a=53.999999999, h=36, headonly=True)
+    assert_allclose(base, perturbed, rtol=1e-10)
+    
+    # Test while z is very very slow
+    perturbed = V_horiz_spherical(D=108., L=156., a=53.99999999, h=36, headonly=True) 
+    assert_allclose(base, perturbed, rtol=1e-7)
+    
 
     # Test when the integration function is called, on its limits:
     # The integral can be done analytically, but there's a zero to the power of negative integer error
