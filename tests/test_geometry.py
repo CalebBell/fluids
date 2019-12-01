@@ -164,6 +164,12 @@ def test_geometry():
     assert_allclose(Vs_calc, Vs)
     assert 0.0 == V_vertical_torispherical_concave(D=113., f=0.71, k=0.081, h=0.0)
 
+    # Does not use 0 <= h < a2; and then does use it; should be the same
+    base = V_vertical_torispherical_concave(D=113., f=0.71, k=0.16794375443150927, h=15)
+    perturbed = V_vertical_torispherical_concave(D=113., f=0.71, k=0.16794375443151, h=15)
+    assert_allclose(base, perturbed, rtol=1e-14)
+
+
     SA1 = SA_ellipsoidal_head(2, 1)
     SA2 = SA_ellipsoidal_head(2, 0.999)
     SAs = [6.283185307179586, 6.278996936093318]
