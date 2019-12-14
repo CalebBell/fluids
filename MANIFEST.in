@@ -1,5 +1,7 @@
-include Makefile LICENSE.txt AUTHORS README.rst pytest.ini 
+include LICENSE.txt AUTHORS README.rst pytest.ini 
 recursive-include tests *
 recursive-include docs *
 global-exclude __pycache__
 global-exclude *.py[co]
+global-exclude *.coverage
+global-exclude *.so
