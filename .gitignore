@@ -55,3 +55,4 @@ Thumbs.db
 
 .pytest_cache/
 word_whitelist.txt
+simple_geolocator_cache.sqlite3
