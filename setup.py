@@ -20,7 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-classifiers=[
+from setuptools import setup
+
+classifiers = [
     'Development Status :: 3 - Alpha',
     'Intended Audience :: Developers',
     'Intended Audience :: Education',
@@ -51,27 +53,34 @@ classifiers=[
     'Topic :: Scientific/Engineering :: Physics',
 ]
 
+description = 'Fluid dynamics component of Chemical Engineering Design Library (ChEDL)'
+keywords = ('fluid dynamics atmosphere pipe fluids compressible fluid dynamics '
+            'chemical engineering mechanical engineering valve open channel '
+            'tank friction pressure drop two phase pump drag reynolds '
+            'sedimentation engineering pipeline process simulation particle '
+            'size distribution')
 
-
-from distutils.core import setup
 setup(
-  name = 'fluids',
-  packages = ['fluids'],
-  license='MIT',
-  version = '0.1.75',
-  download_url = 'https://github.com/CalebBell/fluids/tarball/0.1.75',
-  description = 'Fluid dynamics component of Chemical Engineering Design Library (ChEDL)',
-  long_description=open('README.rst').read(),
-  install_requires = ["numpy>=1.5.0", "scipy>=0.9.0"],
-  extras_require = {
-      'Coverage documentation':  ['wsgiref>=0.1.2', 'coverage>=4.0.3', 'pint']
-  },
-  author = 'Caleb Bell',
-  author_email = 'Caleb.Andrew.Bell@gmail.com',
-  platforms=['Windows', 'Linux', 'Mac OS', 'Unix'],
-  url = 'https://github.com/CalebBell/fluids',
-  keywords = 'fluid dynamics atmosphere pipe fluids compressible fluid dynamics chemical engineering mechanical engineering valve open channel tank friction pressure drop two phase pump drag reynolds sedimentation engineering pipeline process simulation particle size distribution',
-  classifiers = classifiers,
-  package_data={'fluids': ['data/*', 'nrlmsise00/*', 'optional/*', 'numerics/*', 'constants/*']},
+    name='fluids',
+    packages=['fluids'],
+    license='MIT',
+    version='0.1.75',
+    download_url='https://github.com/CalebBell/fluids/tarball/0.1.75',
+    description=description,
+    long_description=open('README.rst').read(),
+    install_requires=["numpy>=1.5.0", "scipy>=0.9.0"],
+    extras_require={
+        'Coverage documentation':  ['wsgiref>=0.1.2', 'coverage>=4.0.3', 'pint']
+    },
+    author='Caleb Bell',
+    author_email='Caleb.Andrew.Bell@gmail.com',
+    platforms=['Windows', 'Linux', 'Mac OS', 'Unix'],
+    url='https://github.com/CalebBell/fluids',
+    keywords=keywords,
+    classifiers=classifiers,
+    package_data={
+        'fluids': [
+            'data/*', 'nrlmsise00/*', 'optional/*', 'numerics/*', 'constants/*'
+        ]
+    },
 )
-
