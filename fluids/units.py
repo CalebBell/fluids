@@ -53,7 +53,7 @@ def func_args(func):
     method.
     '''
     try:
-        return tuple(inspect.signature(func).parameters)
+        return tuple(inspect.getargspec(func).args)
     except:
         return tuple(inspect.getfullargspec(func).args)
 
