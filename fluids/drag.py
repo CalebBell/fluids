@@ -1238,20 +1238,23 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
     ... tol=1e-30)
     24800.636391802
     '''
+    if tol < 1e-17:
+        tol = 2e-17
     term = D*D*g*rho - D*D*g*rhop 
     denominator = term + 18.*mu*V0
     v_term_base = g*D*D*(rhop-rho)/(18.*mu)
-    
+
+    const = D*D*rhop/mu*-1.0/18.
     for i in range(50):
-        try: 
+        try:
             if v_term_base < V0:
                 v_term = v_term_base*(1.0 + tol)
             else:
                 v_term = v_term_base*(1.0 - tol)
             numerator = term + 18.*mu*v_term
-            return log(numerator/denominator)*D*D*rhop/mu*-1/18.
+            return log(numerator/denominator)*const
         except ValueError:
-            tol = tol*2
+            tol = tol + tol
             if tol > 0.01:
                 raise Exception('Could not find a solution')
     raise Exception('Could not find a solution')

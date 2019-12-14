@@ -866,7 +866,7 @@ inlet pressure; fluid will flow backwards.')
             lambert_ans = float(lambertw(arg, k=-1).real)
             # Large overflow problem here; also divide by zero problems!
             # Fail and try a numerical solution if it doesn't work.
-            assert not math.isinf(lambert_ans)
+            assert not isinf(lambert_ans)
             P2 = P1/exp((-C*m**2+lambert_ans*m**2+B*P1)/m**2/2.)
             assert P2 < P1
             return P2

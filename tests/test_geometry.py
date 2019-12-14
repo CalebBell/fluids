@@ -43,6 +43,10 @@ def test_geometry():
     Vs_horiz_conical1 = [V_horiz_conical(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)]
     Vs_horiz_conical1s = [2041.1923581273443, 6180.540773905826, 3648.490668241736, 7296.981336483472, 0.0]
     assert_allclose(Vs_horiz_conical1, Vs_horiz_conical1s)
+    
+    with pytest.raises(Exception):
+        V_horiz_conical(D=108., L=156., a=42., h=109)
+
 
     # Head only custom example:
     V_head1 = V_horiz_conical(D=108., L=156., a=42., h=84., headonly=True)/231.

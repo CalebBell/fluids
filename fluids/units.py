@@ -118,9 +118,15 @@ def check_args_order(func):
     Other Parameters with the input arguments of the actual function signature.
     Raises an exception if not correctly defined.
     
+    getargspec is used for Python 2.7 compatibility and is deprecated in Python
+    3.
+    
     >>> check_args_order(fluids.core.Reynolds)
     '''
-    argspec = inspect.getfullargspec(func)
+    try:
+        argspec = inspect.getfullargspec(func)
+    except:
+        argspec = inspect.getargspec(func)
     parsed_data = parse_numpydoc_variables_units(func)
     # compare the parsed arguments with those actually defined
     parsed_units = parsed_data['Parameters']['units']

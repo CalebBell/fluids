@@ -1766,18 +1766,12 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
             if ytol is not None and xtol is not None:
                 # Meet both tolerance - new value is under ytol, and old value
                 if abs(p0 - p1) <= abs(xtol * p0) and abs(q1) < ytol:
-                    if require_eval:
-                        return p1
                     return p
             elif xtol is not None:
                 if abs(p0 - p1) <= abs(xtol * p0) and not (p0 == p1 and (p0 == low or p0 == high)):
-                    if require_eval:
-                        return p1
                     return p
             elif ytol is not None:
                 if abs(q1) < ytol:
-                    if require_eval:
-                        return p1
                     return p
 
             # Cannot proceed, raise an error

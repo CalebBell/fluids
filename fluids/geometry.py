@@ -210,6 +210,8 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     R = 0.5*D
     R_third = R/3.0
     t0 = (R-h)/R
+    if t0 < -1.0 or t0 > 1.0:
+        raise ValueError("Unphysical height")
     Af = R*R*acos(t0) - (R-h)*(h*(R + R - h))**0.5
     M = abs(t0)
     if h == R:
@@ -218,7 +220,8 @@ def V_horiz_conical(D, L, a, h, headonly=False):
         K = acos(M) + M*M*M*acosh(1./M) - 2.*M*(1.-M*M)**0.5
         if 0. <= h < R:
             Vf = 2.*a*R*R_third*K
-        elif R < h <= 2.0*R:
+        else:
+        # elif R < h <= 2.0*R:
             Vf = 2.*a*R*R_third*(pi - K)
     if headonly:
         Vf = 0.5*Vf
