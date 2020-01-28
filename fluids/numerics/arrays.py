@@ -24,6 +24,10 @@ from __future__ import division
 from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
 from sys import float_info
+try:
+    import numpy as np
+except ImportError:
+    np = None
 
 __all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product',
            'eye']
@@ -198,13 +202,16 @@ def inv(matrix):
     if size == 1:
         return [1.0/matrix[0]]
     elif size == 2:
-        (a, b), (c, d) = matrix
-        x0 = 1.0/a
-        x1 = b*x0
-        x2 = 1.0/(d - c*x1)
-        x3 = c*x2
-        return [[x0 + b*x3*x0*x0, -x1*x2],
-                [-x0*x3, x2]]
+        try:
+            (a, b), (c, d) = matrix
+            x0 = 1.0/a
+            x1 = b*x0
+            x2 = 1.0/(d - c*x1)
+            x3 = c*x2
+            return [[x0 + b*x3*x0*x0, -x1*x2],
+                    [-x0*x3, x2]]
+        except:
+            return np.linalg.inv(matrix).tolist()
     elif size == 3:
         (a, b, c), (d, e, f), (g, h, i) = matrix
         x0 = 1./a

@@ -41,7 +41,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'i1', 'i0', 'k1', 'k0', 'iv',
            'numpy',
            'polyint_over_x', 'horner_log', 'polyint', 'chebder',
-           'polyder',
+           'polyder', 'make_damp_initial',
            'OscillationError', 'UnconvergedError', 'caching_decorator',
            'NoSolutionError',
            'damping_maintain_sign', 'oscillation_checking_wrapper',
@@ -1280,7 +1280,7 @@ class DiscontinuityError(Exception):
     '''
     
 def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
-    '''Famping function which will maintain the sign of the variable being
+    '''Damping function which will maintain the sign of the variable being
     manipulated. If the step puts it at the other sign, the distance between
     `x` and `step` will be shortened by the multiple of `factor`; i.e. if 
     factor is `x`, the new value of `x` will be 0 exactly.
@@ -1312,6 +1312,8 @@ def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
     >>> damping_maintain_sign(100, -200, factor=.5)
     50.0
     '''
+    if isinstance(x, list):
+        return [damping_maintain_sign(x[i], step[i], damping, factor) for i in range(len(x))]
     positive = x > 0.0
     step_x = x + step
     
@@ -1319,6 +1321,23 @@ def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
 #        print('damping')
         step = -factor*x
     return x + step*damping
+
+
+def make_damp_initial(steps=5, damping=1.0):
+    steps_holder = [steps]
+    def damping_func(x, step, damping=damping):
+        if steps_holder[0] <= 0:
+            # Do not dampen at all
+            if isinstance(x, list):
+                return [xi + dxi for xi, dxi in zip(x, step)]
+            return x + step
+        else:
+            steps_holder[0] -= 1
+            if isinstance(x, list):
+                return [xi + dxi*damping for xi, dxi in zip(x, step)]
+            return x + step*damping
+    return damping_func
+
 
 
 def oscillation_checking_wrapper(f, minimum_progress=0.3, 
@@ -1842,9 +1861,17 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
             else:
                 fval = func(p0, *args, **kwargs)
                 fder = fprime(p0, *args, **kwargs)
-            
-            if fder == 0.0 or fval == 0.0:
+
+            if fval == 0.0:
                 return p0 # Cannot coninue or already finished
+            elif fder == 0.0:
+                if ytol is None or abs(fval) < ytol:
+                    return p0
+                else:
+                    raise UnconvergedError("Derivative became zero; maxiter (%d) reached, value=%f " %(maxiter, p0))
+
+            if fder == 0.0 or fval == 0.0:
+                return p0
             if bisection:
                 if fval < 0.0:
                     a = p0
@@ -1868,7 +1895,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
                 p = p0 - step/(1.0 - 0.5*step*fder2*fder_inv)*damping
             
             if bisection and a is not None and b is not None:
-                if not (a < p < b) or (b < p < a):
+                if (not (a < p < b) and not (b < p < a)):
 #                if p < 0.0:
 #                    if p < a:
 #                    print('bisecting')
@@ -1961,6 +1988,12 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             
         if not jac_also:
             j = jac(x, *args)
+
+    if xtol is not None and norm2(fcur) > xtol:
+        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, x))
+    if ytol is not None and err(fcur) > ytol:
+        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, x))
+
     return x, iter
 
 
