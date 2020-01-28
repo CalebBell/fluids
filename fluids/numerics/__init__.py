@@ -1816,7 +1816,7 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
               fprime2=None, low=None, high=None, damping=1.0, ytol=None,
               xtol=1.48e-8, require_eval=False, damping_func=None,
               bisection=False, gap_detection=False, dy_dx_limit=1e100,
-              kwargs={}):
+              max_bound_hits=4, kwargs={}):
     '''Newton's method designed to be mostly compatible with SciPy's 
     implementation, with a few features added and others now implemented.
     
@@ -1848,7 +1848,8 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
     if fprime is not None:
         fprime2_included = fprime2 == True
         fprime_included = fprime == True
-        
+        hit_low, hit_high = 0, 0
+
         for iter in range(maxiter):
             if fprime2_included:
                 fval, fder, fder2 = func(p0, *args, **kwargs)
@@ -1870,8 +1871,6 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
                 else:
                     raise UnconvergedError("Derivative became zero; maxiter (%d) reached, value=%f " %(maxiter, p0))
 
-            if fder == 0.0 or fval == 0.0:
-                return p0
             if bisection:
                 if fval < 0.0:
                     a = p0
@@ -1910,10 +1909,23 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
                             raise DiscontinuityError("Discontinuity detected")
                 
             if low is not None and p < low:
+                hit_low += 1
+                if p0 == low and hit_low > max_bound_hits:
+                    if abs(fval) < ytol:
+                        return low
+                    else:
+                        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
+                    # Stuck - not going to converge, hammering the boundary. Check ytol
                 p = low
             if high is not None and p > high:
+                hit_high += 1
+                if p0 == high and hit_high > max_bound_hits:
+                    if abs(fval) < ytol:
+                        return high
+                    else:
+                        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
                 p = high
-                
+
             
 
             
