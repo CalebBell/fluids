@@ -350,3 +350,16 @@ def test_is_poly_positive():
     assert not is_poly_positive(coeffs_4alpha, domain=(-15000, 511))
     assert not is_poly_positive(coeffs_4alpha, domain=(-13000, 511))
     assert not is_poly_positive(coeffs_4alpha, domain=(-11500, 511))
+    
+
+def test_roots_quartic():
+    coeffs = [1.0, -3.274390673429134, 0.3619541556604501, 2.4841800045762747, -0.49619076425603237]
+    
+    expect_roots = ((-0.8246324500888049+1.1609047395516947e-17j),
+     (0.2041867922778502-3.6197168963943884e-17j),
+     (1.027869356838059+2.910620457054182e-17j),
+     (2.86696697440203-4.51808300211488e-18j))
+    expect_mp_roots_real = [-0.824632450088805, 0.20418679227785, 1.0278693568380592, 2.86696697440203]
+    roots_calc = roots_quartic(*coeffs)
+    assert_allclose(expect_roots, roots_calc, rtol=1e-9)
+    assert_allclose(expect_mp_roots_real, [i.real for i in roots_calc], rtol=1e-9)

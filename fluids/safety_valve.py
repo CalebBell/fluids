@@ -566,6 +566,12 @@ def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
 
     >>> API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, P2=532E3, Kd=0.975, Kb=1, Kc=1)
     0.004248358775943481
+    
+    The mass flux in (kg/(s*m^2)) can be found by dividing the specified mass
+    flow by the calculated area:
+        
+    >>> (24270/3600.)/API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, Kb=1, Kc=1)
+    1822.541960488834
 
     References
     ----------
