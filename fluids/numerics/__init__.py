@@ -50,7 +50,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'best_fit_integral_value', 'best_fit_integral_over_T_value',
            'evaluate_linear_fits', 'evaluate_linear_fits_d',
            'evaluate_linear_fits_d2',
-           'best_bounding_bounds'
+           'best_bounding_bounds', 'newton_minimize',
            
            ]
 
@@ -424,7 +424,10 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
 
 def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None):
     y = linspace(start, stop, num=num, endpoint=endpoint)
-    return [base**yi for yi in y]
+    for i in range(len(y)):
+        y[i] = base**y[i]
+#    return [base**yi for yi in y]
+    return y
 
 
 def product(l):
@@ -2004,6 +2007,53 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
     if xtol is not None and norm2(fcur) > xtol:
         raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, x))
     if ytol is not None and err(fcur) > ytol:
+        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, x))
+
+    return x, iter
+
+def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping=1.0,
+                  args=(), damping_func=None):
+    jac_also = True if jac == True else False
+    hess_also = True if hess == True else False
+    def err(F):
+        err = sum([abs(i) for i in F])
+        return err
+    if hess_also:
+        fcur, j, h = f(x0, *args)
+    elif jac_also:
+        fcur, j = f(x0, *args)
+        h = hess(x0, *args)
+    else:
+        fcur = f(x0, *args)
+        j = jac(x0, *args)
+        h = hess(x0, *args)
+    iter = 0
+    x = x0
+    while iter < maxiter:
+        dx = py_solve(h, [-v for v in j])
+        if damping_func is None:
+            x = [xi + dxi*damping for xi, dxi in zip(x, dx)]
+        else:
+            x = damping_func(x, dx, damping)
+        if hess_also:
+            fcur, j, h = f(x, *args)
+        elif jac_also:
+            fcur, j = f(x, *args)
+            h = hess(x, *args)
+        else:
+            fcur = f(x, *args)
+            j = jac(x, *args)
+            h = hess(x, *args)
+        
+        iter += 1
+        if xtol is not None and norm2(j) < xtol:
+            break
+        if ytol is not None and err(j) < ytol:
+            break
+            
+    if xtol is not None and norm2(j) > xtol:
+        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, x))
+    if ytol is not None and err(j) > ytol:
         raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, x))
 
     return x, iter
