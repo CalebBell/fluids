@@ -2052,9 +2052,9 @@ def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping
             break
             
     if xtol is not None and norm2(j) > xtol:
-        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, x))
+        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s " %(maxiter, x))
     if ytol is not None and err(j) > ytol:
-        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, x))
+        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s " %(maxiter, x))
 
     return x, iter
 

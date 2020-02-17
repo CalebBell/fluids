@@ -200,7 +200,10 @@ def inv(matrix):
     '''
     size = len(matrix)
     if size == 1:
-        return [1.0/matrix[0]]
+        try:
+            return [1.0/matrix[0]]
+        except:
+            return [1.0/matrix[0][0]]
     elif size == 2:
         try:
             (a, b), (c, d) = matrix
@@ -327,7 +330,10 @@ def eye(N):
     return mat
    
 def dot(a, b):
-    ab = [sum([ri*bi for ri, bi in zip(row, b)]) for row in a]
+    try:
+        ab = [sum([ri*bi for ri, bi in zip(row, b)]) for row in a]
+    except:
+        ab = [sum([ai*bi for ai, bi in zip(a, b)])]
     return ab
 
 def inner_product(a, b):
