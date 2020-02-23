@@ -22,6 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from fluids import *
+from fluids.numerics import assert_close
 from math import *
 from scipy.constants import *
 import numpy as np
@@ -171,7 +172,7 @@ def test_geometry():
     # Does not use 0 <= h < a2; and then does use it; should be the same
     base = V_vertical_torispherical_concave(D=113., f=0.71, k=0.16794375443150927, h=15)
     perturbed = V_vertical_torispherical_concave(D=113., f=0.71, k=0.16794375443151, h=15)
-    assert_allclose(base, perturbed, rtol=1e-14)
+    assert_close(base, perturbed, rtol=1e-14)
 
 
     SA1 = SA_ellipsoidal_head(2, 1)
@@ -184,13 +185,13 @@ def test_geometry():
 
     SA1 = SA_conical_head(2, 1)
     SAs = 4.442882938158366
-    assert_allclose(SA1, SAs)
+    assert_close(SA1, SAs)
 
     SA1 = SA_guppy_head(2, 1)
-    assert_allclose(SA1, 6.654000019110157)
+    assert_close(SA1, 6.654000019110157)
 
     SA1 = SA_torispheroidal(D=2.54, fd=1.039370079, fk=0.062362205)
-    assert_allclose(SA1, 6.00394283477063)
+    assert_close(SA1, 6.00394283477063)
 
     SA1 = SA_tank(D=2, L=2)
     SA2 = SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal', sideB_a=2)
@@ -204,7 +205,7 @@ def test_geometry():
     assert_allclose([SA1, SA2, SA3, SA4], SAs)
 
     SA1 = SA_tank(D=1., L=5, sideA='guppy', sideA_a=0.5, sideB='guppy', sideB_a=0.5)
-    assert_allclose(SA1, 19.034963277504044)
+    assert_close(SA1, 19.034963277504044)
 
     a1 = a_torispherical(D=96., f=0.9, k=0.2)
     a2 = a_torispherical(D=108., f=1., k=0.06)
@@ -281,10 +282,10 @@ def test_pitch_angle_solver():
             for k2, v2 in ans_set.items():
                 if k1 != k2 and v1 != 0 and v2 != 0:
                     angle, pitch, pitch_parallel, pitch_normal = pitch_angle_solver(**{k1:v1, k2:v2})
-                    assert_allclose(ans_set['angle'], angle, atol=1e-16)
-                    assert_allclose(ans_set['pitch'], pitch, atol=1e-16)
-                    assert_allclose(ans_set['pitch_parallel'], pitch_parallel, atol=1e-16)
-                    assert_allclose(ans_set['pitch_normal'], pitch_normal, atol=1e-16)
+                    assert_close(ans_set['angle'], angle, atol=1e-16)
+                    assert_close(ans_set['pitch'], pitch, atol=1e-16)
+                    assert_close(ans_set['pitch_parallel'], pitch_parallel, atol=1e-16)
+                    assert_close(ans_set['pitch_normal'], pitch_normal, atol=1e-16)
                 
     with pytest.raises(Exception):
         pitch_angle_solver(30)
@@ -396,7 +397,7 @@ def test_geometry_tank():
     assert_allclose(V3, 0.44209706414415373)
 
     T1 = TANK(V=10, L_over_D=0.7, sideB='conical', sideB_a=0.5)
-    T1.set_table(dx=0.001)
+#    T1.set_table(dx=0.001)
     things_calc = T1.A, T1.A_sideA, T1.A_sideB, T1.A_lateral
     things = (24.94775907657148, 5.118555935958284, 5.497246519930003, 14.331956620683194)
     assert_allclose(things_calc, things)
@@ -563,26 +564,26 @@ def test_HelicalCoil():
                    {'Do_total': 32, 'N': 4, 'H_total': 22, 'Dt':2}]:
 
         a = HelicalCoil(Di=1.8, **kwargs)
-        assert_allclose(a.N, 4)
-        assert_allclose(a.H, 20)
-        assert_allclose(a.H_total, 22)
-        assert_allclose(a.Do_total, 32)
-        assert_allclose(a.pitch, 5)
-        assert_allclose(a.tube_length, 377.5212621504738)
-        assert_allclose(a.surface_area, 2372.0360474917497)
+        assert_close(a.N, 4)
+        assert_close(a.H, 20)
+        assert_close(a.H_total, 22)
+        assert_close(a.Do_total, 32)
+        assert_close(a.pitch, 5)
+        assert_close(a.tube_length, 377.5212621504738)
+        assert_close(a.surface_area, 2372.0360474917497)
         # Other parameters
-        assert_allclose(a.curvature, 0.06)
-        assert_allclose(a.helix_angle, 0.053001960689651316)
-        assert_allclose(a.tube_circumference, 94.24777960769379)
-        assert_allclose(a.total_inlet_area, 3.141592653589793)
-        assert_allclose(a.total_volume, 1186.0180237458749)
+        assert_close(a.curvature, 0.06)
+        assert_close(a.helix_angle, 0.053001960689651316)
+        assert_close(a.tube_circumference, 94.24777960769379)
+        assert_close(a.total_inlet_area, 3.141592653589793)
+        assert_close(a.total_volume, 1186.0180237458749)
         # with Di specified
-        assert_allclose(a.Di, 1.8)
-        assert_allclose(a.inner_surface_area,  2134.832442742575)
-        assert_allclose(a.inlet_area, 2.5446900494077327)
-        assert_allclose(a.inner_volume, 960.6745992341587)
-        assert_allclose(a.annulus_area, 0.5969026041820604)
-        assert_allclose(a.annulus_volume, 225.3434245117162)
+        assert_close(a.Di, 1.8)
+        assert_close(a.inner_surface_area,  2134.832442742575)
+        assert_close(a.inlet_area, 2.5446900494077327)
+        assert_close(a.inner_volume, 960.6745992341587)
+        assert_close(a.annulus_area, 0.5969026041820604)
+        assert_close(a.annulus_volume, 225.3434245117162)
     
     # Fusion 360 agrees with the tube length.
     # It says the SA should be 2370.3726964956063057

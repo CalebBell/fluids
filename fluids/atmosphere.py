@@ -741,13 +741,16 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
        1989): 4735-38. https://doi.org/10.1364/AO.28.004735.
     '''
     delta0 = RI - 1.0
-    rho0 = func(0.0)
+    rho0_inv = 1.0/func(0.0)
     angle_term = cos(radians(angle)) 
+    R_planet_inv = 1.0/R_planet
     
     def to_int(Z):
+        Z = float(Z)
         rho = func(Z)
-        t1 = (1.0 + 2.0*delta0*(1.0 - rho/rho0))
-        t2 = (angle_term/(1.0 + Z/R_planet))**2
+        t1 = (1.0 + 2.0*delta0*(1.0 - rho*rho0_inv))
+        x0 = (angle_term/(1.0 + Z*R_planet_inv))
+        t2 = x0*x0
         t3 = (1.0 - t1*t2)**-0.5
         return rho*t3
 

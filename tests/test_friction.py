@@ -21,8 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import log10
+from math import log10, log, exp
 from scipy.optimize import newton
+from fluids.numerics import secant, logspace, linspace, assert_close
 import numpy as np
 
 from fluids import *
@@ -100,13 +101,13 @@ def test_friction():
 @pytest.mark.mpmath
 def test_Colebrook_numerical_mpmath():
     # tested at n=500 for both Re and eD
-    Res = np.logspace(np.log10(1e-12), np.log10(1E12), 30) # 1E12 is too large for sympy - it slows down too much
-    eDs = np.logspace(np.log10(1e-20), np.log10(.1), 21) # 1-1e-9    
+    Res = logspace(log10(1e-12), log10(1E12), 30) # 1E12 is too large for sympy - it slows down too much
+    eDs = logspace(log10(1e-20), log10(.1), 21) # 1-1e-9    
     for Re in Res:
         for eD in eDs:
             fd_exact = Colebrook(Re, eD, tol=0)
             fd_numerical = Colebrook(Re, eD, tol=1e-12)
-            assert_allclose(fd_exact, fd_numerical, rtol=1e-5)
+            assert_close(fd_exact, fd_numerical, rtol=1e-5)
 
 @pytest.mark.slow
 @pytest.mark.mpmath
@@ -274,10 +275,12 @@ def test_von_Karman():
 
 
 def Prandtl_von_Karman_Nikuradse_numeric(Re):
+    rat = 2.51/Re
     def to_solve(f):
         # Good to 1E75, down to 1E-17
-        return 1./f**0.5 + 2.0*log10(2.51/Re/f**0.5)
-    return newton(to_solve, 0.000001)
+        v = f**-0.5
+        return v + 2.0*log10(rat*v)
+    return secant(to_solve, 0.000001)
 
 
 def test_Prandtl_von_Karman_Nikuradse():
@@ -289,7 +292,7 @@ def test_Prandtl_von_Karman_Nikuradse_full():
     # Tested to a very high number of points
     fds = []
     fds_numeric = []
-    for Re in np.logspace(1E-15, 30, 40):
+    for Re in logspace(1E-15, 30, 40):
         fds.append(Prandtl_von_Karman_Nikuradse_numeric(Re))
         fds_numeric.append(Prandtl_von_Karman_Nikuradse(Re))
     assert_allclose(fds, fds_numeric)

@@ -1140,6 +1140,16 @@ try:
     from math import isclose
 except ImportError:
     pass
+
+def assert_close(a, b, rtol=1e-7, atol=0.0):
+    try:
+        assert isclose(a, b, rel_tol=rtol, abs_tol=atol)
+    except:
+        from numpy.testing import assert_allclose
+        return assert_allclose(a, b, rtol=rtol, atol=atol)
+
+
+
 def interp(x, dx, dy, left=None, right=None):
     '''One-dimensional linear interpolation routine inspired/
     reimplemented from NumPy for extra speed for scalar values
@@ -1698,7 +1708,8 @@ def py_brenth(f, xa, xb, args=(),
 
 def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
            xtol=1.48e-8, ytol=None, x1=None, require_eval=False, 
-           f0=None, f1=None, bisection=False, same_tol=1.0, kwargs={}):
+           f0=None, f1=None, bisection=False, same_tol=1.0, kwargs={},
+           require_xtol=True):
     p0 = 1.0*x0
     # Logic to take a small step to calculate the approximate derivative
     if x1 is not None:
@@ -1720,14 +1731,14 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
         q0 = func(p0, *args)
     else:
         q0 = f0
-    if ytol is not None and abs(q0) < ytol or q0 == 0.0:
+    if (ytol is not None and abs(q0) < ytol and not require_xtol)  or q0 == 0.0:
         return p0
     
     if f1 is None:
         q1 = func(p1, *args, **kwargs)
     else:
         q1 = f1
-    if ytol is not None and abs(q1) < ytol or q1 == 0.0:
+    if (ytol is not None and abs(q1) < ytol and not require_xtol) or q1 == 0.0:
         return p1
     
     if bisection:

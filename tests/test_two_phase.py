@@ -73,8 +73,10 @@ def test_Beggs_Brill():
     dP = Beggs_Brill(**kwargs)
     # Check this calculation works - S gets too large, overflows in this region
 
+@pytest.mark.fuzz
+@pytest.mark.slow
 def test_fuzz_Beggs_Brill():
-    for i in range(1000):
+    for i in range(250):
         m = log_uniform(1e-5, 100)
         x = uniform(0, 1)
         rhol = log_uniform(100, 4000)

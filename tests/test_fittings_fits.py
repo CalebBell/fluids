@@ -97,6 +97,7 @@ def test_contraction_conical_Miller_coefficients():
 #    plt.colorbar()
 #    plt.show()
 
+@pytest.mark.slow
 def test_contraction_abrupt_Miller_coefficients():
     from fluids.fittings import tck_contraction_abrupt_Miller
     curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 abrupt contraction K.csv')
@@ -156,6 +157,7 @@ def test_contraction_abrupt_Miller_coefficients():
 
 ### Diffusers
 
+@pytest.mark.slow
 def test_diffuser_conical_Miller_coefficients():
     from fluids.fittings import tck_diffuser_conical_Miller
     path = os.path.join(fluids_data_dir, 'Miller 2E 1990 conical diffuser Kd.csv')
@@ -173,7 +175,7 @@ def test_diffuser_conical_Miller_coefficients():
     
     # Extrapolation to the left and right looks bad
     # Extrapolation upwards looks bad too
-    ls_full = np.logspace(np.log10(0.1), np.log10(20))
+    ls_full = np.logspace(log10(0.1), log10(20.0))
     ls_stored = []
     As_stored = []
     for i, (K, ls, As) in enumerate(zip(Kds, l_ratios, A_ratios)):
@@ -182,7 +184,7 @@ def test_diffuser_conical_Miller_coefficients():
         As_full = 10**univar(np.log10(ls_full))
     #     plt.loglog(ls_full, As_full)
     #     print(len(univar.get_coeffs()), len(univar.get_knots()))
-        ls_smoothed = np.logspace(np.log10(ls[0]), np.log10(ls[-1]), 100)
+        ls_smoothed = np.logspace(log10(ls[0]), log10(ls[-1]), 100)
         As_smoothed = 10**univar(np.log10(ls_smoothed))
     #     plt.loglog(ls_smoothed, As_smoothed)
         ls_stored.append(ls_smoothed)
@@ -299,6 +301,7 @@ def test_bend_rounded_Crane_coefficients():
     assert np.max(diffs) < .02
     assert np.mean(diffs) < .002
 
+@pytest.mark.slow
 def test_bend_rounded_Miller_K_coefficients():
     from fluids import fluids_data_dir
     from fluids.core import Engauge_2d_parser
@@ -311,6 +314,7 @@ def test_bend_rounded_Miller_K_coefficients():
     [assert_allclose(i, j) for i, j in zip(tck_bend_rounded_Miller, tck_recalc)]
     
     
+@pytest.mark.slow
 def test_bend_rounded_Miller_Re_correction():
     from fluids import fluids_data_dir
     from fluids.core import Engauge_2d_parser
@@ -374,7 +378,7 @@ def test_bend_rounded_Miller_Re_correction():
     assert_allclose(rs, bend_rounded_Miller_C_Re_limit_1)
 
 
-
+@pytest.mark.slow
 def test_bend_rounded_Miller_outlet_tangent_correction():
     from fluids.fittings import tck_bend_rounded_Miller_C_Re
     Re_curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 smooth bends outlet tangent length correction.csv')

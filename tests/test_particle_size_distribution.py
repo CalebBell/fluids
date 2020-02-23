@@ -23,6 +23,7 @@ SOFTWARE.'''
 from fluids import *
 import numpy as np
 from numpy.testing import assert_allclose
+from fluids.numerics import assert_close
 import pytest
 from fluids.particle_size_distribution import *
 import scipy.stats
@@ -96,26 +97,26 @@ def test_ParticleSizeDistribution_basic():
         asme_e799 = ParticleSizeDistribution(ds=ds, **opt)
         
         d10 = asme_e799.mean_size(1, 0)
-        assert_allclose(d10, 1459.3725650679328)
+        assert_close(d10, 1459.3725650679328)
         
         d21 = asme_e799.mean_size(2, 1)
-        assert_allclose(d21, 1857.7888572055529)
+        assert_close(d21, 1857.7888572055529)
         d20 = asme_e799.mean_size(2, 0)
-        assert_allclose(d20, 1646.5740462835831)
+        assert_close(d20, 1646.5740462835831)
         
         d32 = asme_e799.mean_size(3, 2)
-        assert_allclose(d32, 2269.3210317450453)
+        assert_close(d32, 2269.3210317450453)
         # This one is rounded to 2280 in ASME - weird
         
         d31 = asme_e799.mean_size(3, 1)
-        assert_allclose(d31, 2053.2703977309357)
+        assert_close(d31, 2053.2703977309357)
         # This one is rounded to 2060 in ASME - weird
         
         d30 = asme_e799.mean_size(3, 0)
-        assert_allclose(d30, 1832.39665294744)
+        assert_close(d30, 1832.39665294744)
         
         d43 = asme_e799.mean_size(4, 3)
-        assert_allclose(d43, 2670.751954612969)
+        assert_close(d43, 2670.751954612969)
         # The others are, rounded to the nearest 10, correct.
         # There's something weird about the end points of some intermediate values of
         #  D3 and D4. Likely just rounding issues.
@@ -128,22 +129,22 @@ def test_ParticleSizeDistribution_basic():
         
         # i, i distributions
         d00 = asme_e799.mean_size(0, 0)
-        assert_allclose(d00, 1278.7057976023061)
+        assert_close(d00, 1278.7057976023061)
         
         d11 = asme_e799.mean_size(1, 1)
-        assert_allclose(d11, 1654.6665309027303)
+        assert_close(d11, 1654.6665309027303)
         
         d22 = asme_e799.mean_size(2, 2)
-        assert_allclose(d22, 2054.3809583432208)
+        assert_close(d22, 2054.3809583432208)
         
         d33 = asme_e799.mean_size(3, 3)
-        assert_allclose(d33, 2450.886241250387)
+        assert_close(d33, 2450.886241250387)
         
         d44 = asme_e799.mean_size(4, 4)
-        assert_allclose(d44, 2826.0471682278476)
+        assert_close(d44, 2826.0471682278476)
         
         vssa = asme_e799.vssa
-        assert_allclose(vssa, 0.0026656187302839165)
+        assert_close(vssa, 0.0026656187302839165)
 
 
 def test_pdf_lognormal():

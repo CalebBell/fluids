@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018, 2019 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@ from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
 from fluids.constants import inch
-from fluids.numerics import newton, brenth, ellipe, horner, chebval
+from fluids.numerics import newton, brenth, ellipe, horner, chebval, linspace
 from fluids.numerics import numpy as np
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
@@ -1928,9 +1928,9 @@ class TANK(object):
             Vertical distance between steps in the interpolation table, [m]
         '''
         if dx:
-            self.heights = np.linspace(0, self.h_max, int(self.h_max/dx)+1)
+            self.heights = linspace(0.0, self.h_max, int(self.h_max/dx)+1)
         else:
-            self.heights = np.linspace(0, self.h_max, n)
+            self.heights = linspace(0.0, self.h_max, n)
         self.volumes = [self.V_from_h(h) for h in self.heights]
         from scipy.interpolate import UnivariateSpline
         self.interp_h_from_V = UnivariateSpline(self.volumes, self.heights, ext=3, s=0.0)

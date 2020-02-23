@@ -251,7 +251,7 @@ def test_fit_integral_linear_extrapolation():
     
     assert_allclose(func(300), 29.12046448327871, rtol=1e-12)
     Ts = [0, 1, 25, 49, 50, 51, 500, 999, 1000, 1001, 2000, 50000]
-    T_ends = [0, Tmin, Tmin*2, Tmax, Tmax*2]
+    T_ends = [0, Tmin, Tmin*2.0, Tmax, Tmax*2.0]
     
     numericals = []
     analyticals = []
@@ -283,7 +283,7 @@ def test_fit_integral_linear_extrapolation():
 
     # Cannot have temperatures of 0 absolute for integrals over T cases
     Ts = [1e-9, 1, 25, 49, 50, 51, 500, 999, 1000, 1001, 2000, 50000]
-    T_ends = [1e-9, Tmin, Tmin*2, Tmax, Tmax*2]
+    T_ends = [1e-9, Tmin, Tmin*2.0, Tmax, Tmax*2.0]
     numericals = []
     analyticals = []
     analyticals2 = []
@@ -302,7 +302,7 @@ def test_fit_integral_linear_extrapolation():
                                               Tmin_value, Tmax_value, 
                                               Tmin_slope, Tmax_slope))
                 
-                numerical = quad(lambda T: func(T)/T, T1, T2, epsabs=1.49e-12, epsrel=1.49e-14)[0]
+                numerical = quad(lambda T: func(float(T))/T, T1, T2, epsabs=1.49e-12, epsrel=1.49e-14)[0]
                 
                 
                 
