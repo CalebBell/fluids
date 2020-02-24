@@ -2016,9 +2016,9 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             j = jac(x, *args)
 
     if xtol is not None and norm2(fcur) > xtol:
-        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, x))
+        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s" %(maxiter, x))
     if ytol is not None and err(fcur) > ytol:
-        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, x))
+        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s" %(maxiter, x))
 
     return x, iter
 

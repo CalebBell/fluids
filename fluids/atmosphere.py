@@ -164,7 +164,7 @@ class ATMOSPHERE_1976(object):
         self.H_above_layer = self.H - self.H_layer
         self.T = self.T_layer + self.T_increase*self.H_above_layer
 
-        if self.T_increase == 0:
+        if self.T_increase == 0.0:
             self.P = self.P_layer*exp(-g0*M0*(self.H_above_layer)/(self.R*self.T_layer))
         else:
             self.P = self.P_layer*(self.T_layer/self.T)**(g0*M0/(self.R*self.T_increase))
@@ -185,11 +185,11 @@ class ATMOSPHERE_1976(object):
         the index of the layer a specified elevation is above. Levels are 
         0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852 meters respectively.
         '''
-        if H <= 0:
+        if H <= 0.0:
             return 0
         for ind, Hi in enumerate(H_std):
             if Hi >= H :
-                return ind-1
+                return ind - 1
         return 7 # case for > 84852 m.
     
     @staticmethod
@@ -745,17 +745,21 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
     angle_term = cos(radians(angle)) 
     R_planet_inv = 1.0/R_planet
     
+    c0 = delta0 + delta0
+    c1 = c0*rho0_inv
+    c2 = 1.0 + c0
+    
     def to_int(Z):
         Z = float(Z)
         rho = func(Z)
-        t1 = (1.0 + 2.0*delta0*(1.0 - rho*rho0_inv))
-        x0 = (angle_term/(1.0 + Z*R_planet_inv))
+        t1 = c2 - rho*c1
+        x0 = angle_term/(1.0 + Z*R_planet_inv)
         t2 = x0*x0
         t3 = (1.0 - t1*t2)**-0.5
         return rho*t3
 
     from scipy.integrate import quad
-    return float(quad(to_int, 0, 86400.0)[0])
+    return float(quad(to_int, 0.0, 86400.0)[0])
 
 
 
