@@ -372,3 +372,32 @@ def test_roots_quartic():
     roots_calc = roots_quartic(*coeffs)
     assert_allclose(expect_roots, roots_calc, rtol=1e-9)
     assert_allclose(expect_mp_roots_real, [i.real for i in roots_calc], rtol=1e-9)
+    
+    
+def test_array_as_tridiagonals():
+    A = [[10.0, 2.0, 0.0, 0.0],
+     [3.0, 10.0, 4.0, 0.0],
+     [0.0, 1.0, 7.0, 5.0],
+     [0.0, 0.0, 3.0, 4.0]]
+    
+    tridiagonals = array_as_tridiagonals(A)
+    expect_diags = [[3.0, 1.0, 3.0], [10.0, 10.0, 7.0, 4.0], [2.0, 4.0, 5.0]]
+    
+    assert_allclose(tridiagonals[0], expect_diags[0], rtol=0, atol=0)
+    assert_allclose(tridiagonals[1], expect_diags[1], rtol=0, atol=0)
+    assert_allclose(tridiagonals[2], expect_diags[2], rtol=0, atol=0)
+    A = np.array(A)
+    tridiagonals = array_as_tridiagonals(A)
+    assert_allclose(tridiagonals[0], expect_diags[0], rtol=0, atol=0)
+    assert_allclose(tridiagonals[1], expect_diags[1], rtol=0, atol=0)
+    assert_allclose(tridiagonals[2], expect_diags[2], rtol=0, atol=0)
+
+
+    a, b, c = [3.0, 1.0, 3.0], [10.0, 10.0, 7.0, 4.0], [2.0, 4.0, 5.0]
+    expect_mat = tridiagonals_as_array(a, b, c)
+    assert_allclose(expect_mat, A, rtol=0, atol=0)
+    
+    d = [3.0, 4.0, 5.0, 6.0]
+    
+    solved_expect = [0.1487758945386064, 0.756120527306968, -1.001883239171375, 2.2514124293785316]
+    assert_allclose(solve_tridiagonal(a, b, c, d), solved_expect, rtol=1e-12)

@@ -30,7 +30,7 @@ except ImportError:
     np = None
 
 __all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product',
-           'eye']
+           'eye', 'array_as_tridiagonals', 'solve_tridiagonal']
 
 def det(matrix):
     '''Seem sto work fine.
@@ -380,6 +380,7 @@ def inplace_LU(A, ipivot, N):
 
 def solve_from_lu(A, pivots, b, N):
     Np1 = N + 1
+        # Note- list call is very slow faster to replace with [i for i in row]
     b = [0.0] + list(b)
     for i in range(1, Np1):
         tot = b[pivots[i]]
@@ -400,6 +401,7 @@ def solve_LU_decomposition(A, b):
     
     A_copy = [[0.0]*(N+1)]
     for row in A:
+        # Note- list call is very slow faster to replace with [i for i in row]
         r = list(row)
         r.insert(0, 0.0)
         A_copy.append(r)
@@ -414,6 +416,7 @@ def inv_lu(a):
     Np1 = N + 1
     A_copy = [[0.0]*Np1]
     for row in a:
+        # Note- list call is very slow faster to replace with [i for i in row]
         r = list(row)
         r.insert(0, 0.0)
         A_copy.append(r)
@@ -448,3 +451,43 @@ def norm2(arr):
     for i in arr:
         tot += i*i
     return tot**0.5
+
+
+def array_as_tridiagonals(arr):
+    row_last = arr[0]
+    a, b, c = [], [row_last[0]], []
+    for i in range(1, len(row_last)):
+        row = arr[i]
+        b.append(row[i])
+        c.append(row_last[i])
+        a.append(row[i-1])
+        row_last = row
+    return a, b, c
+
+
+def tridiagonals_as_array(a, b, c, zero=0.0):
+    N = len(b)
+    arr = [[zero]*N for _ in range(N)]
+    row_last = arr[0]
+    row_last[0] = b[0]
+    for i in range(1, N):
+        row = arr[i]
+        row[i] = b[i] # set the middle row back
+        row[i-1] = a[i-1]
+        row_last[i] = c[i-1]
+        row_last = row
+    return arr
+
+
+def solve_tridiagonal(a, b, c, d):
+    b, d = [i for i in b], [i for i in d]
+    N = len(d)
+    for i in range(N - 1):
+        m = a[i]/b[i]
+        b[i+1] -= m*c[i]
+        d[i+1] -= m*d[i]
+    
+    b[-1] = d[-1]/b[-1]
+    for i in range(N-2, -1, -1):
+        b[i] = (d[i] - c[i]*b[i+1])/b[i]
+    return b
