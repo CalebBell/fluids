@@ -381,7 +381,7 @@ def inplace_LU(A, ipivot, N):
 def solve_from_lu(A, pivots, b, N):
     Np1 = N + 1
         # Note- list call is very slow faster to replace with [i for i in row]
-    b = [0.0] + list(b)
+    b = [0.0] + [i for i in b] #list(b)
     for i in range(1, Np1):
         tot = b[pivots[i]]
         b[pivots[i]] = b[i]
@@ -402,8 +402,9 @@ def solve_LU_decomposition(A, b):
     A_copy = [[0.0]*(N+1)]
     for row in A:
         # Note- list call is very slow faster to replace with [i for i in row]
-        r = list(row)
-        r.insert(0, 0.0)
+        r = [0.0] + [i for i in row]
+#        r = list(row)
+#        r.insert(0, 0.0)
         A_copy.append(r)
     
     pivots = [0.0]*(N+1)
