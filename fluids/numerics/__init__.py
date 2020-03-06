@@ -24,7 +24,7 @@ from __future__ import division
 from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
 from sys import float_info
-from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye, array_as_tridiagonals, tridiagonals_as_array, solve_tridiagonal
+from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye, array_as_tridiagonals, tridiagonals_as_array, solve_tridiagonal, subset_matrix
 from functools import wraps
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
@@ -51,7 +51,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'evaluate_linear_fits', 'evaluate_linear_fits_d',
            'evaluate_linear_fits_d2',
            'best_bounding_bounds', 'newton_minimize', 'array_as_tridiagonals',
-           'tridiagonals_as_array', 'solve_tridiagonal',
+           'tridiagonals_as_array', 'solve_tridiagonal', 'subset_matrix',
            
            ]
 

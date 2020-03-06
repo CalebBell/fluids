@@ -401,3 +401,30 @@ def test_array_as_tridiagonals():
     
     solved_expect = [0.1487758945386064, 0.756120527306968, -1.001883239171375, 2.2514124293785316]
     assert_allclose(solve_tridiagonal(a, b, c, d), solved_expect, rtol=1e-12)
+   
+    
+def test_subset_matrix():
+    kijs = [[0, 0.00076, 0.00171], [0.00076, 0, 0.00061], [0.00171, 0.00061, 0]]
+    
+    expect = [[0, 0.00061], [0.00061, 0]]
+    got = subset_matrix(kijs, [1,2])
+    assert_allclose(expect, got, atol=0, rtol=0)
+    got = subset_matrix(kijs, slice(1, 3, 1))
+    assert_allclose(expect, got, atol=0, rtol=0)
+    
+    expect = [[0, 0.00171], [0.00171, 0]]
+    got = subset_matrix(kijs, [0,2])
+    assert_allclose(expect, got, atol=0, rtol=0)
+    got = subset_matrix(kijs, slice(0, 3, 2))
+    assert_allclose(expect, got, atol=0, rtol=0)
+    
+    expect = [[0, 0.00076], [0.00076, 0]]
+    got = subset_matrix(kijs, [0,1])
+    assert_allclose(expect, got, atol=0, rtol=0)
+    got = subset_matrix(kijs, slice(0, 2, 1))
+    assert_allclose(expect, got, atol=0, rtol=0)
+    
+    got = subset_matrix(kijs, [0,1, 2])
+    assert_allclose(kijs, got, atol=0, rtol=0)
+    got = subset_matrix(kijs, slice(0, 3, 1))
+    assert_allclose(kijs, got, atol=0, rtol=0)

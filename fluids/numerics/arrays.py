@@ -30,7 +30,7 @@ except ImportError:
     np = None
 
 __all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product',
-           'eye', 'array_as_tridiagonals', 'solve_tridiagonal']
+           'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix']
 
 def det(matrix):
     '''Seem sto work fine.
@@ -492,3 +492,14 @@ def solve_tridiagonal(a, b, c, d):
     for i in range(N-2, -1, -1):
         b[i] = (d[i] - c[i]*b[i+1])/b[i]
     return b
+
+def subset_matrix(whole, subset):
+    if isinstance(subset, slice):
+        subset = range(subset.start, subset.stop, subset.step)
+    new_idx = range(len(subset))
+    N = len(subset)
+    new = [[None]*N for i in range(N)]
+    for ni, i in enumerate(subset):
+        for nj,j in  enumerate(subset):
+            new[ni][nj] = whole[i][j]
+    return new
