@@ -190,7 +190,7 @@ def test_geometry():
     SA1 = SA_guppy_head(2, 1)
     assert_close(SA1, 6.654000019110157)
 
-    SA1 = SA_torispheroidal(D=2.54, fd=1.039370079, fk=0.062362205)
+    SA1 = SA_torispheroidal(D=2.54, f=1.039370079, k=0.062362205)
     assert_close(SA1, 6.00394283477063)
 
     SA1 = SA_tank(D=2, L=2)

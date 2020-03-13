@@ -497,9 +497,13 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     L : float
         Length of the main cylindrical section, [m]
     f : float
-        Dish-radius parameter; fD  = dish radius [1/m]
+        Dimensionless dish-radius parameter; also commonly given as the 
+        product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
     k : float
-        knuckle-radius parameter ; kD = knuckle radius [1/m]
+        Dimensionless knuckle-radius parameter; also commonly given as the
+        product of `k` and `D` (`kD`), which is called the knuckle radius
+        and has units of length, [-]
     h : float
         Height, as measured up to where the fluid ends, [m]
     headonly : bool, optional
@@ -762,9 +766,13 @@ def V_vertical_torispherical(D, f, k, h):
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dish-radius parameter; fD  = dish radius [1/m]
+        Dimensionless dish-radius parameter; also commonly given as the 
+        product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
     k : float
-        knuckle-radius parameter ; kD = knuckle radius [1/m]
+        Dimensionless knuckle-radius parameter; also commonly given as the
+        product of `k` and `D` (`kD`), which is called the knuckle radius
+        and has units of length, [-]
     h : float
         Height, as measured up to where the fluid ends, [m]
 
@@ -1000,9 +1008,13 @@ def V_vertical_torispherical_concave(D, f, k, h):
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dish-radius parameter; fD  = dish radius [1/m]
+        Dimensionless dish-radius parameter; also commonly given as the 
+        product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
     k : float
-        knuckle-radius parameter ; kD = knuckle radius [1/m]
+        Dimensionless knuckle-radius parameter; also commonly given as the
+        product of `k` and `D` (`kD`), which is called the knuckle radius
+        and has units of length, [-]
     h : float
         Height, as measured up to where the fluid ends, [m]
 
@@ -1168,7 +1180,7 @@ def SA_guppy_head(D, a):
     return pi*D/4*(a**2 + D**2)**0.5 + pi*D/2*a
 
 
-def SA_torispheroidal(D, fd, fk):
+def SA_torispheroidal(D, f, k):
     r'''Calculates surface area of a torispherical head according to [1]_.
     Somewhat involved. Equations are adapted to be used for a full head.
 
@@ -1197,10 +1209,14 @@ def SA_torispheroidal(D, fd, fk):
     ----------
     D : float
         Diameter of the main cylindrical section, [m]
-    fd : float
-        Dish-radius parameter = f; fD  = dish radius [1/m]
-    fk : float
-        knuckle-radius parameter = k; kD = knuckle radius [1/m]
+    f : float
+        Dimensionless dish-radius parameter; also commonly given as the 
+        product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
+    k : float
+        Dimensionless knuckle-radius parameter; also commonly given as the
+        product of `k` and `D` (`kD`), which is called the knuckle radius
+        and has units of length, [-]
 
     Returns
     -------
@@ -1211,7 +1227,7 @@ def SA_torispheroidal(D, fd, fk):
     --------
     Example from [1]_.
 
-    >>> SA_torispheroidal(D=2.54, fd=1.039370079, fk=0.062362205)
+    >>> SA_torispheroidal(D=2.54, f=1.039370079, k=0.062362205)
     6.00394283477063
 
     References
@@ -1220,13 +1236,13 @@ def SA_torispheroidal(D, fd, fk):
        Vessels with Dished Heads". https://www.honeywellprocess.com/library/marketing/whitepapers/WP-VesselsWithDishedHeads-UniSimDesign.pdf
        Whitepaper. 2014.
     '''
-    alpha_1 = fd*(1 - (1 - ((0.5 - fk)/(fd-fk))**2)**0.5)
-    alpha_2 = fd - (fd**2 - 2*fd*fk + fk - 0.25)**0.5
+    alpha_1 = f*(1 - (1 - ((0.5 - k)/(f-k))**2)**0.5)
+    alpha_2 = f - (f**2 - 2*f*k + k - 0.25)**0.5
     alpha = alpha_1 # Up to top of dome
-    S1 = 2*pi*D**2*fd*alpha_1
+    S1 = 2*pi*D**2*f*alpha_1
     alpha = alpha_2 # up to top of torus
-    S2_sub = asin((alpha-alpha_2)/fk) - asin((alpha_1-alpha_2)/fk)
-    S2 = 2*pi*D**2*fk*(alpha - alpha_1 + (0.5-fk)*S2_sub)
+    S2_sub = asin((alpha-alpha_2)/k) - asin((alpha_1-alpha_2)/k)
+    S2 = 2*pi*D**2*k*(alpha - alpha_1 + (0.5-k)*S2_sub)
     return S1 + S2
 
 
@@ -1302,7 +1318,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     elif sideA == 'spherical':
         sideA_SA = SA_partial_sphere(D=D, h=sideA_a)
     elif sideA == 'torispherical':
-        sideA_SA = SA_torispheroidal(D=D, fd=sideA_f, fk=sideA_k)
+        sideA_SA = SA_torispheroidal(D=D, f=sideA_f, k=sideA_k)
     else:
         sideA_SA = pi/4*D**2 # Circle
     # Side B
@@ -1315,7 +1331,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     elif sideB == 'spherical':
         sideB_SA = SA_partial_sphere(D=D, h=sideB_a)
     elif sideB == 'torispherical':
-        sideB_SA = SA_torispheroidal(D=D, fd=sideB_f, fk=sideB_k)
+        sideB_SA = SA_torispheroidal(D=D, f=sideB_f, k=sideB_k)
     else:
         sideB_SA = pi/4*D**2 # Circle
 
@@ -1348,9 +1364,13 @@ def a_torispherical(D, f, k):
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dish-radius parameter; fD  = dish radius [1/m]
+        Dimensionless dish-radius parameter; also commonly given as the 
+        product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
     k : float
-        knuckle-radius parameter ; kD = knuckle radius [1/m]
+        Dimensionless knuckle-radius parameter; also commonly given as the
+        product of `k` and `D` (`kD`), which is called the knuckle radius
+        and has units of length, [-]
 
     Returns
     -------
@@ -1402,13 +1422,21 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
         The distance the head as specified by sideB extends up or to the right
         from the main cylindrical section, [m]
     sideA_f : float, optional
-        Dish-radius parameter for side A; fD  = dish radius [1/m]
+        Dimensionless dish-radius parameter for side A; also commonly given as  
+        the product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
     sideA_k : float, optional
-        knuckle-radius parameter for side A; kD = knuckle radius [1/m]
+        Dimensionless knuckle-radius parameter for side A; also commonly given 
+        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        radius and has units of length, [-]
     sideB_f : float, optional
-        Dish-radius parameter for side B; fD  = dish radius [1/m]
+        Dimensionless dish-radius parameter for side B; also commonly given as  
+        the product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
     sideB_k : float, optional
-        knuckle-radius parameter for side B; kD = knuckle radius [1/m]
+        Dimensionless knuckle-radius parameter for side B; also commonly given 
+        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        radius and has units of length, [-]
 
     Returns
     -------
@@ -1524,13 +1552,21 @@ class TANK(object):
         The distance the head as specified by sideB extends up or to the right
         from the main cylindrical section, [m]
     sideA_f : float, optional
-        Dish-radius parameter for side A; fD  = dish radius [1/m]
+        Dimensionless dish-radius parameter for side A; also commonly given as  
+        the product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
     sideA_k : float, optional
-        knuckle-radius parameter for side A; kD = knuckle radius [1/m]
+        Dimensionless knuckle-radius parameter for side A; also commonly given 
+        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        radius and has units of length, [-]
     sideB_f : float, optional
-        Dish-radius parameter for side B; fD  = dish radius [1/m]
+        Dimensionless dish-radius parameter for side B; also commonly given as  
+        the product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
     sideB_k : float, optional
-        knuckle-radius parameter for side B; kD = knuckle radius [1/m]
+        Dimensionless knuckle-radius parameter for side B; also commonly given 
+        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        radius and has units of length, [-]
     L_over_D : float, optional
         Ratio of length over diameter, used only when D and L are both
         unspecified but V is, [-]

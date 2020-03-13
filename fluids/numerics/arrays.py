@@ -28,6 +28,12 @@ try:
     import numpy as np
 except ImportError:
     np = None
+try:
+    # The right way imports the platform module which costs to ms to load!
+    # implementation = platform.python_implementation()
+    IS_PYPY = 'PyPy' in sys.version
+except AttributeError:
+    IS_PYPY = False
 
 __all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product',
            'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix']
@@ -439,9 +445,9 @@ def inv_lu(a):
 
 def solve(a, b):
     if len(a) > 4:
-        return solve_LU_decomposition(a, b)
-#        import numpy as np
-#        return np.linalg.solve(a, b).tolist()
+        if IS_PYPY or np is None:
+            return solve_LU_decomposition(a, b)
+        return np.linalg.solve(a, b).tolist()
     else:
         return dot(inv(a), b)
     
@@ -494,12 +500,20 @@ def solve_tridiagonal(a, b, c, d):
     return b
 
 def subset_matrix(whole, subset):
-    if isinstance(subset, slice):
+    if type(subset) is slice:
         subset = range(subset.start, subset.stop, subset.step)
-    new_idx = range(len(subset))
-    N = len(subset)
-    new = [[None]*N for i in range(N)]
-    for ni, i in enumerate(subset):
-        for nj,j in  enumerate(subset):
-            new[ni][nj] = whole[i][j]
+#    N = len(subset)
+#    new = [[None]*N for i in range(N)]
+#    for ni, i in enumerate(subset):
+#        for nj,j in  enumerate(subset):
+#            new[ni][nj] = whole[i][j]
+    new = []
+    for i in subset:
+        whole_i = whole[i]
+#        r = [whole_i[j] for j in subset]
+#        new.append(r)
+        new.append([whole_i[j] for j in subset])
+#        r = []
+#        for j in subset:
+#            r.append(whole_i[j])
     return new

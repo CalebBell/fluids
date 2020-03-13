@@ -52,6 +52,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'evaluate_linear_fits_d2',
            'best_bounding_bounds', 'newton_minimize', 'array_as_tridiagonals',
            'tridiagonals_as_array', 'solve_tridiagonal', 'subset_matrix',
+           'assert_close', 'translate_bound_func', 'translate_bound_jac',
+           'translate_bound_f_jac',
            
            ]
 
@@ -601,7 +603,8 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True):
     if scalar:
         tot = 0.0
         for k in range(order):
-            tot += weights[k]*func(x0 + (k - ho)*dx, *args)
+            if weights[k] != 0.0:
+                tot += weights[k]*func(x0 + (k - ho)*dx, *args)
         return tot*denominator
     else:
         numerators = None
@@ -1269,6 +1272,113 @@ def caching_decorator(f, full=False):
     if full:
         return wrapper, cache, info_cache
     return wrapper
+
+
+def translate_bound_func(func, bounds=None, low=None, high=None):
+    if bounds is not None:
+        low = [i[0] for i in bounds]
+        high = [i[1] for i in bounds]
+        
+    def new_f(x):
+        '''Function for a solver to call when using the bounded variables.'''
+        x = [float(i) for i in x]
+        for i in range(len(x)):
+            x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+        # Return the actual results
+        return func(x)
+    
+    def translate_into(x):
+        x = [float(i) for i in x]
+        for i in range(len(x)):
+            x[i] = -log((high[i] - x[i])/(x[i] - low[i]))
+        return x
+    
+    def translate_outof(x):
+        x = [float(i) for i in x]
+        for i in range(len(x)):
+            x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+        return x
+    return new_f, translate_into, translate_outof
+
+
+def translate_bound_jac(jac, bounds=None, low=None, high=None):
+    if bounds is not None:
+        low = [i[0] for i in bounds]
+        high = [i[1] for i in bounds]
+        
+    def new_j(x):
+        x_base = [float(i) for i in x]
+        N = len(x)
+        for i in range(N):
+            x_base[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+        jac_base = jac(x_base)
+        try:
+            jac_base = [i for i in jac_base]
+            for i in range(N):
+                v = (high[i] - low[i])*exp(-x[i])*jac_base[i]
+                v *= (1.0 + exp(-x[i]))**-2
+                jac_base[i] = v
+            return jac_base
+        except:
+            raise NotImplementedError("Fail")
+    
+    def translate_into(x):
+        x = [float(i) for i in x]
+        for i in range(len(x)):
+            x[i] = -log((high[i] - x[i])/(x[i] - low[i]))
+        return x
+    
+    def translate_outof(x):
+        x = [float(i) for i in x]
+        for i in range(len(x)):
+            x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+        return x
+    return new_j, translate_into, translate_outof
+
+
+def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None, inplace_jac=False, as_np=False):
+    if bounds is not None:
+        low = [i[0] for i in bounds]
+        high = [i[1] for i in bounds]
+        
+    exp_terms = [0.0]*len(low)
+    
+    def new_f_j(x):
+        x_base = [float(i) for i in x]
+        N = len(x)
+        for i in range(N):
+            exp_terms[i] = ei = exp(-x[i])
+            x_base[i] = (low[i] + (high[i] - low[i])/(1.0 + ei))
+        
+        if jac is True:
+            f_base, jac_base = f(x_base)
+        else:
+            f_base = f(x_base)
+            jac_base = jac(x_base)
+        try:
+            if not inplace_jac:
+                jac_base = [i for i in jac_base]
+            for i in range(N):
+                t = (1.0 + exp_terms[i])
+                jac_base[i] = (high[i] - low[i])*exp_terms[i]*jac_base[i]/(t*t)
+            if as_np:
+                jac_base = np.array(jac_base)
+            return f_base, jac_base
+        except:
+            raise NotImplementedError("Fail")
+    
+    def translate_into(x):
+        x = [float(i) for i in x]
+        for i in range(len(x)):
+            x[i] = -log((high[i] - x[i])/(x[i] - low[i]))
+        return x
+    
+    def translate_outof(x):
+        x = [float(i) for i in x]
+        for i in range(len(x)):
+            x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+        return x
+    return new_f_j, translate_into, translate_outof
 
 
 class OscillationError(Exception):

@@ -428,3 +428,61 @@ def test_subset_matrix():
     assert_allclose(kijs, got, atol=0, rtol=0)
     got = subset_matrix(kijs, slice(0, 3, 1))
     assert_allclose(kijs, got, atol=0, rtol=0)
+    
+    
+def test_translate_bound_func():
+    def rosen_test(x):
+        x, y = x
+        return (1.0 - x)**2 + 100.0*(y - x**2)**2
+    
+    f, into, outof = translate_bound_func(rosen_test, low=[-2, -.2], high=[3.0, 4])
+    
+    point =  [.6, .7]
+    in_exp = [0.0800427076735365, -1.2992829841302609]
+    assert_allclose(into(point), in_exp, rtol=1e-12)
+    
+    assert_allclose(outof(in_exp), point, rtol=1e-12)
+    assert f(into([1, 1])) < 1e-20
+    assert_allclose(outof(into([1, 1])), [1, 1], rtol=1e-12)
+    
+    
+    f, into, outof = translate_bound_func(rosen_test, bounds=[[-2, 3], [-.2, 4]])
+    
+    point =  [.6, .7]
+    in_exp = [0.0800427076735365, -1.2992829841302609]
+    assert_allclose(into(point), in_exp, rtol=1e-12)
+    
+    assert_allclose(outof(in_exp), point, rtol=1e-12)
+    assert f(into([1, 1])) < 1e-20
+    assert_allclose(outof(into([1, 1])), [1, 1], rtol=1e-12)
+    
+def test_translate_bound_jac():
+    from scipy.optimize import rosen_der
+    def rosen_test(x):
+        x, y = x
+        return (1.0 - x)**2 + 100.0*(y - x**2)**2
+    j, into, outof = translate_bound_jac(rosen_der, low=[-2, -.2], high=[3.0, 4])
+    f, into, outof = translate_bound_func(rosen_test, low=[-2, -.2], high=[3.0, 4])
+    
+    point = [3, -2]
+    jac_num = jacobian(f, point, perturbation=1e-8)
+    jac_anal = j(point)
+    assert_allclose(jac_num, jac_anal, rtol=1e-6)
+
+
+def test_translate_bound_f_jac():
+    from scipy.optimize import rosen_der
+    def rosen_test(x):
+        x, y = x
+        return (1.0 - x)**2 + 100.0*(y - x**2)**2
+
+    low, high = [-2, -.2], [3.0, 4]
+    f_j, into, outof = translate_bound_f_jac(rosen_test, rosen_der, low=low, high=high)
+    
+    point = [3, -2]
+    f0, j0 = f_j(point)
+    f0_check = translate_bound_func(rosen_test, low=low, high=high)[0](point)
+    assert_allclose(f0_check, f0, rtol=1e-13)
+    
+    j0_check = translate_bound_jac(rosen_der, low=low, high=high)[0](point)
+    assert_allclose(j0_check, j0, rtol=1e-13)

@@ -121,6 +121,10 @@ bar = 1e5
 torr = mmHg = atm / 760
 psi = pound * g / (inch * inch)
 
+atm_inv = atmosphere_inv = 1.0/atm
+torr_inv = mmHg_inv = 1.0/torr
+psi_inv = 1.0/psi
+
 # area in meter**2
 hectare = 1e4
 acre = 43560 * foot*foot
