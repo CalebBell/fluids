@@ -161,7 +161,8 @@ def test_linspace():
     calc, calc_step = linspace(0,1e-10, endpoint=False, num=1, retstep=True)
     expect, expect_step = np.linspace(0,1e-10, endpoint=False, num=1, retstep=True)
     assert_allclose(calc, expect)
-    assert_allclose(calc_step, expect_step)
+    assert isnan(calc_step)
+    # Cannot compare against numpy expect_step - it did not use to give nan in older versions
 
     calc, calc_step = linspace(100, 1000, endpoint=False, num=21, retstep=True)
     expect, expect_step = np.linspace(100, 1000, endpoint=False, num=21, retstep=True)
