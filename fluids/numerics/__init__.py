@@ -1842,7 +1842,7 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
         q0 = func(p0, *args)
     else:
         q0 = f0
-    if (ytol is not None and abs(q0) < ytol and not require_xtol)  or q0 == 0.0:
+    if (ytol is not None and abs(q0) < ytol and not require_xtol) or q0 == 0.0:
         return p0
     
     if f1 is None:
@@ -1884,7 +1884,8 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
         # Check the exit conditions
         if ytol is not None and xtol is not None:
             # Meet both tolerance - new value is under ytol, and old value
-            if abs(p0 - p1) <= abs(xtol*p0) and abs(q1) < ytol:
+            if abs(q1) < ytol and (not require_xtol or abs(p0 - p1) <= abs(xtol*p0)):
+#            if abs(p0 - p1) <= abs(xtol*p0) and abs(q1) < ytol:
                 if require_eval:
                     return p1
                 return p

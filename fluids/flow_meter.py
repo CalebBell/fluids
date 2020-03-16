@@ -24,7 +24,7 @@ from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, exp, acos, log10
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
-from fluids.numerics import interp, secant, py_brenth as brenth
+from fluids.numerics import interp, secant, py_brenth as brenth, NotBoundedError, secant
 from fluids.constants import g, inch
 
 __all__ = ['C_Reader_Harris_Gallagher',
@@ -534,7 +534,7 @@ def K_to_discharge_coefficient(D, Do, K):
     beta2 = beta*beta
     beta4 = beta2*beta2
     root_K = K**0.5
-    return ((1.0 - beta4)/(2.0*root_K*beta4 + K*beta4))**0.5
+    return ((1.0 - beta4)/((2.0*root_K + K)*beta4))**0.5
 
 
 def dP_orifice(D, Do, P1, P2, C):
@@ -1815,17 +1815,23 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
-            return m - m_calc    
-        return brenth(to_solve, D*(1-1E-9), D*5E-3)
+            return m - m_calc
+        try:
+            return brenth(to_solve, D*(1-1E-9), D*5E-3)
+        except NotBoundedError:
+            return secant(to_solve, D*.3, high=D, low=D*1e-10)
     elif P2 is None and None not in (D, D2, m, P1):
         def to_solve(P2):
-            C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
+            C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                           mu, k, meter_type, 
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
-            return m - m_calc    
-        return brenth(to_solve, P1*(1-1E-9), P1*0.5)
+            return m - m_calc
+        try:
+            return brenth(to_solve, P1*(1-1E-9), P1*0.5)
+        except NotBoundedError:
+            return secant(to_solve, P1*0.5, low=P1*1e-10, high=P1, bisection=True)
     elif P1 is None and None not in (D, D2, m, P2):
         def to_solve(P1):
             C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
@@ -1833,8 +1839,11 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
                                                           taps=taps)
             m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                         C=C, expansibility=epsilon)
-            return m - m_calc    
-        return brenth(to_solve, P2*(1+1E-9), P2*1.4)
+            return m - m_calc
+        try:
+            return brenth(to_solve, P2*(1+1E-9), P2*1.4)
+        except NotBoundedError:
+            return secant(to_solve, P2*1.5, low=P2, bisection=True)
     else:
         raise ValueError('Solver is capable of solving for one of P2, D2, or m only.')
     

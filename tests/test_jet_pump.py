@@ -22,6 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from fluids import *
+from fluids.numerics import assert_close
 import numpy as np
 from numpy.testing import assert_allclose
 import pytest
@@ -76,7 +77,7 @@ def test_liquid_jet_pump_ancillary_rhos_Ks_Ps():
                             kwargs = dict(solution_vars)
                             del kwargs[key]
                             new_value = liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Ks=Ks, Kp=Kp, **kwargs)
-                            assert_allclose(new_value, value)
+                            assert_close(new_value, value)
          
 @pytest.mark.slow                   
 @pytest.mark.fuzz
@@ -111,14 +112,14 @@ def test_liquid_jet_pump_ancillary_d_mixing():
             #         print(solution_vars, key)
     
                     new_value = liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Ks=Ks, Kp=Kp, **kwargs)
-                    assert_allclose(new_value, value)
+                    assert_close(new_value, value)
                     
                     
 def validate_liquid_jet_pump(rhop, rhos, Ks, Kp, Km, Kd, nozzle_retracted, 
                              solution_vars, d_diffuser=None, full=False):
     '''Helper function for testing `liquid_jet_pump`.
     Returns the number of solutions where the return values are the same as 
-    thosegiven in `solution_vars`, and the number of cases where it is not.
+    those given in `solution_vars`, and the number of cases where it is not.
     
     There is nothing wrong with getting a different answer; there are multiple
     solutions in the case of many variable sets.
@@ -155,12 +156,12 @@ def validate_liquid_jet_pump(rhop, rhos, Ks, Kp, Km, Kd, nozzle_retracted,
 #             print('SOLVED, STARTING NEXT')
             try:
                 for key, value in solution_vars.items():
-                    assert_allclose(value, abs(ans[key]))
+                    assert_close(value, abs(ans[key]))
                 same += 1
                 # Since it matched, check the other parameters as well
                 if full:
                     for key, value in all_solution_vars.items():
-                        assert_allclose(value, abs(ans[key]))
+                        assert_close(value, abs(ans[key]))
             except:
                 for key, value in ans.items():
                     # Had some issues with under zero values

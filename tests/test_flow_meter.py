@@ -22,8 +22,10 @@ SOFTWARE.'''
 
 from fluids import *
 import numpy as np
-from scipy.constants import inch
+from fluids.constants import inch
 from scipy.optimize import fsolve
+from math import log10
+from fluids.numerics import linspace, logspace, assert_close
 from numpy.testing import assert_allclose
 import pytest
 
@@ -198,6 +200,27 @@ def test_differential_pressure_meter_P1():
     # Wedge meter
     P1 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
     assert_allclose(P1, 200000)
+
+
+
+
+def test_differential_pressure_meter_solver_limits():
+    # ISO 5167 orifice - How low can P out go?
+    P_out = differential_pressure_meter_solver(D=0.07366, m=7.702338, P1=200000.0, D2=0.0345, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+    assert_close(P_out, 37914.15989971644)
+    
+    # same point
+    D2_recalc = differential_pressure_meter_solver(D=0.07366, m=7.702338, P1=200000.0, P2=37914.15989971644, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+    assert_close(D2_recalc, 0.0345)
+    
+    P1_recalc = differential_pressure_meter_solver(D=0.07366, m=7.702338, P2=37914.15989971644, D2=0.0345, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+    assert_close(P1_recalc, 200000.0)
+    
+    m_recalc = differential_pressure_meter_solver(D=0.07366, P1=200000, P2=37914.15989971644, D2=0.0345, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+    assert_close(m_recalc, 7.702338)
+    
+
+
 
 
 def test_K_to_discharge_coefficient():
@@ -543,6 +566,7 @@ def test_C_venturi_nozzle_full():
 
 
 
+@pytest.mark.fuzz
 @pytest.mark.slow
 def test_fuzz_K_to_discharge_coefficient():
     '''
@@ -567,12 +591,12 @@ def test_fuzz_K_to_discharge_coefficient():
     print(latex(solve(expr, C)[3]))
     '''
     
-    Ds = np.logspace(np.log10(1-1E-9), np.log10(1E-9), 8)
+    Ds = logspace(log10(1-1E-9), log10(1E-9), 8)
     for D_ratio in Ds:
-        Ks = np.logspace(np.log10(1E-9), np.log10(50000), 8)
+        Ks = logspace(log10(1E-9), log10(50000), 8)
         Ks_recalc = []
         for K in Ks:
-            C = K_to_discharge_coefficient(D=1, Do=D_ratio, K=K)
-            K_calc = discharge_coefficient_to_K(D=1, Do=D_ratio, C=C)
+            C = K_to_discharge_coefficient(D=1.0, Do=D_ratio, K=K)
+            K_calc = discharge_coefficient_to_K(D=1.0, Do=D_ratio, C=C)
             Ks_recalc.append(K_calc)
         assert_allclose(Ks, Ks_recalc)
