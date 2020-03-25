@@ -78,7 +78,7 @@ try:
 except AttributeError:
     IS_PYPY = False
 
-IS_PYPY = True # for testing
+#IS_PYPY = True # for testing
 
 if not SKIP_DEPENDENCIES:
     try:
