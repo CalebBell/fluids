@@ -25,15 +25,19 @@ from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
 from sys import float_info
 try:
-    import numpy as np
-except ImportError:
-    np = None
-try:
     # The right way imports the platform module which costs to ms to load!
     # implementation = platform.python_implementation()
     IS_PYPY = 'PyPy' in sys.version
 except AttributeError:
     IS_PYPY = False
+
+#IS_PYPY = True # for testing
+    
+if not IS_PYPY:
+    try:
+        import numpy as np
+    except ImportError:
+        np = None
 
 __all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product',
            'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix']

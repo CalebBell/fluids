@@ -190,7 +190,7 @@ def geocode(address):
 folder = os.path.join(os.path.dirname(__file__), 'data')
 
 
-def heating_degree_days(T, T_base=F2K(65), truncate=True):
+def heating_degree_days(T, T_base=291.4833333333333, truncate=True):
     r'''Calculates the heating degree days for a period of time.
 
     .. math::

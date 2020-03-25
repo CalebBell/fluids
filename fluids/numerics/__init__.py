@@ -60,6 +60,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
 nan = float("nan")
 inf = float("inf")
 
+SKIP_DEPENDENCIES = False # for testing
+
 class FakePackage(object):
     pkg = None
     def __getattr__(self, name):
@@ -75,16 +77,22 @@ try:
     IS_PYPY = 'PyPy' in sys.version
 except AttributeError:
     IS_PYPY = False
-  
-try:
-    # Regardless of actual interpreter, fall back to pure python implementations
-    # if scipy and numpy are not available.
-    import numpy
-    import scipy
-except ImportError:
-    # Allow a fake numpy to be imported, but will raise an excption on any use
+
+IS_PYPY = True # for testing
+
+if not SKIP_DEPENDENCIES:
+    try:
+        # Regardless of actual interpreter, fall back to pure python implementations
+        # if scipy and numpy are not available.
+        import numpy
+        import scipy
+    except ImportError:
+        # Allow a fake numpy to be imported, but will raise an excption on any use
+        numpy = FakePackage('numpy')
+        IS_PYPY = True
+else:
     numpy = FakePackage('numpy')
-    IS_PYPY = True
+
 
 np = numpy
 
@@ -2505,7 +2513,7 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
 
 brenth = py_brenth
 # interp, horner, derivative methods (and maybe newton?) should always be used.
-if not IS_PYPY:
+if not IS_PYPY and not SKIP_DEPENDENCIES:
     from scipy.interpolate import splev, bisplev
     from scipy.optimize import newton, bisect, ridder#, brenth
     
@@ -2515,10 +2523,13 @@ else:
     
     # Try out mpmath for special functions anyway
 has_scipy = False
-try:
-    import scipy
-    has_scipy = True
-except ImportError:
+if not SKIP_DEPENDENCIES:
+    try:
+        import scipy
+        has_scipy = True
+    except ImportError:
+        has_scipy = False
+else:
     has_scipy = False
     
 erf = None
@@ -2547,20 +2558,34 @@ if has_scipy:
     if erf is None:
         from scipy.special import erf
 else:
-    import mpmath
-    # scipy is not available... fall back to mpmath as a Pure-Python implementation
-    from mpmath import lambertw # Same branches as scipy, supports .real
     lambertw = my_lambertw
-    from mpmath import ellipe # seems the same so far        
+    if not SKIP_DEPENDENCIES:
+        import mpmath
+        # scipy is not available... fall back to mpmath as a Pure-Python implementation
+    #    from mpmath import lambertw # Same branches as scipy, supports .real
+        from mpmath import ellipe # seems the same so far        
+        
     
+        # Figured out this definition from test_precompute_gammainc.py in scipy
+        gammaincc = lambda a, x: mpmath.gammainc(a, a=x, regularized=True)
+        iv = mpmath.besseli
+        i1 = lambda x: mpmath.besseli(1, x)
+        i0 = lambda x: mpmath.besseli(0, x)
+        k1 = lambda x: mpmath.besselk(1, x)
+        k0 = lambda x: mpmath.besselk(0, x)
+        
+        if erf is None:
+            from mpmath import erf
+    else:
+        def ellipe(*args, **kwargs):
+            import mpmath
+            return mpmath.ellipe(*args, **kwargs)
+        
+        def gammaincc(a, x):
+            import mpmath
+            return mpmath.gammainc(a, a=x, regularized=True)
+        
+        def iv(*args, **kwargs):
+            import mpmath
+            return mpmath.besseli(*args, **kwargs)
 
-    # Figured out this definition from test_precompute_gammainc.py in scipy
-    gammaincc = lambda a, x: mpmath.gammainc(a, a=x, regularized=True)
-    iv = mpmath.besseli
-    i1 = lambda x: mpmath.besseli(1, x)
-    i0 = lambda x: mpmath.besseli(0, x)
-    k1 = lambda x: mpmath.besselk(1, x)
-    k0 = lambda x: mpmath.besselk(0, x)
-    
-    if erf is None:
-        from mpmath import erf
