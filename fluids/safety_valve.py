@@ -463,7 +463,7 @@ def API520_B(Pset, Pback, overpressure=0.1):
     Pback : float
         Backpressure, [Pa]
     overpressure : float, optional
-        The maximum fraction overpressure; one of 0.1, 0.16, or 0.21, []
+        The maximum fraction overpressure; one of 0.1, 0.16, or 0.21, [-]
 
     Returns
     -------
@@ -488,14 +488,14 @@ def API520_B(Pset, Pback, overpressure=0.1):
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
-    gauge_backpressure = (Pback-atm)/(Pset-atm)*100 # in percent
-    if overpressure not in [0.1, 0.16, 0.21]:
+    gauge_backpressure = (Pback-atm)/(Pset-atm)*100.0 # in percent
+    if overpressure not in (0.1, 0.16, 0.21):
         raise Exception('Only overpressure of 10%, 16%, or 21% are permitted')
-    if (overpressure == 0.1 and gauge_backpressure < 30) or (
-        overpressure == 0.16 and gauge_backpressure < 38) or (
-        overpressure == 0.21 and gauge_backpressure < 50):
-        return 1
-    elif gauge_backpressure > 50:
+    if (overpressure == 0.1 and gauge_backpressure < 30.0) or (
+        overpressure == 0.16 and gauge_backpressure < 38.0) or (
+        overpressure == 0.21 and gauge_backpressure < 50.0):
+        return 1.0
+    elif gauge_backpressure > 50.0:
         raise Exception('Gauge pressure must be < 50%')
     if overpressure == 0.16:
         Kb = interp(gauge_backpressure, Kb_16_over_x, Kb_16_over_y)

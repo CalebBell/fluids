@@ -38,6 +38,25 @@ def test_horner():
     assert_allclose(horner_and_der2(poly, 3.0), (14726.109396, 13747.040732, 8553.7884))
     assert_allclose(horner_and_der3(poly, 3.0), (14726.109396, 13747.040732, 8553.7884, 2674.56))
     
+def test_quadratic_from_f_ders():
+    poly = [1.12, 432.32, 325.5342, .235532, 32.235]
+    p = 3.0
+    v, d1, d2 = horner_and_der2(poly, p)
+    quadratic = quadratic_from_f_ders(p, v, d1, d2)
+    v_new, d1_new, d2_new = horner_and_der2(quadratic, p)
+    
+    assert_close(v_new, v)
+    assert_close(d1_new, d1)
+    assert_close(d2_new, d2)
+    
+    p = 2.9
+    v, d1, d2 = horner_and_der2(poly, p)
+    v_new, d1_new, d2_new = horner_and_der2(quadratic, p)
+    v_new, d1_new, d2_new, v, d1, d2
+    assert_close(v_new, v, rtol=1e-4)
+    assert_close(d1_new, d1, rtol=5e-3)
+    
+
     
 def test_interp():
     from fluids.numerics import interp

@@ -28,7 +28,7 @@ from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye, arra
 from functools import wraps
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
-           'horner_and_der3', 'chebval', 'interp',
+           'horner_and_der3', 'quadratic_from_f_ders', 'chebval', 'interp',
            'linspace', 'logspace', 'cumsum', 'diff',
            'is_poly_negative', 'is_poly_positive',
            'implementation_optimize_tck', 'tck_interp2d_linear',
@@ -125,13 +125,13 @@ def trunc_exp(x, trunc=1e30):
         # Really exp(709.7) 1.6549840276802644e+308
         return trunc
 
-def trunc_log(x):
+def trunc_log(x, trunc=-708.3964185322641):
     try:
         return log(x)
     except ValueError as e:
         if x == 0:
-            # -30 is like log(1e-14) but the real answer is ~log(1e-300) = -690.7
-            return -670.0
+            # -30 is like log(1e-14) but the real answer is ~log(1e-300)= -708.3964185322641
+            return trunc
         else:
             raise e
 
@@ -833,6 +833,20 @@ def horner_and_der3(coeffs, x):
         f = x*f + a
     return (f, der, der2 + der2, der3*6.0)
 
+def quadratic_from_f_ders(x, v, d1, d2):
+    '''from sympy import *
+    f, a, b, c, x, v, d1, d2 = symbols('f, a, b, c, x, v, d1, d2')
+    
+    f0 = a*x**2 + b*x + c
+    f1 = diff(f0, x)
+    f2 = diff(f0, x, 2)
+    
+    solve([Eq(f0, v), Eq(f1, d1), Eq(f2, d2)], [a, b, c])
+    '''
+    a = d2*0.5
+    b = d1 - d2*x
+    c = -d1*x + d2*x*x*0.5 + v
+    return [a, b, c]
 
 def is_poly_positive(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1e-12):
     # Returns True if positive everywhere in the specified domain (or globally)
