@@ -483,7 +483,7 @@ def V_Manning(Rh, S, n):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return Rh**(2/3.)*S**0.5/n
+    return Rh**(2.0/3.)*S**0.5/n
 
 
 def n_Manning_to_C_Chezy(n, Rh):

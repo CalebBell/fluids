@@ -219,8 +219,9 @@ def test_differential_pressure_meter_solver_limits():
     m_recalc = differential_pressure_meter_solver(D=0.07366, P1=200000, P2=37914.15989971644, D2=0.0345, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
     assert_close(m_recalc, 7.702338)
     
-
-
+def test_C_eccentric_orifice_ISO_15377_1998():
+    C =  C_eccentric_orifice_ISO_15377_1998(.2, .075)
+    assert_close(C, 0.6351923828125)
 
 
 def test_K_to_discharge_coefficient():

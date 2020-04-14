@@ -43,7 +43,8 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'C_Reader_Harris_Gallagher_wet_venturi_tube',
            'dP_Reader_Harris_Gallagher_wet_venturi_tube',
            'differential_pressure_meter_C_epsilon',
-           'differential_pressure_meter_beta'
+           'differential_pressure_meter_beta',
+           'C_eccentric_orifice_ISO_15377_1998'
            ]
 
 
@@ -57,10 +58,21 @@ ORIFICE_HOLE_TYPES = [CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, SEGMENTAL_ORIFICE,
 ORIFICE_CORNER_TAPS = 'corner'
 ORIFICE_FLANGE_TAPS = 'flange'
 ORIFICE_D_AND_D_2_TAPS = 'D and D/2'
+ORIFICE_PIPE_TAPS = 'pipe' # Not in ISO 5167
+ORIFICE_VENA_CONTRACTA_TAPS = 'vena contracta' # Not in ISO 5167, normally segmental or eccentric orifices
 
+# Used by miller; modifier on taps
+TAPS_OPPOSITE = '180 degree'
+TAPS_SIDE = '90 degree'
 
 
 ISO_5167_ORIFICE = 'ISO 5167 orifice'
+ISO_15377_ECCENTRIC_ORIFICE = 'ISO 15377 eccentric orifice'
+MILLER_1996_ORIFICE = 'Miller 1986 orifice'
+MILLER_1996_ECCENTRIC_ORIFICE = 'Miller 1986 eccentric orifice'
+MILLER_1996_SEGMENTAL_ORIFICE = 'Miller 1986 segmental orifice'
+
+
 
 LONG_RADIUS_NOZZLE = 'long radius nozzle'
 ISA_1932_NOZZLE = 'ISA 1932 nozzle'
@@ -72,11 +84,17 @@ ROUGH_WELDED_CONVERGENT_VENTURI_TUBE = 'rough welded convergent venturi tube'
 
 CONE_METER = 'cone meter'
 WEDGE_METER = 'wedge meter'
-__all__.extend(['ISO_5167_ORIFICE', 'LONG_RADIUS_NOZZLE', 'ISA_1932_NOZZLE',
+__all__.extend(['ISO_5167_ORIFICE','ISO_15377_ECCENTRIC_ORIFICE', 'MILLER_1996_ORIFICE', 
+                'MILLER_1996_ECCENTRIC_ORIFICE', 'MILLER_1996_SEGMENTAL_ORIFICE',
+                'LONG_RADIUS_NOZZLE', 'ISA_1932_NOZZLE',
                 'VENTURI_NOZZLE', 'AS_CAST_VENTURI_TUBE', 
                 'MACHINED_CONVERGENT_VENTURI_TUBE',
                 'ROUGH_WELDED_CONVERGENT_VENTURI_TUBE', 'CONE_METER',
                 'WEDGE_METER'])
+
+__all__.extend(['ORIFICE_CORNER_TAPS', 'ORIFICE_FLANGE_TAPS',
+                'ORIFICE_D_AND_D_2_TAPS', 'ORIFICE_PIPE_TAPS', 
+                'ORIFICE_VENA_CONTRACTA_TAPS', 'TAPS_OPPOSITE', 'TAPS_SIDE'])
 
 
 def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
@@ -89,7 +107,7 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
         {\sqrt{1 - \beta^4}}\cdot \epsilon
         
     Parameters
-    ----------
+    ----------element 
     D : float
         Upstream internal pipe diameter, [m]
     Do : float
@@ -434,6 +452,78 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     
     return C
 
+def C_eccentric_orifice_ISO_15377_1998(D, Do):
+    r'''Calculates the coefficient of discharge of an eccentric orifice based 
+    on the geometry of the plate according to ISO 15377, first introduced in 
+    1998 and also presented in the second 2007 edition. It also appears in BS 
+    1042-1.2: 1989.
+    
+    .. math::
+        C = 0.9355 - 1.6889\beta + 3.0428\beta^2 - 1.7989\beta^3
+        
+    This type of plate is normally used to avoid obstructing entrained gas,
+    liquid, or sediment. 
+        
+    Parameters
+    ----------
+    D : float
+        Upstream internal pipe diameter, [m]
+    Do : float
+        Diameter of orifice at flow conditions, [m]
+        
+    Returns
+    -------
+    C : float
+        Coefficient of discharge of the eccentric orifice, [-]
+
+    Notes
+    -----
+    No correction for where the orifice bore is located is included.
+    
+    The following limits apply to the orifice plate standard [1]_:
+        
+    * Bore diameter above 50 mm.
+    * Pipe diameter between 10 cm and 1 m.
+    * Beta ratio between 0.46 and 0.84
+    * :math:`2\times10^5 \beta^2 \le Re_D \le 10^6 \beta
+    
+    The uncertainty of this equation for `C` is said to be 1% if `beta` is 
+    under 0.75, otherwise 2%.
+    
+    The `orifice_expansibility` function should be used with this method as 
+    well.
+    
+    Additional specifications are:
+        
+    * The thickness of the orifice should be between 0.005`D` and 0.02`D`.
+    * Corner tappings should be used, with hole diameter between 3 and 10 mm. 
+       The angular orientation of the tappings matters because the flow meter
+       is not symmetrical. The angle should ideally be at the top or bottom of
+       the plate, opposite which side the bore is on - but this can cause 
+       issues with deposition if the taps are on the bottom or gas bubbles if
+       the taps are on the taps. The taps are often placed 30 degrees away from
+       the ideal position to counteract this effect, with under an extra 2%
+       error.
+       
+    Some comparisons with CFD results can be found in [2]_.
+    
+    Examples
+    --------
+    >>> C_eccentric_orifice_ISO_15377_1998(.2, .075)
+    0.6351923828125
+    
+    References
+    ----------
+    .. [1] TC 30/SC 2, ISO. ISO/TR 15377:1998, Measurement of Fluid Flow by 
+       Means of Pressure-Differential Devices - Guide for the Specification of 
+       Nozzles and Orifice Plates beyond the Scope of ISO 5167-1. 
+    .. [2] Yashvanth, S., Varadarajan Seshadri, and J. YogeshKumarK. "CFD 
+       Analysis of Flow through Single and Multi Stage Eccentric Orifice Plate
+       Assemblies," 2017.
+    '''
+    beta = Do/D
+    C = 0.9355 - 1.6889*beta + 3.0428*beta**2 - 1.7989*beta**3
+    return C
 
 def discharge_coefficient_to_K(D, Do, C):
     r'''Converts a discharge coefficient to a standard loss coefficient,
