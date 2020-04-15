@@ -106,6 +106,10 @@ __all__.extend(['ORIFICE_CORNER_TAPS', 'ORIFICE_FLANGE_TAPS',
                 'ORIFICE_D_AND_D_2_TAPS', 'ORIFICE_PIPE_TAPS', 
                 'ORIFICE_VENA_CONTRACTA_TAPS', 'TAPS_OPPOSITE', 'TAPS_SIDE'])
 
+__all__.extend(['CONCENTRIC_ORIFICE', 'ECCENTRIC_ORIFICE',
+                'CONICAL_ORIFICE', 'SEGMENTAL_ORIFICE', 
+                'QUARTER_CIRCLE_ORIFICE'])
+
 
 def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
     r'''Calculates the flow rate of an orifice plate based on the geometry
