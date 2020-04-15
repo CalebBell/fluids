@@ -2204,13 +2204,16 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         epsilon = orifice_expansibility(D, D2, P1, P2, k)
     elif meter_type == ISO_15377_CONICAL_ORIFICE:
         C = ISO_15377_CONICAL_ORIFICE_C
-    
+        # Average of concentric square edge orifice and ISA 1932 nozzles
+        epsilon = 0.5*(orifice_expansibility(D, D2, P1, P2, k)
+                       + nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k))
+
     elif meter_type in (MILLER_1996_ORIFICE, MILLER_1996_ECCENTRIC_ORIFICE, 
                       MILLER_1996_SEGMENTAL_ORIFICE, MILLER_1996_QUARTER_CIRCLE_ORIFICE):
         C = C_Miller_1996(D, D2, rho, mu, m, subtype=meter_type, taps=taps,
                           tap_position=tap_position)
         epsilon = orifice_expansibility(D, D2, P1, P2, k)
-    
+
     elif meter_type == LONG_RADIUS_NOZZLE:
         epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
         C = C_long_radius_nozzle(D=D, Do=D2, rho=rho, mu=mu, m=m)
