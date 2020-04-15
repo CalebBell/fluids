@@ -25,7 +25,7 @@ import numpy as np
 from fluids.constants import inch
 from scipy.optimize import fsolve
 from math import log10
-from fluids.numerics import linspace, logspace, assert_close
+from fluids.numerics import linspace, logspace, assert_close, isclose
 from numpy.testing import assert_allclose
 import pytest
 
@@ -65,6 +65,99 @@ def test_C_Reader_Harris_Gallagher():
     C1 = C_Reader_Harris_Gallagher(D=0.07112, **kwargs)
     C2 = C_Reader_Harris_Gallagher(D=0.07112-1e-13, **kwargs)
     assert_allclose(C1, C2)
+    
+def test_C_Miller_1996():
+    C_flange_ISO = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange')
+    C_corner_ISO = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='corner')
+    C_D_D2_ISO = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps=ORIFICE_D_AND_D_2_TAPS)
+    
+    C_flange = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
+    C_flange_2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype='orifice', taps=ORIFICE_FLANGE_TAPS)
+    assert C_flange == C_flange_2
+    assert_close(C_flange, 0.599065557156788, rtol=1e-12)
+    assert_close(C_flange, C_flange_ISO, rtol=2e-4)
+    
+    C_flange_small_ISO = C_Reader_Harris_Gallagher(D=0.04, Do=0.02, rho=1.165, mu=1.85E-5, m=0.2, taps='flange')
+    C_flange_small = C_Miller_1996(D=0.04, Do=0.02, rho=1.165, mu=1.85E-5, m=0.2, subtype=MILLER_1996_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
+    assert_close(C_flange_small, 0.6035249226284967, rtol=1e-12)
+    assert_close(C_flange_small_ISO, C_flange_small, rtol=1e-2)
+    
+    C_corner = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ORIFICE, taps=ORIFICE_CORNER_TAPS)
+    assert_close(C_corner, 0.5991255880475622, rtol=1e-12)
+    assert_close(C_corner, C_corner_ISO, rtol=2e-3)
+    
+    C_D_D2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ORIFICE, taps=ORIFICE_D_AND_D_2_TAPS)
+    assert_close(C_D_D2, 0.5836056345693277, rtol=1e-12)
+    assert_close(C_D_D2, C_D_D2_ISO, rtol=3e-2)
+    
+    C_pipe = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ORIFICE, taps=ORIFICE_PIPE_TAPS)
+    assert_close(C_pipe, 0.6338716097225481, rtol=1e-12)
+    
+    
+    
+    C_flange_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_SEGMENTAL_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
+    C_flange_small2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype='segmental orifice', taps=ORIFICE_FLANGE_TAPS)
+    assert C_flange_small == C_flange_small
+    
+    C_flange_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_SEGMENTAL_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
+    assert_close(C_flange_small, 0.6343546437000684, rtol=1e-12)
+    assert_close(C_flange_large, 0.6301688962913937, rtol=1e-12)
+    
+    C_vc_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_SEGMENTAL_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS)
+    C_vc_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_SEGMENTAL_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS)
+    assert_close(C_vc_small, 0.6341386019820933, rtol=1e-12)
+    assert_close(C_vc_large, 0.6301688962913937, rtol=1e-12)
+    
+    C_flange_opp_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_OPPOSITE)
+    C_flange_opp_small2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype='eccentric orifice', taps='flange', tap_position=TAPS_OPPOSITE)
+    assert_close(C_flange_opp_small, 0.6096299230744815, rtol=1e-12)
+    C_flange_opp_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_OPPOSITE)
+    assert_close(C_flange_opp_large, 0.6196903510975135, rtol=1e-12)
+    
+    C_flange_side_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_SIDE)
+    C_flange_side_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_SIDE)
+    assert_close(C_flange_side_small, 0.6086231594104639, rtol=1e-12)
+    assert_close(C_flange_side_large, 0.6227796822413327, rtol=1e-12)
+    
+    
+    C_vc_opp_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_OPPOSITE)
+    assert_close(C_vc_opp_small, 0.6108105171632562, rtol=1e-12)
+    C_vc_opp_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_OPPOSITE)
+    assert_close(C_vc_opp_large, 0.6190713098741648, rtol=1e-12)
+    
+    C_vc_side_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_SIDE)
+    C_vc_side_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_SIDE)
+    assert_close(C_vc_side_small, 0.6089351556538237, rtol=1e-12)
+    assert_close(C_vc_side_large, 0.6214809940486437, rtol=1e-12)
+    
+    # Error testing
+    with pytest.raises(ValueError):
+        C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ORIFICE, taps='NOTATAP')
+
+    with pytest.raises(ValueError):
+        C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps='NOTATAP')
+    
+    with pytest.raises(ValueError):
+        C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps=ORIFICE_FLANGE_TAPS, tap_position='NOTAPOSITION')
+
+    with pytest.raises(ValueError):
+        C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_SEGMENTAL_ORIFICE, taps='BADTAP')
+        
+    with pytest.raises(ValueError):
+        C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype='BADTYPE')
+    
+    # Conical
+    C_high = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_CONICAL_ORIFICE)
+    assert C_high == 0.73
+    C_low = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.0001, subtype=MILLER_1996_CONICAL_ORIFICE)
+    assert C_low == 0.734
+    C_low2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.0001, subtype='conical orifice')
+    assert C_low2 == C_low
+    # Quarter circle
+    C_circ = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_QUARTER_CIRCLE_ORIFICE)
+    assert_close(C_circ, 0.7750496225919683)
+    C_circ2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype='quarter circle orifice')
+    assert C_circ == C_circ2
     
 def test_differential_pressure_meter_discharge():
     # Orifice
@@ -222,8 +315,25 @@ def test_differential_pressure_meter_solver_limits():
 def test_C_eccentric_orifice_ISO_15377_1998():
     C =  C_eccentric_orifice_ISO_15377_1998(.2, .075)
     assert_close(C, 0.6351923828125)
-
-
+    
+    # Does not perfectly match - like error in ISO.
+    D = 1.0
+    betas = [1e-2*i for i in range(46, 85, 1)]
+    Cs_expect = [0.627, 0.627, 0.627, 0.627, 0.627, 0.627, 0.627, 0.627, 0.627, 0.628, 0.628, 0.628, 0.628, 0.629, 0.629, 0.629, 0.629, 0.629, 0.629, 0.629, 0.629, 0.629, 0.628, 0.628, 0.627, 0.626, 0.625, 0.624, 0.623, 0.621, 0.620, 0.618, 0.616, 0.613, 0.611, 0.608, 0.605, 0.601, 0.597]
+    Cs_calc = [C_eccentric_orifice_ISO_15377_1998(D=D, Do=beta_i) for beta_i in betas]
+    for Ci, Cj in zip(Cs_expect, Cs_calc):
+        assert isclose(Ci, Cj, rel_tol=1.02e-3)
+    
+def test_C_quarter_circle_orifice_ISO_15377_1998():
+    C = C_quarter_circle_orifice_ISO_15377_1998(.2, .075)
+    assert_close(C, 0.7785148437500001, rtol=1e-12)
+    
+    betas = [0.245, 0.250, 0.260, 0.270, 0.280, 0.290, 0.300, 0.310, 0.320, 0.330, 0.340, 0.350, 0.360, 0.370, 0.380, 0.390, 0.400, 0.410, 0.420, 0.430, 0.440, 0.450, 0.460, 0.470, 0.480, 0.490, 0.500, 0.510, 0.520, 0.530, 0.540, 0.550, 0.560, 0.570, 0.580, 0.590, 0.600]
+    Cs_expect = [0.772, 0.772, 0.772, 0.773, 0.773, 0.773, 0.774, 0.774, 0.775, 0.775, 0.776, 0.776, 0.777, 0.778, 0.779, 0.780, 0.781, 0.783, 0.784, 0.786, 0.787, 0.789, 0.791, 0.794, 0.796, 0.799, 0.802, 0.805, 0.808, 0.812, 0.816, 0.820, 0.824, 0.829, 0.834, 0.839, 0.844]
+    for Do, C_expect in zip(betas, Cs_expect):
+        C = C_quarter_circle_orifice_ISO_15377_1998(D=1, Do=Do)
+        assert (round(C, 3) == C_expect)
+    
 def test_K_to_discharge_coefficient():
     C = K_to_discharge_coefficient(D=0.07366, Do=0.05, K=5.2314291729754)
     assert_allclose(C, 0.6151200000000001)
