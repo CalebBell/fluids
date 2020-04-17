@@ -71,90 +71,90 @@ def test_C_Miller_1996():
     C_corner_ISO = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='corner')
     C_D_D2_ISO = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps=ORIFICE_D_AND_D_2_TAPS)
     
-    C_flange = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
+    C_flange = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
     C_flange_2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype='orifice', taps=ORIFICE_FLANGE_TAPS)
     assert C_flange == C_flange_2
     assert_close(C_flange, 0.599065557156788, rtol=1e-12)
     assert_close(C_flange, C_flange_ISO, rtol=2e-4)
     
     C_flange_small_ISO = C_Reader_Harris_Gallagher(D=0.04, Do=0.02, rho=1.165, mu=1.85E-5, m=0.2, taps='flange')
-    C_flange_small = C_Miller_1996(D=0.04, Do=0.02, rho=1.165, mu=1.85E-5, m=0.2, subtype=MILLER_1996_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
+    C_flange_small = C_Miller_1996(D=0.04, Do=0.02, rho=1.165, mu=1.85E-5, m=0.2, subtype=MILLER_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
     assert_close(C_flange_small, 0.6035249226284967, rtol=1e-12)
     assert_close(C_flange_small_ISO, C_flange_small, rtol=1e-2)
     
-    C_corner = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ORIFICE, taps=ORIFICE_CORNER_TAPS)
+    C_corner = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_ORIFICE, taps=ORIFICE_CORNER_TAPS)
     assert_close(C_corner, 0.5991255880475622, rtol=1e-12)
     assert_close(C_corner, C_corner_ISO, rtol=2e-3)
     
-    C_D_D2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ORIFICE, taps=ORIFICE_D_AND_D_2_TAPS)
+    C_D_D2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_ORIFICE, taps=ORIFICE_D_AND_D_2_TAPS)
     assert_close(C_D_D2, 0.5836056345693277, rtol=1e-12)
     assert_close(C_D_D2, C_D_D2_ISO, rtol=3e-2)
     
-    C_pipe = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ORIFICE, taps=ORIFICE_PIPE_TAPS)
+    C_pipe = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_ORIFICE, taps=ORIFICE_PIPE_TAPS)
     assert_close(C_pipe, 0.6338716097225481, rtol=1e-12)
     
     
     
-    C_flange_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_SEGMENTAL_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
+    C_flange_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_SEGMENTAL_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
     C_flange_small2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype='segmental orifice', taps=ORIFICE_FLANGE_TAPS)
     assert C_flange_small == C_flange_small
     
-    C_flange_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_SEGMENTAL_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
+    C_flange_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_SEGMENTAL_ORIFICE, taps=ORIFICE_FLANGE_TAPS)
     assert_close(C_flange_small, 0.6343546437000684, rtol=1e-12)
     assert_close(C_flange_large, 0.6301688962913937, rtol=1e-12)
     
-    C_vc_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_SEGMENTAL_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS)
-    C_vc_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_SEGMENTAL_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS)
+    C_vc_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_SEGMENTAL_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS)
+    C_vc_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_SEGMENTAL_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS)
     assert_close(C_vc_small, 0.6341386019820933, rtol=1e-12)
     assert_close(C_vc_large, 0.6301688962913937, rtol=1e-12)
     
-    C_flange_opp_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_OPPOSITE)
+    C_flange_opp_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_OPPOSITE)
     C_flange_opp_small2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype='eccentric orifice', taps='flange', tap_position=TAPS_OPPOSITE)
     assert_close(C_flange_opp_small, 0.6096299230744815, rtol=1e-12)
-    C_flange_opp_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_OPPOSITE)
+    C_flange_opp_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_OPPOSITE)
     assert_close(C_flange_opp_large, 0.6196903510975135, rtol=1e-12)
     
-    C_flange_side_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_SIDE)
-    C_flange_side_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_SIDE)
+    C_flange_side_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_SIDE)
+    C_flange_side_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_ECCENTRIC_ORIFICE, taps='flange', tap_position=TAPS_SIDE)
     assert_close(C_flange_side_small, 0.6086231594104639, rtol=1e-12)
     assert_close(C_flange_side_large, 0.6227796822413327, rtol=1e-12)
     
     
-    C_vc_opp_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_OPPOSITE)
+    C_vc_opp_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_OPPOSITE)
     assert_close(C_vc_opp_small, 0.6108105171632562, rtol=1e-12)
-    C_vc_opp_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_OPPOSITE)
+    C_vc_opp_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_OPPOSITE)
     assert_close(C_vc_opp_large, 0.6190713098741648, rtol=1e-12)
     
-    C_vc_side_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_SIDE)
-    C_vc_side_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_SIDE)
+    C_vc_side_small = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_SIDE)
+    C_vc_side_large = C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_ECCENTRIC_ORIFICE, taps=ORIFICE_VENA_CONTRACTA_TAPS, tap_position=TAPS_SIDE)
     assert_close(C_vc_side_small, 0.6089351556538237, rtol=1e-12)
     assert_close(C_vc_side_large, 0.6214809940486437, rtol=1e-12)
     
     # Error testing
     with pytest.raises(ValueError):
-        C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ORIFICE, taps='NOTATAP')
+        C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_ORIFICE, taps='NOTATAP')
 
     with pytest.raises(ValueError):
-        C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps='NOTATAP')
+        C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_ECCENTRIC_ORIFICE, taps='NOTATAP')
     
     with pytest.raises(ValueError):
-        C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_ECCENTRIC_ORIFICE, taps=ORIFICE_FLANGE_TAPS, tap_position='NOTAPOSITION')
+        C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_ECCENTRIC_ORIFICE, taps=ORIFICE_FLANGE_TAPS, tap_position='NOTAPOSITION')
 
     with pytest.raises(ValueError):
-        C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_1996_SEGMENTAL_ORIFICE, taps='BADTAP')
+        C_Miller_1996(D=0.2, Do=0.08, rho=1.165, mu=1.85E-5, m=2, subtype=MILLER_SEGMENTAL_ORIFICE, taps='BADTAP')
         
     with pytest.raises(ValueError):
         C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype='BADTYPE')
     
     # Conical
-    C_high = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_CONICAL_ORIFICE)
+    C_high = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_CONICAL_ORIFICE)
     assert C_high == 0.73
-    C_low = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.0001, subtype=MILLER_1996_CONICAL_ORIFICE)
+    C_low = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.0001, subtype=MILLER_CONICAL_ORIFICE)
     assert C_low == 0.734
     C_low2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.0001, subtype='conical orifice')
     assert C_low2 == C_low
     # Quarter circle
-    C_circ = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_1996_QUARTER_CIRCLE_ORIFICE)
+    C_circ = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype=MILLER_QUARTER_CIRCLE_ORIFICE)
     assert_close(C_circ, 0.7750496225919683)
     C_circ2 = C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, subtype='quarter circle orifice')
     assert C_circ == C_circ2
@@ -498,6 +498,10 @@ def test_differential_pressure_meter_dP():
     with pytest.raises(Exception):
         differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, meter_type=VENTURI_NOZZLE) 
 
+    with pytest.raises(ValueError):
+        differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, meter_type='NOTAMETER')
+
+
 
 def test_differential_pressure_meter_beta():
     beta = differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=LONG_RADIUS_NOZZLE)
@@ -508,6 +512,9 @@ def test_differential_pressure_meter_beta():
     
     beta = differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=CONE_METER)
     assert_allclose(beta, 0.6995709873957624)
+    
+    with pytest.raises(ValueError):
+        differential_pressure_meter_beta(D=0.07366, D2=0.05, meter_type='NOTAMETER')
 
 
 def test_cone_meter_expansibility_Stewart_full():
@@ -675,7 +682,56 @@ def test_C_venturi_nozzle_full():
     Cs_calc = [C_venturi_nozzle(D=1, Do=beta) for beta in betas]
     assert_allclose(Cs, Cs_calc, rtol=5E-3)
 
-
+def test_differential_pressure_meter_C_epsilon():
+    # Some random cases
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168,
+    meter_type=ISO_15377_ECCENTRIC_ORIFICE)
+    assert_close(C, 0.6284616939680627)
+    assert_close(eps, 0.9711026966676307)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168,
+    meter_type=ISO_15377_QUARTER_CIRCLE_ORIFICE)
+    assert_close(C, 0.899402420975695)
+    assert_close(eps, 0.9711026966676307)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168,
+    meter_type=ISO_15377_CONICAL_ORIFICE)
+    assert_close(C, 0.734)
+    assert_close(eps, 0.9532330165749132)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168,
+    meter_type=MILLER_ORIFICE, taps='corner')
+    assert_close(C, 0.6068011224659587)
+    assert_close(eps, 0.9711026966676307)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168,
+    meter_type=MILLER_CONICAL_ORIFICE)
+    assert_close(C, 0.73)
+    assert_close(eps, 0.9532330165749132)
+    
+    
+    # Test one case of the default translation
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168,taps='corner',
+    meter_type=CONCENTRIC_ORIFICE)
+    C_iso, eps_iso = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168,taps='corner',
+    meter_type=CONCENTRIC_ORIFICE)
+    
+    assert C == C_iso
+    assert eps == eps_iso
+    
+    with pytest.raises(ValueError):
+        differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+                                              P2=183000.0, rho=999.1, mu=0.0011, 
+                                              k=1.33, m=7.702338035732168, meter_type='NOTAREAMETER')
+        
+    
 
 @pytest.mark.fuzz
 @pytest.mark.slow

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -74,11 +74,11 @@ ISO_15377_ECCENTRIC_ORIFICE = 'ISO 15377 eccentric orifice'
 ISO_15377_QUARTER_CIRCLE_ORIFICE = 'ISO 15377 quarter-circle orifice'
 ISO_15377_CONICAL_ORIFICE = 'ISO 15377 conical orifice'
 
-MILLER_1996_ORIFICE = 'Miller 1996 orifice'
-MILLER_1996_ECCENTRIC_ORIFICE = 'Miller 1996 eccentric orifice'
-MILLER_1996_SEGMENTAL_ORIFICE = 'Miller 1996 segmental orifice'
-MILLER_1996_CONICAL_ORIFICE = 'Miller 1996 conical orifice'
-MILLER_1996_QUARTER_CIRCLE_ORIFICE = 'Miller 1996 quarter circle orifice'
+MILLER_ORIFICE = 'Miller orifice'
+MILLER_ECCENTRIC_ORIFICE = 'Miller eccentric orifice'
+MILLER_SEGMENTAL_ORIFICE = 'Miller segmental orifice'
+MILLER_CONICAL_ORIFICE = 'Miller conical orifice'
+MILLER_QUARTER_CIRCLE_ORIFICE = 'Miller quarter circle orifice'
 
 
 LONG_RADIUS_NOZZLE = 'long radius nozzle'
@@ -91,15 +91,15 @@ ROUGH_WELDED_CONVERGENT_VENTURI_TUBE = 'rough welded convergent venturi tube'
 
 CONE_METER = 'cone meter'
 WEDGE_METER = 'wedge meter'
-__all__.extend(['ISO_5167_ORIFICE','ISO_15377_ECCENTRIC_ORIFICE', 'MILLER_1996_ORIFICE', 
-                'MILLER_1996_ECCENTRIC_ORIFICE', 'MILLER_1996_SEGMENTAL_ORIFICE',
+__all__.extend(['ISO_5167_ORIFICE','ISO_15377_ECCENTRIC_ORIFICE', 'MILLER_ORIFICE', 
+                'MILLER_ECCENTRIC_ORIFICE', 'MILLER_SEGMENTAL_ORIFICE',
                 'LONG_RADIUS_NOZZLE', 'ISA_1932_NOZZLE',
                 'VENTURI_NOZZLE', 'AS_CAST_VENTURI_TUBE', 
                 'MACHINED_CONVERGENT_VENTURI_TUBE',
                 'ROUGH_WELDED_CONVERGENT_VENTURI_TUBE', 'CONE_METER',
                 'WEDGE_METER', 'ISO_15377_CONICAL_ORIFICE',
-                'MILLER_1996_CONICAL_ORIFICE', 
-                'MILLER_1996_QUARTER_CIRCLE_ORIFICE',
+                'MILLER_CONICAL_ORIFICE', 
+                'MILLER_QUARTER_CIRCLE_ORIFICE',
                 'ISO_15377_QUARTER_CIRCLE_ORIFICE'])
 
 __all__.extend(['ORIFICE_CORNER_TAPS', 'ORIFICE_FLANGE_TAPS',
@@ -121,7 +121,7 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
         {\sqrt{1 - \beta^4}}\cdot \epsilon
         
     Parameters
-    ----------element 
+    ----------
     D : float
         Upstream internal pipe diameter, [m]
     Do : float
@@ -687,7 +687,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
     
     beta = Do/D
 
-    if subtype == MILLER_1996_ORIFICE or subtype == CONCENTRIC_ORIFICE:
+    if subtype == MILLER_ORIFICE or subtype == CONCENTRIC_ORIFICE:
         b = 91.706*beta**2.5
         n = 0.75
         if taps == ORIFICE_CORNER_TAPS:
@@ -704,7 +704,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
         else:
             raise ValueError("Supported taps for subtype '%s' are %s" %(CONCENTRIC_ORIFICE, 
                                 (ORIFICE_CORNER_TAPS, ORIFICE_FLANGE_TAPS, ORIFICE_D_AND_D_2_TAPS, ORIFICE_PIPE_TAPS)))
-    elif subtype == MILLER_1996_ECCENTRIC_ORIFICE or subtype == ECCENTRIC_ORIFICE:
+    elif subtype == MILLER_ECCENTRIC_ORIFICE or subtype == ECCENTRIC_ORIFICE:
         if tap_position != TAPS_OPPOSITE and tap_position != TAPS_SIDE:
             raise ValueError("Supported tap positions for subtype '%s' are %s" %(ECCENTRIC_ORIFICE, 
                                 (TAPS_OPPOSITE, TAPS_SIDE)))
@@ -742,7 +742,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
         else:
             raise ValueError("Supported taps for subtype '%s' are %s" %(ECCENTRIC_ORIFICE, 
                             (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS)))
-    elif subtype == MILLER_1996_SEGMENTAL_ORIFICE or subtype == SEGMENTAL_ORIFICE:
+    elif subtype == MILLER_SEGMENTAL_ORIFICE or subtype == SEGMENTAL_ORIFICE:
         n = b = 0.0
         if taps == ORIFICE_FLANGE_TAPS:
             if D < 0.1:
@@ -758,13 +758,13 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
         else:
             raise ValueError("Supported taps for subtype '%s' are %s" %(SEGMENTAL_ORIFICE, 
                             (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS)))
-    elif subtype == MILLER_1996_CONICAL_ORIFICE or subtype == CONICAL_ORIFICE:
+    elif subtype == MILLER_CONICAL_ORIFICE or subtype == CONICAL_ORIFICE:
         n = b = 0.0
         if 250.0*beta <= Re <= 500.0*beta:
             C_inf = 0.734
         else:
             C_inf = 0.730
-    elif subtype == MILLER_1996_QUARTER_CIRCLE_ORIFICE or subtype == QUARTER_CIRCLE_ORIFICE:
+    elif subtype == MILLER_QUARTER_CIRCLE_ORIFICE or subtype == QUARTER_CIRCLE_ORIFICE:
         n = b = 0.0
         C_inf = (0.7746 - 0.1334*beta**2.1 + 1.4098*beta**8 
                  + 0.0675*beta**4/(1.0 - beta**4) + 0.3865*beta**3)
@@ -2058,9 +2058,9 @@ ISO_15377_CONICAL_ORIFICE_C = 0.734
 beta_simple_meters = set([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE, 
                           ISO_15377_CONICAL_ORIFICE, ISO_15377_QUARTER_CIRCLE_ORIFICE, 
                           
-                          MILLER_1996_ORIFICE, MILLER_1996_ECCENTRIC_ORIFICE, 
-                          MILLER_1996_SEGMENTAL_ORIFICE, MILLER_1996_CONICAL_ORIFICE,
-                          MILLER_1996_QUARTER_CIRCLE_ORIFICE, 
+                          MILLER_ORIFICE, MILLER_ECCENTRIC_ORIFICE, 
+                          MILLER_SEGMENTAL_ORIFICE, MILLER_CONICAL_ORIFICE,
+                          MILLER_QUARTER_CIRCLE_ORIFICE, 
                           
                           CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, CONICAL_ORIFICE,
                           SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE,
@@ -2071,6 +2071,8 @@ beta_simple_meters = set([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                           MACHINED_CONVERGENT_VENTURI_TUBE, 
                           ROUGH_WELDED_CONVERGENT_VENTURI_TUBE])
 
+all_meters = beta_simple_meters.copy()
+all_meters.update([CONE_METER, WEDGE_METER])
 
 def differential_pressure_meter_beta(D, D2, meter_type):
     r'''Calculates the beta ratio of a differential pressure meter.
@@ -2083,11 +2085,15 @@ def differential_pressure_meter_beta(D, D2, meter_type):
         Diameter of orifice, or venturi meter orifice, or flow tube orifice,
         or cone meter end diameter, or wedge meter fluid flow height, [m]
     meter_type : str
-        One of ('ISO 5167 orifice', 'long radius nozzle', 'ISA 1932 nozzle', 
-        'venuri nozzle', 'as cast convergent venturi tube', 
-        'machined convergent venturi tube', 
-        'rough welded convergent venturi tube', 'cone meter',
-        'wedge meter'), [-]
+        One of {'as cast convergent venturi tube', 'wedge meter', 'venuri nozzle', 
+        'conical orifice', 'cone meter', 'eccentric orifice', 
+        'ISO 15377 quarter-circle orifice', 'quarter circle orifice',
+        'Miller eccentric orifice', 'Miller orifice', 'orifice', 
+        'rough welded convergent venturi tube', 'ISO 15377 conical orifice', 
+        'machined convergent venturi tube', 'segmental orifice',
+        'long radius nozzle', 'Miller segmental orifice', 'ISA 1932 nozzle',
+        'ISO 15377 eccentric orifice', 'Miller quarter circle orifice',
+        'Miller conical orifice', 'ISO 5167 orifice'}, [-]
 
     Returns
     -------
@@ -2109,6 +2115,8 @@ def differential_pressure_meter_beta(D, D2, meter_type):
         beta = diameter_ratio_cone_meter(D=D, Dc=D2)
     elif meter_type == WEDGE_METER:
         beta = diameter_ratio_wedge_meter(D=D, H=D2)
+    else:
+        raise ValueError("Supported meter types are %s" % all_meters)
     return beta
 
 
@@ -2117,7 +2125,7 @@ _meter_type_to_corr_default = {
     ECCENTRIC_ORIFICE: ISO_15377_ECCENTRIC_ORIFICE,
     CONICAL_ORIFICE: ISO_15377_CONICAL_ORIFICE,
     QUARTER_CIRCLE_ORIFICE: ISO_15377_QUARTER_CIRCLE_ORIFICE,
-    SEGMENTAL_ORIFICE: MILLER_1996_SEGMENTAL_ORIFICE,
+    SEGMENTAL_ORIFICE: MILLER_SEGMENTAL_ORIFICE,
     }
 
 def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k, 
@@ -2152,11 +2160,15 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
     k : float
         Isentropic exponent of fluid, [-]
     meter_type : str
-        One of ('ISO 5167 orifice', 'long radius nozzle', 'ISA 1932 nozzle', 
-        'venuri nozzle', 'as cast convergent venturi tube', 
-        'machined convergent venturi tube', 
-        'rough welded convergent venturi tube', 'cone meter',
-        'wedge meter'), [-]
+        One of {'as cast convergent venturi tube', 'wedge meter', 'venuri nozzle', 
+        'conical orifice', 'cone meter', 'eccentric orifice', 
+        'ISO 15377 quarter-circle orifice', 'quarter circle orifice',
+        'Miller eccentric orifice', 'Miller orifice', 'orifice', 
+        'rough welded convergent venturi tube', 'ISO 15377 conical orifice', 
+        'machined convergent venturi tube', 'segmental orifice',
+        'long radius nozzle', 'Miller segmental orifice', 'ISA 1932 nozzle',
+        'ISO 15377 eccentric orifice', 'Miller quarter circle orifice',
+        'Miller conical orifice', 'ISO 5167 orifice'}, [-]
     taps : str, optional
         The orientation of the taps; one of 'corner', 'flange', 'D', or 'D/2';
         applies for orifice meters only, [-]
@@ -2212,12 +2224,12 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         epsilon = 0.5*(orifice_expansibility(D, D2, P1, P2, k)
                        + nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k))
 
-    elif meter_type in (MILLER_1996_ORIFICE, MILLER_1996_ECCENTRIC_ORIFICE, 
-                      MILLER_1996_SEGMENTAL_ORIFICE, MILLER_1996_QUARTER_CIRCLE_ORIFICE):
+    elif meter_type in (MILLER_ORIFICE, MILLER_ECCENTRIC_ORIFICE, 
+                      MILLER_SEGMENTAL_ORIFICE, MILLER_QUARTER_CIRCLE_ORIFICE):
         C = C_Miller_1996(D, D2, rho, mu, m, subtype=meter_type, taps=taps,
                           tap_position=tap_position)
         epsilon = orifice_expansibility(D, D2, P1, P2, k)
-    elif meter_type == MILLER_1996_CONICAL_ORIFICE:
+    elif meter_type == MILLER_CONICAL_ORIFICE:
         C = C_Miller_1996(D, D2, rho, mu, m, subtype=meter_type, taps=taps,
                           tap_position=tap_position)
         epsilon = 0.5*(orifice_expansibility(D, D2, P1, P2, k)
@@ -2249,6 +2261,8 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         beta = diameter_ratio_wedge_meter(D=D, H=D2)
         epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P1, k=k, beta=beta)
         C = C_wedge_meter_ISO_5167_6_2017(D=D, H=D2)
+    else:
+        raise ValueError("Supported meter types are %s" % all_meters)
     return C, epsilon
 
 
@@ -2282,12 +2296,16 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         at the prescribed location (varies by type of meter) [Pa]
     m : float, optional
         Mass flow rate of fluid through the flow meter, [kg/s]
-    meter_type : str, optional
-        One of ('ISO 5167 orifice', 'long radius nozzle', 'ISA 1932 nozzle', 
-        'venuri nozzle', 'as cast convergent venturi tube', 
-        'machined convergent venturi tube', 
-        'rough welded convergent venturi tube', 'cone meter',
-        'wedge meter'), [-]
+    meter_type : str
+        One of {'as cast convergent venturi tube', 'wedge meter', 'venuri nozzle', 
+        'conical orifice', 'cone meter', 'eccentric orifice', 
+        'ISO 15377 quarter-circle orifice', 'quarter circle orifice',
+        'Miller eccentric orifice', 'Miller orifice', 'orifice', 
+        'rough welded convergent venturi tube', 'ISO 15377 conical orifice', 
+        'machined convergent venturi tube', 'segmental orifice',
+        'long radius nozzle', 'Miller segmental orifice', 'ISA 1932 nozzle',
+        'ISO 15377 eccentric orifice', 'Miller quarter circle orifice',
+        'Miller conical orifice', 'ISO 5167 orifice'}, [-]
     taps : str, optional
         The orientation of the taps; one of 'corner', 'flange', 'D', or 'D/2';
         applies for orifice meters only, [-]
@@ -2393,9 +2411,9 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
 _dP_orifice_set = set([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE, 
                   ISO_15377_CONICAL_ORIFICE, ISO_15377_QUARTER_CIRCLE_ORIFICE, 
                   
-                  MILLER_1996_ORIFICE, MILLER_1996_ECCENTRIC_ORIFICE, 
-                  MILLER_1996_SEGMENTAL_ORIFICE, MILLER_1996_CONICAL_ORIFICE,
-                  MILLER_1996_QUARTER_CIRCLE_ORIFICE, 
+                  MILLER_ORIFICE, MILLER_ECCENTRIC_ORIFICE, 
+                  MILLER_SEGMENTAL_ORIFICE, MILLER_CONICAL_ORIFICE,
+                  MILLER_QUARTER_CIRCLE_ORIFICE, 
                   
                   CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, CONICAL_ORIFICE,
                   SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE])
@@ -2469,4 +2487,6 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
         dP = dP_cone_meter(D=D, Dc=D2, P1=P1, P2=P2)
     elif meter_type == WEDGE_METER:
         dP = dP_wedge_meter(D=D, H=D2, P1=P1, P2=P2)
+    else:
+        raise ValueError("Supported meter types are %s" % all_meters)
     return dP
