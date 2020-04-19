@@ -52,7 +52,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'evaluate_linear_fits_d2',
            'best_bounding_bounds', 'newton_minimize', 'array_as_tridiagonals',
            'tridiagonals_as_array', 'solve_tridiagonal', 'subset_matrix',
-           'assert_close', 'translate_bound_func', 'translate_bound_jac',
+           'assert_close', 'assert_close1d',
+           'translate_bound_func', 'translate_bound_jac',
            'translate_bound_f_jac',
            
            ]
@@ -1168,13 +1169,21 @@ except ImportError:
     pass
 
 def assert_close(a, b, rtol=1e-7, atol=0.0):
+    if a is b:
+        # Nice to handle None
+        return True
     try:
         assert isclose(a, b, rel_tol=rtol, abs_tol=atol)
     except:
         from numpy.testing import assert_allclose
         return assert_allclose(a, b, rtol=rtol, atol=atol)
 
-
+def assert_close1d(a, b, rtol=1e-7, atol=0.0):
+    N = len(a)
+    if N != len(b):
+        raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
+    for i in range(N):
+        assert_close(a[i], b[i], rtol=rtol, atol=atol)
 
 def interp(x, dx, dy, left=None, right=None):
     '''One-dimensional linear interpolation routine inspired/

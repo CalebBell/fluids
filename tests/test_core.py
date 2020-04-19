@@ -22,35 +22,36 @@ SOFTWARE.'''
 
 from __future__ import division
 from fluids import *
+from fluids.numerics import assert_close
 from numpy.testing import assert_allclose, assert_equal
 import pytest
 import numpy as np
 
 def test_core_misc():
     alpha = thermal_diffusivity(0.02, 1., 1000.)
-    assert_allclose(alpha, 2e-05)
+    assert_close(alpha, 2e-05)
 
     c = c_ideal_gas(1.4, 303., 28.96)
-    assert_allclose(c, 348.9820361755092, rtol=1e-05)
+    assert_close(c, 348.9820361755092, rtol=1e-05)
 
 
 def test_core_dimensionless():
     Re = Reynolds(2.5, 0.25, 1.1613, 1.9E-5)
-    assert_allclose(Re, 38200.65789473684)
+    assert_close(Re, 38200.65789473684)
     Re = Reynolds(2.5, 0.25, nu=1.636e-05)
-    assert_allclose(Re, 38202.93398533008)
+    assert_close(Re, 38202.93398533008)
     with pytest.raises(Exception):
         Reynolds(2.5, 0.25, 1.1613)
 
     PeH = Peclet_heat(1.5, 2, 1000., 4000., 0.6)
-    assert_allclose(PeH, 20000000.0)
+    assert_close(PeH, 20000000.0)
     PeH = Peclet_heat(1.5, 2, alpha=1E-7)
-    assert_allclose(PeH, 30000000.0)
+    assert_close(PeH, 30000000.0)
     with pytest.raises(Exception):
         Peclet_heat(1.5, 2, 1000., 4000.)
 
     PeM = Peclet_mass(1.5, 2, 1E-9)
-    assert_allclose(PeM, 3000000000)
+    assert_close(PeM, 3000000000)
 
     FH1 = Fourier_heat(1.5, 2, 1000., 4000., 0.6)
     FH2 = Fourier_heat(1.5, 2, alpha=1E-7)
@@ -59,7 +60,7 @@ def test_core_dimensionless():
         Fourier_heat(1.5, 2, 1000., 4000.)
 
     FHM = Fourier_mass(1.5, 2, 1E-9)
-    assert_allclose(FHM,  3.7500000000000005e-10)
+    assert_close(FHM,  3.7500000000000005e-10)
 
     GZh1 = Graetz_heat(1.5, 0.25, 5, 800., 2200., 0.6)
     GZh2 = Graetz_heat(1.5, 0.25, 5, alpha=1E-7)
@@ -80,13 +81,13 @@ def test_core_dimensionless():
         Lewis(D=22.6E-6, rho=800., k=.2)
 
     We = Weber(0.18, 0.001, 900., 0.01)
-    assert_allclose(We, 2.916)
+    assert_close(We, 2.916)
 
     Ma = Mach(33., 330)
-    assert_allclose(Ma, 0.1)
+    assert_close(Ma, 0.1)
 
     Kn = Knudsen(1e-10, .001)
-    assert_allclose(Kn, 1e-07)
+    assert_close(Kn, 1e-07)
 
     Pr1 = Prandtl(Cp=1637., k=0.010, mu=4.61E-6)
     Pr2 = Prandtl(Cp=1637., k=0.010, nu=6.4E-7, rho=7.1)
@@ -102,10 +103,10 @@ def test_core_dimensionless():
         Grashof(L=0.9144, beta=0.000933, T1=178.2, rho=1.1613)
 
     Bo1 = Bond(1000., 1.2, .0589, 2)
-    assert_allclose(Bo1, 665187.2339558573)
+    assert_close(Bo1, 665187.2339558573)
 
     Ra1 = Rayleigh(1.2, 4.6E9)
-    assert_allclose(Ra1, 5520000000)
+    assert_close(Ra1, 5520000000)
 
     Fr1 = Froude(1.83, 2., 1.63)
     Fr2 = Froude(1.83, L=2., squared=True)

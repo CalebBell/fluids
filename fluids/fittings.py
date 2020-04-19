@@ -1734,8 +1734,10 @@ def contraction_sharp(Di1, Di2):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     beta = Di2/Di1
-    lbd = 1 + 0.622*(1-0.215*beta**2 - 0.785*beta**5)
-    return 0.0696*(1-beta**5)*lbd**2 + (lbd-1)**2
+    beta2 = beta*beta
+    beta5 = beta2*beta2*beta
+    lbd = 1.0 + 0.622*(1.0 - 0.215*beta2 - 0.785*beta5)
+    return 0.0696*(1.0 - beta5)*lbd*lbd + (lbd - 1.0)*(lbd - 1.0)
 
 
 contraction_round_Idelchik_ratios = [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 
@@ -2262,7 +2264,8 @@ def diffuser_sharp(Di1, Di2):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     beta = Di1/Di2
-    return (1.0 - beta*beta)**2
+    r = 1.0 - beta*beta
+    return r*r
 
 
 def diffuser_conical_Crane(Di1, Di2, l=None, angle=None):
