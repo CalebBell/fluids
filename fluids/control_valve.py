@@ -640,6 +640,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
     P1, P2, Psat, Pc = P1/1000., P2/1000., Psat/1000., Pc/1000.
     Q = Q*3600. # m^3/s to m^3/hr, according to constants in standard
     nu = mu/rho # kinematic viscosity used in standard
+    MAX_C_POSSIBLE = 1E40 # Quit iterations if C reaches this high
 
     dP = P1 - P2
     FF = FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
@@ -660,9 +661,10 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
         # normal calculation path
         if (Rev > 10000 or not allow_laminar) and (D1 != d or D2 != d):
             # liquid, using Fp and FLP
-            FP = 1
+            FP = 1.0
             Ci = C
-            def iterate_piping_turbulent(Ci):
+            MAX_ITER = 20
+            def iterate_piping_turbulent(Ci, iterations):
                 loss = loss_coefficient_piping(d, D1, D2)
                 FP = (1 + loss/N2*(Ci/d**2)**2)**-0.5
                 loss_upstream = loss_coefficient_piping(d, D1)
@@ -674,15 +676,16 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
                 else:
                     # Non-Choked flow with piping, equation 5
                     C = Q/N1/FP*(rho/rho0/dP)**0.5
-                if Ci/C < 0.99:
-                    C = iterate_piping_turbulent(C)
-                    
+                if Ci/C < 0.99 and iterations < MAX_ITER and Ci < MAX_C_POSSIBLE:
+                    C = iterate_piping_turbulent(C, iterations+1)
+                if MAX_ITER == iterations or Ci >= MAX_C_POSSIBLE:
+                    ans['warning'] = 'Not converged in inner loop'
                 if full_output:
                     ans['FLP'] = FLP
                     ans['FP'] = FP
                 return C
     
-            C = iterate_piping_turbulent(Ci)
+            C = iterate_piping_turbulent(Ci, 0)
         elif Rev <= 10000 and allow_laminar:
             # Laminar
             def iterate_piping_laminar(C):

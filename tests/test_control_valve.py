@@ -146,6 +146,15 @@ def test_control_valve_size_l():
     for Kv, boolean in zip((0.014547698964079439, 0.011190537664676491), (True, False)):
         ans = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=670E3, Q=0.000001, D1=0.1, D2=0.1, d=0.1, FL=0.6, Fd=0.98, allow_laminar=boolean, full_output=True)
         assert_allclose(ans['Kv'], Kv)
+        
+    # Test for too many iterations, does not converge
+    kwargs = {'allow_laminar': True, 'allow_choked': True, 'Fd': 1.0, 'FL': 1.0, 'D1': 0.1, 'D2': 0.1,
+              'd': 0.09, 'full_output': True, 'P1': 1000000.0, 'mu': 0.0008512512422708317, 
+              'rho': 995.4212225776154, 'Pc': 22048320.0, 'Q': 0.004018399356246507,
+              'Psat': 3537.075987237396, 'P2': 999990.0}
+    res = size_control_valve_l(**kwargs)
+    assert 'warning' in res
+
 
 
 def test_control_valve_size_g():
