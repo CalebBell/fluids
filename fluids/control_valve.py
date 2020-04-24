@@ -667,7 +667,11 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
             def iterate_piping_turbulent(Ci, iterations):
                 loss = loss_coefficient_piping(d, D1, D2)
                 FP = (1 + loss/N2*(Ci/d**2)**2)**-0.5
-                loss_upstream = loss_coefficient_piping(d, D1)
+                if d > D1:
+                    loss_upstream = 0.0
+                else:
+                    loss_upstream = loss_coefficient_piping(d, D1)
+
                 FLP = FL*(1 + FL**2/N2*loss_upstream*(Ci/d**2)**2)**-0.5
                 choked = is_choked_turbulent_l(dP, P1, Psat, FF, FLP=FLP, FP=FP)
                 if choked:
@@ -788,6 +792,10 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     `FL` and `Fd` are not used by the models when the diameters are not 
     specified, but `xT` definitely is used by the model.
     
+    When this model does not converge, the result is normally because of the
+    specified delta P being less than that caused by the piping diameter
+    changes.
+    
     Examples
     --------
     From [1]_, matching example 3 for non-choked gas flow with attached
@@ -854,6 +862,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
             # gas, using xTP and FLP
             FP = 1.
             MAX_ITER = 20
+            
             def iterate_piping_coef(Ci, iterations):
                 loss = loss_coefficient_piping(d, D1, D2)
                 FP = (1. + loss/N2*(Ci/d**2)**2)**-0.5
@@ -875,6 +884,27 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
                     if MAX_ITER == iterations or Ci >= MAX_C_POSSIBLE:
                         ans['warning'] = 'Not converged in inner loop'
                 return C
+            
+#            def err_piping_coeff(Ci):
+#                loss = loss_coefficient_piping(d, D1, D2)
+#                FP = (1. + loss/N2*(Ci/d**2)**2)**-0.5
+#                loss_upstream = loss_coefficient_piping(d, D1)
+#                xTP = xT/FP**2/(1 + xT*loss_upstream/N5*(Ci/d**2)**2)
+#                choked = is_choked_turbulent_g(x, Fgamma, xTP=xTP)
+#                if choked:
+#                    # Choked flow with piping, equation 17a
+#                    C = Q/(N9*FP*P1*Y)*(MW*T*Z/xTP/Fgamma)**0.5
+#                else:
+#                    # Non-choked flow with piping, equation 11a
+#                    C = Q/(N9*FP*P1*Y)*(MW*T*Z/x)**0.5
+#                return C - Ci
+#            import matplotlib.pyplot as plt
+#            from fluids.numerics import linspace
+#            Cs = linspace(C/50, C*50, 5000)
+#            errs = [err_piping_coeff(C_test) for C_test in Cs]
+#            plt.plot(Cs, errs)
+#            plt.show()
+            
             C = iterate_piping_coef(C, 0)
         elif Rev <= 10000 and allow_laminar:
             # Laminar;
@@ -895,6 +925,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     if full_output:
         ans['Kv'] = C
         ans['laminar'] = Rev <= 10000
+        ans['choked'] = choked
         return ans
     else:
         return C

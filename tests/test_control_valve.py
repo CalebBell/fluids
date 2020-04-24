@@ -101,18 +101,20 @@ def test_control_valve_size_l():
 
     # Modified example 2 with non-choked flow, with reducer and expander
 
-    Kv = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.95, FL=0.6, Fd=0.98)
-    assert_allclose(Kv, 230.1734424266345)
+    Kv = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.095, FL=0.6, Fd=0.98)
+    assert_allclose(Kv, 241.6812562245056)
     
     # Same, test intermediate values
-    ans = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.95, FL=0.6, Fd=0.98, full_output=True)
+    ans = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.095, FL=0.6, Fd=0.98, full_output=True)
     del ans['choked']
     del ans['FR']
-    ans_expect = {'Kv': 230.1734424266345,
-                 'FF': 0.9442375225233299,
-                 'FLP': 0.620553360954273,
-                 'FP': 0.8112169324177585,
-                 'Rev': 6596962.21111206}
+    ans_expect = {'FF': 0.9442375225233299,
+                  'FLP': 0.5912597868996382,
+                  'FP': 0.9969139124178094,
+                  'Kv': 241.6812562245056,
+                  'Rev': 6596962.21111206,
+                  'laminar': False}
+                
     for k in ans_expect.keys():
         assert_allclose(ans[k], ans_expect[k])
 
@@ -155,7 +157,14 @@ def test_control_valve_size_l():
     res = size_control_valve_l(**kwargs)
     assert 'warning' in res
 
-
+    # Test 'choked' in results
+    kwargs = {'allow_laminar': True, 'allow_choked': True, 'Fd': 0.42, 'FL': 0.85, 
+              'D1': 0.08, 'D2': 0.1, 'd': 0.05, 'full_output': True, 'P1': 680000.0,
+              'mu': 2.099826023627934e-05, 'T': 433.0, 'MW': 44.0095, 
+              'gamma': 1.2567580165935908, 'Z': 0.9896087377962121, 'xT': 0.6,
+              'Q': 1.0632314140418966, 'P2': 313744.8065927219}
+    res = size_control_valve_g(**kwargs)
+    assert res['choked']
 
 def test_control_valve_size_g():
     # From [1]_, matching example 3 for non-choked gas flow with attached
