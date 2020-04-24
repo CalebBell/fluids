@@ -189,7 +189,7 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
     >>> control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6, P2=458887.5306077305)
     680000.0
     '''
-    FF = FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
+    FF = 0.96 - 0.28*(Psat/Pc)**0.5 #FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
     Pmin_absolute = FF*Psat
     if P2 is None:
         ans = P2 = FF*FL*FL*Psat - FL*FL*P1 + P1
@@ -303,9 +303,9 @@ def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
     if FLP and FP:
-        return dP >= (FLP/FP)**2*(P1-FF*Psat)
+        return dP >= FLP*FLP/(FP*FP)*(P1-FF*Psat)
     elif FL:
-        return dP >= FL**2*(P1-FF*Psat)
+        return dP >= FL*FL*(P1-FF*Psat)
     else:
         raise Exception('Either (FLP and FP) or FL is needed')
 
@@ -400,7 +400,7 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
-    return N4*Fd*Q/nu/(C*FL)**0.5*(FL**2*C**2/(N2*D1**4) + 1)**0.25
+    return N4*Fd*Q/nu*(C*FL)**-0.5*(FL*FL*C*C/N2*D1**-4.0 + 1.0)**0.25
 
 
 def loss_coefficient_piping(d, D1=None, D2=None):
@@ -450,11 +450,15 @@ def loss_coefficient_piping(d, D1=None, D2=None):
     '''
     loss = 0.
     if D1:
-        loss += 1. - (d/D1)**4 # Inlet flow energy
-        loss += 0.5*(1. - (d/D1)**2)**2 # Inlet reducer
+        dr = d/D1
+        dr2 = dr*dr
+        loss += 1. - dr2*dr2 # Inlet flow energy
+        loss += 0.5*(1. - dr2)*(1.0 - dr2) # Inlet reducer
     if D2:
-        loss += 1.0*(1. - (d/D2)**2)**2 # Outlet reducer (expander)
-        loss -= 1. - (d/D2)**4 # Outlet flow energy
+        dr = d/D2
+        dr2 = dr*dr
+        loss += 1.0*(1. - dr2)*(1.0 - dr2) # Outlet reducer (expander)
+        loss -= 1. - dr2*dr2 # Outlet flow energy
     return loss
 
 
