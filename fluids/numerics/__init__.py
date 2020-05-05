@@ -38,7 +38,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
            'broyden2',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
-           'i1', 'i0', 'k1', 'k0', 'iv',
+           'i1', 'i0', 'k1', 'k0', 'iv', 'mean',
            'numpy',
            'polyint_over_x', 'horner_log', 'polyint', 'chebder',
            'polyder', 'make_damp_initial',
@@ -52,7 +52,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'evaluate_linear_fits_d2',
            'best_bounding_bounds', 'newton_minimize', 'array_as_tridiagonals',
            'tridiagonals_as_array', 'solve_tridiagonal', 'subset_matrix',
-           'assert_close', 'assert_close1d',
+           'assert_close', 'assert_close1d', 'assert_close2d',
            'translate_bound_func', 'translate_bound_jac',
            'translate_bound_f_jac',
            
@@ -399,6 +399,10 @@ def roots_quartic(a, b, c, d, e):
     x38 = x2 + x31
     x39 = csqrt(x33 - x34)*0.5
     return ((x32 - x35), (x32 + x35), (x38 - x39), (x38 + x39))
+
+def mean(data):
+    # Much faster than the statistics.mean module
+    return sum(data)/len(data)
 
 def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
     '''Port of numpy's linspace to pure python. Does not support dtype, and 
@@ -1185,6 +1189,13 @@ def assert_close1d(a, b, rtol=1e-7, atol=0.0):
     for i in range(N):
         assert_close(a[i], b[i], rtol=rtol, atol=atol)
 
+def assert_close2d(a, b, rtol=1e-7, atol=0.0):
+    N = len(a)
+    if N != len(b):
+        raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
+    for i in range(N):
+        assert_close1d(a[i], b[i], rtol=rtol, atol=atol)
+
 def interp(x, dx, dy, left=None, right=None):
     '''One-dimensional linear interpolation routine inspired/
     reimplemented from NumPy for extra speed for scalar values
@@ -1959,6 +1970,8 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
         q0 = q1
         p1 = p
         q1 = func(p1, *args, **kwargs)
+        if q1 == 0.0:
+            return p1
         if bisection:
             if q1 < 0.0:
                 a = p1

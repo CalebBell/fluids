@@ -1763,13 +1763,13 @@ class TANK(object):
         Maximum tank height is calculated here.
         V_total is calculated here.
         '''
-        if self.D and self.L:
+        if self.D is not None and self.L is not None:
             # If L and D are known, get L_over_D
             self.L_over_D = self.L/self.D
-        elif self.D and self.L_over_D:
+        elif self.D is not None and self.L_over_D is not None:
             # Otherwise, if L_over_D and D are provided, get L
             self.L = self.D*self.L_over_D
-        elif self.L and self.L_over_D:
+        elif self.L is not None and self.L_over_D is not None:
             # Otherwise, if L_over_D and L are provided, get D
             self.D = self.L/self.L_over_D
 
@@ -1777,11 +1777,11 @@ class TANK(object):
         self.R = self.D/2.
 
         # If a_ratio is provided for either heads, use it.
-        if self.sideA and self.D:
-            if not self.sideA_a and self.sideA in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
+        if self.sideA is not None and self.D is not None:
+            if self.sideA_a is None and self.sideA in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
                 self.sideA_a = self.D*self.sideA_a_ratio
-        if self.sideB and self.D:
-            if not self.sideB_a and self.sideB in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
+        if self.sideB is not None and self.D is not None:
+            if self.sideB_a is None and self.sideB in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
                 self.sideB_a = self.D*self.sideB_a_ratio
 
         # Calculate a for torispherical heads

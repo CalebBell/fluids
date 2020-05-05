@@ -24,7 +24,7 @@ from __future__ import division
 from fluids import *
 from fluids.numerics import assert_close
 from math import *
-from scipy.constants import *
+from fluids.constants import *
 import numpy as np
 from scipy.integrate import quad
 from numpy.testing import assert_allclose
@@ -434,6 +434,16 @@ def test_TANK_issues():
     # GH issue 31
     Tk = TANK(L=3, D=5, horizontal=False,  sideA='torispherical', sideA_f=1, sideA_k=0.1, sideB='torispherical', sideB_f=1, sideB_k=0.1) #DIN28011
     assert_allclose(Tk.V_total, Tk.V_from_h(Tk.h_max*.9999999999), rtol=1e-12)
+    
+    # Issue where checking sideA_a was for truthiness and not  not None
+    kwargs = {'L': 2.0, 'horizontal': 'vertical', 'L_over_D': None, 
+              'V': None, 'sideA': 'ellipsoidal', 'sideB': 'ellipsoidal', 
+              'sideA_a': 0.0, 'sideB_a': 1e-06, 'sideA_a_ratio': None, 
+              'sideB_a_ratio': None, 'sideA_f': None, 'sideA_k': None, 
+              'sideB_f': None, 'sideB_k': None}
+    assert_close(TANK(D=.5, **kwargs).V_total, 0.39269921259841806, rtol=1e-11)
+
+
      
 def assert_TANKs_equal(T1, T2):
     for k, v in T1.__dict__.items():

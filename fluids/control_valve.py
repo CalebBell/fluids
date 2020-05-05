@@ -533,10 +533,10 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
     if full_trim:
-        n1 = N2/(min(C/d**2, 0.04))**2 # C/d**2 must not exceed 0.04
-        FR_1a = 1 + (0.33*FL**0.5)/n1**0.25*log10(Rev/10000.)
+        n1 = N2/(min(C/(d*d), 0.04))**2 # C/d**2 must not exceed 0.04
+        FR_1a = 1.0 + (0.33*FL**0.5)/n1**0.25*log10(Rev/10000.)
         FR_2 = 0.026/FL*(n1*Rev)**0.5
-        if Rev < 10:
+        if Rev < 10.0:
             FR = FR_2
         else:
             FR = min(FR_2, FR_1a)
