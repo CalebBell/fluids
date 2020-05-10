@@ -23,6 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
+from cmath import asin as casin
 from fluids.constants import inch
 from fluids.numerics import secant, brenth, ellipe, horner, chebval, linspace
 from fluids.numerics import numpy as np
@@ -40,7 +41,8 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'V_vertical_torispherical_concave', 'a_torispherical',
            'SA_ellipsoidal_head', 'SA_conical_head', 'SA_guppy_head',
            'SA_torispheroidal', 'SA_partial_cylindrical_body',
-           'A_partial_circle',
+           'A_partial_circle', 'SA_partial_horiz_conical_head',
+           'SA_partial_horiz_spherical_head', 'SA_partial_horiz_guppy_head',
            
            'V_from_h', 'SA_tank', 'sphericity', 
            'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder', 
@@ -1418,7 +1420,7 @@ def A_partial_circle(D, h):
         
     Notes
     -----
-    This method is undefined for :math:`h > D`. and :math:`h < 0`, but those
+    This method is undefined for :math:`h > D` and :math:`h < 0`, but those
     cases are handled by returning the full surface area and the zero 
     respectively.
 
@@ -1443,6 +1445,201 @@ def A_partial_circle(D, h):
     return SA
 
 
+def SA_partial_horiz_conical_head(D, a, h):
+    r'''Calculates the partial area of a conical tank head in the context of 
+    a horizontal vessel and liquid partially
+    filling it. This computes the wetted surface area of one of the conical 
+    heads only.
+        
+    .. math::
+        \text{SA} = \frac{\sqrt{(a^2 + R^2)}}{R}\left[R^2\cos^{-1}\left(\frac{
+        (R-h)}{R}\right) - (R-h)\sqrt{(2Rh - h^2)}\right]
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    a : float
+        Distance the cone head extends on one side, [m]
+    h : float
+        Height, as measured up to where the fluid ends, [m]
+
+    Returns
+    -------
+    SA_partial : float
+        Partial (wetted) surface area of one conical tank head, [m^2]
+        
+    Notes
+    -----
+    This method is undefined for :math:`h > D` and :math:`h < 0`, but those
+    cases are handled by returning the full surface area and the zero 
+    respectively.
+
+    Examples
+    --------
+    >>> SA_partial_horiz_conical_head(D=72., a=48.0, h=24.0)
+    1980.0498315169875
+    
+    References
+    ----------
+    .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
+       April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
+    '''
+    if h > D:
+        h = D
+    elif h < 0:
+        return 0.0
+    R = 0.5*D
+    R_inv = 1.0/R
+    return (a*a + R*R)**0.5*R_inv*(R*R*acos((R-h)*R_inv) - (R-h)*(2.0*R*h - h*h)**0.5)
+
+
+def SA_partial_horiz_spherical_head(D, a, h):
+    r'''Calculates the partial area of a spherical tank head in the context of 
+    a horizontal vessel and liquid partially
+    filling it. This computes the wetted surface area of one of the spherical 
+    heads only.
+        
+    .. math::
+        \text{SA} = \frac{a^2 + R^2}{|a|}\int_{R-h}^R
+        \sin^{-1} \frac{2|a|\sqrt{R^2-x^2}} {\sqrt{(a^2+R^2)^2 - (2ax)^2}} dx
+        
+    For the special case of |a| == R,
+    
+    .. math::
+        \text{SA} = \pi R h
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    a : float
+        Distance the spherical head extends on one side, [m]
+    h : float
+        Height, as measured up to where the fluid ends, [m]
+
+    Returns
+    -------
+    SA_partial : float
+        Partial (wetted) surface area of one spherical tank head, [m^2]
+        
+    Notes
+    -----
+    This method is undefined for :math:`h > D` and :math:`h < 0`, but those
+    cases are handled by returning the full surface area and the zero 
+    respectively.
+    
+    A symbolic attempt did not suggest any analytical integrals were available. 
+
+    Examples
+    --------
+    >>> SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0)
+    2027.2672091672684
+    
+    References
+    ----------
+    .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
+       April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
+    '''
+    R = 0.5*D
+    if a == R:
+        return pi*R*h
+    elif h < 0.0:
+        return 0.0
+    elif h > D:
+        h = D
+    
+    from scipy.integrate import quad
+
+    fact = (a*a + R*R)/abs(a)
+    R2 = R*R
+    a2 = a + a
+    a4 = a2*a2
+    c1 = 2.0*abs(a)
+    c2 = (a*a + R2)*(a*a + R2)
+    
+    def to_quad(x):
+        x2 = x*x
+        num = c1*((R2 - x2)/(c2 - a4*x2))**0.5
+        try:
+            return asin(num)
+        except:
+            # Tried to asin a number just slightly higher than 1
+            return 0.5*pi
+    SA =  fact*quad(to_quad, R-h, R)[0]
+    if SA < 0.0:
+        SA = 0.0
+    return SA
+
+
+def SA_partial_horiz_guppy_head(D, a, h):
+    r'''Calculates the partial area of a guppy tank head in the context of 
+    a horizontal vessel and liquid partially
+    filling it. This computes the wetted surface area of one of the guppy 
+    heads only.
+        
+    .. math::
+        \text{SA} = 2\int_{-R}^{h-R}\int_{0}^{\sqrt{R^2 - x^2}}
+        \sqrt{1 + \left(\frac{a}{2R}\left(1 - \frac{y^2}{(R-x)^2}  \right)
+        \right)^2
+        + \left(\frac{ay}{R(R-x)}    \right)^2 } dy dx
+        
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    a : float
+        Distance the guppy head extends on one side, [m]
+    h : float
+        Height, as measured up to where the fluid ends, [m]
+
+    Returns
+    -------
+    SA_partial : float
+        Partial (wetted) surface area of one guppy tank head, [m^2]
+        
+    Notes
+    -----
+    This method is undefined for :math:`h > D` and :math:`h < 0`, but those
+    cases are handled by returning the full surface area and the zero 
+    respectively.
+    
+    A symbolic attempt suggests an integral of one of the two functions exists,
+    but it has a hypergeometric function in it; likely slower than performing 
+    both integrals numerically. 
+
+    Examples
+    --------
+    >>> SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0)
+    1467.8949780037
+    
+    References
+    ----------
+    .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
+       April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
+    '''
+    R = 0.5*D
+    if a == R:
+        return pi*R*h
+    elif h < 0.0:
+        return 0.0
+    elif h > D:
+        h = D
+    
+    from scipy.integrate import dblquad
+
+    def to_quad(y, x):
+        v0 = (a/(2.0*R)*(1.0 - (y/(R-x))**2 ))**2
+        v1 = ((a*y)/(R*(R-x)))**2
+        
+        return (1.0 + v0 + v1)**0.5
+    quad_val = dblquad(to_quad, -R, h-R, lambda x: 0.0, lambda x: (R*R - x*x)**0.5)[0]
+    
+    SA = 2.0*quad_val
+
+    if SA < 0.0:
+        SA = 0.0
+    return SA
 
 def a_torispherical(D, f, k):
     r'''Calculates depth of a torispherical head according to [1]_.
