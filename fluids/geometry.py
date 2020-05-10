@@ -39,7 +39,10 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'V_vertical_ellipsoidal_concave', 'V_vertical_spherical_concave',
            'V_vertical_torispherical_concave', 'a_torispherical',
            'SA_ellipsoidal_head', 'SA_conical_head', 'SA_guppy_head',
-           'SA_torispheroidal', 'V_from_h', 'SA_tank', 'sphericity', 
+           'SA_torispheroidal', 'SA_partial_cylindrical_body',
+           'A_partial_circle',
+           
+           'V_from_h', 'SA_tank', 'sphericity', 
            'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder', 
            'A_hollow_cylinder', 'V_hollow_cylinder', 
            'A_multiple_hole_cylinder', 'V_multiple_hole_cylinder',
@@ -1342,6 +1345,103 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
         return SA, (sideA_SA, sideB_SA, lateral_SA)
     else:
         return SA
+
+
+def SA_partial_cylindrical_body(L, D, h):
+    r'''Calculates the partial area of a cylinder's body in the context of 
+    a horizontal cylindrical vessel and liquid partially
+    filling it. This computes the wetted surface area of the bottom of the
+    cylinder.
+        
+    .. math::
+        \text{SA} = L D \cos^{-1}\left(\frac{D - 2h}{D}\right)
+
+    Parameters
+    ----------
+    L : float
+        Length of the cylinder, [m]
+    D : float
+        Diameter of the cylinder, [m]
+    h : float
+        Height measured from bottom of cylinder to liquid level, [m]
+
+    Returns
+    -------
+    SA_partial : float
+        Partial (wetted) surface area, [m^2]
+        
+    Notes
+    -----
+    This method is undefined for :math:`h > D`. and :math:`h < 0`, but those
+    cases are handled by returning the full surface area and the zero 
+    respectively.
+
+    Examples
+    --------
+    >>> SA_partial_cylindrical_body(L=200.0, D=96., h=22.0)
+    19168.852890279868
+    
+    References
+    ----------
+    .. [1] Weisstein, Eric W. "Circular Segment." Text. Wolfram Research, Inc.
+       Accessed May 10, 2020. https://mathworld.wolfram.com/CircularSegment.html.
+    '''
+    if h < 0.0:
+        return 0.0
+    elif h > D:
+        h = D
+    C = D*acos((D - h - h)/D)
+    return C*L
+
+
+def A_partial_circle(D, h):
+    r'''Calculates the partial area of a circle, in the context of the circle
+    being an end cap to a horizontal cylindrical vessel and liquid partially
+    filling it. This computes the wetted surface area of one of the end caps.
+    
+    Multiply this by two to obtain the wetted area of two end caps.
+    
+    .. math::
+        \text{SA} = R^2\cos^{-1}\frac{(R - h)}{R} - (R - h)\sqrt{(2Rh - h^2)}
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the circle, [m]
+    h : float
+        Height measured from bottom of circle to liquid level, [m]
+
+    Returns
+    -------
+    SA_partial : float
+        Partial (wetted) surface area, [m^2]
+        
+    Notes
+    -----
+    This method is undefined for :math:`h > D`. and :math:`h < 0`, but those
+    cases are handled by returning the full surface area and the zero 
+    respectively.
+
+    Examples
+    --------
+    >>> A_partial_circle(D=96., h=22.0)
+    1251.2018147383194
+    
+    References
+    ----------
+    .. [1] Weisstein, Eric W. "Circular Segment." Text. Wolfram Research, Inc.
+       Accessed May 10, 2020. https://mathworld.wolfram.com/CircularSegment.html.
+    '''
+    if h > D:
+        h = D # Catch the case of a computed `h` being trivially larger than `D` due to floating point
+    elif h < 0.0:
+        return 0.0
+    R = 0.5*D
+    SA = R*R*acos((R - h)/R) - (R - h)*(2.0*R*h - h*h)**0.5
+    if SA < 0.0:
+        SA = 0.0 # Catch trig errors
+    return SA
+
 
 
 def a_torispherical(D, f, k):

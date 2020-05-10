@@ -270,6 +270,33 @@ def test_geometry():
     with pytest.raises(Exception):
         V_from_h(h=7, D=1.5, L=5., horizontal=False)
 
+
+def test_SA_partial():
+    # Checked with 
+    # https://www.aqua-calc.com/calculate/volume-in-a-horizontal-cylinder
+    SA = SA_partial_cylindrical_body(L=120*inch, D=72*inch, h=24*inch) + 2*A_partial_circle(D=72*inch, h=24*inch) 
+    assert_close(SA/(foot**2), (8.250207631*2+73.85756504))
+    
+    # partial area of one circle
+    # Checked at https://www.aqua-calc.com/calculate/volume-in-a-horizontal-cylinder
+    assert_close(A_partial_circle(D=72, h=24), 1188.02989891)
+    assert_close(A_partial_circle(D=72, h=72), 0.25*pi*72**2)
+    assert_close(A_partial_circle(D=72, h=0), 0)
+    
+    # hard checks
+    assert A_partial_circle(D=72, h=72*(1+1e-15)) == A_partial_circle(D=72, h=72)
+    assert 0 == A_partial_circle(D=72, h=1e-9)
+    assert 0 == A_partial_circle(D=72, h=-1e-20)
+    
+    assert_close(SA_partial_cylindrical_body(L=200.0, D=96., h=22.0), 19168.852890279868, rtol=1e-12)
+    assert_close(SA_partial_cylindrical_body(L=200.0, D=96., h=96), pi*96*200.0, rtol=1e-15) # Pi D L check for full
+    
+    assert 0 == SA_partial_cylindrical_body(L=200.0, D=96., h=0)
+    assert 0 == SA_partial_cylindrical_body(L=200.0, D=96., h=-1e-14)
+    
+    SA_higher = SA_partial_cylindrical_body(L=200.0, D=1., h=1+1e-15)
+    assert_close(SA_higher, pi*200.0, rtol=1e-15)
+
 def test_pitch_angle_solver():
     ans = [{'angle': 30, 'pitch': 2., 'pitch_parallel': 1.7320508075688774, 'pitch_normal': 1.},
            {'angle': 60, 'pitch': 2., 'pitch_parallel': 1., 'pitch_normal': 1.7320508075688774},
