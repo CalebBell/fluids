@@ -24,7 +24,7 @@ from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
 from fluids.constants import inch
-from fluids.numerics import newton, brenth, ellipe, horner, chebval, linspace
+from fluids.numerics import secant, brenth, ellipe, horner, chebval, linspace
 from fluids.numerics import numpy as np
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
@@ -1601,7 +1601,11 @@ class TANK(object):
     c_backward : ndarray
         Coefficients for the Chebyshev approximations in calculating h from V,
         [-]
-    
+    A_sideA_extra : float
+        Additional surface area of sideA beyond that of a flat disk, [m^2]
+    A_sideB_extra : float
+        Additional surface area of sideB beyond that of a flat disk, [m^2]
+
     Notes
     -----
     For torpsherical tank heads, the following `f` and `k` parameters are used
@@ -1772,39 +1776,40 @@ class TANK(object):
         elif self.L is not None and self.L_over_D is not None:
             # Otherwise, if L_over_D and L are provided, get D
             self.D = self.L/self.L_over_D
-
+        
+        D = self.D
         # Calculate diameter
         self.R = self.D/2.
 
         # If a_ratio is provided for either heads, use it.
-        if self.sideA is not None and self.D is not None:
+        if self.sideA is not None and D is not None:
             if self.sideA_a is None and self.sideA in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
-                self.sideA_a = self.D*self.sideA_a_ratio
-        if self.sideB is not None and self.D is not None:
+                self.sideA_a = D*self.sideA_a_ratio
+        if self.sideB is not None and D is not None:
             if self.sideB_a is None and self.sideB in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
-                self.sideB_a = self.D*self.sideB_a_ratio
+                self.sideB_a = D*self.sideB_a_ratio
 
         # Calculate a for torispherical heads
         if self.sideA == 'torispherical' and self.sideA_f and self.sideA_k:
-            self.sideA_a = a_torispherical(self.D, self.sideA_f, self.sideA_k)
+            self.sideA_a = a_torispherical(D, self.sideA_f, self.sideA_k)
         if self.sideB == 'torispherical' and self.sideB_f and self.sideB_k:
-            self.sideB_a = a_torispherical(self.D, self.sideB_f, self.sideB_k)
+            self.sideB_a = a_torispherical(D, self.sideB_f, self.sideB_k)
 
         # Ensure the correct a_ratios are set, whether there is a default being used or not
         if self.sideA_a_ratio is None and self.sideA_a is not None:
-            self.sideA_a_ratio = self.sideA_a/self.D
-        elif self.sideA_a_ratio is not None and self.sideA_a is not None and self.sideA_a != self.D*self.sideA_a_ratio:
-            self.sideA_a_ratio = self.sideA_a/self.D
+            self.sideA_a_ratio = self.sideA_a/D
+        elif self.sideA_a_ratio is not None and self.sideA_a is not None and self.sideA_a != D*self.sideA_a_ratio:
+            self.sideA_a_ratio = self.sideA_a/D
 
         if self.sideB_a_ratio is None and self.sideB_a is not None:
-            self.sideB_a_ratio = self.sideB_a/self.D
-        elif self.sideB_a_ratio is not None and self.sideB_a is not None and self.sideB_a != self.D*self.sideB_a_ratio:
-            self.sideB_a_ratio = self.sideB_a/self.D
+            self.sideB_a_ratio = self.sideB_a/D
+        elif self.sideB_a_ratio is not None and self.sideB_a is not None and self.sideB_a != D*self.sideB_a_ratio:
+            self.sideB_a_ratio = self.sideB_a/D
 
 
         # Calculate maximum tank height, h_max
         if self.horizontal:
-            self.h_max = self.D
+            self.h_max = D
         else:
             self.h_max = self.L
             if self.sideA_a:
@@ -1817,10 +1822,14 @@ class TANK(object):
 
         # Set surface areas
         self.A, (self.A_sideA, self.A_sideB, self.A_lateral) = SA_tank(
-        D=self.D, L=self.L, sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a,
+        D=D, L=self.L, sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a,
         sideB_a=self.sideB_a, sideA_f=self.sideA_f, sideA_k=self.sideA_k,
         sideB_f=self.sideB_f, sideB_k=self.sideB_k,
              full_output=True)
+        
+        A_circular_plate = 0.25*pi*D*D
+        self.A_sideA_extra = self.A_sideA - A_circular_plate
+        self.A_sideB_extra = self.A_sideB - A_circular_plate
 
     def add_thickness(self, thickness, sideA_thickness=None, 
                       sideB_thickness=None):
@@ -2023,7 +2032,7 @@ class TANK(object):
                  sideA_a=sideA_a, sideB_a=sideB_a, sideA_f=sideA_f,
                  sideA_k=sideA_k, sideB_f=sideB_f, sideB_k=sideB_k,
                  sideA_a_ratio=sideA_a_ratio, sideB_a_ratio=sideB_a_ratio)
-        error = abs(Vtarget - a.V_total)
+        error = (Vtarget - a.V_total)
         return error
 
 
@@ -2048,25 +2057,25 @@ class TANK(object):
         if (self.D and self.L) or (self.D and self.L_over_D) or (self.L and self.L_over_D):
             raise Exception('Only one of D, L, or L_over_D can be specified\
             when solving for V')
-        if ((self.sideA is not None and (self.sideA_a_ratio is None and self.sideA_a is None))
-             or (self.sideB is not None and (self.sideB_a_ratio is None and self.sideB_a is None))):
+        if ((self.sideA is not None and (self.sideA_a_ratio is None and self.sideA_a is None) and self.sideA != 'torispherical')
+             or (self.sideB is not None and (self.sideB_a_ratio is None and self.sideB_a is None) and self.sideB != 'torispherical')):
             raise Exception('When heads are specified, head parameter ratios are required')
 
         if self.D:
             # Iterate until L is appropriate
             solve_L = lambda L: self._V_solver_error(self.V, self.D, L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
             Lguess = self.V/(pi/4*self.D**2)
-            self.L = float(newton(solve_L, Lguess))
+            self.L = float(secant(solve_L, Lguess, xtol=1e-13))
         elif self.L:
             # Iterate until D is appropriate
             solve_D = lambda D: self._V_solver_error(self.V, D, self.L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
             Dguess = (4*self.V/pi/self.L)**0.5
-            self.D = float(newton(solve_D, Dguess))
+            self.D = float(secant(solve_D, Dguess, xtol=1e-13))
         else:
             # Use L_over_D until L and D are appropriate
             Lguess = (4*self.V*self.L_over_D**2/pi)**(1/3.)
             solve_L_D = lambda L: self._V_solver_error(self.V, L/self.L_over_D, L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
-            self.L = float(newton(solve_L_D, Lguess))
+            self.L = float(secant(solve_L_D, Lguess, xtol=1e-13))
             self.D = self.L/self.L_over_D
 
 

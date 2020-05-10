@@ -429,6 +429,22 @@ def test_geometry_tank():
     with pytest.raises(Exception):
         # Test sides specified with V solving
         TANK(V=10, L=10, sideA='conical', sideB_a=0.5)
+        
+    # Couple points that needed some polishing
+    base = TANK(D=10., horizontal=True, sideA_a_ratio=.25, sideB_f=1., sideB_k=0.06, 
+         sideA='conical', sideB='torispherical', V=500)
+    
+    forward = TANK(D=10.0, horizontal=True, sideA_a_ratio=.25, sideB_f=1., sideB_k=0.06, 
+         sideA='conical', sideB='torispherical', L=base.L)
+    assert_close(base.V, forward.V_total, rtol=1e-11)
+    
+    base = TANK(D=10., horizontal=True, sideB_a_ratio=.25, sideA_f=1., sideA_k=0.06, 
+         sideB='conical', sideA='torispherical', V=500)
+    
+    forward = TANK(D=10.0, horizontal=True, sideB_a_ratio=.25, sideA_f=1., sideA_k=0.06, 
+         sideB='conical', sideA='torispherical', L=base.L)
+    assert_close(base.V, forward.V_total, rtol=1e-11)
+
    
 def test_TANK_issues():
     # GH issue 31

@@ -1178,9 +1178,11 @@ def assert_close(a, b, rtol=1e-7, atol=0.0):
         return True
     try:
         assert isclose(a, b, rel_tol=rtol, abs_tol=atol)
+        return
     except:
-        from numpy.testing import assert_allclose
-        return assert_allclose(a, b, rtol=rtol, atol=atol)
+        pass
+    from numpy.testing import assert_allclose
+    return assert_allclose(a, b, rtol=rtol, atol=atol)
 
 def assert_close1d(a, b, rtol=1e-7, atol=0.0):
     N = len(a)
