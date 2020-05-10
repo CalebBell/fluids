@@ -345,7 +345,7 @@ def test_SA_partial_horiz_spherical_head():
 def test_SA_partial_horiz_guppy_head():
     L = 120*inch
     D = 72*inch
-    h_values = [24*inch, 36*inch, 48*inch]*2
+    h_values = [24*inch, 36*inch, 48*inch]
     SA_expect = [94.24500, 129.98330, 167.06207]
     SA_expect = [i*foot**2 for i in SA_expect]
     
@@ -358,7 +358,32 @@ def test_SA_partial_horiz_guppy_head():
     assert 0 == SA_partial_horiz_guppy_head(D=72., a=48.0, h=-1e-12)
 
     assert SA_partial_horiz_guppy_head(D=72., a=48.0, h=7200) == SA_partial_horiz_guppy_head(D=72., a=48.0, h=72)
+    
+    assert_close(SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0), 1467.8949780037, rtol=1e-11)
 
+def test_SA_partial_horiz_ellipsoidal_head():
+    L = 120*inch
+    D = 72*inch
+    h_values = [24*inch, 36*inch, 48*inch]*3
+    SA_expect = [102.59905, 138.74815, 174.89725,
+                111.55668, 150.79645, 190.03622,
+                121.09692, 163.71486, 206.33279]
+    SA_expect = [i*foot**2 for i in SA_expect]
+    a_values = [24*inch]*3 + [36*inch]*3  + [48*inch]*3
+    
+    for i in range(9):
+        SA = (2*SA_partial_horiz_ellipsoidal_head(D=D, a=a_values[i], h=h_values[i]) 
+              + SA_partial_cylindrical_body(D=D, L=L, h=h_values[i]))
+        assert_close(SA, SA_expect[i], rtol=5e-8)
+    
+    assert 0 == SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=1e-20)
+    assert 0 == SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=-1e-12)
+
+    assert SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=7200) == SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=72)
+    
+    assert_close(SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0), 3401.2336225352738, rtol=1e-11)
+
+    
 def test_pitch_angle_solver():
     ans = [{'angle': 30, 'pitch': 2., 'pitch_parallel': 1.7320508075688774, 'pitch_normal': 1.},
            {'angle': 60, 'pitch': 2., 'pitch_parallel': 1., 'pitch_normal': 1.7320508075688774},

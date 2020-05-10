@@ -43,6 +43,7 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'SA_torispheroidal', 'SA_partial_cylindrical_body',
            'A_partial_circle', 'SA_partial_horiz_conical_head',
            'SA_partial_horiz_spherical_head', 'SA_partial_horiz_guppy_head',
+           'SA_partial_horiz_ellipsoidal_head',
            
            'V_from_h', 'SA_tank', 'sphericity', 
            'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder', 
@@ -1572,6 +1573,76 @@ def SA_partial_horiz_spherical_head(D, a, h):
     return SA
 
 
+def SA_partial_horiz_ellipsoidal_head(D, a, h):
+    r'''Calculates the partial area of a ellipsoidal tank head in the context of 
+    a horizontal vessel and liquid partially
+    filling it. This computes the wetted surface area of one of the ellipsoidal 
+    heads only.
+        
+    .. math::
+        \text{SA} = \frac{2}{R} \int_{R-h}^R \sqrt{ \frac{(R^2 - a^2)x^2 
+        + (R^2 - a^2)y^2 - R^4} {x^2 + y^2 - R^2}} dy dx
+        
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    a : float
+        Distance the ellipsoidal head extends on one side, [m]
+    h : float
+        Height, as measured up to where the fluid ends, [m]
+
+    Returns
+    -------
+    SA_partial : float
+        Partial (wetted) surface area of one ellipsoidal tank head, [m^2]
+        
+    Notes
+    -----
+    This method is undefined for :math:`h > D` and :math:`h < 0`, but those
+    cases are handled by returning the full surface area and the zero 
+    respectively.
+    
+    Examples
+    --------
+    >>> SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0)
+    3401.2336225352738
+    
+    References
+    ----------
+    .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
+       April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
+    '''
+    R = 0.5*D
+    if h < 0.0:
+        return 0.0
+    elif h > D:
+        h = D
+    
+    from scipy.integrate import dblquad
+    
+    R2 = R*R
+    R4 = R2*R2
+    a2 = a*a
+    c1 = R2 - a2
+    def to_quad(x, y):
+        y2 = y*y
+        x2 = x*x
+        num = c1*(x2 + y2) - R4
+        den = x2 + (y2 - R2) # Brackets help numerical truncation; zero div without it
+        try:
+            return (num/den)**0.5
+        except ZeroDivisionError:
+             # Equation is undefined for y == R when x is zero; avoid it
+            return to_quad(x, y*(1.0 - 1e-14))
+    quad_val = dblquad(to_quad, R-h, R, lambda x: 0.0, lambda x: (R2 - x*x)**0.5)[0]
+    
+    SA = 2.0/R*quad_val
+    if SA < 0.0:
+        SA = 0.0
+    return SA
+
+
 def SA_partial_horiz_guppy_head(D, a, h):
     r'''Calculates the partial area of a guppy tank head in the context of 
     a horizontal vessel and liquid partially
@@ -1627,12 +1698,17 @@ def SA_partial_horiz_guppy_head(D, a, h):
         h = D
     
     from scipy.integrate import dblquad
+    
+    c1 = a/(2.0*R)
+    c2 = c1*c1
+    a_R_ratio = a/R
+    a_R_ratio2 = a_R_ratio*a_R_ratio
 
     def to_quad(y, x):
-        v0 = (a/(2.0*R)*(1.0 - (y/(R-x))**2 ))**2
-        v1 = ((a*y)/(R*(R-x)))**2
-        
-        return (1.0 + v0 + v1)**0.5
+        t1 = y/(R-x)
+        t1 *= t1
+        t2 = (1.0 - t1)
+        return (1.0 + c2*t2*t2 + a_R_ratio2*t1)**0.5
     quad_val = dblquad(to_quad, -R, h-R, lambda x: 0.0, lambda x: (R*R - x*x)**0.5)[0]
     
     SA = 2.0*quad_val
