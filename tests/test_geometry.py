@@ -383,7 +383,47 @@ def test_SA_partial_horiz_ellipsoidal_head():
     
     assert_close(SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0), 3401.2336225352738, rtol=1e-11)
 
+
+def test_SA_partial_horiz_torispherical_head():
+    L = 120*inch
+    D = 72*inch
+    h_values = [2.28*inch, 24*inch, 36*inch, 48*inch, 69.72*inch]
+    h_values += [3*inch, 24*inch, 36*inch, 48*inch, 69*inch]
+    SA_expect = [22.74924, 94.29092, 127.74876,
+                 161.20660, 232.74828,
+                 26.82339, 96.18257, 130.22802,
+                 164.27347, 233.63265]
+    SA_expect = [i*foot**2 for i in SA_expect]
+    k_values = [.06]*5 + [.1]*5
+    f_values = [1.0]*5 + [.9]*5
     
+    for i in range(9):
+        SA = (2*SA_partial_horiz_torispherical_head(D=D, f=f_values[i], k=k_values[i], h=h_values[i]) 
+              + SA_partial_cylindrical_body(D=D, L=L, h=h_values[i]))
+        assert_close(SA, SA_expect[i], rtol=2e-7)
+        
+    
+    # Precision points for the three regimes
+    SA = SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=2)
+    assert_close(SA, 80.54614956735351, rtol=1e-11)
+    
+    SA = SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=20)
+    assert_close(SA, 1171.9138610357936, rtol=1e-11)
+    
+    SA = SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=71)
+    assert_close(SA, 4784.441787378645, rtol=1e-11)
+        
+    # Error handling
+    assert 0 == SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=1e-20)
+    assert 0 == SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=-1e-12)
+
+    assert SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=7200) == SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=72)
+    
+    # TODO fixes
+    # SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=1e-13)
+    # Figure out range of f, k
+    #  SA_partial_horiz_torispherical_head(D=72., f=1, k=12, h=6)
+
 def test_pitch_angle_solver():
     ans = [{'angle': 30, 'pitch': 2., 'pitch_parallel': 1.7320508075688774, 'pitch_normal': 1.},
            {'angle': 60, 'pitch': 2., 'pitch_parallel': 1., 'pitch_normal': 1.7320508075688774},

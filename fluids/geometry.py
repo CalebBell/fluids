@@ -43,7 +43,7 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'SA_torispheroidal', 'SA_partial_cylindrical_body',
            'A_partial_circle', 'SA_partial_horiz_conical_head',
            'SA_partial_horiz_spherical_head', 'SA_partial_horiz_guppy_head',
-           'SA_partial_horiz_ellipsoidal_head',
+           'SA_partial_horiz_ellipsoidal_head', 'SA_partial_horiz_torispherical_head',
            
            'V_from_h', 'SA_tank', 'sphericity', 
            'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder', 
@@ -1716,6 +1716,104 @@ def SA_partial_horiz_guppy_head(D, a, h):
     if SA < 0.0:
         SA = 0.0
     return SA
+
+
+def SA_partial_horiz_torispherical_head(D, f, k, h):
+    r'''Calculates the partial area of a torispherical tank head in the context of 
+    a horizontal vessel and liquid partially
+    filling it. This computes the wetted surface area of one of the torispherical 
+    heads only.
+
+    The expressions used are quite complicated; see [1]_ for more details.
+        
+        
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    f : float
+        Dimensionless dish-radius parameter; also commonly given as the 
+        product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
+    k : float
+        Dimensionless knuckle-radius parameter; also commonly given as the
+        product of `k` and `D` (`kD`), which is called the knuckle radius
+        and has units of length, [-]
+    h : float
+        Height, as measured up to where the fluid ends, [m]
+
+    Returns
+    -------
+    SA_partial : float
+        Partial (wetted) surface area of one torispherical tank head, [m^2]
+        
+    Notes
+    -----
+    This method is undefined for :math:`h > D` and :math:`h < 0`, but those
+    cases are handled by returning the full surface area and the zero 
+    respectively.
+
+    Examples
+    --------
+    >>> SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=24.0)
+    1471.201832459902
+    
+    References
+    ----------
+    .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
+       April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
+    '''
+    from scipy.integrate import quad, dblquad
+    if h <= 0.0:
+        return 0.0
+    elif h > D:
+        h = D
+    R = D/2.
+    r = f*D
+    alpha = asin((1.0 - 2.0*k)/(2.*(f-k)))
+    cos_alpha = cos(alpha)
+    s = R - k*D
+    t = k*D
+    
+    s2 = s*s
+    t2 = t*t
+    a1 = r*(1.0 - cos_alpha)
+    a2 = k*D*cos_alpha
+    
+    c10 = f*D*cos_alpha
+    
+    f2D2 = f*f*D*D
+
+    def G_lim(x):
+        x2 = x*x
+        return (s2 + t2 - x2 + 2.0*s*(t2 - x2)**0.5 - (R - h)**2)**0.5
+        
+    
+    def to_int_1(x, y):
+        y, x = x, y
+        x2 = x*x
+        y2 = y*y
+        num = (s + (t2 - x2)**0.5)**2*x2 + (t2 - x2)*y2
+        den = (t2 - x2)*(s2 + t2 - x2 - y2 + 2*s*(t2 - x2)**0.5)
+        f = (1.0 + num/den)**0.5
+        return f
+        
+    def to_int_2(x):
+        return acos(c10*(f2D2 - x*x)**-0.5)
+
+    limit_1 = k*D*(1.0 - sin(alpha))
+    
+    if h < limit_1:
+        SA = dblquad(to_int_1, 0.0, (2*k*D*h - h*h)**0.5, lambda x: 0, G_lim)[0]
+        return 2*SA
+    elif limit_1 < h <= R:
+        SA = 2*dblquad(to_int_1, 0.0, a2, lambda x: 0, G_lim)[0]
+        SA += 2*f*D*quad(to_int_2, R-h, f*D*sin(alpha))[0]
+    else:
+        SA = 2*pi*f*D*a1 + 2*pi*k*D*(a2 + (R - k*D)*asin(a2/(k*D)))
+        SA -= SA_partial_horiz_torispherical_head(D, f, k, h=D-h)
+    return SA
+
 
 def a_torispherical(D, f, k):
     r'''Calculates depth of a torispherical head according to [1]_.
