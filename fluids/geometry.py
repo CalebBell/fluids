@@ -44,8 +44,10 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'A_partial_circle', 'SA_partial_horiz_conical_head',
            'SA_partial_horiz_spherical_head', 'SA_partial_horiz_guppy_head',
            'SA_partial_horiz_ellipsoidal_head', 'SA_partial_horiz_torispherical_head',
+           'SA_partial_vertical_conical_head', 'SA_partial_vertical_spherical_head',
+           'SA_partial_vertical_torispherical_head', 'SA_partial_vertical_ellipsoidal_head',
            
-           'V_from_h', 'SA_tank', 'sphericity', 
+           'V_from_h', 'SA_from_h', 'SA_tank', 'sphericity', 
            'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder', 
            'A_hollow_cylinder', 'V_hollow_cylinder', 
            'A_multiple_hole_cylinder', 'V_multiple_hole_cylinder',
@@ -504,8 +506,8 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         Length of the main cylindrical section, [m]
     f : float
         Dimensionless dish-radius parameter; also commonly given as the 
-        product of `f` and `D` (`fD`), which is called dish radius and 
-        has units of length, [-]
+        product of `f` and `D` (`fD`), which is called both dish radius and   
+        also crown radius and has units of length, [-]
     k : float
         Dimensionless knuckle-radius parameter; also commonly given as the
         product of `k` and `D` (`kD`), which is called the knuckle radius
@@ -1108,20 +1110,20 @@ def SA_ellipsoidal_head(D, a):
     .. [1] Weisstein, Eric W. "Spheroid." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Spheroid.html.
     '''
-    if D == a*2:
-        return pi*D**2/2 # necessary to avoid a division by zero when D == a
-    D = D/2.
+    if D == a*2.0:
+        return 0.5*pi*D*D # necessary to avoid a division by zero when D == a
+    D = 0.5*D
     D, a = min((D, a)), max((D, a))
-    e1 = (1 - D**2/a**2)**0.5
+    e1 = (1.0 - D*D/(a*a))**0.5
     
     try:
-        log_term = log((1+e1)/(1-e1))
+        log_term = log((1.0 + e1)/(1.0 - e1))
     except ZeroDivisionError:
         # Limit as a goes to zero relative to D; may only be ~6 orders of 
         # magnitude smaller than D and will still occur
         log_term = 0.0
     
-    return (2*pi*a**2 + pi*D**2/e1*log_term)/2.
+    return (2.0*pi*a*a + pi*D*D/e1*log_term)*0.5
 
 
 def SA_conical_head(D, a):
@@ -1151,7 +1153,7 @@ def SA_conical_head(D, a):
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Cone.html.'''
-    return pi*D/2*(a**2 + (D/2)**2)**0.5
+    return 0.5*pi*D*(a*a + 0.25*D*D)**0.5
 
 
 def SA_guppy_head(D, a):
@@ -1183,7 +1185,7 @@ def SA_guppy_head(D, a):
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Cone.html.'''
-    return pi*D/4*(a**2 + D**2)**0.5 + pi*D/2*a
+    return 0.25*pi*D*(a*a + D*D)**0.5 + 0.5*pi*D*a
 
 
 def SA_torispheroidal(D, f, k):
@@ -1242,13 +1244,17 @@ def SA_torispheroidal(D, f, k):
        Vessels with Dished Heads". https://www.honeywellprocess.com/library/marketing/whitepapers/WP-VesselsWithDishedHeads-UniSimDesign.pdf
        Whitepaper. 2014.
     '''
-    alpha_1 = f*(1 - (1 - ((0.5 - k)/(f-k))**2)**0.5)
-    alpha_2 = f - (f**2 - 2*f*k + k - 0.25)**0.5
+    D2 = D*D
+    x1 = 2.0*pi*D2
+    k_inv = 1.0/k
+    x2 = ((0.5 - k)/(f-k))
+    alpha_1 = f*(1.0 - (1.0 - x2*x2)**0.5)
+    alpha_2 = f - (f*f - 2.0*f*k + k - 0.25)**0.5
     alpha = alpha_1 # Up to top of dome
-    S1 = 2*pi*D**2*f*alpha_1
+    S1 = x1*f*alpha_1
     alpha = alpha_2 # up to top of torus
-    S2_sub = asin((alpha-alpha_2)/k) - asin((alpha_1-alpha_2)/k)
-    S2 = 2*pi*D**2*k*(alpha - alpha_1 + (0.5-k)*S2_sub)
+    S2_sub = asin((alpha-alpha_2)*k_inv) - asin((alpha_1-alpha_2)*k_inv)
+    S2 = x1*k*(alpha - alpha_1 + (0.5 - k) *S2_sub)
     return S1 + S2
 
 
@@ -1815,6 +1821,263 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     return SA
 
 
+def SA_partial_vertical_conical_head(D, a, h):
+    r'''Calculates the partial area of a conical tank head in the context of 
+    a vertical vessel and liquid partially
+    filling it. This computes the wetted surface area of one of the conical 
+    heads only, and is valid for `h` up to `a` only.
+        
+    .. math::
+        \text{SA} = \frac{\pi R h^2 \sqrt{a^2 + R^2}}{a^2}
+    
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    a : float
+        Distance the cone head extends beneath the vertical tank, [m]
+    h : float
+        Height, as measured up to where the fluid ends or the top of the
+        conical head, whichever is less, [m]
+
+    Returns
+    -------
+    SA_partial : float
+        Partial (wetted) surface area of one conical tank head extending 
+        beneath the vessel, [m^2]
+        
+    Notes
+    -----
+    This method is undefined for :math:`h < 0`, but this is handled 
+    by returning zero.
+
+    Examples
+    --------
+    >>> SA_partial_vertical_conical_head(D=72., a=48.0, h=24.0)
+    1696.4600329384882
+    
+    References
+    ----------
+    .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
+       April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
+    '''
+    if a == 0.0:
+        return 0.25*pi*D*D
+    elif h <= 0.0:
+        return 0.0
+    R = 0.5*D
+    SA = pi*R*h*h*(a*a + R*R)**0.5/(a*a)
+    return SA
+
+
+def SA_partial_vertical_ellipsoidal_head(D, a, h):
+    r'''Calculates the partial area of a ellipsoidal tank head in the context of 
+    a vertical vessel and liquid partially
+    filling it. This computes the wetted surface area of one of the ellipsoidal 
+    heads only, and is valid for `h` up to `a` only.
+        
+    If :math:`a > R`:
+        
+    .. math::
+        \text{SA} = \pi R^2 - \frac{\pi (a - h)R\sqrt{a^4 - (a-h)^2(a^2-R^2)}}{a^2}
+        + \frac{\pi a^2 R}{\sqrt{a^2 - R^2}}\left(
+        \cos^{-1} \frac{R}{a} - \sin^{-1} \frac{(a-h)\sqrt{a^2-R^2}}{a^2}
+        \right)
+
+    Otherwise for :math:`0 < a < R`:
+        
+    .. math::
+        \text{SA} = \pi R^2 - \frac{\pi (a - h)R\sqrt{a^4 - (a-h)^2(a^2-R^2)}}{a^2}
+        + \frac{\pi a^2 R}{\sqrt{a^2 - R^2}}\ln \left(\frac{a(\sqrt{R^2 - a^2} + R)}
+        {(a-h)\sqrt{R^2 - a^2} + \sqrt{a^4 + (a-h)^2(R^2 - a^2)}}
+        \right)
+
+        
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    a : float
+        Distance the ellipsoidal head extends beneath the vertical tank, [m]
+    h : float
+        Height, as measured up to where the fluid ends or the top of the
+        ellipsoidal head, whichever is less, [m]
+
+    Returns
+    -------
+    SA_partial : float
+        Partial (wetted) surface area of one ellipsoidal tank head extending 
+        beneath the vessel, [m^2]
+        
+    Notes
+    -----
+    This method is undefined for :math:`h < 0`, but this is handled 
+    by returning zero.
+
+    Examples
+    --------
+    >>> SA_partial_vertical_ellipsoidal_head(D=72., a=48.0, h=24.0)
+    4675.237891376319
+    
+    References
+    ----------
+    .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
+       April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
+    '''
+    if a == 0.0:
+        return 0.25*pi*D*D
+    elif h <= 0.0:
+        return 0.0
+    # h should be less than a
+    R = 0.5*D
+    SA = pi*R*R
+    a2 = a*a
+    a_inv = 1.0/a
+    R2 = R*R
+    SA -= pi*(a - h)*R*(a2*a2 - (a-h)*(a-h)*(a2 - R2))**0.5*a_inv*a_inv
+    if a > R:
+        # This one has issues around a == R
+        SA += pi*a2*R/(a2 - R2)**0.5*(acos(R*a_inv) - asin((a-h)*(a2 - R2)**0.5*a_inv*a_inv))
+    elif a == R:
+        # Special case avoids zero division
+        return pi*D*h
+    else:
+        x1 = (R2 - a2)**0.5
+        num = a*(x1 + R)
+        den = (a-h)*x1 + (a2*a2 + (a-h)*(a-h)*(R2 - a2))**0.5
+        SA += pi*a2*R/x1*log(num/den)
+    return SA
+
+def SA_partial_vertical_spherical_head(D, a, h):
+    r'''Calculates the partial area of a spherical tank head in the context of 
+    a vertical vessel and liquid partially
+    filling it. This computes the wetted surface area of one of the conical 
+    heads only, and is valid for `h` up to `a` only.
+        
+    .. math::
+        \text{SA} = \pi h \left(\frac{a^2 + R^2}{a}\right)
+    
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    a : float
+        Distance the spherical head extends beneath the vertical tank, [m]
+    h : float
+        Height, as measured up to where the fluid ends or the top of the
+        spherical head, whichever is less, [m]
+
+    Returns
+    -------
+    SA_partial : float
+        Partial (wetted) surface area of one spherical tank head extending 
+        beneath the vessel, [m^2]
+        
+    Notes
+    -----
+    This method is undefined for :math:`h < 0`, but this is handled 
+    by returning zero.
+
+    Examples
+    --------
+    >>> SA_partial_vertical_spherical_head(72, a=24, h=12)
+    2940.5307237600464
+    
+    References
+    ----------
+    .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
+       April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
+    '''
+    if a == 0.0:
+        return 0.25*pi*D*D
+    elif h <= 0.0:
+        return 0.0
+    R = 0.5*D
+    SA = pi*h*((a*a + R*R)/a)
+    return SA
+
+
+def SA_partial_vertical_torispherical_head(D, f, k, h):
+    r'''Calculates the partial area of a torispherical tank head in the context of 
+    a vertical vessel and liquid partially
+    filling it. This computes the wetted surface area of one of the torispherical 
+    heads only.
+
+    if :math:`a_1 <= h`:
+        
+    .. math::
+        \text{SA} = 2\pi f D h
+
+    if :math:`a_1 \le h \le a`:
+
+    .. math::
+        \text{SA} = 2\pi f D a_1 + 2\pi k D\left(
+        h - a_1 + (R - kD) \left(
+        \sin^{-1} \frac{a_2}{kD} - \sin^{-1} \frac{a-h}{kD} \right) \right)
+
+    .. math::
+        \alpha = \sin^{-1}\frac{1-2k}{2(f-k)}
+
+    .. math::
+        a_1 = fD(1-\cos\alpha)
+
+    .. math::
+        a_2 = kD\cos\alpha
+        
+    Parameters
+    ----------
+    D : float
+        Diameter of the main cylindrical section, [m]
+    f : float
+        Dimensionless dish-radius parameter; also commonly given as the 
+        product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
+    k : float
+        Dimensionless knuckle-radius parameter; also commonly given as the
+        product of `k` and `D` (`kD`), which is called the knuckle radius
+        and has units of length, [-]
+    h : float
+        Height, as measured up to where the fluid ends or the top of the
+        torispherical head, whichever is less, [m]
+
+    Returns
+    -------
+    SA_partial : float
+        Partial (wetted) surface area of one torispherical tank head, [m^2]
+        
+    Notes
+    -----
+    This method is undefined for :math:`h > D` and :math:`h < 0`, but those
+    cases are handled by returning the full surface area and the zero 
+    respectively.
+
+    Examples
+    --------
+    This method is undefined for :math:`h < 0`, but this is handled 
+    by returning zero.
+    
+    References
+    ----------
+    .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
+       April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
+    '''
+    if h <= 0.0:
+        return 0.0
+    R = 0.5*D
+    alpha = asin((1.0 - 2.0*k)/(2.0*(f-k)))
+    cos_alpha = cos(alpha)
+    a1 = f*D*(1.0 - cos_alpha)
+    a2 = k*D*cos_alpha
+    a = a1 + a2
+    if h < a1:
+        SA = 2.0*pi*f*D*h
+    elif a1 <= h <= a:
+        SA = 2.0*pi*f*D*a1
+        kD_inv = 1.0/(k*D)
+        SA += 2.0*pi*k*D*(h - a1 + (R - k*D)*(asin(a2*kD_inv) - asin((a-h)*kD_inv)))
+    return SA
+
+
 def a_torispherical(D, f, k):
     r'''Calculates depth of a torispherical head according to [1]_.
 
@@ -1926,9 +2189,9 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
     '''
-    if sideA not in [None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy']:
+    if sideA not in (None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise Exception('Unspoorted head type for side A')
-    if sideB not in [None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy']:
+    if sideB not in (None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise Exception('Unspoorted head type for side B')
     R = D/2.
     V = 0
@@ -1964,7 +2227,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
         V += L*Af
     else:
         # Bottom head
-        if sideA in ['conical', 'ellipsoidal', 'torispherical', 'spherical']:
+        if sideA in ('conical', 'ellipsoidal', 'torispherical', 'spherical'):
             if sideA == 'conical':
                 V += V_vertical_conical(D, sideA_a, h=min(sideA_a, h))
             if sideA == 'ellipsoidal':
@@ -1998,6 +2261,160 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     return V
 
 
+def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=None,
+             sideB_a=None, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
+    r'''Calculates partially full wetted surface area of a vertical or horizontal tank with
+    different head types according to [1]_.
+
+    Parameters
+    ----------
+    h : float
+        Height of the liquid in the tank, [m]
+    D : float
+        Diameter of the cylindrical section of the tank, [m]
+    L : float
+        Length of the main cylindrical section of the tank, [m]
+    horizontal : bool, optional
+        Whether or not the tank is a horizontal or vertical tank
+    sideA : string, optional
+        The left (or bottom for vertical) head of the tank's type; one of
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+    sideB : string, optional
+        The right (or top for vertical) head of the tank's type; one of
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+    sideA_a : float, optional
+        The distance the head as specified by sideA extends down or to the left
+        from the main cylindrical section, [m]
+    sideB_a : float, optional
+        The distance the head as specified by sideB extends up or to the right
+        from the main cylindrical section, [m]
+    sideA_f : float, optional
+        Dimensionless dish-radius parameter for side A; also commonly given as  
+        the product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
+    sideA_k : float, optional
+        Dimensionless knuckle-radius parameter for side A; also commonly given 
+        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        radius and has units of length, [-]
+    sideB_f : float, optional
+        Dimensionless dish-radius parameter for side B; also commonly given as  
+        the product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
+    sideB_k : float, optional
+        Dimensionless knuckle-radius parameter for side B; also commonly given 
+        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        radius and has units of length, [-]
+
+    Returns
+    -------
+    SA : float
+        Wetted wall surface area up to h [m^3]
+
+    Examples
+    --------
+    >>> SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical',
+    ... sideB='conical', sideA_a=2., sideB_a=1.)
+    10.013826583317465
+
+    References
+    ----------
+    .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
+       April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
+       http://www.chemicalprocessing.com/articles/2003/193/
+    '''
+    if sideA not in (None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
+        raise ValueError('Unspoorted head type for side A')
+    if sideB not in (None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
+        raise ValueError('Unspoorted head type for side B')
+    R = 0.5*D
+    SA = 0.0
+    if horizontal:
+        # Conical case
+        if sideA == 'conical':
+            SA += SA_partial_horiz_conical_head(D, sideA_a, h)
+        if sideB == 'conical':
+            SA += SA_partial_horiz_conical_head(D, sideB_a, h)
+        # Elliosoidal case
+        if sideA == 'ellipsoidal':
+            SA += SA_partial_horiz_ellipsoidal_head(D, sideA_a, h)
+        if sideB == 'ellipsoidal':
+            SA += SA_partial_horiz_ellipsoidal_head(D, sideB_a, h)
+        # Guppy case
+        if sideA == 'guppy':
+            SA += SA_partial_horiz_guppy_head(D, sideA_a, h)
+        if sideB == 'guppy':
+            SA += SA_partial_horiz_guppy_head(D, sideB_a, h)
+        # Spherical case
+        if sideA == 'spherical':
+            SA += SA_partial_horiz_spherical_head(D, sideA_a, h)
+        if sideB == 'spherical':
+            SA += SA_partial_horiz_spherical_head(D, sideB_a, h)
+        # Torispherical case
+        if sideA == 'torispherical':
+            SA += SA_partial_horiz_torispherical_head(D, sideA_f, sideA_k, h)
+        if sideB == 'torispherical':
+            SA += SA_partial_horiz_torispherical_head(D, sideB_f, sideB_k, h)
+        # Flat case
+        if sideA is None:
+            SA += A_partial_circle(D, h)
+        if sideB is None:
+            SA += A_partial_circle(D, h)
+        if h > D: # Must be before Af, which will raise a domain error
+            raise Exception('Input height is above top of tank')
+        SA += L*D*acos((D - h - h)/D)
+    else:
+        # Bottom head
+        if sideA in ('conical', 'ellipsoidal', 'torispherical', 'spherical'):
+            if sideA == 'conical':
+                SA += SA_partial_vertical_conical_head(D, sideA_a, h=min(sideA_a, h))
+            elif sideA == 'ellipsoidal':
+                SA += SA_partial_vertical_ellipsoidal_head(D, sideA_a, h=min(sideA_a, h))
+            elif sideA == 'spherical':
+                SA += SA_partial_vertical_spherical_head(D, sideA_a, h=min(sideA_a, h))
+            elif sideA == 'torispherical':
+                SA += SA_partial_vertical_torispherical_head(D, sideA_f, sideA_k, h=min(sideA_a, h))
+        elif sideA is None:
+                SA += 0.25*pi*D*D
+        # Cylindrical section
+        if h >= sideA_a + L:
+            SA += pi*D*L # All middle
+        elif h > sideA_a:
+            SA += pi*D*(h - sideA_a) # Partial middle
+        # Top head
+        if h >= sideA_a + L: # greater or equals is needed! Flat head on top adds lots of area.
+            h2 = sideB_a - (h - sideA_a - L)
+            if sideB == 'conical':
+                if sideB_a == 0.0:
+                    SA += 0.25*pi*D*D
+                else:
+                    SA += SA_partial_vertical_conical_head(D, sideB_a, h=sideB_a)
+                    SA -= SA_partial_vertical_conical_head(D, sideB_a, h=h2)
+            elif sideB == 'ellipsoidal':
+                if sideB_a == 0.0:
+                    SA += 0.25*pi*D*D
+                else:
+                    SA += SA_partial_vertical_ellipsoidal_head(D, sideB_a, h=sideB_a)
+                    SA -= SA_partial_vertical_ellipsoidal_head(D, sideB_a, h=h2)
+            elif sideB == 'spherical':
+                if sideB_a == 0.0:
+                    SA += 0.25*pi*D*D
+                else:
+                    SA += SA_partial_vertical_spherical_head(D, sideB_a, h=sideB_a)
+                    SA -= SA_partial_vertical_spherical_head(D, sideB_a, h=h2)
+            elif sideB == 'torispherical':
+                if sideB_a == 0.0:
+                    SA += 0.25*pi*D*D
+                else:
+                    SA += SA_partial_vertical_torispherical_head(D, sideB_f, sideB_k, h=sideB_a)
+                    SA -= max(0.0, SA_partial_vertical_torispherical_head(D, sideB_f, sideB_k, h=h2))
+            elif sideB is None and h == sideA_a + L:
+                # End cap if flat
+                SA += 0.25*pi*D*D
+        if h > L + sideA_a + sideB_a:
+            raise ValueError('Input height is above top of tank')
+    return SA
+
+
 class TANK(object):
     '''Class representing tank volumes and levels. All parameters are also
     attributes.
@@ -2012,10 +2429,12 @@ class TANK(object):
         Whether or not the tank is a horizontal or vertical tank
     sideA : string, optional
         The left (or bottom for vertical) head of the tank's type; one of
-        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical',
+        'same'].
     sideB : string, optional
         The right (or top for vertical) head of the tank's type; one of
-        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical',
+        'same'].
     sideA_a : float, optional
         The distance the head as specified by sideA extends down or to the left
         from the main cylindrical section, [m]
@@ -2173,6 +2592,15 @@ class TANK(object):
         self.L_over_D = L_over_D
         self.V = V
         self.horizontal = horizontal
+        
+        sideA_same, sideB_same = sideA == 'same', sideB == 'same'
+        
+        if sideA_same and not sideB_same:
+            sideA, sideA_a, sideA_a_ratio, sideA_f, sideA_k = sideB, sideB_a, sideB_a_ratio, sideB_f, sideB_k
+        elif sideB_same and not sideA_same:
+            sideB, sideB_a, sideB_a_ratio, sideB_f, sideB_k = sideA, sideA_a, sideA_a_ratio, sideA_f, sideA_k
+        elif sideA_same and sideB_same:
+            raise ValueError("Cannot specify both sides as same")
 
         self.sideA = sideA
         if sideA is None and sideA_a is None:
@@ -2261,9 +2689,9 @@ class TANK(object):
                 self.sideB_a = D*self.sideB_a_ratio
 
         # Calculate a for torispherical heads
-        if self.sideA == 'torispherical' and self.sideA_f and self.sideA_k:
+        if self.sideA == 'torispherical' and self.sideA_f is not None and self.sideA_k is not None:
             self.sideA_a = a_torispherical(D, self.sideA_f, self.sideA_k)
-        if self.sideB == 'torispherical' and self.sideB_f and self.sideB_k:
+        if self.sideB == 'torispherical' and self.sideB_f is not None and self.sideB_k is not None:
             self.sideB_a = a_torispherical(D, self.sideB_f, self.sideB_k)
 
         # Ensure the correct a_ratios are set, whether there is a default being used or not
@@ -2360,6 +2788,32 @@ class TANK(object):
             del kwargs['sideB_a']
         return TANK(**kwargs)
         
+    def SA_from_h(self, h, method='full'):
+        r'''Method to calculate the volume of liquid in a fully defined tank
+        given a specified height `h`. `h` must be under the maximum height.
+
+        Parameters
+        ----------
+        h : float
+            Height specified, [m]
+        method : str, optional
+            'full' (calculated rigorously) ; nothing else is implemented
+
+        Returns
+        -------
+        SA : float
+            Surface area of liquid in the tank up to the specified height, [m^2]
+            
+        Notes
+        -----
+        '''
+        if method == 'full':
+            return SA_from_h(h, self.D, self.L, self.horizontal, self.sideA, 
+                            self.sideB, self.sideA_a, self.sideB_a, 
+                            self.sideA_f, self.sideA_k, self.sideB_f, 
+                            self.sideB_k)
+        else:
+            raise Exception("Allowable methods are 'full' .")
 
     def V_from_h(self, h, method='full'):
         r'''Method to calculate the volume of liquid in a fully defined tank
