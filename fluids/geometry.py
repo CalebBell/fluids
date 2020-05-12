@@ -1110,7 +1110,6 @@ def SA_ellipsoidal_head(D, a):
     6.283185307179586
     >>> SA_ellipsoidal_head(2, 1.5)
     8.459109081729984
-
     References
     ----------
     .. [1] Weisstein, Eric W. "Spheroid." Text. Accessed March 14, 2016.
@@ -1339,7 +1338,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     elif sideA == 'guppy':
         sideA_SA = SA_guppy_head(D=D, a=sideA_a)
     elif sideA == 'spherical':
-        sideA_SA = SA_partial_sphere(D=D, h=sideA_a)
+        sideA_SA = pi*(sideA_a*sideA_a + 0.25*D*D) # (SA_partial_sphere(D=D, h=sideA_a)
     elif sideA == 'torispherical':
         sideA_SA = SA_torispheroidal(D=D, f=sideA_f, k=sideA_k)
     else:
@@ -1352,7 +1351,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     elif sideB == 'guppy':
         sideB_SA = SA_guppy_head(D=D, a=sideB_a)
     elif sideB == 'spherical':
-        sideB_SA = SA_partial_sphere(D=D, h=sideB_a)
+        sideB_SA = pi*(sideB_a*sideB_a + 0.25*D*D)#SA_partial_sphere(D=D, h=sideB_a)
     elif sideB == 'torispherical':
         sideB_SA = SA_torispheroidal(D=D, f=sideB_f, k=sideB_k)
     else:
@@ -1585,8 +1584,6 @@ def SA_partial_horiz_spherical_head(D, a, h):
             # Tried to asin a number just slightly higher than 1
             return 0.5*pi
     SA =  fact*quad(to_quad, R-h, R)[0]
-    if SA < 0.0:
-        SA = 0.0
     return SA
 
 
@@ -1655,8 +1652,6 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     quad_val = dblquad(to_quad, R-h, R, lambda x: 0.0, lambda x: (R2 - x*x)**0.5)[0]
     
     SA = 2.0/R*quad_val
-    if SA < 0.0:
-        SA = 0.0
     return SA
 
 
@@ -1730,8 +1725,6 @@ def SA_partial_horiz_guppy_head(D, a, h):
     
     SA = 2.0*quad_val
 
-    if SA < 0.0:
-        SA = 0.0
     return SA
 
 
@@ -1803,7 +1796,8 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
 
     def G_lim(x):
         x2 = x*x
-        return (s2 + t2 - x2 + 2.0*s*(t2 - x2)**0.5 - (R - h)**2)**0.5
+        G = (s2 + t2 - x2 + 2.0*s*(t2 - x2)**0.5 - (R - h)**2)**0.5
+        return G.real # Some tiny heights make the square root slightly under 0
         
     
     def to_int_1(x, y):
@@ -2201,9 +2195,9 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
        http://www.chemicalprocessing.com/articles/2003/193/
     '''
     if sideA not in (None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise Exception('Unspoorted head type for side A')
+        raise ValueError('Unspoorted head type for side A')
     if sideB not in (None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise Exception('Unspoorted head type for side B')
+        raise ValueError('Unspoorted head type for side B')
     R = D/2.
     V = 0
     if horizontal:
@@ -2233,7 +2227,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
         if sideB == 'torispherical':
             V += V_horiz_torispherical(D, L, sideB_f, sideB_k, h, headonly=True)
         if h > D: # Must be before Af, which will raise a domain error
-            raise Exception('Input height is above top of tank')
+            raise ValueError('Input height is above top of tank')
         Af = R**2*acos((R-h)/R) - (R-h)*(2*R*h - h**2)**0.5
         V += L*Af
     else:
@@ -2268,7 +2262,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
                 V += V_vertical_torispherical(D, sideB_f, sideB_k, h=sideB_a)
                 V -= max(0.0, V_vertical_torispherical(D, sideB_f, sideB_k, h=h2))
         if h > L + sideA_a + sideB_a:
-            raise Exception('Input height is above top of tank')
+            raise ValueError('Input height is above top of tank')
     return V
 
 
@@ -2371,7 +2365,7 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=None,
         if sideB is None:
             SA += A_partial_circle(D, h)
         if h > D: # Must be before Af, which will raise a domain error
-            raise Exception('Input height is above top of tank')
+            raise ValueError('Input height is above top of tank')
         SA += L*D*acos((D - h - h)/D)
     else:
         # Bottom head

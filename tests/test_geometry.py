@@ -311,6 +311,7 @@ def test_SA_partial_horiz_conical_head():
         assert_close(A_calc, A_expect, rtol=4e-8)
         
     assert 0 == SA_partial_horiz_conical_head(D=72., a=48.0, h=0)
+    assert 0 == SA_partial_horiz_conical_head(D=72., a=48.0, h=-1e-16)
     assert SA_partial_horiz_conical_head(D=72., a=48.0, h=72) == SA_partial_horiz_conical_head(D=72., a=48.0, h=72+1e-5)
     
     assert_close(SA_partial_horiz_conical_head(D=72., a=0, h=35),
@@ -353,7 +354,26 @@ def test_SA_partial_horiz_spherical_head():
     assert_close(SA_partial_horiz_spherical_head(D=72., a=36+1e-11, h=22),
                  SA_partial_horiz_spherical_head(D=72., a=36, h=22), rtol=1e-8)
 
+    # Integration tests
+    T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
+              sideA='spherical', sideA_a=24*inch, sideB='same')
+    assert_close(T1.SA_from_h(24*inch)/foot**2, 99.49977, rtol=1e-7)
+    assert_close(T1.SA_from_h(36*inch)/foot**2, 135.08848, rtol=1e-7)
+    assert_close(T1.SA_from_h(48*inch)/foot**2, 170.67720, rtol=1e-7)
+    assert 0.0 == T1.SA_from_h(0)
+    assert_close(T1.SA_from_h(T1.h_max), T1.A, rtol=2e-12)
+    
+    
+    T2 = TANK(L=120*inch, D=72*inch, horizontal=True,
+              sideA='spherical', sideA_a=36*inch, sideB='same')
+    assert_close(T2.SA_from_h(24*inch)/foot**2, 111.55668, rtol=1e-7)
+    assert_close(T2.SA_from_h(36*inch)/foot**2, 150.79645, rtol=1e-7)
+    assert_close(T2.SA_from_h(48*inch)/foot**2, 190.03622, rtol=1e-7)
+    assert 0.0 == T2.SA_from_h(0)
+    assert_close(T2.SA_from_h(T2.h_max), T2.A, rtol=2e-12)
 
+    
+    
 def test_SA_partial_horiz_guppy_head():
     L = 120*inch
     D = 72*inch
@@ -372,6 +392,16 @@ def test_SA_partial_horiz_guppy_head():
     assert SA_partial_horiz_guppy_head(D=72., a=48.0, h=7200) == SA_partial_horiz_guppy_head(D=72., a=48.0, h=72)
     
     assert_close(SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0), 1467.8949780037, rtol=1e-11)
+    assert pi*72*inch/2*72*inch == SA_partial_horiz_guppy_head(D=72*inch, a=36*inch, h=72*inch)
+    # Area is NOT CONSISTENT!
+    T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
+          sideA='guppy', sideA_a=48*inch, sideB='same')
+    assert_close(T1.SA_from_h(24*inch)/foot**2, 94.24500, rtol=1e-7)
+    assert_close(T1.SA_from_h(36*inch)/foot**2, 129.98330, rtol=1e-7)
+    assert_close(T1.SA_from_h(48*inch)/foot**2, 167.06207, rtol=1e-7)
+    assert 0.0 == T1.SA_from_h(0)
+    # assert_close(T1.SA_from_h(T1.h_max), T1.A, rtol=1e-12)
+
 
 def test_SA_partial_horiz_ellipsoidal_head():
     L = 120*inch
@@ -395,7 +425,33 @@ def test_SA_partial_horiz_ellipsoidal_head():
     
     assert_close(SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0), 3401.2336225352738, rtol=1e-11)
 
+    # Integration tests
+    T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
+              sideA='ellipsoidal', sideA_a=24*inch, sideB='same')
+    assert_close(T1.SA_from_h(24*inch)/foot**2, 102.59905, rtol=1e-7)
+    assert_close(T1.SA_from_h(36*inch)/foot**2, 138.74815, rtol=1e-7)
+    assert_close(T1.SA_from_h(48*inch)/foot**2, 174.89725, rtol=1e-7)
+    assert_close(T1.SA_from_h(T1.h_max), T1.A, rtol=1e-12)
+    assert 0.0 == T1.SA_from_h(0)
+    
+    T2 = TANK(L=120*inch, D=72*inch, horizontal=True,
+              sideA='ellipsoidal', sideA_a=36*inch, sideB='same')
+    assert_close(T2.SA_from_h(24*inch)/foot**2, 111.55668, rtol=1e-7)
+    assert_close(T2.SA_from_h(36*inch)/foot**2, 150.79645, rtol=1e-7)
+    assert_close(T2.SA_from_h(48*inch)/foot**2, 190.03622, rtol=1e-7)
+    assert 0.0 == T2.SA_from_h(0)
+    assert_close(T2.SA_from_h(T2.h_max), T2.A, rtol=1e-12)
+    
+    T3 = TANK(L=120*inch, D=72*inch, horizontal=True,
+              sideA='ellipsoidal', sideA_a=48*inch, sideB='same')
+    assert_close(T3.SA_from_h(24*inch)/foot**2, 121.09692, rtol=1e-7)
+    assert_close(T3.SA_from_h(36*inch)/foot**2, 163.71486, rtol=1e-7)
+    assert_close(T3.SA_from_h(48*inch)/foot**2, 206.33279, rtol=1e-7)
+    assert 0.0 == T3.SA_from_h(0)
+    assert_close(T3.SA_from_h(T3.h_max), T3.A, rtol=1e-12)
 
+    
+    
 def test_SA_partial_horiz_torispherical_head():
     L = 120*inch
     D = 72*inch
@@ -431,10 +487,32 @@ def test_SA_partial_horiz_torispherical_head():
 
     assert SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=7200) == SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=72)
     
-    # TODO fixes
-    # SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=1e-13)
-    # Figure out range of f, k
-    #  SA_partial_horiz_torispherical_head(D=72., f=1, k=12, h=6)
+    # Check G returns a real number
+    assert_close(SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=1e-13), 3.859157404406146e-12, rtol=.1)
+    
+    # Torispherical tests
+    T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
+              sideA='torispherical', sideA_f=1, sideA_k=.06, sideB='same')
+    assert_close(T1.SA_from_h(2.28*inch)/foot**2, 22.74924, rtol=1e-7)
+    assert_close(T1.SA_from_h(24*inch)/foot**2, 94.29092, rtol=1e-7)
+    assert_close(T1.SA_from_h(36*inch)/foot**2, 127.74876, rtol=1e-7)
+    assert_close(T1.SA_from_h(48*inch)/foot**2, 161.20660, rtol=1e-7)
+    assert_close(T1.SA_from_h(69.72*inch)/foot**2, 232.74828, rtol=1e-7)
+    assert 0.0 == T1.SA_from_h(0)
+    assert_close(T1.SA_from_h(T1.h_max), T1.A, rtol=1e-12)
+    
+    T2 = TANK(L=120*inch, D=72*inch, horizontal=True,
+              sideA='torispherical', sideA_f=.9, sideA_k=.1, sideB='same')
+    assert_close(T2.SA_from_h(3*inch)/foot**2, 26.82339, rtol=2e-7)
+    assert_close(T2.SA_from_h(24*inch)/foot**2, 96.18257, rtol=1e-7)
+    assert_close(T2.SA_from_h(36*inch)/foot**2, 130.22802, rtol=1e-7)
+    assert_close(T2.SA_from_h(48*inch)/foot**2, 164.27347, rtol=1e-7)
+    assert_close(T2.SA_from_h(69*inch)/foot**2, 233.63265, rtol=1e-7)
+    assert 0.0 == T2.SA_from_h(0)
+    assert_close(T2.SA_from_h(T2.h_max), T2.A, rtol=1e-12)
+
+
+
 
 def test_SA_vert_flat_got_area():
     T_actually_flat = TANK(L=120, D=72, horizontal=False)
@@ -588,6 +666,15 @@ def test_SA_from_h_basics():
     with pytest.raises(ValueError):
         SA_from_h(h=70, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.) 
 
+    # height above tank height
+    with pytest.raises(ValueError):
+        SA_from_h(h=15, D=1.5, L=5., horizontal=True, sideA=None, sideB=None)
+    
+
+    assert_close(SA_from_h(h=1.5, D=1.5, L=5., horizontal=True, sideA=None, sideB=None),
+             0.25*pi*1.5**2*2 + 1.5*5*pi, rtol=1e-13)
+    
+    
 def test_pitch_angle_solver():
     ans = [{'angle': 30, 'pitch': 2., 'pitch_parallel': 1.7320508075688774, 'pitch_normal': 1.},
            {'angle': 60, 'pitch': 2., 'pitch_parallel': 1., 'pitch_normal': 1.7320508075688774},
