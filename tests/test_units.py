@@ -204,10 +204,10 @@ def test_custom_wraps():
     assert_pint_allclose(mu, 1E-4, {u'[time]': -1.0, u'[length]': -1.0, u'[mass]': 1.0})
     
     SA = SA_tank(D=1.*u.m, L=0*u.m, sideA='ellipsoidal', sideA_a=2*u.m, sideB='ellipsoidal', sideB_a=2*u.m)
-    assert_pint_allclose(SA, 28.480278854014387, {u'[length]': 2.0})
+    assert_pint_allclose(SA, 10.124375616183064, {u'[length]': 2.0})
     
     SA, (sideA_SA, sideB_SA, lateral_SA) = SA_tank(D=1.*u.m, L=0*u.m, sideA='ellipsoidal', sideA_a=2*u.m, sideB='ellipsoidal', sideB_a=2*u.m, full_output=True)
-    expect = [28.480278854014387, 14.240139427007193, 14.240139427007193, 0]
+    expect = [10.124375616183064, 5.062187808091532, 5.062187808091532, 0]
     for value, expected in zip([SA, sideA_SA, sideB_SA, lateral_SA], expect):
         assert_pint_allclose(value, expected, {u'[length]': 2.0})
     

@@ -23,7 +23,6 @@ SOFTWARE.'''
 from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
-from cmath import asin as casin
 from fluids.constants import inch
 from fluids.numerics import secant, brenth, ellipe, horner, chebval, linspace
 from fluids.numerics import numpy as np
@@ -1074,17 +1073,22 @@ def V_vertical_torispherical_concave(D, f, k, h):
 ### Total surface area of heads, orientation-independent
 
 def SA_ellipsoidal_head(D, a):
-    r'''Calculates the surface area of an ellipsoidal head according to [1]_.
-    Formula below is for the full shape, the result of which is halved. The
-    formula also does not support `D` being larger than `a`; this is ensured
-    by simply swapping the variables if necessary, as geometrically the result
-    is the same. In the equations, `a` is the same and `c` is `D`.
+    r'''Calculates the surface area of an ellipsoidal head according to [1]_ and [2]_.
+    The formula below is for the full shape, the result of which is halved. The
+    formula is for :math:`a < R`. In the equations, `a` is the same and `c` is `D`.
 
     .. math::
-        SA = 2\pi a^2 + \frac{\pi c^2}{e_1}\ln\left(\frac{1+e_1}{1-e_1}\right)
+         \text{SA} = 2\pi a^2 + \frac{\pi c^2}{e_1}\ln\left(\frac{1+e_1}{1-e_1}
+         \right)
 
     .. math::
         e_1 = \sqrt{1 - \frac{c^2}{a^2}}
+        
+    For the case of :math:`a \ge R` from [2]_, which is needed to make the tank
+    head volume grow linearly with length:
+        
+    .. math::
+        \text{SA} = 2\pi R^2 + \frac{2\pi a^2 R}{\sqrt{a^2 - R^2}}\cos^{-1}\frac{R}{|a|}
 
     Parameters
     ----------
@@ -1104,26 +1108,33 @@ def SA_ellipsoidal_head(D, a):
 
     >>> SA_ellipsoidal_head(2, 1)
     6.283185307179586
+    >>> SA_ellipsoidal_head(2, 1.5)
+    8.459109081729984
 
     References
     ----------
     .. [1] Weisstein, Eric W. "Spheroid." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Spheroid.html.
+    .. [2] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
+       April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
     '''
     if D == a*2.0:
         return 0.5*pi*D*D # necessary to avoid a division by zero when D == a
-    D = 0.5*D
-    D, a = min((D, a)), max((D, a))
-    e1 = (1.0 - D*D/(a*a))**0.5
-    
-    try:
-        log_term = log((1.0 + e1)/(1.0 - e1))
-    except ZeroDivisionError:
-        # Limit as a goes to zero relative to D; may only be ~6 orders of 
-        # magnitude smaller than D and will still occur
-        log_term = 0.0
-    
-    return (2.0*pi*a*a + pi*D*D/e1*log_term)*0.5
+    R = 0.5*D
+    if a < R:
+        R, a = min((R, a)), max((R, a))
+        e1 = (1.0 - R*R/(a*a))**0.5
+        
+        try:
+            log_term = log((1.0 + e1)/(1.0 - e1))
+        except ZeroDivisionError:
+            # Limit as a goes to zero relative to D; may only be ~6 orders of 
+            # magnitude smaller than D and will still occur
+            log_term = 0.0
+        
+        return (2.0*pi*a*a + pi*R*R/e1*log_term)*0.5
+    else:
+        return pi*R*R + pi*a*a*R*(a*a - R*R)**-0.5*acos(R/abs(a))
 
 
 def SA_conical_head(D, a):

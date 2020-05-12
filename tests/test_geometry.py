@@ -179,6 +179,8 @@ def test_geometry():
     SA2 = SA_ellipsoidal_head(2, 0.999)
     SAs = [6.283185307179586, 6.278996936093318]
     assert_allclose([SA1, SA2], SAs)
+    SA = SA_ellipsoidal_head(2, 1.5)
+    assert_close(SA, 8.459109081729984, rtol=1e-12)
     
     # Check code avoids zero division error
     assert_allclose(SA_ellipsoidal_head(2, 1e-8), pi)
@@ -197,7 +199,7 @@ def test_geometry():
     SA2 = SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal', sideB_a=2)
     SA3 = SA_tank(D=1., L=5, sideA='conical', sideA_a=2, sideB='conical', sideB_a=2)
     SA4 = SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical', sideB_a=0.5)
-    SAs = [18.84955592153876, 28.480278854014387, 22.18452243965656, 18.84955592153876]
+    SAs = [18.84955592153876, 10.124375616183064, 22.18452243965656, 18.84955592153876]
     assert_allclose([SA1, SA2, SA3, SA4], SAs)
 
     SA1, (SA2, SA3, SA4) = SA_tank(D=2.54, L=5, sideA='torispherical', sideB='torispherical', sideA_f=1.039370079, sideA_k=0.062362205, sideB_f=1.039370079, sideB_k=0.062362205, full_output=True)
@@ -313,6 +315,16 @@ def test_SA_partial_horiz_conical_head():
     
     assert_close(SA_partial_horiz_conical_head(D=72., a=0, h=35),
                  A_partial_circle(D=72, h=35), rtol=1e-12)
+    
+    # Integration tests
+    T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
+              sideA='conical', sideA_a=48*inch, sideB='same')
+    assert_close(T1.SA_from_h(24*inch)/foot**2, 101.35826, rtol=1e-7)
+    assert_close(T1.SA_from_h(36*inch)/foot**2, 141.37167, rtol=1e-7)
+    assert_close(T1.SA_from_h(48*inch)/foot**2, 181.38508, rtol=1e-7)
+    assert T1.SA_from_h(0) == 0.0
+    assert_close(T1.SA_from_h(T1.h_max), T1.A, rtol=1e-14)
+
     
 def test_SA_partial_horiz_spherical_head():
         
