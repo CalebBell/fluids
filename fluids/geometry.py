@@ -1793,10 +1793,11 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     c10 = f*D*cos_alpha
     
     f2D2 = f*f*D*D
-
+    
+    c1 = s2 + t2  - (R - h)**2
     def G_lim(x):
         x2 = x*x
-        G = (s2 + t2 - x2 + 2.0*s*(t2 - x2)**0.5 - (R - h)**2)**0.5
+        G = (c1 - x2 + 2.0*s*(t2 - x2)**0.5)**0.5
         return G.real # Some tiny heights make the square root slightly under 0
         
     
@@ -1804,8 +1805,9 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
         y, x = x, y
         x2 = x*x
         y2 = y*y
-        num = (s + (t2 - x2)**0.5)**2*x2 + (t2 - x2)*y2
-        den = (t2 - x2)*(s2 + t2 - x2 - y2 + 2*s*(t2 - x2)**0.5)
+        x10 = (t2 - x2)**0.5
+        num = (s + x10)*(s + x10)*x2 + (t2 - x2)*y2
+        den = (t2 - x2)*(s2 + t2 - x2 - y2 + 2.0*s*x10)
         f = (1.0 + num/den)**0.5
         return f
         

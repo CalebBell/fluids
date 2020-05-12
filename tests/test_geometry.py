@@ -482,7 +482,10 @@ def test_SA_partial_horiz_torispherical_head():
     assert_close(SA, 4784.441787378645, rtol=1e-11)
         
     # Error handling
-    assert 0 == SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=1e-20)
+    # Was a bug computing this
+    SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=1e-20)
+    
+    assert 0 == SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=0)
     assert 0 == SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=-1e-12)
 
     assert SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=7200) == SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=72)
