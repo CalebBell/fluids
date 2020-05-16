@@ -24,7 +24,7 @@ from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
 from fluids.constants import inch
-from fluids.numerics import secant, brenth, ellipe, horner, chebval, linspace
+from fluids.numerics import secant, brenth, ellipe, horner, chebval, linspace, derivative
 from fluids.numerics import numpy as np
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
@@ -534,44 +534,56 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
     if h <= 0.0:
         return 0.0
-    R = D/2.
-    Af = R**2*acos((R-h)/R) - (R-h)*(2*R*h - h**2)**0.5
+    R = 0.5*D
+    R2 = R*R
+    hh = h*h
+    Af = R2*acos((R-h)/R) - (R-h)*(2.0*R*h - hh)**0.5
     r = f*D
-    alpha = asin((1 - 2*k)/(2.*(f-k)))
-    a1 = r*(1-cos(alpha))
-    g = r*sin(alpha)
-    z = r*cos(alpha)
-    h1 = k*D*(1-sin(alpha))
+    alpha = asin((1.0 - 2.0*k)/(2.*(f - k)))
+    cos_alpha = cos(alpha)
+    sin_alpha = sin(alpha)
+    a1 = r*(1.0 - cos_alpha)
+    g = r*sin_alpha
+    z = r*cos_alpha
+    h1 = k*D*(1.0 - sin_alpha)
     h2 = D - h1
 
     # Chebfun in Python failed on these functions
+    c10 = k*k*D*D
+    c11 = R - k*D 
+    g2 = g*g
+    r2 = r*r
     def V1_toint(x, w):
         # No analytical integral available in MP
-        n = R - k*D + (k**2*D**2 - x**2)**0.5
-        ans = n**2*asin((n**2-w**2)**0.5/n) - w*(n**2 - w**2)**0.5
+        w2 = w*w
+        n = c11 + (c10 - x*x)**0.5
+        n2 = n*n
+        ans = n2*asin((n2 - w2)**0.5/n) - w*(n2 - w2)**0.5
         return ans
     def V2_toint(x, w):
         # No analytical integral available in MP
-        n = R - k*D + (k**2*D**2 - x**2)**0.5
-        ans = n**2*(acos(w/n) - acos(g/n)) - w*(n**2 - w**2)**0.5 + g*(n**2-g**2)**0.5
+        n = c11 + (c10 - x*x)**0.5
+        n2 = n*n
+        n_inv = 1.0/n
+        ans = n2*(acos(w*n_inv) - acos(g*n_inv)) - w*(n2 - w*w)**0.5 + g*(n2 - g2)**0.5
         return ans
     def V3_toint(x):
         # There is an analytical integral in MP, but for all cases we seem to 
         # get ZeroDivisionError: 0.0 cannot be raised to a negative power
-        ans = (r**2-x**2)*atan((g**2-x**2)**0.5/z)
+        ans = (r2 - x*x)*atan((g2 - x*x)**0.5/z)
         return ans
 
     from scipy.integrate import quad
-    if 0 <= h <= h1:
+    if 0.0 <= h <= h1:
         w = R - h
-        Vf = 2*quad(V1_toint, 0, (2*k*D*h-h**2)**0.5, w)[0]
+        Vf = 2.0*quad(V1_toint, 0.0, (2.0*k*D*h - hh)**0.5, w)[0]
     elif h1 < h < h2:
         w = R - h
         wmax1 = R - h1
-        V1max = quad(V1_toint, 0, (2*k*D*h1-h1**2)**0.5, wmax1)[0]
-        V2 = quad(V2_toint, 0, k*D*cos(alpha), w)[0]
-        V3 = quad(V3_toint, w, g)[0] - z/2.*(g**2*acos(w/g) -w*(2*g*(h-h1) - (h-h1)**2)**0.5)
-        Vf = 2*(V1max + V2 + V3)
+        V1max = quad(V1_toint, 0.0, (2.0*k*D*h1 - h1*h1)**0.5, wmax1)[0]
+        V2 = quad(V2_toint, 0.0, k*D*cos(alpha), w)[0]
+        V3 = quad(V3_toint, w, g)[0] - 0.5*z*(g*g*acos(w/g) -w*(2*g*(h-h1) - (h-h1)**2)**0.5)
+        Vf = 2.0*(V1max + V2 + V3)
     else:
         w = R - h
         wmax1 = R - h1
@@ -801,20 +813,27 @@ def V_vertical_torispherical(D, f, k, h):
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
     if h <= 0.0:
         return 0.0
-    alpha = asin((1-2*k)/(2*(f-k)))
-    a1 = f*D*(1 - cos(alpha))
-    a2 = k*D*cos(alpha)
-    D1 = 2*f*D*sin(alpha)
-    s = (k*D*sin(alpha))**2
-    t = 2*a2
-    u = h - f*D*(1 - cos(alpha))
+    alpha = asin((1.0 - 2.0*k)/(2.0*(f-k)))
+    sin_alpha = sin(alpha)
+    cos_alpha = cos(alpha)
+    a1 = f*D*(1.0 - cos_alpha)
+    a2 = k*D*cos_alpha
+    D1 = 2.0*f*D*sin_alpha
+    
+    x1 = k*D*sin_alpha
+    s = x1*x1
+    t = a2 + a2
+    u = h - f*D*(1.0 - cos_alpha)
+    h2 = h*h
 
-    if 0 <= h <= a1:
-        Vf = pi*h**2/4*(2*a1 + D1**2/2/a1 - 4*h/3)
+    if 0.0 <= h <= a1:
+        Vf = 0.25*pi*h2*(a1 + a1 + 0.5*D1*D1/a1 - (4.0/3.0)*h)
     elif a1 < h <= a1 + a2:
-        Vf = (pi/4*(2*a1**3/3 + a1*D1**2/2.) + pi*u*((D/2. - k*D)**2 + s)
-        + pi*t*u**2/2. - pi*u**3/3. + pi*D*(1 - 2*k)*((2*u-t)/4.*(s + t*u
-        - u**2)**0.5 + t*s**0.5/4. + k**2*D**2/2*(acos((t-2*u)/(2*k*D))-alpha)))
+        x2 = (0.5*D - k*D)
+        u2 = u*u
+        Vf = (0.25*pi*a1*((2.0/3.0)*a1*a1 + 0.5*D1*D1) + pi*u*(x2*x2 + s)
+        + pi*u2*(0.5*t - u/3.) + pi*D*(1.0 - 2.0*k)*(0.25*(2.0*u - t)*(s + t*u
+        - u2)**0.5 + 0.25*t*s**0.5 + 0.5*k*k*D*D*(acos((t - 2.0*u)/(2.0*k*D)) - alpha)))
     else:
         Vf = pi/4*(2*a1**3/3. + a1*D1**2/2.) + pi*t/2.*((D/2 - k*D)**2
         + s) + pi*t**3/12. + pi*D*(1 - 2*k)*(t*s**0.5/4
@@ -1594,7 +1613,8 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     heads only.
         
     .. math::
-        \text{SA} = \frac{2}{R} \int_{R-h}^R \sqrt{ \frac{(R^2 - a^2)x^2 
+        \text{SA} = \frac{2}{R} \int_{R-h}^R \int_0^{\sqrt{R^2 - x^2}}
+        \sqrt{ \frac{(R^2 - a^2)x^2 
         + (R^2 - a^2)y^2 - R^4} {x^2 + y^2 - R^2}} dy dx
         
     Parameters
@@ -2200,37 +2220,53 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
         raise ValueError('Unspoorted head type for side A')
     if sideB not in (None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise ValueError('Unspoorted head type for side B')
-    R = D/2.
-    V = 0
+    R = 0.5*D
+    V = 0.0
     if horizontal:
         # Conical case
-        if sideA == 'conical':
-            V += V_horiz_conical(D, L, sideA_a, h, headonly=True)
-        if sideB == 'conical':
-            V += V_horiz_conical(D, L, sideB_a, h, headonly=True)
+        if sideA == 'conical' and sideB == 'conical' and sideA_a == sideB_a:
+            V += 2.0*V_horiz_conical(D, L, sideA_a, h, headonly=True)
+        else:
+            if sideA == 'conical':
+                V += V_horiz_conical(D, L, sideA_a, h, headonly=True)
+            if sideB == 'conical':
+                V += V_horiz_conical(D, L, sideB_a, h, headonly=True)
         # Elliosoidal case
-        if sideA == 'ellipsoidal':
-            V += V_horiz_ellipsoidal(D, L, sideA_a, h, headonly=True)
-        if sideB == 'ellipsoidal':
-            V += V_horiz_ellipsoidal(D, L, sideB_a, h, headonly=True)
+        if sideA == 'ellipsoidal' and sideB == 'ellipsoidal' and sideA_a == sideB_a:
+            V += 2.0*V_horiz_ellipsoidal(D, L, sideA_a, h, headonly=True)
+        else:
+            if sideA == 'ellipsoidal':
+                V += V_horiz_ellipsoidal(D, L, sideA_a, h, headonly=True)
+            if sideB == 'ellipsoidal':
+                V += V_horiz_ellipsoidal(D, L, sideB_a, h, headonly=True)
         # Guppy case
-        if sideA == 'guppy':
-            V += V_horiz_guppy(D, L, sideA_a, h, headonly=True)
-        if sideB == 'guppy':
-            V += V_horiz_guppy(D, L, sideB_a, h, headonly=True)
+        if sideA == 'guppy' and sideB == 'guppy' and sideA_a == sideB_a:
+            V += 2.0*V_horiz_guppy(D, L, sideA_a, h, headonly=True)
+        else:
+            if sideA == 'guppy':
+                V += V_horiz_guppy(D, L, sideA_a, h, headonly=True)
+            if sideB == 'guppy':
+                V += V_horiz_guppy(D, L, sideB_a, h, headonly=True)
         # Spherical case
-        if sideA == 'spherical':
-            V += V_horiz_spherical(D, L, sideA_a, h, headonly=True)
-        if sideB == 'spherical':
-            V += V_horiz_spherical(D, L, sideB_a, h, headonly=True)
+        if sideA == 'spherical' and sideB == 'spherical' and sideA_a == sideB_a:
+            V += 2.0*V_horiz_spherical(D, L, sideA_a, h, headonly=True)
+        else:
+            if sideA == 'spherical':
+                V += V_horiz_spherical(D, L, sideA_a, h, headonly=True)
+            if sideB == 'spherical':
+                V += V_horiz_spherical(D, L, sideB_a, h, headonly=True)
         # Torispherical case
-        if sideA == 'torispherical':
-            V += V_horiz_torispherical(D, L, sideA_f, sideA_k, h, headonly=True)
-        if sideB == 'torispherical':
-            V += V_horiz_torispherical(D, L, sideB_f, sideB_k, h, headonly=True)
+        if (sideA == 'torispherical' and sideB == 'torispherical' 
+            and (sideA_f == sideB_f) and (sideA_k == sideB_k)):
+            V += 2.0*V_horiz_torispherical(D, L, sideA_f, sideA_k, h, headonly=True)
+        else:
+            if sideA == 'torispherical':
+                V += V_horiz_torispherical(D, L, sideA_f, sideA_k, h, headonly=True)
+            if sideB == 'torispherical':
+                V += V_horiz_torispherical(D, L, sideB_f, sideB_k, h, headonly=True)
         if h > D: # Must be before Af, which will raise a domain error
             raise ValueError('Input height is above top of tank')
-        Af = R**2*acos((R-h)/R) - (R-h)*(2*R*h - h**2)**0.5
+        Af = R*R*acos((R-h)/R) - (R-h)*(2.0*R*h - h*h)**0.5
         V += L*Af
     else:
         # Bottom head
@@ -2524,6 +2560,17 @@ class TANK(object):
     +----------------------+-----+-------+
     |  DIN 28013           | 0.8 | 0.154 |
     +----------------------+-----+-------+
+    
+    For the following cases, numerical integrals are used.
+    
+    V_horiz_spherical
+    V_horiz_torispherical
+    SA_partial_horiz_spherical_head
+    SA_partial_horiz_ellipsoidal_head
+    SA_partial_horiz_guppy_head
+    SA_partial_horiz_torispherical_head
+
+
 
     Examples
     --------
@@ -2889,6 +2936,32 @@ class TANK(object):
         else:
             raise Exception("Allowable methods are 'full' or 'chebyshev', "
                             "or 'brenth'.")
+
+    def A_cross_sectional(self, h, method='full'):
+        r'''Method to calculate the cross-sectional liquid surface area 
+        from which gas can evolve in a fully defined tank
+        given a specified height `h`. `h` must be under the maximum height.
+        This is calculated by numeric differentiation for most cases.
+
+        Parameters
+        ----------
+        h : float
+            Height specified, [m]
+        method : str, optional
+            'full' (calculated rigorously) or 'chebyshev', [-]
+
+        Returns
+        -------
+        A_cross : float
+            Surface area of liquid in the tank up to the specified height, [m^2]
+            
+        Notes
+        -----
+        '''
+        # The derivative will give bad values in some cases, when right up against boundaries
+        # Analytical formulations can be done, but will be lots of code
+        
+        return derivative(lambda h: self.V_from_h(h), h, dx=1e-7*h, order=3, n=1)
 
     def set_table(self, n=100, dx=None):
         r'''Method to set an interpolation table of liquids levels versus

@@ -106,6 +106,11 @@ __all__.extend(separator.__all__)
 __all__.extend(particle_size_distribution.__all__)
 __all__.extend(jet_pump.__all__)
 
+submodules = [atmosphere, compressible, core, friction, filters, fittings,
+              flow_meter, geometry, mixing, open_flow, packed_bed, piping, pump,
+              safety_valve, packed_tower, two_phase_voidage, two_phase, drag,
+              saltation, separator, particle_size_distribution, jet_pump,
+              control_valve]
 
 __version__ = '0.1.78'
 

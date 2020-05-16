@@ -272,7 +272,12 @@ def test_geometry():
     with pytest.raises(Exception):
         V_from_h(h=7, D=1.5, L=5., horizontal=False)
 
+def test_TANK_cross_sectional_area():
+    T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='torispherical' ,sideB='same')
 
+    assert_close(T1.A_cross_sectional(0.5*T1.h_max), 0.25*pi*T1.D**2)
+    
+    
 def test_SA_partial():
     # Checked with 
     # https://www.aqua-calc.com/calculate/volume-in-a-horizontal-cylinder
