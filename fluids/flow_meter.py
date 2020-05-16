@@ -415,7 +415,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         L1, L2_prime = 0.0, 0.0
     elif taps == 'flange':
         L1 = L2_prime = 0.0254/D
-    elif taps in ('D', 'D/2', ORIFICE_D_AND_D_2_TAPS):
+    elif taps  == 'D' or taps == 'D/2' or taps ==  ORIFICE_D_AND_D_2_TAPS:
         L1 = 1.0
         L2_prime = 0.47
     else:
@@ -2055,7 +2055,7 @@ CONE_METER_C = 0.82
 
 ISO_15377_CONICAL_ORIFICE_C = 0.734
 
-beta_simple_meters = set([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE, 
+beta_simple_meters = frozenset([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE, 
                           ISO_15377_CONICAL_ORIFICE, ISO_15377_QUARTER_CIRCLE_ORIFICE, 
                           
                           MILLER_ORIFICE, MILLER_ECCENTRIC_ORIFICE, 
@@ -2071,8 +2071,11 @@ beta_simple_meters = set([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                           MACHINED_CONVERGENT_VENTURI_TUBE, 
                           ROUGH_WELDED_CONVERGENT_VENTURI_TUBE])
 
-all_meters = beta_simple_meters.copy()
+all_meters = set(beta_simple_meters)
 all_meters.update([CONE_METER, WEDGE_METER])
+all_meters = frozenset(all_meters)
+
+_unsupported_meter_msg = "Supported meter types are %s" % all_meters
 
 def differential_pressure_meter_beta(D, D2, meter_type):
     r'''Calculates the beta ratio of a differential pressure meter.
@@ -2116,7 +2119,7 @@ def differential_pressure_meter_beta(D, D2, meter_type):
     elif meter_type == WEDGE_METER:
         beta = diameter_ratio_wedge_meter(D=D, H=D2)
     else:
-        raise ValueError("Supported meter types are %s" % all_meters)
+        raise ValueError(_unsupported_meter_msg)
     return beta
 
 
@@ -2262,7 +2265,7 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P1, k=k, beta=beta)
         C = C_wedge_meter_ISO_5167_6_2017(D=D, H=D2)
     else:
-        raise ValueError("Supported meter types are %s" % all_meters)
+        raise ValueError(_unsupported_meter_msg)
     return C, epsilon
 
 
@@ -2488,5 +2491,5 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
     elif meter_type == WEDGE_METER:
         dP = dP_wedge_meter(D=D, H=D2, P1=P1, P2=P2)
     else:
-        raise ValueError("Supported meter types are %s" % all_meters)
+        raise ValueError(_unsupported_meter_msg)
     return dP

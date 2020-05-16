@@ -455,7 +455,6 @@ wrapped_Panhandle_A = Panhandle_A
 wrapped_Muller = Muller
 wrapped_IGT = IGT
 wrapped_nu_mu_converter = nu_mu_converter
-wrapped_SA_tank= SA_tank
 
 wrapped_differential_pressure_meter_solver = differential_pressure_meter_solver
 
@@ -465,21 +464,6 @@ def nu_mu_converter(rho, mu=None, nu=None):
     if mu is None:
         return ans*u.Pa*u.s
     return ans*u.m**2/u.s
-
-
-def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0*u.m,
-             sideB_a=0*u.m, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
-             full_output=False):
-    ans = wrapped_SA_tank(D, L, sideA, sideB, sideA_a, sideB_a, sideA_f, 
-                          sideA_k, sideB_f, sideB_k, full_output)
-    if full_output:
-        SA, (sideA_SA, sideB_SA, lateral_SA) = ans
-    else:
-        SA = ans
-    if full_output:
-        return SA, (sideA_SA*u.m**2, sideB_SA*u.m**2, lateral_SA*u.m**2)
-    else:
-        return SA
 
 
 def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None): # pragma: no cover

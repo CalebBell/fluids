@@ -1129,6 +1129,7 @@ def SA_ellipsoidal_head(D, a):
     6.283185307179586
     >>> SA_ellipsoidal_head(2, 1.5)
     8.459109081729984
+    
     References
     ----------
     .. [1] Weisstein, Eric W. "Spheroid." Text. Accessed March 14, 2016.
@@ -1143,9 +1144,11 @@ def SA_ellipsoidal_head(D, a):
         R, a = min((R, a)), max((R, a))
         e1 = (1.0 - R*R/(a*a))**0.5
         
-        try:
+        if e1 != 1.0:
+#        try:
             log_term = log((1.0 + e1)/(1.0 - e1))
-        except ZeroDivisionError:
+#        except ZeroDivisionError:
+        else:
             # Limit as a goes to zero relative to D; may only be ~6 orders of 
             # magnitude smaller than D and will still occur
             log_term = 0.0
@@ -1288,8 +1291,7 @@ def SA_torispheroidal(D, f, k):
 
 
 def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
-             sideB_a=0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
-             full_output=False):
+            sideB_a=0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
     r'''Calculates the surface are of a cylindrical tank with optional heads.
     In the degenerate case of being provided with only `D` and `L`, provides
     the surface area of a cylinder.
@@ -1325,28 +1327,27 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     -------
     SA : float
         Surface area of the tank [m^2]
-    areas : tuple, only returned if full_output == True
-        (sideA_SA, sideB_SA, lateral_SA)
-
-    Other Parameters
-    ----------------
-    full_output : bool, optional
-        Returns a tuple of (sideA_SA, sideB_SA, lateral_SA) if True
+    sideA_SA : float
+        Surface area of only `sideA` [m^2]
+    sideB_SA : float
+        Surface area of only `sideB` [m^2]
+    lateral_SA : float
+        Surface area of cylindrical section of tank [m^2]
 
     Examples
     --------
     Cylinder, Spheroid, Long Cones, and spheres. All checked.
 
-    >>> SA_tank(D=2, L=2)
+    >>> SA_tank(D=2, L=2)[0]
     18.84955592153876
     >>> SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal',
-    ... sideB_a=2)
+    ... sideB_a=2)[0]
     28.480278854014387
     >>> SA_tank(D=1., L=5, sideA='conical', sideA_a=2, sideB='conical',
-    ... sideB_a=2)
+    ... sideB_a=2)[0]
     22.18452243965656
     >>> SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',
-    ... sideB_a=0.5)
+    ... sideB_a=0.5)[0]
     18.84955592153876
     '''
     # Side A
@@ -1359,6 +1360,10 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     elif sideA == 'spherical':
         sideA_SA = pi*(sideA_a*sideA_a + 0.25*D*D) # (SA_partial_sphere(D=D, h=sideA_a)
     elif sideA == 'torispherical':
+        if sideA_f is None:
+            raise ValueError("Missing torispherical `f` parameter for sideA")
+        if sideA_k is None:
+            raise ValueError("Missing torispherical `k` parameter for sideA")
         sideA_SA = SA_torispheroidal(D=D, f=sideA_f, k=sideA_k)
     else:
         sideA_SA = pi/4*D**2 # Circle
@@ -1372,6 +1377,10 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     elif sideB == 'spherical':
         sideB_SA = pi*(sideB_a*sideB_a + 0.25*D*D)#SA_partial_sphere(D=D, h=sideB_a)
     elif sideB == 'torispherical':
+        if sideB_f is None:
+            raise ValueError("Missing torispherical `f` parameter for sideB")
+        if sideB_k is None:
+            raise ValueError("Missing torispherical `k` parameter for sideB")
         sideB_SA = SA_torispheroidal(D=D, f=sideB_f, k=sideB_k)
     else:
         sideB_SA = pi/4*D**2 # Circle
@@ -1379,10 +1388,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     lateral_SA = pi*D*L
 
     SA = sideA_SA + sideB_SA + lateral_SA
-    if full_output:
-        return SA, (sideA_SA, sideB_SA, lateral_SA)
-    else:
-        return SA
+    return SA, sideA_SA, sideB_SA, lateral_SA
 
 
 def SA_partial_cylindrical_body(L, D, h):
@@ -2774,11 +2780,10 @@ class TANK(object):
         self.V_total = self.V_from_h(self.h_max)
 
         # Set surface areas
-        self.A, (self.A_sideA, self.A_sideB, self.A_lateral) = SA_tank(
+        self.A, self.A_sideA, self.A_sideB, self.A_lateral = SA_tank(
         D=D, L=self.L, sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a,
         sideB_a=self.sideB_a, sideA_f=self.sideA_f, sideA_k=self.sideA_k,
-        sideB_f=self.sideB_f, sideB_k=self.sideB_k,
-             full_output=True)
+        sideB_f=self.sideB_f, sideB_k=self.sideB_k)
         
         A_circular_plate = 0.25*pi*D*D
         self.A_sideA_extra = self.A_sideA - A_circular_plate

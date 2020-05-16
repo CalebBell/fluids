@@ -58,7 +58,9 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            
            ]
 
-__numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search']
+__numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search',
+                              'py_lambertw', '_lambertw_err', 'newton_err',
+                              'norm2', 'py_solve']
 nan = float("nan")
 inf = float("inf")
 
@@ -2133,20 +2135,21 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
     raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
 
+def newton_err(F):
+    err = sum([abs(i) for i in F])
+    return err
+
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                   args=(), damping_func=None):
     jac_also = True if jac == True else False
     
-    def err(F):
-        err = sum([abs(i) for i in F])
-        return err
 
     if jac_also:
         fcur, j = f(x0, *args)
     else:
         fcur = f(x0, *args)
         
-    if ytol is not None and err(fcur) < ytol:
+    if ytol is not None and newton_err(fcur) < ytol:
         return x0, 0
     else:
         x = x0
@@ -2168,7 +2171,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         iter += 1
         if xtol is not None and norm2(fcur) < xtol:
             break
-        if ytol is not None and err(fcur) < ytol:
+        if ytol is not None and newton_err(fcur) < ytol:
             break
             
         if not jac_also:
@@ -2176,7 +2179,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
 
     if xtol is not None and norm2(fcur) > xtol:
         raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s" %(maxiter, x))
-    if ytol is not None and err(fcur) > ytol:
+    if ytol is not None and newton_err(fcur) > ytol:
         raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s" %(maxiter, x))
 
     return x, iter
@@ -2582,11 +2585,10 @@ except ImportError:
 from math import gamma # Been there a while
 
 
-
-def my_lambertw(y):
-    def err(x):
-        return x*exp(x) - y
-    return py_brenth(err, 1e-300, 700.0)
+def _lambertw_err(x, y):
+    return x*exp(x) - y
+def py_lambertw(y):
+    return brenth(_lambertw_err, 1e-300, 700.0, args=(y,))
 
 #has_scipy = False
 
@@ -2597,7 +2599,7 @@ if has_scipy:
     if erf is None:
         from scipy.special import erf
 else:
-    lambertw = my_lambertw
+    lambertw = py_lambertw
     if not SKIP_DEPENDENCIES:
         import mpmath
         # scipy is not available... fall back to mpmath as a Pure-Python implementation

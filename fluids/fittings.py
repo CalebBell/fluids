@@ -105,7 +105,8 @@ def change_K_basis(K1, D1, D2):
 
 entrance_sharp_methods = ['Rennels', 'Swamee', 'Blevins', 'Idelchik', 'Crane', 
                           'Miller']
-
+entrance_sharp_method_missing = ('Specified method not recognized; methods are %s'
+                         %(entrance_sharp_methods))
 
 def entrance_sharp(method='Rennels'):
     r'''Returns loss coefficient for a sharp entrance to a pipe.
@@ -165,8 +166,7 @@ def entrance_sharp(method='Rennels'):
     elif method == 'Rennels':
         return 0.57
     else:
-        raise ValueError('Specified method not recognized; methods are %s'
-                         %(entrance_sharp_methods))
+        raise ValueError(entrance_sharp_method_missing)
 
 entrance_distance_Miller_coeffs = [3.5979871366071166, -2.735407311020481, -14.08678246875138, 
                                    10.637236472292983, 21.99568490754116, -16.38501138746954,

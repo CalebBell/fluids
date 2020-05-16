@@ -99,6 +99,9 @@ for name in names:
         replaced[name] = obj
 replaced['bisplev'] = replaced['py_bisplev']
 replaced['splev'] = replaced['py_splev']
+replaced['lambertw'] = replaced['py_lambertw']
+
+
 #
 #from fluids.numerics import (trunc_exp, trunc_log, roots_cubic, roots_quartic, mean, horner, horner_and_der, horner_and_der2, horner_and_der3, quadratic_from_f_ders, polyder, polyint, chebder, horner_log, fit_integral_linear_extrapolation, best_fit_integral_value, fit_integral_over_T_linear_extrapolation, best_fit_integral_over_T_value, evaluate_linear_fits, evaluate_linear_fits_d, evaluate_linear_fits_d2, chebval, interp, py_bisect, py_ridder, py_brenth, secant, py_newton, newton_system, py_bisplev, fpbspl, init_w, cy_bispev, py_splev, binary_search)
 #
@@ -146,6 +149,10 @@ for mod in normal_fluids.submodules:
     for arr_name in FLUIDS_SUBMOD.__dict__.keys():
         obj = getattr(FLUIDS_SUBMOD, arr_name)
         if type(obj) is list and len(obj) and type(obj[0]) in (float, int, complex):
+            to_do[arr_name] = np.array(obj)
+        elif type(obj) is list and len(obj) and all([
+                (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj]):
+            
             to_do[arr_name] = np.array(obj)
     FLUIDS_SUBMOD.__dict__.update(to_do)
     __funcs.update(to_do)

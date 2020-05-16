@@ -361,9 +361,9 @@ def polytropic_exponent(k, n=None, eta_p=None):
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     '''
-    if n is None and eta_p:
+    if n is None and eta_p is not None:
         return k*eta_p/(1.0 - k*(1.0 - eta_p))
-    elif eta_p is None and n:
+    elif eta_p is None and n is not None:
         return n*(k - 1.0)/(k*(n - 1.0))
     else:
         raise Exception('Either n or eta_p is required')

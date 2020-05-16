@@ -195,18 +195,18 @@ def test_geometry():
     SA1 = SA_torispheroidal(D=2.54, f=1.039370079, k=0.062362205)
     assert_close(SA1, 6.00394283477063, rtol=1e-12)
 
-    SA1 = SA_tank(D=2, L=2)
-    SA2 = SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal', sideB_a=2)
-    SA3 = SA_tank(D=1., L=5, sideA='conical', sideA_a=2, sideB='conical', sideB_a=2)
-    SA4 = SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical', sideB_a=0.5)
+    SA1 = SA_tank(D=2, L=2)[0]
+    SA2 = SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal', sideB_a=2)[0]
+    SA3 = SA_tank(D=1., L=5, sideA='conical', sideA_a=2, sideB='conical', sideB_a=2)[0]
+    SA4 = SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical', sideB_a=0.5)[0]
     SAs = [18.84955592153876, 10.124375616183064, 22.18452243965656, 18.84955592153876]
     assert_allclose([SA1, SA2, SA3, SA4], SAs)
 
-    SA1, (SA2, SA3, SA4) = SA_tank(D=2.54, L=5, sideA='torispherical', sideB='torispherical', sideA_f=1.039370079, sideA_k=0.062362205, sideB_f=1.039370079, sideB_k=0.062362205, full_output=True)
+    SA1, SA2, SA3, SA4 = SA_tank(D=2.54, L=5, sideA='torispherical', sideB='torispherical', sideA_f=1.039370079, sideA_k=0.062362205, sideB_f=1.039370079, sideB_k=0.062362205)
     SAs = [51.90611237013163, 6.00394283477063, 6.00394283477063, 39.89822670059037]
     assert_allclose([SA1, SA2, SA3, SA4], SAs)
 
-    SA1 = SA_tank(D=1., L=5, sideA='guppy', sideA_a=0.5, sideB='guppy', sideB_a=0.5)
+    SA1 = SA_tank(D=1., L=5, sideA='guppy', sideA_a=0.5, sideB='guppy', sideB_a=0.5)[0]
     assert_close(SA1, 19.034963277504044)
 
     a1 = a_torispherical(D=96., f=0.9, k=0.2)
