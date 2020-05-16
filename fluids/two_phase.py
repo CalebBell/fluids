@@ -29,7 +29,8 @@ __all__ = ['two_phase_dP', 'two_phase_dP_acceleration',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
            'Yu_France', 'Wang_Chiang_Lu', 'Hwang_Kim', 'Zhang_Hibiki_Mishima',
-           'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations']
+           'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations',
+           'Mandhane_Gregory_Aziz_regime']
 
 from math import pi, log, exp, sin, cos, radians, log10
 from fluids.constants import g
@@ -2935,8 +2936,8 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D,
     Vsl, Vsg = Vsl/0.3048, Vsg/0.3048
 #    X1 = (rhog/0.0808)**0.333 * (rhol*72.4/62.4/sigma)**0.25 * (mug/0.018)**0.2
 #    Y1 = (rhol*72.4/62.4/sigma)**0.25 * (mul/1.)**0.2
-    X1 = (rhog/1.294292)**0.333 * (rhol*0.0724/999.552/sigma)**0.25 * (mug/1.8E-5)**0.2
-    Y1 = (rhol*0.0724/999.552/sigma)**0.25 * (mul/1E-3)**0.2
+    X1 = (rhog/1.294292)**0.333 * (rhol*0.0724/(999.552*sigma))**0.25 * (mug*1.8E5)**0.2
+    Y1 = (rhol*0.0724/999.552/sigma)**0.25 * (mul*1E3)**0.2
 
     if Vsl < 14.0*Y1:
         if Vsl <= 0.1:

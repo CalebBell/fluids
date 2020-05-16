@@ -58,6 +58,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            
            ]
 
+__numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search']
 nan = float("nan")
 inf = float("inf")
 
@@ -1263,7 +1264,7 @@ def implementation_optimize_tck(tck):
     Only implemented for 3 and 5 length `tck`s.
     '''
     if IS_PYPY:
-        return tck
+        return tuple(tck)
     else:
         if len(tck) == 3:
             tck[0] = np.array(tck[0])
@@ -1274,7 +1275,7 @@ def implementation_optimize_tck(tck):
             tck[2] = np.array(tck[2])
         else:
             raise NotImplementedError
-    return tck
+    return tuple(tck)
 
 
 def tck_interp2d_linear(x, y, z, kx=1, ky=1):

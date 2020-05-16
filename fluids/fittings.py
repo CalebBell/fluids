@@ -47,6 +47,8 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'K_plug_valve_Crane', 'K_branch_converging_Crane', 'K_run_converging_Crane',
 'K_branch_diverging_Crane', 'K_run_diverging_Crane', 'v_lift_valve_Crane']
 
+__numba_additional_funcs__ = ['entrance_distance_Idelchik_obj', 'entrance_distance_Harris_obj']
+
 
 def change_K_basis(K1, D1, D2):
     r'''Converts a loss coefficient `K1` from the basis of one diameter `D1`
@@ -198,8 +200,7 @@ entrance_distance_Idelchik_tck = tck_interp2d_linear(entrance_distance_Idelchik_
 													          kx=1, ky=1)
 
 entrance_distance_Idelchik_obj = lambda x, y: float(bisplev(x, y, entrance_distance_Idelchik_tck))
-
-
+entrance_distance_Idelchik_obj = lambda x, y: bisplev(x, y, entrance_distance_Idelchik_tck)
 
 entrance_distance_Harris_t_Di = [0.00322, 0.007255, 0.01223, 0.018015,
     0.021776, 0.029044, 0.039417, 0.049519, 0.058012, 0.066234,
@@ -240,6 +241,7 @@ entrance_distance_Harris_obj = lambda x : float(splev(x, entrance_distance_Harri
 entrance_distance_methods = ['Rennels', 'Miller', 'Idelchik', 'Harris',
                              'Crane']
 
+entrance_distance_unrecognized_msg = 'Specified method not recognized; methods are %s' %(entrance_distance_methods)
 
 def entrance_distance(Di, t=None, l=None, method='Rennels'):
     r'''Returns the loss coefficient for a sharp entrance to a pipe at a distance
@@ -345,8 +347,7 @@ def entrance_distance(Di, t=None, l=None, method='Rennels'):
     elif method == 'Crane':
         return 0.78
     else:
-        raise ValueError('Specified method not recognized; methods are %s'
-                         %(entrance_distance_methods))
+        raise ValueError(entrance_distance_unrecognized_msg)
 
 
 entrance_distance_45_Miller_coeffs = [1.866792110435199, -2.8873199398381075, -4.814715029513536, 
