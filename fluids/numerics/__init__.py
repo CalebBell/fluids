@@ -60,7 +60,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
 
 __numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search',
                               'py_lambertw', '_lambertw_err', 'newton_err',
-                              'norm2', 'py_solve']
+                              'norm2', 'py_solve', 'func_35_splev', 'func_40_splev']
 nan = float("nan")
 inf = float("inf")
 
@@ -1435,6 +1435,10 @@ class OscillationError(Exception):
 class UnconvergedError(Exception):
     '''Error raised when maxiter has been reached in an optimization problem.
     '''
+    def __init__(self, message, iterations=None, err=None):
+        super(UnconvergedError, self).__init__(message)
+        self.iterations = iterations
+        self.err = err
 
 
 class NoSolutionError(Exception):
@@ -1983,7 +1987,7 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
             else:
                 b = p1
 
-    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
+    raise UnconvergedError("Failed to converge", maxiter, p)
 
 
 
@@ -2312,7 +2316,29 @@ def normalize(values):
     tot_inv = 1.0/sum(values)
     return [i*tot_inv for i in values]
 
-def py_splev(x, tck, ext=0):
+# NOTE: the first value of each array is used; it is only the indexes that 
+# are adjusted for fortran
+def func_35_splev(arg, t, l, l1, k2, nk1):    
+    # minus 1 index
+    if arg >= t[l-1] or l1 == k2:
+        arg, t, l, l1, nk1, leave = func_40_splev(arg, t, l, l1, nk1)
+        # Always leaves here
+        return arg, t, l, l1, k2, nk1
+    
+    l1 = l
+    l = l - 1
+    arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
+    return arg, t, l, l1, k2, nk1
+
+def func_40_splev(arg, t, l, l1, nk1):
+    if arg < t[l1-1] or l == nk1: # minus 1 index
+        return arg, t, l, l1, nk1, 1
+    l = l1
+    l1 = l + 1
+    arg, t, l, l1, nk1, leave = func_40_splev(arg, t, l, l1, nk1)
+    return arg, t, l, l1, nk1, leave
+    
+def py_splev(x, tck, ext=0, t=None, c=None, k=None):
     '''Evaluate a B-spline using a pure-python port of FITPACK's splev. This is
     not fully featured in that it does not support calculating derivatives.
     Takes the knots and coefficients of a B-spline tuple, and returns 
@@ -2351,32 +2377,12 @@ def py_splev(x, tck, ext=0):
     There could be more bugs in this port.
     '''
     e = ext
-    t, c, k = tck
-    if isinstance(x, (float, int, complex)):
-        x = [x]
+    if tck is not None:
+        t, c, k = tck
+    
+#    if isinstance(x, (float, int, complex)):
+#        x = [x]
 
-    # NOTE: the first value of each array is used; it is only the indexes that 
-    # are adjusted for fortran
-    def func_35(arg, t, l, l1, k2, nk1):    
-        # minus 1 index
-        if arg >= t[l-1] or l1 == k2:
-            arg, t, l, l1, nk1, leave = func_40(arg, t, l, l1, nk1)
-            # Always leaves here
-            return arg, t, l, l1, k2, nk1
-        
-        l1 = l
-        l = l - 1
-        arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
-        return arg, t, l, l1, k2, nk1
-    
-    def func_40(arg, t, l, l1, nk1):
-        if arg < t[l1-1] or l == nk1: # minus 1 index
-            return arg, t, l, l1, nk1, 1
-        l = l1
-        l1 = l + 1
-        arg, t, l, l1, nk1, leave = func_40(arg, t, l, l1, nk1)
-        return arg, t, l, l1, nk1, leave
-    
     m = len(x)
     n = len(t)
     y = [] # output array
@@ -2394,7 +2400,7 @@ def py_splev(x, tck, ext=0):
         arg = x[i]
         if arg < tb or arg > te:
             if e == 0:
-                arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
+                arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
             elif e == 1:
                 y.append(0.0)
                 continue
@@ -2406,9 +2412,9 @@ def py_splev(x, tck, ext=0):
                     arg = tb
                 else:
                     arg = te
-                arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
+                arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
         else:
-            arg, t, l, l1, k2, nk1 = func_35(arg, t, l, l1, k2, nk1)
+            arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
 
         # Local arrays used in fpbspl and to carry its result
         h = [0.0]*20
@@ -2421,9 +2427,10 @@ def py_splev(x, tck, ext=0):
             ll = ll + 1
             sp = sp + c[ll-1]*h[j] # -1 to get right index
         y.append(sp)
-    if len(y) == 1:
-        return y[0]
-    return y
+    return y[0]
+#    if len(y) == 1:
+#        return y[0]
+#    return y
 
 
 def py_bisplev(x, y, tck, dx=0, dy=0):

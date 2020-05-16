@@ -42,9 +42,13 @@ def test_Clamond_numba():
                  fluids.Clamond(10000.0, 2.0, False), rtol=5e-15)
 
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
-def test_string():
+def test_string_error_message_outside_function():
     fluids.numba.entrance_sharp('Miller')
     fluids.numba.entrance_sharp()
+    
+    fluids.numba.entrance_angled(30, 'Idelchik')
+    fluids.numba.entrance_angled(30, None)
+    fluids.numba.entrance_angled(30.0)
 
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_interp():
@@ -105,6 +109,9 @@ def test_functions_used_to_return_different_return_value_signatures_changed():
 
 '''
 Functions not working:
+    
+# splev needs to be working for this - very challenging!
+fluids.numba.entrance_rounded(Di=0.1, rc=0.0235)
 
 # lambertw won't work because optimizers won't work
 fluids.numba.P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
@@ -116,6 +123,13 @@ fluids.numba.differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000
 
 # newton_system not working
 fluids.numba.Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
+
+# Using dictionaries outside is broken
+# Also, nopython is broken for this case - https://github.com/numba/numba/issues/5377
+fluids.numba.roughness_Farshad('Cr13, bare', 0.05)
+
+# Obviously not going to work
+# nearest_material_roughness('condensate pipes', clean=False)
 
 
 '''

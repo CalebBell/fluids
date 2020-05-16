@@ -47,7 +47,8 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'K_plug_valve_Crane', 'K_branch_converging_Crane', 'K_run_converging_Crane',
 'K_branch_diverging_Crane', 'K_run_diverging_Crane', 'v_lift_valve_Crane']
 
-__numba_additional_funcs__ = ['entrance_distance_Idelchik_obj', 'entrance_distance_Harris_obj']
+__numba_additional_funcs__ = ['entrance_distance_Idelchik_obj', 'entrance_distance_Harris_obj',
+                              'entrance_rounded_Harris', 'entrance_rounded_Idelchik']
 
 
 def change_K_basis(K1, D1, D2):
@@ -403,7 +404,8 @@ def entrance_distance_45_Miller(Di, Di0):
 
 entrance_angled_methods = ['Idelchik']
 
-
+entrance_angled_methods_missing = ('Specified method not recognized; methods are %s'
+                                   %(entrance_angled_methods))
 def entrance_angled(angle, method='Idelchik'):
     r'''Returns loss coefficient for a sharp, angled entrance to a pipe
     flush with the wall of a reservoir. First published in [2]_, it has been
@@ -450,14 +452,11 @@ def entrance_angled(angle, method='Idelchik'):
     .. [3] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.: 
        Van Nostrand Reinhold Co., 1984.
     '''
-    if method is None:
-         method = 'Idelchik'
-    if method == 'Idelchik':
+    if method == 'Idelchik' or method is None:
         cos_term = cos(radians(angle))
         return 0.57 + cos_term*(0.2*cos_term + 0.3)
     else:
-        raise ValueError('Specified method not recognized; methods are %s'
-                         %(entrance_angled_methods))
+        raise ValueError(entrance_angled_methods_missing)
 
 
 entrance_rounded_Miller_coeffs = [1.3127209945178038, 0.19963046592715727, -6.49081916725612, 
@@ -500,7 +499,8 @@ entrance_rounded_Harris = lambda x : float(splev(x, entrance_rounded_Harris_tck)
 
 entrance_rounded_methods = ['Rennels', 'Crane', 'Miller', 'Idelchik', 'Harris',
                             'Swamee']
-
+entrance_rounded_methods_error = ('Specified method not recognized; methods are %s'
+                                  %(entrance_rounded_methods))
 
 def entrance_rounded(Di, rc, method='Rennels'):
     r'''Returns loss coefficient for a rounded entrance to a pipe
@@ -620,15 +620,14 @@ def entrance_rounded(Di, rc, method='Rennels'):
         ratio = rc/Di
         if ratio > .16:
             return 0.0
-        return float(entrance_rounded_Harris(ratio))
+        return float(splev(ratio, entrance_rounded_Harris_tck))
     elif method == 'Idelchik':
         ratio = rc/Di
         if ratio > .2:
             return entrance_rounded_Ks_Idelchik[-1]
-        return float(entrance_rounded_Idelchik(ratio))
+        return float(splev(ratio, entrance_rounded_Idelchik_tck))
     else:
-        raise ValueError('Specified method not recognized; methods are %s'
-                         %(entrance_rounded_methods))
+        raise ValueError(entrance_rounded_methods_error)
 
 
 entrance_beveled_methods = ['Rennels', 'Idelchik']

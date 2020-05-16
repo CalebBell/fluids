@@ -3722,9 +3722,9 @@ def roughness_Farshad(ID=None, D=None, coeffs=None):
        1, 2006): 212-215. doi:10.2118/89040-PA.
     '''
     # Case 1, coeffs given; only run if ID is not given.
-    if ID is None and coeffs:
+    if ID is None and coeffs is not None:
         A, B = coeffs
-        return A*(D/inch)**(B+1)*inch
+        return A*(D/inch)**(B + 1.0)*inch
     # Case 2, lookup parameters
     try :
         dat = _Farshad_roughness[ID]
