@@ -43,7 +43,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'polyint_over_x', 'horner_log', 'polyint', 'chebder',
            'polyder', 'make_damp_initial',
            'OscillationError', 'UnconvergedError', 'caching_decorator',
-           'NoSolutionError',
+           'NoSolutionError', 'SamePointError',
            'damping_maintain_sign', 'oscillation_checking_wrapper',
            'trunc_exp', 'trunc_log', 'fit_integral_linear_extrapolation', 
            'fit_integral_over_T_linear_extrapolation',
@@ -1435,11 +1435,32 @@ class OscillationError(Exception):
 class UnconvergedError(Exception):
     '''Error raised when maxiter has been reached in an optimization problem.
     '''
-    def __init__(self, message, iterations=None, err=None):
+    
+    def __repr__(self):
+        return ('UnconvergedError("Failed to converge; maxiter (%d) reached, value=%g, error %g)"' %(self.maxiter, self.point, self.err))
+
+    def __init__(self, message, iterations=None, err=None, point=None):
         super(UnconvergedError, self).__init__(message)
+        self.point = point
         self.iterations = iterations
         self.err = err
 
+class SamePointError(UnconvergedError):
+    '''Error raised when two trial points in a root finding problem have the 
+    same error.
+    '''
+    def __repr__(self):
+        return 'TODO'
+    
+    def __init__(self, message, iterations=None, err=None, q1=None, p1=None, q0=None, p0=None):
+        super(UnconvergedError, self).__init__(message)
+        self.q1 = q1
+        self.p1 = p1
+        self.q0 = q0
+        self.p0 = p0
+        self.iterations = iterations
+        self.err = err
+    
 
 class NoSolutionError(Exception):
     '''Error raised when detected that there is no actual solution to a problem.
@@ -1868,7 +1889,7 @@ def py_brenth(f, xa, xb, args=(),
     raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
 
 
-def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
+def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
            xtol=1.48e-8, ytol=None, x1=None, require_eval=False, 
            f0=None, f1=None, bisection=False, same_tol=1.0, kwargs={},
            require_xtol=True):
@@ -1890,7 +1911,7 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
     # Are we already converged on either point? Do not consider checking xtol 
     # if so.
     if f0 is None:
-        q0 = func(p0, *args)
+        q0 = func(p0, *args, **kwargs)
     else:
         q0 = f0
     if (ytol is not None and abs(q0) < ytol and not require_xtol) or q0 == 0.0:
@@ -1914,7 +1935,7 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
         else:
             b = p0
     
-    for _ in range(maxiter):        
+    for i in range(maxiter):        
         # Calculate new point, and truncate if necessary
         
         if q1 != q0:
@@ -1971,7 +1992,7 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
                     return p
 
             # Cannot proceed, raise an error
-            raise ValueError("Convergence failed - previous points are the same (%g at %g, %g at %g)"%(q1, p1, q0, p0) )
+            raise SamePointError("Convergence failed - previous points are the same", q1=q1, p1=p1, q0=q0, p0=p0)
             
             
         # Swap the points around
@@ -1987,7 +2008,7 @@ def secant(func, x0, args=(), maxiter=_iter, low=None, high=None, damping=1.0,
             else:
                 b = p1
 
-    raise UnconvergedError("Failed to converge", maxiter, p)
+    raise UnconvergedError("Failed to converge", iterations=i, point=p, err=q1)
 
 
 

@@ -22,6 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from fluids import *
+from math import *
 from fluids.constants import *
 from fluids.numerics import assert_close, assert_close1d
 import pytest
@@ -105,6 +106,15 @@ def test_functions_used_to_return_different_return_value_signatures_changed():
     assert_close1d(fluids.numba.SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',sideB_a=0.5), 
                     SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',sideB_a=0.5))
 
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_secant_runs():
+    # Really feel like the kwargs should work in object mode, but it doesn't
+    # Just gets slower
+    @numba.jit
+    def to_solve(x):
+        return sin(x*.3) - .5
+    fluids.numba.secant(to_solve, .3, ytol=1e-10)
+
 
 
 '''
@@ -130,6 +140,43 @@ fluids.numba.roughness_Farshad('Cr13, bare', 0.05)
 
 # Obviously not going to work
 # nearest_material_roughness('condensate pipes', clean=False)
+
+# Solver won't work because of function-in-function
+fluids.numba.differential_pressure_meter_solver(D=0.07366, m=7.702338, P1=200000.0, 
+P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
+meter_type='ISO 5167 orifice', taps='D')
+
+'''
+
+
+'''
+numba is not up to speeding up the various solvers!
+
+I was able to contruct a secant version which numba would optimize, mostly.
+However, it took 30x the time.
+
+Trying to improve this, it was found reducing the number of arguments to secant
+imroves things ~20%. Removing ytol or the exceptions did not improve things at all.
+
+Eventually it was discovered, the rtol and xtol arguments should be fixed values inside the function.
+This makes little sense, but it is what happened.
+Slighyly better performance was found than in pure-python that way, although definitely not vs. pypy.
+
+
+from math import sin
+import inspect
+source = inspect.getsource(secant)
+source = source.replace(', kwargs={}', '').replace(', **kwargs', '')
+source = source.replace('iterations=i, point=p, err=q1', '')
+source = source.replace(', q1=q1, p1=p1, q0=q0, p0=p0', '')
+exec(source)
+import fluids.numba
+@numba.njit
+def to_solve(x):
+    return sin(x*.3) - .5
+
+new_secant = numba.njit(secant)
+new_secant(to_solve, .3, ytol=1e-10)
 
 
 '''

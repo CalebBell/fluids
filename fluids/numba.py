@@ -90,11 +90,22 @@ try:
 except:
     pass
 
+import inspect
+source = inspect.getsource(NUMERICS_SUBMOD.secant)
+source = source.replace(', kwargs={}', '').replace(', **kwargs', '')
+source = source.replace('iterations=i, point=p, err=q1', '')
+source = source.replace(', q1=q1, p1=p1, q0=q0, p0=p0', '')
+exec(source)
+NUMERICS_SUBMOD.secant = secant
+
+
+numerics_forceobj = set(['secant'])
 replaced = {}
 for name in names:
     obj = getattr(NUMERICS_SUBMOD, name)
     if isinstance(obj, types.FunctionType):
-        obj = numba.jit(cache=False)(obj)
+        forceobj = name in numerics_forceobj
+        obj = numba.jit(cache=False, forceobj=forceobj)(obj)
         NUMERICS_SUBMOD.__dict__[name] = obj
         replaced[name] = obj
 replaced['bisplev'] = replaced['py_bisplev']
