@@ -28,9 +28,9 @@ from fluids.numerics import assert_close, assert_close1d
 import pytest
 try:
     import numba
+    import fluids.numba
 except:
     numba = None
-import fluids.numba
 import numpy as np
 
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
