@@ -1823,7 +1823,11 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     c1 = s2 + t2  - (R - h)**2
     def G_lim(x):
         x2 = x*x
-        G = (c1 - x2 + 2.0*s*(t2 - x2)**0.5)**0.5
+        try:
+            G = (c1 - x2 + 2.0*s*(t2 - x2)**0.5)**0.5
+        except:
+            # Python 2 compat - don't take the square root of a negative number with no complex part
+            G = (c1 - x2 + 2.0*s*(t2 - x2+0.0j)**0.5 + 0.0j)**0.5
         return G.real # Some tiny heights make the square root slightly under 0
         
     

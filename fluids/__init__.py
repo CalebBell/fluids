@@ -112,7 +112,7 @@ submodules = [atmosphere, compressible, core, friction, filters, fittings,
               saltation, separator, particle_size_distribution, jet_pump,
               control_valve]
 
-__version__ = '0.1.78'
+__version__ = '0.1.79'
 
 fluids_dir = os.path.dirname(__file__)
 fluids_data_dir = os.path.join(fluids_dir, 'data')
