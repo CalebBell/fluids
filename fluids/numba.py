@@ -66,126 +66,117 @@ set_signatures = {}
     
 bad_names = set(('__file__', '__name__', '__package__', '__cached__'))
 
-#for name in dir(normal_fluids):
-#    obj = getattr(normal_fluids, name)
-#    if isinstance(obj, types.FunctionType):
-#        nopython = name not in skip
-#        obj = numba.jit(set_signatures.get(name, None), nopython=nopython, forceobj=not nopython,
-#                        fastmath=nopython, cache=True)(obj)
-#    elif isinstance(obj, str):
-#        if name in bad_names:
-#            continue
-#    __all__.append(name)
-#    __funcs.update({name: obj})
-#    globals()[name] = obj
 
-NUMERICS_SUBMOD_COPY = importlib.util.find_spec('fluids.numerics')
-NUMERICS_SUBMOD = importlib.util.module_from_spec(NUMERICS_SUBMOD_COPY)
-NUMERICS_SUBMOD_COPY.loader.exec_module(NUMERICS_SUBMOD)
-
-
-names = list(NUMERICS_SUBMOD.__all__)
-try:
-    names += NUMERICS_SUBMOD.__numba_additional_funcs__
-except:
-    pass
-
-import inspect
-source = inspect.getsource(NUMERICS_SUBMOD.secant)
-source = source.replace(', kwargs={}', '').replace(', **kwargs', '')
-source = source.replace('iterations=i, point=p, err=q1', '')
-source = source.replace(', q1=q1, p1=p1, q0=q0, p0=p0', '')
-exec(source)
-NUMERICS_SUBMOD.secant = secant
-
-
-numerics_forceobj = set(['secant'])
-replaced = {}
-for name in names:
-    obj = getattr(NUMERICS_SUBMOD, name)
-    if isinstance(obj, types.FunctionType):
-        forceobj = name in numerics_forceobj
-        obj = numba.jit(cache=False, forceobj=forceobj)(obj)
-        NUMERICS_SUBMOD.__dict__[name] = obj
-        replaced[name] = obj
-replaced['bisplev'] = replaced['py_bisplev']
-replaced['splev'] = replaced['py_splev']
-replaced['lambertw'] = replaced['py_lambertw']
-
-
-#
-#from fluids.numerics import (trunc_exp, trunc_log, roots_cubic, roots_quartic, mean, horner, horner_and_der, horner_and_der2, horner_and_der3, quadratic_from_f_ders, polyder, polyint, chebder, horner_log, fit_integral_linear_extrapolation, best_fit_integral_value, fit_integral_over_T_linear_extrapolation, best_fit_integral_over_T_value, evaluate_linear_fits, evaluate_linear_fits_d, evaluate_linear_fits_d2, chebval, interp, py_bisect, py_ridder, py_brenth, secant, py_newton, newton_system, py_bisplev, fpbspl, init_w, cy_bispev, py_splev, binary_search)
-#
-#to_replace = [trunc_exp, trunc_log, roots_cubic, roots_quartic, mean, horner, horner_and_der, horner_and_der2, horner_and_der3, quadratic_from_f_ders, polyder, polyint, chebder, horner_log, fit_integral_linear_extrapolation, best_fit_integral_value, fit_integral_over_T_linear_extrapolation, best_fit_integral_over_T_value, evaluate_linear_fits, evaluate_linear_fits_d, evaluate_linear_fits_d2, chebval, interp, py_bisect, py_ridder, py_brenth, secant, py_newton, newton_system, py_bisplev, fpbspl, init_w, cy_bispev, py_splev, binary_search]
-#replaced = {}
-#for v in to_replace:
-#    replaced[v.__name__] = numba.jit(cache=True)(v)
-#replaced['bisplev'] = replaced['py_bisplev']
-#replaced['splev'] = replaced['py_splev']
-
-
-new_mods = []
+def create_numerics(replaced, vec=False):
     
-# Run module-by-module. Expensive, as we need to create module copies
-for mod in normal_fluids.submodules:
-#    print(mod)
-    FLUIDS_SUBMOD_COPY = importlib.util.find_spec(mod.__name__)
-    FLUIDS_SUBMOD = importlib.util.module_from_spec(FLUIDS_SUBMOD_COPY)
-    FLUIDS_SUBMOD_COPY.loader.exec_module(FLUIDS_SUBMOD)
+    if vec:
+        conv_fun = numba.vectorize
+    else:
+        conv_fun = numba.jit
     
-    FLUIDS_SUBMOD.__dict__.update(replaced)
-    new_mods.append(FLUIDS_SUBMOD)
-    
-    __funcs[mod.__name__.split('fluids.')[1]] = FLUIDS_SUBMOD
-    
-    names = list(FLUIDS_SUBMOD.__all__)
+    NUMERICS_SUBMOD_COPY = importlib.util.find_spec('fluids.numerics')
+    NUMERICS_SUBMOD = importlib.util.module_from_spec(NUMERICS_SUBMOD_COPY)
+    NUMERICS_SUBMOD_COPY.loader.exec_module(NUMERICS_SUBMOD)
+
+    names = list(NUMERICS_SUBMOD.__all__)
     try:
-        names += FLUIDS_SUBMOD.__numba_additional_funcs__
+        names += NUMERICS_SUBMOD.__numba_additional_funcs__
     except:
         pass
-
-    new_objs = []
-    for name in names:
-        obj = getattr(FLUIDS_SUBMOD, name)
-        if isinstance(obj, types.FunctionType):
-#            nopython = name not in skip
-            obj = numba.jit(#set_signatures.get(name, None), nopython=False, #forceobj=not nopython,
-#                            fastmath=nopython,
-                            cache=False)(obj)
-            FLUIDS_SUBMOD.__dict__[name] = obj
-            new_objs.append(obj)
-        __funcs.update({name: obj})
-
-    to_do = {}
-    for arr_name in FLUIDS_SUBMOD.__dict__.keys():
-        obj = getattr(FLUIDS_SUBMOD, arr_name)
-        if type(obj) is list and len(obj) and type(obj[0]) in (float, int, complex):
-            to_do[arr_name] = np.array(obj)
-        elif type(obj) is list and len(obj) and all([
-                (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj]):
-            
-            to_do[arr_name] = np.array(obj)
-    FLUIDS_SUBMOD.__dict__.update(to_do)
-    __funcs.update(to_do)
-
-
-    for t in new_objs:
-        t.py_func.__globals__.update(FLUIDS_SUBMOD.__dict__)
-        t.py_func.__globals__.update(to_do)
-        t.py_func.__globals__.update(replaced)
     
-    # for name in names:
-    #     obj = getattr(FLUIDS_SUBMOD, name)
-    #     if isinstance(obj, types.FunctionType):
-    #         FLUIDS_SUBMOD.__dict__[name] = obj
+    import inspect
+    source = inspect.getsource(NUMERICS_SUBMOD.secant)
+    source = source.replace(', kwargs={}', '').replace(', **kwargs', '')
+    source = source.replace('iterations=i, point=p, err=q1', '')
+    source = source.replace(', q1=q1, p1=p1, q0=q0, p0=p0', '')
+    exec(source, globals(), globals())
+    NUMERICS_SUBMOD.secant = globals()['secant']
 
+
+    numerics_forceobj = set(['secant'])
+    for name in names:
+        obj = getattr(NUMERICS_SUBMOD, name)
+        if isinstance(obj, types.FunctionType):
+            forceobj = name in numerics_forceobj
+            obj = numba.jit(cache=False, forceobj=forceobj)(obj)
+            NUMERICS_SUBMOD.__dict__[name] = obj
+            replaced[name] = obj
+    replaced['bisplev'] = NUMERICS_SUBMOD.__dict__['bisplev'] = replaced['py_bisplev']
+    replaced['splev'] = NUMERICS_SUBMOD.__dict__['splev']  = replaced['py_splev']
+    replaced['lambertw'] = NUMERICS_SUBMOD.__dict__['lambertw'] = replaced['py_lambertw']
+    return replaced, NUMERICS_SUBMOD
+
+replaced = {}
+replaced, NUMERICS_SUBMOD = create_numerics(replaced, vec=False)
+
+normal = normal_fluids
+
+
+def transform_module(normal, __funcs, replaced, vec=False):
+    new_mods = []
+    
+    if vec:
+        conv_fun = numba.vectorize
+    else:
+        conv_fun = numba.jit
+    mod_name = normal.__name__
+    # Run module-by-module. Expensive, as we need to create module copies
+    for mod in normal.submodules:
+        SUBMOD_COPY = importlib.util.find_spec(mod.__name__)
+        SUBMOD = importlib.util.module_from_spec(SUBMOD_COPY)
+        SUBMOD_COPY.loader.exec_module(SUBMOD)
+        
+        SUBMOD.__dict__.update(replaced)
+        new_mods.append(SUBMOD)
+        
+        __funcs[mod.__name__.split(mod_name + '.')[1]] = SUBMOD
+        
+        names = list(SUBMOD.__all__)
+        try:
+            names += SUBMOD.__numba_additional_funcs__
+        except:
+            pass
+    
+        new_objs = []
+        for name in names:
+            obj = getattr(SUBMOD, name)
+            if isinstance(obj, types.FunctionType):
+    #            nopython = name not in skip
+                obj = conv_fun(#set_signatures.get(name, None), nopython=False, #forceobj=not nopython,
+    #                            fastmath=nopython,
+                                cache=False)(obj)
+                SUBMOD.__dict__[name] = obj
+                new_objs.append(obj)
+            __funcs.update({name: obj})
+    
+        to_do = {}
+        for arr_name in SUBMOD.__dict__.keys():
+            obj = getattr(SUBMOD, arr_name)
+            if type(obj) is list and len(obj) and type(obj[0]) in (float, int, complex):
+                to_do[arr_name] = np.array(obj)
+            elif type(obj) is list and len(obj) and all([
+                    (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj]):
+                
+                to_do[arr_name] = np.array(obj)
+        SUBMOD.__dict__.update(to_do)
+        __funcs.update(to_do)
+    
+        if not vec:
+            for t in new_objs:
+                t.py_func.__globals__.update(SUBMOD.__dict__)
+                t.py_func.__globals__.update(to_do)
+                t.py_func.__globals__.update(replaced)
+    
+    # Do our best to allow functions to be found
+    for mod in new_mods:
+        mod.__dict__.update(__funcs)
+
+
+transform_module(normal, __funcs, replaced, vec=False)
 
 globals().update(__funcs)
 globals().update(replaced)
 
-# Do our best to allow functions to be found
-for mod in new_mods:
-    mod.__dict__.update(__funcs)
 
 
 

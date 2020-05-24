@@ -22,6 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from fluids import *
+import fluids.vectorized
 from math import *
 from fluids.constants import *
 from fluids.numerics import assert_close, assert_close1d
@@ -29,6 +30,7 @@ import pytest
 try:
     import numba
     import fluids.numba
+    import fluids.numba_vectorized
 except:
     numba = None
 import numpy as np
@@ -41,6 +43,12 @@ def test_Clamond_numba():
                  fluids.Clamond(10000.0, 2.0, True), rtol=5e-15)
     assert_close(fluids.numba.Clamond(10000.0, 2.0, False),
                  fluids.Clamond(10000.0, 2.0, False), rtol=5e-15)
+    
+    Res = np.array([1e5, 1e6])
+    eDs = np.array([1e-5, 1e-6])
+    fast = np.array([False]*2)
+    assert_close1d(fluids.numba_vectorized.Clamond(Res, eDs, fast), 
+                   fluids.vectorized.Clamond(Res, eDs, fast), rtol=1e-14)
 
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_string_error_message_outside_function():
@@ -55,6 +63,15 @@ def test_string_error_message_outside_function():
 def test_interp():
 
     assert_close(fluids.numba.CSA_motor_efficiency(100*hp, closed=True, poles=6, high_efficiency=True), 0.95)
+    
+    # Should take ~10 us
+    powers = np.array([70000]*100)
+    closed = np.array([True]*100)
+    poles = np.array([6]*100)
+    high_efficiency = np.array([True]*100)
+    fluids.numba_vectorized.CSA_motor_efficiency(powers, closed, poles, high_efficiency)
+
+
 
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_constants():
