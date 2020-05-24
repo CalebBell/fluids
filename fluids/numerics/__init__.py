@@ -2591,7 +2591,7 @@ else:
     splev, bisplev = py_splev, py_bisplev
     newton, bisect, ridder, brenth = py_newton, py_bisect, py_ridder, py_brenth
     
-    # Try out mpmath for special functions anyway
+# Try out mpmath for special functions anyway
 has_scipy = False
 if not SKIP_DEPENDENCIES:
     try:
@@ -2657,4 +2657,8 @@ else:
         def iv(*args, **kwargs):
             import mpmath
             return mpmath.besseli(*args, **kwargs)
+        
+        def hyp2f1(*args, **kwargs):
+            import mpmath
+            return mpmath.hyp2f1(*args, **kwargs)
 
