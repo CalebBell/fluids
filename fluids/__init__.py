@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -112,7 +112,7 @@ submodules = [atmosphere, compressible, core, friction, filters, fittings,
               saltation, separator, particle_size_distribution, jet_pump,
               control_valve]
 
-__version__ = '0.1.79'
+__version__ = '0.1.80'
 
 fluids_dir = os.path.dirname(__file__)
 fluids_data_dir = os.path.join(fluids_dir, 'data')
