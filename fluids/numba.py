@@ -91,6 +91,7 @@ def create_numerics(replaced, vec=False):
     source = source.replace(', q1=q1, p1=p1, q0=q0, p0=p0', '')
     exec(source, globals(), globals())
     NUMERICS_SUBMOD.secant = globals()['secant']
+    
 
 
     numerics_forceobj = set(['secant'])
@@ -98,6 +99,7 @@ def create_numerics(replaced, vec=False):
         obj = getattr(NUMERICS_SUBMOD, name)
         if isinstance(obj, types.FunctionType):
             forceobj = name in numerics_forceobj
+            # cache=not forceobj
             obj = numba.jit(cache=False, forceobj=forceobj)(obj)
             NUMERICS_SUBMOD.__dict__[name] = obj
             replaced[name] = obj
@@ -106,7 +108,7 @@ def create_numerics(replaced, vec=False):
     replaced['lambertw'] = NUMERICS_SUBMOD.__dict__['lambertw'] = replaced['py_lambertw']
     return replaced, NUMERICS_SUBMOD
 
-replaced = {}
+replaced = {'sum': np.sum}
 replaced, NUMERICS_SUBMOD = create_numerics(replaced, vec=False)
 
 normal = normal_fluids
