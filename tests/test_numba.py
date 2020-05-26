@@ -155,8 +155,25 @@ def test_secant_runs():
         return sin(x*.3) - .5
     fluids.numba.secant(to_solve, .3, ytol=1e-10)
 
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_brenth_runs():
+    @numba.njit
+    def to_solve(x, goal):
+        return sin(x*.3) - goal
+    
+    ans = fluids.numba.brenth(to_solve, .3, 2, args=(.45,))
+    assert_close(ans, 1.555884463490988)
 
-
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_lambertw_runs():
+    assert_close(fluids.numba.numerics.lambertw(5.0), 1.3267246652422002)
+    
+    
+    assert_close(fluids.numba.Prandtl_von_Karman_Nikuradse(1e7), 0.008102669430874914)
+    
+    
 '''
 Functions not working:
     
@@ -223,6 +240,15 @@ def to_solve(x):
 
 new_secant = numba.njit(secant)
 new_secant(to_solve, .3, ytol=1e-10)
+
+
+
+@numba.njit
+def to_solve(x, goal):
+    return sin(x*.3) - goal
+
+ans = fluids.numba.brenth(to_solve, .3, 2, args=(.45,))
+assert_close(ans, 1.555884463490988)
 
 
 '''

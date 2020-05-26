@@ -43,7 +43,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'polyint_over_x', 'horner_log', 'polyint', 'chebder',
            'polyder', 'make_damp_initial',
            'OscillationError', 'UnconvergedError', 'caching_decorator',
-           'NoSolutionError', 'SamePointError',
+           'NoSolutionError', 'SamePointError', 'NotBoundedError',
            'damping_maintain_sign', 'oscillation_checking_wrapper',
            'trunc_exp', 'trunc_log', 'fit_integral_linear_extrapolation', 
            'fit_integral_over_T_linear_extrapolation',
@@ -1795,8 +1795,8 @@ def py_ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
     raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
 
 
-def py_brenth(f, xa, xb, args=(),
-            xtol=_xtol, rtol=_rtol, maxiter=_iter, ytol=None,
+def brenth(f, xa, xb, args=(),
+            xtol=1e-12, rtol=4.440892098500626e-16, maxiter=100, ytol=None,
             full_output=False, disp=True, q=False,
             fa=None, fb=None, kwargs={}):
     xpre = xa
@@ -2581,7 +2581,6 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
     return z
 
 
-brenth = py_brenth
 # interp, horner, derivative methods (and maybe newton?) should always be used.
 if not IS_PYPY and not SKIP_DEPENDENCIES:
     from scipy.interpolate import splev, bisplev
@@ -2589,7 +2588,7 @@ if not IS_PYPY and not SKIP_DEPENDENCIES:
     
 else:
     splev, bisplev = py_splev, py_bisplev
-    newton, bisect, ridder, brenth = py_newton, py_bisect, py_ridder, py_brenth
+    newton, bisect, ridder = py_newton, py_bisect, py_ridder
     
 # Try out mpmath for special functions anyway
 has_scipy = False
@@ -2616,7 +2615,7 @@ from math import gamma # Been there a while
 def _lambertw_err(x, y):
     return x*exp(x) - y
 def py_lambertw(y):
-    return brenth(_lambertw_err, 1e-300, 700.0, args=(y,))
+    return brenth(_lambertw_err, 1e-300, 700.0, (y,))
 
 #has_scipy = False
 

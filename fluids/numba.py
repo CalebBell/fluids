@@ -66,7 +66,7 @@ set_signatures = {}
     
 bad_names = set(('__file__', '__name__', '__package__', '__cached__'))
 
-
+from fluids.numerics import SamePointError, UnconvergedError, NotBoundedError
 def create_numerics(replaced, vec=False):
     
     if vec:
@@ -85,16 +85,21 @@ def create_numerics(replaced, vec=False):
         pass
     
     import inspect
-    source = inspect.getsource(NUMERICS_SUBMOD.secant)
-    source = source.replace(', kwargs={}', '').replace(', **kwargs', '')
-    source = source.replace('iterations=i, point=p, err=q1', '')
-    source = source.replace(', q1=q1, p1=p1, q0=q0, p0=p0', '')
-    exec(source, globals(), globals())
-    NUMERICS_SUBMOD.secant = globals()['secant']
-    
+    solvers = ['secant', 'brenth']
+    for s in solvers:
+        source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
+        source = source.replace(', kwargs={}', '').replace(', **kwargs', '')
+        source = source.replace('iterations=i, point=p, err=q1', '')
+        source = source.replace(', q1=q1, p1=p1, q0=q0, p0=p0', '')
+        source = source.replace('%d iterations" %maxiter', '"')
+        source = source.replace('ytol=None', 'ytol=1e100')
+        exec(source, globals(), globals())
+        setattr(NUMERICS_SUBMOD, s, globals()[s])
+        print(source)
 
 
-    numerics_forceobj = set(['secant'])
+    numerics_forceobj = set(solvers) # Force the sovlers to compile in object mode
+    numerics_forceobj = []
     for name in names:
         obj = getattr(NUMERICS_SUBMOD, name)
         if isinstance(obj, types.FunctionType):
@@ -110,7 +115,7 @@ def create_numerics(replaced, vec=False):
 
 replaced = {'sum': np.sum}
 replaced, NUMERICS_SUBMOD = create_numerics(replaced, vec=False)
-
+numerics = NUMERICS_SUBMOD
 normal = normal_fluids
 
 
