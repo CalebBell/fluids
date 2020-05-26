@@ -1824,15 +1824,14 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     def G_lim(x):
         x2 = x*x
         try:
-            G = (c1 - x2 + 2.0*s*(t2 - x2)**0.5)**0.5
+            G = (c1 - x2 + (s+s)*(t2 - x2)**0.5)**0.5
         except:
             # Python 2 compat - don't take the square root of a negative number with no complex part
-            G = (c1 - x2 + 2.0*s*(t2 - x2+0.0j)**0.5 + 0.0j)**0.5
+            G = (c1 - x2 + (s+s)*(t2 - x2+0.0j)**0.5 + 0.0j)**0.5
         return G.real # Some tiny heights make the square root slightly under 0
         
     
-    def to_int_1(x, y):
-        y, x = x, y
+    def to_int_1(y, x):
         x2 = x*x
         y2 = y*y
         x10 = (t2 - x2)**0.5
@@ -1850,10 +1849,10 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
         SA = dblquad(to_int_1, 0.0, (2*k*D*h - h*h)**0.5, lambda x: 0, G_lim)[0]
         return 2*SA
     elif limit_1 < h <= R:
-        SA = 2*dblquad(to_int_1, 0.0, a2, lambda x: 0, G_lim)[0]
-        SA += 2*f*D*quad(to_int_2, R-h, f*D*sin(alpha))[0]
+        SA = 2.0*dblquad(to_int_1, 0.0, a2, lambda x: 0, G_lim)[0]
+        SA += 2.0*f*D*quad(to_int_2, R-h, f*D*sin(alpha))[0]
     else:
-        SA = 2*pi*f*D*a1 + 2*pi*k*D*(a2 + (R - k*D)*asin(a2/(k*D)))
+        SA = 2.0*pi*f*D*a1 + 2*pi*k*D*(a2 + (R - k*D)*asin(a2/(k*D)))
         SA -= SA_partial_horiz_torispherical_head(D, f, k, h=D-h)
     return SA
 

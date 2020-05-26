@@ -176,6 +176,9 @@ def transform_module(normal, __funcs, replaced, vec=False):
 
 transform_module(normal, __funcs, replaced, vec=False)
 
+# Not needed
+__funcs['friction'].Colebrook = __funcs['Colebrook'] = __funcs['Clamond']
+
 globals().update(__funcs)
 globals().update(replaced)
 

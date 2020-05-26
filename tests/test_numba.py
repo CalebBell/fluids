@@ -35,6 +35,7 @@ except:
     numba = None
 import numpy as np
 
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_Clamond_numba():
     assert_close(fluids.numba.Clamond(10000.0, 2.0), 
@@ -50,6 +51,7 @@ def test_Clamond_numba():
     assert_close1d(fluids.numba_vectorized.Clamond(Res, eDs, fast), 
                    fluids.vectorized.Clamond(Res, eDs, fast), rtol=1e-14)
 
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_string_error_message_outside_function():
     fluids.numba.entrance_sharp('Miller')
@@ -59,6 +61,7 @@ def test_string_error_message_outside_function():
     fluids.numba.entrance_angled(30, None)
     fluids.numba.entrance_angled(30.0)
 
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_interp():
 
@@ -73,56 +76,76 @@ def test_interp():
 
 
 
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_constants():
     assert_close(fluids.numba.K_separator_demister_York(975000), 0.09635076944244816)
 
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_calling_function_in_other_module():
     assert_close(fluids.numba.ft_Crane(.5), 0.011782458726227104, rtol=1e-4)
     
     
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_None_is_not_multiplied_add_check_on_is_None():
     assert_close(fluids.numba.polytropic_exponent(1.4, eta_p=0.78), 1.5780346820809246, rtol=1e-5)
     
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_core_from_other_module():
     assert_close(fluids.numba.helical_turbulent_fd_Srinivasan(1E4, 0.01, .02), 0.0570745212117107)
     
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_string_branches():
     # Currently slower
     assert_close(fluids.numba.C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange'),  0.5990326277163659)
 
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_interp_with_own_list():
     assert_close(fluids.numba.dP_venturi_tube(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0), 1788.5717754177406)
     
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_C_Reader_Harris_Gallagher_wet_venturi_tube_numba():
     assert_close(fluids.numba.C_Reader_Harris_Gallagher_wet_venturi_tube(mg=5.31926, ml=5.31926/2,  rhog=50.0, rhol=800., D=.1, Do=.06, H=1), 0.9754210845876333)
 
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_rename_constant():
     assert_close(fluids.numba.friction_plate_Martin_1999(Re=20000, plate_enlargement_factor=1.15), 2.284018089834135)
 
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_list_in_list_constant_converted():
     assert_close(fluids.numba.friction_plate_Kumar(Re=2000, chevron_angle=30),
                  friction_plate_Kumar(Re=2000, chevron_angle=30))
 
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_have_to_make_zero_division_a_check():
     # Manually requires changes, and is unpythonic
     assert_close(fluids.numba.SA_ellipsoidal_head(2, 1.5), 
                  SA_ellipsoidal_head(2, 1.5))
     
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_functions_used_to_return_different_return_value_signatures_changed():
     assert_close1d(fluids.numba.SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',sideB_a=0.5), 
                     SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',sideB_a=0.5))
 
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_Colebrook_ignored():
+    fd = fluids.numba.Colebrook(1e5, 1e-5)
+    assert_close(fd, 0.018043802895063684, rtol=1e-14)
+
+
+
+@pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_secant_runs():
     # Really feel like the kwargs should work in object mode, but it doesn't

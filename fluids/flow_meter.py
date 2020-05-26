@@ -24,7 +24,7 @@ from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, exp, acos, log10
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
-from fluids.numerics import interp, secant, py_brenth as brenth, NotBoundedError, secant
+from fluids.numerics import interp, secant, py_brenth as brenth, NotBoundedError
 from fluids.constants import g, inch
 
 __all__ = ['C_Reader_Harris_Gallagher',
