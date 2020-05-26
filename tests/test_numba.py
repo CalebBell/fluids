@@ -178,6 +178,12 @@ fluids.numba.Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=
 # Also, nopython is broken for this case - https://github.com/numba/numba/issues/5377
 fluids.numba.roughness_Farshad('Cr13, bare', 0.05)
 
+piping.nearest_pipe -> Multiplication of None type; checking of type to handle in inputs;
+ dictionary lookup of schedule coefficients; function in function; doesn't like something about the data either
+
+piping.gauge_from_t -> numba type dict; once that's inside function, dying on checking
+ "in" of a now-numpy array; same for t_from_gauge
+
 # Obviously not going to work
 # nearest_material_roughness('condensate pipes', clean=False)
 
