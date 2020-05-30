@@ -60,7 +60,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
 
 __numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search',
                               'py_lambertw', '_lambertw_err', 'newton_err',
-                              'norm2', 'py_solve', 'func_35_splev', 'func_40_splev']
+                              'norm2', 'py_solve', 'func_35_splev', 'func_40_splev',
+                              ]
 nan = float("nan")
 inf = float("inf")
 
@@ -2174,15 +2175,18 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
     else:
         fcur = f(x0, *args)
         
-    if ytol is not None and newton_err(fcur) < ytol:
+    err0 = 0.0
+    for v in fcur:
+        err0 += abs(v)
+    if ytol is not None and err0 < ytol:
         return x0, 0
     else:
         x = x0
         if not jac_also:
             j = jac(x, *args)
             
-    iter = 1
-    while iter < maxiter:
+    iteration = 1
+    while iteration < maxiter:
         dx = py_solve(j, [-v for v in fcur])
         if damping_func is None:
             x = [xi + dxi*damping for xi, dxi in zip(x, dx)]
@@ -2193,21 +2197,31 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         else:
             fcur = f(x, *args)
         
-        iter += 1
+        iteration += 1
         if xtol is not None and norm2(fcur) < xtol:
             break
-        if ytol is not None and newton_err(fcur) < ytol:
-            break
+        if ytol is not None:
+            err0 = 0.0
+            for v in fcur:
+                err0 += abs(v)
+            if err0 < ytol:
+                break
             
         if not jac_also:
             j = jac(x, *args)
 
     if xtol is not None and norm2(fcur) > xtol:
-        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s" %(maxiter, x))
-    if ytol is not None and newton_err(fcur) > ytol:
-        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s" %(maxiter, x))
+        raise UnconvergedError("Failed to converge")
+#        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s" %(maxiter, x))
+    if ytol is not None:
+        err0 = 0.0
+        for v in fcur:
+            err0 += abs(v)
+        if err0 > ytol:
+#            raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s" %(maxiter, x))
+            raise UnconvergedError("Failed to converge")
 
-    return x, iter
+    return x, iteration
 
 def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping=1.0,
                   args=(), damping_func=None):
@@ -2400,11 +2414,11 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
     e = ext
     if tck is not None:
         t, c, k = tck
-    
+    x = [x]
 #    if isinstance(x, (float, int, complex)):
 #        x = [x]
 
-    m = len(x)
+    m = 1#len(x)
     n = len(t)
     y = [] # output array
     
@@ -2614,7 +2628,8 @@ from math import gamma # Been there a while
 
 def _lambertw_err(x, y):
     return x*exp(x) - y
-def py_lambertw(y):
+def py_lambertw(y, k=-1):
+    # Not such a good idea, not handling branches which is needed
     return brenth(_lambertw_err, 1e-300, 700.0, (y,))
 
 #has_scipy = False

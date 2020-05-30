@@ -196,9 +196,9 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
     elif P1 is None:
         ans = P1 = (FF*FL*FL*Psat - P2)/(FL*FL - 1.0)
     else:
-        raise Exception('Either P1 or P2 needs to be specified')
+        raise ValueError('Either P1 or P2 needs to be specified')
     if P2 > P1 and disp:
-        raise Exception('Specified P1 is too low for choking to occur '
+        raise ValueError('Specified P1 is too low for choking to occur '
                         'at any downstream pressure; minimum '
                         'upstream pressure for choking to be possible '
                         'is %g Pa.' %Pmin_absolute)
@@ -1022,7 +1022,7 @@ def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
         Cv = flow_coefficient/((rho0/psi)**0.5*gallon/minute)
         Kv = Cv_to_Kv(Cv)
     else:
-        raise NotImplementedError("%s scale is unsupported" %old_scale)
+        raise NotImplementedError("Supported scales are 'Cv', 'Kv', and 'Av'")
 
     if new_scale == 'Cv':
         ans = Kv_to_Cv(Kv)
@@ -1032,8 +1032,7 @@ def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
         Cv = Kv_to_Cv(Kv)
         ans = Cv*((rho0/psi)**0.5*gallon/minute)
     else:
-        raise NotImplementedError("%s scale is unsupported" %old_scale)
-
+        raise NotImplementedError("Supported scales are 'Cv', 'Kv', and 'Av'")
     return ans
 
 

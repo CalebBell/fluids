@@ -60,7 +60,7 @@ Demister Geometry
 from __future__ import division
 from math import log
 from fluids.constants import g, pi
-from fluids.numerics import newton, newton_system
+from fluids.numerics import secant, newton_system
 
 __all__ = ['voidage_experimental', 'specific_area_mesh',
 'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood', 'Robbins',
@@ -68,7 +68,8 @@ __all__ = ['voidage_experimental', 'specific_area_mesh',
 'dP_demister_dry_Setekleiv_Svendsen',
 'dP_demister_wet_ElDessouky', 'separation_demister_ElDessouky']
 
-__numba_additional_funcs__ = ['_Stichlmair_flood_f', '_Stichlmair_flood_f_and_jac']
+__numba_additional_funcs__ = ['_Stichlmair_flood_f', '_Stichlmair_flood_f_and_jac',
+                              '_Stichlmair_wet_err']
 ### Demister
 
 def dP_demister_dry_Setekleiv_Svendsen(S, voidage, vs, rho, mu, L=1):
@@ -458,6 +459,11 @@ def Stichlmair_dry(Vg, rhog, mug, voidage, specific_area, C1, C2, C3, H=1.):
     return 3/4.*f0*(1-voidage)/voidage**4.65*rhog*H/dp*Vg**2
 
 
+def _Stichlmair_wet_err(dP_irr, h0, c1, dP_dry, H, voidage, c):
+    hT = h0*(1.0 + 20.0*dP_irr*dP_irr*c1)
+    err = dP_dry/H*((1-voidage+hT)/(1.0 - voidage))**((2.0 + c)/3.)*(voidage/(voidage-hT))**4.65 -dP_irr/H
+    return err
+
 def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=1):
     r'''Calculates dry pressure drop across a packed column, using the
     Stichlmair [1]_ correlation. Uses three regressed constants for each
@@ -558,11 +564,10 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
     c = (-C1/Re - C2/(2*Re**0.5))/f0
     Frl = Vl**2*specific_area/(g*voidage**4.65)
     h0 = 0.555*Frl**(1/3.)
-    def to_zero(dP_irr):
-        hT = h0*(1.0 + 20.0*(dP_irr/H/rhol/g)**2)
-        err = dP_dry/H*((1-voidage+hT)/(1.0 - voidage))**((2.0 + c)/3.)*(voidage/(voidage-hT))**4.65 -dP_irr/H
-        return err
-    return float(newton(to_zero, dP_dry))
+    
+    c1 = 1.0/(H*rhol*g)
+    c1 *= c1
+    return secant(_Stichlmair_wet_err, dP_dry, args=(h0, c1, dP_dry, H, voidage, c))
 
 
 def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,

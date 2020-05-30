@@ -823,7 +823,7 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
     '''
     Re = dp*rho*vs/mu
     if not Dt:
-        A, B = 1, 1
+        A, B = 1.0, 1.0
     else:
         A = (1 + pi*dp/(6*(1-voidage)*Dt))**2
         B = 1 - pi**2*dp/24/Dt*(1 - dp/(2*Dt))
@@ -896,7 +896,7 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
         a = 0.061
     else:
         a = 0.05
-    if not Dt or Dt/dp > 50:
+    if Dt is None or Dt/dp > 50:
         Dterm = 2.2
     else:
         Dterm = (Dt/dp)**0.2

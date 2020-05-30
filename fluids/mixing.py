@@ -269,7 +269,7 @@ def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
     V1 = Q1/(pi/4*D**2)
     Cv = Q2/(Q1 + Q2)
     COV0 = ((1-Cv)/Cv)**0.5
-    if not D2:
+    if D2 is None:
         D2 = (Q2/Q1)**(2/3.)*D
     V2 = Q2/(pi/4*D2**2)
     B = n**2*(D2/D)**2*(V2/V1)**2

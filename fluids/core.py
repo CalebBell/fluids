@@ -176,10 +176,10 @@ def Reynolds(V, D, rho=None, mu=None, nu=None):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    if rho and mu:
+    if rho is not None and mu is not None:
         nu = mu/rho
-    elif not nu:
-        raise Exception('Either density and viscosity, or dynamic viscosity, \
+    elif nu is None:
+        raise ValueError('Either density and viscosity, or dynamic viscosity, \
         is needed')
     return V*D/nu
 
@@ -238,7 +238,7 @@ def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    if rho and Cp and k:
+    if rho is not None and Cp is not None and k is not None:
         alpha =  k/(rho*Cp)
     elif not alpha:
         raise Exception('Either heat capacity and thermal conductivity and\
@@ -866,11 +866,11 @@ def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
     .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
     '''
-    if k and Cp and mu:
+    if k is not None and Cp is not None and mu is not None:
         return Cp*mu/k
-    elif nu and rho and Cp and k:
+    elif nu is not None and rho is not None and Cp is not None and k is not None:
         return nu*rho*Cp/k
-    elif nu and alpha:
+    elif nu is not None and alpha is not None:
         return nu/alpha
     else:
         raise Exception('Insufficient information provided for Pr calculation')
@@ -938,9 +938,9 @@ def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    if rho and mu:
+    if rho is not None and mu is not None:
         nu = mu/rho
-    elif not nu:
+    elif nu is None:
         raise Exception('Either density and viscosity, or dynamic viscosity, \
         is needed')
     return g*beta*abs(T2-T1)*L**3/nu**2
@@ -2191,7 +2191,7 @@ def nu_mu_converter(rho, mu=None, nu=None):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    if (nu and mu) or not rho or (not nu and not mu):
+    if (nu is not None and mu is not None) or not rho or (not nu and not mu):
         raise Exception('Inputs must be rho and one of mu and nu.')
     if mu:
         return mu/rho

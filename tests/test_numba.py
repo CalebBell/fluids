@@ -73,8 +73,10 @@ def test_interp():
     poles = np.array([6]*100)
     high_efficiency = np.array([True]*100)
     fluids.numba_vectorized.CSA_motor_efficiency(powers, closed, poles, high_efficiency)
-
-
+    
+    assert_close(fluids.numba.bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30),
+                 fluids.bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30))
+    
 
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
@@ -173,14 +175,232 @@ def test_lambertw_runs():
     
     assert_close(fluids.numba.Prandtl_von_Karman_Nikuradse(1e7), 0.008102669430874914)
     
+
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_ellipe_runs():
+    assert_close(fluids.numba.plate_enlargement_factor(amplitude=5E-4, wavelength=3.7E-3),
+                 1.1611862034509677, rtol=1e-10)
     
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_control_valve_noise():
+    dB = fluids.numba.control_valve_noise_l_2015(m=40, P1=1E6, P2=6.5E5, Psat=2.32E3, rho=997, c=1400, Kv=77.848, d=0.1, Di=0.1071, FL=0.92, Fd=0.42, t_pipe=0.0036, rho_pipe=7800.0, c_pipe=5000.0,rho_air=1.293, c_air=343.0, An=-4.6)
+    assert_close(dB, 81.58200097996539)
+    
+    dB = fluids.numba.control_valve_noise_g_2011(m=2.22, P1=1E6, P2=7.2E5, T1=450, rho=5.3, gamma=1.22, MW=19.8, Kv=77.85,  d=0.1, Di=0.2031, FL=None, FLP=0.792, FP=0.98, Fd=0.296, t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
+    assert_close(dB, 91.67702674629604)
+    
+    
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_friction_factor_workaround():
+    fluids.numba.friction_factor(1e5, 1e-3)
+    
+    
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_bisplev_uses():
+    K = fluids.numba.entrance_beveled(Di=0.1, l=0.003, angle=45, method='Idelchik') 
+    assert_close(K, 0.39949999999999997)
+    
+    assert_close(fluids.numba.VFD_efficiency(100*hp, load=0.2), 
+                 fluids.VFD_efficiency(100*hp, load=0.2))
+
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_splev_uses():
+    methods = ['Rennels', 'Miller', 'Idelchik', 'Harris',  'Crane']
+    Ks = [fluids.numba.entrance_distance(Di=0.1, t=0.0005, method=m) for m in methods]
+    Ks_orig = [fluids.fittings.entrance_distance(Di=0.1, t=0.0005, method=m) for m in methods]
+    assert_close1d(Ks, Ks_orig)
+
+    # Same speed
+    assert_close(fluids.numba.entrance_rounded(Di=0.1, rc=0.0235),
+                 fluids.fittings.entrance_rounded(Di=0.1, rc=0.0235))
+    
+    
+    # Got 10x faster! no strings.
+    assert_close(fluids.numba.bend_rounded_Miller(Di=.6, bend_diameters=2, angle=90,  Re=2e6, roughness=2E-5, L_unimpeded=30*.6),
+                 fluids.bend_rounded_Miller(Di=.6, bend_diameters=2, angle=90,  Re=2e6, roughness=2E-5, L_unimpeded=30*.6))
+    
+
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_fittings_numba():
+    methods = ['Rennels', 'Miller', 'Crane', 'Blevins']
+    assert_close1d([fluids.numba.bend_miter(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20, method=m) for m in methods],
+                   [fluids.fittings.bend_miter(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20, method=m) for m in methods])
+
+    assert_close(fluids.numba.contraction_round_Miller(Di1=1, Di2=0.4, rc=0.04),
+                 fluids.contraction_round_Miller(Di1=1, Di2=0.4, rc=0.04))
+
+    assert_close(fluids.numba.contraction_round(Di1=1, Di2=0.4, rc=0.04),
+                 fluids.contraction_round(Di1=1, Di2=0.4, rc=0.04))
+
+    assert_close(fluids.numba.contraction_beveled(Di1=0.5, Di2=0.1, l=.7*.1, angle=120),
+                 fluids.contraction_beveled(Di1=0.5, Di2=0.1, l=.7*.1, angle=120),)
+    
+    assert_close(fluids.numba.diffuser_pipe_reducer(Di1=.5, Di2=.75, l=1.5, fd1=0.07),
+                 fluids.diffuser_pipe_reducer(Di1=.5, Di2=.75, l=1.5, fd1=0.07),)
+
+    assert_close(fluids.numba.K_gate_valve_Crane(D1=.1, D2=.146, angle=13.115),
+                 fluids.K_gate_valve_Crane(D1=.1, D2=.146, angle=13.115))
+
+    assert_close(fluids.numba.v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style='lift check straight'),
+                 fluids.v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style='lift check straight'))
+
+    assert_close(fluids.numba.K_branch_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633),
+                 fluids.K_branch_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633),)
+
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_filters_numba():
+    assert_close(fluids.numba.round_edge_screen(0.5, 100, 45), 
+                 fluids.round_edge_screen(0.5, 100, 45))
+    assert_close(fluids.numba.round_edge_screen(0.5, 100), 
+                 fluids.round_edge_screen(0.5, 100))
+
+    assert_close(fluids.numba.round_edge_open_mesh(0.96, angle=33.),
+                 fluids.round_edge_open_mesh(0.96, angle=33.))
+    
+    assert_close(fluids.numba.square_edge_grill(.45, l=.15, Dh=.002, fd=.0185),
+                 fluids.square_edge_grill(.45, l=.15, Dh=.002, fd=.0185))
+    
+    assert_close(fluids.numba.round_edge_grill(.4, l=.15, Dh=.002, fd=.0185),
+                 fluids.round_edge_grill(.4, l=.15, Dh=.002, fd=.0185))
+    
+    assert_close(fluids.numba.square_edge_screen(0.99), 
+                 fluids.square_edge_screen(0.99))
+    
+    
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_pump_numba():
+    assert_close(fluids.numba.motor_efficiency_underloaded(10.1*hp,  .1),
+                 fluids.motor_efficiency_underloaded(10.1*hp,  .1),)
+    
+    assert_close(fluids.numba.current_ideal(V=120, P=1E4, PF=1, phase=1),
+                 fluids.current_ideal(V=120, P=1E4, PF=1, phase=1))
+
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_separator_numba():
+    assert_close(fluids.numba.K_separator_Watkins(0.88, 985.4, 1.3, horizontal=True),
+                 fluids.K_separator_Watkins(0.88, 985.4, 1.3, horizontal=True))
+
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_mixing_numba():
+    assert_close(fluids.numba.size_tee(Q1=11.7, Q2=2.74, D=0.762, D2=None, n=1, pipe_diameters=5),
+                 fluids.size_tee(Q1=11.7, Q2=2.74, D=0.762, D2=None, n=1, pipe_diameters=5))
+    
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_compressible():
+    assert_close(fluids.numba.isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78),
+                 fluids.isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78),)
+
+    assert_close(fluids.numba.isentropic_efficiency(1E5, 1E6, 1.4, eta_p=0.78),
+                 fluids.isentropic_efficiency(1E5, 1E6, 1.4, eta_p=0.78))
+
+    assert_close(fluids.numba.polytropic_exponent(1.4, eta_p=0.78),
+                 fluids.polytropic_exponent(1.4, eta_p=0.78))
+    
+    assert_close(fluids.numba.Panhandle_A(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15),
+                 fluids.Panhandle_A(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15))
+    
+    assert_close(fluids.numba.Panhandle_B(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15),
+                 fluids.Panhandle_B(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15))
+    
+    assert_close(fluids.numba.Weymouth(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15),
+                 fluids.Weymouth(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15))
+    
+    assert_close(fluids.numba.Spitzglass_high(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15),
+                 fluids.Spitzglass_high(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15))
+    
+    assert_close(fluids.numba.Spitzglass_low(D=0.154051, P1=6720.3199, P2=0, L=54.864, SG=0.6, Tavg=288.7),
+                 fluids.Spitzglass_low(D=0.154051, P1=6720.3199, P2=0, L=54.864, SG=0.6, Tavg=288.7))   
+    
+    assert_close(fluids.numba.Oliphant(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15),
+                 fluids.Oliphant(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15))
+
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_control_valve():
+    # Not working - size_control_valve_g, size_control_valve_l
+    # Can take the functions out, but the dictionary return remains problematic
+    # fluids.numba.control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6, P2=458887.5306077305) # Willing to change this error message if the other can pass
+
+#    fluids.numba.size_control_valve_g(T=433., MW=44.01, mu=1.4665E-4, gamma=1.30,
+#Z=0.988, P1=680E3, P2=310E3, Q=38/36., D1=0.08, D2=0.1, d=0.05,
+#FL=0.85, Fd=0.42, xT=0.60)
+    
+    assert_close(fluids.numba.Reynolds_factor(FL=0.98, C=0.015483, d=15., Rev=1202., full_trim=False),
+                 fluids.Reynolds_factor(FL=0.98, C=0.015483, d=15., Rev=1202., full_trim=False))
+
+    assert_close(fluids.numba.convert_flow_coefficient(10, 'Kv', 'Av'),
+                 fluids.convert_flow_coefficient(10, 'Kv', 'Av'))
+
+
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_safety_valve():
+    assert_close(fluids.numba.API520_round_size(1E-4),
+                 fluids.API520_round_size(1E-4))
+    assert_close(fluids.numba.API520_SH(593+273.15, 1066.325E3),
+                fluids.API520_SH(593+273.15, 1066.325E3))
+    assert_close(fluids.numba.API520_W(1E6, 3E5),
+                fluids.API520_W(1E6, 3E5))
+    
+    assert_close(fluids.numba.API520_B(1E6, 5E5),
+                 fluids.API520_B(1E6, 5E5))
+    
+    assert_close(fluids.numba.API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, Kb=1, Kc=1),
+                fluids.API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, Kb=1, Kc=1))
+    
+    assert_close(fluids.numba.API520_A_steam(m=69615/3600., T=592.5, P1=12236E3, Kd=0.975, Kb=1, Kc=1),
+                 fluids.API520_A_steam(m=69615/3600., T=592.5, P1=12236E3, Kd=0.975, Kb=1, Kc=1))
+
+
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_packed_bed():
+    assert_close(fluids.numba.Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=1E-2),
+                 fluids.Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=1E-2))
+    
+    assert_close(fluids.numba.Montillet_Akkari_Comiti(dp=0.0008, voidage=0.4, L=0.5, vs=0.00132629120, rho=1000., mu=1.00E-003),
+                 fluids.Montillet_Akkari_Comiti(dp=0.0008, voidage=0.4, L=0.5, vs=0.00132629120, rho=1000., mu=1.00E-003))
+    # Missing dP_packed_bed
+    
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_packed_tower():
+    # 12.8 us CPython, 1.4 PyPy, 1.85 numba
+    assert_close(fluids.numba.Stichlmair_wet(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.),
+                 fluids.Stichlmair_wet(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.),)
+
+'''Completely working submodles:
+* filters
+* separator
+* saltation
+* mixing
+* safety_valve
+* open_flow
+* pump (except CountryPower)
+
+
+Near misses:
+* compressible - P_isothermal_critical_flow; isothermal_gas (need lambertw, change solvers)
+* packed_bed - dP_packed_bed
+'''
+
 '''
 Functions not working:
     
-# splev needs to be working for this - very challenging!
-fluids.numba.entrance_rounded(Di=0.1, rc=0.0235)
-
-# lambertw won't work because optimizers won't work
+Hooper2K, Darby3K
+    
+# Almost workk, needs support for new branches of lambertw
 fluids.numba.P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
 fluids.numba.lambertw(.5)
 
@@ -209,7 +429,48 @@ fluids.numba.differential_pressure_meter_solver(D=0.07366, m=7.702338, P1=200000
 P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
 meter_type='ISO 5167 orifice', taps='D')
 
+# None passed into Radians
+fluids.numba.contraction_conical_Crane(Di1=0.0779, Di2=0.0525, l=0)
+fluids.numba.contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1E6)
+fluids.numba.diffuser_conical(Di1=1/3., Di2=1.0, angle=50.0, Re=1E6)
+fluids.numba.diffuser_conical(Di1=1., Di2=10.,l=9, fd=0.01)
+fluids.numba.diffuser_conical_staged(Di1=1., Di2=10., DEs=[2,3,4], ls=[1,1,1], fd=0.01)
+
+# friction_factor_curved missing
+fluids.numba.bend_rounded(Di=4.020, rc=4.0*5, angle=30, Re=1E5)
+
+Most classes which have different input types
+
+# Import not allowed in a function
+# Quad not allowed
+# However, looked into using c callbacks for the quad function
+# Unfortunately it got slower
+# But it was easy to do!
+fluids.numba.geometry.V_horiz_spherical(D=108., L=156., a=.1, h=5)
+
 '''
+
+
+
+
+
+'''Global dictionary lookup:
+K_globe_stop_check_valve_Crane(.1, .02, style=1), K_angle_stop_check_valve_Crane, K_diaphragm_valve_Crane, K_foot_valve_Crane, butterfly_valve_Crane_coeffs, plug_valve_Crane_coeffs
+Darby3K, Hooper2K, 
+
+
+# Feels like this should work
+from numba import njit, typeof, typed, types
+Darby =  typed.Dict.empty(types.string, types.UniTuple(types.float64, 3))
+Darby['Elbow, 90°, threaded, standard, (r/D = 1)'] = (800.0, 0.14, 4.0)
+Darby['Elbow, 90°, threaded, long radius, (r/D = 1.5)'] = (800.0, 0.071, 4.2)
+
+@numba.njit
+def Darby3K(NPS, Re, name):
+    K1, Ki, Kd = Darby[name]
+    return K1/Re + Ki*(1. + Kd*NPS**-0.3)
+
+Darby3K(NPS=12., Re=10000., name='Elbow, 90°, threaded, standard, (r/D = 1)')'''
 
 
 '''
@@ -251,4 +512,12 @@ ans = fluids.numba.brenth(to_solve, .3, 2, args=(.45,))
 assert_close(ans, 1.555884463490988)
 
 
+'''
+
+'''Having a really hard time getting newton_system to work...
+@numba.njit
+def to_solve_jac(x0):
+    return np.array([5.0*x0[0] - 3]), np.array([5.0])
+# fluids.numerics.newton_system(to_solve_jac, x0=[1.0], jac=True)
+fluids.numba.newton_system(to_solve_jac, x0=[1.0], jac=True)
 '''

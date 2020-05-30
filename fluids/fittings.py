@@ -23,7 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, degrees, log10, log
 from fluids.constants import inch
-from fluids.friction import (friction_factor, Colebrook, 
+from fluids.friction import (friction_factor, Clamond, 
                              friction_factor_curved, ft_Crane)
 from fluids.numerics import (horner, interp, splev, bisplev, 
                              implementation_optimize_tck, tck_interp2d_linear)
@@ -48,7 +48,12 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'K_branch_diverging_Crane', 'K_run_diverging_Crane', 'v_lift_valve_Crane']
 
 __numba_additional_funcs__ = ['entrance_distance_Idelchik_obj', 'entrance_distance_Harris_obj',
-                              'entrance_rounded_Harris', 'entrance_rounded_Idelchik']
+                              'entrance_rounded_Harris', 'entrance_rounded_Idelchik',
+                              'Miller_bend_unimpeded_correction', 'Miller_bend_roughness_correction',
+                              'bend_rounded_Miller_C_Re', 'bend_rounded_Miller_Kb',
+                              'entrance_beveled_Idelchik_obj', 'contraction_conical_frction_Idelchik_obj',
+                              'contraction_conical_Blevins_obj', 'contraction_conical_Miller_obj',
+                              'bend_rounded_Ito', 'diffuser_conical_Crane', 'diffuser_conical_Idelchik_obj']
 
 
 def change_K_basis(K1, D1, D2):
@@ -631,6 +636,7 @@ def entrance_rounded(Di, rc, method='Rennels'):
 
 
 entrance_beveled_methods = ['Rennels', 'Idelchik']
+entrance_beveled_methods_unknown_msg = 'Specified method not recognized; methods are %s' %entrance_beveled_methods
 
 entrance_beveled_Idelchik_l_Di = [0.025, 0.05, 0.075, 0.1, 0.15, 0.6]
 entrance_beveled_Idelchik_angles = [0.0, 10.0, 20.0, 30.0, 40.0, 60.0, 100.0, 
@@ -727,10 +733,9 @@ def entrance_beveled(Di, l, angle, method='Rennels'):
         lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1 - (l/Di)**0.25)/2.))
         return 0.0696*(1 - Cb*l/Di)*lbd**2 + (lbd - 1.)**2
     elif method == 'Idelchik':
-        return float(entrance_beveled_Idelchik_obj(angle*2.0, l/Di))
+        return float(bisplev(angle*2.0, l/Di, entrance_beveled_Idelchik_tck))
     else:
-        raise ValueError('Specified method not recognized; methods are %s'
-                         %(entrance_beveled_methods))
+        raise ValueError(entrance_beveled_methods_unknown_msg)
 
 
 def entrance_beveled_orifice(Di, do, l, angle):
@@ -924,9 +929,9 @@ tck_bend_rounded_Miller_C_o_1_0 = implementation_optimize_tck([[0.00259314014099
         0.9339124388590752, 0.9769117997985829, 0.9948478073955791, 0.0, 0.0, 0.0, 0.0],
 3])
 
-tck_bend_rounded_Miller_C_os = [tck_bend_rounded_Miller_C_o_0_1, tck_bend_rounded_Miller_C_o_0_15, 
+tck_bend_rounded_Miller_C_os = (tck_bend_rounded_Miller_C_o_0_1, tck_bend_rounded_Miller_C_o_0_15, 
                                 tck_bend_rounded_Miller_C_o_0_2, tck_bend_rounded_Miller_C_o_0_25,
-                                tck_bend_rounded_Miller_C_o_1_0]
+                                tck_bend_rounded_Miller_C_o_1_0)
 bend_rounded_Miller_C_o_Kbs = [.1, .15, .2, .25, 1]
 bend_rounded_Miller_C_o_limits = [30.260656153593906, 26.28093462852014, 22.10600230228466, 16.770001745987884, 13.268280073552294]
 bend_rounded_Miller_C_o_limit_0_01 = [0.6169055099514943, 0.8663244713199465, 1.2029584898712695, 2.7143438886138744, 2.7115417734646114]
@@ -1049,16 +1054,16 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
     .. [1] Miller, Donald S. Internal Flow Systems: Design and Performance
        Prediction. Gulf Publishing Company, 1990.
     '''
-    if not rc:
+    if rc is None:
         if bend_diameters is None:
-            bend_diameters = 5
+            bend_diameters = 5.0
         rc = Di*bend_diameters
     
     radius_ratio = rc/Di
     
     if L_unimpeded is None:
         # Assumption - smooth outlet
-        L_unimpeded = 20*Di
+        L_unimpeded = 20.0*Di
     
     # Graph is defined for angles 10 to 180 degrees, ratios 0.5 to 10
     if radius_ratio < 0.5:
@@ -1225,7 +1230,7 @@ def bend_rounded_Ito(Di, angle, Re, rc=None, bend_diameters=None,
 
 
 bend_rounded_methods = ['Rennels', 'Crane', 'Miller', 'Swamee', 'Ito']
-
+bend_rounded_method_unknown = 'Specified method not recognized; methods are %s' %(bend_rounded_methods)
 
 def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
                  Re=None, roughness=0.0, L_unimpeded=None, method='Rennels'):
@@ -1338,7 +1343,7 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
             if Re is None:
                 raise ValueError("The `Rennels` method requires either a "
                                  "specified friction factor or `Re`")
-            fd = Colebrook(Re=Re, eD=roughness/Di, tol=-1)
+            fd = Clamond(Re=Re, eD=roughness/Di)
         sin_term = sin(0.5*angle)
         return (fd*angle*rc/Di + (0.10 + 2.4*fd)*sin_term
         + 6.6*fd*(sin_term**0.5 + sin_term)/(rc/Di)**(4.*angle/pi))
@@ -1360,8 +1365,7 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
     elif method == 'Swamee':
         return (0.0733 + 0.923*(Di/rc)**3.5)*radians(angle)**0.5
     else:
-        raise ValueError('Specified method not recognized; methods are %s'
-                         %(bend_rounded_methods))
+        raise ValueError(bend_rounded_method_unknown)
 
 
 bend_miter_Miller_coeffs = [-12.050299402650126, -4.472433689233185, 50.51478860493546, 18.246302079077196, 
@@ -1439,7 +1443,7 @@ bend_miter_Blevins_angles = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0
 bend_miter_Blevins_Ks = [0.0, .025, .055, .1, .2, .35, .5, .7, .9, 1.1, 1.5]
 
 bend_miter_methods = ['Rennels', 'Miller', 'Crane', 'Blevins']
-
+bend_miter_method_unknown_msg = 'Specified method not recognized; methods are %s' %(bend_miter_methods)
 
 def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
                method='Rennels'):
@@ -1537,8 +1541,7 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
         K_base = interp(angle, bend_miter_Blevins_angles, bend_miter_Blevins_Ks)
         return K_base*(2E5/Re)**0.2
     else:
-        raise ValueError('Specified method not recognized; methods are %s'
-                         %(bend_miter_methods))
+        raise ValueError(bend_miter_method_unknown_msg)
     
 
 def helix(Di, rs, pitch, N, fd):
@@ -1747,6 +1750,7 @@ contraction_round_Idelchik_factors = [0.5, 0.43, 0.37, 0.31, 0.26, 0.22, 0.20,
 # Third factor is 0.36 in 1960 edition, 0.37 in Design Guide
 
 contraction_round_methods = ['Rennels', 'Miller', 'Idelchik']
+contraction_round_unknown_method = 'Specified method not recognized; methods are %s' %(contraction_round_methods)
 
 def contraction_round(Di1, Di2, rc, method='Rennels'):
     r'''Returns loss coefficient for any any round edged pipe contraction.
@@ -1829,8 +1833,7 @@ def contraction_round(Di1, Di2, rc, method='Rennels'):
                     contraction_round_Idelchik_factors)
         return K0*(1.0 - beta*beta)
     else:
-        raise ValueError('Specified method not recognized; methods are %s'
-                         %(contraction_round_methods))
+        raise ValueError(contraction_round_unknown_method)
 
 
 def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
@@ -1856,10 +1859,10 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
         Inside pipe diameter of the larger, upstream, pipe, [m]    
     Di2 : float
         Inside pipe diameter of the smaller, downstream, pipe, [m]    
-    l : float
-        Length of the contraction, optional [m]
-    angle : float
-        Angle of contraction, optional [degrees]
+    l : float, optional
+        Length of the contraction [m]
+    angle : float, optional
+        Angle of contraction [degrees]
 
     Returns
     -------
@@ -1884,17 +1887,17 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
        2009.
     '''
     if l is None and angle is None:
-        raise Exception('One of `l` or `angle` must be specified')
+        raise ValueError('One of `l` or `angle` must be specified')
     beta = Di2/Di1
     beta2 = beta*beta
-    if angle is not None:
+    if l is not None:
+        if l == 0.0:
+            angle = pi
+        else:
+            angle = 2.0*atan((Di1-Di2)/(2.0*l))
+    elif angle is not None:
         angle = radians(angle)
         #l = (Di1 - Di2)/(2.0*tan(0.5*angle)) # L is not needed in this calculation
-    elif l is not None:
-        try:
-            angle = 2.0*atan((Di1-Di2)/(2.0*l))
-        except ZeroDivisionError:
-            angle = pi
     if angle < 0.25*pi:
         # Formula 1
         K2 = 0.8*sin(0.5*angle)*(1.0 - beta2)
@@ -1977,7 +1980,7 @@ contraction_conical_Miller_obj = lambda l_r2, A_ratio: max(min(float(bisplev(log
 
 contraction_conical_methods = ['Rennels', 'Idelchik', 'Crane', 'Swamee', 
                                'Blevins', 'Miller']
-
+contraction_conical_method_unknown = 'Specified method not recognized; methods are %s' %(contraction_conical_methods)
 
 def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
                         Re=None, roughness=0.0, method='Rennels'):
@@ -2107,7 +2110,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
             if Re is None:
                 raise ValueError("The `Rennels` method requires either a "
                                  "specified friction factor or `Re`")
-            fd = Colebrook(Re=Re, eD=roughness/Di2, tol=-1)
+            fd = Clamond(Re=Re, eD=roughness/Di2)
             
         beta2 = beta*beta
         beta4 = beta2*beta2
@@ -2166,8 +2169,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         # Turning on ofr off the limits - little difference in plot
         return contraction_conical_Miller_obj(l_ratio, A_ratio)
     else:
-        raise ValueError('Specified method not recognized; methods are %s'
-                         %(contraction_conical_methods))
+        raise ValueError(contraction_conical_method_unknown)
 
 
 def contraction_beveled(Di1, Di2, l=None, angle=None):
@@ -2392,7 +2394,7 @@ diffuser_conical_Idelchik_tck = implementation_optimize_tck([[0.0, 0.0, 0.0, 0.0
 diffuser_conical_Idelchik_obj = lambda x, y : float(bisplev(x, y, diffuser_conical_Idelchik_tck))
 
 diffuser_conical_methods = ['Rennels', 'Crane', 'Miller', 'Swamee', 'Idelchik']
-
+diffuser_conical_method_unknown = 'Specified method not recognized; methods are %s' %(diffuser_conical_methods)
 
 def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
                      roughness=0.0, method='Rennels'):
@@ -2516,7 +2518,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
             if Re is None:
                 raise ValueError("The `Rennels` method requires either a "
                                  "specified friction factor or `Re`")
-            fd = Colebrook(Re=Re, eD=roughness/Di2, tol=-1)
+            fd = Clamond(Re=Re, eD=roughness/Di2)
         
         if 0.0 < angle <= 20.0:
             K = 8.30*tan(0.5*angle_rad)**1.75*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
@@ -2575,8 +2577,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         K = (0.25*angle_rad**-3*(1.0 + 0.6*r**(-1.67)*(pi-angle_rad)/angle_rad)**(0.533*r - 2.6))**-0.5
         return K
     else:
-        raise ValueError('Specified method not recognized; methods are %s'
-                         %(diffuser_conical_methods))
+        raise ValueError(diffuser_conical_method_unknown)
 
 
 def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
@@ -2616,8 +2617,8 @@ def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
 
     Examples
     --------
-    >>> diffuser_conical(Di1=1., Di2=10.,l=9, fd=0.01)
-    0.973137914861591
+    >>> diffuser_conical_staged(Di1=1., Di2=10., DEs=[2,3,4], ls=[1,1,1], fd=0.01)
+    1.2566640778649782
 
     References
     ----------
@@ -2740,40 +2741,40 @@ def diffuser_pipe_reducer(Di1, Di2, l, fd1, fd2=None):
 
 ###  3 Darby 3K Method (with valves)
 Darby = {}
-Darby['Elbow, 90°, threaded, standard, (r/D = 1)'] = {'K1': 800, 'Ki': 0.14, 'Kd': 4}
-Darby['Elbow, 90°, threaded, long radius, (r/D = 1.5)'] = {'K1': 800, 'Ki': 0.071, 'Kd': 4.2}
-Darby['Elbow, 90°, flanged, welded, bends, (r/D = 1)'] = {'K1': 800, 'Ki': 0.091, 'Kd': 4}
-Darby['Elbow, 90°, (r/D = 2)'] = {'K1': 800, 'Ki': 0.056, 'Kd': 3.9}
-Darby['Elbow, 90°, (r/D = 4)'] = {'K1': 800, 'Ki': 0.066, 'Kd': 3.9}
-Darby['Elbow, 90°, (r/D = 6)'] = {'K1': 800, 'Ki': 0.075, 'Kd': 4.2}
-Darby['Elbow, 90°, mitered, 1 weld, (90°)'] = {'K1': 1000, 'Ki': 0.27, 'Kd': 4}
-Darby['Elbow, 90°, 2 welds, (45°)'] = {'K1': 800, 'Ki': 0.068, 'Kd': 4.1}
-Darby['Elbow, 90°, 3 welds, (30°)'] = {'K1': 800, 'Ki': 0.035, 'Kd': 4.2}
-Darby['Elbow, 45°, threaded standard, (r/D = 1)'] = {'K1': 500, 'Ki': 0.071, 'Kd': 4.2}
-Darby['Elbow, 45°, long radius, (r/D = 1.5)'] = {'K1': 500, 'Ki': 0.052, 'Kd': 4}
-Darby['Elbow, 45°, mitered, 1 weld, (45°)'] = {'K1': 500, 'Ki': 0.086, 'Kd': 4}
-Darby['Elbow, 45°, mitered, 2 welds, (22.5°)'] = {'K1': 500, 'Ki': 0.052, 'Kd': 4}
-Darby['Elbow, 180°, threaded, close-return bend, (r/D = 1)'] = {'K1': 1000, 'Ki': 0.23, 'Kd': 4}
-Darby['Elbow, 180°, flanged, (r/D = 1)'] = {'K1': 1000, 'Ki': 0.12, 'Kd': 4}
-Darby['Elbow, 180°, all, (r/D = 1.5)'] = {'K1': 1000, 'Ki': 0.1, 'Kd': 4}
-Darby['Tee, Through-branch, (as elbow), threaded, (r/D = 1)'] = {'K1': 500, 'Ki': 0.274, 'Kd': 4}
-Darby['Tee, Through-branch,(as elbow), (r/D = 1.5)'] = {'K1': 800, 'Ki': 0.14, 'Kd': 4}
-Darby['Tee, Through-branch, (as elbow), flanged, (r/D = 1)'] = {'K1': 800, 'Ki': 0.28, 'Kd': 4}
-Darby['Tee, Through-branch, (as elbow), stub-in branch'] = {'K1': 1000, 'Ki': 0.34, 'Kd': 4}
-Darby['Tee, Run-through, threaded, (r/D = 1)'] = {'K1': 200, 'Ki': 0.091, 'Kd': 4}
-Darby['Tee, Run-through, flanged, (r/D = 1)'] = {'K1': 150, 'Ki': 0.05, 'Kd': 4}
-Darby['Tee, Run-through, stub-in branch'] = {'K1': 100, 'Ki': 0, 'Kd': 0}
-Darby['Valve, Angle valve, 45°, full line size, β = 1'] = {'K1': 950, 'Ki': 0.25, 'Kd': 4}
-Darby['Valve, Angle valve, 90°, full line size, β = 1'] = {'K1': 1000, 'Ki': 0.69, 'Kd': 4}
-Darby['Valve, Globe valve, standard, β = 1'] = {'K1': 1500, 'Ki': 1.7, 'Kd': 3.6}
-Darby['Valve, Plug valve, branch flow'] = {'K1': 500, 'Ki': 0.41, 'Kd': 4}
-Darby['Valve, Plug valve, straight through'] = {'K1': 300, 'Ki': 0.084, 'Kd': 3.9}
-Darby['Valve, Plug valve, three-way (flow through)'] = {'K1': 300, 'Ki': 0.14, 'Kd': 4}
-Darby['Valve, Gate valve, standard, β = 1'] = {'K1': 300, 'Ki': 0.037, 'Kd': 3.9}
-Darby['Valve, Ball valve, standard, β = 1'] = {'K1': 300, 'Ki': 0.017, 'Kd': 3.5}
-Darby['Valve, Diaphragm, dam type'] = {'K1': 1000, 'Ki': 0.69, 'Kd': 4.9}
-Darby['Valve, Swing check'] = {'K1': 1500, 'Ki': 0.46, 'Kd': 4}
-Darby['Valve, Lift check'] = {'K1': 2000, 'Ki': 2.85, 'Kd': 3.8}
+Darby['Elbow, 90°, threaded, standard, (r/D = 1)'] = (800.0, 0.14, 4.0)
+Darby['Elbow, 90°, threaded, long radius, (r/D = 1.5)'] = (800.0, 0.071, 4.2)
+Darby['Elbow, 90°, flanged, welded, bends, (r/D = 1)'] = (800.0, 0.091, 4.0)
+Darby['Elbow, 90°, (r/D = 2)'] = (800.0, 0.056, 3.9)
+Darby['Elbow, 90°, (r/D = 4)'] = (800.0, 0.066, 3.9)
+Darby['Elbow, 90°, (r/D = 6)'] = (800.0, 0.075, 4.2)
+Darby['Elbow, 90°, mitered, 1 weld, (90°)'] = (1000.00, 0.27, 4.0)
+Darby['Elbow, 90°, 2 welds, (45°)'] = (800.0, 0.068, 4.1)
+Darby['Elbow, 90°, 3 welds, (30°)'] = (800.0, 0.035, 4.2)
+Darby['Elbow, 45°, threaded standard, (r/D = 1)'] = (500.0, 0.071, 4.2)
+Darby['Elbow, 45°, long radius, (r/D = 1.5)'] = (500.0, 0.052, 4.0)
+Darby['Elbow, 45°, mitered, 1 weld, (45°)'] = (500.0, 0.086, 4.0)
+Darby['Elbow, 45°, mitered, 2 welds, (22.5°)'] = (500.0, 0.052, 4.0)
+Darby['Elbow, 180°, threaded, close-return bend, (r/D = 1)'] = (1000.00, 0.23, 4.0)
+Darby['Elbow, 180°, flanged, (r/D = 1)'] = (1000.00, 0.12, 4.0)
+Darby['Elbow, 180°, all, (r/D = 1.5)'] = (1000.00, 0.1, 4.0)
+Darby['Tee, Through-branch, (as elbow), threaded, (r/D = 1)'] = (500.0, 0.274, 4.0)
+Darby['Tee, Through-branch,(as elbow), (r/D = 1.5)'] = (800.0, 0.14, 4.0)
+Darby['Tee, Through-branch, (as elbow), flanged, (r/D = 1)'] = (800.0, 0.28, 4.0)
+Darby['Tee, Through-branch, (as elbow), stub-in branch'] = (1000.00, 0.34, 4.0)
+Darby['Tee, Run-through, threaded, (r/D = 1)'] = (200.0, 0.091, 4.0)
+Darby['Tee, Run-through, flanged, (r/D = 1)'] = (150, 0.05, 4.0)
+Darby['Tee, Run-through, stub-in branch'] = (100.0, 0.0, 0.0)
+Darby['Valve, Angle valve, 45°, full line size, β = 1'] = (950, 0.25, 4.0)
+Darby['Valve, Angle valve, 90°, full line size, β = 1'] = (1000.00, 0.69, 4.0)
+Darby['Valve, Globe valve, standard, β = 1'] = (1500.0, 1.7, 3.6)
+Darby['Valve, Plug valve, branch flow'] = (500.0, 0.41, 4.0)
+Darby['Valve, Plug valve, straight through'] = (300.0, 0.084, 3.9)
+Darby['Valve, Plug valve, three-way (flow through)'] = (300.0, 0.14, 4.0)
+Darby['Valve, Gate valve, standard, β = 1'] = (300.0, 0.037, 3.9)
+Darby['Valve, Ball valve, standard, β = 1'] = (300.0, 0.017, 3.5)
+Darby['Valve, Diaphragm, dam type'] = (1000.00, 0.69, 4.9)
+Darby['Valve, Swing check'] = (1500.0, 0.46, 4.0)
+Darby['Valve, Lift check'] = (2000.00, 2.85, 3.8)
 
 
 def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
@@ -2832,15 +2833,14 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
     '''
     if name:
         if name in Darby:
-            d = Darby[name]
-            K1, Ki, Kd = d['K1'], d['Ki'], d['Kd']
+            K1, Ki, Kd = Darby[name]
         else:
-            raise Exception('Name of fitting not in list')
+            raise ValueError('Name of fitting not in list')
     elif K1 and Ki and Kd:
         pass
     else:
-        raise Exception('Name of fitting or constants are required')
-    return K1/Re + Ki*(1. + Kd/NPS**0.3)
+        raise ValueError('Name of fitting or constants are required')
+    return K1/Re + Ki*(1. + Kd*NPS**-0.3)
 
 
 ### 2K Hooper Method

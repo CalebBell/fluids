@@ -50,8 +50,10 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder', 
            'A_hollow_cylinder', 'V_hollow_cylinder', 
            'A_multiple_hole_cylinder', 'V_multiple_hole_cylinder',
-           'pitch_angle_solver']
+           'pitch_angle_solver', 'plate_enlargement_factor']
 
+
+__numba_additional_funcs__ = ('_V_horiz_spherical_toint',)
 
 ### Spherical Vessels, partially filled
 
@@ -338,6 +340,11 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
     return Vf
 
 
+def _V_horiz_spherical_toint(x, r2, R2, den_inv):
+    x2 = x*x
+    return (r2 - x2)*atan(((R2 - x2)*den_inv)**0.5)
+
+
 def V_horiz_spherical(D, L, a, h, headonly=False):
     r'''Calculates volume of a tank with spherical heads, according to [1]_.
 
@@ -429,10 +436,11 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
         - z/r*(2+(R/r)**2)*acos(w/R))
         - 2*(w*r**2 - w**3/3)*atan(y/z) + 4*w*y*z/3)
     else:
-        def V_horiz_spherical_toint(x):
-            return (r**2 - x**2)*atan(((R**2 - x**2)/(r**2 - R**2))**0.5)
+        r2 = r*r
+        R2 = R*R
+        den_inv = 1.0/(r2 - R2)
         from scipy.integrate import quad
-        integrated = quad(V_horiz_spherical_toint, w, R)[0]
+        integrated = quad(_V_horiz_spherical_toint, w, R, args=(r2, R2, den_inv))[0]
         Vf = a/abs(a)*(2*integrated - Af*z)
     if headonly:
         Vf = Vf/2.
@@ -3222,17 +3230,17 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
             self.H = H
             self.pitch = self.H/N
             if self.pitch < self.Dt:
-                raise Exception('Pitch is too small - tubes are colliding; maximum number of spirals is %f.'%(self.H/self.Dt))
+                raise ValueError('Pitch is too small - tubes are colliding')#; maximum number of spirals is %f.'%(self.H/self.Dt))
         elif H and pitch:
             self.pitch = pitch
             self.H = H
             self.N = self.H/self.pitch
             if self.pitch < self.Dt:
-                raise Exception('Pitch is too small - tubes are colliding; pitch must be larger than tube diameter.')
+                raise ValueError('Pitch is too small - tubes are colliding; pitch must be larger than tube diameter.')
         self.H_total = self.Dt + self.H
         
         if self.Dt > self.Do:
-            raise Exception('Tube diameter is larger than helix outer diameter - not feasible.')
+            raise ValueError('Tube diameter is larger than helix outer diameter - not feasible.')
         
         self.tube_circumference = pi*self.Do
         self.tube_length = ((self.tube_circumference*self.N)**2 + self.H**2)**0.5
@@ -3253,6 +3261,64 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
             self.annulus_area = self.total_inlet_area - self.inlet_area
             self.annulus_volume = self.total_volume - self.inner_volume
 
+
+def plate_enlargement_factor(amplitude, wavelength):
+    r'''Calculates the enhancement factor of the sinusoidal waves of the
+    plate heat exchanger. This is the multiplier for the flat plate area
+    to obtain the actual area available for heat transfer. Obtained from
+    the following integral:
+
+    .. math::
+        \phi = \frac{\text{Effective area}}{\text{Projected area}} 
+        = \frac{\int_0^\lambda\sqrt{1 + \left(\frac{\gamma\pi}{2}\right)^2
+        \cos^2\left(\frac{2\pi}{\lambda}x\right)}dx}{\lambda}
+        
+    .. math::
+        \gamma = \frac{4a}{\lambda}
+        
+    The solution to the integral is:
+        
+    .. math::
+        \phi = \frac{2E\left(\frac{-4a^2\pi^2}{\lambda^2}\right)}{\pi}
+        
+    where E is the complete elliptic integral of the second kind, 
+    calculated with SciPy.
+
+    Parameters
+    ----------
+    amplitude : float
+        Half the height of the wave of the ridges, [m]
+    wavelength : float
+        Distance between the bottoms of two of the ridges (sometimes called 
+        pitch), [m]
+
+    Returns
+    -------
+    plate_enlargement_factor : float
+        The extra surface area multiplier as compared to a flat plate
+        caused the corrugations, [-]
+
+    Notes
+    -----
+    This is the exact analytical integral, obtained via Mathematica, Maple,
+    and quite a bit of trial and error. It is confirmed via numerical 
+    integration. The expression normally given is an
+    approximation as follows:
+        
+    .. math::
+        \phi = \frac{1}{6}\left(1+\sqrt{1+A^2} + 4\sqrt{1+A^2/2}\right)
+        
+        A = \frac{2\pi a}{\lambda}
+        
+    Most plate heat exchangers approximate a sinusoidal geometry only.
+
+    Examples
+    --------
+    >>> plate_enlargement_factor(amplitude=5E-4, wavelength=3.7E-3)
+    1.1611862034509677
+    '''
+    b = 2.*amplitude
+    return 2.*float(ellipe(-b*b*pi*pi/(wavelength*wavelength)))/pi
 
 class PlateExchanger(object):
     r'''Class representing a plate heat exchanger with sinusoidal ridges.
@@ -3364,64 +3430,6 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
              + 'B' + '-'.join([str(i) for i in self.chevron_angles]))
         return s
     
-    @staticmethod
-    def plate_enlargement_factor_analytical(amplitude, wavelength):
-        r'''Calculates the enhancement factor of the sinusoidal waves of the
-        plate heat exchanger. This is the multiplier for the flat plate area
-        to obtain the actual area available for heat transfer. Obtained from
-        the following integral:
-    
-        .. math::
-            \phi = \frac{\text{Effective area}}{\text{Projected area}} 
-            = \frac{\int_0^\lambda\sqrt{1 + \left(\frac{\gamma\pi}{2}\right)^2
-            \cos^2\left(\frac{2\pi}{\lambda}x\right)}dx}{\lambda}
-            
-    .. math::
-            \gamma = \frac{4a}{\lambda}
-            
-        The solution to the integral is:
-            
-        .. math::
-            \phi = \frac{2E\left(\frac{-4a^2\pi^2}{\lambda^2}\right)}{\pi}
-            
-        where E is the complete elliptic integral of the second kind, 
-        calculated with SciPy.
-    
-        Parameters
-        ----------
-        amplitude : float
-            Half the height of the wave of the ridges, [m]
-        wavelength : float
-            Distance between the bottoms of two of the ridges (sometimes called 
-            pitch), [m]
-    
-        Returns
-        -------
-        plate_enlargement_factor : float
-            The extra surface area multiplier as compared to a flat plate
-            caused the corrugations, [-]
-    
-        Notes
-        -----
-        This is the exact analytical integral, obtained via Mathematica, Maple,
-        and quite a bit of trial and error. It is confirmed via numerical 
-        integration. The expression normally given is an
-        approximation as follows:
-            
-        .. math::
-            \phi = \frac{1}{6}\left(1+\sqrt{1+A^2} + 4\sqrt{1+A^2/2}\right)
-            
-            A = \frac{2\pi a}{\lambda}
-            
-        Most plate heat exchangers approximate a sinusoidal geometry only.
-    
-        Examples
-        --------
-        >>> PlateExchanger.plate_enlargement_factor_analytical(amplitude=5E-4, wavelength=3.7E-3)
-        1.1611862034509677
-        '''
-        b = 2.*amplitude
-        return 2.*float(ellipe(-b*b*pi*pi/(wavelength*wavelength)))/pi
     
     def __init__(self, amplitude, wavelength, chevron_angle=45, width=None,
                  length=None, thickness=None, d_port=None, plates=None):
@@ -3438,7 +3446,7 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
         self.inclination_angle = 90 - self.chevron_angle # Used in some definitions instead
 
         self.plate_corrugation_aspect_ratio = self.gamma = 4*self.a/self.wavelength
-        self.plate_enlargement_factor = self.plate_enlargement_factor_analytical(self.amplitude, self.wavelength)
+        self.plate_enlargement_factor = plate_enlargement_factor(self.amplitude, self.wavelength)
         
         self.D_eq = 4*self.amplitude # Equivalent diameter for inter-plate spacing
         self.D_hydraulic = 4*self.amplitude/self.plate_enlargement_factor # Get better results when correlations use this

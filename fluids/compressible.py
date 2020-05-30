@@ -23,7 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from math import log, pi, exp, isinf
 from fluids.constants import R
-from fluids.numerics import newton, ridder, lambertw
+from fluids.numerics import secant, newton, ridder, lambertw
 
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT', 'isothermal_gas',
@@ -197,13 +197,13 @@ def isentropic_work_compression(T1, k, Z=1, P1=None, P2=None, W=None, eta=None):
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     '''
-    if W is None and (None not in [eta, P1, P2]):
+    if W is None and eta is not None and P1 is not None and P2 is not None:
         return k/(k - 1.0)*Z*R*T1*((P2/P1)**((k-1.)/k) - 1.0)/eta
-    elif P1 is None and (None not in [eta, W, P2]):
+    elif P1 is None and eta is not None and W is not None and P2 is not None:
         return P2*(1.0 + W*eta/(R*T1*Z) - W*eta/(R*T1*Z*k))**(-k/(k - 1.0))
-    elif P2 is None and (None not in [eta, W, P1]):
+    elif P2 is None and eta is not None and W is not None and P1 is not None:
         return P1*(1.0 + W*eta/(R*T1*Z) - W*eta/(R*T1*Z*k))**(k/(k - 1.0))
-    elif eta is None and (None not in [P1, P2, W]):
+    elif eta is None and P1 is not None and P2 is not None and W is not None:
         return R*T1*Z*k*((P2/P1)**((k - 1.0)/k) - 1.0)/(W*(k - 1.0))
     else:
         raise Exception('Three of W, P1, P2, and eta must be specified.')
@@ -311,9 +311,9 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     '''
-    if eta_s is None and eta_p:
+    if eta_s is None and eta_p is not None:
         return ((P2/P1)**((k-1.0)/k)-1.0)/((P2/P1)**((k-1.0)/(k*eta_p))-1.0)
-    elif eta_p is None and eta_s:
+    elif eta_p is None and eta_s is not None:
         return (k - 1.0)*log(P2/P1)/(k*log(
             (eta_s + (P2/P1)**((k - 1.0)/k) - 1.0)/eta_s))
     else:
@@ -840,7 +840,7 @@ inlet pressure; fluid will flow backwards.')
             # newton doesn't like solving for m.
             def to_solve_P2_basis(P1):
                 return abs(P2 - isothermal_gas(rho, fd, m=m, P1=P1, P2=None, L=L, D=D))
-            P1 = newton(to_solve_P2_basis, (P2+Pcf)/2.)
+            P1 = secant(to_solve_P2_basis, (P2+Pcf)/2.)
             assert P2 <= P1
             return P1
         except:
@@ -894,7 +894,7 @@ inlet pressure; fluid will flow backwards.')
     elif D is None and (None not in [P2, P1, L, m]):
         def to_solve(D):
             return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
-        return newton(to_solve, 0.1)
+        return secant(to_solve, 0.1)
     else:
         raise Exception('This function solves for either mass flow, upstream \
 pressure, downstream pressure, diameter, or length; all other inputs \
@@ -1007,15 +1007,15 @@ def Panhandle_A(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     c3 = 0.5394
     c4 = 2.6182
     c5 = 158.0205328706957220332831680508433862787 # 45965*10**(591/1250)/864
-    if Q is None and (None not in [L, D, P1, P2]):
+    if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return c5*E*(Ts/Ps)**c1*((P1**2 - P2**2)/(L*SG**c2*Tavg*Zavg))**c3*D**c4
-    elif D is None and (None not in [L, Q, P1, P2]):
+    elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Q*(Ts/Ps)**(-c1)*(SG**(-c2)*(P1**2 - P2**2)/(L*Tavg*Zavg))**(-c3)/(E*c5))**(1./c4)
-    elif P1 is None and (None not in [L, Q, D, P2]):
+    elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return (L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P2**2)**0.5
-    elif P2 is None and (None not in [L, Q, D, P1]):
+    elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
         return (-L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P1**2)**0.5
-    elif L is None and (None not in [P2, Q, D, P1]):
+    elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return SG**(-c2)*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
         raise Exception('This function solves for either flow, upstream \
@@ -1126,15 +1126,15 @@ def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     c3 = 0.51 # main power
     c4 = 2.53 # diameter power
     c5 = 152.8811634298055458624385985866624419060 # 4175*10**(3/25)/36
-    if Q is None and (None not in [L, D, P1, P2]):
+    if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return c5*E*(Ts/Ps)**c1*((P1**2 - P2**2)/(L*SG**c2*Tavg*Zavg))**c3*D**c4
-    elif D is None and (None not in [L, Q, P1, P2]):
+    elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Q*(Ts/Ps)**(-c1)*(SG**(-c2)*(P1**2 - P2**2)/(L*Tavg*Zavg))**(-c3)/(E*c5))**(1./c4)
-    elif P1 is None and (None not in [L, Q, D, P2]):
+    elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return (L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P2**2)**0.5
-    elif P2 is None and (None not in [L, Q, D, P1]):
+    elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
         return (-L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P1**2)**0.5
-    elif L is None and (None not in [P2, Q, D, P1]):
+    elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return SG**(-c2)*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
         raise Exception('This function solves for either flow, upstream \
@@ -1242,15 +1242,15 @@ def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     c3 = 0.5 # main power
     c4 = 2.667 # diameter power
     c5 = 137.3295809942512546732179684618143090992 # 37435*10**(501/1000)/864
-    if Q is None and (None not in [L, D, P1, P2]):
+    if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return c5*E*(Ts/Ps)*((P1**2 - P2**2)/(L*SG*Tavg*Zavg))**c3*D**c4
-    elif D is None and (None not in [L, Q, P1, P2]):
+    elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Ps*Q*((P1**2 - P2**2)/(L*SG*Tavg*Zavg))**(-c3)/(E*Ts*c5))**(1./c4)
-    elif P1 is None and (None not in [L, Q, D, P2]):
+    elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return (L*SG*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P2**2)**0.5
-    elif P2 is None and (None not in [L, Q, D, P1]):
+    elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
         return (-L*SG*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P1**2)**0.5
-    elif L is None and (None not in [P2, Q, D, P1]):
+    elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return (D**(-c4)*Ps*Q/(E*Ts*c5))**(-1./c3)*(P1**2 - P2**2)/(SG*Tavg*Zavg)
     else:
         raise Exception('This function solves for either flow, upstream \
@@ -1336,25 +1336,25 @@ def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7
     c3 = 1.181102362204724409448818897637795275591 # 0.03/inch or 150/127
     c4 = 0.09144
     c5 = 125.1060
-    if Q is None and (None not in [L, D, P1, P2]):
+    if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return (c5*E*Ts/Ps*D**2.5*((P1**2-P2**2)
                 /(L*SG*Zavg*Tavg*(1 + c4/D + c3*D)))**0.5)
-    elif D is None and (None not in [L, Q, P1, P2]):
+    elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         to_solve = lambda D : Q - Spitzglass_high(SG=SG, Tavg=Tavg, L=L, D=D,
                                                   P1=P1, P2=P2, Ts=Ts, Ps=Ps,
                                                   Zavg=Zavg, E=E)
-        return newton(to_solve, 0.5)
-    elif P1 is None and (None not in [L, Q, D, P2]):
+        return secant(to_solve, 0.5)
+    elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return ((D**6*E**2*P2**2*Ts**2*c5**2
                  + D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3
                  + D*L*Ps**2*Q**2*SG*Tavg*Zavg
                  + L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2))**0.5
-    elif P2 is None and (None not in [L, Q, D, P1]):
+    elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
         return ((D**6*E**2*P1**2*Ts**2*c5**2
                  - D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3
                  - D*L*Ps**2*Q**2*SG*Tavg*Zavg
                  - L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2))**0.5
-    elif L is None and (None not in [P2, Q, D, P1]):
+    elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return (D**6*E**2*Ts**2*c5**2*(P1**2 - P2**2)
                 /(Ps**2*Q**2*SG*Tavg*Zavg*(D**2*c3 + D + c4)))
     else:
@@ -1461,16 +1461,16 @@ def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     c3 = 1.181102362204724409448818897637795275591 # 0.03/inch or 150/127
     c4 = 0.09144
     c5 = 125.1060
-    if Q is None and (None not in [L, D, P1, P2]):
+    if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return c5*Ts/Ps*D**2.5*E*(((P1-P2)*2*(Ps+1210.))/(L*SG*Tavg*Zavg*(1 + c4/D + c3*D)))**0.5
-    elif D is None and (None not in [L, Q, P1, P2]):
+    elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         to_solve = lambda D : Q - Spitzglass_low(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
-        return newton(to_solve, 0.5)
-    elif P1 is None and (None not in [L, Q, D, P2]):
+        return secant(to_solve, 0.5)
+    elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return 0.5*(2.0*D**6*E**2*P2*Ts**2*c5**2*(Ps + 1210.0) + D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3 + D*L*Ps**2*Q**2*SG*Tavg*Zavg + L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2*(Ps + 1210.0))
-    elif P2 is None and (None not in [L, Q, D, P1]):
+    elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
         return 0.5*(2.0*D**6*E**2*P1*Ts**2*c5**2*(Ps + 1210.0) - D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3 - D*L*Ps**2*Q**2*SG*Tavg*Zavg - L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2*(Ps + 1210.0))
-    elif L is None and (None not in [P2, Q, D, P1]):
+    elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return 2.0*D**6*E**2*Ts**2*c5**2*(P1*Ps + 1210.0*P1 - P2*Ps - 1210.0*P2)/(Ps**2*Q**2*SG*Tavg*Zavg*(D**2*c3 + D + c4))
     else:
         raise Exception('This function solves for either flow, upstream \
@@ -1556,16 +1556,16 @@ def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     # c1 = 42*24*Q*foot**3/day*(mile)**0.5*9/5.*(5/9.)**0.5*psi*(1/psi)*14.4/520.*0.6**0.5*520**0.5/inch**2.5
     c1 = 84.587176139918568651410168968141078948974609375000
     c2 = 0.2091519350460528670065940559652517549694 # 1/(30.*0.0254**0.5)
-    if Q is None and (None not in [L, D, P1, P2]):
+    if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return c1*(D**2.5 + c2*D**3)*Ts/Ps*((P1**2-P2**2)/(L*SG*Tavg))**0.5
-    elif D is None and (None not in [L, Q, P1, P2]):
+    elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         to_solve = lambda D : Q - Oliphant(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
-        return newton(to_solve, 0.5)
-    elif P1 is None and (None not in [L, Q, D, P2]):
+        return secant(to_solve, 0.5)
+    elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return (L*Ps**2*Q**2*SG*Tavg/(Ts**2*c1**2*(D**3*c2 + D**2.5)**2) + P2**2)**0.5
-    elif P2 is None and (None not in [L, Q, D, P1]):
+    elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
         return (-L*Ps**2*Q**2*SG*Tavg/(Ts**2*c1**2*(D**3*c2 + D**2.5)**2) + P1**2)**0.5
-    elif L is None and (None not in [P2, Q, D, P1]):
+    elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return Ts**2*c1**2*(P1**2 - P2**2)*(D**3*c2 + D**2.5)**2/(Ps**2*Q**2*SG*Tavg)
     else:
         raise Exception('This function solves for either flow, upstream \
@@ -1653,15 +1653,15 @@ def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     c2 = 0.8587
     c3 = 0.538
     c4 = 2.69
-    if Q is None and (None not in [L, D, P1, P2]):
+    if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return c5*E*(Ts/Ps)*((P1**2 - P2**2)/(SG**c2*Tavg*L*Zavg))**c3*D**c4
-    elif D is None and (None not in [L, Q, P1, P2]):
+    elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Ps*Q*(SG**(-c2)*(P1**2 - P2**2)/(L*Tavg*Zavg))**(-c3)/(E*Ts*c5))**(1./c4)
-    elif P1 is None and (None not in [L, Q, D, P2]):
+    elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return (L*SG**c2*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P2**2)**0.5
-    elif P2 is None and (None not in [L, Q, D, P1]):
+    elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
         return (-L*SG**c2*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P1**2)**0.5
-    elif L is None and (None not in [P2, Q, D, P1]):
+    elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return SG**(-c2)*(D**(-c4)*Ps*Q/(E*Ts*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
         raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')
@@ -1763,15 +1763,15 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     c3 = 2.725 # D power
     c4 = 0.425 # SG power
     c1 = 0.15 # mu power
-    if Q is None and (None not in [L, D, P1, P2]):
+    if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return c5*Ts/Ps*E*((P1**2-P2**2)/Tavg/L/Zavg)**c2*D**c3/SG**c4/mu**c1
-    elif D is None and (None not in [L, Q, P1, P2]):
+    elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Ps*Q*SG**c4*mu**c1*((P1**2 - P2**2)/(L*Tavg*Zavg))**(-c2)/(E*Ts*c5))**(1./c3)
-    elif P1 is None and (None not in [L, Q, D, P2]):
+    elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return (L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P2**2)**0.5
-    elif P2 is None and (None not in [L, Q, D, P1]):
+    elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
         return (-L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P1**2)**0.5
-    elif L is None and (None not in [P2, Q, D, P1]):
+    elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return (D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(-1/c2)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
         raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')
@@ -1870,15 +1870,15 @@ def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     c3 = 8/3. # D power
     c4 = 4/9. # SG power
     c1 = 1/9. # mu power
-    if Q is None and (None not in [L, D, P1, P2]):
+    if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return c5*Ts/Ps*E*((P1**2-P2**2)/Tavg/L/Zavg)**c2*D**c3/SG**c4/mu**c1
-    elif D is None and (None not in [L, Q, P1, P2]):
+    elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Ps*Q*SG**c4*mu**c1*((P1**2 - P2**2)/(L*Tavg*Zavg))**(-c2)/(E*Ts*c5))**(1./c3)
-    elif P1 is None and (None not in [L, Q, D, P2]):
+    elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return (L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P2**2)**0.5
-    elif P2 is None and (None not in [L, Q, D, P1]):
+    elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
         return (-L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P1**2)**0.5
-    elif L is None and (None not in [P2, Q, D, P1]):
+    elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return (D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(-1/c2)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
         raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')
