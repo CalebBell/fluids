@@ -28,7 +28,10 @@ import types
 import re
 import inspect
 import functools
-import collections
+try:
+    from collections.abc import Iterable
+except:
+    from collections import Iterable
 from copy import copy
 import fluids
 import fluids.vectorized
@@ -199,7 +202,7 @@ def convert_output(result, out_units, out_vars, ureg):
             unit = out_units[out_vars.index(key)]
             result[key] = ans*parse_expression_cached(unit, ureg)
         return result
-    elif isinstance(result, collections.Iterable):
+    elif isinstance(result, Iterable):
         conveted_result = []
         for ans, unit in zip(result, out_units):
             conveted_result.append(ans*parse_expression_cached(unit, ureg))
