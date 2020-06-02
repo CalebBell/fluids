@@ -23,7 +23,6 @@ SOFTWARE.'''
 from __future__ import division
 from math import log, pi, sqrt
 from random import uniform, seed
-from pprint import pprint
 from fluids.numerics import newton, brenth
 
 

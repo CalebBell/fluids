@@ -23,7 +23,6 @@ SOFTWARE.'''
 from __future__ import division
 from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
-from sys import float_info
 try:
     # The right way imports the platform module which costs to ms to load!
     # implementation = platform.python_implementation()

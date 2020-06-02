@@ -114,6 +114,8 @@ submodules = [atmosphere, compressible, core, friction, filters, fittings,
 
 __version__ = '0.1.80'
 
-fluids_dir = os.path.dirname(__file__)
-fluids_data_dir = os.path.join(fluids_dir, 'data')
-
+try:
+    fluids_dir = os.path.dirname(__file__)
+    fluids_data_dir = os.path.join(fluids_dir, 'data')
+except:
+    pass

@@ -56,11 +56,14 @@ from __future__ import division
 
 from math import exp, cos, radians, pi, sin
 import time
-from datetime import datetime
 import os
 from fluids.constants import N_A, R, au
 from fluids.numerics import brenth
 from fluids.numerics import numpy as np
+try:
+    from datetime import datetime
+except:
+    pass
 
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
            'earthsun_distance', 'solar_position', 'solar_irradiation',
@@ -70,10 +73,11 @@ no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
 this routine. '''
 
-
-# Needed by hwm14
-os.environ["HWMPATH"] = os.path.join(os.path.dirname(__file__), 'optional')
-
+try:
+    # Needed by hwm14
+    os.environ["HWMPATH"] = os.path.join(os.path.dirname(__file__), 'optional')
+except:
+    pass
 
 
 H_std = [0.0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852.0]

@@ -23,9 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
-from sys import float_info
 from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye, array_as_tridiagonals, tridiagonals_as_array, solve_tridiagonal, subset_matrix
-from functools import wraps
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_and_der3', 'quadratic_from_f_ders', 'chebval', 'interp',
@@ -103,14 +101,20 @@ np = numpy
 
 #IS_PYPY = True
 
-epsilon = float_info.epsilon
-one_epsilon_larger = 1.0 + float_info.epsilon
-one_epsilon_smaller = 1.0 - float_info.epsilon
-zero_epsilon_smaller = 1.0 - float_info.epsilon
-
+try:
+    from sys import float_info
+    epsilon = float_info.epsilon
+except:
+    # Probably micropython
+    epsilon = 2.220446049250313e-16
+    
+one_epsilon_larger = 1.0 + epsilon
+one_epsilon_smaller = 1.0 - epsilon
+zero_epsilon_smaller = 1.0 - epsilon
+    
 _iter = 100
 _xtol = 1e-12
-_rtol = float_info.epsilon*2.0
+_rtol = epsilon*2.0
 
 third = 1.0/3.0
 sixth = 1.0/6.0
@@ -1302,6 +1306,7 @@ def tck_interp2d_linear(x, y, z, kx=1, ky=1):
 
 
 def caching_decorator(f, full=False):
+    from functools import wraps
     cache = {}
     info_cache = {}
     @wraps(f)
@@ -2643,36 +2648,39 @@ if has_scipy:
 else:
     lambertw = py_lambertw
     if not SKIP_DEPENDENCIES:
-        import mpmath
-        # scipy is not available... fall back to mpmath as a Pure-Python implementation
-    #    from mpmath import lambertw # Same branches as scipy, supports .real
-        from mpmath import ellipe # seems the same so far        
-        
-    
-        # Figured out this definition from test_precompute_gammainc.py in scipy
-        gammaincc = lambda a, x: mpmath.gammainc(a, a=x, regularized=True)
-        iv = mpmath.besseli
-        i1 = lambda x: mpmath.besseli(1, x)
-        i0 = lambda x: mpmath.besseli(0, x)
-        k1 = lambda x: mpmath.besselk(1, x)
-        k0 = lambda x: mpmath.besselk(0, x)
-        
-        if erf is None:
-            from mpmath import erf
-    else:
-        def ellipe(*args, **kwargs):
+        try:
             import mpmath
-            return mpmath.ellipe(*args, **kwargs)
+            # scipy is not available... fall back to mpmath as a Pure-Python implementation
+        #    from mpmath import lambertw # Same branches as scipy, supports .real
+            from mpmath import ellipe # seems the same so far        
+            
         
-        def gammaincc(a, x):
-            import mpmath
-            return mpmath.gammainc(a, a=x, regularized=True)
-        
-        def iv(*args, **kwargs):
-            import mpmath
-            return mpmath.besseli(*args, **kwargs)
-        
-        def hyp2f1(*args, **kwargs):
-            import mpmath
-            return mpmath.hyp2f1(*args, **kwargs)
-
+            # Figured out this definition from test_precompute_gammainc.py in scipy
+            gammaincc = lambda a, x: mpmath.gammainc(a, a=x, regularized=True)
+            iv = mpmath.besseli
+            i1 = lambda x: mpmath.besseli(1, x)
+            i0 = lambda x: mpmath.besseli(0, x)
+            k1 = lambda x: mpmath.besselk(1, x)
+            k0 = lambda x: mpmath.besselk(0, x)
+            
+            if erf is None:
+                from mpmath import erf
+        except:
+            SKIP_DEPENDENCIES = True
+            
+        if SKIP_DEPENDENCIES:
+            def ellipe(*args, **kwargs):
+                import mpmath
+                return mpmath.ellipe(*args, **kwargs)
+            
+            def gammaincc(a, x):
+                import mpmath
+                return mpmath.gammainc(a, a=x, regularized=True)
+            
+            def iv(*args, **kwargs):
+                import mpmath
+                return mpmath.besseli(*args, **kwargs)
+            
+            def hyp2f1(*args, **kwargs):
+                import mpmath
+                return mpmath.hyp2f1(*args, **kwargs)    
