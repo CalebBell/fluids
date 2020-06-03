@@ -24,7 +24,7 @@ from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
 from fluids.constants import inch
-from fluids.numerics import secant, brenth, ellipe, horner, chebval, linspace, derivative
+from fluids.numerics import secant, brenth, ellipe, horner, chebval, linspace, derivative, quad
 from fluids.numerics import numpy as np
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
@@ -339,8 +339,11 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
         Vf += Af*L
     return Vf
 
-
+global counter
+counter = 0
 def _V_horiz_spherical_toint(x, r2, R2, den_inv):
+    global counter
+    counter += 1
     x2 = x*x
     return (r2 - x2)*atan(((R2 - x2)*den_inv)**0.5)
 
@@ -440,7 +443,7 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
         R2 = R*R
         den_inv = 1.0/(r2 - R2)
         from scipy.integrate import quad
-        integrated = quad(_V_horiz_spherical_toint, w, R, args=(r2, R2, den_inv))[0]
+        integrated = quad(_V_horiz_spherical_toint, w, R, args=(r2, R2, den_inv), epsrel=1.49e-13,)[0]
         Vf = a/abs(a)*(2*integrated - Af*z)
     if headonly:
         Vf = Vf/2.

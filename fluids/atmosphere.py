@@ -927,8 +927,9 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
        https://astronomy.stackexchange.com/questions/237/what-azimuth-description-systems-are-in-use?rq=1.
     '''
     from fluids.optional import spa
+    import calendar
     delta_t = spa.calculate_deltat(moment.year, moment.month)
-    unixtime = time.mktime(moment.timetuple())    
+    unixtime = calendar.timegm(moment.timetuple())
     # Input pressure in milibar; input temperature in deg C
     result = spa.solar_position_numpy(unixtime, lat=latitude, lon=longitude, elev=Z, 
                           pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
@@ -1162,6 +1163,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
        https://doi.org/10.5281/zenodo.1016425.
     '''
     # Atmospheric refraction at sunrise/sunset (0.5667 deg is an often used value)
+    import calendar
     from fluids.optional import spa
     from fluids.optional.irradiance import (get_relative_airmass, get_absolute_airmass,
                                             ineichen, get_relative_airmass, 
