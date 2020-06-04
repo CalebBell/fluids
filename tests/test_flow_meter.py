@@ -357,6 +357,8 @@ def test_flow_coefficient():
 def test_nozzle_expansibility():
     epsilon = nozzle_expansibility(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1.4)
     assert_allclose(epsilon, 0.9945702344566746)
+    
+    assert_close(nozzle_expansibility(D=0.0739, Do=0.0222, P1=1E5, P2=1e5, k=1.4), 1, rtol=1e-14)
 
 def test_C_long_radius_nozzle():
     C = C_long_radius_nozzle(D=0.07391, Do=0.0422, rho=1.2, mu=1.8E-5, m=0.1)

@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, degrees, log10, log
-from fluids.constants import inch
+from fluids.constants import inch, deg2rad
 from fluids.friction import (friction_factor, Clamond, 
                              friction_factor_curved, ft_Crane)
 from fluids.numerics import (horner, interp, splev, bisplev, 
@@ -1886,24 +1886,24 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
-    if l is None and angle is None:
+    if l is not None:
+        if l == 0.0:
+            angle_rad = pi
+        else:
+            angle_rad = 2.0*atan((Di1-Di2)/(2.0*l))
+    elif angle is not None:
+        angle_rad = deg2rad*angle
+        #l = (Di1 - Di2)/(2.0*tan(0.5*angle)) # L is not needed in this calculation
+    else:
         raise ValueError('One of `l` or `angle` must be specified')
     beta = Di2/Di1
     beta2 = beta*beta
-    if l is not None:
-        if l == 0.0:
-            angle = pi
-        else:
-            angle = 2.0*atan((Di1-Di2)/(2.0*l))
-    elif angle is not None:
-        angle = radians(angle)
-        #l = (Di1 - Di2)/(2.0*tan(0.5*angle)) # L is not needed in this calculation
-    if angle < 0.25*pi:
+    if angle_rad < 0.25*pi:
         # Formula 1
-        K2 = 0.8*sin(0.5*angle)*(1.0 - beta2)
+        K2 = 0.8*sin(0.5*angle_rad)*(1.0 - beta2)
     else:
         # Formula 2
-        K2 = 0.5*(sin(0.5*angle)**0.5*(1.0 - beta2))
+        K2 = 0.5*(sin(0.5*angle_rad)**0.5*(1.0 - beta2))
     return K2
 
 

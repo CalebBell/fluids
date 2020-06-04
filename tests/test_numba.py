@@ -385,6 +385,15 @@ def test_misc_packed_tower():
 def test_misc_flow_meter():
     assert_close(fluids.numba.differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type='cone meter'),
                  fluids.differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type='cone meter'))
+    
+    assert_close(fluids.numba.C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange', subtype='orifice'),
+                 fluids.C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange', subtype='orifice'))
+    
+    assert_close1d(fluids.numba.differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168, meter_type='ISO 5167 orifice', taps='D'), 
+                   fluids.differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168, meter_type='ISO 5167 orifice', taps='D'))
+
+    assert_close(fluids.numba.differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, meter_type='as cast convergent venturi tube'),
+                 fluids.differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, meter_type='as cast convergent venturi tube'))
 
 '''Completely working submodles:
 * filters
@@ -410,10 +419,6 @@ Hooper2K, Darby3K
 fluids.numba.P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
 fluids.numba.lambertw(.5)
 
-# Set lookup missing in numba
-fluids.numba.differential_pressure_meter_beta(D=0.2575, D2=0.184,  meter_type='cone meter')
-fluids.numba.differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168, meter_type='ISO 5167 orifice', taps='D')
-
 # newton_system not working
 fluids.numba.Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
 
@@ -435,7 +440,7 @@ fluids.numba.differential_pressure_meter_solver(D=0.07366, m=7.702338, P1=200000
 P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
 meter_type='ISO 5167 orifice', taps='D')
 
-# None passed into Radians
+# None passed into Radians - actually, all that was needed was to not reuse the variable `angle`
 fluids.numba.contraction_conical_Crane(Di1=0.0779, Di2=0.0525, l=0)
 fluids.numba.contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1E6)
 fluids.numba.diffuser_conical(Di1=1/3., Di2=1.0, angle=50.0, Re=1E6)

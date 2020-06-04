@@ -167,3 +167,6 @@ dyn = dyne = 1e-5
 lbf = pound_force = pound * g
 kgf = kilogram_force = g # * 1 kg
 
+
+deg2rad = 0.017453292519943295769 # Multiple an angle in degrees by this to get radians
+rad2deg = 57.295779513082320877# Multiple an angle in radians by this to get degrees

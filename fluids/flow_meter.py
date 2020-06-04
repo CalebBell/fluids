@@ -467,6 +467,19 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     return C
 
 
+_Miller_1996_unsupported_type = "Supported orifice types are %s" %str(
+        (CONCENTRIC_ORIFICE, SEGMENTAL_ORIFICE, ECCENTRIC_ORIFICE,
+         CONICAL_ORIFICE, QUARTER_CIRCLE_ORIFICE))
+_Miller_1996_unsupported_tap_concentric = "Supported taps for subtype '%s' are %s" %(
+        CONCENTRIC_ORIFICE, (ORIFICE_CORNER_TAPS, ORIFICE_FLANGE_TAPS, 
+                             ORIFICE_D_AND_D_2_TAPS, ORIFICE_PIPE_TAPS))
+_Miller_1996_unsupported_tap_pos_eccentric = "Supported tap positions for subtype '%s' are %s" %(
+        ECCENTRIC_ORIFICE, (TAPS_OPPOSITE, TAPS_SIDE))
+_Miller_1996_unsupported_tap_eccentric = "Supported taps for subtype '%s' are %s" %(
+        ECCENTRIC_ORIFICE, (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS))
+_Miller_1996_unsupported_tap_segmental = "Supported taps for subtype '%s' are %s" %(
+        SEGMENTAL_ORIFICE, (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS))
+
 def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
                   taps=ORIFICE_CORNER_TAPS, tap_position=TAPS_OPPOSITE):
     r'''Calculates the coefficient of discharge of any of the orifice types 
@@ -702,12 +715,10 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
         elif taps == ORIFICE_PIPE_TAPS:
             C_inf = 0.5959 + 0.461*beta**2.1 + 0.48*beta**8 + 0.039*beta**4/(1.0 - beta**4)
         else:
-            raise ValueError("Supported taps for subtype '%s' are %s" %(CONCENTRIC_ORIFICE, 
-                                (ORIFICE_CORNER_TAPS, ORIFICE_FLANGE_TAPS, ORIFICE_D_AND_D_2_TAPS, ORIFICE_PIPE_TAPS)))
+            raise ValueError(_Miller_1996_unsupported_tap_concentric)
     elif subtype == MILLER_ECCENTRIC_ORIFICE or subtype == ECCENTRIC_ORIFICE:
         if tap_position != TAPS_OPPOSITE and tap_position != TAPS_SIDE:
-            raise ValueError("Supported tap positions for subtype '%s' are %s" %(ECCENTRIC_ORIFICE, 
-                                (TAPS_OPPOSITE, TAPS_SIDE)))
+            raise ValueError(_Miller_1996_unsupported_tap_pos_eccentric)
         n = 0.75
         if taps == ORIFICE_FLANGE_TAPS:
             if tap_position == TAPS_OPPOSITE:
@@ -740,8 +751,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
                     b = 52.8 - 434.2*beta + 1571.2*beta**2 - 2460.9*beta**3 + 1420.2*beta**4
                     C_inf = 0.5949 + 0.4078*beta**2.1 + 0.0547*beta**8 +0.0955*beta**4/(1-beta**4) - 0.5608*beta**3
         else:
-            raise ValueError("Supported taps for subtype '%s' are %s" %(ECCENTRIC_ORIFICE, 
-                            (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS)))
+            raise ValueError(_Miller_1996_unsupported_tap_eccentric)
     elif subtype == MILLER_SEGMENTAL_ORIFICE or subtype == SEGMENTAL_ORIFICE:
         n = b = 0.0
         if taps == ORIFICE_FLANGE_TAPS:
@@ -756,8 +766,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
                 # Yes these are supposed to be the same as the flange, large set
                 C_inf = 0.6276 + 0.0828*beta**2.1 + 0.2739*beta**8 - 0.0934*beta**4/(1-beta**4) - 0.1132*beta**3
         else:
-            raise ValueError("Supported taps for subtype '%s' are %s" %(SEGMENTAL_ORIFICE, 
-                            (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS)))
+            raise ValueError(_Miller_1996_unsupported_tap_segmental)
     elif subtype == MILLER_CONICAL_ORIFICE or subtype == CONICAL_ORIFICE:
         n = b = 0.0
         if 250.0*beta <= Re <= 500.0*beta:
@@ -769,14 +778,9 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
         C_inf = (0.7746 - 0.1334*beta**2.1 + 1.4098*beta**8 
                  + 0.0675*beta**4/(1.0 - beta**4) + 0.3865*beta**3)
     else:
-        raise ValueError("Supported orifice types are %s" %str((CONCENTRIC_ORIFICE, 
-                                                            SEGMENTAL_ORIFICE, 
-                                                            ECCENTRIC_ORIFICE,
-                                                            CONICAL_ORIFICE, 
-                                                            QUARTER_CIRCLE_ORIFICE)))
+        raise ValueError(_Miller_1996_unsupported_type)
     C = C_inf + b*Re**-n
     return C
-        
 
 def C_eccentric_orifice_ISO_15377_1998(D, Do):
     r'''Calculates the coefficient of discharge of an eccentric orifice based 
@@ -1214,16 +1218,17 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
     tau = P2/P1
     term1 = k*tau**(2.0/k )/(k - 1.0)
     term2 = (1.0 - beta4)/(1.0 - beta4*tau**(2.0/k))
-    try:
-        term3 = (1.0 - tau**((k - 1.0)/k))/(1.0 - tau)
-    except ZeroDivisionError:
-        '''Obtained with:
+    if tau == 1.0:
+        '''Avoid a zero division error.
+        Obtained with:
             from sympy import *
             tau, k = symbols('tau, k')
             expr = (1 - tau**((k - 1)/k))/(1 - tau)
             limit(expr, tau, 1)
         '''
         term3 = (k - 1.0)/k
+    else:
+        term3 = (1.0 - tau**((k - 1.0)/k))/(1.0 - tau)
     return (term1*term2*term3)**0.5
 
 
@@ -2206,11 +2211,21 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
     ... meter_type='ISO 5167 orifice', taps='D')
     (0.6151252900244296, 0.9711026966676307)
     '''
-    # Translate default meter type to implementation specific correlation
-    try:
-        meter_type = _meter_type_to_corr_default[meter_type]
-    except KeyError:
-        pass
+#    # Translate default meter type to implementation specific correlation
+    if meter_type == CONCENTRIC_ORIFICE:
+        meter_type = ISO_5167_ORIFICE
+    elif meter_type == ECCENTRIC_ORIFICE:
+        meter_type = ISO_15377_ECCENTRIC_ORIFICE
+    elif meter_type == CONICAL_ORIFICE:
+        meter_type = ISO_15377_CONICAL_ORIFICE
+    elif meter_type == QUARTER_CIRCLE_ORIFICE:
+        meter_type = ISO_15377_QUARTER_CIRCLE_ORIFICE
+    elif meter_type == SEGMENTAL_ORIFICE:
+        meter_type = MILLER_SEGMENTAL_ORIFICE
+#    try:
+#        meter_type = _meter_type_to_corr_default[meter_type]
+#    except KeyError:
+#        pass
     
     if meter_type == ISO_5167_ORIFICE:
         C = C_Reader_Harris_Gallagher(D, D2, rho, mu, m, taps)
@@ -2421,6 +2436,8 @@ _dP_orifice_set = set([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                   CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, CONICAL_ORIFICE,
                   SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE])
 
+_missing_C_msg = "Parameter C is required for this orifice type"
+
 def differential_pressure_meter_dP(D, D2, P1, P2, C=None, 
                                    meter_type=ISO_5167_ORIFICE):
     r'''Calculates either the non-recoverable pressure drop of a differential
@@ -2471,13 +2488,16 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
     1788.5717754177406
     '''
     if meter_type in _dP_orifice_set:
+        if C is None: raise ValueError(_missing_C_msg)
         dP = dP_orifice(D=D, Do=D2, P1=P1, P2=P2, C=C)
     elif meter_type == LONG_RADIUS_NOZZLE:
+        if C is None: raise ValueError(_missing_C_msg)
         dP = dP_orifice(D=D, Do=D2, P1=P1, P2=P2, C=C)
     elif meter_type == ISA_1932_NOZZLE:
+        if C is None: raise ValueError(_missing_C_msg)
         dP = dP_orifice(D=D, Do=D2, P1=P1, P2=P2, C=C)
     elif meter_type == VENTURI_NOZZLE:
-        raise Exception(NotImplemented)
+        raise NotImplementedError("Venturi meter does not have an implemented pressure drop correlation")
     
     elif meter_type == AS_CAST_VENTURI_TUBE:
         dP = dP_venturi_tube(D=D, Do=D2, P1=P1, P2=P2)
