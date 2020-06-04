@@ -53,7 +53,8 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'pitch_angle_solver', 'plate_enlargement_factor']
 
 
-__numba_additional_funcs__ = ('_V_horiz_spherical_toint',)
+__numba_additional_funcs__ = ('_V_horiz_spherical_toint', '_SA_partial_horiz_ellipsoidal_head_to_int',
+                              '_SA_partial_horiz_ellipsoidal_head_limits')
 
 ### Spherical Vessels, partially filled
 
@@ -339,11 +340,7 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
         Vf += Af*L
     return Vf
 
-global counter
-counter = 0
 def _V_horiz_spherical_toint(x, r2, R2, den_inv):
-    global counter
-    counter += 1
     x2 = x*x
     return (r2 - x2)*atan(((R2 - x2)*den_inv)**0.5)
 
@@ -442,8 +439,7 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
         r2 = r*r
         R2 = R*R
         den_inv = 1.0/(r2 - R2)
-        from scipy.integrate import quad
-        integrated = quad(_V_horiz_spherical_toint, w, R, args=(r2, R2, den_inv), epsrel=1.49e-13,)[0]
+        integrated = quad(_V_horiz_spherical_toint, w, R, args=(r2, R2, den_inv))[0] # , epsrel=1.49e-13,
         Vf = a/abs(a)*(2*integrated - Af*z)
     if headonly:
         Vf = Vf/2.
@@ -584,15 +580,14 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         ans = (r2 - x*x)*atan((g2 - x*x)**0.5/z)
         return ans
 
-    from scipy.integrate import quad
     if 0.0 <= h <= h1:
         w = R - h
-        Vf = 2.0*quad(V1_toint, 0.0, (2.0*k*D*h - hh)**0.5, w)[0]
+        Vf = 2.0*quad(V1_toint, 0.0, (2.0*k*D*h - hh)**0.5, (w,))[0]
     elif h1 < h < h2:
         w = R - h
         wmax1 = R - h1
-        V1max = quad(V1_toint, 0.0, (2.0*k*D*h1 - h1*h1)**0.5, wmax1)[0]
-        V2 = quad(V2_toint, 0.0, k*D*cos(alpha), w)[0]
+        V1max = quad(V1_toint, 0.0, (2.0*k*D*h1 - h1*h1)**0.5, (wmax1,))[0]
+        V2 = quad(V2_toint, 0.0, k*D*cos(alpha), (w,))[0]
         V3 = quad(V3_toint, w, g)[0] - 0.5*z*(g*g*acos(w/g) -w*(2*g*(h-h1) - (h-h1)**2)**0.5)
         Vf = 2.0*(V1max + V2 + V3)
     else:
@@ -601,9 +596,9 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         wmax2 = R - h2
         wwerird = R - (D - h)
 
-        V1max = quad(V1_toint, 0, (2*k*D*h1-h1**2)**0.5, wmax1)[0]
-        V1weird = quad(V1_toint, 0, (2*k*D*(D-h)-(D-h)**2)**0.5, wwerird)[0]
-        V2max = quad(V2_toint, 0, k*D*cos(alpha), wmax2)[0]
+        V1max = quad(V1_toint, 0, (2*k*D*h1-h1**2)**0.5, (wmax1,))[0]
+        V1weird = quad(V1_toint, 0, (2*k*D*(D-h)-(D-h)**2)**0.5, (wwerird,))[0]
+        V2max = quad(V2_toint, 0, k*D*cos(alpha), (wmax2,))[0]
         V3max = pi*a1/6.*(3*g**2 + a1**2)
         Vf = 2*(2*V1max - V1weird + V2max + V3max)
     if headonly:
@@ -1602,8 +1597,6 @@ def SA_partial_horiz_spherical_head(D, a, h):
     elif h > D:
         h = D
     
-    from scipy.integrate import quad
-
     fact = (a*a + R*R)/abs(a)
     R2 = R*R
     a2 = a + a
@@ -1622,6 +1615,20 @@ def SA_partial_horiz_spherical_head(D, a, h):
     SA =  fact*quad(to_quad, R-h, R)[0]
     return SA
 
+
+def _SA_partial_horiz_ellipsoidal_head_to_int(x, y, c1, R2, R4):
+    y2 = y*y
+    x2 = x*x
+    num = c1*(x2 + y2) - R4
+    den = x2 + (y2 - R2) # Brackets help numerical truncation; zero div without it
+    try:
+        return (num/den)**0.5
+    except ZeroDivisionError:
+         # Equation is undefined for y == R when x is zero; avoid it
+        return _SA_partial_horiz_ellipsoidal_head_to_int(x, y*(1.0 - 1e-14))
+    
+def _SA_partial_horiz_ellipsoidal_head_limits(x, c1, R2, R4):
+    return [0.0, (R2 - x*x)**0.5]
 
 def SA_partial_horiz_ellipsoidal_head(D, a, h):
     r'''Calculates the partial area of a ellipsoidal tank head in the context of 
@@ -1670,23 +1677,16 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     elif h > D:
         h = D
     
-    from scipy.integrate import dblquad
+    from scipy.integrate import dblquad, nquad
     
     R2 = R*R
     R4 = R2*R2
     a2 = a*a
     c1 = R2 - a2
-    def to_quad(x, y):
-        y2 = y*y
-        x2 = x*x
-        num = c1*(x2 + y2) - R4
-        den = x2 + (y2 - R2) # Brackets help numerical truncation; zero div without it
-        try:
-            return (num/den)**0.5
-        except ZeroDivisionError:
-             # Equation is undefined for y == R when x is zero; avoid it
-            return to_quad(x, y*(1.0 - 1e-14))
-    quad_val = dblquad(to_quad, R-h, R, lambda x: 0.0, lambda x: (R2 - x*x)**0.5)[0]
+    quad_val = nquad(_SA_partial_horiz_ellipsoidal_head_to_int, ranges=[_SA_partial_horiz_ellipsoidal_head_limits, [R-h, R]],
+                     args=(c1, R2, R4))[0]
+#    quad_val = dblquad(_SA_partial_horiz_ellipsoidal_head_to_int, R-h, R, lambda x: 0.0, lambda x: (R2 - x*x)**0.5,
+#                       args=(c1, R2, R4))[0]
     
     SA = 2.0/R*quad_val
     return SA
@@ -1810,7 +1810,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
     '''
-    from scipy.integrate import quad, dblquad
+    from scipy.integrate import dblquad
     if h <= 0.0:
         return 0.0
     elif h > D:

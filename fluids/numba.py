@@ -182,6 +182,9 @@ def create_numerics(replaced, vec=False):
     
     NUMERICS_SUBMOD_COPY = importlib.util.find_spec('fluids.numerics')
     NUMERICS_SUBMOD = importlib.util.module_from_spec(NUMERICS_SUBMOD_COPY)
+    NUMERICS_SUBMOD.FORCE_PYPY = True
+    NUMERICS_SUBMOD.array_if_needed = np.array
+    
     NUMERICS_SUBMOD_COPY.loader.exec_module(NUMERICS_SUBMOD)
 
     names = list(NUMERICS_SUBMOD.__all__)

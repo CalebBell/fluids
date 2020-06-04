@@ -2863,8 +2863,6 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug,  D, angle, roughness=0,
         res['T'] = T
         res['K'] = K
         res['X'] = X
-
-    if full_output:
         return regime, res
     return regime
 

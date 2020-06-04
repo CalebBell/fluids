@@ -80,7 +80,7 @@ def test_airmass():
     assert_allclose(m, 106861.56335489497) # vs 106837
     
     m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, .1)
-    assert_allclose(m, 379082.24065519444) # vs 378596
+    assert_allclose(m, 379082.24065519444, rtol=1e-6) # vs 378596
     
     # airmass(lambda Z : ATMOSPHERE_1976(Z).rho, .1, RI=1.0016977377367)
     # As refractive index increases, the atmospheric mass increases drastically. An exception is being raised numerically, not sure why

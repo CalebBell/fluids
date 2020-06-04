@@ -58,7 +58,7 @@ from math import exp, cos, radians, pi, sin
 import time
 import os
 from fluids.constants import N_A, R, au
-from fluids.numerics import brenth
+from fluids.numerics import brenth, quad
 from fluids.numerics import numpy as np
 try:
     from datetime import datetime
@@ -341,8 +341,7 @@ class ATMOSPHERE_1976(object):
         def to_int(Z):
             atm = ATMOSPHERE_1976(Z, dT=dT)
             return atm.g*atm.rho
-        from scipy.integrate import quad
-        return float(quad(to_int, H_ref, H_ref+dH)[0])
+        return quad(to_int, H_ref, H_ref+dH)[0]
 
     
 
@@ -757,7 +756,6 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
     c2 = 1.0 + c0
     
     def to_int(Z):
-        Z = float(Z)
         rho = func(Z)
         t1 = c2 - rho*c1
         x0 = angle_term/(1.0 + Z*R_planet_inv)
@@ -765,8 +763,7 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
         t3 = (1.0 - t1*t2)**-0.5
         return rho*t3
 
-    from scipy.integrate import quad
-    return float(quad(to_int, 0.0, 86400.0)[0])
+    return quad(to_int, 0.0, 86400.0)[0]
 
 
 

@@ -441,13 +441,7 @@ fluids.numba.bend_rounded(Di=4.020, rc=4.0*5, angle=30, Re=1E5)
 
 Most classes which have different input types
 
-# Import not allowed in a function
-# Quad not allowed
-# However, looked into using c callbacks for the quad function
-# Unfortunately it got slower
-# But it was easy to do!
-fluids.numba.geometry.V_horiz_spherical(D=108., L=156., a=.1, h=5)
-
+Double quads not yet supported
 '''
 
 

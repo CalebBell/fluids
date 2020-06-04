@@ -347,9 +347,9 @@ def test_SA_partial_horiz_spherical_head():
               + SA_partial_cylindrical_body(D=D, L=L, h=h_values[i]))
         assert_close(SA, SA_expect[i], rtol=4e-8)
     
-    # Expect to fail on changing numerical method
+    # numerical integral, expect 1e-7 tol from the code
     SA_calc = SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0)
-    assert_close(SA_calc, 2027.2672091672684, rtol=1e-9)
+    assert_close(SA_calc, 2027.2672091672684, rtol=1e-7)
     
     assert 0 == SA_partial_horiz_spherical_head(D=72., a=48.0, h=1e-20)
     assert 0 == SA_partial_horiz_spherical_head(D=72., a=48.0, h=-1e-12)
@@ -366,7 +366,9 @@ def test_SA_partial_horiz_spherical_head():
     assert_close(T1.SA_from_h(36*inch)/foot**2, 135.08848, rtol=1e-7)
     assert_close(T1.SA_from_h(48*inch)/foot**2, 170.67720, rtol=1e-7)
     assert 0.0 == T1.SA_from_h(0)
-    assert_close(T1.SA_from_h(T1.h_max), T1.A, rtol=2e-12)
+    
+    # Numerical integral here too
+    assert_close(T1.SA_from_h(T1.h_max), T1.A, rtol=1e-7)
     
     
     T2 = TANK(L=120*inch, D=72*inch, horizontal=True,
@@ -480,8 +482,9 @@ def test_SA_partial_horiz_torispherical_head():
     SA = SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=2)
     assert_close(SA, 80.54614956735351, rtol=1e-11)
     
+    # Only have 1e-7 tolerance here due to numerical itnegration
     SA = SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=20)
-    assert_close(SA, 1171.9138610357936, rtol=1e-11)
+    assert_close(SA, 1171.9138610357936, rtol=1e-7)
     
     SA = SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=71)
     assert_close(SA, 4784.441787378645, rtol=1e-11)
