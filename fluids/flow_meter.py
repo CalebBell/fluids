@@ -2056,20 +2056,20 @@ CONE_METER_C = 0.82
 ISO_15377_CONICAL_ORIFICE_C = 0.734
 
 beta_simple_meters = frozenset([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE, 
-                          ISO_15377_CONICAL_ORIFICE, ISO_15377_QUARTER_CIRCLE_ORIFICE, 
-                          
-                          MILLER_ORIFICE, MILLER_ECCENTRIC_ORIFICE, 
-                          MILLER_SEGMENTAL_ORIFICE, MILLER_CONICAL_ORIFICE,
-                          MILLER_QUARTER_CIRCLE_ORIFICE, 
-                          
-                          CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, CONICAL_ORIFICE,
-                          SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE,
-                          
-                          LONG_RADIUS_NOZZLE, 
-                          ISA_1932_NOZZLE, VENTURI_NOZZLE,
-                          AS_CAST_VENTURI_TUBE, 
-                          MACHINED_CONVERGENT_VENTURI_TUBE, 
-                          ROUGH_WELDED_CONVERGENT_VENTURI_TUBE])
+                      ISO_15377_CONICAL_ORIFICE, ISO_15377_QUARTER_CIRCLE_ORIFICE, 
+                      
+                      MILLER_ORIFICE, MILLER_ECCENTRIC_ORIFICE, 
+                      MILLER_SEGMENTAL_ORIFICE, MILLER_CONICAL_ORIFICE,
+                      MILLER_QUARTER_CIRCLE_ORIFICE, 
+                      
+                      CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, CONICAL_ORIFICE,
+                      SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE,
+                      
+                      LONG_RADIUS_NOZZLE, 
+                      ISA_1932_NOZZLE, VENTURI_NOZZLE,
+                      AS_CAST_VENTURI_TUBE, 
+                      MACHINED_CONVERGENT_VENTURI_TUBE, 
+                      ROUGH_WELDED_CONVERGENT_VENTURI_TUBE])
 
 all_meters = set(beta_simple_meters)
 all_meters.update([CONE_METER, WEDGE_METER])

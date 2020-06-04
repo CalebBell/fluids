@@ -289,8 +289,10 @@ def transform_module(normal, __funcs, replaced, vec=False):
                 to_do[arr_name] = np.array(obj)
             elif type(obj) is list and len(obj) and all([
                     (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj]):
-                
                 to_do[arr_name] = np.array(obj)
+            elif type(obj) in (set, frozenset):
+                to_do[arr_name] = tuple(obj)
+                
         SUBMOD.__dict__.update(to_do)
         __funcs.update(to_do)
     

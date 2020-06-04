@@ -380,6 +380,12 @@ def test_misc_packed_tower():
     assert_close(fluids.numba.Stichlmair_wet(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.),
                  fluids.Stichlmair_wet(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.),)
 
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_flow_meter():
+    assert_close(fluids.numba.differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type='cone meter'),
+                 fluids.differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type='cone meter'))
+
 '''Completely working submodles:
 * filters
 * separator
