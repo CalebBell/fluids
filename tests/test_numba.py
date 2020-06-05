@@ -197,6 +197,12 @@ def test_control_valve_noise():
 def test_friction_factor_workaround():
     fluids.numba.friction_factor(1e5, 1e-3)
     
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_AvailableMethods_removal():
+    assert_close(fluids.numba.friction_factor_curved(Re=1E5, Di=0.02, Dc=0.5),
+                 fluids.friction_factor_curved(Re=1E5, Di=0.02, Dc=0.5))
+
     
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")

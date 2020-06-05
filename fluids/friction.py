@@ -2014,7 +2014,7 @@ def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=Fal
         return methods
     if AvailableMethods:
         return list_methods()
-    elif not Method:
+    if not Method:
         Method = 'Clamond'
 
     if Re < LAMINAR_TRANSITION_PIPE:
@@ -2913,6 +2913,12 @@ curved_friction_transition_methods = {'Seth Stahel': helical_transition_Re_Seth_
                                       'Schmidt': helical_transition_Re_Schmidt,
                                       'Srinivasan': helical_transition_Re_Srinivasan}
 
+_bad_curved_transition_method = '''Invalid method specified for transition Reynolds number; 
+valid methods are %s''' % list(curved_friction_transition_methods.keys())
+
+curved_friction_turbulent_methods_list = list(curved_friction_turbulent_methods.keys())
+curved_friction_laminar_methods_list = list(curved_friction_laminar_methods.keys())
+
 
 def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None, 
                            Rec_method='Schmidt', 
@@ -3008,35 +3014,60 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
        Transfer. Heat Exchanger Design Handbook. Washington:
        Hemisphere Pub. Corp., 1983.
     '''
-    if Rec_method in curved_friction_transition_methods:
-        Re_crit = curved_friction_transition_methods[Rec_method](Di, Dc)
+    if Rec_method == 'Schmidt':
+        Re_crit = helical_transition_Re_Schmidt(Di, Dc)
+    elif Rec_method == 'Seth Stahel':
+        Re_crit = helical_transition_Re_Seth_Stahel(Di, Dc)
+    elif Rec_method == 'Ito':
+        Re_crit = helical_transition_Re_Ito(Di, Dc)
+    elif Rec_method == 'Kubair Kuloor':
+        Re_crit = helical_transition_Re_Kubair_Kuloor(Di, Dc)
+    elif Rec_method == 'Kutateladze Borishanskii':
+        Re_crit = helical_transition_Re_Kutateladze_Borishanskii(Di, Dc)
+    elif Rec_method == 'Srinivasan':
+        Re_crit = helical_transition_Re_Srinivasan(Di, Dc)
     else:
-        raise Exception('Invalid method specified for transition Reynolds number.')
+        raise ValueError(_bad_curved_transition_method)
     
     turbulent = False if Re < Re_crit else True
     
-    def list_methods():
-        if turbulent:
-            return list(curved_friction_turbulent_methods.keys())
-        else:
-            return list(curved_friction_laminar_methods.keys())
     if AvailableMethods:
-        return list_methods()
-    
-    if not Method:
-        Method = turbulent_method if turbulent else laminar_method
-    
-    if Method in curved_friction_laminar_methods:
-        f = curved_friction_laminar_methods[Method](Re, Di, Dc)
-    elif Method in curved_friction_turbulent_methods:
-        correlation, supports_roughness = curved_friction_turbulent_methods[Method]
-        if supports_roughness:
-            f = correlation(Re, Di, Dc, roughness)
+        if turbulent:
+            return curved_friction_turbulent_methods_list
         else:
-            f = correlation(Re, Di, Dc)
+            return curved_friction_laminar_methods_list
+    
+    if Method is None:
+        Method2 = turbulent_method if turbulent else laminar_method
     else:
-        raise Exception('Invalid method for friction factor calculation')
-        
+        Method2 = Method # Use second variable to keep numba types happy
+    # Laminar
+    if Method2 == 'Schmidt laminar':
+        f = helical_laminar_fd_Schmidt(Re, Di, Dc)
+    elif Method2 == 'White':
+        f = helical_laminar_fd_White(Re, Di, Dc)
+    elif Method2 == 'Mori Nakayama laminar':
+        f = helical_laminar_fd_Mori_Nakayama(Re, Di, Dc)
+    # Turbulent with roughness support
+    elif Method2 == 'Schmidt turbulent':
+        f = helical_turbulent_fd_Schmidt(Re, Di, Dc, roughness)
+    elif Method2 == 'Prasad':
+        f = helical_turbulent_fd_Prasad(Re, Di, Dc, roughness)
+    elif Method2 == 'Ju':
+        f = helical_turbulent_fd_Ju(Re, Di, Dc, roughness)
+    elif Method2 == 'Mandel Nigam':
+        f = helical_turbulent_fd_Mandal_Nigam(Re, Di, Dc, roughness)
+    # Turbulent without roughness support
+    elif Method2 == 'Mori Nakayama turbulent':
+        f = helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc)
+    elif Method2 == 'Czop':
+        f = helical_turbulent_fd_Czop(Re, Di, Dc)
+    elif Method2 == 'Guo':
+        f = helical_turbulent_fd_Guo(Re, Di, Dc)
+    elif Method2 == 'Srinivasan turbulent':
+        f = helical_turbulent_fd_Srinivasan(Re, Di, Dc)
+    else:
+        raise Exception('Invalid method for friction factor calculation')        
     if not Darcy:
         f *= 0.25
     return f

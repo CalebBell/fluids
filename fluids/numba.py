@@ -23,7 +23,10 @@ SOFTWARE.'''
 from __future__ import division
 import sys
 import importlib.util
+import re
 import types
+import inspect
+import string
 import numpy as np
 import fluids as normal_fluids
 import numba
@@ -165,6 +168,45 @@ to_set_num = ['bisplev', 'cy_bispev', 'init_w', 'fpbspl']
 
 
 set_signatures = {}
+
+remove_comment_line = re.compile(r'''r?(['"])\1\1(.*?)\1{3}''', re.DOTALL)
+
+def remove_branch(source, branch):
+    source = re.sub(remove_comment_line, '', source)
+    
+    ret = re.search(r'if +%s *' %branch, source)
+    if ret:
+        start_return, start_bracket = ret.regs[-1]
+        enclosing_square = enclosing_curley = enclosing_round = 0
+        required_line_start = source[0:start_return].replace('\r', '\n').replace('\n\n','\n').split('\n')[-1]
+        required_spacing = 4
+        search_txt = source[start_bracket:]
+#         print(search_txt)
+        for i, v in enumerate(search_txt):
+            if v == '[':
+                enclosing_square += 1
+            if v == ']':
+                enclosing_square -= 1
+            if v == '{':
+                enclosing_curley += 1
+            if v == '}':
+                enclosing_curley -= 1
+            if v == '(':
+                enclosing_round += 1
+            if v == ')':
+                enclosing_round -= 1
+
+            if enclosing_round == 0 and enclosing_square == 0 and enclosing_curley == 0:
+                if (search_txt[i:i+len(required_line_start)+1] == '\n' + required_line_start):
+#                     print([True, search_txt[i:i+len(required_line_start)+2]])
+                    
+                    if (search_txt[i+len(required_line_start)+1] in string.ascii_letters):
+                        end_idx = i
+                        break
+
+        return source[:start_return] + search_txt[end_idx:]
+    return source
+
 
 #nopython = set(['Clamond'])
 skip = set(['V_horiz_spherical'])
@@ -351,6 +393,26 @@ HelicalCoil_spec = [(k, float64) for k in
                      'tube_circumference', 'tube_length', 'surface_area', 'helix_angle',
                      'curvature', 'total_inlet_area', 'total_volume', 'inner_surface_area',
                      'inlet_area', 'inner_volume', 'annulus_area', 'annulus_volume')]
+
+to_change = ['friction.friction_factor_curved', 'friction.friction_factor',
+ 'packed_bed.dP_packed_bed', 'two_phase.two_phase_dP', 'drag.drag_sphere']
+for s in to_change:
+    mod, func = s.split('.')
+    source = inspect.getsource(getattr(getattr(normal_fluids, mod), func))
+    fake_mod = __funcs[mod]
+    source = remove_branch(source, 'AvailableMethods')
+#    if s == 'friction.friction_factor_curved':
+#        print(source)
+    exec(source, fake_mod.__dict__, fake_mod.__dict__)
+    
+    new_func = fake_mod.__dict__[func]
+#    print(new_func)
+    obj = numba.jit(cache=False)(new_func)
+#    setattr(source, func, obj)
+    __funcs[func] = obj
+    globals()[func] = obj
+    obj.__doc__ = ''
+
 
 # Almost there but one argument has a variable type
 #PlateExchanger = jitclass(PlateExchanger_spec)(getattr(__funcs['geometry'], 'PlateExchanger'))
