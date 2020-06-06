@@ -61,7 +61,7 @@ from fluids.constants import N_A, R, au
 from fluids.numerics import brenth, quad
 from fluids.numerics import numpy as np
 try:
-    from datetime import datetime
+    from datetime import datetime, timedelta
 except:
     pass
 
@@ -780,7 +780,8 @@ def earthsun_distance(moment):
     ----------
     moment : datetime
         Time and date for the calculation, in UTC time (or GMT, which is
-        almost the same thing); not local time, [-]
+        almost the same thing); OR a timezone-aware datetime instance
+        which will be internally converted to UTC, [-]
         
     Returns
     -------
@@ -804,7 +805,19 @@ def earthsun_distance(moment):
     
     >>> earthsun_distance(datetime(2013, 7, 5, 14, 44, 51, 0))
     152097354414.36044
-        
+    
+    Using a timezone-aware date:
+    
+    >>> import pytz
+    >>> earthsun_distance(pytz.timezone('America/Edmonton').localize(datetime(2020, 6, 6, 10, 0, 0, 0)))
+    151817805599.67142
+    
+    This has a sligtly different value than the value without a timezone;
+    almost 5000 km further away!
+    
+    >>> earthsun_distance(datetime(2020, 6, 6, 10, 0, 0, 0))
+    151812898579.44104
+    
     Notes
     -----
     This function is quite accurate. The difference comes from the impact of 
@@ -823,13 +836,13 @@ def earthsun_distance(moment):
     from fluids.optional import spa
     delta_t = spa.calculate_deltat(moment.year, moment.month)
     import calendar
-    unixtime = calendar.timegm(moment.timetuple())
+    unixtime = calendar.timegm(moment.utctimetuple())
     # Convert datetime object to unixtime
     return float(spa.earthsun_distance(unixtime, delta_t=delta_t))*au
 
 
 def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0, 
-                           atmos_refract=0.5667):
+                   atmos_refract=0.5667):
     r'''Calculate the position of the sun in the sky. It is defined in terms of
     two angles - the zenith and the azimith. The azimuth tells where a sundial
     would see the sun as coming from; the zenith tells how high in the sky it
@@ -846,9 +859,10 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     
     Parameters
     ----------
-    moment : datetime
-        Time and date for the calculation, in local UTC time (not daylight 
-        savings time), [-]
+    moment : datetime, optionally with pytz info
+        Time and date for the calculation, in UTC time OR in the time zone
+        of the latitude/longitude specified BUT WITH A TZINFO ATTATCHED! 
+        Please be careful with this argument, time zones are confusing. [-]
     latitude : float
         Latitude, between -90 and 90 [degrees]
     longitude : float
@@ -882,17 +896,32 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
 
     Examples
     --------
-    >>> solar_position(datetime(2003, 10, 17, 13, 30, 30), 45, 45)
-    [140.8367913391112, 140.8367913391112, -50.83679133911118, -50.83679133911118, 329.9096671679604, 878.4902950980904]
+    >>> import pytz
+
+    Perth, Australia - sunrise
+    >>> solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 7, 10, 57)), -31.95265, 115.85742)
+    [90.89617025931763, 90.89617025931763, -0.8961702593176304, -0.8961702593176304, 63.60160176917509, 79.07112321438035]
+
+    Perth, Australia - Comparing against an online source
+    https://www.suncalc.org/#/-31.9526,115.8574,9/2020.06.06/14:30/1/0
+    
+    >>> solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 14, 30, 0)), -31.95265, 115.85742)
+    [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
+    
+    Perth, Australia - time input without timezone; must be converted by user to UTC!
+    >>> solar_position(datetime(2020, 6, 6, 14, 30, 0) - timedelta(hours=8), -31.95265, 115.85742)
+    [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
 
     Sunrise occurs when the zenith is 90 degrees (Calgary, AB):
     
-    >>> solar_position(datetime(2018, 4, 15, 6, 43, 5), 51.0486, -114.07)[0]
+    >>> local_time = datetime(2018, 4, 15, 6, 43, 5)
+    >>> local_time = pytz.timezone('America/Edmonton').localize(local_time)
+    >>> solar_position(local_time, 51.0486, -114.07)[0]
     90.00054676987014
     
-    Sunrise also occurs when the zenith is 90 degrees (13.5 hours later):
+    Sunset occurs when the zenith is 90 degrees (13.5 hours later in this case):
         
-    >>> solar_position(datetime(2018, 4, 15, 20, 30, 28), 51.0486, -114.07)
+    >>> solar_position(pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 20, 30, 28)), 51.0486, -114.07)
     [89.9995695661236, 90.54103812161853, 0.00043043387640950836, -0.5410381216185247, 286.8313781904518, 6.631429525878048]
     
     Notes
@@ -925,8 +954,9 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     '''
     from fluids.optional import spa
     import calendar
-    delta_t = spa.calculate_deltat(moment.year, moment.month)
-    unixtime = calendar.timegm(moment.timetuple())
+    tt = moment.utctimetuple()
+    delta_t = spa.calculate_deltat(tt.tm_year, tt.tm_mon)
+    unixtime = calendar.timegm(tt)
     # Input pressure in milibar; input temperature in deg C
     result = spa.solar_position_numpy(unixtime, lat=latitude, lon=longitude, elev=Z, 
                           pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
@@ -950,7 +980,8 @@ def sunrise_sunset(moment, latitude, longitude):
     ----------
     moment : datetime
         Date for the calculation; needs to contain only the year, month, and
-        day, [-]
+        day; if it is timezone-aware, the return values will be localized to
+        this timezone [-]
     latitude : float
         Latitude, between -90 and 90 [degrees]
     longitude : float
@@ -959,12 +990,15 @@ def sunrise_sunset(moment, latitude, longitude):
     Returns
     -------
     sunrise : datetime
-        The time at the specified day when the sun rises **IN UTC**, [-]
+        The time at the specified day when the sun rises **IN UTC IF MOMENT
+        DOES NOT HAVE A TIMEZONE, OTHERWISE THE TIMEZONE GIVEN WITH IT**, [-]
     sunset : datetime
-        The time at the specified day when the sun sets **IN UTC**, [-]
+        The time at the specified day when the sun sets **IN UTC IF MOMENT
+        DOES NOT HAVE A TIMEZONE, OTHERWISE THE TIMEZONE GIVEN WITH IT**, [-]
     transit : datetime
         The time at the specified day when the sun is at solar noon - halfway 
-        between sunrise and sunset **IN UTC**, [-]
+        between sunrise and sunset **IN UTC IF MOMENT
+        DOES NOT HAVE A TIMEZONE, OTHERWISE THE TIMEZONE GIVEN WITH IT**, [-]
 
     Examples
     --------
@@ -977,14 +1011,20 @@ def sunrise_sunset(moment, latitude, longitude):
     >>> transit
     datetime.datetime(2018, 4, 17, 19, 35, 46, 686265)
     
+    Example with time zone:
+    
+    >>> import pytz
+    >>> sunrise_sunset(pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 17)), 51.0486, -114.07)
+    (datetime.datetime(2018, 4, 16, 6, 39, 1, 570479, tzinfo=<DstTzInfo 'America/Edmonton' MDT-1 day, 18:00:00 DST>), datetime.datetime(2018, 4, 16, 20, 32, 25, 778162, tzinfo=<DstTzInfo 'America/Edmonton' MDT-1 day, 18:00:00 DST>), datetime.datetime(2018, 4, 16, 13, 36, 0, 386341, tzinfo=<DstTzInfo 'America/Edmonton' MDT-1 day, 18:00:00 DST>))
+
+    Note that the year/month/day as input with a timezone, is converted to UTC 
+    time as well.
+    
+    
     Notes
     -----    
     This functions takes on the order of 2 ms per calculation.
     
-    The reason the function cannot return the time correct the local
-    timezone is that the function does not know the timezone at the specified
-    lat/long.
-
     References
     ----------
     .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for 
@@ -992,17 +1032,28 @@ def sunrise_sunset(moment, latitude, longitude):
        577-89. https://doi.org/10.1016/j.solener.2003.12.003.
     '''
     from fluids.optional import spa
-    delta_t = spa.calculate_deltat(moment.year, moment.month)
-    # Strip the part of the day
-    moment = datetime(moment.year, moment.month, moment.day)
     import calendar 
-    unixtime = calendar.timegm(moment.timetuple())
+    if moment.utcoffset() is not None:
+        moment_utc = moment + moment.utcoffset()
+    else:
+        moment_utc = moment
+    
+    delta_t = spa.calculate_deltat(moment_utc.year, moment_utc.month)
+    # Strip the part of the day
+    ymd_moment_utc = datetime(moment_utc.year, moment_utc.month, moment_utc.day)
+    unixtime = calendar.timegm(ymd_moment_utc.utctimetuple())
+    
     unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
     transit, sunrise, sunset = spa.transit_sunrise_sunset(np.array([unixtime]), lat=latitude, lon=longitude, delta_t=delta_t, numthreads=1)
     
     transit = datetime.utcfromtimestamp(float(transit))
     sunrise = datetime.utcfromtimestamp(float(sunrise))
     sunset = datetime.utcfromtimestamp(float(sunset))
+    
+    if moment.tzinfo is not None:
+        sunrise = moment.tzinfo.fromutc(sunrise)
+        sunset = moment.tzinfo.fromutc(sunset)
+        transit = moment.tzinfo.fromutc(transit)
     return sunrise, sunset, transit
 
 
@@ -1054,9 +1105,10 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         Longitude, between -180 and 180, [degrees]
     Z : float, optional
         Elevation above sea level for the position, [m]
-    moment : datetime
-        Time and date for the calculation, in local UTC time (not daylight 
-        savings time), [-]
+    moment : datetime, optionally with pytz info
+        Time and date for the calculation, in UTC time OR in the time zone
+        of the latitude/longitude specified BUT WITH A TZINFO ATTATCHED! 
+        Please be careful with this argument, time zones are confusing. [-]
     surface_tilt : float
         The angle above the horizontal of the object being hit by radiation,
         [degrees]
@@ -1114,14 +1166,15 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
 
     Examples
     --------
+    >>> import pytz
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
-    ... moment=datetime(2018, 4, 15, 13, 43, 5), surface_tilt=41.0, 
+    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0, 
     ... surface_azimuth=180.0)
-    (1065.7621896280812, 945.2656564506323, 120.49653317744884, 95.31535344213178, 25.181179735317063)
+    (1065.7621896280832, 945.2656564506336, 120.4965331774495, 95.31535344213228, 25.181179735317226)
     
     >>> cache = {'apparent_zenith': 41.099082295767545, 'zenith': 41.11285376417578, 'azimuth': 182.5631874250523}
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
-    ... moment=datetime(2018, 4, 15, 13, 43, 5), surface_tilt=41.0, 
+    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0, 
     ... linke_turbidity=3, T=300, P=1E5,
     ... surface_azimuth=180.0, cache=cache)
     (1042.5677703677097, 918.2377548545295, 124.33001551318027, 99.6228657378363, 24.70714977534396)
@@ -1129,7 +1182,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     At night, there is no solar radiation and this function returns zeros:
         
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
-    ... moment=datetime(2018, 4, 15, 2, 43, 5), surface_tilt=41.0, 
+    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 2, 43, 5)), surface_tilt=41.0, 
     ... surface_azimuth=180.0)
     (0.0, -0.0, 0.0, 0.0, 0.0)
     

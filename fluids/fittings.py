@@ -297,7 +297,7 @@ def entrance_distance(Di, t=None, l=None, method='Rennels'):
     The 'Idelchik' [3]_ data is recommended in [5]_; it also provides rounded
     values for the 'Harris. method.
     
-    .. plot:: plots/entrance_distance.py
+    .. plot:: plots/entrance_distance_plot.py
     
     Examples
     --------
@@ -564,7 +564,7 @@ def entrance_rounded(Di, rc, method='Rennels'):
         
     The Hamilton data set is available in [1]_ and [6]_.
     
-    .. plot:: plots/entrance_rounded.py
+    .. plot:: plots/entrance_rounded_plot.py
 
     
     Examples
@@ -708,7 +708,7 @@ def entrance_beveled(Di, l, angle, method='Rennels'):
     to 180 degrees; this function follows the convention in [1]_ which uses
     only one angle, with the angle varying from 0 to 90 degrees.
 
-    .. plot:: plots/entrance_beveled.py
+    .. plot:: plots/entrance_beveled_plot.py
 
     Examples
     --------
@@ -1047,7 +1047,7 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
     --------
     >>> bend_rounded_Miller(Di=.6, bend_diameters=2, angle=90,  Re=2e6,
     ... roughness=2E-5, L_unimpeded=30*.6)
-    0.152618207051459
+    0.15261820705145895
     
     References
     ----------
@@ -1165,7 +1165,7 @@ def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
     The points in [1]_ are extrapolated to other angles via a well-fitting
     Chebyshev approximation, whose accuracy can be seen in the below plot.
 
-    .. plot:: plots/bend_rounded_Crane.py
+    .. plot:: plots/bend_rounded_Crane_plot.py
     
     Examples
     --------
@@ -1411,7 +1411,7 @@ def bend_miter_Miller(Di, angle, Re, roughness=0.0, L_unimpeded=None):
     --------
     >>> bend_miter_Miller(Di=.6, angle=90, Re=2e6, roughness=2e-5, 
     ... L_unimpeded=30*.6)
-    1.1921574594947668
+    1.1921574594947664
     
     References
     ----------
@@ -1503,7 +1503,7 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
     
     The following figure illustrates the different methods.
 
-    .. plot:: plots/bend_miter.py
+    .. plot:: plots/bend_miter_plot.py
 
     Examples
     --------
@@ -1511,7 +1511,7 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
     2.7128147734758103
     >>> bend_miter(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20, 
     ... method='Miller')
-    0.2944060416245167
+    0.2944060416245169
 
     References
     ----------
@@ -1801,7 +1801,7 @@ def contraction_round(Di1, Di2, rc, method='Rennels'):
     Rounding radius larger than 0.14Di2 prevents flow separation from the wall.
     Further increase in rounding radius continues to reduce loss coefficient.
     
-    .. plot:: plots/contraction_round.py
+    .. plot:: plots/contraction_round_plot.py
 
     Examples
     --------
@@ -2065,7 +2065,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     There is quite a bit of variance in the predictions of the methods, as 
     demonstrated by the following figure.
 
-    .. plot:: plots/contraction_conical.py
+    .. plot:: plots/contraction_conical_plot.py
 
     Examples
     --------
@@ -2477,7 +2477,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
     There is quite a bit of variance in the predictions of the methods, as 
     demonstrated by the following figure.
 
-    .. plot:: plots/diffuser_conical.py
+    .. plot:: plots/diffuser_conical_plot.py
 
     Examples
     --------
@@ -2819,7 +2819,7 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
     Examples
     --------
     >>> Darby3K(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
-    1.1572523963562353
+    1.1572523963562356
     >>> Darby3K(NPS=12., Re=10000., K1=950,  Ki=0.25,  Kd=4)
     0.819510280626355
 

@@ -1348,7 +1348,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     18.84955592153876
     >>> SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal',
     ... sideB_a=2)[0]
-    28.480278854014387
+    10.124375616183064
     >>> SA_tank(D=1., L=5, sideA='conical', sideA_a=2, sideB='conical',
     ... sideB_a=2)[0]
     22.18452243965656
@@ -1526,7 +1526,7 @@ def SA_partial_horiz_conical_head(D, a, h):
     Examples
     --------
     >>> SA_partial_horiz_conical_head(D=72., a=48.0, h=24.0)
-    1980.0498315169875
+    1980.0498315169873
     
     References
     ----------
@@ -1664,7 +1664,7 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     Examples
     --------
     >>> SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0)
-    3401.2336225352738
+    3401.233622549656
     
     References
     ----------
@@ -1964,7 +1964,7 @@ def SA_partial_vertical_ellipsoidal_head(D, a, h):
     Examples
     --------
     >>> SA_partial_vertical_ellipsoidal_head(D=72., a=48.0, h=24.0)
-    4675.237891376319
+    4675.23789137632
     
     References
     ----------
@@ -2377,7 +2377,7 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=None,
     --------
     >>> SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical',
     ... sideB='conical', sideA_a=2., sideB_a=1.)
-    10.013826583317465
+    28.59477853914843
 
     References
     ----------
@@ -2607,7 +2607,7 @@ class TANK(object):
     Height of liquid for a given volume:
 
     >>> TANK(D=1.2, L=4, horizontal=False).h_from_V(.5)
-    0.44209706414415384
+    0.4420970641441539
 
     Surface area of a tank with a conical head:
 

@@ -544,7 +544,7 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
 
     >>> Stichlmair_wet(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5,
     ... voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
-    539.8768237253518
+    539.876823725352
 
     References
     ----------

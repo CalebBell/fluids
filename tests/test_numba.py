@@ -532,6 +532,12 @@ def test_misc_two_phase():
     reg_normal = fluids.Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, angle=0)
     assert reg_numba == reg_normal
 
+    assert_close(fluids.numba.two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1),
+                 fluids.two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1))
+    
+    assert_close(fluids.numba.two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1, P=1e6),
+                fluids.two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1, P=1e6))
+
 
 '''Completely working submodles:
 * core
@@ -545,13 +551,14 @@ def test_misc_two_phase():
 * flow_meter
 * packed_bed
 * two_phase_voidage
+* two_phase
 
 Near misses:
-* compressible - P_isothermal_critical_flow, isothermal_gas (need lambertw, change solvers)
 * fittings - Hooper2K, Darby3K
 * drag - integrate_drag_sphere (odeint)
+
+* compressible - P_isothermal_critical_flow, isothermal_gas (need lambertw, change solvers)
 * packed_tower - Stichlmair_flood (newton_system)
-* two_phase - two_phase_dP
 * geometry - double quads
 
 Not supported:

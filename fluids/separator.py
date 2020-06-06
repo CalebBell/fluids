@@ -329,24 +329,24 @@ def K_Sounders_Brown_theoretical(D, Cd, g=g):
     ...     Cd = drag_sphere(Re)
     ...     K = K_Sounders_Brown_theoretical(D=D, Cd=Cd)
     ...     V = v_Sounders_Brown(K, rhol=rhol, rhog=rho)
-    ...     print(V)
-    0.760933074177
-    0.562429393401
-    0.507328950507
-    0.489571420955
-    0.483560219469
-    0.481490760336
-    0.480774149346
-    0.480525499591
-    0.480439162498
-    0.480409176902
+    ...     print('%.14f' %V)
+    0.76093307417658
+    0.56242939340131
+    0.50732895050696
+    0.48957142095508
+    0.48356021946899
+    0.48149076033622
+    0.48077414934614
+    0.48052549959141
+    0.48043916249756
+    0.48040917690193
 
     The use of Sounders-Brown constants can be replaced as follows (the 
     v_terminal method includes its own solver for terminal velocity):
         
     >>> from fluids.drag import v_terminal
     >>> v_terminal(D=D, rhop=rhol, rho=rho, mu=mu)
-    0.4803932186998833
+    0.4803932186998834
 
     Examples
     --------    

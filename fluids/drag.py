@@ -1275,10 +1275,10 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
     Examples
     --------
     >>> time_v_terminal_Stokes(D=1e-7, rhop=2200., rho=1.2, mu=1.78E-5, V0=1) 
-    3.188003113787153e-06
+    3.1880031137871528e-06
     >>> time_v_terminal_Stokes(D=1e-2, rhop=2200., rho=1.2, mu=1.78E-5, V0=1, 
     ... tol=1e-30)
-    24800.636391802
+    24800.636391801996
     '''
     if tol < 1e-17:
         tol = 2e-17

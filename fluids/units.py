@@ -472,7 +472,7 @@ def nu_mu_converter(rho, mu=None, nu=None):
 def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None): # pragma: no cover
     '''
     >>> isothermal_gas(rho=11.3*u.kg/u.m**3, fd=0.00185*u.dimensionless, P1=1E6*u.Pa, P2=9E5*u.Pa, L=1000*u.m, D=0.5*u.m)
-    <Quantity(145.484757264, 'kilogram / second')>
+    <Quantity(145.4847572636031, 'kilogram / second')>
     '''
     ans = wrapped_isothermal_gas(rho, fd, P1, P2, L, D, m)    
     if m is None and (None not in [P1, P2, L, D]):
@@ -526,10 +526,10 @@ for wrapper, E in zip(funcs, Es):
     
     def compressible_flow_wrapper(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
                 Ps=101325.*u.Pa, Zavg=1, E=E, _=wrapper_name): # pragma: no cover
-        '''
-        >>> Panhandle_A(SG=0.693, D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, Tavg=277.15*u.K)
-        <Quantity(42.560820512, 'meter ** 3 / second')>
-        '''
+#        '''
+#        >>> Panhandle_A(SG=0.693, D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, Tavg=277.15*u.K)
+#        <Quantity(42.560820512, 'meter ** 3 / second')>
+#        '''
         ans = globals()[_](SG, Tavg, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
         if Q is None and (None not in [L, D, P1, P2]):
             return ans*u.m**3/u.s

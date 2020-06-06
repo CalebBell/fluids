@@ -1060,7 +1060,7 @@ def Froude(V, L, g=g, squared=False):
     >>> Froude(1.83, L=2., g=1.63)
     1.0135432593877318
     >>> Froude(1.83, L=2., squared=True)
-    0.17074638128208924
+    0.17074638128208922
 
     References
     ----------
@@ -1813,7 +1813,7 @@ def Ohnesorge(L, rho, mu, sigma):
     Examples
     --------
     >>> Ohnesorge(1E-4, 1000., 1E-3, 1E-1)
-    0.01
+    0.009999999999999998
 
     References
     ----------

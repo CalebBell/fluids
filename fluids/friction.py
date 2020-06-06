@@ -1828,7 +1828,7 @@ def ft_Crane(D):
     The following plot shows all these options, and that the method implemented
     here matches perfectly the rounded values in [1]_.
     
-    .. plot:: plots/ft_Crane.py
+    .. plot:: plots/ft_Crane_plot.py
 
     Examples
     --------

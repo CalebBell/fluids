@@ -1300,12 +1300,8 @@ class ParticleSizeDistributionContinuous(object):
         Examples
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
-        >>> for n in (0, 1, 2, 3):
-        ...     print(psd.cdf(5e-6, n))
-        0.933192798731
-        0.841344746069
-        0.691462461274
-        0.5
+        >>> [psd.cdf(5e-6, n) for n in range(4)]
+        [0.933192798731142, 0.8413447460685429, 0.6914624612740131, 0.5]
         '''
         if n is not None and n != self.order:
             power = n - self.order

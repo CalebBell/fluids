@@ -135,7 +135,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     --------
     >>> Beggs_Brill(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... sigma=0.0487, P=1E7, D=0.05, angle=0, roughness=0, L=1)
-    686.9724506803472
+    686.9724506803469
 
     References
     ----------
@@ -204,6 +204,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     dP_ele = g*sin(angle)*rhos*L
     dP_fric = ftp*L/D*0.5*rhom*Vm*Vm
     # rhos here is pretty clearly rhos according to Shoham
+    if P is None: P = 101325.0
     if not acceleration:
         dP = dP_ele + dP_fric
     else:
@@ -286,7 +287,7 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
 
     >>> Friedel(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... sigma=0.0487, D=0.05, roughness=0, L=1)
-    738.6500525002245
+    738.6500525002241
 
     References
     ----------
@@ -393,7 +394,7 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     --------
     >>> Gronnerud(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... D=0.05, roughness=0, L=1)
-    384.1254114447411
+    384.12541144474085
 
     References
     ----------
@@ -877,7 +878,7 @@ def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     --------
     >>> Theissing(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... D=0.05, roughness=0, L=1)
-    497.6156370699528
+    497.6156370699538
 
     References
     ----------
@@ -979,7 +980,7 @@ def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     --------
     >>> Jung_Radermacher(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
     ... mug=14E-6, D=0.05, roughness=0, L=1)
-    552.0686123725571
+    552.0686123725568
 
     References
     ----------
@@ -1267,7 +1268,7 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0, L=1):
     --------
     >>> Zhang_Webb(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000,
     ... D=0.05, roughness=0, L=1)
-    712.0999804205621
+    712.0999804205617
 
     References
     ----------
@@ -1285,8 +1286,7 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0, L=1):
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
     dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
-
-    Pr = P/Pc
+    Pr = 0.5 if (Pc is None or P is None) else P/Pc
     phi_lo2 = (1-x)**2 + 2.87*x**2/Pr + 1.68*x**0.8*(1-x)**0.25*Pr**-1.64
     return dP_lo*phi_lo2
 
@@ -1342,7 +1342,7 @@ def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     --------
     >>> Bankoff(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... D=0.05, roughness=0, L=1)
-    4746.059442453399
+    4746.0594424533965
 
     References
     ----------
@@ -1514,7 +1514,7 @@ def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     --------
     >>> Yu_France(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... D=0.05, roughness=0, L=1)
-    1146.983322553957
+    1146.9833225539571
 
     References
     ----------
@@ -1600,7 +1600,7 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     --------
     >>> Wang_Chiang_Lu(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
     ... mug=14E-6, D=0.05, roughness=0, L=1)
-    448.29981978639154
+    448.29981978639137
 
     References
     ----------
@@ -2255,7 +2255,7 @@ two_phase_correlations = {
     'Zhang_Hibiki_Mishima flow boiling': (Zhang_Hibiki_Mishima, 103),
     'Beggs-Brill': (Beggs_Brill, 104)
 }
-
+_unknown_msg_two_phase = "Unknown method; available methods are %s" %(list(two_phase_correlations.keys()))
 
 def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
                  P=None, Pc=None, roughness=0, angle=0, Method=None, 
@@ -2336,69 +2336,94 @@ def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
     ... sigma=0.0487, D=0.05, L=1)
     840.4137796786074
     '''
-    def list_methods():
-        usable_indices = []
-        if all([rhog, sigma]):
-            usable_indices.append(5)
-        if all([rhog, mul, mug, sigma]):
-            usable_indices.extend([4, 3, 102, 103]) # Differs only in the addition of roughness
-        if all([rhog, mul, mug]):
-            usable_indices.extend([1,2, 101]) # Differs only in the addition of roughness
-        if all([mul, P, Pc]):
-            usable_indices.append(0)
-        if all([rhog, mul, mug, sigma, P, angle]):
-            usable_indices.append(104)
-        return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
-
     if AvailableMethods:
-        return list_methods()
-    if not Method:
-        if all([rhog, mul, mug, sigma]):
-            Method = 'Kim_Mudawar' # Kim_Mudawar preferred; 3 or 4
-        elif all([rhog, mul, mug]):
-            Method = 'Chisholm' # Second choice, indexes 1 or 2
-        elif all([mul, P, Pc,]) :
-            Method = 'Zhang_Webb' # Not a good choice
-        elif all([rhog, sigma]):
-            Method = 'Lombardi_Pedrocchi' # Last try
+        def list_methods_two_phase():
+            usable_indices = []
+            if all([rhog, sigma]):
+                usable_indices.append(5)
+            if all([rhog, mul, mug, sigma]):
+                usable_indices.extend([4, 3, 102, 103]) # Differs only in the addition of roughness
+            if all([rhog, mul, mug]):
+                usable_indices.extend([1,2, 101]) # Differs only in the addition of roughness
+            if all([mul, P, Pc]):
+                usable_indices.append(0)
+            if all([rhog, mul, mug, sigma, P, angle]):
+                usable_indices.append(104)
+            return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
+    
+        return list_methods_two_phase()
+    if Method is None:
+        if rhog is not None and mul is not None and mug is not None and sigma is not None:
+            Method2 = 'Kim_Mudawar' # Kim_Mudawar preferred
+        elif rhog is not None and mul is not None and mug is not None:
+            Method2 = 'Chisholm' # Second choice, indexes 1 or 2
+        elif mul is not None and P is not None and Pc is not None:
+            Method2 = 'Zhang_Webb' # Not a good choice
+        elif rhog is not None and sigma is not None:
+            Method2 = 'Lombardi_Pedrocchi' # Last try
         else:
             raise Exception('All possible methods require more information \
 than provided; provide more inputs!')
-    if Method in two_phase_correlations:
-        f, i = two_phase_correlations[Method]
-        if i == 0:
-            return f(m=m, x=x, rhol=rhol, mul=mul, P=P, Pc=Pc, D=D, 
-                     roughness=roughness, L=L)
-        elif i == 1:
-            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, L=L)
-        elif i == 2:
-            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, 
-                     L=L, roughness=roughness)
-        elif i == 3:
-            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
-                     sigma=sigma, D=D, L=L)
-        elif i == 4:
-            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
-                     sigma=sigma, D=D, L=L, roughness=roughness)
-        elif i == 5:
-            return f(m=m, x=x, rhol=rhol, rhog=rhog, sigma=sigma, D=D, L=L)
-        elif i == 101:
-            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, 
+    else:
+        Method2 = Method
+            
+    if Method2 == "Zhang_Webb":
+        return Zhang_Webb(m=m, x=x, rhol=rhol, mul=mul, P=P, Pc=Pc, D=D, roughness=roughness, L=L)
+    elif Method2 == "Lockhart_Martinelli":
+        return Lockhart_Martinelli(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, L=L)
+    elif Method2 == "Bankoff":
+        return Bankoff(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+    elif Method2 == "Baroczy_Chisholm":
+        return Baroczy_Chisholm(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+    elif Method2 == "Chisholm":
+        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+    elif Method2 == "Gronnerud":
+        return Gronnerud(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+    elif Method2 == "Jung_Radermacher":
+        return Jung_Radermacher(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+    elif Method2 == "Muller_Steinhagen_Heck":
+        return Muller_Steinhagen_Heck(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+    elif Method2 == "Theissing":
+        return Theissing(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+    elif Method2 == "Wang_Chiang_Lu":
+        return Wang_Chiang_Lu(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+    elif Method2 == "Yu_France":
+        return Yu_France(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+    elif Method2 == "Kim_Mudawar":
+        return Kim_Mudawar(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, L=L)
+    elif Method2 == "Friedel":
+        return Friedel(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+    elif Method2 == "Hwang_Kim":
+        return Hwang_Kim(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+    elif Method2 == "Mishima_Hibiki":
+        return Mishima_Hibiki(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+    elif Method2 == "Tran":
+        return Tran(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+    elif Method2 == "Xu_Fang":
+        return Xu_Fang(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+    elif Method2 == "Zhang_Hibiki_Mishima":
+        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+    elif Method2 == "Chen_Friedel":
+        return Chen_Friedel(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+    elif Method2 == "Lombardi_Pedrocchi":
+        return Lombardi_Pedrocchi(m=m, x=x, rhol=rhol, rhog=rhog, sigma=sigma, D=D, L=L)
+    elif Method2 == "Chisholm rough":
+        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, 
                      L=L, roughness=roughness, rough_correction=True)
-        elif i == 102:
-            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
+    elif Method2 == "Zhang_Hibiki_Mishima adiabatic gas":
+        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
                      sigma=sigma, D=D, L=L, roughness=roughness, 
                      flowtype='adiabatic gas')
-        elif i == 103:
-            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
+    elif Method2 == "Zhang_Hibiki_Mishima flow boiling":
+        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
                      sigma=sigma, D=D, L=L, roughness=roughness,
                      flowtype='flow boiling')
-        elif i == 104:
-            return f(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
+    elif Method2 == "Beggs-Brill":
+        return Beggs_Brill(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
                      sigma=sigma, P=P, D=D, angle=angle, L=L, 
                      roughness=roughness, acceleration=False, g=g)
     else:
-        raise Exception('Failure in in function')
+        raise ValueError(_unknown_msg_two_phase)
 
 
 def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,  
