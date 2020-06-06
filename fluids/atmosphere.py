@@ -1218,10 +1218,6 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     from fluids.optional.irradiance import (get_relative_airmass, get_absolute_airmass,
                                             ineichen, get_relative_airmass, 
                                             get_absolute_airmass, get_total_irradiance)
-#    try:
-#        import pvlib
-#    except:
-#        raise ImportError(PVLIB_MISSING_MSG)
 
     moment_timetuple = moment.timetuple()
     moment_arg_dni = (moment_timetuple.tm_yday if 
@@ -1252,6 +1248,10 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
                                                                    atmos_refract=atmos_refract)
     
     if linke_turbidity is None:
+        try:
+            import pvlib
+        except:
+            raise ImportError(PVLIB_MISSING_MSG)
         from pvlib.clearsky import lookup_linke_turbidity
         import pandas as pd
         linke_turbidity = float(lookup_linke_turbidity(

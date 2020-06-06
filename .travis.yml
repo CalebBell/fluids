@@ -29,12 +29,12 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda create -q -n test-environment python=$CC numpy pandas
+  - conda create -q -n test-environment python=$CC numpy pandas pytz
   - source activate test-environment
   - conda install $SCIPY_VER
   - pip install -r requirements_test.txt
   - python setup.py -q install
 script:
-  - py.test . -v --cov-report html --cov=fluids --cov-report term-missing -m "not online and not thermo"
+  - py.test . -v --cov-report html --cov=fluids --cov-report term-missing -m "not online and not thermo and not numba"
 after_success:
   - coveralls

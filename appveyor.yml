@@ -23,11 +23,11 @@ init:
 install:
   - cmd: activate condaenv
   - cmd: conda install -yq numpy scipy pip pytest pandas
-  - cmd: pip install pytest-cov coveralls sympy fuzzywuzzy pint
+  - cmd: pip install pytest-cov coveralls sympy fuzzywuzzy pint pytz
   - cmd: python setup.py install
 
 test_script:
-  - cmd: py.test --cov-report html --cov=fluids -m "not online and not thermo"
+  - cmd: py.test --cov-report html --cov=fluids -m "not online and not thermo and not numba"
 branches:
   only:
     - release
