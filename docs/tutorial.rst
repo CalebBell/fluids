@@ -530,6 +530,7 @@ you have to convert the time inputs to that time zone initially.
 
 So to find the solar position at 6 AM in Perth, Australia (offset -8 hours), we would manually 
 convert the time zone.
+
 >>> from datetime import datetime, timedelta
 >>> solar_position(datetime(2020, 6, 6, 14, 30, 0) - timedelta(hours=8), -31.95265, 115.85742)
 [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
@@ -750,7 +751,7 @@ Determining pipe length from known diameter, pressure drop, and mass flow
 937.3258027759333
 
 Not all specified mass flow rates are possible. At a certain downstream
-pressure, chocked flow will develop - that downstream pressure is that
+pressure, choked flow will develop - that downstream pressure is that
 at which the mass flow rate reaches a maximum. An exception will be
 raised if such an input is specified:
 
@@ -767,7 +768,7 @@ Traceback (most recent call last):
     due to the formation of choked flow at P2=%f, specified outlet pressure was %f' % (Pcf, P2))
 Exception: Given outlet pressure is not physically possible due to the formation of choked flow at P2=389699.731765, specified outlet pressure was 300000.000000
 
-The downstream pressure at which chocked flow occurs can be calculated directly
+The downstream pressure at which choked flow occurs can be calculated directly
 as well:
 
 >>> P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
@@ -848,7 +849,7 @@ following inputs:
 
 None of these models include an acceleration term. In addition to reducing 
 their accuracy, it allows all solutions for the above variables to be analytical.
-These models cannot predict the occurrence of chocked flow, and model only
+These models cannot predict the occurrence of choked flow, and model only
 turbulent, not laminar, flow. Most of these models do not depend on the gas's
 viscosity.
 
@@ -1188,7 +1189,7 @@ pressure drop:
 87.31399925838778
 
 The approach documented above is not an adequate procedure for sizing valves
-however because chocked flow, compressible flow, the effect of inlet and outlet
+however because choked flow, compressible flow, the effect of inlet and outlet
 reducers, the effect of viscosity and the effect of laminar/turbulent flow all
 have large influences on the performance of control valves. 
 

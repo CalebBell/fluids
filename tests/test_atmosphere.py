@@ -24,8 +24,10 @@ from numpy.testing import assert_allclose
 import os
 from fluids.atmosphere import *
 import fluids
+from fluids.numerics import assert_close, assert_close1d
 import fluids.optional
-from datetime import datetime
+from datetime import datetime, timedelta
+import pytz
 import pytest
 try:
     import pvlib
@@ -201,16 +203,44 @@ def test_hwm14():
     assert_allclose(MER_CALC, AP_PROFILE_MER)
     assert_allclose(ZON_CALC, AP_PROFILE_ZON)
     
+
+def test_solar_position():
+    pos = solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 7, 10, 57)), -31.95265, 115.85742)
+    pos_expect = [90.89617025931763, 90.89617025931763, -0.8961702593176304, -0.8961702593176304, 63.60160176917509, 79.07112321438035]
+    assert_close1d(pos, pos_expect, rtol=1e-9)
+    
+    pos = solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 14, 30, 0)), -31.95265, 115.85742)
+    pos_expect = [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
+    assert_close1d(pos, pos_expect, rtol=1e-9)
+    
+    pos = solar_position(datetime(2020, 6, 6, 14, 30, 0) - timedelta(hours=8), -31.95265, 115.85742)
+    pos_expect = [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
+    assert_close1d(pos, pos_expect, rtol=1e-9)
+    
+    local_time = datetime(2018, 4, 15, 6, 43, 5)
+    local_time = pytz.timezone('America/Edmonton').localize(local_time)
+    assert_close(solar_position(local_time, 51.0486, -114.07)[0], 90.00054676987014, rtol=1e-9)
+    
+    pos = solar_position(pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 20, 30, 28)), 51.0486, -114.07)
+    pos_expect = [89.9995695661236, 90.54103812161853, 0.00043043387640950836, -0.5410381216185247, 286.8313781904518, 6.631429525878048]
+    assert_close1d(pos, pos_expect, rtol=1e-9)
+
     
 def test_earthsun_distance():
     dt = earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
-    assert_allclose(dt, 149090925951.18338)
+    assert_allclose(dt, 149090925951.18338, rtol=1e-10)
 
     dt = earthsun_distance(datetime(2013, 1, 1, 21, 21, 0, 0))
-    assert_allclose(dt, 147098127628.8943)
+    assert_allclose(dt, 147098127628.8943, rtol=1e-10)
     
     dt = earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
-    assert_allclose(dt, 152097326908.20578)
+    assert_allclose(dt, 152097326908.20578, rtol=1e-10)
+    
+    assert_close(earthsun_distance(pytz.timezone('America/Edmonton').localize(datetime(2020, 6, 6, 10, 0, 0, 0))),
+                 151817805599.67142, rtol=1e-10)
+    
+    assert_close(earthsun_distance(datetime(2020, 6, 6, 10, 0, 0, 0)),
+                 151812898579.44104, rtol=1e-10)
 
 
 @pytest.mark.skipif(not has_pvlib,
@@ -232,3 +262,11 @@ def test_sunrise_sunset():
     assert sunrise == sunrise_expected
     assert sunset == sunset_expected
     assert transit == transit_expected
+    
+    calgary = pytz.timezone('America/Edmonton')
+    sunrise, sunset, transit = sunrise_sunset(calgary.localize(datetime(2018, 4, 17)), 51.0486, -114.07)
+    assert sunrise == calgary.localize(datetime(2018, 4, 16, 6, 39, 1, 570479))
+    assert sunset == calgary.localize(datetime(2018, 4, 16, 20, 32, 25, 778162))
+    assert transit == calgary.localize(datetime(2018, 4, 16, 13, 36, 0, 386341))
+    
+

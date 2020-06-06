@@ -899,6 +899,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     >>> import pytz
 
     Perth, Australia - sunrise
+    
     >>> solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 7, 10, 57)), -31.95265, 115.85742)
     [90.89617025931763, 90.89617025931763, -0.8961702593176304, -0.8961702593176304, 63.60160176917509, 79.07112321438035]
 
@@ -909,6 +910,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
     
     Perth, Australia - time input without timezone; must be converted by user to UTC!
+    
     >>> solar_position(datetime(2020, 6, 6, 14, 30, 0) - timedelta(hours=8), -31.95265, 115.85742)
     [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
 
