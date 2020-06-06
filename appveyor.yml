@@ -8,6 +8,8 @@ environment:
 #    - PYTHON: 3.3 # 3.3's quad or interpolate worked differently in some cases, not worth testing with
     - PYTHON: 3.5
     - PYTHON: 3.6
+    - PYTHON: 3.7
+    - PYTHON: 3.8
 
 platform:
   - x86
