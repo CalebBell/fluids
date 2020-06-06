@@ -1167,7 +1167,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     Examples
     --------
     >>> import pytz
-    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
+    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
     ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0, 
     ... surface_azimuth=180.0)
     (1065.7621896280832, 945.2656564506336, 120.4965331774495, 95.31535344213228, 25.181179735317226)
@@ -1181,7 +1181,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
 
     At night, there is no solar radiation and this function returns zeros:
         
-    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
+    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
     ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 2, 43, 5)), surface_tilt=41.0, 
     ... surface_azimuth=180.0)
     (0.0, -0.0, 0.0, 0.0, 0.0)
