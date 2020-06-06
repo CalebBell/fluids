@@ -3098,3 +3098,8 @@ else:
                 import mpmath
                 return mpmath.hyp2f1(*args, **kwargs)
     
+try:
+    if FORCE_PYPY:
+        lambertw = py_lambertw
+except:
+    pass

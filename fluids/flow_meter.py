@@ -49,6 +49,10 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'C_Miller_1996',
            ]
 
+
+__numba_additional_funcs__ = ['err_dp_meter_solver_m', 'err_dp_meter_solver_P2',
+                              'err_dp_meter_solver_D2', 'err_dp_meter_solver_P1']
+
 CONCENTRIC_ORIFICE = 'orifice' # normal
 ECCENTRIC_ORIFICE = 'eccentric orifice'
 CONICAL_ORIFICE = 'conical orifice'
@@ -2284,6 +2288,40 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
     return C, epsilon
 
 
+def err_dp_meter_solver_m(m_D, D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position):
+    m = m_D*D
+    C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
+                                                  mu, k, meter_type, 
+                                                  taps=taps, tap_position=tap_position)
+    m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+                                C=C, expansibility=epsilon)
+    err =  m - m_calc
+    return err
+
+def err_dp_meter_solver_P2(P2, D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position):
+    C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
+                                                  mu, k, meter_type, 
+                                                  taps=taps, tap_position=tap_position)
+    m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+                                C=C, expansibility=epsilon)
+    return m - m_calc
+
+def err_dp_meter_solver_D2(D2, D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position):
+    C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
+                                                  mu, k, meter_type, 
+                                                  taps=taps, tap_position=tap_position)
+    m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+                                C=C, expansibility=epsilon)
+    return m - m_calc
+
+def err_dp_meter_solver_P1(P1, D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position):
+    C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
+                                                  mu, k, meter_type, 
+                                                  taps=taps, tap_position=tap_position)
+    m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
+                                C=C, expansibility=epsilon)
+    return m - m_calc
+
 def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None, 
                                        m=None, meter_type=ISO_5167_ORIFICE, 
                                        taps=None, tap_position=None):
@@ -2370,58 +2408,30 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
     ... meter_type='ISO 5167 orifice', taps='D')
     0.04999999990831885
     '''
-    if m is None and None not in (D, D2, P1, P2):
-        
-        def to_solve(m_D):
-            m = m_D*D
-            C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
-                                                          mu, k, meter_type, 
-                                                          taps=taps, tap_position=tap_position)
-            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
-                                        C=C, expansibility=epsilon)
-            err =  m - m_calc
-            return err
+    if m is None and D is not None and D2 is not None and P1 is not None and P2 is not None:
         # Diameter to mass flow ratio
         m_D_guess = 40
         if rho < 100.0:
             m_D_guess *= 1e-2
-        return secant(to_solve, m_D_guess)*D
-    elif D2 is None and None not in (D, m, P1, P2):
-        def to_solve(D2):
-            C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
-                                                          mu, k, meter_type, 
-                                                          taps=taps, tap_position=tap_position)
-            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
-                                        C=C, expansibility=epsilon)
-            return m - m_calc
+        return secant(err_dp_meter_solver_m, m_D_guess, args=(D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position))*D
+    elif D2 is None and D is not None and m is not None and P1 is not None and P2 is not None:
+        args = (D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position)
         try:
-            return brenth(to_solve, D*(1-1E-9), D*5E-3)
-        except NotBoundedError:
-            return secant(to_solve, D*.3, high=D, low=D*1e-10)
-    elif P2 is None and None not in (D, D2, m, P1):
-        def to_solve(P2):
-            C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
-                                                          mu, k, meter_type, 
-                                                          taps=taps, tap_position=tap_position)
-            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
-                                        C=C, expansibility=epsilon)
-            return m - m_calc
+            return brenth(err_dp_meter_solver_D2, D*(1-1E-9), D*5E-3, args=args)
+        except:
+            return secant(err_dp_meter_solver_D2, D*.3, args=args, high=D, low=D*1e-10)
+    elif P2 is None and D is not None and D2 is not None and m is not None and P1 is not None:
+        args = (D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position)
         try:
-            return brenth(to_solve, P1*(1-1E-9), P1*0.5)
-        except NotBoundedError:
-            return secant(to_solve, P1*0.5, low=P1*1e-10, high=P1, bisection=True)
-    elif P1 is None and None not in (D, D2, m, P2):
-        def to_solve(P1):
-            C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
-                                                          mu, k, meter_type, 
-                                                          taps=taps, tap_position=tap_position)
-            m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
-                                        C=C, expansibility=epsilon)
-            return m - m_calc
+            return brenth(err_dp_meter_solver_P2, P1*(1-1E-9), P1*0.5, args=args)
+        except:
+            return secant(err_dp_meter_solver_P2, P1*0.5, low=P1*1e-10, args=args, high=P1, bisection=True)
+    elif P1 is None and D is not None and D2 is not None and m is not None and P2 is not None:
+        args = (D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position)
         try:
-            return brenth(to_solve, P2*(1+1E-9), P2*1.4)
-        except NotBoundedError:
-            return secant(to_solve, P2*1.5, low=P2, bisection=True)
+            return brenth(err_dp_meter_solver_P1, P2*(1+1E-9), P2*1.4, args=args)
+        except:
+            return secant(err_dp_meter_solver_P1, P2*1.5, args=args, low=P2, bisection=True)
     else:
         raise ValueError('Solver is capable of solving for one of P2, D2, or m only.')
 

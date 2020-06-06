@@ -23,7 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from math import exp, log, log10, tanh
 from fluids.constants import g
-from fluids.numerics import newton
+from fluids.numerics import secant
 from fluids.core import Reynolds
 from fluids.numerics import numpy as np
 
@@ -34,6 +34,7 @@ __all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere',
 'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
 'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison', 'Song_Xu']
 
+__numba_additional_funcs__ = ['_v_terminal_err']
 
 def Stokes(Re):
     r'''Calculates drag coefficient of a smooth sphere using Stoke's law.
@@ -1024,6 +1025,12 @@ drag_sphere_correlations = {
     'Song_Xu': (Song_Xu, None, 1E3)
 }
 
+def list_methods_drag_sphere(Re):
+    methods = []
+    for key, (func, Re_min, Re_max) in drag_sphere_correlations.items():
+        if (Re_min is None or Re > Re_min) and (Re_max is None or Re < Re_max):
+            methods.append(key)
+    return methods
 
 def drag_sphere(Re, Method=None, AvailableMethods=False):
     r'''This function handles calculation of drag coefficient on spheres.
@@ -1070,15 +1077,9 @@ def drag_sphere(Re, Method=None, AvailableMethods=False):
         If True, function will consider which methods which can be used to
         calculate `Cd` with the given `Re`
     '''
-    def list_methods():
-        methods = []
-        for key, (func, Re_min, Re_max) in drag_sphere_correlations.items():
-            if (Re_min is None or Re > Re_min) and (Re_max is None or Re < Re_max):
-                methods.append(key)
-        return methods
     if AvailableMethods:
-        return list_methods()
-    if not Method:
+        return list_methods_drag_sphere(Re)
+    if Method is None:
         if Re > 0.1:
             # Smooth transition point between the two models
             if Re <= 212963.26847812787:
@@ -1095,11 +1096,55 @@ def drag_sphere(Re, Method=None, AvailableMethods=False):
         else:
             return Stokes(Re)
 
-    if Method in drag_sphere_correlations:
-        return drag_sphere_correlations[Method][0](Re)
+    if Method == "Stokes":
+        return Stokes(Re)
+    elif Method == "Barati":
+        return Barati(Re)
+    elif Method == "Barati_high":
+        return Barati_high(Re)
+    elif Method == "Rouse":
+        return Rouse(Re)
+    elif Method == "Engelund_Hansen":
+        return Engelund_Hansen(Re)
+    elif Method == "Clift_Gauvin":
+        return Clift_Gauvin(Re)
+    elif Method == "Morsi_Alexander":
+        return Morsi_Alexander(Re)
+    elif Method == "Graf":
+        return Graf(Re)
+    elif Method == "Flemmer_Banks":
+        return Flemmer_Banks(Re)
+    elif Method == "Khan_Richardson":
+        return Khan_Richardson(Re)
+    elif Method == "Swamee_Ojha":
+        return Swamee_Ojha(Re)
+    elif Method == "Yen":
+        return Yen(Re)
+    elif Method == "Haider_Levenspiel":
+        return Haider_Levenspiel(Re)
+    elif Method == "Cheng":
+        return Cheng(Re)
+    elif Method == "Terfous":
+        return Terfous(Re)
+    elif Method == "Mikhailov_Freire":
+        return Mikhailov_Freire(Re)
+    elif Method == "Clift":
+        return Clift(Re)
+    elif Method == "Ceylan":
+        return Ceylan(Re)
+    elif Method == "Almedeij":
+        return Almedeij(Re)
+    elif Method == "Morrison":
+        return Morrison(Re)
+    elif Method == "Song_Xu":
+        return Song_Xu(Re)
     else:
-        raise Exception('Failure in in function')
+        raise ValueError('Unrecognized method')
 
+
+def _v_terminal_err(V, Method, Re_almost, main):
+    Cd = drag_sphere(Re_almost*V, Method=Method)
+    return V - (main/Cd)**0.5
 
 def v_terminal(D, rhop, rho, mu, Method=None):
     r'''Calculates terminal velocity of a falling sphere using any drag
@@ -1177,12 +1222,9 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     main = 4/3.*g*D*(rhop-rho)/rho
     V_max = 1E6/rho/D*mu  # where the correlation breaks down, Re=1E6
 
-    def err(V):
-        Cd = drag_sphere(Re_almost*V, Method=Method)
-        return V - (main/Cd)**0.5
     # Begin the solver with 1/100 th the velocity possible at the maximum
     # Reynolds number the correlation is good for
-    return float(newton(err, V_max/100, tol=1E-12))
+    return secant(_v_terminal_err, V_max/100, xtol=1E-12, args=(Method, Re_almost, main))
 
 
 def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
@@ -1253,11 +1295,11 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
                 v_term = v_term_base*(1.0 - tol)
             numerator = term + 18.*mu*v_term
             return log(numerator/denominator)*const
-        except ValueError:
+        except:
             tol = tol + tol
             if tol > 0.01:
-                raise Exception('Could not find a solution')
-    raise Exception('Could not find a solution')
+                raise ValueError('Could not find a solution')
+    raise ValueError('Could not find a solution')
 
 
 def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,

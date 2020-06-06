@@ -33,6 +33,7 @@ import numba
 from numba import int32, float32, int64, float64
 from numba.experimental import jitclass
 from numba import cfunc
+import linecache
 
 
 '''Basic module which wraps all fluids functions with numba's jit.
@@ -58,11 +59,22 @@ The correct syntax is as follows:
 >>> from fluids.numba import * # May be used without first importing fluids
 '''
 
+caching = False
 __all__ = []
 
 __funcs = {}
 
 
+def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name='cache-safe'):
+    filepath = "<ipython-%s>" % cache_name
+    lines = [line + '\n' for line in source.splitlines()]
+    linecache.cache[filepath] = (len(source), None, lines, filepath)
+    if lcs is None:
+        lcs = {}
+    if gbls is None:
+        gbls = globals()
+    exec(compile(source, filepath, 'exec'), gbls, lcs)
+    return lcs, gbls
 
 # Some unfotrunate code duplication
 
@@ -211,7 +223,8 @@ def remove_branch(source, branch):
 #nopython = set(['Clamond'])
 skip = set(['V_horiz_spherical'])
 total_skip = set(['V_horiz_spherical'])
-    
+skip_cache = set(['secant', 'brenth', 'py_solve'])
+
 bad_names = set(('__file__', '__name__', '__package__', '__cached__'))
 
 from fluids.numerics import SamePointError, UnconvergedError, NotBoundedError
@@ -235,7 +248,7 @@ def create_numerics(replaced, vec=False):
     except:
         pass
     
-    NUMERICS_SUBMOD.py_solve = np.linalg.solve
+#    NUMERICS_SUBMOD.py_solve = np.linalg.solve
     
     
     import inspect
@@ -249,7 +262,7 @@ def create_numerics(replaced, vec=False):
         source = source.replace('ytol=None', 'ytol=1e100')
         source = source.replace(', value=%s" %(maxiter, x)', '"')
         
-        exec(source, globals(), globals())
+        numba_exec_cacheable(source, globals(), globals())
         setattr(NUMERICS_SUBMOD, s, globals()[s])
 
 
@@ -259,8 +272,9 @@ def create_numerics(replaced, vec=False):
         obj = getattr(NUMERICS_SUBMOD, name)
         if isinstance(obj, types.FunctionType):
             forceobj = name in numerics_forceobj
-            # cache=not forceobj
-            obj = numba.jit(cache=False, forceobj=forceobj)(obj)
+            # cache=not forceobj 
+            # cache=name not in skip_cache
+            obj = numba.jit(cache=caching, forceobj=forceobj)(obj)
             NUMERICS_SUBMOD.__dict__[name] = obj
             replaced[name] = obj
             
@@ -269,8 +283,8 @@ def create_numerics(replaced, vec=False):
     replaced['py_bisplev'] = globals()['bisplev']
             
     replaced['bisplev'] = NUMERICS_SUBMOD.__dict__['bisplev'] = replaced['py_bisplev']
-    replaced['splev'] = NUMERICS_SUBMOD.__dict__['splev']  = replaced['py_splev']
-    replaced['lambertw'] = NUMERICS_SUBMOD.__dict__['lambertw'] = replaced['py_lambertw']
+#    replaced['splev'] = NUMERICS_SUBMOD.__dict__['splev']  = replaced['py_splev']
+#    replaced['lambertw'] = NUMERICS_SUBMOD.__dict__['lambertw'] = replaced['py_lambertw']
     
 #    @numba.njit
 #    def newton_err(x):
@@ -319,7 +333,7 @@ def transform_module(normal, __funcs, replaced, vec=False):
                             nopython=nopython,
                             #forceobj=not nopython,
                                     fastmath=nopython,#Parallel=nopython
-                                    cache=False)(obj)
+                                    cache=caching)(obj)
                 SUBMOD.__dict__[name] = obj
                 new_objs.append(obj)
             __funcs.update({name: obj})
@@ -351,9 +365,10 @@ def transform_module(normal, __funcs, replaced, vec=False):
     # Do our best to allow functions to be found
     for mod in new_mods:
         mod.__dict__.update(__funcs)
+    return new_mods
 
 
-transform_module(normal, __funcs, replaced, vec=False)
+new_mods = transform_module(normal, __funcs, replaced, vec=False)
 
 
 # Do some classes by hand
@@ -394,20 +409,27 @@ HelicalCoil_spec = [(k, float64) for k in
                      'curvature', 'total_inlet_area', 'total_volume', 'inner_surface_area',
                      'inlet_area', 'inner_volume', 'annulus_area', 'annulus_volume')]
 
-to_change = ['friction.friction_factor_curved', 'friction.friction_factor',
- 'packed_bed.dP_packed_bed', 'two_phase.two_phase_dP', 'drag.drag_sphere']
-for s in to_change:
+to_change_AvailableMethods = ['friction.friction_factor_curved', 'friction.friction_factor',
+ 'packed_bed.dP_packed_bed', 'two_phase.two_phase_dP', 'drag.drag_sphere',
+ 'two_phase_voidage.liquid_gas_voidage', 'two_phase_voidage.gas_liquid_viscosity']
+to_change_full_output = ['two_phase.Mandhane_Gregory_Aziz_regime',
+                         'two_phase.Taitel_Dukler_regime']
+
+to_change = {k: 'AvailableMethods' for k in to_change_AvailableMethods}
+to_change.update({k: 'full_output' for k in to_change_full_output})
+
+for s, bad_branch in to_change.items():
     mod, func = s.split('.')
     source = inspect.getsource(getattr(getattr(normal_fluids, mod), func))
     fake_mod = __funcs[mod]
-    source = remove_branch(source, 'AvailableMethods')
+    source = remove_branch(source, bad_branch)
 #    if s == 'friction.friction_factor_curved':
 #        print(source)
-    exec(source, fake_mod.__dict__, fake_mod.__dict__)
+    numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
     
     new_func = fake_mod.__dict__[func]
 #    print(new_func)
-    obj = numba.jit(cache=False)(new_func)
+    obj = numba.jit(cache=caching)(new_func)
 #    setattr(source, func, obj)
     __funcs[func] = obj
     globals()[func] = obj
@@ -420,8 +442,8 @@ for s in to_change:
 
 # Not needed
 __funcs['friction'].Colebrook = __funcs['Colebrook'] = __funcs['Clamond']
-for k in ('flow_meter', 'fittings', 'two_phase', 'friction'):
-    __funcs[k].friction_factor = __funcs['friction_factor'] = __funcs['Clamond']
+#for k in ('flow_meter', 'fittings', 'two_phase', 'friction'):
+#    __funcs[k].friction_factor = __funcs['friction_factor'] = __funcs['Clamond']
 #__funcs['PlateExchanger'] = __funcs['geometry'].PlateExchanger = PlateExchanger
 #__funcs['HelicalCoil'] = __funcs['geometry'].HelicalCoil = HelicalCoil
 
@@ -433,6 +455,8 @@ for k in ('flow_meter', 'fittings', 'two_phase', 'friction'):
 # ex = fluids.numba.geometry.PlateExchanger(amplitude=5E-4, wavelength=3.7E-3, length=1.2, width=.3, d_port=.05, plates=51, thickness=1e-10)
 #fluids.numba.geometry.HelicalCoil(Do_total=32.0, H_total=22.0, pitch=5.0, Dt=2.0, Di=1.8)
 
+for mod in new_mods:
+    mod.__dict__.update(__funcs)
 
 globals().update(__funcs)
 globals().update(replaced)

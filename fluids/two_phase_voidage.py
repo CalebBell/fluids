@@ -34,7 +34,7 @@ __all__ = ['Thom', 'Zivi', 'Smith', 'Fauske', 'Chisholm_voidage', 'Turner_Wallis
            'Sun_Duffey_Peng', 'Xu_Fang_voidage', 'Woldesemayat_Ghajar',
            'Lockhart_Martinelli_Xtt', 'two_phase_voidage_experimental', 
            'density_two_phase', 'Beattie_Whalley', 'McAdams', 'Cicchitti',
-           'Lin_Kwok', 'Fourar_Bories', 'liquid_gas_voidage', 'gas_liquid_viscosity', 
+           'Lin_Kwok', 'Fourar_Bories','Duckler', 'liquid_gas_voidage', 'gas_liquid_viscosity', 
            'two_phase_voidage_correlations', 'liquid_gas_viscosity_correlations']
 
 ### Models based on slip ratio
@@ -756,7 +756,7 @@ def Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug, pow_x=0.9, pow_rho=0.5,
        Upward Inclined Pipes." International Journal of Multiphase Flow 33, 
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    if n:
+    if n is not None:
         pow_x = (2-n)/2.
         pow_mu = n/2.
     return ((1-x)/x)**pow_x * (rhog/rhol)**pow_rho * (mul/mug)**pow_mu
@@ -1742,7 +1742,8 @@ def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     G = m/(pi/4*D**2)
-    C0 = (0.82 + 0.18*P/Pc)**-1
+    Pr = P/Pc if Pc is not None else 0.5
+    C0 = (0.82 + 0.18*Pr)**-1
     vgm = 1.41*(g*sigma*(rhol-rhog)/rhol**2)**0.25
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
@@ -1866,6 +1867,7 @@ def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
     vls = m*(1-x)/(rhol*pi/4*D**2)
     first = vgs*(1 + (vls/vgs)**((rhog/rhol)**0.1))
     second = 2.9*((g*D*sigma*(1 + cos(radians(angle)))*(rhol-rhog))/rhol**2)**0.25
+    if P is None: P = 101325.0
     third = (1.22 + 1.22*sin(radians(angle)))**(101325./P)
     return vgs/(first + second*third)
 
@@ -1901,8 +1903,16 @@ two_phase_voidage_correlations = {'Thom' : (Thom, ('x', 'rhol', 'rhog', 'mul', '
 'Xu Fang voidage' : (Xu_Fang_voidage, ('x', 'rhol', 'rhog', 'm', 'D', 'g')),
 'Woldesemayat Ghajar' : (Woldesemayat_Ghajar, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'P', 'angle', 'g'))}
 
+_unknown_two_phase_voidage_corr = 'Method not recognized; available methods are %s' %list(two_phase_voidage_correlations.keys())
 # All the available arguments are: 
 #{'rhol', 'angle=0', 'x', 'P', 'mug', 'rhog', 'D', 'g', 'Pc', 'sigma', 'mul', 'm'}
+def list_methods_liquid_gas_voidage(myargs):
+    usable_methods = []
+    for method, value in two_phase_voidage_correlations.items():
+        f, args = value
+        if all(myargs[i] is not None for i in args):
+            usable_methods.append(method)
+    return usable_methods
 
 def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None, 
                        sigma=None, P=None, Pc=None, angle=0, g=g, Method=None, 
@@ -1978,25 +1988,73 @@ def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
     ... sigma=0.0487, D=0.05)
     0.9744097632663492
     '''
-    def list_methods(myargs):
-        usable_methods = []
-        for method, value in two_phase_voidage_correlations.items():
-            f, args = value
-            if all(myargs[i] is not None for i in args):
-                usable_methods.append(method)
-        return usable_methods
     if AvailableMethods:
-        return list_methods(locals())
-    if not Method:
-        Method = 'homogeneous'
-    if Method in two_phase_voidage_correlations:
-        f, args = two_phase_voidage_correlations[Method]
-        kwargs = {}
-        for arg in args:
-            kwargs[arg] = locals()[arg]
-        return f(**kwargs)
+        return list_methods_liquid_gas_voidage(locals())
+    if Method is None:
+        Method2 = 'homogeneous'
     else:
-        raise Exception('Method not recognized; available methods are %s' %list(two_phase_voidage_correlations.keys()))
+        Method2 = Method
+        
+    if Method2 == "Thom":
+        return Thom(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug)
+    elif Method2 == "Zivi":
+        return Zivi(x=x, rhol=rhol, rhog=rhog)
+    elif Method2 == "Smith":
+        return Smith(x=x, rhol=rhol, rhog=rhog)
+    elif Method2 == "Fauske":
+        return Fauske(x=x, rhol=rhol, rhog=rhog)
+    elif Method2 == "Chisholm_voidage":
+        return Chisholm_voidage(x=x, rhol=rhol, rhog=rhog)
+    elif Method2 == "Turner Wallis":
+        return Turner_Wallis(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug)
+    elif Method2 == "homogeneous":
+        return homogeneous(x=x, rhol=rhol, rhog=rhog)
+    elif Method2 == "Chisholm Armand":
+        return Chisholm_Armand(x=x, rhol=rhol, rhog=rhog)
+    elif Method2 == "Armand":
+        return Armand(x=x, rhol=rhol, rhog=rhog)
+    elif Method2 == "Nishino Yamazaki":
+        return Nishino_Yamazaki(x=x, rhol=rhol, rhog=rhog)
+    elif Method2 == "Guzhov":
+        return Guzhov(x=x, rhol=rhol, rhog=rhog, m=m, D=D)
+    elif Method2 == "Kawahara":
+        return Kawahara(x=x, rhol=rhol, rhog=rhog, D=D)
+    elif Method2 == "Baroczy":
+        return Baroczy(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug)
+    elif Method2 == "Tandon Varma Gupta":
+        return Tandon_Varma_Gupta(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, m=m, D=D)
+    elif Method2 == "Harms":
+        return Harms(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, m=m, D=D)
+    elif Method2 == "Domanski Didion":
+        return Domanski_Didion(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug)
+    elif Method2 == "Graham":
+        return Graham(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, m=m, D=D, g=g)
+    elif Method2 == "Yashar":
+        return Yashar(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, m=m, D=D, g=g)
+    elif Method2 == "Huq_Loth":
+        return Huq_Loth(x=x, rhol=rhol, rhog=rhog)
+    elif Method2 == "Kopte_Newell_Chato":
+        return Kopte_Newell_Chato(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, m=m, D=D, g=g)
+    elif Method2 == "Steiner":
+        return Steiner(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, g=g)
+    elif Method2 == "Rouhani 1":
+        return Rouhani_1(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, g=g)
+    elif Method2 == "Rouhani 2":
+        return Rouhani_2(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, g=g)
+    elif Method2 == "Nicklin Wilkes Davidson":
+        return Nicklin_Wilkes_Davidson(x=x, rhol=rhol, rhog=rhog, m=m, D=D, g=g)
+    elif Method2 == "Gregory_Scott":
+        return Gregory_Scott(x=x, rhol=rhol, rhog=rhog)
+    elif Method2 == "Dix":
+        return Dix(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, g=g)
+    elif Method2 == "Sun Duffey Peng":
+        return Sun_Duffey_Peng(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, P=P, Pc=Pc, g=g)
+    elif Method2 == "Xu Fang voidage":
+        return Xu_Fang_voidage(x=x, rhol=rhol, rhog=rhog, m=m, D=D, g=g)
+    elif Method2 == "Woldesemayat Ghajar":
+        return Woldesemayat_Ghajar(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, P=P, angle=angle, g=g)
+    else:
+        raise ValueError(_unknown_two_phase_voidage_corr)
 
 
 def density_two_phase(alpha, rhol, rhog):
@@ -2434,6 +2492,12 @@ liquid_gas_viscosity_correlations = {'Beattie Whalley': (Beattie_Whalley, 1),
                                      'Cicchitti': (Cicchitti, 0),
                                      'Lin Kwok': (Lin_Kwok, 0)}
 
+def list_methods_gas_liquid_viscosity(rhol, rhog):
+    methods = ['McAdams', 'Cicchitti', 'Lin Kwok']
+    if rhol is not None and rhog is not None:
+        methods = list(liquid_gas_viscosity_correlations.keys())
+    return methods
+_gas_liquid_viscosity_method_unknown = 'Method not recognized; available methods are %s' %list(liquid_gas_viscosity_correlations.keys())
 
 
 def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None, 
@@ -2496,21 +2560,22 @@ def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None,
     >>> gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5)
     2.4630541871921184e-05
     '''
-    def list_methods():
-        methods = ['McAdams', 'Cicchitti', 'Lin Kwok']
-        if rhol is not None and rhog is not None:
-            methods = list(liquid_gas_viscosity_correlations.keys())
-        return methods
     if AvailableMethods:
-        return list_methods()
-    if not Method:
+        return list_methods_gas_liquid_viscosity(rhol, rhog)
+    if Method is None:
         Method = 'McAdams'
-
-    if Method in liquid_gas_viscosity_correlations:
-        f, i = liquid_gas_viscosity_correlations[Method]
-        if i == 0:
-            return f(x, mul, mug)
-        elif i == 1:
-            return f(x, mul, mug, rhol=rhol, rhog=rhog)
+        
+    if Method == 'Beattie Whalley':
+        return Beattie_Whalley(x, mul, mug, rhol=rhol, rhog=rhog)
+    elif Method == 'Fourar Bories':
+        return Fourar_Bories(x, mul, mug, rhol=rhol, rhog=rhog)
+    elif Method == 'Duckler':
+        return Duckler(x, mul, mug, rhol=rhol, rhog=rhog)
+    elif Method == 'McAdams':
+        return McAdams(x, mul, mug)
+    elif Method == 'Cicchitti':
+        return Cicchitti(x, mul, mug)
+    elif Method == 'Lin Kwok':
+        return Lin_Kwok(x, mul, mug)
     else:
-        raise Exception('Method not recognized; available methods are %s' %list(liquid_gas_viscosity_correlations.keys()))
+        raise ValueError(_gas_liquid_viscosity_method_unknown)

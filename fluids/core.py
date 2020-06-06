@@ -240,7 +240,7 @@ def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
     '''
     if rho is not None and Cp is not None and k is not None:
         alpha =  k/(rho*Cp)
-    elif not alpha:
+    elif alpha is None:
         raise Exception('Either heat capacity and thermal conductivity and\
         density, or thermal diffusivity is needed')
     return V*L/alpha
@@ -340,12 +340,12 @@ def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    if rho and Cp and k:
+    if rho is not None and Cp is not None and k is not None:
         alpha =  k/(rho*Cp)
-    elif not alpha:
+    elif alpha is None:
         raise Exception('Either heat capacity and thermal conductivity and \
 density, or thermal diffusivity is needed')
-    return t*alpha/L**2
+    return t*alpha/(L*L)
 
 
 def Fourier_mass(t, L, D):
@@ -384,7 +384,7 @@ def Fourier_mass(t, L, D):
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    return t*D/L**2
+    return t*D/(L*L)
 
 
 def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
@@ -446,12 +446,12 @@ def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
        David P. DeWitt. Introduction to Heat Transfer. 6E. Hoboken, NJ:
        Wiley, 2011.
     '''
-    if rho and Cp and k:
-        alpha =  k/(rho*Cp)
-    elif not alpha:
+    if rho is not None and Cp is not None and k is not None:
+        alpha = k/(rho*Cp)
+    elif alpha is None:
         raise Exception('Either heat capacity and thermal conductivity and\
         density, or thermal diffusivity is needed')
-    return V*D**2/(x*alpha)
+    return V*D*D/(x*alpha)
 
 
 def Schmidt(D, mu=None, nu=None, rho=None):
@@ -504,12 +504,12 @@ def Schmidt(D, mu=None, nu=None, rho=None):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    if rho and mu:
+    if rho is not None and mu is not None:
         return mu/(rho*D)
-    elif nu:
+    elif nu is not None:
         return nu/D
     else:
-        raise Exception('Insufficient information provided for Schmidt number calculation')
+        raise ValueError('Insufficient information provided for Schmidt number calculation')
 
 
 def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
@@ -565,11 +565,9 @@ def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
     .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
     '''
-    if k and Cp and rho:
+    if k is not None and Cp is not None and rho is not None:
         alpha = k/(rho*Cp)
-    elif alpha:
-        pass
-    else:
+    elif alpha is None:
         raise Exception('Insufficient information provided for Le calculation')
     return alpha/D
 
@@ -619,7 +617,7 @@ def Weber(V, L, rho, sigma):
     .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
     '''
-    return V**2*L*rho/sigma
+    return V*V*L*rho/sigma
 
 
 def Mach(V, c):
@@ -873,7 +871,7 @@ def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
     elif nu is not None and alpha is not None:
         return nu/alpha
     else:
-        raise Exception('Insufficient information provided for Pr calculation')
+        raise ValueError('Insufficient information provided for Pr calculation')
 
 
 def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
@@ -941,9 +939,9 @@ def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
     if rho is not None and mu is not None:
         nu = mu/rho
     elif nu is None:
-        raise Exception('Either density and viscosity, or dynamic viscosity, \
+        raise ValueError('Either density and viscosity, or dynamic viscosity, \
         is needed')
-    return g*beta*abs(T2-T1)*L**3/nu**2
+    return g*beta*abs(T2-T1)*L*L*L/(nu*nu)
 
 
 def Bond(rhol, rhog, sigma, L):
@@ -980,7 +978,7 @@ def Bond(rhol, rhog, sigma, L):
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    return (g*(rhol-rhog)*L**2/sigma)
+    return (g*(rhol-rhog)*L*L/sigma)
 
 Eotvos = Bond
 
@@ -1071,7 +1069,7 @@ def Froude(V, L, g=g, squared=False):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Fr = V/(L*g)**0.5
+    Fr = V*(L*g)**-0.5
     if squared:
         Fr *= Fr
     return Fr
@@ -1413,7 +1411,7 @@ def Euler(dP, rho, V):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return dP/(rho*V**2)
+    return dP/(rho*V*V)
 
 
 def Cavitation(P, Psat, rho, V):
@@ -1460,7 +1458,7 @@ def Cavitation(P, Psat, rho, V):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return (P-Psat)/(0.5*rho*V**2)
+    return (P-Psat)/(0.5*rho*V*V)
 
 
 def Eckert(V, Cp, dT):
@@ -1501,7 +1499,7 @@ def Eckert(V, Cp, dT):
     .. [1] Goldstein, Richard J. ECKERT NUMBER. Thermopedia. Hemisphere, 2011.
        10.1615/AtoZ.e.eckert_number
     '''
-    return V**2/(Cp*dT)
+    return V*V/(Cp*dT)
 
 
 def Jakob(Cp, Hvap, Te):
@@ -1592,7 +1590,7 @@ def Power_number(P, L, N, rho):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return P/(rho*N**3*L**5)
+    return P/(rho*N*N*N*L**5)
 
 
 def Drag(F, A, V, rho):
@@ -1638,7 +1636,7 @@ def Drag(F, A, V, rho):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return F/(A*rho*V**2/2.)
+    return F/(0.5*A*rho*V*V)
 
 
 def Stokes_number(V, Dp, D, rhop, mu):
@@ -1778,7 +1776,7 @@ def Archimedes(L, rhof, rhop, mu, g=g):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return L**3*rhof*(rhop-rhof)*g/mu**2
+    return L*L*L*rhof*(rhop-rhof)*g/(mu*mu)
 
 
 def Ohnesorge(L, rho, mu, sigma):
@@ -1822,7 +1820,7 @@ def Ohnesorge(L, rho, mu, sigma):
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    return mu/(L*rho*sigma)**0.5
+    return mu*(L*rho*sigma)**-0.5
 
     
 def Suratman(L, rho, mu, sigma):
@@ -1973,7 +1971,7 @@ def Bejan_L(dP, L, mu, alpha):
     .. [2] Bejan, Adrian. Convection Heat Transfer. 4E. Hoboken, New Jersey:
        Wiley, 2013.
     '''
-    return dP*L**2/(alpha*mu)
+    return dP*L*L/(alpha*mu)
 
 
 def Bejan_p(dP, K, mu, alpha):
@@ -2191,11 +2189,11 @@ def nu_mu_converter(rho, mu=None, nu=None):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    if (nu is not None and mu is not None) or not rho or (not nu and not mu):
-        raise Exception('Inputs must be rho and one of mu and nu.')
-    if mu:
+    if (nu is not None and mu is not None) or rho is None or (nu is None and mu is None):
+        raise ValueError('Inputs must be rho and one of mu and nu.')
+    if mu is not None:
         return mu/rho
-    elif nu:
+    else:
         return nu*rho
 
 

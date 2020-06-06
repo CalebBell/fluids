@@ -30,7 +30,7 @@ __all__ = ['two_phase_dP', 'two_phase_dP_acceleration',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
            'Yu_France', 'Wang_Chiang_Lu', 'Hwang_Kim', 'Zhang_Hibiki_Mishima',
            'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations',
-           'Mandhane_Gregory_Aziz_regime']
+           'Mandhane_Gregory_Aziz_regime', 'Taitel_Dukler_regime']
 
 from math import pi, log, exp, sin, cos, radians, log10
 from fluids.constants import g
@@ -39,11 +39,47 @@ from fluids.friction import friction_factor
 from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
 from fluids.two_phase_voidage import homogeneous, Lockhart_Martinelli_Xtt
 
+__numba_additional_funcs__ = ['_Beggs_Brill_holdup', 'friction_factor_Kim_Mudawar',
+                              'XA_interp_obj', 'XC_interp_obj', 'XD_interp_obj']
+
 
 Beggs_Brill_dat = {'segregated': (0.98, 0.4846, 0.0868),
 'intermittent': (0.845, 0.5351, 0.0173),
 'distributed': (1.065, 0.5824, 0.0609)}
 
+def _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV):
+    if regime == 0:
+        a, b, c = 0.98, 0.4846, 0.0868
+    elif regime == 2:
+        a, b, c = 0.845, 0.5351, 0.0173
+    elif regime == 3:
+        a, b, c = 1.065, 0.5824, 0.0609
+    HL0 = a*lambda_L**b*Fr**-c
+    if HL0 < lambda_L:
+        HL0 = lambda_L
+
+    if angle > 0.0: # uphill
+        # h used instead of g to avoid conflict with gravitational constant
+        if regime == 0:
+            d, e, f, h = 0.011, -3.768, 3.539, -1.614
+        elif regime == 2:
+            d, e, f, h = 2.96, 0.305, -0.4473, 0.0978
+        elif regime == 3:
+            # Dummy values for distributed - > psi = 1.
+            d, e, f, h = 2.96, 0.305, -0.4473, 0.0978
+    elif angle <= 0: # downhill
+        d, e, f, h = 4.70, -0.3692, 0.1244, -0.5056
+
+    C = (1.0 - lambda_L)*log(d*lambda_L**e*LV**f*Fr**h)
+    if C < 0.0:
+        C = 0.0
+    
+    # Correction factor for inclination angle
+    Psi = 1.0 + C*(sin(1.8*angle) - 1.0/3.0*sin(1.8*angle)**3)
+    if (angle > 0 and regime == 3) or angle == 0:
+        Psi = 1.0
+    Hl = HL0*Psi
+    return Hl
 
 def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
                 L=1.0, g=g, acceleration=True):
@@ -112,6 +148,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
        Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
        2006.
     '''
+    # 0 - segregated; 1 - transition; 2 - intermittent; 3 - distributed
     qg = x*m/rhog
     ql = (1.0 - x)*m/rhol
     
@@ -127,52 +164,25 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     L3 = 0.1*lambda_L**-1.4516
     L4 = 0.5*lambda_L**-6.738
     if (lambda_L < 0.01 and Fr < L1) or (lambda_L >= 0.01 and Fr < L2):
-        regime = 'segregated'
+        regime = 0
     elif (lambda_L >= 0.01 and L2 <= Fr <= L3):
-        regime = 'transition'
+        regime = 1
     elif (0.01 <= lambda_L < 0.4 and L3 < Fr <= L1) or (lambda_L >= 0.4 and L3 < Fr <= L4):
-        regime = 'intermittent'
+        regime = 2
     elif (lambda_L < 0.4 and Fr >= L1) or (lambda_L >= 0.4 and Fr > L4):
-        regime = 'distributed'
+        regime = 3
     else:
-        raise Exception('Outside regime ranges')
+        raise ValueError('Outside regime ranges')
 
     LV = Vsl*(rhol/(g*sigma))**0.25
     angle = radians(angle)
     
-    def holdup(regime):
-        a, b, c = Beggs_Brill_dat[regime]
-        HL0 = a*lambda_L**b*Fr**-c
-        if HL0 < lambda_L:
-            HL0 = lambda_L
-
-        if angle > 0.0: # uphill
-            # h used instead of g to avoid conflict with gravitational constant
-            if regime == 'segregated':
-                d, e, f, h = 0.011, -3.768, 3.539, -1.614
-            elif regime == 'intermittent':
-                d, e, f, h = 2.96, 0.305, -0.4473, 0.0978
-            elif regime == 'distributed':
-                # Dummy values for distributed - > psi = 1.
-                d, e, f, h = 2.96, 0.305, -0.4473, 0.0978
-        elif angle <= 0: # downhill
-            d, e, f, h = 4.70, -0.3692, 0.1244, -0.5056
-    
-        C = (1.0 - lambda_L)*log(d*lambda_L**e*LV**f*Fr**h)
-        if C < 0.0:
-            C = 0.0
-        
-        # Correction factor for inclination angle
-        Psi = 1.0 + C*(sin(1.8*angle) - 1.0/3.0*sin(1.8*angle)**3)
-        if (angle > 0 and regime == 'distributed') or angle == 0:
-            Psi = 1.0
-        Hl = HL0*Psi
-        return Hl
-    if regime != 'transition':
-        Hl = holdup(regime)
+    if regime != 1:
+        Hl = _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV)
     else:
         A = (L3 - Fr)/(L3 - L2)
-        Hl = A*holdup('segregated') + (1.0 - A)*holdup('intermittent')
+        Hl = (A*_Beggs_Brill_holdup(0, lambda_L, Fr, angle, LV) 
+             + (1.0 - A)*_Beggs_Brill_holdup(2, lambda_L, Fr, angle, LV))
 
     rhos = rhol*Hl + rhog*(1.0 - Hl)
     mum = mul*lambda_L +  mug*(1.0 - lambda_L)
@@ -1838,7 +1848,7 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0,
     elif flowtype == 'flow boiling':
         C = 21*(1 - exp(-0.358/Co))
     else:
-        raise Exception("Only flow types 'adiabatic vapor', 'adiabatic gas, \
+        raise ValueError("Only flow types 'adiabatic vapor', 'adiabatic gas, \
 and 'flow boiling' are recognized.")
 
     phi_l2 = 1 + C/X + 1./X**2
@@ -1931,6 +1941,14 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     C = 21*(1 - exp(-0.319E3*D))
     phi_l2 = 1 + C/X + 1./X**2
     return dP_l*phi_l2
+
+def friction_factor_Kim_Mudawar(Re):
+    if Re < 2000:
+        return 64./Re
+    elif Re < 20000:
+        return 0.316*Re**-0.25
+    else:
+        return 0.184*Re**-0.2
 
 
 def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1):
@@ -2040,24 +2058,16 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1):
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
     '''
-    def friction_factor(Re):
-        if Re < 2000:
-            return 64./Re
-        elif Re < 20000:
-            return 0.316*Re**-0.25
-        else:
-            return 0.184*Re**-0.2
-
     # Actual Liquid flow
     v_l = m*(1-x)/rhol/(pi/4*D**2)
     Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
-    fd_l = friction_factor(Re=Re_l)
+    fd_l = friction_factor_Kim_Mudawar(Re=Re_l)
     dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
 
     # Actual gas flow
     v_g = m*x/rhog/(pi/4*D**2)
     Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
-    fd_g = friction_factor(Re=Re_g)
+    fd_g = friction_factor_Kim_Mudawar(Re=Re_g)
     dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
 
     # Liquid-only flow
@@ -2184,13 +2194,6 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
        55, no. 11-12 (May 2012): 3246-61.
        doi:10.1016/j.ijheatmasstransfer.2012.02.047.
     '''
-    def friction_factor(Re):
-        # As in the original model
-        if Re < Re_c:
-            return 64./Re
-        else:
-            return 0.184*Re**-0.2
-
     v_l = m*(1-x)/rhol/(pi/4*D**2)
     Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
     v_g = m*x/rhog/(pi/4*D**2)
@@ -2207,9 +2210,10 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
     else: # Turbulent case
         C = 20.0
 
-    fd_l = friction_factor(Re=Re_l)
+    # Frictoin factor as in the original model
+    fd_l =  64./Re_l if Re_l < Re_c else 0.184*Re_l**-0.2
     dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
-    fd_g = friction_factor(Re=Re_g)
+    fd_g =  64./Re_g if Re_g < Re_c else 0.184*Re_g**-0.2 
     dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
 
     X = (dP_l/dP_g)**0.5
@@ -2732,7 +2736,7 @@ XC_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XC_tck))
 XD_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XD_tck))
 
 
-def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug,  D, angle, roughness=0, 
+def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0, 
                          g=g, full_output=False):
     r'''Classifies the regime of a two-phase flow according to Taitel and
     Dukler (1976) ([1]_, [2]_).

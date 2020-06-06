@@ -114,6 +114,10 @@ def test_drag():
     
     Cd = Song_Xu(1.24798925062065, sphericity=0.64, S=0.55325984525397)
     assert_allclose(Cd, 36.00464629658840)
+    
+    from fluids.drag import drag_sphere_correlations
+    for k in drag_sphere_correlations.keys():
+        drag_sphere(1e6, Method=k)
 
 
 def test_drag_sphere():

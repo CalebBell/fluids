@@ -1888,9 +1888,16 @@ fmethods['Fang_2011'] = {'Nice name': 'Fang 2011', 'Notes': '', 'Arguments': {'e
 fmethods['Clamond'] = {'Nice name': 'Clamond 2009', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 0, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
 fmethods['Colebrook'] = {'Nice name': 'Colebrook', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 0, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
 
+def list_methods_friction_factor(Re, eD):
+    methods = [i for i in fmethods if
+    (not fmethods[i]['Arguments']['eD']['Min'] or fmethods[i]['Arguments']['eD']['Min'] <= eD) and
+    (not fmethods[i]['Arguments']['eD']['Max'] or eD <= fmethods[i]['Arguments']['eD']['Max']) and
+    (not fmethods[i]['Arguments']['Re']['Min'] or Re > fmethods[i]['Arguments']['Re']['Min']) and
+    (not fmethods[i]['Arguments']['Re']['Max'] or Re <= fmethods[i]['Arguments']['Re']['Max'])]
+    return methods
 
 
-def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=False):
+def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True, AvailableMethods=False):
     r'''Calculates friction factor. Uses a specified method, or automatically
     picks one from the dictionary of available methods. 29 approximations are 
     available as well as the direct solution, described in the table below. 
@@ -2005,22 +2012,73 @@ def friction_factor(Re, eD=0, Method='Clamond', Darcy=True, AvailableMethods=Fal
        Barkley, and Björn Hof. "The Onset of Turbulence in Pipe Flow." Science 
        333, no. 6039 (July 8, 2011): 192-96. doi:10.1126/science.1203223.
     '''
-    def list_methods():
-        methods = [i for i in fmethods if
-        (not fmethods[i]['Arguments']['eD']['Min'] or fmethods[i]['Arguments']['eD']['Min'] <= eD) and
-        (not fmethods[i]['Arguments']['eD']['Max'] or eD <= fmethods[i]['Arguments']['eD']['Max']) and
-        (not fmethods[i]['Arguments']['Re']['Min'] or Re > fmethods[i]['Arguments']['Re']['Min']) and
-        (not fmethods[i]['Arguments']['Re']['Max'] or Re <= fmethods[i]['Arguments']['Re']['Max'])]
-        return methods
     if AvailableMethods:
-        return list_methods()
-    if not Method:
+        return list_methods_friction_factor(Re, eD)
+    if Method is None:
         Method = 'Clamond'
 
     if Re < LAMINAR_TRANSITION_PIPE:
         f = friction_laminar(Re)
-    else:
-        f = globals()[Method](Re=Re, eD=eD)
+    elif Method == "Clamond":
+        f = Clamond(Re, eD)
+    elif Method == "Colebrook":
+        f = Colebrook(Re, eD)
+    elif Method == "Moody":
+        f = Moody(Re, eD)
+    elif Method == "Alshul_1952":
+        f = Alshul_1952(Re, eD)
+    elif Method == "Wood_1966":
+        f = Wood_1966(Re, eD)
+    elif Method == "Churchill_1973":
+        f = Churchill_1973(Re, eD)
+    elif Method == "Eck_1973":
+        f = Eck_1973(Re, eD)
+    elif Method == "Jain_1976":
+        f = Jain_1976(Re, eD)
+    elif Method == "Swamee_Jain_1976":
+        f = Swamee_Jain_1976(Re, eD)
+    elif Method == "Churchill_1977":
+        f = Churchill_1977(Re, eD)
+    elif Method == "Chen_1979":
+        f = Chen_1979(Re, eD)
+    elif Method == "Round_1980":
+        f = Round_1980(Re, eD)
+    elif Method == "Shacham_1980":
+        f = Shacham_1980(Re, eD)
+    elif Method == "Barr_1981":
+        f = Barr_1981(Re, eD)
+    elif Method == "Zigrang_Sylvester_1":
+        f = Zigrang_Sylvester_1(Re, eD)
+    elif Method == "Zigrang_Sylvester_2":
+        f = Zigrang_Sylvester_2(Re, eD)
+    elif Method == "Haaland":
+        f = Haaland(Re, eD)
+    elif Method == "Serghides_1":
+        f = Serghides_1(Re, eD)
+    elif Method == "Serghides_2":
+        f = Serghides_2(Re, eD)
+    elif Method == "Tsal_1989":
+        f = Tsal_1989(Re, eD)
+    elif Method == "Manadilli_1997":
+        f = Manadilli_1997(Re, eD)
+    elif Method == "Romeo_2002":
+        f = Romeo_2002(Re, eD)
+    elif Method == "Sonnad_Goudar_2006":
+        f = Sonnad_Goudar_2006(Re, eD)
+    elif Method == "Rao_Kumar_2007":
+        f = Rao_Kumar_2007(Re, eD)
+    elif Method == "Buzzelli_2008":
+        f = Buzzelli_2008(Re, eD)
+    elif Method == "Avci_Karagoz_2009":
+        f = Avci_Karagoz_2009(Re, eD)
+    elif Method == "Papaevangelo_2010":
+        f = Papaevangelo_2010(Re, eD)
+    elif Method == "Brkic_2011_1":
+        f = Brkic_2011_1(Re, eD)
+    elif Method == "Brkic_2011_2":
+        f = Brkic_2011_2(Re, eD)
+    elif Method == "Fang_2011":
+        f = Fang_2011(Re, eD)
     if not Darcy:
         f *= 0.25
     return f

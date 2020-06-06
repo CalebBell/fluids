@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, degrees, log10, log
-from fluids.constants import inch, deg2rad
+from fluids.constants import inch, deg2rad, rad2deg
 from fluids.friction import (friction_factor, Clamond, 
                              friction_factor_curved, ft_Crane)
 from fluids.numerics import (horner, interp, splev, bisplev, 
@@ -2091,15 +2091,13 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     '''
     beta = Di2/Di1
     if angle is not None:
-        angle_rad = radians(angle)
+        angle_rad = angle*deg2rad
         l = (Di1 - Di2)/(2.0*tan(0.5*angle_rad)) 
     elif l is not None:
-        try:
+        if l != 0.0:
             angle_rad = 2.0*atan((Di1-Di2)/(2.0*l))
-            angle = degrees(angle_rad)
-        except ZeroDivisionError:
+        else:
             angle_rad = pi
-            angle = 180.0
     else:
         raise Exception('Either l or angle is required')
     if method is None:
@@ -2121,20 +2119,20 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         K_conv2 = 0.0696*sin_half_angle*(1.0 - beta5)*lbd*lbd + (lbd - 1.0)**2
         return K_fr2 + K_conv2
     elif method == 'Crane':
-        return contraction_conical_Crane(Di1=Di1, Di2=Di2, l=l, angle=angle)
+        return contraction_conical_Crane(Di1=Di1, Di2=Di2, l=l, angle=angle_rad*rad2deg)
     elif method == 'Swamee':
         return 0.315*angle_rad**(1.0/3.0)
     elif method == 'Idelchik':
         # Diagram 3-6; already digitized for beveled entrance
-        K0 = float(entrance_beveled_Idelchik_obj(angle, l/Di2))
+        K0 = float(bisplev(angle_rad*rad2deg, l/Di2, entrance_beveled_Idelchik_tck))
         
         # Angles 0 to 20, ratios 0.05 to 0.06
-        if angle > 20.0:
+        if angle_rad > 20.0*deg2rad:
             angle_fric = 20.0
-        elif angle < 2.0:
+        elif angle_rad < 2.0*deg2rad:
             angle_fric = 2.0
         else:
-            angle_fric = angle
+            angle_fric = angle_rad*rad2deg
             
         A_ratio = A_ratio_fric = Di2*Di2/(Di1*Di1)
         if A_ratio_fric < 0.05:
@@ -2275,18 +2273,18 @@ def diffuser_conical_Crane(Di1, Di2, l=None, angle=None):
     beta2 = beta*beta
     if angle is not None:
         angle_rad = radians(angle)
-        l = (Di1 - Di2)/(2.0*tan(0.5*angle_rad)) 
+        angle_deg = angle
     elif l is not None:
-        try:
+        if l != 0.0:
             angle_rad = 2.0*atan((Di1-Di2)/(2.0*l))
-            angle = degrees(angle_rad)
-        except ZeroDivisionError:
+            angle_deg = degrees(angle_rad)
+        else:
             angle_rad = pi
-            angle = 180.0
+            angle_deg = 180.0
     else:
         raise Exception('Either `l` or `angle` must be specified')
         
-    if angle < 45.0:
+    if angle_deg < 45.0:
         # Formula 3
         K2 = 2.6*sin(0.5*angle_rad)*(1.0 - beta2)**2/(beta2*beta2)
     else:
@@ -2503,14 +2501,16 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
     '''
     beta = Di1/Di2
     beta2 = beta*beta
-    if angle is not None:
-        angle_rad = radians(angle)
-        l = (Di2 - Di1)/(2.0*tan(0.5*angle_rad))
-    elif l is not None:
+    if l is not None:
         angle_rad = 2.0*atan(0.5*(Di2-Di1)/l)
-        angle = degrees(angle_rad)
+        angle_deg = angle_rad*rad2deg
+        l_calc = l
+    elif angle is not None:
+        angle_rad = angle*deg2rad
+        angle_deg = angle
+        l_calc = (Di2 - Di1)/(2.0*tan(0.5*angle_rad))
     else:
-        raise Exception('Either `l` or `angle` must be specified')
+        raise ValueError('Either `l` or `angle` must be specified')
     if method is None:
         method == 'Rennels'
     if method == 'Rennels':
@@ -2520,23 +2520,23 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
                                  "specified friction factor or `Re`")
             fd = Clamond(Re=Re, eD=roughness/Di2)
         
-        if 0.0 < angle <= 20.0:
+        if 0.0 < angle_deg <= 20.0:
             K = 8.30*tan(0.5*angle_rad)**1.75*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
-        elif 20.0 < angle <= 60.0 and 0.0 <= beta < 0.5:
-            K = (1.366*sin(2.0*pi*(angle - 15.0)/180.)**0.5 - 0.170
-            - 3.28*(0.0625-beta**4)*(0.025*(angle-20.0))**0.5)*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
-        elif 20.0 < angle <= 60.0 and beta >= 0.5:
-            K = (1.366*sin(2.0*pi*(angle - 15.0)/180.0)**0.5 - 0.170)*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
-        elif 60.0 < angle <= 180.0 and 0.0 <= beta < 0.5:
+        elif 20.0 < angle_deg <= 60.0 and 0.0 <= beta < 0.5:
+            K = (1.366*sin(2.0*pi*(angle_deg - 15.0)/180.)**0.5 - 0.170
+            - 3.28*(0.0625-beta**4)*(0.025*(angle_deg-20.0))**0.5)*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
+        elif 20.0 < angle_deg <= 60.0 and beta >= 0.5:
+            K = (1.366*sin(2.0*pi*(angle_deg - 15.0)/180.0)**0.5 - 0.170)*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
+        elif 60.0 < angle_deg <= 180.0 and 0.0 <= beta < 0.5:
             beta4 = beta2*beta2
-            K = (1.205 - 3.28*(0.0625 - beta4) - 12.8*beta4*beta2*((angle - 60.0)/120.)**0.5)*(1.0 - beta2)**2
-        elif 60.0 < angle <= 180.0 and beta >= 0.5:
-            K = (1.205 - 0.20*((angle - 60.0)/120.)**0.5)*(1.0 - beta**2)**2
+            K = (1.205 - 3.28*(0.0625 - beta4) - 12.8*beta4*beta2*((angle_deg - 60.0)/120.)**0.5)*(1.0 - beta2)**2
+        elif 60.0 < angle_deg <= 180.0 and beta >= 0.5:
+            K = (1.205 - 0.20*((angle_deg - 60.0)/120.)**0.5)*(1.0 - beta**2)**2
         else:
             raise Exception('Conical diffuser inputs incorrect')
         return K
     elif method == 'Crane':
-        return diffuser_conical_Crane(Di1=Di1, Di2=Di2, l=l, angle=angle)
+        return diffuser_conical_Crane(Di1=Di1, Di2=Di2, l=l_calc, angle=angle_deg)
     elif method == 'Miller':
         A_ratio = 1.0/beta2
         if A_ratio > 4.0:
@@ -2544,7 +2544,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         elif A_ratio < 1.1:
             A_ratio = 1.1
         
-        l_R1_ratio = l/(0.5*Di1)
+        l_R1_ratio = l_calc/(0.5*Di1)
         if l_R1_ratio < 0.1:
             l_R1_ratio = 0.1
         elif l_R1_ratio > 20.0:
@@ -2554,12 +2554,12 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
     elif method == 'Idelchik':
         A_ratio = beta2
         # Angles 0 to 20, ratios 0.05 to 0.06
-        if angle > 20.0:
+        if angle_deg > 20.0:
             angle_fric = 20.0
-        elif angle < 2.0:
+        elif angle_deg < 2.0:
             angle_fric = 2.0
         else:
-            angle_fric = angle
+            angle_fric = angle_deg
             
         A_ratio_fric = A_ratio
         if A_ratio_fric < 0.05:
@@ -2568,7 +2568,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
             A_ratio_fric = 0.6
         
         K_fr = float(contraction_conical_frction_Idelchik_obj(angle_fric, A_ratio_fric))
-        K_exp = float(diffuser_conical_Idelchik_obj(min(0.6, A_ratio), max(3.0, angle)))
+        K_exp = float(diffuser_conical_Idelchik_obj(min(0.6, A_ratio), max(3.0, angle_deg)))
         return K_fr + K_exp
         
     elif method == 'Swamee':
@@ -2594,7 +2594,7 @@ def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
     DEs : array
         Diameters of intermediate sections, [m]
     ls : array
-        Lengths of the various sections, [m]
+        Lengths of the various sections, size 1 more than `DEs`, [m]
     fd : float
         Darcy friction factor [-]
     method : str
@@ -2617,19 +2617,19 @@ def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
 
     Examples
     --------
-    >>> diffuser_conical_staged(Di1=1., Di2=10., DEs=[2,3,4], ls=[1,1,1], fd=0.01)
-    1.2566640778649782
+    >>> diffuser_conical_staged(Di1=1., Di2=10., DEs=[2,3,4], ls=[1.1,1.2,1.3,1.4], fd=0.01)
+    1.9317533188274658
 
     References
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    K = 0
-    DEs.insert(0, Di1)
-    DEs.append(Di2)
-    for i in range(len(ls)):
-        K += diffuser_conical(Di1=float(DEs[i]), Di2=float(DEs[i+1]), l=float(ls[i]), fd=fd, method=method)
+    K = 0.0
+    K += diffuser_conical(Di1=Di1, Di2=DEs[0], l=ls[0], fd=fd, method=method)
+    K += diffuser_conical(Di1=DEs[-1], Di2=Di2, l=ls[-1], fd=fd, method=method)
+    for i in range(len(DEs)-1):
+        K += diffuser_conical(Di1=float(DEs[i]), Di2=float(DEs[i+1]), l=float(ls[i+1]), fd=fd, method=method)
     return K
 
 
@@ -3679,12 +3679,16 @@ def K_globe_stop_check_valve_Crane(D1, D2, fd=None, style=0):
     '''
     if fd is None:
         fd = ft_Crane(D2)
-    try:
-        K = globe_stop_check_valve_Crane_coeffs[style]*fd
-    except KeyError:
-        raise KeyError('Accepted valve styles are 0, 1, and 2 only')
+    if style == 0:
+        K = 400.0*fd
+    elif style == 1:
+        K = 300.0*fd
+    elif style == 2:
+        K = 55.0*fd
+    else:
+        raise ValueError('Accepted valve styles are 0, 1, and 2 only')
     beta = D1/D2
-    if beta == 1:
+    if beta == 1.0:
         return K
     else:
         return (K + beta*(0.5*(1 - beta**2) + (1 - beta**2)**2))/beta**4
@@ -3749,10 +3753,14 @@ def K_angle_stop_check_valve_Crane(D1, D2, fd=None, style=0):
     '''
     if fd is None:
         fd = ft_Crane(D2)
-    try:
-        K = angle_stop_check_valve_Crane_coeffs[style]*fd
-    except KeyError:
-        raise KeyError('Accepted valve styles are 0, 1, and 2 only')
+    if style == 0:
+        K = 200.0*fd
+    elif style == 1:
+        K = 350.0*fd
+    elif style == 2:
+        K = 55.0*fd
+    else:
+        raise ValueError('Accepted valve styles are 0, 1, and 2 only')
 
     beta = D1/D2
     if beta == 1:
@@ -3879,10 +3887,12 @@ def K_diaphragm_valve_Crane(D=None, fd=None, style=0):
         raise ValueError('Either `D` or `fd` must be specified')
     if fd is None:
         fd = ft_Crane(D)
-    try:
-        K = diaphragm_valve_Crane_coeffs[style]*fd
-    except KeyError:
-        raise KeyError('Accepted valve styles are 0 (weir) or 1 (straight through) only')
+    if style == 0:
+        K = 149.0*fd
+    elif style == 1:
+        K = 39.0*fd
+    else:
+        raise ValueError('Accepted valve styles are 0 (weir) or 1 (straight through) only')
     return K
 
 
@@ -3936,10 +3946,12 @@ def K_foot_valve_Crane(D=None, fd=None, style=0):
         raise ValueError('Either `D` or `fd` must be specified')
     if fd is None:
         fd = ft_Crane(D)
-    try:
-        K = foot_valve_Crane_coeffs[style]*fd
-    except KeyError:
-        raise KeyError('Accepted valve styles are 0 (poppet disk) or 1 (hinged disk) only')
+    if style == 0:
+        K = 420.0*fd
+    elif style == 1:
+        K = 75.0*fd
+    else:
+        raise ValueError('Accepted valve styles are 0 (poppet disk) or 1 (hinged disk) only')
     return K
 
 
@@ -4004,10 +4016,14 @@ def K_butterfly_valve_Crane(D, fd=None, style=0):
     '''
     if fd is None:
         fd = ft_Crane(D)
-    try:
-        c1, c2, c3 = butterfly_valve_Crane_coeffs[style]
-    except KeyError:
-        raise KeyError('Accepted valve styles are 0 (centric), 1 (double offset), or 2 (triple offset) only.')
+    if style == 0:
+        c1, c2, c3 = 45.0, 35.0, 25.0
+    elif style == 1:
+        c1, c2, c3 = 74.0, 52.0, 43.0
+    elif style == 2:
+        c1, c2, c3 = 218.0, 96.0, 55.0
+    else:
+        raise ValueError('Accepted valve styles are 0 (centric), 1 (double offset), or 2 (triple offset) only.')
     if D <= 0.2286:
         # 2-8 inches, split at 9 inch
         return c1*fd
@@ -4082,10 +4098,14 @@ def K_plug_valve_Crane(D1, D2, angle, fd=None, style=0):
     if fd is None:
         fd = ft_Crane(D2)
     beta = D1/D2
-    try:
-        K = plug_valve_Crane_coeffs[style]*fd
-    except KeyError:
-        raise KeyError('Accepted valve styles are 0 (straight-through), 1 (3-way, flow straight-through), or 2 (3-way, flow 90°)')
+    if style == 0:
+        K = 18.0*fd
+    elif style == 1:
+        K = 30.0*fd
+    elif style == 2:
+        K = 90.0*fd
+    else:
+        raise ValueError('Accepted valve styles are 0 (straight-through), 1 (3-way, flow straight-through), or 2 (3-way, flow 90°)')
     angle = radians(angle)
     if beta == 1:
         return K

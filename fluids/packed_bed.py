@@ -991,6 +991,21 @@ packed_beds_correlations = {
 'Guo, Sun, Zhang, Ding & Liu': (Guo_Sun, True)
 }
 
+def list_methods_packed_bed(dp, voidage, vs, rho, mu, L, Dt):
+    methods = []
+    if all((dp, voidage, vs, rho, mu, L)):
+        for key, values in packed_beds_correlations.items():
+            if Dt or not values[1]:
+                methods.append(key)
+    if 'Harrison, Brunner & Hecker' in methods:
+        methods.remove('Harrison, Brunner & Hecker')
+        methods.insert(0, 'Harrison, Brunner & Hecker')
+    elif 'Erdim, Akgiray & Demir' in methods:
+        methods.remove('Erdim, Akgiray & Demir')
+        methods.insert(0, 'Erdim, Akgiray & Demir')
+    return methods
+
+
 def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
                   Method=None, AvailableMethods=False):
     r'''This function handles choosing which pressure drop in a packed bed
@@ -1049,34 +1064,47 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
         If True, function will consider which methods which can be used to
         calculate `dP` with the given inputs and return them as a list
     '''
-    def list_methods():
-        methods = []
-        if all((dp, voidage, vs, rho, mu, L)):
-            for key, values in packed_beds_correlations.items():
-                if Dt or not values[1]:
-                    methods.append(key)
-        if 'Harrison, Brunner & Hecker' in methods:
-            methods.remove('Harrison, Brunner & Hecker')
-            methods.insert(0, 'Harrison, Brunner & Hecker')
-        elif 'Erdim, Akgiray & Demir' in methods:
-            methods.remove('Erdim, Akgiray & Demir')
-            methods.insert(0, 'Erdim, Akgiray & Demir')
-        return methods
 
     if AvailableMethods:
-        return list_methods()
-    if not Method:
-        Method = list_methods()[0]
-
-    if dp and sphericity:
-        dp = dp*sphericity
-    if Method in packed_beds_correlations:
-        if packed_beds_correlations[Method][1]:
-            return packed_beds_correlations[Method][0](dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L, Dt=Dt)
-        else:
-            return packed_beds_correlations[Method][0](dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+        return list_methods_packed_bed(dp, voidage, vs, rho, mu, L, Dt)
+    if Method is None:
+        Method2 = 'Harrison, Brunner & Hecker' if Dt is not None else 'Erdim, Akgiray & Demir'
     else:
-        raise Exception('Failure in in function')
+        Method2 = Method
+
+    if dp is not None and sphericity is not None:
+        dp = dp*sphericity
+    
+    if Method2 == "Ergun":
+        return Ergun(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+    elif Method2 == "Tallmadge":
+        return Tallmadge(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+    elif Method2 == "Kuo & Nydegger":
+        return Kuo_Nydegger(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+    elif Method2 == "Jones & Krier":
+        return Jones_Krier(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+    elif Method2 == "Carman":
+        return Carman(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+    elif Method2 == "Hicks":
+        return Hicks(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+    elif Method2 == "Brauer":
+        return Brauer(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+    elif Method2 == "KTA":
+        return KTA(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+    elif Method2 == "Erdim, Akgiray & Demir":
+        return Erdim_Akgiray_Demir(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+    elif Method2 == "Fahien & Schriver":
+        return Fahien_Schriver(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+    elif Method2 == "Idelchik":
+        return Idelchik(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L)
+    elif Method2 == "Harrison, Brunner & Hecker":
+        return Harrison_Brunner_Hecker(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L, Dt=Dt)
+    elif Method2 == "Montillet, Akkari & Comiti":
+        return Montillet_Akkari_Comiti(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L, Dt=Dt)
+    elif Method2 == "Guo, Sun, Zhang, Ding & Liu":
+        return Guo_Sun(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L, Dt=Dt)
+    else:
+        raise ValueError('Unrecognized method')
 
 
 #import matplotlib.pyplot as plt
