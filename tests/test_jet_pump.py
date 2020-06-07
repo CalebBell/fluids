@@ -22,9 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from fluids import *
-from fluids.numerics import assert_close
-import numpy as np
-from numpy.testing import assert_allclose
+from fluids.numerics import linspace, assert_close, assert_close1d
 import pytest
 
 
@@ -47,7 +45,7 @@ def test_liquid_jet_pump_ancillary():
         kwargs = dict(solution_vars)
         del kwargs[key]
         new_value = liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Ks=Ks, Kp=Kp, **kwargs)
-        assert_allclose(new_value, value)
+        assert_close(new_value, value)
 
 
 @pytest.mark.slow
@@ -90,7 +88,7 @@ def test_liquid_jet_pump_ancillary_d_mixing():
     
     for rhos in [1098., 1100, 1200, 1600, 4000, 100]:
         for Ks in [1E-9, 1E-3, 0.11, .5, 1, 5, 10, 100, 1000]:
-            for D_mult in np.linspace(0.1, 10, 100).tolist():
+            for D_mult in linspace(0.1, 10, 100):
                 solution_vars = {'P1': 426256.1597041593,
                  'P2': 133600,
                  'Qp': 0.01,
