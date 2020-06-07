@@ -22,7 +22,6 @@ SOFTWARE.'''
 
 from fluids import *
 from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose
-import numpy as np
 import pytest
 
 def test_control_valve():

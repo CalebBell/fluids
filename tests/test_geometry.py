@@ -22,24 +22,24 @@ SOFTWARE.'''
 
 from __future__ import division
 from fluids import *
-from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose
+from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose, linspace
 from math import *
 from fluids.constants import *
-import numpy as np
-from scipy.integrate import quad
 import pytest
 
 
-def test_geometry():
+def test_SA_partial_sphere():
     SA1 = SA_partial_sphere(1., 0.7)
     assert_close(SA1, 2.199114857512855)
     SA2 = SA_partial_sphere(2, 1) # One spherical head's surface area:
     assert_close(SA2, 6.283185307179586)
 
+def test_V_partial_sphere():
     V1 = V_partial_sphere(1., 0.7)
     assert_close(V1, 0.4105014400690663)
     assert 0.0 == V_partial_sphere(1., 0.0)
 
+def test_V_horiz_conical():
     # Two examples from [1]_, and at midway, full, and empty.
     Vs_horiz_conical1 = [V_horiz_conical(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)]
     Vs_horiz_conical1s = [2041.1923581273443, 6180.540773905826, 3648.490668241736, 7296.981336483472, 0.0]
@@ -52,10 +52,11 @@ def test_geometry():
     # Head only custom example:
     V_head1 = V_horiz_conical(D=108., L=156., a=42., h=84., headonly=True)/231.
     V_head2 = V_horiz_conical(108., 156., 42., 84., headonly=True)/231.
-    assert_close([V_head1, V_head2], [508.8239000645628]*2)
+    assert_close1d([V_head1, V_head2], [508.8239000645628]*2)
     
     assert V_horiz_conical(D=108., L=156., a=42., h=0, headonly=True) == 0.0
 
+def test_V_horiz_ellipsoidal():
     # Two examples from [1]_, and at midway, full, and empty.
     Vs_horiz_ellipsoidal = [V_horiz_ellipsoidal(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)]
     Vs_horiz_ellipsoidals = [2380.9565415578145, 7103.445235921378, 4203.695769930696, 8407.391539861392, 0.0]
@@ -66,6 +67,8 @@ def test_geometry():
     V_head2 = V_horiz_ellipsoidal(108., 156., 42., 84., headonly=True)/231.
     assert_close1d([V_head1, V_head2], [970.2761310723387]*2)
     assert 0.0 == V_horiz_ellipsoidal(108., 156., 42., 0., headonly=True)
+
+def test_V_horiz_guppy():
 
     # Two examples from [1]_, and at midway, full, and empty.
     V_calc = [V_horiz_guppy(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)]
@@ -78,6 +81,7 @@ def test_geometry():
     assert_close1d([V_head1, V_head2], [63.266257496613804]*2)
     assert 0.0 == V_horiz_guppy(108., 156., 42., 0.0, headonly=True) 
 
+def test_V_horiz_spherical():
     # Two examples from [1]_, and at midway, full, and empty.
     V_calc = [V_horiz_spherical(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)]
     Vs = [2303.9615116986183, 6935.163365275476, 4094.025626387197, 8188.051252774394, 0.0]
@@ -108,6 +112,7 @@ def test_geometry():
     V_head2 =  V_horiz_spherical(108., 156., 42., 84., headonly=True)/231.
     assert_close1d([V_head1, V_head2], [886.1351957493874]*2)
 
+def test_V_horiz_torispherical():
 
     # Two examples from [1]_, and at midway, full, empty, and 1 inch; covering
     # all code cases.
@@ -121,11 +126,14 @@ def test_geometry():
     assert_close1d([V_head1, V_head2], [111.71919144384525]*2)
     assert 0.0 == V_horiz_torispherical(108., 156., 1., 0.06, 0.0)
 
+def test_V_vertical_conical():
     # Two examples from [1]_, and at empty and h=D.
     Vs_calc = [V_vertical_conical(132., 33., i)/231. for i in [24, 60, 0, 132]]
     Vs = [250.67461381371024, 2251.175535772343, 0.0, 6516.560761446257]
     assert_close1d(Vs_calc, Vs)
     assert 0.0 == V_vertical_conical(132., 33., 0.0)
+
+def test_V_vertical_ellipsoidal():
 
     # Two examples from [1]_, and at empty and h=D.
     Vs_calc = [V_vertical_ellipsoidal(132., 33., i)/231. for i in [24, 60, 0, 132]]
@@ -133,36 +141,43 @@ def test_geometry():
     assert_close1d(Vs_calc, Vs)
     assert 0.0 == V_vertical_ellipsoidal(132., 33., 0.0)
 
+def test_V_vertical_spherical():
     # Two examples from [1]_, and at empty and h=D.
     Vs_calc = [V_vertical_spherical(132., 33., i)/231. for i in [24, 60, 0, 132]]
     Vs = [583.6018352850442, 2658.4605833627343, 0.0, 6923.845809036648]
     assert_close1d(Vs_calc, Vs)
     assert 0.0 == V_vertical_spherical(132., 33., 0.0)
 
+def test_V_vertical_torispherical():
     # Two examples from [1]_, and at empty, 1, 22, and h=D.
     Vs_calc = [V_vertical_torispherical(132., 1.0, 0.06, i)/231. for i in [24, 60, 0, 1, 22, 132]]
     Vs = [904.0688283793511, 3036.7614412163075, 0.0, 1.7906624793188568, 785.587561468186, 7302.146666890221]
     assert_close1d(Vs_calc, Vs)
     assert 0.0 == V_vertical_torispherical(132., 1.0, 0.06, 0.0)
 
+def test_V_vertical_conical_concave():
     # Three examples from [1]_, and at empty and with h=D.
     Vs_calc = [V_vertical_conical_concave(113., -33, i)/231 for i in [15., 25., 50., 0, 113]]
     Vs = [251.15825565795188, 614.6068425492208, 1693.1654406426783, 0.0, 4428.278844757774]
     assert_close1d(Vs_calc, Vs)
     assert 0.0 == V_vertical_conical_concave(113., -33, 0.0)
 
+def test_V_vertical_ellipsoidal_concave():
     # Three examples from [1]_, and at empty and with h=D.
     Vs_calc = [V_vertical_ellipsoidal_concave(113., -33, i)/231 for i in [15., 25., 50., 0, 113]]
     Vs = [44.84968851034856, 207.6374468071692, 1215.605957384487, 0.0, 3950.7193614995826]
     assert_close1d(Vs_calc, Vs)
     assert 0.0 == V_vertical_ellipsoidal_concave(113., -33, 0.0)
 
+def test_V_vertical_spherical_concave():
     # Three examples from [1]_, and at empty and with h=D.
     Vs_calc = [V_vertical_spherical_concave(113., -33, i)/231 for i in [15., 25., 50., 0, 113]]
     Vs = [112.81405437348528, 341.7056403375114, 1372.9286894955042, 0.0, 4108.042093610599]
     assert_close1d(Vs_calc, Vs)
     assert 0.0 == V_vertical_spherical_concave(113., -33, 0.0)
 
+
+def test_V_vertical_torispherical_concave():
     # Three examples from [1]_, and at empty and with h=D.
     Vs_calc = [V_vertical_torispherical_concave(D=113., f=0.71, k=0.081, h=i)/231 for i in [15., 25., 50., 0, 113]]
     Vs = [103.88569287163769, 388.72142877582087, 1468.762358198084, 0.0, 4203.87576231318]
@@ -174,6 +189,8 @@ def test_geometry():
     perturbed = V_vertical_torispherical_concave(D=113., f=0.71, k=0.16794375443151, h=15)
     assert_close(base, perturbed, rtol=1e-14)
 
+
+def test_geometry():
 
     SA1 = SA_ellipsoidal_head(2, 1)
     SA2 = SA_ellipsoidal_head(2, 0.999)
@@ -989,7 +1006,7 @@ def test_geometry_tank_fuzz_h_from_V():
     T.set_chebyshev_approximators(deg_forward=100, deg_backwards=600)
 
     # test V_from_h - pretty easy to get right    
-    for h in np.linspace(0, T.h_max, 30):
+    for h in linspace(0, T.h_max, 30):
         # It's the top and the bottom of the tank that works poorly
         V1 = T.V_from_h(h, 'full')
         V2 = T.V_from_h(h, 'chebyshev')
@@ -1001,7 +1018,7 @@ def test_geometry_tank_fuzz_h_from_V():
     # reverse - the spline is also pretty easy, with a limited number of points
     # when the required precision is low
     T.set_table(n=150)
-    for V in np.linspace(0, T.V_total, 30):
+    for V in linspace(0, T.V_total, 30):
         h1 = T.h_from_V(V, 'brenth')
         h2 = T.h_from_V(V, 'spline')
         assert_close(h1, h2, rtol=1E-5, atol=1E-6)
@@ -1131,6 +1148,7 @@ def test_PlateExchanger():
     
 
 def plate_enlargement_factor_numerical(amplitude, wavelength):
+    from scipy.integrate import quad
     lambda1 = wavelength
     b = amplitude
     gamma = 4*b/lambda1
@@ -1160,8 +1178,8 @@ def test_plate_enhancement_factor():
 @pytest.mark.slow
 def test_plate_enhancement_factor_fuzz():
     # Confirm it's correct to within 1E-7
-    for x in np.linspace(1E-5, 100, 3):
-        for y in np.linspace(1E-5, 100, 3):
+    for x in linspace(1E-5, 100, 3):
+        for y in linspace(1E-5, 100, 3):
             a = plate_enlargement_factor(x, y)
             b = plate_enlargement_factor_numerical(x, y)
             assert_close(a, b, rtol=1E-7)

@@ -108,7 +108,7 @@ if not SKIP_DEPENDENCIES:
         IS_PYPY = True
 else:
     numpy = FakePackage('numpy')
-
+    IS_PYPY = True
 
 np = numpy
 
@@ -1599,7 +1599,7 @@ def implementation_optimize_tck(tck):
     
     Only implemented for 3 and 5 length `tck`s.
     '''
-    if IS_PYPY:
+    if IS_PYPY or SKIP_DEPENDENCIES:
         return tuple(tck)
     else:
         if len(tck) == 3:
@@ -3060,43 +3060,51 @@ if has_scipy:
         from scipy.special import erf
 else:
     lambertw = py_lambertw
-    if not SKIP_DEPENDENCIES:
-        try:
+        # scipy is not available... fall back to mpmath as a Pure-Python implementation
+        # However, lazy load all functions
+    #    from mpmath import lambertw # Same branches as scipy, supports .real
+            # Figured out this definition from test_precompute_gammainc.py in scipy            
+    if erf is None:
+        def erf(*args, **kwargs):
             import mpmath
-            # scipy is not available... fall back to mpmath as a Pure-Python implementation
-        #    from mpmath import lambertw # Same branches as scipy, supports .real
-            from mpmath import ellipe # seems the same so far        
-            
+            return mpmath.erf(*args, **kwargs)
         
-            # Figured out this definition from test_precompute_gammainc.py in scipy
-            gammaincc = lambda a, x: mpmath.gammainc(a, a=x, regularized=True)
-            iv = mpmath.besseli
-            i1 = lambda x: mpmath.besseli(1, x)
-            i0 = lambda x: mpmath.besseli(0, x)
-            k1 = lambda x: mpmath.besselk(1, x)
-            k0 = lambda x: mpmath.besselk(0, x)
-            
-            if erf is None:
-                from mpmath import erf
-        except:
-            SKIP_DEPENDENCIES = True
-            
-        if SKIP_DEPENDENCIES:
-            def ellipe(*args, **kwargs):
-                import mpmath
-                return mpmath.ellipe(*args, **kwargs)
-            
-            def gammaincc(a, x):
-                import mpmath
-                return mpmath.gammainc(a, a=x, regularized=True)
-            
-            def iv(*args, **kwargs):
-                import mpmath
-                return mpmath.besseli(*args, **kwargs)
-            
-            def hyp2f1(*args, **kwargs):
-                import mpmath
-                return mpmath.hyp2f1(*args, **kwargs)
+    def gammaincc(a, x):
+        import mpmath
+        return mpmath.gammainc(a, a=x, regularized=True)
+        
+    def ellipe(*args, **kwargs):
+        import mpmath
+        return mpmath.ellipe(*args, **kwargs)
+    
+    def gammaincc(a, x):
+        import mpmath
+        return mpmath.gammainc(a, a=x, regularized=True)
+    
+    def iv(*args, **kwargs):
+        import mpmath
+        return mpmath.besseli(*args, **kwargs)
+    
+    def hyp2f1(*args, **kwargs):
+        import mpmath
+        return mpmath.hyp2f1(*args, **kwargs)
+    
+    def iv(*args, **kwargs):
+        import mpmath
+        return mpmath.besseli(*args, **kwargs)
+    def i1(x):
+        import mpmath
+        return mpmath.mpmath.besseli(1, x)
+    def i0(x):
+        import mpmath
+        return mpmath.mpmath.besseli(0, x)
+    def k1(x):
+        import mpmath
+        return mpmath.mpmath.besselk(1, x)
+    def k0(x):
+        import mpmath
+        return mpmath.mpmath.besselk(0, x)
+    
     
 try:
     if FORCE_PYPY:

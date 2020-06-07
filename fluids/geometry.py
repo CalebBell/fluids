@@ -2942,9 +2942,13 @@ class TANK(object):
             Height of liquid at which the volume is as desired, [m]
         '''
         if method == 'spline':
-            if not self.table:
-                self.set_table()
-            return float(self.interp_h_from_V(V))
+            try:
+                if not self.table:
+                    self.set_table()
+                return float(self.interp_h_from_V(V))
+            except:
+                # Missing scipy
+                return self.h_from_V(V, 'brenth')
         elif method == 'chebyshev':
             if not self.chebyshev:
                 self.set_chebyshev_approximators()

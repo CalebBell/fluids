@@ -22,7 +22,6 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import log, pi, sqrt
-from random import uniform, seed
 from fluids.numerics import newton, brenth
 
 
@@ -359,6 +358,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
     .. [4] Ejectors and Jet Pumps. Design and Performance for Incompressible 
        Liquid Flow. 85032. ESDU International PLC, 1985.
     ''' 
+    from random import uniform, seed
     solution_vars = ['d_nozzle', 'd_mixing', 'Qp', 'Qs', 'P1', 'P2', 'P5']
     unknown_vars = []
     for i in solution_vars:

@@ -23,16 +23,21 @@ SOFTWARE.'''
 from __future__ import division
 from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
 import sys
-try:
-    # The right way imports the platform module which costs to ms to load!
-    # implementation = platform.python_implementation()
-    IS_PYPY = 'PyPy' in sys.version
-except AttributeError:
-    IS_PYPY = False
+
+REQUIRE_DEPENDENCIES = False
+if not REQUIRE_DEPENDENCIES:
+    IS_PYPY = True
+else:
+    try:
+        # The right way imports the platform module which costs to ms to load!
+        # implementation = platform.python_implementation()
+        IS_PYPY = 'PyPy' in sys.version
+    except AttributeError:
+        IS_PYPY = False
 
 #IS_PYPY = True # for testing
     
-if not IS_PYPY:
+if not IS_PYPY and not REQUIRE_DEPENDENCIES:
     try:
         import numpy as np
     except ImportError:
