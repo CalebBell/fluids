@@ -47,6 +47,10 @@ The correct syntax is as follows:
 
 >>> import fluids.vectorized # Necessary
 >>> from fluids.vectorized import * # May be used without first importing fluids
+
+
+This module is lightweight! It takes approximately 3 ms to load, and increases
+ram usage by only 250 KB. 
 '''
 
 __all__ = []
@@ -63,14 +67,8 @@ for name in dir(normal_fluids):
         if name in bad_names:
             continue
     __all__.append(name)
-    __funcs.update({name: obj})
+    __funcs[name] = obj
+#    __funcs.update({name: obj})
 #    globals()[name] = obj
-
 globals().update(__funcs)
-
-
-
-
-
-
-
+del __funcs

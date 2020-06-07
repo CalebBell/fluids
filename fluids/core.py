@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -18,9 +18,52 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
-
+SOFTWARE.
+'''
 from __future__ import division
+'''
+Additional copyright:
+The functions C2K, K2C, F2C, C2F, F2K, K2F, C2R, K2R, F2R, R2C, R2K, R2F
+were deprecated from scipy but are still wanted by fluids
+Taken from scipy/constants/constants.py as in commit 
+https://github.com/scipy/scipy/commit/4b7d325cd50e8828b06d628e69426a18283dc5b5
+Also from https://github.com/scipy/scipy/pull/5292
+by Gillu13  (Gilles Aouizerate)
+They are copyright individual contributors to SciPy, under the BSD 3-Clause
+The license of scipy is as follows:
+
+    Copyright (c) 2001-2002 Enthought, Inc.  2003-2019, SciPy Developers.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above
+   copyright notice, this list of conditions and the following
+   disclaimer in the documentation and/or other materials provided
+   with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+'''
+
 from math import sin, exp, pi, fabs, copysign
 from fluids.constants import g, R
 from fluids.numerics import numpy as np
@@ -35,6 +78,7 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'L_from_K', 'dP_from_K', 
 'head_from_K', 'head_from_P',
 'P_from_head', 'Eotvos',
+'C2K', 'K2C', 'F2C', 'C2F', 'F2K', 'K2F', 'C2R', 'K2R', 'F2R', 'R2C', 'R2K', 'R2F',
 ]
 
 
@@ -2502,14 +2546,6 @@ alpha = thermal_diffusivity # synonym for thermal diffusivity
 Pr = Prandtl # Synonym
 
 
-# The following are functions which were deprecated from scipy
-# but are still desired to be here
-# Taken from scipy/constants/constants.py as in commit 
-# https://github.com/scipy/scipy/commit/4b7d325cd50e8828b06d628e69426a18283dc5b5
-# Also from https://github.com/scipy/scipy/pull/5292
-# by Gillu13  (Gilles Aouizerate)
-# Copyright individual contributors to SciPy
-
 # temperature in kelvin
 zero_Celsius = 273.15
 degree_Fahrenheit = 1.0/1.8 # only for differences
@@ -2520,13 +2556,13 @@ def C2K(C):
 
     Parameters
     ----------
-    C : array_like
-        Celsius temperature(s) to be converted.
+    C : float
+        Celsius temperature to be converted, [degC]
 
     Returns
     -------
-    K : float or array of floats
-        Equivalent Kelvin temperature(s).
+    K : float
+        Equivalent Kelvin temperature, [K]
 
     Notes
     -----
@@ -2535,12 +2571,10 @@ def C2K(C):
 
     Examples
     --------
-    >>> from fluids.core import C2K
-    >>> C2K(np.array([-40, 40.0]))
-    array([233.15, 313.15])
-
+    >>> C2K(-40)
+    233.14999999999998
     """
-    return np.asanyarray(C) + zero_Celsius
+    return C + zero_Celsius
 
 
 def K2C(K):
@@ -2549,13 +2583,13 @@ def K2C(K):
 
     Parameters
     ----------
-    K : array_like
-        Kelvin temperature(s) to be converted.
+    K : float
+        Kelvin temperature to be converted.
 
     Returns
     -------
-    C : float or array of floats
-        Equivalent Celsius temperature(s).
+    C : float
+        Equivalent Celsius temperature.
 
     Notes
     -----
@@ -2564,12 +2598,10 @@ def K2C(K):
 
     Examples
     --------
-    >>> from fluids.core import K2C
-    >>> K2C(np.array([233.15, 313.15]))
-    array([-40.,  40.])
-
+    >>> K2C(233.15)
+    -39.99999999999997
     """
-    return np.asanyarray(K) - zero_Celsius
+    return K - zero_Celsius
 
 
 def F2C(F):
@@ -2578,13 +2610,13 @@ def F2C(F):
 
     Parameters
     ----------
-    F : array_like
-        Fahrenheit temperature(s) to be converted.
+    F : float
+        Fahrenheit temperature to be converted.
 
     Returns
     -------
-    C : float or array of floats
-        Equivalent Celsius temperature(s).
+    C : float
+        Equivalent Celsius temperature.
 
     Notes
     -----
@@ -2592,12 +2624,10 @@ def F2C(F):
 
     Examples
     --------
-    >>> from fluids.core import F2C
-    >>> F2C(np.array([-40, 40.0]))
-    array([-40.        ,   4.44444444])
-
+    >>> F2C(-40.0)
+    -40.0
     """
-    return (np.asanyarray(F) - 32.0) / 1.8
+    return (F - 32.0) / 1.8
 
 
 def C2F(C):
@@ -2606,13 +2636,13 @@ def C2F(C):
 
     Parameters
     ----------
-    C : array_like
-        Celsius temperature(s) to be converted.
+    C : float
+        Celsius temperature to be converted.
 
     Returns
     -------
-    F : float or array of floats
-        Equivalent Fahrenheit temperature(s).
+    F : float
+        Equivalent Fahrenheit temperature.
 
     Notes
     -----
@@ -2620,12 +2650,10 @@ def C2F(C):
 
     Examples
     --------
-    >>> from fluids.core import C2F
-    >>> C2F(np.array([-40, 40.0]))
-    array([-40., 104.])
-
+    >>> C2F(-40.0)
+    -40.0
     """
-    return 1.8 * np.asanyarray(C) + 32.0
+    return 1.8*C + 32.0
 
 
 def F2K(F):
@@ -2634,13 +2662,13 @@ def F2K(F):
 
     Parameters
     ----------
-    F : array_like
-        Fahrenheit temperature(s) to be converted.
+    F : float
+        Fahrenheit temperature to be converted.
 
     Returns
     -------
-    K : float or array of floats
-        Equivalent Kelvin temperature(s).
+    K : float
+        Equivalent Kelvin temperature.
 
     Notes
     -----
@@ -2650,12 +2678,11 @@ def F2K(F):
 
     Examples
     --------
-    >>> from fluids.core import F2K
-    >>> F2K(np.array([-40, 104]))
-    array([233.15, 313.15])
+    >>> F2K(-40)
+    233.14999999999998
 
     """
-    return (np.asanyarray(F) - 32.0)/1.8 + zero_Celsius
+    return (F - 32.0)/1.8 + zero_Celsius
 
 
 def K2F(K):
@@ -2664,13 +2691,13 @@ def K2F(K):
 
     Parameters
     ----------
-    K : array_like
-        Kelvin temperature(s) to be converted.
+    K : float
+        Kelvin temperature to be converted.
 
     Returns
     -------
-    F : float or array of floats
-        Equivalent Fahrenheit temperature(s).
+    F : float
+        Equivalent Fahrenheit temperature.
 
     Notes
     -----
@@ -2680,12 +2707,11 @@ def K2F(K):
 
     Examples
     --------
-    >>> from fluids.core import K2F
-    >>> K2F(np.array([233.15,  313.15]))
-    array([-40., 104.])
+    >>> K2F(233.15)
+    -39.99999999999996
 
     """
-    return 1.8*(np.asanyarray(K) - zero_Celsius) + 32.0
+    return 1.8*(K - zero_Celsius) + 32.0
 
 
 def C2R(C):
@@ -2694,13 +2720,13 @@ def C2R(C):
 
     Parameters
     ----------
-    C : array_like
-        Celsius temperature(s) to be converted.
+    C : float
+        Celsius temperature to be converted.
 
     Returns
     -------
-    Ra : float or array of floats
-        Equivalent Rankine temperature(s).
+    Ra : float
+        Equivalent Rankine temperature.
 
     Notes
     -----
@@ -2710,12 +2736,10 @@ def C2R(C):
 
     Examples
     --------
-    >>> from fluids.core import C2R
-    >>> C2R(np.array([-40, 40.0]))
-    array([419.67, 563.67])
-
+    >>> C2R(-40)
+    419.66999999999996
     """
-    return 1.8 * (np.asanyarray(C) + zero_Celsius)
+    return 1.8 * (C + zero_Celsius)
 
 
 def K2R(K):
@@ -2724,13 +2748,13 @@ def K2R(K):
 
     Parameters
     ----------
-    K : array_like
-        Kelvin temperature(s) to be converted.
+    K : float
+        Kelvin temperature to be converted.
 
     Returns
     -------
-    Ra : float or array of floats
-        Equivalent Rankine temperature(s).
+    Ra : float
+        Equivalent Rankine temperature.
 
     Notes
     -----
@@ -2738,12 +2762,10 @@ def K2R(K):
 
     Examples
     --------
-    >>> from fluids.core import K2R
-    >>> K2R(np.array([273.15, 0.0]))
-    array([491.67,   0.  ])
-
+    >>> K2R(273.15)
+    491.66999999999996
     """
-    return 1.8 * np.asanyarray(K)
+    return 1.8 * K
 
 
 def F2R(F):
@@ -2752,13 +2774,13 @@ def F2R(F):
 
     Parameters
     ----------
-    F : array_like
-        Fahrenheit temperature(s) to be converted.
+    F : float
+        Fahrenheit temperature to be converted.
 
     Returns
     -------
-    Ra : float or array of floats
-        Equivalent Rankine temperature(s).
+    Ra : float
+        Equivalent Rankine temperature.
 
     Notes
     -----
@@ -2768,12 +2790,11 @@ def F2R(F):
 
     Examples
     --------
-    >>> from fluids.core import F2R
-    >>> F2R(np.array([100, 0.0]))
-    array([559.67, 459.67])
+    >>> F2R(100)
+    559.67
 
     """
-    return np.asanyarray(F) - 32.0 + 1.8 * zero_Celsius
+    return F - 32.0 + 1.8 * zero_Celsius
 
 
 def R2C(Ra):
@@ -2782,13 +2803,13 @@ def R2C(Ra):
 
     Parameters
     ----------
-    Ra : array_like
-        Rankine temperature(s) to be converted.
+    Ra : float
+        Rankine temperature to be converted.
 
     Returns
     -------
-    C : float or array of floats
-        Equivalent Celsius temperature(s).
+    C : float
+        Equivalent Celsius temperature.
 
     Notes
     -----
@@ -2798,12 +2819,11 @@ def R2C(Ra):
 
     Examples
     --------
-    >>> from fluids.core import R2C
-    >>> R2C(np.array([459.67, 0.0]))
-    array([ -17.77777778, -273.15      ])
+    >>> R2C(459.67)
+    -17.777777777777743
 
     """
-    return np.asanyarray(Ra) / 1.8 - zero_Celsius
+    return Ra / 1.8 - zero_Celsius
 
 
 def R2K(Ra):
@@ -2812,13 +2832,13 @@ def R2K(Ra):
 
     Parameters
     ----------
-    Ra : array_like
-        Rankine temperature(s) to be converted.
+    Ra : float
+        Rankine temperature to be converted.
 
     Returns
     -------
-    K : float or array of floats
-        Equivalent Kelvin temperature(s).
+    K : float
+        Equivalent Kelvin temperature.
 
     Notes
     -----
@@ -2826,12 +2846,10 @@ def R2K(Ra):
 
     Examples
     --------
-    >>> from fluids.core import R2K
-    >>> R2K(np.array([491.67, 0.0]))
-    array([273.15,   0.  ])
-
+    >>> R2K(491.67)
+    273.15
     """
-    return np.asanyarray(Ra) / 1.8
+    return Ra / 1.8
     
 
 def R2F(Ra):
@@ -2840,13 +2858,13 @@ def R2F(Ra):
 
     Parameters
     ----------
-    Ra : array_like
-        Rankine temperature(s) to be converted.
+    Ra : float
+        Rankine temperature to be converted.
 
     Returns
     -------
-    F : float or array of floats
-        Equivalent Fahrenheit temperature(s).
+    F : float
+        Equivalent Fahrenheit temperature.
 
     Notes
     -----
@@ -2856,12 +2874,10 @@ def R2F(Ra):
 
     Examples
     --------
-    >>> from fluids.core import R2F
-    >>> R2F(np.array([491.67, 559.67]))
-    array([ 32., 100.])
-
+    >>> R2F(491.67)
+    32.00000000000006
     """
-    return np.asanyarray(Ra) - 1.8 * zero_Celsius + 32.0
+    return Ra - 1.8*zero_Celsius + 32.0
 
 
 def Engauge_2d_parser(lines, flat=False):

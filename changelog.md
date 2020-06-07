@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+- Expose C2K, K2C, F2C, C2F, F2K, K2F, C2R, K2R, F2R, R2C, R2K, R2F to public interface of fluids.core so they can be used with numba, fluids.vectorized
+- Speed up some unit tests
 
 ## [0.1.81] - 2020-06-06
 ### Added

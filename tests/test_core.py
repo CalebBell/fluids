@@ -239,7 +239,7 @@ def test_core_misc2():
 
 
 
-from fluids.core import C2K, K2C, F2C, C2F, F2K, K2F, C2R, K2R, F2R, R2C, R2K, R2F
+#from fluids.core import C2K, K2C, F2C, C2F, F2K, K2F, C2R, K2R, F2R, R2C, R2K, R2F
 
 # The following are tests which were deprecated from scipy
 # but are still desired to be here
@@ -252,52 +252,52 @@ from fluids.core import C2K, K2C, F2C, C2F, F2K, K2F, C2R, K2R, F2R, R2C, R2K, R
 
 def test_fahrenheit_to_celcius():
     assert_close(F2C(32), 0)
-    assert_close1d(F2C([32, 32]), [0, 0])
+    assert_close1d([F2C(32)], [0])
 
 
 def test_celcius_to_kelvin():
-    assert_close1d(C2K([0, 0]), [273.15, 273.15])
+    assert_close1d([C2K(0)], [273.15])
 
 
 def test_kelvin_to_celcius():
-    assert_close1d(K2C([0, 0]), [-273.15, -273.15])
+    assert_close1d([K2C(0)], [-273.15])
 
 
 def test_fahrenheit_to_kelvin():
-    assert_close1d(F2K([32, 32]), [273.15, 273.15])
+    assert_close1d([F2K(32), F2K(32)], [273.15, 273.15])
 
 
 def test_kelvin_to_fahrenheit():
-    assert_close1d(K2F([273.15, 273.15]), [32, 32])
+    assert_close1d([K2F(273.15), K2F(273.15)], [32, 32])
 
 
 def test_celcius_to_fahrenheit():
-    assert_close1d(C2F([0, 0]), [32, 32])
+    assert_close1d([C2F(0)]*2, [32, 32])
 
 
 def test_celcius_to_rankine():
-    assert_close1d(C2R([0, 0]), [491.67, 491.67], rtol=0., atol=1e-13)
+    assert_close1d([C2R(0), C2R(0)], [491.67, 491.67], rtol=0., atol=1e-13)
 
 
 def test_kelvin_to_rankine():
-    assert_close1d(K2R([273.15, 273.15]), [491.67, 491.67], rtol=0., 
+    assert_close1d([K2R(273.15), K2R(273.15)], [491.67, 491.67], rtol=0., 
                     atol=1e-13)
 
 
 def test_fahrenheit_to_rankine():
-    assert_close1d(F2R([32, 32]), [491.67, 491.67], rtol=0., atol=1e-13)
+    assert_close1d([F2R(32), F2R(32)], [491.67, 491.67], rtol=0., atol=1e-13)
 
 
 def test_rankine_to_fahrenheit():
-    assert_close1d(R2F([491.67, 491.67]), [32., 32.], rtol=0., 
+    assert_close1d([R2F(491.67), R2F(491.67)], [32., 32.], rtol=0., 
                     atol=1e-13)
 
 
 def test_rankine_to_celcius():
-    assert_close1d(R2C([491.67, 491.67]), [0., 0.], rtol=0., atol=1e-13)
+    assert_close1d([R2C(491.67), R2C(491.67)], [0., 0.], rtol=0., atol=1e-13)
 
 
 def test_rankine_to_kelvin():
-    assert_close1d(R2K([491.67, 0.]), [273.15, 0.], rtol=0., atol=1e-13)
+    assert_close1d([R2K(491.67), R2K(0.)], [273.15, 0.], rtol=0., atol=1e-13)
     
     
