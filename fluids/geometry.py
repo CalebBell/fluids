@@ -1606,7 +1606,9 @@ def SA_partial_horiz_spherical_head(D, a, h):
     
     def to_quad(x):
         x2 = x*x
-        num = c1*((R2 - x2)/(c2 - a4*x2))**0.5
+        to_pow = (R2 - x2)/(c2 - a4*x2)
+        if to_pow < 0.0: to_pow = 0.0
+        num = c1*(to_pow)**0.5
         try:
             return asin(num)
         except:
