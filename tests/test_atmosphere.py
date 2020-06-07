@@ -20,20 +20,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from numpy.testing import assert_allclose
 import os
 from fluids.atmosphere import *
 import fluids
-from fluids.numerics import assert_close, assert_close1d
+from fluids.numerics import assert_close, assert_close1d, assert_close2d
 import fluids.optional
-from datetime import datetime, timedelta
-import pytz
+try:
+    from datetime import datetime, timedelta
+except:
+    pass
 import pytest
 try:
     import pvlib
     has_pvlib = True
 except:
     has_pvlib = False
+try:
+    import pytz
+except:
+    pass
 
 from fluids.atmosphere import ATMOSPHERE_1976, hwm93, hwm14, airmass
 
@@ -50,59 +55,61 @@ def test_ATMOSPHERE_1976():
 
 
     Ts = [ATMOSPHERE_1976(Z).T for Z in H_1]
-    assert_allclose(Ts, T_1, atol=0.005)
+    assert_close1d(Ts, T_1, atol=0.005)
     Ps = [ATMOSPHERE_1976(Z).P for Z in H_1]
-    assert_allclose(Ps, P_1, rtol=5E-5)
+    assert_close1d(Ps, P_1, rtol=5E-5)
     rhos = [ATMOSPHERE_1976(Z).rho for Z in H_1]
-    assert_allclose(rhos, rho_1, rtol=5E-5)
+    assert_close1d(rhos, rho_1, rtol=5E-5)
     cs = [ATMOSPHERE_1976(Z).v_sonic for Z in H_1]
-    assert_allclose(cs, c_1, rtol=5E-5)
+    assert_close1d(cs, c_1, rtol=5E-5)
     mus = [ATMOSPHERE_1976(Z).mu for Z in H_1]
-    assert_allclose(mus, mu_1, rtol=5E-5)
+    assert_close1d(mus, mu_1, rtol=5E-5)
     
-    assert_allclose(ATMOSPHERE_1976(1000, dT=1).T, 282.6510223716947)
+    assert_close(ATMOSPHERE_1976(1000, dT=1).T, 282.6510223716947)
     
     # Check thermal conductivity with: http://www.aerospaceweb.org/design/scripts/atmosphere/
-    assert_allclose(ATMOSPHERE_1976(1000).k, 0.0248133634493)
+    assert_close(ATMOSPHERE_1976(1000).k, 0.0248133634493)
     # Other possible additions: 
     # mean air particle speed; mean collision frequency; mean free path; mole volume; total number density
 
 
     delta_P = ATMOSPHERE_1976.pressure_integral(288.6, 84100.0, 147.0)
-    assert_allclose(delta_P, 1451.9583061008857)
+    assert_close(delta_P, 1451.9583061008857)
     
     
 def test_airmass():
     m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90)
-    assert_allclose(m, 10356.127665863998) # vs 10356
+    assert_close(m, 10356.127665863998) # vs 10356
     m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 60)
-    assert_allclose(m, 11954.138271601627) # vs 11954
+    assert_close(m, 11954.138271601627) # vs 11954
     
     m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 5)
-    assert_allclose(m, 106861.56335489497) # vs 106837
+    assert_close(m, 106861.56335489497) # vs 106837
     
     m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, .1)
-    assert_allclose(m, 379082.24065519444, rtol=1e-6) # vs 378596
+    assert_close(m, 379082.24065519444, rtol=1e-6) # vs 378596
     
     # airmass(lambda Z : ATMOSPHERE_1976(Z).rho, .1, RI=1.0016977377367)
     # As refractive index increases, the atmospheric mass increases drastically. An exception is being raised numerically, not sure why
     # 7966284.95792788 - that's an 800x atmospheric increase.
         
     
-
-hwm93_compiled = os.path.exists(os.path.join(os.path.dirname(fluids.optional.__file__), 'hwm93.so'))
-hwm14_compiled = os.path.exists(os.path.join(os.path.dirname(fluids.optional.__file__), 'hwm14.so'))
+try:
+    hwm93_compiled = os.path.exists(os.path.join(os.path.dirname(fluids.optional.__file__), 'hwm93.so'))
+    hwm14_compiled = os.path.exists(os.path.join(os.path.dirname(fluids.optional.__file__), 'hwm14.so'))
+except:
+    hwm93_compiled = hwm14_compiled = False
 
 @pytest.mark.skipif(not hwm93_compiled,
                     reason='hwm93 model is not built')
 def test_hwm93():
     # pass on systems without f2py for now
     custom = hwm93(5E5, 45, 50, 365)
-    assert_allclose(custom, [-73.00312042236328, 0.1485661268234253])
+    assert_close1d(custom, [-73.00312042236328, 0.1485661268234253])
     
     # Test from pyhwm93
     ans = hwm93(Z=150E3, latitude=65, longitude=-148, day=90, seconds=12*3600, f107=100., f107_avg=100., geomagnetic_disturbance_index=4)
-    assert_allclose(ans, [-110.16133880615234, -12.400712013244629])
+    assert_close1d(ans, [-110.16133880615234, -12.400712013244629])
 
 
 @pytest.mark.skipif(not hwm14_compiled,
@@ -122,8 +129,8 @@ def test_hwm14():
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
     
-    assert_allclose(MER_CALC, HEIGHT_PROFILE_MER)
-    assert_allclose(ZON_CALC, HEIGHT_PROFILE_ZON)
+    assert_close1d(MER_CALC, HEIGHT_PROFILE_MER)
+    assert_close1d(ZON_CALC, HEIGHT_PROFILE_ZON)
     
     
     # Latitude profile
@@ -138,8 +145,8 @@ def test_hwm14():
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
     
-    assert_allclose(MER_CALC, LAT_PROFILE_MER)
-    assert_allclose(ZON_CALC, LAT_PROFILE_ZON)
+    assert_close1d(MER_CALC, LAT_PROFILE_MER)
+    assert_close1d(ZON_CALC, LAT_PROFILE_ZON)
 
 
     # Time of day profile: Note the data is specified in terms of local time
@@ -155,8 +162,8 @@ def test_hwm14():
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
     
-    assert_allclose(MER_CALC, TIME_PROFILE_MER)
-    assert_allclose(ZON_CALC, TIME_PROFILER_ZON)
+    assert_close1d(MER_CALC, TIME_PROFILE_MER)
+    assert_close1d(ZON_CALC, TIME_PROFILER_ZON)
 
     # Longitude profile
     LONGS = [-180, -160, -140, -120, -100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100, 120, 140, 160, 180]
@@ -170,8 +177,8 @@ def test_hwm14():
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
     
-    assert_allclose(MER_CALC, LONG_PROFILE_MER)
-    assert_allclose(ZON_CALC, LONG_PROFILE_ZON)
+    assert_close1d(MER_CALC, LONG_PROFILE_MER)
+    assert_close1d(ZON_CALC, LONG_PROFILE_ZON)
     
     # Day of year profile
     DAYS = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360]
@@ -185,8 +192,8 @@ def test_hwm14():
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
     
-    assert_allclose(MER_CALC, DAY_PROFILE_MER)
-    assert_allclose(ZON_CALC, DAY_PROFILE_ZON)
+    assert_close1d(MER_CALC, DAY_PROFILE_MER)
+    assert_close1d(ZON_CALC, DAY_PROFILE_ZON)
     
     # Magnetic strength profile 
     APS = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260]
@@ -200,8 +207,8 @@ def test_hwm14():
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
     
-    assert_allclose(MER_CALC, AP_PROFILE_MER)
-    assert_allclose(ZON_CALC, AP_PROFILE_ZON)
+    assert_close1d(MER_CALC, AP_PROFILE_MER)
+    assert_close1d(ZON_CALC, AP_PROFILE_ZON)
     
 
 def test_solar_position():
@@ -228,13 +235,13 @@ def test_solar_position():
     
 def test_earthsun_distance():
     dt = earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
-    assert_allclose(dt, 149090925951.18338, rtol=1e-10)
+    assert_close(dt, 149090925951.18338, rtol=1e-10)
 
     dt = earthsun_distance(datetime(2013, 1, 1, 21, 21, 0, 0))
-    assert_allclose(dt, 147098127628.8943, rtol=1e-10)
+    assert_close(dt, 147098127628.8943, rtol=1e-10)
     
     dt = earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
-    assert_allclose(dt, 152097326908.20578, rtol=1e-10)
+    assert_close(dt, 152097326908.20578, rtol=1e-10)
     
     assert_close(earthsun_distance(pytz.timezone('America/Edmonton').localize(datetime(2020, 6, 6, 10, 0, 0, 0))),
                  151817805599.67142, rtol=1e-10)
@@ -251,7 +258,7 @@ def test_solar_irradiation():
     ans = solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3, moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,  surface_azimuth=180.0)
     ans_expect = [1065.7622492480543, 945.2657257434173, 120.49652350463705, 95.31534254980346, 25.18118095483359]
     
-    assert_allclose(ans, ans_expect, rtol=1e-5)
+    assert_close1d(ans, ans_expect, rtol=1e-5)
 
 
 def test_sunrise_sunset():

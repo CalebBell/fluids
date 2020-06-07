@@ -21,41 +21,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from fluids import *
-import numpy as np
 from fluids.constants import inch
-from scipy.optimize import fsolve
 from math import log10
-from fluids.numerics import linspace, logspace, assert_close, isclose
-from numpy.testing import assert_allclose
+from fluids.numerics import secant, linspace, logspace, assert_close, isclose, assert_close1d, assert_close2d
 import pytest
 
 def test_flow_meter_discharge():
     m = flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646, C=0.5988, expansibility=0.9975)
-    assert_allclose(m, 0.01120390943807026)
+    assert_close(m, 0.01120390943807026)
     
 def test_orifice_expansibility():
     epsilon = orifice_expansibility(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1.4)
-    assert_allclose(epsilon, 0.9974739057343425)
+    assert_close(epsilon, 0.9974739057343425)
     # Tested against a value in the standard
     
 def test_orifice_expansibility_1989():
     # No actual sample points
     epsilon = orifice_expansibility_1989(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1.4)
-    assert_allclose(epsilon, 0.9970510687411718)
+    assert_close(epsilon, 0.9970510687411718)
     
 def test_C_Reader_Harris_Gallagher():
     C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, taps='corner' )
-    assert_allclose(C, 0.6000085121444034)
+    assert_close(C, 0.6000085121444034)
     
     C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, taps='D' )
-    assert_allclose(C, 0.5988219225153976)
+    assert_close(C, 0.5988219225153976)
     
     C = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, taps='flange' )
-    assert_allclose(C, 0.5990042535666878)
+    assert_close(C, 0.5990042535666878)
 #
 #def test_Reader_Harris_Gallagher_discharge():
 #    m = Reader_Harris_Gallagher_discharge(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, taps='D')
-#    assert_allclose(m, 7.702338035732167)
+#    assert_close(m, 7.702338035732167)
 
     with pytest.raises(Exception):
         C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5,  m=0.12, taps='NOTALOCATION') 
@@ -64,7 +61,7 @@ def test_C_Reader_Harris_Gallagher():
     kwargs = dict(Do=0.0222, rho=1.1645909036, mu=0.0000185861753095, m=0.124431876, taps='corner')
     C1 = C_Reader_Harris_Gallagher(D=0.07112, **kwargs)
     C2 = C_Reader_Harris_Gallagher(D=0.07112-1e-13, **kwargs)
-    assert_allclose(C1, C2)
+    assert_close(C1, C2)
     
 def test_C_Miller_1996():
     C_flange_ISO = C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange')
@@ -162,35 +159,35 @@ def test_C_Miller_1996():
 def test_differential_pressure_meter_discharge():
     # Orifice
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=ISO_5167_ORIFICE, taps='D')
-    assert_allclose(m, 7.702338035732167)
+    assert_close(m, 7.702338035732167)
     
     # Nozzle meters
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=LONG_RADIUS_NOZZLE)
-    assert_allclose(m, 11.86828167015467)
+    assert_close(m, 11.86828167015467)
     
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=ISA_1932_NOZZLE)
-    assert_allclose(m, 11.370262314304702)
+    assert_close(m, 11.370262314304702)
     
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=VENTURI_NOZZLE)
-    assert_allclose(m, 11.471786198133566)
+    assert_close(m, 11.471786198133566)
     
     # Venturi tubes
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=AS_CAST_VENTURI_TUBE)
-    assert_allclose(m, 11.867774156238344)
+    assert_close(m, 11.867774156238344)
     
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=MACHINED_CONVERGENT_VENTURI_TUBE)
-    assert_allclose(m, 12.000442363269464)
+    assert_close(m, 12.000442363269464)
     
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=ROUGH_WELDED_CONVERGENT_VENTURI_TUBE)
-    assert_allclose(m, 11.879834902332082)
+    assert_close(m, 11.879834902332082)
 
     # Cone meter
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
-    assert_allclose(m, 9.997923896460703)
+    assert_close(m, 9.997923896460703)
     
     # wedge meter
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
-    assert_allclose(m, 8.941980099523539)
+    assert_close(m, 8.941980099523539)
     
     with pytest.raises(ValueError):
         differential_pressure_meter_solver(D=.07366, m=7.702338, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
@@ -199,100 +196,100 @@ def test_differential_pressure_meter_discharge():
 def test_differential_pressure_meter_diameter():
     # ISO 5167 orifice
     D2 = differential_pressure_meter_solver(D=0.07366, m=7.702338035732167, P1=200000.0,  P2=183000.0, rho=999.1, mu=0.0011, k=1.33,  meter_type=ISO_5167_ORIFICE, taps='D')
-    assert_allclose(D2, 0.05)
+    assert_close(D2, 0.05)
     
     # Nozzle meters
     D2 = differential_pressure_meter_solver(D=0.07366, m= 11.86828167015467, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=LONG_RADIUS_NOZZLE)
-    assert_allclose(D2, 0.05)
+    assert_close(D2, 0.05)
     
     D2 = differential_pressure_meter_solver(D=0.07366, m=11.370262314304702, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=ISA_1932_NOZZLE)
-    assert_allclose(D2, 0.05)
+    assert_close(D2, 0.05)
     
     D2 = differential_pressure_meter_solver(D=0.07366, m=11.471786198133566, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=VENTURI_NOZZLE)
-    assert_allclose(D2, 0.05)
+    assert_close(D2, 0.05)
     
     # Venturi tubes
     D2 = differential_pressure_meter_solver(D=0.07366, m=11.867774156238344, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=AS_CAST_VENTURI_TUBE)
-    assert_allclose(D2, 0.05)
+    assert_close(D2, 0.05)
     
     D2 = differential_pressure_meter_solver(D=0.07366, m=12.000442363269464, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=MACHINED_CONVERGENT_VENTURI_TUBE)
-    assert_allclose(D2, 0.05)
+    assert_close(D2, 0.05)
     
     D2 = differential_pressure_meter_solver(D=0.07366, m=11.879834902332082, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=ROUGH_WELDED_CONVERGENT_VENTURI_TUBE)
-    assert_allclose(D2, 0.05)
+    assert_close(D2, 0.05)
 
     # Cone meter
     D2 = differential_pressure_meter_solver(D=0.07366, m=9.997923896460703, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
-    assert_allclose(D2, 0.05)
+    assert_close(D2, 0.05)
     
     # wedge meter
     D2 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
-    assert_allclose(D2, 0.05)
+    assert_close(D2, 0.05)
 
 
 def test_differential_pressure_meter_P2():
     P2 = differential_pressure_meter_solver(D=0.07366, m=7.702338035732167, P1=200000.0,  D2=0.05, rho=999.1, mu=0.0011, k=1.33,  meter_type=ISO_5167_ORIFICE, taps='D')
-    assert_allclose(P2, 183000.0)
+    assert_close(P2, 183000.0)
     
     # Nozzle meters
     P2 = differential_pressure_meter_solver(D=0.07366, m= 11.86828167015467, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=LONG_RADIUS_NOZZLE)
-    assert_allclose(P2, 183000.0)
+    assert_close(P2, 183000.0)
     
     P2 = differential_pressure_meter_solver(D=0.07366, m=11.370262314304702, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=ISA_1932_NOZZLE)
-    assert_allclose(P2, 183000.0)
+    assert_close(P2, 183000.0)
     
     P2 = differential_pressure_meter_solver(D=0.07366, m=11.471786198133566, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=VENTURI_NOZZLE)
-    assert_allclose(P2, 183000.0)
+    assert_close(P2, 183000.0)
     
     # Venturi tubes
     P2 = differential_pressure_meter_solver(D=0.07366, m=11.867774156238344, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=AS_CAST_VENTURI_TUBE)
-    assert_allclose(P2, 183000.0)
+    assert_close(P2, 183000.0)
     
     P2 = differential_pressure_meter_solver(D=0.07366, m=12.000442363269464, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=MACHINED_CONVERGENT_VENTURI_TUBE)
-    assert_allclose(P2, 183000.0)
+    assert_close(P2, 183000.0)
     
     P2 = differential_pressure_meter_solver(D=0.07366, m=11.879834902332082, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=ROUGH_WELDED_CONVERGENT_VENTURI_TUBE)
-    assert_allclose(P2, 183000.0)
+    assert_close(P2, 183000.0)
     
     # Cone meter
     P2 = differential_pressure_meter_solver(D=0.07366, m=9.997923896460703, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
-    assert_allclose(P2, 183000.0)
+    assert_close(P2, 183000.0)
     
     # Wedge meter
     P2 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
-    assert_allclose(P2, 183000.0)
+    assert_close(P2, 183000.0)
     
 def test_differential_pressure_meter_P1():
     P1 = differential_pressure_meter_solver(D=0.07366, m=7.702338035732167, P2=183000.0,  D2=0.05, rho=999.1, mu=0.0011, k=1.33,  meter_type=ISO_5167_ORIFICE, taps='D')
-    assert_allclose(P1, 200000)
+    assert_close(P1, 200000)
     
     # Nozzle meters
     P1 = differential_pressure_meter_solver(D=0.07366, m=11.86828167015467, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=LONG_RADIUS_NOZZLE)
-    assert_allclose(P1, 200000)
+    assert_close(P1, 200000)
     
     P1 = differential_pressure_meter_solver(D=0.07366, m=11.370262314304702, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=ISA_1932_NOZZLE)
-    assert_allclose(P1, 200000)
+    assert_close(P1, 200000)
     
     P1 = differential_pressure_meter_solver(D=0.07366, m=11.471786198133566, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=VENTURI_NOZZLE)
-    assert_allclose(P1, 200000)
+    assert_close(P1, 200000)
     
     # Venturi tubes
     P1 = differential_pressure_meter_solver(D=0.07366, m=11.867774156238344, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=AS_CAST_VENTURI_TUBE)
-    assert_allclose(P1, 200000)
+    assert_close(P1, 200000)
     
     P1 = differential_pressure_meter_solver(D=0.07366, m=12.000442363269464, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=MACHINED_CONVERGENT_VENTURI_TUBE)
-    assert_allclose(P1, 200000)
+    assert_close(P1, 200000)
     
     P1 = differential_pressure_meter_solver(D=0.07366, m=11.879834902332082, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=ROUGH_WELDED_CONVERGENT_VENTURI_TUBE)
-    assert_allclose(P1, 200000)
+    assert_close(P1, 200000)
     
     # Cone meter
     P1 = differential_pressure_meter_solver(D=0.07366, m=9.997923896460703, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
-    assert_allclose(P1, 200000)
+    assert_close(P1, 200000)
 
     # Wedge meter
     P1 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
-    assert_allclose(P1, 200000)
+    assert_close(P1, 200000)
 
 
 
@@ -336,65 +333,65 @@ def test_C_quarter_circle_orifice_ISO_15377_1998():
     
 def test_K_to_discharge_coefficient():
     C = K_to_discharge_coefficient(D=0.07366, Do=0.05, K=5.2314291729754)
-    assert_allclose(C, 0.6151200000000001)
+    assert_close(C, 0.6151200000000001)
     
 def test_discharge_coefficient_to_K():
     K = discharge_coefficient_to_K(D=0.07366, Do=0.05, C=0.61512)
-    assert_allclose(K, 5.2314291729754)
+    assert_close(K, 5.2314291729754)
     
 def test_dP_orifice():
     dP = dP_orifice(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0, C=0.61512)
-    assert_allclose(dP, 9069.474705745388)
+    assert_close(dP, 9069.474705745388)
     
 def test_velocity_of_approach_factor():
     factor = velocity_of_approach_factor(D=0.0739, Do=0.0222)
-    assert_allclose(factor, 1.0040970074165514)
+    assert_close(factor, 1.0040970074165514)
 
 def test_flow_coefficient():
     factor = flow_coefficient(D=0.0739, Do=0.0222, C=0.6)
-    assert_allclose(factor, 0.6024582044499308)
+    assert_close(factor, 0.6024582044499308)
     
 def test_nozzle_expansibility():
     epsilon = nozzle_expansibility(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1.4)
-    assert_allclose(epsilon, 0.9945702344566746)
+    assert_close(epsilon, 0.9945702344566746)
     
     assert_close(nozzle_expansibility(D=0.0739, Do=0.0222, P1=1E5, P2=1e5, k=1.4), 1, rtol=1e-14)
 
 def test_C_long_radius_nozzle():
     C = C_long_radius_nozzle(D=0.07391, Do=0.0422, rho=1.2, mu=1.8E-5, m=0.1)
-    assert_allclose(C, 0.9805503704679863)
+    assert_close(C, 0.9805503704679863)
     
 def test_C_ISA_1932_nozzle():
     C = C_ISA_1932_nozzle(D=0.07391, Do=0.0422, rho=1.2, mu=1.8E-5, m=0.1)
-    assert_allclose(C, 0.9635849973250495)
+    assert_close(C, 0.9635849973250495)
     
 def test_C_venturi_nozzle():
     C = C_venturi_nozzle(D=0.07391, Do=0.0422)
-    assert_allclose(C, 0.9698996454169576)
+    assert_close(C, 0.9698996454169576)
     
     
 def test_diameter_ratio_cone_meter():
     beta = diameter_ratio_cone_meter(D=0.2575, Dc=0.184)
-    assert_allclose(beta, 0.6995709873957624)
+    assert_close(beta, 0.6995709873957624)
     # Example in 1 matches exactly; 
     beta = diameter_ratio_cone_meter(D=10.137*inch, Dc=7.244*inch)
-    assert_allclose(beta, 0.6995232442563669)
+    assert_close(beta, 0.6995232442563669)
 
 
 def test_diameter_ratio_wedge_meter():
     beta = diameter_ratio_wedge_meter(D=6.065*inch, H=1.82*inch)
-    assert_allclose(beta, 0.5024062047655528)
+    assert_close(beta, 0.5024062047655528)
     
     beta = diameter_ratio_wedge_meter(D=7.981*inch, H=3.192*inch)
-    assert_allclose(beta, 0.6111198863284705)
+    assert_close(beta, 0.6111198863284705)
     
     beta = diameter_ratio_wedge_meter(D=7.981*inch, H=2.394*inch)
-    assert_allclose(beta, 0.5022667856496335)
+    assert_close(beta, 0.5022667856496335)
     
     
 def test_cone_meter_expansibility_Stewart():
     eps = cone_meter_expansibility_Stewart(D=1, Dc=0.8930285549745876, P1=1E6, P2=1E6*.85, k=1.2)
-    assert_allclose(eps, 0.91530745625)
+    assert_close(eps, 0.91530745625)
 
 def test_wedge_meter_expansibility():
     data = [[1.0000, 0.9871, 0.9741, 0.9610, 0.9478, 0.9345, 0.9007, 0.8662, 0.8308],
@@ -415,87 +412,87 @@ def test_wedge_meter_expansibility():
             row.append(ans)
         calculated.append(row)
         
-    assert_allclose(data, calculated, rtol=1e-4)
+    assert_close2d(data, calculated, rtol=1e-4)
 
 
 def test_dP_wedge_meter():
     dP = dP_wedge_meter(1, .7, 1E6, 9.5E5)
-    assert_allclose(dP, 20344.849697483587)
+    assert_close(dP, 20344.849697483587)
 
 
 def test_dP_cone_meter():
     dP = dP_cone_meter(1, .7, 1E6, 9.5E5)
-    assert_allclose(dP, 25470.093437973323)
+    assert_close(dP, 25470.093437973323)
 
 
 def test_C_wedge_meter_Miller():
     # Large bore
     D = 0.15239999999999998
     C = C_wedge_meter_Miller(D=D, H=0.3*D)
-    assert_allclose(C, 0.7267069372687651)
+    assert_close(C, 0.7267069372687651)
     
     # Tiny bore
     C = C_wedge_meter_Miller(D=.6*inch, H=0.3*.6*inch)
-    assert_allclose(C, 0.8683022107124251)
+    assert_close(C, 0.8683022107124251)
     
     # Medium bore
     C = C_wedge_meter_Miller(D=1.3*inch, H=0.3*1.3*inch)
-    assert_allclose(C, 1.15113726440674)
+    assert_close(C, 1.15113726440674)
     
     
 def test_C_wedge_meter_ISO_5167_6_2017():
     C = C_wedge_meter_ISO_5167_6_2017(D=0.1524, H=0.3*0.1524)
-    assert_allclose(C, 0.724792059539853)
+    assert_close(C, 0.724792059539853)
     
 def test_dP_venturi_tube():
     dP = dP_venturi_tube(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0)
-    assert_allclose(dP, 1788.5717754177406)
+    assert_close(dP, 1788.5717754177406)
 
 
 def test_C_Reader_Harris_Gallagher_wet_venturi_tube():
     # Example 1
     # Works don't change anything
     C = C_Reader_Harris_Gallagher_wet_venturi_tube(mg=5.31926, ml=5.31926/2, rhog=50.0, rhol=800., D=.1, Do=.06, H=1)
-    assert_allclose(C, 0.9754210845876333)
+    assert_close(C, 0.9754210845876333)
 
     # From ISO 5167-4:2003, 5.6,
     # epsilon = 0.994236
     # nozzle_expansibility, orifice_expansibility
     epsilon = nozzle_expansibility(D=.1, Do=.06, P1=60E5, P2=59.5E5, k=1.3)
-    assert_allclose(epsilon, 0.994236, rtol=0, atol=.0000001)
+    assert_close(epsilon, 0.994236, rtol=0, atol=.0000001)
 
     # Example 2
     # Had to solve backwards to get ml, but C checks out perfectly
     C = C_Reader_Harris_Gallagher_wet_venturi_tube(ml=0.434947009566078, mg=6.3817, rhog=50.0, rhol=1000., D=.1, Do=.06, H=1.35)
     # Don't know what the ml is
     #  0,976 992 is C
-    assert_allclose(C, 0.9769937323602329)
+    assert_close(C, 0.9769937323602329)
     
 
 def test_dP_Reader_Harris_Gallagher_wet_venturi_tube():
     dP = dP_Reader_Harris_Gallagher_wet_venturi_tube(ml=5.31926/2, mg=5.31926, rhog=50.0, rhol=800., D=.1, Do=.06, H=1,  P1=6E6, P2=6E6-5E4)
-    assert_allclose(dP, 16957.43843129572)
+    assert_close(dP, 16957.43843129572)
 
 
 def test_differential_pressure_meter_dP():
     for m in [AS_CAST_VENTURI_TUBE, MACHINED_CONVERGENT_VENTURI_TUBE, ROUGH_WELDED_CONVERGENT_VENTURI_TUBE]:
         dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, meter_type=m)
-        assert_allclose(dP, 1788.5717754177406)
+        assert_close(dP, 1788.5717754177406)
         
     dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, C=0.61512, meter_type=ISO_5167_ORIFICE)
-    assert_allclose(dP, 9069.474705745388)
+    assert_close(dP, 9069.474705745388)
 
     dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, C=0.61512, meter_type=LONG_RADIUS_NOZZLE)
-    assert_allclose(dP, 9069.474705745388)
+    assert_close(dP, 9069.474705745388)
 
     dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, C=0.61512, meter_type=ISA_1932_NOZZLE)
-    assert_allclose(dP, 9069.474705745388)
+    assert_close(dP, 9069.474705745388)
     
     dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=CONE_METER)
-    assert_allclose(dP, 8380.848307054845)
+    assert_close(dP, 8380.848307054845)
 
     dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=WEDGE_METER)
-    assert_allclose(dP, 7112.927753356824)
+    assert_close(dP, 7112.927753356824)
     
     with pytest.raises(Exception):
         differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, meter_type=VENTURI_NOZZLE) 
@@ -507,13 +504,13 @@ def test_differential_pressure_meter_dP():
 
 def test_differential_pressure_meter_beta():
     beta = differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=LONG_RADIUS_NOZZLE)
-    assert_allclose(beta, 0.7145631067961165)
+    assert_close(beta, 0.7145631067961165)
     
     beta = differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=WEDGE_METER)
-    assert_allclose(beta, 0.8743896375172885)
+    assert_close(beta, 0.8743896375172885)
     
     beta = differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=CONE_METER)
-    assert_allclose(beta, 0.6995709873957624)
+    assert_close(beta, 0.6995709873957624)
     
     with pytest.raises(ValueError):
         differential_pressure_meter_beta(D=0.07366, D2=0.05, meter_type='NOTAMETER')
@@ -522,8 +519,8 @@ def test_differential_pressure_meter_beta():
 def test_cone_meter_expansibility_Stewart_full():
     err = lambda Dc, beta : diameter_ratio_cone_meter(D=1, Dc=Dc) - beta
     
-    solve_Dc = lambda beta : float(fsolve(err, x0=.7, args=(beta)))
-    
+    solve_Dc = lambda beta : float(secant(err, .7, args=(beta,)))
+
     # Accidentally missed the beta ratio 0.75, oops
     vals = [[1.0000, 0.9887, 0.9774, 0.9661, 0.9548, 0.9435, 0.9153, 0.8871, 0.8588],
     [1.0000, 0.9885, 0.9769, 0.9654, 0.9538, 0.9423, 0.9134, 0.8846, 0.8557],
@@ -596,7 +593,7 @@ def test_C_ISA_1932_nozzle_full():
         Cs_expect = Cs[i]
         beta = betas[i]
         Cs_calc = [round(C_ISA_1932_nozzle(D=1, Do=beta, Re_D=i), 4) for i in Rd_values]
-        assert_allclose(Cs_expect, Cs_calc, atol=1E-4)
+        assert_close1d(Cs_expect, Cs_calc, atol=1E-4)
         
     # There were three typos in there in the values for beta of 0.77 or 0.78.
     # values: 0.9215, 0.9412, 0.9803
@@ -661,7 +658,7 @@ def test_C_long_radius_nozzle_full():
         Cs_expect = Cs[i]
         beta = betas[i]
         Cs_calc = [round(C_long_radius_nozzle(D=1, Do=beta, Re_D=i), 4) for i in Rd_values]
-        assert_allclose(Cs_expect, Cs_calc, atol=1E-4)
+        assert_close1d(Cs_expect, Cs_calc, atol=1E-4)
     
     # Errata:
     # 0.9834 to 0.9805
@@ -682,7 +679,7 @@ def test_C_venturi_nozzle_full():
     betas = [0.32, 0.32, 0.33, 0.34, 0.35, 0.36, 0.37, 0.38, 0.39, 0.40, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49, 0.50, 0.51, 0.52, 0.53, 0.54, 0.55, 0.56, 0.57, 0.58, 0.59, 0.60, 0.61, 0.62, 0.63, 0.64, 0.65, 0.66, 0.67, 0.68, 0.69, 0.70, 0.71, 0.72, 0.73, 0.74, 0.75, 0.76, 0.77, 0.78]
     Cs = [0.9847, 0.9846, 0.9845, 0.9843, 0.9841, 0.9838, 0.9836, 0.9833, 0.9830, 0.9826, 0.9823, 0.9818, 0.9814, 0.9809, 0.9804, 0.9798, 0.9792, 0.9786, 0.9779, 0.9771, 0.9763, 0.9755, 0.9745, 0.9736, 0.9725, 0.9714, 0.9702, 0.9689, 0.9676, 0.9661, 0.9646, 0.9630, 0.9613, 0.9595, 0.9576, 0.9556, 0.9535, 0.9512, 0.9489, 0.9464, 0.9438, 0.9411, 0.9382, 0.9352, 0.9321, 0.9288, 0.9253, 0.9236]
     Cs_calc = [C_venturi_nozzle(D=1, Do=beta) for beta in betas]
-    assert_allclose(Cs, Cs_calc, rtol=5E-3)
+    assert_close1d(Cs, Cs_calc, rtol=5E-3)
 
 def test_differential_pressure_meter_C_epsilon():
     # Some random cases
@@ -768,4 +765,4 @@ def test_fuzz_K_to_discharge_coefficient():
             C = K_to_discharge_coefficient(D=1.0, Do=D_ratio, K=K)
             K_calc = discharge_coefficient_to_K(D=1.0, Do=D_ratio, C=C)
             Ks_recalc.append(K_calc)
-        assert_allclose(Ks, Ks_recalc)
+        assert_close1d(Ks, Ks_recalc)

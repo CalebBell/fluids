@@ -3300,13 +3300,13 @@ def friction_plate_Martin_VDI(Re, plate_enlargement_factor):
     rhs += (1. - cos(phi))*(a*f1)**-0.5
     return rhs**-2.0
 
-Kumar_beta_list = [30, 45, 50, 60, 65]
+Kumar_beta_list = [30.0, 45.0, 50.0, 60.0, 65.0]
 
-Kumar_fd_Res = [[10, 100],
-      [15, 300],
-      [20, 300],
-      [40, 400],
-      [50, 500]]
+Kumar_fd_Res = [[10.0, 100.0],
+      [15.0, 300.0],
+      [20.0, 300.0],
+      [40.0, 400.0],
+      [50.0, 500.0]]
 
 Kumar_C2s = [[50.0, 19.40, 2.990],
        [47.0, 18.29, 1.441],

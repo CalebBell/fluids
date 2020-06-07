@@ -21,23 +21,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from fluids import *
-import numpy as np
-from numpy.testing import assert_allclose
-from fluids.numerics import assert_close
+from math import *
+from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose, linspace, logspace
 import pytest
 from fluids.particle_size_distribution import *
-import scipy.stats
 from random import uniform
-from scipy.integrate import quad
 
 
 def test_ASTM_E11_sieves():
     sieves = ASTM_E11_sieves.values()
     tot = sum([i.d_wire for i in sieves])
-    assert_allclose(tot, 0.105963384)
+    assert_close(tot, 0.105963384)
     
     tot = sum([i.opening for i in sieves])
-    assert_allclose(tot, 0.9876439999999999)
+    assert_close(tot, 0.9876439999999999)
     
     assert len(ASTM_E11_sieves) == 56
 
@@ -49,10 +46,10 @@ def test_ASTM_E11_sieves():
 def test_ISO_3310_2_sieves():
     sieves = ISO_3310_1_sieves.values()
     tot = sum([i.d_wire for i in sieves])
-    assert_allclose(tot, 0.17564599999999997)
+    assert_close(tot, 0.17564599999999997)
     
     tot = sum([i.opening for i in sieves])
-    assert_allclose(tot, 1.5205579999999994)
+    assert_close(tot, 1.5205579999999994)
     
     assert len(ISO_3310_1_sieves) == 99
 
@@ -124,8 +121,8 @@ def test_ParticleSizeDistribution_basic():
         vol_percents_exp = [0.005, 0.021, 0.081, 0.280, 0.837, 2.202, 5.010, 9.687, 15.900, 21.788, 21.826, 15.930, 5.885, 0.547]
         assert vol_percents_exp == [round(i*100, 3) for i in asme_e799.fractions]
         
-        assert_allclose(asme_e799.fractions, fractions)
-        assert_allclose(asme_e799.number_fractions, number_fractions)
+        assert_close1d(asme_e799.fractions, fractions)
+        assert_close1d(asme_e799.number_fractions, number_fractions)
         
         # i, i distributions
         d00 = asme_e799.mean_size(0, 0)
@@ -148,25 +145,27 @@ def test_ParticleSizeDistribution_basic():
 
 
 def test_pdf_lognormal():
+    import scipy.stats
     pdf = pdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
-    assert_allclose(pdf, 405.5420921156425, rtol=1E-12)
+    assert_close(pdf, 405.5420921156425, rtol=1E-12)
     
     pdf_sp = scipy.stats.lognorm.pdf(x=1E-4/1E-5, s=1.1)/1E-5
-    assert_allclose(pdf_sp, pdf)
+    assert_close(pdf_sp, pdf)
     
     assert 0.0 == pdf_lognormal(d=0, d_characteristic=1E-5, s=1.1)
     
     # Check we can get down almost to zero
     pdf = pdf_lognormal(d=3.7E-24, d_characteristic=1E-5, s=1.1)
-    assert_allclose(pdf, 4.842842147909424e-301)
+    assert_close(pdf, 4.842842147909424e-301)
     
     
 def test_cdf_lognormal():
+    import scipy.stats
     cdf = cdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
-    assert_allclose(cdf, 0.98183698757981763)
+    assert_close(cdf, 0.98183698757981763)
     
     cdf_sp = scipy.stats.lognorm.cdf(x=1E-4/1E-5, s=1.1)
-    assert_allclose(cdf, cdf_sp)
+    assert_close(cdf, cdf_sp)
     
     assert cdf_lognormal(d=1e300, d_characteristic=1E-5, s=1.1) == 1.0
     assert cdf_lognormal(d=0, d_characteristic=1E-5, s=1.1) == 0.0
@@ -174,19 +173,22 @@ def test_cdf_lognormal():
     
 def test_pdf_lognormal_basis_integral():
     ans = pdf_lognormal_basis_integral(d=1E-4, d_characteristic=1E-5, s=1.1, n=-2)
-    assert_allclose(ans, 56228306549.263626)
+    assert_close(ans, 56228306549.263626)
     
     # Some things:
     ans = pdf_lognormal_basis_integral(d=1E-100, d_characteristic=1E-5, s=1.1, n=-2)
     ans2 = pdf_lognormal_basis_integral(d=1E-120, d_characteristic=1E-5, s=1.1, n=-2)
-    assert_allclose(ans, ans2, rtol=1E-12)
+    assert_close(ans, ans2, rtol=1E-12)
     
     # Couldn't get the limit for pdf_lognormal_basis_integral when d = 0
     # # with Sympy Or wolfram
-    
+
+@pytest.mark.scipy
 @pytest.mark.fuzz
 @pytest.mark.slow
 def test_pdf_lognormal_basis_integral_fuzz():
+    from scipy.integrate import quad
+
     # The actual integral testing
     analytical_vales = []
     numerical_values = []
@@ -199,12 +201,12 @@ def test_pdf_lognormal_basis_integral_fuzz():
                           - pdf_lognormal_basis_integral(1e-20, d_characteristic=1E-5, s=1.1, n=n))
     
             to_int = lambda d : d**n*pdf_lognormal(d, d_characteristic=1E-5, s=1.1)
-            points = np.logspace(np.log10(d_max/1000), np.log10(d_max*.999), 40)
+            points = logspace(log10(d_max/1000), log10(d_max*.999), 40)
             numerical = quad(to_int, 1e-9, d_max, points=points)[0] # points=points
             analytical_vales.append(analytical)
             numerical_values.append(numerical)
     
-    assert_allclose(analytical_vales, numerical_values, rtol=2E-6)
+    assert_close1d(analytical_vales, numerical_values, rtol=2E-6)
 
 
 def test_cdf_Gates_Gaudin_Schuhman():
@@ -214,31 +216,34 @@ def test_cdf_Gates_Gaudin_Schuhman():
     pdf = diff(expr, d)
     '''
     cdf = cdf_Gates_Gaudin_Schuhman(d=2E-4, d_characteristic=1E-3, m=2.3)
-    assert_allclose(cdf, 0.024681354508800397)
+    assert_close(cdf, 0.024681354508800397)
     
     cdf = cdf_Gates_Gaudin_Schuhman(d=1.01e-3, d_characteristic=1E-3, m=2.3)
-    assert_allclose(cdf, 1)
+    assert_close(cdf, 1)
     
     
 def test_pdf_Gates_Gaudin_Schuhman():
     pdf = pdf_Gates_Gaudin_Schuhman(d=2E-4, d_characteristic=1E-3, m=2.3)
-    assert_allclose(pdf, 283.8355768512045)
+    assert_close(pdf, 283.8355768512045)
     
     pdf = pdf_Gates_Gaudin_Schuhman(d=2E-3, d_characteristic=1E-3, m=2.3)
-    assert_allclose(pdf, 0)
+    assert_close(pdf, 0)
     
     
 def test_pdf_Gates_Gaudin_Schuhman_basis_integral():
     ans =  pdf_Gates_Gaudin_Schuhman_basis_integral(d=0, d_characteristic=1e-3, m=2.3, n=5)
-    assert_allclose(ans, 0)
+    assert_close(ans, 0)
     
     ans = pdf_Gates_Gaudin_Schuhman_basis_integral(d=1e-3, d_characteristic=1e-3, m=2.3, n=5)
-    assert_allclose(ans, 3.1506849315068495e-16)
+    assert_close(ans, 3.1506849315068495e-16)
     
     
+@pytest.mark.scipy
 @pytest.mark.slow
 @pytest.mark.fuzz
 def test_pdf_Gates_Gaudin_Schuhman_basis_integral_fuzz():
+    from scipy.integrate import quad
+
     '''Note: Test takes 10x longer with the quad/points.
     '''
     
@@ -253,17 +258,16 @@ def test_pdf_Gates_Gaudin_Schuhman_basis_integral_fuzz():
                           - pdf_Gates_Gaudin_Schuhman_basis_integral(1E-20, 1E-3, 2.3, n))
     
             to_int = lambda d : d**n*pdf_Gates_Gaudin_Schuhman(d, 1E-3, 2.3)
-#            points = np.logspace(np.log10(d_max/2000), np.log10(d_max*.999), 30)
             numerical = quad(to_int, 1E-20, d_max)[0] # points=points
             analytical_vales.append(analytical)
             numerical_values.append(numerical)
             # The precision here is amazing actually, 1e-14 passes
-#            assert_allclose(analytical, numerical, rtol=1E-7)
-    assert_allclose(analytical_vales, numerical_values, rtol=1E-7)
+#            assert_close1d(analytical, numerical, rtol=1E-7)
+    assert_close1d(analytical_vales, numerical_values, rtol=1E-7)
     
 def test_cdf_Rosin_Rammler():
     cdf = cdf_Rosin_Rammler(5E-2, 200, 2)
-    assert_allclose(cdf, 0.3934693402873667)
+    assert_close(cdf, 0.3934693402873667)
     
     
 def test_pdf_Rosin_Rammler():
@@ -272,16 +276,18 @@ from sympy import *
 d, k, n = symbols('d, k, n')
 model = 1 - exp(-k*d**n)
 print(latex(diff(model, d)))    '''
+    from scipy.integrate import quad
+
     pdf = pdf_Rosin_Rammler(1E-3, 200, 2)
-    assert_allclose(pdf, 0.3999200079994667)
+    assert_close(pdf, 0.3999200079994667)
     
     # quad
     to_quad = lambda d: pdf_Rosin_Rammler(d, 200, 2)
     cdf_int = quad(to_quad, 0, 5e-2)[0]
     cdf_known = cdf_Rosin_Rammler(5E-2, 200, 2)
-    assert_allclose(cdf_int, cdf_known)
+    assert_close(cdf_int, cdf_known)
     
-    assert_allclose(1, quad(to_quad, 0, 5)[0])
+    assert_close(1, quad(to_quad, 0, 5)[0])
     
     assert 0 == pdf_Rosin_Rammler(0, 200, 2)
     
@@ -289,7 +295,7 @@ print(latex(diff(model, d)))    '''
 def test_pdf_Rosin_Rammler_basis_integral():
 
     ans = pdf_Rosin_Rammler_basis_integral(5E-2, 200, 2, 3)
-    assert_allclose(ans, -0.00045239898439007338)
+    assert_close(ans, -0.00045239898439007338)
     
     # Test no error
     pdf_Rosin_Rammler_basis_integral(0, 200, 2, 3)
@@ -297,6 +303,7 @@ def test_pdf_Rosin_Rammler_basis_integral():
 @pytest.mark.slow
 @pytest.mark.fuzz
 def test_pdf_Rosin_Rammler_basis_integral_fuzz():
+    from scipy.integrate import quad
     for n in [1.0, 2.0, 3.0]:
         # Lower d_maxes have 
         for d_max in [ 1e-3, 1e-2, 2e-2, 3e-2, 4e-2, 5e-2, 6e-2, 7e-2, 8e-2, 1e-1]:
@@ -304,19 +311,19 @@ def test_pdf_Rosin_Rammler_basis_integral_fuzz():
                           - pdf_Rosin_Rammler_basis_integral(1E-20, 200, 2, n))
     
             to_int = lambda d : d**n*pdf_Rosin_Rammler(d, 200, 2)
-            points = np.logspace(np.log10(d_max/2000), np.log10(d_max*.999), 30)
+            points = logspace(log10(d_max/2000), log10(d_max*.999), 30)
             numerical = quad(to_int, 1E-20, d_max, points=points)[0]
-            assert_allclose(analytical, numerical, rtol=1E-5)
+            assert_close(analytical, numerical, rtol=1E-5)
 
 
 def testPSDLognormal_meshes():
     a = PSDLognormal(s=0.5, d_characteristic=5E-6)
     ds_expect = [5.011872336272722e-07, 6.309573444801932e-07, 7.943282347242815e-07, 1e-06]
     ds = a.ds_discrete(d_max=1e-6, method='R10', pts=4)
-    assert_allclose(ds_expect, ds)
+    assert_close1d(ds_expect, ds)
     
     ds = a.ds_discrete(d_min=1e-6, method='R10', pts=4)
-    assert_allclose(ds, [1e-06, 1.2589254117941672e-06, 1.5848931924611134e-06, 1.9952623149688796e-06])
+    assert_close1d(ds, [1e-06, 1.2589254117941672e-06, 1.5848931924611134e-06, 1.9952623149688796e-06])
 
 
 @pytest.mark.slow
@@ -330,96 +337,97 @@ def test_PSDLognormal_mean_sizes_numerical():
     
     disc = ParticleSizeDistribution(ds=ds, fractions=fractions, order=3)
     d20 = disc.mean_size(2, 0)
-    assert_allclose(d20, 3.033E-6, rtol=0, atol=1E-9)
+    assert_close(d20, 3.033E-6, rtol=0, atol=1E-9)
     
     d10 = disc.mean_size(1, 0)
-    assert_allclose(d10, 2.676E-6, rtol=0, atol=1E-9)
+    assert_close(d10, 2.676E-6, rtol=0, atol=1E-9)
     
     d21 = disc.mean_size(2, 1)
-    assert_allclose(d21, 3.436E-6, rtol=0, atol=1E-9)
+    assert_close(d21, 3.436E-6, rtol=0, atol=1E-9)
     
     d32 = disc.mean_size(3, 2)
     # Does match, need 6E6 pts to get the last digit to round right
-    assert_allclose(d32, 4.412E-6, rtol=0, atol=1E-9)
+    assert_close(d32, 4.412E-6, rtol=0, atol=1E-9)
     
     d43 = disc.mean_size(4, 3)
-    assert_allclose(d43, 5.666E-6, rtol=0, atol=1E-9)
+    assert_close(d43, 5.666E-6, rtol=0, atol=1E-9)
     
     d33 = disc.mean_size(3.0, 3.0)
-    assert_allclose(d33, 5.000E-6, rtol=0, atol=1E-9)
+    assert_close(d33, 5.000E-6, rtol=0, atol=1E-9)
     
     d00 = disc.mean_size(0.0, 0.0)
-    assert_allclose(d00, 2.362E-6, rtol=0, atol=1E-9)
+    assert_close(d00, 2.362E-6, rtol=0, atol=1E-9)
 
 @pytest.mark.slow
 def test_PSDCustom_mean_sizes_numerical():
+    import scipy.stats
     distribution = scipy.stats.lognorm(s=0.5, scale=5E-6)
     disc = PSDCustom(distribution)
     
     d20 = disc.mean_size(2, 0)
-    assert_allclose(d20, 3.0326532985631672e-06, rtol=1E-8)
+    assert_close(d20, 3.0326532985631672e-06, rtol=1E-8)
     
     d10 = disc.mean_size(1, 0)
-    assert_allclose(d10, 2.6763071425949508e-06, rtol=1E-8)
+    assert_close(d10, 2.6763071425949508e-06, rtol=1E-8)
     
     d21 = disc.mean_size(2, 1)
-    assert_allclose(d21, 3.4364463939548618e-06, rtol=1E-8)
+    assert_close(d21, 3.4364463939548618e-06, rtol=1E-8)
     
     d32 = disc.mean_size(3, 2)
-    assert_allclose(d32, 4.4124845129229773e-06, rtol=1E-8)
+    assert_close(d32, 4.4124845129229773e-06, rtol=1E-8)
     
     d43 = disc.mean_size(4, 3)
-    assert_allclose(d43, 5.6657422653341318e-06, rtol=1E-3)
+    assert_close(d43, 5.6657422653341318e-06, rtol=1E-3)
 
 
 def test_PSDLognormal_mean_sizes_analytical():
     disc = PSDLognormal(s=0.5, d_characteristic=5E-6)
     
     d20 = disc.mean_size(2, 0)
-    assert_allclose(d20, 3.033E-6, rtol=0, atol=1E-9)
-    assert_allclose(d20, 3.0326532985631672e-06, rtol=1E-12)
-    assert_allclose(d20, disc.mean_size_ISO(2, 0), rtol=1E-12)
+    assert_close(d20, 3.033E-6, rtol=0, atol=1E-9)
+    assert_close(d20, 3.0326532985631672e-06, rtol=1E-12)
+    assert_close(d20, disc.mean_size_ISO(2, 0), rtol=1E-12)
 
 
     d10 = disc.mean_size(1, 0)
-    assert_allclose(d10, 2.676E-6, rtol=0, atol=1E-9)
-    assert_allclose(d10, 2.6763071425949508e-06, rtol=1E-12)
-    assert_allclose(d10, disc.mean_size_ISO(1, 0), rtol=1E-12)
+    assert_close(d10, 2.676E-6, rtol=0, atol=1E-9)
+    assert_close(d10, 2.6763071425949508e-06, rtol=1E-12)
+    assert_close(d10, disc.mean_size_ISO(1, 0), rtol=1E-12)
 
     d21 = disc.mean_size(2, 1)
-    assert_allclose(d21, 3.436E-6, rtol=0, atol=1E-9)
-    assert_allclose(d21, 3.4364463939548618e-06, rtol=1E-12)
-    assert_allclose(d21, disc.mean_size_ISO(1, 1), rtol=1E-12)
+    assert_close(d21, 3.436E-6, rtol=0, atol=1E-9)
+    assert_close(d21, 3.4364463939548618e-06, rtol=1E-12)
+    assert_close(d21, disc.mean_size_ISO(1, 1), rtol=1E-12)
 
 
     d32 = disc.mean_size(3, 2)
-    assert_allclose(d32, 4.412E-6, rtol=0, atol=1E-9)
-    assert_allclose(d32, 4.4124845129229773e-06, rtol=1E-12)
-    assert_allclose(d32, disc.mean_size_ISO(1, 2), rtol=1E-12)
+    assert_close(d32, 4.412E-6, rtol=0, atol=1E-9)
+    assert_close(d32, 4.4124845129229773e-06, rtol=1E-12)
+    assert_close(d32, disc.mean_size_ISO(1, 2), rtol=1E-12)
 
     d43 = disc.mean_size(4, 3)
-    assert_allclose(d43, 5.666E-6, rtol=0, atol=1E-9)
-    assert_allclose(d43, 5.6657422653341318e-06, rtol=1E-12)
-    assert_allclose(d43, disc.mean_size_ISO(1, 3), rtol=1E-12)
+    assert_close(d43, 5.666E-6, rtol=0, atol=1E-9)
+    assert_close(d43, 5.6657422653341318e-06, rtol=1E-12)
+    assert_close(d43, disc.mean_size_ISO(1, 3), rtol=1E-12)
     
-    assert_allclose(disc.vssa, 1359778.1436801916)
+    assert_close(disc.vssa, 1359778.1436801916)
 
     # There guys - need more work
     d33 = disc.mean_size(3.0, 3.0)
-    assert_allclose(d33, 5.000E-6, rtol=0, atol=1E-6)
+    assert_close(d33, 5.000E-6, rtol=0, atol=1E-6)
 #    
     d00 = disc.mean_size(0.0, 0.0)
-    assert_allclose(d00, 2.362E-6, rtol=1e-4)
+    assert_close(d00, 2.362E-6, rtol=1e-4)
 
 def test_PSDLognormal_ds_discrete():
     ds_discrete_expect = [2.4920844782646124e-07, 5.870554386661556e-07, 1.3829149496067687e-06, 3.2577055451375563e-06, 7.674112874286059e-06, 1.8077756749742233e-05, 4.258541598963051e-05, 0.0001003176268004454]
     dist = PSDLognormal(s=0.5, d_characteristic=5E-6)
     # Test the defaults
-    assert_allclose(dist.ds_discrete(pts=8), ds_discrete_expect, rtol=1e-4)
+    assert_close1d(dist.ds_discrete(pts=8), ds_discrete_expect, rtol=1e-4)
     
     ds_discrete_expect = [1e-07, 1.389495494373139e-07, 1.9306977288832497e-07, 2.6826957952797275e-07, 3.727593720314938e-07, 5.179474679231213e-07, 7.196856730011514e-07, 1e-06]
     # Test end and minimum points
-    assert_allclose(dist.ds_discrete(d_min=1e-7, d_max=1e-6, pts=8), ds_discrete_expect, rtol=1e-12)
+    assert_close1d(dist.ds_discrete(d_min=1e-7, d_max=1e-6, pts=8), ds_discrete_expect, rtol=1e-12)
 
 
 def test_PSDLognormal_ds_discrete():
@@ -428,7 +436,7 @@ def test_PSDLognormal_ds_discrete():
     ds = dist.ds_discrete(d_min=1e-7, d_max=1e-6, pts=8)
     ans = dist.fractions_discrete(ds)
     fractions_expect = [2.55351295663786e-15, 3.831379657981415e-13, 3.762157252396037e-11, 2.41392961175535e-09, 1.01281244724305e-07, 2.7813750147487326e-06, 5.004382447515443e-05, 0.00059054208024234]
-    assert_allclose(fractions_expect, ans, rtol=1e-3)
+    assert_close1d(fractions_expect, ans, rtol=1e-3)
 
 
 def test_PSDLognormal_dn():
@@ -438,15 +446,15 @@ def test_PSDLognormal_dn():
     ans = disc.dn(1)
     # The answer can vary quite a lot near the end, so it is safest just to 
     # compare with the reverse, plugging it back to cdf
-    assert_allclose(disc.cdf(ans), 1, rtol=1E-12)
-#    assert_allclose(ans, 0.0002964902595794474)
+    assert_close(disc.cdf(ans), 1, rtol=1E-12)
+#    assert_close(ans, 0.0002964902595794474)
     
     # Test zero input
-    assert_allclose(disc.dn(0), 0)
+    assert_close(disc.dn(0), 0)
     
     # Test 50% input
     ans = disc.dn(.5)
-    assert_allclose(ans,  5.0e-06, rtol=1E-6)
+    assert_close(ans,  5.0e-06, rtol=1E-6)
     
     with pytest.raises(Exception):
         disc.dn(1.5)
@@ -454,18 +462,18 @@ def test_PSDLognormal_dn():
         disc.dn(-.5)
         
     # Other orders of n - there is no comparison data for this yet!!
-    assert_allclose(disc.pdf(1E-5), disc.pdf(1E-5, 3))
-    assert_allclose(disc.pdf(1E-5, 2), 13468.122877854335)
-    assert_allclose(disc.pdf(1E-5, 1), 4628.2482296943508)
-    assert_allclose(disc.pdf(1E-5, 0), 1238.6613794833427)
+    assert_close(disc.pdf(1E-5), disc.pdf(1E-5, 3))
+    assert_close(disc.pdf(1E-5, 2), 13468.122877854335)
+    assert_close(disc.pdf(1E-5, 1), 4628.2482296943508)
+    assert_close(disc.pdf(1E-5, 0), 1238.6613794833427)
     
     # Some really large s tests - found some issues with this
     dist = PSDLognormal(s=4, d_characteristic=5E-6)
-    assert_allclose(dist.dn(1e-15), 8.220922763476676e-20, rtol=1e-1)
-    assert_allclose(dist.dn(.99999999), 28055.285560763594)
+    assert_close(dist.dn(1e-15), 8.220922763476676e-20, rtol=1e-1)
+    assert_close(dist.dn(.99999999), 28055.285560763594)
     
-    assert_allclose(dist.dn(1e-9), 1.904197766691136e-16, rtol=1e-4)
-    assert_allclose(dist.dn(1-1e-9), 131288.88851649483, rtol=1e-4)
+    assert_close(dist.dn(1e-9), 1.904197766691136e-16, rtol=1e-4)
+    assert_close(dist.dn(1-1e-9), 131288.88851649483, rtol=1e-4)
     
         
 
@@ -475,29 +483,30 @@ def test_PSDLognormal_dn_order_0_1_2():
     Yes, the integrals need this many points (which makes them slow) to get
     the right accuracy. They've been tested and reduced already quite a bit.
     '''
+    from scipy.integrate import quad
     # test 2, 0 -> 2, 0
     disc = PSDLognormal(s=0.5, d_characteristic=5E-6)
     to_int = lambda d: d**2*disc.pdf(d=d, n=0)
-    points  = [5E-6*i for i in np.logspace(np.log10(.1), np.log10(50), 8)]
+    points  = [5E-6*i for i in logspace(log10(.1), log10(50), 8)]
     
     ans_numerical = (quad(to_int, 1E-7, 5E-3, points=points)[0])**0.5
     ans_analytical = 3.0326532985631672e-06
     # The integral is able to give over to decimals!
-    assert_allclose(ans_numerical, ans_analytical, rtol=1E-10)
+    assert_close(ans_numerical, ans_analytical, rtol=1E-10)
        
     # test 2, 1 -> 1, 1 integrated pdf
     
     to_int = lambda d: d*disc.pdf(d=d, n=1)    
     ans_numerical = (quad(to_int, 1E-7, 5E-3, points=points)[0])**1
     ans_analytical = 3.4364463939548618e-06
-    assert_allclose(ans_numerical, ans_analytical, rtol=1E-10)
+    assert_close(ans_numerical, ans_analytical, rtol=1E-10)
     
     # test 3, 2 -> 1, 2 integrated pdf
     
     to_int = lambda d: d*disc.pdf(d=d, n=2)    
     ans_numerical = (quad(to_int, 1E-7, 5E-3, points=points)[0])**1
     ans_analytical = 4.4124845129229773e-06
-    assert_allclose(ans_numerical, ans_analytical, rtol=1E-8)
+    assert_close(ans_numerical, ans_analytical, rtol=1E-8)
     
     
 def test_PSDLognormal_cdf_orders():
@@ -516,11 +525,12 @@ def test_PSDLognormal_cdf_orders():
     for n in range(0, 4):
         calc.append([disc.cdf(i, n=n) for i in ds])
     
-    assert_allclose(ans_expect, calc, rtol=1E-9)    
+    assert_close2d(ans_expect, calc, rtol=1E-9)    
     
     
 def test_PSDLognormal_cdf_vs_pdf():
-    
+    from scipy.integrate import quad
+
     # test PDF against CDF
     
     disc = PSDLognormal(s=0.5, d_characteristic=5E-6)
@@ -537,31 +547,33 @@ def test_PSDLognormal_cdf_vs_pdf():
         delta_numerical = quad(disc.pdf, d_start, d_end)[0]
         ans_calc.append(delta_numerical)
         ans_expect.append(delta)
-    assert_allclose(ans_calc, ans_expect)
+    assert_close1d(ans_calc, ans_expect)
     
 def test_PSD_lognormal_truncated():
     psd = PSDLognormal(s=0.5, d_characteristic=5E-6, d_max=1e-5, d_min=1e-6, order=3)
-    assert_allclose(psd.dn(1), 1e-5)
-    assert_allclose(psd.dn(0), 1e-6)
-    assert_allclose(psd.cdf(psd.dn(0.5)), 0.5) # No longer at d_characteristic
+    assert_close(psd.dn(1), 1e-5)
+    assert_close(psd.dn(0), 1e-6)
+    assert_close(psd.cdf(psd.dn(0.5)), 0.5) # No longer at d_characteristic
     
     # Check the cdf limits of the truncated distribution
     ds = [1e-8, 1e-7, 1e-6, 2e-6, 5e-6, 9e-6, 1e-5, 1e-4, 1e-3]
     ans = psd.fractions_discrete(ds)
     ans_expect = [0.0, 0.0, 0.0, 0.03577517221380477, 0.5090598176028703, 0.41473614196545805, 0.04042886821786684, 0.0, 0.0]
     assert sum(ans) == 1
-    assert_allclose(ans, ans_expect)
+    assert_close1d(ans, ans_expect)
     
     pdfs = [psd.pdf(i) for i in ds]
     pdfs_expect = [0.0, 0.0, 4896.6230234795203, 81190.803665720552, 174110.24040947447, 48468.576095204902, 33302.599459012476, 0.0, 0.0]
-    assert_allclose(pdfs, pdfs_expect)
+    assert_close1d(pdfs, pdfs_expect)
     
     # Check the mean_size calculations - this is right
-    assert_allclose(psd.mean_size(3, 2), 4.1817574249337556e-06)
+    assert_close(psd.mean_size(3, 2), 4.1817574249337556e-06)
     
 @pytest.mark.fuzz
 @pytest.mark.slow
 def test_PSD_lognormal_truncated_mean_size():
+    from scipy.integrate import quad
+
     psd = PSDLognormal(s=0.5, d_characteristic=5E-6, d_max=1e-5, d_min=1e-6, order=3)
     def psd_mean_size_numeric_truncated(psd, p, q):
         pow1 = q - psd.order 
@@ -579,7 +591,7 @@ def test_PSD_lognormal_truncated_mean_size():
     for p in range(-3, 4):
         for q in range(-3, 4):
             if p != q:
-                assert_allclose(psd.mean_size(p, q), psd_mean_size_numeric_truncated(psd, p, q))
+                assert_close(psd.mean_size(p, q), psd_mean_size_numeric_truncated(psd, p, q))
             
             
 @pytest.mark.slow
@@ -591,6 +603,7 @@ def test_PSD_PSDlognormal_area_length_count():
     
     fractions_discrete is still the slowest part.
     '''
+    import numpy as np
     dist = PSDLognormal(s=0.5, d_characteristic=5E-6)
     
     ds = dist.ds_discrete(pts=700, d_min=2E-7, d_max=1E-4)
@@ -615,6 +628,7 @@ def test_PSDInterpolated_pchip():
     Half the test is spend on the `dn` solver tests, and the other half is just
     that these tests are slow.
     '''
+    import numpy as np
     ds = [360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
     ds = np.array(ds)/1e6
     numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
@@ -624,95 +638,97 @@ def test_PSDInterpolated_pchip():
     assert len(psd.fractions) == len(psd.ds)
     assert len(psd.fractions) == 15
     # test fractions_discrete vs input
-    assert_allclose(psd.fractions_discrete(ds), dist.fractions)
+    assert_close1d(psd.fractions_discrete(ds), dist.fractions)
     
     # test cdf_discrete
-    assert_allclose(psd.cdf_discrete(ds), psd.fraction_cdf[1:])
+    assert_close1d(psd.cdf_discrete(ds), psd.fraction_cdf[1:])
     
     # test that dn solves backwards for exactly the right value - slow
     cumulative_fractions = np.cumsum(dist.fractions) 
     ds_for_fractions = np.array([psd.dn(f) for f in cumulative_fractions])
-    assert_allclose(ds, ds_for_fractions)
+    assert_close1d(ds, ds_for_fractions)
     
     # test _pdf
     test_pdf = psd._pdf(1e-3)
-    assert_allclose(test_pdf, 106.28284463095554)
+    assert_close(test_pdf, 106.28284463095554)
     
     # test _cdf
     test_cdf = psd._cdf(1e-3)
-    assert_allclose(test_cdf, 0.02278897476363087)
+    assert_close(test_cdf, 0.02278897476363087)
     
     # test _pdf_basis_integral
     test_int = psd._pdf_basis_integral(1e-3, 2)
-    assert_allclose(test_int, 1.509707233427664e-08)
+    assert_close(test_int, 1.509707233427664e-08)
     
     # Check that the 0 point is created and the points and fractions are the same
-    assert_allclose(psd.ds, [0] + ds.tolist())
-    assert_allclose(psd.fractions, [0] + dist.fractions)
+    assert_close1d(psd.ds, [0] + ds.tolist())
+    assert_close1d(psd.fractions, [0] + dist.fractions)
     
     # test mean_size
     test_mean = psd.mean_size(3, 2)
-    assert_allclose(test_mean, 0.002211577679574544)    
+    assert_close(test_mean, 0.002211577679574544)    
 
 
 def test_PSDInterpolated_discrete_range_pts():
+    import numpy as np
     ds = [360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
-    ds = np.array(ds)/1e6
+    ds = [i*1e-6 for i in ds]
     numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
     psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
     # test fractions_discrete vs input
-    assert_allclose(psd.fractions_discrete(ds), psd.fractions)
+    assert_close1d(psd.fractions_discrete(ds), psd.fractions)
     
     # test cdf_discrete
-    assert_allclose(psd.cdf_discrete(ds), psd.interpolated.fraction_cdf[1:])
+    assert_close1d(psd.cdf_discrete(ds), psd.interpolated.fraction_cdf[1:])
     # test that dn solves backwards for exactly the right value
     cumulative_fractions = np.cumsum(psd.fractions)
     ds_for_fractions = np.array([psd.dn(f) for f in cumulative_fractions])
-    assert_allclose(ds, ds_for_fractions)
+    assert_close1d(ds, ds_for_fractions)
     
     
     # test _pdf
     test_pdf = psd.pdf(1e-3)
-    assert_allclose(test_pdf, 106.28284463095554)
+    assert_close(test_pdf, 106.28284463095554)
     
     # test _cdf
     test_cdf = psd.cdf(1e-3)
-    assert_allclose(test_cdf, 0.02278897476363087)
+    assert_close(test_cdf, 0.02278897476363087)
     
     # test _pdf_basis_integral
     test_int = psd._pdf_basis_integral(1e-3, 2)
-    assert_allclose(test_int, 1.509707233427664e-08)
+    assert_close(test_int, 1.509707233427664e-08)
     
-    assert not np.isclose(psd.mean_size(3, 2), psd.interpolated.mean_size(3, 2))
+    assert not isclose(psd.mean_size(3, 2), psd.interpolated.mean_size(3, 2))
     
 def test_PSDInterpolated_discrete():
+    import numpy as np
     ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
     numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
     psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
     
     dn_05 = psd.dn(0.5)
-    assert_allclose(dn_05, 0.002526452452632658)
+    assert_close(dn_05, 0.002526452452632658)
     
-    assert_allclose(psd.cdf(dn_05), 0.5, rtol=1e-4)
-    assert_allclose(psd.cdf(0.002, 4), 0.18010145594167873, rtol=5e-3)
-    assert_allclose(psd.pdf(0.002, 2), 466.42761174380007, rtol=5e-3)
+    assert_close(psd.cdf(dn_05), 0.5, rtol=1e-4)
+    assert_close(psd.cdf(0.002, 4), 0.18010145594167873, rtol=5e-3)
+    assert_close(psd.pdf(0.002, 2), 466.42761174380007, rtol=5e-3)
     
-    assert_allclose(psd.pdf(0.002526452452632658), 408.4774528377241, rtol=1e-2)
+    assert_close(psd.pdf(0.002526452452632658), 408.4774528377241, rtol=1e-2)
     
-    assert_allclose(psd.mean_size(1, 0), psd.interpolated.mean_size(1, 0), rtol=0.05)
-    assert_allclose(psd.cdf(100), 1)
+    assert_close(psd.mean_size(1, 0), psd.interpolated.mean_size(1, 0), rtol=0.05)
+    assert_close(psd.cdf(100), 1)
     
-    assert_allclose(psd.cdf(psd.dn(1)), 1)
+    assert_close(psd.cdf(psd.dn(1)), 1)
 
     
 def test_psd_spacing():
     ans_log = psd_spacing(d_min=1, d_max=10, pts=4, method='logarithmic')
     ans_log_expect = [1.0, 2.154434690031884, 4.641588833612778, 10.0]
-    assert_allclose(ans_log, ans_log_expect)
+    assert_close1d(ans_log, ans_log_expect)
     
     ans_lin = psd_spacing(d_min=0, d_max=10, pts=4, method='linear')
     ans_lin_expect = [0.0, 3.3333333333333335, 6.666666666666667, 10.0]
-    assert_allclose(ans_lin, ans_lin_expect)
+    assert_close1d(ans_lin, ans_lin_expect)
     
     with pytest.raises(Exception):
         psd_spacing(d_min=0, d_max=10, pts=8, method='R5')
@@ -723,16 +739,16 @@ def test_psd_spacing():
     # This example from an iso standard, ISO 9276-2 2014
     ans_R5 = psd_spacing(d_max=25, pts=8, method='R5')
     ans_R5_expect = [0.9952679263837426, 1.5773933612004825, 2.499999999999999, 3.9622329811527823, 6.279716078773949, 9.95267926383743, 15.77393361200483, 25]
-    assert_allclose(ans_R5, ans_R5_expect)
+    assert_close1d(ans_R5, ans_R5_expect)
     ans_R5_reversed = psd_spacing(d_min=0.9952679263837426, pts=8, method='R5')
-    assert_allclose(ans_R5_reversed, ans_R5_expect)
+    assert_close1d(ans_R5_reversed, ans_R5_expect)
     
     ans_R5_float = psd_spacing(d_max=25, pts=8, method='R5.00000001')
-    assert_allclose(ans_R5_float, ans_R5_expect)
+    assert_close1d(ans_R5_float, ans_R5_expect)
     
     ans = psd_spacing(d_min=5e-5, d_max=1e-3, method='ISO 3310-1')
     ans_expect = [5e-05, 5.3e-05, 5.6e-05, 6.3e-05, 7.1e-05, 7.5e-05, 8e-05, 9e-05, 0.0001, 0.000106, 0.000112, 0.000125, 0.00014, 0.00015, 0.00016, 0.00018, 0.0002, 0.000212, 0.000224, 0.00025, 0.00028, 0.0003, 0.000315, 0.000355, 0.0004, 0.000425, 0.00045, 0.0005, 0.00056, 0.0006, 0.00063, 0.00071, 0.0008, 0.00085, 0.0009, 0.001]
-    assert_allclose(ans, ans_expect)
+    assert_close1d(ans, ans_expect)
     assert [] == psd_spacing(d_min=0, d_max=1e-6, method='ISO 3310-1')
     assert [] == psd_spacing(d_min=1, d_max=1e2, method='ISO 3310-1')
     
@@ -743,4 +759,4 @@ def test_psd_spacing():
     
     ds = psd_spacing(d_min=1e-5, d_max=1e-4, method='ASTM E11')
     ds_expect = [2e-05, 2.5e-05, 3.2e-05, 3.8e-05, 4.5e-05, 5.3e-05, 6.3e-05, 7.5e-05, 9e-05]
-    assert_allclose(ds, ds_expect)
+    assert_close1d(ds, ds_expect)
