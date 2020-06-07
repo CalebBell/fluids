@@ -93,12 +93,18 @@ def test_airmass():
     # As refractive index increases, the atmospheric mass increases drastically. An exception is being raised numerically, not sure why
     # 7966284.95792788 - that's an 800x atmospheric increase.
         
-    
+hwm93_compiled = True
 try:
-    hwm93_compiled = os.path.exists(os.path.join(os.path.dirname(fluids.optional.__file__), 'hwm93.so'))
-    hwm14_compiled = os.path.exists(os.path.join(os.path.dirname(fluids.optional.__file__), 'hwm14.so'))
+    # Just check if works
+    hwm93(5E5, 45, 50, 365)
 except:
-    hwm93_compiled = hwm14_compiled = False
+    hwm93_compiled = False
+
+hwm14_compiled = True
+try:
+    hwm14(11000, latitude=-45.0, longitude=-85.0, day=150, seconds=12*3600, geomagnetic_disturbance_index=80)
+except:
+    hwm14_compiled = False
 
 @pytest.mark.skipif(not hwm93_compiled,
                     reason='hwm93 model is not built')

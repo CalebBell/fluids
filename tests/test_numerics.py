@@ -82,7 +82,7 @@ def test_interp():
     
     
 def test_splev():
-    from fluids.numerics import splev as my_splev
+    from fluids.numerics import py_splev
     from scipy.interpolate import splev
     # Originally Dukler_XA_tck
     tck = [np.array([-2.4791105294648372, -2.4791105294648372, -2.4791105294648372, 
@@ -93,29 +93,29 @@ def test_splev():
                      3]
     my_tck = [tck[0].tolist(), tck[1].tolist(), tck[2]]
     
-    xs = np.linspace(-3, 2, 100)
+    xs = np.linspace(-3, 2, 100).tolist()
     
     # test extrapolation
     ys_scipy = splev(xs, tck, ext=0)
-    ys = my_splev(xs, my_tck, ext=0)
+    ys = [py_splev(xi, my_tck, ext=0) for xi in xs]
     assert_allclose(ys, ys_scipy)
     
     # test truncating to side values
     ys_scipy = splev(xs, tck, ext=3)
-    ys = my_splev(xs, my_tck, ext=3)
+    ys = [py_splev(xi, my_tck, ext=3) for xi in xs]
     assert_allclose(ys, ys_scipy)
 
     
     # Test returning zeros for bad values
     ys_scipy = splev(xs, tck, ext=1)
-    ys = my_splev(xs, my_tck, ext=1)
+    ys = [py_splev(xi, my_tck, ext=1) for xi in xs]
     assert_allclose(ys, ys_scipy)
     
     # Test raising an error when extrapolating is not allowed
     with pytest.raises(ValueError):
-        my_splev(xs, my_tck, ext=2)
+        py_splev(xs[0], my_tck, ext=2)
     with pytest.raises(ValueError):
-        splev(xs, my_tck, ext=2)
+        splev(xs[0], my_tck, ext=2)
     
 
 def test_bisplev():
