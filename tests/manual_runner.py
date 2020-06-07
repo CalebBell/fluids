@@ -12,8 +12,13 @@ import test_geometry
 import test_two_phase
 import test_two_phase_voidage
 import test_separator
+import test_piping
+import test_packed_bed
+import test_compressible
 
-to_test = [test_drag, test_control_valve, test_geometry, test_two_phase, test_two_phase_voidage,test_separator]
+to_test = [test_drag, test_control_valve, test_geometry, test_two_phase, 
+           test_two_phase_voidage, test_separator, test_piping, test_packed_bed,
+           test_compressible]
 for mod in to_test:
     for s in dir(mod):
         obj = getattr(mod, s)
