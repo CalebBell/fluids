@@ -5,7 +5,7 @@ Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+to use, copy, modify, merge, publish, distribute, sublicensse, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
@@ -101,7 +101,7 @@ if not SKIP_DEPENDENCIES:
         # Regardless of actual interpreter, fall back to pure python implementations
         # if scipy and numpy are not available.
         import numpy
-        import scipy
+        import scipy # Takes 3 ms only
     except ImportError:
         # Allow a fake numpy to be imported, but will raise an excption on any use
         numpy = FakePackage('numpy')
@@ -3020,9 +3020,13 @@ else:
 
 
 # interp, horner, derivative methods (and maybe newton?) should always be used.
-if not IS_PYPY and not SKIP_DEPENDENCIES:
-    from scipy.interpolate import splev, bisplev
-#    from scipy.optimize import newton, bisect, ridder#, brenth
+if not IS_PYPY:
+    def splev(*args, **kwargs):
+        from scipy.interpolate import splev
+        return splev(*args, **kwargs)
+    def bisplev(*args, **kwargs):
+        from scipy.interpolate import bisplev
+        return bisplev(*args, **kwargs)
     
 else:
     splev, bisplev = py_splev, py_bisplev
@@ -3060,11 +3064,47 @@ def py_lambertw(y, k=-1):
 #has_scipy = False
 
 if has_scipy:
-    from scipy.special import lambertw, ellipe, gammaincc, gamma # fluids
-    from scipy.special import i1, i0, k1, k0, iv # ht
-    from scipy.special import hyp2f1    
+    def lambertw(*args, **kwargs):
+        from scipy.special import lambertw
+        return lambertw(*args, **kwargs)
+    def ellipe(*args, **kwargs):
+        from scipy.special import ellipe
+        return ellipe(*args, **kwargs)
+    def gammaincc(*args, **kwargs):
+        from scipy.special import gammaincc
+        return gammaincc(*args, **kwargs)
+    def gamma(*args, **kwargs):
+        from scipy.special import gamma
+        return gamma(*args, **kwargs)
+    def i1(*args, **kwargs):
+        from scipy.special import i1
+        return i1(*args, **kwargs)
+    def i0(*args, **kwargs):
+        from scipy.special import i0
+        return i0(*args, **kwargs)
+    def k1(*args, **kwargs):
+        from scipy.special import k1
+        return k1(*args, **kwargs)
+    def k0(*args, **kwargs):
+        from scipy.special import k0
+        return k0(*args, **kwargs)
+    def iv(*args, **kwargs):
+        from scipy.special import iv
+        return iv(*args, **kwargs)
+    def hyp2f1(*args, **kwargs):
+        from scipy.special import hyp2f1
+        return hyp2f1(*args, **kwargs)
     if erf is None:
-        from scipy.special import erf
+        def erf(*args, **kwargs):
+            from scipy.special import erf
+            return erf(*args, **kwargs)
+
+
+#    from scipy.special import lambertw, ellipe, gammaincc, gamma # fluids
+#    from scipy.special import i1, i0, k1, k0, iv # ht
+#    from scipy.special import hyp2f1    
+#    if erf is None:
+#        from scipy.special import erf
 else:
     lambertw = py_lambertw
         # scipy is not available... fall back to mpmath as a Pure-Python implementation
@@ -3116,5 +3156,11 @@ else:
 try:
     if FORCE_PYPY:
         lambertw = py_lambertw
+        from scipy.special import ellipe, gammaincc, gamma # fluids
+        from scipy.special import i1, i0, k1, k0, iv # ht
+        from scipy.special import hyp2f1    
+        if erf is None:
+            from scipy.special import erf
+
 except:
     pass

@@ -25,7 +25,6 @@ from math import exp, log, log10, tanh
 from fluids.constants import g
 from fluids.numerics import secant
 from fluids.core import Reynolds
-from fluids.numerics import numpy as np
 
 __all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere',
 'time_v_terminal_Stokes', 'Stokes',
@@ -1379,6 +1378,9 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
        Fall of a Ball with Linear or Quadratic Drag." American Journal of 
        Physics 67, no. 6 (June 1999): 538-46. https://doi.org/10.1119/1.19320.
     '''
+    # Delayed import of necessaray functions
+    from scipy.integrate import odeint, cumtrapz
+    import numpy as np
     laminar_initial = Reynolds(V=V, rho=rho, D=D, mu=mu) < 0.01
     v_laminar_end_assumed = v_terminal(D=D, rhop=rhop, rho=rho, mu=mu, Method=Method)
     laminar_end = Reynolds(V=v_laminar_end_assumed, rho=rho, D=D, mu=mu) < 0.01
@@ -1444,8 +1446,6 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     pts = 1000 if distance else 2
     ts = np.linspace(0, t, pts)
     
-    # Delayed import of necessaray functions
-    from scipy.integrate import odeint, cumtrapz
 
     # Perform the integration
     Vs = odeint(dv_dt, [V], ts)

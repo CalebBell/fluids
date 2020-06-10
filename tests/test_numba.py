@@ -563,7 +563,7 @@ Near misses:
 
 Not supported:
 * particle_size_distribution
-* atmosphere
+* atmosphere - give it a go at numba 0.50 for static methods?
 * friction - Only nearest_material_roughness, material_roughness, roughness_Farshad
 * piping - all dictionary lookups
 '''

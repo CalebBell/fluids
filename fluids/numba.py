@@ -34,6 +34,7 @@ from numba import int32, float32, int64, float64
 from numba.experimental import jitclass
 from numba import cfunc
 import linecache
+import numba.types
 
 
 '''Basic module which wraps all fluids functions with numba's jit.
@@ -59,10 +60,11 @@ The correct syntax is as follows:
 >>> from fluids.numba import * # May be used without first importing fluids
 '''
 
-caching = True
+caching = False
 __all__ = []
 
 __funcs = {}
+no_conv_data_names = set(['__builtins__', 'fmethods'])
 
 
 def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name='cache-safe'):
@@ -168,9 +170,64 @@ to_set_num = ['bisplev', 'cy_bispev', 'init_w', 'fpbspl']
 
 
 
+def infer_dictionary_types(d):
+    if not d:
+        raise ValueError("Empty dictionary cannot infer")
+    keys = list(d.keys())
+    type_keys = type(keys[0])
+    for k in keys:
+        if type(k) != type_keys:
+            raise ValueError("Inconsistent key types in dictionary")
+    values = list(d.values())
+    type_values = type(values[0])
+    for v in values:
+        if type(v) != type_values:
+            raise ValueError("Inconsistent value types in dictionary")
+            
+    return numba.typeof(keys[0]), numba.typeof(values[0])
+    
+def numba_dict(d):
+    key_type, value_type = infer_dictionary_types(d)
+    new = numba.typed.Dict.empty(key_type=key_type, value_type=value_type)
+    for k, v in d.items():
+        new[k] = v
+    return new
+
+def return_value_numpy(source):
+    ret = re.search(r'return +\[', source)
+    if ret:
+        start_return, start_bracket = ret.regs[-1]
+        enclosing = 1
+        for i, v in enumerate(source[start_bracket:]):
+            if v == '[':
+                enclosing += 1
+            if v == ']':
+                enclosing -= 1
+            if not enclosing:
+                break
+        return source[:start_bracket-1] + 'np.array([%s)' %source[start_bracket:i+start_bracket+1]        
+    return source
 
 
+# Magic to make a lists into arrays
+list_mult_expr = r'\[ *([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)) *\] *\* *([a-zA-Z0-9]+)'
+numpy_not_list_expr = r'np.full((\4,), \1)'
 
+
+def transform_lists_to_arrays(module, to_change, __funcs):
+    for s in to_change:
+        mod, func = s.split('.')
+        fake_mod = __funcs[mod]
+        source = inspect.getsource(getattr(getattr(module, mod), func))
+        source = return_value_numpy(source)
+    #    source = source.replace(', kwargs={}', '').replace(', **kwargs', '')
+        source = re.sub(list_mult_expr, numpy_not_list_expr, source)
+        numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
+        new_func = fake_mod.__dict__[func]
+        obj = numba.jit(cache=caching)(new_func)
+        __funcs[func] = obj
+        fake_mod.__dict__[func] = obj
+        obj.__doc__ = ''
 
 
 #set_signatures = {'Clamond': [numba.float64(numba.float64, numba.float64, numba.boolean),
@@ -237,10 +294,17 @@ def create_numerics(replaced, vec=False):
     
     NUMERICS_SUBMOD_COPY = importlib.util.find_spec('fluids.numerics')
     NUMERICS_SUBMOD = importlib.util.module_from_spec(NUMERICS_SUBMOD_COPY)
+    NUMERICS_SUBMOD.IS_NUMBA = True
     NUMERICS_SUBMOD.FORCE_PYPY = True
     NUMERICS_SUBMOD.array_if_needed = np.array
     
     NUMERICS_SUBMOD_COPY.loader.exec_module(NUMERICS_SUBMOD)
+    
+    # So long as the other modules are using the system numerics and being updated with the correct numerics methods later
+    # numba wants to make sure these are the same
+    same_classes = ['OscillationError', 'UnconvergedError', 'SamePointError', 'NoSolutionError', 'NotBoundedError', 'DiscontinuityError']
+    for s in same_classes:
+        setattr(NUMERICS_SUBMOD, s, getattr(normal_fluids.numerics, s))
 
     names = list(NUMERICS_SUBMOD.__all__)
     try:
@@ -250,8 +314,9 @@ def create_numerics(replaced, vec=False):
     
 #    NUMERICS_SUBMOD.py_solve = np.linalg.solve
     
+    bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck'])
+    bad_names.update(to_set_num)
     
-    import inspect
     solvers = ['secant', 'brenth'] # newton_system
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
@@ -262,27 +327,32 @@ def create_numerics(replaced, vec=False):
         source = source.replace('ytol=None', 'ytol=1e100')
         source = source.replace(', value=%s" %(maxiter, x)', '"')
         
-        numba_exec_cacheable(source, globals(), globals())
-        setattr(NUMERICS_SUBMOD, s, globals()[s])
+        numba_exec_cacheable(source, NUMERICS_SUBMOD.__dict__, NUMERICS_SUBMOD.__dict__)
 
 
-    numerics_forceobj = set(solvers) # Force the sovlers to compile in object mode
-    numerics_forceobj = []
+#    numerics_forceobj = set(solvers) # Force the sovlers to compile in object mode
+#    numerics_forceobj = []
     for name in names:
-        obj = getattr(NUMERICS_SUBMOD, name)
-        if isinstance(obj, types.FunctionType):
-            forceobj = name in numerics_forceobj
-            # cache=not forceobj 
-            # cache=name not in skip_cache
-            obj = numba.jit(cache=caching, forceobj=forceobj)(obj)
-            NUMERICS_SUBMOD.__dict__[name] = obj
-            replaced[name] = obj
+        if name not in bad_names:
+            obj = getattr(NUMERICS_SUBMOD, name)
+            if isinstance(obj, types.FunctionType):
+#                forceobj = name in numerics_forceobj
+#                forceobj = False
+                # cache=not forceobj 
+                # cache=name not in skip_cache
+                obj = numba.jit(cache=caching, forceobj=False)(obj)
+                NUMERICS_SUBMOD.__dict__[name] = obj
+                replaced[name] = obj
+#                globals()[name] = objs
             
     for name in to_set_num:
         NUMERICS_SUBMOD.__dict__[name] = globals()[name]
-    replaced['py_bisplev'] = globals()['bisplev']
             
-    replaced['bisplev'] = NUMERICS_SUBMOD.__dict__['bisplev'] = replaced['py_bisplev']
+    replaced['bisplev'] = replaced['py_bisplev'] = NUMERICS_SUBMOD.__dict__['bisplev'] = bisplev
+#    replaced['lambertw'] = NUMERICS_SUBMOD.__dict__['lambertw'] = NUMERICS_SUBMOD.__dict__['py_lambertw']
+    for s in ('ellipe', 'gammaincc', 'gamma', 'i1', 'i0', 'k1', 'k0', 'iv', 'hyp2f1', 'erf'):
+        replaced[s] = NUMERICS_SUBMOD.__dict__[s]
+    
 #    replaced['splev'] = NUMERICS_SUBMOD.__dict__['splev']  = replaced['py_splev']
 #    replaced['lambertw'] = NUMERICS_SUBMOD.__dict__['lambertw'] = replaced['py_lambertw']
     
@@ -295,6 +365,8 @@ def create_numerics(replaced, vec=False):
 replaced = {'sum': np.sum}
 replaced, NUMERICS_SUBMOD = create_numerics(replaced, vec=False)
 numerics = NUMERICS_SUBMOD
+#old_numerics = sys.modules['fluids.numerics']
+#sys.modules['fluids.numerics'] = numerics
 normal = normal_fluids
 
 
@@ -310,6 +382,7 @@ def transform_module(normal, __funcs, replaced, vec=False):
     for mod in normal.submodules:
         SUBMOD_COPY = importlib.util.find_spec(mod.__name__)
         SUBMOD = importlib.util.module_from_spec(SUBMOD_COPY)
+        SUBMOD.IS_NUMBA = True
         SUBMOD_COPY.loader.exec_module(SUBMOD)
         
         SUBMOD.__dict__.update(replaced)
@@ -336,21 +409,39 @@ def transform_module(normal, __funcs, replaced, vec=False):
                                     cache=caching)(obj)
                 SUBMOD.__dict__[name] = obj
                 new_objs.append(obj)
-            __funcs.update({name: obj})
+            __funcs[name] = obj
     
-        to_do = {}
+        module_constants_changed_type = {}
         for arr_name in SUBMOD.__dict__.keys():
-            obj = getattr(SUBMOD, arr_name)
-            if type(obj) is list and len(obj) and type(obj[0]) in (float, int, complex):
-                to_do[arr_name] = np.array(obj)
-            elif type(obj) is list and len(obj) and all([
-                    (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj]):
-                to_do[arr_name] = np.array(obj)
-            elif type(obj) in (set, frozenset):
-                to_do[arr_name] = tuple(obj)
+            if arr_name not in no_conv_data_names:
+                obj = getattr(SUBMOD, arr_name)
+                obj_type = type(obj)
+                if obj_type is list and len(obj) and type(obj[0]) in (float, int, complex):
+                    module_constants_changed_type[arr_name] = np.array(obj)
+                elif obj_type is list and len(obj) and all([
+                        (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj]):
+                    module_constants_changed_type[arr_name] = np.array(obj)
+                elif obj_type in (set, frozenset):
+                    module_constants_changed_type[arr_name] = tuple(obj)
+                elif obj_type is dict:
+                    continue
+                    try:
+                        print('starting', arr_name)
+                        infer_dictionary_types(obj)
+                        module_constants_changed_type[arr_name] = numba_dict(obj)
+                    except:
+                        print(arr_name, 'failed')
+                        pass
+        
+##        print(SUBMOD)
+#        if 'h0_Gorenflow_1993' in SUBMOD.__dict__:
+##        if hasattr, ''):
+#            module_constants_changed_type['h0_Gorenflow_1993'] =  numba_dict(SUBMOD.h0_Gorenflow_1993)
+#            #SUBMOD.__dict__['h0_Gorenflow_1993'] = numba_dict(SUBMOD.h0_Gorenflow_1993)
+#
                 
-        SUBMOD.__dict__.update(to_do)
-        __funcs.update(to_do)
+        SUBMOD.__dict__.update(module_constants_changed_type)
+        __funcs.update(module_constants_changed_type)
     
         if not vec:
             for t in new_objs:
@@ -359,12 +450,14 @@ def transform_module(normal, __funcs, replaced, vec=False):
                 except:
                     glob = t.__globals__
                 glob.update(SUBMOD.__dict__)
-                glob.update(to_do)
+                #glob.update(to_do)
                 glob.update(replaced)
     
     # Do our best to allow functions to be found
     for mod in new_mods:
         mod.__dict__.update(__funcs)
+        mod.__dict__.update(replaced)
+        
     return new_mods
 
 
@@ -423,14 +516,9 @@ for s, bad_branch in to_change.items():
     source = inspect.getsource(getattr(getattr(normal_fluids, mod), func))
     fake_mod = __funcs[mod]
     source = remove_branch(source, bad_branch)
-#    if s == 'friction.friction_factor_curved':
-#        print(source)
     numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
-    
     new_func = fake_mod.__dict__[func]
-#    print(new_func)
     obj = numba.jit(cache=caching)(new_func)
-#    setattr(source, func, obj)
     __funcs[func] = obj
     globals()[func] = obj
     obj.__doc__ = ''
@@ -460,6 +548,8 @@ for mod in new_mods:
 
 globals().update(__funcs)
 globals().update(replaced)
+
+#sys.modules['fluids.numerics'] = old_numerics
 
 
 

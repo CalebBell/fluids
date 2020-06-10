@@ -59,7 +59,6 @@ import time
 import os
 from fluids.constants import N_A, R, au
 from fluids.numerics import brenth, quad
-from fluids.numerics import numpy as np
 try:
     from datetime import datetime, timedelta
 except:
@@ -692,6 +691,7 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
             import optional.hwm14
     except: # pragma: no cover
         raise ImportError(no_gfortran_error)
+    import numpy as np
     ans = hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
                0, np.array([np.nan, geomagnetic_disturbance_index]))
     return tuple(ans.tolist())
@@ -1035,6 +1035,7 @@ def sunrise_sunset(moment, latitude, longitude):
     '''
     from fluids.optional import spa
     import calendar 
+    import numpy as np
     if moment.utcoffset() is not None:
         moment_utc = moment + moment.utcoffset()
     else:

@@ -109,9 +109,6 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
 from math import log, exp, pi, log10
 from fluids.numerics import (brenth, epsilon, gamma, erf, gammaincc,
                              linspace, logspace, cumsum, diff, normalize)
-from fluids.numerics import numpy as np
-
-
 
 ROOT_TWO_PI = (2.0*pi)**0.5
 
@@ -1763,6 +1760,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     Example problem from [1]_, calculating several diameters and the cumulative
     distribution.
     
+    >>> import numpy as np
     >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
     >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
     >>> psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
@@ -1949,6 +1947,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         
     def mean_size(self, p, q):
         '''        
+        >>> import numpy as np
         >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
         >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
         >>> psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
@@ -1967,6 +1966,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         
     def mean_size_ISO(self, k, r):
         r'''
+        >>> import numpy as np
         >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
         >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
         >>> psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
@@ -2275,6 +2275,7 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
         # ignore. 
         # DO NOT evaluate the first point as it leads to inf values; just set
         # it to zero
+        from fluids.numerics import numpy as np
         if n not in self.basis_integrals:
             ds = np.array(self.ds[1:])
             pdf_vals = self.pdf_spline(ds)

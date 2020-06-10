@@ -211,7 +211,7 @@ def test_one_phase_dP_dz_acceleration_example():
     dP_acc_basic = one_phase_dP_acceleration(m=s.m, D=D, rho_o=rho1, rho_i=rho0)
     
     assert_close(dP_acc_basic, dP_acc_numerical, rtol=1E-4)
-    
+del test_one_phase_dP_dz_acceleration_example
     
 def test_transmission_factor():
     assert_close(transmission_factor(fd=0.0185), 14.704292441876154)

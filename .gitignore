@@ -11,6 +11,8 @@ __pycache__
 .spyproject
 fluids.egg-info
 prof
+.mypy_cache
+monkeytype.sqlite3
 
 # Compiled source #
 ###################
@@ -22,6 +24,7 @@ prof
 *.so
 *.pyo
 *.idea
+*.pyi
  
 # Packages #
 ############

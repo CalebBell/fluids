@@ -25,7 +25,6 @@ from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
                   degrees)
 from fluids.constants import inch
 from fluids.numerics import secant, brenth, ellipe, horner, chebval, linspace, derivative, quad
-from fluids.numerics import numpy as np
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
@@ -3036,6 +3035,7 @@ class TANK(object):
             `h_from_V` curve, [-]
         '''
         from fluids.optional.pychebfun import Chebfun
+        import numpy as np
         to_fit = lambda h: self.V_from_h(h, 'full')
         
         # These high-degree polynomials cannot safety be evaluated using Horner's methods     
@@ -3795,8 +3795,8 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
     def plot(self, pts=100):  # pragma: no cover
         import matplotlib.pyplot as plt
 
-        Zs = np.linspace(0, self.H_outlet, pts)
-        Rs = np.array([self.diameter(Z) for Z in Zs])/2
+        Zs = linspace(0, self.H_outlet, pts)
+        Rs = [self.diameter(Z)*0.5 for Z in Zs]
         plt.plot(Zs, Rs)
         plt.plot(Zs, -Rs)
         plt.show()

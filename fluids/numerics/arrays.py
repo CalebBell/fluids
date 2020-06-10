@@ -37,11 +37,11 @@ else:
 
 #IS_PYPY = True # for testing
     
-if not IS_PYPY and not REQUIRE_DEPENDENCIES:
-    try:
-        import numpy as np
-    except ImportError:
-        np = None
+#if not IS_PYPY and not REQUIRE_DEPENDENCIES:
+#    try:
+#        import numpy as np
+#    except ImportError:
+#        np = None
 
 __all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product',
            'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix']
@@ -228,6 +228,7 @@ def inv(matrix):
             return [[x0 + b*x3*x0*x0, -x1*x2],
                     [-x0*x3, x2]]
         except:
+            import numpy as np
             return np.linalg.inv(matrix).tolist()
     elif size == 3:
         (a, b, c), (d, e, f), (g, h, i) = matrix
@@ -455,6 +456,7 @@ def solve(a, b):
     if len(a) > 4:
         if IS_PYPY or np is None:
             return solve_LU_decomposition(a, b)
+        import numpy as np
         return np.linalg.solve(a, b).tolist()
     else:
         return dot(inv(a), b)
