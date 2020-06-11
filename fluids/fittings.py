@@ -2762,10 +2762,10 @@ Darby['Tee, Through-branch,(as elbow), (r/D = 1.5)'] = (800.0, 0.14, 4.0)
 Darby['Tee, Through-branch, (as elbow), flanged, (r/D = 1)'] = (800.0, 0.28, 4.0)
 Darby['Tee, Through-branch, (as elbow), stub-in branch'] = (1000.00, 0.34, 4.0)
 Darby['Tee, Run-through, threaded, (r/D = 1)'] = (200.0, 0.091, 4.0)
-Darby['Tee, Run-through, flanged, (r/D = 1)'] = (150, 0.05, 4.0)
+Darby['Tee, Run-through, flanged, (r/D = 1)'] = (150.0, 0.05, 4.0)
 Darby['Tee, Run-through, stub-in branch'] = (100.0, 0.0, 0.0)
-Darby['Valve, Angle valve, 45°, full line size, β = 1'] = (950, 0.25, 4.0)
-Darby['Valve, Angle valve, 90°, full line size, β = 1'] = (1000.00, 0.69, 4.0)
+Darby['Valve, Angle valve, 45°, full line size, β = 1'] = (950.0, 0.25, 4.0)
+Darby['Valve, Angle valve, 90°, full line size, β = 1'] = (1000.0, 0.69, 4.0)
 Darby['Valve, Globe valve, standard, β = 1'] = (1500.0, 1.7, 3.6)
 Darby['Valve, Plug valve, branch flow'] = (500.0, 0.41, 4.0)
 Darby['Valve, Plug valve, straight through'] = (300.0, 0.084, 3.9)
@@ -2775,6 +2775,13 @@ Darby['Valve, Ball valve, standard, β = 1'] = (300.0, 0.017, 3.5)
 Darby['Valve, Diaphragm, dam type'] = (1000.00, 0.69, 4.9)
 Darby['Valve, Swing check'] = (1500.0, 0.46, 4.0)
 Darby['Valve, Lift check'] = (2000.00, 2.85, 3.8)
+
+try:
+    if IS_NUMBA:
+        Darby_keys = tuple(Darby.keys())
+        Darby_values = tuple(Darby.values())
+except:
+    pass
 
 
 def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
@@ -2831,12 +2838,16 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
     .. [2] Silverberg, Peter. "Correlate Pressure Drops Through Fittings."
        Chemical Engineering 108, no. 4 (April 2001): 127,129-130.
     '''
-    if name:
-        if name in Darby:
+    if name is not None:
+        K1 = None
+        if name in Darby: # NUMBA: DELETE
             K1, Ki, Kd = Darby[name]
-        else:
-            raise ValueError('Name of fitting not in list')
-    elif K1 and Ki and Kd:
+        if K1 is None:
+            try:
+                K1, Ki, Kd = Darby_values[Darby_keys.index(name)]
+            except:
+                raise ValueError('Name of fitting is not in database')
+    elif K1 is not None and Ki is not None and Kd is not None:
         pass
     else:
         raise ValueError('Name of fitting or constants are required')
@@ -2846,38 +2857,45 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
 ### 2K Hooper Method
 
 Hooper = {}
-Hooper['Elbow, 90°, Standard (R/D = 1), Screwed'] = {'K1': 800, 'Kinfty': 0.4}
-Hooper['Elbow, 90°, Standard (R/D = 1), Flanged/welded'] = {'K1': 800, 'Kinfty': 0.25}
-Hooper['Elbow, 90°, Long-radius (R/D = 1.5), All types'] = {'K1': 800, 'Kinfty': 0.2}
-Hooper['Elbow, 90°, Mitered (R/D = 1.5), 1 weld (90° angle)'] = {'K1': 1000, 'Kinfty': 1.15}
-Hooper['Elbow, 90°, Mitered (R/D = 1.5), 2 weld (45° angle)'] = {'K1': 800, 'Kinfty': 0.35}
-Hooper['Elbow, 90°, Mitered (R/D = 1.5), 3 weld (30° angle)'] = {'K1': 800, 'Kinfty': 0.3}
-Hooper['Elbow, 90°, Mitered (R/D = 1.5), 4 weld (22.5° angle)'] = {'K1': 800, 'Kinfty': 0.27}
-Hooper['Elbow, 90°, Mitered (R/D = 1.5), 5 weld (18° angle)'] = {'K1': 800, 'Kinfty': 0.25}
-Hooper['Elbow, 45°, Standard (R/D = 1), All types'] = {'K1': 500, 'Kinfty': 0.2}
-Hooper['Elbow, 45°, Long-radius (R/D 1.5), All types'] = {'K1': 500, 'Kinfty': 0.15}
-Hooper['Elbow, 45°, Mitered (R/D=1.5), 1 weld (45° angle)'] = {'K1': 500, 'Kinfty': 0.25}
-Hooper['Elbow, 45°, Mitered (R/D=1.5), 2 weld (22.5° angle)'] = {'K1': 500, 'Kinfty': 0.15}
-Hooper['Elbow, 45°, Standard (R/D = 1), Screwed'] = {'K1': 1000, 'Kinfty': 0.7}
-Hooper['Elbow, 180°, Standard (R/D = 1), Flanged/welded'] = {'K1': 1000, 'Kinfty': 0.35}
-Hooper['Elbow, 180°, Long-radius (R/D = 1.5), All types'] = {'K1': 1000, 'Kinfty': 0.3}
-Hooper['Elbow, Used as, Standard, Screwed'] = {'K1': 500, 'Kinfty': 0.7}
-Hooper['Elbow, Elbow, Long-radius, Screwed'] = {'K1': 800, 'Kinfty': 0.4}
-Hooper['Elbow, Elbow, Standard, Flanged/welded'] = {'K1': 800, 'Kinfty': 0.8}
-Hooper['Elbow, Elbow, Stub-in type branch'] = {'K1': 1000, 'Kinfty': 1}
-Hooper['Tee, Run, Screwed'] = {'K1': 200, 'Kinfty': 0.1}
-Hooper['Tee, Through, Flanged or welded'] = {'K1': 150, 'Kinfty': 0.05}
-Hooper['Tee, Tee, Stub-in type branch'] = {'K1': 100, 'Kinfty': 0}
-Hooper['Valve, Gate, Full line size, Beta = 1'] = {'K1': 300, 'Kinfty': 0.1}
-Hooper['Valve, Ball, Reduced trim, Beta = 0.9'] = {'K1': 500, 'Kinfty': 0.15}
-Hooper['Valve, Plug, Reduced trim, Beta = 0.8'] = {'K1': 1000, 'Kinfty': 0.25}
-Hooper['Valve, Globe, Standard'] = {'K1': 1500, 'Kinfty': 4}
-Hooper['Valve, Globe, Angle or Y-type'] = {'K1': 1000, 'Kinfty': 2}
-Hooper['Valve, Diaphragm, Dam type'] = {'K1': 1000, 'Kinfty': 2}
-Hooper['Valve, Butterfly,'] = {'K1': 800, 'Kinfty': 0.25}
-Hooper['Valve, Check, Lift'] = {'K1': 2000, 'Kinfty': 10}
-Hooper['Valve, Check, Swing'] = {'K1': 1500, 'Kinfty': 1.5}
-Hooper['Valve, Check, Tilting-disc'] = {'K1': 1000, 'Kinfty': 0.5}
+Hooper['Elbow, 90°, Standard (R/D = 1), Screwed'] = (800.0, 0.4)
+Hooper['Elbow, 90°, Standard (R/D = 1), Flanged/welded'] = (800.0, 0.25)
+Hooper['Elbow, 90°, Long-radius (R/D = 1.5), All types'] = (800.0, 0.2)
+Hooper['Elbow, 90°, Mitered (R/D = 1.5), 1 weld (90° angle)'] = (1000.0, 1.15)
+Hooper['Elbow, 90°, Mitered (R/D = 1.5), 2 weld (45° angle)'] = (800.0, 0.35)
+Hooper['Elbow, 90°, Mitered (R/D = 1.5), 3 weld (30° angle)'] = (800.0, 0.3)
+Hooper['Elbow, 90°, Mitered (R/D = 1.5), 4 weld (22.5° angle)'] = (800.0, 0.27)
+Hooper['Elbow, 90°, Mitered (R/D = 1.5), 5 weld (18° angle)'] = (800.0, 0.25)
+Hooper['Elbow, 45°, Standard (R/D = 1), All types'] = (500.0, 0.2)
+Hooper['Elbow, 45°, Long-radius (R/D 1.5), All types'] = (500.0, 0.15)
+Hooper['Elbow, 45°, Mitered (R/D=1.5), 1 weld (45° angle)'] = (500.0, 0.25)
+Hooper['Elbow, 45°, Mitered (R/D=1.5), 2 weld (22.5° angle)'] = (500.0, 0.15)
+Hooper['Elbow, 45°, Standard (R/D = 1), Screwed'] = (1000.0, 0.7)
+Hooper['Elbow, 180°, Standard (R/D = 1), Flanged/welded'] = (1000.0, 0.35)
+Hooper['Elbow, 180°, Long-radius (R/D = 1.5), All types'] = (1000.0, 0.3)
+Hooper['Elbow, Used as, Standard, Screwed'] = (500.0, 0.7)
+Hooper['Elbow, Elbow, Long-radius, Screwed'] = (800.0, 0.4)
+Hooper['Elbow, Elbow, Standard, Flanged/welded'] = (800.0, 0.8)
+Hooper['Elbow, Elbow, Stub-in type branch'] = (1000.0, 1.0)
+Hooper['Tee, Run, Screwed'] = (200.0, 0.1)
+Hooper['Tee, Through, Flanged or welded'] = (150.0, 0.05)
+Hooper['Tee, Tee, Stub-in type branch'] = (100.0, 0.0)
+Hooper['Valve, Gate, Full line size, Beta = 1'] = (300.0, 0.1)
+Hooper['Valve, Ball, Reduced trim, Beta = 0.9'] = (500.0, 0.15)
+Hooper['Valve, Plug, Reduced trim, Beta = 0.8'] = (1000.0, 0.25)
+Hooper['Valve, Globe, Standard'] = (1500.0, 4.0)
+Hooper['Valve, Globe, Angle or Y-type'] = (1000.0, 2.0)
+Hooper['Valve, Diaphragm, Dam type'] = (1000.0, 2.0)
+Hooper['Valve, Butterfly,'] = (800.0, 0.25)
+Hooper['Valve, Check, Lift'] = (2000.0, 10.0)
+Hooper['Valve, Check, Swing'] = (1500.0, 1.5)
+Hooper['Valve, Check, Tilting-disc'] = (1000.0, 0.5)
+
+try:
+    if IS_NUMBA:
+        Hooper_keys = tuple(Hooper.keys())
+        Hooper_values = tuple(Hooper.values())
+except:
+    pass
 
 
 def Hooper2K(Di, Re, name=None, K1=None, Kinfty=None):
@@ -2933,16 +2951,19 @@ def Hooper2K(Di, Re, name=None, K1=None, Kinfty=None):
        Petrochemical Plants. 4E. Amsterdam ; Boston: Gulf Professional
        Publishing, 2007.
     '''
-    if name:
-        if name in Hooper:
-            d = Hooper[name]
-            K1, Kinfty = d['K1'], d['Kinfty']
-        else:
-            raise Exception('Name of fitting not in list')
-    elif K1 and Kinfty:
+    if name is not None:
+        K1 = None
+        if name in Hooper: # NUMBA: DELETE
+            K1, Kinfty = Hooper[name]
+        if K1 is None:
+            try:
+                K1, Kinfty = Hooper_values[Hooper_keys.index(name)]
+            except:
+                raise ValueError('Name of fitting is not in database')
+    elif K1 is not None and Kinfty is not None:
         pass
     else:
-        raise Exception('Name of fitting or constants are required')
+        raise ValueError('Name of fitting or constants are required')
     return K1/Re + Kinfty*(1. + 1./Di)
 
 

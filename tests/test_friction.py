@@ -67,6 +67,7 @@ def test_friction():
 
     assert_close(sum(_roughness.values()), 0.01504508)
 
+
     assert_close(friction_factor(Re=1E5, eD=1E-4), 0.01851386607747165)
     methods_1 = friction_factor(Re=1E5, eD=1E-4, AvailableMethods=True)
     methods_1.sort()
@@ -79,10 +80,22 @@ def test_friction():
     assert_close(friction_factor(Re=128), 0.5)
     
     assert_close(friction_factor(Re=1E5, eD=0, Method=None), 0.01798977308427384)
+    assert_close(friction_factor(20000, eD=0.0, Method='laminar'), 0.0032)
     
+    with pytest.raises(ValueError):
+        friction_factor(Re=1E5, eD=0, Method='BADMETHOD')
+    
+    assert ['laminar'] == friction_factor_methods(200, 0, True)
+    assert 31 == len(friction_factor_methods(200, 0, False))
+
+    for m in friction_factor_methods(200, 0, False):   
+        friction_factor(Re=1E5, eD=1e-6, Method=m)
     
     fd = ft_Crane(.1)
     assert_close(fd, 0.01628845962146481)
+    
+    assert_close(ft_Crane(1e-5), 604.8402578042682)
+    
     Di = 0.1
     fd_act = Clamond(7.5E6*Di, eD=roughness_Farshad(ID='Carbon steel, bare', D=Di)/Di)
     assert_close(fd, fd_act, rtol=5e-6)
@@ -419,10 +432,23 @@ def test_friction_factor_curved():
     assert sorted(methods) == sorted(['Guo','Ju','Schmidt turbulent','Prasad','Mandel Nigam','Mori Nakayama turbulent','Czop', 'Srinivasan turbulent'])
     methods = friction_factor_curved(2000, 0.01, .02, AvailableMethods=True)
     assert sorted(methods) == sorted(['White', 'Schmidt laminar', 'Mori Nakayama laminar'])
+
+    methods = friction_factor_curved_methods(20000, 0.01, .02, check_ranges=True)
+    assert sorted(methods) == sorted(['Guo','Ju','Schmidt turbulent','Prasad','Mandel Nigam','Mori Nakayama turbulent','Czop', 'Srinivasan turbulent'])
+    methods = friction_factor_curved_methods(2000, 0.01, .02, check_ranges=True)
+    assert sorted(methods) == sorted(['White', 'Schmidt laminar', 'Mori Nakayama laminar'])
+    assert friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5)[0] == 'Schmidt turbulent'
+    assert 11 == len(friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5, check_ranges=False))
+    
+    for m in friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5, check_ranges=False):
+        friction_factor_curved(2000, 0.01, .02, Method=m)
     
     # Test the Fanning case
     fd = friction_factor_curved(2E4, 0.01, .02, Darcy=False)
     assert_close(fd, 0.012533661655400756)
+    
+    for m in ['Seth Stahel', 'Ito', 'Kubair Kuloor', 'Kutateladze Borishanskii', 'Schmidt', 'Srinivasan']:
+        helical_Re_crit(Di=0.02, Dc=0.5, Method=m)
     
 def test_friction_plate():
     fd = friction_plate_Martin_1999(Re=20000, plate_enlargement_factor=1.15)

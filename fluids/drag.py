@@ -26,7 +26,7 @@ from fluids.constants import g
 from fluids.numerics import secant
 from fluids.core import Reynolds
 
-__all__ = ['drag_sphere', 'v_terminal', 'integrate_drag_sphere',
+__all__ = ['drag_sphere', 'drag_sphere_methods', 'v_terminal', 'integrate_drag_sphere',
 'time_v_terminal_Stokes', 'Stokes',
 'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
 'Clift_Gauvin', 'Morsi_Alexander', 'Graf', 'Flemmer_Banks', 'Khan_Richardson',
@@ -1024,10 +1024,38 @@ drag_sphere_correlations = {
     'Song_Xu': (Song_Xu, None, 1E3)
 }
 
-def list_methods_drag_sphere(Re):
+def drag_sphere_methods(Re, check_ranges=True):
+    r'''This function returns a list of methods that can be used to calculate
+    the drag coefficient of a sphere.
+    Twenty one methods are available, all requiring only the Reynolds number of 
+    the sphere. Most methods are valid from Re=0 to Re=200,000. 
+
+    Examples
+    --------
+    >>> len(drag_sphere_methods(200)
+    20
+    >>> len(drag_sphere_methods(200000, check_ranges=False))
+    21
+    >>> len(drag_sphere_methods(200000, check_ranges=True))
+    5
+
+    Parameters
+    ----------
+    Re : float
+        Particle Reynolds number of the sphere using the surrounding fluid
+        density and viscosity, [-]
+    check_ranges : bool, optional
+        Whether to return only correlations claiming to be valid for the given
+        `Re` or not, [-]
+    
+    Returns
+    -------
+    methods : list, only returned if AvailableMethods == True
+        List of methods which can be used to calculate `Cd` with the given `Re`
+    '''
     methods = []
     for key, (func, Re_min, Re_max) in drag_sphere_correlations.items():
-        if (Re_min is None or Re > Re_min) and (Re_max is None or Re < Re_max):
+        if ((Re_min is None or Re > Re_min) and (Re_max is None or Re < Re_max)) or not check_ranges:
             methods.append(key)
     return methods
 
@@ -1074,10 +1102,12 @@ def drag_sphere(Re, Method=None, AvailableMethods=False):
         drag_sphere_correlations
     AvailableMethods : bool, optional
         If True, function will consider which methods which can be used to
-        calculate `Cd` with the given `Re`
+        calculate `Cd` with the given `Re`; DEPRECATED
     '''
     if AvailableMethods:
-        return list_methods_drag_sphere(Re)
+        import warnings
+        warnings.warn('Please use drag_sphere_methods', DeprecationWarning, stacklevel=2)
+        return drag_sphere_methods(Re)
     if Method is None:
         if Re > 0.1:
             # Smooth transition point between the two models

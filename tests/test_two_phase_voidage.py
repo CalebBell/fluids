@@ -185,7 +185,23 @@ def test_Woldesemayat_Ghajar():
 def test_Xu_Fang_voidage():
     assert_close(Xu_Fang_voidage(0.4, 800., 2.5, m=1, D=0.3), 0.9414660089942093)
     
+
+def test_liquid_gas_voidage():
+    voidage = liquid_gas_voidage(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05)
+    assert_close(voidage, 0.9744097632663492)
     
+    # TODO remove
+    liquid_gas_voidage(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, AvailableMethods=True)
+    
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, P=1e5, Pc=1e7)
+    for m in liquid_gas_voidage_methods(**kwargs):
+        liquid_gas_voidage(Method=m, **kwargs)
+        
+    with pytest.raises(Exception):
+        liquid_gas_voidage(Method='BADMETHOD', **kwargs)
+    
+    assert len(liquid_gas_voidage_methods(**kwargs)) == 29
+
 def test_density_two_phase():
     assert_close(density_two_phase(.4, 800, 2.5), 481.0)
     
@@ -242,8 +258,21 @@ def test_gas_liquid_viscosity():
     mu = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method='Duckler')
     assert_close(mu, 1.2092040385066917e-05)
     
+    # TODO remove
     methods = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, AvailableMethods=True)
     assert len(methods) == 6
+    
+    simple_methods = gas_liquid_viscosity_methods()
+    assert list(sorted(simple_methods)) == list(sorted(['McAdams', 'Cicchitti', 'Lin Kwok']))
+    
+    all_methods = gas_liquid_viscosity_methods(rhol=1000, rhog=2)
+    all_methods_expect = ['Beattie Whalley', 'Fourar Bories', 'Duckler', 'McAdams', 'Cicchitti', 'Lin Kwok']
+    assert list(sorted(all_methods)) == list(sorted(all_methods_expect))
+    
+    for m in all_methods_expect:
+        gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method=m)
+
+
     
     with pytest.raises(Exception):
         gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, Method='NOTAMETHOD')

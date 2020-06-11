@@ -75,11 +75,23 @@ def test_packed_bed():
     dP5 = dP_packed_bed(8E-4, 0.4, 1E-3, 1E3, 1E-3)
     assert_close1d([dP1, dP2, dP3, dP4, dP5], [1438.2826958844414, 1255.1625662548427, 1338.8671874999995, 3696.2890624999986, 1438.2826958844414])
 
+    # REMOVE ONCE DEPRECATED
     methods_dP = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, AvailableMethods=True)
     methods_dP.sort()
     methods_dP_val = ['Harrison, Brunner & Hecker', 'Carman', 'Guo, Sun, Zhang, Ding & Liu', 'Hicks', 'Montillet, Akkari & Comiti', 'Idelchik', 'Erdim, Akgiray & Demir', 'KTA', 'Kuo & Nydegger', 'Ergun', 'Brauer', 'Fahien & Schriver', 'Jones & Krier', 'Tallmadge']
     methods_dP_val.sort()
     assert methods_dP == methods_dP_val
+    
+    for m in methods_dP_val:
+        dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, Method=m)
+    
+    all_methods = dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1, Dt=1e-2)
+    assert 'Erdim, Akgiray & Demir' == dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1)[0]
+    assert 'Harrison, Brunner & Hecker' == all_methods[0]
+    all_methods.sort()
+    assert all_methods == methods_dP_val
+    
+    
 
     with pytest.raises(Exception):
         dP_packed_bed(8E-4, 0.4, 1E-3, 1E3, 1E-3, Method='Fail')

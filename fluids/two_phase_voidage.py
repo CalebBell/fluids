@@ -34,7 +34,9 @@ __all__ = ['Thom', 'Zivi', 'Smith', 'Fauske', 'Chisholm_voidage', 'Turner_Wallis
            'Sun_Duffey_Peng', 'Xu_Fang_voidage', 'Woldesemayat_Ghajar',
            'Lockhart_Martinelli_Xtt', 'two_phase_voidage_experimental', 
            'density_two_phase', 'Beattie_Whalley', 'McAdams', 'Cicchitti',
-           'Lin_Kwok', 'Fourar_Bories','Duckler', 'liquid_gas_voidage', 'gas_liquid_viscosity', 
+           'Lin_Kwok', 'Fourar_Bories','Duckler', 'liquid_gas_voidage',
+           'liquid_gas_voidage_methods', 'gas_liquid_viscosity', 
+           'gas_liquid_viscosity_methods',
            'two_phase_voidage_correlations', 'liquid_gas_viscosity_correlations']
 
 ### Models based on slip ratio
@@ -1906,11 +1908,60 @@ two_phase_voidage_correlations = {'Thom' : (Thom, ('x', 'rhol', 'rhog', 'mul', '
 _unknown_two_phase_voidage_corr = 'Method not recognized; available methods are %s' %list(two_phase_voidage_correlations.keys())
 # All the available arguments are: 
 #{'rhol', 'angle=0', 'x', 'P', 'mug', 'rhog', 'D', 'g', 'Pc', 'sigma', 'mul', 'm'}
-def list_methods_liquid_gas_voidage(myargs):
+def liquid_gas_voidage_methods(x, rhol, rhog, D=None, m=None, mul=None, mug=None, 
+                               sigma=None, P=None, Pc=None, angle=0, g=g,
+                               check_ranges=False):
+    r'''This function returns a list of liquid-gas voidage correlation names
+    which can perform the calculation with the provided inputs. The holdup is
+    for two-phase liquid-gas flow inside channels. 29 calculation methods are 
+    available, with varying input requirements.
+
+    Parameters
+    ----------
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    rhog : float
+        Gas density, [kg/m^3]
+    D : float, optional
+        Diameter of pipe, [m]
+    m : float, optional
+        Mass flow rate of fluid, [kg/s]
+    mul : float, optional
+        Viscosity of liquid, [Pa*s]
+    mug : float, optional
+        Viscosity of gas, [Pa*s]
+    sigma : float, optional
+        Surface tension, [N/m]
+    P : float, optional
+        Pressure of fluid, [Pa]
+    Pc : float, optional
+        Critical pressure of fluid, [Pa]
+    angle : float, optional
+        Angle of the channel with respect to the horizontal (vertical = 90), 
+        [degrees]
+    g : float, optional
+        Acceleration due to gravity, [m/s^2]
+    check_ranges : bool, optional
+        Added for future use only
+
+    Returns
+    -------
+    methods : list, only returned if AvailableMethods == True
+        List of methods which can be used to calculate two-phase liquid-gas 
+        voidage with the given inputs.
+
+    Examples
+    --------
+    >>> len(liquid_gas_voidage_methods(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05))
+    27
+    '''
+    vals = locals()
     usable_methods = []
     for method, value in two_phase_voidage_correlations.items():
         f, args = value
-        if all(myargs[i] is not None for i in args):
+        if all(vals[i] is not None for i in args):
             usable_methods.append(method)
     return usable_methods
 
@@ -1977,7 +2028,7 @@ def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
     AvailableMethods : bool, optional
         If True, function will consider which methods which can be used to
         calculate two-phase liquid-gas voidage with the given inputs and return
-        them as a list instead of performing a calculation.
+        them as a list instead of performing a calculation. DEPRECATED!
 
     Notes
     -----
@@ -1989,7 +2040,10 @@ def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
     0.9744097632663492
     '''
     if AvailableMethods:
-        return list_methods_liquid_gas_voidage(locals())
+        import warnings
+        warnings.warn('Please use liquid_gas_voidage_methods', DeprecationWarning, stacklevel=2)
+        return liquid_gas_voidage_methods(x=x, rhol=rhol, rhog=rhog, D=D, m=m, mul=mul, mug=mug, 
+                                          sigma=sigma, P=P, Pc=Pc, angle=angle, g=g)
     if Method is None:
         Method2 = 'homogeneous'
     else:
@@ -2492,7 +2546,34 @@ liquid_gas_viscosity_correlations = {'Beattie Whalley': (Beattie_Whalley, 1),
                                      'Cicchitti': (Cicchitti, 0),
                                      'Lin Kwok': (Lin_Kwok, 0)}
 
-def list_methods_gas_liquid_viscosity(rhol, rhog):
+def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
+    r'''This function returns a list of methods which can be used for calculating
+    two-phase liquid-gas viscosity.
+    Six calculation methods are available; three of them require only `x`, 
+    `mul`, and `mug`; the other three require `rhol` and `rhog` as well. 
+        
+    Parameters
+    ----------
+    rhol : float, optional
+        Liquid density, [kg/m^3]
+    rhog : float, optional
+        Gas density, [kg/m^3]
+    check_ranges : bool, optional
+        Added for compatibility only, never used
+    
+    Returns
+    -------
+    methods : list
+        List of methods which can be used to calculate two-phase liquid-gas
+        viscosity with the given inputs.
+    
+    Examples
+    --------
+    >>> gas_liquid_viscosity_methods()
+    ['McAdams', 'Cicchitti', 'Lin Kwok']
+    >>> gas_liquid_viscosity_methods(rhol=1000, rhog=2)
+    ['Beattie Whalley', 'Fourar Bories', 'Duckler', 'McAdams', 'Cicchitti', 'Lin Kwok']
+    '''
     methods = ['McAdams', 'Cicchitti', 'Lin Kwok']
     if rhol is not None and rhog is not None:
         methods = list(liquid_gas_viscosity_correlations.keys())
@@ -2543,7 +2624,7 @@ def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None,
     AvailableMethods : bool, optional
         If True, function will consider which methods which can be used to
         calculate two-phase liquid-gas viscosity with the given inputs and 
-        return them as a list instead of performing a calculation.
+        return them as a list instead of performing a calculation. DEPRECATED!
 
     Notes
     -----
@@ -2561,7 +2642,9 @@ def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None,
     2.4630541871921184e-05
     '''
     if AvailableMethods:
-        return list_methods_gas_liquid_viscosity(rhol, rhog)
+        import warnings
+        warnings.warn('Please use gas_liquid_viscosity_methods', DeprecationWarning, stacklevel=2)
+        return gas_liquid_viscosity_methods(rhol, rhog)
     if Method is None:
         Method = 'McAdams'
         

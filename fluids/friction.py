@@ -27,7 +27,9 @@ from fluids.numerics import newton, lambertw
 from fluids.core import Dean, Reynolds
 
 
-__all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook', 
+__all__ = ['friction_factor', 'friction_factor_methods',
+           'friction_factor_curved', 'helical_Re_crit',
+           'friction_factor_curved_methods', 'Colebrook', 
            'Clamond',
            'friction_laminar', 'one_phase_dP', 'one_phase_dP_gravitational',
            'one_phase_dP_dz_acceleration', 'one_phase_dP_acceleration',
@@ -55,6 +57,9 @@ __all__ = ['friction_factor', 'friction_factor_curved', 'Colebrook',
 'LAMINAR_TRANSITION_PIPE', 'oregon_smooth_data',
 'friction_plate_Martin_1999', 'friction_plate_Martin_VDI',
 'friction_plate_Kumar', 'friction_plate_Muley_Manglik']
+
+
+#__numba_additional_funcs__ = ['helical_Re_crit']
 
 fuzzy_match_fun = None
 def fuzzy_match(name, strings):
@@ -1888,13 +1893,42 @@ fmethods['Fang_2011'] = {'Nice name': 'Fang 2011', 'Notes': '', 'Arguments': {'e
 fmethods['Clamond'] = {'Nice name': 'Clamond 2009', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 0, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
 fmethods['Colebrook'] = {'Nice name': 'Colebrook', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 0, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
 
-def list_methods_friction_factor(Re, eD):
-    methods = [i for i in fmethods if
-    (not fmethods[i]['Arguments']['eD']['Min'] or fmethods[i]['Arguments']['eD']['Min'] <= eD) and
-    (not fmethods[i]['Arguments']['eD']['Max'] or eD <= fmethods[i]['Arguments']['eD']['Max']) and
-    (not fmethods[i]['Arguments']['Re']['Min'] or Re > fmethods[i]['Arguments']['Re']['Min']) and
-    (not fmethods[i]['Arguments']['Re']['Max'] or Re <= fmethods[i]['Arguments']['Re']['Max'])]
-    return methods
+def friction_factor_methods(Re, eD=0.0, check_ranges=True):
+    r'''Returns a list of correlation names for calculating friction factor
+    for internal pipe flow.
+    
+    Examples
+    --------
+    >>> len(friction_factor_methods(Re=1E5, eD=1E-4))
+    30
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number, [-]
+    eD : float, optional
+        Relative roughness of the wall, [-]
+    check_ranges : bool, optional
+        Whether to filter the list for correlations which claim to be valid for
+        the given values, [-]
+    
+    Returns
+    -------
+    methods : list
+        List of methods which claim to be valid for the range of `Re` and `eD`
+        given, [-]
+    '''
+    if check_ranges:
+        if Re < LAMINAR_TRANSITION_PIPE:
+            return ['laminar']
+        methods = [i for i in fmethods if
+        (not fmethods[i]['Arguments']['eD']['Min'] or fmethods[i]['Arguments']['eD']['Min'] <= eD) and
+        (not fmethods[i]['Arguments']['eD']['Max'] or eD <= fmethods[i]['Arguments']['eD']['Max']) and
+        (not fmethods[i]['Arguments']['Re']['Min'] or Re > fmethods[i]['Arguments']['Re']['Min']) and
+        (not fmethods[i]['Arguments']['Re']['Max'] or Re <= fmethods[i]['Arguments']['Re']['Max'])]
+        return methods
+    else:
+        return list(fmethods.keys()) + ['laminar']
 
 
 def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True, AvailableMethods=False):
@@ -1925,7 +1959,7 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True, AvailableMethods=F
         Friction factor, [-]
     methods : list, only returned if AvailableMethods == True
         List of methods which claim to be valid for the range of `Re` and `eD`
-        given
+        given; DEPRECATED
 
     Other Parameters
     ----------------
@@ -1935,7 +1969,7 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True, AvailableMethods=F
         If False, will return fanning friction factor, 1/4 of the Darcy value
     AvailableMethods : bool, optional
         If True, function will consider which methods claim to be valid for
-        the range of `Re` and `eD` given
+        the range of `Re` and `eD` given; DEPRECATED
     
     See Also
     --------
@@ -2013,11 +2047,13 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True, AvailableMethods=F
        333, no. 6039 (July 8, 2011): 192-96. doi:10.1126/science.1203223.
     '''
     if AvailableMethods:
-        return list_methods_friction_factor(Re, eD)
+        import warnings
+        warnings.warn('Please use friction_factor_methods', DeprecationWarning, stacklevel=2)
+        return friction_factor_methods(Re, eD, check_ranges=True)
     if Method is None:
         Method = 'Clamond'
 
-    if Re < LAMINAR_TRANSITION_PIPE:
+    if Re < LAMINAR_TRANSITION_PIPE or Method == 'laminar':
         f = friction_laminar(Re)
     elif Method == "Clamond":
         f = Clamond(Re, eD)
@@ -2079,6 +2115,8 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True, AvailableMethods=F
         f = Brkic_2011_2(Re, eD)
     elif Method == "Fang_2011":
         f = Fang_2011(Re, eD)
+    else:
+        raise ValueError("Method not recognized")
     if not Darcy:
         f *= 0.25
     return f
@@ -2977,6 +3015,113 @@ valid methods are %s''' % list(curved_friction_transition_methods.keys())
 curved_friction_turbulent_methods_list = list(curved_friction_turbulent_methods.keys())
 curved_friction_laminar_methods_list = list(curved_friction_laminar_methods.keys())
 
+def helical_Re_crit(Di, Dc, Method='Schmidt'):
+    r'''Calculates the transition Reynolds number for fluid flowing in a 
+    curved pipe or helical coil. Selects the appropriate regime by default.
+    Optionally, a specific correlation can be specified with the `Method` 
+    keyword.
+    
+    The default correlations are those recommended in [1]_, and are believed to 
+    be the best publicly available.
+    
+    Examples
+    --------
+    >>> helical_Re_crit(Di=0.02, Dc=0.5)
+    6946.792538856203
+
+    Parameters
+    ----------
+    Di : float
+        Inner diameter of the tube making up the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+    Method : str, optional
+        Critical Reynolds number transition criteria correlation; one of ['Seth Stahel', 
+        'Ito', 'Kubair Kuloor', 'Kutateladze Borishanskii', 'Schmidt', 
+        'Srinivasan']; the default is 'Schmidt'.
+
+    Returns
+    -------
+    Re_crit : float
+        Reynolds number for critical transition between laminar and turbulent
+        flow, [-]
+    
+    See Also
+    --------
+    fluids.geometry.HelicalCoil
+    helical_transition_Re_Schmidt
+    helical_transition_Re_Srinivasan
+    helical_transition_Re_Kutateladze_Borishanskii
+    helical_transition_Re_Kubair_Kuloor
+    helical_transition_Re_Ito
+    helical_transition_Re_Seth_Stahel
+
+    References
+    ----------
+    .. [1] Schlunder, Ernst U, and International Center for Heat and Mass
+       Transfer. Heat Exchanger Design Handbook. Washington:
+       Hemisphere Pub. Corp., 1983.
+    '''
+    if Method == 'Schmidt':
+        Re_crit = helical_transition_Re_Schmidt(Di, Dc)
+    elif Method == 'Seth Stahel':
+        Re_crit = helical_transition_Re_Seth_Stahel(Di, Dc)
+    elif Method == 'Ito':
+        Re_crit = helical_transition_Re_Ito(Di, Dc)
+    elif Method == 'Kubair Kuloor':
+        Re_crit = helical_transition_Re_Kubair_Kuloor(Di, Dc)
+    elif Method == 'Kutateladze Borishanskii':
+        Re_crit = helical_transition_Re_Kutateladze_Borishanskii(Di, Dc)
+    elif Method == 'Srinivasan':
+        Re_crit = helical_transition_Re_Srinivasan(Di, Dc)
+    else:
+        raise ValueError(_bad_curved_transition_method)
+    return Re_crit
+
+
+def friction_factor_curved_methods(Re, Di, Dc, roughness=0.0,
+                                   check_ranges=True):
+    r'''Returns a list of correlation names for calculating friction factor 
+    of fluid flowing in a curved pipe or helical coil, supporting both laminar
+    and turbulent regimes.
+    
+    Examples
+    --------
+    >>> friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5)[0]
+    'Schmidt turbulent'
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number with `D=Di`, [-]
+    Di : float
+        Inner diameter of the tube making up the coil, [m]
+    Dc : float
+        Diameter of the helix/coil measured from the center of the tube on one
+        side to the center of the tube on the other side, [m]
+    roughness : float, optional
+        Roughness of pipe wall [m]        
+    check_ranges : bool, optional
+        Whether or not to return only correlations suitable for the provided
+        data, [-]
+    
+    Returns
+    -------
+    methods : list
+        List of methods in the regime the specified `Re` is in at the given
+        `Di` and `Dc`.
+    '''
+    Re_crit = helical_Re_crit(Di=Di, Dc=Dc, Method='Schmidt')
+    turbulent = False if Re < Re_crit else True
+    if check_ranges:
+        if turbulent:
+            return list(curved_friction_turbulent_methods_list)
+        else:
+            return list(curved_friction_laminar_methods_list)
+    else:
+        return curved_friction_turbulent_methods_list + curved_friction_laminar_methods_list
+
 
 def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None, 
                            Rec_method='Schmidt', 
@@ -3015,7 +3160,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
         Friction factor, [-]
     methods : list, only returned if AvailableMethods == True
         List of methods in the regime the specified `Re` is in at the given
-        `Di` and `Dc`.
+        `Di` and `Dc`. DEPRECATED!
 
     Other Parameters
     ----------------
@@ -3038,7 +3183,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
         If False, will return fanning friction factor, 1/4 of the Darcy value
     AvailableMethods : bool, optional
         If True, function will consider which methods claim to be valid for
-        the range of `Re` and `eD` given
+        the range of `Re` and `eD` given. DEPRECATED!
     
     See Also
     --------
@@ -3072,24 +3217,12 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
        Transfer. Heat Exchanger Design Handbook. Washington:
        Hemisphere Pub. Corp., 1983.
     '''
-    if Rec_method == 'Schmidt':
-        Re_crit = helical_transition_Re_Schmidt(Di, Dc)
-    elif Rec_method == 'Seth Stahel':
-        Re_crit = helical_transition_Re_Seth_Stahel(Di, Dc)
-    elif Rec_method == 'Ito':
-        Re_crit = helical_transition_Re_Ito(Di, Dc)
-    elif Rec_method == 'Kubair Kuloor':
-        Re_crit = helical_transition_Re_Kubair_Kuloor(Di, Dc)
-    elif Rec_method == 'Kutateladze Borishanskii':
-        Re_crit = helical_transition_Re_Kutateladze_Borishanskii(Di, Dc)
-    elif Rec_method == 'Srinivasan':
-        Re_crit = helical_transition_Re_Srinivasan(Di, Dc)
-    else:
-        raise ValueError(_bad_curved_transition_method)
-    
+    Re_crit = helical_Re_crit(Di=Di, Dc=Dc, Method=Rec_method)
     turbulent = False if Re < Re_crit else True
     
     if AvailableMethods:
+        import warnings
+        warnings.warn('Please use friction_factor_curved_methods', DeprecationWarning, stacklevel=2)
         if turbulent:
             return curved_friction_turbulent_methods_list
         else:
@@ -3956,12 +4089,12 @@ def transmission_factor(fd=None, F=None):
     .. [1] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton, 
        FL: CRC Press, 2005.
     '''
-    if fd:
+    if fd is not None:
         return 2./fd**0.5
-    elif F:
+    elif F is not None:
         return 4./(F*F)
     else:
-        raise Exception('Either Darcy friction factor or transmission factor is needed')
+        raise ValueError('Either Darcy friction factor or transmission factor is needed')
 
 
 def one_phase_dP(m, rho, mu, D, roughness=0, L=1, Method=None):

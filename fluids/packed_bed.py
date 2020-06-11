@@ -23,7 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from math import exp, pi
 
-__all__ = ['dP_packed_bed', 'Ergun', 'Kuo_Nydegger', 'Jones_Krier', 'Carman', 'Hicks',
+__all__ = ['dP_packed_bed', 'dP_packed_bed_methods', 'Ergun', 'Kuo_Nydegger', 'Jones_Krier', 'Carman', 'Hicks',
            'Brauer', 'KTA', 'Erdim_Akgiray_Demir', 'Fahien_Schriver', 
            'Tallmadge', 'Idelchik',
            'Harrison_Brunner_Hecker', 'Montillet_Akkari_Comiti', 'Guo_Sun',
@@ -822,7 +822,7 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
     '''
     Re = dp*rho*vs/mu
-    if not Dt:
+    if Dt is None:
         A, B = 1.0, 1.0
     else:
         A = (1 + pi*dp/(6*(1-voidage)*Dt))**2
@@ -968,7 +968,8 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1):
     '''
     #  2 < D/d < 3, particles in contact with the wall tend to form a highly ordered ring structure. 
     Rem = dp*rho*vs/mu/(1-voidage)
-    fv = 180 + (9.5374*dp/Dt - 2.8054)*Rem**0.97
+    ratio = dp/Dt if Dt is not None else 3.5 # Never ran
+    fv = 180 + (9.5374*ratio - 2.8054)*Rem**0.97
     return fv*(mu*vs*L/dp**2)*(1-voidage)**2/voidage**3
 
 
@@ -983,26 +984,64 @@ packed_beds_correlations = {
 'Hicks': (Hicks, False),
 'Brauer': (Brauer, False),
 'KTA': (KTA, False),
-'Erdim, Akgiray & Demir': (Erdim_Akgiray_Demir, False),
 'Fahien & Schriver': (Fahien_Schriver, False),
 'Idelchik': (Idelchik, False),
+'Erdim, Akgiray & Demir': (Erdim_Akgiray_Demir, False),
+
 'Harrison, Brunner & Hecker': (Harrison_Brunner_Hecker, True),
 'Montillet, Akkari & Comiti': (Montillet_Akkari_Comiti, True),
 'Guo, Sun, Zhang, Ding & Liu': (Guo_Sun, True)
 }
 
-def list_methods_packed_bed(dp, voidage, vs, rho, mu, L, Dt):
+def dP_packed_bed_methods(dp, voidage, vs, rho, mu, L=1.0, Dt=None, check_ranges=False):
+    r'''This function handles determining which pressure drop in a packed bed
+    correlation are suitable for the provided inputs. 
+
+    Preferred correlations are 'Erdim, Akgiray & Demir' when tube
+    diameter is not provided, and 'Harrison, Brunner & Hecker' when tube
+    diameter is provided.
+
+    Examples
+    --------
+    >>> dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1)[0]
+    'Erdim, Akgiray & Demir'
+    >>> dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1, Dt=1e-2)[0]
+    'Harrison, Brunner & Hecker'
+
+    Parameters
+    ----------
+    dp : float
+        Particle diameter of spheres [m]
+    voidage : float
+        Void fraction of bed packing [-]
+    vs : float
+        Superficial velocity of the fluid (volumetric flow rate/cross-sectional 
+        area) [m/s]
+    rho : float
+        Density of the fluid [kg/m^3]
+    mu : float
+        Viscosity of the fluid, [Pa*s]
+    L : float, optional
+        Length the fluid flows in the packed bed [m]
+    Dt : float, optional
+        Diameter of the tube, [m]
+    check_ranges : bool, optional
+        Added for Future use only
+
+    Returns
+    -------
+    methods : list
+        List of methods which can be used to calculate `dP` with the given inputs
+    '''
     methods = []
-    if all((dp, voidage, vs, rho, mu, L)):
-        for key, values in packed_beds_correlations.items():
-            if Dt or not values[1]:
-                methods.append(key)
-    if 'Harrison, Brunner & Hecker' in methods:
-        methods.remove('Harrison, Brunner & Hecker')
-        methods.insert(0, 'Harrison, Brunner & Hecker')
-    elif 'Erdim, Akgiray & Demir' in methods:
-        methods.remove('Erdim, Akgiray & Demir')
-        methods.insert(0, 'Erdim, Akgiray & Demir')
+    if (dp is not None and voidage is not None and vs is not None 
+        and rho is not None and mu is not None and L is not None):
+        if Dt is not None:
+            methods = ['Harrison, Brunner & Hecker', 'Montillet, Akkari & Comiti', 'Guo, Sun, Zhang, Ding & Liu']
+        
+        methods.extend(['Erdim, Akgiray & Demir', 'Idelchik', 'Fahien & Schriver',
+                        'KTA', 'Brauer', 'Hicks', 'Carman', 'Jones & Krier', 'Kuo & Nydegger',
+                        'Tallmadge', 'Ergun'])
     return methods
 
 
@@ -1062,11 +1101,14 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
         packed_beds_correlations
     AvailableMethods : bool, optional
         If True, function will consider which methods which can be used to
-        calculate `dP` with the given inputs and return them as a list
+        calculate `dP` with the given inputs and return them as a list.
+        DEPRECATED!
     '''
 
     if AvailableMethods:
-        return list_methods_packed_bed(dp, voidage, vs, rho, mu, L, Dt)
+        import warnings
+        warnings.warn('Please use dP_packed_bed_methods', DeprecationWarning, stacklevel=2)
+        return dP_packed_bed_methods(dp, voidage, vs, rho, mu, L, Dt)
     if Method is None:
         Method2 = 'Harrison, Brunner & Hecker' if Dt is not None else 'Erdim, Akgiray & Demir'
     else:

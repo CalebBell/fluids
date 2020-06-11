@@ -204,6 +204,12 @@ def test_friction_factor():
                  fluids.friction_factor(1e4, 1e-4))
     assert_close(fluids.numba.friction.friction_factor(1e2, 1e-4),
                  fluids.friction_factor(1e2, 1e-4))
+    
+    assert_close(fluids.numba.helical_Re_crit(Di=0.02, Dc=0.5),
+                 fluids.helical_Re_crit(Di=0.02, Dc=0.5))
+
+    assert_close(fluids.numba.transmission_factor(fd=0.0185),
+                 fluids.transmission_factor(fd=0.0185))
 
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
@@ -302,6 +308,19 @@ def test_misc_fittings():
     assert_close(fluids.numba.K_plug_valve_Crane(D1=.01, D2=.02, angle=50),
                  fluids.K_plug_valve_Crane(D1=.01, D2=.02, angle=50))
 
+    # Darby and Hooper got slower because they don't a dict lookup
+    assert_close(fluids.numba.Darby3K(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1'),
+                 fluids.Darby3K(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1'))
+    
+    assert_close(fluids.numba.Darby3K(NPS=12., Re=10000., K1=950,  Ki=0.25,  Kd=4),
+                 fluids.Darby3K(NPS=12., Re=10000., K1=950,  Ki=0.25,  Kd=4))
+
+    assert_close(fluids.numba.Hooper2K(Di=2., Re=10000., name='Valve, Globe, Standard'),
+                 fluids.Hooper2K(Di=2., Re=10000., name='Valve, Globe, Standard'))
+    
+    assert_close(fluids.numba.Hooper2K(Di=2., Re=10000., K1=900, Kinfty=4),
+                 fluids.Hooper2K(Di=2., Re=10000., K1=900, Kinfty=4))
+    
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_misc_filters_numba():
@@ -418,9 +437,15 @@ def test_misc_packed_bed():
     assert_close(fluids.numba.Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=1E-2),
                  fluids.Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=1E-2))
     
+    assert_close(fluids.numba.Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3),
+                 fluids.Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3))
+    
     assert_close(fluids.numba.Montillet_Akkari_Comiti(dp=0.0008, voidage=0.4, L=0.5, vs=0.00132629120, rho=1000., mu=1.00E-003),
                  fluids.Montillet_Akkari_Comiti(dp=0.0008, voidage=0.4, L=0.5, vs=0.00132629120, rho=1000., mu=1.00E-003))
-    
+
+    assert_close(fluids.numba.dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3),
+                 fluids.dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3))
+
     assert_close(fluids.numba.dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01),
                  fluids.dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01))
     
@@ -552,9 +577,9 @@ def test_misc_two_phase():
 * packed_bed
 * two_phase_voidage
 * two_phase
+* fittings
 
 Near misses:
-* fittings - Hooper2K, Darby3K
 * drag - integrate_drag_sphere (odeint)
 
 * compressible - P_isothermal_critical_flow, isothermal_gas (need lambertw, change solvers)
@@ -566,6 +591,11 @@ Not supported:
 * atmosphere - give it a go at numba 0.50 for static methods?
 * friction - Only nearest_material_roughness, material_roughness, roughness_Farshad
 * piping - all dictionary lookups
+
+
+Designed not to work:
+    _methods type calls; they didn't work originally and TypedList is crazy slow and a pain to work with
+
 '''
 
 '''

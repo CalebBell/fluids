@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-__all__ = ['two_phase_dP', 'two_phase_dP_acceleration', 
+__all__ = ['two_phase_dP', 'two_phase_dP_methods', 'two_phase_dP_acceleration', 
            'two_phase_dP_dz_acceleration', 'two_phase_dP_gravitational',
            'two_phase_dP_dz_gravitational',
            'Beggs_Brill', 'Lockhart_Martinelli', 'Friedel', 'Chisholm', 
@@ -2257,8 +2257,71 @@ two_phase_correlations = {
 }
 _unknown_msg_two_phase = "Unknown method; available methods are %s" %(list(two_phase_correlations.keys()))
 
+def two_phase_dP_methods(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, 
+                         sigma=None, P=None, Pc=None, roughness=0, angle=0,
+                         check_ranges=False):
+    r'''This function returns a list of names of correlations for two-phase 
+    liquid-gas pressure drop for flow inside channels.
+    24 calculation methods are available, with varying input requirements.
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of fluid, [kg/s]
+    x : float
+        Quality of fluid, [-]
+    rhol : float
+        Liquid density, [kg/m^3]
+    D : float
+        Diameter of pipe, [m]
+    L : float, optional
+        Length of pipe, [m]
+    rhog : float, optional
+        Gas density, [kg/m^3]
+    mul : float, optional
+        Viscosity of liquid, [Pa*s]
+    mug : float, optional
+        Viscosity of gas, [Pa*s]
+    sigma : float, optional
+        Surface tension, [N/m]
+    P : float, optional
+        Pressure of fluid, [Pa]
+    Pc : float, optional
+        Critical pressure of fluid, [Pa]
+    roughness : float, optional
+        Roughness of pipe for use in calculating friction factor, [m]
+    angle : float, optional
+        The angle of the pipe with respect to the horizontal, [degrees]
+    check_ranges : bool, optional
+        Added for Future use only
+        
+    Returns
+    -------
+    methods : list
+        List of methods which can be used to calculate two-phase pressure drop
+        with the given inputs.
+
+    Examples
+    --------
+    >>> len(two_phase_dP_methods(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1, angle=30.0, roughness=1e-4, P=1e5, Pc=1e6))
+    24
+    '''
+    usable_indices = []
+    if rhog is not None and sigma is not None:
+        usable_indices.append(5)
+    if rhog is not None and sigma is not None and mul is not None and mug is not None:
+        usable_indices.extend([4, 3, 102, 103]) # Differs only in the addition of roughness
+    if rhog is not None and mul is not None and mug is not None:
+        usable_indices.extend([1,2, 101]) # Differs only in the addition of roughness
+    if mul is not None and P is not None and Pc is not None:
+        usable_indices.append(0)
+    if (rhog is not None and mul is not None and mug is not None 
+        and sigma is not None and P is not None and angle is not None):
+        usable_indices.append(104)
+    return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
+
 def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
-                 P=None, Pc=None, roughness=0, angle=0, Method=None, 
+                 P=None, Pc=None, roughness=0, angle=None, Method=None, 
                  AvailableMethods=False):
     r'''This function handles calculation of two-phase liquid-gas pressure drop
     for flow inside channels. 23 calculation methods are available, with
@@ -2300,7 +2363,6 @@ def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
         Critical pressure of fluid, [Pa]
     roughness : float, optional
         Roughness of pipe for use in calculating friction factor, [m]
-
     angle : float, optional
         The angle of the pipe with respect to the horizontal, [degrees]
         
@@ -2320,7 +2382,7 @@ def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
     AvailableMethods : bool, optional
         If True, function will consider which methods which can be used to
         calculate two-phase pressure drop with the given inputs and return
-        them as a list instead of performing a calculation.
+        them as a list instead of performing a calculation. DEPRECATED
 
     Notes
     -----
@@ -2337,21 +2399,10 @@ def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
     840.4137796786074
     '''
     if AvailableMethods:
-        def list_methods_two_phase():
-            usable_indices = []
-            if all([rhog, sigma]):
-                usable_indices.append(5)
-            if all([rhog, mul, mug, sigma]):
-                usable_indices.extend([4, 3, 102, 103]) # Differs only in the addition of roughness
-            if all([rhog, mul, mug]):
-                usable_indices.extend([1,2, 101]) # Differs only in the addition of roughness
-            if all([mul, P, Pc]):
-                usable_indices.append(0)
-            if all([rhog, mul, mug, sigma, P, angle]):
-                usable_indices.append(104)
-            return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
-    
-        return list_methods_two_phase()
+        import warnings
+        warnings.warn('Please use two_phase_dP_methods', DeprecationWarning, stacklevel=2)
+        return two_phase_dP_methods(m, x, rhol, D, L=L, rhog=rhog, mul=mul, mug=mug, 
+                         sigma=sigma, P=P, Pc=Pc, roughness=roughness, angle=angle)
     if Method is None:
         if rhog is not None and mul is not None and mug is not None and sigma is not None:
             Method2 = 'Kim_Mudawar' # Kim_Mudawar preferred

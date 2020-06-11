@@ -146,6 +146,13 @@ def test_drag_sphere():
         drag_sphere(1E7)
         
         
+    methods = drag_sphere_methods(3E5, True)
+    method_known = ['Barati_high', 'Ceylan', 'Morrison', 'Clift', 'Almedeij']
+    assert sorted(method_known) == sorted(methods)
+    assert 20 == len(drag_sphere_methods(200))
+    assert 21 == len(drag_sphere_methods(200000, check_ranges=False))
+    assert 5 == len(drag_sphere_methods(200000, check_ranges=True))
+        
 def test_v_terminal():
     v_t = v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-3)
     assert_close(v_t, 0.00414249724453)

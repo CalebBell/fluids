@@ -502,14 +502,21 @@ HelicalCoil_spec = [(k, float64) for k in
                      'curvature', 'total_inlet_area', 'total_volume', 'inner_surface_area',
                      'inlet_area', 'inner_volume', 'annulus_area', 'annulus_volume')]
 
+# AvailableMethods  will be removed in the future in favor of non-numba only 
+# calls to method functions
+                    
 to_change_AvailableMethods = ['friction.friction_factor_curved', 'friction.friction_factor',
  'packed_bed.dP_packed_bed', 'two_phase.two_phase_dP', 'drag.drag_sphere',
  'two_phase_voidage.liquid_gas_voidage', 'two_phase_voidage.gas_liquid_viscosity']
+
+
 to_change_full_output = ['two_phase.Mandhane_Gregory_Aziz_regime',
                          'two_phase.Taitel_Dukler_regime']
 
 to_change = {k: 'AvailableMethods' for k in to_change_AvailableMethods}
 to_change.update({k: 'full_output' for k in to_change_full_output})
+to_change['fittings.Darby3K'] = 'name in Darby: # NUMBA: DELETE'
+to_change['fittings.Hooper2K'] = 'name in Hooper: # NUMBA: DELETE'
 
 for s, bad_branch in to_change.items():
     mod, func = s.split('.')
