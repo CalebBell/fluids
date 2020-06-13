@@ -3100,11 +3100,14 @@ def py_lambertw(y, k=0):
     else:
         raise ValueError("Other branches not supported")
 #has_scipy = False
+if IS_PYPY:
+    lambertw = py_lambertw
 
 if has_scipy:
-    def lambertw(*args, **kwargs):
-        from scipy.special import lambertw
-        return lambertw(*args, **kwargs)
+    if not IS_PYPY:
+        def lambertw(*args, **kwargs):
+            from scipy.special import lambertw
+            return lambertw(*args, **kwargs)
     def ellipe(*args, **kwargs):
         from scipy.special import ellipe
         return ellipe(*args, **kwargs)
@@ -3190,7 +3193,7 @@ else:
         import mpmath
         return mpmath.mpmath.besselk(0, x)
     
-    
+
 try:
     if FORCE_PYPY:
         lambertw = py_lambertw
