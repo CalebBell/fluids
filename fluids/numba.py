@@ -35,6 +35,7 @@ from numba.experimental import jitclass
 from numba import cfunc
 import linecache
 import numba.types
+from math import pi
 
 
 '''Basic module which wraps all fluids functions with numba's jit.
@@ -214,7 +215,12 @@ list_mult_expr = r'\[ *([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)) *\] *\* *([a-zA-Z0-
 numpy_not_list_expr = r'np.full((\4,), \1)'
 
 
-def transform_lists_to_arrays(module, to_change, __funcs):
+def transform_lists_to_arrays(module, to_change, __funcs, vec=False):
+    if vec:
+        conv_fun = numba.vectorize
+    else:
+        conv_fun = numba.jit
+
     for s in to_change:
         mod, func = s.split('.')
         fake_mod = __funcs[mod]
@@ -225,7 +231,7 @@ def transform_lists_to_arrays(module, to_change, __funcs):
 #        print(source)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
         new_func = fake_mod.__dict__[func]
-        obj = numba.jit(cache=caching)(new_func)
+        obj = conv_fun(cache=caching)(new_func)
         __funcs[func] = obj
         fake_mod.__dict__[func] = obj
         obj.__doc__ = ''
@@ -471,131 +477,131 @@ def transform_module(normal, __funcs, replaced, vec=False):
     return new_mods
 
 
-new_mods = transform_module(normal, __funcs, replaced, vec=False)
+def transform_complete(replaced, __funcs, __all__, normal, vec=False):
+    if vec:
+        conv_fun = numba.vectorize
+    else:
+        conv_fun = numba.jit
+    new_mods = transform_module(normal, __funcs, replaced, vec=vec)
 
-
-# Do some classes by hand
-from numba import int32, float32, int64, float64
-from math import pi
-
-PlateExchanger_spec = [
-    ('pitch', float64),
-    ('beta', float64),
-    ('gamma', float64),
-    ('a', float64),
-    ('amplitude', float64),               
-    ('wavelength', float64),               
-    ('b', float64),               
-    ('chevron_angle', float64),               
-    ('inclination_angle', float64),               
-    ('plate_corrugation_aspect_ratio', float64),               
-    ('plate_enlargement_factor', float64),               
-    ('D_eq', float64),               
-    ('D_hydraulic', float64),               
-    ('width', float64),               
-    ('length', float64),               
-    ('thickness', float64),               
-    ('d_port', float64),               
-    ('plates', float64),               
-    ('length_port', float64),               
-    ('A_plate_surface', float64),               
-    ('A_heat_transfer', float64),               
-    ('A_channel_flow', float64),               
-    ('channels', float64),               
-    ('channels_per_fluid', float64),               
-]
-
-
-HelicalCoil_spec = [(k, float64) for k in 
-                    ('Do', 'Dt', 'Di', 'Do_total', 'N', 'pitch', 'H', 'H_tot', 
-                     'tube_circumference', 'tube_length', 'surface_area', 'helix_angle',
-                     'curvature', 'total_inlet_area', 'total_volume', 'inner_surface_area',
-                     'inlet_area', 'inner_volume', 'annulus_area', 'annulus_volume')]
-
-ATMOSPHERE_1976_spec = [(k, float64) for k in 
-                    ('Z', 'dT', 'H', 'T_layer', 'T_increase', 'P_layer', 'H_layer', 'H_above_layer', 
-                     'T', 'P', 'rho', 'v_sonic',
-                     'mu', 'k', 'g', 'R')]
-
-
-
-
-to_change = ['packed_tower._Stichlmair_flood_f_and_jac', 
-             'packed_tower.Stichlmair_flood']
-
-transform_lists_to_arrays(normal_fluids, to_change, __funcs)
-
-
-# AvailableMethods  will be removed in the future in favor of non-numba only 
-# calls to method functions
-
-to_change_AvailableMethods = ['friction.friction_factor_curved', 'friction.friction_factor',
- 'packed_bed.dP_packed_bed', 'two_phase.two_phase_dP', 'drag.drag_sphere',
- 'two_phase_voidage.liquid_gas_voidage', 'two_phase_voidage.gas_liquid_viscosity']
-
-
-to_change_full_output = ['two_phase.Mandhane_Gregory_Aziz_regime',
-                         'two_phase.Taitel_Dukler_regime']
-
-to_change = {k: 'AvailableMethods' for k in to_change_AvailableMethods}
-to_change.update({k: 'full_output' for k in to_change_full_output})
-to_change['fittings.Darby3K'] = 'name in Darby: # NUMBA: DELETE'
-to_change['fittings.Hooper2K'] = 'name in Hooper: # NUMBA: DELETE'
-to_change['friction.roughness_Farshad'] = 'ID in _Farshad_roughness'
-
-for s, bad_branch in to_change.items():
-    mod, func = s.split('.')
-    source = inspect.getsource(getattr(getattr(normal_fluids, mod), func))
-    fake_mod = __funcs[mod]
-    source = remove_branch(source, bad_branch)
-    source = remove_for_numba(source)
-    numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
-    new_func = fake_mod.__dict__[func]
-    obj = numba.jit(cache=caching)(new_func)
-    __funcs[func] = obj
-    globals()[func] = obj
-    obj.__doc__ = ''
+    
+    # Do some classes by hand
+    
+    PlateExchanger_spec = [
+        ('pitch', float64),
+        ('beta', float64),
+        ('gamma', float64),
+        ('a', float64),
+        ('amplitude', float64),               
+        ('wavelength', float64),               
+        ('b', float64),               
+        ('chevron_angle', float64),               
+        ('inclination_angle', float64),               
+        ('plate_corrugation_aspect_ratio', float64),               
+        ('plate_enlargement_factor', float64),               
+        ('D_eq', float64),               
+        ('D_hydraulic', float64),               
+        ('width', float64),               
+        ('length', float64),               
+        ('thickness', float64),               
+        ('d_port', float64),               
+        ('plates', float64),               
+        ('length_port', float64),               
+        ('A_plate_surface', float64),               
+        ('A_heat_transfer', float64),               
+        ('A_channel_flow', float64),               
+        ('channels', float64),               
+        ('channels_per_fluid', float64),               
+    ]
     
     
-to_change = ['compressible.isothermal_gas']
-for s in to_change:
-    mod, func = s.split('.')
-    source = inspect.getsource(getattr(getattr(normal_fluids, mod), func))
-    fake_mod = __funcs[mod]
-    source = remove_for_numba(source)
-    numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
-    new_func = fake_mod.__dict__[func]
-    obj = numba.jit(cache=caching)(new_func)
-    __funcs[func] = obj
-    globals()[func] = obj
-    obj.__doc__ = ''
+    HelicalCoil_spec = [(k, float64) for k in 
+                        ('Do', 'Dt', 'Di', 'Do_total', 'N', 'pitch', 'H', 'H_tot', 
+                         'tube_circumference', 'tube_length', 'surface_area', 'helix_angle',
+                         'curvature', 'total_inlet_area', 'total_volume', 'inner_surface_area',
+                         'inlet_area', 'inner_volume', 'annulus_area', 'annulus_volume')]
+    
+    ATMOSPHERE_1976_spec = [(k, float64) for k in 
+                        ('Z', 'dT', 'H', 'T_layer', 'T_increase', 'P_layer', 'H_layer', 'H_above_layer', 
+                         'T', 'P', 'rho', 'v_sonic',
+                         'mu', 'k', 'g', 'R')]
+    
+    to_change = ['packed_tower._Stichlmair_flood_f_and_jac', 
+                 'packed_tower.Stichlmair_flood']
+    transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec)
+    
+    
+    # AvailableMethods  will be removed in the future in favor of non-numba only 
+    # calls to method functions
+    
+    to_change_AvailableMethods = ['friction.friction_factor_curved', 'friction.friction_factor',
+     'packed_bed.dP_packed_bed', 'two_phase.two_phase_dP', 'drag.drag_sphere',
+     'two_phase_voidage.liquid_gas_voidage', 'two_phase_voidage.gas_liquid_viscosity']
+    
+    
+    to_change_full_output = ['two_phase.Mandhane_Gregory_Aziz_regime',
+                             'two_phase.Taitel_Dukler_regime']
+    
+    to_change = {k: 'AvailableMethods' for k in to_change_AvailableMethods}
+    to_change.update({k: 'full_output' for k in to_change_full_output})
+    to_change['fittings.Darby3K'] = 'name in Darby: # NUMBA: DELETE'
+    to_change['fittings.Hooper2K'] = 'name in Hooper: # NUMBA: DELETE'
+    to_change['friction.roughness_Farshad'] = 'ID in _Farshad_roughness'
+    
+    for s, bad_branch in to_change.items():
+        mod, func = s.split('.')
+        source = inspect.getsource(getattr(getattr(normal_fluids, mod), func))
+        fake_mod = __funcs[mod]
+        source = remove_branch(source, bad_branch)
+        source = remove_for_numba(source)
+        numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
+        new_func = fake_mod.__dict__[func]
+        obj = conv_fun(cache=caching)(new_func)
+        __funcs[func] = obj
+#        globals()[func] = obj
+        obj.__doc__ = ''
+        
+        
+    to_change = ['compressible.isothermal_gas']
+    for s in to_change:
+        mod, func = s.split('.')
+        source = inspect.getsource(getattr(getattr(normal_fluids, mod), func))
+        fake_mod = __funcs[mod]
+        source = remove_for_numba(source)
+        numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
+        new_func = fake_mod.__dict__[func]
+        obj = conv_fun(cache=caching)(new_func)
+        __funcs[func] = obj
+#        globals()[func] = obj
+        obj.__doc__ = ''
+    
+    
+    
+    # Almost there but one argument has a variable type
+    #PlateExchanger = jitclass(PlateExchanger_spec)(getattr(__funcs['geometry'], 'PlateExchanger'))
+    #HelicalCoil = jitclass(HelicalCoil_spec)(getattr(__funcs['geometry'], 'HelicalCoil'))
+    ATMOSPHERE_1976 = jitclass(ATMOSPHERE_1976_spec)(getattr(__funcs['atmosphere'], 'ATMOSPHERE_1976'))
+    __funcs['ATMOSPHERE_1976'] = __funcs['atmosphere'].ATMOSPHERE_1976 = ATMOSPHERE_1976
+    
+    
+    # Not needed
+    __funcs['friction'].Colebrook = __funcs['Colebrook'] = __funcs['Clamond']
+    #for k in ('flow_meter', 'fittings', 'two_phase', 'friction'):
+    #    __funcs[k].friction_factor = __funcs['friction_factor'] = __funcs['Clamond']
+    #__funcs['PlateExchanger'] = __funcs['geometry'].PlateExchanger = PlateExchanger
+    #__funcs['HelicalCoil'] = __funcs['geometry'].HelicalCoil = HelicalCoil
+    
+    # Works but 50% slower
+    #__funcs['geometry']._V_horiz_spherical_toint = __funcs['_V_horiz_spherical_toint'] = cfunc("float64(float64, float64, float64, float64)")(normal_fluids.geometry._V_horiz_spherical_toint)
+    
+    # ex = fluids.numba.geometry.PlateExchanger(amplitude=5E-4, wavelength=3.7E-3, length=1.2, width=.3, d_port=.05, plates=51, thickness=1e-10)
+    #fluids.numba.geometry.HelicalCoil(Do_total=32.0, H_total=22.0, pitch=5.0, Dt=2.0, Di=1.8)
+    
+    for mod in new_mods:
+        mod.__dict__.update(__funcs)
 
+transform_complete(replaced, __funcs, __all__, normal, vec=False)
 
-
-# Almost there but one argument has a variable type
-#PlateExchanger = jitclass(PlateExchanger_spec)(getattr(__funcs['geometry'], 'PlateExchanger'))
-#HelicalCoil = jitclass(HelicalCoil_spec)(getattr(__funcs['geometry'], 'HelicalCoil'))
-ATMOSPHERE_1976 = jitclass(ATMOSPHERE_1976_spec)(getattr(__funcs['atmosphere'], 'ATMOSPHERE_1976'))
-__funcs['ATMOSPHERE_1976'] = __funcs['atmosphere'].ATMOSPHERE_1976 = ATMOSPHERE_1976
-
-
-# Not needed
-__funcs['friction'].Colebrook = __funcs['Colebrook'] = __funcs['Clamond']
-#for k in ('flow_meter', 'fittings', 'two_phase', 'friction'):
-#    __funcs[k].friction_factor = __funcs['friction_factor'] = __funcs['Clamond']
-#__funcs['PlateExchanger'] = __funcs['geometry'].PlateExchanger = PlateExchanger
-#__funcs['HelicalCoil'] = __funcs['geometry'].HelicalCoil = HelicalCoil
-
-# Works but 50% slower
-#__funcs['geometry']._V_horiz_spherical_toint = __funcs['_V_horiz_spherical_toint'] = cfunc("float64(float64, float64, float64, float64)")(normal_fluids.geometry._V_horiz_spherical_toint)
-
-
-
-# ex = fluids.numba.geometry.PlateExchanger(amplitude=5E-4, wavelength=3.7E-3, length=1.2, width=.3, d_port=.05, plates=51, thickness=1e-10)
-#fluids.numba.geometry.HelicalCoil(Do_total=32.0, H_total=22.0, pitch=5.0, Dt=2.0, Di=1.8)
-
-for mod in new_mods:
-    mod.__dict__.update(__funcs)
 
 globals().update(__funcs)
 globals().update(replaced)

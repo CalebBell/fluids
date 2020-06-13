@@ -37,7 +37,8 @@ replaced = {}
 replaced, NUMERICS_SUBMOD = fluids.numba.create_numerics(replaced, vec=True)
 normal = normal_fluids
 
-fluids.numba.transform_module(normal, __funcs, replaced, vec=True)
+#fluids.numba.transform_module(normal, __funcs, replaced, vec=True)
+fluids.numba.transform_complete(replaced, __funcs, __all__, normal, vec=True)
 
 globals().update(__funcs)
 globals().update(replaced)
