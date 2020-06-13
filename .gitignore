@@ -13,6 +13,7 @@ fluids.egg-info
 prof
 .mypy_cache
 monkeytype.sqlite3
+.asv
 
 # Compiled source #
 ###################
