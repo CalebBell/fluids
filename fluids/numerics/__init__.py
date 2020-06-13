@@ -2109,7 +2109,7 @@ def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
     raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
 
 
-def py_ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
+def ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
               full_output=False, disp=True):
     a_abs, b_abs = fabs(a), fabs(b)
     tol = xtol + rtol*(a_abs if a_abs < b_abs else b_abs)
@@ -2147,8 +2147,8 @@ def py_ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
         tol = xtol + rtol*xn
         if (fn == 0.0 or fabs(b - a) < tol):
             return xn
-    raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
-
+    raise UnconvergedError("Failed to converge after %d iterations" %maxiter) # numba: delete
+#    raise UnconvergedError("Failed to converge") # numba: uncomment
 
 def brenth(f, xa, xb, args=(),
             xtol=1e-12, rtol=4.440892098500626e-16, maxiter=100, ytol=None,
@@ -3056,7 +3056,7 @@ if not IS_PYPY:
     
 else:
     splev, bisplev = py_splev, py_bisplev
-bisect, ridder = py_bisect, py_ridder
+bisect = py_bisect
 
 # Try out mpmath for special functions anyway
 has_scipy = False
@@ -3082,10 +3082,23 @@ from math import gamma # Been there a while
 
 def _lambertw_err(x, y):
     return x*exp(x) - y
-def py_lambertw(y, k=-1):
-    # Not such a good idea, not handling branches which is needed
-    return brenth(_lambertw_err, 1e-300, 700.0, (y,))
-
+def py_lambertw(y, k=0):
+    '''For x > 0, the is always only one real solution
+    For -1/e < x < 0, two real solutions
+    '''
+    # Works for real inputs only, two main branches
+    if k == 0:
+        # Branches dead at -1
+        # -1 is hard limit for real in this branch
+        # 700 is safe upper limit for exp
+        # Input should be between -1 and +BIGNUMBER
+        return brenth(_lambertw_err, -1.0, 700.0, (y,))
+    elif k == -1:
+        # Input should be between 0 and -1/e
+        # not a big input range!
+        return brenth(_lambertw_err, -700.0, -1.0, (y,))
+    else:
+        raise ValueError("Other branches not supported")
 #has_scipy = False
 
 if has_scipy:

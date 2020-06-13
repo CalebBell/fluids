@@ -394,6 +394,13 @@ def test_misc_compressible():
     
     assert_close(fluids.numba.Oliphant(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15),
                  fluids.Oliphant(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15))
+    
+    # With the -1 lambertw branch
+    assert_close(fluids.numba.P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5),
+                 fluids.P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5))
+
+    assert_close(fluids.numba.isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, m=145.48475726),
+                 fluids.isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, m=145.48475726))
 
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
@@ -611,10 +618,10 @@ def tets_newton_system():
 * two_phase_voidage
 * two_phase
 * fittings
+* compressible
 
 Near misses:
 * drag - integrate_drag_sphere (odeint)
-* compressible - P_isothermal_critical_flow, isothermal_gas (need lambertw, change solvers)
 * geometry - double quads
 
 Not supported:
@@ -622,7 +629,6 @@ Not supported:
 * atmosphere - Added support for one thing
 * friction - Only nearest_material_roughness, material_roughness, roughness_Farshad
 * piping - all dictionary lookups
-
 
 Designed not to work:
     _methods type calls; they didn't work originally and TypedList is crazy slow and a pain to work with
@@ -632,10 +638,6 @@ Designed not to work:
 '''
 Functions not working:
     
-# Almost workk, needs support for new branches of lambertw
-fluids.numba.P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
-fluids.numba.lambertw(.5, -1)
-
 # Using dictionaries outside is broken
 # Also, nopython is broken for this case - https://github.com/numba/numba/issues/5377
 fluids.numba.roughness_Farshad('Cr13, bare', 0.05)
@@ -652,10 +654,7 @@ Double quads not yet supported - almost!
 
 
 
-
-
 '''Global dictionary lookup:
-# Feels like this should work
 from numba import njit, typeof, typed, types
 Darby =  typed.Dict.empty(types.string, types.UniTuple(types.float64, 3))
 Darby['Elbow, 90°, threaded, standard, (r/D = 1)'] = (800.0, 0.14, 4.0)
@@ -669,18 +668,3 @@ def Darby3K(NPS, Re, name):
 Darby3K(NPS=12., Re=10000., name='Elbow, 90°, threaded, standard, (r/D = 1)')'''
 
 
-'''
-numba is not up to speeding up the various solvers!
-
-I was able to contruct a secant version which numba would optimize, mostly.
-However, it took 30x the time.
-
-Trying to improve this, it was found reducing the number of arguments to secant
-imroves things ~20%. Removing ytol or the exceptions did not improve things at all.
-
-Eventually it was discovered, the rtol and xtol arguments should be fixed values inside the function.
-This makes little sense, but it is what happened.
-Slighyly better performance was found than in pure-python that way, although definitely not vs. pypy.
-
-
-'''

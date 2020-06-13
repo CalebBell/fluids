@@ -323,7 +323,7 @@ def create_numerics(replaced, vec=False):
     bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck'])
     bad_names.update(to_set_num)
     
-    solvers = ['secant', 'brenth', 'newton', 'newton_system'] # 
+    solvers = ['secant', 'brenth', 'newton', 'ridder', 'newton_system'] # 
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
         source = source.replace(', kwargs={}', '').replace(', **kwargs', '').replace(', kwargs=kwargs', '')
@@ -555,6 +555,21 @@ for s, bad_branch in to_change.items():
     __funcs[func] = obj
     globals()[func] = obj
     obj.__doc__ = ''
+    
+    
+to_change = ['compressible.isothermal_gas']
+for s in to_change:
+    mod, func = s.split('.')
+    source = inspect.getsource(getattr(getattr(normal_fluids, mod), func))
+    fake_mod = __funcs[mod]
+    source = remove_for_numba(source)
+    numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
+    new_func = fake_mod.__dict__[func]
+    obj = numba.jit(cache=caching)(new_func)
+    __funcs[func] = obj
+    globals()[func] = obj
+    obj.__doc__ = ''
+
 
 
 # Almost there but one argument has a variable type

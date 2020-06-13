@@ -34,6 +34,8 @@ __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'is_critical_flow', 'stagnation_energy', 'P_stagnation',
            'T_stagnation', 'T_stagnation_ideal']
 
+__numba_additional_funcs__ = ['isothermal_gas_err_P1', 'isothermal_gas_err_P2',
+                              'isothermal_gas_err_P2_basis', 'isothermal_gas_err_D']
 
 def isothermal_work_compression(P1, P2, T, Z=1):
     r'''Calculates the work of compression or expansion of a gas going through
@@ -710,6 +712,17 @@ def T_stagnation_ideal(T, V, Cp):
     '''
     return T + 0.5*V*V/Cp
 
+def isothermal_gas_err_P1(P1, fd, rho, P2, L, D, m):
+    return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
+
+def isothermal_gas_err_P2(P2, rho, fd, P1, L, D, m):
+    return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
+
+def isothermal_gas_err_P2_basis(P1, P2, rho, fd, m, L, D):
+    return abs(P2 - isothermal_gas(rho, fd, m=m, P1=P1, P2=None, L=L, D=D))
+
+def isothermal_gas_err_D(D, m, rho, fd, P1, P2, L):
+    return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
 
 def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
     r'''Calculation function for dealing with flow of a compressible gas in a
@@ -819,43 +832,43 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
     .. [4] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    if m is None and (None not in [P1, P2, L, D]):
+    if m is None and P1 is not None and P2 is not None and L is not None and D is not None:
         Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
         if P2 < Pcf:
-            raise Exception('Given outlet pressure is not physically possible \
-due to the formation of choked flow at P2=%f, specified outlet pressure was %f' % (Pcf, P2))
+            raise ValueError('Given outlet pressure is not physically possible ' # numba: delete
+'due to the formation of choked flow at P2=%f, specified outlet pressure was %f' % (Pcf, P2)) # numba: delete
+#            raise ValueError("Not possible") # numba: uncomment
         if P2 > P1:
-            raise Exception('Specified outlet pressure is larger than the \
-inlet pressure; fluid will flow backwards.')
+            raise ValueError('Specified outlet pressure is larger than the '
+                             'inlet pressure; fluid will flow backwards.')
         return (0.0625*pi*pi*D**4*rho/(P1*(fd*L/D + 2.0*log(P1/P2)))*(P1*P1 - P2*P2))**0.5
-    elif L is None and (None not in [P1, P2, D, m]):
+    elif L is None and P1 is not None and P2 is not None and D is not None and m is not None:
         return D*(pi*pi*D**4*rho*(P1*P1 - P2*P2) - 32.0*P1*m*m*log(P1/P2))/(16.0*P1*fd*m*m)
-    elif P1 is None and (None not in [L, P2, D, m]):
+    elif P1 is None and L is not None and P2 is not None and D is not None and m is not None:
         Pcf = P_upstream_isothermal_critical_flow(P=P2, fd=fd, D=D, L=L)
 
-        def to_solve(P1):
-            return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
         try:
             # Use the explicit solution for P2 with different P1 guesses;
             # newton doesn't like solving for m.
-            def to_solve_P2_basis(P1):
-                return abs(P2 - isothermal_gas(rho, fd, m=m, P1=P1, P2=None, L=L, D=D))
-            P1 = secant(to_solve_P2_basis, (P2+Pcf)/2.)
-            assert P2 <= P1
+            P1 = secant(isothermal_gas_err_P2_basis, (P2+Pcf)/2., args=(P2, rho, fd, m, L, D))
+            if not (P2 <= P1):
+                raise ValueError("Failed")
             return P1
         except:
             try:
-                return ridder(to_solve, a=P2, b=Pcf)
+                return ridder(isothermal_gas_err_P1, a=P2, b=Pcf, args=(fd, rho, P2, L, D, m))
             except:
                 m_max = isothermal_gas(rho, fd, P1=Pcf, P2=P2, L=L, D=D)
-                raise Exception('The desired mass flow rate of %f kg/s cannot '
-'be achieved with the specified downstream pressure; the maximum flowrate is '
-'%f kg/s at an upstream pressure of %f Pa' %(m, m_max, Pcf))
-    elif P2 is None and (None not in [L, P1, D, m]):
+                raise ValueError('The desired mass flow rate of %f kg/s cannot ' # numba: delete
+                                 'be achieved with the specified downstream pressure; the maximum flowrate is ' # numba: delete
+                                 '%f kg/s at an upstream pressure of %f Pa' %(m, m_max, Pcf)) # numba: delete
+#                raise ValueError("Failed") # numba: uncomment
+    elif P2 is None and L is not None and P1 is not None and D is not None and m is not None:
         try:
             Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
             m_max = isothermal_gas(rho, fd, P1=P1, P2=Pcf, L=L, D=D)
-            assert m <= m_max
+            if not (m <= m_max):
+                raise ValueError("Failed")
 
             C = fd*L/D
             B = (pi/4*D**2)**2*rho
@@ -866,37 +879,30 @@ inlet pressure; fluid will flow backwards.')
             lambert_ans = float(lambertw(arg, k=-1).real)
             # Large overflow problem here; also divide by zero problems!
             # Fail and try a numerical solution if it doesn't work.
-            assert not isinf(lambert_ans)
+            if isinf(lambert_ans):
+                raise ValueError("Should not be infinity")
             P2 = P1/exp((-C*m**2+lambert_ans*m**2+B*P1)/m**2/2.)
-            assert P2 < P1
+            if not (P2 < P1):
+                raise ValueError("Should not be the case")
             return P2
         except:
             Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
-            def to_solve(P2):
-                return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
-#                return abs(m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D))
-#            return fminbound(to_solve, x1=Pcf, x2=P1)
             try:
-                return ridder(to_solve, a=Pcf, b=P1)
-#                m_max = isothermal_gas(rho, fd, P1=P1, P2=Pcf, L=L, D=D)
-#                assert m < m_max
-#                assert P > Pcv
-#                return m
+                return ridder(isothermal_gas_err_P2, a=Pcf, b=P1, args=(rho, fd, P1, L, D, m))
             except:
                 m_max = isothermal_gas(rho, fd, P1=P1, P2=Pcf, L=L, D=D)
-                raise Exception('The desired mass flow rate cannot be achieved '
-'with the specified upstream pressure of %f Pa; the maximum flowrate is %f '
-'kg/s at a downstream pressure of %f' %(P1, m_max, Pcf))
+                raise ValueError('The desired mass flow rate cannot be achieved ' # numba: delete
+                                 'with the specified upstream pressure of %f Pa; the maximum flowrate is %f ' # numba: delete
+                                 'kg/s at a downstream pressure of %f' %(P1, m_max, Pcf)) # numba: delete
+#                raise ValueError("Failed") # numba: uncomment
             # A solver which respects its boundaries is required here.
             # ridder cuts the time down from 2 ms to 200 mircoseconds.
             # Is is believed Pcf and P1 will always bracked the root, however
             # leave the commented code for testing
-    elif D is None and (None not in [P2, P1, L, m]):
-        def to_solve(D):
-            return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
-        return secant(to_solve, 0.1)
+    elif D is None and P2 is not None and P1 is not None and L is not None and m is not None:
+        return secant(isothermal_gas_err_D, 0.1, args=(m, rho, fd, P1, P2, L))
     else:
-        raise Exception('This function solves for either mass flow, upstream \
+        raise ValueError('This function solves for either mass flow, upstream \
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
 
