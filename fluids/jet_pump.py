@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import log, pi, sqrt
-from fluids.numerics import newton, brenth
+from fluids.numerics import brenth, secant
 
 
 __all__ = ['liquid_jet_pump', 'liquid_jet_pump_ancillary']
@@ -158,7 +158,7 @@ def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
         try:
             return brenth(err, 1E-9, d_nozzle*20)
         except:
-            return newton(err, d_nozzle*2)
+            return secant(err, d_nozzle*2)
 
 
 

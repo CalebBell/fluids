@@ -1107,7 +1107,7 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
         elif Re_C_Re > horner(bend_rounded_Miller_C_Re_limit_1, radius_ratio):
             C_Re = 1.0
 #            ps = np.linspace(1, 2)
-#            qs = [newton(lambda x: bend_rounded_Miller_C_Re(x, i)-1, 2e5) for i in ps]
+#            qs = [secant(lambda x: bend_rounded_Miller_C_Re(x, i)-1, 2e5) for i in ps]
 #            np.polyfit(ps, qs, 4).tolist()
             # Line of C_Re=1 as a function of r_d between 0 and 1
         else:

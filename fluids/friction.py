@@ -3869,6 +3869,12 @@ _Farshad_roughness = {'Plastic coated': (5E-6, 0.0002, -1.0098),
                       'Fiberglass lining': (38E-6, 0.0016, -1.0086),
                       'Cr13, bare': (55E-6, 0.0021, -1.0055)  }
 
+try:
+    if IS_NUMBA:
+        _Farshad_roughness_keys = tuple(_Farshad_roughness.keys())
+        _Farshad_roughness_values = tuple(_Farshad_roughness.values())
+except:
+    pass
 
 def roughness_Farshad(ID=None, D=None, coeffs=None):
     r'''Calculates of retrieves the roughness of a pipe based on the work of
@@ -3948,13 +3954,17 @@ def roughness_Farshad(ID=None, D=None, coeffs=None):
         A, B = coeffs
         return A*(D/inch)**(B + 1.0)*inch
     # Case 2, lookup parameters
-    try :
+    dat = None
+    if ID in _Farshad_roughness:
         dat = _Farshad_roughness[ID]
-    except:
-        raise KeyError('ID was not in _Farshad_roughness.')
-    if D is None:
+    if dat is None:
+        try:
+            dat = _Farshad_roughness_values[_Farshad_roughness_keys.index(name)]
+        except:
+            raise KeyError('ID was not in _Farshad_roughness.')
+    if D is None and dat is not None:
         return dat[0]
-    else:
+    elif dat is not None:
         A, B = dat[1], dat[2]
         return A*(D/inch)**(B+1)*inch
 

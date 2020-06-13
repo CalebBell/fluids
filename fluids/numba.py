@@ -220,8 +220,9 @@ def transform_lists_to_arrays(module, to_change, __funcs):
         fake_mod = __funcs[mod]
         source = inspect.getsource(getattr(getattr(module, mod), func))
         source = return_value_numpy(source)
-    #    source = source.replace(', kwargs={}', '').replace(', **kwargs', '')
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
+        source = remove_for_numba(source)
+#        print(source)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
         new_func = fake_mod.__dict__[func]
         obj = numba.jit(cache=caching)(new_func)
@@ -239,6 +240,11 @@ def transform_lists_to_arrays(module, to_change, __funcs):
 set_signatures = {}
 
 remove_comment_line = re.compile(r'''r?(['"])\1\1(.*?)\1{3}''', re.DOTALL)
+
+def remove_for_numba(source):
+    source = re.sub(r'''.*# ?numba ?: *(DELETE|delete).*''', '', source)
+    source = re.sub(r'''#(.*)# ?(numba|NUMBA) ?: *(UNCOMMENT|uncomment).*''', r'\1', source)
+    return source
 
 def remove_branch(source, branch):
     source = re.sub(remove_comment_line, '', source)
@@ -312,21 +318,24 @@ def create_numerics(replaced, vec=False):
     except:
         pass
     
-#    NUMERICS_SUBMOD.py_solve = np.linalg.solve
+    NUMERICS_SUBMOD.py_solve = np.linalg.solve
     
     bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck'])
     bad_names.update(to_set_num)
     
-    solvers = ['secant', 'brenth'] # newton_system
+    solvers = ['secant', 'brenth', 'newton', 'newton_system'] # 
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
-        source = source.replace(', kwargs={}', '').replace(', **kwargs', '')
+        source = source.replace(', kwargs={}', '').replace(', **kwargs', '').replace(', kwargs=kwargs', '')
         source = source.replace('iterations=i, point=p, err=q1', '')
         source = source.replace(', q1=q1, p1=p1, q0=q0, p0=p0', '')
         source = source.replace('%d iterations" %maxiter', '"')
         source = source.replace('ytol=None', 'ytol=1e100')
         source = source.replace(', value=%s" %(maxiter, x)', '"')
-        
+        source = re.sub(r'''UnconvergedError\(.*''', '''UnconvergedError("Failed to converge")''', source) # Gotta keep errors all one one line
+        source = remove_for_numba(source)
+#        if s == 'newton_system':
+#            print(source)
         numba_exec_cacheable(source, NUMERICS_SUBMOD.__dict__, NUMERICS_SUBMOD.__dict__)
 
 
@@ -384,6 +393,7 @@ def transform_module(normal, __funcs, replaced, vec=False):
         SUBMOD = importlib.util.module_from_spec(SUBMOD_COPY)
         SUBMOD.IS_NUMBA = True
         SUBMOD_COPY.loader.exec_module(SUBMOD)
+        SUBMOD.np = np
         
         SUBMOD.__dict__.update(replaced)
         new_mods.append(SUBMOD)
@@ -502,9 +512,23 @@ HelicalCoil_spec = [(k, float64) for k in
                      'curvature', 'total_inlet_area', 'total_volume', 'inner_surface_area',
                      'inlet_area', 'inner_volume', 'annulus_area', 'annulus_volume')]
 
+ATMOSPHERE_1976_spec = [(k, float64) for k in 
+                    ('Z', 'dT', 'H', 'T_layer', 'T_increase', 'P_layer', 'H_layer', 'H_above_layer', 
+                     'T', 'P', 'rho', 'v_sonic',
+                     'mu', 'k', 'g', 'R')]
+
+
+
+
+to_change = ['packed_tower._Stichlmair_flood_f_and_jac', 
+             'packed_tower.Stichlmair_flood']
+
+transform_lists_to_arrays(normal_fluids, to_change, __funcs)
+
+
 # AvailableMethods  will be removed in the future in favor of non-numba only 
 # calls to method functions
-                    
+
 to_change_AvailableMethods = ['friction.friction_factor_curved', 'friction.friction_factor',
  'packed_bed.dP_packed_bed', 'two_phase.two_phase_dP', 'drag.drag_sphere',
  'two_phase_voidage.liquid_gas_voidage', 'two_phase_voidage.gas_liquid_viscosity']
@@ -517,12 +541,14 @@ to_change = {k: 'AvailableMethods' for k in to_change_AvailableMethods}
 to_change.update({k: 'full_output' for k in to_change_full_output})
 to_change['fittings.Darby3K'] = 'name in Darby: # NUMBA: DELETE'
 to_change['fittings.Hooper2K'] = 'name in Hooper: # NUMBA: DELETE'
+to_change['friction.roughness_Farshad'] = 'ID in _Farshad_roughness'
 
 for s, bad_branch in to_change.items():
     mod, func = s.split('.')
     source = inspect.getsource(getattr(getattr(normal_fluids, mod), func))
     fake_mod = __funcs[mod]
     source = remove_branch(source, bad_branch)
+    source = remove_for_numba(source)
     numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
     new_func = fake_mod.__dict__[func]
     obj = numba.jit(cache=caching)(new_func)
@@ -534,6 +560,9 @@ for s, bad_branch in to_change.items():
 # Almost there but one argument has a variable type
 #PlateExchanger = jitclass(PlateExchanger_spec)(getattr(__funcs['geometry'], 'PlateExchanger'))
 #HelicalCoil = jitclass(HelicalCoil_spec)(getattr(__funcs['geometry'], 'HelicalCoil'))
+ATMOSPHERE_1976 = jitclass(ATMOSPHERE_1976_spec)(getattr(__funcs['atmosphere'], 'ATMOSPHERE_1976'))
+__funcs['ATMOSPHERE_1976'] = __funcs['atmosphere'].ATMOSPHERE_1976 = ATMOSPHERE_1976
+
 
 # Not needed
 __funcs['friction'].Colebrook = __funcs['Colebrook'] = __funcs['Clamond']

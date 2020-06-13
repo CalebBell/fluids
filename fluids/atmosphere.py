@@ -68,6 +68,10 @@ __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
            'earthsun_distance', 'solar_position', 'solar_irradiation',
            'sunrise_sunset']
 
+__numba_additional_funcs__ = ['H_for_P_ATMOSPHERE_1976_err',
+                              'to_int_dP_ATMOSPHERE_1976',
+                              'to_int_airmass']
+
 no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
 this routine. '''
@@ -91,6 +95,13 @@ P0 = 101325.0
 M0 = 28.9644
 g0 = 9.80665
 gamma = 1.400
+
+def H_for_P_ATMOSPHERE_1976_err(H, P1):
+    return ATMOSPHERE_1976(H).P - P1
+
+def to_int_dP_ATMOSPHERE_1976(Z, dT):
+    atm = ATMOSPHERE_1976(Z, dT=dT)
+    return atm.g*atm.rho
 
 class ATMOSPHERE_1976(object):
     r'''US Standard Atmosphere 1976 class, which calculates `T`, `P`,
@@ -151,7 +162,6 @@ class ATMOSPHERE_1976(object):
        Pressure, Air Density, and Speed of Sound) Using C++," June 2013.
        http://www.dtic.mil/cgi-bin/GetTRDoc?AD=ADA588839
     '''
-    R = 8314.32
 
     def __init__(self, Z, dT=0.0):
         self.Z = Z
@@ -167,10 +177,11 @@ class ATMOSPHERE_1976(object):
         self.H_above_layer = self.H - self.H_layer
         self.T = self.T_layer + self.T_increase*self.H_above_layer
 
+        R = 8314.32
         if self.T_increase == 0.0:
-            self.P = self.P_layer*exp(-g0*M0*(self.H_above_layer)/(self.R*self.T_layer))
+            self.P = self.P_layer*exp(-g0*M0*(self.H_above_layer)/(R*self.T_layer))
         else:
-            self.P = self.P_layer*(self.T_layer/self.T)**(g0*M0/(self.R*self.T_increase))
+            self.P = self.P_layer*(self.T_layer/self.T)**(g0*M0/(R*self.T_increase))
 
         # Affects only the following properties
         self.T += dT
@@ -330,17 +341,12 @@ class ATMOSPHERE_1976(object):
             Pressure difference between the elevations, [Pa]
         '''
         # Compute the elevation to obtain the pressure specified
-        def to_solve(H):
-            return ATMOSPHERE_1976(H).P - P1
-        H_ref = brenth(to_solve, -610.0, 86000)
+        H_ref = brenth(H_for_P_ATMOSPHERE_1976_err, -610.0, 86000.0, args=(P1,))
         
         # Compute the temperature delta
         dT = T1 - ATMOSPHERE_1976(H_ref).T
         
-        def to_int(Z):
-            atm = ATMOSPHERE_1976(Z, dT=dT)
-            return atm.g*atm.rho
-        return quad(to_int, H_ref, H_ref+dH)[0]
+        return quad(to_int_dP_ATMOSPHERE_1976, H_ref, H_ref+dH, args=(dT,))[0]
 
     
 
@@ -697,6 +703,14 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     return tuple(ans.tolist())
 
 
+def to_int_airmass(Z, c1, c2, angle_term, R_planet_inv, func):
+    rho = func(Z)
+    t1 = c2 - rho*c1
+    x0 = angle_term/(1.0 + Z*R_planet_inv)
+    t2 = x0*x0
+    t3 = (1.0 - t1*t2)**-0.5
+    return rho*t3
+
 def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
     r'''Calculates mass of air per square meter in the atmosphere using a 
     provided atmospheric model. The lowest air mass is calculated straight up;
@@ -754,16 +768,7 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
     c0 = delta0 + delta0
     c1 = c0*rho0_inv
     c2 = 1.0 + c0
-    
-    def to_int(Z):
-        rho = func(Z)
-        t1 = c2 - rho*c1
-        x0 = angle_term/(1.0 + Z*R_planet_inv)
-        t2 = x0*x0
-        t3 = (1.0 - t1*t2)**-0.5
-        return rho*t3
-
-    return quad(to_int, 0.0, 86400.0)[0]
+    return quad(to_int_airmass, 0.0, 86400.0, args=(c1, c2, angle_term, R_planet_inv, func))[0]
 
 
 

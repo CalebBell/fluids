@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
+import fluids
 from fluids import *
 import fluids.vectorized
 from math import *
@@ -34,6 +35,7 @@ try:
 except:
     numba = None
 import numpy as np
+from numpy.testing import assert_allclose
 
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
@@ -456,6 +458,10 @@ def test_misc_packed_tower():
     assert_close(fluids.numba.Stichlmair_wet(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.),
                  fluids.Stichlmair_wet(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.),)
 
+    assert_close(fluids.numba.Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.),
+                 fluids.Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.))
+
+
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_misc_flow_meter():
@@ -563,7 +569,33 @@ def test_misc_two_phase():
     assert_close(fluids.numba.two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1, P=1e6),
                 fluids.two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1, P=1e6))
 
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def tets_ATMOSPHERE_1976():
+    assert_close(fluids.numba.ATMOSPHERE_1976(4.4).v_sonic,
+                 fluids.ATMOSPHERE_1976(4.4).v_sonic)
+    # pressure_integral not working do not know why
+    
+    @numba.njit
+    def my_int(Z):
+        return fluids.numba.atmosphere.ATMOSPHERE_1976(Z, 0).rho
+    
+    assert_close(fluids.numba.atmosphere.airmass(my_int, 90.0),
+                 fluids.atmosphere.airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90))
 
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def tets_newton_system():
+    @numba.njit
+    def to_solve_jac(x0):
+        return np.array([5.0*x0[0] - 3]), np.array([[5.0]])
+    # fluids.numerics.newton_system(to_solve_jac, x0=[1.0], ytol=1e-5, jac=True)
+    res, niter = fluids.numba.newton_system(to_solve_jac, x0=np.array([1.0]), ytol=1e-5, jac=True)
+    assert niter == 2
+    assert_allclose(res, np.array([0.6]))
+
+    
+    
 '''Completely working submodles:
 * core
 * filters
@@ -575,20 +607,19 @@ def test_misc_two_phase():
 * pump (except CountryPower)
 * flow_meter
 * packed_bed
+* packed_tower
 * two_phase_voidage
 * two_phase
 * fittings
 
 Near misses:
 * drag - integrate_drag_sphere (odeint)
-
 * compressible - P_isothermal_critical_flow, isothermal_gas (need lambertw, change solvers)
-* packed_tower - Stichlmair_flood (newton_system)
 * geometry - double quads
 
 Not supported:
 * particle_size_distribution
-* atmosphere - give it a go at numba 0.50 for static methods?
+* atmosphere - Added support for one thing
 * friction - Only nearest_material_roughness, material_roughness, roughness_Farshad
 * piping - all dictionary lookups
 
@@ -603,10 +634,7 @@ Functions not working:
     
 # Almost workk, needs support for new branches of lambertw
 fluids.numba.P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
-fluids.numba.lambertw(.5)
-
-# newton_system not working
-fluids.numba.Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
+fluids.numba.lambertw(.5, -1)
 
 # Using dictionaries outside is broken
 # Also, nopython is broken for this case - https://github.com/numba/numba/issues/5377
@@ -618,11 +646,6 @@ piping.nearest_pipe -> Multiplication of None type; checking of type to handle i
 piping.gauge_from_t -> numba type dict; once that's inside function, dying on checking
  "in" of a now-numpy array; same for t_from_gauge
 
-fluids.numba.liquid_gas_voidage(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, Method='Xu Fang voidage')
-* some raaguments can be done
-
-fluids.numba.two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
-
 Most classes which have different input types
 Double quads not yet supported - almost!
 '''
@@ -632,9 +655,6 @@ Double quads not yet supported - almost!
 
 
 '''Global dictionary lookup:
-Darby3K, Hooper2K, 
-
-
 # Feels like this should work
 from numba import njit, typeof, typed, types
 Darby =  typed.Dict.empty(types.string, types.UniTuple(types.float64, 3))
@@ -663,12 +683,4 @@ This makes little sense, but it is what happened.
 Slighyly better performance was found than in pure-python that way, although definitely not vs. pypy.
 
 
-'''
-
-'''Having a really hard time getting newton_system to work...
-@numba.njit
-def to_solve_jac(x0):
-    return np.array([5.0*x0[0] - 3]), np.array([5.0])
-# fluids.numerics.newton_system(to_solve_jac, x0=[1.0], jac=True)
-fluids.numba.newton_system(to_solve_jac, x0=[1.0], jac=True)
 '''

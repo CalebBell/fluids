@@ -651,7 +651,13 @@ def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage,
              -1.85*x16*x29*x40*x5/x26,
              3285600.0*x42*(-x30 + 4.0)*x38*x38- 91668240.0*x42*x36*x36 - 2.0*x32/(dP_irr*x6))
     
-    return [F1, F2], [[dF1_dVg, dF2_dVg], [dF1_dP_irr, dF2_dP_irr]]
+    err = [0.0]*2
+    err[0] = F1
+    err[1] = F2
+    
+    jac = [[dF1_dVg, dF2_dVg], [dF1_dP_irr, dF2_dP_irr]]# numba: delete
+#    jac = np.array([[dF1_dVg, dF2_dVg], [dF1_dP_irr, dF2_dP_irr]]) # numba: uncomment
+    return err, jac
 
 
     
@@ -737,7 +743,9 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3,
        Packed Columns." Gas Separation & Purification 3, no. 1 (March 1989):
        19-28. doi:10.1016/0950-4214(89)80016-7.
     '''
-    guess =  [Vl*100., 1000.0]
+    guess = [0.0]*2
+    guess[0] = Vl*100.0
+    guess[1] = 1000.0
     return newton_system(_Stichlmair_flood_f_and_jac, x0=guess, jac=True,
                          args=(Vl, rhog, rhol, mug, voidage, specific_area, C1, 
                          C2, C3, H), ytol=1e-11)[0][0]

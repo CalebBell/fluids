@@ -61,6 +61,7 @@ __numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search',
                               'py_lambertw', '_lambertw_err', 'newton_err',
                               'norm2', 'py_solve', 'func_35_splev', 'func_40_splev',
                               'quad_adaptive', 'fixed_quad_Gauss_Kronrod',
+                              'halley_compat_numba',
                               ]
 nan = float("nan")
 inf = float("inf")
@@ -93,6 +94,16 @@ try:
 except:
     array_if_needed = lambda x: x
     
+
+_wraps = None
+def my_wraps():
+    global _wraps
+    if _wraps is not None:
+        return _wraps
+    from functools import wraps
+    _wraps = wraps
+    return _wraps
+
     
 #IS_PYPY = True # for testing
 
@@ -1645,6 +1656,7 @@ def caching_decorator(f, full=False):
     from functools import wraps
     cache = {}
     info_cache = {}
+    wraps = my_wraps()
     @wraps(f)
     def wrapper(x, *args, **kwargs):
         has_info = 'info' in kwargs
@@ -1883,6 +1895,7 @@ def oscillation_checking_wrapper(f, minimum_progress=0.3,
                                  good_err=None):
     checker = oscillation_checker(minimum_progress=minimum_progress,
                                  both_sides=both_sides, good_err=good_err)
+    wraps = my_wraps()
     @wraps(f)
     def wrapper(x, *args, **kwargs):
         err_test = err = f(x, *args, **kwargs)
@@ -2353,12 +2366,15 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
     raise UnconvergedError("Failed to converge", iterations=i, point=p, err=q1)
 
 
+def halley_compat_numba(func, x, *args):
+    a, b = func(x, *args)
+    return a, b, 0.0
 
-def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
-              fprime2=None, low=None, high=None, damping=1.0, ytol=None,
-              xtol=1.48e-8, require_eval=False, damping_func=None,
-              bisection=False, gap_detection=False, dy_dx_limit=1e100,
-              max_bound_hits=4, kwargs={}):
+def newton(func, x0, fprime=None, args=(), tol=None, maxiter=100,
+           fprime2=None, low=None, high=None, damping=1.0, ytol=None,
+           xtol=1.48e-8, require_eval=False, damping_func=None,
+           bisection=False, gap_detection=False, dy_dx_limit=1e100,
+           max_bound_hits=4, kwargs={}):
     '''Newton's method designed to be mostly compatible with SciPy's 
     implementation, with a few features added and others now implemented.
     
@@ -2387,118 +2403,125 @@ def py_newton(func, x0, fprime=None, args=(), tol=None, maxiter=_iter,
     if bisection:
         a, b = None, None
         fa, fb = None, None
-    if fprime is not None:
-        fprime2_included = fprime2 == True
-        fprime_included = fprime == True
-        hit_low, hit_high = 0, 0
 
-        for iter in range(maxiter):
-            if fprime2_included:
-                fval, fder, fder2 = func(p0, *args, **kwargs)
-            elif fprime_included:
-                fval, fder = func(p0, *args, **kwargs)
-            elif fprime2 is not None:
-                fval = func(p0, *args, **kwargs)
-                fder = fprime(p0, *args, **kwargs)
-                fder2 = fprime2(p0, *args, **kwargs)
+    fprime2_included = fprime2 == True
+    fprime_included = fprime == True
+    if fprime2_included:
+        func2 = func
+    hit_low, hit_high = 0, 0
+
+    for it in range(maxiter):
+#        if fprime2_included: # numba: uncomment
+#            fval, fder, fder2 = func(p0, *args) # numba: uncomment
+#        else: # numba: uncomment
+#            fval, fder, fder2 = halley_compat_numba(func, p0, *args) # numba: uncomment
+
+        if fprime2_included: # numba: DELETE
+            fval, fder, fder2 = func2(p0, *args, **kwargs) # numba: DELETE
+        elif fprime_included: # numba: DELETE
+            fval, fder = func(p0, *args, **kwargs)
+        elif fprime2 is not None: #numba: DELETE
+            fval = func(p0, *args, **kwargs) #numba: DELETE
+            fder = fprime(p0, *args, **kwargs) #numba: DELETE
+            fder2 = fprime2(p0, *args, **kwargs) #numba: DELETE
+        else: #numba: DELETE
+            fval = func(p0, *args, **kwargs) #numba: DELETE
+            fder = fprime(p0, *args, **kwargs) #numba: DELETE
+
+        if fval == 0.0:
+            return p0 # Cannot coninue or already finished
+        elif fder == 0.0:
+            if ytol is None or abs(fval) < ytol:
+                return p0
             else:
-                fval = func(p0, *args, **kwargs)
-                fder = fprime(p0, *args, **kwargs)
+                raise UnconvergedError("Derivative became zero; maxiter (%d) reached, value=%f " %(maxiter, p0))
 
-            if fval == 0.0:
-                return p0 # Cannot coninue or already finished
-            elif fder == 0.0:
-                if ytol is None or abs(fval) < ytol:
-                    return p0
-                else:
-                    raise UnconvergedError("Derivative became zero; maxiter (%d) reached, value=%f " %(maxiter, p0))
-
-            if bisection:
-                if fval < 0.0:
-                    a = p0
-                    fa = fval
-                else:
-                    b = p0 # b always has positive value of error
-                    fb = fval
-            
-            fder_inv = 1.0/fder
-            # Compute the next point
-            step = fval*fder_inv
-            if damping_func is not None:
-                if fprime2 is not None:
-                    step = step/(1.0 - 0.5*step*fder2*fder_inv)
-                p = damping_func(p0, -step, damping)
+        if bisection:
+            if fval < 0.0:
+                a = p0
+                fa = fval
+            else:
+                b = p0 # b always has positive value of error
+                fb = fval
+        
+        fder_inv = 1.0/fder
+        # Compute the next point
+        step = fval*fder_inv
+        if damping_func is not None:
+            if fprime2 is not None:
+                step = step/(1.0 - 0.5*step*fder2*fder_inv)
+            p = damping_func(p0, -step, damping)
 #                variable, derivative, damping_factor
-                
-            elif fprime2 is None:
-                p = p0 - step*damping
-            else:
-                p = p0 - step/(1.0 - 0.5*step*fder2*fder_inv)*damping
             
-            if bisection and a is not None and b is not None:
-                if (not (a < p < b) and not (b < p < a)):
+        elif fprime2 is None:
+            p = p0 - step*damping
+        else:
+            p = p0 - step/(1.0 - 0.5*step*fder2*fder_inv)*damping
+        
+        if bisection and a is not None and b is not None:
+            if (not (a < p < b) and not (b < p < a)):
 #                if p < 0.0:
 #                    if p < a:
 #                    print('bisecting')
-                    p = 0.5*(a + b)
+                p = 0.5*(a + b)
 #                else:
 #                    if p > b:
 #                        p = 0.5*(a + b)
-                    if gap_detection:
-                        # Change in function value required to get goal in worst case
-                        dy_dx = abs((fa- fb)/(a-b))
-                        if dy_dx > dy_dx_limit: #or dy_dx > abs(fder)*10:
-                            raise DiscontinuityError("Discontinuity detected")
-                
-            if low is not None and p < low:
-                hit_low += 1
-                if p0 == low and hit_low > max_bound_hits:
-                    if abs(fval) < ytol:
-                        return low
-                    else:
-                        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
-                    # Stuck - not going to converge, hammering the boundary. Check ytol
-                p = low
-            if high is not None and p > high:
-                hit_high += 1
-                if p0 == high and hit_high > max_bound_hits:
-                    if abs(fval) < ytol:
-                        return high
-                    else:
-                        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
-                p = high
-
+                if gap_detection:
+                    # Change in function value required to get goal in worst case
+                    dy_dx = abs((fa- fb)/(a-b))
+                    if dy_dx > dy_dx_limit: #or dy_dx > abs(fder)*10:
+                        raise DiscontinuityError("Discontinuity detected")
             
-
-            
-            # p0 is last point (fval at that point), p is new 
-                      
-            if ytol is not None and xtol is not None:
-                # Meet both tolerance - new value is under ytol, and old value
-                if abs(p - p0) < abs(xtol*p) and abs(fval) < ytol:
-                    if require_eval:
-                        return p0
-                    return p
-            elif xtol is not None:
-                if abs(p - p0) < abs(xtol*p):
-                    if require_eval:
-                        return p0
-                    return p
-            elif ytol is not None:
+        if low is not None and p < low:
+            hit_low += 1
+            if p0 == low and hit_low > max_bound_hits:
                 if abs(fval) < ytol:
-                    if require_eval:
-                        return p0
-                    return p
-            
+                    return low
+                else:
+                    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
+                # Stuck - not going to converge, hammering the boundary. Check ytol
+            p = low
+        if high is not None and p > high:
+            hit_high += 1
+            if p0 == high and hit_high > max_bound_hits:
+                if abs(fval) < ytol:
+                    return high
+                else:
+                    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
+            p = high
+
+        
+
+        
+        # p0 is last point (fval at that point), p is new 
+                  
+        if ytol is not None and xtol is not None:
+            # Meet both tolerance - new value is under ytol, and old value
+            if abs(p - p0) < abs(xtol*p) and abs(fval) < ytol:
+                if require_eval:
+                    return p0
+                return p
+        elif xtol is not None:
+            if abs(p - p0) < abs(xtol*p):
+                if require_eval:
+                    return p0
+                return p
+        elif ytol is not None:
+            if abs(fval) < ytol:
+                if require_eval:
+                    return p0
+                return p
+        
 #            fval0, fval1 = fval, fval0
 #            p0, p1 = p, p0
 # need a history of fval also
-            p0 = p
-    else:
-        return secant(func, x0, args=args, maxiter=maxiter, low=low, high=high,
-                      damping=damping,
-                      xtol=xtol, ytol=ytol, kwargs=kwargs)
-
+        p0 = p
+#    else:
+#        return secant(func, x0, args=args, maxiter=maxiter, low=low, high=high,
+#                      damping=damping,
+#                      xtol=xtol, ytol=ytol, kwargs=kwargs)
+#
     raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
 
@@ -2513,30 +2536,33 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
 
     if jac_also:
         fcur, j = f(x0, *args)
-    else:
-        fcur = f(x0, *args)
+    else: # numba: delete
+        fcur = f(x0, *args)  # numba: delete
+        
         
     err0 = 0.0
     for v in fcur:
         err0 += abs(v)
     if ytol is not None and err0 < ytol:
         return x0, 0
-    else:
+    else: 
         x = x0
-        if not jac_also:
-            j = jac(x, *args)
+        if not jac_also:  # numba: delete
+            j = jac(x, *args)  # numba: delete
             
     iteration = 1
     while iteration < maxiter:
-        dx = py_solve(j, [-v for v in fcur])
+#        dx = np.linalg.solve(j, -fcur) # numba: uncomment
+        dx = py_solve(j, [-v for v in fcur]) # numba: delete
         if damping_func is None:
-            x = [xi + dxi*damping for xi, dxi in zip(x, dx)]
-        else:
-            x = damping_func(x, dx, damping)
+#            x = x + dx*damping  # numba: uncomment
+            x = [xi + dxi*damping for xi, dxi in zip(x, dx)] # numba: delete
+        else:  # numba: delete
+            x = damping_func(x, dx, damping)  # numba: delete
         if jac_also:
             fcur, j = f(x, *args)
-        else:
-            fcur = f(x, *args)
+        else:  # numba: delete
+            fcur = f(x, *args)  # numba: delete
         
         iteration += 1
         if xtol is not None and norm2(fcur) < xtol:
@@ -2548,8 +2574,8 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             if err0 < ytol:
                 break
             
-        if not jac_also:
-            j = jac(x, *args)
+        if not jac_also:  # numba: delete
+            j = jac(x, *args)  # numba: delete
 
     if xtol is not None and norm2(fcur) > xtol:
         raise UnconvergedError("Failed to converge")
@@ -3030,8 +3056,7 @@ if not IS_PYPY:
     
 else:
     splev, bisplev = py_splev, py_bisplev
-#    newton, bisect, ridder = py_newton, py_bisect, py_ridder
-newton, bisect, ridder = py_newton, py_bisect, py_ridder
+bisect, ridder = py_bisect, py_ridder
 
 # Try out mpmath for special functions anyway
 has_scipy = False
