@@ -437,7 +437,7 @@ def test_friction_factor_curved():
     assert sorted(methods) == sorted(['Guo','Ju','Schmidt turbulent','Prasad','Mandel Nigam','Mori Nakayama turbulent','Czop', 'Srinivasan turbulent'])
     methods = friction_factor_curved_methods(2000, 0.01, .02, check_ranges=True)
     assert sorted(methods) == sorted(['White', 'Schmidt laminar', 'Mori Nakayama laminar'])
-    assert friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5)[0] == 'Schmidt turbulent'
+    assert 'Schmidt turbulent' in friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5)
     assert 11 == len(friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5, check_ranges=False))
     
     for m in friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5, check_ranges=False):
