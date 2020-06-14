@@ -44,8 +44,6 @@ import os
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 import fluids
-import fluids.numba
-import fluids.units
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
