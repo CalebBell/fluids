@@ -45,10 +45,6 @@ will be imported from here.
 
 >>> from fluids.numba import *
 
-
->>> fluids.numba.friction_factor(Re=100.0, eD=0.0)
-array([ 0.64      ,  0.064     ,  0.03088295])
-
 Note that because this needs to import fluids itself, fluids.numba
 needs to be imported separately; the following will cause an error:
     
@@ -290,8 +286,8 @@ def remove_branch(source, branch):
 
 
 #nopython = set(['Clamond'])
-skip = set(['V_horiz_spherical'])
-total_skip = set(['V_horiz_spherical'])
+skip = set([])
+total_skip = set([])
 skip_cache = set(['secant', 'brenth', 'py_solve'])
 
 bad_names = set(('__file__', '__name__', '__package__', '__cached__'))

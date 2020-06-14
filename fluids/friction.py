@@ -271,7 +271,7 @@ def Colebrook(Re, eD, tol=None):
     '''
     if tol == -1:
         if Re > 10.0:
-            return Clamond(Re, eD)
+            return Clamond(Re, eD, False)
         else:
             tol = None
     elif tol == 0:
@@ -2056,7 +2056,7 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True, AvailableMethods=F
     if Re < LAMINAR_TRANSITION_PIPE or Method == 'laminar':
         f = friction_laminar(Re)
     elif Method == "Clamond":
-        f = Clamond(Re, eD)
+        f = Clamond(Re, eD, False)
     elif Method == "Colebrook":
         f = Colebrook(Re, eD)
     elif Method == "Moody":

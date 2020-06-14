@@ -53,7 +53,9 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
 
 
 __numba_additional_funcs__ = ('_V_horiz_spherical_toint', '_SA_partial_horiz_ellipsoidal_head_to_int',
-                              '_SA_partial_horiz_ellipsoidal_head_limits')
+                              '_SA_partial_horiz_ellipsoidal_head_limits',
+                              'V_horiz_torispherical_toint_3', 'V_horiz_torispherical_toint_2',
+                              'V_horiz_torispherical_toint_1')
 
 ### Spherical Vessels, partially filled
 
@@ -447,6 +449,29 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     return Vf
 
 
+def V_horiz_torispherical_toint_1(x, w, c10, c11):
+    # No analytical integral available in MP
+    w2 = w*w
+    n = c11 + (c10 - x*x)**0.5
+    n2 = n*n
+    t = (n2 - w2)**0.5
+    ans = n2*asin(t/n) - w*t
+    return ans
+
+def V_horiz_torispherical_toint_2(x, w, c10, c11, g, g2):
+    # No analytical integral available in MP
+    n = c11 + (c10 - x*x)**0.5
+    n2 = n*n
+    n_inv = 1.0/n
+    ans = n2*(acos(w*n_inv) - acos(g*n_inv)) - w*(n2 - w*w)**0.5 + g*(n2 - g2)**0.5
+    return ans
+
+def V_horiz_torispherical_toint_3(x, r2, g2, z):
+    # There is an analytical integral in MP, but for all cases we seem to 
+    # get ZeroDivisionError: 0.0 cannot be raised to a negative power
+    ans = (r2 - x*x)*atan((g2 - x*x)**0.5/z)
+    return ans
+
 def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     r'''Calculates volume of a tank with torispherical heads, according to [1]_.
 
@@ -540,6 +565,8 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
     if h <= 0.0:
         return 0.0
+    if f is None or k is None:
+        raise ValueError("Missing f or k")
     R = 0.5*D
     R2 = R*R
     hh = h*h
@@ -559,35 +586,16 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     c11 = R - k*D 
     g2 = g*g
     r2 = r*r
-    def V1_toint(x, w):
-        # No analytical integral available in MP
-        w2 = w*w
-        n = c11 + (c10 - x*x)**0.5
-        n2 = n*n
-        ans = n2*asin((n2 - w2)**0.5/n) - w*(n2 - w2)**0.5
-        return ans
-    def V2_toint(x, w):
-        # No analytical integral available in MP
-        n = c11 + (c10 - x*x)**0.5
-        n2 = n*n
-        n_inv = 1.0/n
-        ans = n2*(acos(w*n_inv) - acos(g*n_inv)) - w*(n2 - w*w)**0.5 + g*(n2 - g2)**0.5
-        return ans
-    def V3_toint(x):
-        # There is an analytical integral in MP, but for all cases we seem to 
-        # get ZeroDivisionError: 0.0 cannot be raised to a negative power
-        ans = (r2 - x*x)*atan((g2 - x*x)**0.5/z)
-        return ans
 
     if 0.0 <= h <= h1:
         w = R - h
-        Vf = 2.0*quad(V1_toint, 0.0, (2.0*k*D*h - hh)**0.5, (w,))[0]
+        Vf = 2.0*quad(V_horiz_torispherical_toint_1, 0.0, (2.0*k*D*h - hh)**0.5, (w, c10, c11))[0]
     elif h1 < h < h2:
         w = R - h
         wmax1 = R - h1
-        V1max = quad(V1_toint, 0.0, (2.0*k*D*h1 - h1*h1)**0.5, (wmax1,))[0]
-        V2 = quad(V2_toint, 0.0, k*D*cos(alpha), (w,))[0]
-        V3 = quad(V3_toint, w, g)[0] - 0.5*z*(g*g*acos(w/g) -w*(2*g*(h-h1) - (h-h1)**2)**0.5)
+        V1max = quad(V_horiz_torispherical_toint_1, 0.0, (2.0*k*D*h1 - h1*h1)**0.5, (wmax1,c10, c11))[0]
+        V2 = quad(V_horiz_torispherical_toint_2, 0.0, k*D*cos(alpha), (w, c10, c11, g, g2))[0]
+        V3 = quad(V_horiz_torispherical_toint_3, w, g , (r2, g2, z))[0] - 0.5*z*(g*g*acos(w/g) -w*(2*g*(h-h1) - (h-h1)**2)**0.5)
         Vf = 2.0*(V1max + V2 + V3)
     else:
         w = R - h
@@ -595,9 +603,9 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         wmax2 = R - h2
         wwerird = R - (D - h)
 
-        V1max = quad(V1_toint, 0, (2*k*D*h1-h1**2)**0.5, (wmax1,))[0]
-        V1weird = quad(V1_toint, 0, (2*k*D*(D-h)-(D-h)**2)**0.5, (wwerird,))[0]
-        V2max = quad(V2_toint, 0, k*D*cos(alpha), (wmax2,))[0]
+        V1max = quad(V_horiz_torispherical_toint_1, 0, (2*k*D*h1-h1**2)**0.5, (wmax1,c10, c11))[0]
+        V1weird = quad(V_horiz_torispherical_toint_1, 0, (2*k*D*(D-h)-(D-h)**2)**0.5, (wwerird,c10, c11))[0]
+        V2max = quad(V_horiz_torispherical_toint_2, 0, k*D*cos(alpha), (wmax2, c10, c11, g, g2))[0]
         V3max = pi*a1/6.*(3*g**2 + a1**2)
         Vf = 2*(2*V1max - V1weird + V2max + V3max)
     if headonly:
@@ -818,6 +826,8 @@ def V_vertical_torispherical(D, f, k, h):
        http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
     if h <= 0.0:
         return 0.0
+    if f is None or k is None:
+        raise ValueError("f and k are required")
     alpha = asin((1.0 - 2.0*k)/(2.0*(f-k)))
     sin_alpha = sin(alpha)
     cos_alpha = cos(alpha)
@@ -2237,9 +2247,9 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
     '''
-    if sideA not in (None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
+    if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise ValueError('Unspoorted head type for side A')
-    if sideB not in (None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
+    if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise ValueError('Unspoorted head type for side B')
     R = 0.5*D
     V = 0.0

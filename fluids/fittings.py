@@ -1343,7 +1343,7 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
             if Re is None:
                 raise ValueError("The `Rennels` method requires either a "
                                  "specified friction factor or `Re`")
-            fd = Clamond(Re=Re, eD=roughness/Di)
+            fd = Clamond(Re=Re, eD=roughness/Di, fast=False)
         sin_term = sin(0.5*angle)
         return (fd*angle*rc/Di + (0.10 + 2.4*fd)*sin_term
         + 6.6*fd*(sin_term**0.5 + sin_term)/(rc/Di)**(4.*angle/pi))
@@ -2108,7 +2108,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
             if Re is None:
                 raise ValueError("The `Rennels` method requires either a "
                                  "specified friction factor or `Re`")
-            fd = Clamond(Re=Re, eD=roughness/Di2)
+            fd = Clamond(Re=Re, eD=roughness/Di2, fast=False)
             
         beta2 = beta*beta
         beta4 = beta2*beta2
@@ -2518,7 +2518,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
             if Re is None:
                 raise ValueError("The `Rennels` method requires either a "
                                  "specified friction factor or `Re`")
-            fd = Clamond(Re=Re, eD=roughness/Di2)
+            fd = Clamond(Re=Re, eD=roughness/Di2, fast=False)
         
         if 0.0 < angle_deg <= 20.0:
             K = 8.30*tan(0.5*angle_rad)**1.75*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)

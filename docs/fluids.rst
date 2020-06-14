@@ -12,6 +12,7 @@
    fluids.geometry
    fluids.jet_pump
    fluids.mixing
+   fluids.numba
    fluids.open_flow
    fluids.packed_bed
    fluids.packed_tower

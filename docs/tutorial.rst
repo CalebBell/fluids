@@ -1,6 +1,24 @@
 fluids tutorial
 ===============
 
+Required Resources
+------------------
+
+The fluids library is designed to be a low-overhead, lightweight repository
+of engineering knowledge and utilities that relate to fluid dynamics.
+It occupies ~4 MB of RAM on load and should load in a small fraction of a
+second. Fluids does load NumPy if it is present, which takes ~150 ms; fluids
+itself loads in approximately 20 ms. No other libraries will become required 
+dependencies; anything else, including SciPy, is optional and loaded when
+needed.
+
+Fluids was originally tightly integrated with SciPy and NumPy; today they
+are optional components used for only a small amount of functionality
+which do not have pure-Python numerical methods implemented.
+Fluids targets Python 2.7 and up as well as PyPy2 and PyPy3. Additionally,
+fluids has been tested by the author to load in IronPython, Jython,
+and micropython.
+
 Importing
 ---------
 
@@ -36,17 +54,12 @@ for instance, a function calculating volume doesn't care if given an input in
 inches or meters; the output units will be the cube of those given to it.
 The user is directed to unit conversion libraries such as 
 `pint <https://github.com/hgrecco/pint>`_ to perform unit conversions if they
-prefer not to work in SI units.
+prefer not to work in SI units. The tutorial for using it with fluids is
+at :doc:`fluids.units <fluids.units>`.
 
-The standard math library is used in all functions except where special
-functions from numpy or scipy are necessary. SciPy is used for root finding,
-interpolation, scientific constants, ode integration, and its many special
-mathematical functions not present in the standard math library. No other 
-libraries will become required dependencies; anything else is optional.
-
-To allow use of numpy arrays with fluids, a `vectorized` module is implemented,
+There are two ways to use numpy arrays with fluids. Easiest to use is a `vectorized` module,
 which wraps all of the fluids functions with np.vectorize. Instead of importing
-from fluids, the user can import from fluids.vectorized:
+from fluids, the user can import from :doc:`fluids.vectorized <fluids.vectorized>`:
 
 >>> from fluids.vectorized import *
 >>> friction_factor(Re=[100, 1000, 10000], eD=0)
@@ -56,6 +69,14 @@ It is possible to switch back and forth between the namespaces with a subsequent
 import:
 
 >>> from fluids import * 
+
+The second way is `Numba <https://github.com/numba/numba>`_. This
+optional dependency provides the speed you expect from NumPy arrays -
+or better. In some cases, much better. The tutorial for using it
+is at :doc:`fluids.numba <fluids.numba>`, but in general use it the same way but
+with a different import.
+
+>>> from fluids.numba_vectorized import *
 
 Dimensionless numbers
 ---------------------
@@ -755,13 +776,13 @@ pressure, choked flow will develop - that downstream pressure is that
 at which the mass flow rate reaches a maximum. An exception will be
 raised if such an input is specified:
 
->>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, L=1000, D=0.5, m=260) # doctest: +IGNORE_EXCEPTION_DETAIL
+>>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, L=1000, D=0.5, m=260) # doctest: +SKIP
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
   File "fluids/compressible.py", line 886, in isothermal_gas
     'kg/s at a downstream pressure of %f' %(P1, m_max, Pcf))
 Exception: The desired mass flow rate cannot be achieved with the specified upstream pressure of 1000000.000000 Pa; the maximum flowrate is 257.216733 kg/s at a downstream pressure of 389699.731765
->>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=3E5, L=1000, D=0.5) # doctest: +IGNORE_EXCEPTION_DETAIL
+>>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=3E5, L=1000, D=0.5) # doctest: +SKIP
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
   File "fluids/compressible.py", line 821, in isothermal_gas

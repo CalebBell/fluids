@@ -44,6 +44,8 @@ import os
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 import fluids
+import fluids.numba
+import fluids.units
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
@@ -51,6 +53,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
+    #'sphinx.ext.intersphinx',
     'numpydoc',
     'nbsphinx',
     'matplotlib.sphinxext.plot_directive',

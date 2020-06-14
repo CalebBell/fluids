@@ -8,10 +8,11 @@ Welcome to Fluids's documentation!
 Fluids is open-source software for engineers and technicians working in the
 fields of chemical, mechanical, or civil engineering. It includes modules
 for piping, fittings, pumps, tanks, compressible flow, open-channel flow,
-and more.
+atmospheric properties, solar properties, particle size distributions,
+two phase flow, friction factors, control valves, orifice plates and
+other flow meters, ejectors, relief valves, and more.
 
 
-   
    
    
 Module Contents:
@@ -102,7 +103,7 @@ Citation
 
 To cite fluids in publications use::
 
-    Caleb Bell (2016-2018). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
+    Caleb Bell (2016-2020). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
     https://github.com/CalebBell/fluids.
 
 

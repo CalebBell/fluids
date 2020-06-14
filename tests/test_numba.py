@@ -592,6 +592,13 @@ def tets_ATMOSPHERE_1976():
 
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_misc_geometry():
+    assert_close(fluids.numba.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
+                 fluid.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
+
+    
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
 def tets_newton_system():
     @numba.njit
     def to_solve_jac(x0):
