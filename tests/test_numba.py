@@ -630,6 +630,7 @@ def tets_newton_system():
 Near misses:
 * drag - integrate_drag_sphere (odeint)
 * geometry - double quads
+* control_valve sizing functions
 
 Not supported:
 * particle_size_distribution

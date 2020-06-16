@@ -512,7 +512,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     
     
     HelicalCoil_spec = [(k, float64) for k in 
-                        ('Do', 'Dt', 'Di', 'Do_total', 'N', 'pitch', 'H', 'H_tot', 
+                        ('Do', 'Dt', 'Di', 'Do_total', 'N', 'pitch', 'H', 'H_total', 
                          'tube_circumference', 'tube_length', 'surface_area', 'helix_angle',
                          'curvature', 'total_inlet_area', 'total_volume', 'inner_surface_area',
                          'inlet_area', 'inner_volume', 'annulus_area', 'annulus_volume')]
@@ -575,7 +575,9 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     
     # Almost there but one argument has a variable type
     #PlateExchanger = jitclass(PlateExchanger_spec)(getattr(__funcs['geometry'], 'PlateExchanger'))
-    #HelicalCoil = jitclass(HelicalCoil_spec)(getattr(__funcs['geometry'], 'HelicalCoil'))
+    HelicalCoil = jitclass(HelicalCoil_spec)(getattr(__funcs['geometry'], 'HelicalCoil'))
+    __funcs['HelicalCoil'] = __funcs['geometry'].HelicalCoil = HelicalCoil
+
     ATMOSPHERE_1976 = jitclass(ATMOSPHERE_1976_spec)(getattr(__funcs['atmosphere'], 'ATMOSPHERE_1976'))
     __funcs['ATMOSPHERE_1976'] = __funcs['atmosphere'].ATMOSPHERE_1976 = ATMOSPHERE_1976
     
@@ -585,7 +587,6 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     #for k in ('flow_meter', 'fittings', 'two_phase', 'friction'):
     #    __funcs[k].friction_factor = __funcs['friction_factor'] = __funcs['Clamond']
     #__funcs['PlateExchanger'] = __funcs['geometry'].PlateExchanger = PlateExchanger
-    #__funcs['HelicalCoil'] = __funcs['geometry'].HelicalCoil = HelicalCoil
     
     # Works but 50% slower
     #__funcs['geometry']._V_horiz_spherical_toint = __funcs['_V_horiz_spherical_toint'] = cfunc("float64(float64, float64, float64, float64)")(normal_fluids.geometry._V_horiz_spherical_toint)

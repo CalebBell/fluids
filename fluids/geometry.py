@@ -3134,7 +3134,7 @@ class HelicalCoil(object):
     ----------
     Dt : float
         Outer diameter of the tube wound to make up the helical spiral, [m]
-    Do : float, optional
+    Do : float
         Diameter of the spiral as measured from the center of the coil on one
         side to the center of the coil on the other side, [m]
     Do_total : float, optional
@@ -3233,30 +3233,32 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
                  Do_total=None, Di=None):
         # H goes from center of tube in bottom of coil to center of tube in top of coil
         # Do goes from the center of the spiral to the center of the outer tube
-        if H_total:
+        
+        if H_total is not None:
             H = H_total - Dt
-        if Do_total:
+        if Do_total is not None:
             Do = Do_total - Dt
         self.Do = Do
         self.Dt = Dt
         self.Do_total = self.Do+self.Dt
-        if N and pitch:
+        if N is not None and pitch is not None:
             self.N = N
             self.pitch = pitch
             self.H = N*pitch
-        elif N and H:
+        elif N is not None and H is not None:
             self.N = N
             self.H = H
             self.pitch = self.H/N
             if self.pitch < self.Dt:
                 raise ValueError('Pitch is too small - tubes are colliding')#; maximum number of spirals is %f.'%(self.H/self.Dt))
-        elif H and pitch:
+        elif H is not None and pitch is not None:
             self.pitch = pitch
             self.H = H
             self.N = self.H/self.pitch
             if self.pitch < self.Dt:
                 raise ValueError('Pitch is too small - tubes are colliding; pitch must be larger than tube diameter.')
-        self.H_total = self.Dt + self.H
+        if self.H is not None: # numba
+            self.H_total = self.Dt + self.H
         
         if self.Dt > self.Do:
             raise ValueError('Tube diameter is larger than helix outer diameter - not feasible.')
@@ -3271,9 +3273,8 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
         self.total_inlet_area = pi/4.*self.Dt**2
         self.total_volume = self.total_inlet_area*self.tube_length
         
-        
-        self.Di = Di
-        if Di:
+        if Di is not None:
+            self.Di = Di
             self.inner_surface_area = self.tube_length*pi*self.Di
             self.inlet_area = pi/4.*self.Di**2
             self.inner_volume = self.inlet_area*self.tube_length

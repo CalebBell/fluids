@@ -36,7 +36,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
            'broyden2',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
-           'i1', 'i0', 'k1', 'k0', 'iv', 'mean',
+           'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2',
            'numpy',
            'polyint_over_x', 'horner_log', 'polyint', 'chebder',
            'polyder', 'make_damp_initial', 'quadratic_from_points',
@@ -2960,6 +2960,61 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
                     sp = tmp
             z[j*mx + i] += sp
     return z
+
+
+p_0_70 = array_if_needed([0.06184590404457956, -0.7460693871557973, 2.2435704485433376, -2.1944070385048526, 0.3382265629285811, 0.2791966558569478])
+q_0_07 = array_if_needed([-0.005308735283483908, 0.1823421262956287, -1.2364596896290079, 2.9897802200092296, -2.9365321202088004, 1.0])
+p_07_099 = array_if_needed([7543860.817140365, -10254250.429758755, -4186383.973408412, 7724476.972409749, -3130743.609030545, 600806.068543299, -62981.15051292659, 3696.7937385473397, -114.06795167646395, 1.4406337969700391])
+q_07_099 = array_if_needed([-1262997.3422452002, 10684514.56076485, -16931658.916668657, 10275996.02842749, -3079141.9506451315, 511164.4690136096, -49254.56172495263, 2738.0399260270983, -81.36790509581284, 1.0])
+p_099_1 = array_if_needed([8.548256176424551e+34, 1.8485781239087334e+35, -2.1706889553798647e+34, 8.318563643438321e+32, -1.559802348661511e+31, 1.698939241177209e+29, -1.180285031647229e+27, 5.531049937687143e+24, -1.8085903366375877e+22, 4.203276811951035e+19, -6.98211620300421e+16, 82281997048841.92, -67157299796.61345, 36084814.54808544, -11478.108105137717, 1.6370226052761176])
+q_099_1 = array_if_needed([-1.9763570499484274e+35, 1.4813997374958851e+35, -1.4773854824041134e+34, 5.38853721252814e+32, -9.882387315028929e+30, 1.0635231532999732e+29, -7.334629044071992e+26, 3.420655574477631e+24, -1.1147787784365177e+22, 2.584530363912858e+19, -4.285376337404043e+16, 50430830490687.56, -41115254924.43107, 22072284.971253656, -7015.799744041691, 1.0])
+
+def polylog2(x):
+    r'''Simple function to calculate PolyLog(2, x) from ranges 0 <= x <= 1,
+    with relative error guaranteed to be < 1E-7 from 0 to 0.99999. This
+    is a Pade approximation, with three coefficient sets with splits at 0.7 
+    and 0.99. An exception is raised if x is under 0 or above 1. 
+    
+
+    Parameters
+    ----------
+    x : float
+        Value to evaluate PolyLog(2, x) T
+
+    Returns
+    -------
+    y : float
+        Evaluated result
+
+    Notes
+    -----
+    Efficient (2-4 microseconds). No implementation of this function exists in 
+    SciPy. Derived with mpmath's pade approximation.
+    Required for the entropy integral of 
+    :obj:`thermo.heat_capacity.Zabransky_quasi_polynomial`.
+
+    Examples
+    --------
+    >>> polylog2(0.5)
+    0.5822405264516294
+    '''
+    if 0 <= x <= 0.7:
+        p = p_0_70
+        q = q_0_07
+        offset = 0.26
+    elif 0.7 < x <= 0.99:
+        p = p_07_099
+        q = q_07_099
+        offset = 0.95
+    elif 0.99 < x <= 1:
+        p = p_099_1
+        q = q_099_1
+        offset = 0.999
+    else:
+        raise ValueError('Approximation is valid between 0 and 1 only.')
+    x = x - offset
+    return horner(p, x)/horner(q, x)
+
 
 
 def fixed_quad_Gauss_Kronrod(f, a, b, k_points, k_weights, l_weights, args):
