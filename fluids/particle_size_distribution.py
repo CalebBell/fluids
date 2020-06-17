@@ -535,7 +535,7 @@ def psd_spacing(d_min=None, d_max=None, pts=20, method='logarithmic'):
     elif method[0] in ('R', 'r'):
         ratio = 10**(1.0/float(method[1:]))
         if d_min is not None and d_max is not None:
-            raise Exception('For geometric (Renard) series, only '
+            raise ValueError('For geometric (Renard) series, only '
                             'one of `d_min` and `d_max` should be provided')
         if d_min is not None:
             ds = [d_min]
@@ -555,7 +555,7 @@ def psd_spacing(d_min=None, d_max=None, pts=20, method='logarithmic'):
                ds.append(sieve.opening)
         return list(reversed(ds))
     else:
-        raise Exception('Method not recognized')
+        raise ValueError('Method not recognized')
 
 
 def pdf_lognormal(d, d_characteristic, s):

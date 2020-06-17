@@ -160,6 +160,32 @@ def bisplev(x, y, tck, dx=0, dy=0):
     return cy_bispev(tx, ty, c, kx, ky, np.array([x]), np.array([y]))[0]
 
 
+@numba.jit(nopython=True)
+def combinations(pool, r):
+    n = len(pool)
+#    indices = tuple(list(range(r)))
+    indices = np.arange(r)
+    empty = not (n and (0 < r <= n))
+
+    if not empty:
+#        yield [pool[i] for i in indices]
+#        yield (pool[i] for i in indices)
+        yield np.array([pool[i] for i in indices])
+
+    while not empty:
+        i = r - 1
+        while i >= 0 and indices[i] == i + n - r:
+            i -= 1
+        if i < 0:
+            empty = True
+        else:
+            indices[i] += 1
+            for j in range(i + 1, r):
+                indices[j] = indices[j - 1] + 1
+            result = np.array([pool[i] for i in indices])
+            yield result
+
+
 
 to_set_num = ['bisplev', 'cy_bispev', 'init_w', 'fpbspl']
 
@@ -373,7 +399,7 @@ def create_numerics(replaced, vec=False):
 #    replaced['newton_err'] = NUMERICS_SUBMOD.newton_err = newton_err
     return replaced, NUMERICS_SUBMOD
 
-replaced = {'sum': np.sum}
+replaced = {'sum': np.sum, 'combinations': combinations}
 replaced, NUMERICS_SUBMOD = create_numerics(replaced, vec=False)
 numerics = NUMERICS_SUBMOD
 #old_numerics = sys.modules['fluids.numerics']
