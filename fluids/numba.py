@@ -241,16 +241,17 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False):
     if vec:
         conv_fun = numba.vectorize
     else:
-        conv_fun = numba.jit
+        conv_fun = numba.njit
 
     for s in to_change:
         mod, func = s.split('.')
         fake_mod = __funcs[mod]
         source = inspect.getsource(getattr(getattr(module, mod), func))
+        source = remove_for_numba(source) # do before anything else
         source = return_value_numpy(source)
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
-        source = remove_for_numba(source)
-#        print(source)
+#        if 'Rachford_Rice_flash2_f_jac' in s:
+#            print(source)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
         new_func = fake_mod.__dict__[func]
         obj = conv_fun(cache=caching)(new_func)
@@ -321,10 +322,12 @@ bad_names = set(('__file__', '__name__', '__package__', '__cached__'))
 from fluids.numerics import SamePointError, UnconvergedError, NotBoundedError
 def create_numerics(replaced, vec=False):
     
-    if vec:
-        conv_fun = numba.vectorize
-    else:
-        conv_fun = numba.jit
+#    if vec:
+#        conv_fun = numba.vectorize
+#    else:
+    # Not part of the public API - do not need to worry about the stricter
+    # numba.vectorize interface!
+    conv_fun = numba.njit
     
     NUMERICS_SUBMOD_COPY = importlib.util.find_spec('fluids.numerics')
     NUMERICS_SUBMOD = importlib.util.module_from_spec(NUMERICS_SUBMOD_COPY)
@@ -351,7 +354,7 @@ def create_numerics(replaced, vec=False):
     bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck'])
     bad_names.update(to_set_num)
     
-    solvers = ['secant', 'brenth', 'newton', 'ridder', 'newton_system'] # 
+    solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct', 'basic_damping'] # 
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
         source = source.replace(', kwargs={}', '').replace(', **kwargs', '').replace(', kwargs=kwargs', '')
@@ -362,7 +365,9 @@ def create_numerics(replaced, vec=False):
         source = source.replace(', value=%s" %(maxiter, x)', '"')
         source = re.sub(r'''UnconvergedError\(.*''', '''UnconvergedError("Failed to converge")''', source) # Gotta keep errors all one one line
         source = remove_for_numba(source)
-#        if s == 'newton_system':
+        source = re.sub(list_mult_expr, numpy_not_list_expr, source)
+
+#        if any(i in s for i in ('newton_system', 'solve_2_direct', 'basic_damping')):
 #            print(source)
         numba_exec_cacheable(source, NUMERICS_SUBMOD.__dict__, NUMERICS_SUBMOD.__dict__)
 
@@ -377,7 +382,7 @@ def create_numerics(replaced, vec=False):
 #                forceobj = False
                 # cache=not forceobj 
                 # cache=name not in skip_cache
-                obj = numba.jit(cache=caching, forceobj=False)(obj)
+                obj = conv_fun(cache=caching)(obj)
                 NUMERICS_SUBMOD.__dict__[name] = obj
                 replaced[name] = obj
 #                globals()[name] = objs
@@ -399,7 +404,7 @@ def create_numerics(replaced, vec=False):
 #    replaced['newton_err'] = NUMERICS_SUBMOD.newton_err = newton_err
     return replaced, NUMERICS_SUBMOD
 
-replaced = {'sum': np.sum, 'combinations': combinations}
+replaced = {'sum': np.sum, 'combinations': combinations, 'np': np}
 replaced, NUMERICS_SUBMOD = create_numerics(replaced, vec=False)
 numerics = NUMERICS_SUBMOD
 #old_numerics = sys.modules['fluids.numerics']
@@ -413,7 +418,7 @@ def transform_module(normal, __funcs, replaced, vec=False):
     if vec:
         conv_fun = numba.vectorize
     else:
-        conv_fun = numba.jit
+        conv_fun = numba.njit
     mod_name = normal.__name__
     # Run module-by-module. Expensive, as we need to create module copies
     for mod in normal.submodules:
@@ -441,7 +446,7 @@ def transform_module(normal, __funcs, replaced, vec=False):
                 nopython = name not in skip
                 if name not in total_skip:
                     obj = conv_fun(#set_signatures.get(name, None), 
-                            nopython=nopython,
+#                            nopython=nopython,
                             #forceobj=not nopython,
                                     fastmath=nopython,#Parallel=nopython
                                     cache=caching)(obj)
@@ -503,7 +508,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     if vec:
         conv_fun = numba.vectorize
     else:
-        conv_fun = numba.jit
+        conv_fun = numba.njit
     new_mods = transform_module(normal, __funcs, replaced, vec=vec)
 
     

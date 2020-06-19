@@ -27,14 +27,14 @@ from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye, arra
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_and_der3', 'quadratic_from_f_ders', 'chebval', 'interp',
-           'linspace', 'logspace', 'cumsum', 'diff',
+           'linspace', 'logspace', 'cumsum', 'diff', 'basic_damping',
            'is_poly_negative', 'is_poly_positive',
            'implementation_optimize_tck', 'tck_interp2d_linear',
-           'bisect', 'ridder', 'brenth', 'newton', 'secant',
+           'bisect', 'ridder', 'brenth', 'newton', 'secant', 'halley',
            'splev', 'bisplev', 'derivative', 'jacobian', 'hessian', 
            'normalize', 'oscillation_checker',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
-           'broyden2',
+           'broyden2', 'basic_damping', 'solve_2_direct',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2',
            'numpy',
@@ -112,6 +112,7 @@ if not SKIP_DEPENDENCIES:
         # Regardless of actual interpreter, fall back to pure python implementations
         # if scipy and numpy are not available.
         import numpy
+        np = numpy
         import scipy # Takes 3 ms only
     except ImportError:
         # Allow a fake numpy to be imported, but will raise an excption on any use
@@ -1873,9 +1874,9 @@ def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
     return x + step*damping
 
 
-def make_damp_initial(steps=5, damping=1.0):
+def make_damp_initial(steps=5, damping=1.0, *args):
     steps_holder = [steps]
-    def damping_func(x, step, damping=damping):
+    def damping_func(x, step, damping=damping, *args):
         if steps_holder[0] <= 0:
             # Do not dampen at all
             if isinstance(x, list):
@@ -2414,7 +2415,8 @@ def newton(func, x0, fprime=None, args=(), tol=None, maxiter=100,
 #        if fprime2_included: # numba: uncomment
 #            fval, fder, fder2 = func(p0, *args) # numba: uncomment
 #        else: # numba: uncomment
-#            fval, fder, fder2 = halley_compat_numba(func, p0, *args) # numba: uncomment
+#            fval, fder = func(p0, *args) # numba: uncomment
+#            fder2 = 0.0 # numba: uncomment
 
         if fprime2_included: # numba: DELETE
             fval, fder, fder2 = func2(p0, *args, **kwargs) # numba: DELETE
@@ -2524,13 +2526,120 @@ def newton(func, x0, fprime=None, args=(), tol=None, maxiter=100,
 #
     raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
+def halley(func, x0, args=(), maxiter=100,
+           low=None, high=None, damping=1.0, ytol=None,
+           xtol=1.48e-8, require_eval=False, damping_func=None,
+           bisection=False,
+           max_bound_hits=4, kwargs={}):
+    p0 = 1.0*x0
+    if bisection:
+        a, b = None, None
+        fa, fb = None, None
+
+    hit_low, hit_high = 0, 0
+
+    for it in range(maxiter):
+        fval, fder, fder2 = func(p0, *args)
+        if fval == 0.0:
+            return p0 # Cannot coninue or already finished
+        elif fder == 0.0:
+            if ytol is None or abs(fval) < ytol:
+                return p0
+            else:
+                raise UnconvergedError("Derivative became zero; maxiter (%d) reached, value=%f " %(maxiter, p0))
+
+        if bisection:
+            if fval < 0.0:
+                a = p0
+                fa = fval
+            else:
+                b = p0 # b always has positive value of error
+                fb = fval
+        
+        fder_inv = 1.0/fder
+        # Compute the next point
+        step = fval*fder_inv
+        if damping_func is not None:
+            step = step/(1.0 - 0.5*step*fder2*fder_inv)
+            p = damping_func(p0, -step, damping)
+        else:
+            p = p0 - step/(1.0 - 0.5*step*fder2*fder_inv)*damping
+        
+        if bisection and a is not None and b is not None:
+            if (not (a < p < b) and not (b < p < a)):
+                p = 0.5*(a + b)
+            
+        if low is not None and p < low:
+            hit_low += 1
+            if p0 == low and hit_low > max_bound_hits:
+                if abs(fval) < ytol:
+                    return low
+                else:
+                    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
+                # Stuck - not going to converge, hammering the boundary. Check ytol
+            p = low
+        if high is not None and p > high:
+            hit_high += 1
+            if p0 == high and hit_high > max_bound_hits:
+                if abs(fval) < ytol:
+                    return high
+                else:
+                    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
+            p = high
+
+        
+
+        
+        # p0 is last point (fval at that point), p is new 
+                  
+        if ytol is not None and xtol is not None:
+            # Meet both tolerance - new value is under ytol, and old value
+            if abs(p - p0) < abs(xtol*p) and abs(fval) < ytol:
+                if require_eval:
+                    return p0
+                return p
+        elif xtol is not None:
+            if abs(p - p0) < abs(xtol*p):
+                if require_eval:
+                    return p0
+                return p
+        elif ytol is not None:
+            if abs(fval) < ytol:
+                if require_eval:
+                    return p0
+                return p
+        
+        p0 = p
+    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
 
 def newton_err(F):
     err = sum([abs(i) for i in F])
     return err
 
+def basic_damping(x, dx, damping, *args):
+    N = len(x)
+    x2 = [0.0]*N
+    for i in range(N):
+        x2[i] = x[i] + dx[i]*damping
+    return x2
+
+def solve_2_direct(mat, vec):
+    ab = mat[0]
+    cd = mat[1]
+    a, b = ab[0], ab[1]
+    c, d = cd[0], cd[1]
+    e, f = vec[0], vec[1]
+    
+    x0 = 1.0/(a*d - b*c)
+    
+    sln = [0.0]*2
+    sln[0] = x0*(-b*f + d*e)
+    sln[1] = x0*(a*f - c*e)
+    return sln
+
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
-                  args=(), damping_func=None):
+                  args=(), damping_func=None, solve_func=py_solve): # numba: delete
+#                  args=(), damping_func=None, solve_func=np.linalg.solve): # numba: uncomment
     jac_also = True if jac == True else False
     
 
@@ -2543,7 +2652,8 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
     err0 = 0.0
     for v in fcur:
         err0 += abs(v)
-    if ytol is not None and err0 < ytol:
+        
+    if xtol is None and (ytol is not None and err0 < ytol):
         return x0, 0
     else: 
         x = x0
@@ -2552,25 +2662,27 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             
     iteration = 1
     while iteration < maxiter:
-#        dx = np.linalg.solve(j, -fcur) # numba: uncomment
-        dx = py_solve(j, [-v for v in fcur]) # numba: delete
+#        dx = solve_func(j, -fcur) # numba: uncomment
+        dx = solve_func(j, [-v for v in fcur]) # numba: delete
         if damping_func is None:
-#            x = x + dx*damping  # numba: uncomment
+#            x = x + dx*damping # numba: uncomment
             x = [xi + dxi*damping for xi, dxi in zip(x, dx)] # numba: delete
-        else:  # numba: delete
-            x = damping_func(x, dx, damping)  # numba: delete
+        else: 
+            x = damping_func(x, dx, damping, *args)
         if jac_also:
             fcur, j = f(x, *args)
         else:  # numba: delete
             fcur = f(x, *args)  # numba: delete
         
         iteration += 1
-        if xtol is not None and norm2(fcur) < xtol:
-            break
-        if ytol is not None:
-            err0 = 0.0
-            for v in fcur:
-                err0 += abs(v)
+        
+        err0 = 0.0
+        for v in fcur:
+            err0 += abs(v)
+        if xtol is not None:
+            if (norm2(fcur) < xtol) and (ytol is None or err0 < ytol):
+                break
+        elif ytol is not None:
             if err0 < ytol:
                 break
             

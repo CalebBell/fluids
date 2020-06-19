@@ -60,7 +60,7 @@ Demister Geometry
 from __future__ import division
 from math import log
 from fluids.constants import g, pi
-from fluids.numerics import secant, newton_system
+from fluids.numerics import secant, newton_system, solve_2_direct, numpy as np
 
 __all__ = ['voidage_experimental', 'specific_area_mesh',
 'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood', 'Robbins',
@@ -590,7 +590,6 @@ def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,
     - 186.0*h0/(voidage - h0*(1.0 + 20.0*term)))
     return err1, err2
 
-
 def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage, 
                                 specific_area, C1, C2, C3, H):
     '''Internal function which calculates the errors of the two Stichlmair
@@ -598,7 +597,7 @@ def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage,
     
     Derived using SymPy on the main flooding function.
     '''
-    Vg, dP_irr = float(inputs[0]), float(inputs[1])
+    Vg, dP_irr = inputs[0], inputs[1]
     x0 = 1.0/H
     x1 = Vg*Vg
     x2 = voidage**(-4.65)
@@ -748,7 +747,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3,
     guess[1] = 1000.0
     return newton_system(_Stichlmair_flood_f_and_jac, x0=guess, jac=True,
                          args=(Vl, rhog, rhol, mug, voidage, specific_area, C1, 
-                         C2, C3, H), ytol=1e-11)[0][0]
+                         C2, C3, H), ytol=1e-11, solve_func=solve_2_direct)[0][0]
 
 
 def Robbins(L, G, rhol, rhog, mul, H=1.0, Fpd=24.0):

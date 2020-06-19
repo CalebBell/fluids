@@ -33,7 +33,7 @@ __all__ = ['two_phase_dP', 'two_phase_dP_methods', 'two_phase_dP_acceleration',
            'Mandhane_Gregory_Aziz_regime', 'Taitel_Dukler_regime']
 
 from math import pi, log, exp, sin, cos, radians, log10
-from fluids.constants import g
+from fluids.constants import g, deg2rad
 from fluids.numerics import splev, implementation_optimize_tck
 from fluids.friction import friction_factor
 from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
@@ -175,7 +175,8 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
         raise ValueError('Outside regime ranges')
 
     LV = Vsl*(rhol/(g*sigma))**0.25
-    angle = radians(angle)
+    if angle is None: angle = 0.0
+    angle = deg2rad*angle
     
     if regime != 1:
         Hl = _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV)
