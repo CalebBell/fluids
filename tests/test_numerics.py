@@ -506,3 +506,22 @@ def test_translate_bound_f_jac():
     
     j0_check = translate_bound_jac(rosen_der, low=low, high=high)[0](point)
     assert_allclose(j0_check, j0, rtol=1e-13)
+    
+    
+def test_solve_direct():
+    A = [[1.0,2.53252], [34.34, .5342]]
+    B = [1.1241, .54354]
+    assert_close1d(np.linalg.solve(A, B), solve_2_direct(A, B), rtol=1e-14)
+    assert type(solve_2_direct(A, B)) is list
+    
+    
+    A = [[1.0,2.53252, 54.54], [34.34, .5342, .545], [12.43, .545, .55555]]
+    B = [1.1241, .54354, 1.22333]
+    assert_close1d(np.linalg.solve(A, B), solve_3_direct(A, B), rtol=5e-14)
+    assert type(solve_3_direct(A, B)) is list
+
+    A = [[1.0,2.53252, 54.54, .235], [34.34, .5342, .545, .223], [12.43, .545, .55555, 33.33], [1.11, 2.2, 3.33, 4.44]]
+    B = [1.1241, .54354, 1.22333, 9.009]
+    ans = solve_4_direct(A, B)
+    assert_close1d(np.linalg.solve(A, B), ans, rtol=5e-14)
+    assert type(ans) is list

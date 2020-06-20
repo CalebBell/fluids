@@ -233,7 +233,7 @@ def return_value_numpy(source):
 
 
 # Magic to make a lists into arrays
-list_mult_expr = r'\[ *([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)) *\] *\* *([a-zA-Z0-9]+)'
+list_mult_expr = r'\[ *([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)) *\] *\* *([a-zA-Z0-9_]+)'
 numpy_not_list_expr = r'np.full((\4,), \1)'
 
 
@@ -354,7 +354,7 @@ def create_numerics(replaced, vec=False):
     bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck'])
     bad_names.update(to_set_num)
     
-    solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct', 'basic_damping'] # 
+    solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct', 'solve_3_direct', 'solve_4_direct', 'basic_damping'] # 
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
         source = source.replace(', kwargs={}', '').replace(', **kwargs', '').replace(', kwargs=kwargs', '')
@@ -412,7 +412,7 @@ numerics = NUMERICS_SUBMOD
 normal = normal_fluids
 
 
-def transform_module(normal, __funcs, replaced, vec=False):
+def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([])):
     new_mods = []
     
     if vec:
@@ -444,7 +444,7 @@ def transform_module(normal, __funcs, replaced, vec=False):
             obj = getattr(SUBMOD, name)
             if isinstance(obj, types.FunctionType):
                 nopython = name not in skip
-                if name not in total_skip:
+                if name not in total_skip and name not in blacklist:
                     obj = conv_fun(#set_signatures.get(name, None), 
 #                            nopython=nopython,
                             #forceobj=not nopython,

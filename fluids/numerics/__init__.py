@@ -34,7 +34,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'splev', 'bisplev', 'derivative', 'jacobian', 'hessian', 
            'normalize', 'oscillation_checker',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
-           'broyden2', 'basic_damping', 'solve_2_direct',
+           'broyden2', 'basic_damping', 'solve_2_direct', 'solve_3_direct',
+           'solve_4_direct',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2',
            'numpy',
@@ -2637,6 +2638,84 @@ def solve_2_direct(mat, vec):
     sln[1] = x0*(a*f - c*e)
     return sln
 
+def solve_3_direct(mat, vec):
+    a, b, c = mat[0]
+    d, e, f = mat[1]
+    g, h, i = mat[2]
+    j, k, l = vec
+    
+    x0 = a*e
+    x1 = -b*d + x0
+    x2 = a*i - c*g
+    x3 = a*f - c*d
+    x4 = a*h - b*g
+    x5 = x1*x2 - x3*x4
+    x6 = 1.0/x5
+    x7 = b*x3 - c*x1
+    x8 = 1.0/x1
+    x9 = d*x4 - g*x1
+    x10 = j*x8
+    x11 = a*k
+    x12 = a*l
+    
+    ans = [0.0]*3
+    ans[0] = x6*(-k*x8*(b*x5 + x4*x7) + l*x7 + x10*(x0*x5 + x7*x9)/a)
+    ans[1] = x6*(-x10*(d*x5 + x3*x9) + x11*x2 - x12*x3)
+    ans[2] = x6*(j*x9 + x1*x12 - x11*x4)
+    return ans
+
+def solve_4_direct(mat, vec):
+    a, b, c, d = mat[0]
+    e, f, g, h = mat[1]
+    i, j, k, l = mat[2]
+    m, n, o, p = mat[3]
+    q, r, s, t = vec
+    x0 = a*f
+    x1 = -b*e + x0
+    x2 = x1*(a*k - c*i)
+    x3 = a*g - c*e
+    x4 = a*j - b*i
+    x5 = x2 - x3*x4
+    x6 = a*h - d*e
+    x7 = a*n - b*m
+    x8 = x1*(a*p - d*m) - x6*x7
+    x9 = x1*(a*l - d*i) - x4*x6
+    x10 = x1*(a*o - c*m) - x3*x7
+    x11 = -x10*x9 + x5*x8
+    x12 = 1.0/x11
+    x13 = -b*x3 + c*x1
+    x14 = x13*x9
+    x15 = x5*(-b*x6 + d*x1)
+    x16 = -x14 + x15
+    x17 = 1.0/x5
+    x18 = s*x17
+    x19 = x10*x4 - x5*x7
+    x20 = 1.0/x1
+    x21 = x17*x20
+    x22 = e*x4 - i*x1
+    x23 = x5*(e*x7 - m*x1)
+    x24 = x10*x22
+    x25 = x23 - x24
+    x26 = q*x17
+    x27 = x20*x26
+    x28 = x3*x9
+    x29 = x5*x6
+    x30 = a*t
+    x31 = -x28 + x29
+    x32 = a*r
+    x33 = a*s*x1
+    x34 = x1*x30
+    x35 = -x23 + x24
+    ans = [0.0]*4
+    ans[0] = x12*(-r*x21*(-x11*(-b*x5 + x13*x4) + x16*x19) + t*(x14 - x15) 
+             - x18*(-x10*x16 + x11*x13) - x27*(-x11*(x0*x5 - x13*x22) + x16*x25)/a)
+    ans[1] = x12*(-a*x18*(-x10*x31 + x11*x3) - x21*x32*(-x11*x2 + x19*x31)
+             - x27*(x11*(e*x5 + x22*x3) + x25*x31) + x30*(x28 - x29))
+    ans[2] = x12*(-x17*x32*(x11*x4 + x19*x9) + x26*(x11*x22 + x35*x9) + x33*x8 - x34*x9)
+    ans[3] = x12*(-q*x35 - x10*x33 + x19*x32 + x34*x5)
+    return ans
+
+    
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                   args=(), damping_func=None, solve_func=py_solve): # numba: delete
 #                  args=(), damping_func=None, solve_func=np.linalg.solve): # numba: uncomment

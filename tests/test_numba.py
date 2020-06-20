@@ -608,6 +608,27 @@ def tets_newton_system():
     assert niter == 2
     assert_allclose(res, np.array([0.6]))
 
+
+@pytest.mark.numba
+@pytest.mark.skipif(numba is None, reason="Numba is missing")
+def test_numerics_solve_direct():
+    A = np.array([[1.0,2.53252], [34.34, .5342]])
+    B = np.array([1.1241, .54354])
+    ans = fluids.numba.numerics.solve_2_direct(A, B)
+    assert_close1d(np.linalg.solve(A, B), ans, rtol=1e-14)
+    assert type(ans) is np.ndarray
+
+    A = np.array([[1.0,2.53252, 54.54], [34.34, .5342, .545], [12.43, .545, .55555]])
+    B = np.array([1.1241, .54354, 1.22333])
+    ans = fluids.numba.numerics.solve_3_direct(A, B)
+    assert_close1d(np.linalg.solve(A, B), ans, rtol=5e-14)
+    assert type(ans) is np.ndarray
+
+    A = np.array([[1.0,2.53252, 54.54, .235], [34.34, .5342, .545, .223], [12.43, .545, .55555, 33.33], [1.11, 2.2, 3.33, 4.44]])
+    B = np.array([1.1241, .54354, 1.22333, 9.009])
+    ans = fluids.numba.numerics.solve_4_direct(A, B)
+    assert_close1d(np.linalg.solve(A, B), ans, rtol=5e-14)
+    assert type(ans) is np.ndarray
     
     
 '''Completely working submodles:
