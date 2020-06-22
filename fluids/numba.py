@@ -448,7 +448,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                     obj = conv_fun(#set_signatures.get(name, None), 
 #                            nopython=nopython,
                             #forceobj=not nopython,
-                                    fastmath=nopython,#Parallel=nopython
+                                    fastmath=True,#Parallel=nopython
                                     cache=caching)(obj)
                 SUBMOD.__dict__[name] = obj
                 new_objs.append(obj)

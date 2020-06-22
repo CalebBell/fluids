@@ -81,6 +81,19 @@ def test_interp():
     assert_allclose(ys, ys_numpy, atol=1e-12, rtol=1e-11)
     
     
+    # Test custom extrapolation method
+    xs = [1,2,3]
+    ys = [.1, .2, .3]
+    assert_close(interp(3.5, xs, ys, extrapolate=True), .35, rtol=1e-15)
+    assert_close(interp(0, xs, ys, extrapolate=True), 0, rtol=1e-15)
+    assert_close(interp(-1, xs, ys, extrapolate=True), -.1, rtol=1e-15)
+    assert_close(interp(-100, xs, ys, extrapolate=True), -10, rtol=1e-15)
+    assert_close(interp(10, xs, ys, extrapolate=True), 1, rtol=1e-15)
+    assert_close(interp(10**30, xs, ys, extrapolate=True), 10**29, rtol=1e-15)
+    
+
+    
+    
 def test_splev():
     from fluids.numerics import py_splev
     from scipy.interpolate import splev

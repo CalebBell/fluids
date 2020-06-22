@@ -2948,8 +2948,7 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0,
     return regime
 
 
-def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D, 
-                                 full_output=False):
+def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
     r'''Classifies the regime of a two-phase flow according to Mandhane, 
     Gregory, and Azis  (1974) flow map.
     
@@ -2977,17 +2976,17 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D,
         Surface tension, [N/m]
     D : float
         Diameter of pipe, [m]
-    full_output : bool, optional
-        When True, returns a dictionary with the values 'v_gs', 'v_ls',
-        - the parameters used internally to determine where on the plot the
-        regime occurs, [-]
     
     Returns
     -------
     regime : str
         One of 'elongated bubble', 'stratified', 'annular mist', 'slug', 
         'dispersed bubble', or 'wave', [-]
-
+    v_gs : float
+        The superficial gas velocity in the pipe (x axis coordinate), [ft/s]
+    v_ls : float
+        The superficial liquid velocity in the pipe (x axis coordinate), [ft/s]
+    
     Notes
     -----
     [1]_ contains a Fortran implementation of this model, which this has been 
@@ -2998,12 +2997,12 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D,
     --------
     >>> Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, 
     ... mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)
-    'slug'
+    ('slug', 0.9728397701853173, 42.05456634236875)
     
     References
     ----------
     .. [1] Mandhane, J. M., G. A. Gregory, and K. Aziz. "A Flow Pattern Map for
-       Gas-liquid Flow in Horizontal Pipes."  International Journal of 
+       Gas-liquid Flow in Horizontal Pipes." International Journal of 
        Multiphase Flow 1, no. 4 (October 30, 1974): 537-53. 
        doi:10.1016/0301-9322(74)90006-8.
     '''
@@ -3062,9 +3061,7 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D,
         regime = 'dispersed bubble'
     else:
         regime = 'annular mist'
-    if full_output:
-        return regime, {'v_ls': Vsl, 'v_gs': Vsg}
-    return regime
+    return regime, Vsl, Vsg
 
 Mandhane_Gregory_Aziz_regimes = {'elongated bubble': 1, 'stratified': 2,
                                  'slug':3, 'wave': 4,

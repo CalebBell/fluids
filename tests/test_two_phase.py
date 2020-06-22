@@ -623,15 +623,15 @@ def plot_Taitel_Dukler_splines():
 
 def test_Mandhane_Gregory_Aziz_regime():
     from fluids.two_phase import Mandhane_Gregory_Aziz_regime
-    regime = Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,  mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)
+    regime = Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,  mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)[0]
     assert regime == 'slug'
     
-    regime = Mandhane_Gregory_Aziz_regime(m=6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)
+    regime = Mandhane_Gregory_Aziz_regime(m=6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)[0]
     assert regime == 'annular mist'
     
-    regime =  Mandhane_Gregory_Aziz_regime(m=.05, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)
+    regime =  Mandhane_Gregory_Aziz_regime(m=.05, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)[0]
     assert regime == 'stratified'
     
-    regime = Mandhane_Gregory_Aziz_regime(m=.005, x=0.95, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.01)
+    regime = Mandhane_Gregory_Aziz_regime(m=.005, x=0.95, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.01)[0]
     assert regime == 'wave'
     

@@ -1555,7 +1555,7 @@ def assert_close3d(a, b, rtol=1e-7, atol=0.0):
     for i in range(N):
         assert_close2d(a[i], b[i], rtol=rtol, atol=atol)
 
-def interp(x, dx, dy, left=None, right=None):
+def interp(x, dx, dy, left=None, right=None, extrapolate=False):
     '''One-dimensional linear interpolation routine inspired/
     reimplemented from NumPy for extra speed for scalar values
     (and also numpy).
@@ -1575,6 +1575,9 @@ def interp(x, dx, dy, left=None, right=None):
         Value to return for `x < dx[0]`, default is `dy[0]`, [-]
     right : float, optional
         Value to return for `x > dx[-1]`, default is `dy[-1]`, [-]
+    extrapolate : bool, optional
+        If True, for the cases of `left` and/or `right` not given, a linear 
+        extrapolation will be performed outside of bounds, [-]
 
     Returns
     -------
@@ -1599,6 +1602,9 @@ def interp(x, dx, dy, left=None, right=None):
     if (j == -1):
         if left is not None:
             return left
+        elif extrapolate:
+            j = 0
+            return (dy[j + 1] - dy[j])/(dx[j + 1] - dx[j])*(x - dx[j]) + dy[j]
         else:
             return dy[0]
     elif (j == lendx - 1):
@@ -1606,6 +1612,9 @@ def interp(x, dx, dy, left=None, right=None):
     elif (j == lendx):
         if right is not None:
             return right
+        elif extrapolate:
+            j = -2
+            return (dy[j + 1] - dy[j])/(dx[j + 1] - dx[j])*(x - dx[j]) + dy[j]
         else:
             return dy[-1]
     else:
