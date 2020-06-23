@@ -668,7 +668,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
             FP = 1.0
             Ci = C
             MAX_ITER = 20
-            def iterate_piping_turbulent(Ci, iterations):
+            def iterate_piping_turbulent_l(Ci, iterations):
                 loss = loss_coefficient_piping(d, D1, D2)
                 FP = (1 + loss/N2*(Ci/d**2)**2)**-0.5
                 if d > D1:
@@ -685,7 +685,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
                     # Non-Choked flow with piping, equation 5
                     C = Q/N1/FP*(rho/rho0/dP)**0.5
                 if Ci/C < 0.99 and iterations < MAX_ITER and Ci < MAX_C_POSSIBLE:
-                    C = iterate_piping_turbulent(C, iterations+1)
+                    C = iterate_piping_turbulent_l(C, iterations+1)
                 if MAX_ITER == iterations or Ci >= MAX_C_POSSIBLE:
                     ans['warning'] = 'Not converged in inner loop'
                 if full_output:
@@ -693,10 +693,10 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
                     ans['FP'] = FP
                 return C
     
-            C = iterate_piping_turbulent(Ci, 0)
+            C = iterate_piping_turbulent_l(Ci, 0)
         elif Rev <= 10000 and allow_laminar:
             # Laminar
-            def iterate_piping_laminar(C):
+            def iterate_piping_laminar_l(C):
                 Ci = 1.3*C
                 Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)                
                 if Ci/d**2 > 0.016*N18:
@@ -704,13 +704,13 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
                 else:
                     FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)
                 if C/FR >= Ci:
-                    Ci = iterate_piping_laminar(Ci) # pragma: no cover
+                    Ci = iterate_piping_laminar_l(Ci) # pragma: no cover
                     
                 if full_output:
                     ans['Rev'] = Rev
                     ans['FR'] = FR
                 return Ci
-            C = iterate_piping_laminar(C)
+            C = iterate_piping_laminar_l(C)
     if full_output:
         ans['FF'] = FF
         ans['choked'] = choked
@@ -722,6 +722,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
             ans['Rev'] = Rev
         return ans
     else:
+#        return C, choked, laminar, FF, FR, Rev, FP, FLP, warning
         return C
 
 
@@ -846,28 +847,25 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
         C = Q/(N9*P1*Y)*(MW*T*Z/x)**0.5
 
 
-    if full_output:
-        ans = {'FP': None, 'xTP': None, 'FR': None, 
-               'choked': choked, 'Y': Y}
+    if full_output: # numba: delete
+        ans = {'FP': None, 'xTP': None, 'FR': None, 'choked': choked, 'Y': Y}  # numba: delete
 
     if D1 is None and D2 is None and d is None:
         # Assume turbulent if no diameters are provided, no other calculations
         Rev = 1e5
-        if full_output:
-            ans['Rev'] = None
+        if full_output: ans['Rev'] = None  # numba: delete
     else:
         # m to mm, according to constants in standard
         D1, D2, d = D1*1000., D2*1000., d*1000. # Convert diameters to mm which is used in the standard
         Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
-        if full_output:
-            ans['Rev'] = Rev
+        if full_output: ans['Rev'] = Rev  # numba: delete
 
         if (Rev > 10000 or not allow_laminar) and (D1 != d or D2 != d):
             # gas, using xTP and FLP
             FP = 1.
             MAX_ITER = 20
             
-            def iterate_piping_coef(Ci, iterations):
+            def iterate_piping_coef_g(Ci, iterations):
                 loss = loss_coefficient_piping(d, D1, D2)
                 FP = (1. + loss/N2*(Ci/d**2)**2)**-0.5
                 loss_upstream = loss_coefficient_piping(d, D1)
@@ -880,13 +878,13 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
                     # Non-choked flow with piping, equation 11a
                     C = Q/(N9*FP*P1*Y)*(MW*T*Z/x)**0.5
                 if Ci/C < 0.99 and iterations < MAX_ITER and Ci < MAX_C_POSSIBLE:
-                    C = iterate_piping_coef(C, iterations+1)
-                if full_output:
-                    ans['xTP'] = xTP
-                    ans['FP'] = FP
-                    ans['choked'] = choked
-                    if MAX_ITER == iterations or Ci >= MAX_C_POSSIBLE:
-                        ans['warning'] = 'Not converged in inner loop'
+                    C = iterate_piping_coef_g(C, iterations+1)
+                if full_output:  # numba: delete
+                    ans['xTP'] = xTP  # numba: delete
+                    ans['FP'] = FP  # numba: delete
+                    ans['choked'] = choked  # numba: delete
+                    if MAX_ITER == iterations or Ci >= MAX_C_POSSIBLE:  # numba: delete
+                        ans['warning'] = 'Not converged in inner loop'  # numba: delete
                 return C
             
 #            def err_piping_coeff(Ci):
@@ -909,10 +907,10 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
 #            plt.plot(Cs, errs)
 #            plt.show()
             
-            C = iterate_piping_coef(C, 0)
+            C = iterate_piping_coef_g(C, 0)
         elif Rev <= 10000 and allow_laminar:
             # Laminar;
-            def iterate_piping_laminar(C):
+            def iterate_piping_laminar_g(C):
                 Ci = 1.3*C
                 Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)
                 if Ci/d**2 > 0.016*N18:
@@ -920,19 +918,18 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
                 else:
                     FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)
                 if C/FR >= Ci:
-                    Ci = iterate_piping_laminar(Ci)
-                if full_output:
-                    ans['FR'] = FR
-                    ans['Rev'] = Rev
+                    Ci = iterate_piping_laminar_g(Ci)
+                if full_output:  # numba: delete
+                    ans['FR'] = FR  # numba: delete
+                    ans['Rev'] = Rev  # numba: delete
                 return Ci
-            C = iterate_piping_laminar(C)
-    if full_output:
-        ans['Kv'] = C
-        ans['laminar'] = Rev <= 10000
-        ans['choked'] = choked
-        return ans
-    else:
-        return C
+            C = iterate_piping_laminar_g(C)
+    if full_output:  # numba: delete
+        ans['Kv'] = C  # numba: delete
+        ans['laminar'] = Rev <= 10000  # numba: delete
+        ans['choked'] = choked # numba: delete
+        return ans # numba: delete
+    return C
 
 
 # Valve data from Emerson Valve Handbook 5E
