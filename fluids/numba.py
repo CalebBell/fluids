@@ -77,7 +77,7 @@ def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name='cache-safe'):
 
 # Some unfotrunate code duplication
 
-@numba.njit
+@numba.njit(cache=caching)
 def fpbspl(t, n, k, x, l, h, hh):
     h[0] = 1.0
     for j in range(1, k + 1):
@@ -90,7 +90,7 @@ def fpbspl(t, n, k, x, l, h, hh):
             h[i + 1] = f*(x - t[li - j])
     return h, hh
 
-@numba.njit
+@numba.njit(cache=caching)
 def init_w(t, k, x, lx, w):
     tb = t[k]
     n = len(t)
@@ -115,7 +115,7 @@ def init_w(t, k, x, lx, w):
         for j in range(k + 1):
             w[i][j] = h[j]
     return w
-@numba.njit
+@numba.njit(cache=caching)
 def cy_bispev(tx, ty, c, kx, ky, x, y):
     nx = len(tx)
     ny = len(ty)
@@ -154,13 +154,13 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
 
     
     
-@numba.njit
+@numba.njit(cache=caching)
 def bisplev(x, y, tck, dx=0, dy=0):
     tx, ty, c, kx, ky = tck
     return cy_bispev(tx, ty, c, kx, ky, np.array([x]), np.array([y]))[0]
 
 
-@numba.jit(nopython=True)
+@numba.njit(cache=caching)
 def combinations(pool, r):
     n = len(pool)
 #    indices = tuple(list(range(r)))
@@ -316,8 +316,7 @@ def remove_branch(source, branch):
 skip = set([])
 total_skip = set([])
 skip_cache = set(['secant', 'brenth', 'py_solve'])
-
-bad_names = set(('__file__', '__name__', '__package__', '__cached__'))
+bad_names = set(('__file__', '__name__', '__package__', '__cached__', 'solve'))
 
 from fluids.numerics import SamePointError, UnconvergedError, NotBoundedError
 def create_numerics(replaced, vec=False):
@@ -351,7 +350,7 @@ def create_numerics(replaced, vec=False):
     
     NUMERICS_SUBMOD.py_solve = np.linalg.solve
     
-    bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck'])
+    bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck', 'py_solve'])
     bad_names.update(to_set_num)
     
     solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct', 'solve_3_direct', 'solve_4_direct', 'basic_damping'] # 
@@ -412,7 +411,7 @@ numerics = NUMERICS_SUBMOD
 normal = normal_fluids
 
 
-def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([])):
+def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([]), cache_blacklist=set([])):
     new_mods = []
     
     if vec:
@@ -449,7 +448,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
 #                            nopython=nopython,
                             #forceobj=not nopython,
                                     fastmath=True,#Parallel=nopython
-                                    cache=caching)(obj)
+                                    cache=(caching and name not in cache_blacklist))(obj)
                 SUBMOD.__dict__[name] = obj
                 new_objs.append(obj)
             __funcs[name] = obj
@@ -505,11 +504,12 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
 
 
 def transform_complete(replaced, __funcs, __all__, normal, vec=False):
+    cache_blacklist = set(['isothermal_gas'])
     if vec:
         conv_fun = numba.vectorize
     else:
         conv_fun = numba.njit
-    new_mods = transform_module(normal, __funcs, replaced, vec=vec)
+    new_mods = transform_module(normal, __funcs, replaced, vec=vec, cache_blacklist=cache_blacklist)
 
     
     # Do some classes by hand

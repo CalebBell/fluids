@@ -2813,15 +2813,15 @@ XC_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XC_tck))
 XD_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XD_tck))
 
 
-def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0, 
-                         g=g, full_output=False):
+def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0, 
+                         g=g):
     r'''Classifies the regime of a two-phase flow according to Taitel and
     Dukler (1976) ([1]_, [2]_).
     
     The flow regimes in this method are 'annular', 'bubbly', 'intermittent', 
     'stratified wavy', and 'stratified smooth'.
     
-    The parameters used are 'X', 'T', 'F', and 'K'.
+    The four dimensionless parameters used are 'X', 'T', 'F', and 'K'.
     
     .. math::
         X = \left[\frac{(dP/dL)_{l,s,f}}{(dP/dL)_{g,s,f}}\right]^{0.5}
@@ -2861,17 +2861,21 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0,
         Roughness of pipe for use in calculating friction factor, [m]
     g : float, optional
         Acceleration due to gravity, [m/s^2]
-    full_output : bool, optional
-        When True, returns a dictionary with the values 'F', 'X', 'T', and 'K'
-        - the parameters used internally to determine where on the plot the
-        regime occurs, [-]
     
     Returns
     -------
     regime : str
         One of 'annular', 'bubbly', 'intermittent', 'stratified wavy',
         'stratified smooth', [-]
-
+    X : float
+        `X` dimensionless group used in the calculation, [-]
+    T : float
+        `T` dimensionless group used in the calculation, [-]
+    F : float
+        `F` dimensionless group used in the calculation, [-]
+    K : float
+        `K` dimensionless group used in the calculation, [-]
+    
     Notes
     -----
     The original friction factor used in this model is that of Blasius.
@@ -2879,7 +2883,7 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0,
     Examples
     --------
     >>> Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,
-    ... mul=180E-6, mug=14E-6, D=0.05, roughness=0, angle=0)
+    ... mul=180E-6, mug=14E-6, D=0.05, roughness=0, angle=0)[0]
     'annular'
     
     References
@@ -2938,14 +2942,7 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0,
         else:
             regime = 'stratified smooth'
             
-    if full_output:
-        res = {}
-        res['F'] = F
-        res['T'] = T
-        res['K'] = K
-        res['X'] = X
-        return regime, res
-    return regime
+    return regime, X, T, F, K
 
 
 def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):

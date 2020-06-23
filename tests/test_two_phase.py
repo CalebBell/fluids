@@ -535,28 +535,28 @@ def test_Taitel_Dukler_regime():
     from fluids.two_phase import Taitel_Dukler_regime
     
     regime = Taitel_Dukler_regime(m=1, x=0.05, rhol=600.12, rhog=80.67, mul=180E-6,
-                                   mug=14E-6, D=0.02, roughness=0, angle=0)
+                                   mug=14E-6, D=0.02, roughness=0, angle=0)[0]
     
     assert regime == 'bubbly'
     regime = Taitel_Dukler_regime(m=1, x=0.05, rhol=600.12, rhog=80.67, mul=180E-6,
-                                  mug=14E-6, D=0.021, roughness=0, angle=0)
+                                  mug=14E-6, D=0.021, roughness=0, angle=0)[0]
     assert regime == 'intermittent'
     
     regime = Taitel_Dukler_regime(m=.06, x=0.5, rhol=900.12, rhog=90.67, mul=180E-6,
-                                  mug=14E-6, D=0.05, roughness=0, angle=0)
+                                  mug=14E-6, D=0.05, roughness=0, angle=0)[0]
     assert regime == 'stratified smooth'
     
     regime = Taitel_Dukler_regime(m=.07, x=0.5, rhol=900.12, rhog=90.67, mul=180E-6,
-                                   mug=14E-6, D=0.05, roughness=0, angle=0)
+                                   mug=14E-6, D=0.05, roughness=0, angle=0)[0]
     assert regime == 'stratified wavy'
 
-    regime, full_output = Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6,
-                                               mug=14E-6, D=0.05, roughness=0, angle=0, full_output=True)
+    regime, X, T, F, K = Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6,
+                                               mug=14E-6, D=0.05, roughness=0, angle=0)
     assert regime == 'annular'
-    assert_close(full_output['F'], 0.9902249725092789)
-    assert_close(full_output['K'], 271.86280111125365)
-    assert_close(full_output['T'], 0.04144054776101148)
-    assert_close(full_output['X'], 0.4505119305984412)
+    assert_close(F, 0.9902249725092789)
+    assert_close(K, 271.86280111125365)
+    assert_close(T, 0.04144054776101148)
+    assert_close(X, 0.4505119305984412)
 
 
 Dukler_XA_Xs = [0.0033181, 0.005498, 0.00911, 0.015096, 0.031528, 0.05224, 0.08476, 0.14045, 0.22788, 0.36203, 0.5515, 0.9332, 1.3919, 1.7179, 2.4055, 3.3683, 4.717, 7.185, 10.06, 13.507, 18.134, 23.839, 31.339, 40.341, 52.48]
