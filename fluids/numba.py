@@ -57,7 +57,7 @@ The correct syntax is as follows:
 >>> from fluids.numba import * # May be used without first importing fluids
 '''
 
-caching = False
+caching = True
 __all__ = []
 
 __funcs = {}
@@ -237,7 +237,7 @@ list_mult_expr = r'\[ *([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)) *\] *\* *([a-zA-Z0-
 numpy_not_list_expr = r'np.full((\4,), \1)'
 
 
-def transform_lists_to_arrays(module, to_change, __funcs, vec=False):
+def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_blacklist=set([])):
     if vec:
         conv_fun = numba.vectorize
     else:
@@ -254,7 +254,8 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False):
 #            print(source)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
         new_func = fake_mod.__dict__[func]
-        obj = conv_fun(cache=caching)(new_func)
+        do_cache = caching and func not in cache_blacklist
+        obj = conv_fun(cache=do_cache)(new_func)
         __funcs[func] = obj
         fake_mod.__dict__[func] = obj
         obj.__doc__ = ''
@@ -320,7 +321,7 @@ bad_names = set(('__file__', '__name__', '__package__', '__cached__', 'solve'))
 
 from fluids.numerics import SamePointError, UnconvergedError, NotBoundedError
 def create_numerics(replaced, vec=False):
-    
+    cache_unsuported = set(['brenth', 'newton_system', 'quad', 'quad_adaptive', 'fixed_quad_Gauss_Kronrod'])
 #    if vec:
 #        conv_fun = numba.vectorize
 #    else:
@@ -377,11 +378,12 @@ def create_numerics(replaced, vec=False):
         if name not in bad_names:
             obj = getattr(NUMERICS_SUBMOD, name)
             if isinstance(obj, types.FunctionType):
+                do_cache = caching and name not in cache_unsuported
 #                forceobj = name in numerics_forceobj
 #                forceobj = False
                 # cache=not forceobj 
                 # cache=name not in skip_cache
-                obj = conv_fun(cache=caching)(obj)
+                obj = conv_fun(cache=do_cache)(obj)
                 NUMERICS_SUBMOD.__dict__[name] = obj
                 replaced[name] = obj
 #                globals()[name] = objs
@@ -413,7 +415,6 @@ normal = normal_fluids
 
 def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([]), cache_blacklist=set([])):
     new_mods = []
-    
     if vec:
         conv_fun = numba.vectorize
     else:
@@ -504,7 +505,14 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
 
 
 def transform_complete(replaced, __funcs, __all__, normal, vec=False):
-    cache_blacklist = set(['isothermal_gas'])
+    cache_blacklist = set(['Stichlmair_flood', 'airmass', 
+   'Spitzglass_high', '_to_solve_Spitzglass_high',
+   '_to_solve_Spitzglass_low', 'Spitzglass_low',
+   'Oliphant', '_to_solve_Oliphant',
+   'P_isothermal_critical_flow', 'P_upstream_isothermal_critical_flow',
+   'isothermal_gas_err_P1', 'isothermal_gas_err_P2', 'isothermal_gas_err_P2_basis', 'isothermal_gas_err_D', 'isothermal_gas',
+   'v_terminal', 'differential_pressure_meter_solver', 'err_dp_meter_solver_P1', 'err_dp_meter_solver_D2',
+   'err_dp_meter_solver_P2', 'err_dp_meter_solver_m', 'V_horiz_spherical', 'V_horiz_torispherical'])
     if vec:
         conv_fun = numba.vectorize
     else:
@@ -555,7 +563,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     
     to_change = ['packed_tower._Stichlmair_flood_f_and_jac', 
                  'packed_tower.Stichlmair_flood']
-    transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec)
+    transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec, cache_blacklist=cache_blacklist)
     
     
     # AvailableMethods  will be removed in the future in favor of non-numba only 

@@ -35,7 +35,9 @@ __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'T_stagnation', 'T_stagnation_ideal']
 
 __numba_additional_funcs__ = ['isothermal_gas_err_P1', 'isothermal_gas_err_P2',
-                              'isothermal_gas_err_P2_basis', 'isothermal_gas_err_D']
+                              'isothermal_gas_err_P2_basis', 'isothermal_gas_err_D',
+                              '_to_solve_Spitzglass_high', '_to_solve_Spitzglass_low',
+                              '_to_solve_Oliphant']
 
 def isothermal_work_compression(P1, P2, T, Z=1):
     r'''Calculates the work of compression or expansion of a gas going through
@@ -208,7 +210,7 @@ def isentropic_work_compression(T1, k, Z=1, P1=None, P2=None, W=None, eta=None):
     elif eta is None and P1 is not None and P2 is not None and W is not None:
         return R*T1*Z*k*((P2/P1)**((k - 1.0)/k) - 1.0)/(W*(k - 1.0))
     else:
-        raise Exception('Three of W, P1, P2, and eta must be specified.')
+        raise ValueError('Three of W, P1, P2, and eta must be specified.')
 
 
 def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
@@ -319,7 +321,7 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
         return (k - 1.0)*log(P2/P1)/(k*log(
             (eta_s + (P2/P1)**((k - 1.0)/k) - 1.0)/eta_s))
     else:
-        raise Exception('Either eta_s or eta_p is required')
+        raise ValueError('Either eta_s or eta_p is required')
 
 
 def polytropic_exponent(k, n=None, eta_p=None):
@@ -368,7 +370,7 @@ def polytropic_exponent(k, n=None, eta_p=None):
     elif eta_p is None and n is not None:
         return n*(k - 1.0)/(k*(n - 1.0))
     else:
-        raise Exception('Either n or eta_p is required')
+        raise ValueError('Either n or eta_p is required')
 
 
 def T_critical_flow(T, k):
@@ -1024,7 +1026,7 @@ def Panhandle_A(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return SG**(-c2)*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
-        raise Exception('This function solves for either flow, upstream \
+        raise ValueError('This function solves for either flow, upstream \
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
 
@@ -1143,7 +1145,7 @@ def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return SG**(-c2)*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
-        raise Exception('This function solves for either flow, upstream \
+        raise ValueError('This function solves for either flow, upstream \
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
 
@@ -1259,10 +1261,14 @@ def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return (D**(-c4)*Ps*Q/(E*Ts*c5))**(-1./c3)*(P1**2 - P2**2)/(SG*Tavg*Zavg)
     else:
-        raise Exception('This function solves for either flow, upstream \
+        raise ValueError('This function solves for either flow, upstream \
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
 
+
+def _to_solve_Spitzglass_high(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
+     return Q - Spitzglass_high(SG=SG, Tavg=Tavg, L=L, D=D,
+                                  P1=P1, P2=P2, Ts=Ts, Ps=Ps,Zavg=Zavg, E=E)
 
 def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
                 Ps=101325., Zavg=1, E=1.):
@@ -1346,10 +1352,7 @@ def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7
         return (c5*E*Ts/Ps*D**2.5*((P1**2-P2**2)
                 /(L*SG*Zavg*Tavg*(1 + c4/D + c3*D)))**0.5)
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
-        to_solve = lambda D : Q - Spitzglass_high(SG=SG, Tavg=Tavg, L=L, D=D,
-                                                  P1=P1, P2=P2, Ts=Ts, Ps=Ps,
-                                                  Zavg=Zavg, E=E)
-        return secant(to_solve, 0.5)
+        return secant(_to_solve_Spitzglass_high, 0.5, args=(Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E))
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return ((D**6*E**2*P2**2*Ts**2*c5**2
                  + D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3
@@ -1364,10 +1367,12 @@ def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7
         return (D**6*E**2*Ts**2*c5**2*(P1**2 - P2**2)
                 /(Ps**2*Q**2*SG*Tavg*Zavg*(D**2*c3 + D + c4)))
     else:
-        raise Exception('This function solves for either flow, upstream \
+        raise ValueError('This function solves for either flow, upstream \
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
 
+def _to_solve_Spitzglass_low(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
+    return Q - Spitzglass_low(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
 
 def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
                 Ps=101325., Zavg=1, E=1.):
@@ -1470,8 +1475,7 @@ def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return c5*Ts/Ps*D**2.5*E*(((P1-P2)*2*(Ps+1210.))/(L*SG*Tavg*Zavg*(1 + c4/D + c3*D)))**0.5
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
-        to_solve = lambda D : Q - Spitzglass_low(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
-        return secant(to_solve, 0.5)
+        return secant(_to_solve_Spitzglass_low, 0.5, args=(Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E))
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return 0.5*(2.0*D**6*E**2*P2*Ts**2*c5**2*(Ps + 1210.0) + D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3 + D*L*Ps**2*Q**2*SG*Tavg*Zavg + L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2*(Ps + 1210.0))
     elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
@@ -1479,10 +1483,12 @@ def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return 2.0*D**6*E**2*Ts**2*c5**2*(P1*Ps + 1210.0*P1 - P2*Ps - 1210.0*P2)/(Ps**2*Q**2*SG*Tavg*Zavg*(D**2*c3 + D + c4))
     else:
-        raise Exception('This function solves for either flow, upstream \
+        raise ValueError('This function solves for either flow, upstream \
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
 
+def _to_solve_Oliphant(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
+    return Q - Oliphant(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
 
 def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
              Ps=101325., Zavg=1, E=0.92):
@@ -1565,8 +1571,7 @@ def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return c1*(D**2.5 + c2*D**3)*Ts/Ps*((P1**2-P2**2)/(L*SG*Tavg))**0.5
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
-        to_solve = lambda D : Q - Oliphant(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
-        return secant(to_solve, 0.5)
+        return secant(_to_solve_Oliphant, 0.5, args=(Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E))
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
         return (L*Ps**2*Q**2*SG*Tavg/(Ts**2*c1**2*(D**3*c2 + D**2.5)**2) + P2**2)**0.5
     elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
@@ -1574,7 +1579,7 @@ def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return Ts**2*c1**2*(P1**2 - P2**2)*(D**3*c2 + D**2.5)**2/(Ps**2*Q**2*SG*Tavg)
     else:
-        raise Exception('This function solves for either flow, upstream \
+        raise ValueError('This function solves for either flow, upstream \
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
 
@@ -1670,7 +1675,7 @@ def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return SG**(-c2)*(D**(-c4)*Ps*Q/(E*Ts*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
-        raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')
+        raise ValueError('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')
 
 
 def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
@@ -1780,7 +1785,7 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return (D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(-1/c2)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
-        raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')
+        raise ValueError('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')
 
 
 def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
@@ -1887,4 +1892,4 @@ def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return (D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(-1/c2)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
-        raise Exception('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')
+        raise ValueError('This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.')

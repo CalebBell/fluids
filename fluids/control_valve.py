@@ -826,11 +826,11 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     '''
     MAX_C_POSSIBLE = 1E40 # Quit iterations if C reaches this high
     # Pa to kPa, according to constants in standard
-    P1, P2 = P1/1000., P2/1000.
+    P1, P2 = P1*1e-3, P2*1e-3
     Q = Q*3600. # m^3/s to m^3/hr, according to constants in standard
     # Convert dynamic viscosity to kinematic viscosity
     Vm = Z*R*T/(P1*1000)
-    rho = (Vm)**-1*MW/1000.
+    rho = MW*1e-3/Vm
     nu = mu/rho # kinematic viscosity used in standard
 
     dP = P1 - P2

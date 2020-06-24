@@ -388,6 +388,9 @@ def test_misc_compressible():
     
     assert_close(fluids.numba.Spitzglass_high(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15),
                  fluids.Spitzglass_high(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15))
+
+    assert_close(fluids.numba.Spitzglass_high(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30),
+             Spitzglass_high(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30))
     
     assert_close(fluids.numba.Spitzglass_low(D=0.154051, P1=6720.3199, P2=0, L=54.864, SG=0.6, Tavg=288.7),
                  fluids.Spitzglass_low(D=0.154051, P1=6720.3199, P2=0, L=54.864, SG=0.6, Tavg=288.7))   
