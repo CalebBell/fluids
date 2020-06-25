@@ -1648,14 +1648,9 @@ def _SA_partial_horiz_ellipsoidal_head_limits2(c1, R2, R4, h):
 
 def _SA_partial_horiz_ellipsoidal_head_to_int(y, c1, R2, R4):
     y2 = y*y
-    try:
-        x0x1 = (-(-R4 + R2*c1)/(R2 - y2))**0.5
-    except:
-        return 0.0 # x0x1/x4 limit as R2 - y2 goes to zero is zero
-    x3 = ((R4 - R2*c1)/(R4 - c1*y2))**0.5
-    x4 = (R2 - y2)**(-0.5)
-    x6 = (c1 *(-R2 + y2))/(-R4 + c1 *y2)
-    ans = (x0x1*float(ellipe( x6)))/(x4* x3)
+    t0 = c1*y2
+    x6 = c1*(y2 - R2)/(t0 - R4)
+    ans = (R4 - t0)**0.5*float(ellipe(x6))
     return ans
 
 def SA_partial_horiz_ellipsoidal_head(D, a, h):
