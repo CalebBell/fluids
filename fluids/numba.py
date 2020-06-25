@@ -250,7 +250,7 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_black
         source = remove_for_numba(source) # do before anything else
         source = return_value_numpy(source)
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
-#        if 'Rachford_Rice_flash2_f_jac' in s:
+#        if 'Darby3K' in s:
 #            print(source)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
         new_func = fake_mod.__dict__[func]
@@ -272,7 +272,7 @@ set_signatures = {}
 remove_comment_line = re.compile(r'''r?(['"])\1\1(.*?)\1{3}''', re.DOTALL)
 
 def remove_for_numba(source):
-    source = re.sub(r'''.*# ?numba ?: *(DELETE|delete).*''', '', source)
+    source = re.sub(r'''.*# ?(numba|NUMBA) ?: *(DELETE|delete).*''', '', source)
     source = re.sub(r'''#(.*)# ?(numba|NUMBA) ?: *(UNCOMMENT|uncomment).*''', r'\1', source)
     return source
 
@@ -321,7 +321,7 @@ bad_names = set(('__file__', '__name__', '__package__', '__cached__', 'solve'))
 
 from fluids.numerics import SamePointError, UnconvergedError, NotBoundedError
 def create_numerics(replaced, vec=False):
-    cache_unsuported = set(['brenth', 'newton_system', 'quad', 'quad_adaptive', 'fixed_quad_Gauss_Kronrod'])
+    cache_unsuported = set(['brenth', 'newton_system', 'quad', 'quad_adaptive', 'fixed_quad_Gauss_Kronrod', 'py_lambertw', 'secant', 'lambertw', 'ridder'])
 #    if vec:
 #        conv_fun = numba.vectorize
 #    else:
@@ -395,14 +395,6 @@ def create_numerics(replaced, vec=False):
 #    replaced['lambertw'] = NUMERICS_SUBMOD.__dict__['lambertw'] = NUMERICS_SUBMOD.__dict__['py_lambertw']
     for s in ('ellipe', 'gammaincc', 'gamma', 'i1', 'i0', 'k1', 'k0', 'iv', 'hyp2f1', 'erf'):
         replaced[s] = NUMERICS_SUBMOD.__dict__[s]
-    
-#    replaced['splev'] = NUMERICS_SUBMOD.__dict__['splev']  = replaced['py_splev']
-#    replaced['lambertw'] = NUMERICS_SUBMOD.__dict__['lambertw'] = replaced['py_lambertw']
-    
-#    @numba.njit
-#    def newton_err(x):
-#        return np.abs(np.array(x), dtype=np.float64).sum()
-#    replaced['newton_err'] = NUMERICS_SUBMOD.newton_err = newton_err
     return replaced, NUMERICS_SUBMOD
 
 replaced = {'sum': np.sum, 'combinations': combinations, 'np': np}
@@ -475,13 +467,6 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                     except:
                         print(arr_name, 'failed')
                         pass
-        
-##        print(SUBMOD)
-#        if 'h0_Gorenflow_1993' in SUBMOD.__dict__:
-##        if hasattr, ''):
-#            module_constants_changed_type['h0_Gorenflow_1993'] =  numba_dict(SUBMOD.h0_Gorenflow_1993)
-#            #SUBMOD.__dict__['h0_Gorenflow_1993'] = numba_dict(SUBMOD.h0_Gorenflow_1993)
-#
                 
         SUBMOD.__dict__.update(module_constants_changed_type)
         __funcs.update(module_constants_changed_type)
@@ -512,7 +497,10 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
    'P_isothermal_critical_flow', 'P_upstream_isothermal_critical_flow',
    'isothermal_gas_err_P1', 'isothermal_gas_err_P2', 'isothermal_gas_err_P2_basis', 'isothermal_gas_err_D', 'isothermal_gas',
    'v_terminal', 'differential_pressure_meter_solver', 'err_dp_meter_solver_P1', 'err_dp_meter_solver_D2',
-   'err_dp_meter_solver_P2', 'err_dp_meter_solver_m', 'V_horiz_spherical', 'V_horiz_torispherical'])
+   'err_dp_meter_solver_P2', 'err_dp_meter_solver_m', 'V_horiz_spherical', 'V_horiz_torispherical',
+   'Prandtl_von_Karman_Nikuradse', 'plate_enlargement_factor', 'Stichlmair_wet', 'V_from_h',
+   'SA_partial_horiz_spherical_head', '_SA_partial_horiz_spherical_head_to_int',
+   '_SA_partial_horiz_ellipsoidal_head_to_int', '_SA_partial_horiz_ellipsoidal_head_limits', 'SA_partial_horiz_ellipsoidal_head'])
     if vec:
         conv_fun = numba.vectorize
     else:
@@ -520,49 +508,9 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     new_mods = transform_module(normal, __funcs, replaced, vec=vec, cache_blacklist=cache_blacklist)
 
     
-    # Do some classes by hand
-    
-    PlateExchanger_spec = [
-        ('pitch', float64),
-        ('beta', float64),
-        ('gamma', float64),
-        ('a', float64),
-        ('amplitude', float64),               
-        ('wavelength', float64),               
-        ('b', float64),               
-        ('chevron_angle', float64),               
-        ('inclination_angle', float64),               
-        ('plate_corrugation_aspect_ratio', float64),               
-        ('plate_enlargement_factor', float64),               
-        ('D_eq', float64),               
-        ('D_hydraulic', float64),               
-        ('width', float64),               
-        ('length', float64),               
-        ('thickness', float64),               
-        ('d_port', float64),               
-        ('plates', float64),               
-        ('length_port', float64),               
-        ('A_plate_surface', float64),               
-        ('A_heat_transfer', float64),               
-        ('A_channel_flow', float64),               
-        ('channels', float64),               
-        ('channels_per_fluid', float64),               
-    ]
-    
-    
-    HelicalCoil_spec = [(k, float64) for k in 
-                        ('Do', 'Dt', 'Di', 'Do_total', 'N', 'pitch', 'H', 'H_total', 
-                         'tube_circumference', 'tube_length', 'surface_area', 'helix_angle',
-                         'curvature', 'total_inlet_area', 'total_volume', 'inner_surface_area',
-                         'inlet_area', 'inner_volume', 'annulus_area', 'annulus_volume')]
-    
-    ATMOSPHERE_1976_spec = [(k, float64) for k in 
-                        ('Z', 'dT', 'H', 'T_layer', 'T_increase', 'P_layer', 'H_layer', 'H_above_layer', 
-                         'T', 'P', 'rho', 'v_sonic',
-                         'mu', 'k', 'g', 'R')]
-    
     to_change = ['packed_tower._Stichlmair_flood_f_and_jac', 
-                 'packed_tower.Stichlmair_flood']
+                 'packed_tower.Stichlmair_flood', 'compressible.isothermal_gas', 
+                 'fittings.Darby3K', 'fittings.Hooper2K']
     transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec, cache_blacklist=cache_blacklist)
     
     
@@ -574,13 +522,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
      'two_phase_voidage.liquid_gas_voidage', 'two_phase_voidage.gas_liquid_viscosity']
     
     
-    to_change_full_output = ['two_phase.Mandhane_Gregory_Aziz_regime',
-                             'two_phase.Taitel_Dukler_regime']
-    
     to_change = {k: 'AvailableMethods' for k in to_change_AvailableMethods}
-    to_change.update({k: 'full_output' for k in to_change_full_output})
-    to_change['fittings.Darby3K'] = 'name in Darby: # NUMBA: DELETE'
-    to_change['fittings.Hooper2K'] = 'name in Hooper: # NUMBA: DELETE'
     to_change['friction.roughness_Farshad'] = 'ID in _Farshad_roughness'
     
     for s, bad_branch in to_change.items():
@@ -593,27 +535,32 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
         new_func = fake_mod.__dict__[func]
         obj = conv_fun(cache=caching)(new_func)
         __funcs[func] = obj
-#        globals()[func] = obj
-        obj.__doc__ = ''
-        
-        
-    to_change = ['compressible.isothermal_gas']
-    for s in to_change:
-        mod, func = s.split('.')
-        source = inspect.getsource(getattr(getattr(normal_fluids, mod), func))
-        fake_mod = __funcs[mod]
-        source = remove_for_numba(source)
-        numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
-        new_func = fake_mod.__dict__[func]
-        obj = conv_fun(cache=caching)(new_func)
-        __funcs[func] = obj
-#        globals()[func] = obj
         obj.__doc__ = ''
     
+
+    # Do some classes by hand
+    PlateExchanger_spec = [(k, float64) for k in ('pitch', 'beta', 'gamma', 'a', 'amplitude', 'wavelength', 
+                           'b', 'chevron_angle', 'inclination_angle', 'plate_corrugation_aspect_ratio',
+                           'plate_enlargement_factor', 'D_eq', 'D_hydraulic', 'width', 'length', 'thickness',
+                           'd_port', 'plates', 'length_port', 'A_plate_surface', 'A_heat_transfer',
+                           'A_channel_flow', 'channels', 'channels_per_fluid')]
+    PlateExchanger_spec.append(('chevron_angles', numba.types.UniTuple(numba.types.float64, 2)))
     
+    HelicalCoil_spec = [(k, float64) for k in 
+                        ('Do', 'Dt', 'Di', 'Do_total', 'N', 'pitch', 'H', 'H_total', 
+                         'tube_circumference', 'tube_length', 'surface_area', 'helix_angle',
+                         'curvature', 'total_inlet_area', 'total_volume', 'inner_surface_area',
+                         'inlet_area', 'inner_volume', 'annulus_area', 'annulus_volume')]
     
-    # Almost there but one argument has a variable type
-    #PlateExchanger = jitclass(PlateExchanger_spec)(getattr(__funcs['geometry'], 'PlateExchanger'))
+    ATMOSPHERE_1976_spec = [(k, float64) for k in 
+                        ('Z', 'dT', 'H', 'T_layer', 'T_increase', 'P_layer', 'H_layer', 'H_above_layer', 
+                         'T', 'P', 'rho', 'v_sonic',
+                         'mu', 'k', 'g', 'R')]
+    
+#    # No string support
+#    PlateExchanger = jitclass(PlateExchanger_spec)(getattr(__funcs['geometry'], 'PlateExchanger'))
+#    __funcs['PlateExchanger'] = __funcs['geometry'].PlateExchanger = PlateExchanger
+    
     HelicalCoil = jitclass(HelicalCoil_spec)(getattr(__funcs['geometry'], 'HelicalCoil'))
     __funcs['HelicalCoil'] = __funcs['geometry'].HelicalCoil = HelicalCoil
 
@@ -623,15 +570,9 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     
     # Not needed
     __funcs['friction'].Colebrook = __funcs['Colebrook'] = __funcs['Clamond']
-    #for k in ('flow_meter', 'fittings', 'two_phase', 'friction'):
-    #    __funcs[k].friction_factor = __funcs['friction_factor'] = __funcs['Clamond']
-    #__funcs['PlateExchanger'] = __funcs['geometry'].PlateExchanger = PlateExchanger
     
     # Works but 50% slower
     #__funcs['geometry']._V_horiz_spherical_toint = __funcs['_V_horiz_spherical_toint'] = cfunc("float64(float64, float64, float64, float64)")(normal_fluids.geometry._V_horiz_spherical_toint)
-    
-    # ex = fluids.numba.geometry.PlateExchanger(amplitude=5E-4, wavelength=3.7E-3, length=1.2, width=.3, d_port=.05, plates=51, thickness=1e-10)
-    #fluids.numba.geometry.HelicalCoil(Do_total=32.0, H_total=22.0, pitch=5.0, Dt=2.0, Di=1.8)
     
     for mod in new_mods:
         mod.__dict__.update(__funcs)

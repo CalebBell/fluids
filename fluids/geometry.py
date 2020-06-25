@@ -55,7 +55,8 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
 __numba_additional_funcs__ = ('_V_horiz_spherical_toint', '_SA_partial_horiz_ellipsoidal_head_to_int',
                               '_SA_partial_horiz_ellipsoidal_head_limits',
                               'V_horiz_torispherical_toint_3', 'V_horiz_torispherical_toint_2',
-                              'V_horiz_torispherical_toint_1')
+                              '_SA_partial_horiz_ellipsoidal_head_limits2',
+                              'V_horiz_torispherical_toint_1', '_SA_partial_horiz_spherical_head_to_int')
 
 ### Spherical Vessels, partially filled
 
@@ -1550,6 +1551,16 @@ def SA_partial_horiz_conical_head(D, a, h):
     R_inv = 1.0/R
     return (a*a + R*R)**0.5*R_inv*(R*R*acos((R-h)*R_inv) - (R-h)*(2.0*R*h - h*h)**0.5)
 
+def _SA_partial_horiz_spherical_head_to_int(x, R2, a4, c1, c2):
+    x2 = x*x
+    to_pow = (R2 - x2)/(c2 - a4*x2)
+    if to_pow < 0.0: to_pow = 0.0
+    num = c1*(to_pow)**0.5
+    try:
+        return asin(num)
+    except:
+        # Tried to asin a number just slightly higher than 1
+        return 0.5*pi
 
 def SA_partial_horiz_spherical_head(D, a, h):
     r'''Calculates the partial area of a spherical tank head in the context of 
@@ -1613,33 +1624,27 @@ def SA_partial_horiz_spherical_head(D, a, h):
     c1 = 2.0*abs(a)
     c2 = (a*a + R2)*(a*a + R2)
     
-    def to_quad(x):
-        x2 = x*x
-        to_pow = (R2 - x2)/(c2 - a4*x2)
-        if to_pow < 0.0: to_pow = 0.0
-        num = c1*(to_pow)**0.5
-        try:
-            return asin(num)
-        except:
-            # Tried to asin a number just slightly higher than 1
-            return 0.5*pi
-    SA =  fact*quad(to_quad, R-h, R)[0]
+    SA = fact*quad(_SA_partial_horiz_spherical_head_to_int, R-h, R, args=(R2, a4, c1, c2))[0]
     return SA
 
 
-def _SA_partial_horiz_ellipsoidal_head_to_int(x, y, c1, R2, R4):
+def _SA_partial_horiz_ellipsoidal_head_to_int(x, y, c1, R2, R4, h):
     y2 = y*y
     x2 = x*x
     num = c1*(x2 + y2) - R4
     den = x2 + (y2 - R2) # Brackets help numerical truncation; zero div without it
     try:
         return (num/den)**0.5
-    except ZeroDivisionError:
+    except:
          # Equation is undefined for y == R when x is zero; avoid it
-        return _SA_partial_horiz_ellipsoidal_head_to_int(x, y*(1.0 - 1e-14), c1, R2, R4)
+        return _SA_partial_horiz_ellipsoidal_head_to_int(x, y*(1.0 - 1e-12), c1, R2, R4, h)
     
-def _SA_partial_horiz_ellipsoidal_head_limits(x, c1, R2, R4):
+def _SA_partial_horiz_ellipsoidal_head_limits(x, c1, R2, R4, h):
     return [0.0, (R2 - x*x)**0.5]
+
+def _SA_partial_horiz_ellipsoidal_head_limits2(c1, R2, R4, h):
+    R = R2**0.5
+    return [R-h, R]
 
 def SA_partial_horiz_ellipsoidal_head(D, a, h):
     r'''Calculates the partial area of a ellipsoidal tank head in the context of 
@@ -1672,6 +1677,10 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     cases are handled by returning the full surface area and the zero 
     respectively.
     
+    This numerical integral is extremely nasty - there are places where
+    f(x) -> infinity but that have a bounded area. quadpack's numerical 
+    integration handles this well.
+    
     Examples
     --------
     >>> SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0)
@@ -1688,17 +1697,17 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     elif h > D:
         h = D
     
-    from scipy.integrate import dblquad, nquad
     
     R2 = R*R
     R4 = R2*R2
     a2 = a*a
     c1 = R2 - a2
-    quad_val = nquad(_SA_partial_horiz_ellipsoidal_head_to_int, ranges=[_SA_partial_horiz_ellipsoidal_head_limits, [R-h, R]],
-                     args=(c1, R2, R4))[0]
-#    quad_val = dblquad(_SA_partial_horiz_ellipsoidal_head_to_int, R-h, R, lambda x: 0.0, lambda x: (R2 - x*x)**0.5,
-#                       args=(c1, R2, R4))[0]
-    
+#    from fluids.numerics import dblquad
+    from scipy.integrate import dblquad, nquad
+#    quad_val = nquad(_SA_partial_horiz_ellipsoidal_head_to_int, ranges=[_SA_partial_horiz_ellipsoidal_head_limits, _SA_partial_horiz_ellipsoidal_head_limits2],
+#                     args=(c1, R2, R4, h))[0]
+    quad_val = dblquad(_SA_partial_horiz_ellipsoidal_head_to_int, R-h, R, lambda x: 0.0, lambda x: (R2 - x*x)**0.5,
+                       args=(c1, R2, R4, h))[0]
     SA = 2.0/R*quad_val
     return SA
 
@@ -3351,11 +3360,14 @@ class PlateExchanger(object):
     wavelength : float
         Distance between the bottoms of two of the ridges (sometimes called 
         pitch), [m]
-    chevron_angle : float or tuple(2), optional
+    chevron_angle : float, optional
         Angle of the plate corrugations with respect to the vertical axis
         (the direction of flow if the plates were straight), between 0 and
-        90. Many plate exchangers use two alternating patterns; use a tuple
-        of the two angles for that situation [degrees]
+        90, [degrees]
+    chevron_angles : tuple(2), optional
+        Many plate exchangers use two alternating patterns; for those cases 
+        provide tuple of the two angles for that situation and the argument
+        `chevron_angle` is ignored, [degrees]
     width : float, optional
         Width of the plates in the heat exchanger, between the gaskets, [m]
     length : float, optional
@@ -3445,20 +3457,23 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
         'A' + amplitude + 'B' + chevron angle-chevron angle. Wavelength and 
         amplitude are specified in units of mm and rounded to two decimal places.
         '''
-        s = ('L' + str(round(self.wavelength*1000, 2))
-             + 'A' + str(round(self.amplitude*1000, 2))
-             + 'B' + '-'.join([str(i) for i in self.chevron_angles]))
+        wave_rounded = round(self.wavelength*1000, 2)
+        amplitude_rounded = round(self.amplitude*1000, 2)
+        a1 = self.chevron_angles[0]
+        a2 = self.chevron_angles[1]
+        s = ('L{0} A{1} B{2}-{3}'.format(wave_rounded, amplitude_rounded, a1, a2))
         return s
     
     
-    def __init__(self, amplitude, wavelength, chevron_angle=45, width=None,
-                 length=None, thickness=None, d_port=None, plates=None):
+    def __init__(self, amplitude, wavelength, chevron_angle=45,
+                 chevron_angles=None, width=None, length=None, thickness=None, 
+                 d_port=None, plates=None):
         self.amplitude = self.a = amplitude # half a sine wave's height
         self.b = 2*self.amplitude # Used in some models. From a flat plate, a press goes down this far into the plate. Also called the hot and cold gap
         self.wavelength = self.pitch = wavelength # self.lambda
-        if isinstance(chevron_angle, tuple):
-            self.chevron_angles = chevron_angle
-            self.chevron_angle = self.beta = 0.5*(chevron_angle[0]+chevron_angle[1])
+        if chevron_angles is not None:
+            self.chevron_angles = chevron_angles
+            self.chevron_angle = self.beta = 0.5*(chevron_angles[0] + chevron_angles[1])
         else:
             self.chevron_angle = self.beta = chevron_angle # between 0 and 90
             self.chevron_angles = (chevron_angle, chevron_angle)
@@ -3471,22 +3486,27 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
         self.D_eq = 4*self.amplitude # Equivalent diameter for inter-plate spacing
         self.D_hydraulic = 4*self.amplitude/self.plate_enlargement_factor # Get better results when correlations use this
         
-        self.width = width
-        self.length = length
-        self.thickness = thickness
-        self.d_port = d_port
-        self.plates = plates
+        if width is not None:
+            self.width = width
+        if length is not None:
+            self.length = length
+        if thickness is not None:
+            self.thickness = thickness
+        if d_port is not None:
+            self.d_port = d_port
+        if plates is not None:
+            self.plates = plates
                 
-        if d_port and length:
-            self.length_port = self.length + self.d_port # port center to port center along the direction of flow
+        if d_port is not None and length is not None:
+            self.length_port = length + d_port # port center to port center along the direction of flow
             # There is another larger length as well, including both port diameters
-        if width and length:
-            self.A_plate_surface = self.length*self.width*self.plate_enlargement_factor # use this in Q = UAdT
-            if plates:
-                self.A_heat_transfer = (self.plates-2)*self.A_plate_surface # the two outermost sides aren't used
-        if width: 
+        if width is not None and length is not None:
+            self.A_plate_surface = length*width*self.plate_enlargement_factor # use this in Q = UAdT
+            if plates is not None:
+                self.A_heat_transfer = (plates-2)*self.A_plate_surface # the two outermost sides aren't used
+        if width is not None: 
             self.A_channel_flow = self.width*self.b # Use this to get G, kg/s/m^2
-        if plates:
+        if plates is not None:
             self.channels = self.plates - 1
             self.channels_per_fluid = 0.5*self.channels
 

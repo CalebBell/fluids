@@ -394,9 +394,15 @@ def test_misc_compressible():
     
     assert_close(fluids.numba.Spitzglass_low(D=0.154051, P1=6720.3199, P2=0, L=54.864, SG=0.6, Tavg=288.7),
                  fluids.Spitzglass_low(D=0.154051, P1=6720.3199, P2=0, L=54.864, SG=0.6, Tavg=288.7))   
+
+    assert_close(fluids.numba.Spitzglass_low(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30),
+             Spitzglass_low(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30))
     
     assert_close(fluids.numba.Oliphant(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15),
                  fluids.Oliphant(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15))
+
+    assert_close(fluids.numba.Oliphant(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30),
+             Oliphant(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30))
 
     # With the -1 lambertw branch
     assert_close(fluids.numba.P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5),
@@ -570,11 +576,13 @@ def test_misc_two_phase():
 
     reg_numba = fluids.numba.Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,  mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)
     reg_normal = fluids.Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,  mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)
-    assert reg_numba == reg_normal
+    assert reg_numba[0] == reg_normal[0]
+    assert_close1d(reg_numba[1:], reg_normal[1:])
     
     reg_numba = fluids.numba.Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, angle=0)
     reg_normal = fluids.Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, angle=0)
-    assert reg_numba == reg_normal
+    assert reg_numba[0] == reg_normal[0]
+    assert_close1d(reg_numba[1:], reg_normal[1:])
 
     assert_close(fluids.numba.two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1),
                  fluids.two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1))
@@ -602,6 +610,8 @@ def test_misc_geometry():
     assert_close(fluids.numba.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
                  fluids.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
 
+    assert_close(fluids.numba.geometry.SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0),
+                 fluids.geometry.SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0))
     
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")

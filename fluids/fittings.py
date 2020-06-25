@@ -2099,7 +2099,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         else:
             angle_rad = pi
     else:
-        raise Exception('Either l or angle is required')
+        raise ValueError('Either l or angle is required')
     if method is None:
         method == 'Rennels'
 
@@ -2282,7 +2282,7 @@ def diffuser_conical_Crane(Di1, Di2, l=None, angle=None):
             angle_rad = pi
             angle_deg = 180.0
     else:
-        raise Exception('Either `l` or `angle` must be specified')
+        raise ValueError('Either `l` or `angle` must be specified')
         
     if angle_deg < 45.0:
         # Formula 3
@@ -2511,8 +2511,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         l_calc = (Di2 - Di1)/(2.0*tan(0.5*angle_rad))
     else:
         raise ValueError('Either `l` or `angle` must be specified')
-    if method is None:
-        method == 'Rennels'
+    if method is None:  method == 'Rennels'
     if method == 'Rennels':
         if fd is None:
             if Re is None:
@@ -2533,7 +2532,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         elif 60.0 < angle_deg <= 180.0 and beta >= 0.5:
             K = (1.205 - 0.20*((angle_deg - 60.0)/120.)**0.5)*(1.0 - beta**2)**2
         else:
-            raise Exception('Conical diffuser inputs incorrect')
+            raise ValueError('Conical diffuser inputs incorrect')
         return K
     elif method == 'Crane':
         return diffuser_conical_Crane(Di1=Di1, Di2=Di2, l=l_calc, angle=angle_deg)
@@ -2629,7 +2628,7 @@ def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
     K += diffuser_conical(Di1=Di1, Di2=DEs[0], l=ls[0], fd=fd, method=method)
     K += diffuser_conical(Di1=DEs[-1], Di2=Di2, l=ls[-1], fd=fd, method=method)
     for i in range(len(DEs)-1):
-        K += diffuser_conical(Di1=float(DEs[i]), Di2=float(DEs[i+1]), l=float(ls[i+1]), fd=fd, method=method)
+        K += diffuser_conical(Di1=DEs[i], Di2=DEs[i+1], l=ls[i+1], fd=fd, method=method)
     return K
 
 
@@ -2841,7 +2840,7 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
     if name is not None:
         K1 = None
         if name in Darby: # NUMBA: DELETE
-            K1, Ki, Kd = Darby[name]
+            K1, Ki, Kd = Darby[name] # NUMBA: DELETE
         if K1 is None:
             try:
                 K1, Ki, Kd = Darby_values[Darby_keys.index(name)]
@@ -2954,7 +2953,7 @@ def Hooper2K(Di, Re, name=None, K1=None, Kinfty=None):
     if name is not None:
         K1 = None
         if name in Hooper: # NUMBA: DELETE
-            K1, Kinfty = Hooper[name]
+            K1, Kinfty = Hooper[name] # NUMBA: DELETE
         if K1 is None:
             try:
                 K1, Kinfty = Hooper_values[Hooper_keys.index(name)]
@@ -3426,7 +3425,7 @@ def K_angle_valve_Crane(D1, D2, fd=None, style=0):
     '''
     beta = D1/D2
     if style not in (0, 1, 2):
-        raise Exception('Valve style should be 0, 1, or 2')
+        raise ValueError('Valve style should be 0, 1, or 2')
     if fd is None:
         fd = ft_Crane(D2)
 
@@ -4251,11 +4250,11 @@ def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
         return 45.0*specific_volume**0.5
 
 
-branch_converging_Crane_Fs = [1.74, 1.41, 1, 0]
-branch_converging_Crane_angles = [30, 45, 60, 90]
+branch_converging_Crane_Fs = [1.74, 1.41, 1.0, 0.0]
+branch_converging_Crane_angles = [30.0, 45.0, 60.0, 90.0]
 
 
-def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
+def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90.0):
     r'''Returns the loss coefficient for the branch of a converging tee or wye
     according to the Crane method [1]_.
     

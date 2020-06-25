@@ -38,7 +38,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'solve_4_direct',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2',
-           'numpy',
+           'numpy', 'nquad',
            'polyint_over_x', 'horner_log', 'polyint', 'chebder',
            'polyder', 'make_damp_initial', 'quadratic_from_points',
            'OscillationError', 'UnconvergedError', 'caching_decorator',
@@ -3253,7 +3253,8 @@ def quad_adaptive(f, a, b, args=(), kronrod_points=array_if_needed(kronrod_point
                                              legendre_weights, args)
     # Match behavior, documented at https://www.johndcook.com/blog/2012/03/20/scipy-integration/
     #and with a good test case at https://www.johndcook.com/blog/2012/03/20/scipy-integration/
-    if (abs(err_abs) < epsabs or abs(err_abs/area) < epsrel) or depth > 6:
+    if (abs(err_abs) < epsabs or (area == 0.0 or abs(err_abs/area) < epsrel)) or depth > 6:
+#        print((a, b), area, abs(err_abs),  epsabs, abs(err_abs/area), epsrel, depth)
         return area, err_abs
     
     mid = a + (b-a)*0.5
@@ -3276,21 +3277,26 @@ def lazy_quad(f, a, b, args=(), epsrel=1.49e-08, epsabs=1.49e-8, **kwargs):
 def _call_nquad(x, func, range_funcs, epsrel, epsabs, *args):
     return nquad(func, range_funcs, args=(x,) +args , epsrel=epsrel, epsabs=epsabs)
     
-def nquad(func, range_funcs, args=(), epsrel=1.48e-8, epsabs=1.48e-8):
-    my_low, my_high = range_funcs[-1](*args)
-    if len(range_funcs) == 1:
-        return quad_adaptive(func, my_low, my_high, args=args, epsrel=epsrel, epsabs=epsabs)[0]
+def nquad(func, ranges, args=(), epsrel=1.48e-8, epsabs=1.48e-8):
+    my_low, my_high = ranges[-1](*args)
+    if len(ranges) == 1:
+        return quad_adaptive(func, my_low, my_high, args=args, epsrel=epsrel, epsabs=epsabs)
     # 
     return quad_adaptive(_call_nquad, my_low, my_high, 
-                         args=(func, range_funcs[:-1], epsrel, epsabs)  +args, 
-                         epsrel=epsrel, epsabs=epsabs)[0]
+                         args=(func, ranges[:-1], epsrel, epsabs)  +args, 
+                         epsrel=epsrel, epsabs=epsabs)
 
-def dblquad(func, a, b, hfun, gfun, args=(), epsrel=1.48e-8, epsabs=1.48e-8):
+def dblquad(func, a, b, hfun, gfun, args=(), epsrel=1.48e-12, epsabs=1.48e-15):
     '''Nominally working, but trying to use it has exposed the expected bugs in 
     `quad_adaptive`.
     '''
     def inner_func(y, *args):
-        return quad_adaptive(func, hfun(y), gfun(y), args=(y,)+args, epsrel=epsrel, epsabs=epsabs)[0]
+        full_args = (y,)+args
+        quad_fluids = quad_adaptive(func, hfun(y), gfun(y), args=full_args, epsrel=epsrel, epsabs=epsabs)[0]
+        # from scipy.integrate import quad as quad2
+        # quad_sp = quad2(func, hfun(y), gfun(y), args=full_args, epsrel=epsrel, epsabs=epsabs)[0]
+        # print(quad_fluids, quad_sp, hfun(y), gfun(y), full_args, )
+        return quad_fluids
 #         return quad(func, hfun(y), gfun(y), args=(y,)+args, epsrel=epsrel, epsabs=epsabs)[0]
     return quad_adaptive(inner_func, a, b, args=args, epsrel=epsrel, epsabs=epsabs)
 

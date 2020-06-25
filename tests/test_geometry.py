@@ -1140,7 +1140,7 @@ def test_PlateExchanger():
     assert ex.channels == 50
     assert ex.channels_per_fluid == 25
     
-    ex = PlateExchanger(amplitude=5E-4, wavelength=3.7E-3, length=1.2, width=.3, d_port=.05, plates=51, chevron_angle=(30, 60))
+    ex = PlateExchanger(amplitude=5E-4, wavelength=3.7E-3, length=1.2, width=.3, d_port=.05, plates=51, chevron_angles=(30, 60))
     assert ex.chevron_angle == 45
     assert ex.chevron_angles == (30, 60)
     
