@@ -3369,9 +3369,9 @@ if has_scipy:
         def lambertw(*args, **kwargs):
             from scipy.special import lambertw
             return lambertw(*args, **kwargs)
-    def ellipe(*args, **kwargs):
+    def ellipe(m):
         from scipy.special import ellipe
-        return ellipe(*args, **kwargs)
+        return ellipe(m)
     def gammaincc(*args, **kwargs):
         from scipy.special import gammaincc
         return gammaincc(*args, **kwargs)
@@ -3396,6 +3396,12 @@ if has_scipy:
     def hyp2f1(*args, **kwargs):
         from scipy.special import hyp2f1
         return hyp2f1(*args, **kwargs)
+    def ellipkinc(phi, m):
+        from scipy.special import ellipkinc
+        return ellipkinc(phi, m)
+    def ellipeinc(phi, m):
+        from scipy.special import ellipeinc
+        return ellipeinc(phi, m)
     if erf is None:
         def erf(*args, **kwargs):
             from scipy.special import erf
@@ -3453,12 +3459,17 @@ else:
     def k0(x):
         import mpmath
         return mpmath.mpmath.besselk(0, x)
-    
+    def ellipkinc(phi, m):
+        import mpmath
+        return mpmath.mpmath.ellipf(phi, m)
+    def ellipeinc(phi, m):
+        import mpmath
+        return mpmath.ellipe.ellipeinc(phi, m)
 
 try:
     if FORCE_PYPY:
         lambertw = py_lambertw
-        from scipy.special import ellipe, gammaincc, gamma # fluids
+        from scipy.special import ellipe, gammaincc, gamma, ellipkinc, ellipeinc # fluids
         from scipy.special import i1, i0, k1, k0, iv # ht
         from scipy.special import hyp2f1    
         if erf is None:

@@ -24,7 +24,7 @@ from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
 from fluids.constants import inch
-from fluids.numerics import secant, brenth, ellipe, horner, chebval, linspace, derivative, quad
+from fluids.numerics import secant, brenth, ellipe, ellipkinc, ellipeinc, horner, chebval, linspace, derivative, quad
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
@@ -56,7 +56,8 @@ __numba_additional_funcs__ = ('_V_horiz_spherical_toint', '_SA_partial_horiz_ell
                               '_SA_partial_horiz_ellipsoidal_head_limits',
                               'V_horiz_torispherical_toint_3', 'V_horiz_torispherical_toint_2',
                               '_SA_partial_horiz_ellipsoidal_head_limits2',
-                              'V_horiz_torispherical_toint_1', '_SA_partial_horiz_spherical_head_to_int')
+                              'V_horiz_torispherical_toint_1', '_SA_partial_horiz_spherical_head_to_int', 
+                              '_SA_partial_horiz_guppy_head_to_int')
 
 ### Spherical Vessels, partially filled
 
@@ -1733,6 +1734,35 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     return SA
 
 
+def _SA_partial_horiz_guppy_head_to_int(x, a, R):
+    x0 = a*a
+    x1 = R - x
+    x2 = x1*x1
+    x3 = 1.0/x2
+    x4 = x0*x3 + 1.0
+    x5 = R*R
+    x6 = x*x
+    x7 = x5 - x6
+    x8 = x7**0.5
+    x9 = x4*x8
+    x10 = x0 + 4.0*x5
+    x17 = x10**0.25
+    x11 = x17*x17
+    x12 = 1.0/x11
+    x13 = a*x7
+    x14 = x12*x13*x3 + 1.0
+    x15 = a*x12
+    x16 = a**0.5
+    x18 = 2*atan(x16*x8/(x1*x17))
+    x19 = 0.5 - 0.5*x15
+    x100 = (-2.0*R*x*x11 + x11*x5 + x11*x6 + x13)
+    x20 = x1*x14*(x2*x5*(x0 + x2)/(x100*x100))**0.5/x5
+    return 0.08333333333333333*(
+             (-4.0*x10**0.75*x16*x20*ellipeinc(x18, x19) + 4.0*x9 
+             + 2.0*x17*x20*(a*x11 + x10)*ellipkinc(x18, x19)/x16 
+             + 8.0*x15*x9/x14)*x4**-0.5)
+
+
 def SA_partial_horiz_guppy_head(D, a, h):
     r'''Calculates the partial area of a guppy tank head in the context of 
     a horizontal vessel and liquid partially
@@ -1744,6 +1774,44 @@ def SA_partial_horiz_guppy_head(D, a, h):
         \sqrt{1 + \left(\frac{a}{2R}\left(1 - \frac{y^2}{(R-x)^2}  \right)
         \right)^2
         + \left(\frac{ay}{R(R-x)}    \right)^2 } dy dx
+
+    After extensive manipulation, the first integral was solved analytically,
+    extending the result of [1]_. Even with the special functions, this 
+    form has somewhat greater performance (and improved precision).
+    
+    .. math::
+        \text{SA} = 2 \int_{-R}^{h-R} \frac{\frac{2 a \left(4 + \frac{a^{2} 
+        \left(2 R^{2} - 2 R y\right)^{2}}{R^{2} \left(R - y\right)^{4}}\right) 
+        \sqrt{R^{2} - y^{2}}}{\sqrt{4 R^{2} + a^{2}} \left(\frac{a \left(R^{2}
+        - y^{2}\right)}{\left(R - y\right)^{2} \sqrt{4 R^{2} + a^{2}}} 
+        + 1\right)} + \left(4 + \frac{a^{2} \left(2 R^{2} - 2 R y\right)
+        ^{2}}{R^{2} \left(R - y\right)^{4}}\right) \sqrt{R^{2} - y^{2}}
+        - \frac{2 \sqrt{a} \sqrt{\frac{4 R^{2} \left(R - y\right)^{4} 
+        + a^{2} \left(2 R^{2} - 2 R y\right)^{2}}{\left(R^{2} \sqrt{4 R^{2} 
+        + a^{2}} - 2 R y \sqrt{4 R^{2} + a^{2}} + a \left(R^{2} 
+        - y^{2}\right) + y^{2} \sqrt{4 R^{2} + a^{2}}\right)^{2}}} 
+        \left(R - y\right) \left(4 R^{2} + a^{2}\right)^{0.75} 
+        \left(\frac{a \left(R^{2} - y^{2}\right)}{\left(R - y\right)^{2} 
+        \sqrt{4 R^{2} + a^{2}}} + 1\right) \operatorname{ellipeinc}{\left(2
+        \operatorname{atan}{\left(\frac{\sqrt{a} \sqrt{R^{2} - y^{2}}}
+        {\left(R - y\right) \left(4 R^{2} + a^{2}\right)^{0.25}} \right)},
+        - \frac{a}{2 \sqrt{4 R^{2} + a^{2}}} + 0.5 \right)}}{R^{2}} 
+        + \frac{1.0 \sqrt{\frac{4 R^{2} \left(R - y\right)^{4} + a^{2} 
+        \left(2 R^{2} - 2 R y\right)^{2}}{\left(R^{2} \sqrt{4 R^{2} 
+        + a^{2}} - 2 R y \sqrt{4 R^{2} + a^{2}} + a \left(R^{2} - y^{2}\right)
+            + y^{2} \sqrt{4 R^{2} + a^{2}}\right)^{2}}} \left(R - y\right)
+        \left(4 R^{2} + a^{2}\right)^{0.25} \left(\frac{a \left(R^{2}
+        - y^{2}\right)}{\left(R - y\right)^{2} \sqrt{4 R^{2} + a^{2}}} 
+        + 1\right) \left(4 R^{2} + a^{2} + a \sqrt{4 R^{2} + a^{2}}\right)
+        \operatorname{ellipkinc}{\left(2 \operatorname{atan}{\left(\frac{\sqrt{a}
+        \sqrt{R^{2} - y^{2}}}{\left(R - y\right) \left(4 R^{2} 
+        + a^{2}\right)^{0.25}} \right)},- \frac{a}{2 \sqrt{4 R^{2} + a^{2}}} 
+        + 0.5 \right)}}{R^{2} \sqrt{a}}}{6 \sqrt{4 + \frac{a^{2} \left(2 R^{2}
+        - 2 R y\right)^{2}}{R^{2} \left(R - y\right)^{4}}}}
+            
+    Where ellipeinc is the incomplete elliptic integral of the second kind,
+    and ellipkinc is the incomplete elliptic integral of the first kind,
+    both calculated with SciPy's link to the cephes library.
         
     Parameters
     ----------
@@ -1765,14 +1833,12 @@ def SA_partial_horiz_guppy_head(D, a, h):
     cases are handled by returning the full surface area and the zero 
     respectively.
     
-    A symbolic attempt suggests an integral of one of the two functions exists,
-    but it has a hypergeometric function in it; likely slower than performing 
-    both integrals numerically. 
+    The analytical integral was derived with Rubi.
 
     Examples
     --------
     >>> SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0)
-    1467.8949780037
+    1467.8949780036994
     
     References
     ----------
@@ -1787,22 +1853,19 @@ def SA_partial_horiz_guppy_head(D, a, h):
     elif h > D:
         h = D
     
-    from scipy.integrate import dblquad
-    
-    c1 = a/(2.0*R)
-    c2 = c1*c1
-    a_R_ratio = a/R
-    a_R_ratio2 = a_R_ratio*a_R_ratio
-
-    def to_quad(y, x):
-        t1 = y/(R-x)
-        t1 *= t1
-        t2 = (1.0 - t1)
-        return (1.0 + c2*t2*t2 + a_R_ratio2*t1)**0.5
-    quad_val = dblquad(to_quad, -R, h-R, lambda x: 0.0, lambda x: (R*R - x*x)**0.5)[0]
-    
+#    c1 = a/(2.0*R)
+#    c2 = c1*c1
+#    a_R_ratio = a/R
+#    a_R_ratio2 = a_R_ratio*a_R_ratio
+#    from scipy.integrate import dblquad
+#    def to_quad(y, x):
+#        t1 = y/(R-x)
+#        t1 *= t1
+#        t2 = (1.0 - t1)
+#        return (1.0 + c2*t2*t2 + a_R_ratio2*t1)**0.5
+#    quad_val = dblquad(to_quad, -R, h-R, lambda x: 0.0, lambda x: (R*R - x*x)**0.5)[0]
+    quad_val = quad(_SA_partial_horiz_guppy_head_to_int, -R, h-R, args=(a, R))[0]
     SA = 2.0*quad_val
-
     return SA
 
 

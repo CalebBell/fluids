@@ -617,6 +617,9 @@ def test_misc_geometry():
     # and 252 us with PyPy because of the ctypes function
     assert_close(fluids.numba.SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0),
                  fluids.geometry.SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0))
+
+    assert_close(fluids.numba.SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0),
+                 fluids.SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0))
     
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")

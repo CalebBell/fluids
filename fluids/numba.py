@@ -393,7 +393,7 @@ def create_numerics(replaced, vec=False):
             
     replaced['bisplev'] = replaced['py_bisplev'] = NUMERICS_SUBMOD.__dict__['bisplev'] = bisplev
 #    replaced['lambertw'] = NUMERICS_SUBMOD.__dict__['lambertw'] = NUMERICS_SUBMOD.__dict__['py_lambertw']
-    for s in ('ellipe', 'gammaincc', 'gamma', 'i1', 'i0', 'k1', 'k0', 'iv', 'hyp2f1', 'erf'):
+    for s in ('ellipe', 'gammaincc', 'gamma', 'i1', 'i0', 'k1', 'k0', 'iv', 'hyp2f1', 'erf', 'ellipkinc', 'ellipeinc'):
         replaced[s] = NUMERICS_SUBMOD.__dict__[s]
     return replaced, NUMERICS_SUBMOD
 
@@ -500,7 +500,8 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
    'err_dp_meter_solver_P2', 'err_dp_meter_solver_m', 'V_horiz_spherical', 'V_horiz_torispherical',
    'Prandtl_von_Karman_Nikuradse', 'plate_enlargement_factor', 'Stichlmair_wet', 'V_from_h',
    'SA_partial_horiz_spherical_head', '_SA_partial_horiz_spherical_head_to_int',
-   '_SA_partial_horiz_ellipsoidal_head_to_int', '_SA_partial_horiz_ellipsoidal_head_limits', 'SA_partial_horiz_ellipsoidal_head'])
+   '_SA_partial_horiz_ellipsoidal_head_to_int', '_SA_partial_horiz_ellipsoidal_head_limits', 'SA_partial_horiz_ellipsoidal_head',
+   '_SA_partial_horiz_guppy_head_to_int', 'SA_partial_horiz_guppy_head'])
     if vec:
         conv_fun = numba.vectorize
     else:
