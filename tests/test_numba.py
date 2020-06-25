@@ -612,6 +612,11 @@ def test_misc_geometry():
 
     assert_close(fluids.numba.geometry.SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0),
                  fluids.geometry.SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0))
+
+    # Probably the most impressive numba implementation to date - takes 1.4 us vs. 100 us with CPython
+    # and 252 us with PyPy because of the ctypes function
+    assert_close(fluids.numba.SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0),
+                 fluids.geometry.SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0))
     
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
