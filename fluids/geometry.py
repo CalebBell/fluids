@@ -1628,7 +1628,7 @@ def SA_partial_horiz_spherical_head(D, a, h):
     return SA
 
 
-def _SA_partial_horiz_ellipsoidal_head_to_int(x, y, c1, R2, R4, h):
+def _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y, c1, R2, R4, h):
     y2 = y*y
     x2 = x*x
     num = c1*(x2 + y2) - R4
@@ -1637,7 +1637,7 @@ def _SA_partial_horiz_ellipsoidal_head_to_int(x, y, c1, R2, R4, h):
         return (num/den)**0.5
     except:
          # Equation is undefined for y == R when x is zero; avoid it
-        return _SA_partial_horiz_ellipsoidal_head_to_int(x, y*(1.0 - 1e-12), c1, R2, R4, h)
+        return _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y*(1.0 - 1e-12), c1, R2, R4, h)
     
 def _SA_partial_horiz_ellipsoidal_head_limits(x, c1, R2, R4, h):
     return [0.0, (R2 - x*x)**0.5]
@@ -1645,6 +1645,18 @@ def _SA_partial_horiz_ellipsoidal_head_limits(x, c1, R2, R4, h):
 def _SA_partial_horiz_ellipsoidal_head_limits2(c1, R2, R4, h):
     R = R2**0.5
     return [R-h, R]
+
+def _SA_partial_horiz_ellipsoidal_head_to_int(y, c1, R2, R4):
+    y2 = y*y
+    try:
+        x0x1 = (-(-R4 + R2*c1)/(R2 - y2))**0.5
+    except ZeroDivisionError:
+        return 0.0 # x0x1/x4 limit as R2 - y2 goes to zero is zero
+    x3 = ((R4 - R2*c1)/(R4 - c1*y2))**0.5
+    x4 = (R2 - y2)**(-0.5)
+    x6 = (c1 *(-R2 + y2))/(-R4 + c1 *y2)
+    ans = (x0x1*float(ellipe( x6)))/(x4* x3)
+    return ans
 
 def SA_partial_horiz_ellipsoidal_head(D, a, h):
     r'''Calculates the partial area of a ellipsoidal tank head in the context of 
@@ -1656,6 +1668,10 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
         \text{SA} = \frac{2}{R} \int_{R-h}^R \int_0^{\sqrt{R^2 - x^2}}
         \sqrt{ \frac{(R^2 - a^2)x^2 
         + (R^2 - a^2)y^2 - R^4} {x^2 + y^2 - R^2}} dy dx
+        
+    After extensive manipulation, the first integral was solved analytically,
+    extending the result of [1]_ with greater performance.
+    
         
     Parameters
     ----------
@@ -1677,14 +1693,15 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     cases are handled by returning the full surface area and the zero 
     respectively.
     
-    This numerical integral is extremely nasty - there are places where
-    f(x) -> infinity but that have a bounded area. quadpack's numerical 
-    integration handles this well.
+    The original numerical double integral is extremely nasty - there are places 
+    where f(x) -> infinity but that have a bounded area. quadpack's numerical 
+    integration handles this well, but adaptive inetgration which is not
+    aware of singularities does not.
     
     Examples
     --------
     >>> SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0)
-    3401.233622549656
+    3401.2336225472704
     
     References
     ----------
@@ -1696,18 +1713,17 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
         return 0.0
     elif h > D:
         h = D
-    
-    
     R2 = R*R
     R4 = R2*R2
     a2 = a*a
     c1 = R2 - a2
 #    from fluids.numerics import dblquad
-    from scipy.integrate import dblquad, nquad
-#    quad_val = nquad(_SA_partial_horiz_ellipsoidal_head_to_int, ranges=[_SA_partial_horiz_ellipsoidal_head_limits, _SA_partial_horiz_ellipsoidal_head_limits2],
-#                     args=(c1, R2, R4, h))[0]
-    quad_val = dblquad(_SA_partial_horiz_ellipsoidal_head_to_int, R-h, R, lambda x: 0.0, lambda x: (R2 - x*x)**0.5,
-                       args=(c1, R2, R4, h))[0]
+#    from scipy.integrate import dblquad, nquad
+##    quad_val = nquad(_SA_partial_horiz_ellipsoidal_head_to_int, ranges=[_SA_partial_horiz_ellipsoidal_head_limits, _SA_partial_horiz_ellipsoidal_head_limits2],
+##                     args=(c1, R2, R4, h))[0]
+#    quad_val = dblquad(_SA_partial_horiz_ellipsoidal_head_to_int, R-h, R, lambda x: 0.0, lambda x: (R2 - x*x)**0.5,
+#                       args=(c1, R2, R4, h))[0]
+    quad_val = quad(_SA_partial_horiz_ellipsoidal_head_to_int, R-h, R, args=(c1, R2, R4))[0]
     SA = 2.0/R*quad_val
     return SA
 
@@ -3461,7 +3477,7 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
         amplitude_rounded = round(self.amplitude*1000, 2)
         a1 = self.chevron_angles[0]
         a2 = self.chevron_angles[1]
-        s = ('L{0} A{1} B{2}-{3}'.format(wave_rounded, amplitude_rounded, a1, a2))
+        s = ('L{0}A{1}B{2}-{3}'.format(wave_rounded, amplitude_rounded, a1, a2))
         return s
     
     
