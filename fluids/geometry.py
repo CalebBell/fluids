@@ -1650,7 +1650,7 @@ def _SA_partial_horiz_ellipsoidal_head_to_int(y, c1, R2, R4):
     y2 = y*y
     try:
         x0x1 = (-(-R4 + R2*c1)/(R2 - y2))**0.5
-    except ZeroDivisionError:
+    except:
         return 0.0 # x0x1/x4 limit as R2 - y2 goes to zero is zero
     x3 = ((R4 - R2*c1)/(R4 - c1*y2))**0.5
     x4 = (R2 - y2)**(-0.5)
@@ -1672,6 +1672,16 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     After extensive manipulation, the first integral was solved analytically,
     extending the result of [1]_ with greater performance.
     
+    .. math::
+        \text{SA} = \frac{2}{R} \int_{R-h}^R \frac{\left(\frac{R^{4} - R^{2} 
+        \left(R^{2} - a^{2}\right)}{R^{2} - y^{2}}\right)^{0.5} \left(R^{2}
+        - y^{2}\right)^{0.5} E{\left(\frac{\left(- R^{2} + y^{2}\right) \left(R^{2}
+        - a^{2}\right)}{- R^{4} + y^{2} \left(R^{2} - a^{2}\right)} \right)}}
+        {\left(\frac{R^{4} - R^{2} \left(R^{2} - a^{2}\right)}{R^{4} - y^{2} 
+        \left(R^{2} - a^{2}\right)}\right)^{0.5}}
+            
+    Where :math:`E(x)` is the complete elliptic integral of the second kind,
+    calculated with SciPy's link to the cephes library.
         
     Parameters
     ----------
