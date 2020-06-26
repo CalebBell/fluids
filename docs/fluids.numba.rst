@@ -48,10 +48,8 @@ to allow an even larger program to be completely compiled in njit mode.
 Today, the list of things known not to work is as follows:
 
 - :py:func:`~.integrate_drag_sphere` (uses SciPys's odeint)
-- The geometry class TANK and HelicalCoil, PlateExchanger, RectangularFinExchanger, HyperbolicCoolingTower, AirCooledExchanger in :py:mod:`fluids.geometry`, as well as several methods performing double numerical quadrature
-    - :py:func:`~.SA_partial_horiz_ellipsoidal_head`
-    - :py:func:`~.SA_partial_horiz_guppy_head`
-    - :py:func:`~.SA_partial_horiz_torispherical_head`
+- The geometry class TANK and HelicalCoil, PlateExchanger, RectangularFinExchanger, HyperbolicCoolingTower, AirCooledExchanger in :py:mod:`fluids.geometry`. 
+    - :py:func:`~.SA_partial_horiz_torispherical_head` has numerical issues with numba; they exist in CPython but are handled there with numba-incompatible code.
 - Everything in :py:mod:`fluids.particle_size_distribution`
 - Everything in :py:mod:`fluids.atmosphere`
 - Everything in :py:mod:`fluids.piping` (uses global lookups)

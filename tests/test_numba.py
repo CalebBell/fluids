@@ -607,8 +607,6 @@ def tets_ATMOSPHERE_1976():
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")
 def test_misc_geometry():
-    assert_close(fluids.numba.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
-                 fluids.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
 
     assert_close(fluids.numba.geometry.SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0),
                  fluids.geometry.SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0))
@@ -620,6 +618,22 @@ def test_misc_geometry():
 
     assert_close(fluids.numba.SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0),
                  fluids.SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0))
+
+    # Not working when h is higher, likes to return nans also
+    assert_close(fluids.numba.SA_partial_horiz_torispherical_head(D=72., f=1.0, k=.1, h=1.0),
+                 SA_partial_horiz_torispherical_head(D=72., f=1.0, k=.1, h=1.0))
+
+    assert_close(fluids.numba.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
+                 fluids.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
+
+    assert_close(fluids.numba.V_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
+                 fluids.V_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
+
+    assert_close(fluids.numba.SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
+                 SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
+
+    assert_close(fluids.numba.SA_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
+                 SA_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
     
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")

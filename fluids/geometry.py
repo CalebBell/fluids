@@ -23,6 +23,7 @@ SOFTWARE.'''
 from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
+from cmath import acos as cacos, atan as catan, sqrt as csqrt
 from fluids.constants import inch
 from fluids.numerics import secant, brenth, ellipe, ellipkinc, ellipeinc, horner, chebval, linspace, derivative, quad
 
@@ -53,11 +54,14 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
 
 
 __numba_additional_funcs__ = ('_V_horiz_spherical_toint', '_SA_partial_horiz_ellipsoidal_head_to_int',
-                              '_SA_partial_horiz_ellipsoidal_head_limits',
-                              'V_horiz_torispherical_toint_3', 'V_horiz_torispherical_toint_2',
-                              '_SA_partial_horiz_ellipsoidal_head_limits2',
-                              'V_horiz_torispherical_toint_1', '_SA_partial_horiz_spherical_head_to_int', 
-                              '_SA_partial_horiz_guppy_head_to_int')
+          '_SA_partial_horiz_ellipsoidal_head_limits',
+          'V_horiz_torispherical_toint_3', 'V_horiz_torispherical_toint_2',
+          '_SA_partial_horiz_ellipsoidal_head_limits2',
+          'V_horiz_torispherical_toint_1', '_SA_partial_horiz_spherical_head_to_int', 
+          '_SA_partial_horiz_guppy_head_to_int',
+          '_SA_partial_horiz_torispherical_head_int_1',
+          '_SA_partial_horiz_torispherical_head_int_2',
+          '_SA_partial_horiz_torispherical_head_int_3')
 
 ### Spherical Vessels, partially filled
 
@@ -1868,6 +1872,51 @@ def SA_partial_horiz_guppy_head(D, a, h):
     SA = 2.0*quad_val
     return SA
 
+def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
+    x0 = x*x
+    x1 = b - x0
+    x2 = x1**0.5
+    x3 = -b + x0
+    x4 = c*c
+    x5 = (x1 - x4)**-0.5
+    x6 = x3 + x4
+    x7 = b**0.5
+    ans = (x*cacos(c/x2) + x3**(-1.5)*x5*(-c*x1*csqrt(-x6*x6)*catan(x*x2/(csqrt(x3)*csqrt(x6)))
+        + x6*x7*csqrt(-x1*x1)*catan(c*x*x5/x7))/csqrt(-x6/x1))
+    return ans.real
+
+def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
+    y2 = y*y
+    try:
+        x10 = (t2 - y2)**0.5
+    except:
+        x10 = (t2 - y2+0.0j)**0.5
+    try:
+        # Some tiny heights make the square root slightly under 0
+        x = ((c1 - y2 + (s+s)*x10)**0.5).real
+    except:
+        # Python 2 compat - don't take the square root of a negative number with no complex part
+        x = ((c1 - y2 + (s+s)*x10 + 0.0j)**0.5).real
+    try:
+        x0 = t2 - y2
+        x1 = s*x10
+        t10 = x1 + x1 + s*s + x0
+        x3 = t10 - x*x
+        x4 = x3**0.5
+        ans = x4*(t2*t10/(x0*x3))**0.5*catan(x/x4).real
+    except:
+        ans = 0.0
+#     ans = sqrt((t2* (s**2+t2-x**2+2.0*s* sqrt(t2-x**2)))/((t2-x**2)* (s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2)))* sqrt(s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2) *atan(y/sqrt(s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2))
+    return ans.real
+
+def _SA_partial_horiz_torispherical_head_int_3(y, x, s, t2):
+    x2 = x*x
+    y2 = y*y
+    x10 = (t2 - x2)**0.5
+    num = (s + x10)*(s + x10)*x2 + (t2 - x2)*y2
+    den = (t2 - x2)*(s*s + t2 - x2 - y2 + 2.0*s*x10)
+    f = (1.0 + num/den)**0.5
+    return f
 
 def SA_partial_horiz_torispherical_head(D, f, k, h):
     r'''Calculates the partial area of a torispherical tank head in the context of 
@@ -1903,6 +1952,50 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     This method is undefined for :math:`h > D` and :math:`h < 0`, but those
     cases are handled by returning the full surface area and the zero 
     respectively.
+    
+    One integral:
+        
+    .. math::
+        \int_{R-h}^{fD\sin \alpha} \cos^{-1} \frac{fD\cos \alpha}{\sqrt{f^2 D^2 
+        - x^2}} dx
+            
+    Can be computed as follows, using WolframAlpha.
+        
+    .. math::
+        x \operatorname{acos}{\left(\frac{c}{\sqrt{b - x^{2}}} \right)} + \frac{\sqrt{b} 
+        \sqrt{- \left(b - x^{2}\right)^{2}} \left(- b + c^{2} + x^{2}\right) 
+        \operatorname{atan}{\left(\frac{c x}{\sqrt{b} \sqrt{b - c^{2} - x^{2}}}
+        \right)} + c \sqrt{- \left(- b + c^{2} + x^{2}\right)^{2}} \left(- b 
+        + x^{2}\right) \operatorname{atan}{\left(\frac{x \sqrt{b - x^{2}}}
+        {\sqrt{- b + x^{2}} \sqrt{- b + c^{2} + x^{2}}} \right)}}{\sqrt{
+        \frac{- b + c^{2} + x^{2}}{- b + x^{2}}} \left(- b + x^{2}\right)^{1.5}
+        \sqrt{b - c^{2} - x^{2}}}
+        
+    With the following constants:
+        
+    .. math::
+        c = fD\cos \alpha
+
+    .. math::
+        b = f^2 D^2
+    
+    The other integral is a double integral. There is an analytical integral
+    available for the first integral, which takes the form:
+        
+    .. math::
+        2 \sqrt{\frac{R^{2} k^{2} \left(4 R^{2} k^{2} - y^{2} + \left(- 2 R k 
+        + R\right)^{2} + 2 \left(- 2 R k + R\right) \sqrt{4 R^{2} k^{2} - y^{2}}
+        \right)}{\left(4 R^{2} k^{2} - y^{2}\right) \left(\left(R 
+        - h\right)^{2} - \left(- 4 R k + 2 R\right) \sqrt{4 R^{2} k^{2}
+        - y^{2}} + 2 \left(- 2 R k + R\right) \sqrt{4 R^{2} k^{2} - y^{2}}
+        \right)}} \sqrt{\left(R - h\right)^{2} - \left(- 4 R k + 2 R\right)
+        \sqrt{4 R^{2} k^{2} - y^{2}} + 2 \left(- 2 R k + R\right) 
+        \sqrt{4 R^{2} k^{2} - y^{2}}} \operatorname{atan}{\left(\frac{
+        \sqrt{4 R^{2} k^{2} - y^{2} - \left(R - h\right)^{2} + \left(- 4 R k
+        + 2 R\right) \sqrt{4 R^{2} k^{2} - y^{2}} + \left(- 2 R k + R\right)
+        ^{2}}}{\sqrt{\left(R - h\right)^{2} - \left(- 4 R k + 2 R\right) 
+        \sqrt{4 R^{2} k^{2} - y^{2}} + 2 \left(- 2 R k + R\right) 
+        \sqrt{4 R^{2} k^{2} - y^{2}}}} \right)}
 
     Examples
     --------
@@ -1914,7 +2007,6 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
     '''
-    from scipy.integrate import dblquad
     if h <= 0.0:
         return 0.0
     elif h > D:
@@ -1923,6 +2015,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     r = f*D
     alpha = asin((1.0 - 2.0*k)/(2.*(f-k)))
     cos_alpha = cos(alpha)
+    sin_alpha = sin(alpha)
     s = R - k*D
     t = k*D
     
@@ -1931,41 +2024,42 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     a1 = r*(1.0 - cos_alpha)
     a2 = k*D*cos_alpha
     
-    c10 = f*D*cos_alpha
+    c = f*D*cos_alpha
     
-    f2D2 = f*f*D*D
+    b = f*f*D*D
     
     c1 = s2 + t2  - (R - h)**2
-    def G_lim(x):
-        x2 = x*x
-        try:
-            G = (c1 - x2 + (s+s)*(t2 - x2)**0.5)**0.5
-        except:
-            # Python 2 compat - don't take the square root of a negative number with no complex part
-            G = (c1 - x2 + (s+s)*(t2 - x2+0.0j)**0.5 + 0.0j)**0.5
-        return G.real # Some tiny heights make the square root slightly under 0
+    def G_lim(x): # numba: delete
+        x2 = x*x # numba: delete
+        try: # numba: delete
+            G = (c1 - x2 + (s+s)*(t2 - x2)**0.5)**0.5 # numba: delete
+        except: # numba: delete
+            # Python 2 compat - don't take the square root of a negative number with no complex part # numba: delete
+            G = (c1 - x2 + (s+s)*(t2 - x2+0.0j)**0.5 + 0.0j)**0.5 # numba: delete
+        return G.real # Some tiny heights make the square root slightly under 0 # numba: delete
         
-    
-    def to_int_1(y, x):
-        x2 = x*x
-        y2 = y*y
-        x10 = (t2 - x2)**0.5
-        num = (s + x10)*(s + x10)*x2 + (t2 - x2)*y2
-        den = (t2 - x2)*(s2 + t2 - x2 - y2 + 2.0*s*x10)
-        f = (1.0 + num/den)**0.5
-        return f
-        
-    def to_int_2(x):
-        return acos(c10*(f2D2 - x*x)**-0.5)
-
-    limit_1 = k*D*(1.0 - sin(alpha))
+    limit_1 = k*D*(1.0 - sin_alpha)
     
     if h < limit_1:
-        SA = dblquad(to_int_1, 0.0, (2*k*D*h - h*h)**0.5, lambda x: 0, G_lim)[0]
+        SA = quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, (2*k*D*h - h*h)**0.5, args=(t2, s, c1))[0]
         return 2*SA
     elif limit_1 < h <= R:
-        SA = 2.0*dblquad(to_int_1, 0.0, a2, lambda x: 0, G_lim)[0]
-        SA += 2.0*f*D*quad(to_int_2, R-h, f*D*sin(alpha))[0]
+        # Can't this be precomputed?
+        # I believe so
+        if D*.499 < h < D*.501: # numba: delete
+            from scipy.integrate import dblquad # numba: delete
+            SA = 2.0*dblquad(_SA_partial_horiz_torispherical_head_int_3, 0.0, a2, lambda x: 0, G_lim, args=(s, t2))[0] # numba: delete
+        else: # numba: delete
+            # Numerical issues
+            SA = 2.0*quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, a2, args=(t2, s, c1))[0] # numba: delete
+#        SA = 2.0*quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, a2, args=(t2, s, c1))[0] # numba: uncomment
+        try:
+            high = _SA_partial_horiz_torispherical_head_int_1(f*D*sin_alpha, b, c)
+        except:
+            # Expression with the substitution is equally complicated
+            high = _SA_partial_horiz_torispherical_head_int_1(f*D*sin_alpha*(1.0 + 1e-14), b, c)
+        int_1_term1 = high - _SA_partial_horiz_torispherical_head_int_1(R-h, b, c)
+        SA += 2.0*f*D*int_1_term1
     else:
         SA = 2.0*pi*f*D*a1 + 2*pi*k*D*(a2 + (R - k*D)*asin(a2/(k*D)))
         SA -= SA_partial_horiz_torispherical_head(D, f, k, h=D-h)
@@ -2428,8 +2522,8 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     return V
 
 
-def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=None,
-             sideB_a=None, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
+def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
+             sideB_a=0.0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
     r'''Calculates partially full wetted surface area of a vertical or horizontal tank with
     different head types according to [1]_.
 
@@ -2489,9 +2583,9 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=None,
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
        http://www.chemicalprocessing.com/articles/2003/193/
     '''
-    if sideA not in (None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
+    if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise ValueError('Unspoorted head type for side A')
-    if sideB not in (None, 'conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
+    if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise ValueError('Unspoorted head type for side B')
     R = 0.5*D
     SA = 0.0
@@ -2518,9 +2612,15 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=None,
             SA += SA_partial_horiz_spherical_head(D, sideB_a, h)
         # Torispherical case
         if sideA == 'torispherical':
-            SA += SA_partial_horiz_torispherical_head(D, sideA_f, sideA_k, h)
+            if sideA_f is not None and sideA_k is not None:
+                SA += SA_partial_horiz_torispherical_head(D, sideA_f, sideA_k, h)
+            else:
+                raise ValueError("Torispherical sideA but no `f` and `k` provided")
         if sideB == 'torispherical':
-            SA += SA_partial_horiz_torispherical_head(D, sideB_f, sideB_k, h)
+            if sideB_f is not None and sideB_k is not None:
+                SA += SA_partial_horiz_torispherical_head(D, sideB_f, sideB_k, h)
+            else:
+                raise ValueError("Torispherical sideB but no `f` and `k` provided")
         # Flat case
         if sideA is None:
             SA += A_partial_circle(D, h)
@@ -2539,7 +2639,10 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=None,
             elif sideA == 'spherical':
                 SA += SA_partial_vertical_spherical_head(D, sideA_a, h=min(sideA_a, h))
             elif sideA == 'torispherical':
-                SA += SA_partial_vertical_torispherical_head(D, sideA_f, sideA_k, h=min(sideA_a, h))
+                if sideA_f is not None and sideA_k is not None:
+                    SA += SA_partial_vertical_torispherical_head(D, sideA_f, sideA_k, h=min(sideA_a, h))
+                else:
+                    raise ValueError("Torispherical sideA but no `f` and `k` provided")
         elif sideA is None:
                 SA += 0.25*pi*D*D
         # Cylindrical section
@@ -2572,8 +2675,11 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=None,
                 if sideB_a == 0.0:
                     SA += 0.25*pi*D*D
                 else:
-                    SA += SA_partial_vertical_torispherical_head(D, sideB_f, sideB_k, h=sideB_a)
-                    SA -= max(0.0, SA_partial_vertical_torispherical_head(D, sideB_f, sideB_k, h=h2))
+                    if sideB_f is not None and sideB_k is not None:
+                        SA += SA_partial_vertical_torispherical_head(D, sideB_f, sideB_k, h=sideB_a)
+                        SA -= max(0.0, SA_partial_vertical_torispherical_head(D, sideB_f, sideB_k, h=h2))
+                    else:
+                        raise ValueError("Torispherical sideB but no `f` and `k` provided")
             elif sideB is None and h == sideA_a + L:
                 # End cap if flat
                 SA += 0.25*pi*D*D

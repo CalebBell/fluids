@@ -3292,7 +3292,7 @@ def dblquad(func, a, b, hfun, gfun, args=(), epsrel=1.48e-12, epsabs=1.48e-15):
     '''
     def inner_func(y, *args):
         full_args = (y,)+args
-        quad_fluids = quad_adaptive(func, hfun(y), gfun(y), args=full_args, epsrel=epsrel, epsabs=epsabs)[0]
+        quad_fluids = quad_adaptive(func, hfun(y, *args), gfun(y, *args), args=full_args, epsrel=epsrel, epsabs=epsabs)[0]
         # from scipy.integrate import quad as quad2
         # quad_sp = quad2(func, hfun(y), gfun(y), args=full_args, epsrel=epsrel, epsabs=epsabs)[0]
         # print(quad_fluids, quad_sp, hfun(y), gfun(y), full_args, )

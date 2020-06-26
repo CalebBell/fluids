@@ -501,7 +501,8 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
    'Prandtl_von_Karman_Nikuradse', 'plate_enlargement_factor', 'Stichlmair_wet', 'V_from_h',
    'SA_partial_horiz_spherical_head', '_SA_partial_horiz_spherical_head_to_int',
    '_SA_partial_horiz_ellipsoidal_head_to_int', '_SA_partial_horiz_ellipsoidal_head_limits', 'SA_partial_horiz_ellipsoidal_head',
-   '_SA_partial_horiz_guppy_head_to_int', 'SA_partial_horiz_guppy_head'])
+   '_SA_partial_horiz_guppy_head_to_int', 'SA_partial_horiz_guppy_head', 'SA_partial_horiz_torispherical_head',
+   'SA_from_h'])
     if vec:
         conv_fun = numba.vectorize
     else:
@@ -511,7 +512,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     
     to_change = ['packed_tower._Stichlmair_flood_f_and_jac', 
                  'packed_tower.Stichlmair_flood', 'compressible.isothermal_gas', 
-                 'fittings.Darby3K', 'fittings.Hooper2K']
+                 'fittings.Darby3K', 'fittings.Hooper2K', 'geometry.SA_partial_horiz_torispherical_head']
     transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec, cache_blacklist=cache_blacklist)
     
     
