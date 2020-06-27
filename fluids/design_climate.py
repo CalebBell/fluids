@@ -325,7 +325,7 @@ def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'),
         situation.
     '''
     import pandas as pd
-    df = pd.read_csv(url)
+    df = pd.read_csv(url, dtype={'USAF': str, 'WBAN': str})
     df.to_csv(dest, sep='\t', index=False, header=False)
 
 
@@ -347,7 +347,7 @@ class IntegratedSurfaceDatabaseStation(object):
     ----------
     USAF : str or None if unassigned
         Air Force station ID. May contain a letter in the first position.
-    WBAN : int or None if unassigned
+    WBAN : str or None if unassigned
         NCDC WBAN number
     NAME : str
         Name of the station; ex. 'CENTRAL COLORADO REGIONAL AP'
@@ -386,10 +386,7 @@ class IntegratedSurfaceDatabaseStation(object):
             self.USAF = int(USAF)
         except:
             self.USAF = USAF # Nones
-        try:
-            self.WBAN = int(WBAN)  
-        except:
-            self.WBAN = WBAN
+        self.WBAN = WBAN
         self.NAME = NAME
         self.CTRY = CTRY
         self.ST = ST
@@ -615,12 +612,14 @@ with open(os.path.join(folder, 'isd-history-cleaned.tsv')) as f:
     for line in f:
         values = line.split('\t')
         for i in range(0, 11):
+            # First two are not values
             v = values[i]
-            if not v:
+            if v == '':
                 values[i] = None # '' case
             else:
                 try:
-                    values[i] = float(v)
+                    if i > 2:
+                        values[i] = float(v)
                     if int(v) == 99999:
                         values[i] = None
                 except:
@@ -718,7 +717,7 @@ def get_station_year_text(WMO, WBAN, year):
         WMO = 999999
     if WBAN is None:
         WBAN = 99999
-    station = str(int(WMO)) + '-' + str(int(WBAN)) 
+    station = str(int(WMO)) + '-' + str(WBAN)
     gsod_year_dir = os.path.join(data_dir, 'gsod', str(year))
     path = os.path.join(gsod_year_dir, station + '.op')
     if os.path.exists(path):

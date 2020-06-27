@@ -71,6 +71,14 @@ def test_data():
         assert abs(station.LON) <= 180
 
 
+def test_correct_WBAN():
+    station = get_closest_station(31.9973, -102.0779)
+    station_data = StationDataGSOD(station)
+    assert station.WBAN == '03071'
+    assert station_data.month_average_temperature(2010, 2011, include_yearly=False)
+
+
+
 def test_get_closest_station():
     s = get_closest_station(51.02532675, -114.049868485806, 20150000)
     assert s.NAME == 'CALGARY INTL CS'
