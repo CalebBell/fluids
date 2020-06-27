@@ -192,8 +192,11 @@ def ineichen(apparent_zenith, airmass_absolute, linke_turbidity,
         bnci = 0.0
         
     # "empirical correction" SE 73, 157 & SE 73, 312.
-    bnci_2 = ((1.0 - (0.1 - 0.2*exp(-tl))/(0.1 + 0.882/fh1)) /
-              cos_zenith)
+    try:
+        bnci_2 = ((1.0 - (0.1 - 0.2*exp(-tl))/(0.1 + 0.882/fh1)) /
+                  cos_zenith)
+    except:
+        bnci_2 = 1e20
     
     multiplier = (bnci_2 if bnci_2 > 0.0 else bnci_2)
     multiplier = 1e20 if multiplier > 1e20 else multiplier

@@ -345,7 +345,7 @@ class IntegratedSurfaceDatabaseStation(object):
 
     Parameters
     ----------
-    USAF : int or None if unassigned
+    USAF : str or None if unassigned
         Air Force station ID. May contain a letter in the first position.
     WBAN : int or None if unassigned
         NCDC WBAN number
@@ -384,11 +384,11 @@ class IntegratedSurfaceDatabaseStation(object):
                  END):
         try:
             self.USAF = int(USAF)
-        except TypeError:
+        except:
             self.USAF = USAF # Nones
         try:
             self.WBAN = int(WBAN)  
-        except TypeError:
+        except:
             self.WBAN = WBAN
         self.NAME = NAME
         self.CTRY = CTRY
