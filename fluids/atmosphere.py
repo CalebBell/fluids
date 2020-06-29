@@ -1140,7 +1140,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     albedo : float, optional
         The average amount of reflection of the terrain surrounding the object
         at quite a distance; this impacts how much sunlight reflected off the
-        ground, gest reflected back off clouds, [-]
+        ground, gets reflected back off clouds, [-]
     linke_turbidity : float, optional
         The amount of pollution/water in the sky versus a perfect clear sky;
         If not specified, this will be retrieved from a historical grid;
@@ -1209,7 +1209,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     
     poa_global = poa_direct + poa_diffuse
     
-    FOr a surface such as a pipe or vessel, an approach would be to split it
+    For a surface such as a pipe or vessel, an approach would be to split it
     into a number of rectangles and sum up the radiation absorbed by each.
     
     This calculation is fairly slow. 
