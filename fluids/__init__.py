@@ -112,6 +112,15 @@ submodules = [atmosphere, compressible, core, friction, filters, fittings,
               saltation, separator, particle_size_distribution, jet_pump,
               control_valve]
 
+def all_submodules():
+    import fluids.optional
+    import fluids.optional.irradiance
+    import fluids.optional.spa
+    import fluids.nrlmsise00.nrlmsise_00_data
+    import fluids.nrlmsise00.nrlmsise_00
+    import fluids.nrlmsise00.nrlmsise_00_header
+    return submodules + [fluids.optional, fluids.optional.irradiance, fluids.optional.spa, 
+                         fluids.nrlmsise00.nrlmsise_00_data, fluids.nrlmsise00.nrlmsise_00, fluids.nrlmsise00.nrlmsise_00_header]
 __version__ = '0.1.83'
 
 try:

@@ -53,7 +53,7 @@ __all__ = ['gtd7']
 
 #/* PARMB */
 gsurf = [0.0];
-re = [0.0];
+re_nrlmsise_00 = [0.0];
 
 #/* GTS3C */
 dd = 0.0;
@@ -193,7 +193,7 @@ def ccor2(alt, r, h1, zh, h2):
 def scalh(alt, xm, temp):
     #rgas = 831.44621    #maybe make this a global constant?
     rgas = 831.4
-    g = gsurf[0] / (pow( (1.0 + alt/re[0]),2.0))
+    g = gsurf[0] / (pow( (1.0 + alt/re_nrlmsise_00[0]),2.0))
     g = rgas * temp / (g * xm)
     return g
 
@@ -363,7 +363,7 @@ def spline(x, y, n, yp1, ypn, y2):
 /* ------------------------------------------------------------------- */
 '''
 def zeta(zz, zl):
-    return ((zz-zl)*(re[0]+zl)/(re[0]+zz))    #re is the global variable
+    return ((zz-zl)*(re_nrlmsise_00[0]+zl)/(re_nrlmsise_00[0]+zz))    #re is the global variable
 
 def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
     '''
@@ -399,7 +399,7 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
         xs[k]=zeta(zn2[k],z1)/zgdif;
         ys[k]=1.0 / tn2[k];
     yd1=-tgn2[0] / (t1*t1) * zgdif;
-    yd2=-tgn2[1] / (t2*t2) * zgdif * (pow(((re[0]+z2)/(re[0]+z1)),2.0));
+    yd2=-tgn2[1] / (t2*t2) * zgdif * (pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0));
 
     #/* calculate spline coefficients */
     spline (xs, ys, mn, yd1, yd2, y2out);   #No need to change this
@@ -411,7 +411,7 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
     tz[0] = 1.0 / y[0];
     if (xm!=0.0):
         #/* calaculate stratosphere / mesospehere density */
-        glb = gsurf[0] / (pow((1.0 + z1/re[0]),2.0));
+        glb = gsurf[0] / (pow((1.0 + z1/re_nrlmsise_00[0]),2.0));
         gamm = xm * glb * zgdif / rgas;
 
         #/* Integrate temperature profile */
@@ -448,7 +448,7 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
         ys[k] = 1.0 / tn3[k];
     
     yd1=-tgn3[0] / (t1*t1) * zgdif;
-    yd2=-tgn3[1] / (t2*t2) * zgdif * (pow(((re[0]+z2)/(re[0]+z1)),2.0));
+    yd2=-tgn3[1] / (t2*t2) * zgdif * (pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0));
 
     #/* calculate spline coefficients */
     spline (xs, ys, mn, yd1, yd2, y2out);
@@ -460,7 +460,7 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
     tz[0] = 1.0 / y[0];
     if (xm!=0.0):
         #/* calaculate tropospheric / stratosphere density */
-        glb = gsurf[0] / (pow((1.0 + z1/re[0]),2.0));
+        glb = gsurf[0] / (pow((1.0 + z1/re_nrlmsise_00[0]),2.0));
         gamm = xm * glb * zgdif / rgas;
 
         #/* Integrate temperature profile */
@@ -518,7 +518,7 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
     if (alt<za):
         #/* calculate temperature below ZA
         # * temperature gradient at ZA from Bates profile */
-        dta = (tinf - ta) * s2 * pow(((re[0]+zlb)/(re[0]+za)),2.0);
+        dta = (tinf - ta) * s2 * pow(((re_nrlmsise_00[0]+zlb)/(re_nrlmsise_00[0]+za)),2.0);
         tgn1[0]=dta;
         tn1[0]=ta;
         if (alt>zn1[mn1-1]):
@@ -540,7 +540,7 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
         
         #/* end node derivatives */
         yd1 = -tgn1[0] / (t1*t1) * zgdif;
-        yd2 = -tgn1[1] / (t2*t2) * zgdif * pow(((re[0]+z2)/(re[0]+z1)),2.0);
+        yd2 = -tgn1[1] / (t2*t2) * zgdif * pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0);
         #/* calculate spline coefficients */
         spline (xs, ys, mn, yd1, yd2, y2out);
         x = zg / zgdif;
@@ -554,7 +554,7 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
         return densu_temp;
 
     #/* calculate density above za */
-    glb = gsurf[0] / pow((1.0 + zlb/re[0]),2.0);
+    glb = gsurf[0] / pow((1.0 + zlb/re_nrlmsise_00[0]),2.0);
     gamma = xm * glb / (s2 * rgas * tinf);
     expl = exp(-s2 * gamma * zg2);
     if (expl>50.0): # pragma: no cover
@@ -569,7 +569,7 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
         return densu_temp;
 
     #/* calculate density below za */
-    glb = gsurf[0] / pow((1.0 + z1/re[0]),2.0);
+    glb = gsurf[0] / pow((1.0 + z1/re_nrlmsise_00[0]),2.0);
     gamm = xm * glb * zgdif / rgas;
 
     #/* integrate spline temperatures */
@@ -947,7 +947,7 @@ def gtd7(Input, flags, output):
     xlat=Input.g_lat;
     if (flags.sw[2]==0): # pragma: no cover
         xlat=45.0;
-    glatf(xlat, gsurf, re);
+    glatf(xlat, gsurf, re_nrlmsise_00);
 
     xmm = pdm[2][4];
 
@@ -1130,7 +1130,7 @@ def ghp7(Input, flags, output, press): # pragma: no cover
         xm = output.d[5] / xn / 1.66E-24;
         if (flags.sw[0]):
             xm = xm * 1.0E3;
-        g = gsurf[0] / (pow((1.0 + z/re[0]),2.0));
+        g = gsurf[0] / (pow((1.0 + z/re_nrlmsise_00[ 0]),2.0));
         sh = rgas * output.t[1] / (xm * g);
 
         #/* new altitude estimate using scale height */

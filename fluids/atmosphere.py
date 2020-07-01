@@ -843,7 +843,7 @@ def earthsun_distance(moment):
     import calendar
     unixtime = calendar.timegm(moment.utctimetuple())
     # Convert datetime object to unixtime
-    return float(spa.earthsun_distance(unixtime, delta_t=delta_t))*au
+    return spa.earthsun_distance(unixtime, delta_t=delta_t)*au
 
 
 def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0, 
@@ -965,9 +965,12 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     delta_t = spa.calculate_deltat(tt.tm_year, tt.tm_mon)
     unixtime = calendar.timegm(tt)
     # Input pressure in milibar; input temperature in deg C
-    result = spa.solar_position_numpy(unixtime, lat=latitude, lon=longitude, elev=Z, 
+#    print(dict(unixtime=unixtime, lat=latitude, lon=longitude, elev=Z, 
+#                          pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
+#                          atmos_refract=atmos_refract, sst=False))
+    result = spa.solar_position(unixtime, lat=latitude, lon=longitude, elev=Z, 
                           pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
-                          atmos_refract=atmos_refract, sst=False, esd=False)
+                          atmos_refract=atmos_refract, sst=False)
     # confirmed equation of time https://www.minasi.com/figeot.asp
     # Convert minutes to seconds; sometimes negative, sometimes positive
 
@@ -1052,7 +1055,7 @@ def sunrise_sunset(moment, latitude, longitude):
     unixtime = calendar.timegm(ymd_moment_utc.utctimetuple())
     
     unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
-    transit, sunrise, sunset = spa.transit_sunrise_sunset(np.array([unixtime]), lat=latitude, lon=longitude, delta_t=delta_t, numthreads=1)
+    transit, sunrise, sunset = spa.transit_sunrise_sunset(unixtime, lat=latitude, lon=longitude, delta_t=delta_t, numthreads=1)
     
     transit = datetime.utcfromtimestamp(float(transit))
     sunrise = datetime.utcfromtimestamp(float(sunrise))

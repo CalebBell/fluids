@@ -36,6 +36,7 @@ from numba import cfunc
 import linecache
 import numba.types
 from math import pi
+import fluids.optional.spa
 
 
 '''Basic module which wraps all fluids functions with numba's jit.
@@ -57,7 +58,9 @@ The correct syntax is as follows:
 >>> from fluids.numba import * # May be used without first importing fluids
 '''
 
-caching = True
+caching = False
+extra_args_std = {'nogil': True}
+extra_args_vec = {}
 __all__ = []
 
 __funcs = {}
@@ -77,7 +80,7 @@ def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name='cache-safe'):
 
 # Some unfotrunate code duplication
 
-@numba.njit(cache=caching)
+@numba.njit(cache=caching, **extra_args_std)
 def fpbspl(t, n, k, x, l, h, hh):
     h[0] = 1.0
     for j in range(1, k + 1):
@@ -90,7 +93,7 @@ def fpbspl(t, n, k, x, l, h, hh):
             h[i + 1] = f*(x - t[li - j])
     return h, hh
 
-@numba.njit(cache=caching)
+@numba.njit(cache=caching, **extra_args_std)
 def init_w(t, k, x, lx, w):
     tb = t[k]
     n = len(t)
@@ -115,7 +118,7 @@ def init_w(t, k, x, lx, w):
         for j in range(k + 1):
             w[i][j] = h[j]
     return w
-@numba.njit(cache=caching)
+@numba.njit(cache=caching, **extra_args_std)
 def cy_bispev(tx, ty, c, kx, ky, x, y):
     nx = len(tx)
     ny = len(ty)
@@ -154,13 +157,13 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
 
     
     
-@numba.njit(cache=caching)
+@numba.njit(cache=caching, **extra_args_std)
 def bisplev(x, y, tck, dx=0, dy=0):
     tx, ty, c, kx, ky = tck
     return cy_bispev(tx, ty, c, kx, ky, np.array([x]), np.array([y]))[0]
 
 
-@numba.njit(cache=caching)
+@numba.njit(cache=caching, **extra_args_std)
 def combinations(pool, r):
     n = len(pool)
 #    indices = tuple(list(range(r)))
@@ -240,22 +243,33 @@ numpy_not_list_expr = r'np.full((\4,), \1)'
 def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_blacklist=set([])):
     if vec:
         conv_fun = numba.vectorize
+        extra_args = extra_args_vec
     else:
         conv_fun = numba.njit
-
+        extra_args = extra_args_std
     for s in to_change:
-        mod, func = s.split('.')
+        func = s.split('.')[-1]
+        mod = '.'.join(s.split('.')[:-1])
         fake_mod = __funcs[mod]
-        source = inspect.getsource(getattr(getattr(module, mod), func))
+
+        try:
+            real_mod = getattr(module, mod)
+        except:
+            real_mod = module
+            for s in mod.split('.'):
+                real_mod = getattr(real_mod, s)
+
+        orig_func = getattr(real_mod, func)
+        source = inspect.getsource(orig_func)
         source = remove_for_numba(source) # do before anything else
         source = return_value_numpy(source)
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
-#        if 'Darby3K' in s:
-#            print(source)
+#        if 'longitude_obliquity_nutation' in s:
+        print(source)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
         new_func = fake_mod.__dict__[func]
         do_cache = caching and func not in cache_blacklist
-        obj = conv_fun(cache=do_cache)(new_func)
+        obj = conv_fun(cache=do_cache, **extra_args)(new_func)
         __funcs[func] = obj
         fake_mod.__dict__[func] = obj
         obj.__doc__ = ''
@@ -383,7 +397,7 @@ def create_numerics(replaced, vec=False):
 #                forceobj = False
                 # cache=not forceobj 
                 # cache=name not in skip_cache
-                obj = conv_fun(cache=do_cache)(obj)
+                obj = conv_fun(cache=do_cache, **extra_args_std)(obj)
                 NUMERICS_SUBMOD.__dict__[name] = obj
                 replaced[name] = obj
 #                globals()[name] = objs
@@ -399,6 +413,7 @@ def create_numerics(replaced, vec=False):
 
 replaced = {'sum': np.sum, 'combinations': combinations, 'np': np}
 replaced, NUMERICS_SUBMOD = create_numerics(replaced, vec=False)
+numerics_dict = replaced
 numerics = NUMERICS_SUBMOD
 #old_numerics = sys.modules['fluids.numerics']
 #sys.modules['fluids.numerics'] = numerics
@@ -409,11 +424,17 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
     new_mods = []
     if vec:
         conv_fun = numba.vectorize
+        extra_args = extra_args_vec
     else:
         conv_fun = numba.njit
+        extra_args = extra_args_std
     mod_name = normal.__name__
     # Run module-by-module. Expensive, as we need to create module copies
-    for mod in normal.submodules:
+    try:
+        all_submodules = normal.all_submodules()
+    except:
+        all_submodules = normal.submodules
+    for mod in all_submodules:
         SUBMOD_COPY = importlib.util.find_spec(mod.__name__)
         SUBMOD = importlib.util.module_from_spec(SUBMOD_COPY)
         SUBMOD.IS_NUMBA = True
@@ -422,10 +443,13 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         
         SUBMOD.__dict__.update(replaced)
         new_mods.append(SUBMOD)
-        
-        __funcs[mod.__name__.split(mod_name + '.')[1]] = SUBMOD
-        
-        names = list(SUBMOD.__all__)
+        __funcs[mod.__name__.split('.')[-1]] = SUBMOD # fluids.numba.optional.spa
+        __funcs['.'.join(mod.__name__.split('.')[:-1])] = SUBMOD # set fluids.optional.spa fluids.numba.spa
+        __funcs['.'.join(mod.__name__.split('.')[-2:])] = SUBMOD # set 'optional.spa' in the dict too
+        try:
+            names = list(SUBMOD.__all__)
+        except:
+            names = []
         try:
             names += SUBMOD.__numba_additional_funcs__
         except:
@@ -441,7 +465,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
 #                            nopython=nopython,
                             #forceobj=not nopython,
                                     fastmath=True,#Parallel=nopython
-                                    cache=(caching and name not in cache_blacklist))(obj)
+                                    cache=(caching and name not in cache_blacklist), **extra_args)(obj)
                 SUBMOD.__dict__[name] = obj
                 new_objs.append(obj)
             __funcs[name] = obj
@@ -505,14 +529,18 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
    'SA_from_h'])
     if vec:
         conv_fun = numba.vectorize
+        extra_args = extra_args_vec
     else:
         conv_fun = numba.njit
+        extra_args = extra_args_std
     new_mods = transform_module(normal, __funcs, replaced, vec=vec, cache_blacklist=cache_blacklist)
 
     
     to_change = ['packed_tower._Stichlmair_flood_f_and_jac', 
                  'packed_tower.Stichlmair_flood', 'compressible.isothermal_gas', 
-                 'fittings.Darby3K', 'fittings.Hooper2K', 'geometry.SA_partial_horiz_torispherical_head']
+                 'fittings.Darby3K', 'fittings.Hooper2K', 'geometry.SA_partial_horiz_torispherical_head',
+                 'optional.spa.solar_position', 'optional.spa.longitude_obliquity_nutation',
+                 ]
     transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec, cache_blacklist=cache_blacklist)
     
     
@@ -535,7 +563,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
         source = remove_for_numba(source)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
         new_func = fake_mod.__dict__[func]
-        obj = conv_fun(cache=caching)(new_func)
+        obj = conv_fun(cache=caching, **extra_args)(new_func)
         __funcs[func] = obj
         obj.__doc__ = ''
     

@@ -33,9 +33,11 @@ __all__ = []
 __funcs = {}
 
 
-replaced = {}
-replaced, NUMERICS_SUBMOD = fluids.numba.create_numerics(replaced, vec=True)
+numerics = fluids.numba.numerics
+#replaced, NUMERICS_SUBMOD = fluids.numba.create_numerics(replaced, vec=True)
 normal = normal_fluids
+replaced = fluids.numba.numerics_dict.copy()
+
 
 fluids.numba.transform_complete(replaced, __funcs, __all__, normal, vec=True)
 
