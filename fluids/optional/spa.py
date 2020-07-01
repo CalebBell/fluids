@@ -1125,6 +1125,136 @@ def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
     return [theta, theta0, e, e0, phi, eot]
 
 
+try:
+    if IS_NUMBA:
+        import numba
+        import numpy as np
+        import threading
+        # This is 3x slower without nogil
+        @numba.njit(nogil=True)
+        def solar_position_loop(unixtime, loc_args, out):
+            """Loop through the time array and calculate the solar position"""
+            lat = loc_args[0]
+            lon = loc_args[1]
+            elev = loc_args[2]
+            pressure = loc_args[3]
+            temp = loc_args[4]
+            delta_t = loc_args[5]
+            atmos_refract = loc_args[6]
+            sst = loc_args[7]
+            esd = loc_args[8]
+        
+            for i in range(len(unixtime)):
+                utime = unixtime[i]
+                jd = julian_day(utime)
+                jde = julian_ephemeris_day(jd, delta_t)
+                jc = julian_century(jd)
+                jce = julian_ephemeris_century(jde)
+                jme = julian_ephemeris_millennium(jce)
+                R = heliocentric_radius_vector(jme)
+                L = heliocentric_longitude(jme)
+                B = heliocentric_latitude(jme)
+
+                Theta = geocentric_longitude(L)
+                beta = geocentric_latitude(B)
+                x0 = mean_elongation(jce)
+                x1 = mean_anomaly_sun(jce)
+                x2 = mean_anomaly_moon(jce)
+                x3 = moon_argument_latitude(jce)
+                x4 = moon_ascending_longitude(jce)
+#                delta_psi = longitude_nutation(jce, x0, x1, x2, x3, x4)
+#                delta_epsilon = obliquity_nutation(jce, x0, x1, x2, x3, x4)
+                delta_psi, delta_epsilon = longitude_obliquity_nutation(jce, x0, x1, x2, x3, x4)
+                epsilon0 = mean_ecliptic_obliquity(jme)
+                epsilon = true_ecliptic_obliquity(epsilon0, delta_epsilon)
+                delta_tau = aberration_correction(R)
+                lamd = apparent_sun_longitude(Theta, delta_psi, delta_tau)
+                v0 = mean_sidereal_time(jd, jc)
+                v = apparent_sidereal_time(v0, delta_psi, epsilon)
+                alpha = geocentric_sun_right_ascension(lamd, epsilon, beta)
+                delta = geocentric_sun_declination(lamd, epsilon, beta)
+#                if sst:
+#                    out[0, i] = v
+#                    out[1, i] = alpha
+#                    out[2, i] = delta
+#                    continue
+                m = sun_mean_longitude(jme)
+                eot = equation_of_time(m, alpha, delta_psi, epsilon)
+                H = local_hour_angle(v, lon, alpha)
+                xi = equatorial_horizontal_parallax(R)
+                u = uterm(lat)
+                x = xterm(u, lat, elev)
+                y = yterm(u, lat, elev)
+                delta_alpha = parallax_sun_right_ascension(x, xi, H, delta)
+                delta_prime = topocentric_sun_declination(delta, x, y, xi, delta_alpha,
+                                                          H)
+                H_prime = topocentric_local_hour_angle(H, delta_alpha)
+                e0 = topocentric_elevation_angle_without_atmosphere(lat, delta_prime,
+                                                                    H_prime)
+                delta_e = atmospheric_refraction_correction(pressure, temp, e0,
+                                                            atmos_refract)
+                e = topocentric_elevation_angle(e0, delta_e)
+                theta = topocentric_zenith_angle(e)
+                theta0 = topocentric_zenith_angle(e0)
+                gamma = topocentric_astronomers_azimuth(H_prime, delta_prime, lat)
+                phi = topocentric_azimuth_angle(gamma)
+                out[0, i] = theta
+                out[1, i] = theta0
+                out[2, i] = e
+                out[3, i] = e0
+                out[4, i] = phi
+                out[5, i] = eot
+
+
+        def solar_position_numba(unixtime, lat, lon, elev, pressure, temp, delta_t,
+                                 atmos_refract, numthreads, sst=False, esd=False):
+            """Calculate the solar position using the numba compiled functions
+            and multiple threads. Very slow if functions are not numba compiled.
+            """
+            # these args are the same for each thread
+            loc_args = np.array([lat, lon, elev, pressure, temp, delta_t,
+                                 atmos_refract, sst, esd])
+        
+            # construct dims x ulength array to put the results in
+            ulength = unixtime.shape[0]
+            if sst:
+                dims = 3
+            elif esd:
+                dims = 1
+            else:
+                dims = 6
+            result = np.empty((dims, ulength), dtype=np.float64)
+        
+            if unixtime.dtype != np.float64:
+                unixtime = unixtime.astype(np.float64)
+        
+            if ulength < numthreads:
+                warnings.warn('The number of threads is more than the length of '
+                              'the time array. Only using %s threads.'.format(ulength))
+                numthreads = ulength
+        
+            if numthreads <= 1:
+                solar_position_loop(unixtime, loc_args, result)
+                return result
+        
+            # split the input and output arrays into numthreads chunks
+            split0 = np.array_split(unixtime, numthreads)
+            split2 = np.array_split(result, numthreads, axis=1)
+            chunks = [[a0, loc_args, split2[i]] for i, a0 in enumerate(split0)]
+            # Spawn one thread per chunk
+            threads = [threading.Thread(target=solar_position_loop, args=chunk)
+                       for chunk in chunks]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+            return result
+
+        
+except:
+    pass
+
+
 def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
     """
     Calculate the sun transit, sunrise, and sunset

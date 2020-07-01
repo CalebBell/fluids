@@ -265,7 +265,7 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_black
         source = return_value_numpy(source)
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
 #        if 'longitude_obliquity_nutation' in s:
-        print(source)
+#        print(source)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
         new_func = fake_mod.__dict__[func]
         do_cache = caching and func not in cache_blacklist
@@ -438,6 +438,8 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         SUBMOD_COPY = importlib.util.find_spec(mod.__name__)
         SUBMOD = importlib.util.module_from_spec(SUBMOD_COPY)
         SUBMOD.IS_NUMBA = True
+        if vec:
+            SUBMOD.IS_NUMBA_VEC = True
         SUBMOD_COPY.loader.exec_module(SUBMOD)
         SUBMOD.np = np
         
