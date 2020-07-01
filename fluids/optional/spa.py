@@ -1088,8 +1088,6 @@ def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
     x2 = mean_anomaly_moon(jce)
     x3 = moon_argument_latitude(jce)
     x4 = moon_ascending_longitude(jce)
-#    delta_psi = longitude_nutation(jce, x0, x1, x2, x3, x4)
-#    delta_epsilon = obliquity_nutation(jce, x0, x1, x2, x3, x4)
     delta_psi, delta_epsilon = longitude_obliquity_nutation(jce, x0, x1, x2, x3, x4)
     
     epsilon0 = mean_ecliptic_obliquity(jme)
