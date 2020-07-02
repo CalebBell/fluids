@@ -58,7 +58,7 @@ The correct syntax is as follows:
 >>> from fluids.numba import * # May be used without first importing fluids
 '''
 
-caching = False
+caching = True
 extra_args_std = {'nogil': True}
 extra_args_vec = {}
 __all__ = []

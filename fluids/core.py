@@ -66,6 +66,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from math import sin, exp, pi, fabs, copysign
 from fluids.constants import g, R
+import sys
 
 __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
@@ -79,6 +80,10 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'P_from_head', 'Eotvos',
 'C2K', 'K2C', 'F2C', 'C2F', 'F2K', 'K2F', 'C2R', 'K2R', 'F2R', 'R2C', 'R2K', 'R2F',
 ]
+
+version_components = sys.version.split('.')
+PY_MAJOR, PY_MINOR = int(version_components[0]), int(version_components[1])
+PY3 = PY_MAJOR >= 3
 
 
 ### Not quite dimensionless groups

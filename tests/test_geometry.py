@@ -477,6 +477,12 @@ def test_SA_partial_horiz_ellipsoidal_head():
     
     
 def test_SA_partial_horiz_torispherical_head():
+    
+    # Nasty Python-2 only numerical issue in _SA_partial_horiz_torispherical_head_int_1 ; fixed
+    # by ensuring numbers were complex
+    assert_close(SA_partial_horiz_torispherical_head(D=1.8288, f=1.0, k=0.06, h=0.6095999999999999), 0.9491605631461236)
+    
+    
     L = 120*inch
     D = 72*inch
     h_values = [2.28*inch, 24*inch, 36*inch, 48*inch, 69.72*inch]

@@ -25,6 +25,7 @@ from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
                   degrees)
 from cmath import acos as cacos, atan as catan, sqrt as csqrt
 from fluids.constants import inch
+from fluids.core import PY3
 from fluids.numerics import secant, brenth, ellipe, ellipkinc, ellipeinc, horner, chebval, linspace, derivative, quad
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
@@ -1878,10 +1879,17 @@ def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     x2 = x1**0.5
     x3 = -b + x0
     x4 = c*c
-    x5 = (x1 - x4)**-0.5
+    try:
+        x5 = (x1 - x4)**-0.5
+    except:
+        x5 = (x1 - x4+0j)**-0.5
     x6 = x3 + x4
     x7 = b**0.5
-    ans = (x*cacos(c/x2) + x3**(-1.5)*x5*(-c*x1*csqrt(-x6*x6)*catan(x*x2/(csqrt(x3)*csqrt(x6)))
+    try:
+        x3_pow = x3**(-1.5)
+    except:
+        x3_pow = (x3+0j)**(-1.5)
+    ans = (x*cacos(c/x2) + x3_pow*x5*(-c*x1*csqrt(-x6*x6)*catan(x*x2/(csqrt(x3)*csqrt(x6)))
         + x6*x7*csqrt(-x1*x1)*catan(c*x*x5/x7))/csqrt(-x6/x1))
     return ans.real
 
@@ -2042,10 +2050,8 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     
     if h < limit_1:
         SA = quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, (2*k*D*h - h*h)**0.5, args=(t2, s, c1))[0]
-        return 2*SA
+        return 2.0*SA
     elif limit_1 < h <= R:
-        # Can't this be precomputed?
-        # I believe so
         if D*.499 < h < D*.501: # numba: delete
             from scipy.integrate import dblquad # numba: delete
             SA = 2.0*dblquad(_SA_partial_horiz_torispherical_head_int_3, 0.0, a2, lambda x: 0, G_lim, args=(s, t2))[0] # numba: delete
