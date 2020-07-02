@@ -75,6 +75,12 @@ def test_correct_WBAN():
     station = get_closest_station(31.9973, -102.0779)
     station_data = StationDataGSOD(station)
     assert station.WBAN == '03071'
+    
+@pytest.mark.slow
+@pytest.mark.online
+def test_correct_WBAN_online():
+    station = get_closest_station(31.9973, -102.0779)
+    station_data = StationDataGSOD(station)
     assert station_data.month_average_temperature(2010, 2011, include_yearly=False)
 
 
