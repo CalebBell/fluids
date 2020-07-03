@@ -877,7 +877,7 @@ tck_bend_rounded_Miller = implementation_optimize_tck([[0.500967, 0.500967, 0.50
    3, 3])
    
 
-bend_rounded_Miller_Kb = lambda rc_D, angle : bisplev(rc_D, angle, tck_bend_rounded_Miller)
+bend_rounded_Miller_Kb = lambda rc_D, angle : float(bisplev(rc_D, angle, tck_bend_rounded_Miller))
 
 tck_bend_rounded_Miller_C_Re = implementation_optimize_tck([[4.0, 4.0, 4.0, 4.0, 8.0, 8.0, 8.0, 8.0], 
                                 [1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0], 
@@ -887,7 +887,7 @@ tck_bend_rounded_Miller_C_Re = implementation_optimize_tck([[4.0, 4.0, 4.0, 4.0,
   -2.1663631289607883, -1.9474318981548622, -1.9474318981548622, 0.4196741237602154], 
    3, 3])
                                 
-bend_rounded_Miller_C_Re = lambda Re, rc_D : bisplev(log10(Re), rc_D, tck_bend_rounded_Miller_C_Re)
+bend_rounded_Miller_C_Re = lambda Re, rc_D : float(bisplev(log10(Re), rc_D, tck_bend_rounded_Miller_C_Re))
 bend_rounded_Miller_C_Re_limit_1 = [2428087.757821312, -13637184.203693766, 28450331.830760233, -25496945.91463643, 8471761.477755375]
 
 
@@ -1420,7 +1420,7 @@ def bend_miter_Miller(Di, angle, Re, roughness=0.0, L_unimpeded=None):
     '''
     if L_unimpeded is None:
         L_unimpeded = 20.0*Di
-    if angle > 120:
+    if angle > 120.0:
         angle = 120.0
     
     Kb = horner(bend_miter_Miller_coeffs, 1.0/60.0*(angle-60.0))

@@ -40,7 +40,7 @@ def log_uniform(low, high):
 
 def test_fittings():
     
-    K = entrance_beveled_orifice(Di=0.1, do=.07, l=0.003, angle=45)
+    K = entrance_beveled_orifice(Di=0.1, do=.07, l=0.003, angle=45.0)
     assert_close(K, 1.2987552913818574)
 
     ### Exits
@@ -278,15 +278,17 @@ def test_bend_miter():
 
 
 def test_bend_miter_Miller():
-    K = bend_miter_Miller(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20)
+    K = bend_miter_Miller(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20.0)
     assert_close(K, 0.2944060416245167)
     K_default_L_unimpeded = bend_miter_Miller(Di=.6, angle=45, Re=1e6, roughness=1e-5)
     assert_close(K, K_default_L_unimpeded)
     
     
-    K_high_angle = bend_miter_Miller(Di=.6, angle=120, Re=1e6, roughness=1e-5, L_unimpeded=20)
-    K_higher_angle = bend_miter_Miller(Di=.6, angle=150, Re=1e6, roughness=1e-5, L_unimpeded=20)
+    K_high_angle = bend_miter_Miller(Di=.6, angle=120.0, Re=1e6, roughness=1e-5, L_unimpeded=20.0)
+    K_higher_angle = bend_miter_Miller(Di=.6, angle=150.0, Re=1e6, roughness=1e-5, L_unimpeded=20.0)
     assert_close(K_high_angle, K_higher_angle)
+    
+    assert type(bend_rounded_Miller(Di=.6, bend_diameters=2, angle=90,  Re=2e6,  roughness=2E-5, L_unimpeded=30*.6)) is float
     
     
 @pytest.mark.slow
