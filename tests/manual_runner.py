@@ -30,19 +30,29 @@ import test_fittings
 import test_jet_pump
 import test_mixing
 
-to_test = [test_drag, test_control_valve, test_geometry, test_two_phase, 
+to_test = [test_drag, test_control_valve, test_two_phase, 
            test_two_phase_voidage, test_separator, test_piping, test_packed_bed,
-           test_compressible, test_core, test_particle_size_distribution,
+           test_compressible, test_core,
            test_safety_valve, test_open_flow, test_filters, test_flow_meter,
-           test_atmosphere, test_pump, test_friction, test_fittings, test_jet_pump,
+           test_atmosphere, test_pump, test_friction, test_fittings,
            test_packed_tower, test_saltation, test_mixing]
+#to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
 
 for mod in to_test:
+    print(mod)
     for s in dir(mod):
         obj = getattr(mod, s)
         if callable(obj) and hasattr(obj, '__name__') and obj.__name__.startswith('test'):
+            try:
+                if 'slow' in obj.__dict__:
+                    continue
+                if 'fuzz' in obj.__dict__:
+                    continue
+            except:
+                pass
 #            print(s)
             try:
+                print(obj)
                 obj()
             except Exception as e:
                 print('FAILED TEST %s with error:' %s)

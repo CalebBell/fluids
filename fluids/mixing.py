@@ -274,7 +274,7 @@ def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
     V2 = Q2/(pi/4*D2**2)
     B = n**2*(D2/D)**2*(V2/V1)**2
     if not n == 1 and not n == 2 and not n == 3 and not n ==4:
-        raise Exception('Only 1 or 4 side streams investigated')
+        raise ValueError('Only 1 or 4 side streams investigated')
     if n == 1:
         if B < 0.7:
             E = 1.33

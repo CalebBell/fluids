@@ -21,7 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
+from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin, atan2, asinh
+from cmath import sqrt as csqrt
 import sys
 from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye, array_as_tridiagonals, tridiagonals_as_array, solve_tridiagonal, subset_matrix
 
@@ -38,7 +39,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'solve_4_direct',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2',
-           'numpy', 'nquad',
+           'numpy', 'nquad', 
            'polyint_over_x', 'horner_log', 'polyint', 'chebder',
            'polyder', 'make_damp_initial', 'quadratic_from_points',
            'OscillationError', 'UnconvergedError', 'caching_decorator',
@@ -56,6 +57,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'translate_bound_f_jac',
            'quad', 'quad_adaptive',
            
+           # Complex number math missing in micropython
+           'cacos',
            ]
 
 __numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search',
@@ -94,7 +97,21 @@ try:
     array_if_needed
 except:
     array_if_needed = lambda x: x
-    
+
+
+def py_cacos(z):
+    # After CPython https://github.com/python/cpython/blob/e9e7d284c434768333fdfb53a3663eae74cb995a/Modules/cmathmodule.c#L237
+    # Without the special cases; 25% faster in PyPy than the standard library
+    # Implemented only because micropythin is missing this function
+    s1 = csqrt(1.-z.real - z.imag*1.0j)
+    s2 = csqrt(1. + z.real + z.imag*1.0j)
+    r =  2.*atan2(s1.real, s2.real) + (s2.real*s1.imag - s2.imag*s1.real)*1.0j
+    return r
+
+try:
+    from cmath import acos as cacos
+except:
+    cacos = py_cacos
 
 _wraps = None
 def my_wraps():
