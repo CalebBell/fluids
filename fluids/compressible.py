@@ -39,7 +39,7 @@ __numba_additional_funcs__ = ['isothermal_gas_err_P1', 'isothermal_gas_err_P2',
                               '_to_solve_Spitzglass_high', '_to_solve_Spitzglass_low',
                               '_to_solve_Oliphant']
 
-def isothermal_work_compression(P1, P2, T, Z=1):
+def isothermal_work_compression(P1, P2, T, Z=1.0):
     r'''Calculates the work of compression or expansion of a gas going through
     an isothermal process.
 
@@ -106,7 +106,7 @@ def isothermal_work_compression(P1, P2, T, Z=1):
     return Z*R*T*log(P2/P1)
 
 
-def isentropic_work_compression(T1, k, Z=1, P1=None, P2=None, W=None, eta=None):
+def isentropic_work_compression(T1, k, Z=1.0, P1=None, P2=None, W=None, eta=None):
     r'''Calculation function for dealing with compressing or expanding a gas
     going through an isentropic, adiabatic process assuming constant Cp and Cv. 
     The polytropic model is the same equation; just provide `n` instead of `k` 
@@ -910,7 +910,7 @@ must be provided.')
 
 
 def Panhandle_A(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-                Ps=101325., Zavg=1, E=0.92):
+                Ps=101325., Zavg=1.0, E=0.92):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Panhandle A formula. Can calculate any of the following,
     given all other inputs:
@@ -1032,7 +1032,7 @@ must be provided.')
 
 
 def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-                Ps=101325., Zavg=1, E=0.92):
+                Ps=101325., Zavg=1.0, E=0.92):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Panhandle B formula. Can calculate any of the following,
     given all other inputs:
@@ -1151,7 +1151,7 @@ must be provided.')
 
 
 def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-             Ps=101325., Zavg=1, E=0.92):
+             Ps=101325., Zavg=1.0, E=0.92):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Weymouth formula. Can calculate any of the following,
     given all other inputs:
@@ -1271,7 +1271,7 @@ def _to_solve_Spitzglass_high(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
                                   P1=P1, P2=P2, Ts=Ts, Ps=Ps,Zavg=Zavg, E=E)
 
 def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-                Ps=101325., Zavg=1, E=1.):
+                Ps=101325., Zavg=1.0, E=1.):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Spitzglass (high pressure drop) formula. Can calculate
     any of the following, given all other inputs:
@@ -1375,7 +1375,7 @@ def _to_solve_Spitzglass_low(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
     return Q - Spitzglass_low(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
 
 def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-                Ps=101325., Zavg=1, E=1.):
+                Ps=101325., Zavg=1.0, E=1.):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Spitzglass (low pressure drop) formula. Can calculate
     any of the following, given all other inputs:
@@ -1491,7 +1491,7 @@ def _to_solve_Oliphant(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
     return Q - Oliphant(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
 
 def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-             Ps=101325., Zavg=1, E=0.92):
+             Ps=101325., Zavg=1.0, E=0.92):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Oliphant formula. Can calculate any of the following,
     given all other inputs:
@@ -1585,7 +1585,7 @@ must be provided.')
 
 
 def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
-              Ps=101325., Zavg=1, E=1):
+              Ps=101325., Zavg=1.0, E=1.0):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Fritzsche formula. Can calculate any of the following,
     given all other inputs:
@@ -1679,7 +1679,7 @@ def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
 
 
 def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-           Ps=101325., Zavg=1, E=1):
+           Ps=101325., Zavg=1.0, E=1.0):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Muller formula. Can calculate any of the following,
     given all other inputs:
@@ -1789,7 +1789,7 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
 
 
 def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-        Ps=101325., Zavg=1, E=1):
+        Ps=101325., Zavg=1.0, E=1.0):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline with the IGT formula. Can calculate any of the following,
     given all other inputs:

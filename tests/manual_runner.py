@@ -37,7 +37,7 @@ to_test = [test_drag, test_control_valve, test_two_phase,
            test_atmosphere, test_pump, test_friction, test_fittings,
            test_packed_tower, test_saltation, test_mixing]
 #to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
-
+to_test = [test_fittings]
 for mod in to_test:
     print(mod)
     for s in dir(mod):

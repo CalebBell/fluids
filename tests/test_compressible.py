@@ -26,11 +26,11 @@ import pytest
 
 
 def test_isothermal_work_compression():
-    assert_close(isothermal_work_compression(1E5, 1E6, 300), 5743.425357533477, rtol=1e-05)
+    assert_close(isothermal_work_compression(1E5, 1E6, 300.0), 5743.425357533477, rtol=1e-05)
 
 
 def test_isentropic_work_compression():
-    dH = isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=1)
+    dH = isentropic_work_compression(P1=1E5, P2=1E6, T1=300.0, k=1.4, eta=1)
     assert_close(dH, 8125.161295388634, rtol=1e-05)
     
     dH = isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78)
@@ -40,10 +40,10 @@ def test_isentropic_work_compression():
     assert_close(dH, 9375.186110063809, rtol=1e-05)
 
     # Other solutions - P1, P2, and eta
-    P1 = isentropic_work_compression(W=9375.186110063809, P2=1E6, T1=300, k=1.4, eta=0.78, Z=0.9)
+    P1 = isentropic_work_compression(W=9375.186110063809, P2=1E6, T1=300., k=1.4, eta=0.78, Z=0.9)
     assert_close(P1, 1E5, rtol=1E-5)
 
-    P2 = isentropic_work_compression(W=9375.186110063809, P1=1E5, T1=300, k=1.4, eta=0.78, Z=0.9)
+    P2 = isentropic_work_compression(W=9375.186110063809, P1=1E5, T1=300., k=1.4, eta=0.78, Z=0.9)
     assert_close(P2, 1E6, rtol=1E-5)
 
     eta = isentropic_work_compression(W=9375.186110063809, P1=1E5, P2=1E6, T1=300, k=1.4, Z=0.9, eta=None)
@@ -54,7 +54,7 @@ def test_isentropic_work_compression():
 
 
 def test_isentropic_T_rise_compression():
-    T2 = isentropic_T_rise_compression(286.8, 54050, 432400, 1.4)
+    T2 = isentropic_T_rise_compression(286.8, 54050.0, 432400., 1.4)
     assert_close(T2, 519.5230938217768, rtol=1e-05)
     
     T2 = isentropic_T_rise_compression(286.8, 54050, 432400, 1.4, eta=0.78)
@@ -90,25 +90,25 @@ def test_polytropic_exponent():
 
 
 def test_compressible():
-    T = T_critical_flow(473, 1.289)
+    T = T_critical_flow(473., 1.289)
     assert_close(T, 413.2809086937528)
 
-    P = P_critical_flow(1400000, 1.289)
+    P = P_critical_flow(1400000., 1.289)
     assert_close(P, 766812.9022792266)
     
     assert not is_critical_flow(670E3, 532E3, 1.11)
     assert is_critical_flow(670E3, 101E3, 1.11)
 
-    SE = stagnation_energy(125)
+    SE = stagnation_energy(125.)
     assert_close(SE, 7812.5)
 
     PST = P_stagnation(54050., 255.7, 286.8, 1.4)
     assert_close(PST, 80772.80495900588)
 
-    Tst = T_stagnation(286.8, 54050, 54050*8, 1.4)
+    Tst = T_stagnation(286.8, 54050., 54050*8., 1.4)
     assert_close(Tst, 519.5230938217768)
 
-    Tstid = T_stagnation_ideal(255.7, 250, 1005.)
+    Tstid = T_stagnation_ideal(255.7, 250., 1005.)
     assert_close(Tstid, 286.79452736318405)
 
 
@@ -193,9 +193,9 @@ def test_Spitzglass_high():
 def test_Spitzglass_low():
     D = 0.154051
     P1 = 6720.3199
-    P2 = 0
+    P2 = 0.0
     L = 54.864
-    SG=0.6
+    SG = 0.6
     Tavg = 288.7
     Q = 0.9488775242530617
     assert_close(Spitzglass_low(D=D, P1=P1, P2=P2, L=L, SG=SG, Tavg=Tavg), Q)
@@ -282,7 +282,7 @@ def test_IGT():
 
 
 def test_isothermal_gas():
-    mcalc = isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000, D=0.5)
+    mcalc = isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000., D=0.5)
     assert_close(mcalc, 145.484757264)
     assert_close(isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, m=145.484757264, D=0.5), 1000)
     assert_close(isothermal_gas(11.3, 0.00185, P2=9E5, m=145.484757264, L=1000., D=0.5), 1E6)
@@ -290,24 +290,24 @@ def test_isothermal_gas():
     assert_close(isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, m=145.484757264, L=1000.), 0.5)
     
     with pytest.raises(Exception):
-        isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000)        
+        isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000.)        
     with pytest.raises(Exception):
-        isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=1E5, L=1000, D=0.5)
+        isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=1E5, L=1000., D=0.5)
     with pytest.raises(Exception):
-        isothermal_gas(rho=11.3, fd=0.00185, P2=1E6, P1=9E5, L=1000, D=0.5)
+        isothermal_gas(rho=11.3, fd=0.00185, P2=1E6, P1=9E5, L=1000., D=0.5)
         
     # Newton can't converge, need a bounded solver
-    P1 = isothermal_gas(rho=11.3, fd=0.00185, m=390, P2=9E5, L=1000, D=0.5)
+    P1 = isothermal_gas(rho=11.3, fd=0.00185, m=390., P2=9E5, L=1000., D=0.5)
     assert_close(P1, 2298973.786533209)
     
     # Case where the desired flow is greated than the choked flow's rate 
     with pytest.raises(Exception):
-        isothermal_gas(rho=11.3, fd=0.00185, m=400, P2=9E5, L=1000, D=0.5)
+        isothermal_gas(rho=11.3, fd=0.00185, m=400, P2=9E5, L=1000., D=0.5)
         
     # test the case where the ideal gas assumption is baked in:
     
     rho = 10.75342009105268 # Chemical('nitrogen', P=(1E6+9E5)/2).rho
-    m1 = isothermal_gas(rho=rho, fd=0.00185, P1=1E6, P2=9E5, L=1000, D=0.5)
+    m1 = isothermal_gas(rho=rho, fd=0.00185, P1=1E6, P2=9E5, L=1000., D=0.5)
     assert_close(m1, 141.92260633059334)
     
     # They are fairly similar

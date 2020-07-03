@@ -77,7 +77,7 @@ def test_fittings():
     # Misc
     K1 = Darby3K(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
     K2 = Darby3K(NPS=12., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
-    K3 = Darby3K(NPS=12., Re=10000., K1=950,  Ki=0.25,  Kd=4)
+    K3 = Darby3K(NPS=12., Re=10000., K1=950.,  Ki=0.25,  Kd=4.)
     Ks = [1.1572523963562353, 0.819510280626355, 0.819510280626355]
     assert_close1d([K1, K2, K3], Ks)
 
@@ -90,7 +90,7 @@ def test_fittings():
     assert_close(tot, 67.96442287975898)
 
     K1 = Hooper2K(Di=2., Re=10000., name='Valve, Globe, Standard')
-    K2 = Hooper2K(Di=2., Re=10000., K1=900, Kinfty=4)
+    K2 = Hooper2K(Di=2., Re=10000., K1=900., Kinfty=4.)
     assert_close1d([K1, K2], [6.15, 6.09])
     tot = sum([Hooper2K(Di=2., Re=10000., name=i) for i in Hooper.keys()])
     assert_close(tot, 46.18)
@@ -202,12 +202,17 @@ def test_entrance_angled():
 
 
 def test_bend_rounded_Crane():
-    K = bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30)
+    K = bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30.0)
     assert_close(K, 0.09321910015613409)
     
     K_max = bend_rounded_Crane(Di=.400, rc=.4*25, angle=30)
     K_limit = bend_rounded_Crane(Di=.400, rc=.4*20, angle=30)
     assert_close(K_max, K_limit)
+    
+    # Test default
+    assert_close(bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30, bend_diameters=5.0),
+                 bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30.0))
+                 
 
 
 def test_bend_rounded_Miller():
@@ -254,11 +259,11 @@ def test_bend_rounded():
 
 
 def test_bend_miter():
-    K_miters =  [bend_miter(i) for i in [150, 120, 90, 75, 60, 45, 30, 15]]
+    K_miters =  [bend_miter(i) for i in [150.0, 120, 90, 75, 60, 45, 30, 15]]
     K_miter_values = [2.7128147734758103, 2.0264994448555864, 1.2020815280171306, 0.8332188430731828, 0.5299999999999998, 0.30419633092708653, 0.15308822558050816, 0.06051389308126326]
     assert_close1d(K_miters, K_miter_values)
     
-    K = bend_miter(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20, method='Miller')
+    K = bend_miter(Di=.6, angle=45.0, Re=1e6, roughness=1e-5, L_unimpeded=20.0, method='Miller')
     assert_close(K, 0.2944060416245167)
     
     K = bend_miter(Di=.05, angle=45, Re=1e6, roughness=1e-5, method='Crane')
@@ -363,17 +368,17 @@ def test_contraction_conical_Crane():
 
 
 def test_contraction_round():
-    K_round = contraction_round(Di1=1, Di2=0.4, rc=0.04)
+    K_round = contraction_round(Di1=1.0, Di2=0.4, rc=0.04)
     assert_close(K_round, 0.1783332490866574)
 
-    K = contraction_round(Di1=1, Di2=0.4, rc=0.04, method='Miller')
+    K = contraction_round(Di1=1.0, Di2=0.4, rc=0.04, method='Miller')
     assert_close(K, 0.085659530512986387)
 
-    K = contraction_round(Di1=1, Di2=0.4, rc=0.04, method='Idelchik')
+    K = contraction_round(Di1=1.0, Di2=0.4, rc=0.04, method='Idelchik')
     assert_close(K, 0.1008)
     
     with pytest.raises(Exception):
-        contraction_round(Di1=1, Di2=0.4, rc=0.04, method='BADMETHOD')
+        contraction_round(Di1=1.0, Di2=0.4, rc=0.04, method='BADMETHOD')
 
 def test_contraction_round_Miller():
     K = contraction_round_Miller(Di1=1, Di2=0.4, rc=0.04)
@@ -544,7 +549,7 @@ def test_K_lift_check_valve_Crane():
     
     
 def test_K_tilting_disk_check_valve_Crane():
-    K = K_tilting_disk_check_valve_Crane(.01, 5, fd=.016)
+    K = K_tilting_disk_check_valve_Crane(.01, 5.0, fd=.016)
     assert_close(K, 0.64)
     
     K = K_tilting_disk_check_valve_Crane(.25, 5, fd=.016)
@@ -607,7 +612,7 @@ def test_K_angle_stop_check_valve_Crane():
 
 
 def test_K_ball_valve_Crane():
-    K = K_ball_valve_Crane(.01, .02, 50, .025)
+    K = K_ball_valve_Crane(.01, .02, 50., .025)
     assert_close(K, 14.100545785228675)
     
     K = K_ball_valve_Crane(.01, .02, 40, .025)
@@ -666,7 +671,7 @@ def test_K_butterfly_valve_Crane():
         
         
 def test_K_plug_valve_Crane():
-    K = K_plug_valve_Crane(.01, .02, 50, .025)
+    K = K_plug_valve_Crane(.01, .02, 50.0, .025)
     assert_close(K, 20.100545785228675)
     
     K = K_plug_valve_Crane(.01, .02, 50, .025, style=1)
@@ -714,7 +719,7 @@ def test_K_run_converging_Crane():
     K = K_run_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633)
     assert_close(K, 0.32575847854551254)
     
-    K =   K_run_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633, angle=30)
+    K =   K_run_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633, angle=30.0)
     assert_close(K, 0.32920396892611553)
     
     K = K_run_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633, angle=60)
@@ -722,7 +727,7 @@ def test_K_run_converging_Crane():
     
     
 def test_K_branch_diverging_Crane():
-    K = K_branch_diverging_Crane(0.146, 0.146, 1515*liter/minute, 950*liter/minute, angle=45)
+    K = K_branch_diverging_Crane(0.146, 0.146, 1515*liter/minute, 950*liter/minute, angle=45.)
     assert_close(K, 0.4640, atol=0.0001)
     
     K = K_branch_diverging_Crane(0.146, 0.146, 0.02525, 0.01583, angle=90)
@@ -746,7 +751,7 @@ def test_K_branch_diverging_Crane():
     
     
 def test_K_run_diverging_Crane():
-    K = K_run_diverging_Crane(0.146, 0.146, 1515*liter/minute, 950*liter/minute, angle=45)
+    K = K_run_diverging_Crane(0.146, 0.146, 1515*liter/minute, 950*liter/minute, angle=45.)
     assert_close(K, -0.06809, atol=.00001)
     
     K =  K_run_diverging_Crane(0.146, 0.146, 0.01025, 0.01983, angle=45)
