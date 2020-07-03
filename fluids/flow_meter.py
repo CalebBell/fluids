@@ -2419,7 +2419,10 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         try:
             return brenth(err_dp_meter_solver_D2, D*(1-1E-9), D*5E-3, args=args)
         except:
-            return secant(err_dp_meter_solver_D2, D*.3, args=args, high=D, low=D*1e-10)
+            try:
+                return secant(err_dp_meter_solver_D2, D*.3, args=args, high=D, low=D*1e-10)
+            except:
+                return secant(err_dp_meter_solver_D2, D*.75, args=args, high=D, low=D*1e-10)
     elif P2 is None and D is not None and D2 is not None and m is not None and P1 is not None:
         args = (D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position)
         try:

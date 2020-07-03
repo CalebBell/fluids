@@ -165,19 +165,19 @@ def test_Colebrook_hard_regimes():
 
 
 def test_one_phase_dP():
-    dP = one_phase_dP(10.0, 1000, 1E-5, .1, L=1)
+    dP = one_phase_dP(10.0, 1000., 1E-5, .1, L=1.)
     assert_close(dP, 63.43447321097365)
     
 def test_one_phase_dP_gravitational():
-    dP = one_phase_dP_gravitational(angle=90, rho=2.6)
+    dP = one_phase_dP_gravitational(angle=90., rho=2.6)
     assert_close(dP, 25.49729)
 
-    dP = one_phase_dP_gravitational(angle=90, rho=2.6, L=2)
+    dP = one_phase_dP_gravitational(angle=90, rho=2.6, L=2.)
     assert_close(dP, 25.49729*2)
     
     
 def test_one_phase_dP_dz_acceleration():
-    dP = one_phase_dP_dz_acceleration(m=1, D=0.1, rho=827.1, dv_dP=-1.1E-5, dP_dL=5E5, dA_dL=0.0001)
+    dP = one_phase_dP_dz_acceleration(m=1., D=0.1, rho=827.1, dv_dP=-1.1E-5, dP_dL=5E5, dA_dL=0.0001)
     assert_close(dP, 89162.89116373913)
     
 
@@ -312,22 +312,22 @@ def test_Prandtl_von_Karman_Nikuradse_full():
 
 
 def test_helical_laminar_fd_White():
-    fd = helical_laminar_fd_White(250, .02, .1)
+    fd = helical_laminar_fd_White(250., .02, .1)
     assert_close(fd, 0.4063281817830202)
     assert_close(helical_laminar_fd_White(250, .02, 100), 0.256)
     
     
 def test_helical_laminar_fd_Mori_Nakayama():
-    fd = helical_laminar_fd_Mori_Nakayama(250, .02, .1)
+    fd = helical_laminar_fd_Mori_Nakayama(250., .02, .1)
     assert_close(fd, 0.4222458285779544)
     assert_close(4.4969472, helical_laminar_fd_Mori_Nakayama(20, .02, .1))
     
     
 def test_helical_laminar_fd_Schmidt():
-    fd = helical_laminar_fd_Schmidt(250, .02, .1)
+    fd = helical_laminar_fd_Schmidt(250., .02, .1)
     assert_close(fd, 0.47460725672835236)
     # Test convergence at low curvature 
-    assert_close(helical_laminar_fd_Schmidt(250, 1, 1E10), friction_laminar(250))
+    assert_close(helical_laminar_fd_Schmidt(250., 1, 1E10), friction_laminar(250))
     
     
 def test_helical_turbulent_fd_Srinivasan():
@@ -451,19 +451,19 @@ def test_friction_factor_curved():
         helical_Re_crit(Di=0.02, Dc=0.5, Method=m)
     
 def test_friction_plate():
-    fd = friction_plate_Martin_1999(Re=20000, plate_enlargement_factor=1.15)
+    fd = friction_plate_Martin_1999(Re=20000., plate_enlargement_factor=1.15)
     assert_close(fd, 2.284018089834134)
     
-    fd = friction_plate_Martin_1999(Re=1999, plate_enlargement_factor=1.15)
+    fd = friction_plate_Martin_1999(Re=1999., plate_enlargement_factor=1.15)
     assert_close(fd, 2.749383588479863)
     
-    fd = friction_plate_Martin_VDI(Re=20000, plate_enlargement_factor=1.15)
+    fd = friction_plate_Martin_VDI(Re=20000., plate_enlargement_factor=1.15)
     assert_close(fd, 2.702534119024076)
     
-    fd = friction_plate_Martin_VDI(Re=1999, plate_enlargement_factor=1.15)
+    fd = friction_plate_Martin_VDI(Re=1999., plate_enlargement_factor=1.15)
     assert_close(fd, 3.294294334690556)
     
-    fd = friction_plate_Muley_Manglik(Re=2000, chevron_angle=45, plate_enlargement_factor=1.2)
+    fd = friction_plate_Muley_Manglik(Re=2000., chevron_angle=45., plate_enlargement_factor=1.2)
     assert_close(fd, 1.0880870804075413)
 
 
