@@ -23,10 +23,10 @@ SOFTWARE.'''
 from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
                   degrees)
-from cmath import atan as catan, sqrt as csqrt
+from cmath import sqrt as csqrt
 from fluids.constants import inch
 from fluids.core import PY3
-from fluids.numerics import cacos, secant, brenth, ellipe, ellipkinc, ellipeinc, horner, chebval, linspace, derivative, quad
+from fluids.numerics import cacos, catan, secant, brenth, ellipe, ellipkinc, ellipeinc, horner, chebval, linspace, derivative, quad
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
