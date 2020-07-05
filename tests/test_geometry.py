@@ -1181,6 +1181,7 @@ def test_plate_enhancement_factor():
     phi = plate_enlargement_factor_numerical(amplitude=0.002, wavelength=0.0126)
     assert_close(phi, 1.2149896289702244)
     
+@pytest.mark.fuzz
 @pytest.mark.slow
 def test_plate_enhancement_factor_fuzz():
     # Confirm it's correct to within 1E-7

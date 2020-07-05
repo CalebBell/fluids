@@ -25,7 +25,6 @@ monkeytype.sqlite3
 *.so
 *.pyo
 *.idea
-*.pyi
 *$py.class
 
 # Packages #

@@ -5,7 +5,7 @@ Created on Sun Jun  7 07:28:17 2020
 
 @author: caleb
 """
-
+import sys
 import test_drag
 import test_control_valve
 import test_geometry
@@ -37,23 +37,35 @@ to_test = [test_drag, test_control_valve, test_two_phase,
            test_atmosphere, test_pump, test_friction, test_fittings,
            test_packed_tower, test_saltation, test_mixing]
 #to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
-to_test = [test_fittings]
+to_test = [test_safety_valve]
+
+skip_marks = ['slow', 'fuzz']
+skip_marks_set = set(skip_marks)
+if len(sys.argv) >= 2:
+    print(sys.argv)
+    to_test = [globals()[i] for i in sys.argv[1:]]
 for mod in to_test:
     print(mod)
     for s in dir(mod):
+        skip = False
         obj = getattr(mod, s)
         if callable(obj) and hasattr(obj, '__name__') and obj.__name__.startswith('test'):
             try:
-                if 'slow' in obj.__dict__:
-                    continue
-                if 'fuzz' in obj.__dict__:
-                    continue
-            except:
-                pass
-#            print(s)
-            try:
-                print(obj)
-                obj()
+                for bad in skip_marks:
+                    if bad in obj.__dict__:
+                        skip = True
+                if 'pytestmark' in obj.__dict__:
+                    marked_names = [i.name for i in obj.__dict__['pytestmark']]
+                    for mark_name in marked_names:
+                        if mark_name in skip_marks_set:
+                            skip = True
             except Exception as e:
-                print('FAILED TEST %s with error:' %s)
-                print(e)
+                #print(e)
+                pass
+            if not skip:
+                try:
+                    print(obj)
+                    obj()
+                except Exception as e:
+                    print('FAILED TEST %s with error:' %s)
+                    print(e)

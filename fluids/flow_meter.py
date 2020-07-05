@@ -1021,7 +1021,6 @@ def K_to_discharge_coefficient(D, Do, K):
     root_K = K**0.5
     return ((1.0 - beta4)/((2.0*root_K + K)*beta4))**0.5
 
-
 def dP_orifice(D, Do, P1, P2, C):
     r'''Calculates the non-recoverable pressure drop of an orifice plate based
     on the pressure drop and the geometry of the plate and the discharge 
@@ -2080,9 +2079,7 @@ beta_simple_meters = frozenset([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                       MACHINED_CONVERGENT_VENTURI_TUBE, 
                       ROUGH_WELDED_CONVERGENT_VENTURI_TUBE])
 
-all_meters = set(beta_simple_meters)
-all_meters.update([CONE_METER, WEDGE_METER])
-all_meters = frozenset(all_meters)
+all_meters = frozenset(list(beta_simple_meters) + [CONE_METER, WEDGE_METER])
 
 _unsupported_meter_msg = "Supported meter types are %s" % all_meters
 
