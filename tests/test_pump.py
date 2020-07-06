@@ -80,7 +80,7 @@ def test_motor_efficiency_underloaded():
 
 
 def test_specific_speed():
-    nS = specific_speed(0.0402, 100, 3550)
+    nS = specific_speed(0.0402, 100.0, 3550.0)
     assert_close(nS, 22.50823182748925)
 
 
@@ -90,12 +90,12 @@ def test_specific_diameter():
 
 
 def test_speed_synchronous():
-    s1, s2 = speed_synchronous(50, poles=12), speed_synchronous(60, phase=1)
+    s1, s2 = speed_synchronous(50.0, poles=12), speed_synchronous(60.0, phase=1)
     assert_close1d([s1, s2], [1500, 3600])
 
 
 def test_current_ideal():
-    I = current_ideal(V=120, P=1E4, PF=1, phase=1)
+    I = current_ideal(V=120.0, P=1E4, PF=1.0, phase=1)
     assert_close(I, 83.33333333333333)
 
     I = current_ideal(V=208, P=1E4, PF=1, phase=3)

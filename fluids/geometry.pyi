@@ -103,7 +103,7 @@ def V_from_h(
     h: float,
     D: float,
     L: float,
-    horizontal: Union[str, bool] = ...,
+    horizontal: bool = ...,
     sideA: Optional[str] = ...,
     sideB: Optional[str] = ...,
     sideA_a: float = ...,
@@ -182,19 +182,19 @@ def V_partial_sphere(D: float, h: float) -> float: ...
 def V_vertical_conical(D: float, a: float, h: float) -> float: ...
 
 
-def V_vertical_conical_concave(D: float, a: int, h: float) -> float: ...
+def V_vertical_conical_concave(D: float, a: float, h: float) -> float: ...
 
 
 def V_vertical_ellipsoidal(D: float, a: float, h: float) -> float: ...
 
 
-def V_vertical_ellipsoidal_concave(D: float, a: int, h: float) -> float: ...
+def V_vertical_ellipsoidal_concave(D: float, a: float, h: float) -> float: ...
 
 
 def V_vertical_spherical(D: float, a: float, h: float) -> float: ...
 
 
-def V_vertical_spherical_concave(D: float, a: int, h: float) -> float: ...
+def V_vertical_spherical_concave(D: float, a: float, h: float) -> float: ...
 
 
 def V_vertical_torispherical(D: float, f: float, k: float, h: float) -> float: ...
@@ -227,14 +227,14 @@ def _V_horiz_spherical_toint(x: float, r2: float, R2: float, den_inv: float) -> 
 def a_torispherical(D: float, f: float, k: float) -> float: ...
 
 
-def aspect_ratio(Dmin: float, Dmax: int) -> float: ...
+def aspect_ratio(Dmin: float, Dmax: float) -> float: ...
 
 
 def circularity(A: float, P: float) -> float: ...
 
 
 def pitch_angle_solver(
-    angle: Optional[int] = ...,
+    angle: Optional[float] = ...,
     pitch: Optional[float] = ...,
     pitch_parallel: Optional[float] = ...,
     pitch_normal: Optional[float] = ...
@@ -360,7 +360,7 @@ class TANK:
         self,
         D: Optional[float] = ...,
         L: Optional[float] = ...,
-        horizontal: Union[str, bool] = ...,
+        horizontal: bool = ...,
         sideA: Optional[str] = ...,
         sideB: Optional[str] = ...,
         sideA_a: Optional[float] = ...,

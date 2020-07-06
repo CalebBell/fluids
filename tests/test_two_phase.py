@@ -34,7 +34,7 @@ def log_uniform(low, high):
 def test_Beggs_Brill():
     kwargs = dict(m=1.163125, x=0.30370768404083825, rhol=613.8,
                       rhog=141.3, sigma=0.028, D=0.077927, angle=90.0,
-                      mul=0.0005, mug=2E-5, P=119E5, roughness=1.8E-6, L=100, 
+                      mul=0.0005, mug=2E-5, P=119E5, roughness=1.8E-6, L=100.0, 
                       acceleration=True)
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, 384066.2949427367)
@@ -92,7 +92,7 @@ def test_fuzz_Beggs_Brill():
 
 
 def test_Friedel():
-    kwargs = dict(m=10, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.3, roughness=0, L=1)
+    kwargs = dict(m=10, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.3, roughness=0., L=1.)
     dP = Friedel(**kwargs)
     dP_expect = 274.21322116878406
     assert_close(dP, dP_expect)
@@ -103,14 +103,14 @@ def test_Friedel():
     assert_close(dP, dP_expect*10)
 
     # Example 4 in [6]_:
-    dP = Friedel(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    dP = Friedel(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0., L=1.)
     assert_close(dP, 738.6500525002241)
     # 730 is the result in [1]_; they use the Blassius equation instead for friction
     # the multiplier was calculated to be 38.871 vs 38.64 in [6]_
 
 
 def test_Gronnerud():
-    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     dP = Gronnerud(**kwargs)
     dP_expect = 384.125411444741
     assert_close(dP, 384.125411444741)
@@ -120,31 +120,31 @@ def test_Gronnerud():
     dP = Gronnerud(**kwargs)
     assert_close(dP, dP_expect*10)
 
-    dP = Gronnerud(m=5, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Gronnerud(m=5, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 26650.676132410194)
 
 def test_Chisholm():
     # Gamma < 28, G< 600
-    dP = Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 1084.1489922923736)
 
     # Gamma < 28, G > 600
-    dP = Chisholm(m=2, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Chisholm(m=2, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 7081.89630764668)
 
     # Gamma <= 9.5, G_tp <= 500
-    dP = Chisholm(m=.6, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Chisholm(m=.6, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 222.36274920522493)
 
     # Gamma <= 9.5, G_tp < 1900:
-    dP = Chisholm(m=2, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Chisholm(m=2, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 1107.9944943816388)
 
     # Gamma <= 9.5, G_tp > 1900:
-    dP = Chisholm(m=5, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Chisholm(m=5, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 3414.1123536958203)
 
-    dP = Chisholm(m=1, x=0.1, rhol=915., rhog=0.1, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Chisholm(m=1, x=0.1, rhol=915., rhog=0.1, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 8743.742915625126)
 
     # Roughness correction
@@ -161,14 +161,14 @@ def test_Chisholm():
 
 def test_Baroczy_Chisholm():
     # Gamma < 28, G< 600
-    dP = Baroczy_Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Baroczy_Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 1084.1489922923736)
 
     # Gamma <= 9.5, G_tp > 1900:
-    dP = Baroczy_Chisholm(m=5, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Baroczy_Chisholm(m=5, x=0.1, rhol=915., rhog=30, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 3414.1123536958203)
 
-    kwargs = dict(m=1, x=0.1, rhol=915., rhog=0.1, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=1, x=0.1, rhol=915., rhog=0.1, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     dP = Baroczy_Chisholm(**kwargs)
     dP_expect = 8743.742915625126
     assert_close(dP, dP_expect)
@@ -180,7 +180,7 @@ def test_Baroczy_Chisholm():
 
 
 def test_Muller_Steinhagen_Heck():
-    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     dP = Muller_Steinhagen_Heck(**kwargs)
     dP_expect = 793.4465457435081
     assert_close(dP, dP_expect)
@@ -192,7 +192,7 @@ def test_Muller_Steinhagen_Heck():
 
 
 def test_Lombardi_Pedrocchi():
-    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1.0)
     dP = Lombardi_Pedrocchi(**kwargs)
     dP_expect = 1567.328374498781
     assert_close(dP, dP_expect)
@@ -204,14 +204,14 @@ def test_Lombardi_Pedrocchi():
 
 
 def test_Theissing():
-    dP = Theissing(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Theissing(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 497.6156370699528)
 
     # Test x=1, x=0
-    dP = Theissing(m=0.6, x=1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Theissing(m=0.6, x=1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 4012.248776469056)
 
-    kwargs = dict(m=0.6, x=0, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.6, x=0, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     dP = Theissing(**kwargs)
     dP_expect = 19.00276790390895
     assert_close(dP, dP_expect)
@@ -223,7 +223,7 @@ def test_Theissing():
 
 
 def test_Jung_Radermacher():
-    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     dP = Jung_Radermacher(**kwargs)
     dP_expect = 552.068612372557
     assert_close(dP, dP_expect)
@@ -235,7 +235,7 @@ def test_Jung_Radermacher():
 
 
 def test_Tran():
-    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
     dP = Tran(**kwargs)
     dP_expect = 423.2563312951231
     assert_close(dP, dP_expect)
@@ -247,10 +247,10 @@ def test_Tran():
 
 
 def test_Chen_Friedel():
-    dP = Chen_Friedel(m=.0005, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.003, roughness=0, L=1)
+    dP = Chen_Friedel(m=.0005, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.003, roughness=0.0, L=1.0)
     assert_close(dP, 6249.247540588871)
 
-    kwargs = dict(m=.1, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.03, roughness=0, L=1)
+    kwargs = dict(m=.1, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.03, roughness=0.0, L=1.0)
     dP = Chen_Friedel(**kwargs)
     dP_expect = 3541.7714973093725
     assert_close(dP, dP_expect)
@@ -262,7 +262,7 @@ def test_Chen_Friedel():
 
 
 def test_Zhang_Webb():
-    kwargs = dict(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000, D=0.05, roughness=0.0, L=1.0)
     dP = Zhang_Webb(**kwargs)
     dP_expect = 712.0999804205619
     assert_close(dP, dP_expect)
@@ -274,7 +274,7 @@ def test_Zhang_Webb():
 
 
 def test_Bankoff():
-    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     dP = Bankoff(**kwargs)
     dP_expect = 4746.059442453398
     assert_close(dP, dP_expect)
@@ -285,7 +285,7 @@ def test_Bankoff():
     assert_close(dP, dP_expect*10)
 
 def test_Xu_Fang():
-    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
     dP = Xu_Fang(**kwargs)
     dP_expect = 604.0595632116267
     assert_close(dP, dP_expect)
@@ -296,7 +296,7 @@ def test_Xu_Fang():
     assert_close(dP, dP_expect*10)
 
 def test_Yu_France():
-    kwargs = dict(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     dP = Yu_France(**kwargs)
     dP_expect = 1146.983322553957
     assert_close(dP, dP_expect)
@@ -308,10 +308,10 @@ def test_Yu_France():
 
 
 def test_Wang_Chiang_Lu():
-    dP = Wang_Chiang_Lu(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = Wang_Chiang_Lu(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 448.29981978639154)
 
-    kwargs = dict(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     dP = Wang_Chiang_Lu(**kwargs)
     dP_expect = 3.3087255464765417
     assert_close(dP, dP_expect)
@@ -323,7 +323,7 @@ def test_Wang_Chiang_Lu():
 
 
 def test_Hwang_Kim():
-    kwargs = dict(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1)
+    kwargs = dict(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1.0)
     dP = Hwang_Kim(**kwargs)
     dP_expect = 798.302774184557
     assert_close(dP, dP_expect)
@@ -336,13 +336,13 @@ def test_Hwang_Kim():
 
 
 def test_Zhang_Hibiki_Mishima():
-    dP = Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1)
+    dP = Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1.0)
     assert_close(dP, 444.9718476894804)
 
-    dP = Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1, flowtype='adiabatic gas')
+    dP = Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1, flowtype='adiabatic gas')
     assert_close(dP, 1109.1976111277042)
 
-    kwargs = dict(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1, flowtype='flow boiling')
+    kwargs = dict(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1, flowtype='flow boiling')
     dP = Zhang_Hibiki_Mishima(**kwargs)
     dP_expect = 770.0975665928916
     assert_close(dP, dP_expect)
@@ -353,28 +353,28 @@ def test_Zhang_Hibiki_Mishima():
     assert_close(dP, dP_expect*10)
 
     with pytest.raises(Exception):
-        Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1, flowtype='BADMETHOD')
+        Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1, flowtype='BADMETHOD')
 
 
 def test_Kim_Mudawar():
     # turbulent-turbulent
-    dP = Kim_Mudawar(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+    dP = Kim_Mudawar(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1.0)
     assert_close(dP, 840.4137796786074)
 
     # Re_l >= Re_c and Re_g < Re_c
-    dP = Kim_Mudawar(m=0.6, x=0.001, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+    dP = Kim_Mudawar(m=0.6, x=0.001, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1.0)
     assert_close(dP, 68.61594310455612)
 
     # Re_l < Re_c and Re_g >= Re_c:
-    dP = Kim_Mudawar(m=0.6, x=0.99, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+    dP = Kim_Mudawar(m=0.6, x=0.99, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1.0)
     assert_close(dP, 5381.335846128011)
 
     # laminar-laminar
-    dP = Kim_Mudawar(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.5, L=1)
+    dP = Kim_Mudawar(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.5, L=1.0)
     assert_close(dP, 0.005121833671658875)
 
     # Test friction Re < 20000
-    kwargs = dict(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+    kwargs = dict(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1.0)
     dP = Kim_Mudawar(**kwargs)
     dP_expect = 33.74875494223592
     assert_close(dP, dP_expect)
@@ -386,19 +386,19 @@ def test_Kim_Mudawar():
 
 
 def test_Lockhart_Martinelli():
-    dP = Lockhart_Martinelli(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, L=1)
+    dP = Lockhart_Martinelli(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, L=1.0)
     assert_close(dP, 716.4695654888484)
 
     # laminar-laminar
-    dP = Lockhart_Martinelli(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=1, L=1)
+    dP = Lockhart_Martinelli(m=0.1, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=1, L=1.0)
     assert_close(dP, 9.06478815533121e-06)
 
     # Liquid laminar, gas turbulent
-    dP = Lockhart_Martinelli(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=2, L=1)
+    dP = Lockhart_Martinelli(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=2, L=1.0)
     assert_close(dP, 8.654579552636214e-06)
 
     # Gas laminar, liquid turbulent
-    kwargs = dict(m=0.6, x=0.05, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=2, L=1)
+    kwargs = dict(m=0.6, x=0.05, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=2, L=1.0)
     dP = Lockhart_Martinelli(**kwargs)
     dP_expect = 4.56627076018814e-06
     assert_close(dP, dP_expect)
@@ -410,7 +410,7 @@ def test_Lockhart_Martinelli():
 
 
 def test_Mishima_Hibiki():
-    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
     dP = Mishima_Hibiki(**kwargs)
     dP_expect = 732.4268200606265
     assert_close(dP, dP_expect)
@@ -451,44 +451,44 @@ def test_two_phase_dP():
         two_phase_dP(Method=m, **kwargs)
 
     # Final method attempt Lombardi_Pedrocchi
-    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1)
+    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1.0)
     assert_close(dP, 1567.328374498781)
 
     # Second method attempt Zhang_Webb
-    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000, D=0.05, roughness=0, L=1)
+    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 712.0999804205619)
 
     # Second choice, for no sigma; Chisholm
-    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0, L=1)
+    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 1084.1489922923736)
 
     # Preferred choice, Kim_Mudawar
-    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1)
+    dP = two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1.0)
     assert_close(dP, 840.4137796786074)
 
     # Case where i = 4
-    dP = two_phase_dP(Method='Friedel', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    dP = two_phase_dP(Method='Friedel', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 738.6500525002243)
 
     # Case where i = 1
-    dP = two_phase_dP(Method='Lockhart_Martinelli', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, L=1)
+    dP = two_phase_dP(Method='Lockhart_Martinelli', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, L=1.0)
     assert_close(dP, 716.4695654888484)
 
     # Case where i = 101, 'Chisholm rough'
-    dP = two_phase_dP(Method='Chisholm rough', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=1E-4, L=1)
+    dP = two_phase_dP(Method='Chisholm rough', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=1E-4, L=1.0)
     assert_close(dP, 846.6778299960783)
 
     # Case where i = 102:
-    dP = two_phase_dP(Method='Zhang_Hibiki_Mishima adiabatic gas', m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1)
+    dP = two_phase_dP(Method='Zhang_Hibiki_Mishima adiabatic gas', m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1.0)
     assert_close(dP, 1109.1976111277042)
 
     # Case where i = 103:
-    dP = two_phase_dP(Method='Zhang_Hibiki_Mishima flow boiling', m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1)
+    dP = two_phase_dP(Method='Zhang_Hibiki_Mishima flow boiling', m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1.0)
     assert_close(dP, 770.0975665928916)
 
     # Don't give enough information:
     with pytest.raises(Exception):
-        two_phase_dP(m=0.6, x=0.1, rhol=915., D=0.05, L=1)
+        two_phase_dP(m=0.6, x=0.1, rhol=915., D=0.05, L=1.0)
 
     with pytest.raises(Exception):
         two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1, Method='BADMETHOD')
@@ -534,24 +534,24 @@ def test_two_phase_dP_dz_gravitational():
 def test_Taitel_Dukler_regime():
     from fluids.two_phase import Taitel_Dukler_regime
     
-    regime = Taitel_Dukler_regime(m=1, x=0.05, rhol=600.12, rhog=80.67, mul=180E-6,
-                                   mug=14E-6, D=0.02, roughness=0, angle=0)[0]
+    regime = Taitel_Dukler_regime(m=1.0, x=0.05, rhol=600.12, rhog=80.67, mul=180E-6,
+                                   mug=14E-6, D=0.02, roughness=0.0, angle=0.0)[0]
     
     assert regime == 'bubbly'
     regime = Taitel_Dukler_regime(m=1, x=0.05, rhol=600.12, rhog=80.67, mul=180E-6,
-                                  mug=14E-6, D=0.021, roughness=0, angle=0)[0]
+                                  mug=14E-6, D=0.021, roughness=0.0, angle=0)[0]
     assert regime == 'intermittent'
     
     regime = Taitel_Dukler_regime(m=.06, x=0.5, rhol=900.12, rhog=90.67, mul=180E-6,
-                                  mug=14E-6, D=0.05, roughness=0, angle=0)[0]
+                                  mug=14E-6, D=0.05, roughness=0.0, angle=0)[0]
     assert regime == 'stratified smooth'
     
     regime = Taitel_Dukler_regime(m=.07, x=0.5, rhol=900.12, rhog=90.67, mul=180E-6,
-                                   mug=14E-6, D=0.05, roughness=0, angle=0)[0]
+                                   mug=14E-6, D=0.05, roughness=0.0, angle=0)[0]
     assert regime == 'stratified wavy'
 
     regime, X, T, F, K = Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6,
-                                               mug=14E-6, D=0.05, roughness=0, angle=0)
+                                               mug=14E-6, D=0.05, roughness=0.0, angle=0)
     assert regime == 'annular'
     assert_close(F, 0.9902249725092789)
     assert_close(K, 271.86280111125365)

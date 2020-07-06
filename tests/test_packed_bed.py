@@ -65,7 +65,7 @@ def test_packed_bed():
 
     dP1 = Montillet_Akkari_Comiti(dp=0.0008, voidage=0.4, L=0.5, vs=0.00132629120, rho=1000., mu=1.00E-003)
     dP2 = Montillet_Akkari_Comiti(dp=0.08, voidage=0.4, L=0.5, vs=0.05, rho=1000., mu=1.00E-003)
-    dP3 = Montillet_Akkari_Comiti(dp=0.08, voidage=0.3, L=0.5, vs=0.05, rho=1000., mu=1.00E-003, Dt=1)
+    dP3 = Montillet_Akkari_Comiti(dp=0.08, voidage=0.3, L=0.5, vs=0.05, rho=1000., mu=1.00E-003, Dt=1.0)
     assert_close1d([dP1, dP2, dP3], [1148.1905244077548, 212.67409611116554, 540.501305905986])
 
     dP1 = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
@@ -86,7 +86,7 @@ def test_packed_bed():
         dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, Method=m)
     
     all_methods = dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1, Dt=1e-2)
-    assert 'Erdim, Akgiray & Demir' == dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1)[0]
+    assert 'Erdim, Akgiray & Demir' == dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1.0)[0]
     assert 'Harrison, Brunner & Hecker' == all_methods[0]
     all_methods.sort()
     assert all_methods == methods_dP_val

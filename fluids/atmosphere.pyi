@@ -38,21 +38,21 @@ def hwm14(
     Z: float,
     latitude: float = ...,
     longitude: float = ...,
-    day: int = ...,
+    day: float = ...,
     seconds: float = ...,
-    geomagnetic_disturbance_index: int = ...
+    geomagnetic_disturbance_index: float = ...
 ) -> Tuple[float, float]: ...
 
 
 def hwm93(
     Z: float,
-    latitude: int = ...,
-    longitude: int = ...,
-    day: int = ...,
-    seconds: int = ...,
+    latitude: float = ...,
+    longitude: float = ...,
+    day: float = ...,
+    seconds: float = ...,
     f107: float = ...,
     f107_avg: float = ...,
-    geomagnetic_disturbance_index: int = ...
+    geomagnetic_disturbance_index: float = ...
 ) -> Tuple[float, float]: ...
 
 

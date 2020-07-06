@@ -48,8 +48,8 @@ def test_Schade():
     assert_close(V1, 13.697415809497912)
 
 def test_Weber_saltation():
-    V1 = Weber_saltation(mp=1, rhop=1000., dp=1E-3, rhog=1.2, D=0.1, Vterminal=4)
-    V2 = Weber_saltation(mp=1, rhop=1000., dp=1E-3, rhog=1.2, D=0.1, Vterminal=2)
+    V1 = Weber_saltation(mp=1.0, rhop=1000., dp=1E-3, rhog=1.2, D=0.1, Vterminal=4.0)
+    V2 = Weber_saltation(mp=1.0, rhop=1000., dp=1E-3, rhog=1.2, D=0.1, Vterminal=2.0)
     assert_close1d([V1, V2], [15.227445436331474, 13.020222930460088])
 
 def test_Geldart_Ling():

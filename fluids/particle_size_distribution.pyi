@@ -49,7 +49,7 @@ def psd_spacing(
 class PSDInterpolated:
     def __init__(
         self,
-        ds: Union[List[float], ndarray, List[float64]],
+        ds: Union[List[float], List[float64], ndarray],
         fractions: Union[List[float], List[float64]],
         order: int = ...,
         monotonic: bool = ...

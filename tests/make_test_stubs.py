@@ -3,7 +3,7 @@
 import os
 import sys
 
-tests = ['test_drag', 'test_control_valve', 'test_two_phase', 'test_two_phase_voidage', 'test_separator', 'test_piping', 'test_packed_bed', 'test_compressible', 'test_core', 'test_safety_valve', 'test_open_flow', 'test_filters', 'test_flow_meter', 'test_atmosphere', 'test_pump', 'test_friction', 'test_fittings', 'test_packed_tower', 'test_saltation', 'test_mixing', 'test_geometry', 'test_particle_size_distribution']
+tests = ['test_drag', 'test_control_valve', 'test_two_phase', 'test_two_phase_voidage', 'test_separator', 'test_piping', 'test_packed_bed', 'test_compressible', 'test_core', 'test_safety_valve', 'test_open_flow', 'test_filters', 'test_flow_meter', 'test_atmosphere', 'test_pump', 'test_friction', 'test_fittings', 'test_packed_tower', 'test_saltation', 'test_mixing', 'test_geometry', 'test_particle_size_distribution', 'test_jet_pump']
 #tests = ['test_geometry']
 try:
     os.remove("monkeytype.sqlite3")

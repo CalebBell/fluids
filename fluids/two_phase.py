@@ -134,7 +134,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     Examples
     --------
     >>> Beggs_Brill(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
-    ... sigma=0.0487, P=1E7, D=0.05, angle=0, roughness=0, L=1)
+    ... sigma=0.0487, P=1E7, D=0.05, angle=0, roughness=0.0, L=1.0)
     686.9724506803469
 
     References
@@ -214,7 +214,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     return dP
 
 
-def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
+def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Friedel correlation.
 
     .. math::
@@ -287,7 +287,7 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     Example 4 in [6]_:
 
     >>> Friedel(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
-    ... sigma=0.0487, D=0.05, roughness=0, L=1)
+    ... sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
     738.6500525002241
 
     References
@@ -337,7 +337,7 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     return phi_lo2*dP_lo
 
 
-def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Gronnerud correlation as
     presented in [2]_, [3]_, and [4]_.
 
@@ -394,7 +394,7 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     Examples
     --------
     >>> Gronnerud(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
-    ... D=0.05, roughness=0, L=1)
+    ... D=0.05, roughness=0.0, L=1.0)
     384.12541144474085
 
     References
@@ -429,7 +429,7 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return phi_gd*dP_lo
 
 
-def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1,
+def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
              rough_correction=False):
     r'''Calculates two-phase pressure drop with the Chisholm (1973) correlation
     from [1]_, also in [2]_ and [3]_.
@@ -518,7 +518,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1,
     Examples
     --------
     >>> Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
-    ... mug=14E-6, D=0.05, roughness=0, L=1)
+    ... mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     1084.1489922923738
 
     References
@@ -576,7 +576,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1,
     return phi2_ch*dP_lo
 
 
-def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Baroczy (1966) model.
     It was presented in graphical form originally; Chisholm (1973) made the
     correlation non-graphical. The model is also shown in [3]_.
@@ -641,7 +641,7 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     Examples
     --------
     >>> Baroczy_Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
-    ... mug=14E-6, D=0.05, roughness=0, L=1)
+    ... mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     1084.1489922923738
 
     References
@@ -681,7 +681,7 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return phi2_ch*dP_lo
 
 
-def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Muller-Steinhagen and Heck
     (1986) correlation from [1]_, also in [2]_ and [3]_.
 
@@ -726,7 +726,7 @@ def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     Examples
     --------
     >>> Muller_Steinhagen_Heck(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
-    ... mug=14E-6, D=0.05, roughness=0, L=1)
+    ... mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     793.4465457435081
 
     References
@@ -757,7 +757,7 @@ def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return G_MSH*(1-x)**(1/3.) + dP_go*x**3
 
 
-def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1):
+def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1.0):
     r'''Calculates two-phase pressure drop with the Lombardi-Pedrocchi (1972)
     correlation from [1]_ as shown in [2]_ and [3]_.
 
@@ -796,7 +796,7 @@ def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1):
     Examples
     --------
     >>> Lombardi_Pedrocchi(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045,
-    ... D=0.05, L=1)
+    ... D=0.05, L=1.0)
     1567.328374498781
 
     References
@@ -817,7 +817,7 @@ def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1):
     return 0.83*G_tp**1.4*sigma**0.4*L/(D**1.2*rho_h**0.866)
 
 
-def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Theissing (1980)
     correlation as shown in [2]_ and [3]_.
 
@@ -878,7 +878,7 @@ def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     Examples
     --------
     >>> Theissing(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
-    ... D=0.05, roughness=0, L=1)
+    ... D=0.05, roughness=0.0, L=1.0)
     497.6156370699538
 
     References
@@ -936,7 +936,7 @@ def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return dP
 
 
-def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Jung-Radermacher (1989)
     correlation, also shown in [2]_ and [3]_.
 
@@ -980,7 +980,7 @@ def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     Examples
     --------
     >>> Jung_Radermacher(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
-    ... mug=14E-6, D=0.05, roughness=0, L=1)
+    ... mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     552.0686123725568
 
     References
@@ -1009,7 +1009,7 @@ def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return phi_tp2*dP_lo
 
 
-def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
+def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Tran (2000) correlation,
     also shown in [2]_ and [3]_.
 
@@ -1060,7 +1060,7 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     Examples
     --------
     >>> Tran(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
-    ... sigma=0.0487, D=0.05, roughness=0, L=1)
+    ... sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
     423.2563312951232
 
     References
@@ -1098,7 +1098,7 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     return dP_lo*phi_lo2
 
 
-def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
+def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Chen modification of the
     Friedel correlation, as given in [1]_ and also shown in [2]_ and [3]_.
 
@@ -1161,7 +1161,7 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     Examples
     --------
     >>> Chen_Friedel(m=.0005, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5,
-    ... sigma=0.02, D=0.003, roughness=0, L=1)
+    ... sigma=0.02, D=0.003, roughness=0.0, L=1.0)
     6249.247540588871
 
     References
@@ -1221,7 +1221,7 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     return dP*Omega
 
 
-def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0, L=1):
+def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Zhang-Webb (2001)
     correlation as shown in [1]_ and also given in [2]_.
 
@@ -1268,7 +1268,7 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0, L=1):
     Examples
     --------
     >>> Zhang_Webb(m=0.6, x=0.1, rhol=915., mul=180E-6, P=2E5, Pc=4055000,
-    ... D=0.05, roughness=0, L=1)
+    ... D=0.05, roughness=0.0, L=1.0)
     712.0999804205617
 
     References
@@ -1292,7 +1292,7 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0, L=1):
     return dP_lo*phi_lo2
 
 
-def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Bankoff (1960) correlation,
     as shown in [2]_, [3]_, and [4]_.
 
@@ -1342,7 +1342,7 @@ def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     Examples
     --------
     >>> Bankoff(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
-    ... D=0.05, roughness=0, L=1)
+    ... D=0.05, roughness=0.0, L=1.0)
     4746.0594424533965
 
     References
@@ -1370,7 +1370,7 @@ def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return dP_lo*phi_Bf**(7/4.)
 
 
-def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
+def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Xu and Fang (2013)
     correlation. Developed after a comprehensive review of available
     correlations, likely meaning it is quite accurate.
@@ -1429,7 +1429,7 @@ def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     Examples
     --------
     >>> Xu_Fang(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
-    ... sigma=0.0487, D=0.05, roughness=0, L=1)
+    ... sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
     604.0595632116267
 
     References
@@ -1468,7 +1468,7 @@ def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     return phi_lo2*dP_lo
 
 
-def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Yu, France, Wambsganss,
     and Hull (2002) correlation given in [1]_ and reviewed in [2]_ and [3]_.
 
@@ -1514,7 +1514,7 @@ def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     Examples
     --------
     >>> Yu_France(m=0.6, x=.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
-    ... D=0.05, roughness=0, L=1)
+    ... D=0.05, roughness=0.0, L=1.0)
     1146.9833225539571
 
     References
@@ -1548,7 +1548,7 @@ def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return phi_l2*dP_l
 
 
-def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
+def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Wang, Chiang, and Lu (1997)
     correlation given in [1]_ and reviewed in [2]_ and [3]_.
 
@@ -1600,7 +1600,7 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     Examples
     --------
     >>> Wang_Chiang_Lu(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
-    ... mug=14E-6, D=0.05, roughness=0, L=1)
+    ... mug=14E-6, D=0.05, roughness=0.0, L=1.0)
     448.29981978639137
 
     References
@@ -1646,7 +1646,7 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0, L=1):
     return dP_g*phi_g2
 
 
-def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
+def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Hwang and Kim (2006)
     correlation as in [1]_, also presented in [2]_ and [3]_.
 
@@ -1698,7 +1698,7 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     Examples
     --------
     >>> Hwang_Kim(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
-    ... sigma=0.0487, D=0.003, roughness=0, L=1)
+    ... sigma=0.0487, D=0.003, roughness=0.0, L=1.0)
     798.302774184557
 
     References
@@ -1741,8 +1741,8 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     return dP_l*phi_l2
 
 
-def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0,
-                         L=1, flowtype='adiabatic vapor'):
+def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
+                         L=1.0, flowtype='adiabatic vapor'):
     r'''Calculates two-phase pressure drop with the Zhang, Hibiki, Mishima and
     (2010) correlation as in [1]_, also presented in [2]_ and [3]_.
 
@@ -1807,7 +1807,7 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0,
     Examples
     --------
     >>> Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
-    ... mug=14E-6, sigma=0.0487, D=0.003, roughness=0, L=1)
+    ... mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1.0)
     444.9718476894804
 
     References
@@ -1856,7 +1856,7 @@ and 'flow boiling' are recognized.")
     return dP_l*phi_l2
 
 
-def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
+def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     r'''Calculates two-phase pressure drop with the Mishima and Hibiki (1996)
     correlation as in [1]_, also presented in [2]_ and [3]_.
 
@@ -1906,7 +1906,7 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1):
     Examples
     --------
     >>> Mishima_Hibiki(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
-    ... mug=14E-6, sigma=0.0487, D=0.05, roughness=0, L=1)
+    ... mug=14E-6, sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
     732.4268200606265
 
     References
@@ -1952,7 +1952,7 @@ def friction_factor_Kim_Mudawar(Re):
         return 0.184*Re**-0.2
 
 
-def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1):
+def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
     r'''Calculates two-phase pressure drop with the Kim and Mudawar (2012)
     correlation as in [1]_, also presented in [2]_.
 
@@ -2043,7 +2043,7 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1):
     Examples
     --------
     >>> Kim_Mudawar(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
-    ... sigma=0.0487, D=0.05, L=1)
+    ... sigma=0.0487, D=0.05, L=1.0)
     840.4137796786074
 
     References
@@ -2092,7 +2092,7 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1):
     return dP_l*phi_l2
 
 
-def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
+def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
     r'''Calculates two-phase pressure drop with the Lockhart and Martinelli
     (1949) correlation as presented in non-graphical form by Chisholm (1967).
 
@@ -2174,7 +2174,7 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
     Examples
     --------
     >>> Lockhart_Martinelli(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
-    ... mug=14E-6, D=0.05, L=1)
+    ... mug=14E-6, D=0.05, L=1.0)
     716.4695654888484
 
     References
@@ -2224,11 +2224,11 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1, Re_c=2000):
 
 
 two_phase_correlations = {
-    # 0 index, args are: m, x, rhol, mul, P, Pc, D, roughness=0, L=1
+    # 0 index, args are: m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1
     'Zhang_Webb': (Zhang_Webb, 0),
     # 1 index, args are: m, x, rhol, rhog, mul, mug, D, L=1
     'Lockhart_Martinelli': (Lockhart_Martinelli, 1),
-    # 2 index, args are: m, x, rhol, rhog, mul, mug, D, roughness=0, L=1
+    # 2 index, args are: m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1
     'Bankoff': (Bankoff, 2),
     'Baroczy_Chisholm': (Baroczy_Chisholm, 2),
     'Chisholm': (Chisholm, 2),
@@ -2240,7 +2240,7 @@ two_phase_correlations = {
     'Yu_France': (Yu_France, 2),
     # 3 index, args are: m, x, rhol, rhog, mul, mug, sigma, D, L=1
     'Kim_Mudawar': (Kim_Mudawar, 3),
-    # 4 index, args are: m, x, rhol, rhog, mul, mug, sigma, D, roughness=0, L=1
+    # 4 index, args are: m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1
     'Friedel': (Friedel, 4),
     'Hwang_Kim': (Hwang_Kim, 4),
     'Mishima_Hibiki': (Mishima_Hibiki, 4),
@@ -2258,8 +2258,8 @@ two_phase_correlations = {
 }
 _unknown_msg_two_phase = "Unknown method; available methods are %s" %(list(two_phase_correlations.keys()))
 
-def two_phase_dP_methods(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, 
-                         sigma=None, P=None, Pc=None, roughness=0, angle=0,
+def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, 
+                         sigma=None, P=None, Pc=None, roughness=0.0, angle=0,
                          check_ranges=False):
     r'''This function returns a list of names of correlations for two-phase 
     liquid-gas pressure drop for flow inside channels.
@@ -2304,7 +2304,7 @@ def two_phase_dP_methods(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None,
 
     Examples
     --------
-    >>> len(two_phase_dP_methods(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1, angle=30.0, roughness=1e-4, P=1e5, Pc=1e6))
+    >>> len(two_phase_dP_methods(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1.0, angle=30.0, roughness=1e-4, P=1e5, Pc=1e6))
     24
     '''
     usable_indices = []
@@ -2321,8 +2321,8 @@ def two_phase_dP_methods(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None,
         usable_indices.append(104)
     return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
 
-def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
-                 P=None, Pc=None, roughness=0, angle=None, Method=None, 
+def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None,
+                 P=None, Pc=None, roughness=0.0, angle=None, Method=None, 
                  AvailableMethods=False):
     r'''This function handles calculation of two-phase liquid-gas pressure drop
     for flow inside channels. 23 calculation methods are available, with
@@ -2396,7 +2396,7 @@ def two_phase_dP(m, x, rhol, D, L=1, rhog=None, mul=None, mug=None, sigma=None,
     Examples
     --------
     >>> two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
-    ... sigma=0.0487, D=0.05, L=1)
+    ... sigma=0.0487, D=0.05, L=1.0)
     840.4137796786074
     '''
     if AvailableMethods:
@@ -2883,7 +2883,7 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
     Examples
     --------
     >>> Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,
-    ... mul=180E-6, mug=14E-6, D=0.05, roughness=0, angle=0)[0]
+    ... mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, angle=0)[0]
     'annular'
     
     References

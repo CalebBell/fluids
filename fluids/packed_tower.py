@@ -72,7 +72,7 @@ __numba_additional_funcs__ = ['_Stichlmair_flood_f', '_Stichlmair_flood_f_and_ja
                               '_Stichlmair_wet_err']
 ### Demister
 
-def dP_demister_dry_Setekleiv_Svendsen(S, voidage, vs, rho, mu, L=1):
+def dP_demister_dry_Setekleiv_Svendsen(S, voidage, vs, rho, mu, L=1.0):
     r'''Calculates dry pressure drop across a demister, using the
     correlation in [1]_. This model is for dry demisters with no holdup only.
 
@@ -124,7 +124,7 @@ def dP_demister_dry_Setekleiv_Svendsen(S, voidage, vs, rho, mu, L=1):
     return right*rho*vs**2/voidage**2
 
 
-def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1):
+def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1.0):
     r'''Calculates dry pressure drop across a demister, using the
     correlation in [1]_. This model is for dry demisters with no holdup only.
     Developed with literature data included as well as their own experimental
@@ -163,7 +163,7 @@ def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1):
 
     Examples
     --------
-    >>> dP_demister_dry_Setekleiv_Svendsen_lit(S=250, voidage=.983, vs=1.2, rho=10, mu=3E-5, L=1)
+    >>> dP_demister_dry_Setekleiv_Svendsen_lit(S=250, voidage=.983, vs=1.2, rho=10, mu=3E-5, L=1.0)
     209.083848658307
 
     References
@@ -178,7 +178,7 @@ def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1):
     return right*rho*vs**2/voidage**2
 
 
-def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1):
+def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1.0):
     r'''Calculates wet pressure drop across a demister, using the
     correlation in [1]_. Uses only their own experimental data.
     
@@ -443,7 +443,7 @@ def Stichlmair_dry(Vg, rhog, mug, voidage, specific_area, C1, C2, C3, H=1.):
     Examples
     --------
     >>> Stichlmair_dry(Vg=0.4, rhog=5., mug=5E-5, voidage=0.68,
-    ... specific_area=260., C1=32., C2=7, C3=1)
+    ... specific_area=260., C1=32., C2=7.0, C3=1.0)
     236.80904286559885
 
     References
@@ -464,7 +464,7 @@ def _Stichlmair_wet_err(dP_irr, h0, c1, dP_dry, H, voidage, c):
     err = dP_dry/H*((1-voidage+hT)/(1.0 - voidage))**((2.0 + c)/3.)*(voidage/(voidage-hT))**4.65 -dP_irr/H
     return err
 
-def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=1):
+def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=1.0):
     r'''Calculates dry pressure drop across a packed column, using the
     Stichlmair [1]_ correlation. Uses three regressed constants for each
     type of packing, and voidage and specific area. This model is for irrigated

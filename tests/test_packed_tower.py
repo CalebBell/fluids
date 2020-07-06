@@ -27,18 +27,18 @@ import pytest
 
 
 def test_packed_tower():
-    dP = dP_demister_dry_Setekleiv_Svendsen(S=250, voidage=.983, vs=1.2, rho=10, mu=3E-5, L=1)
+    dP = dP_demister_dry_Setekleiv_Svendsen(S=250.0, voidage=.983, vs=1.2, rho=10.0, mu=3E-5, L=1.0)
     assert_close(dP, 320.3280788941329)
     dP = dP_demister_dry_Setekleiv_Svendsen_lit(S=250, voidage=.983, vs=1.2, rho=10, mu=3E-5, L=1)
     assert_close(dP, 209.083848658307)
-    dP = voidage_experimental(m=126, rho=8000, D=1, H=1)
+    dP = voidage_experimental(m=126.0, rho=8000.0, D=1.0, H=1.0)
     assert_close(dP, 0.9799464771704212)
 
     S = specific_area_mesh(voidage=.934, d=3e-4)
     assert_close(S, 879.9999999999994)
 
 def test_Stichlmair():
-    dP_dry = Stichlmair_dry(Vg=0.4, rhog=5., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7, C3=1)
+    dP_dry = Stichlmair_dry(Vg=0.4, rhog=5., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7.0, C3=1.0)
     assert_close(dP_dry, 236.80904286559885)
 
     dP_wet = Stichlmair_wet(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
@@ -56,7 +56,7 @@ def test_dP_demister_wet_ElDessouky():
     dP_orig = 3.88178*rho**0.375798*V**0.81317*dw**-1.56114147
     # 689.4685604448499, compares with maybe 690 Pa/m from figure
     
-    voidage = 1-rho/7999.
+    voidage = 1.0-rho/7999.
     dP = dP_demister_wet_ElDessouky(V, voidage, dw/1000.)
     assert_close(dP_orig, dP)
     assert_close(dP, 689.4685604448499)
@@ -83,7 +83,7 @@ def test_separation_demister_ElDessouky():
 
 
 def test_Robbins():
-    dP = Robbins(Fpd=24, L=12.2, G=2.03, rhol=1000., rhog=1.1853, mul=0.001, H=2)
+    dP = Robbins(Fpd=24.0, L=12.2, G=2.03, rhol=1000., rhog=1.1853, mul=0.001, H=2.0)
     assert_close(dP, 619.6624593438099)
 
 
