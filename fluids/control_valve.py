@@ -242,9 +242,9 @@ def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
     
     Examples
     --------
-    >>> control_valve_choke_P_g(1, 1.3, 1E5)
+    >>> control_valve_choke_P_g(1.0, 1.3, 1E5)
     7142.857142857143
-    >>> control_valve_choke_P_g(1, 1.3, P2=7142.857142857143)
+    >>> control_valve_choke_P_g(1.0, 1.3, P2=7142.857142857143)
     100000.0
     '''
     if P2 is None:

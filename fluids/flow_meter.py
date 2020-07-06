@@ -1946,7 +1946,7 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
 
 
 def dP_Reader_Harris_Gallagher_wet_venturi_tube(D, Do, P1, P2, ml, mg, rhol, 
-                                                rhog, H=1):
+                                                rhog, H=1.0):
     r'''Calculates the non-recoverable pressure drop of a wet gas venturi 
     nozzle based on the pressure drop and the geometry of the venturi nozzle,
     the mass flow rates of liquid and gas through it, the densities of the

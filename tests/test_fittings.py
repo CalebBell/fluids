@@ -57,11 +57,11 @@ def test_fittings():
     assert_close(K_sharp, 0.5301269161591805)
 
 
-    K_beveled = contraction_beveled(Di1=0.5, Di2=0.1, l=.7*.1, angle=120)
+    K_beveled = contraction_beveled(Di1=0.5, Di2=0.1, l=.7*.1, angle=120.0)
     assert_close(K_beveled, 0.40946469413070485)
 
     ### Expansions (diffusers)
-    K_sharp = diffuser_sharp(Di1=.5, Di2=1)
+    K_sharp = diffuser_sharp(Di1=.5, Di2=1.0)
     assert_close(K_sharp, 0.5625)
 
 
@@ -170,10 +170,10 @@ def test_entrance_rounded():
         entrance_rounded(Di=0.1, rc=0.01, method='BADMETHOD')
 
 def test_entrance_beveled():
-    K = entrance_beveled(Di=0.1, l=0.003, angle=45)
+    K = entrance_beveled(Di=0.1, l=0.003, angle=45.0)
     assert_close(K, 0.45086864221916984)
 
-    K = entrance_beveled(Di=0.1, l=0.003, angle=45, method='Idelchik')
+    K = entrance_beveled(Di=0.1, l=0.003, angle=45.0, method='Idelchik')
     assert_close(K, 0.3995000000000001)
 
 
@@ -191,8 +191,8 @@ def test_entrance_sharp():
 
 def test_entrance_angled():
     K_30_Idelchik = 0.9798076211353316
-    assert_close(entrance_angled(30), K_30_Idelchik)
-    assert_close(entrance_angled(30, method='Idelchik'), K_30_Idelchik)
+    assert_close(entrance_angled(30.0), K_30_Idelchik)
+    assert_close(entrance_angled(30.0, method='Idelchik'), K_30_Idelchik)
 
     with pytest.raises(Exception):
         entrance_angled(30, method='BADMETHOD')
@@ -206,7 +206,7 @@ def test_bend_rounded_Crane():
     assert_close(K, 0.09321910015613409)
     
     K_max = bend_rounded_Crane(Di=.400, rc=.4*25, angle=30)
-    K_limit = bend_rounded_Crane(Di=.400, rc=.4*20, angle=30)
+    K_limit = bend_rounded_Crane(Di=.400, rc=.4*20, angle=30.0)
     assert_close(K_max, K_limit)
     
     # Test default
@@ -230,7 +230,7 @@ def test_bend_rounded_Miller():
 
 def test_bend_rounded():
     ### Bends
-    K_5_rc = [bend_rounded(Di=4.020, rc=4.0*5, angle=i, fd=0.0163) for i in [15, 30, 45, 60, 75, 90]]
+    K_5_rc = [bend_rounded(Di=4.020, rc=4.0*5, angle=i, fd=0.0163) for i in [15.0, 30.0, 45, 60, 75, 90]]
     K_5_rc_values = [0.07038212630028828, 0.10680196344492195, 0.13858204974134541, 0.16977191374717754, 0.20114941557508642, 0.23248382866658507]
     assert_close1d(K_5_rc, K_5_rc_values)
 
@@ -238,23 +238,25 @@ def test_bend_rounded():
     K_10_rc_values =  [0.061075866683922314, 0.10162621862720357, 0.14158887563243763, 0.18225270014527103, 0.22309967045081655, 0.26343782210280947]
     assert_close1d(K_10_rc, K_10_rc_values)
 
-    K = bend_rounded(Di=4.020, bend_diameters=5, angle=30, fd=0.0163)
+    K = bend_rounded(Di=4.020, bend_diameters=5.0, angle=30.0, fd=0.0163)
     assert_close(K, 0.106920213333191)
     
-    K = bend_rounded(Di=4.020, bend_diameters=5, angle=30, Re=1E5)
+    K = bend_rounded(Di=4.020, bend_diameters=5.0, angle=30, Re=1E5)
     assert_close(K, 0.11532121658742862)
     
-    K = bend_rounded(Di=4.020, bend_diameters=5, angle=30, Re=1E5, method='Miller')
+    K = bend_rounded(Di=4.020, bend_diameters=5.0, angle=30, Re=1E5, method='Miller')
     assert_close(K, 0.10276501180879682)
     
-    K = bend_rounded(Di=.5, bend_diameters=5, angle=30, Re=1E5, method='Crane')
+    K = bend_rounded(Di=.5, bend_diameters=5.0, angle=30, Re=1E5, method='Crane')
     assert_close(K, 0.08959057097762159)
     
-    K = bend_rounded(Di=.5, bend_diameters=5, angle=30, Re=1E5, method='Ito')
+    K = bend_rounded(Di=.5, bend_diameters=5.0, angle=30, Re=1E5, method='Ito')
     assert_close(K, 0.10457946464978755)
     
-    K = bend_rounded(Di=.5, bend_diameters=5, angle=30, Re=1E5, method='Swamee')
+    K = bend_rounded(Di=.5, bend_diameters=5.0, angle=30, Re=1E5, method='Swamee')
     assert_close(K, 0.055429466248839564)
+    
+    assert type(bend_rounded(Di=4.020, rc=4.0*5, angle=30, Re=1E5, method='Miller')) == float
 
 
 
@@ -335,8 +337,11 @@ def test_bend_miter_Miller_fuzz():
 
 
 def test_diffuser_conical():
+    
+    assert_close(diffuser_conical(Di1=1/3., Di2=1.0, angle=50.0, Re=1e7), 0.8017372988217512)
+    
     K1 = diffuser_conical(Di1=.1**0.5, Di2=1, angle=10., fd=0.020)
-    K2 = diffuser_conical(Di1=1/3., Di2=1, angle=50, fd=0.03) # 2
+    K2 = diffuser_conical(Di1=1/3., Di2=1, angle=50.0, fd=0.03) # 2
     K3 = diffuser_conical(Di1=2/3., Di2=1, angle=40, fd=0.03) # 3
     K4 = diffuser_conical(Di1=1/3., Di2=1, angle=120, fd=0.0185) # #4
     K5 = diffuser_conical(Di1=2/3., Di2=1, angle=120, fd=0.0185) # Last
@@ -348,7 +353,7 @@ def test_diffuser_conical():
     with pytest.raises(Exception):
         diffuser_conical(Di1=.1, Di2=0.1, fd=0.020)
 
-    K1 = diffuser_conical_staged(Di1=1., Di2=10., DEs=[2,3,4,5,6,7,8,9], ls=[1,1,1,1,1,1,1,1,1], fd=0.01)
+    K1 = diffuser_conical_staged(Di1=1., Di2=10., DEs=[2.0,3,4,5,6,7,8,9], ls=[1.0,1.0,1,1,1,1,1,1,1], fd=0.01)
     K2 = diffuser_conical(Di1=1., Di2=10.,l=9, fd=0.01)
     Ks = [1.7681854713484308, 0.973137914861591]
     assert_close1d([K1, K2], Ks)

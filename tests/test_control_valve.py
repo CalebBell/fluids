@@ -244,9 +244,9 @@ def test_control_valve_choke_P_l():
     assert_close(P1, 680000.0)
 
 def test_control_valve_choke_P_g():
-    P2 = control_valve_choke_P_g(1, 1.3, 1E5)
+    P2 = control_valve_choke_P_g(1.0, 1.3, 1E5)
     assert_close(P2, 7142.857142857143)
-    P1 = control_valve_choke_P_g(1, 1.3, P2=P2)
+    P1 = control_valve_choke_P_g(1.0, 1.3, P2=P2)
     assert_close(P1, 100000.0)
 
 

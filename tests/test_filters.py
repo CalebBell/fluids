@@ -27,8 +27,8 @@ import pytest
 
 
 def test_filters():
-    K1 = round_edge_screen(0.5, 100)
-    K2 = round_edge_screen(0.5, 100, 45)
+    K1 = round_edge_screen(0.5, 100.0)
+    K2 = round_edge_screen(0.5, 100, 45.0)
     K3 = round_edge_screen(0.5, 100, 85)
 
     assert_close1d([K1, K2, K3], [2.0999999999999996, 1.05, 0.18899999999999997])

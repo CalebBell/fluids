@@ -110,11 +110,11 @@ except:
                     reason='hwm93 model is not built')
 def test_hwm93():
     # pass on systems without f2py for now
-    custom = hwm93(5E5, 45, 50, 365)
+    custom = hwm93(5E5, 45.0, 50.0, 365.0)
     assert_close1d(custom, [-73.00312042236328, 0.1485661268234253])
     
     # Test from pyhwm93
-    ans = hwm93(Z=150E3, latitude=65, longitude=-148, day=90, seconds=12*3600, f107=100., f107_avg=100., geomagnetic_disturbance_index=4)
+    ans = hwm93(Z=150E3, latitude=65.0, longitude=-148.0, day=90.0, seconds=12*3600.0, f107=100., f107_avg=100., geomagnetic_disturbance_index=4.0)
     assert_close1d(ans, [-110.16133880615234, -12.400712013244629])
 
 
@@ -128,7 +128,7 @@ def test_hwm14():
     HEIGHT_PROFILE_MER = [0.031, 2.965, -6.627, 2.238, -14.253, 37.403, 42.789, 20.278, 25.027, 34.297, 40.408, 44.436, 47.092, 48.843, 49.997, 50.758, 51.259]
     HEIGHT_PROFILE_ZON = [6.271, 25.115, 96.343, 44.845, 31.59, 11.628, -33.319, -49.984, -68.588, -80.022, -87.56, -92.53, -95.806, -97.965, -99.389, -100.327, -100.946]
     
-    winds = [hwm14(alt*1000, latitude=-45.0, longitude=-85.0, day=150, seconds=12*3600, geomagnetic_disturbance_index=80) for alt in HEIGHTS]
+    winds = [hwm14(alt*1000.0, latitude=-45.0, longitude=-85.0, day=150.0, seconds=12*3600.0, geomagnetic_disturbance_index=80.0) for alt in HEIGHTS]
     
     winds = [[round(i, 3) for i in j] for j in winds]
     

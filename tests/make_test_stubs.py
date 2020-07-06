@@ -6,8 +6,9 @@ tests = ['test_drag', 'test_control_valve', 'test_two_phase', 'test_two_phase_vo
 #tests = ['test_geometry']
 
 for t in tests:
-    mod = t[5:]
     os.system("python3 -m monkeytype run manual_runner.py %s" %t)
+for t in tests:
+    mod = t[5:]
     os.system("python3 -m monkeytype stub fluids.%s > ../fluids/%s.pyi" %(mod, mod))
     type_hit_path = "../fluids/%s.pyi" %mod
     dat = open(type_hit_path, 'r').read()

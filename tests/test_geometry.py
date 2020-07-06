@@ -157,21 +157,21 @@ def test_V_vertical_torispherical():
 
 def test_V_vertical_conical_concave():
     # Three examples from [1]_, and at empty and with h=D.
-    Vs_calc = [V_vertical_conical_concave(113., -33, i)/231 for i in [15., 25., 50., 0, 113]]
+    Vs_calc = [V_vertical_conical_concave(113., -33.0, i)/231 for i in [15., 25., 50., 0, 113]]
     Vs = [251.15825565795188, 614.6068425492208, 1693.1654406426783, 0.0, 4428.278844757774]
     assert_close1d(Vs_calc, Vs)
-    assert 0.0 == V_vertical_conical_concave(113., -33, 0.0)
+    assert 0.0 == V_vertical_conical_concave(113., -33.0, 0.0)
 
 def test_V_vertical_ellipsoidal_concave():
     # Three examples from [1]_, and at empty and with h=D.
-    Vs_calc = [V_vertical_ellipsoidal_concave(113., -33, i)/231 for i in [15., 25., 50., 0, 113]]
+    Vs_calc = [V_vertical_ellipsoidal_concave(113., -33.0, i)/231 for i in [15., 25., 50., 0, 113]]
     Vs = [44.84968851034856, 207.6374468071692, 1215.605957384487, 0.0, 3950.7193614995826]
     assert_close1d(Vs_calc, Vs)
     assert 0.0 == V_vertical_ellipsoidal_concave(113., -33, 0.0)
 
 def test_V_vertical_spherical_concave():
     # Three examples from [1]_, and at empty and with h=D.
-    Vs_calc = [V_vertical_spherical_concave(113., -33, i)/231 for i in [15., 25., 50., 0, 113]]
+    Vs_calc = [V_vertical_spherical_concave(113., -33.0, i)/231 for i in [15., 25., 50., 0, 113]]
     Vs = [112.81405437348528, 341.7056403375114, 1372.9286894955042, 0.0, 4108.042093610599]
     assert_close1d(Vs_calc, Vs)
     assert 0.0 == V_vertical_spherical_concave(113., -33, 0.0)
@@ -710,11 +710,11 @@ def test_SA_from_h_basics():
     
     
 def test_pitch_angle_solver():
-    ans = [{'angle': 30, 'pitch': 2., 'pitch_parallel': 1.7320508075688774, 'pitch_normal': 1.},
-           {'angle': 60, 'pitch': 2., 'pitch_parallel': 1., 'pitch_normal': 1.7320508075688774},
-           {'angle': 45, 'pitch': 2., 'pitch_parallel': 1.414213562373095, 'pitch_normal': 1.414213562373095},
-           {'angle': 90, 'pitch': 1., 'pitch_parallel': 0., 'pitch_normal': 1.},
-           {'angle': 0, 'pitch': 1., 'pitch_parallel': 1., 'pitch_normal': 0.},
+    ans = [{'angle': 30.0, 'pitch': 2., 'pitch_parallel': 1.7320508075688774, 'pitch_normal': 1.},
+           {'angle': 60.0, 'pitch': 2., 'pitch_parallel': 1., 'pitch_normal': 1.7320508075688774},
+           {'angle': 45.0, 'pitch': 2., 'pitch_parallel': 1.414213562373095, 'pitch_normal': 1.414213562373095},
+           {'angle': 90.0, 'pitch': 1., 'pitch_parallel': 0., 'pitch_normal': 1.},
+           {'angle': 0.0, 'pitch': 1., 'pitch_parallel': 1., 'pitch_normal': 0.},
            ]
     for ans_set in ans:
         for k1, v1 in ans_set.items():
@@ -937,7 +937,7 @@ def test_TANK_issues():
     assert_close(Tk.V_total, Tk.V_from_h(Tk.h_max*.9999999999), rtol=1e-12)
     
     # Issue where checking sideA_a was for truthiness and not  not None
-    kwargs = {'L': 2.0, 'horizontal': 'vertical', 'L_over_D': None, 
+    kwargs = {'L': 2.0, 'horizontal': False, 'L_over_D': None, 
               'V': None, 'sideA': 'ellipsoidal', 'sideB': 'ellipsoidal', 
               'sideA_a': 0.0, 'sideB_a': 1e-06, 'sideA_a_ratio': None, 
               'sideB_a_ratio': None, 'sideA_f': None, 'sideA_k': None, 
@@ -1042,7 +1042,7 @@ def test_basic():
     psi = sphericity(10., 2.)
     assert_close(psi, 0.767663317071005)
 
-    a_r = aspect_ratio(.2, 2)
+    a_r = aspect_ratio(.2, 2.)
     assert_close(a_r, 0.1)
 
     f_circ = circularity(1.5, .1)

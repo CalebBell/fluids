@@ -45,40 +45,40 @@ def helper_test_match(f, atms):
 
 @pytest.mark.slow
 def test_ATMOSPHERE_NRLMSISE00():
-    name = os.path.join(os.path.dirname(__file__), 'known_data_height.txt')
+    name = os.path.join(os.path.dirname(__file__), 'nrlmsise00', 'known_data_height.txt')
     f = np.loadtxt(name, delimiter=' ')
     heights = f[:,0]
     
     atms = [ATMOSPHERE_NRLMSISE00(float(h)*1000, latitude=45, longitude=45, day=1, seconds=0, geomagnetic_disturbance_indices=[4]*7) for h in heights]
     helper_test_match(f, atms)
     
-    name = os.path.join(os.path.dirname(__file__), 'known_data_high_height.txt')
+    name = os.path.join(os.path.dirname(__file__), 'nrlmsise00', 'known_data_high_height.txt')
     f = np.loadtxt(name, delimiter=' ')
     heights = f[:,0]
     atms = [ATMOSPHERE_NRLMSISE00(float(h)*1000, latitude=45, longitude=45, day=1, seconds=0, geomagnetic_disturbance_indices=[4]*7) for h in heights]
     helper_test_match(f, atms)
     
-    name = os.path.join(os.path.dirname(__file__), 'known_data_day_of_year.txt')
+    name = os.path.join(os.path.dirname(__file__),'nrlmsise00',  'known_data_day_of_year.txt')
     f = np.loadtxt(name, delimiter=' ')    
     atms = [ATMOSPHERE_NRLMSISE00(100000., latitude=45, longitude=45, day=d, seconds=0, geomagnetic_disturbance_indices=[4]*7) for d in range(1, 367)]
     helper_test_match(f, atms)
     
-    name = os.path.join(os.path.dirname(__file__), 'known_data_hours.txt')
+    name = os.path.join(os.path.dirname(__file__), 'nrlmsise00', 'known_data_hours.txt')
     f = np.loadtxt(name, delimiter=' ')    
     atms = [ATMOSPHERE_NRLMSISE00(100000., latitude=45, longitude=45, day=1, seconds=3600.*h, geomagnetic_disturbance_indices=[4]*7) for h in range(1, 25)]
     helper_test_match(f, atms)
     
-    name = os.path.join(os.path.dirname(__file__), 'known_data_latitudes.txt')
+    name = os.path.join(os.path.dirname(__file__), 'nrlmsise00', 'known_data_latitudes.txt')
     f = np.loadtxt(name, delimiter=' ')    
     atms = [ATMOSPHERE_NRLMSISE00(100000., latitude=l, longitude=45, day=1, seconds=0, geomagnetic_disturbance_indices=[4]*7) for l in range(-90, 91)]
     helper_test_match(f, atms)
     
-    name = os.path.join(os.path.dirname(__file__), 'known_data_longitudes.txt')
+    name = os.path.join(os.path.dirname(__file__), 'nrlmsise00', 'known_data_longitudes.txt')
     f = np.loadtxt(name, delimiter=' ')    
     atms = [ATMOSPHERE_NRLMSISE00(100000., latitude=45, longitude=l, day=1, seconds=0, geomagnetic_disturbance_indices=[4]*7) for l in range(0, 361)]
     helper_test_match(f, atms)
 
     # Custom test, particle total density and composition
-    atm = ATMOSPHERE_NRLMSISE00(Z=1E3, latitude=45, longitude=45, day=150)
+    atm = ATMOSPHERE_NRLMSISE00(Z=1E3, latitude=45.0, longitude=45.0, day=150.0)
     assert_allclose(atm.particle_density, 2.2929008167737723e+25)
     assert_allclose(atm.zs, [0.7811046347676225, 0.2095469403691101, 0.009343183088772914, 5.241774494627779e-06, 0.0, 0.0, 0.0])

@@ -29,13 +29,14 @@ import test_friction
 import test_fittings
 import test_jet_pump
 import test_mixing
+import test_nrlmsise00_full
 
 to_test = [test_drag, test_control_valve, test_two_phase, 
            test_two_phase_voidage, test_separator, test_piping, test_packed_bed,
            test_compressible, test_core,
            test_safety_valve, test_open_flow, test_filters, test_flow_meter,
            test_atmosphere, test_pump, test_friction, test_fittings,
-           test_packed_tower, test_saltation, test_mixing]
+           test_packed_tower, test_saltation, test_mixing, test_nrlmsise00_full]
 #to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
 to_test = [test_safety_valve]
 

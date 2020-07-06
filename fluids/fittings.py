@@ -981,13 +981,13 @@ def Miller_bend_unimpeded_correction(Kb, Di, L_unimpeded):
             elif L_unimpeded_ratio <= 0.01:
                 Co_low = bend_rounded_Miller_C_o_limit_0_01[i]
             else:
-                Co_low = splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i])
+                Co_low = float(splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i]))
             if L_unimpeded_ratio >= bend_rounded_Miller_C_o_limits[i+1]:
                 Co_high = 1.0
             elif L_unimpeded_ratio <= 0.01:
                 Co_high = bend_rounded_Miller_C_o_limit_0_01[i+1]
             else:
-                Co_high = splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i+1])
+                Co_high = float(splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i+1]))
             C_o = Co_low + (Kb_C_o - Kb_low)*(Co_high - Co_low)/(Kb_high - Kb_low)
             return C_o
 
@@ -1079,7 +1079,6 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
     
     C_roughness = Miller_bend_roughness_correction(Re=Re, Di=Di, 
                                                    roughness=roughness)
-
     '''Section 9.2.2 - Reynolds Number Correction
     Allow some extrapolation up to 1E8 (1E7 max in graph but the trend looks good)
     '''
@@ -2511,7 +2510,8 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         l_calc = (Di2 - Di1)/(2.0*tan(0.5*angle_rad))
     else:
         raise ValueError('Either `l` or `angle` must be specified')
-    if method is None:  method == 'Rennels'
+    if method is None: 
+        method = 'Rennels'
     if method == 'Rennels':
         if fd is None:
             if Re is None:

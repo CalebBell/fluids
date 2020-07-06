@@ -4107,7 +4107,7 @@ def transmission_factor(fd=None, F=None):
         raise ValueError('Either Darcy friction factor or transmission factor is needed')
 
 
-def one_phase_dP(m, rho, mu, D, roughness=0, L=1, Method=None):
+def one_phase_dP(m, rho, mu, D, roughness=0.0, L=1.0, Method=None):
     r'''Calculates single-phase pressure drop. This is a wrapper
     around other methods.
 

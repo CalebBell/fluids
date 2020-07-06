@@ -1467,7 +1467,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
             t2 = 0.0
         else:
 #            t2 = c2*V*V*Stokes(Re_ish*V)
-            t2 = c2*V*V*drag_sphere(Re_ish*V, Method=Method)
+            t2 = c2*V*V*drag_sphere(float(Re_ish*V), Method=Method)
         return c1 + t2
 
     # Number of intervals for the solution to be solved for; the integrator

@@ -490,7 +490,7 @@ def test_C_Reader_Harris_Gallagher_wet_venturi_tube():
     
 
 def test_dP_Reader_Harris_Gallagher_wet_venturi_tube():
-    dP = dP_Reader_Harris_Gallagher_wet_venturi_tube(ml=5.31926/2, mg=5.31926, rhog=50.0, rhol=800., D=.1, Do=.06, H=1,  P1=6E6, P2=6E6-5E4)
+    dP = dP_Reader_Harris_Gallagher_wet_venturi_tube(ml=5.31926/2, mg=5.31926, rhog=50.0, rhol=800., D=.1, Do=.06, H=1.0,  P1=6E6, P2=6E6-5E4)
     assert_close(dP, 16957.43843129572)
 
 

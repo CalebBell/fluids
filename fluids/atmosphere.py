@@ -481,7 +481,7 @@ class ATMOSPHERE_NRLMSISE00(object):
         self.geomagnetic_disturbance_indices = geomagnetic_disturbance_indices
         
         from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
-        alt = Z/1000.
+        alt = Z*1e-3
         output_obj = nrlmsise_output()
         input_obj = nrlmsise_input()
         flags = nrlmsise_flags()

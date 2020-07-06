@@ -57,7 +57,7 @@ def test_core_dimensionless():
     with pytest.raises(Exception):
         Fourier_heat(1.5, 2, 1000., 4000.)
 
-    FHM = Fourier_mass(1.5, 2, 1E-9)
+    FHM = Fourier_mass(1.5, 2.0, 1E-9)
     assert_close(FHM,  3.7500000000000005e-10)
 
     GZh1 = Graetz_heat(1.5, 0.25, 5., 800., 2200., 0.6)

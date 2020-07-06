@@ -172,19 +172,22 @@ def test_v_terminal():
     # Laminar example
     v_t = v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-1)
     assert_close(v_t, 4.271340888888888e-05)
+    
+    v_t = v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-3, Method='Rouse')
+    assert_close(v_t, 0.003991779430745852)
 
 
 def test_integrate_drag_sphere():
-    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5, V=30, distance=True)
+    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5, V=30.0, distance=True)
     assert_close1d(ans, (9.686465044063436, 7.829454643649386))
 
-    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5, V=30)
+    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5, V=30.0)
     assert_close(ans, 9.686465044063436)
     
     # Check no error when V is zero
     
     
-    ans = integrate_drag_sphere(D=0.001, rhop=1.20001, rho=1.2, mu=1.78E-5, t=0.5, V=0)
+    ans = integrate_drag_sphere(D=0.001, rhop=1.20001, rho=1.2, mu=1.78E-5, t=0.5, V=0.0)
     assert_close(ans, 3.0607521920092645e-07)
     
     # Stokes law regime integration
@@ -203,9 +206,9 @@ def test_integrate_drag_sphere():
         assert_close1d(ans, [6.729981897140177e-05, 6.729519788530099e-06], rtol=1e-11)
     
 def test_time_v_terminal_Stokes():
-    t = time_v_terminal_Stokes(D=1e-7, rhop=2200., rho=1.2, mu=1.78E-5, V0=1) 
+    t = time_v_terminal_Stokes(D=1e-7, rhop=2200., rho=1.2, mu=1.78E-5, V0=1.0) 
     assert_close(t, 3.188003113787154e-06)
     
     # Very slow - many iterations
-    t = time_v_terminal_Stokes(D=1e-2, rhop=2200., rho=1.2, mu=1.78E-5, V0=1, tol=1e-30)
+    t = time_v_terminal_Stokes(D=1e-2, rhop=2200., rho=1.2, mu=1.78E-5, V0=1.0, tol=1e-30)
     assert_close(t, 24800.636391802)

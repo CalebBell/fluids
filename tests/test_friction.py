@@ -63,7 +63,7 @@ def test_friction():
 
     assert_close(friction_laminar(128), 0.5)
 
-    assert_close(Blasius(10000), 0.03164)
+    assert_close(Blasius(10000.0), 0.03164)
 
     assert_close(sum(_roughness.values()), 0.01504508)
 
@@ -165,7 +165,7 @@ def test_Colebrook_hard_regimes():
 
 
 def test_one_phase_dP():
-    dP = one_phase_dP(10.0, 1000., 1E-5, .1, L=1.)
+    dP = one_phase_dP(10.0, 1000., 1E-5, .1, L=1.000)
     assert_close(dP, 63.43447321097365)
     
 def test_one_phase_dP_gravitational():
@@ -198,7 +198,7 @@ def test_one_phase_dP_dz_acceleration_example():
     D = 0.1
     def dP_dz(P, L, acc=False):
         s.flash(P=float(P), Hm=s.Hm)
-        dPf = one_phase_dP(m=s.m, rho=s.rhog, mu=s.rhog, D=D, roughness=0, L=1)
+        dPf = one_phase_dP(m=s.m, rho=s.rhog, mu=s.rhog, D=D, roughness=0, L=1.0)
     
         if acc:
             G = 4.0*s.m/(pi*D*D)

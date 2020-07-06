@@ -2440,6 +2440,8 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
     '''
+    if type(horizontal) is not bool:
+        1/0
     if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise ValueError('Unspoorted head type for side A')
     if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
