@@ -81,12 +81,12 @@ def dP_demister_dry_Setekleiv_Svendsen(
 
 
 def dP_demister_dry_Setekleiv_Svendsen_lit(
-    S: int,
+    S: float,
     voidage: float,
     vs: float,
-    rho: int,
+    rho: float,
     mu: float,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 

@@ -133,3 +133,14 @@ def test_power_sources():
 
     ca = industrial_power['ca']
     assert (ca.voltage, ca.freq) == ((120, 208, 240, 480, 347, 600), 60)
+    
+    
+def test_CountryPower():
+    a = CountryPower(plugs=('C', 'F', 'M', 'N'), voltage=230.0, freq=50.0, country="South Africa")
+    assert type(a) is CountryPower
+    assert type(a.votlage) is float
+    assert type(a.freq) is float
+    
+    CountryPower(plugs=('G',), voltage=240, freq=50, country="Seychelles")
+    CountryPower(plugs=('C', 'F'), voltage=230, freq=50, country="Armenia")
+    CountryPower(plugs=('D', 'G', 'J', 'K', 'L'), voltage=230, freq=50, country="Maldives")

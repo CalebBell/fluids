@@ -266,7 +266,7 @@ def test_pdf_Gates_Gaudin_Schuhman_basis_integral_fuzz():
     assert_close1d(analytical_vales, numerical_values, rtol=1E-7)
     
 def test_cdf_Rosin_Rammler():
-    cdf = cdf_Rosin_Rammler(5E-2, 200, 2)
+    cdf = cdf_Rosin_Rammler(5E-2, 200.0, 2.0)
     assert_close(cdf, 0.3934693402873667)
     
     
@@ -278,11 +278,11 @@ model = 1 - exp(-k*d**n)
 print(latex(diff(model, d)))    '''
     from scipy.integrate import quad
 
-    pdf = pdf_Rosin_Rammler(1E-3, 200, 2)
+    pdf = pdf_Rosin_Rammler(1E-3, 200.0, 2.0)
     assert_close(pdf, 0.3999200079994667)
     
     # quad
-    to_quad = lambda d: pdf_Rosin_Rammler(d, 200, 2)
+    to_quad = lambda d: pdf_Rosin_Rammler(d, 200.0, 2.0)
     cdf_int = quad(to_quad, 0, 5e-2)[0]
     cdf_known = cdf_Rosin_Rammler(5E-2, 200, 2)
     assert_close(cdf_int, cdf_known)
@@ -294,7 +294,7 @@ print(latex(diff(model, d)))    '''
     
 def test_pdf_Rosin_Rammler_basis_integral():
 
-    ans = pdf_Rosin_Rammler_basis_integral(5E-2, 200, 2, 3)
+    ans = pdf_Rosin_Rammler_basis_integral(5E-2, 200.0, 2.0, 3)
     assert_close(ans, -0.00045239898439007338)
     
     # Test no error

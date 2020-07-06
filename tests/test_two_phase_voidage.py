@@ -179,7 +179,7 @@ def test_Sun_Duffey_Peng():
 
 
 def test_Woldesemayat_Ghajar():
-    assert_close(Woldesemayat_Ghajar(0.4, 800., 2.5, sigma=0.2, m=1, D=0.3, P=1E6, angle=45), 0.7640815513429202)
+    assert_close(Woldesemayat_Ghajar(0.4, 800., 2.5, sigma=0.2, m=1, D=0.3, P=1E6, angle=45.0), 0.7640815513429202)
 
 
 def test_Xu_Fang_voidage():
@@ -203,16 +203,16 @@ def test_liquid_gas_voidage():
     assert len(liquid_gas_voidage_methods(**kwargs)) == 29
 
 def test_density_two_phase():
-    assert_close(density_two_phase(.4, 800, 2.5), 481.0)
+    assert_close(density_two_phase(.4, 800.0, 2.5), 481.0)
     
     
 def test_two_phase_voidage_experimental():
-    alpha = two_phase_voidage_experimental(481.0, 800, 2.5)
+    alpha = two_phase_voidage_experimental(481.0, 800.0, 2.5)
     assert_close(alpha, 0.4)
     
     
 def test_Beattie_Whalley():
-    mu = Beattie_Whalley(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
+    mu = Beattie_Whalley(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2)
     assert_close(mu, 1.7363806909512365e-05)
     
     
@@ -231,12 +231,12 @@ def test_Lin_Kwok():
     assert_close(mu, 3.515119398126066e-05)
     
 def test_Fourar_Bories():
-    mu = Fourar_Bories(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
+    mu = Fourar_Bories(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2)
     assert_close(mu, 2.127617150298565e-05)
     
     
 def tets_Duckler():
-    mu =  Duckler(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
+    mu =  Duckler(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2)
     assert_close(mu, 1.2092040385066917e-05)
     
     
@@ -247,7 +247,7 @@ def tets_Duckler():
         return rhom*(x*(mug/rhog) + (1. - x)*mul/rhol)
     
     
-    mu = Duckler1(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2)
+    mu = Duckler1(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2)
     assert_close(mu, 1.2092040385066917e-05)
 
 
@@ -255,22 +255,22 @@ def test_gas_liquid_viscosity():
     mu = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5)
     assert_close(2.4630541871921184e-05, mu)
     
-    mu = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method='Duckler')
+    mu = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2, Method='Duckler')
     assert_close(mu, 1.2092040385066917e-05)
     
     # TODO remove
-    methods = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, AvailableMethods=True)
+    methods = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2, AvailableMethods=True)
     assert len(methods) == 6
     
     simple_methods = gas_liquid_viscosity_methods()
     assert list(sorted(simple_methods)) == list(sorted(['McAdams', 'Cicchitti', 'Lin Kwok']))
     
-    all_methods = gas_liquid_viscosity_methods(rhol=1000, rhog=2)
+    all_methods = gas_liquid_viscosity_methods(rhol=1000.0, rhog=2.)
     all_methods_expect = ['Beattie Whalley', 'Fourar Bories', 'Duckler', 'McAdams', 'Cicchitti', 'Lin Kwok']
     assert list(sorted(all_methods)) == list(sorted(all_methods_expect))
     
     for m in all_methods_expect:
-        gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method=m)
+        gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2, Method=m)
 
 
     

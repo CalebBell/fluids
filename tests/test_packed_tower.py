@@ -29,7 +29,7 @@ import pytest
 def test_packed_tower():
     dP = dP_demister_dry_Setekleiv_Svendsen(S=250.0, voidage=.983, vs=1.2, rho=10.0, mu=3E-5, L=1.0)
     assert_close(dP, 320.3280788941329)
-    dP = dP_demister_dry_Setekleiv_Svendsen_lit(S=250, voidage=.983, vs=1.2, rho=10, mu=3E-5, L=1)
+    dP = dP_demister_dry_Setekleiv_Svendsen_lit(S=250.0, voidage=.983, vs=1.2, rho=10.0, mu=3E-5, L=1.0)
     assert_close(dP, 209.083848658307)
     dP = voidage_experimental(m=126.0, rho=8000.0, D=1.0, H=1.0)
     assert_close(dP, 0.9799464771704212)

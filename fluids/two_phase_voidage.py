@@ -1909,7 +1909,7 @@ _unknown_two_phase_voidage_corr = 'Method not recognized; available methods are 
 # All the available arguments are: 
 #{'rhol', 'angle=0', 'x', 'P', 'mug', 'rhog', 'D', 'g', 'Pc', 'sigma', 'mul', 'm'}
 def liquid_gas_voidage_methods(x, rhol, rhog, D=None, m=None, mul=None, mug=None, 
-                               sigma=None, P=None, Pc=None, angle=0, g=g,
+                               sigma=None, P=None, Pc=None, angle=0.0, g=g,
                                check_ranges=False):
     r'''This function returns a list of liquid-gas voidage correlation names
     which can perform the calculation with the provided inputs. The holdup is

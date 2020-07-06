@@ -528,6 +528,10 @@ def psd_spacing(d_min=None, d_max=None, pts=20, method='logarithmic'):
     .. [2] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
        -- Part 1: Test Sieves of Metal Wire Cloth.
     '''
+    if d_min is not None:
+        d_min = float(d_min)
+    if d_max is not None:
+        d_max = float(d_max)
     if method == 'logarithmic':
         return logspace(log10(d_min), log10(d_max), pts)
     elif method == 'linear':

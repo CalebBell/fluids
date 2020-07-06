@@ -345,7 +345,7 @@ def two_phase_dP(
 
 
 def two_phase_dP_acceleration(
-    m: int,
+    m: float,
     D: float,
     xi: float,
     xo: float,
@@ -359,7 +359,7 @@ def two_phase_dP_acceleration(
 
 
 def two_phase_dP_dz_acceleration(
-    m: int,
+    m: float,
     D: float,
     x: float,
     rhol: float,
@@ -372,12 +372,12 @@ def two_phase_dP_dz_acceleration(
 ) -> float: ...
 
 
-def two_phase_dP_dz_gravitational(angle: int, alpha: float, rhol: float, rhog: float, g: float = ...) -> float: ...
+def two_phase_dP_dz_gravitational(angle: float, alpha: float, rhol: float, rhog: float, g: float = ...) -> float: ...
 
 
 def two_phase_dP_gravitational(
-    angle: int,
-    z: int,
+    angle: float,
+    z: float,
     alpha_i: float,
     rho_li: float,
     rho_gi: float,

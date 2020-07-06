@@ -30,7 +30,8 @@ __all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underload
 'specific_speed', 'specific_diameter', 'speed_synchronous', 'nema_sizes',
 'nema_sizes_hp', 'motor_round_size', 'nema_min_P', 'nema_high_P', 'plug_types',
 'voltages_1_phase_residential', 'voltages_3_phase', 'frequencies',
-'residential_power', 'industrial_power', 'current_ideal']
+'residential_power', 'industrial_power', 'current_ideal',
+'CountryPower']
 
 
 

@@ -495,7 +495,7 @@ def test_two_phase_dP():
 
 
 def test_two_phase_dP_acceleration():
-    m = 1
+    m = 1.0
     D = 0.1
     xi = 0.37263067757947943
     xo = 0.5570214522041096
@@ -512,12 +512,12 @@ def test_two_phase_dP_acceleration():
 
 
 def test_two_phase_dP_dz_acceleration():
-    dP_dz = two_phase_dP_dz_acceleration(m=1, D=0.1, x=0.372, rhol=827.1, rhog=3.919, dv_dP_l=-5e-12, dv_dP_g=-4e-7, dx_dP=-2e-7, dP_dL=120.0, dA_dL=0.0001)
+    dP_dz = two_phase_dP_dz_acceleration(m=1.0, D=0.1, x=0.372, rhol=827.1, rhog=3.919, dv_dP_l=-5e-12, dv_dP_g=-4e-7, dx_dP=-2e-7, dP_dL=120.0, dA_dL=0.0001)
     assert_close(dP_dz, 20.137876617489034)
     
     
 def test_two_phase_dP_gravitational():
-    dP = two_phase_dP_gravitational(angle=90, z=2, alpha_i=0.9685, rho_li=1518., rho_gi=2.6)
+    dP = two_phase_dP_gravitational(angle=90.0, z=2.0, alpha_i=0.9685, rho_li=1518., rho_gi=2.6)
     assert_close(dP, 987.237416829999)
     
     dP = two_phase_dP_gravitational(angle=90, z=2, alpha_i=0.9685, rho_li=1518., rho_gi=2.6,  alpha_o=0.968, rho_lo=1517.9, rho_go=2.59)
@@ -525,7 +525,7 @@ def test_two_phase_dP_gravitational():
     
     
 def test_two_phase_dP_dz_gravitational():
-    dP_dz = two_phase_dP_dz_gravitational(angle=90, alpha=0.9685, rhol=1518., rhog=2.6)
+    dP_dz = two_phase_dP_dz_gravitational(angle=90.0, alpha=0.9685, rhol=1518., rhog=2.6)
     assert_close(dP_dz, 493.6187084149995)
     
     

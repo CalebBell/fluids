@@ -23,3 +23,7 @@ for t in tests:
     dat = dat.replace('Union[float, int]', 'float')
     dat += '\n__all__: List[str]'
     open(type_hit_path, 'w').write(dat)
+
+'''
+First thing not supported by monkeytype: Tuple[t1, ...]  in CountryPower
+'''

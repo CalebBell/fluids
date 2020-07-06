@@ -39,6 +39,6 @@ def speed_synchronous(f: float, poles: int = ..., phase: int = ...) -> float: ..
 
 
 class CountryPower:
-    def __init__(self, country: str, voltage: Any, freq: int, plugs: Optional[Any] = ...) -> None: ...
+    def __init__(self, country: str, voltage: Any, freq: float, plugs: Optional[Any] = ...) -> None: ...
 
 __all__: List[str]
