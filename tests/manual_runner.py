@@ -6,7 +6,11 @@ Created on Sun Jun  7 07:28:17 2020
 @author: caleb
 """
 import sys
-import test_drag
+try:
+    import test_drag
+except:
+    print('run this from the tests directory')
+    exit()
 import test_control_valve
 import test_geometry
 import test_two_phase
