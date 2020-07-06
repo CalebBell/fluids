@@ -3,10 +3,11 @@ from typing import List
 from typing import (
     List,
     Tuple,
+    Union,
 )
 
 
-def Robbins(L: float, G: float, rhol: float, rhog: float, mul: float, H: int = ..., Fpd: int = ...) -> float: ...
+def Robbins(L: float, G: float, rhol: float, rhog: float, mul: float, H: float = ..., Fpd: float = ...) -> float: ...
 
 
 def Stichlmair_dry(
@@ -16,8 +17,8 @@ def Stichlmair_dry(
     voidage: float,
     specific_area: float,
     C1: float,
-    C2: int,
-    C3: int,
+    C2: float,
+    C3: float,
     H: float = ...
 ) -> float: ...
 
@@ -47,7 +48,7 @@ def Stichlmair_wet(
     C1: float,
     C2: float,
     C3: float,
-    H: int = ...
+    H: float = ...
 ) -> float: ...
 
 
@@ -66,10 +67,17 @@ def _Stichlmair_flood_f_and_jac(
 ) -> Tuple[List[float], List[List[float]]]: ...
 
 
-def _Stichlmair_wet_err(dP_irr: float, h0: float, c1: float, dP_dry: float, H: int, voidage: float, c: float) -> float: ...
+def _Stichlmair_wet_err(dP_irr: float, h0: float, c1: float, dP_dry: float, H: float, voidage: float, c: float) -> float: ...
 
 
-def dP_demister_dry_Setekleiv_Svendsen(S: int, voidage: float, vs: float, rho: int, mu: float, L: int = ...) -> float: ...
+def dP_demister_dry_Setekleiv_Svendsen(
+    S: float,
+    voidage: float,
+    vs: float,
+    rho: float,
+    mu: float,
+    L: float = ...
+) -> float: ...
 
 
 def dP_demister_dry_Setekleiv_Svendsen_lit(
@@ -82,7 +90,7 @@ def dP_demister_dry_Setekleiv_Svendsen_lit(
 ) -> float: ...
 
 
-def dP_demister_wet_ElDessouky(vs: float, voidage: float, d_wire: float, L: int = ...) -> float: ...
+def dP_demister_wet_ElDessouky(vs: float, voidage: float, d_wire: float, L: float = ...) -> float: ...
 
 
 def separation_demister_ElDessouky(vs: float, voidage: float, d_wire: float, d_drop: float) -> float: ...
@@ -91,6 +99,6 @@ def separation_demister_ElDessouky(vs: float, voidage: float, d_wire: float, d_d
 def specific_area_mesh(voidage: float, d: float) -> float: ...
 
 
-def voidage_experimental(m: int, rho: int, D: int, H: int) -> float: ...
+def voidage_experimental(m: float, rho: float, D: float, H: float) -> float: ...
 
 __all__: List[str]

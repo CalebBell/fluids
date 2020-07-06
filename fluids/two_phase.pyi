@@ -17,7 +17,7 @@ def Bankoff(
     mug: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -30,7 +30,7 @@ def Baroczy_Chisholm(
     mug: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -62,7 +62,7 @@ def Chen_Friedel(
     sigma: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -75,7 +75,7 @@ def Chisholm(
     mug: float,
     D: float,
     roughness: float = ...,
-    L: int = ...,
+    L: float = ...,
     rough_correction: bool = ...
 ) -> float: ...
 
@@ -90,7 +90,7 @@ def Friedel(
     sigma: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -103,7 +103,7 @@ def Gronnerud(
     mug: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -117,7 +117,7 @@ def Hwang_Kim(
     sigma: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -130,7 +130,7 @@ def Jung_Radermacher(
     mug: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -143,7 +143,7 @@ def Kim_Mudawar(
     mug: float,
     sigma: float,
     D: float,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -155,12 +155,20 @@ def Lockhart_Martinelli(
     mul: float,
     mug: float,
     D: float,
-    L: int = ...,
-    Re_c: int = ...
+    L: float = ...,
+    Re_c: float = ...
 ) -> float: ...
 
 
-def Lombardi_Pedrocchi(m: float, x: float, rhol: float, rhog: float, sigma: float, D: float, L: int = ...) -> float: ...
+def Lombardi_Pedrocchi(
+    m: float,
+    x: float,
+    rhol: float,
+    rhog: float,
+    sigma: float,
+    D: float,
+    L: float = ...
+) -> float: ...
 
 
 def Mandhane_Gregory_Aziz_regime(
@@ -185,7 +193,7 @@ def Mishima_Hibiki(
     sigma: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -198,7 +206,7 @@ def Muller_Steinhagen_Heck(
     mug: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -210,8 +218,8 @@ def Taitel_Dukler_regime(
     mul: float,
     mug: float,
     D: float,
-    angle: int,
-    roughness: int = ...,
+    angle: float,
+    roughness: float = ...,
     g: float = ...
 ) -> Tuple[str, float, float, float, float]: ...
 
@@ -225,7 +233,7 @@ def Theissing(
     mug: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -239,7 +247,7 @@ def Tran(
     sigma: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -252,7 +260,7 @@ def Wang_Chiang_Lu(
     mug: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -266,7 +274,7 @@ def Xu_Fang(
     sigma: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -279,7 +287,7 @@ def Yu_France(
     mug: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -293,7 +301,7 @@ def Zhang_Hibiki_Mishima(
     sigma: float,
     D: float,
     roughness: float = ...,
-    L: int = ...,
+    L: float = ...,
     flowtype: str = ...
 ) -> float: ...
 
@@ -307,7 +315,7 @@ def Zhang_Webb(
     Pc: float,
     D: float,
     roughness: float = ...,
-    L: int = ...
+    L: float = ...
 ) -> float: ...
 
 
@@ -322,7 +330,7 @@ def two_phase_dP(
     x: float,
     rhol: float,
     D: float,
-    L: int = ...,
+    L: float = ...,
     rhog: Optional[float] = ...,
     mul: Optional[float] = ...,
     mug: Optional[float] = ...,
@@ -385,7 +393,7 @@ def two_phase_dP_methods(
     x: float,
     rhol: float,
     D: float,
-    L: int = ...,
+    L: float = ...,
     rhog: Optional[float] = ...,
     mul: Optional[float] = ...,
     mug: Optional[float] = ...,

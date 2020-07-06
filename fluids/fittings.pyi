@@ -242,8 +242,8 @@ def diffuser_conical(
 def diffuser_conical_staged(
     Di1: float,
     Di2: float,
-    DEs: List[Union[float, int]],
-    ls: List[Union[float, int]],
+    DEs: List[float],
+    ls: List[float],
     fd: Optional[float] = ...,
     method: str = ...
 ) -> float: ...
