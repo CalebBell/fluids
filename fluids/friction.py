@@ -1931,7 +1931,7 @@ def friction_factor_methods(Re, eD=0.0, check_ranges=True):
         return list(fmethods.keys()) + ['laminar']
 
 
-def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True, AvailableMethods=False):
+def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True):
     r'''Calculates friction factor. Uses a specified method, or automatically
     picks one from the dictionary of available methods. 29 approximations are 
     available as well as the direct solution, described in the table below. 
@@ -1957,9 +1957,6 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True, AvailableMethods=F
     -------
     f : float
         Friction factor, [-]
-    methods : list, only returned if AvailableMethods == True
-        List of methods which claim to be valid for the range of `Re` and `eD`
-        given; DEPRECATED
 
     Other Parameters
     ----------------
@@ -1967,9 +1964,6 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True, AvailableMethods=F
         A string of the function name to use
     Darcy : bool, optional
         If False, will return fanning friction factor, 1/4 of the Darcy value
-    AvailableMethods : bool, optional
-        If True, function will consider which methods claim to be valid for
-        the range of `Re` and `eD` given; DEPRECATED
     
     See Also
     --------
@@ -2046,10 +2040,6 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True, AvailableMethods=F
        Barkley, and Björn Hof. "The Onset of Turbulence in Pipe Flow." Science 
        333, no. 6039 (July 8, 2011): 192-96. doi:10.1126/science.1203223.
     '''
-    if AvailableMethods:
-        import warnings
-        warnings.warn('Please use friction_factor_methods', DeprecationWarning, stacklevel=2)
-        return friction_factor_methods(Re, eD, check_ranges=True)
     if Method is None:
         Method = 'Clamond'
 
@@ -3126,8 +3116,7 @@ def friction_factor_curved_methods(Re, Di, Dc, roughness=0.0,
 def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None, 
                            Rec_method='Schmidt', 
                            laminar_method='Schmidt laminar',
-                           turbulent_method='Schmidt turbulent', Darcy=True, 
-                           AvailableMethods=False):
+                           turbulent_method='Schmidt turbulent', Darcy=True):
     r'''Calculates friction factor fluid flowing in a curved pipe or helical
     coil, supporting both laminar and turbulent regimes. Selects the 
     appropriate regime by default, and has default correlation choices.
@@ -3158,9 +3147,6 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
     -------
     f : float
         Friction factor, [-]
-    methods : list, only returned if AvailableMethods == True
-        List of methods in the regime the specified `Re` is in at the given
-        `Di` and `Dc`. DEPRECATED!
 
     Other Parameters
     ----------------
@@ -3181,9 +3167,6 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
         'Mori Nakayama turbulent', 'Czop']; the default is 'Schmidt turbulent'.
     Darcy : bool, optional
         If False, will return fanning friction factor, 1/4 of the Darcy value
-    AvailableMethods : bool, optional
-        If True, function will consider which methods claim to be valid for
-        the range of `Re` and `eD` given. DEPRECATED!
     
     See Also
     --------
@@ -3219,14 +3202,6 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
     '''
     Re_crit = helical_Re_crit(Di=Di, Dc=Dc, Method=Rec_method)
     turbulent = False if Re < Re_crit else True
-    
-    if AvailableMethods:
-        import warnings
-        warnings.warn('Please use friction_factor_curved_methods', DeprecationWarning, stacklevel=2)
-        if turbulent:
-            return curved_friction_turbulent_methods_list
-        else:
-            return curved_friction_laminar_methods_list
     
     if Method is None:
         Method2 = turbulent_method if turbulent else laminar_method

@@ -1059,14 +1059,11 @@ def drag_sphere_methods(Re, check_ranges=True):
             methods.append(key)
     return methods
 
-def drag_sphere(Re, Method=None, AvailableMethods=False):
+def drag_sphere(Re, Method=None):
     r'''This function handles calculation of drag coefficient on spheres.
     Twenty methods are available, all requiring only the Reynolds number of the
     sphere. Most methods are valid from Re=0 to Re=200,000. A correlation will
-    be automatically selected if none is specified. The full list of correlations
-    valid for a given Reynolds number can be obtained with the `AvailableMethods`
-    flag.
-
+    be automatically selected if none is specified.
     If no correlation is selected, the following rules are used:
 
         * If Re < 0.01, use Stoke's solution.
@@ -1092,22 +1089,13 @@ def drag_sphere(Re, Method=None, AvailableMethods=False):
     -------
     Cd : float
         Drag coefficient [-]
-    methods : list, only returned if AvailableMethods == True
-        List of methods which can be used to calculate `Cd` with the given `Re`
 
     Other Parameters
     ----------------
     Method : string, optional
         A string of the function name to use, as in the dictionary
         drag_sphere_correlations
-    AvailableMethods : bool, optional
-        If True, function will consider which methods which can be used to
-        calculate `Cd` with the given `Re`; DEPRECATED
     '''
-    if AvailableMethods:
-        import warnings
-        warnings.warn('Please use drag_sphere_methods', DeprecationWarning, stacklevel=2)
-        return drag_sphere_methods(Re)
     if Method is None:
         if Re > 0.1:
             # Smooth transition point between the two models

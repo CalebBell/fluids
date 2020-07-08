@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Sun Jun  7 07:28:17 2020
-
-@author: caleb
-"""
 import sys
 try:
     import test_drag
@@ -41,13 +36,14 @@ to_test = [test_drag, test_control_valve, test_two_phase,
            test_safety_valve, test_open_flow, test_filters, test_flow_meter,
            test_atmosphere, test_pump, test_friction, test_fittings,
            test_packed_tower, test_saltation, test_mixing, test_nrlmsise00_full]
-#to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
-to_test = [test_safety_valve]
+to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
+#to_test = [test_safety_valve]
 
 skip_marks = ['slow', 'fuzz']
 skip_marks_set = set(skip_marks)
 if len(sys.argv) >= 2:
-    print(sys.argv)
+    #print(sys.argv)
+    # Run modules specified by user
     to_test = [globals()[i] for i in sys.argv[1:]]
 for mod in to_test:
     print(mod)

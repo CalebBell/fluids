@@ -189,10 +189,7 @@ def test_Xu_Fang_voidage():
 def test_liquid_gas_voidage():
     voidage = liquid_gas_voidage(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05)
     assert_close(voidage, 0.9744097632663492)
-    
-    # TODO remove
-    liquid_gas_voidage(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, AvailableMethods=True)
-    
+        
     kwargs = dict(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, P=1e5, Pc=1e7)
     for m in liquid_gas_voidage_methods(**kwargs):
         liquid_gas_voidage(Method=m, **kwargs)
@@ -257,11 +254,7 @@ def test_gas_liquid_viscosity():
     
     mu = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2, Method='Duckler')
     assert_close(mu, 1.2092040385066917e-05)
-    
-    # TODO remove
-    methods = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2, AvailableMethods=True)
-    assert len(methods) == 6
-    
+        
     simple_methods = gas_liquid_viscosity_methods()
     assert list(sorted(simple_methods)) == list(sorted(['McAdams', 'Cicchitti', 'Lin Kwok']))
     

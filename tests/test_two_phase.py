@@ -426,22 +426,16 @@ def test_two_phase_dP():
     
     # TODO; Delete two_phase_dP method calls
     # Case 0
-    assert ['Lombardi_Pedrocchi'] == two_phase_dP(10, 0.7, 1000, 0.1, rhog=1.2, sigma=0.02, AvailableMethods=True)
     assert ['Lombardi_Pedrocchi'] == two_phase_dP_methods(10, 0.7, 1000, 0.1, rhog=1.2, sigma=0.02)
     # Case 5
-    assert ['Zhang_Webb'] == two_phase_dP(10, 0.7, 1000, 0.1, mul=1E-3, P=1E5, Pc=1E6, AvailableMethods=True)
     assert ['Zhang_Webb'] == two_phase_dP_methods(10, 0.7, 1000, 0.1, mul=1E-3, P=1E5, Pc=1E6,)
     # Case 1,2
     
     expect = ['Jung_Radermacher', 'Muller_Steinhagen_Heck', 'Baroczy_Chisholm', 'Yu_France', 'Wang_Chiang_Lu', 'Theissing', 'Chisholm rough', 'Chisholm', 'Gronnerud', 'Lockhart_Martinelli', 'Bankoff']
-    actual = two_phase_dP(10, 0.7, 1000, 0.1, rhog=1.2, mul=1E-3, mug=1E-6, AvailableMethods=True)
-    assert sorted(expect) == sorted(actual)
     assert sorted(expect) == sorted(two_phase_dP_methods(10, 0.7, 1000, 0.1, rhog=1.2, mul=1E-3, mug=1E-6))
 
     # Case 3, 4; drags in 5, 1, 2
     expect = ['Zhang_Hibiki_Mishima adiabatic gas', 'Kim_Mudawar', 'Friedel', 'Jung_Radermacher', 'Hwang_Kim', 'Muller_Steinhagen_Heck', 'Baroczy_Chisholm', 'Tran', 'Yu_France', 'Zhang_Hibiki_Mishima flow boiling', 'Xu_Fang', 'Wang_Chiang_Lu', 'Theissing', 'Chisholm rough', 'Chisholm', 'Mishima_Hibiki', 'Gronnerud', 'Chen_Friedel', 'Lombardi_Pedrocchi', 'Zhang_Hibiki_Mishima', 'Lockhart_Martinelli', 'Bankoff']
-    actual = two_phase_dP(10, 0.7, 1000, 0.1, rhog=1.2, mul=1E-3, mug=1E-6, sigma=0.014, AvailableMethods=True)
-    assert sorted(expect) == sorted(actual)
     assert sorted(expect) == sorted(two_phase_dP_methods(10, 0.7, 1000, 0.1, rhog=1.2, mul=1E-3, mug=1E-6, sigma=0.014,))
 
     assert 24 == len(two_phase_dP_methods(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1, angle=30.0, roughness=1e-4, P=1e5, Pc=1e6))

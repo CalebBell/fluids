@@ -134,11 +134,7 @@ def test_drag_sphere():
     
     Cd = drag_sphere(0.05)
     assert_close(Cd, 481.23769162684573)
-    
-    methods = sorted(drag_sphere(3E5, AvailableMethods=True))
-    method_known = ['Barati_high', 'Ceylan', 'Morrison', 'Clift', 'Almedeij']
-    assert sorted(method_known) == methods
-    
+        
     with pytest.raises(Exception):
         drag_sphere(200, Method='BADMETHOD')
         

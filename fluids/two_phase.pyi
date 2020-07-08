@@ -341,7 +341,7 @@ def two_phase_dP(
     angle: Optional[float] = ...,
     Method: Optional[str] = ...,
     AvailableMethods: bool = ...
-) -> Union[List[str], float]: ...
+) -> float: ...
 
 
 def two_phase_dP_acceleration(
@@ -401,7 +401,7 @@ def two_phase_dP_methods(
     P: Optional[float] = ...,
     Pc: Optional[float] = ...,
     roughness: float = ...,
-    angle: Optional[float] = ...,
+    angle: float = ...,
     check_ranges: bool = ...
 ) -> List[str]: ...
 

@@ -2371,9 +2371,6 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
     -------
     dP : float
         Pressure drop of the two-phase flow, [Pa]
-    methods : list, only returned if AvailableMethods == True
-        List of methods which can be used to calculate two-phase pressure drop
-        with the given inputs.
 
     Other Parameters
     ----------------

@@ -138,7 +138,7 @@ def test_power_sources():
 def test_CountryPower():
     a = CountryPower(plugs=('C', 'F', 'M', 'N'), voltage=230.0, freq=50.0, country="South Africa")
     assert type(a) is CountryPower
-    assert type(a.votlage) is float
+    assert type(a.voltage) is float
     assert type(a.freq) is float
     
     CountryPower(plugs=('G',), voltage=240, freq=50, country="Seychelles")

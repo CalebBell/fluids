@@ -1046,7 +1046,7 @@ def dP_packed_bed_methods(dp, voidage, vs, rho, mu, L=1.0, Dt=None, check_ranges
 
 
 def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
-                  Method=None, AvailableMethods=False):
+                  Method=None):
     r'''This function handles choosing which pressure drop in a packed bed
     correlation is used. Automatically select which correlation
     to use if none is provided. Returns None if insufficient information is
@@ -1091,24 +1091,14 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
     -------
     dP : float
         Pressure drop across the bed [Pa]
-    methods : list, only returned if AvailableMethods == True
-        List of methods which can be used to calculate `dP` with the given inputs
 
     Other Parameters
     ----------------
     Method : string, optional
         A string of the function name to use, as in the dictionary
         packed_beds_correlations
-    AvailableMethods : bool, optional
-        If True, function will consider which methods which can be used to
-        calculate `dP` with the given inputs and return them as a list.
-        DEPRECATED!
     '''
 
-    if AvailableMethods:
-        import warnings
-        warnings.warn('Please use dP_packed_bed_methods', DeprecationWarning, stacklevel=2)
-        return dP_packed_bed_methods(dp, voidage, vs, rho, mu, L, Dt)
     if Method is None:
         Method2 = 'Harrison, Brunner & Hecker' if Dt is not None else 'Erdim, Akgiray & Demir'
     else:
