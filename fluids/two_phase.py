@@ -2322,8 +2322,7 @@ def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
     return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
 
 def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None,
-                 P=None, Pc=None, roughness=0.0, angle=None, Method=None, 
-                 AvailableMethods=False):
+                 P=None, Pc=None, roughness=0.0, angle=None, Method=None):
     r'''This function handles calculation of two-phase liquid-gas pressure drop
     for flow inside channels. 23 calculation methods are available, with
     varying input requirements. A correlation will be automatically selected if
@@ -2377,10 +2376,6 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
     Method : string, optional
         A string of the function name to use, as in the dictionary
         two_phase_correlations.
-    AvailableMethods : bool, optional
-        If True, function will consider which methods which can be used to
-        calculate two-phase pressure drop with the given inputs and return
-        them as a list instead of performing a calculation. DEPRECATED
 
     Notes
     -----
@@ -2396,11 +2391,6 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
     ... sigma=0.0487, D=0.05, L=1.0)
     840.4137796786074
     '''
-    if AvailableMethods:
-        import warnings
-        warnings.warn('Please use two_phase_dP_methods', DeprecationWarning, stacklevel=2)
-        return two_phase_dP_methods(m, x, rhol, D, L=L, rhog=rhog, mul=mul, mug=mug, 
-                         sigma=sigma, P=P, Pc=Pc, roughness=roughness, angle=angle)
     if Method is None:
         if rhog is not None and mul is not None and mug is not None and sigma is not None:
             Method2 = 'Kim_Mudawar' # Kim_Mudawar preferred

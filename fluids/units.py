@@ -56,9 +56,9 @@ def func_args(func):
     method.
     '''
     try:
-        return tuple(inspect.getargspec(func).args)
-    except:
         return tuple(inspect.getfullargspec(func).args)
+    except:
+        return tuple(inspect.getargspec(func).args)
 
 u.autoconvert_offset_to_baseunit = True
 

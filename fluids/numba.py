@@ -508,6 +508,10 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                 glob.update(replaced)
     
     # Do our best to allow functions to be found
+    if '__file__' in __funcs:
+        del __funcs['__file__']
+    if '__file__' in replaced:
+        del replaced['__file__']
     for mod in new_mods:
         mod.__dict__.update(__funcs)
         mod.__dict__.update(replaced)
@@ -549,12 +553,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     # AvailableMethods  will be removed in the future in favor of non-numba only 
     # calls to method functions
     
-    to_change_AvailableMethods = ['friction.friction_factor_curved', 'friction.friction_factor',
-     'packed_bed.dP_packed_bed', 'two_phase.two_phase_dP', 'drag.drag_sphere',
-     'two_phase_voidage.liquid_gas_voidage', 'two_phase_voidage.gas_liquid_viscosity']
-    
-    
-    to_change = {k: 'AvailableMethods' for k in to_change_AvailableMethods}
+    to_change = {}
     to_change['friction.roughness_Farshad'] = 'ID in _Farshad_roughness'
     
     for s, bad_branch in to_change.items():

@@ -27,3 +27,7 @@ for t in tests:
 '''
 First thing not supported by monkeytype: Tuple[t1, ...]  in CountryPower
 '''
+try:
+    os.remove("monkeytype.sqlite3")
+except:
+    pass
