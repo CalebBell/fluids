@@ -235,7 +235,7 @@ def motor_round_size(P):
     for P_actual in nema_sizes:
         if P_actual >= P:
             return P_actual
-    raise Exception('Required power is larger than can be provided with one motor')
+    raise ValueError('Required power is larger than can be provided with one motor')
 
 
 nema_high_P = [1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 5.5, 7.5, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0, 60.0, 75.0, 100.0, 125.0, 150.0, 175.0, 200.0]
@@ -594,7 +594,7 @@ def current_ideal(P, V, phase=3, PF=1):
        http://ecmweb.com/basics/calculating-single-and-3-phase-parameters.
     '''
     if phase not in [1, 3]:
-        raise Exception('Only 1 and 3 phase power supported')
+        raise ValueError('Only 1 and 3 phase power supported')
     if phase == 3:
         return P/(V*3**0.5*PF)
     else:

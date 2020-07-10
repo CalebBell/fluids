@@ -3233,7 +3233,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
     elif Method2 == 'Srinivasan turbulent':
         f = helical_turbulent_fd_Srinivasan(Re, Di, Dc)
     else:
-        raise Exception('Invalid method for friction factor calculation')        
+        raise ValueError('Invalid method for friction factor calculation')        
     if not Darcy:
         f *= 0.25
     return f

@@ -423,7 +423,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         L1 = 1.0
         L2_prime = 0.47
     else:
-        raise Exception('Unsupported tap location')
+        raise ValueError('Unsupported tap location')
         
     beta2 = beta*beta
     beta4 = beta2*beta2

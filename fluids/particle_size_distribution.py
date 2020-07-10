@@ -1621,7 +1621,7 @@ class ParticleSizeDistributionContinuous(object):
         try:
             import matplotlib.pyplot as plt
         except:  # pragma: no cover
-            raise Exception(NO_MATPLOTLIB_MSG)           
+            raise ValueError(NO_MATPLOTLIB_MSG)           
         ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts, method=method)
         try:
             for ni in n:
@@ -1670,7 +1670,7 @@ class ParticleSizeDistributionContinuous(object):
         try:
             import matplotlib.pyplot as plt
         except:  # pragma: no cover
-            raise Exception(NO_MATPLOTLIB_MSG)
+            raise ValueError(NO_MATPLOTLIB_MSG)
 
         ds = self.ds_discrete(d_min=d_min, d_max=d_max, pts=pts, method=method)
         try:

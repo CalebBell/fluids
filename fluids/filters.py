@@ -175,7 +175,7 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0):
     elif subtype == 'knotless net':
         K = 0.72*(1-alpha) + 2.1*(1-alpha)**2
     else:
-        raise Exception('Subtype not recognized')
+        raise ValueError('Subtype not recognized')
     if angle:
         if angle < 45:
             K *= cos(radians(angle))**2

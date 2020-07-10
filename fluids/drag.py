@@ -1416,7 +1416,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
             # It is only necessary to integrate to terminal velocity
             t_to_terminal = time_v_terminal_Stokes(D, rhop, rho, mu, V0=V, tol=1e-9)
             if t_to_terminal > t:
-                raise Exception('Should never happen')
+                raise ValueError('Should never happen')
             V_end, x_end = integrate_drag_sphere(D=D, rhop=rhop, rho=rho, mu=mu, t=t_to_terminal, V=V, Method='Stokes', distance=True)
             # terminal velocity has been reached - V does not change, but x does
             # No reason to believe this isn't working even though it isn't

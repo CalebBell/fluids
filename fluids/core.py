@@ -290,7 +290,7 @@ def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
     if rho is not None and Cp is not None and k is not None:
         alpha =  k/(rho*Cp)
     elif alpha is None:
-        raise Exception('Either heat capacity and thermal conductivity and\
+        raise ValueError('Either heat capacity and thermal conductivity and\
         density, or thermal diffusivity is needed')
     return V*L/alpha
 
@@ -392,7 +392,7 @@ def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
     if rho is not None and Cp is not None and k is not None:
         alpha =  k/(rho*Cp)
     elif alpha is None:
-        raise Exception('Either heat capacity and thermal conductivity and \
+        raise ValueError('Either heat capacity and thermal conductivity and \
 density, or thermal diffusivity is needed')
     return t*alpha/(L*L)
 
@@ -498,7 +498,7 @@ def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
     if rho is not None and Cp is not None and k is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
-        raise Exception('Either heat capacity and thermal conductivity and\
+        raise ValueError('Either heat capacity and thermal conductivity and\
         density, or thermal diffusivity is needed')
     return V*D*D/(x*alpha)
 
@@ -617,7 +617,7 @@ def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
     if k is not None and Cp is not None and rho is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
-        raise Exception('Insufficient information provided for Le calculation')
+        raise ValueError('Insufficient information provided for Le calculation')
     return alpha/D
 
 

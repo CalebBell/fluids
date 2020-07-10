@@ -122,9 +122,9 @@ def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
     '''
     unknowns = sum(i is None for i in (d_nozzle, d_mixing, Qs, Qp, P1, P2))
     if unknowns > 1:
-        raise Exception('Too many unknowns')
+        raise ValueError('Too many unknowns')
     elif unknowns < 1:
-        raise Exception('Overspecified')
+        raise ValueError('Overspecified')
     C = rhos/rhop
     
     if Qp is not None and Qs is not None:
@@ -366,9 +366,9 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
              unknown_vars.append(i)
     
     if len(unknown_vars) > 2:
-        raise Exception('Too many unknowns')
+        raise ValueError('Too many unknowns')
     elif len(unknown_vars) < 2:
-        raise Exception('Overspecified')
+        raise ValueError('Overspecified')
     
     
     vals = {'d_nozzle': d_nozzle, 'd_mixing': d_mixing, 'Qp': Qp,

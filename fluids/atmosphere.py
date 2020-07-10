@@ -1274,7 +1274,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     elif airmass_model in true_zenith_airmass_models:
         used_zenith = zenith
     else:
-        raise Exception('Unrecognized airmass model')
+        raise ValueError('Unrecognized airmass model')
     
     relative_airmass = get_relative_airmass(used_zenith, model=airmass_model)
     airmass_absolute = get_absolute_airmass(relative_airmass, pressure=P)

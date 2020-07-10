@@ -144,7 +144,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
         F = 0.000259550
         K = exp(A + X*(B + X*(C + X*(D + X*(E + F*X)))))
     else:
-        raise Exception("Only methods 'spline', 'branan', and 'blackwell' are supported.")
+        raise ValueError("Only methods 'spline', 'branan', and 'blackwell' are supported.")
     K *= foot # Converts units of ft/s to m/s; the graph and all fits are in ft/s 
     if horizontal:
         K *= 1.25 # Watkins recommends a factor of 1.25 for horizontal separators over vertical separators

@@ -690,7 +690,7 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
             return stations[i]
     if match_max < station_count:
         return get_closest_station(latitude, longitude, minumum_recent_data=minumum_recent_data, match_max=match_max*10)
-    raise Exception('Could not find a station with more recent data than '
+    raise ValueError('Could not find a station with more recent data than '
                     'specified near the specified coordinates.')
 
 
@@ -725,7 +725,7 @@ def get_station_year_text(WMO, WBAN, year):
         if data and data != 'Exception':
             return data
         else:
-            raise Exception(data)
+            raise ValueError(data)
         
     toget = ('ftp://ftp.ncdc.noaa.gov/pub/data/gsod/' + str(year) + '/' 
              + station + '-' + str(year) +'.op.gz')
@@ -735,7 +735,7 @@ def get_station_year_text(WMO, WBAN, year):
         if not os.path.exists(gsod_year_dir):
             os.makedirs(gsod_year_dir)
         open(path, 'w').write('Exception')
-        raise Exception('Could not obtain desired data; check '
+        raise ValueError('Could not obtain desired data; check '
                         'if the year has data published for the '
                         'specified station and the station was specified '
                         'in the correct form. The full error is %s' %(e))

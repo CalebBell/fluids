@@ -3104,7 +3104,7 @@ class TANK(object):
                             self.sideA_f, self.sideA_k, self.sideB_f, 
                             self.sideB_k)
         else:
-            raise Exception("Allowable methods are 'full' .")
+            raise ValueError("Allowable methods are 'full' .")
 
     def V_from_h(self, h, method='full'):
         r'''Method to calculate the volume of liquid in a fully defined tank
@@ -3137,7 +3137,7 @@ class TANK(object):
                 self.set_chebyshev_approximators()
             return self.V_from_h_cheb(h)
         else:
-            raise Exception("Allowable methods are 'full' or 'chebyshev'.")
+            raise ValueError("Allowable methods are 'full' or 'chebyshev'.")
 
     def h_from_V(self, V, method='spline'):
         r'''Method to calculate the height of liquid in a fully defined tank
@@ -3175,7 +3175,7 @@ class TANK(object):
             to_solve = lambda h : self.V_from_h(h, method='full') - V
             return brenth(to_solve, self.h_max, 0)
         else:
-            raise Exception("Allowable methods are 'full' or 'chebyshev', "
+            raise ValueError("Allowable methods are 'full' or 'chebyshev', "
                             "or 'brenth'.")
 
     def A_cross_sectional(self, h, method='full'):
@@ -3300,13 +3300,13 @@ class TANK(object):
         Tested, but bugs and limitations are expected here.
         '''
         if self.L and (self.sideA_a or self.sideB_a):
-            raise Exception('Cannot specify head sizes when solving for V')
+            raise ValueError('Cannot specify head sizes when solving for V')
         if (self.D and self.L) or (self.D and self.L_over_D) or (self.L and self.L_over_D):
-            raise Exception('Only one of D, L, or L_over_D can be specified\
+            raise ValueError('Only one of D, L, or L_over_D can be specified\
             when solving for V')
         if ((self.sideA is not None and (self.sideA_a_ratio is None and self.sideA_a is None) and self.sideA != 'torispherical')
              or (self.sideB is not None and (self.sideB_a_ratio is None and self.sideB_a is None) and self.sideB != 'torispherical')):
-            raise Exception('When heads are specified, head parameter ratios are required')
+            raise ValueError('When heads are specified, head parameter ratios are required')
 
         if self.D:
             # Iterate until L is appropriate
@@ -4328,7 +4328,7 @@ class AirCooledExchanger(object):
             if pitch is not None:
                 pitch = self.tube_diameter*pitch_ratio
             else:
-                raise Exception('Specify only one of `pitch_ratio` or `pitch`')
+                raise ValueError('Specify only one of `pitch_ratio` or `pitch`')
         
         
         angle, pitch, pitch_parallel, pitch_normal = pitch_angle_solver(
@@ -4343,7 +4343,7 @@ class AirCooledExchanger(object):
         
         
         if fin_diameter is None and fin_height is None:
-            raise Exception('Specify only one of `fin_diameter` or `fin_height`')
+            raise ValueError('Specify only one of `fin_diameter` or `fin_height`')
         elif fin_diameter is not None:
             fin_height = 0.5*(fin_diameter - tube_diameter)
         elif fin_height is not None:
@@ -4352,7 +4352,7 @@ class AirCooledExchanger(object):
         self.fin_diameter = fin_diameter
         
         if fin_density is None and fin_interval is None:
-            raise Exception('Specify only one of `fin_density` or `fin_interval`')
+            raise ValueError('Specify only one of `fin_density` or `fin_interval`')
         elif fin_density is not None:
             fin_interval = 1.0/fin_density
         elif fin_interval is not None:
@@ -4549,7 +4549,7 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
         angle = degrees(asin(pitch_normal/(pitch_normal**2 + pitch_parallel**2)**0.5))
         pitch = (pitch_normal**2 + pitch_parallel**2)**0.5
     else:
-        raise Exception('Two of the arguments are required')
+        raise ValueError('Two of the arguments are required')
     return angle, pitch, pitch_parallel, pitch_normal
 
 

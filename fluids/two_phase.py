@@ -2401,7 +2401,7 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
         elif rhog is not None and sigma is not None:
             Method2 = 'Lombardi_Pedrocchi' # Last try
         else:
-            raise Exception('All possible methods require more information \
+            raise ValueError('All possible methods require more information \
 than provided; provide more inputs!')
     else:
         Method2 = Method

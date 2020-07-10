@@ -252,7 +252,7 @@ def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
     elif P1 is None:
         ans = P1 = -7.0*P2/(5.0*gamma*xT - 7.0)
     else:
-        raise Exception('Either P1 or P2 needs to be specified')
+        raise ValueError('Either P1 or P2 needs to be specified')
     return ans
 
 
@@ -307,7 +307,7 @@ def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
     elif FL:
         return dP >= FL*FL*(P1-FF*Psat)
     else:
-        raise Exception('Either (FLP and FP) or FL is needed')
+        raise ValueError('Either (FLP and FP) or FL is needed')
 
 
 def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
@@ -357,7 +357,7 @@ def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
     elif xTP:
         return x >= Fgamma*xTP
     else:
-        raise Exception('Either xT or xTP is needed')
+        raise ValueError('Either xT or xTP is needed')
 
 
 def Reynolds_valve(nu, Q, D1, FL, Fd, C):

@@ -139,7 +139,7 @@ def check_args_order(func):
         parsed_units += parsed_data['Other Parameters']['units']
     
     if argspec.args != parsed_parameters: # pragma: no cover
-        raise Exception('Function %s signature is not the same as the documentation'
+        raise ValueError('Function %s signature is not the same as the documentation'
                         ' signature = %s; documentation = %s' %(func.__name__, argspec.args, parsed_parameters))
     
     
@@ -174,7 +174,7 @@ def convert_input(val, unit, ureg, strict=True):
             else:
                 return val
         except DimensionalityError as e:
-            raise Exception('Converting %s to units of %s raised DimensionalityError: %s'%(val, unit, str(e)))
+            raise ValueError('Converting %s to units of %s raised DimensionalityError: %s'%(val, unit, str(e)))
     else:
         if type(val) == ureg.Quantity:
             return val.magnitude
