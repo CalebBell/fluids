@@ -53,16 +53,11 @@ def test_fittings():
     assert_close(K_spiral, 7.950918552775473)
 
     ### Contractions
-    K_sharp = contraction_sharp(Di1=1, Di2=0.4)
-    assert_close(K_sharp, 0.5301269161591805)
-
 
     K_beveled = contraction_beveled(Di1=0.5, Di2=0.1, l=.7*.1, angle=120.0)
     assert_close(K_beveled, 0.40946469413070485)
 
     ### Expansions (diffusers)
-    K_sharp = diffuser_sharp(Di1=.5, Di2=1.0)
-    assert_close(K_sharp, 0.5625)
 
 
     K = diffuser_curved(Di1=.25**0.5, Di2=1., l=2.)
@@ -103,6 +98,7 @@ def test_fittings():
     K2 = change_K_basis(K1=32.68875692997804, D1=.01, D2=.02)
     assert_close(K2, 523.0201108796487)
         
+
 
 ### Entrances
 
@@ -336,6 +332,24 @@ def test_bend_miter_Miller_fuzz():
 ### Diffusers
 
 
+def test_diffuser_sharp():
+    K_sharp = diffuser_sharp(Di1=.5, Di2=1.0)
+    assert_close(K_sharp, 0.5625, rtol=1e-12)
+    
+    K = diffuser_sharp(Di1=.5, Di2=1.0, Re=1e5, method='Hooper')
+    assert_close(K, 0.5705953978879232, rtol=1e-12)
+    
+    K = diffuser_sharp(Di1=.5, Di2=1.0, Re=1e3, method='Hooper')
+    assert_close(K, 1.875, rtol=1e-12)
+    
+    K = diffuser_sharp(Di1=.5, Di2=1.0, Re=1e5, fd=1e-7, method='Hooper')
+    assert_close(K, 0.562500045)
+    
+    with pytest.raises(Exception):
+        diffuser_sharp(Di1=.5, Di2=1.0, method='Hooper')
+    with pytest.raises(Exception):
+        diffuser_sharp(Di1=.5, Di2=1.0, method='BADMETHOD')
+
 def test_diffuser_conical():
     
     assert_close(diffuser_conical(Di1=1/3., Di2=1.0, angle=50.0, Re=1e7), 0.8017372988217512)
@@ -363,10 +377,46 @@ def test_diffuser_conical():
     Ks_Idelchik_expect = [0.8617385829640242, 0.9283647028367953, 0.7082429168951839, 0.291016580744589, 0.18504484868875992, 0.147705693811332, 0.12911637682462676, 0.17]
     assert_close1d(Ks_Idelchik, Ks_Idelchik_expect, rtol=1e-2)
 
+    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=50.0, Re=1E6, method='Hooper')
+    assert_close(K, 0.79748427282836)
 
-
+    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, Re=1E6, method='Hooper')
+    assert_close(K, 0.2706407222679227)
+    
+    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, Re=1E6, method='Hooper', fd=0.0)
+    assert_close(K, 0.26814269611625413)
+    
+    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, Re=100, method='Hooper')
+    assert_close(K, 1.9753086419753085)
+    
+    with pytest.raises(Exception):
+        diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, method='Hooper')
+        
+    with pytest.raises(Exception):
+        diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, method='BADMETHOD')
 
 ### Contractions
+
+
+def test_contraction_sharp():
+    K_sharp = contraction_sharp(Di1=1, Di2=0.4)
+    assert_close(K_sharp, 0.5301269161591805)
+    
+    K = contraction_sharp(Di1=1, Di2=0.4, Re=1e5, method='Hooper')
+    assert_close(K, 0.5112534765075794)
+    
+    K = contraction_sharp(Di1=1, Di2=0.4, Re=1e3, method='Hooper')
+    assert_close(K, 1.3251840000000001)
+    
+    K = contraction_sharp(Di1=1, Di2=0.4, Re=1e7, fd=1e-5, method='Hooper')
+    assert_close(K, 0.5040040320000001)
+    
+    with pytest.raises(Exception):
+        contraction_sharp(Di1=1, Di2=0.4, method='Hooper')
+
+    with pytest.raises(Exception):
+            K = contraction_sharp(Di1=1, Di2=0.4, Re=1e5, method='BADMETHOD')
+
 
 def test_contraction_conical_Crane():
     K2 = contraction_conical_Crane(Di1=0.0779, Di2=0.0525, l=0)
@@ -386,13 +436,14 @@ def test_contraction_round():
     
     with pytest.raises(Exception):
         contraction_round(Di1=1.0, Di2=0.4, rc=0.04, method='BADMETHOD')
-
+        
 def test_contraction_round_Miller():
     K = contraction_round_Miller(Di1=1, Di2=0.4, rc=0.04)
     assert_close(K, 0.085659530512986387)
 
 
 def test_contraction_conical():
+    
     K_conical1 = contraction_conical(Di1=0.1, Di2=0.04, l=0.04, fd=0.0185)
     K_conical2 = contraction_conical(Di1=0.1, Di2=0.04, angle=73.74, fd=0.0185)
     assert_close1d([K_conical1, K_conical2], [0.15779041548350314, 0.15779101784158286])
@@ -436,6 +487,53 @@ def test_contraction_conical():
     
     with pytest.raises(Exception):
         contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='BADMETHOD')
+
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1E6, method='Hooper') # Turb, high angle
+    assert_close(K, 0.39403366995770217, rtol=1e-12)
+    
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=.5, Re=1E6, method='Hooper') # low angle
+    assert_close(K, 0.04874708101353686, rtol=1e-12)
+    
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=.5, Re=10, method='Hooper') # laminar
+    assert_close(K, 1.606041003307766)
+    
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=.5, Re=1E6, fd=1e-6, method='Hooper')
+    assert_close(K, 0.04829718188073081)
+    
+    with pytest.raises(Exception):
+        # Need re to determine regime
+        contraction_conical(Di1=0.1, Di2=0.04, l=.5, fd=1e-6, method='Hooper')
+    with pytest.raises(Exception):
+        contraction_conical(Di1=0.1, Di2=0.04, l=.5, method='Rennels')
+        
+    # l_ratio > 0.6 case
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=10, fd=1e-6, method='Blevins')
+    assert_close(K, 0.2025)
+    
+    # Case A_ratio > 10
+    K = contraction_conical(Di1=0.1, Di2=0.01, l=10, fd=1e-6, method='Blevins')
+    assert_close(K, 0.27)
+    
+    # Case with A_ratio < 1.2
+    K = contraction_conical(Di1=0.1, Di2=0.099999, l=100, fd=1e-6, method='Blevins')
+    assert_close(K, 0.03)
+    
+    # case angle_rad > 20.0*deg2rad
+    K = contraction_conical(Di1=1, Di2=0.01, l=.5, fd=1e-6, method='Idelchik')
+    assert_close(K, 0.21089636998777261)
+    
+    # case angle_rad < 2.0*deg2rad
+    K = contraction_conical(Di1=1, Di2=0.99, l=.5, fd=1e-6, method='Idelchik')
+    assert_close(K, 0.09947364590616913)
+    
+    # case angle_fric = angle_rad*rad2deg
+    K = contraction_conical(Di1=1, Di2=0.5, l=10, fd=1e-6, method='Idelchik')
+    assert_close(K, 0.431024986913148)
+    
+    # Default method
+    assert_close(contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1e6),
+                 contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1e6, method='Rennels'))
+
 
 ### Valves
 

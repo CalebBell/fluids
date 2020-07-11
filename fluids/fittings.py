@@ -1692,12 +1692,22 @@ def contraction_round_Miller(Di1, Di2, rc):
     return Ks
 
 
-def contraction_sharp(Di1, Di2):
-    r'''Returns loss coefficient for any sharp edged pipe contraction
-    as shown in [1]_.
+contraction_sharp_methods = ['Rennels', 'Hooper']
+contraction_sharp_method_unknown = 'Specified method not recognized; methods are %s' %(contraction_sharp_methods)
+
+def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0, 
+                      method='Rennels'):
+    r'''Returns loss coefficient for a sharp edged pipe contraction.
+
+    This calculation has two methods available. The 'Rennels' [2]_ method is a 
+    fit for turbulent regimes, while the `Hooper` method is more complicated
+    and claims to have full dependence on `Re` including a laminar transition
+    at `Re` of 2500 (based on the original pipe diameter).
+
+    The Rennels [1]_ formulas are:
 
     .. math::
-        K = 0.0696(1-\beta^5)\lambda^2 + (\lambda-1)^2
+        K_1 = 0.0696(1-\beta^5)\lambda^2 + (\lambda-1)^2
 
     .. math::
         \lambda = 1 + 0.622(1-0.215\beta^2 -  0.785\beta^5) 
@@ -1705,16 +1715,45 @@ def contraction_sharp(Di1, Di2):
     .. math::
         \beta = d_2/d_1
 
+    The Hooper [1]_ formulas are:
+        
+    If :math:`{Re}_1 \le 2500`:
+        
+    .. math::
+        K_1 = \left[1.2 + \frac{160}{\text{Re}_1}\right]
+        \left[ \left(\frac{D_1} {D_2} \right)^4 -1 \right]
+
+    If :math:`{Re}_1 > 2500`:
+
+    .. math::
+        K_1 = \left[0.6 + 0.48f_1\right]  \left(\frac{D_1} {D_2} \right)^2
+        \left[ \left(\frac{D_1} {D_2} \right)^2 -1 \right]
+    
+    Converting the loss coefficient to a consistent basis:
+    
+    .. math::
+        K_2 = K_1\frac{D_2^4}{D_1^4}
+
     .. figure:: fittings/contraction_sharp.png
        :scale: 40 %
-       :alt: Sharp contraction; after [1]_
+       :alt: Sharp contraction
 
     Parameters
     ----------
     Di1 : float
-        Inside diameter of original pipe, [m]
+        Inside diameter of original (larger) pipe, [m]
     Di2 : float
-        Inside diameter of following pipe, [m]
+        Inside diameter of following (smaller) pipe, [m]
+    fd : float, optional
+        Darcy friction factor in original pipe; used only in the Hooper method 
+        and will be  calculated from `Re` if not given, [-]
+    Re : float, optional
+        Reynolds number of the pipe (used in Hooper method, [m]
+    roughness : float, optional
+        Roughness of original pipe (used in Hooper method only if no friction
+        factor given), [m]
+    method : str
+        The calculation method to use; one of 'Hooper', or 'Rennels' [-]
 
     Returns
     -------
@@ -1729,18 +1768,43 @@ def contraction_sharp(Di1, Di2):
     --------
     >>> contraction_sharp(Di1=1, Di2=0.4)
     0.5301269161591805
-
+    >>> contraction_sharp(Di1=1, Di2=0.4, Re=1e5, method='Hooper')
+    0.5112534765075794
+    
+    The Hooper method supports laminar flow, while `Rennels` is not even `Re`
+    aware.
+        
+    >>> contraction_sharp(Di1=1, Di2=0.4, Re=1e3, method='Hooper')
+    1.3251840000000001
+    
     References
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Hooper, William B. "Calculate Head Loss Caused by Change in Pipe
+       Size." Chemical Engineering 95, no. 16 (November 7, 1988): 89.
     '''
-    beta = Di2/Di1
-    beta2 = beta*beta
-    beta5 = beta2*beta2*beta
-    lbd = 1.0 + 0.622*(1.0 - 0.215*beta2 - 0.785*beta5)
-    return 0.0696*(1.0 - beta5)*lbd*lbd + (lbd - 1.0)*(lbd - 1.0)
-
+    if method == 'Rennels':
+        beta = Di2/Di1
+        beta2 = beta*beta
+        beta5 = beta2*beta2*beta
+        lbd = 1.0 + 0.622*(1.0 - 0.215*beta2 - 0.785*beta5)
+        return 0.0696*(1.0 - beta5)*lbd*lbd + (lbd - 1.0)*(lbd - 1.0)
+    elif method == 'Hooper':
+        if Re is None:
+            raise ValueError("Hooper method requires `Re`")
+        D1_D2 = Di1/Di2
+        D1_D2_2 = D1_D2*D1_D2
+        if Re <= 2500.0:
+            K = (1.2 + 160.0/Re)*(D1_D2_2*D1_D2_2 - 1.0)
+        else:
+            if fd is None:
+                fd = Clamond(Re=Re, eD=roughness/Di1)
+            K = (0.6 + 0.48*fd)*D1_D2_2*(D1_D2_2 - 1.0)
+        K = change_K_basis(K, Di1, Di2)
+        return K
+    else:
+        raise ValueError(contraction_sharp_method_unknown)
 
 contraction_round_Idelchik_ratios = [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 
                                      0.08, 0.12, 0.16, 0.2]
@@ -1978,7 +2042,7 @@ contraction_conical_Miller_tck = implementation_optimize_tck([
 contraction_conical_Miller_obj = lambda l_r2, A_ratio: max(min(float(bisplev(log(l_r2), log(A_ratio), contraction_conical_Miller_tck)), .5), 0)
 
 contraction_conical_methods = ['Rennels', 'Idelchik', 'Crane', 'Swamee', 
-                               'Blevins', 'Miller']
+                               'Blevins', 'Miller', 'Hooper']
 contraction_conical_method_unknown = 'Specified method not recognized; methods are %s' %(contraction_conical_methods)
 
 def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
@@ -1987,8 +2051,8 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     This calculation has five methods available. The 'Idelchik' [2]_ and 
     'Blevins' [3]_ methods use interpolation among tables of values; 'Miller' 
     uses a 2d spline representation of a graph; and the 
-    'Rennels' [1]_, 'Crane' [4]_, and 'Swamee' [5]_ methods use formulas for
-    their calculations.
+    'Rennels' [1]_, 'Crane' [4]_, 'Swamee' [5]_ and 'Hooper' methods use
+    formulas for their calculations.
     
     The 'Rennels' [1]_ formulas are:
 
@@ -2012,6 +2076,37 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     .. math::
         K = 0.315 \theta^{1/3}
 
+    The Hooper [7]_ formulas are:
+        
+    If :math:`{Re}_1 \le 2500`:
+        
+    .. math::
+        K_{1,sharp} = \left[1.2 + \frac{160}{\text{Re}_1}\right]
+        \left[ \left(\frac{D_1} {D_2} \right)^4 -1 \right]
+
+    If :math:`{Re}_1 > 2500`:
+
+    .. math::
+        K_{1,sharp} = \left[0.6 + 0.48f_1\right]  \left(\frac{D_1} {D_2} \right)^2
+        \left[ \left(\frac{D_1} {D_2} \right)^2 -1 \right]
+        
+    In both cases, a multiplier is added for the angle:
+        
+    For angles between 45 and 180 degrees:
+        
+    .. math::
+        K_1 = K_{1,sharp} \sqrt{\sin \frac{\theta}{2}}
+
+    For angles between 0 and 45 degrees:
+        
+    .. math::
+        K_1 = K_{1,sharp} 1.6 \sin \frac{\theta}{2}
+    
+    Converting the Hooper loss coefficient to a consistent basis:
+    
+    .. math::
+        K_2 = K_1\frac{D_2^4}{D_1^4}
+
     .. figure:: fittings/contraction_conical.png
        :scale: 30 %
        :alt: contraction conical; after [1]_
@@ -2023,22 +2118,22 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     Di2 : float
         Inside pipe diameter of the smaller, downstream, pipe, [m]    
     fd : float, optional
-        Darcy friction factor; used only in the Rennels method and will be 
-        calculated if not given, [-]
+        Darcy friction factor; used only in the `Rennels` and `Hooper` method
+        and will be calculated from `Re` and `roughness` if not given, [-]
     l : float, optional
         Length of the contraction, optional [m]
     angle : float, optional
         Angle of contraction (180 = sharp, 0 = infinitely long contraction),
         optional [degrees]
     Re : float, optional
-        Reynolds number of the pipe (used in Rennels method only if no friction
-        factor given), [m]
+        Reynolds number of the pipe (used in `Rennels` and `Hooper` method only
+        if no friction factor given), [m]
     roughness : float, optional
         Roughness of bend wall (used in Rennel method if no friction factor 
         given), [m]   
     method : str, optional
         The method to use for the calculation; one of 'Rennels', 'Idelchik',
-        'Crane', 'Swamee' or 'Blevins', [-]
+        'Crane', 'Swamee' 'Hooper', or 'Blevins', [-]
 
     Returns
     -------
@@ -2060,7 +2155,6 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     around as well. Unlike most of Miller's method, there is no correction for 
     Reynolds number.
 
-    
     There is quite a bit of variance in the predictions of the methods, as 
     demonstrated by the following figure.
 
@@ -2087,6 +2181,8 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
        Pipe Networks. John Wiley & Sons, 2008.
     .. [6] Miller, Donald S. Internal Flow Systems: Design and Performance
        Prediction. Gulf Publishing Company, 1990.
+    .. [7] Hooper, William B. "Calculate Head Loss Caused by Change in Pipe
+       Size." Chemical Engineering 95, no. 16 (November 7, 1988): 89.
     '''
     beta = Di2/Di1
     if angle is not None:
@@ -2099,9 +2195,6 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
             angle_rad = pi
     else:
         raise ValueError('Either l or angle is required')
-    if method is None:
-        method == 'Rennels'
-
     if method == 'Rennels':
         if fd is None:
             if Re is None:
@@ -2150,7 +2243,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         
         l_ratio = l/Di2
         if l_ratio > 0.6:
-            l_ratio= 0.6
+            l_ratio = 0.6
         return float(contraction_conical_Blevins_obj(l_ratio, A_ratio))
     elif method == 'Miller':
         A_ratio = Di1*Di1/(Di2*Di2)
@@ -2165,6 +2258,24 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
             l_ratio = 10.0
         # Turning on ofr off the limits - little difference in plot
         return contraction_conical_Miller_obj(l_ratio, A_ratio)
+    elif method == 'Hooper':
+        if Re is None:
+            raise ValueError("Hooper method requires `Re`")
+        D1_D2 = Di1/Di2
+        D1_D2_2 = D1_D2*D1_D2
+        if Re <= 2500.0:
+            K = (1.2 + 160.0/Re)*(D1_D2_2*D1_D2_2 - 1.0)
+        else:
+            if fd is None:
+                fd = Clamond(Re=Re, eD=roughness/Di1)
+            K = (0.6 + 0.48*fd)*D1_D2_2*(D1_D2_2 - 1.0)
+            
+        if angle_rad > 0.25*pi:
+            K *= (sin(0.5*angle_rad))**0.5
+        else:
+            K *= 1.6*sin(0.5*angle_rad)
+        K = change_K_basis(K, Di1, Di2)
+        return K
     else:
         raise ValueError(contraction_conical_method_unknown)
 
@@ -2229,24 +2340,54 @@ def contraction_beveled(Di1, Di2, l=None, angle=None):
 
 ### Expansions (diffusers)
 
-def diffuser_sharp(Di1, Di2):
+diffuser_sharp_methods = ['Rennels', 'Hooper']
+diffuser_sharp_method_unknown = 'Specified method not recognized; methods are %s' %(diffuser_sharp_methods)
+
+def diffuser_sharp(Di1, Di2, Re=None, fd=None, roughness=0.0, method='Rennels'):
     r'''Returns loss coefficient for any sudden pipe diameter expansion
-    as shown in [1]_ and in other sources.
+    according to the specified method.
+    
+    The main theoretical formula is as follows, in [1]_ and in other sources
+    and is implemented under the name `Rennels`.
 
     .. math::
-        K_1 = (1-\beta^2)^2
+        K_2 = (1-\beta^2)^2
 
+    The Hooper [2]_ formulas are:
+
+    If :math:`{Re}_1 \le 4000`:
+        
+    .. math::
+        K_1 = 2 \left[1 - \left( \frac{D_1}{D_2} \right)^4 \right]
+        
+    else:
+        
+    .. math::
+        K_1 = \left[1 + 0.8 f_{d,1}\right] \left\{
+        \left[1 - \left( \frac{D_1}{D_2}\right)^2
+        \right]^2 \right\}
+        
     Parameters
     ----------
     Di1 : float
         Inside diameter of original pipe (smaller), [m]
     Di2 : float
         Inside diameter of following pipe (larger), [m]
+    Re : float, optional
+        Reynolds number of the pipe for original (smaller) pipe, used in 
+        `Hooper` method [-]
+    fd : float, optional
+        Darcy friction factor for original (smaller) pipe [-]
+    roughness : float, optional
+        Roughness of pipe wall (used in `Hooper` method if no friction factor 
+        given), [m]   
+    method : str
+        The method to use for the calculation; one of 'Rennels', 'Hooper' [-]
 
     Returns
     -------
     K : float
-        Loss coefficient [-]
+        Loss coefficient with respect to the original (smaller) pipe [-]
 
     Notes
     -----
@@ -2256,15 +2397,31 @@ def diffuser_sharp(Di1, Di2):
     --------
     >>> diffuser_sharp(Di1=.5, Di2=1)
     0.5625
-
+    >>> diffuser_sharp(Di1=.5, Di2=1, Re=1e5, fd=1e-7, method='Hooper')
+    0.562500045
+    
     References
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+    .. [2] Hooper, William B. "Calculate Head Loss Caused by Change in Pipe
+       Size." Chemical Engineering 95, no. 16 (November 7, 1988): 89.
     '''
     beta = Di1/Di2
-    r = 1.0 - beta*beta
-    return r*r
+    if method == 'Rennels':
+        r = 1.0 - beta*beta
+        return r*r
+    elif method == 'Hooper':
+        if Re is None:
+            raise ValueError("Method `Hooper` requires Reynolds number")
+        if Re < 4000.0:
+            return 2.0*(1.0 - beta*beta*beta*beta) # Not the same formula as Rennels
+        if fd is None:
+            fd = Clamond(Re=Re, eD=roughness/Di1)
+        x = 1.0 - beta*beta
+        return (1.0 + 0.8*fd)*x*x
+    else:
+        raise ValueError(diffuser_sharp_method_unknown)
 
 
 def diffuser_conical_Crane(Di1, Di2, l=None, angle=None):
@@ -2390,13 +2547,13 @@ diffuser_conical_Idelchik_tck = implementation_optimize_tck([[0.0, 0.0, 0.0, 0.0
      
 diffuser_conical_Idelchik_obj = lambda x, y : float(bisplev(x, y, diffuser_conical_Idelchik_tck))
 
-diffuser_conical_methods = ['Rennels', 'Crane', 'Miller', 'Swamee', 'Idelchik']
+diffuser_conical_methods = ['Rennels', 'Crane', 'Miller', 'Swamee', 'Idelchik', 'Hooper']
 diffuser_conical_method_unknown = 'Specified method not recognized; methods are %s' %(diffuser_conical_methods)
 
 def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
                      roughness=0.0, method='Rennels'):
     r'''Returns the loss coefficient for any conical pipe diffuser.
-    This calculation has four methods available.
+    This calculation has six methods available.
     
     The 'Rennels' [1]_ formulas are as follows (three different formulas are
     used, depending on the angle and the ratio of diameters):
@@ -2438,6 +2595,26 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         \left(\frac{\pi-\theta}{\theta} \right) \right]^{0.533r - 2.6} 
         \right\}^{-0.5}
 
+    The Hooper [6]_ formulas are:
+
+    If :math:`{Re}_1 \le 4000`:
+        
+    .. math::
+        K_{sharp} = 2 \left[1 - \left( \frac{D_1}{D_2} \right)^4 \right]
+        
+    else:
+        
+    .. math::
+        K_{sharp} = \left[1 + 0.8 f_{d,1}\right] \left\{
+        \left[1 - \left( \frac{D_1}{D_2}\right)^2
+        \right]^2 \right\}
+        
+    If the angle > 45 degrees, :math:`K = K_{sharp}` otherwise
+    
+    .. math::
+        K = 2.6 \sin \left(\frac{\theta}{2}  \right)K_{sharp}
+        
+
     .. figure:: fittings/diffuser_conical.png
        :scale: 60 %
        :alt: diffuser conical; after [1]_
@@ -2462,7 +2639,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         given), [m]   
     method : str
         The method to use for the calculation; one of 'Rennels', 'Crane',
-        'Miller', 'Swamee', or 'Idelchik' [-]
+        'Miller', 'Swamee', 'Idelchik', or 'Hooper' [-]
 
     Returns
     -------
@@ -2497,6 +2674,8 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
        Pipe Networks. John Wiley & Sons, 2008.
     .. [5] Miller, Donald S. Internal Flow Systems: Design and Performance
        Prediction. Gulf Publishing Company, 1990.
+    .. [6] Hooper, William B. "Calculate Head Loss Caused by Change in Pipe
+       Size." Chemical Engineering 95, no. 16 (November 7, 1988): 89.
     '''
     beta = Di1/Di2
     beta2 = beta*beta
@@ -2575,6 +2754,18 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         r = Di2/Di1
         K = (0.25*angle_rad**-3*(1.0 + 0.6*r**(-1.67)*(pi-angle_rad)/angle_rad)**(0.533*r - 2.6))**-0.5
         return K
+    elif method == 'Hooper':
+        if Re is None:
+            raise ValueError("Method `Hooper` requires Reynolds number")
+        if Re < 4000.0:
+            return 2.0*(1.0 - beta*beta*beta*beta) # Not the same formula as Rennels
+        if fd is None:
+            fd = Clamond(Re=Re, eD=roughness/Di1)
+        x = 1.0 - beta*beta
+        K = (1.0 + 0.8*fd)*x*x
+        if angle_rad > 0.25*pi:
+            return K
+        return K*2.6*sin(0.5*angle_rad)
     else:
         raise ValueError(diffuser_conical_method_unknown)
 
@@ -2603,7 +2794,7 @@ def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
     Returns
     -------
     K : float
-        Loss coefficient [-]
+        Loss coefficient with respect to smaller, upstream diameter [-]
 
     Notes
     -----
