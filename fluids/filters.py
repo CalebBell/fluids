@@ -100,9 +100,10 @@ def round_edge_screen(alpha, Re, angle=0.0):
     beta = interp(Re, round_Res, round_betas)
     alpha2 = alpha*alpha
     K = beta*(1.0 - alpha2)/alpha2
-    if angle:
+    if angle is not None:
         if angle <= 45.0:
-            K *= cos(radians(angle))**2.0
+            v = cos(radians(angle))
+            K *= v*v
         else:
             K *= interp(angle, round_thetas, round_gammas)
     return K
@@ -167,18 +168,18 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0.0):
        Van Nostrand Reinhold Co., 1984.
     '''
     one_m_alpha = (1.0-alpha)
-    one_m_alpha2 = one_m_alpha*one_m_alpha
     if subtype == 'round bar screen':
-        K = 0.95*one_m_alpha + 0.2*one_m_alpha2
+        K = 0.95 + 0.2*one_m_alpha
     elif subtype == 'diamond pattern wire':
-        K = 0.67*one_m_alpha + 1.3*one_m_alpha2
+        K = 0.67 + 1.3*one_m_alpha
     elif subtype == 'knotted net':
-        K = 0.70*one_m_alpha + 4.9*one_m_alpha2
+        K = 0.70 + 4.9*one_m_alpha
     elif subtype == 'knotless net':
-        K = 0.72*one_m_alpha + 2.1*one_m_alpha2
+        K = 0.72 + 2.1*one_m_alpha
     else:
         raise ValueError('Subtype not recognized')
-    if angle:
+    K *= one_m_alpha
+    if angle is not None:
         if angle < 45.0:
             K *= cos(radians(angle))**2.0
         else:
