@@ -2021,6 +2021,8 @@ except AttributeError:  # pragma: no cover
         ParticleSizeDistribution.mean_size_ISO.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__doc__)
     except:
         pass # micropython
+del _mean_size_iso_docstring
+del _mean_size_docstring
 
 class PSDLognormal(ParticleSizeDistributionContinuous):
     name = 'Lognormal'
