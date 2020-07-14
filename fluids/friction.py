@@ -1858,40 +1858,37 @@ def ft_Crane(D):
     return Clamond(7.5E6*D, 3.4126825352925e-5*D**-1.0112, fast)
 
 
+fmethods = {'Moody': (4000.0, 100000000.0, 0.0, 1.0),
+ 'Alshul_1952': (None, None, None, None),
+ 'Wood_1966': (4000.0, 50000000.0, 1e-05, 0.04),
+ 'Churchill_1973': (None, None, None, None),
+ 'Eck_1973': (None, None, None, None),
+ 'Jain_1976': (5000.0, 10000000.0, 4e-05, 0.05),
+ 'Swamee_Jain_1976': (5000.0, 100000000.0, 1e-06, 0.05),
+ 'Churchill_1977': (None, None, None, None),
+ 'Chen_1979': (4000.0, 400000000.0, 1e-07, 0.05),
+ 'Round_1980': (4000.0, 400000000.0, 0.0, 0.05),
+ 'Shacham_1980': (4000.0, 400000000.0, None, None),
+ 'Barr_1981': (None, None, None, None),
+ 'Zigrang_Sylvester_1': (4000.0, 100000000.0, 4e-05, 0.05),
+ 'Zigrang_Sylvester_2': (4000.0, 100000000.0, 4e-05, 0.05),
+ 'Haaland': (4000.0, 100000000.0, 1e-06, 0.05),
+ 'Serghides_1': (None, None, None, None),
+ 'Serghides_2': (None, None, None, None),
+ 'Tsal_1989': (4000.0, 100000000.0, 0.0, 0.05),
+ 'Manadilli_1997': (5245.0, 100000000.0, 0.0, 0.05),
+ 'Romeo_2002': (3000.0, 150000000.0, 0.0, 0.05),
+ 'Sonnad_Goudar_2006': (4000.0, 100000000.0, 1e-06, 0.05),
+ 'Rao_Kumar_2007': (None, None, None, None),
+ 'Buzzelli_2008': (None, None, None, None),
+ 'Avci_Karagoz_2009': (None, None, None, None),
+ 'Papaevangelo_2010': (10000.0, 10000000.0, 1e-05, 0.001),
+ 'Brkic_2011_1': (None, None, None, None),
+ 'Brkic_2011_2': (None, None, None, None),
+ 'Fang_2011': (3000.0, 100000000.0, 0.0, 0.05),
+ 'Clamond': (0, None, 0.0, None),
+ 'Colebrook': (0, None, 0.0, None)}
 
-### Main functions
-
-fmethods = {}
-fmethods['Moody'] = {'Nice name': 'Moody', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': 1.0, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 4000.0, 'Default': None, 'Max': 100000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Alshul_1952'] = {'Nice name': 'Alshul 1952', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Wood_1966'] = {'Nice name': 'Wood 1966', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 1e-05, 'Default': None, 'Max': 0.04, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 4000.0, 'Default': None, 'Max': 50000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Churchill_1973'] = {'Nice name': 'Churchill 1973', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Eck_1973'] = {'Nice name': 'Eck 1973', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Jain_1976'] = {'Nice name': 'Jain 1976', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 4e-05, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 5000.0, 'Default': None, 'Max': 10000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Swamee_Jain_1976'] = {'Nice name': 'Swamee Jain 1976', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 1e-06, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 5000.0, 'Default': None, 'Max': 100000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Churchill_1977'] = {'Nice name': 'Churchill 1977', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Chen_1979'] = {'Nice name': 'Chen 1979', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 1e-07, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 4000.0, 'Default': None, 'Max': 400000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Round_1980'] = {'Nice name': 'Round 1980', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 4000.0, 'Default': None, 'Max': 400000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Shacham_1980'] = {'Nice name': 'Shacham 1980', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 4000.0, 'Default': None, 'Max': 400000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Barr_1981'] = {'Nice name': 'Barr 1981', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Zigrang_Sylvester_1'] = {'Nice name': 'Zigrang Sylvester 1', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 4e-05, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 4000.0, 'Default': None, 'Max': 100000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Zigrang_Sylvester_2'] = {'Nice name': 'Zigrang Sylvester 2', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 4e-05, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 4000.0, 'Default': None, 'Max': 100000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Haaland'] = {'Nice name': 'Haaland', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 1e-06, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 4000.0, 'Default': None, 'Max': 100000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Serghides_1'] = {'Nice name': 'Serghides 1', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Serghides_2'] = {'Nice name': 'Serghides 2', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Tsal_1989'] = {'Nice name': 'Tsal 1989', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 4000.0, 'Default': None, 'Max': 100000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Manadilli_1997'] = {'Nice name': 'Manadilli 1997', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 5245.0, 'Default': None, 'Max': 100000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Romeo_2002'] = {'Nice name': 'Romeo 2002', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 3000.0, 'Default': None, 'Max': 150000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Sonnad_Goudar_2006'] = {'Nice name': 'Sonnad Goudar 2006', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 1e-06, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 4000.0, 'Default': None, 'Max': 100000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Rao_Kumar_2007'] = {'Nice name': 'Rao Kumar 2007', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Buzzelli_2008'] = {'Nice name': 'Buzzelli 2008', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Avci_Karagoz_2009'] = {'Nice name': 'Avci Karagoz 2009', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Papaevangelo_2010'] = {'Nice name': 'Papaevangelo 2010', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 1e-05, 'Default': None, 'Max': 0.001, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 10000.0, 'Default': None, 'Max': 10000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Brkic_2011_1'] = {'Nice name': 'Brkic 2011 1', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Brkic_2011_2'] = {'Nice name': 'Brkic 2011 2', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': None, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Fang_2011'] = {'Nice name': 'Fang 2011', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': 0.05, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 3000.0, 'Default': None, 'Max': 100000000.0, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Clamond'] = {'Nice name': 'Clamond 2009', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 0, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
-fmethods['Colebrook'] = {'Nice name': 'Colebrook', 'Notes': '', 'Arguments': {'eD': {'Name': 'Relative roughness', 'Min': 0.0, 'Default': None, 'Max': None, 'Symbol': '\\epsilon/D', 'Units': None}, 'Re': {'Name': 'Reynolds number', 'Min': 0, 'Default': None, 'Max': None, 'Symbol': '\text{Re}', 'Units': None}}}
 
 def friction_factor_methods(Re, eD=0.0, check_ranges=True):
     r'''Returns a list of correlation names for calculating friction factor
@@ -1921,11 +1918,17 @@ def friction_factor_methods(Re, eD=0.0, check_ranges=True):
     if check_ranges:
         if Re < LAMINAR_TRANSITION_PIPE:
             return ['laminar']
-        methods = [i for i in fmethods if
-        (not fmethods[i]['Arguments']['eD']['Min'] or fmethods[i]['Arguments']['eD']['Min'] <= eD) and
-        (not fmethods[i]['Arguments']['eD']['Max'] or eD <= fmethods[i]['Arguments']['eD']['Max']) and
-        (not fmethods[i]['Arguments']['Re']['Min'] or Re > fmethods[i]['Arguments']['Re']['Min']) and
-        (not fmethods[i]['Arguments']['Re']['Max'] or Re <= fmethods[i]['Arguments']['Re']['Max'])]
+        methods = []
+        for n, (Re_min, Re_max, eD_min, eD_max) in fmethods.items():
+            if Re_min is not None and Re < Re_min:
+                continue
+            if Re_max is not None and Re > Re_max:
+                continue
+            if eD_min is not None and eD < eD_min:
+                continue
+            if eD_max is not None and eD > eD_max:
+                continue
+            methods.append(n)
         return methods
     else:
         return list(fmethods.keys()) + ['laminar']
@@ -1935,8 +1938,7 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True):
     r'''Calculates friction factor. Uses a specified method, or automatically
     picks one from the dictionary of available methods. 29 approximations are 
     available as well as the direct solution, described in the table below. 
-    The default is to use the exact solution. Can also be accessed under the 
-    name `fd`.
+    The default is to use the exact solution.
     
     For Re < 2040, [1]_ the laminar solution is always returned, regardless of
     selected method.
@@ -1945,7 +1947,9 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True):
     --------
     >>> friction_factor(Re=1E5, eD=1E-4)
     0.01851386607747165
-
+    >>> friction_factor(Re=2.9E5, eD=1E-5, Method='Serghides_2')
+    0.0146199041093456
+    
     Parameters
     ----------
     Re : float
@@ -1972,67 +1976,73 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True):
     
     Notes
     -----
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Nice name          |Re min|Re max|Re Default|:math:`\epsilon/D` Min|:math:`\epsilon/D` Max|:math:`\epsilon/D` Default|
-    +===================+======+======+==========+======================+======================+==========================+
-    |Clamond            |0     |None  |None      |0                     |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Rao Kumar 2007     |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Eck 1973           |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Jain 1976          |5000  |1.0E+7|None      |4.0E-5                |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Avci Karagoz 2009  |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Swamee Jain 1976   |5000  |1.0E+8|None      |1.0E-6                |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Churchill 1977     |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Brkic 2011 1       |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Chen 1979          |4000  |4.0E+8|None      |1.0E-7                |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Round 1980         |4000  |4.0E+8|None      |0                     |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Papaevangelo 2010  |10000 |1.0E+7|None      |1.0E-5                |0.001                 |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Fang 2011          |3000  |1.0E+8|None      |0                     |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Shacham 1980       |4000  |4.0E+8|None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Barr 1981          |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Churchill 1973     |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Moody              |4000  |1.0E+8|None      |0                     |1                     |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Zigrang Sylvester 1|4000  |1.0E+8|None      |4.0E-5                |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Zigrang Sylvester 2|4000  |1.0E+8|None      |4.0E-5                |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Buzzelli 2008      |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Haaland            |4000  |1.0E+8|None      |1.0E-6                |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Serghides 1        |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Serghides 2        |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Tsal 1989          |4000  |1.0E+8|None      |0                     |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Alshul 1952        |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Wood 1966          |4000  |5.0E+7|None      |1.0E-5                |0.04                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Manadilli 1997     |5245  |1.0E+8|None      |0                     |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Brkic 2011 2       |None  |None  |None      |None                  |None                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Romeo 2002         |3000  |1.5E+8|None      |0                     |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
-    |Sonnad Goudar 2006 |4000  |1.0E+8|None      |1.0E-6                |0.05                  |None                      |
-    +-------------------+------+------+----------+----------------------+----------------------+--------------------------+
+    A table of the supposed limits of each correlation is as follows. Note that
+    the spaces in the method names are placed by underscores in the actual
+    function names and when provided as the `Method` argument. The default 
+    method is likely to be sufficient.
+    
+    
+    +-------------------+------+------+----------------------+----------------------+
+    |Nice name          |Re min|Re max|:math:`\epsilon/D` Min|:math:`\epsilon/D` Max|
+    +===================+======+======+======================+======================+
+    |Clamond            |0     |None  |0                     |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Rao Kumar 2007     |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Eck 1973           |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Jain 1976          |5000  |1.0E+7|4.0E-5                |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Avci Karagoz 2009  |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Swamee Jain 1976   |5000  |1.0E+8|1.0E-6                |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Churchill 1977     |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Brkic 2011 1       |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Chen 1979          |4000  |4.0E+8|1.0E-7                |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Round 1980         |4000  |4.0E+8|0                     |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Papaevangelo 2010  |10000 |1.0E+7|1.0E-5                |0.001                 |
+    +-------------------+------+------+----------------------+----------------------+
+    |Fang 2011          |3000  |1.0E+8|0                     |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Shacham 1980       |4000  |4.0E+8|None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Barr 1981          |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Churchill 1973     |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Moody              |4000  |1.0E+8|0                     |1                     |
+    +-------------------+------+------+----------------------+----------------------+
+    |Zigrang Sylvester 1|4000  |1.0E+8|4.0E-5                |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Zigrang Sylvester 2|4000  |1.0E+8|4.0E-5                |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Buzzelli 2008      |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Haaland            |4000  |1.0E+8|1.0E-6                |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Serghides 1        |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Serghides 2        |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Tsal 1989          |4000  |1.0E+8|0                     |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Alshul 1952        |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Wood 1966          |4000  |5.0E+7|1.0E-5                |0.04                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Manadilli 1997     |5245  |1.0E+8|0                     |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Brkic 2011 2       |None  |None  |None                  |None                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Romeo 2002         |3000  |1.5E+8|0                     |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
+    |Sonnad Goudar 2006 |4000  |1.0E+8|1.0E-6                |0.05                  |
+    +-------------------+------+------+----------------------+----------------------+
     
     References
     ----------
@@ -2110,9 +2120,6 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True):
     if not Darcy:
         f *= 0.25
     return f
-
-fd = friction_factor # shortcut
-
 
 
 def helical_laminar_fd_White(Re, Di, Dc):
