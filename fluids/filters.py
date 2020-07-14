@@ -55,7 +55,7 @@ grills_rounded_tck = implementation_optimize_tck([[0.3, 0.3, 0.3, 0.45, 0.55, 0.
                                                    2])
 
 
-def round_edge_screen(alpha, Re, angle=0):
+def round_edge_screen(alpha, Re, angle=0.0):
     r'''Returns the loss coefficient for a round edged wire screen or bar
     screen, as shown in [1]_. Angle of inclination may be specified as well.
 
@@ -101,14 +101,14 @@ def round_edge_screen(alpha, Re, angle=0):
     alpha2 = alpha*alpha
     K = beta*(1.0 - alpha2)/alpha2
     if angle:
-        if angle <= 45:
-            K *= cos(radians(angle))**2
+        if angle <= 45.0:
+            K *= cos(radians(angle))**2.0
         else:
             K *= interp(angle, round_thetas, round_gammas)
     return K
 
 
-def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0):
+def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0.0):
     r'''Returns the loss coefficient for a round edged open net/screen
     made of one of the following patterns, according to [1]_:
 
@@ -166,19 +166,21 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0):
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
+    one_m_alpha = (1.0-alpha)
+    one_m_alpha2 = one_m_alpha*one_m_alpha
     if subtype == 'round bar screen':
-        K = 0.95*(1-alpha) + 0.2*(1-alpha)**2
+        K = 0.95*one_m_alpha + 0.2*one_m_alpha2
     elif subtype == 'diamond pattern wire':
-        K = 0.67*(1-alpha) + 1.3*(1-alpha)**2
+        K = 0.67*one_m_alpha + 1.3*one_m_alpha2
     elif subtype == 'knotted net':
-        K = 0.70*(1-alpha) + 4.9*(1-alpha)**2
+        K = 0.70*one_m_alpha + 4.9*one_m_alpha2
     elif subtype == 'knotless net':
-        K = 0.72*(1-alpha) + 2.1*(1-alpha)**2
+        K = 0.72*one_m_alpha + 2.1*one_m_alpha2
     else:
         raise ValueError('Subtype not recognized')
     if angle:
-        if angle < 45:
-            K *= cos(radians(angle))**2
+        if angle < 45.0:
+            K *= cos(radians(angle))**2.0
         else:
             K *= interp(angle, round_thetas, round_gammas)
     return K
@@ -270,10 +272,12 @@ def square_edge_grill(alpha, l=None, Dh=None, fd=None):
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    if Dh and l and fd and l > 50*Dh:
-        return (0.5*(1-alpha) + (1-alpha**2) + fd*l/Dh)/alpha**2
-    else:
-        return (0.5*(1-alpha) + (1-alpha**2))/alpha**2
+    x0 = 0.5*(1.0 - alpha)
+    alpha2 = alpha*alpha
+    x0 += (1.0 - alpha2)
+    if Dh is not None and l is not None and fd is not None and l > 50.0*Dh:
+        x0 += fd*l/Dh
+    return x0/alpha2
 
 
 def round_edge_grill(alpha, l=None, Dh=None, fd=None):
@@ -331,7 +335,7 @@ def round_edge_grill(alpha, l=None, Dh=None, fd=None):
        Van Nostrand Reinhold Co., 1984.
     '''
     t1 = float(splev(alpha, grills_rounded_tck))
-    if Dh and l and fd and l > 50*Dh:
+    if Dh and l and fd and l > 50.0*Dh:
         return t1 + fd*l/Dh
     else:
         return t1
