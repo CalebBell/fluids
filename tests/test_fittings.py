@@ -399,10 +399,10 @@ def test_diffuser_conical():
 
 
 def test_contraction_sharp():
-    K_sharp = contraction_sharp(Di1=1, Di2=0.4)
+    K_sharp = contraction_sharp(Di1=1.0, Di2=0.4)
     assert_close(K_sharp, 0.5301269161591805)
     
-    K = contraction_sharp(Di1=1, Di2=0.4, Re=1e5, method='Hooper')
+    K = contraction_sharp(Di1=1.0, Di2=0.4, Re=1e5, method='Hooper')
     assert_close(K, 0.5112534765075794)
     
     K = contraction_sharp(Di1=1, Di2=0.4, Re=1e3, method='Hooper')

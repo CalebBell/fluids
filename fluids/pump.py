@@ -188,7 +188,7 @@ def VFD_efficiency(P, load=1):
         P = 400.0
     if load < 0.016:
         load = 0.016
-    return round(bisplev(load, P, VFD_efficiency_tck), 4)
+    return round(float(bisplev(load, P, VFD_efficiency_tck)), 4)
 
 
 nema_sizes_hp = [0.25, 0.3333333333333333, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0,

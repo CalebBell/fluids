@@ -1644,14 +1644,14 @@ def interp(x, dx, dy, left=None, right=None, extrapolate=False):
         return (dy[j + 1] - dy[j])/(dx[j + 1] - dx[j])*(x - dx[j]) + dy[j]
 
 
-def implementation_optimize_tck(tck):
+def implementation_optimize_tck(tck, force_numpy=False):
     '''Converts 1-d or 2-d splines calculated with SciPy's `splrep` or
     `bisplrep` to a format for fastest computation - lists in PyPy, and numpy
     arrays otherwise.
     
     Only implemented for 3 and 5 length `tck`s.
     '''
-    if IS_PYPY or SKIP_DEPENDENCIES:
+    if (IS_PYPY or SKIP_DEPENDENCIES) and not force_numpy:
         return tuple(tck)
     else:
         if len(tck) == 3:
@@ -2102,10 +2102,8 @@ def best_bounding_bounds(low, high, f=None, xs_pos=None, ys_pos=None,
         raise ValueError("Bounds and previous history do not contain bracketing points")
     return low, high, fa, fb
 
-
-def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
-              ytol=None, full_output=False, disp=True, gap_detection=False,
-              dy_dx_limit=1e100):
+def bisect(f, a, b, args=(), xtol=1e-12, rtol=2.220446049250313e-16, maxiter=100,
+              ytol=None):
     '''Port of SciPy's C bisect routine.
     '''
     fa = f(a, *args)
@@ -2118,7 +2116,7 @@ def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
         return b
 
     dm = b - a
-    iterations = 0.0
+#    iterations = 0.0
     
     for i in range(maxiter):
         dm *= 0.5
@@ -2135,10 +2133,10 @@ def py_bisect(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
                 return xm
         elif (abs_dm < (xtol + rtol*abs_dm)):
             return xm
-        elif gap_detection:
-            dy_dx = abs((fm - fa)/(a-b))
-            if dy_dx > dy_dx_limit:
-                raise DiscontinuityError("Discontinuity detected")
+#        elif gap_detection:
+#            dy_dx = abs((fm - fa)/(a-b))
+#            if dy_dx > dy_dx_limit:
+#                raise DiscontinuityError("Discontinuity detected")
             
     raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
 
@@ -3340,7 +3338,6 @@ if not IS_PYPY:
     
 else:
     splev, bisplev = py_splev, py_bisplev
-bisect = py_bisect
 
 # Try out mpmath for special functions anyway
 has_scipy = False

@@ -335,7 +335,7 @@ bad_names = set(('__file__', '__name__', '__package__', '__cached__', 'solve'))
 
 from fluids.numerics import SamePointError, UnconvergedError, NotBoundedError
 def create_numerics(replaced, vec=False):
-    cache_unsuported = set(['brenth', 'newton_system', 'quad', 'quad_adaptive', 'fixed_quad_Gauss_Kronrod', 'py_lambertw', 'secant', 'lambertw', 'ridder'])
+    cache_unsuported = set(['brenth', 'newton_system', 'quad', 'quad_adaptive', 'fixed_quad_Gauss_Kronrod', 'py_lambertw', 'secant', 'lambertw', 'ridder', 'bisect'])
 #    if vec:
 #        conv_fun = numba.vectorize
 #    else:
@@ -368,7 +368,7 @@ def create_numerics(replaced, vec=False):
     bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck', 'py_solve'])
     bad_names.update(to_set_num)
     
-    solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct', 'solve_3_direct', 'solve_4_direct', 'basic_damping'] # 
+    solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct', 'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect'] # 
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
         source = source.replace(', kwargs={}', '').replace(', **kwargs', '').replace(', kwargs=kwargs', '')
@@ -381,7 +381,7 @@ def create_numerics(replaced, vec=False):
         source = remove_for_numba(source)
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
 
-#        if any(i in s for i in ('newton_system', 'solve_2_direct', 'basic_damping')):
+#        if any(i in s for i in ('bisect', 'solve_2_direct', 'basic_damping')):
 #            print(source)
         numba_exec_cacheable(source, NUMERICS_SUBMOD.__dict__, NUMERICS_SUBMOD.__dict__)
 
@@ -610,7 +610,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
 
 transform_complete(replaced, __funcs, __all__, normal, vec=False)
 
-
+numbafied_fluids_functions = __funcs
 globals().update(__funcs)
 globals().update(replaced)
 

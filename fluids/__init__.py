@@ -121,6 +121,12 @@ def all_submodules():
     import fluids.nrlmsise00.nrlmsise_00_header
     return submodules + [fluids.optional, fluids.optional.irradiance, fluids.optional.spa, 
                          fluids.nrlmsise00.nrlmsise_00_data, fluids.nrlmsise00.nrlmsise_00, fluids.nrlmsise00.nrlmsise_00_header]
+
+def load_types():
+    from fluids.typing import type_module
+    for m in submodules:
+        type_module(m)
+
 __version__ = '0.1.83'
 
 try:
