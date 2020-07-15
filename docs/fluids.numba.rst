@@ -53,7 +53,7 @@ Today, the list of things known not to work is as follows:
 - Everything in :py:mod:`fluids.particle_size_distribution`
 - Everything in :py:mod:`fluids.atmosphere`
 - Everything in :py:mod:`fluids.piping` (uses global lookups)
-- In :py:mod:`fluids.friction`, only :py:func:`~.nearest_material_roughness`,  :py:func:`~.material_roughness`,  :py:func:`~.roughness_Farshad` are unsupported as they use global lookups
+- In :py:mod:`fluids.friction`, only :py:func:`~.nearest_material_roughness`,  :py:func:`~.material_roughness`,  :py:func:`~.roughness_Farshad` are unsupported as they use global lookups.
 
 
 Numpy Support
@@ -81,6 +81,12 @@ array([    0.        ,  3333.2359001 ,  9441.84364485, 17370.09634651])
 >>> fluids.numba_vectorized.V_horiz_conical(108., 156., 42., np.linspace(0, 4, 4))
 ValueError: invalid number of arguments
 
+Yet another unfortunate limitation is that Numba's ufunc machinery will not wrap
+function calls with multiple return values.
+
+>>> fluids.numba_vectorized.Mandhane_Gregory_Aziz_regime(np.array([0.6]), np.array([0.112]), np.array([915.12]), np.array([2.67]), np.array([180E-6]), np.array([14E-6]), np.array([0.065]), np.array([0.05]))
+NotImplementedError: Tuple(unicode_type, float64, float64) cannot be represented as a Numpy dtype
+
 Despite these limitations is is here that Numba really shines! Arrays are Numba's
 strength.
 
@@ -99,3 +105,7 @@ interface (442 ns) and the normal interface (1440 ns):
 Please note this interface is provided, but what works and what doesn't is
 mostly up to the numba project. This backend is not quite as polished as
 their normal engine.
+
+All of the regular Numba-compiled functions are built with the `nogil` flag,
+which means you can use Python's threading mechanism effectively to get
+the speed of parallel processing even without the numba_vectorized interface.

@@ -347,6 +347,10 @@ def create_numerics(replaced, vec=False):
     NUMERICS_SUBMOD = importlib.util.module_from_spec(NUMERICS_SUBMOD_COPY)
     NUMERICS_SUBMOD.IS_NUMBA = True
     NUMERICS_SUBMOD.FORCE_PYPY = True
+    NUMERICS_SUBMOD.numba = numba
+    NUMERICS_SUBMOD.jitclass = jitclass
+    NUMERICS_SUBMOD.njit = numba.njit
+    NUMERICS_SUBMOD.jit = numba.jit
     NUMERICS_SUBMOD.array_if_needed = np.array
     
     NUMERICS_SUBMOD_COPY.loader.exec_module(NUMERICS_SUBMOD)
@@ -438,6 +442,11 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         SUBMOD_COPY = importlib.util.find_spec(mod.__name__)
         SUBMOD = importlib.util.module_from_spec(SUBMOD_COPY)
         SUBMOD.IS_NUMBA = True
+        SUBMOD.numba = numba
+        SUBMOD.jitclass = jitclass
+        SUBMOD.njit = numba.njit
+        SUBMOD.jit = numba.jit
+
         if vec:
             SUBMOD.IS_NUMBA_VEC = True
         SUBMOD_COPY.loader.exec_module(SUBMOD)

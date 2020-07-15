@@ -123,7 +123,7 @@ def all_submodules():
                          fluids.nrlmsise00.nrlmsise_00_data, fluids.nrlmsise00.nrlmsise_00, fluids.nrlmsise00.nrlmsise_00_header]
 
 def load_types():
-    from fluids.typing import type_module
+    from fluids.typing_utils import type_module
     for m in submodules:
         type_module(m)
 
