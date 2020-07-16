@@ -84,6 +84,8 @@ MILLER_SEGMENTAL_ORIFICE = 'Miller segmental orifice'
 MILLER_CONICAL_ORIFICE = 'Miller conical orifice'
 MILLER_QUARTER_CIRCLE_ORIFICE = 'Miller quarter circle orifice'
 
+UNSPECIFIED_METER = 'unspecified meter'
+
 
 LONG_RADIUS_NOZZLE = 'long radius nozzle'
 ISA_1932_NOZZLE = 'ISA 1932 nozzle'
@@ -104,7 +106,7 @@ __all__.extend(['ISO_5167_ORIFICE','ISO_15377_ECCENTRIC_ORIFICE', 'MILLER_ORIFIC
                 'WEDGE_METER', 'ISO_15377_CONICAL_ORIFICE',
                 'MILLER_CONICAL_ORIFICE', 
                 'MILLER_QUARTER_CIRCLE_ORIFICE',
-                'ISO_15377_QUARTER_CIRCLE_ORIFICE'])
+                'ISO_15377_QUARTER_CIRCLE_ORIFICE', 'UNSPECIFIED_METER'])
 
 __all__.extend(['ORIFICE_CORNER_TAPS', 'ORIFICE_FLANGE_TAPS',
                 'ORIFICE_D_AND_D_2_TAPS', 'ORIFICE_PIPE_TAPS', 
@@ -2077,6 +2079,7 @@ beta_simple_meters = frozenset([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                       
                       CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, CONICAL_ORIFICE,
                       SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE,
+                      UNSPECIFIED_METER,
                       
                       LONG_RADIUS_NOZZLE, 
                       ISA_1932_NOZZLE, VENTURI_NOZZLE,
@@ -2084,7 +2087,7 @@ beta_simple_meters = frozenset([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                       MACHINED_CONVERGENT_VENTURI_TUBE, 
                       ROUGH_WELDED_CONVERGENT_VENTURI_TUBE])
 
-all_meters = frozenset(list(beta_simple_meters) + [CONE_METER, WEDGE_METER])
+all_meters = frozenset(list(beta_simple_meters) + [CONE_METER, WEDGE_METER, 'unspecified meter'])
 
 _unsupported_meter_msg = "Supported meter types are %s" % all_meters
 
@@ -2107,7 +2110,7 @@ def differential_pressure_meter_beta(D, D2, meter_type):
         'machined convergent venturi tube', 'segmental orifice',
         'long radius nozzle', 'Miller segmental orifice', 'ISA 1932 nozzle',
         'ISO 15377 eccentric orifice', 'Miller quarter circle orifice',
-        'Miller conical orifice', 'ISO 5167 orifice'}, [-]
+        'Miller conical orifice', 'ISO 5167 orifice', 'unspecified meter'}, [-]
 
     Returns
     -------
@@ -2144,7 +2147,7 @@ _meter_type_to_corr_default = {
 
 def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k, 
                                           meter_type, taps=None, 
-                                          tap_position=None):
+                                          tap_position=None, C_specified=None):
     r'''Calculates the discharge coefficient and expansibility of a flow
     meter given the mass flow rate, the upstream pressure, the second
     pressure value, and the orifice diameter for a differential
@@ -2182,7 +2185,7 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         'machined convergent venturi tube', 'segmental orifice',
         'long radius nozzle', 'Miller segmental orifice', 'ISA 1932 nozzle',
         'ISO 15377 eccentric orifice', 'Miller quarter circle orifice',
-        'Miller conical orifice', 'ISO 5167 orifice'}, [-]
+        'Miller conical orifice', 'ISO 5167 orifice', 'unspecified meter'}, [-]
     taps : str, optional
         The orientation of the taps; one of 'corner', 'flange', 'D', or 'D/2';
         applies for orifice meters only, [-]
@@ -2192,6 +2195,9 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         normal case where the taps are opposite the orifice bore, and 
         '90 degree' for the case where, normally for operational reasons, the
         taps are near the bore [-]
+    C_specified : float, optional
+        If specified, the correlation for the meter type is not used - this 
+        value is returned for `C`
         
     Returns
     -------
@@ -2228,10 +2234,6 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         meter_type = ISO_15377_QUARTER_CIRCLE_ORIFICE
     elif meter_type == SEGMENTAL_ORIFICE:
         meter_type = MILLER_SEGMENTAL_ORIFICE
-#    try:
-#        meter_type = _meter_type_to_corr_default[meter_type]
-#    except KeyError:
-#        pass
     
     if meter_type == ISO_5167_ORIFICE:
         C = C_Reader_Harris_Gallagher(D, D2, rho, mu, m, taps)
@@ -2285,48 +2287,57 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         beta = diameter_ratio_wedge_meter(D=D, H=D2)
         epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P1, k=k, beta=beta)
         C = C_wedge_meter_ISO_5167_6_2017(D=D, H=D2)
+    elif meter_type == UNSPECIFIED_METER:
+        epsilon = orifice_expansibility(D, D2, P1, P2, k) # Default to orifice type expansibility
+        if C_specified is None:
+            raise ValueError("For unspecified meter type, C_specified is required")
     else:
         raise ValueError(_unsupported_meter_msg)
+    if C_specified is not None:
+        C = C_specified
     return C, epsilon
 
 
-def err_dp_meter_solver_m(m_D, D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position):
+def err_dp_meter_solver_m(m_D, D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified):
     m = m_D*D
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                   mu, k, meter_type, 
-                                                  taps=taps, tap_position=tap_position)
+                                                  taps=taps, tap_position=tap_position,
+                                                  C_specified=C_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                 C=C, expansibility=epsilon)
     err =  m - m_calc
     return err
 
-def err_dp_meter_solver_P2(P2, D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position):
+def err_dp_meter_solver_P2(P2, D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position, C_specified):
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type, 
-                                                  taps=taps, tap_position=tap_position)
+                                                  taps=taps, tap_position=tap_position,
+                                                  C_specified=C_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                 C=C, expansibility=epsilon)
     return m - m_calc
 
-def err_dp_meter_solver_D2(D2, D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position):
+def err_dp_meter_solver_D2(D2, D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified):
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                   mu, k, meter_type, 
-                                                  taps=taps, tap_position=tap_position)
+                                                  taps=taps, tap_position=tap_position, C_specified=C_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                 C=C, expansibility=epsilon)
     return m - m_calc
 
-def err_dp_meter_solver_P1(P1, D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position):
+def err_dp_meter_solver_P1(P1, D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position, C_specified):
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, 
                                                   mu, k, meter_type, 
-                                                  taps=taps, tap_position=tap_position)
+                                                  taps=taps, tap_position=tap_position, C_specified=C_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho, 
                                 C=C, expansibility=epsilon)
     return m - m_calc
 
 def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None, 
                                        m=None, meter_type=ISO_5167_ORIFICE, 
-                                       taps=None, tap_position=None):
+                                       taps=None, tap_position=None,
+                                       C_specified=None):
     r'''Calculates either the mass flow rate, the upstream pressure, the second
     pressure value, or the orifice diameter for a differential
     pressure flow meter based on the geometry of the meter, measured pressures 
@@ -2363,7 +2374,7 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         'machined convergent venturi tube', 'segmental orifice',
         'long radius nozzle', 'Miller segmental orifice', 'ISA 1932 nozzle',
         'ISO 15377 eccentric orifice', 'Miller quarter circle orifice',
-        'Miller conical orifice', 'ISO 5167 orifice'}, [-]
+        'Miller conical orifice', 'ISO 5167 orifice', 'unspecified meter'}, [-]
     taps : str, optional
         The orientation of the taps; one of 'corner', 'flange', 'D', or 'D/2';
         applies for orifice meters only, [-]
@@ -2373,6 +2384,9 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         normal case where the taps are opposite the orifice bore, and 
         '90 degree' for the case where, normally for operational reasons, the
         taps are near the bore [-]
+    C_specified : float, optional
+        If specified, the correlation for the meter type is not used - this 
+        value is used for `C`
 
     Returns
     -------
@@ -2398,6 +2412,9 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
     It would be possible to solve for the upstream pipe diameter, but there is
     no use for that functionality.
     
+    If a meter has already been calibrated to have a known `C`, this may be
+    provided and it will be used in place of calculating one.
+    
     Examples
     --------
     >>> differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, 
@@ -2415,9 +2432,9 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         m_D_guess = 40
         if rho < 100.0:
             m_D_guess *= 1e-2
-        return secant(err_dp_meter_solver_m, m_D_guess, args=(D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position))*D
+        return secant(err_dp_meter_solver_m, m_D_guess, args=(D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified))*D
     elif D2 is None and D is not None and m is not None and P1 is not None and P2 is not None:
-        args = (D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position)
+        args = (D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified)
         try:
             return brenth(err_dp_meter_solver_D2, D*(1-1E-9), D*5E-3, args=args)
         except:
@@ -2426,19 +2443,19 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             except:
                 return secant(err_dp_meter_solver_D2, D*.75, args=args, high=D, low=D*1e-10)
     elif P2 is None and D is not None and D2 is not None and m is not None and P1 is not None:
-        args = (D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position)
+        args = (D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position, C_specified)
         try:
             return brenth(err_dp_meter_solver_P2, P1*(1-1E-9), P1*0.5, args=args)
         except:
             return secant(err_dp_meter_solver_P2, P1*0.5, low=P1*1e-10, args=args, high=P1, bisection=True)
     elif P1 is None and D is not None and D2 is not None and m is not None and P2 is not None:
-        args = (D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position)
+        args = (D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position, C_specified)
         try:
             return brenth(err_dp_meter_solver_P1, P2*(1+1E-9), P2*1.4, args=args)
         except:
             return secant(err_dp_meter_solver_P1, P2*1.5, args=args, low=P2, bisection=True)
     else:
-        raise ValueError('Solver is capable of solving for one of P2, D2, or m only.')
+        raise ValueError('Solver is capable of solving for one of P1, P2, D2, or m only.')
 
 # Set of orifice types that get their dP calculated with `dP_orifice`.
 _dP_orifice_set = set([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE, 

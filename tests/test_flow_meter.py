@@ -327,8 +327,39 @@ def test_differential_pressure_meter_solver_misc():
     D2 = differential_pressure_meter_solver(m=7.918128618951788, D=0.07366, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011,
                                        k=1.33, meter_type=MILLER_ECCENTRIC_ORIFICE, taps=ORIFICE_FLANGE_TAPS, tap_position=TAPS_SIDE)
     assert_close(D2, 0.05)
+    
+    m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, rho=1.2, mu=0.00011, k=1.33, meter_type='ISO 5167 orifice', taps='D') 
+    assert_close(m, 0.2695835697819371)
 
-
+def test_unspecified_meter_C_specified():
+    for t in ('unspecified meter', 'ISO 5167 orifice'):
+        m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, 
+         P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
+        meter_type=t, taps='D', C_specified=0.6)
+        assert_close(m, 7.512945567976503)
+    
+        D2 = differential_pressure_meter_solver(D=0.07366, m=7.512945567976503, D2=None, P1=200000.0, 
+         P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
+        meter_type=t, taps='D', C_specified=0.6)
+        assert_close(D2, 0.05)
+    
+        P1 = differential_pressure_meter_solver(D=0.07366, D2=0.05, m=7.512945567976503,
+         P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
+        meter_type=t, taps='D', C_specified=0.6)
+        assert_close(P1, 200000.0)
+    
+        P2 = differential_pressure_meter_solver(D=0.07366, D2=0.05, m=7.512945567976503,
+         P1=200000.0, rho=999.1, mu=0.0011, k=1.33, 
+        meter_type=t, taps='D', C_specified=0.6)
+        assert_close(P2, 183000.0)
+    
+    with pytest.raises(ValueError):
+        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, 
+         P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
+        meter_type='unspecified meter', taps='D', C_specified=None)
+        
+        
+    
 def test_C_eccentric_orifice_ISO_15377_1998():
     C =  C_eccentric_orifice_ISO_15377_1998(.2, .075)
     assert_close(C, 0.6351923828125)
