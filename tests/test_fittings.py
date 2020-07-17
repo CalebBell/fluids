@@ -206,9 +206,11 @@ def test_bend_rounded_Crane():
     assert_close(K_max, K_limit)
     
     # Test default
-    assert_close(bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30, bend_diameters=5.0),
-                 bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30.0))
+    assert_close(bend_rounded_Crane(Di=.4020, rc=.4020*5, angle=30, bend_diameters=5.0),
+                 bend_rounded_Crane(Di=.4020, rc=.4020*5, angle=30.0))
                  
+    with pytest.raises(Exception):
+        bend_rounded_Crane(Di=.4020, rc=.4*5, bend_diameters=8, angle=30)
 
 
 def test_bend_rounded_Miller():
@@ -253,6 +255,7 @@ def test_bend_rounded():
     assert_close(K, 0.055429466248839564)
     
     assert type(bend_rounded(Di=4.020, rc=4.0*5, angle=30, Re=1E5, method='Miller')) == float
+    
 
 
 

@@ -1147,9 +1147,11 @@ def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
     angle : float
         Angle of bend, [degrees]
     rc : float, optional
-        Radius of curvature of the entrance, optional [m]
-    bend_diameters : float, optional (used if rc not provided)
-        Number of diameters of pipe making up the bend radius [-]
+        Radius of curvature of the entrance; specify either `rc` or 
+        `bend_diameters`, optional [m]
+    bend_diameters : float, optional
+        Number of diameters of pipe making up the bend radius; specify either
+        `rc` or `bend_diameters`, [-]
 
     Returns
     -------
@@ -1176,7 +1178,9 @@ def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
-    if not rc:
+    if (rc is not None and bend_diameters is not None) and abs(Di*bend_diameters/rc - 1.0) > 1e-12:
+        raise ValueError("Cannot specify both `rc` and `bend_diameters`")
+    if rc is None:
         if bend_diameters is None:
             bend_diameters = 5.0
         rc = Di*bend_diameters
@@ -1231,7 +1235,7 @@ def bend_rounded_Ito(Di, angle, Re, rc=None, bend_diameters=None,
 bend_rounded_methods = ['Rennels', 'Crane', 'Miller', 'Swamee', 'Ito']
 bend_rounded_method_unknown = 'Specified method not recognized; methods are %s' %(bend_rounded_methods)
 
-def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
+def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=None,
                  Re=None, roughness=0.0, L_unimpeded=None, method='Rennels'):
     r'''Returns loss coefficient for rounded bend in a pipe of diameter `Di`,
     `angle`, with a specified either radius of curvature `rc` or curvature 
@@ -1280,7 +1284,7 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
         Number of diameters of pipe making up the bend radius [-]
     Re : float, optional
         Reynolds number of the pipe (used in Miller, Ito methods primarily, and
-        Rennels method if no friction factor given), [m]
+        Rennels method if no friction factor given), [-]
     roughness : float, optional
         Roughness of bend wall (used in Miller, Ito methods primarily, and
         Rennels method if no friction factor given), [m]   
@@ -1334,8 +1338,11 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
     '''
     if method is None:
         method = 'Rennels'
+    if bend_diameters is None and rc is None:
+        bend_diameters = 5.0
     if rc is None:
         rc = Di*bend_diameters
+    
     if method == 'Rennels':
         angle = radians(angle)
         if fd is None:
@@ -1474,7 +1481,7 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
         Inside diameter of pipe, [m]
     Re : float, optional
         Reynolds number of the pipe (no specification if inlet or outlet
-        properties should be used), [m]
+        properties should be used), [-]
     roughness : float, optional
         Roughness of bend wall, [m]   
     L_unimpeded : float, optional
