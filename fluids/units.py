@@ -177,7 +177,7 @@ def convert_input(val, unit, ureg, strict=True):
             raise ValueError('Converting %s to units of %s raised DimensionalityError: %s'%(val, unit, str(e)))
     else:
         if type(val) == ureg.Quantity:
-            return val.magnitude
+            return val.to_base_units().magnitude
         else:
             return val
 

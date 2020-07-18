@@ -256,6 +256,22 @@ def test_bend_rounded():
     
     assert type(bend_rounded(Di=4.020, rc=4.0*5, angle=30, Re=1E5, method='Miller')) == float
     
+    # Crane standard fittings
+    Di = 4
+    v0 = bend_rounded(Di=4, angle=45, method='Crane standard')/ft_Crane(Di)
+    assert_close(v0, 16.0)
+    v0 = bend_rounded(Di=4, angle=90, method='Crane standard')/ft_Crane(Di)
+    assert_close(v0, 30.0)
+    v0 = bend_rounded(Di=4, angle=180, method='Crane standard')/ft_Crane(Di)
+    assert_close(v0, 50.0)
+    
+    # extrapolation - check behavior is sane
+    v0 = bend_rounded(Di=4, angle=360, method='Crane standard')/ft_Crane(Di)
+    assert_close(v0, 90.0)
+    
+    v0 = bend_rounded(Di=4, angle=0, method='Crane standard')/ft_Crane(Di)
+    assert_close(v0, 2.0)
+    
 
 
 

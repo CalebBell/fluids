@@ -2472,7 +2472,7 @@ _missing_C_msg = "Parameter C is required for this orifice type"
 
 def differential_pressure_meter_dP(D, D2, P1, P2, C=None, 
                                    meter_type=ISO_5167_ORIFICE):
-    r'''Calculates either the non-recoverable pressure drop of a differential
+    r'''Calculates the non-recoverable pressure drop of a differential
     pressure flow meter based on the geometry of the meter, measured pressures 
     of the meter, and for most models the meter discharge coefficient.
     
