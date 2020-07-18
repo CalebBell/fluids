@@ -11,8 +11,13 @@ Solved fluids mechanics problems
     Examples/Crane TP 410 Solved Problems/7.6 Reduced Port Ball Valve.ipynb
     Examples/Crane TP 410 Solved Problems/7.7 Laminar flow in Valves, Fittings, and Pipe - System from Example 7.6.ipynb
     Examples/Crane TP 410 Solved Problems/7.8 Laminar flow in Valves, Fittings, and Pipe - SAE oil through a pipe and globe valve.ipynb
+    Examples/Crane TP 410 Solved Problems/7.9 Laminar Flow in Valves, Fittings, and Pipe.ipynb
     Examples/Crane TP 410 Solved Problems/7.10 Piping Systems - Steam.ipynb
     Examples/Crane TP 410 Solved Problems/7.11 Flat heating Coils - Water.ipynb
+    Examples/Crane TP 410 Solved Problems/7.12 Orifice Size for Given Pressure Drop and Velocity.ipynb
     Examples/Crane TP 410 Solved Problems/7.13 Flow given in English Units - Oil.ipynb
     Examples/Crane TP 410 Solved Problems/7.14 Bernoulli's Theorem-Water.ipynb
+    Examples/Crane TP 410 Solved Problems/7.15 Power Required for Pumping.ipynb
+    Examples/Crane TP 410 Solved Problems/7.16 Air Lines.ipynb
+    Examples/Crane TP 410 Solved Problems/7.18 Gas.ipynb
     Examples/Crane TP 410 Solved Problems/7.29 Orifice Flow Rate Calculation.ipynb
