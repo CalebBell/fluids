@@ -1708,7 +1708,7 @@ def contraction_round_Miller(Di1, Di2, rc):
     return Ks
 
 
-contraction_sharp_methods = ['Rennels', 'Hooper']
+contraction_sharp_methods = ['Rennels', 'Hooper', 'Crane']
 contraction_sharp_method_unknown = 'Specified method not recognized; methods are %s' %(contraction_sharp_methods)
 
 def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0, 
@@ -1749,6 +1749,8 @@ def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
     
     .. math::
         K_2 = K_1\frac{D_2^4}{D_1^4}
+        
+    For the Crane formula see `contraction_conical_Crane` with a length of zero.
 
     .. figure:: fittings/contraction_sharp.png
        :scale: 40 %
@@ -1769,7 +1771,7 @@ def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
         Roughness of original pipe (used in Hooper method only if no friction
         factor given), [m]
     method : str
-        The calculation method to use; one of 'Hooper', or 'Rennels' [-]
+        The calculation method to use; one of 'Hooper', 'Rennels', or 'Crane' [-]
 
     Returns
     -------
@@ -1792,6 +1794,11 @@ def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
         
     >>> contraction_sharp(Di1=1, Di2=0.4, Re=1e3, method='Hooper')
     1.3251840000000001
+    
+    Crane offers similar results:
+        
+    >>> contraction_sharp(3.0, 2.0, method='Crane')
+    0.2777777777777778
     
     References
     ----------
@@ -1819,6 +1826,8 @@ def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
             K = (0.6 + 0.48*fd)*D1_D2_2*(D1_D2_2 - 1.0)
         K = change_K_basis(K, Di1, Di2)
         return K
+    elif method == 'Crane':
+        return contraction_conical_Crane(Di1, Di2, l=0.0)
     else:
         raise ValueError(contraction_sharp_method_unknown)
 

@@ -435,7 +435,17 @@ def test_contraction_sharp():
 
     with pytest.raises(Exception):
             K = contraction_sharp(Di1=1, Di2=0.4, Re=1e5, method='BADMETHOD')
+            
+    K = contraction_sharp(3.0, 2.0, method='Crane')
+    assert_close(K, 0.2777777777777778)
+    
+    # From Crane 7-19 Water sample problem
+    # Convert back to the larger 3 inch diameter
+    K = change_K_basis(contraction_conical_Crane(3*inch, 2*inch, l=1e-10), 2.*inch, 3.*inch,)
+    assert_close(K, 1.4062499999999991)
 
+    K = change_K_basis(contraction_sharp(3*inch, 2*inch, method='Crane'), 2.*inch, 3.*inch,)
+    assert_close(K, 1.4062499999999991)
 
 def test_contraction_conical_Crane():
     K2 = contraction_conical_Crane(Di1=0.0779, Di2=0.0525, l=0)
