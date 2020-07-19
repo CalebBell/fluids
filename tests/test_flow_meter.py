@@ -833,3 +833,34 @@ def test_orifice_std_Hollingshead_fit():
     assert_close1d(obj.tck[0], orifice_std_Hollingshead_tck[0])
     assert_close1d(obj.tck[1], orifice_std_Hollingshead_tck[1])
     assert_close1d(obj.tck[2], orifice_std_Hollingshead_tck[2])
+
+
+@pytest.mark.scipy
+@pytest.mark.slow
+def test_wedge_Hollingshead_fit():
+    from scipy.interpolate import RectBivariateSpline, bisplev
+    import numpy as np
+    from fluids.flow_meter import wedge_betas_Hollingshead, wedge_logRes_Hollingshead, wedge_Hollingshead_Cs, wedge_Hollingshead_tck
+
+    obj = RectBivariateSpline(wedge_betas_Hollingshead, wedge_logRes_Hollingshead, 
+                              np.array(wedge_Hollingshead_Cs), s=0, kx=1, ky=3)
+    assert_close(obj(.55, log(1e4)), bisplev(.55, log(1e4), wedge_Hollingshead_tck))
+    
+    assert_close1d(obj.tck[0], wedge_Hollingshead_tck[0])
+    assert_close1d(obj.tck[1], wedge_Hollingshead_tck[1])
+    assert_close1d(obj.tck[2], wedge_Hollingshead_tck[2])
+
+@pytest.mark.scipy
+@pytest.mark.slow
+def test_cone_Hollingshead_fit():
+    from scipy.interpolate import RectBivariateSpline, bisplev
+    import numpy as np
+    from fluids.flow_meter import cone_logRes_Hollingshead, cone_betas_Hollingshead, cone_Hollingshead_Cs, cone_Hollingshead_tck
+
+    obj = RectBivariateSpline(cone_betas_Hollingshead, cone_logRes_Hollingshead, 
+                              np.array(cone_Hollingshead_Cs), s=0, kx=2, ky=3)
+    assert_close(obj(.77, log(1e4)), bisplev(.77, log(1e4), cone_Hollingshead_tck))
+    
+    assert_close1d(obj.tck[0], cone_Hollingshead_tck[0])
+    assert_close1d(obj.tck[1], cone_Hollingshead_tck[1])
+    assert_close1d(obj.tck[2], cone_Hollingshead_tck[2])

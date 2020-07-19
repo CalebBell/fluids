@@ -95,6 +95,14 @@ AS_CAST_VENTURI_TUBE = 'as cast convergent venturi tube'
 MACHINED_CONVERGENT_VENTURI_TUBE = 'machined convergent venturi tube'
 ROUGH_WELDED_CONVERGENT_VENTURI_TUBE = 'rough welded convergent venturi tube'
 
+
+HOLLINGSHEAD_ORIFICE = 'Hollingshead orifice'
+HOLLINGSHEAD_VENTURI_SMOOTH = 'Hollingshead venturi smooth'
+HOLLINGSHEAD_VENTURI_SHARP = 'Hollingshead venturi sharp'
+HOLLINGSHEAD_CONE = 'Hollingshead v cone'
+HOLLINGSHEAD_WEDGE = 'Hollingshead wedge'
+
+
 CONE_METER = 'cone meter'
 WEDGE_METER = 'wedge meter'
 __all__.extend(['ISO_5167_ORIFICE','ISO_15377_ECCENTRIC_ORIFICE', 'MILLER_ORIFICE', 
@@ -106,7 +114,9 @@ __all__.extend(['ISO_5167_ORIFICE','ISO_15377_ECCENTRIC_ORIFICE', 'MILLER_ORIFIC
                 'WEDGE_METER', 'ISO_15377_CONICAL_ORIFICE',
                 'MILLER_CONICAL_ORIFICE', 
                 'MILLER_QUARTER_CIRCLE_ORIFICE',
-                'ISO_15377_QUARTER_CIRCLE_ORIFICE', 'UNSPECIFIED_METER'])
+                'ISO_15377_QUARTER_CIRCLE_ORIFICE', 'UNSPECIFIED_METER',
+                'HOLLINGSHEAD_ORIFICE', 'HOLLINGSHEAD_CONE', 'HOLLINGSHEAD_WEDGE',
+                'HOLLINGSHEAD_VENTURI_SMOOTH', 'HOLLINGSHEAD_VENTURI_SHARP'])
 
 __all__.extend(['ORIFICE_CORNER_TAPS', 'ORIFICE_FLANGE_TAPS',
                 'ORIFICE_D_AND_D_2_TAPS', 'ORIFICE_PIPE_TAPS', 
@@ -1555,6 +1565,11 @@ def diameter_ratio_cone_meter(D, Dc):
     Notes
     -----
     
+    A mathematically equivalent formula often writen is:
+        
+    .. math::
+        \beta = \frac{\sqrt{D^2 - d_c^2}}{D}
+    
     Examples
     --------
     >>> diameter_ratio_cone_meter(D=0.2575, Dc=0.184)
@@ -2108,15 +2123,92 @@ as_cast_convergent_entrance_machined_venturi_Res = [1E4, 6E4, 1E5, 1.5E5,
                                                     3.2E6] # 5E5 to 3.2E6
 as_cast_convergent_entrance_machined_venturi_Cs = [0.963, 0.978, 0.98, 0.987, 0.992, 0.995]
 
+venturi_Res_Hollingshead = [1.0, 5.0, 10.0, 20.0, 30.0, 40.0, 60.0, 80.0, 100.0, 200.0, 300.0, 500.0, 1000.0, 2000.0, 3000.0, 5000.0, 10000.0, 30000.0, 50000.0, 75000.0, 100000.0, 1000000.0, 10000000.0, 50000000.0]
+venturi_logRes_Hollingshead = [0.0, 1.6094379124341003, 2.302585092994046, 2.995732273553991, 3.4011973816621555, 3.6888794541139363, 4.0943445622221, 4.382026634673881, 4.605170185988092, 5.298317366548036, 5.703782474656201, 6.214608098422191, 6.907755278982137, 7.600902459542082, 8.006367567650246, 8.517193191416238, 9.210340371976184, 10.308952660644293, 10.819778284410283, 11.225243392518447, 11.512925464970229, 13.815510557964274, 16.11809565095832, 17.72753356339242]
+venturi_smooth_Cs_Hollingshead = [0.163, 0.336, 0.432, 0.515, 0.586, 0.625, 0.679, 0.705, 0.727, 0.803, 0.841, 0.881, 0.921, 0.937, 0.944, 0.954, 0.961, 0.967, 0.967, 0.97, 0.971, 0.973, 0.974, 0.975]
+venturi_sharp_Cs_Hollingshead = [0.146, 0.3, 0.401, 0.498, 0.554, 0.596, 0.65, 0.688, 0.715, 0.801, 0.841, 0.884, 0.914, 0.94, 0.947, 0.944, 0.952, 0.959, 0.962, 0.963, 0.965, 0.967, 0.967, 0.967]
+
 
 CONE_METER_C = 0.82
 ROUGH_WELDED_CONVERGENT_VENTURI_TUBE_C = 0.985
 MACHINED_CONVERGENT_VENTURI_TUBE_C = 0.995
 AS_CAST_VENTURI_TUBE_C = 0.984
 
-CONE_METER_C = 0.82
-
 ISO_15377_CONICAL_ORIFICE_C = 0.734
+
+cone_Res_Hollingshead = [1.0, 5.0, 10.0, 20.0, 30.0, 40.0, 60.0, 80.0, 100.0, 150.0, 200.0, 300.0, 500.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 7500.0,
+    10000.0, 20000.0, 30000.0, 100000.0, 1000000.0, 10000000.0, 50000000.0
+]
+cone_logRes_Hollingshead = [0.0, 1.6094379124341003, 2.302585092994046, 2.995732273553991, 3.4011973816621555, 3.6888794541139363, 4.0943445622221,
+    4.382026634673881, 4.605170185988092, 5.0106352940962555, 5.298317366548036, 5.703782474656201, 6.214608098422191, 6.907755278982137, 7.600902459542082,
+    8.006367567650246, 8.294049640102028, 8.517193191416238, 8.922658299524402, 9.210340371976184, 9.903487552536127, 10.308952660644293,
+    11.512925464970229, 13.815510557964274, 16.11809565095832, 17.72753356339242
+]
+cone_betas_Hollingshead = [0.6611, 0.6995, 0.8203]
+
+cone_beta_6611_Hollingshead_Cs = [0.066, 0.147, 0.207, 0.289, 0.349, 0.396, 0.462, 0.506, 0.537, 0.588, 0.622, 0.661, 0.7, 0.727, 0.75, 0.759, 0.763, 0.765,
+    0.767, 0.773, 0.778, 0.789, 0.804, 0.803, 0.805, 0.802
+]
+cone_beta_6995_Hollingshead_Cs = [0.067, 0.15, 0.21, 0.292, 0.35, 0.394, 0.458, 0.502, 0.533, 0.584, 0.615, 0.645, 0.682, 0.721, 0.742, 0.75, 0.755, 0.757,
+    0.763, 0.766, 0.774, 0.781, 0.792, 0.792, 0.79, 0.787
+]
+cone_beta_8203_Hollingshead_Cs = [0.057, 0.128, 0.182, 0.253, 0.303, 0.343, 0.4, 0.44, 0.472, 0.526, 0.557, 0.605, 0.644, 0.685, 0.705, 0.714, 0.721, 0.722,
+    0.724, 0.723, 0.725, 0.731, 0.73, 0.73, 0.741, 0.734
+]
+cone_Hollingshead_Cs = [cone_beta_6611_Hollingshead_Cs, cone_beta_6995_Hollingshead_Cs,
+    cone_beta_8203_Hollingshead_Cs
+]
+
+cone_Hollingshead_tck = implementation_optimize_tck([
+    [0.6611, 0.6611, 0.6611, 0.8203, 0.8203, 0.8203],
+    [0.0, 0.0, 0.0, 0.0, 2.302585092994046, 2.995732273553991, 3.4011973816621555, 3.6888794541139363, 4.0943445622221, 4.382026634673881,
+        4.605170185988092, 5.0106352940962555, 5.298317366548036, 5.703782474656201, 6.214608098422191, 6.907755278982137, 7.600902459542082,
+        8.006367567650246, 8.294049640102028, 8.517193191416238, 8.922658299524402, 9.210340371976184, 9.903487552536127, 10.308952660644293,
+        11.512925464970229, 13.815510557964274, 17.72753356339242, 17.72753356339242, 17.72753356339242, 17.72753356339242
+    ],
+    [0.06600000000000003, 0.09181180887944293, 0.1406341453010674, 0.27319769866300025, 0.34177839953532274, 0.4025880076725502, 0.4563149328810349,
+        0.5035445307357295, 0.5458473693359689, 0.583175639128474, 0.628052124545805, 0.6647198135005781, 0.7091524396786245, 0.7254729823419331,
+        0.7487816963926843, 0.7588145502817809, 0.7628692532631826, 0.7660482147214834, 0.7644188319583379, 0.7782644144006241, 0.7721508139116487,
+        0.7994728794028244, 0.8076742194714519, 0.7986221420822799, 0.8086240532850298, 0.802, 0.07016232064017663, 0.1059162635703894,
+        0.1489681838592814, 0.28830815748629207, 0.35405213706957395, 0.40339795504063664, 0.4544570323055189, 0.5034637712201067, 0.5448190156693709,
+        0.5840164245031125, 0.6211559598098063, 0.6218648844980823, 0.6621745760710729, 0.7282379546292953, 0.7340030734801267, 0.7396324865779599,
+        0.7489736798953754, 0.7480726412914717, 0.7671564751169978, 0.756853660688892, 0.7787029642272745, 0.7742381131312691, 0.7887584162443445,
+        0.7857610450218329, 0.7697076645551957, 0.7718300910596032, 0.05700000000000002, 0.07612544859943549, 0.12401733415778271, 0.24037452209595875,
+        0.29662463502593156, 0.34859536586855205, 0.39480085719322505, 0.43661601622480606, 0.48091259102454764, 0.5240691286186233, 0.5590609288020619,
+        0.6144556048716696, 0.6471713640567137, 0.6904158809061184, 0.7032590252050219, 0.712177974557301, 0.7221845303680273, 0.721505707129694,
+        0.7249822376264551, 0.7218890085289907, 0.7221848475768714, 0.7371751354515526, 0.7252385062304629, 0.7278943803933404, 0.7496546607029086,
+        0.7340000000000001
+    ],
+    2, 3
+])
+
+wedge_Res_Hollingshead = [1.0, 5.0, 10.0, 20.0, 30.0, 40.0, 60.0, 80.0, 100.0, 200.0, 300.0, 400.0, 500.0, 5000.0, 1.00E+04, 1.00E+05, 1.00E+06, 5.00E+07]
+wedge_logRes_Hollingshead = [0.0, 1.6094379124341003, 2.302585092994046, 2.995732273553991, 3.4011973816621555, 3.6888794541139363, 4.0943445622221,
+    4.382026634673881, 4.605170185988092, 5.298317366548036, 5.703782474656201, 5.991464547107982, 6.214608098422191, 8.517193191416238, 9.210340371976184,
+    11.512925464970229, 13.815510557964274, 17.72753356339242
+]
+
+wedge_beta_5023_Hollingshead = [0.145, 0.318, 0.432, 0.551, 0.61, 0.641, 0.674, 0.69, 0.699, 0.716, 0.721, 0.725, 0.73, 0.729, 0.732, 0.732, 0.731, 0.733]
+wedge_beta_611_Hollingshead = [0.127, 0.28, 0.384, 0.503, 0.567, 0.606, 0.645, 0.663, 0.672, 0.688, 0.694, 0.7, 0.705, 0.7, 0.702, 0.695, 0.699, 0.705]
+wedge_betas_Hollingshead = [.5023, .611]
+wedge_Hollingshead_Cs = [wedge_beta_5023_Hollingshead, wedge_beta_611_Hollingshead]
+
+wedge_Hollingshead_tck = implementation_optimize_tck([
+    [0.5023, 0.5023, 0.611, 0.611],
+    [0.0, 0.0, 0.0, 0.0, 2.302585092994046, 2.995732273553991, 3.4011973816621555, 3.6888794541139363, 4.0943445622221, 4.382026634673881,
+        4.605170185988092, 5.298317366548036, 5.703782474656201, 5.991464547107982, 6.214608098422191, 8.517193191416238, 9.210340371976184,
+        11.512925464970229, 17.72753356339242, 17.72753356339242, 17.72753356339242, 17.72753356339242
+    ],
+    [0.14500000000000005, 0.18231832425722, 0.3339917130006919, 0.5379467710226973, 0.6077700659940896, 0.6459542943925077, 0.6729757007770231,
+        0.6896405007576225, 0.7054863114589583, 0.7155740600632635, 0.7205446407610863, 0.7239576816068966, 0.7483627568160166, 0.7232963355919931,
+        0.7366325320490953, 0.7264222143567053, 0.7339605394126009, 0.7330000000000001, 0.1270000000000001, 0.16939873865132285, 0.2828494933525669,
+        0.4889107009077842, 0.5623120043524101, 0.6133092379676948, 0.6437092394687915, 0.6629923366662017, 0.6782934366011034, 0.687302374134782,
+        0.6927470053128909, 0.6993992364234898, 0.7221204483546849, 0.6947577293284015, 0.7063701306810815, 0.6781614534359871, 0.7185326811948407,
+        0.7050000000000001
+    ],
+    1, 3
+])
+
 
 beta_simple_meters = frozenset([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE, 
                       ISO_15377_CONICAL_ORIFICE, ISO_15377_QUARTER_CIRCLE_ORIFICE, 
@@ -2128,6 +2220,7 @@ beta_simple_meters = frozenset([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                       CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, CONICAL_ORIFICE,
                       SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE,
                       UNSPECIFIED_METER,
+                      HOLLINGSHEAD_VENTURI_SHARP, HOLLINGSHEAD_VENTURI_SMOOTH, HOLLINGSHEAD_ORIFICE,
                       
                       LONG_RADIUS_NOZZLE, 
                       ISA_1932_NOZZLE, VENTURI_NOZZLE,
@@ -2176,9 +2269,9 @@ def differential_pressure_meter_beta(D, D2, meter_type):
     '''
     if meter_type in beta_simple_meters:
         beta = D2/D      
-    elif meter_type == CONE_METER:
+    elif meter_type == CONE_METER or meter_type == HOLLINGSHEAD_CONE:
         beta = diameter_ratio_cone_meter(D=D, Dc=D2)
-    elif meter_type == WEDGE_METER:
+    elif meter_type == WEDGE_METER or meter_type == HOLLINGSHEAD_WEDGE:
         beta = diameter_ratio_wedge_meter(D=D, H=D2)
     else:
         raise ValueError(_unsupported_meter_msg)
@@ -2335,6 +2428,33 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         beta = diameter_ratio_wedge_meter(D=D, H=D2)
         epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P1, k=k, beta=beta)
         C = C_wedge_meter_ISO_5167_6_2017(D=D, H=D2)
+    elif meter_type == HOLLINGSHEAD_ORIFICE:
+        v = m/((0.25*pi*D*D)*rho)
+        Re_D = rho*v*D/mu
+        C = float(bisplev(D2/D, log(Re_D), orifice_std_Hollingshead_tck))
+        epsilon = orifice_expansibility(D, D2, P1, P2, k)
+    elif meter_type == HOLLINGSHEAD_VENTURI_SMOOTH:
+        v = m/((0.25*pi*D*D)*rho)
+        Re_D = rho*v*D/mu
+        C = interp(log(Re), venturi_logRes_Hollingshead, venturi_smooth_Cs_Hollingshead, extrapolate=True)
+        epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+    elif meter_type == HOLLINGSHEAD_VENTURI_SHARP:
+        v = m/((0.25*pi*D*D)*rho)
+        Re_D = rho*v*D/mu
+        C = interp(log(Re), venturi_logRes_Hollingshead, venturi_sharp_Cs_Hollingshead, extrapolate=True)
+        epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
+    elif meter_type == HOLLINGSHEAD_CONE:
+        v = m/((0.25*pi*D*D)*rho)
+        Re_D = rho*v*D/mu
+        beta = diameter_ratio_cone_meter(D, D2)
+        C = float(bisplev(beta, log(Re_D), cone_Hollingshead_tck))
+        epsilon = cone_meter_expansibility_Stewart(D=D, Dc=D2, P1=P1, P2=P2, k=k)
+    elif meter_type == HOLLINGSHEAD_WEDGE:
+        v = m/((0.25*pi*D*D)*rho)
+        Re_D = rho*v*D/mu
+        beta = diameter_ratio_wedge_meter(D=D, H=D2)
+        C = float(bisplev(beta, log(Re_D), wedge_Hollingshead_tck))
+        epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P1, k=k, beta=beta)
     elif meter_type == UNSPECIFIED_METER:
         epsilon = orifice_expansibility(D, D2, P1, P2, k) # Default to orifice type expansibility
         if C_specified is None:
@@ -2344,6 +2464,7 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
     if C_specified is not None:
         C = C_specified
     return C, epsilon
+
 
 
 def err_dp_meter_solver_m(m_D, D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified):
@@ -2513,6 +2634,8 @@ _dP_orifice_set = set([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                   MILLER_SEGMENTAL_ORIFICE, MILLER_CONICAL_ORIFICE,
                   MILLER_QUARTER_CIRCLE_ORIFICE, 
                   
+                  HOLLINGSHEAD_ORIFICE,
+                  
                   CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, CONICAL_ORIFICE,
                   SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE])
 
@@ -2579,16 +2702,16 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
     elif meter_type == VENTURI_NOZZLE:
         raise NotImplementedError("Venturi meter does not have an implemented pressure drop correlation")
     
-    elif meter_type == AS_CAST_VENTURI_TUBE:
-        dP = dP_venturi_tube(D=D, Do=D2, P1=P1, P2=P2)
-    elif meter_type == MACHINED_CONVERGENT_VENTURI_TUBE:
-        dP = dP_venturi_tube(D=D, Do=D2, P1=P1, P2=P2)
-    elif meter_type == ROUGH_WELDED_CONVERGENT_VENTURI_TUBE:
+    elif (meter_type == AS_CAST_VENTURI_TUBE 
+          or meter_type == MACHINED_CONVERGENT_VENTURI_TUBE
+          or meter_type == ROUGH_WELDED_CONVERGENT_VENTURI_TUBE
+          or meter_type == HOLLINGSHEAD_VENTURI_SMOOTH
+          or meter_type == HOLLINGSHEAD_VENTURI_SHARP):
         dP = dP_venturi_tube(D=D, Do=D2, P1=P1, P2=P2)
         
-    elif meter_type == CONE_METER:
+    elif meter_type == CONE_METER or meter_type == HOLLINGSHEAD_CONE:
         dP = dP_cone_meter(D=D, Dc=D2, P1=P1, P2=P2)
-    elif meter_type == WEDGE_METER:
+    elif meter_type == WEDGE_METER or meter_type == HOLLINGSHEAD_WEDGE:
         dP = dP_wedge_meter(D=D, H=D2, P1=P1, P2=P2)
     else:
         raise ValueError(_unsupported_meter_msg)
