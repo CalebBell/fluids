@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from fluids import *
 from fluids.constants import inch
-from math import log10
+from math import log10, log, exp
 from fluids.numerics import secant, linspace, logspace, assert_close, isclose, assert_close1d, assert_close2d
 import pytest
 
@@ -817,3 +817,19 @@ def test_fuzz_K_to_discharge_coefficient():
             K_calc = discharge_coefficient_to_K(D=1.0, Do=D_ratio, C=C)
             Ks_recalc.append(K_calc)
         assert_close1d(Ks, Ks_recalc)
+        
+@pytest.mark.scipy
+@pytest.mark.slow
+def test_orifice_std_Hollingshead_fit():
+    from scipy.interpolate import RectBivariateSpline, bisplev
+    from fluids.flow_meter import orifice_std_Hollingshead_tck, orifice_std_logRes_Hollingshead, orifice_std_betas_Hollingshead, orifice_std_Hollingshead_Cs
+    import numpy as np
+    
+    obj = RectBivariateSpline(orifice_std_betas_Hollingshead, orifice_std_logRes_Hollingshead, 
+                              np.array(orifice_std_Hollingshead_Cs), s=0, kx=3, ky=3)
+    
+    assert_close(obj(.55, log(1e3))[0][0], bisplev(.55, log(1e3), orifice_std_Hollingshead_tck))
+    
+    assert_close1d(obj.tck[0], orifice_std_Hollingshead_tck[0])
+    assert_close1d(obj.tck[1], orifice_std_Hollingshead_tck[1])
+    assert_close1d(obj.tck[2], orifice_std_Hollingshead_tck[2])

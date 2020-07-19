@@ -1644,6 +1644,26 @@ def interp(x, dx, dy, left=None, right=None, extrapolate=False):
         return (dy[j + 1] - dy[j])/(dx[j + 1] - dx[j])*(x - dx[j]) + dy[j]
 
 
+def interp2d_linear(x, y, xs, ys, vals):
+    # Same as RectBivariateSpline, s=0, kx=1, ky=1 (and better performance)
+    if y < ys[0]:
+        i0, i1 = 0, 1
+        y_dat = ys[i0], ys[i1]
+    elif y > ys[-1]:
+        i0, i1 = -2, -1
+    else:
+        for i in range(len(ys)):
+            if ys[i] >= y:
+                i0, i1 = i-1, i
+                break
+    y_low, y_high = ys[i0], ys[i1]
+
+    v_low = interp(x, xs, vals[i0], extrapolate=True)
+    v_high = interp(x, xs, vals[i1], extrapolate=True)
+    
+    return v_low + (y-y_low)/(y_high-y_low)*(v_high-v_low)
+
+
 def implementation_optimize_tck(tck, force_numpy=False):
     '''Converts 1-d or 2-d splines calculated with SciPy's `splrep` or
     `bisplrep` to a format for fastest computation - lists in PyPy, and numpy
