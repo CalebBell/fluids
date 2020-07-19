@@ -21,10 +21,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from math import cos, sin, tan, atan, pi, radians, exp, acos, log10
+from math import cos, sin, tan, atan, pi, radians, exp, acos, log10, log
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
-from fluids.numerics import interp, secant, brenth, NotBoundedError, implementation_optimize_tck
+from fluids.numerics import interp, secant, brenth, NotBoundedError, implementation_optimize_tck, bisplev
 from fluids.constants import g, inch
 
 __all__ = ['C_Reader_Harris_Gallagher',
@@ -47,6 +47,7 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'C_eccentric_orifice_ISO_15377_1998',
            'C_quarter_circle_orifice_ISO_15377_1998',
            'C_Miller_1996',
+           'all_meters',
            ]
 
 
@@ -2228,7 +2229,7 @@ beta_simple_meters = frozenset([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                       MACHINED_CONVERGENT_VENTURI_TUBE, 
                       ROUGH_WELDED_CONVERGENT_VENTURI_TUBE])
 
-all_meters = frozenset(list(beta_simple_meters) + [CONE_METER, WEDGE_METER, 'unspecified meter'])
+all_meters = frozenset(list(beta_simple_meters) + [CONE_METER, WEDGE_METER, HOLLINGSHEAD_CONE, HOLLINGSHEAD_WEDGE])
 
 _unsupported_meter_msg = "Supported meter types are %s" % all_meters
 
@@ -2243,15 +2244,16 @@ def differential_pressure_meter_beta(D, D2, meter_type):
         Diameter of orifice, or venturi meter orifice, or flow tube orifice,
         or cone meter end diameter, or wedge meter fluid flow height, [m]
     meter_type : str
-        One of {'as cast convergent venturi tube', 'wedge meter', 'venuri nozzle', 
-        'conical orifice', 'cone meter', 'eccentric orifice', 
-        'ISO 15377 quarter-circle orifice', 'quarter circle orifice',
-        'Miller eccentric orifice', 'Miller orifice', 'orifice', 
-        'rough welded convergent venturi tube', 'ISO 15377 conical orifice', 
-        'machined convergent venturi tube', 'segmental orifice',
-        'long radius nozzle', 'Miller segmental orifice', 'ISA 1932 nozzle',
-        'ISO 15377 eccentric orifice', 'Miller quarter circle orifice',
-        'Miller conical orifice', 'ISO 5167 orifice', 'unspecified meter'}, [-]
+        One of {'conical orifice', 'orifice', 'machined convergent venturi tube', 
+        'ISO 5167 orifice', 'Miller quarter circle orifice', 'Hollingshead venturi sharp',
+        'segmental orifice', 'Miller conical orifice', 'Miller segmental orifice',
+        'quarter circle orifice', 'Hollingshead v cone', 'wedge meter', 'eccentric orifice',
+        'venuri nozzle', 'rough welded convergent venturi tube', 'ISA 1932 nozzle', 
+        'ISO 15377 quarter-circle orifice', 'Hollingshead venturi smooth',
+        'Hollingshead orifice', 'cone meter', 'Hollingshead wedge', 'Miller orifice',
+        'long radius nozzle', 'ISO 15377 conical orifice', 'unspecified meter', 
+        'as cast convergent venturi tube', 'Miller eccentric orifice',
+        'ISO 15377 eccentric orifice'}, [-]
 
     Returns
     -------
@@ -2318,15 +2320,16 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
     k : float
         Isentropic exponent of fluid, [-]
     meter_type : str
-        One of {'as cast convergent venturi tube', 'wedge meter', 'venuri nozzle', 
-        'conical orifice', 'cone meter', 'eccentric orifice', 
-        'ISO 15377 quarter-circle orifice', 'quarter circle orifice',
-        'Miller eccentric orifice', 'Miller orifice', 'orifice', 
-        'rough welded convergent venturi tube', 'ISO 15377 conical orifice', 
-        'machined convergent venturi tube', 'segmental orifice',
-        'long radius nozzle', 'Miller segmental orifice', 'ISA 1932 nozzle',
-        'ISO 15377 eccentric orifice', 'Miller quarter circle orifice',
-        'Miller conical orifice', 'ISO 5167 orifice', 'unspecified meter'}, [-]
+        One of {'conical orifice', 'orifice', 'machined convergent venturi tube', 
+        'ISO 5167 orifice', 'Miller quarter circle orifice', 'Hollingshead venturi sharp',
+        'segmental orifice', 'Miller conical orifice', 'Miller segmental orifice',
+        'quarter circle orifice', 'Hollingshead v cone', 'wedge meter', 'eccentric orifice',
+        'venuri nozzle', 'rough welded convergent venturi tube', 'ISA 1932 nozzle', 
+        'ISO 15377 quarter-circle orifice', 'Hollingshead venturi smooth',
+        'Hollingshead orifice', 'cone meter', 'Hollingshead wedge', 'Miller orifice',
+        'long radius nozzle', 'ISO 15377 conical orifice', 'unspecified meter', 
+        'as cast convergent venturi tube', 'Miller eccentric orifice',
+        'ISO 15377 eccentric orifice'}, [-]
     taps : str, optional
         The orientation of the taps; one of 'corner', 'flange', 'D', or 'D/2';
         applies for orifice meters only, [-]
@@ -2436,12 +2439,12 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
     elif meter_type == HOLLINGSHEAD_VENTURI_SMOOTH:
         v = m/((0.25*pi*D*D)*rho)
         Re_D = rho*v*D/mu
-        C = interp(log(Re), venturi_logRes_Hollingshead, venturi_smooth_Cs_Hollingshead, extrapolate=True)
+        C = interp(log(Re_D), venturi_logRes_Hollingshead, venturi_smooth_Cs_Hollingshead, extrapolate=True)
         epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
     elif meter_type == HOLLINGSHEAD_VENTURI_SHARP:
         v = m/((0.25*pi*D*D)*rho)
         Re_D = rho*v*D/mu
-        C = interp(log(Re), venturi_logRes_Hollingshead, venturi_sharp_Cs_Hollingshead, extrapolate=True)
+        C = interp(log(Re_D), venturi_logRes_Hollingshead, venturi_sharp_Cs_Hollingshead, extrapolate=True)
         epsilon = nozzle_expansibility(D=D, Do=D2, P1=P1, P2=P2, k=k)
     elif meter_type == HOLLINGSHEAD_CONE:
         v = m/((0.25*pi*D*D)*rho)
@@ -2535,15 +2538,16 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
     m : float, optional
         Mass flow rate of fluid through the flow meter, [kg/s]
     meter_type : str
-        One of {'as cast convergent venturi tube', 'wedge meter', 'venuri nozzle', 
-        'conical orifice', 'cone meter', 'eccentric orifice', 
-        'ISO 15377 quarter-circle orifice', 'quarter circle orifice',
-        'Miller eccentric orifice', 'Miller orifice', 'orifice', 
-        'rough welded convergent venturi tube', 'ISO 15377 conical orifice', 
-        'machined convergent venturi tube', 'segmental orifice',
-        'long radius nozzle', 'Miller segmental orifice', 'ISA 1932 nozzle',
-        'ISO 15377 eccentric orifice', 'Miller quarter circle orifice',
-        'Miller conical orifice', 'ISO 5167 orifice', 'unspecified meter'}, [-]
+        One of {'conical orifice', 'orifice', 'machined convergent venturi tube', 
+        'ISO 5167 orifice', 'Miller quarter circle orifice', 'Hollingshead venturi sharp',
+        'segmental orifice', 'Miller conical orifice', 'Miller segmental orifice',
+        'quarter circle orifice', 'Hollingshead v cone', 'wedge meter', 'eccentric orifice',
+        'venuri nozzle', 'rough welded convergent venturi tube', 'ISA 1932 nozzle', 
+        'ISO 15377 quarter-circle orifice', 'Hollingshead venturi smooth',
+        'Hollingshead orifice', 'cone meter', 'Hollingshead wedge', 'Miller orifice',
+        'long radius nozzle', 'ISO 15377 conical orifice', 'unspecified meter', 
+        'as cast convergent venturi tube', 'Miller eccentric orifice',
+        'ISO 15377 eccentric orifice'}, [-]
     taps : str, optional
         The orientation of the taps; one of 'corner', 'flange', 'D', or 'D/2';
         applies for orifice meters only, [-]
@@ -2663,12 +2667,17 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
     C : float, optional
         Coefficient of discharge (used only in orifice plates, and venturi
         nozzles), [-]
-    meter_type : str, optional
-        One of ('ISO 5167 orifice', 'long radius nozzle', 'ISA 1932 nozzle', 
-        'as cast convergent venturi tube', 
-        'machined convergent venturi tube', 
-        'rough welded convergent venturi tube', 'cone meter', 'cone meter'), 
-        [-]
+    meter_type : str
+        One of {'conical orifice', 'orifice', 'machined convergent venturi tube', 
+        'ISO 5167 orifice', 'Miller quarter circle orifice', 'Hollingshead venturi sharp',
+        'segmental orifice', 'Miller conical orifice', 'Miller segmental orifice',
+        'quarter circle orifice', 'Hollingshead v cone', 'wedge meter', 'eccentric orifice',
+        'venuri nozzle', 'rough welded convergent venturi tube', 'ISA 1932 nozzle', 
+        'ISO 15377 quarter-circle orifice', 'Hollingshead venturi smooth',
+        'Hollingshead orifice', 'cone meter', 'Hollingshead wedge', 'Miller orifice',
+        'long radius nozzle', 'ISO 15377 conical orifice', 'unspecified meter', 
+        'as cast convergent venturi tube', 'Miller eccentric orifice',
+        'ISO 15377 eccentric orifice'}, [-]
         
     Returns
     -------

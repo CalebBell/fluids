@@ -526,7 +526,7 @@ def test_dP_Reader_Harris_Gallagher_wet_venturi_tube():
 
 
 def test_differential_pressure_meter_dP():
-    for m in [AS_CAST_VENTURI_TUBE, MACHINED_CONVERGENT_VENTURI_TUBE, ROUGH_WELDED_CONVERGENT_VENTURI_TUBE]:
+    for m in [AS_CAST_VENTURI_TUBE, MACHINED_CONVERGENT_VENTURI_TUBE, ROUGH_WELDED_CONVERGENT_VENTURI_TUBE, HOLLINGSHEAD_VENTURI_SMOOTH, HOLLINGSHEAD_VENTURI_SHARP]:
         dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, meter_type=m)
         assert_close(dP, 1788.5717754177406)
         
@@ -539,11 +539,13 @@ def test_differential_pressure_meter_dP():
     dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, C=0.61512, meter_type=ISA_1932_NOZZLE)
     assert_close(dP, 9069.474705745388)
     
-    dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=CONE_METER)
-    assert_close(dP, 8380.848307054845)
+    for m in (CONE_METER, HOLLINGSHEAD_CONE):
+        dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=m)
+        assert_close(dP, 8380.848307054845)
 
-    dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=WEDGE_METER)
-    assert_close(dP, 7112.927753356824)
+    for m in (WEDGE_METER, HOLLINGSHEAD_WEDGE):
+        dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=m)
+        assert_close(dP, 7112.927753356824)
     
     with pytest.raises(Exception):
         differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, meter_type=VENTURI_NOZZLE) 
@@ -565,6 +567,13 @@ def test_differential_pressure_meter_beta():
     
     with pytest.raises(ValueError):
         differential_pressure_meter_beta(D=0.07366, D2=0.05, meter_type='NOTAMETER')
+
+    assert_close(differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=HOLLINGSHEAD_CONE),
+        differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=CONE_METER))
+    
+    assert_close(differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=HOLLINGSHEAD_WEDGE),
+        differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=WEDGE_METER))
+
 
 
 def test_cone_meter_expansibility_Stewart_full():
@@ -782,6 +791,32 @@ def test_differential_pressure_meter_C_epsilon():
                                               k=1.33, m=7.702338035732168, meter_type='NOTAREAMETER')
         
     
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=.01,
+        meter_type=HOLLINGSHEAD_ORIFICE)
+    assert_close(C, 0.7809066489631418)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=.01,
+        meter_type=HOLLINGSHEAD_VENTURI_SMOOTH)
+    assert_close(C, 0.7765555753764869)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=.01,
+        meter_type=HOLLINGSHEAD_VENTURI_SHARP)
+    assert_close(C, 0.7710760458207614)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=.01,
+        meter_type=HOLLINGSHEAD_CONE)
+    assert_close(C, 0.5796605776735264)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.025, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=.01,
+        meter_type=HOLLINGSHEAD_WEDGE)
+    assert_close(C, 0.7002380207294499)
+    
+
 
 @pytest.mark.fuzz
 @pytest.mark.slow
