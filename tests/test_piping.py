@@ -91,3 +91,8 @@ def test_gauge():
         t_from_gauge(17.5, schedule='FAIL')
     with pytest.raises(Exception):
         t_from_gauge(17.5, schedule='MWG')
+        
+        
+    NPS, Di, Do, t = nearest_pipe(Do=.273, schedule='80D1527')
+    assert NPS == 10
+    assert_close1d((Di, Do, t), (0.2429256, 0.27305, 0.015062200000000001))
