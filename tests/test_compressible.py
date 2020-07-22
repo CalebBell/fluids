@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from fluids import *
+from fluids.constants import *
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 
@@ -132,6 +133,13 @@ def test_Panhandle_A():
     with pytest.raises(Exception):
         Panhandle_A(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
         
+    # Sample problem from "Natural Gas Pipeline Flow Calculations" by "Harlan H. Bengtson"
+    Q_panhandle = Panhandle_A(SG=0.65, Tavg=F2K(80), Ts=F2K(60), Ps=14.7*psi, L=500*foot, D=12*inch, P1=510*psi, 
+                          P2=490*psi, Zavg=0.919, E=0.92)
+    mmscfd = Q_panhandle*day/foot**3/1e6
+    assert_close(mmscfd, 401.3019451856126, rtol=1e-12)
+
+
 def test_Panhandle_B():
     # Example 7-18 Gas of Crane TP 410M
     D = 0.340
@@ -170,6 +178,10 @@ def test_Weymouth():
     with pytest.raises(Exception):
         Weymouth(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
 
+    Q_Weymouth = Weymouth(SG=0.65, Tavg=F2K(80), Ts=F2K(60), Ps=14.7*psi, L=500*foot, D=12*inch, P1=510*psi, 
+                              P2=490*psi, Zavg=0.919, E=0.92)
+    mmscfd = Q_Weymouth*day/foot**3/1e6
+    assert_close(mmscfd, 272.5879686092862, rtol=1e-12)
 
 def test_Spitzglass_high():
     

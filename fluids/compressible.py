@@ -945,7 +945,7 @@ def Panhandle_A(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     P2 : float, optional
         Outlet pressure from pipe, [Pa]
     Q : float, optional
-        Flow rate of gas through pipe, [m^3/s]
+        Flow rate of gas through pipe at `Ts` and `Ps`, [m^3/s]
     Ts : float, optional
         Reference temperature for the specific gravity of the gas, [K]
     Ps : float, optional
@@ -1067,7 +1067,7 @@ def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     P2 : float, optional
         Outlet pressure from pipe, [Pa]
     Q : float, optional
-        Flow rate of gas through pipe, [m^3/s]
+        Flow rate of gas through pipe at `Ts` and `Ps`, [m^3/s]
     Ts : float, optional
         Reference temperature for the specific gravity of the gas, [K]
     Ps : float, optional
@@ -1186,7 +1186,7 @@ def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     P2 : float, optional
         Outlet pressure from pipe, [Pa]
     Q : float, optional
-        Flow rate of gas through pipe, [m^3/s]
+        Flow rate of gas through pipe at `Ts` and `Ps`, [m^3/s]
     Ts : float, optional
         Reference temperature for the specific gravity of the gas, [K]
     Ps : float, optional
@@ -1307,7 +1307,7 @@ def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7
     P2 : float, optional
         Outlet pressure from pipe, [Pa]
     Q : float, optional
-        Flow rate of gas through pipe, [m^3/s]
+        Flow rate of gas through pipe at `Ts` and `Ps`, [m^3/s]
     Ts : float, optional
         Reference temperature for the specific gravity of the gas, [K]
     Ps : float, optional
@@ -1411,7 +1411,7 @@ def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     P2 : float, optional
         Outlet pressure from pipe, [Pa]
     Q : float, optional
-        Flow rate of gas through pipe, [m^3/s]
+        Flow rate of gas through pipe at `Ts` and `Ps`, [m^3/s]
     Ts : float, optional
         Reference temperature for the specific gravity of the gas, [K]
     Ps : float, optional
@@ -1525,7 +1525,7 @@ def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     P2 : float, optional
         Outlet pressure from pipe, [Pa]
     Q : float, optional
-        Flow rate of gas through pipe, [m^3/s]
+        Flow rate of gas through pipe at `Ts` and `Ps`, [m^3/s]
     Ts : float, optional
         Reference temperature for the specific gravity of the gas, [K]
     Ps : float, optional
@@ -1620,7 +1620,7 @@ def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     P2 : float, optional
         Outlet pressure from pipe, [Pa]
     Q : float, optional
-        Flow rate of gas through pipe, [m^3/s]
+        Flow rate of gas through pipe at `Ts` and `Ps`, [m^3/s]
     Ts : float, optional
         Reference temperature for the specific gravity of the gas, [K]
     Ps : float, optional
@@ -1717,7 +1717,7 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     P2 : float, optional
         Outlet pressure from pipe, [Pa]
     Q : float, optional
-        Flow rate of gas through pipe, [m^3/s]
+        Flow rate of gas through pipe at `Ts` and `Ps`, [m^3/s]
     Ts : float, optional
         Reference temperature for the specific gravity of the gas, [K]
     Ps : float, optional
@@ -1827,7 +1827,7 @@ def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     P2 : float, optional
         Outlet pressure from pipe, [Pa]
     Q : float, optional
-        Flow rate of gas through pipe, [m^3/s]
+        Flow rate of gas through pipe at `Ts` and `Ps`, [m^3/s]
     Ts : float, optional
         Reference temperature for the specific gravity of the gas, [K]
     Ps : float, optional

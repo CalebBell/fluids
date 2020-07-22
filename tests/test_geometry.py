@@ -944,8 +944,16 @@ def test_TANK_issues():
               'sideB_f': None, 'sideB_k': None}
     assert_close(TANK(D=.5, **kwargs).V_total, 0.39269921259841806, rtol=1e-11)
 
+    
+    # case that failed once
+    kwargs = {'D': 0.5, 'L': 2.0, 'horizontal': False, 'L_over_D': None, 
+                     'V': None, 'sideA': 'ellipsoidal', 'sideB': 'ellipsoidal', 
+                     'sideA_a': 0.0, 'sideB_a': 0.0, 'sideA_a_ratio': None,
+                     'sideB_a_ratio': None, 'sideA_f': None, 'sideA_k': None, 
+                     'sideB_f': None, 'sideB_k': None}
+    TANK(**kwargs)
+    
 
-     
 def assert_TANKs_equal(T1, T2):
     for k, v in T1.__dict__.items():
         if isinstance(v, (float, int)):

@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from fluids import *
 from fluids.constants import inch
-from math import log10
+from math import log10, log, exp
 from fluids.numerics import secant, linspace, logspace, assert_close, isclose, assert_close1d, assert_close2d
 import pytest
 
@@ -327,8 +327,39 @@ def test_differential_pressure_meter_solver_misc():
     D2 = differential_pressure_meter_solver(m=7.918128618951788, D=0.07366, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011,
                                        k=1.33, meter_type=MILLER_ECCENTRIC_ORIFICE, taps=ORIFICE_FLANGE_TAPS, tap_position=TAPS_SIDE)
     assert_close(D2, 0.05)
+    
+    m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, rho=1.2, mu=0.00011, k=1.33, meter_type='ISO 5167 orifice', taps='D') 
+    assert_close(m, 0.2695835697819371)
 
-
+def test_unspecified_meter_C_specified():
+    for t in ('unspecified meter', 'ISO 5167 orifice'):
+        m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, 
+         P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
+        meter_type=t, taps='D', C_specified=0.6)
+        assert_close(m, 7.512945567976503)
+    
+        D2 = differential_pressure_meter_solver(D=0.07366, m=7.512945567976503, D2=None, P1=200000.0, 
+         P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
+        meter_type=t, taps='D', C_specified=0.6)
+        assert_close(D2, 0.05)
+    
+        P1 = differential_pressure_meter_solver(D=0.07366, D2=0.05, m=7.512945567976503,
+         P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
+        meter_type=t, taps='D', C_specified=0.6)
+        assert_close(P1, 200000.0)
+    
+        P2 = differential_pressure_meter_solver(D=0.07366, D2=0.05, m=7.512945567976503,
+         P1=200000.0, rho=999.1, mu=0.0011, k=1.33, 
+        meter_type=t, taps='D', C_specified=0.6)
+        assert_close(P2, 183000.0)
+    
+    with pytest.raises(ValueError):
+        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, 
+         P2=183000.0, rho=999.1, mu=0.0011, k=1.33, 
+        meter_type='unspecified meter', taps='D', C_specified=None)
+        
+        
+    
 def test_C_eccentric_orifice_ISO_15377_1998():
     C =  C_eccentric_orifice_ISO_15377_1998(.2, .075)
     assert_close(C, 0.6351923828125)
@@ -495,7 +526,7 @@ def test_dP_Reader_Harris_Gallagher_wet_venturi_tube():
 
 
 def test_differential_pressure_meter_dP():
-    for m in [AS_CAST_VENTURI_TUBE, MACHINED_CONVERGENT_VENTURI_TUBE, ROUGH_WELDED_CONVERGENT_VENTURI_TUBE]:
+    for m in [AS_CAST_VENTURI_TUBE, MACHINED_CONVERGENT_VENTURI_TUBE, ROUGH_WELDED_CONVERGENT_VENTURI_TUBE, HOLLINGSHEAD_VENTURI_SMOOTH, HOLLINGSHEAD_VENTURI_SHARP]:
         dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, meter_type=m)
         assert_close(dP, 1788.5717754177406)
         
@@ -508,11 +539,13 @@ def test_differential_pressure_meter_dP():
     dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, C=0.61512, meter_type=ISA_1932_NOZZLE)
     assert_close(dP, 9069.474705745388)
     
-    dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=CONE_METER)
-    assert_close(dP, 8380.848307054845)
+    for m in (CONE_METER, HOLLINGSHEAD_CONE):
+        dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=m)
+        assert_close(dP, 8380.848307054845)
 
-    dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=WEDGE_METER)
-    assert_close(dP, 7112.927753356824)
+    for m in (WEDGE_METER, HOLLINGSHEAD_WEDGE):
+        dP = differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,  meter_type=m)
+        assert_close(dP, 7112.927753356824)
     
     with pytest.raises(Exception):
         differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, meter_type=VENTURI_NOZZLE) 
@@ -534,6 +567,13 @@ def test_differential_pressure_meter_beta():
     
     with pytest.raises(ValueError):
         differential_pressure_meter_beta(D=0.07366, D2=0.05, meter_type='NOTAMETER')
+
+    assert_close(differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=HOLLINGSHEAD_CONE),
+        differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=CONE_METER))
+    
+    assert_close(differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=HOLLINGSHEAD_WEDGE),
+        differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type=WEDGE_METER))
+
 
 
 def test_cone_meter_expansibility_Stewart_full():
@@ -751,6 +791,32 @@ def test_differential_pressure_meter_C_epsilon():
                                               k=1.33, m=7.702338035732168, meter_type='NOTAREAMETER')
         
     
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=.01,
+        meter_type=HOLLINGSHEAD_ORIFICE)
+    assert_close(C, 0.7809066489631418)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=.01,
+        meter_type=HOLLINGSHEAD_VENTURI_SMOOTH)
+    assert_close(C, 0.7765555753764869)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=.01,
+        meter_type=HOLLINGSHEAD_VENTURI_SHARP)
+    assert_close(C, 0.7710760458207614)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=.01,
+        meter_type=HOLLINGSHEAD_CONE)
+    assert_close(C, 0.5796605776735264)
+    
+    C, eps = differential_pressure_meter_C_epsilon(D=0.07366, D2=0.025, P1=200000.0, 
+    P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=.01,
+        meter_type=HOLLINGSHEAD_WEDGE)
+    assert_close(C, 0.7002380207294499)
+    
+
 
 @pytest.mark.fuzz
 @pytest.mark.slow
@@ -786,3 +852,50 @@ def test_fuzz_K_to_discharge_coefficient():
             K_calc = discharge_coefficient_to_K(D=1.0, Do=D_ratio, C=C)
             Ks_recalc.append(K_calc)
         assert_close1d(Ks, Ks_recalc)
+        
+@pytest.mark.scipy
+@pytest.mark.slow
+def test_orifice_std_Hollingshead_fit():
+    from scipy.interpolate import RectBivariateSpline, bisplev
+    from fluids.flow_meter import orifice_std_Hollingshead_tck, orifice_std_logRes_Hollingshead, orifice_std_betas_Hollingshead, orifice_std_Hollingshead_Cs
+    import numpy as np
+    
+    obj = RectBivariateSpline(orifice_std_betas_Hollingshead, orifice_std_logRes_Hollingshead, 
+                              np.array(orifice_std_Hollingshead_Cs), s=0, kx=3, ky=3)
+    
+    assert_close(obj(.55, log(1e3))[0][0], bisplev(.55, log(1e3), orifice_std_Hollingshead_tck))
+    
+    assert_close1d(obj.tck[0], orifice_std_Hollingshead_tck[0])
+    assert_close1d(obj.tck[1], orifice_std_Hollingshead_tck[1])
+    assert_close1d(obj.tck[2], orifice_std_Hollingshead_tck[2])
+
+
+@pytest.mark.scipy
+@pytest.mark.slow
+def test_wedge_Hollingshead_fit():
+    from scipy.interpolate import RectBivariateSpline, bisplev
+    import numpy as np
+    from fluids.flow_meter import wedge_betas_Hollingshead, wedge_logRes_Hollingshead, wedge_Hollingshead_Cs, wedge_Hollingshead_tck
+
+    obj = RectBivariateSpline(wedge_betas_Hollingshead, wedge_logRes_Hollingshead, 
+                              np.array(wedge_Hollingshead_Cs), s=0, kx=1, ky=3)
+    assert_close(obj(.55, log(1e4)), bisplev(.55, log(1e4), wedge_Hollingshead_tck))
+    
+    assert_close1d(obj.tck[0], wedge_Hollingshead_tck[0])
+    assert_close1d(obj.tck[1], wedge_Hollingshead_tck[1])
+    assert_close1d(obj.tck[2], wedge_Hollingshead_tck[2])
+
+@pytest.mark.scipy
+@pytest.mark.slow
+def test_cone_Hollingshead_fit():
+    from scipy.interpolate import RectBivariateSpline, bisplev
+    import numpy as np
+    from fluids.flow_meter import cone_logRes_Hollingshead, cone_betas_Hollingshead, cone_Hollingshead_Cs, cone_Hollingshead_tck
+
+    obj = RectBivariateSpline(cone_betas_Hollingshead, cone_logRes_Hollingshead, 
+                              np.array(cone_Hollingshead_Cs), s=0, kx=2, ky=3)
+    assert_close(obj(.77, log(1e4)), bisplev(.77, log(1e4), cone_Hollingshead_tck))
+    
+    assert_close1d(obj.tck[0], cone_Hollingshead_tck[0])
+    assert_close1d(obj.tck[1], cone_Hollingshead_tck[1])
+    assert_close1d(obj.tck[2], cone_Hollingshead_tck[2])

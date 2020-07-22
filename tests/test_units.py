@@ -34,6 +34,11 @@ def assert_pint_allclose(value, magnitude, units):
         units = dict(units.dimensionality)
     assert dict(value.dimensionality) == units
 
+def test_nondimensional_reduction():
+    Re = 171.8865229090909 *u.meter * u.pound / u.centipoise / u.foot ** 2 / u.second
+    eD = 0.0005937067088858105*u.inch/u.meter
+    assert_close(friction_factor(Re, eD).magnitude, 0.012301598061848239)
+
 
 def test_convert_input():
     from fluids.units import convert_input

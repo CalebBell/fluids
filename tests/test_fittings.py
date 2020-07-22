@@ -206,9 +206,11 @@ def test_bend_rounded_Crane():
     assert_close(K_max, K_limit)
     
     # Test default
-    assert_close(bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30, bend_diameters=5.0),
-                 bend_rounded_Crane(Di=.4020, rc=.4*5, angle=30.0))
+    assert_close(bend_rounded_Crane(Di=.4020, rc=.4020*5, angle=30, bend_diameters=5.0),
+                 bend_rounded_Crane(Di=.4020, rc=.4020*5, angle=30.0))
                  
+    with pytest.raises(Exception):
+        bend_rounded_Crane(Di=.4020, rc=.4*5, bend_diameters=8, angle=30)
 
 
 def test_bend_rounded_Miller():
@@ -253,6 +255,23 @@ def test_bend_rounded():
     assert_close(K, 0.055429466248839564)
     
     assert type(bend_rounded(Di=4.020, rc=4.0*5, angle=30, Re=1E5, method='Miller')) == float
+    
+    # Crane standard fittings
+    Di = 4
+    v0 = bend_rounded(Di=4, angle=45, method='Crane standard')/ft_Crane(Di)
+    assert_close(v0, 16.0)
+    v0 = bend_rounded(Di=4, angle=90, method='Crane standard')/ft_Crane(Di)
+    assert_close(v0, 30.0)
+    v0 = bend_rounded(Di=4, angle=180, method='Crane standard')/ft_Crane(Di)
+    assert_close(v0, 50.0)
+    
+    # extrapolation - check behavior is sane
+    v0 = bend_rounded(Di=4, angle=360, method='Crane standard')/ft_Crane(Di)
+    assert_close(v0, 90.0)
+    
+    v0 = bend_rounded(Di=4, angle=0, method='Crane standard')/ft_Crane(Di)
+    assert_close(v0, 2.0)
+    
 
 
 
@@ -416,7 +435,17 @@ def test_contraction_sharp():
 
     with pytest.raises(Exception):
             K = contraction_sharp(Di1=1, Di2=0.4, Re=1e5, method='BADMETHOD')
+            
+    K = contraction_sharp(3.0, 2.0, method='Crane')
+    assert_close(K, 0.2777777777777778)
+    
+    # From Crane 7-19 Water sample problem
+    # Convert back to the larger 3 inch diameter
+    K = change_K_basis(contraction_conical_Crane(3*inch, 2*inch, l=1e-10), 2.*inch, 3.*inch,)
+    assert_close(K, 1.4062499999999991)
 
+    K = change_K_basis(contraction_sharp(3*inch, 2*inch, method='Crane'), 2.*inch, 3.*inch,)
+    assert_close(K, 1.4062499999999991)
 
 def test_contraction_conical_Crane():
     K2 = contraction_conical_Crane(Di1=0.0779, Di2=0.0525, l=0)

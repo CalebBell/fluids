@@ -1147,9 +1147,11 @@ def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
     angle : float
         Angle of bend, [degrees]
     rc : float, optional
-        Radius of curvature of the entrance, optional [m]
-    bend_diameters : float, optional (used if rc not provided)
-        Number of diameters of pipe making up the bend radius [-]
+        Radius of curvature of the entrance; specify either `rc` or 
+        `bend_diameters`, optional [m]
+    bend_diameters : float, optional
+        Number of diameters of pipe making up the bend radius; specify either
+        `rc` or `bend_diameters`, [-]
 
     Returns
     -------
@@ -1176,7 +1178,10 @@ def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
-    if not rc:
+    if (rc is not None and bend_diameters is not None):
+        if abs(Di*bend_diameters/rc - 1.0) > 1e-12:
+            raise ValueError("Cannot specify both `rc` and `bend_diameters`")
+    if rc is None:
         if bend_diameters is None:
             bend_diameters = 5.0
         rc = Di*bend_diameters
@@ -1227,17 +1232,19 @@ def bend_rounded_Ito(Di, angle, Re, rc=None, bend_diameters=None,
         K = 0.00431*alpha*angle*Re**-0.17*(rc/Di)**0.84
     return K
 
+crane_standard_bend_angles = [45.0, 90.0, 180.0]
+crane_standard_bend_losses = [16.0, 30.0, 50.0]
 
-bend_rounded_methods = ['Rennels', 'Crane', 'Miller', 'Swamee', 'Ito']
+bend_rounded_methods = ['Rennels', 'Crane', 'Crane standard', 'Miller', 'Swamee', 'Ito']
 bend_rounded_method_unknown = 'Specified method not recognized; methods are %s' %(bend_rounded_methods)
 
-def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
+def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=None,
                  Re=None, roughness=0.0, L_unimpeded=None, method='Rennels'):
     r'''Returns loss coefficient for rounded bend in a pipe of diameter `Di`,
     `angle`, with a specified either radius of curvature `rc` or curvature 
     defined by `bend_diameters`, Reynolds number `Re` and optionally pipe
     roughness, unimpeded length downstrean, and with the specified method.
-    This calculation has five methods available.
+    This calculation has six methods available.
     
     It is hard to describe one method as more conservative than another as
     depending on the conditions, the relative results change significantly.
@@ -1246,7 +1253,10 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
     method comprehensive as well and a source of original data, and the primary
     basis for the 'Rennels' method. The 'Swamee' method is very simple and
     generally does not match the other methods. The 'Crane' method may match 
-    or not match other methods depending on the inputs.
+    or not match other methods depending on the inputs. There is also a 
+    'Crane standard' method for use with threaded fittings which have higher
+    pressure drops. It is a linear interpolation of values at angles of
+    45, 90, and 180 degrees.
     
     The Rennels [1]_ formula is:
     
@@ -1280,7 +1290,7 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
         Number of diameters of pipe making up the bend radius [-]
     Re : float, optional
         Reynolds number of the pipe (used in Miller, Ito methods primarily, and
-        Rennels method if no friction factor given), [m]
+        Rennels method if no friction factor given), [-]
     roughness : float, optional
         Roughness of bend wall (used in Miller, Ito methods primarily, and
         Rennels method if no friction factor given), [m]   
@@ -1289,7 +1299,8 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
         or flow disturbances downstream (assumed 20 diameters if not 
         specified); used only in Miller method, [m]
     method : str, optional
-        One of 'Rennels', 'Miller', 'Crane', 'Ito', or 'Swamee', [-]
+        One of 'Rennels', 'Miller', 'Crane', 'Crane standard', 'Ito', or
+        'Swamee', [-]
 
     Returns
     -------
@@ -1334,8 +1345,11 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
     '''
     if method is None:
         method = 'Rennels'
+    if bend_diameters is None and rc is None:
+        bend_diameters = 5.0
     if rc is None:
         rc = Di*bend_diameters
+    
     if method == 'Rennels':
         angle = radians(angle)
         if fd is None:
@@ -1356,6 +1370,8 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=5.0,
     elif method == 'Crane':
         return bend_rounded_Crane(Di=Di, angle=angle, rc=rc, 
                                   bend_diameters=bend_diameters)
+    elif method == 'Crane standard':
+        return ft_Crane(Di)*interp(angle, crane_standard_bend_angles, crane_standard_bend_losses, extrapolate=True)
     elif method == 'Ito':
         if Re is None:
             raise ValueError("The `Iso` method requires`Re`")
@@ -1474,7 +1490,7 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
         Inside diameter of pipe, [m]
     Re : float, optional
         Reynolds number of the pipe (no specification if inlet or outlet
-        properties should be used), [m]
+        properties should be used), [-]
     roughness : float, optional
         Roughness of bend wall, [m]   
     L_unimpeded : float, optional
@@ -1692,7 +1708,7 @@ def contraction_round_Miller(Di1, Di2, rc):
     return Ks
 
 
-contraction_sharp_methods = ['Rennels', 'Hooper']
+contraction_sharp_methods = ['Rennels', 'Hooper', 'Crane']
 contraction_sharp_method_unknown = 'Specified method not recognized; methods are %s' %(contraction_sharp_methods)
 
 def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0, 
@@ -1733,6 +1749,8 @@ def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
     
     .. math::
         K_2 = K_1\frac{D_2^4}{D_1^4}
+        
+    For the Crane formula see `contraction_conical_Crane` with a length of zero.
 
     .. figure:: fittings/contraction_sharp.png
        :scale: 40 %
@@ -1753,7 +1771,7 @@ def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
         Roughness of original pipe (used in Hooper method only if no friction
         factor given), [m]
     method : str
-        The calculation method to use; one of 'Hooper', or 'Rennels' [-]
+        The calculation method to use; one of 'Hooper', 'Rennels', or 'Crane' [-]
 
     Returns
     -------
@@ -1776,6 +1794,11 @@ def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
         
     >>> contraction_sharp(Di1=1, Di2=0.4, Re=1e3, method='Hooper')
     1.3251840000000001
+    
+    Crane offers similar results:
+        
+    >>> contraction_sharp(3.0, 2.0, method='Crane')
+    0.2777777777777778
     
     References
     ----------
@@ -1803,6 +1826,8 @@ def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
             K = (0.6 + 0.48*fd)*D1_D2_2*(D1_D2_2 - 1.0)
         K = change_K_basis(K, Di1, Di2)
         return K
+    elif method == 'Crane':
+        return contraction_conical_Crane(Di1, Di2, l=0.0)
     else:
         raise ValueError(contraction_sharp_method_unknown)
 

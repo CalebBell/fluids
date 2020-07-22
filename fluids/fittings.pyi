@@ -226,7 +226,7 @@ def contraction_round_Miller(Di1: float, Di2: float, rc: float) -> float: ...
 
 
 def contraction_sharp(
-    Di1: int,
+    Di1: float,
     Di2: float,
     fd: Optional[float] = ...,
     Re: Optional[float] = ...,
