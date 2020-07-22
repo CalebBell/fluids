@@ -92,7 +92,57 @@ def test_gauge():
     with pytest.raises(Exception):
         t_from_gauge(17.5, schedule='MWG')
         
-        
+    # Test schedule is implemented
     NPS, Di, Do, t = nearest_pipe(Do=.273, schedule='80D1527')
     assert NPS == 10
     assert_close1d((Di, Do, t), (0.2429256, 0.27305, 0.015062200000000001))
+    
+    # initially accidentally implemented this using the mm's given in the standard
+    # however the IPS ones are authoritative.
+    NPS, Di, Do, t = nearest_pipe(NPS=8, schedule='ABSD2680')
+    assert NPS == 8
+    assert_close1d((0.19685, 0.239014, 0.021082), (Di, Do, t), rtol=1e-12)
+
+
+    # initially accidentally implemented this using the mm's given in the standard
+    # however the IPS ones are authoritative.
+    NPS, Di, Do, t = nearest_pipe(NPS=27, schedule='PS115F679')
+    assert NPS == 27
+    assert_close1d((0.6591046, 0.7100062, 0.025450800000000003), (Di, Do, t), rtol=1e-12)
+
+    NPS, Di, Do, t = nearest_pipe(NPS=27, schedule='PS75F679')
+    assert NPS == 27
+    assert_close1d((0.665607, 0.7100062, 0.0221996), (Di, Do, t), rtol=1e-12)
+
+    NPS, Di, Do, t = nearest_pipe(NPS=27, schedule='PS46F679')
+    assert NPS == 27
+    assert_close1d((0.6721602, 0.7100062, 0.018923), (Di, Do, t), rtol=1e-12)
+    
+    from fluids.piping import NPS120_D1785
+    assert_close(NPS120_D1785[0], 0.5)
+    assert_close(NPS120_D1785[-1], 12)
+
+    # initially accidentally implemented this using the mm's given in the standard
+    # however the IPS ones are authoritative.    
+    NPS, Di, Do, t = nearest_pipe(NPS=6, schedule='PVCD2665')
+    assert_close1d((0.154051, 0.168275, 0.007112), (Di, Do, t), rtol=1e-12)
+
+    # initially accidentally implemented this using the mm's given in the standard
+    # however the IPS ones are authoritative.    
+    NPS, Di, Do, t = nearest_pipe(NPS=6, schedule='80D1785')
+    assert_close1d((0.1463294, 0.168275, 0.0109728), (Di, Do, t), rtol=1e-12)
+
+    # initially accidentally implemented this using the mm's given in the standard
+    # however the IPS ones are authoritative.    
+    NPS, Di, Do, t = nearest_pipe(NPS=6, schedule='DR21D2241')
+    assert_close1d((0.15222219999999997, 0.168275, 0.008026400000000001), (Di, Do, t), rtol=1e-12)
+
+    # initially accidentally implemented this using the mm's given in the standard
+    # however the IPS ones are authoritative.    
+    NPS, Di, Do, t = nearest_pipe(NPS=1, schedule='DR21D2241CTS')
+    assert_close1d((0.025527, 0.028575, 0.001524), (Di, Do, t), rtol=1e-12)
+
+    # initially accidentally implemented this using the mm's given in the standard
+    # however the IPS ones are authoritative.    
+    NPS, Di, Do, t = nearest_pipe(NPS=10, schedule='DR325D2241PIP')
+    assert_close1d((0.2431288, 0.25908, 0.0079756), (Di, Do, t), rtol=1e-12)
