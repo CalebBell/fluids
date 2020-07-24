@@ -156,7 +156,7 @@ def bend_rounded(
     angle: float,
     fd: Optional[float] = ...,
     rc: Optional[float] = ...,
-    bend_diameters: float = ...,
+    bend_diameters: Optional[float] = ...,
     Re: Optional[float] = ...,
     roughness: float = ...,
     L_unimpeded: None = ...,
