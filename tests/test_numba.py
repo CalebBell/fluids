@@ -322,6 +322,11 @@ def test_misc_fittings():
     
     assert_close(fluids.numba.Hooper2K(Di=2., Re=10000., K1=900, Kinfty=4),
                  fluids.Hooper2K(Di=2., Re=10000., K1=900, Kinfty=4))
+
+    # reported bug https://github.com/numba/numba/issues/6007 about this
+    kwargs = dict(Di=.4020, rc=.4*5, angle=30.0)
+    assert_close(fluids.numba.bend_rounded_Crane(**kwargs),
+                 fluids.bend_rounded_Crane(**kwargs))
     
 @pytest.mark.numba
 @pytest.mark.skipif(numba is None, reason="Numba is missing")

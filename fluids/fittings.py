@@ -1178,9 +1178,9 @@ def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     '''
-    if (rc is not None and bend_diameters is not None):
-        if abs(Di*bend_diameters/rc - 1.0) > 1e-12:
-            raise ValueError("Cannot specify both `rc` and `bend_diameters`")
+    if (rc is not None and bend_diameters is not None): # numba: delete
+        if abs(Di*bend_diameters/rc - 1.0) > 1e-12: # numba: delete
+            raise ValueError("Cannot specify both `rc` and `bend_diameters`") # numba: delete
     if rc is None:
         if bend_diameters is None:
             bend_diameters = 5.0
