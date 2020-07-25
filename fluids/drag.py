@@ -1032,7 +1032,7 @@ def drag_sphere_methods(Re, check_ranges=True):
 
     Examples
     --------
-    >>> len(drag_sphere_methods(200)
+    >>> len(drag_sphere_methods(200))
     20
     >>> len(drag_sphere_methods(200000, check_ranges=False))
     21

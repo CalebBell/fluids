@@ -674,7 +674,7 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
     Examples
     --------
     >>> get_closest_station(51.02532675, -114.049868485806, 20150000)
-    <Weather station registered in the Integrated Surface Database, name CALGARY INTL CS, country CA, USAF 713930, WBAN None, coords (51.1, -114.0) Weather data from 2004 to 2017>
+    <Weather station registered in the Integrated Surface Database, name CALGARY INTL CS, country CA, USAF 713930, WBAN None, coords (51.1, -114.0) Weather data from 2004 to 2020>
     '''
     # Both station strings may be important
     # Searching for 100 stations is fine, 70 microseconds vs 50 microsecond for 1

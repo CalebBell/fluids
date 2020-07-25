@@ -924,7 +924,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     >>> local_time = datetime(2018, 4, 15, 6, 43, 5)
     >>> local_time = pytz.timezone('America/Edmonton').localize(local_time)
     >>> solar_position(local_time, 51.0486, -114.07)[0]
-    90.00054676987014
+    90.00054685485517
     
     Sunset occurs when the zenith is 90 degrees (13.5 hours later in this case):
         
@@ -1181,7 +1181,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
     ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0, 
     ... surface_azimuth=180.0)
-    (1065.7621896280832, 945.2656564506336, 120.4965331774495, 95.31535344213228, 25.181179735317226)
+    (1065.7621896280812, 945.2656564506323, 120.49653317744884, 95.31535344213178, 25.181179735317063)
     
     >>> cache = {'apparent_zenith': 41.099082295767545, 'zenith': 41.11285376417578, 'azimuth': 182.5631874250523}
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 

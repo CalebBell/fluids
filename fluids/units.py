@@ -472,7 +472,7 @@ def nu_mu_converter(rho, mu=None, nu=None):
 def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None): # pragma: no cover
     '''
     >>> isothermal_gas(rho=11.3*u.kg/u.m**3, fd=0.00185*u.dimensionless, P1=1E6*u.Pa, P2=9E5*u.Pa, L=1000*u.m, D=0.5*u.m)
-    <Quantity(145.4847572636031, 'kilogram / second')>
+    <Quantity(145.484757, 'kilogram / second')>
     '''
     ans = wrapped_isothermal_gas(rho, fd, P1, P2, L, D, m)    
     if m is None and (None not in [P1, P2, L, D]):

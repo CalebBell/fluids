@@ -2008,7 +2008,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     Examples
     --------
     >>> SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=24.0)
-    1471.201832459902
+    1471.201832459899
     
     References
     ----------
