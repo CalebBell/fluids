@@ -1894,6 +1894,9 @@ def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     return ans.real
 
 def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
+#    from mpmath import mp, mpf, atanh as catanh
+#    mp.dps=30
+#    y, t2, s, c1 = mpf(y), mpf(t2), mpf(s), mpf(c1)
     y2 = y*y
     try:
         x10 = (t2 - y2)**0.5
@@ -1909,12 +1912,22 @@ def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
         x0 = t2 - y2
         x1 = s*x10
         t10 = x1 + x1 + s*s + x0
+        
+        
+        # x3, x4 present a very nasty numerical problem.
+        # issue occurs when h == R, x3 is really equal to R**2 - 2*R*h + h**2
         x3 = t10 - x*x
         x4 = x3**0.5
+        # One solution is to use higher precision everywhere
+        
+        
+        
         ans = x4*(t2*t10/(x0*x3))**0.5*catan(x/x4).real
     except:
         ans = 0.0
 #     ans = sqrt((t2* (s**2+t2-x**2+2.0*s* sqrt(t2-x**2)))/((t2-x**2)* (s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2)))* sqrt(s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2) *atan(y/sqrt(s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2))
+#    print(float(y), float(t2), float(s), float(c1), float(ans.real))
+#    return float(ans.real)
     return ans.real
 
 def _SA_partial_horiz_torispherical_head_int_3(y, x, s, t2):
@@ -2052,7 +2065,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
         SA = quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, (2*k*D*h - h*h)**0.5, args=(t2, s, c1))[0]
         return 2.0*SA
     elif limit_1 < h <= R:
-        if D*.499 < h < D*.501: # numba: delete
+        if (D*.499 < h < D*.501): # numba: delete
             from scipy.integrate import dblquad # numba: delete
             SA = 2.0*dblquad(_SA_partial_horiz_torispherical_head_int_3, 0.0, a2, lambda x: 0, G_lim, args=(s, t2))[0] # numba: delete
         else: # numba: delete
