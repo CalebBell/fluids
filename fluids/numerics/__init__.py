@@ -337,6 +337,8 @@ def roots_cubic(a, b, c, d):
             x = (-d*a_inv)**(third)
         return (x, x, x)
     elif h > 0.0:
+        # Happy with these formulas - double doubles should be fast.
+        # No complex numbers are needed here.
 #        print('basic')
         # 1 real root, 2 imag
         root_h = h**0.5
@@ -355,11 +357,11 @@ def roots_cubic(a, b, c, d):
         b_3a = b*(third*a_inv)
         t1 = -0.5*SU - b_3a
         t2 = (S - U)*complex_factor
-        
         x1 = SU - b_3a
         # x1 is OK actually in some tests? the issue is x2, x3?
         x2 = t1 + t2
         x3 = t1 - t2
+        
     else:
 #    elif h <= 0.0:
         t2 = a*a
@@ -372,7 +374,7 @@ def roots_cubic(a, b, c, d):
         more accurate than the other method.
         '''
         choice_term = -18.0*a*b*c*d + 4.0*a*t10*c + 4.0*t15*d - t14*t10 + 27.0*t2*t3
-        if abs(choice_term) > 1e-12 or abs(b + 1.0) < 1e-7:
+        if (abs(choice_term) > 1e-12 or abs(b + 1.0) < 1e-7) and 0:
 #            print('mine')
             t32 = 1.0/a
             t20 = csqrt(choice_term)
@@ -1734,13 +1736,13 @@ def translate_bound_func(func, bounds=None, low=None, high=None):
         low = [i[0] for i in bounds]
         high = [i[1] for i in bounds]
         
-    def new_f(x):
+    def new_f(x, *args, **kwargs):
         '''Function for a solver to call when using the bounded variables.'''
         x = [float(i) for i in x]
         for i in range(len(x)):
             x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
         # Return the actual results
-        return func(x)
+        return func(x, *args, **kwargs)
     
     def translate_into(x):
         x = [float(i) for i in x]

@@ -555,7 +555,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
                  'packed_tower.Stichlmair_flood', 'compressible.isothermal_gas', 
                  'fittings.Darby3K', 'fittings.Hooper2K', 'geometry.SA_partial_horiz_torispherical_head',
                  'optional.spa.solar_position', 'optional.spa.longitude_obliquity_nutation',
-                 'fittings.bend_rounded_Crane',
+                 'fittings.bend_rounded_Crane', 'geometry.tank_from_two_specs_err',
                  ]
     transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec, cache_blacklist=cache_blacklist)
     

@@ -26,7 +26,7 @@ from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
 from cmath import sqrt as csqrt
 from fluids.constants import inch
 from fluids.core import PY3
-from fluids.numerics import cacos, catan, secant, brenth, ellipe, ellipkinc, ellipeinc, horner, chebval, linspace, derivative, quad
+from fluids.numerics import cacos, catan, secant, brenth, ellipe, ellipkinc, ellipeinc, horner, chebval, linspace, derivative, quad, translate_bound_func
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
@@ -62,7 +62,8 @@ __numba_additional_funcs__ = ('_V_horiz_spherical_toint', '_SA_partial_horiz_ell
           '_SA_partial_horiz_guppy_head_to_int',
           '_SA_partial_horiz_torispherical_head_int_1',
           '_SA_partial_horiz_torispherical_head_int_2',
-          '_SA_partial_horiz_torispherical_head_int_3')
+          '_SA_partial_horiz_torispherical_head_int_3',
+          'tank_from_two_specs_err')
 
 ### Spherical Vessels, partially filled
 
@@ -2706,6 +2707,41 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
             raise ValueError('Input height is above top of tank')
     return SA
 
+def tank_from_two_specs_err(guess, spec0, spec1, spec0_name, spec1_name,
+                            h, horizontal, sideA, sideB, sideA_a, sideB_a,
+                            sideA_f, sideA_k, sideB_f, sideB_k,
+                            sideA_a_ratio, sideB_a_ratio):
+    D, L_over_D = float(guess[0]), float(guess[1])
+    obj = TANK(D=D, L_over_D=L_over_D, horizontal=horizontal,
+         sideA=sideA, sideB=sideB, sideA_a=sideA_a, sideB_a=sideB_a,
+         sideA_f=sideA_f, sideA_k=sideA_k, sideB_f=sideB_f, sideB_k=sideB_k,
+         sideA_a_ratio=sideA_a_ratio, sideB_a_ratio=sideB_a_ratio)
+    # ensure h is always under the top
+    h = min(h, obj.h_max)
+    
+    if spec0_name == 'V':
+        err0 = obj.V_total - spec0
+    elif spec0_name == 'SA':
+        err0 = obj.A - spec0
+    elif spec0_name == 'V_partial':
+        err0 = obj.V_from_h(h) - spec0
+    elif spec0_name == 'SA_partial':
+        err0 = obj.SA_from_h(h) - spec0
+    elif spec0_name == 'A_cross':
+        err0 = obj.A_cross_sectional(h) - spec0
+
+    if spec1_name == 'V':
+        err1 = obj.V_total - spec1
+    elif spec1_name == 'SA':
+        err1 = obj.A - spec1
+    elif spec1_name == 'V_partial':
+        err1 = obj.V_from_h(h) - spec1
+    elif spec1_name == 'SA_partial':
+        err1 = obj.SA_from_h(h) - spec1
+    elif spec1_name == 'A_cross':
+        err1 = obj.A_cross_sectional(h) - spec1
+#    print(err0, err1, D, L_over_D, h)
+    return [err0, err1]
 
 class TANK(object):
     '''Class representing tank volumes and levels. All parameters are also
@@ -2749,6 +2785,12 @@ class TANK(object):
         Dimensionless knuckle-radius parameter for side B; also commonly given 
         as the product of `k` and `D` (`kD`), which is called the knuckle 
         radius and has units of length, [-]
+    sideA_a_ratio : float, optional
+        Ratio for `a` parameter; can be used instead of specifying an absolute
+        value, [-]
+    sideB_a_ratio : float, optional
+        Ratio for `a` parameter; can be used instead of specifying an absolute
+        value, [-]
     L_over_D : float, optional
         Ratio of length over diameter, used only when D and L are both
         unspecified but V is, [-]
@@ -2952,7 +2994,7 @@ class TANK(object):
 
         # If V is specified and either L or D are known, solve for L, D, L_over_D
         if self.V:
-            self.solve_tank_for_V()
+            self._solve_tank_for_V()
         self.set_misc()
 
     def set_misc(self):
@@ -3031,6 +3073,96 @@ class TANK(object):
         A_circular_plate = 0.25*pi*D*D
         self.A_sideA_extra = self.A_sideA - A_circular_plate
         self.A_sideB_extra = self.A_sideB - A_circular_plate
+    
+    @staticmethod
+    def from_two_specs(spec0, spec1, spec0_name='V', spec1_name='A_cross',
+                       h=None, horizontal=True,
+                       sideA=None, sideB=None, sideA_a=None, sideB_a=None,
+                       sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
+                       sideA_a_ratio=None, sideB_a_ratio=None):
+        r'''Method to create a new tank instance according to two 
+        specifications which are not direct geometry parameters.
+        
+        The allowable options are 'V', 'SA', 'V_partial', 'SA_partial', 
+        and 'A_cross', the later three of which require `h` to be specified.
+        
+        
+        Parameters
+        ----------
+        spec0 : float
+            Goal for `spec0_name`, [-]
+        spec1 : float
+            Goal for `spec1_name`, [-]
+        spec0_name : str
+            One of  'V', 'SA', 'V_partial', 'SA_partial', and 'A_cross' [-]
+        spec1_name : str
+            One of  'V', 'SA', 'V_partial', 'SA_partial', and 'A_cross' [-]
+        h : float
+            Height at which to calculate the specs, [m]
+        horizontal : bool, optional
+            Whether or not the tank is a horizontal or vertical tank
+        sideA : string, optional
+            The left (or bottom for vertical) head of the tank's type; one of
+            [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical',
+            'same'].
+        sideB : string, optional
+            The right (or top for vertical) head of the tank's type; one of
+            [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical',
+            'same'].
+        sideA_a : float, optional
+            The distance the head as specified by sideA extends down or to the left
+            from the main cylindrical section, [m]
+        sideB_a : float, optional
+            The distance the head as specified by sideB extends up or to the right
+            from the main cylindrical section, [m]
+        sideA_f : float, optional
+            Dimensionless dish-radius parameter for side A; also commonly given as  
+            the product of `f` and `D` (`fD`), which is called dish radius and 
+            has units of length, [-]
+        sideA_k : float, optional
+            Dimensionless knuckle-radius parameter for side A; also commonly given 
+            as the product of `k` and `D` (`kD`), which is called the knuckle 
+            radius and has units of length, [-]
+        sideB_f : float, optional
+            Dimensionless dish-radius parameter for side B; also commonly given as  
+            the product of `f` and `D` (`fD`), which is called dish radius and 
+            has units of length, [-]
+        sideB_k : float, optional
+            Dimensionless knuckle-radius parameter for side B; also commonly given 
+            as the product of `k` and `D` (`kD`), which is called the knuckle 
+            radius and has units of length, [-]
+        
+        
+        Returns
+        -------
+        TANK : TANK
+            Tank object at solved specifications, [-]
+            
+        Notes
+        -----
+        Limited testing has been done on this method. The bounds are D between
+        0.1 mm and 10 km, with L_D ratios of 1e-4 to 1e4.        
+        '''
+
+        args = (spec0, spec1, spec0_name, spec1_name,
+                h, horizontal, sideA, sideB, sideA_a, sideB_a,
+                sideA_f, sideA_k, sideB_f, sideB_k,
+                sideA_a_ratio, sideB_a_ratio)
+        
+        new_f, translate_into, translate_outof = translate_bound_func(tank_from_two_specs_err,
+                                                                      bounds=[(1e-4, 1e4), (1e-4, 1e4)])
+        # Diameter and length/diameter as iteration variables
+        guess = translate_into([1.0, 3.0])
+        from scipy.optimize import fsolve
+        
+        ans = fsolve(new_f, guess, args=args, xtol=1e-10, factor=.1)
+        val0, val1 = translate_outof(ans)
+        
+        return TANK(D=float(val0), L_over_D=float(val1), horizontal=horizontal,
+                    sideA=sideA, sideB=sideB, sideA_a=sideA_a, sideB_a=sideB_a,
+                    sideA_f=sideA_f, sideA_k=sideA_k, sideB_f=sideB_f, sideB_k=sideB_k,
+                    sideA_a_ratio=sideA_a_ratio, sideB_a_ratio=sideB_a_ratio,)        
+
 
     def add_thickness(self, thickness, sideA_thickness=None, 
                       sideB_thickness=None):
@@ -3284,7 +3416,7 @@ class TANK(object):
         '''Function which uses only the variables given, and the TANK
         class itself, to determine how far from the desired volume, Vtarget,
         the volume produced by the specified parameters in a new TANK instance
-        is. Should only be used by solve_tank_for_V method.
+        is. Should only be used by _solve_tank_for_V method.
         '''
         a = TANK(D=float(D), L=float(L), horizontal=horizontal, sideA=sideA, sideB=sideB,
                  sideA_a=sideA_a, sideB_a=sideB_a, sideA_f=sideA_f,
@@ -3294,7 +3426,7 @@ class TANK(object):
         return error
 
 
-    def solve_tank_for_V(self):
+    def _solve_tank_for_V(self):
         '''Method which is called to solve for tank geometry when a certain
         volume is specified. Will be called by the __init__ method if V is set.
 

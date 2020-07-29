@@ -1124,7 +1124,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         The angle above the horizontal of the object being hit by radiation,
         [degrees]
     surface_azimuth : float
-        The angle the object is facing (positive North eastwards 0° to 360°),
+        The angle the object is facing (positive, North eastwards 0° to 360°),
         [degrees]
     T : float, optional
         Temperature of atmosphere at ground level, [K]
