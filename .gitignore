@@ -15,6 +15,7 @@ prof
 monkeytype.sqlite3
 .asv
 fluids.build
+gsod*
 
 # Compiled source #
 ###################
