@@ -11,3 +11,5 @@ def pytest_ignore_collect(path):
         if 'rst' in path:
             if platform.python_version_tuple()[0:2] != ('3', '7'):
                 return True
+    if 'ipynb' in path and 'bench' in path:
+        return True
