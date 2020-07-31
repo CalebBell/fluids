@@ -407,7 +407,6 @@ def wrap_numpydoc_obj(obj_to_wrap):
 
 __funcs = {}
 
-
 for name in dir(fluids):
     if 'RectangularOffsetStripFinExchanger' in name:
         continue

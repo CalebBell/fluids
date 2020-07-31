@@ -39,25 +39,6 @@ from math import pi
 import fluids.optional.spa
 
 
-'''Basic module which wraps all fluids functions with numba's jit.
-All other object - dicts, classes, etc - are not wrapped. Supports star 
-imports; so the same objects exported when importing from the main library
-will be imported from here. 
-
->>> from fluids.numba import *
-
-Note that because this needs to import fluids itself, fluids.numba
-needs to be imported separately; the following will cause an error:
-    
->>> import fluids
->>> fluids.numba # Won't work, has not been imported yet
-
-The correct syntax is as follows:
-
->>> import fluids.numba # Necessary
->>> from fluids.numba import * # May be used without first importing fluids
-'''
-
 caching = True
 extra_args_std = {'nogil': True}
 extra_args_vec = {}

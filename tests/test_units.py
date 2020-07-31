@@ -34,6 +34,9 @@ def assert_pint_allclose(value, magnitude, units):
         units = dict(units.dimensionality)
     assert dict(value.dimensionality) == units
 
+def test_in_right_units():
+    assert u.default_system == 'mks'
+
 def test_nondimensional_reduction():
     Re = 171.8865229090909 *u.meter * u.pound / u.centipoise / u.foot ** 2 / u.second
     eD = 0.0005937067088858105*u.inch/u.meter

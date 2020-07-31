@@ -47,7 +47,7 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'SA_partial_vertical_conical_head', 'SA_partial_vertical_spherical_head',
            'SA_partial_vertical_torispherical_head', 'SA_partial_vertical_ellipsoidal_head',
            
-           'V_from_h', 'SA_from_h', 'SA_tank', 'sphericity', 
+           'V_from_h', 'V_tank', 'SA_from_h', 'SA_tank', 'sphericity', 
            'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder', 
            'A_hollow_cylinder', 'V_hollow_cylinder', 
            'A_multiple_hole_cylinder', 'V_multiple_hole_cylinder',
@@ -1412,6 +1412,140 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
 
     SA = sideA_SA + sideB_SA + lateral_SA
     return SA, sideA_SA, sideB_SA, lateral_SA
+
+
+def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
+           sideB_a=0.0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
+    r'''Calculates the total volume of a vertical or horizontal tank with
+    different head types according to [1]_.
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the cylindrical section of the tank, [m]
+    L : float
+        Length of the main cylindrical section of the tank, [m]
+    horizontal : bool, optional
+        Whether or not the tank is a horizontal or vertical tank
+    sideA : string, optional
+        The left (or bottom for vertical) head of the tank's type; one of
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+    sideB : string, optional
+        The right (or top for vertical) head of the tank's type; one of
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+    sideA_a : float, optional
+        The distance the head as specified by sideA extends down or to the left
+        from the main cylindrical section, [m]
+    sideB_a : float, optional
+        The distance the head as specified by sideB extends up or to the right
+        from the main cylindrical section, [m]
+    sideA_f : float, optional
+        Dimensionless dish-radius parameter for side A; also commonly given as  
+        the product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
+    sideA_k : float, optional
+        Dimensionless knuckle-radius parameter for side A; also commonly given 
+        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        radius and has units of length, [-]
+    sideB_f : float, optional
+        Dimensionless dish-radius parameter for side B; also commonly given as  
+        the product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
+    sideB_k : float, optional
+        Dimensionless knuckle-radius parameter for side B; also commonly given 
+        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        radius and has units of length, [-]
+
+    Returns
+    -------
+    V : float
+        Total volume [m^3]
+    sideA_V : float
+        Volume of only `sideA` [m^3]
+    sideB_V : float
+        Volume of only `sideB` [m^3]
+    lateral_V : float
+        Volume of cylindrical section of tank [m^3]
+
+    Examples
+    --------
+    >>> V_tank(D=1.5, L=5., horizontal=False, sideA='conical',
+    ... sideB='conical', sideA_a=2., sideB_a=1.)
+    (10.602875205865551, 1.1780972450961726, 0.5890486225480863, 8.835729338221293)
+    '''
+    if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
+        raise ValueError('Unspoorted head type for side A')
+    if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
+        raise ValueError('Unspoorted head type for side B')
+    R = 0.5*D
+    V = sideA_V = sideB_V = lateral_V = 0.0
+    if horizontal:
+        # Conical case
+        if sideA == 'conical' and sideB == 'conical' and sideA_a == sideB_a:
+            sideB_V = sideA_V = V_horiz_conical(D, L, sideA_a, D, headonly=True)
+        else:
+            if sideA == 'conical':
+                sideA_V = V_horiz_conical(D, L, sideA_a, D, headonly=True)
+            if sideB == 'conical':
+                sideB_V = V_horiz_conical(D, L, sideB_a, D, headonly=True)
+        # Elliosoidal case
+        if sideA == 'ellipsoidal' and sideB == 'ellipsoidal' and sideA_a == sideB_a:
+            sideB_V = sideA_V = V_horiz_ellipsoidal(D, L, sideA_a, D, headonly=True)
+        else:
+            if sideA == 'ellipsoidal':
+                sideA_V = V_horiz_ellipsoidal(D, L, sideA_a, D, headonly=True)
+            if sideB == 'ellipsoidal':
+                sideB_V = V_horiz_ellipsoidal(D, L, sideB_a, D, headonly=True)
+        # Guppy case
+        if sideA == 'guppy' and sideB == 'guppy' and sideA_a == sideB_a:
+            sideB_V = sideA_V = V_horiz_guppy(D, L, sideA_a, D, headonly=True)
+        else:
+            if sideA == 'guppy':
+                sideA_V = V_horiz_guppy(D, L, sideA_a, D, headonly=True)
+            if sideB == 'guppy':
+                sideB_V = V_horiz_guppy(D, L, sideB_a, D, headonly=True)
+        # Spherical case
+        if sideA == 'spherical' and sideB == 'spherical' and sideA_a == sideB_a:
+            sideB_V = sideA_V = V_horiz_spherical(D, L, sideA_a, D, headonly=True)
+        else:
+            if sideA == 'spherical':
+                sideA_V = V_horiz_spherical(D, L, sideA_a, D, headonly=True)
+            if sideB == 'spherical':
+                sideB_V = V_horiz_spherical(D, L, sideB_a, D, headonly=True)
+        # Torispherical case
+        if (sideA == 'torispherical' and sideB == 'torispherical' 
+            and (sideA_f == sideB_f) and (sideA_k == sideB_k)):
+            sideB_V = sideA_V = V_horiz_torispherical(D, L, sideA_f, sideA_k, D, headonly=True)
+        else:
+            if sideA == 'torispherical':
+                sideA_V = V_horiz_torispherical(D, L, sideA_f, sideA_k, D, headonly=True)
+            if sideB == 'torispherical':
+                sideB_V = V_horiz_torispherical(D, L, sideB_f, sideB_k, D, headonly=True)
+        Af = R*R*acos((R-D)/R) - (R-D)*(2.0*R*D - D*D)**0.5
+        lateral_V = L*Af
+    else:
+        # Bottom head
+        if sideA == 'conical':
+            sideA_V = V_vertical_conical(D, sideA_a, h=sideA_a)
+        if sideA == 'ellipsoidal':
+            sideA_V = V_vertical_ellipsoidal(D, sideA_a, h=sideA_a)
+        if sideA == 'spherical':
+            sideA_V = V_vertical_spherical(D, sideA_a, h=sideA_a)
+        if sideA == 'torispherical':
+            sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
+
+        # Cylindrical section
+        lateral_V = pi/4*D**2*L # All middle
+
+        if sideB == 'conical':
+            sideB_V = V_vertical_conical(D, sideB_a, h=sideB_a)
+        if sideB == 'ellipsoidal':
+            sideB_V = V_vertical_ellipsoidal(D, sideB_a, h=sideB_a)
+        if sideB == 'spherical':
+            sideB_V = V_vertical_spherical(D, sideB_a, h=sideB_a)
+        if sideB == 'torispherical':
+            sideB_V = V_vertical_torispherical(D, sideB_f, sideB_k, h=sideB_a)
+    return lateral_V + sideA_V + sideB_V, sideA_V, sideB_V, lateral_V
 
 
 def SA_partial_cylindrical_body(L, D, h):
@@ -2801,16 +2935,16 @@ class TANK(object):
 
     Attributes
     ----------
-    table : bool
-        Whether or not a table of heights-volumes has been generated
     h_max : float
         Height of the tank, [m]
     V_total : float
         Total volume of the tank as calculated [m^3]
-    heights : ndarray
-        Array of heights between 0 and h_max, [m]
-    volumes : ndarray
-        Array of volumes calculated from the heights, [m^3]
+    sideA_V : float
+        Volume of only `sideA` [m^3]
+    sideB_V : float
+        Volume of only `sideB` [m^3]
+    lateral_V : float
+        Volume of cylindrical section of tank [m^3]
     A : float
         Total surface area of the tank, [m^2]
     A_sideA : float
@@ -2819,16 +2953,22 @@ class TANK(object):
         Surface area of sideB, [m^2]
     A_lateral : float
         Surface area of the lateral side, [m^2]
+    A_sideA_extra : float
+        Additional surface area of sideA beyond that of a flat disk, [m^2]
+    A_sideB_extra : float
+        Additional surface area of sideB beyond that of a flat disk, [m^2]
+    table : bool
+        Whether or not a table of heights-volumes has been generated
+    heights : ndarray
+        Array of heights between 0 and h_max, [m]
+    volumes : ndarray
+        Array of volumes calculated from the heights, [m^3]
     c_forward : ndarray
         Coefficients for the Chebyshev approximations in calculating V from h,
         [-]
     c_backward : ndarray
         Coefficients for the Chebyshev approximations in calculating h from V,
         [-]
-    A_sideA_extra : float
-        Additional surface area of sideA beyond that of a flat disk, [m^2]
-    A_sideB_extra : float
-        Additional surface area of sideB beyond that of a flat disk, [m^2]
 
     Notes
     -----
@@ -3062,7 +3202,13 @@ class TANK(object):
                 self.h_max += self.sideB_a
 
         # Set maximum height
-        self.V_total = self.V_from_h(self.h_max)
+#        self.V_total = self.V_from_h(self.h_max)
+        
+        self.V_total, self.V_sideA, self.V_sideB, self.V_lateral = V_tank(
+        D=D, L=self.L, sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a,
+        sideB_a=self.sideB_a, sideA_f=self.sideA_f, sideA_k=self.sideA_k,
+        sideB_f=self.sideB_f, sideB_k=self.sideB_k, horizontal=self.horizontal)
+
 
         # Set surface areas
         self.A, self.A_sideA, self.A_sideB, self.A_lateral = SA_tank(
@@ -3467,6 +3613,8 @@ class TANK(object):
             solve_L_D = lambda L: self._V_solver_error(self.V, L/self.L_over_D, L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
             self.L = float(secant(solve_L_D, Lguess, xtol=1e-13))
             self.D = self.L/self.L_over_D
+            
+            
 
 
 class HelicalCoil(object):
