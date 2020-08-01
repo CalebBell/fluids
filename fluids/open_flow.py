@@ -458,7 +458,8 @@ def V_Manning(Rh, S, n):
     S : float
         Slope of the channel, m/m [-]
     n : float
-        Manning roughness coefficient [s/m^(1/3)]
+        Manning roughness coefficient; traditionally in the correct units,
+        [s/m^(1/3)]
 
     Returns
     -------
@@ -468,7 +469,9 @@ def V_Manning(Rh, S, n):
     Notes
     -----
     This is equation is often given in imperial units multiplied by 1.49.
-
+    Although `n` could be converted to be in imperial units, in practice this
+    has not been done and all tables keep it in the units of s/m^(1/3).
+    
     Examples
     --------
     Example is from [2]_, matches.
@@ -610,6 +613,7 @@ def V_Chezy(Rh, S, C):
 
 
 ### Manning coefficients
+# Tuple of minimum, average, maximum
 
 n_closed_conduit = {
     'Brass': {

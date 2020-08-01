@@ -3031,9 +3031,9 @@ class TANK(object):
     >>> TANK(D=10., horizontal=True, sideA='conical', sideB='conical', V=500).L
     4.699531057009147
     >>> TANK(L=4.69953105701, horizontal=True, sideA='conical', sideB='conical', V=500).D
-    9.999999999999407
+    9.999999999999408
     >>> TANK(L_over_D=0.469953105701, horizontal=True, sideA='conical', sideB='conical', V=500).L
-    4.69953105700979
+    4.699531057009791
 
     >>> TANK(D=10., horizontal=False, sideA='conical', sideB='conical', V=500).L
     4.699531057009147

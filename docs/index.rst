@@ -23,7 +23,7 @@ Module Contents:
    tutorial.rst
    modules.rst
    examples.rst
-
+   data.rst
 
 Installation
 ------------

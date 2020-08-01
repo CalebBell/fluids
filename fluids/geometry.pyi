@@ -180,6 +180,21 @@ def V_multiple_hole_cylinder(Do: float, L: float, holes: List[Tuple[float, int]]
 def V_partial_sphere(D: float, h: float) -> float: ...
 
 
+def V_tank(
+    D: float,
+    L: float,
+    horizontal: bool = ...,
+    sideA: Optional[str] = ...,
+    sideB: Optional[str] = ...,
+    sideA_a: float = ...,
+    sideB_a: float = ...,
+    sideA_f: Optional[float] = ...,
+    sideA_k: Optional[float] = ...,
+    sideB_f: Optional[float] = ...,
+    sideB_k: Optional[float] = ...
+) -> Tuple[float, float, float, float]: ...
+
+
 def V_vertical_conical(D: float, a: float, h: float) -> float: ...
 
 
@@ -246,6 +261,27 @@ def plate_enlargement_factor(amplitude: float, wavelength: float) -> float: ...
 
 
 def sphericity(A: float, V: float) -> float: ...
+
+
+def tank_from_two_specs_err(
+    guess: List[float],
+    spec0: float,
+    spec1: float,
+    spec0_name: str,
+    spec1_name: str,
+    h: float,
+    horizontal: bool,
+    sideA: None,
+    sideB: None,
+    sideA_a: None,
+    sideB_a: None,
+    sideA_f: None,
+    sideA_k: None,
+    sideB_f: None,
+    sideB_k: None,
+    sideA_a_ratio: None,
+    sideB_a_ratio: None
+) -> List[float]: ...
 
 
 class AirCooledExchanger:
@@ -375,15 +411,34 @@ class TANK:
         L_over_D: Optional[float] = ...,
         V: Optional[int] = ...
     ) -> None: ...
+    def _solve_tank_for_V(self) -> None: ...
     def add_thickness(
         self,
         thickness: float,
         sideA_thickness: None = ...,
         sideB_thickness: None = ...
     ) -> TANK: ...
+    @staticmethod
+    def from_two_specs(
+        spec0: float,
+        spec1: float,
+        spec0_name: str = ...,
+        spec1_name: str = ...,
+        h: Optional[float] = ...,
+        horizontal: bool = ...,
+        sideA: None = ...,
+        sideB: None = ...,
+        sideA_a: None = ...,
+        sideB_a: None = ...,
+        sideA_f: None = ...,
+        sideA_k: None = ...,
+        sideB_f: None = ...,
+        sideB_k: None = ...,
+        sideA_a_ratio: None = ...,
+        sideB_a_ratio: None = ...
+    ) -> TANK: ...
     def h_from_V(self, V: float, method: str = ...) -> float: ...
     def set_misc(self) -> None: ...
     def set_table(self, n: int = ..., dx: None = ...) -> None: ...
-    def solve_tank_for_V(self) -> None: ...
 
 __all__: List[str]

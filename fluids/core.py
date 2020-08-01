@@ -76,7 +76,7 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'Hagen', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
 'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'L_from_K', 'dP_from_K', 
-'head_from_K', 'head_from_P',
+'head_from_K', 'head_from_P', 'f_from_K',
 'P_from_head', 'Eotvos',
 'C2K', 'K2C', 'F2C', 'C2F', 'F2K', 'K2F', 'C2R', 'K2R', 'F2R', 'R2C', 'R2K', 'R2F',
 'PY3',
@@ -2318,6 +2318,39 @@ def K_from_f(fd, L, D):
     6.0
     '''
     return fd*L/D
+
+def f_from_K(K, L, D):
+    r'''Calculates friction factor, `fd`, from a loss coefficient, K, 
+    for a given section of pipe.
+
+    .. math::
+        f_d = \frac{K D}{L}
+
+    Parameters
+    ----------
+    K : float
+        Loss coefficient, []
+    L : float
+        Length of pipe, [m]
+    D : float
+        Inner diameter of pipe, [m]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor of pipe, [-]
+
+    Notes
+    -----
+    This can be useful to blend fittings at specic locations in a pipe into
+    a pressure drop which is evenly distributed along a pipe.
+
+    Examples
+    --------
+    >>> f_from_K(K=0.6, L=100., D=.3)
+    0.0018
+    '''
+    return K*D/L
 
 
 def K_from_L_equiv(L_D, fd=0.015):

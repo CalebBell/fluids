@@ -221,6 +221,9 @@ def orifice_expansibility(D, Do, P1, P2, k):
     This formula was determined for the range of P2/P1 >= 0.80, and for fluids
     of air, steam, and natural gas. However, there is no objection to using
     it for other fluids.
+    
+    It is said in [1]_ that for liquids this should not be used. The result
+    can be forced by setting `k` to a really high number like 1E20.
 
     Examples
     --------
