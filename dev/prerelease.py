@@ -16,7 +16,7 @@ os.chdir(test_dir)
 
 mod_spec = importlib.util.spec_from_file_location("make_test_stubs", os.path.join(test_dir, "make_test_stubs.py"))
 make_test_stubs = importlib.util.module_from_spec(mod_spec)
-#mod_spec.loader.exec_module(make_test_stubs)
+mod_spec.loader.exec_module(make_test_stubs)
 
 import pytest
 os.chdir(main_dir)
