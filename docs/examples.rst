@@ -19,5 +19,22 @@ Solved fluids mechanics problems
     Examples/Crane TP 410 Solved Problems/7.14 Bernoulli's Theorem-Water.ipynb
     Examples/Crane TP 410 Solved Problems/7.15 Power Required for Pumping.ipynb
     Examples/Crane TP 410 Solved Problems/7.16 Air Lines.ipynb
+    Examples/Crane TP 410 Solved Problems/7.17 Sizing of Pump for Oil Pipelines.ipynb
     Examples/Crane TP 410 Solved Problems/7.18 Gas.ipynb
+    Examples/Crane TP 410 Solved Problems/7.19 Water.ipynb
+    Examples/Crane TP 410 Solved Problems/7.20 Steam at Sonic Velocity.ipynb
+    Examples/Crane TP 410 Solved Problems/7.21 Gases at Sonic Velocity.ipynb
+    Examples/Crane TP 410 Solved Problems/7.22 Compressible Fluids at Subsonic Velocity.ipynb
+    Examples/Crane TP 410 Solved Problems/7.23 Flow Through Orifice Meters.ipynb
+    Examples/Crane TP 410 Solved Problems/7.24 Laminar Flow.ipynb
+    Examples/Crane TP 410 Solved Problems/7.25 Rectangular Duct - Application of Hydraulic Radius to Flow Problems.ipynb
+    Examples/Crane TP 410 Solved Problems/7.26 Pipe Partially Filled with Flowing Water.ipynb
+    Examples/Crane TP 410 Solved Problems/7.27 Sizing Control Valves for Liquid Service.ipynb
+    Examples/Crane TP 410 Solved Problems/7.28 Checking for Choked Flow Conditions in a Control Valve.ipynb
     Examples/Crane TP 410 Solved Problems/7.29 Orifice Flow Rate Calculation.ipynb
+    Examples/Crane TP 410 Solved Problems/7.30 Nozzle Sizing Calculations.ipynb
+    Examples/Crane TP 410 Solved Problems/7.32 NPSH Available Calculation.ipynb
+    Examples/Crane TP 410 Solved Problems/7.33 Pump Affinity Rules.ipynb
+    Examples/Crane TP 410 Solved Problems/7.34 Pump Power and Operating Cost.ipynb
+    Examples/Crane TP 410 Solved Problems/7.35 Hydraulic Resistance of a Converging Tee.ipynb
+    Examples/Crane TP 410 Solved Problems/7.36 Hydraulic Resistance of a Diverging Wye.ipynb
