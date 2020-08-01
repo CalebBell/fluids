@@ -5,7 +5,7 @@ A collection of problems from Crane TP 410 have been solved using the fluids lib
 These are industrially relevant problems. Crane TP 410 is used extensively as a source in
 fluids, although often there are better correlations that are implemented and chosen as default methods.
 All problems include a description of the problems, but Crane TP 410 includes schematics that are
-not included here. A copy can be obtained from your local library or bought `here <https://store.flowoffluids.com/Book-CraneTP410.html>`_
+not included here. A copy can be obtained from your local library or bought `here <https://store.flowoffluids.com/Book-CraneTP410.html>`_.
 
 These problems often make use of `thermo <https://github.com/CalebBell/thermo>`_ and `pint <https://github.com/hgrecco/pint/>`_ so make sure you have them installed!
 More details on the unit handling library can be found at :doc:`fluids.units <fluids.units>`.
