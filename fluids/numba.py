@@ -40,7 +40,7 @@ import fluids.optional.spa
 
 
 caching = True
-extra_args_std = {'nogil': True}
+extra_args_std = {'nogil': True, 'fastmath': True}
 extra_args_vec = {}
 __all__ = []
 
@@ -220,6 +220,8 @@ def return_value_numpy(source):
 list_mult_expr = r'\[ *([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)) *\] *\* *([a-zA-Z0-9_]+)'
 numpy_not_list_expr = r'np.full((\4,), \1)'
 
+match_prange = 'range\( *([a-zA-Z0-9_]+) *\) *: *# * (numba|NUMBA) *: *(prange|PRANGE)'
+sub_prange = r'prange(\1):'
 
 def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_blacklist=set([])):
     if vec:
@@ -245,12 +247,17 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_black
         source = remove_for_numba(source) # do before anything else
         source = return_value_numpy(source)
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
-#        if 'longitude_obliquity_nutation' in s:
-#        print(source)
+        parallel = 'prange' in source
+        source = re.sub(match_prange, sub_prange, source)
+#        if 'Wilke_large' in source:
+#            print(source)
+#            print(parallel, 'hi', extra_args)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
         new_func = fake_mod.__dict__[func]
         do_cache = caching and func not in cache_blacklist
-        obj = conv_fun(cache=do_cache, **extra_args)(new_func)
+        obj = conv_fun(cache=do_cache, parallel=parallel, **extra_args)(new_func)
+#        if 'Wilke_large' in source:
+#            print(id(obj), 'id')
         __funcs[func] = obj
         fake_mod.__dict__[func] = obj
         obj.__doc__ = ''
@@ -405,7 +412,8 @@ numerics = NUMERICS_SUBMOD
 normal = normal_fluids
 
 
-def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([]), cache_blacklist=set([])):
+def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([]),
+                     cache_blacklist=set([])):
     new_mods = []
     if vec:
         conv_fun = numba.vectorize
@@ -427,7 +435,8 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         SUBMOD.jitclass = jitclass
         SUBMOD.njit = numba.njit
         SUBMOD.jit = numba.jit
-
+        SUBMOD.prange = numba.prange
+        
         if vec:
             SUBMOD.IS_NUMBA_VEC = True
         SUBMOD_COPY.loader.exec_module(SUBMOD)
@@ -456,7 +465,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                     obj = conv_fun(#set_signatures.get(name, None), 
 #                            nopython=nopython,
                             #forceobj=not nopython,
-                                    fastmath=True,#Parallel=nopython
+#                                    fastmath=True,#Parallel=nopython
                                     cache=(caching and name not in cache_blacklist), **extra_args)(obj)
                 SUBMOD.__dict__[name] = obj
                 new_objs.append(obj)

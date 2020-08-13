@@ -60,6 +60,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            
            # Complex number math missing in micropython
            'cacos', 'catan',
+           'deflate_cubic_real_roots',
            ]
 
 __numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search',
@@ -627,6 +628,23 @@ central_diff_weights_precomputed = {
 #           0.16005291005291006, -0.011491402116402117]
  }
  
+def deflate_cubic_real_roots(b, c, d, x0):
+    F = b + x0
+    G = -d/x0
+    
+    D = F*F - 4.0*G
+#     if D < 0.0:
+#         D = (-D)**0.5
+#         x1 = (-F + D*1.0j)*0.5
+#         x2 = (-F - D*1.0j)*0.5
+#     else:
+    if D < 0.0:
+        return (0.0, 0.0)
+    D = D**0.5
+    x1 = 0.5*(D - F)#(D - c)*0.5
+    x2 = 0.5*(-F - D) #-(c + D)*0.5
+    return x1, x2
+
  
 def central_diff_weights(points, divisions=1):
     # Check the cache

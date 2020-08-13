@@ -71,10 +71,19 @@ def build_solve_pychebfun(f, goal, domain, N=15, N_max=100, find_roots=2):
         
     return roots, fun
 
-def chebfun_to_poly(fun, text=False):
-    low, high = fun._domain
+def chebfun_to_poly(coeffs_or_fun, domain=None, text=False):
+    if isinstance(coeffs_or_fun, Chebfun):
+        coeffs = coeffs_or_fun.coefficients()
+        domain = coeffs_or_fun._domain
+    elif hasattr(coeffs_or_fun, '__class__') and coeffs_or_fun.__class__.__name__ == 'ChebyshevExpansion':
+        coeffs = coeffs_or_fun.coef()
+        domain = coeffs_or_fun.xmin(), coeffs_or_fun.xmax()
+    else:
+        coeffs = coeffs_or_fun
+
+    low, high = domain
     # Reverse the coefficients, and use cheb2poly to make it in the polynomial domain
-    poly_coeffs = cheb2poly(fun.coefficients())[::-1].tolist()
+    poly_coeffs = cheb2poly(coeffs)[::-1].tolist()
     if not text:
         return poly_coeffs
     s = 'coeffs = %s\n' %poly_coeffs
@@ -93,6 +102,9 @@ def cheb_to_poly(coeffs_or_fun, domain=None):
     if isinstance(coeffs_or_fun, Chebfun):
         coeffs = coeffs_or_fun.coefficients()
         domain = coeffs_or_fun._domain
+    elif hasattr(coeffs_or_fun, '__class__') and coeffs_or_fun.__class__.__name__ == 'ChebyshevExpansion':
+        coeffs = coeffs_or_fun.coef()
+        domain = coeffs_or_fun.xmin(), coeffs_or_fun.xmax()
     else:
         coeffs = coeffs_or_fun
 
