@@ -57,6 +57,7 @@ from datetime import datetime
 import math
 from math import degrees, sin, cos, tan, radians, atan, asin, atan2, sqrt
 from fluids.constants import deg2rad, rad2deg
+from fluids.numerics import sincos
 __all__ = ['julian_day_dt', 'julian_day', 'julian_ephemeris_day', 'julian_century', 
            'julian_ephemeris_century', 'julian_ephemeris_millennium', 'heliocentric_longitude',
            'heliocentric_latitude', 'heliocentric_radius_vector', 'geocentric_longitude',
@@ -715,14 +716,15 @@ def longitude_obliquity_nutation(julian_ephemeris_century, x0, x1, x2, x3, x4):
                NUTATION_YTERM_LIST_3[row]*x3 +
                NUTATION_YTERM_LIST_4[row]*x4)
         arr = NUTATION_ABCD_LIST[row]
+        sinarg, cosarg = sincos(arg)
 #        sinarg = sin(arg)
 #        cosarg = sqrt(1.0 - sinarg*sinarg)
         t0 = (arr[0] + julian_ephemeris_century*arr[1])
-#        delta_psi_sum += t0*sinarg
-        delta_psi_sum += t0*sin(arg)
+        delta_psi_sum += t0*sinarg
+#        delta_psi_sum += t0*sin(arg)
         t0 = (arr[2] + julian_ephemeris_century*arr[3])
-#        delta_eps_sum += t0*cosarg
-        delta_eps_sum += t0*cos(arg)
+        delta_eps_sum += t0*cosarg
+#        delta_eps_sum += t0*cos(arg)
     delta_psi = delta_psi_sum/36000000.0
     delta_eps = delta_eps_sum/36000000.0
     res = [0.0]*2

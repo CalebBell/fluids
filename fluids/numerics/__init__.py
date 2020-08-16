@@ -37,7 +37,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'normalize', 'oscillation_checker',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
            'broyden2', 'basic_damping', 'solve_2_direct', 'solve_3_direct',
-           'solve_4_direct',
+           'solve_4_direct', 'sincos',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2',
            'numpy', 'nquad', 
@@ -113,6 +113,52 @@ def py_cacos(z):
 def py_catan(x):
     # Implemented only because micropython is missing this function
     return 0.5j*(clog(1.0 - 1.0j*x) - clog(1.0 + 1.0j*x))
+
+def sincos(x):
+    return sin(x), cos(x)
+
+try:
+    if IS_PYPY:
+
+        def sincos(x):
+            # fast implementation based of cephes and go
+            PI4A = 7.85398125648498535156e-1
+            PI4B = 3.77489470793079817668e-8
+            PI4C = 2.69515142907905952645e-15
+            M4PI = 1.273239544735162542821171882678754627704620361328125 #// 4/pi
+            sinSign, cosSign = False, False
+            if x < 0:
+                x = -x
+                sinSign = True
+        
+            j = int(x * M4PI)
+            y = float(j) 
+            
+            if j&1 == 1:
+                j += 1
+                y += 1
+            j &= 7 
+            if j > 3:
+                j -= 4
+                sinSign, cosSign = not sinSign, not cosSign
+            if j > 1:
+                cosSign = not cosSign
+            z = ((x - y*PI4A) - y*PI4B) - y*PI4C
+            zz = z * z
+            cos = 1.0 - 0.5*zz + zz*zz*((((((-1.13585365213876817300E-11*zz)+2.08757008419747316778E-9)
+                                           *zz+-2.75573141792967388112E-7)*zz+2.48015872888517045348E-5)
+                                         *zz+-1.38888888888730564116E-3)*zz+4.16666666666665929218E-2)
+            sin = z + z*zz*((((((1.58962301576546568060E-10*zz)+-2.50507477628578072866E-8)*zz+2.75573136213857245213E-6)
+                              *zz+-1.98412698295895385996E-4)*zz+8.33333333332211858878E-3)*zz+-1.66666666666666307295E-1)
+            if j == 1 or j == 2:
+                sin, cos = cos, sin
+            if cosSign :
+                cos = -cos
+            if sinSign:
+                sin = -sin
+            return sin, cos
+except:
+    pass
 
 try:
     from cmath import acos as cacos, atan as catan
