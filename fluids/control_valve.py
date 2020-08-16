@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 from math import log10, exp, pi
@@ -975,9 +976,9 @@ Cv_char_equal_percentage = lambda opening: float(splev(opening, opening_equal_tc
 
 
 def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
-    '''Convert from one flow coefficient scale to another; supports the `Kv`
+    """Convert from one flow coefficient scale to another; supports the `Kv`
     `Cv`, and `Av` scales.
-    
+
     Other scales are `Qn` and `Cg`, but clear definitions have yet to be
     found.
     
@@ -1009,7 +1010,7 @@ def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
     --------
     >>> convert_flow_coefficient(10, 'Kv', 'Av')
     0.0002776532068951358
-    '''
+    """
     # Convert from `old_scale` to Kv
     if old_scale == 'Cv':
         Kv = Cv_to_Kv(flow_coefficient)

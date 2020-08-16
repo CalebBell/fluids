@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-'''Vendorized, partial version of scipy.constants which does not implement the full
-codata formulations.
-This was implemented to provide a consistent set of constants across scipy versions;
-and to prevent the tests from failing when new CODATA formulations come out.
-'''
+"""Vendorized, partial version of scipy.constants which does not implement the
+full codata formulations.
+
+This was implemented to provide a consistent set of constants across scipy
+versions; and to prevent the tests from failing when new CODATA formulations
+come out.
+"""
 
 import math as _math
 

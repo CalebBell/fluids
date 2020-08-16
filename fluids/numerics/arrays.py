@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # type: ignore
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2019 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,7 +19,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
@@ -48,27 +49,27 @@ __all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product',
            'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix']
 
 def det(matrix):
-    '''Seem sto work fine.
-    
+    """Seem sto work fine.
+
     >> from sympy import *
     >> from sympy.abc import *
     >> Matrix([[a, b], [c, d]]).det()
     a*d - b*c
     >> Matrix([[a, b, c], [d, e, f], [g, h, i]]).det()
     a*e*i - a*f*h - b*d*i + b*f*g + c*d*h - c*e*g
-    
+
     A few terms can be slightly factored out of the 3x dim.
-    
+
     >> Matrix([[a, b, c, d], [e, f, g, h], [i, j, k, l], [m, n, o, p]]).det()
     a*f*k*p - a*f*l*o - a*g*j*p + a*g*l*n + a*h*j*o - a*h*k*n - b*e*k*p + b*e*l*o + b*g*i*p - b*g*l*m - b*h*i*o + b*h*k*m + c*e*j*p - c*e*l*n - c*f*i*p + c*f*l*m + c*h*i*n - c*h*j*m - d*e*j*o + d*e*k*n + d*f*i*o - d*f*k*m - d*g*i*n + d*g*j*m
 
     72 mult vs ~48 in cse'd version'
-    
+
     Commented out - takes a few seconds
     >> #Matrix([[a, b, c, d, e], [f, g, h, i, j], [k, l, m, n, o], [p, q, r, s, t], [u, v, w, x, y]]).det()
-    
+
     260 multiplies with cse; 480 without it.
-    '''
+    """
     size = len(matrix)
     if size == 1:
         return matrix[0]
@@ -193,26 +194,26 @@ def det(matrix):
 
 
 def inv(matrix):
-    '''
-    5 has way too many multiplies.
+    """5 has way too many multiplies.
+
     >> from sympy import *
     >> from sympy.abc import *
     >> Matrix([a]).inv()
     Matrix([[1/a]])
-    
+
     >> cse(Matrix([[a, b], [c, d]]).inv())
     Matrix([
     [1/a + b*c/(a**2*(d - b*c/a)), -b/(a*(d - b*c/a))],
     [          -c/(a*(d - b*c/a)),      1/(d - b*c/a)]])
-    
+
     >> m_3 = Matrix([[a, b, c], [d, e, f], [g, h, i]])
     >> #cse(m_3.inv())
 
     >> m_4 = Matrix([[a, b, c, d], [e, f, g, h], [i, j, k, l], [m, n, o, p]])
     >> cse(m_4.inv())
-    
+
     # Note: for 3, 4 - forgot to generate code using optimizations='basic'
-    '''
+    """
     size = len(matrix)
     if size == 1:
         try:

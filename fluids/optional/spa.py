@@ -55,8 +55,9 @@ import os
 import time
 from datetime import datetime
 import math
-from math import degrees, sin, cos, tan, radians, atan, asin, atan2
+from math import degrees, sin, cos, tan, radians, atan, asin, atan2, sqrt
 from fluids.constants import deg2rad, rad2deg
+from fluids.numerics import sincos
 __all__ = ['julian_day_dt', 'julian_day', 'julian_ephemeris_day', 'julian_century', 
            'julian_ephemeris_century', 'julian_ephemeris_millennium', 'heliocentric_longitude',
            'heliocentric_latitude', 'heliocentric_radius_vector', 'geocentric_longitude',
@@ -494,8 +495,10 @@ HELIO_LONG_TABLE_LIST_5 = HELIO_LONG_TABLE_LIST[5]
 
 def julian_day_dt(year, month, day, hour, minute, second, microsecond):
     """This is the original way to calculate the julian day from the NREL paper.
-    However, it is much faster to convert to unix/epoch time and then convert
-    to julian day. Note that the date must be UTC."""
+
+    However, it is much faster to convert to unix/epoch time and then convert to
+    julian day. Note that the date must be UTC.
+    """
     # Not used anywhere!
     if month <= 2:
         year = year-1
@@ -707,6 +710,7 @@ def longitude_obliquity_nutation(julian_ephemeris_century, x0, x1, x2, x3, x4):
     x0, x1, x2, x3, x4 = deg2rad*x0, deg2rad*x1, deg2rad*x2, deg2rad*x3, deg2rad*x4
     delta_psi_sum = 0.0
     delta_eps_sum = 0.0
+    # If the sincos formulation is used, the speed up is ~8% with numba.
     for row in range(63):
         arg = (NUTATION_YTERM_LIST_0[row]*x0 +
                NUTATION_YTERM_LIST_1[row]*x1 +
@@ -714,10 +718,15 @@ def longitude_obliquity_nutation(julian_ephemeris_century, x0, x1, x2, x3, x4):
                NUTATION_YTERM_LIST_3[row]*x3 +
                NUTATION_YTERM_LIST_4[row]*x4)
         arr = NUTATION_ABCD_LIST[row]
+        sinarg, cosarg = sincos(arg)
+#        sinarg = sin(arg)
+#        cosarg = sqrt(1.0 - sinarg*sinarg)
         t0 = (arr[0] + julian_ephemeris_century*arr[1])
-        delta_psi_sum += t0*sin(arg)
+        delta_psi_sum += t0*sinarg
+#        delta_psi_sum += t0*sin(arg)
         t0 = (arr[2] + julian_ephemeris_century*arr[3])
-        delta_eps_sum += t0*cos(arg)
+        delta_eps_sum += t0*cosarg
+#        delta_eps_sum += t0*cos(arg)
     delta_psi = delta_psi_sum/36000000.0
     delta_eps = delta_eps_sum/36000000.0
     res = [0.0]*2
@@ -823,7 +832,7 @@ def geocentric_sun_declination(apparent_sun_longitude, true_ecliptic_obliquity,
 
 def local_hour_angle(apparent_sidereal_time, observer_longitude,
                      sun_right_ascension):
-    """Measured westward from south"""
+    """Measured westward from south."""
     H = apparent_sidereal_time + observer_longitude - sun_right_ascension
     return H % 360
 
@@ -977,9 +986,8 @@ def equation_of_time(sun_mean_longitude, geocentric_sun_right_ascension,
  
 
 def earthsun_distance(unixtime, delta_t):
-    """
-    Calculates the distance from the earth to the sun using the
-    NREL SPA algorithm described in [1].
+    """Calculates the distance from the earth to the sun using the NREL SPA
+    algorithm described in [1].
 
     Parameters
     ----------
@@ -1011,9 +1019,8 @@ def earthsun_distance(unixtime, delta_t):
 
 def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
                    atmos_refract, sst=False):
-    """
-    Calculate the solar position using the
-    NREL SPA algorithm described in [1].
+    """Calculate the solar position using the NREL SPA algorithm described in
+    [1].
 
     If numba is installed, the functions can be compiled
     and the code runs quickly. If not, the functions
@@ -1131,7 +1138,7 @@ try:
         # This is 3x slower without nogil
         @numba.njit(nogil=True)
         def solar_position_loop(unixtime, loc_args, out):
-            """Loop through the time array and calculate the solar position"""
+            """Loop through the time array and calculate the solar position."""
             lat = loc_args[0]
             lon = loc_args[1]
             elev = loc_args[2]
@@ -1207,7 +1214,9 @@ try:
         def solar_position_numba(unixtime, lat, lon, elev, pressure, temp, delta_t,
                                  atmos_refract, numthreads, sst=False, esd=False):
             """Calculate the solar position using the numba compiled functions
-            and multiple threads. Very slow if functions are not numba compiled.
+            and multiple threads.
+
+            Very slow if functions are not numba compiled.
             """
             # these args are the same for each thread
             loc_args = np.array([lat, lon, elev, pressure, temp, delta_t,
@@ -1254,9 +1263,8 @@ except:
 
 
 def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
-    """
-    Calculate the sun transit, sunrise, and sunset
-    for a set of dates at a given location.
+    """Calculate the sun transit, sunrise, and sunset for a set of dates at a
+    given location.
 
     Parameters
     ----------
@@ -1276,7 +1284,6 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
     Returns
     -------
     tuple : (transit, sunrise, sunset) localized to UTC
-
     """
     isnumpy = isinstance(dates, ndarray)
     if isnumpy:

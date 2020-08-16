@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,11 +20,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-This module contains correlations and functions for calculating pressure drop 
+This module contains correlations and functions for calculating pressure drop
 from packings and demisters; separation efficiency of demisters; demister
 pressure drop; and demister geometry.
 
-For reporting bugs, adding feature requests, or submitting pull requests, 
+For reporting bugs, adding feature requests, or submitting pull requests,
 please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
 or contact the author at Caleb.Andrew.Bell@gmail.com.
 
@@ -55,7 +55,7 @@ Demister Geometry
 -----------------
 .. autofunction:: fluids.packed_tower.voidage_experimental
 .. autofunction:: fluids.packed_tower.specific_area_mesh
-'''
+"""
 
 from __future__ import division
 from math import log
@@ -572,9 +572,8 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
 
 def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,
                         C1, C2, C3, H):
-    '''Internal function which calculates the errors of the two Stichlmair
-    objective functions, and their jacobian.
-    '''
+    """Internal function which calculates the errors of the two Stichlmair
+    objective functions, and their jacobian."""
     Vg, dP_irr = float(inputs[0]), float(inputs[1])
     dp = 6.0*(1.0 - voidage)/specific_area
     Re = Vg*rhog*dp/mug
@@ -592,11 +591,11 @@ def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,
 
 def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage, 
                                 specific_area, C1, C2, C3, H):
-    '''Internal function which calculates the errors of the two Stichlmair
+    """Internal function which calculates the errors of the two Stichlmair
     objective functions, and their jacobian.
-    
+
     Derived using SymPy on the main flooding function.
-    '''
+    """
     Vg, dP_irr = inputs[0], inputs[1]
     x0 = 1.0/H
     x1 = Vg*Vg

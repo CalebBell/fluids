@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,9 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 This module contains models of earth's atmosphere. Models are empirical and
-based on extensive research, primarily by NASA. 
+based on extensive research, primarily by NASA.
 
-For reporting bugs, adding feature requests, or submitting pull requests, 
+For reporting bugs, adding feature requests, or submitting pull requests,
 please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
 or contact the author at Caleb.Andrew.Bell@gmail.com.
 
@@ -37,7 +37,7 @@ Atmospheres
 .. autoclass:: ATMOSPHERE_NRLMSISE00
     :members:
 .. autofunction:: airmass
-        
+
 Solar Radiation and Position
 ----------------------------
 .. autofunction:: solar_position
@@ -49,8 +49,7 @@ Wind Models (requires Fortran compiler!)
 ----------------------------------------
 .. autofunction:: hwm93
 .. autofunction:: hwm14
-
-'''
+"""
 
 from __future__ import division
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 
@@ -84,9 +85,11 @@ geopy_missing_msg = '''Geocoder module `geopy` is required for this
 functionality.'''
 
 def geopy_geolocator():
-    '''Lazy loader for geocoder from geopy. This currently loads the 
-    `Nominatim` geocode and returns an instance of it, taking ~2 us.
-    '''
+    """Lazy loader for geocoder from geopy.
+
+    This currently loads the `Nominatim` geocode and returns an instance of it,
+    taking ~2 us.
+    """
     global geolocator
     if geolocator is None:
         try:
@@ -99,9 +102,11 @@ def geopy_geolocator():
 
 
 def geopy_cache():
-    '''Lazy loader for the singleton `SimpleGeolocatorCache`. This creates a
-    sqlite database if one does not exist and initializes a connection to it.
-    '''
+    """Lazy loader for the singleton `SimpleGeolocatorCache`.
+
+    This creates a sqlite database if one does not exist and initializes a
+    connection to it.
+    """
     global simple_geopy_cache
     if simple_geopy_cache is None:
         simple_geopy_cache = SimpleGeolocatorCache(geolocator_disk_cache_loc)
@@ -110,10 +115,11 @@ def geopy_cache():
 
 
 class SimpleGeolocatorCache(object):
-    '''Very basic on-disk address -> (lat, lon) cache, using Python's sqlite 
-    database for on-disk persistence. Offers very reasonable performance 
-    compared to online lookups.
-    '''
+    """Very basic on-disk address -> (lat, lon) cache, using Python's sqlite
+    database for on-disk persistence.
+
+    Offers very reasonable performance compared to online lookups.
+    """
     def __init__(self, file_name):
         self.connection = conn = sqlite3.connect(file_name)
         cursor = self.connection.cursor()
@@ -137,11 +143,10 @@ class SimpleGeolocatorCache(object):
 
 
 def geocode(address):
-    '''Query function to obtain a latitude and longitude from a location
-    string such as `Houston, TX` or`Colombia`. This uses an online lookup,
-    currently wrapping the `geopy` library, and providing an on-disk cache
-    of queries.
-    
+    """Query function to obtain a latitude and longitude from a location string
+    such as `Houston, TX` or`Colombia`. This uses an online lookup, currently
+    wrapping the `geopy` library, and providing an on-disk cache of queries.
+
     Parameters
     ----------
     address : str
@@ -163,7 +168,7 @@ def geocode(address):
     --------
     >>> geocode('Fredericton, NB')
     (45.966425, -66.645813)
-    '''
+    """
     loc_tuple = None
     try:
         cache = geopy_cache()
@@ -302,18 +307,18 @@ def cooling_degree_days(T, T_base=283.15, truncate=True):
 
 def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'),
                           url="ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv"): # pragma: no cover
-    '''Basic method to update the isd-history file from the NOAA. This is 
-    useful as new weather stations are updated all the time.
-    
-    This function requires pandas to run. If fluids is installed for the 
+    """Basic method to update the isd-history file from the NOAA. This is useful
+    as new weather stations are updated all the time.
+
+    This function requires pandas to run. If fluids is installed for the
     superuser, this method must be called in an instance of Python running
     as the superuser (administrator).
-    
+
     Retrieving the file from ftp typically takes several seconds.
-    Pandas reads the file in ~30 ms and writes it in ~220 ms. Reading it with 
-    the code below takes ~220 ms but is necessary to prevent a pandas 
+    Pandas reads the file in ~30 ms and writes it in ~220 ms. Reading it with
+    the code below takes ~220 ms but is necessary to prevent a pandas
     dependency.
-    
+
     Parameters
     ----------
     dest : str, optional
@@ -323,24 +328,24 @@ def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'),
         The location of the data file; this can be anywhere that can be read
         by pandas, including a local file as would be useful in an offline
         situation.
-    '''
+    """
     import pandas as pd
     df = pd.read_csv(url, dtype={'USAF': str, 'WBAN': str})
     df.to_csv(dest, sep='\t', index=False, header=False)
 
 
 class IntegratedSurfaceDatabaseStation(object):
-    '''Class to hold data on a weather station in the Integrated Surface
+    """Class to hold data on a weather station in the Integrated Surface
     Database.
-    
+
     License information for the database can be found at the following link:
     https://data.noaa.gov/dataset/global-surface-summary-of-the-day-gsod
-    
+
     Note: Of the 28000 + stations in the database, approximately 3000 have WBAN
-    identifiers; 26000 have unique names; 24000 have USAF identifiers; and 
+    identifiers; 26000 have unique names; 24000 have USAF identifiers; and
     there are only 25800 unique lat/lon pairs.
-    
-    To uniquely represent a weather station, a combination of identifiers 
+
+    To uniquely represent a weather station, a combination of identifiers
     must be used. (Name, USAF, WBAN) makes a good choice.
 
     Parameters
@@ -358,19 +363,19 @@ class IntegratedSurfaceDatabaseStation(object):
     ICAO : str or None if not an airport
         ICAO airport code
     LAT : float
-        Latitude with a precision of one thousandths of a decimal degree, 
+        Latitude with a precision of one thousandths of a decimal degree,
         [degrees]
     LON : float
-        Longitude with a precision of one thousandths of a decimal degree, 
+        Longitude with a precision of one thousandths of a decimal degree,
         [degrees]
     ELEV : float
         Elevation of weather station, [m]
     BEGIN : float
-        Beginning Period Of Record (YYYYMMDD). There may be reporting gaps 
+        Beginning Period Of Record (YYYYMMDD). There may be reporting gaps
         within the P.O.R.
     END : Ending Period Of Record (YYYYMMDD). There may be reporting gaps
         within the P.O.R.
-    '''
+    """
     __slots__ = ['USAF', 'WBAN', 'NAME', 'CTRY', 'ST', 'ICAO', 'LAT', 'LON',
                  'ELEV', 'BEGIN', 'END', 'raw_data', 'parsed_data']
     
@@ -638,10 +643,10 @@ kd_tree = cKDTree(_latlongs) # _latlongs must be unchanged as data is not copied
 
 def get_closest_station(latitude, longitude, minumum_recent_data=20140000, 
                         match_max=100):
-    '''Query function to find the nearest weather station to a particular 
-    set of coordinates. Optionally allows for a recent date by which the 
-    station is required to be still active at.
-    
+    """Query function to find the nearest weather station to a particular set of
+    coordinates. Optionally allows for a recent date by which the station is
+    required to be still active at.
+
     Parameters
     ----------
     latitude : float
@@ -675,7 +680,7 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
     --------
     >>> get_closest_station(51.02532675, -114.049868485806, 20150000)
     <Weather station registered in the Integrated Surface Database, name CALGARY INTL CS, country CA, USAF 713930, WBAN None, coords (51.1, -114.0) Weather data from 2004 to 2020>
-    '''
+    """
     # Both station strings may be important
     # Searching for 100 stations is fine, 70 microseconds vs 50 microsecond for 1
     # but there's little point for more points, it gets slower.
@@ -696,8 +701,8 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
 
 # This should be aggressively cached
 def get_station_year_text(WMO, WBAN, year):
-    '''Basic method to download data from the GSOD database, given a 
-    station identifier and year. 
+    """Basic method to download data from the GSOD database, given a station
+    identifier and year.
 
     Parameters
     ----------
@@ -707,12 +712,12 @@ def get_station_year_text(WMO, WBAN, year):
         Weather Bureau Army Navy (WBAN) weather station identifier, [-]
     year : int
         Year data should be retrieved from, [year]
-        
+
     Returns
     -------
     data : str
         Downloaded data file
-    '''
+    """
     if WMO is None:
         WMO = 999999
     if WBAN is None:
@@ -820,28 +825,27 @@ gsod_day = namedtuple('gsod_day', gsod_fields + gsod_indicator_names)
 
 
 def gsod_day_parser(line, SI=True, to_datetime=True):
-    '''One line (one file) parser of data in the format of the GSOD database.
+    """One line (one file) parser of data in the format of the GSOD database.
     Returns all parsed results as a namedtuple for reduced memory consumption.
-    Will convert all data to base SI units unless the `SI` flag is set to 
-    False. As the values are rounded to one or two decimal places in the
-    GSOD database in Imperial units, it may be useful to look at the values
-    directly. 
-    
+    Will convert all data to base SI units unless the `SI` flag is set to False.
+    As the values are rounded to one or two decimal places in the GSOD database
+    in Imperial units, it may be useful to look at the values directly.
+
     The names columns of the columns in the GSOD database are retained and used
     as the attributes of the namedtuple results.
-    
+
     The day, month, and year are normally converted to a datetime instance in
-    resulting namedtuple; this behavior can be disabled by setting the 
+    resulting namedtuple; this behavior can be disabled by setting the
     `datetime` flag to False; it will be a string in the format YYYYMMDD if so.
     This may be useful because datetime conversion roughly doubles the speed of
     this function.
-    
+
     Parameters
     ----------
     line : str
         Line in format of GSOD documentation, [-]
     SI : bool
-        Whether or not the results get converted to base SI units, [-] 
+        Whether or not the results get converted to base SI units, [-]
     to_datetime : bool
         Whether or not the date gets converted to a datetime instance or stays
         as a string, [-]
@@ -850,9 +854,9 @@ def gsod_day_parser(line, SI=True, to_datetime=True):
     -------
     gsod_day_instance : gsod_day
         namedtuple with fields described in the source (all values in SI units,
-        if `SI` is True, i.e. meters, m/s, Kelvin, Pascal; otherwise the 
+        if `SI` is True, i.e. meters, m/s, Kelvin, Pascal; otherwise the
         original unit set is used), [-]
-    '''    
+    """    
     # Ignore STN--- and WBAN, 8-12 characters
     fields = line.strip().split()[2:]
     # For the case the field is blank, set it to None; strip it either way 
