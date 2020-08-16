@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2020, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 import sys
@@ -220,7 +221,7 @@ def return_value_numpy(source):
 list_mult_expr = r'\[ *([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)) *\] *\* *([a-zA-Z0-9_]+)'
 numpy_not_list_expr = r'np.full((\4,), \1)'
 
-match_prange = 'range\( *([a-zA-Z0-9_]+) *\) *: *# * (numba|NUMBA) *: *(prange|PRANGE)'
+match_prange = r'range\( *([a-zA-Z0-9_]+) *\) *: *# * (numba|NUMBA) *: *(prange|PRANGE)'
 sub_prange = r'prange(\1):'
 
 def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_blacklist=set([])):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 from math import cos, sin, tan, atan, pi, radians, degrees, log10, log
@@ -952,16 +953,17 @@ def Miller_bend_roughness_correction(Re, Di, roughness):
 
 
 def Miller_bend_unimpeded_correction(Kb, Di, L_unimpeded):
-    '''Limitations as follows:
+    """Limitations as follows:
+
     * Ratio not over 30
-    * If ratio under 0.01, tabulated values are used near the limits 
+    * If ratio under 0.01, tabulated values are used near the limits
       (discontinuity in graph anyway)
     * If ratio for a tried curve larger than max value, max value is used
       instead of calculating it
     * Kb limited to between 0.1 and 1.0
     * When between two Kb curves, interpolate linearly after evaluating both
       splines appropriately
-    '''
+    """
     if Kb < 0.1:
         Kb_C_o = 0.1
     elif Kb > 1:
@@ -1201,9 +1203,11 @@ def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
 _Ito_angles = [45.0, 90.0, 180.0]
 def bend_rounded_Ito(Di, angle, Re, rc=None, bend_diameters=None, 
                      roughness=0.0):
-    '''Ito method as shown in Blevins. Curved friction factor as given in 
-    Blevins, with minor tweaks to be more accurate to the original methods.
-    '''
+    """Ito method as shown in Blevins.
+
+    Curved friction factor as given in Blevins, with minor tweaks to be more
+    accurate to the original methods.
+    """
     if not rc:
         if bend_diameters is None:
             bend_diameters = 5.0

@@ -95,8 +95,7 @@ def chebfun_to_poly(coeffs_or_fun, domain=None, text=False):
     return s
 
 def cheb_to_poly(coeffs_or_fun, domain=None):
-    '''Just call horner on the outputs!
-    '''
+    """Just call horner on the outputs!"""
     from fluids.numerics import horner as horner_poly
     
     if isinstance(coeffs_or_fun, Chebfun):
@@ -131,9 +130,7 @@ def cheb_range_simplifier(low, high, text=False):
 
 
 def cast_scalar(method):
-    """
-    Cast scalars to constant interpolating objects
-    """
+    """Cast scalars to constant interpolating objects."""
     @wraps(method)
     def new_method(self, other):
         if np.isscalar(other):
@@ -145,14 +142,12 @@ def cast_scalar(method):
 
 
 class Polyfun(object):
-    """
-    Construct a Lagrange interpolating polynomial over arbitrary points.
-    Polyfun objects consist in essence of two components:
-        1) An interpolant on [-1,1],
-        2) A domain attribute [a,b].
-    These two pieces of information are used to define and subsequently
-    keep track of operations upon Chebyshev interpolants defined on an
-    arbitrary real interval [a,b].
+    """Construct a Lagrange interpolating polynomial over arbitrary points.
+
+    Polyfun objects consist in essence of two components:     1) An interpolant
+    on [-1,1],     2) A domain attribute [a,b]. These two pieces of information
+    are used to define and subsequently keep track of operations upon Chebyshev
+    interpolants defined on an arbitrary real interval [a,b].
     """
 
     # ----------------------------------------------------------------
@@ -160,27 +155,19 @@ class Polyfun(object):
     # ----------------------------------------------------------------
 
     class NoConvergence(Exception):
-        """
-        Raised when dichotomy does not converge.
-        """
+        """Raised when dichotomy does not converge."""
 
     class DomainMismatch(Exception):
-        """
-        Raised when there is an interval mismatch.
-        """
+        """Raised when there is an interval mismatch."""
 
     @classmethod
     def from_data(self, data, domain=None):
-        """
-        Initialise from interpolation values.
-        """
+        """Initialise from interpolation values."""
         return self(data,domain)
 
     @classmethod
     def from_fun(self, other):
-        """
-        Initialise from another instance
-        """
+        """Initialise from another instance."""
         return self(other.values(),other.domain())
 
     @classmethod
@@ -201,8 +188,8 @@ class Polyfun(object):
 
     @classmethod
     def dichotomy(self, f, kmin=2, kmax=12, raise_no_convergence=True,):
-        """
-        Compute the coefficients for a function f by dichotomy.
+        """Compute the coefficients for a function f by dichotomy.
+
         kmin, kmax: log2 of number of interpolation points to try
         raise_no_convergence: whether to raise an exception if the dichotomy does not converge
         """
@@ -227,8 +214,8 @@ class Polyfun(object):
 
     @classmethod
     def from_function(self, f, domain=None, N=None):
-        """
-        Initialise from a function to sample.
+        """Initialise from a function to sample.
+
         N: optional parameter which indicates the range of the dichotomy
         """
         # rescale f to the unit domain
@@ -251,17 +238,14 @@ class Polyfun(object):
 
     @classmethod
     def _threshold(self, vscale):
-        """
-        Compute the threshold at which coefficients are trimmed.
-        """
+        """Compute the threshold at which coefficients are trimmed."""
         bnd = 128*emach*vscale
         return bnd
 
     @classmethod
     def _cutoff(self, coeffs, vscale):
-        """
-        Compute cutoff index after which the coefficients are deemed negligible.
-        """
+        """Compute cutoff index after which the coefficients are deemed
+        negligible."""
         bnd = self._threshold(vscale)
         inds  = np.nonzero(abs(coeffs) >= bnd)
         if len(inds[0]):
@@ -272,8 +256,8 @@ class Polyfun(object):
 
 
     def __init__(self, values=0., domain=None, vscale=None):
-        """
-        Init an object from values at interpolation points.
+        """Init an object from values at interpolation points.
+
         values: Interpolation values
         vscale: The actual vscale; computed automatically if not given
         """
@@ -297,9 +281,7 @@ class Polyfun(object):
         self._ui_to_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b)
 
     def same_domain(self, fun2):
-        """
-        Returns True if the domains of two objects are the same.
-        """
+        """Returns True if the domains of two objects are the same."""
         return np.allclose(self.domain(), fun2.domain(), rtol=1e-14, atol=1e-14)
 
     # ----------------------------------------------------------------
@@ -307,9 +289,7 @@ class Polyfun(object):
     # ----------------------------------------------------------------
 
     def __repr__(self):
-        """
-        Display method
-        """
+        """Display method."""
         a, b = self.domain()
         vals = self.values()
         return (
@@ -332,15 +312,11 @@ class Polyfun(object):
         return self.p(self._ab_to_ui(x))
 
     def __getitem__(self, s):
-        """
-        Components s of the fun.
-        """
+        """Components s of the fun."""
         return self.from_data(self.values().T[s].T)
 
     def __bool__(self):
-        """
-        Test for difference from zero (up to tolerance)
-        """
+        """Test for difference from zero (up to tolerance)"""
         return not np.allclose(self.values(), 0)
 
     __nonzero__ = __bool__
@@ -353,9 +329,7 @@ class Polyfun(object):
 
     @cast_scalar
     def __add__(self, other):
-        """
-        Addition
-        """
+        """Addition."""
         if not self.same_domain(other):
             raise self.DomainMismatch(self.domain(),other.domain())
 
@@ -382,9 +356,7 @@ class Polyfun(object):
 
     @cast_scalar
     def __sub__(self, other):
-        """
-        Subtraction.
-        """
+        """Subtraction."""
         return self + (-other)
 
     def __rsub__(self, other):
@@ -397,9 +369,7 @@ class Polyfun(object):
         return self.__rdiv__(other)
 
     def __neg__(self):
-        """
-        Negation.
-        """
+        """Negation."""
         return self.from_data(-self.values(),domain=self.domain())
 
 
@@ -433,9 +403,7 @@ class Polyfun(object):
         raise NotImplementedError()
 
     def dot(self, other):
-        """
-        Return the Hilbert scalar product $\int f.g$.
-        """
+        r"""Return the Hilbert scalar product :math:`\int f.g`."""
         prod = self * other
         return prod.sum()
 
@@ -451,9 +419,7 @@ class Polyfun(object):
     # Miscellaneous operations
     # ----------------------------------------------------------------
     def restrict(self,subinterval):
-        """
-        Return a Polyfun that matches self on subinterval.
-        """
+        """Return a Polyfun that matches self on subinterval."""
         if (subinterval[0] < self._domain[0]) or (subinterval[1] > self._domain[1]):
             raise ValueError("Can only restrict to subinterval")
         return self.from_function(self, subinterval)
@@ -467,9 +433,9 @@ class Polyfun(object):
 
 
 class Chebfun(Polyfun):
-    """
-    Eventually set this up so that a Chebfun is a collection of Chebfuns. This
-    will enable piecewise smooth representations al la Matlab Chebfun v2.0.
+    """Eventually set this up so that a Chebfun is a collection of Chebfuns.
+
+    This will enable piecewise smooth representations al la Matlab Chebfun v2.0.
     """
     # ----------------------------------------------------------------
     # Standard construction class methods.
@@ -484,16 +450,12 @@ class Chebfun(Polyfun):
 
     @classmethod
     def identity(self, domain=[-1., 1.]):
-        """
-        The identity function x -> x.
-        """
+        """The identity function x -> x."""
         return self.from_data([domain[1],domain[0]], domain)
 
     @classmethod
     def basis(self, n):
-        """
-        Chebyshev basis functions T_n.
-        """
+        """Chebyshev basis functions T_n."""
         if n == 0:
             return self(np.array([1.]))
         vals = np.ones(n+1)
@@ -505,10 +467,8 @@ class Chebfun(Polyfun):
     # ----------------------------------------------------------------
 
     def sum(self):
-        """
-        Evaluate the integral over the given interval using
-        Clenshaw-Curtis quadrature.
-        """
+        """Evaluate the integral over the given interval using Clenshaw-Curtis
+        quadrature."""
         ak = self.coefficients()
         ak2 = ak[::2]
         n = len(ak2)
@@ -518,9 +478,9 @@ class Chebfun(Polyfun):
         return 0.5*(b_-a_)*val
 
     def integrate(self):
-        """
-        Return the object representing the primitive of self over the domain. The
-        output starts at zero on the left-hand side of the domain.
+        """Return the object representing the primitive of self over the domain.
+
+        The output starts at zero on the left-hand side of the domain.
         """
         coeffs = self.coefficients()
         a,b = self.domain()
@@ -529,9 +489,7 @@ class Chebfun(Polyfun):
         return antiderivative - antiderivative(a)
 
     def differentiate(self, n=1):
-        """
-        n-th derivative, default 1.
-        """
+        """n-th derivative, default 1."""
         ak = self.coefficients()
         a_, b_ = self.domain()
         for _ in range(n):
@@ -542,8 +500,9 @@ class Chebfun(Polyfun):
     # Roots
     # ----------------------------------------------------------------
     def roots(self):
-        """
-        Utilises Boyd's O(n^2) recursive subdivision algorithm. The chebfun
+        """Utilises Boyd's O(n^2) recursive subdivision algorithm.
+
+        The chebfun
         is recursively subsampled until it is successfully represented to
         machine precision by a sequence of piecewise interpolants of degree
         100 or less. A colleague matrix eigenvalue solve is then applied to
@@ -591,25 +550,22 @@ class Chebfun(Polyfun):
 
     @classmethod
     def interpolation_points(self, N):
-        """
-        N Chebyshev points in [-1, 1], boundaries included
-        """
+        """N Chebyshev points in [-1, 1], boundaries included."""
         if N == 1:
             return np.array([0.])
         return np.cos(np.arange(N)*np.pi/(N-1))
 
     @classmethod
     def sample_function(self, f, N):
-        """
-        Sample a function on N+1 Chebyshev points.
-        """
+        """Sample a function on N+1 Chebyshev points."""
         x = self.interpolation_points(N+1)
         return f(x)
 
     @classmethod
     def polyfit(self, sampled):
-        """
-        Compute Chebyshev coefficients for values located on Chebyshev points.
+        """Compute Chebyshev coefficients for values located on Chebyshev
+        points.
+
         sampled: array; first dimension is number of Chebyshev points
         """
         asampled = np.asarray(sampled)
@@ -621,8 +577,8 @@ class Chebfun(Polyfun):
 
     @classmethod
     def polyval(self, chebcoeff):
-        """
-        Compute the interpolation values at Chebyshev points.
+        """Compute the interpolation values at Chebyshev points.
+
         chebcoeff: Chebyshev coefficients
         """
         N = len(chebcoeff)
@@ -644,9 +600,8 @@ class Chebfun(Polyfun):
 
     @classmethod
     def interpolator(self, x, values):
-        """
-        Returns a polynomial with vector coefficients which interpolates the values at the Chebyshev points x
-        """
+        """Returns a polynomial with vector coefficients which interpolates the
+        values at the Chebyshev points x."""
         # hacking the barycentric interpolator by computing the weights in advance
         p = Bary([0.])
         N = len(values)
@@ -665,11 +620,12 @@ class Chebfun(Polyfun):
 
     @classmethod
     def differentiator(self, A):
-        """Differentiate a set of Chebyshev polynomial expansion
-           coefficients
-           Originally from http://www.scientificpython.net/pyblog/chebyshev-differentiation
-            + (lots of) bug fixing + pythonisation
-           """
+        """Differentiate a set of Chebyshev polynomial expansion coefficients
+        Originally from http://www.scientificpython.net/pyblog/chebyshev-
+        differentiation.
+
+        + (lots of) bug fixing + pythonisation
+        """
         m = len(A)
         SA = (A.T* 2*np.arange(m)).T
         DA = np.zeros_like(A)
@@ -699,9 +655,7 @@ def even_data(data):
     return np.concatenate([data, data[-2:0:-1]],)
 
 def dct(data):
-    """
-    Compute DCT using FFT
-    """
+    """Compute DCT using FFT."""
     N = len(data)//2
     fftdata     = fftpack.fft(data, axis=0)[:N+1]
     fftdata     /= N
@@ -765,8 +719,9 @@ for func in [np.arccos, np.arccosh, np.arcsin, np.arcsinh, np.arctan, np.arctanh
 
 
 def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
-    """
-    Create a Chebyshev polynomial approximation of the function $f$ on the interval :math:`[-1, 1]`.
+    """Create a Chebyshev polynomial approximation of the function $f$ on the
+    interval :math:`[-1, 1]`.
+
     :param callable f: Python, Numpy, or Sage function
     :param int N: (default = None)  specify number of interpolating points
     :param np.array chebcoeff: (default = np.array(0)) specify the coefficients

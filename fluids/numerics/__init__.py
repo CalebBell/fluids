@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # type: ignore
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,7 +19,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin, atan2, asinh
@@ -511,9 +512,10 @@ def mean(data):
     return sum(data)/len(data)
 
 def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
-    '''Port of numpy's linspace to pure python. Does not support dtype, and 
-    returns lists of floats.
-    '''
+    """Port of numpy's linspace to pure python.
+
+    Does not support dtype, and returns lists of floats.
+    """
     num = int(num)
     start = start * 1.
     stop = stop * 1.
@@ -723,12 +725,12 @@ def central_diff_weights(points, divisions=1):
 
 
 def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True):
-    '''Reimplementation of SciPy's derivative function, with more cached
+    """Reimplementation of SciPy's derivative function, with more cached
     coefficients and without using numpy. If new coefficients not cached are
     needed, they are only calculated once and are remembered.
-    
+
     Support for vector value functions has also been added.
-    '''
+    """
     if order < n + 1:
         raise ValueError
     if order % 2 == 0:
@@ -1043,8 +1045,8 @@ legendre_weights = {
 
 def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(),
              **kwargs):
-    '''
-    def test_fun(x):
+    """def test_fun(x):
+
     # test case - 2 inputs, 3 outputs - should work fine
     x2 = x[0]*x[0]
     return np.array([x2*exp(x[1]), x2*sin(x[1]), x2*cos(x[1])])
@@ -1052,7 +1054,7 @@ def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(),
     def easy_fun(x):
         x = x[0]
         return 5*x*x - 3*x - 100
-    '''
+    """
     # For scalar - returns list, size of input variables
     # For vector - returns list of list - size of input variables * output variables
     # Could add backwards/complex, multiple evaluations, detection of poor condition
@@ -1325,8 +1327,8 @@ def is_poly_negative(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1
 
 
 def polyder(c, m=1, scl=1, axis=0):
-    '''not quite a copy of numpy's version because this was faster to implement.
-    '''
+    """not quite a copy of numpy's version because this was faster to
+    implement."""
     c = list(c)
     cnt = int(m)
 
@@ -1347,7 +1349,8 @@ def polyder(c, m=1, scl=1, axis=0):
     return c
 
 def polyint(coeffs):
-    '''not quite a copy of numpy's version because this was faster to implement'''
+    """not quite a copy of numpy's version because this was faster to
+    implement."""
     return ([0.0] + [c/(i+1) for i, c in enumerate(coeffs[::-1])])[::-1]
 
 
@@ -1360,7 +1363,8 @@ def polyint_over_x(coeffs):
     return list(reversed(poly_terms)), log_coef
 
 def chebder(c, m=1, scl=1):
-    '''not quite a copy of numpy's version because this was faster to implement'''
+    """not quite a copy of numpy's version because this was faster to
+    implement."""
     c = list(c)
     cnt = int(m)
     if cnt == 0:
@@ -1384,8 +1388,8 @@ def chebder(c, m=1, scl=1):
     return c
 
 def horner_log(coeffs, log_coeff, x):
-    '''Technically possible to save one addition of the last term of 
-    coeffs is removed but benchmarks said nothing was saved'''
+    """Technically possible to save one addition of the last term of coeffs is
+    removed but benchmarks said nothing was saved."""
     tot = 0.0
     for c in coeffs:
         tot = tot*x + c
@@ -1572,12 +1576,12 @@ def binary_search(key, arr, size=None):
 
 
 def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
-    '''Pure python and therefore slow version of the standard library isclose.
+    """Pure python and therefore slow version of the standard library isclose.
     Works on older versions of python though! Hasn't been unit tested, but has
     been tested.
-    
+
     manual unit testing:
-        
+
     from math import isclose as isclose2
     from random import uniform
     for i in range(10000000):
@@ -1591,8 +1595,7 @@ def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
             assert ans1 == ans2
         except:
             print(a, b, rel_tol, abs_tol)
-    
-    '''
+    """
     if (rel_tol < 0.0 or abs_tol < 0.0 ):
         raise ValueError('Negative tolerances')
         
@@ -1645,10 +1648,9 @@ def assert_close3d(a, b, rtol=1e-7, atol=0.0):
         assert_close2d(a[i], b[i], rtol=rtol, atol=atol)
 
 def interp(x, dx, dy, left=None, right=None, extrapolate=False):
-    '''One-dimensional linear interpolation routine inspired/
-    reimplemented from NumPy for extra speed for scalar values
-    (and also numpy).
-    
+    """One-dimensional linear interpolation routine inspired/ reimplemented from
+    NumPy for extra speed for scalar values (and also numpy).
+
     Returns the one-dimensional piecewise linear interpolant to a function
     with a given value at discrete data-points.
     
@@ -1685,7 +1687,7 @@ def interp(x, dx, dy, left=None, right=None, extrapolate=False):
     --------
     >>> interp(2.5, [1, 2, 3], [3, 2, 0])
     1.0
-    '''
+    """
     lendx = len(dx)
     j = binary_search(x, dx, lendx)
     if (j == -1):
@@ -1731,12 +1733,13 @@ def interp2d_linear(x, y, xs, ys, vals):
 
 
 def implementation_optimize_tck(tck, force_numpy=False):
-    '''Converts 1-d or 2-d splines calculated with SciPy's `splrep` or
+    """Converts 1-d or 2-d splines calculated with SciPy's `splrep` or.
+
     `bisplrep` to a format for fastest computation - lists in PyPy, and numpy
     arrays otherwise.
-    
+
     Only implemented for 3 and 5 length `tck`s.
-    '''
+    """
     if (IS_PYPY or SKIP_DEPENDENCIES) and not force_numpy:
         return tuple(tck)
     else:
@@ -1801,7 +1804,7 @@ def translate_bound_func(func, bounds=None, low=None, high=None):
         high = [i[1] for i in bounds]
         
     def new_f(x, *args, **kwargs):
-        '''Function for a solver to call when using the bounded variables.'''
+        """Function for a solver to call when using the bounded variables."""
         x = [float(i) for i in x]
         for i in range(len(x)):
             x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
@@ -1903,12 +1906,10 @@ def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None, inplace_jac=
 
 
 class OscillationError(Exception):
-    '''Error raised when a derivative-based method is not converging.
-    '''
+    """Error raised when a derivative-based method is not converging."""
 
 class UnconvergedError(Exception):
-    '''Error raised when maxiter has been reached in an optimization problem.
-    '''
+    """Error raised when maxiter has been reached in an optimization problem."""
     
     def __repr__(self):
         return ('UnconvergedError("Failed to converge; maxiter (%d) reached, value=%g, error %g)"' %(self.maxiter, self.point, self.err))
@@ -1920,9 +1921,8 @@ class UnconvergedError(Exception):
         self.err = err
 
 class SamePointError(UnconvergedError):
-    '''Error raised when two trial points in a root finding problem have the 
-    same error.
-    '''
+    """Error raised when two trial points in a root finding problem have the
+    same error."""
     def __repr__(self):
         return 'TODO'
     
@@ -1937,24 +1937,22 @@ class SamePointError(UnconvergedError):
     
 
 class NoSolutionError(Exception):
-    '''Error raised when detected that there is no actual solution to a problem.
-    '''
+    """Error raised when detected that there is no actual solution to a
+    problem."""
 
 class NotBoundedError(Exception):
-    '''Error raised when a bisection type algorithm fails because its initial
-    bounds do not bound the solution.
-    '''
+    """Error raised when a bisection type algorithm fails because its initial
+    bounds do not bound the solution."""
 class DiscontinuityError(Exception):
-    '''Error raised when a bisection type algorithm fails because there is a 
-    discontinuity.
-    '''
+    """Error raised when a bisection type algorithm fails because there is a
+    discontinuity."""
     
 def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
-    '''Damping function which will maintain the sign of the variable being
-    manipulated. If the step puts it at the other sign, the distance between
-    `x` and `step` will be shortened by the multiple of `factor`; i.e. if 
-    factor is `x`, the new value of `x` will be 0 exactly.
-    
+    """Damping function which will maintain the sign of the variable being
+    manipulated. If the step puts it at the other sign, the distance between `x`
+    and `step` will be shortened by the multiple of `factor`; i.e. if factor is
+    `x`, the new value of `x` will be 0 exactly.
+
     The provided `damping` is applied as well.
     
     Parameters
@@ -1981,7 +1979,7 @@ def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
     --------
     >>> damping_maintain_sign(100, -200, factor=.5)
     50.0
-    '''
+    """
     if isinstance(x, list):
         return [damping_maintain_sign(x[i], step[i], damping, factor) for i in range(len(x))]
     positive = x > 0.0
@@ -2190,8 +2188,7 @@ def best_bounding_bounds(low, high, f=None, xs_pos=None, ys_pos=None,
 
 def bisect(f, a, b, args=(), xtol=1e-12, rtol=2.220446049250313e-16, maxiter=100,
               ytol=None):
-    '''Port of SciPy's C bisect routine.
-    '''
+    """Port of SciPy's C bisect routine."""
     fa = f(a, *args)
     fb = f(b, *args)
     if fa*fb > 0.0:
@@ -2493,26 +2490,26 @@ def newton(func, x0, fprime=None, args=(), tol=None, maxiter=100,
            xtol=1.48e-8, require_eval=False, damping_func=None,
            bisection=False, gap_detection=False, dy_dx_limit=1e100,
            max_bound_hits=4, kwargs={}):
-    '''Newton's method designed to be mostly compatible with SciPy's 
+    """Newton's method designed to be mostly compatible with SciPy's
     implementation, with a few features added and others now implemented.
-    
+
     1) No tracking of how many iterations have progressed.
     2) No ability to return a RootResults object
     3) No warnings on some cases of bad input (low tolerance, no iterations)
     4) Ability to accept True for either fprime or fprime2, which means that
        they are included in the return value of func
     5) No handling for inf or nan!
-    6) Special handling for functions which need to ensure an evaluation at 
+    6) Special handling for functions which need to ensure an evaluation at
        the final point
     7) Damping as a constant or a fraction
     8) Ability to perform bisection, optionally specifying a maximum range
-    9) Ability to specify minimum and maximum iteration values 
+    9) Ability to specify minimum and maximum iteration values
     10) Ability to specify a tolerance in the `y` direction
-    11) Ability to pass in keyword arguments as well as positional arguments 
-    
+    11) Ability to pass in keyword arguments as well as positional arguments
+
     From scipy, with some modifications!
     https://github.com/scipy/scipy/blob/v1.1.0/scipy/optimize/zeros.py#L66-L206
-    '''
+    """
     if tol is not None:
         xtol = tol
     p0 = 1.0*x0
@@ -3048,43 +3045,43 @@ def func_40_splev(arg, t, l, l1, nk1):
     return arg, t, l, l1, nk1, leave
     
 def py_splev(x, tck, ext=0, t=None, c=None, k=None):
-    '''Evaluate a B-spline using a pure-python port of FITPACK's splev. This is
+    """Evaluate a B-spline using a pure-python port of FITPACK's splev. This is
     not fully featured in that it does not support calculating derivatives.
-    Takes the knots and coefficients of a B-spline tuple, and returns 
-    the value of the smoothing polynomial.  
-    
+    Takes the knots and coefficients of a B-spline tuple, and returns the value
+    of the smoothing polynomial.
+
     Parameters
     ----------
     x : float or list[float]
-        An point or array of points at which to calculate and return the value 
+        An point or array of points at which to calculate and return the value
         of the  spline, [-]
     tck : 3-tuple
         Ssequence of length 3 returned by
         `splrep` containing the knots, coefficients, and degree
         of the spline, [-]
     ext : int, optional, default 0
-        If `x` is not within the range of the spline, this handles the 
+        If `x` is not within the range of the spline, this handles the
         calculation of the results.
-    
+
         * For ext=0, extrapolate the value
         * For ext=1, return 0 as the value
         * For ext=2, raise a ValueError on that point and fail to return values
         * For ext=3, return the boundary value as the value
-    
+
     Returns
     -------
     y : list
         The array of calculated values; the spline function evaluated at
         the points in `x`, [-]
-    
+
     Notes
     -----
-    The speed of this for a scalar value in CPython is approximately 15% 
-    slower than SciPy's FITPACK interface. In PyPy, this is 10-20 times faster 
+    The speed of this for a scalar value in CPython is approximately 15%
+    slower than SciPy's FITPACK interface. In PyPy, this is 10-20 times faster
     than using it (benchmarked on PyPy 6).
-    
+
     There could be more bugs in this port.
-    '''
+    """
     e = ext
     if tck is not None:
         t, c, k = tck
@@ -3143,10 +3140,9 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
 
 
 def py_bisplev(x, y, tck, dx=0, dy=0):
-    '''Evaluate a bivariate B-spline or its derivatives.
-    For scalars, returns a float; for other inputs, mimics the formats of 
-    SciPy's `bisplev`.
-    
+    """Evaluate a bivariate B-spline or its derivatives. For scalars, returns a
+    float; for other inputs, mimics the formats of SciPy's `bisplev`.
+
     Parameters
     ----------
     x : float or list[float]
@@ -3160,18 +3156,18 @@ def py_bisplev(x, y, tck, dx=0, dy=0):
         Order of partial derivative with respect to `x`, [-]
     dy : int, optional
         Order of partial derivative with respect to `y`, [-]
-    
+
     Returns
     -------
     values : float or list[list[float]]
         Calculated values from spline or their derivatives; according to the
         same format as SciPy's `bisplev`, [-]
-    
+
     Notes
     -----
     Use `bisplrep` to generate the `tck` representation; there is no Python
     port of it.
-    '''
+    """
     tx, ty, c, kx, ky = tck
     if isinstance(x, (float, int)):
         x = [x]
@@ -3185,13 +3181,10 @@ def py_bisplev(x, y, tck, dx=0, dy=0):
 
 
 def fpbspl(t, n, k, x, l, h, hh):
-    """
-    subroutine fpbspl evaluates the (k+1) non-zero b-splines of
-    degree k at t(l) <= x < t(l+1) using the stable recurrence
-    relation of de boor and cox.
-    
-    All arrays are 1d!
-    Optimized the assignment and order and so on.
+    """subroutine fpbspl evaluates the (k+1) non-zero b-splines of degree k at
+    t(l) <= x < t(l+1) using the stable recurrence relation of de boor and cox.
+
+    All arrays are 1d! Optimized the assignment and order and so on.
     """
     h[0] = 1.0
     for j in range(1, k + 1):
@@ -3230,8 +3223,7 @@ def init_w(t, k, x, lx, w):
 
 
 def cy_bispev(tx, ty, c, kx, ky, x, y):
-    '''Possible optimization: Do not evaluate derivatives, ever.
-    '''
+    """Possible optimization: Do not evaluate derivatives, ever."""
     nx = len(tx)
     ny = len(ty)
     mx = len(x)
@@ -3394,9 +3386,8 @@ def nquad(func, ranges, args=(), epsrel=1.48e-8, epsabs=1.48e-8):
                          epsrel=epsrel, epsabs=epsabs)
 
 def dblquad(func, a, b, hfun, gfun, args=(), epsrel=1.48e-12, epsabs=1.48e-15):
-    '''Nominally working, but trying to use it has exposed the expected bugs in 
-    `quad_adaptive`.
-    '''
+    """Nominally working, but trying to use it has exposed the expected bugs in
+    `quad_adaptive`."""
     def inner_func(y, *args):
         full_args = (y,)+args
         quad_fluids = quad_adaptive(func, hfun(y, *args), gfun(y, *args), args=full_args, epsrel=epsrel, epsabs=epsabs)[0]
@@ -3450,9 +3441,8 @@ from math import gamma # Been there a while
 def _lambertw_err(x, y):
     return x*exp(x) - y
 def py_lambertw(y, k=0):
-    '''For x > 0, the is always only one real solution
-    For -1/e < x < 0, two real solutions
-    '''
+    """For x > 0, the is always only one real solution For -1/e < x < 0, two
+    real solutions."""
     # Works for real inputs only, two main branches
     if k == 0:
         # Branches dead at -1

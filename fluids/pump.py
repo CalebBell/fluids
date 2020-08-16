@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 from math import log
@@ -602,9 +603,9 @@ def current_ideal(P, V, phase=3, PF=1):
 
 
 class CountryPower(object):
-    '''Class to hold information on the residential or electrical data of
-    a country. Data from Wikipedia, obtained in 2017.
-    
+    """Class to hold information on the residential or electrical data of a
+    country. Data from Wikipedia, obtained in 2017.
+
     Parameters
     ----------
     plugs : tuple(str)
@@ -616,7 +617,7 @@ class CountryPower(object):
         The electrical frequency in use in the country, [Hz]
     country : str
         The name of the country, [-]
-        '''
+    """
     __slots__ = ('plugs', 'voltage', 'freq', 'country')
     
     def __repr__(self):

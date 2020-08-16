@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell.
+
+<Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +20,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
@@ -2878,7 +2881,7 @@ def tank_from_two_specs_err(guess, spec0, spec1, spec0_name, spec1_name,
     return [err0, err1]
 
 class TANK(object):
-    '''Class representing tank volumes and levels. All parameters are also
+    """Class representing tank volumes and levels. All parameters are also
     attributes.
 
     Parameters
@@ -3041,7 +3044,7 @@ class TANK(object):
     9.999999999999407
     >>> TANK(L_over_D=0.469953105701, horizontal=False, sideA='conical', sideB='conical', V=500).L
     4.699531057009791
-    '''
+    """
     table = False
     chebyshev = False
 
@@ -3138,7 +3141,7 @@ class TANK(object):
         self.set_misc()
 
     def set_misc(self):
-        '''Set more parameters, after the tank is better defined than in the
+        """Set more parameters, after the tank is better defined than in the
         __init__ function.
 
         Notes
@@ -3150,7 +3153,7 @@ class TANK(object):
         Radius is calculated here.
         Maximum tank height is calculated here.
         V_total is calculated here.
-        '''
+        """
         if self.D is not None and self.L is not None:
             # If L and D are known, get L_over_D
             self.L_over_D = self.L/self.D
@@ -3559,11 +3562,12 @@ class TANK(object):
     def _V_solver_error(self, Vtarget, D, L, horizontal, sideA, sideB, sideA_a,
                        sideB_a, sideA_f, sideA_k, sideB_f, sideB_k,
                        sideA_a_ratio, sideB_a_ratio):
-        '''Function which uses only the variables given, and the TANK
-        class itself, to determine how far from the desired volume, Vtarget,
-        the volume produced by the specified parameters in a new TANK instance
-        is. Should only be used by _solve_tank_for_V method.
-        '''
+        """Function which uses only the variables given, and the TANK class
+        itself, to determine how far from the desired volume, Vtarget, the
+        volume produced by the specified parameters in a new TANK instance is.
+
+        Should only be used by _solve_tank_for_V method.
+        """
         a = TANK(D=float(D), L=float(L), horizontal=horizontal, sideA=sideA, sideB=sideB,
                  sideA_a=sideA_a, sideB_a=sideB_a, sideA_f=sideA_f,
                  sideA_k=sideA_k, sideB_f=sideB_f, sideB_k=sideB_k,
@@ -3573,7 +3577,7 @@ class TANK(object):
 
 
     def _solve_tank_for_V(self):
-        '''Method which is called to solve for tank geometry when a certain
+        """Method which is called to solve for tank geometry when a certain
         volume is specified. Will be called by the __init__ method if V is set.
 
         Notes
@@ -3587,7 +3591,7 @@ class TANK(object):
         fsolve to determine the correct dimensions for the tank.
 
         Tested, but bugs and limitations are expected here.
-        '''
+        """
         if self.L and (self.sideA_a or self.sideB_a):
             raise ValueError('Cannot specify head sizes when solving for V')
         if (self.D and self.L) or (self.D and self.L_over_D) or (self.L and self.L_over_D):
@@ -3942,10 +3946,12 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
         
     @property
     def plate_exchanger_identifier(self):
-        '''Method to create an identifying string in format 'L' + wavelength + 
-        'A' + amplitude + 'B' + chevron angle-chevron angle. Wavelength and 
-        amplitude are specified in units of mm and rounded to two decimal places.
-        '''
+        """Method to create an identifying string in format 'L' + wavelength +
+        'A' + amplitude + 'B' + chevron angle-chevron angle.
+
+        Wavelength and amplitude are specified in units of mm and rounded to two
+        decimal places.
+        """
         wave_rounded = round(self.wavelength*1000, 2)
         amplitude_rounded = round(self.amplitude*1000, 2)
         a1 = self.chevron_angles[0]

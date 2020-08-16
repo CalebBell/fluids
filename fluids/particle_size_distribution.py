@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,12 +20,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-This module contains particle distribution characterization, fitting, 
-interpolating, and manipulation functions. It may be used with discrete 
+This module contains particle distribution characterization, fitting,
+interpolating, and manipulation functions. It may be used with discrete
 particle size distributions, or with statistical ones with parameters
 specified.
 
-For reporting bugs, adding feature requests, or submitting pull requests, 
+For reporting bugs, adding feature requests, or submitting pull requests,
 please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
 or contact the author at Caleb.Andrew.Bell@gmail.com.
 
@@ -86,7 +86,7 @@ Sieves
 Point Spacing
 -------------
 .. autofunction:: psd_spacing
-'''
+"""
 from __future__ import division
 
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
@@ -1877,11 +1877,12 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         return err
         
     def fit(self, x0=None, distribution='lognormal', n=None, **kwargs):
-        '''Incomplete method to fit experimental values to a curve. It is very
-        hard to get good initial guesses, which are really required for this.
-        Differential evolution is promissing. This API is likely to change in
-        the future.
-        '''
+        """Incomplete method to fit experimental values to a curve.
+
+        It is very hard to get good initial guesses, which are really required
+        for this. Differential evolution is promissing. This API is likely to
+        change in the future.
+        """
         dist = {'lognormal': PSDLognormal, 
                 'GGS': PSDGatesGaudinSchuhman, 
                 'RR': PSDRosinRammler}[distribution]
@@ -1904,8 +1905,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
 
     @property
     def Dis(self):
-        '''Representative diameters of each bin.
-        '''
+        """Representative diameters of each bin."""
         return [self.di_power(i, power=1) for i in range(self.N)]
     
     def di_power(self, i, power=1):
