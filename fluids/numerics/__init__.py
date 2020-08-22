@@ -345,9 +345,9 @@ def roots_cubic(a, b, c, d):
     1, -0.999999999978168, 1.698247818501352e-11, -8.47396642608142e-17
     Errors grown unbound, starting when b is -.99999 and close to 1.
     '''
-    if b == 0.0 and a == 0.0: 
-        return (-d/c, )
-    elif a == 0.0:
+    if a == 0.0:
+        if b == 0.0: 
+            return (-d/c, )
         D = c*c - 4.0*b*d
         b_inv_2 = 0.5/b
         if D < 0.0:
@@ -389,8 +389,10 @@ def roots_cubic(a, b, c, d):
         # No complex numbers are needed here.
 #        print('basic')
         # 1 real root, 2 imag
-        root_h = h**0.5
-        R = -(0.5*g) + root_h
+        root_h = sqrt(h)
+        R = -0.5*g + root_h
+        
+        # It is possible to save one of the power of thirds!
         if R >= 0.0:
             S = R**third
         else:
@@ -441,23 +443,25 @@ def roots_cubic(a, b, c, d):
 #            print('other')
             # 3 real roots
             # example is going in here
-            i = (((g*g)*0.25) - h)**0.5
+            i = sqrt((g*g)*0.25 - h)
             j = i**third # There was a saving for j but it was very weird with if statements!
             '''Clamied nothing saved for k.
             '''
-            k = acos(-(g/(2.0*i)))
-            L = -j
+            k = acos(-0.5*g/i)
+#            L = -j
     
             # Would be nice to be able to compute the sin and cos at the same time
-            k_third = k*third
-            M = cos(k_third)
-            N = root_three*sin(k_third)
+#            k_third = k*third
+            N, M = sincos(k*third)
+            N *= root_three
+#            M = cos(k_third)
+#            N = root_three*sin(k_third)
             P = -b_a*third
     
             # Direct formula for x1
-            x1 = 2.0*j*M - b_a*third
-            x2 = L*(M + N) + P
-            x3 = L*(M - N) + P
+            x1 = 2.0*j*M + P
+            x2 = P - j*(M + N)
+            x3 = P - j*(M - N) 
     return (x1, x2, x3)
 
 

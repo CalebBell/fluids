@@ -11,6 +11,7 @@ import math as _math
 
 # mathematical constants
 pi = _math.pi
+pi_inv = 1.0/pi
 golden = golden_ratio = 1.618033988749895
 
 # SI prefixes

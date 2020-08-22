@@ -12,11 +12,11 @@ The `fluids` project has grown to be:
     * Wrapped with numpy's np.vectorize.
     * Wrapped with numba's ufunc machinery.
 * Comprehensive
-    * Most correlations taught at the undergrad level included.
+    * Most correlations taught at the undergrad level are included.
     * Most ancillary calculations such as atmospheric properties tank geometry are included.
 * Capable of handling units
-    * Pint interface
-    * All docstrings/code in base SI units
+    * Pint interface.
+    * All docstrings/code in base SI units.
 
 There is no official road map, no full time developers, and no commercial support for this library - this is a hobby project primarily by Caleb Bell. Contributors are welcome! Fluid dynamics is really big field and one author can't do everything.
 
@@ -169,13 +169,19 @@ It does have some drawbacks today:
 * If running code only a few times, PyPy won't be able to accelerate it as it is a Just In Time Compiler.
 * Sometimes something gets speed up by PyPy some of the time, but not all of the time.
 * Uses more memory, typically 1.5x.
-* Not as good as Numba at generating vectorized, SIMD instructions for the CPU.
+* Not as good as Numba at generating vectorized, SIMD instructions for the CPU. PyPy also isn't as good at inlining small functions.
 
 The main pros of PyPy are:
 
 * Really, really fast. Some functions literally save 98% of their time by running in PyPy, although 85% is more typical.
-* Accelerates ALL of your code, not a little like numba. For scalar functions PyPy is typically faster than numba.
+* Accelerates ALL of your code, not a little like numba. 
+* For scalar functions PyPy is typically quite a bit faster than numba.
 * Doesn't need special handling, does everything CPython can do.
+* Doesn't need a special coding style!
+
+A few compromises in the library to make PyPy more performant were made:
+
+* Use the `sqrt` operator to compute powers as much as possible. `sqrt` and a few multiplies is much cheaper than a power operator. This is not really noticeable on CPython, but you can tell in PyPy. CPUs have special hardware to make this computation very cheap.
 
 
 Notes on Numba
@@ -193,3 +199,17 @@ The main cons of Numba are:
 * Not available on many platforms, used to require Anaconda.
 * Some code can be really, really slow to compile today. Compiling `fluids` with numba takes ~3 minutes today, after some optimizations.
 * Can be a pain to work with. Has crashes, and still feels immature.
+
+Quite a few compromises in the library were made to add Numba compatibility and in cases to make Numba even more performant:
+
+* A series of `numba` pragmas were invented and are interpreted by a loader that recompiles the transformed source code of `fluids`.
+* Functions that accept functions as arguments or use scipy.special functions are not compatible with Numba's caching implementation at this time. To avoid having complaints about that, they are added to a list in numba.py.
+* Numba does not support raising exceptions with dynamically created messages. Where possible, this means using a constant message. 
+* Sometimes the only way to do something is by changing the code directly. Append "# numba: delete" at the end of a line in a function to delete the line. Add a new commented out line, and append "# numba: uncomment" to it. Then put the name of that function in the variable `to_change` in numba.py, and the changes will be made when using the Numba interface.
+* 1D arrays should be initialized like [0.0]*4, [my_thing]*my_count; and they put the function in the same `to_change` variable. This will transform them into the right type of array for Numba.
+
+Things to Keep In Mind While Coding
+-----------------------------------
+
+1. Python is often ran with the -O or -OO flag. This reduces its memory use and increases performance a little. One of those optimizations is that any `assert` statements in python code are skipped. This means they should not be used to control a program's flow. This is normally the equivalent of using a Release build vs. a Debug build in C++.
+2. Numpy arrays and functions should be used with care. They will make that portion of the code not run on some implementations, and will add a dependency on NumPy for that function. If it is a vectorization issue, consider letting Numba or PyPy accelerate it for you. If it about using some fancy functionality like a fourier transform, then NumPy is the right choice!
