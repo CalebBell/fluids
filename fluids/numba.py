@@ -250,7 +250,7 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_black
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
         parallel = 'prange' in source
         source = re.sub(match_prange, sub_prange, source)
-#        if 'Wilke_large' in source:
+#        if 'Lindsay_Bromley' in source:
 #            print(source)
 #            print(parallel, 'hi', extra_args)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)

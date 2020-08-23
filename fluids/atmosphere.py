@@ -582,7 +582,9 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
     to $FLUIDSPATH/fluids/optional/. This should generate the file hwm93.so
     in that directory.
         
-    f2py -c hwm93.pyf hwm93.for --f77flags="-std=legacy"
+    .. code-block:: bash
+    
+        f2py -c hwm93.pyf hwm93.for --f77flags="-std=legacy"
     
     If the module is not compiled, an import error will be raised.
     
@@ -663,12 +665,16 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     
     
     Generate a .pyf signature file:
-        
-    f2py -m hwm14 -h hwm14.pyf hwm14.f90
+
+    .. code-block:: bash
+    
+        f2py -m hwm14 -h hwm14.pyf hwm14.f90
 
     Compile the interface:
-        
-    f2py -c hwm14.pyf hwm14.f90
+    
+    .. code-block:: bash
+    
+        f2py -c hwm14.pyf hwm14.f90
     
     
     If the module is not compiled, an import error will be raised.
