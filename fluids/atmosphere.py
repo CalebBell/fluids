@@ -53,7 +53,7 @@ Wind Models (requires Fortran compiler!)
 
 from __future__ import division
 
-from math import exp, cos, radians, pi, sin
+from math import sqrt, exp, cos, radians, pi, sin
 import time
 import os
 from fluids.constants import N_A, R, au
@@ -289,7 +289,7 @@ class ATMOSPHERE_1976(object):
             Speed of sound, [m/s]
         '''        
         # 401.87... = gamma*R/MO
-        return (401.87430086589046*T)**0.5
+        return sqrt(401.87430086589046*T)
     
     @staticmethod
     def gravity(Z):

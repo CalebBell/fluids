@@ -22,7 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import exp, log, log10, tanh
+from math import sqrt, exp, log, log10, tanh
 from fluids.constants import g
 from fluids.numerics import secant
 from fluids.core import Reynolds
@@ -209,7 +209,7 @@ def Rouse(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    return 24./Re + 3/Re**0.5 + 0.34
+    return 24./Re + 3/sqrt(Re) + 0.34
 
 
 def Engelund_Hansen(Re):
@@ -396,7 +396,7 @@ def Graf(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    return 24./Re + 7.3/(1 + Re**0.5) + 0.25
+    return 24./Re + 7.3/(1 + sqrt(Re)) + 0.25
 
 
 def Flemmer_Banks(Re):
@@ -566,7 +566,7 @@ def Yen(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    return 24./Re*(1 + 0.15*Re**0.5 + 0.017*Re) - 0.208/(1 + 1E4*Re**-0.5)
+    return 24./Re*(1 + 0.15*sqrt(Re) + 0.017*Re) - 0.208/(1 + 1E4*Re**-0.5)
 
 
 def Haider_Levenspiel(Re):
@@ -1162,7 +1162,7 @@ def drag_sphere(Re, Method=None):
 
 def _v_terminal_err(V, Method, Re_almost, main):
     Cd = drag_sphere(Re_almost*V, Method=Method)
-    return V - (main/Cd)**0.5
+    return V - sqrt(main/Cd)
 
 def v_terminal(D, rhop, rho, mu, Method=None):
     r'''Calculates terminal velocity of a falling sphere using any drag

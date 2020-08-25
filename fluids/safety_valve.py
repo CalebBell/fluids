@@ -22,7 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import exp
+from math import exp, sqrt
 from fluids.constants import psi, inch, atm
 from fluids.compressible import is_critical_flow
 from fluids.numerics import interp, tck_interp2d_linear, bisplev
@@ -123,9 +123,9 @@ def API520_C(k):
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
     if k != 1:
-        return 0.03948*( k*(2./(k+1.))**((k+1.)/(k-1.)) )**0.5
+        return 0.03948*sqrt(k*(2./(k+1.))**((k+1.)/(k-1.)))
     else:
-        return 0.03948*(1./exp(1))**0.5
+        return 0.03948*sqrt(1./exp(1))
 
 
 def API520_F2(k, P1, P2):
@@ -171,7 +171,7 @@ def API520_F2(k, P1, P2):
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
     r = P2/P1
-    return ( k/(k-1)*r**(2./k) * ((1-r**((k-1.)/k))/(1.-r)) )**0.5
+    return sqrt(k/(k-1)*r**(2./k) * ((1-r**((k-1.)/k))/(1.-r)))
 
 
 def API520_Kv(Re):
@@ -218,7 +218,7 @@ def API520_Kv(Re):
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
-    return (0.9935 + 2.878/Re**0.5 + 342.75/Re**1.5)**-1.0
+    return (0.9935 + 2.878/sqrt(Re) + 342.75/Re**1.5)**-1.0
 
 
 def API520_N(P1):
@@ -582,10 +582,10 @@ def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
     m = m*3600. # kg/s to kg/hr
     if is_critical_flow(P1, P2, k):
         C = API520_C(k)
-        A = m/(C*Kd*Kb*Kc*P1)*(T*Z/MW)**0.5
+        A = m/(C*Kd*Kb*Kc*P1)*sqrt(T*Z/MW)
     else:
         F2 = API520_F2(k, P1, P2)
-        A = 17.9*m/(F2*Kd*Kc)*(T*Z/(MW*P1*(P1-P2)))**0.5
+        A = 17.9*m/(F2*Kd*Kc)*sqrt(T*Z/(MW*P1*(P1-P2)))
     return A*0.001**2 # convert mm^2 to m^2
 
 

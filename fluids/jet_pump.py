@@ -142,11 +142,11 @@ def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
         return -rhop/2*(Qp/A_nozzle)**2*((1+Kp) - C*(1 + Ks)*((M*R)/(1-R))**2 ) + P1
     elif Qs is None:
         try:
-            return ((-2*A_nozzle**2*P1 + 2*A_nozzle**2*P2 + Kp*Qp**2*rhop + Qp**2*rhop)/(C*rhop*(Ks + 1)))**0.5*(A_mixing - A_nozzle)/A_nozzle
+            return sqrt((-2*A_nozzle**2*P1 + 2*A_nozzle**2*P2 + Kp*Qp**2*rhop + Qp**2*rhop)/(C*rhop*(Ks + 1)))*(A_mixing - A_nozzle)/A_nozzle
         except ValueError:
             return -1j
     elif Qp is None:
-        return A_nozzle*((2*A_mixing**2*P1 - 2*A_mixing**2*P2 - 4*A_mixing*A_nozzle*P1 + 4*A_mixing*A_nozzle*P2 + 2*A_nozzle**2*P1 - 2*A_nozzle**2*P2 + C*Ks*Qs**2*rhop + C*Qs**2*rhop)/(rhop*(Kp + 1)))**0.5/(A_mixing - A_nozzle)
+        return A_nozzle*sqrt((2*A_mixing**2*P1 - 2*A_mixing**2*P2 - 4*A_mixing*A_nozzle*P1 + 4*A_mixing*A_nozzle*P2 + 2*A_nozzle**2*P1 - 2*A_nozzle**2*P2 + C*Ks*Qs**2*rhop + C*Qs**2*rhop)/(rhop*(Kp + 1)))/(A_mixing - A_nozzle)
     elif d_nozzle is None:
         def err(d_nozzle):
             return P1 - liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Kp=Kp, Ks=Ks, d_nozzle=d_nozzle, d_mixing=d_mixing, Qp=Qp, Qs=Qs, 

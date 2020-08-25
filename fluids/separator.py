@@ -22,7 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import log, exp, pi
+from math import log, exp, pi, sqrt
 from fluids.constants import g, foot, psi
 from fluids.numerics import splev, implementation_optimize_tck
 
@@ -124,7 +124,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
     .. [3] Branan, Carl R. Pocket Guide to Chemical Engineering. 1st edition. 
        Houston, Tex: Gulf Professional Publishing, 1999.
     '''
-    factor = (1. - x)/x*(rhog/rhol)**0.5
+    factor = (1. - x)/x*sqrt(rhog/rhol)
     if method == 'spline':
         K = exp(float(splev(log(factor), tck_Watkins)))
     elif method == 'blackwell':
@@ -286,7 +286,7 @@ def v_Sounders_Brown(K, rhol, rhog):
        Process Design and Economics : A Practical Guide. 2nd edition. Durham, 
        N.H: Process Publishing, 2004.
     '''
-    return K*((rhol - rhog)/rhog)**0.5
+    return K*sqrt((rhol - rhog)/rhog)
 
 
 def K_Sounders_Brown_theoretical(D, Cd, g=g):
@@ -360,4 +360,4 @@ def K_Sounders_Brown_theoretical(D, Cd, g=g):
        within the Right Limits" Chemical Engineering Progress, (October 1, 
        1993): 53-60.
     '''
-    return (4.0*g*D/(3.0*Cd))**0.5
+    return sqrt(4.0*g*D/(3.0*Cd))

@@ -22,7 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import log
+from math import log, sqrt
 from fluids.constants import hp
 from fluids.numerics import interp, tck_interp2d_linear, bisplev
 
@@ -466,7 +466,7 @@ def specific_speed(Q, H, n=3600.):
     ----------
     .. [1] HI 1.3 Rotodynamic Centrifugal Pumps for Design and Applications
     '''
-    return n*Q**0.5/H**0.75
+    return n*sqrt(Q)/H**0.75
 
 
 def specific_diameter(Q, H, D):
@@ -597,7 +597,7 @@ def current_ideal(P, V, phase=3, PF=1):
     if phase not in [1, 3]:
         raise ValueError('Only 1 and 3 phase power supported')
     if phase == 3:
-        return P/(V*3**0.5*PF)
+        return P/(V*sqrt(3)*PF)
     else:
         return P/(V*PF)
 

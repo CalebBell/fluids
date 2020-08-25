@@ -106,11 +106,11 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'ISO_3310_1_R20_3', 'ISO_3310_1_R20', 'ISO_3310_1_R10', 
            'ISO_3310_1_R40_3']
 
-from math import log, exp, pi, log10
+from math import log, exp, pi, log10, sqrt
 from fluids.numerics import (brenth, epsilon, gamma, erf, gammaincc,
                              linspace, logspace, cumsum, diff, normalize)
 
-ROOT_TWO_PI = (2.0*pi)**0.5
+ROOT_TWO_PI = sqrt(2.0*pi)
 
 NO_MATPLOTLIB_MSG = 'Optional dependency matplotlib is required for plotting'
 
@@ -675,7 +675,7 @@ def cdf_lognormal(d, d_characteristic, s):
        Moments from Particle Size Distributions.
     '''
     try:
-        return 0.5*(1.0 + erf((log(d/d_characteristic))/(s*2.0**0.5)))
+        return 0.5*(1.0 + erf((log(d/d_characteristic))/(s*sqrt(2.0))))
     except:
         # math error at cdf = 0 (x going as low as possible)
         return 0.0
@@ -735,7 +735,7 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
         t0 = exp(s2*n*n*0.5)
         d_ratio = d/d_characteristic
         t1 = (d/(d_ratio))**n
-        t2 = erf((s2*n - log(d_ratio))/(2.**0.5*s))
+        t2 = erf((s2*n - log(d_ratio))/(sqrt(2.)*s))
         return -0.5*t0*t1*t2
     except (OverflowError, ZeroDivisionError, ValueError):
         return pdf_lognormal_basis_integral(d=1E-80, d_characteristic=d_characteristic, s=s, n=n)

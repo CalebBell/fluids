@@ -469,7 +469,7 @@ def norm2(arr):
     tot = 0.0
     for i in arr:
         tot += i*i
-    return tot**0.5
+    return sqrt(tot)
 
 
 def array_as_tridiagonals(arr):

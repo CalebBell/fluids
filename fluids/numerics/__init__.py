@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin, atan2, asinh
+from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin, atan2, asinh, sqrt
 from cmath import sqrt as csqrt, log as clog
 import sys
 from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye, array_as_tridiagonals, tridiagonals_as_array, solve_tridiagonal, subset_matrix
@@ -220,7 +220,7 @@ twelfth = 1.0/12.0
 two_thirds = 2.0/3.0
 four_thirds = 4.0/3.0
 
-root_three = (3.0)**0.5
+root_three = sqrt(3.0)
 one_27 = 1.0/27.0
 complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
 
@@ -351,11 +351,11 @@ def roots_cubic(a, b, c, d):
         D = c*c - 4.0*b*d
         b_inv_2 = 0.5/b
         if D < 0.0:
-            D = (-D)**0.5
+            D = sqrt(-D)
             x1 = (-c + D*1.0j)*b_inv_2
             x2 = (-c - D*1.0j)*b_inv_2
         else:
-            D = D**0.5
+            D = sqrt(D)
             x1 = (D - c)*b_inv_2
             x2 = -(c + D)*b_inv_2
         return (x1, x2)
@@ -389,7 +389,7 @@ def roots_cubic(a, b, c, d):
         # No complex numbers are needed here.
 #        print('basic')
         # 1 real root, 2 imag
-        root_h = h**0.5
+        root_h = sqrt(h)
         R = -(0.5*g) + root_h
         if R >= 0.0:
             S = R**third
@@ -441,7 +441,7 @@ def roots_cubic(a, b, c, d):
 #            print('other')
             # 3 real roots
             # example is going in here
-            i = (((g*g)*0.25) - h)**0.5
+            i = sqrt(((g*g)*0.25) - h)
             j = i**third # There was a saving for j but it was very weird with if statements!
             '''Clamied nothing saved for k.
             '''
@@ -688,7 +688,7 @@ def deflate_cubic_real_roots(b, c, d, x0):
 #     else:
     if D < 0.0:
         return (0.0, 0.0)
-    D = D**0.5
+    D = sqrt(D)
     x1 = 0.5*(D - F)#(D - c)*0.5
     x2 = 0.5*(-F - D) #-(c + D)*0.5
     return x1, x2

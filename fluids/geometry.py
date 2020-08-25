@@ -25,7 +25,7 @@ SOFTWARE.
 
 from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
-                  degrees)
+                  degrees, sqrt)
 from cmath import sqrt as csqrt
 from fluids.constants import inch
 from fluids.core import PY3
@@ -105,7 +105,7 @@ def SA_partial_sphere(D, h):
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
        http://mathworld.wolfram.com/SphericalCap.html.'''
     r = D*0.5
-    a = (h*(2.*r - h))**0.5
+    a = sqrt(h*(2.*r - h))
     return pi*(a*a + h*h)
 
 
@@ -145,7 +145,7 @@ def V_partial_sphere(D, h):
     if h <= 0.0:
         return 0.0
     r = 0.5*D
-    a = (h*(2.*r - h))**0.5
+    a = sqrt(h*(2.*r - h))
     return 1/6.*pi*h*(3.*a*a + h*h)
 
 
@@ -234,12 +234,12 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     t0 = (R-h)/R
     if t0 < -1.0 or t0 > 1.0:
         raise ValueError("Unphysical height")
-    Af = R*R*acos(t0) - (R-h)*(h*(R + R - h))**0.5
+    Af = R*R*acos(t0) - (R-h)*sqrt(h*(R + R - h))
     M = abs(t0)
     if h == R:
         Vf = a*R*R_third*pi
     else:
-        K = acos(M) + M*M*M*acosh(1./M) - 2.*M*(1.-M*M)**0.5
+        K = acos(M) + M*M*M*acosh(1./M) - 2.*M*sqrt(1.-M*M)
         if 0. <= h < R:
             Vf = 2.*a*R*R_third*K
         else:
@@ -293,7 +293,7 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
     if h <= 0.0:
         return 0.0
     R = 0.5*D
-    Af = R*R*acos((R-h)/R) - (R-h)*(2*R*h - h*h)**0.5
+    Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2*R*h - h*h)
     Vf = pi*a*h*h*(1 - h/(3.*R))
     if headonly:
         Vf = 0.5*Vf
@@ -344,8 +344,8 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
     if h <= 0.0:
         return 0.0
     R = 0.5*D
-    Af = R*R*acos((R-h)/R) - (R-h)*(2.*R*h - h*h)**0.5
-    Vf = 2.*a*R*R/3.*acos(1. - h/R) + 2.*a/9./R*(2*R*h - h**2)**0.5*(2*h - 3*R)*(h + R)
+    Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2.*R*h - h*h)
+    Vf = 2.*a*R*R/3.*acos(1. - h/R) + 2.*a/9./R*sqrt(2*R*h - h**2)*(2*h - 3*R)*(h + R)
     if headonly:
         Vf = Vf/2.
     else:
@@ -354,7 +354,7 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
 
 def _V_horiz_spherical_toint(x, r2, R2, den_inv):
     x2 = x*x
-    return (r2 - x2)*atan(((R2 - x2)*den_inv)**0.5)
+    return (r2 - x2)*atan(sqrt((R2 - x2)*den_inv))
 
 
 def V_horiz_spherical(D, L, a, h, headonly=False):
@@ -432,9 +432,9 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     R = D/2.
     r = (a**2 + R**2)/2./abs(a)
     w = R - h
-    y = (2*R*h - h**2)**0.5
-    z = (r**2 - R**2)**0.5
-    Af = R**2*acos((R-h)/R) - (R-h)*(2*R*h - h**2)**0.5
+    y = sqrt(2*R*h - h**2)
+    z = sqrt(r**2 - R**2)
+    Af = R**2*acos((R-h)/R) - (R-h)*sqrt(2*R*h - h**2)
 
     if h == R and abs(a) <= R:
         Vf = pi*a/6*(3*R**2 + a**2)
@@ -463,24 +463,24 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
 def V_horiz_torispherical_toint_1(x, w, c10, c11):
     # No analytical integral available in MP
     w2 = w*w
-    n = c11 + (c10 - x*x)**0.5
+    n = c11 + sqrt(c10 - x*x)
     n2 = n*n
-    t = (n2 - w2)**0.5
+    t = sqrt(n2 - w2)
     ans = n2*asin(t/n) - w*t
     return ans
 
 def V_horiz_torispherical_toint_2(x, w, c10, c11, g, g2):
     # No analytical integral available in MP
-    n = c11 + (c10 - x*x)**0.5
+    n = c11 + sqrt(c10 - x*x)
     n2 = n*n
     n_inv = 1.0/n
-    ans = n2*(acos(w*n_inv) - acos(g*n_inv)) - w*(n2 - w*w)**0.5 + g*(n2 - g2)**0.5
+    ans = n2*(acos(w*n_inv) - acos(g*n_inv)) - w*sqrt(n2 - w*w) + g*sqrt(n2 - g2)
     return ans
 
 def V_horiz_torispherical_toint_3(x, r2, g2, z):
     # There is an analytical integral in MP, but for all cases we seem to 
     # get ZeroDivisionError: 0.0 cannot be raised to a negative power
-    ans = (r2 - x*x)*atan((g2 - x*x)**0.5/z)
+    ans = (r2 - x*x)*atan(sqrt(g2 - x*x)/z)
     return ans
 
 def V_horiz_torispherical(D, L, f, k, h, headonly=False):
@@ -581,7 +581,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     R = 0.5*D
     R2 = R*R
     hh = h*h
-    Af = R2*acos((R-h)/R) - (R-h)*(2.0*R*h - hh)**0.5
+    Af = R2*acos((R-h)/R) - (R-h)*sqrt(2.0*R*h - hh)
     r = f*D
     alpha = asin((1.0 - 2.0*k)/(2.*(f - k)))
     cos_alpha = cos(alpha)
@@ -600,13 +600,13 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
 
     if 0.0 <= h <= h1:
         w = R - h
-        Vf = 2.0*quad(V_horiz_torispherical_toint_1, 0.0, (2.0*k*D*h - hh)**0.5, (w, c10, c11))[0]
+        Vf = 2.0*quad(V_horiz_torispherical_toint_1, 0.0, sqrt(2.0*k*D*h - hh), (w, c10, c11))[0]
     elif h1 < h < h2:
         w = R - h
         wmax1 = R - h1
-        V1max = quad(V_horiz_torispherical_toint_1, 0.0, (2.0*k*D*h1 - h1*h1)**0.5, (wmax1,c10, c11))[0]
+        V1max = quad(V_horiz_torispherical_toint_1, 0.0, sqrt(2.0*k*D*h1 - h1*h1), (wmax1,c10, c11))[0]
         V2 = quad(V_horiz_torispherical_toint_2, 0.0, k*D*cos(alpha), (w, c10, c11, g, g2))[0]
-        V3 = quad(V_horiz_torispherical_toint_3, w, g , (r2, g2, z))[0] - 0.5*z*(g*g*acos(w/g) -w*(2*g*(h-h1) - (h-h1)**2)**0.5)
+        V3 = quad(V_horiz_torispherical_toint_3, w, g , (r2, g2, z))[0] - 0.5*z*(g*g*acos(w/g) -w*sqrt(2*g*(h-h1) - (h-h1)**2))
         Vf = 2.0*(V1max + V2 + V3)
     else:
         w = R - h
@@ -614,8 +614,8 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         wmax2 = R - h2
         wwerird = R - (D - h)
 
-        V1max = quad(V_horiz_torispherical_toint_1, 0, (2*k*D*h1-h1**2)**0.5, (wmax1,c10, c11))[0]
-        V1weird = quad(V_horiz_torispherical_toint_1, 0, (2*k*D*(D-h)-(D-h)**2)**0.5, (wwerird,c10, c11))[0]
+        V1max = quad(V_horiz_torispherical_toint_1, 0, sqrt(2*k*D*h1-h1**2), (wmax1,c10, c11))[0]
+        V1weird = quad(V_horiz_torispherical_toint_1, 0, sqrt(2*k*D*(D-h)-(D-h)**2), (wwerird,c10, c11))[0]
         V2max = quad(V_horiz_torispherical_toint_2, 0, k*D*cos(alpha), (wmax2, c10, c11, g, g2))[0]
         V3max = pi*a1/6.*(3*g**2 + a1**2)
         Vf = 2*(2*V1max - V1weird + V2max + V3max)
@@ -858,11 +858,11 @@ def V_vertical_torispherical(D, f, k, h):
         x2 = (0.5*D - k*D)
         u2 = u*u
         Vf = (0.25*pi*a1*((2.0/3.0)*a1*a1 + 0.5*D1*D1) + pi*u*(x2*x2 + s)
-        + pi*u2*(0.5*t - u/3.) + pi*D*(1.0 - 2.0*k)*(0.25*(2.0*u - t)*(s + t*u
-        - u2)**0.5 + 0.25*t*s**0.5 + 0.5*k*k*D*D*(acos((t - 2.0*u)/(2.0*k*D)) - alpha)))
+        + pi*u2*(0.5*t - u/3.) + pi*D*(1.0 - 2.0*k)*(0.25*(2.0*u - t)*sqrt(s + t*u
+                - u2) + 0.25*t*sqrt(s) + 0.5*k*k*D*D*(acos((t - 2.0*u)/(2.0*k*D)) - alpha)))
     else:
         Vf = pi/4*(2*a1**3/3. + a1*D1**2/2.) + pi*t/2.*((D/2 - k*D)**2
-        + s) + pi*t**3/12. + pi*D*(1 - 2*k)*(t*s**0.5/4
+        + s) + pi*t**3/12. + pi*D*(1 - 2*k)*(t*sqrt(s)/4
         + k**2*D**2/2*asin(cos(alpha))) + pi*D**2/4*(h - (a1 + a2))
     return Vf
 
@@ -1100,7 +1100,7 @@ def V_vertical_torispherical_concave(D, f, k, h):
         u = h-f*D*(1-cos(alpha))
         v1 = pi/4*(2*a1**3/3. + a1*D1**2/2.) + pi*u*((D/2.-k*D)**2 +s)
         v1 += pi*t*u**2/2. - pi*u**3/3.
-        v1 += pi*D*(1-2*k)*((2*u-t)/4.*(s+t*u-u**2)**0.5 + t*s**0.5/4.
+        v1 += pi*D*(1-2*k)*((2*u-t)/4.*sqrt(s+t*u-u**2) + t*sqrt(s)/4.
         + k**2*D**2/2.*(acos((t-2*u)/(2*k*D)) -alpha))
         return v1
     def V2(h):
@@ -1168,7 +1168,7 @@ def SA_ellipsoidal_head(D, a):
     R = 0.5*D
     if a < R:
         R, a = min((R, a)), max((R, a))
-        e1 = (1.0 - R*R/(a*a))**0.5
+        e1 = sqrt(1.0 - R*R/(a*a))
         
         if e1 != 1.0:
 #        try:
@@ -1211,7 +1211,7 @@ def SA_conical_head(D, a):
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Cone.html.'''
-    return 0.5*pi*D*(a*a + 0.25*D*D)**0.5
+    return 0.5*pi*D*sqrt(a*a + 0.25*D*D)
 
 
 def SA_guppy_head(D, a):
@@ -1243,7 +1243,7 @@ def SA_guppy_head(D, a):
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Cone.html.'''
-    return 0.25*pi*D*(a*a + D*D)**0.5 + 0.5*pi*D*a
+    return 0.25*pi*D*sqrt(a*a + D*D) + 0.5*pi*D*a
 
 
 def SA_torispheroidal(D, f, k):
@@ -1306,8 +1306,8 @@ def SA_torispheroidal(D, f, k):
     x1 = 2.0*pi*D2
     k_inv = 1.0/k
     x2 = ((0.5 - k)/(f-k))
-    alpha_1 = f*(1.0 - (1.0 - x2*x2)**0.5)
-    alpha_2 = f - (f*f - 2.0*f*k + k - 0.25)**0.5
+    alpha_1 = f*(1.0 - sqrt(1.0 - x2*x2))
+    alpha_2 = f - sqrt(f*f - 2.0*f*k + k - 0.25)
     alpha = alpha_1 # Up to top of dome
     S1 = x1*f*alpha_1
     alpha = alpha_2 # up to top of torus
@@ -1524,7 +1524,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
                 sideA_V = V_horiz_torispherical(D, L, sideA_f, sideA_k, D, headonly=True)
             if sideB == 'torispherical':
                 sideB_V = V_horiz_torispherical(D, L, sideB_f, sideB_k, D, headonly=True)
-        Af = R*R*acos((R-D)/R) - (R-D)*(2.0*R*D - D*D)**0.5
+        Af = R*R*acos((R-D)/R) - (R-D)*sqrt(2.0*R*D - D*D)
         lateral_V = L*Af
     else:
         # Bottom head
@@ -1641,7 +1641,7 @@ def A_partial_circle(D, h):
     elif h < 0.0:
         return 0.0
     R = 0.5*D
-    SA = R*R*acos((R - h)/R) - (R - h)*(2.0*R*h - h*h)**0.5
+    SA = R*R*acos((R - h)/R) - (R - h)*sqrt(2.0*R*h - h*h)
     if SA < 0.0:
         SA = 0.0 # Catch trig errors
     return SA
@@ -1693,13 +1693,13 @@ def SA_partial_horiz_conical_head(D, a, h):
         return 0.0
     R = 0.5*D
     R_inv = 1.0/R
-    return (a*a + R*R)**0.5*R_inv*(R*R*acos((R-h)*R_inv) - (R-h)*(2.0*R*h - h*h)**0.5)
+    return sqrt(a*a + R*R)*R_inv*(R*R*acos((R-h)*R_inv) - (R-h)*sqrt(2.0*R*h - h*h))
 
 def _SA_partial_horiz_spherical_head_to_int(x, R2, a4, c1, c2):
     x2 = x*x
     to_pow = (R2 - x2)/(c2 - a4*x2)
     if to_pow < 0.0: to_pow = 0.0
-    num = c1*(to_pow)**0.5
+    num = c1*sqrt(to_pow)
     try:
         return asin(num)
     except:
@@ -1778,23 +1778,23 @@ def _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y, c1, R2, R4, h):
     num = c1*(x2 + y2) - R4
     den = x2 + (y2 - R2) # Brackets help numerical truncation; zero div without it
     try:
-        return (num/den)**0.5
+        return sqrt(num/den)
     except:
          # Equation is undefined for y == R when x is zero; avoid it
         return _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y*(1.0 - 1e-12), c1, R2, R4, h)
     
 def _SA_partial_horiz_ellipsoidal_head_limits(x, c1, R2, R4, h):
-    return [0.0, (R2 - x*x)**0.5]
+    return [0.0, sqrt(R2 - x*x)]
 
 def _SA_partial_horiz_ellipsoidal_head_limits2(c1, R2, R4, h):
-    R = R2**0.5
+    R = sqrt(R2)
     return [R-h, R]
 
 def _SA_partial_horiz_ellipsoidal_head_to_int(y, c1, R2, R4):
     y2 = y*y
     t0 = c1*y2
     x6 = c1*(y2 - R2)/(t0 - R4)
-    ans = (R4 - t0)**0.5*float(ellipe(x6))
+    ans = sqrt(R4 - t0)*float(ellipe(x6))
     return ans
 
 def SA_partial_horiz_ellipsoidal_head(D, a, h):
@@ -1886,7 +1886,7 @@ def _SA_partial_horiz_guppy_head_to_int(x, a, R):
     x5 = R*R
     x6 = x*x
     x7 = x5 - x6
-    x8 = x7**0.5
+    x8 = sqrt(x7)
     x9 = x4*x8
     x10 = x0 + 4.0*x5
     x17 = x10**0.25
@@ -1895,11 +1895,11 @@ def _SA_partial_horiz_guppy_head_to_int(x, a, R):
     x13 = a*x7
     x14 = x12*x13*x3 + 1.0
     x15 = a*x12
-    x16 = a**0.5
+    x16 = sqrt(a)
     x18 = 2*atan(x16*x8/(x1*x17))
     x19 = 0.5 - 0.5*x15
     x100 = (-2.0*R*x*x11 + x11*x5 + x11*x6 + x13)
-    x20 = x1*x14*(x2*x5*(x0 + x2)/(x100*x100))**0.5/x5
+    x20 = x1*x14*sqrt(x2*x5*(x0 + x2)/(x100*x100))/x5
     return 0.08333333333333333*(
              (-4.0*x10**0.75*x16*x20*ellipeinc(x18, x19) + 4.0*x9 
              + 2.0*x17*x20*(a*x11 + x10)*ellipkinc(x18, x19)/x16 
@@ -2014,7 +2014,7 @@ def SA_partial_horiz_guppy_head(D, a, h):
 def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     x0 = x*x
     x1 = b - x0
-    x2 = x1**0.5
+    x2 = sqrt(x1)
     x3 = -b + x0
     x4 = c*c
     try:
@@ -2022,7 +2022,7 @@ def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     except:
         x5 = (x1 - x4+0j)**-0.5
     x6 = x3 + x4
-    x7 = b**0.5
+    x7 = sqrt(b)
     try:
         x3_pow = x3**(-1.5)
     except:
@@ -2037,15 +2037,15 @@ def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
 #    y, t2, s, c1 = mpf(y), mpf(t2), mpf(s), mpf(c1)
     y2 = y*y
     try:
-        x10 = (t2 - y2)**0.5
+        x10 = sqrt(t2 - y2)
     except:
-        x10 = (t2 - y2+0.0j)**0.5
+        x10 = sqrt(t2 - y2+0.0j)
     try:
         # Some tiny heights make the square root slightly under 0
-        x = ((c1 - y2 + (s+s)*x10)**0.5).real
+        x = (sqrt(c1 - y2 + (s+s)*x10)).real
     except:
         # Python 2 compat - don't take the square root of a negative number with no complex part
-        x = ((c1 - y2 + (s+s)*x10 + 0.0j)**0.5).real
+        x = (csqrt(c1 - y2 + (s+s)*x10 + 0.0j)).real
     try:
         x0 = t2 - y2
         x1 = s*x10
@@ -2055,12 +2055,12 @@ def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
         # x3, x4 present a very nasty numerical problem.
         # issue occurs when h == R, x3 is really equal to R**2 - 2*R*h + h**2
         x3 = t10 - x*x
-        x4 = x3**0.5
+        x4 = sqrt(x3)
         # One solution is to use higher precision everywhere
         
         
         
-        ans = x4*(t2*t10/(x0*x3))**0.5*catan(x/x4).real
+        ans = x4*sqrt(t2*t10/(x0*x3))*catan(x/x4).real
     except:
         ans = 0.0
 #     ans = sqrt((t2* (s**2+t2-x**2+2.0*s* sqrt(t2-x**2)))/((t2-x**2)* (s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2)))* sqrt(s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2) *atan(y/sqrt(s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2))
@@ -2071,10 +2071,10 @@ def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
 def _SA_partial_horiz_torispherical_head_int_3(y, x, s, t2):
     x2 = x*x
     y2 = y*y
-    x10 = (t2 - x2)**0.5
+    x10 = sqrt(t2 - x2)
     num = (s + x10)*(s + x10)*x2 + (t2 - x2)*y2
     den = (t2 - x2)*(s*s + t2 - x2 - y2 + 2.0*s*x10)
-    f = (1.0 + num/den)**0.5
+    f = sqrt(1.0 + num/den)
     return f
 
 def SA_partial_horiz_torispherical_head(D, f, k, h):
@@ -2191,16 +2191,16 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     def G_lim(x): # numba: delete
         x2 = x*x # numba: delete
         try: # numba: delete
-            G = (c1 - x2 + (s+s)*(t2 - x2)**0.5)**0.5 # numba: delete
+            G = sqrt(c1 - x2 + (s+s)*sqrt(t2 - x2)) # numba: delete
         except: # numba: delete
             # Python 2 compat - don't take the square root of a negative number with no complex part # numba: delete
-            G = (c1 - x2 + (s+s)*(t2 - x2+0.0j)**0.5 + 0.0j)**0.5 # numba: delete
+            G = sqrt(c1 - x2 + (s+s)*sqrt(t2 - x2+0.0j) + 0.0j) # numba: delete
         return G.real # Some tiny heights make the square root slightly under 0 # numba: delete
         
     limit_1 = k*D*(1.0 - sin_alpha)
     
     if h < limit_1:
-        SA = quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, (2*k*D*h - h*h)**0.5, args=(t2, s, c1))[0]
+        SA = quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, sqrt(2*k*D*h - h*h), args=(t2, s, c1))[0]
         return 2.0*SA
     elif limit_1 < h <= R:
         if (D*.499 < h < D*.501): # numba: delete
@@ -2268,7 +2268,7 @@ def SA_partial_vertical_conical_head(D, a, h):
     elif h <= 0.0:
         return 0.0
     R = 0.5*D
-    SA = pi*R*h*h*(a*a + R*R)**0.5/(a*a)
+    SA = pi*R*h*h*sqrt(a*a + R*R)/(a*a)
     return SA
 
 
@@ -2336,17 +2336,17 @@ def SA_partial_vertical_ellipsoidal_head(D, a, h):
     a2 = a*a
     a_inv = 1.0/a
     R2 = R*R
-    SA -= pi*(a - h)*R*(a2*a2 - (a-h)*(a-h)*(a2 - R2))**0.5*a_inv*a_inv
+    SA -= pi*(a - h)*R*sqrt(a2*a2 - (a-h)*(a-h)*(a2 - R2))*a_inv*a_inv
     if a > R:
         # This one has issues around a == R
-        SA += pi*a2*R/(a2 - R2)**0.5*(acos(R*a_inv) - asin((a-h)*(a2 - R2)**0.5*a_inv*a_inv))
+        SA += pi*a2*R/sqrt(a2 - R2)*(acos(R*a_inv) - asin((a-h)*sqrt(a2 - R2)*a_inv*a_inv))
     elif a == R:
         # Special case avoids zero division
         return pi*D*h
     else:
-        x1 = (R2 - a2)**0.5
+        x1 = sqrt(R2 - a2)
         num = a*(x1 + R)
-        den = (a-h)*x1 + (a2*a2 + (a-h)*(a-h)*(R2 - a2))**0.5
+        den = (a-h)*x1 + sqrt(a2*a2 + (a-h)*(a-h)*(R2 - a2))
         SA += pi*a2*R/x1*log(num/den)
     return SA
 
@@ -2641,7 +2641,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
                 V += V_horiz_torispherical(D, L, sideB_f, sideB_k, h, headonly=True)
         if h > D: # Must be before Af, which will raise a domain error
             raise ValueError('Input height is above top of tank')
-        Af = R*R*acos((R-h)/R) - (R-h)*(2.0*R*h - h*h)**0.5
+        Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2.0*R*h - h*h)
         V += L*Af
     else:
         # Bottom head
@@ -3609,7 +3609,7 @@ class TANK(object):
         elif self.L:
             # Iterate until D is appropriate
             solve_D = lambda D: self._V_solver_error(self.V, D, self.L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
-            Dguess = (4*self.V/pi/self.L)**0.5
+            Dguess = sqrt(4*self.V/pi/self.L)
             self.D = float(secant(solve_D, Dguess, xtol=1e-13))
         else:
             # Use L_over_D until L and D are appropriate
@@ -3766,7 +3766,7 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
             raise ValueError('Tube diameter is larger than helix outer diameter - not feasible.')
         
         self.tube_circumference = pi*self.Do
-        self.tube_length = ((self.tube_circumference*self.N)**2 + self.H**2)**0.5
+        self.tube_length = sqrt((self.tube_circumference*self.N)**2 + self.H**2)
         self.surface_area = self.tube_length*pi*self.Dt
         #print(pi*self.tube_length*self.Dt) == surface_area
         self.helix_angle = atan(self.pitch/(pi*self.Do))
@@ -4299,18 +4299,18 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
         if D_inlet is None and D_base is None:
             raise ValueError('Need `D_inlet` or `D_base`')
         if D_base is not None: 
-            b = self.D_throat*self.H_throat/(D_base**2 - self.D_throat**2)**0.5
-            D_inlet = 2*self.D_throat*((self.H_throat-H_inlet)**2 + b**2)**0.5/(2*b)
+            b = self.D_throat*self.H_throat/sqrt(D_base**2 - self.D_throat**2)
+            D_inlet = 2*self.D_throat*sqrt((self.H_throat-H_inlet)**2 + b**2)/(2*b)
         elif D_inlet is not None:
-            b = self.D_throat*(self.H_throat-H_inlet)/(D_inlet**2 - self.D_throat**2)**0.5
-            D_base = 2*self.D_throat*(self.H_throat**2 + b**2)**0.5/(2*b)
+            b = self.D_throat*(self.H_throat-H_inlet)/sqrt(D_inlet**2 - self.D_throat**2)
+            D_base = 2*self.D_throat*sqrt(self.H_throat**2 + b**2)/(2*b)
         
         self.D_inlet = D_inlet
         self.D_base = D_base
         self.b_lower = b
         
         # Upper b parameter
-        self.b_upper = self.D_throat*(self.H_outlet - self.H_throat)/((self.D_outlet)**2 - self.D_throat**2)**0.5
+        self.b_upper = self.D_throat*(self.H_outlet - self.H_throat)/sqrt((self.D_outlet)**2 - self.D_throat**2)
             
         # May or may not be specified
         self.H_support = H_support
@@ -4357,7 +4357,7 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
         else:
             H = H - self.H_throat
             b = self.b_upper
-        R = self.D_throat*(H*H + b*b)**0.5/(2.0*b)
+        R = self.D_throat*sqrt(H*H + b*b)/(2.0*b)
         return R*2.0
 
 
@@ -4636,7 +4636,7 @@ class AirCooledExchanger(object):
         self.pitch_parallel = pitch_parallel
         self.pitch_normal = pitch_normal
         
-        self.pitch_diagonal = (pitch_parallel**2 + (0.5*pitch_normal)**2)**0.5
+        self.pitch_diagonal = sqrt(pitch_parallel**2 + (0.5*pitch_normal)**2)
         
         
         if fin_diameter is None and fin_height is None:
@@ -4843,8 +4843,8 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
         angle = degrees(acos(pitch_parallel/pitch))
         pitch_normal = pitch*sin(radians(angle))
     elif pitch_parallel is not None and pitch_normal is not None:
-        angle = degrees(asin(pitch_normal/(pitch_normal**2 + pitch_parallel**2)**0.5))
-        pitch = (pitch_normal**2 + pitch_parallel**2)**0.5
+        angle = degrees(asin(pitch_normal/sqrt(pitch_normal**2 + pitch_parallel**2)))
+        pitch = sqrt(pitch_normal**2 + pitch_parallel**2)
     else:
         raise ValueError('Two of the arguments are required')
     return angle, pitch, pitch_parallel, pitch_normal

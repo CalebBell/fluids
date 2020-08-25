@@ -22,7 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import cos, sin, tan, atan, pi, radians, exp, acos, log10, log
+from math import sqrt, cos, sin, tan, atan, pi, radians, exp, acos, log10, log
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
 from fluids.numerics import interp, secant, brenth, NotBoundedError, implementation_optimize_tck, bisplev
@@ -183,8 +183,7 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
     '''
     beta = Do/D
     beta2 = beta*beta
-    return (0.25*pi*Do*Do)*C*expansibility*(
-            (2.0*rho*(P1 - P2))/(1.0 - beta2*beta2))**0.5
+    return (0.25*pi*Do*Do)*C*expansibility*sqrt((2.0*rho*(P1 - P2))/(1.0 - beta2*beta2))
 
 
 def orifice_expansibility(D, Do, P1, P2, k):
@@ -1035,7 +1034,7 @@ def discharge_coefficient_to_K(D, Do, C):
     beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
-    root_K = ((1.0 - beta4*(1.0 - C*C))**0.5/(C*beta2) - 1.0)
+    root_K = (sqrt(1.0 - beta4*(1.0 - C*C))/(C*beta2) - 1.0)
     return root_K*root_K
 
 
@@ -1087,8 +1086,8 @@ def K_to_discharge_coefficient(D, Do, K):
     beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
-    root_K = K**0.5
-    return ((1.0 - beta4)/((2.0*root_K + K)*beta4))**0.5
+    root_K = sqrt(K)
+    return sqrt((1.0 - beta4)/((2.0*root_K + K)*beta4))
 
 def dP_orifice(D, Do, P1, P2, C):
     r'''Calculates the non-recoverable pressure drop of an orifice plate based
@@ -1146,8 +1145,8 @@ def dP_orifice(D, Do, P1, P2, C):
     beta2 = beta*beta
     beta4 = beta2*beta2
     dP = P1 - P2
-    delta_w = ((1.0 - beta4*(1.0 - C*C))**0.5 - C*beta2)/(
-               (1.0 - beta4*(1.0 - C*C))**0.5 + C*beta2)*dP
+    delta_w = (sqrt(1.0 - beta4*(1.0 - C*C)) - C*beta2)/(
+               sqrt(1.0 - beta4*(1.0 - C*C)) + C*beta2)*dP
     return delta_w
 
 
@@ -1301,7 +1300,7 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
         term3 = (k - 1.0)/k
     else:
         term3 = (1.0 - tau**((k - 1.0)/k))/(1.0 - tau)
-    return (term1*term2*term3)**0.5
+    return sqrt(term1*term2*term3)
 
 
 def C_long_radius_nozzle(D, Do, rho, mu, m):
@@ -1351,7 +1350,7 @@ def C_long_radius_nozzle(D, Do, rho, mu, m):
     v = m/(A_pipe*rho)
     Re_D = rho*v*D/mu
     beta = Do/D
-    return 0.9965 - 0.00653*beta**0.5*(1E6/Re_D)**0.5
+    return 0.9965 - 0.00653*sqrt(beta)*sqrt(1E6/Re_D)
 
 
 def C_ISA_1932_nozzle(D, Do, rho, mu, m):
@@ -1588,7 +1587,7 @@ def diameter_ratio_cone_meter(D, Dc):
        https://digitalcommons.usu.edu/etd/869.
     '''
     D_ratio = Dc/D
-    return (1.0 - D_ratio*D_ratio)**0.5
+    return sqrt(1.0 - D_ratio*D_ratio)
 
 
 def cone_meter_expansibility_Stewart(D, Dc, P1, P2, k):
@@ -1736,9 +1735,9 @@ def diameter_ratio_wedge_meter(D, H):
     t0 = 1.0 - 2.0*H_D
     t1 = acos(t0)
     t2 = 2.0*(t0)
-    t3 = (H_D - H_D*H_D)**0.5
+    t3 = sqrt(H_D - H_D*H_D)
     t4 = t1 - t2*t3
-    return (1./pi*t4)**0.5
+    return sqrt(1./pi*t4)
 
 
 def C_wedge_meter_Miller(D, H):
@@ -2013,10 +2012,10 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
             0.392 - 0.18*beta2)
     
     C_Ch = (rhol/rhog)**n + (rhog/rhol)**n
-    X =  ml/mg*(rhog/rhol)**0.5
-    OF = (1.0 + C_Ch*X + X*X)**0.5
+    X =  ml/mg*sqrt(rhog/rhol)
+    OF = sqrt(1.0 + C_Ch*X + X*X)
     
-    C = 1.0 - 0.0463*exp(-0.05*Fr_gas_th)*min(1.0, (X/0.016)**0.5)
+    C = 1.0 - 0.0463*exp(-0.05*Fr_gas_th)*min(1.0, sqrt(X/0.016))
     return C
 
 
@@ -2097,7 +2096,7 @@ def dP_Reader_Harris_Gallagher_wet_venturi_tube(D, Do, P1, P2, ml, mg, rhol,
     '''
     dP = P1 - P2
     beta = Do/D
-    X =  ml/mg*(rhog/rhol)**0.5
+    X =  ml/mg*sqrt(rhog/rhol)
 
     V = 4*mg/(rhog*pi*D*D)
     Frg =  Froude_densimetric(V, L=D, rho1=rhol, rho2=rhog, heavy=False)
