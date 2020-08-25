@@ -713,7 +713,7 @@ def to_int_airmass(Z, c1, c2, angle_term, R_planet_inv, func):
     t1 = c2 - rho*c1
     x0 = angle_term/(1.0 + Z*R_planet_inv)
     t2 = x0*x0
-    t3 = (1.0 - t1*t2)**-0.5
+    t3 = 1.0/sqrt(1.0 - t1*t2)
     return rho*t3
 
 def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):

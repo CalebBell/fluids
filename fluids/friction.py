@@ -323,7 +323,7 @@ def Colebrook(Re, eD, tol=None):
         fd_guess = Blasius(Re)
     def err(x):
         # Convert the newton search domain to always positive
-        f_12_inv = abs(x)**-0.5
+        f_12_inv = 1.0/sqrt(abs(x))
         # 0.27027027027027023 = 1/3.7
         return f_12_inv + 2.0*log10(eD*0.27027027027027023 + 2.51/Re*f_12_inv)
     try:
@@ -2218,7 +2218,7 @@ def helical_laminar_fd_Mori_Nakayama(Re, Di, Dc):
     Examples
     --------
     >>> helical_laminar_fd_Mori_Nakayama(250, .02, .1)
-    0.4222458285779544
+    0.42224582857795434
 
     References
     ----------
@@ -2239,7 +2239,7 @@ def helical_laminar_fd_Mori_Nakayama(Re, Di, Dc):
     fd = friction_laminar(Re)
     if De < 42.328036:
         return fd*1.405296
-    return fd*(0.108*sqrt(De))/(1. - 3.253*De**-0.5)
+    return fd*(0.108*sqrt(De))/(1. - 3.253*1.0/sqrt(De))
 
 
 def helical_laminar_fd_Schmidt(Re, Di, Dc):
@@ -2464,7 +2464,7 @@ def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
        295-310. doi:10.1016/S0169-5983(00)00034-4.
     '''
     term = (Re*(Di/Dc)**2)**-0.2
-    return 0.3*(Dc/Di)**-0.5*term*(1. + 0.112*term)
+    return 0.3*1.0/sqrt(Dc/Di)*term*(1. + 0.112*term)
 
 
 def helical_turbulent_fd_Prasad(Re, Di, Dc,roughness=0):
@@ -3303,7 +3303,7 @@ def friction_plate_Martin_1999(Re, plate_enlargement_factor):
     Examples
     --------
     >>> friction_plate_Martin_1999(Re=20000, plate_enlargement_factor=1.15)
-    2.284018089834134
+    2.284018089834135
 
     References
     ----------
@@ -3327,8 +3327,8 @@ def friction_plate_Martin_1999(Re, plate_enlargement_factor):
         f0 = (1.56*log(Re) - 3.0)**-2
         f1 = 9.75*Re**-0.289
         
-    rhs = cos(phi)*(0.045*tan(phi) + 0.09*sin(phi) + f0/cos(phi))**-0.5
-    rhs += (1. - cos(phi))*(3.8*f1)**-0.5
+    rhs = cos(phi)*1.0/sqrt(0.045*tan(phi) + 0.09*sin(phi) + f0/cos(phi))
+    rhs += (1. - cos(phi))*1.0/sqrt(3.8*f1)
     ff = rhs**-2.
     return ff*4.0
 
@@ -3412,8 +3412,8 @@ def friction_plate_Martin_VDI(Re, plate_enlargement_factor):
         
     a, b, c = 3.8, 0.28, 0.36
         
-    rhs = cos(phi)*(b*tan(phi) + c*sin(phi) + f0/cos(phi))**-0.5
-    rhs += (1. - cos(phi))*(a*f1)**-0.5
+    rhs = cos(phi)*1.0/sqrt(b*tan(phi) + c*sin(phi) + f0/cos(phi))
+    rhs += (1. - cos(phi))*1.0/sqrt(a*f1)
     return rhs**-2.0
 
 Kumar_beta_list = [30.0, 45.0, 50.0, 60.0, 65.0]

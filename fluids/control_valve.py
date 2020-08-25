@@ -401,7 +401,7 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
-    return N4*Fd*Q/nu*(C*FL)**-0.5*(FL*FL*C*C/N2*D1**-4.0 + 1.0)**0.25
+    return N4*Fd*Q/nu*1.0/sqrt(C*FL)*(FL*FL*C*C/N2*D1**-4.0 + 1.0)**0.25
 
 
 def loss_coefficient_piping(d, D1=None, D2=None):
@@ -671,13 +671,13 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
             MAX_ITER = 20
             def iterate_piping_turbulent_l(Ci, iterations):
                 loss = loss_coefficient_piping(d, D1, D2)
-                FP = (1 + loss/N2*(Ci/d**2)**2)**-0.5
+                FP = 1.0/sqrt(1 + loss/N2*(Ci/d**2)**2)
                 if d > D1:
                     loss_upstream = 0.0
                 else:
                     loss_upstream = loss_coefficient_piping(d, D1)
 
-                FLP = FL*(1 + FL**2/N2*loss_upstream*(Ci/d**2)**2)**-0.5
+                FLP = FL*1.0/sqrt(1 + FL**2/N2*loss_upstream*(Ci/d**2)**2)
                 choked = is_choked_turbulent_l(dP, P1, Psat, FF, FLP=FLP, FP=FP)
                 if choked:
                     # Choked flow with piping, equation 4
@@ -810,7 +810,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     >>> size_control_valve_g(T=433., MW=44.01, mu=1.4665E-4, gamma=1.30,
     ... Z=0.988, P1=680E3, P2=310E3, Q=38/36., D1=0.08, D2=0.1, d=0.05,
     ... FL=0.85, Fd=0.42, xT=0.60)
-    72.58664545391052
+    72.5866454539105
 
     From [1]_, roughly matching example 4 for a small flow trim sized tapered
     needle plug valve. Difference is 3% and explained by the difference in
@@ -868,7 +868,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
             
             def iterate_piping_coef_g(Ci, iterations):
                 loss = loss_coefficient_piping(d, D1, D2)
-                FP = (1. + loss/N2*(Ci/d**2)**2)**-0.5
+                FP = 1.0/sqrt(1. + loss/N2*(Ci/d**2)**2)
                 loss_upstream = loss_coefficient_piping(d, D1)
                 xTP = xT/FP**2/(1 + xT*loss_upstream/N5*(Ci/d**2)**2)
                 choked = is_choked_turbulent_g(x, Fgamma, xTP=xTP)
@@ -1045,7 +1045,7 @@ fis_l_2015 = [12.5, 16.0, 20.0, 25.0, 31.5, 40.0, 50.0, 63.0, 80.0, 100.0, 125.0
 
 fis_l_2015_inv, fis_l_2015_1_5, fis_l_2015_n1_5 = [], [], []
 for fi in fis_l_2015:
-    fi_rt_inv = fi**-0.5
+    fi_rt_inv = 1.0/sqrt(fi)
     fis_l_2015_inv.append(fi_rt_inv*fi_rt_inv)
     fis_l_2015_1_5.append(fi*fi*fi_rt_inv)
     fis_l_2015_n1_5.append(fi_rt_inv*fi_rt_inv*fi_rt_inv)
@@ -1160,7 +1160,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     dPc = min(P1-P2, FL*FL*(P1 - Psat))
     
     if xFz is None:
-        xFz = 0.9*(1.0 + 3.0*Fd*sqrt(C/(N34*FL)))**-0.5
+        xFz = 0.9*1.0/sqrt(1.0 + 3.0*Fd*sqrt(C/(N34*FL)))
     xFzp1 = xFz*(6E5/P1)**0.125
     
     Dj = N14*Fd*sqrt(C*FL)

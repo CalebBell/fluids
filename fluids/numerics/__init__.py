@@ -2242,7 +2242,7 @@ def ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
         dm = 0.5*(b - a)
         xm = a + dm
         fm = f(xm, *args)
-        dn = copysign((fm*fm - fa*fb)**-0.5, fb - fa)*fm*dm
+        dn = copysign(1.0/sqrt(fm*fm - fa*fb), fb - fa)*fm*dm
     
         dn_abs, dm_abs_tol = fabs(dn), fabs(dm) - 0.5*tol
         xn = xm - copysign((dn_abs if dn_abs < dm_abs_tol else dm_abs_tol), dn)

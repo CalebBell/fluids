@@ -2781,7 +2781,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
     elif method == 'Swamee':
         # Really starting to thing Swamee uses a different definition of loss coefficient!
         r = Di2/Di1
-        K = (0.25*angle_rad**-3*(1.0 + 0.6*r**(-1.67)*(pi-angle_rad)/angle_rad)**(0.533*r - 2.6))**-0.5
+        K = 1.0/sqrt(0.25*angle_rad**-3*(1.0 + 0.6*r**(-1.67)*(pi-angle_rad)/angle_rad)**(0.533*r - 2.6))
         return K
     elif method == 'Hooper':
         if Re is None:

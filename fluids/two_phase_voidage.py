@@ -970,7 +970,7 @@ def Harms(x, rhol, rhog, mul, mug, m, D):
     Rel = G*D*(1-x)/mul
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
     return (1 - 10.06*Rel**-0.875*(1.74 + 0.104*sqrt(Rel))**2
-            *(1.376 + 7.242/Xtt**1.655)**-0.5)
+            *1.0/sqrt(1.376 + 7.242/Xtt**1.655))
 
 
 def Domanski_Didion(x, rhol, rhog, mul, mug):
