@@ -186,7 +186,7 @@ def Blasius(Re):
     .. [2] Hager, W. H. "Blasius: A Life in Research and Education." In 
        Experiments in Fluids, 566–571, 2003.
     '''
-    return 0.3164*Re**-0.25
+    return 0.3164/sqrt(sqrt(Re))
 
 
 def Colebrook(Re, eD, tol=None):

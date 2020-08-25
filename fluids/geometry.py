@@ -1182,7 +1182,7 @@ def SA_ellipsoidal_head(D, a):
         
         return (2.0*pi*a*a + pi*R*R/e1*log_term)*0.5
     else:
-        return pi*R*R + pi*a*a*R*(a*a - R*R)**-0.5*acos(R/abs(a))
+        return pi*R*R + pi*a*a*R*1.0/sqrt(a*a - R*R)*acos(R/abs(a))
 
 
 def SA_conical_head(D, a):
@@ -1369,7 +1369,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     18.84955592153876
     >>> SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal',
     ... sideB_a=2)[0]
-    10.124375616183064
+    10.124375616183062
     >>> SA_tank(D=1., L=5, sideA='conical', sideA_a=2, sideB='conical',
     ... sideB_a=2)[0]
     22.18452243965656
@@ -1904,7 +1904,7 @@ def _SA_partial_horiz_guppy_head_to_int(x, a, R):
     return 0.08333333333333333*(
              (-4.0*x10**0.75*x16*x20*ellipeinc(x18, x19) + 4.0*x9 
              + 2.0*x17*x20*(a*x11 + x10)*ellipkinc(x18, x19)/x16 
-             + 8.0*x15*x9/x14)*x4**-0.5)
+             + 8.0*x15*x9/x14)*1.0/sqrt(x4))
 
 
 def SA_partial_horiz_guppy_head(D, a, h):
@@ -2019,9 +2019,9 @@ def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     x3 = -b + x0
     x4 = c*c
     try:
-        x5 = (x1 - x4)**-0.5
+        x5 = 1.0/sqrt(x1 - x4)
     except:
-        x5 = (x1 - x4+0j)**-0.5
+        x5 = 1.0/csqrt(x1 - x4)
     x6 = x3 + x4
     x7 = sqrt(b)
     try:

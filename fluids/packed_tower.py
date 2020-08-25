@@ -579,7 +579,7 @@ def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,
     Re = Vg*rhog*dp/mug
     f0 = C1/Re + C2/sqrt(Re) + C3
     dP_dry = 0.75*f0*(1.0 - voidage)/voidage**4.65*rhog*H/dp*Vg*Vg
-    c = (-C1/Re - 0.5*C2*Re**-0.5)/f0
+    c = (-C1/Re - 0.5*C2*1.0/sqrt(Re))/f0
     Frl = Vl*Vl*specific_area/(g*voidage**4.65)
     h0 = 0.555*Frl**(1/3.)
     hT = h0*(1.0 + 20.0*(dP_irr/H/rhol/g)**2)
@@ -620,12 +620,12 @@ def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage,
     x20 = C1*mug*specific_area*x16*x17*x19
     x21 = 2.44948974278318*C2
     x22 = Vg*rhog/(mug*specific_area)
-    x23 = x21*(-x18*x22)**-0.5
+    x23 = x21*1.0/sqrt(-x18*x22)
     x24 = 6.0*C3 - x20 + x23
     x25 = 1.0 - voidage 
     x26 = x14 + x25
     x27 = -x19*x26
-    x28 = 2.0*C1*mug*specific_area*x16*x17/x25 + x21*(x22*x25)**-0.5
+    x28 = 2.0*C1*mug*specific_area*x16*x17/x25 + x21*1.0/sqrt(x22*x25)
     x29 = 1.0/x24
     x30 = x28*x29
     x31 = x27**(-0.166666666666667*x30 + 0.666666666666667)

@@ -497,14 +497,14 @@ def specific_diameter(Q, H, D):
     Examples
     --------
     >>> specific_diameter(Q=0.1, H=10., D=0.1)
-    0.5623413251903491
+    0.5623413251903492
 
     References
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    return D*sqrt(sqrt(H))*Q**-0.5
+    return D*sqrt(sqrt(H)/Q)
 
 
 def speed_synchronous(f, poles=2, phase=3):

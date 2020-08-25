@@ -559,14 +559,14 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
         elif G_tp < 1900:
             B = 2400./G_tp
         else:
-            B = 55*G_tp**-0.5
+            B = 55.0/sqrt(G_tp)
     elif Gamma <= 28:
         if G_tp <= 600:
-            B = 520.*G_tp**-0.5/Gamma
+            B = 520./sqrt(G_tp)/Gamma
         else:
             B = 21./Gamma
     else:
-        B = 15000.*G_tp**-0.5/Gamma**2
+        B = 15000./sqrt(G_tp)/Gamma**2
 
     if rough_correction:
         n = log(fd_lo/fd_go)/log(Re_go/Re_lo)
@@ -673,11 +673,11 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
 
     Gamma = sqrt(dP_go/dP_lo)
     if Gamma <= 9.5:
-        B = 55*G_tp**-0.5
+        B = 55.0/sqrt(G_tp)
     elif Gamma <= 28:
-        B = 520.*G_tp**-0.5/Gamma
+        B = 520./sqrt(G_tp)/Gamma
     else:
-        B = 15000.*G_tp**-0.5/Gamma**2
+        B = 15000./sqrt(G_tp)/Gamma**2
     phi2_ch = 1 + (Gamma**2-1)*(B*x**((2-n)/2.)*(1-x)**((2-n)/2.) + x**(2-n))
     return phi2_ch*dP_lo
 
@@ -1948,7 +1948,7 @@ def friction_factor_Kim_Mudawar(Re):
     if Re < 2000:
         return 64./Re
     elif Re < 20000:
-        return 0.316*Re**-0.25
+        return 0.316/sqrt(sqrt(Re))
     else:
         return 0.184*Re**-0.2
 
@@ -2903,7 +2903,7 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
     
     X = sqrt(dP_ls/dP_gs)
     
-    F = sqrt(rhog/(rhol-rhog))*v_gs*(D*g*cos(angle))**-0.5
+    F = sqrt(rhog/(rhol-rhog))*v_gs/sqrt(D*g*cos(angle))
     
     # Paper only uses kinematic viscosity
     nul = mul/rhol

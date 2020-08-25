@@ -1110,7 +1110,7 @@ def Froude(V, L, g=g, squared=False):
     >>> Froude(1.83, L=2., g=1.63)
     1.0135432593877318
     >>> Froude(1.83, L=2., squared=True)
-    0.17074638128208922
+    0.17074638128208924
 
     References
     ----------
@@ -1119,7 +1119,7 @@ def Froude(V, L, g=g, squared=False):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Fr = V*(L*g)**-0.5
+    Fr = V/sqrt(L*g)
     if squared:
         Fr *= Fr
     return Fr
@@ -1863,14 +1863,14 @@ def Ohnesorge(L, rho, mu, sigma):
     Examples
     --------
     >>> Ohnesorge(1E-4, 1000., 1E-3, 1E-1)
-    0.009999999999999998
+    0.01
 
     References
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    return mu*(L*rho*sigma)**-0.5
+    return mu/sqrt(L*rho*sigma)
 
     
 def Suratman(L, rho, mu, sigma):
