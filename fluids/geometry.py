@@ -1889,7 +1889,7 @@ def _SA_partial_horiz_guppy_head_to_int(x, a, R):
     x8 = sqrt(x7)
     x9 = x4*x8
     x10 = x0 + 4.0*x5
-    x17 = x10**0.25
+    x17 = sqrt(sqrt(x10))
     x11 = x17*x17
     x12 = 1.0/x11
     x13 = a*x7

@@ -467,7 +467,7 @@ def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
         term1 = 15.*(dp/D)**0.1
     term2 = 1./sqrt(g*D)
     term3 = mp/rhog/(pi/4*D**2)
-    return (term1/term2*term3**0.25)**(1/1.25)
+    return (term1/term2*sqrt(sqrt(term3)))**(1/1.25)
 
 
 def Geldart_Ling(mp, rhog, D, mug):

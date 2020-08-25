@@ -486,7 +486,7 @@ def Alshul_1952(Re, eD):
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
     '''
-    return 0.11*(68/Re + eD)**0.25
+    return 0.11*sqrt(sqrt(68/Re + eD))
 
 
 def Wood_1966(Re, eD):
@@ -1215,7 +1215,7 @@ def Tsal_1989(Re, eD):
     .. [2] Tsal, R.J.: Altshul-Tsal friction factor equation.
        Heat-Piping-Air Cond. 8, 30-45 (1989)
     '''
-    A = 0.11*(68/Re + eD)**0.25
+    A = 0.11*sqrt(sqrt(68/Re + eD))
     if A >= 0.018:
         return A
     else:
@@ -2409,7 +2409,7 @@ def helical_turbulent_fd_Schmidt(Re, Di, Dc, roughness=0):
     if Re < 2.2E4:
         return fd*(1. + 2.88E4/Re*(Di/Dc)**0.62)
     else:
-        return fd*(1. + 0.0823*(1. + Di/Dc)*(Di/Dc)**0.53*Re**0.25)
+        return fd*(1. + 0.0823*(1. + Di/Dc)*(Di/Dc)**0.53*sqrt(sqrt(Re)))
 
 
 def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
@@ -2517,7 +2517,7 @@ def helical_turbulent_fd_Prasad(Re, Di, Dc,roughness=0):
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
     '''
     fd = friction_factor(Re=Re, eD=roughness/Di)
-    return fd*(1. + 0.18*(Re*(Di/Dc)**2)**0.25)
+    return fd*(1. + 0.18*sqrt(sqrt(Re*(Di/Dc)**2)))
 
 
 def helical_turbulent_fd_Czop (Re, Di, Dc):

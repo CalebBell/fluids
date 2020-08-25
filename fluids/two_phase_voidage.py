@@ -1358,7 +1358,7 @@ def Steiner(x, rhol, rhog, sigma, m, D, g=g):
     '''
     G = m/(pi/4*D**2)
     C0 = 1 + 0.12*(1-x)
-    vgm = 1.18*(1-x)/sqrt(rhol)*(g*sigma*(rhol-rhog))**0.25
+    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
 
@@ -1423,7 +1423,7 @@ def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
     '''
     G = m/(pi/4*D**2)
     C0 = 1 + 0.2*(1-x)
-    vgm = 1.18*(1-x)/sqrt(rhol)*(g*sigma*(rhol-rhog))**0.25
+    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
 
@@ -1487,8 +1487,8 @@ def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     G = m/(pi/4*D**2)
-    C0 = 1 + 0.2*(1-x)*(g*D)**0.25*sqrt(rhol/G)
-    vgm = 1.18*(1-x)/sqrt(rhol)*(g*sigma*(rhol-rhog))**0.25
+    C0 = 1 + 0.2*(1-x)*sqrt(sqrt(g*D))*sqrt(rhol/G)
+    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
 
@@ -1678,7 +1678,7 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
     vls = m*(1-x)/(rhol*pi/4*D**2)
     G = m/(pi/4*D**2)
     C0 = vgs/(vls+vgs)*(1 + (vls/vgs)**((rhog/rhol)**0.1))
-    vgm = 2.9*(g*sigma*(rhol-rhog)/rhol**2)**0.25
+    vgm = 2.9*sqrt(sqrt(g*sigma*(rhol-rhog)/rhol**2))
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
 
@@ -1747,7 +1747,7 @@ def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
     G = m/(pi/4*D**2)
     Pr = P/Pc if Pc is not None else 0.5
     C0 = (0.82 + 0.18*Pr)**-1
-    vgm = 1.41*(g*sigma*(rhol-rhog)/rhol**2)**0.25
+    vgm = 1.41*sqrt(sqrt(g*sigma*(rhol-rhog)/rhol**2))
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
 
@@ -1869,7 +1869,7 @@ def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
     vgs = m*x/(rhog*pi/4*D**2)
     vls = m*(1-x)/(rhol*pi/4*D**2)
     first = vgs*(1 + (vls/vgs)**((rhog/rhol)**0.1))
-    second = 2.9*((g*D*sigma*(1 + cos(radians(angle)))*(rhol-rhog))/rhol**2)**0.25
+    second = 2.9*sqrt(sqrt((g*D*sigma*(1 + cos(radians(angle)))*(rhol-rhog))/rhol**2))
     if P is None: P = 101325.0
     third = (1.22 + 1.22*sin(radians(angle)))**(101325./P)
     return vgs/(first + second*third)

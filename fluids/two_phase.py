@@ -175,7 +175,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     else:
         raise ValueError('Outside regime ranges')
 
-    LV = Vsl*(rhol/(g*sigma))**0.25
+    LV = Vsl*sqrt(sqrt(rhol/(g*sigma)))
     if angle is None: angle = 0.0
     angle = deg2rad*angle
     
@@ -420,7 +420,7 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     else:
         f_Fr = Frl**0.3 + 0.0055*(log(1./Frl))**2
     dP_dL_Fr = f_Fr*(x + 4*(x**1.8 - x**10*sqrt(f_Fr)))
-    phi_gd = 1 + dP_dL_Fr*((rhol/rhog)/(mul/mug)**0.25 - 1)
+    phi_gd = 1 + dP_dL_Fr*((rhol/rhog)/sqrt(sqrt(mul/mug)) - 1)
 
     # Liquid-only properties, for calculation of E, dP_lo
     v_lo = m/rhol/(pi/4*D**2)
@@ -1289,7 +1289,7 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1.0):
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
     dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
     Pr = 0.5 if (Pc is None or P is None) else P/Pc
-    phi_lo2 = (1-x)**2 + 2.87*x**2/Pr + 1.68*x**0.8*(1-x)**0.25*Pr**-1.64
+    phi_lo2 = (1-x)**2 + 2.87*x**2/Pr + 1.68*x**0.8*sqrt(sqrt(1-x))*Pr**-1.64
     return dP_lo*phi_lo2
 
 
@@ -2999,8 +2999,8 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
     Vsl, Vsg = Vsl/0.3048, Vsg/0.3048
 #    X1 = (rhog/0.0808)**0.333 * (rhol*72.4/62.4/sigma)**0.25 * (mug/0.018)**0.2
 #    Y1 = (rhol*72.4/62.4/sigma)**0.25 * (mul/1.)**0.2
-    X1 = (rhog/1.294292)**0.333 * (rhol*0.0724/(999.552*sigma))**0.25 * (mug*1.8E5)**0.2
-    Y1 = (rhol*0.0724/999.552/sigma)**0.25 * (mul*1E3)**0.2
+    X1 = (rhog/1.294292)**0.333 * sqrt(sqrt(rhol*0.0724/(999.552*sigma))) * (mug*1.8E5)**0.2
+    Y1 = sqrt(sqrt(rhol*0.0724/999.552/sigma)) * (mul*1E3)**0.2
 
     if Vsl < 14.0*Y1:
         if Vsl <= 0.1:

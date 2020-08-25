@@ -401,7 +401,7 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
-    return N4*Fd*Q/nu*1.0/sqrt(C*FL)*(FL*FL*C*C/N2*D1**-4.0 + 1.0)**0.25
+    return N4*Fd*Q/nu*1.0/sqrt(C*FL)*sqrt(sqrt(FL*FL*C*C/N2*D1**-4.0 + 1.0))
 
 
 def loss_coefficient_piping(d, D1=None, D2=None):
@@ -535,7 +535,7 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
     '''
     if full_trim:
         n1 = N2/(min(C/(d*d), 0.04))**2 # C/d**2 must not exceed 0.04
-        FR_1a = 1.0 + (0.33*sqrt(FL))/n1**0.25*log10(Rev/10000.)
+        FR_1a = 1.0 + (0.33*sqrt(FL))/sqrt(sqrt(n1))*log10(Rev/10000.)
         FR_2 = 0.026/FL*sqrt(n1*Rev)
         if Rev < 10.0:
             FR = FR_2
@@ -543,7 +543,7 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
             FR = min(FR_2, FR_1a)
     else:
         n2 = 1 + N32*(C/d**2)**(2/3.)
-        FR_3a = 1 + (0.33*sqrt(FL))/n2**0.25*log10(Rev/10000.)
+        FR_3a = 1 + (0.33*sqrt(FL))/sqrt(sqrt(n2))*log10(Rev/10000.)
         FR_4 = min(0.026/FL*sqrt(n2*Rev), 1)
         if Rev < 10:
             FR = FR_4

@@ -504,7 +504,7 @@ def specific_diameter(Q, H, D):
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    return D*H**0.25*Q**-0.5
+    return D*sqrt(sqrt(H))*Q**-0.5
 
 
 def speed_synchronous(f, poles=2, phase=3):

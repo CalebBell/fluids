@@ -731,7 +731,7 @@ def entrance_beveled(Di, l, angle, method='Rennels'):
         method = 'Rennels'
     if method == 'Rennels':
         Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/Di ))
-        lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1 - (l/Di)**0.25)/2.))
+        lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1 - sqrt(sqrt(l/Di)))/2.))
         return 0.0696*(1 - Cb*l/Di)*lbd**2 + (lbd - 1.)**2
     elif method == 'Idelchik':
         return float(bisplev(angle*2.0, l/Di, entrance_beveled_Idelchik_tck))
@@ -786,7 +786,7 @@ def entrance_beveled_orifice(Di, do, l, angle):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/do ))
-    lbd = 1 + 0.622*(1 - Cb*(l/do)**((1 - (l/do)**0.25)/2.))
+    lbd = 1 + 0.622*(1 - Cb*(l/do)**((1 - sqrt(sqrt(l/do)))/2.))
     return 0.0696*(1 - Cb*l/do)*lbd**2 + (lbd - (do/Di)**2)**2
 
 

@@ -524,7 +524,7 @@ def Swamee_Ojha(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = 0.5*(16*((24./Re)**1.6 + (130./Re)**0.72)**2.5 + ((40000./Re)**2 + 1)**-0.25)**0.25
+    Cd = 0.5*sqrt(sqrt(16*((24./Re)**1.6 + (130./Re)**0.72)**2.5 + ((40000./Re)**2 + 1)**-0.25))
     return Cd
 
 
