@@ -344,10 +344,11 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
     if h <= 0.0:
         return 0.0
     R = 0.5*D
-    Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2.*R*h - h*h)
-    Vf = 2.*a*R*R/3.*acos(1. - h/R) + 2.*a/9./R*sqrt(2*R*h - h**2)*(2*h - 3*R)*(h + R)
+    x0 = sqrt(2.*R*h - h*h)
+    Af = R*R*acos((R-h)/R) - (R-h)*x0
+    Vf = 2.*a*R*R/3.*acos(1. - h/R) + 2.*a/9./R*x0*(2.0*h - 3.0*R)*(h + R)
     if headonly:
-        Vf = Vf/2.
+        Vf = Vf*0.5
     else:
         Vf += Af*L
     return Vf
@@ -430,7 +431,7 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     if h <= 0.0:
         return 0.0
     R = D/2.
-    r = (a**2 + R**2)/2./abs(a)
+    r = (a*a + R*R)/2./abs(a)
     w = R - h
     y = sqrt(2*R*h - h**2)
     z = sqrt(r**2 - R**2)

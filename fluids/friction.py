@@ -2617,7 +2617,7 @@ def helical_turbulent_fd_Guo(Re, Di, Dc):
     return 0.638*Re**-0.15*(Di/Dc)**0.51
 
 
-def helical_turbulent_fd_Ju(Re, Di, Dc,roughness=0):
+def helical_turbulent_fd_Ju(Re, Di, Dc,roughness=0.0):
     r'''Calculates Darcy friction factor for a fluid flowing inside a curved 
     pipe such as a helical coil under turbulent conditions, using the method of 
     Ju et al. [1]_, also shown in [2]_.
