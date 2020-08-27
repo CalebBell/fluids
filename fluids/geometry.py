@@ -2039,17 +2039,19 @@ def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
     y2 = y*y
     try:
         x10 = sqrt(t2 - y2)
+        try:
+            # Some tiny heights make the square root slightly under 0
+            x = (sqrt(c1 - y2 + (s+s)*x10)).real
+        except:
+            # Python 2 compat - don't take the square root of a negative number with no complex part
+            x = (csqrt(c1 - y2 + (s+s)*x10 + 0.0j)).real
+
     except:
-        x10 = sqrt(t2 - y2+0.0j)
-    try:
-        # Some tiny heights make the square root slightly under 0
-        x = (sqrt(c1 - y2 + (s+s)*x10)).real
-    except:
-        # Python 2 compat - don't take the square root of a negative number with no complex part
+        x10 = csqrt(t2 - y2+0.0j)
         x = (csqrt(c1 - y2 + (s+s)*x10 + 0.0j)).real
     try:
         x0 = t2 - y2
-        x1 = s*x10
+        x1 = s*x10.real
         t10 = x1 + x1 + s*s + x0
         
         
