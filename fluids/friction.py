@@ -24,7 +24,7 @@ SOFTWARE.
 from __future__ import division
 from math import sqrt, log, log10, exp, cos, sin, tan, pi, radians, isinf
 from fluids.constants import inch, g
-from fluids.numerics import newton, lambertw
+from fluids.numerics import secant, lambertw
 from fluids.core import Dean, Reynolds
 
 
@@ -327,7 +327,7 @@ def Colebrook(Re, eD, tol=None):
         # 0.27027027027027023 = 1/3.7
         return f_12_inv + 2.0*log10(eD*0.27027027027027023 + 2.51/Re*f_12_inv)
     try:
-        fd = abs(newton(err, fd_guess, tol=tol))
+        fd = abs(secant(err, fd_guess, xtol=tol))
         if fd > 1E10:
             raise ValueError
         return fd
