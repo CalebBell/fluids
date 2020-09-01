@@ -27,7 +27,7 @@ from fluids import *
 import pytest
 from fluids.friction import _roughness, _Farshad_roughness
 
-def test_friction():
+def test_friction_basic():
     assert_close(Moody(1E5, 1E-4), 0.01809185666808665)
     assert_close(Alshul_1952(1E5, 1E-4), 0.018382997825686878)
     assert_close(Wood_1966(1E5, 1E-4), 0.021587570560090762)
@@ -59,12 +59,16 @@ def test_friction():
     assert_close(Fang_2011(1E5, 1E-4), 0.018481390682985432)
     assert_close(Clamond(1E5, 1E-4), 0.01851386607747165)
     assert_close(Clamond(1E5, 1E-4, fast=True), 0.01851486771096876)
-    
 
     assert_close(friction_laminar(128), 0.5)
 
     assert_close(Blasius(10000.0), 0.03164)
 
+    fd = ft_Crane(.1)
+    assert_close(fd, 0.01628845962146481)
+    assert_close(ft_Crane(1e-5), 604.8402578042682)
+
+def test_friction():
     assert_close(sum(_roughness.values()), 0.01504508)
 
 
@@ -90,12 +94,7 @@ def test_friction():
 
     for m in friction_factor_methods(200, 0, False):   
         friction_factor(Re=1E5, eD=1e-6, Method=m)
-    
-    fd = ft_Crane(.1)
-    assert_close(fd, 0.01628845962146481)
-    
-    assert_close(ft_Crane(1e-5), 604.8402578042682)
-    
+        
     Di = 0.1
     fd_act = Clamond(7.5E6*Di, eD=roughness_Farshad(ID='Carbon steel, bare', D=Di)/Di)
     assert_close(fd, fd_act, rtol=5e-6)

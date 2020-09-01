@@ -32,6 +32,7 @@ try:
     import numba
     import fluids.numba
     import fluids.numba_vectorized
+    import test_utils
 except:
     numba = None
 import numpy as np
@@ -181,7 +182,13 @@ def test_control_valve_noise():
     dB = fluids.numba.control_valve_noise_g_2011(m=2.22, P1=1E6, P2=7.2E5, T1=450, rho=5.3, gamma=1.22, MW=19.8, Kv=77.85,  d=0.1, Di=0.2031, FL=None, FLP=0.792, FP=0.98, Fd=0.296, t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
     assert_close(dB, 91.67702674629604)
     
-    
+#@mark_as_numba
+#def test_friction_factor_orig():
+#    import test_friction
+#    test_utils.swap_for_numba_test(test_friction.test_friction_basic)
+#test_friction_factor_orig()
+
+
 @mark_as_numba
 def test_friction_factor():
     fluids.numba.friction_factor(1e5, 1e-3)
