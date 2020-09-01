@@ -1048,7 +1048,6 @@ def sunrise_sunset(moment, latitude, longitude):
     '''
     from fluids.optional import spa
     import calendar 
-    import numpy as np
     if moment.utcoffset() is not None:
         moment_utc = moment + moment.utcoffset()
     else:

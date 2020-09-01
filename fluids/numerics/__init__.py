@@ -3363,10 +3363,15 @@ def quad_adaptive(f, a, b, args=(), kronrod_points=array_if_needed(kronrod_point
                     epsrel=epsrel, epsabs=epsabs*0.5, depth=depth+1)
     return area_A + area_B, abs(err_abs_A) + abs(err_abs_B)
 
+
+global sp_quad
+sp_quad = None
 def lazy_quad(f, a, b, args=(), epsrel=1.49e-08, epsabs=1.49e-8, **kwargs):
+    global sp_quad
     if not IS_PYPY:
-        from scipy.integrate import quad
-        return quad(f, a, b, args, epsrel=epsrel, epsabs=epsabs, **kwargs)
+        if sp_quad is None:
+            from scipy.integrate import quad as sp_quad
+        return sp_quad(f, a, b, args, epsrel=epsrel, epsabs=epsabs, **kwargs)
     else:
         return quad_adaptive(f, a, b, ags=args, epsrel=epsrel, epsabs=epsabs)
 #        n = 300

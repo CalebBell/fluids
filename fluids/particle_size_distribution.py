@@ -108,7 +108,7 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
 
 from math import log, exp, pi, log10, sqrt
 from fluids.numerics import (brenth, epsilon, gamma, erf, gammaincc,
-                             linspace, logspace, cumsum, diff, normalize)
+                             linspace, logspace, cumsum, diff, normalize, quad)
 
 ROOT_TWO_PI = sqrt(2.0*pi)
 
@@ -2216,9 +2216,8 @@ class PSDCustom(ParticleSizeDistributionContinuous):
         if d_min == 0:
             d_min = d_max*1E-12
         to_int = lambda d : d**n*self._pdf(d)
-        points = logspace(log10(max(d_max/1000, d_min)), log10(d_max*.999), 40)
-        from scipy.integrate import quad
-        return float(quad(to_int, d_min, d_max, points=points)[0]) # 
+        points = logspace(log10(max(d_max*1e-3, d_min)), log10(d_max*.999), 40)
+        return float(quad(to_int, d_min, d_max, points=points)[0]) #
             
     
 class PSDInterpolated(ParticleSizeDistributionContinuous):
