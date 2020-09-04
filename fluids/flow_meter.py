@@ -26,7 +26,7 @@ from math import sqrt, cos, sin, tan, atan, pi, radians, exp, acos, log10, log
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
 from fluids.numerics import interp, secant, brenth, NotBoundedError, implementation_optimize_tck, bisplev
-from fluids.constants import g, inch
+from fluids.constants import g, inch, pi_inv
 
 __all__ = ['C_Reader_Harris_Gallagher',
            'differential_pressure_meter_solver',
@@ -1641,7 +1641,9 @@ def cone_meter_expansibility_Stewart(D, Dc, P1, P2, k):
     '''
     dP = P1 - P2
     beta = diameter_ratio_cone_meter(D, Dc)
-    return 1.0 - (0.649 + 0.696*beta**4)*dP/(k*P1)
+    beta *= beta
+    beta *= beta
+    return 1.0 - (0.649 + 0.696*beta)*dP/(k*P1)
 
 
 def dP_cone_meter(D, Dc, P1, P2):
@@ -1734,10 +1736,10 @@ def diameter_ratio_wedge_meter(D, H):
     H_D = H/D
     t0 = 1.0 - 2.0*H_D
     t1 = acos(t0)
-    t2 = 2.0*(t0)
+    t2 = t0 + t0
     t3 = sqrt(H_D - H_D*H_D)
     t4 = t1 - t2*t3
-    return sqrt(1./pi*t4)
+    return sqrt(pi_inv*t4)
 
 
 def C_wedge_meter_Miller(D, H):
@@ -2002,18 +2004,20 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     .. [2] ISO/TR 11583:2012 Measurement of Wet Gas Flow by Means of Pressure 
        Differential Devices Inserted in Circular Cross-Section Conduits.
     '''
-    V = 4*mg/(rhog*pi*D**2)
-    Frg =  Froude_densimetric(V, L=D, rho1=rhol, rho2=rhog, heavy=False)
+    V = 4.0*mg/(rhog*pi*D*D)
+    Frg = Froude_densimetric(V, L=D, rho1=rhol, rho2=rhog, heavy=False)
     beta = Do/D
     beta2 = beta*beta
-    Fr_gas_th = Frg*beta**-2.5
+    Fr_gas_th = Frg/(beta2*sqrt(beta))
     
     n = max(0.583 - 0.18*beta2 - 0.578*exp(-0.8*Frg/H), 
             0.392 - 0.18*beta2)
     
-    C_Ch = (rhol/rhog)**n + (rhog/rhol)**n
-    X =  ml/mg*sqrt(rhog/rhol)
-    OF = sqrt(1.0 + C_Ch*X + X*X)
+    t0 = rhog/rhol
+    t1 = (t0)**n
+    C_Ch = t1 + 1.0/t1
+    X =  ml/mg*sqrt(t0)
+    OF = sqrt(1.0 + X*(C_Ch + X))
     
     C = 1.0 - 0.0463*exp(-0.05*Fr_gas_th)*min(1.0, sqrt(X/0.016))
     return C
