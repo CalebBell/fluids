@@ -95,6 +95,7 @@ def test_friction():
     for m in friction_factor_methods(200, 0, False):   
         friction_factor(Re=1E5, eD=1e-6, Method=m)
         
+    fd = ft_Crane(.1)
     Di = 0.1
     fd_act = Clamond(7.5E6*Di, eD=roughness_Farshad(ID='Carbon steel, bare', D=Di)/Di)
     assert_close(fd, fd_act, rtol=5e-6)

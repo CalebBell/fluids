@@ -924,7 +924,7 @@ def C_eccentric_orifice_ISO_15377_1998(D, Do):
        Assemblies," 2017.
     '''
     beta = Do/D
-    C = 0.9355 - 1.6889*beta + 3.0428*beta**2 - 1.7989*beta**3
+    C = beta*(beta*(3.0428 - 1.7989*beta) - 1.6889) + 0.9355
     return C
 
 def C_quarter_circle_orifice_ISO_15377_1998(D, Do):
@@ -976,7 +976,7 @@ def C_quarter_circle_orifice_ISO_15377_1998(D, Do):
     Examples
     --------
     >>> C_quarter_circle_orifice_ISO_15377_1998(.2, .075)
-    0.7785148437500001
+    0.77851484375000
     
     References
     ----------
@@ -985,7 +985,7 @@ def C_quarter_circle_orifice_ISO_15377_1998(D, Do):
        Nozzles and Orifice Plates beyond the Scope of ISO 5167-1. 
     '''
     beta = Do/D
-    C = 0.73823  + 0.3309*beta - 1.16158*beta**2 + 1.5084*beta**3
+    C = beta*(beta*(1.5084*beta - 1.16158) + 0.3309) + 0.73823
     return C
 
 def discharge_coefficient_to_K(D, Do, C):

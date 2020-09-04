@@ -25,7 +25,9 @@ import pytest
 
 
 def swap_funcs_and_test(names, substitutions, test):
-    '''
+    '''Function to replace some globals in another function,
+    run that function, and then set the globals back.
+    
     names : list[str]
         object names to switch out
     substitutions : list[obj]
@@ -36,8 +38,9 @@ def swap_funcs_and_test(names, substitutions, test):
     originals = {}
     glob = test.__globals__
     for name, sub in zip(names, substitutions):
-        originals[name] = glob[name]
-        glob[name] = sub
+        if name in glob:
+            originals[name] = glob[name]
+            glob[name] = sub
     try:
         test()
     except Exception as e:

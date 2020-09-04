@@ -32,11 +32,19 @@ try:
     import numba
     import fluids.numba
     import fluids.numba_vectorized
-    import test_utils
 except:
     numba = None
 import numpy as np
 from numpy.testing import assert_allclose
+
+try:
+    import test_friction
+    import test_utils
+except:
+    from . import test_friction 
+    from . import test_utils
+    
+
 
 def mark_as_numba(func):
     func = pytest.mark.numba(func)
@@ -182,15 +190,12 @@ def test_control_valve_noise():
     dB = fluids.numba.control_valve_noise_g_2011(m=2.22, P1=1E6, P2=7.2E5, T1=450, rho=5.3, gamma=1.22, MW=19.8, Kv=77.85,  d=0.1, Di=0.2031, FL=None, FLP=0.792, FP=0.98, Fd=0.296, t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
     assert_close(dB, 91.67702674629604)
     
-#@mark_as_numba
-#def test_friction_factor_orig():
-#    import test_friction
-#    test_utils.swap_for_numba_test(test_friction.test_friction_basic)
-#test_friction_factor_orig()
-
 
 @mark_as_numba
 def test_friction_factor():
+    # Bulk test of methods
+    test_utils.swap_for_numba_test(test_friction.test_friction_basic)
+
     fluids.numba.friction_factor(1e5, 1e-3)
     
     
@@ -644,70 +649,3 @@ def test_numerics_solve_direct():
     assert_close1d(np.linalg.solve(A, B), ans, rtol=5e-14)
     assert type(ans) is np.ndarray
     
-    
-'''Completely working submodles:
-* core
-* filters
-* separator
-* saltation
-* mixing
-* safety_valve
-* open_flow
-* pump (except CountryPower)
-* flow_meter
-* packed_bed
-* packed_tower
-* two_phase_voidage
-* two_phase
-* fittings
-* compressible
-
-Near misses:
-* drag - integrate_drag_sphere (odeint)
-* geometry - double quads
-* control_valve sizing functions
-
-Not supported:
-* particle_size_distribution
-* atmosphere - Added support for one thing
-* friction - Only nearest_material_roughness, material_roughness, roughness_Farshad
-* piping - all dictionary lookups
-
-Designed not to work:
-    _methods type calls; they didn't work originally and TypedList is crazy slow and a pain to work with
-
-'''
-
-'''
-Functions not working:
-    
-# Using dictionaries outside is broken
-# Also, nopython is broken for this case - https://github.com/numba/numba/issues/5377
-fluids.numba.roughness_Farshad('Cr13, bare', 0.05)
-
-piping.nearest_pipe -> Multiplication of None type; checking of type to handle in inputs;
- dictionary lookup of schedule coefficients; function in function; doesn't like something about the data either
-
-piping.gauge_from_t -> numba type dict; once that's inside function, dying on checking
- "in" of a now-numpy array; same for t_from_gauge
-
-Most classes which have different input types
-Double quads not yet supported - almost!
-'''
-
-
-
-'''Global dictionary lookup:
-from numba import njit, typeof, typed, types
-Darby =  typed.Dict.empty(types.string, types.UniTuple(types.float64, 3))
-Darby['Elbow, 90°, threaded, standard, (r/D = 1)'] = (800.0, 0.14, 4.0)
-Darby['Elbow, 90°, threaded, long radius, (r/D = 1.5)'] = (800.0, 0.071, 4.2)
-
-@numba.njit
-def Darby3K(NPS, Re, name):
-    K1, Ki, Kd = Darby[name]
-    return K1/Re + Ki*(1. + Kd*NPS**-0.3)
-
-Darby3K(NPS=12., Re=10000., name='Elbow, 90°, threaded, standard, (r/D = 1)')'''
-
-
