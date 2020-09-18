@@ -57,7 +57,7 @@ from math import sqrt, exp, cos, radians, pi, sin
 import time
 import os
 from fluids.constants import N_A, R, au
-from fluids.numerics import brenth, quad
+from fluids.numerics import brenth, quad, numpy as np
 try:
     from datetime import datetime, timedelta
 except:
@@ -702,8 +702,7 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
             import optional.hwm14
     except: # pragma: no cover
         raise ImportError(no_gfortran_error)
-    import numpy as np
-    ans = hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
+    ans = hwm14.hwm14(day, seconds, Z*1e-3, latitude, longitude, 0, 0, 
                0, np.array([np.nan, geomagnetic_disturbance_index]))
     return tuple(ans.tolist())
 
@@ -1059,11 +1058,11 @@ def sunrise_sunset(moment, latitude, longitude):
     unixtime = calendar.timegm(ymd_moment_utc.utctimetuple())
     
     unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
-    transit, sunrise, sunset = spa.transit_sunrise_sunset(unixtime, lat=latitude, lon=longitude, delta_t=delta_t, numthreads=1)
+    transit, sunrise, sunset = spa.transit_sunrise_sunset(unixtime, lat=latitude, lon=longitude, delta_t=delta_t)
     
-    transit = datetime.utcfromtimestamp(float(transit))
-    sunrise = datetime.utcfromtimestamp(float(sunrise))
-    sunset = datetime.utcfromtimestamp(float(sunset))
+    transit = datetime.utcfromtimestamp(transit)
+    sunrise = datetime.utcfromtimestamp(sunrise)
+    sunset = datetime.utcfromtimestamp(sunset)
     
     if moment.tzinfo is not None:
         sunrise = moment.tzinfo.fromutc(sunrise)

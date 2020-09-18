@@ -429,6 +429,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
     except:
         all_submodules = normal.submodules
     for mod in all_submodules:
+        #print(all_submodules, mod)
         SUBMOD_COPY = importlib.util.find_spec(mod.__name__)
         SUBMOD = importlib.util.module_from_spec(SUBMOD_COPY)
         SUBMOD.IS_NUMBA = True
@@ -499,6 +500,10 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
     
         if not vec:
             for t in new_objs:
+                #if normal.__name__ == 'chemicals':
+                #    if 'iapws' not in all_submodules[-1].__name__:
+                #        print(new_objs, t)
+                #        1/0
                 try:
                     glob = t.py_func.__globals__
                 except:
@@ -546,6 +551,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
                  'packed_tower.Stichlmair_flood', 'compressible.isothermal_gas', 
                  'fittings.Darby3K', 'fittings.Hooper2K', 'geometry.SA_partial_horiz_torispherical_head',
                  'optional.spa.solar_position', 'optional.spa.longitude_obliquity_nutation',
+                 'optional.spa.transit_sunrise_sunset',
                  'fittings.bend_rounded_Crane', 'geometry.tank_from_two_specs_err',
                  ]
     transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec, cache_blacklist=cache_blacklist)

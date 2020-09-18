@@ -55,7 +55,7 @@ import os
 import time
 from datetime import datetime
 import math
-from math import degrees, sin, cos, tan, radians, atan, asin, atan2, sqrt
+from math import degrees, sin, cos, tan, radians, atan, asin, atan2, sqrt, acos, nan
 from fluids.constants import deg2rad, rad2deg
 from fluids.numerics import sincos
 __all__ = ['julian_day_dt', 'julian_day', 'julian_ephemeris_day', 'julian_century', 
@@ -71,13 +71,10 @@ __all__ = ['julian_day_dt', 'julian_day', 'julian_ephemeris_day', 'julian_centur
            'topocentric_local_hour_angle', 'topocentric_elevation_angle_without_atmosphere',
            'atmospheric_refraction_correction', 'topocentric_elevation_angle', 'topocentric_zenith_angle', 
            'topocentric_astronomers_azimuth', 'topocentric_azimuth_angle', 'sun_mean_longitude',
-           'equation_of_time', 'calculate_deltat', 'longitude_obliquity_nutation']
+           'equation_of_time', 'calculate_deltat', 'longitude_obliquity_nutation',
+           'transit_sunrise_sunset',
+           ]
 
-try:
-    import numpy as np
-    ndarray = np.ndarray
-except:
-    pass
 
 
 HELIO_RADIUS_TABLE_LIST_0 = [[100013989.0, 0.0, 0.0],
@@ -995,6 +992,10 @@ def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
 
 try:
     if IS_NUMBA:
+        try:
+            import numpy as np
+        except:
+            pass
         import numba
         import numpy as np
         import threading
@@ -1125,7 +1126,7 @@ except:
     pass
 
 
-def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
+def transit_sunrise_sunset(dates, lat, lon, delta_t):
     """Calculate the sun transit, sunrise, and sunset for a set of dates at a
     given location.
 
@@ -1141,25 +1142,22 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
         Longitude of location
     delta_t : float
         Difference between terrestrial time and UT. USNO has tables.
-    numthreads : int
-        Number to threads to use for calculation (if using numba)
 
     Returns
     -------
     tuple : (transit, sunrise, sunset) localized to UTC
+    
+    >>> transit_sunrise_sunset(1523836800, 51.0486, -114.07, 70.68302220312503)
+    (1523907360.3863413, 1523882341.570479, 1523932345.7781625)
     """
-    isnumpy = isinstance(dates, ndarray)
-    if isnumpy:
-        condition = ((dates % 86400) != 0.0).any()
-    else:
-        condition = (dates % 86400) != 0.0
+    condition = (dates % 86400) != 0.0
     if condition:
         raise ValueError('Input dates must be at 00:00 UTC')
 
     utday = (dates // 86400) * 86400
     ttday0 = utday - delta_t
-    ttdayn1 = ttday0 - 86400
-    ttdayp1 = ttday0 + 86400
+    ttdayn1 = ttday0 - 86400.0
+    ttdayp1 = ttday0 + 86400.0
 
     # index 0 is v, 1 is alpha, 2 is delta
     utday_res = solar_position(utday, 0, 0, 0, 0, 0, delta_t,
@@ -1173,24 +1171,18 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
     ttdayp1_res = solar_position(ttdayp1, 0, 0, 0, 0, 0, delta_t,
                                  0, sst=True)
     m0 = (ttday0_res[1] - lon - v) / 360
-    cos_arg = ((np.sin(np.radians(-0.8333)) - np.sin(np.radians(lat))
-               * np.sin(np.radians(ttday0_res[2]))) /
-               (np.cos(np.radians(lat)) * np.cos(np.radians(ttday0_res[2]))))
-    if isnumpy:
-        cos_arg[abs(cos_arg) > 1] = np.nan
-    else:
-        if abs(cos_arg) > 1:
-            cos_arg = np.nan
+    cos_arg = ((-0.014543315936696236 - sin(radians(lat)) # sin(radians(-0.8333)) = -0.0145...
+               * sin(radians(ttday0_res[2]))) /
+               (cos(radians(lat)) * cos(radians(ttday0_res[2]))))
+    if abs(cos_arg) > 1:
+        cos_arg = nan
     
-    H0 = np.degrees(np.arccos(cos_arg)) % 180
+    H0 = degrees(acos(cos_arg)) % 180
 
-    if isnumpy:
-        m = np.empty((3, len(utday)))
-    else:
-        m = np.empty((3, 1))
+    m = [0.0]*3
     m[0] = m0 % 1
-    m[1] = (m[0] - H0 / 360)
-    m[2] = (m[0] + H0 / 360)
+    m[1] = (m[0] - H0 / 360.0)
+    m[2] = (m[0] + H0 / 360.0)
 
     # need to account for fractions of day that may be the next or previous
     # day in UTC
@@ -1198,58 +1190,65 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t, numthreads):
     sub_a_day = m[1] < 0
     m[1] = m[1] % 1
     m[2] = m[2] % 1
-    vs = v + 360.985647 * m
-    n = m + delta_t / 86400
+    vs = [0.0]*3
+    for i in range(3):
+        vs[i] = v + 360.985647*m[i]
+    n = [0.0]*3
+    for i in range(3):
+        n[i] = m[i] + delta_t / 86400.0
 
     a = ttday0_res[1] - ttdayn1_res[1]
     
-    if isnumpy:
-        a[abs(a) > 2] = a[abs(a) > 2] % 1
-        ap = ttday0_res[2] - ttdayn1_res[2] 
-        ap[abs(ap) > 2] = ap[abs(ap) > 2] % 1
-        b = ttdayp1_res[1] - ttday0_res[1]
-        b[abs(b) > 2] = b[abs(b) > 2] % 1
-        
-        bp = ttdayp1_res[2] - ttday0_res[2]
-        bp[abs(bp) > 2] = bp[abs(bp) > 2] % 1
-    else:
-        if abs(a) > 2:
-            a = a %1
-        ap = ttday0_res[2] - ttdayn1_res[2]
-        if (abs(ap) > 2):
-            ap = ap % 1
-        b = ttdayp1_res[1] - ttday0_res[1]
-        if (abs(b) > 2):
-            b = b % 1
-        bp = ttdayp1_res[2] - ttday0_res[2]
-        if abs(bp) > 2:
-            bp = bp % 1
+    if abs(a) > 2:
+        a = a %1
+    ap = ttday0_res[2] - ttdayn1_res[2]
+    if (abs(ap) > 2):
+        ap = ap % 1
+    b = ttdayp1_res[1] - ttday0_res[1]
+    if (abs(b) > 2):
+        b = b % 1
+    bp = ttdayp1_res[2] - ttday0_res[2]
+    if abs(bp) > 2:
+        bp = bp % 1
     
     
     c = b - a
     cp = bp - ap
 
-    alpha_prime = ttday0_res[1] + (n * (a + b + c * n)) / 2
-    delta_prime = ttday0_res[2] + (n * (ap + bp + cp * n)) / 2
-    Hp = (vs + lon - alpha_prime) % 360
-    Hp[Hp >= 180] = Hp[Hp >= 180] - 360
+    alpha_prime = [0.0]*3
+    delta_prime = [0.0]*3
+    Hp = [0.0]*3
+    for i in range(3):
+        alpha_prime[i] = ttday0_res[1] + (n[i] * (a + b + c * n[i]))*0.5
+        delta_prime[i] = ttday0_res[2] + (n[i] * (ap + bp + cp * n[i]))*0.5
+        Hp[i] = (vs[i] + lon - alpha_prime[i]) % 360
+        if Hp[i] >= 180.0:
+            Hp[i] = Hp[i] - 360.0
 
-    h = np.degrees(np.arcsin(np.sin(np.radians(lat)) *
-                             np.sin(np.radians(delta_prime)) +
-                             np.cos(np.radians(lat)) *
-                             np.cos(np.radians(delta_prime))
-                             * np.cos(np.radians(Hp))))
 
-    T = (m[0] - Hp[0] / 360) * 86400
-    R = (m[1] + (h[1] + 0.8333) / (360 * np.cos(np.radians(delta_prime[1])) *
-                                   np.cos(np.radians(lat)) *
-                                   np.sin(np.radians(Hp[1])))) * 86400
-    S = (m[2] + (h[2] + 0.8333) / (360 * np.cos(np.radians(delta_prime[2])) *
-                                   np.cos(np.radians(lat)) *
-                                   np.sin(np.radians(Hp[2])))) * 86400
+    #alpha_prime = ttday0_res[1] + (n * (a + b + c * n)) / 2 # this is vect
+    #delta_prime = ttday0_res[2] + (n * (ap + bp + cp * n)) / 2 # this is vect
+    #Hp = (vs + lon - alpha_prime) % 360
+    #Hp[Hp >= 180] = Hp[Hp >= 180] - 360
+    x1 = sin(radians(lat))
+    x2 = cos(radians(lat))
 
-    S[add_a_day] += 86400
-    R[sub_a_day] -= 86400
+    h = [0.0]*3
+    for i in range(3):
+        h[i] = degrees(asin(x1*sin(radians(delta_prime[i])) + x2 * cos(radians(delta_prime[i])) * cos(radians(Hp[i]))))
+
+    T = float((m[0] - Hp[0] / 360.0) * 86400.0)
+    R = float((m[1] + (h[1] + 0.8333) / (360.0 * cos(radians(delta_prime[1])) *
+                                   cos(radians(lat)) *
+                                   sin(radians(Hp[1])))) * 86400.0)
+    S = float((m[2] + (h[2] + 0.8333) / (360.0 * cos(radians(delta_prime[2])) *
+                                   cos(radians(lat)) *
+                                   sin(radians(Hp[2])))) * 86400.0)
+
+    if add_a_day:
+        S += 86400.0
+    if sub_a_day:
+        R -= 86400.0
 
     transit = T + utday
     sunrise = R + utday

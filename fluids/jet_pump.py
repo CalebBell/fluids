@@ -321,6 +321,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
     :py:func:`~.liquid_jet_pump_ancillary` and the following:
         
     Conservation of energy at the primary nozzle, secondary inlet, and diffuser exit:
+    
     .. math::
         P_1 = P_3 + \frac{1}{2}\rho_p V_n^2 + K_p\left(\frac{1}{2}\rho_p V_n^2\right)
         
