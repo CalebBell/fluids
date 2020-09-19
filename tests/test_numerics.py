@@ -520,6 +520,18 @@ def test_translate_bound_f_jac():
     j0_check = translate_bound_jac(rosen_der, low=low, high=high)[0](point)
     assert_allclose(j0_check, j0, rtol=1e-13)
     
+def test_translate_bound_f_jac_multivariable():
+    def cons_f(x):
+        return [x[0]**2 + x[1], x[0]**2 - x[1]]
+    def cons_J(x):
+        return[[2*x[0], 1], [2*x[0], -1]]
+    
+    new_f_j, translate_into, translate_outof = translate_bound_f_jac(cons_f, cons_J,
+                                                                     bounds=[(-10, 10), (-5, 5)])
+    assert_close2d(new_f_j([-2.23, 3.45])[1], jacobian(lambda g: new_f_j(g, )[0], [-2.23, 3.45], scalar=False),
+                  rtol=3e-6)
+    
+
     
 def test_solve_direct():
     A = [[1.0,2.53252], [34.34, .5342]]

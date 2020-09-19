@@ -1860,31 +1860,42 @@ def translate_bound_jac(jac, bounds=None, low=None, high=None):
     return new_j, translate_into, translate_outof
 
 
-def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None, inplace_jac=False, as_np=False):
+def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None, 
+                          inplace_jac=False, as_np=False):
     if bounds is not None:
         low = [i[0] for i in bounds]
         high = [i[1] for i in bounds]
         
     exp_terms = [0.0]*len(low)
     
-    def new_f_j(x):
+    def new_f_j(x, *args):
         x_base = [float(i) for i in x]
         N = len(x)
         for i in range(N):
-            exp_terms[i] = ei = exp(-x[i])
+            exp_terms[i] = ei = trunc_exp(-x[i])
             x_base[i] = (low[i] + (high[i] - low[i])/(1.0 + ei))
         
         if jac is True:
-            f_base, jac_base = f(x_base)
+            f_base, jac_base = f(x_base, *args)
         else:
-            f_base = f(x_base)
-            jac_base = jac(x_base)
+            f_base = f(x_base, *args)
+            jac_base = jac(x_base, *args)
         try:
-            if not inplace_jac:
-                jac_base = [i for i in jac_base]
-            for i in range(N):
-                t = (1.0 + exp_terms[i])
-                jac_base[i] = (high[i] - low[i])*exp_terms[i]*jac_base[i]/(t*t)
+            if type(jac_base[0]) is list or (isinstance(jac_base, np.ndarray) and len(jac_base.shape) == 2):
+                if not inplace_jac:
+                    jac_base = [[j for j in i] for i in jac_base]
+
+                for i in range(len(jac_base)):
+                    for j in range(len(jac_base[i])):
+                        # Checked numerically
+                        t = (1.0 + exp_terms[j])
+                        jac_base[i][j] = (high[j] - low[j])*exp_terms[j]*jac_base[i][j]/(t*t)
+            else:
+                if not inplace_jac:
+                    jac_base = [i for i in jac_base]
+                for i in range(N):
+                    t = (1.0 + exp_terms[i])
+                    jac_base[i] = (high[i] - low[i])*exp_terms[i]*jac_base[i]/(t*t)
             if as_np:
                 jac_base = np.array(jac_base)
             return f_base, jac_base
@@ -1894,13 +1905,13 @@ def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None, inplace_jac=
     def translate_into(x):
         x = [float(i) for i in x]
         for i in range(len(x)):
-            x[i] = -log((high[i] - x[i])/(x[i] - low[i]))
+            x[i] = -trunc_log((high[i] - x[i])/(x[i] - low[i]))
         return x
     
     def translate_outof(x):
         x = [float(i) for i in x]
         for i in range(len(x)):
-            x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+            x[i] = (low[i] + (high[i] - low[i])/(1.0 + trunc_exp(-x[i])))
         return x
     return new_f_j, translate_into, translate_outof
 
