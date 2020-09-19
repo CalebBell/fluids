@@ -227,7 +227,7 @@ complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
 def trunc_exp(x, trunc=1e30):
     try:
         return exp(x)
-    except OverflowError:
+    except:
         # Really exp(709.7) 1.6549840276802644e+308
         return trunc
 
@@ -2955,18 +2955,18 @@ def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping
 
 
 def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
-             skip_J=False):
+             skip_J=False, args=()):
     iter = 0
     if skip_J:
-        fcur = fun(xs)
+        fcur = fun(xs, *args)
         N = len(fcur)
         J = eye(N)
     elif jac_has_fun:
-        fcur, J = jac(xs)
+        fcur, J = jac(xs, *args)
         J = inv(J)
     else:
-        fcur = fun(xs)
-        J = inv(jac(xs))
+        fcur = fun(xs, *args)
+        J = inv(jac(xs, *args))
 
     N = len(fcur)
     eqns = range(N)
@@ -2980,7 +2980,7 @@ def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
         
         xs = [xs[i] - s[i] for i in eqns]
  
-        fnew = fun(xs)
+        fnew = fun(xs, *args)
         z = [fnew[i] - fcur[i] for i in eqns]
  
         u = dot(J, z)
