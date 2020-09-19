@@ -1869,7 +1869,7 @@ def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None,
     exp_terms = [0.0]*len(low)
     
     def new_f_j(x, *args):
-        x_base = [float(i) for i in x]
+        x_base = [i for i in x]
         N = len(x)
         for i in range(N):
             exp_terms[i] = ei = trunc_exp(-x[i])
@@ -1903,13 +1903,13 @@ def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None,
             raise NotImplementedError("Fail")
     
     def translate_into(x):
-        x = [float(i) for i in x]
+        #x = [float(i) for i in x]
         for i in range(len(x)):
             x[i] = -trunc_log((high[i] - x[i])/(x[i] - low[i]))
         return x
     
     def translate_outof(x):
-        x = [float(i) for i in x]
+        #x = [float(i) for i in x]
         for i in range(len(x)):
             x[i] = (low[i] + (high[i] - low[i])/(1.0 + trunc_exp(-x[i])))
         return x
@@ -2882,6 +2882,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         err0 = 0.0
         for v in fcur:
             err0 += abs(v)
+        #print(float(x[0]), float(x[1]), float(fcur[0]), float(fcur[1]))
         if xtol is not None:
             if (norm2(fcur) < xtol) and (ytol is None or err0 < ytol):
                 break
