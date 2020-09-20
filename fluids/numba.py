@@ -480,9 +480,14 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                 obj_type = type(obj)
                 if obj_type is list and len(obj) and type(obj[0]) in (float, int, complex):
                     module_constants_changed_type[arr_name] = np.array(obj)
-                elif obj_type is list and len(obj) and all([
-                        (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj]):
-                    module_constants_changed_type[arr_name] = np.array(obj)
+                elif (obj_type is list and len(obj) and all([
+                        (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj])):
+                    if len(set([len(r) for r in obj])) == 1:
+                        # All same size - nice numpy array
+                        module_constants_changed_type[arr_name] = np.array(obj)
+                    else:
+                        # Tuple of different size numpy arrays
+                        module_constants_changed_type[arr_name] = tuple(np.array(v) for v in obj)
                 elif obj_type in (set, frozenset):
                     module_constants_changed_type[arr_name] = tuple(obj)
                 elif obj_type is dict:
