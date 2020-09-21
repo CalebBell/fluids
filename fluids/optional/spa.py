@@ -55,7 +55,7 @@ import os
 import time
 from datetime import datetime
 import math
-from math import degrees, sin, cos, tan, radians, atan, asin, atan2, sqrt, acos, nan
+from math import degrees, sin, cos, tan, radians, atan, asin, atan2, sqrt, acos
 from fluids.constants import deg2rad, rad2deg
 from fluids.numerics import sincos
 __all__ = ['julian_day_dt', 'julian_day', 'julian_ephemeris_day', 'julian_century', 
@@ -74,7 +74,7 @@ __all__ = ['julian_day_dt', 'julian_day', 'julian_ephemeris_day', 'julian_centur
            'equation_of_time', 'calculate_deltat', 'longitude_obliquity_nutation',
            'transit_sunrise_sunset',
            ]
-
+nan = float("nan")
 
 
 HELIO_RADIUS_TABLE_LIST_0 = [[100013989.0, 0.0, 0.0],

@@ -11,5 +11,15 @@ def pytest_ignore_collect(path):
         if 'rst' in path:
             if platform.python_version_tuple()[0:2] != ('3', '7'):
                 return True
+        if 'test' not in path:
+            return True
     if 'ipynb' in path and 'bench' in path:
         return True
+
+
+#def pytest_configure(config):
+#    print(config)
+    #open('/home/caleb/testoutput', 'w').write(str(1))
+    #if sys.version[0] == '2':
+    #    args = []
+    #    #print(args)
