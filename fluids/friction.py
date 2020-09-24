@@ -327,8 +327,6 @@ def Colebrook(Re, eD, tol=None):
         # 0.27027027027027023 = 1/3.7
         return f_12_inv + 2.0*log10(eD*0.27027027027027023 + 2.51/Re*f_12_inv)
     fd = abs(secant(err, fd_guess, xtol=tol))
-    if fd > 1E10:
-        raise ValueError
     return fd
 
 
