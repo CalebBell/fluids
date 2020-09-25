@@ -16,6 +16,10 @@ def pytest_ignore_collect(path):
     if 'ipynb' in path and 'bench' in path:
         return True
 
+#def pytest_addoption(parser, pluginmanager):
+#    if sys.version[0] == '323523':
+#        parser.addoption("--doctest-modules")
+#        parser.addini(name="doctest_optionflags", help="", default="NORMALIZE_WHITESPACE NUMBER")
 
 #def pytest_configure(config):
 #    print(config)
@@ -23,3 +27,17 @@ def pytest_ignore_collect(path):
     #if sys.version[0] == '2':
     #    args = []
     #    #print(args)
+
+def pytest_load_initial_conftests(args):
+    a = 1
+    b = 2
+
+
+def pytest_configure(config):
+    if sys.version[0] == '3':
+        config.addinivalue_line("addopts", '--doctest-modules')
+        config.option.doctestmodules = True
+#        config.addinivalue_line("addopts", config.inicfg['addopts'].replace('//', '') + ' --doctest-modules')
+        #config.inicfg['addopts'] = config.inicfg['addopts'] + ' --doctest-modules'
+        config.addinivalue_line("doctest_optionflags", "NUMBER")
+        config.addinivalue_line("doctest_optionflags", "NORMALIZE_WHITESPACE")
