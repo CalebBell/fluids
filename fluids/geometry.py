@@ -830,7 +830,7 @@ def V_vertical_torispherical(D, f, k, h):
     Matching example from [1]_, with inputs in inches and volume in gallons.
 
     >>> V_vertical_torispherical(D=132., f=1.0, k=0.06, h=24)/231.
-    904.0688283793511
+    904.0688283793
 
     References
     ----------
@@ -2162,7 +2162,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     Examples
     --------
     >>> SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=24.0)
-    1471.201832459899
+    1471.201832459
     
     References
     ----------

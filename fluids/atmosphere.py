@@ -1191,7 +1191,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0, 
     ... linke_turbidity=3, T=300, P=1E5,
     ... surface_azimuth=180.0, cache=cache)
-    (1042.5677703677097, 918.2377548545295, 124.33001551318027, 99.6228657378363, 24.70714977534396)
+    (1042.5677703677, 918.2377548545, 124.33001551318, 99.6228657378, 24.70714977534)
 
     At night, there is no solar radiation and this function returns zeros:
         

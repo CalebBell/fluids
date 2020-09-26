@@ -92,7 +92,7 @@ def Q_weir_V_Shen(h1, angle=90):
     Examples
     --------
     >>> Q_weir_V_Shen(0.6, angle=45)
-    0.21071725775478228
+    0.21071725775478
 
     References
     ----------
