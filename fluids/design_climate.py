@@ -33,6 +33,7 @@ try: # pragma: no cover
     from cStringIO import StringIO
 except: # pragma: no cover
     from io import BytesIO as StringIO
+from io import open
 import os
 import gzip
 import datetime
@@ -613,7 +614,7 @@ a numpy array for use in KDTree
 2) a list of IntegratedSurfaceDatabaseStation objects; the query will return
 the index of the nearest weather stations.
 '''
-with open(os.path.join(folder, 'isd-history-cleaned.tsv')) as f:
+with open(os.path.join(folder, 'isd-history-cleaned.tsv'), encoding='utf-8') as f:
     for line in f:
         values = line.split('\t')
         for i in range(0, 11):

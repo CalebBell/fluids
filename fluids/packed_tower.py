@@ -58,7 +58,7 @@ Demister Geometry
 """
 
 from __future__ import division
-from math import log
+from math import log, sqrt
 from fluids.constants import g, pi
 from fluids.numerics import secant, newton_system, solve_2_direct, numpy as np
 
@@ -455,7 +455,7 @@ def Stichlmair_dry(Vg, rhog, mug, voidage, specific_area, C1, C2, C3, H=1.):
     '''
     dp = 6*(1-voidage)/specific_area
     Re = Vg*rhog*dp/mug
-    f0 = C1/Re + C2/Re**0.5 + C3
+    f0 = C1/Re + C2/sqrt(Re) + C3
     return 3/4.*f0*(1-voidage)/voidage**4.65*rhog*H/dp*Vg**2
 
 
@@ -559,9 +559,9 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
     '''
     dp = 6.0*(1.0 - voidage)/specific_area
     Re = Vg*rhog*dp/mug
-    f0 = C1/Re + C2/Re**0.5 + C3
+    f0 = C1/Re + C2/sqrt(Re) + C3
     dP_dry = 3/4.*f0*(1-voidage)/voidage**4.65*rhog*H/dp*Vg*Vg
-    c = (-C1/Re - C2/(2*Re**0.5))/f0
+    c = (-C1/Re - C2/(2*sqrt(Re)))/f0
     Frl = Vl**2*specific_area/(g*voidage**4.65)
     h0 = 0.555*Frl**(1/3.)
     
@@ -577,9 +577,9 @@ def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,
     Vg, dP_irr = float(inputs[0]), float(inputs[1])
     dp = 6.0*(1.0 - voidage)/specific_area
     Re = Vg*rhog*dp/mug
-    f0 = C1/Re + C2/Re**0.5 + C3
+    f0 = C1/Re + C2/sqrt(Re) + C3
     dP_dry = 0.75*f0*(1.0 - voidage)/voidage**4.65*rhog*H/dp*Vg*Vg
-    c = (-C1/Re - 0.5*C2*Re**-0.5)/f0
+    c = (-C1/Re - 0.5*C2*1.0/sqrt(Re))/f0
     Frl = Vl*Vl*specific_area/(g*voidage**4.65)
     h0 = 0.555*Frl**(1/3.)
     hT = h0*(1.0 + 20.0*(dP_irr/H/rhol/g)**2)
@@ -620,12 +620,12 @@ def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage,
     x20 = C1*mug*specific_area*x16*x17*x19
     x21 = 2.44948974278318*C2
     x22 = Vg*rhog/(mug*specific_area)
-    x23 = x21*(-x18*x22)**-0.5
+    x23 = x21*1.0/sqrt(-x18*x22)
     x24 = 6.0*C3 - x20 + x23
     x25 = 1.0 - voidage 
     x26 = x14 + x25
     x27 = -x19*x26
-    x28 = 2.0*C1*mug*specific_area*x16*x17/x25 + x21*(x22*x25)**-0.5
+    x28 = 2.0*C1*mug*specific_area*x16*x17/x25 + x21*1.0/sqrt(x22*x25)
     x29 = 1.0/x24
     x30 = x28*x29
     x31 = x27**(-0.166666666666667*x30 + 0.666666666666667)
@@ -813,9 +813,9 @@ def Robbins(L, G, rhol, rhog, mul, H=1.0, Fpd=24.0):
 
     C3 = 7.4E-8
     C4 = 2.7E-5
-    Fpd_root_term = (.05*Fpd)**0.5
+    Fpd_root_term = sqrt(.05*Fpd)
     Lf = L*(62.4/rhol)*Fpd_root_term*mul**0.1
-    Gf = G*(0.075/rhog)**0.5*Fpd_root_term
+    Gf = G*sqrt(0.075/rhog)*Fpd_root_term
     Gf2 = Gf*Gf
     C4LF_10_GF2_C3 = C3*Gf2*10.0**(C4*Lf)
     C4LF_10_GF2_C3_2 = C4LF_10_GF2_C3*C4LF_10_GF2_C3

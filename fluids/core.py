@@ -65,7 +65,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
 
-from math import sin, exp, pi, fabs, copysign
+from math import sqrt, sin, exp, pi, fabs, copysign
 from fluids.constants import g, R
 import sys
 
@@ -170,7 +170,7 @@ def c_ideal_gas(T, k, MW):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
     Rspecific = R*1000./MW
-    return (k*Rspecific*T)**0.5
+    return sqrt(k*Rspecific*T)
 
 
 ### Dimensionless groups with documentation
@@ -765,7 +765,7 @@ def Confinement(D, rhol, rhog, sigma, g=g):
        Journal of Multiphase Flow 26, no. 11 (November 1, 2000): 1739-54. 
        doi:10.1016/S0301-9322(99)00119-6.
     '''
-    return (sigma/(g*(rhol-rhog)))**0.5/D
+    return sqrt(sigma/(g*(rhol-rhog)))/D
 
 
 def Morton(rhol, rhog, mul, sigma, g=g):
@@ -1110,7 +1110,7 @@ def Froude(V, L, g=g, squared=False):
     >>> Froude(1.83, L=2., g=1.63)
     1.0135432593877318
     >>> Froude(1.83, L=2., squared=True)
-    0.17074638128208922
+    0.17074638128208924
 
     References
     ----------
@@ -1119,7 +1119,7 @@ def Froude(V, L, g=g, squared=False):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Fr = V*(L*g)**-0.5
+    Fr = V/sqrt(L*g)
     if squared:
         Fr *= Fr
     return Fr
@@ -1192,7 +1192,7 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
         rho3 = rho1
     else:
         rho3 = rho2
-    return V/((g*L)**0.5)*(rho3/(rho1 - rho2))**0.5
+    return V/(sqrt(g*L))*sqrt(rho3/(rho1 - rho2))
 
 
 def Strouhal(f, L, V):
@@ -1863,14 +1863,14 @@ def Ohnesorge(L, rho, mu, sigma):
     Examples
     --------
     >>> Ohnesorge(1E-4, 1000., 1E-3, 1E-1)
-    0.009999999999999998
+    0.01
 
     References
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    return mu*(L*rho*sigma)**-0.5
+    return mu/sqrt(L*rho*sigma)
 
     
 def Suratman(L, rho, mu, sigma):
@@ -2164,7 +2164,7 @@ def Dean(Re, Di, D):
        Industrial & Engineering Chemistry 58, no. 3 (March 1, 1966): 46-60. 
        doi:10.1021/ie50675a012.
     '''
-    return (Di/D)**0.5*Re
+    return sqrt(Di/D)*Re
 
 
 def relative_roughness(D, roughness=1.52e-06):

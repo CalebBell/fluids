@@ -22,7 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import log, pi, exp, isinf
+from math import sqrt, log, pi, exp, isinf
 from fluids.constants import R
 from fluids.numerics import secant, newton, ridder, lambertw
 
@@ -844,7 +844,7 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
         if P2 > P1:
             raise ValueError('Specified outlet pressure is larger than the '
                              'inlet pressure; fluid will flow backwards.')
-        return (0.0625*pi*pi*D**4*rho/(P1*(fd*L/D + 2.0*log(P1/P2)))*(P1*P1 - P2*P2))**0.5
+        return sqrt(0.0625*pi*pi*D**4*rho/(P1*(fd*L/D + 2.0*log(P1/P2)))*(P1*P1 - P2*P2))
     elif L is None and P1 is not None and P2 is not None and D is not None and m is not None:
         return D*(pi*pi*D**4*rho*(P1*P1 - P2*P2) - 32.0*P1*m*m*log(P1/P2))/(16.0*P1*fd*m*m)
     elif P1 is None and L is not None and P2 is not None and D is not None and m is not None:
@@ -1021,9 +1021,9 @@ def Panhandle_A(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Q*(Ts/Ps)**(-c1)*(SG**(-c2)*(P1**2 - P2**2)/(L*Tavg*Zavg))**(-c3)/(E*c5))**(1./c4)
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
-        return (L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P2**2)**0.5
+        return sqrt(L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P2**2)
     elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
-        return (-L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P1**2)**0.5
+        return sqrt(-L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P1**2)
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return SG**(-c2)*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
@@ -1140,9 +1140,9 @@ def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Q*(Ts/Ps)**(-c1)*(SG**(-c2)*(P1**2 - P2**2)/(L*Tavg*Zavg))**(-c3)/(E*c5))**(1./c4)
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
-        return (L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P2**2)**0.5
+        return sqrt(L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P2**2)
     elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
-        return (-L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P1**2)**0.5
+        return sqrt(-L*SG**c2*Tavg*Zavg*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(1./c3) + P1**2)
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return SG**(-c2)*(D**(-c4)*Q*(Ts/Ps)**(-c1)/(E*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
@@ -1256,9 +1256,9 @@ def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Ps*Q*((P1**2 - P2**2)/(L*SG*Tavg*Zavg))**(-c3)/(E*Ts*c5))**(1./c4)
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
-        return (L*SG*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P2**2)**0.5
+        return sqrt(L*SG*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P2**2)
     elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
-        return (-L*SG*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P1**2)**0.5
+        return sqrt(-L*SG*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P1**2)
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return (D**(-c4)*Ps*Q/(E*Ts*c5))**(-1./c3)*(P1**2 - P2**2)/(SG*Tavg*Zavg)
     else:
@@ -1350,20 +1350,20 @@ def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7
     c4 = 0.09144
     c5 = 125.1060
     if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
-        return (c5*E*Ts/Ps*D**2.5*((P1**2-P2**2)
-                /(L*SG*Zavg*Tavg*(1 + c4/D + c3*D)))**0.5)
+        return (c5*E*Ts/Ps*D**2.5*sqrt((P1**2-P2**2)
+                        /(L*SG*Zavg*Tavg*(1 + c4/D + c3*D))))
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return secant(_to_solve_Spitzglass_high, 0.5, args=(Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E))
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
-        return ((D**6*E**2*P2**2*Ts**2*c5**2
-                 + D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3
-                 + D*L*Ps**2*Q**2*SG*Tavg*Zavg
-                 + L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2))**0.5
+        return sqrt((D**6*E**2*P2**2*Ts**2*c5**2
+                         + D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3
+                         + D*L*Ps**2*Q**2*SG*Tavg*Zavg
+                         + L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2))
     elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
-        return ((D**6*E**2*P1**2*Ts**2*c5**2
-                 - D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3
-                 - D*L*Ps**2*Q**2*SG*Tavg*Zavg
-                 - L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2))**0.5
+        return sqrt((D**6*E**2*P1**2*Ts**2*c5**2
+                         - D**2*L*Ps**2*Q**2*SG*Tavg*Zavg*c3
+                         - D*L*Ps**2*Q**2*SG*Tavg*Zavg
+                         - L*Ps**2*Q**2*SG*Tavg*Zavg*c4)/(D**6*E**2*Ts**2*c5**2))
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return (D**6*E**2*Ts**2*c5**2*(P1**2 - P2**2)
                 /(Ps**2*Q**2*SG*Tavg*Zavg*(D**2*c3 + D + c4)))
@@ -1474,7 +1474,7 @@ def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     c4 = 0.09144
     c5 = 125.1060
     if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
-        return c5*Ts/Ps*D**2.5*E*(((P1-P2)*2*(Ps+1210.))/(L*SG*Tavg*Zavg*(1 + c4/D + c3*D)))**0.5
+        return c5*Ts/Ps*D**2.5*E*sqrt(((P1-P2)*2*(Ps+1210.))/(L*SG*Tavg*Zavg*(1 + c4/D + c3*D)))
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return secant(_to_solve_Spitzglass_low, 0.5, args=(Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E))
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
@@ -1570,13 +1570,13 @@ def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     c1 = 84.587176139918568651410168968141078948974609375000
     c2 = 0.2091519350460528670065940559652517549694 # 1/(30.*0.0254**0.5)
     if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
-        return c1*(D**2.5 + c2*D**3)*Ts/Ps*((P1**2-P2**2)/(L*SG*Tavg))**0.5
+        return c1*(D**2.5 + c2*D**3)*Ts/Ps*sqrt((P1**2-P2**2)/(L*SG*Tavg))
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return secant(_to_solve_Oliphant, 0.5, args=(Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E))
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
-        return (L*Ps**2*Q**2*SG*Tavg/(Ts**2*c1**2*(D**3*c2 + D**2.5)**2) + P2**2)**0.5
+        return sqrt(L*Ps**2*Q**2*SG*Tavg/(Ts**2*c1**2*(D**3*c2 + D**2.5)**2) + P2**2)
     elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
-        return (-L*Ps**2*Q**2*SG*Tavg/(Ts**2*c1**2*(D**3*c2 + D**2.5)**2) + P1**2)**0.5
+        return sqrt(-L*Ps**2*Q**2*SG*Tavg/(Ts**2*c1**2*(D**3*c2 + D**2.5)**2) + P1**2)
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return Ts**2*c1**2*(P1**2 - P2**2)*(D**3*c2 + D**2.5)**2/(Ps**2*Q**2*SG*Tavg)
     else:
@@ -1670,9 +1670,9 @@ def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Ps*Q*(SG**(-c2)*(P1**2 - P2**2)/(L*Tavg*Zavg))**(-c3)/(E*Ts*c5))**(1./c4)
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
-        return (L*SG**c2*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P2**2)**0.5
+        return sqrt(L*SG**c2*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P2**2)
     elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
-        return (-L*SG**c2*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P1**2)**0.5
+        return sqrt(-L*SG**c2*Tavg*Zavg*(D**(-c4)*Ps*Q/(E*Ts*c5))**(1./c3) + P1**2)
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return SG**(-c2)*(D**(-c4)*Ps*Q/(E*Ts*c5))**(-1./c3)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
@@ -1780,9 +1780,9 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Ps*Q*SG**c4*mu**c1*((P1**2 - P2**2)/(L*Tavg*Zavg))**(-c2)/(E*Ts*c5))**(1./c3)
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
-        return (L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P2**2)**0.5
+        return sqrt(L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P2**2)
     elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
-        return (-L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P1**2)**0.5
+        return sqrt(-L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P1**2)
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return (D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(-1/c2)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:
@@ -1887,9 +1887,9 @@ def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:
         return (Ps*Q*SG**c4*mu**c1*((P1**2 - P2**2)/(L*Tavg*Zavg))**(-c2)/(E*Ts*c5))**(1./c3)
     elif P1 is None and L is not None and Q is not None and D is not None and P2 is not None:
-        return (L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P2**2)**0.5
+        return sqrt(L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P2**2)
     elif P2 is None and L is not None and Q is not None and D is not None and P1 is not None:
-        return (-L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P1**2)**0.5
+        return sqrt(-L*Tavg*Zavg*(D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(1/c2) + P1**2)
     elif L is None and P2 is not None and Q is not None and D is not None and P1 is not None:
         return (D**(-c3)*Ps*Q*SG**c4*mu**c1/(E*Ts*c5))**(-1/c2)*(P1**2 - P2**2)/(Tavg*Zavg)
     else:

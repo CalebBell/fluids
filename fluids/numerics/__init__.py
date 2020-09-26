@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin, atan2, asinh
+from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin, atan2, asinh, sqrt
 from cmath import sqrt as csqrt, log as clog
 import sys
 from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye, array_as_tridiagonals, tridiagonals_as_array, solve_tridiagonal, subset_matrix
@@ -220,14 +220,14 @@ twelfth = 1.0/12.0
 two_thirds = 2.0/3.0
 four_thirds = 4.0/3.0
 
-root_three = (3.0)**0.5
+root_three = sqrt(3.0)
 one_27 = 1.0/27.0
 complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
 
 def trunc_exp(x, trunc=1e30):
     try:
         return exp(x)
-    except OverflowError:
+    except:
         # Really exp(709.7) 1.6549840276802644e+308
         return trunc
 
@@ -351,11 +351,11 @@ def roots_cubic(a, b, c, d):
         D = c*c - 4.0*b*d
         b_inv_2 = 0.5/b
         if D < 0.0:
-            D = (-D)**0.5
+            D = sqrt(-D)
             x1 = (-c + D*1.0j)*b_inv_2
             x2 = (-c - D*1.0j)*b_inv_2
         else:
-            D = D**0.5
+            D = sqrt(D)
             x1 = (D - c)*b_inv_2
             x2 = -(c + D)*b_inv_2
         return (x1, x2)
@@ -443,7 +443,7 @@ def roots_cubic(a, b, c, d):
 #            print('other')
             # 3 real roots
             # example is going in here
-            i = sqrt((g*g)*0.25 - h)
+            i = sqrt(((g*g)*0.25) - h)
             j = i**third # There was a saving for j but it was very weird with if statements!
             '''Clamied nothing saved for k.
             '''
@@ -692,7 +692,7 @@ def deflate_cubic_real_roots(b, c, d, x0):
 #     else:
     if D < 0.0:
         return (0.0, 0.0)
-    D = D**0.5
+    D = sqrt(D)
     x1 = 0.5*(D - F)#(D - c)*0.5
     x2 = 0.5*(-F - D) #-(c + D)*0.5
     return x1, x2
@@ -1864,31 +1864,42 @@ def translate_bound_jac(jac, bounds=None, low=None, high=None):
     return new_j, translate_into, translate_outof
 
 
-def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None, inplace_jac=False, as_np=False):
+def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None, 
+                          inplace_jac=False, as_np=False):
     if bounds is not None:
         low = [i[0] for i in bounds]
         high = [i[1] for i in bounds]
         
     exp_terms = [0.0]*len(low)
     
-    def new_f_j(x):
-        x_base = [float(i) for i in x]
+    def new_f_j(x, *args):
+        x_base = [i for i in x]
         N = len(x)
         for i in range(N):
-            exp_terms[i] = ei = exp(-x[i])
+            exp_terms[i] = ei = trunc_exp(-x[i])
             x_base[i] = (low[i] + (high[i] - low[i])/(1.0 + ei))
         
         if jac is True:
-            f_base, jac_base = f(x_base)
+            f_base, jac_base = f(x_base, *args)
         else:
-            f_base = f(x_base)
-            jac_base = jac(x_base)
+            f_base = f(x_base, *args)
+            jac_base = jac(x_base, *args)
         try:
-            if not inplace_jac:
-                jac_base = [i for i in jac_base]
-            for i in range(N):
-                t = (1.0 + exp_terms[i])
-                jac_base[i] = (high[i] - low[i])*exp_terms[i]*jac_base[i]/(t*t)
+            if type(jac_base[0]) is list or (isinstance(jac_base, np.ndarray) and len(jac_base.shape) == 2):
+                if not inplace_jac:
+                    jac_base = [[j for j in i] for i in jac_base]
+
+                for i in range(len(jac_base)):
+                    for j in range(len(jac_base[i])):
+                        # Checked numerically
+                        t = (1.0 + exp_terms[j])
+                        jac_base[i][j] = (high[j] - low[j])*exp_terms[j]*jac_base[i][j]/(t*t)
+            else:
+                if not inplace_jac:
+                    jac_base = [i for i in jac_base]
+                for i in range(N):
+                    t = (1.0 + exp_terms[i])
+                    jac_base[i] = (high[i] - low[i])*exp_terms[i]*jac_base[i]/(t*t)
             if as_np:
                 jac_base = np.array(jac_base)
             return f_base, jac_base
@@ -1896,15 +1907,15 @@ def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None, inplace_jac=
             raise NotImplementedError("Fail")
     
     def translate_into(x):
-        x = [float(i) for i in x]
+        #x = [float(i) for i in x]
         for i in range(len(x)):
-            x[i] = -log((high[i] - x[i])/(x[i] - low[i]))
+            x[i] = -trunc_log((high[i] - x[i])/(x[i] - low[i]))
         return x
     
     def translate_outof(x):
-        x = [float(i) for i in x]
+        #x = [float(i) for i in x]
         for i in range(len(x)):
-            x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+            x[i] = (low[i] + (high[i] - low[i])/(1.0 + trunc_exp(-x[i])))
         return x
     return new_f_j, translate_into, translate_outof
 
@@ -2246,7 +2257,7 @@ def ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
         dm = 0.5*(b - a)
         xm = a + dm
         fm = f(xm, *args)
-        dn = copysign((fm*fm - fa*fb)**-0.5, fb - fa)*fm*dm
+        dn = copysign(1.0/sqrt(fm*fm - fa*fb), fb - fa)*fm*dm
     
         dn_abs, dm_abs_tol = fabs(dn), fabs(dm) - 0.5*tol
         xn = xm - copysign((dn_abs if dn_abs < dm_abs_tol else dm_abs_tol), dn)
@@ -2947,18 +2958,18 @@ def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping
 
 
 def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
-             skip_J=False):
+             skip_J=False, args=()):
     iter = 0
     if skip_J:
-        fcur = fun(xs)
+        fcur = fun(xs, *args)
         N = len(fcur)
         J = eye(N)
     elif jac_has_fun:
-        fcur, J = jac(xs)
+        fcur, J = jac(xs, *args)
         J = inv(J)
     else:
-        fcur = fun(xs)
-        J = inv(jac(xs))
+        fcur = fun(xs, *args)
+        J = inv(jac(xs, *args))
 
     N = len(fcur)
     eqns = range(N)
@@ -2972,7 +2983,7 @@ def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
         
         xs = [xs[i] - s[i] for i in eqns]
  
-        fnew = fun(xs)
+        fnew = fun(xs, *args)
         z = [fnew[i] - fcur[i] for i in eqns]
  
         u = dot(J, z)
@@ -3367,10 +3378,14 @@ def quad_adaptive(f, a, b, args=(), kronrod_points=array_if_needed(kronrod_point
                     epsrel=epsrel, epsabs=epsabs*0.5, depth=depth+1)
     return area_A + area_B, abs(err_abs_A) + abs(err_abs_B)
 
+global sp_quad
+sp_quad = None
 def lazy_quad(f, a, b, args=(), epsrel=1.49e-08, epsabs=1.49e-8, **kwargs):
+    global sp_quad
     if not IS_PYPY:
-        from scipy.integrate import quad
-        return quad(f, a, b, args, epsrel=epsrel, epsabs=epsabs, **kwargs)
+        if sp_quad is None:
+            from scipy.integrate import quad as sp_quad
+        return sp_quad(f, a, b, args, epsrel=epsrel, epsabs=epsabs, **kwargs)
     else:
         return quad_adaptive(f, a, b, ags=args, epsrel=epsrel, epsabs=epsabs)
 #        n = 300

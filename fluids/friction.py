@@ -22,9 +22,9 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import log, log10, exp, cos, sin, tan, pi, radians, isinf
+from math import sqrt, log, log10, exp, cos, sin, tan, pi, radians, isinf
 from fluids.constants import inch, g
-from fluids.numerics import newton, lambertw
+from fluids.numerics import secant, lambertw
 from fluids.core import Dean, Reynolds
 
 
@@ -186,7 +186,7 @@ def Blasius(Re):
     .. [2] Hager, W. H. "Blasius: A Life in Research and Education." In 
        Experiments in Fluids, 566–571, 2003.
     '''
-    return 0.3164*Re**-0.25
+    return 0.3164/sqrt(sqrt(Re))
 
 
 def Colebrook(Re, eD, tol=None):
@@ -284,7 +284,7 @@ def Colebrook(Re, eD, tol=None):
 #        den = log(10)*eD_Re - 18.574*lambert_term
 #        return float(log(10)**2*Rational('3.7')**2*Rational('2.51')**2/(den*den))
         try:
-            from mpmath import mpf, log, sqrt, mp
+            from mpmath import mpf, log, mp, sqrt as sqrtmp
             from mpmath import lambertw as mp_lambertw
         except:
             raise ImportError('For exact solutions, the `mpmath` library is '
@@ -293,7 +293,7 @@ def Colebrook(Re, eD, tol=None):
         Re = mpf(Re)
         eD_Re = mpf(eD)*Re
         sub = 1/mpf('6.3001')*10**(1/mpf('9.287')*eD_Re)*Re*Re
-        lambert_term = mp_lambertw(log(sqrt(10))*sqrt(sub))
+        lambert_term = mp_lambertw(log(sqrtmp(10))*sqrtmp(sub))
         den = log(10)*eD_Re - 18.574*lambert_term
         return float(log(10)**2*mpf('3.7')**2*mpf('2.51')**2/(den*den))
     if tol is None:
@@ -307,7 +307,7 @@ def Colebrook(Re, eD, tol=None):
                 #  Can't continue, need numerical approach
                 raise OverflowError
             # 1.15129... = log(sqrt(10))
-            lambert_term = float(lambertw(1.151292546497022950546806896454654633998870849609375*sub**0.5).real)
+            lambert_term = float(lambertw(1.151292546497022950546806896454654633998870849609375*sqrt(sub)).real)
             # log(10) = 2.302585...; 2*2.51*3.7 = 18.574
             # 457.28... = log(10)**2*3.7**2*2.51**2
             den = 2.30258509299404590109361379290930926799774169921875*eD_Re - 18.574*lambert_term
@@ -323,18 +323,12 @@ def Colebrook(Re, eD, tol=None):
         fd_guess = Blasius(Re)
     def err(x):
         # Convert the newton search domain to always positive
-        f_12_inv = abs(x)**-0.5
+        f_12_inv = 1.0/sqrt(abs(x))
         # 0.27027027027027023 = 1/3.7
         return f_12_inv + 2.0*log10(eD*0.27027027027027023 + 2.51/Re*f_12_inv)
-    try:
-        fd = abs(newton(err, fd_guess, tol=tol))
-        if fd > 1E10:
-            raise ValueError
-        return fd
-    except:
-        from scipy.optimize import fsolve
-        return abs(float(fsolve(err, fd_guess, xtol=tol)))
-    
+    fd = abs(secant(err, fd_guess, xtol=tol))
+    return fd
+
 
 def Clamond(Re, eD, fast=False):
     r'''Calculates Darcy friction factor using a solution accurate to almost
@@ -486,7 +480,7 @@ def Alshul_1952(Re, eD):
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
     '''
-    return 0.11*(68/Re + eD)**0.25
+    return 0.11*sqrt(sqrt(68/Re + eD))
 
 
 def Wood_1966(Re, eD):
@@ -1215,7 +1209,7 @@ def Tsal_1989(Re, eD):
     .. [2] Tsal, R.J.: Altshul-Tsal friction factor equation.
        Heat-Piping-Air Cond. 8, 30-45 (1989)
     '''
-    A = 0.11*(68/Re + eD)**0.25
+    A = 0.11*sqrt(sqrt(68/Re + eD))
     if A >= 0.018:
         return A
     else:
@@ -1448,7 +1442,7 @@ def Buzzelli_2008(Re, eD):
     .. [2] 	Buzzelli, D.: Calculating friction in one step.
        Mach. Des. 80, 54-55 (2008)
     '''
-    B1 = (.774*log(Re)-1.41)/(1+1.32*eD**0.5)
+    B1 = (.774*log(Re)-1.41)/(1.0 + 1.32*sqrt(eD))
     B2 = eD/3.7*Re + 2.51*B1
     return (B1- (B1+2*log10(B2/Re))/(1+2.18/B2))**-2
 
@@ -1493,7 +1487,7 @@ def Avci_Karagoz_2009(Re, eD):
        Friction Factor in Smooth and Rough Pipes." Journal of Fluids
        Engineering 131, no. 6 (2009): 061203. doi:10.1115/1.3129132.
     '''
-    return 6.4*(log(Re) - log(1 + 0.01*Re*eD*(1+10*eD**0.5)))**-2.4
+    return 6.4*(log(Re) - log(1 + 0.01*Re*eD*(1+10*sqrt(eD))))**-2.4
 
 
 def Papaevangelo_2010(Re, eD):
@@ -2218,7 +2212,7 @@ def helical_laminar_fd_Mori_Nakayama(Re, Di, Dc):
     Examples
     --------
     >>> helical_laminar_fd_Mori_Nakayama(250, .02, .1)
-    0.4222458285779544
+    0.42224582857795434
 
     References
     ----------
@@ -2239,7 +2233,7 @@ def helical_laminar_fd_Mori_Nakayama(Re, Di, Dc):
     fd = friction_laminar(Re)
     if De < 42.328036:
         return fd*1.405296
-    return fd*(0.108*De**0.5)/(1. - 3.253*De**-0.5)
+    return fd*(0.108*sqrt(De))/(1. - 3.253*1.0/sqrt(De))
 
 
 def helical_laminar_fd_Schmidt(Re, Di, Dc):
@@ -2409,7 +2403,7 @@ def helical_turbulent_fd_Schmidt(Re, Di, Dc, roughness=0):
     if Re < 2.2E4:
         return fd*(1. + 2.88E4/Re*(Di/Dc)**0.62)
     else:
-        return fd*(1. + 0.0823*(1. + Di/Dc)*(Di/Dc)**0.53*Re**0.25)
+        return fd*(1. + 0.0823*(1. + Di/Dc)*(Di/Dc)**0.53*sqrt(sqrt(Re)))
 
 
 def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
@@ -2464,7 +2458,7 @@ def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
        295-310. doi:10.1016/S0169-5983(00)00034-4.
     '''
     term = (Re*(Di/Dc)**2)**-0.2
-    return 0.3*(Dc/Di)**-0.5*term*(1. + 0.112*term)
+    return 0.3*1.0/sqrt(Dc/Di)*term*(1. + 0.112*term)
 
 
 def helical_turbulent_fd_Prasad(Re, Di, Dc,roughness=0):
@@ -2517,7 +2511,7 @@ def helical_turbulent_fd_Prasad(Re, Di, Dc,roughness=0):
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
     '''
     fd = friction_factor(Re=Re, eD=roughness/Di)
-    return fd*(1. + 0.18*(Re*(Di/Dc)**2)**0.25)
+    return fd*(1. + 0.18*sqrt(sqrt(Re*(Di/Dc)**2)))
 
 
 def helical_turbulent_fd_Czop (Re, Di, Dc):
@@ -2617,7 +2611,7 @@ def helical_turbulent_fd_Guo(Re, Di, Dc):
     return 0.638*Re**-0.15*(Di/Dc)**0.51
 
 
-def helical_turbulent_fd_Ju(Re, Di, Dc,roughness=0):
+def helical_turbulent_fd_Ju(Re, Di, Dc,roughness=0.0):
     r'''Calculates Darcy friction factor for a fluid flowing inside a curved 
     pipe such as a helical coil under turbulent conditions, using the method of 
     Ju et al. [1]_, also shown in [2]_.
@@ -2755,7 +2749,7 @@ def helical_transition_Re_Seth_Stahel(Di, Dc):
        IMMERSED IN AGITATED VESSELS." Industrial & Engineering Chemistry 61, 
        no. 6 (June 1, 1969): 39-49. doi:10.1021/ie50714a007.
     '''
-    return 1900.*(1. + 8.*(Di/Dc)**0.5)
+    return 1900.*(1. + 8.*sqrt(Di/Dc))
 
 
 def helical_transition_Re_Ito(Di, Dc):
@@ -2983,7 +2977,7 @@ def helical_transition_Re_Srinivasan(Di, Dc):
     .. [3] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
        Transfer, 3E. New York: McGraw-Hill, 1998.
     '''
-    return 2100.*(1. + 12.*(Di/Dc)**0.5)
+    return 2100.*(1. + 12.*sqrt(Di/Dc))
 
 
 curved_friction_laminar_methods = {'White': helical_laminar_fd_White,
@@ -3303,7 +3297,7 @@ def friction_plate_Martin_1999(Re, plate_enlargement_factor):
     Examples
     --------
     >>> friction_plate_Martin_1999(Re=20000, plate_enlargement_factor=1.15)
-    2.284018089834134
+    2.284018089834135
 
     References
     ----------
@@ -3327,8 +3321,8 @@ def friction_plate_Martin_1999(Re, plate_enlargement_factor):
         f0 = (1.56*log(Re) - 3.0)**-2
         f1 = 9.75*Re**-0.289
         
-    rhs = cos(phi)*(0.045*tan(phi) + 0.09*sin(phi) + f0/cos(phi))**-0.5
-    rhs += (1. - cos(phi))*(3.8*f1)**-0.5
+    rhs = cos(phi)*1.0/sqrt(0.045*tan(phi) + 0.09*sin(phi) + f0/cos(phi))
+    rhs += (1. - cos(phi))*1.0/sqrt(3.8*f1)
     ff = rhs**-2.
     return ff*4.0
 
@@ -3412,8 +3406,8 @@ def friction_plate_Martin_VDI(Re, plate_enlargement_factor):
         
     a, b, c = 3.8, 0.28, 0.36
         
-    rhs = cos(phi)*(b*tan(phi) + c*sin(phi) + f0/cos(phi))**-0.5
-    rhs += (1. - cos(phi))*(a*f1)**-0.5
+    rhs = cos(phi)*1.0/sqrt(b*tan(phi) + c*sin(phi) + f0/cos(phi))
+    rhs += (1. - cos(phi))*1.0/sqrt(a*f1)
     return rhs**-2.0
 
 Kumar_beta_list = [30.0, 45.0, 50.0, 60.0, 65.0]
@@ -4083,7 +4077,7 @@ def transmission_factor(fd=None, F=None):
        FL: CRC Press, 2005.
     '''
     if fd is not None:
-        return 2./fd**0.5
+        return 2./sqrt(fd)
     elif F is not None:
         return 4./(F*F)
     else:

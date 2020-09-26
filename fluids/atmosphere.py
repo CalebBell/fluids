@@ -53,11 +53,11 @@ Wind Models (requires Fortran compiler!)
 
 from __future__ import division
 
-from math import exp, cos, radians, pi, sin
+from math import sqrt, exp, cos, radians, pi, sin
 import time
 import os
 from fluids.constants import N_A, R, au
-from fluids.numerics import brenth, quad
+from fluids.numerics import brenth, quad, numpy as np
 try:
     from datetime import datetime, timedelta
 except:
@@ -289,7 +289,7 @@ class ATMOSPHERE_1976(object):
             Speed of sound, [m/s]
         '''        
         # 401.87... = gamma*R/MO
-        return (401.87430086589046*T)**0.5
+        return sqrt(401.87430086589046*T)
     
     @staticmethod
     def gravity(Z):
@@ -582,7 +582,9 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
     to $FLUIDSPATH/fluids/optional/. This should generate the file hwm93.so
     in that directory.
         
-    f2py -c hwm93.pyf hwm93.for --f77flags="-std=legacy"
+    .. code-block:: bash
+    
+        f2py -c hwm93.pyf hwm93.for --f77flags="-std=legacy"
     
     If the module is not compiled, an import error will be raised.
     
@@ -663,12 +665,16 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     
     
     Generate a .pyf signature file:
-        
-    f2py -m hwm14 -h hwm14.pyf hwm14.f90
+
+    .. code-block:: bash
+    
+        f2py -m hwm14 -h hwm14.pyf hwm14.f90
 
     Compile the interface:
-        
-    f2py -c hwm14.pyf hwm14.f90
+    
+    .. code-block:: bash
+    
+        f2py -c hwm14.pyf hwm14.f90
     
     
     If the module is not compiled, an import error will be raised.
@@ -696,8 +702,7 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
             import optional.hwm14
     except: # pragma: no cover
         raise ImportError(no_gfortran_error)
-    import numpy as np
-    ans = hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
+    ans = hwm14.hwm14(day, seconds, Z*1e-3, latitude, longitude, 0, 0, 
                0, np.array([np.nan, geomagnetic_disturbance_index]))
     return tuple(ans.tolist())
 
@@ -707,7 +712,7 @@ def to_int_airmass(Z, c1, c2, angle_term, R_planet_inv, func):
     t1 = c2 - rho*c1
     x0 = angle_term/(1.0 + Z*R_planet_inv)
     t2 = x0*x0
-    t3 = (1.0 - t1*t2)**-0.5
+    t3 = 1.0/sqrt(1.0 - t1*t2)
     return rho*t3
 
 def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
@@ -1042,7 +1047,6 @@ def sunrise_sunset(moment, latitude, longitude):
     '''
     from fluids.optional import spa
     import calendar 
-    import numpy as np
     if moment.utcoffset() is not None:
         moment_utc = moment + moment.utcoffset()
     else:
@@ -1054,11 +1058,11 @@ def sunrise_sunset(moment, latitude, longitude):
     unixtime = calendar.timegm(ymd_moment_utc.utctimetuple())
     
     unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
-    transit, sunrise, sunset = spa.transit_sunrise_sunset(unixtime, lat=latitude, lon=longitude, delta_t=delta_t, numthreads=1)
+    transit, sunrise, sunset = spa.transit_sunrise_sunset(unixtime, lat=latitude, lon=longitude, delta_t=delta_t)
     
-    transit = datetime.utcfromtimestamp(float(transit))
-    sunrise = datetime.utcfromtimestamp(float(sunrise))
-    sunset = datetime.utcfromtimestamp(float(sunset))
+    transit = datetime.utcfromtimestamp(transit)
+    sunrise = datetime.utcfromtimestamp(sunrise)
+    sunset = datetime.utcfromtimestamp(sunset)
     
     if moment.tzinfo is not None:
         sunrise = moment.tzinfo.fromutc(sunrise)

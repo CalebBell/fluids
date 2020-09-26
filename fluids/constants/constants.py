@@ -53,6 +53,7 @@ h = Planck = 6.62607004e-34
 hbar = h / (2.0 * pi)
 G = gravitational_constant = 6.67408e-11
 g = 9.80665
+g_sqrt = 3.1315571206669692#_math.sqrt(g)
 e = elementary_charge = 1.6021766208e-19
 alpha = fine_structure = 0.0072973525664
 N_A = Avogadro = 6.022140857e+23

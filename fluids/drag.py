@@ -22,7 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import exp, log, log10, tanh
+from math import sqrt, exp, log, log10, tanh
 from fluids.constants import g
 from fluids.numerics import secant
 from fluids.core import Reynolds
@@ -209,7 +209,7 @@ def Rouse(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    return 24./Re + 3/Re**0.5 + 0.34
+    return 24./Re + 3/sqrt(Re) + 0.34
 
 
 def Engelund_Hansen(Re):
@@ -396,7 +396,7 @@ def Graf(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    return 24./Re + 7.3/(1 + Re**0.5) + 0.25
+    return 24./Re + 7.3/(1 + sqrt(Re)) + 0.25
 
 
 def Flemmer_Banks(Re):
@@ -524,7 +524,7 @@ def Swamee_Ojha(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = 0.5*(16*((24./Re)**1.6 + (130./Re)**0.72)**2.5 + ((40000./Re)**2 + 1)**-0.25)**0.25
+    Cd = 0.5*sqrt(sqrt(16*((24./Re)**1.6 + (130./Re)**0.72)**2.5 + 1.0/sqrt(sqrt((40000./Re)**2 + 1))))
     return Cd
 
 
@@ -566,7 +566,7 @@ def Yen(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    return 24./Re*(1 + 0.15*Re**0.5 + 0.017*Re) - 0.208/(1 + 1E4*Re**-0.5)
+    return 24./Re*(1 + 0.15*sqrt(Re) + 0.017*Re) - 0.208/(1 + 1E4*1.0/sqrt(Re))
 
 
 def Haider_Levenspiel(Re):
@@ -848,8 +848,8 @@ def Ceylan(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = (1 - 0.5*exp(0.182) + 10.11*Re**(-2/3.)*exp(0.952*Re**-0.25)
-    - 0.03859*Re**(-4/3.)*exp(1.30*Re**-0.5) + 0.037E-4*Re*exp(-0.125E-4*Re)
+    Cd = (1 - 0.5*exp(0.182) + 10.11*Re**(-2/3.)*exp(0.952/sqrt(sqrt(Re)))
+    - 0.03859*Re**(-4/3.)*exp(1.30/sqrt(Re)) + 0.037E-4*Re*exp(-0.125E-4*Re)
     - 0.116E-10*Re**2*exp(-0.444E-5*Re))
     return Cd
 
@@ -1162,7 +1162,7 @@ def drag_sphere(Re, Method=None):
 
 def _v_terminal_err(V, Method, Re_almost, main):
     Cd = drag_sphere(Re_almost*V, Method=Method)
-    return V - (main/Cd)**0.5
+    return V - sqrt(main/Cd)
 
 def v_terminal(D, rhop, rho, mu, Method=None):
     r'''Calculates terminal velocity of a falling sphere using any drag

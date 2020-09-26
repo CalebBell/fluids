@@ -20,9 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from numpy.testing import assert_allclose
+from fluids.numerics import assert_close1d, assert_close
 from fluids.atmosphere import ATMOSPHERE_NRLMSISE00
-import numpy as np
 import pytest
 import os
 
@@ -33,18 +32,19 @@ def helper_test_match(f, atms):
     
     for i, k in zip(indexes, keys):
         calcs = [getattr(a, k) for a in atms]
-        assert_allclose(calcs, f[:, i]*1E6, rtol=1E-3)
+        assert_close1d(calcs, f[:, i]*1E6, rtol=1E-3)
     
     calcs = [a.rho for a in atms]
-    assert_allclose(calcs, f[:, 4]*1E3, rtol=1E-3)
+    assert_close1d(calcs, f[:, 4]*1E3, rtol=1E-3)
     calcs = [a.T for a in atms]
-    assert_allclose(calcs, f[:, 5], rtol=1E-3)
+    assert_close1d(calcs, f[:, 5], rtol=1E-3)
     calcs = [a.T_exospheric for a in atms]
-    assert_allclose(calcs, f[:, 6], rtol=1E-3)
+    assert_close1d(calcs, f[:, 6], rtol=1E-3)
 
 
 @pytest.mark.slow
 def test_ATMOSPHERE_NRLMSISE00():
+    import numpy as np
     name = os.path.join(os.path.dirname(__file__), 'nrlmsise00', 'known_data_height.txt')
     f = np.loadtxt(name, delimiter=' ')
     heights = f[:,0]
@@ -80,5 +80,5 @@ def test_ATMOSPHERE_NRLMSISE00():
 
     # Custom test, particle total density and composition
     atm = ATMOSPHERE_NRLMSISE00(Z=1E3, latitude=45.0, longitude=45.0, day=150.0)
-    assert_allclose(atm.particle_density, 2.2929008167737723e+25)
-    assert_allclose(atm.zs, [0.7811046347676225, 0.2095469403691101, 0.009343183088772914, 5.241774494627779e-06, 0.0, 0.0, 0.0])
+    assert_close(atm.particle_density, 2.2929008167737723e+25)
+    assert_close1d(atm.zs, [0.7811046347676225, 0.2095469403691101, 0.009343183088772914, 5.241774494627779e-06, 0.0, 0.0, 0.0])

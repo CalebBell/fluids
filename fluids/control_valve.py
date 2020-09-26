@@ -22,7 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import log10, exp, pi
+from math import sqrt, log10, exp, pi
 from fluids.constants import R, psi, gallon, minute
 from fluids.numerics import interp, implementation_optimize_tck, splev
 from fluids.fittings import Cv_to_Kv, Kv_to_Cv
@@ -139,7 +139,7 @@ def FF_critical_pressure_ratio_l(Psat, Pc):
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
-    return 0.96 - 0.28*(Psat/Pc)**0.5
+    return 0.96 - 0.28*sqrt(Psat/Pc)
 
 
 def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
@@ -190,7 +190,7 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
     >>> control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6, P2=458887.5306077305)
     680000.0
     '''
-    FF = 0.96 - 0.28*(Psat/Pc)**0.5 #FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
+    FF = 0.96 - 0.28*sqrt(Psat/Pc) #FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
     Pmin_absolute = FF*Psat
     if P2 is None:
         ans = P2 = FF*FL*FL*Psat - FL*FL*P1 + P1
@@ -401,7 +401,7 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     '''
-    return N4*Fd*Q/nu*(C*FL)**-0.5*(FL*FL*C*C/N2*D1**-4.0 + 1.0)**0.25
+    return N4*Fd*Q/nu*1.0/sqrt(C*FL)*sqrt(sqrt(FL*FL*C*C/N2*D1**-4.0 + 1.0))
 
 
 def loss_coefficient_piping(d, D1=None, D2=None):
@@ -535,16 +535,16 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
     '''
     if full_trim:
         n1 = N2/(min(C/(d*d), 0.04))**2 # C/d**2 must not exceed 0.04
-        FR_1a = 1.0 + (0.33*FL**0.5)/n1**0.25*log10(Rev/10000.)
-        FR_2 = 0.026/FL*(n1*Rev)**0.5
+        FR_1a = 1.0 + (0.33*sqrt(FL))/sqrt(sqrt(n1))*log10(Rev/10000.)
+        FR_2 = 0.026/FL*sqrt(n1*Rev)
         if Rev < 10.0:
             FR = FR_2
         else:
             FR = min(FR_2, FR_1a)
     else:
         n2 = 1 + N32*(C/d**2)**(2/3.)
-        FR_3a = 1 + (0.33*FL**0.5)/n2**0.25*log10(Rev/10000.)
-        FR_4 = min(0.026/FL*(n2*Rev)**0.5, 1)
+        FR_3a = 1 + (0.33*sqrt(FL))/sqrt(sqrt(n2))*log10(Rev/10000.)
+        FR_4 = min(0.026/FL*sqrt(n2*Rev), 1)
         if Rev < 10:
             FR = FR_4
         else:
@@ -652,10 +652,10 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
     choked = is_choked_turbulent_l(dP=dP, P1=P1, Psat=Psat, FF=FF, FL=FL)
     if choked and allow_choked:
         # Choked flow, equation 3
-        C = Q/N1/FL*(rho/rho0/(P1 - FF*Psat))**0.5
+        C = Q/N1/FL*sqrt(rho/rho0/(P1 - FF*Psat))
     else:
         # non-choked flow, eq 1
-        C = Q/N1*(rho/rho0/dP)**0.5
+        C = Q/N1*sqrt(rho/rho0/dP)
     if D1 is None and D2 is None and d is None:
         # Assume turbulent if no diameters are provided, no other calculations
         Rev = 1e5
@@ -671,20 +671,20 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
             MAX_ITER = 20
             def iterate_piping_turbulent_l(Ci, iterations):
                 loss = loss_coefficient_piping(d, D1, D2)
-                FP = (1 + loss/N2*(Ci/d**2)**2)**-0.5
+                FP = 1.0/sqrt(1 + loss/N2*(Ci/d**2)**2)
                 if d > D1:
                     loss_upstream = 0.0
                 else:
                     loss_upstream = loss_coefficient_piping(d, D1)
 
-                FLP = FL*(1 + FL**2/N2*loss_upstream*(Ci/d**2)**2)**-0.5
+                FLP = FL*1.0/sqrt(1 + FL**2/N2*loss_upstream*(Ci/d**2)**2)
                 choked = is_choked_turbulent_l(dP, P1, Psat, FF, FLP=FLP, FP=FP)
                 if choked:
                     # Choked flow with piping, equation 4
-                    C = Q/N1/FLP*(rho/rho0/(P1-FF*Psat))**0.5
+                    C = Q/N1/FLP*sqrt(rho/rho0/(P1-FF*Psat))
                 else:
                     # Non-Choked flow with piping, equation 5
-                    C = Q/N1/FP*(rho/rho0/dP)**0.5
+                    C = Q/N1/FP*sqrt(rho/rho0/dP)
                 if Ci/C < 0.99 and iterations < MAX_ITER and Ci < MAX_C_POSSIBLE:
                     C = iterate_piping_turbulent_l(C, iterations+1)
                 if MAX_ITER == iterations or Ci >= MAX_C_POSSIBLE:
@@ -810,7 +810,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     >>> size_control_valve_g(T=433., MW=44.01, mu=1.4665E-4, gamma=1.30,
     ... Z=0.988, P1=680E3, P2=310E3, Q=38/36., D1=0.08, D2=0.1, d=0.05,
     ... FL=0.85, Fd=0.42, xT=0.60)
-    72.58664545391052
+    72.5866454539105
 
     From [1]_, roughly matching example 4 for a small flow trim sized tapered
     needle plug valve. Difference is 3% and explained by the difference in
@@ -842,10 +842,10 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     choked = is_choked_turbulent_g(x, Fgamma, xT)
     if choked and allow_choked:
         # Choked, and flow coefficient from eq 14a
-        C = Q/(N9*P1*Y)*(MW*T*Z/xT/Fgamma)**0.5
+        C = Q/(N9*P1*Y)*sqrt(MW*T*Z/xT/Fgamma)
     else:
         # Non-choked, and flow coefficient from eq 8a
-        C = Q/(N9*P1*Y)*(MW*T*Z/x)**0.5
+        C = Q/(N9*P1*Y)*sqrt(MW*T*Z/x)
 
 
     if full_output: # numba: delete
@@ -868,16 +868,16 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
             
             def iterate_piping_coef_g(Ci, iterations):
                 loss = loss_coefficient_piping(d, D1, D2)
-                FP = (1. + loss/N2*(Ci/d**2)**2)**-0.5
+                FP = 1.0/sqrt(1. + loss/N2*(Ci/d**2)**2)
                 loss_upstream = loss_coefficient_piping(d, D1)
                 xTP = xT/FP**2/(1 + xT*loss_upstream/N5*(Ci/d**2)**2)
                 choked = is_choked_turbulent_g(x, Fgamma, xTP=xTP)
                 if choked:
                     # Choked flow with piping, equation 17a
-                    C = Q/(N9*FP*P1*Y)*(MW*T*Z/xTP/Fgamma)**0.5
+                    C = Q/(N9*FP*P1*Y)*sqrt(MW*T*Z/xTP/Fgamma)
                 else:
                     # Non-choked flow with piping, equation 11a
-                    C = Q/(N9*FP*P1*Y)*(MW*T*Z/x)**0.5
+                    C = Q/(N9*FP*P1*Y)*sqrt(MW*T*Z/x)
                 if Ci/C < 0.99 and iterations < MAX_ITER and Ci < MAX_C_POSSIBLE:
                     C = iterate_piping_coef_g(C, iterations+1)
                 if full_output:  # numba: delete
@@ -1017,7 +1017,7 @@ def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
     elif old_scale == 'Kv':
         Kv = flow_coefficient
     elif old_scale == 'Av':
-        Cv = flow_coefficient/((rho0/psi)**0.5*gallon/minute)
+        Cv = flow_coefficient/(sqrt(rho0/psi)*gallon/minute)
         Kv = Cv_to_Kv(Cv)
     else:
         raise NotImplementedError("Supported scales are 'Cv', 'Kv', and 'Av'")
@@ -1028,7 +1028,7 @@ def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
         ans = Kv
     elif new_scale == 'Av':
         Cv = Kv_to_Cv(Kv)
-        ans = Cv*((rho0/psi)**0.5*gallon/minute)
+        ans = Cv*(sqrt(rho0/psi)*gallon/minute)
     else:
         raise NotImplementedError("Supported scales are 'Cv', 'Kv', and 'Av'")
     return ans
@@ -1045,7 +1045,7 @@ fis_l_2015 = [12.5, 16.0, 20.0, 25.0, 31.5, 40.0, 50.0, 63.0, 80.0, 100.0, 125.0
 
 fis_l_2015_inv, fis_l_2015_1_5, fis_l_2015_n1_5 = [], [], []
 for fi in fis_l_2015:
-    fi_rt_inv = fi**-0.5
+    fi_rt_inv = 1.0/sqrt(fi)
     fis_l_2015_inv.append(fi_rt_inv*fi_rt_inv)
     fis_l_2015_1_5.append(fi*fi*fi_rt_inv)
     fis_l_2015_n1_5.append(fi_rt_inv*fi_rt_inv*fi_rt_inv)
@@ -1160,20 +1160,20 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     dPc = min(P1-P2, FL*FL*(P1 - Psat))
     
     if xFz is None:
-        xFz = 0.9*(1.0 + 3.0*Fd*(C/(N34*FL))**0.5)**-0.5
+        xFz = 0.9*1.0/sqrt(1.0 + 3.0*Fd*sqrt(C/(N34*FL)))
     xFzp1 = xFz*(6E5/P1)**0.125
     
-    Dj = N14*Fd*(C*FL)**0.5
+    Dj = N14*Fd*sqrt(C*FL)
     
-    Uvc = 1.0/FL*(2.0*dPc/rho)**0.5
+    Uvc = 1.0/FL*sqrt(2.0*dPc/rho)
     Wm = 0.5*m*Uvc*Uvc*FL*FL
     cavitating = False if xF <= xFzp1 else True
     
     eta_turb = 10.0**An*Uvc/c
     
     if cavitating:
-    	eta_cav = 0.32*eta_turb*((P1 - P2)/(dPc*xFzp1))**0.5*exp(5.0*xFzp1)*((1.0 
-                 - xFzp1)/(1.0 - xF))**0.5*(xF/xFzp1)**5*(xF - xFzp1)**1.5
+    	eta_cav = 0.32*eta_turb*sqrt((P1 - P2)/(dPc*xFzp1))*exp(5.0*xFzp1)*sqrt((1.0 
+                             - xFzp1)/(1.0 - xF))*(xF/xFzp1)**5*(xF - xFzp1)**1.5
     	Wa = (eta_turb+eta_cav)*Wm
     else:
     	Wa = eta_turb*Wm
@@ -1372,24 +1372,24 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
         regime = 5
 #     print('regime', regime)
 
-    Dj = N14*Fd*(C*(FL_term))**0.5
+    Dj = N14*Fd*sqrt(C*(FL_term))
 
-    Mj5 = (2.0/(k - 1.0)*( 22.0**((k-1.0)/k) - 1.0  ))**0.5
+    Mj5 = sqrt(2.0/(k - 1.0)*( 22.0**((k-1.0)/k) - 1.0  ))
     if regime == 1:
-        Mvc = ( (2.0/(k-1.0)) *((1.0 - x/FL_term**2)**((1.0 - k)/k)   - 1.0)   )**0.5 # Not match
+        Mvc = sqrt((2.0/(k-1.0)) *((1.0 - x/FL_term**2)**((1.0 - k)/k)   - 1.0)) # Not match
     elif regime in (2, 3, 4):
-        Mj = ( (2.0/(k-1.0))*((1.0/(alpha*(1.0-x)))**((k - 1.0)/k) - 1.0)   )**0.5 # Not match
+        Mj = sqrt((2.0/(k-1.0))*((1.0/(alpha*(1.0-x)))**((k - 1.0)/k) - 1.0)) # Not match
         Mj = min(Mj, Mj5)
     elif regime == 5:
         pass
 
     if regime == 1:
         Tvc = T1*(1.0 - x/(FL_term)**2)**((k - 1.0)/k)
-        cvc = (k*P1/rho*(1 - x/(FL_term)**2)**((k-1.0)/k))**0.5
+        cvc = sqrt(k*P1/rho*(1 - x/(FL_term)**2)**((k-1.0)/k))
         Wm = 0.5*m*(Mvc*cvc)**2
     else:
         Tvcc = 2.0*T1/(k + 1.0)
-        cvcc = (2.0*k*P1/(k+1.0)/rho)**0.5
+        cvcc = sqrt(2.0*k*P1/(k+1.0)/rho)
         Wm = 0.5*m*cvcc*cvcc
 #     print('Wm', Wm)
 
@@ -1398,9 +1398,9 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     elif regime in (2, 3):
         fp = Stp*Mj*cvcc/Dj
     elif regime == 4:
-        fp = 1.4*Stp*cvcc/Dj/(Mj*Mj - 1.0)**0.5
+        fp = 1.4*Stp*cvcc/Dj/sqrt(Mj*Mj - 1.0)
     elif regime == 5:
-        fp = 1.4*Stp*cvcc/Dj/(Mj5*Mj5 - 1.0)**0.5
+        fp = 1.4*Stp*cvcc/Dj/sqrt(Mj5*Mj5 - 1.0)
 #     print('fp', fp)
 
     if regime == 1:
@@ -1410,16 +1410,16 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     elif regime == 3:
         eta = 10.0**An*Mj**(6.6*FL_term*FL_term)
     elif regime == 4:
-        eta = 0.5*10.0**An*Mj*Mj*(2.0**0.5)**(6.6*FL_term*FL_term)
+        eta = 0.5*10.0**An*Mj*Mj*(sqrt(2.0))**(6.6*FL_term*FL_term)
     elif regime == 5:
-        eta = 0.5*10.0**An*Mj5*Mj5*(2.0**0.5)**(6.6*FL_term*FL_term)
+        eta = 0.5*10.0**An*Mj5*Mj5*(sqrt(2.0))**(6.6*FL_term*FL_term)
 #     print('eta', eta)
 
     Wa = eta*Wm
 
     rho2 = rho*(P2/P1)
     # Speed of sound
-    c2 = (k*R*T2/(MW/1000.))**0.5
+    c2 = sqrt(k*R*T2/(MW/1000.))
 
     Mo = 4.0*m/(pi*d*d*rho2*c2)
 
@@ -1454,7 +1454,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
 
     fr = c_pipe/(pi*Di) 
     fo = 0.25*fr*(c2/c_air)
-    fg = 3**0.5*c_air**2/(pi*t_pipe*c_pipe)
+    fg = sqrt(3)*c_air**2/(pi*t_pipe*c_pipe)
 
     if d > 0.15:
         dTL = 0.0
@@ -1500,7 +1500,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
                 Gy = 1.0
         else:
             if fi < fr:
-                Gx = (fi/fr)**0.5
+                Gx = sqrt(fi/fr)
             else:
                 Gx = 1.0
             if fi < fg:
@@ -1508,7 +1508,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
             else:
                 Gy = 1.0
 
-        eta_s = (0.01/fi)**0.5
+        eta_s = sqrt(0.01/fi)
 #         print('eta_s', eta_s)
         # up to eta_s is good
 

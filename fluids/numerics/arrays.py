@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin
+from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin, sqrt
 import sys
 
 REQUIRE_DEPENDENCIES = False
@@ -469,7 +469,7 @@ def norm2(arr):
     tot = 0.0
     for i in arr:
         tot += i*i
-    return tot**0.5
+    return sqrt(tot)
 
 
 def array_as_tridiagonals(arr):

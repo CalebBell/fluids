@@ -106,6 +106,7 @@ try:
 except:
     hwm14_compiled = False
 
+@pytest.mark.f2py
 @pytest.mark.skipif(not hwm93_compiled,
                     reason='hwm93 model is not built')
 def test_hwm93():
@@ -118,6 +119,7 @@ def test_hwm93():
     assert_close1d(ans, [-110.16133880615234, -12.400712013244629])
 
 
+@pytest.mark.f2py
 @pytest.mark.skipif(not hwm14_compiled,
                     reason='hwm14 model is not built')
 def test_hwm14():
@@ -256,14 +258,21 @@ def test_earthsun_distance():
                  151812898579.44104, rtol=1e-10)
 
 
-@pytest.mark.skipif(not has_pvlib,
-                    reason='Pvlib is not installed')
+
+
 def test_solar_irradiation():
+    ans = solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
+    moment=datetime(2018, 4, 15, 19, 43, 5), surface_tilt=41.0, 
+    surface_azimuth=180.0)
+    ans_expect = [1065.7622492480543, 945.2657257434173, 120.49652350463705, 95.31534254980346, 25.18118095483359]
+    assert_close1d(ans, ans_expect, rtol=1e-5)
+
+@pytest.mark.pytz
+def test_solar_irradiation_pytz():
     import pytz
     # Providing linke_turbidity always saves .1 seconds on unit testing from loading database
     ans = solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3, moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,  surface_azimuth=180.0)
     ans_expect = [1065.7622492480543, 945.2657257434173, 120.49652350463705, 95.31534254980346, 25.18118095483359]
-    
     assert_close1d(ans, ans_expect, rtol=1e-5)
 
 
@@ -276,6 +285,8 @@ def test_sunrise_sunset():
     assert sunset == sunset_expected
     assert transit == transit_expected
     
+@pytest.mark.pytz
+def test_sunrise_sunset_pytz():
     calgary = pytz.timezone('America/Edmonton')
     sunrise, sunset, transit = sunrise_sunset(calgary.localize(datetime(2018, 4, 17)), 51.0486, -114.07)
     assert sunrise == calgary.localize(datetime(2018, 4, 16, 6, 39, 1, 570479))

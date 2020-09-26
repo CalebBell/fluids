@@ -22,7 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import cos, sin, tan, atan, pi, radians, degrees, log10, log
+from math import sqrt, cos, sin, tan, atan, pi, radians, degrees, log10, log
 from fluids.constants import inch, deg2rad, rad2deg
 from fluids.friction import (friction_factor, Clamond, 
                              friction_factor_curved, ft_Crane)
@@ -604,7 +604,7 @@ def entrance_rounded(Di, rc, method='Rennels'):
     if method == 'Rennels':
         if rc/Di > 1.0:
             return 0.03
-        lbd = 1.0 + 0.622*(1.0 - 0.30*(rc/Di)**0.5 - 0.70*(rc/Di))**4.0
+        lbd = 1.0 + 0.622*(1.0 - 0.30*sqrt(rc/Di) - 0.70*(rc/Di))**4.0
         return 0.0696*(1.0 - 0.569*rc/Di)*lbd**2.0 + (lbd - 1.0)**2
     elif method == 'Swamee':
         return 0.5/(1.0 + 36.0*(rc/Di)**1.2)
@@ -731,7 +731,7 @@ def entrance_beveled(Di, l, angle, method='Rennels'):
         method = 'Rennels'
     if method == 'Rennels':
         Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/Di ))
-        lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1 - (l/Di)**0.25)/2.))
+        lbd = 1 + 0.622*(1 - 1.5*Cb*(l/Di)**((1 - sqrt(sqrt(l/Di)))/2.))
         return 0.0696*(1 - Cb*l/Di)*lbd**2 + (lbd - 1.)**2
     elif method == 'Idelchik':
         return float(bisplev(angle*2.0, l/Di, entrance_beveled_Idelchik_tck))
@@ -786,7 +786,7 @@ def entrance_beveled_orifice(Di, do, l, angle):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
     Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/do ))
-    lbd = 1 + 0.622*(1 - Cb*(l/do)**((1 - (l/do)**0.25)/2.))
+    lbd = 1 + 0.622*(1 - Cb*(l/do)**((1 - sqrt(sqrt(l/do)))/2.))
     return 0.0696*(1 - Cb*l/do)*lbd**2 + (lbd - (do/Di)**2)**2
 
 
@@ -1363,7 +1363,7 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=None,
             fd = Clamond(Re=Re, eD=roughness/Di, fast=False)
         sin_term = sin(0.5*angle)
         return (fd*angle*rc/Di + (0.10 + 2.4*fd)*sin_term
-        + 6.6*fd*(sin_term**0.5 + sin_term)/(rc/Di)**(4.*angle/pi))
+        + 6.6*fd*(sqrt(sin_term) + sin_term)/(rc/Di)**(4.*angle/pi))
     elif method == 'Miller':
         if Re is None:
             raise ValueError('Miller method requires Reynolds number')
@@ -1382,7 +1382,7 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=None,
         return bend_rounded_Ito(Di=Di, angle=angle, Re=Re, rc=rc, bend_diameters=bend_diameters, 
                      roughness=roughness)
     elif method == 'Swamee':
-        return (0.0733 + 0.923*(Di/rc)**3.5)*radians(angle)**0.5
+        return (0.0733 + 0.923*(Di/rc)**3.5)*sqrt(radians(angle))
     else:
         raise ValueError(bend_rounded_method_unknown)
 
@@ -1605,7 +1605,7 @@ def helix(Di, rs, pitch, N, fd):
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    return N*(fd*((2*pi*rs)**2 + pitch**2)**0.5/Di + 0.20 + 4.8*fd)
+    return N*(fd*sqrt((2*pi*rs)**2 + pitch**2)/Di + 0.20 + 4.8*fd)
 
 
 def spiral(Di, rmax, rmin, pitch, fd):
@@ -1915,8 +1915,8 @@ def contraction_round(Di1, Di2, rc, method='Rennels'):
     if method is None:
         method = 'Rennels'
     if method == 'Rennels':
-        lbd = 1.0 + 0.622*(1.0 - 0.30*(rc/Di2)**0.5 - 0.70*rc/Di2)**4*(1.0 - 0.215*beta**2 - 0.785*beta**5)
-        return 0.0696*(1.0 - 0.569*rc/Di2)*(1.0 - (rc/Di2)**0.5*beta)*(1.0 - beta**5)*lbd*lbd + (lbd - 1.0)**2
+        lbd = 1.0 + 0.622*(1.0 - 0.30*sqrt(rc/Di2) - 0.70*rc/Di2)**4*(1.0 - 0.215*beta**2 - 0.785*beta**5)
+        return 0.0696*(1.0 - 0.569*rc/Di2)*(1.0 - sqrt(rc/Di2)*beta)*(1.0 - beta**5)*lbd*lbd + (lbd - 1.0)**2
     elif method == 'Miller':
         return contraction_round_Miller(Di1=Di1, Di2=Di2, rc=rc)
     elif method == 'Idelchik':
@@ -1995,7 +1995,7 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
         K2 = 0.8*sin(0.5*angle_rad)*(1.0 - beta2)
     else:
         # Formula 2
-        K2 = 0.5*(sin(0.5*angle_rad)**0.5*(1.0 - beta2))
+        K2 = 0.5*(sqrt(sin(0.5*angle_rad))*(1.0 - beta2))
     return K2
 
 
@@ -2300,7 +2300,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
             K = (0.6 + 0.48*fd)*D1_D2_2*(D1_D2_2 - 1.0)
             
         if angle_rad > 0.25*pi:
-            K *= (sin(0.5*angle_rad))**0.5
+            K *= sqrt(sin(0.5*angle_rad))
         else:
             K *= 1.6*sin(0.5*angle_rad)
         K = change_K_basis(K, Di1, Di2)
@@ -2730,15 +2730,15 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         if 0.0 < angle_deg <= 20.0:
             K = 8.30*tan(0.5*angle_rad)**1.75*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
         elif 20.0 < angle_deg <= 60.0 and 0.0 <= beta < 0.5:
-            K = (1.366*sin(2.0*pi*(angle_deg - 15.0)/180.)**0.5 - 0.170
-            - 3.28*(0.0625-beta**4)*(0.025*(angle_deg-20.0))**0.5)*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
+            K = (1.366*sqrt(sin(2.0*pi*(angle_deg - 15.0)/180.)) - 0.170
+            - 3.28*(0.0625-beta**4)*sqrt(0.025*(angle_deg-20.0)))*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
         elif 20.0 < angle_deg <= 60.0 and beta >= 0.5:
-            K = (1.366*sin(2.0*pi*(angle_deg - 15.0)/180.0)**0.5 - 0.170)*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
+            K = (1.366*sqrt(sin(2.0*pi*(angle_deg - 15.0)/180.0)) - 0.170)*(1.0 - beta2)**2 + 0.125*fd*(1.0 - beta2*beta2)/sin(0.5*angle_rad)
         elif 60.0 < angle_deg <= 180.0 and 0.0 <= beta < 0.5:
             beta4 = beta2*beta2
-            K = (1.205 - 3.28*(0.0625 - beta4) - 12.8*beta4*beta2*((angle_deg - 60.0)/120.)**0.5)*(1.0 - beta2)**2
+            K = (1.205 - 3.28*(0.0625 - beta4) - 12.8*beta4*beta2*sqrt((angle_deg - 60.0)/120.))*(1.0 - beta2)**2
         elif 60.0 < angle_deg <= 180.0 and beta >= 0.5:
-            K = (1.205 - 0.20*((angle_deg - 60.0)/120.)**0.5)*(1.0 - beta**2)**2
+            K = (1.205 - 0.20*sqrt((angle_deg - 60.0)/120.))*(1.0 - beta**2)**2
         else:
             raise ValueError('Conical diffuser inputs incorrect')
         return K
@@ -2781,7 +2781,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
     elif method == 'Swamee':
         # Really starting to thing Swamee uses a different definition of loss coefficient!
         r = Di2/Di1
-        K = (0.25*angle_rad**-3*(1.0 + 0.6*r**(-1.67)*(pi-angle_rad)/angle_rad)**(0.533*r - 2.6))**-0.5
+        K = 1.0/sqrt(0.25*angle_rad**-3*(1.0 + 0.6*r**(-1.67)*(pi-angle_rad)/angle_rad)**(0.533*r - 2.6))
         return K
     elif method == 'Hooper':
         if Re is None:
@@ -3372,7 +3372,7 @@ def K_to_Kv(K, D):
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
-    return D*D*(1.6E9/K)**0.5
+    return D*D*sqrt(1.6E9/K)
 
 
 def K_to_Cv(K, D):
@@ -3412,7 +3412,7 @@ def K_to_Cv(K, D):
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
-    return 1.1560992283536566*D*D*(1.6E9/K)**0.5
+    return 1.1560992283536566*D*D*sqrt(1.6E9/K)
 
 
 def Cv_to_K(Cv, D):
@@ -3532,7 +3532,7 @@ def K_gate_valve_Crane(D1, D2, angle, fd=None):
         if angle <= 0.7853981633974483:
             K = (K1 + sin(0.5*angle)*(0.8*one_m_beta2 + 2.6*one_m_beta2*one_m_beta2))/(beta2*beta2)
         else:
-            K = (K1 + 0.5*(sin(0.5*angle))**0.5*one_m_beta2 + one_m_beta2*one_m_beta2)/(beta2*beta2)
+            K = (K1 + 0.5*sqrt(sin(0.5*angle))*one_m_beta2 + one_m_beta2*one_m_beta2)/(beta2*beta2)
     return K
 
 
@@ -4075,7 +4075,7 @@ def K_ball_valve_Crane(D1, D2, angle, fd=None):
         if angle <= pi/4:
             return (K1 + sin(angle/2)*(0.8*(1-beta**2) + 2.6*(1-beta**2)**2))/beta**4
         else:
-            return (K1 + 0.5*(sin(angle/2))**0.5 * (1 - beta**2) + (1-beta**2)**2)/beta**4
+            return (K1 + 0.5*sqrt(sin(angle/2)) * (1 - beta**2) + (1-beta**2)**2)/beta**4
 
 
 diaphragm_valve_Crane_coeffs = {0: 149.0, 1: 39.0}
@@ -4350,7 +4350,7 @@ def K_plug_valve_Crane(D1, D2, angle, fd=None, style=0):
     if beta == 1:
         return K
     else:
-        return (K + 0.5*(sin(angle/2))**0.5 * (1 - beta**2) + (1-beta**2)**2)/beta**4
+        return (K + 0.5*sqrt(sin(angle/2)) * (1 - beta**2) + (1-beta**2)**2)/beta**4
 
 
 def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
@@ -4443,31 +4443,31 @@ def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
         beta = D1/D2
         beta2 = beta*beta
     if style == 'swing check angled':
-        return 45.0*specific_volume**0.5
+        return 45.0*sqrt(specific_volume)
     elif style == 'swing check straight':
-        return 75.0*specific_volume**0.5
+        return 75.0*sqrt(specific_volume)
     elif style == 'swing check UL':
-        return 120.0*specific_volume**0.5
+        return 120.0*sqrt(specific_volume)
     elif style == 'lift check straight':
-        return 50.0*beta2*specific_volume**0.5
+        return 50.0*beta2*sqrt(specific_volume)
     elif style == 'lift check angled':
-        return 170.0*beta2*specific_volume**0.5
+        return 170.0*beta2*sqrt(specific_volume)
     elif style == 'tilting check 5°':
-        return 100.0*specific_volume**0.5
+        return 100.0*sqrt(specific_volume)
     elif style == 'tilting check 15°':
-        return 40.0*specific_volume**0.5
+        return 40.0*sqrt(specific_volume)
     elif style == 'stop check globe 1':
-        return 70.0*beta2*specific_volume**0.5
+        return 70.0*beta2*sqrt(specific_volume)
     elif style == 'stop check angle 1':
-        return 95.0*beta2*specific_volume**0.5
+        return 95.0*beta2*sqrt(specific_volume)
     elif style in ('stop check globe 2', 'stop check angle 2'):
-        return 75.0*beta2*specific_volume**0.5
+        return 75.0*beta2*sqrt(specific_volume)
     elif style in ('stop check globe 3', 'stop check angle 3'):
-        return 170.0*beta2*specific_volume**0.5
+        return 170.0*beta2*sqrt(specific_volume)
     elif style == 'foot valve poppet disc':
-        return 20.0*specific_volume**0.5
+        return 20.0*sqrt(specific_volume)
     elif style == 'foot valve hinged disc':
-        return 45.0*specific_volume**0.5
+        return 45.0*sqrt(specific_volume)
 
 
 branch_converging_Crane_Fs = [1.74, 1.41, 1.0, 0.0]

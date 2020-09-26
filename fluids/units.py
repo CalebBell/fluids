@@ -460,6 +460,12 @@ wrapped_nu_mu_converter = nu_mu_converter
 
 wrapped_differential_pressure_meter_solver = differential_pressure_meter_solver
 
+variable_output_unit_funcs = {
+    'core.nu_mu_converter': {(float, float, None): [u.Pa*u.s],
+                             (float, None, float): [u.m**2/u.s],
+                             }
+        
+}
 
 def nu_mu_converter(rho, mu=None, nu=None):
     ans = wrapped_nu_mu_converter(rho, mu, nu)

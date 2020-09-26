@@ -250,7 +250,7 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_black
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
         parallel = 'prange' in source
         source = re.sub(match_prange, sub_prange, source)
-#        if 'Wilke_large' in source:
+#        if 'Lindsay_Bromley' in source:
 #            print(source)
 #            print(parallel, 'hi', extra_args)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
@@ -429,6 +429,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
     except:
         all_submodules = normal.submodules
     for mod in all_submodules:
+        #print(all_submodules, mod)
         SUBMOD_COPY = importlib.util.find_spec(mod.__name__)
         SUBMOD = importlib.util.module_from_spec(SUBMOD_COPY)
         SUBMOD.IS_NUMBA = True
@@ -479,9 +480,14 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                 obj_type = type(obj)
                 if obj_type is list and len(obj) and type(obj[0]) in (float, int, complex):
                     module_constants_changed_type[arr_name] = np.array(obj)
-                elif obj_type is list and len(obj) and all([
-                        (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj]):
-                    module_constants_changed_type[arr_name] = np.array(obj)
+                elif (obj_type is list and len(obj) and all([
+                        (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj])):
+                    if len(set([len(r) for r in obj])) == 1:
+                        # All same size - nice numpy array
+                        module_constants_changed_type[arr_name] = np.array(obj)
+                    else:
+                        # Tuple of different size numpy arrays
+                        module_constants_changed_type[arr_name] = tuple(np.array(v) for v in obj)
                 elif obj_type in (set, frozenset):
                     module_constants_changed_type[arr_name] = tuple(obj)
                 elif obj_type is dict:
@@ -499,6 +505,10 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
     
         if not vec:
             for t in new_objs:
+                #if normal.__name__ == 'chemicals':
+                #    if 'iapws' not in all_submodules[-1].__name__:
+                #        print(new_objs, t)
+                #        1/0
                 try:
                     glob = t.py_func.__globals__
                 except:
@@ -546,6 +556,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
                  'packed_tower.Stichlmair_flood', 'compressible.isothermal_gas', 
                  'fittings.Darby3K', 'fittings.Hooper2K', 'geometry.SA_partial_horiz_torispherical_head',
                  'optional.spa.solar_position', 'optional.spa.longitude_obliquity_nutation',
+                 'optional.spa.transit_sunrise_sunset',
                  'fittings.bend_rounded_Crane', 'geometry.tank_from_two_specs_err',
                  ]
     transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec, cache_blacklist=cache_blacklist)
@@ -608,6 +619,10 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     
     for mod in new_mods:
         mod.__dict__.update(__funcs)
+        try:
+            __all__.extend(mod.__all__)
+        except AttributeError:
+            pass
 
 transform_complete(replaced, __funcs, __all__, normal, vec=False)
 

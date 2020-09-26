@@ -22,7 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import tan, radians
+from math import tan, radians, sqrt
 from fluids.constants import g
 from fluids.numerics import interp
 
@@ -105,7 +105,7 @@ def Q_weir_V_Shen(h1, angle=90):
     '''
     C = interp(angle, angles_Shen, Cs_Shen)
     k = interp(angle, angles_Shen, k_Shen)    
-    return C*tan(radians(angle)/2)*g**0.5*(h1 + k)**2.5
+    return C*tan(radians(angle)/2)*sqrt(g)*(h1 + k)**2.5
 
 
 ### Rectangular Weirs
@@ -160,7 +160,7 @@ def Q_weir_rectangular_Kindsvater_Carter(h1, h2, b):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    return 0.554*(1 - 0.0035*h1/h2)*(b + 0.0025)*g**0.5*(h1 + 0.0001)**1.5
+    return 0.554*(1 - 0.0035*h1/h2)*(b + 0.0025)*sqrt(g)*(h1 + 0.0001)**1.5
 
 
 def Q_weir_rectangular_SIA(h1, h2, b, b1):
@@ -217,7 +217,7 @@ def Q_weir_rectangular_SIA(h1, h2, b, b1):
     '''
     h = h1 + h2
     Q = 0.544*(1 + 0.064*(b/b1)**2 + (0.00626 - 0.00519*(b/b1)**2)/(h1 + 0.0016))\
-    *(1 + 0.5*(b/b1)**4*(h1/(h1 + h2))**2)*b*g**0.5*h**1.5
+    *(1 + 0.5*(b/b1)**4*(h1/(h1 + h2))**2)*b*sqrt(g)*h**1.5
     return Q
 
 
@@ -273,7 +273,7 @@ def Q_weir_rectangular_full_Ackers(h1, h2, b):
     .. [3] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return 0.564*(1 + 0.150*h1/h2)*b*g**0.5*(h1 + 0.001)**1.5
+    return 0.564*(1 + 0.150*h1/h2)*b*sqrt(g)*(h1 + 0.001)**1.5
 
 
 def Q_weir_rectangular_full_SIA(h1, h2, b):
@@ -326,8 +326,8 @@ def Q_weir_rectangular_full_SIA(h1, h2, b):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    Q = 2/3.*2**0.5*(0.615 + 0.000615/(h1 + 0.0016))*b*g**0.5*h1 \
-    + 0.5*(h1/(h1+h2))**2*b*g**0.5*h1**1.5
+    Q = 2/3.*sqrt(2)*(0.615 + 0.000615/(h1 + 0.0016))*b*sqrt(g)*h1 \
+    + 0.5*(h1/(h1+h2))**2*b*sqrt(g)*h1**1.5
     return Q
 
 
@@ -381,7 +381,7 @@ def Q_weir_rectangular_full_Rehbock(h1, h2, b):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    return 2/3.*2**0.5*(0.602 + 0.0832*h1/h2)*b*g**0.5*(h1+0.00125)**1.5
+    return 2/3.*sqrt(2)*(0.602 + 0.0832*h1/h2)*b*sqrt(g)*(h1+0.00125)**1.5
 
 #print [Q_weir_rectangular_full_Rehbock(h1=0.3, h2=0.4, b=2)]
 
@@ -434,7 +434,7 @@ def Q_weir_rectangular_full_Kindsvater_Carter(h1, h2, b):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    Q = 2/3.*2**0.5*(0.602 + 0.075*h1/h2)*(b - 0.001)*g**0.5*(h1 + 0.001)**1.5
+    Q = 2/3.*sqrt(2)*(0.602 + 0.075*h1/h2)*(b - 0.001)*sqrt(g)*(h1 + 0.001)**1.5
     return Q
 #print [Q_weir_rectangular_full_Kindsvater_Carter(h1=0.3, h2=0.4, b=2)]
 
@@ -487,7 +487,7 @@ def V_Manning(Rh, S, n):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return Rh**(2.0/3.)*S**0.5/n
+    return Rh**(2.0/3.)*sqrt(S)/n
 
 
 def n_Manning_to_C_Chezy(n, Rh):
@@ -603,7 +603,7 @@ def V_Chezy(Rh, S, C):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     .. [3] Chow, Ven Te. Open-Channel Hydraulics. New York: McGraw-Hill, 1959.
     '''
-    return C*(S*Rh)**0.5
+    return C*sqrt(S*Rh)
 
 
 
