@@ -666,7 +666,7 @@ def cdf_lognormal(d, d_characteristic, s):
     Examples
     --------
     >>> cdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
-    0.9818369875798176
+    0.9818369875798
 
     References
     ----------
@@ -1302,7 +1302,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> [psd.cdf(5e-6, n) for n in range(4)]
-        [0.933192798731142, 0.8413447460685429, 0.6914624612740131, 0.5]
+        [0.933192798731, 0.8413447460685, 0.6914624612740, 0.5]
         '''
         if n is not None and n != self.order:
             power = n - self.order
@@ -1491,7 +1491,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.fractions_discrete([1e-6, 1e-5, 1e-4, 1e-3])
-        [0.0006434710129138987, 0.9165280099853876, 0.08282851796190027, 1.039798247504109e-09]
+        [0.000643471012913, 0.916528009985, 0.0828285179619, 1.039798247504e-09]
         '''
         cdfs = [self.cdf(d, n=n) for d in ds]
         return [cdfs[0]] + diff(cdfs)
@@ -1519,7 +1519,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.cdf_discrete([1e-6, 1e-5, 1e-4, 1e-3])
-        [0.0006434710129138987, 0.9171714809983015, 0.9999999989602018, 1.0]
+        [0.000643471012913, 0.917171480998, 0.999999998960, 1.0]
         '''
         return [self.cdf(d, n=n) for d in ds]
     
