@@ -1491,7 +1491,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.fractions_discrete([1e-6, 1e-5, 1e-4, 1e-3])
-        [0.000643471012913, 0.916528009985, 0.0828285179619, 1.039798247504e-09]
+        [0.00064347101291, 0.916528009985, 0.0828285179619, 1.039798e-09]
         '''
         cdfs = [self.cdf(d, n=n) for d in ds]
         return [cdfs[0]] + diff(cdfs)
