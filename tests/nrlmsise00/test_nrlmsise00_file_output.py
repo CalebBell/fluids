@@ -28,6 +28,7 @@ import pytest
 known_hash = 'bb504fc1ab541260f13b2d2d89884c4d'
 
 @pytest.mark.slow
+@pytest.mark.skip
 def test_NRLMSISE00_against_C_output():
     # Test results currently match up exactly with those of the C test file.
     script = os.path.join(os.path.dirname(__file__), 'nrlmsise_00_test.py')

@@ -45,6 +45,11 @@ from fluids.nrlmsise00.nrlmsise_00 import gtd7
 from fluids.nrlmsise00.nrlmsise_00_header import nrlmsise_output, nrlmsise_input, nrlmsise_flags , ap_array
 import pytest
 
+def build_file(txt, end=''):
+    # TODO: replace print with this call. Return a giant string, not a plain text output.
+    # It is important to not have to start a new python process - slow
+    pass
+
 @pytest.mark.slow
 def test_gtd7():
     output = [nrlmsise_output() for _ in range(17)]
