@@ -430,7 +430,7 @@ class ATMOSPHERE_NRLMSISE00(object):
     --------
     >>> atmosphere = ATMOSPHERE_NRLMSISE00(1E3, 45, 45, 150)
     >>> atmosphere.T, atmosphere.rho
-    (285.54408606237405, 1.1019062026405517)
+    (285.5440860623, 1.10190620264)
     
     Notes
     -----
@@ -756,7 +756,7 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
     Examples
     --------
     >>> airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90)
-    10356.127665863998
+    10356.12766586
     
     References
     ----------

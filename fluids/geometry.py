@@ -1747,7 +1747,7 @@ def SA_partial_horiz_spherical_head(D, a, h):
     Examples
     --------
     >>> SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0)
-    2027.2672091672684
+    2027.267209167
     
     References
     ----------
