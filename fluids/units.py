@@ -496,8 +496,25 @@ variable_output_unit_funcs = {
                                             (True, True, True, True, True, False, True, True): [u.Pa],
                                             (True, True, True, True, True, True, False, True): [u.Pa],
                                             (True, True, True, True, True, True, True, False): [u.kg/u.s],
-                                            }, 8)
+                                            }, 8),
+    'isothermal_gas': ({(True, True, False, True, True, True, True): [u.Pa],
+                        (True, True, True, False, True, True, True): [u.Pa],
+                        (True, True, True, True, False, True, True): [u.m],
+                        (True, True, True, True, True, False, True): [u.m],
+                        (True, True, True, True, True, True, False): [u.kg/u.s],
+                        }, 7)
 }                                       
+    
+simple_compressible_variable_output = ({(True, True, False, True, True, True, True): [u.m],
+                                        (True, True, True, False, True, True, True): [u.m],
+                                        (True, True, True, True, False, True, True): [u.Pa],
+                                        (True, True, True, True, True, False, True): [u.Pa],
+                                        (True, True, True, True, True, True, False): [u.m**3/u.s],
+                                        }, 7)
+for f in ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 'Spitzglass_low', 'Oliphant', 'Fritzsche']:
+    variable_output_unit_funcs[f] = simple_compressible_variable_output
+
+IGT_Muller_variable_output = ({(True, True, True, False, True, True, True, True): [u.m]}, 8)
                                        
 def variable_output_wrapper(func):
     name = func.__name__
@@ -522,23 +539,6 @@ def variable_output_wrapper(func):
 for name in variable_output_unit_funcs.keys():
     globals()[name] = variable_output_wrapper(getattr(fluids, name))
     
-
-def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None): # pragma: no cover
-    '''
-    >>> isothermal_gas(rho=11.3*u.kg/u.m**3, fd=0.00185*u.dimensionless, P1=1E6*u.Pa, P2=9E5*u.Pa, L=1000*u.m, D=0.5*u.m)
-    <Quantity(145.484757, 'kilogram / second')>
-    '''
-    ans = wrapped_isothermal_gas(rho, fd, P1, P2, L, D, m)    
-    if m is None and (None not in [P1, P2, L, D]):
-        return ans*u.kg/u.s
-    elif L is None and (None not in [P1, P2, D, m]):
-        return ans*u.m
-    elif P1 is None and (None not in [L, P2, D, m]):
-        return ans*u.Pa
-    elif P2 is None and (None not in [L, P1, D, m]):
-        return ans*u.Pa
-    elif D is None and (None not in [P2, P1, L, m]):
-        return ans*u.m
 
 
 def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
@@ -571,49 +571,4 @@ def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
         return ans*u.m
 
 
-funcs = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 'Spitzglass_low', 'Oliphant', 'Fritzsche']
-Es = [.92, .92, .92, 1, 1, .92, 1]
-
-for wrapper, E in zip(funcs, Es):
-    wrapper_name = wrapper + '_wrapper'
-    globals()[wrapper_name] = globals()[wrapper]
-    
-    def compressible_flow_wrapper(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
-                Ps=101325.*u.Pa, Zavg=1, E=E, _=wrapper_name): # pragma: no cover
-#        '''
-#        >>> Panhandle_A(SG=0.693, D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, Tavg=277.15*u.K)
-#        <Quantity(42.560820512, 'meter ** 3 / second')>
-#        '''
-        ans = globals()[_](SG, Tavg, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
-        if Q is None and (None not in [L, D, P1, P2]):
-            return ans*u.m**3/u.s
-        elif D is None and (None not in [L, Q, P1, P2]):
-            return ans*u.m
-        elif P1 is None and (None not in [L, Q, D, P2]):
-            return ans*u.Pa
-        elif P2 is None and (None not in [L, Q, D, P1]):
-            return ans*u.Pa
-        elif L is None and (None not in [P2, Q, D, P1]):
-            return ans*u.m
-    globals()[wrapper] = compressible_flow_wrapper
-
-
 # NOTE: class support can't do static methods unless a class is already instantiated
-
-#def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None, 
-#                                       m=None, meter_type=None, 
-#                                       taps=None): # pragma: no cover
-#    ans = wrapped_differential_pressure_meter_solver(D, rho, mu, k, D2=D2, P1=P1, P2=P2, 
-#                                       m=m, meter_type=meter_type, 
-#                                       taps=taps)  
-#    if m is None and (None not in [D, D2, P1, P2]):
-#        return ans*u.kg/u.s
-#    elif D2 is None and (None not in [D, m, P1, P2]):
-#        return ans*u.m
-#    elif P2 is None and (None not in [D, D2, P1, m]):
-#        return ans*u.Pa
-#    elif P1 is None and (None not in [D, D2, m, P2]):
-#        return ans*u.Pa
-#
-#D, rho, mu, k, D2=None, P1=None, P2=None, 
-#                                       m=None, 

@@ -233,6 +233,10 @@ def test_custom_wraps():
     expect = [10.124375616183064, 5.062187808091532, 5.062187808091532, 0]
     for value, expected in zip([SA, sideA_SA, sideB_SA, lateral_SA], expect):
         assert_pint_allclose(value, expected, {u'[length]': 2.0})
+        
+        
+    m = isothermal_gas(rho=11.3*u.kg/u.m**3, fd=0.00185*u.dimensionless, P1=1E6*u.Pa, P2=9E5*u.Pa, L=1000*u.m, D=0.5*u.m)
+    assert_pint_allclose(m, 145.484757, {u'[mass]': 1.0, u'[time]': -1.0})
     
 
 
