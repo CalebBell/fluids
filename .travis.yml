@@ -36,7 +36,10 @@ install:
   - conda install $SCIPY_VER
   - pip install -r requirements_test.txt
   - python setup.py -q install
+  - pwd
+  - ls -1
   - rm -rf fluids
+  - ls -1
 script:
   - py.test . -v --cov-report html --cov=fluids --cov-report term-missing -m "not online and not thermo and not numba"
 after_success:
