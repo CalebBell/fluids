@@ -27,6 +27,7 @@ install:
   - cmd: conda install -yq numpy scipy pip pytest pandas
   - cmd: pip install pytest-cov coveralls sympy fuzzywuzzy pint pytz
   - cmd: python setup.py install
+  - cmd: rmdir /Q /S fluids
 
 test_script:
   - cmd: py.test --cov-report html --cov=fluids -m "not online and not thermo and not numba"
