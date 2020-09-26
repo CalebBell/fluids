@@ -568,7 +568,7 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
 
     Examples
     --------
-    >>> hwm93(5E5, 45, 50, 365)
+    >>> hwm93(5E5, 45, 50, 365) # doctest: +SKIP
     (-73.00312042236328, 0.1485661268234253)
     
     Notes
@@ -649,7 +649,7 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
 
     Examples
     --------
-    >>> hwm14(5E5, 45, 50, 365)
+    >>> hwm14(5E5, 45, 50, 365) # doctest: +SKIP
     (-38.64341354370117, 12.871272087097168)
 
     Notes

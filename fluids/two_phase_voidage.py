@@ -2532,6 +2532,7 @@ liquid_gas_viscosity_correlations = {'Beattie Whalley': (Beattie_Whalley, 1),
                                      'McAdams': (McAdams, 0),
                                      'Cicchitti': (Cicchitti, 0),
                                      'Lin Kwok': (Lin_Kwok, 0)}
+liquid_gas_viscosity_correlations_list = list(liquid_gas_viscosity_correlations.keys())
 
 def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
     r'''This function returns a list of methods which can be used for calculating
@@ -2563,7 +2564,7 @@ def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
     '''
     methods = ['McAdams', 'Cicchitti', 'Lin Kwok']
     if rhol is not None and rhog is not None:
-        methods = list(liquid_gas_viscosity_correlations.keys())
+        methods = liquid_gas_viscosity_correlations_list
     return methods
 _gas_liquid_viscosity_method_unknown = 'Method not recognized; available methods are %s' %list(liquid_gas_viscosity_correlations.keys())
 

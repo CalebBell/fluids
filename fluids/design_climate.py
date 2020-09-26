@@ -167,7 +167,7 @@ def geocode(address):
     
     Examples
     --------
-    >>> geocode('Fredericton, NB')
+    >>> geocode('Fredericton, NB') # doctest: +SKIP
     (45.966425, -66.645813)
     """
     loc_tuple = None
