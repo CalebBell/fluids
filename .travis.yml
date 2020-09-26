@@ -39,6 +39,7 @@ install:
   - pwd
   - ls -1
   - rm -rf fluids
+  - rm -rf build
   - ls -1
 script:
   - py.test . -v --cov-report html --cov=fluids --cov-report term-missing -m "not online and not thermo and not numba"
