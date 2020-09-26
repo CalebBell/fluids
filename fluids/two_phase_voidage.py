@@ -2532,7 +2532,7 @@ liquid_gas_viscosity_correlations = {'Beattie Whalley': (Beattie_Whalley, 1),
                                      'McAdams': (McAdams, 0),
                                      'Cicchitti': (Cicchitti, 0),
                                      'Lin Kwok': (Lin_Kwok, 0)}
-liquid_gas_viscosity_correlations_list = list(liquid_gas_viscosity_correlations.keys())
+liquid_gas_viscosity_correlations_list = ['Beattie Whalley', 'Fourar Bories', 'Duckler', 'McAdams', 'Cicchitti', 'Lin Kwok']
 
 def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
     r'''This function returns a list of methods which can be used for calculating
