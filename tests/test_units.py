@@ -238,6 +238,15 @@ def test_custom_wraps():
     m = isothermal_gas(rho=11.3*u.kg/u.m**3, fd=0.00185*u.dimensionless, P1=1E6*u.Pa, P2=9E5*u.Pa, L=1000*u.m, D=0.5*u.m)
     assert_pint_allclose(m, 145.484757, {u'[mass]': 1.0, u'[time]': -1.0})
     
+    
+def test_db_functions():
+    # dB
+    ans = control_valve_noise_g_2011(m=2.22*u.kg/u.s, P1=1E6*u.Pa, P2=7.2E5*u.Pa, T1=450*u.K, rho=5.3*u.kg/u.m**3, 
+                        gamma=1.22, MW=19.8*u.g/u.mol, Kv=77.85*u.m**3/u.hour,  d=0.1*u.m, Di=0.2031*u.m, FL=None, FLP=0.792, 
+                         FP=0.98, Fd=0.296, t_pipe=0.008*u.m, rho_pipe=8000.0*u.kg/u.m**3, c_pipe=5000.0*u.m/u.s, 
+                        rho_air=1.293*u.kg/u.m**3, c_air=343.0*u.m/u.s, An=-3.8, Stp=0.2)
+#    assert_pint_allclose(ans, 91.67702674629604, {})
+    
 
 
 def test_check_signatures():

@@ -1114,7 +1114,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     -------
     LpAe1m : float
         A weighted sound pressure level 1 m from the pipe wall, 1 m distance
-        dowstream of the valve (at reference sound pressure level 2E-5), [dBA]
+        dowstream of the valve (at reference sound pressure level 2E-5), [dB]
         
     Notes
     -----
@@ -1293,7 +1293,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     c_air : float, optional
         Speed of sound of the air surrounding the valve and pipe wall, [m/s]
     An : float, optional
-        Valve correction factor for acoustic efficiency
+        Valve correction factor for acoustic efficiency, [-]
     Stp : float, optional
         Strouhal number at the peak `fp`; between 0.1 and 0.3 typically, [-]
     T2 : float, optional
@@ -1305,8 +1305,8 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     Returns
     -------
     LpAe1m : float
-        A weighted sound pressure level 1 m from the pipe wall, 1 m distance
-        dowstream of the valve (at reference sound pressure level 2E-5), [dBA]
+        A-weighted sound pressure level 1 m from the pipe wall, 1 m distance
+        dowstream of the valve (at reference sound pressure level 2E-5), [dB]
         
     Notes
     -----
