@@ -211,6 +211,12 @@ def convert_output(result, out_units, out_vars, ureg):
         return result*parse_expression_cached(out_units[0], ureg)
 
 
+in_vars_cache = {}
+in_units_cache = {}
+out_vars_cache = {}
+out_units_cache = {}
+
+
 def wraps_numpydoc(ureg, strict=True):    
     def decorator(func):
         assigned = (attr for attr in functools.WRAPPER_ASSIGNMENTS if hasattr(func, attr))
@@ -233,6 +239,11 @@ def wraps_numpydoc(ureg, strict=True):
         if out_vars and 'results' == out_vars[0]:
             out_units.pop(0)
             out_vars.pop(0)
+
+        in_vars_cache[func] = in_vars
+        in_units_cache[func] = in_units
+        out_vars_cache[func] = out_vars
+        out_units_cache[func] = out_units
 
         @functools.wraps(func, assigned=assigned, updated=updated)
         def wrapper(*values, **kw):
@@ -404,8 +415,26 @@ def wrap_numpydoc_obj(obj_to_wrap):
             'property_units': property_unit_map, 'method_units': callable_methods})
     return fun
 
+def kwargs_to_args(args, kwargs, signature):
+    '''Accepts an *args and **kwargs and a signature
+    like ['rho', 'mu', 'nu'] which is an ordered list of
+    all accepted arguments.
+    
+    Returns a list containing all the arguments, sorted, and
+    left as None if not specified
+    '''
+    argument_number = len(signature)
+    arg_number = len(args)
+    output = list(args)
+    # Extend the list and initialize as None by default
+    output.extend([None]*(argument_number - arg_number))
+    for i in range(arg_number, argument_number):
+        if signature[i] in kwargs:
+            output[i] = kwargs[signature[i]]
+    return output
 
-__funcs = {}
+
+__pint_wrapped_functions = {}
 
 for name in dir(fluids):
     if 'RectangularOffsetStripFinExchanger' in name:
@@ -426,9 +455,9 @@ for name in dir(fluids):
     if name == '__all__':
         continue
     __all__.append(name)
-    __funcs.update({name: obj})
+    __pint_wrapped_functions.update({name: obj})
     
-globals().update(__funcs)
+globals().update(__pint_wrapped_functions)
 __all__.extend(['wraps_numpydoc', 'convert_output', 'convert_input',
                 'check_args_order', 'match_parse_units', 'parse_numpydoc_variables_units', 
                 'wrap_numpydoc_obj', 'UnitAwareClass'])
@@ -458,21 +487,41 @@ wrapped_Muller = Muller
 wrapped_IGT = IGT
 wrapped_nu_mu_converter = nu_mu_converter
 
-wrapped_differential_pressure_meter_solver = differential_pressure_meter_solver
-
 variable_output_unit_funcs = {
-    'core.nu_mu_converter': {(float, float, None): [u.Pa*u.s],
-                             (float, None, float): [u.m**2/u.s],
-                             }
-        
-}
-
-def nu_mu_converter(rho, mu=None, nu=None):
-    ans = wrapped_nu_mu_converter(rho, mu, nu)
-    if mu is None:
-        return ans*u.Pa*u.s
-    return ans*u.m**2/u.s
-
+    # True: arg should be present; False: arg should be None
+    'nu_mu_converter': ({(True, False, True): [u.Pa*u.s],
+                        (True, True, False): [u.m**2/u.s],
+                        }, 3),
+    'differential_pressure_meter_solver': ({(True, True, True, True, False, True, True, True): [u.m],
+                                            (True, True, True, True, True, False, True, True): [u.Pa],
+                                            (True, True, True, True, True, True, False, True): [u.Pa],
+                                            (True, True, True, True, True, True, True, False): [u.kg/u.s],
+                                            }, 8)
+}                                       
+                                       
+def variable_output_wrapper(func):
+    name = func.__name__
+    wrapped_basic_func = __pint_wrapped_functions[name]
+    intput_signature = in_vars_cache[func]
+    output_signatures, input_length = variable_output_unit_funcs[name]
+    
+    def thing(*args, **kwargs):
+        ans = wrapped_basic_func(*args, **kwargs)
+        args_for_sig = kwargs_to_args(args, kwargs, intput_signature)
+        args_for_sig = [i is not None for i in args_for_sig]
+        if len(args_for_sig) > input_length:
+            # Allow other arguments later to not matter
+            args_for_sig = args_for_sig[:input_length]
+                
+        output_units = output_signatures[tuple(args_for_sig)]
+        if type(ans) in (list, tuple):
+            return [output_units[i]*ans[i] for i in range(len(ans))]
+        return output_units[0]*ans
+    return thing
+    
+for name in variable_output_unit_funcs.keys():
+    globals()[name] = variable_output_wrapper(getattr(fluids, name))
+    
 
 def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None): # pragma: no cover
     '''
@@ -551,18 +600,20 @@ for wrapper, E in zip(funcs, Es):
 
 # NOTE: class support can't do static methods unless a class is already instantiated
 
-def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None, 
-                                       m=None, meter_type=None, 
-                                       taps=None): # pragma: no cover
-    ans = wrapped_differential_pressure_meter_solver(D, rho, mu, k, D2=D2, P1=P1, P2=P2, 
-                                       m=m, meter_type=meter_type, 
-                                       taps=taps)  
-    if m is None and (None not in [D, D2, P1, P2]):
-        return ans*u.kg/u.s
-    elif D2 is None and (None not in [D, m, P1, P2]):
-        return ans*u.m
-    elif P2 is None and (None not in [D, D2, P1, m]):
-        return ans*u.Pa
-    elif P1 is None and (None not in [D, D2, m, P2]):
-        return ans*u.Pa
-
+#def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None, 
+#                                       m=None, meter_type=None, 
+#                                       taps=None): # pragma: no cover
+#    ans = wrapped_differential_pressure_meter_solver(D, rho, mu, k, D2=D2, P1=P1, P2=P2, 
+#                                       m=m, meter_type=meter_type, 
+#                                       taps=taps)  
+#    if m is None and (None not in [D, D2, P1, P2]):
+#        return ans*u.kg/u.s
+#    elif D2 is None and (None not in [D, m, P1, P2]):
+#        return ans*u.m
+#    elif P2 is None and (None not in [D, D2, P1, m]):
+#        return ans*u.Pa
+#    elif P1 is None and (None not in [D, D2, m, P2]):
+#        return ans*u.Pa
+#
+#D, rho, mu, k, D2=None, P1=None, P2=None, 
+#                                       m=None, 

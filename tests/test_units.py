@@ -26,10 +26,26 @@ from fluids.numerics import assert_close, assert_close1d
 import pytest
 import fluids
 from fluids.units import *
+from fluids.units import kwargs_to_args
+
+def test_kwargs_to_args():
+    sig = ['rho', 'mu', 'nu']
+    args = (1,)
+    kwargs = {'mu': 2.2}
+    assert [1, 2.2, None] == kwargs_to_args(args, kwargs, sig)
+    
+    kwargs = {'nu': 2.2}
+    assert [1, None, 2.2] == kwargs_to_args(args, kwargs, sig)
+    
+    assert [12.2, 2.2, 5.5] == kwargs_to_args(tuple(), {'mu': 2.2, 'nu': 5.5, 'rho': 12.2}, sig)
+    assert [None, None, None] == kwargs_to_args(tuple(), {}, sig)
+    
+    assert [12.2, 2.2, 5.5] == kwargs_to_args((12.2, 2.2, 5.5), {}, sig)
 
 
-def assert_pint_allclose(value, magnitude, units):
-    assert_close(value.to_base_units().magnitude, magnitude)
+
+def assert_pint_allclose(value, magnitude, units, rtol=1e-7, atol=0):
+    assert_close(value.to_base_units().magnitude, magnitude, rtol=rtol, atol=atol)
     if type(units) != dict:
         units = dict(units.dimensionality)
     assert dict(value.dimensionality) == units
@@ -230,6 +246,33 @@ def test_check_signatures():
             if hasattr(obj, '__name__') and obj.__name__ == '<lambda>':
                 continue # 3
             check_args_order(obj)
+
+
+
+def test_differential_pressure_meter_solver():
+    m = differential_pressure_meter_solver(D=0.07366*u.m, D2=0.05*u.m, P1=200000.0*u.Pa, 
+        P2=183000.0*u.Pa, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless, 
+        meter_type='ISO 5167 orifice', taps='D')
+    
+    assert_pint_allclose(m, 7.702338035732167, {'[mass]': 1, '[time]': -1})
+    
+    P1 = differential_pressure_meter_solver(D=0.07366*u.m, D2=0.05*u.m, m=m, 
+        P2=183000.0*u.Pa, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless, 
+        meter_type='ISO 5167 orifice', taps='D')
+    assert_pint_allclose(P1, 200000, {'[length]': -1, '[mass]': 1, '[time]': -2})
+    
+    P2 = differential_pressure_meter_solver(D=0.07366*u.m, D2=0.05*u.m, P1=200000.0*u.Pa, 
+        m=m, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless, 
+        meter_type='ISO 5167 orifice', taps='D')
+    
+    assert_pint_allclose(P2, 183000, {'[length]': -1, '[mass]': 1, '[time]': -2})
+    
+    D2 = differential_pressure_meter_solver(D=0.07366*u.m, m=m, P1=200000.0*u.Pa, 
+        P2=183000.0*u.Pa, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless, 
+        meter_type='ISO 5167 orifice', taps='D')
+    assert_pint_allclose(D2, .05, {'[length]': 1})
+    
+    
 
 def test_Tank_units_full():
 
