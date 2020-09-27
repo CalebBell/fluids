@@ -35,11 +35,6 @@ __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'is_critical_flow', 'stagnation_energy', 'P_stagnation',
            'T_stagnation', 'T_stagnation_ideal']
 
-__numba_additional_funcs__ = ['isothermal_gas_err_P1', 'isothermal_gas_err_P2',
-                              'isothermal_gas_err_P2_basis', 'isothermal_gas_err_D',
-                              '_to_solve_Spitzglass_high', '_to_solve_Spitzglass_low',
-                              '_to_solve_Oliphant']
-
 def isothermal_work_compression(P1, P2, T, Z=1.0):
     r'''Calculates the work of compression or expansion of a gas going through
     an isothermal process.

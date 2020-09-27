@@ -48,13 +48,6 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'K_plug_valve_Crane', 'K_branch_converging_Crane', 'K_run_converging_Crane',
 'K_branch_diverging_Crane', 'K_run_diverging_Crane', 'v_lift_valve_Crane']
 
-__numba_additional_funcs__ = ['entrance_distance_Idelchik_obj', 'entrance_distance_Harris_obj',
-                              'entrance_rounded_Harris', 'entrance_rounded_Idelchik',
-                              'Miller_bend_unimpeded_correction', 'Miller_bend_roughness_correction',
-                              'bend_rounded_Miller_C_Re', 'bend_rounded_Miller_Kb',
-                              'entrance_beveled_Idelchik_obj', 'contraction_conical_frction_Idelchik_obj',
-                              'contraction_conical_Blevins_obj', 'contraction_conical_Miller_obj',
-                              'bend_rounded_Ito', 'diffuser_conical_Crane', 'diffuser_conical_Idelchik_obj']
 
 
 def change_K_basis(K1, D1, D2):

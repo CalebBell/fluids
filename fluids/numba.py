@@ -453,10 +453,18 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
             names = list(SUBMOD.__all__)
         except:
             names = []
-        try:
-            names += SUBMOD.__numba_additional_funcs__
-        except:
-            pass
+        for mod_obj_name in dir(SUBMOD):
+            obj = getattr(SUBMOD, mod_obj_name)
+            if isinstance(obj, types.FunctionType):
+                if mod_obj_name not in names:
+                    # Check if the function is local to the module
+                    if obj.__module__ == SUBMOD.__name__:
+                        names.append(mod_obj_name)
+
+        # try:
+        #     names += SUBMOD.__numba_additional_funcs__
+        # except:
+        #     pass
     
         new_objs = []
         for name in names:

@@ -40,9 +40,6 @@ from fluids.friction import friction_factor
 from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
 from fluids.two_phase_voidage import homogeneous, Lockhart_Martinelli_Xtt
 
-__numba_additional_funcs__ = ['_Beggs_Brill_holdup', 'friction_factor_Kim_Mudawar',
-                              'XA_interp_obj', 'XC_interp_obj', 'XD_interp_obj']
-
 
 Beggs_Brill_dat = {'segregated': (0.98, 0.4846, 0.0868),
 'intermittent': (0.845, 0.5351, 0.0173),

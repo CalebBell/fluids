@@ -60,8 +60,6 @@ __all__ = ['friction_factor', 'friction_factor_methods',
 'friction_plate_Kumar', 'friction_plate_Muley_Manglik']
 
 
-#__numba_additional_funcs__ = ['helical_Re_crit']
-
 fuzzy_match_fun = None
 def fuzzy_match(name, strings):
     global fuzzy_match_fun

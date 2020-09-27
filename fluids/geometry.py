@@ -57,17 +57,6 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'pitch_angle_solver', 'plate_enlargement_factor']
 
 
-__numba_additional_funcs__ = ('_V_horiz_spherical_toint', '_SA_partial_horiz_ellipsoidal_head_to_int',
-          '_SA_partial_horiz_ellipsoidal_head_limits',
-          'V_horiz_torispherical_toint_3', 'V_horiz_torispherical_toint_2',
-          '_SA_partial_horiz_ellipsoidal_head_limits2',
-          'V_horiz_torispherical_toint_1', '_SA_partial_horiz_spherical_head_to_int', 
-          '_SA_partial_horiz_guppy_head_to_int',
-          '_SA_partial_horiz_torispherical_head_int_1',
-          '_SA_partial_horiz_torispherical_head_int_2',
-          '_SA_partial_horiz_torispherical_head_int_3',
-          'tank_from_two_specs_err')
-
 ### Spherical Vessels, partially filled
 
 

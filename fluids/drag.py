@@ -34,8 +34,6 @@ __all__ = ['drag_sphere', 'drag_sphere_methods', 'v_terminal', 'integrate_drag_s
 'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
 'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison', 'Song_Xu']
 
-__numba_additional_funcs__ = ['_v_terminal_err']
-
 def Stokes(Re):
     r'''Calculates drag coefficient of a smooth sphere using Stoke's law.
 

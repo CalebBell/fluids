@@ -67,10 +67,6 @@ __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
            'earthsun_distance', 'solar_position', 'solar_irradiation',
            'sunrise_sunset']
 
-__numba_additional_funcs__ = ['H_for_P_ATMOSPHERE_1976_err',
-                              'to_int_dP_ATMOSPHERE_1976',
-                              'to_int_airmass']
-
 no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
 this routine. '''

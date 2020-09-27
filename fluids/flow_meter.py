@@ -52,9 +52,6 @@ __all__ = ['C_Reader_Harris_Gallagher',
            ]
 
 
-__numba_additional_funcs__ = ['err_dp_meter_solver_m', 'err_dp_meter_solver_P2',
-                              'err_dp_meter_solver_D2', 'err_dp_meter_solver_P1']
-
 CONCENTRIC_ORIFICE = 'orifice' # normal
 ECCENTRIC_ORIFICE = 'eccentric orifice'
 CONICAL_ORIFICE = 'conical orifice'

@@ -68,8 +68,6 @@ __all__ = ['voidage_experimental', 'specific_area_mesh',
 'dP_demister_dry_Setekleiv_Svendsen',
 'dP_demister_wet_ElDessouky', 'separation_demister_ElDessouky']
 
-__numba_additional_funcs__ = ['_Stichlmair_flood_f', '_Stichlmair_flood_f_and_jac',
-                              '_Stichlmair_wet_err']
 ### Demister
 
 def dP_demister_dry_Setekleiv_Svendsen(S, voidage, vs, rho, mu, L=1.0):
