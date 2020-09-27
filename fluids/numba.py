@@ -453,13 +453,22 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
             names = list(SUBMOD.__all__)
         except:
             names = []
+            
+        allow_fail_names = set([])
         for mod_obj_name in dir(SUBMOD):
             obj = getattr(SUBMOD, mod_obj_name)
             if isinstance(obj, types.FunctionType):
+                if mod_obj_name in ('__getattr__',):
+                    # Names which cannot be converted
+                    continue
+                if mod_obj_name.startswith('_load'):
+                    continue
+                
                 if mod_obj_name not in names:
                     # Check if the function is local to the module
                     if obj.__module__ == SUBMOD.__name__:
                         names.append(mod_obj_name)
+                        allow_fail_names.add(mod_obj_name)
 
         # try:
         #     names += SUBMOD.__numba_additional_funcs__
@@ -472,11 +481,13 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
             if isinstance(obj, types.FunctionType):
                 nopython = name not in skip
                 if name not in total_skip and name not in blacklist:
-                    obj = conv_fun(#set_signatures.get(name, None), 
-#                            nopython=nopython,
-                            #forceobj=not nopython,
-#                                    fastmath=True,#Parallel=nopython
-                                    cache=(caching and name not in cache_blacklist), **extra_args)(obj)
+                    try:
+                        obj = conv_fun(cache=(caching and name not in cache_blacklist), **extra_args)(obj)
+                    except Exception as e:
+                        if name in mod_obj_name:
+                            continue
+                        else:
+                            raise e
                 SUBMOD.__dict__[name] = obj
                 new_objs.append(obj)
             __funcs[name] = obj
