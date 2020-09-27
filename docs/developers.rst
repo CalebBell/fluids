@@ -155,6 +155,12 @@ Adding new data and methods is well worth the price of increasing RAM, but it is
 
 It is intended for RAM consumption of the library to increase only slowly.
 
+Notes on Pint Integration Implementation
+----------------------------------------
+Units in square brackets in the docstrings are parsed for all function inputs and outputs. They are parsed by Pint directly.
+
+In some cases, a function has a variable output unit, as in the case of solvers which can solve for different variables. In that case, the variable unit shouldn't put anything in square brackets. Instead, in `units.py`, the variable `variable_output_unit_funcs` needs to have an entry for the new function. The return unit will be based on which variables are not provided as inputs to the function. True represents a present variable, and False represents a variable left as None. The number of variables the dispatch happens on can be less than the number of function arguments, and should be specified after the units signature.
+
 Notes on PyPy
 -------------
 PyPy is really awesome!
