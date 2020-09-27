@@ -481,12 +481,6 @@ def V_multiple_hole_cylinder(Do, L, holes):
 
 #V_multiple_hole_cylinder.__doc__ = fluids.geometry.V_multiple_hole_cylinder.__doc__
 
-wrapped_isothermal_gas = isothermal_gas
-wrapped_Panhandle_A = Panhandle_A
-wrapped_Muller = Muller
-wrapped_IGT = IGT
-wrapped_nu_mu_converter = nu_mu_converter
-
 variable_output_unit_funcs = {
     # True: arg should be present; False: arg should be None
     'nu_mu_converter': ({(True, False, True): [u.Pa*u.s],
@@ -514,8 +508,16 @@ simple_compressible_variable_output = ({(True, True, False, True, True, True, Tr
 for f in ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 'Spitzglass_low', 'Oliphant', 'Fritzsche']:
     variable_output_unit_funcs[f] = simple_compressible_variable_output
 
-IGT_Muller_variable_output = ({(True, True, True, False, True, True, True, True): [u.m]}, 8)
-                                       
+IGT_Muller_variable_output = ({(True, True, True, False, True, True, True, True): [u.m],
+                               (True, True, True, True, False, True, True, True): [u.m],
+                               (True, True, True, True, True, False, True, True): [u.Pa],
+                               (True, True, True, True, True, True, False, True): [u.Pa],
+                               (True, True, True, True, True, True, True, False): [u.m**3/u.s],
+                               }, 8)
+                                
+for f in ['Muller', 'IGT']:
+    variable_output_unit_funcs[f] = IGT_Muller_variable_output
+       
 def variable_output_wrapper(func):
     name = func.__name__
     wrapped_basic_func = __pint_wrapped_functions[name]
@@ -538,37 +540,6 @@ def variable_output_wrapper(func):
     
 for name in variable_output_unit_funcs.keys():
     globals()[name] = variable_output_wrapper(getattr(fluids, name))
-    
-
-
-def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
-           Ps=101325.*u.Pa, Zavg=1, E=1): # pragma: no cover
-    ans = wrapped_Muller(SG, Tavg, mu, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
-    if Q is None and (None not in [L, D, P1, P2]):
-        return ans*u.m**3/u.s
-    elif D is None and (None not in [L, Q, P1, P2]):
-        return ans*u.m
-    elif P1 is None and (None not in [L, Q, D, P2]):
-        return ans*u.Pa
-    elif P2 is None and (None not in [L, Q, D, P1]):
-        return ans*u.Pa
-    elif L is None and (None not in [P2, Q, D, P1]):
-        return ans*u.m
-
-
-def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
-        Ps=101325.*u.Pa, Zavg=1, E=1): # pragma: no cover
-    ans = wrapped_IGT(SG, Tavg, mu, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
-    if Q is None and (None not in [L, D, P1, P2]):
-        return ans*u.m**3/u.s
-    elif D is None and (None not in [L, Q, P1, P2]):
-        return ans*u.m
-    elif P1 is None and (None not in [L, Q, D, P2]):
-        return ans*u.Pa
-    elif P2 is None and (None not in [L, Q, D, P1]):
-        return ans*u.Pa
-    elif L is None and (None not in [P2, Q, D, P1]):
-        return ans*u.m
 
 
 # NOTE: class support can't do static methods unless a class is already instantiated
