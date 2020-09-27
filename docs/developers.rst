@@ -50,9 +50,7 @@ From the root directory of the project you downloaded with `git clone https://gi
 
 python3 -m pytest .
 
-This will run all of the tests. Additionally pytest can be used to run the doctests:
-
-python3 -m pytest --doctest-modules .
+This will run all of the tests including the doctests.
 
 The test suite can take some time to run; tests are marked with various markers to allow a fast subset of tests to run.
 
@@ -88,9 +86,7 @@ Doctest
 -------
 As anyone who has used doctest before knows, floating-point calculations have trivially different results across platforms. An example cause of this is that most compilers have different sin/cos implementations which are not identical. However, docstrings are checked bit-for-bit, so consistent output is important. Python is better than most languages at maintaining the same results between versions but it is still an issue.
 
-The docstrings are not considered sufficiently consistent to be part of the automated CI infrastructure. All functionality tested by docstrings should also be tested as part of the unit tests.
-
-CPython 3.7 64 bit on Linux compiled with gcc 9.2 is currently the platform used to generate the final/official results of docstring examples. Docstrings are should be added by contributors for new functionality, but **don't worry about this floating point issue**. The principal author will make any necessary changes before each release.
+Thanks to a fairly new pytest feature, numbers in doctests can be checked against the number of digits given, not against the real result. It is recommended to put numbers in doctests with 13 digits, instead of the full repr() string for a number.
 
 Type Hints
 ----------

@@ -518,11 +518,9 @@ IGT_Muller_variable_output = ({(True, True, True, False, True, True, True, True)
 for f in ['Muller', 'IGT']:
     variable_output_unit_funcs[f] = IGT_Muller_variable_output
        
-def variable_output_wrapper(func):
+def variable_output_wrapper(func, wrapped_basic_func, output_signatures, input_length):
     name = func.__name__
-    wrapped_basic_func = __pint_wrapped_functions[name]
     intput_signature = in_vars_cache[func]
-    output_signatures, input_length = variable_output_unit_funcs[name]
     
     def thing(*args, **kwargs):
         ans = wrapped_basic_func(*args, **kwargs)
@@ -538,8 +536,9 @@ def variable_output_wrapper(func):
         return output_units[0]*ans
     return thing
     
-for name in variable_output_unit_funcs.keys():
-    globals()[name] = variable_output_wrapper(getattr(fluids, name))
+for name, val in variable_output_unit_funcs.items():
+    globals()[name] = variable_output_wrapper(getattr(fluids, name),
+            __pint_wrapped_functions[name], val[0], val[1])
 
 
 # NOTE: class support can't do static methods unless a class is already instantiated
