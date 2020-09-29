@@ -1043,12 +1043,13 @@ fis_l_2015 = [12.5, 16.0, 20.0, 25.0, 31.5, 40.0, 50.0, 63.0, 80.0, 100.0, 125.0
 #fis_l_2015_1_5 = [fi**1.5 for fi in fis_l_2015]
 #fis_l_2015_n1_5 = [fi**-1.5 for fi in fis_l_2015]
 
-fis_l_2015_inv, fis_l_2015_1_5, fis_l_2015_n1_5 = [], [], []
+fis_l_2015_inv, fis_l_2015_1_5, fis_l_2015_n1_5, fis_l_2015_3 = [], [], [], []
 for fi in fis_l_2015:
     fi_rt_inv = 1.0/sqrt(fi)
     fis_l_2015_inv.append(fi_rt_inv*fi_rt_inv)
     fis_l_2015_1_5.append(fi*fi*fi_rt_inv)
     fis_l_2015_n1_5.append(fi_rt_inv*fi_rt_inv*fi_rt_inv)
+    fis_l_2015_3.append(fi*fi*fi)
 
 
 fis_length = 33
@@ -1215,6 +1216,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     LpAe1m_sum = 0.0
     
     f_p_turb_inv = 1.0/f_p_turb
+    f_p_turb_inv3 = f_p_turb_inv*f_p_turb_inv*f_p_turb_inv
     
     fr_inv_1_5 = fr_inv*sqrt(fr_inv)
     
@@ -1222,16 +1224,17 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     for i in range(fis_length):
 #    for fi, fi_inv, fi_1_5, fi_1_5_inv, A in zip(fis_l_2015, fis_l_2015_inv, fis_l_2015_1_5, fis_l_2015_n1_5, A_weights_l_2015):
 #        fi_inv = 1.0/fi
-        fi_turb_ratio = fis_l_2015[i]*f_p_turb_inv
+#        fi_turb_ratio = fis_l_2015[i]*f_p_turb_inv
 #        fi_turb_ratio = fi*f_p_turb_inv
-        F_turb = -.8 - log10(0.25*fi_turb_ratio*fi_turb_ratio*fi_turb_ratio
+        F_turb = -.8 - log10(0.25*f_p_turb_inv3*fis_l_2015_3[i]
                                    + fis_l_2015_inv[i]*f_p_turb) 
 #        F_turbs.append(F_turb)
         if cavitating:
 #            fi_cav_ratio = fi_1_5*f_p_cav_inv_1_5#   (fi*f_p_cav_inv)**1.5
 #            F_cav = -.9 - log10(f_p_cav_inv_1_5_1_4*fis_l_2015_1_5[i] + fis_l_2015_n1_5[i]*f_p_cav_1_5) # 1.0/fi_cav_ratio, fi_1_5_inv*f_p_cav_1_5
             F_cav_fact = 0.12589254117941673/(f_p_cav_inv_1_5_1_4*fis_l_2015_1_5[i] + fis_l_2015_n1_5[i]*f_p_cav_1_5)
-            # 0.1258925411794167310**(-0.9) = 
+            # 0.1258925411794167310 = 10**(-0.9)
+            
             LPif = (Lpi + 10.0*log10(t1*10.0**(F_turb) + t2*F_cav_fact))
             # Shoule be able to save 1 power in the above function somehow, combine the tow terms in exponent
         else:
