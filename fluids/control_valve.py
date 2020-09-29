@@ -1043,17 +1043,17 @@ fis_l_2015 = [12.5, 16.0, 20.0, 25.0, 31.5, 40.0, 50.0, 63.0, 80.0, 100.0, 125.0
 #fis_l_2015_1_5 = [fi**1.5 for fi in fis_l_2015]
 #fis_l_2015_n1_5 = [fi**-1.5 for fi in fis_l_2015]
 
-fis_l_2015_inv, fis_l_2015_1_5, fis_l_2015_n1_5, fis_l_2015_3 = [], [], [], []
+fis_l_2015_inv, fis_l_2015_1_5, fis_l_2015_17, fis_l_2015_n1_5, fis_l_2015_3 = [], [], [], [], []
 for fi in fis_l_2015:
     fi_rt_inv = 1.0/sqrt(fi)
     fis_l_2015_inv.append(fi_rt_inv*fi_rt_inv)
     fis_l_2015_1_5.append(fi*fi*fi_rt_inv)
     fis_l_2015_n1_5.append(fi_rt_inv*fi_rt_inv*fi_rt_inv)
     fis_l_2015_3.append(fi*fi*fi)
+    fis_l_2015_17.append(fi**1.7)
 
 
 fis_length = 33
-
 
 # dLa(fi), dB
 A_weights_l_2015 = [-63.4, -56.7, -50.5, -44.7, -39.4, -34.6, -30.2, -26.2, 
@@ -1370,10 +1370,9 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     xCE = 1.0 - 1.0/(22.0*alpha)
 
     # Regime determination check - should be ordered or won't work
-    assert xc < x_vcc
-    assert x_vcc < xB
-    assert xB < xCE
-    regime = None
+#    assert xc < x_vcc
+#    assert x_vcc < xB
+#    assert xB < xCE
     if x <= xc:
         regime = 1
     elif xc < x <= x_vcc:
@@ -1391,11 +1390,11 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     Mj5 = sqrt(2.0/(k - 1.0)*( 22.0**((k-1.0)/k) - 1.0  ))
     if regime == 1:
         Mvc = sqrt((2.0/(k-1.0)) *((1.0 - x/FL_term**2)**((1.0 - k)/k)   - 1.0)) # Not match
-    elif regime in (2, 3, 4):
+    elif regime == 2 or regime == 3 or regime == 4:
         Mj = sqrt((2.0/(k-1.0))*((1.0/(alpha*(1.0-x)))**((k - 1.0)/k) - 1.0)) # Not match
         Mj = min(Mj, Mj5)
-    elif regime == 5:
-        pass
+#    elif regime == 5:
+#        pass
 
     if regime == 1:
         Tvc = T1*(1.0 - x/(FL_term)**2)**((k - 1.0)/k)
@@ -1409,12 +1408,13 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
 
     if regime == 1:
         fp = Stp*Mvc*cvc/Dj
-    elif regime in (2, 3):
+    elif regime == 2 or regime == 3:
         fp = Stp*Mj*cvcc/Dj
     elif regime == 4:
         fp = 1.4*Stp*cvcc/Dj/sqrt(Mj*Mj - 1.0)
     elif regime == 5:
         fp = 1.4*Stp*cvcc/Dj/sqrt(Mj5*Mj5 - 1.0)
+    fp_inv = 1.0/fp
 #     print('fp', fp)
 
     if regime == 1:
@@ -1481,12 +1481,12 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     P_air_ratio = P_air/P_air_std
 
     LpAe1m_sum = 0.0
-    LPis = []
-    LPIRs = []
-    L_pe1m_fis = []
+#    LPis = []
+#    LPIRs = []
+#    L_pe1m_fis = []
     for fi, A_weight in zip(fis_l_2015, A_weights_l_2015):
         # This gets adjusted when Ma > 0.3
-        fi_turb_ratio = fi/fp
+        fi_turb_ratio = fi*fp_inv
 
         t1 = 1.0 + (0.5*fi_turb_ratio)**2.5
         t2 = 1.0 + (0.5/fi_turb_ratio)**1.7
@@ -1494,7 +1494,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
         # Formula forgot to use log10, but log10 is needed for the numbers
         Lpif = L_pi - 8.0 - 10.0*log10(t1*t2)
 #         print(Lpif, 'Lpif')
-        LPis.append(Lpif)
+#        LPis.append(Lpif)
     
         if M2 > 0.3:
             fiR_turb_ratio = fi/fpR
@@ -1502,7 +1502,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
             t2 = 1.0 + (0.5/fiR_turb_ratio)**1.7
             # Again, log10 is missing
             LpiRf = L_piR - 8.0 - 10.0*log10(t1*t2)
-            LPIRs.append(LpiRf)
+#            LPIRs.append(LpiRf)
             
             LpiSf = 10.0*log10( 10**(0.1*Lpif) + 10.0**(0.1*LpiRf) )
             
@@ -1536,7 +1536,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
             term = Lpif
         
         L_pe1m_fi = term + TL_fi - 10.0*log10((Di + 2.0*t_pipe + 2.0)/(Di + 2.0*t_pipe))
-        L_pe1m_fis.append(L_pe1m_fi)
+#        L_pe1m_fis.append(L_pe1m_fi)
 #         print(L_pe1m_fi)
 
         LpAe1m_sum += 10.0**(0.1*(L_pe1m_fi + A_weight))
