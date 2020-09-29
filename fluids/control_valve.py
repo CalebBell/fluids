@@ -1161,31 +1161,38 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     
     if xFz is None:
         xFz = 0.9*1.0/sqrt(1.0 + 3.0*Fd*sqrt(C/(N34*FL)))
-    xFzp1 = xFz*(6E5/P1)**0.125
+    xFzp1 = xFz*sqrt(sqrt(sqrt((6E5/P1))))
     
     Dj = N14*Fd*sqrt(C*FL)
     
-    Uvc = 1.0/FL*sqrt(2.0*dPc/rho)
+    Uvc = sqrt(2.0*dPc/rho)/FL
     Wm = 0.5*m*Uvc*Uvc*FL*FL
-    cavitating = False if xF <= xFzp1 else True
+    cavitating = xF > xFzp1
     
     eta_turb = 10.0**An*Uvc/c
     
+    x0 = xF - xFzp1
+    x1 = xF/xFzp1
+    x2 = x1*x1
+    x1 = x2*x2*x1
+    
     if cavitating:
     	eta_cav = 0.32*eta_turb*sqrt((P1 - P2)/(dPc*xFzp1))*exp(5.0*xFzp1)*sqrt((1.0 
-                             - xFzp1)/(1.0 - xF))*(xF/xFzp1)**5*(xF - xFzp1)**1.5
+                             - xFzp1)/(1.0 - xF))*(x1)*x0*sqrt(x0)
     	Wa = (eta_turb+eta_cav)*Wm
     else:
     	Wa = eta_turb*Wm
     
     Lpi = 10.0*log10(3.2E9*Wa*rho*c/(Di*Di))
-    Stp = 0.036*FL*FL*C*Fd**0.75/(N34*xFzp1**1.5*d*d)*(1.0/(P1 - Psat))**0.57
+    Stp = 0.036*FL*FL*C*Fd**0.75/(N34*xFzp1*sqrt(xFzp1)*d*d)*(1.0/(P1 - Psat))**0.57
     f_p_turb = Stp*Uvc/Dj
     
     if cavitating:
-        f_p_cav = 6.0*f_p_turb*((1.0 - xF)/(1.0 - xFzp1))**2*(xFzp1/xF)**2.5
+        x3 = ((1.0 - xF)/(1.0 - xFzp1))
+        x4 = xFzp1/xF
+        f_p_cav = 6.0*f_p_turb*x3*x3*x4*x4*sqrt(x4)
         f_p_cav_inv = 1.0/f_p_cav
-        f_p_cav_inv_1_5 = f_p_cav_inv**1.5
+        f_p_cav_inv_1_5 = f_p_cav_inv*sqrt(f_p_cav_inv)
         f_p_cav_inv_1_5_1_4 = 0.25*f_p_cav_inv_1_5
         f_p_cav_1_5 = 1.0/f_p_cav_inv_1_5
         eta_denom = 1.0/(eta_turb + eta_cav)
@@ -1209,7 +1216,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     
     f_p_turb_inv = 1.0/f_p_turb
     
-    fr_inv_1_5 = fr_inv**1.5
+    fr_inv_1_5 = fr_inv*sqrt(fr_inv)
     
     
     for i in range(fis_length):
