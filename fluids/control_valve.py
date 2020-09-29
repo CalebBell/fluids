@@ -22,7 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import sqrt, log10, exp, pi
+from math import sqrt, log10, exp, pi, log
 from fluids.constants import R, psi, gallon, minute
 from fluids.numerics import interp, implementation_optimize_tck, splev
 from fluids.fittings import Cv_to_Kv, Kv_to_Cv
@@ -1144,7 +1144,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     ... rho=997, c=1400, Kv=77.848, d=0.1, Di=0.1071, FL=0.92, Fd=0.42, 
     ... t_pipe=0.0036, rho_pipe=7800.0, c_pipe=5000.0,rho_air=1.293, 
     ... c_air=343.0, An=-4.6)
-    81.58200097996539
+    81.58200097996
 
     References
     ----------
@@ -1245,7 +1245,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
         L_pe1m_fi = LPif + TL_fi + t3
 #        L_pe1m_fis.append(L_pe1m_fi)
         LpAe1m_sum += 10.0**(0.1*(L_pe1m_fi + A_weights_l_2015[i]))
-    LpAe1m = 10.0*log10(LpAe1m_sum)
+    LpAe1m = 4.3429448190325175*log(LpAe1m_sum)
     return LpAe1m
 
 
