@@ -1235,16 +1235,18 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
             F_cav_fact = 0.12589254117941673/(f_p_cav_inv_1_5_1_4*fis_l_2015_1_5[i] + fis_l_2015_n1_5[i]*f_p_cav_1_5)
             # 0.1258925411794167310 = 10**(-0.9)
             
-            LPif = (Lpi + 10.0*log10(t1*10.0**(F_turb) + t2*F_cav_fact))
+            # 4.3429448190325175*log(x) -> 10*log10(x)
+            LPif = (Lpi + 4.3429448190325175*log(t1*10.0**(F_turb) + t2*F_cav_fact))
             # Shoule be able to save 1 power in the above function somehow, combine the tow terms in exponent
         else:
             LPif = Lpi + F_turb*10.0
 #        LPis.append(LPif)
-        TL_fi = TL_fr - 20.0*log10(fr*fis_l_2015_inv[i] + fis_l_2015_1_5[i]*fr_inv_1_5) #  (fi*fr_inv)**1.5
+        # -8.685889638065035 = -20*log10(x)
+        TL_fi = TL_fr - 8.685889638065035*log(fr*fis_l_2015_inv[i] + fis_l_2015_1_5[i]*fr_inv_1_5) #  (fi*fr_inv)**1.5
 #        TL_fis.append(TL_fi)
         L_pe1m_fi = LPif + TL_fi + t3
 #        L_pe1m_fis.append(L_pe1m_fi)
-        LpAe1m_sum += 10.0**(0.1*(L_pe1m_fi + A_weights_l_2015[i]))
+        LpAe1m_sum += exp(0.23025850929940458*(L_pe1m_fi + A_weights_l_2015[i]))
     LpAe1m = 4.3429448190325175*log(LpAe1m_sum)
     return LpAe1m
 
