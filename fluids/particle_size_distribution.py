@@ -2215,8 +2215,20 @@ class PSDCustom(ParticleSizeDistributionContinuous):
         n = float(n)
         if d_min == 0:
             d_min = d_max*1E-12
-        to_int = lambda d : d**n*self._pdf(d)
-        points = logspace(log10(max(d_max*1e-3, d_min)), log10(d_max*.999), 40)
+        
+        if n == 0:
+            to_int = lambda d : self._pdf(d)
+        elif n == 1:
+            to_int = lambda d : d*self._pdf(d)
+        elif n == 2:
+            to_int = lambda d : d*d*self._pdf(d)
+        elif n == 3:
+            to_int = lambda d : d*d*d*self._pdf(d)
+        else:
+            to_int = lambda d : d**n*self._pdf(d)
+
+#        points = logspace(log10(max(d_max*1e-3, d_min)), log10(d_max*.999), 40)
+        points = [d_max*1e-3] # d_min*.999 d_min
         return float(quad(to_int, d_min, d_max, points=points)[0]) #
             
     
