@@ -432,7 +432,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         L1, L2_prime = 0.0, 0.0
     elif taps == 'flange':
         L1 = L2_prime = 0.0254/D
-    elif taps  == 'D' or taps == 'D/2' or taps ==  ORIFICE_D_AND_D_2_TAPS:
+    elif taps  == 'D' or taps == 'D/2' or taps == ORIFICE_D_AND_D_2_TAPS:
         L1 = 1.0
         L2_prime = 0.47
     else:
