@@ -71,6 +71,8 @@ def test_data():
         assert abs(station.LON) <= 180
 
 
+@pytest.mark.slow
+@pytest.mark.online
 def test_correct_WBAN():
     station = get_closest_station(31.9973, -102.0779)
     station_data = StationDataGSOD(station)
