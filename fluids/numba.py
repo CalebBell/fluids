@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2020, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 import sys
@@ -39,27 +40,8 @@ from math import pi
 import fluids.optional.spa
 
 
-'''Basic module which wraps all fluids functions with numba's jit.
-All other object - dicts, classes, etc - are not wrapped. Supports star 
-imports; so the same objects exported when importing from the main library
-will be imported from here. 
-
->>> from fluids.numba import *
-
-Note that because this needs to import fluids itself, fluids.numba
-needs to be imported separately; the following will cause an error:
-    
->>> import fluids
->>> fluids.numba # Won't work, has not been imported yet
-
-The correct syntax is as follows:
-
->>> import fluids.numba # Necessary
->>> from fluids.numba import * # May be used without first importing fluids
-'''
-
 caching = True
-extra_args_std = {'nogil': True}
+extra_args_std = {'nogil': True, 'fastmath': True}
 extra_args_vec = {}
 __all__ = []
 
@@ -239,6 +221,8 @@ def return_value_numpy(source):
 list_mult_expr = r'\[ *([+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)) *\] *\* *([a-zA-Z0-9_]+)'
 numpy_not_list_expr = r'np.full((\4,), \1)'
 
+match_prange = r'range\( *([a-zA-Z0-9_]+) *\) *: *# * (numba|NUMBA) *: *(prange|PRANGE)'
+sub_prange = r'prange(\1):'
 
 def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_blacklist=set([])):
     if vec:
@@ -264,12 +248,17 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_black
         source = remove_for_numba(source) # do before anything else
         source = return_value_numpy(source)
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
-#        if 'longitude_obliquity_nutation' in s:
-#        print(source)
+        parallel = 'prange' in source
+        source = re.sub(match_prange, sub_prange, source)
+#        if 'Lindsay_Bromley' in source:
+#            print(source)
+#            print(parallel, 'hi', extra_args)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
         new_func = fake_mod.__dict__[func]
         do_cache = caching and func not in cache_blacklist
-        obj = conv_fun(cache=do_cache, **extra_args)(new_func)
+        obj = conv_fun(cache=do_cache, parallel=parallel, **extra_args)(new_func)
+#        if 'Wilke_large' in source:
+#            print(id(obj), 'id')
         __funcs[func] = obj
         fake_mod.__dict__[func] = obj
         obj.__doc__ = ''
@@ -424,7 +413,8 @@ numerics = NUMERICS_SUBMOD
 normal = normal_fluids
 
 
-def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([]), cache_blacklist=set([])):
+def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([]),
+                     cache_blacklist=set([])):
     new_mods = []
     if vec:
         conv_fun = numba.vectorize
@@ -439,6 +429,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
     except:
         all_submodules = normal.submodules
     for mod in all_submodules:
+        #print(all_submodules, mod)
         SUBMOD_COPY = importlib.util.find_spec(mod.__name__)
         SUBMOD = importlib.util.module_from_spec(SUBMOD_COPY)
         SUBMOD.IS_NUMBA = True
@@ -446,7 +437,8 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         SUBMOD.jitclass = jitclass
         SUBMOD.njit = numba.njit
         SUBMOD.jit = numba.jit
-
+        SUBMOD.prange = numba.prange
+        
         if vec:
             SUBMOD.IS_NUMBA_VEC = True
         SUBMOD_COPY.loader.exec_module(SUBMOD)
@@ -461,10 +453,27 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
             names = list(SUBMOD.__all__)
         except:
             names = []
-        try:
-            names += SUBMOD.__numba_additional_funcs__
-        except:
-            pass
+            
+        allow_fail_names = set([])
+        for mod_obj_name in dir(SUBMOD):
+            obj = getattr(SUBMOD, mod_obj_name)
+            if isinstance(obj, types.FunctionType):
+                if mod_obj_name in ('__getattr__',):
+                    # Names which cannot be converted
+                    continue
+                if mod_obj_name.startswith('_load'):
+                    continue
+                
+                if mod_obj_name not in names:
+                    # Check if the function is local to the module
+                    if obj.__module__ == SUBMOD.__name__:
+                        names.append(mod_obj_name)
+                        allow_fail_names.add(mod_obj_name)
+
+        # try:
+        #     names += SUBMOD.__numba_additional_funcs__
+        # except:
+        #     pass
     
         new_objs = []
         for name in names:
@@ -472,11 +481,13 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
             if isinstance(obj, types.FunctionType):
                 nopython = name not in skip
                 if name not in total_skip and name not in blacklist:
-                    obj = conv_fun(#set_signatures.get(name, None), 
-#                            nopython=nopython,
-                            #forceobj=not nopython,
-                                    fastmath=True,#Parallel=nopython
-                                    cache=(caching and name not in cache_blacklist), **extra_args)(obj)
+                    try:
+                        obj = conv_fun(cache=(caching and name not in cache_blacklist), **extra_args)(obj)
+                    except Exception as e:
+                        if name in mod_obj_name:
+                            continue
+                        else:
+                            raise e
                 SUBMOD.__dict__[name] = obj
                 new_objs.append(obj)
             __funcs[name] = obj
@@ -488,9 +499,14 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                 obj_type = type(obj)
                 if obj_type is list and len(obj) and type(obj[0]) in (float, int, complex):
                     module_constants_changed_type[arr_name] = np.array(obj)
-                elif obj_type is list and len(obj) and all([
-                        (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj]):
-                    module_constants_changed_type[arr_name] = np.array(obj)
+                elif (obj_type is list and len(obj) and all([
+                        (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj])):
+                    if len(set([len(r) for r in obj])) == 1:
+                        # All same size - nice numpy array
+                        module_constants_changed_type[arr_name] = np.array(obj)
+                    else:
+                        # Tuple of different size numpy arrays
+                        module_constants_changed_type[arr_name] = tuple(np.array(v) for v in obj)
                 elif obj_type in (set, frozenset):
                     module_constants_changed_type[arr_name] = tuple(obj)
                 elif obj_type is dict:
@@ -508,6 +524,10 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
     
         if not vec:
             for t in new_objs:
+                #if normal.__name__ == 'chemicals':
+                #    if 'iapws' not in all_submodules[-1].__name__:
+                #        print(new_objs, t)
+                #        1/0
                 try:
                     glob = t.py_func.__globals__
                 except:
@@ -555,6 +575,8 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
                  'packed_tower.Stichlmair_flood', 'compressible.isothermal_gas', 
                  'fittings.Darby3K', 'fittings.Hooper2K', 'geometry.SA_partial_horiz_torispherical_head',
                  'optional.spa.solar_position', 'optional.spa.longitude_obliquity_nutation',
+                 'optional.spa.transit_sunrise_sunset',
+                 'fittings.bend_rounded_Crane', 'geometry.tank_from_two_specs_err',
                  ]
     transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec, cache_blacklist=cache_blacklist)
     
@@ -616,6 +638,10 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     
     for mod in new_mods:
         mod.__dict__.update(__funcs)
+        try:
+            __all__.extend(mod.__all__)
+        except AttributeError:
+            pass
 
 transform_complete(replaced, __funcs, __all__, normal, vec=False)
 

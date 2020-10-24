@@ -315,7 +315,7 @@ class SpaBase(object):
         times = np.array(times)
         sunrise = np.array(sunrise)
         sunset = np.array(sunset)
-        result = [self.spa.transit_sunrise_sunset(t, -35.0, 0.0, 64.0, 1) for t in times]
+        result = [self.spa.transit_sunrise_sunset(t, -35.0, 0.0, 64.0) for t in times]
         for i in range(2):
             assert_almost_equal(sunrise[i]/1e3, result[i][1]/1e3, 3)
             assert_almost_equal(sunset[i]/1e3, result[i][2]/1e3, 3)
@@ -330,7 +330,7 @@ class SpaBase(object):
         times = np.array(times)
         sunrise = np.array(sunrise)
         sunset = np.array(sunset)
-        result = [self.spa.transit_sunrise_sunset(t, 35.0, 0.0, 64.0, 1) for t in times]
+        result = [self.spa.transit_sunrise_sunset(t, 35.0, 0.0, 64.0) for t in times]
         for i in range(1):
             assert_almost_equal(sunrise[i]/1e3, result[i][1]/1e3, 3)
             assert_almost_equal(sunset[i]/1e3, result[i][2]/1e3, 3)
@@ -355,7 +355,7 @@ class SpaBase(object):
         times = np.array(times)
         sunrise = np.array(sunrise)
         sunset = np.array(sunset)
-        result = [self.spa.transit_sunrise_sunset(t, 39.0, -105.0, 64.0, 1) for t in times]
+        result = [self.spa.transit_sunrise_sunset(t, 39.0, -105.0, 64.0) for t in times]
         for i in range(4):
             assert_almost_equal(sunrise[i]/1e3, result[i][1]/1e3, 1)
             assert_almost_equal(sunset[i]/1e3, result[i][2]/1e3, 1)
@@ -381,7 +381,7 @@ class SpaBase(object):
         times = np.array(times)
         sunrise = np.array(sunrise)
         sunset = np.array(sunset)
-        result = [self.spa.transit_sunrise_sunset(t, 39.917, 116.383, 64.0,1) for t in times]
+        result = [self.spa.transit_sunrise_sunset(t, 39.917, 116.383, 64.0) for t in times]
         for i in range(4):
             assert_almost_equal(sunrise[i]/1e3, result[i][1]/1e3, 1)
             assert_almost_equal(sunset[i]/1e3, result[i][2]/1e3, 1)

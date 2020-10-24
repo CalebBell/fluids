@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,10 +18,11 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
-from math import log
+from math import log, sqrt
 from fluids.constants import hp
 from fluids.numerics import interp, tck_interp2d_linear, bisplev
 
@@ -465,7 +466,7 @@ def specific_speed(Q, H, n=3600.):
     ----------
     .. [1] HI 1.3 Rotodynamic Centrifugal Pumps for Design and Applications
     '''
-    return n*Q**0.5/H**0.75
+    return n*sqrt(Q)/H**0.75
 
 
 def specific_diameter(Q, H, D):
@@ -496,14 +497,14 @@ def specific_diameter(Q, H, D):
     Examples
     --------
     >>> specific_diameter(Q=0.1, H=10., D=0.1)
-    0.5623413251903491
+    0.5623413251903492
 
     References
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    return D*H**0.25*Q**-0.5
+    return D*sqrt(sqrt(H)/Q)
 
 
 def speed_synchronous(f, poles=2, phase=3):
@@ -596,15 +597,15 @@ def current_ideal(P, V, phase=3, PF=1):
     if phase not in [1, 3]:
         raise ValueError('Only 1 and 3 phase power supported')
     if phase == 3:
-        return P/(V*3**0.5*PF)
+        return P/(V*sqrt(3)*PF)
     else:
         return P/(V*PF)
 
 
 class CountryPower(object):
-    '''Class to hold information on the residential or electrical data of
-    a country. Data from Wikipedia, obtained in 2017.
-    
+    """Class to hold information on the residential or electrical data of a
+    country. Data from Wikipedia, obtained in 2017.
+
     Parameters
     ----------
     plugs : tuple(str)
@@ -616,7 +617,7 @@ class CountryPower(object):
         The electrical frequency in use in the country, [Hz]
     country : str
         The name of the country, [-]
-        '''
+    """
     __slots__ = ('plugs', 'voltage', 'freq', 'country')
     
     def __repr__(self):

@@ -24,6 +24,7 @@ from fluids import *
 from fluids.constants import *
 from fluids.numerics import assert_close, assert_close1d
 import pytest
+from math import log, pi
 
 
 def test_isothermal_work_compression():
@@ -323,7 +324,6 @@ def test_isothermal_gas():
     assert_close(m1, 141.92260633059334)
     
     # They are fairly similar
-    from math import log, pi
     fd = 0.00185
     P1 = 1E6
     P2 = 9E5

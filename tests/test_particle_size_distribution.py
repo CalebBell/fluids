@@ -326,9 +326,11 @@ def testPSDLognormal_meshes():
     assert_close1d(ds, [1e-06, 1.2589254117941672e-06, 1.5848931924611134e-06, 1.9952623149688796e-06])
 
 
+@pytest.mark.fuzz
 @pytest.mark.slow
 def test_PSDLognormal_mean_sizes_numerical():
-    '''Takes like 10 seconds.
+    '''Takes like 1 second. Should not run normally.
+    Not how things should be done, just a proof of concept.
     '''
     # ISO standard example, done numerically
     a = PSDLognormal(s=0.5, d_characteristic=5E-6)

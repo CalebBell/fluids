@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,10 +18,11 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
-from math import exp, pi
+from math import exp, pi, sqrt
 
 __all__ = ['dP_packed_bed', 'dP_packed_bed_methods', 'Ergun', 'Kuo_Nydegger', 'Jones_Krier', 'Carman', 'Hicks',
            'Brauer', 'KTA', 'Erdim_Akgiray_Demir', 'Fahien_Schriver', 
@@ -747,7 +748,7 @@ def Idelchik(dp, voidage, vs, rho, mu, L=1.0):
        590-600. doi:10.1016/j.powtec.2013.06.022.
     '''
     Re = rho*vs*dp/mu/(1-voidage)
-    Re = (0.45/voidage**0.5)*Re
+    Re = (0.45/sqrt(voidage))*Re
     right = 0.765/voidage**4.2*(30./Re + 3./Re**0.7 + 0.3)
     left = dp/L/rho/vs**2
     return right/left
@@ -900,7 +901,7 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
         Dterm = 2.2
     else:
         Dterm = (Dt/dp)**0.2
-    right = a*Dterm*(1000./Re + 60/Re**0.5 + 12)
+    right = a*Dterm*(1000./Re + 60/sqrt(Re) + 12)
     left = dp/L/rho/vs**2*voidage**3/(1-voidage)
     return right/left
 

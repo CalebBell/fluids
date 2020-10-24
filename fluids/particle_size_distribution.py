@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,12 +20,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-This module contains particle distribution characterization, fitting, 
-interpolating, and manipulation functions. It may be used with discrete 
+This module contains particle distribution characterization, fitting,
+interpolating, and manipulation functions. It may be used with discrete
 particle size distributions, or with statistical ones with parameters
 specified.
 
-For reporting bugs, adding feature requests, or submitting pull requests, 
+For reporting bugs, adding feature requests, or submitting pull requests,
 please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
 or contact the author at Caleb.Andrew.Bell@gmail.com.
 
@@ -86,7 +86,7 @@ Sieves
 Point Spacing
 -------------
 .. autofunction:: psd_spacing
-'''
+"""
 from __future__ import division
 
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
@@ -106,11 +106,11 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'ISO_3310_1_R20_3', 'ISO_3310_1_R20', 'ISO_3310_1_R10', 
            'ISO_3310_1_R40_3']
 
-from math import log, exp, pi, log10
+from math import log, exp, pi, log10, sqrt
 from fluids.numerics import (brenth, epsilon, gamma, erf, gammaincc,
-                             linspace, logspace, cumsum, diff, normalize)
+                             linspace, logspace, cumsum, diff, normalize, quad)
 
-ROOT_TWO_PI = (2.0*pi)**0.5
+ROOT_TWO_PI = sqrt(2.0*pi)
 
 NO_MATPLOTLIB_MSG = 'Optional dependency matplotlib is required for plotting'
 
@@ -666,7 +666,7 @@ def cdf_lognormal(d, d_characteristic, s):
     Examples
     --------
     >>> cdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
-    0.9818369875798176
+    0.9818369875798
 
     References
     ----------
@@ -675,7 +675,7 @@ def cdf_lognormal(d, d_characteristic, s):
        Moments from Particle Size Distributions.
     '''
     try:
-        return 0.5*(1.0 + erf((log(d/d_characteristic))/(s*2.0**0.5)))
+        return 0.5*(1.0 + erf((log(d/d_characteristic))/(s*sqrt(2.0))))
     except:
         # math error at cdf = 0 (x going as low as possible)
         return 0.0
@@ -735,7 +735,7 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
         t0 = exp(s2*n*n*0.5)
         d_ratio = d/d_characteristic
         t1 = (d/(d_ratio))**n
-        t2 = erf((s2*n - log(d_ratio))/(2.**0.5*s))
+        t2 = erf((s2*n - log(d_ratio))/(sqrt(2.)*s))
         return -0.5*t0*t1*t2
     except (OverflowError, ZeroDivisionError, ValueError):
         return pdf_lognormal_basis_integral(d=1E-80, d_characteristic=d_characteristic, s=s, n=n)
@@ -1302,7 +1302,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> [psd.cdf(5e-6, n) for n in range(4)]
-        [0.933192798731142, 0.8413447460685429, 0.6914624612740131, 0.5]
+        [0.933192798731, 0.8413447460685, 0.6914624612740, 0.5]
         '''
         if n is not None and n != self.order:
             power = n - self.order
@@ -1491,7 +1491,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.fractions_discrete([1e-6, 1e-5, 1e-4, 1e-3])
-        [0.0006434710129138987, 0.9165280099853876, 0.08282851796190027, 1.039798247504109e-09]
+        [0.00064347101291, 0.916528009985, 0.0828285179619, 1.039798e-09]
         '''
         cdfs = [self.cdf(d, n=n) for d in ds]
         return [cdfs[0]] + diff(cdfs)
@@ -1519,7 +1519,7 @@ class ParticleSizeDistributionContinuous(object):
         --------
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.cdf_discrete([1e-6, 1e-5, 1e-4, 1e-3])
-        [0.0006434710129138987, 0.9171714809983015, 0.9999999989602018, 1.0]
+        [0.000643471012913, 0.917171480998, 0.999999998960, 1.0]
         '''
         return [self.cdf(d, n=n) for d in ds]
     
@@ -1877,11 +1877,12 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         return err
         
     def fit(self, x0=None, distribution='lognormal', n=None, **kwargs):
-        '''Incomplete method to fit experimental values to a curve. It is very
-        hard to get good initial guesses, which are really required for this.
-        Differential evolution is promissing. This API is likely to change in
-        the future.
-        '''
+        """Incomplete method to fit experimental values to a curve.
+
+        It is very hard to get good initial guesses, which are really required
+        for this. Differential evolution is promissing. This API is likely to
+        change in the future.
+        """
         dist = {'lognormal': PSDLognormal, 
                 'GGS': PSDGatesGaudinSchuhman, 
                 'RR': PSDRosinRammler}[distribution]
@@ -1904,8 +1905,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
 
     @property
     def Dis(self):
-        '''Representative diameters of each bin.
-        '''
+        """Representative diameters of each bin."""
         return [self.di_power(i, power=1) for i in range(self.N)]
     
     def di_power(self, i, power=1):
@@ -2215,10 +2215,21 @@ class PSDCustom(ParticleSizeDistributionContinuous):
         n = float(n)
         if d_min == 0:
             d_min = d_max*1E-12
-        to_int = lambda d : d**n*self._pdf(d)
-        points = logspace(log10(max(d_max/1000, d_min)), log10(d_max*.999), 40)
-        from scipy.integrate import quad
-        return float(quad(to_int, d_min, d_max, points=points)[0]) # 
+        
+        if n == 0:
+            to_int = lambda d : self._pdf(d)
+        elif n == 1:
+            to_int = lambda d : d*self._pdf(d)
+        elif n == 2:
+            to_int = lambda d : d*d*self._pdf(d)
+        elif n == 3:
+            to_int = lambda d : d*d*d*self._pdf(d)
+        else:
+            to_int = lambda d : d**n*self._pdf(d)
+
+#        points = logspace(log10(max(d_max*1e-3, d_min)), log10(d_max*.999), 40)
+        points = [d_max*1e-3] # d_min*.999 d_min
+        return float(quad(to_int, d_min, d_max, points=points)[0]) #
             
     
 class PSDInterpolated(ParticleSizeDistributionContinuous):

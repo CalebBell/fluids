@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2017, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 
@@ -52,9 +53,8 @@ except ImportError: # pragma: no cover
 # is_critical_flow is broken
 
 def func_args(func):
-    '''Basic function which returns a tuple of arguments of a function or
-    method.
-    '''
+    """Basic function which returns a tuple of arguments of a function or
+    method."""
     try:
         return tuple(inspect.getfullargspec(func).args)
     except:
@@ -117,15 +117,15 @@ def parse_numpydoc_variables_units(func):
 
 
 def check_args_order(func):
-    '''Reads a numpydoc function and compares the Parameters and
-    Other Parameters with the input arguments of the actual function signature.
-    Raises an exception if not correctly defined.
-    
+    """Reads a numpydoc function and compares the Parameters and Other
+    Parameters with the input arguments of the actual function signature. Raises
+    an exception if not correctly defined.
+
     getargspec is used for Python 2.7 compatibility and is deprecated in Python
     3.
     
     >>> check_args_order(fluids.core.Reynolds)
-    '''
+    """
     try:
         argspec = inspect.getfullargspec(func)
     except:
@@ -211,6 +211,12 @@ def convert_output(result, out_units, out_vars, ureg):
         return result*parse_expression_cached(out_units[0], ureg)
 
 
+in_vars_cache = {}
+in_units_cache = {}
+out_vars_cache = {}
+out_units_cache = {}
+
+
 def wraps_numpydoc(ureg, strict=True):    
     def decorator(func):
         assigned = (attr for attr in functools.WRAPPER_ASSIGNMENTS if hasattr(func, attr))
@@ -233,6 +239,11 @@ def wraps_numpydoc(ureg, strict=True):
         if out_vars and 'results' == out_vars[0]:
             out_units.pop(0)
             out_vars.pop(0)
+
+        in_vars_cache[func] = in_vars
+        in_units_cache[func] = in_units
+        out_vars_cache[func] = out_vars
+        out_units_cache[func] = out_units
 
         @functools.wraps(func, assigned=assigned, updated=updated)
         def wrapper(*values, **kw):
@@ -404,9 +415,26 @@ def wrap_numpydoc_obj(obj_to_wrap):
             'property_units': property_unit_map, 'method_units': callable_methods})
     return fun
 
+def kwargs_to_args(args, kwargs, signature):
+    '''Accepts an *args and **kwargs and a signature
+    like ['rho', 'mu', 'nu'] which is an ordered list of
+    all accepted arguments.
+    
+    Returns a list containing all the arguments, sorted, and
+    left as None if not specified
+    '''
+    argument_number = len(signature)
+    arg_number = len(args)
+    output = list(args)
+    # Extend the list and initialize as None by default
+    output.extend([None]*(argument_number - arg_number))
+    for i in range(arg_number, argument_number):
+        if signature[i] in kwargs:
+            output[i] = kwargs[signature[i]]
+    return output
 
-__funcs = {}
 
+__pint_wrapped_functions = {}
 
 for name in dir(fluids):
     if 'RectangularOffsetStripFinExchanger' in name:
@@ -427,9 +455,9 @@ for name in dir(fluids):
     if name == '__all__':
         continue
     __all__.append(name)
-    __funcs.update({name: obj})
+    __pint_wrapped_functions.update({name: obj})
     
-globals().update(__funcs)
+globals().update(__pint_wrapped_functions)
 __all__.extend(['wraps_numpydoc', 'convert_output', 'convert_input',
                 'check_args_order', 'match_parse_units', 'parse_numpydoc_variables_units', 
                 'wrap_numpydoc_obj', 'UnitAwareClass'])
@@ -453,111 +481,64 @@ def V_multiple_hole_cylinder(Do, L, holes):
 
 #V_multiple_hole_cylinder.__doc__ = fluids.geometry.V_multiple_hole_cylinder.__doc__
 
-wrapped_isothermal_gas = isothermal_gas
-wrapped_Panhandle_A = Panhandle_A
-wrapped_Muller = Muller
-wrapped_IGT = IGT
-wrapped_nu_mu_converter = nu_mu_converter
-
-wrapped_differential_pressure_meter_solver = differential_pressure_meter_solver
-
-
-def nu_mu_converter(rho, mu=None, nu=None):
-    ans = wrapped_nu_mu_converter(rho, mu, nu)
-    if mu is None:
-        return ans*u.Pa*u.s
-    return ans*u.m**2/u.s
-
-
-def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None): # pragma: no cover
-    '''
-    >>> isothermal_gas(rho=11.3*u.kg/u.m**3, fd=0.00185*u.dimensionless, P1=1E6*u.Pa, P2=9E5*u.Pa, L=1000*u.m, D=0.5*u.m)
-    <Quantity(145.4847572636031, 'kilogram / second')>
-    '''
-    ans = wrapped_isothermal_gas(rho, fd, P1, P2, L, D, m)    
-    if m is None and (None not in [P1, P2, L, D]):
-        return ans*u.kg/u.s
-    elif L is None and (None not in [P1, P2, D, m]):
-        return ans*u.m
-    elif P1 is None and (None not in [L, P2, D, m]):
-        return ans*u.Pa
-    elif P2 is None and (None not in [L, P1, D, m]):
-        return ans*u.Pa
-    elif D is None and (None not in [P2, P1, L, m]):
-        return ans*u.m
-
-
-def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
-           Ps=101325.*u.Pa, Zavg=1, E=1): # pragma: no cover
-    ans = wrapped_Muller(SG, Tavg, mu, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
-    if Q is None and (None not in [L, D, P1, P2]):
-        return ans*u.m**3/u.s
-    elif D is None and (None not in [L, Q, P1, P2]):
-        return ans*u.m
-    elif P1 is None and (None not in [L, Q, D, P2]):
-        return ans*u.Pa
-    elif P2 is None and (None not in [L, Q, D, P1]):
-        return ans*u.Pa
-    elif L is None and (None not in [P2, Q, D, P1]):
-        return ans*u.m
-
-
-def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
-        Ps=101325.*u.Pa, Zavg=1, E=1): # pragma: no cover
-    ans = wrapped_IGT(SG, Tavg, mu, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
-    if Q is None and (None not in [L, D, P1, P2]):
-        return ans*u.m**3/u.s
-    elif D is None and (None not in [L, Q, P1, P2]):
-        return ans*u.m
-    elif P1 is None and (None not in [L, Q, D, P2]):
-        return ans*u.Pa
-    elif P2 is None and (None not in [L, Q, D, P1]):
-        return ans*u.Pa
-    elif L is None and (None not in [P2, Q, D, P1]):
-        return ans*u.m
-
-
-funcs = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 'Spitzglass_low', 'Oliphant', 'Fritzsche']
-Es = [.92, .92, .92, 1, 1, .92, 1]
-
-for wrapper, E in zip(funcs, Es):
-    wrapper_name = wrapper + '_wrapper'
-    globals()[wrapper_name] = globals()[wrapper]
+variable_output_unit_funcs = {
+    # True: arg should be present; False: arg should be None
+    'nu_mu_converter': ({(True, False, True): [u.Pa*u.s],
+                        (True, True, False): [u.m**2/u.s],
+                        }, 3),
+    'differential_pressure_meter_solver': ({(True, True, True, True, False, True, True, True): [u.m],
+                                            (True, True, True, True, True, False, True, True): [u.Pa],
+                                            (True, True, True, True, True, True, False, True): [u.Pa],
+                                            (True, True, True, True, True, True, True, False): [u.kg/u.s],
+                                            }, 8),
+    'isothermal_gas': ({(True, True, False, True, True, True, True): [u.Pa],
+                        (True, True, True, False, True, True, True): [u.Pa],
+                        (True, True, True, True, False, True, True): [u.m],
+                        (True, True, True, True, True, False, True): [u.m],
+                        (True, True, True, True, True, True, False): [u.kg/u.s],
+                        }, 7)
+}                                       
     
-    def compressible_flow_wrapper(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7*u.K,
-                Ps=101325.*u.Pa, Zavg=1, E=E, _=wrapper_name): # pragma: no cover
-#        '''
-#        >>> Panhandle_A(SG=0.693, D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, Tavg=277.15*u.K)
-#        <Quantity(42.560820512, 'meter ** 3 / second')>
-#        '''
-        ans = globals()[_](SG, Tavg, L, D, P1, P2, Q, Ts, Ps, Zavg, E)    
-        if Q is None and (None not in [L, D, P1, P2]):
-            return ans*u.m**3/u.s
-        elif D is None and (None not in [L, Q, P1, P2]):
-            return ans*u.m
-        elif P1 is None and (None not in [L, Q, D, P2]):
-            return ans*u.Pa
-        elif P2 is None and (None not in [L, Q, D, P1]):
-            return ans*u.Pa
-        elif L is None and (None not in [P2, Q, D, P1]):
-            return ans*u.m
-    globals()[wrapper] = compressible_flow_wrapper
+simple_compressible_variable_output = ({(True, True, False, True, True, True, True): [u.m],
+                                        (True, True, True, False, True, True, True): [u.m],
+                                        (True, True, True, True, False, True, True): [u.Pa],
+                                        (True, True, True, True, True, False, True): [u.Pa],
+                                        (True, True, True, True, True, True, False): [u.m**3/u.s],
+                                        }, 7)
+for f in ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high', 'Spitzglass_low', 'Oliphant', 'Fritzsche']:
+    variable_output_unit_funcs[f] = simple_compressible_variable_output
+
+IGT_Muller_variable_output = ({(True, True, True, False, True, True, True, True): [u.m],
+                               (True, True, True, True, False, True, True, True): [u.m],
+                               (True, True, True, True, True, False, True, True): [u.Pa],
+                               (True, True, True, True, True, True, False, True): [u.Pa],
+                               (True, True, True, True, True, True, True, False): [u.m**3/u.s],
+                               }, 8)
+                                
+for f in ['Muller', 'IGT']:
+    variable_output_unit_funcs[f] = IGT_Muller_variable_output
+       
+def variable_output_wrapper(func, wrapped_basic_func, output_signatures, input_length):
+    name = func.__name__
+    intput_signature = in_vars_cache[func]
+    
+    def thing(*args, **kwargs):
+        ans = wrapped_basic_func(*args, **kwargs)
+        args_for_sig = kwargs_to_args(args, kwargs, intput_signature)
+        args_for_sig = [i is not None for i in args_for_sig]
+        if len(args_for_sig) > input_length:
+            # Allow other arguments later to not matter
+            args_for_sig = args_for_sig[:input_length]
+                
+        output_units = output_signatures[tuple(args_for_sig)]
+        if type(ans) in (list, tuple):
+            return [output_units[i]*ans[i] for i in range(len(ans))]
+        return output_units[0]*ans
+    return thing
+    
+for name, val in variable_output_unit_funcs.items():
+    globals()[name] = variable_output_wrapper(getattr(fluids, name),
+            __pint_wrapped_functions[name], val[0], val[1])
 
 
 # NOTE: class support can't do static methods unless a class is already instantiated
-
-def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None, 
-                                       m=None, meter_type=None, 
-                                       taps=None): # pragma: no cover
-    ans = wrapped_differential_pressure_meter_solver(D, rho, mu, k, D2=D2, P1=P1, P2=P2, 
-                                       m=m, meter_type=meter_type, 
-                                       taps=taps)  
-    if m is None and (None not in [D, D2, P1, P2]):
-        return ans*u.kg/u.s
-    elif D2 is None and (None not in [D, m, P1, P2]):
-        return ans*u.m
-    elif P2 is None and (None not in [D, D2, P1, m]):
-        return ans*u.Pa
-    elif P1 is None and (None not in [D, D2, m, P2]):
-        return ans*u.Pa
-

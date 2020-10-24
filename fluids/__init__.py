@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell
+<Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +19,9 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
+
 import os
 '''
 import gc
@@ -28,11 +31,9 @@ def mem():
     return gc.mem_free()
 base_mem = mem()
 
-
 from . import numerics
 print(base_mem - mem(), 'numerics')
 base_mem = mem()
-
 from . import constants
 print(base_mem - mem(), 'constants')
 base_mem = mem()
@@ -48,83 +49,63 @@ base_mem = mem()
 from . import atmosphere
 print(base_mem - mem(), 'atmosphere')
 base_mem = mem()
-
 from . import compressible
 print(base_mem - mem(), 'compressible')
 base_mem = mem()
-
 from . import filters
 print(base_mem - mem(), 'filters')
 base_mem = mem()
-
 from . import fittings
 print(base_mem - mem(), 'fittings')
 base_mem = mem()
-
 from . import flow_meter
 print(base_mem - mem(), 'flow_meter')
 base_mem = mem()
-
 from . import geometry
 print(base_mem - mem(), 'geometry')
 base_mem = mem()
-
 from . import mixing
 print(base_mem - mem(), 'mixing')
 base_mem = mem()
-
 from . import open_flow
 print(base_mem - mem(), 'open_flow')
 base_mem = mem()
-
 from . import packed_bed
 print(base_mem - mem(), 'packed_bed')
 base_mem = mem()
-
 from . import piping
 print(base_mem - mem(), 'piping')
 base_mem = mem()
-
 from . import pump
 print(base_mem - mem(), 'pump')
 base_mem = mem()
-
 from . import safety_valve
 print(base_mem - mem(), 'safety_valve')
 base_mem = mem()
-
 from . import packed_tower
 print(base_mem - mem(), 'packed_tower')
 base_mem = mem()
-
 from . import two_phase_voidage
 print(base_mem - mem(), 'two_phase_voidage')
 base_mem = mem()
-
 from . import two_phase
 print(base_mem - mem(), 'two_phase')
 base_mem = mem()
-
 from . import drag
 print(base_mem - mem(), 'drag')
 base_mem = mem()
-
 from . import saltation
 print(base_mem - mem(), 'saltation')
 base_mem = mem()
-
 from . import separator
 print(base_mem - mem(), 'separator')
 base_mem = mem()
-
 from . import particle_size_distribution
 print(base_mem - mem(), 'particle_size_distribution')
 base_mem = mem()
-
 from . import jet_pump
 print(base_mem - mem(), 'jet_pump')
 base_mem = mem()
-
 from . import control_valve
 print(base_mem - mem(), 'control_valve')
 base_mem = mem()
@@ -208,7 +189,7 @@ def load_types():
     for m in submodules:
         type_module(m)
 
-__version__ = '0.1.83'
+__version__ = '0.1.86'
 
 try:
     fluids_dir = os.path.dirname(__file__)

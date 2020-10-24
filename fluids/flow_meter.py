@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,14 +18,15 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
-from math import cos, sin, tan, atan, pi, radians, exp, acos, log10, log
+from math import sqrt, cos, sin, tan, atan, pi, radians, exp, acos, log10, log
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
 from fluids.numerics import interp, secant, brenth, NotBoundedError, implementation_optimize_tck, bisplev
-from fluids.constants import g, inch
+from fluids.constants import g, inch, inch_inv, pi_inv
 
 __all__ = ['C_Reader_Harris_Gallagher',
            'differential_pressure_meter_solver',
@@ -50,9 +51,6 @@ __all__ = ['C_Reader_Harris_Gallagher',
            'all_meters',
            ]
 
-
-__numba_additional_funcs__ = ['err_dp_meter_solver_m', 'err_dp_meter_solver_P2',
-                              'err_dp_meter_solver_D2', 'err_dp_meter_solver_P1']
 
 CONCENTRIC_ORIFICE = 'orifice' # normal
 ECCENTRIC_ORIFICE = 'eccentric orifice'
@@ -182,8 +180,7 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
     '''
     beta = Do/D
     beta2 = beta*beta
-    return (0.25*pi*Do*Do)*C*expansibility*(
-            (2.0*rho*(P1 - P2))/(1.0 - beta2*beta2))**0.5
+    return (0.25*pi*Do*Do)*C*expansibility*sqrt((2.0*rho*(P1 - P2))/(1.0 - beta2*beta2))
 
 
 def orifice_expansibility(D, Do, P1, P2, k):
@@ -221,6 +218,9 @@ def orifice_expansibility(D, Do, P1, P2, k):
     This formula was determined for the range of P2/P1 >= 0.80, and for fluids
     of air, steam, and natural gas. However, there is no objection to using
     it for other fluids.
+    
+    It is said in [1]_ that for liquids this should not be used. The result
+    can be forced by setting `k` to a really high number like 1E20.
 
     Examples
     --------
@@ -432,7 +432,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         L1, L2_prime = 0.0, 0.0
     elif taps == 'flange':
         L1 = L2_prime = 0.0254/D
-    elif taps  == 'D' or taps == 'D/2' or taps ==  ORIFICE_D_AND_D_2_TAPS:
+    elif taps  == 'D' or taps == 'D/2' or taps == ORIFICE_D_AND_D_2_TAPS:
         L1 = 1.0
         L2_prime = 0.47
     else:
@@ -442,10 +442,14 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     beta4 = beta2*beta2
     beta8 = beta4*beta4
     
-    A = (19000.0*beta*Re_D_inv)**0.8
+    A = 2648.5177066967326*(beta*Re_D_inv)**0.8 # 19000.0^0.8 = 2648.51....
     M2_prime = 2.0*L2_prime/(1.0 - beta)
     
-    delta_C_upstream = ((0.043 + 0.080*exp(-1E1*L1) - 0.123*exp(-7.0*L1))
+    # These two exps
+    expnL1 = exp(-L1)
+    expnL2 = expnL1*expnL1
+    expnL3 = expnL1*expnL2
+    delta_C_upstream = ((0.043 + expnL3*expnL2*expnL2*(0.080*expnL3 - 0.123))
             *(1.0 - 0.11*A)*beta4/(1.0 - beta4))
     
     # The max part is not in the ISO standard
@@ -458,13 +462,13 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     # C_inf is discharge coefficient with corner taps for infinite Re
     # Cs, slope term, provides increase in discharge coefficient for lower
     # Reynolds numbers.
-    x1 = (1E6*Re_D_inv)**0.3
+    x1 = 63.095734448019314*(Re_D_inv)**0.3 # 63.095... = (1e6)**0.3
     x2 = 22.7 - 0.0047*Re_D
     t2 = x1 if x1 > x2 else x2
     # max term is not in the ISO standard
     C_inf_C_s = (0.5961 + 0.0261*beta2 - 0.216*beta8 
                  + 0.000521*(1E6*beta*Re_D_inv)**0.7
-                 + (0.0188 + 0.0063*A)*beta**3.5*(
+                 + (0.0188 + 0.0063*A)*beta2*beta*sqrt(beta)*(
                  t2))
     
     C = (C_inf_C_s + delta_C_upstream + delta_C_downstream)
@@ -477,7 +481,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         # There is a check for t3 being negative and setting it to zero if so
         # in some sources but that only occurs when t3 is exactly the limit
         # (0.07112) so it is not needed
-        t3 = (2.8 - D/0.0254)
+        t3 = (2.8 - D*inch_inv)
         delta_C_diameter = 0.011*(0.75 - beta)*t3
         C += delta_C_diameter
     
@@ -921,7 +925,7 @@ def C_eccentric_orifice_ISO_15377_1998(D, Do):
        Assemblies," 2017.
     '''
     beta = Do/D
-    C = 0.9355 - 1.6889*beta + 3.0428*beta**2 - 1.7989*beta**3
+    C = beta*(beta*(3.0428 - 1.7989*beta) - 1.6889) + 0.9355
     return C
 
 def C_quarter_circle_orifice_ISO_15377_1998(D, Do):
@@ -973,7 +977,7 @@ def C_quarter_circle_orifice_ISO_15377_1998(D, Do):
     Examples
     --------
     >>> C_quarter_circle_orifice_ISO_15377_1998(.2, .075)
-    0.7785148437500001
+    0.77851484375000
     
     References
     ----------
@@ -982,7 +986,7 @@ def C_quarter_circle_orifice_ISO_15377_1998(D, Do):
        Nozzles and Orifice Plates beyond the Scope of ISO 5167-1. 
     '''
     beta = Do/D
-    C = 0.73823  + 0.3309*beta - 1.16158*beta**2 + 1.5084*beta**3
+    C = beta*(beta*(1.5084*beta - 1.16158) + 0.3309) + 0.73823
     return C
 
 def discharge_coefficient_to_K(D, Do, C):
@@ -1031,7 +1035,7 @@ def discharge_coefficient_to_K(D, Do, C):
     beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
-    root_K = ((1.0 - beta4*(1.0 - C*C))**0.5/(C*beta2) - 1.0)
+    root_K = (sqrt(1.0 - beta4*(1.0 - C*C))/(C*beta2) - 1.0)
     return root_K*root_K
 
 
@@ -1083,8 +1087,8 @@ def K_to_discharge_coefficient(D, Do, K):
     beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
-    root_K = K**0.5
-    return ((1.0 - beta4)/((2.0*root_K + K)*beta4))**0.5
+    root_K = sqrt(K)
+    return sqrt((1.0 - beta4)/((2.0*root_K + K)*beta4))
 
 def dP_orifice(D, Do, P1, P2, C):
     r'''Calculates the non-recoverable pressure drop of an orifice plate based
@@ -1142,8 +1146,8 @@ def dP_orifice(D, Do, P1, P2, C):
     beta2 = beta*beta
     beta4 = beta2*beta2
     dP = P1 - P2
-    delta_w = ((1.0 - beta4*(1.0 - C*C))**0.5 - C*beta2)/(
-               (1.0 - beta4*(1.0 - C*C))**0.5 + C*beta2)*dP
+    delta_w = (sqrt(1.0 - beta4*(1.0 - C*C)) - C*beta2)/(
+               sqrt(1.0 - beta4*(1.0 - C*C)) + C*beta2)*dP
     return delta_w
 
 
@@ -1179,7 +1183,7 @@ def velocity_of_approach_factor(D, Do):
     .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement 
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
     '''
-    return (1.0 - (Do/D)**4)**-0.5
+    return 1.0/sqrt(1.0 - (Do/D)**4)
 
 
 def flow_coefficient(D, Do, C):
@@ -1224,7 +1228,7 @@ def flow_coefficient(D, Do, C):
     .. [2] Miller, Richard W. Flow Measurement Engineering Handbook. 3rd
        edition. New York: McGraw-Hill Education, 1996.
     '''
-    return C*(1.0 - (Do/D)**4)**-0.5
+    return C*1.0/sqrt(1.0 - (Do/D)**4)
 
 
 def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
@@ -1297,7 +1301,7 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
         term3 = (k - 1.0)/k
     else:
         term3 = (1.0 - tau**((k - 1.0)/k))/(1.0 - tau)
-    return (term1*term2*term3)**0.5
+    return sqrt(term1*term2*term3)
 
 
 def C_long_radius_nozzle(D, Do, rho, mu, m):
@@ -1347,7 +1351,7 @@ def C_long_radius_nozzle(D, Do, rho, mu, m):
     v = m/(A_pipe*rho)
     Re_D = rho*v*D/mu
     beta = Do/D
-    return 0.9965 - 0.00653*beta**0.5*(1E6/Re_D)**0.5
+    return 0.9965 - 0.00653*sqrt(beta)*sqrt(1E6/Re_D)
 
 
 def C_ISA_1932_nozzle(D, Do, rho, mu, m):
@@ -1584,7 +1588,7 @@ def diameter_ratio_cone_meter(D, Dc):
        https://digitalcommons.usu.edu/etd/869.
     '''
     D_ratio = Dc/D
-    return (1.0 - D_ratio*D_ratio)**0.5
+    return sqrt(1.0 - D_ratio*D_ratio)
 
 
 def cone_meter_expansibility_Stewart(D, Dc, P1, P2, k):
@@ -1638,7 +1642,9 @@ def cone_meter_expansibility_Stewart(D, Dc, P1, P2, k):
     '''
     dP = P1 - P2
     beta = diameter_ratio_cone_meter(D, Dc)
-    return 1.0 - (0.649 + 0.696*beta**4)*dP/(k*P1)
+    beta *= beta
+    beta *= beta
+    return 1.0 - (0.649 + 0.696*beta)*dP/(k*P1)
 
 
 def dP_cone_meter(D, Dc, P1, P2):
@@ -1731,10 +1737,10 @@ def diameter_ratio_wedge_meter(D, H):
     H_D = H/D
     t0 = 1.0 - 2.0*H_D
     t1 = acos(t0)
-    t2 = 2.0*(t0)
-    t3 = (H_D - H_D*H_D)**0.5
+    t2 = t0 + t0
+    t3 = sqrt(H_D - H_D*H_D)
     t4 = t1 - t2*t3
-    return (1./pi*t4)**0.5
+    return sqrt(pi_inv*t4)
 
 
 def C_wedge_meter_Miller(D, H):
@@ -1999,20 +2005,22 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     .. [2] ISO/TR 11583:2012 Measurement of Wet Gas Flow by Means of Pressure 
        Differential Devices Inserted in Circular Cross-Section Conduits.
     '''
-    V = 4*mg/(rhog*pi*D**2)
-    Frg =  Froude_densimetric(V, L=D, rho1=rhol, rho2=rhog, heavy=False)
+    V = 4.0*mg/(rhog*pi*D*D)
+    Frg = Froude_densimetric(V, L=D, rho1=rhol, rho2=rhog, heavy=False)
     beta = Do/D
     beta2 = beta*beta
-    Fr_gas_th = Frg*beta**-2.5
+    Fr_gas_th = Frg/(beta2*sqrt(beta))
     
     n = max(0.583 - 0.18*beta2 - 0.578*exp(-0.8*Frg/H), 
             0.392 - 0.18*beta2)
     
-    C_Ch = (rhol/rhog)**n + (rhog/rhol)**n
-    X =  ml/mg*(rhog/rhol)**0.5
-    OF = (1.0 + C_Ch*X + X*X)**0.5
+    t0 = rhog/rhol
+    t1 = (t0)**n
+    C_Ch = t1 + 1.0/t1
+    X =  ml/mg*sqrt(t0)
+    OF = sqrt(1.0 + X*(C_Ch + X))
     
-    C = 1.0 - 0.0463*exp(-0.05*Fr_gas_th)*min(1.0, (X/0.016)**0.5)
+    C = 1.0 - 0.0463*exp(-0.05*Fr_gas_th)*min(1.0, sqrt(X/0.016))
     return C
 
 
@@ -2093,7 +2101,7 @@ def dP_Reader_Harris_Gallagher_wet_venturi_tube(D, Do, P1, P2, ml, mg, rhol,
     '''
     dP = P1 - P2
     beta = Do/D
-    X =  ml/mg*(rhog/rhol)**0.5
+    X =  ml/mg*sqrt(rhog/rhol)
 
     V = 4*mg/(rhog*pi*D*D)
     Frg =  Froude_densimetric(V, L=D, rho1=rhol, rho2=rhog, heavy=False)

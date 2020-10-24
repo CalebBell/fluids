@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,10 +18,11 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
-from math import tan, radians
+from math import tan, radians, sqrt
 from fluids.constants import g
 from fluids.numerics import interp
 
@@ -91,7 +92,7 @@ def Q_weir_V_Shen(h1, angle=90):
     Examples
     --------
     >>> Q_weir_V_Shen(0.6, angle=45)
-    0.21071725775478228
+    0.21071725775478
 
     References
     ----------
@@ -104,7 +105,7 @@ def Q_weir_V_Shen(h1, angle=90):
     '''
     C = interp(angle, angles_Shen, Cs_Shen)
     k = interp(angle, angles_Shen, k_Shen)    
-    return C*tan(radians(angle)/2)*g**0.5*(h1 + k)**2.5
+    return C*tan(radians(angle)/2)*sqrt(g)*(h1 + k)**2.5
 
 
 ### Rectangular Weirs
@@ -159,7 +160,7 @@ def Q_weir_rectangular_Kindsvater_Carter(h1, h2, b):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    return 0.554*(1 - 0.0035*h1/h2)*(b + 0.0025)*g**0.5*(h1 + 0.0001)**1.5
+    return 0.554*(1 - 0.0035*h1/h2)*(b + 0.0025)*sqrt(g)*(h1 + 0.0001)**1.5
 
 
 def Q_weir_rectangular_SIA(h1, h2, b, b1):
@@ -216,7 +217,7 @@ def Q_weir_rectangular_SIA(h1, h2, b, b1):
     '''
     h = h1 + h2
     Q = 0.544*(1 + 0.064*(b/b1)**2 + (0.00626 - 0.00519*(b/b1)**2)/(h1 + 0.0016))\
-    *(1 + 0.5*(b/b1)**4*(h1/(h1 + h2))**2)*b*g**0.5*h**1.5
+    *(1 + 0.5*(b/b1)**4*(h1/(h1 + h2))**2)*b*sqrt(g)*h**1.5
     return Q
 
 
@@ -272,7 +273,7 @@ def Q_weir_rectangular_full_Ackers(h1, h2, b):
     .. [3] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return 0.564*(1 + 0.150*h1/h2)*b*g**0.5*(h1 + 0.001)**1.5
+    return 0.564*(1 + 0.150*h1/h2)*b*sqrt(g)*(h1 + 0.001)**1.5
 
 
 def Q_weir_rectangular_full_SIA(h1, h2, b):
@@ -325,8 +326,8 @@ def Q_weir_rectangular_full_SIA(h1, h2, b):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    Q = 2/3.*2**0.5*(0.615 + 0.000615/(h1 + 0.0016))*b*g**0.5*h1 \
-    + 0.5*(h1/(h1+h2))**2*b*g**0.5*h1**1.5
+    Q = 2/3.*sqrt(2)*(0.615 + 0.000615/(h1 + 0.0016))*b*sqrt(g)*h1 \
+    + 0.5*(h1/(h1+h2))**2*b*sqrt(g)*h1**1.5
     return Q
 
 
@@ -380,7 +381,7 @@ def Q_weir_rectangular_full_Rehbock(h1, h2, b):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    return 2/3.*2**0.5*(0.602 + 0.0832*h1/h2)*b*g**0.5*(h1+0.00125)**1.5
+    return 2/3.*sqrt(2)*(0.602 + 0.0832*h1/h2)*b*sqrt(g)*(h1+0.00125)**1.5
 
 #print [Q_weir_rectangular_full_Rehbock(h1=0.3, h2=0.4, b=2)]
 
@@ -433,7 +434,7 @@ def Q_weir_rectangular_full_Kindsvater_Carter(h1, h2, b):
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
     '''
-    Q = 2/3.*2**0.5*(0.602 + 0.075*h1/h2)*(b - 0.001)*g**0.5*(h1 + 0.001)**1.5
+    Q = 2/3.*sqrt(2)*(0.602 + 0.075*h1/h2)*(b - 0.001)*sqrt(g)*(h1 + 0.001)**1.5
     return Q
 #print [Q_weir_rectangular_full_Kindsvater_Carter(h1=0.3, h2=0.4, b=2)]
 
@@ -458,7 +459,8 @@ def V_Manning(Rh, S, n):
     S : float
         Slope of the channel, m/m [-]
     n : float
-        Manning roughness coefficient [s/m^(1/3)]
+        Manning roughness coefficient; traditionally in the correct units,
+        [s/m^(1/3)]
 
     Returns
     -------
@@ -468,7 +470,9 @@ def V_Manning(Rh, S, n):
     Notes
     -----
     This is equation is often given in imperial units multiplied by 1.49.
-
+    Although `n` could be converted to be in imperial units, in practice this
+    has not been done and all tables keep it in the units of s/m^(1/3).
+    
     Examples
     --------
     Example is from [2]_, matches.
@@ -483,7 +487,7 @@ def V_Manning(Rh, S, n):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    return Rh**(2.0/3.)*S**0.5/n
+    return Rh**(2.0/3.)*sqrt(S)/n
 
 
 def n_Manning_to_C_Chezy(n, Rh):
@@ -599,7 +603,7 @@ def V_Chezy(Rh, S, C):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     .. [3] Chow, Ven Te. Open-Channel Hydraulics. New York: McGraw-Hill, 1959.
     '''
-    return C*(S*Rh)**0.5
+    return C*sqrt(S*Rh)
 
 
 
@@ -610,6 +614,7 @@ def V_Chezy(Rh, S, C):
 
 
 ### Manning coefficients
+# Tuple of minimum, average, maximum
 
 n_closed_conduit = {
     'Brass': {

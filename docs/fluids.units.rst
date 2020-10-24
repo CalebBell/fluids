@@ -19,13 +19,13 @@ name):
 
 >>> from pint import _DEFAULT_REGISTRY as u
 
-Note that if the star import convention is used, it will be imported as `u`
+Note that if the star import convention is used, the default unit registry be imported as `u`
 for you. Unlike the normal convention, this registry is already initialized. To repeat
 it again, you CANNOT do the following in your project and work with 
 fluids.units.
 
 >>> from pint import UnitRegistry
->>> u = UnitRegistry() # NO
+>>> u = UnitRegistry() # doctest: +SKIP
 
 All dimensional arguments to functions in fluids.units must be provided as Quantity objects.
 
@@ -38,16 +38,16 @@ of the function called.
 For arguments whose documentation specify they are dimensionless, they can
 optionally be passed in without making them dimensionless numbers with pint.
 
->>> speed_synchronous(50*u.Hz, poles=12)
+>>> speed_synchronous(50*u.Hz, poles=12*u.dimensionless) # doctest: +SKIP
 <Quantity(1500.0, 'revolutions_per_minute')>
->>> speed_synchronous(50*u.Hz, poles=12*u.dimensionless)
+>>> speed_synchronous(50*u.Hz, poles=12)
 <Quantity(1500.0, 'revolutions_per_minute')>
 
 It is good practice to use dimensionless quantities as follows, but it is 
 optional.
     
 >>> K_separator_Watkins(0.88*u.dimensionless, 985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, horizontal=True)
-<Quantity(0.0794470406403, 'meter / second')>
+<Quantity(0.079516136, 'meter / second')>
  
 Like all pint registries, the default unit system can be changed. However, all
 functions will still return the unit their documentation says they do. To
@@ -55,13 +55,14 @@ convert to the new base units, use the method .to_base_units().
 
 >>> u.default_system = 'imperial'
 >>> K_separator_Watkins(0.88*u.dimensionless, 985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, horizontal=True).to_base_units()
-<Quantity(0.0868843401578, 'yard / second')>
+<Quantity(0.0869599038, 'yard / second')>
+>>> u.default_system = 'mks'
 
 The order of the arguments to a function is the same as it is in the regular 
 library; it won't try to infer argument position from their units, an 
 exception will be raised.
 
->>> K_separator_Watkins(985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, 0.88*u.dimensionless, horizontal=True)
+>>> K_separator_Watkins(985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, 0.88*u.dimensionless, horizontal=True) # doctest: +SKIP
 Exception: Converting 0.88 dimensionless to units of kg/m^3 raised DimensionalityError: Cannot convert from 'dimensionless' (dimensionless) to 'kilogram / meter ** 3' ([mass] / [length] ** 3)
 
 
@@ -72,20 +73,19 @@ Properties, attributes, inputs, and units are all included.
 
 >>> T1 = TANK(L=3*u.m, D=150*u.cm, horizontal=True)
 >>> T1.V_total, T1.h_max
-(<Quantity(5.30143760293, 'meter ** 3')>, <Quantity(1.5, 'meter')>)
+(<Quantity(5.3014376, 'meter ** 3')>, <Quantity(1.5, 'meter')>)
 >>> T1.V_from_h(0.1*u.m)
-<Quantity(0.151783071377, 'meter ** 3')>
+<Quantity(0.151783071, 'meter ** 3')>
 
 >>> atm = ATMOSPHERE_NRLMSISE00(Z=1E3*u.m, latitude=45*u.degrees, longitude=45*u.degrees, day=150*u.day)
 >>> atm.rho, atm.O2_density
-(<Quantity(1.10190620264, 'kilogram / meter ** 3')>, <Quantity(4.80470350725e+24, 'count / meter ** 3')>)
-
+(<Quantity(1.1019062, 'kilogram / meter ** 3')>, <Quantity(4.80470351e+24, 'count / meter ** 3')>)
 
 Note that static methods cannot be used with the base class, only an instantiated class. This is
 because the proxy class wraps the methods only on creation of the object.
 
->>> ATMOSPHERE_1976.thermal_conductivity(300*u.K)
+>>> ATMOSPHERE_1976.thermal_conductivity(300*u.K) # doctest: +SKIP
 AttributeError: type object 'ATMOSPHERE_1976' has no attribute 'thermal_conductivity'
 
 >>> ATMOSPHERE_1976(0*u.m).thermal_conductivity(300*u.K)
-<Quantity(0.0262520007809, 'watt / kelvin / meter')>
+<Quantity(0.0262520008, 'watt / kelvin / meter')>

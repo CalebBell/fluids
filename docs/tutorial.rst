@@ -618,7 +618,7 @@ immediately; within several kilometers). The calculation is then straightforward
 >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
 ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,
 ... surface_azimuth=180.0, albedo=0.25)
-(1065.7621896280832, 945.2656564506336, 120.4965331774495, 95.31535344213228, 25.181179735317226)
+(1065.7621896280812, 945.2656564506323, 120.49653317744884, 95.31535344213178, 25.181179735317063)
 
 The first return value is the solar radiation which hits the object, in W/m^2.
 The next two are the components of the radiation that comes 1) directly from
@@ -1136,7 +1136,7 @@ pipe (15 more meters), and a sharp exit:
 >>> K += diffuser_sharp(Di1=D2, Di2=D3)
 
 >>> dP_from_K(K, rho=rho, V=V1)
-<Quantity(608471.8815473256, 'pascal')>
+<Quantity(734959.105, 'pascal')>
 
 
 

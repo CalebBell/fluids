@@ -1,6 +1,6 @@
 
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,11 +19,12 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 from fluids.constants import g
-from math import log, pi
+from math import log, pi, sqrt
 
 __all__ = ['agitator_time_homogeneous',
 'Kp_helical_ribbon_Rieger', 'time_helical_ribbon_Grenville', 'size_tee',
@@ -114,7 +115,7 @@ def agitator_time_homogeneous(N, P, T, H, mu, rho, D=None, homogeneity=.95):
         Fo = (5.2/regime_constant)
     else:
         Fo = (183./regime_constant)**2
-    time = rho*T**1.5*H**0.5/mu*Fo
+    time = rho*T**1.5*sqrt(H)/mu*Fo
     multiplier = adjust_homogeneity(homogeneity)
     return time*multiplier
 
@@ -268,7 +269,7 @@ def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
     '''
     V1 = Q1/(pi/4*D**2)
     Cv = Q2/(Q1 + Q2)
-    COV0 = ((1-Cv)/Cv)**0.5
+    COV0 = sqrt((1-Cv)/Cv)
     if D2 is None:
         D2 = (Q2/Q1)**(2/3.)*D
     V2 = Q2/(pi/4*D2**2)
@@ -295,7 +296,7 @@ def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
             E = 1.97
         else:
             E = 1.97 + 0.95*log(B/2.)**2
-    COV = (0.32/B**0.86*(pipe_diameters)**-E )**0.5
+    COV = sqrt(0.32/B**0.86*(pipe_diameters)**-E)
     return COV
 
 ### Commercial motionless mixers
@@ -352,7 +353,7 @@ def COV_motionless_mixer(Ki, Q1, Q2, pipe_diameters):
        pp. 107-114.
     '''
     Cv = Q2/(Q1 + Q2)
-    COV0 = ((1-Cv)/Cv)**0.5
+    COV0 = sqrt((1-Cv)/Cv)
     COVr = Ki**(pipe_diameters)
     COV = COV0*COVr
     return COV

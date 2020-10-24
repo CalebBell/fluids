@@ -26,13 +26,32 @@ from fluids.numerics import assert_close, assert_close1d
 import pytest
 import fluids
 from fluids.units import *
+from fluids.units import kwargs_to_args
+
+def test_kwargs_to_args():
+    sig = ['rho', 'mu', 'nu']
+    args = (1,)
+    kwargs = {'mu': 2.2}
+    assert [1, 2.2, None] == kwargs_to_args(args, kwargs, sig)
+    
+    kwargs = {'nu': 2.2}
+    assert [1, None, 2.2] == kwargs_to_args(args, kwargs, sig)
+    
+    assert [12.2, 2.2, 5.5] == kwargs_to_args(tuple(), {'mu': 2.2, 'nu': 5.5, 'rho': 12.2}, sig)
+    assert [None, None, None] == kwargs_to_args(tuple(), {}, sig)
+    
+    assert [12.2, 2.2, 5.5] == kwargs_to_args((12.2, 2.2, 5.5), {}, sig)
 
 
-def assert_pint_allclose(value, magnitude, units):
-    assert_close(value.to_base_units().magnitude, magnitude)
+
+def assert_pint_allclose(value, magnitude, units, rtol=1e-7, atol=0):
+    assert_close(value.to_base_units().magnitude, magnitude, rtol=rtol, atol=atol)
     if type(units) != dict:
         units = dict(units.dimensionality)
     assert dict(value.dimensionality) == units
+
+def test_in_right_units():
+    assert u.default_system == 'mks'
 
 def test_nondimensional_reduction():
     Re = 171.8865229090909 *u.meter * u.pound / u.centipoise / u.foot ** 2 / u.second
@@ -214,6 +233,19 @@ def test_custom_wraps():
     expect = [10.124375616183064, 5.062187808091532, 5.062187808091532, 0]
     for value, expected in zip([SA, sideA_SA, sideB_SA, lateral_SA], expect):
         assert_pint_allclose(value, expected, {u'[length]': 2.0})
+        
+        
+    m = isothermal_gas(rho=11.3*u.kg/u.m**3, fd=0.00185*u.dimensionless, P1=1E6*u.Pa, P2=9E5*u.Pa, L=1000*u.m, D=0.5*u.m)
+    assert_pint_allclose(m, 145.484757, {u'[mass]': 1.0, u'[time]': -1.0})
+    
+    
+def test_db_functions():
+    # dB
+    ans = control_valve_noise_g_2011(m=2.22*u.kg/u.s, P1=1E6*u.Pa, P2=7.2E5*u.Pa, T1=450*u.K, rho=5.3*u.kg/u.m**3, 
+                        gamma=1.22, MW=19.8*u.g/u.mol, Kv=77.85*u.m**3/u.hour,  d=0.1*u.m, Di=0.2031*u.m, FL=None, FLP=0.792, 
+                         FP=0.98, Fd=0.296, t_pipe=0.008*u.m, rho_pipe=8000.0*u.kg/u.m**3, c_pipe=5000.0*u.m/u.s, 
+                        rho_air=1.293*u.kg/u.m**3, c_air=343.0*u.m/u.s, An=-3.8, Stp=0.2)
+#    assert_pint_allclose(ans, 91.67702674629604, {})
     
 
 
@@ -227,6 +259,33 @@ def test_check_signatures():
             if hasattr(obj, '__name__') and obj.__name__ == '<lambda>':
                 continue # 3
             check_args_order(obj)
+
+
+
+def test_differential_pressure_meter_solver():
+    m = differential_pressure_meter_solver(D=0.07366*u.m, D2=0.05*u.m, P1=200000.0*u.Pa, 
+        P2=183000.0*u.Pa, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless, 
+        meter_type='ISO 5167 orifice', taps='D')
+    
+    assert_pint_allclose(m, 7.702338035732167, {'[mass]': 1, '[time]': -1})
+    
+    P1 = differential_pressure_meter_solver(D=0.07366*u.m, D2=0.05*u.m, m=m, 
+        P2=183000.0*u.Pa, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless, 
+        meter_type='ISO 5167 orifice', taps='D')
+    assert_pint_allclose(P1, 200000, {'[length]': -1, '[mass]': 1, '[time]': -2})
+    
+    P2 = differential_pressure_meter_solver(D=0.07366*u.m, D2=0.05*u.m, P1=200000.0*u.Pa, 
+        m=m, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless, 
+        meter_type='ISO 5167 orifice', taps='D')
+    
+    assert_pint_allclose(P2, 183000, {'[length]': -1, '[mass]': 1, '[time]': -2})
+    
+    D2 = differential_pressure_meter_solver(D=0.07366*u.m, m=m, P1=200000.0*u.Pa, 
+        P2=183000.0*u.Pa, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless, 
+        meter_type='ISO 5167 orifice', taps='D')
+    assert_pint_allclose(D2, .05, {'[length]': 1})
+    
+    
 
 def test_Tank_units_full():
 

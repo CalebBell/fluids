@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell.
+
+<Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -18,15 +20,16 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
-                  degrees)
+                  degrees, sqrt)
 from cmath import sqrt as csqrt
 from fluids.constants import inch
 from fluids.core import PY3
-from fluids.numerics import cacos, catan, secant, brenth, ellipe, ellipkinc, ellipeinc, horner, chebval, linspace, derivative, quad
+from fluids.numerics import cacos, catan, secant, brenth, ellipe, ellipkinc, ellipeinc, horner, chebval, linspace, derivative, quad, translate_bound_func
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
@@ -47,22 +50,12 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'SA_partial_vertical_conical_head', 'SA_partial_vertical_spherical_head',
            'SA_partial_vertical_torispherical_head', 'SA_partial_vertical_ellipsoidal_head',
            
-           'V_from_h', 'SA_from_h', 'SA_tank', 'sphericity', 
+           'V_from_h', 'V_tank', 'SA_from_h', 'SA_tank', 'sphericity', 
            'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder', 
            'A_hollow_cylinder', 'V_hollow_cylinder', 
            'A_multiple_hole_cylinder', 'V_multiple_hole_cylinder',
            'pitch_angle_solver', 'plate_enlargement_factor']
 
-
-__numba_additional_funcs__ = ('_V_horiz_spherical_toint', '_SA_partial_horiz_ellipsoidal_head_to_int',
-          '_SA_partial_horiz_ellipsoidal_head_limits',
-          'V_horiz_torispherical_toint_3', 'V_horiz_torispherical_toint_2',
-          '_SA_partial_horiz_ellipsoidal_head_limits2',
-          'V_horiz_torispherical_toint_1', '_SA_partial_horiz_spherical_head_to_int', 
-          '_SA_partial_horiz_guppy_head_to_int',
-          '_SA_partial_horiz_torispherical_head_int_1',
-          '_SA_partial_horiz_torispherical_head_int_2',
-          '_SA_partial_horiz_torispherical_head_int_3')
 
 ### Spherical Vessels, partially filled
 
@@ -101,7 +94,7 @@ def SA_partial_sphere(D, h):
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
        http://mathworld.wolfram.com/SphericalCap.html.'''
     r = D*0.5
-    a = (h*(2.*r - h))**0.5
+    a = sqrt(h*(2.*r - h))
     return pi*(a*a + h*h)
 
 
@@ -141,7 +134,7 @@ def V_partial_sphere(D, h):
     if h <= 0.0:
         return 0.0
     r = 0.5*D
-    a = (h*(2.*r - h))**0.5
+    a = sqrt(h*(2.*r - h))
     return 1/6.*pi*h*(3.*a*a + h*h)
 
 
@@ -230,12 +223,12 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     t0 = (R-h)/R
     if t0 < -1.0 or t0 > 1.0:
         raise ValueError("Unphysical height")
-    Af = R*R*acos(t0) - (R-h)*(h*(R + R - h))**0.5
+    Af = R*R*acos(t0) - (R-h)*sqrt(h*(R + R - h))
     M = abs(t0)
     if h == R:
         Vf = a*R*R_third*pi
     else:
-        K = acos(M) + M*M*M*acosh(1./M) - 2.*M*(1.-M*M)**0.5
+        K = acos(M) + M*M*M*acosh(1./M) - 2.*M*sqrt(1.-M*M)
         if 0. <= h < R:
             Vf = 2.*a*R*R_third*K
         else:
@@ -289,7 +282,7 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
     if h <= 0.0:
         return 0.0
     R = 0.5*D
-    Af = R*R*acos((R-h)/R) - (R-h)*(2*R*h - h*h)**0.5
+    Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2*R*h - h*h)
     Vf = pi*a*h*h*(1 - h/(3.*R))
     if headonly:
         Vf = 0.5*Vf
@@ -340,17 +333,18 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
     if h <= 0.0:
         return 0.0
     R = 0.5*D
-    Af = R*R*acos((R-h)/R) - (R-h)*(2.*R*h - h*h)**0.5
-    Vf = 2.*a*R*R/3.*acos(1. - h/R) + 2.*a/9./R*(2*R*h - h**2)**0.5*(2*h - 3*R)*(h + R)
+    x0 = sqrt(2.*R*h - h*h)
+    Af = R*R*acos((R-h)/R) - (R-h)*x0
+    Vf = 2.*a*R*R/3.*acos(1. - h/R) + 2.*a/9./R*x0*(2.0*h - 3.0*R)*(h + R)
     if headonly:
-        Vf = Vf/2.
+        Vf = Vf*0.5
     else:
         Vf += Af*L
     return Vf
 
 def _V_horiz_spherical_toint(x, r2, R2, den_inv):
     x2 = x*x
-    return (r2 - x2)*atan(((R2 - x2)*den_inv)**0.5)
+    return (r2 - x2)*atan(sqrt((R2 - x2)*den_inv))
 
 
 def V_horiz_spherical(D, L, a, h, headonly=False):
@@ -426,11 +420,11 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     if h <= 0.0:
         return 0.0
     R = D/2.
-    r = (a**2 + R**2)/2./abs(a)
+    r = (a*a + R*R)/2./abs(a)
     w = R - h
-    y = (2*R*h - h**2)**0.5
-    z = (r**2 - R**2)**0.5
-    Af = R**2*acos((R-h)/R) - (R-h)*(2*R*h - h**2)**0.5
+    y = sqrt(2*R*h - h**2)
+    z = sqrt(r**2 - R**2)
+    Af = R**2*acos((R-h)/R) - (R-h)*sqrt(2*R*h - h**2)
 
     if h == R and abs(a) <= R:
         Vf = pi*a/6*(3*R**2 + a**2)
@@ -458,26 +452,24 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
 
 def V_horiz_torispherical_toint_1(x, w, c10, c11):
     # No analytical integral available in MP
-    w2 = w*w
-    n = c11 + (c10 - x*x)**0.5
+    n = c11 + sqrt(c10 - x*x)
     n2 = n*n
-    t = (n2 - w2)**0.5
-    ans = n2*asin(t/n) - w*t
-    return ans
+    t = sqrt(n2 - w*w)
+    return n2*asin(t/n) - w*t
 
 def V_horiz_torispherical_toint_2(x, w, c10, c11, g, g2):
     # No analytical integral available in MP
-    n = c11 + (c10 - x*x)**0.5
+    n = c11 + sqrt(c10 - x*x)
     n2 = n*n
     n_inv = 1.0/n
-    ans = n2*(acos(w*n_inv) - acos(g*n_inv)) - w*(n2 - w*w)**0.5 + g*(n2 - g2)**0.5
+    ans = n2*(acos(w*n_inv) - acos(g*n_inv)) - w*sqrt(n2 - w*w) + g*sqrt(n2 - g2)
     return ans
 
-def V_horiz_torispherical_toint_3(x, r2, g2, z):
+def V_horiz_torispherical_toint_3(x, r2, g2, z_inv):
     # There is an analytical integral in MP, but for all cases we seem to 
     # get ZeroDivisionError: 0.0 cannot be raised to a negative power
-    ans = (r2 - x*x)*atan((g2 - x*x)**0.5/z)
-    return ans
+    x2 = x*x
+    return (r2 - x2)*atan(sqrt(g2 - x2)*z_inv)
 
 def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     r'''Calculates volume of a tank with torispherical heads, according to [1]_.
@@ -577,7 +569,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     R = 0.5*D
     R2 = R*R
     hh = h*h
-    Af = R2*acos((R-h)/R) - (R-h)*(2.0*R*h - hh)**0.5
+    Af = R2*acos((R-h)/R) - (R-h)*sqrt(2.0*R*h - hh)
     r = f*D
     alpha = asin((1.0 - 2.0*k)/(2.*(f - k)))
     cos_alpha = cos(alpha)
@@ -596,13 +588,13 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
 
     if 0.0 <= h <= h1:
         w = R - h
-        Vf = 2.0*quad(V_horiz_torispherical_toint_1, 0.0, (2.0*k*D*h - hh)**0.5, (w, c10, c11))[0]
+        Vf = 2.0*quad(V_horiz_torispherical_toint_1, 0.0, sqrt(2.0*k*D*h - hh), (w, c10, c11))[0]
     elif h1 < h < h2:
         w = R - h
         wmax1 = R - h1
-        V1max = quad(V_horiz_torispherical_toint_1, 0.0, (2.0*k*D*h1 - h1*h1)**0.5, (wmax1,c10, c11))[0]
-        V2 = quad(V_horiz_torispherical_toint_2, 0.0, k*D*cos(alpha), (w, c10, c11, g, g2))[0]
-        V3 = quad(V_horiz_torispherical_toint_3, w, g , (r2, g2, z))[0] - 0.5*z*(g*g*acos(w/g) -w*(2*g*(h-h1) - (h-h1)**2)**0.5)
+        V1max = quad(V_horiz_torispherical_toint_1, 0.0, sqrt(2.0*k*D*h1 - h1*h1), (wmax1,c10, c11))[0]
+        V2 = quad(V_horiz_torispherical_toint_2, 0.0, k*D*cos_alpha, (w, c10, c11, g, g2))[0]
+        V3 = quad(V_horiz_torispherical_toint_3, w, g , (r2, g2, 1.0/z))[0] - 0.5*z*(g*g*acos(w/g) -w*sqrt(2.0*g*(h-h1) - (h-h1)*(h-h1)))
         Vf = 2.0*(V1max + V2 + V3)
     else:
         w = R - h
@@ -610,11 +602,11 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         wmax2 = R - h2
         wwerird = R - (D - h)
 
-        V1max = quad(V_horiz_torispherical_toint_1, 0, (2*k*D*h1-h1**2)**0.5, (wmax1,c10, c11))[0]
-        V1weird = quad(V_horiz_torispherical_toint_1, 0, (2*k*D*(D-h)-(D-h)**2)**0.5, (wwerird,c10, c11))[0]
-        V2max = quad(V_horiz_torispherical_toint_2, 0, k*D*cos(alpha), (wmax2, c10, c11, g, g2))[0]
-        V3max = pi*a1/6.*(3*g**2 + a1**2)
-        Vf = 2*(2*V1max - V1weird + V2max + V3max)
+        V1max = quad(V_horiz_torispherical_toint_1, 0.0, sqrt(2.0*k*D*h1-h1*h1), (wmax1,c10, c11))[0]
+        V1weird = quad(V_horiz_torispherical_toint_1, 0.0, sqrt(2.0*k*D*(D-h)-(D-h)*(D-h)), (wwerird,c10, c11))[0]
+        V2max = quad(V_horiz_torispherical_toint_2, 0.0, k*D*cos_alpha, (wmax2, c10, c11, g, g2))[0]
+        V3max = pi*a1/6.*(3.0*g*g + a1*a1)
+        Vf = 2.0*(2.0*V1max - V1weird + V2max + V3max)
     if headonly:
         Vf = Vf/2.
     else:
@@ -825,7 +817,7 @@ def V_vertical_torispherical(D, f, k, h):
     Matching example from [1]_, with inputs in inches and volume in gallons.
 
     >>> V_vertical_torispherical(D=132., f=1.0, k=0.06, h=24)/231.
-    904.0688283793511
+    904.0688283793
 
     References
     ----------
@@ -854,11 +846,11 @@ def V_vertical_torispherical(D, f, k, h):
         x2 = (0.5*D - k*D)
         u2 = u*u
         Vf = (0.25*pi*a1*((2.0/3.0)*a1*a1 + 0.5*D1*D1) + pi*u*(x2*x2 + s)
-        + pi*u2*(0.5*t - u/3.) + pi*D*(1.0 - 2.0*k)*(0.25*(2.0*u - t)*(s + t*u
-        - u2)**0.5 + 0.25*t*s**0.5 + 0.5*k*k*D*D*(acos((t - 2.0*u)/(2.0*k*D)) - alpha)))
+        + pi*u2*(0.5*t - u/3.) + pi*D*(1.0 - 2.0*k)*(0.25*(2.0*u - t)*sqrt(s + t*u
+                - u2) + 0.25*t*sqrt(s) + 0.5*k*k*D*D*(acos((t - 2.0*u)/(2.0*k*D)) - alpha)))
     else:
         Vf = pi/4*(2*a1**3/3. + a1*D1**2/2.) + pi*t/2.*((D/2 - k*D)**2
-        + s) + pi*t**3/12. + pi*D*(1 - 2*k)*(t*s**0.5/4
+        + s) + pi*t**3/12. + pi*D*(1 - 2*k)*(t*sqrt(s)/4
         + k**2*D**2/2*asin(cos(alpha))) + pi*D**2/4*(h - (a1 + a2))
     return Vf
 
@@ -1096,7 +1088,7 @@ def V_vertical_torispherical_concave(D, f, k, h):
         u = h-f*D*(1-cos(alpha))
         v1 = pi/4*(2*a1**3/3. + a1*D1**2/2.) + pi*u*((D/2.-k*D)**2 +s)
         v1 += pi*t*u**2/2. - pi*u**3/3.
-        v1 += pi*D*(1-2*k)*((2*u-t)/4.*(s+t*u-u**2)**0.5 + t*s**0.5/4.
+        v1 += pi*D*(1-2*k)*((2*u-t)/4.*sqrt(s+t*u-u**2) + t*sqrt(s)/4.
         + k**2*D**2/2.*(acos((t-2*u)/(2*k*D)) -alpha))
         return v1
     def V2(h):
@@ -1164,7 +1156,7 @@ def SA_ellipsoidal_head(D, a):
     R = 0.5*D
     if a < R:
         R, a = min((R, a)), max((R, a))
-        e1 = (1.0 - R*R/(a*a))**0.5
+        e1 = sqrt(1.0 - R*R/(a*a))
         
         if e1 != 1.0:
 #        try:
@@ -1177,7 +1169,7 @@ def SA_ellipsoidal_head(D, a):
         
         return (2.0*pi*a*a + pi*R*R/e1*log_term)*0.5
     else:
-        return pi*R*R + pi*a*a*R*(a*a - R*R)**-0.5*acos(R/abs(a))
+        return pi*R*R + pi*a*a*R*1.0/sqrt(a*a - R*R)*acos(R/abs(a))
 
 
 def SA_conical_head(D, a):
@@ -1207,7 +1199,7 @@ def SA_conical_head(D, a):
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Cone.html.'''
-    return 0.5*pi*D*(a*a + 0.25*D*D)**0.5
+    return 0.5*pi*D*sqrt(a*a + 0.25*D*D)
 
 
 def SA_guppy_head(D, a):
@@ -1239,7 +1231,7 @@ def SA_guppy_head(D, a):
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Cone.html.'''
-    return 0.25*pi*D*(a*a + D*D)**0.5 + 0.5*pi*D*a
+    return 0.25*pi*D*sqrt(a*a + D*D) + 0.5*pi*D*a
 
 
 def SA_torispheroidal(D, f, k):
@@ -1302,8 +1294,8 @@ def SA_torispheroidal(D, f, k):
     x1 = 2.0*pi*D2
     k_inv = 1.0/k
     x2 = ((0.5 - k)/(f-k))
-    alpha_1 = f*(1.0 - (1.0 - x2*x2)**0.5)
-    alpha_2 = f - (f*f - 2.0*f*k + k - 0.25)**0.5
+    alpha_1 = f*(1.0 - sqrt(1.0 - x2*x2))
+    alpha_2 = f - sqrt(f*f - 2.0*f*k + k - 0.25)
     alpha = alpha_1 # Up to top of dome
     S1 = x1*f*alpha_1
     alpha = alpha_2 # up to top of torus
@@ -1364,7 +1356,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     18.84955592153876
     >>> SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal',
     ... sideB_a=2)[0]
-    10.124375616183064
+    10.124375616183062
     >>> SA_tank(D=1., L=5, sideA='conical', sideA_a=2, sideB='conical',
     ... sideB_a=2)[0]
     22.18452243965656
@@ -1411,6 +1403,140 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
 
     SA = sideA_SA + sideB_SA + lateral_SA
     return SA, sideA_SA, sideB_SA, lateral_SA
+
+
+def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
+           sideB_a=0.0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
+    r'''Calculates the total volume of a vertical or horizontal tank with
+    different head types according to [1]_.
+
+    Parameters
+    ----------
+    D : float
+        Diameter of the cylindrical section of the tank, [m]
+    L : float
+        Length of the main cylindrical section of the tank, [m]
+    horizontal : bool, optional
+        Whether or not the tank is a horizontal or vertical tank
+    sideA : string, optional
+        The left (or bottom for vertical) head of the tank's type; one of
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+    sideB : string, optional
+        The right (or top for vertical) head of the tank's type; one of
+        [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical'].
+    sideA_a : float, optional
+        The distance the head as specified by sideA extends down or to the left
+        from the main cylindrical section, [m]
+    sideB_a : float, optional
+        The distance the head as specified by sideB extends up or to the right
+        from the main cylindrical section, [m]
+    sideA_f : float, optional
+        Dimensionless dish-radius parameter for side A; also commonly given as  
+        the product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
+    sideA_k : float, optional
+        Dimensionless knuckle-radius parameter for side A; also commonly given 
+        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        radius and has units of length, [-]
+    sideB_f : float, optional
+        Dimensionless dish-radius parameter for side B; also commonly given as  
+        the product of `f` and `D` (`fD`), which is called dish radius and 
+        has units of length, [-]
+    sideB_k : float, optional
+        Dimensionless knuckle-radius parameter for side B; also commonly given 
+        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        radius and has units of length, [-]
+
+    Returns
+    -------
+    V : float
+        Total volume [m^3]
+    sideA_V : float
+        Volume of only `sideA` [m^3]
+    sideB_V : float
+        Volume of only `sideB` [m^3]
+    lateral_V : float
+        Volume of cylindrical section of tank [m^3]
+
+    Examples
+    --------
+    >>> V_tank(D=1.5, L=5., horizontal=False, sideA='conical',
+    ... sideB='conical', sideA_a=2., sideB_a=1.)
+    (10.602875205865551, 1.1780972450961726, 0.5890486225480863, 8.835729338221293)
+    '''
+    if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
+        raise ValueError('Unspoorted head type for side A')
+    if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
+        raise ValueError('Unspoorted head type for side B')
+    R = 0.5*D
+    V = sideA_V = sideB_V = lateral_V = 0.0
+    if horizontal:
+        # Conical case
+        if sideA == 'conical' and sideB == 'conical' and sideA_a == sideB_a:
+            sideB_V = sideA_V = V_horiz_conical(D, L, sideA_a, D, headonly=True)
+        else:
+            if sideA == 'conical':
+                sideA_V = V_horiz_conical(D, L, sideA_a, D, headonly=True)
+            if sideB == 'conical':
+                sideB_V = V_horiz_conical(D, L, sideB_a, D, headonly=True)
+        # Elliosoidal case
+        if sideA == 'ellipsoidal' and sideB == 'ellipsoidal' and sideA_a == sideB_a:
+            sideB_V = sideA_V = V_horiz_ellipsoidal(D, L, sideA_a, D, headonly=True)
+        else:
+            if sideA == 'ellipsoidal':
+                sideA_V = V_horiz_ellipsoidal(D, L, sideA_a, D, headonly=True)
+            if sideB == 'ellipsoidal':
+                sideB_V = V_horiz_ellipsoidal(D, L, sideB_a, D, headonly=True)
+        # Guppy case
+        if sideA == 'guppy' and sideB == 'guppy' and sideA_a == sideB_a:
+            sideB_V = sideA_V = V_horiz_guppy(D, L, sideA_a, D, headonly=True)
+        else:
+            if sideA == 'guppy':
+                sideA_V = V_horiz_guppy(D, L, sideA_a, D, headonly=True)
+            if sideB == 'guppy':
+                sideB_V = V_horiz_guppy(D, L, sideB_a, D, headonly=True)
+        # Spherical case
+        if sideA == 'spherical' and sideB == 'spherical' and sideA_a == sideB_a:
+            sideB_V = sideA_V = V_horiz_spherical(D, L, sideA_a, D, headonly=True)
+        else:
+            if sideA == 'spherical':
+                sideA_V = V_horiz_spherical(D, L, sideA_a, D, headonly=True)
+            if sideB == 'spherical':
+                sideB_V = V_horiz_spherical(D, L, sideB_a, D, headonly=True)
+        # Torispherical case
+        if (sideA == 'torispherical' and sideB == 'torispherical' 
+            and (sideA_f == sideB_f) and (sideA_k == sideB_k)):
+            sideB_V = sideA_V = V_horiz_torispherical(D, L, sideA_f, sideA_k, D, headonly=True)
+        else:
+            if sideA == 'torispherical':
+                sideA_V = V_horiz_torispherical(D, L, sideA_f, sideA_k, D, headonly=True)
+            if sideB == 'torispherical':
+                sideB_V = V_horiz_torispherical(D, L, sideB_f, sideB_k, D, headonly=True)
+        Af = R*R*acos((R-D)/R) - (R-D)*sqrt(2.0*R*D - D*D)
+        lateral_V = L*Af
+    else:
+        # Bottom head
+        if sideA == 'conical':
+            sideA_V = V_vertical_conical(D, sideA_a, h=sideA_a)
+        if sideA == 'ellipsoidal':
+            sideA_V = V_vertical_ellipsoidal(D, sideA_a, h=sideA_a)
+        if sideA == 'spherical':
+            sideA_V = V_vertical_spherical(D, sideA_a, h=sideA_a)
+        if sideA == 'torispherical':
+            sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
+
+        # Cylindrical section
+        lateral_V = pi/4*D**2*L # All middle
+
+        if sideB == 'conical':
+            sideB_V = V_vertical_conical(D, sideB_a, h=sideB_a)
+        if sideB == 'ellipsoidal':
+            sideB_V = V_vertical_ellipsoidal(D, sideB_a, h=sideB_a)
+        if sideB == 'spherical':
+            sideB_V = V_vertical_spherical(D, sideB_a, h=sideB_a)
+        if sideB == 'torispherical':
+            sideB_V = V_vertical_torispherical(D, sideB_f, sideB_k, h=sideB_a)
+    return lateral_V + sideA_V + sideB_V, sideA_V, sideB_V, lateral_V
 
 
 def SA_partial_cylindrical_body(L, D, h):
@@ -1503,7 +1629,7 @@ def A_partial_circle(D, h):
     elif h < 0.0:
         return 0.0
     R = 0.5*D
-    SA = R*R*acos((R - h)/R) - (R - h)*(2.0*R*h - h*h)**0.5
+    SA = R*R*acos((R - h)/R) - (R - h)*sqrt(2.0*R*h - h*h)
     if SA < 0.0:
         SA = 0.0 # Catch trig errors
     return SA
@@ -1555,13 +1681,13 @@ def SA_partial_horiz_conical_head(D, a, h):
         return 0.0
     R = 0.5*D
     R_inv = 1.0/R
-    return (a*a + R*R)**0.5*R_inv*(R*R*acos((R-h)*R_inv) - (R-h)*(2.0*R*h - h*h)**0.5)
+    return sqrt(a*a + R*R)*R_inv*(R*R*acos((R-h)*R_inv) - (R-h)*sqrt(2.0*R*h - h*h))
 
 def _SA_partial_horiz_spherical_head_to_int(x, R2, a4, c1, c2):
     x2 = x*x
     to_pow = (R2 - x2)/(c2 - a4*x2)
     if to_pow < 0.0: to_pow = 0.0
-    num = c1*(to_pow)**0.5
+    num = c1*sqrt(to_pow)
     try:
         return asin(num)
     except:
@@ -1608,7 +1734,7 @@ def SA_partial_horiz_spherical_head(D, a, h):
     Examples
     --------
     >>> SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0)
-    2027.2672091672684
+    2027.267209167
     
     References
     ----------
@@ -1640,23 +1766,23 @@ def _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y, c1, R2, R4, h):
     num = c1*(x2 + y2) - R4
     den = x2 + (y2 - R2) # Brackets help numerical truncation; zero div without it
     try:
-        return (num/den)**0.5
+        return sqrt(num/den)
     except:
          # Equation is undefined for y == R when x is zero; avoid it
         return _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y*(1.0 - 1e-12), c1, R2, R4, h)
     
 def _SA_partial_horiz_ellipsoidal_head_limits(x, c1, R2, R4, h):
-    return [0.0, (R2 - x*x)**0.5]
+    return [0.0, sqrt(R2 - x*x)]
 
 def _SA_partial_horiz_ellipsoidal_head_limits2(c1, R2, R4, h):
-    R = R2**0.5
+    R = sqrt(R2)
     return [R-h, R]
 
 def _SA_partial_horiz_ellipsoidal_head_to_int(y, c1, R2, R4):
     y2 = y*y
     t0 = c1*y2
     x6 = c1*(y2 - R2)/(t0 - R4)
-    ans = (R4 - t0)**0.5*float(ellipe(x6))
+    ans = sqrt(R4 - t0)*float(ellipe(x6))
     return ans
 
 def SA_partial_horiz_ellipsoidal_head(D, a, h):
@@ -1748,24 +1874,24 @@ def _SA_partial_horiz_guppy_head_to_int(x, a, R):
     x5 = R*R
     x6 = x*x
     x7 = x5 - x6
-    x8 = x7**0.5
+    x8 = sqrt(x7)
     x9 = x4*x8
     x10 = x0 + 4.0*x5
-    x17 = x10**0.25
+    x17 = sqrt(sqrt(x10))
     x11 = x17*x17
     x12 = 1.0/x11
     x13 = a*x7
     x14 = x12*x13*x3 + 1.0
     x15 = a*x12
-    x16 = a**0.5
+    x16 = sqrt(a)
     x18 = 2*atan(x16*x8/(x1*x17))
     x19 = 0.5 - 0.5*x15
     x100 = (-2.0*R*x*x11 + x11*x5 + x11*x6 + x13)
-    x20 = x1*x14*(x2*x5*(x0 + x2)/(x100*x100))**0.5/x5
+    x20 = x1*x14*sqrt(x2*x5*(x0 + x2)/(x100*x100))/x5
     return 0.08333333333333333*(
              (-4.0*x10**0.75*x16*x20*ellipeinc(x18, x19) + 4.0*x9 
              + 2.0*x17*x20*(a*x11 + x10)*ellipkinc(x18, x19)/x16 
-             + 8.0*x15*x9/x14)*x4**-0.5)
+             + 8.0*x15*x9/x14)*1.0/sqrt(x4))
 
 
 def SA_partial_horiz_guppy_head(D, a, h):
@@ -1876,15 +2002,15 @@ def SA_partial_horiz_guppy_head(D, a, h):
 def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     x0 = x*x
     x1 = b - x0
-    x2 = x1**0.5
+    x2 = sqrt(x1)
     x3 = -b + x0
     x4 = c*c
     try:
-        x5 = (x1 - x4)**-0.5
+        x5 = 1.0/sqrt(x1 - x4)
     except:
-        x5 = (x1 - x4+0j)**-0.5
+        x5 = 1.0/csqrt(x1 - x4)
     x6 = x3 + x4
-    x7 = b**0.5
+    x7 = sqrt(b)
     try:
         x3_pow = x3**(-1.5)
     except:
@@ -1894,36 +2020,51 @@ def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     return ans.real
 
 def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
+#    from mpmath import mp, mpf, atanh as catanh
+#    mp.dps=30
+#    y, t2, s, c1 = mpf(y), mpf(t2), mpf(s), mpf(c1)
     y2 = y*y
     try:
-        x10 = (t2 - y2)**0.5
+        x10 = sqrt(t2 - y2)
+        try:
+            # Some tiny heights make the square root slightly under 0
+            x = (sqrt(c1 - y2 + (s+s)*x10)).real
+        except:
+            # Python 2 compat - don't take the square root of a negative number with no complex part
+            x = (csqrt(c1 - y2 + (s+s)*x10 + 0.0j)).real
+
     except:
-        x10 = (t2 - y2+0.0j)**0.5
-    try:
-        # Some tiny heights make the square root slightly under 0
-        x = ((c1 - y2 + (s+s)*x10)**0.5).real
-    except:
-        # Python 2 compat - don't take the square root of a negative number with no complex part
-        x = ((c1 - y2 + (s+s)*x10 + 0.0j)**0.5).real
+        x10 = csqrt(t2 - y2+0.0j)
+        x = (csqrt(c1 - y2 + (s+s)*x10 + 0.0j)).real
     try:
         x0 = t2 - y2
-        x1 = s*x10
+        x1 = s*x10.real
         t10 = x1 + x1 + s*s + x0
+        
+        
+        # x3, x4 present a very nasty numerical problem.
+        # issue occurs when h == R, x3 is really equal to R**2 - 2*R*h + h**2
         x3 = t10 - x*x
-        x4 = x3**0.5
-        ans = x4*(t2*t10/(x0*x3))**0.5*catan(x/x4).real
+        x4 = sqrt(x3)
+        # One solution is to use higher precision everywhere
+        
+        
+        
+        ans = x4*sqrt(t2*t10/(x0*x3))*catan(x/x4).real
     except:
         ans = 0.0
 #     ans = sqrt((t2* (s**2+t2-x**2+2.0*s* sqrt(t2-x**2)))/((t2-x**2)* (s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2)))* sqrt(s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2) *atan(y/sqrt(s**2+t2-x**2+2 *s* sqrt(t2-x**2)-y**2))
+#    print(float(y), float(t2), float(s), float(c1), float(ans.real))
+#    return float(ans.real)
     return ans.real
 
 def _SA_partial_horiz_torispherical_head_int_3(y, x, s, t2):
     x2 = x*x
     y2 = y*y
-    x10 = (t2 - x2)**0.5
+    x10 = sqrt(t2 - x2)
     num = (s + x10)*(s + x10)*x2 + (t2 - x2)*y2
     den = (t2 - x2)*(s*s + t2 - x2 - y2 + 2.0*s*x10)
-    f = (1.0 + num/den)**0.5
+    f = sqrt(1.0 + num/den)
     return f
 
 def SA_partial_horiz_torispherical_head(D, f, k, h):
@@ -2008,7 +2149,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     Examples
     --------
     >>> SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=24.0)
-    1471.201832459902
+    1471.201832459
     
     References
     ----------
@@ -2040,19 +2181,19 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     def G_lim(x): # numba: delete
         x2 = x*x # numba: delete
         try: # numba: delete
-            G = (c1 - x2 + (s+s)*(t2 - x2)**0.5)**0.5 # numba: delete
+            G = sqrt(c1 - x2 + (s+s)*sqrt(t2 - x2)) # numba: delete
         except: # numba: delete
             # Python 2 compat - don't take the square root of a negative number with no complex part # numba: delete
-            G = (c1 - x2 + (s+s)*(t2 - x2+0.0j)**0.5 + 0.0j)**0.5 # numba: delete
+            G = sqrt(c1 - x2 + (s+s)*sqrt(t2 - x2+0.0j) + 0.0j) # numba: delete
         return G.real # Some tiny heights make the square root slightly under 0 # numba: delete
         
     limit_1 = k*D*(1.0 - sin_alpha)
     
     if h < limit_1:
-        SA = quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, (2*k*D*h - h*h)**0.5, args=(t2, s, c1))[0]
+        SA = quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, sqrt(2*k*D*h - h*h), args=(t2, s, c1))[0]
         return 2.0*SA
     elif limit_1 < h <= R:
-        if D*.499 < h < D*.501: # numba: delete
+        if (D*.499 < h < D*.501): # numba: delete
             from scipy.integrate import dblquad # numba: delete
             SA = 2.0*dblquad(_SA_partial_horiz_torispherical_head_int_3, 0.0, a2, lambda x: 0, G_lim, args=(s, t2))[0] # numba: delete
         else: # numba: delete
@@ -2117,7 +2258,7 @@ def SA_partial_vertical_conical_head(D, a, h):
     elif h <= 0.0:
         return 0.0
     R = 0.5*D
-    SA = pi*R*h*h*(a*a + R*R)**0.5/(a*a)
+    SA = pi*R*h*h*sqrt(a*a + R*R)/(a*a)
     return SA
 
 
@@ -2185,17 +2326,17 @@ def SA_partial_vertical_ellipsoidal_head(D, a, h):
     a2 = a*a
     a_inv = 1.0/a
     R2 = R*R
-    SA -= pi*(a - h)*R*(a2*a2 - (a-h)*(a-h)*(a2 - R2))**0.5*a_inv*a_inv
+    SA -= pi*(a - h)*R*sqrt(a2*a2 - (a-h)*(a-h)*(a2 - R2))*a_inv*a_inv
     if a > R:
         # This one has issues around a == R
-        SA += pi*a2*R/(a2 - R2)**0.5*(acos(R*a_inv) - asin((a-h)*(a2 - R2)**0.5*a_inv*a_inv))
+        SA += pi*a2*R/sqrt(a2 - R2)*(acos(R*a_inv) - asin((a-h)*sqrt(a2 - R2)*a_inv*a_inv))
     elif a == R:
         # Special case avoids zero division
         return pi*D*h
     else:
-        x1 = (R2 - a2)**0.5
+        x1 = sqrt(R2 - a2)
         num = a*(x1 + R)
-        den = (a-h)*x1 + (a2*a2 + (a-h)*(a-h)*(R2 - a2))**0.5
+        den = (a-h)*x1 + sqrt(a2*a2 + (a-h)*(a-h)*(R2 - a2))
         SA += pi*a2*R/x1*log(num/den)
     return SA
 
@@ -2490,7 +2631,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
                 V += V_horiz_torispherical(D, L, sideB_f, sideB_k, h, headonly=True)
         if h > D: # Must be before Af, which will raise a domain error
             raise ValueError('Input height is above top of tank')
-        Af = R*R*acos((R-h)/R) - (R-h)*(2.0*R*h - h*h)**0.5
+        Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2.0*R*h - h*h)
         V += L*Af
     else:
         # Bottom head
@@ -2693,9 +2834,44 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
             raise ValueError('Input height is above top of tank')
     return SA
 
+def tank_from_two_specs_err(guess, spec0, spec1, spec0_name, spec1_name,
+                            h, horizontal, sideA, sideB, sideA_a, sideB_a,
+                            sideA_f, sideA_k, sideB_f, sideB_k,
+                            sideA_a_ratio, sideB_a_ratio):
+    D, L_over_D = float(guess[0]), float(guess[1])
+    obj = TANK(D=D, L_over_D=L_over_D, horizontal=horizontal,
+         sideA=sideA, sideB=sideB, sideA_a=sideA_a, sideB_a=sideB_a,
+         sideA_f=sideA_f, sideA_k=sideA_k, sideB_f=sideB_f, sideB_k=sideB_k,
+         sideA_a_ratio=sideA_a_ratio, sideB_a_ratio=sideB_a_ratio)
+    # ensure h is always under the top
+    h = min(h, obj.h_max)
+    
+    if spec0_name == 'V':
+        err0 = obj.V_total - spec0
+    elif spec0_name == 'SA':
+        err0 = obj.A - spec0
+    elif spec0_name == 'V_partial':
+        err0 = obj.V_from_h(h) - spec0
+    elif spec0_name == 'SA_partial':
+        err0 = obj.SA_from_h(h) - spec0
+    elif spec0_name == 'A_cross':
+        err0 = obj.A_cross_sectional(h) - spec0
+
+    if spec1_name == 'V':
+        err1 = obj.V_total - spec1
+    elif spec1_name == 'SA':
+        err1 = obj.A - spec1
+    elif spec1_name == 'V_partial':
+        err1 = obj.V_from_h(h) - spec1
+    elif spec1_name == 'SA_partial':
+        err1 = obj.SA_from_h(h) - spec1
+    elif spec1_name == 'A_cross':
+        err1 = obj.A_cross_sectional(h) - spec1
+#    print(err0, err1, D, L_over_D, h)
+    return [err0, err1]
 
 class TANK(object):
-    '''Class representing tank volumes and levels. All parameters are also
+    """Class representing tank volumes and levels. All parameters are also
     attributes.
 
     Parameters
@@ -2736,6 +2912,12 @@ class TANK(object):
         Dimensionless knuckle-radius parameter for side B; also commonly given 
         as the product of `k` and `D` (`kD`), which is called the knuckle 
         radius and has units of length, [-]
+    sideA_a_ratio : float, optional
+        Ratio for `a` parameter; can be used instead of specifying an absolute
+        value, [-]
+    sideB_a_ratio : float, optional
+        Ratio for `a` parameter; can be used instead of specifying an absolute
+        value, [-]
     L_over_D : float, optional
         Ratio of length over diameter, used only when D and L are both
         unspecified but V is, [-]
@@ -2746,16 +2928,16 @@ class TANK(object):
 
     Attributes
     ----------
-    table : bool
-        Whether or not a table of heights-volumes has been generated
     h_max : float
         Height of the tank, [m]
     V_total : float
         Total volume of the tank as calculated [m^3]
-    heights : ndarray
-        Array of heights between 0 and h_max, [m]
-    volumes : ndarray
-        Array of volumes calculated from the heights, [m^3]
+    sideA_V : float
+        Volume of only `sideA` [m^3]
+    sideB_V : float
+        Volume of only `sideB` [m^3]
+    lateral_V : float
+        Volume of cylindrical section of tank [m^3]
     A : float
         Total surface area of the tank, [m^2]
     A_sideA : float
@@ -2764,16 +2946,22 @@ class TANK(object):
         Surface area of sideB, [m^2]
     A_lateral : float
         Surface area of the lateral side, [m^2]
+    A_sideA_extra : float
+        Additional surface area of sideA beyond that of a flat disk, [m^2]
+    A_sideB_extra : float
+        Additional surface area of sideB beyond that of a flat disk, [m^2]
+    table : bool
+        Whether or not a table of heights-volumes has been generated
+    heights : ndarray
+        Array of heights between 0 and h_max, [m]
+    volumes : ndarray
+        Array of volumes calculated from the heights, [m^3]
     c_forward : ndarray
         Coefficients for the Chebyshev approximations in calculating V from h,
         [-]
     c_backward : ndarray
         Coefficients for the Chebyshev approximations in calculating h from V,
         [-]
-    A_sideA_extra : float
-        Additional surface area of sideA beyond that of a flat disk, [m^2]
-    A_sideB_extra : float
-        Additional surface area of sideB beyond that of a flat disk, [m^2]
 
     Notes
     -----
@@ -2836,9 +3024,9 @@ class TANK(object):
     >>> TANK(D=10., horizontal=True, sideA='conical', sideB='conical', V=500).L
     4.699531057009147
     >>> TANK(L=4.69953105701, horizontal=True, sideA='conical', sideB='conical', V=500).D
-    9.999999999999407
+    9.999999999999408
     >>> TANK(L_over_D=0.469953105701, horizontal=True, sideA='conical', sideB='conical', V=500).L
-    4.69953105700979
+    4.699531057009791
 
     >>> TANK(D=10., horizontal=False, sideA='conical', sideB='conical', V=500).L
     4.699531057009147
@@ -2846,7 +3034,7 @@ class TANK(object):
     9.999999999999407
     >>> TANK(L_over_D=0.469953105701, horizontal=False, sideA='conical', sideB='conical', V=500).L
     4.699531057009791
-    '''
+    """
     table = False
     chebyshev = False
 
@@ -2939,11 +3127,11 @@ class TANK(object):
 
         # If V is specified and either L or D are known, solve for L, D, L_over_D
         if self.V:
-            self.solve_tank_for_V()
+            self._solve_tank_for_V()
         self.set_misc()
 
     def set_misc(self):
-        '''Set more parameters, after the tank is better defined than in the
+        """Set more parameters, after the tank is better defined than in the
         __init__ function.
 
         Notes
@@ -2955,7 +3143,7 @@ class TANK(object):
         Radius is calculated here.
         Maximum tank height is calculated here.
         V_total is calculated here.
-        '''
+        """
         if self.D is not None and self.L is not None:
             # If L and D are known, get L_over_D
             self.L_over_D = self.L/self.D
@@ -3007,7 +3195,13 @@ class TANK(object):
                 self.h_max += self.sideB_a
 
         # Set maximum height
-        self.V_total = self.V_from_h(self.h_max)
+#        self.V_total = self.V_from_h(self.h_max)
+        
+        self.V_total, self.V_sideA, self.V_sideB, self.V_lateral = V_tank(
+        D=D, L=self.L, sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a,
+        sideB_a=self.sideB_a, sideA_f=self.sideA_f, sideA_k=self.sideA_k,
+        sideB_f=self.sideB_f, sideB_k=self.sideB_k, horizontal=self.horizontal)
+
 
         # Set surface areas
         self.A, self.A_sideA, self.A_sideB, self.A_lateral = SA_tank(
@@ -3018,6 +3212,96 @@ class TANK(object):
         A_circular_plate = 0.25*pi*D*D
         self.A_sideA_extra = self.A_sideA - A_circular_plate
         self.A_sideB_extra = self.A_sideB - A_circular_plate
+    
+    @staticmethod
+    def from_two_specs(spec0, spec1, spec0_name='V', spec1_name='A_cross',
+                       h=None, horizontal=True,
+                       sideA=None, sideB=None, sideA_a=None, sideB_a=None,
+                       sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
+                       sideA_a_ratio=None, sideB_a_ratio=None):
+        r'''Method to create a new tank instance according to two 
+        specifications which are not direct geometry parameters.
+        
+        The allowable options are 'V', 'SA', 'V_partial', 'SA_partial', 
+        and 'A_cross', the later three of which require `h` to be specified.
+        
+        
+        Parameters
+        ----------
+        spec0 : float
+            Goal for `spec0_name`, [-]
+        spec1 : float
+            Goal for `spec1_name`, [-]
+        spec0_name : str
+            One of  'V', 'SA', 'V_partial', 'SA_partial', and 'A_cross' [-]
+        spec1_name : str
+            One of  'V', 'SA', 'V_partial', 'SA_partial', and 'A_cross' [-]
+        h : float
+            Height at which to calculate the specs, [m]
+        horizontal : bool, optional
+            Whether or not the tank is a horizontal or vertical tank
+        sideA : string, optional
+            The left (or bottom for vertical) head of the tank's type; one of
+            [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical',
+            'same'].
+        sideB : string, optional
+            The right (or top for vertical) head of the tank's type; one of
+            [None, 'conical', 'ellipsoidal', 'torispherical', 'guppy', 'spherical',
+            'same'].
+        sideA_a : float, optional
+            The distance the head as specified by sideA extends down or to the left
+            from the main cylindrical section, [m]
+        sideB_a : float, optional
+            The distance the head as specified by sideB extends up or to the right
+            from the main cylindrical section, [m]
+        sideA_f : float, optional
+            Dimensionless dish-radius parameter for side A; also commonly given as  
+            the product of `f` and `D` (`fD`), which is called dish radius and 
+            has units of length, [-]
+        sideA_k : float, optional
+            Dimensionless knuckle-radius parameter for side A; also commonly given 
+            as the product of `k` and `D` (`kD`), which is called the knuckle 
+            radius and has units of length, [-]
+        sideB_f : float, optional
+            Dimensionless dish-radius parameter for side B; also commonly given as  
+            the product of `f` and `D` (`fD`), which is called dish radius and 
+            has units of length, [-]
+        sideB_k : float, optional
+            Dimensionless knuckle-radius parameter for side B; also commonly given 
+            as the product of `k` and `D` (`kD`), which is called the knuckle 
+            radius and has units of length, [-]
+        
+        
+        Returns
+        -------
+        TANK : TANK
+            Tank object at solved specifications, [-]
+            
+        Notes
+        -----
+        Limited testing has been done on this method. The bounds are D between
+        0.1 mm and 10 km, with L_D ratios of 1e-4 to 1e4.        
+        '''
+
+        args = (spec0, spec1, spec0_name, spec1_name,
+                h, horizontal, sideA, sideB, sideA_a, sideB_a,
+                sideA_f, sideA_k, sideB_f, sideB_k,
+                sideA_a_ratio, sideB_a_ratio)
+        
+        new_f, translate_into, translate_outof = translate_bound_func(tank_from_two_specs_err,
+                                                                      bounds=[(1e-4, 1e4), (1e-4, 1e4)])
+        # Diameter and length/diameter as iteration variables
+        guess = translate_into([1.0, 3.0])
+        from scipy.optimize import fsolve
+        
+        ans = fsolve(new_f, guess, args=args, xtol=1e-10, factor=.1)
+        val0, val1 = translate_outof(ans)
+        
+        return TANK(D=float(val0), L_over_D=float(val1), horizontal=horizontal,
+                    sideA=sideA, sideB=sideB, sideA_a=sideA_a, sideB_a=sideB_a,
+                    sideA_f=sideA_f, sideA_k=sideA_k, sideB_f=sideB_f, sideB_k=sideB_k,
+                    sideA_a_ratio=sideA_a_ratio, sideB_a_ratio=sideB_a_ratio,)        
+
 
     def add_thickness(self, thickness, sideA_thickness=None, 
                       sideB_thickness=None):
@@ -3268,11 +3552,12 @@ class TANK(object):
     def _V_solver_error(self, Vtarget, D, L, horizontal, sideA, sideB, sideA_a,
                        sideB_a, sideA_f, sideA_k, sideB_f, sideB_k,
                        sideA_a_ratio, sideB_a_ratio):
-        '''Function which uses only the variables given, and the TANK
-        class itself, to determine how far from the desired volume, Vtarget,
-        the volume produced by the specified parameters in a new TANK instance
-        is. Should only be used by solve_tank_for_V method.
-        '''
+        """Function which uses only the variables given, and the TANK class
+        itself, to determine how far from the desired volume, Vtarget, the
+        volume produced by the specified parameters in a new TANK instance is.
+
+        Should only be used by _solve_tank_for_V method.
+        """
         a = TANK(D=float(D), L=float(L), horizontal=horizontal, sideA=sideA, sideB=sideB,
                  sideA_a=sideA_a, sideB_a=sideB_a, sideA_f=sideA_f,
                  sideA_k=sideA_k, sideB_f=sideB_f, sideB_k=sideB_k,
@@ -3281,8 +3566,8 @@ class TANK(object):
         return error
 
 
-    def solve_tank_for_V(self):
-        '''Method which is called to solve for tank geometry when a certain
+    def _solve_tank_for_V(self):
+        """Method which is called to solve for tank geometry when a certain
         volume is specified. Will be called by the __init__ method if V is set.
 
         Notes
@@ -3296,7 +3581,7 @@ class TANK(object):
         fsolve to determine the correct dimensions for the tank.
 
         Tested, but bugs and limitations are expected here.
-        '''
+        """
         if self.L and (self.sideA_a or self.sideB_a):
             raise ValueError('Cannot specify head sizes when solving for V')
         if (self.D and self.L) or (self.D and self.L_over_D) or (self.L and self.L_over_D):
@@ -3314,7 +3599,7 @@ class TANK(object):
         elif self.L:
             # Iterate until D is appropriate
             solve_D = lambda D: self._V_solver_error(self.V, D, self.L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
-            Dguess = (4*self.V/pi/self.L)**0.5
+            Dguess = sqrt(4*self.V/pi/self.L)
             self.D = float(secant(solve_D, Dguess, xtol=1e-13))
         else:
             # Use L_over_D until L and D are appropriate
@@ -3322,6 +3607,8 @@ class TANK(object):
             solve_L_D = lambda L: self._V_solver_error(self.V, L/self.L_over_D, L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
             self.L = float(secant(solve_L_D, Lguess, xtol=1e-13))
             self.D = self.L/self.L_over_D
+            
+            
 
 
 class HelicalCoil(object):
@@ -3469,7 +3756,7 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
             raise ValueError('Tube diameter is larger than helix outer diameter - not feasible.')
         
         self.tube_circumference = pi*self.Do
-        self.tube_length = ((self.tube_circumference*self.N)**2 + self.H**2)**0.5
+        self.tube_length = sqrt((self.tube_circumference*self.N)**2 + self.H**2)
         self.surface_area = self.tube_length*pi*self.Dt
         #print(pi*self.tube_length*self.Dt) == surface_area
         self.helix_angle = atan(self.pitch/(pi*self.Do))
@@ -3649,10 +3936,12 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
         
     @property
     def plate_exchanger_identifier(self):
-        '''Method to create an identifying string in format 'L' + wavelength + 
-        'A' + amplitude + 'B' + chevron angle-chevron angle. Wavelength and 
-        amplitude are specified in units of mm and rounded to two decimal places.
-        '''
+        """Method to create an identifying string in format 'L' + wavelength +
+        'A' + amplitude + 'B' + chevron angle-chevron angle.
+
+        Wavelength and amplitude are specified in units of mm and rounded to two
+        decimal places.
+        """
         wave_rounded = round(self.wavelength*1000, 2)
         amplitude_rounded = round(self.amplitude*1000, 2)
         a1 = self.chevron_angles[0]
@@ -4000,18 +4289,18 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
         if D_inlet is None and D_base is None:
             raise ValueError('Need `D_inlet` or `D_base`')
         if D_base is not None: 
-            b = self.D_throat*self.H_throat/(D_base**2 - self.D_throat**2)**0.5
-            D_inlet = 2*self.D_throat*((self.H_throat-H_inlet)**2 + b**2)**0.5/(2*b)
+            b = self.D_throat*self.H_throat/sqrt(D_base**2 - self.D_throat**2)
+            D_inlet = 2*self.D_throat*sqrt((self.H_throat-H_inlet)**2 + b**2)/(2*b)
         elif D_inlet is not None:
-            b = self.D_throat*(self.H_throat-H_inlet)/(D_inlet**2 - self.D_throat**2)**0.5
-            D_base = 2*self.D_throat*(self.H_throat**2 + b**2)**0.5/(2*b)
+            b = self.D_throat*(self.H_throat-H_inlet)/sqrt(D_inlet**2 - self.D_throat**2)
+            D_base = 2*self.D_throat*sqrt(self.H_throat**2 + b**2)/(2*b)
         
         self.D_inlet = D_inlet
         self.D_base = D_base
         self.b_lower = b
         
         # Upper b parameter
-        self.b_upper = self.D_throat*(self.H_outlet - self.H_throat)/((self.D_outlet)**2 - self.D_throat**2)**0.5
+        self.b_upper = self.D_throat*(self.H_outlet - self.H_throat)/sqrt((self.D_outlet)**2 - self.D_throat**2)
             
         # May or may not be specified
         self.H_support = H_support
@@ -4058,7 +4347,7 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
         else:
             H = H - self.H_throat
             b = self.b_upper
-        R = self.D_throat*(H*H + b*b)**0.5/(2.0*b)
+        R = self.D_throat*sqrt(H*H + b*b)/(2.0*b)
         return R*2.0
 
 
@@ -4337,7 +4626,7 @@ class AirCooledExchanger(object):
         self.pitch_parallel = pitch_parallel
         self.pitch_normal = pitch_normal
         
-        self.pitch_diagonal = (pitch_parallel**2 + (0.5*pitch_normal)**2)**0.5
+        self.pitch_diagonal = sqrt(pitch_parallel**2 + (0.5*pitch_normal)**2)
         
         
         if fin_diameter is None and fin_height is None:
@@ -4544,8 +4833,8 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
         angle = degrees(acos(pitch_parallel/pitch))
         pitch_normal = pitch*sin(radians(angle))
     elif pitch_parallel is not None and pitch_normal is not None:
-        angle = degrees(asin(pitch_normal/(pitch_normal**2 + pitch_parallel**2)**0.5))
-        pitch = (pitch_normal**2 + pitch_parallel**2)**0.5
+        angle = degrees(asin(pitch_normal/sqrt(pitch_normal**2 + pitch_parallel**2)))
+        pitch = sqrt(pitch_normal**2 + pitch_parallel**2)
     else:
         raise ValueError('Two of the arguments are required')
     return angle, pitch, pitch_parallel, pitch_normal

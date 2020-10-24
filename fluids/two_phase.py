@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,8 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 __all__ = ['two_phase_dP', 'two_phase_dP_methods', 'two_phase_dP_acceleration', 
@@ -32,15 +33,12 @@ __all__ = ['two_phase_dP', 'two_phase_dP_methods', 'two_phase_dP_acceleration',
            'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations',
            'Mandhane_Gregory_Aziz_regime', 'Taitel_Dukler_regime']
 
-from math import pi, log, exp, sin, cos, radians, log10
+from math import pi, log, exp, sin, cos, radians, log10, sqrt
 from fluids.constants import g, deg2rad
 from fluids.numerics import splev, implementation_optimize_tck
 from fluids.friction import friction_factor
 from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
 from fluids.two_phase_voidage import homogeneous, Lockhart_Martinelli_Xtt
-
-__numba_additional_funcs__ = ['_Beggs_Brill_holdup', 'friction_factor_Kim_Mudawar',
-                              'XA_interp_obj', 'XC_interp_obj', 'XD_interp_obj']
 
 
 Beggs_Brill_dat = {'segregated': (0.98, 0.4846, 0.0868),
@@ -174,7 +172,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     else:
         raise ValueError('Outside regime ranges')
 
-    LV = Vsl*(rhol/(g*sigma))**0.25
+    LV = Vsl*sqrt(sqrt(rhol/(g*sigma)))
     if angle is None: angle = 0.0
     angle = deg2rad*angle
     
@@ -418,8 +416,8 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
         f_Fr = 1
     else:
         f_Fr = Frl**0.3 + 0.0055*(log(1./Frl))**2
-    dP_dL_Fr = f_Fr*(x + 4*(x**1.8 - x**10*f_Fr**0.5))
-    phi_gd = 1 + dP_dL_Fr*((rhol/rhog)/(mul/mug)**0.25 - 1)
+    dP_dL_Fr = f_Fr*(x + 4*(x**1.8 - x**10*sqrt(f_Fr)))
+    phi_gd = 1 + dP_dL_Fr*((rhol/rhog)/sqrt(sqrt(mul/mug)) - 1)
 
     # Liquid-only properties, for calculation of E, dP_lo
     v_lo = m/rhol/(pi/4*D**2)
@@ -551,21 +549,21 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
     fd_go = friction_factor(Re=Re_go, eD=roughness/D)
     dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
 
-    Gamma = (dP_go/dP_lo)**0.5
+    Gamma = sqrt(dP_go/dP_lo)
     if Gamma <= 9.5:
         if G_tp <= 500:
             B = 4.8
         elif G_tp < 1900:
             B = 2400./G_tp
         else:
-            B = 55*G_tp**-0.5
+            B = 55.0/sqrt(G_tp)
     elif Gamma <= 28:
         if G_tp <= 600:
-            B = 520.*G_tp**-0.5/Gamma
+            B = 520./sqrt(G_tp)/Gamma
         else:
             B = 21./Gamma
     else:
-        B = 15000.*G_tp**-0.5/Gamma**2
+        B = 15000./sqrt(G_tp)/Gamma**2
 
     if rough_correction:
         n = log(fd_lo/fd_go)/log(Re_go/Re_lo)
@@ -670,13 +668,13 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     fd_go = friction_factor(Re=Re_go, eD=roughness/D)
     dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
 
-    Gamma = (dP_go/dP_lo)**0.5
+    Gamma = sqrt(dP_go/dP_lo)
     if Gamma <= 9.5:
-        B = 55*G_tp**-0.5
+        B = 55.0/sqrt(G_tp)
     elif Gamma <= 28:
-        B = 520.*G_tp**-0.5/Gamma
+        B = 520./sqrt(G_tp)/Gamma
     else:
-        B = 15000.*G_tp**-0.5/Gamma**2
+        B = 15000./sqrt(G_tp)/Gamma**2
     phi2_ch = 1 + (Gamma**2-1)*(B*x**((2-n)/2.)*(1-x)**((2-n)/2.) + x**(2-n))
     return phi2_ch*dP_lo
 
@@ -930,7 +928,7 @@ def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     n1 = log(dP_l/dP_lo)/log(1.-x)
     n2 = log(dP_g/dP_go)/log(x)
     n = (n1 + n2*(dP_g/dP_l)**0.1)/(1 + (dP_g/dP_l)**0.1)
-    epsilon = 3 - 2*(2*(rhol/rhog)**0.5/(1.+rhol/rhog))**(0.7/n)
+    epsilon = 3 - 2*(2*sqrt(rhol/rhog)/(1.+rhol/rhog))**(0.7/n)
     dP = (dP_lo**(1./(n*epsilon))*(1-x)**(1./epsilon)
           + dP_go**(1./(n*epsilon))*x**(1./epsilon))**(n*epsilon)
     return dP
@@ -1288,7 +1286,7 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1.0):
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
     dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
     Pr = 0.5 if (Pc is None or P is None) else P/Pc
-    phi_lo2 = (1-x)**2 + 2.87*x**2/Pr + 1.68*x**0.8*(1-x)**0.25*Pr**-1.64
+    phi_lo2 = (1-x)**2 + 2.87*x**2/Pr + 1.68*x**0.8*sqrt(sqrt(1-x))*Pr**-1.64
     return dP_lo*phi_lo2
 
 
@@ -1543,7 +1541,7 @@ def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     v_g = m*x/rhog/(pi/4*D**2)
     Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
 
-    X = 18.65*(rhog/rhol)**0.5*(1-x)/x*Re_g**0.1/Re_l**0.5
+    X = 18.65*sqrt(rhog/rhol)*(1-x)/x*Re_g**0.1/sqrt(Re_l)
     phi_l2 = X**-1.9
     return phi_l2*dP_l
 
@@ -1633,7 +1631,7 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     fd_g = friction_factor(Re=Re_g, eD=roughness/D)
     dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
 
-    X = (dP_l/dP_g)**0.5
+    X = sqrt(dP_l/dP_g)
 
     if G_tp >= 200:
         phi_g2 = 1 + 9.397*X**0.62 + 0.564*X**2.45
@@ -1734,7 +1732,7 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
 
     # Actual model
-    X = (dP_l/dP_g)**0.5
+    X = sqrt(dP_l/dP_g)
     Co = Confinement(D=D, rhol=rhol, rhog=rhog, sigma=sigma)
     C = 0.227*Re_lo**0.452*X**-0.320*Co**-0.820
     phi_l2 = 1 + C/X + 1./X**2
@@ -1839,7 +1837,7 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
     dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
 
     # Actual model
-    X = (dP_l/dP_g)**0.5
+    X = sqrt(dP_l/dP_g)
     Co = Confinement(D=D, rhol=rhol, rhog=rhog, sigma=sigma)
 
     if flowtype == 'adiabatic vapor':
@@ -1938,7 +1936,7 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
 
     # Actual model
-    X = (dP_l/dP_g)**0.5
+    X = sqrt(dP_l/dP_g)
     C = 21*(1 - exp(-0.319E3*D))
     phi_l2 = 1 + C/X + 1./X**2
     return dP_l*phi_l2
@@ -1947,7 +1945,7 @@ def friction_factor_Kim_Mudawar(Re):
     if Re < 2000:
         return 64./Re
     elif Re < 20000:
-        return 0.316*Re**-0.25
+        return 0.316/sqrt(sqrt(Re))
     else:
         return 0.184*Re**-0.2
 
@@ -2076,15 +2074,15 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
 
     Su = Suratman(L=D, rho=rhog, mu=mug, sigma=sigma)
-    X = (dP_l/dP_g)**0.5
+    X = sqrt(dP_l/dP_g)
     Re_c = 2000 # Transition Reynolds number
 
     if Re_l < Re_c and Re_g < Re_c:
-        C = 3.5E-5*Re_lo**0.44*Su**0.5*(rhol/rhog)**0.48
+        C = 3.5E-5*Re_lo**0.44*sqrt(Su)*(rhol/rhog)**0.48
     elif Re_l < Re_c and Re_g >= Re_c:
         C = 0.0015*Re_lo**0.59*Su**0.19*(rhol/rhog)**0.36
     elif Re_l >= Re_c and Re_g < Re_c:
-        C = 8.7E-4*Re_lo**0.17*Su**0.5*(rhol/rhog)**0.14
+        C = 8.7E-4*Re_lo**0.17*sqrt(Su)*(rhol/rhog)**0.14
     else: # Turbulent case
         C = 0.39*Re_lo**0.03*Su**0.10*(rhol/rhog)**0.35
 
@@ -2217,7 +2215,7 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
     fd_g =  64./Re_g if Re_g < Re_c else 0.184*Re_g**-0.2 
     dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
 
-    X = (dP_l/dP_g)**0.5
+    X = sqrt(dP_l/dP_g)
 
     phi_l2 = 1 + C/X + 1./X**2
     return dP_l*phi_l2
@@ -2900,15 +2898,15 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
     fd_gs = friction_factor(Re=Re_gs, eD=roughness/D)
     dP_gs = fd_gs/D*(0.5*rhog*v_gs*v_gs)
     
-    X = (dP_ls/dP_gs)**0.5
+    X = sqrt(dP_ls/dP_gs)
     
-    F = (rhog/(rhol-rhog))**0.5*v_gs*(D*g*cos(angle))**-0.5
+    F = sqrt(rhog/(rhol-rhog))*v_gs/sqrt(D*g*cos(angle))
     
     # Paper only uses kinematic viscosity
     nul = mul/rhol
 
-    T = (dP_ls/((rhol-rhog)*g*cos(angle)))**0.5    
-    K = (rhog*v_gs*v_gs*v_ls/((rhol-rhog)*g*nul*cos(angle)))**0.5
+    T = sqrt(dP_ls/((rhol-rhog)*g*cos(angle)))    
+    K = sqrt(rhog*v_gs*v_gs*v_ls/((rhol-rhog)*g*nul*cos(angle)))
     
     F_A_at_X = XA_interp_obj(X)
     
@@ -2998,8 +2996,8 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
     Vsl, Vsg = Vsl/0.3048, Vsg/0.3048
 #    X1 = (rhog/0.0808)**0.333 * (rhol*72.4/62.4/sigma)**0.25 * (mug/0.018)**0.2
 #    Y1 = (rhol*72.4/62.4/sigma)**0.25 * (mul/1.)**0.2
-    X1 = (rhog/1.294292)**0.333 * (rhol*0.0724/(999.552*sigma))**0.25 * (mug*1.8E5)**0.2
-    Y1 = (rhol*0.0724/999.552/sigma)**0.25 * (mul*1E3)**0.2
+    X1 = (rhog/1.294292)**0.333 * sqrt(sqrt(rhol*0.0724/(999.552*sigma))) * (mug*1.8E5)**0.2
+    Y1 = sqrt(sqrt(rhol*0.0724/999.552/sigma)) * (mul*1E3)**0.2
 
     if Vsl < 14.0*Y1:
         if Vsl <= 0.1:

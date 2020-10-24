@@ -294,7 +294,16 @@ def test_TANK_cross_sectional_area():
 
     assert_close(T1.A_cross_sectional(0.5*T1.h_max), 0.25*pi*T1.D**2)
     
-    
+def test_from_two_specs():
+    # Takes about 1 ms
+    T0 = TANK(horizontal=True, L=15, D=3)
+    A_cross = T0.A_cross_sectional(1.5)
+    T1 = TANK.from_two_specs(T0.V_total, A_cross, spec0_name='V', spec1_name='A_cross',
+                           h=1e-10, horizontal=False)
+    assert_close(T1.V_total, T0.V_total)
+    assert_close(T0.A_cross_sectional(1.5), T1.A_cross_sectional(1e-10))
+
+
 def test_SA_partial():
     # Checked with 
     # https://www.aqua-calc.com/calculate/volume-in-a-horizontal-cylinder

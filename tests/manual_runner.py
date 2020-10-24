@@ -39,7 +39,8 @@ to_test = [test_drag, test_control_valve, test_two_phase,
 to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
 #to_test = [test_safety_valve]
 
-skip_marks = ['slow', 'fuzz']
+skip_marks = ['slow', 'fuzz', 'scipy', 'numpy', 'f2py', 'pytz']
+# pytz loads but doesn't work right in ironpython
 skip_marks_set = set(skip_marks)
 if len(sys.argv) >= 2:
     #print(sys.argv)

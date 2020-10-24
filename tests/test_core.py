@@ -236,6 +236,9 @@ def test_core_misc2():
 
     P = P_from_head(head=5., rho=800.)
     assert_close(P, 39226.6)
+    
+    fd = f_from_K(K=0.6, L=100., D=.3)
+    assert_close(fd, 0.0018, rtol=1e-13)
 
 
 

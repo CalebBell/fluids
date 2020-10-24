@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell
+<Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 from __future__ import division
 '''
 Additional copyright:
@@ -64,7 +65,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
 
-from math import sin, exp, pi, fabs, copysign
+from math import sqrt, sin, exp, pi, fabs, copysign
 from fluids.constants import g, R
 import sys
 
@@ -76,7 +77,7 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'Hagen', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
 'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'L_from_K', 'dP_from_K', 
-'head_from_K', 'head_from_P',
+'head_from_K', 'head_from_P', 'f_from_K',
 'P_from_head', 'Eotvos',
 'C2K', 'K2C', 'F2C', 'C2F', 'F2K', 'K2F', 'C2R', 'K2R', 'F2R', 'R2C', 'R2K', 'R2F',
 'PY3',
@@ -169,7 +170,7 @@ def c_ideal_gas(T, k, MW):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
     Rspecific = R*1000./MW
-    return (k*Rspecific*T)**0.5
+    return sqrt(k*Rspecific*T)
 
 
 ### Dimensionless groups with documentation
@@ -764,7 +765,7 @@ def Confinement(D, rhol, rhog, sigma, g=g):
        Journal of Multiphase Flow 26, no. 11 (November 1, 2000): 1739-54. 
        doi:10.1016/S0301-9322(99)00119-6.
     '''
-    return (sigma/(g*(rhol-rhog)))**0.5/D
+    return sqrt(sigma/(g*(rhol-rhog)))/D
 
 
 def Morton(rhol, rhog, mul, sigma, g=g):
@@ -1109,7 +1110,7 @@ def Froude(V, L, g=g, squared=False):
     >>> Froude(1.83, L=2., g=1.63)
     1.0135432593877318
     >>> Froude(1.83, L=2., squared=True)
-    0.17074638128208922
+    0.17074638128208924
 
     References
     ----------
@@ -1118,7 +1119,7 @@ def Froude(V, L, g=g, squared=False):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     '''
-    Fr = V*(L*g)**-0.5
+    Fr = V/sqrt(L*g)
     if squared:
         Fr *= Fr
     return Fr
@@ -1191,7 +1192,7 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
         rho3 = rho1
     else:
         rho3 = rho2
-    return V/((g*L)**0.5)*(rho3/(rho1 - rho2))**0.5
+    return V/(sqrt(g*L))*sqrt(rho3/(rho1 - rho2))
 
 
 def Strouhal(f, L, V):
@@ -1862,14 +1863,14 @@ def Ohnesorge(L, rho, mu, sigma):
     Examples
     --------
     >>> Ohnesorge(1E-4, 1000., 1E-3, 1E-1)
-    0.009999999999999998
+    0.01
 
     References
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     '''
-    return mu*(L*rho*sigma)**-0.5
+    return mu/sqrt(L*rho*sigma)
 
     
 def Suratman(L, rho, mu, sigma):
@@ -2163,7 +2164,7 @@ def Dean(Re, Di, D):
        Industrial & Engineering Chemistry 58, no. 3 (March 1, 1966): 46-60. 
        doi:10.1021/ie50675a012.
     '''
-    return (Di/D)**0.5*Re
+    return sqrt(Di/D)*Re
 
 
 def relative_roughness(D, roughness=1.52e-06):
@@ -2318,6 +2319,39 @@ def K_from_f(fd, L, D):
     6.0
     '''
     return fd*L/D
+
+def f_from_K(K, L, D):
+    r'''Calculates friction factor, `fd`, from a loss coefficient, K, 
+    for a given section of pipe.
+
+    .. math::
+        f_d = \frac{K D}{L}
+
+    Parameters
+    ----------
+    K : float
+        Loss coefficient, []
+    L : float
+        Length of pipe, [m]
+    D : float
+        Inner diameter of pipe, [m]
+
+    Returns
+    -------
+    fd : float
+        Darcy friction factor of pipe, [-]
+
+    Notes
+    -----
+    This can be useful to blend fittings at specic locations in a pipe into
+    a pressure drop which is evenly distributed along a pipe.
+
+    Examples
+    --------
+    >>> f_from_K(K=0.6, L=100., D=.3)
+    0.0018
+    '''
+    return K*D/L
 
 
 def K_from_L_equiv(L_D, fd=0.015):
@@ -2556,8 +2590,7 @@ zero_Celsius = 273.15
 degree_Fahrenheit = 1.0/1.8 # only for differences
 
 def C2K(C):
-    """
-    Convert Celsius to Kelvin
+    """Convert Celsius to Kelvin.
 
     Parameters
     ----------
@@ -2583,8 +2616,7 @@ def C2K(C):
 
 
 def K2C(K):
-    """
-    Convert Kelvin to Celsius
+    """Convert Kelvin to Celsius.
 
     Parameters
     ----------
@@ -2610,8 +2642,7 @@ def K2C(K):
 
 
 def F2C(F):
-    """
-    Convert Fahrenheit to Celsius
+    """Convert Fahrenheit to Celsius.
 
     Parameters
     ----------
@@ -2636,8 +2667,7 @@ def F2C(F):
 
 
 def C2F(C):
-    """
-    Convert Celsius to Fahrenheit
+    """Convert Celsius to Fahrenheit.
 
     Parameters
     ----------
@@ -2662,8 +2692,7 @@ def C2F(C):
 
 
 def F2K(F):
-    """
-    Convert Fahrenheit to Kelvin
+    """Convert Fahrenheit to Kelvin.
 
     Parameters
     ----------
@@ -2685,14 +2714,12 @@ def F2K(F):
     --------
     >>> F2K(-40)
     233.14999999999998
-
     """
     return (F - 32.0)/1.8 + zero_Celsius
 
 
 def K2F(K):
-    """
-    Convert Kelvin to Fahrenheit
+    """Convert Kelvin to Fahrenheit.
 
     Parameters
     ----------
@@ -2714,14 +2741,12 @@ def K2F(K):
     --------
     >>> K2F(233.15)
     -39.99999999999996
-
     """
     return 1.8*(K - zero_Celsius) + 32.0
 
 
 def C2R(C):
-    """
-    Convert Celsius to Rankine
+    """Convert Celsius to Rankine.
 
     Parameters
     ----------
@@ -2748,8 +2773,7 @@ def C2R(C):
 
 
 def K2R(K):
-    """
-    Convert Kelvin to Rankine
+    """Convert Kelvin to Rankine.
 
     Parameters
     ----------
@@ -2774,8 +2798,7 @@ def K2R(K):
 
 
 def F2R(F):
-    """
-    Convert Fahrenheit to Rankine
+    """Convert Fahrenheit to Rankine.
 
     Parameters
     ----------
@@ -2797,14 +2820,12 @@ def F2R(F):
     --------
     >>> F2R(100)
     559.67
-
     """
     return F - 32.0 + 1.8 * zero_Celsius
 
 
 def R2C(Ra):
-    """
-    Convert Rankine to Celsius
+    """Convert Rankine to Celsius.
 
     Parameters
     ----------
@@ -2826,14 +2847,12 @@ def R2C(Ra):
     --------
     >>> R2C(459.67)
     -17.777777777777743
-
     """
     return Ra / 1.8 - zero_Celsius
 
 
 def R2K(Ra):
-    """
-    Convert Rankine to Kelvin
+    """Convert Rankine to Kelvin.
 
     Parameters
     ----------
@@ -2858,8 +2877,7 @@ def R2K(Ra):
     
 
 def R2F(Ra):
-    """
-    Convert Rankine to Fahrenheit
+    """Convert Rankine to Fahrenheit.
 
     Parameters
     ----------
@@ -2886,9 +2904,8 @@ def R2F(Ra):
 
 
 def Engauge_2d_parser(lines, flat=False):
-    '''Not exposed function to read a 2D file generated by engauge-digitizer;
-    for curve fitting.
-    '''
+    """Not exposed function to read a 2D file generated by engauge-digitizer;
+    for curve fitting."""
     z_values = []
     x_lists = []
     y_lists = []

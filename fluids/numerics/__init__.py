@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # type: ignore
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,10 +19,11 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
-from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin, atan2, asinh
+from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin, atan2, asinh, sqrt
 from cmath import sqrt as csqrt, log as clog
 import sys
 from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye, array_as_tridiagonals, tridiagonals_as_array, solve_tridiagonal, subset_matrix
@@ -37,7 +38,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'normalize', 'oscillation_checker',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
            'broyden2', 'basic_damping', 'solve_2_direct', 'solve_3_direct',
-           'solve_4_direct',
+           'solve_4_direct', 'sincos', 'horner_and_der4',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2',
            'numpy', 'nquad', 
@@ -60,6 +61,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            
            # Complex number math missing in micropython
            'cacos', 'catan',
+           'deflate_cubic_real_roots',
            ]
 
 __numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search',
@@ -112,6 +114,52 @@ def py_cacos(z):
 def py_catan(x):
     # Implemented only because micropython is missing this function
     return 0.5j*(clog(1.0 - 1.0j*x) - clog(1.0 + 1.0j*x))
+
+def sincos(x):
+    return sin(x), cos(x)
+
+try:
+    if IS_PYPY:
+
+        def sincos(x):
+            # fast implementation based of cephes and go
+            PI4A = 7.85398125648498535156e-1
+            PI4B = 3.77489470793079817668e-8
+            PI4C = 2.69515142907905952645e-15
+            M4PI = 1.273239544735162542821171882678754627704620361328125 #// 4/pi
+            sinSign, cosSign = False, False
+            if x < 0:
+                x = -x
+                sinSign = True
+        
+            j = int(x * M4PI)
+            y = float(j) 
+            
+            if j&1 == 1:
+                j += 1
+                y += 1
+            j &= 7 
+            if j > 3:
+                j -= 4
+                sinSign, cosSign = not sinSign, not cosSign
+            if j > 1:
+                cosSign = not cosSign
+            z = ((x - y*PI4A) - y*PI4B) - y*PI4C
+            zz = z * z
+            cos = 1.0 - 0.5*zz + zz*zz*((((((-1.13585365213876817300E-11*zz)+2.08757008419747316778E-9)
+                                           *zz+-2.75573141792967388112E-7)*zz+2.48015872888517045348E-5)
+                                         *zz+-1.38888888888730564116E-3)*zz+4.16666666666665929218E-2)
+            sin = z + z*zz*((((((1.58962301576546568060E-10*zz)+-2.50507477628578072866E-8)*zz+2.75573136213857245213E-6)
+                              *zz+-1.98412698295895385996E-4)*zz+8.33333333332211858878E-3)*zz+-1.66666666666666307295E-1)
+            if j == 1 or j == 2:
+                sin, cos = cos, sin
+            if cosSign :
+                cos = -cos
+            if sinSign:
+                sin = -sin
+            return sin, cos
+except:
+    pass
 
 try:
     from cmath import acos as cacos, atan as catan
@@ -172,14 +220,14 @@ twelfth = 1.0/12.0
 two_thirds = 2.0/3.0
 four_thirds = 4.0/3.0
 
-root_three = (3.0)**0.5
+root_three = sqrt(3.0)
 one_27 = 1.0/27.0
 complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
 
 def trunc_exp(x, trunc=1e30):
     try:
         return exp(x)
-    except OverflowError:
+    except:
         # Really exp(709.7) 1.6549840276802644e+308
         return trunc
 
@@ -282,7 +330,7 @@ def roots_cubic(a, b, c, d):
     Examples
     --------
     >>> roots_cubic(1.0, 100.0, 1000.0, 10.0)
-    (-0.010010019045111562, -88.73128838313305, -11.258701597821826)
+    (-0.010010019045118668, -88.73128838313303, -11.25870159782183)
     
     References
     ----------
@@ -297,17 +345,17 @@ def roots_cubic(a, b, c, d):
     1, -0.999999999978168, 1.698247818501352e-11, -8.47396642608142e-17
     Errors grown unbound, starting when b is -.99999 and close to 1.
     '''
-    if b == 0.0 and a == 0.0: 
-        return (-d/c, )
-    elif a == 0.0:
+    if a == 0.0:
+        if b == 0.0: 
+            return (-d/c, )
         D = c*c - 4.0*b*d
         b_inv_2 = 0.5/b
         if D < 0.0:
-            D = (-D)**0.5
+            D = sqrt(-D)
             x1 = (-c + D*1.0j)*b_inv_2
             x2 = (-c - D*1.0j)*b_inv_2
         else:
-            D = D**0.5
+            D = sqrt(D)
             x1 = (D - c)*b_inv_2
             x2 = -(c + D)*b_inv_2
         return (x1, x2)
@@ -337,10 +385,14 @@ def roots_cubic(a, b, c, d):
             x = (-d*a_inv)**(third)
         return (x, x, x)
     elif h > 0.0:
+        # Happy with these formulas - double doubles should be fast.
+        # No complex numbers are needed here.
 #        print('basic')
         # 1 real root, 2 imag
-        root_h = h**0.5
-        R = -(0.5*g) + root_h
+        root_h = sqrt(h)
+        R = -0.5*g + root_h
+        
+        # It is possible to save one of the power of thirds!
         if R >= 0.0:
             S = R**third
         else:
@@ -355,11 +407,11 @@ def roots_cubic(a, b, c, d):
         b_3a = b*(third*a_inv)
         t1 = -0.5*SU - b_3a
         t2 = (S - U)*complex_factor
-        
         x1 = SU - b_3a
         # x1 is OK actually in some tests? the issue is x2, x3?
         x2 = t1 + t2
         x3 = t1 - t2
+        
     else:
 #    elif h <= 0.0:
         t2 = a*a
@@ -372,7 +424,7 @@ def roots_cubic(a, b, c, d):
         more accurate than the other method.
         '''
         choice_term = -18.0*a*b*c*d + 4.0*a*t10*c + 4.0*t15*d - t14*t10 + 27.0*t2*t3
-        if abs(choice_term) > 1e-12 or abs(b + 1.0) < 1e-7:
+        if (abs(choice_term) > 1e-12 or abs(b + 1.0) < 1e-7) and 0:
 #            print('mine')
             t32 = 1.0/a
             t20 = csqrt(choice_term)
@@ -391,23 +443,25 @@ def roots_cubic(a, b, c, d):
 #            print('other')
             # 3 real roots
             # example is going in here
-            i = (((g*g)*0.25) - h)**0.5
+            i = sqrt(((g*g)*0.25) - h)
             j = i**third # There was a saving for j but it was very weird with if statements!
             '''Clamied nothing saved for k.
             '''
-            k = acos(-(g/(2.0*i)))
-            L = -j
+            k = acos(-0.5*g/i)
+#            L = -j
     
             # Would be nice to be able to compute the sin and cos at the same time
-            k_third = k*third
-            M = cos(k_third)
-            N = root_three*sin(k_third)
+#            k_third = k*third
+            N, M = sincos(k*third)
+            N *= root_three
+#            M = cos(k_third)
+#            N = root_three*sin(k_third)
             P = -b_a*third
     
             # Direct formula for x1
-            x1 = 2.0*j*M - b_a*third
-            x2 = L*(M + N) + P
-            x3 = L*(M - N) + P
+            x1 = 2.0*j*M + P
+            x2 = P - j*(M + N)
+            x3 = P - j*(M - N) 
     return (x1, x2, x3)
 
 
@@ -462,9 +516,10 @@ def mean(data):
     return sum(data)/len(data)
 
 def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
-    '''Port of numpy's linspace to pure python. Does not support dtype, and 
-    returns lists of floats.
-    '''
+    """Port of numpy's linspace to pure python.
+
+    Does not support dtype, and returns lists of floats.
+    """
     num = int(num)
     start = start * 1.
     stop = stop * 1.
@@ -625,6 +680,23 @@ central_diff_weights_precomputed = {
 #           0.16005291005291006, -0.011491402116402117]
  }
  
+def deflate_cubic_real_roots(b, c, d, x0):
+    F = b + x0
+    G = -d/x0
+    
+    D = F*F - 4.0*G
+#     if D < 0.0:
+#         D = (-D)**0.5
+#         x1 = (-F + D*1.0j)*0.5
+#         x2 = (-F - D*1.0j)*0.5
+#     else:
+    if D < 0.0:
+        return (0.0, 0.0)
+    D = sqrt(D)
+    x1 = 0.5*(D - F)#(D - c)*0.5
+    x2 = 0.5*(-F - D) #-(c + D)*0.5
+    return x1, x2
+
  
 def central_diff_weights(points, divisions=1):
     # Check the cache
@@ -657,12 +729,12 @@ def central_diff_weights(points, divisions=1):
 
 
 def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True):
-    '''Reimplementation of SciPy's derivative function, with more cached
+    """Reimplementation of SciPy's derivative function, with more cached
     coefficients and without using numpy. If new coefficients not cached are
     needed, they are only calculated once and are remembered.
-    
+
     Support for vector value functions has also been added.
-    '''
+    """
     if order < n + 1:
         raise ValueError
     if order % 2 == 0:
@@ -977,8 +1049,8 @@ legendre_weights = {
 
 def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(),
              **kwargs):
-    '''
-    def test_fun(x):
+    """def test_fun(x):
+
     # test case - 2 inputs, 3 outputs - should work fine
     x2 = x[0]*x[0]
     return np.array([x2*exp(x[1]), x2*sin(x[1]), x2*cos(x[1])])
@@ -986,7 +1058,7 @@ def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(),
     def easy_fun(x):
         x = x[0]
         return 5*x*x - 3*x - 100
-    '''
+    """
     # For scalar - returns list, size of input variables
     # For vector - returns list of list - size of input variables * output variables
     # Could add backwards/complex, multiple evaluations, detection of poor condition
@@ -1182,6 +1254,18 @@ def horner_and_der3(coeffs, x):
         f = x*f + a
     return (f, der, der2 + der2, der3*6.0)
 
+def horner_and_der4(coeffs, x):
+    # Coefficients in same order as for horner
+    # Tested
+    f, der, der2, der3, der4 = 0.0, 0.0, 0.0, 0.0, 0.0
+    for a in coeffs:
+        der4 = x*der4 + der3
+        der3 = x*der3 + der2
+        der2 = x*der2 + der
+        der = x*der + f
+        f = x*f + a
+    return (f, der, der2 + der2, der3*6.0, der4*24.0)
+
 def quadratic_from_points(x0, x1, x2, f0, f1, f2):
     '''
     from sympy import *
@@ -1259,8 +1343,8 @@ def is_poly_negative(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1
 
 
 def polyder(c, m=1, scl=1, axis=0):
-    '''not quite a copy of numpy's version because this was faster to implement.
-    '''
+    """not quite a copy of numpy's version because this was faster to
+    implement."""
     c = list(c)
     cnt = int(m)
 
@@ -1281,7 +1365,8 @@ def polyder(c, m=1, scl=1, axis=0):
     return c
 
 def polyint(coeffs):
-    '''not quite a copy of numpy's version because this was faster to implement'''
+    """not quite a copy of numpy's version because this was faster to
+    implement."""
     return ([0.0] + [c/(i+1) for i, c in enumerate(coeffs[::-1])])[::-1]
 
 
@@ -1294,7 +1379,8 @@ def polyint_over_x(coeffs):
     return list(reversed(poly_terms)), log_coef
 
 def chebder(c, m=1, scl=1):
-    '''not quite a copy of numpy's version because this was faster to implement'''
+    """not quite a copy of numpy's version because this was faster to
+    implement."""
     c = list(c)
     cnt = int(m)
     if cnt == 0:
@@ -1318,8 +1404,8 @@ def chebder(c, m=1, scl=1):
     return c
 
 def horner_log(coeffs, log_coeff, x):
-    '''Technically possible to save one addition of the last term of 
-    coeffs is removed but benchmarks said nothing was saved'''
+    """Technically possible to save one addition of the last term of coeffs is
+    removed but benchmarks said nothing was saved."""
     tot = 0.0
     for c in coeffs:
         tot = tot*x + c
@@ -1506,12 +1592,12 @@ def binary_search(key, arr, size=None):
 
 
 def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
-    '''Pure python and therefore slow version of the standard library isclose.
+    """Pure python and therefore slow version of the standard library isclose.
     Works on older versions of python though! Hasn't been unit tested, but has
     been tested.
-    
+
     manual unit testing:
-        
+
     from math import isclose as isclose2
     from random import uniform
     for i in range(10000000):
@@ -1525,8 +1611,7 @@ def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
             assert ans1 == ans2
         except:
             print(a, b, rel_tol, abs_tol)
-    
-    '''
+    """
     if (rel_tol < 0.0 or abs_tol < 0.0 ):
         raise ValueError('Negative tolerances')
         
@@ -1579,10 +1664,9 @@ def assert_close3d(a, b, rtol=1e-7, atol=0.0):
         assert_close2d(a[i], b[i], rtol=rtol, atol=atol)
 
 def interp(x, dx, dy, left=None, right=None, extrapolate=False):
-    '''One-dimensional linear interpolation routine inspired/
-    reimplemented from NumPy for extra speed for scalar values
-    (and also numpy).
-    
+    """One-dimensional linear interpolation routine inspired/ reimplemented from
+    NumPy for extra speed for scalar values (and also numpy).
+
     Returns the one-dimensional piecewise linear interpolant to a function
     with a given value at discrete data-points.
     
@@ -1619,7 +1703,7 @@ def interp(x, dx, dy, left=None, right=None, extrapolate=False):
     --------
     >>> interp(2.5, [1, 2, 3], [3, 2, 0])
     1.0
-    '''
+    """
     lendx = len(dx)
     j = binary_search(x, dx, lendx)
     if (j == -1):
@@ -1665,12 +1749,13 @@ def interp2d_linear(x, y, xs, ys, vals):
 
 
 def implementation_optimize_tck(tck, force_numpy=False):
-    '''Converts 1-d or 2-d splines calculated with SciPy's `splrep` or
+    """Converts 1-d or 2-d splines calculated with SciPy's `splrep` or.
+
     `bisplrep` to a format for fastest computation - lists in PyPy, and numpy
     arrays otherwise.
-    
+
     Only implemented for 3 and 5 length `tck`s.
-    '''
+    """
     if (IS_PYPY or SKIP_DEPENDENCIES) and not force_numpy:
         return tuple(tck)
     else:
@@ -1734,13 +1819,13 @@ def translate_bound_func(func, bounds=None, low=None, high=None):
         low = [i[0] for i in bounds]
         high = [i[1] for i in bounds]
         
-    def new_f(x):
-        '''Function for a solver to call when using the bounded variables.'''
+    def new_f(x, *args, **kwargs):
+        """Function for a solver to call when using the bounded variables."""
         x = [float(i) for i in x]
         for i in range(len(x)):
             x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
         # Return the actual results
-        return func(x)
+        return func(x, *args, **kwargs)
     
     def translate_into(x):
         x = [float(i) for i in x]
@@ -1791,31 +1876,42 @@ def translate_bound_jac(jac, bounds=None, low=None, high=None):
     return new_j, translate_into, translate_outof
 
 
-def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None, inplace_jac=False, as_np=False):
+def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None, 
+                          inplace_jac=False, as_np=False):
     if bounds is not None:
         low = [i[0] for i in bounds]
         high = [i[1] for i in bounds]
         
     exp_terms = [0.0]*len(low)
     
-    def new_f_j(x):
-        x_base = [float(i) for i in x]
+    def new_f_j(x, *args):
+        x_base = [i for i in x]
         N = len(x)
         for i in range(N):
-            exp_terms[i] = ei = exp(-x[i])
+            exp_terms[i] = ei = trunc_exp(-x[i])
             x_base[i] = (low[i] + (high[i] - low[i])/(1.0 + ei))
         
         if jac is True:
-            f_base, jac_base = f(x_base)
+            f_base, jac_base = f(x_base, *args)
         else:
-            f_base = f(x_base)
-            jac_base = jac(x_base)
+            f_base = f(x_base, *args)
+            jac_base = jac(x_base, *args)
         try:
-            if not inplace_jac:
-                jac_base = [i for i in jac_base]
-            for i in range(N):
-                t = (1.0 + exp_terms[i])
-                jac_base[i] = (high[i] - low[i])*exp_terms[i]*jac_base[i]/(t*t)
+            if type(jac_base[0]) is list or (isinstance(jac_base, np.ndarray) and len(jac_base.shape) == 2):
+                if not inplace_jac:
+                    jac_base = [[j for j in i] for i in jac_base]
+
+                for i in range(len(jac_base)):
+                    for j in range(len(jac_base[i])):
+                        # Checked numerically
+                        t = (1.0 + exp_terms[j])
+                        jac_base[i][j] = (high[j] - low[j])*exp_terms[j]*jac_base[i][j]/(t*t)
+            else:
+                if not inplace_jac:
+                    jac_base = [i for i in jac_base]
+                for i in range(N):
+                    t = (1.0 + exp_terms[i])
+                    jac_base[i] = (high[i] - low[i])*exp_terms[i]*jac_base[i]/(t*t)
             if as_np:
                 jac_base = np.array(jac_base)
             return f_base, jac_base
@@ -1823,26 +1919,24 @@ def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None, inplace_jac=
             raise NotImplementedError("Fail")
     
     def translate_into(x):
-        x = [float(i) for i in x]
+        #x = [float(i) for i in x]
         for i in range(len(x)):
-            x[i] = -log((high[i] - x[i])/(x[i] - low[i]))
+            x[i] = -trunc_log((high[i] - x[i])/(x[i] - low[i]))
         return x
     
     def translate_outof(x):
-        x = [float(i) for i in x]
+        #x = [float(i) for i in x]
         for i in range(len(x)):
-            x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+            x[i] = (low[i] + (high[i] - low[i])/(1.0 + trunc_exp(-x[i])))
         return x
     return new_f_j, translate_into, translate_outof
 
 
 class OscillationError(Exception):
-    '''Error raised when a derivative-based method is not converging.
-    '''
+    """Error raised when a derivative-based method is not converging."""
 
 class UnconvergedError(Exception):
-    '''Error raised when maxiter has been reached in an optimization problem.
-    '''
+    """Error raised when maxiter has been reached in an optimization problem."""
     
     def __repr__(self):
         return ('UnconvergedError("Failed to converge; maxiter (%d) reached, value=%g, error %g)"' %(self.maxiter, self.point, self.err))
@@ -1854,9 +1948,8 @@ class UnconvergedError(Exception):
         self.err = err
 
 class SamePointError(UnconvergedError):
-    '''Error raised when two trial points in a root finding problem have the 
-    same error.
-    '''
+    """Error raised when two trial points in a root finding problem have the
+    same error."""
     def __repr__(self):
         return 'TODO'
     
@@ -1871,24 +1964,22 @@ class SamePointError(UnconvergedError):
     
 
 class NoSolutionError(Exception):
-    '''Error raised when detected that there is no actual solution to a problem.
-    '''
+    """Error raised when detected that there is no actual solution to a
+    problem."""
 
 class NotBoundedError(Exception):
-    '''Error raised when a bisection type algorithm fails because its initial
-    bounds do not bound the solution.
-    '''
+    """Error raised when a bisection type algorithm fails because its initial
+    bounds do not bound the solution."""
 class DiscontinuityError(Exception):
-    '''Error raised when a bisection type algorithm fails because there is a 
-    discontinuity.
-    '''
+    """Error raised when a bisection type algorithm fails because there is a
+    discontinuity."""
     
 def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
-    '''Damping function which will maintain the sign of the variable being
-    manipulated. If the step puts it at the other sign, the distance between
-    `x` and `step` will be shortened by the multiple of `factor`; i.e. if 
-    factor is `x`, the new value of `x` will be 0 exactly.
-    
+    """Damping function which will maintain the sign of the variable being
+    manipulated. If the step puts it at the other sign, the distance between `x`
+    and `step` will be shortened by the multiple of `factor`; i.e. if factor is
+    `x`, the new value of `x` will be 0 exactly.
+
     The provided `damping` is applied as well.
     
     Parameters
@@ -1915,7 +2006,7 @@ def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
     --------
     >>> damping_maintain_sign(100, -200, factor=.5)
     50.0
-    '''
+    """
     if isinstance(x, list):
         return [damping_maintain_sign(x[i], step[i], damping, factor) for i in range(len(x))]
     positive = x > 0.0
@@ -2124,8 +2215,7 @@ def best_bounding_bounds(low, high, f=None, xs_pos=None, ys_pos=None,
 
 def bisect(f, a, b, args=(), xtol=1e-12, rtol=2.220446049250313e-16, maxiter=100,
               ytol=None):
-    '''Port of SciPy's C bisect routine.
-    '''
+    """Port of SciPy's C bisect routine."""
     fa = f(a, *args)
     fb = f(b, *args)
     if fa*fb > 0.0:
@@ -2179,7 +2269,7 @@ def ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
         dm = 0.5*(b - a)
         xm = a + dm
         fm = f(xm, *args)
-        dn = copysign((fm*fm - fa*fb)**-0.5, fb - fa)*fm*dm
+        dn = copysign(1.0/sqrt(fm*fm - fa*fb), fb - fa)*fm*dm
     
         dn_abs, dm_abs_tol = fabs(dn), fabs(dm) - 0.5*tol
         xn = xm - copysign((dn_abs if dn_abs < dm_abs_tol else dm_abs_tol), dn)
@@ -2427,26 +2517,26 @@ def newton(func, x0, fprime=None, args=(), tol=None, maxiter=100,
            xtol=1.48e-8, require_eval=False, damping_func=None,
            bisection=False, gap_detection=False, dy_dx_limit=1e100,
            max_bound_hits=4, kwargs={}):
-    '''Newton's method designed to be mostly compatible with SciPy's 
+    """Newton's method designed to be mostly compatible with SciPy's
     implementation, with a few features added and others now implemented.
-    
+
     1) No tracking of how many iterations have progressed.
     2) No ability to return a RootResults object
     3) No warnings on some cases of bad input (low tolerance, no iterations)
     4) Ability to accept True for either fprime or fprime2, which means that
        they are included in the return value of func
     5) No handling for inf or nan!
-    6) Special handling for functions which need to ensure an evaluation at 
+    6) Special handling for functions which need to ensure an evaluation at
        the final point
     7) Damping as a constant or a fraction
     8) Ability to perform bisection, optionally specifying a maximum range
-    9) Ability to specify minimum and maximum iteration values 
+    9) Ability to specify minimum and maximum iteration values
     10) Ability to specify a tolerance in the `y` direction
-    11) Ability to pass in keyword arguments as well as positional arguments 
-    
+    11) Ability to pass in keyword arguments as well as positional arguments
+
     From scipy, with some modifications!
     https://github.com/scipy/scipy/blob/v1.1.0/scipy/optimize/zeros.py#L66-L206
-    '''
+    """
     if tol is not None:
         xtol = tol
     p0 = 1.0*x0
@@ -2880,18 +2970,18 @@ def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping
 
 
 def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
-             skip_J=False):
+             skip_J=False, args=()):
     iter = 0
     if skip_J:
-        fcur = fun(xs)
+        fcur = fun(xs, *args)
         N = len(fcur)
         J = eye(N)
     elif jac_has_fun:
-        fcur, J = jac(xs)
+        fcur, J = jac(xs, *args)
         J = inv(J)
     else:
-        fcur = fun(xs)
-        J = inv(jac(xs))
+        fcur = fun(xs, *args)
+        J = inv(jac(xs, *args))
 
     N = len(fcur)
     eqns = range(N)
@@ -2905,7 +2995,7 @@ def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
         
         xs = [xs[i] - s[i] for i in eqns]
  
-        fnew = fun(xs)
+        fnew = fun(xs, *args)
         z = [fnew[i] - fcur[i] for i in eqns]
  
         u = dot(J, z)
@@ -2982,43 +3072,43 @@ def func_40_splev(arg, t, l, l1, nk1):
     return arg, t, l, l1, nk1, leave
     
 def py_splev(x, tck, ext=0, t=None, c=None, k=None):
-    '''Evaluate a B-spline using a pure-python port of FITPACK's splev. This is
+    """Evaluate a B-spline using a pure-python port of FITPACK's splev. This is
     not fully featured in that it does not support calculating derivatives.
-    Takes the knots and coefficients of a B-spline tuple, and returns 
-    the value of the smoothing polynomial.  
-    
+    Takes the knots and coefficients of a B-spline tuple, and returns the value
+    of the smoothing polynomial.
+
     Parameters
     ----------
     x : float or list[float]
-        An point or array of points at which to calculate and return the value 
+        An point or array of points at which to calculate and return the value
         of the  spline, [-]
     tck : 3-tuple
         Ssequence of length 3 returned by
         `splrep` containing the knots, coefficients, and degree
         of the spline, [-]
     ext : int, optional, default 0
-        If `x` is not within the range of the spline, this handles the 
+        If `x` is not within the range of the spline, this handles the
         calculation of the results.
-    
+
         * For ext=0, extrapolate the value
         * For ext=1, return 0 as the value
         * For ext=2, raise a ValueError on that point and fail to return values
         * For ext=3, return the boundary value as the value
-    
+
     Returns
     -------
     y : list
         The array of calculated values; the spline function evaluated at
         the points in `x`, [-]
-    
+
     Notes
     -----
-    The speed of this for a scalar value in CPython is approximately 15% 
-    slower than SciPy's FITPACK interface. In PyPy, this is 10-20 times faster 
+    The speed of this for a scalar value in CPython is approximately 15%
+    slower than SciPy's FITPACK interface. In PyPy, this is 10-20 times faster
     than using it (benchmarked on PyPy 6).
-    
+
     There could be more bugs in this port.
-    '''
+    """
     e = ext
     if tck is not None:
         t, c, k = tck
@@ -3077,10 +3167,9 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
 
 
 def py_bisplev(x, y, tck, dx=0, dy=0):
-    '''Evaluate a bivariate B-spline or its derivatives.
-    For scalars, returns a float; for other inputs, mimics the formats of 
-    SciPy's `bisplev`.
-    
+    """Evaluate a bivariate B-spline or its derivatives. For scalars, returns a
+    float; for other inputs, mimics the formats of SciPy's `bisplev`.
+
     Parameters
     ----------
     x : float or list[float]
@@ -3094,18 +3183,18 @@ def py_bisplev(x, y, tck, dx=0, dy=0):
         Order of partial derivative with respect to `x`, [-]
     dy : int, optional
         Order of partial derivative with respect to `y`, [-]
-    
+
     Returns
     -------
     values : float or list[list[float]]
         Calculated values from spline or their derivatives; according to the
         same format as SciPy's `bisplev`, [-]
-    
+
     Notes
     -----
     Use `bisplrep` to generate the `tck` representation; there is no Python
     port of it.
-    '''
+    """
     tx, ty, c, kx, ky = tck
     if isinstance(x, (float, int)):
         x = [x]
@@ -3119,13 +3208,10 @@ def py_bisplev(x, y, tck, dx=0, dy=0):
 
 
 def fpbspl(t, n, k, x, l, h, hh):
-    """
-    subroutine fpbspl evaluates the (k+1) non-zero b-splines of
-    degree k at t(l) <= x < t(l+1) using the stable recurrence
-    relation of de boor and cox.
-    
-    All arrays are 1d!
-    Optimized the assignment and order and so on.
+    """subroutine fpbspl evaluates the (k+1) non-zero b-splines of degree k at
+    t(l) <= x < t(l+1) using the stable recurrence relation of de boor and cox.
+
+    All arrays are 1d! Optimized the assignment and order and so on.
     """
     h[0] = 1.0
     for j in range(1, k + 1):
@@ -3164,8 +3250,7 @@ def init_w(t, k, x, lx, w):
 
 
 def cy_bispev(tx, ty, c, kx, ky, x, y):
-    '''Possible optimization: Do not evaluate derivatives, ever.
-    '''
+    """Possible optimization: Do not evaluate derivatives, ever."""
     nx = len(tx)
     ny = len(ty)
     mx = len(x)
@@ -3305,10 +3390,14 @@ def quad_adaptive(f, a, b, args=(), kronrod_points=array_if_needed(kronrod_point
                     epsrel=epsrel, epsabs=epsabs*0.5, depth=depth+1)
     return area_A + area_B, abs(err_abs_A) + abs(err_abs_B)
 
+global sp_quad
+sp_quad = None
 def lazy_quad(f, a, b, args=(), epsrel=1.49e-08, epsabs=1.49e-8, **kwargs):
+    global sp_quad
     if not IS_PYPY:
-        from scipy.integrate import quad
-        return quad(f, a, b, args, epsrel=epsrel, epsabs=epsabs, **kwargs)
+        if sp_quad is None:
+            from scipy.integrate import quad as sp_quad
+        return sp_quad(f, a, b, args, epsrel=epsrel, epsabs=epsabs, **kwargs)
     else:
         return quad_adaptive(f, a, b, ags=args, epsrel=epsrel, epsabs=epsabs)
 #        n = 300
@@ -3328,9 +3417,8 @@ def nquad(func, ranges, args=(), epsrel=1.48e-8, epsabs=1.48e-8):
                          epsrel=epsrel, epsabs=epsabs)
 
 def dblquad(func, a, b, hfun, gfun, args=(), epsrel=1.48e-12, epsabs=1.48e-15):
-    '''Nominally working, but trying to use it has exposed the expected bugs in 
-    `quad_adaptive`.
-    '''
+    """Nominally working, but trying to use it has exposed the expected bugs in
+    `quad_adaptive`."""
     def inner_func(y, *args):
         full_args = (y,)+args
         quad_fluids = quad_adaptive(func, hfun(y, *args), gfun(y, *args), args=full_args, epsrel=epsrel, epsabs=epsabs)[0]
@@ -3384,9 +3472,8 @@ from math import gamma # Been there a while
 def _lambertw_err(x, y):
     return x*exp(x) - y
 def py_lambertw(y, k=0):
-    '''For x > 0, the is always only one real solution
-    For -1/e < x < 0, two real solutions
-    '''
+    """For x > 0, the is always only one real solution For -1/e < x < 0, two
+    real solutions."""
     # Works for real inputs only, two main branches
     if k == 0:
         # Branches dead at -1

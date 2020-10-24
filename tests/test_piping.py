@@ -146,3 +146,30 @@ def test_gauge():
     # however the IPS ones are authoritative.    
     NPS, Di, Do, t = nearest_pipe(NPS=10, schedule='DR325D2241PIP')
     assert_close1d((0.2431288, 0.25908, 0.0079756), (Di, Do, t), rtol=1e-12)
+
+
+    # Test schedule with DN
+    NPS, Di, Do, t = nearest_pipe(NPS=100, schedule='S40F441SI')
+    assert_close1d((0.10226, 0.1143, 0.006019999999999999), (Di, Do, t), rtol=1e-12)
+
+
+def test_piping_schedule_basics():
+    from fluids.piping import schedule_lookup
+    
+    for k, (NPSs, Dis, Dos, ts) in schedule_lookup.items():
+        assert len(NPSs) == len(Dis)
+        assert len(Dis) == len(Dos)
+        assert len(Dos) == len(ts)
+    
+        for i in range(len(NPSs)-1):
+            assert NPSs[i+1] >= NPSs[i]
+        for i in range(len(Dis)-1):
+            assert Dis[i+1] >= Dis[i]
+        for i in range(len(Dos)-1):
+            assert Dos[i+1] >= Dos[i]
+        for i in range(len(ts)-1):
+            assert ts[i+1] >= ts[i]
+    
+        for i in range(len(NPSs)):
+            err = abs((Dis[i] + ts[i]*2)/Dos[i] -1)
+            assert err < 1e-14

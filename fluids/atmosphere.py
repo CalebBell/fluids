@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,9 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 This module contains models of earth's atmosphere. Models are empirical and
-based on extensive research, primarily by NASA. 
+based on extensive research, primarily by NASA.
 
-For reporting bugs, adding feature requests, or submitting pull requests, 
+For reporting bugs, adding feature requests, or submitting pull requests,
 please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
 or contact the author at Caleb.Andrew.Bell@gmail.com.
 
@@ -37,7 +37,7 @@ Atmospheres
 .. autoclass:: ATMOSPHERE_NRLMSISE00
     :members:
 .. autofunction:: airmass
-        
+
 Solar Radiation and Position
 ----------------------------
 .. autofunction:: solar_position
@@ -49,16 +49,15 @@ Wind Models (requires Fortran compiler!)
 ----------------------------------------
 .. autofunction:: hwm93
 .. autofunction:: hwm14
-
-'''
+"""
 
 from __future__ import division
 
-from math import exp, cos, radians, pi, sin
+from math import sqrt, exp, cos, radians, pi, sin
 import time
 import os
 from fluids.constants import N_A, R, au
-from fluids.numerics import brenth, quad
+from fluids.numerics import brenth, quad, numpy as np
 try:
     from datetime import datetime, timedelta
 except:
@@ -67,10 +66,6 @@ except:
 __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
            'earthsun_distance', 'solar_position', 'solar_irradiation',
            'sunrise_sunset']
-
-__numba_additional_funcs__ = ['H_for_P_ATMOSPHERE_1976_err',
-                              'to_int_dP_ATMOSPHERE_1976',
-                              'to_int_airmass']
 
 no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
@@ -290,7 +285,7 @@ class ATMOSPHERE_1976(object):
             Speed of sound, [m/s]
         '''        
         # 401.87... = gamma*R/MO
-        return (401.87430086589046*T)**0.5
+        return sqrt(401.87430086589046*T)
     
     @staticmethod
     def gravity(Z):
@@ -431,7 +426,7 @@ class ATMOSPHERE_NRLMSISE00(object):
     --------
     >>> atmosphere = ATMOSPHERE_NRLMSISE00(1E3, 45, 45, 150)
     >>> atmosphere.T, atmosphere.rho
-    (285.54408606237405, 1.1019062026405517)
+    (285.5440860623, 1.10190620264)
     
     Notes
     -----
@@ -569,7 +564,7 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
 
     Examples
     --------
-    >>> hwm93(5E5, 45, 50, 365)
+    >>> hwm93(5E5, 45, 50, 365) # doctest: +SKIP
     (-73.00312042236328, 0.1485661268234253)
     
     Notes
@@ -583,7 +578,9 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
     to $FLUIDSPATH/fluids/optional/. This should generate the file hwm93.so
     in that directory.
         
-    f2py -c hwm93.pyf hwm93.for --f77flags="-std=legacy"
+    .. code-block:: bash
+    
+        f2py -c hwm93.pyf hwm93.for --f77flags="-std=legacy"
     
     If the module is not compiled, an import error will be raised.
     
@@ -648,7 +645,7 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
 
     Examples
     --------
-    >>> hwm14(5E5, 45, 50, 365)
+    >>> hwm14(5E5, 45, 50, 365) # doctest: +SKIP
     (-38.64341354370117, 12.871272087097168)
 
     Notes
@@ -664,12 +661,16 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     
     
     Generate a .pyf signature file:
-        
-    f2py -m hwm14 -h hwm14.pyf hwm14.f90
+
+    .. code-block:: bash
+    
+        f2py -m hwm14 -h hwm14.pyf hwm14.f90
 
     Compile the interface:
-        
-    f2py -c hwm14.pyf hwm14.f90
+    
+    .. code-block:: bash
+    
+        f2py -c hwm14.pyf hwm14.f90
     
     
     If the module is not compiled, an import error will be raised.
@@ -697,8 +698,7 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
             import optional.hwm14
     except: # pragma: no cover
         raise ImportError(no_gfortran_error)
-    import numpy as np
-    ans = hwm14.hwm14(day, seconds, Z/1000., latitude, longitude, 0, 0, 
+    ans = hwm14.hwm14(day, seconds, Z*1e-3, latitude, longitude, 0, 0, 
                0, np.array([np.nan, geomagnetic_disturbance_index]))
     return tuple(ans.tolist())
 
@@ -708,7 +708,7 @@ def to_int_airmass(Z, c1, c2, angle_term, R_planet_inv, func):
     t1 = c2 - rho*c1
     x0 = angle_term/(1.0 + Z*R_planet_inv)
     t2 = x0*x0
-    t3 = (1.0 - t1*t2)**-0.5
+    t3 = 1.0/sqrt(1.0 - t1*t2)
     return rho*t3
 
 def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
@@ -752,7 +752,7 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
     Examples
     --------
     >>> airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90)
-    10356.127665863998
+    10356.12766586
     
     References
     ----------
@@ -924,7 +924,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     >>> local_time = datetime(2018, 4, 15, 6, 43, 5)
     >>> local_time = pytz.timezone('America/Edmonton').localize(local_time)
     >>> solar_position(local_time, 51.0486, -114.07)[0]
-    90.00054676987014
+    90.00054685485517
     
     Sunset occurs when the zenith is 90 degrees (13.5 hours later in this case):
         
@@ -1043,7 +1043,6 @@ def sunrise_sunset(moment, latitude, longitude):
     '''
     from fluids.optional import spa
     import calendar 
-    import numpy as np
     if moment.utcoffset() is not None:
         moment_utc = moment + moment.utcoffset()
     else:
@@ -1055,11 +1054,11 @@ def sunrise_sunset(moment, latitude, longitude):
     unixtime = calendar.timegm(ymd_moment_utc.utctimetuple())
     
     unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
-    transit, sunrise, sunset = spa.transit_sunrise_sunset(unixtime, lat=latitude, lon=longitude, delta_t=delta_t, numthreads=1)
+    transit, sunrise, sunset = spa.transit_sunrise_sunset(unixtime, lat=latitude, lon=longitude, delta_t=delta_t)
     
-    transit = datetime.utcfromtimestamp(float(transit))
-    sunrise = datetime.utcfromtimestamp(float(sunrise))
-    sunset = datetime.utcfromtimestamp(float(sunset))
+    transit = datetime.utcfromtimestamp(transit)
+    sunrise = datetime.utcfromtimestamp(sunrise)
+    sunset = datetime.utcfromtimestamp(sunset)
     
     if moment.tzinfo is not None:
         sunrise = moment.tzinfo.fromutc(sunrise)
@@ -1124,7 +1123,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         The angle above the horizontal of the object being hit by radiation,
         [degrees]
     surface_azimuth : float
-        The angle the object is facing (positive North eastwards 0° to 360°),
+        The angle the object is facing (positive, North eastwards 0° to 360°),
         [degrees]
     T : float, optional
         Temperature of atmosphere at ground level, [K]
@@ -1181,14 +1180,14 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
     ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0, 
     ... surface_azimuth=180.0)
-    (1065.7621896280832, 945.2656564506336, 120.4965331774495, 95.31535344213228, 25.181179735317226)
+    (1065.7621896280812, 945.2656564506323, 120.49653317744884, 95.31535344213178, 25.181179735317063)
     
     >>> cache = {'apparent_zenith': 41.099082295767545, 'zenith': 41.11285376417578, 'azimuth': 182.5631874250523}
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
     ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0, 
     ... linke_turbidity=3, T=300, P=1E5,
     ... surface_azimuth=180.0, cache=cache)
-    (1042.5677703677097, 918.2377548545295, 124.33001551318027, 99.6228657378363, 24.70714977534396)
+    (1042.5677703677, 918.2377548545, 124.33001551318, 99.6228657378, 24.70714977534)
 
     At night, there is no solar radiation and this function returns zeros:
         

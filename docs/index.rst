@@ -3,6 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+  .. meta::
+      :google-site-verification: wcmDZ88ikLzq1to6urRDGA6R7oIhzya2sN5hOeV1zZw
+
 Welcome to Fluids's documentation!
 ==================================
 Fluids is open-source software for engineers and technicians working in the
@@ -23,7 +26,8 @@ Module Contents:
    tutorial.rst
    modules.rst
    examples.rst
-
+   data.rst
+   developers.rst
 
 Installation
 ------------

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,10 +18,11 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
-from math import exp, log, pi, sin, cos, radians
+from math import exp, log, pi, sin, cos, radians, sqrt
 from fluids.constants import g
 from fluids.core import Froude
 
@@ -202,7 +203,7 @@ def Smith(x, rhol, rhog):
     '''
     K = 0.4
     x_ratio = (1-x)/x
-    root = ((rhol/rhog + K*x_ratio) / (1 + K*x_ratio))**0.5
+    root = sqrt((rhol/rhog + K*x_ratio) / (1 + K*x_ratio))
     alpha = (1 + (x_ratio) * (rhog/rhol) * (K + (1-K)*root))**-1
     return alpha
 
@@ -253,7 +254,7 @@ def Fauske(x, rhol, rhog):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008): 
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    return (1 + (1-x)/x*(rhog/rhol)**0.5)**-1
+    return (1 + (1-x)/x*sqrt(rhog/rhol))**-1
 
 
 def Chisholm_voidage(x, rhol, rhog):
@@ -304,7 +305,7 @@ def Chisholm_voidage(x, rhol, rhog):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008): 
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    S = (1 - x*(1-rhol/rhog))**0.5
+    S = sqrt(1 - x*(1-rhol/rhog))
     alpha = (1 + (1-x)/x*rhog/rhol*S)**-1
     return alpha
 
@@ -463,7 +464,7 @@ def Chisholm_Armand(x, rhol, rhog):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     alpha_h = homogeneous(x, rhol, rhog)
-    return alpha_h/(alpha_h + (1-alpha_h)**0.5)
+    return alpha_h/(alpha_h + sqrt(1-alpha_h))
 
 
 def Armand(x, rhol, rhog):
@@ -566,7 +567,7 @@ def Nishino_Yamazaki(x, rhol, rhog):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     alpha_h = homogeneous(x, rhol, rhog)
-    return 1 - ((1-x)*rhog/x/rhol)**0.5*alpha_h**0.5
+    return 1 - sqrt((1-x)*rhog/x/rhol)*sqrt(alpha_h)
 
 
 def Guzhov(x, rhol, rhog, m, D):
@@ -626,7 +627,7 @@ def Guzhov(x, rhol, rhog, m, D):
     V_tp = G/rho_tp
     Fr = Froude(V=V_tp, L=D, squared=True) # squaring in undone later; Fr**0.5
     alpha_h = homogeneous(x, rhol, rhog)
-    return 0.81*(1 - exp(-2.2*Fr**0.5))*alpha_h
+    return 0.81*(1 - exp(-2.2*sqrt(Fr)))*alpha_h
 
 
 def Kawahara(x, rhol, rhog, D):
@@ -691,7 +692,7 @@ def Kawahara(x, rhol, rhog, D):
     else:
         C1, C2 = 0.02, 0.98
     alpha_h = homogeneous(x, rhol, rhog)
-    return C1*alpha_h**0.5/(1. - C2*alpha_h**0.5) 
+    return C1*sqrt(alpha_h)/(1. - C2*sqrt(alpha_h)) 
 
 ### Miscellaneous correlations
 
@@ -968,8 +969,8 @@ def Harms(x, rhol, rhog, mul, mug, m, D):
     G = m/(pi/4*D**2)
     Rel = G*D*(1-x)/mul
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
-    return (1 - 10.06*Rel**-0.875*(1.74 + 0.104*Rel**0.5)**2
-            *(1.376 + 7.242/Xtt**1.655)**-0.5)
+    return (1 - 10.06*Rel**-0.875*(1.74 + 0.104*sqrt(Rel))**2
+            *1.0/sqrt(1.376 + 7.242/Xtt**1.655))
 
 
 def Domanski_Didion(x, rhol, rhog, mul, mug):
@@ -1102,7 +1103,7 @@ def Graham(x, rhol, rhog, mul, mug, m, D, g=g):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
     G = m/(pi/4*D**2)
-    Ft = (G**2*x**3/((1-x)*rhog**2*g*D))**0.5
+    Ft = sqrt(G**2*x**3/((1-x)*rhog**2*g*D))
     if Ft < 0.01032:
         return 0
     else:
@@ -1168,7 +1169,7 @@ def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
     G = m/(pi/4*D**2)
-    Ft = (G**2*x**3/((1-x)*rhog**2*g*D))**0.5
+    Ft = sqrt(G**2*x**3/((1-x)*rhog**2*g*D))
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
     return (1 + 1./Ft + Xtt)**-0.321
 
@@ -1225,7 +1226,7 @@ def Huq_Loth(x, rhol, rhog):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     B = 2*x*(1-x)
-    D = (1 + 2*B*(rhol/rhog -1))**0.5
+    D = sqrt(1 + 2*B*(rhol/rhog -1))
     return 1 - 2*(1-x)**2/(1 - 2*x + D)
 
 
@@ -1288,7 +1289,7 @@ def Kopte_Newell_Chato(x, rhol, rhog, mul, mug, m, D, g=g):
        1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032. 
     '''
     G = m/(pi/4*D**2)
-    Ft = (G**2*x**3/((1-x)*rhog**2*g*D))**0.5
+    Ft = sqrt(G**2*x**3/((1-x)*rhog**2*g*D))
     if Ft < 0.044:
         return homogeneous(x, rhol, rhog)
     else:
@@ -1357,7 +1358,7 @@ def Steiner(x, rhol, rhog, sigma, m, D, g=g):
     '''
     G = m/(pi/4*D**2)
     C0 = 1 + 0.12*(1-x)
-    vgm = 1.18*(1-x)/rhol**0.5*(g*sigma*(rhol-rhog))**0.25
+    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
 
@@ -1422,7 +1423,7 @@ def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
     '''
     G = m/(pi/4*D**2)
     C0 = 1 + 0.2*(1-x)
-    vgm = 1.18*(1-x)/rhol**0.5*(g*sigma*(rhol-rhog))**0.25
+    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
 
@@ -1486,8 +1487,8 @@ def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     G = m/(pi/4*D**2)
-    C0 = 1 + 0.2*(1-x)*(g*D)**0.25*(rhol/G)**0.5
-    vgm = 1.18*(1-x)/rhol**0.5*(g*sigma*(rhol-rhog))**0.25
+    C0 = 1 + 0.2*(1-x)*sqrt(sqrt(g*D))*sqrt(rhol/G)
+    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
 
@@ -1547,7 +1548,7 @@ def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
     '''
     G = m/(pi/4*D**2)
     C0 = 1.2
-    vgm = 0.35*(g*D)**0.5
+    vgm = 0.35*sqrt(g*D)
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
 
@@ -1677,7 +1678,7 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
     vls = m*(1-x)/(rhol*pi/4*D**2)
     G = m/(pi/4*D**2)
     C0 = vgs/(vls+vgs)*(1 + (vls/vgs)**((rhog/rhol)**0.1))
-    vgm = 2.9*(g*sigma*(rhol-rhog)/rhol**2)**0.25
+    vgm = 2.9*sqrt(sqrt(g*sigma*(rhol-rhog)/rhol**2))
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
 
@@ -1746,7 +1747,7 @@ def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
     G = m/(pi/4*D**2)
     Pr = P/Pc if Pc is not None else 0.5
     C0 = (0.82 + 0.18*Pr)**-1
-    vgm = 1.41*(g*sigma*(rhol-rhog)/rhol**2)**0.25
+    vgm = 1.41*sqrt(sqrt(g*sigma*(rhol-rhog)/rhol**2))
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
 
 
@@ -1868,7 +1869,7 @@ def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
     vgs = m*x/(rhog*pi/4*D**2)
     vls = m*(1-x)/(rhol*pi/4*D**2)
     first = vgs*(1 + (vls/vgs)**((rhog/rhol)**0.1))
-    second = 2.9*((g*D*sigma*(1 + cos(radians(angle)))*(rhol-rhog))/rhol**2)**0.25
+    second = 2.9*sqrt(sqrt((g*D*sigma*(1 + cos(radians(angle)))*(rhol-rhog))/rhol**2))
     if P is None: P = 101325.0
     third = (1.22 + 1.22*sin(radians(angle)))**(101325./P)
     return vgs/(first + second*third)
@@ -2455,7 +2456,7 @@ def Fourar_Bories(x, mul, mug, rhol, rhog):
     rhom = 1./(x/rhog + (1. - x)/rhol)
     nul = mul/rhol # = nu_mu_converter(rho=rhol, mu=mul)
     nug = mug/rhog # = nu_mu_converter(rho=rhog, mu=mug)
-    return rhom*((x*nug)**0.5 + ((1. - x)*nul)**0.5)**2
+    return rhom*(sqrt(x*nug) + sqrt((1. - x)*nul))**2
 
 
 def Duckler(x, mul, mug, rhol, rhog):
@@ -2531,6 +2532,7 @@ liquid_gas_viscosity_correlations = {'Beattie Whalley': (Beattie_Whalley, 1),
                                      'McAdams': (McAdams, 0),
                                      'Cicchitti': (Cicchitti, 0),
                                      'Lin Kwok': (Lin_Kwok, 0)}
+liquid_gas_viscosity_correlations_list = ['Beattie Whalley', 'Fourar Bories', 'Duckler', 'McAdams', 'Cicchitti', 'Lin Kwok']
 
 def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
     r'''This function returns a list of methods which can be used for calculating
@@ -2562,7 +2564,7 @@ def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
     '''
     methods = ['McAdams', 'Cicchitti', 'Lin Kwok']
     if rhol is not None and rhog is not None:
-        methods = list(liquid_gas_viscosity_correlations.keys())
+        methods = liquid_gas_viscosity_correlations_list
     return methods
 _gas_liquid_viscosity_method_unknown = 'Method not recognized; available methods are %s' %list(liquid_gas_viscosity_correlations.keys())
 

@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from fluids import *
 import pytest
-from fluids.numerics import assert_close, assert_close1d
+from fluids.numerics import assert_close, assert_close1d, assert_close2d
 
 @pytest.mark.scipy
 def test_K_separator_Watkins_fit():
@@ -77,7 +77,7 @@ def test_K_separator_Watkins():
     [0.07951613600476297, 0.07636233547067607, 0.0874315933884044]]
     
     
-    assert_close1d(calc, expect, rtol=1e-4)
+    assert_close2d(calc, expect, rtol=1e-4)
 
     with pytest.raises(Exception):
         K_separator_Watkins(0.88, 985.4, 1.3, horizontal=True, method='BADMETHOD')

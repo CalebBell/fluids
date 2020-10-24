@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,10 +18,11 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
-from math import exp, log, log10, tanh
+from math import sqrt, exp, log, log10, tanh
 from fluids.constants import g
 from fluids.numerics import secant
 from fluids.core import Reynolds
@@ -32,8 +33,6 @@ __all__ = ['drag_sphere', 'drag_sphere_methods', 'v_terminal', 'integrate_drag_s
 'Clift_Gauvin', 'Morsi_Alexander', 'Graf', 'Flemmer_Banks', 'Khan_Richardson',
 'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
 'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison', 'Song_Xu']
-
-__numba_additional_funcs__ = ['_v_terminal_err']
 
 def Stokes(Re):
     r'''Calculates drag coefficient of a smooth sphere using Stoke's law.
@@ -107,9 +106,10 @@ def Barati(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = (5.4856E9*tanh(4.3774E-9/Re) + 0.0709*tanh(700.6574/Re)
-    + 0.3894*tanh(74.1539/Re) - 0.1198*tanh(7429.0843/Re)
-    + 1.7174*tanh(9.9851/(Re+2.3384)) + 0.4744)
+    Re_inv = 1.0/Re
+    Cd = (5.4856E9*tanh(4.3774E-9*Re_inv) + 0.0709*tanh(700.6574*Re_inv)
+    + 0.3894*tanh(74.1539*Re_inv) - 0.1198*tanh(7429.0843*Re_inv)
+    + 1.7174*tanh(9.9851/(Re + 2.3384)) + 0.4744)
     return Cd
 
 
@@ -208,7 +208,7 @@ def Rouse(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    return 24./Re + 3/Re**0.5 + 0.34
+    return 24./Re + 3/sqrt(Re) + 0.34
 
 
 def Engelund_Hansen(Re):
@@ -395,7 +395,7 @@ def Graf(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    return 24./Re + 7.3/(1 + Re**0.5) + 0.25
+    return 24./Re + 7.3/(1 + sqrt(Re)) + 0.25
 
 
 def Flemmer_Banks(Re):
@@ -523,7 +523,7 @@ def Swamee_Ojha(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = 0.5*(16*((24./Re)**1.6 + (130./Re)**0.72)**2.5 + ((40000./Re)**2 + 1)**-0.25)**0.25
+    Cd = 0.5*sqrt(sqrt(16*((24./Re)**1.6 + (130./Re)**0.72)**2.5 + 1.0/sqrt(sqrt((40000./Re)**2 + 1))))
     return Cd
 
 
@@ -565,7 +565,7 @@ def Yen(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    return 24./Re*(1 + 0.15*Re**0.5 + 0.017*Re) - 0.208/(1 + 1E4*Re**-0.5)
+    return 24./Re*(1 + 0.15*sqrt(Re) + 0.017*Re) - 0.208/(1 + 1E4*1.0/sqrt(Re))
 
 
 def Haider_Levenspiel(Re):
@@ -847,8 +847,8 @@ def Ceylan(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = (1 - 0.5*exp(0.182) + 10.11*Re**(-2/3.)*exp(0.952*Re**-0.25)
-    - 0.03859*Re**(-4/3.)*exp(1.30*Re**-0.5) + 0.037E-4*Re*exp(-0.125E-4*Re)
+    Cd = (1 - 0.5*exp(0.182) + 10.11*Re**(-2/3.)*exp(0.952/sqrt(sqrt(Re)))
+    - 0.03859*Re**(-4/3.)*exp(1.30/sqrt(Re)) + 0.037E-4*Re*exp(-0.125E-4*Re)
     - 0.116E-10*Re**2*exp(-0.444E-5*Re))
     return Cd
 
@@ -1032,7 +1032,7 @@ def drag_sphere_methods(Re, check_ranges=True):
 
     Examples
     --------
-    >>> len(drag_sphere_methods(200)
+    >>> len(drag_sphere_methods(200))
     20
     >>> len(drag_sphere_methods(200000, check_ranges=False))
     21
@@ -1161,7 +1161,7 @@ def drag_sphere(Re, Method=None):
 
 def _v_terminal_err(V, Method, Re_almost, main):
     Cd = drag_sphere(Re_almost*V, Method=Method)
-    return V - (main/Cd)**0.5
+    return V - sqrt(main/Cd)
 
 def v_terminal(D, rhop, rho, mu, Method=None):
     r'''Calculates terminal velocity of a falling sphere using any drag
@@ -1388,7 +1388,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     --------
     >>> integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5,
     ... V=30, distance=True) 
-    (9.686465044053476, 7.8294546436299175)
+    (9.686465044053, 7.8294546436299)
     
     References
     ----------

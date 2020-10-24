@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,10 +18,12 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+"""
 
 from __future__ import division
 from fluids.constants import g, pi
+from math import sqrt
 
 __all__ = ['Rizk', 'Matsumoto_1974', 'Matsumoto_1975', 'Matsumoto_1977',
 'Schade', 'Weber_saltation', 'Geldart_Ling']
@@ -81,7 +83,7 @@ def Rizk(mp, dp, rhog, D):
     alpha = 1440*dp + 1.96
     beta = 1100*dp + 2.5
     term1 = 1./10**alpha
-    Frs_sorta = 1/(g*D)**0.5
+    Frs_sorta = 1/sqrt(g*D)
     expression1 = term1*Frs_sorta**beta
     expression2 = mp/rhog/(pi/4*D**2)
     return (expression2/expression1)**(1./(1 + beta))
@@ -148,9 +150,9 @@ def Matsumoto_1974(mp, rhop, dp, rhog, D, Vterminal=1):
        (October 1, 1978): 571-75. doi:10.1021/i260068a031
     '''
     A = pi/4*D**2
-    Frp = Vterminal/(g*dp)**0.5
-    Frs_sorta = 1./(g*D)**0.5
-    expression1 = 0.448*(rhop/rhog)**0.5*(Frp/10.)**-1.75*(Frs_sorta/10.)**3
+    Frp = Vterminal/sqrt(g*dp)
+    Frs_sorta = 1./sqrt(g*D)
+    expression1 = 0.448*sqrt(rhop/rhog)*(Frp/10.)**-1.75*(Frs_sorta/10.)**3
     expression2 = mp/rhog/A
     return (expression2/expression1)**(1/4.)
 
@@ -216,8 +218,8 @@ def Matsumoto_1975(mp, rhop, dp, rhog, D, Vterminal=1):
        (October 1, 1978): 571-75. doi:10.1021/i260068a031
     '''
     A = pi/4*D**2
-    Frp = Vterminal/(g*dp)**0.5
-    Frs_sorta = 1./(g*D)**0.5
+    Frp = Vterminal/sqrt(g*dp)
+    Frs_sorta = 1./sqrt(g*D)
     expression1 = 1.11*(rhop/rhog)**0.55*(Frp/10.)**-2.3*(Frs_sorta/10.)**3
     expression2 = mp/rhog/A
     return (expression2/expression1)**(1/4.)
@@ -305,13 +307,13 @@ def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
     A = pi/4*D**2
     if limit < dp:
         # Coarse routine
-        Frp = Vterminal/(g*dp)**0.5
-        Frs_sorta = 1./(g*D)**0.5
+        Frp = Vterminal/sqrt(g*dp)
+        Frs_sorta = 1./sqrt(g*D)
         expression1 = 0.373*(rhop/rhog)**1.06*(Frp/10.)**-3.7*(Frs_sorta/10.)**3.61
         expression2 = mp/rhog/A
         return (expression2/expression1)**(1/4.61)
     else:
-        Frs_sorta = 1./(g*D)**0.5
+        Frs_sorta = 1./sqrt(g*D)
         expression1 = 5560*(dp/D)**1.43*(Frs_sorta/10.)**4
         expression2 = mp/rhog/A
         return (expression2/expression1)**(0.2)
@@ -382,7 +384,7 @@ def Schade(mp, rhop, dp, rhog, D):
        doi:10.1590/S0104-66322014000100005
     '''
     B = (D/dp)**0.025*(rhop/rhog)**0.34
-    A = (g*D)**0.5
+    A = sqrt(g*D)
     C = mp/(rhog*pi/4*D**2)
     return (C**0.11*B*A)**(1/1.11)
 
@@ -463,9 +465,9 @@ def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
         term1 = (7 + 8/3.*Vterminal)*(dp/D)**0.1
     else:
         term1 = 15.*(dp/D)**0.1
-    term2 = 1./(g*D)**0.5
+    term2 = 1./sqrt(g*D)
     term3 = mp/rhog/(pi/4*D**2)
-    return (term1/term2*term3**0.25)**(1/1.25)
+    return (term1/term2*sqrt(sqrt(term3)))**(1/1.25)
 
 
 def Geldart_Ling(mp, rhog, D, mug):
