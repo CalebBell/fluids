@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 import os
-'''
+
 import gc
 
 def mem():
@@ -110,7 +110,6 @@ from . import control_valve
 print(base_mem - mem(), 'control_valve')
 base_mem = mem()
 
-'''
 
 from .atmosphere import *
 from .compressible import *
