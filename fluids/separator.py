@@ -360,4 +360,4 @@ def K_Sounders_Brown_theoretical(D, Cd, g=g):
        within the Right Limits" Chemical Engineering Progress, (October 1, 
        1993): 53-60.
     '''
-    return sqrt(4.0*g*D/(3.0*Cd))
+    return sqrt((4.0/3.0)*g*D/(Cd))

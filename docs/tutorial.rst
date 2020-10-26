@@ -61,8 +61,8 @@ There are two ways to use numpy arrays with fluids. Easiest to use is a `vectori
 which wraps all of the fluids functions with np.vectorize. Instead of importing
 from fluids, the user can import from :doc:`fluids.vectorized <fluids.vectorized>`:
 
->>> from fluids.vectorized import *
->>> friction_factor(Re=[100, 1000, 10000], eD=0)
+>>> from fluids.vectorized import * # doctest: +SKIP
+>>> friction_factor(Re=[100, 1000, 10000], eD=0) # doctest: +SKIP
 array([0.64      , 0.064     , 0.03088295])
 
 It is possible to switch back and forth between the namespaces with a subsequent
@@ -76,7 +76,7 @@ or better. In some cases, much better. The tutorial for using it
 is at :doc:`fluids.numba <fluids.numba>`, but in general use it the same way but
 with a different import.
 
->>> from fluids.numba_vectorized import *
+>>> from fluids.numba_vectorized import * # doctest: +SKIP
 
 Dimensionless numbers
 ---------------------
@@ -964,7 +964,7 @@ The integrating function, :py:func:`~.integrate_drag_sphere`, performs the integ
 to time. At one second, we can see the (velocity, distance travelled):
 
 >>> integrate_drag_sphere(D=1E-3, rhop=3400., rho=1.2, mu=1E-5, t=1, V=30, distance=True)
-(10.561878111165333, 15.607904177715518)
+(10.561878111165, 15.607904177715)
 
 After integrating to 10 seconds, we can see the particle has travelled 97 meters and is
 almost on the ground. 
@@ -1263,12 +1263,12 @@ to solve for the flow coefficient:
 
 >>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)
 >>> Kv
-109.39701927957765
+109.39701927957
 
 The handbook states the Cv of the valve is 121; we convert Kv to Cv:
 
 >>> Kv_to_Cv(Kv=Kv)
-126.47380957330982
+126.4738095733
 
 The example in the book calculated Cv = 125.7, but doesn't actually use the 
 full calculation method. Either way, the valve will not carry the desired flow 
