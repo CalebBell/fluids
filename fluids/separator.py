@@ -347,7 +347,7 @@ def K_Sounders_Brown_theoretical(D, Cd, g=g):
         
     >>> from fluids.drag import v_terminal
     >>> v_terminal(D=D, rhop=rhol, rho=rho, mu=mu)
-    0.4803932186998834
+    0.4803932186998
 
     Examples
     --------    
