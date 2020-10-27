@@ -1501,26 +1501,26 @@ The following example shows calculation of the size-weighted mean diameter;
 arithmetic mean diameter; Sauter mean diameter; and De Brouckere diameter.
 
 >>> psd.mean_size(2, 1)
-1857.7888572055526
+1857.788857205
 >>> psd.mean_size(1, 0)
-1459.3725650679328
+1459.372565067
 >>> psd.mean_size(1, 2)
-1857.7888572055529
+1857.788857205
 >>> psd.mean_size(1, 3)
-2053.270397730935
+2053.27039773
 
 An interpolated distribution exists underneath the discrete data to allow useful 
 properties to be calculated, such as the D10 or D90:
 
 >>> psd.dn(0.1), psd.dn(0.9)
-(1437.0713927693337, 3911.4796363647133)
+(1437.07139276, 3911.47963636)
 
 Or probability density functions:
 
 >>> psd.pdf(1000)
-0.00010632384327525037
+0.000106323843275
 >>> psd.cdf(5000)
-0.9897400734854199
+0.98974007348
 
 Statistical distributions implemented are :py:class:`~.PSDLognormal`,
 :py:class:`~.PSDGatesGaudinSchuhman`, and :py:class:`~.PSDRosinRammler`.
@@ -1528,17 +1528,17 @@ Discrete and continuous distributions share most methods.
 
 >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
 >>> psd.pdf(1e-6) # probability density function
-4487.892155358317
+4487.8921553
 >>> psd.cdf(7e-6) # cumulative distribution function
-0.749508691386811
+0.7495086913
 >>> psd.dn(0.1) # At what diameter is this fraction of particles smaller than?
-2.6344175914801822e-06
+2.63441759148e-06
 >>> psd.mean_size(3, 2)
-4.412484512922977e-06
+4.4124845129e-06
 >>> ds = psd.ds_discrete(pts=1000) # Compare calculations with the discrete distribution
 >>> fractions = psd.fractions_discrete(ds)
 >>> ParticleSizeDistribution(ds=ds, fractions=fractions, order=3).mean_size(3, 2)
-4.425743630588125e-06
+4.4257436305e-06
 
 It is straightforward to calculate descriptions of the distribution using the
 available routines:
@@ -1546,21 +1546,21 @@ available routines:
 Volume specific surface area:
 
 >>> psd.vssa
-1359778.1436801916
+1359778.14368
 
 Span (D90 - D10):
 
 >>> psd.dn(.9) - psd.dn(0.1)
-6.855345945193371e-06
+6.8553459451e-06
 
 Relative span (D90 - D10)/D50:
 
 >>> (psd.dn(.9) - psd.dn(0.1))/psd.dn(0.5)
-1.3710691890386741
+1.37106918903
 
 Percentile ratios, D75/D25 and D90/D10:
 
 >>> psd.dn(0.75)/psd.dn(0.25)
-1.9630310841582577
+1.96303108415
 >>> psd.dn(0.9)/psd.dn(0.1)
-3.6022244792791582
+3.60222447927
