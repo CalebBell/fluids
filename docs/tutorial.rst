@@ -491,12 +491,12 @@ constituents).
 
 >>> atm = ATMOSPHERE_NRLMSISE00(Z=1E3, latitude=45, longitude=45, day=150)
 >>> atm.T, atm.P, atm.rho
-(285.54408606237405, 90394.44061071602, 1.1019062026405517)
+(285.54408606237, 90394.44061071, 1.1019062026405)
 
 The composition of the atmosphere is specified in terms of individual molecules/m^3:
 
 >>> atm.N2_density, atm.O2_density
-(1.7909954550444606e+25, 4.8047035072477747e+24)
+(1.7909954550444e+25, 4.8047035072477e+24)
 
 This model uses the ideal gas law to convert particle counts to mass density.
 Mole fractions of each species are available as well.
@@ -504,7 +504,7 @@ Mole fractions of each species are available as well.
 >>> atm.components
 ['N2', 'O2', 'Ar', 'He', 'O', 'H', 'N']
 >>> atm.zs
-[0.7811046347676225, 0.2095469403691101, 0.009343183088772914, 5.241774494627779e-06, 0.0, 0.0, 0.0]
+[0.7811046347676, 0.2095469403691, 0.009343183088772, 5.241774494627e-06, 0.0, 0.0, 0.0]
 
 The horizontal wind models have almost the same API, and calculate wind speed
 and direction as a function of elevation, latitude, longitude, day of year and
@@ -516,9 +516,9 @@ Calculation of wind velocity, meridional (m/sec Northward) and zonal (m/sec
 Eastward) for 1000 m elevation, 45 degrees latitude and longitude, 150th day
 of year, 0 seconds in, with both models:
 
->>> hwm93(Z=1000, latitude=45, longitude=45, day=150)
+>>> hwm93(Z=1000, latitude=45, longitude=45, day=150)  # doctest: +SKIP
 (-0.0038965975400060415, 3.8324742317199707)
->>> hwm14(Z=1000, latitude=45, longitude=45, day=150)
+>>> hwm14(Z=1000, latitude=45, longitude=45, day=150)  # doctest: +SKIP
 (-0.9920163154602051, 0.4105832874774933)
 
 These wind velocities are only historical normals; conditions may vary year to 
