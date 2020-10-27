@@ -38,7 +38,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'normalize', 'oscillation_checker',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
            'broyden2', 'basic_damping', 'solve_2_direct', 'solve_3_direct',
-           'solve_4_direct', 'sincos',
+           'solve_4_direct', 'sincos', 'horner_and_der4',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2',
            'numpy', 'nquad', 
@@ -1253,6 +1253,18 @@ def horner_and_der3(coeffs, x):
         der = x*der + f
         f = x*f + a
     return (f, der, der2 + der2, der3*6.0)
+
+def horner_and_der4(coeffs, x):
+    # Coefficients in same order as for horner
+    # Tested
+    f, der, der2, der3, der4 = 0.0, 0.0, 0.0, 0.0, 0.0
+    for a in coeffs:
+        der4 = x*der4 + der3
+        der3 = x*der3 + der2
+        der2 = x*der2 + der
+        der = x*der + f
+        f = x*f + a
+    return (f, der, der2 + der2, der3*6.0, der4*24.0)
 
 def quadratic_from_points(x0, x1, x2, f0, f1, f2):
     '''

@@ -388,7 +388,7 @@ def Clamond(Re, eD, fast=False):
     X1F1 = 1. + X1F
     
     E = (log(X1F) - 0.2)/(X1F1)
-    F = F - (X1F1 + 0.5*E)*E*(X1F)/(X1F1 + E*(1. + 1.0/3.0*E))
+    F = F - (X1F1 + 0.5*E)*E*(X1F)/(X1F1 + E*(1. + (1.0/3.0)*E))
     
     if not fast:
         X1F = X1 + F

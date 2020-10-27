@@ -452,12 +452,10 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
 
 def V_horiz_torispherical_toint_1(x, w, c10, c11):
     # No analytical integral available in MP
-    w2 = w*w
     n = c11 + sqrt(c10 - x*x)
     n2 = n*n
-    t = sqrt(n2 - w2)
-    ans = n2*asin(t/n) - w*t
-    return ans
+    t = sqrt(n2 - w*w)
+    return n2*asin(t/n) - w*t
 
 def V_horiz_torispherical_toint_2(x, w, c10, c11, g, g2):
     # No analytical integral available in MP
@@ -467,11 +465,11 @@ def V_horiz_torispherical_toint_2(x, w, c10, c11, g, g2):
     ans = n2*(acos(w*n_inv) - acos(g*n_inv)) - w*sqrt(n2 - w*w) + g*sqrt(n2 - g2)
     return ans
 
-def V_horiz_torispherical_toint_3(x, r2, g2, z):
+def V_horiz_torispherical_toint_3(x, r2, g2, z_inv):
     # There is an analytical integral in MP, but for all cases we seem to 
     # get ZeroDivisionError: 0.0 cannot be raised to a negative power
-    ans = (r2 - x*x)*atan(sqrt(g2 - x*x)/z)
-    return ans
+    x2 = x*x
+    return (r2 - x2)*atan(sqrt(g2 - x2)*z_inv)
 
 def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     r'''Calculates volume of a tank with torispherical heads, according to [1]_.
@@ -595,8 +593,8 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         w = R - h
         wmax1 = R - h1
         V1max = quad(V_horiz_torispherical_toint_1, 0.0, sqrt(2.0*k*D*h1 - h1*h1), (wmax1,c10, c11))[0]
-        V2 = quad(V_horiz_torispherical_toint_2, 0.0, k*D*cos(alpha), (w, c10, c11, g, g2))[0]
-        V3 = quad(V_horiz_torispherical_toint_3, w, g , (r2, g2, z))[0] - 0.5*z*(g*g*acos(w/g) -w*sqrt(2*g*(h-h1) - (h-h1)**2))
+        V2 = quad(V_horiz_torispherical_toint_2, 0.0, k*D*cos_alpha, (w, c10, c11, g, g2))[0]
+        V3 = quad(V_horiz_torispherical_toint_3, w, g , (r2, g2, 1.0/z))[0] - 0.5*z*(g*g*acos(w/g) -w*sqrt(2.0*g*(h-h1) - (h-h1)*(h-h1)))
         Vf = 2.0*(V1max + V2 + V3)
     else:
         w = R - h
@@ -604,11 +602,11 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         wmax2 = R - h2
         wwerird = R - (D - h)
 
-        V1max = quad(V_horiz_torispherical_toint_1, 0, sqrt(2*k*D*h1-h1**2), (wmax1,c10, c11))[0]
-        V1weird = quad(V_horiz_torispherical_toint_1, 0, sqrt(2*k*D*(D-h)-(D-h)**2), (wwerird,c10, c11))[0]
-        V2max = quad(V_horiz_torispherical_toint_2, 0, k*D*cos(alpha), (wmax2, c10, c11, g, g2))[0]
-        V3max = pi*a1/6.*(3*g**2 + a1**2)
-        Vf = 2*(2*V1max - V1weird + V2max + V3max)
+        V1max = quad(V_horiz_torispherical_toint_1, 0.0, sqrt(2.0*k*D*h1-h1*h1), (wmax1,c10, c11))[0]
+        V1weird = quad(V_horiz_torispherical_toint_1, 0.0, sqrt(2.0*k*D*(D-h)-(D-h)*(D-h)), (wwerird,c10, c11))[0]
+        V2max = quad(V_horiz_torispherical_toint_2, 0.0, k*D*cos_alpha, (wmax2, c10, c11, g, g2))[0]
+        V3max = pi*a1/6.*(3.0*g*g + a1*a1)
+        Vf = 2.0*(2.0*V1max - V1weird + V2max + V3max)
     if headonly:
         Vf = Vf/2.
     else:

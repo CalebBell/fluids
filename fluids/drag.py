@@ -106,9 +106,10 @@ def Barati(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
-    Cd = (5.4856E9*tanh(4.3774E-9/Re) + 0.0709*tanh(700.6574/Re)
-    + 0.3894*tanh(74.1539/Re) - 0.1198*tanh(7429.0843/Re)
-    + 1.7174*tanh(9.9851/(Re+2.3384)) + 0.4744)
+    Re_inv = 1.0/Re
+    Cd = (5.4856E9*tanh(4.3774E-9*Re_inv) + 0.0709*tanh(700.6574*Re_inv)
+    + 0.3894*tanh(74.1539*Re_inv) - 0.1198*tanh(7429.0843*Re_inv)
+    + 1.7174*tanh(9.9851/(Re + 2.3384)) + 0.4744)
     return Cd
 
 

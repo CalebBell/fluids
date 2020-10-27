@@ -727,11 +727,12 @@ def get_station_year_text(WMO, WBAN, year):
     gsod_year_dir = os.path.join(data_dir, 'gsod', str(year))
     path = os.path.join(gsod_year_dir, station + '.op')
     if os.path.exists(path):
-        data = open(path).read()
-        if data and data != 'Exception':
-            return data
-        else:
-            raise ValueError(data)
+        with open(path, 'r') as f:
+            data = f.read()
+            if data and data != 'Exception':
+                return data
+            else:
+                raise ValueError(data)
         
     toget = ('ftp://ftp.ncdc.noaa.gov/pub/data/gsod/' + str(year) + '/' 
              + station + '-' + str(year) +'.op.gz')
@@ -740,7 +741,8 @@ def get_station_year_text(WMO, WBAN, year):
     except Exception as e:
         if not os.path.exists(gsod_year_dir):
             os.makedirs(gsod_year_dir)
-        open(path, 'w').write('Exception')
+        with open(path, 'w') as f:
+            f.write('Exception')
         raise ValueError('Could not obtain desired data; check '
                         'if the year has data published for the '
                         'specified station and the station was specified '

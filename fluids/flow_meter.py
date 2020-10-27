@@ -26,7 +26,7 @@ from math import sqrt, cos, sin, tan, atan, pi, radians, exp, acos, log10, log
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
 from fluids.numerics import interp, secant, brenth, NotBoundedError, implementation_optimize_tck, bisplev
-from fluids.constants import g, inch, pi_inv
+from fluids.constants import g, inch, inch_inv, pi_inv
 
 __all__ = ['C_Reader_Harris_Gallagher',
            'differential_pressure_meter_solver',
@@ -432,7 +432,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         L1, L2_prime = 0.0, 0.0
     elif taps == 'flange':
         L1 = L2_prime = 0.0254/D
-    elif taps  == 'D' or taps == 'D/2' or taps ==  ORIFICE_D_AND_D_2_TAPS:
+    elif taps  == 'D' or taps == 'D/2' or taps == ORIFICE_D_AND_D_2_TAPS:
         L1 = 1.0
         L2_prime = 0.47
     else:
@@ -442,10 +442,14 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     beta4 = beta2*beta2
     beta8 = beta4*beta4
     
-    A = (19000.0*beta*Re_D_inv)**0.8
+    A = 2648.5177066967326*(beta*Re_D_inv)**0.8 # 19000.0^0.8 = 2648.51....
     M2_prime = 2.0*L2_prime/(1.0 - beta)
     
-    delta_C_upstream = ((0.043 + 0.080*exp(-1E1*L1) - 0.123*exp(-7.0*L1))
+    # These two exps
+    expnL1 = exp(-L1)
+    expnL2 = expnL1*expnL1
+    expnL3 = expnL1*expnL2
+    delta_C_upstream = ((0.043 + expnL3*expnL2*expnL2*(0.080*expnL3 - 0.123))
             *(1.0 - 0.11*A)*beta4/(1.0 - beta4))
     
     # The max part is not in the ISO standard
@@ -458,13 +462,13 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     # C_inf is discharge coefficient with corner taps for infinite Re
     # Cs, slope term, provides increase in discharge coefficient for lower
     # Reynolds numbers.
-    x1 = (1E6*Re_D_inv)**0.3
+    x1 = 63.095734448019314*(Re_D_inv)**0.3 # 63.095... = (1e6)**0.3
     x2 = 22.7 - 0.0047*Re_D
     t2 = x1 if x1 > x2 else x2
     # max term is not in the ISO standard
     C_inf_C_s = (0.5961 + 0.0261*beta2 - 0.216*beta8 
                  + 0.000521*(1E6*beta*Re_D_inv)**0.7
-                 + (0.0188 + 0.0063*A)*beta**3.5*(
+                 + (0.0188 + 0.0063*A)*beta2*beta*sqrt(beta)*(
                  t2))
     
     C = (C_inf_C_s + delta_C_upstream + delta_C_downstream)
@@ -477,7 +481,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         # There is a check for t3 being negative and setting it to zero if so
         # in some sources but that only occurs when t3 is exactly the limit
         # (0.07112) so it is not needed
-        t3 = (2.8 - D/0.0254)
+        t3 = (2.8 - D*inch_inv)
         delta_C_diameter = 0.011*(0.75 - beta)*t3
         C += delta_C_diameter
     

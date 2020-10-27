@@ -104,6 +104,7 @@ Julian_year = 365.25 * day
 
 # length in meter
 inch = 0.0254
+inch_inv = 1.0/inch
 foot = 12 * inch
 yard = 3 * foot
 mile = 1760 * yard

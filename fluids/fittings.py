@@ -452,7 +452,7 @@ def entrance_angled(angle, method='Idelchik'):
        Van Nostrand Reinhold Co., 1984.
     '''
     if method == 'Idelchik' or method is None:
-        cos_term = cos(radians(angle))
+        cos_term = cos(deg2rad*angle)
         return 0.57 + cos_term*(0.2*cos_term + 0.3)
     else:
         raise ValueError(entrance_angled_methods_missing)
@@ -594,15 +594,18 @@ def entrance_rounded(Di, rc, method='Rennels'):
     '''
     if method is None:
         method = 'Rennels'
+    ratio = rc/Di
     if method == 'Rennels':
-        if rc/Di > 1.0:
+        if ratio > 1.0:
             return 0.03
-        lbd = 1.0 + 0.622*(1.0 - 0.30*sqrt(rc/Di) - 0.70*(rc/Di))**4.0
-        return 0.0696*(1.0 - 0.569*rc/Di)*lbd**2.0 + (lbd - 1.0)**2
+        
+        lbd = (1.0 - 0.30*sqrt(ratio) - 0.70*ratio)
+        lbd *= lbd
+        lbd = 1.0 + 0.622*lbd*lbd
+        return 0.0696*(1.0 - 0.569*ratio)*lbd*lbd + (lbd - 1.0)*(lbd - 1.0)
     elif method == 'Swamee':
-        return 0.5/(1.0 + 36.0*(rc/Di)**1.2)
+        return 0.5/(1.0 + 36.0*(ratio)**1.2)
     elif method == 'Crane':
-        ratio = rc/Di
         if ratio < 0:
             return 0.5 
         elif ratio > 0.15:
@@ -611,17 +614,14 @@ def entrance_rounded(Di, rc, method='Rennels'):
             return interp(ratio, entrance_rounded_ratios_Crane,
                           entrance_rounded_Ks_Crane)
     elif method == 'Miller':
-        rc_Di = rc/Di
-        if rc_Di > 0.3:
-            rc_Di = 0.3
-        return horner(entrance_rounded_Miller_coeffs, 20.0/3.0*(rc_Di - 0.15))
+        if ratio > 0.3:
+            ratio = 0.3
+        return horner(entrance_rounded_Miller_coeffs, (20.0/3.0)*(ratio - 0.15))
     elif method == 'Harris':
-        ratio = rc/Di
         if ratio > .16:
             return 0.0
         return float(splev(ratio, entrance_rounded_Harris_tck))
     elif method == 'Idelchik':
-        ratio = rc/Di
         if ratio > .2:
             return entrance_rounded_Ks_Idelchik[-1]
         return float(splev(ratio, entrance_rounded_Idelchik_tck))
@@ -3436,13 +3436,15 @@ def Cv_to_K(Cv, D):
     Examples
     --------
     >>> Cv_to_K(2.712, .015)
-    14.719595348352552
+    14.719595348352
 
     References
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
     '''
-    return 1.6E9*D**4*(Cv/1.1560992283536566)**-2
+    D2 = D*D
+    term = (Cv*(1.0/1.1560992283536566))
+    return 1.6E9*D2*D2/(term*term)
 
 
 def K_gate_valve_Crane(D1, D2, angle, fd=None):
@@ -3517,15 +3519,15 @@ def K_gate_valve_Crane(D1, D2, angle, fd=None):
     if fd is None:
         fd = ft_Crane(D2)
     K1 = 8.0*fd # This does not refer to upstream loss per se
-    if beta == 1 or angle == 0:
+    if beta == 1.0 or angle == 0.0:
         return K1 # upstream and down
     else:
         beta2 = beta*beta
         one_m_beta2 = 1.0 - beta2
         if angle <= 0.7853981633974483:
-            K = (K1 + sin(0.5*angle)*(0.8*one_m_beta2 + 2.6*one_m_beta2*one_m_beta2))/(beta2*beta2)
+            K = (K1 + sin(0.5*angle)*(one_m_beta2*(0.8 + 2.6*one_m_beta2)))/(beta2*beta2)
         else:
-            K = (K1 + 0.5*sqrt(sin(0.5*angle))*one_m_beta2 + one_m_beta2*one_m_beta2)/(beta2*beta2)
+            K = (K1 + one_m_beta2*(0.5*sqrt(sin(0.5*angle)) + one_m_beta2))/(beta2*beta2)
     return K
 
 
@@ -3579,10 +3581,14 @@ def K_globe_valve_Crane(D1, D2, fd=None):
     if fd is None:
         fd = ft_Crane(D2)
     K1 = 340.0*fd 
-    if beta == 1:
+    if beta == 1.0:
         return K1 # upstream and down
     else:
-        return (K1 + beta*(0.5*(1-beta)**2 + (1-beta**2)**2))/beta**4
+        beta2 = beta*beta
+        one_m_beta = 1.0 - beta
+        one_m_beta2 = 1.0 - beta2
+        return (K1 + beta*(0.5*one_m_beta*one_m_beta 
+                           + one_m_beta2*one_m_beta2))/(beta2*beta2)
 
 
 def K_angle_valve_Crane(D1, D2, fd=None, style=0):
