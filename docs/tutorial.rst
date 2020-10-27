@@ -952,7 +952,7 @@ The terminal velocity of the particle is easily calculated with the
 :py:func:`~.v_terminal` function. 
 
 >>> v_terminal(D=1E-3, rhop=3400, rho=1.2, mu=1E-5)
-8.971223953182939
+8.971223953182
 
 Very often, we are not interested in just what the velocity of the particle will
 be at terminal conditions, but on the distance it will travel and the particle will
@@ -964,13 +964,13 @@ The integrating function, :py:func:`~.integrate_drag_sphere`, performs the integ
 to time. At one second, we can see the (velocity, distance travelled):
 
 >>> integrate_drag_sphere(D=1E-3, rhop=3400., rho=1.2, mu=1E-5, t=1, V=30, distance=True)
-(10.561878111165, 15.607904177715)
+(10.561878111, 15.607904177)
 
 After integrating to 10 seconds, we can see the particle has travelled 97 meters and is
 almost on the ground. 
 
 >>> integrate_drag_sphere(D=1E-3, rhop=3400., rho=1.2, mu=1E-5, t=10, V=30, distance=True)
-(8.97122398706632, 97.13276290361276)
+(8.97122398706, 97.13276290361)
 
 For this example simply using the terminal velocity would have given an accurate estimation
 of distance travelled:
@@ -1003,28 +1003,28 @@ pressure drop in Pascals using the :py:func:`~.dP_packed_bed` function:
 The method can be specified manually as well, for example the commonly used Ergun equation:
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Method='Ergun')
-2677.734374999999
+2677.734374999
 
 Incorporation of the tube diameter will add wall effects to the model.
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Dt=0.01)
-2510.3251325096853
+2510.3251325096
 
 Models can be used directly as well. The length of the column is an optional
 input; if not provided, the result will be in terms of Pa/m.
 
 >>> KTA(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3) # A correlation standardized for use in pebble reactors
-1440.409277034248
+1440.409277034
 
 If the column diameter was 0.5 m, the flow rate in m^3/s would be:
 
 >>> .001*(pi/4*0.5**2) # superficial_velocity*A_column
-0.00019634954084936208
+0.00019634954084936
 
 The holdup (total volume of the column holding fluid not particles) would be:
 
 >>> (pi/4*0.5**2)*(2)*0.4 # A_column*H_column*voidage
-0.15707963267948966
+0.15707963267948
 
 
 Not all particles are spherical. There have been correlations published for 
@@ -1035,7 +1035,7 @@ spherical the particles, the higher the pressure drop. This is supported in
 all of the correlations.
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Dt=0.01, sphericity=0.9)
-3050.419598116882
+3050.4195981168
 
 While it is easy to measure the volume of particles added to a given column 
 and determine the voidage experimentally, this does not help in the design process.
@@ -1058,12 +1058,12 @@ one for spheres, and one for cylinders (:py:func:`~.voidage_Benyahia_Oneil`,
 >>> A_cyl = A_cylinder(D=0.001, L=0.005)
 >>> sph = sphericity(A=A_cyl, V=V_cyl)
 >>> voidage_Benyahia_Oneil_cylindrical(Dpe=D_sphere_eq, Dt=0.05, sphericity=sph)
-0.3754895273247688
+0.3754895273247
 
 Same calculation, but using the general correlation for all shapes:
 
 >>> voidage_Benyahia_Oneil(Dpe=D_sphere_eq, Dt=0.05, sphericity=sph)
-0.4425769555048246
+0.4425769555048
 
 Pressure drop through piping
 ----------------------------
@@ -1086,7 +1086,7 @@ V=3 m/s, Di=0.05, roughness 0.01 mm):
 >>> K += contraction_sharp(Di1=0.05, Di2=0.025)
 >>> K += diffuser_sharp(Di1=0.025, Di2=0.05)
 >>> dP_from_K(K, rho=1000, V=3)
-37920.5114014637
+37920.5114014
 
 If the diameter of the piping varies, not all of the loss coefficients will be
 with respect to the same diameter. Each loss coefficient must be converted to
