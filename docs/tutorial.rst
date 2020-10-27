@@ -814,18 +814,18 @@ the `thermo library <https://github.com/CalebBell/thermo>`_ for chemical propert
 Compute the downstream pressure of 50 kg/s of natural gas flowing in a 0.5 m 
 diameter pipeline for 1 km, roughness = 5E-5 m:
  
->>> from thermo import *
->>> from fluids import *
+>>> from thermo import *  # doctest: +SKIP
+>>> from fluids import *  # doctest: +SKIP
 >>> from math import pi
->>> D = 0.5
->>> L = 1000
->>> epsilon = 5E-5
->>> S1 = Stream('natural gas', P=1E6, m=50)
->>> V = S1.Q/(pi/4*D**2)
->>> Re = S1.Reynolds(D=D, V=V)
->>> fd = friction_factor(Re=Re, eD=epsilon/D)
->>> P2 = isothermal_gas(rho=S1.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)
->>> P2
+>>> D = 0.5  # doctest: +SKIP
+>>> L = 1000  # doctest: +SKIP
+>>> epsilon = 5E-5  # doctest: +SKIP
+>>> S1 = Stream('natural gas', P=1E6, m=50)  # doctest: +SKIP
+>>> V = S1.Q/(pi/4*D**2)  # doctest: +SKIP
+>>> Re = S1.Reynolds(D=D, V=V)  # doctest: +SKIP
+>>> fd = friction_factor(Re=Re, eD=epsilon/D)  # doctest: +SKIP
+>>> P2 = isothermal_gas(rho=S1.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)  # doctest: +SKIP
+>>> P2  # doctest: +SKIP
 877420.0710639344
 
 In the above example, the friction factor was calculated using the density
@@ -833,13 +833,13 @@ and velocity of the gas when it enters the stream. However, the average values,
 at the middle pressure, and more representative. We can iterate to observe
 the effect of using the average values:
 
->>> for i in range(10):
-...     S2 = Stream('natural gas', P=0.5*(P2+S1.P), m=50)
-...     V = S2.Q/(pi/4*D**2)
-...     Re = S2.Reynolds(D=D, V=V)
-...     fd = friction_factor(Re=Re, eD=epsilon/D)
-...     P2 = isothermal_gas(rho=S2.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)
-...     print('%g' %P2)
+>>> for i in range(10):  # doctest: +SKIP
+...     S2 = Stream('natural gas', P=0.5*(P2+S1.P), m=50)  # doctest: +SKIP
+...     V = S2.Q/(pi/4*D**2)  # doctest: +SKIP
+...     Re = S2.Reynolds(D=D, V=V)  # doctest: +SKIP
+...     fd = friction_factor(Re=Re, eD=epsilon/D) # doctest: +SKIP
+...     P2 = isothermal_gas(rho=S2.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)  # doctest: +SKIP
+...     print('%g' %P2)  # doctest: +SKIP
 868535
 867840
 867786
@@ -1236,19 +1236,19 @@ the necessary properties of the fluid, we calculate the necessary Kv of the
 valve based on an assumed valve size of 3 inches:
 
 >>> from scipy.constants import *
->>> from fluids.control_valve import size_control_valve_l
->>> from thermo.chemical import Chemical
->>> P1 = 300*psi + psi # to Pa
->>> P2 = 275*psi + psi # to Pa
->>> T = 273.15 + 21 # to K
->>> propane = Chemical('propane', P=(P1+P2)/2, T=T)
->>> rho = propane.rho
->>> Psat = propane.Psat
->>> Pc = propane.Pc
->>> mu = propane.mu
->>> Q = 800*gallon/minute # to m^3/s
->>> D1 = D2 = 8*inch # to m
->>> d = 3*inch # to m
+>>> from fluids.control_valve import size_control_valve_l  # doctest: +SKIP
+>>> from thermo.chemical import Chemical # doctest: +SKIP
+>>> P1 = 300*psi + psi # to Pa # doctest: +SKIP
+>>> P2 = 275*psi + psi # to Pa # doctest: +SKIP
+>>> T = 273.15 + 21 # to K # doctest: +SKIP
+>>> propane = Chemical('propane', P=(P1+P2)/2, T=T) # doctest: +SKIP
+>>> rho = propane.rho # doctest: +SKIP
+>>> Psat = propane.Psat # doctest: +SKIP
+>>> Pc = propane.Pc # doctest: +SKIP
+>>> mu = propane.mu # doctest: +SKIP
+>>> Q = 800*gallon/minute # to m^3/s # doctest: +SKIP
+>>> D1 = D2 = 8*inch # to m # doctest: +SKIP
+>>> d = 3*inch # to m # doctest: +SKIP
 
 The standard specifies two more parameters specific to a valve:
 
@@ -1261,13 +1261,13 @@ a function of the diameter of the valve and are normally tabulated next to the
 values of Cv or Kv for a valve. Now using :py:func:`~.size_control_valve_l` 
 to solve for the flow coefficient:
 
->>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)
->>> Kv
+>>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)  # doctest: +SKIP
+>>> Kv # doctest: +SKIP
 109.39701927957
 
 The handbook states the Cv of the valve is 121; we convert Kv to Cv:
 
->>> Kv_to_Cv(Kv=Kv)
+>>> Kv_to_Cv(Kv=Kv) # doctest: +SKIP
 126.4738095733
 
 The example in the book calculated Cv = 125.7, but doesn't actually use the 
@@ -1276,8 +1276,8 @@ rate; we need to try a larger valve size. The 4 inch size is tried next in the
 example, which has a known Cv of 203.
 
 >>> d = 4*inch # to m
->>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)
->>> Kv_to_Cv(Kv=Kv)
+>>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)  # doctest: +SKIP
+>>> Kv_to_Cv(Kv=Kv)  # doctest: +SKIP
 116.17550388277834
 
 The calculated Cv is well under the valve's maximum Cv; we can select it.
@@ -1311,17 +1311,17 @@ valve based on an assumed valve size of 8 inches.
 
 >>> from scipy.constants import *
 >>> from fluids.control_valve import size_control_valve_g
->>> from thermo.chemical import Chemical
+>>> from thermo.chemical import Chemical  # doctest: +SKIP
 >>> P1 = 214.7*psi
 >>> P2 = 64.7*psi
 >>> T = 16 + 273.15
->>> natural_gas = Mixture('natural gas', T=T, P=(P1+P2)/2)
->>> Z = natural_gas.Z
->>> MW = natural_gas.MW
->>> mu = natural_gas.mu
->>> gamma = natural_gas.isentropic_exponent
->>> Q = 6E6*foot**3/hour
->>> D1 = D2 = d = 8*inch #  8-inch Fisher Design V250 
+>>> natural_gas = Mixture('natural gas', T=T, P=(P1+P2)/2)  # doctest: +SKIP
+>>> Z = natural_gas.Z  # doctest: +SKIP
+>>> MW = natural_gas.MW  # doctest: +SKIP
+>>> mu = natural_gas.mu  # doctest: +SKIP
+>>> gamma = natural_gas.isentropic_exponent  # doctest: +SKIP
+>>> Q = 6E6*foot**3/hour  # doctest: +SKIP
+>>> D1 = D2 = d = 8*inch #  8-inch Fisher Design V250   # doctest: +SKIP
 
 The standard specifies three more parameters specific to a valve:
 
@@ -1335,8 +1335,8 @@ at full opening. These factors are also a function of the diameter of the
 valve and are normally tabulated next to the values of Cv or Kv for a valve.
 Now using :py:func:`~.size_control_valve_g` to solve for the flow coefficient:
 
->>> Kv = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=1, Fd=1, xT=.137)
->>> Kv_to_Cv(Kv)
+>>> Kv = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=1, Fd=1, xT=.137)  # doctest: +SKIP
+>>> Kv_to_Cv(Kv)  # doctest: +SKIP
 1563.447724002566
 
 The 8-inch valve is rated with Cv = 2190. The valve is adequate to provide 
@@ -1373,7 +1373,7 @@ Creating and solving the objective function:
 ...     Kv_lookup = float(Kv_interp(opening))
 ...     Kv_calc = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=Fl, Fd=Fd, xT=xT)
 ...     return Kv_calc - Kv_lookup 
->>> newton(to_solve, .8) # initial guess of 80%
+>>> newton(to_solve, .8) # initial guess of 80%  # doctest: +SKIP
 0.7500814714947652
 
 We see the valve should indeed be set to almost exactly 75% open to provide 
