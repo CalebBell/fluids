@@ -62,6 +62,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            # Complex number math missing in micropython
            'cacos', 'catan',
            'deflate_cubic_real_roots',
+           
+           'root', 'minimize', 'fsolve',
            ]
 
 __numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search',
@@ -3342,6 +3344,30 @@ def polylog2(x):
     return horner(p, x)/horner(q, x)
 
 
+global sp_root
+sp_root = None
+def root(*args, **kwargs):
+    global sp_root
+    if sp_root is None:
+        from scipy.optimize import root as sp_root
+    return sp_root(*args, **kwargs)
+
+global sp_minimize
+sp_minimize = None
+def minimize(*args, **kwargs):
+    global sp_minimize
+    if sp_minimize is None:
+        from scipy.optimize import minimize as sp_minimize
+    return sp_minimize(*args, **kwargs)
+
+
+global sp_fsolve
+sp_fsolve = None
+def fsolve(*args, **kwargs):
+    global sp_fsolve
+    if sp_fsolve is None:
+        from scipy.optimize import fsolve as sp_fsolve
+    return sp_fsolve(*args, **kwargs)
 
 def fixed_quad_Gauss_Kronrod(f, a, b, k_points, k_weights, l_weights, args):
     '''
