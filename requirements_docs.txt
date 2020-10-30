@@ -5,3 +5,4 @@ pint
 nbsphinx
 ipython
 numba
+sphinxcontrib-katex

@@ -129,7 +129,9 @@ The `nbval <https://pypi.org/project/nbval/>`_ pytest plugin can be used to chec
 
 On UNIX/Mac OS/WSL, the notebook results can be regenerated with the following shell command, from the directory with the notebooks:
 
-for i in *.ipynb ; do python3 -m jupyter nbconvert --to notebook --inplace --execute "$i" ; done
+.. code-block:: bash
+
+   for i in *.ipynb ; do python3 -m jupyter nbconvert --to notebook --inplace --execute "$i" ; done
 
 Continuous Integration
 ----------------------

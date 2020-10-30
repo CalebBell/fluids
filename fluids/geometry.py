@@ -3900,9 +3900,6 @@ class PlateExchanger(object):
         The number of plates minus one, [-]
     channels_per_fluid : int
         Half the number of total channels, [-]
-    plate_exchanger_identifier : str
-        Identifying string in format 'L' + wavelength + 'A' + amplitude + 'B'
-        + chevron angle-chevron angle
 
     Notes
     -----
