@@ -43,7 +43,7 @@ def test_K_separator_Watkins_fit():
         1.79851, 1.91583, 2.04083, 2.16616, 2.29918, 2.44037, 2.59025, 2.73944,
         2.89725, 3.06414, 3.24064, 3.42731, 3.61822, 3.81976, 4.02527, 4.24949,
         4.47008, 4.71907, 4.96404, 5.22172, 5.43354]
-    
+
     Kv_Watkins = [0.23722, 0.248265, 0.260298, 0.272915, 0.284578, 0.297283,
         0.309422, 0.322054, 0.33398, 0.345714, 0.355905, 0.366397, 0.377197,
         0.386898, 0.396125, 0.404831, 0.411466, 0.41821, 0.424289, 0.428886,
@@ -61,9 +61,9 @@ def test_K_separator_Watkins_fit():
     Watkins_interp = UnivariateSpline(v_factors_Watkins, Kv_Watkins, s=.00001)
 
     tck_Watkins_recalc = splrep(np.log(v_factors_Watkins), np.log(Kv_Watkins), s=0.001, k=3)
-    
+
     [assert_close1d(i, j, rtol=1e-3) for i, j in zip(tck_Watkins[:-1], tck_Watkins_recalc[:-1])]
-    
+
 #    plt.loglog(v_factors_Watkins, Watkins_interp(v_factors_Watkins))
 #    my_vs = np.logspace(np.log10(0.006/10), np.log10(5.43354*10), 1000)
 #    plt.loglog(my_vs, np.exp(splev(np.log(my_vs), tck_Watkins)), 'x')
@@ -72,17 +72,17 @@ def test_K_separator_Watkins_fit():
 def test_K_separator_Watkins():
     calc = [[K_separator_Watkins(0.88, 985.4, 1.3, horizontal, method) for
     method in ['spline', 'branan', 'blackwell']] for horizontal in [False, True]]
-    
+
     expect = [[0.06361290880381038, 0.06108986837654085, 0.06994527471072351],
     [0.07951613600476297, 0.07636233547067607, 0.0874315933884044]]
-    
-    
+
+
     assert_close2d(calc, expect, rtol=1e-4)
 
     with pytest.raises(Exception):
         K_separator_Watkins(0.88, 985.4, 1.3, horizontal=True, method='BADMETHOD')
-        
-        
+
+
 def test_K_separator_demister_York():
     from fluids.constants import  psi
     Ks_expect = [0.056387999999999994, 0.056387999999999994, 0.09662736507185091,
@@ -90,18 +90,18 @@ def test_K_separator_demister_York():
     Ks = []
     for P in [.1, 1, 10, 20, 40, 50, 5600]:
         Ks.append(K_separator_demister_York(P*psi))
-        
+
     assert_close1d(Ks, Ks_expect)
-    
+
     K  = K_separator_demister_York(25*psi, horizontal=True)
     assert_close(K, 0.13334999999999997)
-    
-    
+
+
 def test_v_Sounders_Brown():
     v = v_Sounders_Brown(K=0.08, rhol=985.4, rhog=1.3)
     assert_close(v, 2.2010906387516167)
-    
-    
+
+
 def test_K_Sounders_Brown_theoretical():
     K = K_Sounders_Brown_theoretical(D=150E-6, Cd=0.5)
     assert_close(K, 0.06263114241333939)

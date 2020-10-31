@@ -82,19 +82,19 @@ def test_friction():
 
     assert_close(friction_factor(Re=1E5, eD=1E-4, Darcy=False), 0.01851386607747165/4)
     assert_close(friction_factor(Re=128), 0.5)
-    
+
     assert_close(friction_factor(Re=1E5, eD=0, Method=None), 0.01798977308427384)
     assert_close(friction_factor(20000, eD=0.0, Method='laminar'), 0.0032)
-    
+
     with pytest.raises(ValueError):
         friction_factor(Re=1E5, eD=0, Method='BADMETHOD')
-    
+
     assert ['laminar'] == friction_factor_methods(200, 0, True)
     assert 31 == len(friction_factor_methods(200, 0, False))
 
-    for m in friction_factor_methods(200, 0, False):   
+    for m in friction_factor_methods(200, 0, False):
         friction_factor(Re=1E5, eD=1e-6, Method=m)
-        
+
     fd = ft_Crane(.1)
     Di = 0.1
     fd_act = Clamond(7.5E6*Di, eD=roughness_Farshad(ID='Carbon steel, bare', D=Di)/Di)
@@ -102,10 +102,10 @@ def test_friction():
 
 def test_friction_Colebrook():
     assert_close(Colebrook(1E5, 1E-4), 0.018513866077471648)
-    
+
     # Test the colebrook is the clamond when tol=-1
     assert Colebrook(1E5, 1E-4, -1) == Clamond(1E5, 1E-4)
-    # Test the colebrook is the analytical solution when Re < 10 
+    # Test the colebrook is the analytical solution when Re < 10
     # even when the clamond solution is specified
     assert Colebrook(1, 1E-4, -1) == Colebrook(1, 1e-4)
 
@@ -115,7 +115,7 @@ def test_friction_Colebrook():
 def test_Colebrook_numerical_mpmath():
     # tested at n=500 for both Re and eD
     Res = logspace(log10(1e-12), log10(1E12), 30) # 1E12 is too large for sympy - it slows down too much
-    eDs = logspace(log10(1e-20), log10(.1), 21) # 1-1e-9    
+    eDs = logspace(log10(1e-20), log10(.1), 21) # 1-1e-9
     for Re in Res:
         for eD in eDs:
             fd_exact = Colebrook(Re, eD, tol=0)
@@ -130,7 +130,7 @@ def test_Colebrook_scipy_mpmath():
     # always used
     Res = logspace(log10(1e-12), log10(1e7), 20) # 1E12 is too large for sympy
     eDs = logspace(log10(1e-20), log10(.1), 19) # 1-1e-9
-    
+
     for Re in Res:
         for eD in eDs:
             Re = float(Re)
@@ -149,7 +149,7 @@ def test_Colebrook_vs_Clamond():
             fd_exact = Colebrook(Re, eD)
             fd_clamond = Clamond(Re, eD)
             # Interestingly, matches to rtol=1e-9 vs. numerical solver
-            # But does not have such accuracy compared to mpmath 
+            # But does not have such accuracy compared to mpmath
             if isnan(fd_exact) or isnan(fd_clamond):
                 continue # older scipy on 3.4 returns a nan sometimes
             assert_close(fd_exact, fd_clamond, rtol=1e-9)
@@ -167,19 +167,19 @@ def test_Colebrook_hard_regimes():
 def test_one_phase_dP():
     dP = one_phase_dP(10.0, 1000., 1E-5, .1, L=1.000)
     assert_close(dP, 63.43447321097365)
-    
+
 def test_one_phase_dP_gravitational():
     dP = one_phase_dP_gravitational(angle=90., rho=2.6)
     assert_close(dP, 25.49729)
 
     dP = one_phase_dP_gravitational(angle=90, rho=2.6, L=2.)
     assert_close(dP, 25.49729*2)
-    
-    
+
+
 def test_one_phase_dP_dz_acceleration():
     dP = one_phase_dP_dz_acceleration(m=1., D=0.1, rho=827.1, dv_dP=-1.1E-5, dP_dL=5E5, dA_dL=0.0001)
     assert_close(dP, 89162.89116373913)
-    
+
 
 @pytest.mark.slow
 @pytest.mark.thermo
@@ -199,7 +199,7 @@ def test_one_phase_dP_dz_acceleration_example():
     def dP_dz(P, L, acc=False):
         s.flash(P=float(P), Hm=s.Hm)
         dPf = one_phase_dP(m=s.m, rho=s.rhog, mu=s.rhog, D=D, roughness=0, L=1.0)
-    
+
         if acc:
             G = 4.0*s.m/(pi*D*D)
             der = s.VolumeGasMixture.property_derivative_P(P=s.P, T=s.T, zs=s.zs, ws=s.ws)
@@ -208,24 +208,24 @@ def test_one_phase_dP_dz_acceleration_example():
             dP = dPf/(1.0 + factor)
             return -dP
         return -dPf
-    
+
     ls = linspace(0, .01)
-    
+
     dP_noacc = odeint(dP_dz, s.P, ls, args=(False,))[-1]
     s.flash(P=float(P0), Hm=s.Hm) # Reset the stream object
     profile = odeint(dP_dz, s.P, ls, args=(True,))
-    
+
     dP_acc = profile[-1]
-    
+
     s.flash(P=dP_acc, Hm=s.Hm)
     rho1 = s.rho
-    
+
     dP_acc_numerical = dP_noacc - dP_acc
     dP_acc_basic = one_phase_dP_acceleration(m=s.m, D=D, rho_o=rho1, rho_i=rho0)
-    
+
     assert_close(dP_acc_basic, dP_acc_numerical, rtol=1E-4)
 del test_one_phase_dP_dz_acceleration_example
-    
+
 def test_transmission_factor():
     assert_close(transmission_factor(fd=0.0185), 14.704292441876154)
     assert_close(transmission_factor(F=14.704292441876154), 0.0185)
@@ -258,7 +258,7 @@ def test_roughness_Farshad():
 def test_nearest_material_roughness():
     hit1 = nearest_material_roughness('condensate pipes', clean=False)
     assert hit1 == 'Seamless steel tubes, Condensate pipes in open systems or periodically operated steam pipelines'
-    
+
     hit2 = nearest_material_roughness('Plastic', clean=True)
     assert hit2 == 'Plastic coated'
 
@@ -266,7 +266,7 @@ def test_nearest_material_roughness():
 def test_material_roughness():
     e1 = material_roughness('Plastic coated')
     assert_close(e1, 5e-06)
-    
+
     e2 = material_roughness('Plastic coated', D=1E-3)
     assert_close(e2, 5.243618447826409e-06)
 
@@ -315,36 +315,36 @@ def test_helical_laminar_fd_White():
     fd = helical_laminar_fd_White(250., .02, .1)
     assert_close(fd, 0.4063281817830202)
     assert_close(helical_laminar_fd_White(250, .02, 100), 0.256)
-    
-    
+
+
 def test_helical_laminar_fd_Mori_Nakayama():
     fd = helical_laminar_fd_Mori_Nakayama(250., .02, .1)
     assert_close(fd, 0.4222458285779544)
     assert_close(4.4969472, helical_laminar_fd_Mori_Nakayama(20, .02, .1))
-    
-    
+
+
 def test_helical_laminar_fd_Schmidt():
     fd = helical_laminar_fd_Schmidt(250., .02, .1)
     assert_close(fd, 0.47460725672835236)
-    # Test convergence at low curvature 
+    # Test convergence at low curvature
     assert_close(helical_laminar_fd_Schmidt(250., 1, 1E10), friction_laminar(250))
-    
-    
+
+
 def test_helical_turbulent_fd_Srinivasan():
     fd = helical_turbulent_fd_Srinivasan(1E4, 0.01, .02)
     assert_close(fd, 0.0570745212117107)
-    
+
 def test_helical_turbulent_fd_Schmidt():
     fd = helical_turbulent_fd_Schmidt(1E4, 0.01, .02)
     assert_close(fd, 0.08875550767040916)
     fd = helical_turbulent_fd_Schmidt(1E4, 0.01, .2)
     assert_close(fd, 0.04476560991345504)
     assert_close(friction_factor(1E4), helical_turbulent_fd_Schmidt(1E4, 0.01, 1E11))
-    
+
     fd = helical_turbulent_fd_Schmidt(1E6, 0.01, .02)
     assert_close(fd, 0.04312877383550924)
-        
-    
+
+
 def test_helical_turbulent_fd_Mori_Nakayama():
     # Formula in [1]_ is hard to read, but the powers have been confirmed in
     # two sources to be 1/5. [3]_ butchers the formula's brackets/power raising,
@@ -358,24 +358,24 @@ def test_helical_turbulent_fd_Prasad():
     fd = helical_turbulent_fd_Prasad(1E4, 0.01, .2)
     assert_close(fd, 0.043313098093994626)
     assert_close(helical_turbulent_fd_Prasad(1E4, 0.01, 1E20), friction_factor(1E4))
-    
-    
+
+
 def test_helical_turbulent_fd_Czop():
     fd = helical_turbulent_fd_Czop(1E4, 0.01, .2)
     assert_close(fd, 0.02979575250574106)
-    
-    
+
+
 def test_helical_turbulent_fd_Guo():
     fd = helical_turbulent_fd_Guo(2E5, 0.01, .2)
     assert_close(fd, 0.022189161013253147)
-    
-    
+
+
 def test_helical_turbulent_fd_Ju():
     fd = helical_turbulent_fd_Ju(1E4, 0.01, .2)
     assert_close(fd, 0.04945959480770937)
     assert_close(helical_turbulent_fd_Ju(1E4, 0.01, 1E80),  friction_factor(1E4))
-    
-    
+
+
 def test_helical_turbulent_fd_Mandal_Nigam():
     fd = helical_turbulent_fd_Mandal_Nigam(1E4, 0.01, .2)
     assert_close(fd, 0.03831658117115902)
@@ -386,78 +386,78 @@ def test_helical_transition_Re_Seth_Stahel():
     # Read the original
     assert_close(helical_transition_Re_Seth_Stahel(1, 7.), 7645.0599897402535)
     assert_close(helical_transition_Re_Seth_Stahel(1, 1E20), 1900)
-    
+
 
 def test_helical_transition_Re_Ito():
     assert_close(helical_transition_Re_Ito(1, 7.), 10729.972844697186)
-    
-    
+
+
 def test_helical_transition_Re_Kubair_Kuloor():
     assert_close(helical_transition_Re_Kubair_Kuloor(1, 7), 8625.986927588123)
-    
-    
+
+
 def test_helical_transition_Re_Kutateladze_Borishanskii():
     assert_close(helical_transition_Re_Kutateladze_Borishanskii(1, 7.),  7121.143774574058)
     assert_close(helical_transition_Re_Kutateladze_Borishanskii(1, 1E20), 2300)
-    
-    
+
+
 def test_helical_transition_Re_Schmidt():
     assert_close(helical_transition_Re_Schmidt(1, 7.), 10540.094061770815)
     assert_close(helical_transition_Re_Schmidt(1, 1E20), 2300)
-    
-    
+
+
 def test_helical_transition_Re_Srinivasan():
     assert_close(helical_transition_Re_Srinivasan(1, 7.),  11624.704719832524,)
     assert_close(helical_transition_Re_Srinivasan(1, 1E20),  2100)
-    
-    
+
+
 def test_friction_factor_curved():
     fd = friction_factor_curved(2E4, 0.01, .02)
     assert_close(fd, 0.050134646621603024)
     fd = friction_factor_curved(250, .02, .1)
     assert_close(fd, 0.47460725672835236)
-    
+
     fd_transition = [friction_factor_curved(i, 0.01, .02) for i in [16779, 16780]]
     assert_close1d(fd_transition, [0.03323676794260526, 0.057221855744623344])
-    
+
     with pytest.raises(Exception):
         friction_factor_curved(16779, 0.01, .02, Method='BADMETHOD')
     with pytest.raises(Exception):
         friction_factor_curved(16779, 0.01, .02, Rec_method='BADMETHOD')
-        
+
     fd_rough_false = friction_factor_curved(20000, 0.01, .02, roughness=.0001, turbulent_method='Guo')
     assert_close(fd_rough_false, 0.1014240343662085)
-    
+
     methods = friction_factor_curved_methods(20000, 0.01, .02, check_ranges=True)
     assert sorted(methods) == sorted(['Guo','Ju','Schmidt turbulent','Prasad','Mandel Nigam','Mori Nakayama turbulent','Czop', 'Srinivasan turbulent'])
     methods = friction_factor_curved_methods(2000, 0.01, .02, check_ranges=True)
     assert sorted(methods) == sorted(['White', 'Schmidt laminar', 'Mori Nakayama laminar'])
     assert 'Schmidt turbulent' in friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5)
     assert 11 == len(friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5, check_ranges=False))
-    
+
     for m in friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5, check_ranges=False):
         friction_factor_curved(2000, 0.01, .02, Method=m)
-    
+
     # Test the Fanning case
     fd = friction_factor_curved(2E4, 0.01, .02, Darcy=False)
     assert_close(fd, 0.012533661655400756)
-    
+
     for m in ['Seth Stahel', 'Ito', 'Kubair Kuloor', 'Kutateladze Borishanskii', 'Schmidt', 'Srinivasan']:
         helical_Re_crit(Di=0.02, Dc=0.5, Method=m)
-    
+
 def test_friction_plate():
     fd = friction_plate_Martin_1999(Re=20000., plate_enlargement_factor=1.15)
     assert_close(fd, 2.284018089834134)
-    
+
     fd = friction_plate_Martin_1999(Re=1999., plate_enlargement_factor=1.15)
     assert_close(fd, 2.749383588479863)
-    
+
     fd = friction_plate_Martin_VDI(Re=20000., plate_enlargement_factor=1.15)
     assert_close(fd, 2.702534119024076)
-    
+
     fd = friction_plate_Martin_VDI(Re=1999., plate_enlargement_factor=1.15)
     assert_close(fd, 3.294294334690556)
-    
+
     fd = friction_plate_Muley_Manglik(Re=2000., chevron_angle=45., plate_enlargement_factor=1.2)
     assert_close(fd, 1.0880870804075413)
 
@@ -466,7 +466,7 @@ def test_friction_Kumar():
     from fluids.friction import Kumar_beta_list, Kumar_fd_Res
     fd = friction_plate_Kumar(2000, 30)
     assert_close(fd, 2.9760669055634517)
-    
+
     all_ans_expect = [[[22.22222222222222, 18.900854099814858, 5.181226661414687, 5.139730745446174],
   [20.88888888888889, 17.09090909090909, 3.656954441625244, 3.609575756782771]],
  [[13.428571428571427, 12.000171923243482, 1.7788367041690634, 1.7788497785371564],
@@ -477,7 +477,7 @@ def test_friction_Kumar():
   [2.4615384615384617, 2.3414634146341466, 0.7519331759748705, 0.7502394735017442]],
  [[1.9591836734693877, 1.9015330284979595, 0.6797898512309091, 0.6799788644298855],
   [1.9591836734693877, 1.9015330284979595, 0.6797898512309091, 0.6799788644298855]]]
- 
+
     all_ans = []
     for i, beta_main in enumerate(Kumar_beta_list):
         beta_ans = []
@@ -489,8 +489,8 @@ def test_friction_Kumar():
                     Re_ans.append(ans)
             beta_ans.append(Re_ans)
         all_ans.append(beta_ans)
-    
+
     assert_close3d(all_ans, all_ans_expect)
 
-    
-    
+
+

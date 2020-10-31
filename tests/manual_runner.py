@@ -30,7 +30,7 @@ import test_jet_pump
 import test_mixing
 import test_nrlmsise00_full
 
-to_test = [test_drag, test_control_valve, test_two_phase, 
+to_test = [test_drag, test_control_valve, test_two_phase,
            test_two_phase_voidage, test_separator, test_piping, test_packed_bed,
            test_compressible, test_core,
            test_safety_valve, test_open_flow, test_filters, test_flow_meter,

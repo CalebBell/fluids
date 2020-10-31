@@ -28,10 +28,10 @@ from fluids.numerics import interp, implementation_optimize_tck, splev
 from fluids.fittings import Cv_to_Kv, Kv_to_Cv
 
 __all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index',
-           'FF_critical_pressure_ratio_l', 'is_choked_turbulent_l', 
-           'is_choked_turbulent_g', 'Reynolds_valve', 
+           'FF_critical_pressure_ratio_l', 'is_choked_turbulent_l',
+           'is_choked_turbulent_g', 'Reynolds_valve',
            'loss_coefficient_piping', 'Reynolds_factor',
-           'Cv_char_quick_opening', 'Cv_char_linear', 
+           'Cv_char_quick_opening', 'Cv_char_linear',
            'Cv_char_equal_percentage',
            'convert_flow_coefficient', 'control_valve_choke_P_l',
            'control_valve_choke_P_g', 'control_valve_noise_l_2015',
@@ -144,20 +144,20 @@ def FF_critical_pressure_ratio_l(Psat, Pc):
 
 def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
     r'''Calculates either the upstream or downstream pressure at which choked
-    flow though a liquid control valve occurs, given either a set upstream or 
-    downstream pressure. Implements an analytical solution of 
+    flow though a liquid control valve occurs, given either a set upstream or
+    downstream pressure. Implements an analytical solution of
     the needed equations from the full function
-    :py:func:`~.size_control_valve_l`. For some pressures, no choked flow 
-    is possible; for choked flow to occur the direction if flow must be 
+    :py:func:`~.size_control_valve_l`. For some pressures, no choked flow
+    is possible; for choked flow to occur the direction if flow must be
     reversed. If `disp` is True, an exception will be raised for these
     conditions.
-    
+
     .. math::
         P_1 = \frac{F_{F} F_{L}^{2} P_{sat} - P_{2}}{F_{L}^{2} - 1}
-        
+
     .. math::
         P_2 = F_{F} F_{L}^{2} P_{sat} - F_{L}^{2} P_{1} + P_{1}
-    
+
     Parameters
     ----------
     Psat : float
@@ -165,7 +165,7 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
     Pc : float
         Critical pressure of the liquid [Pa]
     FL : float, optional
-        Liquid pressure recovery factor of a control valve without attached 
+        Liquid pressure recovery factor of a control valve without attached
         fittings [-]
     P1 : float, optional
         Absolute pressure upstream of the valve [Pa]
@@ -182,7 +182,7 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
     Notes
     -----
     Extremely cheap to compute.
-    
+
     Examples
     --------
     >>> control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6, 680000.0)
@@ -208,18 +208,18 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
 
 def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
     r'''Calculates either the upstream or downstream pressure at which choked
-    flow though a gas control valve occurs, given either a set upstream or 
-    downstream pressure. Implements an analytical solution of 
+    flow though a gas control valve occurs, given either a set upstream or
+    downstream pressure. Implements an analytical solution of
     the needed equations from the full function
     :py:func:`~.size_control_valve_g`. A singularity arises as `xT` goes to 1
     and `gamma` goes to 1.4.
-    
+
     .. math::
         P_1 = - \frac{7 P_{2}}{5 \gamma x_T - 7}
-        
+
     .. math::
         P_2 = \frac{P_{1}}{7} \left(- 5 \gamma x_T + 7\right)
-    
+
     Parameters
     ----------
     xT : float, optional
@@ -240,7 +240,7 @@ def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
     Notes
     -----
     Extremely cheap to compute.
-    
+
     Examples
     --------
     >>> control_valve_choke_P_g(1.0, 1.3, 1E5)
@@ -379,12 +379,12 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
     D1 : float
         Diameter of the pipe before the valve [m]
     FL : float, optional
-        Liquid pressure recovery factor of a control valve without attached 
+        Liquid pressure recovery factor of a control valve without attached
         fittings []
     Fd : float
         Valve style modifier [-]
     C : float
-        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop
         of 1 bar) [m^3/hr]
 
     Returns
@@ -506,7 +506,7 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
         Liquid pressure recovery factor of a control valve without attached
         fittings []
     C : float
-        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop
         of 1 bar) [m^3/hr]
     d : float
         Diameter of the valve [m]
@@ -553,7 +553,7 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
 
 
 def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
-                         d=None, FL=0.9, Fd=1, allow_choked=True, 
+                         d=None, FL=0.9, Fd=1, allow_choked=True,
                          allow_laminar=True, full_output=False):
     r'''Calculates flow coefficient of a control valve passing a liquid
     according to IEC 60534. Uses a large number of inputs in SI units. Note the
@@ -585,8 +585,8 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
     d : float, optional
         Diameter of the valve [m]
     FL : float, optional
-        Liquid pressure recovery factor of a control valve without attached 
-        fittings (normally 0.8-0.9 at full open and decreasing as opened 
+        Liquid pressure recovery factor of a control valve without attached
+        fittings (normally 0.8-0.9 at full open and decreasing as opened
         further to below 0.5; use default very cautiously!) []
     Fd : float, optional
         Valve style modifier (0.1 to 1; varies tremendously depending on the
@@ -600,21 +600,21 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
     full_output : bool, optional
         If True, returns intermediate calculation values as
         well as Kv in the form of a dictionary containing 'Kv', 'Rev', 'choked',
-        'FL', 'FLP', 'FR', 'FP', and 'laminar'. Some may be None if they are 
+        'FL', 'FLP', 'FR', 'FP', and 'laminar'. Some may be None if they are
         not used in the calculation.
 
     Returns
     -------
     Kv : float
-        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop
         of 1 bar) [m^3/hr]
-        
+
     Notes
     -----
     It is possible to use this model without any diameters specified; in that
     case, turbulent flow is assumed. Choked flow can still be modeled. This is
-    not recommended. All three diameters need to be None for this to work. 
-    `FL` and `Fd` are not used by the models when the diameters are not 
+    not recommended. All three diameters need to be None for this to work.
+    `FL` and `Fd` are not used by the models when the diameters are not
     specified.
 
     Examples
@@ -634,7 +634,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
     ... P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.1,
     ... FL=0.6, Fd=0.98)
     238.05817216710483
-    
+
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
@@ -693,20 +693,20 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
                     ans['FLP'] = FLP
                     ans['FP'] = FP
                 return C
-    
+
             C = iterate_piping_turbulent_l(Ci, 0)
         elif Rev <= 10000 and allow_laminar:
             # Laminar
             def iterate_piping_laminar_l(C):
                 Ci = 1.3*C
-                Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)                
+                Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)
                 if Ci/d**2 > 0.016*N18:
                     FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=False)
                 else:
                     FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)
                 if C/FR >= Ci:
                     Ci = iterate_piping_laminar_l(Ci) # pragma: no cover
-                    
+
                 if full_output:
                     ans['Rev'] = Rev
                     ans['FR'] = FR
@@ -717,7 +717,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
         ans['choked'] = choked
         ans['Kv'] = C
         ans['laminar'] = Rev <= 10000
-        
+
         # For the laminar case this is already set and needs to not be overwritten
         if 'Rev' not in ans:
             ans['Rev'] = Rev
@@ -727,8 +727,8 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
         return C
 
 
-def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None, 
-                         d=None, FL=0.9, Fd=1, xT=0.7, allow_choked=True, 
+def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
+                         d=None, FL=0.9, Fd=1, xT=0.7, allow_choked=True,
                          allow_laminar=True, full_output=False):
     r'''Calculates flow coefficient of a control valve passing a gas
     according to IEC 60534. Uses a large number of inputs in SI units. Note the
@@ -759,17 +759,17 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     D2 : float, optional
         Diameter of the pipe after the valve [m]
     d : float, optional
-        Diameter of the valve [m]        
+        Diameter of the valve [m]
     FL : float, optional
-        Liquid pressure recovery factor of a control valve without attached 
-        fittings (normally 0.8-0.9 at full open and decreasing as opened 
+        Liquid pressure recovery factor of a control valve without attached
+        fittings (normally 0.8-0.9 at full open and decreasing as opened
         further to below 0.5; use default very cautiously!) []
     Fd : float, optional
         Valve style modifier (0.1 to 1; varies tremendously depending on the
         type of valve and position; do not use the default at all!) []
     xT : float, optional
         Pressure difference ratio factor of a valve without fittings at choked
-        flow (increasing to 0.9 or higher as the valve is closed further and 
+        flow (increasing to 0.9 or higher as the valve is closed further and
         decreasing to 0.1 or lower as the valve is opened further; use default
         very cautiously!) [-]
     allow_choked : bool, optional
@@ -781,13 +781,13 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     full_output : bool, optional
         If True, returns intermediate calculation values as
         well as Kv in the form of a dictionary containing 'Kv', 'Rev', 'choked',
-        'Y', 'FR', 'FP', 'xTP', and 'laminar'. Some may be None if they are 
+        'Y', 'FR', 'FP', 'xTP', and 'laminar'. Some may be None if they are
         not used in the calculation.
-        
+
     Returns
     -------
     Kv : float
-        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop
         of 1 bar) [m^3/hr]
 
     Notes
@@ -795,13 +795,13 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     It is possible to use this model without any diameters specified; in that
     case, turbulent flow is assumed. Choked flow can still be modeled. This is
     not recommended. All three diameters need to be None for this to work.
-    `FL` and `Fd` are not used by the models when the diameters are not 
+    `FL` and `Fd` are not used by the models when the diameters are not
     specified, but `xT` definitely is used by the model.
-    
+
     When this model does not converge, the result is normally because of the
     specified delta P being less than that caused by the piping diameter
     changes.
-    
+
     Examples
     --------
     From [1]_, matching example 3 for non-choked gas flow with attached
@@ -865,7 +865,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
             # gas, using xTP and FLP
             FP = 1.
             MAX_ITER = 20
-            
+
             def iterate_piping_coef_g(Ci, iterations):
                 loss = loss_coefficient_piping(d, D1, D2)
                 FP = 1.0/sqrt(1. + loss/N2*(Ci/d**2)**2)
@@ -887,7 +887,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
                     if MAX_ITER == iterations or Ci >= MAX_C_POSSIBLE:  # numba: delete
                         ans['warning'] = 'Not converged in inner loop'  # numba: delete
                 return C
-            
+
 #            def err_piping_coeff(Ci):
 #                loss = loss_coefficient_piping(d, D1, D2)
 #                FP = (1. + loss/N2*(Ci/d**2)**2)**-0.5
@@ -907,7 +907,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
 #            errs = [err_piping_coeff(C_test) for C_test in Cs]
 #            plt.plot(Cs, errs)
 #            plt.show()
-            
+
             C = iterate_piping_coef_g(C, 0)
         elif Rev <= 10000 and allow_laminar:
             # Laminar;
@@ -943,7 +943,7 @@ frac_CV_quick = [0.0, 0.04984, 0.07582, 0.12044, 0.16614, 0.21707, 0.26998, 0.32
     0.93973, 0.95872, 0.96817, 0.98611, 1.0]
 opening_quick_tck = implementation_optimize_tck([[0.0, 0.0, 0.0, 0.0, 0.02184, 0.03256, 0.04575, 0.06221, 0.07459,
     0.0878, 0.10757, 0.12654, 0.14301, 0.16032, 0.18009, 0.18999, 0.20233, 0.23105, 0.25483, 0.28925,
-    0.32365, 0.36541, 0.42188, 0.46608, 0.53319, 0.61501, 0.7034, 0.78033, 0.84415, 1.0, 1.0, 1.0, 1.0], 
+    0.32365, 0.36541, 0.42188, 0.46608, 0.53319, 0.61501, 0.7034, 0.78033, 0.84415, 1.0, 1.0, 1.0, 1.0],
     [-3.2479258181113327e-19, 0.037650956835178835, 0.054616164261637117, 0.12657862552611354,
     0.17115105822542115, 0.2075233903194021, 0.27084055195333684, 0.34208963001568016, 0.38730839943796663,
     0.4656002247400036, 0.5196995880922897, 0.5907033063634928, 0.6304293931726886, 0.6953064258075168,
@@ -964,7 +964,7 @@ frac_CV_equal = [0.0, 0.00845, 0.01339, 0.01877, 0.02579, 0.0349, 0.04189, 0.055
         0.15833, 0.17353, 0.20159, 0.23388, 0.26819, 0.30461, 0.60113, 0.64588, 0.72583, 0.80788, 0.87519, 0.94999, 1.]
 opening_equal_tck = implementation_optimize_tck([[0.0, 0.0, 0.0, 0.0, 0.09287, 0.15341, 0.18942, 0.22379, 0.25816,
         0.29582, 0.33348, 0.34985, 0.3826, 0.45794, 0.49235, 0.51365, 0.54479, 0.57594, 0.60218, 0.62843,
-        0.77628, 0.796, 0.83298, 0.86995, 0.90936, 1.0, 1.0, 1.0, 1.0], 
+        0.77628, 0.796, 0.83298, 0.86995, 0.90936, 1.0, 1.0, 1.0, 1.0],
       [1.3522591106779132e-19, 0.004087873896711868, 0.014374150571122216, 0.016455484312674015, 0.024946845435605228,
         0.03592972456181881, 0.040710119644626126, 0.054518468768197687, 0.06976905178508139,
         0.07587146190282387, 0.0985485829020452, 0.1238160142641967, 0.15558350087382017, 0.17487348629353283,
@@ -981,27 +981,27 @@ def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
 
     Other scales are `Qn` and `Cg`, but clear definitions have yet to be
     found.
-    
+
     Parameters
     ----------
     flow_coefficient : float
-        Value of the flow coefficient to be converted, expressed in the 
+        Value of the flow coefficient to be converted, expressed in the
         original scale.
     old_scale : str
         String specifying the original scale; one of 'Av', 'Cv', or 'Kv', [-]
     new_scale : str
         String specifying the new scale; one of 'Av', 'Cv', or 'Kv', [-]
-    
+
     Returns
     -------
-    converted_flow_coefficient : float 
+    converted_flow_coefficient : float
         Flow coefficient converted to the specified scale.
-    
+
     Notes
     -----
     `Qn` is a scale based on a flow of air in units of L/minute as air travels
     through a valve and loses one bar of pressure (initially 7 bar absolute,
-    to 6 bar absolute). No consistent conversion factors have been found and 
+    to 6 bar absolute). No consistent conversion factors have been found and
     those from theory do not match what have been found. Some uses of `Qn` use
     its flow rate as in normal (STP reference conditions) flow rate of air;
     others use something like the 7 bar absolute condition.
@@ -1035,9 +1035,9 @@ def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
 
 
 # Third octave center frequency fi Hz
-fis_l_2015 = [12.5, 16.0, 20.0, 25.0, 31.5, 40.0, 50.0, 63.0, 80.0, 100.0, 125.0, 
-              160.0, 200.0, 250.0, 315.0, 400.0, 500.0, 630.0, 800.0, 1000.0, 
-              1250.0, 1600.0, 2000.0, 2500.0, 3150.0, 4000.0, 5000.0, 6300.0, 
+fis_l_2015 = [12.5, 16.0, 20.0, 25.0, 31.5, 40.0, 50.0, 63.0, 80.0, 100.0, 125.0,
+              160.0, 200.0, 250.0, 315.0, 400.0, 500.0, 630.0, 800.0, 1000.0,
+              1250.0, 1600.0, 2000.0, 2500.0, 3150.0, 4000.0, 5000.0, 6300.0,
               8000.0, 10000.0, 12500.0, 16000.0, 20000.0]
 #fis_l_2015_inv = [1.0/fi for fi in fis_l_2015]
 #fis_l_2015_1_5 = [fi**1.5 for fi in fis_l_2015]
@@ -1056,14 +1056,14 @@ for fi in fis_l_2015:
 fis_length = 33
 
 # dLa(fi), dB
-A_weights_l_2015 = [-63.4, -56.7, -50.5, -44.7, -39.4, -34.6, -30.2, -26.2, 
-                    -22.5, -19.1, -16.1, -13.4, -10.9, -8.6, -6.6, -4.8, -3.2, 
-                    -1.9, -0.8, 0.0, 0.6, 1.0, 1.2, 1.3, 1.2, 1.0, 0.5, -0.1, -1.1, 
+A_weights_l_2015 = [-63.4, -56.7, -50.5, -44.7, -39.4, -34.6, -30.2, -26.2,
+                    -22.5, -19.1, -16.1, -13.4, -10.9, -8.6, -6.6, -4.8, -3.2,
+                    -1.9, -0.8, 0.0, 0.6, 1.0, 1.2, 1.3, 1.2, 1.0, 0.5, -0.1, -1.1,
                     -2.5, -4.3, -6.6, -9.3]
 
 
 def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
-                               t_pipe, rho_pipe=7800.0, c_pipe=5000.0, 
+                               t_pipe, rho_pipe=7800.0, c_pipe=5000.0,
                                rho_air=1.2, c_air=343.0, xFz=None, An=-4.6):
     r'''Calculates the sound made by a liquid flowing through a control valve
     according to the standard IEC 60534-8-4 (2015) [1]_.
@@ -1083,15 +1083,15 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     c : float
         Speed of sound of the liquid at the inlet conditions [m/s]
     Kv : float
-        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop
         of 1 bar) [m^3/hr]
     d : float
         Diameter of the valve [m]
     Di : float
         Internal diameter of the pipe before and after the valve [m]
     FL : float, optional
-        Liquid pressure recovery factor of a control valve without attached 
-        fittings (normally 0.8-0.9 at full open and decreasing as opened 
+        Liquid pressure recovery factor of a control valve without attached
+        fittings (normally 0.8-0.9 at full open and decreasing as opened
         further to below 0.5) [-]
     Fd : float, optional
         Valve style modifier [-]
@@ -1106,7 +1106,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     c_air : float, optional
         Speed of sound of the air surrounding the valve and pipe wall, [m/s]
     xFz : float, optional
-        If specified, this value `xFz` is used instead of estimated; the 
+        If specified, this value `xFz` is used instead of estimated; the
         calculation is sensitive to this value, [-]
     An : float, optional
         Valve correction factor for acoustic efficiency
@@ -1116,7 +1116,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     LpAe1m : float
         A weighted sound pressure level 1 m from the pipe wall, 1 m distance
         dowstream of the valve (at reference sound pressure level 2E-5), [dB]
-        
+
     Notes
     -----
     For formulas see [1]_. This takes on the order of 100 us to compute.
@@ -1124,70 +1124,70 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     turbulent flow, or cavitation. For values of `An`, see [1]_; it is
     normally -4.6 for globel valves, -4.3 for butterfly valves, and -4.0 for
     expanders.
-    
+
     This model was checked against three examples in [1]_; they match to all
     given decimals.
-    
+
     A formula is given in [1]_ for multihole trim valves to estimate `xFz`
     as well; this is not implemented here and `xFz` must be calculated by the
     user separately. The formula is
-    
+
     .. math::
         x_{Fz} = \left(4.5 + 1650\frac{N_0d_H^2}{F_L}\right)^{-1/2}
-        
+
     Where `N0` is the number of open channels and `dH` is the multihole trim
     hole diameter.
 
     Examples
     --------
-    >>> control_valve_noise_l_2015(m=40, P1=1E6, P2=6.5E5, Psat=2.32E3, 
-    ... rho=997, c=1400, Kv=77.848, d=0.1, Di=0.1071, FL=0.92, Fd=0.42, 
-    ... t_pipe=0.0036, rho_pipe=7800.0, c_pipe=5000.0,rho_air=1.293, 
+    >>> control_valve_noise_l_2015(m=40, P1=1E6, P2=6.5E5, Psat=2.32E3,
+    ... rho=997, c=1400, Kv=77.848, d=0.1, Di=0.1071, FL=0.92, Fd=0.42,
+    ... t_pipe=0.0036, rho_pipe=7800.0, c_pipe=5000.0,rho_air=1.293,
     ... c_air=343.0, An=-4.6)
     81.58200097996
 
     References
     ----------
-    .. [1] IEC 60534-8-4 : Industrial-Process Control Valves - Part 8-4: Noise 
+    .. [1] IEC 60534-8-4 : Industrial-Process Control Valves - Part 8-4: Noise
        Considerations - Prediction of Noise Generated by Hydrodynamic Flow.
        (2015)
     '''
     # Convert Kv to Cv as C
     N34 = 1.17 # for Cv - conversion constant but not to many decimals
     N14 = 0.0046
-    
+
     C = Kv_to_Cv(Kv)
     xF = (P1-P2)/(P1-Psat)
     dPc = min(P1-P2, FL*FL*(P1 - Psat))
-    
+
     if xFz is None:
         xFz = 0.9*1.0/sqrt(1.0 + 3.0*Fd*sqrt(C/(N34*FL)))
     xFzp1 = xFz*sqrt(sqrt(sqrt((6E5/P1))))
-    
+
     Dj = N14*Fd*sqrt(C*FL)
-    
+
     Uvc = sqrt(2.0*dPc/rho)/FL
     Wm = 0.5*m*Uvc*Uvc*FL*FL
     cavitating = xF > xFzp1
-    
+
     eta_turb = 10.0**An*Uvc/c
-    
+
     x0 = xF - xFzp1
     x1 = xF/xFzp1
     x2 = x1*x1
     x1 = x2*x2*x1
-    
+
     if cavitating:
-    	eta_cav = 0.32*eta_turb*sqrt((P1 - P2)/(dPc*xFzp1))*exp(5.0*xFzp1)*sqrt((1.0 
+    	eta_cav = 0.32*eta_turb*sqrt((P1 - P2)/(dPc*xFzp1))*exp(5.0*xFzp1)*sqrt((1.0
                              - xFzp1)/(1.0 - xF))*(x1)*x0*sqrt(x0)
     	Wa = (eta_turb+eta_cav)*Wm
     else:
     	Wa = eta_turb*Wm
-    
+
     Lpi = 10.0*log10(3.2E9*Wa*rho*c/(Di*Di))
     Stp = 0.036*FL*FL*C*Fd**0.75/(N34*xFzp1*sqrt(xFzp1)*d*d)*(1.0/(P1 - Psat))**0.57
     f_p_turb = Stp*Uvc/Dj
-    
+
     if cavitating:
         x3 = ((1.0 - xF)/(1.0 - xFzp1))
         x4 = xFzp1/xF
@@ -1200,12 +1200,12 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
         t1 = eta_turb*eta_denom
         t2 = eta_cav*eta_denom
         log10_t1 = log10(t1)
-        
 
-    fr = c_pipe/(pi*Di)    
+
+    fr = c_pipe/(pi*Di)
     fr_inv = 1.0/fr
     TL_fr = -10.0 - 10.0*log10(c_pipe*rho_pipe*t_pipe/(c_air*rho_air*Di))
-    
+
     t3 = - 10.0*log10((Di + 2.0*t_pipe + 2.0)/(Di + 2.0*t_pipe))
 
 #    F_cavs = []
@@ -1214,27 +1214,27 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
 #    TL_fis = []
 #    L_pe1m_fis = []
     LpAe1m_sum = 0.0
-    
+
     f_p_turb_inv = 1.0/f_p_turb
     f_p_turb_inv3 = f_p_turb_inv*f_p_turb_inv*f_p_turb_inv
-    
+
     fr_inv_1_5 = fr_inv*sqrt(fr_inv)
-    
-    
+
+
     for i in range(fis_length):
 #    for fi, fi_inv, fi_1_5, fi_1_5_inv, A in zip(fis_l_2015, fis_l_2015_inv, fis_l_2015_1_5, fis_l_2015_n1_5, A_weights_l_2015):
 #        fi_inv = 1.0/fi
 #        fi_turb_ratio = fis_l_2015[i]*f_p_turb_inv
 #        fi_turb_ratio = fi*f_p_turb_inv
         F_turb = -.8 - log10(0.25*f_p_turb_inv3*fis_l_2015_3[i]
-                                   + fis_l_2015_inv[i]*f_p_turb) 
+                                   + fis_l_2015_inv[i]*f_p_turb)
 #        F_turbs.append(F_turb)
         if cavitating:
 #            fi_cav_ratio = fi_1_5*f_p_cav_inv_1_5#   (fi*f_p_cav_inv)**1.5
 #            F_cav = -.9 - log10(f_p_cav_inv_1_5_1_4*fis_l_2015_1_5[i] + fis_l_2015_n1_5[i]*f_p_cav_1_5) # 1.0/fi_cav_ratio, fi_1_5_inv*f_p_cav_1_5
             F_cav_fact = 0.12589254117941673/(f_p_cav_inv_1_5_1_4*fis_l_2015_1_5[i] + fis_l_2015_n1_5[i]*f_p_cav_1_5)
             # 0.1258925411794167310 = 10**(-0.9)
-            
+
             # 4.3429448190325175*log(x) -> 10*log10(x)
             LPif = (Lpi + 4.3429448190325175*log(t1*10.0**(F_turb) + t2*F_cav_fact))
             # Shoule be able to save 1 power in the above function somehow, combine the tow terms in exponent
@@ -1251,10 +1251,10 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     return LpAe1m
 
 
-def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv, 
+def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
                                d, Di, t_pipe, Fd, FL, FLP=None, FP=None,
-                               rho_pipe=7800.0, c_pipe=5000.0, 
-                               P_air=101325.0, rho_air=1.2, c_air=343.0, 
+                               rho_pipe=7800.0, c_pipe=5000.0,
+                               P_air=101325.0, rho_air=1.2, c_air=343.0,
                                An=-3.8, Stp=0.2, T2=None, beta=0.93):
     r'''Calculates the sound made by a gas flowing through a control valve
     according to the standard IEC 60534-8-3 (2011) [1]_.
@@ -1276,7 +1276,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     MW : float
         Molecular weight of the gas [g/mol]
     Kv : float
-        Metric Kv valve flow coefficient (flow rate of water at a pressure drop  
+        Metric Kv valve flow coefficient (flow rate of water at a pressure drop
         of 1 bar) [m^3/hr]
     d : float
         Diameter of the valve [m]
@@ -1288,8 +1288,8 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
         Valve style modifier (0.1 to 1; varies tremendously depending on the
         type of valve and position; do not use the default at all!) [-]
     FL : float
-        Liquid pressure recovery factor of a control valve without attached 
-        fittings (normally 0.8-0.9 at full open and decreasing as opened 
+        Liquid pressure recovery factor of a control valve without attached
+        fittings (normally 0.8-0.9 at full open and decreasing as opened
         further to below 0.5; use default very cautiously!) [-]
     FLP : float, optional
         Combined liquid pressure recovery factor with piping geometry factor,
@@ -1311,7 +1311,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     Stp : float, optional
         Strouhal number at the peak `fp`; between 0.1 and 0.3 typically, [-]
     T2 : float, optional
-        Outlet gas temperature; assumed `T1` if not provided (a PH flash 
+        Outlet gas temperature; assumed `T1` if not provided (a PH flash
         should be used to obtain this if possible), [K]
     beta : float, optional
         Valve outlet / expander inlet contraction coefficient, [-]
@@ -1321,30 +1321,30 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     LpAe1m : float
         A-weighted sound pressure level 1 m from the pipe wall, 1 m distance
         dowstream of the valve (at reference sound pressure level 2E-5), [dB]
-        
+
     Notes
     -----
     For formulas see [1]_. This takes on the order of 100 us to compute.
     For values of `An`, see [1]_.
-    
+
     This model was checked against six examples in [1]_; they match to all
     given decimals.
-    
+
     Several additional formulas are given for multihole trim valves,
     control valves with two or more fixed area stages, and multipath,
-    multistage trim valves. 
-    
+    multistage trim valves.
+
     Examples
     --------
-    >>> control_valve_noise_g_2011(m=2.22, P1=1E6, P2=7.2E5, T1=450, rho=5.3, 
-    ... gamma=1.22, MW=19.8, Kv=77.85,  d=0.1, Di=0.2031, FL=None, FLP=0.792, 
-    ... FP=0.98, Fd=0.296, t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, 
+    >>> control_valve_noise_g_2011(m=2.22, P1=1E6, P2=7.2E5, T1=450, rho=5.3,
+    ... gamma=1.22, MW=19.8, Kv=77.85,  d=0.1, Di=0.2031, FL=None, FLP=0.792,
+    ... FP=0.98, Fd=0.296, t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0,
     ... rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
     91.67702674629604
 
     References
     ----------
-    .. [1] IEC 60534-8-3 : Industrial-Process Control Valves - Part 8-3: Noise 
+    .. [1] IEC 60534-8-3 : Industrial-Process Control Valves - Part 8-3: Noise
        Considerations - Control Valve Aerodynamic Noise Prediction Method."
     '''
     k = gamma # alias
@@ -1356,7 +1356,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     if T2 is None:
         T2 = T1
     x = (P1 - P2)/P1
-    
+
 
     # FLP/FP when fittings attached
     FL_term = FLP/FP if FP is not None else FL
@@ -1441,7 +1441,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
 #     print('M2', M2)
 
     Lg = 16.0*log10(1.0/(1.0 - min(M2, 0.3))) # dB
-    
+
     if M2 > 0.3:
         Up = 4.0*m/(pi*rho2*Di*Di)
         UR = Up*Di*Di/(beta*d*d)
@@ -1466,7 +1466,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     L_pi = 10.0*log10((3.2E9)*Wa*rho2*c2/(Di*Di)) + Lg
 #     print('L_pi', L_pi)
 
-    fr = c_pipe/(pi*Di) 
+    fr = c_pipe/(pi*Di)
     fo = 0.25*fr*(c2/c_air)
     fg = sqrt(3)*c_air**2/(pi*t_pipe*c_pipe)
 
@@ -1495,7 +1495,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
         Lpif = L_pi - 8.0 - 10.0*log10(t1*t2)
 #         print(Lpif, 'Lpif')
 #        LPis.append(Lpif)
-    
+
         if M2 > 0.3:
             fiR_turb_ratio = fi/fpR
             t1 = 1.0 + (0.5*fiR_turb_ratio)**2.5
@@ -1503,9 +1503,9 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
             # Again, log10 is missing
             LpiRf = L_piR - 8.0 - 10.0*log10(t1*t2)
 #            LPIRs.append(LpiRf)
-            
+
             LpiSf = 10.0*log10( 10**(0.1*Lpif) + 10.0**(0.1*LpiRf) )
-            
+
         if fi < fo:
             Gx = (fo/fr)**(2.0/3.0)*(fi/fo)**4.0
             if fo < fg:
@@ -1534,7 +1534,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
             term = LpiSf
         else:
             term = Lpif
-        
+
         L_pe1m_fi = term + TL_fi - 10.0*log10((Di + 2.0*t_pipe + 2.0)/(Di + 2.0*t_pipe))
 #        L_pe1m_fis.append(L_pe1m_fi)
 #         print(L_pe1m_fi)

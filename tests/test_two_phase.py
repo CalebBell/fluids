@@ -34,7 +34,7 @@ def log_uniform(low, high):
 def test_Beggs_Brill():
     kwargs = dict(m=1.163125, x=0.30370768404083825, rhol=613.8,
                       rhog=141.3, sigma=0.028, D=0.077927, angle=90.0,
-                      mul=0.0005, mug=2E-5, P=119E5, roughness=1.8E-6, L=100.0, 
+                      mul=0.0005, mug=2E-5, P=119E5, roughness=1.8E-6, L=100.0,
                       acceleration=True)
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, 384066.2949427367)
@@ -56,7 +56,7 @@ def test_Beggs_Brill():
     kwargs['angle'] = -15
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, -154405.0395988586)
-    
+
     kwargs['m'] = 100
     kwargs['x'] = 0.3
     kwargs['angle'] = 0
@@ -66,7 +66,7 @@ def test_Beggs_Brill():
     kwargs['angle'] = 10
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, 15439041.350531114)
-    
+
     kwargs = {'rhol': 2250.004745138356, 'rhog': 58.12314177331951, 'L': 111.74530635808999, 'sigma': 0.5871528902653206, 'P': 9587894383.375906, 'm': 0.005043652829299738, 'roughness': 0.07803567727862296, 'x': 0.529765332332195, 'mug': 1.134544741297285e-06, 'mul': 0.12943468582774414, 'D': 1.9772420342193617, 'angle': -77.18096944813536}
     dP = Beggs_Brill(**kwargs)
     # Check this calculation works - S gets too large, overflows in this region
@@ -96,7 +96,7 @@ def test_Friedel():
     dP = Friedel(**kwargs)
     dP_expect = 274.21322116878406
     assert_close(dP, dP_expect)
-    
+
     # Internal consistency for length dependence
     kwargs['L'] *= 10
     dP = Friedel(**kwargs)
@@ -327,7 +327,7 @@ def test_Hwang_Kim():
     dP = Hwang_Kim(**kwargs)
     dP_expect = 798.302774184557
     assert_close(dP, dP_expect)
-    
+
     # Internal consistency for length dependence
     kwargs['L'] *= 10
     dP = Hwang_Kim(**kwargs)
@@ -423,14 +423,14 @@ def test_Mishima_Hibiki():
 
 
 def test_two_phase_dP():
-    
+
     # TODO; Delete two_phase_dP method calls
     # Case 0
     assert ['Lombardi_Pedrocchi'] == two_phase_dP_methods(10, 0.7, 1000, 0.1, rhog=1.2, sigma=0.02)
     # Case 5
     assert ['Zhang_Webb'] == two_phase_dP_methods(10, 0.7, 1000, 0.1, mul=1E-3, P=1E5, Pc=1E6,)
     # Case 1,2
-    
+
     expect = ['Jung_Radermacher', 'Muller_Steinhagen_Heck', 'Baroczy_Chisholm', 'Yu_France', 'Wang_Chiang_Lu', 'Theissing', 'Chisholm rough', 'Chisholm', 'Gronnerud', 'Lockhart_Martinelli', 'Bankoff']
     assert sorted(expect) == sorted(two_phase_dP_methods(10, 0.7, 1000, 0.1, rhog=1.2, mul=1E-3, mug=1E-6))
 
@@ -499,7 +499,7 @@ def test_two_phase_dP_acceleration():
     rho_go = 3.811717994431281
     alpha_i = homogeneous(x=xi, rhol=rho_li, rhog=rho_gi)
     alpha_o = homogeneous(x=xo, rhol=rho_lo, rhog=rho_go)
-    dP = two_phase_dP_acceleration(m=m, D=D, xi=xi, xo=xo, alpha_i=alpha_i, 
+    dP = two_phase_dP_acceleration(m=m, D=D, xi=xi, xo=xo, alpha_i=alpha_i,
                                    alpha_o=alpha_o, rho_li=rho_li, rho_gi=rho_gi,
                                    rho_go=rho_go, rho_lo=rho_lo)
     assert_close(dP, 824.0280564053887)
@@ -508,38 +508,38 @@ def test_two_phase_dP_acceleration():
 def test_two_phase_dP_dz_acceleration():
     dP_dz = two_phase_dP_dz_acceleration(m=1.0, D=0.1, x=0.372, rhol=827.1, rhog=3.919, dv_dP_l=-5e-12, dv_dP_g=-4e-7, dx_dP=-2e-7, dP_dL=120.0, dA_dL=0.0001)
     assert_close(dP_dz, 20.137876617489034)
-    
-    
+
+
 def test_two_phase_dP_gravitational():
     dP = two_phase_dP_gravitational(angle=90.0, z=2.0, alpha_i=0.9685, rho_li=1518., rho_gi=2.6)
     assert_close(dP, 987.237416829999)
-    
+
     dP = two_phase_dP_gravitational(angle=90, z=2, alpha_i=0.9685, rho_li=1518., rho_gi=2.6,  alpha_o=0.968, rho_lo=1517.9, rho_go=2.59)
     assert_close(dP, 994.5416058829999)
-    
-    
+
+
 def test_two_phase_dP_dz_gravitational():
     dP_dz = two_phase_dP_dz_gravitational(angle=90.0, alpha=0.9685, rhol=1518., rhog=2.6)
     assert_close(dP_dz, 493.6187084149995)
-    
-    
-    
-    
+
+
+
+
 def test_Taitel_Dukler_regime():
     from fluids.two_phase import Taitel_Dukler_regime
-    
+
     regime = Taitel_Dukler_regime(m=1.0, x=0.05, rhol=600.12, rhog=80.67, mul=180E-6,
                                    mug=14E-6, D=0.02, roughness=0.0, angle=0.0)[0]
-    
+
     assert regime == 'bubbly'
     regime = Taitel_Dukler_regime(m=1, x=0.05, rhol=600.12, rhog=80.67, mul=180E-6,
                                   mug=14E-6, D=0.021, roughness=0.0, angle=0)[0]
     assert regime == 'intermittent'
-    
+
     regime = Taitel_Dukler_regime(m=.06, x=0.5, rhol=900.12, rhog=90.67, mul=180E-6,
                                   mug=14E-6, D=0.05, roughness=0.0, angle=0)[0]
     assert regime == 'stratified smooth'
-    
+
     regime = Taitel_Dukler_regime(m=.07, x=0.5, rhol=900.12, rhog=90.67, mul=180E-6,
                                    mug=14E-6, D=0.05, roughness=0.0, angle=0)[0]
     assert regime == 'stratified wavy'
@@ -569,23 +569,23 @@ def test_Taitel_Dukler_splines():
     [assert_close(i, j) for i, j in zip(Dukler_XA_tck, Dukler_XA_tck2)]
 #     XA_interp = UnivariateSpline(np.log10(Dukler_XA_Xs), np.log10(Dukler_XA_As), s=5e-3, k=3) # , ext='const'
 #    XA_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XA_tck))
-    
+
     Dukler_XD_tck2 = splrep(np.log10(Dukler_XD_Xs), np.log10(Dukler_XD_Ds), s=1e-2, k=3)
     [assert_close(i, j) for i, j in zip(Dukler_XD_tck, Dukler_XD_tck)]
 #     XD_interp = UnivariateSpline(np.log10(Dukler_XD_Xs), np.log10(Dukler_XD_Ds), s=1e-2, k=3) # , ext='const'
 #    XD_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XD_tck))
-    
+
     Dukler_XC_tck2 = splrep(np.log10(Dukler_XC_Xs), np.log10(Dukler_XC_Cs), s=1e-3, k=3)
     [assert_close(i, j) for i, j in zip(Dukler_XC_tck, Dukler_XC_tck2)]
 #     XC_interp = UnivariateSpline(np.log10(Dukler_XC_Xs), np.log10(Dukler_XC_Cs), s=1e-3, k=3) # ext='const'
 #    XC_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XC_tck))
-    
+
     # Curves look great to 1E-4! Also to 1E4.
 
 def plot_Taitel_Dukler_splines():
     import numpy as np
-    import matplotlib.pyplot as plt 
-    
+    import matplotlib.pyplot as plt
+
     from fluids.two_phase import XA_interp_obj, XC_interp_obj, XD_interp_obj
     Xs = np.logspace(np.log10(1e-5), np.log10(1e5), 1000)
     A_Xs = np.logspace(np.log10(1e-5), np.log10(1e5), 1000)
@@ -594,23 +594,23 @@ def plot_Taitel_Dukler_splines():
     A = [XA_interp_obj(X) for X in A_Xs]
     C = [XC_interp_obj(X) for X in C_Xs]
     D = [XD_interp_obj(X) for X in D_Xs]
-    
+
     fig, ax1 = plt.subplots()
-    
+
     ax1.loglog(C_Xs, C)
     ax1.set_ylim(1, 10**4)
     ax1.set_ylim(.01, 10**4)
     ax1.loglog(Dukler_XC_Xs, Dukler_XC_Cs, 'x')
-    
+
     ax2 = ax1.twinx()
-    
+
     ax2.loglog(A_Xs, A)
     ax2.loglog(D_Xs, D)
     ax2.loglog(Dukler_XD_Xs, Dukler_XD_Ds, '.')
     ax2.loglog(Dukler_XA_Xs, Dukler_XA_As, '+')
-    
+
     ax2.set_ylim(1e-3, 10)
-    
+
     fig.tight_layout()
     plt.show()
     return plt
@@ -619,13 +619,12 @@ def test_Mandhane_Gregory_Aziz_regime():
     from fluids.two_phase import Mandhane_Gregory_Aziz_regime
     regime = Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,  mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)[0]
     assert regime == 'slug'
-    
+
     regime = Mandhane_Gregory_Aziz_regime(m=6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)[0]
     assert regime == 'annular mist'
-    
+
     regime =  Mandhane_Gregory_Aziz_regime(m=.05, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)[0]
     assert regime == 'stratified'
-    
+
     regime = Mandhane_Gregory_Aziz_regime(m=.005, x=0.95, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.01)[0]
     assert regime == 'wave'
-    

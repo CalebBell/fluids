@@ -34,7 +34,7 @@ except ImportError: # pragma: no cover
 
 __all__ = ['type_module', 'copy_types']
 
-    
+
 def copy_types(typed_obj, untyped_obj):
     if isinstance(typed_obj, property):
         return
@@ -55,7 +55,7 @@ def type_module(mod):
     loader = importlib.machinery.SourceFileLoader('dummy_module', mod.__file__ + 'i')
     mod_types = types.ModuleType(loader.name)
     loader.exec_module(mod_types)
-    
+
     for f_name in mod.__all__:
         if hasattr(mod_types, f_name):
             untyped_fun = getattr(mod, f_name)

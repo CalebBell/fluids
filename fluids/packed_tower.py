@@ -179,11 +179,11 @@ def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1.0):
 def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1.0):
     r'''Calculates wet pressure drop across a demister, using the
     correlation in [1]_. Uses only their own experimental data.
-    
+
     .. math::
         \frac{\Delta P}{L} = 0.002357(1-\epsilon)^{0.375798}(V)^{0.81317}
         (d_w)^{-1.56114147}
-        
+
     Parameters
     ----------
     vs : float
@@ -210,30 +210,30 @@ def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1.0):
 
     The correlation in [1]_ was presented as follows, with wire diameter in
     units of mm, density in kg/m^3, V in m/s, and dP in Pa/m.
-    
+
     .. math::
         \Delta P = 3.88178(\rho_{mesh})^{0.375798}(V)^{0.81317}
         (d_w)^{-1.56114147}
-    
+
     Here, the correlation is converted to base SI units and to use voidage;
-    not all demisters are stainless steel as in [1]_. A density of 7999 kg/m^3 
+    not all demisters are stainless steel as in [1]_. A density of 7999 kg/m^3
     was used in the conversion.
-    
-    In [1]_, V ranged from 0.98-7.5 m/s, rho from 80.317-208.16 kg/m^3, depth 
-    from 100 to 200 mm, wire diameter of 0.2mm to 0.32 mm, and particle 
+
+    In [1]_, V ranged from 0.98-7.5 m/s, rho from 80.317-208.16 kg/m^3, depth
+    from 100 to 200 mm, wire diameter of 0.2mm to 0.32 mm, and particle
     diameter from 1 to 5 mm.
-    
+
 
     Examples
     --------
     >>> dP_demister_wet_ElDessouky(6, 0.978, 0.00032)
     688.9216420105029
-    
+
     References
     ----------
-    .. [1] El-Dessouky, Hisham T, Imad M Alatiqi, Hisham M Ettouney, and Noura 
-       S Al-Deffeeri. "Performance of Wire Mesh Mist Eliminator." Chemical 
-       Engineering and Processing: Process Intensification 39, no. 2 (March 
+    .. [1] El-Dessouky, Hisham T, Imad M Alatiqi, Hisham M Ettouney, and Noura
+       S Al-Deffeeri. "Performance of Wire Mesh Mist Eliminator." Chemical
+       Engineering and Processing: Process Intensification 39, no. 2 (March
        2000): 129-39. doi:10.1016/S0255-2701(99)00033-1.
     '''
     return L*0.002356999643727531*(1-voidage)**0.375798*vs**0.81317*d_wire**-1.56114147
@@ -242,11 +242,11 @@ def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1.0):
 def separation_demister_ElDessouky(vs, voidage, d_wire, d_drop):
     r'''Calculates droplet removal by a demister as a fraction from 0 to 1,
     using the correlation in [1]_. Uses only their own experimental data.
-    
+
     .. math::
         \eta = 0.85835(d_w)^{-0.28264}(1-\epsilon)^{0.099625}(V)^{0.106878}
         (d_p)^{0.383197}
-        
+
     Parameters
     ----------
     vs : float
@@ -268,35 +268,35 @@ def separation_demister_ElDessouky(vs, voidage, d_wire, d_drop):
     No dependency on the liquid properties is included here. Because of the
     exponential nature of the correlation, for smaller diameters separation
     quickly lowers. This correlation can predict a separation larger than 1
-    for higher velocities, lower voidages, lower wire diameters, and large 
+    for higher velocities, lower voidages, lower wire diameters, and large
     droplet sizes. This function truncates these larger values to 1.
-    
+
     The correlation in [1]_ was presented as follows, with wire diameter in
     units of mm, density in kg/m^3, V in m/s, separation in %, and particle
     diameter in mm.
-    
+
     .. math::
         \eta = 17.5047(d_w)^{-0.28264}(\rho_{mesh})^{0.099625}(V)^{0.106878}
         (d_p)^{0.383197}
-    
+
     Here, the correlation is converted to base SI units and to use voidage;
-    not all demisters are stainless steel as in [1]_. A density of 7999 kg/m^3 
+    not all demisters are stainless steel as in [1]_. A density of 7999 kg/m^3
     was used in the conversion.
-    
-    In [1]_, V ranged from 0.98-7.5 m/s, rho from 80.317-208.16 kg/m^3, depth 
-    from 100 to 200 mm, wire diameter of 0.2 mm to 0.32 mm, and particle 
+
+    In [1]_, V ranged from 0.98-7.5 m/s, rho from 80.317-208.16 kg/m^3, depth
+    from 100 to 200 mm, wire diameter of 0.2 mm to 0.32 mm, and particle
     diameter from 1 to 5 mm.
-    
+
     Examples
     --------
     >>> separation_demister_ElDessouky(1.35, 0.974, 0.0002, 0.005)
     0.8982892997640582
-    
+
     References
     ----------
-    .. [1] El-Dessouky, Hisham T, Imad M Alatiqi, Hisham M Ettouney, and Noura 
-       S Al-Deffeeri. "Performance of Wire Mesh Mist Eliminator." Chemical 
-       Engineering and Processing: Process Intensification 39, no. 2 (March 
+    .. [1] El-Dessouky, Hisham T, Imad M Alatiqi, Hisham M Ettouney, and Noura
+       S Al-Deffeeri. "Performance of Wire Mesh Mist Eliminator." Chemical
+       Engineering and Processing: Process Intensification 39, no. 2 (March
        2000): 129-39. doi:10.1016/S0255-2701(99)00033-1.
     '''
     eta = 0.858352355761947*d_wire**-0.28264*(1-voidage)**0.099625*vs**0.106878*d_drop**0.383197
@@ -562,7 +562,7 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
     c = (-C1/Re - C2/(2*sqrt(Re)))/f0
     Frl = Vl**2*specific_area/(g*voidage**4.65)
     h0 = 0.555*Frl**(1/3.)
-    
+
     c1 = 1.0/(H*rhol*g)
     c1 *= c1
     return secant(_Stichlmair_wet_err, dP_dry, args=(h0, c1, dP_dry, H, voidage, c))
@@ -587,7 +587,7 @@ def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,
     - 186.0*h0/(voidage - h0*(1.0 + 20.0*term)))
     return err1, err2
 
-def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage, 
+def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage,
                                 specific_area, C1, C2, C3, H):
     """Internal function which calculates the errors of the two Stichlmair
     objective functions, and their jacobian.
@@ -620,7 +620,7 @@ def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage,
     x22 = Vg*rhog/(mug*specific_area)
     x23 = x21*1.0/sqrt(-x18*x22)
     x24 = 6.0*C3 - x20 + x23
-    x25 = 1.0 - voidage 
+    x25 = 1.0 - voidage
     x26 = x14 + x25
     x27 = -x19*x26
     x28 = 2.0*C1*mug*specific_area*x16*x17/x25 + x21*1.0/sqrt(x22*x25)
@@ -638,7 +638,7 @@ def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage,
     x40 = -4.0*x20 + x23 + x29*(-x23 + x39)*(x23 - x39)
     x41 = dP_irr*rhog*specific_area*x0*x1*x10*x12*x15*x2*x24*x31
     x42 = dP_irr*x10*x12*x4**0.666666666666667*x8
-    
+
     F1, F2, dF1_dVg, dF2_dVg, dF1_dP_irr, dF2_dP_irr = (
             -dP_irr*x0 + 0.0208333333333333*rhog*specific_area*x1*x15*x2*x24*x31,
              x32/x6 - 20646.0*x36*x5 - x38*x5*(2960.0 - 740.0*x28*x29),
@@ -646,17 +646,17 @@ def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage,
              x0*(430.125*x36*x41*x5 - 15.4166666666667*x38*x41*x5*(x30 - 4.0) - 1.0),
              -1.85*x16*x29*x40*x5/x26,
              3285600.0*x42*(-x30 + 4.0)*x38*x38- 91668240.0*x42*x36*x36 - 2.0*x32/(dP_irr*x6))
-    
+
     err = [0.0]*2
     err[0] = F1
     err[1] = F2
-    
+
     jac = [[dF1_dVg, dF2_dVg], [dF1_dP_irr, dF2_dP_irr]]# numba: delete
 #    jac = np.array([[dF1_dVg, dF2_dVg], [dF1_dP_irr, dF2_dP_irr]]) # numba: uncomment
     return err, jac
 
 
-    
+
 def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3,
                      H=1.0):
     r'''Calculates gas rate for flooding of a packed column, using the
@@ -743,7 +743,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3,
     guess[0] = Vl*100.0
     guess[1] = 1000.0
     return newton_system(_Stichlmair_flood_f_and_jac, x0=guess, jac=True,
-                         args=(Vl, rhog, rhol, mug, voidage, specific_area, C1, 
+                         args=(Vl, rhog, rhol, mug, voidage, specific_area, C1,
                          C2, C3, H), ytol=1e-11, solve_func=solve_2_direct)[0][0]
 
 

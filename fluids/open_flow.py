@@ -104,7 +104,7 @@ def Q_weir_V_Shen(h1, angle=90):
        Van Nostrand Reinhold Co., 1984.
     '''
     C = interp(angle, angles_Shen, Cs_Shen)
-    k = interp(angle, angles_Shen, k_Shen)    
+    k = interp(angle, angles_Shen, k_Shen)
     return C*tan(radians(angle)/2)*sqrt(g)*(h1 + k)**2.5
 
 
@@ -472,7 +472,7 @@ def V_Manning(Rh, S, n):
     This is equation is often given in imperial units multiplied by 1.49.
     Although `n` could be converted to be in imperial units, in practice this
     has not been done and all tables keep it in the units of s/m^(1/3).
-    
+
     Examples
     --------
     Example is from [2]_, matches.

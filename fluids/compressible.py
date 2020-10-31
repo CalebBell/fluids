@@ -80,12 +80,12 @@ def isothermal_work_compression(P1, P2, T, Z=1.0):
     An average compressibility factor can be used where Z changes. For further
     accuracy, this expression can be used repeatedly with small changes in
     pressure and the work from each step summed.
-    
-    This is the best possible case for compression; all actual compresssors 
+
+    This is the best possible case for compression; all actual compresssors
     require more work to do the compression.
-    
+
     By making the compression take a large number of stages and cooling the gas
-    between stages, this can be approached reasonable closely. Integrally 
+    between stages, this can be approached reasonable closely. Integrally
     geared compressors are often used for this purpose.
 
     Examples
@@ -104,16 +104,16 @@ def isothermal_work_compression(P1, P2, T, Z=1.0):
 
 def isentropic_work_compression(T1, k, Z=1.0, P1=None, P2=None, W=None, eta=None):
     r'''Calculation function for dealing with compressing or expanding a gas
-    going through an isentropic, adiabatic process assuming constant Cp and Cv. 
-    The polytropic model is the same equation; just provide `n` instead of `k` 
-    and use a polytropic efficiency for `eta` instead of a isentropic 
+    going through an isentropic, adiabatic process assuming constant Cp and Cv.
+    The polytropic model is the same equation; just provide `n` instead of `k`
+    and use a polytropic efficiency for `eta` instead of a isentropic
     efficiency. Can calculate any of the following, given all the other inputs:
 
     * W, Work of compression
-    * P2, Pressure after compression 
+    * P2, Pressure after compression
     * P1, Pressure before compression
     * eta, isentropic efficiency of compression
-    
+
     .. math::
         W = \left(\frac{k}{k-1}\right)ZRT_1\left[\left(\frac{P_2}{P_1}
         \right)^{(k-1)/k}-1\right]/\eta_{isentropic}
@@ -322,7 +322,7 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
 
 def polytropic_exponent(k, n=None, eta_p=None):
     r'''Calculates one of:
-    
+
         * Polytropic exponent from polytropic efficiency
         * Polytropic efficiency from the polytropic exponent
 
@@ -786,28 +786,28 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
     The 2 multiplied by the logarithm is often shown  as a power of the
     pressure ratio; this is only the case when the pressure ratio is raised to
     the power of 2 before its logarithm is taken.
-    
+
     A number of limitations exist for this model:
-        
+
         * Density dependence is that of an ideal gas.
         * If calculating the pressure drop, the average gas density cannot
           be known immediately; iteration must be used to correct this.
         * The friction factor depends on both the gas density and velocity,
           so it should be solved for iteratively as well. It changes throughout
           the pipe as the gas expands and velocity increases.
-        * The model is not easily adapted to include elevation effects due to 
+        * The model is not easily adapted to include elevation effects due to
           the acceleration term included in it.
         * As the gas expands, it will change temperature slightly, further
           altering the density and friction factor.
-         
-    There are many commercial packages which perform the actual direct 
+
+    There are many commercial packages which perform the actual direct
     integration of the flow, such as OLGA Dynamic Multiphase Flow Simulator,
     or ASPEN Hydraulics.
-    
+
     This expression has also been presented with the ideal gas assumption
-    directly incorporated into it [4]_ (note R is the specific gas constant, in 
+    directly incorporated into it [4]_ (note R is the specific gas constant, in
     units of J/kg/K):
-        
+
     .. math::
         \dot m^2 = \frac{\left(\frac{\pi D^2}{4}\right)^2
         \left(P_1^2-P_2^2\right)}{RT\left(f_d\frac{L}{D} + 2\ln\frac{P_1}{P_2}
@@ -1580,7 +1580,7 @@ pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.')
 
 
-def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7, 
+def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
               Ps=101325., Zavg=1.0, E=1.0):
     r'''Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Fritzsche formula. Can calculate any of the following,

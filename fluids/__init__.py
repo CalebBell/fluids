@@ -79,7 +79,7 @@ from .jet_pump import *
 
 __all__ = ['atmosphere', 'compressible', 'control_valve', 'core', 'filters', 'fittings',
 'friction', 'geometry', 'mixing', 'open_flow', 'packed_bed', 'piping',
-'pump', 'safety_valve', 'packed_tower', 'two_phase', 'two_phase_voidage', 
+'pump', 'safety_valve', 'packed_tower', 'two_phase', 'two_phase_voidage',
 'drag', 'saltation', 'separator', 'flow_meter', 'particle_size_distribution',
 'jet_pump']
 
@@ -121,7 +121,7 @@ def all_submodules():
     import fluids.nrlmsise00.nrlmsise_00_data
     import fluids.nrlmsise00.nrlmsise_00
     import fluids.nrlmsise00.nrlmsise_00_header
-    return submodules + [fluids.optional, fluids.optional.irradiance, fluids.optional.spa, 
+    return submodules + [fluids.optional, fluids.optional.irradiance, fluids.optional.spa,
                          fluids.nrlmsise00.nrlmsise_00_data, fluids.nrlmsise00.nrlmsise_00, fluids.nrlmsise00.nrlmsise_00_header]
 
 def load_types():

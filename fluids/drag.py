@@ -962,7 +962,7 @@ def Song_Xu(Re, sphericity=1., S=1.):
 
     .. math::
         C_d = \frac{24}{Re\phi^{0.65}S^{0.3}}\left(1 + 0.35Re\right)^{0.44}
-        
+
     Parameters
     ----------
     Re : float
@@ -981,7 +981,7 @@ def Song_Xu(Re, sphericity=1., S=1.):
 
     Notes
     -----
-    Notable as its experimental data and analysis is included in their 
+    Notable as its experimental data and analysis is included in their
     supporting material.
 
     Examples
@@ -991,10 +991,10 @@ def Song_Xu(Re, sphericity=1., S=1.):
 
     References
     ----------
-    .. [1] Song, Xianzhi, Zhengming Xu, Gensheng Li, Zhaoyu Pang, and Zhaopeng 
-       Zhu. "A New Model for Predicting Drag Coefficient and Settling Velocity 
-       of Spherical and Non-Spherical Particle in Newtonian Fluid." Powder 
-       Technology 321 (November 2017): 242-50. 
+    .. [1] Song, Xianzhi, Zhengming Xu, Gensheng Li, Zhaoyu Pang, and Zhaopeng
+       Zhu. "A New Model for Predicting Drag Coefficient and Settling Velocity
+       of Spherical and Non-Spherical Particle in Newtonian Fluid." Powder
+       Technology 321 (November 2017): 242-50.
        doi:10.1016/j.powtec.2017.08.017.
     '''
     return 24/(Re*sphericity**0.65*S**0.3)*(1+0.35*Re)**0.44
@@ -1027,8 +1027,8 @@ drag_sphere_correlations = {
 def drag_sphere_methods(Re, check_ranges=True):
     r'''This function returns a list of methods that can be used to calculate
     the drag coefficient of a sphere.
-    Twenty one methods are available, all requiring only the Reynolds number of 
-    the sphere. Most methods are valid from Re=0 to Re=200,000. 
+    Twenty one methods are available, all requiring only the Reynolds number of
+    the sphere. Most methods are valid from Re=0 to Re=200,000.
 
     Examples
     --------
@@ -1047,7 +1047,7 @@ def drag_sphere_methods(Re, check_ranges=True):
     check_ranges : bool, optional
         Whether to return only correlations claiming to be valid for the given
         `Re` or not, [-]
-    
+
     Returns
     -------
     methods : list, only returned if AvailableMethods == True
@@ -1207,11 +1207,11 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     0.004142497244531304
 
     Example 7-1 in GPSA handbook, 13th edition:
-        
+
     >>> from scipy.constants import *
     >>> v_terminal(D=150E-6, rhop=31.2*lb/foot**3, rho=2.07*lb/foot**3,  mu=1.2e-05)/foot
     0.4491992020345101
-    
+
     The answer reported there is 0.46 ft/sec.
 
     References
@@ -1247,15 +1247,15 @@ def v_terminal(D, rhop, rho, mu, Method=None):
 def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
     r'''Calculates the time required for a particle in Stoke's regime only to
     reach terminal velocity (approximately). An infinitely long period is
-    required theoretically, but with floating points, it is possible to 
-    calculate the time required to come within a specified `tol` of that 
+    required theoretically, but with floating points, it is possible to
+    calculate the time required to come within a specified `tol` of that
     terminal velocity.
-    
+
     .. math::
-        t_{term} = -\frac{1}{18\mu}\ln \left(\frac{D^2g\rho - D^2 g \rho_p 
-        + 18\mu V_{term}}{D^2g\rho - D^2 g \rho_p + 18\mu V_0 } \right) D^2 
+        t_{term} = -\frac{1}{18\mu}\ln \left(\frac{D^2g\rho - D^2 g \rho_p
+        + 18\mu V_{term}}{D^2g\rho - D^2 g \rho_p + 18\mu V_0 } \right) D^2
         \rho_p
-    
+
     Parameters
     ----------
     D : float
@@ -1282,7 +1282,7 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
     Notes
     -----
     The symbolic solution was obtained via Wolfram Alpha.
-    
+
     If a solution cannot be obtained due to floating point error at very high
     tolerance, an exception is raised - but first, the tolerance is doubled,
     up to fifty times in an attempt to obtain the highest possible precision
@@ -1291,15 +1291,15 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
 
     Examples
     --------
-    >>> time_v_terminal_Stokes(D=1e-7, rhop=2200., rho=1.2, mu=1.78E-5, V0=1) 
+    >>> time_v_terminal_Stokes(D=1e-7, rhop=2200., rho=1.2, mu=1.78E-5, V0=1)
     3.1880031137871528e-06
-    >>> time_v_terminal_Stokes(D=1e-2, rhop=2200., rho=1.2, mu=1.78E-5, V0=1, 
+    >>> time_v_terminal_Stokes(D=1e-2, rhop=2200., rho=1.2, mu=1.78E-5, V0=1,
     ... tol=1e-30)
     24800.636391801996
     '''
     if tol < 1e-17:
         tol = 2e-17
-    term = D*D*g*rho - D*D*g*rhop 
+    term = D*D*g*rho - D*D*g*rhop
     denominator = term + 18.*mu*V0
     v_term_base = g*D*D*(rhop-rho)/(18.*mu)
 
@@ -1360,40 +1360,40 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     Notes
     -----
     This can be relatively slow as drag correlations can be complex.
-    
-    There are analytical solutions available for the Stokes law regime (Re < 
+
+    There are analytical solutions available for the Stokes law regime (Re <
     0.3). They were obtained from Wolfram Alpha. [1]_ was not used in the
     derivation, but also describes the derivation fully.
-    
+
     .. math::
         V(t) = \frac{\exp(-at) (V_0 a + b(\exp(at) - 1))}{a}
-        
+
     .. math::
-        x(t) = \frac{\exp(-a t)\left[V_0 a(\exp(a t) - 1) + b\exp(a t)(a t-1) 
+        x(t) = \frac{\exp(-a t)\left[V_0 a(\exp(a t) - 1) + b\exp(a t)(a t-1)
         + b\right]}{a^2}
-    
+
     .. math::
         a = \frac{18\mu_f}{D^2\rho_p}
-    
+
     .. math::
         b = \frac{g(\rho_p-\rho_f)}{\rho_p}
-        
-    The analytical solution will automatically be used if the initial and 
+
+    The analytical solution will automatically be used if the initial and
     terminal velocity is show the particle's behavior to be laminar. Note
     that this behavior requires that the terminal velocity of the particle be
-    solved for - this adds slight (1%) overhead for the cases where particles 
+    solved for - this adds slight (1%) overhead for the cases where particles
     are not laminar.
 
     Examples
     --------
     >>> integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5,
-    ... V=30, distance=True) 
+    ... V=30, distance=True)
     (9.686465044053, 7.8294546436299)
-    
+
     References
     ----------
-    .. [1] Timmerman, Peter, and Jacobus P. van der Weele. "On the Rise and 
-       Fall of a Ball with Linear or Quadratic Drag." American Journal of 
+    .. [1] Timmerman, Peter, and Jacobus P. van der Weele. "On the Rise and
+       Fall of a Ball with Linear or Quadratic Drag." American Journal of
        Physics 67, no. 6 (June 1999): 538-46. https://doi.org/10.1119/1.19320.
     '''
     # Delayed import of necessaray functions
@@ -1425,7 +1425,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
                 return V_end, x_end + V_end*(t - t_to_terminal)
             else:
                 return V_end
-            
+
             # This is a serious problem for small diameters
             # It would be possible to step slowly, using smaller increments
             # of time to avlid overflows. However, this unfortunately quickly
@@ -1444,7 +1444,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
 #                return V, x
 #            else:
 #                return V
-    
+
     Re_ish = rho*D/mu
     c1 = g*(rhop-rho)/rhop
     c2 = -0.75*rho/(D*rhop)
@@ -1463,7 +1463,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     # For an accurate integration of the particle's distance traveled
     pts = 1000 if distance else 2
     ts = np.linspace(0, t, pts)
-    
+
 
     # Perform the integration
     Vs = odeint(dv_dt, [V], ts)

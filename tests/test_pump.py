@@ -30,7 +30,7 @@ import pytest
 def test_Corripio_pump_efficiency():
     eta = Corripio_pump_efficiency(461./15850.323)
     assert_close(eta, 0.7058888670951621)
-    
+
 def test_Corripio_motor_efficiency():
     eta = Corripio_motor_efficiency(137*745.7)
     assert_close(eta, 0.9128920875679222)
@@ -133,14 +133,14 @@ def test_power_sources():
 
     ca = industrial_power['ca']
     assert (ca.voltage, ca.freq) == ((120, 208, 240, 480, 347, 600), 60)
-    
-    
+
+
 def test_CountryPower():
     a = CountryPower(plugs=('C', 'F', 'M', 'N'), voltage=230.0, freq=50.0, country="South Africa")
     assert type(a) is CountryPower
     assert type(a.voltage) is float
     assert type(a.freq) is float
-    
+
     CountryPower(plugs=('G',), voltage=240, freq=50, country="Seychelles")
     CountryPower(plugs=('C', 'F'), voltage=230, freq=50, country="Armenia")
     CountryPower(plugs=('D', 'G', 'J', 'K', 'L'), voltage=230, freq=50, country="Maldives")

@@ -24,7 +24,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians, 
+from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
                   degrees, sqrt)
 from cmath import sqrt as csqrt
 from fluids.constants import inch
@@ -34,7 +34,7 @@ from fluids.numerics import cacos, catan, secant, brenth, ellipe, ellipkinc, ell
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
            'AirCooledExchanger',
-           'SA_partial_sphere', 
+           'SA_partial_sphere',
            'V_partial_sphere', 'V_horiz_conical',
            'V_horiz_ellipsoidal', 'V_horiz_guppy', 'V_horiz_spherical',
            'V_horiz_torispherical', 'V_vertical_conical',
@@ -49,10 +49,10 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'SA_partial_horiz_ellipsoidal_head', 'SA_partial_horiz_torispherical_head',
            'SA_partial_vertical_conical_head', 'SA_partial_vertical_spherical_head',
            'SA_partial_vertical_torispherical_head', 'SA_partial_vertical_ellipsoidal_head',
-           
-           'V_from_h', 'V_tank', 'SA_from_h', 'SA_tank', 'sphericity', 
-           'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder', 
-           'A_hollow_cylinder', 'V_hollow_cylinder', 
+
+           'V_from_h', 'V_tank', 'SA_from_h', 'SA_tank', 'sphericity',
+           'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder',
+           'A_hollow_cylinder', 'V_hollow_cylinder',
            'A_multiple_hole_cylinder', 'V_multiple_hole_cylinder',
            'pitch_angle_solver', 'plate_enlargement_factor']
 
@@ -466,7 +466,7 @@ def V_horiz_torispherical_toint_2(x, w, c10, c11, g, g2):
     return ans
 
 def V_horiz_torispherical_toint_3(x, r2, g2, z_inv):
-    # There is an analytical integral in MP, but for all cases we seem to 
+    # There is an analytical integral in MP, but for all cases we seem to
     # get ZeroDivisionError: 0.0 cannot be raised to a negative power
     x2 = x*x
     return (r2 - x2)*atan(sqrt(g2 - x2)*z_inv)
@@ -534,8 +534,8 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     L : float
         Length of the main cylindrical section, [m]
     f : float
-        Dimensionless dish-radius parameter; also commonly given as the 
-        product of `f` and `D` (`fD`), which is called both dish radius and   
+        Dimensionless dish-radius parameter; also commonly given as the
+        product of `f` and `D` (`fD`), which is called both dish radius and
         also crown radius and has units of length, [-]
     k : float
         Dimensionless knuckle-radius parameter; also commonly given as the
@@ -582,7 +582,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
 
     # Chebfun in Python failed on these functions
     c10 = k*k*D*D
-    c11 = R - k*D 
+    c11 = R - k*D
     g2 = g*g
     r2 = r*r
 
@@ -797,8 +797,8 @@ def V_vertical_torispherical(D, f, k, h):
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dimensionless dish-radius parameter; also commonly given as the 
-        product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter; also commonly given as the
+        product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     k : float
         Dimensionless knuckle-radius parameter; also commonly given as the
@@ -833,7 +833,7 @@ def V_vertical_torispherical(D, f, k, h):
     a1 = f*D*(1.0 - cos_alpha)
     a2 = k*D*cos_alpha
     D1 = 2.0*f*D*sin_alpha
-    
+
     x1 = k*D*sin_alpha
     s = x1*x1
     t = a2 + a2
@@ -1048,8 +1048,8 @@ def V_vertical_torispherical_concave(D, f, k, h):
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dimensionless dish-radius parameter; also commonly given as the 
-        product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter; also commonly given as the
+        product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     k : float
         Dimensionless knuckle-radius parameter; also commonly given as the
@@ -1116,10 +1116,10 @@ def SA_ellipsoidal_head(D, a):
 
     .. math::
         e_1 = \sqrt{1 - \frac{c^2}{a^2}}
-        
+
     For the case of :math:`a \ge R` from [2]_, which is needed to make the tank
     head volume grow linearly with length:
-        
+
     .. math::
         \text{SA} = 2\pi R^2 + \frac{2\pi a^2 R}{\sqrt{a^2 - R^2}}\cos^{-1}\frac{R}{|a|}
 
@@ -1143,7 +1143,7 @@ def SA_ellipsoidal_head(D, a):
     6.283185307179586
     >>> SA_ellipsoidal_head(2, 1.5)
     8.459109081729984
-    
+
     References
     ----------
     .. [1] Weisstein, Eric W. "Spheroid." Text. Accessed March 14, 2016.
@@ -1157,16 +1157,16 @@ def SA_ellipsoidal_head(D, a):
     if a < R:
         R, a = min((R, a)), max((R, a))
         e1 = sqrt(1.0 - R*R/(a*a))
-        
+
         if e1 != 1.0:
 #        try:
             log_term = log((1.0 + e1)/(1.0 - e1))
 #        except ZeroDivisionError:
         else:
-            # Limit as a goes to zero relative to D; may only be ~6 orders of 
+            # Limit as a goes to zero relative to D; may only be ~6 orders of
             # magnitude smaller than D and will still occur
             log_term = 0.0
-        
+
         return (2.0*pi*a*a + pi*R*R/e1*log_term)*0.5
     else:
         return pi*R*R + pi*a*a*R*1.0/sqrt(a*a - R*R)*acos(R/abs(a))
@@ -1264,8 +1264,8 @@ def SA_torispheroidal(D, f, k):
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dimensionless dish-radius parameter; also commonly given as the 
-        product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter; also commonly given as the
+        product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     k : float
         Dimensionless knuckle-radius parameter; also commonly given as the
@@ -1431,20 +1431,20 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
         The distance the head as specified by sideB extends up or to the right
         from the main cylindrical section, [m]
     sideA_f : float, optional
-        Dimensionless dish-radius parameter for side A; also commonly given as  
-        the product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter for side A; also commonly given as
+        the product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     sideA_k : float, optional
-        Dimensionless knuckle-radius parameter for side A; also commonly given 
-        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        Dimensionless knuckle-radius parameter for side A; also commonly given
+        as the product of `k` and `D` (`kD`), which is called the knuckle
         radius and has units of length, [-]
     sideB_f : float, optional
-        Dimensionless dish-radius parameter for side B; also commonly given as  
-        the product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter for side B; also commonly given as
+        the product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     sideB_k : float, optional
-        Dimensionless knuckle-radius parameter for side B; also commonly given 
-        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        Dimensionless knuckle-radius parameter for side B; also commonly given
+        as the product of `k` and `D` (`kD`), which is called the knuckle
         radius and has units of length, [-]
 
     Returns
@@ -1504,7 +1504,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
             if sideB == 'spherical':
                 sideB_V = V_horiz_spherical(D, L, sideB_a, D, headonly=True)
         # Torispherical case
-        if (sideA == 'torispherical' and sideB == 'torispherical' 
+        if (sideA == 'torispherical' and sideB == 'torispherical'
             and (sideA_f == sideB_f) and (sideA_k == sideB_k)):
             sideB_V = sideA_V = V_horiz_torispherical(D, L, sideA_f, sideA_k, D, headonly=True)
         else:
@@ -1540,11 +1540,11 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
 
 
 def SA_partial_cylindrical_body(L, D, h):
-    r'''Calculates the partial area of a cylinder's body in the context of 
+    r'''Calculates the partial area of a cylinder's body in the context of
     a horizontal cylindrical vessel and liquid partially
     filling it. This computes the wetted surface area of the bottom of the
     cylinder.
-        
+
     .. math::
         \text{SA} = L D \cos^{-1}\left(\frac{D - 2h}{D}\right)
 
@@ -1561,18 +1561,18 @@ def SA_partial_cylindrical_body(L, D, h):
     -------
     SA_partial : float
         Partial (wetted) surface area, [m^2]
-        
+
     Notes
     -----
     This method is undefined for :math:`h > D`. and :math:`h < 0`, but those
-    cases are handled by returning the full surface area and the zero 
+    cases are handled by returning the full surface area and the zero
     respectively.
 
     Examples
     --------
     >>> SA_partial_cylindrical_body(L=200.0, D=96., h=22.0)
     19168.852890279868
-    
+
     References
     ----------
     .. [1] Weisstein, Eric W. "Circular Segment." Text. Wolfram Research, Inc.
@@ -1590,9 +1590,9 @@ def A_partial_circle(D, h):
     r'''Calculates the partial area of a circle, in the context of the circle
     being an end cap to a horizontal cylindrical vessel and liquid partially
     filling it. This computes the wetted surface area of one of the end caps.
-    
+
     Multiply this by two to obtain the wetted area of two end caps.
-    
+
     .. math::
         \text{SA} = R^2\cos^{-1}\frac{(R - h)}{R} - (R - h)\sqrt{(2Rh - h^2)}
 
@@ -1607,18 +1607,18 @@ def A_partial_circle(D, h):
     -------
     SA_partial : float
         Partial (wetted) surface area, [m^2]
-        
+
     Notes
     -----
     This method is undefined for :math:`h > D` and :math:`h < 0`, but those
-    cases are handled by returning the full surface area and the zero 
+    cases are handled by returning the full surface area and the zero
     respectively.
 
     Examples
     --------
     >>> A_partial_circle(D=96., h=22.0)
     1251.2018147383194
-    
+
     References
     ----------
     .. [1] Weisstein, Eric W. "Circular Segment." Text. Wolfram Research, Inc.
@@ -1636,11 +1636,11 @@ def A_partial_circle(D, h):
 
 
 def SA_partial_horiz_conical_head(D, a, h):
-    r'''Calculates the partial area of a conical tank head in the context of 
+    r'''Calculates the partial area of a conical tank head in the context of
     a horizontal vessel and liquid partially
-    filling it. This computes the wetted surface area of one of the conical 
+    filling it. This computes the wetted surface area of one of the conical
     heads only.
-        
+
     .. math::
         \text{SA} = \frac{\sqrt{(a^2 + R^2)}}{R}\left[R^2\cos^{-1}\left(\frac{
         (R-h)}{R}\right) - (R-h)\sqrt{(2Rh - h^2)}\right]
@@ -1658,18 +1658,18 @@ def SA_partial_horiz_conical_head(D, a, h):
     -------
     SA_partial : float
         Partial (wetted) surface area of one conical tank head, [m^2]
-        
+
     Notes
     -----
     This method is undefined for :math:`h > D` and :math:`h < 0`, but those
-    cases are handled by returning the full surface area and the zero 
+    cases are handled by returning the full surface area and the zero
     respectively.
 
     Examples
     --------
     >>> SA_partial_horiz_conical_head(D=72., a=48.0, h=24.0)
     1980.0498315169873
-    
+
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
@@ -1695,17 +1695,17 @@ def _SA_partial_horiz_spherical_head_to_int(x, R2, a4, c1, c2):
         return 0.5*pi
 
 def SA_partial_horiz_spherical_head(D, a, h):
-    r'''Calculates the partial area of a spherical tank head in the context of 
+    r'''Calculates the partial area of a spherical tank head in the context of
     a horizontal vessel and liquid partially
-    filling it. This computes the wetted surface area of one of the spherical 
+    filling it. This computes the wetted surface area of one of the spherical
     heads only.
-        
+
     .. math::
         \text{SA} = \frac{a^2 + R^2}{|a|}\int_{R-h}^R
         \sin^{-1} \frac{2|a|\sqrt{R^2-x^2}} {\sqrt{(a^2+R^2)^2 - (2ax)^2}} dx
-        
+
     For the special case of |a| == R,
-    
+
     .. math::
         \text{SA} = \pi R h
 
@@ -1722,20 +1722,20 @@ def SA_partial_horiz_spherical_head(D, a, h):
     -------
     SA_partial : float
         Partial (wetted) surface area of one spherical tank head, [m^2]
-        
+
     Notes
     -----
     This method is undefined for :math:`h > D` and :math:`h < 0`, but those
-    cases are handled by returning the full surface area and the zero 
+    cases are handled by returning the full surface area and the zero
     respectively.
-    
-    A symbolic attempt did not suggest any analytical integrals were available. 
+
+    A symbolic attempt did not suggest any analytical integrals were available.
 
     Examples
     --------
     >>> SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0)
     2027.267209167
-    
+
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
@@ -1748,14 +1748,14 @@ def SA_partial_horiz_spherical_head(D, a, h):
         return 0.0
     elif h > D:
         h = D
-    
+
     fact = (a*a + R*R)/abs(a)
     R2 = R*R
     a2 = a + a
     a4 = a2*a2
     c1 = 2.0*abs(a)
     c2 = (a*a + R2)*(a*a + R2)
-    
+
     SA = fact*quad(_SA_partial_horiz_spherical_head_to_int, R-h, R, args=(R2, a4, c1, c2))[0]
     return SA
 
@@ -1770,7 +1770,7 @@ def _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y, c1, R2, R4, h):
     except:
          # Equation is undefined for y == R when x is zero; avoid it
         return _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y*(1.0 - 1e-12), c1, R2, R4, h)
-    
+
 def _SA_partial_horiz_ellipsoidal_head_limits(x, c1, R2, R4, h):
     return [0.0, sqrt(R2 - x*x)]
 
@@ -1786,30 +1786,30 @@ def _SA_partial_horiz_ellipsoidal_head_to_int(y, c1, R2, R4):
     return ans
 
 def SA_partial_horiz_ellipsoidal_head(D, a, h):
-    r'''Calculates the partial area of a ellipsoidal tank head in the context of 
+    r'''Calculates the partial area of a ellipsoidal tank head in the context of
     a horizontal vessel and liquid partially
-    filling it. This computes the wetted surface area of one of the ellipsoidal 
+    filling it. This computes the wetted surface area of one of the ellipsoidal
     heads only.
-        
+
     .. math::
         \text{SA} = \frac{2}{R} \int_{R-h}^R \int_0^{\sqrt{R^2 - x^2}}
-        \sqrt{ \frac{(R^2 - a^2)x^2 
+        \sqrt{ \frac{(R^2 - a^2)x^2
         + (R^2 - a^2)y^2 - R^4} {x^2 + y^2 - R^2}} dy dx
-        
+
     After extensive manipulation, the first integral was solved analytically,
     extending the result of [1]_ with greater performance.
-    
+
     .. math::
-        \text{SA} = \frac{2}{R} \int_{R-h}^R \frac{\left(\frac{R^{4} - R^{2} 
+        \text{SA} = \frac{2}{R} \int_{R-h}^R \frac{\left(\frac{R^{4} - R^{2}
         \left(R^{2} - a^{2}\right)}{R^{2} - y^{2}}\right)^{0.5} \left(R^{2}
         - y^{2}\right)^{0.5} E{\left(\frac{\left(- R^{2} + y^{2}\right) \left(R^{2}
         - a^{2}\right)}{- R^{4} + y^{2} \left(R^{2} - a^{2}\right)} \right)}}
-        {\left(\frac{R^{4} - R^{2} \left(R^{2} - a^{2}\right)}{R^{4} - y^{2} 
+        {\left(\frac{R^{4} - R^{2} \left(R^{2} - a^{2}\right)}{R^{4} - y^{2}
         \left(R^{2} - a^{2}\right)}\right)^{0.5}}
-            
+
     Where :math:`E(x)` is the complete elliptic integral of the second kind,
     calculated with SciPy's link to the cephes library.
-        
+
     Parameters
     ----------
     D : float
@@ -1823,23 +1823,23 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     -------
     SA_partial : float
         Partial (wetted) surface area of one ellipsoidal tank head, [m^2]
-        
+
     Notes
     -----
     This method is undefined for :math:`h > D` and :math:`h < 0`, but those
-    cases are handled by returning the full surface area and the zero 
+    cases are handled by returning the full surface area and the zero
     respectively.
-    
-    The original numerical double integral is extremely nasty - there are places 
-    where f(x) -> infinity but that have a bounded area. quadpack's numerical 
+
+    The original numerical double integral is extremely nasty - there are places
+    where f(x) -> infinity but that have a bounded area. quadpack's numerical
     integration handles this well, but adaptive inetgration which is not
     aware of singularities does not.
-    
+
     Examples
     --------
     >>> SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0)
     3401.2336225472704
-    
+
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
@@ -1889,17 +1889,17 @@ def _SA_partial_horiz_guppy_head_to_int(x, a, R):
     x100 = (-2.0*R*x*x11 + x11*x5 + x11*x6 + x13)
     x20 = x1*x14*sqrt(x2*x5*(x0 + x2)/(x100*x100))/x5
     return 0.08333333333333333*(
-             (-4.0*x10**0.75*x16*x20*ellipeinc(x18, x19) + 4.0*x9 
-             + 2.0*x17*x20*(a*x11 + x10)*ellipkinc(x18, x19)/x16 
+             (-4.0*x10**0.75*x16*x20*ellipeinc(x18, x19) + 4.0*x9
+             + 2.0*x17*x20*(a*x11 + x10)*ellipkinc(x18, x19)/x16
              + 8.0*x15*x9/x14)*1.0/sqrt(x4))
 
 
 def SA_partial_horiz_guppy_head(D, a, h):
-    r'''Calculates the partial area of a guppy tank head in the context of 
+    r'''Calculates the partial area of a guppy tank head in the context of
     a horizontal vessel and liquid partially
-    filling it. This computes the wetted surface area of one of the guppy 
+    filling it. This computes the wetted surface area of one of the guppy
     heads only.
-        
+
     .. math::
         \text{SA} = 2\int_{-R}^{h-R}\int_{0}^{\sqrt{R^2 - x^2}}
         \sqrt{1 + \left(\frac{a}{2R}\left(1 - \frac{y^2}{(R-x)^2}  \right)
@@ -1907,43 +1907,43 @@ def SA_partial_horiz_guppy_head(D, a, h):
         + \left(\frac{ay}{R(R-x)}    \right)^2 } dy dx
 
     After extensive manipulation, the first integral was solved analytically,
-    extending the result of [1]_. Even with the special functions, this 
+    extending the result of [1]_. Even with the special functions, this
     form has somewhat greater performance (and improved precision).
-    
+
     .. math::
-        \text{SA} = 2 \int_{-R}^{h-R} \frac{\frac{2 a \left(4 + \frac{a^{2} 
-        \left(2 R^{2} - 2 R y\right)^{2}}{R^{2} \left(R - y\right)^{4}}\right) 
+        \text{SA} = 2 \int_{-R}^{h-R} \frac{\frac{2 a \left(4 + \frac{a^{2}
+        \left(2 R^{2} - 2 R y\right)^{2}}{R^{2} \left(R - y\right)^{4}}\right)
         \sqrt{R^{2} - y^{2}}}{\sqrt{4 R^{2} + a^{2}} \left(\frac{a \left(R^{2}
-        - y^{2}\right)}{\left(R - y\right)^{2} \sqrt{4 R^{2} + a^{2}}} 
+        - y^{2}\right)}{\left(R - y\right)^{2} \sqrt{4 R^{2} + a^{2}}}
         + 1\right)} + \left(4 + \frac{a^{2} \left(2 R^{2} - 2 R y\right)
         ^{2}}{R^{2} \left(R - y\right)^{4}}\right) \sqrt{R^{2} - y^{2}}
-        - \frac{2 \sqrt{a} \sqrt{\frac{4 R^{2} \left(R - y\right)^{4} 
-        + a^{2} \left(2 R^{2} - 2 R y\right)^{2}}{\left(R^{2} \sqrt{4 R^{2} 
-        + a^{2}} - 2 R y \sqrt{4 R^{2} + a^{2}} + a \left(R^{2} 
-        - y^{2}\right) + y^{2} \sqrt{4 R^{2} + a^{2}}\right)^{2}}} 
-        \left(R - y\right) \left(4 R^{2} + a^{2}\right)^{0.75} 
-        \left(\frac{a \left(R^{2} - y^{2}\right)}{\left(R - y\right)^{2} 
+        - \frac{2 \sqrt{a} \sqrt{\frac{4 R^{2} \left(R - y\right)^{4}
+        + a^{2} \left(2 R^{2} - 2 R y\right)^{2}}{\left(R^{2} \sqrt{4 R^{2}
+        + a^{2}} - 2 R y \sqrt{4 R^{2} + a^{2}} + a \left(R^{2}
+        - y^{2}\right) + y^{2} \sqrt{4 R^{2} + a^{2}}\right)^{2}}}
+        \left(R - y\right) \left(4 R^{2} + a^{2}\right)^{0.75}
+        \left(\frac{a \left(R^{2} - y^{2}\right)}{\left(R - y\right)^{2}
         \sqrt{4 R^{2} + a^{2}}} + 1\right) \operatorname{ellipeinc}{\left(2
         \operatorname{atan}{\left(\frac{\sqrt{a} \sqrt{R^{2} - y^{2}}}
         {\left(R - y\right) \left(4 R^{2} + a^{2}\right)^{0.25}} \right)},
-        - \frac{a}{2 \sqrt{4 R^{2} + a^{2}}} + 0.5 \right)}}{R^{2}} 
-        + \frac{1.0 \sqrt{\frac{4 R^{2} \left(R - y\right)^{4} + a^{2} 
-        \left(2 R^{2} - 2 R y\right)^{2}}{\left(R^{2} \sqrt{4 R^{2} 
+        - \frac{a}{2 \sqrt{4 R^{2} + a^{2}}} + 0.5 \right)}}{R^{2}}
+        + \frac{1.0 \sqrt{\frac{4 R^{2} \left(R - y\right)^{4} + a^{2}
+        \left(2 R^{2} - 2 R y\right)^{2}}{\left(R^{2} \sqrt{4 R^{2}
         + a^{2}} - 2 R y \sqrt{4 R^{2} + a^{2}} + a \left(R^{2} - y^{2}\right)
             + y^{2} \sqrt{4 R^{2} + a^{2}}\right)^{2}}} \left(R - y\right)
         \left(4 R^{2} + a^{2}\right)^{0.25} \left(\frac{a \left(R^{2}
-        - y^{2}\right)}{\left(R - y\right)^{2} \sqrt{4 R^{2} + a^{2}}} 
+        - y^{2}\right)}{\left(R - y\right)^{2} \sqrt{4 R^{2} + a^{2}}}
         + 1\right) \left(4 R^{2} + a^{2} + a \sqrt{4 R^{2} + a^{2}}\right)
         \operatorname{ellipkinc}{\left(2 \operatorname{atan}{\left(\frac{\sqrt{a}
-        \sqrt{R^{2} - y^{2}}}{\left(R - y\right) \left(4 R^{2} 
-        + a^{2}\right)^{0.25}} \right)},- \frac{a}{2 \sqrt{4 R^{2} + a^{2}}} 
+        \sqrt{R^{2} - y^{2}}}{\left(R - y\right) \left(4 R^{2}
+        + a^{2}\right)^{0.25}} \right)},- \frac{a}{2 \sqrt{4 R^{2} + a^{2}}}
         + 0.5 \right)}}{R^{2} \sqrt{a}}}{6 \sqrt{4 + \frac{a^{2} \left(2 R^{2}
         - 2 R y\right)^{2}}{R^{2} \left(R - y\right)^{4}}}}
-            
+
     Where ellipeinc is the incomplete elliptic integral of the second kind,
     and ellipkinc is the incomplete elliptic integral of the first kind,
     both calculated with SciPy's link to the cephes library.
-        
+
     Parameters
     ----------
     D : float
@@ -1957,20 +1957,20 @@ def SA_partial_horiz_guppy_head(D, a, h):
     -------
     SA_partial : float
         Partial (wetted) surface area of one guppy tank head, [m^2]
-        
+
     Notes
     -----
     This method is undefined for :math:`h > D` and :math:`h < 0`, but those
-    cases are handled by returning the full surface area and the zero 
+    cases are handled by returning the full surface area and the zero
     respectively.
-    
+
     The analytical integral was derived with Rubi.
 
     Examples
     --------
     >>> SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0)
     1467.8949780036994
-    
+
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
@@ -1983,7 +1983,7 @@ def SA_partial_horiz_guppy_head(D, a, h):
         return 0.0
     elif h > D:
         h = D
-    
+
 #    c1 = a/(2.0*R)
 #    c2 = c1*c1
 #    a_R_ratio = a/R
@@ -2040,16 +2040,16 @@ def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
         x0 = t2 - y2
         x1 = s*x10.real
         t10 = x1 + x1 + s*s + x0
-        
-        
+
+
         # x3, x4 present a very nasty numerical problem.
         # issue occurs when h == R, x3 is really equal to R**2 - 2*R*h + h**2
         x3 = t10 - x*x
         x4 = sqrt(x3)
         # One solution is to use higher precision everywhere
-        
-        
-        
+
+
+
         ans = x4*sqrt(t2*t10/(x0*x3))*catan(x/x4).real
     except:
         ans = 0.0
@@ -2068,21 +2068,21 @@ def _SA_partial_horiz_torispherical_head_int_3(y, x, s, t2):
     return f
 
 def SA_partial_horiz_torispherical_head(D, f, k, h):
-    r'''Calculates the partial area of a torispherical tank head in the context of 
+    r'''Calculates the partial area of a torispherical tank head in the context of
     a horizontal vessel and liquid partially
-    filling it. This computes the wetted surface area of one of the torispherical 
+    filling it. This computes the wetted surface area of one of the torispherical
     heads only.
 
     The expressions used are quite complicated; see [1]_ for more details.
-        
-        
+
+
     Parameters
     ----------
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dimensionless dish-radius parameter; also commonly given as the 
-        product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter; also commonly given as the
+        product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     k : float
         Dimensionless knuckle-radius parameter; also commonly given as the
@@ -2095,62 +2095,62 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     -------
     SA_partial : float
         Partial (wetted) surface area of one torispherical tank head, [m^2]
-        
+
     Notes
     -----
     This method is undefined for :math:`h > D` and :math:`h < 0`, but those
-    cases are handled by returning the full surface area and the zero 
+    cases are handled by returning the full surface area and the zero
     respectively.
-    
+
     One integral:
-        
+
     .. math::
-        \int_{R-h}^{fD\sin \alpha} \cos^{-1} \frac{fD\cos \alpha}{\sqrt{f^2 D^2 
+        \int_{R-h}^{fD\sin \alpha} \cos^{-1} \frac{fD\cos \alpha}{\sqrt{f^2 D^2
         - x^2}} dx
-            
+
     Can be computed as follows, using WolframAlpha.
-        
+
     .. math::
-        x \operatorname{acos}{\left(\frac{c}{\sqrt{b - x^{2}}} \right)} + \frac{\sqrt{b} 
-        \sqrt{- \left(b - x^{2}\right)^{2}} \left(- b + c^{2} + x^{2}\right) 
+        x \operatorname{acos}{\left(\frac{c}{\sqrt{b - x^{2}}} \right)} + \frac{\sqrt{b}
+        \sqrt{- \left(b - x^{2}\right)^{2}} \left(- b + c^{2} + x^{2}\right)
         \operatorname{atan}{\left(\frac{c x}{\sqrt{b} \sqrt{b - c^{2} - x^{2}}}
-        \right)} + c \sqrt{- \left(- b + c^{2} + x^{2}\right)^{2}} \left(- b 
+        \right)} + c \sqrt{- \left(- b + c^{2} + x^{2}\right)^{2}} \left(- b
         + x^{2}\right) \operatorname{atan}{\left(\frac{x \sqrt{b - x^{2}}}
         {\sqrt{- b + x^{2}} \sqrt{- b + c^{2} + x^{2}}} \right)}}{\sqrt{
         \frac{- b + c^{2} + x^{2}}{- b + x^{2}}} \left(- b + x^{2}\right)^{1.5}
         \sqrt{b - c^{2} - x^{2}}}
-        
+
     With the following constants:
-        
+
     .. math::
         c = fD\cos \alpha
 
     .. math::
         b = f^2 D^2
-    
+
     The other integral is a double integral. There is an analytical integral
     available for the first integral, which takes the form:
-        
+
     .. math::
-        2 \sqrt{\frac{R^{2} k^{2} \left(4 R^{2} k^{2} - y^{2} + \left(- 2 R k 
+        2 \sqrt{\frac{R^{2} k^{2} \left(4 R^{2} k^{2} - y^{2} + \left(- 2 R k
         + R\right)^{2} + 2 \left(- 2 R k + R\right) \sqrt{4 R^{2} k^{2} - y^{2}}
-        \right)}{\left(4 R^{2} k^{2} - y^{2}\right) \left(\left(R 
+        \right)}{\left(4 R^{2} k^{2} - y^{2}\right) \left(\left(R
         - h\right)^{2} - \left(- 4 R k + 2 R\right) \sqrt{4 R^{2} k^{2}
         - y^{2}} + 2 \left(- 2 R k + R\right) \sqrt{4 R^{2} k^{2} - y^{2}}
         \right)}} \sqrt{\left(R - h\right)^{2} - \left(- 4 R k + 2 R\right)
-        \sqrt{4 R^{2} k^{2} - y^{2}} + 2 \left(- 2 R k + R\right) 
+        \sqrt{4 R^{2} k^{2} - y^{2}} + 2 \left(- 2 R k + R\right)
         \sqrt{4 R^{2} k^{2} - y^{2}}} \operatorname{atan}{\left(\frac{
         \sqrt{4 R^{2} k^{2} - y^{2} - \left(R - h\right)^{2} + \left(- 4 R k
         + 2 R\right) \sqrt{4 R^{2} k^{2} - y^{2}} + \left(- 2 R k + R\right)
-        ^{2}}}{\sqrt{\left(R - h\right)^{2} - \left(- 4 R k + 2 R\right) 
-        \sqrt{4 R^{2} k^{2} - y^{2}} + 2 \left(- 2 R k + R\right) 
+        ^{2}}}{\sqrt{\left(R - h\right)^{2} - \left(- 4 R k + 2 R\right)
+        \sqrt{4 R^{2} k^{2} - y^{2}} + 2 \left(- 2 R k + R\right)
         \sqrt{4 R^{2} k^{2} - y^{2}}}} \right)}
 
     Examples
     --------
     >>> SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=24.0)
     1471.201832459
-    
+
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
@@ -2167,16 +2167,16 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     sin_alpha = sin(alpha)
     s = R - k*D
     t = k*D
-    
+
     s2 = s*s
     t2 = t*t
     a1 = r*(1.0 - cos_alpha)
     a2 = k*D*cos_alpha
-    
+
     c = f*D*cos_alpha
-    
+
     b = f*f*D*D
-    
+
     c1 = s2 + t2  - (R - h)**2
     def G_lim(x): # numba: delete
         x2 = x*x # numba: delete
@@ -2186,9 +2186,9 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
             # Python 2 compat - don't take the square root of a negative number with no complex part # numba: delete
             G = sqrt(c1 - x2 + (s+s)*sqrt(t2 - x2+0.0j) + 0.0j) # numba: delete
         return G.real # Some tiny heights make the square root slightly under 0 # numba: delete
-        
+
     limit_1 = k*D*(1.0 - sin_alpha)
-    
+
     if h < limit_1:
         SA = quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, sqrt(2*k*D*h - h*h), args=(t2, s, c1))[0]
         return 2.0*SA
@@ -2214,14 +2214,14 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
 
 
 def SA_partial_vertical_conical_head(D, a, h):
-    r'''Calculates the partial area of a conical tank head in the context of 
+    r'''Calculates the partial area of a conical tank head in the context of
     a vertical vessel and liquid partially
-    filling it. This computes the wetted surface area of one of the conical 
+    filling it. This computes the wetted surface area of one of the conical
     heads only, and is valid for `h` up to `a` only.
-        
+
     .. math::
         \text{SA} = \frac{\pi R h^2 \sqrt{a^2 + R^2}}{a^2}
-    
+
     Parameters
     ----------
     D : float
@@ -2235,19 +2235,19 @@ def SA_partial_vertical_conical_head(D, a, h):
     Returns
     -------
     SA_partial : float
-        Partial (wetted) surface area of one conical tank head extending 
+        Partial (wetted) surface area of one conical tank head extending
         beneath the vessel, [m^2]
-        
+
     Notes
     -----
-    This method is undefined for :math:`h < 0`, but this is handled 
+    This method is undefined for :math:`h < 0`, but this is handled
     by returning zero.
 
     Examples
     --------
     >>> SA_partial_vertical_conical_head(D=72., a=48.0, h=24.0)
     1696.4600329384882
-    
+
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
@@ -2263,13 +2263,13 @@ def SA_partial_vertical_conical_head(D, a, h):
 
 
 def SA_partial_vertical_ellipsoidal_head(D, a, h):
-    r'''Calculates the partial area of a ellipsoidal tank head in the context of 
+    r'''Calculates the partial area of a ellipsoidal tank head in the context of
     a vertical vessel and liquid partially
-    filling it. This computes the wetted surface area of one of the ellipsoidal 
+    filling it. This computes the wetted surface area of one of the ellipsoidal
     heads only, and is valid for `h` up to `a` only.
-        
+
     If :math:`a > R`:
-        
+
     .. math::
         \text{SA} = \pi R^2 - \frac{\pi (a - h)R\sqrt{a^4 - (a-h)^2(a^2-R^2)}}{a^2}
         + \frac{\pi a^2 R}{\sqrt{a^2 - R^2}}\left(
@@ -2277,14 +2277,14 @@ def SA_partial_vertical_ellipsoidal_head(D, a, h):
         \right)
 
     Otherwise for :math:`0 < a < R`:
-        
+
     .. math::
         \text{SA} = \pi R^2 - \frac{\pi (a - h)R\sqrt{a^4 - (a-h)^2(a^2-R^2)}}{a^2}
         + \frac{\pi a^2 R}{\sqrt{a^2 - R^2}}\ln \left(\frac{a(\sqrt{R^2 - a^2} + R)}
         {(a-h)\sqrt{R^2 - a^2} + \sqrt{a^4 + (a-h)^2(R^2 - a^2)}}
         \right)
 
-        
+
     Parameters
     ----------
     D : float
@@ -2298,19 +2298,19 @@ def SA_partial_vertical_ellipsoidal_head(D, a, h):
     Returns
     -------
     SA_partial : float
-        Partial (wetted) surface area of one ellipsoidal tank head extending 
+        Partial (wetted) surface area of one ellipsoidal tank head extending
         beneath the vessel, [m^2]
-        
+
     Notes
     -----
-    This method is undefined for :math:`h < 0`, but this is handled 
+    This method is undefined for :math:`h < 0`, but this is handled
     by returning zero.
 
     Examples
     --------
     >>> SA_partial_vertical_ellipsoidal_head(D=72., a=48.0, h=24.0)
     4675.23789137632
-    
+
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
@@ -2341,14 +2341,14 @@ def SA_partial_vertical_ellipsoidal_head(D, a, h):
     return SA
 
 def SA_partial_vertical_spherical_head(D, a, h):
-    r'''Calculates the partial area of a spherical tank head in the context of 
+    r'''Calculates the partial area of a spherical tank head in the context of
     a vertical vessel and liquid partially
-    filling it. This computes the wetted surface area of one of the conical 
+    filling it. This computes the wetted surface area of one of the conical
     heads only, and is valid for `h` up to `a` only.
-        
+
     .. math::
         \text{SA} = \pi h \left(\frac{a^2 + R^2}{a}\right)
-    
+
     Parameters
     ----------
     D : float
@@ -2362,19 +2362,19 @@ def SA_partial_vertical_spherical_head(D, a, h):
     Returns
     -------
     SA_partial : float
-        Partial (wetted) surface area of one spherical tank head extending 
+        Partial (wetted) surface area of one spherical tank head extending
         beneath the vessel, [m^2]
-        
+
     Notes
     -----
-    This method is undefined for :math:`h < 0`, but this is handled 
+    This method is undefined for :math:`h < 0`, but this is handled
     by returning zero.
 
     Examples
     --------
     >>> SA_partial_vertical_spherical_head(72, a=24, h=12)
     2940.5307237600464
-    
+
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
@@ -2390,13 +2390,13 @@ def SA_partial_vertical_spherical_head(D, a, h):
 
 
 def SA_partial_vertical_torispherical_head(D, f, k, h):
-    r'''Calculates the partial area of a torispherical tank head in the context of 
+    r'''Calculates the partial area of a torispherical tank head in the context of
     a vertical vessel and liquid partially
-    filling it. This computes the wetted surface area of one of the torispherical 
+    filling it. This computes the wetted surface area of one of the torispherical
     heads only.
 
     if :math:`a_1 <= h`:
-        
+
     .. math::
         \text{SA} = 2\pi f D h
 
@@ -2415,14 +2415,14 @@ def SA_partial_vertical_torispherical_head(D, f, k, h):
 
     .. math::
         a_2 = kD\cos\alpha
-        
+
     Parameters
     ----------
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dimensionless dish-radius parameter; also commonly given as the 
-        product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter; also commonly given as the
+        product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     k : float
         Dimensionless knuckle-radius parameter; also commonly given as the
@@ -2436,18 +2436,18 @@ def SA_partial_vertical_torispherical_head(D, f, k, h):
     -------
     SA_partial : float
         Partial (wetted) surface area of one torispherical tank head, [m^2]
-        
+
     Notes
     -----
     This method is undefined for :math:`h > D` and :math:`h < 0`, but those
-    cases are handled by returning the full surface area and the zero 
+    cases are handled by returning the full surface area and the zero
     respectively.
 
     Examples
     --------
-    This method is undefined for :math:`h < 0`, but this is handled 
+    This method is undefined for :math:`h < 0`, but this is handled
     by returning zero.
-    
+
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
@@ -2490,8 +2490,8 @@ def a_torispherical(D, f, k):
     D : float
         Diameter of the main cylindrical section, [m]
     f : float
-        Dimensionless dish-radius parameter; also commonly given as the 
-        product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter; also commonly given as the
+        product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     k : float
         Dimensionless knuckle-radius parameter; also commonly given as the
@@ -2548,20 +2548,20 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
         The distance the head as specified by sideB extends up or to the right
         from the main cylindrical section, [m]
     sideA_f : float, optional
-        Dimensionless dish-radius parameter for side A; also commonly given as  
-        the product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter for side A; also commonly given as
+        the product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     sideA_k : float, optional
-        Dimensionless knuckle-radius parameter for side A; also commonly given 
-        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        Dimensionless knuckle-radius parameter for side A; also commonly given
+        as the product of `k` and `D` (`kD`), which is called the knuckle
         radius and has units of length, [-]
     sideB_f : float, optional
-        Dimensionless dish-radius parameter for side B; also commonly given as  
-        the product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter for side B; also commonly given as
+        the product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     sideB_k : float, optional
-        Dimensionless knuckle-radius parameter for side B; also commonly given 
-        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        Dimensionless knuckle-radius parameter for side B; also commonly given
+        as the product of `k` and `D` (`kD`), which is called the knuckle
         radius and has units of length, [-]
 
     Returns
@@ -2621,7 +2621,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
             if sideB == 'spherical':
                 V += V_horiz_spherical(D, L, sideB_a, h, headonly=True)
         # Torispherical case
-        if (sideA == 'torispherical' and sideB == 'torispherical' 
+        if (sideA == 'torispherical' and sideB == 'torispherical'
             and (sideA_f == sideB_f) and (sideA_k == sideB_k)):
             V += 2.0*V_horiz_torispherical(D, L, sideA_f, sideA_k, h, headonly=True)
         else:
@@ -2697,20 +2697,20 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
         The distance the head as specified by sideB extends up or to the right
         from the main cylindrical section, [m]
     sideA_f : float, optional
-        Dimensionless dish-radius parameter for side A; also commonly given as  
-        the product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter for side A; also commonly given as
+        the product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     sideA_k : float, optional
-        Dimensionless knuckle-radius parameter for side A; also commonly given 
-        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        Dimensionless knuckle-radius parameter for side A; also commonly given
+        as the product of `k` and `D` (`kD`), which is called the knuckle
         radius and has units of length, [-]
     sideB_f : float, optional
-        Dimensionless dish-radius parameter for side B; also commonly given as  
-        the product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter for side B; also commonly given as
+        the product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     sideB_k : float, optional
-        Dimensionless knuckle-radius parameter for side B; also commonly given 
-        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        Dimensionless knuckle-radius parameter for side B; also commonly given
+        as the product of `k` and `D` (`kD`), which is called the knuckle
         radius and has units of length, [-]
 
     Returns
@@ -2845,7 +2845,7 @@ def tank_from_two_specs_err(guess, spec0, spec1, spec0_name, spec1_name,
          sideA_a_ratio=sideA_a_ratio, sideB_a_ratio=sideB_a_ratio)
     # ensure h is always under the top
     h = min(h, obj.h_max)
-    
+
     if spec0_name == 'V':
         err0 = obj.V_total - spec0
     elif spec0_name == 'SA':
@@ -2897,20 +2897,20 @@ class TANK(object):
         The distance the head as specified by sideB extends up or to the right
         from the main cylindrical section, [m]
     sideA_f : float, optional
-        Dimensionless dish-radius parameter for side A; also commonly given as  
-        the product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter for side A; also commonly given as
+        the product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     sideA_k : float, optional
-        Dimensionless knuckle-radius parameter for side A; also commonly given 
-        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        Dimensionless knuckle-radius parameter for side A; also commonly given
+        as the product of `k` and `D` (`kD`), which is called the knuckle
         radius and has units of length, [-]
     sideB_f : float, optional
-        Dimensionless dish-radius parameter for side B; also commonly given as  
-        the product of `f` and `D` (`fD`), which is called dish radius and 
+        Dimensionless dish-radius parameter for side B; also commonly given as
+        the product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
     sideB_k : float, optional
-        Dimensionless knuckle-radius parameter for side B; also commonly given 
-        as the product of `k` and `D` (`kD`), which is called the knuckle 
+        Dimensionless knuckle-radius parameter for side B; also commonly given
+        as the product of `k` and `D` (`kD`), which is called the knuckle
         radius and has units of length, [-]
     sideA_a_ratio : float, optional
         Ratio for `a` parameter; can be used instead of specifying an absolute
@@ -2967,8 +2967,8 @@ class TANK(object):
     -----
     For torpsherical tank heads, the following `f` and `k` parameters are used
     in standards. The default is ASME F&D	.
-    
-    
+
+
     +----------------------+-----+-------+
     |                      | f   | k     |
     +======================+=====+=======+
@@ -2984,9 +2984,9 @@ class TANK(object):
     +----------------------+-----+-------+
     |  DIN 28013           | 0.8 | 0.154 |
     +----------------------+-----+-------+
-    
+
     For the following cases, numerical integrals are used.
-    
+
     V_horiz_spherical
     V_horiz_torispherical
     SA_partial_horiz_spherical_head
@@ -3044,7 +3044,7 @@ class TANK(object):
             sides = 'no heads'
         elif self.sideA == self.sideB:
             if self.sideA_a == self.sideB_a:
-                sides = self.sideA + (' heads, a=%f m' %(self.sideA_a)) 
+                sides = self.sideA + (' heads, a=%f m' %(self.sideA_a))
             else:
                 sides = self.sideA + ' heads, sideA a=%f m, sideB a=%f m' % (self.sideA_a, self.sideB_a)
         else:
@@ -3057,7 +3057,7 @@ class TANK(object):
             else:
                 B = ' and no head on sideB'
             sides = A + B
-        
+
         return '<%s tank, V=%f m^3, D=%f m, L=%f m, %s.>' %(orient, self.V_total, self.D, self.L, sides)
 
 
@@ -3070,9 +3070,9 @@ class TANK(object):
         self.L_over_D = L_over_D
         self.V = V
         self.horizontal = horizontal
-        
+
         sideA_same, sideB_same = sideA == 'same', sideB == 'same'
-        
+
         if sideA_same and not sideB_same:
             sideA, sideA_a, sideA_a_ratio, sideA_f, sideA_k = sideB, sideB_a, sideB_a_ratio, sideB_f, sideB_k
         elif sideB_same and not sideA_same:
@@ -3083,18 +3083,18 @@ class TANK(object):
         self.sideA = sideA
         if sideA is None and sideA_a is None:
             sideA_a = 0.0
-        
+
         self.sideA_a = sideA_a
         if sideA_a is None and sideA_a_ratio is None and (sideA is not None and sideA != 'torispherical'):
             sideA_a_ratio = 0.25
         self.sideA_a_ratio = sideA_a_ratio
-        
+
         if sideA_a is None and sideA == 'torispherical':
             if sideA_f is None:
                 sideA_f = 1.0
             if sideA_k is None:
                 sideA_k = 0.06
-        
+
         self.sideA_f = sideA_f
         self.sideA_k = sideA_k
 
@@ -3102,7 +3102,7 @@ class TANK(object):
         if sideB is None and sideB_a is None:
             sideB_a = 0.0
         self.sideB_a = sideB_a
-        
+
         if sideB_a is None and sideB_a_ratio is None and (sideB is not None and sideB != 'torispherical'):
             sideB_a_ratio = 0.25
         self.sideB_a_ratio = sideB_a_ratio
@@ -3153,7 +3153,7 @@ class TANK(object):
         elif self.L is not None and self.L_over_D is not None:
             # Otherwise, if L_over_D and L are provided, get D
             self.D = self.L/self.L_over_D
-        
+
         D = self.D
         # Calculate diameter
         self.R = self.D/2.
@@ -3196,7 +3196,7 @@ class TANK(object):
 
         # Set maximum height
 #        self.V_total = self.V_from_h(self.h_max)
-        
+
         self.V_total, self.V_sideA, self.V_sideB, self.V_lateral = V_tank(
         D=D, L=self.L, sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a,
         sideB_a=self.sideB_a, sideA_f=self.sideA_f, sideA_k=self.sideA_k,
@@ -3208,24 +3208,24 @@ class TANK(object):
         D=D, L=self.L, sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a,
         sideB_a=self.sideB_a, sideA_f=self.sideA_f, sideA_k=self.sideA_k,
         sideB_f=self.sideB_f, sideB_k=self.sideB_k)
-        
+
         A_circular_plate = 0.25*pi*D*D
         self.A_sideA_extra = self.A_sideA - A_circular_plate
         self.A_sideB_extra = self.A_sideB - A_circular_plate
-    
+
     @staticmethod
     def from_two_specs(spec0, spec1, spec0_name='V', spec1_name='A_cross',
                        h=None, horizontal=True,
                        sideA=None, sideB=None, sideA_a=None, sideB_a=None,
                        sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
                        sideA_a_ratio=None, sideB_a_ratio=None):
-        r'''Method to create a new tank instance according to two 
+        r'''Method to create a new tank instance according to two
         specifications which are not direct geometry parameters.
-        
-        The allowable options are 'V', 'SA', 'V_partial', 'SA_partial', 
+
+        The allowable options are 'V', 'SA', 'V_partial', 'SA_partial',
         and 'A_cross', the later three of which require `h` to be specified.
-        
-        
+
+
         Parameters
         ----------
         spec0 : float
@@ -3255,61 +3255,61 @@ class TANK(object):
             The distance the head as specified by sideB extends up or to the right
             from the main cylindrical section, [m]
         sideA_f : float, optional
-            Dimensionless dish-radius parameter for side A; also commonly given as  
-            the product of `f` and `D` (`fD`), which is called dish radius and 
+            Dimensionless dish-radius parameter for side A; also commonly given as
+            the product of `f` and `D` (`fD`), which is called dish radius and
             has units of length, [-]
         sideA_k : float, optional
-            Dimensionless knuckle-radius parameter for side A; also commonly given 
-            as the product of `k` and `D` (`kD`), which is called the knuckle 
+            Dimensionless knuckle-radius parameter for side A; also commonly given
+            as the product of `k` and `D` (`kD`), which is called the knuckle
             radius and has units of length, [-]
         sideB_f : float, optional
-            Dimensionless dish-radius parameter for side B; also commonly given as  
-            the product of `f` and `D` (`fD`), which is called dish radius and 
+            Dimensionless dish-radius parameter for side B; also commonly given as
+            the product of `f` and `D` (`fD`), which is called dish radius and
             has units of length, [-]
         sideB_k : float, optional
-            Dimensionless knuckle-radius parameter for side B; also commonly given 
-            as the product of `k` and `D` (`kD`), which is called the knuckle 
+            Dimensionless knuckle-radius parameter for side B; also commonly given
+            as the product of `k` and `D` (`kD`), which is called the knuckle
             radius and has units of length, [-]
-        
-        
+
+
         Returns
         -------
         TANK : TANK
             Tank object at solved specifications, [-]
-            
+
         Notes
         -----
         Limited testing has been done on this method. The bounds are D between
-        0.1 mm and 10 km, with L_D ratios of 1e-4 to 1e4.        
+        0.1 mm and 10 km, with L_D ratios of 1e-4 to 1e4.
         '''
 
         args = (spec0, spec1, spec0_name, spec1_name,
                 h, horizontal, sideA, sideB, sideA_a, sideB_a,
                 sideA_f, sideA_k, sideB_f, sideB_k,
                 sideA_a_ratio, sideB_a_ratio)
-        
+
         new_f, translate_into, translate_outof = translate_bound_func(tank_from_two_specs_err,
                                                                       bounds=[(1e-4, 1e4), (1e-4, 1e4)])
         # Diameter and length/diameter as iteration variables
         guess = translate_into([1.0, 3.0])
         from scipy.optimize import fsolve
-        
+
         ans = fsolve(new_f, guess, args=args, xtol=1e-10, factor=.1)
         val0, val1 = translate_outof(ans)
-        
+
         return TANK(D=float(val0), L_over_D=float(val1), horizontal=horizontal,
                     sideA=sideA, sideB=sideB, sideA_a=sideA_a, sideB_a=sideB_a,
                     sideA_f=sideA_f, sideA_k=sideA_k, sideB_f=sideB_f, sideB_k=sideB_k,
-                    sideA_a_ratio=sideA_a_ratio, sideB_a_ratio=sideB_a_ratio,)        
+                    sideA_a_ratio=sideA_a_ratio, sideB_a_ratio=sideB_a_ratio,)
 
 
-    def add_thickness(self, thickness, sideA_thickness=None, 
+    def add_thickness(self, thickness, sideA_thickness=None,
                       sideB_thickness=None):
         r'''Method to create a new tank instance with the same parameters as
         itself, except with an added thickness to it. This is useful to obtain
         ex. the inside of a tank and the outside; their different in volumes is
         the volume of the shell, and could be used to determine weight.
-        
+
         Parameters
         ----------
         thickness : float
@@ -3320,22 +3320,22 @@ class TANK(object):
         sideB_thickness : float, optional
             The thickness to add to the sideB head; if not specified,
             it will be `thickness`, [m]
-        
+
         Returns
         -------
         TANK : TANK
             Tank object, [-]
-            
+
         Notes
         -----
         Be careful not to specify a negative thickness larger than the heads'
         lengths, or the head will become concave! The same applies to adding
         a thickness to convex heads - they can become convex.
-        
+
         '''
         kwargs = dict(D=self.D, L=self.L, horizontal=self.horizontal,
-                 sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a, 
-                 sideB_a=self.sideB_a, sideA_f=self.sideA_f, 
+                 sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a,
+                 sideB_a=self.sideB_a, sideA_f=self.sideA_f,
                  sideA_k=self.sideA_k, sideB_f=self.sideB_f, sideB_k=self.sideB_k)
         if sideA_thickness is None:
             sideA_thickness = thickness
@@ -3345,7 +3345,7 @@ class TANK(object):
         # Do not transfer a_ratios or volume or L_over_D
         kwargs['D'] += 2.0*thickness
         kwargs['L'] += sideA_thickness + sideB_thickness
-        
+
         # For torispherical vessels, the heads are defined from the `f` and `k`
         # parameters which are already functions of diameter, and so will be
         # fixed automatically; if the `a` parameters are specified they would
@@ -3354,13 +3354,13 @@ class TANK(object):
             kwargs['sideA_a'] += sideA_thickness
         else:
             del kwargs['sideA_a']
-        
+
         if self.sideB != 'torispherical':
             kwargs['sideB_a'] += sideB_thickness
         else:
             del kwargs['sideB_a']
         return TANK(**kwargs)
-        
+
     def SA_from_h(self, h, method='full'):
         r'''Method to calculate the volume of liquid in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
@@ -3376,14 +3376,14 @@ class TANK(object):
         -------
         SA : float
             Surface area of liquid in the tank up to the specified height, [m^2]
-            
+
         Notes
         -----
         '''
         if method == 'full':
-            return SA_from_h(h, self.D, self.L, self.horizontal, self.sideA, 
-                            self.sideB, self.sideA_a, self.sideB_a, 
-                            self.sideA_f, self.sideA_k, self.sideB_f, 
+            return SA_from_h(h, self.D, self.L, self.horizontal, self.sideA,
+                            self.sideB, self.sideA_a, self.sideB_a,
+                            self.sideA_f, self.sideA_k, self.sideB_f,
                             self.sideB_k)
         else:
             raise ValueError("Allowable methods are 'full' .")
@@ -3391,7 +3391,7 @@ class TANK(object):
     def V_from_h(self, h, method='full'):
         r'''Method to calculate the volume of liquid in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
-        If the method is 'chebyshev', and the coefficients have not yet been 
+        If the method is 'chebyshev', and the coefficients have not yet been
         calculated, they are created by calling `set_chebyshev_approximators`.
 
         Parameters
@@ -3405,14 +3405,14 @@ class TANK(object):
         -------
         V : float
             Volume of liquid in the tank up to the specified height, [m^3]
-            
+
         Notes
         -----
         '''
         if method == 'full':
-            return V_from_h(h, self.D, self.L, self.horizontal, self.sideA, 
-                            self.sideB, self.sideA_a, self.sideB_a, 
-                            self.sideA_f, self.sideA_k, self.sideB_f, 
+            return V_from_h(h, self.D, self.L, self.horizontal, self.sideA,
+                            self.sideB, self.sideA_a, self.sideB_a,
+                            self.sideA_f, self.sideA_k, self.sideB_f,
                             self.sideB_k)
         elif method == 'chebyshev':
             if not self.chebyshev:
@@ -3426,7 +3426,7 @@ class TANK(object):
         given a specified volume of liquid in it `V`. `V` must be under the
         maximum volume. If the method is 'spline', and the interpolation table
         is not yet defined, creates it by calling the method set_table. If the
-        method is 'chebyshev', and the coefficients have not yet been 
+        method is 'chebyshev', and the coefficients have not yet been
         calculated, they are created by calling `set_chebyshev_approximators`.
 
         Parameters
@@ -3461,7 +3461,7 @@ class TANK(object):
                             "or 'brenth'.")
 
     def A_cross_sectional(self, h, method='full'):
-        r'''Method to calculate the cross-sectional liquid surface area 
+        r'''Method to calculate the cross-sectional liquid surface area
         from which gas can evolve in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
         This is calculated by numeric differentiation for most cases.
@@ -3477,13 +3477,13 @@ class TANK(object):
         -------
         A_cross : float
             Surface area of liquid in the tank up to the specified height, [m^2]
-            
+
         Notes
         -----
         '''
         # The derivative will give bad values in some cases, when right up against boundaries
         # Analytical formulations can be done, but will be lots of code
-        
+
         return derivative(lambda h: self.V_from_h(h), h, dx=1e-7*h, order=3, n=1)
 
     def set_table(self, n=100, dx=None):
@@ -3508,22 +3508,22 @@ class TANK(object):
         from scipy.interpolate import UnivariateSpline
         self.interp_h_from_V = UnivariateSpline(self.volumes, self.heights, ext=3, s=0.0)
         self.table = True
-        
-    def set_chebyshev_approximators(self, deg_forward=50, deg_backwards=200):        
-        r'''Method to derive and set coefficients for chebyshev polynomial 
+
+    def set_chebyshev_approximators(self, deg_forward=50, deg_backwards=200):
+        r'''Method to derive and set coefficients for chebyshev polynomial
         function approximation of the height-volume and volume-height
-        relationship. 
-        
+        relationship.
+
         A single set of chebyshev coefficients is used for the entire height-
-        volume and volume-height relationships respectively. 
-        
+        volume and volume-height relationships respectively.
+
         The forward relationship, `V_from_h`, requires
         far fewer coefficients in its fit than the reverse to obtain the same
-        relative accuracy. 
-        
-        Optionally, deg_forward or deg_backwards can be set to None to try to 
+        relative accuracy.
+
+        Optionally, deg_forward or deg_backwards can be set to None to try to
         automatically fit the series to machine precision.
-        
+
         Parameters
         ----------
         deg_forward : int, optional
@@ -3536,14 +3536,14 @@ class TANK(object):
         from fluids.optional.pychebfun import Chebfun
         import numpy as np
         to_fit = lambda h: self.V_from_h(h, 'full')
-        
-        # These high-degree polynomials cannot safety be evaluated using Horner's methods     
+
+        # These high-degree polynomials cannot safety be evaluated using Horner's methods
         # chebval is 2.5x as slow but 100% required; around 40 coefficients results are junk
-        self.c_forward = Chebfun.from_function(np.vectorize(to_fit), 
+        self.c_forward = Chebfun.from_function(np.vectorize(to_fit),
                                                [0.0, self.h_max], N=deg_forward).coefficients().tolist()
 
         self.V_from_h_cheb = lambda x : chebval((2.0*x-self.h_max)/(self.h_max), self.c_forward)
-        
+
         to_fit = lambda h: self.h_from_V(h, 'brenth')
         self.c_backward = Chebfun.from_function(np.vectorize(to_fit), [0.0, self.V_total], N=deg_backwards).coefficients().tolist()
         self.h_from_V_cheb = lambda x : chebval((2.0*x-self.V_total)/(self.V_total), self.c_backward)
@@ -3607,21 +3607,21 @@ class TANK(object):
             solve_L_D = lambda L: self._V_solver_error(self.V, L/self.L_over_D, L, self.horizontal, self.sideA, self.sideB, self.sideA_a, self.sideB_a, self.sideA_f, self.sideA_k, self.sideB_f, self.sideB_k, self.sideA_a_ratio, self.sideB_a_ratio)
             self.L = float(secant(solve_L_D, Lguess, xtol=1e-13))
             self.D = self.L/self.L_over_D
-            
-            
+
+
 
 
 class HelicalCoil(object):
-    r'''Class representing a helical coiled tube, as are found in many heated 
+    r'''Class representing a helical coiled tube, as are found in many heated
     tanks and some small nuclear reactors. All parameters are also attributes.
-    
-    One set of the following parameters is required; inner tube diameter is 
+
+    One set of the following parameters is required; inner tube diameter is
     optional.
-    
+
         * Tube outer diameter, coil outer diameter, pitch, number of coil turns
         * Tube outer diameter, coil outer diameter, pitch, height
         * Tube outer diameter, coil outer diameter, number of coil turns, height
-        
+
     Parameters
     ----------
     Dt : float
@@ -3631,7 +3631,7 @@ class HelicalCoil(object):
         side to the center of the coil on the other side, [m]
     Do_total : float, optional
         Diameter of the spiral as measured from one edge of the tube to the
-        other edge; equal to Do + Dt; either `Do` or `Do_total` may be 
+        other edge; equal to Do + Dt; either `Do` or `Do_total` may be
         specified and the other will be calculated [m]
     pitch : float, optional
         Height change from one coil to the next as measured from the middles
@@ -3644,7 +3644,7 @@ class HelicalCoil(object):
         edge; equal to `H_total` + `Dt`; either may be specified and the other
         will be calculated [m]
     N : float, optional
-        Number of coil turns; may be specified along with `pitch` instead of 
+        Number of coil turns; may be specified along with `pitch` instead of
         specifying `H` or `H_total`, [-]
     Di : float, optional
         Inner diameter of the tube; if specified, inside and annulus properties
@@ -3653,10 +3653,10 @@ class HelicalCoil(object):
     Attributes
     ----------
     tube_circumference : float
-        Circumference of the tube as measured though its center, not inner or 
+        Circumference of the tube as measured though its center, not inner or
         outer edges;  :math:`C = \pi D_o`, [m]
     tube_length : float
-        Length of tube used to make the helical coil; 
+        Length of tube used to make the helical coil;
         :math:`L = \sqrt{(\pi D_o\cdot N)^2 + H^2}`, [m]
     surface_area : float
         Surface area of the outer surface of the helical coil;
@@ -3675,16 +3675,16 @@ class HelicalCoil(object):
         Area of the annulus (wall of the pipe); calculated if `Di` is supplied;
         :math:`A_a = \frac{\pi}{4} (D_t^2 - D_i^2)`, [m^2]
     annulus_volume : float
-        Volume of the annulus (wall of the pipe); calculated if `Di` 
+        Volume of the annulus (wall of the pipe); calculated if `Di`
         is supplied, useful for weight calculations; :math:`V_a = A_a L`, [m^3]
     total_volume : float
         Total volume occupied by the pipe and the fluid inside it;
         :math:`V = D_t L`, [m^3]
     helix_angle : float
-        Angle between the pitch and coil diameter; used in some calculations; 
+        Angle between the pitch and coil diameter; used in some calculations;
         :math:`\alpha = \arctan \left(\frac{p_t}{\pi D_o}\right)`, [radians]
     curvature : float
-        Coil curvature, useful in some calculations; 
+        Coil curvature, useful in some calculations;
         :math:`\delta = \frac{D_t}{D_o[1 + 4\pi^2 \tan^2(\alpha)]}`, [-]
 
     Notes
@@ -3696,10 +3696,10 @@ class HelicalCoil(object):
     >>> C1 = HelicalCoil(Do=30, H=20, pitch=5, Dt=2)
     >>> C1.N, C1.tube_length, C1.surface_area
     (4.0, 377.5212621504738, 2372.0360474917497)
-    
+
     Same coil, with the inputs one would physically measure from the coil,
     and a specified inlet diameter:
-        
+
     >>> C1 = HelicalCoil(Do_total=32, H_total=22, pitch=5, Dt=2, Di=1.8)
     >>> C1.N, C1.tube_length, C1.surface_area
     (4.0, 377.5212621504738, 2372.0360474917497)
@@ -3708,8 +3708,8 @@ class HelicalCoil(object):
 
     References
     ----------
-    .. [1] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and 
-       Correlations for Convection Heat Transfer and Pressure Losses in 
+    .. [1] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and
+       Correlations for Convection Heat Transfer and Pressure Losses in
        Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
     '''
@@ -3721,11 +3721,11 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
         s += '>'
         return s
 
-    def __init__(self, Dt, Do=None, pitch=None, H=None, N=None, H_total=None, 
+    def __init__(self, Dt, Do=None, pitch=None, H=None, N=None, H_total=None,
                  Do_total=None, Di=None):
         # H goes from center of tube in bottom of coil to center of tube in top of coil
         # Do goes from the center of the spiral to the center of the outer tube
-        
+
         if H_total is not None:
             H = H_total - Dt
         if Do_total is not None:
@@ -3751,10 +3751,10 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
                 raise ValueError('Pitch is too small - tubes are colliding; pitch must be larger than tube diameter.')
         if self.H is not None: # numba
             self.H_total = self.Dt + self.H
-        
+
         if self.Dt > self.Do:
             raise ValueError('Tube diameter is larger than helix outer diameter - not feasible.')
-        
+
         self.tube_circumference = pi*self.Do
         self.tube_length = sqrt((self.tube_circumference*self.N)**2 + self.H**2)
         self.surface_area = self.tube_length*pi*self.Dt
@@ -3764,7 +3764,7 @@ outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_to
         #print(self.N*pi*self.Do/cos(self.helix_angle)) # Confirms the length with another formula
         self.total_inlet_area = pi/4.*self.Dt**2
         self.total_volume = self.total_inlet_area*self.tube_length
-        
+
         if Di is not None:
             self.Di = Di
             self.inner_surface_area = self.tube_length*pi*self.Di
@@ -3781,19 +3781,19 @@ def plate_enlargement_factor(amplitude, wavelength):
     the following integral:
 
     .. math::
-        \phi = \frac{\text{Effective area}}{\text{Projected area}} 
+        \phi = \frac{\text{Effective area}}{\text{Projected area}}
         = \frac{\int_0^\lambda\sqrt{1 + \left(\frac{\gamma\pi}{2}\right)^2
         \cos^2\left(\frac{2\pi}{\lambda}x\right)}dx}{\lambda}
-        
+
     .. math::
         \gamma = \frac{4a}{\lambda}
-        
+
     The solution to the integral is:
-        
+
     .. math::
         \phi = \frac{2E\left(\frac{-4a^2\pi^2}{\lambda^2}\right)}{\pi}
-        
-    where E is the complete elliptic integral of the second kind, 
+
+    where E is the complete elliptic integral of the second kind,
     calculated with SciPy.
 
     Parameters
@@ -3801,7 +3801,7 @@ def plate_enlargement_factor(amplitude, wavelength):
     amplitude : float
         Half the height of the wave of the ridges, [m]
     wavelength : float
-        Distance between the bottoms of two of the ridges (sometimes called 
+        Distance between the bottoms of two of the ridges (sometimes called
         pitch), [m]
 
     Returns
@@ -3813,15 +3813,15 @@ def plate_enlargement_factor(amplitude, wavelength):
     Notes
     -----
     This is the exact analytical integral, obtained via Mathematica, Maple,
-    and quite a bit of trial and error. It is confirmed via numerical 
+    and quite a bit of trial and error. It is confirmed via numerical
     integration. The expression normally given is an
     approximation as follows:
-        
+
     .. math::
         \phi = \frac{1}{6}\left(1+\sqrt{1+A^2} + 4\sqrt{1+A^2/2}\right)
-        
+
         A = \frac{2\pi a}{\lambda}
-        
+
     Most plate heat exchangers approximate a sinusoidal geometry only.
 
     Examples
@@ -3835,36 +3835,36 @@ def plate_enlargement_factor(amplitude, wavelength):
 class PlateExchanger(object):
     r'''Class representing a plate heat exchanger with sinusoidal ridges.
     All parameters are also attributes.
-            
+
     Parameters
     ----------
     amplitude : float
         Half the height of the wave of the ridges, [m]
     wavelength : float
-        Distance between the bottoms of two of the ridges (sometimes called 
+        Distance between the bottoms of two of the ridges (sometimes called
         pitch), [m]
     chevron_angle : float, optional
         Angle of the plate corrugations with respect to the vertical axis
         (the direction of flow if the plates were straight), between 0 and
         90, [degrees]
     chevron_angles : tuple(2), optional
-        Many plate exchangers use two alternating patterns; for those cases 
+        Many plate exchangers use two alternating patterns; for those cases
         provide tuple of the two angles for that situation and the argument
         `chevron_angle` is ignored, [degrees]
     width : float, optional
         Width of the plates in the heat exchanger, between the gaskets, [m]
     length : float, optional
         Length of the heat exchanger as measured from one port to the other,
-        excluding the diameter of the ports themselves (little useful heat 
+        excluding the diameter of the ports themselves (little useful heat
         transfer happens there), [m]
     thickness : float, optional
         Thickness of the metal making up the plates, [m]
     d_port : float, optional
         The diameter of the ports in the plates, [m]
     plates : int, optional
-        The number of plates in the heat exchanger, including the two not 
+        The number of plates in the heat exchanger, including the two not
         used for heat transfer at the beginning and end [-]
- 
+
     Attributes
     ----------
     chevron_angles : tuple(2)
@@ -3875,7 +3875,7 @@ class PlateExchanger(object):
         90 - `chevron_angle`, used in many publications instead of `chevron_angle`,
         [degrees]
     plate_corrugation_aspect_ratio : float
-        The aspect ratio of the corrugations 
+        The aspect ratio of the corrugations
         :math:`\gamma = \frac{4a}{\lambda}`, [-]
     plate_enlargement_factor : float
         The extra surface area multiplier as compared to a flat plate
@@ -3888,7 +3888,7 @@ class PlateExchanger(object):
         Port center to port center along the direction of flow, [m]
     A_plate_surface : float
         The surface area of one plate in the heat exchanger, including the
-        extra due to corrugations (excluding the bit between the ports), 
+        extra due to corrugations (excluding the bit between the ports),
         :math:`A_p = L\cdot W\cdot \phi` [m^2]
     A_heat_transfer : float
         The total surface area available for heat transfer in the exchanger,
@@ -3913,9 +3913,9 @@ class PlateExchanger(object):
 
     References
     ----------
-    .. [1] Amalfi, Raffaele L., Farzad Vakili-Farahani, and John R. Thome. 
+    .. [1] Amalfi, Raffaele L., Farzad Vakili-Farahani, and John R. Thome.
        "Flow Boiling and Frictional Pressure Gradients in Plate Heat Exchangers.
-       Part 1: Review and Experimental Database." International Journal of 
+       Part 1: Review and Experimental Database." International Journal of
        Refrigeration 61 (January 2016): 166-84. doi:10.1016/j.ijrefrig.2015.07.010.
     '''
     def __repr__(self):  # pragma : no cover
@@ -3927,10 +3927,10 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
             s += ', port diameter=%g m' %(self.d_port)
         if self.plates:
             s += ', heat transfer area=%g m^2, %g plates>' %(self.A_heat_transfer, self.plates)
-        else: 
+        else:
             s += '>'
         return s
-        
+
     @property
     def plate_exchanger_identifier(self):
         """Method to create an identifying string in format 'L' + wavelength +
@@ -3945,10 +3945,10 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
         a2 = self.chevron_angles[1]
         s = ('L{0}A{1}B{2}-{3}'.format(wave_rounded, amplitude_rounded, a1, a2))
         return s
-    
-    
+
+
     def __init__(self, amplitude, wavelength, chevron_angle=45,
-                 chevron_angles=None, width=None, length=None, thickness=None, 
+                 chevron_angles=None, width=None, length=None, thickness=None,
                  d_port=None, plates=None):
         self.amplitude = self.a = amplitude # half a sine wave's height
         self.b = 2*self.amplitude # Used in some models. From a flat plate, a press goes down this far into the plate. Also called the hot and cold gap
@@ -3959,15 +3959,15 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
         else:
             self.chevron_angle = self.beta = chevron_angle # between 0 and 90
             self.chevron_angles = (chevron_angle, chevron_angle)
-            
+
         self.inclination_angle = 90 - self.chevron_angle # Used in some definitions instead
 
         self.plate_corrugation_aspect_ratio = self.gamma = 4*self.a/self.wavelength
         self.plate_enlargement_factor = plate_enlargement_factor(self.amplitude, self.wavelength)
-        
+
         self.D_eq = 4*self.amplitude # Equivalent diameter for inter-plate spacing
         self.D_hydraulic = 4*self.amplitude/self.plate_enlargement_factor # Get better results when correlations use this
-        
+
         if width is not None:
             self.width = width
         if length is not None:
@@ -3978,7 +3978,7 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
             self.d_port = d_port
         if plates is not None:
             self.plates = plates
-                
+
         if d_port is not None and length is not None:
             self.length_port = length + d_port # port center to port center along the direction of flow
             # There is another larger length as well, including both port diameters
@@ -3986,7 +3986,7 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
             self.A_plate_surface = length*width*self.plate_enlargement_factor # use this in Q = UAdT
             if plates is not None:
                 self.A_heat_transfer = (plates-2)*self.A_plate_surface # the two outermost sides aren't used
-        if width is not None: 
+        if width is not None:
             self.A_channel_flow = self.width*self.b # Use this to get G, kg/s/m^2
         if plates is not None:
             self.channels = self.plates - 1
@@ -3994,51 +3994,51 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
 
 
 class RectangularFinExchanger(object):
-    r'''Class representing a plate-fin heat exchanger with straight rectangular 
+    r'''Class representing a plate-fin heat exchanger with straight rectangular
     fins. All parameters are also attributes.
-            
+
     Parameters
     ----------
     fin_height : float
         The total distance between the two metal plates sandwiching the fins
         and holding them together (abbreviated `h`), [m]
     fin_thickness : float
-        The thickness of the material the fins were formed from 
+        The thickness of the material the fins were formed from
         (abbreviated `t`), [m]
     fin_spacing : float
-        The unit cell spacing from one fin to the next; the space between the 
+        The unit cell spacing from one fin to the next; the space between the
         sides of two fins plus one thickness (abbreviated `s`), [m]
     length : float, optional
-        The total length of the flow passage of the plate-fin exchanger 
+        The total length of the flow passage of the plate-fin exchanger
         (abbreviated `L`), [m]
     width : float, optional
         The total width of the space the fins are in; this is also
         :math:`N_{fins}\times s` (abbreviated `W`), [m]
     layers : int, optional
-        The number of layers in the plate-fin exchanger; note these HX almost 
+        The number of layers in the plate-fin exchanger; note these HX almost
         always single-pass only, [-]
     plate_thickness : float, optional
         The thickness of the metal separator between layers, [m]
     flow : str, optional
         One of 'counterflow', 'crossflow', or 'parallelflow'
-    
+
     Attributes
     ----------
     channel_height : float
-        The height of the channel the fluid flows in 
+        The height of the channel the fluid flows in
         :math:`\text{channel height } = \text{fin height} - \text{fin thickness}`, [m]
     channel_width : float
-        The width of the channel the fluid flows in 
+        The width of the channel the fluid flows in
         :math:`\text{channel width } = \text{fin spacing} - \text{fin thickness}`, [m]
     fin_count : int
-        The number of fins per unit length of the layer, 
+        The number of fins per unit length of the layer,
         :math:`\text{fin count} = \frac{1}{\text{fin spacing}}`, [1/m]
     blockage_ratio : float
         The fraction of the layer which is blocked to flow by the fins,
         :math:`\text{blockage ratio} = \frac{s\cdot h - s\cdot t - t(h-t)}{s\cdot h}`,
         [m]
     A_channel : float
-        Flow area of a single channel in a single layer, 
+        Flow area of a single channel in a single layer,
         :math:`\text{channel area} = (s-t)(h-t)`, [m]
     P_channel : float
         Wetted perimeter of a single channel in a single layer,
@@ -4068,7 +4068,7 @@ class RectangularFinExchanger(object):
 
     Notes
     -----
-    The only required parameters are the fin geometry itself; `fin_height`, 
+    The only required parameters are the fin geometry itself; `fin_height`,
     `fin_thickness`, and `fin_spacing`.
 
     Examples
@@ -4079,51 +4079,51 @@ class RectangularFinExchanger(object):
 
     References
     ----------
-    .. [1] Yang, Yujie, and Yanzhong Li. "General Prediction of the Thermal 
-       Hydraulic Performance for Plate-Fin Heat Exchanger with Offset Strip 
-       Fins." International Journal of Heat and Mass Transfer 78 (November 1, 
+    .. [1] Yang, Yujie, and Yanzhong Li. "General Prediction of the Thermal
+       Hydraulic Performance for Plate-Fin Heat Exchanger with Offset Strip
+       Fins." International Journal of Heat and Mass Transfer 78 (November 1,
        2014): 860-70. doi:10.1016/j.ijheatmasstransfer.2014.07.060.
-    .. [2] Sheik Ismail, L., R. Velraj, and C. Ranganayakulu. "Studies on 
-       Pumping Power in Terms of Pressure Drop and Heat Transfer 
-       Characteristics of Compact Plate-Fin Heat Exchangers-A Review." 
-       Renewable and Sustainable Energy Reviews 14, no. 1 (January 2010): 
+    .. [2] Sheik Ismail, L., R. Velraj, and C. Ranganayakulu. "Studies on
+       Pumping Power in Terms of Pressure Drop and Heat Transfer
+       Characteristics of Compact Plate-Fin Heat Exchangers-A Review."
+       Renewable and Sustainable Energy Reviews 14, no. 1 (January 2010):
        478-85. doi:10.1016/j.rser.2009.06.033.
     '''
     def __init__(self, fin_height, fin_thickness, fin_spacing, length=None, width=None, layers=None, plate_thickness=None, flow='crossflow'):
         self.h = self.fin_height = fin_height # including 2x thickness
         self.t = self.fin_thickness = fin_thickness
         self.s = self.fin_spacing = fin_spacing
-        
+
         self.L = self.length = length
         self.W = self.width = width
-        
+
         self.layers = layers
         self.flow = flow
         self.plate_thickness = plate_thickness
-        
+
         self.channel_height = self.fin_height - self.fin_thickness
         self.channel_width = self.fin_spacing - self.fin_thickness
         self.fin_count = 1./self.fin_spacing
-        
+
         self.blockage_ratio = (self.s*self.h - self.s*self.t - (self.h-self.t)*self.t)/(self.s*self.h)
-        
+
         self.A_channel = (self.s-self.t)*(self.h-self.t)
         self.P_channel = 2*(self.s-self.t) + 2*(self.h-self.t)
         self.Dh = 4*self.A_channel/self.P_channel
         self.set_overall_geometry()
-        
-        
+
+
     def set_overall_geometry(self):
         if self.plate_thickness:
             self.layer_thickness = self.plate_thickness + self.fin_height
-        
+
         if self.length and self.width:
             self.layer_fin_count = round(self.fin_count*self.width, 0)
             if hasattr(self, 'SA_fin'):
                 self.A_HX_layer = self.layer_fin_count*self.SA_fin*self.length
             else:
                 self.A_HX_layer = self.P_channel*self.length*self.layer_fin_count
-            
+
             if self.layers:
                 self.A_HX = self.layers*self.A_HX_layer
                 if self.plate_thickness:
@@ -4138,16 +4138,16 @@ class RectangularOffsetStripFinExchanger(RectangularFinExchanger):
         self.h = self.fin_height = fin_height
         self.t = self.fin_thickness = fin_thickness
         self.s = self.fin_spacing = fin_spacing
-        
+
         self.blockage_ratio = self.omega = 2*self.t/self.s*(1. - self.t/self.h) + self.t/self.h*(1 - 2*self.t/self.s)
         # Kim blockage ratio beta
         self.blockage_ratio_Kim = self.t/self.h + self.t/self.s - self.t**2/(self.h*self.s)
-        
+
         # Definitions as in the paper with the most common correlation
         self.alpha = self.s/self.h # "General prediction" uses t/h here
         self.delta = self.t/self.l
         self.gamma = self.t/self.s
-        
+
         # free flow area
         self.A_channel = (self.h  - self.t)*(self.s - self.t)
         self.A = 2.*(self.l*(self.h-self.t) + self.l*(self.s-self.t) + self.t*(self.h-self.t)) + self.t*(self.s-2*self.t)
@@ -4155,9 +4155,9 @@ class RectangularOffsetStripFinExchanger(RectangularFinExchanger):
 
         self.Dh_Kays_London = 4*self.A_channel/(2*(self.h -self.t)+ 2*(self.s -self.t))
         # Does not consider the fronts of backs of the fins, only the 2d shape
-        
+
         self.Dh_Joshi_Webb = 2*self.l*(self.h - self.t)*(self.s - 2*self.t)/(self.l*(self.h-self.t) + self.l*(self.s - self.t) + self.t*(self.h - self.t))
-        
+
         self.L = self.length = length
         self.W = self.width = width
         self.layers = layers
@@ -4169,30 +4169,30 @@ class RectangularOffsetStripFinExchanger(RectangularFinExchanger):
 
 class HyperbolicCoolingTower(object):
     r'''Class representing the geometry of a hyperbolic cooling tower, as used
-    in many industries especially the poewr industry.  All parameters are also 
+    in many industries especially the poewr industry.  All parameters are also
     attributes.
-        
+
     `H_inlet`, `D_outlet`, and `H_outlet` are always required. Additionally,
     one set of the following parameters is required; `H_support`, `D_support`,
     `n_support`, and `inlet_rounding` are all optional as well.
-    
+
         * Inlet diameter
         * Inlet diameter and throat diameter
         * Inlet diameter and throat height
         * Inlet diameter, throat diameter, and throat height
         * Base diameter, throat diameter, and throat height
-    
+
     If the inlet diameter is provided but the throat diameter and/or the throat
-    height are missing, two heuristics are used to estimate them (to avoid 
+    height are missing, two heuristics are used to estimate them (to avoid
     these heuristics simply specify the values):
-        
+
         * Assume the throat elevation is 2/3 the elevation of the tower.
         * Assume the throat diameter is 63% the diameter of the inlet.
-        
+
     Parameters
     ----------
     H_inlet : float
-        Height of the inlet zone of the cooling tower (also called rain zone), 
+        Height of the inlet zone of the cooling tower (also called rain zone),
         [m]
     D_outlet : float
         The inside diameter of the cooling tower outlet (top of the tower; the
@@ -4201,7 +4201,7 @@ class HyperbolicCoolingTower(object):
         The height of the cooling tower outlet (top of the tower;the
         elevation the concrete section ends), [m]
     D_inlet : float, optional
-        The inside diameter of the cooling tower inlet at the elevation the   
+        The inside diameter of the cooling tower inlet at the elevation the
         concrete section begins, [m]
     D_base : float, optional
         The diameter of the cooling tower at the very base of the tower (the
@@ -4222,7 +4222,7 @@ class HyperbolicCoolingTower(object):
         The diameter of each support column, [m]
     n_support : int, optional
         The number of support columns of the cooling tower, [m]
-                 
+
     Attributes
     ----------
     b_lower : float
@@ -4236,10 +4236,10 @@ class HyperbolicCoolingTower(object):
     -----
     Note there are two hyperbolas in a hyperbolic cooling tower - one under the
     throat and one above it; they are not necessarily the same.
-    
-    A hyperbolic cooling tower is not the absolute optimal design, but is is 
-    close. The optimality is determined by the amount of material required to 
-    build it while maintaining its rigidity. For thermal design purposes, 
+
+    A hyperbolic cooling tower is not the absolute optimal design, but is is
+    close. The optimality is determined by the amount of material required to
+    build it while maintaining its rigidity. For thermal design purposes,
     a hyperbolic model covers any minor variation quite well.
 
     Examples
@@ -4249,12 +4249,12 @@ class HyperbolicCoolingTower(object):
     <Hyperbolic cooling tower, inlet diameter=136.18 m, outlet diameter=89 m, inlet height=14.5 m, outlet height=200 m, throat diameter=85.7934 m, throat height=133.333 m, base diameter=146.427 m>
     >>> ct.diameter(5)
     142.84514486126062
-    
+
     References
     ----------
     .. [1] Chen, W. F., and E. M. Lui, eds. Handbook of Structural Engineering,
        Second Edition. Boca Raton, Fla: CRC Press, 2005.
-    .. [2] Ansary, A. M. El, A. A. El Damatty, and A. O. Nassef. Optimum Shape 
+    .. [2] Ansary, A. M. El, A. A. El Damatty, and A. O. Nassef. Optimum Shape
        and Design of Cooling Towers, 2011.
     '''
     def __repr__(self):  # pragma : no cover
@@ -4262,49 +4262,49 @@ class HyperbolicCoolingTower(object):
 outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m>'''
         s = s%(self.D_inlet, self.D_outlet, self.H_inlet, self.H_outlet, self.D_throat, self.H_throat, self.D_base)
         return s
-    
+
     def __init__(self, H_inlet, D_outlet, H_outlet, D_inlet=None, D_base=None,
                  D_throat=None, H_throat=None,
-                 
+
                  H_support=None, D_support=None, n_support=None,
                  inlet_rounding=None):
         self.D_outlet = D_outlet
         self.H_inlet = H_inlet
         self.H_outlet = H_outlet
-        
+
         if H_throat is None:
             H_throat = 2/3.0*H_outlet
         self.H_throat = H_throat
-        
+
         if D_throat is None:
             if D_inlet is not None:
                 D_throat = 0.63*D_inlet
             else:
                 raise ValueError('Provide either `D_throat`, or `D_inlet` so it may be estimated.')
         self.D_throat = D_throat
-        
+
         if D_inlet is None and D_base is None:
             raise ValueError('Need `D_inlet` or `D_base`')
-        if D_base is not None: 
+        if D_base is not None:
             b = self.D_throat*self.H_throat/sqrt(D_base**2 - self.D_throat**2)
             D_inlet = 2*self.D_throat*sqrt((self.H_throat-H_inlet)**2 + b**2)/(2*b)
         elif D_inlet is not None:
             b = self.D_throat*(self.H_throat-H_inlet)/sqrt(D_inlet**2 - self.D_throat**2)
             D_base = 2*self.D_throat*sqrt(self.H_throat**2 + b**2)/(2*b)
-        
+
         self.D_inlet = D_inlet
         self.D_base = D_base
         self.b_lower = b
-        
+
         # Upper b parameter
         self.b_upper = self.D_throat*(self.H_outlet - self.H_throat)/sqrt((self.D_outlet)**2 - self.D_throat**2)
-            
+
         # May or may not be specified
         self.H_support = H_support
         self.D_support = D_support
         self.n_support = n_support
         self.inlet_rounding = inlet_rounding
-    
+
     def plot(self, pts=100):  # pragma: no cover
         import matplotlib.pyplot as plt
 
@@ -4317,20 +4317,20 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
     def diameter(self, H):
         r'''Calculates cooling tower diameter at a specified height, using
         the formulas for either hyperbola, depending on the height specified.
-        
+
         .. math::
             D = D_{throat}\frac{\sqrt{H^2 + b^2}}{b}
-            
+
         The value of `H` and `b` used in the above equation is as follows:
-            
+
             * `H_throat` - H  and `b_lower` if under the throat
             * `H` - `H_throat` and `b_upper`, if above the throat
-                        
+
         Parameters
         ----------
         H : float
             Height at which to calculate the cooling tower diameter, [m]
-    
+
         Returns
         -------
         D : float
@@ -4349,25 +4349,25 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
 
 
 class AirCooledExchanger(object):
-    r'''Class representing the geometry of an air cooled heat exchanger with 
+    r'''Class representing the geometry of an air cooled heat exchanger with
     one or more tube bays, fans, or bundles.
     All parameters are also attributes.
-    
+
     The minimum information required to describe an air cooler is as follows:
-        
+
     * `tube_rows`
     * `tube_passes`
     * `tubes_per_row`
     * `tube_length`
     * `tube_diameter`
     * `fin_thickness`
-    
-    Two of `angle`, `pitch`, `pitch_parallel`, and `pitch_normal` 
+
+    Two of `angle`, `pitch`, `pitch_parallel`, and `pitch_normal`
     (`pitch_ratio` may take the place of `pitch`)
-    
+
     Either `fin_diameter` or `fin_height`.
     Either `fin_density` or `fin_interval`.
-            
+
     Parameters
     ----------
     tube_rows : int
@@ -4384,9 +4384,9 @@ class AirCooledExchanger(object):
     fin_thickness : float
         Thickness of the fins, [m]
     angle : float, optional
-        Angle of the tube layout, [degrees] 
+        Angle of the tube layout, [degrees]
     pitch : float, optional
-        Shortest distance between tube centers; defined in relation to the 
+        Shortest distance between tube centers; defined in relation to the
         flow direction only, [m]
     pitch_parallel : float, optional
         Distance between tube center along a line parallel to the flow;
@@ -4395,7 +4395,7 @@ class AirCooledExchanger(object):
         Distance between tube centers in a line 90° to the line of flow;
         has been called the `transverse` pitch, `pn`, `s1`, `ST`, and `p1`, [m]
     pitch_ratio : float, optional
-        Ratio of the pitch to bare tube diameter, [-] 
+        Ratio of the pitch to bare tube diameter, [-]
     fin_diameter : float, optional
         Outer diameter of each tube after including the fin on both sides,
         [m]
@@ -4413,21 +4413,21 @@ class AirCooledExchanger(object):
     fans_per_bay : int, optional
         Number of fans per bay, [-]
     corbels : bool, optional
-        Whether or not the air cooler has corbels, which increase the air 
-        velocity by adding half a tube to the sides for the case of 
+        Whether or not the air cooler has corbels, which increase the air
+        velocity by adding half a tube to the sides for the case of
         non-rectangular tube layouts, [-]
     tube_thickness : float, optional
         Thickness of the bare metal tubes, [m]
     fan_diameter : float, optional
         Diameter of air cooler fan, [m]
- 
+
     Attributes
     ----------
     bare_length : float
-        Length of bare tube between two fins 
+        Length of bare tube between two fins
         :math:`\text{bare length} = \text{fin interval} - t_{fin}`, [m]
     tubes_per_bundle : float
-        Total number of tubes per bundle 
+        Total number of tubes per bundle
         :math:`N_{tubes/bundle} = N_{tubes/row} \cdot N_{rows}`, [-]
     tubes_per_bay : float
         Total number of tubes per bay
@@ -4435,22 +4435,22 @@ class AirCooledExchanger(object):
     tubes : float
         Total number of tubes in all bundles in all bays combined
         :math:`N_{tubes} = N_{tubes/bay} \cdot N_{bays}`, [-]
-        
+
     pitch_diagonal : float
         Distance between tube centers in a diagonal line between one normal
-        tube and one parallel tube; 
+        tube and one parallel tube;
         :math:`s_D = \left[s_L^2 + \left(\frac{s_T}{2}\right)^2\right]^{0.5}`,
         [m]
-    
+
     A_bare_tube_per_tube : float
-        Area of the bare tube including the portion hidden by the fin per 
+        Area of the bare tube including the portion hidden by the fin per
         tube :math:`A_{bare,total/tube} = \pi D_{tube} L_{tube}`, [m^2]
     A_bare_tube_per_row : float
         Area of the bare tube including the portion hidden by the fin per
-        tube row 
+        tube row
         :math:`A_{bare,total/row} = \pi D_{tube} L_{tube} N_{tubes/row}`, [m^2]
     A_bare_tube_per_bundle : float
-        Area of the bare tube including the portion hidden by the fin per 
+        Area of the bare tube including the portion hidden by the fin per
         bundle :math:`A_{bare,total/bundle} = \pi D_{tube} L_{tube}
         N_{tubes/bundle}`, [m^2]
     A_bare_tube_per_bay : float
@@ -4463,8 +4463,8 @@ class AirCooledExchanger(object):
         L_{tube} N_{tubes}`, [m^2]
 
     A_tube_showing_per_tube : float
-        Area of the bare tube which is exposed per tube :math:`A_{bare, 
-        showing/tube} = \pi D_{tube} L_{tube}  \left(1 - \frac{t_{fin}} 
+        Area of the bare tube which is exposed per tube :math:`A_{bare,
+        showing/tube} = \pi D_{tube} L_{tube}  \left(1 - \frac{t_{fin}}
         {\text{fin interval}} \right)`, [m^2]
     A_tube_showing_per_row : float
         Area of the bare tube which is exposed per tube row, [m^2]
@@ -4475,12 +4475,12 @@ class AirCooledExchanger(object):
     A_tube_showing : float
         Area of the bare tube which is exposed in all bundles and bays
         combined, [m^2]
-        
+
     A_per_fin : float
-        Surface area per fin :math:`A_{fin} = 2 \frac{\pi}{4} (D_{fin}^2 - 
+        Surface area per fin :math:`A_{fin} = 2 \frac{\pi}{4} (D_{fin}^2 -
         D_{tube}^2) + \pi D_{fin} t_{fin}`, [m^2]
     A_fin_per_tube : float
-        Surface area of all fins per tube 
+        Surface area of all fins per tube
         :math:`A_{fin/tube} = N_{fins/m} L_{tube} A_{fin}`, [m^2]
     A_fin_per_row : float
         Surface area of all fins per row, [m^2]
@@ -4490,10 +4490,10 @@ class AirCooledExchanger(object):
         Surface area of all fins per bay, [m^2]
     A_fin : float
         Surface area of all fins in all bundles and bays combined, [m^2]
-        
+
     A_per_tube : float
         Surface area of combined finned and non-fined area exposed for heat
-        transfer per tube :math:`A_{tube} = A_{bare, showing/tube} 
+        transfer per tube :math:`A_{tube} = A_{bare, showing/tube}
         + A_{fin/tube}`, [m^2]
     A_per_row : float
         Surface area of combined finned and non-finned area exposed for heat
@@ -4518,7 +4518,7 @@ class AirCooledExchanger(object):
         The number of tubes the fluid flows through at the inlet header, [-]
 
     tube_volume_per_tube : float
-        Fluid volume per tube inside :math:`V_{tube, flow} = \frac{\pi}{4} 
+        Fluid volume per tube inside :math:`V_{tube, flow} = \frac{\pi}{4}
         D_{i}^2 L_{tube}`, [m^3]
     tube_volume_per_row : float
         Fluid volume of tubes per row, [m^3]
@@ -4531,23 +4531,23 @@ class AirCooledExchanger(object):
 
 
     A_diagonal_per_bundle : float
-        Air flow area along the diagonal plane per bundle 
-        :math:`A_d = 2 N_{tubes/row} L_{tube} (P_d - D_{tube} - 2 N_{fins/m} h_{fin} t_{fin}) + A_\text{extra,side}`, [m^2] 
+        Air flow area along the diagonal plane per bundle
+        :math:`A_d = 2 N_{tubes/row} L_{tube} (P_d - D_{tube} - 2 N_{fins/m} h_{fin} t_{fin}) + A_\text{extra,side}`, [m^2]
     A_normal_per_bundle : float
         Air flow area along the normal (transverse) plane; this is normally
-        the minimum flow area, except for some staggered configurations 
+        the minimum flow area, except for some staggered configurations
         :math:`A_t = N_{tubes/row} L_{tube} (P_t - D_{tube} - 2 N_{fins/m} h_{fin} t_{fin}) + A_\text{extra,side}`, [m^2]
     A_min_per_bundle : float
-        Minimum air flow area per bundle; this is the characteristic area for 
-        velocity calculation in most finned tube convection correlations 
+        Minimum air flow area per bundle; this is the characteristic area for
+        velocity calculation in most finned tube convection correlations
         :math:`A_{min} = min(A_d, A_t)`, [m^2]
     A_min_per_bay : float
         Minimum air flow area per bay, [m^2]
     A_min : float
         Minimum air flow area, [m^2]
-        
+
     A_face_per_bundle : float
-        Face area per bundle :math:`A_{face} = P_{T} (1+N_{tubes/row}) 
+        Face area per bundle :math:`A_{face} = P_{T} (1+N_{tubes/row})
         L_{tube}`; if corbels are used, add 0.5 to tubes/row instead of 1,
         [m^2]
     A_face_per_bay : float
@@ -4563,7 +4563,7 @@ class AirCooledExchanger(object):
 
     Examples
     --------
-    >>> AC = AirCooledExchanger(tube_rows=4, tube_passes=4, tubes_per_row=56, tube_length=10.9728, 
+    >>> AC = AirCooledExchanger(tube_rows=4, tube_passes=4, tubes_per_row=56, tube_length=10.9728,
     ... tube_diameter=1*inch, fin_thickness=0.013*inch, fin_density=10/inch,
     ... angle=30, pitch=2.5*inch, fin_height=0.625*inch, tube_thickness=0.00338,
     ... bundles_per_bay=2, parallel_bays=3, corbels=True)
@@ -4585,18 +4585,18 @@ class AirCooledExchanger(object):
                 t += '%s=%s, ' %(k, v)
         t = t[0:-2]
         return s%t
-    
-    def __init__(self, tube_rows, tube_passes, tubes_per_row, tube_length, 
+
+    def __init__(self, tube_rows, tube_passes, tubes_per_row, tube_length,
                  tube_diameter, fin_thickness,
-                 
+
                  angle=None, pitch=None, pitch_parallel=None, pitch_normal=None,
                  pitch_ratio=None,
-                 
+
                  fin_diameter=None, fin_height=None,
-                 
+
                  fin_density=None, fin_interval=None,
-                 
-                 parallel_bays=1, bundles_per_bay=1, fans_per_bay=1, 
+
+                 parallel_bays=1, bundles_per_bay=1, fans_per_bay=1,
                  corbels=False, tube_thickness=None, fan_diameter=None):
         # TODO: fin types
 
@@ -4607,14 +4607,14 @@ class AirCooledExchanger(object):
         self.tube_diameter = tube_diameter
         self.fin_thickness = fin_thickness
         self.fan_diameter = fan_diameter
-        
+
         if pitch_ratio is not None:
             if pitch is not None:
                 pitch = self.tube_diameter*pitch_ratio
             else:
                 raise ValueError('Specify only one of `pitch_ratio` or `pitch`')
-        
-        
+
+
         angle, pitch, pitch_parallel, pitch_normal = pitch_angle_solver(
             angle=angle, pitch=pitch, pitch_parallel=pitch_parallel,
             pitch_normal=pitch_normal)
@@ -4622,10 +4622,10 @@ class AirCooledExchanger(object):
         self.pitch = pitch
         self.pitch_parallel = pitch_parallel
         self.pitch_normal = pitch_normal
-        
+
         self.pitch_diagonal = sqrt(pitch_parallel**2 + (0.5*pitch_normal)**2)
-        
-        
+
+
         if fin_diameter is None and fin_height is None:
             raise ValueError('Specify only one of `fin_diameter` or `fin_height`')
         elif fin_diameter is not None:
@@ -4634,7 +4634,7 @@ class AirCooledExchanger(object):
             fin_diameter = tube_diameter + 2.0*fin_height
         self.fin_height = fin_height
         self.fin_diameter = fin_diameter
-        
+
         if fin_density is None and fin_interval is None:
             raise ValueError('Specify only one of `fin_density` or `fin_interval`')
         elif fin_density is not None:
@@ -4643,31 +4643,31 @@ class AirCooledExchanger(object):
             fin_density = 1.0/fin_interval
         self.fin_interval = fin_interval
         self.fin_density = fin_density
-            
+
         self.parallel_bays = parallel_bays
         self.bundles_per_bay = bundles_per_bay
         self.fans_per_bay = fans_per_bay
-        
+
         self.corbels = corbels
         self.tube_thickness = tube_thickness
-        
-        
+
+
         if self.fin_interval:
             self.bare_length = self.fin_interval - self.fin_thickness
         else:
             self.bare_length = None
-            
+
         self.tubes_per_bundle = self.tubes_per_row*self.tube_rows
         self.tubes_per_bay = self.tubes_per_bundle*self.bundles_per_bay
         self.tubes = self.tubes_per_bay*self.parallel_bays
-        
-        
+
+
         self.A_bare_tube_per_tube = pi*self.tube_diameter*self.tube_length
         self.A_bare_tube_per_row = self.A_bare_tube_per_tube*self.tubes_per_row
         self.A_bare_tube_per_bundle = self.A_bare_tube_per_tube*self.tubes_per_bundle
         self.A_bare_tube_per_bay = self.A_bare_tube_per_tube*self.tubes_per_bay
         self.A_bare_tube = self.A_bare_tube_per_tube*self.tubes
-        
+
         self.A_tube_showing_per_tube = pi*self.tube_diameter*self.tube_length*(1.0 - self.fin_thickness/self.fin_interval)
         self.A_tube_showing_per_row = self.A_tube_showing_per_tube*self.tubes_per_row
         self.A_tube_showing_per_bundle = self.A_tube_showing_per_tube*self.tubes_per_bundle
@@ -4689,8 +4689,8 @@ class AirCooledExchanger(object):
         self.A = self.A_tube_showing + self.A_fin
 
         self.A_increase = self.A/self.A_bare_tube
-        
-        
+
+
         # TODO A_extra could be calculated based on a fixed width and height of the bay
         A_extra = 0.0
         self.A_diagonal_per_bundle = 2.0*self.tubes_per_row*self.tube_length*(self.pitch_diagonal - self.tube_diameter - 2.0*fin_density*self.fin_height*self.fin_thickness) + A_extra
@@ -4698,18 +4698,18 @@ class AirCooledExchanger(object):
         self.A_min_per_bundle = min(self.A_diagonal_per_bundle, self.A_normal_per_bundle)
         self.A_min_per_bay = self.A_min_per_bundle*self.bundles_per_bay
         self.A_min = self.A_min_per_bay*self.parallel_bays
-        
+
         i = 0.5 if self.corbels else 1.0
         self.A_face_per_bundle = self.pitch_normal*self.tube_length*(self.tubes_per_row + i)
         self.A_face_per_bay = self.A_face_per_bundle*self.bundles_per_bay
         self.A_face = self.A_face_per_bay*self.parallel_bays
-        
+
         self.flow_area_contraction_ratio = self.A_min/self.A_face
-        
+
         if self.tube_thickness is not None:
             self.Di = self.tube_diameter - self.tube_thickness*2.0
             self.A_tube_flow = pi/4.0*self.Di*self.Di
-            
+
             self.tube_volume_per_tube = self.A_tube_flow*self.tube_length
             self.tube_volume_per_row = self.tube_volume_per_tube*self.tubes_per_row
             self.tube_volume_per_bundle = self.tube_volume_per_tube*self.tubes_per_bundle
@@ -4718,20 +4718,20 @@ class AirCooledExchanger(object):
         else:
             self.Di = None
             self.A_tube_flow = None
-            
+
             self.tube_volume_per_tube = None
             self.tube_volume_per_row = None
             self.tube_volume_per_bundle = None
             self.tube_volume_per_bay = None
             self.tube_volume = None
-        
+
         # TODO: Support different numbers of tube rows per pass - maybe pass
         # a list of rows per pass to tube_passes?
         if self.tube_rows % self.tube_passes == 0:
             self.channels = self.tubes_per_bundle/self.tube_passes
         else:
             self.channels = self.tubes_per_row
-    
+
         if self.angle == 30:
             self.pitch_str = 'triangular'
             self.pitch_class = 'staggered'
@@ -4747,7 +4747,7 @@ class AirCooledExchanger(object):
         else:
             self.pitch_str = 'custom'
             self.pitch_class = 'custom'
-            
+
 
 
 
@@ -4756,20 +4756,20 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
     r'''Utility to take any two of `angle`, `pitch`, `pitch_parallel`, and
     `pitch_normal` and calculate the other two. This is useful for applications
     with tube banks, as in shell and tube heat exchangers or air coolers and
-    allows for a wider range of user input. 
+    allows for a wider range of user input.
 
     .. math::
         \text{pitch normal} = \text{pitch} \cdot \sin(\text{angle})
-        
+
     .. math::
         \text{pitch parallel} = \text{pitch} \cdot \cos(\text{angle})
-        
+
     Parameters
     ----------
     angle : float, optional
-        The angle of the tube layout, [degrees] 
+        The angle of the tube layout, [degrees]
     pitch : float, optional
-        The shortest distance between tube centers; defined in relation to the 
+        The shortest distance between tube centers; defined in relation to the
         flow direction only, [m]
     pitch_parallel : float, optional
         The distance between tube center along a line parallel to the flow;
@@ -4781,9 +4781,9 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
     Returns
     -------
     angle : float
-        The angle of the tube layout, [degrees] 
+        The angle of the tube layout, [degrees]
     pitch : float
-        The shortest distance between tube centers; defined in relation to the 
+        The shortest distance between tube centers; defined in relation to the
         flow direction only, [m]
     pitch_parallel : float
         The distance between tube center along a line parallel to the flow;
@@ -4791,18 +4791,18 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
     pitch_normal : float
         The distance between tube centers in a line 90° to the line of flow;
         has been called the `transverse` pitch, `pn`, `s1`, `ST`, and `p1`, [m]
-        
+
     Notes
     -----
     For the 90 and 0 degree case, the normal or parallel pitches can be zero;
     given the angle and the zero value, obviously is it not possible to
     calculate the pitch and a math error will be raised.
-    
+
     No exception will be raised if three or four inputs are provided; the other
     two will simply be calculated according to the list of if statements used.
-    
+
     An exception will be raised if only one input is provided.
-        
+
     Examples
     --------
     >>> pitch_angle_solver(pitch=1, angle=30)
@@ -4840,7 +4840,7 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
 def sphericity(A, V):
     r'''Returns the sphericity of a particle of surface area `A` and volume
     `V`. Sphericity is the ratio of the surface area of a sphere with the same
-    volume as the particle (equivalent diameter) to the actual surface area of 
+    volume as the particle (equivalent diameter) to the actual surface area of
     the particle.
 
     .. math::
@@ -4858,7 +4858,7 @@ def sphericity(A, V):
     -------
     Psi : float
         Sphericity [-]
-        
+
     Notes
     -----
     All non-spherical particles have spericities less than 1 but greater than 0.
@@ -4871,7 +4871,7 @@ def sphericity(A, V):
 
     For a cube of side length a=3, the surface area is 6*a^2=54 and volume a^3=27.
     Its sphericity is then:
-    
+
     >>> sphericity(A=54, V=27)
     0.8059959770082346
 
@@ -4879,7 +4879,7 @@ def sphericity(A, V):
     ----------
     .. [1] Rhodes, Martin J., ed. Introduction to Particle Technology. 2E.
        Chichester, England ; Hoboken, NJ: Wiley, 2008.
-    .. [2] "Sphericity." Wikipedia, March 8, 2017. 
+    .. [2] "Sphericity." Wikipedia, March 8, 2017.
        https://en.wikipedia.org/w/index.php?title=Sphericity&oldid=769183043
     '''
     return pi**(1/3.)*(6*V)**(2/3.)/A
@@ -4918,9 +4918,9 @@ def circularity(A, P):
     .. math::
         f_{circ} = \frac {4 \pi A} {P^2}
 
-    Defined to be 1 for a circle. Used to characterize particles. Any 
+    Defined to be 1 for a circle. Used to characterize particles. Any
     non-circular shape must have a circularity less than one.
-    
+
     Parameters
     ----------
     A : float
@@ -4936,12 +4936,12 @@ def circularity(A, P):
     Examples
     --------
     Square, side length = 2 (all squares are the same):
-        
+
     >>> circularity(A=(2*2), P=4*2)
     0.7853981633974483
-    
+
     Rectangle, one side length = 1, second side length = 100
-    
+
     >>> D1 = 1
     >>> D2 = 100
     >>> A = D1*D2

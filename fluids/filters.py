@@ -50,8 +50,8 @@ grills_rounded_alphas = [0.3, 0.4, 0.5, 0.6, 0.7]
 grills_rounded_Ks = [2.0, 1.0, 0.6, 0.4, 0.2]
 '''Cubic interpolation with no smoothing, constant value extremities
 returned when outside table limits'''
-grills_rounded_tck = implementation_optimize_tck([[0.3, 0.3, 0.3, 0.45, 0.55, 0.7, 0.7, 0.7], 
-                                                  [2.0, 1.0014285714285716, 0.5799999999999998, 
+grills_rounded_tck = implementation_optimize_tck([[0.3, 0.3, 0.3, 0.45, 0.55, 0.7, 0.7, 0.7],
+                                                  [2.0, 1.0014285714285716, 0.5799999999999998,
                                                    0.3585714285714287, 0.2, 0.0, 0.0, 0.0],
                                                    2])
 
@@ -82,7 +82,7 @@ def round_edge_screen(alpha, Re, angle=0.0):
     should be adequate.
     alpha should be between 0.05 and 0.8.
     If angle is over 85 degrees, the value at 85 degrees is used.
-    
+
     The velocity the loss coefficient relates to is the approach velocity
     before the screen.
 
@@ -157,7 +157,7 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0.0):
 
     The velocity the loss coefficient relates to is the approach velocity
     before the mesh.
-    
+
     Examples
     --------
     >>> round_edge_open_mesh(0.96, angle=33.)

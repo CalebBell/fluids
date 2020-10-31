@@ -90,7 +90,7 @@ def gtd7_file_output():
     flags.switches[0] = 0
     for i in range(1, 24):
         flags.switches[i]=1
-        
+
     for i in range(17):
         Input[i].doy=172;
         Input[i].year=0; #/* without effect */
@@ -102,7 +102,7 @@ def gtd7_file_output():
         Input[i].f107A=150;
         Input[i].f107=150;
         Input[i].ap=4;
-	
+
     Input[1].doy=81;
     Input[2].sec=75000;
     Input[2].alt=1000;
@@ -170,7 +170,7 @@ def gtd7_file_output():
             build_file("         %3.0f" % Input[i*5+j].f107, end='')
 
         build_file('\n\n', end='')
-        
+
         build_file("\nTINF  ", end='')
         for j in range(5):
             build_file("     %7.2f" % output[i*5+j].t[0], end='')
@@ -227,10 +227,10 @@ def test_NRLMSISE00_against_C_output():
             response = response.encode("utf-8")
         except:
             pass
-        
+
         #proc = subprocess.Popen(["python", script], stdout=subprocess.PIPE)
-        #response = proc.communicate()[0]  
-    
+        #response = proc.communicate()[0]
+
         # Hash it, check it is as expected.
         hasher = hashlib.md5()
         hasher.update(response)

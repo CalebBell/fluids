@@ -131,10 +131,10 @@ VFD_efficiencies = [[0.31, 0.77, 0.86, 0.9, 0.91, 0.93, 0.94],
                     [0.61, 0.91, 0.95, 0.96, 0.96, 0.97, 0.97],
                     [0.61, 0.91, 0.95, 0.96, 0.96, 0.97, 0.97]]
 VFD_efficiency_loads = [0.016, 0.125, 0.25, 0.42, 0.5, 0.75, 1.0]
-VFD_efficiency_powers = [3.0, 5.0, 10.0, 20.0, 30.0, 50.0, 60.0, 75.0, 
+VFD_efficiency_powers = [3.0, 5.0, 10.0, 20.0, 30.0, 50.0, 60.0, 75.0,
                          100.0, 200.0, 400.0]
-VFD_efficiency_tck = tck_interp2d_linear(VFD_efficiency_loads, 
-                                         VFD_efficiency_powers, 
+VFD_efficiency_tck = tck_interp2d_linear(VFD_efficiency_loads,
+                                         VFD_efficiency_powers,
                                          VFD_efficiencies)
 
 
@@ -167,7 +167,7 @@ def VFD_efficiency(P, load=1):
     Table extends down to 3 hp and up to 400 hp; values outside these limits
     are rounded to the nearest known value. Values between standardized sizes
     are interpolated linearly. Load values extend down to 0.016.
-    
+
     The table used is for Pulse Width Modulation (PWM) VFDs.
 
     Examples
@@ -358,7 +358,7 @@ def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
                 efficiency = interp(P, nema_min_P, nema_min_full_open_6p)
             elif poles == 8:
                 efficiency = interp(P, nema_min_P, nema_min_full_open_8p)
-    
+
     return round(efficiency, 4)
 
 
@@ -619,16 +619,16 @@ class CountryPower(object):
         The name of the country, [-]
     """
     __slots__ = ('plugs', 'voltage', 'freq', 'country')
-    
+
     def __repr__(self):
-        return ('CountryPower(country="%s", voltage=%d, freq=%d, plugs=%s)' 
+        return ('CountryPower(country="%s", voltage=%d, freq=%d, plugs=%s)'
                 %(self.plugs, self.voltage, self.freq, self.country))
     def __init__(self, country, voltage, freq, plugs=None):
         self.plugs = plugs
         self.voltage = voltage
         self.freq = freq
         self.country = country
-        
+
 
 residential_power = {
     "at": CountryPower(plugs=('C', 'F'), voltage=230, freq=50, country="Austria"),
@@ -1104,7 +1104,7 @@ SPHERICAL_ROLLER_THRUST: 0.0018}
 
 # In m, diameter of fans
 fan_diameters = [0.125, 0.132, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.212,
-                 0.224, 0.236, 0.25, 0.265, 0.28, 0.3, 0.315, 0.335, 0.355, 
+                 0.224, 0.236, 0.25, 0.265, 0.28, 0.3, 0.315, 0.335, 0.355,
                  0.375, 0.4, 0.425, 0.45, 0.475, 0.5, 0.53, 0.56, 0.6, 0.63,
                  0.67, 0.71, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
 
@@ -1131,7 +1131,7 @@ fan_bare_shaft_efficiencies = {'FEG90': FEG90,
                                'FEG56': FEG56,
                                'FEG53': FEG53,
                                'FEG50': FEG50}
-        
+
 '''for key, values in fan_bare_shaft_efficiencies.items():
     plt.plot(fan_diameters, values, label=key)
 

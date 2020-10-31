@@ -22,10 +22,10 @@ SOFTWARE.
 """
 
 from __future__ import division
-__all__ = ['two_phase_dP', 'two_phase_dP_methods', 'two_phase_dP_acceleration', 
+__all__ = ['two_phase_dP', 'two_phase_dP_methods', 'two_phase_dP_acceleration',
            'two_phase_dP_dz_acceleration', 'two_phase_dP_gravitational',
            'two_phase_dP_dz_gravitational',
-           'Beggs_Brill', 'Lockhart_Martinelli', 'Friedel', 'Chisholm', 
+           'Beggs_Brill', 'Lockhart_Martinelli', 'Friedel', 'Chisholm',
            'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
@@ -71,7 +71,7 @@ def _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV):
     C = (1.0 - lambda_L)*log(d*lambda_L**e*LV**f*Fr**h)
     if C < 0.0:
         C = 0.0
-    
+
     # Correction factor for inclination angle
     Psi = 1.0 + C*(sin(1.8*angle) - 1.0/3.0*sin(1.8*angle)**3)
     if (angle > 0 and regime == 3) or angle == 0:
@@ -114,7 +114,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
         Acceleration due to gravity, [m/s^2]
     acceleration : bool
         Whether or not to include the original acceleration component, [-]
-        
+
     Returns
     -------
     dP : float
@@ -125,8 +125,8 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     The original acceleration formula is fairly primitive and normally
     neglected. The model was developed assuming smooth pipe, so leaving
     `roughness` to zero may be wise.
-    
-    Note this is a "mechanistic" pressure drop model - the gravitational 
+
+    Note this is a "mechanistic" pressure drop model - the gravitational
     pressure drop cannot be separated from the frictional pressure drop.
 
     Examples
@@ -137,19 +137,19 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
 
     References
     ----------
-    .. [1] Beggs, D.H., and J.P. Brill. "A Study of Two-Phase Flow in Inclined 
-       Pipes." Journal of Petroleum Technology 25, no. 05 (May 1, 1973): 
+    .. [1] Beggs, D.H., and J.P. Brill. "A Study of Two-Phase Flow in Inclined
+       Pipes." Journal of Petroleum Technology 25, no. 05 (May 1, 1973):
        607-17. https://doi.org/10.2118/4007-PA.
     .. [2] Brill, James P., and Howard Dale Beggs. Two-Phase Flow in Pipes,
        1994.
-    .. [3] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in 
+    .. [3] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in
        Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
        2006.
     '''
     # 0 - segregated; 1 - transition; 2 - intermittent; 3 - distributed
     qg = x*m/rhog
     ql = (1.0 - x)*m/rhol
-    
+
     A = 0.25*pi*D*D
     Vsg = qg/A
     Vsl = ql/A
@@ -175,12 +175,12 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     LV = Vsl*sqrt(sqrt(rhol/(g*sigma)))
     if angle is None: angle = 0.0
     angle = deg2rad*angle
-    
+
     if regime != 1:
         Hl = _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV)
     else:
         A = (L3 - Fr)/(L3 - L2)
-        Hl = (A*_Beggs_Brill_holdup(0, lambda_L, Fr, angle, LV) 
+        Hl = (A*_Beggs_Brill_holdup(0, lambda_L, Fr, angle, LV)
              + (1.0 - A)*_Beggs_Brill_holdup(2, lambda_L, Fr, angle, LV))
 
     rhos = rhol*Hl + rhog*(1.0 - Hl)
@@ -189,8 +189,8 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     Rem = rhom*D/mum*Vm
     fn = friction_factor(Re=Rem, eD=roughness/D)
     x = lambda_L/(Hl*Hl)
-    
-    
+
+
     if 1.0 < x < 1.2:
         S = log(2.2*x - 1.2)
     else:
@@ -2212,7 +2212,7 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
     # Frictoin factor as in the original model
     fd_l =  64./Re_l if Re_l < Re_c else 0.184*Re_l**-0.2
     dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
-    fd_g =  64./Re_g if Re_g < Re_c else 0.184*Re_g**-0.2 
+    fd_g =  64./Re_g if Re_g < Re_c else 0.184*Re_g**-0.2
     dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
 
     X = sqrt(dP_l/dP_g)
@@ -2256,10 +2256,10 @@ two_phase_correlations = {
 }
 _unknown_msg_two_phase = "Unknown method; available methods are %s" %(list(two_phase_correlations.keys()))
 
-def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, 
+def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
                          sigma=None, P=None, Pc=None, roughness=0.0, angle=0,
                          check_ranges=False):
-    r'''This function returns a list of names of correlations for two-phase 
+    r'''This function returns a list of names of correlations for two-phase
     liquid-gas pressure drop for flow inside channels.
     24 calculation methods are available, with varying input requirements.
 
@@ -2293,7 +2293,7 @@ def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
         The angle of the pipe with respect to the horizontal, [degrees]
     check_ranges : bool, optional
         Added for Future use only
-        
+
     Returns
     -------
     methods : list
@@ -2314,7 +2314,7 @@ def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
         usable_indices.extend([1,2, 101]) # Differs only in the addition of roughness
     if mul is not None and P is not None and Pc is not None:
         usable_indices.append(0)
-    if (rhog is not None and mul is not None and mug is not None 
+    if (rhog is not None and mul is not None and mug is not None
         and sigma is not None and P is not None and angle is not None):
         usable_indices.append(104)
     return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
@@ -2324,10 +2324,10 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
     r'''This function handles calculation of two-phase liquid-gas pressure drop
     for flow inside channels. 23 calculation methods are available, with
     varying input requirements. A correlation will be automatically selected if
-    none is specified. The full list of correlation can be obtained with the 
+    none is specified. The full list of correlation can be obtained with the
     `AvailableMethods` flag.
 
-    If no correlation is selected, the following rules are used, with the 
+    If no correlation is selected, the following rules are used, with the
     earlier options attempted first:
 
         * If rhog, mul, mug, and sigma are specified, use the Kim_Mudawar model
@@ -2363,7 +2363,7 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
         Roughness of pipe for use in calculating friction factor, [m]
     angle : float, optional
         The angle of the pipe with respect to the horizontal, [degrees]
-        
+
     Returns
     -------
     dP : float
@@ -2379,7 +2379,7 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
     -----
     These functions may be integrated over, with properties recalculated as
     the fluid's quality changes.
-    
+
     This model considers only the frictional pressure drop, not that due to
     gravity or acceleration.
 
@@ -2403,7 +2403,7 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
 than provided; provide more inputs!')
     else:
         Method2 = Method
-            
+
     if Method2 == "Zhang_Webb":
         return Zhang_Webb(m=m, x=x, rhol=rhol, mul=mul, P=P, Pc=Pc, D=D, roughness=roughness, L=L)
     elif Method2 == "Lockhart_Martinelli":
@@ -2445,35 +2445,35 @@ than provided; provide more inputs!')
     elif Method2 == "Lombardi_Pedrocchi":
         return Lombardi_Pedrocchi(m=m, x=x, rhol=rhol, rhog=rhog, sigma=sigma, D=D, L=L)
     elif Method2 == "Chisholm rough":
-        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, 
+        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D,
                      L=L, roughness=roughness, rough_correction=True)
     elif Method2 == "Zhang_Hibiki_Mishima adiabatic gas":
-        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
-                     sigma=sigma, D=D, L=L, roughness=roughness, 
+        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
+                     sigma=sigma, D=D, L=L, roughness=roughness,
                      flowtype='adiabatic gas')
     elif Method2 == "Zhang_Hibiki_Mishima flow boiling":
-        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
+        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
                      sigma=sigma, D=D, L=L, roughness=roughness,
                      flowtype='flow boiling')
     elif Method2 == "Beggs-Brill":
-        return Beggs_Brill(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, 
-                     sigma=sigma, P=P, D=D, angle=angle, L=L, 
+        return Beggs_Brill(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
+                     sigma=sigma, P=P, D=D, angle=angle, L=L,
                      roughness=roughness, acceleration=False, g=g)
     else:
         raise ValueError(_unknown_msg_two_phase)
 
 
-def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,  
+def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
                               rho_lo=None, rho_go=None):
     r'''This function handles calculation of two-phase liquid-gas pressure drop
-    due to acceleration for flow inside channels. This is a discrete 
+    due to acceleration for flow inside channels. This is a discrete
     calculation for a segment with a known difference in quality (and ideally
-    known inlet and outlet pressures so density dependence can be included). 
-    
+    known inlet and outlet pressures so density dependence can be included).
+
     .. math::
         \Delta P_{acc} = G^2\left\{\left[\frac{(1-x_o)^2}{\rho_{l,o}
         (1-\alpha_o)} + \frac{x_o^2}{\rho_{g,o}\alpha_o} \right]
-        - \left[\frac{(1-x_i)^2}{\rho_{l,i}(1-\alpha_i)} 
+        - \left[\frac{(1-x_i)^2}{\rho_{l,i}(1-\alpha_i)}
         + \frac{x_i^2}{\rho_{g,i}\alpha_i} \right]\right\}
 
     Parameters
@@ -2503,17 +2503,17 @@ def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
     -------
     dP : float
         Acceleration component of pressure drop for two-phase flow, [Pa]
-        
+
     Notes
     -----
     The use of different gas and liquid phase densities at the inlet and outlet
     is optional; the outlet densities conditions will be assumed to be those of
     the inlet if they are not specified.
-    
+
     There is a continuous variant of this method which can be integrated over,
-    at the expense of a speed. The differential form of this is as follows 
+    at the expense of a speed. The differential form of this is as follows
     ([1]_, [3]_):
-        
+
     .. math::
         - \left(\frac{d P}{dz}\right)_{acc} = G^2 \frac{d}{dz} \left[\frac{
         (1-x)^2}{\rho_l(1-\alpha)} + \frac{x^2}{\rho_g\alpha}\right]
@@ -2523,14 +2523,14 @@ def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
     >>> two_phase_dP_acceleration(m=1, D=0.1, xi=0.372, xo=0.557, rho_li=827.1,
     ... rho_gi=3.919, alpha_i=0.992, alpha_o=0.996)
     706.8560377214725
-    
+
     References
     ----------
     .. [1] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
        Transfer, 3E. New York: McGraw-Hill, 1998.
-    .. [2] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for 
+    .. [2] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for
        Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
-       no. 1 (October 1, 2008): 106-13. 
+       no. 1 (October 1, 2008): 106-13.
        doi:10.1016/j.expthermflusci.2008.07.006.
     .. [3] Kim, Sung-Min, and Issam Mudawar. "Review of Databases and
        Predictive Methods for Pressure Drop in Adiabatic, Condensing and
@@ -2551,18 +2551,18 @@ def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
 def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
                                  dP_dL, dA_dL):
     r'''This function handles calculation of two-phase liquid-gas pressure drop
-    due to acceleration for flow inside channels. This is a continuous 
+    due to acceleration for flow inside channels. This is a continuous
     calculation, providing the differential in pressure per unit length and
     should be called as part of an integration routine ([1]_, [2]_, [3]_).
-    
+
     .. math::
         -\left(\frac{\partial P}{\partial L}\right)_{A} = G^2
         \left(\left(\frac{1}{\rho_g} - \frac{1}{\rho_l}\right)\frac{\partial P}
-        {\partial L}\frac{\partial x}{\partial P} + 
+        {\partial L}\frac{\partial x}{\partial P} +
         \frac{\partial P}{\partial L}\left[x \frac{\partial (1/\rho_g)}
         {\partial P}  + (1-x) \frac{\partial (1/\rho_l)}{\partial P}
         \right] \right) - \frac{G^2}{\rho_{hom}}\frac{1}{A}\frac{\partial A}
-        {\partial L} 
+        {\partial L}
 
     Parameters
     ----------
@@ -2577,13 +2577,13 @@ def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
     rhog : float
         Gas density, [kg/m^3]
     dv_dP_l : float
-        Derivative of mass specific volume of the liquid phase with respect to 
+        Derivative of mass specific volume of the liquid phase with respect to
         pressure, [m^3/(kg*Pa)]
     dv_dP_g : float
-        Derivative of mass specific volume of the gas phase with respect to 
+        Derivative of mass specific volume of the gas phase with respect to
         pressure, [m^3/(kg*Pa)]
     dx_dP : float
-        Derivative of mass quality of the two-phase fluid with respect to 
+        Derivative of mass quality of the two-phase fluid with respect to
         pressure (numerical derivatives may be convenient for this), [1/Pa]
     dP_dL : float
         Pressure drop per unit length of pipe, [Pa/m]
@@ -2594,24 +2594,24 @@ def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
     -------
     dP_dz : float
         Acceleration component of pressure drop for two-phase flow, [Pa/m]
-        
+
     Notes
     -----
 
     This calculation has the `homogeneous` model built in to it as its
     derivation is shown in [1]_. The discrete calculation is more flexible as
     different void fractions may be used.
-    
+
     Examples
     --------
-    >>> two_phase_dP_dz_acceleration(m=1, D=0.1, x=0.372, rhol=827.1, 
+    >>> two_phase_dP_dz_acceleration(m=1, D=0.1, x=0.372, rhol=827.1,
     ... rhog=3.919, dv_dP_l=-5e-12, dv_dP_g=-4e-7, dx_dP=-2e-7, dP_dL=120.0,
     ... dA_dL=0.0001)
     20.137876617489034
-    
+
     References
     ----------
-    .. [1] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in 
+    .. [1] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in
        Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
        2006.
     .. [2] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
@@ -2621,7 +2621,7 @@ def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
        Boiling Mini/Micro-Channel Flows." International Journal of Heat and
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
-    '''  
+    '''
     A = 0.25*pi*D*D
     G = m/A
     t1 = (1.0/rhog - 1.0/rhol)*dP_dL*dx_dP + dP_dL*(x*dv_dP_g + (1.0 - x)*dv_dP_l)
@@ -2629,22 +2629,22 @@ def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
     voidage_h = homogeneous(x, rhol, rhog)
     rho_h = rhol*(1.0 - voidage_h) + rhog*voidage_h
     return -G*G*(t1 - dA_dL/(rho_h*A))
-    
-    
 
 
-def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,  
+
+
+def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
                                alpha_o=None, rho_lo=None, rho_go=None, g=g):
     r'''This function handles calculation of two-phase liquid-gas pressure drop
-    due to gravitation for flow inside channels. This is a discrete 
+    due to gravitation for flow inside channels. This is a discrete
     calculation for a segment with a known difference in elevation (and ideally
-    known inlet and outlet pressures so density dependence can be included). 
-    
+    known inlet and outlet pressures so density dependence can be included).
+
     .. math::
-        - \Delta P_{grav} =  g \sin \theta z \left\{\frac{ [\alpha_o\rho_{g,o} 
+        - \Delta P_{grav} =  g \sin \theta z \left\{\frac{ [\alpha_o\rho_{g,o}
         + (1-\alpha_o)\rho_{l,o}] + [\alpha_i\rho_{g,i} + (1-\alpha_i)\rho_{l,i}]}
         {2}\right\}
-        
+
     Parameters
     ----------
     angle : float
@@ -2670,36 +2670,36 @@ def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
     -------
     dP : float
         Gravitational component of pressure drop for two-phase flow, [Pa]
-        
+
     Notes
     -----
-    The use of different gas and liquid phase densities and void fraction 
+    The use of different gas and liquid phase densities and void fraction
     at the inlet and outlet is optional; the outlet densities and void fraction
     will be assumed to be those of the inlet if they are not specified. This
     does not add much accuracy.
-    
+
     There is a continuous variant of this method which can be integrated over,
-    at the expense of a speed. The differential form of this is as follows 
+    at the expense of a speed. The differential form of this is as follows
     ([1]_, [2]_):
-        
+
     .. math::
         -\left(\frac{dP}{dz} \right)_{grav} =  [\alpha\rho_g + (1-\alpha)
         \rho_l]g \sin \theta
-        
+
     Examples
     --------
     Example calculation, page 13-2 from [3]_:
-    
-    >>> two_phase_dP_gravitational(angle=90, z=2, alpha_i=0.9685, rho_li=1518., 
+
+    >>> two_phase_dP_gravitational(angle=90, z=2, alpha_i=0.9685, rho_li=1518.,
     ... rho_gi=2.6)
     987.237416829999
 
     The same calculation, but using average inlet and outlet conditions:
-    
+
     >>> two_phase_dP_gravitational(angle=90, z=2, alpha_i=0.9685, rho_li=1518.,
     ... rho_gi=2.6,  alpha_o=0.968, rho_lo=1517.9, rho_go=2.59)
     994.5416058829999
-    
+
     References
     ----------
     .. [1] Rohsenow, Warren and James Hartnett and Young Cho. Handbook of Heat
@@ -2726,14 +2726,14 @@ def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
 
 def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
     r'''This function handles calculation of two-phase liquid-gas pressure drop
-    due to gravitation for flow inside channels. This is a differential 
+    due to gravitation for flow inside channels. This is a differential
     calculation for a segment with an infinitesimal difference in elevation for
     use in performing integration over a pipe as shown in [1]_ and [2]_.
-    
+
     .. math::
         -\left(\frac{dP}{dz} \right)_{grav} =  [\alpha\rho_g + (1-\alpha)
         \rho_l]g \sin \theta
-        
+
     Parameters
     ----------
     angle : float
@@ -2751,13 +2751,13 @@ def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
     -------
     dP_dz : float
         Gravitational component of pressure drop for two-phase flow, [Pa/m]
-        
+
     Notes
     -----
-        
+
     Examples
-    --------    
-    >>> two_phase_dP_dz_gravitational(angle=90, alpha=0.9685, rhol=1518, 
+    --------
+    >>> two_phase_dP_dz_gravitational(angle=90, alpha=0.9685, rhol=1518,
     ... rhog=2.6)
     493.6187084149995
 
@@ -2774,20 +2774,20 @@ def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
     angle = radians(angle)
     return g*sin(angle)*(alpha*rhog + (1. - alpha)*rhol)
 
-Dukler_XA_tck = implementation_optimize_tck([[-2.4791105294648372, -2.4791105294648372, -2.4791105294648372, 
-                           -2.4791105294648372, 0.14360803483759585, 1.7199938263676038, 
+Dukler_XA_tck = implementation_optimize_tck([[-2.4791105294648372, -2.4791105294648372, -2.4791105294648372,
+                           -2.4791105294648372, 0.14360803483759585, 1.7199938263676038,
                            1.7199938263676038, 1.7199938263676038, 1.7199938263676038],
-                 [0.21299880246561081, 0.16299733301915248, -0.042340970712679615, 
+                 [0.21299880246561081, 0.16299733301915248, -0.042340970712679615,
                            -1.9967836909384598, -2.9917366639619414, 0.0, 0.0, 0.0, 0.0],
                  3])
-Dukler_XC_tck = implementation_optimize_tck([[-1.8323873272724698, -1.8323873272724698, -1.8323873272724698, 
+Dukler_XC_tck = implementation_optimize_tck([[-1.8323873272724698, -1.8323873272724698, -1.8323873272724698,
                            -1.8323873272724698, -0.15428198203334137, 1.7031193462360779,
                            1.7031193462360779, 1.7031193462360779, 1.7031193462360779],
-                 [0.2827776229531682, 0.6207113329042158, 1.0609541626742232, 
-                           0.44917638072891825, 0.014664597632360495, 0.0, 0.0, 0.0, 0.0], 
+                 [0.2827776229531682, 0.6207113329042158, 1.0609541626742232,
+                           0.44917638072891825, 0.014664597632360495, 0.0, 0.0, 0.0, 0.0],
                  3])
 Dukler_XD_tck = implementation_optimize_tck([[0.2532652936901574, 0.2532652936901574, 0.2532652936901574,
-                           0.2532652936901574, 3.5567847823070253, 3.5567847823070253, 
+                           0.2532652936901574, 3.5567847823070253, 3.5567847823070253,
                            3.5567847823070253, 3.5567847823070253],
                  [0.09054274779541564, -0.05102629221303253, -0.23907463153703945,
                            -0.7757156285450911, 0.0, 0.0, 0.0, 0.0],
@@ -2798,29 +2798,29 @@ XC_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XC_tck))
 XD_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XD_tck))
 
 
-def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0, 
+def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
                          g=g):
     r'''Classifies the regime of a two-phase flow according to Taitel and
     Dukler (1976) ([1]_, [2]_).
-    
-    The flow regimes in this method are 'annular', 'bubbly', 'intermittent', 
+
+    The flow regimes in this method are 'annular', 'bubbly', 'intermittent',
     'stratified wavy', and 'stratified smooth'.
-    
+
     The four dimensionless parameters used are 'X', 'T', 'F', and 'K'.
-    
+
     .. math::
         X = \left[\frac{(dP/dL)_{l,s,f}}{(dP/dL)_{g,s,f}}\right]^{0.5}
-        
+
     .. math::
         T = \left[\frac{(dP/dL)_{l,s,f}}{(\rho_l-\rho_g)g\cos\theta}\right]^{0.5}
-        
+
     .. math::
         F = \sqrt{\frac{\rho_g}{(\rho_l-\rho_g)}} \frac{v_{g,s}}{\sqrt{D g \cos\theta}}
-        
+
     .. math::
         K = F\left[\frac{D v_{l,s}}{\nu_l}  \right]^{0.5} = F \sqrt{Re_{l,s}}
-        
-    Note that 'l' refers to liquid, 'g' gas, 'f' friction-only, and 's' 
+
+    Note that 'l' refers to liquid, 'g' gas, 'f' friction-only, and 's'
     superficial (i.e. if only the mass flow of that phase were flowing in the
     pipe).
 
@@ -2846,7 +2846,7 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
         Roughness of pipe for use in calculating friction factor, [m]
     g : float, optional
         Acceleration due to gravity, [m/s^2]
-    
+
     Returns
     -------
     regime : str
@@ -2860,7 +2860,7 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
         `F` dimensionless group used in the calculation, [-]
     K : float
         `K` dimensionless group used in the calculation, [-]
-    
+
     Notes
     -----
     The original friction factor used in this model is that of Blasius.
@@ -2870,16 +2870,16 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
     >>> Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,
     ... mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, angle=0)[0]
     'annular'
-    
+
     References
     ----------
-    .. [1] Taitel, Yemada, and A. E. Dukler. "A Model for Predicting Flow 
-       Regime Transitions in Horizontal and near Horizontal Gas-Liquid Flow." 
+    .. [1] Taitel, Yemada, and A. E. Dukler. "A Model for Predicting Flow
+       Regime Transitions in Horizontal and near Horizontal Gas-Liquid Flow."
        AIChE Journal 22, no. 1 (January 1, 1976): 47-55.
-       doi:10.1002/aic.690220105. 
+       doi:10.1002/aic.690220105.
     .. [2] Brill, James P., and Howard Dale Beggs. Two-Phase Flow in Pipes,
        1994.
-    .. [3] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in 
+    .. [3] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in
        Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
        2006.
     '''
@@ -2897,21 +2897,21 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
     Re_gs = Reynolds(V=v_gs, rho=rhog, mu=mug, D=D)
     fd_gs = friction_factor(Re=Re_gs, eD=roughness/D)
     dP_gs = fd_gs/D*(0.5*rhog*v_gs*v_gs)
-    
+
     X = sqrt(dP_ls/dP_gs)
-    
+
     F = sqrt(rhog/(rhol-rhog))*v_gs/sqrt(D*g*cos(angle))
-    
+
     # Paper only uses kinematic viscosity
     nul = mul/rhol
 
-    T = sqrt(dP_ls/((rhol-rhog)*g*cos(angle)))    
+    T = sqrt(dP_ls/((rhol-rhog)*g*cos(angle)))
     K = sqrt(rhog*v_gs*v_gs*v_ls/((rhol-rhog)*g*nul*cos(angle)))
-    
+
     F_A_at_X = XA_interp_obj(X)
-    
+
     X_B_transition = 1.7917 # Roughly
-    
+
     if F >= F_A_at_X and X <= X_B_transition:
         regime = 'annular'
     elif F >= F_A_at_X:
@@ -2926,17 +2926,17 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
             regime = 'stratified wavy'
         else:
             regime = 'stratified smooth'
-            
+
     return regime, X, T, F, K
 
 
 def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
-    r'''Classifies the regime of a two-phase flow according to Mandhane, 
+    r'''Classifies the regime of a two-phase flow according to Mandhane,
     Gregory, and Azis  (1974) flow map.
-    
-    The flow regimes in this method are 'elongated bubble', 'stratified', 
+
+    The flow regimes in this method are 'elongated bubble', 'stratified',
     'annular mist', 'slug', 'dispersed bubble', and 'wave'.
-    
+
     The parameters used are just the superficial liquid and gas velocity (i.e.
     if only the mass flow of that phase were flowing in the pipe).
 
@@ -2958,40 +2958,40 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
         Surface tension, [N/m]
     D : float
         Diameter of pipe, [m]
-    
+
     Returns
     -------
     regime : str
-        One of 'elongated bubble', 'stratified', 'annular mist', 'slug', 
+        One of 'elongated bubble', 'stratified', 'annular mist', 'slug',
         'dispersed bubble', or 'wave', [-]
     v_gs : float
         The superficial gas velocity in the pipe (x axis coordinate), [ft/s]
     v_ls : float
         The superficial liquid velocity in the pipe (x axis coordinate), [ft/s]
-    
+
     Notes
     -----
-    [1]_ contains a Fortran implementation of this model, which this has been 
+    [1]_ contains a Fortran implementation of this model, which this has been
     validated against. This is a very fast flow map as all transitions were
     spelled out with clean transitions.
 
     Examples
     --------
-    >>> Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, 
+    >>> Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,
     ... mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)
     ('slug', 0.9728397701853173, 42.05456634236875)
-    
+
     References
     ----------
     .. [1] Mandhane, J. M., G. A. Gregory, and K. Aziz. "A Flow Pattern Map for
-       Gas-liquid Flow in Horizontal Pipes." International Journal of 
-       Multiphase Flow 1, no. 4 (October 30, 1974): 537-53. 
+       Gas-liquid Flow in Horizontal Pipes." International Journal of
+       Multiphase Flow 1, no. 4 (October 30, 1974): 537-53.
        doi:10.1016/0301-9322(74)90006-8.
     '''
     A = 0.25*pi*D*D
     Vsl =  m*(1.0 - x)/(rhol*A)
     Vsg = m*x/(rhog*A)
-    
+
     # Convert to imperial units
     Vsl, Vsg = Vsl/0.3048, Vsg/0.3048
 #    X1 = (rhog/0.0808)**0.333 * (rhol*72.4/62.4/sigma)**0.25 * (mug/0.018)**0.2
