@@ -203,6 +203,7 @@ Quite a few compromises in the library were made to add Numba compatibility and 
 * Numba does not support raising exceptions with dynamically created messages. Where possible, this means using a constant message. 
 * Sometimes the only way to do something is by changing the code directly. Append "# numba: delete" at the end of a line in a function to delete the line. Add a new commented out line, and append "# numba: uncomment" to it. Then put the name of that function in the variable `to_change` in numba.py, and the changes will be made when using the Numba interface.
 * 1D arrays should be initialized like [0.0]*4, [my_thing]*my_count; and they put the function in the same `to_change` variable. This will transform them into the right type of array for Numba.
+* Numba uses efficient cbrts while CPython and PyPy do not; any case of x\*\*(1/3) will turn into a cbrt. x\*\*(2/3) will not, but can be done by hand.
 
 Things to Keep In Mind While Coding
 -----------------------------------
