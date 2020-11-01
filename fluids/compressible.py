@@ -242,7 +242,7 @@ def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
 
     Notes
     -----
-    For the ideal case (`eta`=1), the model simplifies to:
+    For the ideal case of `eta` = 1, the model simplifies to:
 
     .. math::
         \frac{T_2}{T_1} = \left(\frac{P_2}{P_1}\right)^{(k-1)/k}

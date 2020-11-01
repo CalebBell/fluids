@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,48 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains correlations for the drag coefficient `Cd` of a particle
+moving in a fluid. Numerical solvers for terminal velocity and an
+integrator for particle position over time are included also.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Interfaces to Drag Models
+-------------------------
+.. autofunction:: drag_sphere
+.. autofunction:: v_terminal
+.. autofunction:: integrate_drag_sphere
+.. autofunction:: time_v_terminal_Stokes
+.. autofunction:: drag_sphere_methods
+
+Drag Correlations
+-----------------
+.. autofunction:: Stokes
+.. autofunction:: Barati
+.. autofunction:: Barati_high
+.. autofunction:: Khan_Richardson
+.. autofunction:: Morsi_Alexander
+.. autofunction:: Rouse
+.. autofunction:: Engelund_Hansen
+.. autofunction:: Clift_Gauvin
+.. autofunction:: Graf
+.. autofunction:: Flemmer_Banks
+.. autofunction:: Swamee_Ojha
+.. autofunction:: Yen
+.. autofunction:: Haider_Levenspiel
+.. autofunction:: Cheng
+.. autofunction:: Terfous
+.. autofunction:: Mikhailov_Freire
+.. autofunction:: Clift
+.. autofunction:: Ceylan
+.. autofunction:: Almedeij
+.. autofunction:: Morrison
+.. autofunction:: Song_Xu
 """
 
 from __future__ import division

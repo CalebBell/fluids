@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+r"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,122 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains correlations for the loss coefficient of various types
+of pipe fittings. Whether you are desining a network or modeling a single
+element, the correlations here cover most cases.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Entrances
+---------
+.. autofunction:: entrance_sharp
+.. autofunction:: entrance_distance
+.. autofunction:: entrance_angled
+.. autofunction:: entrance_rounded
+.. autofunction:: entrance_beveled
+.. autofunction:: entrance_beveled_orifice
+.. autofunction:: entrance_distance_45_Miller
+
+Exits
+-----
+.. autofunction:: exit_normal
+
+Bends
+-----
+.. autofunction:: bend_rounded
+.. autofunction:: bend_rounded_Miller
+.. autofunction:: bend_rounded_Crane
+.. autofunction:: bend_miter
+.. autofunction:: bend_miter_Miller
+.. autofunction:: helix
+.. autofunction:: spiral
+
+Contractions
+------------
+.. autofunction:: contraction_sharp
+.. autofunction:: contraction_round
+.. autofunction:: contraction_round_Miller
+.. autofunction:: contraction_conical
+.. autofunction:: contraction_conical_Crane
+.. autofunction:: contraction_beveled
+
+Expansions/Diffusers
+--------------------
+.. autofunction:: diffuser_sharp
+.. autofunction:: diffuser_conical
+.. autofunction:: diffuser_conical_staged
+.. autofunction:: diffuser_curved
+.. autofunction:: diffuser_pipe_reducer
+
+Tees
+----
+.. autofunction:: K_branch_converging_Crane
+.. autofunction:: K_run_converging_Crane
+.. autofunction:: K_branch_diverging_Crane
+.. autofunction:: K_run_diverging_Crane
+
+Valves
+------
+.. autofunction:: K_gate_valve_Crane
+.. autofunction:: K_angle_valve_Crane
+.. autofunction:: K_globe_valve_Crane
+.. autofunction:: K_swing_check_valve_Crane
+.. autofunction:: K_lift_check_valve_Crane
+.. autofunction:: K_tilting_disk_check_valve_Crane
+.. autofunction:: K_globe_stop_check_valve_Crane
+.. autofunction:: K_angle_stop_check_valve_Crane
+.. autofunction:: K_ball_valve_Crane
+.. autofunction:: K_diaphragm_valve_Crane
+.. autofunction:: K_foot_valve_Crane
+.. autofunction:: K_butterfly_valve_Crane
+.. autofunction:: K_plug_valve_Crane
+
+Hooper 2K fittings
+------------------
+.. autofunction:: Hooper2K
+.. autodata:: Hooper
+
+Darby 3K fittings
+------------------
+.. autofunction:: Darby3K
+.. autodata:: Darby
+
+Loss Coefficient Converters
+---------------------------
+.. autofunction:: Cv_to_K
+.. autofunction:: Kv_to_K
+.. autofunction:: K_to_Cv
+.. autofunction:: K_to_Kv
+.. autofunction:: Cv_to_Kv
+.. autofunction:: Kv_to_Cv
+
+Miscellaneous
+-------------
+.. autofunction:: v_lift_valve_Crane
+
+Sources
+-------
+
+The main sources for these correlations are as follows [100]_ [101]_ [102]_ [103]_ [104]_:
+
+.. [100] Crane Co. TP 410 Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+   2009.
+.. [101] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
+   and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
+.. [102] Miller, Donald S. Internal Flow Systems: Design and Performance
+   Prediction. Gulf Publishing Company, 1990.
+.. [103] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
+   Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
+   Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
+   Treniya). National technical information Service, 1966.
+.. [104] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
+   Van Nostrand Reinhold Co., 1984.
+
 """
 
 from __future__ import division
@@ -2953,6 +3069,9 @@ def diffuser_pipe_reducer(Di1, Di2, l, fd1, fd2=None):
 
 ###  3 Darby 3K Method (with valves)
 Darby = {}
+'''Dictionary of coefficients for Darby's 3K fitting pressure drop method;
+the tuple contains :math:`K_1` and :math:`K_i` and :math:`K_d` in that order.
+'''
 Darby['Elbow, 90°, threaded, standard, (r/D = 1)'] = (800.0, 0.14, 4.0)
 Darby['Elbow, 90°, threaded, long radius, (r/D = 1.5)'] = (800.0, 0.071, 4.2)
 Darby['Elbow, 90°, flanged, welded, bends, (r/D = 1)'] = (800.0, 0.091, 4.0)
@@ -3069,6 +3188,9 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
 ### 2K Hooper Method
 
 Hooper = {}
+'''Dictionary of coefficients for Hooper's 2K fitting pressure drop method;
+the tuple contains :math:`K_1` and :math:`K_\infty` in that order.
+'''
 Hooper['Elbow, 90°, Standard (R/D = 1), Screwed'] = (800.0, 0.4)
 Hooper['Elbow, 90°, Standard (R/D = 1), Flanged/welded'] = (800.0, 0.25)
 Hooper['Elbow, 90°, Long-radius (R/D = 1.5), All types'] = (800.0, 0.2)
