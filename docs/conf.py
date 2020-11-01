@@ -56,8 +56,10 @@ extensions = [
     'nbsphinx',
     'matplotlib.sphinxext.plot_directive',
     'sphinxcontrib.katex',
+    'sphinx_sitemap',
 ]
 
+html_baseurl = 'https://fluids.readthedocs.io/'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
