@@ -888,7 +888,7 @@ def C_eccentric_orifice_ISO_15377_1998(D, Do):
     * Bore diameter above 50 mm.
     * Pipe diameter between 10 cm and 1 m.
     * Beta ratio between 0.46 and 0.84
-    * :math:`2\times10^5 \beta^2 \le Re_D \le 10^6 \beta
+    * :math:`2\times 10^5 \beta^2 \le Re_D \le 10^6 \beta`
 
     The uncertainty of this equation for `C` is said to be 1% if `beta` is
     under 0.75, otherwise 2%.
@@ -900,13 +900,13 @@ def C_eccentric_orifice_ISO_15377_1998(D, Do):
 
     * The thickness of the orifice should be between 0.005`D` and 0.02`D`.
     * Corner tappings should be used, with hole diameter between 3 and 10 mm.
-       The angular orientation of the tappings matters because the flow meter
-       is not symmetrical. The angle should ideally be at the top or bottom of
-       the plate, opposite which side the bore is on - but this can cause
-       issues with deposition if the taps are on the bottom or gas bubbles if
-       the taps are on the taps. The taps are often placed 30 degrees away from
-       the ideal position to counteract this effect, with under an extra 2%
-       error.
+      The angular orientation of the tappings matters because the flow meter
+      is not symmetrical. The angle should ideally be at the top or bottom of
+      the plate, opposite which side the bore is on - but this can cause
+      issues with deposition if the taps are on the bottom or gas bubbles if
+      the taps are on the taps. The taps are often placed 30 degrees away from
+      the ideal position to counteract this effect, with under an extra 2%
+      error.
 
     Some comparisons with CFD results can be found in [2]_.
 

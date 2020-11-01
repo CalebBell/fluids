@@ -376,7 +376,7 @@ distance is similar but more complicated.
 Each TANK has __repr__ implemented, to describe the tank when printed.
 
 Torispherical tanks default to the ratios specified as ASME F&D. Other 
-standard ratios can also be used; the documentation for :ref:`<TANK>` lists
+standard ratios can also be used; the documentation for :py:class:`~.TANK` lists
 their values. Here we implement DIN 28011's ratios.
 
 >>> TANK(D=0.01, V=0.25, horizontal=False, sideA='torispherical', sideB='torispherical')
@@ -691,7 +691,7 @@ functions.
 
 Polytropic exponents and efficiencies are convertible to isentropic exponents and
 efficiencies with :py:func:`~.isentropic_efficiency` and 
-:py:func:`~.polytropic_exponent`. For the above example, with k=1.4 and `eta_s`=0.78:
+:py:func:`~.polytropic_exponent` . For the above example, with `k` = 1.4 and `eta_s` = 0.78:
 
 >>> eta_p = isentropic_efficiency(P1=1E5, P2=1E6, k=1.4, eta_s=0.78) # with eta_s specified, returns polytropic efficiency
 >>> n = polytropic_exponent(k=1.4, eta_p=eta_p)
@@ -736,7 +736,7 @@ Checking the calculated power is the same:
 Gas pipeline sizing
 -------------------
 
-The standard isothermal compressible gas flow is fully implemented as 
+The standard isothermal compressible gas flow is fully implemented as   
 :py:func:`~.isothermal_gas`, and through
 a variety of numerical and analytical expressions, can solve for any of the
 following parameters:

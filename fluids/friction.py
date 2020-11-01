@@ -4171,7 +4171,7 @@ def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, dA_dL):
     r'''This function handles calculation of one-phase fluid pressure drop
     due to acceleration for flow inside channels. This is a continuous
     calculation, providing the differential in pressure per unit length and
-    should be called as part of an integration routine ([1]_, [2]_).
+    should be called as part of an integration routine [1]_.
 
     .. math::
         -\left(\frac{\partial P}{\partial L}\right)_{A} = G^2
@@ -4228,8 +4228,8 @@ def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, dA_dL):
 def one_phase_dP_gravitational(angle, rho, L=1.0, g=g):
     r'''This function handles calculation of one-phase liquid-gas pressure drop
     due to gravitation for flow inside channels. This is either a differential
-    calculation for a segment with an infinitesimal difference in elevation (if
-    `L`=1 or a discrete calculation.
+    calculation for a segment with an infinitesimal difference in elevation
+    `L` = 1 or a discrete calculation.
 
     .. math::
         -\left(\frac{dP}{dz} \right)_{grav} =  \rho g \sin \theta

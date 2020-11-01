@@ -1988,6 +1988,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
 
         .. math::
             \text{VSSA} = \sum_i \text{fraction}_i \frac{SA_i}{V_i}
+
         Returns
         -------
         VSSA : float

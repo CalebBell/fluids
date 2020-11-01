@@ -1408,7 +1408,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
 def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
            sideB_a=0.0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
     r'''Calculates the total volume of a vertical or horizontal tank with
-    different head types according to [1]_.
+    different head types.
 
     Parameters
     ----------
@@ -1704,7 +1704,7 @@ def SA_partial_horiz_spherical_head(D, a, h):
         \text{SA} = \frac{a^2 + R^2}{|a|}\int_{R-h}^R
         \sin^{-1} \frac{2|a|\sqrt{R^2-x^2}} {\sqrt{(a^2+R^2)^2 - (2ax)^2}} dx
 
-    For the special case of |a| == R,
+    For the special case of :math:`|a| = R` :
 
     .. math::
         \text{SA} = \pi R h

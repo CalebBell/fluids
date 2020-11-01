@@ -469,7 +469,7 @@ def Brauer(dp, voidage, vs, rho, mu, L=1.0):
 
     Notes
     -----
-    Original has not been reviewed.
+    The original article [1]_ has not been reviewed.
     In [2]_, is stated as for a range of :math:`2 < Re_{Erg} < 20,000`.
     In [3]_, is stated as for a range of :math:`0.01 < Re_{Erg} < 40,000`.
 
@@ -485,7 +485,7 @@ def Brauer(dp, voidage, vs, rho, mu, L=1.0):
     .. [2] Erdim, Esra, Ömer Akgiray, and İbrahim Demir. "A Revisit of Pressure
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
-    .. [2] Allen, K. G., T. W. von Backstrom, and D. G. Kroger. "Packed Bed
+    .. [3] Allen, K. G., T. W. von Backstrom, and D. G. Kroger. "Packed Bed
        Pressure Drop Dependence on Particle Shape, Size Distribution, Packing
        Arrangement and Roughness." Powder Technology 246 (September 2013):
        590-600. doi:10.1016/j.powtec.2013.06.022.
@@ -803,6 +803,7 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
     -----
     Uses data from other sources only. Correlation will underestimate pressure
     drop if tube diameter is not provided. Limits are specified in [1]_ as:
+
     .. math::
         0.72 < Re < 7700 \\
         8.3 < d_t/d_p < 50 \\

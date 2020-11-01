@@ -1377,7 +1377,8 @@ def Biot(h, L, k):
 
 def Stanton(h, V, rho, Cp):
     r'''Calculates Stanton number or `St` for a specified heat transfer
-    coefficient `h`, velocity `V`, density `rho`, and heat capacity `Cp`.
+    coefficient `h`, velocity `V`, density `rho`, and heat capacity `Cp` [1]_
+    [2]_.
 
     .. math::
         St = \frac{h}{V\rho Cp}
@@ -1412,7 +1413,7 @@ def Stanton(h, V, rho, Cp):
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
-    .. [1] Bergman, Theodore L., Adrienne S. Lavine, Frank P. Incropera, and
+    .. [2] Bergman, Theodore L., Adrienne S. Lavine, Frank P. Incropera, and
        David P. DeWitt. Introduction to Heat Transfer. 6E. Hoboken, NJ:
        Wiley, 2011.
     '''

@@ -2354,7 +2354,7 @@ def Cicchitti(x, mul, mug):
 def Lin_Kwok(x, mul, mug):
     r'''Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
-    in [2]_ and [3]_.
+    in [2]_.
 
     .. math::
         \mu_m = \frac{\mu_l \mu_g}{\mu_g + x^{1.4}(\mu_l - \mu_g)}
