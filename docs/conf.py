@@ -61,6 +61,7 @@ extensions = [
 
 html_baseurl = 'https://fluids.readthedocs.io/'
 sitemap_url_scheme = "{link}"
+sitemap_filename = 'sitemap2.xml' # readthedocs generates its own
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
