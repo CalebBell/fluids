@@ -6,3 +6,4 @@ nbsphinx
 ipython
 numba
 sphinxcontrib-katex
+sphinx-sitemap
