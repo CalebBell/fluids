@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,58 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains equations for modeling flow where density changes
+significantly during the process - compressible flow. Also included are
+equations for choked flow - the phenomenon where the velocity of a fluid
+reaches its speed of sound.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+
+.. contents:: :local:
+
+Compression Processes
+---------------------
+.. autofunction:: isothermal_work_compression
+.. autofunction:: isentropic_work_compression
+.. autofunction:: isentropic_T_rise_compression
+.. autofunction:: isentropic_efficiency
+.. autofunction:: polytropic_exponent
+
+Compressible Flow
+-----------------
+.. autofunction:: isothermal_gas
+
+Emperical Compressible Flow
+---------------------------
+.. autofunction:: Panhandle_A
+.. autofunction:: Panhandle_B
+.. autofunction:: Weymouth
+.. autofunction:: Spitzglass_high
+.. autofunction:: Spitzglass_low
+.. autofunction:: Oliphant
+.. autofunction:: Fritzsche
+.. autofunction:: Muller
+.. autofunction:: IGT
+
+Critical Flow
+-------------
+.. autofunction:: T_critical_flow
+.. autofunction:: P_critical_flow
+.. autofunction:: is_critical_flow
+.. autofunction:: P_isothermal_critical_flow
+.. autofunction:: P_upstream_isothermal_critical_flow
+
+Stagnation Point
+----------------
+.. autofunction:: stagnation_energy
+.. autofunction:: P_stagnation
+.. autofunction:: T_stagnation
+.. autofunction:: T_stagnation_ideal
+
 """
 
 from __future__ import division
