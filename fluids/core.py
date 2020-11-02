@@ -20,6 +20,100 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains basic fluid mechanics and engineering calculations which
+have been found useful by the author. The main functionality is calculating
+dimensionless numbers, interconverting different forms of loss coefficients,
+and converting temperature units.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Dimensionless Numbers
+---------------------
+.. autofunction:: Archimedes
+.. autofunction:: Bejan_L
+.. autofunction:: Bejan_p
+.. autofunction:: Biot
+.. autofunction:: Boiling
+.. autofunction:: Bond
+.. autofunction:: Capillary
+.. autofunction:: Cavitation
+.. autofunction:: Confinement
+.. autofunction:: Dean
+.. autofunction:: Drag
+.. autofunction:: Eckert
+.. autofunction:: Euler
+.. autofunction:: Fourier_heat
+.. autofunction:: Fourier_mass
+.. autofunction:: Froude
+.. autofunction:: Froude_densimetric
+.. autofunction:: Graetz_heat
+.. autofunction:: Grashof
+.. autofunction:: Hagen
+.. autofunction:: Jakob
+.. autofunction:: Knudsen
+.. autofunction:: Lewis
+.. autofunction:: Mach
+.. autofunction:: Morton
+.. autofunction:: Nusselt
+.. autofunction:: Ohnesorge
+.. autofunction:: Peclet_heat
+.. autofunction:: Peclet_mass
+.. autofunction:: Power_number
+.. autofunction:: Prandtl
+.. autofunction:: Rayleigh
+.. autofunction:: relative_roughness
+.. autofunction:: Reynolds
+.. autofunction:: Schmidt
+.. autofunction:: Sherwood
+.. autofunction:: Stanton
+.. autofunction:: Stokes_number
+.. autofunction:: Strouhal
+.. autofunction:: Suratman
+.. autofunction:: Weber
+
+Loss Coefficient Converters
+---------------------------
+.. autofunction:: K_from_f
+.. autofunction:: K_from_L_equiv
+.. autofunction:: L_equiv_from_K
+.. autofunction:: L_from_K
+.. autofunction:: dP_from_K
+.. autofunction:: head_from_K
+.. autofunction:: head_from_P
+.. autofunction:: f_from_K
+.. autofunction:: P_from_head
+
+Temperature Conversions
+-----------------------
+These functions used to be part of SciPy, but were removed in favor
+of a slower function `convert_temperature` which removes code duplication but
+doesn't have the same convinience or easy to remember signature.
+
+.. autofunction:: C2K
+.. autofunction:: K2C
+.. autofunction:: F2C
+.. autofunction:: C2F
+.. autofunction:: F2K
+.. autofunction:: K2F
+.. autofunction:: C2R
+.. autofunction:: K2R
+.. autofunction:: F2R
+.. autofunction:: R2C
+.. autofunction:: R2K
+.. autofunction:: R2F
+
+Miscellaneous Functions
+-----------------------
+.. autofunction:: thermal_diffusivity
+.. autofunction:: c_ideal_gas
+.. autofunction:: nu_mu_converter
+.. autofunction:: gravity
+
 """
 from __future__ import division
 '''

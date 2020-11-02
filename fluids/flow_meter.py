@@ -19,6 +19,78 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains correlations, standards, and solvers for orifice plates
+and other flow metering devices. Both permanent and measured pressure drop
+is included, and models work for both liquids and gases. A number of
+non-standard devices are included, as well as limited two-phase functionality.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Flow Meter Solvers
+------------------
+.. autofunction:: differential_pressure_meter_solver
+
+Flow Meter Interfaces
+---------------------
+.. autofunction:: differential_pressure_meter_dP
+.. autofunction:: differential_pressure_meter_C_epsilon
+.. autofunction:: differential_pressure_meter_beta
+.. autofunction:: dP_orifice
+
+Orifice Plate Correlations
+--------------------------
+.. autofunction:: C_Reader_Harris_Gallagher
+.. autofunction:: C_eccentric_orifice_ISO_15377_1998
+.. autofunction:: C_quarter_circle_orifice_ISO_15377_1998
+.. autofunction:: C_Miller_1996
+.. autofunction:: orifice_expansibility
+.. autofunction:: orifice_expansibility_1989
+.. autodata:: ISO_15377_CONICAL_ORIFICE_C
+
+Nozzle Flow Meters
+------------------
+.. autofunction:: C_long_radius_nozzle
+.. autofunction:: C_ISA_1932_nozzle
+.. autofunction:: C_venturi_nozzle
+.. autofunction:: nozzle_expansibility
+
+Venturi Tube Meters
+-------------------
+.. autodata:: ROUGH_WELDED_CONVERGENT_VENTURI_TUBE_C
+.. autodata:: MACHINED_CONVERGENT_VENTURI_TUBE_C
+.. autodata:: AS_CAST_VENTURI_TUBE_C
+.. autofunction:: dP_venturi_tube
+.. autofunction:: C_Reader_Harris_Gallagher_wet_venturi_tube
+.. autofunction:: dP_Reader_Harris_Gallagher_wet_venturi_tube
+
+Cone Meters
+-----------
+.. autodata:: CONE_METER_C
+.. autofunction:: diameter_ratio_cone_meter
+.. autofunction:: cone_meter_expansibility_Stewart
+.. autofunction:: dP_cone_meter
+
+Wedge Meters
+------------
+.. autofunction:: C_wedge_meter_ISO_5167_6_2017
+.. autofunction:: C_wedge_meter_Miller
+.. autofunction:: diameter_ratio_wedge_meter
+.. autofunction:: dP_wedge_meter
+
+Flow Meter Utilities
+--------------------
+.. autofunction:: discharge_coefficient_to_K
+.. autofunction:: K_to_discharge_coefficient
+.. autofunction:: velocity_of_approach_factor
+.. autofunction:: flow_coefficient
+.. autofunction:: flow_meter_discharge
+.. autodata:: all_meters
+
 """
 
 from __future__ import division
@@ -2139,11 +2211,19 @@ venturi_sharp_Cs_Hollingshead = [0.146, 0.3, 0.401, 0.498, 0.554, 0.596, 0.65, 0
 
 
 CONE_METER_C = 0.82
+'''Constant loss coefficient for flow cone meters'''
+
 ROUGH_WELDED_CONVERGENT_VENTURI_TUBE_C = 0.985
+'''Constant loss coefficient for rough-welded convergent venturi tubes'''
+
 MACHINED_CONVERGENT_VENTURI_TUBE_C = 0.995
+'''Constant loss coefficient for machined convergent venturi tubes'''
+
 AS_CAST_VENTURI_TUBE_C = 0.984
+'''Constant loss coefficient for as-cast venturi tubes'''
 
 ISO_15377_CONICAL_ORIFICE_C = 0.734
+'''Constant loss coefficient for conical orifice plates according to ISO 15377'''
 
 cone_Res_Hollingshead = [1.0, 5.0, 10.0, 20.0, 30.0, 40.0, 60.0, 80.0, 100.0, 150.0, 200.0, 300.0, 500.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 7500.0,
     10000.0, 20000.0, 30000.0, 100000.0, 1000000.0, 10000000.0, 50000000.0
@@ -2238,7 +2318,9 @@ beta_simple_meters = frozenset([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                       ROUGH_WELDED_CONVERGENT_VENTURI_TUBE])
 
 all_meters = frozenset(list(beta_simple_meters) + [CONE_METER, WEDGE_METER, HOLLINGSHEAD_CONE, HOLLINGSHEAD_WEDGE])
-
+'''Set of string inputs representing all of the different supported flow meters
+and their correlations.
+'''
 _unsupported_meter_msg = "Supported meter types are %s" % all_meters
 
 def differential_pressure_meter_beta(D, D2, meter_type):
