@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,44 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains correlations for calculating the pressure drop across
+a packed bed. Several correlations for void fraction are also included.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Packed Bed Correlation Interfaces
+---------------------------------
+.. autofunction:: dP_packed_bed
+.. autofunction:: dP_packed_bed_methods
+
+Packed Bed Correlations
+-----------------------
+.. autofunction:: Ergun
+.. autofunction:: Kuo_Nydegger
+.. autofunction:: Jones_Krier
+.. autofunction:: Carman
+.. autofunction:: Hicks
+.. autofunction:: Brauer
+.. autofunction:: KTA
+.. autofunction:: Erdim_Akgiray_Demir
+.. autofunction:: Fahien_Schriver
+.. autofunction:: Tallmadge
+.. autofunction:: Idelchik
+.. autofunction:: Harrison_Brunner_Hecker
+.. autofunction:: Montillet_Akkari_Comiti
+.. autofunction:: Guo_Sun
+
+Voidage Correlations
+--------------------
+.. autofunction:: voidage_Benyahia_Oneil
+.. autofunction:: voidage_Benyahia_Oneil_spherical
+.. autofunction:: voidage_Benyahia_Oneil_cylindrical
+
 """
 
 from __future__ import division

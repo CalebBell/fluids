@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,114 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains correlations for single-phase friction factor
+in a range of geometries.  It also contains several tables of reported material
+roughnesses, and some basic functionality showing how to calculate
+single-phase pressure drop.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Friction Factor Interfaces
+--------------------------
+.. autofunction:: friction_factor
+.. autofunction:: friction_factor_methods
+.. autofunction:: friction_factor_curved
+.. autofunction:: friction_factor_curved_methods
+.. autofunction:: helical_Re_crit
+
+Pipe Friction Factor Correlations
+---------------------------------
+.. autofunction:: ft_Crane
+.. autofunction:: Colebrook
+.. autofunction:: Clamond
+.. autofunction:: friction_laminar
+.. autofunction:: Moody
+.. autofunction:: Blasius
+.. autofunction:: von_Karman
+.. autofunction:: Prandtl_von_Karman_Nikuradse
+.. autofunction:: Alshul_1952
+.. autofunction:: Wood_1966
+.. autofunction:: Churchill_1973
+.. autofunction:: Eck_1973
+.. autofunction:: Jain_1976
+.. autofunction:: Swamee_Jain_1976
+.. autofunction:: Churchill_1977
+.. autofunction:: Chen_1979
+.. autofunction:: Round_1980
+.. autofunction:: Shacham_1980
+.. autofunction:: Barr_1981
+.. autofunction:: Zigrang_Sylvester_1
+.. autofunction:: Zigrang_Sylvester_2
+.. autofunction:: Haaland
+.. autofunction:: Serghides_1
+.. autofunction:: Serghides_2
+.. autofunction:: Tsal_1989
+.. autofunction:: Manadilli_1997
+.. autofunction:: Romeo_2002
+.. autofunction:: Sonnad_Goudar_2006
+.. autofunction:: Rao_Kumar_2007
+.. autofunction:: Buzzelli_2008
+.. autofunction:: Avci_Karagoz_2009
+.. autofunction:: Papaevangelo_2010
+.. autofunction:: Brkic_2011_1
+.. autofunction:: Brkic_2011_2
+.. autofunction:: Fang_2011
+.. autodata:: LAMINAR_TRANSITION_PIPE
+
+Curved Pipe Friction Factor Correlations
+----------------------------------------
+.. autofunction:: helical_laminar_fd_White
+.. autofunction:: helical_laminar_fd_Mori_Nakayama
+.. autofunction:: helical_laminar_fd_Schmidt
+.. autofunction:: helical_turbulent_fd_Schmidt
+.. autofunction:: helical_turbulent_fd_Mori_Nakayama
+.. autofunction:: helical_turbulent_fd_Prasad
+.. autofunction:: helical_turbulent_fd_Czop
+.. autofunction:: helical_turbulent_fd_Guo
+.. autofunction:: helical_turbulent_fd_Ju
+.. autofunction:: helical_turbulent_fd_Srinivasan
+.. autofunction:: helical_turbulent_fd_Mandal_Nigam
+.. autofunction:: helical_transition_Re_Seth_Stahel
+.. autofunction:: helical_transition_Re_Ito
+.. autofunction:: helical_transition_Re_Kubair_Kuloor
+.. autofunction:: helical_transition_Re_Kutateladze_Borishanskii
+.. autofunction:: helical_transition_Re_Schmidt
+.. autofunction:: helical_transition_Re_Srinivasan
+
+Other Geometry Friction Factor Correlations
+-------------------------------------------
+.. autofunction:: friction_plate_Martin_1999
+.. autofunction:: friction_plate_Martin_VDI
+.. autofunction:: friction_plate_Kumar
+.. autofunction:: friction_plate_Muley_Manglik
+
+Experimental Friction Data
+--------------------------
+.. autodata:: oregon_smooth_data
+
+Roughness
+---------
+.. autofunction:: material_roughness
+.. autofunction:: nearest_material_roughness
+.. autofunction:: roughness_Farshad
+.. autodata:: HHR_roughness
+
+Pressure Drop Calculation
+-------------------------
+.. autofunction:: one_phase_dP
+.. autofunction:: one_phase_dP_gravitational
+.. autofunction:: one_phase_dP_dz_acceleration
+.. autofunction:: one_phase_dP_acceleration
+
+Utilities
+---------
+.. autofunction:: transmission_factor
+
 """
 
 from __future__ import division
@@ -37,7 +145,6 @@ __all__ = ['friction_factor', 'friction_factor_methods',
            'transmission_factor', 'material_roughness',
            'nearest_material_roughness', 'roughness_Farshad',
            '_Farshad_roughness', '_roughness', 'HHR_roughness',
-           'oregon_smooth_data',
            'Moody', 'Alshul_1952', 'Wood_1966', 'Churchill_1973',
 'Eck_1973', 'Jain_1976', 'Swamee_Jain_1976', 'Churchill_1977', 'Chen_1979',
 'Round_1980', 'Shacham_1980', 'Barr_1981', 'Zigrang_Sylvester_1',
@@ -99,14 +206,13 @@ oregon_fd_smooth = [5.537, 3.492, 2.329, 1.523, 1.173, 0.9863, 0.7826, 0.5709,
                     0.03797, 0.0361, 0.03364, 0.03088, 0.02903, 0.0267,
                     0.02386, 0.02086, 0.02, 0.01805, 0.01686, 0.01594, 0.01511,
                     0.01462, 0.01365, 0.01313, 0.01244, 0.01198]
+
+oregon_smooth_data = (oregon_Res, oregon_fd_smooth)
 '''Holds a tuple of experimental results from the smooth pipe flow experiments
 presented in McKEON, B. J., C. J. SWANSON, M. V. ZAGAROLA, R. J. DONNELLY, and
 A. J. SMITS. "Friction Factors for Smooth Pipe Flow." Journal of Fluid
 Mechanics 511 (July 1, 2004): 41-44. doi:10.1017/S0022112004009796.
 '''
-
-
-oregon_smooth_data = (oregon_Res, oregon_fd_smooth)
 
 def friction_laminar(Re):
     r'''Calculates Darcy friction factor for laminar flow, as shown in [1]_ or

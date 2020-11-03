@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,73 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains functions for calculating void fraction/holdup in
+two-phase flow. This is an important parameter for predicting pressure drop.
+Also included are emperical "two phase viscosity" definitions which do not
+have a physical meaning but are often used in pressure drop correlations.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+
+.. contents:: :local:
+
+Interfaces
+----------
+.. autofunction:: liquid_gas_voidage
+.. autofunction:: liquid_gas_voidage_methods
+.. autofunction:: density_two_phase
+.. autofunction:: gas_liquid_viscosity
+.. autofunction:: gas_liquid_viscosity_methods
+
+Void Fraction/Holdup Correlations
+---------------------------------
+.. autofunction:: Thom
+.. autofunction:: Zivi
+.. autofunction:: Smith
+.. autofunction:: Fauske
+.. autofunction:: Chisholm_voidage
+.. autofunction:: Turner_Wallis
+.. autofunction:: homogeneous
+.. autofunction:: Chisholm_Armand
+.. autofunction:: Armand
+.. autofunction:: Nishino_Yamazaki
+.. autofunction:: Guzhov
+.. autofunction:: Kawahara
+.. autofunction:: Baroczy
+.. autofunction:: Tandon_Varma_Gupta
+.. autofunction:: Harms
+.. autofunction:: Domanski_Didion
+.. autofunction:: Graham
+.. autofunction:: Yashar
+.. autofunction:: Huq_Loth
+.. autofunction:: Kopte_Newell_Chato
+.. autofunction:: Steiner
+.. autofunction:: Rouhani_1
+.. autofunction:: Rouhani_2
+.. autofunction:: Nicklin_Wilkes_Davidson
+.. autofunction:: Gregory_Scott
+.. autofunction:: Dix
+.. autofunction:: Sun_Duffey_Peng
+.. autofunction:: Xu_Fang_voidage
+.. autofunction:: Woldesemayat_Ghajar
+
+Utilities
+---------
+.. autofunction:: Lockhart_Martinelli_Xtt
+.. autofunction:: two_phase_voidage_experimental
+
+Gas/Liquid Viscosity
+--------------------
+.. autofunction:: Beattie_Whalley
+.. autofunction:: McAdams
+.. autofunction:: Cicchitti
+.. autofunction:: Lin_Kwok
+.. autofunction:: Fourar_Bories
+.. autofunction:: Duckler
+
 """
 
 from __future__ import division

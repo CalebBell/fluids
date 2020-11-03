@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,41 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains functionality for calculating the flow rate of fluids
+in open channels. The Manning and Chezy methods are implemented Weirs as well
+as several calculations for flow rate over weirs.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Weirs
+-----
+.. autofunction:: Q_weir_V_Shen
+.. autofunction:: Q_weir_rectangular_Kindsvater_Carter
+.. autofunction:: Q_weir_rectangular_SIA
+.. autofunction:: Q_weir_rectangular_full_Ackers
+.. autofunction:: Q_weir_rectangular_full_SIA
+.. autofunction:: Q_weir_rectangular_full_Rehbock
+.. autofunction:: Q_weir_rectangular_full_Kindsvater_Carter
+
+Manning and Chezy Equations
+---------------------------
+.. autofunction:: V_Manning
+.. autofunction:: V_Chezy
+.. autofunction:: n_Manning_to_C_Chezy
+.. autofunction:: C_Chezy_to_n_Manning
+
+Manning Coefficients
+--------------------
+.. autodata:: n_natural
+.. autodata:: n_excavated_dredged
+.. autodata:: n_lined_built
+.. autodata:: n_closed_conduit
+.. autodata:: n_dicts
 """
 
 from __future__ import division

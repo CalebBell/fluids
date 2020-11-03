@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,28 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains functions for looking up standard pipe sizes from
+different schedules. Similarly, there is a converter between gauge number
+thickness (and back).
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+
+.. contents:: :local:
+
+Pipe Schedules
+--------------
+.. autofunction:: nearest_pipe
+
+Wire Gauge
+----------
+.. autofunction:: gauge_from_t
+.. autofunction:: t_from_gauge
+.. autodata:: wire_schedules
+
 """
 
 from __future__ import division

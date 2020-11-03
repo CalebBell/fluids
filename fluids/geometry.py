@@ -21,6 +21,111 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains functionality for calculating parameters about different
+geometrical forms that come up in engineering practice.
+
+Implemented geometry objects are tanks, helical coils, cooling towers,
+air coolers, compact heat exchangers, and plate and frame heat exchangers.
+
+Additional functionality for typical catalyst/adsorbent pellet shapes is also
+included.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Main Interfaces
+---------------
+.. autoclass :: TANK
+    :members:
+    :undoc-members:
+    :show-inheritance:
+.. autofunction:: V_tank
+.. autofunction:: V_from_h
+.. autofunction:: SA_tank
+.. autofunction:: SA_from_h
+.. autoclass :: HelicalCoil
+    :members:
+    :undoc-members:
+    :show-inheritance:
+.. autoclass :: PlateExchanger
+    :members:
+    :undoc-members:
+    :show-inheritance:
+.. autoclass :: AirCooledExchanger
+    :members:
+    :undoc-members:
+    :show-inheritance:
+.. autoclass :: HyperbolicCoolingTower
+    :members:
+    :undoc-members:
+    :show-inheritance:
+.. autoclass :: RectangularFinExchanger
+    :members:
+    :undoc-members:
+    :show-inheritance:
+.. autoclass :: RectangularOffsetStripFinExchanger
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Tank Volume Functions
+---------------------
+.. autofunction:: V_partial_sphere
+.. autofunction:: V_horiz_conical
+.. autofunction:: V_horiz_ellipsoidal
+.. autofunction:: V_horiz_guppy
+.. autofunction:: V_horiz_spherical
+.. autofunction:: V_horiz_torispherical
+.. autofunction:: V_vertical_conical
+.. autofunction:: V_vertical_ellipsoidal
+.. autofunction:: V_vertical_spherical
+.. autofunction:: V_vertical_torispherical
+.. autofunction:: V_vertical_conical_concave
+.. autofunction:: V_vertical_ellipsoidal_concave
+.. autofunction:: V_vertical_spherical_concave
+.. autofunction:: V_vertical_torispherical_concave
+
+Tank Surface Area Functions
+---------------------------
+.. autofunction:: SA_partial_sphere
+.. autofunction:: SA_ellipsoidal_head
+.. autofunction:: SA_conical_head
+.. autofunction:: SA_guppy_head
+.. autofunction:: SA_torispheroidal
+.. autofunction:: SA_partial_cylindrical_body
+.. autofunction:: SA_partial_horiz_conical_head
+.. autofunction:: SA_partial_horiz_spherical_head
+.. autofunction:: SA_partial_horiz_ellipsoidal_head
+.. autofunction:: SA_partial_horiz_guppy_head
+.. autofunction:: SA_partial_horiz_torispherical_head
+.. autofunction:: SA_partial_vertical_conical_head
+.. autofunction:: SA_partial_vertical_ellipsoidal_head
+.. autofunction:: SA_partial_vertical_spherical_head
+.. autofunction:: SA_partial_vertical_torispherical_head
+
+Miscellaneous Geometry Functions
+--------------------------------
+.. autofunction:: pitch_angle_solver
+.. autofunction:: plate_enlargement_factor
+.. autofunction:: a_torispherical
+.. autofunction:: A_partial_circle
+
+Pellet Properties
+-----------------
+.. autofunction:: sphericity
+.. autofunction:: aspect_ratio
+.. autofunction:: circularity
+.. autofunction:: A_cylinder
+.. autofunction:: V_cylinder
+.. autofunction:: A_hollow_cylinder
+.. autofunction:: V_hollow_cylinder
+.. autofunction:: A_multiple_hole_cylinder
+.. autofunction:: V_multiple_hole_cylinder
+
 """
 
 from __future__ import division
@@ -29,7 +134,9 @@ from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
 from cmath import sqrt as csqrt
 from fluids.constants import inch
 from fluids.core import PY3
-from fluids.numerics import cacos, catan, secant, brenth, ellipe, ellipkinc, ellipeinc, horner, chebval, linspace, derivative, quad, translate_bound_func
+from fluids.numerics import (cacos, catan, secant, brenth, ellipe, ellipkinc,
+                             ellipeinc, horner, chebval, linspace, derivative,
+                             quad, translate_bound_func)
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
