@@ -19,6 +19,36 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains functions for sizing and rating pressure relief valves.
+At present, this consists of several functions from API 520.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+
+.. contents:: :local:
+
+Interfaces
+----------
+.. autofunction:: API520_A_g
+.. autofunction:: API520_A_steam
+
+Functions and Data
+------------------
+.. autofunction:: API520_round_size
+.. autofunction:: API520_C
+.. autofunction:: API520_F2
+.. autofunction:: API520_Kv
+.. autofunction:: API520_N
+.. autofunction:: API520_SH
+.. autofunction:: API520_B
+.. autofunction:: API520_W
+.. autodata:: API526_letters
+.. autodata:: API526_A_sq_inch
+.. autodata:: API526_A
+
 """
 
 from __future__ import division
@@ -34,9 +64,13 @@ __all__ = ['API526_A_sq_inch', 'API526_letters', 'API526_A',
 
 API526_A_sq_inch = [0.110, 0.196, 0.307, 0.503, 0.785, 1.287, 1.838, 2.853, 3.60,
              4.34, 6.38, 11.05, 16.00, 26.00] # square inches
+'''list: Nominal relief area in for different valve sizes in API 520, [in^2]'''
 API526_letters = ['D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R','T']
-API526_A = [i*inch**2 for i in API526_A_sq_inch]
-
+'''list: Letter size designations for different valve sizes in API 520'''
+inch2 = inch*inch
+API526_A = [i*inch2 for i in API526_A_sq_inch]
+'''list: Nominal relief area in for different valve sizes in API 520, [m^2]'''
+del inch2
 
 def API520_round_size(A):
     r'''Rounds up the area from an API 520 calculation to an API526 standard
