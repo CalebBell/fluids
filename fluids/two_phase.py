@@ -19,6 +19,55 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains functions for calculating two-phase pressure drop. It also
+contains correlations for flow regime.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+
+.. contents:: :local:
+
+Interfaces
+----------
+.. autofunction:: two_phase_dP
+.. autofunction:: two_phase_dP_methods
+.. autofunction:: two_phase_dP_acceleration
+.. autofunction:: two_phase_dP_gravitational
+.. autofunction:: two_phase_dP_dz_acceleration
+.. autofunction:: two_phase_dP_dz_gravitational
+
+Two Phase Pressure Drop Correlations
+------------------------------------
+.. autofunction:: Beggs_Brill
+.. autofunction:: Lockhart_Martinelli
+.. autofunction:: Friedel
+.. autofunction:: Chisholm
+.. autofunction:: Kim_Mudawar
+.. autofunction:: Baroczy_Chisholm
+.. autofunction:: Theissing
+.. autofunction:: Muller_Steinhagen_Heck
+.. autofunction:: Gronnerud
+.. autofunction:: Lombardi_Pedrocchi
+.. autofunction:: Jung_Radermacher
+.. autofunction:: Tran
+.. autofunction:: Chen_Friedel
+.. autofunction:: Zhang_Webb
+.. autofunction:: Xu_Fang
+.. autofunction:: Yu_France
+.. autofunction:: Wang_Chiang_Lu
+.. autofunction:: Hwang_Kim
+.. autofunction:: Zhang_Hibiki_Mishima
+.. autofunction:: Mishima_Hibiki
+.. autofunction:: Bankoff
+
+Two Phase Flow Regime Correlations
+----------------------------------
+.. autofunction:: Mandhane_Gregory_Aziz_regime
+.. autofunction:: Taitel_Dukler_regime
+
 """
 
 from __future__ import division
@@ -30,7 +79,7 @@ __all__ = ['two_phase_dP', 'two_phase_dP_methods', 'two_phase_dP_acceleration',
            'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
            'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
            'Yu_France', 'Wang_Chiang_Lu', 'Hwang_Kim', 'Zhang_Hibiki_Mishima',
-           'Mishima_Hibiki', 'Bankoff', 'two_phase_correlations',
+           'Mishima_Hibiki', 'Bankoff',
            'Mandhane_Gregory_Aziz_regime', 'Taitel_Dukler_regime']
 
 from math import pi, log, exp, sin, cos, radians, log10, sqrt
