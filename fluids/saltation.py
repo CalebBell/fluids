@@ -19,6 +19,26 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains correlations for calculating the saltation velocity of
+entrained particles.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Correlations
+------------
+.. autofunction :: Rizk
+.. autofunction :: Matsumoto_1974
+.. autofunction :: Matsumoto_1975
+.. autofunction :: Matsumoto_1977
+.. autofunction :: Schade
+.. autofunction :: Weber_saltation
+.. autofunction :: Geldart_Ling
+
 """
 
 from __future__ import division
@@ -80,13 +100,13 @@ def Rizk(mp, dp, rhog, D):
        Springer, 2013.
     .. [3] Rhodes, Martin J. Introduction to Particle Technology. Wiley, 2013.
     '''
-    alpha = 1440*dp + 1.96
-    beta = 1100*dp + 2.5
-    term1 = 1./10**alpha
-    Frs_sorta = 1/sqrt(g*D)
+    alpha = 1440.0*dp + 1.96
+    beta = 1100.0*dp + 2.5
+    term1 = 0.1**alpha
+    Frs_sorta = 1.0/sqrt(g*D)
     expression1 = term1*Frs_sorta**beta
-    expression2 = mp/rhog/(pi/4*D**2)
-    return (expression2/expression1)**(1./(1 + beta))
+    expression2 = mp/rhog/(pi/4*D*D)
+    return (expression2/expression1)**(1./(1. + beta))
 
 
 def Matsumoto_1974(mp, rhop, dp, rhog, D, Vterminal=1):
@@ -533,8 +553,8 @@ def Geldart_Ling(mp, rhog, D, mug):
        Journal of Chemical Engineering 31, no. 1 (March 2014): 35-46.
        doi:10.1590/S0104-66322014000100005
     '''
-    Gs = mp/(pi/4*D**2)
-    if Gs/D <= 47000:
+    Gs = mp/(0.25*pi*D*D)
+    if Gs/D <= 47000.0:
         return 1.5*Gs**0.465*D**-0.01*mug**0.055*rhog**-0.42
     else:
         return 8.7*Gs**0.302*D**0.153*mug**0.055*rhog**-0.42
