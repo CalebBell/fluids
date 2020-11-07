@@ -19,6 +19,55 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains correlations for calculating the efficiency of a pump,
+motor, or VFD. It also contains some functions for modeling the performance of
+a pump, and has been adapted to contain electrical information relevant to
+chemical engineering design.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Pump Efficiency
+---------------
+.. autofunction :: Corripio_pump_efficiency
+
+Motor Efficiency
+----------------
+.. autofunction :: CSA_motor_efficiency
+.. autofunction :: motor_efficiency_underloaded
+.. autofunction :: Corripio_motor_efficiency
+
+VFD Efficiency
+--------------
+.. autofunction :: VFD_efficiency
+
+Pump Utilities
+--------------
+.. autofunction :: specific_speed
+.. autofunction :: specific_diameter
+.. autofunction :: speed_synchronous
+
+Motor Utilities
+---------------
+.. autofunction :: motor_round_size
+.. autodata :: nema_sizes
+.. autodata :: nema_sizes_hp
+
+Electrical Utilities
+--------------------
+.. autofunction :: current_ideal
+.. autoclass :: CountryPower
+.. autodata :: electrical_plug_types
+.. autodata :: voltages_1_phase_residential
+.. autodata :: voltages_3_phase
+.. autodata :: residential_power_frequencies
+.. autodata :: industrial_power
+.. autodata :: residential_power
+
 """
 
 from __future__ import division
@@ -29,8 +78,8 @@ from fluids.numerics import interp, tck_interp2d_linear, bisplev
 __all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
 'Corripio_pump_efficiency', 'Corripio_motor_efficiency',
 'specific_speed', 'specific_diameter', 'speed_synchronous', 'nema_sizes',
-'nema_sizes_hp', 'motor_round_size', 'nema_min_P', 'nema_high_P', 'plug_types',
-'voltages_1_phase_residential', 'voltages_3_phase', 'frequencies',
+'nema_sizes_hp', 'motor_round_size', 'nema_min_P', 'nema_high_P', 'electrical_plug_types',
+'voltages_1_phase_residential', 'voltages_3_phase', 'residential_power_frequencies',
 'residential_power', 'industrial_power', 'current_ideal',
 'CountryPower']
 
@@ -621,14 +670,13 @@ class CountryPower(object):
     __slots__ = ('plugs', 'voltage', 'freq', 'country')
 
     def __repr__(self):
-        return ('CountryPower(country="%s", voltage=%d, freq=%d, plugs=%s)'
+        return ('CountryPower(country="%s", voltage=%s, freq=%d, plugs=%s)'
                 %(self.plugs, self.voltage, self.freq, self.country))
     def __init__(self, country, voltage, freq, plugs=None):
         self.plugs = plugs
         self.voltage = voltage
         self.freq = freq
         self.country = country
-
 
 residential_power = {
     "at": CountryPower(plugs=('C', 'F'), voltage=230, freq=50, country="Austria"),
@@ -835,6 +883,7 @@ residential_power = {
     "ca": CountryPower(plugs=('A', 'B'), voltage=120, freq=60, country="Canada"),
     "cr": CountryPower(plugs=('A', 'B'), voltage=120, freq=60, country="Costa Rica")
 }
+'''Dictionary of country-code to CountryPower instances for residential use.'''
 
 CONST_380 = 380
 CONST_400 = 400
@@ -1047,11 +1096,16 @@ industrial_power = {
     "ca": CountryPower(voltage=(120, 208, 240, CONST_480, 347, 600), freq=60, country='Canada'),
     "cr": CountryPower(voltage=TUP_240, freq=60, country='Costa Rica')
 }
+'''Dictionary of country-code to CountryPower instances for industrial use.'''
 
-plug_types = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']
+electrical_plug_types = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']
+'''List of all electrical plug types in use around the world.'''
 voltages_1_phase_residential = [100, 110, 115, 120, 127, 220, 230, 240]
+'''List of all AC 1-phase voltages used in residential settings around the world.'''
 voltages_3_phase = [120, 190, 200, 208, 220, 230, 240, 277, 380, 400, 415, 440, 480]
-frequencies = [50, 60]
+'''List of all AC 3-phase voltages used in industrial settings around the world.'''
+residential_power_frequencies = [50, 60]
+'''List of all AC 1-phase frequencies used in residential settings around the world.'''
 
 
 # https://www.grainger.com/content/supplylink-v-belt-maintenance-key-to-electric-motor-efficiency
