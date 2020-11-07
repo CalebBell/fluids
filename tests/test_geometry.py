@@ -424,7 +424,7 @@ def test_SA_partial_horiz_guppy_head():
 
     assert SA_partial_horiz_guppy_head(D=72., a=48.0, h=7200) == SA_partial_horiz_guppy_head(D=72., a=48.0, h=72)
 
-    assert_close(SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0), 1467.8949780037, rtol=1e-11)
+    assert_close(SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0), 1467.8949780037, rtol=1e-8)
     assert pi*72*inch/2*72*inch == SA_partial_horiz_guppy_head(D=72*inch, a=36*inch, h=72*inch)
     # Area is NOT CONSISTENT!
     T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
@@ -512,14 +512,14 @@ def test_SA_partial_horiz_torispherical_head():
 
     # Precision points for the three regimes
     SA = SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=2)
-    assert_close(SA, 80.54614956735351, rtol=1e-11)
+    assert_close(SA, 80.54614956735351, rtol=1e-7)
 
     # Only have 1e-7 tolerance here due to numerical itnegration
     SA = SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=20)
     assert_close(SA, 1171.9138610357936, rtol=1e-7)
 
     SA = SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=71)
-    assert_close(SA, 4784.441787378645, rtol=1e-11)
+    assert_close(SA, 4784.441787378645, rtol=1e-7)
 
     # Error handling
     # Was a bug computing this
