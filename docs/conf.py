@@ -57,6 +57,7 @@ extensions = [
     'matplotlib.sphinxext.plot_directive',
     'sphinxcontrib.katex',
     'sphinx_sitemap',
+    'sphinx.ext.intersphinx',
 ]
 
 html_baseurl = 'https://fluids.readthedocs.io/'

@@ -3188,7 +3188,7 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
 ### 2K Hooper Method
 
 Hooper = {}
-'''Dictionary of coefficients for Hooper's 2K fitting pressure drop method;
+r'''Dictionary of coefficients for Hooper's 2K fitting pressure drop method;
 the tuple contains :math:`K_1` and :math:`K_\infty` in that order.
 '''
 Hooper['Elbow, 90°, Standard (R/D = 1), Screwed'] = (800.0, 0.4)

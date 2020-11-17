@@ -390,7 +390,17 @@ def wrap_numpydoc_obj(obj_to_wrap):
                 name = attr.__name__
             if hasattr(attr, '__doc__'):
                 if type(attr) is property:
-                    property_unit_map[name] = u(match_parse_units(attr.fget.__doc__, i=0))
+                    try:
+                        docstring = attr.fget.__doc__
+                        # Is it a full style string?
+                        if 'Returns' in docstring and '-------' in docstring:
+                                found_unit = u(parse_numpydoc_variables_units(attr.fget)['Returns']['units'][0])
+                        else:
+                            found_unit = u(match_parse_units(docstring, i=0))
+                    except Exception as e:
+                        print('Failed on attribute %s' %name)
+                        raise e
+                    property_unit_map[name] = found_unit
                 else:
                     parsed = parse_numpydoc_variables_units(attr)
                     callable_methods[name] = clean_parsed_info(parsed)
