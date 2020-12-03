@@ -109,14 +109,14 @@ try:
     if is_micropython:
         IS_PYPY = True
 except:
-    pass
+    is_micropython = False
 
 try:
     is_ironpython =  sys.implementation.name == 'ironpython'
     if is_ironpython:
         IS_PYPY = True
 except:
-    pass
+    is_ironpython = False
 
 def py_cacos(z):
     # After CPython https://github.com/python/cpython/blob/e9e7d284c434768333fdfb53a3663eae74cb995a/Modules/cmathmodule.c#L237
@@ -178,7 +178,7 @@ except:
     pass
 
 try:
-    from cmath import acos as cacos, atan as catan
+    from cmath import acos as cacos, atan as catan, isclose as cisclose
 except:
     cacos = py_cacos
     catan = py_catan
@@ -1650,8 +1650,12 @@ def assert_close(a, b, rtol=1e-7, atol=0.0):
         # Nice to handle None
         return True
     try:
-        assert isclose(a, b, rel_tol=rtol, abs_tol=atol)
-        return
+        try:
+            assert isclose(a, b, rel_tol=rtol, abs_tol=atol)
+            return
+        except:
+            assert cisclose(a, b, rel_tol=rtol, abs_tol=atol)
+            return
     except:
         pass
     from numpy.testing import assert_allclose
