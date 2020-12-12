@@ -5,7 +5,8 @@ def pytest_ignore_collect(path):
     path = str(path)
     if 'manual_runner' in path or 'make_test_stubs' in path or 'plot' in path or 'prerelease' in path:
         return True
-    if platform.python_version_tuple()[0:2] < ('3', '6'):
+    ver_tup = platform.python_version_tuple()[0:2]
+    if ver_tup < ('3', '6') or ver_tup >= ('3', '9'):
         if 'numba' in path:
             return True
     if sys.version[0] == '2':
