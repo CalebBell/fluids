@@ -48,3 +48,8 @@ def pytest_configure(config):
         #config.inicfg['addopts'] = config.inicfg['addopts'] + ' --doctest-modules'
         #
         config.addinivalue_line("doctest_optionflags", "NORMALIZE_WHITESPACE")
+    else:
+        try:
+            config.option.doctestmodules = False
+        except:
+            pass
