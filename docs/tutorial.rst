@@ -757,19 +757,19 @@ going downstream to a pressure of 9 bar.
 The same case, but sizing the pipe to take 100 kg/s of gas:
 
 >>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, m=100)
-0.429717089110619
+0.42971708911
 
 The same case, but determining what the outlet pressure will be if 200 kg/s
 flow in the 0.5 m diameter pipe:
 
 >>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, D=0.5, L=1000, m=200)
-784701.0681827427
+784701.068182
 
 Determining pipe length from known diameter, pressure drop, and mass flow
 (possible but not necessarily useful):
 
 >>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, D=0.5, m=150)
-937.3258027759333
+937.325802775
 
 Not all specified mass flow rates are possible. At a certain downstream
 pressure, choked flow will develop - that downstream pressure is that
@@ -793,7 +793,7 @@ The downstream pressure at which choked flow occurs can be calculated directly
 as well:
 
 >>> P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
-389699.7317645518
+389699.731764
 
 A number of limitations exist with respect to the accuracy of this model:
     
@@ -826,7 +826,7 @@ diameter pipeline for 1 km, roughness = 5E-5 m:
 >>> fd = friction_factor(Re=Re, eD=epsilon/D)  # doctest: +SKIP
 >>> P2 = isothermal_gas(rho=S1.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)  # doctest: +SKIP
 >>> P2  # doctest: +SKIP
-877420.0710639344
+877420.071063
 
 In the above example, the friction factor was calculated using the density
 and velocity of the gas when it enters the stream. However, the average values,
@@ -900,7 +900,7 @@ pressure 90 bar and downstream pressure 20 bar, 160 km long, 0.693 specific
 gravity and with an average temperature in the pipeline of 277.15 K:
 
 >>> Panhandle_A(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15)
-42.56082051195928
+42.56082051195
 
 Each model also includes a pipeline efficiency term, ranging from 0 to 1. These
 are just empirical correction factors, Some of the models were developed with 
@@ -913,9 +913,9 @@ The Muller and IGT models are the most accurate and recent approximations.
 They both depend on viscosity.
 
 >>> Muller(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, mu=1E-5, Tavg=277.15)
-60.45796698148659
+60.4579669814
 >>> IGT(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, mu=1E-5, Tavg=277.15)
-48.92351786788815
+48.9235178678
 
 These empirical models are included because they are mandated in many industrial
 applications regardless of their accuracy, and correction factors have already 
@@ -998,28 +998,28 @@ column creeping flow at a superficial velocity of 1 mm/s. We can calculate the
 pressure drop in Pascals using the :py:func:`~.dP_packed_bed` function:
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2)
-2876.565391768883
+2876.56539176
 
 The method can be specified manually as well, for example the commonly used Ergun equation:
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Method='Ergun')
-2677.734374999
+2677.73437
 
 Incorporation of the tube diameter will add wall effects to the model.
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Dt=0.01)
-2510.3251325096
+2510.325132
 
 Models can be used directly as well. The length of the column is an optional
 input; if not provided, the result will be in terms of Pa/m.
 
 >>> KTA(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3) # A correlation standardized for use in pebble reactors
-1440.409277034
+1440.40927
 
 If the column diameter was 0.5 m, the flow rate in m^3/s would be:
 
 >>> .001*(pi/4*0.5**2) # superficial_velocity*A_column
-0.00019634954084936
+0.0001963495408
 
 The holdup (total volume of the column holding fluid not particles) would be:
 
@@ -1035,7 +1035,7 @@ spherical the particles, the higher the pressure drop. This is supported in
 all of the correlations.
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Dt=0.01, sphericity=0.9)
-3050.4195981168
+3050.419598116
 
 While it is easy to measure the volume of particles added to a given column 
 and determine the voidage experimentally, this does not help in the design process.
@@ -1049,7 +1049,7 @@ one for spheres, and one for cylinders (:py:func:`~.voidage_Benyahia_Oneil`,
 1 mm spheres in a 5 cm diameter tube:
 
 >>> voidage_Benyahia_Oneil_spherical(Dp=.001, Dt=.05)
-0.3906653157443224
+0.390665315744
 
 1 mm diameter cylinder 5 mm long in a 5 cm diameter tube:
 
@@ -1161,16 +1161,16 @@ can be converted easily with the functions :py:func:`~.K_to_Kv`,
 >>> K_to_Kv(K=16, D=0.016)
 2.56
 >>> K_to_Cv(K=16, D=0.016)
-2.9596140245853606
+2.9596140245853
 
 If Kv or Cv are known, they can be converted to each other with the
 proportionality constant 1.156, which is derived from a unit conversion only.
 This conversion does not require valve diameter.
 
 >>> Cv_to_Kv(12)
-10.379731865307619
+10.379731865307
 >>> Kv_to_Cv(10.37)
-11.988748998027418
+11.988748998027
 
 If a Cv or Kv is obtained from a valve datasheet, it can be converted into a
 standard loss coefficient as follows.
