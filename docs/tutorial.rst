@@ -554,7 +554,7 @@ convert the time zone.
 
 >>> from datetime import datetime, timedelta
 >>> solar_position(datetime(2020, 6, 6, 14, 30, 0) - timedelta(hours=8), -31.95265, 115.85742)
-[63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
+[63.4080568623, 63.4400018158, 26.59194313766, 26.5599981841, 325.121376246, 75.7467475485]
 
 This painful, so timezone support has been added to the functions
 using the library `pytz`.
@@ -562,7 +562,7 @@ using the library `pytz`.
 >>> import pytz
 >>> when = pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 14, 30, 0))
 >>> solar_position(when, -31.95265, 115.85742)
-[63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
+[63.4080568623, 63.4400018158, 26.59194313766, 26.55999818417, 325.121376246, 75.7467475485]
 
 
 To determine the distance of earth and the sun, use the 
@@ -570,7 +570,7 @@ To determine the distance of earth and the sun, use the
 object and returns the distance in meters. This is still impacted by timezones.
 
 >>> earthsun_distance(pytz.timezone('America/Edmonton').localize(datetime(2003, 10, 17, 13, 30, 30)))
-149080606927.64246
+149080606927.6
 
 To determine when the sun rises, sets, and is at solar noon, use the
 :py:func:`~.sunrise_sunset` function, which accepts a datetime 
@@ -591,7 +591,7 @@ a datetime instance, a latitude, and a longitude.
 
 >>> apparent_zenith, _, _, _, azimuth, _ = solar_position(pytz.timezone('America/Edmonton').localize(datetime(2003, 10, 17, 13, 30, 30)), 51.0486, -114.07)
 >>> apparent_zenith, azimuth
-(60.36742528727301, 182.5136775668768)
+(60.3674252872, 182.513677566)
 
 The function returns several other properties which may be of interest.
 Its first return value, apparent_zenith, is the zenith which an observer
@@ -603,7 +603,7 @@ When specifying pressure, be sure to use the real pressure of the site - not an 
 standard conditions one as reported by weather stations!
 
 >>> solar_position(pytz.timezone('America/Edmonton').localize(datetime(2003, 10, 17, 13, 30, 30)), 51.0486, -114.07, T=290, P=8.9E4)[0]
-60.3701556038549
+60.370155603
 
 The primary application of sun position is for calculating the amount of sunlight received
 by an object, via the :py:func:`~.solar_irradiation` function. Unlike the previous functions,
@@ -618,7 +618,7 @@ immediately; within several kilometers). The calculation is then straightforward
 >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
 ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,
 ... surface_azimuth=180.0, albedo=0.25)
-(1065.7621896280812, 945.2656564506323, 120.49653317744884, 95.31535344213178, 25.181179735317063)
+(1065.762189628, 945.265656450, 120.4965331774, 95.3153534421, 25.18117973531)
 
 The first return value is the solar radiation which hits the object, in W/m^2.
 The next two are the components of the radiation that comes 1) directly from
@@ -645,7 +645,7 @@ geared compressors are often used for this purpose
 The function :py:func:`~.isothermal_work_compression` provides this calculation.
 
 >>> isothermal_work_compression(P1=1E5, P2=1E6, T=300)
-5743.427304244769
+5743.4273042447
 
 Work is calculated on a J/mol basis. If the second pressure is lower than the
 first, a negative work will result and you are modeling an expander instead
@@ -653,7 +653,7 @@ of a compressor. Gas compressibility factor can also be specified. The lower
 the gas's compressibility factor, the less power required to compress it.
 
 >>> isothermal_work_compression(P1=1E6, P2=1E5, T=300)
--5743.427304244768
+-5743.4273042447
 >>> isothermal_work_compression(P1=1E5, P2=1E6, T=300, Z=0.95)
 5456.25593903253
 
@@ -667,7 +667,7 @@ Compressing air from 1 bar to 10 bar, with inlet temperature of 300 K and
 efficiency of 78% with the :py:func:`~.isentropic_work_compression` function:
 
 >>> isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78) # work, J/mol
-10416.876986384483
+10416.8769863844
 
 The model allows for the inlet or outlet pressure or efficiency to be calculated
 instead of the work:
@@ -684,7 +684,7 @@ The approximate temperature rise can also be calculated with the function
 
 >>> T2 = isentropic_T_rise_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78)
 >>> T2, T2-300 # outlet temperature and temperature rise, K
-(657.960664955096, 357.96066495509604)
+(657.960664955, 357.9606649550)
 
 It is more accurate to use an enthalpy-based model which incorporates departure
 functions.
