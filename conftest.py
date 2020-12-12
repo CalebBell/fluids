@@ -9,6 +9,9 @@ def pytest_ignore_collect(path):
     if ver_tup < ('3', '6') or ver_tup >= ('3', '9'):
         if 'numba' in path:
             return True
+    if ver_tup < ('3', '6'):
+        if '.rst' in path: # skip .rst tests as different rendering from pint and no support for NUMBER flag
+            return True
     if sys.version[0] == '2':
         if 'numba' in path or 'typing_utils' in path:
             return True
