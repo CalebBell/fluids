@@ -560,23 +560,24 @@ Dukler_XD_Ds = [1.2318, 1.1581, 1.0662, 0.904, 0.8322, 0.7347, 0.5728, 0.4952, 0
 Dukler_XC_Xs = [0.01471, 0.017582, 0.020794, 0.024853, 0.028483, 0.040271, 0.06734, 0.10247, 0.15111, 0.21596, 0.33933, 0.5006, 0.701, 1.149, 1.714, 2.5843, 4.0649, 6.065, 8.321, 11.534, 20.817, 28.865, 37.575, 50.48]
 Dukler_XC_Cs = [1.9554, 2.1281, 2.3405, 2.5742, 2.8012, 3.2149, 4.0579, 4.8075, 5.403, 5.946, 6.21, 6.349, 6.224, 6.168, 5.618, 4.958, 4.1523, 3.6646, 3.0357, 2.6505, 1.8378, 1.5065, 1.2477, 1.0555]
 
+
 @pytest.mark.scipy
 def test_Taitel_Dukler_splines():
     from scipy.interpolate import splrep, splev
     import numpy as np
     from fluids.two_phase import Dukler_XA_tck, Dukler_XC_tck, Dukler_XD_tck
     Dukler_XA_tck2 = splrep(np.log10(Dukler_XA_Xs), np.log10(Dukler_XA_As), s=5e-3, k=3)
-    [assert_close(i, j) for i, j in zip(Dukler_XA_tck, Dukler_XA_tck2)]
+    [assert_close1d(i, j) for i, j in zip(Dukler_XA_tck[:-1], Dukler_XA_tck2[:-1])]
 #     XA_interp = UnivariateSpline(np.log10(Dukler_XA_Xs), np.log10(Dukler_XA_As), s=5e-3, k=3) # , ext='const'
 #    XA_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XA_tck))
 
     Dukler_XD_tck2 = splrep(np.log10(Dukler_XD_Xs), np.log10(Dukler_XD_Ds), s=1e-2, k=3)
-    [assert_close(i, j) for i, j in zip(Dukler_XD_tck, Dukler_XD_tck)]
+    [assert_close1d(i, j) for i, j in zip(Dukler_XD_tck[:-1], Dukler_XD_tck[:-1])]
 #     XD_interp = UnivariateSpline(np.log10(Dukler_XD_Xs), np.log10(Dukler_XD_Ds), s=1e-2, k=3) # , ext='const'
 #    XD_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XD_tck))
 
     Dukler_XC_tck2 = splrep(np.log10(Dukler_XC_Xs), np.log10(Dukler_XC_Cs), s=1e-3, k=3)
-    [assert_close(i, j) for i, j in zip(Dukler_XC_tck, Dukler_XC_tck2)]
+    [assert_close1d(i, j) for i, j in zip(Dukler_XC_tck[:-1], Dukler_XC_tck2[:-1])]
 #     XC_interp = UnivariateSpline(np.log10(Dukler_XC_Xs), np.log10(Dukler_XC_Cs), s=1e-3, k=3) # ext='const'
 #    XC_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XC_tck))
 

@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 import types
-from fluids.numerics import assert_close, assert_close1d
+from fluids.numerics import assert_close, assert_close1d, assert_close2d
 import pytest
 import fluids
 from fluids.units import *
@@ -46,6 +46,18 @@ def test_kwargs_to_args():
 
 def assert_pint_allclose(value, magnitude, units, rtol=1e-7, atol=0):
     assert_close(value.to_base_units().magnitude, magnitude, rtol=rtol, atol=atol)
+    if type(units) != dict:
+        units = dict(units.dimensionality)
+    assert dict(value.dimensionality) == units
+
+def assert_pint_allclose1d(value, magnitude, units, rtol=1e-7, atol=0):
+    assert_close1d(value.to_base_units().magnitude, magnitude, rtol=rtol, atol=atol)
+    if type(units) != dict:
+        units = dict(units.dimensionality)
+    assert dict(value.dimensionality) == units
+
+def assert_pint_allclose2d(value, magnitude, units, rtol=1e-7, atol=0):
+    assert_close2d(value.to_base_units().magnitude, magnitude, rtol=rtol, atol=atol)
     if type(units) != dict:
         units = dict(units.dimensionality)
     assert dict(value.dimensionality) == units
@@ -303,7 +315,7 @@ def test_Tank_units_full():
     # Check the table and approximations
     T1.set_table(dx=1*u.cm)
     assert 151 == len(T1.volumes)
-    assert_pint_allclose(T1.heights[0:3], [0, 0.01, 0.02], u.m)
+    assert_pint_allclose1d(T1.heights[0:3], [0, 0.01, 0.02], u.m)
     T1.set_table(n=10)
     assert 10 == len(T1.volumes)
     T1.set_table(n=10*u.dimensionless)

@@ -55,7 +55,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'best_bounding_bounds', 'newton_minimize', 'array_as_tridiagonals',
            'tridiagonals_as_array', 'solve_tridiagonal', 'subset_matrix',
            'assert_close', 'assert_close1d', 'assert_close2d', 'assert_close3d',
-           'translate_bound_func', 'translate_bound_jac',
+           'assert_close4d', 'translate_bound_func', 'translate_bound_jac',
            'translate_bound_f_jac',
            'quad', 'quad_adaptive',
 
@@ -559,6 +559,7 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
         y = [start]
         for _ in range(num-1):
             y.append(y[-1] + step)
+
     if retstep:
         return y, step
     else:
@@ -1360,8 +1361,7 @@ def is_poly_negative(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1
 def polyder(c, m=1, scl=1, axis=0):
     """not quite a copy of numpy's version because this was faster to
     implement."""
-    c = list(c)
-    cnt = int(m)
+    cnt = m
 
     if cnt == 0:
         return c
@@ -1370,10 +1370,10 @@ def polyder(c, m=1, scl=1, axis=0):
     if cnt >= n:
         c = c[:1]*0
     else:
-        for i in range(cnt):
+        for i in range(cnt): # normally only happens once
             n = n - 1
-            c *= scl
-            der = [0.0 for _ in range(n)]
+
+            der = [0.0]*n
             for j in range(n, 0, -1):
                 der[j - 1] = j*c[j]
             c = der
@@ -1381,18 +1381,31 @@ def polyder(c, m=1, scl=1, axis=0):
 
 def polyint(coeffs):
     """not quite a copy of numpy's version because this was faster to
-    implement."""
-    return ([0.0] + [c/(i+1) for i, c in enumerate(coeffs[::-1])])[::-1]
+    implement.
+    Tried out a bunch of optimizations, and this hits a good balance
+    between CPython and pypy speed."""
+#    return ([0.0] + [c/(i+1) for i, c in enumerate(coeffs[::-1])])[::-1]
+    N = len(coeffs)
+    out = [0.0]*(N+1)
+    for i in range(N):
+        out[i] = coeffs[i]/(N-i)
+    return out
 
 
 def polyint_over_x(coeffs):
-    coeffs = coeffs[::-1]
-    log_coef = coeffs[0]
-    poly_terms = [0.0]
-    for i in range(1, len(coeffs)):
-        poly_terms.append(coeffs[i]/i)
-    return list(reversed(poly_terms)), log_coef
-
+    N = len(coeffs)
+    log_coef = coeffs[-1]
+    Nm1 = N - 1
+    poly_terms = [coeffs[Nm1-i]/i for i in range(N-1, 0, -1)]
+    poly_terms.append(0.0)
+    return poly_terms, log_coef
+#    coeffs = coeffs[::-1]
+#    log_coef = coeffs[0]
+#    poly_terms = [0.0]
+#    for i in range(1, len(coeffs)):
+#        poly_terms.append(coeffs[i]/i)
+#    return list(reversed(poly_terms)), log_coef
+#
 def chebder(c, m=1, scl=1):
     """not quite a copy of numpy's version because this was faster to
     implement."""
@@ -1669,11 +1682,44 @@ def assert_close1d(a, b, rtol=1e-7, atol=0.0):
         assert_close(a[i], b[i], rtol=rtol, atol=atol)
 
 def assert_close2d(a, b, rtol=1e-7, atol=0.0):
+#    N = len(a)
+#    if N != len(b):
+#        raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
+#    for i in range(N):
+#        assert_close1d(a[i], b[i], rtol=rtol, atol=atol)
     N = len(a)
     if N != len(b):
         raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
+#    for i in range(N):
+#        assert_close3d(a[i], b[i], rtol=rtol, atol=atol)
     for i in range(N):
-        assert_close1d(a[i], b[i], rtol=rtol, atol=atol)
+        a0, b0 = a[i], b[i]
+        N0 = len(a0)
+        if N0 != len(b0):
+            raise ValueError("Variables are not the same length: %d, %d" %(N0, len(b0)))
+        for j in range(N0):
+#            assert_close(a0[j], b0[j], rtol=rtol, atol=atol)
+            good = True
+            a1, b1 = a0[j], b0[j]
+            if a1 is b1:
+                # Nice to handle None
+                pass
+            else:
+                try:
+                    try:
+                        good = isclose(a1, b1, rel_tol=rtol, abs_tol=atol)
+                    except:
+                        good = cisclose(a1, b1, rel_tol=rtol, abs_tol=atol)
+                except:
+                    pass
+            if not good:
+                from numpy.testing import assert_allclose
+                return assert_allclose(a1, b1, rtol=rtol, atol=atol)
+
+
+
+
+
 
 def assert_close3d(a, b, rtol=1e-7, atol=0.0):
     N = len(a)
@@ -1681,6 +1727,20 @@ def assert_close3d(a, b, rtol=1e-7, atol=0.0):
         raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
     for i in range(N):
         assert_close2d(a[i], b[i], rtol=rtol, atol=atol)
+
+def assert_close4d(a, b, rtol=1e-7, atol=0.0):
+    N = len(a)
+    if N != len(b):
+        raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
+#    for i in range(N):
+#        assert_close3d(a[i], b[i], rtol=rtol, atol=atol)
+    for i in range(N):
+        a0, b0 = a[i], b[i]
+        N0 = len(a0)
+        if N0 != len(b0):
+            raise ValueError("Variables are not the same length: %d, %d" %(N0, len(b0)))
+        for j in range(N0):
+            assert_close2d(a0[j], b0[j], rtol=rtol, atol=atol)
 
 def interp(x, dx, dy, left=None, right=None, extrapolate=False):
     """One-dimensional linear interpolation routine inspired/ reimplemented from
