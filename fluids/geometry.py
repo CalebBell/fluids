@@ -2124,7 +2124,7 @@ def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
         x3_pow = (x3+0j)**(-1.5)
     ans = (x*cacos(c/x2) + x3_pow*x5*(-c*x1*csqrt(-x6*x6)*catan(x*x2/(csqrt(x3)*csqrt(x6)))
         + x6*x7*csqrt(-x1*x1)*catan(c*x*x5/x7))/csqrt(-x6/x1))
-    return ans.real
+    return abs(ans.real)
 
 def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
 #    from mpmath import mp, mpf, atanh as catanh

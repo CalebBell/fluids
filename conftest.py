@@ -38,7 +38,7 @@ def pytest_load_initial_conftests(args):
 
 
 def pytest_configure(config):
-    if sys.version[0] == '3':
+    if sys.version[0] == '3' and sys.version[1] > 5:
         import pytest
         if pytest.__version__.split('.')[0] >= '6':
             config.addinivalue_line("addopts", '--doctest-modules')

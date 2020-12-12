@@ -25,9 +25,14 @@ from fluids import *
 from numpy.testing import assert_allclose
 import pytest
 import numpy as np
+import fluids.numerics
 from fluids.numerics import *
 from scipy.integrate import quad
 from math import *
+
+def test_py_cacos():
+    # Missed a asinh in this case
+    assert_close(fluids.numerics.py_cacos(1.0000000000000033), 8.16170211889097e-08j, rtol=1e-11)
 
 def test_horner():
     from fluids.numerics import horner

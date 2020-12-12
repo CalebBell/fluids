@@ -491,6 +491,10 @@ def test_SA_partial_horiz_torispherical_head():
     # by ensuring numbers were complex
     assert_close(SA_partial_horiz_torispherical_head(D=1.8288, f=1.0, k=0.06, h=0.6095999999999999), 0.9491605631461236)
 
+    # Python 2 issue with trig due to my own mistake
+    assert_close(SA_partial_horiz_torispherical_head(D=1.8288, f=0.9, k=0.1, h=0.6095999999999999),
+             1.037030313486593, rtol=1e-6)
+
 
     L = 120*inch
     D = 72*inch

@@ -120,12 +120,16 @@ except:
 
 def py_cacos(z):
     # After CPython https://github.com/python/cpython/blob/e9e7d284c434768333fdfb53a3663eae74cb995a/Modules/cmathmodule.c#L237
-    # Without the special cases; 25% faster in PyPy than the standard library
+    # Without the special cases
     # Implemented only because micropython is missing this function
-    s1 = csqrt(1.-z.real - z.imag*1.0j)
+    s1 = csqrt(1. - z.real - z.imag*1.0j)
     s2 = csqrt(1. + z.real + z.imag*1.0j)
-    r =  2.*atan2(s1.real, s2.real) + (s2.real*s1.imag - s2.imag*s1.real)*1.0j
+    r =  2.*atan2(s1.real, s2.real) + asinh(s2.real*s1.imag - s2.imag*s1.real)*1.0j
     return r
+
+
+
+
 
 def py_catan(x):
     # Implemented only because micropython is missing this function
