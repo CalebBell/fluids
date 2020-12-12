@@ -906,30 +906,30 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     Perth, Australia - sunrise
 
     >>> solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 7, 10, 57)), -31.95265, 115.85742)
-    [90.89617025931763, 90.89617025931763, -0.8961702593176304, -0.8961702593176304, 63.60160176917509, 79.07112321438035]
+    [90.89617025931, 90.89617025931, -0.896170259317, -0.896170259317, 63.6016017691, 79.0711232143]
 
     Perth, Australia - Comparing against an online source
     https://www.suncalc.org/#/-31.9526,115.8574,9/2020.06.06/14:30/1/0
 
     >>> solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 14, 30, 0)), -31.95265, 115.85742)
-    [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
+    [63.4080568623, 63.4400018158, 26.59194313766, 26.55999818417, 325.121376246, 75.7467475485]
 
     Perth, Australia - time input without timezone; must be converted by user to UTC!
 
     >>> solar_position(datetime(2020, 6, 6, 14, 30, 0) - timedelta(hours=8), -31.95265, 115.85742)
-    [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
+    [63.4080568623, 63.4400018158, 26.59194313766, 26.55999818417, 325.121376246, 75.7467475485]
 
     Sunrise occurs when the zenith is 90 degrees (Calgary, AB):
 
     >>> local_time = datetime(2018, 4, 15, 6, 43, 5)
     >>> local_time = pytz.timezone('America/Edmonton').localize(local_time)
     >>> solar_position(local_time, 51.0486, -114.07)[0]
-    90.00054685485517
+    90.0005468548
 
     Sunset occurs when the zenith is 90 degrees (13.5 hours later in this case):
 
     >>> solar_position(pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 20, 30, 28)), 51.0486, -114.07)
-    [89.9995695661236, 90.54103812161853, 0.00043043387640950836, -0.5410381216185247, 286.8313781904518, 6.631429525878048]
+    [89.999569566, 90.5410381216, 0.0004304338764095, -0.541038121618, 286.831378190, 6.63142952587]
 
     Notes
     -----
@@ -1180,14 +1180,14 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
     ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,
     ... surface_azimuth=180.0)
-    (1065.7621896280812, 945.2656564506323, 120.49653317744884, 95.31535344213178, 25.181179735317063)
+    (1065.7621896280, 945.2656564506, 120.49653317744, 95.31535344213, 25.181179735317)
 
     >>> cache = {'apparent_zenith': 41.099082295767545, 'zenith': 41.11285376417578, 'azimuth': 182.5631874250523}
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07,
     ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,
     ... linke_turbidity=3, T=300, P=1E5,
     ... surface_azimuth=180.0, cache=cache)
-    (1042.5677703677, 918.2377548545, 124.33001551318, 99.6228657378, 24.70714977534)
+    (1042.567770367, 918.237754854, 124.3300155131, 99.622865737, 24.7071497753)
 
     At night, there is no solar radiation and this function returns zeros:
 

@@ -156,7 +156,7 @@ def test_pdf_lognormal():
 
     # Check we can get down almost to zero
     pdf = pdf_lognormal(d=3.7E-24, d_characteristic=1E-5, s=1.1)
-    assert_close(pdf, 4.842842147909424e-301)
+    assert_close(pdf, 4.842842147909424e-301, atol=1e-200)
 
 
 def test_cdf_lognormal():
