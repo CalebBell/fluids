@@ -40,18 +40,15 @@ def pytest_load_initial_conftests(args):
 
 
 def pytest_configure(config):
-    if sys.version[0] == '3' and sys.version[1] > '5':
+    print(sys.version[0], 'sysversion')
+    if sys.version[0] == '3':
         import pytest
         if pytest.__version__.split('.')[0] >= '6':
             config.addinivalue_line("addopts", '--doctest-modules')
+            print('setting NUMBER')
             config.option.doctestmodules = True
             config.addinivalue_line("doctest_optionflags", "NUMBER")
 #        config.addinivalue_line("addopts", config.inicfg['addopts'].replace('//', '') + ' --doctest-modules')
         #config.inicfg['addopts'] = config.inicfg['addopts'] + ' --doctest-modules'
         #
         config.addinivalue_line("doctest_optionflags", "NORMALIZE_WHITESPACE")
-    else:
-        try:
-            config.option.doctestmodules = False
-        except:
-            pass
