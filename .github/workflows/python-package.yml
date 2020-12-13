@@ -19,7 +19,7 @@ jobs:
           # Failures due to lack of numpy wheels
           # numpy.distutils.system_info.NotFoundError: No lapack/blas resources found.
           - os: windows-latest
-            python-version: pypy
+            python-version: pypy2
           - os: windows-latest
             python-version: pypy3
           # pypy2 Failure building pandas wheels
@@ -47,3 +47,16 @@ jobs:
     - name: Test with pytest
       run: |
         pytest . -v --cov-report html --cov=fluids --cov-report term-missing -m "not online and not thermo and not numba"
+    - name: Coveralls
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel: true
+
+  coveralls_finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel-finished: true
