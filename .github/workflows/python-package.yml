@@ -18,7 +18,7 @@ jobs:
         exclude:
           # Failures due to lack of numpy wheels
           - os: windows-latest
-            python_version: pypy2
+            python-version: pypy2
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
