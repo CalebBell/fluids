@@ -47,16 +47,10 @@ jobs:
     - name: Test with pytest
       run: |
         pytest . -v --cov-report html --cov=fluids --cov-report term-missing -m "not online and not thermo and not numba"
-    - name: Run coverage linux
-      if: ${{ matrix.os != 'windows-latest' }}
-      run: |
-        COVERALLS_REPO_TOKEN=${{ secrets.coveralls }} COVERALLS_PARALLEL=true coveralls
-    - name: Run coverage windows
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: |
-        set COVERALLS_REPO_TOKEN=${{ secrets.coveralls }}
-        set COVERALLS_PARALLEL=true
         coveralls
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.coveralls }}
+        COVERALLS_PARALLEL: true
   finish:
     needs: build
     runs-on: ubuntu-latest
