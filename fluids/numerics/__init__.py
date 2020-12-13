@@ -3481,7 +3481,8 @@ def fixed_quad_Gauss_Kronrod(f, a, b, k_points, k_weights, l_weights, args):
 
 def quad_adaptive(f, a, b, args=(), kronrod_points=array_if_needed(kronrod_points[10]),
                   kronrod_weights=array_if_needed(kronrod_weights[10]), legendre_weights=array_if_needed(legendre_weights[10]),
-                  epsrel=1.49e-8, epsabs=1.49e-8, depth=0):
+                  epsrel=1.49e-8, epsabs=1.49e-8, depth=0, points=None):
+    # Disregard `points` for now
     area, err_abs = fixed_quad_Gauss_Kronrod(f, a, b, kronrod_points, kronrod_weights,
                                              legendre_weights, args)
     # Match behavior, documented at https://www.johndcook.com/blog/2012/03/20/scipy-integration/

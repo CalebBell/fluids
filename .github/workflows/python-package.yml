@@ -17,8 +17,13 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
         exclude:
           # Failures due to lack of numpy wheels
+          # numpy.distutils.system_info.NotFoundError: No lapack/blas resources found.
           - os: windows-latest
-            python-version: pypy2
+            python-version: pypy2, pypy3
+          # pypy2 Failure building pandas wheels
+          # pypy3  error: library mach has Fortran sources but no Fortran compiler found
+          - os: macos-latest
+            python-version: pypy2, pypy3
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}

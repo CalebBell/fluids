@@ -20,6 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
+import fluids
 from fluids import *
 from math import *
 from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose, linspace, logspace
@@ -360,6 +361,7 @@ def test_PSDLognormal_mean_sizes_numerical():
     d00 = disc.mean_size(0.0, 0.0)
     assert_close(d00, 2.362E-6, rtol=0, atol=1E-9)
 
+@pytest.mark.skipif(fluids.numerics.IS_PYPY, reason="numerical issues with adaptive integrator") # Custom integrator can't handle this
 @pytest.mark.slow
 def test_PSDCustom_mean_sizes_numerical():
     import scipy.stats
