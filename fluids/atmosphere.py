@@ -752,7 +752,7 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
     Examples
     --------
     >>> airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90)
-    10356.12766586
+    10356.12
 
     References
     ----------
@@ -929,7 +929,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     Sunset occurs when the zenith is 90 degrees (13.5 hours later in this case):
 
     >>> solar_position(pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 20, 30, 28)), 51.0486, -114.07)
-    [89.999569566, 90.5410381216, 0.0004304338764095, -0.541038121618, 286.831378190, 6.63142952587]
+    [89.999569566, 90.5410381216, 0.000430433876, -0.541038121618, 286.831378190, 6.63142952587]
 
     Notes
     -----

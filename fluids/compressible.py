@@ -538,7 +538,7 @@ def P_isothermal_critical_flow(P, fd, D, L):
     Examples
     --------
     >>> P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
-    389699.7317645518
+    389699.73176
 
     References
     ----------
@@ -558,7 +558,7 @@ def P_upstream_isothermal_critical_flow(P, fd, D, L):
     --------
     >>> P_upstream_isothermal_critical_flow(P=389699.7317645518, fd=0.00185,
     ... L=1000., D=0.5)
-    1000000.0000000001
+    1000000.00000
     """
     lambertw_term = float(lambertw(-exp(-(fd*L+D)/D), -1).real)
     return exp(-0.5*(D*lambertw_term+fd*L+D)/D)*P

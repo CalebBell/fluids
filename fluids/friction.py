@@ -365,7 +365,7 @@ def Colebrook(Re, eD, tol=None):
     Examples
     --------
     >>> Colebrook(1E5, 1E-4)
-    0.018513866077471648
+    0.018513866077471
 
     References
     ----------
@@ -1852,7 +1852,7 @@ def Prandtl_von_Karman_Nikuradse(Re):
     Examples
     --------
     >>> Prandtl_von_Karman_Nikuradse(1E7)
-    0.008102669430874914
+    0.008102669430
 
     References
     ----------
@@ -1944,7 +1944,7 @@ def ft_Crane(D):
 
     >>> Di = 0.1
     >>> Colebrook(7.5E6*Di, eD=roughness_Farshad(ID='Carbon steel, bare', D=Di)/Di)
-    0.01628842543122547
+    0.0162884254312
 
     References
     ----------

@@ -1,12 +1,14 @@
 import sys
 import platform
+is_pypy = 'PyPy' in sys.version
 
 def pytest_ignore_collect(path):
     path = str(path)
     if 'manual_runner' in path or 'make_test_stubs' in path or 'plot' in path or 'prerelease' in path:
         return True
     ver_tup = platform.python_version_tuple()[0:2]
-    if ver_tup < ('3', '6') or ver_tup >= ('3', '9'):
+    if ver_tup < ('3', '6') or ver_tup >= ('3', '9') or is_pypy:
+        # numba does not yet run under pypy
         if 'numba' in path:
             return True
         if '.rst' in path: # skip .rst tests as different rendering from pint and no support for NUMBER flag

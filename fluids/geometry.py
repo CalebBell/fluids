@@ -663,7 +663,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     Matching example from [1]_, with inputs in inches and volume in gallons.
 
     >>> V_horiz_torispherical(D=108., L=156., f=1., k=0.06, h=36)/231.
-    2028.626670842139
+    2028.62667
 
     References
     ----------
@@ -1841,7 +1841,7 @@ def SA_partial_horiz_spherical_head(D, a, h):
     Examples
     --------
     >>> SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0)
-    2027.267209167
+    2027.2672
 
     References
     ----------
@@ -1945,7 +1945,7 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     Examples
     --------
     >>> SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0)
-    3401.2336225472704
+    3401.233622547
 
     References
     ----------
@@ -2076,7 +2076,7 @@ def SA_partial_horiz_guppy_head(D, a, h):
     Examples
     --------
     >>> SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0)
-    1467.8949780036994
+    1467.8949
 
     References
     ----------
@@ -2090,6 +2090,8 @@ def SA_partial_horiz_guppy_head(D, a, h):
         return 0.0
     elif h > D:
         h = D
+    if -R == h-R:
+        return 0.0
 
 #    c1 = a/(2.0*R)
 #    c2 = c1*c1
