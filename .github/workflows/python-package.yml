@@ -43,12 +43,34 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         architecture: ${{ matrix.architecture }}
-    - name: Install dependencies
+    - uses: actions/cache@v2
+    if: startsWith(runner.os, 'Linux')
+    with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_test.txt') }}
+        restore-keys: |
+        ${{ runner.os }}-pip-
+
+    - uses: actions/cache@v2
+    if: startsWith(runner.os, 'macOS')
+    with:
+        path: ~/Library/Caches/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_test.txt') }}
+        restore-keys: |
+        ${{ runner.os }}-pip-
+
+    - uses: actions/cache@v2
+    if: startsWith(runner.os, 'Windows')
+    with:
+        path: ~\AppData\Local\pip\Cache
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_test.txt') }}
+        restore-keys: |
+        ${{ runner.os }}-pip-        
+     - name: Install dependencies
       run: |
         python -c "import platform; print(platform.platform()); print(platform.architecture())"
         python -m pip install --upgrade pip
         python -m pip install wheel
-        pip install numpy pandas pytz IPython pytest sphinx
         pip install -r requirements_test.txt
     - name: Add numba
       if: ${{ matrix.python-version == '3.6' || matrix.python-version == '3.7' || matrix.python-version == '3.8' }}
