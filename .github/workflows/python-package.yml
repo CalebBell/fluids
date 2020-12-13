@@ -45,7 +45,7 @@ jobs:
         architecture: ${{ matrix.architecture }}
 
     - uses: actions/cache@v2
-    - name cache
+    - name: cache
       if: startsWith(runner.os, 'Linux')
       with:
         path: ~/.cache/pip
