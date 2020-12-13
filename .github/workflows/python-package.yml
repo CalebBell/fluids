@@ -15,6 +15,7 @@ jobs:
       matrix:
         python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9, pypy2, pypy3]
         os: [windows-latest, ubuntu-latest, macos-latest]
+        architecture: ['x86', 'x64']
         exclude:
           # Failures due to lack of numpy wheels
           # numpy.distutils.system_info.NotFoundError: No lapack/blas resources found.
@@ -30,7 +31,7 @@ jobs:
             python-version: pypy3
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python-version }} ${{ matrix.architecture }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
