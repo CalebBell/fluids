@@ -44,8 +44,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
         architecture: ${{ matrix.architecture }}
 
-    - uses: actions/cache@v2
-    - name: cache
+    - name: cache linux
+      uses: actions/cache@v2
       if: startsWith(runner.os, 'Linux')
       with:
         path: ~/.cache/pip
