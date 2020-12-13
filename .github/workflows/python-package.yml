@@ -11,10 +11,14 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         python-version: [2.7, 3.5, 3.6, 3.7, 3.8, 3.9, pypy2, pypy3]
         os: [windows-latest, ubuntu-latest, macos-latest]
-
+        exclude:
+          # Failures due to lack of numpy wheels
+          - os: windows-latest
+            python_version: pypy2
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
