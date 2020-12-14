@@ -14,7 +14,7 @@ fluids
 .. image:: http://img.shields.io/badge/license-MIT-blue.svg?style=flat
    :target: https://github.com/CalebBell/fluids/blob/master/LICENSE.txt
    :alt: license
-.. image:: https://img.shields.io/coveralls/CalebBell/fluids.svg?
+.. image:: https://img.shields.io/coveralls/CalebBell/fluids.svg?release
    :target: https://coveralls.io/github/CalebBell/fluids
    :alt: Coverage
 .. image:: https://img.shields.io/pypi/pyversions/fluids.svg?
