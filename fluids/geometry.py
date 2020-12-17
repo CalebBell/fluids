@@ -4262,6 +4262,8 @@ class RectangularOffsetStripFinExchanger(RectangularFinExchanger):
         self.A = 2.*(self.l*(self.h-self.t) + self.l*(self.s-self.t) + self.t*(self.h-self.t)) + self.t*(self.s-2*self.t)
         self.Dh = 4.*self.l*self.A_channel/self.A # not the standard definition
 
+        self.P_channel = 2*(self.s-self.t) + 2*(self.h-self.t)
+
         self.Dh_Kays_London = 4*self.A_channel/(2*(self.h -self.t)+ 2*(self.s -self.t))
         # Does not consider the fronts of backs of the fins, only the 2d shape
 
@@ -4420,7 +4422,7 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
         Zs = linspace(0, self.H_outlet, pts)
         Rs = [self.diameter(Z)*0.5 for Z in Zs]
         plt.plot(Zs, Rs)
-        plt.plot(Zs, -Rs)
+        plt.plot(Zs, [-v for v in Rs])
         plt.show()
 
     def diameter(self, H):

@@ -175,7 +175,9 @@ def fuzzy_match(name, strings):
 
     try:
         from fuzzywuzzy import process, fuzz
-        fuzzy_match_fun = lambda name, strings: process.extractOne(name, strings, scorer=fuzz.partial_ratio)[0]
+        fuzzy_match_fun = lambda name, strings: process.extract(name, strings, limit=10)[0][0]
+        # extractOne is faster but less reliable
+        #fuzzy_match_fun = lambda name, strings: process.extractOne(name, strings, scorer=fuzz.partial_ratio)[0]
     except ImportError: # pragma: no cover
         import difflib
         fuzzy_match_fun = lambda name, strings: difflib.get_close_matches(name, strings, n=1, cutoff=0)[0]
@@ -3951,7 +3953,7 @@ _Farshad_roughness = {'Plastic coated': (5E-6, 0.0002, -1.0098),
                       'Cr13, bare': (55E-6, 0.0021, -1.0055)  }
 
 try:
-    if IS_NUMBA:
+    if IS_NUMBA: # type: ignore
         _Farshad_roughness_keys = tuple(_Farshad_roughness.keys())
         _Farshad_roughness_values = tuple(_Farshad_roughness.values())
 except:
@@ -4050,8 +4052,8 @@ def roughness_Farshad(ID=None, D=None, coeffs=None):
         return A*(D/inch)**(B+1)*inch
 
 
-roughness_clean_dict = _roughness.copy()
-roughness_clean_dict.update(_Farshad_roughness)
+roughness_clean_names = set(_roughness.keys())
+roughness_clean_names.update(_Farshad_roughness.keys())
 
 
 def nearest_material_roughness(name, clean=None):
@@ -4072,7 +4074,7 @@ def nearest_material_roughness(name, clean=None):
     -------
     ID : str
         String for lookup of roughness of a pipe, in either
-        `roughness_clean_dict` or `HHR_roughness` depending on if clean is
+        `roughness_clean_names` or `HHR_roughness` depending on if clean is
         True, [-]
 
     Examples
@@ -4085,8 +4087,14 @@ def nearest_material_roughness(name, clean=None):
     .. [1] Idelʹchik, I. E, and A. S Ginevskiĭ. Handbook of Hydraulic
        Resistance. Redding, CT: Begell House, 2007.
     '''
-    d = _all_roughness if clean is None else (roughness_clean_dict if clean else HHR_roughness)
-    return fuzzy_match(name, d.keys())
+    if clean is None:
+        d = _all_roughness.keys()
+    else:
+        if clean:
+            d = roughness_clean_names
+        else:
+            d = HHR_roughness.keys()
+    return fuzzy_match(name, d)
 
 
 def material_roughness(ID, D=None, optimism=None):

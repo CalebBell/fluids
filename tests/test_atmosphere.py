@@ -96,13 +96,13 @@ def test_airmass():
 hwm93_compiled = True
 try:
     # Just check if works
-    hwm93(5E5, 45, 50, 365)
+    hwm93(5E5, 45.0, 50.0, 365.0)
 except:
     hwm93_compiled = False
 
 hwm14_compiled = True
 try:
-    hwm14(11000, latitude=-45.0, longitude=-85.0, day=150, seconds=12*3600, geomagnetic_disturbance_index=80)
+    hwm14(11000.0, latitude=-45.0, longitude=-85.0, day=150, seconds=12*3600.0, geomagnetic_disturbance_index=80.0)
 except:
     hwm14_compiled = False
 

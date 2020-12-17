@@ -29,10 +29,24 @@ import fluids.numerics
 from fluids.numerics import *
 from scipy.integrate import quad
 from math import *
+from random import random
 
 def test_py_cacos():
     # Missed a asinh in this case
     assert_close(fluids.numerics.py_cacos(1.0000000000000033), 8.16170211889097e-08j, rtol=1e-11)
+
+
+def test_sincos():
+    N = 10**1
+    for v in linspace(0.0, 2.0*pi, N):
+        a, b = sincos(v)
+        assert_close(a, sin(v), rtol=1e-14)
+        assert_close(b, cos(v), rtol=1e-14)
+    for v in linspace(-100.0, 100.0, N):
+        a, b = sincos(v)
+        assert_close(a, sin(v), rtol=1e-14)
+        assert_close(b, cos(v), rtol=1e-14)
+
 
 def test_horner():
     from fluids.numerics import horner

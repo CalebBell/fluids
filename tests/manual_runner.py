@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
+import fluids.numerics
 try:
     import test_drag
 except:
@@ -36,10 +37,12 @@ to_test = [test_drag, test_control_valve, test_two_phase,
            test_safety_valve, test_open_flow, test_filters, test_flow_meter,
            test_atmosphere, test_pump, test_friction, test_fittings,
            test_packed_tower, test_saltation, test_mixing, test_nrlmsise00_full]
-to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
-#to_test = [test_safety_valve]
+#to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
 
-skip_marks = ['slow', 'fuzz', 'scipy', 'numpy', 'f2py', 'pytz']
+if fluids.numerics.is_micropython or fluids.numerics.is_ironpython:
+    skip_marks = ['slow', 'fuzz', 'scipy', 'numpy', 'f2py', 'pytz']
+else:
+    skip_marks = ['slow', 'fuzz']
 # pytz loads but doesn't work right in ironpython
 skip_marks_set = set(skip_marks)
 if len(sys.argv) >= 2:

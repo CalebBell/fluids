@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -430,8 +430,7 @@ ISO_3310_1_sieve_designations  = ['125', '112', '106', '100', '90', '80', '75',
 ISO_3310_1_sieve_list = [ISO_3310_1_sieves[i] for i in ISO_3310_1_sieve_designations]
 
 
-ISO_3310_1_R20_3 = ['125', '90', '63', '45', '31.5', '22.4', '16', '11.2', '8', '5.6', '4', '2.8', '2', '1.4', '1', '0.71', '0.5', '0.355', '0.25', '0.18', '0.125', '0.09', '0.063', '0.045']
-ISO_3310_1_R20_3 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R20_3]
+ISO_3310_1_R20_3 = [ISO_3310_1_sieves[i] for i in ('125', '90', '63', '45', '31.5', '22.4', '16', '11.2', '8', '5.6', '4', '2.8', '2', '1.4', '1', '0.71', '0.5', '0.355', '0.25', '0.18', '0.125', '0.09', '0.063', '0.045')]
 '''List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R20/3 series only, ordered from largest  openings to smallest.
 
@@ -2299,8 +2298,10 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
             pdf_vals = self.pdf_spline(ds)
             basis_integral = ds**n*pdf_vals
             if self.monotonic:
+                from scipy.interpolate import PchipInterpolator
                 self.basis_integrals[n] = PchipInterpolator(ds, basis_integral, extrapolate=True).antiderivative(1)
             else:
+                from scipy.interpolate import UnivariateSpline
                 self.basis_integrals[n] = UnivariateSpline(ds, basis_integral, ext=3, s=0).antiderivative(n=1)
         return max(float(self.basis_integrals[n](d)), 0.0)
 

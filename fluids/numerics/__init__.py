@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # type: ignore
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,13 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin, atan2, asinh, sqrt
+from math import (sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin,
+                  atan2, asinh, sqrt, gamma)
 from cmath import sqrt as csqrt, log as clog
 import sys
-from .arrays import solve as py_solve, inv, dot, norm2, inner_product, eye, array_as_tridiagonals, tridiagonals_as_array, solve_tridiagonal, subset_matrix
+from .arrays import (solve as py_solve, inv, dot, norm2, inner_product, eye,
+                     array_as_tridiagonals, tridiagonals_as_array,
+                     solve_tridiagonal, subset_matrix)
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_and_der3', 'quadratic_from_f_ders', 'chebval', 'interp',
@@ -239,7 +242,7 @@ twelfth = 1.0/12.0
 two_thirds = 2.0/3.0
 four_thirds = 4.0/3.0
 
-root_three = sqrt(3.0)
+root_three = 1.7320508075688772 # sqrt(3.0)
 one_27 = 1.0/27.0
 complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
 
@@ -299,10 +302,6 @@ def roots_cubic_a2(a, b, c, d):
     root2 = t50 + t51
     root3 = t50 - t51
     return [root1, root2, root3]
-
-from math import sqrt
-
-
 
 
 def roots_cubic(a, b, c, d):
@@ -3575,7 +3574,6 @@ except ImportError:
     pass
 
 
-from math import gamma # Been there a while
 
 
 def _lambertw_err(x, y):
@@ -3611,9 +3609,6 @@ if has_scipy:
     def gammaincc(*args, **kwargs):
         from scipy.special import gammaincc
         return gammaincc(*args, **kwargs)
-    def gamma(*args, **kwargs):
-        from scipy.special import gamma
-        return gamma(*args, **kwargs)
     def i1(*args, **kwargs):
         from scipy.special import i1
         return i1(*args, **kwargs)
@@ -3644,7 +3639,7 @@ if has_scipy:
             return erf(*args, **kwargs)
 
 
-#    from scipy.special import lambertw, ellipe, gammaincc, gamma # fluids
+#    from scipy.special import lambertw, ellipe, gammaincc # fluids
 #    from scipy.special import i1, i0, k1, k0, iv # ht
 #    from scipy.special import hyp2f1
 #    if erf is None:

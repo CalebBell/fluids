@@ -3108,7 +3108,7 @@ Darby['Valve, Swing check'] = (1500.0, 0.46, 4.0)
 Darby['Valve, Lift check'] = (2000.00, 2.85, 3.8)
 
 try:
-    if IS_NUMBA:
+    if IS_NUMBA: # type: ignore
         Darby_keys = tuple(Darby.keys())
         Darby_values = tuple(Darby.values())
 except:
@@ -3225,7 +3225,7 @@ Hooper['Valve, Check, Swing'] = (1500.0, 1.5)
 Hooper['Valve, Check, Tilting-disc'] = (1000.0, 0.5)
 
 try:
-    if IS_NUMBA:
+    if IS_NUMBA: # type: ignore
         Hooper_keys = tuple(Hooper.keys())
         Hooper_values = tuple(Hooper.values())
 except:

@@ -78,6 +78,9 @@ def parse_numpydoc_variables_units(func):
         text = ''
     if text is None:
         text = ''
+    return parse_numpydoc_variables_units_docstring(text)
+
+def parse_numpydoc_variables_units_docstring(text):
     section_names = [i.replace('-', '').strip() for i in match_sections.findall(text)]
     section_text = match_sections.split(text)
 
@@ -381,25 +384,31 @@ def clean_parsed_info(parsed_info):
 def wrap_numpydoc_obj(obj_to_wrap):
     callable_methods = {}
     property_unit_map = {}
-    for i in dir(obj_to_wrap):
-        attr = getattr(obj_to_wrap, i)
+    for prop in dir(obj_to_wrap):
+        attr = getattr(obj_to_wrap, prop)
         if isinstance(attr, types.FunctionType) or isinstance(attr, types.MethodType) or type(attr) == property:
             if type(attr) is property:
-                name = attr.fget.__name__
+                name = prop
+                #name = attr.fget.__name__
             else:
                 name = attr.__name__
             if hasattr(attr, '__doc__'):
                 if type(attr) is property:
                     try:
-                        docstring = attr.fget.__doc__
+                        docstring = attr.__doc__
+                        if docstring is None:
+                            docstring = attr.fget.__doc__
                         # Is it a full style string?
                         if 'Returns' in docstring and '-------' in docstring:
-                                found_unit = u(parse_numpydoc_variables_units(attr.fget)['Returns']['units'][0])
+                                found_unit = u(parse_numpydoc_variables_units_docstring(docstring)['Returns']['units'][0])
                         else:
                             found_unit = u(match_parse_units(docstring, i=0))
                     except Exception as e:
-                        print('Failed on attribute %s' %name)
-                        raise e
+                        if name[0] == '_':
+                            found_unit = u.dimensionless
+                        else:
+                            print('Failed on attribute %s' %name)
+                            raise e
                     property_unit_map[name] = found_unit
                 else:
                     parsed = parse_numpydoc_variables_units(attr)

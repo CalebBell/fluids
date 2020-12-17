@@ -1,5 +1,6 @@
 *.pyc
 .gitignore
+.pytype
 .pypirc
 dist
 MANIFEST
