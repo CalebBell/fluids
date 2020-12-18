@@ -118,7 +118,7 @@ def test_gauge():
     assert NPS == 27
     assert_close1d((0.6721602, 0.7100062, 0.018923), (Di, Do, t), rtol=1e-12)
 
-    from fluids.piping import NPS120_D1785
+    from fluids.piping_data import NPS120_D1785
     assert_close(NPS120_D1785[0], 0.5)
     assert_close(NPS120_D1785[-1], 12)
 
@@ -154,7 +154,7 @@ def test_gauge():
 
 
 def test_piping_schedule_basics():
-    from fluids.piping import schedule_lookup
+    from fluids.piping_data import schedule_lookup
 
     for k, (NPSs, Dis, Dos, ts) in schedule_lookup.items():
         assert len(NPSs) == len(Dis)
