@@ -216,6 +216,7 @@ else:
     numpy = FakePackage('numpy')
     IS_PYPY = True
 
+IS_PYPY_OR_SKIP_DEPENDENCIES = IS_PYPY or SKIP_DEPENDENCIES
 np = numpy
 
 #IS_PYPY = True
@@ -1830,6 +1831,10 @@ def interp2d_linear(x, y, xs, ys, vals):
     return v_low + (y-y_low)/(y_high-y_low)*(v_high-v_low)
 
 
+try:
+    _array = np.array
+except:
+    pass
 def implementation_optimize_tck(tck, force_numpy=False):
     """Converts 1-d or 2-d splines calculated with SciPy's `splrep` or.
 
@@ -1838,19 +1843,16 @@ def implementation_optimize_tck(tck, force_numpy=False):
 
     Only implemented for 3 and 5 length `tck`s.
     """
-    if (IS_PYPY or SKIP_DEPENDENCIES) and not force_numpy:
+    if IS_PYPY_OR_SKIP_DEPENDENCIES and not force_numpy:
         return tuple(tck)
     else:
-        if len(tck) == 3:
-            tck[0] = np.array(tck[0])
-            tck[1] = np.array(tck[1])
-        elif len(tck) == 5:
-            tck[0] = np.array(tck[0])
-            tck[1] = np.array(tck[1])
-            tck[2] = np.array(tck[2])
+        size = len(tck)
+        if size == 3:
+            return (_array(tck[0]), _array(tck[1]), tck[2])
+        elif size == 5:
+            return (_array(tck[0]), _array(tck[1]), _array(tck[2]), tck[3], tck[4])
         else:
             raise NotImplementedError
-    return tuple(tck)
 
 
 def tck_interp2d_linear(x, y, z, kx=1, ky=1):
