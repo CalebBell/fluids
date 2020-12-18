@@ -46,7 +46,7 @@ def test_Stichlmair():
 
     Vg = Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
     assert_close(Vg, 0.6394323542687361)
-    
+
 
 def test_dP_demister_wet_ElDessouky():
     # Point from their figure 8
@@ -55,16 +55,16 @@ def test_dP_demister_wet_ElDessouky():
     dw = 0.32
     dP_orig = 3.88178*rho**0.375798*V**0.81317*dw**-1.56114147
     # 689.4685604448499, compares with maybe 690 Pa/m from figure
-    
+
     voidage = 1.0-rho/7999.
     dP = dP_demister_wet_ElDessouky(V, voidage, dw/1000.)
     assert_close(dP_orig, dP)
     assert_close(dP, 689.4685604448499)
-    
+
     # Test length multiplier
     assert_close(dP*10, dP_demister_wet_ElDessouky(V, voidage, dw/1000., 10))
-    
-    
+
+
 def test_separation_demister_ElDessouky():
     # Point from their figure 6
     dw = 0.2
@@ -79,7 +79,7 @@ def test_separation_demister_ElDessouky():
     assert_close(eta1, eta)
     assert_close(eta, 0.8983693041263305)
 
-    assert 1 == separation_demister_ElDessouky(1.35, 0.92, 0.0002, 0.005)   
+    assert 1 == separation_demister_ElDessouky(1.35, 0.92, 0.0002, 0.005)
 
 
 def test_Robbins():

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains correlations for the loss coefficient of various types
+of filters in a pipe or channel.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Loss Coefficients for Screens
+-----------------------------
+.. autofunction:: round_edge_screen
+.. autofunction:: round_edge_open_mesh
+.. autofunction:: square_edge_screen
+
+Loss Coefficients for Grills
+----------------------------
+.. autofunction:: square_edge_grill
+.. autofunction:: round_edge_grill
+
 """
 
 from __future__ import division
@@ -50,8 +71,8 @@ grills_rounded_alphas = [0.3, 0.4, 0.5, 0.6, 0.7]
 grills_rounded_Ks = [2.0, 1.0, 0.6, 0.4, 0.2]
 '''Cubic interpolation with no smoothing, constant value extremities
 returned when outside table limits'''
-grills_rounded_tck = implementation_optimize_tck([[0.3, 0.3, 0.3, 0.45, 0.55, 0.7, 0.7, 0.7], 
-                                                  [2.0, 1.0014285714285716, 0.5799999999999998, 
+grills_rounded_tck = implementation_optimize_tck([[0.3, 0.3, 0.3, 0.45, 0.55, 0.7, 0.7, 0.7],
+                                                  [2.0, 1.0014285714285716, 0.5799999999999998,
                                                    0.3585714285714287, 0.2, 0.0, 0.0, 0.0],
                                                    2])
 
@@ -82,7 +103,7 @@ def round_edge_screen(alpha, Re, angle=0.0):
     should be adequate.
     alpha should be between 0.05 and 0.8.
     If angle is over 85 degrees, the value at 85 degrees is used.
-    
+
     The velocity the loss coefficient relates to is the approach velocity
     before the screen.
 
@@ -157,7 +178,7 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0.0):
 
     The velocity the loss coefficient relates to is the approach velocity
     before the mesh.
-    
+
     Examples
     --------
     >>> round_edge_open_mesh(0.96, angle=33.)

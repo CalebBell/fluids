@@ -1,0 +1,95 @@
+name: Python package
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+    
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9', 'pypy2', 'pypy3']
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        architecture: ['x86', 'x64']
+        exclude:
+          # Failures due to lack of numpy wheels
+          # numpy.distutils.system_info.NotFoundError: No lapack/blas resources found.
+          # even 32 bit pypy2 or pypy3 doesn't work
+          - os: windows-latest
+            python-version: pypy2
+          - os: windows-latest
+            python-version: pypy3
+          # pypy2 Failure building pandas wheels
+          # pypy3  error: library mach has Fortran sources but no Fortran compiler found
+          - os: macos-latest
+            python-version: pypy2
+          - os: macos-latest
+            python-version: pypy3
+          # no python builds available on macos 32 bit
+          - os: macos-latest
+            architecture: x86
+          # no python builds available on linux 32 bit
+          - os: ubuntu-latest
+            architecture: x86
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }} ${{ matrix.architecture }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: ${{ matrix.architecture }}
+
+    - name: cache Linux
+      uses: actions/cache@v2
+      if: startsWith(runner.os, 'Linux')
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_test.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: cache MacOS
+      uses: actions/cache@v2
+      if: startsWith(runner.os, 'macOS')
+      with:
+        path: ~/Library/Caches/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_test.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: cache Windows
+      uses: actions/cache@v2
+      if: startsWith(runner.os, 'Windows')
+      with:
+        path: ~\AppData\Local\pip\Cache
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_test.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -c "import platform; print(platform.platform()); print(platform.architecture())"
+        python -m pip install --upgrade pip
+        python -m pip install wheel
+        pip install -r requirements_test.txt
+    - name: Add numba
+      if: ${{ matrix.python-version == '3.6' || matrix.python-version == '3.7' || matrix.python-version == '3.8' }}
+      run: |
+        pip install numba
+    - name: Test with pytest
+      run: |
+        pytest . -v --cov-report html --cov=fluids --cov-report term-missing -m "not online and not thermo and not numba"
+        coveralls
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.coveralls }}
+        COVERALLS_PARALLEL: true
+  finish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      run: |
+        curl https://coveralls.io/webhook?repo_token=${{ secrets.coveralls }} -d "payload[build_num]=${{ github.sha }}&payload[status]=done"

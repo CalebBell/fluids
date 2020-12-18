@@ -100,11 +100,11 @@ def to_int_dP_ATMOSPHERE_1976(Z, dT):
 
 class ATMOSPHERE_1976(object):
     r'''US Standard Atmosphere 1976 class, which calculates `T`, `P`,
-    `rho`, `v_sonic`, `mu`, `k`, and `g` as a function of altitude above 
+    `rho`, `v_sonic`, `mu`, `k`, and `g` as a function of altitude above
     sea level. Designed to provide reasonable results up to an elevation
     of 86,000 m (0.4 Pa). The model is also valid under sea level, to
     -610 meters.
-    
+
     Parameters
     ----------
     Z : float
@@ -112,7 +112,7 @@ class ATMOSPHERE_1976(object):
     dT : float, optional
         Temperature difference from standard conditions used in determining
         the properties of the atmosphere, [K]
-    
+
     Attributes
     ----------
     T : float
@@ -139,21 +139,21 @@ class ATMOSPHERE_1976(object):
     (54048.28614576141, 0.7364284207799743, 1.628248135362207e-05)
     >>> five_km.k, five_km.g, five_km.v_sonic
     (0.02273190295142526, 9.791241076982665, 320.5455196704035)
-    
+
     Notes
     -----
-    Up to 32 km, the International Standard Atmosphere (ISA) and World 
-    Meteorological Organization (WMO) standard atmosphere are identical. 
-    
+    Up to 32 km, the International Standard Atmosphere (ISA) and World
+    Meteorological Organization (WMO) standard atmosphere are identical.
+
     This is a revision of the US 1962 atmosphere.
-    
+
     References
     ----------
-    .. [1] NOAA, NASA, and USAF. "U.S. Standard Atmosphere, 1976" October 15, 
+    .. [1] NOAA, NASA, and USAF. "U.S. Standard Atmosphere, 1976" October 15,
        1976. http://ntrs.nasa.gov/search.jsp?R=19770009539.
     .. [2] "ISO 2533:1975 - Standard Atmosphere." ISO.
        http://www.iso.org/iso/catalogue_detail.htm?csnumber=7472.
-    .. [3] Yager, Robert J. "Calculating Atmospheric Conditions (Temperature, 
+    .. [3] Yager, Robert J. "Calculating Atmospheric Conditions (Temperature,
        Pressure, Air Density, and Speed of Sound) Using C++," June 2013.
        http://www.dtic.mil/cgi-bin/GetTRDoc?AD=ADA588839
     '''
@@ -180,18 +180,18 @@ class ATMOSPHERE_1976(object):
 
         # Affects only the following properties
         self.T += dT
-            
-            
+
+
         self.rho = self.density(self.T, self.P)
         self.v_sonic = self.sonic_velocity(self.T)
         self.mu = self.viscosity(self.T)
         self.k = self.thermal_conductivity(self.T)
         self.g = self.gravity(self.Z)
-    
+
     @staticmethod
     def _get_ind_from_H(H):
         r'''Method defined in the US Standard Atmosphere 1976 for determining
-        the index of the layer a specified elevation is above. Levels are 
+        the index of the layer a specified elevation is above. Levels are
         0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852 meters respectively.
         '''
         if H <= 0.0:
@@ -200,16 +200,16 @@ class ATMOSPHERE_1976(object):
             if Hi >= H :
                 return ind - 1
         return 7 # case for > 84852 m.
-    
+
     @staticmethod
     def thermal_conductivity(T):
         r'''Method defined in the US Standard Atmosphere 1976 for calculating
-        thermal conductivity of air as a function of `T` only. 
-        
+        thermal conductivity of air as a function of `T` only.
+
         .. math::
             k_g = \frac{2.64638\times10^{-3}T^{1.5}}
             {T + 245.4\cdot 10^{-12./T}}
-    
+
         Parameters
         ----------
         T : float
@@ -219,17 +219,17 @@ class ATMOSPHERE_1976(object):
         -------
         kg : float
             Thermal conductivity, [W/m/K]
-        '''        
+        '''
         return 2.64638E-3*T**1.5/(T + 245.4*10**(-12./T))
-    
+
     @staticmethod
     def viscosity(T):
         r'''Method defined in the US Standard Atmosphere 1976 for calculating
-        viscosity of air as a function of `T` only. 
-        
+        viscosity of air as a function of `T` only.
+
         .. math::
             \mu_g = \frac{1.458\times10^{-6}T^{1.5}}{T+110.4}
-    
+
         Parameters
         ----------
         T : float
@@ -239,18 +239,18 @@ class ATMOSPHERE_1976(object):
         -------
         mug : float
             Viscosity, [Pa*s]
-        '''        
+        '''
         return 1.458E-6*T**1.5/(T + 110.4)
-    
+
     @staticmethod
     def density(T, P):
         r'''Method defined in the US Standard Atmosphere 1976 for calculating
         density of air as a function of `T` and `P`. MW is defined as 28.9644
         g/mol, and R as 8314.32 J/kmol/K
-        
+
         .. math::
             \rho_g = \frac{P\cdot MW}{T\cdot R\cdot 1000}
-    
+
         Parameters
         ----------
         T : float
@@ -262,18 +262,18 @@ class ATMOSPHERE_1976(object):
         -------
         rho : float
             Mass density, [kg/m^3]
-        '''        
+        '''
         # 0.00348367635597379 = M0/R
         return P*0.00348367635597379/T
-    
+
     @staticmethod
     def sonic_velocity(T):
         r'''Method defined in the US Standard Atmosphere 1976 for calculating
-        the speed of sound in air as a function of `T` only. 
-        
+        the speed of sound in air as a function of `T` only.
+
         .. math::
             c = \left(\frac{\gamma R T}{MW}\right)^{0.5}
-    
+
         Parameters
         ----------
         T : float
@@ -283,19 +283,19 @@ class ATMOSPHERE_1976(object):
         -------
         c : float
             Speed of sound, [m/s]
-        '''        
+        '''
         # 401.87... = gamma*R/MO
         return sqrt(401.87430086589046*T)
-    
+
     @staticmethod
     def gravity(Z):
         r'''Method defined in the US Standard Atmosphere 1976 for calculating
         the gravitational acceleration above earth as a function of elevation
         only.
-        
+
         .. math::
             g = g_0\left(\frac{r_0}{r_0+Z}\right)^2
-    
+
         Parameters
         ----------
         Z : float
@@ -306,20 +306,20 @@ class ATMOSPHERE_1976(object):
         g : float
             Acceleration due to gravity, [m/s^2]
         '''
-        
+
         return g0*(r0/(r0+Z))**2
 
     @staticmethod
     def pressure_integral(T1, P1, dH):
         r'''Method to compute an integral of the pressure differential of an
         elevation difference with a base elevation defined by temperature `T1`
-        and pressure `P1`. This is 
+        and pressure `P1`. This is
         similar to subtracting the pressures at two different elevations,
         except it allows for local conditions (temperature and pressure) to be
         taken into account. This is useful for e.x. evaluating the pressure
         difference between the top and bottom of a natural draft cooling tower.
-        
-    
+
+
         Parameters
         ----------
         T1 : float
@@ -329,7 +329,7 @@ class ATMOSPHERE_1976(object):
         dH : float
             Elevation difference for which to evaluate the pressure difference,
             [m]
-            
+
         Returns
         -------
         delta_P : float
@@ -337,23 +337,23 @@ class ATMOSPHERE_1976(object):
         '''
         # Compute the elevation to obtain the pressure specified
         H_ref = brenth(H_for_P_ATMOSPHERE_1976_err, -610.0, 86000.0, args=(P1,))
-        
+
         # Compute the temperature delta
         dT = T1 - ATMOSPHERE_1976(H_ref).T
-        
+
         return quad(to_int_dP_ATMOSPHERE_1976, H_ref, H_ref+dH, args=(dT,))[0]
 
-    
+
 
 class ATMOSPHERE_NRLMSISE00(object):
     r'''NRLMSISE 00 model for calculating temperature and density of gases in
     the atmosphere, from ground level to 1000 km, as a function of time of year,
     longitude and latitude, solar activity and earth's geomagnetic disturbance.
-    
+
     NRLMSISE stands for the `US Naval Research Laboratory Mass Spectrometer and
     Incoherent Scatter Radar Exosphere` model, released in 2001; see [1]_ for
     details.
-    
+
     Parameters
     ----------
     Z : float
@@ -368,18 +368,18 @@ class ATMOSPHERE_NRLMSISE00(object):
         Seconds since start of day, in UT1 time; using UTC provides no loss in
         accuracy [s]
     f107 : float, optional
-        Daily average 10.7 cm solar flux measurement of the strength of solar  
-        emissions on the 100 MHz band centered on 2800 MHz, averaged hourly; in 
-        sfu units, which are multiples of 10^-22 W/m^2/Hz; use 150 as a default 
+        Daily average 10.7 cm solar flux measurement of the strength of solar
+        emissions on the 100 MHz band centered on 2800 MHz, averaged hourly; in
+        sfu units, which are multiples of 10^-22 W/m^2/Hz; use 150 as a default
         [10^-22 W/m^2/Hz]
     f107_avg : float, optional
         81-day sfu average; centered on specified day if possible, otherwise
         use the previous days [10^-22 W/m^2/Hz]
     geomagnetic_disturbance_indices : list of float, optional
-        List of the 7 following `Ap` indexes also known as planetary magnetic 
+        List of the 7 following `Ap` indexes also known as planetary magnetic
         indexes. Has a negligible effect on the calculation. 4 is the default
         value often used for each of these values.
-        
+
         * Average daily `Ap`.
         * 3-hour average `Ap` centered on the current time.
         * 3-hour average `Ap` before the current time.
@@ -389,7 +389,7 @@ class ATMOSPHERE_NRLMSISE00(object):
           eight 3-hour average `Ap` values.
         * Average `Ap` from 36 to 57 hours before the current time, based on
           eight 3-hour average `Ap` values.
-        
+
     Attributes
     ----------
     rho : float
@@ -419,7 +419,7 @@ class ATMOSPHERE_NRLMSISE00(object):
     components : list[str]
         List of species making up the atmosphere [-]
     zs : list[float]
-        Mole fractions of each molecule in the atmosphere, in order of 
+        Mole fractions of each molecule in the atmosphere, in order of
         `components` [-]
 
     Examples
@@ -427,44 +427,44 @@ class ATMOSPHERE_NRLMSISE00(object):
     >>> atmosphere = ATMOSPHERE_NRLMSISE00(1E3, 45, 45, 150)
     >>> atmosphere.T, atmosphere.rho
     (285.5440860623, 1.10190620264)
-    
+
     Notes
     -----
     No full description has been published of this model; it has been defined by
     its implementation only. It was written in FORTRAN, and is accessible
     at ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/msis/nrlmsise00/
-    
+
     A C port of the model by Dominik Brodowskihas become popular, and is
     available on his website: http://www.brodo.de/space/nrlmsise/.
-    
+
     In 2013 Joshua Milas ported the C port to Python. This is an interface to
     his excellent port. It is a 1000-sloc model, and has
     been rigorously tested against the C version, and the online calculation
     tool available at [3]_ for parametric inputs of latitude, longitude,
     altitude, time of day and day of year.
-    
+
     This model is based on measurements other than gravity; it does not provide
     a calculation method for `g`. It does not provide transport properties.
-    
+
     This model takes on the order of ~2 ms.
-    
+
     References
     ----------
-    .. [1] Picone, J. M., A. E. Hedin, D. P. Drob, and A. C. Aikin. 
-       "NRLMSISE-00 Empirical Model of the Atmosphere: Statistical Comparisons 
-       and Scientific Issues." Journal of Geophysical Research: Space Physics 
+    .. [1] Picone, J. M., A. E. Hedin, D. P. Drob, and A. C. Aikin.
+       "NRLMSISE-00 Empirical Model of the Atmosphere: Statistical Comparisons
+       and Scientific Issues." Journal of Geophysical Research: Space Physics
        107, no. A12 (December 1, 2002): 1468. doi:10.1029/2002JA009430.
     .. [2] Tapping, K. F. "The 10.7 Cm Solar Radio Flux (F10.7)." Space Weather
-       11, no. 7 (July 1, 2013): 394-406. doi:10.1002/swe.20064. 
-    .. [3] Natalia Papitashvili. "NRLMSISE-00 Atmosphere Model." Accessed 
+       11, no. 7 (July 1, 2013): 394-406. doi:10.1002/swe.20064.
+    .. [3] Natalia Papitashvili. "NRLMSISE-00 Atmosphere Model." Accessed
        November 27, 2016. http://ccmc.gsfc.nasa.gov/modelweb/models/nrlmsise00.php.
-    '''        
+    '''
     components = ['N2', 'O2', 'Ar', 'He', 'O', 'H', 'N']
-    atrrs = ['N2_density', 'O2_density', 'Ar_density', 'He_density', 
+    atrrs = ['N2_density', 'O2_density', 'Ar_density', 'He_density',
              'O_density', 'H_density', 'N_density']
     MWs = [28.0134, 31.9988, 39.948, 4.002602, 15.9994, 1.00794, 14.0067]
-    
-    def __init__(self, Z, latitude=0.0, longitude=0.0, day=0, seconds=0.0, 
+
+    def __init__(self, Z, latitude=0.0, longitude=0.0, day=0, seconds=0.0,
                  f107=150., f107_avg=150., geomagnetic_disturbance_indices=None):
         self.Z = Z
         self.latitude = latitude
@@ -474,15 +474,15 @@ class ATMOSPHERE_NRLMSISE00(object):
         self.f107 = f107
         self.f107_avg = f107_avg
         self.geomagnetic_disturbance_indices = geomagnetic_disturbance_indices
-        
+
         from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
         alt = Z*1e-3
         output_obj = nrlmsise_output()
         input_obj = nrlmsise_input()
         flags = nrlmsise_flags()
-        
+
         flags.switches = [0] + [1]*23
-            
+
         if geomagnetic_disturbance_indices:
             aph = ap_array()
             aph.a = geomagnetic_disturbance_indices
@@ -500,7 +500,7 @@ class ATMOSPHERE_NRLMSISE00(object):
         input_obj.f107A = f107_avg
         input_obj.f107 = f107
         gtd7(input_obj, flags, output_obj)
-        
+
         self.He_density = output_obj.d[0]*1E6 # 1/cm^3 to 1/m^3
         self.O_density = output_obj.d[1]*1E6 # 1/cm^3 to 1/m^3
         self.N2_density = output_obj.d[2]*1E6 # 1/cm^3 to 1/m^3
@@ -512,25 +512,25 @@ class ATMOSPHERE_NRLMSISE00(object):
         self.O_anomalous_density = output_obj.d[8]*1E6 # 1/cm^3 to 1/m^3
         self.T_exospheric = output_obj.t[0]
         self.T = output_obj.t[1]
-        
+
         # Calculate pressure with the ideal gas law PV = nRT with V = 1 m^3
         self.P = sum([getattr(self, a) for a in self.atrrs])*self.T*R/N_A
         # Calculate mass density with known MWs
-        self.rho_calculated = sum([getattr(self, a)*MW for c, a, MW in 
+        self.rho_calculated = sum([getattr(self, a)*MW for c, a, MW in
                                    zip(self.components, self.atrrs, self.MWs)])/(1000.*N_A)
-        
+
         self.particle_density = sum(getattr(self, a) for a in self.atrrs)
         self.zs = [getattr(self, a)/self.particle_density for a in self.atrrs]
 
 
-def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150., 
+def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
           f107_avg=150., geomagnetic_disturbance_index=4):
     r'''Horizontal Wind Model 1993, for calculating wind velocity in the
-    atmosphere as a function of time of year, longitude and latitude, solar 
+    atmosphere as a function of time of year, longitude and latitude, solar
     activity and earth's geomagnetic disturbance.
-    
+
     The model is described across the publications [1]_, [2]_, and [3]_.
-    
+
     Parameters
     ----------
     Z : float
@@ -545,16 +545,16 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
         Seconds since start of day, in UT1 time; using UTC provides no loss in
         accuracy [s]
     f107 : float, optional
-        Daily average 10.7 cm solar flux measurement of the strength of solar  
-        emissions on the 100 MHz band centered on 2800 MHz, averaged hourly; in 
-        sfu units, which are multiples of 10^-22 W/m^2/Hz; use 150 as a default 
+        Daily average 10.7 cm solar flux measurement of the strength of solar
+        emissions on the 100 MHz band centered on 2800 MHz, averaged hourly; in
+        sfu units, which are multiples of 10^-22 W/m^2/Hz; use 150 as a default
         [W/m^2/Hz]
     f107_avg : float, optional
         81-day sfu average; centered on specified day if possible, otherwise
         use the previous days [W/m^2/Hz]
     geomagnetic_disturbance_index : float, optional
         Average daily `Ap` or also known as planetary magnetic index.
-        
+
     Returns
     -------
     v_north : float
@@ -566,39 +566,39 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
     --------
     >>> hwm93(5E5, 45, 50, 365) # doctest: +SKIP
     (-73.00312042236328, 0.1485661268234253)
-    
+
     Notes
     -----
     No full description has been published of this model; it has been defined by
     its implementation only. It was written in FORTRAN, and is accessible
     at ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/hwm93/.
-    
+
     F2PY auto-compilation support is not yet currently supported.
     To compile this file, run the following command in a shell after navigating
     to $FLUIDSPATH/fluids/optional/. This should generate the file hwm93.so
     in that directory.
-        
+
     .. code-block:: bash
-    
+
         f2py -c hwm93.pyf hwm93.for --f77flags="-std=legacy"
-    
+
     If the module is not compiled, an import error will be raised.
-    
+
     References
     ----------
-    .. [1] Hedin, A. E., N. W. Spencer, and T. L. Killeen. "Empirical Global 
-       Model of Upper Thermosphere Winds Based on Atmosphere and Dynamics 
+    .. [1] Hedin, A. E., N. W. Spencer, and T. L. Killeen. "Empirical Global
+       Model of Upper Thermosphere Winds Based on Atmosphere and Dynamics
        Explorer Satellite Data." Journal of Geophysical Research: Space Physics
        93, no. A9 (September 1, 1988): 9959-78. doi:10.1029/JA093iA09p09959.
-    .. [2] Hedin, A. E., M. A. Biondi, R. G. Burnside, G. Hernandez, R. M. 
-       Johnson, T. L. Killeen, C. Mazaudier, et al. "Revised Global Model of 
-       Thermosphere Winds Using Satellite and Ground-Based Observations." 
+    .. [2] Hedin, A. E., M. A. Biondi, R. G. Burnside, G. Hernandez, R. M.
+       Johnson, T. L. Killeen, C. Mazaudier, et al. "Revised Global Model of
+       Thermosphere Winds Using Satellite and Ground-Based Observations."
        Journal of Geophysical Research: Space Physics 96, no. A5 (May 1, 1991):
        7657-88. doi:10.1029/91JA00251.
-    .. [3] Hedin, A. E., E. L. Fleming, A. H. Manson, F. J. Schmidlin, S. K. 
-       Avery, R. R. Clark, S. J. Franke, et al. "Empirical Wind Model for the 
-       Upper, Middle and Lower Atmosphere." Journal of Atmospheric and 
-       Terrestrial Physics 58, no. 13 (September 1996): 1421-47. 
+    .. [3] Hedin, A. E., E. L. Fleming, A. H. Manson, F. J. Schmidlin, S. K.
+       Avery, R. R. Clark, S. J. Franke, et al. "Empirical Wind Model for the
+       Upper, Middle and Lower Atmosphere." Journal of Atmospheric and
+       Terrestrial Physics 58, no. 13 (September 1996): 1421-47.
        doi:10.1016/0021-9169(95)00122-0.
     '''
     try:
@@ -606,19 +606,19 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
     except: # pragma: no cover
         raise ImportError(no_gfortran_error)
     slt_hour = seconds/3600. + longitude/15.
-    ans = gws5(day, seconds, Z/1000., latitude, longitude, slt_hour, f107, 
+    ans = gws5(day, seconds, Z/1000., latitude, longitude, slt_hour, f107,
                f107_avg, geomagnetic_disturbance_index)
     return tuple(ans.tolist())
 
 
-def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0, 
+def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
           geomagnetic_disturbance_index=4):
     r'''Horizontal Wind Model 2014, for calculating wind velocity in the
-    atmosphere as a function of time of year, longitude and latitude, and 
+    atmosphere as a function of time of year, longitude and latitude, and
     earth's geomagnetic disturbance. The model is described in [1]_.
-    
+
     The model no longer accounts for solar flux.
-    
+
     Parameters
     ----------
     Z : float
@@ -634,14 +634,14 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
         accuracy [s]
     geomagnetic_disturbance_index : float, optional
         Average daily `Ap` or also known as planetary magnetic index.
-        
+
     Returns
     -------
     v_north : float
         Wind velocity, meridional (Northward) [m/s]
     v_east : float
         Wind velocity, zonal (Eastward) [m/s]
-        
+
 
     Examples
     --------
@@ -653,40 +653,40 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     No full description has been published of this model; it has been defined by
     its implementation only. It was written in FORTRAN, and is accessible
     at http://onlinelibrary.wiley.com/store/10.1002/2014EA000089/asset/supinfo/ess224-sup-0002-supinfo.tgz?v=1&s=2a957ba70b7cf9dd0612d9430076297c3634ea75.
-    
+
     F2PY auto-compilation support is not yet currently supported.
     To compile this file, run the following commands in a shell after navigating
     to $FLUIDSPATH/fluids/optional/. This should generate the file hwm14.so
     in that directory.
-    
-    
+
+
     Generate a .pyf signature file:
 
     .. code-block:: bash
-    
+
         f2py -m hwm14 -h hwm14.pyf hwm14.f90
 
     Compile the interface:
-    
+
     .. code-block:: bash
-    
+
         f2py -c hwm14.pyf hwm14.f90
-    
-    
+
+
     If the module is not compiled, an import error will be raised.
-    
+
     No patches were necessary to either the generated pyf or hwm14.f90 file,
     as the authors of [1]_ have made it F2PY compatible.
-    
-    Developed using 73 million data points taken by 44 instruments over 60 
+
+    Developed using 73 million data points taken by 44 instruments over 60
     years.
-    
+
     References
     ----------
-    .. [1] Drob, Douglas P., John T. Emmert, John W. Meriwether, Jonathan J. 
+    .. [1] Drob, Douglas P., John T. Emmert, John W. Meriwether, Jonathan J.
        Makela, Eelco Doornbos, Mark Conde, Gonzalo Hernandez, et al. "An Update
        to the Horizontal Wind Model (HWM): The Quiet Time Thermosphere." Earth
-       and Space Science 2, no. 7 (July 1, 2015): 2014EA000089. 
+       and Space Science 2, no. 7 (July 1, 2015): 2014EA000089.
        doi:10.1002/2014EA000089.
     '''
     # Needed by hwm14
@@ -698,7 +698,7 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
             import optional.hwm14
     except: # pragma: no cover
         raise ImportError(no_gfortran_error)
-    ans = hwm14.hwm14(day, seconds, Z*1e-3, latitude, longitude, 0, 0, 
+    ans = hwm14.hwm14(day, seconds, Z*1e-3, latitude, longitude, 0, 0,
                0, np.array([np.nan, geomagnetic_disturbance_index]))
     return tuple(ans.tolist())
 
@@ -712,7 +712,7 @@ def to_int_airmass(Z, c1, c2, angle_term, R_planet_inv, func):
     return rho*t3
 
 def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
-    r'''Calculates mass of air per square meter in the atmosphere using a 
+    r'''Calculates mass of air per square meter in the atmosphere using a
     provided atmospheric model. The lowest air mass is calculated straight up;
     as the angle is lowered to nearer and nearer the horizon, the air mass
     increases, and can approach 40x or more the minimum airmass.
@@ -736,7 +736,7 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
         The radius of the planet for which the integration is being performed,
         [m]
     RI : float, optional
-        The refractive index of the atmosphere (air on earth at 0.7 um as 
+        The refractive index of the atmosphere (air on earth at 0.7 um as
         default) assumed a constant, [-]
 
     Returns
@@ -746,25 +746,25 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
 
     Notes
     -----
-    Numerical integration via SciPy's `quad` is used to perform the 
+    Numerical integration via SciPy's `quad` is used to perform the
     calculation.
 
     Examples
     --------
     >>> airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90)
-    10356.12766586
-    
+    10356.12
+
     References
     ----------
     .. [1] Kasten, Fritz, and Andrew T. Young. "Revised Optical Air Mass Tables
-       and Approximation Formula." Applied Optics 28, no. 22 (November 15, 
+       and Approximation Formula." Applied Optics 28, no. 22 (November 15,
        1989): 4735-38. https://doi.org/10.1364/AO.28.004735.
     '''
     delta0 = RI - 1.0
     rho0_inv = 1.0/func(0.0)
-    angle_term = cos(radians(angle)) 
+    angle_term = cos(radians(angle))
     R_planet_inv = 1.0/R_planet
-    
+
     c0 = delta0 + delta0
     c1 = c0*rho0_inv
     c2 = 1.0 + c0
@@ -776,65 +776,65 @@ PVLIB_MISSING_MSG = 'The module pvlib is required for this function; install it 
 
 
 def earthsun_distance(moment):
-    r'''Calculates the distance between the earth and the sun as a function 
-    of date and time. Uses the Reda and Andreas (2004) model described in [1]_, 
-    originally incorporated into the excellent 
+    r'''Calculates the distance between the earth and the sun as a function
+    of date and time. Uses the Reda and Andreas (2004) model described in [1]_,
+    originally incorporated into the excellent
     `pvlib library <https://github.com/pvlib/pvlib-python>`_
-    
+
     Parameters
     ----------
     moment : datetime
         Time and date for the calculation, in UTC time (or GMT, which is
         almost the same thing); OR a timezone-aware datetime instance
         which will be internally converted to UTC, [-]
-        
+
     Returns
     -------
     distance : float
         Distance between the center of the earth and the center of the sun,
-        [m]        
+        [m]
 
     Examples
     --------
     >>> earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
     149090925951.18338
-    
+
     The distance at perihelion, which occurs at 4:21 according to this
     algorithm. The real value is 04:38 (January 2nd).
-        
+
     >>> earthsun_distance(datetime(2013, 1, 2, 4, 21, 50))
     147098089490.67123
-    
+
     The distance at aphelion, which occurs at 14:44 according to this
     algorithm. The real value is dead on - 14:44 (July 5).
-    
+
     >>> earthsun_distance(datetime(2013, 7, 5, 14, 44, 51, 0))
     152097354414.36044
-    
+
     Using a timezone-aware date:
-    
+
     >>> import pytz
     >>> earthsun_distance(pytz.timezone('America/Edmonton').localize(datetime(2020, 6, 6, 10, 0, 0, 0)))
     151817805599.67142
-    
+
     This has a sligtly different value than the value without a timezone;
     almost 5000 km further away!
-    
+
     >>> earthsun_distance(datetime(2020, 6, 6, 10, 0, 0, 0))
     151812898579.44104
-    
+
     Notes
     -----
-    This function is quite accurate. The difference comes from the impact of 
+    This function is quite accurate. The difference comes from the impact of
     the moon.
 
-    Note this function is not continuous; the sun-earth distance is not 
+    Note this function is not continuous; the sun-earth distance is not
     sufficiently accurately modeled for the change to be continuous throughout
     each day.
 
     References
     ----------
-    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for 
+    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for
        Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
        577-89. https://doi.org/10.1016/j.solener.2003.12.003.
     '''
@@ -846,27 +846,27 @@ def earthsun_distance(moment):
     return spa.earthsun_distance(unixtime, delta_t=delta_t)*au
 
 
-def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0, 
+def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
                    atmos_refract=0.5667):
     r'''Calculate the position of the sun in the sky. It is defined in terms of
     two angles - the zenith and the azimith. The azimuth tells where a sundial
     would see the sun as coming from; the zenith tells how high in the sky it
-    is. The solar elevation angle is returned for convinience; it is the 
+    is. The solar elevation angle is returned for convinience; it is the
     complimentary angle of the zenith.
-    
+
     The sun's refraction changes how high it appears as though the sun is;
     so values are returned with an optional conversion to the aparent angle.
     This impacts only the zenith/elevation.
-    
-    Uses the Reda and Andreas (2004) model described in [1]_, 
-    originally incorporated into the excellent 
-    `pvlib library <https://github.com/pvlib/pvlib-python>`_    
-    
+
+    Uses the Reda and Andreas (2004) model described in [1]_,
+    originally incorporated into the excellent
+    `pvlib library <https://github.com/pvlib/pvlib-python>`_
+
     Parameters
     ----------
     moment : datetime, optionally with pytz info
         Time and date for the calculation, in UTC time OR in the time zone
-        of the latitude/longitude specified BUT WITH A TZINFO ATTATCHED! 
+        of the latitude/longitude specified BUT WITH A TZINFO ATTATCHED!
         Please be careful with this argument, time zones are confusing. [-]
     latitude : float
         Latitude, between -90 and 90 [degrees]
@@ -904,47 +904,47 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     >>> import pytz
 
     Perth, Australia - sunrise
-    
+
     >>> solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 7, 10, 57)), -31.95265, 115.85742)
-    [90.89617025931763, 90.89617025931763, -0.8961702593176304, -0.8961702593176304, 63.60160176917509, 79.07112321438035]
+    [90.89617025931, 90.89617025931, -0.896170259317, -0.896170259317, 63.6016017691, 79.0711232143]
 
     Perth, Australia - Comparing against an online source
     https://www.suncalc.org/#/-31.9526,115.8574,9/2020.06.06/14:30/1/0
-    
+
     >>> solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 14, 30, 0)), -31.95265, 115.85742)
-    [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
-    
+    [63.4080568623, 63.4400018158, 26.59194313766, 26.55999818417, 325.121376246, 75.7467475485]
+
     Perth, Australia - time input without timezone; must be converted by user to UTC!
-    
+
     >>> solar_position(datetime(2020, 6, 6, 14, 30, 0) - timedelta(hours=8), -31.95265, 115.85742)
-    [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
+    [63.4080568623, 63.4400018158, 26.59194313766, 26.55999818417, 325.121376246, 75.7467475485]
 
     Sunrise occurs when the zenith is 90 degrees (Calgary, AB):
-    
+
     >>> local_time = datetime(2018, 4, 15, 6, 43, 5)
     >>> local_time = pytz.timezone('America/Edmonton').localize(local_time)
     >>> solar_position(local_time, 51.0486, -114.07)[0]
-    90.00054685485517
-    
+    90.0005468548
+
     Sunset occurs when the zenith is 90 degrees (13.5 hours later in this case):
-        
+
     >>> solar_position(pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 20, 30, 28)), 51.0486, -114.07)
-    [89.9995695661236, 90.54103812161853, 0.00043043387640950836, -0.5410381216185247, 286.8313781904518, 6.631429525878048]
-    
+    [89.999569566, 90.5410381216, 0.000430433876, -0.541038121618, 286.831378190, 6.63142952587]
+
     Notes
-    -----    
+    -----
     If you were standing at the same longitude of the sun such that it was no
-    further east or west than you were, the amount of angle it was south or 
+    further east or west than you were, the amount of angle it was south or
     north of you is the *zenith*. If it were directly overhead it would be 0°;
     a little north or south and it would be a little positive;
     near sunset or sunrise, near 90°; and at night, between 90° and 180°.
-    
+
     The *solar altitude angle* is defined as 90° -`zenith`.
     Note the *elevation* angle is just another name for the *altitude* angle.
-    
+
     The *azimuth* the angle in degrees that the sun is East of the North angle.
     It is positive North eastwards 0° to 360°. Other conventions may be used.
-    
+
     Note that due to differences in atmospheric refractivity, estimation of
     sunset and sunrise are accuract to no more than one minute. Refraction
     conditions truly vary across the atmosphere; so characterizing it by an
@@ -952,11 +952,11 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
 
     References
     ----------
-    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for 
+    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for
        Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
        577-89. https://doi.org/10.1016/j.solener.2003.12.003.
-    .. [2] "Navigation - What Azimuth Description Systems Are in Use? - 
-       Astronomy Stack Exchange." 
+    .. [2] "Navigation - What Azimuth Description Systems Are in Use? -
+       Astronomy Stack Exchange."
        https://astronomy.stackexchange.com/questions/237/what-azimuth-description-systems-are-in-use?rq=1.
     '''
     from fluids.optional import spa
@@ -965,26 +965,26 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     delta_t = spa.calculate_deltat(tt.tm_year, tt.tm_mon)
     unixtime = calendar.timegm(tt)
     # Input pressure in milibar; input temperature in deg C
-#    print(dict(unixtime=unixtime, lat=latitude, lon=longitude, elev=Z, 
+#    print(dict(unixtime=unixtime, lat=latitude, lon=longitude, elev=Z,
 #                          pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
 #                          atmos_refract=atmos_refract, sst=False))
-    result = spa.solar_position(unixtime, lat=latitude, lon=longitude, elev=Z, 
+    result = spa.solar_position(unixtime, lat=latitude, lon=longitude, elev=Z,
                           pressure=P*1E-2, temp=T-273.15, delta_t=delta_t,
                           atmos_refract=atmos_refract, sst=False)
     # confirmed equation of time https://www.minasi.com/figeot.asp
     # Convert minutes to seconds; sometimes negative, sometimes positive
 
-    result[-1] = result[-1]*60.0 
+    result[-1] = result[-1]*60.0
     return result
 
 
 def sunrise_sunset(moment, latitude, longitude):
-    r'''Calculates the times at which the sun is at sunset; sunrise; and 
+    r'''Calculates the times at which the sun is at sunset; sunrise; and
     halfway between sunrise and sunset (transit).
-    
-    Uses the Reda and Andreas (2004) model described in [1]_, 
-    originally incorporated into the excellent 
-    `pvlib library <https://github.com/pvlib/pvlib-python>`_    
+
+    Uses the Reda and Andreas (2004) model described in [1]_,
+    originally incorporated into the excellent
+    `pvlib library <https://github.com/pvlib/pvlib-python>`_
 
     Parameters
     ----------
@@ -1006,13 +1006,13 @@ def sunrise_sunset(moment, latitude, longitude):
         The time at the specified day when the sun sets **IN UTC IF MOMENT
         DOES NOT HAVE A TIMEZONE, OTHERWISE THE TIMEZONE GIVEN WITH IT**, [-]
     transit : datetime
-        The time at the specified day when the sun is at solar noon - halfway 
+        The time at the specified day when the sun is at solar noon - halfway
         between sunrise and sunset **IN UTC IF MOMENT
         DOES NOT HAVE A TIMEZONE, OTHERWISE THE TIMEZONE GIVEN WITH IT**, [-]
 
     Examples
     --------
-    >>> sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17), 
+    >>> sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17),
     ... 51.0486, -114.07)
     >>> sunrise
     datetime.datetime(2018, 4, 17, 12, 36, 55, 782660)
@@ -1020,46 +1020,46 @@ def sunrise_sunset(moment, latitude, longitude):
     datetime.datetime(2018, 4, 18, 2, 34, 4, 249326)
     >>> transit
     datetime.datetime(2018, 4, 17, 19, 35, 46, 686265)
-    
+
     Example with time zone:
-    
+
     >>> import pytz
     >>> sunrise_sunset(pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 17)), 51.0486, -114.07)
     (datetime.datetime(2018, 4, 16, 6, 39, 1, 570479, tzinfo=<DstTzInfo 'America/Edmonton' MDT-1 day, 18:00:00 DST>), datetime.datetime(2018, 4, 16, 20, 32, 25, 778162, tzinfo=<DstTzInfo 'America/Edmonton' MDT-1 day, 18:00:00 DST>), datetime.datetime(2018, 4, 16, 13, 36, 0, 386341, tzinfo=<DstTzInfo 'America/Edmonton' MDT-1 day, 18:00:00 DST>))
 
-    Note that the year/month/day as input with a timezone, is converted to UTC 
+    Note that the year/month/day as input with a timezone, is converted to UTC
     time as well.
-    
-    
+
+
     Notes
-    -----    
+    -----
     This functions takes on the order of 2 ms per calculation.
-    
+
     References
     ----------
-    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for 
+    .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for
        Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
        577-89. https://doi.org/10.1016/j.solener.2003.12.003.
     '''
     from fluids.optional import spa
-    import calendar 
+    import calendar
     if moment.utcoffset() is not None:
         moment_utc = moment + moment.utcoffset()
     else:
         moment_utc = moment
-    
+
     delta_t = spa.calculate_deltat(moment_utc.year, moment_utc.month)
     # Strip the part of the day
     ymd_moment_utc = datetime(moment_utc.year, moment_utc.month, moment_utc.day)
     unixtime = calendar.timegm(ymd_moment_utc.utctimetuple())
-    
+
     unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
     transit, sunrise, sunset = spa.transit_sunrise_sunset(unixtime, lat=latitude, lon=longitude, delta_t=delta_t)
-    
+
     transit = datetime.utcfromtimestamp(transit)
     sunrise = datetime.utcfromtimestamp(sunrise)
     sunset = datetime.utcfromtimestamp(sunset)
-    
+
     if moment.tzinfo is not None:
         sunrise = moment.tzinfo.fromutc(sunrise)
         sunset = moment.tzinfo.fromutc(sunset)
@@ -1093,20 +1093,20 @@ def _get_extra_radiation_shim(datetime_or_doy, solar_constant=1366.1,
                               **kwargs)
 
 
-def solar_irradiation(latitude, longitude, Z, moment, surface_tilt, 
+def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
                       surface_azimuth, T=None, P=None, solar_constant=1366.1,
-                      atmos_refract=0.5667, albedo=0.25, linke_turbidity=None, 
+                      atmos_refract=0.5667, albedo=0.25, linke_turbidity=None,
                       extraradiation_method='spencer',
                       airmass_model='kastenyoung1989',
                       cache=None):
     r'''Calculates the amount of solar radiation and radiation reflected back
     the atmosphere which hits a surface at a specified tilt, and facing a
-    specified azimuth. 
-    
-    This functions is a wrapper for the incredibly 
-    comprehensive `pvlib library <https://github.com/pvlib/pvlib-python>`_, 
+    specified azimuth.
+
+    This functions is a wrapper for the incredibly
+    comprehensive `pvlib library <https://github.com/pvlib/pvlib-python>`_,
     and requires it to be installed.
-    
+
     Parameters
     ----------
     latitude : float
@@ -1117,7 +1117,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         Elevation above sea level for the position, [m]
     moment : datetime, optionally with pytz info
         Time and date for the calculation, in UTC time OR in the time zone
-        of the latitude/longitude specified BUT WITH A TZINFO ATTATCHED! 
+        of the latitude/longitude specified BUT WITH A TZINFO ATTATCHED!
         Please be careful with this argument, time zones are confusing. [-]
     surface_tilt : float
         The angle above the horizontal of the object being hit by radiation,
@@ -1130,14 +1130,14 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     P : float, optional
         Pressure of atmosphere at ground level, [Pa]
     solar_constant : float, optional
-        The amount of solar radiation which reaches earth's disk (at a 
-        standardized distance of 1 AU); this constant is independent of 
+        The amount of solar radiation which reaches earth's disk (at a
+        standardized distance of 1 AU); this constant is independent of
         activity or conditions on earth, but will vary throughout the sun's
         lifetime and may increase or decrease slightly due to solar activity,
         [W/m^2]
     atmos_refract : float, optional
         Atmospheric refractivity at sunrise/sunset (0.5667 deg is an often used
-        value; this varies substantially and has an impact of a few minutes on 
+        value; this varies substantially and has an impact of a few minutes on
         when sunrise and sunset is), [degrees]
     albedo : float, optional
         The average amount of reflection of the terrain surrounding the object
@@ -1150,11 +1150,11 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         city, [-]
     extraradiation_method : str, optional
         The specified method to calculate the effect of earth's position on the
-        amount of radiation which reaches earth according to the methods 
+        amount of radiation which reaches earth according to the methods
         available in the `pvlib` library, [-]
     airmass_model : str, optional
         The specified method to calculate the amount of air the sunlight
-        needs to travel through to reach the earth according to the methods 
+        needs to travel through to reach the earth according to the methods
         available in the `pvlib` library, [-]
     cache : dict, optional
         Dictionary to to check for values to use to skip some calculations;
@@ -1169,7 +1169,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     poa_diffuse : float
         The total diffuse irradiance in the plane of the surface, [W/m^2]
     poa_sky_diffuse : float
-        The sky component of the diffuse irradiance, excluding the impact 
+        The sky component of the diffuse irradiance, excluding the impact
         from the ground, [W/m^2]
     poa_ground_diffuse : float
         The ground-sky diffuse irradiance component, [W/m^2]
@@ -1178,85 +1178,85 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     --------
     >>> import pytz
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
-    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0, 
+    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,
     ... surface_azimuth=180.0)
-    (1065.7621896280812, 945.2656564506323, 120.49653317744884, 95.31535344213178, 25.181179735317063)
-    
+    (1065.7621896280, 945.2656564506, 120.49653317744, 95.31535344213, 25.181179735317)
+
     >>> cache = {'apparent_zenith': 41.099082295767545, 'zenith': 41.11285376417578, 'azimuth': 182.5631874250523}
-    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, 
-    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0, 
+    >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07,
+    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,
     ... linke_turbidity=3, T=300, P=1E5,
     ... surface_azimuth=180.0, cache=cache)
-    (1042.5677703677, 918.2377548545, 124.33001551318, 99.6228657378, 24.70714977534)
+    (1042.567770367, 918.237754854, 124.3300155131, 99.622865737, 24.7071497753)
 
     At night, there is no solar radiation and this function returns zeros:
-        
+
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
-    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 2, 43, 5)), surface_tilt=41.0, 
+    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 2, 43, 5)), surface_tilt=41.0,
     ... surface_azimuth=180.0)
     (0.0, -0.0, 0.0, 0.0, 0.0)
-    
+
 
     Notes
-    -----    
-    The retrieval of `linke_turbidity` requires the pytables library (and 
-    Pandas); if it is not installed, specify a value of `linke_turbidity` to 
+    -----
+    The retrieval of `linke_turbidity` requires the pytables library (and
+    Pandas); if it is not installed, specify a value of `linke_turbidity` to
     avoid the dependency.
-    
-    There is some redundancy of the calculated results, according to the 
-    following relations. The total irradiance is normally that desired for 
+
+    There is some redundancy of the calculated results, according to the
+    following relations. The total irradiance is normally that desired for
     engineering calculations.
-    
+
     poa_diffuse = poa_ground_diffuse + poa_sky_diffuse
-    
+
     poa_global = poa_direct + poa_diffuse
-    
+
     For a surface such as a pipe or vessel, an approach would be to split it
     into a number of rectangles and sum up the radiation absorbed by each.
-    
-    This calculation is fairly slow. 
+
+    This calculation is fairly slow.
 
     References
     ----------
-    .. [1] Will Holmgren, Calama-Consulting, Tony Lorenzo, Uwe Krien, bmu, 
-       DaCoEx, mayudong, et al. Pvlib/Pvlib-Python: 0.5.1. Zenodo, 2017. 
+    .. [1] Will Holmgren, Calama-Consulting, Tony Lorenzo, Uwe Krien, bmu,
+       DaCoEx, mayudong, et al. Pvlib/Pvlib-Python: 0.5.1. Zenodo, 2017.
        https://doi.org/10.5281/zenodo.1016425.
     '''
     # Atmospheric refraction at sunrise/sunset (0.5667 deg is an often used value)
     import calendar
     from fluids.optional import spa
     from fluids.optional.irradiance import (get_relative_airmass, get_absolute_airmass,
-                                            ineichen, get_relative_airmass, 
+                                            ineichen, get_relative_airmass,
                                             get_absolute_airmass, get_total_irradiance)
 
     moment_timetuple = moment.timetuple()
-    moment_arg_dni = (moment_timetuple.tm_yday if 
+    moment_arg_dni = (moment_timetuple.tm_yday if
                       extraradiation_method == 'spencer' else moment)
 
-    dni_extra = _get_extra_radiation_shim(moment_arg_dni, solar_constant=solar_constant, 
-                               method=extraradiation_method, 
+    dni_extra = _get_extra_radiation_shim(moment_arg_dni, solar_constant=solar_constant,
+                               method=extraradiation_method,
                                epoch_year=moment.year)
-    
+
     if T is None or P is None:
-        atmosphere = ATMOSPHERE_NRLMSISE00(Z=Z, latitude=latitude, 
-                                           longitude=longitude, 
+        atmosphere = ATMOSPHERE_NRLMSISE00(Z=Z, latitude=latitude,
+                                           longitude=longitude,
                                            day=moment_timetuple.tm_yday)
         if T is None:
             T = atmosphere.T
         if P is None:
             P = atmosphere.P
-    
+
     if cache is not None and 'zenith' in cache:
         zenith = cache['zenith']
         apparent_zenith = cache['apparent_zenith']
         azimuth = cache['azimuth']
     else:
         apparent_zenith, zenith, _, _, azimuth, _ = solar_position(moment=moment,
-                                                                   latitude=latitude, 
+                                                                   latitude=latitude,
                                                                    longitude=longitude,
-                                                                   Z=Z, T=T, P=P, 
+                                                                   Z=Z, T=T, P=P,
                                                                    atmos_refract=atmos_refract)
-    
+
     if linke_turbidity is None:
         try:
             import pvlib
@@ -1267,37 +1267,37 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         linke_turbidity = float(lookup_linke_turbidity(
             pd.DatetimeIndex([moment]), latitude, longitude).values)
 
-        
+
     if airmass_model in apparent_zenith_airmass_models:
         used_zenith = apparent_zenith
     elif airmass_model in true_zenith_airmass_models:
         used_zenith = zenith
     else:
         raise ValueError('Unrecognized airmass model')
-    
+
     relative_airmass = get_relative_airmass(used_zenith, model=airmass_model)
     airmass_absolute = get_absolute_airmass(relative_airmass, pressure=P)
 
 
     ans = ineichen(apparent_zenith=apparent_zenith,
-                   airmass_absolute=airmass_absolute, 
+                   airmass_absolute=airmass_absolute,
                    linke_turbidity=linke_turbidity,
                    altitude=Z, dni_extra=solar_constant, perez_enhancement=True)
     ghi = ans['ghi']
     dni = ans['dni']
     dhi = ans['dhi']
-    
-    
+
+
 #    from pvlib.irradiance import get_total_irradiance
-    ans = get_total_irradiance(surface_tilt=surface_tilt, 
+    ans = get_total_irradiance(surface_tilt=surface_tilt,
                       surface_azimuth=surface_azimuth,
                       solar_zenith=apparent_zenith, solar_azimuth=azimuth,
-                      dni=dni, ghi=ghi, dhi=dhi, dni_extra=dni_extra, 
+                      dni=dni, ghi=ghi, dhi=dhi, dni_extra=dni_extra,
                       airmass=airmass_absolute, albedo=albedo)
     poa_global = float(ans['poa_global'])
     poa_direct = float(ans['poa_direct'])
     poa_diffuse = float(ans['poa_diffuse'])
     poa_sky_diffuse = float(ans['poa_sky_diffuse'])
     poa_ground_diffuse = float(ans['poa_ground_diffuse'])
-    return (poa_global, poa_direct, poa_diffuse, poa_sky_diffuse, 
+    return (poa_global, poa_direct, poa_diffuse, poa_sky_diffuse,
             poa_ground_diffuse)

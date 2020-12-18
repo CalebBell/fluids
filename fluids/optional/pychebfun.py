@@ -32,18 +32,45 @@ from __future__ import division
 import operator
 from functools import wraps
 import numpy as np
-from scipy import linalg
 
-from scipy.interpolate import BarycentricInterpolator as Bary
 import numpy.polynomial as poly
 from numpy.polynomial.chebyshev import cheb2poly, Chebyshev
 from numpy.polynomial.polynomial import Polynomial
 
-import scipy.fftpack as fftpack
-
 import sys
 emach = sys.float_info.epsilon # machine epsilon
 
+global sp_fftpack_ifft
+sp_fftpack_ifft = None
+def fftpack_ifft(*args, **kwargs):
+    global sp_fftpack_ifft
+    if sp_fftpack_ifft is None:
+        from scipy.fftpack import ifft as sp_fftpack_ifft
+    return sp_fftpack_ifft(*args, **kwargs)
+
+global sp_fftpack_fft
+sp_fftpack_fft = None
+def fftpack_fft(*args, **kwargs):
+    global sp_fftpack_fft
+    if sp_fftpack_fft is None:
+        from scipy.fftpack import fft as sp_fftpack_fft
+    return sp_fftpack_fft(*args, **kwargs)
+
+global sp_eigvals
+sp_eigvals = None
+def eigvals(*args, **kwargs):
+    global sp_eigvals
+    if sp_eigvals is None:
+        from scipy.linalg import eigvals as sp_eigvals
+    return sp_eigvals(*args, **kwargs)
+
+global sp_toeplitz
+sp_toeplitz = None
+def toeplitz(*args, **kwargs):
+    global sp_toeplitz
+    if sp_toeplitz is None:
+        from scipy.linalg import toeplitz as sp_toeplitz
+    return sp_toeplitz(*args, **kwargs)
 
 def build_pychebfun(f, domain, N=15):
     fvec = lambda xs: [f(xi) for xi in xs]
@@ -519,12 +546,12 @@ class Chebfun(Polyfun):
             ak = self.coefficients()
             v = np.zeros_like(ak[:-1])
             v[1] = 0.5
-            C1 = linalg.toeplitz(v)
+            C1 = toeplitz(v)
             C2 = np.zeros_like(C1)
             C1[0,1] = 1.
             C2[-1,:] = ak[:-1]
             C = C1 - .5/ak[-1] * C2
-            eigenvalues = linalg.eigvals(C)
+            eigenvalues = eigvals(C)
             roots = [eig.real for eig in eigenvalues
                     if np.allclose(eig.imag,0,atol=1e-10)
                         and np.abs(eig.real) <=1]
@@ -589,7 +616,7 @@ class Chebfun(Polyfun):
         data[0] *= 2
         data[N-1] *= 2
 
-        fftdata = 2*(N-1)*fftpack.ifft(data, axis=0)
+        fftdata = 2*(N-1)*fftpack_ifft(data, axis=0)
         complex_values = fftdata[:N]
         # convert to real if input was real
         if np.isrealobj(chebcoeff):
@@ -603,6 +630,7 @@ class Chebfun(Polyfun):
         """Returns a polynomial with vector coefficients which interpolates the
         values at the Chebyshev points x."""
         # hacking the barycentric interpolator by computing the weights in advance
+        from scipy.interpolate import BarycentricInterpolator as Bary
         p = Bary([0.])
         N = len(values)
         weights = np.ones(N)
@@ -657,7 +685,7 @@ def even_data(data):
 def dct(data):
     """Compute DCT using FFT."""
     N = len(data)//2
-    fftdata     = fftpack.fft(data, axis=0)[:N+1]
+    fftdata     = fftpack_fft(data, axis=0)[:N+1]
     fftdata     /= N
     fftdata[0]  /= 2.
     fftdata[-1] /= 2.

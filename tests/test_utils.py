@@ -27,7 +27,7 @@ import pytest
 def swap_funcs_and_test(names, substitutions, test):
     '''Function to replace some globals in another function,
     run that function, and then set the globals back.
-    
+
     names : list[str]
         object names to switch out
     substitutions : list[obj]
@@ -62,7 +62,7 @@ except:
 
 def swap_for_numba_test(func):
     return swap_funcs_and_test(fluids.numba.__all__, numba_substitutions, func)
-    
+
 
 def mark_as_numba(func):
     func = pytest.mark.numba(func)

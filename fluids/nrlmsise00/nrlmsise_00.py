@@ -594,7 +594,7 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
 
 #/*    3hr Magnetic activity functions */
 #/*    Eq. A24d */
-def g0(a, p):
+def g0_nrlmsise00(a, p):
     return (a - 4.0 + (p[25] - 1.0) * (a - 4.0 + (exp(-sqrt(p[24]*p[24]) * (a - 4.0)) - 1.0) / sqrt(p[24]*p[24])));
 
 
@@ -605,9 +605,9 @@ def sumex(ex):
 
 #/*    Eq. A24a */
 def sg0(ex, p, ap):
-    return (g0(ap[1],p) + (g0(ap[2],p)*ex + g0(ap[3],p)*ex*ex + \
-                g0(ap[4],p)*pow(ex,3.0)	+ (g0(ap[5],p)*pow(ex,4.0) + \
-                g0(ap[6],p)*pow(ex,12.0))*(1.0-pow(ex,8.0))/(1.0-ex)))/sumex(ex);
+    return (g0_nrlmsise00(ap[1], p) + (g0_nrlmsise00(ap[2], p)*ex + g0_nrlmsise00(ap[3], p)*ex*ex + \
+                                       g0_nrlmsise00(ap[4], p)*pow(ex, 3.0) + (g0_nrlmsise00(ap[5], p)*pow(ex, 4.0) + \
+                                                                               g0_nrlmsise00(ap[6], p)*pow(ex, 12.0))*(1.0 - pow(ex, 8.0))/(1.0 - ex)))/sumex(ex);
 
 
 def globe7(p, Input, flags):

@@ -34,10 +34,10 @@ def test_isothermal_work_compression():
 def test_isentropic_work_compression():
     dH = isentropic_work_compression(P1=1E5, P2=1E6, T1=300.0, k=1.4, eta=1)
     assert_close(dH, 8125.161295388634, rtol=1e-05)
-    
+
     dH = isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78)
     assert_close(dH, 10416.873455626454, rtol=1e-05)
-    
+
     dH = isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78, Z=0.9)
     assert_close(dH, 9375.186110063809, rtol=1e-05)
 
@@ -50,7 +50,7 @@ def test_isentropic_work_compression():
 
     eta = isentropic_work_compression(W=9375.186110063809, P1=1E5, P2=1E6, T1=300, k=1.4, Z=0.9, eta=None)
     assert_close(eta, 0.78, rtol=1E-5)
-    
+
     with pytest.raises(Exception):
         isentropic_work_compression(P1=1E5, P2=1E6, k=1.4, T1=None)
 
@@ -58,10 +58,10 @@ def test_isentropic_work_compression():
 def test_isentropic_T_rise_compression():
     T2 = isentropic_T_rise_compression(286.8, 54050.0, 432400., 1.4)
     assert_close(T2, 519.5230938217768, rtol=1e-05)
-    
+
     T2 = isentropic_T_rise_compression(286.8, 54050, 432400, 1.4, eta=0.78)
     assert_close(T2, 585.1629407971498, rtol=1e-05)
-    
+
     # Test against the simpler formula for eta=1:
     # T2 = T2*(P2/P1)^((k-1)/k)
     T2_ideal = 286.8*((432400/54050)**((1.4-1)/1.4))
@@ -73,10 +73,10 @@ def test_isentropic_efficiency():
     assert_close(eta_s, 0.7027614191263858)
     eta_p = isentropic_efficiency(1E5, 1E6, 1.4, eta_s=0.7027614191263858)
     assert_close(eta_p, 0.78)
-    
+
     with pytest.raises(Exception):
         isentropic_efficiency(1E5, 1E6, 1.4)
-        
+
     # Example 7.6 of the reference:
     eta_s = isentropic_efficiency(1E5, 3E5, 1.4, eta_p=0.75)
     assert_close(eta_s, 0.7095085923615653)
@@ -97,7 +97,7 @@ def test_compressible():
 
     P = P_critical_flow(1400000., 1.289)
     assert_close(P, 766812.9022792266)
-    
+
     assert not is_critical_flow(670E3, 532E3, 1.11)
     assert is_critical_flow(670E3, 101E3, 1.11)
 
@@ -123,19 +123,19 @@ def test_Panhandle_A():
     SG=0.693
     Tavg = 277.15
     Q = 42.56082051195928
-    
+
     # Test all combinations of relevant missing inputs
     assert_close(Panhandle_A(D=D, P1=P1, P2=P2, L=L, SG=SG, Tavg=Tavg), Q)
     assert_close(Panhandle_A(D=D, Q=Q, P2=P2, L=L, SG=SG, Tavg=Tavg), P1)
     assert_close(Panhandle_A(D=D, Q=Q, P1=P1, L=L, SG=SG, Tavg=Tavg), P2)
     assert_close(Panhandle_A(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
     assert_close(Panhandle_A(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
-    
+
     with pytest.raises(Exception):
         Panhandle_A(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
-        
+
     # Sample problem from "Natural Gas Pipeline Flow Calculations" by "Harlan H. Bengtson"
-    Q_panhandle = Panhandle_A(SG=0.65, Tavg=F2K(80), Ts=F2K(60), Ps=14.7*psi, L=500*foot, D=12*inch, P1=510*psi, 
+    Q_panhandle = Panhandle_A(SG=0.65, Tavg=F2K(80), Ts=F2K(60), Ps=14.7*psi, L=500*foot, D=12*inch, P1=510*psi,
                           P2=490*psi, Zavg=0.919, E=0.92)
     mmscfd = Q_panhandle*day/foot**3/1e6
     assert_close(mmscfd, 401.3019451856126, rtol=1e-12)
@@ -150,17 +150,17 @@ def test_Panhandle_B():
     SG=0.693
     Tavg = 277.15
     Q = 42.35366178004172
-    
+
     # Test all combinations of relevant missing inputs
     assert_close(Panhandle_B(D=D, P1=P1, P2=P2, L=L, SG=SG, Tavg=Tavg), Q)
     assert_close(Panhandle_B(D=D, Q=Q, P2=P2, L=L, SG=SG, Tavg=Tavg), P1)
     assert_close(Panhandle_B(D=D, Q=Q, P1=P1, L=L, SG=SG, Tavg=Tavg), P2)
     assert_close(Panhandle_B(D=D, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), L)
     assert_close(Panhandle_B(L=L, Q=Q, P1=P1, P2=P2, SG=SG, Tavg=Tavg), D)
-    
+
     with pytest.raises(Exception):
         Panhandle_B(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
-    
+
 
 def test_Weymouth():
     D = 0.340
@@ -179,13 +179,13 @@ def test_Weymouth():
     with pytest.raises(Exception):
         Weymouth(D=0.340, P1=90E5, L=160E3, SG=0.693, Tavg=277.15)
 
-    Q_Weymouth = Weymouth(SG=0.65, Tavg=F2K(80), Ts=F2K(60), Ps=14.7*psi, L=500*foot, D=12*inch, P1=510*psi, 
+    Q_Weymouth = Weymouth(SG=0.65, Tavg=F2K(80), Ts=F2K(60), Ps=14.7*psi, L=500*foot, D=12*inch, P1=510*psi,
                               P2=490*psi, Zavg=0.919, E=0.92)
     mmscfd = Q_Weymouth*day/foot**3/1e6
     assert_close(mmscfd, 272.5879686092862, rtol=1e-12)
 
 def test_Spitzglass_high():
-    
+
     D = 0.340
     P1 = 90E5
     P2 = 20E5
@@ -301,28 +301,28 @@ def test_isothermal_gas():
     assert_close(isothermal_gas(11.3, 0.00185, P2=9E5, m=145.484757264, L=1000., D=0.5), 1E6)
     assert_close(isothermal_gas(11.3, 0.00185, P1=1E6, m=145.484757264, L=1000., D=0.5), 9E5)
     assert_close(isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, m=145.484757264, L=1000.), 0.5)
-    
+
     with pytest.raises(Exception):
-        isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000.)        
+        isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000.)
     with pytest.raises(Exception):
         isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=1E5, L=1000., D=0.5)
     with pytest.raises(Exception):
         isothermal_gas(rho=11.3, fd=0.00185, P2=1E6, P1=9E5, L=1000., D=0.5)
-        
+
     # Newton can't converge, need a bounded solver
     P1 = isothermal_gas(rho=11.3, fd=0.00185, m=390., P2=9E5, L=1000., D=0.5)
     assert_close(P1, 2298973.786533209)
-    
-    # Case where the desired flow is greated than the choked flow's rate 
+
+    # Case where the desired flow is greated than the choked flow's rate
     with pytest.raises(Exception):
         isothermal_gas(rho=11.3, fd=0.00185, m=400, P2=9E5, L=1000., D=0.5)
-        
+
     # test the case where the ideal gas assumption is baked in:
-    
+
     rho = 10.75342009105268 # Chemical('nitrogen', P=(1E6+9E5)/2).rho
     m1 = isothermal_gas(rho=rho, fd=0.00185, P1=1E6, P2=9E5, L=1000., D=0.5)
     assert_close(m1, 141.92260633059334)
-    
+
     # They are fairly similar
     fd = 0.00185
     P1 = 1E6

@@ -30,7 +30,7 @@ import pytest
 def test_Corripio_pump_efficiency():
     eta = Corripio_pump_efficiency(461./15850.323)
     assert_close(eta, 0.7058888670951621)
-    
+
 def test_Corripio_motor_efficiency():
     eta = Corripio_motor_efficiency(137*745.7)
     assert_close(eta, 0.9128920875679222)
@@ -109,8 +109,8 @@ def test_current_ideal():
 
 
 def test_power_sources():
-    assert sum(map(ord, plug_types)) == 1001
-    assert len(plug_types) == 14
+    assert sum(map(ord, electrical_plug_types)) == 1001
+    assert len(electrical_plug_types) == 14
 
     assert sum(voltages_1_phase_residential) == 1262
     assert len(voltages_1_phase_residential) == 8
@@ -118,7 +118,7 @@ def test_power_sources():
     assert sum(voltages_3_phase) == 3800
     assert len(voltages_3_phase) == 13
 
-    assert frequencies == [50, 60]
+    assert residential_power_frequencies == [50, 60]
 
     assert sum([i.voltage for i in residential_power.values()]) == 42071
     assert sum([i.freq for i in residential_power.values()]) == 10530
@@ -133,14 +133,14 @@ def test_power_sources():
 
     ca = industrial_power['ca']
     assert (ca.voltage, ca.freq) == ((120, 208, 240, 480, 347, 600), 60)
-    
-    
+
+
 def test_CountryPower():
     a = CountryPower(plugs=('C', 'F', 'M', 'N'), voltage=230.0, freq=50.0, country="South Africa")
     assert type(a) is CountryPower
     assert type(a.voltage) is float
     assert type(a.freq) is float
-    
+
     CountryPower(plugs=('G',), voltage=240, freq=50, country="Seychelles")
     CountryPower(plugs=('C', 'F'), voltage=230, freq=50, country="Armenia")
     CountryPower(plugs=('D', 'G', 'J', 'K', 'L'), voltage=230, freq=50, country="Maldives")

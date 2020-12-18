@@ -31,12 +31,12 @@ import numpy as np
 
 def test_a_complicated_function():
     orig = [fluids.integrate_drag_sphere(D=D, rhop=rhop, rho=1.2, mu=1.78E-5, t=0.5, V=30, distance=True) for D, rhop in zip([0.002, 0.001], [2200., 2300])]
-    
+
     ans_vect = fluids.vectorized.integrate_drag_sphere(D=[0.002, 0.001], rhop=[2200., 2300], rho=1.2, mu=1.78E-5, t=0.5, V=30, distance=True)
     # Note the transpose requirement to match!
     ans_vect = np.array(ans_vect).T
     assert_allclose(ans_vect, orig)
-    
+
 
 
 def test_Morsi_Alexander():
@@ -44,4 +44,4 @@ def test_Morsi_Alexander():
     Cds_vect = fluids.vectorized.Morsi_Alexander([500, 5000, 5000])
     assert_allclose(Cds, Cds_vect)
 
-    
+

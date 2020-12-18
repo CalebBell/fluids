@@ -154,33 +154,33 @@ def test_core_dimensionless():
 
     Oh1 = Ohnesorge(1E-4, 1000., 1E-3, 1E-1)
     assert_close(Oh1, 0.01)
-    
+
     Su = Suratman(1E-4, 1000., 1E-3, 1E-1)
     assert_close(Su, 10000.0)
-    
+
 
     BeL1 = Bejan_L(1E4, 1., 1E-3, 1E-6)
     assert_close(BeL1, 10000000000000)
 
     Bep1 = Bejan_p(1E4, 1., 1E-3, 1E-6)
     assert_close(Bep1, 10000000000000)
-    
+
     Bo = Boiling(300., 3000., 800000.)
     assert_close(Bo, 1.25e-05)
 
     e_D1 = relative_roughness(0.0254)
     e_D2 = relative_roughness(0.5, 1E-4)
     assert_close1d([e_D1, e_D2], [5.9842519685039374e-05, 0.0002])
-    
+
     Co = Confinement(0.001, 1077, 76.5, 4.27E-3)
     assert_close(Co, 0.6596978265315191)
-    
+
     De = Dean(10000., 0.1, 0.4)
     assert_close(De, 5000.0)
-    
+
     Stk = Stokes_number(V=0.9, Dp=1E-5, D=1E-3, rhop=1000., mu=1E-5)
     assert_close(Stk, 0.5)
-    
+
     Hg = Hagen(Re=2610., fd=1.935235)
     assert_close(Hg, 6591507.17175)
     # Where fd was obtained from:
@@ -188,10 +188,10 @@ def test_core_dimensionless():
         return rho*D**3/mu**2
 
     correct = Hagen2(rho=992., mu=653E-6, D=6.568E-3)*10000
-    
+
     guess = Hagen(Re=2610., fd=1.935235)
     assert_close(correct, guess)
-    
+
     Fr = Froude_densimetric(1.83, L=2., rho2=1.2, rho1=800., g=9.81)
     assert_close(Fr, 0.4134543386272418)
     Fr = Froude_densimetric(1.83, L=2., rho2=1.2, rho1=800, g=9.81, heavy=False)
@@ -199,7 +199,7 @@ def test_core_dimensionless():
 
     Mo = Morton(1077.0, 76.5, 4.27E-3, 0.023)
     assert_close(Mo, 2.311183104430743e-07)
-    
+
 
 def test_core_misc2():
     mu1 = nu_mu_converter(998., nu=1.0E-6)
@@ -218,10 +218,10 @@ def test_core_misc2():
 
     K = K_from_L_equiv(240.)
     assert_close(K, 3.6)
-    
+
     L_D = L_equiv_from_K(3.6)
     assert_close(L_D, 240.)
-    
+
     L = L_from_K(K=6., fd=0.018, D=.3)
     assert_close(L, 100)
 
@@ -236,7 +236,7 @@ def test_core_misc2():
 
     P = P_from_head(head=5., rho=800.)
     assert_close(P, 39226.6)
-    
+
     fd = f_from_K(K=0.6, L=100., D=.3)
     assert_close(fd, 0.0018, rtol=1e-13)
 
@@ -246,7 +246,7 @@ def test_core_misc2():
 
 # The following are tests which were deprecated from scipy
 # but are still desired to be here
-# Taken from scipy/constants/constants.py as in commit 
+# Taken from scipy/constants/constants.py as in commit
 # https://github.com/scipy/scipy/commit/4b7d325cd50e8828b06d628e69426a18283dc5b5
 # Also from https://github.com/scipy/scipy/pull/5292
 # by Gillu13  (Gilles Aouizerate)
@@ -283,7 +283,7 @@ def test_celcius_to_rankine():
 
 
 def test_kelvin_to_rankine():
-    assert_close1d([K2R(273.15), K2R(273.15)], [491.67, 491.67], rtol=0., 
+    assert_close1d([K2R(273.15), K2R(273.15)], [491.67, 491.67], rtol=0.,
                     atol=1e-13)
 
 
@@ -292,7 +292,7 @@ def test_fahrenheit_to_rankine():
 
 
 def test_rankine_to_fahrenheit():
-    assert_close1d([R2F(491.67), R2F(491.67)], [32., 32.], rtol=0., 
+    assert_close1d([R2F(491.67), R2F(491.67)], [32., 32.], rtol=0.,
                     atol=1e-13)
 
 
@@ -302,5 +302,4 @@ def test_rankine_to_celcius():
 
 def test_rankine_to_kelvin():
     assert_close1d([R2K(491.67), R2K(0.)], [273.15, 0.], rtol=0., atol=1e-13)
-    
-    
+

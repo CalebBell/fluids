@@ -43,7 +43,7 @@ except:
 from fluids.atmosphere import ATMOSPHERE_1976, hwm93, hwm14, airmass
 
 def test_ATMOSPHERE_1976():
-    # Test values from 'Atmosphere to 86 Km by 2 Km (SI units)', from 
+    # Test values from 'Atmosphere to 86 Km by 2 Km (SI units)', from
     # http://ckw.phys.ncku.edu.tw/public/pub/Notes/Languages/Fortran/FORSYTHE/www.pdas.com/m1.htm
     # as provided in atmtabs.html in http://www.pdas.com/atmosdownload.html
     H_1 = [-2000, 0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000, 22000, 24000, 26000, 28000, 30000, 32000, 34000, 36000, 38000, 40000, 42000, 44000, 46000, 48000, 50000, 52000, 54000, 56000, 58000, 60000, 62000, 64000, 66000, 68000, 70000, 72000, 74000, 76000, 78000, 80000, 82000, 84000, 86000]
@@ -64,45 +64,45 @@ def test_ATMOSPHERE_1976():
     assert_close1d(cs, c_1, rtol=5E-5)
     mus = [ATMOSPHERE_1976(Z).mu for Z in H_1]
     assert_close1d(mus, mu_1, rtol=5E-5)
-    
+
     assert_close(ATMOSPHERE_1976(1000, dT=1).T, 282.6510223716947)
-    
+
     # Check thermal conductivity with: http://www.aerospaceweb.org/design/scripts/atmosphere/
     assert_close(ATMOSPHERE_1976(1000).k, 0.0248133634493)
-    # Other possible additions: 
+    # Other possible additions:
     # mean air particle speed; mean collision frequency; mean free path; mole volume; total number density
 
 
     delta_P = ATMOSPHERE_1976.pressure_integral(288.6, 84100.0, 147.0)
     assert_close(delta_P, 1451.9583061008857)
-    
-    
+
+
 def test_airmass():
     m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90)
     assert_close(m, 10356.127665863998) # vs 10356
     m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 60)
     assert_close(m, 11954.138271601627) # vs 11954
-    
+
     m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 5)
     assert_close(m, 106861.56335489497) # vs 106837
-    
+
     m = airmass(lambda Z : ATMOSPHERE_1976(Z).rho, .1)
     assert_close(m, 379082.24065519444, rtol=1e-6) # vs 378596
-    
+
     # airmass(lambda Z : ATMOSPHERE_1976(Z).rho, .1, RI=1.0016977377367)
     # As refractive index increases, the atmospheric mass increases drastically. An exception is being raised numerically, not sure why
     # 7966284.95792788 - that's an 800x atmospheric increase.
-        
+
 hwm93_compiled = True
 try:
     # Just check if works
-    hwm93(5E5, 45, 50, 365)
+    hwm93(5E5, 45.0, 50.0, 365.0)
 except:
     hwm93_compiled = False
 
 hwm14_compiled = True
 try:
-    hwm14(11000, latitude=-45.0, longitude=-85.0, day=150, seconds=12*3600, geomagnetic_disturbance_index=80)
+    hwm14(11000.0, latitude=-45.0, longitude=-85.0, day=150, seconds=12*3600.0, geomagnetic_disturbance_index=80.0)
 except:
     hwm14_compiled = False
 
@@ -113,7 +113,7 @@ def test_hwm93():
     # pass on systems without f2py for now
     custom = hwm93(5E5, 45.0, 50.0, 365.0)
     assert_close1d(custom, [-73.00312042236328, 0.1485661268234253])
-    
+
     # Test from pyhwm93
     ans = hwm93(Z=150E3, latitude=65.0, longitude=-148.0, day=90.0, seconds=12*3600.0, f107=100., f107_avg=100., geomagnetic_disturbance_index=4.0)
     assert_close1d(ans, [-110.16133880615234, -12.400712013244629])
@@ -129,30 +129,30 @@ def test_hwm14():
     HEIGHTS = [0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400]
     HEIGHT_PROFILE_MER = [0.031, 2.965, -6.627, 2.238, -14.253, 37.403, 42.789, 20.278, 25.027, 34.297, 40.408, 44.436, 47.092, 48.843, 49.997, 50.758, 51.259]
     HEIGHT_PROFILE_ZON = [6.271, 25.115, 96.343, 44.845, 31.59, 11.628, -33.319, -49.984, -68.588, -80.022, -87.56, -92.53, -95.806, -97.965, -99.389, -100.327, -100.946]
-    
+
     winds = [hwm14(alt*1000.0, latitude=-45.0, longitude=-85.0, day=150.0, seconds=12*3600.0, geomagnetic_disturbance_index=80.0) for alt in HEIGHTS]
-    
+
     winds = [[round(i, 3) for i in j] for j in winds]
-    
+
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
-    
+
     assert_close1d(MER_CALC, HEIGHT_PROFILE_MER)
     assert_close1d(ZON_CALC, HEIGHT_PROFILE_ZON)
-    
-    
+
+
     # Latitude profile
     LATS = [-90, -80, -70, -60, -50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
     LAT_PROFILE_MER = [-124.197, -150.268, -124.54, -23.132, 31.377, 39.524, 56.305, 60.849, 58.117, 56.751, 51.048, 35.653, 14.832, 1.068, -2.749, -27.112, -91.199, -186.757, -166.717]
     LAT_PROFILE_ZON = [177.174, 63.864, -71.971, -105.913, -28.176, 36.532, 32.79, 34.341, 72.676, 110.18, 111.472, 90.547, 77.736, 74.993, 41.972, -140.557, 3.833, 179.951, 235.447]
-    
+
     winds = [hwm14(250E3, latitude=LAT, longitude=30, day=305, seconds=18*3600, geomagnetic_disturbance_index=48) for LAT in LATS]
-    
+
     winds = [[round(i, 3) for i in j] for j in winds]
-    
+
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
-    
+
     assert_close1d(MER_CALC, LAT_PROFILE_MER)
     assert_close1d(ZON_CALC, LAT_PROFILE_ZON)
 
@@ -162,14 +162,14 @@ def test_hwm14():
     TIMES = [(lt_hour+70/15.)*3600 for lt_hour in TIMES_LT]
     TIME_PROFILE_MER = [6.564, 28.79, 22.316, -4.946, -23.175, -11.278, 17.57, 34.192, 26.875, 9.39, -1.362, -7.168, -21.035, -41.123, -46.702, -27.048, 6.566]
     TIME_PROFILER_ZON = [-40.187, -54.899, -57.187, -47.936, -41.468, -43.648, -49.691, -44.868, -22.542, 2.052, 4.603, -24.13, -66.38, -83.942, -60.262, -36.616, -40.145]
-    
+
     winds = [hwm14(125E3, latitude=45, longitude=-70, day=75, seconds=TIME, geomagnetic_disturbance_index=30) for TIME in TIMES]
-    
+
     winds = [[round(i, 3) for i in j] for j in winds]
-    
+
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
-    
+
     assert_close1d(MER_CALC, TIME_PROFILE_MER)
     assert_close1d(ZON_CALC, TIME_PROFILER_ZON)
 
@@ -177,83 +177,83 @@ def test_hwm14():
     LONGS = [-180, -160, -140, -120, -100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100, 120, 140, 160, 180]
     LONG_PROFILE_MER = [-0.757, -0.592, 0.033, 0.885, 1.507, 1.545, 1.041, 0.421, 0.172, 0.463, 1.049, 1.502, 1.552, 1.232, 0.757, 0.288, -0.146, -0.538, -0.757]
     LONG_PROFILE_ZON = [-16.835, -18.073, -20.107, -22.166, -22.9, -21.649, -19.089, -16.596, -14.992, -13.909, -12.395, -10.129, -7.991, -7.369, -8.869, -11.701, -14.359, -15.945, -16.835]
-    
+
     winds = [hwm14(40E3, latitude=-5, longitude=LONG, day=330, seconds=6*3600, geomagnetic_disturbance_index=4) for LONG in LONGS]
-    
+
     winds = [[round(i, 3) for i in j] for j in winds]
-    
+
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
-    
+
     assert_close1d(MER_CALC, LONG_PROFILE_MER)
     assert_close1d(ZON_CALC, LONG_PROFILE_ZON)
-    
+
     # Day of year profile
     DAYS = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360]
     DAY_PROFILE_MER = [1.57, -5.43, -13.908, -22.489, -30.844, -39.415, -48.717, -58.582, -67.762, -74.124, -75.371, -70.021, -58.19, -41.813, -24.159, -8.838, 1.319, 5.064, 2.908]
     DAY_PROFILE_ZON = [-42.143, -36.947, -29.927, -23.077, -17.698, -14.016, -11.35, -8.72, -5.53, -2.039, 0.608, 0.85, -2.529, -9.733, -19.666, -30.164, -38.684, -43.208, -42.951]
-    
+
     winds = [hwm14(200E3, latitude=-65, longitude=-135, day=DAY, seconds=21*3600, geomagnetic_disturbance_index=15) for DAY in DAYS]
-    
+
     winds = [[round(i, 3) for i in j] for j in winds]
-    
+
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
-    
+
     assert_close1d(MER_CALC, DAY_PROFILE_MER)
     assert_close1d(ZON_CALC, DAY_PROFILE_ZON)
-    
-    # Magnetic strength profile 
+
+    # Magnetic strength profile
     APS = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260]
     AP_PROFILE_MER = [18.63, 11.026, -0.395, -9.121, -13.965, -16.868, -18.476, -19.38, -19.82, -19.887, -19.685, -19.558, -19.558, -19.558]
     AP_PROFILE_ZON = [-71.801, -69.031, -83.49, -96.899, -104.811, -109.891, -112.984, -114.991, -116.293, -116.99, -117.22, -117.212, -117.212, -117.212]
-    
+
     winds = [hwm14(350E3, latitude=38, longitude=125, day=280, seconds=21*3600, geomagnetic_disturbance_index=AP) for AP in APS]
-    
+
     winds = [[round(i, 3) for i in j] for j in winds]
-    
+
     MER_CALC = [i[0] for i in winds]
     ZON_CALC = [i[1] for i in winds]
-    
+
     assert_close1d(MER_CALC, AP_PROFILE_MER)
     assert_close1d(ZON_CALC, AP_PROFILE_ZON)
-    
+
 
 def test_solar_position():
     pos = solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 7, 10, 57)), -31.95265, 115.85742)
     pos_expect = [90.89617025931763, 90.89617025931763, -0.8961702593176304, -0.8961702593176304, 63.60160176917509, 79.07112321438035]
     assert_close1d(pos, pos_expect, rtol=1e-9)
-    
+
     pos = solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 14, 30, 0)), -31.95265, 115.85742)
     pos_expect = [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
     assert_close1d(pos, pos_expect, rtol=1e-9)
-    
+
     pos = solar_position(datetime(2020, 6, 6, 14, 30, 0) - timedelta(hours=8), -31.95265, 115.85742)
     pos_expect = [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
     assert_close1d(pos, pos_expect, rtol=1e-9)
-    
+
     local_time = datetime(2018, 4, 15, 6, 43, 5)
     local_time = pytz.timezone('America/Edmonton').localize(local_time)
     assert_close(solar_position(local_time, 51.0486, -114.07)[0], 90.00054676987014, rtol=1e-9)
-    
+
     pos = solar_position(pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 20, 30, 28)), 51.0486, -114.07)
     pos_expect = [89.9995695661236, 90.54103812161853, 0.00043043387640950836, -0.5410381216185247, 286.8313781904518, 6.631429525878048]
     assert_close1d(pos, pos_expect, rtol=1e-9)
 
-    
+
 def test_earthsun_distance():
     dt = earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
     assert_close(dt, 149090925951.18338, rtol=1e-10)
 
     dt = earthsun_distance(datetime(2013, 1, 1, 21, 21, 0, 0))
     assert_close(dt, 147098127628.8943, rtol=1e-10)
-    
+
     dt = earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
     assert_close(dt, 152097326908.20578, rtol=1e-10)
-    
+
     assert_close(earthsun_distance(pytz.timezone('America/Edmonton').localize(datetime(2020, 6, 6, 10, 0, 0, 0))),
                  151817805599.67142, rtol=1e-10)
-    
+
     assert_close(earthsun_distance(datetime(2020, 6, 6, 10, 0, 0, 0)),
                  151812898579.44104, rtol=1e-10)
 
@@ -262,7 +262,7 @@ def test_earthsun_distance():
 
 def test_solar_irradiation():
     ans = solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
-    moment=datetime(2018, 4, 15, 19, 43, 5), surface_tilt=41.0, 
+    moment=datetime(2018, 4, 15, 19, 43, 5), surface_tilt=41.0,
     surface_azimuth=180.0)
     ans_expect = [1065.7622492480543, 945.2657257434173, 120.49652350463705, 95.31534254980346, 25.18118095483359]
     assert_close1d(ans, ans_expect, rtol=1e-5)
@@ -284,7 +284,7 @@ def test_sunrise_sunset():
     assert sunrise == sunrise_expected
     assert sunset == sunset_expected
     assert transit == transit_expected
-    
+
 @pytest.mark.pytz
 def test_sunrise_sunset_pytz():
     calgary = pytz.timezone('America/Edmonton')
@@ -292,5 +292,5 @@ def test_sunrise_sunset_pytz():
     assert sunrise == calgary.localize(datetime(2018, 4, 16, 6, 39, 1, 570479))
     assert sunset == calgary.localize(datetime(2018, 4, 16, 20, 32, 25, 778162))
     assert transit == calgary.localize(datetime(2018, 4, 16, 13, 36, 0, 386341))
-    
+
 

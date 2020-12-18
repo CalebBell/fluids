@@ -27,9 +27,9 @@ import numpy as np
 import fluids as normal_fluids
 
 '''Basic module which wraps all fluids functions with numpy's vectorize.
-All other object - dicts, classes, etc - are not wrapped. Supports star 
+All other object - dicts, classes, etc - are not wrapped. Supports star
 imports; so the same objects exported when importing from the main library
-will be imported from here. 
+will be imported from here.
 
 >>> from fluids.vectorized import *
 
@@ -40,7 +40,7 @@ array([ 0.64      ,  0.064     ,  0.03088295])
 
 Note that because this needs to import fluids itself, fluids.vectorized
 needs to be imported separately; the following will cause an error:
-    
+
 >>> import fluids
 >>> fluids.vectorized # Won't work, has not been imported yet
 
@@ -51,7 +51,7 @@ The correct syntax is as follows:
 
 
 This module is lightweight! It takes approximately 3 ms to load, and increases
-ram usage by only 250 KB. 
+ram usage by only 250 KB.
 '''
 
 __all__ = []

@@ -14,7 +14,7 @@ imported separately; it is not loaded automatically as part of fluids.
 >>> import fluids
 >>> import fluids.numba
 >>> fluids.numba.bend_rounded(Di=4.020, rc=4.0*5, angle=30, Re=1E5)
-0.11519070808085191
+0.11519070808085
 
 There is a delay while the code is compiled when using Numba;
 the speed is not quite free.

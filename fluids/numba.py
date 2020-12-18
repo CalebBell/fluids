@@ -40,7 +40,7 @@ from math import pi
 import fluids.optional.spa
 
 
-caching = True
+caching = False
 extra_args_std = {'nogil': True, 'fastmath': True}
 extra_args_vec = {}
 __all__ = []
@@ -112,14 +112,14 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
 
     nkx1 = nx - kx1
     nky1 = ny - ky1
-    
+
     wx = np.zeros((mx, kx1))
     wy = np.zeros((my, ky1))
     lx = np.zeros(mx, dtype=np.int32)
     ly = np.zeros(my, dtype=np.int32)
 
     size_z = mx*my
-    
+
     z = [0.0]*size_z
     wx = init_w(tx, kx, x, lx, wx)
     wy = init_w(ty, ky, y, ly, wy)
@@ -137,8 +137,8 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
             z[j*mx + i] += sp
     return z
 
-    
-    
+
+
 @numba.njit(cache=caching, **extra_args_std)
 def bisplev(x, y, tck, dx=0, dy=0):
     tx, ty, c, kx, ky = tck
@@ -191,9 +191,9 @@ def infer_dictionary_types(d):
     for v in values:
         if type(v) != type_values:
             raise ValueError("Inconsistent value types in dictionary")
-            
+
     return numba.typeof(keys[0]), numba.typeof(values[0])
-    
+
 def numba_dict(d):
     key_type, value_type = infer_dictionary_types(d)
     new = numba.typed.Dict.empty(key_type=key_type, value_type=value_type)
@@ -213,7 +213,7 @@ def return_value_numpy(source):
                 enclosing -= 1
             if not enclosing:
                 break
-        return source[:start_bracket-1] + 'np.array([%s)' %source[start_bracket:i+start_bracket+1]        
+        return source[:start_bracket-1] + 'np.array([%s)' %source[start_bracket:i+start_bracket+1]
     return source
 
 
@@ -281,7 +281,7 @@ def remove_for_numba(source):
 
 def remove_branch(source, branch):
     source = re.sub(remove_comment_line, '', source)
-    
+
     ret = re.search(r'if +%s *' %branch, source)
     if ret:
         start_return, start_bracket = ret.regs[-1]
@@ -307,7 +307,7 @@ def remove_branch(source, branch):
             if enclosing_round == 0 and enclosing_square == 0 and enclosing_curley == 0:
                 if (search_txt[i:i+len(required_line_start)+1] == '\n' + required_line_start):
 #                     print([True, search_txt[i:i+len(required_line_start)+2]])
-                    
+
                     if (search_txt[i+len(required_line_start)+1] in string.ascii_letters):
                         end_idx = i
                         break
@@ -325,13 +325,14 @@ bad_names = set(('__file__', '__name__', '__package__', '__cached__', 'solve'))
 from fluids.numerics import SamePointError, UnconvergedError, NotBoundedError
 def create_numerics(replaced, vec=False):
     cache_unsuported = set(['brenth', 'newton_system', 'quad', 'quad_adaptive', 'fixed_quad_Gauss_Kronrod', 'py_lambertw', 'secant', 'lambertw', 'ridder', 'bisect'])
+#    cache_unsuported = set([])
 #    if vec:
 #        conv_fun = numba.vectorize
 #    else:
     # Not part of the public API - do not need to worry about the stricter
     # numba.vectorize interface!
     conv_fun = numba.njit
-    
+
     NUMERICS_SUBMOD_COPY = importlib.util.find_spec('fluids.numerics')
     NUMERICS_SUBMOD = importlib.util.module_from_spec(NUMERICS_SUBMOD_COPY)
     NUMERICS_SUBMOD.IS_NUMBA = True
@@ -341,9 +342,9 @@ def create_numerics(replaced, vec=False):
     NUMERICS_SUBMOD.njit = numba.njit
     NUMERICS_SUBMOD.jit = numba.jit
     NUMERICS_SUBMOD.array_if_needed = np.array
-    
+
     NUMERICS_SUBMOD_COPY.loader.exec_module(NUMERICS_SUBMOD)
-    
+
     # So long as the other modules are using the system numerics and being updated with the correct numerics methods later
     # numba wants to make sure these are the same
     same_classes = ['OscillationError', 'UnconvergedError', 'SamePointError', 'NoSolutionError', 'NotBoundedError', 'DiscontinuityError']
@@ -355,13 +356,13 @@ def create_numerics(replaced, vec=False):
         names += NUMERICS_SUBMOD.__numba_additional_funcs__
     except:
         pass
-    
+
     NUMERICS_SUBMOD.py_solve = np.linalg.solve
-    
+
     bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck', 'py_solve'])
     bad_names.update(to_set_num)
-    
-    solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct', 'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect'] # 
+
+    solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct', 'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect'] #
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
         source = source.replace(', kwargs={}', '').replace(', **kwargs', '').replace(', kwargs=kwargs', '')
@@ -388,16 +389,16 @@ def create_numerics(replaced, vec=False):
                 do_cache = caching and name not in cache_unsuported
 #                forceobj = name in numerics_forceobj
 #                forceobj = False
-                # cache=not forceobj 
+                # cache=not forceobj
                 # cache=name not in skip_cache
                 obj = conv_fun(cache=do_cache, **extra_args_std)(obj)
                 NUMERICS_SUBMOD.__dict__[name] = obj
                 replaced[name] = obj
 #                globals()[name] = objs
-            
+
     for name in to_set_num:
         NUMERICS_SUBMOD.__dict__[name] = globals()[name]
-            
+
     replaced['bisplev'] = replaced['py_bisplev'] = NUMERICS_SUBMOD.__dict__['bisplev'] = bisplev
 #    replaced['lambertw'] = NUMERICS_SUBMOD.__dict__['lambertw'] = NUMERICS_SUBMOD.__dict__['py_lambertw']
     for s in ('ellipe', 'gammaincc', 'gamma', 'i1', 'i0', 'k1', 'k0', 'iv', 'hyp2f1', 'erf', 'ellipkinc', 'ellipeinc'):
@@ -438,12 +439,12 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         SUBMOD.njit = numba.njit
         SUBMOD.jit = numba.jit
         SUBMOD.prange = numba.prange
-        
+
         if vec:
             SUBMOD.IS_NUMBA_VEC = True
         SUBMOD_COPY.loader.exec_module(SUBMOD)
         SUBMOD.np = np
-        
+
         SUBMOD.__dict__.update(replaced)
         new_mods.append(SUBMOD)
         __funcs[mod.__name__.split('.')[-1]] = SUBMOD # fluids.numba.optional.spa
@@ -453,7 +454,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
             names = list(SUBMOD.__all__)
         except:
             names = []
-            
+
         allow_fail_names = set([])
         for mod_obj_name in dir(SUBMOD):
             obj = getattr(SUBMOD, mod_obj_name)
@@ -463,7 +464,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                     continue
                 if mod_obj_name.startswith('_load'):
                     continue
-                
+
                 if mod_obj_name not in names:
                     # Check if the function is local to the module
                     if obj.__module__ == SUBMOD.__name__:
@@ -474,7 +475,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         #     names += SUBMOD.__numba_additional_funcs__
         # except:
         #     pass
-    
+
         new_objs = []
         for name in names:
             obj = getattr(SUBMOD, name)
@@ -491,7 +492,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                 SUBMOD.__dict__[name] = obj
                 new_objs.append(obj)
             __funcs[name] = obj
-    
+
         module_constants_changed_type = {}
         for arr_name in SUBMOD.__dict__.keys():
             if arr_name not in no_conv_data_names:
@@ -518,10 +519,10 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                     except:
                         print(arr_name, 'failed')
                         pass
-                
+
         SUBMOD.__dict__.update(module_constants_changed_type)
         __funcs.update(module_constants_changed_type)
-    
+
         if not vec:
             for t in new_objs:
                 #if normal.__name__ == 'chemicals':
@@ -535,7 +536,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                 glob.update(SUBMOD.__dict__)
                 #glob.update(to_do)
                 glob.update(replaced)
-    
+
     # Do our best to allow functions to be found
     if '__file__' in __funcs:
         del __funcs['__file__']
@@ -544,12 +545,12 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
     for mod in new_mods:
         mod.__dict__.update(__funcs)
         mod.__dict__.update(replaced)
-        
+
     return new_mods
 
 
 def transform_complete(replaced, __funcs, __all__, normal, vec=False):
-    cache_blacklist = set(['Stichlmair_flood', 'airmass', 
+    cache_blacklist = set(['Stichlmair_flood', 'airmass',
    'Spitzglass_high', '_to_solve_Spitzglass_high',
    '_to_solve_Spitzglass_low', 'Spitzglass_low',
    'Oliphant', '_to_solve_Oliphant',
@@ -562,6 +563,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
    '_SA_partial_horiz_ellipsoidal_head_to_int', '_SA_partial_horiz_ellipsoidal_head_limits', 'SA_partial_horiz_ellipsoidal_head',
    '_SA_partial_horiz_guppy_head_to_int', 'SA_partial_horiz_guppy_head', 'SA_partial_horiz_torispherical_head',
    'SA_from_h'])
+#    cache_blacklist = set([])
     if vec:
         conv_fun = numba.vectorize
         extra_args = extra_args_vec
@@ -570,23 +572,23 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
         extra_args = extra_args_std
     new_mods = transform_module(normal, __funcs, replaced, vec=vec, cache_blacklist=cache_blacklist)
 
-    
-    to_change = ['packed_tower._Stichlmair_flood_f_and_jac', 
-                 'packed_tower.Stichlmair_flood', 'compressible.isothermal_gas', 
+
+    to_change = ['packed_tower._Stichlmair_flood_f_and_jac',
+                 'packed_tower.Stichlmair_flood', 'compressible.isothermal_gas',
                  'fittings.Darby3K', 'fittings.Hooper2K', 'geometry.SA_partial_horiz_torispherical_head',
                  'optional.spa.solar_position', 'optional.spa.longitude_obliquity_nutation',
                  'optional.spa.transit_sunrise_sunset',
                  'fittings.bend_rounded_Crane', 'geometry.tank_from_two_specs_err',
                  ]
     transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec, cache_blacklist=cache_blacklist)
-    
-    
-    # AvailableMethods  will be removed in the future in favor of non-numba only 
+
+
+    # AvailableMethods  will be removed in the future in favor of non-numba only
     # calls to method functions
-    
+
     to_change = {}
     to_change['friction.roughness_Farshad'] = 'ID in _Farshad_roughness'
-    
+
     for s, bad_branch in to_change.items():
         mod, func = s.split('.')
         source = inspect.getsource(getattr(getattr(normal_fluids, mod), func))
@@ -598,44 +600,44 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
         obj = conv_fun(cache=caching, **extra_args)(new_func)
         __funcs[func] = obj
         obj.__doc__ = ''
-    
+
 
     # Do some classes by hand
-    PlateExchanger_spec = [(k, float64) for k in ('pitch', 'beta', 'gamma', 'a', 'amplitude', 'wavelength', 
+    PlateExchanger_spec = [(k, float64) for k in ('pitch', 'beta', 'gamma', 'a', 'amplitude', 'wavelength',
                            'b', 'chevron_angle', 'inclination_angle', 'plate_corrugation_aspect_ratio',
                            'plate_enlargement_factor', 'D_eq', 'D_hydraulic', 'width', 'length', 'thickness',
                            'd_port', 'plates', 'length_port', 'A_plate_surface', 'A_heat_transfer',
                            'A_channel_flow', 'channels', 'channels_per_fluid')]
     PlateExchanger_spec.append(('chevron_angles', numba.types.UniTuple(numba.types.float64, 2)))
-    
-    HelicalCoil_spec = [(k, float64) for k in 
-                        ('Do', 'Dt', 'Di', 'Do_total', 'N', 'pitch', 'H', 'H_total', 
+
+    HelicalCoil_spec = [(k, float64) for k in
+                        ('Do', 'Dt', 'Di', 'Do_total', 'N', 'pitch', 'H', 'H_total',
                          'tube_circumference', 'tube_length', 'surface_area', 'helix_angle',
                          'curvature', 'total_inlet_area', 'total_volume', 'inner_surface_area',
                          'inlet_area', 'inner_volume', 'annulus_area', 'annulus_volume')]
-    
-    ATMOSPHERE_1976_spec = [(k, float64) for k in 
-                        ('Z', 'dT', 'H', 'T_layer', 'T_increase', 'P_layer', 'H_layer', 'H_above_layer', 
+
+    ATMOSPHERE_1976_spec = [(k, float64) for k in
+                        ('Z', 'dT', 'H', 'T_layer', 'T_increase', 'P_layer', 'H_layer', 'H_above_layer',
                          'T', 'P', 'rho', 'v_sonic',
                          'mu', 'k', 'g', 'R')]
-    
+
 #    # No string support
 #    PlateExchanger = jitclass(PlateExchanger_spec)(getattr(__funcs['geometry'], 'PlateExchanger'))
 #    __funcs['PlateExchanger'] = __funcs['geometry'].PlateExchanger = PlateExchanger
-    
+
     HelicalCoil = jitclass(HelicalCoil_spec)(getattr(__funcs['geometry'], 'HelicalCoil'))
     __funcs['HelicalCoil'] = __funcs['geometry'].HelicalCoil = HelicalCoil
 
     ATMOSPHERE_1976 = jitclass(ATMOSPHERE_1976_spec)(getattr(__funcs['atmosphere'], 'ATMOSPHERE_1976'))
     __funcs['ATMOSPHERE_1976'] = __funcs['atmosphere'].ATMOSPHERE_1976 = ATMOSPHERE_1976
-    
-    
+
+
     # Not needed
     __funcs['friction'].Colebrook = __funcs['Colebrook'] = __funcs['Clamond']
-    
+
     # Works but 50% slower
     #__funcs['geometry']._V_horiz_spherical_toint = __funcs['_V_horiz_spherical_toint'] = cfunc("float64(float64, float64, float64, float64)")(normal_fluids.geometry._V_horiz_spherical_toint)
-    
+
     for mod in new_mods:
         mod.__dict__.update(__funcs)
         try:

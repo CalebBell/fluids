@@ -7,13 +7,13 @@ The `fluids` project has grown to be:
     * Functions do only the work required.
     * Caching various values, precomputing others.
     * Using various macros and automated expressions to run code with Numba at its optimal speed.
-    * Not using Numpy/SciPy most of the time, allowing PyPy to speed code up.
+    * Not using Numpy/SciPy most of the time, allowing PyPy and Numba to speed code up.
 * Capable of vectorized computation
+    * Wrapped with Numba's ufunc machinery.
     * Wrapped with numpy's np.vectorize.
-    * Wrapped with numba's ufunc machinery.
 * Comprehensive
     * Most correlations taught at the undergrad level are included.
-    * Most ancillary calculations such as atmospheric properties tank geometry are included.
+    * Most ancillary calculations such as atmospheric properties and tank geometry are included.
 * Capable of handling units
     * Pint interface.
     * All docstrings/code in base SI units.
@@ -35,7 +35,7 @@ The following is a list of things that have crossed the author's mind as that wo
 * Pump viscosity correction from Hydraulic Institute.
 * Tool to download historical weather data to calculate average historical temperatures and weather to use for design. This is partly complete in a non-exposed module `design_climate.py`.
 * Models for mixing efficiency.
-* Additional FPI correlations.
+* Additional fluid-particle interaction correlations.
 
 Contributing
 ------------
@@ -75,18 +75,11 @@ In addition to being documentation, the docstrings in `fluids` serve the followi
 * Contain the units of each argument, which is used by the unit handling framework around `pint`.
 * Contain docstrings for every argument - these are checked by the unit tests programatically to avoid forgetting to add a description, which the author did often before the checker was added.
 
-No automated style tool is ran on the docstrings at present, but the following command
-was used once to format the docstrings with the tool `docformatter <https://github.com/myint/docformatter>`_
-
-python3 -m docformatter --wrap-summaries=80 --wrap-descriptions=80 --in-place --recursive .
-
-This does not quite match numpydoc's recommended 75 character limit.
-
 Doctest
 -------
 As anyone who has used doctest before knows, floating-point calculations have trivially different results across platforms. An example cause of this is that most compilers have different sin/cos implementations which are not identical. However, docstrings are checked bit-for-bit, so consistent output is important. Python is better than most languages at maintaining the same results between versions but it is still an issue.
 
-Thanks to a fairly new pytest feature, numbers in doctests can be checked against the number of digits given, not against the real result. It is recommended to put numbers in doctests with 13 digits, instead of the full repr() string for a number.
+Thanks to a fairly new pytest feature, numbers in doctests can be checked against the number of digits given, not against the real result. It is recommended to put numbers in doctests with around 13 digits, instead of the full repr() string for a number. It is convenient to round the number instead of just removing decimals.
 
 Type Hints
 ----------
@@ -119,7 +112,6 @@ Packaging
 The most up to date fluids can be obtained on GitHub, and new releases are pushed to PyPi whenever a new release is made.
 Fluids is available on Conda thanks to Diego Volpatto and on Debian and thus Ubuntu thanks to Kurt Kremitzki. Conda updates more or less automatically but takes hours to build.
 
-
 Code Formatting
 ---------------
 Pep8 is loosely followed. Do your best to follow it if possible, otherwise don't worry about it. Please don't submit a PR for just style changes. Some arguments like `Method` or classes like TANK are unfortunately not pep8 for historical reasons.
@@ -137,7 +129,9 @@ The `nbval <https://pypi.org/project/nbval/>`_ pytest plugin can be used to chec
 
 On UNIX/Mac OS/WSL, the notebook results can be regenerated with the following shell command, from the directory with the notebooks:
 
-for i in *.ipynb ; do python3 -m jupyter nbconvert --to notebook --inplace --execute "$i" ; done
+.. code-block:: bash
+
+   for i in *.ipynb ; do python3 -m jupyter nbconvert --to notebook --inplace --execute "$i" ; done
 
 Continuous Integration
 ----------------------
@@ -199,8 +193,8 @@ The main cons of Numba are:
 
 * Doesn't come close to supporting all of Python. This really hurts on things like dictionary lookups or functions that return dictionaries.
 * Not available on many platforms, used to require Anaconda.
-* Some code can be really, really slow to compile today. Compiling `fluids` with numba takes ~3 minutes today, after some optimizations.
-* Can be a pain to work with. Has crashes, and still feels immature.
+* Some code can be really, really slow to compile today. Compiling `fluids` with numba takes ~3 minutes today, after some optimizations. Caching of functions that take functions as arguments is not yet supported.
+* Can be a pain to work with.
 
 Quite a few compromises in the library were made to add Numba compatibility and in cases to make Numba even more performant:
 
@@ -209,6 +203,7 @@ Quite a few compromises in the library were made to add Numba compatibility and 
 * Numba does not support raising exceptions with dynamically created messages. Where possible, this means using a constant message. 
 * Sometimes the only way to do something is by changing the code directly. Append "# numba: delete" at the end of a line in a function to delete the line. Add a new commented out line, and append "# numba: uncomment" to it. Then put the name of that function in the variable `to_change` in numba.py, and the changes will be made when using the Numba interface.
 * 1D arrays should be initialized like [0.0]*4, [my_thing]*my_count; and they put the function in the same `to_change` variable. This will transform them into the right type of array for Numba.
+* Numba uses efficient cbrts while CPython and PyPy do not; any case of x\*\*(1/3) will turn into a cbrt. x\*\*(2/3) will not, but can be done by hand.
 
 Things to Keep In Mind While Coding
 -----------------------------------

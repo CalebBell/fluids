@@ -29,11 +29,11 @@ def helper_test_match(f, atms):
     indexes = [1, 2, 3, 7, 8, 10]
     keys = ['O_density', 'N2_density', 'O2_density',
             'He_density', 'Ar_density', 'N_density']
-    
+
     for i, k in zip(indexes, keys):
         calcs = [getattr(a, k) for a in atms]
         assert_close1d(calcs, f[:, i]*1E6, rtol=1E-3)
-    
+
     calcs = [a.rho for a in atms]
     assert_close1d(calcs, f[:, 4]*1E3, rtol=1E-3)
     calcs = [a.T for a in atms]
@@ -48,33 +48,33 @@ def test_ATMOSPHERE_NRLMSISE00():
     name = os.path.join(os.path.dirname(__file__), 'nrlmsise00', 'known_data_height.txt')
     f = np.loadtxt(name, delimiter=' ')
     heights = f[:,0]
-    
+
     atms = [ATMOSPHERE_NRLMSISE00(float(h)*1000, latitude=45, longitude=45, day=1, seconds=0, geomagnetic_disturbance_indices=[4]*7) for h in heights]
     helper_test_match(f, atms)
-    
+
     name = os.path.join(os.path.dirname(__file__), 'nrlmsise00', 'known_data_high_height.txt')
     f = np.loadtxt(name, delimiter=' ')
     heights = f[:,0]
     atms = [ATMOSPHERE_NRLMSISE00(float(h)*1000, latitude=45, longitude=45, day=1, seconds=0, geomagnetic_disturbance_indices=[4]*7) for h in heights]
     helper_test_match(f, atms)
-    
+
     name = os.path.join(os.path.dirname(__file__),'nrlmsise00',  'known_data_day_of_year.txt')
-    f = np.loadtxt(name, delimiter=' ')    
+    f = np.loadtxt(name, delimiter=' ')
     atms = [ATMOSPHERE_NRLMSISE00(100000., latitude=45, longitude=45, day=d, seconds=0, geomagnetic_disturbance_indices=[4]*7) for d in range(1, 367)]
     helper_test_match(f, atms)
-    
+
     name = os.path.join(os.path.dirname(__file__), 'nrlmsise00', 'known_data_hours.txt')
-    f = np.loadtxt(name, delimiter=' ')    
+    f = np.loadtxt(name, delimiter=' ')
     atms = [ATMOSPHERE_NRLMSISE00(100000., latitude=45, longitude=45, day=1, seconds=3600.*h, geomagnetic_disturbance_indices=[4]*7) for h in range(1, 25)]
     helper_test_match(f, atms)
-    
+
     name = os.path.join(os.path.dirname(__file__), 'nrlmsise00', 'known_data_latitudes.txt')
-    f = np.loadtxt(name, delimiter=' ')    
+    f = np.loadtxt(name, delimiter=' ')
     atms = [ATMOSPHERE_NRLMSISE00(100000., latitude=l, longitude=45, day=1, seconds=0, geomagnetic_disturbance_indices=[4]*7) for l in range(-90, 91)]
     helper_test_match(f, atms)
-    
+
     name = os.path.join(os.path.dirname(__file__), 'nrlmsise00', 'known_data_longitudes.txt')
-    f = np.loadtxt(name, delimiter=' ')    
+    f = np.loadtxt(name, delimiter=' ')
     atms = [ATMOSPHERE_NRLMSISE00(100000., latitude=45, longitude=l, day=1, seconds=0, geomagnetic_disturbance_indices=[4]*7) for l in range(0, 361)]
     helper_test_match(f, atms)
 

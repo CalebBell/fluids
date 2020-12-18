@@ -48,16 +48,21 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
+    #'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
     #'sphinx.ext.intersphinx',
     'numpydoc',
     'nbsphinx',
     'matplotlib.sphinxext.plot_directive',
-    #'sphinxcontrib.katex',
+    'sphinxcontrib.katex',
+    'sphinx_sitemap',
+    'sphinx.ext.intersphinx',
 ]
 
+html_baseurl = 'https://fluids.readthedocs.io/'
+sitemap_url_scheme = "{link}"
+sitemap_filename = 'sitemap2.xml' # readthedocs generates its own
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -161,7 +166,7 @@ html_static_path = ['_static']
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
 # directly to the root of the documentation.
-#html_extra_path = []
+html_extra_path = ['robots.txt']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -295,6 +300,14 @@ add_function_parentheses = False
 
 autodoc_default_flags = ['undoc-members', 'show-inheritance']
  
+katex_css_path = \
+    'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css'
+katex_js_path = \
+    'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js'
+katex_autorender_path = \
+    'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js'
+
+nbsphinx_requirejs_path = '' # fixes katex not working
 
 from sphinx.ext.autodoc import between
 

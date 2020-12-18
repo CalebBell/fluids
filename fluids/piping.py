@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016, 2017, 2018, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,28 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains functions for looking up standard pipe sizes from
+different schedules. Similarly, there is a converter between gauge number
+thickness (and back).
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+
+.. contents:: :local:
+
+Pipe Schedules
+--------------
+.. autofunction:: nearest_pipe
+
+Wire Gauge
+----------
+.. autofunction:: gauge_from_t
+.. autofunction:: t_from_gauge
+.. autodata:: wire_schedules
+
 """
 
 from __future__ import division
@@ -459,17 +481,17 @@ schedule_lookup = { '40': (NPS40, S40i, S40o, S40t),
                     'STD': (NPSSTD, STDi, STDo, STDt),
                     'XS': (NPSXS, XSi, XSo, XSt),
                     'XXS': (NPSXXS, XXSi, XXSo, XXSt),
-                    
+
                     '5S': (NPSS5, SS5i, SS5o, SS5t),
                     '10S': (NPSS10, SS10i, SS10o, SS10t),
                     '40S': (NPSS40, SS40i, SS40o, SS40t),
                     '80S': (NPSS80, SS80i, SS80o, SS80t),
-                    
+
                     '40D1527': (NPS_D1527, S40i_D1527, S40o_D1527, S40t_D1527),
-                    '80D1527': (NPS_D1527, S80i_D1527, S80o_D1527, S80t_D1527),         
-                    
-                    'ABSD2680': (NPS_D2680, SABSi_D2680, SABSo_D2680, SABSt_D2680),                    
-                    'PVCD2680': (NPS_D2680, SPVCi_D2680, SPVCo_D2680, SPVCt_D2680),  
+                    '80D1527': (NPS_D1527, S80i_D1527, S80o_D1527, S80t_D1527),
+
+                    'ABSD2680': (NPS_D2680, SABSi_D2680, SABSo_D2680, SABSt_D2680),
+                    'PVCD2680': (NPS_D2680, SPVCi_D2680, SPVCo_D2680, SPVCt_D2680),
                     'DR25C900': (NPS_C900, SDR25i_C900, SDR25o_C900, SDR25t_C900),
                     'DR18C900': (NPS_C900, SDR18i_C900, SDR18o_C900, SDR18t_C900),
                     'DR14C900': (NPS_C900, SDR14i_C900, SDR14o_C900, SDR14t_C900),
@@ -492,7 +514,7 @@ schedule_lookup = { '40': (NPS40, S40i, S40o, S40t),
                     'PS46F679': (NPS_F679, SPS46i_F679, SPS46o_F679, SPS46t_F679),
 
                     'PVCD2665': (NPS_D2665, SPVCi_D2665, SPVCo_D2665, SPVCt_D2665),
-                    
+
                     '40D1785': (NPS_D1785, S40i_D1785, S40o_D1785, S40t_D1785),
                     '80D1785': (NPS_D1785, S80i_D1785, S80o_D1785, S80t_D1785),
                     '120D1785': (NPS120_D1785, S120i_D1785, S120o_D1785, S120t_D1785),
@@ -532,7 +554,7 @@ schedule_lookup = { '40': (NPS40, S40i, S40o, S40t),
                     'DR9F2619SI': (NPSDR9_F2619, SDR9i_F2619SI, SDR9o_F2619SI, SDR9t_F2619SI),
                     'DR73F2619SI': (NPSDR73_F2619, SDR73i_F2619SI, SDR73o_F2619SI, SDR73t_F2619SI),
                     'DR7F2619SI': (NPSDR7_F2619, SDR7i_F2619SI, SDR7o_F2619SI, SDR7t_F2619SI),
-                    
+
                     'DR325F2619IPS': (NPSDR325_F2619, SDR325i_F2619IPS, SDR325o_F2619IPS, SDR325t_F2619IPS),
                     'DR26F2619IPS': (NPSDR26_F2619, SDR26i_F2619IPS, SDR26o_F2619IPS, SDR26t_F2619IPS),
                     'DR21F2619IPS': (NPSDR21_F2619, SDR21i_F2619IPS, SDR21o_F2619IPS, SDR21t_F2619IPS),
@@ -557,11 +579,11 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     - Inner diameter `Di` and schedule
 
     Acceptable schedules are: '5', '10', '20', '30', '40', '60', '80', '100',
-    '120', '140', '160', 'STD', 'XS', 'XXS', '5S', '10S', '40S', '80S', 
+    '120', '140', '160', 'STD', 'XS', 'XXS', '5S', '10S', '40S', '80S',
     '40D1527', '80D1527',
-    'ABSD2680', 'PVCD2680', 
+    'ABSD2680', 'PVCD2680',
     'DR25C900', 'DR18C900', 'DR14C900',
-    'CIDR51C905', 'CIDR41C905', 'CIDR325C905', 'CIDR25C905', 'CIDR21C905', 'CIDR18C905', 'CIDR14C905', 
+    'CIDR51C905', 'CIDR41C905', 'CIDR325C905', 'CIDR25C905', 'CIDR21C905', 'CIDR18C905', 'CIDR14C905',
     'IPSDR21', 'IPSDR26', 'IPSDR325', 'IPSDR41',
     'PS115F679', 'PS75F679', 'PS46F679',
     'PVCD2665',
@@ -571,7 +593,7 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     'DR21D2241PIP', 'DR26D2241PIP', 'DR325D2241PIP', 'DR35D2241PIP', 'DR41D2241PIP', 'DR51D2241PIP', 'DR81D2241PIP',
     'S40F441IPS', 'S80F441IPS', 'S40F441SI', 'S80F441SI'
     'DR325F2619SI', 'DR26F2619SI', 'DR21F2619SI', 'DR17F2619SI', 'DR135F2619SI', 'DR11F2619SI', 'DR9F2619SI', 'DR73F2619SI', 'DR7F2619SI',
-    'DR325F2619IPS', 'DR26F2619IPS', 'DR21F2619IPS', 'DR17F2619IPS', 'DR135F2619IPS', 'DR11F2619IPS', 'DR9F2619IPS', 'DR73F2619IPS', 'DR7F2619IPS', 
+    'DR325F2619IPS', 'DR26F2619IPS', 'DR21F2619IPS', 'DR17F2619IPS', 'DR135F2619IPS', 'DR11F2619IPS', 'DR9F2619IPS', 'DR73F2619IPS', 'DR7F2619IPS',
 
     Parameters
     ----------
@@ -616,40 +638,40 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     .. [2] American National Standards Institute, and American Society of
        Mechanical Engineers. B36-19M-2004: Stainless Steel Pipe.
        New York, N.Y.: American Society of Mechanical Engineers, 2004.
-    .. [3] F17 Committee. "Specification for Acrylonitrile-Butadiene-Styrene 
+    .. [3] F17 Committee. "Specification for Acrylonitrile-Butadiene-Styrene
        (ABS) Plastic Pipe, Schedules 40 and 80." ASTM International.
        https://doi.org/10.1520/D1527-99R05.
     .. [4] F17 Committee. "Specification for Acrylonitrile-Butadiene-Styrene
-       (ABS) and Poly(Vinyl Chloride) (PVC) Composite Sewer Piping." ASTM 
+       (ABS) and Poly(Vinyl Chloride) (PVC) Composite Sewer Piping." ASTM
        International. https://doi.org/10.1520/D2680-01R14.
-    .. [5] AWWA-American Water Works Association. "AWWA C900-07 Polyvinyl 
+    .. [5] AWWA-American Water Works Association. "AWWA C900-07 Polyvinyl
        Chloride (PVC) Pressure Pipe and Fabricated Fittings, 4 In. Through 12
        In. (100 Mm Through 300 Mm), for Water Transmission and Distribution."
-    .. [6] AWWA-American Water Works Association. "AWWA C905-97 Polyvinyl 
-       Chloride (PVC) Pressure Pipe and Fabricated Fittings, 14 in. Through 
-       48 in. (350 Mm through 1,200 Mm), for Water Transmission and 
-       Distribution." 
-    .. [7] F17 Committee. "Specification for Poly(Vinyl Chloride) (PVC) 
-       Large-Diameter Plastic Gravity Sewer Pipe and Fittings." ASTM 
+    .. [6] AWWA-American Water Works Association. "AWWA C905-97 Polyvinyl
+       Chloride (PVC) Pressure Pipe and Fabricated Fittings, 14 in. Through
+       48 in. (350 Mm through 1,200 Mm), for Water Transmission and
+       Distribution."
+    .. [7] F17 Committee. "Specification for Poly(Vinyl Chloride) (PVC)
+       Large-Diameter Plastic Gravity Sewer Pipe and Fittings." ASTM
        International. https://doi.org/10.1520/F0679-16.
-    .. [8] F17 Committee. "Specification for Poly(Vinyl Chloride) (PVC) Plastic 
-       Drain, Waste, and Vent Pipe and Fittings." ASTM International. 
+    .. [8] F17 Committee. "Specification for Poly(Vinyl Chloride) (PVC) Plastic
+       Drain, Waste, and Vent Pipe and Fittings." ASTM International.
        https://doi.org/10.1520/D2665-14.
     .. [9] F17 Committee. "Specification for Poly(Vinyl Chloride) (PVC) Plastic
-       Pipe, Schedules 40, 80, and 120." ASTM International. 
+       Pipe, Schedules 40, 80, and 120." ASTM International.
        https://doi.org/10.1520/D1785-15E01.
-    .. [10] F17 Committee. "Specification for Chlorinated Poly(Vinyl Chloride) 
-       (CPVC) Plastic Pipe, Schedules 40 and 80." ASTM International. 
+    .. [10] F17 Committee. "Specification for Chlorinated Poly(Vinyl Chloride)
+       (CPVC) Plastic Pipe, Schedules 40 and 80." ASTM International.
        https://doi.org/10.1520/F0441_F0441M-15.
     .. [11] F17 Committee. "Specification for High-Density Polyethylene (PE)
        Line Pipe." ASTM International. https://doi.org/10.1520/F2619_F2619M-20.
 
     '''
-    if Di: 
+    if Di:
         Di *= 1E3
-    if Do: 
+    if Do:
         Do *= 1E3
-    if NPS: 
+    if NPS:
         NPS = float(NPS)
 
     def Di_lookup(Di, NPSes, Dis, Dos, ts):
@@ -682,12 +704,12 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     schedule_type = type(schedule)
     if schedule_type in (int, float):
         schedule = str(int(schedule))
-    
+
     if schedule not in schedule_lookup:
         raise ValueError('Schedule not recognized')
     else:
         NPSes, Dis, Dos, ts = schedule_lookup[schedule]
-    
+
     # Handle the three cases of different inputs
     if Di:
         nums = Di_lookup(Di, NPSes, Dis, Dos, ts)
@@ -716,18 +738,18 @@ SSWG_inch = [0.227, 0.219, 0.212, 0.207, 0.204, 0.201, 0.199, 0.197, 0.194,
              0.035, 0.033, 0.032, 0.031, 0.03, 0.029, 0.027, 0.026, 0.024,
              0.023, 0.022, 0.02, 0.018, 0.016, 0.015, 0.014, 0.013]
 #SSWG_SI = [round(i*inch, 7) for i in SSWG_inch] # 7 decimals for equal conversion
-SSWG_SI = [0.0057658, 0.0055626, 0.0053848, 0.0052578, 0.0051816, 0.0051054, 
-           0.0050546, 0.0050038, 0.0049276, 0.0048514, 0.0047752, 0.004699, 
-           0.0046228, 0.004572, 0.0045212, 0.004445, 0.0043688, 0.0042672, 
+SSWG_SI = [0.0057658, 0.0055626, 0.0053848, 0.0052578, 0.0051816, 0.0051054,
+           0.0050546, 0.0050038, 0.0049276, 0.0048514, 0.0047752, 0.004699,
+           0.0046228, 0.004572, 0.0045212, 0.004445, 0.0043688, 0.0042672,
            0.0041656, 0.0040894, 0.0039878, 0.003937, 0.0038862, 0.0038354,
-           0.0037592, 0.0037084, 0.0036322, 0.0035306, 0.0034036, 0.0032258, 
+           0.0037592, 0.0037084, 0.0036322, 0.0035306, 0.0034036, 0.0032258,
            0.003048, 0.002921, 0.0028448, 0.002794, 0.0027432, 0.0026924,
            0.0026162, 0.0025654, 0.0025146, 0.0024638, 0.002413, 0.0023368,
-           0.0022352, 0.002159, 0.0020574, 0.0020066, 0.0019558, 0.001905, 
+           0.0022352, 0.002159, 0.0020574, 0.0020066, 0.0019558, 0.001905,
            0.0018288, 0.0017526, 0.0016764, 0.0016002, 0.0014732, 0.001397,
-           0.00127, 0.001143, 0.0010668, 0.0010414, 0.001016, 0.0009906, 
-           0.0009652, 0.0009398, 0.0009144, 0.000889, 0.0008382, 0.0008128, 
-           0.0007874, 0.000762, 0.0007366, 0.0006858, 0.0006604, 0.0006096, 
+           0.00127, 0.001143, 0.0010668, 0.0010414, 0.001016, 0.0009906,
+           0.0009652, 0.0009398, 0.0009144, 0.000889, 0.0008382, 0.0008128,
+           0.0007874, 0.000762, 0.0007366, 0.0006858, 0.0006604, 0.0006096,
            0.0005842, 0.0005588, 0.000508, 0.0004572, 0.0004064, 0.000381,
            0.0003556, 0.0003302]
 
@@ -741,7 +763,7 @@ BSWG_inch = [0.5, 0.464, 0.432, 0.4, 0.372, 0.348, 0.324, 0.3, 0.276, 0.252, 0.2
         0.0092, 0.0084, 0.0076, 0.0068, 0.006, 0.0052, 0.0048, 0.0044, 0.004,
         0.0036, 0.0032, 0.0028, 0.0024, 0.002, 0.0016, 0.0012, 0.001]
 #BSWG_SI = [round(i*inch,8) for i in BSWG_inch] # 8 decimals for equal conversion
-BSWG_SI = [0.0127, 0.0117856, 0.0109728, 0.01016, 0.0094488, 0.0088392, 
+BSWG_SI = [0.0127, 0.0117856, 0.0109728, 0.01016, 0.0094488, 0.0088392,
            0.0082296, 0.00762, 0.0070104, 0.0064008, 0.0058928, 0.0053848,
            0.0048768, 0.0044704, 0.004064, 0.0036576, 0.0032512, 0.0029464,
            0.0026416, 0.0023368, 0.002032, 0.0018288, 0.0016256, 0.0014224,
@@ -754,7 +776,7 @@ BSWG_SI = [0.0127, 0.0117856, 0.0109728, 0.01016, 0.0094488, 0.0088392,
 
 
 # Music Wire Gauge
-MWG_integers = [45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 
+MWG_integers = [45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30,
                 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14,
                 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0.5, 0.33, 0.25,
                 0.2, 0.167]
@@ -772,19 +794,19 @@ MWG_integers = [45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30,
 
 MWG_inch = [0.18, 0.17, 0.162, 0.154, 0.146, 0.138, 0.13, 0.124, 0.118, 0.112,
             0.106, 0.1, 0.095, 0.09, 0.085, 0.08, 0.075, 0.071, 0.067, 0.063,
-            0.059, 0.055, 0.051, 0.049, 0.047, 0.045, 0.043, 0.041, 0.039, 
+            0.059, 0.055, 0.051, 0.049, 0.047, 0.045, 0.043, 0.041, 0.039,
             0.037, 0.035, 0.033, 0.031, 0.029, 0.026, 0.024, 0.022, 0.02,
             0.018, 0.016, 0.014, 0.013, 0.012, 0.011, 0.01, 0.009, 0.008,
             0.007, 0.006, 0.005, 0.004]
 #MWG_SI.reverse()
 MWG_SI = [0.004572, 0.004318, 0.0041148, 0.0039116, 0.0037084, 0.0035052,
-          0.003302, 0.0031496, 0.0029972, 0.0028448, 0.0026924, 0.00254, 
-          0.002413, 0.002286, 0.002159, 0.002032, 0.001905, 0.0018034, 
+          0.003302, 0.0031496, 0.0029972, 0.0028448, 0.0026924, 0.00254,
+          0.002413, 0.002286, 0.002159, 0.002032, 0.001905, 0.0018034,
           0.0017018, 0.0016002, 0.0014986, 0.001397, 0.0012954, 0.0012446,
           0.0011938, 0.001143, 0.0010922, 0.0010414, 0.0009906, 0.0009398,
           0.000889, 0.0008382, 0.0007874, 0.0007366, 0.0006604, 0.0006096,
           0.0005588, 0.000508, 0.0004572, 0.0004064, 0.0003556, 0.0003302,
-          0.0003048, 0.0002794, 0.000254, 0.0002286, 0.0002032, 0.0001778, 
+          0.0003048, 0.0002794, 0.000254, 0.0002286, 0.0002032, 0.0001778,
           0.0001524, 0.000127, 0.0001016]
 
 # Steel Wire Gage -Also Washburn & Moen gage, American Steel gage;
@@ -801,10 +823,10 @@ SWG_inch = [0.49, 0.4615, 0.4305, 0.3938, 0.3625, 0.331, 0.3065, 0.283, 0.2625,
 SWG_SI = [0.012446, 0.0117221, 0.0109347, 0.01000252, 0.0092075, 0.0084074,
           0.0077851, 0.0071882, 0.0066675, 0.00618998, 0.00572262, 0.0052578,
           0.0048768, 0.0044958, 0.0041148, 0.00376682, 0.003429, 0.0030607,
-          0.0026797, 0.0023241, 0.002032, 0.0018288, 0.0015875, 0.0013716, 
-          0.0012065, 0.0010414, 0.00088392, 0.00080772, 0.00072644, 0.00065532, 
+          0.0026797, 0.0023241, 0.002032, 0.0018288, 0.0015875, 0.0013716,
+          0.0012065, 0.0010414, 0.00088392, 0.00080772, 0.00072644, 0.00065532,
           0.0005842, 0.00051816, 0.00045974, 0.00043942, 0.00041148, 0.000381,
-          0.0003556, 0.00033528, 0.00032512, 0.00029972, 0.00026416, 0.0002413, 
+          0.0003556, 0.00033528, 0.00032512, 0.00029972, 0.00026416, 0.0002413,
           0.0002286, 0.0002159, 0.0002032, 0.0001905, 0.0001778, 0.00016764,
           0.00015748, 0.0001524, 0.00014732, 0.0001397, 0.00013208, 0.000127,
           0.00012192, 0.00011684, 0.00011176]
@@ -821,15 +843,15 @@ AWG_inch = [0.58, 0.5165, 0.46, 0.4096, 0.3648, 0.3249, 0.2893, 0.2576, 0.2294,
             0.00099]
 #AWG_SI = [round(i*inch,9) for i in AWG_inch] # 9 decimals for equal conversion
 AWG_SI = [0.014732, 0.0131191, 0.011684, 0.01040384, 0.00926592, 0.00825246,
-          0.00734822, 0.00654304, 0.00582676, 0.00518922, 0.00462026, 
+          0.00734822, 0.00654304, 0.00582676, 0.00518922, 0.00462026,
           0.0041148, 0.00366522, 0.0032639, 0.00290576, 0.00258826, 0.00230378,
           0.00205232, 0.0018288, 0.00162814, 0.00145034, 0.00129032,
-          0.00115062, 0.00102362, 0.00091186, 0.0008128, 0.0007239, 0.00064262, 
-          0.00057404, 0.00051054, 0.00045466, 0.00040386, 0.00036068, 
-          0.00032004, 0.00028702, 0.000254, 0.000226822, 0.00020193, 
+          0.00115062, 0.00102362, 0.00091186, 0.0008128, 0.0007239, 0.00064262,
+          0.00057404, 0.00051054, 0.00045466, 0.00040386, 0.00036068,
+          0.00032004, 0.00028702, 0.000254, 0.000226822, 0.00020193,
           0.000179832, 0.00016002, 0.000142494, 0.000127, 0.00011303,
-          0.000100584, 8.9662e-05, 7.9756e-05, 7.112e-05, 6.3246e-05, 
-          5.6388e-05, 5.0292e-05, 4.4704e-05, 3.9878e-05, 3.556e-05, 
+          0.000100584, 8.9662e-05, 7.9756e-05, 7.112e-05, 6.3246e-05,
+          5.6388e-05, 5.0292e-05, 4.4704e-05, 3.9878e-05, 3.556e-05,
           3.1496e-05, 2.8194e-05, 2.5146e-05]
 
 # Birmingham or Stub's Iron Wire Gage
@@ -963,7 +985,7 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
 
     Notes
     -----
-    
+
     * Birmingham Wire Gauge (BWG) ranges from 0.2 (0.5 inch) to 36 (0.004 inch).
     * American Wire Gauge (AWG) ranges from 0.167 (0.58 inch) to 51 (0.00099
       inch). These are used for electrical wires.

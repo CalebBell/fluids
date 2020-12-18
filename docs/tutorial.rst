@@ -61,8 +61,8 @@ There are two ways to use numpy arrays with fluids. Easiest to use is a `vectori
 which wraps all of the fluids functions with np.vectorize. Instead of importing
 from fluids, the user can import from :doc:`fluids.vectorized <fluids.vectorized>`:
 
->>> from fluids.vectorized import *
->>> friction_factor(Re=[100, 1000, 10000], eD=0)
+>>> from fluids.vectorized import * # doctest: +SKIP
+>>> friction_factor(Re=[100, 1000, 10000], eD=0) # doctest: +SKIP
 array([0.64      , 0.064     , 0.03088295])
 
 It is possible to switch back and forth between the namespaces with a subsequent
@@ -76,7 +76,7 @@ or better. In some cases, much better. The tutorial for using it
 is at :doc:`fluids.numba <fluids.numba>`, but in general use it the same way but
 with a different import.
 
->>> from fluids.numba_vectorized import *
+>>> from fluids.numba_vectorized import * # doctest: +SKIP
 
 Dimensionless numbers
 ---------------------
@@ -376,7 +376,7 @@ distance is similar but more complicated.
 Each TANK has __repr__ implemented, to describe the tank when printed.
 
 Torispherical tanks default to the ratios specified as ASME F&D. Other 
-standard ratios can also be used; the documentation for :ref:`<TANK>` lists
+standard ratios can also be used; the documentation for :py:class:`~.TANK` lists
 their values. Here we implement DIN 28011's ratios.
 
 >>> TANK(D=0.01, V=0.25, horizontal=False, sideA='torispherical', sideB='torispherical')
@@ -491,12 +491,12 @@ constituents).
 
 >>> atm = ATMOSPHERE_NRLMSISE00(Z=1E3, latitude=45, longitude=45, day=150)
 >>> atm.T, atm.P, atm.rho
-(285.54408606237405, 90394.44061071602, 1.1019062026405517)
+(285.54408606237, 90394.44061071, 1.1019062026405)
 
 The composition of the atmosphere is specified in terms of individual molecules/m^3:
 
 >>> atm.N2_density, atm.O2_density
-(1.7909954550444606e+25, 4.8047035072477747e+24)
+(1.7909954550444e+25, 4.8047035072477e+24)
 
 This model uses the ideal gas law to convert particle counts to mass density.
 Mole fractions of each species are available as well.
@@ -504,7 +504,7 @@ Mole fractions of each species are available as well.
 >>> atm.components
 ['N2', 'O2', 'Ar', 'He', 'O', 'H', 'N']
 >>> atm.zs
-[0.7811046347676225, 0.2095469403691101, 0.009343183088772914, 5.241774494627779e-06, 0.0, 0.0, 0.0]
+[0.7811046347676, 0.2095469403691, 0.009343183088772, 5.241774494627e-06, 0.0, 0.0, 0.0]
 
 The horizontal wind models have almost the same API, and calculate wind speed
 and direction as a function of elevation, latitude, longitude, day of year and
@@ -516,9 +516,9 @@ Calculation of wind velocity, meridional (m/sec Northward) and zonal (m/sec
 Eastward) for 1000 m elevation, 45 degrees latitude and longitude, 150th day
 of year, 0 seconds in, with both models:
 
->>> hwm93(Z=1000, latitude=45, longitude=45, day=150)
+>>> hwm93(Z=1000, latitude=45, longitude=45, day=150)  # doctest: +SKIP
 (-0.0038965975400060415, 3.8324742317199707)
->>> hwm14(Z=1000, latitude=45, longitude=45, day=150)
+>>> hwm14(Z=1000, latitude=45, longitude=45, day=150)  # doctest: +SKIP
 (-0.9920163154602051, 0.4105832874774933)
 
 These wind velocities are only historical normals; conditions may vary year to 
@@ -554,7 +554,7 @@ convert the time zone.
 
 >>> from datetime import datetime, timedelta
 >>> solar_position(datetime(2020, 6, 6, 14, 30, 0) - timedelta(hours=8), -31.95265, 115.85742)
-[63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
+[63.4080568623, 63.4400018158, 26.59194313766, 26.5599981841, 325.121376246, 75.7467475485]
 
 This painful, so timezone support has been added to the functions
 using the library `pytz`.
@@ -562,7 +562,7 @@ using the library `pytz`.
 >>> import pytz
 >>> when = pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 14, 30, 0))
 >>> solar_position(when, -31.95265, 115.85742)
-[63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
+[63.4080568623, 63.4400018158, 26.59194313766, 26.55999818417, 325.121376246, 75.7467475485]
 
 
 To determine the distance of earth and the sun, use the 
@@ -570,7 +570,7 @@ To determine the distance of earth and the sun, use the
 object and returns the distance in meters. This is still impacted by timezones.
 
 >>> earthsun_distance(pytz.timezone('America/Edmonton').localize(datetime(2003, 10, 17, 13, 30, 30)))
-149080606927.64246
+149080606927.6
 
 To determine when the sun rises, sets, and is at solar noon, use the
 :py:func:`~.sunrise_sunset` function, which accepts a datetime 
@@ -591,7 +591,7 @@ a datetime instance, a latitude, and a longitude.
 
 >>> apparent_zenith, _, _, _, azimuth, _ = solar_position(pytz.timezone('America/Edmonton').localize(datetime(2003, 10, 17, 13, 30, 30)), 51.0486, -114.07)
 >>> apparent_zenith, azimuth
-(60.36742528727301, 182.5136775668768)
+(60.3674252872, 182.513677566)
 
 The function returns several other properties which may be of interest.
 Its first return value, apparent_zenith, is the zenith which an observer
@@ -603,7 +603,7 @@ When specifying pressure, be sure to use the real pressure of the site - not an 
 standard conditions one as reported by weather stations!
 
 >>> solar_position(pytz.timezone('America/Edmonton').localize(datetime(2003, 10, 17, 13, 30, 30)), 51.0486, -114.07, T=290, P=8.9E4)[0]
-60.3701556038549
+60.370155603
 
 The primary application of sun position is for calculating the amount of sunlight received
 by an object, via the :py:func:`~.solar_irradiation` function. Unlike the previous functions,
@@ -618,7 +618,7 @@ immediately; within several kilometers). The calculation is then straightforward
 >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
 ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,
 ... surface_azimuth=180.0, albedo=0.25)
-(1065.7621896280812, 945.2656564506323, 120.49653317744884, 95.31535344213178, 25.181179735317063)
+(1065.762189628, 945.265656450, 120.4965331774, 95.3153534421, 25.18117973531)
 
 The first return value is the solar radiation which hits the object, in W/m^2.
 The next two are the components of the radiation that comes 1) directly from
@@ -645,7 +645,7 @@ geared compressors are often used for this purpose
 The function :py:func:`~.isothermal_work_compression` provides this calculation.
 
 >>> isothermal_work_compression(P1=1E5, P2=1E6, T=300)
-5743.427304244769
+5743.4273042447
 
 Work is calculated on a J/mol basis. If the second pressure is lower than the
 first, a negative work will result and you are modeling an expander instead
@@ -653,7 +653,7 @@ of a compressor. Gas compressibility factor can also be specified. The lower
 the gas's compressibility factor, the less power required to compress it.
 
 >>> isothermal_work_compression(P1=1E6, P2=1E5, T=300)
--5743.427304244768
+-5743.4273042447
 >>> isothermal_work_compression(P1=1E5, P2=1E6, T=300, Z=0.95)
 5456.25593903253
 
@@ -667,7 +667,7 @@ Compressing air from 1 bar to 10 bar, with inlet temperature of 300 K and
 efficiency of 78% with the :py:func:`~.isentropic_work_compression` function:
 
 >>> isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78) # work, J/mol
-10416.876986384483
+10416.8769863844
 
 The model allows for the inlet or outlet pressure or efficiency to be calculated
 instead of the work:
@@ -684,14 +684,14 @@ The approximate temperature rise can also be calculated with the function
 
 >>> T2 = isentropic_T_rise_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=0.78)
 >>> T2, T2-300 # outlet temperature and temperature rise, K
-(657.960664955096, 357.96066495509604)
+(657.960664955, 357.9606649550)
 
 It is more accurate to use an enthalpy-based model which incorporates departure
 functions.
 
 Polytropic exponents and efficiencies are convertible to isentropic exponents and
 efficiencies with :py:func:`~.isentropic_efficiency` and 
-:py:func:`~.polytropic_exponent`. For the above example, with k=1.4 and `eta_s`=0.78:
+:py:func:`~.polytropic_exponent` . For the above example, with `k` = 1.4 and `eta_s` = 0.78:
 
 >>> eta_p = isentropic_efficiency(P1=1E5, P2=1E6, k=1.4, eta_s=0.78) # with eta_s specified, returns polytropic efficiency
 >>> n = polytropic_exponent(k=1.4, eta_p=eta_p)
@@ -736,7 +736,7 @@ Checking the calculated power is the same:
 Gas pipeline sizing
 -------------------
 
-The standard isothermal compressible gas flow is fully implemented as 
+The standard isothermal compressible gas flow is fully implemented as   
 :py:func:`~.isothermal_gas`, and through
 a variety of numerical and analytical expressions, can solve for any of the
 following parameters:
@@ -757,19 +757,19 @@ going downstream to a pressure of 9 bar.
 The same case, but sizing the pipe to take 100 kg/s of gas:
 
 >>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, m=100)
-0.429717089110619
+0.42971708911
 
 The same case, but determining what the outlet pressure will be if 200 kg/s
 flow in the 0.5 m diameter pipe:
 
 >>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, D=0.5, L=1000, m=200)
-784701.0681827427
+784701.068182
 
 Determining pipe length from known diameter, pressure drop, and mass flow
 (possible but not necessarily useful):
 
 >>> isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, D=0.5, m=150)
-937.3258027759333
+937.325802775
 
 Not all specified mass flow rates are possible. At a certain downstream
 pressure, choked flow will develop - that downstream pressure is that
@@ -793,7 +793,7 @@ The downstream pressure at which choked flow occurs can be calculated directly
 as well:
 
 >>> P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5)
-389699.7317645518
+389699.731764
 
 A number of limitations exist with respect to the accuracy of this model:
     
@@ -814,32 +814,32 @@ the `thermo library <https://github.com/CalebBell/thermo>`_ for chemical propert
 Compute the downstream pressure of 50 kg/s of natural gas flowing in a 0.5 m 
 diameter pipeline for 1 km, roughness = 5E-5 m:
  
->>> from thermo import *
->>> from fluids import *
+>>> from thermo import *  # doctest: +SKIP
+>>> from fluids import *  # doctest: +SKIP
 >>> from math import pi
->>> D = 0.5
->>> L = 1000
->>> epsilon = 5E-5
->>> S1 = Stream('natural gas', P=1E6, m=50)
->>> V = S1.Q/(pi/4*D**2)
->>> Re = S1.Reynolds(D=D, V=V)
->>> fd = friction_factor(Re=Re, eD=epsilon/D)
->>> P2 = isothermal_gas(rho=S1.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)
->>> P2
-877420.0710639344
+>>> D = 0.5  # doctest: +SKIP
+>>> L = 1000  # doctest: +SKIP
+>>> epsilon = 5E-5  # doctest: +SKIP
+>>> S1 = Stream('natural gas', P=1E6, m=50)  # doctest: +SKIP
+>>> V = S1.Q/(pi/4*D**2)  # doctest: +SKIP
+>>> Re = S1.Reynolds(D=D, V=V)  # doctest: +SKIP
+>>> fd = friction_factor(Re=Re, eD=epsilon/D)  # doctest: +SKIP
+>>> P2 = isothermal_gas(rho=S1.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)  # doctest: +SKIP
+>>> P2  # doctest: +SKIP
+877420.071063
 
 In the above example, the friction factor was calculated using the density
 and velocity of the gas when it enters the stream. However, the average values,
 at the middle pressure, and more representative. We can iterate to observe
 the effect of using the average values:
 
->>> for i in range(10):
-...     S2 = Stream('natural gas', P=0.5*(P2+S1.P), m=50)
-...     V = S2.Q/(pi/4*D**2)
-...     Re = S2.Reynolds(D=D, V=V)
-...     fd = friction_factor(Re=Re, eD=epsilon/D)
-...     P2 = isothermal_gas(rho=S2.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)
-...     print('%g' %P2)
+>>> for i in range(10):  # doctest: +SKIP
+...     S2 = Stream('natural gas', P=0.5*(P2+S1.P), m=50)  # doctest: +SKIP
+...     V = S2.Q/(pi/4*D**2)  # doctest: +SKIP
+...     Re = S2.Reynolds(D=D, V=V)  # doctest: +SKIP
+...     fd = friction_factor(Re=Re, eD=epsilon/D) # doctest: +SKIP
+...     P2 = isothermal_gas(rho=S2.rho, fd=fd, P1=S1.P, D=D, L=L, m=S1.m)  # doctest: +SKIP
+...     print('%g' %P2)  # doctest: +SKIP
 868535
 867840
 867786
@@ -900,7 +900,7 @@ pressure 90 bar and downstream pressure 20 bar, 160 km long, 0.693 specific
 gravity and with an average temperature in the pipeline of 277.15 K:
 
 >>> Panhandle_A(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15)
-42.56082051195928
+42.56082051195
 
 Each model also includes a pipeline efficiency term, ranging from 0 to 1. These
 are just empirical correction factors, Some of the models were developed with 
@@ -913,9 +913,9 @@ The Muller and IGT models are the most accurate and recent approximations.
 They both depend on viscosity.
 
 >>> Muller(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, mu=1E-5, Tavg=277.15)
-60.45796698148659
+60.4579669814
 >>> IGT(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, mu=1E-5, Tavg=277.15)
-48.92351786788815
+48.9235178678
 
 These empirical models are included because they are mandated in many industrial
 applications regardless of their accuracy, and correction factors have already 
@@ -952,7 +952,7 @@ The terminal velocity of the particle is easily calculated with the
 :py:func:`~.v_terminal` function. 
 
 >>> v_terminal(D=1E-3, rhop=3400, rho=1.2, mu=1E-5)
-8.971223953182939
+8.971223953182
 
 Very often, we are not interested in just what the velocity of the particle will
 be at terminal conditions, but on the distance it will travel and the particle will
@@ -964,13 +964,13 @@ The integrating function, :py:func:`~.integrate_drag_sphere`, performs the integ
 to time. At one second, we can see the (velocity, distance travelled):
 
 >>> integrate_drag_sphere(D=1E-3, rhop=3400., rho=1.2, mu=1E-5, t=1, V=30, distance=True)
-(10.561878111165333, 15.607904177715518)
+(10.561878111, 15.607904177)
 
 After integrating to 10 seconds, we can see the particle has travelled 97 meters and is
 almost on the ground. 
 
 >>> integrate_drag_sphere(D=1E-3, rhop=3400., rho=1.2, mu=1E-5, t=10, V=30, distance=True)
-(8.97122398706632, 97.13276290361276)
+(8.97122398706, 97.13276290361)
 
 For this example simply using the terminal velocity would have given an accurate estimation
 of distance travelled:
@@ -998,33 +998,33 @@ column creeping flow at a superficial velocity of 1 mm/s. We can calculate the
 pressure drop in Pascals using the :py:func:`~.dP_packed_bed` function:
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2)
-2876.565391768883
+2876.56539176
 
 The method can be specified manually as well, for example the commonly used Ergun equation:
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Method='Ergun')
-2677.734374999999
+2677.73437
 
 Incorporation of the tube diameter will add wall effects to the model.
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Dt=0.01)
-2510.3251325096853
+2510.325132
 
 Models can be used directly as well. The length of the column is an optional
 input; if not provided, the result will be in terms of Pa/m.
 
 >>> KTA(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3) # A correlation standardized for use in pebble reactors
-1440.409277034248
+1440.40927
 
 If the column diameter was 0.5 m, the flow rate in m^3/s would be:
 
 >>> .001*(pi/4*0.5**2) # superficial_velocity*A_column
-0.00019634954084936208
+0.0001963495408
 
 The holdup (total volume of the column holding fluid not particles) would be:
 
 >>> (pi/4*0.5**2)*(2)*0.4 # A_column*H_column*voidage
-0.15707963267948966
+0.15707963267948
 
 
 Not all particles are spherical. There have been correlations published for 
@@ -1035,7 +1035,7 @@ spherical the particles, the higher the pressure drop. This is supported in
 all of the correlations.
 
 >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=2, Dt=0.01, sphericity=0.9)
-3050.419598116882
+3050.419598116
 
 While it is easy to measure the volume of particles added to a given column 
 and determine the voidage experimentally, this does not help in the design process.
@@ -1049,7 +1049,7 @@ one for spheres, and one for cylinders (:py:func:`~.voidage_Benyahia_Oneil`,
 1 mm spheres in a 5 cm diameter tube:
 
 >>> voidage_Benyahia_Oneil_spherical(Dp=.001, Dt=.05)
-0.3906653157443224
+0.390665315744
 
 1 mm diameter cylinder 5 mm long in a 5 cm diameter tube:
 
@@ -1058,12 +1058,12 @@ one for spheres, and one for cylinders (:py:func:`~.voidage_Benyahia_Oneil`,
 >>> A_cyl = A_cylinder(D=0.001, L=0.005)
 >>> sph = sphericity(A=A_cyl, V=V_cyl)
 >>> voidage_Benyahia_Oneil_cylindrical(Dpe=D_sphere_eq, Dt=0.05, sphericity=sph)
-0.3754895273247688
+0.3754895273247
 
 Same calculation, but using the general correlation for all shapes:
 
 >>> voidage_Benyahia_Oneil(Dpe=D_sphere_eq, Dt=0.05, sphericity=sph)
-0.4425769555048246
+0.4425769555048
 
 Pressure drop through piping
 ----------------------------
@@ -1086,7 +1086,7 @@ V=3 m/s, Di=0.05, roughness 0.01 mm):
 >>> K += contraction_sharp(Di1=0.05, Di2=0.025)
 >>> K += diffuser_sharp(Di1=0.025, Di2=0.05)
 >>> dP_from_K(K, rho=1000, V=3)
-37920.5114014637
+37920.5114014
 
 If the diameter of the piping varies, not all of the loss coefficients will be
 with respect to the same diameter. Each loss coefficient must be converted to
@@ -1161,16 +1161,16 @@ can be converted easily with the functions :py:func:`~.K_to_Kv`,
 >>> K_to_Kv(K=16, D=0.016)
 2.56
 >>> K_to_Cv(K=16, D=0.016)
-2.9596140245853606
+2.9596140245853
 
 If Kv or Cv are known, they can be converted to each other with the
 proportionality constant 1.156, which is derived from a unit conversion only.
 This conversion does not require valve diameter.
 
 >>> Cv_to_Kv(12)
-10.379731865307619
+10.379731865307
 >>> Kv_to_Cv(10.37)
-11.988748998027418
+11.988748998027
 
 If a Cv or Kv is obtained from a valve datasheet, it can be converted into a
 standard loss coefficient as follows.
@@ -1236,19 +1236,19 @@ the necessary properties of the fluid, we calculate the necessary Kv of the
 valve based on an assumed valve size of 3 inches:
 
 >>> from scipy.constants import *
->>> from fluids.control_valve import size_control_valve_l
->>> from thermo.chemical import Chemical
->>> P1 = 300*psi + psi # to Pa
->>> P2 = 275*psi + psi # to Pa
->>> T = 273.15 + 21 # to K
->>> propane = Chemical('propane', P=(P1+P2)/2, T=T)
->>> rho = propane.rho
->>> Psat = propane.Psat
->>> Pc = propane.Pc
->>> mu = propane.mu
->>> Q = 800*gallon/minute # to m^3/s
->>> D1 = D2 = 8*inch # to m
->>> d = 3*inch # to m
+>>> from fluids.control_valve import size_control_valve_l  # doctest: +SKIP
+>>> from thermo.chemical import Chemical # doctest: +SKIP
+>>> P1 = 300*psi + psi # to Pa # doctest: +SKIP
+>>> P2 = 275*psi + psi # to Pa # doctest: +SKIP
+>>> T = 273.15 + 21 # to K # doctest: +SKIP
+>>> propane = Chemical('propane', P=(P1+P2)/2, T=T) # doctest: +SKIP
+>>> rho = propane.rho # doctest: +SKIP
+>>> Psat = propane.Psat # doctest: +SKIP
+>>> Pc = propane.Pc # doctest: +SKIP
+>>> mu = propane.mu # doctest: +SKIP
+>>> Q = 800*gallon/minute # to m^3/s # doctest: +SKIP
+>>> D1 = D2 = 8*inch # to m # doctest: +SKIP
+>>> d = 3*inch # to m # doctest: +SKIP
 
 The standard specifies two more parameters specific to a valve:
 
@@ -1261,14 +1261,14 @@ a function of the diameter of the valve and are normally tabulated next to the
 values of Cv or Kv for a valve. Now using :py:func:`~.size_control_valve_l` 
 to solve for the flow coefficient:
 
->>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)
->>> Kv
-109.39701927957765
+>>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)  # doctest: +SKIP
+>>> Kv # doctest: +SKIP
+109.39701927957
 
 The handbook states the Cv of the valve is 121; we convert Kv to Cv:
 
->>> Kv_to_Cv(Kv=Kv)
-126.47380957330982
+>>> Kv_to_Cv(Kv=Kv) # doctest: +SKIP
+126.4738095733
 
 The example in the book calculated Cv = 125.7, but doesn't actually use the 
 full calculation method. Either way, the valve will not carry the desired flow 
@@ -1276,8 +1276,8 @@ rate; we need to try a larger valve size. The 4 inch size is tried next in the
 example, which has a known Cv of 203.
 
 >>> d = 4*inch # to m
->>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)
->>> Kv_to_Cv(Kv=Kv)
+>>> Kv = size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1, D2, d, FL=1, Fd=1)  # doctest: +SKIP
+>>> Kv_to_Cv(Kv=Kv)  # doctest: +SKIP
 116.17550388277834
 
 The calculated Cv is well under the valve's maximum Cv; we can select it.
@@ -1311,17 +1311,17 @@ valve based on an assumed valve size of 8 inches.
 
 >>> from scipy.constants import *
 >>> from fluids.control_valve import size_control_valve_g
->>> from thermo.chemical import Chemical
+>>> from thermo.chemical import Chemical  # doctest: +SKIP
 >>> P1 = 214.7*psi
 >>> P2 = 64.7*psi
 >>> T = 16 + 273.15
->>> natural_gas = Mixture('natural gas', T=T, P=(P1+P2)/2)
->>> Z = natural_gas.Z
->>> MW = natural_gas.MW
->>> mu = natural_gas.mu
->>> gamma = natural_gas.isentropic_exponent
->>> Q = 6E6*foot**3/hour
->>> D1 = D2 = d = 8*inch #  8-inch Fisher Design V250 
+>>> natural_gas = Mixture('natural gas', T=T, P=(P1+P2)/2)  # doctest: +SKIP
+>>> Z = natural_gas.Z  # doctest: +SKIP
+>>> MW = natural_gas.MW  # doctest: +SKIP
+>>> mu = natural_gas.mu  # doctest: +SKIP
+>>> gamma = natural_gas.isentropic_exponent  # doctest: +SKIP
+>>> Q = 6E6*foot**3/hour  # doctest: +SKIP
+>>> D1 = D2 = d = 8*inch #  8-inch Fisher Design V250   # doctest: +SKIP
 
 The standard specifies three more parameters specific to a valve:
 
@@ -1335,8 +1335,8 @@ at full opening. These factors are also a function of the diameter of the
 valve and are normally tabulated next to the values of Cv or Kv for a valve.
 Now using :py:func:`~.size_control_valve_g` to solve for the flow coefficient:
 
->>> Kv = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=1, Fd=1, xT=.137)
->>> Kv_to_Cv(Kv)
+>>> Kv = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=1, Fd=1, xT=.137)  # doctest: +SKIP
+>>> Kv_to_Cv(Kv)  # doctest: +SKIP
 1563.447724002566
 
 The 8-inch valve is rated with Cv = 2190. The valve is adequate to provide 
@@ -1373,7 +1373,7 @@ Creating and solving the objective function:
 ...     Kv_lookup = float(Kv_interp(opening))
 ...     Kv_calc = size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1, D2, d, FL=Fl, Fd=Fd, xT=xT)
 ...     return Kv_calc - Kv_lookup 
->>> newton(to_solve, .8) # initial guess of 80%
+>>> newton(to_solve, .8) # initial guess of 80%  # doctest: +SKIP
 0.7500814714947652
 
 We see the valve should indeed be set to almost exactly 75% open to provide 
@@ -1501,26 +1501,26 @@ The following example shows calculation of the size-weighted mean diameter;
 arithmetic mean diameter; Sauter mean diameter; and De Brouckere diameter.
 
 >>> psd.mean_size(2, 1)
-1857.7888572055526
+1857.788857205
 >>> psd.mean_size(1, 0)
-1459.3725650679328
+1459.372565067
 >>> psd.mean_size(1, 2)
-1857.7888572055529
+1857.788857205
 >>> psd.mean_size(1, 3)
-2053.270397730935
+2053.27039773
 
 An interpolated distribution exists underneath the discrete data to allow useful 
 properties to be calculated, such as the D10 or D90:
 
 >>> psd.dn(0.1), psd.dn(0.9)
-(1437.0713927693337, 3911.4796363647133)
+(1437.07139276, 3911.47963636)
 
 Or probability density functions:
 
 >>> psd.pdf(1000)
-0.00010632384327525037
+0.000106323843275
 >>> psd.cdf(5000)
-0.9897400734854199
+0.98974007348
 
 Statistical distributions implemented are :py:class:`~.PSDLognormal`,
 :py:class:`~.PSDGatesGaudinSchuhman`, and :py:class:`~.PSDRosinRammler`.
@@ -1528,17 +1528,17 @@ Discrete and continuous distributions share most methods.
 
 >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
 >>> psd.pdf(1e-6) # probability density function
-4487.892155358317
+4487.8921553
 >>> psd.cdf(7e-6) # cumulative distribution function
-0.749508691386811
+0.7495086913
 >>> psd.dn(0.1) # At what diameter is this fraction of particles smaller than?
-2.6344175914801822e-06
+2.63441759148e-06
 >>> psd.mean_size(3, 2)
-4.412484512922977e-06
+4.4124845129e-06
 >>> ds = psd.ds_discrete(pts=1000) # Compare calculations with the discrete distribution
 >>> fractions = psd.fractions_discrete(ds)
 >>> ParticleSizeDistribution(ds=ds, fractions=fractions, order=3).mean_size(3, 2)
-4.425743630588125e-06
+4.4257436305e-06
 
 It is straightforward to calculate descriptions of the distribution using the
 available routines:
@@ -1546,21 +1546,21 @@ available routines:
 Volume specific surface area:
 
 >>> psd.vssa
-1359778.1436801916
+1359778.14368
 
 Span (D90 - D10):
 
 >>> psd.dn(.9) - psd.dn(0.1)
-6.855345945193371e-06
+6.8553459451e-06
 
 Relative span (D90 - D10)/D50:
 
 >>> (psd.dn(.9) - psd.dn(0.1))/psd.dn(0.5)
-1.3710691890386741
+1.37106918903
 
 Percentile ratios, D75/D25 and D90/D10:
 
 >>> psd.dn(0.75)/psd.dn(0.25)
-1.9630310841582577
+1.96303108415
 >>> psd.dn(0.9)/psd.dn(0.1)
-3.6022244792791582
+3.60222447927

@@ -16,10 +16,10 @@ Created by Tony Lorenzo (@alorenzo175), Univ. of Arizona, 2015
 For a full list of contributors to this file, see the `pvlib` repository.
 
 The copyright notice (BSD-3 clause) is as follows:
-    
+
 BSD 3-Clause License
 
-Copyright (c) 2013-2018, Sandia National Laboratories and pvlib python 
+Copyright (c) 2013-2018, Sandia National Laboratories and pvlib python
 Development Team
 All rights reserved.
 
@@ -58,18 +58,18 @@ import math
 from math import degrees, sin, cos, tan, radians, atan, asin, atan2, sqrt, acos
 from fluids.constants import deg2rad, rad2deg
 from fluids.numerics import sincos
-__all__ = ['julian_day_dt', 'julian_day', 'julian_ephemeris_day', 'julian_century', 
+__all__ = ['julian_day_dt', 'julian_day', 'julian_ephemeris_day', 'julian_century',
            'julian_ephemeris_century', 'julian_ephemeris_millennium', 'heliocentric_longitude',
            'heliocentric_latitude', 'heliocentric_radius_vector', 'geocentric_longitude',
-           'geocentric_latitude', 'mean_elongation', 'mean_anomaly_sun', 'mean_anomaly_moon', 
+           'geocentric_latitude', 'mean_elongation', 'mean_anomaly_sun', 'mean_anomaly_moon',
            'moon_argument_latitude', 'moon_ascending_longitude', 'longitude_nutation',
-           'obliquity_nutation', 'mean_ecliptic_obliquity', 'true_ecliptic_obliquity', 
+           'obliquity_nutation', 'mean_ecliptic_obliquity', 'true_ecliptic_obliquity',
            'aberration_correction', 'apparent_sun_longitude', 'mean_sidereal_time',
            'apparent_sidereal_time', 'geocentric_sun_right_ascension', 'geocentric_sun_declination',
            'local_hour_angle', 'equatorial_horizontal_parallax', 'uterm', 'xterm', 'yterm',
            'parallax_sun_right_ascension', 'topocentric_sun_right_ascension', 'topocentric_sun_declination',
            'topocentric_local_hour_angle', 'topocentric_elevation_angle_without_atmosphere',
-           'atmospheric_refraction_correction', 'topocentric_elevation_angle', 'topocentric_zenith_angle', 
+           'atmospheric_refraction_correction', 'topocentric_elevation_angle', 'topocentric_zenith_angle',
            'topocentric_astronomers_azimuth', 'topocentric_azimuth_angle', 'sun_mean_longitude',
            'equation_of_time', 'calculate_deltat', 'longitude_obliquity_nutation',
            'transit_sunrise_sunset',
@@ -441,7 +441,7 @@ def heliocentric_longitude(jme):
         l4 += (HELIO_LONG_TABLE_LIST_4_ROW[0]
                * cos(HELIO_LONG_TABLE_LIST_4_ROW[1]
                         + HELIO_LONG_TABLE_LIST_4_ROW[2] * jme)
-               )        
+               )
 #    l5 = (HELIO_LONG_TABLE_LIST_5[0][0]*cos(HELIO_LONG_TABLE_LIST_5[0][1]))
     l5 = -0.9999987317275395
     l_rad = (jme*(jme*(jme*(jme*(jme*l5 + l4) + l3) + l2) + l1) + l0)*1E-8
@@ -462,7 +462,7 @@ def heliocentric_latitude(jme):
     b1 += (HELIO_LAT_TABLE_LIST_1_ROW[0]
            * cos(HELIO_LAT_TABLE_LIST_1_ROW[1]
                     + HELIO_LAT_TABLE_LIST_1_ROW[2] * jme))
-    
+
     HELIO_LAT_TABLE_LIST_1_ROW = HELIO_LAT_TABLE_LIST_1[1]
     b1 += (HELIO_LAT_TABLE_LIST_1_ROW[0]
            * cos(HELIO_LAT_TABLE_LIST_1_ROW[1]
@@ -494,7 +494,7 @@ def heliocentric_radius_vector(jme):
     r3 += (table3row[0]*cos(table3row[1] + table3row[2]*jme))
     table3row = HELIO_RADIUS_TABLE_LIST_3[1]
     r3 += (table3row[0]*cos(table3row[1] + table3row[2]*jme))
-    
+
 #    table4row = HELIO_RADIUS_TABLE_LIST_4[0]
 #    r4 = (table4row[0]*cos(table4row[1] + table4row[2]*jme))
     r4 = (4.0*cos(2.56 + 6283.08*jme))
@@ -524,7 +524,7 @@ def mean_elongation(julian_ephemeris_century):
 
 def mean_anomaly_sun(julian_ephemeris_century):
     return (julian_ephemeris_century*(julian_ephemeris_century*(
-            -3.33333333333333e-6*julian_ephemeris_century - 0.0001603) 
+            -3.33333333333333e-6*julian_ephemeris_century - 0.0001603)
             + 35999.05034) + 357.52772)
 #    x1 = (357.52772
 #          + 35999.050340 * julian_ephemeris_century
@@ -535,7 +535,7 @@ def mean_anomaly_sun(julian_ephemeris_century):
 
 def mean_anomaly_moon(julian_ephemeris_century):
     return (julian_ephemeris_century*(julian_ephemeris_century*(
-            1.77777777777778e-5*julian_ephemeris_century + 0.0086972) 
+            1.77777777777778e-5*julian_ephemeris_century + 0.0086972)
         + 477198.867398) + 134.96298)
 #    x2 = (134.96298
 #          + 477198.867398 * julian_ephemeris_century
@@ -546,7 +546,7 @@ def mean_anomaly_moon(julian_ephemeris_century):
 
 def moon_argument_latitude(julian_ephemeris_century):
     return julian_ephemeris_century*(julian_ephemeris_century*(
-            3.05558101873071e-6*julian_ephemeris_century - 0.0036825) 
+            3.05558101873071e-6*julian_ephemeris_century - 0.0036825)
         + 483202.017538) + 93.27191
 #    x3 = (93.27191
 #          + 483202.017538 * julian_ephemeris_century
@@ -557,7 +557,7 @@ def moon_argument_latitude(julian_ephemeris_century):
 
 def moon_ascending_longitude(julian_ephemeris_century):
     return (julian_ephemeris_century*(julian_ephemeris_century*(
-            2.22222222222222e-6*julian_ephemeris_century + 0.0020708) 
+            2.22222222222222e-6*julian_ephemeris_century + 0.0020708)
             - 1934.136261) + 125.04452)
 #    x4 = (125.04452
 #          - 1934.136261 * julian_ephemeris_century
@@ -604,7 +604,7 @@ def longitude_nutation(julian_ephemeris_century, x0, x1, x2, x3, x4):
                   NUTATION_YTERM_LIST_2[row]*x2 +
                   NUTATION_YTERM_LIST_3[row]*x3 +
                   NUTATION_YTERM_LIST_4[row]*x4)
-        term = (NUTATION_ABCD_LIST[row][0] + NUTATION_ABCD_LIST[row][1] 
+        term = (NUTATION_ABCD_LIST[row][0] + NUTATION_ABCD_LIST[row][1]
                 * julian_ephemeris_century)*sin(argsin)
         delta_psi_sum += term
     delta_psi = delta_psi_sum/36000000.0
@@ -620,7 +620,7 @@ def obliquity_nutation(julian_ephemeris_century, x0, x1, x2, x3, x4):
                   NUTATION_YTERM_LIST_2[row]*x2 +
                   NUTATION_YTERM_LIST_3[row]*x3 +
                   NUTATION_YTERM_LIST_4[row]*x4)
-        term = (NUTATION_ABCD_LIST[row][2] 
+        term = (NUTATION_ABCD_LIST[row][2]
                + NUTATION_ABCD_LIST[row][3]*julian_ephemeris_century)*cos(argcos)
         delta_eps_sum += term
     delta_eps = delta_eps_sum/36000000.0
@@ -657,7 +657,7 @@ def apparent_sun_longitude(geocentric_longitude, longitude_nutation,
 def mean_sidereal_time(julian_day, julian_century):
     julian_century2 = julian_century*julian_century
     v0 = (280.46061837 + 360.98564736629*(julian_day - 2451545.0)
-          + 0.000387933*julian_century2 
+          + 0.000387933*julian_century2
           - julian_century2*julian_century/38710000.0)
     return v0 % 360.0
 
@@ -763,7 +763,7 @@ def topocentric_elevation_angle_without_atmosphere(observer_latitude,
     observer_latitude = observer_latitude
     topocentric_sun_declination = topocentric_sun_declination
     topocentric_local_hour_angle = topocentric_local_hour_angle
-    
+
     r_observer_latitude = deg2rad*observer_latitude
     r_topocentric_sun_declination = deg2rad*topocentric_sun_declination
     e0 = degrees(asin(
@@ -811,7 +811,7 @@ def topocentric_astronomers_azimuth(topocentric_local_hour_angle,
              - tan(deg2rad*topocentric_sun_declination)
              * cos(deg2rad*observer_latitude))
     gamma = degrees(atan2(num, denom))
-        
+
     return gamma % 360.0
 
 
@@ -843,7 +843,7 @@ def equation_of_time(sun_mean_longitude, geocentric_sun_right_ascension,
     other = (E <= 20.0) & (E >= -20.0)
     E = greater * (E - 1440.0) + less * (E + 1440.0) + other * E
     return E
- 
+
 
 def earthsun_distance(unixtime, delta_t):
     """Calculates the distance from the earth to the sun using the NREL SPA
@@ -956,7 +956,7 @@ def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
     x3 = moon_argument_latitude(jce)
     x4 = moon_ascending_longitude(jce)
     delta_psi, delta_epsilon = longitude_obliquity_nutation(jce, x0, x1, x2, x3, x4)
-    
+
     epsilon0 = mean_ecliptic_obliquity(jme)
     epsilon = true_ecliptic_obliquity(epsilon0, delta_epsilon)
     delta_tau = aberration_correction(R)
@@ -967,7 +967,7 @@ def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
     delta = geocentric_sun_declination(lamd, epsilon, beta)
     if sst: # numba: delete
         return v, alpha, delta # numba: delete
-    
+
     m = sun_mean_longitude(jme)
     eot = equation_of_time(m, alpha, delta_psi, epsilon)
     H = local_hour_angle(v, lon, alpha)
@@ -991,7 +991,7 @@ def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
 
 
 try:
-    if IS_NUMBA:
+    if IS_NUMBA:  # type: ignore
         try:
             import numpy as np
         except:
@@ -1012,7 +1012,7 @@ try:
             atmos_refract = loc_args[6]
             sst = loc_args[7]
             esd = loc_args[8]
-        
+
             for i in range(len(unixtime)):
                 utime = unixtime[i]
                 jd = julian_day(utime)
@@ -1085,7 +1085,7 @@ try:
             # these args are the same for each thread
             loc_args = np.array([lat, lon, elev, pressure, temp, delta_t,
                                  atmos_refract, sst, esd])
-        
+
             # construct dims x ulength array to put the results in
             ulength = unixtime.shape[0]
             if sst:
@@ -1095,19 +1095,19 @@ try:
             else:
                 dims = 6
             result = np.empty((dims, ulength), dtype=np.float64)
-        
+
             if unixtime.dtype != np.float64:
                 unixtime = unixtime.astype(np.float64)
-        
+
             if ulength < numthreads:
                 warnings.warn('The number of threads is more than the length of '
-                              'the time array. Only using %s threads.'.format(ulength))
+                              'the time array. Only using %s threads.' %(length))
                 numthreads = ulength
-        
+
             if numthreads <= 1:
                 solar_position_loop(unixtime, loc_args, result)
                 return result
-        
+
             # split the input and output arrays into numthreads chunks
             split0 = np.array_split(unixtime, numthreads)
             split2 = np.array_split(result, numthreads, axis=1)
@@ -1121,7 +1121,7 @@ try:
                 thread.join()
             return result
 
-        
+
 except:
     pass
 
@@ -1146,7 +1146,7 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t):
     Returns
     -------
     tuple : (transit, sunrise, sunset) localized to UTC
-    
+
     >>> transit_sunrise_sunset(1523836800, 51.0486, -114.07, 70.68302220312503)
     (1523907360.3863413, 1523882341.570479, 1523932345.7781625)
     """
@@ -1176,7 +1176,7 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t):
                (cos(radians(lat)) * cos(radians(ttday0_res[2]))))
     if abs(cos_arg) > 1:
         cos_arg = nan
-    
+
     H0 = degrees(acos(cos_arg)) % 180
 
     m = [0.0]*3
@@ -1198,7 +1198,7 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t):
         n[i] = m[i] + delta_t / 86400.0
 
     a = ttday0_res[1] - ttdayn1_res[1]
-    
+
     if abs(a) > 2:
         a = a %1
     ap = ttday0_res[2] - ttdayn1_res[2]
@@ -1210,8 +1210,8 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t):
     bp = ttdayp1_res[2] - ttday0_res[2]
     if abs(bp) > 2:
         bp = bp % 1
-    
-    
+
+
     c = b - a
     cp = bp - ap
 
@@ -1258,7 +1258,7 @@ def transit_sunrise_sunset(dates, lat, lon, delta_t):
 
 
 def calculate_deltat(year, month):
-    y = year + (month - 0.5)/12    
+    y = year + (month - 0.5)/12
     if (2005 <= year) & (year < 2050):
         t1 = (y-2000.0)
         deltat = (62.92+0.32217*t1 + 0.005589*t1*t1)
@@ -1339,9 +1339,9 @@ def calculate_deltat(year, month):
         deltat = (45.45+1.067*(y-1975)
                       - (y-1975)**2/260
                       - (y-1975)**3/718)
-        
+
     elif year >= 2150:
         deltat = -20+32*((y-1820)/100)**2
-        
+
 
     return deltat

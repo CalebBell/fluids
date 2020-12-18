@@ -17,7 +17,7 @@ Some tests were changed and added as well.
 
 
 The copyright notice (BSD-3 clause) is as follows:
-    
+
 BSD 3-Clause License
 
 Copyright (c) 2013-2018, Sandia National Laboratories and pvlib python Development Team
@@ -48,9 +48,9 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-    
 
-    
+
+
 import os
 import datetime as dt
 
@@ -76,6 +76,8 @@ try:
                             numba_version.split('.')[1])
 except ImportError:
     numba_version_int = 0
+except:
+    numba_version_int = -1
 
 from fluids.optional import spa
 
@@ -129,7 +131,7 @@ theta = 50.11162
 theta0 = 90 - e0
 Gamma = 14.340241
 Phi = 194.340241
-year = 1985 
+year = 1985
 month = 2
 year_array = np.array([-499, 500, 1000, 1500, 1800, 1900, 1950, 1970, 1985, 1990, 2000, 2005])
 month_array = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
@@ -141,7 +143,7 @@ dt_actual_array = np.array([1.7184831e+04, 5.7088051e+03, 1.5730419e+03,
 mix_year_array = np.full((10), year)
 mix_month_array = np.full((10), month)
 mix_year_actual = np.full((10), dt_actual)
-mix_month_actual = mix_year_actual 
+mix_month_actual = mix_year_actual
 
 class SpaBase(object):
     """Test functions common to numpy and numba spa"""
@@ -458,17 +460,17 @@ except:
     astropy = None
 @pytest.mark.skipif(astropy is None, reason='Astropy is not installed')
 def test_deltat_astropy():
-    # Can't do a full range of tests because astropy doesn't have 
+    # Can't do a full range of tests because astropy doesn't have
     # answers before 1960, after 1999 in this version
     from astropy.time import Time
     from datetime import datetime
     def delta_t_astropy(dt):
         t = Time(dt, scale='utc')
         return -(dt - t.tt.value).total_seconds()
-    
+
 #    years = range(1, 3000, 100) + [3000]
     years = range(1960, 1999, 1)
-    
+
     months = range(1, 13)
     for year in years:
         for month in months:
@@ -483,6 +485,6 @@ def test_deltat_astropy():
 #runner.run(suite)
 #
 #NumpySpaTest.test_calculate_deltat()
-            
+
 if __name__ == '__main__':
     unittest.main()

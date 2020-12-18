@@ -5,3 +5,9 @@ coveralls
 sympy
 fuzzywuzzy
 pint
+pytz
+numpy
+pandas
+IPython
+sphinx
+wheel

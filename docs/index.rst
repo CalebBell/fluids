@@ -1,13 +1,9 @@
-.. Fluids documentation master file, created by
-   sphinx-quickstart on Sat Jan  2 17:15:23 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Welcome to Fluids's documentation!
+==================================
 
   .. meta::
       :google-site-verification: wcmDZ88ikLzq1to6urRDGA6R7oIhzya2sN5hOeV1zZw
 
-Welcome to Fluids's documentation!
-==================================
 Fluids is open-source software for engineers and technicians working in the
 fields of chemical, mechanical, or civil engineering. It includes modules
 for piping, fittings, pumps, tanks, compressible flow, open-channel flow,

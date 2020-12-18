@@ -41,7 +41,7 @@ try:
     import pint
     from pint import _DEFAULT_REGISTRY as u
     from pint import DimensionalityError
-    
+
 except ImportError: # pragma: no cover
     raise ImportError('The unit handling in fluids requires the installation '
                       'of the package pint, available on pypi or from '
@@ -78,21 +78,24 @@ def parse_numpydoc_variables_units(func):
         text = ''
     if text is None:
         text = ''
+    return parse_numpydoc_variables_units_docstring(text)
+
+def parse_numpydoc_variables_units_docstring(text):
     section_names = [i.replace('-', '').strip() for i in match_sections.findall(text)]
     section_text = match_sections.split(text)
-    
+
     sections = {}
     for i, j in zip(section_names, section_text[1:]):
         sections[i] = j
-    
+
 
     parsed = {}
     for section in ['Parameters', 'Returns', 'Attributes', 'Other Parameters']:
         if section not in sections:
-            # Handle the case where the function has nothing in a section 
+            # Handle the case where the function has nothing in a section
             parsed[section] = {'units': [], 'vars': []}
             continue
-        
+
         p = sections[section]
         parameter_vars = [i[:-2].strip() for i in variable.findall(p)]
         unit_strings = [i.strip() for i in variable.split(p)[1:]]
@@ -102,7 +105,7 @@ def parse_numpydoc_variables_units(func):
             if len(matches) == 0:
                 # If there is no unit listed, assume it's dimensionless (probably a string)
                 matches = ['[]']
-            match = matches[-1] # Assume the last bracketed group listed is the unit group 
+            match = matches[-1] # Assume the last bracketed group listed is the unit group
             match = match.replace('[', '').replace(']', '')
             if len(match) == 1:
                 match = match.replace('-', 'dimensionless')
@@ -123,7 +126,7 @@ def check_args_order(func):
 
     getargspec is used for Python 2.7 compatibility and is deprecated in Python
     3.
-    
+
     >>> check_args_order(fluids.core.Reynolds)
     """
     try:
@@ -137,12 +140,12 @@ def check_args_order(func):
     if 'Other Parameters' in parsed_data:
         parsed_parameters += parsed_data['Other Parameters']['vars']
         parsed_units += parsed_data['Other Parameters']['units']
-    
+
     if argspec.args != parsed_parameters: # pragma: no cover
         raise ValueError('Function %s signature is not the same as the documentation'
                         ' signature = %s; documentation = %s' %(func.__name__, argspec.args, parsed_parameters))
-    
-    
+
+
 def match_parse_units(doc, i=-1):
     if doc is None:
         matches = ['[]']
@@ -151,7 +154,7 @@ def match_parse_units(doc, i=-1):
     if len(matches) == 0:
         # If there is no unit listed, assume it's dimensionless (probably a string)
         matches = ['[]']
-    match = matches[i] # Assume the last bracketed group listed is the unit group 
+    match = matches[i] # Assume the last bracketed group listed is the unit group
     match = match.replace('[', '').replace(']', '')
     if len(match) == 1:
         match = match.replace('-', 'dimensionless')
@@ -189,7 +192,7 @@ def parse_expression_cached(unit, ureg):
     ans = ureg.parse_expression(unit)
     pint_expression_cache[unit] = ans
     return ans
-    
+
 
 def convert_output(result, out_units, out_vars, ureg):
     # Attempt to handle multiple return values
@@ -217,7 +220,7 @@ out_vars_cache = {}
 out_units_cache = {}
 
 
-def wraps_numpydoc(ureg, strict=True):    
+def wraps_numpydoc(ureg, strict=True):
     def decorator(func):
         assigned = (attr for attr in functools.WRAPPER_ASSIGNMENTS if hasattr(func, attr))
         updated = (attr for attr in functools.WRAPPER_UPDATES if hasattr(func, attr))
@@ -234,7 +237,7 @@ def wraps_numpydoc(ureg, strict=True):
 
         out_units = parsed_info['Returns']['units']
         out_vars = parsed_info['Returns']['vars']
-        # Handle the case of dict answers - require the first line's args to be 
+        # Handle the case of dict answers - require the first line's args to be
         # parsed as 'results'
         if out_vars and 'results' == out_vars[0]:
             out_units.pop(0)
@@ -249,10 +252,10 @@ def wraps_numpydoc(ureg, strict=True):
         def wrapper(*values, **kw):
             # Convert input ordered variables to dimensionless form, after converting
             # them to the the units specified by their documentation
-            conv_values = [] 
+            conv_values = []
             for val, unit in zip(values, in_units):
                 conv_values.append(convert_input(val, unit, ureg, strict))
-                        
+
             # For keyword arguments, lookup their unit; convert to that;
             # handle dimensionless arguments the same way
             kwargs = {}
@@ -268,7 +271,7 @@ def wraps_numpydoc(ureg, strict=True):
                 return result*units
             else:
                 return convert_output(result, out_units, out_vars, ureg)
-            
+
         return wrapper
     return decorator
 
@@ -279,13 +282,13 @@ class UnitAwareClass(object):
     strict = True
     property_units = {} # for properties and attributes only
     method_units = {}
-    
+
     def __repr__(self):
         '''Called only on the class instance, not any instance - ever.
         https://stackoverflow.com/questions/10376604/overriding-special-methods-on-an-instance
         '''
         return self.wrapped.__repr__()
-    
+
     def __add__(self, other):
         new_obj = self.wrapped.__add__(other.wrapped)
         new_instance = copy(self)
@@ -302,7 +305,7 @@ class UnitAwareClass(object):
         args_base, kwargs_base =  self.input_units_to_dimensionless('__init__', *args, **kwargs)
         self.wrapped = self.wrapped(*args_base, **kwargs_base)
 
-                
+
     def __getattr__(self, name):
         try:
             value = getattr(self.wrapped, name)
@@ -322,7 +325,7 @@ class UnitAwareClass(object):
                     # Not everything is going to work. The most common case here
                     # is returning a list, some of the values being None and so
                     # it cannot be wrapped.
-                    return value 
+                    return value
             else:
                 if hasattr(value, '__call__'):
                     @functools.wraps(value)
@@ -335,19 +338,19 @@ class UnitAwareClass(object):
                         if not out_units:
                             return
                         return convert_output(result, out_units, out_vars, self.ureg)
-                        
+
                     return call_func_with_inputs_to_SI
                 raise AttributeError('Error: Property does not yet have units attached')
         else:
             return value
-        
-        
+
+
     def input_units_to_dimensionless(self, name, *values, **kw):
         in_vars, in_units, in_vars_to_dict, out_vars, out_units = self.method_units[name]
-        conv_values = [] 
+        conv_values = []
         for val, unit in zip(values, in_units):
             conv_values.append(convert_input(val, unit, self.ureg, self.strict))
-                    
+
         # For keyword arguments, lookup their unit; convert to that;
         # handle dimensionless arguments the same way
         kwargs = {}
@@ -366,51 +369,67 @@ def clean_parsed_info(parsed_info):
     in_vars_to_dict = {}
     for i, j in zip(in_vars, in_units):
         in_vars_to_dict[i] = j
-        
+
     out_units = parsed_info['Returns']['units']
     out_vars = parsed_info['Returns']['vars']
-    # Handle the case of dict answers - require the first line's args to be 
+    # Handle the case of dict answers - require the first line's args to be
     # parsed as 'results'
     if out_vars and 'results' == out_vars[0]:
         out_units.pop(0)
         out_vars.pop(0)
-        
+
     return in_vars, in_units, in_vars_to_dict, out_vars, out_units
 
 
 def wrap_numpydoc_obj(obj_to_wrap):
     callable_methods = {}
     property_unit_map = {}
-    for i in dir(obj_to_wrap):
-        attr = getattr(obj_to_wrap, i)
+    for prop in dir(obj_to_wrap):
+        attr = getattr(obj_to_wrap, prop)
         if isinstance(attr, types.FunctionType) or isinstance(attr, types.MethodType) or type(attr) == property:
             if type(attr) is property:
-                name = attr.fget.__name__
+                name = prop
+                #name = attr.fget.__name__
             else:
                 name = attr.__name__
             if hasattr(attr, '__doc__'):
                 if type(attr) is property:
-                    property_unit_map[name] = u(match_parse_units(attr.fget.__doc__, i=0))
+                    try:
+                        docstring = attr.__doc__
+                        if docstring is None:
+                            docstring = attr.fget.__doc__
+                        # Is it a full style string?
+                        if 'Returns' in docstring and '-------' in docstring:
+                                found_unit = u(parse_numpydoc_variables_units_docstring(docstring)['Returns']['units'][0])
+                        else:
+                            found_unit = u(match_parse_units(docstring, i=0))
+                    except Exception as e:
+                        if name[0] == '_':
+                            found_unit = u.dimensionless
+                        else:
+                            print('Failed on attribute %s' %name)
+                            raise e
+                    property_unit_map[name] = found_unit
                 else:
                     parsed = parse_numpydoc_variables_units(attr)
                     callable_methods[name] = clean_parsed_info(parsed)
                     if 'Attributes' in parsed:
                         property_unit_map.update(parsed['Attributes'])
-    
+
     # We need to parse the __doc__ for the main docstring of each of the inherited
     # objects, but in reverse order so older properties get overwritten by newer
     # properties. Ignore the object type as well.
     for inherited in reversed(list(obj_to_wrap.__mro__[0:-1])):
         parsed = parse_numpydoc_variables_units(inherited)
         callable_methods['__init__'] = clean_parsed_info(parsed)
-        
+
         if 'Attributes' in parsed:
             property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Attributes']['vars'], parsed['Attributes']['units'])} )
         if 'Parameters' in parsed:
             property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
 
     name = obj_to_wrap.__name__
-    fun = type(name, (UnitAwareClass,), 
+    fun = type(name, (UnitAwareClass,),
            {'wrapped': obj_to_wrap, #'__doc__': obj_to_wrap.__doc__,
             'property_units': property_unit_map, 'method_units': callable_methods})
     return fun
@@ -419,7 +438,7 @@ def kwargs_to_args(args, kwargs, signature):
     '''Accepts an *args and **kwargs and a signature
     like ['rho', 'mu', 'nu'] which is an ordered list of
     all accepted arguments.
-    
+
     Returns a list containing all the arguments, sorted, and
     left as None if not specified
     '''
@@ -456,10 +475,10 @@ for name in dir(fluids):
         continue
     __all__.append(name)
     __pint_wrapped_functions.update({name: obj})
-    
+
 globals().update(__pint_wrapped_functions)
 __all__.extend(['wraps_numpydoc', 'convert_output', 'convert_input',
-                'check_args_order', 'match_parse_units', 'parse_numpydoc_variables_units', 
+                'check_args_order', 'match_parse_units', 'parse_numpydoc_variables_units',
                 'wrap_numpydoc_obj', 'UnitAwareClass'])
 
 
@@ -497,8 +516,8 @@ variable_output_unit_funcs = {
                         (True, True, True, True, True, False, True): [u.m],
                         (True, True, True, True, True, True, False): [u.kg/u.s],
                         }, 7)
-}                                       
-    
+}
+
 simple_compressible_variable_output = ({(True, True, False, True, True, True, True): [u.m],
                                         (True, True, True, False, True, True, True): [u.m],
                                         (True, True, True, True, False, True, True): [u.Pa],
@@ -514,14 +533,14 @@ IGT_Muller_variable_output = ({(True, True, True, False, True, True, True, True)
                                (True, True, True, True, True, True, False, True): [u.Pa],
                                (True, True, True, True, True, True, True, False): [u.m**3/u.s],
                                }, 8)
-                                
+
 for f in ['Muller', 'IGT']:
     variable_output_unit_funcs[f] = IGT_Muller_variable_output
-       
+
 def variable_output_wrapper(func, wrapped_basic_func, output_signatures, input_length):
     name = func.__name__
     intput_signature = in_vars_cache[func]
-    
+
     def thing(*args, **kwargs):
         ans = wrapped_basic_func(*args, **kwargs)
         args_for_sig = kwargs_to_args(args, kwargs, intput_signature)
@@ -529,13 +548,13 @@ def variable_output_wrapper(func, wrapped_basic_func, output_signatures, input_l
         if len(args_for_sig) > input_length:
             # Allow other arguments later to not matter
             args_for_sig = args_for_sig[:input_length]
-                
+
         output_units = output_signatures[tuple(args_for_sig)]
         if type(ans) in (list, tuple):
             return [output_units[i]*ans[i] for i in range(len(ans))]
         return output_units[0]*ans
     return thing
-    
+
 for name, val in variable_output_unit_funcs.items():
     globals()[name] = variable_output_wrapper(getattr(fluids, name),
             __pint_wrapped_functions[name], val[0], val[1])

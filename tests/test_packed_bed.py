@@ -49,7 +49,7 @@ def test_packed_bed():
 
     dP = Erdim_Akgiray_Demir(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
     assert_close(dP, 1438.2826958844414)
-    
+
     dP = Tallmadge(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
     assert_close(dP, 1365.2739144209424)
 
@@ -78,17 +78,17 @@ def test_packed_bed():
     # REMOVE ONCE DEPRECATED
     methods_dP_val = ['Harrison, Brunner & Hecker', 'Carman', 'Guo, Sun, Zhang, Ding & Liu', 'Hicks', 'Montillet, Akkari & Comiti', 'Idelchik', 'Erdim, Akgiray & Demir', 'KTA', 'Kuo & Nydegger', 'Ergun', 'Brauer', 'Fahien & Schriver', 'Jones & Krier', 'Tallmadge']
     methods_dP_val.sort()
-    
+
     for m in methods_dP_val:
         dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, Method=m)
-    
+
     all_methods = dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1, Dt=1e-2)
     assert 'Erdim, Akgiray & Demir' == dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1.0)[0]
     assert 'Harrison, Brunner & Hecker' == all_methods[0]
     all_methods.sort()
     assert all_methods == methods_dP_val
-    
-    
+
+
 
     with pytest.raises(Exception):
         dP_packed_bed(8E-4, 0.4, 1E-3, 1E3, 1E-3, Method='Fail')

@@ -33,9 +33,9 @@ def test_heating_degree_days():
     assert 0 == heating_degree_days(273)
     assert_allclose(heating_degree_days(273, T_base = 250), 23)
     assert_allclose(heating_degree_days(279, T_base=300, truncate=False), -21)
-    
+
 def test_cooling_degree_days():
-    
+
     assert_allclose( cooling_degree_days(250), 33.15)
     assert 0 == cooling_degree_days(300)
     assert_allclose(cooling_degree_days(300, truncate=False), -16.85)
@@ -50,20 +50,20 @@ def test_month_average_temperature():
     Ts_calc = station_data.month_average_temperature(1990, 2000, include_yearly=False, minimum_days=23)
     Ts_expect = [276.1599380905833, 277.5375516246206, 281.1881231671554, 286.7367003367004, 291.8689638318671, 296.79545454545456, 299.51868686868687, 298.2097914630174, 294.4116161616162, 288.25883023786247, 282.3188552188553, 277.8282339524275]
     assert_allclose(Ts_calc, Ts_expect, rtol=1E-3)
-    
+
     assert station_data.warmest_month(1990, 2000) == 6
     assert station_data.coldest_month(1990, 2000) == 0
-    
 
-    
+
+
 def test_IntegratedSurfaceDatabaseStation():
-    
+
     # Information confirmed elsewhere i.e. https://geographic.org/global_weather/not_specified_canada/calgary_intl_cs_713930_99999.html
     values = [713930.0, 99999.0, 'CALGARY INTL CS', 'CA', None, None, 51.1, -114.0, 1081.0, 20040921.0, 20150831.0]
     test_station = IntegratedSurfaceDatabaseStation(*values)
     for value, attr in zip(values, test_station.__slots__):
         assert value == getattr(test_station, attr)
-        
+
 def test_data():
     assert _latlongs.shape[0] >= 27591
     for station in stations:
@@ -77,7 +77,7 @@ def test_correct_WBAN():
     station = get_closest_station(31.9973, -102.0779)
     station_data = StationDataGSOD(station)
     assert station.WBAN == '03071'
-    
+
 @pytest.mark.slow
 @pytest.mark.online
 def test_correct_WBAN_online():
@@ -90,11 +90,11 @@ def test_correct_WBAN_online():
 def test_get_closest_station():
     s = get_closest_station(51.02532675, -114.049868485806, 20150000)
     assert s.NAME == 'CALGARY INTL CS'
-    
+
     with pytest.raises(Exception):
          get_closest_station(51.02532675, -114.049868485806, 90150000)
-         
-    
+
+
 sample_data_random_station_1999 = '''STN--- WBAN   YEARMODA    TEMP       DEWP      SLP        STP       VISIB      WDSP     MXSPD   GUST    MAX     MIN   PRCP   SNDP   FRSHTT
 712650 99999  19990101    12.3 24     3.1 24  1022.8 24  1013.0 24    8.4 24   15.0 24   22.9   29.9    23.7     4.1   0.00G 999.9  001000
 712650 99999  19990102    10.1 24    -0.6 24  1034.1 24  1024.1 24    6.8 24   12.7 24   29.9   35.0    23.0*    5.0*  0.00G 999.9  001000
@@ -470,7 +470,7 @@ def test_get_station_year_text():
     except:
         pass
     assert downloaded_data == sample_data_random_station_1999
-    
+
     with pytest.raises(Exception):
         get_station_year_text(712650, 99999, 19999999999)
 

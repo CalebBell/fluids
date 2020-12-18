@@ -20,13 +20,107 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+This module contains basic fluid mechanics and engineering calculations which
+have been found useful by the author. The main functionality is calculating
+dimensionless numbers, interconverting different forms of loss coefficients,
+and converting temperature units.
+
+For reporting bugs, adding feature requests, or submitting pull requests,
+please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
+or contact the author at Caleb.Andrew.Bell@gmail.com.
+
+.. contents:: :local:
+
+Dimensionless Numbers
+---------------------
+.. autofunction:: Archimedes
+.. autofunction:: Bejan_L
+.. autofunction:: Bejan_p
+.. autofunction:: Biot
+.. autofunction:: Boiling
+.. autofunction:: Bond
+.. autofunction:: Capillary
+.. autofunction:: Cavitation
+.. autofunction:: Confinement
+.. autofunction:: Dean
+.. autofunction:: Drag
+.. autofunction:: Eckert
+.. autofunction:: Euler
+.. autofunction:: Fourier_heat
+.. autofunction:: Fourier_mass
+.. autofunction:: Froude
+.. autofunction:: Froude_densimetric
+.. autofunction:: Graetz_heat
+.. autofunction:: Grashof
+.. autofunction:: Hagen
+.. autofunction:: Jakob
+.. autofunction:: Knudsen
+.. autofunction:: Lewis
+.. autofunction:: Mach
+.. autofunction:: Morton
+.. autofunction:: Nusselt
+.. autofunction:: Ohnesorge
+.. autofunction:: Peclet_heat
+.. autofunction:: Peclet_mass
+.. autofunction:: Power_number
+.. autofunction:: Prandtl
+.. autofunction:: Rayleigh
+.. autofunction:: relative_roughness
+.. autofunction:: Reynolds
+.. autofunction:: Schmidt
+.. autofunction:: Sherwood
+.. autofunction:: Stanton
+.. autofunction:: Stokes_number
+.. autofunction:: Strouhal
+.. autofunction:: Suratman
+.. autofunction:: Weber
+
+Loss Coefficient Converters
+---------------------------
+.. autofunction:: K_from_f
+.. autofunction:: K_from_L_equiv
+.. autofunction:: L_equiv_from_K
+.. autofunction:: L_from_K
+.. autofunction:: dP_from_K
+.. autofunction:: head_from_K
+.. autofunction:: head_from_P
+.. autofunction:: f_from_K
+.. autofunction:: P_from_head
+
+Temperature Conversions
+-----------------------
+These functions used to be part of SciPy, but were removed in favor
+of a slower function `convert_temperature` which removes code duplication but
+doesn't have the same convinience or easy to remember signature.
+
+.. autofunction:: C2K
+.. autofunction:: K2C
+.. autofunction:: F2C
+.. autofunction:: C2F
+.. autofunction:: F2K
+.. autofunction:: K2F
+.. autofunction:: C2R
+.. autofunction:: K2R
+.. autofunction:: F2R
+.. autofunction:: R2C
+.. autofunction:: R2K
+.. autofunction:: R2F
+
+Miscellaneous Functions
+-----------------------
+.. autofunction:: thermal_diffusivity
+.. autofunction:: c_ideal_gas
+.. autofunction:: nu_mu_converter
+.. autofunction:: gravity
+
 """
 from __future__ import division
 '''
 Additional copyright:
 The functions C2K, K2C, F2C, C2F, F2K, K2F, C2R, K2R, F2R, R2C, R2K, R2F
 were deprecated from scipy but are still wanted by fluids
-Taken from scipy/constants/constants.py as in commit 
+Taken from scipy/constants/constants.py as in commit
 https://github.com/scipy/scipy/commit/4b7d325cd50e8828b06d628e69426a18283dc5b5
 Also from https://github.com/scipy/scipy/pull/5292
 by Gillu13  (Gilles Aouizerate)
@@ -76,7 +170,7 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Jakob', 'Power_number', 'Stokes_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
 'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'Hagen', 'thermal_diffusivity', 'c_ideal_gas',
 'relative_roughness', 'nu_mu_converter', 'gravity',
-'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'L_from_K', 'dP_from_K', 
+'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'L_from_K', 'dP_from_K',
 'head_from_K', 'head_from_P', 'f_from_K',
 'P_from_head', 'Eotvos',
 'C2K', 'K2C', 'F2C', 'C2F', 'F2K', 'K2F', 'C2R', 'K2R', 'F2R', 'R2C', 'R2K', 'R2F',
@@ -712,7 +806,7 @@ def Mach(V, c):
 
 
 def Confinement(D, rhol, rhog, sigma, g=g):
-    r'''Calculates Confinement number or `Co` for a fluid in a channel of 
+    r'''Calculates Confinement number or `Co` for a fluid in a channel of
     diameter `D` with liquid and gas densities `rhol` and `rhog` and surface
     tension `sigma`, under the influence of gravitational force `g`.
 
@@ -753,16 +847,16 @@ def Confinement(D, rhol, rhog, sigma, g=g):
 
     References
     ----------
-    .. [1] Cornwell, Keith, and Peter A. Kew. "Boiling in Small Parallel 
-       Channels." In Energy Efficiency in Process Technology, edited by Dr P. 
-       A. Pilavachi, 624-638. Springer Netherlands, 1993. 
+    .. [1] Cornwell, Keith, and Peter A. Kew. "Boiling in Small Parallel
+       Channels." In Energy Efficiency in Process Technology, edited by Dr P.
+       A. Pilavachi, 624-638. Springer Netherlands, 1993.
        doi:10.1007/978-94-011-1454-7_56.
-    .. [2] Kandlikar, Satish G. Heat Transfer and Fluid Flow in Minichannels 
+    .. [2] Kandlikar, Satish G. Heat Transfer and Fluid Flow in Minichannels
        and Microchannels. Elsevier, 2006.
-    .. [3] Tran, T. N, M. -C Chyu, M. W Wambsganss, and D. M France. Two-Phase 
-       Pressure Drop of Refrigerants during Flow Boiling in Small Channels: An 
-       Experimental Investigation and Correlation Development." International 
-       Journal of Multiphase Flow 26, no. 11 (November 1, 2000): 1739-54. 
+    .. [3] Tran, T. N, M. -C Chyu, M. W Wambsganss, and D. M France. Two-Phase
+       Pressure Drop of Refrigerants during Flow Boiling in Small Channels: An
+       Experimental Investigation and Correlation Development." International
+       Journal of Multiphase Flow 26, no. 11 (November 1, 2000): 1739-54.
        doi:10.1016/S0301-9322(99)00119-6.
     '''
     return sqrt(sigma/(g*(rhol-rhog)))/D
@@ -774,7 +868,7 @@ def Morton(rhol, rhog, mul, sigma, g=g):
 
     .. math::
         Mo = \frac{g \mu_l^4(\rho_l - \rho_g)}{\rho_l^2 \sigma^3}
-        
+
     Parameters
     ----------
     rhol : float
@@ -804,11 +898,11 @@ def Morton(rhol, rhog, mul, sigma, g=g):
 
     References
     ----------
-    .. [1] Kunes, Josef. Dimensionless Physical Quantities in Science and 
+    .. [1] Kunes, Josef. Dimensionless Physical Quantities in Science and
        Engineering. Elsevier, 2012.
     .. [2] Yan, Xiaokang, Kaixin Zheng, Yan Jia, Zhenyong Miao, Lijun Wang,
-       Yijun Cao, and Jiongtian Liu. “Drag Coefficient Prediction of a Single 
-       Bubble Rising in Liquids.” Industrial & Engineering Chemistry Research, 
+       Yijun Cao, and Jiongtian Liu. “Drag Coefficient Prediction of a Single
+       Bubble Rising in Liquids.” Industrial & Engineering Chemistry Research,
        April 2, 2018. https://doi.org/10.1021/acs.iecr.7b04743.
     '''
     mul2 = mul*mul
@@ -1127,16 +1221,16 @@ def Froude(V, L, g=g, squared=False):
 
 def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
     r'''Calculates the densimetric Froude number :math:`Fr_{den}` for velocity
-    `V` geometric length `L`, heavier fluid density `rho1`, and lighter fluid 
+    `V` geometric length `L`, heavier fluid density `rho1`, and lighter fluid
     density `rho2`. If desired, gravity can be specified as well. Depending on
     the application, this dimensionless number may be defined with the heavy
     phase or the light phase density in the numerator of the square root.
-    For some applications, both need to be calculated. The default is to 
+    For some applications, both need to be calculated. The default is to
     calculate with the heavy liquid ensity on top; set `heavy` to False
     to reverse this.
 
     .. math::
-        Fr = \frac{V}{\sqrt{gL}} \sqrt{\frac{\rho_\text{(1 or 2)}} 
+        Fr = \frac{V}{\sqrt{gL}} \sqrt{\frac{\rho_\text{(1 or 2)}}
         {\rho_1 - \rho_2}}
 
     Parameters
@@ -1166,10 +1260,10 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
 
     .. math::
         Fr = \frac{\text{Inertial Force}}{\text{Gravity Force}}
-        
+
     Where the gravity force is reduced by the relative densities of one fluid
     in another.
-    
+
     Note that an Exception will be raised if rho1 > rho2, as the square root
     becomes negative.
 
@@ -1182,9 +1276,9 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
 
     References
     ----------
-    .. [1] Hall, A, G Stobie, and R Steven. "Further Evaluation of the 
-       Performance of Horizontally Installed Orifice Plate and Cone 
-       Differential Pressure Meters with Wet Gas Flows." In International 
+    .. [1] Hall, A, G Stobie, and R Steven. "Further Evaluation of the
+       Performance of Horizontally Installed Orifice Plate and Cone
+       Differential Pressure Meters with Wet Gas Flows." In International
        SouthEast Asia Hydrocarbon Flow Measurement Workshop, KualaLumpur,
        Malaysia, 2008.
     '''
@@ -1377,7 +1471,8 @@ def Biot(h, L, k):
 
 def Stanton(h, V, rho, Cp):
     r'''Calculates Stanton number or `St` for a specified heat transfer
-    coefficient `h`, velocity `V`, density `rho`, and heat capacity `Cp`.
+    coefficient `h`, velocity `V`, density `rho`, and heat capacity `Cp` [1]_
+    [2]_.
 
     .. math::
         St = \frac{h}{V\rho Cp}
@@ -1412,7 +1507,7 @@ def Stanton(h, V, rho, Cp):
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
-    .. [1] Bergman, Theodore L., Adrienne S. Lavine, Frank P. Incropera, and
+    .. [2] Bergman, Theodore L., Adrienne S. Lavine, Frank P. Incropera, and
        David P. DeWitt. Introduction to Heat Transfer. 6E. Hoboken, NJ:
        Wiley, 2011.
     '''
@@ -1690,8 +1785,8 @@ def Drag(F, A, V, rho):
 
 
 def Stokes_number(V, Dp, D, rhop, mu):
-    r'''Calculates Stokes Number for a given characteristic velocity `V`, 
-    particle diameter `Dp`, characteristic diameter `D`, particle density 
+    r'''Calculates Stokes Number for a given characteristic velocity `V`,
+    particle diameter `Dp`, characteristic diameter `D`, particle density
     `rhop`, and fluid viscosity `mu`.
 
     .. math::
@@ -1704,13 +1799,13 @@ def Stokes_number(V, Dp, D, rhop, mu):
     Dp : float
         Particle diameter, [m]
     D : float
-        Characteristic diameter (ex demister wire diameter or cyclone 
+        Characteristic diameter (ex demister wire diameter or cyclone
         diameter), [m]
     rhop : float
         Particle density, [kg/m^3]
     mu : float
         Fluid viscosity, [Pa*s]
-    
+
     Returns
     -------
     Stk : float
@@ -1728,7 +1823,7 @@ def Stokes_number(V, Dp, D, rhop, mu):
     References
     ----------
     .. [1] Rhodes, Martin J. Introduction to Particle Technology. Wiley, 2013.
-    .. [2] Al-Dughaither, Abdullah S., Ahmed A. Ibrahim, and Waheed A. 
+    .. [2] Al-Dughaither, Abdullah S., Ahmed A. Ibrahim, and Waheed A.
        Al-Masry. "Investigating Droplet Separation Efficiency in Wire-Mesh Mist
        Eliminators in Bubble Column." Journal of Saudi Chemical Society 14, no.
        4 (October 1, 2010): 331-39. https://doi.org/10.1016/j.jscs.2010.04.001.
@@ -1872,7 +1967,7 @@ def Ohnesorge(L, rho, mu, sigma):
     '''
     return mu/sqrt(L*rho*sigma)
 
-    
+
 def Suratman(L, rho, mu, sigma):
     r'''Calculates Suratman number, `Su`, for a fluid with the given
     characteristic length, density, viscosity, and surface tension.
@@ -1898,15 +1993,15 @@ def Suratman(L, rho, mu, sigma):
 
     Notes
     -----
-    Also known as Laplace number. Used in two-phase flow, especially the 
-    bubbly-slug regime. No confusion regarding the definition of this group 
+    Also known as Laplace number. Used in two-phase flow, especially the
+    bubbly-slug regime. No confusion regarding the definition of this group
     has been observed.
 
     .. math::
         \text{Su} = \frac{\text{Re}^2}{\text{We}} =\frac{\text{Inertia}\cdot
         \text{Surface tension} }{\text{(viscous forces)}^2}
 
-    The oldest reference to this group found by the author is in 1963, from 
+    The oldest reference to this group found by the author is in 1963, from
     [2]_.
 
     Examples
@@ -1916,11 +2011,11 @@ def Suratman(L, rho, mu, sigma):
 
     References
     ----------
-    .. [1] Sen, Nilava. "Suratman Number in Bubble-to-Slug Flow Pattern 
-       Transition under Microgravity." Acta Astronautica 65, no. 3-4 (August 
+    .. [1] Sen, Nilava. "Suratman Number in Bubble-to-Slug Flow Pattern
+       Transition under Microgravity." Acta Astronautica 65, no. 3-4 (August
        2009): 423-28. doi:10.1016/j.actaastro.2009.02.013.
-    .. [2] Catchpole, John P., and George. Fulford. "DIMENSIONLESS GROUPS." 
-       Industrial & Engineering Chemistry 58, no. 3 (March 1, 1966): 46-60. 
+    .. [2] Catchpole, John P., and George. Fulford. "DIMENSIONLESS GROUPS."
+       Industrial & Engineering Chemistry 58, no. 3 (March 1, 1966): 46-60.
        doi:10.1021/ie50675a012.
     '''
     return rho*sigma*L/(mu*mu)
@@ -1931,8 +2026,8 @@ def Hagen(Re, fd):
     Reynolds number and friction factor.
 
     .. math::
-        \text{Hg} = \frac{f_d}{2} Re^2 = \frac{1}{\rho} 
-        \frac{\Delta P}{\Delta z} \frac{D^3}{\nu^2} 
+        \text{Hg} = \frac{f_d}{2} Re^2 = \frac{1}{\rho}
+        \frac{\Delta P}{\Delta z} \frac{D^3}{\nu^2}
         = \frac{\rho\Delta P D^3}{\mu^2 \Delta z}
 
     Parameters
@@ -1951,28 +2046,28 @@ def Hagen(Re, fd):
     -----
     Introduced in [1]_; further use of it is mostly of the correlations
     introduced in [1]_.
-    
-    Notable for use use in correlations, because it does not have any 
+
+    Notable for use use in correlations, because it does not have any
     dependence on velocity.
-    
+
     This expression is useful when designing backwards with a pressure drop
     spec already known.
-    
+
     Examples
     --------
     Example from [3]_:
-        
+
     >>> Hagen(Re=2610, fd=1.935235)
     6591507.17175
 
     References
     ----------
-    .. [1] Martin, Holger. "The Generalized Lévêque Equation and Its Practical 
-       Use for the Prediction of Heat and Mass Transfer Rates from Pressure 
-       Drop." Chemical Engineering Science, Jean-Claude Charpentier 
-       Festschrift Issue, 57, no. 16 (August 1, 2002): 3217-23. 
+    .. [1] Martin, Holger. "The Generalized Lévêque Equation and Its Practical
+       Use for the Prediction of Heat and Mass Transfer Rates from Pressure
+       Drop." Chemical Engineering Science, Jean-Claude Charpentier
+       Festschrift Issue, 57, no. 16 (August 1, 2002): 3217-23.
        https://doi.org/10.1016/S0009-2509(02)00194-X.
-    .. [2] Shah, Ramesh K., and Dusan P. Sekulic. Fundamentals of Heat 
+    .. [2] Shah, Ramesh K., and Dusan P. Sekulic. Fundamentals of Heat
        Exchanger Design. 1st edition. Hoboken, NJ: Wiley, 2002.
     .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
@@ -2070,7 +2165,7 @@ def Bejan_p(dP, K, mu, alpha):
 
 def Boiling(G, q, Hvap):
     r'''Calculates Boiling number or `Bg` using heat flux, two-phase mass flux,
-    and heat of vaporization of the fluid flowing. Used in two-phase heat 
+    and heat of vaporization of the fluid flowing. Used in two-phase heat
     transfer calculations.
 
     .. math::
@@ -2094,11 +2189,11 @@ def Boiling(G, q, Hvap):
     -----
     Most often uses the symbol `Bo` instead of `Bg`, but this conflicts with
     Bond number.
-    
+
     .. math::
-        \text{Bg} = \frac{\text{mass liquid evaporated / area heat transfer 
+        \text{Bg} = \frac{\text{mass liquid evaporated / area heat transfer
         surface}}{\text{mass flow rate fluid / flow cross sectional area}}
-    
+
     First defined in [4]_, though not named.
 
     Examples
@@ -2108,29 +2203,29 @@ def Boiling(G, q, Hvap):
 
     References
     ----------
-    .. [1] Winterton, Richard H.S. BOILING NUMBER. Thermopedia. Hemisphere, 
+    .. [1] Winterton, Richard H.S. BOILING NUMBER. Thermopedia. Hemisphere,
        2011. 10.1615/AtoZ.b.boiling_number
-    .. [2] Collier, John G., and John R. Thome. Convective Boiling and 
+    .. [2] Collier, John G., and John R. Thome. Convective Boiling and
        Condensation. 3rd edition. Clarendon Press, 1996.
     .. [3] Stephan, Karl. Heat Transfer in Condensation and Boiling. Translated
        by C. V. Green.. 1992 edition. Berlin; New York: Springer, 2013.
-    .. [4] W. F. Davidson, P. H. Hardie, C. G. R. Humphreys, A. A. Markson, 
+    .. [4] W. F. Davidson, P. H. Hardie, C. G. R. Humphreys, A. A. Markson,
        A. R. Mumford and T. Ravese "Studies of heat transmission through boiler
-       tubing at pressures from 500 to 3300 pounds" Trans. ASME, Vol. 65, 9, 
-       February 1943, pp. 553-591. 
+       tubing at pressures from 500 to 3300 pounds" Trans. ASME, Vol. 65, 9,
+       February 1943, pp. 553-591.
     '''
     return q/(G*Hvap)
 
-    
+
 def Dean(Re, Di, D):
     r'''Calculates Dean number, `De`, for a fluid with the Reynolds number `Re`,
-    inner diameter `Di`, and a secondary diameter `D`. `D` may be the 
+    inner diameter `Di`, and a secondary diameter `D`. `D` may be the
     diameter of curvature, the diameter of a spiral, or some other dimension.
 
     .. math::
-        \text{De} = \sqrt{\frac{D_i}{D}} \text{Re} = \sqrt{\frac{D_i}{D}} 
+        \text{De} = \sqrt{\frac{D_i}{D}} \text{Re} = \sqrt{\frac{D_i}{D}}
         \frac{\rho v D}{\mu}
-        
+
     Parameters
     ----------
     Re : float
@@ -2150,7 +2245,7 @@ def Dean(Re, Di, D):
     Used in flow in curved geometry.
 
     .. math::
-        \text{De} = \frac{\sqrt{\text{centripetal forces}\cdot 
+        \text{De} = \frac{\sqrt{\text{centripetal forces}\cdot
         \text{inertial forces}}}{\text{viscous forces}}
 
     Examples
@@ -2160,8 +2255,8 @@ def Dean(Re, Di, D):
 
     References
     ----------
-    .. [1] Catchpole, John P., and George. Fulford. "DIMENSIONLESS GROUPS." 
-       Industrial & Engineering Chemistry 58, no. 3 (March 1, 1966): 46-60. 
+    .. [1] Catchpole, John P., and George. Fulford. "DIMENSIONLESS GROUPS."
+       Industrial & Engineering Chemistry 58, no. 3 (March 1, 1966): 46-60.
        doi:10.1021/ie50675a012.
     '''
     return sqrt(Di/D)*Re
@@ -2321,7 +2416,7 @@ def K_from_f(fd, L, D):
     return fd*L/D
 
 def f_from_K(K, L, D):
-    r'''Calculates friction factor, `fd`, from a loss coefficient, K, 
+    r'''Calculates friction factor, `fd`, from a loss coefficient, K,
     for a given section of pipe.
 
     .. math::
@@ -2386,7 +2481,7 @@ def K_from_L_equiv(L_D, fd=0.015):
 
 
 def L_equiv_from_K(K, fd=0.015):
-    r'''Calculates equivalent length of pipe (L/D), for a given loss 
+    r'''Calculates equivalent length of pipe (L/D), for a given loss
     coefficient.
 
     .. math::
@@ -2812,8 +2907,8 @@ def F2R(F):
 
     Notes
     -----
-    Computes ``Ra = F - 32 + 1.8 * zero_Celsius`` where `zero_Celsius` = 273.15, 
-    i.e., (the absolute value of) temperature "absolute zero" as measured in 
+    Computes ``Ra = F - 32 + 1.8 * zero_Celsius`` where `zero_Celsius` = 273.15,
+    i.e., (the absolute value of) temperature "absolute zero" as measured in
     Celsius.
 
     Examples
@@ -2839,8 +2934,8 @@ def R2C(Ra):
 
     Notes
     -----
-    Computes ``C = Ra / 1.8 - zero_Celsius`` where `zero_Celsius` = 273.15, 
-    i.e., (the absolute value of) temperature "absolute zero" as measured in 
+    Computes ``C = Ra / 1.8 - zero_Celsius`` where `zero_Celsius` = 273.15,
+    i.e., (the absolute value of) temperature "absolute zero" as measured in
     Celsius.
 
     Examples
@@ -2874,7 +2969,7 @@ def R2K(Ra):
     273.15
     """
     return Ra / 1.8
-    
+
 
 def R2F(Ra):
     """Convert Rankine to Fahrenheit.
@@ -2891,8 +2986,8 @@ def R2F(Ra):
 
     Notes
     -----
-    Computes ``F = Ra + 32 - 1.8 * zero_Celsius`` where `zero_Celsius` = 273.15, 
-    i.e., (the absolute value of) temperature "absolute zero" as measured in 
+    Computes ``F = Ra + 32 - 1.8 * zero_Celsius`` where `zero_Celsius` = 273.15,
+    i.e., (the absolute value of) temperature "absolute zero" as measured in
     Celsius.
 
     Examples
@@ -2911,7 +3006,7 @@ def Engauge_2d_parser(lines, flat=False):
     y_lists = []
     working_xs = []
     working_ys = []
-    
+
     new_curve = True
     for line in lines:
         if line.strip() == '':
@@ -2931,7 +3026,7 @@ def Engauge_2d_parser(lines, flat=False):
             working_ys.append(y)
     x_lists.append(working_xs)
     y_lists.append(working_ys)
-    
+
     if flat:
         all_zs = []
         all_xs = []
