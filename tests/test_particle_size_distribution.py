@@ -30,6 +30,7 @@ from random import uniform
 
 
 def test_ASTM_E11_sieves():
+    from fluids.particle_size_distribution import ASTM_E11_sieves
     sieves = ASTM_E11_sieves.values()
     tot = sum([i.d_wire for i in sieves])
     assert_close(tot, 0.105963384)
@@ -45,6 +46,7 @@ def test_ASTM_E11_sieves():
         tot += sum(getattr(i, attr) for i in sieves)
 
 def test_ISO_3310_2_sieves():
+    from fluids.particle_size_distribution import ISO_3310_1_sieves, ISO_3310_1_R20_3, ISO_3310_1_R20, ISO_3310_1_R10, ISO_3310_1_R40_3
     sieves = ISO_3310_1_sieves.values()
     tot = sum([i.d_wire for i in sieves])
     assert_close(tot, 0.17564599999999997)
