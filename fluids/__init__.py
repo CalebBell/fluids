@@ -28,7 +28,11 @@ import gc
 
 def mem():
     gc.collect()
-    return gc.mem_free()
+    try:
+        return gc.mem_free()
+    except:
+        print('not micropython')
+        return 0
 base_mem = mem()
 
 from . import numerics
