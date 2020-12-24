@@ -48,6 +48,25 @@ def test_sincos():
         assert_close(b, cos(v), rtol=1e-14)
 
 
+def test_bisect_log_exp_terminations():
+    from math import exp, log
+    from fluids.numerics import bisect
+    def to_solve(x):
+        try:
+            return exp(x)
+        except:
+            return -1
+    assert 709.782712893384 == bisect(to_solve, 600, 800, xtol=1e-16)
+
+    def to_solve(x):
+        x = 10**x
+        try:
+            return log(x)
+        except:
+            return 1.0
+    assert -323.60724533877976 == bisect(to_solve, -300, -400, xtol=1e-16)
+
+
 def test_horner():
     from fluids.numerics import horner
     assert_allclose(horner([1.0, 3.0], 2.0), 5.0)
@@ -320,10 +339,10 @@ def test_fit_integral_linear_extrapolation():
                 analytical = fit_integral_linear_extrapolation(T1, T2, int_coeffs, Tmin, Tmax,
                                               Tmin_value, Tmax_value,
                                               Tmin_slope, Tmax_slope)
-                analytical2 = (best_fit_integral_value(T2, int_coeffs, Tmin, Tmax,
+                analytical2 = (poly_fit_integral_value(T2, int_coeffs, Tmin, Tmax,
                               Tmin_value, Tmax_value,
                               Tmin_slope, Tmax_slope)
-                              - best_fit_integral_value(T1, int_coeffs, Tmin, Tmax,
+                              - poly_fit_integral_value(T1, int_coeffs, Tmin, Tmax,
                               Tmin_value, Tmax_value,
                               Tmin_slope, Tmax_slope))
 
@@ -356,10 +375,10 @@ def test_fit_integral_linear_extrapolation():
                                                                       Tmin, Tmax,
                                               Tmin_value, Tmax_value,
                                               Tmin_slope, Tmax_slope)
-                analytical2 = (best_fit_integral_over_T_value(T2, T_int_T_coeffs, log_coeff,
+                analytical2 = (poly_fit_integral_over_T_value(T2, T_int_T_coeffs, log_coeff,
                                                                       Tmin, Tmax,
                                               Tmin_value, Tmax_value,
-                                              Tmin_slope, Tmax_slope) - best_fit_integral_over_T_value(T1, T_int_T_coeffs, log_coeff,
+                                              Tmin_slope, Tmax_slope) - poly_fit_integral_over_T_value(T1, T_int_T_coeffs, log_coeff,
                                                                       Tmin, Tmax,
                                               Tmin_value, Tmax_value,
                                               Tmin_slope, Tmax_slope))

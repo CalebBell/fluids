@@ -52,7 +52,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'damping_maintain_sign', 'oscillation_checking_wrapper',
            'trunc_exp', 'trunc_log', 'fit_integral_linear_extrapolation',
            'fit_integral_over_T_linear_extrapolation',
-           'best_fit_integral_value', 'best_fit_integral_over_T_value',
+           'poly_fit_integral_value', 'poly_fit_integral_over_T_value',
            'evaluate_linear_fits', 'evaluate_linear_fits_d',
            'evaluate_linear_fits_d2',
            'best_bounding_bounds', 'newton_minimize', 'array_as_tridiagonals',
@@ -216,6 +216,7 @@ else:
     numpy = FakePackage('numpy')
     IS_PYPY = True
 
+IS_PYPY_OR_SKIP_DEPENDENCIES = IS_PYPY or SKIP_DEPENDENCIES
 np = numpy
 
 #IS_PYPY = True
@@ -246,22 +247,26 @@ root_three = 1.7320508075688772 # sqrt(3.0)
 one_27 = 1.0/27.0
 complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
 
-def trunc_exp(x, trunc=1e30):
+def trunc_exp(x, trunc=1.7976931348622732e+308):
+    # maximum value occurs at 709.782712893384 exactly
     try:
         return exp(x)
     except:
         # Really exp(709.7) 1.6549840276802644e+308
         return trunc
 
-def trunc_log(x, trunc=-708.3964185322641):
-    try:
-        return log(x)
-    except ValueError as e:
-        if x == 0:
-            # -30 is like log(1e-14) but the real answer is ~log(1e-300)= -708.3964185322641
-            return trunc
-        else:
-            raise e
+def trunc_log(x, trunc=-744.4400719213812):
+    # 5e-324 is the smallest floating point number above zero and its log is -744.4400719213812
+    if x == 0.0:
+        return trunc
+    return log(x)
+#    try:
+#        return log(x)
+#    except ValueError as e:
+#        if x == 0:
+#            return trunc
+#        else:
+#            raise e
 
 def roots_cubic_a1(b, c, d):
     # Output from mathematica
@@ -747,7 +752,8 @@ def central_diff_weights(points, divisions=1):
     return w
 
 
-def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True):
+def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True,
+               lower_limit=None, upper_limit=None):
     """Reimplementation of SciPy's derivative function, with more cached
     coefficients and without using numpy. If new coefficients not cached are
     needed, they are only calculated once and are remembered.
@@ -762,6 +768,13 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True):
     ho = order >> 1
     denominator = 1.0/product([dx]*n)
     if scalar:
+        max_x = x0 + (order - 1 - ho)*dx
+        if upper_limit is not None and max_x > upper_limit:
+            x0 -= (max_x - x0)
+        min_x = x0 + -ho*dx
+        if lower_limit is not None and min_x < lower_limit:
+            x0 += (x0 - min_x)
+
         tot = 0.0
         for k in range(order):
             if weights[k] != 0.0:
@@ -1469,7 +1482,7 @@ def fit_integral_linear_extrapolation(T1, T2, int_coeffs, Tmin, Tmax,
         return -tot
     return tot
 
-def best_fit_integral_value(T, int_coeffs, Tmin, Tmax, Tmin_value, Tmax_value,
+def poly_fit_integral_value(T, int_coeffs, Tmin, Tmax, Tmin_value, Tmax_value,
                             Tmin_slope, Tmax_slope):
     # Can still save 1 horner evaluation (all of them for hight T), but will be VERY messy.
     if T < Tmin:
@@ -1492,7 +1505,7 @@ def best_fit_integral_value(T, int_coeffs, Tmin, Tmax, Tmin_value, Tmax_value,
         return tot1 + tot + tot2
 
 def fit_integral_over_T_linear_extrapolation(T1, T2, T_int_T_coeffs,
-                                            best_fit_log_coeff, Tmin, Tmax,
+                                            poly_fit_log_coeff, Tmin, Tmax,
                                       Tmin_value, Tmax_value,
                                       Tmin_slope, Tmax_slope):
     # Order T1, T2 so T2 is always larger for simplicity
@@ -1508,8 +1521,8 @@ def fit_integral_over_T_linear_extrapolation(T1, T2, T_int_T_coeffs,
     if (Tmin <= T1 <= Tmax) or (Tmin <= T2 <= Tmax) or (T1 <= Tmin and T2 >= Tmax):
         T1_mid = T1 if T1 > Tmin else Tmin
         T2_mid = T2 if T2 < Tmax else Tmax
-        tot += (horner_log(T_int_T_coeffs, best_fit_log_coeff, T2_mid)
-                    - horner_log(T_int_T_coeffs, best_fit_log_coeff, T1_mid))
+        tot += (horner_log(T_int_T_coeffs, poly_fit_log_coeff, T2_mid)
+                    - horner_log(T_int_T_coeffs, poly_fit_log_coeff, T1_mid))
     if T2 > Tmax:
         T1_high = T1 if T1 > Tmax else Tmax
         x1 = Tmax_value - Tmax_slope*Tmax
@@ -1519,7 +1532,7 @@ def fit_integral_over_T_linear_extrapolation(T1, T2, T_int_T_coeffs,
     return tot
 
 
-def best_fit_integral_over_T_value(T, T_int_T_coeffs, best_fit_log_coeff,
+def poly_fit_integral_over_T_value(T, T_int_T_coeffs, poly_fit_log_coeff,
                                    Tmin, Tmax, Tmin_value, Tmax_value,
                                    Tmin_slope, Tmax_slope):
     if T < Tmin:
@@ -1527,8 +1540,8 @@ def best_fit_integral_over_T_value(T, T_int_T_coeffs, best_fit_log_coeff,
         tot = (Tmin_slope*T + x1*log(T))
         return tot
     if (Tmin <= T <= Tmax):
-        tot1 = (horner_log(T_int_T_coeffs, best_fit_log_coeff, T)
-                    - horner_log(T_int_T_coeffs, best_fit_log_coeff, Tmin))
+        tot1 = (horner_log(T_int_T_coeffs, poly_fit_log_coeff, T)
+                    - horner_log(T_int_T_coeffs, poly_fit_log_coeff, Tmin))
 
         x1 = Tmin_value - Tmin_slope*Tmin
         tot = (Tmin_slope*Tmin + x1*log(Tmin))
@@ -1537,8 +1550,8 @@ def best_fit_integral_over_T_value(T, T_int_T_coeffs, best_fit_log_coeff,
         x1 = Tmin_value - Tmin_slope*Tmin
         tot = (Tmin_slope*Tmin + x1*log(Tmin))
 
-        tot1 = (horner_log(T_int_T_coeffs, best_fit_log_coeff, Tmax)
-                    - horner_log(T_int_T_coeffs, best_fit_log_coeff, Tmin))
+        tot1 = (horner_log(T_int_T_coeffs, poly_fit_log_coeff, Tmax)
+                    - horner_log(T_int_T_coeffs, poly_fit_log_coeff, Tmin))
         x2 = Tmax_value -Tmax*Tmax_slope
         tot2 = (-Tmax_slope*(Tmax - T) + x2*log(T) - x2*log(Tmax))
         return tot1 + tot + tot2
@@ -1830,6 +1843,10 @@ def interp2d_linear(x, y, xs, ys, vals):
     return v_low + (y-y_low)/(y_high-y_low)*(v_high-v_low)
 
 
+try:
+    _array = np.array
+except:
+    pass
 def implementation_optimize_tck(tck, force_numpy=False):
     """Converts 1-d or 2-d splines calculated with SciPy's `splrep` or.
 
@@ -1838,19 +1855,16 @@ def implementation_optimize_tck(tck, force_numpy=False):
 
     Only implemented for 3 and 5 length `tck`s.
     """
-    if (IS_PYPY or SKIP_DEPENDENCIES) and not force_numpy:
+    if IS_PYPY_OR_SKIP_DEPENDENCIES and not force_numpy:
         return tuple(tck)
     else:
-        if len(tck) == 3:
-            tck[0] = np.array(tck[0])
-            tck[1] = np.array(tck[1])
-        elif len(tck) == 5:
-            tck[0] = np.array(tck[0])
-            tck[1] = np.array(tck[1])
-            tck[2] = np.array(tck[2])
+        size = len(tck)
+        if size == 3:
+            return (_array(tck[0]), _array(tck[1]), tck[2])
+        elif size == 5:
+            return (_array(tck[0]), _array(tck[1]), _array(tck[2]), tck[3], tck[4])
         else:
             raise NotImplementedError
-    return tuple(tck)
 
 
 def tck_interp2d_linear(x, y, z, kx=1, ky=1):
