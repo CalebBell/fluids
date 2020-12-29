@@ -14,7 +14,7 @@
 
 import sys
 import os
-
+import subprocess
 
 #import sys
 #from mock import Mock as MagicMock
@@ -307,9 +307,13 @@ katex_js_path = \
 katex_autorender_path = \
     'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js'
 
+def has_cmd(cmd):
+    return subprocess.call("type " + cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+
 try:
-    os.system('npm install katex')
-    os.environ['PATH'] = os.environ['PATH'] + ':./node_modules/.bin'
+    if not has_cmd('katex'):
+        os.system('npm install katex')
+        os.environ['PATH'] = os.environ['PATH'] + ':./node_modules/.bin'
     katex_prerender = True
 except Exception as e:
     print('Could not find katex with error %s' %(e,))
