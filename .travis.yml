@@ -3,7 +3,7 @@ os:
 #  - osx # too many build minutes, keep travis running as long as it can
   - linux
 compiler:
-  - "2.7"
+#  - "2.7" # sphinx no longer works
 #  - "3.5" # Bad pint support
   - "3.6"
   - "3.7"
