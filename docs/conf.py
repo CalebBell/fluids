@@ -309,15 +309,20 @@ katex_autorender_path = \
 
 def has_cmd(cmd):
     return subprocess.call("type " + cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+'''The below approach is not working at this time. It can be fixed with enough development, but for now is
+not the highest priority.
 
-try:
-    if not has_cmd('katex'):
-        os.system('npm install katex')
-        os.environ['PATH'] = os.environ['PATH'] + ':./node_modules/.bin'
-    katex_prerender = True
-except Exception as e:
-    print('Could not find katex with error %s' %(e,))
-    katex_prerender = False
+https://github.com/readthedocs/readthedocs.org/issues/7788
+https://github.com/hagenw/sphinxcontrib-katex/issues/37
+'''
+#try:
+    #if not has_cmd('katex'):
+        #os.system('npm install katex')
+        #os.environ['PATH'] = os.environ['PATH'] + ':./node_modules/.bin'
+    #katex_prerender = True
+#except Exception as e:
+    #print('Could not find katex with error %s' %(e,))
+    #katex_prerender = False
 
 nbsphinx_requirejs_path = '' # fixes katex not working
 
