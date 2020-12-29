@@ -312,8 +312,8 @@ try:
     os.environ['PATH'] = os.environ['PATH'] + ':./node_modules/.bin'
     katex_prerender = True
 except Exception as e:
-    print('Could not find katex')
-    katex_prerender = True
+    print('Could not find katex with error %s' %(e,))
+    katex_prerender = False
 
 nbsphinx_requirejs_path = '' # fixes katex not working
 
