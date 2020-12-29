@@ -305,8 +305,18 @@ class UnitAwareClass(object):
         args_base, kwargs_base =  self.input_units_to_dimensionless('__init__', *args, **kwargs)
         self.wrapped = self.wrapped(*args_base, **kwargs_base)
 
+    @classmethod
+    def wrap(self, wrapped):
+        new = super(self, self).__new__(self)
+        new.wrapped = wrapped
+        return new
+
+
 
     def __getattr__(self, name):
+        instance = True
+        if name in self.class_methods or name in self.static_methods:
+            instance = False
         try:
             value = getattr(self.wrapped, name)
         except Exception as e:
@@ -328,12 +338,30 @@ class UnitAwareClass(object):
                     return value
             else:
                 if hasattr(value, '__call__'):
+
+#                    if not instance:
+#                        @functools.wraps(value)
+#                        # Special case where self needs to be passed in specifically
+#                        def call_func_with_inputs_to_SI(*args, **kwargs):
+#                            args_base, kwargs_base = self.input_units_to_dimensionless(self, name, *args, **kwargs)
+#                            result = value(*args_base, **kwargs_base)
+#                            if name == '__init__':
+#                                return result
+#                            _, _, _, out_vars, out_units = self.method_units[name]
+#                            if not out_units:
+#                                return
+#                            return convert_output(result, out_units, out_vars, self.ureg)
+#
+#                    else:
                     @functools.wraps(value)
                     def call_func_with_inputs_to_SI(*args, **kwargs):
                         args_base, kwargs_base = self.input_units_to_dimensionless(name, *args, **kwargs)
                         result = value(*args_base, **kwargs_base)
                         if name == '__init__':
                             return result
+                        elif type(result) is self.wrapped:
+                            # Creating a new class, wrap it
+                            return self.wrap(result)
                         _, _, _, out_vars, out_units = self.method_units[name]
                         if not out_units:
                             return
@@ -344,7 +372,9 @@ class UnitAwareClass(object):
         else:
             return value
 
+    _another_getattr = classmethod(__getattr__)
 
+    @classmethod
     def input_units_to_dimensionless(self, name, *values, **kw):
         in_vars, in_units, in_vars_to_dict, out_vars, out_units = self.method_units[name]
         conv_values = []
@@ -384,9 +414,18 @@ def clean_parsed_info(parsed_info):
 def wrap_numpydoc_obj(obj_to_wrap):
     callable_methods = {}
     property_unit_map = {}
+    static_methods = set([])
+    class_methods = set([])
     for prop in dir(obj_to_wrap):
         attr = getattr(obj_to_wrap, prop)
         if isinstance(attr, types.FunctionType) or isinstance(attr, types.MethodType) or type(attr) == property:
+            try:
+                if isinstance(obj_to_wrap.__dict__[prop], staticmethod):
+                    static_methods.add(prop)
+                if isinstance(obj_to_wrap.__dict__[prop], classmethod):
+                    class_methods.add(prop)
+            except:
+                pass
             if type(attr) is property:
                 name = prop
                 #name = attr.fget.__name__
@@ -429,9 +468,18 @@ def wrap_numpydoc_obj(obj_to_wrap):
             property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
 
     name = obj_to_wrap.__name__
-    fun = type(name, (UnitAwareClass,),
-           {'wrapped': obj_to_wrap, #'__doc__': obj_to_wrap.__doc__,
-            'property_units': property_unit_map, 'method_units': callable_methods})
+    classkwargs = {'wrapped': obj_to_wrap, #'__doc__': obj_to_wrap.__doc__,
+            'property_units': property_unit_map, 'method_units': callable_methods,
+                   'static_methods': static_methods, 'class_methods': class_methods}
+
+    fun = type(name, (UnitAwareClass,), classkwargs
+           )
+    for m in static_methods:
+        #def a_static_method(*args, the_method=m, **kwargs):
+            #return fun._another_getattr(the_method)(*args, **kwargs)
+        setattr(fun, m, staticmethod(fun._another_getattr(m)))
+    for m in class_methods:
+        setattr(fun, m, classmethod(fun._another_getattr(m)))
     return fun
 
 def kwargs_to_args(args, kwargs, signature):

@@ -339,16 +339,45 @@ def Morsi_Alexander(Re):
     r'''Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
+    If Re < 0.1:
+
     .. math::
-        C_D = \left\{ \begin{array}{ll}
-        \frac{24}{Re} & \mbox{if $Re < 0.1$}\\
-        \frac{22.73}{Re}+\frac{0.0903}{Re^2} + 3.69 & \mbox{if $0.1 < Re < 1$}\\
-        \frac{29.1667}{Re}-\frac{3.8889}{Re^2} + 1.2220 & \mbox{if $1 < Re < 10$}\\
-        \frac{46.5}{Re}-\frac{116.67}{Re^2} + 0.6167 & \mbox{if $10 < Re < 100$}\\
-        \frac{98.33}{Re}-\frac{2778}{Re^2} + 0.3644 & \mbox{if $100 < Re < 1000$}\\
-        \frac{148.62}{Re}-\frac{4.75\times10^4}{Re^2} + 0.3570 & \mbox{if $1000 < Re < 5000$}\\
-        \frac{-490.5460}{Re}+\frac{57.87\times10^4}{Re^2} + 0.46 & \mbox{if $5000 < Re < 10000$}\\
-        \frac{-1662.5}{Re}+\frac{5.4167\times10^6}{Re^2} + 0.5191 & \mbox{if $10000 < Re < 50000$}\end{array} \right.
+        C_D = \frac{24}{Re}
+
+    If 0.1 < Re < 1:
+
+    .. math::
+        C_D = \frac{22.73}{Re}+\frac{0.0903}{Re^2} + 3.69
+
+    If 1 < Re < 10:
+
+    .. math::
+        C_D = \frac{29.1667}{Re}-\frac{3.8889}{Re^2} + 1.2220
+
+    If 10 < Re < 100:
+
+    .. math::
+        C_D =\frac{46.5}{Re}-\frac{116.67}{Re^2} + 0.6167
+
+    If 100 < Re < 1000:
+
+    .. math::
+        C_D = \frac{98.33}{Re}-\frac{2778}{Re^2} + 0.3644
+
+    If 1000 < Re < 5000:
+
+    .. math::
+        C_D =  \frac{148.62}{Re}-\frac{4.75\times10^4}{Re^2} + 0.3570
+
+    If 5000 < Re < 10000:
+
+    .. math::
+        C_D = \frac{-490.5460}{Re}+\frac{57.87\times10^4}{Re^2} + 0.46
+
+    If 10000 < Re < 50000:
+
+    .. math::
+        C_D = \frac{-1662.5}{Re}+\frac{5.4167\times10^6}{Re^2} + 0.5191
 
     Parameters
     ----------
@@ -784,17 +813,50 @@ def Clift(Re):
     r'''Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
+    If Re < 0.01:
+
     .. math::
-        C_D = \left\{ \begin{array}{ll}
-        \frac{24}{Re} + \frac{3}{16} & \mbox{if $Re < 0.01$}\\
-        \frac{24}{Re}(1 + 0.1315Re^{0.82 - 0.05\log Re}) & \mbox{if $0.01 < Re < 20$}\\
-        \frac{24}{Re}(1 + 0.1935Re^{0.6305}) & \mbox{if $20 < Re < 260$}\\
-        10^{[1.6435 - 1.1242\log Re + 0.1558[\log Re]^2} & \mbox{if $260 < Re < 1500$}\\
-        10^{[-2.4571 + 2.5558\log Re - 0.9295[\log Re]^2 + 0.1049[\log Re]^3} & \mbox{if $1500 < Re < 12000$}\\
-        10^{[-1.9181 + 0.6370\log Re - 0.0636[\log Re]^2} & \mbox{if $12000 < Re < 44000$}\\
-        10^{[-4.3390 + 1.5809\log Re - 0.1546[\log Re]^2} & \mbox{if $44000 < Re < 338000$}\\
-        9.78 - 5.3\log Re & \mbox{if $338000 < Re < 400000$}\\
-        0.19\log Re - 0.49 & \mbox{if $400000 < Re < 1000000$}\end{array} \right.
+        C_D = \frac{24}{Re} + \frac{3}{16}
+
+    If 0.01 < Re < 20:
+
+    .. math::
+        C_D = \frac{24}{Re}(1 + 0.1315Re^{0.82 - 0.05\log Re})
+
+    If 20 < Re < 260:
+
+    .. math::
+        C_D = \frac{24}{Re}(1 + 0.1935Re^{0.6305})
+
+    If 260 < Re < 1500:
+
+    .. math::
+        C_D = 10^{[1.6435 - 1.1242\log Re + 0.1558[\log Re]^2}
+
+    If 1500 < Re < 12000:
+
+    .. math::
+        C_D = 10^{[-2.4571 + 2.5558\log Re - 0.9295[\log Re]^2 + 0.1049[\log Re]^3}
+
+    If 12000 < Re < 44000:
+
+    .. math::
+        C_D = 10^{[-1.9181 + 0.6370\log Re - 0.0636[\log Re]^2}
+
+    If 44000 < Re < 338000:
+
+    .. math::
+        C_D = 10^{[-4.3390 + 1.5809\log Re - 0.1546[\log Re]^2}
+
+    If 338000 < Re < 400000:
+
+    .. math::
+        C_D = 9.78 - 5.3\log Re
+
+    If 400000 < Re < 1000000:
+
+    .. math::
+        C_D = 0.19\log Re - 0.49
 
     Parameters
     ----------

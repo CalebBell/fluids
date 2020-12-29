@@ -370,6 +370,9 @@ def test_ATMOSPHERE_1976_units():
     assert_pint_allclose(five_km.v_sonic, 320.54551967, u.m/u.s)
     assert_pint_allclose(five_km.sonic_velocity(300*u.K), 347.220809082, u.m/u.s)
 
+    # Test the staticmethod works alone
+    assert_pint_allclose(ATMOSPHERE_1976.sonic_velocity(300*u.K), 347.220809082, u.m/u.s)
+
     # Check AttribtueError is property raised on __getstate__ for classes
     # as they now have a __getattr_ method
     import copy
