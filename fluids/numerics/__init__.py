@@ -1422,7 +1422,7 @@ def polyint_over_x(coeffs):
 #        poly_terms.append(coeffs[i]/i)
 #    return list(reversed(poly_terms)), log_coef
 #
-def chebder(c, m=1, scl=1):
+def chebder(c, m=1):
     """not quite a copy of numpy's version because this was faster to
     implement."""
     c = list(c)
@@ -1432,11 +1432,11 @@ def chebder(c, m=1, scl=1):
 
     n = len(c)
     if cnt >= n:
-        c = c[:1]*0
+        c = []
     else:
         for i in range(cnt):
             n = n - 1
-            c *= scl
+#            c *= scl
             der = [0.0 for _ in range(n)]
             for j in range(n, 2, -1):
                 der[j - 1] = (j + j)*c[j]

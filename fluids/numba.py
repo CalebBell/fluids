@@ -275,7 +275,7 @@ set_signatures = {}
 remove_comment_line = re.compile(r'''r?(['"])\1\1(.*?)\1{3}''', re.DOTALL)
 
 def remove_for_numba(source):
-    source = re.sub(r'''.*# ?(numba|NUMBA) ?: *(DELETE|delete).*''', '', source)
+    source = re.sub(r'''.*# ?(numba|NUMBA) ?: *(DELETE|delete|comment|COMMENT).*''', '', source)
     source = re.sub(r'''#(.*)# ?(numba|NUMBA) ?: *(UNCOMMENT|uncomment).*''', r'\1', source)
     return source
 
