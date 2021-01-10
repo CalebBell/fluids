@@ -4606,10 +4606,10 @@ def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90.0):
         {Q_{comb}}\right)^2\right]
 
     .. math::
-        \beta_{branch} = \frac{D_{branch}}{D_{comb}}
+        \beta_{branch} = \frac{D_{branch}}{D_{comb}} = \frac{D_{branch}}{D_{run}}
 
     In the above equation, D = 1, E = 2. See the notes for definitions of F and
-    C.
+    C. The run and combined diameter are assumed the same in this model.
 
     Parameters
     ----------
@@ -4709,10 +4709,11 @@ def K_run_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
         {Q_{comb}}\right)^2\right]
 
     .. math::
-        \beta_{branch} = \frac{D_{branch}}{D_{comb}}
+        \beta_{branch} = \frac{D_{branch}}{D_{comb}} = \frac{D_{branch}}{D_{run}}
 
     In the above equation, C=1, D=0, E=1. See the notes for definitions of F
-    and also the special case of 90°.
+    and also the special case of 90°. The run and combined diameter are assumed
+    the same in this model.
 
     Parameters
     ----------
@@ -4799,9 +4800,10 @@ def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
         \beta_{branch}^2}\right)\cos\theta\right]
 
     .. math::
-        \beta_{branch} = \frac{D_{branch}}{D_{comb}}
+        \beta_{branch} = \frac{D_{branch}}{D_{comb}} = \frac{D_{branch}}{D_{run}}
 
-    See the notes for definitions of H, J, and G.
+    See the notes for definitions of H, J, and G. The run and combined diameter
+    are assumed the same in this model.
 
     Parameters
     ----------
@@ -4907,9 +4909,10 @@ def K_run_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
         K_{run} = M \left(\frac{Q_{branch}}{Q_{comb}}\right)^2
 
     .. math::
-        \beta_{branch} = \frac{D_{branch}}{D_{comb}}
+        \beta_{branch} = \frac{D_{branch}}{D_{comb}} = \frac{D_{branch}}{D_{run}}
 
-    See the notes for the definition of M.
+    See the notes for the definition of M. The run and combined diameter are
+    assumed the same in this model.
 
     Parameters
     ----------
