@@ -138,6 +138,10 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
     return z
 
 
+@numba.njit(cache=caching, **extra_args_std)
+def normalize(values):
+    tot_inv = 1.0/sum(values)
+    return np.array([i*tot_inv for i in values])
 
 @numba.njit(cache=caching, **extra_args_std)
 def bisplev(x, y, tck, dx=0, dy=0):
@@ -245,18 +249,22 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_black
 
         orig_func = getattr(real_mod, func)
         source = inspect.getsource(orig_func)
-        source = remove_for_numba(source) # do before anything else
-        source = return_value_numpy(source)
-        source = re.sub(list_mult_expr, numpy_not_list_expr, source)
-        parallel = 'prange' in source
-        source = re.sub(match_prange, sub_prange, source)
+        source = remove_for_numba(source)  # do before anything else
+        if type(orig_func) is not type:
+            source = return_value_numpy(source)
+            source = re.sub(list_mult_expr, numpy_not_list_expr, source)
+            parallel = 'prange' in source
+            source = re.sub(match_prange, sub_prange, source)
 #        if 'Lindsay_Bromley' in source:
 #            print(source)
 #            print(parallel, 'hi', extra_args)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
         new_func = fake_mod.__dict__[func]
         do_cache = caching and func not in cache_blacklist
-        obj = conv_fun(cache=do_cache, parallel=parallel, **extra_args)(new_func)
+        if type(orig_func) is type:
+            obj = new_func
+        else:
+            obj = conv_fun(cache=do_cache, parallel=parallel, **extra_args)(new_func)
 #        if 'Wilke_large' in source:
 #            print(id(obj), 'id')
         __funcs[func] = obj
@@ -342,6 +350,7 @@ def create_numerics(replaced, vec=False):
     NUMERICS_SUBMOD.njit = numba.njit
     NUMERICS_SUBMOD.jit = numba.jit
     NUMERICS_SUBMOD.array_if_needed = np.array
+    NUMERICS_SUBMOD.sum = np.sum
 
     NUMERICS_SUBMOD_COPY.loader.exec_module(NUMERICS_SUBMOD)
 
@@ -403,6 +412,9 @@ def create_numerics(replaced, vec=False):
 #    replaced['lambertw'] = NUMERICS_SUBMOD.__dict__['lambertw'] = NUMERICS_SUBMOD.__dict__['py_lambertw']
     for s in ('ellipe', 'gammaincc', 'gamma', 'i1', 'i0', 'k1', 'k0', 'iv', 'hyp2f1', 'erf', 'ellipkinc', 'ellipeinc'):
         replaced[s] = NUMERICS_SUBMOD.__dict__[s]
+
+    NUMERICS_SUBMOD.normalize = normalize
+    replaced['normalize'] = normalize
     return replaced, NUMERICS_SUBMOD
 
 replaced = {'sum': np.sum, 'combinations': combinations, 'np': np}
@@ -444,6 +456,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
             SUBMOD.IS_NUMBA_VEC = True
         SUBMOD_COPY.loader.exec_module(SUBMOD)
         SUBMOD.np = np
+        SUBMOD.sum = np.sum
 
         SUBMOD.__dict__.update(replaced)
         new_mods.append(SUBMOD)

@@ -53,6 +53,12 @@ def mark_as_numba(func):
     return func
 
 @mark_as_numba
+def test_normalize():
+    xs = np.array([1,2,3,4])
+    res = fluids.numba.normalize(xs)
+    assert type(res) == np.ndarray
+
+@mark_as_numba
 def test_Clamond_numba():
     assert_close(fluids.numba.Clamond(10000.0, 2.0),
                  fluids.Clamond(10000.0, 2.0), rtol=5e-15)

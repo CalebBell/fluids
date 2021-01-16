@@ -97,6 +97,10 @@ please cite fluids if used in your work. Please also consider contributing
 any changes you make back, such that they may be incorporated into the
 main library and all of us will benefit from them.
 
+Compliance information
+----------------------
+The author testifies that this software is not subject to the US EAR. The country of origin of this software is Canada.
+The author also confirms confirm that this software is not developed by, contain components developed by, or receive substantial influence from entities prohibited by Section 889 of the 2019 NDAA.
 
 Citation
 --------
