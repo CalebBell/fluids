@@ -23,7 +23,7 @@ SOFTWARE.'''
 from setuptools import setup
 
 classifiers = [
-    'Development Status :: 3 - Alpha',
+    'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
     'Intended Audience :: Education',
     'Intended Audience :: Manufacturing',
@@ -67,8 +67,8 @@ setup(
     name='fluids',
     packages=['fluids'],
     license='MIT',
-    version='0.1.88',
-    download_url='https://github.com/CalebBell/fluids/tarball/0.1.88',
+    version='1.0.0',
+    download_url='https://github.com/CalebBell/fluids/tarball/1.0.0',
     description=description,
     long_description=open('README.rst').read(),
     install_requires=["numpy>=1.5.0", "scipy>=0.9.0"],
