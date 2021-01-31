@@ -475,7 +475,7 @@ class ATMOSPHERE_NRLMSISE00(object):
         self.f107_avg = f107_avg
         self.geomagnetic_disturbance_indices = geomagnetic_disturbance_indices
 
-        from .nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
+        from fluids.nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
         alt = Z*1e-3
         output_obj = nrlmsise_output()
         input_obj = nrlmsise_input()
@@ -602,7 +602,7 @@ def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
        doi:10.1016/0021-9169(95)00122-0.
     '''
     try:
-        from .optional.hwm93 import gws5
+        from fluids.optional.hwm93 import gws5
     except: # pragma: no cover
         raise ImportError(no_gfortran_error)
     slt_hour = seconds/3600. + longitude/15.
@@ -693,7 +693,7 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
     os.environ["HWMPATH"] = os.path.join(os.path.dirname(__file__), 'optional')
     try:
         try:
-            from .optional import hwm14
+            from fluids.optional import hwm14
         except:
             import optional.hwm14
     except: # pragma: no cover
@@ -1085,7 +1085,7 @@ def _get_extra_radiation_shim(datetime_or_doy, solar_constant=1366.1,
 
         Ea = solar_constant * RoverR0sqrd
         return Ea
-    from pvlib import get_extra_radiation
+    from pvlib.irradiance import get_extra_radiation
     return get_extra_radiation(datetime_or_doy=datetime_or_doy,
                               solar_constant=solar_constant,
                               method=method,

@@ -3075,7 +3075,7 @@ class TANK(object):
     Notes
     -----
     For torpsherical tank heads, the following `f` and `k` parameters are used
-    in standards. The default is ASME F&D	.
+    in standards. The default is ASME F&D.
 
 
     +----------------------+-----+-------+

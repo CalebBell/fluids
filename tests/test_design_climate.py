@@ -479,4 +479,4 @@ def test_get_station_year_text():
 @pytest.mark.online
 def test_geocode():
     latlon = geocode('Fredericton, NB')
-    assert_allclose(latlon, (45.966425, -66.645813), rtol=1e-4)
+    assert_allclose(latlon, (45.966425, -66.645813), rtol=5e-4)

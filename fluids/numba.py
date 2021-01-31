@@ -40,7 +40,7 @@ from math import pi
 import fluids.optional.spa
 
 
-caching = False
+caching = True
 extra_args_std = {'nogil': True, 'fastmath': True}
 extra_args_vec = {}
 __all__ = []
