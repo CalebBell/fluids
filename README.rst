@@ -42,8 +42,6 @@ other flow meters, ejectors, relief valves, and more.
 
 The fluids library is designed to be a low-overhead, lightweight repository
 of engineering knowledge and utilities that relate to fluid dynamics.
-It occupies ~4 MB of RAM on load and should load in a small fraction of a
-second.
 
 Fluids was originally tightly integrated with SciPy and NumPy; today they
 are optional components used for only a small amount of functionality
@@ -55,9 +53,10 @@ and micropython.
 While the routines in Fluids are normally quite fast and as efficiently
 coded as possible, depending on the application there can still be a need
 for further speed. PyPy provides a substantial speed boost of 6-12 times
-for most methods. It is the author's preferred accelerator. Fluids also
+for most methods. Fluids also
 supports Numba, a powerful accelerator that works well with NumPy.
-
+The Numba interface to fluids also makes it easy to multithread
+execution as well, avoiding Python GIL issue.
 
 Fluids runs on all operating systems which support Python, is quick to
 install, and is free of charge. Fluids is designed to
@@ -105,7 +104,7 @@ Bug reports
 To report bugs, please use the fluids's Bug Tracker at:
 
     https://github.com/CalebBell/fluids/issues
-    
+
 If you have further questions about the usage of the library, feel free
 to contact the author at Caleb.Andrew.Bell@gmail.com.
 
@@ -113,8 +112,8 @@ to contact the author at Caleb.Andrew.Bell@gmail.com.
 License information
 -------------------
 
-Fluids is MIT licensed. See ``LICENSE.txt`` for full information 
-on the terms & conditions for usage of this software, and a 
+Fluids is MIT licensed. See ``LICENSE.txt`` for full information
+on the terms & conditions for usage of this software, and a
 DISCLAIMER OF ALL WARRANTIES.
 
 Although not required by the fluids license, if it is convenient for you,
@@ -128,5 +127,5 @@ Citation
 
 To cite fluids in publications use::
 
-    Caleb Bell (2016-2020). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
+    Caleb Bell (2016-2021). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
     https://github.com/CalebBell/fluids.

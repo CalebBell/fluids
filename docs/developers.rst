@@ -11,6 +11,7 @@ The `fluids` project has grown to be:
 * Capable of vectorized computation
     * Wrapped with Numba's ufunc machinery.
     * Wrapped with numpy's np.vectorize.
+    * Numba's nogil mechanism is set and used on all methods.
 * Comprehensive
     * Most correlations taught at the undergrad level are included.
     * Most ancillary calculations such as atmospheric properties and tank geometry are included.
@@ -18,7 +19,7 @@ The `fluids` project has grown to be:
     * Pint interface.
     * All docstrings/code in base SI units.
 
-There is no official road map, no full time developers, and no commercial support for this library - this is a hobby project primarily by Caleb Bell. Contributors are welcome! Fluid dynamics is really big field and one author can't do everything.
+There is no official road map, no full time developers, and no commercial support for this library - this is a hobby project developed primarily by Caleb Bell. Contributors are welcome! Fluid dynamics is really big field and one author can't do everything.
 
 Scope and Future Features
 -------------------------
@@ -60,7 +61,7 @@ This should only take a few seconds, and show red output if a test is broken. To
 
 python3 -m pytest -m "not slow" --durations=100
 
-If a test you added appears in this list, consider splitting it into a fast portion and a slow portion.
+If a test you added appears in this list, consider splitting it into a fast portion and a slow portion and decorating the slow portion with "@pytest.mark.slow".
 
 Docstrings
 ----------
@@ -79,7 +80,7 @@ Doctest
 -------
 As anyone who has used doctest before knows, floating-point calculations have trivially different results across platforms. An example cause of this is that most compilers have different sin/cos implementations which are not identical. However, docstrings are checked bit-for-bit, so consistent output is important. Python is better than most languages at maintaining the same results between versions but it is still an issue.
 
-Thanks to a fairly new pytest feature, numbers in doctests can be checked against the number of digits given, not against the real result. It is recommended to put numbers in doctests with around 13 digits, instead of the full repr() string for a number. It is convenient to round the number instead of just removing decimals.
+Thanks to a fairly new pytest feature, numbers in doctests can be checked against the number of digits given, not against the real result. It is suggested to put numbers in doctests with around 13 digits, instead of the full repr() string for a number. It is convenient to round the number instead of just removing decimals.
 
 Type Hints
 ----------
@@ -89,8 +90,6 @@ For that reason `fluids` includes a set of type hints as stub files (.pyi extens
 An included script `make_test_stubs` interfaces with this library, which runs the test suite and at the end generates the type hints including the types of every argument to every function seen in the test suite. This is another reason comprehensive test suite coverage is required.
 
 Monkeytype on the `fluids` test suite takes ~15 minutes to run, and generates a ~1 GB database file which is deleted at the end of the run. Some manipulation of the result by hand may be required in the future, or MonkeyType may be replaced by making the type hints by hand. It is planned to incorporate the type stubs into the main file at some point in the future when the tooling is better, and Python 2 support has been dropped completely.
-
-**If you are contributing, the main developer can do this step for your contribution.**
 
 Supported Python Versions
 -------------------------
@@ -135,7 +134,7 @@ On UNIX/Mac OS/WSL, the notebook results can be regenerated with the following s
 
 Continuous Integration
 ----------------------
-Travis and Appveyor are presently used. They test only code in the `release` branch. Some tests, like those that download data from the internet, are not ran by design on their platforms. The same goes for testing `numba` online - getting an up to date version of numba is challenging.
+Github Actions, Travis and Appveyor are presently used. They test only code in the `release` branch. Some tests, like those that download data from the internet, are not ran by design on their platforms. The same goes for testing `numba` online - getting an up to date version of numba is challenging.
 
 Load Speed
 ----------
@@ -143,7 +142,7 @@ On CPython, `fluids` will load Numpy on load if it is available and `SciPy` when
 
 RAM Usage
 ---------
-Loading fluids alone takes ~4 MB of RAM. Most of this is actually docstrings. About 200 KB of pipe schedules, 100 KB of pump information, and 200 KB of Sieve data is also included. Using fluids should not increase RAM except by the size of objects you initiate; the only things cached are very small.
+Loading fluids alone takes ~4 MB of RAM. About 2 MB of this is actually docstrings. About 200 KB of pipe schedules, 100 KB of pump information, and 200 KB of Sieve data is also included. Using fluids should not increase RAM except by the size of objects you initiate; the only things cached are very small. The -OO flag can be used in Python to cut RAM usage significantly, which will not load any docstrings.
 
 Adding new data and methods is well worth the price of increasing RAM, but it is intended to keep RAM consumption small via lazy-loading any large data sets. Examples of this can be found in atmosphere.py - spa.py and nrlmsie00.py are lazy-loaded.
 
@@ -188,12 +187,13 @@ The main pros of Numba are:
 * Works with CPython.
 * Pretty good at generating SIMD instructions.
 * Fast. Gets all the benefits that LLVM gets. This means if you include a line of code that does nothing in your function, it probably won't run once compiled with numba.
+* When a complete set of code is wrapped by Numba, it can be multithreaded easily.
 
 The main cons of Numba are:
 
-* Doesn't come close to supporting all of Python. This really hurts on things like dictionary lookups or functions that return dictionaries.
-* Not available on many platforms, used to require Anaconda.
-* Some code can be really, really slow to compile today. Compiling `fluids` with numba takes ~3 minutes today, after some optimizations. Caching of functions that take functions as arguments is not yet supported.
+* It doesn't come close to supporting all of Python. This really hurts on things like dictionary lookups or functions that return dictionaries.
+* It is not available on many platforms, used to require Anaconda.
+* Some code can be really, really slow to compile today. Compiling `fluids` with numba takes ~3 minutes today, after some optimizations. Caching of functions that take functions as arguments is not yet supported, nor are jitclasses.
 * Can be a pain to work with.
 
 Quite a few compromises in the library were made to add Numba compatibility and in cases to make Numba even more performant:
@@ -204,6 +204,8 @@ Quite a few compromises in the library were made to add Numba compatibility and 
 * Sometimes the only way to do something is by changing the code directly. Append "# numba: delete" at the end of a line in a function to delete the line. Add a new commented out line, and append "# numba: uncomment" to it. Then put the name of that function in the variable `to_change` in numba.py, and the changes will be made when using the Numba interface.
 * 1D arrays should be initialized like [0.0]*4, [my_thing]*my_count; and they put the function in the same `to_change` variable. This will transform them into the right type of array for Numba.
 * Numba uses efficient cbrts while CPython and PyPy do not; any case of x\*\*(1/3) will turn into a cbrt. x\*\*(2/3) will not, but can be done by hand.
+
+It is hoped many of these trade offs can be removed/resolved by future features added to Numba.
 
 Things to Keep In Mind While Coding
 -----------------------------------

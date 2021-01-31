@@ -107,7 +107,7 @@ Citation
 
 To cite fluids in publications use::
 
-    Caleb Bell (2016-2020). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
+    Caleb Bell (2016-2021). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
     https://github.com/CalebBell/fluids.
 
 
