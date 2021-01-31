@@ -8,8 +8,8 @@ fluids
 .. image:: http://img.shields.io/badge/docs-latest-brightgreen.svg?style=flat
    :target: https://fluids.readthedocs.io/
    :alt: Documentation
-.. image:: http://img.shields.io/travis/CalebBell/fluids/master.svg?style=flat
-   :target: https://travis-ci.org/CalebBell/fluids
+.. image:: https://github.com/CalebBell/fluids/workflows/Build/badge.svg
+   :target: https://github.com/CalebBell/fluids/actions
    :alt: Build_status
 .. image:: http://img.shields.io/badge/license-MIT-blue.svg?style=flat
    :target: https://github.com/CalebBell/fluids/blob/master/LICENSE.txt
