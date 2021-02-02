@@ -1,6 +1,5 @@
 #from fluids import *
 from fluids import isothermal_gas
-from fluids import control_valve_noise_g_2011, control_valve_noise_l_2015, size_control_valve_l, size_control_valve_g
 
 
 class TimeCompressibleSuite:
@@ -10,6 +9,8 @@ class TimeCompressibleSuite:
     def time_compressible(self):
         isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, m=145.48475726, D=None)
         
+from fluids import control_valve_noise_g_2011, control_valve_noise_l_2015, size_control_valve_l, size_control_valve_g
+
 class TimeControlValveSuite:
     def setup(self):
         pass
@@ -25,3 +26,13 @@ class TimeControlValveSuite:
         
     def time_control_valve_noise_g_2011(self):
         control_valve_noise_g_2011(m=2.22, P1=1E6, P2=7.2E5, T1=450, rho=5.3, gamma=1.22, MW=19.8, Kv=77.85,  d=0.1, Di=0.2031, FL=None, FLP=0.792, FP=0.98, Fd=0.296, t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
+        
+        
+from fluids import C_Reader_Harris_Gallagher
+
+class TimeFlowMeterSuite:
+    def setup(self):
+        pass
+
+    def time_C_Reader_Harris_Gallagher(self):
+        C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange')
