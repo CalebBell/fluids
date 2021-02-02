@@ -54,7 +54,7 @@ Today, the list of things known not to work is as follows:
 - Everything in :py:mod:`fluids.atmosphere`
 - Everything in :py:mod:`fluids.piping` (uses global lookups)
 - In :py:mod:`fluids.friction`, only :py:func:`~.nearest_material_roughness`,  :py:func:`~.material_roughness`,  :py:func:`~.roughness_Farshad` are unsupported as they use global lookups.
-
+- in :py:mod:`fluids.compressible`, :py:func:`~.isothermal_gas`, has experienced some regressions on the part of numba.
 
 Numpy Support
 -------------

@@ -908,7 +908,7 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
             try:
                 return ridder(isothermal_gas_err_P1, a=P2, b=Pcf, args=(fd, rho, P2, L, D, m))
             except:
-                m_max = isothermal_gas(rho, fd, P1=Pcf, P2=P2, L=L, D=D)
+                m_max = isothermal_gas(rho, fd, P1=Pcf, P2=P2, L=L, D=D)  # numba: delete
                 raise ValueError('The desired mass flow rate of %f kg/s cannot ' # numba: delete
                                  'be achieved with the specified downstream pressure; the maximum flowrate is ' # numba: delete
                                  '%f kg/s at an upstream pressure of %f Pa' %(m, m_max, Pcf)) # numba: delete
