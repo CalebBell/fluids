@@ -1,19 +1,60 @@
 #from fluids import *
 import fluids.numba
+import numba
+from datetime import datetime
+import pytz
 
-from fluids.atmosphere import ATMOSPHERE_1976
+
+
+from fluids.atmosphere import ATMOSPHERE_1976, ATMOSPHERE_NRLMSISE00, airmass, solar_position, earthsun_distance, sunrise_sunset, solar_irradiation
 
 ATMOSPHERE_1976_numba = fluids.numba.ATMOSPHERE_1976
+airmass_numba = fluids.numba.atmosphere.airmass
+
+@numba.njit
+def numba_int_airmass(Z):
+    return fluids.numba.atmosphere.ATMOSPHERE_1976(Z, 0).rho
+
 
 class TimeAtmosphereSuite:
     def setup(self):
         ATMOSPHERE_1976_numba(5000.0)
+        self.date_test_es = datetime(2020, 6, 6, 10, 0, 0, 0)
+        self.tz_dt = pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 7, 10, 57))
+        self.tz_dt2 = pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5))
+
+
 
     def time_ATMOSPHERE_1976(self):
         ATMOSPHERE_1976(5000.0)
 
     def time_ATMOSPHERE_1976_numba(self):
         ATMOSPHERE_1976_numba(5000.0)
+        
+    def time_ATMOSPHERE_1976_pressure_integral(self):
+        ATMOSPHERE_1976.pressure_integral(288.6, 84100.0, 147.0)
+        
+    def time_ATMOSPHERE_NRLMSISE00(self):
+        ATMOSPHERE_NRLMSISE00(1E3, 45, 45, 150)
+        
+    def time_airmass(self):
+        airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90.0)
+        
+    def time_airmass_numba(self):
+        airmass_numba(numba_int_airmass, 90.0)
+        
+    def time_earthsun_distance(self):
+        earthsun_distance(self.date_test_es)
+    
+    def time_solar_position(self):
+        solar_position(self.tz_dt, -31.95265, 115.85742)
+        
+    def time_sunrise_sunset(self):
+        sunrise_sunset(self.tz_dt, 51.0486, -114.07)
+        
+    def time_solar_irradiation(self):
+        solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3, moment=self.tz_dt2, surface_tilt=41.0, surface_azimuth=180.0)
+
 
 from fluids import isothermal_gas
 
