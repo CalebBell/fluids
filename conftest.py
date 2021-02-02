@@ -11,6 +11,8 @@ def pytest_ignore_collect(path):
         # numba does not yet run under pypy
         if 'numba' in path:
             return True
+        if 'benchmarks' in path:
+            return True
         if '.rst' in path: # skip .rst tests as different rendering from pint and no support for NUMBER flag
             return True
     if sys.version[0] == '2':
