@@ -18,7 +18,7 @@ def numba_int_airmass(Z):
 
 class TimeAtmosphereSuite:
     def setup(self):
-        ATMOSPHERE_1976_numba(5000.0)
+        self.time_ATMOSPHERE_1976_numba()
         self.date_test_es = datetime(2020, 6, 6, 10, 0, 0, 0)
         self.tz_dt = pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 7, 10, 57))
         self.tz_dt2 = pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5))
@@ -56,14 +56,22 @@ class TimeAtmosphereSuite:
         solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3, moment=self.tz_dt2, surface_tilt=41.0, surface_azimuth=180.0)
 
 
-from fluids import isothermal_gas
+from fluids import isothermal_gas, isentropic_work_compression
+isentropic_work_compression_numba = fluids.numba.isentropic_work_compression
+
 
 class TimeCompressibleSuite:
     def setup(self):
-        pass
+        self.time_isentropic_work_compression_numba()
 
     def time_compressible(self):
         isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, m=145.48475726, D=None)
+        
+    def time_isentropic_work_compression(self):
+        isentropic_work_compression(P1=1E5, P2=1E6, T1=300.0, k=1.4, eta=0.78)
+        
+    def time_isentropic_work_compression_numba(self):
+        isentropic_work_compression_numba(P1=1E5, P2=1E6, T1=300.0, k=1.4, eta=0.78)
         
 from fluids import control_valve_noise_g_2011, control_valve_noise_l_2015, size_control_valve_l, size_control_valve_g
 
