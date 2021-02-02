@@ -1,7 +1,21 @@
 #from fluids import *
-from fluids import isothermal_gas
 import fluids.numba
 
+from fluids.atmosphere import ATMOSPHERE_1976
+
+ATMOSPHERE_1976_numba = fluids.numba.ATMOSPHERE_1976
+
+class TimeAtmosphereSuite:
+    def setup(self):
+        ATMOSPHERE_1976_numba(5000.0)
+
+    def time_ATMOSPHERE_1976(self):
+        ATMOSPHERE_1976(5000.0)
+
+    def time_ATMOSPHERE_1976_numba(self):
+        ATMOSPHERE_1976_numba(5000.0)
+
+from fluids import isothermal_gas
 
 class TimeCompressibleSuite:
     def setup(self):
