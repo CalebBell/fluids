@@ -220,7 +220,8 @@ class ATMOSPHERE_1976(object):
         kg : float
             Thermal conductivity, [W/m/K]
         '''
-        return 2.64638E-3*T**1.5/(T + 245.4*10**(-12./T))
+        # 10**(-12./T) = exp(-12*log(10)/T) = -27.63102111...
+        return 2.64638E-3*T*sqrt(T)/(T + 245.4*exp(-27.63102111592855/T))
 
     @staticmethod
     def viscosity(T):
@@ -240,7 +241,7 @@ class ATMOSPHERE_1976(object):
         mug : float
             Viscosity, [Pa*s]
         '''
-        return 1.458E-6*T**1.5/(T + 110.4)
+        return 1.458E-6*T*sqrt(T)/(T + 110.4)
 
     @staticmethod
     def density(T, P):
@@ -306,8 +307,8 @@ class ATMOSPHERE_1976(object):
         g : float
             Acceleration due to gravity, [m/s^2]
         '''
-
-        return g0*(r0/(r0+Z))**2
+        x0 = (r0/(r0+Z))
+        return g0*x0*x0
 
     @staticmethod
     def pressure_integral(T1, P1, dH):

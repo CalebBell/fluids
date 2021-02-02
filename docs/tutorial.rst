@@ -457,25 +457,25 @@ Conditions 5 km into the air:
 
 >>> atm = ATMOSPHERE_1976(Z=5000)
 >>> atm.T, atm.P, atm.rho
-(255.67554322180348, 54048.28614576141, 0.7364284207799743)
+(255.6755432218, 54048.2861457, 0.736428420779)
 
 The standard also specifies simplistic formulas for calculating the thermal 
 conductivity, viscosity, speed of sound, and gravity at a given elevation:
 
 >>> atm.g, atm.mu, atm.k, atm.v_sonic
-(9.791241076982665, 1.628248135362207e-05, 0.02273190295142526, 320.5455196704035)
+(9.79124107698, 1.62824813536e-05, 0.0227319029514, 320.545519670)
 
 Those property routines are static methods, and can be used without instantiating
 an atmosphere object:
 
 >>> ATMOSPHERE_1976.gravity(Z=1E5)
-9.505238763515356
+9.50523876351
 >>> ATMOSPHERE_1976.sonic_velocity(T=300)
-347.22080908230015
+347.2208090823
 >>> ATMOSPHERE_1976.viscosity(T=400)
-2.285266457680251e-05
+2.28526645768e-05
 >>> ATMOSPHERE_1976.thermal_conductivity(T=400)
-0.033657148617592114
+0.03365714861759
 
 :py:class:`~.ATMOSPHERE_NRLMSISE00` is the recommended model, and calculates atmospheric density,
 temperature, and pressure as a function of height, latitude/longitude, day of year, 
