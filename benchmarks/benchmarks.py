@@ -1,5 +1,6 @@
 #from fluids import *
 from fluids import isothermal_gas
+import fluids.numba
 
 
 class TimeCompressibleSuite:
@@ -29,10 +30,14 @@ class TimeControlValveSuite:
         
         
 from fluids import C_Reader_Harris_Gallagher
+C_Reader_Harris_Gallagher_numba = fluids.numba.C_Reader_Harris_Gallagher
 
 class TimeFlowMeterSuite:
     def setup(self):
-        pass
+        C_Reader_Harris_Gallagher_numba(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange')
 
     def time_C_Reader_Harris_Gallagher(self):
         C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange')
+    
+    def time_C_Reader_Harris_Gallagher_numba(self):
+        C_Reader_Harris_Gallagher_numba(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange')
