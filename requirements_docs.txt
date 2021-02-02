@@ -8,3 +8,4 @@ numba
 sphinxcontrib-katex
 sphinx-sitemap
 sphinx==3.2.1
+matplotlib
