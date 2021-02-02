@@ -343,14 +343,16 @@ def test_control_valve_noise_g_2011():
 
 @pytest.mark.scipy
 def test_opening_quick_data():
+    # Add some tolerance to tests after failures on arm64 https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=976558
     from scipy.interpolate import splrep
     from fluids.control_valve import opening_quick_tck, opening_quick, frac_CV_quick
     tck_recalc = splrep(opening_quick, frac_CV_quick, k=3, s=0)
-    [assert_close1d(i, j) for i, j in zip(opening_quick_tck[:-1], tck_recalc[:-1])]
+    [assert_close1d(i, j, atol=1e-10) for i, j in zip(opening_quick_tck[:-1], tck_recalc[:-1])]
 
 @pytest.mark.scipy
 def test_opening_equal_data():
+    # Add some tolerance to tests after failures on arm64 https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=976558
     from scipy.interpolate import splrep
     from fluids.control_valve import opening_equal, frac_CV_equal, opening_equal_tck
     tck_recalc = splrep(opening_equal, frac_CV_equal, k=3, s=0)
-    [assert_close1d(i, j) for i, j in zip(opening_equal_tck[:-1], tck_recalc[:-1])]
+    [assert_close1d(i, j, atol=1e-10) for i, j in zip(opening_equal_tck[:-1], tck_recalc[:-1])]
