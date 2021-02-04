@@ -207,14 +207,16 @@ def change_K_basis(K1, D1, D2):
     Examples
     --------
     >>> change_K_basis(K1=32.68875692997804, D1=.01, D2=.02)
-    523.0201108796487
+    523.020110879
 
     References
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    return K1*(D2/D1)**4
+    r = D2/D1
+    r *= r
+    return K1*r*r
 
 
 ### Entrances
@@ -1898,20 +1900,20 @@ def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
     Examples
     --------
     >>> contraction_sharp(Di1=1, Di2=0.4)
-    0.5301269161591805
+    0.5301269161
     >>> contraction_sharp(Di1=1, Di2=0.4, Re=1e5, method='Hooper')
-    0.5112534765075794
+    0.5112534765
 
     The Hooper method supports laminar flow, while `Rennels` is not even `Re`
     aware.
 
     >>> contraction_sharp(Di1=1, Di2=0.4, Re=1e3, method='Hooper')
-    1.3251840000000001
+    1.325184
 
     Crane offers similar results:
 
     >>> contraction_sharp(3.0, 2.0, method='Crane')
-    0.2777777777777778
+    0.2777777
 
     References
     ----------
@@ -4672,7 +4674,7 @@ def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90.0):
     the branch. The calculated value there is -0.04026.
 
     >>> K_branch_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633)
-    -0.04044108513625682
+    -0.0404410851362
 
     References
     ----------
