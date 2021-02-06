@@ -386,9 +386,138 @@ class TimeFrictionSuite(BaseTimeSuite):
     def time_roughness_Farshad_numba(self):
         roughness_Farshad_numba('Cr13, bare', 0.05)
 
+
+
+from fluids import V_horiz_conical, V_horiz_spherical, V_horiz_torispherical, V_vertical_torispherical_concave, SA_tank, V_tank, SA_partial_horiz_spherical_head, SA_partial_horiz_ellipsoidal_head, SA_partial_horiz_guppy_head, SA_partial_horiz_torispherical_head, V_from_h, SA_from_h
+if not IS_PYPY:
+    V_horiz_conical_numba = fluids.numba.V_horiz_conical
+    V_horiz_spherical_numba = fluids.numba.V_horiz_spherical
+    V_horiz_torispherical_numba = fluids.numba.V_horiz_torispherical
+    V_vertical_torispherical_concave_numba = fluids.numba.V_vertical_torispherical_concave
+    SA_tank_numba = fluids.numba.SA_tank
+    V_tank_numba = fluids.numba.V_tank
+    SA_partial_horiz_spherical_head_numba = fluids.numba.SA_partial_horiz_spherical_head
+    SA_partial_horiz_ellipsoidal_head_numba = fluids.numba.SA_partial_horiz_ellipsoidal_head
+    SA_partial_horiz_guppy_head_numba = fluids.numba.SA_partial_horiz_guppy_head
+    SA_partial_horiz_torispherical_head_numba = fluids.numba.SA_partial_horiz_torispherical_head
+    V_from_h_numba = fluids.numba.V_from_h
+    SA_from_h_numba = fluids.numba.SA_from_h
+
+
+class TimeGeometrySuite(BaseTimeSuite):
+    def time_V_horiz_conical(self):
+        V_horiz_conical(D=108., L=156., a=42., h=36)
+
+    def time_V_horiz_conical_numba(self):
+        V_horiz_conical_numba(D=108., L=156., a=42., h=36)
+        
+        
+    def time_V_horiz_spherical(self):
+        V_horiz_spherical(D=108., L=156., a=0.1, h=36.0)
+
+    def time_V_horiz_spherical_numba(self):
+        V_horiz_spherical_numba(D=108., L=156., a=0.1, h=36.0)
+    
+    
+    def time_V_horiz_torispherical_1(self):
+        V_horiz_torispherical(D=108., L=156., f=1., k=0.06, h=1.0)
+
+    def time_V_horiz_torispherical_1_numba(self):
+        V_horiz_torispherical_numba(D=108., L=156., f=1., k=0.06, h=1.0)
+
+    def time_V_horiz_torispherical_2(self):
+        V_horiz_torispherical(D=108., L=156., f=1., k=0.06, h=84.0)
+
+    def time_V_horiz_torispherical_2_numba(self):
+        V_horiz_torispherical_numba(D=108., L=156., f=1., k=0.06, h=84.0)
+
+    def time_V_horiz_torispherical_3(self):
+        V_horiz_torispherical(D=108., L=156., f=1., k=0.06, h=106.0)
+
+    def time_V_horiz_torispherical_3_numba(self):
+        V_horiz_torispherical_numba(D=108., L=156., f=1., k=0.06, h=106.0)
+        
+    
+    def time_V_vertical_torispherical_concave(self):
+        V_vertical_torispherical_concave(D=113., f=0.71, k=0.081, h=15.0)
+
+    def time_V_vertical_torispherical_concave_numba(self):
+        V_vertical_torispherical_concave_numba(D=113., f=0.71, k=0.081, h=15.0)
+        
+        
+    def time_SA_tank_1(self):
+        SA_tank(D=2.54, L=5, sideA='torispherical', sideB='torispherical', sideA_f=1.039370079, sideA_k=0.062362205, sideB_f=1.039370079, sideB_k=0.062362205)
+
+    def time_SA_tank_1_numba(self):
+        SA_tank_numba(D=2.54, L=5, sideA='torispherical', sideB='torispherical', sideA_f=1.039370079, sideA_k=0.062362205, sideB_f=1.039370079, sideB_k=0.062362205)
+
+
+    def time_V_tank_1(self):
+        V_tank(D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+
+    def time_V_tank_1_numba(self):
+        V_tank_numba(D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+        
+        
+    def time_SA_partial_horiz_spherical_head(self):
+        SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0)
+
+    def time_SA_partial_horiz_spherical_head_numba(self):
+        SA_partial_horiz_spherical_head_numba(D=72., a=48.0, h=24.0)
+        
+        
+    def time_SA_partial_horiz_ellipsoidal_head(self):
+        SA_partial_horiz_ellipsoidal_head(D=72., a=48.0, h=24.0)
+
+    def time_SA_partial_horiz_ellipsoidal_head_numba(self):
+        SA_partial_horiz_ellipsoidal_head_numba(D=72., a=48.0, h=24.0)
+        
+        
+    def time_SA_partial_horiz_guppy_head(self):
+        SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0)
+        
+    def time_SA_partial_horiz_guppy_head_numba(self):
+        SA_partial_horiz_guppy_head_numba(D=72., a=48.0, h=24.0)
+        
+        
+    def time_SA_partial_horiz_torispherical_head_1(self):
+        SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=1.0)
+
+    def time_SA_partial_horiz_torispherical_head_1_numba(self):
+        SA_partial_horiz_torispherical_head_numba(D=72., f=1, k=.06, h=1.0)
+
+    def time_SA_partial_horiz_torispherical_head_2(self):
+        SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=20.0)
+
+    def time_SA_partial_horiz_torispherical_head_2_numba(self):
+        SA_partial_horiz_torispherical_head_numba(D=72., f=1, k=.06, h=20.0)
+
+    def time_SA_partial_horiz_torispherical_head_3(self):
+        SA_partial_horiz_torispherical_head(D=72., f=1, k=.06, h=66.0)
+
+    def time_SA_partial_horiz_torispherical_head_3_numba(self):
+        SA_partial_horiz_torispherical_head_numba(D=72., f=1, k=.06, h=66.0)
+
+
+    def time_V_from_h(self):
+        V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+
+    def time_V_from_h_numba(self):
+        V_from_h_numba(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+        
+        
+    def time_SA_from_h(self):
+        SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+
+    def time_SA_from_h_numba(self):
+        SA_from_h_numba(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+        
+        
+    # TODO test classes in geometry
+
 suites = [TimeAtmosphereSuite, TimeCompressibleSuite, TimeControlValveSuite, 
           TimeDragSuite, TimeFittingsSuite, TimeFlowMeterSuite,
-          TimeFrictionSuite]
+          TimeFrictionSuite, TimeGeometrySuite]
                 
 for suite in suites:
     continue

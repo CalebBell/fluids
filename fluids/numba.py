@@ -575,7 +575,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
    'SA_partial_horiz_spherical_head', '_SA_partial_horiz_spherical_head_to_int',
    '_SA_partial_horiz_ellipsoidal_head_to_int', '_SA_partial_horiz_ellipsoidal_head_limits', 'SA_partial_horiz_ellipsoidal_head',
    '_SA_partial_horiz_guppy_head_to_int', 'SA_partial_horiz_guppy_head', 'SA_partial_horiz_torispherical_head',
-   'SA_from_h'])
+   'SA_from_h', 'V_tank'])
 #    cache_blacklist = set([])
     if vec:
         conv_fun = numba.vectorize
