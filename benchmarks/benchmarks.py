@@ -340,10 +340,55 @@ class TimeFlowMeterSuite(BaseTimeSuite):
         differential_pressure_meter_solver_numba(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Miller orifice', taps='corner')
 
     
+from fluids import ft_Crane, friction_factor, friction_factor_curved, friction_plate_Kumar, roughness_Farshad
+if not IS_PYPY:
+    ft_Crane_numba = fluids.numba.ft_Crane
+    friction_factor_numba = fluids.numba.friction_factor
+    friction_factor_curved_numba = fluids.numba.friction_factor_curved
+    friction_plate_Kumar_numba = fluids.numba.friction_plate_Kumar
+    roughness_Farshad_numba = fluids.numba.roughness_Farshad
 
+
+class TimeFrictionSuite(BaseTimeSuite):
+    def time_ft_Crane(self):
+        ft_Crane(.1)
+
+    def time_ft_Crane_numba(self):
+        ft_Crane_numba(.1)
+        
+    def time_friction_factor(self):
+        friction_factor(Re=1E5, eD=1E-4)
+        
+    def time_friction_factor_numba(self):
+        friction_factor_numba(Re=1E5, eD=1E-4)
+
+    def time_friction_factor_S2(self):
+        friction_factor(Re=2.9E5, eD=1E-5, Method='Serghides_2')
+        
+    def time_friction_factor_S2_numba(self):
+        friction_factor_numba(Re=2.9E5, eD=1E-5, Method='Serghides_2')
+        
+    def time_friction_factor_curved(self):
+        friction_factor_curved(Re=1E5, Di=0.02, Dc=0.5)
+        
+    def time_friction_factor_curved_numba(self):
+        friction_factor_curved_numba(Re=1E5, Di=0.02, Dc=0.5)
+        
+    def time_friction_plate_Kumar(self):
+        friction_plate_Kumar(Re=2000.0, chevron_angle=30.0)
+
+    def time_friction_plate_Kumar_numba(self):
+        friction_plate_Kumar_numba(Re=2000.0, chevron_angle=30.0)
+        
+    def time_roughness_Farshad(self):
+        roughness_Farshad('Cr13, bare', 0.05)
     
+    def time_roughness_Farshad_numba(self):
+        roughness_Farshad_numba('Cr13, bare', 0.05)
 
-suites = [TimeAtmosphereSuite, TimeCompressibleSuite, TimeControlValveSuite, TimeDragSuite, TimeFittingsSuite, TimeFlowMeterSuite]
+suites = [TimeAtmosphereSuite, TimeCompressibleSuite, TimeControlValveSuite, 
+          TimeDragSuite, TimeFittingsSuite, TimeFlowMeterSuite,
+          TimeFrictionSuite]
                 
 for suite in suites:
     continue
