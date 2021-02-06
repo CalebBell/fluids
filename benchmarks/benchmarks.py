@@ -4,6 +4,7 @@ if not IS_PYPY:
     import fluids.numba
     import numba
 from datetime import datetime
+import numpy as np
 import pytz
 import inspect
 
@@ -515,9 +516,92 @@ class TimeGeometrySuite(BaseTimeSuite):
         
     # TODO test classes in geometry
 
+
+from fluids import Q_weir_V_Shen
+if not IS_PYPY:
+    Q_weir_V_Shen_numba = fluids.numba.Q_weir_V_Shen
+
+
+class TimeOpenFlowSuite(BaseTimeSuite):
+    def time_Q_weir_V_Shen(self):
+        Q_weir_V_Shen(0.6, angle=45)
+
+    def time_Q_weir_V_Shen_numba(self):
+        Q_weir_V_Shen_numba(0.6, angle=45)
+
+
+from fluids import dP_packed_bed
+if not IS_PYPY:
+    dP_packed_bed_numba = fluids.numba.dP_packed_bed
+
+
+class TimePackedBedSuite(BaseTimeSuite):
+    def time_dP_packed_bed(self):
+        dP_packed_bed(dp=0.05, voidage=0.492, vs=0.1, rho=1E3, mu=1E-3, Dt=0.015, Method='Guo, Sun, Zhang, Ding & Liu')
+
+    def time_dP_packed_bed_numba(self):
+        dP_packed_bed_numba(dp=0.05, voidage=0.492, vs=0.1, rho=1E3, mu=1E-3, Dt=0.015, Method='Guo, Sun, Zhang, Ding & Liu')
+
+
+from fluids import Stichlmair_wet, Stichlmair_flood
+if not IS_PYPY:
+    Stichlmair_wet_numba = fluids.numba.Stichlmair_wet
+    Stichlmair_flood_numba = fluids.numba.Stichlmair_flood
+
+
+class TimePackedTowerSuite(BaseTimeSuite):
+    def time_Stichlmair_wet(self):
+        Stichlmair_wet(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
+
+    def time_Stichlmair_wet_numba(self):
+        Stichlmair_wet_numba(Vg=0.4, Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
+        
+    def time_Stichlmair_flood(self):
+        Stichlmair_flood(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
+
+    def time_Stichlmair_flood_numba(self):
+        Stichlmair_flood_numba(Vl = 5E-3, rhog=5., rhol=1200., mug=5E-5, voidage=0.68, specific_area=260., C1=32., C2=7., C3=1.)
+
+
+from fluids import ParticleSizeDistribution
+if not IS_PYPY:
+    ParticleSizeDistribution_numba = fluids.numba.ParticleSizeDistribution
+
+
+
+
+class TimeParticleSizeDistributionSuite(BaseTimeSuite):
+    
+    # TODO optimize these; maybe add numba support in the future - or increase support for numpy inputs
+    #
+    def time_ParticleSizeDistribution_init(self):
+        ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
+        numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
+        psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
+
+
+from fluids import nearest_pipe, gauge_from_t, t_from_gauge
+if not IS_PYPY:
+    nearest_pipe_numba = fluids.numba.nearest_pipe
+
+
+class TimePipingSuite(BaseTimeSuite):
+    def time_nearest_pipe(self):
+        nearest_pipe(Di=0.021)
+        
+    def time_gauge_from_t(self):
+        gauge_from_t(.5, SI=False, schedule='BWG')
+        
+    def time_t_from_gauge(self):
+        t_from_gauge(.2, False, 'BWG')
+
 suites = [TimeAtmosphereSuite, TimeCompressibleSuite, TimeControlValveSuite, 
           TimeDragSuite, TimeFittingsSuite, TimeFlowMeterSuite,
-          TimeFrictionSuite, TimeGeometrySuite]
+          TimeFrictionSuite, TimeGeometrySuite, TimeOpenFlowSuite,
+          TimePackedBedSuite, TimePackedTowerSuite, TimeParticleSizeDistributionSuite,
+          TimePipingSuite]
+
+
                 
 for suite in suites:
     continue
