@@ -59,6 +59,18 @@ def test_normalize():
     assert type(res) == np.ndarray
 
 @mark_as_numba
+def test_roughness_Farshad_numba():
+    assert_close(fluids.roughness_Farshad('Cr13, bare', 0.05),
+                 fluids.numba.roughness_Farshad('Cr13, bare', 0.05))
+
+    assert_close(fluids.roughness_Farshad('Cr13, bare'),
+                 fluids.numba.roughness_Farshad('Cr13, bare'))
+
+    assert_close(fluids.roughness_Farshad(coeffs=(0.0021, -1.0055), D=0.05),
+                 fluids.numba.roughness_Farshad(coeffs=(0.0021, -1.0055), D=0.05))
+
+
+@mark_as_numba
 def test_Clamond_numba():
     assert_close(fluids.numba.Clamond(10000.0, 2.0),
                  fluids.Clamond(10000.0, 2.0), rtol=5e-15)

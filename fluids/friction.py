@@ -4037,17 +4037,15 @@ def roughness_Farshad(ID=None, D=None, coeffs=None):
         A, B = coeffs
         return A*(D/inch)**(B + 1.0)*inch
     # Case 2, lookup parameters
-    dat = None
-    if ID in _Farshad_roughness:
-        dat = _Farshad_roughness[ID]
-    if dat is None:
-        try:
-            dat = _Farshad_roughness_values[_Farshad_roughness_keys.index(name)]
-        except:
-            raise KeyError('ID was not in _Farshad_roughness.')
-    if D is None and dat is not None:
+    if ID in _Farshad_roughness: # numba: delete
+        dat = _Farshad_roughness[ID] # numba: delete
+#    try: # numba: uncomment
+#        dat = _Farshad_roughness_values[_Farshad_roughness_keys.index(ID)] # numba: uncomment
+#    except: # numba: uncomment
+#        raise KeyError('ID was not in _Farshad_roughness.') # numba: uncomment
+    if D is None:
         return dat[0]
-    elif dat is not None:
+    else:
         A, B = dat[1], dat[2]
         return A*(D/inch)**(B+1)*inch
 

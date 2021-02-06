@@ -255,7 +255,7 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_black
             source = re.sub(list_mult_expr, numpy_not_list_expr, source)
             parallel = 'prange' in source
             source = re.sub(match_prange, sub_prange, source)
-#        if 'Lindsay_Bromley' in source:
+#        if 'roughness_Farshad' in source:
 #            print(source)
 #            print(parallel, 'hi', extra_args)
         numba_exec_cacheable(source, fake_mod.__dict__, fake_mod.__dict__)
@@ -592,6 +592,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
                  'optional.spa.solar_position', 'optional.spa.longitude_obliquity_nutation',
                  'optional.spa.transit_sunrise_sunset',
                  'fittings.bend_rounded_Crane', 'geometry.tank_from_two_specs_err',
+                 'friction.roughness_Farshad',
                  ]
     transform_lists_to_arrays(normal_fluids, to_change, __funcs, vec=vec, cache_blacklist=cache_blacklist)
 
@@ -600,7 +601,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
     # calls to method functions
 
     to_change = {}
-    to_change['friction.roughness_Farshad'] = 'ID in _Farshad_roughness'
+#    to_change['friction.roughness_Farshad'] = 'ID in _Farshad_roughness'
 
     for s, bad_branch in to_change.items():
         mod, func = s.split('.')
