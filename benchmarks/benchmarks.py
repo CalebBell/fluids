@@ -1,5 +1,8 @@
 #from fluids import *
 from fluids.numerics import IS_PYPY
+from fluids.constants import *
+#IS_PYPY = True
+
 if not IS_PYPY:
     import fluids.numba
     import numba
@@ -14,7 +17,6 @@ def also_numba(f):
     return f
 
 
-#IS_PYPY = True
 from fluids.atmosphere import ATMOSPHERE_1976, ATMOSPHERE_NRLMSISE00, airmass, solar_position, earthsun_distance, sunrise_sunset, solar_irradiation
 
 if not IS_PYPY:
@@ -60,6 +62,8 @@ class TimeAtmosphereSuite(BaseTimeSuite):
         
     def time_airmass_numba(self):
         airmass_numba(numba_int_airmass, 90.0)
+        
+        
         
     def time_earthsun_distance(self):
         earthsun_distance(self.date_test_es)
@@ -130,23 +134,31 @@ class TimeCompressibleSuite(BaseTimeSuite):
         
         
 from fluids import control_valve_noise_g_2011, control_valve_noise_l_2015, size_control_valve_l, size_control_valve_g
+if not IS_PYPY:
+    control_valve_noise_l_2015_numba = fluids.numba.control_valve_noise_l_2015
+    control_valve_noise_g_2011_numba = fluids.numba.control_valve_noise_g_2011
 
-class TimeControlValveSuite(BaseTimeSuite):
-    def setup(self):
-        pass
-    
+class TimeControlValveSuite(BaseTimeSuite):    
     def time_size_control_valve_g(self):
         size_control_valve_g(T=433., MW=44.01, mu=1.4665E-4, gamma=1.30,  Z=0.988, P1=680E3, P2=310E3, Q=38/36., D1=0.08, D2=0.1, d=0.05, FL=0.85, Fd=0.42, xT=0.60)
 
     def time_size_control_valve_l(self):
         size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.15, D2=0.15, d=0.15, FL=0.9, Fd=0.46)
         
+        
     def time_control_valve_noise_l_2015(self):
         control_valve_noise_l_2015(m=40, P1=1E6, P2=6.5E5, Psat=2.32E3, rho=997, c=1400, Kv=77.848, d=0.1, Di=0.1071, FL=0.92, Fd=0.42, t_pipe=0.0036, rho_pipe=7800.0, c_pipe=5000.0,rho_air=1.293, c_air=343.0, An=-4.6)
-        
+
+    def time_control_valve_noise_l_2015_numba(self):
+        control_valve_noise_l_2015_numba(m=40, P1=1E6, P2=6.5E5, Psat=2.32E3, rho=997, c=1400, Kv=77.848, d=0.1, Di=0.1071, FL=0.92, Fd=0.42, t_pipe=0.0036, rho_pipe=7800.0, c_pipe=5000.0,rho_air=1.293, c_air=343.0, An=-4.6)
+
+
     def time_control_valve_noise_g_2011(self):
         control_valve_noise_g_2011(m=2.22, P1=1E6, P2=7.2E5, T1=450, rho=5.3, gamma=1.22, MW=19.8, Kv=77.85,  d=0.1, Di=0.2031, FL=None, FLP=0.792, FP=0.98, Fd=0.296, t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
-        
+
+    def time_control_valve_noise_g_2011_numba(self):
+        control_valve_noise_g_2011_numba(m=2.22, P1=1E6, P2=7.2E5, T1=450, rho=5.3, gamma=1.22, MW=19.8, Kv=77.85,  d=0.1, Di=0.2031, FL=None, FLP=0.792, FP=0.98, Fd=0.296, t_pipe=0.008, rho_pipe=8000.0, c_pipe=5000.0, rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
+
         
 from fluids import drag_sphere, v_terminal, integrate_drag_sphere
 
@@ -595,11 +607,121 @@ class TimePipingSuite(BaseTimeSuite):
     def time_t_from_gauge(self):
         t_from_gauge(.2, False, 'BWG')
 
+from fluids import VFD_efficiency, CSA_motor_efficiency
+if not IS_PYPY:
+    VFD_efficiency_numba = fluids.numba.VFD_efficiency
+    CSA_motor_efficiency_numba = fluids.numba.CSA_motor_efficiency
+
+
+class TimePumpSuite(BaseTimeSuite):
+    def time_VFD_efficiency(self):
+        VFD_efficiency(100*hp, load=0.2)
+
+    def time_VFD_efficiency_numba(self):
+        VFD_efficiency_numba(100*hp, load=0.2)
+        
+
+    def time_CSA_motor_efficiency(self):
+        CSA_motor_efficiency(100*hp, closed=True, poles=6, high_efficiency=True)
+
+    def time_CSA_motor_efficiency_numba(self):
+        CSA_motor_efficiency_numba(100*hp, closed=True, poles=6, high_efficiency=True)
+
+from fluids import API520_A_g, API520_B, API520_SH
+if not IS_PYPY:
+    API520_A_g_numba = fluids.numba.API520_A_g
+    API520_B_numba = fluids.numba.API520_B
+    API520_SH_numba = fluids.numba.API520_SH
+    
+    
+class TimeSafetyValveSuite(BaseTimeSuite):
+    def time_API520_A_g(self):
+        API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, Kb=1, Kc=1)
+
+    def time_API520_A_g_numba(self):
+        API520_A_g_numba(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, Kb=1, Kc=1)
+        
+        
+    def time_API520_B(self):
+        API520_B(1E6, 5E5)
+
+    def time_API520_B_numba(self):
+        API520_B_numba(1E6, 5E5)
+        
+        
+    def time_API520_SH(self):
+        API520_SH(593+273.15, 1066.325E3)
+        
+    def time_API520_SH_numba(self):
+        API520_SH_numba(593+273.15, 1066.325E3)
+        
+        
+from fluids import K_separator_Watkins
+if not IS_PYPY:
+    K_separator_Watkins_numba = fluids.numba.K_separator_Watkins
+        
+class TimeSeparatorSuite(BaseTimeSuite):
+    def time_K_separator_Watkins(self):
+        K_separator_Watkins(0.88, 985.4, 1.3, horizontal=True)
+
+    def time_K_separator_Watkins_numba(self):
+        K_separator_Watkins_numba(0.88, 985.4, 1.3, horizontal=True)
+        
+        
+from fluids import liquid_gas_voidage, gas_liquid_viscosity
+if not IS_PYPY:
+    liquid_gas_voidage_numba = fluids.numba.liquid_gas_voidage
+    gas_liquid_viscosity_numba = fluids.numba.gas_liquid_viscosity
+    
+class TimeTwoPhaseVoidageSuite(BaseTimeSuite):
+    
+    def time_liquid_gas_voidage(self):
+        liquid_gas_voidage(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05)
+
+    def time_liquid_gas_voidage_numba(self):
+        liquid_gas_voidage_numba(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05)
+        
+        
+    def time_gas_liquid_viscosity(self):
+        gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method='Duckler')
+        
+    def time_gas_liquid_viscosity_numba(self):
+        gas_liquid_viscosity_numba(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method='Duckler')
+        
+from fluids import two_phase_dP, Taitel_Dukler_regime, Mandhane_Gregory_Aziz_regime
+if not IS_PYPY:
+    two_phase_dP_numba = fluids.numba.two_phase_dP
+    Taitel_Dukler_regime_numba = fluids.numba.Taitel_Dukler_regime
+    Mandhane_Gregory_Aziz_regime_numba = fluids.numba.Mandhane_Gregory_Aziz_regime
+    
+class TimeTwoPhaseSuite(BaseTimeSuite):
+    def time_two_phase_dP(self):
+        two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1.0)
+
+    def time_two_phase_dP_numba(self):
+        two_phase_dP_numba(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1.0)
+
+
+    def time_Taitel_Dukler_regime(self):
+        Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, angle=0)
+
+    def time_Taitel_Dukler_regime_numba(self):
+        Taitel_Dukler_regime_numba(m=0.6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=0.0, angle=0)
+
+
+    def time_Mandhane_Gregory_Aziz_regime(self):
+        Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)
+
+    def time_Mandhane_Gregory_Aziz_regime_numba(self):
+        Mandhane_Gregory_Aziz_regime_numba(m=0.6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)
+
 suites = [TimeAtmosphereSuite, TimeCompressibleSuite, TimeControlValveSuite, 
           TimeDragSuite, TimeFittingsSuite, TimeFlowMeterSuite,
           TimeFrictionSuite, TimeGeometrySuite, TimeOpenFlowSuite,
           TimePackedBedSuite, TimePackedTowerSuite, TimeParticleSizeDistributionSuite,
-          TimePipingSuite]
+          TimePipingSuite, TimePumpSuite, TimeSafetyValveSuite, 
+          TimeSeparatorSuite, TimeTwoPhaseVoidageSuite, TimeTwoPhaseSuite,
+          ]
 
 
                 

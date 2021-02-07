@@ -51,9 +51,9 @@ Today, the list of things known not to work is as follows:
 - The geometry class TANK and HelicalCoil, PlateExchanger, RectangularFinExchanger, HyperbolicCoolingTower, AirCooledExchanger in :py:mod:`fluids.geometry`. 
     - :py:func:`~.SA_partial_horiz_torispherical_head` has numerical issues with numba; they exist in CPython but are handled there with numba-incompatible code.
 - Everything in :py:mod:`fluids.particle_size_distribution`
-- Everything in :py:mod:`fluids.atmosphere`
+- Everything in :py:mod:`fluids.atmosphere` except :py:func:`fluids.atmosphere.ATMOSPHERE_1976`
 - Everything in :py:mod:`fluids.piping` (uses global lookups)
-- In :py:mod:`fluids.friction`, only :py:func:`~.nearest_material_roughness`,  :py:func:`~.material_roughness`,  :py:func:`~.roughness_Farshad` are unsupported as they use global lookups.
+- In :py:mod:`fluids.friction`, only :py:func:`~.nearest_material_roughness`, and  :py:func:`~.material_roughness`, are unsupported as they use global lookups.
 - In :py:mod:`fluids.compressible`, :py:func:`~.isothermal_gas`, has experienced some regressions on the part of numba.
 
 Numpy Support
