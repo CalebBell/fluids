@@ -325,8 +325,8 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
         {(P_2/P_1)^{\frac{k-1}{k\eta_p}}-1}
 
     .. math::
-        \eta_p = \frac{\left(k - 1\right) \log{\left (\frac{P_{2}}{P_{1}}
-        \right )}}{k \log{\left (\frac{1}{\eta_{s}} \left(\eta_{s}
+        \eta_p = \frac{\left(k - 1\right) \ln{\left (\frac{P_{2}}{P_{1}}
+        \right )}}{k \ln{\left (\frac{1}{\eta_{s}} \left(\eta_{s}
         + \left(\frac{P_{2}}{P_{1}}\right)^{\frac{1}{k} \left(k - 1\right)}
         - 1\right) \right )}}
 
