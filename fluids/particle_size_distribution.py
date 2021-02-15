@@ -689,7 +689,7 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
     .. math::
         \int d^n\cdot q(d)\; dd = -\frac{1}{2} \exp\left(\frac{s^2 n^2}{2}
         \right)d^n \left(\frac{d}{d_{characteristic}}\right)^{-n}
-        \text{erf}\left[\frac{s^2 n - \log(d/d_{characteristic})}
+        \text{erf}\left[\frac{s^2 n - \ln(d/d_{characteristic})}
         {\sqrt{2} s} \right]
 
     This is the crucial integral required for interconversion between different

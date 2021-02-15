@@ -524,7 +524,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
         {0.25}}
 
     .. math::
-        n = \frac{\log \frac{f_{d,lo}}{f_{d,go}}}{\log \frac{Re_{go}}{Re_{lo}}}
+        n = \frac{\ln \frac{f_{d,lo}}{f_{d,go}}}{\ln \frac{Re_{go}}{Re_{lo}}}
 
     Parameters
     ----------

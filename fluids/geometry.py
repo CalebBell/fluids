@@ -3146,6 +3146,7 @@ class TANK(object):
     """
     table = False
     chebyshev = False
+    __full_path__ = "%s.%s" %(__module__, __qualname__)
 
     def __repr__(self): # pragma: no cover
         orient = 'Horizontal' if self.horizontal else 'Vertical'

@@ -88,7 +88,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
         K_{SB} = \exp(-1.942936 -0.814894X -0.179390 X^2 -0.0123790 X^3
         + 0.000386235 X^4 + 0.000259550 X^5)
 
-        X = \log\left[\frac{(1-x)}{x}\sqrt{\rho_g/\rho_l}\right]
+        X = \ln\left[\frac{(1-x)}{x}\sqrt{\rho_g/\rho_l}\right]
 
     The second is that of Branan (1999), as follows:
 
@@ -96,7 +96,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
         K_{SB} = \exp(-1.877478097 -0.81145804597X -0.1870744085 X^2
         -0.0145228667 X^3 -0.00101148518 X^4)
 
-        X = \log\left[\frac{(1-x)}{x}\sqrt{\rho_g/\rho_l}\right]
+        X = \ln\left[\frac{(1-x)}{x}\sqrt{\rho_g/\rho_l}\right]
 
     Parameters
     ----------

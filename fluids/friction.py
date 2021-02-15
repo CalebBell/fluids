@@ -639,7 +639,7 @@ def Churchill_1973(Re, eD):
     [2]_ as shown in [1]_
 
     .. math::
-        \frac{1}{\sqrt{f_d}} = -2\log\left[\frac{\epsilon}{3.7D} +
+        \frac{1}{\sqrt{f_d}} = -2\log_{10}\left[\frac{\epsilon}{3.7D} +
         (\frac{7}{Re})^{0.9}\right]
 
     Parameters
@@ -681,7 +681,7 @@ def Eck_1973(Re, eD):
     [2]_ as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_d}} = -2\log\left[\frac{\epsilon}{3.715D}
+        \frac{1}{\sqrt{f_d}} = -2\log_{10}\left[\frac{\epsilon}{3.715D}
         + \frac{15}{Re}\right]
 
     Parameters
