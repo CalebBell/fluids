@@ -329,8 +329,8 @@ def Colebrook(Re, eD, tol=None):
 
     .. math::
         f_d = \frac{\ln(10)^2\cdot {3.7}^2\cdot{2.51}^2}
-        {\left(\log(10)\epsilon/D\cdot\text{Re} - 2\cdot 2.51\cdot 3.7\cdot
-        \text{lambertW}\left[\log(\sqrt{10})\sqrt{
+        {\left(\ln(10)\epsilon/D\cdot\text{Re} - 2\cdot 2.51\cdot 3.7\cdot
+        \text{lambertW}\left[\ln(\sqrt{10})\sqrt{
         10^{\left(\frac{\epsilon \text{Re}}{2.51\cdot 3.7D}\right)}
         \cdot \text{Re}^2/{2.51}^2}\right]\right)}
 
@@ -721,7 +721,7 @@ def Jain_1976(Re, eD):
     [2]_ as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_f}} = 2.28 - 4\log\left[ \frac{\epsilon}{D} +
+        \frac{1}{\sqrt{f_f}} = 2.28 - 4\log_{10}\left[ \frac{\epsilon}{D} +
         \left(\frac{29.843}{Re}\right)^{0.9}\right]
 
     Parameters
@@ -763,7 +763,7 @@ def Swamee_Jain_1976(Re, eD):
     Jain (1976) [2]_ as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_f}} = -4\log\left[\left(\frac{6.97}{Re}\right)^{0.9}
+        \frac{1}{\sqrt{f_f}} = -4\log_{10}\left[\left(\frac{6.97}{Re}\right)^{0.9}
         + (\frac{\epsilon}{3.7D})\right]
 
     Parameters
@@ -856,8 +856,8 @@ def Chen_1979(Re, eD):
     as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_f}} = -4\log\left[\frac{\epsilon}{3.7065D}
-        -\frac{5.0452}{Re}\log A_4\right]
+        \frac{1}{\sqrt{f_f}} = -4\log_{10}\left[\frac{\epsilon}{3.7065D}
+        -\frac{5.0452}{Re}\log_{10} A_4\right]
 
     .. math::
         A_4 = \frac{(\epsilon/D)^{1.1098}}{2.8257}
@@ -904,7 +904,7 @@ def Round_1980(Re, eD):
     as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_f}} = -3.6\log\left[\frac{Re}{0.135Re
+        \frac{1}{\sqrt{f_f}} = -3.6\log_{10}\left[\frac{Re}{0.135Re
         \frac{\epsilon}{D}+6.5}\right]
 
     Parameters
@@ -948,8 +948,8 @@ def Shacham_1980(Re, eD):
     as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_f}} = -4\log\left[\frac{\epsilon}{3.7D} -
-        \frac{5.02}{Re} \log\left(\frac{\epsilon}{3.7D}
+        \frac{1}{\sqrt{f_f}} = -4\log_{10}\left[\frac{\epsilon}{3.7D} -
+        \frac{5.02}{Re} \log_{10}\left(\frac{\epsilon}{3.7D}
         + \frac{14.5}{Re}\right)\right]
 
     Parameters
@@ -992,8 +992,8 @@ def Barr_1981(Re, eD):
     as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_d}} = -2\log\left\{\frac{\epsilon}{3.7D} +
-        \frac{4.518\log(\frac{Re}{7})}{Re\left[1+\frac{Re^{0.52}}{29}
+        \frac{1}{\sqrt{f_d}} = -2\log_{10}\left\{\frac{\epsilon}{3.7D} +
+        \frac{4.518\log_{10}(\frac{Re}{7})}{Re\left[1+\frac{Re^{0.52}}{29}
         \left(\frac{\epsilon}{D}\right)^{0.7}\right]}\right\}
 
     Parameters
@@ -1037,8 +1037,8 @@ def Zigrang_Sylvester_1(Re, eD):
      Zigrang and Sylvester (1982) [2]_ as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_f}} = -4\log\left[\frac{\epsilon}{3.7D}
-        - \frac{5.02}{Re}\log A_5\right]
+        \frac{1}{\sqrt{f_f}} = -4\log_{10}\left[\frac{\epsilon}{3.7D}
+        - \frac{5.02}{Re}\log_{10} A_5\right]
 
         A_5 = \frac{\epsilon}{3.7D} + \frac{13}{Re}
 
@@ -1083,11 +1083,11 @@ def Zigrang_Sylvester_2(Re, eD):
      Zigrang and Sylvester (1982) [2]_ as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_f}} = -4\log\left[\frac{\epsilon}{3.7D}
-        - \frac{5.02}{Re}\log A_6\right]
+        \frac{1}{\sqrt{f_f}} = -4\log_{10}\left[\frac{\epsilon}{3.7D}
+        - \frac{5.02}{Re}\log_{10} A_6\right]
 
     .. math::
-        A_6 = \frac{\epsilon}{3.7D} - \frac{5.02}{Re}\log A_5
+        A_6 = \frac{\epsilon}{3.7D} - \frac{5.02}{Re}\log_{10} A_5
 
     .. math::
         A_5 = \frac{\epsilon}{3.7D} + \frac{13}{Re}
@@ -1327,7 +1327,7 @@ def Manadilli_1997(Re, eD):
     [2]_ as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_d}} = -2\log\left[\frac{\epsilon}{3.7D} +
+        \frac{1}{\sqrt{f_d}} = -2\log_{10}\left[\frac{\epsilon}{3.7D} +
         \frac{95}{Re^{0.983}} - \frac{96.82}{Re}\right]
 
     Parameters
@@ -1368,9 +1368,9 @@ def Romeo_2002(Re, eD):
     [2]_ as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_d}} = -2\log\left\{\frac{\epsilon}{3.7065D}\times
-        \frac{5.0272}{Re}\times\log\left[\frac{\epsilon}{3.827D} -
-        \frac{4.567}{Re}\times\log\left(\frac{\epsilon}{7.7918D}^{0.9924} +
+        \frac{1}{\sqrt{f_d}} = -2\log_{10}\left\{\frac{\epsilon}{3.7065D}\times
+        \frac{5.0272}{Re}\times\log_{10}\left[\frac{\epsilon}{3.827D} -
+        \frac{4.567}{Re}\times\log_{10}\left(\frac{\epsilon}{7.7918D}^{0.9924} +
         \left(\frac{5.3326}{208.815+Re}\right)^{0.9345}\right)\right]\right\}
 
     Parameters
@@ -1460,7 +1460,7 @@ def Rao_Kumar_2007(Re, eD):
     (2007) [2]_ as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_d}} = 2\log\left(\frac{(2\frac{\epsilon}{D})^{-1}}
+        \frac{1}{\sqrt{f_d}} = 2\log_{10}\left(\frac{(2\frac{\epsilon}{D})^{-1}}
         {\left(\frac{0.444 + 0.135Re}{Re}\right)\beta}\right)
 
     .. math::
@@ -1509,7 +1509,7 @@ def Buzzelli_2008(Re, eD):
     [2]_ as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_d}} = B_1 - \left[\frac{B_1 +2\log(\frac{B_2}{Re})}
+        \frac{1}{\sqrt{f_d}} = B_1 - \left[\frac{B_1 +2\log_{10}(\frac{B_2}{Re})}
         {1 + \frac{2.18}{B_2}}\right]
 
     .. math::
@@ -1601,7 +1601,7 @@ def Papaevangelo_2010(Re, eD):
     (2010) [2]_ as shown in [1]_.
 
     .. math::
-        f_D = \frac{0.2479 - 0.0000947(7-\log Re)^4}{\left[\log\left
+        f_D = \frac{0.2479 - 0.0000947(7-\ln Re)^4}{\left[\log_{10}\left
         (\frac{\epsilon}{3.615D} + \frac{7.366}{Re^{0.9142}}\right)\right]^2}
 
     Parameters
@@ -1645,7 +1645,7 @@ def Brkic_2011_1(Re, eD):
     (2011) [2]_ as shown in [1]_.
 
     .. math::
-        f_d = [-2\log(10^{-0.4343\beta} + \frac{\epsilon}{3.71D})]^{-2}
+        f_d = [-2\log_{10}(10^{-0.4343\beta} + \frac{\epsilon}{3.71D})]^{-2}
 
     .. math::
         \beta = \ln \frac{Re}{1.816\ln\left(\frac{1.1Re}{\ln(1+1.1Re)}\right)}
@@ -1691,7 +1691,7 @@ def Brkic_2011_2(Re, eD):
     (2011) [2]_ as shown in [1]_.
 
     .. math::
-        f_d = [-2\log(\frac{2.18\beta}{Re}+ \frac{\epsilon}{3.71D})]^{-2}
+        f_d = [-2\log_{10}(\frac{2.18\beta}{Re}+ \frac{\epsilon}{3.71D})]^{-2}
 
     .. math::
         \beta = \ln \frac{Re}{1.816\ln\left(\frac{1.1Re}{\ln(1+1.1Re)}\right)}
@@ -1849,7 +1849,7 @@ def Prandtl_von_Karman_Nikuradse(Re):
 
     .. math::
         f_d = \frac{\frac{1}{4}\log_{10}^2}{\left(\text{lambertW}\left(\frac{
-        \log(10)Re}{2(2.51)}\right)\right)^2}
+        \lb(10)Re}{2(2.51)}\right)\right)^2}
 
     Examples
     --------
