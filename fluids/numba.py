@@ -435,7 +435,6 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
     else:
         conv_fun = numba.njit
         extra_args = extra_args_std
-    mod_name = normal.__name__
     # Run module-by-module. Expensive, as we need to create module copies
     try:
         all_submodules = normal.all_submodules()
@@ -484,14 +483,16 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         # except:
         #     pass
 
-        new_objs = []
+        numba_funcs = []
+        funcs = []
         for name in names:
             obj = getattr(SUBMOD, name)
             if isinstance(obj, types.FunctionType):
                 if name not in total_skip and name not in blacklist:
-                    obj = conv_fun(cache=(caching and name not in cache_blacklist), **extra_args)(obj)
-                SUBMOD.__dict__[name] = obj
-                new_objs.append(obj)
+                    SUBMOD.__dict__[name] = obj = conv_fun(cache=(caching and name not in cache_blacklist), **extra_args)(obj)
+                    numba_funcs.append(obj)
+                else:
+                    funcs.append(obj)
             __funcs[name] = obj
 
         module_constants_changed_type = {}
@@ -531,17 +532,14 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         __funcs.update(module_constants_changed_type)
 
         if not vec:
-            for t in new_objs:
+            for t in numba_funcs:
                 #if normal.__name__ == 'chemicals':
                 #    if 'iapws' not in all_submodules[-1].__name__:
                 #        print(new_objs, t)
                 #        1/0
-                try:
-                    glob = t.py_func.__globals__
-                except:
-                    glob = t.__globals__
-                glob.update(SUBMOD.__dict__)
-                #glob.update(to_do)
+                t.py_func.__globals__.update(SUBMOD.__dict__)
+            for t in funcs:
+                t.__globals__.update(SUBMOD.__dict__)
 
     # Do our best to allow functions to be found
     if '__file__' in __funcs:
