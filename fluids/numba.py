@@ -467,17 +467,16 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         __funcs['.'.join(mod_split_names[:-1])] = SUBMOD # set fluids.optional.spa fluids.numba.spa
         __funcs['.'.join(mod_split_names[-2:])] = SUBMOD # set 'optional.spa' in the dict too
         try:
-            names = set(SUBMOD.__all__)
+            names = SUBMOD.__all__
         except:
             names = set()
-
-        for mod_obj_name in dir(SUBMOD):
-            obj = getattr(SUBMOD, mod_obj_name)
-            if (isinstance(obj, types.FunctionType)
-                and mod_obj_name != '__getattr__'
-                and not mod_obj_name.startswith('_load')
-                and obj.__module__ == SUBMOD.__name__):
-                names.add(mod_obj_name)
+            for mod_obj_name in dir(SUBMOD):
+                obj = getattr(SUBMOD, mod_obj_name)
+                if (isinstance(obj, types.FunctionType)
+                    and mod_obj_name != '__getattr__'
+                    and not mod_obj_name.startswith('_load')
+                    and obj.__module__ == SUBMOD.__name__):
+                    names.add(mod_obj_name)
 
         # try:
         #     names += SUBMOD.__numba_additional_funcs__
