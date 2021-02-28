@@ -548,8 +548,6 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         del replaced['__file__']
     for mod in new_mods:
         mod.__dict__.update(__funcs)
-        mod.__dict__.update(replaced)
-
     return new_mods
 
 
