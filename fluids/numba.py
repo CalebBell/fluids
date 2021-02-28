@@ -466,17 +466,18 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         __funcs[mod_split_names[-1]] = SUBMOD # fluids.numba.optional.spa
         __funcs['.'.join(mod_split_names[:-1])] = SUBMOD # set fluids.optional.spa fluids.numba.spa
         __funcs['.'.join(mod_split_names[-2:])] = SUBMOD # set 'optional.spa' in the dict too
+       
         try:
-            names = SUBMOD.__all__
+            names = set(SUBMOD.__all__)
         except:
             names = set()
-            for mod_obj_name in dir(SUBMOD):
-                obj = getattr(SUBMOD, mod_obj_name)
-                if (isinstance(obj, types.FunctionType)
-                    and mod_obj_name != '__getattr__'
-                    and not mod_obj_name.startswith('_load')
-                    and obj.__module__ == SUBMOD.__name__):
-                    names.add(mod_obj_name)
+        for mod_obj_name in dir(SUBMOD):
+            obj = getattr(SUBMOD, mod_obj_name)
+            if (isinstance(obj, types.FunctionType)
+                and mod_obj_name != '__getattr__'
+                and not mod_obj_name.startswith('_load')
+                and obj.__module__ == SUBMOD.__name__):
+                names.add(mod_obj_name)
 
         # try:
         #     names += SUBMOD.__numba_additional_funcs__
@@ -488,13 +489,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
             obj = getattr(SUBMOD, name)
             if isinstance(obj, types.FunctionType):
                 if name not in total_skip and name not in blacklist:
-                    try:
-                        obj = conv_fun(cache=(caching and name not in cache_blacklist), **extra_args)(obj)
-                    except Exception as e:
-                        if name in mod_obj_name:
-                            continue
-                        else:
-                            raise e
+                    obj = conv_fun(cache=(caching and name not in cache_blacklist), **extra_args)(obj)
                 SUBMOD.__dict__[name] = obj
                 new_objs.append(obj)
             __funcs[name] = obj
