@@ -506,17 +506,15 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                 r_type = type(r) 
                 if r_type in numtypes: 
                     arr = np.array(obj)
+                    if arr.dtype.char != 'O': module_constants_changed_type[arr_name] = arr
                 elif r_type is list and r and type(r[0]) in numtypes:
                     if len(set([len(r) for r in obj])) == 1:
                         # All same size - nice numpy array
                         arr = np.array(obj)
+                        if arr.dtype.char != 'O': module_constants_changed_type[arr_name] = arr
                     else:
                         # Tuple of different size numpy arrays
-                        arr = tuple([np.array(v) for v in obj])
-                else:
-                    continue
-                if arr.dtype.char != 'O':
-                    module_constants_changed_type[arr_name] = arr
+                        module_constants_changed_type[arr_name] = tuple([np.array(v) for v in obj])
             elif obj_type in settypes:
                 module_constants_changed_type[arr_name] = tuple(obj)
             # elif obj_type is dict:
