@@ -86,6 +86,7 @@ jobs:
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.coveralls }}
         COVERALLS_PARALLEL: true
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   finish:
     needs: build
     runs-on: ubuntu-latest
