@@ -403,19 +403,19 @@ def test_misc_compressible():
                  fluids.Spitzglass_high(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15))
 
     assert_close(fluids.numba.Spitzglass_high(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30),
-             Spitzglass_high(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30))
+             fluids.Spitzglass_high(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30))
 
     assert_close(fluids.numba.Spitzglass_low(D=0.154051, P1=6720.3199, P2=0, L=54.864, SG=0.6, Tavg=288.7),
                  fluids.Spitzglass_low(D=0.154051, P1=6720.3199, P2=0, L=54.864, SG=0.6, Tavg=288.7))
 
     assert_close(fluids.numba.Spitzglass_low(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30),
-             Spitzglass_low(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30))
+             fluids.Spitzglass_low(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30))
 
     assert_close(fluids.numba.Oliphant(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15),
                  fluids.Oliphant(D=0.340, P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15))
 
     assert_close(fluids.numba.Oliphant(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30),
-             Oliphant(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30))
+             fluids.Oliphant(P1=90E5, P2=20E5, L=160E3, SG=0.693, Tavg=277.15, Q=30))
 
     # With the -1 lambertw branch
     assert_close(fluids.numba.P_isothermal_critical_flow(P=1E6, fd=0.00185, L=1000., D=0.5),
