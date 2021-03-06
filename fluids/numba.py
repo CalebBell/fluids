@@ -435,12 +435,13 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
     else:
         conv_fun = numba.njit
         extra_args = extra_args_std
-    mod_name = normal.__name__
     # Run module-by-module. Expensive, as we need to create module copies
     try:
         all_submodules = normal.all_submodules()
     except:
         all_submodules = normal.submodules
+    numtypes = {float, int, complex}
+    settypes = {set, frozenset}
     for mod in all_submodules:
         #print(all_submodules, mod)
         SUBMOD_COPY = importlib.util.find_spec(mod.__name__)
@@ -460,95 +461,83 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
 
         SUBMOD.__dict__.update(replaced)
         new_mods.append(SUBMOD)
-        __funcs[mod.__name__.split('.')[-1]] = SUBMOD # fluids.numba.optional.spa
-        __funcs['.'.join(mod.__name__.split('.')[:-1])] = SUBMOD # set fluids.optional.spa fluids.numba.spa
-        __funcs['.'.join(mod.__name__.split('.')[-2:])] = SUBMOD # set 'optional.spa' in the dict too
+        mod_split_names = mod.__name__.split('.')
+        __funcs[mod_split_names[-1]] = SUBMOD # fluids.numba.optional.spa
+        __funcs['.'.join(mod_split_names[:-1])] = SUBMOD # set fluids.optional.spa fluids.numba.spa
+        __funcs['.'.join(mod_split_names[-2:])] = SUBMOD # set 'optional.spa' in the dict too
+       
         try:
-            names = list(SUBMOD.__all__)
+            names = set(SUBMOD.__all__)
         except:
-            names = []
-
-        allow_fail_names = set([])
+            names = set()
         for mod_obj_name in dir(SUBMOD):
             obj = getattr(SUBMOD, mod_obj_name)
-            if isinstance(obj, types.FunctionType):
-                if mod_obj_name in ('__getattr__',):
-                    # Names which cannot be converted
-                    continue
-                if mod_obj_name.startswith('_load'):
-                    continue
-
-                if mod_obj_name not in names:
-                    # Check if the function is local to the module
-                    if obj.__module__ == SUBMOD.__name__:
-                        names.append(mod_obj_name)
-                        allow_fail_names.add(mod_obj_name)
+            if (isinstance(obj, types.FunctionType)
+                and mod_obj_name != '__getattr__'
+                and not mod_obj_name.startswith('_load')
+                and obj.__module__ == SUBMOD.__name__):
+                names.add(mod_obj_name)
 
         # try:
         #     names += SUBMOD.__numba_additional_funcs__
         # except:
         #     pass
 
-        new_objs = []
+        numba_funcs = []
+        funcs = []
         for name in names:
             obj = getattr(SUBMOD, name)
             if isinstance(obj, types.FunctionType):
-                nopython = name not in skip
                 if name not in total_skip and name not in blacklist:
-                    try:
-                        obj = conv_fun(cache=(caching and name not in cache_blacklist), **extra_args)(obj)
-                    except Exception as e:
-                        if name in mod_obj_name:
-                            continue
-                        else:
-                            raise e
-                SUBMOD.__dict__[name] = obj
-                new_objs.append(obj)
+                    SUBMOD.__dict__[name] = obj = conv_fun(cache=(caching and name not in cache_blacklist), **extra_args)(obj)
+                    numba_funcs.append(obj)
+                else:
+                    funcs.append(obj)
             __funcs[name] = obj
 
         module_constants_changed_type = {}
-        for arr_name in SUBMOD.__dict__.keys():
-            if arr_name not in no_conv_data_names:
-                obj = getattr(SUBMOD, arr_name)
-                obj_type = type(obj)
-                if obj_type is list and len(obj) and type(obj[0]) in (float, int, complex):
-                    module_constants_changed_type[arr_name] = np.array(obj)
-                elif (obj_type is list and len(obj) and all([
-                        (type(r) is list and len(r) and type(r[0]) in (float, int, complex)) for r in obj])):
+        for arr_name in SUBMOD.__dict__:
+            if arr_name in no_conv_data_names: continue
+            obj = getattr(SUBMOD, arr_name)
+            obj_type = type(obj)
+            if obj_type is list and obj:
+                # Assume all elements have the same general type
+                r = obj[0]
+                r_type = type(r) 
+                if r_type in numtypes: 
+                    arr = np.array(obj)
+                    if arr.dtype.char != 'O': module_constants_changed_type[arr_name] = arr
+                elif r_type is list and r and type(r[0]) in numtypes:
                     if len(set([len(r) for r in obj])) == 1:
                         # All same size - nice numpy array
-                        module_constants_changed_type[arr_name] = np.array(obj)
+                        arr = np.array(obj)
+                        if arr.dtype.char != 'O': module_constants_changed_type[arr_name] = arr
                     else:
                         # Tuple of different size numpy arrays
-                        module_constants_changed_type[arr_name] = tuple(np.array(v) for v in obj)
-                elif obj_type in (set, frozenset):
-                    module_constants_changed_type[arr_name] = tuple(obj)
-                elif obj_type is dict:
-                    continue
-                    try:
-                        print('starting', arr_name)
-                        infer_dictionary_types(obj)
-                        module_constants_changed_type[arr_name] = numba_dict(obj)
-                    except:
-                        print(arr_name, 'failed')
-                        pass
+                        module_constants_changed_type[arr_name] = tuple([np.array(v) for v in obj])
+            elif obj_type in settypes:
+                module_constants_changed_type[arr_name] = tuple(obj)
+            # elif obj_type is dict:
+            #     try:
+            #         print('starting', arr_name)
+            #         infer_dictionary_types(obj)
+            #         module_constants_changed_type[arr_name] = numba_dict(obj)
+            #     except:
+            #         print(arr_name, 'failed')
+            #         pass
 
         SUBMOD.__dict__.update(module_constants_changed_type)
         __funcs.update(module_constants_changed_type)
 
         if not vec:
-            for t in new_objs:
+            for t in numba_funcs:
                 #if normal.__name__ == 'chemicals':
                 #    if 'iapws' not in all_submodules[-1].__name__:
                 #        print(new_objs, t)
                 #        1/0
-                try:
-                    glob = t.py_func.__globals__
-                except:
-                    glob = t.__globals__
-                glob.update(SUBMOD.__dict__)
-                #glob.update(to_do)
-                glob.update(replaced)
+                t.py_func.__globals__.update(SUBMOD.__dict__)
+            for t in funcs:
+                t.__globals__.update(SUBMOD.__dict__)
 
     # Do our best to allow functions to be found
     if '__file__' in __funcs:
@@ -557,8 +546,6 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         del replaced['__file__']
     for mod in new_mods:
         mod.__dict__.update(__funcs)
-        mod.__dict__.update(replaced)
-
     return new_mods
 
 
