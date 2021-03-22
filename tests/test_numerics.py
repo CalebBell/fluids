@@ -130,7 +130,7 @@ def test_interp():
     assert_close(interp(-1, xs, ys, extrapolate=True), -.1, rtol=1e-15)
     assert_close(interp(-100, xs, ys, extrapolate=True), -10, rtol=1e-15)
     assert_close(interp(10, xs, ys, extrapolate=True), 1, rtol=1e-15)
-    assert_close(interp(10**30, xs, ys, extrapolate=True), 10**29, rtol=1e-15)
+    assert_close(interp(10.0**30, xs, ys, extrapolate=True), 10.0**29, rtol=1e-15)
 
 
 

@@ -431,7 +431,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
                 #name = attr.fget.__name__
             else:
                 name = attr.__name__
-            if hasattr(attr, '__doc__'):
+            if hasattr(attr, '__doc__') and attr.__doc__ is not None:
                 if type(attr) is property:
                     try:
                         docstring = attr.__doc__

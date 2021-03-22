@@ -1678,15 +1678,18 @@ def assert_close(a, b, rtol=1e-7, atol=0.0):
     if a is b:
         # Nice to handle None
         return True
-    try:
+
+    if __debug__:
+        # Do not run these branches in -O, -OO mode
         try:
-            assert isclose(a, b, rel_tol=rtol, abs_tol=atol)
-            return
+            try:
+                assert isclose(a, b, rel_tol=rtol, abs_tol=atol)
+                return
+            except:
+                assert cisclose(a, b, rel_tol=rtol, abs_tol=atol)
+                return
         except:
-            assert cisclose(a, b, rel_tol=rtol, abs_tol=atol)
-            return
-    except:
-        pass
+            pass
     from numpy.testing import assert_allclose
     return assert_allclose(a, b, rtol=rtol, atol=atol)
 
@@ -1706,8 +1709,10 @@ def assert_close2d(a, b, rtol=1e-7, atol=0.0):
     N = len(a)
     if N != len(b):
         raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
-#    for i in range(N):
-#        assert_close3d(a[i], b[i], rtol=rtol, atol=atol)
+    if not __debug__:
+        # Do not run these branches in -O, -OO mode
+        from numpy.testing import assert_allclose
+        return assert_allclose(a, b, rtol=rtol, atol=atol)
     for i in range(N):
         a0, b0 = a[i], b[i]
         N0 = len(a0)
