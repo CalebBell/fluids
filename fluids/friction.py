@@ -437,7 +437,7 @@ def Colebrook(Re, eD, tol=None):
 
 
 def Clamond(Re, eD, fast=False):
-    r'''Calculates Darcy friction factor using a solution accurate to almost
+    r"""Calculates Darcy friction factor using a solution accurate to almost
     machine precision. Recommended very strongly. For details of the algorithm,
     see [1]_.
 
@@ -488,7 +488,7 @@ def Clamond(Re, eD, fast=False):
        Industrial & Engineering Chemistry Research 48, no. 7 (April 1, 2009):
        3665-71. doi:10.1021/ie801626g.
        http://math.unice.fr/%7Edidierc/DidPublis/ICR_2009.pdf
-    '''
+    """
     X1 = eD*Re*0.1239681863354175460160858261654858382699 # (log(10)/18.574).evalf(40)
     X2 = log(Re) - 0.7793974884556819406441139701653776731705 # log(log(10)/5.02).evalf(40)
     F = X2 - 0.2

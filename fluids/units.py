@@ -28,6 +28,7 @@ __all__ = ['wraps_numpydoc', 'u']
 import types
 import re
 import inspect
+from inspect import getsource, cleandoc
 import functools
 try:
     from collections.abc import Iterable
@@ -52,6 +53,34 @@ except ImportError: # pragma: no cover
 '''
 # is_critical_flow is broken
 
+def get_docstring(f):
+    '''Returns the docstring of a function, working in -OO mode also.
+    '''
+    try:
+        if f.__doc__ is not None:
+            return f.__doc__
+    except:
+        # micropython
+        return None
+    src = cleandoc(inspect.getsource(f))
+    single_pos = src.find("'''")
+    double_pos = src.find('"""')
+    if single_pos == -1:
+        if double_pos == -1:
+            # Neither
+            return None
+        # double, not single
+        return cleandoc(src.split('"""')[1])
+    elif double_pos == -1 and single_pos != -1:
+        # single, not double
+        return cleandoc(src.split("'''")[1])
+    else:
+        # single and double
+        if single_pos < double_pos:
+            return cleandoc(src.split("'''")[1])
+        return cleandoc(src.split('"""')[1])
+
+
 def func_args(func):
     """Basic function which returns a tuple of arguments of a function or
     method."""
@@ -65,17 +94,18 @@ u.autoconvert_offset_to_baseunit = True
 
 expr = re.compile('Parameters *\n *-+\n +')
 expr2 = re.compile('Returns *\n *-+\n +')
-match_sections = re.compile('\n *[A-Za-z ]+ *\n +-+')
-match_section_names = re.compile('\n *[A-Za-z]+ *\n +-+')
+match_sections = re.compile('\n *[A-Za-z ]+ *\n *-+')
+match_section_names = re.compile('\n *[A-Za-z]+ *\n *-+')
 variable = re.compile('[a-zA-Z_0-9]* : ')
 match_units = re.compile(r'\[[a-zA-Z0-9().\/*^\- ]*\]')
 
 
 def parse_numpydoc_variables_units(func):
-    try:
-        text = func.__doc__
-    except:
-        text = ''
+    text = get_docstring(func)
+#    try:
+#        text = func.__doc__
+#    except:
+#        text = ''
     if text is None:
         text = ''
     return parse_numpydoc_variables_units_docstring(text)
@@ -468,7 +498,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
             property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
 
     name = obj_to_wrap.__name__
-    classkwargs = {'wrapped': obj_to_wrap, #'__doc__': obj_to_wrap.__doc__,
+    classkwargs = {'wrapped': obj_to_wrap,
             'property_units': property_unit_map, 'method_units': callable_methods,
                    'static_methods': static_methods, 'class_methods': class_methods}
 
@@ -537,16 +567,12 @@ def A_multiple_hole_cylinder(Do, L, holes):
     A = fluids.geometry.A_multiple_hole_cylinder(Do, L, holes)
     return A*u.m**2
 
-#A_multiple_hole_cylinder.__doc__ = fluids.geometry.A_multiple_hole_cylinder.__doc__
-
 def V_multiple_hole_cylinder(Do, L, holes):
     Do = Do.to(u.m).magnitude
     L = L.to(u.m).magnitude
     holes = [(i.to(u.m).magnitude, N) for i, N in holes]
     A = fluids.geometry.V_multiple_hole_cylinder(Do, L, holes)
     return A*u.m**3
-
-#V_multiple_hole_cylinder.__doc__ = fluids.geometry.V_multiple_hole_cylinder.__doc__
 
 variable_output_unit_funcs = {
     # True: arg should be present; False: arg should be None
