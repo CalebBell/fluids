@@ -80,7 +80,7 @@ jobs:
         python -m pip install wheel
         pip install -r requirements_test.txt
     - name: Add numba
-      if: ${{ matrix.python-version == '3.6' || matrix.python-version == '3.7' || matrix.python-version == '3.8' }}
+      if: ${{ matrix.python-version == '3.6' || matrix.python-version == '3.7' || matrix.python-version == '3.8' || matrix.python-version == '3.9' }}
       run: |
         pip install numba
     - name: Test with pytest
