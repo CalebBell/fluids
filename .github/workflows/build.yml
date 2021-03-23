@@ -23,13 +23,17 @@ jobs:
           - os: windows-latest
             python-version: pypy2
           - os: windows-latest
-            python-version: pypy3
+            python-version: pypy-3.6
+          - os: windows-latest
+            python-version: pypy-3.7
           # pypy2 Failure building pandas wheels
           # pypy3  error: library mach has Fortran sources but no Fortran compiler found
           - os: macos-latest
             python-version: pypy2
           - os: macos-latest
-            python-version: pypy3
+            python-version: pypy-3.6
+          - os: macos-latest
+            python-version: pypy-3.7
           # no python builds available on macos 32 bit
           - os: macos-latest
             architecture: x86

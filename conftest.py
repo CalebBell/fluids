@@ -9,7 +9,7 @@ def pytest_ignore_collect(path):
     ver_tup = platform.python_version_tuple()[0:2]
     if 'benchmarks' in path:
         return True
-    if ver_tup < ('3', '6') or ver_tup >= ('3', '9') or is_pypy:
+    if ver_tup < ('3', '6') or ver_tup >= ('3', '10') or is_pypy:
         # numba does not yet run under pypy
         if 'numba' in path:
             return True
