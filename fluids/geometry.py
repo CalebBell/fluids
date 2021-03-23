@@ -3146,8 +3146,7 @@ class TANK(object):
     """
     table = False
     chebyshev = False
-    __full_path__ = "fluids.geometry.TANK"
-
+    __full_path__ = __module__  + '.TANK'
     def __repr__(self): # pragma: no cover
         orient = 'Horizontal' if self.horizontal else 'Vertical'
         if self.sideA is None and self.sideB is None:
