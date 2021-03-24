@@ -4077,7 +4077,7 @@ def nearest_material_roughness(name, clean=None):
 
     Examples
     --------
-    >>> nearest_material_roughness('condensate pipes', clean=False)
+    >>> nearest_material_roughness('condensate pipes', clean=False) # doctest: +SKIP
     'Seamless steel tubes, Condensate pipes in open systems or periodically operated steam pipelines'
 
     References
@@ -4121,7 +4121,7 @@ def material_roughness(ID, D=None, optimism=None):
 
     Examples
     --------
-    >>> material_roughness('condensate pipes')
+    >>> material_roughness('condensate pipes') # doctest: +SKIP
     0.0005
 
     References
