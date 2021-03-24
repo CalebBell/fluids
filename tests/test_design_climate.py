@@ -26,6 +26,12 @@ import numpy as np
 from fluids.design_climate import *
 from fluids.design_climate import _latlongs, stations
 
+try:
+    import geopy
+    has_geopy = True
+except:
+    has_geopy = False
+
 
 def test_heating_degree_days():
     assert_allclose(heating_degree_days(273, truncate=False), -18.483333333333292)
@@ -477,6 +483,7 @@ def test_get_station_year_text():
 
 @pytest.mark.slow
 @pytest.mark.online
+@pytest.mark.skipif(not has_geopy, reason='geopy is required')
 def test_geocode():
     latlon = geocode('Fredericton, NB')
     assert_allclose(latlon, (45.966425, -66.645813), rtol=5e-4)
