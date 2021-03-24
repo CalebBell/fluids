@@ -114,17 +114,17 @@ def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
     The following SymPy code was used to obtain the analytical formulas (
     they are not shown here due to their length):
 
-    >>> from sympy import *
-    >>> A_nozzle, A_mixing, Qs, Qp, P1, P2, rhos, rhop, Ks, Kp = symbols('A_nozzle, A_mixing, Qs, Qp, P1, P2, rhos, rhop, Ks, Kp')
-    >>> R = A_nozzle/A_mixing
-    >>> M = Qs/Qp
-    >>> C = rhos/rhop
-    >>> rhs = rhop/2*(Qp/A_nozzle)**2*((1+Kp) - C*(1 + Ks)*((M*R)/(1-R))**2 )
-    >>> new = Eq(P1 - P2,  rhs)
-    >>> #solve(new, Qp)
-    >>> #solve(new, Qs)
-    >>> #solve(new, P1)
-    >>> #solve(new, P2)
+    >>> from sympy import * # doctest: +SKIP
+    >>> A_nozzle, A_mixing, Qs, Qp, P1, P2, rhos, rhop, Ks, Kp = symbols('A_nozzle, A_mixing, Qs, Qp, P1, P2, rhos, rhop, Ks, Kp') # doctest: +SKIP
+    >>> R = A_nozzle/A_mixing # doctest: +SKIP
+    >>> M = Qs/Qp # doctest: +SKIP
+    >>> C = rhos/rhop # doctest: +SKIP
+    >>> rhs = rhop/2*(Qp/A_nozzle)**2*((1+Kp) - C*(1 + Ks)*((M*R)/(1-R))**2 ) # doctest: +SKIP
+    >>> new = Eq(P1 - P2,  rhs) # doctest: +SKIP
+    >>> solve(new, Qp) # doctest: +SKIP
+    >>> solve(new, Qs) # doctest: +SKIP
+    >>> solve(new, P1) # doctest: +SKIP
+    >>> solve(new, P2) # doctest: +SKIP
 
     Examples
     --------
@@ -132,7 +132,7 @@ def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
 
     >>> liquid_jet_pump_ancillary(rhop=998., rhos=1098., Ks=0.11, Kp=.04,
     ... P2=133600, Qp=0.01, Qs=0.01, d_mixing=0.045, d_nozzle=0.02238)
-    426434.60314398084
+    426434.60314398
 
     References
     ----------
