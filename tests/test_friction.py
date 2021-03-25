@@ -33,6 +33,12 @@ try:
 except:
     has_fuzzywuzzy = False
 
+try:
+    import mpmath
+    has_mpmath = True
+except:
+    has_mpmath = False
+
 def test_friction_basic():
     assert_close(Moody(1E5, 1E-4), 0.01809185666808665)
     assert_close(Alshul_1952(1E5, 1E-4), 0.018382997825686878)
@@ -118,6 +124,7 @@ def test_friction_Colebrook():
 
 @pytest.mark.slow
 @pytest.mark.mpmath
+@pytest.mark.skipif(not has_mpmath, reason='mpmath is not installed')
 def test_Colebrook_numerical_mpmath():
     # tested at n=500 for both Re and eD
     Res = logspace(log10(1e-12), log10(1E12), 30) # 1E12 is too large for sympy - it slows down too much
@@ -130,6 +137,7 @@ def test_Colebrook_numerical_mpmath():
 
 @pytest.mark.slow
 @pytest.mark.mpmath
+@pytest.mark.skipif(not has_mpmath, reason='mpmath is not installed')
 def test_Colebrook_scipy_mpmath():
     # Faily grueling test - check the lambertw implementations are matching mostly
     # NOTE the test is to Re = 1E7; at higher Res the numerical solver is almost
