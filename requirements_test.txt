@@ -1,9 +1,8 @@
-release:
 scipy
 pytest
 pytest-cov
 coveralls
-sympy; python_version>='3'
+sympy
 fuzzywuzzy
 pint
 pytz
