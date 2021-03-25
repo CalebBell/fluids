@@ -2,7 +2,7 @@ scipy
 pytest
 pytest-cov
 coveralls
-sympy
+sympy; python_version>='3'
 fuzzywuzzy
 pint
 pytz
