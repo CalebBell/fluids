@@ -23,7 +23,7 @@ SOFTWARE.
 
 from __future__ import division
 import types
-import numpy as np
+from fluids.numerics import numpy as np, FakePackage
 import fluids as normal_fluids
 
 '''Basic module which wraps all fluids functions with numpy's vectorize.
@@ -60,16 +60,18 @@ __funcs = {}
 
 bad_names = set(('__file__', '__name__', '__package__', '__cached__'))
 
-for name in dir(normal_fluids):
-    obj = getattr(normal_fluids, name)
-    if isinstance(obj, types.FunctionType):
-        obj = np.vectorize(obj)
-    elif isinstance(obj, str):
-        if name in bad_names:
-            continue
-    __all__.append(name)
-    __funcs[name] = obj
-#    __funcs.update({name: obj})
-#    globals()[name] = obj
+if np is FakePackage:
+    pass
+else:
+
+    for name in dir(normal_fluids):
+        obj = getattr(normal_fluids, name)
+        if isinstance(obj, types.FunctionType):
+            obj = np.vectorize(obj)
+        elif isinstance(obj, str):
+            if name in bad_names:
+                continue
+        __all__.append(name)
+        __funcs[name] = obj
 globals().update(__funcs)
 del __funcs

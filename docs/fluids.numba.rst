@@ -8,8 +8,7 @@ Numba is rapidly evolving, and hopefully in the future it will support more of
 the functionality of fluids.
 
 Using the numba-accelerated version of `fluids` is easy; simply call functions
-and classes from the fluids.numba namespace. The fluids.numba module must be
-imported separately; it is not loaded automatically as part of fluids.
+and classes from the fluids.numba namespace.
 
 >>> import fluids
 >>> import fluids.numba
@@ -56,8 +55,8 @@ Today, the list of things known not to work is as follows:
 - In :py:mod:`fluids.friction`, only :py:func:`~.nearest_material_roughness`, and  :py:func:`~.material_roughness`, are unsupported as they use global lookups.
 - In :py:mod:`fluids.compressible`, :py:func:`~.isothermal_gas`, has experienced some regressions on the part of numba.
 
-Numpy Support
--------------
+Numpy Support (fluids.numba_vectorized)
+---------------------------------------
 Numba also allows fluids to provide any of its supported functions as a numpy universal
 function. Numpy's wonderful broadcasting is implemented, so some arguments can
 be arrays and some can not.

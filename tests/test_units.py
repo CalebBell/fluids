@@ -263,7 +263,10 @@ def test_db_functions():
 
 def test_check_signatures():
     from fluids.units import check_args_order
+    bad_names = set(['__getattr__'])
     for name in dir(fluids):
+        if name in bad_names:
+            continue
         obj = getattr(fluids, name)
         if isinstance(obj, types.FunctionType):
             if hasattr(obj, 'func_name') and obj.func_name == '<lambda>':
