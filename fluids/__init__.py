@@ -129,7 +129,29 @@ def load_types():
     for m in submodules:
         type_module(m)
 
-__version__ = '1.0.1'
+global vectorized, numba, units, numba_vectorized
+if numerics.PY37:
+    def __getattr__(name):
+        global vectorized, numba, units, numba_vectorized
+        if name == 'vectorized':
+            import fluids.vectorized as vectorized
+            return vectorized
+        if name == 'numba':
+            import fluids.numba as numba
+            return numba
+        if name == 'units':
+            import fluids.units as units
+            return units
+        if name == 'numba_vectorized':
+            import fluids.numba_vectorized as numba_vectorized
+            return numba_vectorized
+        raise AttributeError("module %s has no attribute %s" %(__name__, name))
+else:
+    from . import vectorized
+
+
+
+__version__ = '1.0.2'
 
 try:
     fluids_dir = os.path.dirname(__file__)

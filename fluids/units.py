@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2017, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2017, 2018, 2019, 2020, 2021, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -538,6 +538,8 @@ for name in dir(fluids):
         continue
     if 'ParticleSizeDistribution' in name:
         continue
+    if name == '__getattr__' or name == '__test__':
+        continue
     obj = getattr(fluids, name)
     if isinstance(obj, types.FunctionType):
         obj = wraps_numpydoc(u)(obj)
@@ -632,6 +634,3 @@ def variable_output_wrapper(func, wrapped_basic_func, output_signatures, input_l
 for name, val in variable_output_unit_funcs.items():
     globals()[name] = variable_output_wrapper(getattr(fluids, name),
             __pint_wrapped_functions[name], val[0], val[1])
-
-
-# NOTE: class support can't do static methods unless a class is already instantiated

@@ -3,11 +3,19 @@ Support for pint Quantities (fluids.units)
 
 Basic module which wraps all fluids functions and classes to be compatible with the
 `pint <https://github.com/hgrecco/pint>`_ unit handling library.
-All other object - dicts, lists, etc - are not wrapped. Supports star 
-imports; so the same objects exported when importing from the main library
-will be imported from here. 
+All other object - dicts, lists, etc - are not wrapped. 
+
+>>> import fluids
+>>> fluids.units.friction_factor # doctest: +ELLIPSIS
+<function friction_factor at 0x...>
+
+The fluids.units module also supports star imports; the same objects exported when importing from the main library
+will be imported from fluids.units.
 
 >>> from fluids.units import *
+
+It is also possible to use `fluids.units` without the star import:
+
 
 There is no global unit registry in pint, and each registry must be a singleton.
 However, there is a default registry which is suitable for use in multiple
@@ -65,7 +73,6 @@ exception will be raised.
 >>> K_separator_Watkins(985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, 0.88*u.dimensionless, horizontal=True) # doctest: +SKIP
 Exception: Converting 0.88 dimensionless to units of kg/m^3 raised DimensionalityError: Cannot convert from 'dimensionless' (dimensionless) to 'kilogram / meter ** 3' ([mass] / [length] ** 3)
 
-
 Support for classes is provided by wrapping each class by a proxy class which reads
 the docstrings of each method and the main class to determine the inputs and outputs.
 Properties, attributes, inputs, and units are all included.
@@ -80,12 +87,3 @@ Properties, attributes, inputs, and units are all included.
 >>> atm = ATMOSPHERE_NRLMSISE00(Z=1E3*u.m, latitude=45*u.degrees, longitude=45*u.degrees, day=150*u.day)
 >>> atm.rho, atm.O2_density
 (<Quantity(1.1019062, 'kilogram / meter ** 3')>, <Quantity(4.80470351e+24, 'count / meter ** 3')>)
-
-Note that static methods cannot be used with the base class, only an instantiated class. This is
-because the proxy class wraps the methods only on creation of the object.
-
->>> ATMOSPHERE_1976.thermal_conductivity(300*u.K) # doctest: +SKIP
-AttributeError: type object 'ATMOSPHERE_1976' has no attribute 'thermal_conductivity'
-
->>> ATMOSPHERE_1976(0*u.m).thermal_conductivity(300*u.K)
-<Quantity(0.0262520008, 'watt / kelvin / meter')>

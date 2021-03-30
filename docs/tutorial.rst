@@ -1,24 +1,6 @@
 fluids tutorial
 ===============
 
-Required Resources
-------------------
-
-The fluids library is designed to be a low-overhead, lightweight repository
-of engineering knowledge and utilities that relate to fluid dynamics.
-It occupies ~4 MB of RAM on load and should load in a small fraction of a
-second. Fluids does load NumPy if it is present, which takes ~150 ms; fluids
-itself loads in approximately 20 ms. No other libraries will become required 
-dependencies; anything else, including SciPy, is optional and loaded when
-needed.
-
-Fluids was originally tightly integrated with SciPy and NumPy; today they
-are optional components used for only a small amount of functionality
-which do not have pure-Python numerical methods implemented.
-Fluids targets Python 2.7 and up as well as PyPy2 and PyPy3. Additionally,
-fluids has been tested by the author to load in IronPython, Jython,
-and micropython.
-
 Importing
 ---------
 
@@ -1564,3 +1546,21 @@ Percentile ratios, D75/D25 and D90/D10:
 1.96303108415
 >>> psd.dn(0.9)/psd.dn(0.1)
 3.60222447927
+
+Required Resources
+------------------
+
+The fluids library is designed to be a low-overhead, lightweight repository
+of engineering knowledge and utilities that relate to fluid dynamics.
+It occupies ~4 MB of RAM on load and should load in a small fraction of a
+second. Fluids does load NumPy if it is present, which takes ~150 ms; fluids
+itself loads in approximately 20 ms. No other libraries will become required 
+dependencies; anything else, including SciPy, is optional and loaded when
+needed.
+
+Fluids was originally tightly integrated with SciPy and NumPy; today they
+are optional components used for only a small amount of functionality
+which do not have pure-Python numerical methods implemented.
+Fluids targets Python 2.7 and up as well as PyPy2 and PyPy3. Additionally,
+fluids has been tested by the author to load in IronPython, Jython,
+and micropython.

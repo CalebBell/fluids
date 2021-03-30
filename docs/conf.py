@@ -51,7 +51,6 @@ extensions = [
     #'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
-    #'sphinx.ext.intersphinx',
     'numpydoc',
     'nbsphinx',
     'matplotlib.sphinxext.plot_directive',
@@ -307,6 +306,12 @@ katex_js_path = \
     'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js'
 katex_autorender_path = \
     'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js'
+
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
+                       'numpy': ('http://docs.scipy.org/doc/numpy', None),
+                       'scipy': ('http://docs.scipy.org/doc/scipy/reference', None),
+                       'matplotlib': ('http://matplotlib.sourceforge.net', None),
+                       'chemicals': ('https://chemicals.readthedocs.io/', None)}
 
 def has_cmd(cmd):
     return subprocess.call("type " + cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0

@@ -99,6 +99,9 @@ class FakePackage(object):
     def __init__(self, pkg):
         self.pkg = pkg
 
+version_components = sys.version.split('.')
+PY_MAJOR, PY_MINOR = int(version_components[0]), int(version_components[1])
+PY37 = (PY_MAJOR, PY_MINOR) >= (3, 7)
 
 try:
     # The right way imports the platform module which costs to ms to load!
@@ -1462,9 +1465,16 @@ def polyint_over_x(coeffs):
     N = len(coeffs)
     log_coef = coeffs[-1]
     Nm1 = N - 1
-    poly_terms = [coeffs[Nm1-i]/i for i in range(N-1, 0, -1)]
-    poly_terms.append(0.0)
+    poly_terms = [0.0]*N
+    for i in range(Nm1):
+        poly_terms[i] = coeffs[i]/(Nm1-i)
     return poly_terms, log_coef
+#    N = len(coeffs)
+#    log_coef = coeffs[-1]
+#    Nm1 = N - 1
+#    poly_terms = [coeffs[Nm1-i]/i for i in range(N-1, 0, -1)]
+#    poly_terms.append(0.0)
+#    return poly_terms, log_coef
 #    coeffs = coeffs[::-1]
 #    log_coef = coeffs[0]
 #    poly_terms = [0.0]
