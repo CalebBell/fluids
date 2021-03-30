@@ -22,7 +22,6 @@ SOFTWARE.
 """
 
 from __future__ import division
-import types
 from fluids.numerics import numpy as np, FakePackage
 import fluids as normal_fluids
 
@@ -60,10 +59,10 @@ __funcs = {}
 
 bad_names = set(('__file__', '__name__', '__package__', '__cached__'))
 
-if np is FakePackage:
+if isinstance(np, FakePackage):
     pass
 else:
-
+    import types
     for name in dir(normal_fluids):
         obj = getattr(normal_fluids, name)
         if isinstance(obj, types.FunctionType):
