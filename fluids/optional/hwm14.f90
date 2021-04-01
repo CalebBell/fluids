@@ -382,7 +382,7 @@ subroutine initqwm(filename)
     bz = 0.0d0
     bm = 0.0d0
 
-    ! change the initalization flag and reset some other things
+    ! change the initialization flag and reset some other things
 
     previous(1:5) = -1.0d32
     qwminit = .false.
@@ -1149,7 +1149,7 @@ module gd2qdc
     real(8), allocatable     :: xcoeff(:)          !Coefficients for x coordinate
     real(8), allocatable     :: ycoeff(:)          !Coefficients for y coordinate
     real(8), allocatable     :: zcoeff(:)          !Coefficients for z coordinate
-    real(8), allocatable     :: sh(:)              !Array to hold spherical harmonic fuctions
+    real(8), allocatable     :: sh(:)              !Array to hold spherical harmonic functions
     real(8), allocatable     :: shgradtheta(:)     !Array to hold spherical harmonic gradients
     real(8), allocatable     :: shgradphi(:)       !Array to hold spherical harmonic gradients
     real(8), allocatable     :: normadj(:)         !Adjustment to VSH normalization factor

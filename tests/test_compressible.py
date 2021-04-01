@@ -313,7 +313,7 @@ def test_isothermal_gas():
     P1 = isothermal_gas(rho=11.3, fd=0.00185, m=390., P2=9E5, L=1000., D=0.5)
     assert_close(P1, 2298973.786533209)
 
-    # Case where the desired flow is greated than the choked flow's rate
+    # Case where the desired flow is greater than the choked flow's rate
     with pytest.raises(Exception):
         isothermal_gas(rho=11.3, fd=0.00185, m=400, P2=9E5, L=1000., D=0.5)
 

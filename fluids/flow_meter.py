@@ -1642,7 +1642,7 @@ def diameter_ratio_cone_meter(D, Dc):
     Notes
     -----
 
-    A mathematically equivalent formula often writen is:
+    A mathematically equivalent formula often written is:
 
     .. math::
         \beta = \frac{\sqrt{D^2 - d_c^2}}{D}

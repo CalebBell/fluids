@@ -1980,7 +1980,7 @@ def contraction_round(Di1, Di2, rc, method='Rennels'):
 
     .. figure:: fittings/contraction_round.png
        :scale: 30 %
-       :alt: Cirucular round contraction; after [1]_
+       :alt: Circular round contraction; after [1]_
 
     Parameters
     ----------

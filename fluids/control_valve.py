@@ -1167,7 +1167,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     For formulas see [1]_. This takes on the order of 100 us to compute.
     This model can also tell if noise is being produced in a valve just due to
     turbulent flow, or cavitation. For values of `An`, see [1]_; it is
-    normally -4.6 for globel valves, -4.3 for butterfly valves, and -4.0 for
+    normally -4.6 for global valves, -4.3 for butterfly valves, and -4.0 for
     expanders.
 
     This model was checked against three examples in [1]_; they match to all
@@ -1282,7 +1282,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
 
             # 4.3429448190325175*log(x) -> 10*log10(x)
             LPif = (Lpi + 4.3429448190325175*log(t1*10.0**(F_turb) + t2*F_cav_fact))
-            # Shoule be able to save 1 power in the above function somehow, combine the tow terms in exponent
+            # Should be able to save 1 power in the above function somehow, combine the tow terms in exponent
         else:
             LPif = Lpi + F_turb*10.0
 #        LPis.append(LPif)

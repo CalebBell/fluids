@@ -92,7 +92,7 @@ Temperature Conversions
 -----------------------
 These functions used to be part of SciPy, but were removed in favor
 of a slower function `convert_temperature` which removes code duplication but
-doesn't have the same convinience or easy to remember signature.
+doesn't have the same convenience or easy to remember signature.
 
 .. autofunction:: C2K
 .. autofunction:: K2C
@@ -2438,7 +2438,7 @@ def f_from_K(K, L, D):
 
     Notes
     -----
-    This can be useful to blend fittings at specic locations in a pipe into
+    This can be useful to blend fittings at specific locations in a pipe into
     a pressure drop which is evenly distributed along a pipe.
 
     Examples

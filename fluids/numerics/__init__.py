@@ -373,7 +373,7 @@ def roots_cubic(a, b, c, d):
     15-35x speed, such as when using PyPy.
 
     A particular focus of this routine is where a=1, b is a small number in the
-    range -10 to 10 - a common occurence in cubic equations of state.
+    range -10 to 10 - a common occurrence in cubic equations of state.
 
     Parameters
     ----------
@@ -452,7 +452,7 @@ def roots_cubic(a, b, c, d):
 
     h = (0.25*(g*g) + (f*f*f)*one_27)
 #    print(f, g, h)
-    '''h has no savings on precicion - 0.4 error to 0.2.
+    '''h has no savings on precision - 0.4 error to 0.2.
     '''
 #    print(f, g, h, 'f, g, h')
     if h == 0.0 and g == 0.0 and f == 0.0:
@@ -1544,7 +1544,7 @@ def fit_integral_linear_extrapolation(T1, T2, int_coeffs, Tmin, Tmax,
 
 def poly_fit_integral_value(T, int_coeffs, Tmin, Tmax, Tmin_value, Tmax_value,
                             Tmin_slope, Tmax_slope):
-    # Can still save 1 horner evaluation (all of them for hight T), but will be VERY messy.
+    # Can still save 1 horner evaluation (all of them for height T), but will be VERY messy.
     if T < Tmin:
         x1 = Tmin_value - Tmin_slope*Tmin
         tot = T*(0.5*Tmin_slope*T + x1)
@@ -2296,10 +2296,10 @@ def best_bounding_bounds(low, high, f=None, xs_pos=None, ys_pos=None,
     Parameters
     ----------
     low : float
-        Low bracketing interval (`f` has oposite sign at `low` than `high`),
+        Low bracketing interval (`f` has opposite sign at `low` than `high`),
         [-]
     high : float
-        High bracketing interval (`f` has oposite sign at `high` than `low`),
+        High bracketing interval (`f` has opposite sign at `high` than `low`),
         [-]
     f : callable, optional
         1D function to be solved, [-]
@@ -2325,10 +2325,10 @@ def best_bounding_bounds(low, high, f=None, xs_pos=None, ys_pos=None,
     Returns
     -------
     low : float
-        Low bracketing interval (`f` has oposite sign at `low` than `high`),
+        Low bracketing interval (`f` has opposite sign at `low` than `high`),
         [-]
     high : float
-        High bracketing interval (`f` has oposite sign at `high` than `low`),
+        High bracketing interval (`f` has opposite sign at `high` than `low`),
         [-]
     fa : float
         Value of function at `low`, [-]
@@ -2733,7 +2733,7 @@ def newton(func, x0, fprime=None, args=(), tol=None, maxiter=100,
             fder = fprime(p0, *args, **kwargs) #numba: DELETE
 
         if fval == 0.0:
-            return p0 # Cannot coninue or already finished
+            return p0 # Cannot continue or already finished
         elif fder == 0.0:
             if ytol is None or abs(fval) < ytol:
                 return p0
@@ -2843,7 +2843,7 @@ def halley(func, x0, args=(), maxiter=100,
     for it in range(maxiter):
         fval, fder, fder2 = func(p0, *args)
         if fval == 0.0:
-            return p0 # Cannot coninue or already finished
+            return p0 # Cannot continue or already finished
         elif fder == 0.0:
             if ytol is None or abs(fval) < ytol:
                 return p0
