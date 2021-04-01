@@ -818,7 +818,7 @@ def earthsun_distance(moment):
     >>> earthsun_distance(pytz.timezone('America/Edmonton').localize(datetime(2020, 6, 6, 10, 0, 0, 0)))
     151817805599.67142
 
-    This has a sligtly different value than the value without a timezone;
+    This has a slightly different value than the value without a timezone;
     almost 5000 km further away!
 
     >>> earthsun_distance(datetime(2020, 6, 6, 10, 0, 0, 0))
@@ -852,11 +852,11 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     r'''Calculate the position of the sun in the sky. It is defined in terms of
     two angles - the zenith and the azimith. The azimuth tells where a sundial
     would see the sun as coming from; the zenith tells how high in the sky it
-    is. The solar elevation angle is returned for convinience; it is the
+    is. The solar elevation angle is returned for convenience; it is the
     complimentary angle of the zenith.
 
     The sun's refraction changes how high it appears as though the sun is;
-    so values are returned with an optional conversion to the aparent angle.
+    so values are returned with an optional conversion to the apparent angle.
     This impacts only the zenith/elevation.
 
     Uses the Reda and Andreas (2004) model described in [1]_,
@@ -867,7 +867,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     ----------
     moment : datetime, optionally with pytz info
         Time and date for the calculation, in UTC time OR in the time zone
-        of the latitude/longitude specified BUT WITH A TZINFO ATTATCHED!
+        of the latitude/longitude specified BUT WITH A TZINFO ATTACHED!
         Please be careful with this argument, time zones are confusing. [-]
     latitude : float
         Latitude, between -90 and 90 [degrees]
@@ -1118,7 +1118,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         Elevation above sea level for the position, [m]
     moment : datetime, optionally with pytz info
         Time and date for the calculation, in UTC time OR in the time zone
-        of the latitude/longitude specified BUT WITH A TZINFO ATTATCHED!
+        of the latitude/longitude specified BUT WITH A TZINFO ATTACHED!
         Please be careful with this argument, time zones are confusing. [-]
     surface_tilt : float
         The angle above the horizontal of the object being hit by radiation,

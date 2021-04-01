@@ -3299,7 +3299,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
 
     Notes
     -----
-    The range of acccuracy of these correlations is much than that in a
+    The range of accuracy of these correlations is much than that in a
     straight pipe.
 
     References

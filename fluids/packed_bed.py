@@ -1014,7 +1014,7 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1.0):
 
 
 
-# Format: Nice nane : (formula, uses_dt)
+# Format: Nice name : (formula, uses_dt)
 packed_beds_correlations = {
 'Ergun': (Ergun, False),
 'Tallmadge': (Tallmadge, False),
@@ -1201,7 +1201,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
 ### Voidage correlations
 
 def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
-    r'''Calculates voidage of a bed of arbitraryily shaped uniform particles
+    r'''Calculates voidage of a bed of arbitrarily shaped uniform particles
     packed into a bed or tube of diameter `Dt`, with equivalent sphere diameter
     `Dp`. Shown in [1]_, and cited by various authors. Correlations exist
     also for spheres, solid cylinders, hollow cylinders, and 4-hole cylinders.

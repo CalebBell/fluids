@@ -44,7 +44,7 @@ Compressible Flow
 -----------------
 .. autofunction:: isothermal_gas
 
-Emperical Compressible Flow
+Empirical Compressible Flow
 ---------------------------
 .. autofunction:: Panhandle_A
 .. autofunction:: Panhandle_B

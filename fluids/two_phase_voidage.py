@@ -22,7 +22,7 @@ SOFTWARE.
 
 This module contains functions for calculating void fraction/holdup in
 two-phase flow. This is an important parameter for predicting pressure drop.
-Also included are emperical "two phase viscosity" definitions which do not
+Also included are empirical "two phase viscosity" definitions which do not
 have a physical meaning but are often used in pressure drop correlations.
 
 For reporting bugs, adding feature requests, or submitting pull requests,

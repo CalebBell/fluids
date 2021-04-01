@@ -694,7 +694,7 @@ def test_SA_partial_vertical_ellipsoidal_head():
     high = SA_partial_vertical_ellipsoidal_head(72*inch, a=36.*inch*(1-1e-9), h=18*inch)
     assert_close(low, high, rtol=1e-8)
 
-    # The issue has been identified to be occuring in the just-above 36 code
+    # The issue has been identified to be occurring in the just-above 36 code
     with pytest.raises(Exception):
         low = SA_partial_vertical_ellipsoidal_head(72*inch, a=36.*inch*(1+1e-12), h=18*inch)
         high = SA_partial_vertical_ellipsoidal_head(72*inch, a=36.*inch*(1-1e-12), h=18*inch)

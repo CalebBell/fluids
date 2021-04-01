@@ -124,7 +124,7 @@ def test_hwm93():
                     reason='hwm14 model is not built')
 def test_hwm14():
     # Data in checkhwm14.f90; all checks out.
-    # Disturbance wind model checks are not seperately implemented.
+    # Disturbance wind model checks are not separately implemented.
     # Height profile
     HEIGHTS = [0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400]
     HEIGHT_PROFILE_MER = [0.031, 2.965, -6.627, 2.238, -14.253, 37.403, 42.789, 20.278, 25.027, 34.297, 40.408, 44.436, 47.092, 48.843, 49.997, 50.758, 51.259]

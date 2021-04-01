@@ -100,9 +100,9 @@ class ap_array(object):
  *   2 : 3 hr AP index for 3 hrs before current time
  *   3 : 3 hr AP index for 6 hrs before current time
  *   4 : 3 hr AP index for 9 hrs before current time
- *   5 : Average of eight 3 hr AP indicies from 12 to 33 hrs
+ *   5 : Average of eight 3 hr AP indices from 12 to 33 hrs
  *           prior to current time
- *   6 : Average of eight 3 hr AP indicies from 36 to 57 hrs
+ *   6 : Average of eight 3 hr AP indices from 36 to 57 hrs
  *           prior to current time
  """
     def __init__(self):
