@@ -100,15 +100,17 @@ variable = re.compile('[a-zA-Z_0-9]* : ')
 match_units = re.compile(r'\[[a-zA-Z0-9().\/*^\- ]*\]')
 
 
+parse_numpydoc_variables_units_cache = {}
 def parse_numpydoc_variables_units(func):
     text = get_docstring(func)
-#    try:
-#        text = func.__doc__
-#    except:
-#        text = ''
     if text is None:
         text = ''
-    return parse_numpydoc_variables_units_docstring(text)
+    h = hash(text)
+    if h in parse_numpydoc_variables_units_cache:
+        return parse_numpydoc_variables_units_cache[h]
+    res = parse_numpydoc_variables_units_docstring(text)
+    parse_numpydoc_variables_units_cache[h] = res
+    return res
 
 def parse_numpydoc_variables_units_docstring(text):
     section_names = [i.replace('-', '').strip() for i in match_sections.findall(text)]
@@ -165,8 +167,8 @@ def check_args_order(func):
         argspec = inspect.getargspec(func)
     parsed_data = parse_numpydoc_variables_units(func)
     # compare the parsed arguments with those actually defined
-    parsed_units = parsed_data['Parameters']['units']
-    parsed_parameters = parsed_data['Parameters']['vars']
+    parsed_units = copy(parsed_data['Parameters']['units'])
+    parsed_parameters = copy(parsed_data['Parameters']['vars'])
     if 'Other Parameters' in parsed_data:
         parsed_parameters += parsed_data['Other Parameters']['vars']
         parsed_units += parsed_data['Other Parameters']['units']
@@ -256,8 +258,8 @@ def wraps_numpydoc(ureg, strict=True):
         updated = (attr for attr in functools.WRAPPER_UPDATES if hasattr(func, attr))
         parsed_info = parse_numpydoc_variables_units(func)
 
-        in_vars = parsed_info['Parameters']['vars']
-        in_units = parsed_info['Parameters']['units']
+        in_vars = copy(parsed_info['Parameters']['vars'])
+        in_units = copy(parsed_info['Parameters']['units'])
         if 'Other Parameters' in parsed_info:
             in_vars += parsed_info['Other Parameters']['vars']
             in_units += parsed_info['Other Parameters']['units']
@@ -469,9 +471,9 @@ def wrap_numpydoc_obj(obj_to_wrap):
                             docstring = attr.fget.__doc__
                         # Is it a full style string?
                         if 'Returns' in docstring and '-------' in docstring:
-                                found_unit = u(parse_numpydoc_variables_units_docstring(docstring)['Returns']['units'][0])
+                                found_unit = parse_expression_cached(parse_numpydoc_variables_units_docstring(docstring)['Returns']['units'][0], u)
                         else:
-                            found_unit = u(match_parse_units(docstring, i=0))
+                            found_unit = parse_expression_cached(match_parse_units(docstring, i=0), u)
                     except Exception as e:
                         if name[0] == '_':
                             found_unit = u.dimensionless
@@ -493,9 +495,9 @@ def wrap_numpydoc_obj(obj_to_wrap):
         callable_methods['__init__'] = clean_parsed_info(parsed)
 
         if 'Attributes' in parsed:
-            property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Attributes']['vars'], parsed['Attributes']['units'])} )
+            property_unit_map.update({var:parse_expression_cached(unit, u) for var, unit in zip(parsed['Attributes']['vars'], parsed['Attributes']['units'])} )
         if 'Parameters' in parsed:
-            property_unit_map.update({var:u(unit) for var, unit in zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
+            property_unit_map.update({var:parse_expression_cached(unit, u) for var, unit in zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
 
     name = obj_to_wrap.__name__
     classkwargs = {'wrapped': obj_to_wrap,
