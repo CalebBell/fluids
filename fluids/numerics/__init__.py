@@ -27,11 +27,11 @@ from math import (sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin,
                   atan2, asinh, sqrt, gamma)
 from cmath import sqrt as csqrt, log as clog
 import sys
-from .arrays import (solve as py_solve, inv, dot, norm2, inner_product, eye,
+from fluids.numerics.arrays import (solve as py_solve, inv, dot, norm2, inner_product, eye,
                      array_as_tridiagonals, tridiagonals_as_array,
                      solve_tridiagonal, subset_matrix)
 
-
+from fluids.numerics.special import py_hypot, py_cacos, py_catan, py_catanh
 
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
@@ -81,11 +81,6 @@ __numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search',
 nan = float("nan")
 inf = float("inf")
 
-DBL_MAX = 1.7976931348623157e+308
-CM_LARGE_DOUBLE = DBL_MAX/4.
-CM_SQRT_LARGE_DOUBLE = sqrt(CM_LARGE_DOUBLE)
-DBL_MIN = 2.2250738585072013830902327173324040642192159804623318306e-308
-CM_SQRT_DBL_MIN = sqrt(DBL_MIN)
 
 
 
@@ -134,61 +129,9 @@ try:
 except:
     is_ironpython = False
 
-def py_hypot(x, y):
-    x = fabs(x)
-    y = fabs(y)
-    if x < y:
-        x, y = y, x
-    if x == 0.0:
-        return 0.0
-    yx = y/x
-    return x*sqrt(1.0 + yx*yx)
-
 if is_micropython:
     hypot = py_hypot
-    log1p = log
-else:
-    from math import hypot, log1p
 
-def py_cacos(z):
-    # After CPython https://github.com/python/cpython/blob/e9e7d284c434768333fdfb53a3663eae74cb995a/Modules/cmathmodule.c#L237
-    # Without the special cases
-    # Implemented only because micropython is missing this function
-    s1 = csqrt(1. - z.real - z.imag*1.0j)
-    s2 = csqrt(1. + z.real + z.imag*1.0j)
-    r =  2.*atan2(s1.real, s2.real) + asinh(s2.real*s1.imag - s2.imag*s1.real)*1.0j
-    return r
-
-
-
-
-
-def py_catan(x):
-    # Implemented only because micropython is missing this function
-    return 0.5j*(clog(1.0 - 1.0j*x) - clog(1.0 + 1.0j*x))
-
-def py_catanh(z):
-    # Does not contain special values
-    if z.real < 0.0:
-        # works
-        res = catanh(-z.real + z.imag*1j)
-        return -res.real +res.imag*1j
-    ay = fabs(z.imag)
-    if (z.real > CM_SQRT_LARGE_DOUBLE or ay > CM_SQRT_LARGE_DOUBLE):
-        h = hypot(z.real/2., z.imag/2.)
-        real = z.real/4./h/h
-        imag = -copysign(pi/2., -z.imag)
-    elif (z.real == 1. and ay < CM_SQRT_DBL_MIN):
-        if (ay == 0.):
-            real = inf
-            imag = z.imag
-        else:
-            real = -log(sqrt(ay)/sqrt(hypot(ay, 2.)))
-            imag = copysign(atan2(2., -ay)/2, z.imag)
-    else:
-        real = log1p(4.*z.real/((1-z.real)*(1-z.real) + ay*ay))/4.
-        imag = -atan2(-2.*z.imag, (1-z.real)*(1+z.real) - ay*ay)/2.
-    return real + imag*1.0j
 
 def sincos(x):
     return sin(x), cos(x)
