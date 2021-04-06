@@ -7,6 +7,8 @@ try:
 except:
     print('run this from the tests directory')
     exit()
+#import test_numerics
+#import test_numerics_special
 import test_control_valve
 import test_geometry
 import test_two_phase
@@ -31,7 +33,8 @@ import test_jet_pump
 import test_mixing
 import test_nrlmsise00_full
 
-to_test = [test_drag, test_control_valve, test_two_phase,
+to_test = [#test_numerics, test_numerics_special, 
+           test_drag, test_control_valve, test_two_phase,
            test_two_phase_voidage, test_separator, test_piping, test_packed_bed,
            test_compressible, test_core,
            test_safety_valve, test_open_flow, test_filters, test_flow_meter,
@@ -40,7 +43,7 @@ to_test = [test_drag, test_control_valve, test_two_phase,
 #to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
 
 if fluids.numerics.is_micropython or fluids.numerics.is_ironpython:
-    skip_marks = ['slow', 'fuzz', 'scipy', 'numpy', 'f2py', 'pytz']
+    skip_marks = ['slow', 'fuzz', 'scipy', 'numpy', 'f2py', 'pytz', 'numba']
 else:
     skip_marks = ['slow', 'fuzz']
 # pytz loads but doesn't work right in ironpython
@@ -69,7 +72,7 @@ for mod in to_test:
                 pass
             if not skip:
                 try:
-                    print(obj)
+                    #print(obj)
                     obj()
                 except Exception as e:
                     print('FAILED TEST %s with error:' %s)
