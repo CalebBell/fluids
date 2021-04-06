@@ -3602,18 +3602,22 @@ def _lambertw_err(x, y):
     return x*exp(x) - y
 def py_lambertw(y, k=0):
     """For x > 0, the is always only one real solution For -1/e < x < 0, two
-    real solutions."""
+    real solutions.
+
+    Besides compatibility with scipy, the result should have a complex part
+    because micropython doesn't support .real on floats
+    """
     # Works for real inputs only, two main branches
     if k == 0:
         # Branches dead at -1
         # -1 is hard limit for real in this branch
         # 700 is safe upper limit for exp
         # Input should be between -1 and +BIGNUMBER
-        return brenth(_lambertw_err, -1.0, 700.0, (y,))
+        return brenth(_lambertw_err, -1.0, 700.0, (y,)) + 0.0j
     elif k == -1:
         # Input should be between 0 and -1/e
         # not a big input range!
-        return brenth(_lambertw_err, -700.0, -1.0, (y,))
+        return brenth(_lambertw_err, -700.0, -1.0, (y,)) + 0.0j
     else:
         raise ValueError("Other branches not supported")
 #has_scipy = False

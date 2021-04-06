@@ -8,7 +8,7 @@ except:
     print('run this from the tests directory')
     exit()
 #import test_numerics
-#import test_numerics_special
+import test_numerics_special
 import test_control_valve
 import test_geometry
 import test_two_phase
@@ -33,7 +33,8 @@ import test_jet_pump
 import test_mixing
 import test_nrlmsise00_full
 
-to_test = [#test_numerics, test_numerics_special, 
+to_test = [#test_numerics, 
+    test_numerics_special, 
            test_drag, test_control_valve, test_two_phase,
            test_two_phase_voidage, test_separator, test_piping, test_packed_bed,
            test_compressible, test_core,

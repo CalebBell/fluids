@@ -547,7 +547,7 @@ def P_isothermal_critical_flow(P, fd, D, L):
        2005.
     '''
     # Correct branch of lambertw found by trial and error
-    lambert_term = float(lambertw(-exp((-D - L*fd)/D), -1).real)
+    lambert_term = float((lambertw(-exp((-D - L*fd)/D), -1)).real)
     return P*exp((D*(lambert_term + 1.0) + L*fd)/(2.0*D))
 
 
