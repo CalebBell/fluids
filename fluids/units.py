@@ -28,6 +28,7 @@ __all__ = ['wraps_numpydoc', 'u']
 import types
 import re
 import inspect
+import sys
 from inspect import getsource, cleandoc
 import functools
 try:
@@ -51,6 +52,11 @@ except ImportError: # pragma: no cover
 
 '''See fluids.units.rst for documentation for this module.
 '''
+
+try:
+    doc_stripped = sys.flags.optimize == 2
+except:
+    doc_stripped = False
 # is_critical_flow is broken
 
 def get_docstring(f):
@@ -61,6 +67,8 @@ def get_docstring(f):
             return f.__doc__
     except:
         # micropython
+        return None
+    if not doc_stripped:
         return None
     src = cleandoc(inspect.getsource(f))
     single_pos = src.find("'''")
