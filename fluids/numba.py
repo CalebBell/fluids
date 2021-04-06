@@ -48,6 +48,68 @@ __all__ = []
 __funcs = {}
 no_conv_data_names = set(['__builtins__', 'fmethods'])
 
+import scipy.special as sc
+import ctypes
+from numba.extending import get_cython_function_address
+from numba.extending import overload
+
+name_to_numba_signatures = {
+    'ellipe': [(numba.types.float64,)],
+    'iv': [(numba.types.float64, numba.types.float64,)],
+    'gamma': [(numba.types.float64,)],
+    'gammainc': [(numba.types.float64, numba.types.float64,)],
+    'gammaincc': [(numba.types.float64, numba.types.float64,)],
+    'i0': [(numba.types.float64,)],
+    'i1': [(numba.types.float64,)],
+    'k0': [(numba.types.float64,)],
+    'k1': [(numba.types.float64,)],
+    'hyp2f1': [(numba.types.float64, numba.types.float64, numba.types.float64, numba.types.float64,)],
+    'ellipkinc': [(numba.types.float64, numba.types.float64,)],
+    'ellipeinc': [(numba.types.float64, numba.types.float64,)],
+    'erf': [(numba.types.float64,)],
+}
+
+name_and_types_to_pointer = {
+    ('ellipe', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipe')),
+    ('iv', numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1iv')),
+    ('gamma', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1gamma')),
+    ('gammainc', numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'gammainc')),
+    ('gammaincc', numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'gammaincc')),
+    ('i0', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'i0')),
+    ('i1', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'i1')),
+    ('k0', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'k0')),
+    ('k1', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'k1')),
+    ('hyp2f1', numba.types.float64, numba.types.float64, numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1hyp2f1')),
+    ('ellipkinc', numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipkinc')),
+    ('ellipeinc', numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipeinc')),
+    ('erf', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1erf')),
+}
+assert len(name_and_types_to_pointer) == len(name_to_numba_signatures)
+
+
+def choose_kernel(name, signature):
+    def choice_function(*args):
+        f = name_and_types_to_pointer[(name, *signature)]
+        # Something weird is happening with args
+        a_lambda = lambda *args: f(*args)
+        return a_lambda
+
+    f2 = name_and_types_to_pointer[(name, *signature)]
+    second_lambda = lambda *args: lambda *args: f2(*args)
+    return second_lambda
+    return choice_function
+
+def add_overloads():
+    for name, sigs in name_to_numba_signatures.items():
+        sig = sigs[0] # Sig is a tuple of arguments
+
+        func = getattr(sc, name)
+        #cfunc = name_and_types_to_pointer[(name, *sig)]
+        overload(func)(choose_kernel(name, sigs[0]))
+        #overload(func)(lambda *args: (lambda *args: cfunc(*args)) if args == sig else None)
+
+
+add_overloads()
 
 def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name='cache-safe'):
     filepath = "<ipython-%s>" % cache_name
@@ -465,7 +527,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         __funcs[mod_split_names[-1]] = SUBMOD # fluids.numba.optional.spa
         __funcs['.'.join(mod_split_names[:-1])] = SUBMOD # set fluids.optional.spa fluids.numba.spa
         __funcs['.'.join(mod_split_names[-2:])] = SUBMOD # set 'optional.spa' in the dict too
-       
+
         try:
             names = set(SUBMOD.__all__)
         except:
@@ -503,8 +565,8 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
             if obj_type is list and obj:
                 # Assume all elements have the same general type
                 r = obj[0]
-                r_type = type(r) 
-                if r_type in numtypes: 
+                r_type = type(r)
+                if r_type in numtypes:
                     arr = np.array(obj)
                     if arr.dtype.char != 'O': module_constants_changed_type[arr_name] = arr
                 elif r_type is list and r and type(r[0]) in numtypes:
