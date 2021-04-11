@@ -38,6 +38,9 @@ import linecache
 import numba.types
 from math import pi
 import fluids.optional.spa
+import ctypes
+from numba.extending import get_cython_function_address
+from numba.extending import overload
 
 
 caching = True
@@ -48,61 +51,56 @@ __all__ = []
 __funcs = {}
 no_conv_data_names = set(['__builtins__', 'fmethods'])
 
-import scipy.special as sc
-import ctypes
-from numba.extending import get_cython_function_address
-from numba.extending import overload
+try:
+    import scipy.special as sc
+    name_to_numba_signatures = {
+        'ellipe': [(float64,)],
+        'iv': [(float64, float64,)],
+        'gamma': [(float64,)],
+        'gammainc': [(float64, float64,)],
+        'gammaincc': [(float64, float64,)],
+        'i0': [(float64,)],
+        'i1': [(float64,)],
+        'k0': [(float64,)],
+        'k1': [(float64,)],
+        'hyp2f1': [(float64, float64, float64, float64,)],
+        'ellipkinc': [(float64, float64,)],
+        'ellipeinc': [(float64, float64,)],
+        'erf': [(float64,)],
+    }
 
-name_to_numba_signatures = {
-    'ellipe': [(numba.types.float64,)],
-    'iv': [(numba.types.float64, numba.types.float64,)],
-    'gamma': [(numba.types.float64,)],
-    'gammainc': [(numba.types.float64, numba.types.float64,)],
-    'gammaincc': [(numba.types.float64, numba.types.float64,)],
-    'i0': [(numba.types.float64,)],
-    'i1': [(numba.types.float64,)],
-    'k0': [(numba.types.float64,)],
-    'k1': [(numba.types.float64,)],
-    'hyp2f1': [(numba.types.float64, numba.types.float64, numba.types.float64, numba.types.float64,)],
-    'ellipkinc': [(numba.types.float64, numba.types.float64,)],
-    'ellipeinc': [(numba.types.float64, numba.types.float64,)],
-    'erf': [(numba.types.float64,)],
-}
+    name_and_types_to_pointer = {
+        ('ellipe', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipe')),
+        ('iv', float64, float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1iv')),
+        ('gamma', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1gamma')),
+        ('gammainc', float64, float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'gammainc')),
+        ('gammaincc', float64, float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'gammaincc')),
+        ('i0', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'i0')),
+        ('i1', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'i1')),
+        ('k0', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'k0')),
+        ('k1', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'k1')),
+        ('hyp2f1', float64, float64, float64, float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1hyp2f1')),
+        ('ellipkinc', float64, float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipkinc')),
+        ('ellipeinc', float64, float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipeinc')),
+        ('erf', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1erf')),
+    }
 
-name_and_types_to_pointer = {
-    ('ellipe', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipe')),
-    ('iv', numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1iv')),
-    ('gamma', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1gamma')),
-    ('gammainc', numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'gammainc')),
-    ('gammaincc', numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'gammaincc')),
-    ('i0', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'i0')),
-    ('i1', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'i1')),
-    ('k0', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'k0')),
-    ('k1', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'k1')),
-    ('hyp2f1', numba.types.float64, numba.types.float64, numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1hyp2f1')),
-    ('ellipkinc', numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipkinc')),
-    ('ellipeinc', numba.types.float64, numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipeinc')),
-    ('erf', numba.types.float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1erf')),
-}
-assert len(name_and_types_to_pointer) == len(name_to_numba_signatures)
+    def select_kernel(name, signature):
+        f2 = name_and_types_to_pointer[(name, *signature)]
+        second_lambda = lambda *args: lambda *args: f2(*args)
+        return second_lambda
 
+    def add_scipy_special_overloads():
+        for name, sigs in name_to_numba_signatures.items():
+            sig = sigs[0] # Sig is a tuple of arguments
+            func = getattr(sc, name)
+            overload(func)(select_kernel(name, sigs[0]))
 
-def select_kernel(name, signature):
-    f2 = name_and_types_to_pointer[(name, *signature)]
-    second_lambda = lambda *args: lambda *args: f2(*args)
-    return second_lambda
+    add_scipy_special_overloads()
 
-def add_scipy_special_overloads():
-    for name, sigs in name_to_numba_signatures.items():
-        sig = sigs[0] # Sig is a tuple of arguments
+except:
+    pass
 
-        func = getattr(sc, name)
-        #cfunc = name_and_types_to_pointer[(name, *sig)]
-        overload(func)(select_kernel(name, sigs[0]))
-        #overload(func)(lambda *args: (lambda *args: cfunc(*args)) if args == sig else None)
-
-
-add_scipy_special_overloads()
 
 def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name='cache-safe'):
     filepath = "<ipython-%s>" % cache_name
@@ -664,7 +662,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
                            'plate_enlargement_factor', 'D_eq', 'D_hydraulic', 'width', 'length', 'thickness',
                            'd_port', 'plates', 'length_port', 'A_plate_surface', 'A_heat_transfer',
                            'A_channel_flow', 'channels', 'channels_per_fluid')]
-    PlateExchanger_spec.append(('chevron_angles', numba.types.UniTuple(numba.types.float64, 2)))
+    PlateExchanger_spec.append(('chevron_angles', numba.types.UniTuple(float64, 2)))
 
     HelicalCoil_spec = [(k, float64) for k in
                         ('Do', 'Dt', 'Di', 'Do_total', 'N', 'pitch', 'H', 'H_total',
