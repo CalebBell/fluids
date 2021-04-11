@@ -34,10 +34,6 @@ try:
 except:
     has_mpmath = False
 
-
-import mpmath as mp
-mp.mp.dps=100
-
 def mark_mpmath(f):
     f = pytest.mark.mpmath(f)
     f = pytest.mark.skipif(not has_mpmath, reason='missing mpmath')(f)
