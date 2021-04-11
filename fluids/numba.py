@@ -87,29 +87,22 @@ name_and_types_to_pointer = {
 assert len(name_and_types_to_pointer) == len(name_to_numba_signatures)
 
 
-def choose_kernel(name, signature):
-    def choice_function(*args):
-        f = name_and_types_to_pointer[(name, *signature)]
-        # Something weird is happening with args
-        a_lambda = lambda *args: f(*args)
-        return a_lambda
-
+def select_kernel(name, signature):
     f2 = name_and_types_to_pointer[(name, *signature)]
     second_lambda = lambda *args: lambda *args: f2(*args)
     return second_lambda
-    return choice_function
 
-def add_overloads():
+def add_scipy_special_overloads():
     for name, sigs in name_to_numba_signatures.items():
         sig = sigs[0] # Sig is a tuple of arguments
 
         func = getattr(sc, name)
         #cfunc = name_and_types_to_pointer[(name, *sig)]
-        overload(func)(choose_kernel(name, sigs[0]))
+        overload(func)(select_kernel(name, sigs[0]))
         #overload(func)(lambda *args: (lambda *args: cfunc(*args)) if args == sig else None)
 
 
-add_overloads()
+add_scipy_special_overloads()
 
 def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name='cache-safe'):
     filepath = "<ipython-%s>" % cache_name
