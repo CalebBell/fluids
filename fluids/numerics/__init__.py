@@ -72,6 +72,11 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'root', 'minimize', 'fsolve',
            ]
 
+from fluids.numerics import doubledouble
+from fluids.numerics.doubledouble import *
+__all__.extend(doubledouble.__all__)
+
+
 __numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search',
                               'py_lambertw', '_lambertw_err', 'newton_err',
                               'norm2', 'py_solve', 'func_35_splev', 'func_40_splev',
