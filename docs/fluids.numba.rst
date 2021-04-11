@@ -108,9 +108,3 @@ their normal engine.
 All of the regular Numba-compiled functions are built with the `nogil` flag,
 which means you can use Python's threading mechanism effectively to get
 the speed of parallel processing even without the numba_vectorized interface.
-
-SciPy dependent Functions Support
----------------------------------
-Some functions use scipy.special functions which do have a numba interface `Numba-scipy <https://github.com/person142/numba-scipy/tree/pin-scipy>`_. The project can be installed to make those functions work.
-
-Getting this to work can be problematic at times; compiled code is often much more challenging to get working than interpreted code. 
