@@ -221,11 +221,11 @@ def cbrt_dd(xr, xe):
     yr, ye = add_dd(yr, ye, w0r, w0e)
 
     # Do it again, most of the time probably don't need this? Turn it off on EOS?
-#     w0r, w0e = cube_dd(yr, ye)
-#     w0r, w0e = mul_dd(w0r, w0e, xr, xe)
-#     w0r, w0e = add_dd(1.0, 0.0, -w0r, -w0e)
-#     w0r, w0e = mul_dd(w0r, w0e, yr, ye)
-#     yr, ye = add_dd(yr, ye, third*w0r, third*w0e)
+    w0r, w0e = cube_dd(yr, ye)
+    w0r, w0e = mul_dd(w0r, w0e, xr, xe)
+    w0r, w0e = add_dd(1.0, 0.0, -w0r, -w0e)
+    w0r, w0e = mul_dd(w0r, w0e, yr, ye)
+    yr, ye = add_dd(yr, ye, third*w0r, third*w0e)
     return div_dd(1.0, 0.0, yr, ye)
 
 def cube_dd(x0, y0):
