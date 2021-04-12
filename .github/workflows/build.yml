@@ -85,7 +85,7 @@ jobs:
         pip install numba
     - name: Test with pytest
       run: |
-        pytest . -v --cov-report html --cov=fluids --cov-report term-missing -m "not online and not thermo"
+        pytest . -v --cov-report html --cov=fluids --cov-report term-missing -m "not online and not thermo and not numba"
         coveralls
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.coveralls }}
