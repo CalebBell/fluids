@@ -30,7 +30,7 @@ The NRLMSISE-00 model 2001 ported to python
 Based off of Dominik Brodowski 20100516 version available here
 http://www.brodo.de/english/pub/nrlmsise/
 
-This is the test program, and the output should be compaired to
+This is the test program, and the output should be compared to
 
 The MIT License (MIT)
 

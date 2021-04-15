@@ -7,7 +7,7 @@ if sys.version_info.major != 3 and sys.version_info.minor != 7:
 Some parts of a library change the last few decimals numbers between releases,
 and other parts only have obsolete dependencies i.e. pint on Python 2.
 For that reason, while the pytest test suite runs everywhere,
-the notebooks and doctests only run on one paltform.""")
+the notebooks and doctests only run on one platform.""")
 
 import fluids
 main_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

@@ -74,7 +74,7 @@ In addition to being documentation, the docstrings in `fluids` serve the followi
 * Contain doctests for every public method. These examples often make debugging really easy since they can just be copy-pasted into Jupyter or an IDE/debugger.
 * Contain type information for each variable, which is automatically parsed by the unit handling framework around `pint`.
 * Contain the units of each argument, which is used by the unit handling framework around `pint`.
-* Contain docstrings for every argument - these are checked by the unit tests programatically to avoid forgetting to add a description, which the author did often before the checker was added.
+* Contain docstrings for every argument - these are checked by the unit tests programmatically to avoid forgetting to add a description, which the author did often before the checker was added.
 
 Doctest
 -------

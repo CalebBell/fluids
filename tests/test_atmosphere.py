@@ -124,7 +124,7 @@ def test_hwm93():
                     reason='hwm14 model is not built')
 def test_hwm14():
     # Data in checkhwm14.f90; all checks out.
-    # Disturbance wind model checks are not seperately implemented.
+    # Disturbance wind model checks are not separately implemented.
     # Height profile
     HEIGHTS = [0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350, 375, 400]
     HEIGHT_PROFILE_MER = [0.031, 2.965, -6.627, 2.238, -14.253, 37.403, 42.789, 20.278, 25.027, 34.297, 40.408, 44.436, 47.092, 48.843, 49.997, 50.758, 51.259]
@@ -219,6 +219,7 @@ def test_hwm14():
     assert_close1d(ZON_CALC, AP_PROFILE_ZON)
 
 
+@pytest.mark.pytz
 def test_solar_position():
     pos = solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 7, 10, 57)), -31.95265, 115.85742)
     pos_expect = [90.89617025931763, 90.89617025931763, -0.8961702593176304, -0.8961702593176304, 63.60160176917509, 79.07112321438035]
@@ -241,6 +242,7 @@ def test_solar_position():
     assert_close1d(pos, pos_expect, rtol=1e-9)
 
 
+@pytest.mark.pytz
 def test_earthsun_distance():
     dt = earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
     assert_close(dt, 149090925951.18338, rtol=1e-10)
@@ -260,6 +262,7 @@ def test_earthsun_distance():
 
 
 
+@pytest.mark.pytz
 def test_solar_irradiation():
     ans = solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
     moment=datetime(2018, 4, 15, 19, 43, 5), surface_tilt=41.0,
@@ -276,6 +279,7 @@ def test_solar_irradiation_pytz():
     assert_close1d(ans, ans_expect, rtol=1e-5)
 
 
+@pytest.mark.pytz
 def test_sunrise_sunset():
     sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17, 13, 43, 5), 51.0486,  -114.07)
     sunrise_expected = datetime(2018, 4, 17, 12, 36, 55, 782660)

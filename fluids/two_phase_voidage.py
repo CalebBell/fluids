@@ -22,7 +22,7 @@ SOFTWARE.
 
 This module contains functions for calculating void fraction/holdup in
 two-phase flow. This is an important parameter for predicting pressure drop.
-Also included are emperical "two phase viscosity" definitions which do not
+Also included are empirical "two phase viscosity" definitions which do not
 have a physical meaning but are often used in pressure drop correlations.
 
 For reporting bugs, adding feature requests, or submitting pull requests,
@@ -2025,7 +2025,9 @@ def liquid_gas_voidage_methods(x, rhol, rhog, D=None, m=None, mul=None, mug=None
     >>> len(liquid_gas_voidage_methods(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05))
     27
     '''
-    vals = locals()
+    vals = {'x': x, 'rhol': rhol, 'rhog': rhog, 'D': D, 'm': m, 'mul': mul,
+            'mug': mug, 'sigma': sigma, 'P': P, 'Pc': Pc, 'angle': angle,
+            'g': g, 'check_ranges': check_ranges}
     usable_methods = []
     for method, value in two_phase_voidage_correlations.items():
         f, args = value

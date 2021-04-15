@@ -1879,7 +1879,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         """Incomplete method to fit experimental values to a curve.
 
         It is very hard to get good initial guesses, which are really required
-        for this. Differential evolution is promissing. This API is likely to
+        for this. Differential evolution is promising. This API is likely to
         change in the future.
         """
         dist = {'lognormal': PSDLognormal,

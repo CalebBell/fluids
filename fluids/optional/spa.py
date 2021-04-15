@@ -907,7 +907,7 @@ def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
     delta_t : float, optional
         If delta_t is None, uses spa.calculate_deltat
         using time.year and time.month from pandas.DatetimeIndex.
-        For most simulations specifing delta_t is sufficient.
+        For most simulations specifying delta_t is sufficient.
         Difference between terrestrial time and UT1.
         *Note: delta_t = None will break code using nrel_numba,
         this will be fixed in a future version.
