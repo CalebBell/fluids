@@ -31,7 +31,8 @@ from fluids.numerics.arrays import (solve as py_solve, inv, dot, norm2, inner_pr
                      array_as_tridiagonals, tridiagonals_as_array,
                      solve_tridiagonal, subset_matrix)
 
-from fluids.numerics.special import py_hypot, py_cacos, py_catan, py_catanh
+from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
+                                     trunc_exp, trunc_log)
 
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
@@ -248,26 +249,6 @@ root_three = 1.7320508075688772 # sqrt(3.0)
 one_27 = 1.0/27.0
 complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
 
-def trunc_exp(x, trunc=1.7976931348622732e+308):
-    # maximum value occurs at 709.782712893384 exactly
-    try:
-        return exp(x)
-    except:
-        # Really exp(709.7) 1.6549840276802644e+308
-        return trunc
-
-def trunc_log(x, trunc=-744.4400719213812):
-    # 5e-324 is the smallest floating point number above zero and its log is -744.4400719213812
-    if x == 0.0:
-        return trunc
-    return log(x)
-#    try:
-#        return log(x)
-#    except ValueError as e:
-#        if x == 0:
-#            return trunc
-#        else:
-#            raise e
 
 def roots_cubic_a1(b, c, d):
     # Output from mathematica

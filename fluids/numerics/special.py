@@ -32,7 +32,8 @@ except:
     log1p = log
 
 
-__all__ = ['py_hypot', 'py_cacos', 'py_catan', 'py_catanh']
+__all__ = ['py_hypot', 'py_cacos', 'py_catan', 'py_catanh', 'trunc_exp',
+           'trunc_log']
 
 DBL_MAX = 1.7976931348623157e+308
 CM_LARGE_DOUBLE = DBL_MAX/4.
@@ -85,3 +86,24 @@ def py_catanh(z):
         real = log1p(4.*z.real/((1-z.real)*(1-z.real) + ay*ay))/4.
         imag = -atan2(-2.*z.imag, (1-z.real)*(1+z.real) - ay*ay)/2.
     return real + imag*1.0j
+
+def trunc_exp(x, trunc=1.7976931348622732e+308):
+    # maximum value occurs at 709.782712893384 exactly
+    try:
+        return exp(x)
+    except:
+        # Really exp(709.7) 1.6549840276802644e+308
+        return trunc
+
+def trunc_log(x, trunc=-744.4400719213812):
+    # 5e-324 is the smallest floating point number above zero and its log is -744.4400719213812
+    if x == 0.0:
+        return trunc
+    return log(x)
+#    try:
+#        return log(x)
+#    except ValueError as e:
+#        if x == 0:
+#            return trunc
+#        else:
+#            raise e
