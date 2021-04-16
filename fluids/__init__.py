@@ -151,7 +151,7 @@ else:
 
 
 
-__version__ = '1.0.3'
+__version__ = '1.0.4'
 
 try:
     fluids_dir = os.path.dirname(__file__)
