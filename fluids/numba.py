@@ -582,15 +582,15 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         SUBMOD.__dict__.update(module_constants_changed_type)
         __funcs.update(module_constants_changed_type)
 
-        if not vec:
-            for t in numba_funcs:
-                #if normal.__name__ == 'chemicals':
-                #    if 'iapws' not in all_submodules[-1].__name__:
-                #        print(new_objs, t)
-                #        1/0
-                t.py_func.__globals__.update(SUBMOD.__dict__)
-            for t in funcs:
-                t.__globals__.update(SUBMOD.__dict__)
+        # if not vec:
+            # for t in numba_funcs:
+            #     #if normal.__name__ == 'chemicals':
+            #     #    if 'iapws' not in all_submodules[-1].__name__:
+            #     #        print(new_objs, t)
+            #     #        1/0
+            #     t.py_func.__globals__.update(SUBMOD.__dict__)
+            # for t in funcs:
+            #     t.__globals__.update(SUBMOD.__dict__)
 
     # Do our best to allow functions to be found
     if '__file__' in __funcs:
