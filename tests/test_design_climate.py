@@ -21,10 +21,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from numpy.testing import assert_allclose
+from fluids.numerics import assert_close, assert_close1d
 import pytest
 import numpy as np
 from fluids.design_climate import *
 from fluids.design_climate import _latlongs, stations
+import os
 
 try:
     import geopy
@@ -32,30 +34,30 @@ try:
 except:
     has_geopy = False
 
+data_dir_override = os.path.join(os.path.dirname(__file__), 'gsod')
 
 def test_heating_degree_days():
-    assert_allclose(heating_degree_days(273, truncate=False), -18.483333333333292)
+    assert_close(heating_degree_days(273, truncate=False), -18.483333333333292)
     assert 0 == heating_degree_days(273, truncate=True)
     assert 0 == heating_degree_days(273)
-    assert_allclose(heating_degree_days(273, T_base = 250), 23)
-    assert_allclose(heating_degree_days(279, T_base=300, truncate=False), -21)
+    assert_close(heating_degree_days(273, T_base = 250), 23)
+    assert_close(heating_degree_days(279, T_base=300, truncate=False), -21)
 
 def test_cooling_degree_days():
 
-    assert_allclose( cooling_degree_days(250), 33.15)
+    assert_close( cooling_degree_days(250), 33.15)
     assert 0 == cooling_degree_days(300)
-    assert_allclose(cooling_degree_days(300, truncate=False), -16.85)
-    assert_allclose(cooling_degree_days(250, T_base=300), 50)
+    assert_close(cooling_degree_days(300, truncate=False), -16.85)
+    assert_close(cooling_degree_days(250, T_base=300), 50)
 
 
 @pytest.mark.slow
-@pytest.mark.online
 def test_month_average_temperature():
     station = get_closest_station(38.8572, -77.0369)
-    station_data = StationDataGSOD(station)
+    station_data = StationDataGSOD(station, data_dir_override=data_dir_override)
     Ts_calc = station_data.month_average_temperature(1990, 2000, include_yearly=False, minimum_days=23)
     Ts_expect = [276.1599380905833, 277.5375516246206, 281.1881231671554, 286.7367003367004, 291.8689638318671, 296.79545454545456, 299.51868686868687, 298.2097914630174, 294.4116161616162, 288.25883023786247, 282.3188552188553, 277.8282339524275]
-    assert_allclose(Ts_calc, Ts_expect, rtol=1E-3)
+    assert_close1d(Ts_calc, Ts_expect, rtol=1E-3)
 
     assert station_data.warmest_month(1990, 2000) == 6
     assert station_data.coldest_month(1990, 2000) == 0
@@ -78,17 +80,10 @@ def test_data():
 
 
 @pytest.mark.slow
-@pytest.mark.online
 def test_correct_WBAN():
     station = get_closest_station(31.9973, -102.0779)
-    station_data = StationDataGSOD(station)
+    station_data = StationDataGSOD(station, data_dir_override=data_dir_override)
     assert station.WBAN == '03071'
-
-@pytest.mark.slow
-@pytest.mark.online
-def test_correct_WBAN_online():
-    station = get_closest_station(31.9973, -102.0779)
-    station_data = StationDataGSOD(station)
     assert station_data.month_average_temperature(2010, 2011, include_yearly=False)
 
 
@@ -468,7 +463,6 @@ sample_data_random_station_1999 = '''STN--- WBAN   YEARMODA    TEMP       DEWP  
 
 
 @pytest.mark.slow
-@pytest.mark.online
 def test_get_station_year_text():
     downloaded_data = get_station_year_text(712650, 99999, 1999)
     try:
@@ -486,4 +480,4 @@ def test_get_station_year_text():
 @pytest.mark.skipif(not has_geopy, reason='geopy is required')
 def test_geocode():
     latlon = geocode('Fredericton, NB')
-    assert_allclose(latlon, (45.966425, -66.645813), rtol=5e-4)
+    assert_close(latlon, (45.966425, -66.645813), rtol=5e-4)

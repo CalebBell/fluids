@@ -406,8 +406,10 @@ class IntegratedSurfaceDatabaseStation(object):
 
 class StationDataGSOD(object):
     # Holds data, caches and retrieves data
-    def __init__(self, station):
+    def __init__(self, station, data_dir_override=None):
+        self.data_dir_override = data_dir_override
         self.station = station
+
         self.begin = datetime.datetime.strptime(str(self.station.BEGIN), '%Y%m%d')
         self.end = datetime.datetime.strptime(str(self.station.END), '%Y%m%d')
 
@@ -433,7 +435,7 @@ class StationDataGSOD(object):
         for year in self.year_range:
             if self.raw_text[year] is None:
                 try:
-                    year_data = get_station_year_text(self.station.USAF, self.station.WBAN, year)
+                    year_data = get_station_year_text(self.station.USAF, self.station.WBAN, year, data_dir_override=self.data_dir_override)
                     self.raw_text[year] = year_data
                 except:
                     pass
@@ -701,7 +703,7 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
 
 
 # This should be aggressively cached
-def get_station_year_text(WMO, WBAN, year):
+def get_station_year_text(WMO, WBAN, year, data_dir_override=None):
     """Basic method to download data from the GSOD database, given a station
     identifier and year.
 
@@ -713,6 +715,9 @@ def get_station_year_text(WMO, WBAN, year):
         Weather Bureau Army Navy (WBAN) weather station identifier, [-]
     year : int
         Year data should be retrieved from, [year]
+    data_dir_override : str, optional
+        Directory to store the downloaded data (instead of the
+         configuration directory), [-]
 
     Returns
     -------
@@ -724,6 +729,7 @@ def get_station_year_text(WMO, WBAN, year):
     if WBAN is None:
         WBAN = 99999
     station = str(int(WMO)) + '-' + str(WBAN)
+    base_folder = data_dir if data_dir_override is None else data_dir_override
     gsod_year_dir = os.path.join(data_dir, 'gsod', str(year))
     path = os.path.join(gsod_year_dir, station + '.op')
     if os.path.exists(path):
@@ -818,7 +824,7 @@ gsod_int_fields = ('TEMP_COUNT', 'DEWP_COUNT', 'SLP_COUNT', 'STP_COUNT',
 # Values which signify flags
 gsod_flag_chars = '*ABCDEFGHI'
 # Values which should be converted to None, as normally there is no value
-gsod_bad_values = set(['99.99', '999.9', '9999.9'])
+gsod_bad_values = frozenset(['99.99', '999.9', '9999.9'])
 
 gsod_indicator_names = ['fog', 'rain', 'snow_ice', 'hail', 'thunder',
                         'tornado']
@@ -864,7 +870,7 @@ def gsod_day_parser(line, SI=True, to_datetime=True):
     fields = line.strip().split()[2:]
     # For the case the field is blank, set it to None; strip it either way
     for i in range(len(fields)):
-        field = fields[i].strip()
+        field = fields[i].rstrip()
         if not field:
             field = None
         fields[i] = field
@@ -872,7 +878,9 @@ def gsod_day_parser(line, SI=True, to_datetime=True):
     obj = dict(zip(gsod_fields, fields))
     # Convert the date to a datetime object if specified
     if to_datetime and obj['DATE'] is not None:
-        obj['DATE'] = datetime.datetime.strptime(obj['DATE'], '%Y%m%d')
+        date = obj['DATE']
+        obj['DATE'] = datetime.datetime(int(date[0:4]), int(date[4:6]), int(date[6:]))
+        #obj['DATE'] = datetime.datetime.strptime(obj['DATE'], '%Y%m%d')
 
     # Parse float values as floats
     for field in gsod_float_fields:
