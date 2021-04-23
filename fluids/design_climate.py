@@ -729,8 +729,10 @@ def get_station_year_text(WMO, WBAN, year, data_dir_override=None):
     if WBAN is None:
         WBAN = 99999
     station = str(int(WMO)) + '-' + str(WBAN)
-    base_folder = data_dir if data_dir_override is None else data_dir_override
-    gsod_year_dir = os.path.join(data_dir, 'gsod', str(year))
+    if data_dir_override is None:
+        gsod_year_dir = os.path.join(data_dir, 'gsod', str(year))
+    else:
+        gsod_year_dir = os.path.join(data_dir_override, str(year))
     path = os.path.join(gsod_year_dir, station + '.op')
     if os.path.exists(path):
         with open(path, 'r') as f:

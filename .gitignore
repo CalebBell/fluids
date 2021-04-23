@@ -16,7 +16,6 @@ prof
 monkeytype.sqlite3
 .asv
 fluids.build
-gsod*
 node_modules
 package-lock.json
 

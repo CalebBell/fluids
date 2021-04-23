@@ -36,6 +36,7 @@ except:
 
 data_dir_override = os.path.join(os.path.dirname(__file__), 'gsod')
 
+
 def test_heating_degree_days():
     assert_close(heating_degree_days(273, truncate=False), -18.483333333333292)
     assert 0 == heating_degree_days(273, truncate=True)
