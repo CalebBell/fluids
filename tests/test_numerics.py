@@ -32,7 +32,15 @@ from random import random
 
 assert_allclose = np.testing.assert_allclose
 
-
+def test_py_solve_bad_cases():
+    j = [[-3.8789618086360855, -3.8439678951838587, -1.1398039850146757e-07], [1.878915113936518, 1.8439217680605073, 1.139794740950828e-07], [-1.0, -1.0, 0.0]]
+    nv = [-1.4181331207951953e-07, 1.418121622354107e-07, 2.220446049250313e-16]
+    
+    import fluids.numerics
+    calc = fluids.numerics.py_solve(j, nv)
+    import numpy as np
+    expect = np.linalg.solve(j, nv)
+    fluids.numerics.assert_close1d(calc, expect, rtol=1e-4)
 
 def test_sincos():
     N = 10**1

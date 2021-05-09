@@ -47,6 +47,7 @@ else:
 
 __all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product',
            'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix']
+primitive_containers = frozenset([list, tuple])
 
 def det(matrix):
     """Seem sto work fine.
@@ -337,6 +338,67 @@ def inv(matrix):
         # TODO algorithm?
 #        import numpy as np
 #        return np.linalg.inv(matrix).tolist()
+
+
+def shape(value):
+    '''Find and return the shape of an array, whether it is a numpy array or 
+    a list-of-lists or other combination of iterators.
+    
+    Parameters
+    ----------
+    value : various
+        Input array, [-]
+
+    Returns
+    -------
+    shape : tuple(int, dimension)
+        Dimensions of array, [-]
+    
+    Notes
+    -----
+    It is assumed the shape is consistent - not something like [[1.1, 2.2], [2.4]]
+
+    Examples
+    --------
+    >>> shape([])
+    (0,)
+    >>> shape([1.1, 2.2, 5.5])
+    (3,)
+    >>> shape([[1.1, 2.2, 5.5], [2.0, 1.1, 1.5]])
+    (2, 3)
+    >>> shape([[[1.1,], [2.0], [1.1]]])
+    (1, 3, 1)
+    >>> shape(['110-54-3'])
+    (1,)
+    '''
+    try:
+        return value.shape
+    except:
+        pass
+    dims = [len(value)]
+    try:
+        # Except this block to handle the case of no value
+        iter_value = value[0]
+        for i in range(10):
+            # try:
+            if type(iter_value) in primitive_containers:
+                dims.append(len(iter_value))
+                iter_value = iter_value[0]
+            else:
+                break
+            # except:
+            #     break
+    except:
+        pass
+    return tuple(dims)
+    # try:
+    #     try:
+    #         new_shape = (len(value), len(value[0]), len(value[0][0]))
+    #     except:
+    #         new_shape = (len(value), len(value[0]))
+    # except:
+    #     new_shape = (len(value),)
+    # return new_shape
 
 def eye(N):
     mat = []

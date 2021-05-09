@@ -1244,7 +1244,6 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
         eta_denom = 1.0/(eta_turb + eta_cav)
         t1 = eta_turb*eta_denom
         t2 = eta_cav*eta_denom
-        log10_t1 = log10(t1)
 
 
     fr = c_pipe/(pi*Di)

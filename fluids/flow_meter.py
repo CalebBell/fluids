@@ -2090,7 +2090,7 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     t1 = (t0)**n
     C_Ch = t1 + 1.0/t1
     X =  ml/mg*sqrt(t0)
-    OF = sqrt(1.0 + X*(C_Ch + X))
+    # OF = sqrt(1.0 + X*(C_Ch + X))
 
     C = 1.0 - 0.0463*exp(-0.05*Fr_gas_th)*min(1.0, sqrt(X/0.016))
     return C
