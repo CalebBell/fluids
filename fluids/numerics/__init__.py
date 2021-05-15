@@ -63,7 +63,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'tridiagonals_as_array', 'solve_tridiagonal', 'subset_matrix',
            'assert_close', 'assert_close1d', 'assert_close2d', 'assert_close3d',
            'assert_close4d', 'translate_bound_func', 'translate_bound_jac',
-           'translate_bound_f_jac',
+           'translate_bound_f_jac', 'curve_fit',
            'quad', 'quad_adaptive',
 
            # Complex number math missing in micropython
@@ -3456,6 +3456,14 @@ def fsolve(*args, **kwargs):
     if sp_fsolve is None:
         from scipy.optimize import fsolve as sp_fsolve
     return sp_fsolve(*args, **kwargs)
+
+global sp_curve_fit
+sp_curve_fit = None
+def curve_fit(*args, **kwargs):
+    global sp_curve_fit
+    if sp_curve_fit is None:
+        from scipy.optimize import curve_fit as sp_curve_fit
+    return sp_curve_fit(*args, **kwargs)
 
 def fixed_quad_Gauss_Kronrod(f, a, b, k_points, k_weights, l_weights, args):
     '''
