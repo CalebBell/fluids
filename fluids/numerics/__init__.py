@@ -70,7 +70,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'cacos', 'catan',
            'deflate_cubic_real_roots',
 
-           'root', 'minimize', 'fsolve',
+           'root', 'minimize', 'fsolve', 'differential_evolution',
            ]
 
 from fluids.numerics import doubledouble
@@ -3464,6 +3464,15 @@ def curve_fit(*args, **kwargs):
     if sp_curve_fit is None:
         from scipy.optimize import curve_fit as sp_curve_fit
     return sp_curve_fit(*args, **kwargs)
+
+global sp_differential_evolution
+sp_differential_evolution = None
+def differential_evolution(*args, **kwargs):
+    global sp_differential_evolution
+    if sp_differential_evolution is None:
+        from scipy.optimize import differential_evolution as sp_differential_evolution
+    return sp_differential_evolution(*args, **kwargs)
+
 
 def fixed_quad_Gauss_Kronrod(f, a, b, k_points, k_weights, l_weights, args):
     '''
