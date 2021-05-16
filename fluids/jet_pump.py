@@ -41,7 +41,7 @@ Objective Function
 
 from __future__ import division
 from math import log, pi, sqrt
-from fluids.numerics import brenth, secant
+from fluids.numerics import brenth, secant, numpy as np
 
 
 __all__ = ['liquid_jet_pump', 'liquid_jet_pump_ancillary']
@@ -530,58 +530,58 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
         obj_err([vals[unknown_vars[0]], vals[unknown_vars[1]]])
         return vals
 
-
-    from scipy.optimize import fsolve, root
-
-    def solve_with_fsolve(var_guesses):
-        res = fsolve(obj_err, var_guesses, full_output=True)
-        if sum(abs(res[1]['fvec'])) > 1E-7:
-            raise ValueError('Could not solve')
-
-        for u, v in zip(unknown_vars, res[0].tolist()):
-            vals[u] = abs(v)
-        return vals
-
-    try:
-        return solve_with_fsolve(var_guesses)
-    except:
-        pass
-
-    # Tying different guesses with fsolve is faster than trying different solvers
-    for meth in ['hybr', 'lm', 'broyden1', 'broyden2']: #
-        try:
-            res = root(obj_err, var_guesses, method=meth, tol=1E-9)
-            if sum(abs(res['fun'])) > 1E-7:
+    with np.errstate(all='ignore'):
+        from scipy.optimize import fsolve, root
+    
+        def solve_with_fsolve(var_guesses):
+            res = fsolve(obj_err, var_guesses, full_output=True)
+            if sum(abs(res[1]['fvec'])) > 1E-7:
                 raise ValueError('Could not solve')
-
-            for u, v in zip(unknown_vars, res['x'].tolist()):
+    
+            for u, v in zip(unknown_vars, res[0].tolist()):
                 vals[u] = abs(v)
             return vals
-        except (ValueError, OverflowError):
-            continue
-
-    # Just do variations on this until it works
-    for _ in range(int(max_variations/8)):
-        for idx in [0, 1]:
+    
+        try:
+            return solve_with_fsolve(var_guesses)
+        except:
+            pass
+    
+        # Tying different guesses with fsolve is faster than trying different solvers
+        for meth in ['hybr', 'lm', 'broyden1', 'broyden2']: #
+            try:
+                res = root(obj_err, var_guesses, method=meth, tol=1E-9)
+                if sum(abs(res['fun'])) > 1E-7:
+                    raise ValueError('Could not solve')
+    
+                for u, v in zip(unknown_vars, res['x'].tolist()):
+                    vals[u] = abs(v)
+                return vals
+            except (ValueError, OverflowError):
+                continue
+    
+        # Just do variations on this until it works
+        for _ in range(int(max_variations/8)):
+            for idx in [0, 1]:
+                for r in [(1, 10), (0.1, 1)]:
+                    i = uniform(*r)
+                    try:
+                        l = list(var_guesses)
+                        l[idx] = l[idx]*i
+                        return solve_with_fsolve(l)
+                    except:
+                        pass
+        # Vary both parameters at once
+        for _ in range(int(max_variations/8)):
             for r in [(1, 10), (0.1, 1)]:
                 i = uniform(*r)
-                try:
-                    l = list(var_guesses)
-                    l[idx] = l[idx]*i
-                    return solve_with_fsolve(l)
-                except:
-                    pass
-    # Vary both parameters at once
-    for _ in range(int(max_variations/8)):
-        for r in [(1, 10), (0.1, 1)]:
-            i = uniform(*r)
-            for s in [(1, 10), (0.1, 1)]:
-                j = uniform(*s)
-                try:
-                    l = list(var_guesses)
-                    l[0] = l[0]*i
-                    l[1] = l[1]*j
-                    return solve_with_fsolve(l)
-                except:
-                    pass
-    raise ValueError('Could not solve')
+                for s in [(1, 10), (0.1, 1)]:
+                    j = uniform(*s)
+                    try:
+                        l = list(var_guesses)
+                        l[0] = l[0]*i
+                        l[1] = l[1]*j
+                        return solve_with_fsolve(l)
+                    except:
+                        pass
+        raise ValueError('Could not solve')
