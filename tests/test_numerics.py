@@ -42,6 +42,21 @@ def test_py_solve_bad_cases():
     expect = np.linalg.solve(j, nv)
     fluids.numerics.assert_close1d(calc, expect, rtol=1e-4)
 
+def test_error_functions():
+    data = [1.0, 2.0, 3.0]
+    calc = [.99, 2.01, 3.2]
+    assert_close(max_abs_error(data, calc), 0.2, rtol=1e-13)
+    assert_close(max_abs_rel_error(data, calc), 0.06666666666666672, rtol=1e-13)
+    assert_close(max_squared_error(data, calc), 0.04000000000000007, rtol=1e-13)
+    assert_close(max_squared_rel_error(data, calc), 0.004444444444444451, rtol=1e-13)
+    
+    assert_close(mean_abs_error(data, calc), 0.07333333333333332, rtol=1e-13)
+    assert_close(mean_abs_rel_error(data, calc), 0.027222222222222207, rtol=1e-13)
+    assert_close(mean_squared_error(data, calc), 0.013400000000000023, rtol=1e-13)
+    assert_close(mean_squared_rel_error(data, calc), 0.0015231481481481502, rtol=1e-13)
+
+
+
 def test_sincos():
     N = 10**1
     for v in linspace(0.0, 2.0*pi, N):

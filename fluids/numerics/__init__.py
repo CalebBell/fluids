@@ -65,6 +65,9 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'assert_close4d', 'translate_bound_func', 'translate_bound_jac',
            'translate_bound_f_jac', 'curve_fit',
            'quad', 'quad_adaptive',
+           'max_abs_error', 'max_abs_rel_error', 'max_squared_error',
+           'max_squared_rel_error', 'mean_abs_error', 'mean_abs_rel_error', 
+           'mean_squared_error', 'mean_squared_rel_error',
 
            # Complex number math missing in micropython
            'cacos', 'catan',
@@ -3431,6 +3434,75 @@ def polylog2(x):
     x = x - offset
     return horner(p, x)/horner(q, x)
 
+
+
+def max_abs_error(data, calc):
+    max_err = 0.0
+    N = len(data)
+    for i in range(N):
+        diff = abs(data[i] - calc[i])
+        if diff > max_err:
+            max_err = diff
+    return max_err
+
+def max_abs_rel_error(data, calc):
+    max_err = 0.0
+    N = len(data)
+    for i in range(N):
+        diff = abs((data[i] - calc[i])/data[i])
+        if diff > max_err:
+            max_err = diff
+    return max_err
+
+def max_squared_error(data, calc):
+    max_err = 0.0
+    N = len(data)
+    for i in range(N):
+        diff = abs(data[i] - calc[i])
+        diff *= diff
+        if diff > max_err:
+            max_err = diff
+    return max_err
+
+def max_squared_rel_error(data, calc):
+    max_err = 0.0
+    N = len(data)
+    for i in range(N):
+        diff = abs((data[i] - calc[i])/data[i])
+        diff *= diff
+        if diff > max_err:
+            max_err = diff
+    return max_err
+
+def mean_abs_error(data, calc):
+    mean_err = 0.0
+    N = len(data)
+    for i in range(N): 
+        mean_err += abs(data[i] - calc[i])
+    return mean_err/N
+
+def mean_abs_rel_error(data, calc):
+    mean_err = 0.0
+    N = len(data)
+    for i in range(N): 
+        mean_err += abs((data[i] - calc[i])/data[i])
+    return mean_err/N
+
+def mean_squared_error(data, calc):
+    mean_err = 0.0
+    N = len(data)
+    for i in range(N):
+        err = abs(data[i] - calc[i])
+        mean_err += err*err
+    return mean_err/N
+
+def mean_squared_rel_error(data, calc):
+    mean_err = 0.0
+    N = len(data)
+    for i in range(N):
+        err = abs((data[i] - calc[i])/data[i])
+        mean_err += err*err
+    return mean_err/N
 
 global sp_root
 sp_root = None
