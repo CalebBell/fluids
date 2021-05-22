@@ -468,6 +468,10 @@ def create_numerics(replaced, vec=False):
 
     NUMERICS_SUBMOD.normalize = normalize
     replaced['normalize'] = normalize
+    for k, v in NUMERICS_SUBMOD.fit_minimization_targets.items():
+        NUMERICS_SUBMOD.fit_minimization_targets[k] = replaced[v.__name__]
+    
+    
     return replaced, NUMERICS_SUBMOD
 
 replaced = {'sum': np.sum, 'combinations': combinations, 'np': np}

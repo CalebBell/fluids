@@ -71,7 +71,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
 
            # Complex number math missing in micropython
            'cacos', 'catan',
-           'deflate_cubic_real_roots',
+           'deflate_cubic_real_roots', 'fit_minimization_targets',
 
            'root', 'minimize', 'fsolve', 'differential_evolution',
            ]
@@ -3484,8 +3484,14 @@ def mean_abs_error(data, calc):
 def mean_abs_rel_error(data, calc):
     mean_err = 0.0
     N = len(data)
-    for i in range(N): 
-        mean_err += abs((data[i] - calc[i])/data[i])
+    for i in range(N):
+        if data[i] == 0.0:
+            if calc[i] == 0.0:
+                pass
+            else:
+                mean_err += 1.0
+        else:
+            mean_err += abs((data[i] - calc[i])/data[i])
     return mean_err/N
 
 def mean_squared_error(data, calc):
@@ -3637,6 +3643,18 @@ if IS_PYPY:
     quad = quad_adaptive
 else:
     quad = lazy_quad
+
+
+fit_minimization_targets = {'MeanAbsErr': mean_abs_error,
+                            'MeanRelErr': mean_abs_rel_error,
+                            'MeanSquareErr': mean_squared_error,
+                            'MeanSquareRelErr': mean_squared_rel_error,
+                            'MaxAbsErr': max_abs_error,
+                            'MaxRelErr': max_abs_rel_error,
+                            'MaxSquareErr': max_squared_error,
+                            'MaxSquareRelErr': max_squared_rel_error,
+                            }
+
 
 
 # interp, horner, derivative methods (and maybe newton?) should always be used.
