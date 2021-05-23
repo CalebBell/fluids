@@ -3578,6 +3578,14 @@ def curve_fit(*args, **kwargs):
         from scipy.optimize import curve_fit as sp_curve_fit
     return sp_curve_fit(*args, **kwargs)
 
+global sp_leastsq
+sp_leastsq = None
+def leastsq(*args, **kwargs):
+    global sp_leastsq
+    if sp_leastsq is None:
+        from scipy.optimize import leastsq as sp_leastsq
+    return sp_leastsq(*args, **kwargs)
+
 global sp_differential_evolution
 sp_differential_evolution = None
 def differential_evolution(*args, **kwargs):
