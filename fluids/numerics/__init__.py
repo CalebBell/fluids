@@ -65,6 +65,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'assert_close4d', 'translate_bound_func', 'translate_bound_jac',
            'translate_bound_f_jac', 'curve_fit',
            'quad', 'quad_adaptive',
+           
+           'std',
            'max_abs_error', 'max_abs_rel_error', 'max_squared_error',
            'max_squared_rel_error', 'mean_abs_error', 'mean_abs_rel_error', 
            'mean_squared_error', 'mean_squared_rel_error',
@@ -1358,6 +1360,21 @@ def is_poly_negative(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1
     poly = [-i for i in poly]# Changes the sign of all polynomial calculated values
     return is_poly_positive(poly, domain=domain, rand_pts=rand_pts, j_tol=j_tol, root_perturb=root_perturb)
 
+def std(data):
+    '''Fast implementation of numpy's std function
+    for 1d inputs only, with double precision only always.
+    '''
+    tot = 0.0
+    N = len(data)
+    for i in range(N):
+        tot += data[i]
+        
+    mean = tot/N
+    tot = 0.0
+    for i in range(N):
+        v = (data[i] - mean)
+        tot += v*v
+    return sqrt(tot/N)
 
 def polyder(c, m=1, scl=1, axis=0):
     """not quite a copy of numpy's version because this was faster to

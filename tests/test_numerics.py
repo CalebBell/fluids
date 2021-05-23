@@ -637,3 +637,15 @@ def test_polylog2():
 
     ys = [polylog2(x) for x in xs]
     assert_close1d(ys, ys_act, rtol=1E-7, atol=1E-10)
+
+
+def test_std():
+    inputs = ([1.0,5.0,11.0,4.0],
+              [1.0,-5.0,11.0,-4.0],
+              [1e12,-5.e13,11e14,-4e13],
+             [1, 2, 3, 4],
+             [-1, -2, -3, 4],
+             [14, 8, 11, 10, 7, 9, 10, 11, 10, 15, 5, 10]
+             )
+    for thing in inputs:
+        assert_close(std(thing), np.std(thing), rtol=1e-14)
