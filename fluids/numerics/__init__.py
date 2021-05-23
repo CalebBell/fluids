@@ -1371,7 +1371,10 @@ def min_max_ratios(actual, calculated):
     '''
     min_ratio = max_ratio = 1.0
     for i in range(len(actual)):
-        r = calculated[i]/actual[i]
+        if actual[i] == 0.0:
+            r = 1.0 if calculated[i] == actual[i] else 10.0
+        else:
+            r = calculated[i]/actual[i]
         if r < min_ratio:
             min_ratio = r
         elif r > max_ratio:

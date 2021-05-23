@@ -656,3 +656,13 @@ def test_min_max_ratios():
 
     min_ratio_np, max_ratio_np = np.min(np.array(calculated)/actual), np.max(np.array(calculated)/actual)
     assert_close1d([min_ratio_np, max_ratio_np], min_max_ratios(actual, calculated), rtol=1e-14)
+    
+    # Case with a zero match
+    actual = [1,2,3,0,5]
+    calculated = [.9, 2.1, 3.05, 0.0, 5.5]
+    assert_close1d(min_max_ratios(actual, calculated), (0.9, 1.1), rtol=0)
+    
+    # Case with a zero mismatch
+    actual = [1,2,3,0,5]
+    calculated = [.9, 2.1, 3.05, 1, 5.5]
+    assert_close1d(min_max_ratios(actual, calculated), (0.9, 10.0), rtol=0)
