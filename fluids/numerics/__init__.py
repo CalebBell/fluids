@@ -66,7 +66,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'translate_bound_f_jac', 'curve_fit',
            'quad', 'quad_adaptive',
            
-           'std',
+           'std', 'min_max_ratios',
            'max_abs_error', 'max_abs_rel_error', 'max_squared_error',
            'max_squared_rel_error', 'mean_abs_error', 'mean_abs_rel_error', 
            'mean_squared_error', 'mean_squared_rel_error',
@@ -1359,6 +1359,24 @@ def is_poly_negative(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1
     # Returns True if negative everywhere in the specified domain (or globally)
     poly = [-i for i in poly]# Changes the sign of all polynomial calculated values
     return is_poly_positive(poly, domain=domain, rand_pts=rand_pts, j_tol=j_tol, root_perturb=root_perturb)
+
+def min_max_ratios(actual, calculated):
+    '''Given known and calculated data, compare
+    the two and provide two numbers describing
+    how far away from the known data the calculated
+    data is.
+    
+    The numbers are the ratio of the lowest relative
+    calc, and the highest relative calc.
+    '''
+    min_ratio = max_ratio = 1.0
+    for i in range(len(actual)):
+        r = calculated[i]/actual[i]
+        if r < min_ratio:
+            min_ratio = r
+        elif r > max_ratio:
+            max_ratio = r
+    return min_ratio, max_ratio
 
 def std(data):
     '''Fast implementation of numpy's std function

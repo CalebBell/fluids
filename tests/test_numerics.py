@@ -649,3 +649,10 @@ def test_std():
              )
     for thing in inputs:
         assert_close(std(thing), np.std(thing), rtol=1e-14)
+        
+def test_min_max_ratios():
+    actual = [1,2,3,4,5]
+    calculated = [.9, 2.1, 3.05, 3.8, 5.5]
+
+    min_ratio_np, max_ratio_np = np.min(np.array(calculated)/actual), np.max(np.array(calculated)/actual)
+    assert_close1d([min_ratio_np, max_ratio_np], min_max_ratios(actual, calculated), rtol=1e-14)
