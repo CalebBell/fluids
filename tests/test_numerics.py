@@ -666,3 +666,10 @@ def test_min_max_ratios():
     actual = [1,2,3,0,5]
     calculated = [.9, 2.1, 3.05, 1, 5.5]
     assert_close1d(min_max_ratios(actual, calculated), (0.9, 10.0), rtol=0)
+    
+    
+def test_py_factorial():
+    from fluids.numerics import py_factorial
+    import math
+    for i in range(30):
+        assert math.factorial(i) == py_factorial(i)

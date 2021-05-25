@@ -48,7 +48,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'solve_4_direct', 'sincos', 'horner_and_der4',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2',
-           'numpy', 'nquad', 'catanh',
+           'numpy', 'nquad', 'catanh', 'factorial',
            'polyint_over_x', 'horner_log', 'polyint', 'chebder',
            'polyder', 'make_damp_initial', 'quadratic_from_points',
            'OscillationError', 'UnconvergedError', 'caching_decorator',
@@ -3702,6 +3702,17 @@ fit_minimization_targets = {'MeanAbsErr': mean_abs_error,
                             }
 
 
+def py_factorial(n):
+    if n < 0:
+        raise ValueError("Positive values only")
+    factorial = 1
+    for i in range(2, n + 1):
+        factorial *= i
+    return factorial
+try:
+    from math import factorial
+except:
+    factorial = py_factorial
 
 # interp, horner, derivative methods (and maybe newton?) should always be used.
 if not IS_PYPY:
