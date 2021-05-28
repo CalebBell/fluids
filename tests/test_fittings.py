@@ -24,7 +24,10 @@ from __future__ import division
 import os
 from fluids import *
 from math import pi, log10, log, isnan, isinf
-from random import uniform
+try:
+    from random import uniform
+except:
+    pass
 from fluids.numerics import secant
 from fluids.constants import *
 from fluids.core import Engauge_2d_parser

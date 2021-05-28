@@ -22,10 +22,13 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import log, log10
-from random import uniform
 from fluids import *
 from fluids.numerics import assert_close, assert_close1d
 import pytest
+try:
+    from random import uniform
+except:
+    pass
 
 def log_uniform(low, high):
     return 10**uniform(log10(low), log10(high))

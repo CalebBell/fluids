@@ -34,7 +34,7 @@ import test_mixing
 import test_nrlmsise00_full
 
 to_test = [#test_numerics, 
-    test_numerics_special, 
+    #test_numerics_special, 
            test_drag, test_control_valve, test_two_phase,
            test_two_phase_voidage, test_separator, test_piping, test_packed_bed,
            test_compressible, test_core,

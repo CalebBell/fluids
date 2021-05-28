@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
+from fluids.two_phase_voidage import *
 from fluids import *
 from fluids.numerics import assert_close, assert_close1d, linspace
 import pytest

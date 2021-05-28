@@ -26,7 +26,10 @@ from math import *
 from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose, linspace, logspace
 import pytest
 from fluids.particle_size_distribution import *
-from random import uniform
+try:
+    from random import uniform
+except:
+    pass
 
 
 def test_ASTM_E11_sieves():
