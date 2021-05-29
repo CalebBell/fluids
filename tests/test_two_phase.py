@@ -22,7 +22,8 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import log, log10
-from fluids import *
+from fluids.two_phase_voidage import *
+from fluids.two_phase import *
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 try:

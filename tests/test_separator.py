@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from fluids import *
+from fluids.separator import K_separator_Watkins, K_separator_demister_York, v_Sounders_Brown, K_Sounders_Brown_theoretical
 import pytest
 from fluids.numerics import assert_close, assert_close1d, assert_close2d
 

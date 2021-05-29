@@ -20,7 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from fluids import *
+from fluids.drag import drag_sphere, drag_sphere_methods, v_terminal, integrate_drag_sphere, time_v_terminal_Stokes, drag_sphere_correlations
+from fluids.drag import *
 from fluids.numerics import assert_close1d, assert_close
 import pytest
 
@@ -114,7 +115,6 @@ def test_drag():
     Cd = Song_Xu(1.24798925062065, sphericity=0.64, S=0.55325984525397)
     assert_close(Cd, 36.00464629658840)
 
-    from fluids.drag import drag_sphere_correlations
     for k in drag_sphere_correlations.keys():
         drag_sphere(1e6, Method=k)
 

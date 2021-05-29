@@ -20,12 +20,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from fluids import *
+from fluids.control_valve import cavitation_index, FF_critical_pressure_ratio_l, is_choked_turbulent_l, is_choked_turbulent_g, Reynolds_valve, loss_coefficient_piping, Reynolds_factor
+from fluids.fittings import Cv_to_Kv
+from fluids.control_valve import *
 from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose
 import pytest
 
 def test_control_valve():
-    from fluids.control_valve import cavitation_index, FF_critical_pressure_ratio_l, is_choked_turbulent_l, is_choked_turbulent_g, Reynolds_valve, loss_coefficient_piping, Reynolds_factor
     CI = cavitation_index(1E6, 8E5, 2E5)
     assert_close(CI, 4.0)
 

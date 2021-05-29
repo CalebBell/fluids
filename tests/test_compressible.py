@@ -20,8 +20,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from fluids import *
+from fluids.compressible import *
 from fluids.constants import *
+from fluids.core import F2K
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 from math import log, pi

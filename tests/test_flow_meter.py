@@ -20,7 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from fluids import *
+from fluids.flow_meter import flow_meter_discharge
+from fluids.flow_meter import *
 from fluids.constants import inch
 from math import log10, log, exp
 from fluids.numerics import secant, linspace, logspace, assert_close, isclose, assert_close1d, assert_close2d

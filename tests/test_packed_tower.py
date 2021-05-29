@@ -21,7 +21,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids import *
+from fluids.packed_tower import (dP_demister_dry_Setekleiv_Svendsen, Stichlmair_dry,
+                                 dP_demister_wet_ElDessouky, separation_demister_ElDessouky, Robbins,
+                                 dP_demister_dry_Setekleiv_Svendsen_lit, Stichlmair_wet,
+                                 voidage_experimental, Stichlmair_flood, specific_area_mesh)
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 

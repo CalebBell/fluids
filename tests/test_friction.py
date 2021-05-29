@@ -23,7 +23,8 @@ SOFTWARE.'''
 from __future__ import division
 from math import log10, log, exp, isnan, pi
 from fluids.numerics import secant, logspace, linspace, assert_close, assert_close1d, assert_close2d, assert_close3d
-from fluids import *
+import fluids.friction
+from fluids.friction import *
 import pytest
 from fluids.friction import _roughness, _Farshad_roughness
 

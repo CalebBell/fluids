@@ -22,7 +22,8 @@ SOFTWARE.'''
 
 from __future__ import division
 import os
-from fluids import *
+import fluids.fittings
+from fluids.fittings import *
 from math import pi, log10, log, isnan, isinf
 try:
     from random import uniform
@@ -30,7 +31,8 @@ except:
     pass
 from fluids.numerics import secant
 from fluids.constants import *
-from fluids.core import Engauge_2d_parser
+from fluids.core import Engauge_2d_parser, Reynolds
+from fluids.friction import ft_Crane
 #from fluids.optional.pychebfun import *
 from fluids.numerics import assert_close, assert_close1d, assert_close2d
 
