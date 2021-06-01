@@ -317,7 +317,10 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_black
         if type(orig_func) is type:
             obj = new_func
         else:
-            obj = conv_fun(cache=do_cache, parallel=parallel, **extra_args)(new_func)
+            if vec:
+                obj = conv_fun(cache=do_cache, **extra_args)(new_func)
+            else:
+                obj = conv_fun(cache=do_cache, parallel=parallel, **extra_args)(new_func)
 #        if 'Wilke_large' in source:
 #            print(id(obj), 'id')
         __funcs[func] = obj
