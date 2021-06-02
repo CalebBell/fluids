@@ -39,6 +39,7 @@ from copy import copy
 import fluids
 import fluids.vectorized
 import numpy as np
+ndarray = np.ndarray
 try:
     import pint
     from pint import _DEFAULT_REGISTRY as u
@@ -238,13 +239,16 @@ def convert_output(result, out_units, out_vars, ureg):
     # Attempt to handle multiple return values
     # Must be able to convert all values to a pint expression
     t = type(result)
-    if t == str or t == bool:
+    output_count = len(out_units)
+    if t is str or t is bool or result is None:
         return result
-    elif t == dict:
+    elif t is dict:
         for key, ans in result.items():
             unit = out_units[out_vars.index(key)]
             result[key] = ans*parse_expression_cached(unit, ureg)
         return result
+    elif (t is list or t is ndarray) and output_count == 1:
+        return np.array(result)*parse_expression_cached(out_units[0], ureg)
     elif isinstance(result, Iterable):
         conveted_result = []
         for ans, unit in zip(result, out_units):

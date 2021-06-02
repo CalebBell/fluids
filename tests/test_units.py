@@ -22,6 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 import types
+import numpy as np
 from fluids.numerics import assert_close, assert_close1d, assert_close2d
 import pytest
 import fluids
@@ -79,6 +80,22 @@ def test_convert_input():
     with pytest.raises(Exception):
         convert_input(5, 'm', u, True)
 
+def test_convert_output():
+    assert convert_output(None, ['Pa'], ['Pt'], u) is None
+    assert convert_output(True, ['Pa'], ['Pt'], u) == True
+    assert convert_output('hi', ['Pa'], ['Pt'], u) == 'hi'
+    
+    val = convert_output(5.5, ['Pa'], ['Pt'], u)
+    assert_close(val.to_base_units().magnitude, 5.5)
+    assert dict(val.dimensionality) == {'[length]': -1, '[mass]': 1, '[time]': -2}
+    
+    mat = convert_output(np.array([[1,2, 6], [3,4,9.5]]), ['Pa'], ['Pt'], u)
+    assert mat.shape == (2, 3)
+    assert dict(val.dimensionality) == {'[length]': -1, '[mass]': 1, '[time]': -2}
+
+    mat = convert_output([[1,2, 6], [3,4,9.5]], ['Pa'], ['Pt'], u)
+    assert mat.shape == (2, 3)
+    assert dict(val.dimensionality) == {'[length]': -1, '[mass]': 1, '[time]': -2}
 
 def test_sample_cases():
     Re = Reynolds(V=3.5*u.m/u.s, D=2*u.m, rho=997.1*u.kg/u.m**3, mu=1E-3*u.Pa*u.s)
