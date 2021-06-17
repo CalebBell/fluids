@@ -10,6 +10,8 @@ def pytest_ignore_collect(path):
     ver_tup = tuple(int(i) for i in ver_tup)
     if 'benchmarks' in path:
         return True
+    if 'conf.py' in path:
+        return True
     if ver_tup < (3, 7) or ver_tup >= (3, 10) or is_pypy:
         # numba does not yet run under pypy
         if 'numba' in path:
