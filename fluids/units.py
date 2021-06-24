@@ -110,10 +110,13 @@ match_units = re.compile(r'\[[a-zA-Z0-9().\/*^\- ]*\]')
 
 
 parse_numpydoc_variables_units_cache = {}
-def parse_numpydoc_variables_units(func):
+def parse_numpydoc_variables_units(func, replace=None):
     text = get_docstring(func)
     if text is None:
         text = ''
+    if replace is not None:
+        for k, v in replace:
+            text = text.replace(k, v)
     h = hash(text)
     if h in parse_numpydoc_variables_units_cache:
         return parse_numpydoc_variables_units_cache[h]
@@ -460,6 +463,10 @@ def wrap_numpydoc_obj(obj_to_wrap):
     property_unit_map = {}
     static_methods = set([])
     class_methods = set([])
+    try:
+        replace = [('`units`', obj_to_wrap.units)]
+    except:
+        replace = None
     for prop in dir(obj_to_wrap):
         attr = getattr(obj_to_wrap, prop)
         if isinstance(attr, types.FunctionType) or isinstance(attr, types.MethodType) or type(attr) == property:
@@ -481,6 +488,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
                         docstring = attr.__doc__
                         if docstring is None:
                             docstring = attr.fget.__doc__
+                        # docstring = docstring.replace('`units`', obj_to_wrap.units)
                         # Is it a full style string?
                         if 'Returns' in docstring and '-------' in docstring:
                                 found_unit = parse_expression_cached(parse_numpydoc_variables_units_docstring(docstring)['Returns']['units'][0], u)
@@ -494,7 +502,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
                             raise e
                     property_unit_map[name] = found_unit
                 else:
-                    parsed = parse_numpydoc_variables_units(attr)
+                    parsed = parse_numpydoc_variables_units(attr, replace)
                     callable_methods[name] = clean_parsed_info(parsed)
                     if 'Attributes' in parsed:
                         property_unit_map.update(parsed['Attributes'])
@@ -503,7 +511,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
     # objects, but in reverse order so older properties get overwritten by newer
     # properties. Ignore the object type as well.
     for inherited in reversed(list(obj_to_wrap.__mro__[0:-1])):
-        parsed = parse_numpydoc_variables_units(inherited)
+        parsed = parse_numpydoc_variables_units(inherited, replace)
         callable_methods['__init__'] = clean_parsed_info(parsed)
 
         if 'Attributes' in parsed:
