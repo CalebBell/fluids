@@ -11,3 +11,4 @@ pandas
 IPython
 sphinx
 wheel
+matplotlib
