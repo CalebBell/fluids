@@ -379,7 +379,7 @@ class ATMOSPHERE_NRLMSISE00(object):
     geomagnetic_disturbance_indices : list of float, optional
         List of the 7 following `Ap` indexes also known as planetary magnetic
         indexes. Has a negligible effect on the calculation. 4 is the default
-        value often used for each of these values.
+        value often used for each of these values, [-]
 
         * Average daily `Ap`.
         * 3-hour average `Ap` centered on the current time.

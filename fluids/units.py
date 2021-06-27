@@ -108,6 +108,14 @@ match_section_names = re.compile('\n *[A-Za-z]+ *\n *-+')
 variable = re.compile('[a-zA-Z_0-9]* : ')
 match_units = re.compile(r'\[[a-zA-Z0-9().\/*^\- ]*\]')
 
+def make_dimensionless_units(unit_str):
+    if unit_str == '-':
+        unit_str = 'dimensionless'
+    elif unit_str == 'various':
+        unit_str = 'dimensionless'
+    elif unit_str == 'base SI':
+        unit_str = 'dimensionless'
+    return unit_str
 
 parse_numpydoc_variables_units_cache = {}
 def parse_numpydoc_variables_units(func, replace=None):
@@ -152,7 +160,7 @@ def parse_numpydoc_variables_units_docstring(text):
             match = matches[-1] # Assume the last bracketed group listed is the unit group
             match = match.replace('[', '').replace(']', '')
             if len(match) == 1:
-                match = match.replace('-', 'dimensionless')
+                match = make_dimensionless_units(match)
             if match == '':
                 match = 'dimensionless'
             if match == 'base SI':
@@ -201,7 +209,7 @@ def match_parse_units(doc, i=-1):
     match = matches[i] # Assume the last bracketed group listed is the unit group
     match = match.replace('[', '').replace(']', '')
     if len(match) == 1:
-        match = match.replace('-', 'dimensionless')
+        match = make_dimensionless_units(match)
     if match == '':
         match = 'dimensionless'
     if match == 'base SI':
@@ -513,11 +521,15 @@ def wrap_numpydoc_obj(obj_to_wrap):
     for inherited in reversed(list(obj_to_wrap.__mro__[0:-1])):
         parsed = parse_numpydoc_variables_units(inherited, replace)
         callable_methods['__init__'] = clean_parsed_info(parsed)
+        # if 'All parameters are also attributes' in get_docstring(inherited):
+        #     pass
 
         if 'Attributes' in parsed:
-            property_unit_map.update({var:parse_expression_cached(unit, u) for var, unit in zip(parsed['Attributes']['vars'], parsed['Attributes']['units'])} )
+            property_unit_map.update({var:parse_expression_cached(make_dimensionless_units(unit), u) for var, unit in 
+                                      zip(parsed['Attributes']['vars'], parsed['Attributes']['units'])} )
         if 'Parameters' in parsed:
-            property_unit_map.update({var:parse_expression_cached(unit, u) for var, unit in zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
+            property_unit_map.update({var:parse_expression_cached(make_dimensionless_units(unit), u) for var, unit in 
+                                      zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
 
     name = obj_to_wrap.__name__
     classkwargs = {'wrapped': obj_to_wrap,
