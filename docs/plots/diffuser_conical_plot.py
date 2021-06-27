@@ -18,7 +18,7 @@ for angle, axes in zip(angles.ravel(), axarr.ravel()):
     for method, style in zip(diffuser_conical_methods, styles):
         if method == 'Swamee':
             continue
-        Ks = [diffuser_conical(Di1=Di, Di2=1, Re=1E6, angle=angle, method=method) for Di in D_ratios]
+        Ks = [diffuser_conical(Di1=float(Di), Di2=1, Re=1E6, angle=float(angle), method=method) for Di in D_ratios]
         Ds2 = D_ratios**2
         axes.plot(Ds2, Ks, label=method) # + ', angle = ' + str(angle)
         

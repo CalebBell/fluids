@@ -226,6 +226,11 @@ else:
 IS_PYPY_OR_SKIP_DEPENDENCIES = IS_PYPY or SKIP_DEPENDENCIES
 np = numpy
 
+try:
+    scalar_types = (float, int, np.float64, np.float32, np.float16, np.float128,
+                    np.int8, np.int16, np.int32, np.int64)
+except:
+    scalar_types = (float, int)
 #IS_PYPY = True
 
 try:
