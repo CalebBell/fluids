@@ -161,10 +161,11 @@ def parse_numpydoc_variables_units_docstring(text):
             match = match.replace('[', '').replace(']', '')
             if len(match) == 1:
                 match = make_dimensionless_units(match)
+            match = make_dimensionless_units(match)
             if match == '':
                 match = 'dimensionless'
-            if match == 'base SI':
-                match = 'dimensionless' # TODO - write special wrappers for these cases
+            # if match == 'base SI':
+            #     match = 'dimensionless' # TODO - write special wrappers for these cases
             units.append(match)
 
         parsed[section] = {'units': units, 'vars': parameter_vars}
