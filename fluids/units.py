@@ -491,7 +491,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
                 name = prop
                 #name = attr.fget.__name__
             else:
-                name = attr.__name__
+                name = prop # Do not use attr.__name__ here to allow aliases, use whatever it was assigned to
             found_doc = hasattr(attr, '__doc__') and attr.__doc__ is not None
             if not found_doc and other_bases:
                 for base in other_bases:
