@@ -476,6 +476,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
         replace = [('`units`', obj_to_wrap.units)]
     except:
         replace = None
+    other_bases = obj_to_wrap.__mro__[1:-1]
     for prop in dir(obj_to_wrap):
         attr = getattr(obj_to_wrap, prop)
         if isinstance(attr, types.FunctionType) or isinstance(attr, types.MethodType) or type(attr) == property:
@@ -491,7 +492,18 @@ def wrap_numpydoc_obj(obj_to_wrap):
                 #name = attr.fget.__name__
             else:
                 name = attr.__name__
-            if hasattr(attr, '__doc__') and attr.__doc__ is not None:
+            found_doc = hasattr(attr, '__doc__') and attr.__doc__ is not None
+            if not found_doc and other_bases:
+                for base in other_bases:
+                    if hasattr(base, prop):
+                        base_prop = getattr(base, prop)
+                        found_doc = hasattr(base_prop, '__doc__') and base_prop.__doc__ is not None
+                        if found_doc:
+                            attr = base_prop
+                            break
+
+
+            if found_doc:
                 if type(attr) is property:
                     try:
                         docstring = attr.__doc__
