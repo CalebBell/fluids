@@ -64,7 +64,7 @@ Rydberg = 10973731.568508
 
 k = 1.380649e-23
 N_A = 6.02214076e23
-R = gas_constant = N_A*k #8.3144598 # N_A*k
+R = gas_constant = N_A*k # 8.31446261815324 exactly now, N_A*k
 R_inv = 1.0/R
 R2 = R*R
 
