@@ -76,6 +76,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'deflate_cubic_real_roots', 'fit_minimization_targets',
 
            'root', 'minimize', 'fsolve', 'differential_evolution',
+           'lmder', 'lmfit',
            ]
 
 from fluids.numerics import doubledouble
@@ -3602,6 +3603,21 @@ def differential_evolution(*args, **kwargs):
         from scipy.optimize import differential_evolution as sp_differential_evolution
     return sp_differential_evolution(*args, **kwargs)
 
+global sp_lmder
+sp_lmder = None
+def lmder(*args, **kwargs):
+    global sp_lmder
+    if sp_lmder is None:
+        from scipy.optimize._minpack import _lmder as sp_lmder
+    return sp_lmder(*args, **kwargs)
+
+global sp_lmfit
+sp_lmfit = None
+def lmfit(*args, **kwargs):
+    global sp_lmfit
+    if sp_lmfit is None:
+        from scipy.optimize._minpack import _lmfit as sp_lmfit
+    return sp_lmfit(*args, **kwargs)
 
 def fixed_quad_Gauss_Kronrod(f, a, b, k_points, k_weights, l_weights, args):
     '''
