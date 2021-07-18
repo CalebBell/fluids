@@ -54,6 +54,7 @@ no_conv_data_names = set(['__builtins__', 'fmethods'])
 try:
     import scipy.special as sc
     name_to_numba_signatures = {
+        'expi': [(float64,)],
         'ellipe': [(float64,)],
         'iv': [(float64, float64,)],
         'gamma': [(float64,)],
@@ -70,6 +71,7 @@ try:
     }
 
     name_and_types_to_pointer = {
+        ('expi', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1expi')),
         ('ellipe', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipe')),
         ('iv', float64, float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1iv')),
         ('gamma', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1gamma')),
@@ -84,6 +86,7 @@ try:
         ('ellipeinc', float64, float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipeinc')),
         ('erf', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1erf')),
     }
+    
 
     def select_kernel(name, signature):
         f2 = name_and_types_to_pointer[(name, *signature)]
