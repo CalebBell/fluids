@@ -113,6 +113,7 @@ Miscellaneous Geometry Functions
 .. autofunction:: plate_enlargement_factor
 .. autofunction:: a_torispherical
 .. autofunction:: A_partial_circle
+.. autofunction:: circle_segment_h_from_A
 
 Pellet Properties
 -----------------
@@ -134,7 +135,7 @@ from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
 from cmath import sqrt as csqrt
 from fluids.constants import inch
 from fluids.core import PY3
-from fluids.numerics import (cacos, catan, secant, brenth, ellipe, ellipkinc,
+from fluids.numerics import (cacos, catan, secant, brenth, newton, ellipe, ellipkinc,
                              ellipeinc, horner, chebval, linspace, derivative,
                              quad, translate_bound_func)
 
@@ -161,7 +162,7 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'aspect_ratio', 'circularity', 'A_cylinder', 'V_cylinder',
            'A_hollow_cylinder', 'V_hollow_cylinder',
            'A_multiple_hole_cylinder', 'V_multiple_hole_cylinder',
-           'pitch_angle_solver', 'plate_enlargement_factor']
+           'pitch_angle_solver', 'plate_enlargement_factor', 'circle_segment_h_from_A']
 
 
 ### Spherical Vessels, partially filled
@@ -1740,6 +1741,58 @@ def A_partial_circle(D, h):
     if SA < 0.0:
         SA = 0.0 # Catch trig errors
     return SA
+
+def circle_segment_area_inner(h, R, A_expect):
+    # 2 sqrt, 1 acos, 4 division
+    x0 = R*R
+    x1 = -h
+    x2 = R + x1
+    x3 = sqrt(h*(2.0*R + x1))
+    x4 = x2*x2
+    A_err = x0*acos(x2/R) - x2*x3 - A_expect
+    der = R/sqrt(1.0 - x4/x0) + x3 - x4/x3
+    return A_err, der
+
+
+def circle_segment_h_from_A(A, D):
+    r'''Calculates the height of a chord of a circle given the area of that
+    circle segment. This is an analytical problem, the solution of the 
+    following equation for `h`.
+    
+    .. math::
+        \text{A} = R^2\cos^{-1}\frac{(R - h)}{R} - (R - h)\sqrt{(2Rh - h^2)}
+
+    Parameters
+    ----------
+    A : float
+        Circle section area, [m^2]
+    D : float
+        Diameter of the circle, [m]
+
+    Returns
+    -------
+    h : float
+        Height measured from bottom of circle to the end of the circle section, 
+        [m]
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> circle_segment_h_from_A(A=1251.2018147383194, D=96.)
+    22.0
+
+    References
+    ----------
+    .. [1] Weisstein, Eric W. "Circular Segment." Text. Wolfram Research, Inc.
+       Accessed May 10, 2020. https://mathworld.wolfram.com/CircularSegment.html.
+    '''
+    if A == 0.0:
+        return 0.0
+    R = 0.5*D
+    return newton(circle_segment_area_inner, x0=0.25*R, fprime=True, high=R, low=0.0, 
+                  args=(R, A), xtol=1e-12, bisection=True)
 
 
 def SA_partial_horiz_conical_head(D, a, h):
