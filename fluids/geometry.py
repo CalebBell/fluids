@@ -1756,7 +1756,7 @@ def circle_segment_area_inner(h, R, A_expect):
 
 def circle_segment_h_from_A(A, D):
     r'''Calculates the height of a chord of a circle given the area of that
-    circle segment. This is an analytical problem, the solution of the 
+    circle segment. This is a numerical problem, solving the 
     following equation for `h`.
     
     .. math::
