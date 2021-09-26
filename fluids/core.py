@@ -159,7 +159,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
 
-from math import sqrt, sin, exp, pi, fabs, copysign
+from math import sin, exp, pi, fabs, copysign
+from numpy import sqrt
 from fluids.constants import g, R
 import sys
 
