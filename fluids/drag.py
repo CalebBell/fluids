@@ -1348,7 +1348,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
 
     # Begin the solver with 1/100 th the velocity possible at the maximum
     # Reynolds number the correlation is good for
-    return secant(_v_terminal_err, V_max/100, xtol=1E-12, args=(Method, Re_almost, main))
+    return secant(_v_terminal_err, V_max*1e-2, xtol=1E-12, args=(Method, Re_almost, main))
 
 
 def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
