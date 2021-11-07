@@ -243,7 +243,16 @@ except:
 
 one_epsilon_larger = 1.0 + epsilon
 one_epsilon_smaller = 1.0 - epsilon
-zero_epsilon_smaller = 1.0 - epsilon
+zero_epsilon_smaller = 0.0 - epsilon
+
+one_10_epsilon_larger = 1.0 + epsilon*10.0
+one_10_epsilon_smaller = 1.0 - epsilon*10.0
+
+one_100_epsilon_larger = 1.0 + epsilon*100.0
+one_100_epsilon_smaller = 1.0 - epsilon*100.0
+
+one_1000_epsilon_larger = 1.0 + epsilon*1000.0
+one_1000_epsilon_smaller = 1.0 - epsilon*1000.0
 
 _iter = 100
 _xtol = 1e-12
@@ -2723,7 +2732,6 @@ def newton(func, x0, fprime=None, args=(), tol=None, maxiter=100,
             else:
                 b = p0 # b always has positive value of error
                 fb = fval
-
         fder_inv = 1.0/fder
         # Compute the next point
         step = fval*fder_inv
