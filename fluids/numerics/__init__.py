@@ -2816,7 +2816,7 @@ def halley(func, x0, args=(), maxiter=100,
            low=None, high=None, damping=1.0, ytol=None,
            xtol=1.48e-8, require_eval=False, damping_func=None,
            bisection=False,
-           max_bound_hits=4, kwargs={}):
+           max_bound_hits=4, kwargs={}, max_2nd_ratio=1.5):
     p0 = 1.0*x0
     if bisection:
         a, b = None, None
@@ -2845,11 +2845,17 @@ def halley(func, x0, args=(), maxiter=100,
         fder_inv = 1.0/fder
         # Compute the next point
         step = fval*fder_inv
+        skipped_halley = False
         if damping_func is not None:
             step = step/(1.0 - 0.5*step*fder2*fder_inv)
             p = damping_func(p0, -step, damping)
         else:
-            p = p0 - step/(1.0 - 0.5*step*fder2*fder_inv)*damping
+            step2 = step/(1.0 - 0.5*step*fder2*fder_inv)*damping
+            if max_2nd_ratio is not None and abs(1.0-step2/step) > max_2nd_ratio:
+                skipped_halley = True
+                p = p0 - step
+            else:
+                p = p0 - step2
 
         if bisection and a is not None and b is not None:
             if (not (a < p < b) and not (b < p < a)):
@@ -2877,23 +2883,23 @@ def halley(func, x0, args=(), maxiter=100,
 
 
         # p0 is last point (fval at that point), p is new
-
-        if ytol is not None and xtol is not None:
-            # Meet both tolerance - new value is under ytol, and old value
-            if abs(p - p0) < abs(xtol*p) and abs(fval) < ytol:
-                if require_eval:
-                    return p0
-                return p
-        elif xtol is not None:
-            if abs(p - p0) < abs(xtol*p):
-                if require_eval:
-                    return p0
-                return p
-        elif ytol is not None:
-            if abs(fval) < ytol:
-                if require_eval:
-                    return p0
-                return p
+        if not skipped_halley:
+            if ytol is not None and xtol is not None:
+                # Meet both tolerance - new value is under ytol, and old value
+                if abs(p - p0) < abs(xtol*p) and abs(fval) < ytol:
+                    if require_eval:
+                        return p0
+                    return p
+            elif xtol is not None:
+                if abs(p - p0) < abs(xtol*p):
+                    if require_eval:
+                        return p0
+                    return p
+            elif ytol is not None:
+                if abs(fval) < ytol:
+                    if require_eval:
+                        return p0
+                    return p
 
         p0 = p
     raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
