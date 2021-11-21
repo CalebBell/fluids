@@ -209,3 +209,11 @@ def test_eq_dd():
     assert not eq_dd(1, 0, 0, 0)
     assert not eq_dd(1, 1, 1, 0)
     assert not eq_dd(0, 0, 1, 0)
+    
+    
+def test_neq_dd():
+    assert not neq_dd(1, 0, 1, 0)
+    assert neq_dd(1, 0, 1, .1)
+    assert neq_dd(1, 0, 0, 0)
+    assert neq_dd(1, 1, 1, 0)
+    assert neq_dd(0, 0, 1, 0)
