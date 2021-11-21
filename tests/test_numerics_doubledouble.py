@@ -217,3 +217,19 @@ def test_neq_dd():
     assert neq_dd(1, 0, 0, 0)
     assert neq_dd(1, 1, 1, 0)
     assert neq_dd(0, 0, 1, 0)
+    
+    
+def test_lt_dd():
+    assert not lt_dd(1, 0, 1, 0)
+    assert not lt_dd(1, 1e-10, 1, 1e-10)
+    assert lt_dd(.9, 0, 1, 0)
+    assert not lt_dd(1, 1e-10, 1, 0)
+    assert lt_dd(1, 0, 1, 1e-10)
+
+
+def test_gt_dd():
+    assert not gt_dd(1, 0, 1, 0)
+    assert not gt_dd(1, 1e-10, 1, 1e-10)
+    assert not gt_dd(.9, 0, 1, 0)
+    assert gt_dd(1, 1e-10, 1, 0)
+    assert not gt_dd(1, 0, 1, 1e-10)
