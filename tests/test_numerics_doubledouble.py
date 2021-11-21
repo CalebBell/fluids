@@ -199,3 +199,13 @@ def test_cbrt_dd_mp():
 
     ans = cbrt_dd(1.4422495703074083, 8.054912676113696e-17)
     assert abs((mp.mpf(3)**(mp.mpf(1)/mp.mpf(3)))**(mp.mpf(1)/mp.mpf(3)) - (mp.mpf(ans[0]) + mp.mpf(ans[1]))) < 1e-30
+    
+    
+    
+    
+def test_eq_dd():
+    assert eq_dd(1, 0, 1, 0)
+    assert not eq_dd(1, 0, 1, .1)
+    assert not eq_dd(1, 0, 0, 0)
+    assert not eq_dd(1, 1, 1, 0)
+    assert not eq_dd(0, 0, 1, 0)

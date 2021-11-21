@@ -27,9 +27,14 @@ from math import sqrt as msqrt
 __all__ = ['add_dd', 'mul_noerrors_dd', 'mul_dd', 'div_dd', 'sqrt_dd',
            'square_dd', 'mul_imag_dd', 'mul_imag_noerrors_dd', 'sqrt_imag_dd',
            'add_imag_dd', 'imag_inv_dd', 'div_imag_dd', 'cbrt_imag_dd',
-           'cbrt_dd', 'cube_dd', 'cbrt_explicit_dd']
+           'cbrt_dd', 'cube_dd', 'cbrt_explicit_dd', 'eq_dd']
 
 third = 1/3.0
+
+def eq_dd(r0, e0, r1, e1):
+    '''Return True if two numbers are equal, False otherwise.
+    '''
+    return r0 == r1 and e0 == e1
 
 def add_dd(x0, y0, x1, y1):
     '''Add two floating point doule doubles.
