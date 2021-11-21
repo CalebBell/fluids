@@ -233,3 +233,19 @@ def test_gt_dd():
     assert not gt_dd(.9, 0, 1, 0)
     assert gt_dd(1, 1e-10, 1, 0)
     assert not gt_dd(1, 0, 1, 1e-10)
+
+
+
+def test_le_dd():
+    assert le_dd(1, 0, 1, 0)
+    assert le_dd(1, 1e-10, 1, 1e-10)
+    assert le_dd(.9, 0, 1, 0)
+    assert not le_dd(1, 1e-10, 1, 0)
+    assert le_dd(1, 0, 1, 1e-10)
+
+def test_ge_dd():
+    assert ge_dd(1, 0, 1, 0)
+    assert ge_dd(1, 1e-10, 1, 1e-10)
+    assert not ge_dd(.9, 0, 1, 0)
+    assert ge_dd(1, 1e-10, 1, 0)
+    assert not ge_dd(1, 0, 1, 1e-10)
