@@ -151,7 +151,7 @@ def load_types():
         type_module(m)
 
 
-__version__ = '1.0.12'
+__version__ = '1.0.13'
 
 try:
     fluids_dir = os.path.dirname(__file__)
