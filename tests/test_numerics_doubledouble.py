@@ -249,3 +249,35 @@ def test_ge_dd():
     assert not ge_dd(.9, 0, 1, 0)
     assert ge_dd(1, 1e-10, 1, 0)
     assert not ge_dd(1, 0, 1, 1e-10)
+
+
+@mark_mpmath
+def test_intpow_dd():
+    ar, ae = 0.6931471805599453, 2.3190468138462996e-17
+    for n in range(-7, 4):
+        outr, oute = intpow_dd(ar, ae, n=n)
+        mp_ans = (mp.mpf(ar) + mp.mpf(ae))**n
+        ans_as_mp = mp.mpf(outr) + mp.mpf(oute)
+        err = abs(1.0 - ans_as_mp/mp_ans)
+        assert err < 1e-30
+
+def test_exp_dd():
+    ar, ae = 0.6931471805599453, 2.3190468138462996e-17
+    outr, oute = exp_dd(ar, ae)
+    assert outr == 2
+    assert_close(oute, 0, atol=1e-30)
+    
+    
+def test_log_dd():
+    a, b = log_dd(0.6931471805599453, 2.3190468138462996e-17)
+    assert_close(a, -0.36651292058166435, rtol=1e-14)
+    assert_close(b, 2.0606571710351483e-17, rtol=1e-14)
+    
+def test_pow_dd():
+    for n in range(-3, 4):
+        assert pow_dd(0.6931471805599453, 2.3190468138462996e-17, n, 0) == intpow_dd(0.6931471805599453, 2.3190468138462996e-17, n)
+        
+    
+    a, b = pow_dd(0.6931471805599453, 2.3190468138462996e-17, 0.6931471805599453, 2.3190468138462996e-17)
+    assert_close(a, 0.7756550370345752, rtol=1e-14)
+    assert_close(b, 3.1024007879879916e-17, rtol=1e-14)

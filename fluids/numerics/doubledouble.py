@@ -22,13 +22,14 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import sqrt as msqrt
+from math import sqrt as msqrt, log as mlog
 
 __all__ = ['add_dd', 'mul_noerrors_dd', 'mul_dd', 'div_dd', 'sqrt_dd',
            'square_dd', 'mul_imag_dd', 'mul_imag_noerrors_dd', 'sqrt_imag_dd',
            'add_imag_dd', 'imag_inv_dd', 'div_imag_dd', 'cbrt_imag_dd',
            'cbrt_dd', 'cube_dd', 'cbrt_explicit_dd', 'eq_dd', 'neq_dd',
-           'lt_dd', 'gt_dd', 'le_dd', 'ge_dd']
+           'lt_dd', 'gt_dd', 'le_dd', 'ge_dd', 'intpow_dd', 'exp_dd',
+           'log_dd', 'pow_dd']
 
 third = 1/3.0
 
@@ -142,6 +143,70 @@ def square_dd(x0, y0):
     r0 = r + e
     e = e - (r0 - r)
     return r0, e
+
+def intpow_dd(r, e, n):
+    '''Compute and return the integer power of
+    a double-double number `r` and `e` to the
+    `n`. (r+e)^n.
+    '''
+    br, be = r, e
+    i = abs(n)
+    rr, re = 1.0, 0.0
+    while True:
+        if i & 1 == 1:
+            rr, re = mul_dd(rr, re, br, be)
+        if i <= 1:
+            break
+        i >>= 1
+        br, be = mul_dd(br, be, br, be)
+    if n < 0:
+        return div_dd(1.0, 0.0, rr, re)
+    return rr, re
+
+dd_exp_coeffs = (156, 12012, 600600, 21621600, 588107520, 12350257920, 201132771840, 
+                 2514159648000, 23465490048000, 154872234316800, 647647525324800, 1295295050649600)
+
+def exp_dd(r, e):
+    n = int(round(r))
+    xr, xe = add_dd(r, e, -n, 0)
+    ur, ue = add_dd(xr, xe, dd_exp_coeffs[0], 0)
+
+    for i in range(1, 12):
+        ur, ue = mul_dd(xr, xe, ur, ue)
+        ur, ue = add_dd(ur, ue, dd_exp_coeffs[i], 0)
+
+    vr, ve = add_dd(xr, xe, -dd_exp_coeffs[0], 0)
+    f = 1.0
+    for i in range(1, 12):
+        vr, ve = mul_dd(xr, xe, vr, ve)
+        vr, ve = add_dd(vr, ve, f*dd_exp_coeffs[i], 0)
+        f *= -1.0
+
+    outr, oute = intpow_dd(2.718281828459045, 1.4456468917292502e-16, n)
+    outr, oute = mul_dd(outr, oute, ur, ue)
+    outr, oute = div_dd(outr, oute, vr, ve)
+    return outr, oute
+
+
+def log_dd(r, e):
+    '''Compute the log.
+    '''
+    rr, re = mlog(r), 0.0
+    ur, ue = exp_dd(rr, re)
+    tmpr, tmpe = add_dd(ur, ue, -r, -e)
+    denr, dene = add_dd(ur, ue, r, e)
+    tmpr, tmpe = div_dd(tmpr, tmpe, denr, dene)
+    tmpr, tmpe = mul_dd(2.0, 0.0, tmpr, tmpe)
+    return add_dd(rr, re, -tmpr, -tmpe)
+
+def pow_dd(r, e, nr, ne):
+    '''Compute the power'''
+    if ne == 0.0 and (nr %1) == 0:
+        return intpow_dd(r, e, nr)
+    tmpr, tmpe = log_dd(r, e)
+    tmpr, tmpe = mul_dd(tmpr, tmpe, nr, ne)
+    return exp_dd(tmpr, tmpe)
+
 
 def mul_imag_dd(xrr, xre, xcr, xce, yrr, yre, ycr, yce):
     # TODO Make one for one number having zero complex number
