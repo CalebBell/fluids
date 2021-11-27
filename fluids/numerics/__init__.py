@@ -78,7 +78,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'root', 'minimize', 'fsolve', 'differential_evolution',
            'lmder', 'lmfit', 'horner_backwards', 'exp_horner_backwards',
            'horner_backwards_ln_tau', 'exp_horner_backwards_ln_tau', 
-           'exp_horner_backwards_ln_tau_and_der',
+           'exp_horner_backwards_ln_tau_and_der', 'exp_horner_backwards_ln_tau_and_der2',
            ]
 
 from fluids.numerics import doubledouble
@@ -1236,6 +1236,17 @@ def exp_horner_backwards_ln_tau_and_der(T, Tc, coeffs):
     val = exp(poly_val)
     return val, -val*poly_der_val/(Tc*tau)
 
+def exp_horner_backwards_ln_tau_and_der2(T, Tc, coeffs):
+    if T >= Tc:
+        return 0.0
+    tau = 1.0 - T/Tc
+    lntau = log(tau)
+    poly_val, poly_val_der, poly_val_der2 = horner_and_der2(coeffs, lntau)
+    val = exp(poly_val)
+    der = -val*poly_val_der/(Tc*tau)
+    der2 = (poly_val_der*poly_val_der - poly_val_der + poly_val_der2)*val/(Tc*Tc*(tau*tau))
+    
+    return val, der, der2
 
 def horner(coeffs, x):
     r'''Evaluates a polynomial defined by coefficienfs `coeffs` at a specified

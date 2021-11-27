@@ -122,12 +122,19 @@ def test_exp_horner_backwards_ln_tau():
     
     assert 0 == exp_horner_backwards_ln_tau(Tc, Tc, cs)
     assert 0 == exp_horner_backwards_ln_tau(Tc+1, Tc, cs)
-
+    
+    expect_der = -0.000154224581713238
     val, der = exp_horner_backwards_ln_tau_and_der(T, Tc, cs)
-    assert_close(der, -0.000154224581713238, rtol=1e-13)
+    assert_close(der, expect_der, rtol=1e-13)
     assert_close(val, expect, rtol=1e-9)
 
 
+    val, der, der2 = exp_horner_backwards_ln_tau_and_der2(T, Tc, cs)
+    assert_close(der, expect_der, rtol=1e-13)
+    assert_close(val, expect, rtol=1e-9)
+    expect_der2 = -5.959538970287795e-07
+    assert_close(der2, expect_der2, rtol=1e-13)
+    
 
 def test_quadratic_from_f_ders():
     poly = [1.12, 432.32, 325.5342, .235532, 32.235]
