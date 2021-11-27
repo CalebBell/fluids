@@ -102,6 +102,14 @@ def test_horner():
     poly = [1.12, 432.32, 325.5342, .235532, 32.235, 1.01]
     assert_allclose(horner_and_der4(poly, 3.0), [np.polyval(np.polyder(poly,o), 3) for o in range(5)])
 
+
+def test_horner_backwards_ln_tau():
+    coeffs = [9.661381155485653, 224.16316385569456, 2195.419519751738, 11801.26111760343, 37883.05110910901, 74020.46380982929, 87244.40329893673, 69254.45831263301, 61780.155823216155]
+    Tc = 591.75
+    val = horner_backwards_ln_tau(500.0, Tc, coeffs)
+    assert_close(val, 24168.867169087476)
+    assert 0 == horner_backwards_ln_tau(600.0, Tc, coeffs)
+
 def test_quadratic_from_f_ders():
     poly = [1.12, 432.32, 325.5342, .235532, 32.235]
     p = 3.0
