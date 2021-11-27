@@ -92,7 +92,7 @@ def test_horner():
     from fluids.numerics import horner
     assert_allclose(horner([1.0, 3.0], 2.0), 5.0)
     assert_allclose(horner_backwards(2.0, [1.0, 3.0]), 5.0)
-    
+    assert_allclose((exp_horner_backwards(2.0, [1.0, 3.0])), exp(5.0))
     assert_allclose(horner([3.0], 2.0), 3.0)
 
     poly = [1.12, 432.32, 325.5342, .235532, 32.235]

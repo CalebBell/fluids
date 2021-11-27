@@ -76,7 +76,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'deflate_cubic_real_roots', 'fit_minimization_targets',
 
            'root', 'minimize', 'fsolve', 'differential_evolution',
-           'lmder', 'lmfit', 'horner_backwards',
+           'lmder', 'lmfit', 'horner_backwards', 'exp_horner_backwards',
            ]
 
 from fluids.numerics import doubledouble
@@ -1203,6 +1203,9 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
 
 def horner_backwards(x, coeffs):
     return horner(coeffs, x)
+
+def exp_horner_backwards(x, coeffs):
+    return exp(horner(coeffs, x))
 
 def horner(coeffs, x):
     r'''Evaluates a polynomial defined by coefficienfs `coeffs` at a specified
