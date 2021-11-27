@@ -77,7 +77,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
 
            'root', 'minimize', 'fsolve', 'differential_evolution',
            'lmder', 'lmfit', 'horner_backwards', 'exp_horner_backwards',
-           'horner_backwards_ln_tau', 'exp_horner_backwards_ln_tau',
+           'horner_backwards_ln_tau', 'exp_horner_backwards_ln_tau', 
+           'exp_horner_backwards_ln_tau_and_der',
            ]
 
 from fluids.numerics import doubledouble
@@ -1225,6 +1226,15 @@ def exp_horner_backwards_ln_tau(T, Tc, coeffs):
     # Guarantee it is larger than 0 with the exp
     # This is a linear plot as well because both variables are transformed into a log basis.
     return exp(horner(coeffs, lntau))
+
+def exp_horner_backwards_ln_tau_and_der(T, Tc, coeffs):
+    if T >= Tc:
+        return 0.0
+    tau = 1.0 - T/Tc
+    lntau = log(tau)
+    poly_val, poly_der_val = horner_and_der(coeffs, lntau)
+    val = exp(poly_val)
+    return val, -val*poly_der_val/(Tc*tau)
 
 
 def horner(coeffs, x):
