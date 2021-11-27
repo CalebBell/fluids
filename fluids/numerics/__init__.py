@@ -77,7 +77,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
 
            'root', 'minimize', 'fsolve', 'differential_evolution',
            'lmder', 'lmfit', 'horner_backwards', 'exp_horner_backwards',
-           'horner_backwards_ln_tau',
+           'horner_backwards_ln_tau', 'exp_horner_backwards_ln_tau',
            ]
 
 from fluids.numerics import doubledouble
@@ -1209,10 +1209,23 @@ def exp_horner_backwards(x, coeffs):
     return exp(horner(coeffs, x))
 
 def horner_backwards_ln_tau(T, Tc, coeffs):
-    if T > Tc:
+    if T >= Tc:
         return 0.0
     lntau = log(1.0 - T/Tc)
     return horner(coeffs, lntau)
+
+def exp_horner_backwards_ln_tau(T, Tc, coeffs):
+    # This formulation has the nice property of being linear-linear when plotted
+    # for surface tension
+    if T >= Tc:
+        return 0.0
+    # No matter what the polynomial term does to it, as tau goes to 1, x goes to a large negative value
+    # So long as the polynomial has the right derivative at the end (and a reasonable constant) it will always converge to 0.
+    lntau = log(1.0 - T/Tc)
+    # Guarantee it is larger than 0 with the exp
+    # This is a linear plot as well because both variables are transformed into a log basis.
+    return exp(horner(coeffs, lntau))
+
 
 def horner(coeffs, x):
     r'''Evaluates a polynomial defined by coefficienfs `coeffs` at a specified

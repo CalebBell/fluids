@@ -110,6 +110,17 @@ def test_horner_backwards_ln_tau():
     assert_close(val, 24168.867169087476)
     assert 0 == horner_backwards_ln_tau(600.0, Tc, coeffs)
 
+
+def test_exp_horner_backwards_ln_tau():
+    # Coefficients for water from REFPROP, fit
+    cs=[-1.2616237655927602e-05, -0.0004061873638525952, -0.005563382112542401, -0.04240531802937599, -0.19805733513004808, -0.5905741856310869, -1.1388001144550794, -0.1477584393673108, -2.401287527958821] 
+    Tc = 647.096
+    val = exp_horner_backwards_ln_tau(300, Tc, cs)
+    assert_close(val, 0.07175344047522199, rtol=1e-9)
+    
+    assert 0 == exp_horner_backwards_ln_tau(Tc, Tc, cs)
+    assert 0 == exp_horner_backwards_ln_tau(Tc+1, Tc, cs)
+
 def test_quadratic_from_f_ders():
     poly = [1.12, 432.32, 325.5342, .235532, 32.235]
     p = 3.0
