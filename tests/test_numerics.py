@@ -135,6 +135,14 @@ def test_exp_horner_backwards_ln_tau():
     expect_der2 = -5.959538970287795e-07
     assert_close(der2, expect_der2, rtol=1e-13)
     
+    
+    args = (300, 647.096, 0.06730658226743809, -0.00020056690242827797, -5.155567532930362e-09)
+    assert_close1d(exp_poly_ln_tau_coeffs3(*args), [-0.022358482008994165, 1.0064575672832698, -2.062906603289078])
+    
+    
+    args = (300, 647.096, 0.06576090309133853, -0.0002202298609576884)
+    calc = exp_poly_ln_tau_coeffs2(*args)
+    assert_close1d(calc, [1.1624065398371628, -1.9976745939643825 ], rtol=1e-9)
 
 def test_quadratic_from_f_ders():
     poly = [1.12, 432.32, 325.5342, .235532, 32.235]
