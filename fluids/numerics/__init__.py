@@ -1250,11 +1250,43 @@ def exp_horner_backwards_ln_tau_and_der2(T, Tc, coeffs):
     return val, der, der2
 
 def exp_poly_ln_tau_coeffs2(T, Tc, val, der):
+    '''
+    from sympy import *
+    T, Tc, T0, T1, T2, sigma0, sigma1, sigma2 = symbols('T, Tc, T0, T1, T2, sigma0, sigma1, sigma2')
+    val, der = symbols('val, der')
+    from sympy.abc import a, b, c
+    from fluids.numerics import horner
+    coeffs = [a, b]
+    lntau = log(1 - T/Tc)
+    sigma = exp(horner(coeffs, lntau))
+    d0 = diff(sigma, T)
+    Eq0 = Eq(sigma,val)
+    Eq1 = Eq(d0, der)
+    s = solve([Eq0, Eq1], [a, b])
+    '''
     c0 = der*(T - Tc)/val
     c1 = (-T*der*log((-T + Tc)/Tc) + Tc*der*log((-T + Tc)/Tc) + val*log(val))/val
     return [c0, c1]
 
 def exp_poly_ln_tau_coeffs3(T, Tc, val, der, der2):
+    '''
+    from sympy import *
+    T, Tc, T0, T1, T2, sigma0, sigma1, sigma2 = symbols('T, Tc, T0, T1, T2, sigma0, sigma1, sigma2')
+    val, der, der2 = symbols('val, der, der2')
+    from sympy.abc import a, b, c
+    from fluids.numerics import horner
+    coeffs = [a, b, c]
+    lntau = log(1 - T/Tc)
+    sigma = exp(horner(coeffs, lntau))
+    d0 = diff(sigma, T)
+    
+    Eq0 = Eq(sigma,val)
+    Eq1 = Eq(d0, der)
+    Eq2 = Eq(diff(d0, T), der2)
+    
+    # s = solve([Eq0, Eq1], [a, b])
+    s = solve([Eq0, Eq1, Eq2], [a, b, c])
+    '''
     return [(-T**2*der**2 + T**2*der2*val + 2*T*Tc*der**2 - 2*T*Tc*der2*val + T*der*val - Tc**2*der**2 + Tc**2*der2*val - Tc*der*val)/(2*val**2),
   (T**2*der**2*log((-T + Tc)/Tc) - T**2*der2*val*log((-T + Tc)/Tc) - 2*T*Tc*der**2*log((-T + Tc)/Tc) + 2*T*Tc*der2*val*log((-T + Tc)/Tc) - T*der*val*log((-T + Tc)/Tc) + T*der*val + Tc**2*der**2*log((-T + Tc)/Tc) - Tc**2*der2*val*log((-T + Tc)/Tc) + Tc*der*val*log((-T + Tc)/Tc) - Tc*der*val)/val**2,
   (-T**2*der**2*log((-T + Tc)/Tc)**2 + T**2*der2*val*log((-T + Tc)/Tc)**2 + 2*T*Tc*der**2*log((-T + Tc)/Tc)**2 - 2*T*Tc*der2*val*log((-T + Tc)/Tc)**2 + T*der*val*log((-T + Tc)/Tc)**2 - 2*T*der*val*log((-T + Tc)/Tc) - Tc**2*der**2*log((-T + Tc)/Tc)**2 + Tc**2*der2*val*log((-T + Tc)/Tc)**2 - Tc*der*val*log((-T + Tc)/Tc)**2 + 2*Tc*der*val*log((-T + Tc)/Tc) + 2*val**2*log(val))/(2*val**2)]
