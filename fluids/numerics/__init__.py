@@ -80,6 +80,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_backwards_ln_tau', 'exp_horner_backwards_ln_tau', 
            'exp_horner_backwards_ln_tau_and_der', 'exp_horner_backwards_ln_tau_and_der2',
            'exp_poly_ln_tau_coeffs2', 'exp_poly_ln_tau_coeffs3',
+           'exp_horner_backwards_and_der', 'exp_horner_backwards_and_der2',
+           'exp_horner_backwards_and_der3',
            ]
 
 from fluids.numerics import doubledouble
@@ -1210,6 +1212,28 @@ def horner_backwards(x, coeffs):
 def exp_horner_backwards(x, coeffs):
     return exp(horner(coeffs, x))
 
+
+def exp_horner_backwards_and_der(x, coeffs):
+    poly_val, poly_der = horner_and_der(coeffs, x)
+    val = exp(poly_val)
+    der = poly_der*val
+    return val, der
+
+def exp_horner_backwards_and_der2(x, coeffs):
+    poly_val, poly_der, poly_der2 = horner_and_der2(coeffs, x)
+    val = exp(poly_val)
+    der = poly_der*val
+    der2 = (poly_der*poly_der + poly_der2)*val
+    return val, der, der2
+
+def exp_horner_backwards_and_der3(x, coeffs):
+    poly_val, poly_der, poly_der2, poly_der3 = horner_and_der3(coeffs, x)
+    val = exp(poly_val)
+    der = poly_der*val
+    der2 = (poly_der*poly_der + poly_der2)*val
+    der3 = (poly_der*poly_der*poly_der + 3.0*poly_der*poly_der2 + poly_der3)*val
+    return val, der, der2, der3
+
 def horner_backwards_ln_tau(T, Tc, coeffs):
     if T >= Tc:
         return 0.0
@@ -1290,6 +1314,8 @@ def exp_poly_ln_tau_coeffs3(T, Tc, val, der, der2):
     return [(-T**2*der**2 + T**2*der2*val + 2*T*Tc*der**2 - 2*T*Tc*der2*val + T*der*val - Tc**2*der**2 + Tc**2*der2*val - Tc*der*val)/(2*val**2),
   (T**2*der**2*log((-T + Tc)/Tc) - T**2*der2*val*log((-T + Tc)/Tc) - 2*T*Tc*der**2*log((-T + Tc)/Tc) + 2*T*Tc*der2*val*log((-T + Tc)/Tc) - T*der*val*log((-T + Tc)/Tc) + T*der*val + Tc**2*der**2*log((-T + Tc)/Tc) - Tc**2*der2*val*log((-T + Tc)/Tc) + Tc*der*val*log((-T + Tc)/Tc) - Tc*der*val)/val**2,
   (-T**2*der**2*log((-T + Tc)/Tc)**2 + T**2*der2*val*log((-T + Tc)/Tc)**2 + 2*T*Tc*der**2*log((-T + Tc)/Tc)**2 - 2*T*Tc*der2*val*log((-T + Tc)/Tc)**2 + T*der*val*log((-T + Tc)/Tc)**2 - 2*T*der*val*log((-T + Tc)/Tc) - Tc**2*der**2*log((-T + Tc)/Tc)**2 + Tc**2*der2*val*log((-T + Tc)/Tc)**2 - Tc*der*val*log((-T + Tc)/Tc)**2 + 2*Tc*der*val*log((-T + Tc)/Tc) + 2*val**2*log(val))/(2*val**2)]
+
+
 
 def horner(coeffs, x):
     r'''Evaluates a polynomial defined by coefficienfs `coeffs` at a specified

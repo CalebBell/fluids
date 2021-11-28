@@ -92,7 +92,6 @@ def test_horner():
     from fluids.numerics import horner
     assert_allclose(horner([1.0, 3.0], 2.0), 5.0)
     assert_allclose(horner_backwards(2.0, [1.0, 3.0]), 5.0)
-    assert_allclose((exp_horner_backwards(2.0, [1.0, 3.0])), exp(5.0))
     assert_allclose(horner([3.0], 2.0), 3.0)
 
     poly = [1.12, 432.32, 325.5342, .235532, 32.235]
@@ -101,6 +100,31 @@ def test_horner():
 
     poly = [1.12, 432.32, 325.5342, .235532, 32.235, 1.01]
     assert_allclose(horner_and_der4(poly, 3.0), [np.polyval(np.polyder(poly,o), 3) for o in range(5)])
+
+def test_exp_horner_backwards():
+    assert_allclose((exp_horner_backwards(2.0, [1.0, 3.0])), exp(5.0))
+    
+    # Test the derivatives
+    coeffs = [1,.2,.03,.0004,.00005]
+    x = 1.1
+    val = exp_horner_backwards(x, coeffs)
+    assert_close(val, 5.853794011493425)
+    
+    der_num = derivative(lambda x: exp_horner_backwards(x, coeffs), x, dx=x*8e-7, order=7)
+    der_ana = exp_horner_backwards_and_der(x, coeffs)[1]
+    assert_close(der_ana, 35.804145691898384, rtol=1e-10)
+    assert_close(der_num,der_ana, rtol=1e-10)
+    
+    der_num = derivative(lambda x: exp_horner_backwards_and_der(x, coeffs)[1], x, dx=x*8e-7, order=7)
+    der_ana = exp_horner_backwards_and_der2(x, coeffs)[2]
+    assert_close(der_ana, 312.0678014926728, rtol=1e-10)
+    assert_close(der_num,der_ana, rtol=1e-10)
+    
+    der_num = derivative(lambda x: exp_horner_backwards_and_der2(x, coeffs)[2], x, dx=x*8e-7, order=7)
+    der_ana = exp_horner_backwards_and_der3(x, coeffs)[3]
+    assert_close(der_ana, 3208.8680487693714, rtol=1e-10)
+    assert_close(der_num,der_ana, rtol=1e-10)
+    
 
 
 def test_horner_backwards_ln_tau():
