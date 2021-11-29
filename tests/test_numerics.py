@@ -134,6 +134,28 @@ def test_horner_backwards_ln_tau():
     assert_close(val, 24168.867169087476)
     assert 0 == horner_backwards_ln_tau(600.0, Tc, coeffs)
 
+    T = 300.0
+    val = horner_backwards_ln_tau(T, Tc, coeffs)
+    assert_close(val, 37900.38881665646)
+        
+    der_num = derivative(lambda T: horner_backwards_ln_tau(T, Tc, coeffs), T, dx=T*8e-7, order=7)
+    der_ana = horner_backwards_ln_tau_and_der(T, Tc, coeffs)[1]
+    assert_close(der_ana, -54.63227984137121, rtol=1e-10)
+    assert_close(der_num,der_ana, rtol=1e-10)
+    
+    der_num = derivative(lambda T: horner_backwards_ln_tau_and_der(T, Tc, coeffs)[1], T, dx=T*8e-7, order=7)
+    der_ana = horner_backwards_ln_tau_and_der2(T, Tc, coeffs)[2]
+    assert_close(der_ana, 0.037847046150971016, rtol=1e-10)
+    assert_close(der_num,der_ana, rtol=1e-8)
+    
+    der_num = derivative(lambda T: horner_backwards_ln_tau_and_der2(T, Tc, coeffs)[2], T, dx=T*160e-7, order=7)
+    der_ana = horner_backwards_ln_tau_and_der3(T, Tc, coeffs)[3]
+    assert_close(der_ana, -0.001920502581912092, rtol=1e-10)
+    assert_close(der_num,der_ana, rtol=1e-10)
+    
+    
+    
+
 
 def test_exp_horner_backwards_ln_tau():
     # Coefficients for water from REFPROP, fit

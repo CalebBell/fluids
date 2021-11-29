@@ -82,6 +82,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'exp_poly_ln_tau_coeffs2', 'exp_poly_ln_tau_coeffs3',
            'exp_horner_backwards_and_der', 'exp_horner_backwards_and_der2',
            'exp_horner_backwards_and_der3',
+           'horner_backwards_ln_tau_and_der', 'horner_backwards_ln_tau_and_der2',
+           'horner_backwards_ln_tau_and_der3',
            ]
 
 from fluids.numerics import doubledouble
@@ -1239,6 +1241,38 @@ def horner_backwards_ln_tau(T, Tc, coeffs):
         return 0.0
     lntau = log(1.0 - T/Tc)
     return horner(coeffs, lntau)
+
+def horner_backwards_ln_tau_and_der(T, Tc, coeffs):
+    if T >= Tc:
+        return 0.0, 0.0
+    lntau = log(1.0 - T/Tc)
+    val, poly_der = horner_and_der(coeffs, lntau)
+    der = -poly_der/(Tc*(-T/Tc + 1))
+    return val, der
+
+def horner_backwards_ln_tau_and_der2(T, Tc, coeffs):
+    if T >= Tc:
+        return 0.0, 0.0, 0.0
+    lntau = log(1.0 - T/Tc)
+    val, poly_der, poly_der2 = horner_and_der2(coeffs, lntau)
+    der = -poly_der/(Tc*(-T/Tc + 1))
+    
+    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
+    return val, der, der2
+
+def horner_backwards_ln_tau_and_der3(T, Tc, coeffs):
+    if T >= Tc:
+        return 0.0, 0.0, 0.0, 00
+    lntau = log(1.0 - T/Tc)
+    val, poly_der, poly_der2, poly_der3 = horner_and_der3(coeffs, lntau)
+    der = -poly_der/(Tc*(-T/Tc + 1))
+    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
+    der3 = (2.0*poly_der - 3.0*poly_der2 + poly_der3)/(Tc**3*(T/Tc - 1)**3)
+    
+    return val, der, der2, der3
+
+
+
 
 def exp_horner_backwards_ln_tau(T, Tc, coeffs):
     # This formulation has the nice property of being linear-linear when plotted
