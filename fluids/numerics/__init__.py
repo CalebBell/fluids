@@ -84,6 +84,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'exp_horner_backwards_and_der3',
            'horner_backwards_ln_tau_and_der', 'horner_backwards_ln_tau_and_der2',
            'horner_backwards_ln_tau_and_der3',
+           
+           'horner_domain', 'horner_stable_offset_scale', 'horner_stable',
            ]
 
 from fluids.numerics import doubledouble
@@ -1349,6 +1351,58 @@ def exp_poly_ln_tau_coeffs3(T, Tc, val, der, der2):
   (T**2*der**2*log((-T + Tc)/Tc) - T**2*der2*val*log((-T + Tc)/Tc) - 2*T*Tc*der**2*log((-T + Tc)/Tc) + 2*T*Tc*der2*val*log((-T + Tc)/Tc) - T*der*val*log((-T + Tc)/Tc) + T*der*val + Tc**2*der**2*log((-T + Tc)/Tc) - Tc**2*der2*val*log((-T + Tc)/Tc) + Tc*der*val*log((-T + Tc)/Tc) - Tc*der*val)/val**2,
   (-T**2*der**2*log((-T + Tc)/Tc)**2 + T**2*der2*val*log((-T + Tc)/Tc)**2 + 2*T*Tc*der**2*log((-T + Tc)/Tc)**2 - 2*T*Tc*der2*val*log((-T + Tc)/Tc)**2 + T*der*val*log((-T + Tc)/Tc)**2 - 2*T*der*val*log((-T + Tc)/Tc) - Tc**2*der**2*log((-T + Tc)/Tc)**2 + Tc**2*der2*val*log((-T + Tc)/Tc)**2 - Tc*der*val*log((-T + Tc)/Tc)**2 + 2*Tc*der*val*log((-T + Tc)/Tc) + 2*val**2*log(val))/(2*val**2)]
 
+
+def horner_domain(x, coeffs, xmin, xmax):
+    r'''Evaluates a polynomial defined by coefficienfs `coeffs` and domain
+    (`xmin`, `xmax`) which maps the input variable into the window
+    (-1, 1) where the polynomial can be evaluated most acccurately.
+    The evaluation uses horner's method.
+
+    Note that the coefficients are reversed compared to the common form; the
+    first value is the coefficient of the highest-powered x term, and the last
+    value in `coeffs` is the constant offset value.
+
+    Parameters
+    ----------
+    x : float
+        Point at which to evaluate the polynomial, [-]
+    coeffs : iterable[float]
+        Coefficients of polynomial, [-]
+    xmin : float
+        Low value, [-]
+    xmax : float
+        High value, [-]
+
+    Returns
+    -------
+    val : float
+        The evaluated value of the polynomial, [-]
+
+    Notes
+    -----
+
+    '''
+    range_inv = 1.0/(xmax - xmin)
+    off = (-xmax - xmin)*range_inv
+    scl = 2.0*range_inv
+    x = off + scl*x
+    tot = 0.0
+    for c in coeffs:
+        tot = tot*x + c
+    return tot
+
+def horner_stable_offset_scale(xmin, xmax):
+    range_inv = 1.0/(xmax - xmin)
+    offset = (-xmax - xmin)*range_inv
+    scale = 2.0*range_inv
+    return offset, scale
+
+def horner_stable(x, coeffs, offset, scale):
+    x = offset + scale*x
+    tot = 0.0
+    for c in coeffs:
+        tot = tot*x + c
+    return tot
 
 
 def horner(coeffs, x):

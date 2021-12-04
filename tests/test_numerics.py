@@ -763,3 +763,18 @@ def test_py_factorial():
     import math
     for i in range(30):
         assert math.factorial(i) == py_factorial(i)
+        
+        
+def test_horner_domain():
+    test_stable_coeffs = [28.0163226043884, 24.92038363551981, -7.469247118451516, 16.400149851861975, 67.52558234042988, 176.7837155284216]
+    xmin, xmax = (162.0, 570.0)
+    x = 300
+    expect = 157.0804912518053
+    calc = horner_domain(x, test_stable_coeffs, xmin, xmax)
+    assert_close(calc, expect, rtol=1e-14)
+
+    offset, scale = horner_stable_offset_scale(xmin, xmax)
+    calc = horner_stable(x, test_stable_coeffs, offset, scale)
+    assert_close(calc, expect, rtol=1e-14)
+
+
