@@ -64,7 +64,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'assert_close', 'assert_close1d', 'assert_close2d', 'assert_close3d',
            'assert_close4d', 'translate_bound_func', 'translate_bound_jac',
            'translate_bound_f_jac', 'curve_fit',
-           'quad', 'quad_adaptive',
+           'quad', 'quad_adaptive', 'stable_poly_to_unstable',
            
            'std', 'min_max_ratios',
            'max_abs_error', 'max_abs_rel_error', 'max_squared_error',
@@ -1212,6 +1212,13 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
         x_perturb[i] -= deltas[i]
     return hessian
 
+def stable_poly_to_unstable(coeffs, high, low):
+    if high != low:
+        # Handle the case of no transformation, no limits
+        my_poly = Polynomial([-0.5*(high + low)*2.0/(high - low), 2.0/(high - low)])
+        coeffs = horner(coeffs, my_poly).coef[::-1].tolist()
+    return coeffs
+
 def horner_backwards(x, coeffs):
     return horner(coeffs, x)
 
@@ -2142,6 +2149,7 @@ def interp2d_linear(x, y, xs, ys, vals):
 
 try:
     _array = np.array
+    Polynomial = np.polynomial.Polynomial
 except:
     pass
 def implementation_optimize_tck(tck, force_numpy=False):

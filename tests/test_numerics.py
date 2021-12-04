@@ -811,3 +811,13 @@ def test_horner_domain():
 
     two_vals = horner_stable_and_der(x, test_stable_coeffs, offset, scale)
     assert_close1d(two_vals, (157.0804912518053, 0.25846754626830115), rtol=1e-14)
+    
+    
+def test_stable_poly_to_unstable():
+    stuff = [1,2,3,4]
+    out = stable_poly_to_unstable(stuff, 10, 100)
+    expect = [-1.0973936899862826e-05, 0.0027983539094650206, -0.2748971193415638, 12.480109739369]
+    assert_close1d(out, expect, rtol=1e-12)
+    
+    out = stable_poly_to_unstable(stuff, 10, 10)
+    assert_close1d(out, stuff)
