@@ -773,7 +773,7 @@ def test_horner_domain():
     calc = horner_domain(x, test_stable_coeffs, xmin, xmax)
     assert_close(calc, expect, rtol=1e-14)
 
-    offset, scale = horner_stable_offset_scale(xmin, xmax)
+    offset, scale = polynomial_offset_scale(xmin, xmax)
     calc = horner_stable(x, test_stable_coeffs, offset, scale)
     assert_close(calc, expect, rtol=1e-14)
 

@@ -85,7 +85,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_backwards_ln_tau_and_der', 'horner_backwards_ln_tau_and_der2',
            'horner_backwards_ln_tau_and_der3',
            
-           'horner_domain', 'horner_stable_offset_scale', 'horner_stable',
+           'horner_domain', 'polynomial_offset_scale', 'horner_stable',
            'horner_stable_and_der', 'horner_stable_and_der2', 
            'horner_stable_and_der3', 'horner_stable_and_der4',
            ]
@@ -1400,7 +1400,7 @@ def horner_domain(x, coeffs, xmin, xmax):
         tot = tot*x + c
     return tot
 
-def horner_stable_offset_scale(xmin, xmax):
+def polynomial_offset_scale(xmin, xmax):
     range_inv = 1.0/(xmax - xmin)
     offset = (-xmax - xmin)*range_inv
     scale = 2.0*range_inv
