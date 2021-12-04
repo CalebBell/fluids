@@ -778,3 +778,36 @@ def test_horner_domain():
     assert_close(calc, expect, rtol=1e-14)
 
 
+    der_num = derivative(horner_stable, x, args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
+    der_analytical = horner_stable_and_der(x, test_stable_coeffs, offset, scale)[1]
+    assert_close(der_analytical, 0.25846754626830115, rtol=1e-14)
+    
+    
+    der_num = derivative(lambda *args: horner_stable_and_der(*args)[1], x, 
+                         args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
+    der_analytical = horner_stable_and_der2(x, test_stable_coeffs, offset, scale)[2]
+    assert_close(der_analytical, 0.0014327609525395784, rtol=1e-14)
+    
+    
+    der_num = derivative(lambda *args: horner_stable_and_der2(*args)[-1], x, 
+                         args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
+    der_analytical = horner_stable_and_der3(x, test_stable_coeffs, offset, scale)[-1]
+    assert_close(der_analytical, -7.345952769973301e-06, rtol=1e-14)
+    
+    
+    der_num = derivative(lambda *args: horner_stable_and_der3(*args)[-1], x, 
+                         args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
+    der_analytical = horner_stable_and_der4(x, test_stable_coeffs, offset, scale)[-1]
+    assert_close(der_analytical, -2.8269861583547557e-07, rtol=1e-14)
+    
+    five_vals = horner_stable_and_der4(x, test_stable_coeffs, offset, scale)
+    assert_close1d(five_vals, (157.0804912518053, 0.25846754626830115, 0.0014327609525395784, -7.345952769973301e-06, -2.8269861583547557e-07), rtol=1e-14)
+
+    four_vals = horner_stable_and_der3(x, test_stable_coeffs, offset, scale)
+    assert_close1d(four_vals, (157.0804912518053, 0.25846754626830115, 0.0014327609525395784, -7.345952769973301e-06), rtol=1e-14)
+
+    three_vals = horner_stable_and_der2(x, test_stable_coeffs, offset, scale)
+    assert_close1d(three_vals, (157.0804912518053, 0.25846754626830115, 0.0014327609525395784), rtol=1e-14)
+
+    two_vals = horner_stable_and_der(x, test_stable_coeffs, offset, scale)
+    assert_close1d(two_vals, (157.0804912518053, 0.25846754626830115), rtol=1e-14)

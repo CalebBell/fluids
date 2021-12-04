@@ -86,6 +86,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_backwards_ln_tau_and_der3',
            
            'horner_domain', 'horner_stable_offset_scale', 'horner_stable',
+           'horner_stable_and_der', 'horner_stable_and_der2', 
+           'horner_stable_and_der3', 'horner_stable_and_der4',
            ]
 
 from fluids.numerics import doubledouble
@@ -1404,6 +1406,46 @@ def horner_stable(x, coeffs, offset, scale):
         tot = tot*x + c
     return tot
 
+def horner_stable_and_der(x, coeffs, offset, scale):
+    x = offset + scale*x
+    f = 0.0
+    der = 0.0
+    for a in coeffs:
+        der = x*der + f
+        f = x*f + a
+    return (f, der*scale)
+
+def horner_stable_and_der2(x, coeffs, offset, scale):
+    x = offset + scale*x
+    f, der, der2 = 0.0, 0.0, 0.0
+    for a in coeffs:
+        der2 = x*der2 + der
+        der = x*der + f
+        f = x*f + a
+    return (f, der*scale, scale*scale*(der2 + der2))
+
+def horner_stable_and_der3(x, coeffs, offset, scale):
+    x = offset + scale*x
+    f, der, der2, der3 = 0.0, 0.0, 0.0, 0.0
+    for a in coeffs:
+        der3 = x*der3 + der2
+        der2 = x*der2 + der
+        der = x*der + f
+        f = x*f + a
+    scale2 = scale*scale
+    return (f, der*scale, scale2*(der2 + der2), scale2*scale*der3*6.0)
+
+def horner_stable_and_der4(x, coeffs, offset, scale):
+    x = offset + scale*x
+    f, der, der2, der3, der4 = 0.0, 0.0, 0.0, 0.0, 0.0
+    for a in coeffs:
+        der4 = x*der4 + der3
+        der3 = x*der3 + der2
+        der2 = x*der2 + der
+        der = x*der + f
+        f = x*f + a
+    scale2 = scale*scale
+    return (f, der*scale, scale2*(der2 + der2), scale2*scale*der3*6.0, scale2*scale2*der4*24.0)
 
 def horner(coeffs, x):
     r'''Evaluates a polynomial defined by coefficienfs `coeffs` at a specified
