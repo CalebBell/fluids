@@ -1893,9 +1893,11 @@ def evaluate_linear_fits_d2(data, x):
     return calc
 
 
-def chebval(x, c):
+def chebval(x, c, offset=0.0, scale=1.0):
     # Pure Python implementation of numpy.polynomial.chebyshev.chebval
     # This routine is faster in CPython as well as PyPy
+    # Approxximately 2 adds and a multiply per coefficient
+    x = offset + scale*x
     len_c = len(c)
     if len_c == 1:
         c0, c1 = c[0], 0.0
