@@ -1212,7 +1212,7 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
         x_perturb[i] -= deltas[i]
     return hessian
 
-def stable_poly_to_unstable(coeffs, high, low):
+def stable_poly_to_unstable(coeffs, low, high):
     if high != low:
         # Handle the case of no transformation, no limits
         my_poly = Polynomial([-0.5*(high + low)*2.0/(high - low), 2.0/(high - low)])

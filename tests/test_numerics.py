@@ -816,7 +816,7 @@ def test_horner_domain():
 def test_stable_poly_to_unstable():
     stuff = [1,2,3,4]
     out = stable_poly_to_unstable(stuff, 10, 100)
-    expect = [-1.0973936899862826e-05, 0.0027983539094650206, -0.2748971193415638, 12.480109739369]
+    expect = [1.0973936899862826e-05, -0.0008230452674897121, 0.05761316872427985, 1.4951989026063095]
     assert_close1d(out, expect, rtol=1e-12)
     
     out = stable_poly_to_unstable(stuff, 10, 10)
