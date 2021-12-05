@@ -1719,30 +1719,6 @@ def polyint_over_x(coeffs):
 #        poly_terms.append(coeffs[i]/i)
 #    return list(reversed(poly_terms)), log_coef
 #
-def chebder(c, m=1):
-    """not quite a copy of numpy's version because this was faster to
-    implement."""
-    c = list(c)
-    cnt = int(m)
-    if cnt == 0:
-        return c
-
-    n = len(c)
-    if cnt >= n:
-        c = []
-    else:
-        for i in range(cnt):
-            n = n - 1
-#            c *= scl
-            der = [0.0 for _ in range(n)]
-            for j in range(n, 2, -1):
-                der[j - 1] = (j + j)*c[j]
-                c[j - 2] += (j*c[j])/(j - 2.0)
-            if n > 1:
-                der[1] = 4.0*c[2]
-            der[0] = c[1]
-            c = der
-    return c
 
 def horner_log(coeffs, log_coeff, x):
     """Technically possible to save one addition of the last term of coeffs is
@@ -1919,6 +1895,36 @@ def chebval(x, c, offset=0.0, scale=1.0):
             c1 = c0_prev + c1*x2
     return c0 + c1*x
 
+def chebder(c, m=1, scl=1.0):
+    """not quite a copy of numpy's version because this was faster to
+    implement.
+    
+    This does not evaluate the value of a cheb series at a point; it returns
+    a new chebyshev seriese to be evaluated by chebval.
+    """
+    c = list(c)
+    cnt = int(m)
+    if cnt == 0:
+        return c
+
+    n = len(c)
+    if cnt >= n:
+        c = []
+    else:
+        for i in range(cnt):
+            n = n - 1
+            if scl != 1.0:
+                for j in range(len(c)):
+                    c[j] *= scl
+            der = [0.0 for _ in range(n)]
+            for j in range(n, 2, -1):
+                der[j - 1] = (j + j)*c[j]
+                c[j - 2] += (j*c[j])/(j - 2.0)
+            if n > 1:
+                der[1] = 4.0*c[2]
+            der[0] = c[1]
+            c = der
+    return c
 
 def binary_search(key, arr, size=None):
     if size is None:
