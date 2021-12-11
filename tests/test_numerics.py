@@ -763,8 +763,213 @@ def test_py_factorial():
     import math
     for i in range(30):
         assert math.factorial(i) == py_factorial(i)
+    
+def test_exp_stablepoly_fit_ln_tau():
+    coeffs = [0.011399360373616219, -0.014916568994522095, -0.06881296308711171, 0.0900153056718409, 0.19066633691545576, -0.24937350547406822, -0.3148389292182401, 0.41171834646956995, 0.3440581845934503, -0.44989947455906076, -0.2590532901358529, 0.33869134876113094, 0.1391329435696207, -0.18195230788023764, -0.050437145563137165, 0.06583166394466389, 0.01685157036382634, -0.022266583863000733, 0.003539388708205138, -0.005171064606571463, 0.012264455189935575, -0.018085676249990357, 0.026950795197264732, -0.04077120220662778, 0.05786417011592615, -0.07222889554773304, 0.07433570330647113, -0.05829288696590232, -3.7182636506596722, -5.844828481765601]
+    Tmin, Tmax, Tc = 233.22, 646.15, 647.096
+    xmin, xmax = log(1-Tmin/Tc), log(1-Tmax/Tc)
+    offset, scale = polynomial_offset_scale(xmin, xmax)
+
+    T = 500
+    expect = 0.03126447402046822
+    expect_d, expect_d2 = -0.0002337992205182661, -1.0453011134030858e-07
+    calc = exp_horner_stable_ln_tau(T, Tc, coeffs, offset, scale)
+    assert_close(expect, calc)
+    assert 0 == exp_horner_stable_ln_tau(700, Tc, coeffs, offset, scale)
+
+    calc2 = exp_horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale)
+    assert (0,0) == exp_horner_stable_ln_tau_and_der(700, Tc, coeffs, offset, scale)
+    assert_close(expect, calc2[0])
+    assert_close(expect_d, calc2[1])
+
+    
+    calc3 = exp_horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale)
+    assert (0,0, 0) == exp_horner_stable_ln_tau_and_der2(700, Tc, coeffs, offset, scale)
+    assert_close(expect, calc3[0])
+    assert_close(expect_d, calc3[1])
+    assert_close(expect_d2, calc3[2])
+
+
+
+def test_exp_cheb_fit_ln_tau():
+    coeffs = [-5.922664830406188, -3.6003367212635444, -0.0989717205896406, 0.05343895281736921, -0.02476759166597864, 0.010447569392539213, -0.004240542036664352, 0.0017273355647560718, -0.0007199858491173661, 0.00030714447101984343, -0.00013315510546685339, 5.832551964424226e-05, -2.5742454514671165e-05, 1.143577875153956e-05, -5.110008470393668e-06, 2.295229193177706e-06, -1.0355920205401548e-06, 4.690917226601865e-07, -2.1322112805921556e-07, 9.721709759435981e-08, -4.4448656630335925e-08, 2.0373327115630335e-08, -9.359475430792408e-09, 4.308620855930645e-09, -1.9872392620357004e-09, 9.181429297400179e-10, -4.2489342599871804e-10, 1.969051449668413e-10, -9.139573819982871e-11, 4.2452263926406886e-11, -1.9768853221080462e-11, 9.190537220149508e-12, -4.2949394041258415e-12, 1.9981863386142606e-12, -9.396025624219817e-13, 4.335282133283158e-13, -2.0410756418343112e-13, 1.0455525334407412e-13, -4.748978987834107e-14, 2.7630675525358583e-14]
+    Tmin, Tmax, Tc = 233.22, 646.15, 647.096
+    
+    expect = 0.031264474019763455
+    expect_d, expect_d2 = -0.00023379922039411865, -1.0453010755999069e-07
+    xmin, xmax = log(1-Tmin/Tc), log(1-Tmax/Tc)
+    offset, scale = polynomial_offset_scale(xmin, xmax)
+    coeffs_d = chebder(coeffs, m=1, scl=scale)
+    coeffs_d2 = chebder(coeffs_d, m=1, scl=scale)
+    coeffs_d3 = chebder(coeffs_d2, m=1, scl=scale)
+
+    T = 500
+    calc = exp_cheb_ln_tau(T, Tc, coeffs, offset, scale)
+    assert 0 == exp_cheb_ln_tau(700, Tc, coeffs, offset, scale)
+    assert_close(expect, calc)
+
+    calc2 = exp_cheb_ln_tau_and_der(T, Tc, coeffs, coeffs_d, offset, scale)
+    assert (0,0) == exp_cheb_ln_tau_and_der(700, Tc, coeffs, coeffs_d, offset, scale)
+    assert_close(expect, calc2[0])
+    assert_close(expect_d, calc2[1])
+
+    
+    calc3 = exp_cheb_ln_tau_and_der2(T, Tc, coeffs, coeffs_d, coeffs_d2, offset, scale)
+    assert (0,0,0) == exp_cheb_ln_tau_and_der2(700, Tc, coeffs, coeffs_d, coeffs_d2, offset, scale)
+    assert_close(expect, calc3[0])
+    assert_close(expect_d, calc3[1])
+    assert_close(expect_d2, calc3[2])
+
+    
+def test_stablepoly_ln_tau():
+    Tmin, Tmax, Tc = 178.18, 591.74, 591.75
+    coeffs = [-0.00854738149791956, 0.05600738152861595, -0.30758192972280085, 1.6848304651211947, -8.432931053161155, 37.83695791102946, -150.87603890354512, 526.4891248463246, -1574.7593541151946, 3925.149223414621, -7826.869059381197, 11705.265444382389, -11670.331914006258, 5817.751307862842]
+
+    expect = 24498.131947494512
+    expect_d, expect_d2, expect_d3 = -100.77476796035525, -0.6838185833621794, -0.012093191888904656
+    xmin, xmax = log(1-Tmin/Tc), log(1-Tmax/Tc)
+    
+    offset, scale = polynomial_offset_scale(xmin, xmax)
+    T = 500.0
+
+    calc = horner_stable_ln_tau(T, Tc, coeffs, offset, scale)
+    assert_close(expect, calc)
+
+    calc2 = horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale)
+    assert_close(expect, calc2[0])
+    assert_close(expect_d, calc2[1])
+
+    
+    calc3 = horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale)
+    assert_close(expect, calc3[0])
+    assert_close(expect_d, calc3[1])
+    assert_close(expect_d2, calc3[2])
+
+    calc4 = horner_stable_ln_tau_and_der3(T, Tc, coeffs, offset, scale)
+    assert_close(expect, calc4[0])
+    assert_close(expect_d, calc4[1])
+    assert_close(expect_d2, calc4[2])
+    assert_close(expect_d3, calc4[3])
+
+
+    
+def test_chebval_ln_tau():
+    Tmin, Tmax = 178.18, 591.0
+    Tc = 591.75
+    
+    coeffs = [18231.740838720892, -18598.514785409734, 5237.841944302821, -1010.5549489362293, 147.88312821848922, -17.412144225239444, 1.7141064359038864, -0.14493639179363527, 0.01073811633477817, -0.0007078634084791702, 4.202655964036239e-05, -2.274648068123497e-06, 1.1239490049774759e-07]
+    T = 500
+    
+    xmin, xmax = log(1-Tmin/Tc), log(1-Tmax/Tc)
+    
+    offset, scale = polynomial_offset_scale(xmin, xmax)
+    coeffs_d = chebder(coeffs, m=1, scl=scale)
+    coeffs_d2 = chebder(coeffs_d, m=1, scl=scale)
+    coeffs_d3 = chebder(coeffs_d2, m=1, scl=scale)
+
+
+    calc = chebval_ln_tau(T, Tc, coeffs, offset, scale)
+    assert 0 == chebval_ln_tau(600, Tc, coeffs, offset, scale)
+    expect = 24498.131947622023
+    expect_d, expect_d2, expect_d3 = -100.77476795241955, -0.6838185834436981, -0.012093191904152178
+    assert_close(expect, calc)
+    
+    calc2 = chebval_ln_tau_and_der(T, Tc, coeffs, coeffs_d, offset, scale)
+    assert (0,0) == chebval_ln_tau_and_der(600, Tc, coeffs, coeffs_d, offset, scale)
+    assert_close(expect, calc2[0])
+    assert_close(expect_d, calc2[1])
+
+    
+    calc3 = chebval_ln_tau_and_der2(T, Tc, coeffs, coeffs_d, coeffs_d2, offset, scale)
+    assert (0,0,0) == chebval_ln_tau_and_der2(600, Tc, coeffs, coeffs_d, coeffs_d2, offset, scale)
+    assert_close(expect, calc3[0])
+    assert_close(expect_d, calc3[1])
+    assert_close(expect_d2, calc3[2])
+
+    calc4 = chebval_ln_tau_and_der3(T, Tc, coeffs, coeffs_d, coeffs_d2, coeffs_d3, offset, scale)
+    assert (0,0,0,0) == chebval_ln_tau_and_der3(600, Tc, coeffs, coeffs_d, coeffs_d2, coeffs_d3, offset, scale)
+    assert_close(expect, calc4[0])
+    assert_close(expect_d, calc4[1])
+    assert_close(expect_d2, calc4[2])
+    assert_close(expect_d3, calc4[3])
+
+def test_exp_cheb():
+    xmin, xmax = (309.0, 591.72)
+    coeffs = [12.570668791524573, 3.1092695610681673, -0.5485217707981505, 0.11115875762247596, -0.01809803938553478, 0.003674911307077089, -0.00037626163070525465, 0.0001962813915017403, 6.120764548889213e-05, 3.602752453735203e-05]
+    x = 400.0
+    offset, scale = polynomial_offset_scale(xmin, xmax)
+    expect = 157186.81766860923
+    calc = exp_cheb(x, coeffs, offset, scale)
+    assert_close(calc, expect, rtol=1e-14)
+    
+    coeffs_d = chebder(coeffs, m=1, scl=scale)
+    coeffs_d2 = chebder(coeffs_d, m=1, scl=scale)
+    coeffs_d3 = chebder(coeffs_d2, m=1, scl=scale)
         
-        
+    der_num = derivative(exp_cheb, x, args=(coeffs, offset, scale), dx=x*1e-7)
+    der_analytical = exp_cheb_and_der(x, coeffs, coeffs_d, offset, scale)[1]
+    assert_close(der_num, der_analytical, rtol=1e-7)
+    assert_close(der_analytical, 4056.277312107932, rtol=1e-14)
+    
+    
+    der_num = derivative(lambda *args: exp_cheb_and_der(*args)[1], x, 
+                         args=(coeffs, coeffs_d, offset, scale), dx=x*1e-7)
+    der_analytical = exp_cheb_and_der2(x, coeffs, coeffs_d, coeffs_d2, offset, scale)[-1]
+    assert_close(der_analytical, 81.34302144188977, rtol=1e-14)
+    assert_close(der_num, der_analytical, rtol=1e-7)
+
+
+    der_num = derivative(lambda *args: exp_cheb_and_der2(*args)[-1], x, 
+                         args=(coeffs, coeffs_d, coeffs_d2, offset, scale), dx=x*1e-7)
+    der_analytical = exp_cheb_and_der3(x, coeffs, coeffs_d, coeffs_d2, coeffs_d3, offset, scale)[-1]
+    assert_close(der_num, der_analytical, rtol=1e-7)
+    assert_close(der_analytical, 1.105438780935656, rtol=1e-14)
+
+    vals = exp_cheb_and_der3(x, coeffs, coeffs_d, coeffs_d2, coeffs_d3, offset, scale)
+    assert_close1d(vals, (157186.81766860923, 4056.277312107932, 81.34302144188977, 1.105438780935656), rtol=1e-14)
+
+    vals = exp_cheb_and_der2(x, coeffs, coeffs_d, coeffs_d2, offset, scale)
+    assert_close1d(vals, (157186.81766860923, 4056.277312107932, 81.34302144188977), rtol=1e-14)
+
+
+    vals = exp_cheb_and_der(x, coeffs, coeffs_d, offset, scale)
+    assert_close1d(vals, (157186.81766860923, 4056.277312107932), rtol=1e-14)
+
+def test_exp_stablepoly_fit():
+    xmin, xmax = 309.0, 591.72
+    coeffs = [0.008603558174828078, 0.007358688688856427, -0.016890323025782954, -0.005289197721114957, -0.0028824712174469625, 0.05130960832946553, -0.12709896610233662, 0.37774977659528036, -0.9595325030688526, 2.7931528759840174, 13.10149649770156]
+    x = 400
+    offset, scale = polynomial_offset_scale(xmin, xmax)
+    expect = 157191.01706242564
+    calc = exp_horner_stable(x, coeffs, offset, scale)
+    assert_close(calc, expect, rtol=1e-14)
+
+    der_num = derivative(exp_horner_stable, x, args=(coeffs, offset, scale), dx=x*1e-7)
+    der_analytical = exp_horner_stable_and_der(x, coeffs, offset, scale)[1]
+    assert_close(der_num, der_analytical, rtol=1e-7)
+    assert_close(der_analytical, 4056.436943642117, rtol=1e-14)
+    
+    der_num = derivative(lambda *args: exp_horner_stable_and_der(*args)[1], x, 
+                         args=(coeffs, offset, scale), dx=x*1e-7)
+    der_analytical = exp_horner_stable_and_der2(x, coeffs, offset, scale)[-1]
+    assert_close(der_analytical, 81.32645570045084, rtol=1e-14)
+    assert_close(der_num, der_analytical, rtol=1e-7)
+
+
+    der_num = derivative(lambda *args: exp_horner_stable_and_der2(*args)[-1], x, 
+                         args=(coeffs, offset, scale), dx=x*1e-7)
+    der_analytical = exp_horner_stable_and_der3(x, coeffs, offset, scale)[-1]
+    assert_close(der_num, der_analytical, rtol=1e-7)
+    assert_close(der_analytical, 1.103603650822488, rtol=1e-14)
+
+    vals = exp_horner_stable_and_der3(x, coeffs, offset, scale)
+    assert_close1d(vals, (157191.01706242564, 4056.436943642117, 81.32645570045084, 1.103603650822488), rtol=1e-14)
+
+    vals = exp_horner_stable_and_der2(x, coeffs, offset, scale)
+    assert_close1d(vals, (157191.01706242564, 4056.436943642117, 81.32645570045084), rtol=1e-14)
+    vals = exp_horner_stable_and_der(x, coeffs, offset, scale)
+    assert_close1d(vals, (157191.01706242564, 4056.436943642117), rtol=1e-14)
+
 def test_horner_domain():
     test_stable_coeffs = [28.0163226043884, 24.92038363551981, -7.469247118451516, 16.400149851861975, 67.52558234042988, 176.7837155284216]
     xmin, xmax = (162.0, 570.0)
@@ -781,24 +986,28 @@ def test_horner_domain():
     der_num = derivative(horner_stable, x, args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
     der_analytical = horner_stable_and_der(x, test_stable_coeffs, offset, scale)[1]
     assert_close(der_analytical, 0.25846754626830115, rtol=1e-14)
+    assert_close(der_num, der_analytical, rtol=1e-7)
     
     
     der_num = derivative(lambda *args: horner_stable_and_der(*args)[1], x, 
                          args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
     der_analytical = horner_stable_and_der2(x, test_stable_coeffs, offset, scale)[2]
     assert_close(der_analytical, 0.0014327609525395784, rtol=1e-14)
+    assert_close(der_num, der_analytical, rtol=1e-7)
     
     
     der_num = derivative(lambda *args: horner_stable_and_der2(*args)[-1], x, 
                          args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
     der_analytical = horner_stable_and_der3(x, test_stable_coeffs, offset, scale)[-1]
     assert_close(der_analytical, -7.345952769973301e-06, rtol=1e-14)
+    assert_close(der_num, der_analytical, rtol=1e-7)
     
     
     der_num = derivative(lambda *args: horner_stable_and_der3(*args)[-1], x, 
                          args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
     der_analytical = horner_stable_and_der4(x, test_stable_coeffs, offset, scale)[-1]
     assert_close(der_analytical, -2.8269861583547557e-07, rtol=1e-14)
+    assert_close(der_num, der_analytical, rtol=1e-7)
     
     five_vals = horner_stable_and_der4(x, test_stable_coeffs, offset, scale)
     assert_close1d(five_vals, (157.0804912518053, 0.25846754626830115, 0.0014327609525395784, -7.345952769973301e-06, -2.8269861583547557e-07), rtol=1e-14)
@@ -821,3 +1030,33 @@ def test_stable_poly_to_unstable():
     
     out = stable_poly_to_unstable(stuff, 10, 10)
     assert_close1d(out, stuff)
+
+def test_cheb():
+    Tmin, Tmax = 50, 1500.0
+    toluene_TRC_cheb_fit = [194.9993931442641, 135.143566535142, -31.391834328585, -0.03951841213554952, 5.633110876073714, -3.686554783541794, 1.3108038668007862, -0.09053861376310801, -0.2614279887767278, 0.24832452742026911, -0.15919652548841812, 0.09374295717647019, -0.06233192560577938, 0.050814520356653126, -0.046331125185531064, 0.0424579816955023, -0.03739513702085129, 0.031402017733109244, -0.025212485578021915, 0.01939423141593144, -0.014231480849538403, 0.009801281575488097, -0.006075456686871594, 0.0029909809015365996, -0.0004841890018462136, -0.0014991199985455728, 0.0030051480117581075, -0.004076901418829215, 0.004758297389532928, -0.005096275567543218, 0.00514099984344718, -0.004944736724873944, 0.004560044671604424, -0.004037777783658769, 0.0034252408915679267, -0.002764690626354871, 0.0020922734527478726, -0.0014374230267101273, 0.0008226963858916081, -0.00026400260413972365, -0.0002288377348015347, 0.0006512726893767029, -0.0010030137199867895, 0.0012869214641443305, -0.001507857723972772, 0.001671575150882565, -0.0017837100581746812, 0.001848935469520696, -0.0009351605848800237]
+    toluene_TRC_cheb_fit_copy = toluene_TRC_cheb_fit.copy()
+    offset, scale = polynomial_offset_scale(Tmin, Tmax)
+    
+    val = chebval(300, toluene_TRC_cheb_fit, offset, scale)
+    assert_close(val, 104.46956642594124, rtol=1e-14)
+    
+    d1_coeffs = chebder(toluene_TRC_cheb_fit, m=1, scl=scale)
+    d2_coeffs = chebder(toluene_TRC_cheb_fit, m=2, scl=scale)
+    d2_2_coeffs = chebder(d1_coeffs, m=1, scl=scale)
+    
+    val = chebval(300, d1_coeffs, offset, scale)
+    assert_close(val, 0.36241217517888635, rtol=1e-14)
+    
+    val = chebval(300, d2_coeffs, offset, scale)
+    assert_close(val, -6.445511348110282e-06, rtol=1e-14)
+    
+    val = chebval(300, d2_2_coeffs, offset, scale)
+    assert_close(val, -6.445511348110282e-06, rtol=1e-14)
+    assert d2_2_coeffs == d2_coeffs
+    
+        
+    int_coeffs = chebint(toluene_TRC_cheb_fit, m=1, lbnd=0, scl=1/scale)
+    assert_close(chebval(300, int_coeffs, offset, scale), -83708.18079449862, rtol=1e-10)
+    
+    assert toluene_TRC_cheb_fit == toluene_TRC_cheb_fit_copy
+    

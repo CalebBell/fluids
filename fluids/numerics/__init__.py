@@ -49,7 +49,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2',
            'numpy', 'nquad', 'catanh', 'factorial',
-           'polyint_over_x', 'horner_log', 'polyint', 'chebder',
+           'polyint_over_x', 'horner_log', 'polyint',
+           'chebder', 'chebint', 'exp_cheb',
            'polyder', 'make_damp_initial', 'quadratic_from_points',
            'OscillationError', 'UnconvergedError', 'caching_decorator',
            'NoSolutionError', 'SamePointError', 'NotBoundedError',
@@ -88,6 +89,16 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_domain', 'polynomial_offset_scale', 'horner_stable',
            'horner_stable_and_der', 'horner_stable_and_der2', 
            'horner_stable_and_der3', 'horner_stable_and_der4',
+           'exp_horner_stable', 'exp_horner_stable_and_der', 
+           'exp_horner_stable_and_der2', 'exp_horner_stable_and_der3',
+           'exp_cheb_and_der', 'exp_cheb_and_der2', 'exp_cheb_and_der3',
+           'chebval_ln_tau', 'chebval_ln_tau_and_der',
+           'chebval_ln_tau_and_der2', 'chebval_ln_tau_and_der3',
+           'horner_stable_ln_tau', 'horner_stable_ln_tau_and_der', 
+           'horner_stable_ln_tau_and_der2', 'horner_stable_ln_tau_and_der3',
+           'exp_cheb_ln_tau', 'exp_cheb_ln_tau_and_der', 'exp_cheb_ln_tau_and_der2',
+           'exp_horner_stable_ln_tau', 'exp_horner_stable_ln_tau_and_der', 
+           'exp_horner_stable_ln_tau_and_der2',
            ]
 
 from fluids.numerics import doubledouble
@@ -1454,6 +1465,200 @@ def horner_stable_and_der4(x, coeffs, offset, scale):
     scale2 = scale*scale
     return (f, der*scale, scale2*(der2 + der2), scale2*scale*der3*6.0, scale2*scale2*der4*24.0)
 
+def horner_stable_ln_tau(T, Tc, coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0
+    lntau = log(1.0 - T/Tc)
+    return horner_stable(lntau, coeffs, offset, scale)
+
+def horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0, 0.0
+    lntau = log(1.0 - T/Tc)
+    val, poly_der = horner_stable_and_der(lntau, coeffs, offset, scale)
+    der = -poly_der/(Tc*(-T/Tc + 1))
+    return val, der
+
+def horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0, 0.0, 0.0
+    lntau = log(1.0 - T/Tc)
+    val, poly_der, poly_der2 = horner_stable_and_der2(lntau, coeffs, offset, scale)
+    der = -poly_der/(Tc*(-T/Tc + 1))
+    
+    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
+    return val, der, der2
+
+def horner_stable_ln_tau_and_der3(T, Tc, coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0, 0.0, 0.0, 00
+    lntau = log(1.0 - T/Tc)
+    val, poly_der, poly_der2, poly_der3 = horner_stable_and_der3(lntau, coeffs, offset, scale)
+    der = -poly_der/(Tc*(-T/Tc + 1))
+    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
+    der3 = (2.0*poly_der - 3.0*poly_der2 + poly_der3)/(Tc**3*(T/Tc - 1)**3)
+    
+    return val, der, der2, der3
+
+
+def exp_horner_stable(x, coeffs, offset, scale):
+    return trunc_exp(horner_stable(x, coeffs, offset, scale))
+
+def exp_horner_stable_and_der(x, coeffs, offset, scale):
+    poly_val, poly_der = horner_stable_and_der(x, coeffs, offset, scale)
+    val = exp(poly_val)
+    der = poly_der*val
+    return val, der
+
+def exp_horner_stable_and_der2(x, coeffs, offset, scale):
+    poly_val, poly_der, poly_der2 = horner_stable_and_der2(x, coeffs, offset, scale)
+    val = exp(poly_val)
+    der = poly_der*val
+    der2 = (poly_der*poly_der + poly_der2)*val
+    return val, der, der2
+
+def exp_horner_stable_and_der3(x, coeffs, offset, scale):
+    poly_val, poly_der, poly_der2, poly_der3 = horner_stable_and_der3(x, coeffs, offset, scale)
+    val = exp(poly_val)
+    der = poly_der*val
+    der2 = (poly_der*poly_der + poly_der2)*val
+    der3 = (poly_der*poly_der*poly_der + 3.0*poly_der*poly_der2 + poly_der3)*val
+    return val, der, der2, der3
+
+def exp_horner_stable_ln_tau(T, Tc, coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0
+    lntau = log(1.0 - T/Tc)
+    return exp(horner_stable(lntau, coeffs, offset, scale))
+
+def exp_horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0, 0.0
+    tau = 1.0 - T/Tc
+    lntau = log(tau)
+    poly_val, poly_der_val = horner_stable_and_der(lntau, coeffs, offset, scale)
+    val = exp(poly_val)
+    return val, -val*poly_der_val/(Tc*tau)
+
+def exp_horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0, 0.0, 0.0
+    tau = 1.0 - T/Tc
+    lntau = log(tau)
+    poly_val, poly_val_der, poly_val_der2 = horner_stable_and_der2(lntau, coeffs, offset, scale)
+    val = exp(poly_val)
+    der = -val*poly_val_der/(Tc*tau)
+    der2 = (poly_val_der*poly_val_der - poly_val_der + poly_val_der2)*val/(Tc*Tc*(tau*tau))
+    
+    return val, der, der2
+
+
+def exp_cheb(x, coeffs, offset, scale):
+    y = chebval(x, coeffs, offset, scale)
+    return trunc_exp(y)
+
+def exp_cheb_and_der(x, coeffs, der_coeffs, offset, scale):
+    poly_val = chebval(x, coeffs, offset, scale)
+    poly_der = chebval(x, der_coeffs, offset, scale)
+    val = exp(poly_val)
+    der = poly_der*val
+    return val, der
+
+def exp_cheb_and_der2(x, coeffs, der_coeffs, der2_coeffs, offset, scale):
+    poly_val = chebval(x, coeffs, offset, scale)
+    poly_der = chebval(x, der_coeffs, offset, scale)
+    poly_der2 = chebval(x, der2_coeffs, offset, scale)
+    val = exp(poly_val)
+    der = poly_der*val
+    der2 = (poly_der*poly_der + poly_der2)*val
+    return val, der, der2
+
+def exp_cheb_and_der3(x, coeffs, der_coeffs, der2_coeffs, der3_coeffs, offset, scale):
+    poly_val = chebval(x, coeffs, offset, scale)
+    poly_der = chebval(x, der_coeffs, offset, scale)
+    poly_der2 = chebval(x, der2_coeffs, offset, scale)
+    poly_der3 = chebval(x, der3_coeffs, offset, scale)
+    val = exp(poly_val)
+    der = poly_der*val
+    der2 = (poly_der*poly_der + poly_der2)*val
+    der3 = (poly_der*poly_der*poly_der + 3.0*poly_der*poly_der2 + poly_der3)*val
+    return val, der, der2, der3
+
+def exp_cheb_ln_tau(T, Tc, coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0
+    lntau = log(1.0 - T/Tc)
+    y = chebval(lntau, coeffs, offset, scale)
+    return trunc_exp(y)
+
+def exp_cheb_ln_tau_and_der(T, Tc, coeffs, der_coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0, 0.0
+    tau = 1.0 - T/Tc
+    lntau = log(tau)
+    poly_val = chebval(lntau, coeffs, offset, scale)
+    poly_der_val = chebval(lntau, der_coeffs, offset, scale)
+
+    val = exp(poly_val)
+    return val, -val*poly_der_val/(Tc*tau)
+
+def exp_cheb_ln_tau_and_der2(T, Tc, coeffs, der_coeffs, der2_coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0, 0.0, 0.0
+    tau = 1.0 - T/Tc
+    lntau = log(tau)
+    poly_val = chebval(lntau, coeffs, offset, scale)
+    poly_val_der = chebval(lntau, der_coeffs, offset, scale)
+    poly_val_der2 = chebval(lntau, der2_coeffs, offset, scale)
+    val = exp(poly_val)
+    der = -val*poly_val_der/(Tc*tau)
+    der2 = (poly_val_der*poly_val_der - poly_val_der + poly_val_der2)*val/(Tc*Tc*(tau*tau))
+    
+    return val, der, der2
+
+def chebval_ln_tau(T, Tc, coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0
+    lntau = log(1.0 - T/Tc)
+    poly_val = chebval(lntau, coeffs, offset, scale)
+    return poly_val
+
+def chebval_ln_tau_and_der(T, Tc, coeffs, der_coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0, 0.0
+    lntau = log(1.0 - T/Tc)
+    val = chebval(lntau, coeffs, offset, scale)
+    poly_der = chebval(lntau, der_coeffs, offset, scale)
+    der = -poly_der/(Tc*(-T/Tc + 1))
+    return val, der
+
+    
+def chebval_ln_tau_and_der2(T, Tc, coeffs, der_coeffs, der2_coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0, 0.0, 0.0
+    lntau = log(1.0 - T/Tc)
+    val = chebval(lntau, coeffs, offset, scale)
+    poly_der = chebval(lntau, der_coeffs, offset, scale)
+    poly_der2 = chebval(lntau, der2_coeffs, offset, scale)
+    der = -poly_der/(Tc*(-T/Tc + 1))
+    
+    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
+    return val, der, der2
+
+def chebval_ln_tau_and_der3(T, Tc, coeffs, der_coeffs, der2_coeffs, der3_coeffs, offset, scale):
+    if T >= Tc:
+        return 0.0, 0.0, 0.0, 00
+    lntau = log(1.0 - T/Tc)
+    val = chebval(lntau, coeffs, offset, scale)
+    poly_der = chebval(lntau, der_coeffs, offset, scale)
+    poly_der2 = chebval(lntau, der2_coeffs, offset, scale)
+    poly_der3 = chebval(lntau, der3_coeffs, offset, scale)
+    der = -poly_der/(Tc*(-T/Tc + 1))
+    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
+    der3 = (2.0*poly_der - 3.0*poly_der2 + poly_der3)/(Tc**3*(T/Tc - 1)**3)
+    
+    return val, der, der2, der3
+
 def horner(coeffs, x):
     r'''Evaluates a polynomial defined by coefficienfs `coeffs` at a specified
     scalar `x` value, using the horner method. This is the most efficient
@@ -1924,6 +2129,44 @@ def chebder(c, m=1, scl=1.0):
                 der[1] = 4.0*c[2]
             der[0] = c[1]
             c = der
+    return c
+
+def chebint(c, m=1, lbnd=0, scl=1):
+    #  k=[], is used by numpy to provide integration constants
+    cnt = int(m) # the order of integration
+    if cnt < 0:
+        raise ValueError("Negative integration error not allowed")
+#     if len(k) > cnt:
+#         raise ValueError("Size of integration constants not consistent with order of integration")
+    if cnt == 0:
+        return c
+#     k = list(k) + [0]*(cnt - len(k))
+    n = len(c)
+    c2 = [0.0]*n # Make a copy of c
+    for i in range(n):
+        c2[i] = c[i]
+    c = c2
+
+    for i in range(cnt):
+        n = len(c)
+        for o in range(n):
+            c[o] *= scl
+        if n == 1 and c[0] == 0:
+            pass
+#             c[0] += k[i]
+        else:
+            tmp = [0.0]*(n+1)
+            tmp[1] = c[0]
+            if n > 1:
+                tmp[2] = c[1]/4
+            for j in range(2, n):
+                cval = c[j]
+                tmp[j + 1] = cval/(2.0*(j + 1.0))
+                tmp[j - 1] -= cval/(2.0*(j - 1.0))
+            # Scale is handled separately
+#             tmp[0] += k[i] - chebval(lbnd, tmp)
+            tmp[0] -= chebval(lbnd, tmp)
+            c = tmp
     return c
 
 def binary_search(key, arr, size=None):
