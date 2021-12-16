@@ -67,7 +67,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'translate_bound_f_jac', 'curve_fit',
            'quad', 'quad_adaptive', 'stable_poly_to_unstable',
            
-           'std', 'min_max_ratios',
+           'std', 'min_max_ratios', 'detect_outlier_normal',
            'max_abs_error', 'max_abs_rel_error', 'max_squared_error',
            'max_squared_rel_error', 'mean_abs_error', 'mean_abs_rel_error', 
            'mean_squared_error', 'mean_squared_rel_error',
@@ -561,6 +561,18 @@ def roots_quartic(a, b, c, d, e):
 def mean(data):
     # Much faster than the statistics.mean module
     return sum(data)/len(data)
+
+def detect_outlier_normal(data, cutoff=3):
+    std_val = std(data)
+    mean_val = mean(data)
+    
+    low = mean_val - std_val*cutoff
+    high = mean_val + std_val*cutoff
+    outlier_idxs = []
+    for i, p in enumerate(data):
+        if p < low or p > high:
+            outlier_idxs.append(i)
+    return outlier_idxs
 
 def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
     """Port of numpy's linspace to pure python.

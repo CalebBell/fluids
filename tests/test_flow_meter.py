@@ -331,6 +331,12 @@ def test_differential_pressure_meter_solver_misc():
 
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, rho=1.2, mu=0.00011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
     assert_close(m, 0.2695835697819371)
+    
+    m_expect = 7.9299168920313425
+    m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D', epsilon_specified=1)
+    assert_close(m, m_expect)
+    m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, meter_type='ISO 5167 orifice', taps='D', epsilon_specified=1)
+    assert_close(m, m_expect)
 
 def test_unspecified_meter_C_specified():
     for t in ('unspecified meter', 'ISO 5167 orifice'):

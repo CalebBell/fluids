@@ -2415,7 +2415,8 @@ _meter_type_to_corr_default = {
 
 def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
                                           meter_type, taps=None,
-                                          tap_position=None, C_specified=None):
+                                          tap_position=None, C_specified=None,
+                                          epsilon_specified=None):
     r'''Calculates the discharge coefficient and expansibility of a flow
     meter given the mass flow rate, the upstream pressure, the second
     pressure value, and the orifice diameter for a differential
@@ -2467,6 +2468,9 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
     C_specified : float, optional
         If specified, the correlation for the meter type is not used - this
         value is returned for `C`
+    epsilon_specified : float, optional
+        If specified, the correlation for the fluid expansibility is not used -
+        this value is returned for :math:`\epsilon`, [-]
 
     Returns
     -------
@@ -2591,50 +2595,54 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         raise ValueError(_unsupported_meter_msg)
     if C_specified is not None:
         C = C_specified
+    if epsilon_specified is not None:
+        epsilon = epsilon_specified
     return C, epsilon
 
 
 
-def err_dp_meter_solver_m(m_D, D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified):
+def err_dp_meter_solver_m(m_D, D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified):
     m = m_D*D
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
                                                   taps=taps, tap_position=tap_position,
-                                                  C_specified=C_specified)
+                                                  C_specified=C_specified, epsilon_specified=epsilon_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho,
                                 C=C, expansibility=epsilon)
     err =  m - m_calc
     return err
 
-def err_dp_meter_solver_P2(P2, D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position, C_specified):
+def err_dp_meter_solver_P2(P2, D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified):
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
                                                   taps=taps, tap_position=tap_position,
-                                                  C_specified=C_specified)
+                                                  C_specified=C_specified, epsilon_specified=epsilon_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho,
                                 C=C, expansibility=epsilon)
     return m - m_calc
 
-def err_dp_meter_solver_D2(D2, D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified):
+def err_dp_meter_solver_D2(D2, D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified):
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
-                                                  taps=taps, tap_position=tap_position, C_specified=C_specified)
+                                                  taps=taps, tap_position=tap_position, C_specified=C_specified,
+                                                  epsilon_specified=epsilon_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho,
                                 C=C, expansibility=epsilon)
     return m - m_calc
 
-def err_dp_meter_solver_P1(P1, D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position, C_specified):
+def err_dp_meter_solver_P1(P1, D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified):
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
-                                                  taps=taps, tap_position=tap_position, C_specified=C_specified)
+                                                  taps=taps, tap_position=tap_position, C_specified=C_specified,
+                                                  epsilon_specified=epsilon_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho,
                                 C=C, expansibility=epsilon)
     return m - m_calc
 
-def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
+def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=None,
                                        m=None, meter_type=ISO_5167_ORIFICE,
                                        taps=None, tap_position=None,
-                                       C_specified=None):
+                                       C_specified=None, epsilon_specified=None):
     r'''Calculates either the mass flow rate, the upstream pressure, the second
     pressure value, or the orifice diameter for a differential
     pressure flow meter based on the geometry of the meter, measured pressures
@@ -2649,8 +2657,9 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
         Density of fluid at `P1`, [kg/m^3]
     mu : float
         Viscosity of fluid at `P1`, [Pa*s]
-    k : float
-        Isentropic exponent of fluid, [-]
+    k : float, optional
+        Isentropic exponent of fluid; required unless `epsilon_specified` is
+        specified , [-]
     D2 : float, optional
         Diameter of orifice, or venturi meter orifice, or flow tube orifice,
         or cone meter end diameter, or wedge meter fluid flow height, [m]
@@ -2685,6 +2694,10 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
     C_specified : float, optional
         If specified, the correlation for the meter type is not used - this
         value is used for `C`
+    epsilon_specified : float, optional
+        If specified, the correlation for the fluid expansibility is not used -
+        this value is used for :math:`\epsilon`. Many publications recommend
+        this be set to 1 for incompressible fluids [-]
 
     Returns
     -------
@@ -2725,14 +2738,16 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
     ... meter_type='ISO 5167 orifice', taps='D')
     0.04999999990831885
     '''
+    if k is None and epsilon_specified is not None:
+        k = 1.4
     if m is None and D is not None and D2 is not None and P1 is not None and P2 is not None:
         # Diameter to mass flow ratio
         m_D_guess = 40
         if rho < 100.0:
             m_D_guess *= 1e-2
-        return secant(err_dp_meter_solver_m, m_D_guess, args=(D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified))*D
+        return secant(err_dp_meter_solver_m, m_D_guess, args=(D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified))*D
     elif D2 is None and D is not None and m is not None and P1 is not None and P2 is not None:
-        args = (D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified)
+        args = (D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified)
         try:
             return brenth(err_dp_meter_solver_D2, D*(1-1E-9), D*5E-3, args=args)
         except:
@@ -2741,13 +2756,13 @@ def differential_pressure_meter_solver(D, rho, mu, k, D2=None, P1=None, P2=None,
             except:
                 return secant(err_dp_meter_solver_D2, D*.75, args=args, high=D, low=D*1e-10)
     elif P2 is None and D is not None and D2 is not None and m is not None and P1 is not None:
-        args = (D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position, C_specified)
+        args = (D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified)
         try:
             return brenth(err_dp_meter_solver_P2, P1*(1-1E-9), P1*0.5, args=args)
         except:
             return secant(err_dp_meter_solver_P2, P1*0.5, low=P1*1e-10, args=args, high=P1, bisection=True)
     elif P1 is None and D is not None and D2 is not None and m is not None and P2 is not None:
-        args = (D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position, C_specified)
+        args = (D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified)
         try:
             return brenth(err_dp_meter_solver_P1, P2*(1+1E-9), P2*1.4, args=args)
         except:

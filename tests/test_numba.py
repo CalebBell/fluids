@@ -506,6 +506,12 @@ def test_misc_flow_meter():
     assert_close(fluids.numba.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D'),
                  fluids.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D'))
 
+    assert_close(fluids.numba.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D', epsilon_specified=1),
+                 fluids.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D', epsilon_specified=1))
+
+    assert_close(fluids.numba.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, meter_type='ISO 5167 orifice', taps='D', epsilon_specified=1),
+                 fluids.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, meter_type='ISO 5167 orifice', taps='D', epsilon_specified=1))
+
 @mark_as_numba
 def test_misc_core():
     # All these had issues
