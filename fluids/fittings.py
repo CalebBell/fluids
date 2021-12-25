@@ -54,8 +54,8 @@ Bends
 .. autofunction:: helix
 .. autofunction:: spiral
 
-Contractions
-------------
+Contractions/Reducers
+---------------------
 .. autofunction:: contraction_sharp
 .. autofunction:: contraction_round
 .. autofunction:: contraction_round_Miller
