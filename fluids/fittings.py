@@ -2273,7 +2273,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         given), [m]
     method : str, optional
         The method to use for the calculation; one of 'Rennels', 'Idelchik',
-        'Crane', 'Swamee' 'Hooper', or 'Blevins', [-]
+        'Crane', 'Swamee' 'Hooper', 'Miller', or 'Blevins', [-]
 
     Returns
     -------
