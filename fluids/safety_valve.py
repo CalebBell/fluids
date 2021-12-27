@@ -293,7 +293,11 @@ def API520_N(P1):
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
     P1 = P1/1000. # Pa to kPa
-    return (0.02764*P1-1000.)/(0.03324*P1-1061)
+    if P1 =< 10339:
+        KN = 1
+    else:
+        KN = (0.02764*P1-1000.)/(0.03324*P1-1061)
+    return KN
 
 
 _KSH_psigs = [15, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260,
