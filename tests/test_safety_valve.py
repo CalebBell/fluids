@@ -45,7 +45,7 @@ def test_safety_valve():
     assert_close1d(Kv_calcs, Kvs)
 
     KN = API520_N(1774700)
-    assert_close(KN, 0.9490406958152466)
+    assert_close(KN, 1)
 
     with pytest.raises(Exception):
         API520_SH(593+273.15, 21E6)

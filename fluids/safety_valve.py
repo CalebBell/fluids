@@ -258,6 +258,8 @@ def API520_Kv(Re):
 def API520_N(P1):
     r'''Calculates correction due to steam pressure for steam flow for use in
     API 520 relief valve sizing.
+    
+    For pressures below 10339 kPa, the correction factor is 1.
 
     .. math::
         K_N = \frac{0.02764P_1-1000}{0.03324P_1-1061}
@@ -283,18 +285,17 @@ def API520_N(P1):
 
     Examples
     --------
-    Custom example:
 
-    >>> API520_N(1774700)
-    0.9490406958152466
+    >>> API520_N(10500e3)
+    0.9969100255
 
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
-    P1 = P1/1000. # Pa to kPa
-    if P1 =< 10339:
-        KN = 1
+    P1 = P1*1e-3 # Pa to kPa
+    if P1 <= 10339:
+        KN = 1.0
     else:
         KN = (0.02764*P1-1000.)/(0.03324*P1-1061)
     return KN
