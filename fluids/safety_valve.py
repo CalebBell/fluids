@@ -294,10 +294,10 @@ def API520_N(P1):
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
     P1 = P1*1e-3 # Pa to kPa
-    if P1 <= 10339:
+    if P1 <= 10339.0:
         KN = 1.0
     else:
-        KN = (0.02764*P1-1000.)/(0.03324*P1-1061)
+        KN = (0.02764*P1 - 1000.)/(0.03324*P1 - 1061.0)
     return KN
 
 
