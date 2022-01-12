@@ -23,7 +23,9 @@ SOFTWARE.'''
 from __future__ import division
 from fluids.safety_valve import *
 from fluids.numerics import assert_close, assert_close1d
+from fluids.constants import atm
 import pytest
+
 
 
 def test_safety_valve():
@@ -64,6 +66,9 @@ def test_safety_valve():
     B_calc = [API520_B(1E6, 3E5), API520_B(1E6, 5E5), API520_B(1E6, 5E5, overpressure=.16), API520_B(1E6, 5E5, overpressure=.21)]
     Bs = [1, 0.7929945420944432, 0.94825439189912, 1]
     assert_close1d(B_calc, Bs)
+    
+    # Issue # 45
+    assert 1 == API520_B(2*atm, 1.5*atm, overpressure=.21)
 
     with pytest.raises(Exception):
         API520_B(1E6, 5E5, overpressure=.17)
