@@ -533,7 +533,7 @@ def API520_B(Pset, Pback, overpressure=0.1):
         raise ValueError('Only overpressure of 10%, 16%, or 21% are permitted')
     if (overpressure == 0.1 and gauge_backpressure < 30.0) or (
         overpressure == 0.16 and gauge_backpressure < 38.0) or (
-        overpressure == 0.21 and gauge_backpressure < 50.0):
+        overpressure == 0.21 and gauge_backpressure <= 50.0):
         return 1.0
     elif gauge_backpressure > 50.0:
         raise ValueError('Gauge pressure must be < 50%')
