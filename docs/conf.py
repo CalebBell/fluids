@@ -77,8 +77,13 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Fluids'
+import os
+import time
 import datetime
-copyright = u'2016 - %s, Caleb Bell <Caleb.Andrew.Bell@gmail.com>' %datetime.datetime.now().year
+build_date = datetime.datetime.utcfromtimestamp(
+    int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))
+)
+copyright = u'2016 - %s, Caleb Bell <Caleb.Andrew.Bell@gmail.com>' % build_date.year
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
