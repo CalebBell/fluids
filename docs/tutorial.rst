@@ -1486,10 +1486,10 @@ arithmetic mean diameter; Sauter mean diameter; and De Brouckere diameter.
 1857.788857205
 >>> psd.mean_size(1, 0)
 1459.372565067
->>> psd.mean_size(1, 2)
-1857.788857205
->>> psd.mean_size(1, 3)
-2053.27039773
+>>> psd.mean_size(3, 2)
+2269.321031745
+>>> psd.mean_size(4, 3)
+2670.751954612
 
 An interpolated distribution exists underneath the discrete data to allow useful 
 properties to be calculated, such as the D10 or D90:
