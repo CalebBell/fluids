@@ -98,7 +98,7 @@ from math import sqrt, cos, sin, tan, atan, pi, radians, exp, acos, log10, log
 from fluids.friction import friction_factor
 from fluids.core import Froude_densimetric
 from fluids.numerics import interp, secant, brenth, NotBoundedError, implementation_optimize_tck, bisplev
-from fluids.constants import g, inch, inch_inv, pi_inv
+from fluids.constants import g, inch, inch_inv, pi_inv, root_two
 
 __all__ = ['C_Reader_Harris_Gallagher',
            'differential_pressure_meter_solver',
@@ -2741,11 +2741,19 @@ def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=
     if k is None and epsilon_specified is not None:
         k = 1.4
     if m is None and D is not None and D2 is not None and P1 is not None and P2 is not None:
+        # Initialize via analytical formulas
+        C_guess = 0.7
+        D4 = D*D
+        D4 *= D4
+        D24 = D2*D2
+        D24 *= D24
+        m_guess = root_two*pi*C_guess*D2*D2*sqrt(D4*rho*(P1 - P2)/(D4 - D24))*0.25
+        m_D_guess = m_guess/D
         # Diameter to mass flow ratio
-        m_D_guess = 40
-        if rho < 100.0:
-            m_D_guess *= 1e-2
-        return secant(err_dp_meter_solver_m, m_D_guess, args=(D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified))*D
+        # m_D_guess = 40
+        # if rho < 100.0:
+        #     m_D_guess *= 1e-2
+        return secant(err_dp_meter_solver_m, m_D_guess, args=(D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified), low=1e-40)*D
     elif D2 is None and D is not None and m is not None and P1 is not None and P2 is not None:
         args = (D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified)
         try:

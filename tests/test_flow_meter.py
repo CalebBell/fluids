@@ -825,7 +825,15 @@ def test_differential_pressure_meter_C_epsilon():
         meter_type=HOLLINGSHEAD_WEDGE)
     assert_close(C, 0.7002380207294499)
 
-
+def test_issue_49():
+    kwargs = {'D': 0.36,  'rho': 39.6, 'mu': 1.32e-05, 'k': 1.3,'D2': 0.28,'P1': 5000000.0,
+                 'P2': 4995000.0, 'meter_type': 'long radius nozzle'}
+    
+    massflow = differential_pressure_meter_solver(kwargs['D'], kwargs['rho'],
+                                                                    kwargs['mu'], kwargs['k'],
+                                                                    kwargs['D2'], kwargs['P1'],
+                                                                kwargs['P2'], meter_type=kwargs['meter_type'])
+    assert_close(massflow, 48.36465032864742)
 
 @pytest.mark.fuzz
 @pytest.mark.slow
