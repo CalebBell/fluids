@@ -617,7 +617,7 @@ def vacuum_air_leakage_Ryans_Croll(V, P, P_atm=101325.0):
         W = 0.106V^{0.6}
         
         
-    In the above equation, the units are lb/hour, torr, and cubic feet;
+    In the above equation, the units are lb/hour, torr (vacuum), and cubic feet;
     they are converted in this function.
 
     Parameters
@@ -674,7 +674,7 @@ def vacuum_air_leakage_Seider(V, P, P_atm=101325.0):
         0.0298 + 0.03088\ln P - 0.0005733(\ln P)^2
         \right]V^{0.66}
         
-    In the above equation, the units are lb/hour, torr, and cubic feet;
+    In the above equation, the units are lb/hour, torr (vacuum), and cubic feet;
     they are converted in this function.
 
     Parameters

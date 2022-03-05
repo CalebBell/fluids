@@ -282,9 +282,10 @@ def test_vacuum_air_leakage_Seider():
 
 def test_vacuum_air_leakage_Coker_Worthington():
     from fluids.constants import inchHg
-    for P in (9, 6, 4, 2.5, 1):
+    pressures = (atm-700*mmHg, atm-100*mmHg, atm-50*mmHg, atm-4*mmHg, atm-2*mmHg, atm-.5*mmHg, atm-6*inchHg, 10000)
+    for P in pressures:
         for b in (True, False):
-            vacuum_air_leakage_Coker_Worthington(P*inchHg, b)
+            vacuum_air_leakage_Coker_Worthington(P, P_atm=101325.0, conservative=b)
             
     # Check that lower operating pressures have higher air leaks
     
@@ -315,6 +316,9 @@ def test_vacuum_air_leakage_Ryans_Croll():
     l = vacuum_air_leakage_Ryans_Croll(100, 99000)
     assert_close(l, 0.0011404637061758096)
     
+    l = vacuum_air_leakage_Ryans_Croll(100, 99900, P_atm=1e5)
+    assert_close(l, 0.00039961577892830735)
+
     assert vacuum_air_leakage_Ryans_Croll(10, 94000) > vacuum_air_leakage_Ryans_Croll(10, 95000) 
     
     l = vacuum_air_leakage_Ryans_Croll(10, 70000)
@@ -322,3 +326,5 @@ def test_vacuum_air_leakage_Ryans_Croll():
     
     l = vacuum_air_leakage_Ryans_Croll(100, 300)
     assert_close(l, 0.0017965618461104518)
+    
+    
