@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 This module contains a model for a jet pump, also known as an eductor or an
- ejector.
+ejector.
 
 For reporting bugs, adding feature requests, or submitting pull requests,
 please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
@@ -37,14 +37,24 @@ Objective Function
 ------------------
 .. autofunction:: liquid_jet_pump_ancillary
 
+Vacuum Air Leakage Estimation
+-----------------------------
+.. autofunction:: vacuum_air_leakage_HEI2633
+.. autofunction:: vacuum_air_leakage_Ryans_Croll
+.. autofunction:: vacuum_air_leakage_Coker_Worthington
+.. autofunction:: vacuum_air_leakage_Seider
+
 """
 
 from __future__ import division
-from math import log, pi, sqrt
+from math import log, pi, sqrt, exp
+from fluids.constants import foot_cubed_inv, torr_inv, mmHg_inv, lb, hour_inv, inchHg
 from fluids.numerics import brenth, secant, numpy as np
 
 
-__all__ = ['liquid_jet_pump', 'liquid_jet_pump_ancillary']
+__all__ = ['liquid_jet_pump', 'liquid_jet_pump_ancillary',
+           'vacuum_air_leakage_Seider', 'vacuum_air_leakage_Coker_Worthington',
+           'vacuum_air_leakage_HEI2633', 'vacuum_air_leakage_Ryans_Croll']
 
 
 def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
@@ -585,3 +595,246 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
                     except:
                         pass
         raise ValueError('Could not solve')
+        
+        
+def vacuum_air_leakage_Ryans_Croll(V, P, P_atm=101325.0):
+    r'''Calculates an estimated leakage of air into a vessel using
+    a correlation from Ryans and Croll (1981) [1]_ as given in [2]_ and [3]_.
+    
+    if P < 10 torr:
+        
+    .. math::
+        W = 0.026P^{0.34}V^{0.6}
+
+    if P < 100 torr:
+        
+    .. math::
+        W = 0.032P^{0.26}V^{0.6}
+    
+    else:
+        
+    .. math::
+        W = 0.106V^{0.6}
+        
+        
+    In the above equation, the units are lb/hour, torr, and cubic feet;
+    they are converted in this function.
+
+    Parameters
+    ----------
+    V : float
+        Vessel volume, [m^3]
+    P : float
+        Vessel actual absolute operating pressure - less than `P_atm`!, [Pa]
+    P_atm : float, optional
+        The atmospheric pressure surrounding the vessel, [Pa]
+
+    Returns
+    -------
+    m : float
+        Air leakage flow rate, [kg/s]
+
+    Notes
+    -----
+    No limits are applied to this function.
+
+    Examples
+    --------
+    >>> vacuum_air_leakage_Ryans_Croll(10, 10000)
+    0.0004512
+
+    References
+    ----------
+    .. [1] Ryans, J. L. and Croll, S. "Selecting Vacuum Systems," 1981.
+    .. [2] Coker, Kayode. Ludwig's Applied Process Design for Chemical and
+       Petrochemical Plants. 4 edition. Amsterdam ; Boston: Gulf Professional
+       Publishing, 2007.
+    .. [3] Govoni, Patrick. "An Overview of Vacuum System Design" 
+       Chemical Engineering Magazine, September 2017.
+    '''
+    V *= foot_cubed_inv
+    P *= torr_inv
+    P_atm *= torr_inv
+    P_vacuum = P_atm - P
+    if P_vacuum < 10:
+        air_leakage = 0.026*P_vacuum**0.34*V**0.6
+    elif P_vacuum < 100:
+        air_leakage = 0.032*P_vacuum**0.26*V**0.6
+    else:
+        air_leakage = 0.106*V**0.6
+    leakage = air_leakage*lb*hour_inv
+    return leakage
+
+def vacuum_air_leakage_Seider(V, P, P_atm=101325.0):
+    r'''Calculates an estimated leakage of air into a vessel using
+    a correlation from Seider [1]_.
+
+    .. math::
+        W = 5 + \left[
+        0.0298 + 0.03088\ln P - 0.0005733(\ln P)^2
+        \right]V^{0.66}
+        
+    In the above equation, the units are lb/hour, torr, and cubic feet;
+    they are converted in this function.
+
+    Parameters
+    ----------
+    V : float
+        Vessel volume, [m^3]
+    P : float
+        Vessel actual absolute operating pressure - less than `P_atm`!, [Pa]
+    P_atm : float, optional
+        The atmospheric pressure surrounding the vessel, [Pa]
+
+    Returns
+    -------
+    m : float
+        Air leakage flow rate, [kg/s]
+
+    Notes
+    -----
+    This formula is rough.
+
+    Examples
+    --------
+    >>> vacuum_air_leakage_Seider(10, 10000)
+    0.0018775547
+
+    References
+    ----------
+    .. [1] Seider, Warren D., J. D. Seader, and Daniel R. Lewin. 
+       Product and Process Design Principles: Synthesis, Analysis,
+       and Evaluation. 2nd edition. New York: Wiley, 2003.
+    '''
+    P *= torr_inv
+    P_atm *= torr_inv
+    P_vacuum = P_atm - P
+    V *= foot_cubed_inv
+    lnP = log(P_vacuum)
+    leakage_lb_hr = 5.0 + (0.0289 + 0.03088*lnP - 0.0005733*lnP*lnP)*V**0.66
+    leakage = leakage_lb_hr*lb*hour_inv
+    return leakage
+
+def vacuum_air_leakage_HEI2633(V, P, P_atm=101325.0):
+    r'''Calculates an estimated leakage of air into a vessel using
+    fits to a graph of HEI-2633-00 for air leakage in commercially `tight`
+    vessels [1]_.
+    
+    There are 5 fits, for < 1 mmHg; 1-3 mmHg; 3-20 mmHg, 20-90 mmHg, and
+    90 mmHg to atmospheric. The fits are for `maximum` air leakage. 
+    
+    Actual values may be significantly larger or smaller depending on the 
+    condition of the seals, manufacturing defects, and the application.
+
+
+    Parameters
+    ----------
+    V : float
+        Vessel volume, [m^3]
+    P : float
+        Vessel actual absolute operating pressure - less than `P_atm`!, [Pa]
+    P_atm : float, optional
+        The atmospheric pressure surrounding the vessel, [Pa]
+
+    Returns
+    -------
+    m : float
+        Air leakage flow rate, [kg/s]
+
+    Notes
+    -----
+    The volume is capped to 10 ft^3 on the low end, but extrapolation past
+    the maximum size of 10000 ft^3 is allowed.
+    
+    It is believed :obj:`vacuum_air_leakage_Seider` was derived from this data,
+    so this function should be used in preference to it.
+
+    Examples
+    --------
+    >>> vacuum_air_leakage_HEI2633(10, 10000)
+    0.001186252403781038
+
+    References
+    ----------
+    .. [1] "Standards for Steam Jet Vacuum Systems", 5th Edition
+    '''
+    P_atm *= mmHg_inv
+    P *= mmHg_inv
+    P_vacuum = P_atm - P
+    V *= foot_cubed_inv
+    if V < 10:
+        V = 10.0
+    logV = log(V)
+    
+    if P_vacuum <= 1:
+        c0, c1 = 0.6667235169997174, -3.71246576520232
+    elif P_vacuum <= 3:
+        c0, c1 = 0.664489357445796, -3.0147277548691274
+    elif P_vacuum <= 20:
+        c0, c1 = 0.6656780453394583, -2.34007321331419
+    elif P_vacuum <= 90:
+        c0, c1 = 0.663080000739313, -1.9278288516732665
+    else:
+        c0, c1 = 0.6658471905826482, -1.6641585778506027
+    leakage_lb_hr = exp(c1 + logV*c0)
+    leakage = leakage_lb_hr*lb*hour_inv
+    return leakage
+
+def vacuum_air_leakage_Coker_Worthington(P, P_atm=101325.0, conservative=True):
+    r'''Calculates an estimated leakage of air into a vessel using
+    a tabular lookup from Coker cited as being from Worthington Corp's
+    1955 Steam-Jet Ejector Application Handbook, Bulletin W-205-E21 [1]_.
+
+    Parameters
+    ----------
+    P : float
+        Vessel actual absolute operating pressure - less than `P_atm`!, [Pa]
+    P_atm : float, optional
+        The atmospheric pressure surrounding the vessel, [Pa]
+    conservative : bool
+        Whether to use the high values or low values in the table, [-]
+
+    Returns
+    -------
+    m : float
+        Air leakage flow rate, [kg/s]
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> vacuum_air_leakage_Coker_Worthington(10000)
+    0.005039915222222222
+
+    References
+    ----------
+    .. [1] Coker, Kayode. Ludwig's Applied Process Design for Chemical and
+       Petrochemical Plants. 4 edition. Amsterdam ; Boston: Gulf Professional
+       Publishing, 2007.
+    '''
+    
+    P /= inchHg # convert to inch Hg
+    P_atm /= inchHg # convert to inch Hg
+    P_vacuum = P_atm - P
+    if conservative:
+        if P_vacuum > 8:
+            leakage = 40
+        elif P_vacuum > 5:
+            leakage = 30
+        elif P_vacuum > 3:
+            leakage = 25
+        else:
+            leakage = 20
+    else:
+        if P_vacuum > 8:
+            leakage = 30
+        elif P_vacuum > 5:
+            leakage = 25
+        elif P_vacuum > 3:
+            leakage = 20
+        else:
+            leakage = 10
+    leakage = leakage*lb*hour_inv
+    return leakage
+
