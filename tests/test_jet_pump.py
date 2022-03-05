@@ -22,6 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from fluids import *
+from fluids.constants import mmHg, atm
 from fluids.numerics import linspace, assert_close, assert_close1d
 import pytest
 
@@ -268,3 +269,62 @@ def test_liquid_jet_pump_examples_round_robin_Ex3():
     same, different = validate_liquid_jet_pump(nozzle_retracted=nozzle_retracted, d_diffuser=d_diffuser,rhop=rhop, rhos=rhos, Km=Km, Kd=Kd, Ks=Ks, Kp=Kp, solution_vars=expected, full=True)
     assert same > 15
 del test_liquid_jet_pump_examples_round_robin_Ex3
+
+
+def test_vacuum_air_leakage_Seider():
+    flow = vacuum_air_leakage_Seider(10, 10000)
+    assert_close(flow, 0.0018775547320870965)
+    
+    # Check that lower operating pressures have higher air leaks
+    assert vacuum_air_leakage_Seider(10, 90000) > vacuum_air_leakage_Seider(10, 95000)
+    assert vacuum_air_leakage_Seider(10, 9000) > vacuum_air_leakage_Seider(10, 9500)
+    assert vacuum_air_leakage_Seider(10, 900) > vacuum_air_leakage_Seider(10, 950)
+
+def test_vacuum_air_leakage_Coker_Worthington():
+    from fluids.constants import inchHg
+    pressures = (atm-700*mmHg, atm-100*mmHg, atm-50*mmHg, atm-4*mmHg, atm-2*mmHg, atm-.5*mmHg, atm-6*inchHg, 10000)
+    for P in pressures:
+        for b in (True, False):
+            vacuum_air_leakage_Coker_Worthington(P, P_atm=101325.0, conservative=b)
+            
+    # Check that lower operating pressures have higher air leaks
+    
+    assert vacuum_air_leakage_Coker_Worthington(10000) > vacuum_air_leakage_Coker_Worthington(80000)
+    flow = vacuum_air_leakage_Coker_Worthington(10000)
+    assert_close(flow, 0.005039915222222222)
+    
+    
+def test_vacuum_air_leakage_HEI2633():
+    l = vacuum_air_leakage_HEI2633(10, 10000)
+    assert_close(l, 0.001186252403781038, rtol=1e-4)
+    
+    pressures = (atm-700*mmHg, atm-100*mmHg, atm-50*mmHg, atm-4*mmHg, atm-2*mmHg, atm-.5*mmHg)
+    for p in pressures:
+        assert vacuum_air_leakage_HEI2633(.1, p) == vacuum_air_leakage_HEI2633(.2, p)
+        
+    values = []
+    for p in pressures:
+        values.append(vacuum_air_leakage_HEI2633(6, p))
+    values_expect = [0.0008442279742808746, 0.0008442279742808746, 0.0006390170057983002, 0.00042906223685548387, 0.0002171483498876099, 0.0001093779195609018]
+    assert_close1d(values, values_expect, rtol=1e-4)
+
+
+def test_vacuum_air_leakage_Ryans_Croll():
+    l = vacuum_air_leakage_Ryans_Croll(10, 10000)
+    assert_close(l, 0.0004512759324612646)
+    
+    l = vacuum_air_leakage_Ryans_Croll(100, 99000)
+    assert_close(l, 0.0011404637061758096)
+    
+    l = vacuum_air_leakage_Ryans_Croll(100, 99900, P_atm=1e5)
+    assert_close(l, 0.00039961577892830735)
+
+    assert vacuum_air_leakage_Ryans_Croll(10, 94000) > vacuum_air_leakage_Ryans_Croll(10, 95000) 
+    
+    l = vacuum_air_leakage_Ryans_Croll(10, 70000)
+    assert_close(0.0004512759324612646, l)
+    
+    l = vacuum_air_leakage_Ryans_Croll(100, 300)
+    assert_close(l, 0.0017965618461104518)
+    
+    

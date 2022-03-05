@@ -97,6 +97,7 @@ arcsec = arcsecond = arcmin / 60.0
 # time in second
 minute = 60.0
 hour = 60.0 * minute
+hour_inv = 1.0/hour
 day = 24.0 * hour
 week = 7.0 * day
 year = 365.0 * day
@@ -106,6 +107,8 @@ Julian_year = 365.25 * day
 inch = 0.0254
 inch_inv = 1.0/inch
 foot = 12 * inch
+foot_cubed = foot*foot*foot
+foot_cubed_inv = 1.0/foot_cubed
 yard = 3 * foot
 mile = 1760 * yard
 mil = 0.001*inch 
@@ -124,6 +127,8 @@ parsec = au / arcsec
 atm = atmosphere = 101325.0
 bar = 1e5
 torr = mmHg = atm / 760
+inchHg = mmHg*inch*1000
+torr_inv = 1.0/torr
 psi = pound * g / (inch * inch)
 
 atm_inv = atmosphere_inv = 1.0/atm
