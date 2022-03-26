@@ -1495,7 +1495,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     --------
     >>> integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.5,
     ... V=30, distance=True)
-    (9.686465044053, 7.8294546436299)
+    (9.68646, 7.82945)
 
     References
     ----------
