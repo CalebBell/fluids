@@ -3173,29 +3173,29 @@ class TANK(object):
     Height of liquid for a given volume:
 
     >>> TANK(D=1.2, L=4, horizontal=False).h_from_V(.5)
-    0.4420970641441539
+    0.442097064
 
     Surface area of a tank with a conical head:
 
     >>> T1 = TANK(V=10, L_over_D=0.7, sideB='conical', sideB_a=0.5)
     >>> T1.A, T1.A_sideA, T1.A_sideB, T1.A_lateral
-    (24.94775907657148, 5.118555935958284, 5.497246519930003, 14.331956620683192)
+    (24.94775907, 5.118555, 5.497246, 14.331956)
 
     Solving for tank volumes, first horizontal, then vertical:
 
     >>> TANK(D=10., horizontal=True, sideA='conical', sideB='conical', V=500).L
-    4.699531057009147
+    4.699531
     >>> TANK(L=4.69953105701, horizontal=True, sideA='conical', sideB='conical', V=500).D
-    9.999999999999408
+    9.9999999
     >>> TANK(L_over_D=0.469953105701, horizontal=True, sideA='conical', sideB='conical', V=500).L
-    4.699531057009791
+    4.6995310
 
     >>> TANK(D=10., horizontal=False, sideA='conical', sideB='conical', V=500).L
-    4.699531057009147
+    4.699531
     >>> TANK(L=4.69953105701, horizontal=False, sideA='conical', sideB='conical', V=500).D
-    9.999999999999407
+    9.99999999
     >>> TANK(L_over_D=0.469953105701, horizontal=False, sideA='conical', sideB='conical', V=500).L
-    4.699531057009791
+    4.699531057
     """
     table = False
     chebyshev = False

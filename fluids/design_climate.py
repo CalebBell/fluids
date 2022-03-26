@@ -740,7 +740,12 @@ def get_station_year_text(WMO, WBAN, year, data_dir_override=None):
             if data and data != 'Exception':
                 return data
             else:
-                raise ValueError(data)
+                # Remove the bad file and try to redownload it
+                try:
+                    os.remove(path)
+                except:
+                    pass
+                # raise ValueError(data)
 
     toget = ('ftp://ftp.ncdc.noaa.gov/pub/data/gsod/' + str(year) + '/'
              + station + '-' + str(year) +'.op.gz')
