@@ -789,7 +789,7 @@ def central_diff_weights(points, divisions=1):
 
 
 def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True,
-               lower_limit=None, upper_limit=None):
+               lower_limit=None, upper_limit=None, kwargs={}):
     """Reimplementation of SciPy's derivative function, with more cached
     coefficients and without using numpy. If new coefficients not cached are
     needed, they are only calculated once and are remembered.
@@ -814,12 +814,12 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True,
         tot = 0.0
         for k in range(order):
             if weights[k] != 0.0:
-                tot += weights[k]*func(x0 + (k - ho)*dx, *args)
+                tot += weights[k]*func(x0 + (k - ho)*dx, *args, **kwargs)
         return tot*denominator
     else:
         numerators = None
         for k in range(order):
-            f = func(x0 + (k - ho)*dx, *args)
+            f = func(x0 + (k - ho)*dx, *args, **kwargs)
             if numerators is None:
                 N = len(f)
                 numerators = [0.0]*N
