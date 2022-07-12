@@ -611,6 +611,10 @@ def tets_ATMOSPHERE_1976():
 
     assert_close(fluids.numba.atmosphere.airmass(my_int, 90.0),
                  fluids.atmosphere.airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90))
+    
+    
+    assert_close(fluids.numba.atmosphere.ATMOSPHERE_1976.pressure_integral(300, 1e5, 10),
+                 fluids.atmosphere.ATMOSPHERE_1976.pressure_integral(300, 1e5, 10))
 
 @mark_as_numba
 def test_misc_geometry():

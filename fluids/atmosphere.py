@@ -92,10 +92,10 @@ g0 = 9.80665
 gamma = 1.400
 
 def H_for_P_ATMOSPHERE_1976_err(H, P1):
-    return ATMOSPHERE_1976(H).P - P1
+    return ATMOSPHERE_1976(H, 0.0).P - P1
 
 def to_int_dP_ATMOSPHERE_1976(Z, dT):
-    atm = ATMOSPHERE_1976(Z, dT=dT)
+    atm = ATMOSPHERE_1976(Z, dT)
     return atm.g*atm.rho
 
 class ATMOSPHERE_1976(object):
@@ -340,7 +340,7 @@ class ATMOSPHERE_1976(object):
         H_ref = brenth(H_for_P_ATMOSPHERE_1976_err, -610.0, 86000.0, args=(P1,))
 
         # Compute the temperature delta
-        dT = T1 - ATMOSPHERE_1976(H_ref).T
+        dT = T1 - ATMOSPHERE_1976(H_ref, 0.0).T
 
         return quad(to_int_dP_ATMOSPHERE_1976, H_ref, H_ref+dH, args=(dT,))[0]
 
