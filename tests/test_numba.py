@@ -425,6 +425,9 @@ def test_misc_compressible():
 def test_misc_compressible_isothermal_gas():
     assert_close(fluids.numba.isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, m=145.48475726),
                  fluids.isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, m=145.48475726))
+    
+    # the below used to work in numba not anymore
+    # isothermal_gas(rho=11.3, fd=0.00185, m=145.4847572636031, P2=9E5, L=1000, D=0.5)
 
 @mark_as_numba
 def test_misc_control_valve():

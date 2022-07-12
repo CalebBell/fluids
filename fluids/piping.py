@@ -566,6 +566,32 @@ schedule_lookup = { '40': (NPS40, S40i, S40o, S40t),
                     'DR7F2619IPS': (NPSDR7_F2619, SDR7i_F2619IPS, SDR7o_F2619IPS, SDR7t_F2619IPS),
                     }
 
+def Di_lookup(Di, NPSes, Dis, Dos, ts):
+    for i in range(len(Dis)): # Go up ascending list; once larger than specified, return
+        if Dis[-1] < Di:
+            return None
+        if Dis[i] >= Di:
+            _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
+            return (_nps, _di, _do, _t)
+    raise ValueError('Di lookup failed')
+
+def Do_lookup(Do, NPSes, Dis, Dos, ts):
+    for i in range(len(Dos)): # Go up ascending list; once larger than specified, return
+        if Dos[-1] < Do:
+            return None
+        if Dos[i] >= Do:
+            _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
+            return (_nps, _di, _do, _t)
+    raise ValueError('Do lookup failed')
+
+def NPS_lookup(NPS, NPSes, Dis, Dos, ts):
+    for i in range(len(NPSes)): # Go up ascending list; once larger than specified, return
+        if NPSes[i] == NPS:
+            _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
+            return (_nps, _di, _do, _t)
+    raise ValueError('NPS not in list')
+
+
 
 def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     r'''Searches for and finds the nearest standard pipe size to a given
@@ -674,32 +700,6 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     if NPS:
         NPS = float(NPS)
 
-    def Di_lookup(Di, NPSes, Dis, Dos, ts):
-        for i in range(len(Dis)): # Go up ascending list; once larger than specified, return
-            if Dis[-1] < Di:
-                return None
-            if Dis[i] >= Di:
-                _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
-                return (_nps, _di, _do, _t)
-        raise ValueError('Di lookup failed')
-
-    def Do_lookup(Do, NPSes, Dis, Dos, ts):
-        for i in range(len(Dos)): # Go up ascending list; once larger than specified, return
-            if Dos[-1] < Do:
-                return None
-            if Dos[i] >= Do:
-                _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
-                return (_nps, _di, _do, _t)
-        raise ValueError('Do lookup failed')
-
-    def NPS_lookup(NPS, NPSes, Dis, Dos, ts):
-        for i in range(len(NPSes)): # Go up ascending list; once larger than specified, return
-            if NPSes[i] == NPS:
-                _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
-                return (_nps, _di, _do, _t)
-        raise ValueError('NPS not in list')
-
-
     # If accidentally given an numerical schedule, convert it to a string
     schedule_type = type(schedule)
     if schedule_type in (int, float):
@@ -711,11 +711,11 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
         NPSes, Dis, Dos, ts = schedule_lookup[schedule]
 
     # Handle the three cases of different inputs
-    if Di:
+    if Di is not None:
         nums = Di_lookup(Di, NPSes, Dis, Dos, ts)
-    elif Do:
+    elif Do is not None:
         nums = Do_lookup(Do, NPSes, Dis, Dos, ts)
-    elif NPS:
+    elif NPS is not None:
         nums = NPS_lookup(NPS, NPSes, Dis, Dos, ts)
 
     if nums is None:
