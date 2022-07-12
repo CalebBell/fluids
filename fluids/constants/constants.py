@@ -183,3 +183,5 @@ rad2deg = 57.295779513082320877# Multiple an angle in radians by this to get deg
 
 
 root_two = 1.4142135623730951
+
+ln_10 = _math.log(10)
