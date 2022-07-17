@@ -209,6 +209,21 @@ def test_quadratic_from_f_ders():
     assert_close(d1_new, d1, rtol=5e-3)
 
 
+def test_roots_quadratic():
+    a, b, c = 1,2,3
+    v0, v1 = roots_quadratic(a, b, c)
+    if v0.imag < v1.imag:
+        v1, v0 = v0, v1
+    assert_close(v0, -1+1.4142135623730951j)
+    assert_close(v1, -1-1.4142135623730951j)
+    
+    a, b, c = .1,2,3
+    v0, v1 = roots_quadratic(a, b, c)
+    if v0.real < v1.real:
+        v1, v0 = v0, v1
+    assert_close(v0, -1.6333997346592444)
+    assert_close(v1, -18.366600265340757)
+    
 
 def test_interp():
     from fluids.numerics import interp

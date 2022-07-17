@@ -48,7 +48,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'broyden2', 'basic_damping', 'solve_2_direct', 'solve_3_direct',
            'solve_4_direct', 'sincos', 'horner_and_der4',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
-           'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2',
+           'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2', 'roots_quadratic',
            'numpy', 'nquad', 'catanh', 'factorial',
            'polyint_over_x', 'horner_log', 'polyint',
            'chebder', 'chebint', 'exp_cheb',
@@ -291,6 +291,21 @@ four_thirds = 4.0/3.0
 root_three = 1.7320508075688772 # sqrt(3.0)
 one_27 = 1.0/27.0
 complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
+
+def roots_quadratic(a, b, c):
+    if a == 0.0:
+        return (-c/b, )
+    D = b*b - 4.0*a*c
+    a_inv_2 = 0.5/a
+    if D < 0.0:
+        D = sqrt(-D)
+        x1 = (-b + D*1.0j)*a_inv_2
+        x2 = (-b - D*1.0j)*a_inv_2
+    else:
+        D = sqrt(D)
+        x1 = (D - b)*a_inv_2
+        x2 = -(b + D)*a_inv_2
+    return (x1, x2)
 
 
 def roots_cubic_a1(b, c, d):
@@ -1795,7 +1810,7 @@ def quadratic_from_points(x0, x1, x2, f0, f1, f2):
     a = v7*(v1 + v2 - v3)
     b = -v7*(f0*(v6 + v8) - f1*(v5 + v8) + f2*(v5 - v6))
     c = v7*(v1*x1*x2 + v2*x0*x1 - v3*x0*x2)
-    return [a, b, c]
+    return (a, b, c)
 
 
 
@@ -3206,11 +3221,17 @@ def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8,
         raise ValueError("The initial points have the same value, cannot start the search")
     if y1 == y_flat:
         raise ValueError("The second point is also flat, cannot start the search")
+        
+    # store some other points for higher order steps
+    x2 = x3 = y2 = y3 = None
 
     for i in range(maxiter):
         # guess the new value based on the two points
-        step = - y1*(x1 - x0)/(y1 - y0)*damping
-        print(f'Secant desired point:  x={x1 + step}')
+        if x2 is not None:
+            a, b, c = quadratic_from_points(x0, x1, x2, y0, y1, y2)
+        else:
+            step = - y1*(x1 - x0)/(y1 - y0)*damping
+            print(f'Secant desired point:  x={x1 + step}')
         
         force_line_search = x_flat >= (x1 + step)
         if not force_line_search:
@@ -3249,8 +3270,8 @@ def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8,
                 return x
             
         # change the points around, forgetting about one of the values
-        x0, x1 = x, x0
-        y0, y1 = y, y0
+        x0, x1, x2, x3 = x, x0, x1, x2
+        y0, y1, y2, y3 = y, y0, y1, y2
     raise UnconvergedError("Failed to converge", iterations=i, point=x, err=y)
 
 def halley_compat_numba(func, x, *args):
