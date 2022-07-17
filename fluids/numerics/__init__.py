@@ -3201,10 +3201,13 @@ for i in range(10):
 tmp.sort(reverse=True)
 line_search_factors.extend(tmp)
 
+line_search_factors_low_prec = line_search_factors[3:]
+
 
 def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8, 
                      ytol=None, require_xtol=True, damping=1.0, x1=None, 
-                     y_flat=None, max_quadratic_iter=7, kwargs={}):
+                     y_flat=None, max_quadratic_iter=7, low_prec_ls_iter=3,
+                     kwargs={}):
     if x1 is None:
         if x0 >= 0.0:
             x1 = x0*1.0001 + 1e-4
@@ -3277,7 +3280,7 @@ def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8,
             
         if force_line_search or y == y_flat:
             # Must use linesearch to find a x that gives a working y
-            for line_search_factor in line_search_factors:
+            for line_search_factor in (line_search_factors if i > low_prec_ls_iter else line_search_factors_low_prec):
                 x = x1 + step*line_search_factor
                 force_continue_line_search = x_flat <= x if flat_higher_than_x else x_flat >= x
                 if force_continue_line_search:
