@@ -3279,12 +3279,18 @@ def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8,
             print(f'Secant desired point lower than flat point: x={x1 + step}, x_flat={x_flat}')
             
         if force_line_search or y == y_flat:
+            # If the step is too big (overshoots the known flat point), recalculate it to be the limit
+            if flat_higher_than_x:
+                if x_flat <= (x1 + step):
+                    step = x_flat - x1
+            else:
+                if x_flat >= (x1 + step):
+                    step = x_flat - x1
+            
+            
             # Must use linesearch to find a x that gives a working y
             for line_search_factor in (line_search_factors if i > low_prec_ls_iter else line_search_factors_low_prec):
                 x = x1 + step*line_search_factor
-                force_continue_line_search = x_flat <= x if flat_higher_than_x else x_flat >= x
-                if force_continue_line_search:
-                    continue
                 y = f(x, *args, **kwargs)
                 print(f'Line search: x={x}, y={y}, flat={y==y_flat}, x_flat={x_flat}')
                 if y != y_flat:
