@@ -41,6 +41,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'is_poly_negative', 'is_poly_positive',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 'secant', 'halley',
+           'one_sided_secant',
            'splev', 'bisplev', 'derivative', 'jacobian', 'hessian',
            'normalize', 'oscillation_checker',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
@@ -3169,6 +3170,88 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
 
     raise UnconvergedError("Failed to converge", iterations=i, point=p, err=q1)
 
+# start with 0.99 and try taking powers of two off of 1
+line_search_factors = []
+remove = 0.01
+for i in range(7):
+    line_search_factors.append(1-remove)
+    remove*= 2
+
+# once under 0.36, jump to 0.1 and go down by orders of magnitude to 1e-10
+tmp = []
+remove = 1e-10
+for i in range(10):
+    tmp.append(remove)
+    remove *= 10
+tmp.sort(reverse=True)
+line_search_factors.extend(tmp)
+
+
+def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8, 
+                     ytol=None, require_xtol=True, damping=1.0, x1=None, kwargs={}):
+    if x1 is None:
+        if x0 >= 0.0:
+            x1 = x0*1.0001 + 1e-4
+        else:
+            x1 = x0*1.0001 - 1e-4
+
+    y0 = f(x0, *args, **kwargs)
+    y1 = f(x1, *args, **kwargs)
+    
+    # this is the flat value - all other y values that are flat must be this number
+    y_flat = f(x_flat, *args, **kwargs)
+    if y0 == y_flat:
+        raise ValueError("The initial y value is the same as the value in the zero-derivative region")
+    if y0 == y1:
+        raise ValueError("The initial points have the same value, cannot start the search")
+    if y1 == y_flat:
+        raise ValueError("The second point is also flat, cannot start the search")
+
+    for i in range(maxiter):
+        # guess the new value based on the two points
+        step = - y1*(x1 - x0)/(y1 - y0)*damping
+        print(f'Secant desired point:  x={x1 + step}')
+        
+        force_line_search = x_flat >= (x1 + step)
+        if not force_line_search:
+            x = x1 + step
+            y = f(x, *args, **kwargs)
+            print(f'Iteration: x={x}, y={y}, flat={y==y_flat}')
+        else:
+            print(f'Secant desired point lower than flat point: x={x1 + step}, x_flat={x_flat}')
+            
+        if force_line_search or y == y_flat:
+            # Must use linesearch to find a x that gives a working y
+            for line_search_factor in line_search_factors:
+                x = x1 + step*line_search_factor
+                force_continue_line_search = x_flat >= x
+                if force_continue_line_search:
+                    continue
+                y = f(x, *args, **kwargs)
+                print(f'Line search: x={x}, y={y}, flat={y==y_flat}')
+                if y != y_flat:
+                    break
+                else:
+                    x_flat = x
+                    
+            if y == y_flat:
+                raise ValueError("The line search has finished and no point to continue with was found")
+        # Check if we converged, but note this really requires a ytol as the xtol doesn't work well with lsearch
+        if ytol is not None and xtol is not None:
+            # Meet both tolerance - new value is under ytol, and old value
+            if abs(y) < ytol and (abs(x - x0) <= abs(xtol*x)):
+                return x
+        elif xtol is not None:
+            if abs(x - x0) <= abs(xtol*x):
+                return x
+        elif ytol is not None:
+            if abs(y) < ytol:
+                return x
+            
+        # change the points around, forgetting about one of the values
+        x0, x1 = x, x0
+        y0, y1 = y, y0
+    raise UnconvergedError("Failed to converge", iterations=i, point=x, err=y)
 
 def halley_compat_numba(func, x, *args):
     a, b = func(x, *args)
