@@ -3258,41 +3258,42 @@ def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8,
                         # print('Using quadratic solution', sln[0])
                         step = (sln[0] - x1)
                     has_step = True
-                    print(f'Quadratic desired point:  x={x1 + step}')
+                    # print(f'Quadratic desired point:  x={x1 + step}')
             except:
-                print('Quadratic had a numerical error')
+                # print('Quadratic had a numerical error')
                 pass
         
         # secant can always work
         if not has_step:
             step = - y1*(x1 - x0)/(y1 - y0)*damping
-            print(f'Secant desired point:  x={x1 + step}')
+            # print(f'Secant desired point:  x={x1 + step}')
         
         force_line_search = x_flat <= (x1 + step) if flat_higher_than_x else x_flat >= (x1 + step) 
         if not force_line_search:
             x = x1 + step
             y = f(x, *args, **kwargs)
-            print(f'Iteration: x={x}, y={y}, flat={y==y_flat}')
+            # print(f'Iteration: x={x}, y={y}, flat={y==y_flat}')
             if y == y_flat:
                 x_flat = x
         else:
-            print(f'Secant desired point lower than flat point: x={x1 + step}, x_flat={x_flat}')
+            pass
+            # print(f'Secant desired point lower than flat point: x={x1 + step}, x_flat={x_flat}')
             
         if force_line_search or y == y_flat:
             # If the step is too big (overshoots the known flat point), recalculate it to be the limit
             if flat_higher_than_x:
-                if x_flat <= (x1 + step):
-                    step = x_flat - x1
+                if x_flat <= (x0 + step):
+                    step = x_flat - x0
             else:
-                if x_flat >= (x1 + step):
-                    step = x_flat - x1
+                if x_flat >= (x0 + step):
+                    step = x_flat - x0
             
             
             # Must use linesearch to find a x that gives a working y
             for line_search_factor in (line_search_factors if i > low_prec_ls_iter else line_search_factors_low_prec):
-                x = x1 + step*line_search_factor
+                x = x0 + step*line_search_factor
                 y = f(x, *args, **kwargs)
-                print(f'Line search: x={x}, y={y}, flat={y==y_flat}, x_flat={x_flat}')
+                # print(f'Line search: x={x}, y={y}, flat={y==y_flat}, x_flat={x_flat}')
                 if y != y_flat:
                     break
                 else:
