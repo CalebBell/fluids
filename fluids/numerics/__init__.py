@@ -1805,7 +1805,7 @@ def quadratic_from_points(x0, x1, x2, f0, f1, f2):
     v4 = x2*x2
     v5 = x0*x0
     v6 = x1*x1
-    v7 = 1.0/(v4*x0 - v4*x1 + v5*x1 - v5*x2 - v6*x0 + v6*x2)
+    v7 = 1.0/(v4*x0 + v5*x1 + v6*x2 - (v4*x1  + v5*x2 + v6*x0))
     v8 = -v4
     a = v7*(v1 + v2 - v3)
     b = -v7*(f0*(v6 + v8) - f1*(v5 + v8) + f2*(v5 - v6))
@@ -3203,7 +3203,8 @@ line_search_factors.extend(tmp)
 
 
 def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8, 
-                     ytol=None, require_xtol=True, damping=1.0, x1=None, kwargs={}):
+                     ytol=None, require_xtol=True, damping=1.0, x1=None, 
+                     y_flat=None, max_quadratic_iter=7, kwargs={}):
     if x1 is None:
         if x0 >= 0.0:
             x1 = x0*1.0001 + 1e-4
@@ -3212,9 +3213,12 @@ def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8,
 
     y0 = f(x0, *args, **kwargs)
     y1 = f(x1, *args, **kwargs)
+    flat_higher_than_x = x_flat > x0
     
     # this is the flat value - all other y values that are flat must be this number
-    y_flat = f(x_flat, *args, **kwargs)
+    # we only need to calculate it if not provided
+    if y_flat is None:
+        y_flat = f(x_flat, *args, **kwargs)
     if y0 == y_flat:
         raise ValueError("The initial y value is the same as the value in the zero-derivative region")
     if y0 == y1:
@@ -3226,18 +3230,48 @@ def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8,
     x2 = x3 = y2 = y3 = None
 
     for i in range(maxiter):
-        # guess the new value based on the two points
-        if x2 is not None:
-            a, b, c = quadratic_from_points(x0, x1, x2, y0, y1, y2)
-        else:
+        # # guess the new value based on the two points
+        has_step = False
+        if x2 is not None and i < max_quadratic_iter:
+            try:
+                # print('Points for quadratic', [x0, x1, x2], [y0, y1, y2])
+                a, b, c = quadratic_from_points(x0, x1, x2, y0, y1, y2)
+                # print('Quadratic coefficients', (a, b, c))
+                sln = roots_quadratic(a, b, c)
+                # print('Quadratic solutions', sln)
+                if sln[0].imag == 0:
+                    if len(sln) == 2:
+                        a_step = (sln[0] - x1)
+                        another_step = (sln[1] - x1)
+                        # use the closest one
+                        if abs(a_step) < abs(another_step):
+                            # print('Using quadratic solution', sln[0])
+                            step = a_step
+                        else:
+                            # print('Using quadratic solution', sln[1])
+                            step = another_step
+                    else:
+                        # only got a single step
+                        # print('Using quadratic solution', sln[0])
+                        step = (sln[0] - x1)
+                    has_step = True
+                    print(f'Quadratic desired point:  x={x1 + step}')
+            except:
+                print('Quadratic had a numerical error')
+                pass
+        
+        # secant can always work
+        if not has_step:
             step = - y1*(x1 - x0)/(y1 - y0)*damping
             print(f'Secant desired point:  x={x1 + step}')
         
-        force_line_search = x_flat >= (x1 + step)
+        force_line_search = x_flat <= (x1 + step) if flat_higher_than_x else x_flat >= (x1 + step) 
         if not force_line_search:
             x = x1 + step
             y = f(x, *args, **kwargs)
             print(f'Iteration: x={x}, y={y}, flat={y==y_flat}')
+            if y == y_flat:
+                x_flat = x
         else:
             print(f'Secant desired point lower than flat point: x={x1 + step}, x_flat={x_flat}')
             
@@ -3245,11 +3279,11 @@ def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8,
             # Must use linesearch to find a x that gives a working y
             for line_search_factor in line_search_factors:
                 x = x1 + step*line_search_factor
-                force_continue_line_search = x_flat >= x
+                force_continue_line_search = x_flat <= x if flat_higher_than_x else x_flat >= x
                 if force_continue_line_search:
                     continue
                 y = f(x, *args, **kwargs)
-                print(f'Line search: x={x}, y={y}, flat={y==y_flat}')
+                print(f'Line search: x={x}, y={y}, flat={y==y_flat}, x_flat={x_flat}')
                 if y != y_flat:
                     break
                 else:
