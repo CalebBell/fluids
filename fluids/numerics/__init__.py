@@ -3204,7 +3204,7 @@ line_search_factors.extend(tmp)
 line_search_factors_low_prec = line_search_factors[3:]
 
 
-def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8, 
+def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8, 
                      ytol=None, require_xtol=True, damping=1.0, x1=None, 
                      y_flat=None, max_quadratic_iter=7, low_prec_ls_iter=3,
                      y0=None, y1=None,
