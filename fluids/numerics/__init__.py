@@ -3207,6 +3207,7 @@ line_search_factors_low_prec = line_search_factors[3:]
 def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8, 
                      ytol=None, require_xtol=True, damping=1.0, x1=None, 
                      y_flat=None, max_quadratic_iter=7, low_prec_ls_iter=3,
+                     y0=None, y1=None,
                      kwargs={}):
     if x1 is None:
         if x0 >= 0.0:
@@ -3214,8 +3215,12 @@ def one_sided_secant(f, x0, x_flat, *args, maxiter=100, xtol=1.48e-8,
         else:
             x1 = x0*1.0001 - 1e-4
 
-    y0 = f(x0, *args, **kwargs)
-    y1 = f(x1, *args, **kwargs)
+    if y0 is None:
+        y0 = f(x0, *args, **kwargs)
+    # print(f'Start point: x={x0}, y={y0}')
+    if y1 is None:
+        y1 = f(x1, *args, **kwargs)
+    # print(f'Start point: x={x1}, y={y1}')
     flat_higher_than_x = x_flat > x0
     
     # this is the flat value - all other y values that are flat must be this number
