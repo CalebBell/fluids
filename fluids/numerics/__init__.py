@@ -3205,6 +3205,8 @@ line_search_factors.extend(tmp)
 
 line_search_factors_low_prec = line_search_factors[3:]
 
+newton_line_search_factors = [1.0] + line_search_factors
+newton_line_search_factors_disabled = [1.0]
 
 def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8, 
                      ytol=None, require_xtol=True, damping=1.0, x1=None, 
@@ -3700,48 +3702,36 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         x = x0
         if not jac_also:  # numba: delete
             j = jac(x, *args)  # numba: delete
+            
+    factors = newton_line_search_factors if line_search else newton_line_search_factors_disabled
 
     iteration = 1
     while iteration < maxiter:
-#        dx = solve_func(j, -fcur) # numba: uncomment
         dx = solve_func(j, [-v for v in fcur]) # numba: delete
-        if damping_func is None:
-#            xnew = x + dx*damping # numba: uncomment
-            xnew = [xi + dxi*damping for xi, dxi in zip(x, dx)] # numba: delete
-        else:
-            xnew = damping_func(x, dx, damping, *args)
-        if jac_also:
-            fnew, jnew = f(xnew, *args)
-        else:  # numba: delete
-            fnew = f(xnew, *args)  # numba: delete
-        err_new = 0.0
-        for v in fnew:
-            err_new += abs(v)
-        # print(f'Error={err_new}' )
-            
-        if line_search and err_new > err0:
-            # print('Starting line search')
-            # linesearch
-            for factor in line_search_factors:
-                mult = factor*damping
-#                xnew = x + dx*mult*damping # numba: uncomment
+#        dx = solve_func(j, -fcur) # numba: uncomment
+        for factor in factors:
+            mult = factor*damping
+            if damping_func is None:
+#                xnew = x + dx*mult # numba: uncomment
                 xnew = [xi + dxi*mult for xi, dxi in zip(x, dx)] # numba: delete
-                # try:
-                if jac_also:
-                    fnew, jnew = f(xnew, *args)
-                else:  # numba: delete
-                    fnew = f(xnew, *args)  # numba: delete
-                # except:
-                # print(f'Line search calculation with point failed')
-                    # continue
-                err_new = 0.0
-                for v in fnew:
-                    err_new += abs(v)
-                # print(f'Line search with error={err_new}, factor {mult}' )
-                if err_new < err0:
-                    break
-            if err_new > err0:
-                raise ValueError("Completed line search without reducing the objective function error, cannot proceed")
+            else:
+                xnew = damping_func(x, dx, damping*factor, *args)
+            # try:
+            if jac_also:
+                fnew, jnew = f(xnew, *args)
+            else: # numba: delete
+                fnew = f(xnew, *args)  # numba: delete
+            # except:
+            # print(f'Line search calculation with point failed')
+                # continue
+            err_new = 0.0
+            for v in fnew:
+                err_new += abs(v)
+            # print(f'Line search with error={err_new}, factor {mult}' )
+            if err_new < err0:
+                break
+        if line_search and err_new > err0:
+            raise ValueError("Completed line search without reducing the objective function error, cannot proceed")
                 
         fcur = fnew
         j = jnew
