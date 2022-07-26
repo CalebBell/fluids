@@ -1148,6 +1148,8 @@ def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(),
     # Could add backwards/complex, multiple evaluations, detection of poor condition
     # types and limits
     base = f(x0, *args, **kwargs)
+    if not scalar:
+        base = list(base) # copy the base point
     x = list(x0)
     nx = len(x0)
 
@@ -3677,8 +3679,8 @@ def solve_4_direct(mat, vec):
 
 
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
-                  args=(), damping_func=None, solve_func=py_solve): # numba: delete
-#                  args=(), damping_func=None, solve_func=np.linalg.solve): # numba: uncomment
+                  args=(), damping_func=None, solve_func=py_solve, line_search=False): # numba: delete
+#                  args=(), damping_func=None, solve_func=np.linalg.solve, line_search=False): # numba: uncomment
     jac_also = True if jac == True else False
 
 
@@ -3704,20 +3706,50 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
 #        dx = solve_func(j, -fcur) # numba: uncomment
         dx = solve_func(j, [-v for v in fcur]) # numba: delete
         if damping_func is None:
-#            x = x + dx*damping # numba: uncomment
-            x = [xi + dxi*damping for xi, dxi in zip(x, dx)] # numba: delete
+#            xnew = x + dx*damping # numba: uncomment
+            xnew = [xi + dxi*damping for xi, dxi in zip(x, dx)] # numba: delete
         else:
-            x = damping_func(x, dx, damping, *args)
+            xnew = damping_func(x, dx, damping, *args)
         if jac_also:
-            fcur, j = f(x, *args)
+            fnew, jnew = f(xnew, *args)
         else:  # numba: delete
-            fcur = f(x, *args)  # numba: delete
-
+            fnew = f(xnew, *args)  # numba: delete
+        err_new = 0.0
+        for v in fnew:
+            err_new += abs(v)
+        # print(f'Error={err_new}' )
+            
+        if line_search and err_new > err0:
+            # print('Starting line search')
+            # linesearch
+            for factor in line_search_factors:
+                mult = factor*damping
+#                xnew = x + dx*mult*damping # numba: uncomment
+                xnew = [xi + dxi*mult for xi, dxi in zip(x, dx)] # numba: delete
+                # try:
+                if jac_also:
+                    fnew, jnew = f(xnew, *args)
+                else:  # numba: delete
+                    fnew = f(xnew, *args)  # numba: delete
+                # except:
+                # print(f'Line search calculation with point failed')
+                    # continue
+                err_new = 0.0
+                for v in fnew:
+                    err_new += abs(v)
+                # print(f'Line search with error={err_new}, factor {mult}' )
+                if err_new < err0:
+                    break
+            if err_new > err0:
+                raise ValueError("Completed line search without reducing the objective function error, cannot proceed")
+                
+        fcur = fnew
+        j = jnew
+        err0 = err_new
+        x = xnew
+        
         iteration += 1
 
-        err0 = 0.0
-        for v in fcur:
-            err0 += abs(v)
         if xtol is not None:
             if (norm2(fcur) < xtol) and (ytol is None or err0 < ytol):
                 break

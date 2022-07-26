@@ -382,6 +382,41 @@ def remove_branch(source, branch):
         return source[:start_return] + search_txt[end_idx:]
     return source
 
+numtypes = {float, int, complex}
+settypes = {set, frozenset}
+
+def transform_dataypes_module(SUBMOD):
+    module_constants_changed_type = {}
+    for arr_name in SUBMOD.__dict__:
+        if arr_name in no_conv_data_names: continue
+        obj = getattr(SUBMOD, arr_name)
+        obj_type = type(obj)
+        if obj_type is list and obj:
+            # Assume all elements have the same general type
+            r = obj[0]
+            r_type = type(r)
+            if r_type in numtypes:
+                arr = np.array(obj)
+                if arr.dtype.char != 'O': module_constants_changed_type[arr_name] = arr
+            elif r_type is list and r and type(r[0]) in numtypes:
+                if len(set([len(r) for r in obj])) == 1:
+                    # All same size - nice numpy array
+                    arr = np.array(obj)
+                    if arr.dtype.char != 'O': module_constants_changed_type[arr_name] = arr
+                else:
+                    # Tuple of different size numpy arrays
+                    module_constants_changed_type[arr_name] = tuple([np.array(v) for v in obj])
+        elif obj_type in settypes:
+            module_constants_changed_type[arr_name] = tuple(obj)
+        # elif obj_type is dict:
+        #     try:
+        #         print('starting', arr_name)
+        #         infer_dictionary_types(obj)
+        #         module_constants_changed_type[arr_name] = numba_dict(obj)
+        #     except:
+        #         print(arr_name, 'failed')
+        #         pass
+    return module_constants_changed_type
 
 #nopython = set(['Clamond'])
 skip = set([])
@@ -472,6 +507,9 @@ def create_numerics(replaced, vec=False):
     for s in ('ellipe', 'gammaincc', 'gamma', 'i1', 'i0', 'k1', 'k0', 'iv', 'hyp2f1', 'erf', 'ellipkinc', 'ellipeinc'):
         replaced[s] = NUMERICS_SUBMOD.__dict__[s]
 
+    module_constants_changed_type = transform_dataypes_module(NUMERICS_SUBMOD)
+    NUMERICS_SUBMOD.__dict__.update(module_constants_changed_type)
+
     NUMERICS_SUBMOD.normalize = normalize
     replaced['normalize'] = normalize
     for k, v in NUMERICS_SUBMOD.fit_minimization_targets.items():
@@ -503,8 +541,6 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         all_submodules = normal.all_submodules()
     except:
         all_submodules = normal.submodules
-    numtypes = {float, int, complex}
-    settypes = {set, frozenset}
     for mod in all_submodules:
         #print(all_submodules, mod)
         SUBMOD_COPY = importlib.util.find_spec(mod.__name__)
@@ -558,37 +594,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
                     funcs.append(obj)
             __funcs[name] = obj
 
-        module_constants_changed_type = {}
-        for arr_name in SUBMOD.__dict__:
-            if arr_name in no_conv_data_names: continue
-            obj = getattr(SUBMOD, arr_name)
-            obj_type = type(obj)
-            if obj_type is list and obj:
-                # Assume all elements have the same general type
-                r = obj[0]
-                r_type = type(r)
-                if r_type in numtypes:
-                    arr = np.array(obj)
-                    if arr.dtype.char != 'O': module_constants_changed_type[arr_name] = arr
-                elif r_type is list and r and type(r[0]) in numtypes:
-                    if len(set([len(r) for r in obj])) == 1:
-                        # All same size - nice numpy array
-                        arr = np.array(obj)
-                        if arr.dtype.char != 'O': module_constants_changed_type[arr_name] = arr
-                    else:
-                        # Tuple of different size numpy arrays
-                        module_constants_changed_type[arr_name] = tuple([np.array(v) for v in obj])
-            elif obj_type in settypes:
-                module_constants_changed_type[arr_name] = tuple(obj)
-            # elif obj_type is dict:
-            #     try:
-            #         print('starting', arr_name)
-            #         infer_dictionary_types(obj)
-            #         module_constants_changed_type[arr_name] = numba_dict(obj)
-            #     except:
-            #         print(arr_name, 'failed')
-            #         pass
-
+        module_constants_changed_type = transform_dataypes_module(SUBMOD)
         SUBMOD.__dict__.update(module_constants_changed_type)
         __funcs.update(module_constants_changed_type)
 
