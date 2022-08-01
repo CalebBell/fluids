@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids.piping import nearest_pipe, gauge_from_t, t_from_gauge
+from fluids.piping import nearest_pipe, gauge_from_t, t_from_gauge, erosional_velocity
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 
@@ -173,3 +173,8 @@ def test_piping_schedule_basics():
         for i in range(len(NPSs)):
             err = abs((Dis[i] + ts[i]*2)/Dos[i] -1)
             assert err < 1e-14
+
+
+def test_erosional_velocity():
+    v = erosional_velocity(1000, 100)
+    assert_close(v, 3.857672800497152)

@@ -41,12 +41,17 @@ Wire Gauge
 .. autofunction:: t_from_gauge
 .. autodata:: wire_schedules
 
+Pipe Methods
+------------
+.. autofunction:: erosional_velocity
+
 """
 
 from __future__ import division
-from fluids.constants import inch
-
-__all__ = ['nearest_pipe', 'gauge_from_t', 't_from_gauge', 'wire_schedules']
+from fluids.constants import inch, lb, foot
+from math import sqrt
+__all__ = ['nearest_pipe', 'gauge_from_t', 't_from_gauge', 'wire_schedules',
+           'erosional_velocity']
 
 # Schedules 5, 10, 20, 30, 40, 60, 80, 100, 120, 140, 160 from
 # ASME B36.10M - Welded and Seamless Wrought Steel Pipe
@@ -1021,4 +1026,59 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
         return sch_SI[i] # returns thickness in m
     else:
         return sch_inch[i] # returns thickness in inch
+
+
+def erosional_velocity(rho, C):
+    r'''Calculate the erosional velocity according to the
+    API RP 14E equation.
+    
+    .. math::
+        V_e = \frac{C}{\sqrt{\rho_m}}
+
+    Parameters
+    ----------
+    rho : float
+        Bulk mass density of the overall fluid, [kg/m^3]
+    C : float
+        Erosional velocity factor; must be provided,  [sqrt(lb/(ft*s^2))]
+
+    Returns
+    -------
+    V : float
+        Erosional velocity, [m/s]
+
+    Notes
+    -----
+    Some suggested factors in [1]_ are:
+    
+    With solids, it is suggested the factor be determined from specific
+    studies.
+    
+    For corrosive fluids in continuous service, C=100.
+    For corrosive fluids in intermittent service, C=125.
+    For non-corrosive fluids in continuous service, C=150-200.
+    For non-corrosive fluids in intermittent service, C=250.
+    For corrosive fluids with an inhibitor or a corrosion resistent alloy
+    in continuous service, C=150-200; and for intermittent service, C=250.
+
+    Examples
+    --------
+    >>> erosional_velocity(1000, 100)
+    3.8576728004
+    
+    References
+    ----------
+    .. [1] "API RP 14E : Recommended Practice for Design and Installation 
+       of Offshore Production Platform Piping Systems." 5E, 2000
+    .. [2] Madani Sani, F., S. Huizinga, K. A. Esaklul, and S. Nesic. "Review of 
+       the API RP 14E Erosional Velocity Equation: Origin, Applications, Misuses, 
+       Limitations and Alternatives." Wear, 22nd International Conference on
+       Wear of Materials, 426-427 (April 30, 2019): 620-36.
+       https://doi.org/10.1016/j.wear.2019.01.119.
+
+    '''
+    rho_lb_ft3 = rho/(lb/foot**3)
+    v_ft_s = C/sqrt(rho_lb_ft3)
+    v = v_ft_s*foot
+    return v
 
