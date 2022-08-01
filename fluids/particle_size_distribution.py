@@ -1628,7 +1628,7 @@ class ParticleSizeDistributionContinuous(object):
                 if normalized:
                     fractions = normalize(fractions)
                 plt.semilogx(ds, fractions, label=_label_distribution_n(ni))
-        except Exception as e:
+        except Exception:
             fractions = [self.pdf(d, n=n) for d in ds]
             if normalized:
                 fractions = normalize(fractions)
@@ -2124,7 +2124,7 @@ class PSDRosinRammler(ParticleSizeDistributionContinuous):
         if self.d_max is not None:
             self.d_excessive = self.d_max
         else:
-            self.d_excessive = 1e15 # TODO
+            self.d_excessive = 1e15
         if self.d_min is not None:
             self.d_minimum = self.d_min
         else:

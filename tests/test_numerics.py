@@ -224,7 +224,10 @@ def test_roots_quadratic():
     assert_close(v0, -1.6333997346592444)
     assert_close(v1, -18.366600265340757)
     
-
+def test_cumsum():
+    assert_close1d(cumsum([1,2,3,4,5]), [1, 3, 6, 10, 15])
+    assert_close1d(cumsum([1]), [1])
+    
 def test_interp():
     from fluids.numerics import interp
     # Real world test data

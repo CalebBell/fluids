@@ -644,9 +644,11 @@ def product(l):
 
 def cumsum(a):
     # Does not support multiple dimensions
-    sums = [a[0]]
-    for i in a[1:]:
-        sums.append(sums[-1] + i)
+    base = a[0]
+    sums = [base]
+    for v in a[1:]:
+        base = base + v
+        sums.append(base)
     return sums
 
 

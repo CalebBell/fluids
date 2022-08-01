@@ -38,7 +38,7 @@ Functions
 """
 
 from __future__ import division
-from math import log, exp, pi, sqrt
+from math import log, exp, sqrt
 from fluids.constants import g, foot, psi
 from fluids.numerics import splev, implementation_optimize_tck
 

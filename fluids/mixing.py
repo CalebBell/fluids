@@ -241,9 +241,6 @@ def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
     straight.
     COV calculation is according to [2]_.
 
-    .. math::
-        TODO
-
     Parameters
     ----------
     Q1 : float
@@ -286,8 +283,8 @@ def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
        doi:10.1205/02638760152424280.
     '''
     V1 = Q1/(pi/4*D**2)
-    Cv = Q2/(Q1 + Q2)
-    COV0 = sqrt((1-Cv)/Cv)
+    # Cv = Q2/(Q1 + Q2)
+    # COV0 = sqrt((1-Cv)/Cv)
     if D2 is None:
         D2 = (Q2/Q1)**(2/3.)*D
     V2 = Q2/(pi/4*D2**2)

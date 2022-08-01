@@ -44,7 +44,6 @@ Wire Gauge
 """
 
 from __future__ import division
-from math import pi
 from fluids.constants import inch
 
 __all__ = ['nearest_pipe', 'gauge_from_t', 't_from_gauge', 'wire_schedules']
