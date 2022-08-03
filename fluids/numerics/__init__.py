@@ -4383,7 +4383,7 @@ def lazy_quad(f, a, b, args=(), epsrel=1.49e-08, epsabs=1.49e-8, **kwargs):
             from scipy.integrate import quad as sp_quad
         return sp_quad(f, a, b, args, epsrel=epsrel, epsabs=epsabs, **kwargs)
     else:
-        return quad_adaptive(f, a, b, ags=args, epsrel=epsrel, epsabs=epsabs)
+        return quad_adaptive(f, a, b, args=args, epsrel=epsrel, epsabs=epsabs)
 #        n = 300
 #        return fixed_quad_Gauss_Kronrod(f, a, b, kronrod_points[n], kronrod_weights[n], legendre_weights[n], args)
 
