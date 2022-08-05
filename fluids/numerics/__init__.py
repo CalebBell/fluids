@@ -50,7 +50,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2', 'roots_quadratic',
            'numpy', 'nquad', 'catanh', 'factorial',
-           'polyint_over_x', 'horner_log', 'polyint',
+           'polyint_over_x', 'horner_log', 'polyint', 'zeros', 'full',
            'chebder', 'chebint', 'exp_cheb',
            'polyder', 'make_damp_initial', 'quadratic_from_points',
            'OscillationError', 'UnconvergedError', 'caching_decorator',
@@ -2342,6 +2342,37 @@ def assert_close4d(a, b, rtol=1e-7, atol=0.0):
             raise ValueError("Variables are not the same length: %d, %d" %(N0, len(b0)))
         for j in range(N0):
             assert_close2d(a0[j], b0[j], rtol=rtol, atol=atol)
+
+def zeros(shape, dtype=float, fill_value=0.0):
+    if dtype is float:
+        zero = float(fill_value)
+    elif dtype is int:
+        zero = int(fill_value)
+    else:
+        raise ValueError("dtype is not supported")
+    t = type(shape)
+    if t is int:
+        return [zero]*shape
+    if t is tuple:
+        l = len(shape)
+        if l == 1:
+            return [zero]*shape[0]
+        elif l == 2:
+            s1 = shape[1]
+            return [[zero]*s1 for _ in range(shape[0])]
+        elif l == 3:
+            s1 = shape[1]
+            s2 = shape[2]
+            return [[[zero]*s2 for _ in range(s1)] for _ in range(shape[0])]
+        elif l == 4:
+            s1 = shape[1]
+            s2 = shape[2]
+            s3 = shape[3]
+            return [[[[zero]*s3 for _ in range(s2)] for _ in range(s1)] for _ in range(shape[0])]
+    raise ValueError("Shape not implemented")
+
+def full(shape, fill_value, dtype=float):
+    return zeros(shape, dtype, fill_value)
 
 def interp(x, dx, dy, left=None, right=None, extrapolate=False):
     """One-dimensional linear interpolation routine inspired/ reimplemented from

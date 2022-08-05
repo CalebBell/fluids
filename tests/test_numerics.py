@@ -262,7 +262,30 @@ def test_interp():
     assert_close(interp(10.0**30, xs, ys, extrapolate=True), 10.0**29, rtol=1e-15)
 
 
+def test_zeros():
+    # Only support up to 4d so far
+    assert_allclose(zeros(2),
+                    np.zeros(2), atol=0)
+    assert_allclose(zeros((2, )),
+                    np.zeros((2, )), atol=0)
+    assert_allclose(zeros((2, 3)),
+                    np.zeros((2, 3)), atol=0)
+    assert_allclose(zeros((2, 3, 4)),
+                    np.zeros((2, 3, 4)), atol=0)
+    assert_allclose(zeros((2, 3, 4, 5)),
+                    np.zeros((2, 3, 4, 5)), atol=0)
+def test_full():
 
+    assert_allclose(full(2, 1),
+                    np.full(2, 1), atol=0)
+    assert_allclose(full((2, ), 1),
+                    np.full((2, ), 1), atol=0)
+    assert_allclose(full((2, 3), 1),
+                    np.full((2, 3), 1), atol=0)
+    assert_allclose(full((2, 3, 4), 1),
+                    np.full((2, 3, 4), 1), atol=0)
+    assert_allclose(full((2, 3, 4, 5), 1),
+                    np.full((2, 3, 4, 5), 1), atol=0)
 
 def test_splev():
     from fluids.numerics import py_splev
