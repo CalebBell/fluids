@@ -447,6 +447,8 @@ def create_numerics(replaced, vec=False):
     NUMERICS_SUBMOD.sum = np.sum
 
     NUMERICS_SUBMOD_COPY.loader.exec_module(NUMERICS_SUBMOD)
+    NUMERICS_SUBMOD.zeros = np.zeros
+    NUMERICS_SUBMOD.full = np.full
 
     # So long as the other modules are using the system numerics and being updated with the correct numerics methods later
     # numba wants to make sure these are the same
