@@ -478,6 +478,10 @@ def homogeneous(x, rhol, rhog):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
+    if x == 1.0:
+        return 1.0
+    elif x == 0.0:
+        return 0.0
     return 1.0/(1.0 + (1.0 - x)/x*(rhog/rhol))
 
 
