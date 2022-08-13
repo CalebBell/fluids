@@ -3110,6 +3110,8 @@ Darby['Elbow, 45°, mitered, 2 welds, (22.5°)'] = (500.0, 0.052, 4.0)
 Darby['Elbow, 180°, threaded, close-return bend, (r/D = 1)'] = (1000.00, 0.23, 4.0)
 Darby['Elbow, 180°, flanged, (r/D = 1)'] = (1000.00, 0.12, 4.0)
 Darby['Elbow, 180°, all, (r/D = 1.5)'] = (1000.00, 0.1, 4.0)
+
+
 Darby['Tee, Through-branch, (as elbow), threaded, (r/D = 1)'] = (500.0, 0.274, 4.0)
 Darby['Tee, Through-branch,(as elbow), (r/D = 1.5)'] = (800.0, 0.14, 4.0)
 Darby['Tee, Through-branch, (as elbow), flanged, (r/D = 1)'] = (800.0, 0.28, 4.0)
@@ -3289,7 +3291,7 @@ def Hooper2K(Di, Re, name=None, K1=None, Kinfty=None):
     .. math::
         K = \frac{K_1}{Re} + K_\infty\left(1 + \frac{1\text{ inch}}{D_{in}}\right)
 
-    Note this model uses actual inside pipe diameter in inches.
+    **Note this model uses actual inside pipe diameter in inches.**
 
     Parameters
     ----------
