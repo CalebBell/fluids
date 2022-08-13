@@ -144,7 +144,7 @@ from fluids.friction import (friction_factor, Clamond,
                              friction_factor_curved, ft_Crane)
 from fluids.numerics import (horner, interp, splev, bisplev,
                              implementation_optimize_tck, tck_interp2d_linear)
-
+from fluids.piping import S40i, NPS40
 __all__ = ['contraction_sharp', 'contraction_round',
            'contraction_round_Miller',
 'contraction_conical', 'contraction_conical_Crane', 'contraction_beveled',  'diffuser_sharp',
@@ -162,7 +162,9 @@ __all__ = ['contraction_sharp', 'contraction_round',
 'K_angle_stop_check_valve_Crane', 'K_ball_valve_Crane',
 'K_diaphragm_valve_Crane', 'K_foot_valve_Crane', 'K_butterfly_valve_Crane',
 'K_plug_valve_Crane', 'K_branch_converging_Crane', 'K_run_converging_Crane',
-'K_branch_diverging_Crane', 'K_run_diverging_Crane', 'v_lift_valve_Crane']
+'K_branch_diverging_Crane', 'K_run_diverging_Crane', 'v_lift_valve_Crane',
+'Crane_loss_coefficient',
+'CRANE_VALVES', 'DARBY_VALVES', 'HOOPER_VALVES']
 
 
 
@@ -3069,6 +3071,24 @@ def diffuser_pipe_reducer(Di1, Di2, l, fd1, fd2=None):
 
 ### TODO: Tees
 
+DARBY_ANGLE_45DEG_FULL_VALVE = 'Valve, Angle valve, 45°, full line size, β = 1'
+DARBY_ANGLE_90DEG_FULL_VALVE = 'Valve, Angle valve, 90°, full line size, β = 1'
+DARBY_GLOBE_FULL_VALVE = 'Valve, Globe valve, standard, β = 1'
+DARBY_PLUG_VALVE_BRANCH_FLOW = 'Valve, Plug valve, branch flow'
+DARBY_PLUG_VALVE_STRAIGHT_THROUGH = 'Valve, Plug valve, straight through'
+DARBY_PLUG_VALVE_THREE_WAY_FLOW_THROUGH = 'Valve, Plug valve, three-way (flow through)'
+DARBY_GATE_VALVE = 'Valve, Gate valve, standard, β = 1'
+DARBY_BALL_VALVE = 'Valve, Ball valve, standard, β = 1'
+DARBY_DIAPHRAGM_DAM_VALVE = 'Valve, Diaphragm, dam type'
+DARBY_SWING_CHECK_VALVE = 'Valve, Swing check'
+DARBY_LIFT_CHECK_VALVE = 'Valve, Lift check'
+
+DARBY_VALVES = [DARBY_ANGLE_45DEG_FULL_VALVE, DARBY_ANGLE_90DEG_FULL_VALVE,
+                DARBY_GLOBE_FULL_VALVE, DARBY_PLUG_VALVE_BRANCH_FLOW,
+                DARBY_PLUG_VALVE_STRAIGHT_THROUGH, DARBY_PLUG_VALVE_THREE_WAY_FLOW_THROUGH,
+                DARBY_GATE_VALVE, DARBY_BALL_VALVE, DARBY_DIAPHRAGM_DAM_VALVE,
+                DARBY_SWING_CHECK_VALVE, DARBY_LIFT_CHECK_VALVE]
+
 ###  3 Darby 3K Method (with valves)
 Darby = {}
 '''Dictionary of coefficients for Darby's 3K fitting pressure drop method;
@@ -3097,17 +3117,18 @@ Darby['Tee, Through-branch, (as elbow), stub-in branch'] = (1000.00, 0.34, 4.0)
 Darby['Tee, Run-through, threaded, (r/D = 1)'] = (200.0, 0.091, 4.0)
 Darby['Tee, Run-through, flanged, (r/D = 1)'] = (150.0, 0.05, 4.0)
 Darby['Tee, Run-through, stub-in branch'] = (100.0, 0.0, 0.0)
-Darby['Valve, Angle valve, 45°, full line size, β = 1'] = (950.0, 0.25, 4.0)
-Darby['Valve, Angle valve, 90°, full line size, β = 1'] = (1000.0, 0.69, 4.0)
-Darby['Valve, Globe valve, standard, β = 1'] = (1500.0, 1.7, 3.6)
-Darby['Valve, Plug valve, branch flow'] = (500.0, 0.41, 4.0)
-Darby['Valve, Plug valve, straight through'] = (300.0, 0.084, 3.9)
-Darby['Valve, Plug valve, three-way (flow through)'] = (300.0, 0.14, 4.0)
-Darby['Valve, Gate valve, standard, β = 1'] = (300.0, 0.037, 3.9)
-Darby['Valve, Ball valve, standard, β = 1'] = (300.0, 0.017, 3.5)
-Darby['Valve, Diaphragm, dam type'] = (1000.00, 0.69, 4.9)
-Darby['Valve, Swing check'] = (1500.0, 0.46, 4.0)
-Darby['Valve, Lift check'] = (2000.00, 2.85, 3.8)
+
+Darby[DARBY_ANGLE_45DEG_FULL_VALVE] = (950.0, 0.25, 4.0)
+Darby[DARBY_ANGLE_90DEG_FULL_VALVE] = (1000.0, 0.69, 4.0)
+Darby[DARBY_GLOBE_FULL_VALVE] = (1500.0, 1.7, 3.6)
+Darby[DARBY_PLUG_VALVE_BRANCH_FLOW] = (500.0, 0.41, 4.0)
+Darby[DARBY_PLUG_VALVE_STRAIGHT_THROUGH] = (300.0, 0.084, 3.9)
+Darby[DARBY_PLUG_VALVE_THREE_WAY_FLOW_THROUGH] = (300.0, 0.14, 4.0)
+Darby[DARBY_GATE_VALVE] = (300.0, 0.037, 3.9)
+Darby[DARBY_BALL_VALVE] = (300.0, 0.017, 3.5)
+Darby[DARBY_DIAPHRAGM_DAM_VALVE] = (1000.00, 0.69, 4.9)
+Darby[DARBY_SWING_CHECK_VALVE] = (1500.0, 0.46, 4.0)
+Darby[DARBY_LIFT_CHECK_VALVE] = (2000.00, 2.85, 3.8)
 
 try:
     if IS_NUMBA: # type: ignore
@@ -3117,7 +3138,7 @@ except:
     pass
 
 
-def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
+def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None, Di=None):
     r'''Returns loss coefficient for any various fittings, depending
     on the name input. Alternatively, the Darby constants K1, Ki and Kd
     may be provided and used instead. Source of data is [1]_.
@@ -3143,6 +3164,10 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
         Ki parameter of Darby model, optional [-]
     Kd : float
         Kd parameter of Darby model, optional [in]
+    Di : float
+        If specified, the NPS will be found by interpolating linearly (with
+        extrapolation) along the schedule 40 diameters and NPSs;
+        this will supersede NPS if it is specified, [m]
 
     Returns
     -------
@@ -3160,6 +3185,8 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
     --------
     >>> Darby3K(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
     1.1572523963562356
+    >>> Darby3K(Di=.05248, Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
+    1.1572523963562356
     >>> Darby3K(NPS=12., Re=10000., K1=950,  Ki=0.25,  Kd=4)
     0.819510280626355
 
@@ -3171,6 +3198,8 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
     .. [2] Silverberg, Peter. "Correlate Pressure Drops Through Fittings."
        Chemical Engineering 108, no. 4 (April 2001): 127,129-130.
     '''
+    if Di is not None:
+        NPS = interp(Di*1000.0, S40i, NPS40, extrapolate=True)
     if name is not None:
         K1 = None
         if name in Darby: # NUMBA: DELETE
@@ -3188,6 +3217,22 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None):
 
 
 ### 2K Hooper Method
+HOOPER_CHECK_VALVE_TILTING_DISK = 'Valve, Check, Tilting-disc'
+HOOPER_CHECK_VALVE_SWING = 'Valve, Check, Swing'
+HOOPER_CHECK_VALVE_LIFT = 'Valve, Check, Lift'
+HOOPER_BUTTERFLY_VALVE = 'Valve, Butterfly,'
+HOOPER_DIAPHRAGM_DAM_VALVE = 'Valve, Diaphragm, Dam type'
+HOOPER_GLOBE_ANGLED_OR_Y_VALVE = 'Valve, Globe, Angle or Y-type'
+HOOPER_GLOBE_STANDARD_VALVE = 'Valve, Globe, Standard'
+HOOPER_PLUG_REDUCED_TRIM_VALVE = 'Valve, Plug, Reduced trim, Beta = 0.8'
+HOOPER_BALL_REDUCED_TRIM_VALVE = 'Valve, Ball, Reduced trim, Beta = 0.9'
+HOOPER_GATE_FULL_LINE_SIZE_VALVE = 'Valve, Gate, Full line size, Beta = 1'
+
+HOOPER_VALVES = [HOOPER_CHECK_VALVE_TILTING_DISK, HOOPER_CHECK_VALVE_SWING, 
+                   HOOPER_CHECK_VALVE_LIFT, HOOPER_BUTTERFLY_VALVE,
+                   HOOPER_DIAPHRAGM_DAM_VALVE, HOOPER_GLOBE_ANGLED_OR_Y_VALVE, 
+                   HOOPER_GLOBE_STANDARD_VALVE, HOOPER_PLUG_REDUCED_TRIM_VALVE,
+                   HOOPER_BALL_REDUCED_TRIM_VALVE, HOOPER_GATE_FULL_LINE_SIZE_VALVE]
 
 Hooper = {}
 r'''Dictionary of coefficients for Hooper's 2K fitting pressure drop method;
@@ -3215,16 +3260,16 @@ Hooper['Elbow, Elbow, Stub-in type branch'] = (1000.0, 1.0)
 Hooper['Tee, Run, Screwed'] = (200.0, 0.1)
 Hooper['Tee, Through, Flanged or welded'] = (150.0, 0.05)
 Hooper['Tee, Tee, Stub-in type branch'] = (100.0, 0.0)
-Hooper['Valve, Gate, Full line size, Beta = 1'] = (300.0, 0.1)
-Hooper['Valve, Ball, Reduced trim, Beta = 0.9'] = (500.0, 0.15)
-Hooper['Valve, Plug, Reduced trim, Beta = 0.8'] = (1000.0, 0.25)
-Hooper['Valve, Globe, Standard'] = (1500.0, 4.0)
-Hooper['Valve, Globe, Angle or Y-type'] = (1000.0, 2.0)
-Hooper['Valve, Diaphragm, Dam type'] = (1000.0, 2.0)
-Hooper['Valve, Butterfly,'] = (800.0, 0.25)
-Hooper['Valve, Check, Lift'] = (2000.0, 10.0)
-Hooper['Valve, Check, Swing'] = (1500.0, 1.5)
-Hooper['Valve, Check, Tilting-disc'] = (1000.0, 0.5)
+Hooper[HOOPER_GATE_FULL_LINE_SIZE_VALVE] = (300.0, 0.1)
+Hooper[HOOPER_BALL_REDUCED_TRIM_VALVE] = (500.0, 0.15)
+Hooper[HOOPER_PLUG_REDUCED_TRIM_VALVE] = (1000.0, 0.25)
+Hooper[HOOPER_GLOBE_STANDARD_VALVE] = (1500.0, 4.0)
+Hooper[HOOPER_GLOBE_ANGLED_OR_Y_VALVE] = (1000.0, 2.0)
+Hooper[HOOPER_DIAPHRAGM_DAM_VALVE] = (1000.0, 2.0)
+Hooper[HOOPER_BUTTERFLY_VALVE] = (800.0, 0.25)
+Hooper[HOOPER_CHECK_VALVE_LIFT] = (2000.0, 10.0)
+Hooper[HOOPER_CHECK_VALVE_SWING] = (1500.0, 1.5)
+Hooper[HOOPER_CHECK_VALVE_TILTING_DISK] = (1000.0, 0.5)
 
 try:
     if IS_NUMBA: # type: ignore
@@ -3571,7 +3616,6 @@ def Cv_to_K(Cv, D):
     return 1.6E9*D2*D2/(term*term)
 
 
-CRANE_GATE_VALVE = 'CRANE_GATE_VALVE'
 
 def K_gate_valve_Crane(D1, D2, angle, fd=None):
     r'''Returns loss coefficient for a gate valve of types wedge disc, double
@@ -4594,6 +4638,119 @@ def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
     elif style == 'foot valve hinged disc':
         return 45.0*sqrt(specific_volume)
 
+CRANE_GATE_VALVE = 'CRANE_GATE_VALVE'
+CRANE_GLOBE_VALVE = 'CRANE_GLOBE_VALVE'
+CRANE_ANGLE_VALVE_0 = 'CRANE_ANGLE_VALVE_0'
+CRANE_ANGLE_VALVE_1 = 'CRANE_ANGLE_VALVE_1'
+CRANE_ANGLE_VALVE_2 = 'CRANE_ANGLE_VALVE_2'
+CRANE_SWING_CHECK_VALVE = 'CRANE_SWING_CHECK_VALVE'
+CRANE_SWING_CHECK_VALVE_ANGLED = 'CRANE_SWING_CHECK_VALVE_ANGLED'
+CRANE_LIFT_CHECK_VALVE = 'CRANE_LIFT_CHECK_VALVE'
+CRANE_LIFT_CHECK_VALVE_ANGLED = 'CRANE_LIFT_CHECK_VALVE_ANGLED'
+
+CRANE_TILTING_CHECK_VALVE_5DEG = 'CRANE_TILTING_CHECK_VALVE_5DEG'
+CRANE_TILTING_CHECK_VALVE_15DEG = 'CRANE_TILTING_CHECK_VALVE_15DEG'
+
+CRANE_GLOBE_STOP_CHECK_VALVE_0 = 'CRANE_GLOBE_STOP_CHECK_VALVE_0'
+CRANE_GLOBE_STOP_CHECK_VALVE_1 = 'CRANE_GLOBE_STOP_CHECK_VALVE_1'
+CRANE_GLOBE_STOP_CHECK_VALVE_2 = 'CRANE_GLOBE_STOP_CHECK_VALVE_2'
+
+CRANE_ANGLE_STOP_CHECK_VALVE_0 = 'CRANE_ANGLE_STOP_CHECK_VALVE_0'
+CRANE_ANGLE_STOP_CHECK_VALVE_1 = 'CRANE_ANGLE_STOP_CHECK_VALVE_1'
+CRANE_ANGLE_STOP_CHECK_VALVE_2 = 'CRANE_ANGLE_STOP_CHECK_VALVE_2'
+
+CRANE_BALL_VALVE = 'CRANE_BALL_VALVE'
+CRANE_DIAPHRAGM_VALVE_WEIR = 'CRANE_DIAPHRAGM_VALVE_WEIR'
+CRANE_DIAPHRAGM_VALVE_STAIGHT_THROUGH_WEIR = 'CRANE_DIAPHRAGM_VALVE_STAIGHT_THROUGH_WEIR'
+
+CRANE_FOOT_VALVE_POPPET_DISK = 'CRANE_FOOT_VALVE_POPPET_DISK'
+CRANE_FOOT_VALVE_HINGED_DISK = 'CRANE_FOOT_VALVE_HINGED_DISK'
+
+CRANE_BUTTERFLY_VALVE_CENTRIC = 'CRANE_BUTTERFLY_VALVE_CENTRIC'
+CRANE_BUTTERFLY_VALVE_DOUBLE_OFFSET = 'CRANE_BUTTERFLY_VALVE_DOUBLE_OFFSET'
+CRANE_BUTTERFLY_VALVE_TRIPLE_OFFSET = 'CRANE_BUTTERFLY_VALVE_TRIPLE_OFFSET'
+
+CRANE_PLUG_VALVE_STRAIGHT_THROUGH = 'CRANE_PLUG_VALVE_STRAIGHT_THROUGH'
+CRANE_PLUG_VALVE_3_WAY_STRAIGHT_THROUGH = 'CRANE_PLUG_VALVE_3_WAY_STRAIGHT_THROUGH'
+CRANE_PLUG_VALVE_3_WAY_90_DEG = 'CRANE_PLUG_VALVE_3_WAY_90_DEG'
+
+
+CRANE_VALVES = [CRANE_GATE_VALVE, CRANE_GLOBE_VALVE, CRANE_ANGLE_VALVE_0, 
+                CRANE_ANGLE_VALVE_1, CRANE_ANGLE_VALVE_2, CRANE_SWING_CHECK_VALVE, 
+                CRANE_SWING_CHECK_VALVE_ANGLED, CRANE_LIFT_CHECK_VALVE, 
+                CRANE_LIFT_CHECK_VALVE_ANGLED, CRANE_TILTING_CHECK_VALVE_5DEG,
+                CRANE_TILTING_CHECK_VALVE_15DEG, CRANE_GLOBE_STOP_CHECK_VALVE_0,
+                CRANE_GLOBE_STOP_CHECK_VALVE_1, CRANE_GLOBE_STOP_CHECK_VALVE_2, 
+                CRANE_ANGLE_STOP_CHECK_VALVE_0, CRANE_ANGLE_STOP_CHECK_VALVE_1, 
+                CRANE_ANGLE_STOP_CHECK_VALVE_2, CRANE_BALL_VALVE, CRANE_DIAPHRAGM_VALVE_WEIR, 
+                CRANE_DIAPHRAGM_VALVE_STAIGHT_THROUGH_WEIR, CRANE_FOOT_VALVE_POPPET_DISK,
+                CRANE_FOOT_VALVE_HINGED_DISK, CRANE_BUTTERFLY_VALVE_CENTRIC,
+                CRANE_BUTTERFLY_VALVE_DOUBLE_OFFSET, CRANE_BUTTERFLY_VALVE_TRIPLE_OFFSET, 
+                CRANE_PLUG_VALVE_STRAIGHT_THROUGH, CRANE_PLUG_VALVE_3_WAY_STRAIGHT_THROUGH,
+                CRANE_PLUG_VALVE_3_WAY_90_DEG, ]
+
+def Crane_loss_coefficient(D1, D2, angle, fitting, fd=None):
+    # D1 = valve seat bore
+    # D2 = valve pipe in/out diameter
+    if fitting == CRANE_GATE_VALVE:
+        return K_gate_valve_Crane(D1, D2, angle, fd=fd)
+    elif fitting == CRANE_GLOBE_VALVE:
+        return K_globe_valve_Crane(D1, D2, fd)
+    elif fitting == CRANE_ANGLE_VALVE_0:
+        return K_angle_valve_Crane(D1, D2, fd, 0)
+    elif fitting == CRANE_ANGLE_VALVE_1:
+        return K_angle_valve_Crane(D1, D2, fd, 1)
+    elif fitting == CRANE_ANGLE_VALVE_2:
+        return K_angle_valve_Crane(D1, D2, fd, 2)
+    elif fitting == CRANE_SWING_CHECK_VALVE:
+        return K_swing_check_valve_Crane(D2, fd, False)
+    elif fitting == CRANE_SWING_CHECK_VALVE_ANGLED:
+        return K_swing_check_valve_Crane(D2, fd, True)
+    elif fitting == CRANE_LIFT_CHECK_VALVE:
+        return K_lift_check_valve_Crane(D1, D2, fd, False)
+    elif fitting == CRANE_LIFT_CHECK_VALVE_ANGLED:
+        return K_lift_check_valve_Crane(D1, D2, fd, True)
+    elif fitting == CRANE_TILTING_CHECK_VALVE_5DEG:
+        return K_tilting_disk_check_valve_Crane(D2, 5.0, fd)
+    elif fitting == CRANE_TILTING_CHECK_VALVE_15DEG:
+        return K_tilting_disk_check_valve_Crane(D2, 15.0, fd)
+    elif fitting == CRANE_GLOBE_STOP_CHECK_VALVE_0:
+        return K_globe_stop_check_valve_Crane(D1, D2, fd, 0)
+    elif fitting == CRANE_GLOBE_STOP_CHECK_VALVE_1:
+        return K_globe_stop_check_valve_Crane(D1, D2, fd, 1)
+    elif fitting == CRANE_GLOBE_STOP_CHECK_VALVE_2:
+        return K_globe_stop_check_valve_Crane(D1, D2, fd, 2)
+    elif fitting == CRANE_ANGLE_STOP_CHECK_VALVE_0:
+        return K_angle_stop_check_valve_Crane(D1, D2, fd, 0)
+    elif fitting == CRANE_ANGLE_STOP_CHECK_VALVE_1:
+        return K_angle_stop_check_valve_Crane(D1, D2, fd, 1)
+    elif fitting == CRANE_ANGLE_STOP_CHECK_VALVE_2:
+        return K_angle_stop_check_valve_Crane(D1, D2, fd, 2)
+    elif fitting == CRANE_BALL_VALVE:
+        return K_ball_valve_Crane(D1, D2, angle, fd)
+    elif fitting == CRANE_DIAPHRAGM_VALVE_WEIR:
+        return K_diaphragm_valve_Crane(D2, fd, 0)
+    elif fitting == CRANE_DIAPHRAGM_VALVE_STAIGHT_THROUGH_WEIR:
+        return K_diaphragm_valve_Crane(D2, fd, 1)
+    elif fitting == CRANE_FOOT_VALVE_POPPET_DISK:
+        return K_foot_valve_Crane(D2, fd, 0)
+    elif fitting == CRANE_FOOT_VALVE_HINGED_DISK:
+        return K_foot_valve_Crane(D2, fd, 1)
+    elif fitting == CRANE_BUTTERFLY_VALVE_CENTRIC:
+        return K_butterfly_valve_Crane(D2, fd, 0)
+    elif fitting == CRANE_BUTTERFLY_VALVE_DOUBLE_OFFSET:
+        return K_butterfly_valve_Crane(D2, fd, 1)
+    elif fitting == CRANE_BUTTERFLY_VALVE_TRIPLE_OFFSET:
+        return K_butterfly_valve_Crane(D2, fd, 2)
+    elif fitting == CRANE_PLUG_VALVE_STRAIGHT_THROUGH:
+        return K_plug_valve_Crane(D1, D2, angle, fd, 0)
+    elif fitting == CRANE_PLUG_VALVE_3_WAY_STRAIGHT_THROUGH:
+        return K_plug_valve_Crane(D1, D2, angle, fd, 1)
+    elif fitting == CRANE_PLUG_VALVE_3_WAY_90_DEG:
+        return K_plug_valve_Crane(D1, D2, angle, fd, 2)
+    else:
+        raise ValueError("Unrecognized fitting")
+    
 
 branch_converging_Crane_Fs = [1.74, 1.41, 1.0, 0.0]
 branch_converging_Crane_angles = [30.0, 45.0, 60.0, 90.0]
