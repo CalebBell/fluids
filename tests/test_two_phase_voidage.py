@@ -79,10 +79,9 @@ def test_Turner_Wallis():
 
 def test_homogeneous():
     assert_close(homogeneous(.4, 800, 2.5), 0.995334370139969)
-
+    assert_close(homogeneous(1, 800, 2.5), 1)
+    assert_close(homogeneous(0, 800, 2.5), 0)
     # 1./(1. + (1-x)/x*(rhog/rhol))
-
-test_homogeneous()
 
 
 def test_Chisholm_Armand():

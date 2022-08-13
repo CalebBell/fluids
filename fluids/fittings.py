@@ -3571,6 +3571,8 @@ def Cv_to_K(Cv, D):
     return 1.6E9*D2*D2/(term*term)
 
 
+CRANE_GATE_VALVE = 'CRANE_GATE_VALVE'
+
 def K_gate_valve_Crane(D1, D2, angle, fd=None):
     r'''Returns loss coefficient for a gate valve of types wedge disc, double
     disc, or plug type, as shown in [1]_.
