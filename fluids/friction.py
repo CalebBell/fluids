@@ -4241,15 +4241,15 @@ def one_phase_dP(m, rho, mu, D, roughness=0.0, L=1.0, Method=None):
     return dP
 
 
-def one_phase_dP_acceleration(m, D, rho_o, rho_i):
+def one_phase_dP_acceleration(m, D, rho_o, rho_i, D_i=None):
     r'''This function handles calculation of one-phase fluid pressure drop
     due to acceleration for flow inside channels. This is a discrete
     calculation, providing the total differential in pressure for a given
     length and should be called as part of a segment solver routine.
 
     .. math::
-        - \left(\frac{d P}{dz}\right)_{acc} = G^2 \frac{d}{dz} \left[\frac{
-        1}{\rho_o} - \frac{1}{\rho_i} \right]
+        - \left(\frac{\Delta P}{\Delta z}\right)_{acc} = 
+        0.5\rho_i v_i^2 - 0.5\rho_o v_o^2
 
     Parameters
     ----------
@@ -4260,7 +4260,7 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i):
     rho_o : float
         Fluid density out, [kg/m^3]
     rho_i : float
-        Fluid density int, [kg/m^3]
+        Fluid density in, [kg/m^3]
 
     Returns
     -------
@@ -4273,10 +4273,23 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i):
     Examples
     --------
     >>> one_phase_dP_acceleration(m=1, D=0.1, rho_o=827.1, rho_i=830)
-    0.06848289670840459
+    0.034241448354203285
+    >>> one_phase_dP_acceleration(m=1, D=0.1, rho_o=827.1, rho_i=830, D_i=.05)
+    -146.4542168297245
     '''
-    G = 4.0*m/(pi*D*D)
-    return G*G*(1.0/rho_o - 1.0/rho_i)
+    if D_i is None:
+        D_i = D
+    A_i = pi/4*D_i**2
+    A_o = pi/4*D**2
+
+    Q_i = m/rho_i
+    v_i = Q_i/A_i
+    
+    Q_o = m/rho_o
+    v_o = Q_o/A_o
+    return 0.5*rho_o*v_o**2 - 0.5*rho_i*v_i**2
+    # G = 4.0*m/(pi*D*D)
+    # return G*G*(1.0/rho_o - 1.0/rho_i)
 
 
 def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, dA_dL):

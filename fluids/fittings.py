@@ -3259,9 +3259,11 @@ Hooper['Elbow, Used as, Standard, Screwed'] = (500.0, 0.7)
 Hooper['Elbow, Elbow, Long-radius, Screwed'] = (800.0, 0.4)
 Hooper['Elbow, Elbow, Standard, Flanged/welded'] = (800.0, 0.8)
 Hooper['Elbow, Elbow, Stub-in type branch'] = (1000.0, 1.0)
+
 Hooper['Tee, Run, Screwed'] = (200.0, 0.1)
 Hooper['Tee, Through, Flanged or welded'] = (150.0, 0.05)
 Hooper['Tee, Tee, Stub-in type branch'] = (100.0, 0.0)
+
 Hooper[HOOPER_GATE_FULL_LINE_SIZE_VALVE] = (300.0, 0.1)
 Hooper[HOOPER_BALL_REDUCED_TRIM_VALVE] = (500.0, 0.15)
 Hooper[HOOPER_PLUG_REDUCED_TRIM_VALVE] = (1000.0, 0.25)
