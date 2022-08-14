@@ -4279,17 +4279,18 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i, D_i=None):
     '''
     if D_i is None:
         D_i = D
-    A_i = pi/4*D_i**2
-    A_o = pi/4*D**2
+    # A_i = pi/4*D_i**2
+    # A_o = pi/4*D**2
 
-    Q_i = m/rho_i
-    v_i = Q_i/A_i
+    # Q_i = m/rho_i
+    # v_i = Q_i/A_i
     
-    Q_o = m/rho_o
-    v_o = Q_o/A_o
-    return 0.5*rho_o*v_o**2 - 0.5*rho_i*v_i**2
-    # G = 4.0*m/(pi*D*D)
-    # return G*G*(1.0/rho_o - 1.0/rho_i)
+    # Q_o = m/rho_o
+    # v_o = Q_o/A_o
+    # return 0.5*rho_o*v_o**2 - 0.5*rho_i*v_i**2
+    G = m/(pi*D*D)
+    G_i = m/(pi*D_i*D_i)
+    return 8.0*(G*G/rho_o - G_i*G_i/rho_i)
 
 
 def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, dA_dL):
