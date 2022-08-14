@@ -4273,24 +4273,28 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i, D_i=None):
     Examples
     --------
     >>> one_phase_dP_acceleration(m=1, D=0.1, rho_o=827.1, rho_i=830)
-    0.034241448354203285
+    0.06848310644876913
     >>> one_phase_dP_acceleration(m=1, D=0.1, rho_o=827.1, rho_i=830, D_i=.05)
-    -146.4542168297245
+    -146.1640615999393
     '''
     if D_i is None:
         D_i = D
-    # A_i = pi/4*D_i**2
-    # A_o = pi/4*D**2
+    A_i = pi/4*D_i**2
+    A_o = pi/4*D**2
 
-    # Q_i = m/rho_i
-    # v_i = Q_i/A_i
+    Q_i = m/rho_i
+    v_i = Q_i/A_i
     
-    # Q_o = m/rho_o
-    # v_o = Q_o/A_o
+    Q_o = m/rho_o
+    v_o = Q_o/A_o
+    
+    rho_avg = 0.5*(rho_o + rho_i)
+
+    return 0.5*rho_avg*(v_o**2 - v_i**2)
     # return 0.5*rho_o*v_o**2 - 0.5*rho_i*v_i**2
-    G = m/(pi*D*D)
-    G_i = m/(pi*D_i*D_i)
-    return 8.0*(G*G/rho_o - G_i*G_i/rho_i)
+    # G = m/(pi*D*D)
+    # G_i = m/(pi*D_i*D_i)
+    # return 8.0*(G*G/rho_o - G_i*G_i/rho_i)
 
 
 def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, dA_dL):
