@@ -2747,6 +2747,34 @@ def make_damp_initial(steps=5, damping=1.0, *args):
     return damping_func
 
 
+def make_max_step_initial(max_step, steps=5, *args):
+    steps_holder = [steps]
+
+    def damping_func(x, step, *args):
+        if steps_holder[0] <= 0:
+            # Do not dampen at all
+            if isinstance(x, list):
+                return [xi + dxi for xi, dxi in zip(x, step)]
+            return x + step
+        else:
+            steps_holder[0] -= 1
+            if isinstance(x, list):
+                next = []
+                for i in range(len(x)):
+                    the_step = step[i]
+                    if abs(the_step) > max_step:
+                        next.append(x[i] + copysign(max_step[i], the_step))
+                    else:
+                        next.append(x[i] + the_step)
+                return next
+
+            the_step = step
+            if abs(the_step) > max_step:
+                return x + copysign(max_step, the_step)
+            return x + the_step
+
+    return damping_func
+
 
 def oscillation_checking_wrapper(f, minimum_progress=0.3,
                                  both_sides=False, full=True,
