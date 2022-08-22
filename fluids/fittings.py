@@ -4694,8 +4694,45 @@ CRANE_VALVES = [CRANE_GATE_VALVE, CRANE_GLOBE_VALVE, CRANE_ANGLE_VALVE_0,
                 CRANE_PLUG_VALVE_3_WAY_90_DEG, ]
 
 def Crane_loss_coefficient(D1, D2, angle, fitting, fd=None):
-    # D1 = valve seat bore
-    # D2 = valve pipe in/out diameter
+    r'''Returns the loss coefficient for a particular Crane valve fitting.
+    [1]_. This function is intended for internal use, to test all the
+    correlations, at this point.
+
+    Parameters
+    ----------
+    D1 : float
+        Diameter of the valve plug bore (must be equal to or smaller than
+        `D2`), [m]
+    D2 : float
+        Diameter of the pipe attached to the valve, [m]
+    angle : float
+        Angle formed by the reducer in the valve, [degrees]
+    fitting : str
+        Text strings which represent a fitting, [-]
+    fd : float, optional
+        Darcy friction factor calculated for the actual pipe flow in clean
+        steel (roughness = 0.0018 inch) in the fully developed turbulent
+        region; do not specify this to use the original Crane friction factor!,
+        [-]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient with respect to the pipe inside diameter [-]
+
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> Crane_loss_coefficient(D1=.01, D2=.02, fitting=CRANE_SWING_CHECK_VALVE_ANGLED, angle=50)
+    2.3974274785373257
+
+    References
+    ----------
+    .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
+       2009.
+    '''
     if fitting == CRANE_GATE_VALVE:
         return K_gate_valve_Crane(D1, D2, angle, fd=fd)
     elif fitting == CRANE_GLOBE_VALVE:

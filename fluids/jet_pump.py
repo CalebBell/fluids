@@ -358,6 +358,25 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
 
     .. math::
         P_5 = P_4 + \frac{1}{2}\rho_d V_4^2 - K_d\left(\frac{1}{2}\rho_d V_4^2\right)
+        
+    
+    The mixing chamber loss coefficient should be obtained through the following
+    expression, using the mixing chamber exit velocity to obtain the friction
+    factor. 
+    
+    .. math::
+        K_m = \frac{4f_d L}{D}
+    
+    .. math::
+        K_d = \frac{P_4 - P_5}{0.5 \rho_d V_4^2} = 1 - \left(\frac{A_4}{A_5} 
+        \right)^2 - C_{pr}
+        
+    .. math::
+        K_s = \frac{P_2 - P_3}{0.5\rho_s V_3^2} - 1
+        
+    .. math::
+        K_p = \frac{P_1 - P_n}{0.5\rho_p V_n^2} - 1
+        
 
     Continuity of the ejector:
 

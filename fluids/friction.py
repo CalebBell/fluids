@@ -4261,6 +4261,9 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i, D_i=None):
         Fluid density out, [kg/m^3]
     rho_i : float
         Fluid density in, [kg/m^3]
+    D_i : float
+        Diameter of the entry of the pipe; provide this if the pipe
+        changes diameter and then `D` is the diameter of the pipe exit, [m]
 
     Returns
     -------
