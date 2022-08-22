@@ -4,6 +4,7 @@ from typing import List
 from typing import (
     List,
     Optional,
+    Set,
     Tuple,
     Union,
 )
@@ -154,6 +155,9 @@ def friction_plate_Muley_Manglik(Re: float, chevron_angle: float, plate_enlargem
 
 
 def ft_Crane(D: float) -> float: ...
+
+
+def fuzzy_match(name: str, strings: Set[str]) -> str: ...
 
 
 def helical_Re_crit(Di: float, Dc: float, Method: str = ...) -> float: ...

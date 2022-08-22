@@ -2,10 +2,41 @@
 from __future__ import annotations
 from typing import List
 from typing import (
+    List,
     Optional,
     Tuple,
     Union,
 )
+
+
+def Di_lookup(
+    Di: float,
+    NPSes: List[float],
+    Dis: List[float],
+    Dos: List[float],
+    ts: List[float]
+) -> Tuple[int, float, float, float]: ...
+
+
+def Do_lookup(
+    Do: float,
+    NPSes: List[float],
+    Dis: List[float],
+    Dos: List[float],
+    ts: List[float]
+) -> Union[Tuple[int, float, int, float], Tuple[int, float, float, float]]: ...
+
+
+def NPS_lookup(
+    NPS: float,
+    NPSes: List[float],
+    Dis: List[float],
+    Dos: List[float],
+    ts: List[float]
+) -> Tuple[int, float, float, float]: ...
+
+
+def erosional_velocity(rho: int, C: int) -> float: ...
 
 
 def gauge_from_t(t: float, SI: bool = ..., schedule: str = ...) -> float: ...
@@ -15,7 +46,7 @@ def nearest_pipe(
     Do: Optional[float] = ...,
     Di: Optional[float] = ...,
     NPS: Optional[int] = ...,
-    schedule: Union[int, str, float] = ...
+    schedule: Union[str, int, float] = ...
 ) -> Tuple[int, float, float, float]: ...
 
 

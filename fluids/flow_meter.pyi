@@ -104,8 +104,9 @@ def differential_pressure_meter_C_epsilon(
     meter_type: str,
     taps: Optional[str] = ...,
     tap_position: Optional[str] = ...,
-    C_specified: Optional[float] = ...
-) -> Tuple[float, float]: ...
+    C_specified: Optional[float] = ...,
+    epsilon_specified: Optional[int] = ...
+) -> Union[Tuple[float, float], Tuple[float, int]]: ...
 
 
 def differential_pressure_meter_beta(D: float, D2: float, meter_type: str) -> float: ...
@@ -125,7 +126,7 @@ def differential_pressure_meter_solver(
     D: float,
     rho: float,
     mu: float,
-    k: float,
+    k: Optional[float] = ...,
     D2: Optional[float] = ...,
     P1: Optional[float] = ...,
     P2: Optional[float] = ...,
@@ -133,7 +134,8 @@ def differential_pressure_meter_solver(
     meter_type: str = ...,
     taps: Optional[str] = ...,
     tap_position: Optional[str] = ...,
-    C_specified: Optional[float] = ...
+    C_specified: Optional[float] = ...,
+    epsilon_specified: Optional[int] = ...
 ) -> float: ...
 
 
@@ -152,7 +154,8 @@ def err_dp_meter_solver_D2(
     meter_type: str,
     taps: Optional[str],
     tap_position: Optional[str],
-    C_specified: Optional[float]
+    C_specified: Optional[float],
+    epsilon_specified: None
 ) -> float: ...
 
 
@@ -168,7 +171,8 @@ def err_dp_meter_solver_P1(
     meter_type: str,
     taps: Optional[str],
     tap_position: Optional[str],
-    C_specified: Optional[float]
+    C_specified: Optional[float],
+    epsilon_specified: None
 ) -> float: ...
 
 
@@ -184,7 +188,8 @@ def err_dp_meter_solver_P2(
     meter_type: str,
     taps: Optional[str],
     tap_position: Optional[str],
-    C_specified: Optional[float]
+    C_specified: Optional[float],
+    epsilon_specified: None
 ) -> float: ...
 
 
@@ -200,7 +205,8 @@ def err_dp_meter_solver_m(
     meter_type: str,
     taps: Optional[str],
     tap_position: Optional[str],
-    C_specified: Optional[float]
+    C_specified: Optional[float],
+    epsilon_specified: Optional[int]
 ) -> float: ...
 
 

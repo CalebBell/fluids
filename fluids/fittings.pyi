@@ -20,7 +20,8 @@ def Darby3K(
     name: Optional[str] = ...,
     K1: Optional[float] = ...,
     Ki: Optional[float] = ...,
-    Kd: Optional[float] = ...
+    Kd: Optional[float] = ...,
+    Di: None = ...
 ) -> float: ...
 
 
