@@ -278,8 +278,8 @@ def Reynolds(V, D, rho=None, mu=None, nu=None):
 
     Inputs either of any of the following sets:
 
-    * V, D, density `rho` and kinematic viscosity `mu`
-    * V, D, and dynamic viscosity `nu`
+    * V, D, density `rho` and dynamic viscosity `mu`
+    * V, D, and kinematic viscosity `nu`
 
     Parameters
     ----------
