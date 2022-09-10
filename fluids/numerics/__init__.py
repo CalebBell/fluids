@@ -100,6 +100,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'exp_cheb_ln_tau', 'exp_cheb_ln_tau_and_der', 'exp_cheb_ln_tau_and_der2',
            'exp_horner_stable_ln_tau', 'exp_horner_stable_ln_tau_and_der', 
            'exp_horner_stable_ln_tau_and_der2',
+           'is_monotonic',
            ]
 
 from fluids.numerics import doubledouble
@@ -1863,6 +1864,20 @@ def is_poly_negative(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1
     # Returns True if negative everywhere in the specified domain (or globally)
     poly = [-i for i in poly]# Changes the sign of all polynomial calculated values
     return is_poly_positive(poly, domain=domain, rand_pts=rand_pts, j_tol=j_tol, root_perturb=root_perturb)
+
+def is_monotonic(points):
+    N = len(points)
+    if N == 1:
+        return True
+    
+    a_point_increased = False
+    a_point_decreased = False
+    for i in range(N-1):
+        if points[i+1] > points[i]:
+            a_point_increased = True
+        if points[i+1] < points[i]:
+            a_point_decreased = True
+    return not (a_point_increased and a_point_decreased) 
 
 def min_max_ratios(actual, calculated):
     '''Given known and calculated data, compare

@@ -1101,3 +1101,17 @@ def test_cheb():
     
     assert toluene_TRC_cheb_fit == toluene_TRC_cheb_fit_copy
     
+
+def test_is_monotonic():
+    assert is_monotonic([1,2,3])
+    assert is_monotonic([3, 2, 1])
+    assert is_monotonic([1,1,2,3])
+    assert is_monotonic([3,3, 2, 1])
+    assert is_monotonic([1])
+    assert not is_monotonic([3,3,5, 2, 1])
+    assert not is_monotonic([1,2,3,1])
+    
+    assert is_monotonic([-1, -2])
+    assert not is_monotonic([-1, -2, -3, -2])
+    assert is_monotonic([-2, -1, 0])
+    assert not is_monotonic([-2, -1, 0, -1])
