@@ -598,7 +598,7 @@ def pdf_lognormal(d, d_characteristic, s):
 
     >>> import scipy.stats
     >>> scipy.stats.lognorm.pdf(x=1E-4, s=1.1, scale=1E-5)
-    405.5420921156425
+    405.5420921
 
     Scipy's calculation is over 300 times slower however, and this expression
     is numerically integrated so speed is required.
@@ -606,7 +606,7 @@ def pdf_lognormal(d, d_characteristic, s):
     Examples
     --------
     >>> pdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
-    405.5420921156425
+    405.5420921
 
     References
     ----------
