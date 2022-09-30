@@ -1134,7 +1134,7 @@ legendre_weights = {
 #}
 
 
-def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(),
+def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(), base=None,
              **kwargs):
     """def test_fun(x):
 
@@ -1150,7 +1150,8 @@ def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(),
     # For vector - returns list of list - size of input variables * output variables
     # Could add backwards/complex, multiple evaluations, detection of poor condition
     # types and limits
-    base = f(x0, *args, **kwargs)
+    if base is None:
+        base = f(x0, *args, **kwargs)
     if not scalar:
         base = list(base) # copy the base point
     x = list(x0)
@@ -2551,20 +2552,20 @@ def translate_bound_func(func, bounds=None, low=None, high=None):
         """Function for a solver to call when using the bounded variables."""
         x = [float(i) for i in x]
         for i in range(len(x)):
-            x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+            x[i] = (low[i] + (high[i] - low[i])/(1.0 + trunc_exp(-x[i])))
         # Return the actual results
         return func(x, *args, **kwargs)
 
     def translate_into(x):
         x = [float(i) for i in x]
         for i in range(len(x)):
-            x[i] = -log((high[i] - x[i])/(x[i] - low[i]))
+            x[i] = -trunc_log((high[i] - x[i])/(x[i] - low[i]))
         return x
 
     def translate_outof(x):
         x = [float(i) for i in x]
         for i in range(len(x)):
-            x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+            x[i] = (low[i] + (high[i] - low[i])/(1.0 + trunc_exp(-x[i])))
         return x
     return new_f, translate_into, translate_outof
 
@@ -2578,13 +2579,13 @@ def translate_bound_jac(jac, bounds=None, low=None, high=None):
         x_base = [float(i) for i in x]
         N = len(x)
         for i in range(N):
-            x_base[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+            x_base[i] = (low[i] + (high[i] - low[i])/(1.0 + trunc_exp(-x[i])))
         jac_base = jac(x_base)
         try:
             jac_base = [i for i in jac_base]
             for i in range(N):
-                v = (high[i] - low[i])*exp(-x[i])*jac_base[i]
-                v *= (1.0 + exp(-x[i]))**-2
+                v = (high[i] - low[i])*trunc_exp(-x[i])*jac_base[i]
+                v *= (1.0 + trunc_exp(-x[i]))**-2
                 jac_base[i] = v
             return jac_base
         except:
@@ -2593,13 +2594,13 @@ def translate_bound_jac(jac, bounds=None, low=None, high=None):
     def translate_into(x):
         x = [float(i) for i in x]
         for i in range(len(x)):
-            x[i] = -log((high[i] - x[i])/(x[i] - low[i]))
+            x[i] = -trunc_log((high[i] - x[i])/(x[i] - low[i]))
         return x
 
     def translate_outof(x):
         x = [float(i) for i in x]
         for i in range(len(x)):
-            x[i] = (low[i] + (high[i] - low[i])/(1.0 + exp(-x[i])))
+            x[i] = (low[i] + (high[i] - low[i])/(1.0 + trunc_exp(-x[i])))
         return x
     return new_j, translate_into, translate_outof
 
@@ -3786,6 +3787,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         dx = solve_func(j, [-v for v in fcur]) # numba: delete
 #        dx = solve_func(j, -fcur) # numba: uncomment
         for factor in factors:
+            # print(factor)
             mult = factor*damping
             if damping_func is None:
 #                xnew = x + dx*mult # numba: uncomment
@@ -3805,6 +3807,8 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                 err_new += abs(v)
             # print(f'Line search with error={err_new}, factor {mult}' )
             if err_new < err0:
+                if not jac_also: # numba: delete
+                    jnew = jac(xnew, *args) # numba: delete
                 break
         if line_search and err_new > err0:
             raise ValueError("Completed line search without reducing the objective function error, cannot proceed")
@@ -3823,8 +3827,8 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             if err0 < ytol:
                 break
 
-        if not jac_also:  # numba: delete
-            j = jac(x, *args)  # numba: delete
+        # if not jac_also:  # numba: delete
+        #     j = jac(x, *args)  # numba: delete
 
     if xtol is not None and norm2(fcur) > xtol:
         raise UnconvergedError("Failed to converge")
