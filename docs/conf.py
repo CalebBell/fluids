@@ -307,10 +307,8 @@ autodoc_default_flags = ['undoc-members', 'show-inheritance']
  
 katex_css_path = \
     'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css'
-katex_js_path = \
-    'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js'
-katex_autorender_path = \
-    'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js'
+katex_js_path = 'katex.min.js'
+katex_autorender_path = 'auto-render.min.js'    
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
                        'numpy': ('http://docs.scipy.org/doc/numpy', None),
