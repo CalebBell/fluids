@@ -9,6 +9,25 @@ and other parts only have obsolete dependencies i.e. pint on Python 2.
 For that reason, while the pytest test suite runs everywhere,
 the notebooks and doctests only run on one platform.""")
 
+from datetime import datetime
+import os, sys
+def set_file_modification_time(filename, mtime):
+    atime = os.stat(filename).st_atime
+    os.utime(filename, times=(atime, mtime.timestamp()))
+    
+now = datetime.now()
+
+paths = ['..']
+
+for p in paths:
+    for (dirpath, dirnames, filenames) in os.walk(p):
+        for filename in filenames:
+            full_path = os.path.join(dirpath, filename)
+            set_file_modification_time(full_path, now)
+
+
+
+
 import fluids
 main_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 test_dir = os.path.join(main_dir, 'tests')
