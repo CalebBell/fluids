@@ -1,13 +1,13 @@
 import sys
 import platform
 is_pypy = 'PyPy' in sys.version
+ver_tup = platform.python_version_tuple()[0:2]
+ver_tup = tuple(int(i) for i in ver_tup)
 
 def pytest_ignore_collect(path):
     path = str(path)
     if 'manual_runner' in path or 'make_test_stubs' in path or 'plot' in path or 'prerelease' in path:
         return True
-    ver_tup = platform.python_version_tuple()[0:2]
-    ver_tup = tuple(int(i) for i in ver_tup)
     if 'benchmarks' in path:
         return True
     if 'conf.py' in path:
