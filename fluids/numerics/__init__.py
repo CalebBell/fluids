@@ -1358,8 +1358,9 @@ def exp_horner_backwards_ln_tau_and_der2(T, Tc, coeffs):
     lntau = log(tau)
     poly_val, poly_val_der, poly_val_der2 = horner_and_der2(coeffs, lntau)
     val = exp(poly_val)
-    der = -val*poly_val_der/(Tc*tau)
-    der2 = (poly_val_der*poly_val_der - poly_val_der + poly_val_der2)*val/(Tc*Tc*(tau*tau))
+    temp = 1.0/(Tc*tau)
+    der = -temp*val*poly_val_der
+    der2 = (poly_val_der*poly_val_der - poly_val_der + poly_val_der2)*val*(temp*temp)
     
     return val, der, der2
 
