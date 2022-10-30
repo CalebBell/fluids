@@ -2739,7 +2739,8 @@ def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
     """
     if isinstance(x, list):
         return [damping_maintain_sign(x[i], step[i], damping, factor) for i in range(len(x))]
-    positive = x > 0.0
+
+    positive = x >= 0.0
     step_x = x + step
 
     if (positive and step_x < 0) or (not positive and step_x > 0.0):
@@ -3815,6 +3816,9 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             raise ValueError("Completed line search without reducing the objective function error, cannot proceed")
                 
         fcur = fnew
+        if err_new > err0 and not jac_also:# numba: delete
+            # edge case, didn't make any progress but keep going
+            jnew = jac(xnew, *args) # numba: delete
         j = jnew
         err0 = err_new
         x = xnew
