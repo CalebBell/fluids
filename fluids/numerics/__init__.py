@@ -845,7 +845,11 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True,
             min_x = x0 + -ho*dx
             if min_x < lower_limit:
                 x0 += (x0 - min_x)
-
+        
+        # failed optimization strategy - plus changes some answers
+        # const = x0 - dx*ho
+        # tot += weights[k]*func(const + dx*k, *args, **kwargs)
+        
         tot = 0.0
         for k in range(order):
             if weights[k] != 0.0:
