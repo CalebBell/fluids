@@ -779,8 +779,11 @@ def deflate_cubic_real_roots(b, c, d, x0):
 
 def central_diff_weights(points, divisions=1):
     # Check the cache
-    if (divisions, points) in central_diff_weights_precomputed:
-        return central_diff_weights_precomputed[(divisions, points)]
+    key = (divisions, points)
+    try:
+        return central_diff_weights_precomputed[key]
+    except:
+        pass
 
     if points < divisions + 1:
         raise ValueError("Points < divisions + 1, cannot compute")
@@ -803,7 +806,7 @@ def central_diff_weights(points, divisions=1):
     inverted = [[float(j) for j in i] for i in Matrix(X).inv().tolist()]
     w = [i*factor for i in inverted[divisions]]
 #    w = [i*factor for i in (inv(X)[divisions]).tolist()]
-    central_diff_weights_precomputed[(divisions, points)] = w
+    central_diff_weights_precomputed[key] = w
     return w
 
 
@@ -815,20 +818,33 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True,
 
     Support for vector value functions has also been added.
     """
-    if order < n + 1:
-        raise ValueError
-    if order % 2 == 0:
-        raise ValueError
-    weights = central_diff_weights(order, n)
+    try:
+        weights = central_diff_weights_precomputed[(n, order)]
+    except:
+        if order < n + 1:
+            raise ValueError
+        if order % 2 == 0:
+            raise ValueError
+        weights = central_diff_weights(order, n)
     ho = order >> 1
-    denominator = 1.0/product([dx]*n)
+    
+    
+    if n == 1:
+        denominator = 1.0/dx
+    else:
+        denominator = 1.0
+        for i in range(n):
+            denominator *= dx
+        denominator = 1.0/denominator
     if scalar:
-        max_x = x0 + (order - 1 - ho)*dx
-        if upper_limit is not None and max_x > upper_limit:
-            x0 -= (max_x - x0)
-        min_x = x0 + -ho*dx
-        if lower_limit is not None and min_x < lower_limit:
-            x0 += (x0 - min_x)
+        if upper_limit is not None:
+            max_x = x0 + (order - 1 - ho)*dx
+            if max_x > upper_limit:
+                x0 -= (max_x - x0)
+        if lower_limit is not None:
+            min_x = x0 + -ho*dx
+            if min_x < lower_limit:
+                x0 += (x0 - min_x)
 
         tot = 0.0
         for k in range(order):
