@@ -29,10 +29,10 @@ import pytest
 from fluids.friction import _roughness, _Farshad_roughness
 
 try:
-    import fuzzywuzzy
-    has_fuzzywuzzy = True
+    import thefuzz
+    has_thefuzz = True
 except:
-    has_fuzzywuzzy = False
+    has_thefuzz = False
 
 try:
     import mpmath
@@ -270,7 +270,7 @@ def test_roughness_Farshad():
     with pytest.raises(Exception):
         roughness_Farshad('BADID', 0.05)
 
-@pytest.mark.skipif(not has_fuzzywuzzy, reason='missing fuzzywuzzy')
+@pytest.mark.skipif(not has_thefuzz, reason='missing thefuzz')
 def test_nearest_material_roughness():
     hit1 = nearest_material_roughness('condensate pipes', clean=False)
     assert hit1 == 'Seamless steel tubes, Condensate pipes in open systems or periodically operated steam pipelines'
@@ -279,7 +279,7 @@ def test_nearest_material_roughness():
     assert hit2 == 'Plastic coated'
 
 
-@pytest.mark.skipif(not has_fuzzywuzzy, reason='missing fuzzywuzzy')
+@pytest.mark.skipif(not has_thefuzz, reason='missing thefuzz')
 def test_material_roughness():
     e1 = material_roughness('Plastic coated')
     assert_close(e1, 5e-06)
