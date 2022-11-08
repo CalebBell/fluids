@@ -66,7 +66,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'assert_close', 'assert_close1d', 'assert_close2d', 'assert_close3d',
            'assert_close4d', 'translate_bound_func', 'translate_bound_jac',
            'translate_bound_f_jac', 'curve_fit',
-           'quad', 'quad_adaptive', 'stable_poly_to_unstable',
+           'quad', 'quad_adaptive', 'stable_poly_to_unstable', 'homotopy_solver',
            
            'std', 'min_max_ratios', 'detect_outlier_normal',
            'max_abs_error', 'max_abs_rel_error', 'max_squared_error',
@@ -3164,11 +3164,21 @@ def brenth(f, xa, xb, args=(),
         fcur = f(xcur, *args, **kwargs)
     raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
 
+factors_growing_positive = [3.0**i for i in range(1, 20)]
+factors_shrinking_positive = [3.0**(-i) for i in range(1, 20)]
+factors_growing_negative = [-v for v in factors_growing_positive]
+factors_shrinking_negative = [-v for v in factors_shrinking_positive]
+
+secant_bisection_factors = []
+for i in range(len(factors_growing_positive)):
+    for l in (factors_growing_positive, factors_shrinking_positive, factors_growing_negative, factors_shrinking_negative):
+        secant_bisection_factors.append(l[i])
+
 
 def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
            xtol=1.48e-8, ytol=None, x1=None, require_eval=False,
            f0=None, f1=None, bisection=False, same_tol=1.0, kwargs={},
-           require_xtol=True):
+           require_xtol=True, additional_guesses=False):
     p0 = 1.0*x0
     # Logic to take a small step to calculate the approximate derivative
     if x1 is not None:
@@ -3197,6 +3207,29 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
         q1 = func(p1, *args, **kwargs)
     else:
         q1 = f1
+    if q1 == q0 and additional_guesses:
+        # we cannot proceed when the guessed point has the same value; need to increase the search space
+        # try to guess again with a larger change, up to 16 orders of magnitude larger
+        for guess_factor in secant_bisection_factors:
+            # print('Slope was zero with initial guess, expanding search...')
+            p1 = x0*guess_factor
+        # for guess_power in range(1, 16):
+            # if x0 >= 0.0:
+                # p1 = x0*(1.0 + 1e-4*10.0**guess_power) + 1e-4*10**guess_power
+            # else:
+                # p1 = x0*(1.0 + 1e-4*10**guess_power) - 1e-4*10**guess_power
+            # May need to truncate p1
+            if low is not None and p1 < low:
+                p1 = low
+            if high is not None and p1 > high:
+                p1 = high
+            q1 = func(p1, *args, **kwargs)
+            # For the check, we will require a significant difference in result magnitude
+            if abs(q1/q0-1.0) > 1e-10:
+                break
+    
+    did_additional_guesses = False
+        
     if (ytol is not None and abs(q1) < ytol and not require_xtol) or q1 == 0.0:
         return p1
 
@@ -3266,9 +3299,27 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
             elif ytol is not None:
                 if abs(q1) < ytol:
                     return p
-
-            # Cannot proceed, raise an error
-            raise SamePointError("Convergence failed - previous points are the same", q1=q1, p1=p1, q0=q0, p0=p0)
+            if bisection and a is not None and b is not None:
+                p = 0.5*(a + b)
+            else:
+                # Search increasingly away from the initial guess for something with a different sign
+                if additional_guesses and not did_additional_guesses:
+                    # print('Converged to points with a slope of zero, attempting to bisect the problem...')
+                    for guess_factor in secant_bisection_factors:
+                        p = x0*guess_factor
+                        if low is not None and p < low:
+                            p = low
+                        if high is not None and p > high:
+                            p = high
+                        temp_q = func(p, *args, **kwargs)
+                        if temp_q*q0 < 0.0:
+                            # print('Bisected the problem, restarting with new point')
+                            break
+                    
+                    did_additional_guesses = True
+                else:
+                    # Cannot proceed, raise an error
+                    raise SamePointError("Convergence failed - previous points are the same", q1=q1, p1=p1, q0=q0, p0=p0)
 
 
         # Swap the points around
@@ -3780,7 +3831,7 @@ def solve_4_direct(mat, vec):
 
 
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
-                  args=(), damping_func=None, solve_func=py_solve, line_search=False): # numba: delete
+                  args=(), damping_func=None, solve_func=py_solve, line_search=False, with_point=False): # numba: delete
 #                  args=(), damping_func=None, solve_func=np.linalg.solve, line_search=False): # numba: uncomment
     jac_also = True if jac == True else False
 
@@ -3865,7 +3916,9 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         if err0 > ytol:
 #            raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s" %(maxiter, x))
             raise UnconvergedError("Failed to converge")
-
+    if with_point: # numba: delete
+        return x, iteration, fcur, j # numba: delete
+    
     return x, iteration
 
 def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping=1.0,
@@ -3915,6 +3968,87 @@ def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping
 
     return x, iter
 
+def homotopy_function(x, lambd, F0, objf, args=()):
+    '''
+    .. math::
+        H(x, lambda) = F(x) - (1-lambda)*F(x_original)
+    
+    x : list[float]
+        The current guesses, [-]
+    lambd : float
+        Lambda parameter, between 0 and 1, [-]
+    F0 : list[float]
+        Original error functions from the very first iteration, [-]
+    objf: callable
+        Error function, [-]
+    args : tuple
+        Extra functions to objevtive function, [-]
+    '''
+    Fx = objf(x, *args)
+    const = 1.0 - lambd
+#     print(f'x={x}, Fx={Fx}, F0={F0}, err={[Fx[i] - const*F0[i] for i in range(len(F0))]}')
+    return [Fx[i] - const*F0[i] for i in range(len(F0))]
+
+def homotopy_solver(f, x0, jac, xtol=1e-8, ytol=None, maxiter=100, lambd_step=0.1,
+                    damping=1.0, args=(), line_search=True, terminal_xtol=1e-10,
+                    terminal_ytol=None, terminal_lambd_criteria=0.9,
+                    solve_func=py_solve):
+
+    f0 = f(x0, *args)
+    working_lambda_step = lambd_step
+    lambd_previous = lambd = 0.0
+    N = len(f0)
+    remaining_iters = maxiter
+    homotopy_iter = 0
+    failed_iters = 0
+    f_n = lambda x: homotopy_function(x, lambd, f0, f, args=args)
+    
+    while abs(lambd - 1) > 1e-15:
+        lambd += working_lambda_step
+        if lambd > 1.0:
+            lambd = 1.0
+        
+        # Guess a next step by computing dx_dlambda with a numerical
+        # evaluation of the derivative with respect to lambda
+        # using the previous lambda value at the current point
+        delta_lambd = working_lambda_step
+        if homotopy_iter == 0:
+            Fx = f0
+            J = jac(x0, *args)
+        H0 = [Fx[i] - (1.0 - lambd_previous)*f0[i] for i in range(N)]
+        H1 = [Fx[i] - (1.0 - lambd)*f0[i] for i in range(N)]
+        
+        const = -1.0/delta_lambd
+        dx_dlambd = solve_func(J, [const*(H1[i] - H0[i]) for i in range(N)])
+        # This gets the x values a little closer to the new H function
+        x1 = [x0[i] + delta_lambd*dx_dlambd[i] for i in range(N)]
+        
+        # Now solve the objective function using a newton solver with line search
+        
+        use_xtol, use_ytol = (xtol, ytol) if lambd < terminal_lambd_criteria else (terminal_xtol, terminal_ytol)
+        try:
+            # last objf and J call is wasted- would be nice to reuse them in the earlier code
+            x2, niter, Fx, J = newton_system(f=f_n, x0=x1, jac=jac, xtol=use_xtol, ytol=use_ytol, maxiter=remaining_iters, 
+                                      damping=damping, args=args, solve_func=solve_func, line_search=line_search,
+                                      with_point=True)
+        except:
+            # undo the lambda change, continue the loop with half the lambda step
+            lambd -= working_lambda_step
+            working_lambda_step *= 0.5
+            failed_iters += 1
+            if failed_iters > 5:
+                raise UnconvergedError("Failed to converge")
+            continue
+        remaining_iters -= niter
+        
+        
+        delta_lambd = lambd_step
+        x0 = x2
+        lambd_previous = lambd
+#         print(f'Converged lambda step {lambd}')
+        
+        homotopy_iter += 1
+    return x0, maxiter - remaining_iters
 
 def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
              skip_J=False, args=()):
