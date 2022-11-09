@@ -1234,3 +1234,100 @@ def test_secant_cases_internet():
                     failed_fs.add(f)
                     fails += 1
         assert fails == 0
+
+
+def to_solve_newton_python(inputs):
+    x, T = inputs
+    if not isinstance(inputs, list):
+        raise ValueError("Bad input type")
+    k = 0.12*exp(12581*(T-298.)/(298.*T))
+    return [120*x-75*k*(1-x), -x*(873-T)-11.0*(T-300)]
+    
+def to_solve_newton_numpy(inputs):
+    if not isinstance(inputs, np.ndarray):
+        raise ValueError("Bad input type")
+    x, T = inputs
+    k = 0.12*exp(12581*(T-298.)/(298.*T))
+    return np.array([120*x-75*k*(1-x), -x*(873-T)-11.0*(T-300)])
+
+def to_solve_jac_newton_python(inputs):
+    # derived with sympy
+    if not isinstance(inputs, list):
+        raise ValueError("Bad input type")
+    x, T = inputs
+    ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+            (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
+           [T - 873,
+            x - 11.0]]
+    return ans
+
+def to_solve_jac_newton_numpy(inputs):
+    # derived with sympy
+    if not isinstance(inputs, np.ndarray):
+        raise ValueError("Bad input type")
+    x, T = inputs
+    ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+            (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
+           [T - 873,
+            x - 11.0]]
+    return np.array(ans)
+
+try:
+    import numdifftools as nd
+    jacob_methods = ['analytical', 'python', 'numdifftools_forward']
+except:
+    jacob_methods = ['analytical', 'python']
+    
+try:
+    import jacobi
+    jacob_methods += ['jacobi_forward']
+except:
+    pass
+    
+@pytest.mark.parametrize("jacob_method", jacob_methods)
+def test_SolverInterface_basics(jacob_method):
+    solver = SolverInterface(method='newton_system', objf=to_solve_newton_python,
+                             jacobian_method=jacob_method, jac=to_solve_jac_newton_python)
+    # Not testing convergence so start quite close to the point
+    x0 = [.06, 297.]
+    res = solver.solve(x0)
+    expect = [0.05995136780143791, 296.85996516970505]
+    assert_close1d(res, expect)
+    res = solver.solve(np.array(x0))
+    assert isinstance(res, np.ndarray)
+    
+    j0 = jacobian(to_solve_newton_python, x0, scalar=False)
+    assert_close2d(to_solve_jac_newton_python(x0), j0, rtol=1e-5)
+    assert_close2d(to_solve_jac_newton_numpy(np.array(x0)), j0, rtol=1e-5)
+    
+    if jacob_method == 'python':
+        working_methods = ('newton_system_line_search', 'homotopy_solver', 'hybr', 'lm', 
+                       'krylov', 'df-sane', 'Nelder-Mead', 'Powell', 'BFGS', 'Newton-CG',
+                       'TNC', 'SLSQP')
+    else:
+        working_methods = ('newton_system_line_search', 'hybr', 'Powell', 'BFGS')
+        
+    for method in working_methods:
+        solver = SolverInterface(method=method, objf=to_solve_newton_python, jacobian_method=jacob_method,
+                                 jac=to_solve_jac_newton_python)
+        res = solver.solve(x0)
+        assert_close1d(res, expect, rtol=1e-5)
+        assert type(res) is list
+        if method in ('newton_system_line_search', 'hybr', 'Powell', 'BFGS'):
+            res = solver.solve(np.array(x0))
+            assert isinstance(res, np.ndarray)
+            
+            j = solver.jacobian(np.array(x0))
+            assert isinstance(j, np.ndarray)
+            
+    
+    for method in working_methods:
+        
+        solver = SolverInterface(method=method, objf=to_solve_newton_numpy, jacobian_method=jacob_method, objf_numpy=True,
+                                 jac=to_solve_jac_newton_numpy)
+        res = solver.solve(np.array(x0))
+        assert_close1d(res, expect, rtol=1e-5)
+        assert isinstance(res, np.ndarray)
+        if method in ('newton_system_line_search', 'hybr', 'Powell', 'BFGS'):
+            res = solver.solve([1, 400.])
+            assert type(res) is list

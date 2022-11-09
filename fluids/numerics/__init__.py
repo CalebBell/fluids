@@ -49,7 +49,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'solve_4_direct', 'sincos', 'horner_and_der4',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2', 'roots_quadratic',
-           'numpy', 'nquad', 'catanh', 'factorial',
+           'numpy', 'nquad', 'catanh', 'factorial', 'SolverInterface',
+           'multivariate_solvers', 'jacobian_methods',
            'polyint_over_x', 'horner_log', 'polyint', 'zeros', 'full',
            'chebder', 'chebint', 'exp_cheb',
            'polyder', 'make_damp_initial', 'quadratic_from_points',
@@ -4654,6 +4655,258 @@ if IS_PYPY:
     quad = quad_adaptive
 else:
     quad = lazy_quad
+
+
+
+
+
+
+
+scipy_root_options = ('hybr', 'lm', 'broyden1', 'broyden2', 'anderson',
+                      'linearmixing', 'diagbroyden', 'excitingmixing', 'krylov', 'df-sane')
+scipy_root_options_set = frozenset(scipy_root_options)
+
+python_solvers = ('newton_system', 'newton_system_line_search',
+                  'homotopy_solver', 'broyden2_python')
+python_solvers_set = frozenset(python_solvers)
+
+scipy_minimize_options = ('Nelder-Mead', 'Powell', 'CG', 'BFGS', 'Newton-CG', 'L-BFGS-B', 
+                          'TNC', 'COBYLA', 'SLSQP', 'trust-constr',
+#                           'trust-krylov',# needs hessian
+#                           'trust-ncg'# needs hessian
+#                           'dogleg', # needs hessian
+#                           'trust-exact', # needs hessian
+                         )
+
+scipy_minimize_options_set = frozenset(scipy_minimize_options)
+
+multivariate_solvers = python_solvers + scipy_root_options + scipy_minimize_options
+
+jacobian_methods = ('python', 'numdifftools_forward', 'numdifftools_reverse', 'numdifftools_central',
+                    'jacobi_forward', 'jacobi_central', 'jacobi_backward')
+
+python_jacobians_set = frozenset(['python'])
+
+class SolverInterface(object):
+    minimizing = False
+
+    def objf_python_return_numpy(self, x, *args):
+        # function only knows python, solver knows numpy
+        return np.array(self.objf_original(x if type(x) is list else x.tolist(),
+                                  *args))
+
+    def objf_numpy_return_python(self, x, *args):
+        # function only knows numpy, solver knows python
+        return self.objf_original(np.array(x), *args).tolist()
+
+    def objf_numpy_minimizing(self, x, *args):
+        errs = self.objf_original(np.array(x), *args)
+        tot = 0.0
+        for v in errs:
+            tot += v*v
+        return float(tot)
+
+    def objf_python_minimizing(self, x, *args):
+        errs = self.objf_original(x if type(x) is list else x.tolist(), *args)
+        tot = 0.0
+        for v in errs:
+            tot += v*v
+        return tot
+    
+    def jac_minimizing(self, x, *args):
+        fval = self.objf_original(x, *args)
+        jval = self.original_jac(x, *args)
+        N = len(fval)
+        small_jac = [0.0]*N
+        for i in range(N):
+            temp = 0.0
+            for j in range(N):
+                temp += fval[j]*jval[j][i]
+            small_jac[i] = 2.0*temp
+        return small_jac
+    
+    def jac_minimizing_numpy(self, x, *args):
+        fval = self.objf_original(x, *args)
+        jval = self.original_jac(x, *args)
+        return 2.0*np.dot(fval, jval)
+
+    def __init__(self, method, objf, jac=None, xtol=1e-8, ytol=None, maxiter=100, damping=1.0,
+                 jacobian_method='python', jacobian_perturbation=1e-9, jacobian_zero_offset=1e-7,
+                 jacobian_order=1, objf_numpy=False, matrix_solver=py_solve):
+        self.method = method
+        self.objf = self.objf_original = objf
+        self.jac = self.original_jac = jac
+        self.xtol = xtol
+        self.ytol = ytol
+        self.maxiter = maxiter
+        self.damping = damping
+        self.matrix_solver = matrix_solver
+        
+        self.jacobian_perturbation = jacobian_perturbation
+        self.jacobian_zero_offset = jacobian_zero_offset
+        self.jacobian_method = jacobian_method
+        self.jacobian_order = jacobian_order
+
+        self.jacobian_numpy = jacobian_method not in python_jacobians_set
+        
+        # whether or not the solver uses numpy
+        self.solver_numpy = method not in python_solvers_set
+        
+        # whether or not the objf uses numpy
+        # if jac is provided it is assumed it is in the same basis
+        self.objf_numpy = objf_numpy
+
+        if method in scipy_minimize_options_set:
+            self.minimizing = True
+            if method in ('BFGS', 'Newton-CG', 'dogleg', 'trust-ncg', 'trust-krylov') and jacobian_method == 'scipy':
+                self.jacobian_method = 'python'
+            self.objf = self.objf_numpy_minimizing if objf_numpy else self.objf_python_minimizing
+        elif self.solver_numpy and not objf_numpy:
+            self.objf = self.objf_python_return_numpy
+        elif not self.solver_numpy and objf_numpy:
+            self.objf = self.objf_numpy_return_python
+    
+    def hessian(self):
+        pass
+    
+    def jacobian(self, x, base=None, args=()):
+        '''
+        jacobi - doesn't support jacobian_perturbation, jacobian_zero_offset, jacobian_order
+        python - doesn't support jacobian_order
+        '''
+        jacobian_method = self.jacobian_method
+        return_numpy = type(x) is not list
+        if jacobian_method == 'analytical':
+            if self.objf_numpy and not return_numpy:
+                x = np.array(x)
+            elif return_numpy and not self.objf_numpy:
+                x = x.tolist()
+            if self.minimizing:
+                if self.objf_numpy:
+                    j = self.jac_minimizing_numpy(x, *args)
+                else:
+                    j = self.jac_minimizing(x, *args)
+            else:
+                j = self.jac(x)
+        else:
+            jacobian_numpy = self.jacobian_numpy
+    
+            # if the jacobian method doesn't speak numpy, convert x to a list
+            if not jacobian_numpy:
+                x = x if type(x) is list else x.tolist()
+            else:
+                x = np.array(x)
+            # If the objf doesn't speak numpy but the jacobian does, use the converter
+            if self.minimizing:
+                if self.objf_numpy:
+                    objf = self.objf_numpy_minimizing
+                else:
+                    objf = self.objf_python_minimizing
+            else:
+                if not jacobian_numpy:
+                    if self.objf_numpy:
+                        objf = self.objf_numpy_return_python
+                    else:
+                        objf = self.objf_original
+                else:
+                    if self.objf_numpy:
+                        objf = self.objf_original
+                    else:
+                        objf = self.objf_python_return_numpy
+
+            if jacobian_method.startswith('numdifftools'):
+                import numdifftools as nd
+                numdifftools_func = nd.Gradient if self.minimizing else nd.Jacobian
+                step = self.jacobian_perturbation*x
+                step[np.where(step==0)] = self.jacobian_zero_offset
+            elif jacobian_method.startswith('jacobi'):
+                from jacobi import jacobi
+            if jacobian_method == 'python':
+                j = jacobian(objf, x, scalar=self.minimizing, perturbation=self.jacobian_perturbation,
+                             zero_offset=self.jacobian_zero_offset, args=args, base=base)
+
+            elif jacobian_method == 'numdifftools_forward':
+                j = numdifftools_func(objf, method='forward', order=self.jacobian_order, step=step)(x)
+            elif jacobian_method == 'numdifftools_reverse':
+                j = numdifftools_func(objf, method='reverse', order=self.jacobian_order, step=step)(x)
+            elif jacobian_method == 'numdifftools_central':
+                j = numdifftools_func(objf, method='central', order=self.jacobian_order, step=step)(x)
+
+            elif jacobian_method == 'jacobi_forward':
+                j = jacobi(objf, x, method=1)[0]
+            elif jacobian_method == 'jacobi_central':
+                j = jacobi(objf, x, method=0)[0]
+            elif jacobian_method == 'jacobi_backward':
+                j = jacobi(objf, x, method=1)[0]
+
+        # Handle the return value - doesn't matter what type the method returns
+        if return_numpy:
+            return np.array(j) if type(j) is list else j
+        else:
+            return j if type(j) is list else j.tolist()
+        
+    def solve(self, x0, args=()):
+        return_numpy = type(x0) is not list
+        if self.solver_numpy:
+            x0 = np.array(x0)
+        else:
+            x0 = x0 if type(x0) is list else x0.tolist()
+        
+        process_root = False
+        method = self.method
+        if method == 'newton_system':
+            sln, niter = newton_system(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
+                                 ytol=self.ytol, maxiter=self.maxiter, damping=self.damping, 
+                                 solve_func=self.matrix_solver)
+        elif method == 'newton_system_line_search':
+            sln, niter = newton_system(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
+                                       ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
+                                       line_search=True, solve_func=self.matrix_solver)
+        elif method == 'homotopy_solver':
+            sln, niter = homotopy_solver(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
+                                       ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
+                                       line_search=True, solve_func=self.matrix_solver)
+        elif method == 'broyden2_python':
+            sln, niter = broyden2(x0, self.objf, self.jacobian, xtol=self.xtol, maxiter=self.maxiter,
+                                  args=args)
+        elif method in scipy_root_options_set:
+            process_root = True
+            jacobian_method = self.jacobian_method
+            jac = self.jacobian if jacobian_method != 'scipy' else None
+            result = root(self.objf, x0, args=args, method=method, jac=jac, tol=self.xtol)
+        elif method in scipy_minimize_options_set:
+            process_root = True
+            jacobian_method = self.jacobian_method
+            jac = self.jacobian if jacobian_method != 'scipy' else None
+            result = minimize(self.objf, x0, args=args, method=method, jac=jac, tol=self.xtol)
+        if process_root:
+            sln = result.x
+            try:
+                niter = result.nfev
+            except:
+                try:
+                    niter = result.nit
+                except:
+                    niter = None
+            
+            if not return_numpy:
+                sln = sln.tolist()
+        elif return_numpy:
+            sln = np.array(sln)
+            
+        return sln
+            
+
+
+
+
+
+
+
+
+
+
+
 
 
 fit_minimization_targets = {'MeanAbsErr': mean_abs_error,
