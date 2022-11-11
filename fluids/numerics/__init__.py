@@ -4750,7 +4750,7 @@ class SolverInterface(object):
         self.jacobian_numpy = jacobian_method not in python_jacobians_set
         
         # whether or not the solver uses numpy
-        self.solver_numpy = method not in python_solvers_set
+        self.solver_numpy = solver_numpy = method not in python_solvers_set
         
         # whether or not the objf uses numpy
         # if jac is provided it is assumed it is in the same basis
@@ -4761,9 +4761,9 @@ class SolverInterface(object):
             if method in ('BFGS', 'Newton-CG', 'dogleg', 'trust-ncg', 'trust-krylov') and jacobian_method == 'scipy':
                 self.jacobian_method = 'python'
             self.objf = self.objf_numpy_minimizing if objf_numpy else self.objf_python_minimizing
-        elif self.solver_numpy and not objf_numpy:
+        elif solver_numpy and not objf_numpy:
             self.objf = self.objf_python_return_numpy
-        elif not self.solver_numpy and objf_numpy:
+        elif not solver_numpy and objf_numpy:
             self.objf = self.objf_numpy_return_python
     
     def hessian(self):
