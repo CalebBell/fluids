@@ -4742,7 +4742,7 @@ class SolverInterface(object):
                  jacobian_method='python', jacobian_perturbation=1e-9, jacobian_zero_offset=1e-7,
                  jacobian_order=1, objf_numpy=False, matrix_solver=py_solve):
         self.method = method
-        self.objf = self.objf_original = objf
+        self.objf_original = objf
         self.jac = self.original_jac = jac
         self.xtol = xtol
         self.ytol = ytol
@@ -4774,6 +4774,8 @@ class SolverInterface(object):
             self.objf = self.objf_python_return_numpy
         elif not solver_numpy and objf_numpy:
             self.objf = self.objf_numpy_return_python
+        else:
+            self.objf = self.objf_counting
     
     def hessian(self):
         pass
@@ -4784,6 +4786,7 @@ class SolverInterface(object):
         python - doesn't support jacobian_order
         '''
         self.jac_iter += 1
+        fval_iter = self.fval_iter
         jacobian_method = self.jacobian_method
         return_numpy = type(x) is not list
         if jacobian_method == 'analytical':
@@ -4848,7 +4851,11 @@ class SolverInterface(object):
                 j = jacobi(objf, x, method=0)[0]
             elif jacobian_method == 'jacobi_backward':
                 j = jacobi(objf, x, method=1)[0]
-
+        
+        # Up the jacobian fval count, set the fval back
+        self.jac_fval_count += self.fval_iter - fval_iter
+        self.fval_iter = fval_iter
+        
         # Handle the return value - doesn't matter what type the method returns
         if return_numpy:
             return np.array(j) if type(j) is list else j
