@@ -4756,7 +4756,11 @@ class SolverInterface(object):
                                  jacobian_method, jacobian_order)
         self.objf_numpy, self.matrix_solver = objf_numpy, matrix_solver
 
-        self.jacobian_numpy = jacobian_method not in python_jacobians_set
+
+        if jacobian_method == 'analytical':
+            self.jacobian_numpy = objf_numpy
+        else:
+            self.jacobian_numpy = jacobian_method not in python_jacobians_set
         
         # whether or not the solver uses numpy
         self.solver_numpy = solver_numpy = method not in python_solvers_set
@@ -4792,7 +4796,7 @@ class SolverInterface(object):
         python - doesn't support jacobian_order
         '''
         self.jac_iter += 1
-        fval_iter, jacobian_method, objf_numpy = self.fval_iter, self.jacobian_method, self.objf_numpy
+        fval_iter, jacobian_method, objf_numpy, jacobian_numpy = self.fval_iter, self.jacobian_method, self.objf_numpy, self.jacobian_numpy
         return_numpy = type(x) is not list
         if jacobian_method == 'analytical':
             if objf_numpy and not return_numpy:
@@ -4807,8 +4811,6 @@ class SolverInterface(object):
             else:
                 j = self.original_jac(x)
         else:
-            jacobian_numpy = self.jacobian_numpy
-    
             # if the jacobian method doesn't speak numpy, convert x to a list
             if not jacobian_numpy:
                 x = x if type(x) is list else x.tolist()
@@ -4860,8 +4862,14 @@ class SolverInterface(object):
         # Up the jacobian fval count, set the fval back
         self.jac_fval_count += self.fval_iter - fval_iter
         self.fval_iter = fval_iter
-        
         # Handle the return value - doesn't matter what type the method returns
+        # if (not (jacobian_numpy ^ return_numpy)) or (return_numpy and jacobian_numpy):
+        #     return j
+        # elif return_numpy and not jacobian_numpy:
+        #     return np.array(j)
+        # elif jacobian_numpy and not return_numpy:
+        #     return j.tolist()
+        
         if return_numpy:
             return np.array(j) if type(j) is list else j
         else:
