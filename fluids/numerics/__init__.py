@@ -4678,6 +4678,9 @@ scipy_minimize_options = ('Nelder-Mead', 'Powell', 'CG', 'BFGS', 'Newton-CG', 'L
 #                           'trust-exact', # needs hessian
                          )
 
+scipy_requires_jacobian_options = ('BFGS', 'Newton-CG', 'dogleg', 'trust-ncg', 'trust-krylov')
+scipy_requires_jacobian_options_set = frozenset(scipy_requires_jacobian_options)
+
 scipy_minimize_options_set = frozenset(scipy_minimize_options)
 
 multivariate_solvers = python_solvers + scipy_root_options + scipy_minimize_options
@@ -4688,11 +4691,15 @@ jacobian_methods = ('python', 'numdifftools_forward', 'numdifftools_reverse', 'n
 python_jacobians_set = frozenset(['python'])
 
 class SolverInterface(object):
-    minimizing = False
-    
-    def objf_counting(self, x, *args):
+    __slots__ = ('minimizing', 'fval_iter', 'jac_iter', 'jac_fval_count', 'method', 
+                 'objf_original', 'original_jac', 'xtol', 'ytol', 'maxiter', 'damping', 
+                 'jacobian_perturbation', 'jacobian_zero_offset', 'jacobian_method', 
+                 'jacobian_order', 'objf_numpy', 'matrix_solver', 'jacobian_numpy',
+                 'solver_numpy', 'objf')
+
+    def objf_counting(self, *args):
         self.fval_iter += 1
-        return self.objf_original(x, *args)
+        return self.objf_original(*args)
 
     def objf_python_return_numpy(self, x, *args):
         # function only knows python, solver knows numpy
@@ -4741,41 +4748,40 @@ class SolverInterface(object):
     def __init__(self, method, objf, jac=None, xtol=1e-8, ytol=None, maxiter=100, damping=1.0,
                  jacobian_method='python', jacobian_perturbation=1e-9, jacobian_zero_offset=1e-7,
                  jacobian_order=1, objf_numpy=False, matrix_solver=py_solve):
-        self.method = method
-        self.objf_original = objf
-        self.jac = self.original_jac = jac
-        self.xtol = xtol
-        self.ytol = ytol
-        self.maxiter = maxiter
-        self.damping = damping
-        self.matrix_solver = matrix_solver
-        self.fval_iter = self.jac_iter = self.jac_fval_count = 0
+        self.method, self.objf_original, self.original_jac = method, objf, jac
+        self.xtol, self.ytol, self.maxiter, self.damping = xtol, ytol, maxiter, damping
         
-        self.jacobian_perturbation = jacobian_perturbation
-        self.jacobian_zero_offset = jacobian_zero_offset
-        self.jacobian_method = jacobian_method
-        self.jacobian_order = jacobian_order
+        (self.jacobian_perturbation, self.jacobian_zero_offset, self.jacobian_method, 
+         self.jacobian_order) = (jacobian_perturbation, jacobian_zero_offset,
+                                 jacobian_method, jacobian_order)
+        self.objf_numpy, self.matrix_solver = objf_numpy, matrix_solver
 
         self.jacobian_numpy = jacobian_method not in python_jacobians_set
         
         # whether or not the solver uses numpy
         self.solver_numpy = solver_numpy = method not in python_solvers_set
         
+        self.minimizing = False
+        self.fval_iter = self.jac_iter = self.jac_fval_count = 0
+        
         # whether or not the objf uses numpy
         # if jac is provided it is assumed it is in the same basis
-        self.objf_numpy = objf_numpy
 
         if method in scipy_minimize_options_set:
             self.minimizing = True
-            if method in ('BFGS', 'Newton-CG', 'dogleg', 'trust-ncg', 'trust-krylov') and jacobian_method == 'scipy':
+            if jacobian_method == 'scipy' and method in scipy_requires_jacobian_options_set:
                 self.jacobian_method = 'python'
             self.objf = self.objf_numpy_minimizing if objf_numpy else self.objf_python_minimizing
-        elif solver_numpy and not objf_numpy:
-            self.objf = self.objf_python_return_numpy
-        elif not solver_numpy and objf_numpy:
-            self.objf = self.objf_numpy_return_python
+        elif solver_numpy:
+            if not objf_numpy:
+                self.objf = self.objf_python_return_numpy
+            else:
+                self.objf = self.objf_counting
         else:
-            self.objf = self.objf_counting
+            if objf_numpy:
+                self.objf = self.objf_numpy_return_python
+            else:
+                self.objf = self.objf_counting
     
     def hessian(self):
         pass
@@ -4786,21 +4792,20 @@ class SolverInterface(object):
         python - doesn't support jacobian_order
         '''
         self.jac_iter += 1
-        fval_iter = self.fval_iter
-        jacobian_method = self.jacobian_method
+        fval_iter, jacobian_method, objf_numpy = self.fval_iter, self.jacobian_method, self.objf_numpy
         return_numpy = type(x) is not list
         if jacobian_method == 'analytical':
-            if self.objf_numpy and not return_numpy:
+            if objf_numpy and not return_numpy:
                 x = np.array(x)
-            elif return_numpy and not self.objf_numpy:
+            elif return_numpy and not objf_numpy:
                 x = x.tolist()
             if self.minimizing:
-                if self.objf_numpy:
+                if objf_numpy:
                     j = self.jac_minimizing_numpy(x, *args)
                 else:
                     j = self.jac_minimizing(x, *args)
             else:
-                j = self.jac(x)
+                j = self.original_jac(x)
         else:
             jacobian_numpy = self.jacobian_numpy
     
@@ -4811,18 +4816,18 @@ class SolverInterface(object):
                 x = np.array(x)
             # If the objf doesn't speak numpy but the jacobian does, use the converter
             if self.minimizing:
-                if self.objf_numpy:
+                if objf_numpy:
                     objf = self.objf_numpy_minimizing
                 else:
                     objf = self.objf_python_minimizing
             else:
                 if not jacobian_numpy:
-                    if self.objf_numpy:
+                    if objf_numpy:
                         objf = self.objf_numpy_return_python
                     else:
                         objf = self.objf_counting
                 else:
-                    if self.objf_numpy:
+                    if objf_numpy:
                         objf = self.objf_counting
                     else:
                         objf = self.objf_python_return_numpy
@@ -4867,8 +4872,8 @@ class SolverInterface(object):
         return_numpy = type(x0) is not list
         if self.solver_numpy:
             x0 = np.array(x0)
-        else:
-            x0 = x0 if type(x0) is list else x0.tolist()
+        elif return_numpy:
+            x0 = x0.tolist()
         
         process_root = False
         method = self.method

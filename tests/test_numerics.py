@@ -1285,7 +1285,7 @@ except:
     pass
     
 @pytest.mark.parametrize("jacob_method", jacob_methods)
-def test_SolverInterface_basics(jacob_method):
+def test_SolverInterface_basics(jacob_method):    
     solver = SolverInterface(method='newton_system', objf=to_solve_newton_python,
                              jacobian_method=jacob_method, jac=to_solve_jac_newton_python)
     # Not testing convergence so start quite close to the point
