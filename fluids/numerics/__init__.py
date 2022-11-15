@@ -4695,7 +4695,7 @@ class SolverInterface(object):
                  'objf_original', 'original_jac', 'xtol', 'ytol', 'maxiter', 'damping', 
                  'jacobian_perturbation', 'jacobian_zero_offset', 'jacobian_method', 
                  'jacobian_order', 'objf_numpy', 'matrix_solver', 'jacobian_numpy',
-                 'solver_numpy', 'objf')
+                 'solver_numpy', 'objf', 'solver_analytical_jac')
 
     def objf_counting(self, *args):
         self.fval_iter += 1
@@ -4786,6 +4786,18 @@ class SolverInterface(object):
                 self.objf = self.objf_numpy_return_python
             else:
                 self.objf = self.objf_counting
+                
+        if self.minimizing:
+            if objf_numpy:
+                self.solver_analytical_jac = self.jac_minimizing_numpy
+            else:
+                self.solver_analytical_jac = self.jac_minimizing
+        else:
+            self.solver_analytical_jac = self.original_jac
+        
+                
+                
+                
     
     def hessian(self):
         pass
@@ -4803,13 +4815,7 @@ class SolverInterface(object):
                 x = np.array(x)
             elif return_numpy and not objf_numpy:
                 x = x.tolist()
-            if self.minimizing:
-                if objf_numpy:
-                    j = self.jac_minimizing_numpy(x, *args)
-                else:
-                    j = self.jac_minimizing(x, *args)
-            else:
-                j = self.original_jac(x)
+            j = self.solver_analytical_jac(x, *args)
         else:
             # if the jacobian method doesn't speak numpy, convert x to a list
             if not jacobian_numpy:
