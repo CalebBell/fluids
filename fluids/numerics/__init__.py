@@ -3832,8 +3832,9 @@ def solve_4_direct(mat, vec):
 
 
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
-                  args=(), damping_func=None, solve_func=py_solve, line_search=False, with_point=False): # numba: delete
-#                  args=(), damping_func=None, solve_func=np.linalg.solve, line_search=False): # numba: uncomment
+                  args=(), damping_func=None, line_search=False, require_progress=True,
+                  solve_func=py_solve, with_point=False): # numba: delete
+#                 solve_func=np.linalg.solve): # numba: uncomment
     jac_also = True if jac == True else False
 
 
@@ -3868,14 +3869,16 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                 xnew = [xi + dxi*mult for xi, dxi in zip(x, dx)] # numba: delete
             else:
                 xnew = damping_func(x, dx, damping*factor, *args)
-            # try:
-            if jac_also:
-                fnew, jnew = f(xnew, *args)
-            else: # numba: delete
-                fnew = f(xnew, *args)  # numba: delete
-            # except:
-            # print(f'Line search calculation with point failed')
-                # continue
+            try: # numba: delete
+                if jac_also: # numba: delete
+                    fnew, jnew = f(xnew, *args) # numba: delete
+                else: # numba: delete
+                    fnew = f(xnew, *args)  # numba: delete
+            except: # numba: delete
+#x                print(f'Line search calculation with point failed') # numba: delete
+                continue # numba: delete
+                
+#            fnew, jnew = f(xnew, *args) # numba: uncomment
             err_new = 0.0
             for v in fnew:
                 err_new += abs(v)
@@ -3884,7 +3887,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                 if not jac_also: # numba: delete
                     jnew = jac(xnew, *args) # numba: delete
                 break
-        if line_search and err_new > err0:
+        if (line_search and err_new > err0) and require_progress:
             raise ValueError("Completed line search without reducing the objective function error, cannot proceed")
                 
         fcur = fnew
