@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import (sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin,
+from math import (sin, exp, pi, fabs, copysign, log, isinf, isnan, acos, cos, sin,
                   atan2, asinh, sqrt, gamma)
 from cmath import sqrt as csqrt, log as clog
 import sys
@@ -3832,7 +3832,7 @@ def solve_4_direct(mat, vec):
 
 
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
-                  args=(), damping_func=None, line_search=False, require_progress=True,
+                  args=(), damping_func=None, line_search=False, require_progress=True, check_numbers=False,
                   solve_func=py_solve, with_point=False): # numba: delete
 #                 solve_func=np.linalg.solve): # numba: uncomment
     jac_also = True if jac == True else False
@@ -3874,6 +3874,13 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                     fnew, jnew = f(xnew, *args) # numba: delete
                 else: # numba: delete
                     fnew = f(xnew, *args)  # numba: delete
+                do_next = False # numba: delete
+                if check_numbers: # numba: delete
+                    for v in fnew: # numba: delete
+                        if isinf(v) or isnan(v): # numba: delete
+                            do_next = True # numba: delete
+                if do_next:# numba: delete
+                    continue# numba: delete
             except: # numba: delete
 #x                print(f'Line search calculation with point failed') # numba: delete
                 continue # numba: delete
@@ -3882,11 +3889,16 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             err_new = 0.0
             for v in fnew:
                 err_new += abs(v)
+            if check_numbers:
+                for v in fnew:
+                    if isinf(v) or isnan(v):
+                        raise ValueError("Camnot continue - math error in function value")
             # print(f'Line search with error={err_new}, factor {mult}' )
             if err_new < err0:
                 if not jac_also: # numba: delete
                     jnew = jac(xnew, *args) # numba: delete
                 break
+            
         if (line_search and err_new > err0) and require_progress:
             raise ValueError("Completed line search without reducing the objective function error, cannot proceed")
                 
@@ -3894,6 +3906,12 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         if err_new > err0 and not jac_also:# numba: delete
             # edge case, didn't make any progress but keep going
             jnew = jac(xnew, *args) # numba: delete
+        if check_numbers:
+            for jrow in jnew:
+                for jval in jrow:
+                    if isinf(jval) or isnan(jval):
+                        raise ValueError("Camnot continue - math error in function value")
+        # print('jnew', jnew)
         j = jnew
         err0 = err_new
         x = xnew
@@ -4901,7 +4919,8 @@ class SolverInterface(object):
         elif method == 'newton_system_line_search':
             sln, niter = newton_system(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
                                        ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
-                                       line_search=True, solve_func=self.matrix_solver)
+                                       line_search=True, solve_func=self.matrix_solver, require_progress=False,
+                                       check_numbers=True)
         elif method == 'homotopy_solver':
             sln, niter = homotopy_solver(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
                                        ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
