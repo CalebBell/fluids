@@ -102,7 +102,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'exp_horner_stable_ln_tau', 'exp_horner_stable_ln_tau_and_der', 
            'exp_horner_stable_ln_tau_and_der2',
            'is_monotonic',
-           'sort_nelder_mead_points_numba', 'sort_nelder_mead_points_python', 'nelder_mead',
+           'sort_nelder_mead_points_numba', 'sort_nelder_mead_points_python', 
+           'bounds_clip_naive', 'nelder_mead',
            ]
 
 from fluids.numerics import doubledouble
@@ -4679,6 +4680,17 @@ if IS_PYPY:
 else:
     quad = lazy_quad
 
+def bounds_clip_naive(x, low, high):
+    if low is not None:
+        for i in range(N):
+            if x[i] < low[i]:
+                x[i] = low[i]
+    if high is not None:
+        for i in range(N):
+            if x[i] > high[i]:
+                x[i] = high[i]
+    return x
+
 def sort_nelder_mead_points_numba(sim, fsim):
     ind = np.argsort(fsim)
     sim = sim[ind, :]
@@ -4715,23 +4727,23 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
     rhochi = rho*chi
     rhopsi = rho*psi
     onempsi = 1.0 - psi
-    sort_fun = sort_nelder_mead_points
-#     sort_fun = sort_nelder_mead_points_python
+#    sort_fun = sort_nelder_mead_points_numba # numba: uncomment
+    sort_fun = sort_nelder_mead_points_python
         
-    sim = [x0.copy() for _ in range(N+1)]
+    sim = [x0.copy() for _ in range(N+1)] # numba: delete
 #     sim = np.full((N+1, N), x0) # numba: uncomment
 
     if initial_simplex is None:
         for k in range(N):
             sim[k+1][k] = (1.0 + initial_perturbation)*x0[k] if x0[k]!= 0 else initial_zero_perturbation
     else:
-        sim = [x.copy() for x in initial_simplex]
-#         sim = np.asfarray(initial_simplex).copy() # numba: uncomment
+        sim = [x.copy() for x in initial_simplex] # numba: delete
+#        sim = np.asfarray(initial_simplex).copy() # numba: uncomment
 
-#     fsim = np.full((N + 1,), np.inf, dtype=float)
-    
     # Make a new list to store the points. Can initialize it to anything, irrelevant
-    fsim = [x0 for _ in range(N+1)]
+    fsim = [x0 for _ in range(N+1)] # numba: delete
+#    fsim = np.full((N + 1,), np.inf, dtype=float) # numba: uncomment
+    
 
     for k in range(N + 1): 
         fsim[k] = func(sim[k])
@@ -4774,14 +4786,16 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
                 xbar[i] += simj[i]
         for i in range(N):
             xbar[i] *= one_N
-
-        xr = [rhop1*xbar[i] - rho*sim_last[i] for i in range(N)]
+            
+#        xr = rhop1*xbar - rho*sim_last # numba: uncomment
+        xr = [rhop1*xbar[i] - rho*sim_last[i] for i in range(N)] # numba: delete
         if has_bounds:
             xr = bounds_clip_naive(xr, low, high)
 
         fxr = func(xr)
         if fxr < fsim[0]:
-            xe = [rhochip1*xbar[i] - rhochi*sim_last[i] for i in range(N)]
+#            xe = rhochip1*xbar - rhochi*sim_last # numba: uncomment
+            xe = [rhochip1*xbar[i] - rhochi*sim_last[i] for i in range(N)] # numba: delete
             if has_bounds:
                 xe = bounds_clip_naive(xe, low, high)
             fxe = func(xe)
@@ -4797,7 +4811,8 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
                 fsim[-1] = fxr
             else:  # contraction            
                 if fxr < fsim[-1]:
-                    xc = [rhopsip1*xbar[i] - rhopsi*sim_last[i] for i in range(N)]
+#                    xc = rhopsip1*xbar - rhopsi*sim_last # numba: uncomment
+                    xc = [rhopsip1*xbar[i] - rhopsi*sim_last[i] for i in range(N)] # numba: delete
                     if has_bounds:
                         xc = bounds_clip_naive(xc, low, high)
                     fxc = func(xc)
@@ -4806,7 +4821,8 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
                     fsim[-1] = fxc
                 else:
                     # contraction inside
-                    xcc = [onempsi*xbar[i] + psi*sim_last[i] for i in range(N)]
+                    # xcc = onempsi*xbar + psi*sim_last # numba: uncomment
+                    xcc = [onempsi*xbar[i] + psi*sim_last[i] for i in range(N)] # numba: delete
                     if has_bounds:
                         xcc = bounds_clip_naive(xcc, low, high)
                     fxcc = func(xcc)
