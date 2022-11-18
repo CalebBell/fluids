@@ -3347,8 +3347,8 @@ for i in range(7):
 
 # once under 0.36, jump to 0.1 and go down by orders of magnitude to 1e-10
 tmp = []
-remove = 1e-10
-for i in range(10):
+remove = 1e-30
+for i in range(30):
     tmp.append(remove)
     remove *= 10
 tmp.sort(reverse=True)
@@ -3874,17 +3874,18 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                     fnew, jnew = f(xnew, *args) # numba: delete
                 else: # numba: delete
                     fnew = f(xnew, *args)  # numba: delete
+                # print(xnew, 'xnew')
+                # print(fnew, 'fnew')
                 do_next = False # numba: delete
                 if check_numbers: # numba: delete
                     for v in fnew: # numba: delete
                         if isinf(v) or isnan(v): # numba: delete
                             do_next = True # numba: delete
-                if do_next:# numba: delete
+                if do_next and factor != factors[-1]:# numba: delete
                     continue# numba: delete
             except: # numba: delete
-#x                print(f'Line search calculation with point failed') # numba: delete
+                # print(f'Line search calculation with point failed') # numba: delete
                 continue # numba: delete
-                
 #            fnew, jnew = f(xnew, *args) # numba: uncomment
             err_new = 0.0
             for v in fnew:
@@ -4693,11 +4694,14 @@ python_solvers_set = frozenset(python_solvers)
 
 scipy_minimize_options = ('Nelder-Mead', 'Powell', 'CG', 'BFGS', 'Newton-CG', 'L-BFGS-B', 
                           'TNC', 'COBYLA', 'SLSQP', 'trust-constr',
-#                           'trust-krylov',# needs hessian
-#                           'trust-ncg'# needs hessian
-#                           'dogleg', # needs hessian
-#                           'trust-exact', # needs hessian
+                          'trust-krylov',# needs hessian
+                          'trust-ncg',# needs hessian
+                          'dogleg', # needs hessian
+                          'trust-exact', # needs hessian
                          )
+
+scipy_requires_hessian_options = ('trust-krylov', 'trust-ncg', 'dogleg', 'trust-exact')
+scipy_requires_hessian_options_set = frozenset(scipy_requires_hessian_options)
 
 scipy_requires_jacobian_options = ('BFGS', 'Newton-CG', 'dogleg', 'trust-ncg', 'trust-krylov')
 scipy_requires_jacobian_options_set = frozenset(scipy_requires_jacobian_options)
@@ -4711,12 +4715,16 @@ jacobian_methods = ('python', 'numdifftools_forward', 'numdifftools_reverse', 'n
 
 python_jacobians_set = frozenset(['python'])
 
+hessian_methods = ('python',)
+python_hessians_set = frozenset(hessian_methods)
+
 class SolverInterface(object):
     __slots__ = ('minimizing', 'fval_iter', 'jac_iter', 'jac_fval_count', 'method', 
                  'objf_original', 'original_jac', 'xtol', 'ytol', 'maxiter', 'damping', 
                  'jacobian_perturbation', 'jacobian_zero_offset', 'jacobian_method', 
                  'jacobian_order', 'objf_numpy', 'matrix_solver', 'jacobian_numpy',
-                 'solver_numpy', 'objf', 'solver_analytical_jac')
+                 'solver_numpy', 'objf', 'solver_analytical_jac', 'hess_iter',
+                 'hess_fval_count', 'hessian_method', 'hessian_numpy')
 
     def objf_counting(self, *args):
         self.fval_iter += 1
@@ -4768,13 +4776,17 @@ class SolverInterface(object):
 
     def __init__(self, method, objf, jac=None, xtol=1e-8, ytol=None, maxiter=100, damping=1.0,
                  jacobian_method='python', jacobian_perturbation=1e-9, jacobian_zero_offset=1e-7,
+                 hessian_method='python',
                  jacobian_order=1, objf_numpy=False, matrix_solver=py_solve):
         self.method, self.objf_original, self.original_jac = method, objf, jac
         self.xtol, self.ytol, self.maxiter, self.damping = xtol, ytol, maxiter, damping
         
         (self.jacobian_perturbation, self.jacobian_zero_offset, self.jacobian_method, 
-         self.jacobian_order) = (jacobian_perturbation, jacobian_zero_offset,
-                                 jacobian_method, jacobian_order)
+         self.jacobian_order, self.hessian_method) = (jacobian_perturbation, 
+                                                      jacobian_zero_offset,
+                                                      jacobian_method,
+                                                      jacobian_order, 
+                                                      hessian_method)
         self.objf_numpy, self.matrix_solver = objf_numpy, matrix_solver
 
 
@@ -4782,12 +4794,15 @@ class SolverInterface(object):
             self.jacobian_numpy = objf_numpy
         else:
             self.jacobian_numpy = jacobian_method not in python_jacobians_set
-        
+        if hessian_method == 'analytical':
+            self.hessian_numpy = objf_numpy
+        else:
+            self.hessian_numpy = hessian_method not in python_hessians_set
         # whether or not the solver uses numpy
         self.solver_numpy = solver_numpy = method not in python_solvers_set
         
         self.minimizing = False
-        self.fval_iter = self.jac_iter = self.jac_fval_count = 0
+        self.fval_iter = self.jac_iter = self.jac_fval_count = self.hess_iter = self.hess_fval_count = 0
         
         # whether or not the objf uses numpy
         # if jac is provided it is assumed it is in the same basis
@@ -4820,8 +4835,62 @@ class SolverInterface(object):
                 
                 
     
-    def hessian(self):
-        pass
+    def hessian(self, x, base=None, args=()):
+        self.hess_iter += 1
+        fval_iter, hessian_method, objf_numpy, hessian_numpy = self.fval_iter, self.hessian_method, self.objf_numpy, self.hessian_numpy
+        return_numpy = type(x) is not list
+        if hessian_method == 'analytical':
+            if objf_numpy and not return_numpy:
+                x = np.array(x)
+            elif return_numpy and not objf_numpy:
+                x = x.tolist()
+            raise NotImplementedError
+            h = self.solver_analytical_hess(x, *args)
+        else:
+            # if the hessian method doesn't speak numpy, convert x to a list
+            if not hessian_numpy:
+                x = x if type(x) is list else x.tolist()
+            else:
+                x = np.array(x)
+            # If the objf doesn't speak numpy but the hessian does, use the converter
+            if self.minimizing:
+                if objf_numpy:
+                    objf = self.objf_numpy_minimizing
+                else:
+                    objf = self.objf_python_minimizing
+            else:
+                if not hessian_numpy:
+                    if objf_numpy:
+                        objf = self.objf_numpy_return_python
+                    else:
+                        objf = self.objf_counting
+                else:
+                    if objf_numpy:
+                        objf = self.objf_counting
+                    else:
+                        objf = self.objf_python_return_numpy
+
+            if hessian_method.startswith('numdifftools'):
+                import numdifftools as nd
+            if hessian_method == 'python':
+                h = hessian(objf, x, scalar=self.minimizing, perturbation=1e-4,
+                             zero_offset=self.jacobian_zero_offset, args=args)
+
+            elif hessian_method == 'numdifftools_forward':
+                h = nd.Hessian(objf, method='forward')(x)
+            elif hessian_method == 'numdifftools_reverse':
+                h = nd.Hessian(objf, method='reverse')(x)
+            elif hessian_method == 'numdifftools_central':
+                h = nd.Hessian(objf, method='central')(x)
+        
+        # Up the hessian fval count, set the fval back
+        self.hess_fval_count += self.fval_iter - fval_iter
+        self.fval_iter = fval_iter
+        
+        if return_numpy:
+            return np.array(h) if type(h) is list else h
+        else:
+            return h if type(h) is list else h.tolist()
     
     def jacobian(self, x, base=None, args=()):
         '''
@@ -4903,7 +4972,7 @@ class SolverInterface(object):
             return j if type(j) is list else j.tolist()
         
     def solve(self, x0, args=()):
-        self.fval_iter = self.jac_iter = self.jac_fval_count = 0
+        self.fval_iter = self.jac_iter = self.jac_fval_count = self.hess_iter = self.hess_fval_count = 0
         return_numpy = type(x0) is not list
         if self.solver_numpy:
             x0 = np.array(x0)
@@ -4937,7 +5006,8 @@ class SolverInterface(object):
             process_root = True
             jacobian_method = self.jacobian_method
             jac = self.jacobian if jacobian_method != 'scipy' else None
-            result = minimize(self.objf, x0, args=args, method=method, jac=jac, tol=self.xtol)
+            hess = self.hessian if method in scipy_requires_hessian_options_set else None
+            result = minimize(self.objf, x0, args=args, method=method, jac=jac, tol=self.xtol, hess=hess)
         if process_root:
             sln = result.x
             
