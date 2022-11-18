@@ -467,7 +467,8 @@ def create_numerics(replaced, vec=False):
     bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck', 'py_solve'])
     bad_names.update(to_set_num)
 
-    solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct', 'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect'] #
+    solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct', 
+               'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect', 'nelder_mead'] #
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
         source = source.replace(', kwargs={}', '').replace(', **kwargs', '').replace(', kwargs=kwargs', '')
@@ -480,8 +481,8 @@ def create_numerics(replaced, vec=False):
         source = remove_for_numba(source)
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
 
-#        if any(i in s for i in ('bisect', 'solve_2_direct', 'basic_damping')):
-#            print(source)
+        # if any(i in s for i in ('nelder_mead',)):
+            # print(source)
         numba_exec_cacheable(source, NUMERICS_SUBMOD.__dict__, NUMERICS_SUBMOD.__dict__)
 
 

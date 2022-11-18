@@ -4728,10 +4728,10 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
     rhopsi = rho*psi
     onempsi = 1.0 - psi
 #    sort_fun = sort_nelder_mead_points_numba # numba: uncomment
-    sort_fun = sort_nelder_mead_points_python
+    sort_fun = sort_nelder_mead_points_python # numba: delete
         
     sim = [x0.copy() for _ in range(N+1)] # numba: delete
-#     sim = np.full((N+1, N), x0) # numba: uncomment
+#    sim = np.zeros((N+1, N), dtype=float) # numba: uncomment
 
     if initial_simplex is None:
         for k in range(N):
@@ -4742,8 +4742,7 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
 
     # Make a new list to store the points. Can initialize it to anything, irrelevant
     fsim = [x0 for _ in range(N+1)] # numba: delete
-#    fsim = np.full((N + 1,), np.inf, dtype=float) # numba: uncomment
-    
+#    fsim = np.zeros((N+1, ), dtype=float) # numba: uncomment
 
     for k in range(N + 1): 
         fsim[k] = func(sim[k])
@@ -4821,7 +4820,7 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
                     fsim[-1] = fxc
                 else:
                     # contraction inside
-                    # xcc = onempsi*xbar + psi*sim_last # numba: uncomment
+#                    xcc = onempsi*xbar + psi*sim_last # numba: uncomment
                     xcc = [onempsi*xbar[i] + psi*sim_last[i] for i in range(N)] # numba: delete
                     if has_bounds:
                         xcc = bounds_clip_naive(xcc, low, high)
