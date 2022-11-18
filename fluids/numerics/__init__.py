@@ -4735,10 +4735,13 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
 
     if initial_simplex is None:
         for k in range(N):
-            sim[k+1][k] = (1.0 + initial_perturbation)*x0[k] if x0[k]!= 0 else initial_zero_perturbation
+            if x0[k]!= 0:
+                sim[k+1][k] = (1.0 + initial_perturbation)*x0[k] 
+            else:
+                sim[k+1][k] = initial_zero_perturbation
     else:
         sim = [x.copy() for x in initial_simplex] # numba: delete
-#        sim = np.asfarray(initial_simplex).copy() # numba: uncomment
+#        sim = np.asfarray(initial_simplex) # numba: uncomment
 
     # Make a new list to store the points. Can initialize it to anything, irrelevant
     fsim = [x0 for _ in range(N+1)] # numba: delete
