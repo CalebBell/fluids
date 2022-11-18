@@ -102,6 +102,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'exp_horner_stable_ln_tau', 'exp_horner_stable_ln_tau_and_der', 
            'exp_horner_stable_ln_tau_and_der2',
            'is_monotonic',
+           'sort_nelder_mead_points_numba', 'sort_nelder_mead_points_python', 'nelder_mead',
            ]
 
 from fluids.numerics import doubledouble
@@ -4678,8 +4679,146 @@ if IS_PYPY:
 else:
     quad = lazy_quad
 
+def sort_nelder_mead_points_numba(sim, fsim):
+    ind = np.argsort(fsim)
+    sim = sim[ind, :]
+    fsim = fsim[ind]
+    return sim, fsim
 
 
+def sort_nelder_mead_points_python(sim, fsim):
+    # inplace for speed
+    sim = [x for _, x in sorted(zip(fsim, sim))]
+    fsim = list(sorted(fsim))
+    return sim, fsim
+
+def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=None,
+                initial_simplex=None, adaptive=False, initial_perturbation=0.05, 
+                initial_zero_perturbation=0.00025, low=None, high=None):
+    N = len(x0)
+    has_bounds = low is not None or high is not None
+    if adaptive:
+        dim = float(N)
+        rho = 1.0
+        chi = 1.0 + 2.0/dim
+        psi = 0.75 - 1.0/(2.0*dim)
+        sigma = 1.0 - 1.0/dim
+    else:
+        rho = 1.0
+        chi = 2.0
+        psi = 0.5
+        sigma = 0.5
+        
+    rhop1 = 1.0 + rho
+    rhochip1 = rho*chi + 1.0
+    rhopsip1 = rho*psi + 1.0
+    rhochi = rho*chi
+    rhopsi = rho*psi
+    onempsi = 1.0 - psi
+    sort_fun = sort_nelder_mead_points
+#     sort_fun = sort_nelder_mead_points_python
+        
+    sim = [x0.copy() for _ in range(N+1)]
+#     sim = np.full((N+1, N), x0) # numba: uncomment
+
+    if initial_simplex is None:
+        for k in range(N):
+            sim[k+1][k] = (1.0 + initial_perturbation)*x0[k] if x0[k]!= 0 else initial_zero_perturbation
+    else:
+        sim = [x.copy() for x in initial_simplex]
+#         sim = np.asfarray(initial_simplex).copy() # numba: uncomment
+
+#     fsim = np.full((N + 1,), np.inf, dtype=float)
+    
+    # Make a new list to store the points. Can initialize it to anything, irrelevant
+    fsim = [x0 for _ in range(N+1)]
+
+    for k in range(N + 1): 
+        fsim[k] = func(sim[k])
+    
+#     print(sim, fsim)
+    sim, fsim = sort_fun(sim, fsim)
+        
+    iterations = 0
+    
+    one_N = 1.0/N
+    
+    while (iterations < maxiter):
+        # Do the convergence checks
+        errcheck1 = 0
+        sim0 = sim[0]
+        for i in range(1, N+1):
+            asim = sim[i]
+            for j in range(N):
+                a_xdiff = abs(sim0[j] - asim[j])
+                if a_xdiff > errcheck1:
+                    errcheck1 = a_xdiff
+        
+        current_fdiff = 0.0
+        current_best = fsim[0]
+        for i in range(1, N+1):
+            a_fdiff = abs(current_best - fsim[i])
+            if a_fdiff > current_fdiff:
+                current_fdiff = a_fdiff
+        
+        if (errcheck1 <= xtol and current_fdiff  <= ftol):
+            break
+    
+        sim_last = sim[-1]
+                
+        xbar = [0.0]*N
+        for j in range(N):
+            xbarval = 0.0
+            simj = sim[j]
+            for i in range(N):
+                xbar[i] += simj[i]
+        for i in range(N):
+            xbar[i] *= one_N
+
+        xr = [rhop1*xbar[i] - rho*sim_last[i] for i in range(N)]
+        if has_bounds:
+            xr = bounds_clip_naive(xr, low, high)
+
+        fxr = func(xr)
+        if fxr < fsim[0]:
+            xe = [rhochip1*xbar[i] - rhochi*sim_last[i] for i in range(N)]
+            if has_bounds:
+                xe = bounds_clip_naive(xe, low, high)
+            fxe = func(xe)
+            if fxe < fxr:
+                sim[-1] = xe
+                fsim[-1] = fxe
+            else:
+                sim[-1] = xr
+                fsim[-1] = fxr
+        else:
+            if fxr < fsim[-2]:
+                sim[-1] = xr
+                fsim[-1] = fxr
+            else:  # contraction            
+                if fxr < fsim[-1]:
+                    xc = [rhopsip1*xbar[i] - rhopsi*sim_last[i] for i in range(N)]
+                    if has_bounds:
+                        xc = bounds_clip_naive(xc, low, high)
+                    fxc = func(xc)
+
+                    sim[-1] = xc
+                    fsim[-1] = fxc
+                else:
+                    # contraction inside
+                    xcc = [onempsi*xbar[i] + psi*sim_last[i] for i in range(N)]
+                    if has_bounds:
+                        xcc = bounds_clip_naive(xcc, low, high)
+                    fxcc = func(xcc)
+                    sim[-1] = xcc
+                    fsim[-1] = fxcc
+                        
+        sim, fsim = sort_fun(sim, fsim)
+        iterations += 1
+        
+    x = sim[0]
+    fval = min(fsim)
+    return x, fval, iterations
 
 
 
