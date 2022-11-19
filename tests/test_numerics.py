@@ -1291,7 +1291,46 @@ def test_newton_system_with_damping_function():
                                     ytol=1e-7, xtol=None, damping_func=damping_func_max_one_second)
     assert [300, 298] == Ts[0:2]
 
+def test_newton_system_nan_inf_inputs_outputs():
+    for bad in (float("nan"), float("inf")):
+        Ts = []
+        def test_objf_with_nan_iterations(inputs):
+            x, T = inputs
+            Ts.append(T)
+            k = 0.12*exp(12581*(T-298.)/(298.*T))
+            if len(Ts) == 3:
+                return [bad, bad]
+            return [120*x-75*k*(1-x), -x*(873-T)-11.0*(T-300)]
+        def test_jac_with_nan_point(inputs):
+            x, T = inputs
+            ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+                    (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
+                   [T - 873,
+                    x - 11.0]]
+            return ans
+        
+        near_solution = [0.05995136780143791, 300]
+        with pytest.raises(ValueError):
+            newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+                                        line_search=False, check_numbers=True,
+                                        ytol=1e-7, xtol=None)
+        Ts = []
+        
+        # The line search will allow the solver to try again
+        ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+                                        line_search=True, check_numbers=True, xtol=1e-12)
+        assert_close1d(ans, [0.059951367801437914, 296.85996516970505])
+        
+        # the lack of line search causes a failure
+        for progress in (True, False):
+            with pytest.raises(ValueError):
+                Ts = []
+                ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+                                                line_search=False, check_numbers=True, xtol=1e-12, require_progress=progress)
+        
 
+    
+    
 def to_solve_newton_python(inputs):
     x, T = inputs
     if not isinstance(inputs, list):
