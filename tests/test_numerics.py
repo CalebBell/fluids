@@ -1164,48 +1164,49 @@ def test_secant_cases_internet():
             return factor*abs(x)**(1.0/3.0)*exp(-x**2)
             
         
-    data = [(lambda x: sin(x) - x/2, [0.1], 'TEST_ZERO #1'),
-            (lambda x: 2*x - exp(-x), [1.], 'TEST_ZERO #2'),
-            (lambda x: x*exp(-x), [1.], 'TEST_ZERO #3'),
-            (lambda x: exp(x) - 1.0/(10.0*x)**2, [1.], 'TEST_ZERO #4'),
-            (lambda x: (x+3)*(x-1)**2, [1.], 'TEST_ZERO #5'),
-            (lambda x: exp(x) - 2 - 1/(10*x)**2 + 2/(100*x)**3, [1.], 'TEST_ZERO #6'),
-            (lambda x: x**3, [1.], 'TEST_ZERO #7'),
-            (lambda x: cos(x) - x, [1.], 'TEST_ZERO #8'),
-            (newton_baffler, [6.25 + 5.0, 6.25 - 1.0, 6.25 + 0.1], 'TEST_ZERO #9/Newton Baffler'),
-            (lambda x: 20*x/(100*x**2 + 1), [1., -0.14, 0.041], 'TEST_ZERO #10/Repeller'),
-            (lambda x: (16 - x**4)/(16*x**4 + 0.00001), [.25, 5., 1.1], 'TEST_ZERO #11/Pinhead'),
-            (flat_stanley, [2, 0.5, 4], 'TEST_ZERO #12/Flat Stanley'),
-            (lambda x: 0.00000000001*(x - 100), [100., 1.], 'TEST_ZERO #13/Lazy Boy'),
-            (lambda x: 1.0/((x - 0.3)**2 + 0.01) + 1.0/((x - 0.9)**2 + 0.04) + 2.0*x - 5.2, [3., -0.5, 0, 2.12742], 'TEST_ZERO #14/Camel'),
-            (newton_pathological, [0.01, -0.25], 'TEST_ZERO #15/Newton Pathological'),
-            (lambda x: pi*(x - 5.0)/180.0 - 0.8*sin(pi*x/180), [0., 5+180., 5.], 'TEST_ZERO #16/Kepler'),
-            (lambda x: x**3 - 2*x - 5, [2., 3.], 'TEST_ZERO #17/Wallis example'),
-            (lambda x: 10.0**14*(1.0*x**7 - 7.0*x**6 + 21.0*x**5 - 35.0*x**4 + 35.0*x**3 - 21.0*x**2 + 7.0*x - 1.0), [.99, 1.013], 'TEST_ZERO #18'),
-            (lambda x: cos(100.0*x) - 4.0*erf(30*x - 10), [0., 1., 0.5], 'TEST_ZERO #19'),
+    data = [(lambda x: sin(x) - x/2, [0.1], None, None, 'TEST_ZERO #1'),
+            (lambda x: 2*x - exp(-x), [1.], None, None, 'TEST_ZERO #2'),
+            (lambda x: x*exp(-x), [1.], None, None, 'TEST_ZERO #3'),
+            (lambda x: exp(x) - 1.0/(10.0*x)**2, [1.], None, None, 'TEST_ZERO #4'),
+            (lambda x: (x+3)*(x-1)**2, [1.], None, None, 'TEST_ZERO #5'),
+            (lambda x: exp(x) - 2 - 1/(10*x)**2 + 2/(100*x)**3, [1.], None, None, 'TEST_ZERO #6'),
+            (lambda x: x**3, [1.], None, None, 'TEST_ZERO #7'),
+            (lambda x: cos(x) - x, [1.], None, None, 'TEST_ZERO #8'),
+            (newton_baffler, [6.25 + 5.0, 6.25 - 1.0, 6.25 + 0.1], None, None, 'TEST_ZERO #9/Newton Baffler'),
+            (lambda x: 20*x/(100*x**2 + 1), [1., -0.14, 0.041], None, None, 'TEST_ZERO #10/Repeller'),
+            (lambda x: (16 - x**4)/(16*x**4 + 0.00001), [.25, 5., 1.1], None, None, 'TEST_ZERO #11/Pinhead'),
+            (flat_stanley, [2, 0.5, 4], None, None, 'TEST_ZERO #12/Flat Stanley'),
+            (lambda x: 0.00000000001*(x - 100), [100., 1.], None, None, 'TEST_ZERO #13/Lazy Boy'),
+            (lambda x: 1.0/((x - 0.3)**2 + 0.01) + 1.0/((x - 0.9)**2 + 0.04) + 2.0*x - 5.2, [3., -0.5, 0, 2.12742], None, None, 'TEST_ZERO #14/Camel'),
+            (newton_pathological, [0.01, -0.25], None, None, 'TEST_ZERO #15/Newton Pathological'),
+            (lambda x: pi*(x - 5.0)/180.0 - 0.8*sin(pi*x/180), [0., 5+180., 5.], None, None, 'TEST_ZERO #16/Kepler'),
+            (lambda x: x**3 - 2*x - 5, [2., 3.], None, None, 'TEST_ZERO #17/Wallis example'),
+            (lambda x: 10.0**14*(1.0*x**7 - 7.0*x**6 + 21.0*x**5 - 35.0*x**4 + 35.0*x**3 - 21.0*x**2 + 7.0*x - 1.0), [.99, 1.013], None, None, 'TEST_ZERO #18'),
+            (lambda x: cos(100.0*x) - 4.0*erf(30*x - 10), [0., 1., 0.5], None, None, 'TEST_ZERO #19'),
             
             # From scipy
-            (lambda x: x**2 - 2*x - 1, [3,], 'Scipy/x**2 - 2*x - 1'),
-            (lambda x: exp(x) - cos(x), [3,], 'Scipy/exp(x) - cos(x)'),
-            (lambda x: x - 0.1, [-1e8, 1e7], 'Scipy/GH5555'),
-            (lambda x: -0.1 if x < 0.5 else x - 0.6, [1e20, 1.], 'Scipy/GH5557'), # Fail at 0 is expected - 0 slope
-    #         (lambda x: -0.1 if x < 0.5 else x - 0.6, [0., 1.], 'Scipy/GH5557'), # Fail at 0 is expected - 0 slope
-            (lambda x: (x - 100.0)**2, [10*(200.0 - 6.828499381469512e-06) / (2.0 + 6.828499381469512e-06)], 'Scipy/zero_der_nz_dp'),
-            (lambda x: x**3 - x**2, [0., 0.5], 'Scipy/GH8904'),
-            (lambda x: x**(1.00/9.0) - 9**(1.0/9), [0.1], 'Scipy/GH8881'),
+            (lambda x: x**2 - 2*x - 1, [3,], None, None, 'Scipy/x**2 - 2*x - 1'),
+            (lambda x: exp(x) - cos(x), [3,], None, None, 'Scipy/exp(x) - cos(x)'),
+            (lambda x: x - 0.1, [-1e8, 1e7], None, None, 'Scipy/GH5555'),
+            (lambda x: -0.1 if x < 0.5 else x - 0.6, [1e20, 1.], None, None, 'Scipy/GH5557'), # Fail at 0 is expected - 0 slope
+    #         (lambda x: -0.1 if x < 0.5 else x - 0.6, [0., 1.], None, None, 'Scipy/GH5557'), # Fail at 0 is expected - 0 slope
+            (lambda x: (x - 100.0)**2, [10*(200.0 - 6.828499381469512e-06) / (2.0 + 6.828499381469512e-06)], None, None, 'Scipy/zero_der_nz_dp'),
+            (lambda x: x**3 - x**2, [0., 0.5], None, None, 'Scipy/GH8904'),
+            (lambda x: x**(1.00/9.0) - 9**(1.0/9), [0.1], None, None, 'Scipy/GH8881'),
+            
             
             # from gsl
-            (lambda x: sin(x), [3, 4, -4, -3, -1/3., 1], 'sin(x)'),
-            (lambda x: cos(x), [0, 3, -3, 0], 'cos(x)'),
-            (lambda x: x**20 - 1, [0.1, 2], 'x^20 - 1'), # Numerical derivative at .1 is 0, failing secant
-            (lambda x: np.sign(x)*abs(x)**0.5, [-1.0/3, 1], 'sign(x)*sqrt(abs(x))'),
-            (lambda x: x**2 - 1e-8, [0, 1], 'x^2 - 1e-8'),
-            (lambda x: (x-1.0)**7, [0.9995, 1.0002], '(x-1.0)**7'),
+            (lambda x: sin(x), [3, 4, -4, -3, -1/3., 1], None, None, 'sin(x)'),
+            (lambda x: cos(x), [0, 3, -3, 0], None, None, 'cos(x)'),
+            (lambda x: x**20 - 1, [0.1, 2], None, None, 'x^20 - 1'), # Numerical derivative at .1 is 0, failing secant
+            (lambda x: np.sign(x)*abs(x)**0.5, [-1.0/3, 1], None, None, 'sign(x)*sqrt(abs(x))'),
+            (lambda x: x**2 - 1e-8, [0, 1], None, None, 'x^2 - 1e-8'),
+            (lambda x: (x-1.0)**7, [0.9995, 1.0002], None, None, '(x-1.0)**7'),
             
             # From Roots.jl
-            (lambda x: abs(x - 0.0), [0, 1], 'abs(x - 0.0)'),
-            (lambda x: 1024*x**11 - 2816*x**9 + 2816*x**7 - 1232*x**5 + 220*x**3 - 11*x, [0, -1, 1, 21], '1024*x**11 - 2816*x**9 + 2816*x**7 - 1232*x**5 + 220*x**3 - 11*x'),
-            (lambda x: 512*x**9 - 1024*x**7 + 672*x**5 - 160*x**3 +10*x, [0, -1, 1, 7], '512*x**9 - 1024*x**7 + 672*x**5 - 160*x**3 +10*x')
+            (lambda x: abs(x - 0.0), [0, 1], None, None, 'abs(x - 0.0)'),
+            (lambda x: 1024*x**11 - 2816*x**9 + 2816*x**7 - 1232*x**5 + 220*x**3 - 11*x, [0, -1, 1, 21], None, None, '1024*x**11 - 2816*x**9 + 2816*x**7 - 1232*x**5 + 220*x**3 - 11*x'),
+            (lambda x: 512*x**9 - 1024*x**7 + 672*x**5 - 160*x**3 +10*x, [0, -1, 1, 7], None, None, '512*x**9 - 1024*x**7 + 672*x**5 - 160*x**3 +10*x')
            ]
 
     solvers = [secant]
@@ -1224,7 +1225,7 @@ def test_secant_cases_internet():
         passes = 0
         fails = 0
         failed_fs = set([])
-        for f, xs, note in data:
+        for f, xs, low, high, note in data:
             for x0 in xs:
                 try:
                     v = solver(print_err(f), x0, maxiter=500, **kwargs)
