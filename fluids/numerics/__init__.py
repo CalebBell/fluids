@@ -3171,17 +3171,21 @@ factors_growing_positive = [3.0**i for i in range(1, 20)]
 factors_shrinking_positive = [3.0**(-i) for i in range(1, 20)]
 factors_growing_negative = [-v for v in factors_growing_positive]
 factors_shrinking_negative = [-v for v in factors_shrinking_positive]
+factors_nearby_increasing = [v for v in linspace(1, 3, 20)]
+factors_nearby_decreasing = [1.0/v for v in factors_nearby_increasing]
 
 secant_bisection_factors = []
 for i in range(len(factors_growing_positive)):
-    for l in (factors_growing_positive, factors_shrinking_positive, factors_growing_negative, factors_shrinking_negative):
+    for l in (factors_growing_positive, factors_shrinking_positive, 
+              factors_growing_negative, factors_shrinking_negative,
+              factors_nearby_increasing, factors_nearby_decreasing):
         secant_bisection_factors.append(l[i])
 
 
 def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
            xtol=1.48e-8, ytol=None, x1=None, require_eval=False,
            f0=None, f1=None, bisection=False, same_tol=1.0, kwargs={},
-           require_xtol=True, additional_guesses=False):
+           require_xtol=True, additional_guesses=False, additional_guess_scale=1.0):
     p0 = 1.0*x0
     # Logic to take a small step to calculate the approximate derivative
     if x1 is not None:
@@ -3235,7 +3239,6 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
         
     if (ytol is not None and abs(q1) < ytol and not require_xtol) or q1 == 0.0:
         return p1
-
     if bisection:
         a, b = None, None
         if q1 < 0.0:
@@ -3263,8 +3266,8 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
         # After computing new point
         if bisection and a is not None and b is not None:
             if not (a < p < b) or (b < p < a):
+                # print('Bisecting')
                 p = 0.5*(a + b)
-
         # Check the exit conditions
         if ytol is not None and xtol is not None:
             # Meet both tolerance - new value is under ytol, and old value
@@ -3309,12 +3312,11 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
                 if additional_guesses and not did_additional_guesses:
                     # print('Converged to points with a slope of zero, attempting to bisect the problem...')
                     for guess_factor in secant_bisection_factors:
-                        p = x0*guess_factor
-                        if low is not None and p < low:
-                            p = low
-                        if high is not None and p > high:
-                            p = high
+                        p = x0*guess_factor*additional_guess_scale
+                        if (low is not None and p < low) or (high is not None and p > high):
+                            continue
                         temp_q = func(p, *args, **kwargs)
+                        # print(f'Did not bisect the problem at x={p}')
                         if temp_q*q0 < 0.0:
                             # print('Bisected the problem, restarting with new point')
                             break
@@ -3337,6 +3339,7 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
                 a = p1
             else:
                 b = p1
+        # print(f"f({p1}) = {q1}, high={a}, low={b}")
 
     raise UnconvergedError("Failed to converge", iterations=i, point=p, err=q1)
 
