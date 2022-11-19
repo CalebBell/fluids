@@ -3352,8 +3352,8 @@ for i in range(7):
 
 # once under 0.36, jump to 0.1 and go down by orders of magnitude to 1e-10
 tmp = []
-remove = 1e-30
-for i in range(30):
+remove = 1e-10
+for i in range(10):
     tmp.append(remove)
     remove *= 10
 tmp.sort(reverse=True)
@@ -3865,7 +3865,11 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
 
     iteration = 1
     while iteration < maxiter:
-        dx = solve_func(j, [-v for v in fcur]) # numba: delete
+        try:# numba: delete
+            dx = solve_func(j, [-v for v in fcur]) # numba: delete
+        except:# numba: delete
+            j = jacobian(f, x, scalar=False) # numba: delete
+            dx = solve_func(j, [-v for v in fcur]) # numba: delete
 #        dx = solve_func(j, -fcur) # numba: uncomment
         for factor in factors:
             # print(factor)
@@ -3888,6 +3892,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                         if isinf(v) or isnan(v): # numba: delete
                             do_next = True # numba: delete
                 if do_next and factor != factors[-1]:# numba: delete
+                    # print('math error, trying next point')
                     continue# numba: delete
             except: # numba: delete
                 # print(f'Line search calculation with point failed') # numba: delete
@@ -3899,7 +3904,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             if check_numbers:
                 for v in fnew:
                     if isinf(v) or isnan(v):
-                        raise ValueError("Camnot continue - math error in function value")
+                        raise ValueError("Cannot continue - math error in function value")
             # print(f'Line search with error={err_new}, factor {mult}' )
             if err_new < err0:
                 if Armijo:
@@ -3937,9 +3942,14 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             raise ValueError("Completed line search without reducing the objective function error, cannot proceed")
                 
         fcur = fnew
-        if err_new > err0 and not jac_also:# numba: delete
+        if err_new >= err0:
             # edge case, didn't make any progress but keep going
-            jnew = jac(xnew, *args) # numba: delete
+            if require_progress:
+                raise ValueError("Completed line search without reducing the objective function error, cannot proceed")
+            else:# numba: delete
+                if not jac_also: # numba: delete
+                    jnew = jac(xnew, *args)  # numba: delete
+                # print(xnew)
         if check_numbers:
             for jrow in jnew:
                 for jval in jrow:
