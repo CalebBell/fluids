@@ -3837,7 +3837,9 @@ def solve_4_direct(mat, vec):
 
 
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
-                  args=(), damping_func=None, line_search=False, require_progress=True, check_numbers=False,
+                  args=(), damping_func=None, line_search=False,
+                  require_progress=True, check_numbers=False,
+                  Armijo=False, Armijo_c1=1e-4,
                   solve_func=py_solve, with_point=False): # numba: delete
 #                 solve_func=np.linalg.solve): # numba: uncomment
     jac_also = True if jac == True else False
@@ -3847,7 +3849,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         fcur, j = f(x0, *args)
     else: # numba: delete
         fcur = f(x0, *args)  # numba: delete
-
+    N = len(fcur)
 
     err0 = 0.0
     for v in fcur:
@@ -3859,7 +3861,6 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         x = x0
         if not jac_also:  # numba: delete
             j = jac(x, *args)  # numba: delete
-            
     factors = newton_line_search_factors if line_search else newton_line_search_factors_disabled
 
     iteration = 1
@@ -3901,9 +3902,36 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                         raise ValueError("Camnot continue - math error in function value")
             # print(f'Line search with error={err_new}, factor {mult}' )
             if err_new < err0:
-                if not jac_also: # numba: delete
-                    jnew = jac(xnew, *args) # numba: delete
-                break
+                if Armijo:
+                    phi = 0.0
+                    for v in fnew:
+                        phi += v*v
+                    Armijo_lhs = phi
+                    
+                    phi0 = 0.0
+                    for v in fcur:
+                        phi0 += v*v
+                    
+                    derphi0 = 0.0
+                    for i in range(N):
+                        temp = 0.0
+                        for jidx in range(N):
+                            temp += fcur[jidx]*j[jidx][i]
+                        # Armijo_grad[i] = 2.0*temp
+                        derphi0 += 4.0*temp*temp
+                    
+                    # derphi0 = float(np.dot(Armijo_grad, Armijo_grad))
+                    Armijo_rhs = Armijo_c1*factor*derphi0 + phi0
+                    if Armijo_lhs <= Armijo_rhs:
+                        if not jac_also: # numba: delete
+                            jnew = jac(xnew, *args) # numba: delete
+                        break
+                    # else:
+                        # print('lhs and rhs not same', Armijo_lhs, Armijo_rhs)
+                else:
+                    if not jac_also: # numba: delete
+                        jnew = jac(xnew, *args) # numba: delete
+                    break
             
         if (line_search and err_new > err0) and require_progress:
             raise ValueError("Completed line search without reducing the objective function error, cannot proceed")
@@ -5149,7 +5177,7 @@ class SolverInterface(object):
             sln, niter = newton_system(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
                                        ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
                                        line_search=True, solve_func=self.matrix_solver, require_progress=False,
-                                       check_numbers=True)
+                                       check_numbers=True, Armijo=True)
         elif method == 'homotopy_solver':
             sln, niter = homotopy_solver(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
                                        ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
