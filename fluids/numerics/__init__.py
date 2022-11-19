@@ -3840,7 +3840,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                   args=(), damping_func=None, line_search=False,
                   require_progress=True, check_numbers=False,
                   Armijo=False, Armijo_c1=1e-4,
-                  solve_func=py_solve, with_point=False): # numba: delete
+                  solve_func=py_solve, with_point=False, jac_error_allowed=False): # numba: delete
 #                 solve_func=np.linalg.solve): # numba: uncomment
     jac_also = True if jac == True else False
 
@@ -3867,9 +3867,12 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
     while iteration < maxiter:
         try:# numba: delete
             dx = solve_func(j, [-v for v in fcur]) # numba: delete
-        except:# numba: delete
-            j = jacobian(f, x, scalar=False) # numba: delete
-            dx = solve_func(j, [-v for v in fcur]) # numba: delete
+        except Exception as e:# numba: delete
+            if jac_error_allowed:# numba: delete
+                j = jacobian(f, x, scalar=False) # numba: delete
+                dx = solve_func(j, [-v for v in fcur]) # numba: delete
+            else:# numba: delete
+                raise e# numba: delete
 #        dx = solve_func(j, -fcur) # numba: uncomment
         for factor in factors:
             # print(factor)
@@ -3951,10 +3954,27 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                     jnew = jac(xnew, *args)  # numba: delete
                 # print(xnew)
         if check_numbers:
+            bad_jacobian = False
             for jrow in jnew:
                 for jval in jrow:
                     if isinf(jval) or isnan(jval):
-                        raise ValueError("Camnot continue - math error in function value")
+                        bad_jacobian = True
+                        break
+                if bad_jacobian:
+                    break
+            if jac_error_allowed:
+                jnew = jacobian(f, xnew, scalar=False)
+                bad_jacobian = False
+                for jrow in jnew:
+                    for jval in jrow:
+                        if isinf(jval) or isnan(jval):
+                            bad_jacobian = True
+                            break
+                    if bad_jacobian:
+                        break
+                    
+            if bad_jacobian:
+                raise ValueError("Cannot continue - nan or inf error found in Jacobian")
         # print('jnew', jnew)
         j = jnew
         err0 = err_new
