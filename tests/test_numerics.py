@@ -1248,6 +1248,49 @@ def test_newton_system_no_iterations():
     found, iterations = newton_system(test_objf_direct, expect, jac=test_jac_not_called, ytol=1e-7, xtol=None)
     assert iterations == 0
     assert found == expect
+    
+def test_newton_system_with_damping_function():
+    # can get up to all sorts of fun with damping, useful for very weird cases
+    def damping_func_max_one_second(x, step, damping, *args):
+        new_step = []
+        for v in step:
+            if abs(v) > damping:
+                if v < 0:
+                    new_step.append(-damping)
+                else:
+                    new_step.append(damping)
+            else:
+                new_step.append(v)
+        xnew = [xi+s for xi, s in zip(x, new_step)]
+        return xnew
+    
+    Ts = []
+    def test_objf_with_damping(inputs):
+        x, T = inputs
+        Ts.append(T)
+        k = 0.12*exp(12581*(T-298.)/(298.*T))
+        return [120*x-75*k*(1-x), -x*(873-T)-11.0*(T-300)]
+    def test_jac_with_damping(inputs):
+        x, T = inputs
+        ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+                (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
+               [T - 873,
+                x - 11.0]]
+        return ans
+    
+    near_solution = [0.05995136780143791, 300]
+    ans, iterations = newton_system(test_objf_with_damping, near_solution, jac=test_jac_with_damping, 
+                                    line_search=True, damping=1,
+                                    ytol=1e-7, xtol=None, damping_func=damping_func_max_one_second)
+    
+    assert Ts[0:4] == [300, 299, 298, 297]
+    
+    Ts = []
+    ans, iterations = newton_system(test_objf_with_damping, near_solution, jac=test_jac_with_damping, 
+                                    line_search=True, damping=2,
+                                    ytol=1e-7, xtol=None, damping_func=damping_func_max_one_second)
+    assert [300, 298] == Ts[0:2]
+
 
 def to_solve_newton_python(inputs):
     x, T = inputs
