@@ -1329,7 +1329,64 @@ def test_newton_system_nan_inf_inputs_outputs():
                                                 line_search=False, check_numbers=True, xtol=1e-12, require_progress=progress)
         
 
+def test_newton_jacobian_has_nan_inf():
+    Ts = []
+    def test_objf_with_nan_iterations(inputs):
+        x, T = inputs
+        Ts.append(T)
+        k = 0.12*exp(12581*(T-298.)/(298.*T))
+        return [120*x-75*k*(1-x), -x*(873-T)-11.0*(T-300)]
+    def test_jac_with_nan_point(inputs):
+        x, T = inputs
+        ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+                (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
+               [T - 873,
+                x - 11.0]]
+    #     if len(Ts) == 3:
+        ans[0][0] = float('inf')
+        return ans
     
+    near_solution = [0.05995136780143791, 300]
+    with pytest.raises(ValueError):
+        newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+                                    line_search=False, check_numbers=True,
+                                    ytol=1e-7, xtol=None)
+    Ts = []
+    
+    # # The line search will allow the solver to try again
+    ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+                                    line_search=True, check_numbers=True, xtol=1e-12, jac_error_allowed=True)
+    assert_close1d(ans, [0.059951367801437914, 296.85996516970505])
+    
+    # Should also work without a linesearch
+    Ts = []
+    ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+                                    line_search=False, check_numbers=True, xtol=1e-12, jac_error_allowed=True)
+    Ts = []
+    
+    def test_jac_with_nan_point_first_only(inputs):
+        x, T = inputs
+        ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+                (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
+               [T - 873,
+                x - 11.0]]
+        if len(Ts) == 1:
+            ans[0][0] = float('inf')
+        return ans
+    
+    # Check that if the initial jacobian is bad, it gets caught
+    with pytest.raises(ValueError):
+        ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point_first_only, 
+                                        line_search=True, check_numbers=True, xtol=1e-12, jac_error_allowed=False)
+        
+    Ts = []
+    # check that the initial jacobian won't stop the problem if we say yes
+    ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point_first_only, 
+                                    line_search=False, check_numbers=True, xtol=1e-12, jac_error_allowed=True)
+    assert_close1d(ans, [0.059951367801437914, 296.85996516970505])
+
+
+
     
 def to_solve_newton_python(inputs):
     x, T = inputs

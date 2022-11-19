@@ -3835,6 +3835,33 @@ def solve_4_direct(mat, vec):
     ans[3] = x12*(-q*x35 - x10*x33 + x19*x32 + x34*x5)
     return ans
 
+def check_jacobian(x, j, func, jac_error_allowed=False):
+    '''Basic function to check a jacobian for inf and nan, and approximate it
+    if it does contain those elements.
+    '''
+
+    bad_jacobian = False
+    for jrow in j:
+        for jval in jrow:
+            if isinf(jval) or isnan(jval):
+                bad_jacobian = True
+                break
+        if bad_jacobian:
+            break
+    if jac_error_allowed:
+        j = jacobian(func, x, scalar=False)
+        bad_jacobian = False
+        for jrow in j:
+            for jval in jrow:
+                if isinf(jval) or isnan(jval):
+                    bad_jacobian = True
+                    break
+            if bad_jacobian:
+                break
+            
+    if bad_jacobian:
+        raise ValueError("Cannot continue - nan or inf error found in Jacobian")
+    return j
 
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                   args=(), damping_func=None, line_search=False,
@@ -3861,6 +3888,8 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         x = x0
         if not jac_also:  # numba: delete
             j = jac(x, *args)  # numba: delete
+    if check_numbers:# numba: delete
+        j = check_jacobian(x=x0, j=j, func=f, jac_error_allowed=jac_error_allowed)# numba: delete
     factors = newton_line_search_factors if line_search else newton_line_search_factors_disabled
 
     iteration = 1
@@ -3953,28 +3982,8 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                 if not jac_also: # numba: delete
                     jnew = jac(xnew, *args)  # numba: delete
                 # print(xnew)
-        if check_numbers:
-            bad_jacobian = False
-            for jrow in jnew:
-                for jval in jrow:
-                    if isinf(jval) or isnan(jval):
-                        bad_jacobian = True
-                        break
-                if bad_jacobian:
-                    break
-            if jac_error_allowed:
-                jnew = jacobian(f, xnew, scalar=False)
-                bad_jacobian = False
-                for jrow in jnew:
-                    for jval in jrow:
-                        if isinf(jval) or isnan(jval):
-                            bad_jacobian = True
-                            break
-                    if bad_jacobian:
-                        break
-                    
-            if bad_jacobian:
-                raise ValueError("Cannot continue - nan or inf error found in Jacobian")
+        if check_numbers:# numba: delete
+            jnew = check_jacobian(x=xnew, j=jnew, func=f, jac_error_allowed=jac_error_allowed)# numba: delete
         # print('jnew', jnew)
         j = jnew
         err0 = err_new
