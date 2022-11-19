@@ -1236,6 +1236,18 @@ def test_secant_cases_internet():
                     fails += 1
         assert fails == 0
 
+def test_newton_system_no_iterations():
+    def test_objf_direct(inputs):
+        x, T = inputs
+        k = 0.12*exp(12581*(T-298.)/(298.*T))
+        return [120*x-75*k*(1-x), -x*(873-T)-11.0*(T-300)]
+    def test_jac_not_called(inputs):
+        raise ValueError("Should not be called")
+    
+    expect = [0.05995136780143791, 296.85996516970505]
+    found, iterations = newton_system(test_objf_direct, expect, jac=test_jac_not_called, ytol=1e-7, xtol=None)
+    assert iterations == 0
+    assert found == expect
 
 def to_solve_newton_python(inputs):
     x, T = inputs
