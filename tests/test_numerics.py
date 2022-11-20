@@ -1362,7 +1362,6 @@ def test_newton_jacobian_has_nan_inf():
     Ts = []
     ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
                                     line_search=False, check_numbers=True, xtol=1e-12, jac_error_allowed=True)
-    Ts = []
     
     def test_jac_with_nan_point_first_only(inputs):
         x, T = inputs
@@ -1375,6 +1374,7 @@ def test_newton_jacobian_has_nan_inf():
         return ans
     
     # Check that if the initial jacobian is bad, it gets caught
+    Ts = []
     with pytest.raises(ValueError):
         ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point_first_only, 
                                         line_search=True, check_numbers=True, xtol=1e-12, jac_error_allowed=False)
