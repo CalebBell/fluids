@@ -5119,7 +5119,7 @@ class SolverInterface(object):
         else:
             return h if type(h) is list else h.tolist()
     
-    def jacobian(self, x, base=None, args=()):
+    def jacobian(self, x, *args):
         '''
         jacobi - doesn't support jacobian_perturbation, jacobian_zero_offset, jacobian_order
         python - doesn't support jacobian_order
@@ -5166,7 +5166,7 @@ class SolverInterface(object):
                 from jacobi import jacobi
             if jacobian_method == 'python':
                 j = jacobian(objf, x, scalar=self.minimizing, perturbation=self.jacobian_perturbation,
-                             zero_offset=self.jacobian_zero_offset, args=args, base=base)
+                             zero_offset=self.jacobian_zero_offset, args=args)
 
             elif jacobian_method == 'numdifftools_forward':
                 j = numdifftools_func(objf, method='forward', order=self.jacobian_order, step=step)(x)
