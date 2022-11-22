@@ -1197,7 +1197,7 @@ def test_secant_cases_internet():
             # From scipy optimization suite - root functions only
             (lambda x: sin(x) + sin(10.0 / 3.0 * x),  [2.7048, 3.18, 4.14, 4.62, 5.1, 5.58, 6.06, 7.02, 7.4952], 2.7, 7.5, 'Scipy/Problem02'),
             (lambda x: -sum(k * sin((k + 1) * x + k) for k in range(1, 6)), [-9.98, -8.0, -4.0, -2.0, 0.0, 2.0, 4, 8.0, 9.98], -10, 10, 'Scipy/Problem03'),
-        
+            (lambda x: -(1.4 - 3 * x) * sin(18.0 * x), [0.0012, 0.12, 0.36, 0.48, 0.6, 0.72, 0.84, 1.08, 1.1988], 0, 1.2, 'Scipy/Problem05'),
             
 
             
