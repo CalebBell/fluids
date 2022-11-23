@@ -770,7 +770,7 @@ def API521_noise(m, P1, P2, c, r):
     Example as shown in [1]_:
         
     >>> API521_noise(m=14.6, P1=330E3, P2=101325, c=353.0, r=30)
-    113.68410573691534
+    113.6841057
 
     References
     ----------
@@ -843,7 +843,7 @@ def VDI_3732_noise_elevated_flare(m):
     Examples
     --------
     >>> VDI_3732_noise_elevated_flare(3.0)
-    163.56820384327
+    163.56820384
 
     References
     ----------
