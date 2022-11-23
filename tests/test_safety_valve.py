@@ -83,3 +83,21 @@ def test_safety_valve():
     A = API520_A_steam(m=69615/3600., T=592.5, P1=12236E3, Kd=0.975, Kb=1.0, Kc=1.0)
     assert_close(A, 0.0011034712423692733)
 
+
+def test_API521_noise_graph():
+    assert_close(API521_noise_graph(1.5), 28.25, atol=.01)
+    assert_close(API521_noise_graph(2.92), 53.675762)
+    assert_close(API521_noise_graph(10), 56.4456)
+    assert_close(API521_noise_graph(2.925), 53.80566202669078)
+    assert_close(API521_noise_graph(4),54.525977192166955)
+    assert_close(API521_noise_graph(1.), 12.7647)
+    assert_close(API521_noise_graph(0), API521_noise_graph(1))
+
+def test_API521_noise():
+    assert_close(API521_noise(m=14.6, P1=330E3, P2=101325, c=353.0, r=30), 113.68410573691534)
+    
+    
+def test_VDI_3732():
+    assert_close(VDI_3732_noise_elevated_flare(3.0), 163.56820384327)
+    assert_close(VDI_3732_noise_ground_flare(3.0), 145.501356332)
+    

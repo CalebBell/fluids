@@ -34,6 +34,7 @@ Interfaces
 ----------
 .. autofunction:: API520_A_g
 .. autofunction:: API520_A_steam
+.. autofunction:: API521_noise
 
 Functions and Data
 ------------------
@@ -45,6 +46,9 @@ Functions and Data
 .. autofunction:: API520_SH
 .. autofunction:: API520_B
 .. autofunction:: API520_W
+.. autofunction:: API521_noise_graph
+.. autofunction:: VDI_3732_noise_ground_flare
+.. autofunction:: VDI_3732_noise_elevated_flare
 .. autodata:: API526_letters
 .. autodata:: API526_A_sq_inch
 .. autodata:: API526_A
@@ -52,7 +56,7 @@ Functions and Data
 """
 
 from __future__ import division
-from math import exp, sqrt
+from math import exp, sqrt, log10
 from fluids.constants import inch, atm
 from fluids.compressible import is_critical_flow
 from fluids.numerics import interp, tck_interp2d_linear, bisplev
@@ -60,7 +64,9 @@ from fluids.numerics import interp, tck_interp2d_linear, bisplev
 
 __all__ = ['API526_A_sq_inch', 'API526_letters', 'API526_A',
 'API520_round_size', 'API520_C', 'API520_F2', 'API520_Kv', 'API520_N',
-'API520_SH', 'API520_B', 'API520_W', 'API520_A_g', 'API520_A_steam']
+'API520_SH', 'API520_B', 'API520_W', 'API520_A_g', 'API520_A_steam',
+'API521_noise', 'API521_noise_graph', 'VDI_3732_noise_ground_flare',
+'VDI_3732_noise_elevated_flare',]
 
 API526_A_sq_inch = [0.110, 0.196, 0.307, 0.503, 0.785, 1.287, 1.838, 2.853, 3.60,
              4.34, 6.38, 11.05, 16.00, 26.00] # square inches
@@ -684,3 +690,168 @@ def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1):
     A = 190.5*m/(P1*Kd*Kb*Kc*KN*KSH)
     return A*0.001**2 # convert mm^2 to m^2
 
+def API521_noise_graph(P_ratio):
+    r'''Calculate the `L` parameter used in the API 521
+    noise calculation, from their Figure 18, Sound
+    Pressure Level at 30 m from the stack tip.
+
+    Parameters
+    ----------
+    P_ratio : float
+        The ratio of relieving pressure to atmospheric pressure [-]
+
+    Returns
+    -------
+    L : float
+        Sound pressure level at 30 m from the stack tip [decibels]
+
+    Notes
+    -----
+    Two logarithmic linear polynomials are used. The function is
+    continious throughout. The pressure ratio should be more than 1
+    for physical reasons; the value is checked for this case.
+
+    References
+    ----------
+    .. [1] API Standard 521.
+    '''
+    if P_ratio < 1.0:
+        P_ratio = 1.0
+    lgX = log10(P_ratio)
+    # Small curve fit
+    lower_value = 87.9084*lgX + 12.7647
+    higher_value = 4.8239*lgX + 51.6217
+    if P_ratio < 2.92:
+        value = lower_value
+    elif P_ratio < 2.93:
+        # interpolate between the two curves to keep the function continuous
+        value = interp(P_ratio, [2.92, 2.93], [lower_value, higher_value])
+    else:
+        value = higher_value
+    return value
+
+def API521_noise(m, P1, P2, c, r):
+    r'''Calculate the the noise coming from a flare tip at a 
+    specified distance according to API 521. A graphical technique
+    is used to get the noise at 30 m from the tip, and it is then
+    adjusted for distance.
+    
+    .. math::
+        L_{30 \text{m}} = L - 10 \log_{10}(0.5 m c^2)
+        
+    .. math::
+        L_p = L_{30 \text{m}} - 20 \log_{10}(r/(30 \text{m}))
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of relieving fluid, [kg/s]
+    P1 : float
+        Upstream pressure at the source, before the relieving
+        device [Pa]
+    P2 : float
+        Atmospheric pressure, [Pa]
+    c : float
+        Speed of sound of the fluid at the relieving device [m/s]
+    r : float
+        Distance from the flare stack, [m]
+
+    Returns
+    -------
+    L : float
+        Sound pressure level at the specified distance from the
+        stack tip [decibels]
+
+    Notes
+    -----
+    
+    Examples
+    --------
+    Example as shown in [1]_:
+        
+    >>> API521_noise(m=14.6, P1=330E3, P2=101325, c=353.0, r=30)
+    113.68410573691534
+
+    References
+    ----------
+    .. [1] API Standard 521.
+    '''
+    P_ratio = P1/P2
+    L = API521_noise_graph(P_ratio) # from chart, hardcoded for now
+    L30 = L + 10.0*log10(0.5*m*c*c)
+    Lp = L30 - 20.0*log10(r/30.0)
+    return Lp
+
+
+def VDI_3732_noise_ground_flare(m):
+    r'''Calculate the the noise at the flare tip of a ground flare
+    [1]_, [2]_.
+
+    .. math::
+        L = 100 + 15\log_{10}\left(\frac{m}{\text{tonne/hour}}\right)
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of relieving fluid, [m]
+
+    Returns
+    -------
+    noise : float
+        Sound pressure level at the relieving flare stack [decibels]
+
+    Notes
+    -----
+    
+    Examples
+    --------
+    >>> VDI_3732_noise_ground_flare(3.0)
+    145.501356332
+
+    References
+    ----------
+    .. [1] VDI 3732 - Standard Noise Levels of Technical Sound 
+       Sources - Flares, 1999. 
+       https://www.vdi.de/en/home/vdi-standards/details/vdi-3732-standard-noise-levels-of-technical-sound-sources-flares.
+    .. [2] AdminFlare Noise Calculator. WKC Group (blog). 
+       https://www.wkcgroup.com/tools-room/flare-noise-calculator/.
+
+    '''
+    m *= 360.0
+    return 100.0 + 15.0*log10(m)
+
+def VDI_3732_noise_elevated_flare(m):
+    r'''Calculate the the noise at the flare tip of an elevated flare stack
+    [1]_, [2]_.
+    
+    .. math::
+        L = 112 + 17\log_{10}\left(\frac{m}{\text{tonne/hour}}\right)
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of relieving fluid, [m]
+
+    Returns
+    -------
+    noise : float
+        Sound pressure level at the relieving flare stack [decibels]
+
+    Notes
+    -----
+    
+    Examples
+    --------
+    >>> VDI_3732_noise_elevated_flare(3.0)
+    163.56820384327
+
+    References
+    ----------
+    .. [1] VDI 3732 - Standard Noise Levels of Technical Sound 
+       Sources - Flares, 1999. 
+       https://www.vdi.de/en/home/vdi-standards/details/vdi-3732-standard-noise-levels-of-technical-sound-sources-flares.
+    .. [2] AdminFlare Noise Calculator. WKC Group (blog). 
+       https://www.wkcgroup.com/tools-room/flare-noise-calculator/.
+    '''
+    m *= 360.0
+    return 112.0 + 17.0*log10(m)
