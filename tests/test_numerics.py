@@ -29,7 +29,7 @@ from fluids.numerics import *
 from scipy.integrate import quad
 from math import *
 from random import random
-
+from math import pi
 assert_allclose = np.testing.assert_allclose
 
 def test_py_solve_bad_cases():
@@ -1203,9 +1203,16 @@ def test_secant_cases_internet():
             (lambda x: -sum(k * cos((k + 1) * x + k) for k in range(1, 6)), [-9.98, -8.0, -4.0, -2.0, 0.0, 2.0, 4, 8.0, 9.98], -10, 10, 'Scipy/Problem08'),
             (lambda x: sin(x) + sin(2.0 / 3.0 * x), [3.1173, 4.83, 8.29, 10.02, 11.75, 13.48, 15.21, 18.67, 20.3827], 3.1, 20.4, 'Scipy/Problem09'),
             (lambda x: -x * sin(x), [0.01, 1.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 9.99], 0, 10, 'Scipy/Problem10'),
-            # (lambda x: 2 * cos(x) + cos(2 * x), [-1.5629423451609221, -0.7853981633974483, 0.7853981633974483, 1.5707963267948966, 2.356194490192345,
-            #                                      3.141592653589793, 3.9269908169872414, 5.497787143782138, 6.275331325545612],
-            #  -pi / 2, 2 * pi, 'Scipy/Problem11'),
+            (lambda x: 2 * cos(x) + cos(2 * x), [-1.5629423451609221, -0.7853981633974483, 0.7853981633974483, 1.5707963267948966, 2.356194490192345,
+                                                  3.141592653589793, 3.9269908169872414, 5.497787143782138, 6.275331325545612],
+              -pi / 2, 2 * pi, 'Scipy/Problem11'),
+            (lambda x: (sin(x))**3.0 + (cos(x))**3.0, [0.006283185307179587, 0.6283185307179586, 1.8849555921538759, 2.5132741228718345, 
+                                                       3.141592653589793, 3.7699111843077517, 4.39822971502571, 5.654866776461628, 6.276902121872407],
+             0, 2*pi, 'Scipy/Problem12'),
+            (lambda x: -exp(-x) * sin(2.0 * pi * x), [0.004, 0.4, 1.2, 1.6, 2.0, 2.4, 2.8, 3.6, 3.996], 0, 4, 'Scipy/Problem14'),
+            (lambda x: -(x - sin(x)) * exp(-x ** 2.0), [-9.98, -8.0, -4.0, -2.0, 0.0, 2.0, 4, 8.0, 9.98], -10, 10, 'Scipy/Problem20'),
+            (lambda x: x * sin(x) + x * cos(2.0 * x), [0.01, 1.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 9.99], 0, 10, 'Scipy/Problem21'),
+            (lambda x: exp(-3.0 * x) - (sin(x)) ** 3.0, [0.02, 2.0, 6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 19.98], 0, 20, 'Scipy/Problem22'),
             
             
             # from gsl
@@ -1240,8 +1247,9 @@ def test_secant_cases_internet():
         failed_fs = set([])
         for f, xs, low, high, note in data:
             for x0 in xs:
+                v = solver(print_err(f), x0, maxiter=3000, low=low, high=high, **kwargs)
                 try:
-                    v = solver(print_err(f), x0, maxiter=500, **kwargs)
+                    v = solver(print_err(f), x0, maxiter=3000, low=low, high=high, **kwargs)
                     assert abs(f(v)) < 1e-10
                     passes += 1
                 except Exception as e:
