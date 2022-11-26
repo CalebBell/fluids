@@ -34,6 +34,7 @@ Interfaces
 ----------
 .. autofunction:: API520_A_g
 .. autofunction:: API520_A_steam
+.. autofunction:: API520_A_l
 .. autofunction:: API521_noise
 
 Functions and Data
@@ -66,7 +67,7 @@ __all__ = ['API526_A_sq_inch', 'API526_letters', 'API526_A',
 'API520_round_size', 'API520_C', 'API520_F2', 'API520_Kv', 'API520_N',
 'API520_SH', 'API520_B', 'API520_W', 'API520_A_g', 'API520_A_steam',
 'API521_noise', 'API521_noise_graph', 'VDI_3732_noise_ground_flare',
-'VDI_3732_noise_elevated_flare',]
+'VDI_3732_noise_elevated_flare', 'API520_A_l']
 
 API526_A_sq_inch = [0.110, 0.196, 0.307, 0.503, 0.785, 1.287, 1.838, 2.853, 3.60,
              4.34, 6.38, 11.05, 16.00, 26.00] # square inches
@@ -215,95 +216,6 @@ def API520_F2(k, P1, P2):
     '''
     r = P2/P1
     return sqrt(k/(k-1)*r**(2./k) * ((1-r**((k-1.)/k))/(1.-r)))
-
-
-def API520_Kv(Re, edition=TENTH_EDITION):
-    r'''Calculates correction due to viscosity for liquid flow for use in
-    API 520 relief valve sizing.
-    
-    From the 7th to 9th editions, the formula for this calculation is as
-    follows:
-    
-    .. math::
-        K_v = \left(0.9935 + \frac{2.878}{Re^{0.5}} + \frac{342.75}
-        {Re^{1.5}}\right)^{-1}
-        
-    Startign in the 10th edition, the formula is 
-    
-    .. math::
-        K_v = \left(1 + \frac{170}{Re}\right)^{-0.5}
-        
-    In the 10th edition, the formula is applicable for Re > 80. It is also 
-    recommended there that if the viscosity is < 0.1 Pa*s, this correction
-    should be set to 1.
-
-    Parameters
-    ----------
-    Re : float
-        Reynolds number for flow out the valve [-]
-    edition : str, optional
-        One of '10E', '7E', [-]
-
-    Returns
-    -------
-    Kv : float
-        Correction due to viscosity [-]
-
-    Notes
-    -----
-    Reynolds number in the standard is defined as follows, with Q in L/min, G1
-    as specific gravity, mu in centipoise, and area in mm^2:
-
-    .. math::
-        Re = \frac{Q(18800G_1)}{\mu \sqrt{A}}
-
-    It is unclear how this expression was derived with a constant of 18800;
-    the following code demonstrates what the constant should be:
-
-    >>> from scipy.constants import *
-    >>> liter/minute*1000./(0.001*(milli**2)**0.5)
-    16666.666666666668
-    
-    In both editions, if the formula is used below the recommended Re range
-    and into the very low Re region this correction tends towards 0.
-    
-    In the 10th edition, the formula tends to 1 exactly as Re increases. In the
-    7th edition, the formula can actually produce corrections above 1; this is
-    handled by truncating the factor to 1.
-
-    Examples
-    --------
-    From [1]_ 7E, checked with example 5.
-
-    >>> API520_Kv(100, edition='7E')
-    0.615744589
-    
-    From [2]_ 10E, checked with example 5:
-        
-    >>> API520_Kv(4525, edition='10E')
-    0.9817287137013179
-    
-    Example in [3]_, using the 7th edition formula:
-        
-    >>> API520_Kv(2110, edition='7E')
-    0.943671807
-
-    References
-    ----------
-    .. [1] API Standard 520, Part 1 - Sizing and Selection, 7E
-    .. [2] API Standard 520, Part 1 - Sizing and Selection, 10E
-    .. [3] CCPS. Guidelines for Pressure Relief and Effluent Handling Systems. 
-       2nd edition. New York, NY: Wiley-AIChE, 2017.
-    '''
-    if edition == SEVENTH_EDITION:
-        factor = (0.9935 + 2.878/sqrt(Re) + 342.75/Re**1.5)**-1.0
-        if factor > 1.0:
-            factor = 1.0
-        return factor
-    elif edition == TENTH_EDITION:
-        return 1.0/sqrt(170.0/Re + 1.0)
-    else:
-        raise ValueError("Acceptable editions are '7E', '10E'")
 
 
 def API520_N(P1):
@@ -575,65 +487,6 @@ def API520_SH(T1, P1, edition=TENTH_EDITION):
         raise ValueError("Acceptable editions are '7E', '10E'")
 
 
-# Kw, for liquids. Applicable for all overpressures.
-Kw_x = [15., 16.5493, 17.3367, 18.124, 18.8235, 19.5231, 20.1351, 20.8344,
-        21.4463, 22.0581, 22.9321, 23.5439, 24.1556, 24.7674, 25.0296, 25.6414,
-        26.2533, 26.8651, 27.7393, 28.3511, 28.9629, 29.6623, 29.9245, 30.5363,
-        31.2357, 31.8475, 32.7217, 33.3336, 34.0329, 34.6448, 34.8196, 35.4315,
-        36.1308, 36.7428, 37.7042, 38.3162, 39.0154, 39.7148, 40.3266, 40.9384,
-        41.6378, 42.7742, 43.386, 43.9978, 44.6098, 45.2216, 45.921, 46.5329,
-        47.7567, 48.3685, 49.0679, 49.6797, 50.]
-Kw_y = [1, 0.996283, 0.992565, 0.987918, 0.982342, 0.976766, 0.97119, 0.964684,
-        0.958178, 0.951673, 0.942379, 0.935874, 0.928439, 0.921933, 0.919145,
-        0.912639, 0.906134, 0.899628, 0.891264, 0.884758, 0.878253, 0.871747,
-        0.868959, 0.862454, 0.855948, 0.849442, 0.841078, 0.834572, 0.828067,
-        0.821561, 0.819703, 0.814126, 0.806691, 0.801115, 0.790892, 0.785316,
-        0.777881, 0.771375, 0.76487, 0.758364, 0.751859, 0.740706, 0.734201,
-        0.727695, 0.722119, 0.715613, 0.709108, 0.702602, 0.69052, 0.684015,
-        0.677509, 0.671004, 0.666357]
-
-
-def API520_W(Pset, Pback):
-    r'''Calculates capacity correction due to backpressure on balanced
-    spring-loaded PRVs in liquid service. For pilot operated valves,
-    this is always 1. Applicable up to 50% of the percent gauge backpressure,
-    For use in API 520 relief valve sizing. 1D interpolation among a table with
-    53 backpressures is performed.
-
-    Parameters
-    ----------
-    Pset : float
-        Set pressure for relief [Pa]
-    Pback : float
-        Backpressure, [Pa]
-
-    Returns
-    -------
-    KW : float
-        Correction due to liquid backpressure [-]
-
-    Notes
-    -----
-    If the calculated gauge backpressure is less than 15%, a value of 1 is
-    returned.
-
-    Examples
-    --------
-    Custom example from figure 31:
-
-    >>> API520_W(1E6, 3E5) # 22% overpressure
-    0.9511471848008564
-
-    References
-    ----------
-    .. [1] API Standard 520, Part 1 - Sizing and Selection.
-    '''
-    gauge_backpressure = (Pback-atm)/(Pset-atm)*100.0 # in percent
-    if gauge_backpressure < 15.0:
-        return 1.0
-    return interp(gauge_backpressure, Kw_x, Kw_y)
-
-
 
 # Kb Backpressure correction factor, for gases
 Kb_16_over_x = [37.6478, 38.1735, 38.6991, 39.2904, 39.8817, 40.4731, 40.9987,
@@ -756,8 +609,10 @@ def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
     Kb : float, optional
         Correction due to vapor backpressure [-]
     Kc : float, optional
-        Combination correction factor for installation with a ruture disk
-        upstream of the PRV, []
+        Combination correction factor for installation with a rupture disk
+        upstream of the PRV; 1.0 when a rupture disk is not installed, and 
+        0.9 if a rupture disk is present and the combination has not been
+        certified, []
 
     Returns
     -------
@@ -822,7 +677,7 @@ def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1, edition=TENTH_EDITION):
         preliminary sizing, using 0.975 normally or 0.62 when used with a
         rupture disc as described in [1]_, []
     Kb : float, optional
-        Correction due to vapor backpressure, see :obj:`API520_B` [-]
+        Correction due to backpressure, see :obj:`API520_B` [-]
     Kc : float, optional
         Combination correction factor for installation with a rupture disk
         upstream of the PRV; 1.0 when a rupture disk is not installed, and 
@@ -865,6 +720,299 @@ def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1, edition=TENTH_EDITION):
     m = m*3600. # kg/s to kg/hr
     A = 190.5*m/(P1*Kd*Kb*Kc*KN*KSH)
     return A*0.001**2 # convert mm^2 to m^2
+
+### Liquids
+
+def API520_Kv(Re, edition=TENTH_EDITION):
+    r'''Calculates correction due to viscosity for liquid flow for use in
+    API 520 relief valve sizing.
+    
+    From the 7th to 9th editions, the formula for this calculation is as
+    follows:
+    
+    .. math::
+        K_v = \left(0.9935 + \frac{2.878}{Re^{0.5}} + \frac{342.75}
+        {Re^{1.5}}\right)^{-1}
+        
+    Startign in the 10th edition, the formula is 
+    
+    .. math::
+        K_v = \left(1 + \frac{170}{Re}\right)^{-0.5}
+        
+    In the 10th edition, the formula is applicable for Re > 80. It is also 
+    recommended there that if the viscosity is < 0.1 Pa*s, this correction
+    should be set to 1.
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number for flow out the valve [-]
+    edition : str, optional
+        One of '10E', '7E', [-]
+
+    Returns
+    -------
+    Kv : float
+        Correction due to viscosity [-]
+
+    Notes
+    -----
+    Reynolds number in the standard is defined as follows, with Q in L/min, G1
+    as specific gravity, mu in centipoise, and area in mm^2:
+
+    .. math::
+        Re = \frac{Q(18800G_1)}{\mu \sqrt{A}}
+        
+    The constant 18800 is derived as follows, combining multiple unit
+    conversions and the formula from diameter from area together. The precise
+    value is shown below.
+
+    >>> from scipy.constants import *
+    >>> liter/minute*1000./(0.001*(milli**2)**0.5)*sqrt(4/pi)
+    18806.319451591
+    
+    Note that 4 formulas are provided in API 520 part 1; two metric and two
+    imperial. One pair of formulas uses viscosity in conventional units; the
+    other uses it in Saybolt Universal Seconds. A conversion is essentially
+    embedded in the the Saybolt Universal Seconds formula. A more precise
+    conversion can be obtained from 
+    :obj:`chemicals.viscosity.viscosity_converter`.
+    
+    In both editions, if the formula is used below the recommended Re range
+    and into the very low Re region this correction tends towards 0.
+    
+    In the 10th edition, the formula tends to 1 exactly as Re increases. In the
+    7th edition, the formula can actually produce corrections above 1; this is
+    handled by truncating the factor to 1.
+
+    Examples
+    --------
+    From [1]_ 7E, checked with example 5.
+
+    >>> API520_Kv(100, edition='7E')
+    0.615744589
+    
+    From [2]_ 10E, checked with example 5:
+        
+    >>> API520_Kv(4525, edition='10E')
+    0.9817287137013179
+    
+    Example in [3]_, using the 7th edition formula:
+        
+    >>> API520_Kv(2110, edition='7E')
+    0.943671807
+
+    References
+    ----------
+    .. [1] API Standard 520, Part 1 - Sizing and Selection, 7E
+    .. [2] API Standard 520, Part 1 - Sizing and Selection, 10E
+    .. [3] CCPS. Guidelines for Pressure Relief and Effluent Handling Systems. 
+       2nd edition. New York, NY: Wiley-AIChE, 2017.
+    '''
+    if edition == SEVENTH_EDITION:
+        factor = (0.9935 + 2.878/sqrt(Re) + 342.75/Re**1.5)**-1.0
+        if factor > 1.0:
+            factor = 1.0
+        return factor
+    elif edition == TENTH_EDITION:
+        return 1.0/sqrt(170.0/Re + 1.0)
+    else:
+        raise ValueError("Acceptable editions are '7E', '10E'")
+
+
+
+# Kw, for liquids. Applicable for all overpressures.
+Kw_x = [15., 16.5493, 17.3367, 18.124, 18.8235, 19.5231, 20.1351, 20.8344,
+        21.4463, 22.0581, 22.9321, 23.5439, 24.1556, 24.7674, 25.0296, 25.6414,
+        26.2533, 26.8651, 27.7393, 28.3511, 28.9629, 29.6623, 29.9245, 30.5363,
+        31.2357, 31.8475, 32.7217, 33.3336, 34.0329, 34.6448, 34.8196, 35.4315,
+        36.1308, 36.7428, 37.7042, 38.3162, 39.0154, 39.7148, 40.3266, 40.9384,
+        41.6378, 42.7742, 43.386, 43.9978, 44.6098, 45.2216, 45.921, 46.5329,
+        47.7567, 48.3685, 49.0679, 49.6797, 50.]
+Kw_y = [1, 0.996283, 0.992565, 0.987918, 0.982342, 0.976766, 0.97119, 0.964684,
+        0.958178, 0.951673, 0.942379, 0.935874, 0.928439, 0.921933, 0.919145,
+        0.912639, 0.906134, 0.899628, 0.891264, 0.884758, 0.878253, 0.871747,
+        0.868959, 0.862454, 0.855948, 0.849442, 0.841078, 0.834572, 0.828067,
+        0.821561, 0.819703, 0.814126, 0.806691, 0.801115, 0.790892, 0.785316,
+        0.777881, 0.771375, 0.76487, 0.758364, 0.751859, 0.740706, 0.734201,
+        0.727695, 0.722119, 0.715613, 0.709108, 0.702602, 0.69052, 0.684015,
+        0.677509, 0.671004, 0.666357]
+
+
+def API520_W(Pset, Pback):
+    r'''Calculates capacity correction due to backpressure on balanced
+    spring-loaded PRVs in liquid service. For pilot operated valves,
+    this is always 1. Applicable up to 50% of the percent gauge backpressure,
+    For use in API 520 relief valve sizing. 1D interpolation among a table with
+    53 backpressures is performed.
+
+    Parameters
+    ----------
+    Pset : float
+        Set pressure for relief [Pa]
+    Pback : float
+        Backpressure, [Pa]
+
+    Returns
+    -------
+    KW : float
+        Correction due to liquid backpressure [-]
+
+    Notes
+    -----
+    If the calculated gauge backpressure is less than 15%, a value of 1 is
+    returned.
+
+    Examples
+    --------
+    Custom example from figure 31 in [1]_:
+
+    >>> API520_W(1E6, 3E5) # 22% overpressure
+    0.95114718480085
+    
+    Example 5 from [2]_, set pressure 250 psig and backpressure up to 50 psig:
+        
+    >>> API520_W(Pset=1825014, Pback=446062)
+    0.97242133397677
+
+    References
+    ----------
+    .. [1] API Standard 520, Part 1 - Sizing and Selection. 7E
+    .. [1] API Standard 520, Part 1 - Sizing and Selection. 10E
+    '''
+    gauge_backpressure = (Pback-atm)/(Pset-atm)*100.0 # in percent
+    if gauge_backpressure < 15.0:
+        return 1.0
+    return interp(gauge_backpressure, Kw_x, Kw_y)
+
+
+
+rho0 = 999.0107539518483
+
+def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0, 
+               Kw=None, Kv=None, edition=TENTH_EDITION):
+    r'''Calculates required relief valve area for an API 520 valve passing
+    a liquid in sub-critical flow.
+    
+    .. math::
+        A = \frac{11.78Q}{K_d K_w K_c, K_v}\sqrt{G_1}{P1 - P2}
+
+    Parameters
+    ----------
+    m : float
+        Mass flow rate of liquid through the valve, [kg/s]
+    rho : float
+        Liquid density, [kg/m^3]
+    P1 : float
+        Upstream relieving pressure; the set pressure plus the allowable
+        overpressure, plus atmospheric pressure, [Pa]
+    P2 : float
+        Built-up backpressure; the increase in pressure during flow at the
+        outlet of a pressure-relief device after it opens, [Pa]
+    overpressure : float
+        The maximum fraction overpressure; used if `Kw` is not specified, [-]
+    Kd : float, optional
+        The effective coefficient of discharge, from the manufacturer or for
+        preliminary sizing, using 0.65 normally or 0.62 when used with a
+        rupture disc as described in [1]_, []
+    Kc : float, optional
+        Combination correction factor for installation with a rupture disk
+        upstream of the PRV; 1.0 when a rupture disk is not installed, and 
+        0.9 if a rupture disk is present and the combination has not been
+        certified, []
+    Kw : float, optional
+        Correction due to liquid backpressure [-]
+    Kv : float, optional
+        Correction due to viscosity [-]
+    edition : str, optional
+        One of '10E', '7E', [-]
+
+    Returns
+    -------
+    A : float
+        Minimum area for relief valve according to [1]_, [m^2]
+
+    Notes
+    -----
+    Units are interlally kg/hr, kPa, and mm^2 to match [1]_.
+
+    Examples
+    --------
+    Example 5 in [1]_, 10th edition. The calculation involves numerous steps,
+    shown below and ending with a recalculation with a viscosity correction.
+    
+    >>> Q = 6814*1.6666666666666667e-05 # L/min to m^3/s
+    >>> rho = 0.9*999 # specific gravity times density of water kg/m^3
+    >>> m = rho*Q # mass flow rate, kg/s
+    >>> overpressure = 0.1
+    >>> P_design_g = 1724E3 # design pressure, guage
+    >>> P1 = (1+overpressure)*P_design_g + 101325.0 # upstream relieving pressure, Pa
+    >>> backpressure = 0.2
+    >>> mu = 0.388 # viscosity, Pa*s, converted from 2000 Saybolt Universal Seconds
+    >>> P2 = backpressure*P_design_g + 101325.0 # backpressure, Pa
+    
+    Do the first calculation, using the value of Kw=0.97 shown in [1]
+    
+    >>> A0 = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kw=0.97, Kc=1.0, Kv=1.0)
+    >>> A0
+    0.0030661356203000815
+    
+    This value matches the 3066 mm^2 shown in the example calculation.
+    
+    Do the same calculation but allow the calculation of `Kw` automatically:
+        
+    >>> A0 = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kc=1.0, Kv=1.0)
+    >>> A0
+    0.0030585022573123635
+    
+    There is a slight deviation with a more precise `Kw` value.
+    
+    Compute Reynolds number from this original area
+    
+    >>> from math import pi
+    >>> D = (A0*4/pi)**0.5
+    >>> v = Q/A0
+    >>> Re = rho*v*D/mu
+    >>> Re
+    5369.425333978004
+    
+    The reynolds number shown in [1] is 4525; the difference comes from the less
+    precise Saybolt Universal Seconds conversion. 
+    
+    Compute the viscosity correction:
+    
+    >>> Kv = API520_Kv(Re, '10E')
+    >>> Kv
+    0.9845358784887095
+    
+    Compute the final area
+
+    >>> A = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kc=1.0, Kv=Kv)
+    >>> A
+    0.0031065422034260966
+    
+    The final answer given in API 520 example 5 is 3122 mm^2, a very similar 
+    value despite the small differences.
+    
+    References
+    ----------
+    .. [1] API Standard 520, Part 1 - Sizing and Selection.
+    '''
+    G1 = rho/rho0
+    Q = m/rho # m^3/s
+    Q *= 60000.0 # m^3/s to L/min in the original equation
+    
+    P_set_guage = (P1 - atm)/(1.0 + overpressure)
+    P_set = P_set_guage + atm
+    if Kw is None:
+        Kw = API520_W(P_set, P2)
+    if Kv is None:
+        Kv = 1.0
+    P1 = P1*1e-3 # Pa to kPa
+    P2 = P2*1e-3 # Pa to kPa
+    A = 11.78*Q*sqrt(G1/(P1-P2))/(Kd*Kw*Kc*Kv)
+    A = A*0.001**2 # convert mm^2 to m^2
+    return A
 
 def API521_noise_graph(P_ratio):
     r'''Calculate the `L` parameter used in the API 521
