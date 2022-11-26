@@ -965,6 +965,14 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
         
     .. math::
         K = \frac{2 A^{2} \rho \left(P_{1} - P_{2}\right)}{m^{2}}
+        
+        
+    The K value can also be directly calculated from the coefficients Kd, Kc, 
+    Kw, and Kv. The calculation is as follows, making use of the correction
+    above.
+    
+    .. math::
+        K = \left(\frac{1}{K_d K_w K_c K_v\cdot (11.779282389196/11.78)}\right)^2
 
     Examples
     --------
