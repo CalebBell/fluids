@@ -22,7 +22,7 @@ SOFTWARE.'''
 
 from __future__ import division
 from fluids.safety_valve import *
-from fluids.numerics import assert_close, assert_close1d
+from fluids.numerics import assert_close, assert_close1d, linspace
 from fluids.constants import atm
 import pytest
 
@@ -49,16 +49,6 @@ def test_safety_valve():
     KN = API520_N(1774700)
     assert_close(KN, 1)
 
-    with pytest.raises(Exception):
-        API520_SH(593+273.15, 21E6)
-    with pytest.raises(Exception):
-        API520_SH(1000, 1066E3)
-    # Test under 15 psig sat case
-    assert API520_SH(320, 5E4) == 1
-
-    from fluids.safety_valve import _KSH_Pa, _KSH_tempKs
-    KSH_tot =  sum([API520_SH(T, P) for P in _KSH_Pa[:-1] for T in _KSH_tempKs])
-    assert_close(229.93, KSH_tot)
 
     KW = [API520_W(1E6, 3E5), API520_W(1E6, 1E5)]
     assert_close1d(KW, [0.9511471848008564, 1])
@@ -80,8 +70,44 @@ def test_safety_valve():
     As = [0.0036990460646834414, 0.004248358775943481]
     assert_close1d([A1, A2], As)
 
-    A = API520_A_steam(m=69615/3600., T=592.5, P1=12236E3, Kd=0.975, Kb=1.0, Kc=1.0)
+def test_API520_SH():
+    with pytest.raises(Exception):
+        API520_SH(593+273.15, 21E6, '7E')
+    with pytest.raises(Exception):
+        API520_SH(1000, 1066E3, '7E')
+    # Test under 15 psig sat case
+    assert API520_SH(320, 5E4, '7E') == 1
+
+    from fluids.safety_valve import _KSH_Pa_7E, _KSH_tempKs_7E
+    KSH_tot =  sum([API520_SH(T, P, '7E') for P in _KSH_Pa_7E[:-1] for T in _KSH_tempKs_7E])
+    assert_close(229.93, KSH_tot)
+
+    # 10E
+    with pytest.raises(Exception):
+        # too high temp
+        API520_SH(593+273.15, 23E6, '10E')
+    with pytest.raises(Exception):
+        API520_SH(1000, 1066E3, '10E')
+        
+    assert API520_SH(470, 1066E3, '10E') == 1.0
+    from fluids.safety_valve import _KSH_Pa_10E, _KSH_K_10E
+    KSH_10E_tot =  sum([API520_SH(T, P, '10E') for P in _KSH_Pa_10E for T in _KSH_K_10E])
+    assert_close(1336.4789999999996, KSH_10E_tot)
+
+    for P in linspace(_KSH_Pa_10E[0], _KSH_Pa_10E[-1], 30):
+        for T in linspace(_KSH_K_10E[0], _KSH_K_10E[-1], 30):
+            val = API520_SH(T, P, '10E') 
+            assert val <= (1+1e-15)
+            assert val >= 0.627
+
+
+
+def test_API520_A_steam():
+    A = API520_A_steam(m=69615/3600., T=592.5, P1=12236E3, Kd=0.975, Kb=1.0, Kc=1.0, edition='7E')
     assert_close(A, 0.0011034712423692733)
+
+    A = API520_A_steam(m=69615/3600., T=707.0389, P1=12236E3, Kd=0.975, Kb=1, Kc=1, edition='10E')
+    assert_close(A, 0.00128518893191)
 
 
 def test_API521_noise_graph():
