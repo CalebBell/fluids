@@ -167,9 +167,11 @@ def API520_C(k):
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
     if k != 1:
-        return 0.03948*sqrt(k*(2./(k+1.))**((k+1.)/(k-1.)))
+        kp1 = k+1
+        return 0.03948*sqrt(k*(2./kp1)**(kp1/(k-1.)))
     else:
-        return 0.03948*sqrt(1./exp(1))
+        return 0.023945830445454768
+        # return 0.03948*sqrt(1./exp(1))
 
 
 def API520_F2(k, P1, P2):
@@ -215,7 +217,7 @@ def API520_F2(k, P1, P2):
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
     r = P2/P1
-    return sqrt(k/(k-1)*r**(2./k) * ((1-r**((k-1.)/k))/(1.-r)))
+    return sqrt(k/(k-1.0)*r**(2./k) * ((1-r**((k-1.)/k))/(1.-r)))
 
 
 def API520_N(P1):
@@ -645,7 +647,7 @@ def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     '''
-    P1, P2 = P1/1000., P2/1000. # Pa to Kpa in the standard
+    P1, P2 = P1*1e-3, P2*1e-3 # Pa to Kpa in the standard
     m = m*3600. # kg/s to kg/hr
     if is_critical_flow(P1, P2, k):
         C = API520_C(k)
@@ -653,7 +655,7 @@ def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
     else:
         F2 = API520_F2(k, P1, P2)
         A = 17.9*m/(F2*Kd*Kc)*sqrt(T*Z/(MW*P1*(P1-P2)))
-    return A*0.001**2 # convert mm^2 to m^2
+    return A*1e-6# convert mm^2 to m^2
 
 
 def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1, edition=TENTH_EDITION):
@@ -716,10 +718,10 @@ def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1, edition=TENTH_EDITION):
     '''
     KN = API520_N(P1)
     KSH = API520_SH(T, P1, edition)
-    P1 = P1/1000. # Pa to kPa
+    P1 = P1*1e-3 # Pa to kPa
     m = m*3600. # kg/s to kg/hr
     A = 190.5*m/(P1*Kd*Kb*Kc*KN*KSH)
-    return A*0.001**2 # convert mm^2 to m^2
+    return A*1e-6# convert mm^2 to m^2
 
 ### Liquids
 
@@ -810,7 +812,7 @@ def API520_Kv(Re, edition=TENTH_EDITION):
        2nd edition. New York, NY: Wiley-AIChE, 2017.
     '''
     if edition == SEVENTH_EDITION:
-        factor = (0.9935 + 2.878/sqrt(Re) + 342.75/Re**1.5)**-1.0
+        factor = 1.0/(0.9935 + 2.878/sqrt(Re) + 342.75/(Re*sqrt(Re)))
         if factor > 1.0:
             factor = 1.0
         return factor
@@ -1025,7 +1027,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     P1 = P1*1e-3 # Pa to kPa
     P2 = P2*1e-3 # Pa to kPa
     A = 11.78*Q*sqrt(G1/(P1-P2))/(Kd*Kw*Kc*Kv)
-    A = A*0.001**2 # convert mm^2 to m^2
+    A = A*1e-6# convert mm^2 to m^2
     return A
 
 def API521_noise_graph(P_ratio):
@@ -1117,7 +1119,7 @@ def API521_noise(m, P1, P2, c, r):
     P_ratio = P1/P2
     L = API521_noise_graph(P_ratio) # from chart, hardcoded for now
     L30 = L + 10.0*log10(0.5*m*c*c)
-    Lp = L30 - 20.0*log10(r/30.0)
+    Lp = L30 - 20.0*log10(r*(1.0/30.0))
     return Lp
 
 
