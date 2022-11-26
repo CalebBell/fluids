@@ -42,10 +42,6 @@ def test_safety_valve():
     F2 = API520_F2(1.8, 1E6, 7E5)
     assert_close(F2, 0.8600724121105563)
 
-    Kv_calcs = [API520_Kv(100), API520_Kv(4525), API520_Kv(1E5)]
-    Kvs = [0.6157445891444229, 0.9639390032437682, 0.9973949303006829]
-    assert_close1d(Kv_calcs, Kvs)
-
     KN = API520_N(1774700)
     assert_close(KN, 1)
 
@@ -69,6 +65,16 @@ def test_safety_valve():
     A2 = API520_A_g(m=24270/3600., T=348., Z=0.90, MW=51., k=1.11, P1=670E3, P2=532E3, Kd=0.975, Kb=1.0, Kc=1.0)
     As = [0.0036990460646834414, 0.004248358775943481]
     assert_close1d([A1, A2], As)
+
+def test_API520_Kv():
+    Kv_calcs = [API520_Kv(100, edition='7E'), API520_Kv(4525, edition='7E'), API520_Kv(1E5, edition='7E')]
+    Kvs = [0.6157445891444229, 0.9639390032437682, 0.9973949303006829]
+    assert_close1d(Kv_calcs, Kvs)
+    
+    assert API520_Kv(1e9, edition='7E') == 1
+    
+    assert_close(API520_Kv(4525, edition='10E'), 0.9817287137013179)
+
 
 def test_API520_SH():
     with pytest.raises(Exception):

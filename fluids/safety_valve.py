@@ -217,18 +217,32 @@ def API520_F2(k, P1, P2):
     return sqrt(k/(k-1)*r**(2./k) * ((1-r**((k-1.)/k))/(1.-r)))
 
 
-def API520_Kv(Re):
+def API520_Kv(Re, edition=TENTH_EDITION):
     r'''Calculates correction due to viscosity for liquid flow for use in
     API 520 relief valve sizing.
-
+    
+    From the 7th to 9th editions, the formula for this calculation is as
+    follows:
+    
     .. math::
         K_v = \left(0.9935 + \frac{2.878}{Re^{0.5}} + \frac{342.75}
         {Re^{1.5}}\right)^{-1}
+        
+    Startign in the 10th edition, the formula is 
+    
+    .. math::
+        K_v = \left(1 + \frac{170}{Re}\right)^{-0.5}
+        
+    In the 10th edition, the formula is applicable for Re > 80. It is also 
+    recommended there that if the viscosity is < 0.1 Pa*s, this correction
+    should be set to 1.
 
     Parameters
     ----------
     Re : float
         Reynolds number for flow out the valve [-]
+    edition : str, optional
+        One of '10E', '7E', [-]
 
     Returns
     -------
@@ -249,19 +263,47 @@ def API520_Kv(Re):
     >>> from scipy.constants import *
     >>> liter/minute*1000./(0.001*(milli**2)**0.5)
     16666.666666666668
+    
+    In both editions, if the formula is used below the recommended Re range
+    and into the very low Re region this correction tends towards 0.
+    
+    In the 10th edition, the formula tends to 1 exactly as Re increases. In the
+    7th edition, the formula can actually produce corrections above 1; this is
+    handled by truncating the factor to 1.
 
     Examples
     --------
-    From [1]_, checked with example 5.
+    From [1]_ 7E, checked with example 5.
 
-    >>> API520_Kv(100)
-    0.6157445891444229
+    >>> API520_Kv(100, edition='7E')
+    0.615744589
+    
+    From [2]_ 10E, checked with example 5:
+        
+    >>> API520_Kv(4525, edition='10E')
+    0.9817287137013179
+    
+    Example in [3]_, using the 7th edition formula:
+        
+    >>> API520_Kv(2110, edition='7E')
+    0.943671807
 
     References
     ----------
-    .. [1] API Standard 520, Part 1 - Sizing and Selection.
+    .. [1] API Standard 520, Part 1 - Sizing and Selection, 7E
+    .. [2] API Standard 520, Part 1 - Sizing and Selection, 10E
+    .. [3] CCPS. Guidelines for Pressure Relief and Effluent Handling Systems. 
+       2nd edition. New York, NY: Wiley-AIChE, 2017.
     '''
-    return (0.9935 + 2.878/sqrt(Re) + 342.75/Re**1.5)**-1.0
+    if edition == SEVENTH_EDITION:
+        factor = (0.9935 + 2.878/sqrt(Re) + 342.75/Re**1.5)**-1.0
+        if factor > 1.0:
+            factor = 1.0
+        return factor
+    elif edition == TENTH_EDITION:
+        return 1.0/sqrt(170.0/Re + 1.0)
+    else:
+        raise ValueError("Acceptable editions are '7E', '10E'")
 
 
 def API520_N(P1):
