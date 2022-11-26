@@ -897,7 +897,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     a liquid in sub-critical flow.
     
     .. math::
-        A = \frac{11.78Q}{K_d K_w K_c, K_v}\left(\frac{\sqrt{G_1}}{{P1 - P2}}\right)
+        A = \frac{11.78Q}{K_d K_w K_c K_v}\left(\frac{G_1}{P1 - P2}\right)^{0.5}
 
     Parameters
     ----------
@@ -940,6 +940,31 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     Notes
     -----
     Units are interlally kg/hr, kPa, and mm^2 to match [1]_.
+    
+    This expression is essentially a form of the Loss coefficient `K` 
+    expression, with many factors and unit conversions. The raw expression in
+    SI units, with `K` the true loss coefficient, is as follows:
+        
+    .. math::
+        A = \frac{\sqrt{2} m \sqrt{\frac{K}{\rho \left(P_{1} - P_{2}\right)}}}{2}
+    
+    The constant 11.78 is the result of the following conversions:
+    
+        * 60000, converting from m^3/s to L/min
+        * sqrt(2)/2 as a factor from algebra
+        * 1e6 converting from m^2 to mm^2
+        * sqrt(1e-3*(rho0)) converting from Pa to kPa and kg/m^3 to specific gravity
+        
+    The full precise value is (depending on the reference density chosen)
+    
+    >>> sqrt(1e-3*(999.0107539518483))/60000*sqrt(2)/2*1e6
+    11.779282389196
+    
+    The K value from a relief valve sized with this method can be calculated
+    as follows:
+        
+    .. math::
+        K = \frac{2 A^{2} \rho \left(P_{1} - P_{2}\right)}{m^{2}}
 
     Examples
     --------
@@ -1005,7 +1030,21 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     >>> A = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kc=1.0, Kv=None, mu=mu)
     >>> A
     0.003106542203
-
+    
+    As described in the note, an overall K value can be calculated for the
+    valve
+    
+    >>> K = 2*A**2*rho*(P1 - P2)/m**2
+    >>> K
+    2.5825844233354602
+    
+    We can check the calculation 
+    
+    >>> from fluids.core import dP_from_K
+    >>> v = Q/A
+    >>> dP_from_K(K=K, rho=rho, V=v), P1-P2
+    (1551600.000, 1551600.00)
+    
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
