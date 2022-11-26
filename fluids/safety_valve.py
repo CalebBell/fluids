@@ -878,7 +878,7 @@ def API520_W(Pset, Pback):
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection. 7E
-    .. [1] API Standard 520, Part 1 - Sizing and Selection. 10E
+    .. [2] API Standard 520, Part 1 - Sizing and Selection. 10E
     '''
     gauge_backpressure = (Pback-atm)/(Pset-atm)*100.0 # in percent
     if gauge_backpressure < 15.0:
@@ -895,7 +895,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     a liquid in sub-critical flow.
     
     .. math::
-        A = \frac{11.78Q}{K_d K_w K_c, K_v}\sqrt{G_1}{P1 - P2}
+        A = \frac{11.78Q}{K_d K_w K_c, K_v}\left(\frac{\sqrt{G_1}}{{P1 - P2}}\right)
 
     Parameters
     ----------
@@ -958,7 +958,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     
     >>> A0 = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kw=0.97, Kc=1.0, Kv=1.0)
     >>> A0
-    0.0030661356203000815
+    0.0030661356203
     
     This value matches the 3066 mm^2 shown in the example calculation.
     
@@ -966,7 +966,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
         
     >>> A0 = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kc=1.0, Kv=1.0)
     >>> A0
-    0.0030585022573123635
+    0.0030585022573
     
     There is a slight deviation with a more precise `Kw` value.
     
@@ -977,7 +977,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     >>> v = Q/A0
     >>> Re = rho*v*D/mu
     >>> Re
-    5369.425333978004
+    5369.4253339
     
     The reynolds number shown in [1] is 4525; the difference comes from the less
     precise Saybolt Universal Seconds conversion. 
@@ -986,13 +986,13 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     
     >>> Kv = API520_Kv(Re, '10E')
     >>> Kv
-    0.9845358784887095
+    0.984535878488
     
     Compute the final area
 
     >>> A = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kc=1.0, Kv=Kv)
     >>> A
-    0.0031065422034260966
+    0.003106542203
     
     The final answer given in API 520 example 5 is 3122 mm^2, a very similar 
     value despite the small differences.
@@ -1002,7 +1002,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     
     >>> A = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kc=1.0, Kv=None, mu=mu)
     >>> A
-    0.0031065422034260966
+    0.003106542203
 
     References
     ----------
