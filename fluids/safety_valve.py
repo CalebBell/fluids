@@ -57,7 +57,7 @@ Functions and Data
 """
 
 from __future__ import division
-from math import exp, sqrt, log10
+from math import exp, sqrt, log10, pi
 from fluids.constants import inch, atm, psi
 from fluids.compressible import is_critical_flow
 from fluids.numerics import interp, tck_interp2d_linear, bisplev
@@ -890,7 +890,7 @@ def API520_W(Pset, Pback):
 rho0 = 999.0107539518483
 
 def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0, 
-               Kw=None, Kv=None, edition=TENTH_EDITION):
+               Kw=None, Kv=None, edition=TENTH_EDITION, mu=None):
     r'''Calculates required relief valve area for an API 520 valve passing
     a liquid in sub-critical flow.
     
@@ -926,6 +926,9 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
         Correction due to viscosity [-]
     edition : str, optional
         One of '10E', '7E', [-]
+    mu : float, optional
+        If provided and `Kv` is None, `Kv` will be calculated automatically,
+        [Pa*s]
 
     Returns
     -------
@@ -994,6 +997,13 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     The final answer given in API 520 example 5 is 3122 mm^2, a very similar 
     value despite the small differences.
     
+    If is also possible to have `Kv` be calculated by this routine 
+    automatically, by setting `Kv` to None and providing the fluid's viscosity.
+    
+    >>> A = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kc=1.0, Kv=None, mu=mu)
+    >>> A
+    0.0031065422034260966
+
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
@@ -1006,8 +1016,12 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     P_set = P_set_guage + atm
     if Kw is None:
         Kw = API520_W(P_set, P2)
-    if Kv is None:
-        Kv = 1.0
+    if Kv is None and mu is not None:
+        A0 = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=Kd, Kc=Kc, Kv=1.0, Kw=Kw)
+        D = sqrt(A0*4.0/pi)
+        v = (Q/60000.0)/A0
+        Re = rho*v*D/mu
+        Kv = API520_Kv(Re, edition)
     P1 = P1*1e-3 # Pa to kPa
     P2 = P2*1e-3 # Pa to kPa
     A = 11.78*Q*sqrt(G1/(P1-P2))/(Kd*Kw*Kc*Kv)
