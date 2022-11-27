@@ -4096,7 +4096,7 @@ def homotopy_solver(f, x0, jac, xtol=1e-8, ytol=None, maxiter=100, lambd_step=0.
     remaining_iters = maxiter
     homotopy_iter = 0
     failed_iters = 0
-    f_n = lambda x: homotopy_function(x, lambd, f0, f, args=args)
+    f_n = lambda x, *discarded_args: homotopy_function(x, lambd, f0, f, args=args)
     
     while abs(lambd - 1) > 1e-15:
         lambd += working_lambda_step
