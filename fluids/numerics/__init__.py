@@ -4915,7 +4915,7 @@ scipy_root_options = ('hybr', 'lm', 'broyden1', 'broyden2', 'anderson',
                       'linearmixing', 'diagbroyden', 'excitingmixing', 'krylov', 'df-sane')
 scipy_root_options_set = frozenset(scipy_root_options)
 
-python_solvers = ('newton_system', 'newton_system_line_search',
+python_solvers = ('newton_system', 'newton_system_line_search', 'newton_system_line_search_progress',
                   'homotopy_solver', 'broyden2_python')
 python_solvers_set = frozenset(python_solvers)
 
@@ -5216,6 +5216,11 @@ class SolverInterface(object):
             sln, niter = newton_system(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
                                        ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
                                        line_search=True, solve_func=self.matrix_solver, require_progress=False,
+                                       check_numbers=True, Armijo=True)
+        elif method == 'newton_system_line_search_progress':
+            sln, niter = newton_system(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
+                                       ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
+                                       line_search=True, solve_func=self.matrix_solver, require_progress=True,
                                        check_numbers=True, Armijo=True)
         elif method == 'homotopy_solver':
             sln, niter = homotopy_solver(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
