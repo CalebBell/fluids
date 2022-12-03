@@ -62,12 +62,11 @@ g_sqrt = 3.1315571206669692#_math.sqrt(g)
 e = elementary_charge = 1.6021766208e-19
 alpha = fine_structure = 0.0072973525664
 N_A = Avogadro = 6.02214076e23
-k = Boltzmann = 1.38064852e-23
+k = Boltzmann = 1.380649e-23
 sigma = Stefan_Boltzmann = 5.670367e-08
 Wien = 0.0028977729
 Rydberg = 10973731.568508
 
-k = 1.380649e-23
 R = gas_constant = N_A*k # 8.31446261815324 exactly now, N_A*k
 R_inv = 1.0/R
 R2 = R*R
