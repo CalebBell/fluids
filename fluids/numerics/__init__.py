@@ -3865,7 +3865,7 @@ def check_jacobian(x, j, func, jac_error_allowed=False):
 
 def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                   args=(), damping_func=None, line_search=False,
-                  require_progress=True, check_numbers=False,
+                  require_progress=False, check_numbers=False,
                   Armijo=False, Armijo_c1=1e-4,
                   solve_func=py_solve, with_point=False, jac_error_allowed=False): # numba: delete
 #                 solve_func=np.linalg.solve): # numba: uncomment

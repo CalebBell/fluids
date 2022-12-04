@@ -131,7 +131,6 @@ atm = atmosphere = 101325.0
 bar = 1e5
 torr = mmHg = atm / 760
 inchHg = mmHg*inch*1000
-torr_inv = 1.0/torr
 psi = pound * g / (inch * inch)
 
 atm_inv = atmosphere_inv = 1.0/atm
