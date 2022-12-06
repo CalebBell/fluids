@@ -21,7 +21,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids.open_flow import *
+from fluids.open_flow import (C_Chezy_to_n_Manning, Q_weir_V_Shen,
+                              Q_weir_rectangular_Kindsvater_Carter, Q_weir_rectangular_SIA,
+                              Q_weir_rectangular_full_Ackers,
+                              Q_weir_rectangular_full_Kindsvater_Carter,
+                              Q_weir_rectangular_full_Rehbock, Q_weir_rectangular_full_SIA, V_Chezy,
+                              V_Manning, n_Manning_to_C_Chezy, n_dicts)
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 

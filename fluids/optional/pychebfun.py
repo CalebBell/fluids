@@ -36,7 +36,7 @@ import numpy as np
 import numpy.polynomial as poly
 from numpy.polynomial.chebyshev import cheb2poly, Chebyshev
 from numpy.polynomial.polynomial import Polynomial
-
+import warnings
 import sys
 emach = sys.float_info.epsilon # machine epsilon
 
@@ -245,23 +245,25 @@ class Polyfun(object):
 
         N: optional parameter which indicates the range of the dichotomy
         """
-        # rescale f to the unit domain
-        domain = self.get_default_domain(domain)
-        a,b = domain[0], domain[-1]
-        map_ui_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b)
-        args = {'f': lambda t: f(map_ui_ab(t))}
-        if N is not None: # N is provided
-            nextpow2 = int(np.log2(N))+1
-            args['kmin'] = nextpow2
-            args['kmax'] = nextpow2+1
-            args['raise_no_convergence'] = False
-        else:
-            args['raise_no_convergence'] = True
-
-        # Find out the right number of coefficients to keep
-        coeffs = self.dichotomy(**args)
-
-        return self.from_coeff(coeffs, domain)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=RuntimeWarning)
+            # rescale f to the unit domain
+            domain = self.get_default_domain(domain)
+            a,b = domain[0], domain[-1]
+            map_ui_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b)
+            args = {'f': lambda t: f(map_ui_ab(t))}
+            if N is not None: # N is provided
+                nextpow2 = int(np.log2(N))+1
+                args['kmin'] = nextpow2
+                args['kmax'] = nextpow2+1
+                args['raise_no_convergence'] = False
+            else:
+                args['raise_no_convergence'] = True
+    
+            # Find out the right number of coefficients to keep
+            coeffs = self.dichotomy(**args)
+    
+            return self.from_coeff(coeffs, domain)
 
     @classmethod
     def _threshold(self, vscale):
@@ -754,28 +756,31 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
     :param int N: (default = None)  specify number of interpolating points
     :param np.array chebcoeff: (default = np.array(0)) specify the coefficients
     """
-
-    # Chebyshev coefficients
-    if chebcoeff is not None:
-        return Chebfun.from_coeff(chebcoeff, domain)
-
-    # another instance
-    if isinstance(f, Polyfun):
-        return Chebfun.from_fun(f)
-
-    # callable
-    if hasattr(f, '__call__'):
-        return Chebfun.from_function(f, domain, N)
-
-    # from here on, assume that f is None, or iterable
-    if np.isscalar(f):
-        f = [f]
-
-    try:
-        iter(f) # interpolation values provided
-    except TypeError:
-        pass
-    else:
-        return Chebfun(f, domain)
-
-    raise TypeError('Impossible to initialise the object from an object of type {}'.format(type(f)))
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", category=RuntimeWarning)
+        
+        
+        # Chebyshev coefficients
+        if chebcoeff is not None:
+            return Chebfun.from_coeff(chebcoeff, domain)
+    
+        # another instance
+        if isinstance(f, Polyfun):
+            return Chebfun.from_fun(f)
+    
+        # callable
+        if hasattr(f, '__call__'):
+            return Chebfun.from_function(f, domain, N)
+    
+        # from here on, assume that f is None, or iterable
+        if np.isscalar(f):
+            f = [f]
+    
+        try:
+            iter(f) # interpolation values provided
+        except TypeError:
+            pass
+        else:
+            return Chebfun(f, domain)
+    
+        raise TypeError('Impossible to initialise the object from an object of type {}'.format(type(f)))

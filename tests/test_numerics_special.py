@@ -21,9 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids.numerics.special import *
+from fluids.numerics.special import py_cacos, py_catanh, py_hypot
 from fluids.numerics import assert_close
-from math import *
+from math import hypot
 
 def test_hypot():
     values = [(.5, -1), (-.5, 1), (100, -100), (-100, 100)]

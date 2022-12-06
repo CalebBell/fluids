@@ -22,12 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-import sys
-import importlib.util
-import types
-import numpy as np
 import fluids as normal_fluids
-import numba
 import fluids.numba
 
 __all__ = []

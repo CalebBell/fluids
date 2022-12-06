@@ -26,7 +26,17 @@ import numpy as np
 from fluids.numerics import assert_close, assert_close1d, assert_close2d
 import pytest
 import fluids
-from fluids.units import *
+from fluids.units import (API520_A_g, API520_round_size, ATMOSPHERE_1976, ATMOSPHERE_NRLMSISE00,
+                          A_multiple_hole_cylinder, Bond, C_Chezy_to_n_Manning, Cv_to_K, Fritzsche,
+                          Geldart_Ling, HelicalCoil, IGT, K_separator_Watkins, K_to_Cv, Muller,
+                          Oliphant, Panhandle_A, Panhandle_B, Q_weir_rectangular_SIA, Reynolds,
+                          Robbins, SA_tank, Spitzglass_high, TANK, T_critical_flow,
+                          V_multiple_hole_cylinder, Weymouth, agitator_time_homogeneous,
+                          control_valve_noise_g_2011, convert_output, current_ideal, dP_packed_bed,
+                          differential_pressure_meter_solver, drag_sphere, friction_factor,
+                          head_from_P, integrate_drag_sphere, is_critical_flow, isothermal_gas,
+                          nu_mu_converter, roughness_Farshad, size_control_valve_g, specific_speed,
+                          speed_synchronous, t_from_gauge, u)
 from fluids.units import kwargs_to_args
 
 def test_kwargs_to_args():

@@ -24,7 +24,9 @@ from numpy.testing import assert_allclose
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 import numpy as np
-from fluids.design_climate import *
+from fluids.design_climate import (IntegratedSurfaceDatabaseStation, StationDataGSOD,
+                                   cooling_degree_days, geocode, get_closest_station,
+                                   get_station_year_text, heating_degree_days)
 from fluids.design_climate import _latlongs, stations
 import os
 

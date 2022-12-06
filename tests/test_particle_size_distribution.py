@@ -21,11 +21,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 import fluids
-from fluids import *
-from math import *
+from math import log10
 from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose, linspace, logspace
 import pytest
-from fluids.particle_size_distribution import *
+from fluids.particle_size_distribution import (ASTM_E11_sieves, ISO_3310_1_R10, ISO_3310_1_R20,
+                                               ISO_3310_1_R20_3, ISO_3310_1_R40_3,
+                                               ISO_3310_1_sieves, PSDCustom, PSDInterpolated,
+                                               PSDLognormal, ParticleSizeDistribution,
+                                               cdf_Gates_Gaudin_Schuhman, cdf_Rosin_Rammler,
+                                               cdf_lognormal, pdf_Gates_Gaudin_Schuhman,
+                                               pdf_Gates_Gaudin_Schuhman_basis_integral,
+                                               pdf_Rosin_Rammler, pdf_Rosin_Rammler_basis_integral,
+                                               pdf_lognormal, pdf_lognormal_basis_integral,
+                                               psd_spacing)
 try:
     from random import uniform
 except:

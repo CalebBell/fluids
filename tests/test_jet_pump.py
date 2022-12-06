@@ -21,7 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids import *
+from fluids import (liquid_jet_pump, liquid_jet_pump_ancillary,
+                    vacuum_air_leakage_Coker_Worthington, vacuum_air_leakage_HEI2633,
+                    vacuum_air_leakage_Ryans_Croll, vacuum_air_leakage_Seider)
 from fluids.constants import mmHg, atm
 from fluids.numerics import linspace, assert_close, assert_close1d
 import pytest

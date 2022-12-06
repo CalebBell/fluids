@@ -21,7 +21,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids.pump import *
+from fluids.pump import (CSA_motor_efficiency, Corripio_motor_efficiency, Corripio_pump_efficiency,
+                         CountryPower, VFD_efficiency, current_ideal, electrical_plug_types,
+                         industrial_power, motor_efficiency_underloaded, motor_round_size,
+                         nema_high_P, nema_min_P, nema_sizes, nema_sizes_hp, residential_power,
+                         residential_power_frequencies, specific_diameter, specific_speed,
+                         speed_synchronous, voltages_1_phase_residential, voltages_3_phase)
 from fluids.numerics import assert_close, assert_close1d
 from fluids.constants import hp
 import pytest

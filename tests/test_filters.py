@@ -21,7 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids.filters import *
+from fluids.filters import (round_edge_grill, round_edge_open_mesh, round_edge_screen,
+                            square_edge_grill, square_edge_screen)
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 

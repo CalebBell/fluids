@@ -76,7 +76,7 @@ Stagnation Point
 from __future__ import division
 from math import sqrt, log, pi, exp, isinf
 from fluids.constants import R
-from fluids.numerics import secant, newton, ridder, lambertw
+from fluids.numerics import lambertw, ridder, secant
 
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT', 'isothermal_gas',

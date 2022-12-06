@@ -21,7 +21,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids.packed_bed import *
+from fluids.packed_bed import (Brauer, Carman, Erdim_Akgiray_Demir, Ergun, Fahien_Schriver, Guo_Sun,
+                               Harrison_Brunner_Hecker, Hicks, Idelchik, Jones_Krier, KTA,
+                               Kuo_Nydegger, Montillet_Akkari_Comiti, Tallmadge, dP_packed_bed,
+                               dP_packed_bed_methods, voidage_Benyahia_Oneil,
+                               voidage_Benyahia_Oneil_cylindrical, voidage_Benyahia_Oneil_spherical)
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 

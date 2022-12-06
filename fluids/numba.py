@@ -22,7 +22,6 @@ SOFTWARE.
 """
 
 from __future__ import division
-import sys
 import importlib.util
 import re
 import types
@@ -31,12 +30,10 @@ import string
 import numpy as np
 import fluids as normal_fluids
 import numba
-from numba import int32, float32, int64, float64
+from numba import float64
 from numba.experimental import jitclass
-from numba import cfunc
 import linecache
 import numba.types
-from math import pi
 import fluids.optional.spa
 import ctypes
 from numba.extending import get_cython_function_address
@@ -424,7 +421,6 @@ total_skip = set([])
 skip_cache = set(['secant', 'brenth', 'py_solve'])
 bad_names = set(('__file__', '__name__', '__package__', '__cached__', 'solve'))
 
-from fluids.numerics import SamePointError, UnconvergedError, NotBoundedError
 def create_numerics(replaced, vec=False):
     cache_unsuported = set(['brenth', 'newton_system', 'quad', 'quad_adaptive', 'fixed_quad_Gauss_Kronrod', 'py_lambertw', 'secant', 'lambertw', 'ridder', 'bisect'])
 #    cache_unsuported = set([])

@@ -21,7 +21,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids.safety_valve import *
+from fluids.safety_valve import (API520_A_g, API520_A_steam, API520_B, API520_C, API520_F2,
+                                 API520_Kv, API520_N, API520_SH, API520_W, API520_round_size,
+                                 API521_noise, API521_noise_graph, API526_A, API526_letters,
+                                 VDI_3732_noise_elevated_flare, VDI_3732_noise_ground_flare)
 from fluids.numerics import assert_close, assert_close1d, linspace
 from fluids.constants import atm
 import pytest

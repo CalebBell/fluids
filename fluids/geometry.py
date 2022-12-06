@@ -133,11 +133,9 @@ from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
                   degrees, sqrt)
 from cmath import sqrt as csqrt
-from fluids.constants import inch
-from fluids.core import PY3
 from fluids.numerics import (cacos, catan, secant, brenth, newton, ellipe, ellipkinc,
-                             ellipeinc, horner, chebval, linspace, derivative,
-                             quad, translate_bound_func)
+                             ellipeinc, chebval, linspace, derivative, quad,
+                             translate_bound_func)
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
@@ -4727,6 +4725,7 @@ class AirCooledExchanger(object):
 
     Examples
     --------
+    >>> from scipy.constants import inch
     >>> AC = AirCooledExchanger(tube_rows=4, tube_passes=4, tubes_per_row=56, tube_length=10.9728,
     ... tube_diameter=1*inch, fin_thickness=0.013*inch, fin_density=10/inch,
     ... angle=30, pitch=2.5*inch, fin_height=0.625*inch, tube_thickness=0.00338,

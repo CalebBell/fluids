@@ -22,8 +22,15 @@ SOFTWARE.'''
 
 from __future__ import division
 from math import log, log10
-from fluids.two_phase_voidage import *
-from fluids.two_phase import *
+from fluids.two_phase_voidage import homogeneous
+from fluids.two_phase import (Bankoff, Baroczy_Chisholm, Beggs_Brill, Chen_Friedel, Chisholm,
+                              Friedel, Gronnerud, Hwang_Kim, Jung_Radermacher, Kim_Mudawar,
+                              Lockhart_Martinelli, Lombardi_Pedrocchi, Mishima_Hibiki,
+                              Muller_Steinhagen_Heck, Theissing, Tran, Wang_Chiang_Lu, Xu_Fang,
+                              Yu_France, Zhang_Hibiki_Mishima, Zhang_Webb, two_phase_dP,
+                              two_phase_dP_acceleration, two_phase_dP_dz_acceleration,
+                              two_phase_dP_dz_gravitational, two_phase_dP_gravitational,
+                              two_phase_dP_methods)
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 try:

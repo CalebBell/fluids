@@ -21,10 +21,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids import *
+from fluids import (A_cylinder, A_hollow_cylinder, A_multiple_hole_cylinder, A_partial_circle,
+                    AirCooledExchanger, HelicalCoil, PlateExchanger, RectangularFinExchanger,
+                    RectangularOffsetStripFinExchanger, SA_conical_head, SA_ellipsoidal_head,
+                    SA_from_h, SA_guppy_head, SA_partial_cylindrical_body,
+                    SA_partial_horiz_conical_head, SA_partial_horiz_ellipsoidal_head,
+                    SA_partial_horiz_guppy_head, SA_partial_horiz_spherical_head,
+                    SA_partial_horiz_torispherical_head, SA_partial_sphere,
+                    SA_partial_vertical_conical_head, SA_partial_vertical_ellipsoidal_head,
+                    SA_partial_vertical_spherical_head, SA_partial_vertical_torispherical_head,
+                    SA_tank, SA_torispheroidal, TANK, V_cylinder, V_from_h, V_hollow_cylinder,
+                    V_horiz_conical, V_horiz_ellipsoidal, V_horiz_guppy, V_horiz_spherical,
+                    V_horiz_torispherical, V_multiple_hole_cylinder, V_partial_sphere,
+                    V_vertical_conical, V_vertical_conical_concave, V_vertical_ellipsoidal,
+                    V_vertical_ellipsoidal_concave, V_vertical_spherical,
+                    V_vertical_spherical_concave, V_vertical_torispherical,
+                    V_vertical_torispherical_concave, a_torispherical, aspect_ratio,
+                    circle_segment_h_from_A, circularity, pitch_angle_solver,
+                    plate_enlargement_factor, sphericity)
 from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose, linspace
-from math import *
-from fluids.constants import *
+from math import cos
+from fluids.constants import foot, inch, pi
 import pytest
 
 

@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 import os
-from fluids.atmosphere import *
+from fluids.atmosphere import earthsun_distance, solar_irradiation, solar_position, sunrise_sunset
 import fluids
 from fluids.numerics import assert_close, assert_close1d, assert_close2d
 import fluids.optional

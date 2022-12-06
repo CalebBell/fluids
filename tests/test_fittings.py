@@ -23,14 +23,30 @@ SOFTWARE.'''
 from __future__ import division
 import os
 import fluids.fittings
-from fluids.fittings import *
+from fluids.fittings import (Cv_to_K, Cv_to_Kv, Darby, Darby3K, Hooper, Hooper2K,
+                             K_angle_stop_check_valve_Crane, K_angle_valve_Crane,
+                             K_ball_valve_Crane, K_branch_converging_Crane,
+                             K_branch_diverging_Crane, K_butterfly_valve_Crane,
+                             K_diaphragm_valve_Crane, K_foot_valve_Crane, K_gate_valve_Crane,
+                             K_globe_stop_check_valve_Crane, K_globe_valve_Crane,
+                             K_lift_check_valve_Crane, K_plug_valve_Crane, K_run_converging_Crane,
+                             K_run_diverging_Crane, K_swing_check_valve_Crane,
+                             K_tilting_disk_check_valve_Crane, K_to_Cv, K_to_Kv, Kv_to_Cv, Kv_to_K,
+                             bend_miter, bend_miter_Miller, bend_rounded, bend_rounded_Crane,
+                             bend_rounded_Miller, change_K_basis, contraction_beveled,
+                             contraction_conical, contraction_conical_Crane, contraction_round,
+                             contraction_round_Miller, contraction_sharp, diffuser_conical,
+                             diffuser_conical_staged, diffuser_curved, diffuser_pipe_reducer,
+                             diffuser_sharp, entrance_angled, entrance_beveled,
+                             entrance_beveled_orifice, entrance_distance, entrance_rounded,
+                             entrance_sharp, exit_normal, helix, spiral, v_lift_valve_Crane)
 from math import pi, log10, log, isnan, isinf
 try:
     from random import uniform
 except:
     pass
 from fluids.numerics import secant
-from fluids.constants import *
+from fluids.constants import inch, liter, minute
 from fluids.core import Engauge_2d_parser, Reynolds
 from fluids.friction import ft_Crane
 #from fluids.optional.pychebfun import *

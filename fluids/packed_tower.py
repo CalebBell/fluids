@@ -60,7 +60,7 @@ Demister Geometry
 from __future__ import division
 from math import log, sqrt
 from fluids.constants import g, pi
-from fluids.numerics import secant, newton_system, solve_2_direct, numpy as np
+from fluids.numerics import newton_system, secant, solve_2_direct
 
 __all__ = ['voidage_experimental', 'specific_area_mesh',
 'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood', 'Robbins',

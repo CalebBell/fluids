@@ -21,7 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids.mixing import *
+from fluids.mixing import (COV_motionless_mixer, K_motionless_mixer, Kp_helical_ribbon_Rieger,
+                           agitator_time_homogeneous, size_tee, time_helical_ribbon_Grenville)
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 

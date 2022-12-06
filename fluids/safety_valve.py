@@ -57,8 +57,8 @@ Functions and Data
 """
 
 from __future__ import division
-from math import exp, sqrt, log10, pi
-from fluids.constants import inch, atm, psi
+from math import log10, pi, sqrt
+from fluids.constants import atm, inch
 from fluids.compressible import is_critical_flow
 from fluids.numerics import interp, tck_interp2d_linear, bisplev
 

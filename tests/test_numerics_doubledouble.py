@@ -21,9 +21,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids.numerics.doubledouble import *
+from fluids.numerics.doubledouble import (add_dd, add_imag_dd, cbrt_dd, cbrt_imag_dd, cube_dd,
+                                          div_dd, div_imag_dd, eq_dd, exp_dd, ge_dd, gt_dd,
+                                          imag_inv_dd, intpow_dd, le_dd, log_dd, lt_dd, mul_dd,
+                                          mul_imag_dd, mul_imag_noerrors_dd, mul_noerrors_dd,
+                                          neq_dd, pow_dd, sqrt_dd, sqrt_imag_dd, square_dd)
 from fluids.numerics import assert_close, assert_close1d
-from math import *
 import pytest
 
 try:

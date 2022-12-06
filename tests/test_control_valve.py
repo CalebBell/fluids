@@ -22,7 +22,9 @@ SOFTWARE.'''
 
 from fluids.control_valve import cavitation_index, FF_critical_pressure_ratio_l, is_choked_turbulent_l, is_choked_turbulent_g, Reynolds_valve, loss_coefficient_piping, Reynolds_factor
 from fluids.fittings import Cv_to_Kv
-from fluids.control_valve import *
+from fluids.control_valve import (control_valve_choke_P_g, control_valve_choke_P_l,
+                                  control_valve_noise_g_2011, control_valve_noise_l_2015,
+                                  size_control_valve_g, size_control_valve_l)
 from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose
 import pytest
 

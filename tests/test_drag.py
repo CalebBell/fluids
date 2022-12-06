@@ -21,7 +21,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from fluids.drag import drag_sphere, drag_sphere_methods, v_terminal, integrate_drag_sphere, time_v_terminal_Stokes, drag_sphere_correlations
-from fluids.drag import *
+from fluids.drag import (Almedeij, Barati, Barati_high, Ceylan, Cheng, Clift, Clift_Gauvin,
+                         Engelund_Hansen, Flemmer_Banks, Graf, Haider_Levenspiel, Khan_Richardson,
+                         Mikhailov_Freire, Morrison, Morsi_Alexander, Rouse, Song_Xu, Stokes,
+                         Swamee_Ojha, Terfous, Yen)
 from fluids.numerics import assert_close1d, assert_close
 import pytest
 

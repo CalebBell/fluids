@@ -22,17 +22,16 @@ SOFTWARE.'''
 
 from __future__ import division
 import os
-from fluids import *
 import numpy as np
 from math import pi, log10, log
 from random import uniform
 from numpy.testing import assert_allclose
-from scipy.constants import *
-from scipy.optimize import *
-from scipy.interpolate import *
+from scipy.optimize import fsolve, newton
+from scipy.interpolate import (RectBivariateSpline, UnivariateSpline, bisplev, bisplrep, splev,
+                               splrep)
 from fluids import fluids_data_dir
 from fluids.core import Engauge_2d_parser
-from fluids.optional.pychebfun import *
+from fluids.optional.pychebfun import chebfun, chebfun_to_poly
 
 import pytest
 

@@ -21,13 +21,45 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids import *
 from fluids.numerics import numpy as np
 import pytest
 import fluids.numerics
-from fluids.numerics import *
+from fluids.numerics import (SolverInterface, array_as_tridiagonals, assert_close, assert_close1d,
+                             assert_close2d, best_bounding_bounds, chebder, chebint, chebval,
+                             chebval_ln_tau, chebval_ln_tau_and_der, chebval_ln_tau_and_der2,
+                             chebval_ln_tau_and_der3, cumsum, derivative, exp_cheb,
+                             exp_cheb_and_der, exp_cheb_and_der2, exp_cheb_and_der3,
+                             exp_cheb_ln_tau, exp_cheb_ln_tau_and_der, exp_cheb_ln_tau_and_der2,
+                             exp_horner_backwards, exp_horner_backwards_and_der,
+                             exp_horner_backwards_and_der2, exp_horner_backwards_and_der3,
+                             exp_horner_backwards_ln_tau, exp_horner_backwards_ln_tau_and_der,
+                             exp_horner_backwards_ln_tau_and_der2, exp_horner_stable,
+                             exp_horner_stable_and_der, exp_horner_stable_and_der2,
+                             exp_horner_stable_and_der3, exp_horner_stable_ln_tau,
+                             exp_horner_stable_ln_tau_and_der, exp_horner_stable_ln_tau_and_der2,
+                             exp_poly_ln_tau_coeffs2, exp_poly_ln_tau_coeffs3,
+                             fit_integral_linear_extrapolation,
+                             fit_integral_over_T_linear_extrapolation, full, horner,
+                             horner_and_der2, horner_and_der3, horner_and_der4, horner_backwards,
+                             horner_backwards_ln_tau, horner_backwards_ln_tau_and_der,
+                             horner_backwards_ln_tau_and_der2, horner_backwards_ln_tau_and_der3,
+                             horner_domain, horner_stable, horner_stable_and_der,
+                             horner_stable_and_der2, horner_stable_and_der3, horner_stable_and_der4,
+                             horner_stable_ln_tau, horner_stable_ln_tau_and_der,
+                             horner_stable_ln_tau_and_der2, horner_stable_ln_tau_and_der3,
+                             is_monotonic, is_poly_positive, jacobian, linspace, max_abs_error,
+                             max_abs_rel_error, max_squared_error, max_squared_rel_error,
+                             mean_abs_error, mean_abs_rel_error, mean_squared_error,
+                             mean_squared_rel_error, min_max_ratios, newton_system,
+                             poly_fit_integral_over_T_value, poly_fit_integral_value, polyint,
+                             polyint_over_x, polylog2, polynomial_offset_scale,
+                             quadratic_from_f_ders, roots_quadratic, roots_quartic, secant, sincos,
+                             solve_2_direct, solve_3_direct, solve_4_direct, solve_tridiagonal,
+                             stable_poly_to_unstable, std, subset_matrix, translate_bound_f_jac,
+                             translate_bound_func, translate_bound_jac, tridiagonals_as_array,
+                             zeros)
 from scipy.integrate import quad
-from math import *
+from math import cos, erf, exp, isnan, log, sin
 from random import random
 from math import pi
 assert_allclose = np.testing.assert_allclose
@@ -1446,18 +1478,25 @@ def to_solve_jac_newton_numpy(inputs):
     return np.array(ans)
 
 try:
-    import numdifftools as nd
-    jacob_methods = ['analytical', 'python', 'numdifftools_forward']
-except:
-    jacob_methods = ['analytical', 'python']
-    
-try:
-    import jacobi
-    jacob_methods += ['jacobi_forward']
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        try:
+            import numdifftools as nd
+            jacob_methods = ['analytical', 'python', 'numdifftools_forward']
+        except:
+            jacob_methods = ['analytical', 'python']
+            
+        try:
+            import jacobi
+            jacob_methods += ['jacobi_forward']
+        except:
+            pass
 except:
     pass
     
 @pytest.mark.parametrize("jacob_method", jacob_methods)
+@pytest.mark.filterwarnings("ignore:Method")
 def test_SolverInterface_basics(jacob_method):    
     solver = SolverInterface(method='newton_system', objf=to_solve_newton_python,
                              jacobian_method=jacob_method, jac=to_solve_jac_newton_python)

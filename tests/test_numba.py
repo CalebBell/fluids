@@ -22,10 +22,10 @@ SOFTWARE.'''
 
 from __future__ import division
 import fluids
-from fluids import *
+from fluids import (ATMOSPHERE_1976, SA_ellipsoidal_head, SA_from_h,
+                    SA_partial_horiz_torispherical_head, SA_tank, friction_plate_Kumar)
 import fluids.vectorized
-from math import *
-from fluids.constants import *
+from fluids.constants import hp
 from fluids.numerics import assert_close, assert_close1d
 import pytest
 try:

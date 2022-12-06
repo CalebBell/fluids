@@ -21,8 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids.vectorized import *
-from fluids import *
+from fluids import Morsi_Alexander
 from numpy.testing import assert_allclose
 import pytest
 import fluids.vectorized

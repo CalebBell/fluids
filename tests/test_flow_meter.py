@@ -21,7 +21,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from fluids.flow_meter import flow_meter_discharge
-from fluids.flow_meter import *
+from fluids.flow_meter import (AS_CAST_VENTURI_TUBE, CONCENTRIC_ORIFICE, CONE_METER,
+                               C_ISA_1932_nozzle, C_Miller_1996, C_Reader_Harris_Gallagher,
+                               C_Reader_Harris_Gallagher_wet_venturi_tube,
+                               C_eccentric_orifice_ISO_15377_1998, C_long_radius_nozzle,
+                               C_quarter_circle_orifice_ISO_15377_1998, C_venturi_nozzle,
+                               C_wedge_meter_ISO_5167_6_2017, C_wedge_meter_Miller,
+                               HOLLINGSHEAD_CONE, HOLLINGSHEAD_ORIFICE, HOLLINGSHEAD_VENTURI_SHARP,
+                               HOLLINGSHEAD_VENTURI_SMOOTH, HOLLINGSHEAD_WEDGE, ISA_1932_NOZZLE,
+                               ISO_15377_CONICAL_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
+                               ISO_15377_QUARTER_CIRCLE_ORIFICE, ISO_5167_ORIFICE,
+                               K_to_discharge_coefficient, LONG_RADIUS_NOZZLE,
+                               MACHINED_CONVERGENT_VENTURI_TUBE, MILLER_CONICAL_ORIFICE,
+                               MILLER_ECCENTRIC_ORIFICE, MILLER_ORIFICE,
+                               MILLER_QUARTER_CIRCLE_ORIFICE, MILLER_SEGMENTAL_ORIFICE,
+                               ORIFICE_CORNER_TAPS, ORIFICE_D_AND_D_2_TAPS, ORIFICE_FLANGE_TAPS,
+                               ORIFICE_PIPE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS,
+                               ROUGH_WELDED_CONVERGENT_VENTURI_TUBE, TAPS_OPPOSITE, TAPS_SIDE,
+                               VENTURI_NOZZLE, WEDGE_METER, cone_meter_expansibility_Stewart,
+                               dP_Reader_Harris_Gallagher_wet_venturi_tube, dP_cone_meter,
+                               dP_orifice, dP_venturi_tube, dP_wedge_meter,
+                               diameter_ratio_cone_meter, diameter_ratio_wedge_meter,
+                               differential_pressure_meter_C_epsilon,
+                               differential_pressure_meter_beta, differential_pressure_meter_dP,
+                               differential_pressure_meter_solver, discharge_coefficient_to_K,
+                               flow_coefficient, nozzle_expansibility, orifice_expansibility,
+                               orifice_expansibility_1989, velocity_of_approach_factor)
 from fluids.constants import inch
 from math import log10, log, exp
 from fluids.numerics import secant, linspace, logspace, assert_close, isclose, assert_close1d, assert_close2d

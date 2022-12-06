@@ -94,11 +94,10 @@ Flow Meter Utilities
 """
 
 from __future__ import division
-from math import sqrt, cos, sin, tan, atan, pi, radians, exp, acos, log10, log
-from fluids.friction import friction_factor
+from math import acos, exp, log, log10, pi, sqrt
 from fluids.core import Froude_densimetric
-from fluids.numerics import interp, secant, brenth, NotBoundedError, implementation_optimize_tck, bisplev
-from fluids.constants import g, inch, inch_inv, pi_inv, root_two
+from fluids.numerics import bisplev, brenth, implementation_optimize_tck, interp, secant
+from fluids.constants import inch, inch_inv, pi_inv, root_two
 
 __all__ = ['C_Reader_Harris_Gallagher',
            'differential_pressure_meter_solver',
