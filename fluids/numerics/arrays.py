@@ -561,6 +561,24 @@ def tridiagonals_as_array(a, b, c, zero=0.0):
 
 
 def solve_tridiagonal(a, b, c, d):
+    '''
+    Parameters
+    ----------
+    a : list[float]
+        Lower diagonal, [-]
+    b : list[float]
+        Main diagonal along axis, [-]
+    c : list[float]
+        Upper diagonal, [-]
+    d : list[float]
+        Array being solved for, [-]
+
+    Returns
+    -------
+    solve : list[float]
+        result, [-]
+    '''
+    # the algorithm is in place
     b, d = [i for i in b], [i for i in d]
     N = len(d)
     for i in range(N - 1):

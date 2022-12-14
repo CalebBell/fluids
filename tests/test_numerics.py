@@ -644,6 +644,7 @@ def test_array_as_tridiagonals():
     assert_allclose(tridiagonals[0], expect_diags[0], rtol=0, atol=0)
     assert_allclose(tridiagonals[1], expect_diags[1], rtol=0, atol=0)
     assert_allclose(tridiagonals[2], expect_diags[2], rtol=0, atol=0)
+
     A = np.array(A)
     tridiagonals = array_as_tridiagonals(A)
     assert_allclose(tridiagonals[0], expect_diags[0], rtol=0, atol=0)

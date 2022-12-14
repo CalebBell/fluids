@@ -21,16 +21,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
 from __future__ import division
-from fluids.numerics.special import py_cacos, py_catanh, py_hypot
+from fluids.numerics.special import py_cacos, py_catanh, py_hypot, trunc_exp, trunc_log
 from fluids.numerics import assert_close
-from math import hypot
+from math import hypot, exp, isnan, isinf, log
 
 def test_hypot():
     values = [(.5, -1), (-.5, 1), (100, -100), (-100, 100)]
     rtol = 1e-14
     for (x, y) in values:
         assert_close(py_hypot(x, y), hypot(x, y), rtol=rtol)
+        
+        
+def test_trunc_exp():
+    for v in (-1e100, -1e-10, -1e-1, 0.0, 0.1, 10.0, 300.0, 709.782712893384):
+        assert_close(trunc_exp(v), exp(v), atol=0.0, rtol=0.0)
+        
+    assert trunc_exp(1000.0) >= exp(709.0)
+    assert not isnan(trunc_exp(1000.0))
+    assert not isinf(trunc_exp(1000.0))
+    
+def test_trunc_log():
+    for v in (5e-324, 1e-100, 1e-10, 0.1, 10.0, 300.0, 1e10, 1e100, 3e300):
+        assert_close(trunc_log(v), log(v), atol=0.0, rtol=0.0)
 
+    assert not isnan(trunc_log(0.0))
+    assert not isinf(trunc_log(0.0))
+    assert trunc_log(0.0) < trunc_log(1e-100)
 
 def test_py_cacos():
     # Missed a asinh in this case

@@ -31,6 +31,8 @@ try:
 except:
     log1p = log
 
+inf = float("inf")
+
 
 __all__ = ['py_hypot', 'py_cacos', 'py_catan', 'py_catanh', 'trunc_exp',
            'trunc_log']
@@ -97,6 +99,8 @@ def trunc_exp(x, trunc=1.7976931348622732e+308):
 
 def trunc_log(x, trunc=-744.4400719213812):
     # 5e-324 is the smallest floating point number above zero and its log is -744.4400719213812
+    # do not allow negative numbers though, do not error on zero
+    # 3e-324 same answer
     if x == 0.0:
         return trunc
     return log(x)
