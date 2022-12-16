@@ -3487,7 +3487,7 @@ def halley_compat_numba(func, x, *args):
     a, b = func(x, *args)
     return a, b, 0.0
 
-def newton(func, x0, fprime=None, args=(), tol=None, maxiter=100,
+def newton(func, x0, fprime=None, args=(), maxiter=100,
            fprime2=None, low=None, high=None, damping=1.0, ytol=None,
            xtol=1.48e-8, require_eval=False, damping_func=None,
            bisection=False, gap_detection=False, dy_dx_limit=1e100,
@@ -3512,8 +3512,6 @@ def newton(func, x0, fprime=None, args=(), tol=None, maxiter=100,
     From scipy, with some modifications!
     https://github.com/scipy/scipy/blob/v1.1.0/scipy/optimize/zeros.py#L66-L206
     """
-    if tol is not None:
-        xtol = tol
     p0 = 1.0*x0
 #    p1 = p0 = 1.0*x0
 #    fval0 = None

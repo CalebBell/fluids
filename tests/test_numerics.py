@@ -39,6 +39,7 @@ from fluids.numerics import (SolverInterface, array_as_tridiagonals, assert_clos
                              exp_horner_stable_ln_tau_and_der, exp_horner_stable_ln_tau_and_der2,
                              exp_poly_ln_tau_coeffs2, exp_poly_ln_tau_coeffs3,
                              fit_integral_linear_extrapolation,
+                             deflate_cubic_real_roots,
                              fit_integral_over_T_linear_extrapolation, full, horner,
                              horner_and_der2, horner_and_der3, horner_and_der4, horner_backwards,
                              horner_backwards_ln_tau, horner_backwards_ln_tau_and_der,
@@ -802,6 +803,10 @@ def test_polylog2():
     ys = [polylog2(x) for x in xs]
     assert_close1d(ys, ys_act, rtol=1E-7, atol=1E-10)
 
+def test_deflate_cubic_real_roots():
+    assert_close1d(deflate_cubic_real_roots(2.0, 4.5, 1.1, 43.0), (0.0005684682709485855, -45.00056846827095), rtol=1e-14)
+    
+    assert_close1d(deflate_cubic_real_roots(2.0, 4.5, -1e5, 43.0),  (0.0, 0.0), atol=0.0)
 
 def test_std():
     inputs = ([1.0,5.0,11.0,4.0],
