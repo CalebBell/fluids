@@ -133,3 +133,14 @@ def test_roots_cubic():
     assert_close(v2.real, -1.5101465217091279, rtol=1e-13)
     assert_close(v2.imag, -5.290770708719792, atol=1e-14)
 
+    # a=0 case
+    # arbitrary choice on which root to repeat
+    v0, v1, v2 = roots_cubic(0.0, 1.0, 2.0, 3.0)
+    assert_close(v0.real, -1.0, rtol=1e-13)
+    assert_close(v0.imag, 1.4142135623730951, rtol=1e-14)
+    assert_close(v1.real, -1.0, rtol=1e-13)
+    assert_close(v1.imag, 1.4142135623730951, rtol=1e-14)
+    assert_close(v2.real, -1.0, rtol=1e-13)
+    assert_close(v2.imag, -1.4142135623730951, rtol=1e-14)
+
+
