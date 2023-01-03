@@ -298,7 +298,8 @@ complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
 
 def roots_quadratic(a, b, c):
     if a == 0.0:
-        return (-c/b, )
+        root = -c/b
+        return (root, root)
     D = b*b - 4.0*a*c
     a_inv_2 = 0.5/a
     if D < 0.0:
@@ -3408,7 +3409,7 @@ def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
                 sln = roots_quadratic(a, b, c)
                 # print('Quadratic solutions', sln)
                 if sln[0].imag == 0:
-                    if len(sln) == 2:
+                    if sln[0] != sln[1]:
                         a_step = (sln[0] - x1)
                         another_step = (sln[1] - x1)
                         # use the closest one

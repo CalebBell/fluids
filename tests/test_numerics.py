@@ -247,15 +247,21 @@ def test_roots_quadratic():
     v0, v1 = roots_quadratic(a, b, c)
     if v0.imag < v1.imag:
         v1, v0 = v0, v1
-    assert_close(v0, -1+1.4142135623730951j)
-    assert_close(v1, -1-1.4142135623730951j)
+    assert_close(v0, -1+1.4142135623730951j, rtol=1e-14)
+    assert_close(v1, -1-1.4142135623730951j, rtol=1e-14)
     
     a, b, c = .1,2,3
     v0, v1 = roots_quadratic(a, b, c)
     if v0.real < v1.real:
         v1, v0 = v0, v1
-    assert_close(v0, -1.6333997346592444)
-    assert_close(v1, -18.366600265340757)
+    assert_close(v0, -1.6333997346592444, rtol=1e-14)
+    assert_close(v1, -18.366600265340757, rtol=1e-14)
+
+    a, b, c = 0,2,3
+    v0, v1 = roots_quadratic(a, b, c)
+    assert_close(v0, -1.5, rtol=1e-14)
+    assert_close(v1, -1.5, rtol=1e-14)
+    assert v0 == v1
     
 def test_cumsum():
     assert_close1d(cumsum([1,2,3,4,5]), [1, 3, 6, 10, 15])
