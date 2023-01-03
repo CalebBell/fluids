@@ -162,3 +162,23 @@ def test_roots_cubic():
     assert_close(v2.real, -1.5, rtol=1e-13)
     assert_close(v2.imag, 0, atol=0)
 
+    # Nasty case T >= 0.0
+    v0, v1, v2 = roots_cubic(1.0, -0.9317082987361708, -0.061964336199539824, -0.001069098250830773)
+    assert_close(v0.real, 0.9950599982590833, rtol=1e-13)
+    assert_close(v0.imag, 0, atol=0)
+    assert_close(v1.real, -0.031675849761456265, rtol=1e-13)
+    assert_close(v1.imag, 0.008428900244340058, rtol=1e-13)
+    assert_close(v2.real, -0.031675849761456265, rtol=1e-13)
+    assert_close(v2.imag, -0.008428900244340058, rtol=1e-13)
+
+    # sincos case
+    v0, v1, v2 = roots_cubic(1.0, -0.9999998288102078, -1.5499734058215601e-07, -2.77199246547356e-15)
+    assert_close(v0.real, 0.9999999838075536, rtol=1e-13)
+    assert_close(v0.imag, 0, atol=0)
+    assert_close(v1.real, -1.341318024428162e-07, rtol=1e-13)
+    assert_close(v1.imag, 0.0, atol=1e-13)
+    assert_close(v2.real, -2.0865543459702707e-08, rtol=1e-13)
+    assert_close(v2.imag, -0.0, atol=1e-13)
+
+
+
