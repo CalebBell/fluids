@@ -317,7 +317,7 @@ def roots_cubic_a1(b, c, d):
     root2 = t101 + 0.5j*t102
     root3 = t101 - 0.5j*t102
 
-    return [root1, root2, root3]
+    return (root1, root2, root3)
 
 
 def roots_cubic_a2(a, b, c, d):
@@ -338,7 +338,7 @@ def roots_cubic_a2(a, b, c, d):
     t51 = 0.5j*root_three *(t33*sixth + two_thirds*t40)
     root2 = t50 + t51
     root3 = t50 - t51
-    return [root1, root2, root3]
+    return (root1, root2, root3)
 
 
 def roots_cubic(a, b, c, d):
