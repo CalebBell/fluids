@@ -34,6 +34,8 @@ from fluids.numerics.arrays import (solve as py_solve, inv, dot, norm2, inner_pr
 from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
                                      trunc_exp, trunc_log)
 
+from fluids.numerics.polynomial_roots import roots_quadratic
+
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_and_der3', 'quadratic_from_f_ders', 'chebval', 'interp',
@@ -296,21 +298,6 @@ root_three = 1.7320508075688772 # sqrt(3.0)
 one_27 = 1.0/27.0
 complex_factor = 0.8660254037844386j # (sqrt(3)*0.5j)
 
-def roots_quadratic(a, b, c):
-    if a == 0.0:
-        root = -c/b
-        return (root, root)
-    D = b*b - 4.0*a*c
-    a_inv_2 = 0.5/a
-    if D < 0.0:
-        D = sqrt(-D)
-        x1 = (-b + D*1.0j)*a_inv_2
-        x2 = (-b - D*1.0j)*a_inv_2
-    else:
-        D = sqrt(D)
-        x1 = (D - b)*a_inv_2
-        x2 = -(b + D)*a_inv_2
-    return (x1, x2)
 
 
 def roots_cubic_a1(b, c, d):
