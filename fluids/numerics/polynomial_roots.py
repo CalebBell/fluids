@@ -26,7 +26,7 @@ from math import (sin, exp, pi, fabs, copysign, log, isinf, isnan, acos, cos, si
                   atan2, asinh, sqrt, gamma)
 from cmath import sqrt as csqrt, log as clog
 
-__all__ = ['roots_quadratic', 'roots_quartic']
+__all__ = ['roots_quadratic', 'roots_quartic', 'roots_cubic_a1']
 third = 1.0/3.0
 sixth = 1.0/6.0
 ninth = 1.0/9.0
@@ -100,3 +100,22 @@ def roots_quartic(a, b, c, d, e):
     x38 = x2 + x31
     x39 = csqrt(x33 - x34)*0.5
     return ((x32 - x35), (x32 + x35), (x38 - x39), (x38 + x39))
+
+def roots_cubic_a1(b, c, d):
+    # Output from mathematica
+    t1 = b*b
+    t2 = t1*b
+    t4 = c*b
+    t9 = c*c
+    t16 = d*d
+    t19 = csqrt(12.0*t9*c + 12.0*t2*d - 54.0*t4*d - 3.0*t1*t9 + 81.0*t16)
+    t22 = (-8.0*t2 + 36.0*t4 - 108.0*d + 12.0*t19)**third
+    root1 = t22*sixth - 6.0*(c*third - t1*ninth)/t22 - b*third
+    t28 = (c*third - t1*ninth)/t22
+    t101 = -t22*twelfth + 3.0*t28 - b*third
+    t102 =  root_three*(t22*sixth + 6.0*t28)
+
+    root2 = t101 + 0.5j*t102
+    root3 = t101 - 0.5j*t102
+
+    return (root1, root2, root3)
