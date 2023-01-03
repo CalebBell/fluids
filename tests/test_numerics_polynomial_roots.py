@@ -143,6 +143,16 @@ def test_roots_cubic():
     assert_close(v2.real, -1.0, rtol=1e-13)
     assert_close(v2.imag, -1.4142135623730951, rtol=1e-14)
 
+    # case with different branch
+    v0, v1, v2 = roots_cubic(0.0, .1, 2.0, 3.0)
+    assert_close(v0.real, -1.6333997346592444, rtol=1e-13)
+    assert_close(v0.imag, 0, atol=0)
+    assert_close(v1.real, -1.6333997346592444, rtol=1e-13)
+    assert_close(v1.imag, 0, atol=0)
+    assert_close(v2.real, -18.366600265340757, rtol=1e-13)
+    assert_close(v2.imag, 0, atol=0)
+
+
     # case with repeating quadratic root
     v0, v1, v2 = roots_cubic(0.0, 0.0, 2.0, 3.0)
     assert_close(v0.real, -1.5, rtol=1e-13)
