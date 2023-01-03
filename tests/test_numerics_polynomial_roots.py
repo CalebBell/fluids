@@ -25,7 +25,7 @@ from fluids.numerics import numpy as np
 import pytest
 import fluids.numerics
 from fluids.numerics import ( assert_close, assert_close1d, roots_quartic, roots_quadratic)
-from fluids.numerics.polynomial_roots import roots_cubic_a1, roots_cubic_a2
+from fluids.numerics.polynomial_roots import roots_cubic_a1, roots_cubic_a2, roots_cubic
 assert_allclose = np.testing.assert_allclose
 
 def test_roots_quartic():
@@ -104,3 +104,32 @@ def test_roots_cubic_a2():
     assert_close(v1.imag, 5.2907707087197915, atol=1e-14)
     assert_close(v2.real, -1.5101465217091263, rtol=1e-13)
     assert_close(v2.imag, -5.2907707087197915, atol=1e-14)
+
+
+def test_roots_cubic():
+    v0, v1, v2 = roots_cubic(1.0, 123.4,-23.34,1.234)
+    assert_close(v0.real, -123.588932651265, rtol=1e-13)
+    assert_close(v0.imag, 0, atol=0)
+    assert_close(v1.real, 0.0944663256325029, rtol=1e-13)
+    assert_close(v1.imag, 0.03257032605695922, atol=1e-14)
+    assert_close(v2.real, 0.0944663256325029, rtol=1e-13)
+    assert_close(v2.imag, -0.03257032605695922, rtol=1e-13)
+
+    v0, v1, v2 = roots_cubic(1.0, 100.0, 1000.0, 10.0)
+
+    assert_close(v0.real, -0.010010019045111562, rtol=1e-13)
+    assert_close(v0.imag, 0, atol=0)
+    assert_close(v1.real, -88.73128838313305, rtol=1e-13)
+    assert_close(v1.imag, 0, atol=0)
+    assert_close(v2.real, -11.258701597821826, rtol=1e-13)
+    assert_close(v2.imag, 0, atol=0)
+
+    v0, v1, v2 = roots_cubic(33.0, 100.0, 1000.0, 10.0)
+
+    assert_close(v0.real, -0.010009986884774058, rtol=1e-13)
+    assert_close(v0.imag, 0, atol=0)
+    assert_close(v1.real, -1.5101465217091279, rtol=1e-13)
+    assert_close(v1.imag, 5.290770708719792, atol=1e-14)
+    assert_close(v2.real, -1.5101465217091279, rtol=1e-13)
+    assert_close(v2.imag, -5.290770708719792, atol=1e-14)
+
