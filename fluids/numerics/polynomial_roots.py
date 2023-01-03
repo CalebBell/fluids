@@ -26,7 +26,7 @@ from math import (sin, exp, pi, fabs, copysign, log, isinf, isnan, acos, cos, si
                   atan2, asinh, sqrt, gamma)
 from cmath import sqrt as csqrt, log as clog
 
-__all__ = ['roots_quadratic', 'roots_quartic', 'roots_cubic_a1']
+__all__ = ['roots_quadratic', 'roots_quartic', 'roots_cubic_a1', 'roots_cubic_a2']
 third = 1.0/3.0
 sixth = 1.0/6.0
 ninth = 1.0/9.0
@@ -118,4 +118,24 @@ def roots_cubic_a1(b, c, d):
     root2 = t101 + 0.5j*t102
     root3 = t101 - 0.5j*t102
 
+    return (root1, root2, root3)
+
+def roots_cubic_a2(a, b, c, d):
+    # Output from maple
+    t2 = a*a
+    t3 = d*d
+    t10 = c*c
+    t14 = b*b
+    t15 = t14*b
+    t20 = csqrt(-18.0*a*b*c*d + 4.0*a*t10*c + 4.0*t15*d - t14*t10 + 27.0*t2*t3)
+    t31 = (36.0*c*b*a + 12.0*root_three*t20*a - 108.0*d*t2 - 8.0*t15)**third
+    t32 = 1.0/a
+    root1 = t31*t32*sixth - two_thirds*(3.0*a*c - t14)*t32/t31 - b*t32*third
+    t33 = t31*t32
+    t40 = (3.0*a*c - t14)*t32/t31
+
+    t50 = -t33*twelfth + t40*third - b*t32*third
+    t51 = 0.5j*root_three *(t33*sixth + two_thirds*t40)
+    root2 = t50 + t51
+    root3 = t50 - t51
     return (root1, root2, root3)
