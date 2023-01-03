@@ -35,7 +35,9 @@ from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh,
                                      trunc_exp, trunc_log)
 
 from fluids.numerics.polynomial_roots import (roots_quadratic, roots_quartic, roots_cubic_a1, roots_cubic_a2, roots_cubic)
-from fluids.numerics.polynomial_evaluation import (horner, horner_and_der, horner_and_der2, horner_and_der3, horner_and_der4, horner_backwards, exp_horner_backwards)
+from fluids.numerics.polynomial_evaluation import (horner, horner_and_der, horner_and_der2,
+ horner_and_der3, horner_and_der4, horner_backwards, exp_horner_backwards,
+ exp_horner_backwards_and_der, exp_horner_backwards_and_der2, exp_horner_backwards_and_der3)
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_and_der3', 'quadratic_from_f_ders', 'chebval', 'interp',
@@ -1016,27 +1018,6 @@ def stable_poly_to_unstable(coeffs, low, high):
     return coeffs
 
 
-
-def exp_horner_backwards_and_der(x, coeffs):
-    poly_val, poly_der = horner_and_der(coeffs, x)
-    val = exp(poly_val)
-    der = poly_der*val
-    return val, der
-
-def exp_horner_backwards_and_der2(x, coeffs):
-    poly_val, poly_der, poly_der2 = horner_and_der2(coeffs, x)
-    val = exp(poly_val)
-    der = poly_der*val
-    der2 = (poly_der*poly_der + poly_der2)*val
-    return val, der, der2
-
-def exp_horner_backwards_and_der3(x, coeffs):
-    poly_val, poly_der, poly_der2, poly_der3 = horner_and_der3(coeffs, x)
-    val = exp(poly_val)
-    der = poly_der*val
-    der2 = (poly_der*poly_der + poly_der2)*val
-    der3 = (poly_der*poly_der*poly_der + 3.0*poly_der*poly_der2 + poly_der3)*val
-    return val, der, der2, der3
 
 def horner_backwards_ln_tau(T, Tc, coeffs):
     if T >= Tc:

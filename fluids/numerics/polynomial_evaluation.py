@@ -24,7 +24,9 @@ SOFTWARE.
 from __future__ import division
 from math import exp
 
-__all__ = ['horner', 'horner_and_der', 'horner_and_der2', 'horner_and_der3', 'horner_and_der4', 'horner_backwards', 'exp_horner_backwards']
+__all__ = ['horner', 'horner_and_der', 'horner_and_der2', 'horner_and_der3',
+ 'horner_and_der4', 'horner_backwards', 'exp_horner_backwards',
+ 'exp_horner_backwards_and_der', 'exp_horner_backwards_and_der2', 'exp_horner_backwards_and_der3']
 
 
 def horner(coeffs, x):
@@ -130,3 +132,25 @@ def horner_backwards(x, coeffs):
 
 def exp_horner_backwards(x, coeffs):
     return exp(horner(coeffs, x))
+
+def exp_horner_backwards_and_der(x, coeffs):
+    poly_val, poly_der = horner_and_der(coeffs, x)
+    val = exp(poly_val)
+    der = poly_der*val
+    return val, der
+
+def exp_horner_backwards_and_der2(x, coeffs):
+    poly_val, poly_der, poly_der2 = horner_and_der2(coeffs, x)
+    val = exp(poly_val)
+    der = poly_der*val
+    der2 = (poly_der*poly_der + poly_der2)*val
+    return val, der, der2
+
+def exp_horner_backwards_and_der3(x, coeffs):
+    poly_val, poly_der, poly_der2, poly_der3 = horner_and_der3(coeffs, x)
+    val = exp(poly_val)
+    der = poly_der*val
+    der2 = (poly_der*poly_der + poly_der2)*val
+    der3 = (poly_der*poly_der*poly_der + 3.0*poly_der*poly_der2 + poly_der3)*val
+    return val, der, der2, der3
+
