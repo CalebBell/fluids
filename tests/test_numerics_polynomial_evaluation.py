@@ -27,14 +27,15 @@ from fluids.numerics import assert_close, assert_close1d
 
 def test_horner():
     from fluids.numerics import horner, horner_backwards, horner_and_der2, horner_and_der3, horner_and_der4
-    assert_close(horner([1.0, 3.0], 2.0), 5.0)
-    assert_close(horner_backwards(2.0, [1.0, 3.0]), 5.0)
-    assert_close(horner([3.0], 2.0), 3.0)
+    assert_close(horner([1.0, 3.0], 2.0), 5.0, rtol=1e-15)
+    assert_close(horner_backwards(2.0, [1.0, 3.0]), 5.0, rtol=1e-15)
+    assert_close(horner([3.0], 2.0), 3.0, rtol=1e-15)
 
     poly = [1.12, 432.32, 325.5342, .235532, 32.235]
-    assert_close1d(horner_and_der2(poly, 3.0), (14726.109396, 13747.040732, 8553.7884))
-    assert_close1d(horner_and_der3(poly, 3.0), (14726.109396, 13747.040732, 8553.7884, 2674.56))
+    assert_close1d(horner_and_der2(poly, 3.0), (14726.109396, 13747.040732, 8553.7884), rtol=1e-15)
+    assert_close1d(horner_and_der3(poly, 3.0), (14726.109396, 13747.040732, 8553.7884, 2674.56), rtol=1e-15)
 
     poly = [1.12, 432.32, 325.5342, .235532, 32.235, 1.01]
+    assert_close1d(horner_and_der4(poly, 3.0), (44179.338188, 55967.231592, 53155.446664, 33685.04519999999, 10778.880000000001), rtol=1e-15)
     assert_close1d(horner_and_der4(poly, 3.0), [np.polyval(np.polyder(poly,o), 3) for o in range(5)])
 
