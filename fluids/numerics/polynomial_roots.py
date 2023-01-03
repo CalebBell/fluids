@@ -297,7 +297,6 @@ def roots_cubic(a, b, c, d):
             x2 = (t50 + t51).real
             x3 = (t50 - t51).real
         else:
-#            print('other')
             # 3 real roots
             # example is going in here
             i = sqrt(((g*g)*0.25) - h)

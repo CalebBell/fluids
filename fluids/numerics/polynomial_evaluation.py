@@ -60,8 +60,8 @@ def horner(coeffs, x):
 
     Compare the speed with numpy via:
 
-    >>> coeffs = np.random.uniform(0, 1, size=15)
-    >>> coeffs_list = coeffs.tolist()
+    >> coeffs = np.random.uniform(0, 1, size=15)
+    >> coeffs_list = coeffs.tolist()
 
     %timeit np.polyval(coeffs, 10.0)
 
