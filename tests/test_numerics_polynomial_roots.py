@@ -24,9 +24,9 @@ from __future__ import division
 from fluids.numerics import numpy as np
 import pytest
 import fluids.numerics
-from fluids.numerics import ( assert_close, assert_close1d, roots_quartic, roots_quadratic)
-from fluids.numerics.polynomial_roots import roots_cubic_a1, roots_cubic_a2, roots_cubic
-assert_allclose = np.testing.assert_allclose
+from fluids.numerics import ( assert_close, assert_close1d)
+from fluids.numerics.polynomial_roots import (roots_cubic_a1, roots_cubic_a2, 
+roots_cubic, roots_quartic, roots_quadratic)
 
 def test_roots_quartic():
     coeffs = [1.0, -3.274390673429134, 0.3619541556604501, 2.4841800045762747, -0.49619076425603237]
@@ -37,8 +37,8 @@ def test_roots_quartic():
      (2.86696697440203-4.51808300211488e-18j))
     expect_mp_roots_real = [-0.824632450088805, 0.20418679227785, 1.0278693568380592, 2.86696697440203]
     roots_calc = roots_quartic(*coeffs)
-    assert_allclose(expect_roots, roots_calc, rtol=1e-9)
-    assert_allclose(expect_mp_roots_real, [i.real for i in roots_calc], rtol=1e-9)
+    assert_close1d(expect_roots, roots_calc, rtol=1e-9)
+    assert_close1d(expect_mp_roots_real, [i.real for i in roots_calc], rtol=1e-9)
 
 def test_roots_quadratic():
     a, b, c = 1,2,3
