@@ -237,8 +237,10 @@ def roots_cubic(a, b, c, d):
 #    print(f, g, h, 'f, g, h')
     if h == 0.0 and g == 0.0 and f == 0.0:
         if d/a >= 0.0:
+            # print('A'*50, locals())
             x = -((d*a_inv)**(third))
         else:
+            # print('B'*50, locals())
             x = (-d*a_inv)**(third)
         return (x, x, x)
     elif h > 0.0:
@@ -263,8 +265,8 @@ def roots_cubic(a, b, c, d):
         SU = S + U
         b_3a = b*(third*a_inv)
         t1 = -0.5*SU - b_3a
-        t2 = (S - U)*complex_factor
         x1 = SU - b_3a
+        t2 = (S - U)*complex_factor
         # x1 is OK actually in some tests? the issue is x2, x3?
         x2 = t1 + t2
         x3 = t1 - t2

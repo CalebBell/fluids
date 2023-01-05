@@ -56,7 +56,7 @@ from fluids.numerics import (SolverInterface, array_as_tridiagonals, assert_clos
                              polyint_over_x, polylog2, polynomial_offset_scale,
                              quadratic_from_f_ders, roots_quadratic, roots_quartic, secant, sincos,
                              solve_2_direct, solve_3_direct, solve_4_direct, solve_tridiagonal,
-                             stable_poly_to_unstable, std, subset_matrix, translate_bound_f_jac,
+                             std, subset_matrix, translate_bound_f_jac,
                              translate_bound_func, translate_bound_jac, tridiagonals_as_array,
                              zeros)
 from scipy.integrate import quad
@@ -121,148 +121,15 @@ def test_bisect_log_exp_terminations():
     assert -323.60724533877976 == bisect(to_solve, -300, -400, xtol=1e-16)
 
 
-def test_horner():
-    from fluids.numerics import horner
-    assert_allclose(horner([1.0, 3.0], 2.0), 5.0)
-    assert_allclose(horner_backwards(2.0, [1.0, 3.0]), 5.0)
-    assert_allclose(horner([3.0], 2.0), 3.0)
 
-    poly = [1.12, 432.32, 325.5342, .235532, 32.235]
-    assert_allclose(horner_and_der2(poly, 3.0), (14726.109396, 13747.040732, 8553.7884))
-    assert_allclose(horner_and_der3(poly, 3.0), (14726.109396, 13747.040732, 8553.7884, 2674.56))
-
-    poly = [1.12, 432.32, 325.5342, .235532, 32.235, 1.01]
-    assert_allclose(horner_and_der4(poly, 3.0), [np.polyval(np.polyder(poly,o), 3) for o in range(5)])
-
-def test_exp_horner_backwards():
-    assert_allclose((exp_horner_backwards(2.0, [1.0, 3.0])), exp(5.0))
-    
-    # Test the derivatives
-    coeffs = [1,.2,.03,.0004,.00005]
-    x = 1.1
-    val = exp_horner_backwards(x, coeffs)
-    assert_close(val, 5.853794011493425)
-    
-    der_num = derivative(lambda x: exp_horner_backwards(x, coeffs), x, dx=x*8e-7, order=7)
-    der_ana = exp_horner_backwards_and_der(x, coeffs)[1]
-    assert_close(der_ana, 35.804145691898384, rtol=1e-10)
-    assert_close(der_num,der_ana, rtol=1e-10)
-    
-    der_num = derivative(lambda x: exp_horner_backwards_and_der(x, coeffs)[1], x, dx=x*8e-7, order=7)
-    der_ana = exp_horner_backwards_and_der2(x, coeffs)[2]
-    assert_close(der_ana, 312.0678014926728, rtol=1e-10)
-    assert_close(der_num,der_ana, rtol=1e-10)
-    
-    der_num = derivative(lambda x: exp_horner_backwards_and_der2(x, coeffs)[2], x, dx=x*8e-7, order=7)
-    der_ana = exp_horner_backwards_and_der3(x, coeffs)[3]
-    assert_close(der_ana, 3208.8680487693714, rtol=1e-10)
-    assert_close(der_num,der_ana, rtol=1e-10)
-    
-
-
-def test_horner_backwards_ln_tau():
-    coeffs = [9.661381155485653, 224.16316385569456, 2195.419519751738, 11801.26111760343, 37883.05110910901, 74020.46380982929, 87244.40329893673, 69254.45831263301, 61780.155823216155]
-    Tc = 591.75
-    val = horner_backwards_ln_tau(500.0, Tc, coeffs)
-    assert_close(val, 24168.867169087476)
-    assert 0 == horner_backwards_ln_tau(600.0, Tc, coeffs)
-
-    T = 300.0
-    val = horner_backwards_ln_tau(T, Tc, coeffs)
-    assert_close(val, 37900.38881665646)
-        
-    der_num = derivative(lambda T: horner_backwards_ln_tau(T, Tc, coeffs), T, dx=T*8e-7, order=7)
-    der_ana = horner_backwards_ln_tau_and_der(T, Tc, coeffs)[1]
-    assert_close(der_ana, -54.63227984137121, rtol=1e-10)
-    assert_close(der_num,der_ana, rtol=1e-10)
-    
-    der_num = derivative(lambda T: horner_backwards_ln_tau_and_der(T, Tc, coeffs)[1], T, dx=T*8e-7, order=7)
-    der_ana = horner_backwards_ln_tau_and_der2(T, Tc, coeffs)[2]
-    assert_close(der_ana, 0.037847046150971016, rtol=1e-10)
-    assert_close(der_num,der_ana, rtol=1e-8)
-    
-    der_num = derivative(lambda T: horner_backwards_ln_tau_and_der2(T, Tc, coeffs)[2], T, dx=T*160e-7, order=7)
-    der_ana = horner_backwards_ln_tau_and_der3(T, Tc, coeffs)[3]
-    assert_close(der_ana, -0.001920502581912092, rtol=1e-10)
-    assert_close(der_num,der_ana, rtol=1e-10)
     
     
     
 
 
-def test_exp_horner_backwards_ln_tau():
-    # Coefficients for water from REFPROP, fit
-    cs=[-1.2616237655927602e-05, -0.0004061873638525952, -0.005563382112542401, -0.04240531802937599, -0.19805733513004808, -0.5905741856310869, -1.1388001144550794, -0.1477584393673108, -2.401287527958821] 
-    Tc = 647.096
-    T = 300.0
-    expect = 0.07175344047522199
-    val = exp_horner_backwards_ln_tau(T, Tc, cs)
-    assert_close(val, expect, rtol=1e-9)
-    
-    assert 0 == exp_horner_backwards_ln_tau(Tc, Tc, cs)
-    assert 0 == exp_horner_backwards_ln_tau(Tc+1, Tc, cs)
-    
-    expect_der = -0.000154224581713238
-    val, der = exp_horner_backwards_ln_tau_and_der(T, Tc, cs)
-    assert_close(der, expect_der, rtol=1e-13)
-    assert_close(val, expect, rtol=1e-9)
-
-
-    val, der, der2 = exp_horner_backwards_ln_tau_and_der2(T, Tc, cs)
-    assert_close(der, expect_der, rtol=1e-13)
-    assert_close(val, expect, rtol=1e-9)
-    expect_der2 = -5.959538970287795e-07
-    assert_close(der2, expect_der2, rtol=1e-13)
     
     
-    args = (300, 647.096, 0.06730658226743809, -0.00020056690242827797, -5.155567532930362e-09)
-    assert_close1d(exp_poly_ln_tau_coeffs3(*args), [-0.022358482008994165, 1.0064575672832698, -2.062906603289078])
-    
-    
-    args = (300, 647.096, 0.06576090309133853, -0.0002202298609576884)
-    calc = exp_poly_ln_tau_coeffs2(*args)
-    assert_close1d(calc, [1.1624065398371628, -1.9976745939643825 ], rtol=1e-9)
 
-def test_quadratic_from_f_ders():
-    poly = [1.12, 432.32, 325.5342, .235532, 32.235]
-    p = 3.0
-    v, d1, d2 = horner_and_der2(poly, p)
-    quadratic = quadratic_from_f_ders(p, v, d1, d2)
-    v_new, d1_new, d2_new = horner_and_der2(quadratic, p)
-
-    assert_close(v_new, v)
-    assert_close(d1_new, d1)
-    assert_close(d2_new, d2)
-
-    p = 2.9
-    v, d1, d2 = horner_and_der2(poly, p)
-    v_new, d1_new, d2_new = horner_and_der2(quadratic, p)
-    v_new, d1_new, d2_new, v, d1, d2
-    assert_close(v_new, v, rtol=1e-4)
-    assert_close(d1_new, d1, rtol=5e-3)
-
-
-def test_roots_quadratic():
-    a, b, c = 1,2,3
-    v0, v1 = roots_quadratic(a, b, c)
-    if v0.imag < v1.imag:
-        v1, v0 = v0, v1
-    assert_close(v0, -1+1.4142135623730951j, rtol=1e-14)
-    assert_close(v1, -1-1.4142135623730951j, rtol=1e-14)
-    
-    a, b, c = .1,2,3
-    v0, v1 = roots_quadratic(a, b, c)
-    if v0.real < v1.real:
-        v1, v0 = v0, v1
-    assert_close(v0, -1.6333997346592444, rtol=1e-14)
-    assert_close(v1, -18.366600265340757, rtol=1e-14)
-
-    a, b, c = 0,2,3
-    v0, v1 = roots_quadratic(a, b, c)
-    assert_close(v0, -1.5, rtol=1e-14)
-    assert_close(v1, -1.5, rtol=1e-14)
-    assert v0 == v1
-    
 def test_cumsum():
     assert_close1d(cumsum([1,2,3,4,5]), [1, 3, 6, 10, 15])
     assert_close1d(cumsum([1]), [1])
@@ -626,18 +493,6 @@ def test_is_poly_positive():
     assert not is_poly_positive(coeffs_4alpha, domain=(-11500, 511))
 
 
-def test_roots_quartic():
-    coeffs = [1.0, -3.274390673429134, 0.3619541556604501, 2.4841800045762747, -0.49619076425603237]
-
-    expect_roots = ((-0.8246324500888049+1.1609047395516947e-17j),
-     (0.2041867922778502-3.6197168963943884e-17j),
-     (1.027869356838059+2.910620457054182e-17j),
-     (2.86696697440203-4.51808300211488e-18j))
-    expect_mp_roots_real = [-0.824632450088805, 0.20418679227785, 1.0278693568380592, 2.86696697440203]
-    roots_calc = roots_quartic(*coeffs)
-    assert_allclose(expect_roots, roots_calc, rtol=1e-9)
-    assert_allclose(expect_mp_roots_real, [i.real for i in roots_calc], rtol=1e-9)
-
 
 def test_array_as_tridiagonals():
     A = [[10.0, 2.0, 0.0, 0.0],
@@ -809,11 +664,6 @@ def test_polylog2():
     ys = [polylog2(x) for x in xs]
     assert_close1d(ys, ys_act, rtol=1E-7, atol=1E-10)
 
-def test_deflate_cubic_real_roots():
-    assert_close1d(deflate_cubic_real_roots(2.0, 4.5, 1.1, 43.0), (0.0005684682709485855, -45.00056846827095), rtol=1e-14)
-    
-    assert_close1d(deflate_cubic_real_roots(2.0, 4.5, -1e5, 43.0),  (0.0, 0.0), atol=0.0)
-
 def test_std():
     inputs = ([1.0,5.0,11.0,4.0],
               [1.0,-5.0,11.0,-4.0],
@@ -906,35 +756,6 @@ def test_exp_cheb_fit_ln_tau():
     assert_close(expect_d2, calc3[2])
 
     
-def test_stablepoly_ln_tau():
-    Tmin, Tmax, Tc = 178.18, 591.74, 591.75
-    coeffs = [-0.00854738149791956, 0.05600738152861595, -0.30758192972280085, 1.6848304651211947, -8.432931053161155, 37.83695791102946, -150.87603890354512, 526.4891248463246, -1574.7593541151946, 3925.149223414621, -7826.869059381197, 11705.265444382389, -11670.331914006258, 5817.751307862842]
-
-    expect = 24498.131947494512
-    expect_d, expect_d2, expect_d3 = -100.77476796035525, -0.6838185833621794, -0.012093191888904656
-    xmin, xmax = log(1-Tmin/Tc), log(1-Tmax/Tc)
-    
-    offset, scale = polynomial_offset_scale(xmin, xmax)
-    T = 500.0
-
-    calc = horner_stable_ln_tau(T, Tc, coeffs, offset, scale)
-    assert_close(expect, calc)
-
-    calc2 = horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale)
-    assert_close(expect, calc2[0])
-    assert_close(expect_d, calc2[1])
-
-    
-    calc3 = horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale)
-    assert_close(expect, calc3[0])
-    assert_close(expect_d, calc3[1])
-    assert_close(expect_d2, calc3[2])
-
-    calc4 = horner_stable_ln_tau_and_der3(T, Tc, coeffs, offset, scale)
-    assert_close(expect, calc4[0])
-    assert_close(expect_d, calc4[1])
-    assert_close(expect_d2, calc4[2])
-    assert_close(expect_d3, calc4[3])
 
 
     
@@ -1020,102 +841,7 @@ def test_exp_cheb():
     vals = exp_cheb_and_der(x, coeffs, coeffs_d, offset, scale)
     assert_close1d(vals, (157186.81766860923, 4056.277312107932), rtol=1e-14)
 
-def test_exp_stablepoly_fit():
-    xmin, xmax = 309.0, 591.72
-    coeffs = [0.008603558174828078, 0.007358688688856427, -0.016890323025782954, -0.005289197721114957, -0.0028824712174469625, 0.05130960832946553, -0.12709896610233662, 0.37774977659528036, -0.9595325030688526, 2.7931528759840174, 13.10149649770156]
-    x = 400
-    offset, scale = polynomial_offset_scale(xmin, xmax)
-    expect = 157191.01706242564
-    calc = exp_horner_stable(x, coeffs, offset, scale)
-    assert_close(calc, expect, rtol=1e-14)
-
-    der_num = derivative(exp_horner_stable, x, args=(coeffs, offset, scale), dx=x*1e-7)
-    der_analytical = exp_horner_stable_and_der(x, coeffs, offset, scale)[1]
-    assert_close(der_num, der_analytical, rtol=1e-7)
-    assert_close(der_analytical, 4056.436943642117, rtol=1e-14)
     
-    der_num = derivative(lambda *args: exp_horner_stable_and_der(*args)[1], x, 
-                         args=(coeffs, offset, scale), dx=x*1e-7)
-    der_analytical = exp_horner_stable_and_der2(x, coeffs, offset, scale)[-1]
-    assert_close(der_analytical, 81.32645570045084, rtol=1e-14)
-    assert_close(der_num, der_analytical, rtol=1e-7)
-
-
-    der_num = derivative(lambda *args: exp_horner_stable_and_der2(*args)[-1], x, 
-                         args=(coeffs, offset, scale), dx=x*1e-7)
-    der_analytical = exp_horner_stable_and_der3(x, coeffs, offset, scale)[-1]
-    assert_close(der_num, der_analytical, rtol=1e-7)
-    assert_close(der_analytical, 1.103603650822488, rtol=1e-14)
-
-    vals = exp_horner_stable_and_der3(x, coeffs, offset, scale)
-    assert_close1d(vals, (157191.01706242564, 4056.436943642117, 81.32645570045084, 1.103603650822488), rtol=1e-14)
-
-    vals = exp_horner_stable_and_der2(x, coeffs, offset, scale)
-    assert_close1d(vals, (157191.01706242564, 4056.436943642117, 81.32645570045084), rtol=1e-14)
-    vals = exp_horner_stable_and_der(x, coeffs, offset, scale)
-    assert_close1d(vals, (157191.01706242564, 4056.436943642117), rtol=1e-14)
-
-def test_horner_domain():
-    test_stable_coeffs = [28.0163226043884, 24.92038363551981, -7.469247118451516, 16.400149851861975, 67.52558234042988, 176.7837155284216]
-    xmin, xmax = (162.0, 570.0)
-    x = 300
-    expect = 157.0804912518053
-    calc = horner_domain(x, test_stable_coeffs, xmin, xmax)
-    assert_close(calc, expect, rtol=1e-14)
-
-    offset, scale = polynomial_offset_scale(xmin, xmax)
-    calc = horner_stable(x, test_stable_coeffs, offset, scale)
-    assert_close(calc, expect, rtol=1e-14)
-
-
-    der_num = derivative(horner_stable, x, args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
-    der_analytical = horner_stable_and_der(x, test_stable_coeffs, offset, scale)[1]
-    assert_close(der_analytical, 0.25846754626830115, rtol=1e-14)
-    assert_close(der_num, der_analytical, rtol=1e-7)
-    
-    
-    der_num = derivative(lambda *args: horner_stable_and_der(*args)[1], x, 
-                         args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
-    der_analytical = horner_stable_and_der2(x, test_stable_coeffs, offset, scale)[2]
-    assert_close(der_analytical, 0.0014327609525395784, rtol=1e-14)
-    assert_close(der_num, der_analytical, rtol=1e-7)
-    
-    
-    der_num = derivative(lambda *args: horner_stable_and_der2(*args)[-1], x, 
-                         args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
-    der_analytical = horner_stable_and_der3(x, test_stable_coeffs, offset, scale)[-1]
-    assert_close(der_analytical, -7.345952769973301e-06, rtol=1e-14)
-    assert_close(der_num, der_analytical, rtol=1e-7)
-    
-    
-    der_num = derivative(lambda *args: horner_stable_and_der3(*args)[-1], x, 
-                         args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
-    der_analytical = horner_stable_and_der4(x, test_stable_coeffs, offset, scale)[-1]
-    assert_close(der_analytical, -2.8269861583547557e-07, rtol=1e-14)
-    assert_close(der_num, der_analytical, rtol=1e-7)
-    
-    five_vals = horner_stable_and_der4(x, test_stable_coeffs, offset, scale)
-    assert_close1d(five_vals, (157.0804912518053, 0.25846754626830115, 0.0014327609525395784, -7.345952769973301e-06, -2.8269861583547557e-07), rtol=1e-14)
-
-    four_vals = horner_stable_and_der3(x, test_stable_coeffs, offset, scale)
-    assert_close1d(four_vals, (157.0804912518053, 0.25846754626830115, 0.0014327609525395784, -7.345952769973301e-06), rtol=1e-14)
-
-    three_vals = horner_stable_and_der2(x, test_stable_coeffs, offset, scale)
-    assert_close1d(three_vals, (157.0804912518053, 0.25846754626830115, 0.0014327609525395784), rtol=1e-14)
-
-    two_vals = horner_stable_and_der(x, test_stable_coeffs, offset, scale)
-    assert_close1d(two_vals, (157.0804912518053, 0.25846754626830115), rtol=1e-14)
-    
-    
-def test_stable_poly_to_unstable():
-    stuff = [1,2,3,4]
-    out = stable_poly_to_unstable(stuff, 10, 100)
-    expect = [1.0973936899862826e-05, -0.0008230452674897121, 0.05761316872427985, 1.4951989026063095]
-    assert_close1d(out, expect, rtol=1e-12)
-    
-    out = stable_poly_to_unstable(stuff, 10, 10)
-    assert_close1d(out, stuff)
-
 def test_cheb():
     Tmin, Tmax = 50, 1500.0
     toluene_TRC_cheb_fit = [194.9993931442641, 135.143566535142, -31.391834328585, -0.03951841213554952, 5.633110876073714, -3.686554783541794, 1.3108038668007862, -0.09053861376310801, -0.2614279887767278, 0.24832452742026911, -0.15919652548841812, 0.09374295717647019, -0.06233192560577938, 0.050814520356653126, -0.046331125185531064, 0.0424579816955023, -0.03739513702085129, 0.031402017733109244, -0.025212485578021915, 0.01939423141593144, -0.014231480849538403, 0.009801281575488097, -0.006075456686871594, 0.0029909809015365996, -0.0004841890018462136, -0.0014991199985455728, 0.0030051480117581075, -0.004076901418829215, 0.004758297389532928, -0.005096275567543218, 0.00514099984344718, -0.004944736724873944, 0.004560044671604424, -0.004037777783658769, 0.0034252408915679267, -0.002764690626354871, 0.0020922734527478726, -0.0014374230267101273, 0.0008226963858916081, -0.00026400260413972365, -0.0002288377348015347, 0.0006512726893767029, -0.0010030137199867895, 0.0012869214641443305, -0.001507857723972772, 0.001671575150882565, -0.0017837100581746812, 0.001848935469520696, -0.0009351605848800237]

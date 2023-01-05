@@ -37,12 +37,24 @@ from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh,
 from fluids.numerics.polynomial_roots import (roots_quadratic, roots_quartic, roots_cubic_a1, roots_cubic_a2, roots_cubic)
 from fluids.numerics.polynomial_evaluation import (horner, horner_and_der, horner_and_der2,
  horner_and_der3, horner_and_der4, horner_backwards, exp_horner_backwards,
- exp_horner_backwards_and_der, exp_horner_backwards_and_der2, exp_horner_backwards_and_der3)
+ exp_horner_backwards_and_der, exp_horner_backwards_and_der2, exp_horner_backwards_and_der3,
+ horner_backwards_ln_tau, horner_backwards_ln_tau_and_der, horner_backwards_ln_tau_and_der2, horner_backwards_ln_tau_and_der3,
+ exp_horner_backwards_ln_tau, exp_horner_backwards_ln_tau_and_der, exp_horner_backwards_ln_tau_and_der2,
+ horner_domain, horner_stable, horner_stable_and_der, horner_stable_and_der2, horner_stable_and_der3, horner_stable_and_der4,
+ horner_stable_ln_tau, horner_stable_ln_tau_and_der, horner_stable_ln_tau_and_der2, horner_stable_ln_tau_and_der3,
+ exp_horner_stable, exp_horner_stable_and_der, exp_horner_stable_and_der2, exp_horner_stable_and_der3,
+ exp_horner_stable_ln_tau, exp_horner_stable_ln_tau_and_der, exp_horner_stable_ln_tau_and_der2,
+ horner_log
+ )
+
+from fluids.numerics.polynomial_utils import (polyint, polyint_over_x, polyder, quadratic_from_points, quadratic_from_f_ders, deflate_cubic_real_roots,
+exp_poly_ln_tau_coeffs3, exp_poly_ln_tau_coeffs2, polynomial_offset_scale, stable_poly_to_unstable)
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_and_der3', 'quadratic_from_f_ders', 'chebval', 'interp',
            'linspace', 'logspace', 'cumsum', 'diff', 'basic_damping',
            'is_poly_negative', 'is_poly_positive',
+           'exp_poly_ln_tau_coeffs3', 'exp_poly_ln_tau_coeffs2',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 'secant', 'halley',
            'one_sided_secant',
@@ -491,24 +503,6 @@ central_diff_weights_precomputed = {
 #           -8.246031746031747, 0.0, 8.246031746031747, -8.39608134920635, 3.9828042328042326, -1.033399470899471,
 #           0.16005291005291006, -0.011491402116402117]
  }
-
-def deflate_cubic_real_roots(b, c, d, x0):
-    F = b + x0
-    G = -d/x0
-
-    D = F*F - 4.0*G
-#     if D < 0.0:
-#         D = (-D)**0.5
-#         x1 = (-F + D*1.0j)*0.5
-#         x2 = (-F - D*1.0j)*0.5
-#     else:
-    if D < 0.0:
-        return (0.0, 0.0)
-    D = sqrt(D)
-    x1 = 0.5*(D - F)#(D - c)*0.5
-    x2 = 0.5*(-F - D) #-(c + D)*0.5
-    return x1, x2
-
 
 def central_diff_weights(points, divisions=1):
     # Check the cache
@@ -1010,309 +1004,7 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
         x_perturb[i] -= deltas[i]
     return hessian
 
-def stable_poly_to_unstable(coeffs, low, high):
-    if high != low:
-        # Handle the case of no transformation, no limits
-        my_poly = Polynomial([-0.5*(high + low)*2.0/(high - low), 2.0/(high - low)])
-        coeffs = horner(coeffs, my_poly).coef[::-1].tolist()
-    return coeffs
 
-
-
-def horner_backwards_ln_tau(T, Tc, coeffs):
-    if T >= Tc:
-        return 0.0
-    lntau = log(1.0 - T/Tc)
-    return horner(coeffs, lntau)
-
-def horner_backwards_ln_tau_and_der(T, Tc, coeffs):
-    if T >= Tc:
-        return 0.0, 0.0
-    lntau = log(1.0 - T/Tc)
-    val, poly_der = horner_and_der(coeffs, lntau)
-    der = -poly_der/(Tc*(-T/Tc + 1))
-    return val, der
-
-def horner_backwards_ln_tau_and_der2(T, Tc, coeffs):
-    if T >= Tc:
-        return 0.0, 0.0, 0.0
-    lntau = log(1.0 - T/Tc)
-    val, poly_der, poly_der2 = horner_and_der2(coeffs, lntau)
-    der = -poly_der/(Tc*(-T/Tc + 1))
-    
-    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
-    return val, der, der2
-
-def horner_backwards_ln_tau_and_der3(T, Tc, coeffs):
-    if T >= Tc:
-        return 0.0, 0.0, 0.0, 00
-    lntau = log(1.0 - T/Tc)
-    val, poly_der, poly_der2, poly_der3 = horner_and_der3(coeffs, lntau)
-    der = -poly_der/(Tc*(-T/Tc + 1))
-    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
-    der3 = (2.0*poly_der - 3.0*poly_der2 + poly_der3)/(Tc**3*(T/Tc - 1)**3)
-    
-    return val, der, der2, der3
-
-
-
-
-def exp_horner_backwards_ln_tau(T, Tc, coeffs):
-    # This formulation has the nice property of being linear-linear when plotted
-    # for surface tension
-    if T >= Tc:
-        return 0.0
-    # No matter what the polynomial term does to it, as tau goes to 1, x goes to a large negative value
-    # So long as the polynomial has the right derivative at the end (and a reasonable constant) it will always converge to 0.
-    lntau = log(1.0 - T/Tc)
-    # Guarantee it is larger than 0 with the exp
-    # This is a linear plot as well because both variables are transformed into a log basis.
-    return exp(horner(coeffs, lntau))
-
-def exp_horner_backwards_ln_tau_and_der(T, Tc, coeffs):
-    if T >= Tc:
-        return 0.0
-    tau = 1.0 - T/Tc
-    lntau = log(tau)
-    poly_val, poly_der_val = horner_and_der(coeffs, lntau)
-    val = exp(poly_val)
-    return val, -val*poly_der_val/(Tc*tau)
-
-def exp_horner_backwards_ln_tau_and_der2(T, Tc, coeffs):
-    if T >= Tc:
-        return 0.0
-    tau = 1.0 - T/Tc
-    lntau = log(tau)
-    poly_val, poly_val_der, poly_val_der2 = horner_and_der2(coeffs, lntau)
-    val = exp(poly_val)
-    temp = 1.0/(Tc*tau)
-    der = -temp*val*poly_val_der
-    der2 = (poly_val_der*poly_val_der - poly_val_der + poly_val_der2)*val*(temp*temp)
-    
-    return val, der, der2
-
-def exp_poly_ln_tau_coeffs2(T, Tc, val, der):
-    '''
-    from sympy import *
-    T, Tc, T0, T1, T2, sigma0, sigma1, sigma2 = symbols('T, Tc, T0, T1, T2, sigma0, sigma1, sigma2')
-    val, der = symbols('val, der')
-    from sympy.abc import a, b, c
-    from fluids.numerics import horner
-    coeffs = [a, b]
-    lntau = log(1 - T/Tc)
-    sigma = exp(horner(coeffs, lntau))
-    d0 = diff(sigma, T)
-    Eq0 = Eq(sigma,val)
-    Eq1 = Eq(d0, der)
-    s = solve([Eq0, Eq1], [a, b])
-    '''
-    c0 = der*(T - Tc)/val
-    c1 = (-T*der*log((-T + Tc)/Tc) + Tc*der*log((-T + Tc)/Tc) + val*log(val))/val
-    return [c0, c1]
-
-def exp_poly_ln_tau_coeffs3(T, Tc, val, der, der2):
-    '''
-    from sympy import *
-    T, Tc, T0, T1, T2, sigma0, sigma1, sigma2 = symbols('T, Tc, T0, T1, T2, sigma0, sigma1, sigma2')
-    val, der, der2 = symbols('val, der, der2')
-    from sympy.abc import a, b, c
-    from fluids.numerics import horner
-    coeffs = [a, b, c]
-    lntau = log(1 - T/Tc)
-    sigma = exp(horner(coeffs, lntau))
-    d0 = diff(sigma, T)
-    
-    Eq0 = Eq(sigma,val)
-    Eq1 = Eq(d0, der)
-    Eq2 = Eq(diff(d0, T), der2)
-    
-    # s = solve([Eq0, Eq1], [a, b])
-    s = solve([Eq0, Eq1, Eq2], [a, b, c])
-    '''
-    return [(-T**2*der**2 + T**2*der2*val + 2*T*Tc*der**2 - 2*T*Tc*der2*val + T*der*val - Tc**2*der**2 + Tc**2*der2*val - Tc*der*val)/(2*val**2),
-  (T**2*der**2*log((-T + Tc)/Tc) - T**2*der2*val*log((-T + Tc)/Tc) - 2*T*Tc*der**2*log((-T + Tc)/Tc) + 2*T*Tc*der2*val*log((-T + Tc)/Tc) - T*der*val*log((-T + Tc)/Tc) + T*der*val + Tc**2*der**2*log((-T + Tc)/Tc) - Tc**2*der2*val*log((-T + Tc)/Tc) + Tc*der*val*log((-T + Tc)/Tc) - Tc*der*val)/val**2,
-  (-T**2*der**2*log((-T + Tc)/Tc)**2 + T**2*der2*val*log((-T + Tc)/Tc)**2 + 2*T*Tc*der**2*log((-T + Tc)/Tc)**2 - 2*T*Tc*der2*val*log((-T + Tc)/Tc)**2 + T*der*val*log((-T + Tc)/Tc)**2 - 2*T*der*val*log((-T + Tc)/Tc) - Tc**2*der**2*log((-T + Tc)/Tc)**2 + Tc**2*der2*val*log((-T + Tc)/Tc)**2 - Tc*der*val*log((-T + Tc)/Tc)**2 + 2*Tc*der*val*log((-T + Tc)/Tc) + 2*val**2*log(val))/(2*val**2)]
-
-
-def horner_domain(x, coeffs, xmin, xmax):
-    r'''Evaluates a polynomial defined by coefficienfs `coeffs` and domain
-    (`xmin`, `xmax`) which maps the input variable into the window
-    (-1, 1) where the polynomial can be evaluated most acccurately.
-    The evaluation uses horner's method.
-
-    Note that the coefficients are reversed compared to the common form; the
-    first value is the coefficient of the highest-powered x term, and the last
-    value in `coeffs` is the constant offset value.
-
-    Parameters
-    ----------
-    x : float
-        Point at which to evaluate the polynomial, [-]
-    coeffs : iterable[float]
-        Coefficients of polynomial, [-]
-    xmin : float
-        Low value, [-]
-    xmax : float
-        High value, [-]
-
-    Returns
-    -------
-    val : float
-        The evaluated value of the polynomial, [-]
-
-    Notes
-    -----
-
-    '''
-    range_inv = 1.0/(xmax - xmin)
-    off = (-xmax - xmin)*range_inv
-    scl = 2.0*range_inv
-    x = off + scl*x
-    tot = 0.0
-    for c in coeffs:
-        tot = tot*x + c
-    return tot
-
-def polynomial_offset_scale(xmin, xmax):
-    range_inv = 1.0/(xmax - xmin)
-    offset = (-xmax - xmin)*range_inv
-    scale = 2.0*range_inv
-    return offset, scale
-
-def horner_stable(x, coeffs, offset, scale):
-    x = offset + scale*x
-    tot = 0.0
-    for c in coeffs:
-        tot = tot*x + c
-    return tot
-
-def horner_stable_and_der(x, coeffs, offset, scale):
-    x = offset + scale*x
-    f = 0.0
-    der = 0.0
-    for a in coeffs:
-        der = x*der + f
-        f = x*f + a
-    return (f, der*scale)
-
-def horner_stable_and_der2(x, coeffs, offset, scale):
-    x = offset + scale*x
-    f, der, der2 = 0.0, 0.0, 0.0
-    for a in coeffs:
-        der2 = x*der2 + der
-        der = x*der + f
-        f = x*f + a
-    return (f, der*scale, scale*scale*(der2 + der2))
-
-def horner_stable_and_der3(x, coeffs, offset, scale):
-    x = offset + scale*x
-    f, der, der2, der3 = 0.0, 0.0, 0.0, 0.0
-    for a in coeffs:
-        der3 = x*der3 + der2
-        der2 = x*der2 + der
-        der = x*der + f
-        f = x*f + a
-    scale2 = scale*scale
-    return (f, der*scale, scale2*(der2 + der2), scale2*scale*der3*6.0)
-
-def horner_stable_and_der4(x, coeffs, offset, scale):
-    x = offset + scale*x
-    f, der, der2, der3, der4 = 0.0, 0.0, 0.0, 0.0, 0.0
-    for a in coeffs:
-        der4 = x*der4 + der3
-        der3 = x*der3 + der2
-        der2 = x*der2 + der
-        der = x*der + f
-        f = x*f + a
-    scale2 = scale*scale
-    return (f, der*scale, scale2*(der2 + der2), scale2*scale*der3*6.0, scale2*scale2*der4*24.0)
-
-def horner_stable_ln_tau(T, Tc, coeffs, offset, scale):
-    if T >= Tc:
-        return 0.0
-    lntau = log(1.0 - T/Tc)
-    return horner_stable(lntau, coeffs, offset, scale)
-
-def horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale):
-    if T >= Tc:
-        return 0.0, 0.0
-    lntau = log(1.0 - T/Tc)
-    val, poly_der = horner_stable_and_der(lntau, coeffs, offset, scale)
-    der = -poly_der/(Tc*(-T/Tc + 1))
-    return val, der
-
-def horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale):
-    if T >= Tc:
-        return 0.0, 0.0, 0.0
-    lntau = log(1.0 - T/Tc)
-    val, poly_der, poly_der2 = horner_stable_and_der2(lntau, coeffs, offset, scale)
-    der = -poly_der/(Tc*(-T/Tc + 1))
-    
-    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
-    return val, der, der2
-
-def horner_stable_ln_tau_and_der3(T, Tc, coeffs, offset, scale):
-    if T >= Tc:
-        return 0.0, 0.0, 0.0, 00
-    lntau = log(1.0 - T/Tc)
-    val, poly_der, poly_der2, poly_der3 = horner_stable_and_der3(lntau, coeffs, offset, scale)
-    der = -poly_der/(Tc*(-T/Tc + 1))
-    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
-    der3 = (2.0*poly_der - 3.0*poly_der2 + poly_der3)/(Tc**3*(T/Tc - 1)**3)
-    
-    return val, der, der2, der3
-
-
-def exp_horner_stable(x, coeffs, offset, scale):
-    return trunc_exp(horner_stable(x, coeffs, offset, scale))
-
-def exp_horner_stable_and_der(x, coeffs, offset, scale):
-    poly_val, poly_der = horner_stable_and_der(x, coeffs, offset, scale)
-    val = exp(poly_val)
-    der = poly_der*val
-    return val, der
-
-def exp_horner_stable_and_der2(x, coeffs, offset, scale):
-    poly_val, poly_der, poly_der2 = horner_stable_and_der2(x, coeffs, offset, scale)
-    val = exp(poly_val)
-    der = poly_der*val
-    der2 = (poly_der*poly_der + poly_der2)*val
-    return val, der, der2
-
-def exp_horner_stable_and_der3(x, coeffs, offset, scale):
-    poly_val, poly_der, poly_der2, poly_der3 = horner_stable_and_der3(x, coeffs, offset, scale)
-    val = exp(poly_val)
-    der = poly_der*val
-    der2 = (poly_der*poly_der + poly_der2)*val
-    der3 = (poly_der*poly_der*poly_der + 3.0*poly_der*poly_der2 + poly_der3)*val
-    return val, der, der2, der3
-
-def exp_horner_stable_ln_tau(T, Tc, coeffs, offset, scale):
-    if T >= Tc:
-        return 0.0
-    lntau = log(1.0 - T/Tc)
-    return exp(horner_stable(lntau, coeffs, offset, scale))
-
-def exp_horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale):
-    if T >= Tc:
-        return 0.0, 0.0
-    tau = 1.0 - T/Tc
-    lntau = log(tau)
-    poly_val, poly_der_val = horner_stable_and_der(lntau, coeffs, offset, scale)
-    val = exp(poly_val)
-    return val, -val*poly_der_val/(Tc*tau)
-
-def exp_horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale):
-    if T >= Tc:
-        return 0.0, 0.0, 0.0
-    tau = 1.0 - T/Tc
-    lntau = log(tau)
-    poly_val, poly_val_der, poly_val_der2 = horner_stable_and_der2(lntau, coeffs, offset, scale)
-    val = exp(poly_val)
-    der = -val*poly_val_der/(Tc*tau)
-    der2 = (poly_val_der*poly_val_der - poly_val_der + poly_val_der2)*val/(Tc*Tc*(tau*tau))
-    
-    return val, der, der2
 
 
 def exp_cheb(x, coeffs, offset, scale):
@@ -1422,49 +1114,9 @@ def chebval_ln_tau_and_der3(T, Tc, coeffs, der_coeffs, der2_coeffs, der3_coeffs,
     return val, der, der2, der3
 
 
-def quadratic_from_points(x0, x1, x2, f0, f1, f2):
-    '''
-    from sympy import *
-    f, a, b, c, x, x0, x1, x2, f0, f1, f2 = symbols('f, a, b, c, x, x0, x1, x2, f0, f1, f2')
-
-    func = a*x**2 + b*x + c
-    Eq0 = Eq(func.subs(x, x0), f0)
-    Eq1 = Eq(func.subs(x, x1), f1)
-    Eq2 = Eq(func.subs(x, x2), f2)
-    sln = solve([Eq0, Eq1, Eq2], [a, b, c])
-    cse([sln[a], sln[b], sln[c]], optimizations='basic', symbols=utilities.iterables.numbered_symbols(prefix='v'))
-    '''
-
-    v0 = -x2
-    v1 = f0*(v0 + x1)
-    v2 = f2*(x0 - x1)
-    v3 = f1*(v0 + x0)
-    v4 = x2*x2
-    v5 = x0*x0
-    v6 = x1*x1
-    v7 = 1.0/(v4*x0 + v5*x1 + v6*x2 - (v4*x1  + v5*x2 + v6*x0))
-    v8 = -v4
-    a = v7*(v1 + v2 - v3)
-    b = -v7*(f0*(v6 + v8) - f1*(v5 + v8) + f2*(v5 - v6))
-    c = v7*(v1*x1*x2 + v2*x0*x1 - v3*x0*x2)
-    return (a, b, c)
 
 
 
-def quadratic_from_f_ders(x, v, d1, d2):
-    '''from sympy import *
-    f, a, b, c, x, v, d1, d2 = symbols('f, a, b, c, x, v, d1, d2')
-
-    f0 = a*x**2 + b*x + c
-    f1 = diff(f0, x)
-    f2 = diff(f0, x, 2)
-
-    solve([Eq(f0, v), Eq(f1, d1), Eq(f2, d2)], [a, b, c])
-    '''
-    a = d2*0.5
-    b = d1 - d2*x
-    c = -d1*x + d2*x*x*0.5 + v
-    return [a, b, c]
 
 def is_poly_positive(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1e-12):
     # Returns True if positive everywhere in the specified domain (or globally)
@@ -1548,70 +1200,9 @@ def std(data):
         tot += v*v
     return sqrt(tot/N)
 
-def polyder(c, m=1, scl=1, axis=0):
-    """not quite a copy of numpy's version because this was faster to
-    implement."""
-    cnt = m
-
-    if cnt == 0:
-        return c
-
-    n = len(c)
-    if cnt >= n:
-        c = c[:1]*0
-    else:
-        for i in range(cnt): # normally only happens once
-            n = n - 1
-
-            der = [0.0]*n
-            for j in range(n, 0, -1):
-                der[j - 1] = j*c[j]
-            c = der
-    return c
-
-def polyint(coeffs):
-    """not quite a copy of numpy's version because this was faster to
-    implement.
-    Tried out a bunch of optimizations, and this hits a good balance
-    between CPython and pypy speed."""
-#    return ([0.0] + [c/(i+1) for i, c in enumerate(coeffs[::-1])])[::-1]
-    N = len(coeffs)
-    out = [0.0]*(N+1)
-    for i in range(N):
-        out[i] = coeffs[i]/(N-i)
-    return out
 
 
-def polyint_over_x(coeffs):
-    N = len(coeffs)
-    log_coef = coeffs[-1]
-    Nm1 = N - 1
-    poly_terms = [0.0]*N
-    for i in range(Nm1):
-        poly_terms[i] = coeffs[i]/(Nm1-i)
-    return poly_terms, log_coef
-#    N = len(coeffs)
-#    log_coef = coeffs[-1]
-#    Nm1 = N - 1
-#    poly_terms = [coeffs[Nm1-i]/i for i in range(N-1, 0, -1)]
-#    poly_terms.append(0.0)
-#    return poly_terms, log_coef
-#    coeffs = coeffs[::-1]
-#    log_coef = coeffs[0]
-#    poly_terms = [0.0]
-#    for i in range(1, len(coeffs)):
-#        poly_terms.append(coeffs[i]/i)
-#    return list(reversed(poly_terms)), log_coef
 #
-
-def horner_log(coeffs, log_coeff, x):
-    """Technically possible to save one addition of the last term of coeffs is
-    removed but benchmarks said nothing was saved."""
-    tot = 0.0
-    for c in coeffs:
-        tot = tot*x + c
-    return tot + log_coeff*log(x)
-
 
 def fit_integral_linear_extrapolation(T1, T2, int_coeffs, Tmin, Tmax,
                                       Tmin_value, Tmax_value,
