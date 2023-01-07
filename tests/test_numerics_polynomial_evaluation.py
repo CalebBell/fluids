@@ -81,7 +81,6 @@ def test_horner_backwards_ln_tau():
     Tc = 591.75
     val = horner_backwards_ln_tau(500.0, Tc, coeffs)
     assert_close(val, 24168.867169087476)
-    assert 0 == horner_backwards_ln_tau(600.0, Tc, coeffs)
 
     T = 300.0
     val = horner_backwards_ln_tau(T, Tc, coeffs)
@@ -89,18 +88,24 @@ def test_horner_backwards_ln_tau():
         
     der_num = derivative(lambda T: horner_backwards_ln_tau(T, Tc, coeffs), T, dx=T*8e-7, order=7)
     der_ana = horner_backwards_ln_tau_and_der(T, Tc, coeffs)[1]
-    assert_close(der_ana, -54.63227984137121, rtol=1e-10)
+    assert_close(der_ana, -54.63227984184944, rtol=1e-10)
     assert_close(der_num,der_ana, rtol=1e-10)
     
     der_num = derivative(lambda T: horner_backwards_ln_tau_and_der(T, Tc, coeffs)[1], T, dx=T*8e-7, order=7)
     der_ana = horner_backwards_ln_tau_and_der2(T, Tc, coeffs)[2]
     assert_close(der_ana, 0.037847046150971016, rtol=1e-10)
     assert_close(der_num,der_ana, rtol=1e-8)
-    
+
     der_num = derivative(lambda T: horner_backwards_ln_tau_and_der2(T, Tc, coeffs)[2], T, dx=T*160e-7, order=7)
     der_ana = horner_backwards_ln_tau_and_der3(T, Tc, coeffs)[3]
     assert_close(der_ana, -0.001920502581912092, rtol=1e-10)
     assert_close(der_num,der_ana, rtol=1e-10)
+
+    assert 0 == horner_backwards_ln_tau(600.0, Tc, coeffs)
+    assert_close1d(horner_backwards_ln_tau_and_der(600.0, Tc, coeffs), (0.0, 0.0))
+    assert_close1d(horner_backwards_ln_tau_and_der2(600.0, Tc, coeffs), (0.0, 0.0, 0.0))
+    assert_close1d(horner_backwards_ln_tau_and_der3(600.0, Tc, coeffs), (0.0, 0.0, 0.0, 0.0))
+
 
 def test_exp_horner_backwards_ln_tau():
     from fluids.numerics.polynomial_evaluation import (exp_horner_backwards_ln_tau, exp_horner_backwards_ln_tau_and_der, exp_horner_backwards_ln_tau_and_der2)
@@ -113,7 +118,6 @@ def test_exp_horner_backwards_ln_tau():
     assert_close(val, expect, rtol=1e-9)
     
     assert 0 == exp_horner_backwards_ln_tau(Tc, Tc, cs)
-    assert 0 == exp_horner_backwards_ln_tau(Tc+1, Tc, cs)
     
     expect_der = -0.000154224581713238
     val, der = exp_horner_backwards_ln_tau_and_der(T, Tc, cs)
@@ -127,6 +131,10 @@ def test_exp_horner_backwards_ln_tau():
     expect_der2 = -5.959538970287795e-07
     assert_close(der2, expect_der2, rtol=1e-13)
     
+    assert 0 == exp_horner_backwards_ln_tau(Tc+1, Tc, cs)
+    assert_close1d(exp_horner_backwards_ln_tau_and_der(1000.0, Tc, cs), (0.0, 0.0))
+    assert_close1d(exp_horner_backwards_ln_tau_and_der2(1000.0, Tc, cs), (0.0, 0.0, 0.0))
+
 def test_horner_domain():
     test_stable_coeffs = [28.0163226043884, 24.92038363551981, -7.469247118451516, 16.400149851861975, 67.52558234042988, 176.7837155284216]
     xmin, xmax = (162.0, 570.0)
@@ -197,22 +205,29 @@ def test_stablepoly_ln_tau():
 
     calc = horner_stable_ln_tau(T, Tc, coeffs, offset, scale)
     assert_close(expect, calc)
+    assert_close(horner_stable_ln_tau(700.0, Tc, coeffs, offset, scale), 0.0)
 
     calc2 = horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale)
     assert_close(expect, calc2[0])
     assert_close(expect_d, calc2[1])
+
+    assert_close1d(horner_stable_ln_tau_and_der(700.0, Tc, coeffs, offset, scale), (0.0, 0.0))
+
 
     
     calc3 = horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale)
     assert_close(expect, calc3[0])
     assert_close(expect_d, calc3[1])
     assert_close(expect_d2, calc3[2])
+    assert_close1d(horner_stable_ln_tau_and_der2(700.0, Tc, coeffs, offset, scale), (0.0, 0.0, 0.0))
+
 
     calc4 = horner_stable_ln_tau_and_der3(T, Tc, coeffs, offset, scale)
     assert_close(expect, calc4[0])
     assert_close(expect_d, calc4[1])
     assert_close(expect_d2, calc4[2])
     assert_close(expect_d3, calc4[3])
+    assert_close1d(horner_stable_ln_tau_and_der3(700.0, Tc, coeffs, offset, scale), (0.0, 0.0, 0.0, 0.0))
 
 def test_exp_stablepoly_fit():
     xmin, xmax = 309.0, 591.72

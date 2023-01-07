@@ -94,15 +94,14 @@ def polyder(c, m=1):
 
     n = len(c)
     if cnt >= n:
-        c = c[:1]*0
+        c = []
     else:
+        der = [0.0]*n
         for i in range(cnt): # normally only happens once
-            n = n - 1
-
-            der = [0.0]*n
+            n -= 1
             for j in range(n, 0, -1):
                 der[j - 1] = j*c[j]
-            c = der
+            c = der[0:n]
     return c
 
 def quadratic_from_points(x0, x1, x2, f0, f1, f2):
@@ -163,8 +162,11 @@ def exp_poly_ln_tau_coeffs2(T, Tc, val, der):
     Eq1 = Eq(d0, der)
     s = solve([Eq0, Eq1], [a, b])
     '''
-    c0 = der*(T - Tc)/val
-    c1 = (-T*der*log((-T + Tc)/Tc) + Tc*der*log((-T + Tc)/Tc) + val*log(val))/val
+    x0 = 1.0/val
+    x1 = T - Tc
+    x2 = der*log(-x1/Tc)
+    c0 = der*x0*x1
+    c1 = x0*(-T*x2 + Tc*x2 + val*log(val))
     return (c0, c1)
 
 def exp_poly_ln_tau_coeffs3(T, Tc, val, der, der2):
@@ -186,10 +188,32 @@ def exp_poly_ln_tau_coeffs3(T, Tc, val, der, der2):
     # s = solve([Eq0, Eq1], [a, b])
     s = solve([Eq0, Eq1, Eq2], [a, b, c])
     '''
-    a = (-T**2*der**2 + T**2*der2*val + 2*T*Tc*der**2 - 2*T*Tc*der2*val + T*der*val - Tc**2*der**2 + Tc**2*der2*val - Tc*der*val)/(2*val**2)
-    b = (T**2*der**2*log((-T + Tc)/Tc) - T**2*der2*val*log((-T + Tc)/Tc) - 2*T*Tc*der**2*log((-T + Tc)/Tc) + 2*T*Tc*der2*val*log((-T + Tc)/Tc) - T*der*val*log((-T + Tc)/Tc) + T*der*val + Tc**2*der**2*log((-T + Tc)/Tc) - Tc**2*der2*val*log((-T + Tc)/Tc) + Tc*der*val*log((-T + Tc)/Tc) - Tc*der*val)/val**2
-    c = (-T**2*der**2*log((-T + Tc)/Tc)**2 + T**2*der2*val*log((-T + Tc)/Tc)**2 + 2*T*Tc*der**2*log((-T + Tc)/Tc)**2 - 2*T*Tc*der2*val*log((-T + Tc)/Tc)**2 + T*der*val*log((-T + Tc)/Tc)**2 - 2*T*der*val*log((-T + Tc)/Tc) - Tc**2*der**2*log((-T + Tc)/Tc)**2 + Tc**2*der2*val*log((-T + Tc)/Tc)**2 - Tc*der*val*log((-T + Tc)/Tc)**2 + 2*Tc*der*val*log((-T + Tc)/Tc) + 2*val**2*log(val))/(2*val**2)
+    x0 = der*val
+    x1 = Tc*x0
+    x2 = T*x0
+    x3 = der2*val
+    x4 = 2.0*T*Tc
+    x5 = x3*x4
+    x6 = T*T
+    x7 = der*der
+    x8 = x6*x7
+    x9 = Tc*Tc
+    x10 = x7*x9
+    x11 = x4*x7
+    x12 = x3*x6
+    x13 = x3*x9
+    x14 = val*val
+    x15 = 1.0/x14
+    x16 = x15*0.5
+    x17 = log(-(T - Tc)/Tc)
+    x18 = x1*x17
+    x19 = x17*x2
+    x20 = x17*x17
+    a = -x16*(x1 + x10 - x11 - x12 - x13 - x2 + x5 + x8)
+    b = x15*(-x1 + x10*x17 - x11*x17 - x12*x17 - x13*x17 + x17*x5 + x17*x8 + x18 - x19 + x2)
+    c = x16*(-x1*x20 - x10*x20 + x11*x20 + x12*x20 + x13*x20 + 2*x14*log(val) + 2.0*x18 - 2.0*x19 + x2*x20 - x20*x5 - x20*x8)
     return (a, b, c)
+
 
 def deflate_cubic_real_roots(b, c, d, x0):
     F = b + x0

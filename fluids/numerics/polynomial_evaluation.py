@@ -189,7 +189,7 @@ def horner_backwards_ln_tau_and_der2(T, Tc, coeffs):
 
 def horner_backwards_ln_tau_and_der3(T, Tc, coeffs):
     if T >= Tc:
-        return 0.0, 0.0, 0.0, 00
+        return 0.0, 0.0, 0.0, 0.0
     lntau = log(1.0 - T/Tc)
     val, poly_der, poly_der2, poly_der3 = horner_and_der3(coeffs, lntau)
     der = -poly_der/(Tc*(-T/Tc + 1))
@@ -212,7 +212,7 @@ def exp_horner_backwards_ln_tau(T, Tc, coeffs):
 
 def exp_horner_backwards_ln_tau_and_der(T, Tc, coeffs):
     if T >= Tc:
-        return 0.0
+        return 0.0, 0.0
     tau = 1.0 - T/Tc
     lntau = log(tau)
     poly_val, poly_der_val = horner_and_der(coeffs, lntau)
@@ -221,7 +221,7 @@ def exp_horner_backwards_ln_tau_and_der(T, Tc, coeffs):
 
 def exp_horner_backwards_ln_tau_and_der2(T, Tc, coeffs):
     if T >= Tc:
-        return 0.0
+        return 0.0, 0.0, 0.0
     tau = 1.0 - T/Tc
     lntau = log(tau)
     poly_val, poly_val_der, poly_val_der2 = horner_and_der2(coeffs, lntau)
@@ -336,21 +336,25 @@ def horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale):
 def horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale):
     if T >= Tc:
         return 0.0, 0.0, 0.0
-    lntau = log(1.0 - T/Tc)
+    tau = 1.0 - T/Tc
+    lntau = log(tau)
     val, poly_der, poly_der2 = horner_stable_and_der2(lntau, coeffs, offset, scale)
-    der = -poly_der/(Tc*(-T/Tc + 1))
+    den = 1.0/(Tc*tau)
+    der = -poly_der*den
     
-    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
+    der2 = (-poly_der + poly_der2)*den*den
     return val, der, der2
 
 def horner_stable_ln_tau_and_der3(T, Tc, coeffs, offset, scale):
     if T >= Tc:
         return 0.0, 0.0, 0.0, 00
-    lntau = log(1.0 - T/Tc)
+    tau = 1.0 - T/Tc
+    lntau = log(tau)
     val, poly_der, poly_der2, poly_der3 = horner_stable_and_der3(lntau, coeffs, offset, scale)
-    der = -poly_der/(Tc*(-T/Tc + 1))
-    der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
-    der3 = (2.0*poly_der - 3.0*poly_der2 + poly_der3)/(Tc**3*(T/Tc - 1)**3)
+    den = 1.0/(Tc*tau)
+    der = -poly_der*den
+    der2 = (-poly_der + poly_der2)*den*den
+    der3 = -(2.0*poly_der - 3.0*poly_der2 + poly_der3)*den*den*den
     
     return val, der, der2, der3
 
