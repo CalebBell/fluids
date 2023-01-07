@@ -56,7 +56,7 @@ from fluids.numerics import (SolverInterface, array_as_tridiagonals, assert_clos
                              polyint_over_x, polylog2, polynomial_offset_scale,
                              quadratic_from_f_ders, roots_quadratic, roots_quartic, secant, sincos,
                              solve_2_direct, solve_3_direct, solve_4_direct, solve_tridiagonal,
-                             std, subset_matrix, translate_bound_f_jac,
+                             std, subset_matrix, translate_bound_f_jac, isclose,
                              translate_bound_func, translate_bound_jac, tridiagonals_as_array,
                              zeros)
 from scipy.integrate import quad
@@ -699,32 +699,6 @@ def test_py_factorial():
     for i in range(30):
         assert math.factorial(i) == py_factorial(i)
     
-def test_exp_stablepoly_fit_ln_tau():
-    coeffs = [0.011399360373616219, -0.014916568994522095, -0.06881296308711171, 0.0900153056718409, 0.19066633691545576, -0.24937350547406822, -0.3148389292182401, 0.41171834646956995, 0.3440581845934503, -0.44989947455906076, -0.2590532901358529, 0.33869134876113094, 0.1391329435696207, -0.18195230788023764, -0.050437145563137165, 0.06583166394466389, 0.01685157036382634, -0.022266583863000733, 0.003539388708205138, -0.005171064606571463, 0.012264455189935575, -0.018085676249990357, 0.026950795197264732, -0.04077120220662778, 0.05786417011592615, -0.07222889554773304, 0.07433570330647113, -0.05829288696590232, -3.7182636506596722, -5.844828481765601]
-    Tmin, Tmax, Tc = 233.22, 646.15, 647.096
-    xmin, xmax = log(1-Tmin/Tc), log(1-Tmax/Tc)
-    offset, scale = polynomial_offset_scale(xmin, xmax)
-
-    T = 500
-    expect = 0.03126447402046822
-    expect_d, expect_d2 = -0.0002337992205182661, -1.0453011134030858e-07
-    calc = exp_horner_stable_ln_tau(T, Tc, coeffs, offset, scale)
-    assert_close(expect, calc)
-    assert 0 == exp_horner_stable_ln_tau(700, Tc, coeffs, offset, scale)
-
-    calc2 = exp_horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale)
-    assert (0,0) == exp_horner_stable_ln_tau_and_der(700, Tc, coeffs, offset, scale)
-    assert_close(expect, calc2[0])
-    assert_close(expect_d, calc2[1])
-
-    
-    calc3 = exp_horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale)
-    assert (0,0, 0) == exp_horner_stable_ln_tau_and_der2(700, Tc, coeffs, offset, scale)
-    assert_close(expect, calc3[0])
-    assert_close(expect_d, calc3[1])
-    assert_close(expect_d2, calc3[2])
-
-
 
 def test_exp_cheb_fit_ln_tau():
     coeffs = [-5.922664830406188, -3.6003367212635444, -0.0989717205896406, 0.05343895281736921, -0.02476759166597864, 0.010447569392539213, -0.004240542036664352, 0.0017273355647560718, -0.0007199858491173661, 0.00030714447101984343, -0.00013315510546685339, 5.832551964424226e-05, -2.5742454514671165e-05, 1.143577875153956e-05, -5.110008470393668e-06, 2.295229193177706e-06, -1.0355920205401548e-06, 4.690917226601865e-07, -2.1322112805921556e-07, 9.721709759435981e-08, -4.4448656630335925e-08, 2.0373327115630335e-08, -9.359475430792408e-09, 4.308620855930645e-09, -1.9872392620357004e-09, 9.181429297400179e-10, -4.2489342599871804e-10, 1.969051449668413e-10, -9.139573819982871e-11, 4.2452263926406886e-11, -1.9768853221080462e-11, 9.190537220149508e-12, -4.2949394041258415e-12, 1.9981863386142606e-12, -9.396025624219817e-13, 4.335282133283158e-13, -2.0410756418343112e-13, 1.0455525334407412e-13, -4.748978987834107e-14, 2.7630675525358583e-14]
@@ -1281,3 +1255,28 @@ def test_SolverInterface_basics(jacob_method):
         if method in ('newton_system_line_search', 'hybr', 'Powell', 'BFGS'):
             res = solver.solve([1, 400.])
             assert type(res) is list
+
+
+
+def test_isclose():
+    assert not isclose(1.0, 2.0, rel_tol=0.0, abs_tol=0.0)
+    assert not isclose(1.0, 1+1e-14, rel_tol=0.0, abs_tol=0.0)
+    assert isclose(1.0, 1+1e-14, rel_tol=1e-13, abs_tol=0.0)
+    assert isclose(1.0, 1+1e-14, rel_tol=0.0, abs_tol=1e-14)
+    assert not isclose(1.0, 1+1e-14, rel_tol=0.0, abs_tol=9e-15)
+
+    assert isclose(1e300, 1e300*(1+1e-14), rel_tol=2e-14, abs_tol=0.0)
+    assert isclose(1e-300, 1e-300*(1+1e-14), rel_tol=2e-14, abs_tol=0.0)
+    assert isclose(-1e300, -1e300*(1+1e-14), rel_tol=2e-14, abs_tol=0.0)
+    assert isclose(-1e-300, -1e-300*(1+1e-14), rel_tol=2e-14, abs_tol=0.0)
+
+    assert not isclose(1.0, 2.0, rel_tol=0.0, abs_tol=0.0)
+    assert not isclose(1.0, 1+1e-14, rel_tol=0.0, abs_tol=0.0)
+    assert isclose(1.0, 1+1e-14, rel_tol=1e-13, abs_tol=0.0)
+    assert isclose(1.0, 1+1e-14, rel_tol=0.0, abs_tol=1e-14)
+    assert not isclose(1.0, 1+1e-14, rel_tol=0.0, abs_tol=9e-15)
+
+    assert isclose(1e300, 1e300*(1+1e-14), rel_tol=2e-14, abs_tol=0.0)
+    assert isclose(1e-300, 1e-300*(1+1e-14), rel_tol=2e-14, abs_tol=0.0)
+    assert isclose(-1e300, -1e300*(1+1e-14), rel_tol=2e-14, abs_tol=0.0)
+    assert isclose(-1e-300, -1e-300*(1+1e-14), rel_tol=2e-14, abs_tol=0.0)
