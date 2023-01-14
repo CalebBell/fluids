@@ -2687,7 +2687,7 @@ def halley_compat_numba(func, x, *args):
 
 def newton(func, x0, fprime=None, args=(), maxiter=100,
            fprime2=None, low=None, high=None, damping=1.0, ytol=None,
-           xtol=1.48e-8, require_eval=False, damping_func=None,
+           xtol=1.48e-8, require_eval=False, require_xtol=True, damping_func=None,
            bisection=False, gap_detection=False, dy_dx_limit=1e100,
            max_bound_hits=4, kwargs={}):
     """Newton's method designed to be mostly compatible with SciPy's
@@ -2711,7 +2711,11 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
     https://github.com/scipy/scipy/blob/v1.1.0/scipy/optimize/zeros.py#L66-L206
     """
     p0 = 1.0*x0
-#    p1 = p0 = 1.0*x0
+    p1 = None
+    p2 = None
+    fval0 = None
+    fval1 = None
+    fval2 = None
 #    fval0 = None
     if bisection:
         a, b = None, None
@@ -2742,13 +2746,16 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
             fval = func(p0, *args, **kwargs) #numba: DELETE
             fder = fprime(p0, *args, **kwargs) #numba: DELETE
 
+        if isnan(fval) or isinf(fval):
+            raise UnconvergedError("Cannot continue - math error in function value on iteration %d, guess=%f, value=%f"%(it, p0, fval))
+
         if fval == 0.0:
             return p0 # Cannot continue or already finished
         elif fder == 0.0:
-            if ytol is None or abs(fval) < ytol:
+            if not ytol is not None and abs(fval) < ytol:
                 return p0
             else:
-                raise UnconvergedError("Derivative became zero; maxiter (%d) reached, value=%f " %(maxiter, p0))
+                raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
 
         if bisection:
             if fval < 0.0:
@@ -2766,7 +2773,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
             p = damping_func(p0, -step, damping)
 #                variable, derivative, damping_factor
 
-        elif fprime2 is None:
+        elif fprime2 is None or isnan(fder2) or isinf(fder2):
             p = p0 - step*damping
         else:
             p = p0 - step/(1.0 - 0.5*step*fder2*fder_inv)*damping
@@ -2811,7 +2818,9 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
 
         if ytol is not None and xtol is not None:
             # Meet both tolerance - new value is under ytol, and old value
-            if abs(p - p0) < abs(xtol*p) and abs(fval) < ytol:
+            ytol_met = abs(fval) <= ytol
+            xtol_met = abs(p - p0) <= abs(xtol*p) # Has to be less or equal to for the case of zero!
+            if (xtol_met and ytol_met) or (not require_xtol and ytol_met):
                 if require_eval:
                     return p0
                 return p
@@ -2825,11 +2834,18 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                 if require_eval:
                     return p0
                 return p
-
+        fval0, fval1, fval2 = fval, fval0, fval1
 #            fval0, fval1 = fval, fval0
-#            p0, p1 = p, p0
 # need a history of fval also
-        p0 = p
+        if isnan(p) or isinf(p):
+            raise UnconvergedError("Cannot continue - math error in function value on iteration %d, guess=%f, value=%f"%(it, p, fval))
+        # print([p, p0, p1, p2], [fval, fval0, fval1, fval2], ytol_met, xtol_met)
+        if p == p0 and p == p2:
+            raise UnconvergedError("Failed to converge; next guess is same as current guess on iteration %d, guess=%g, value=%g" %(it, p, fval))
+
+        p0, p1, p2 = p, p0, p1
+
+        # p0 = p
 #    else:
 #        return secant(func, x0, args=args, maxiter=maxiter, low=low, high=high,
 #                      damping=damping,
