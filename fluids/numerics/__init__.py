@@ -2604,11 +2604,12 @@ def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
                 a, b, c = quadratic_from_points(x0, x1, x2, y0, y1, y2)
                 # print('Quadratic coefficients', (a, b, c))
                 sln = roots_quadratic(a, b, c)
+                print(a, b, c, sln)
                 # print('Quadratic solutions', sln)
                 if sln[0].imag == 0:
                     if sln[0] != sln[1]:
-                        a_step = (sln[0] - x1)
-                        another_step = (sln[1] - x1)
+                        a_step = (sln[0].real - x1)
+                        another_step = (sln[1].real - x1)
                         # use the closest one
                         if abs(a_step) < abs(another_step):
                             # print('Using quadratic solution', sln[0])
@@ -2619,7 +2620,7 @@ def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
                     else:
                         # only got a single step
                         # print('Using quadratic solution', sln[0])
-                        step = (sln[0] - x1)
+                        step = (sln[0].real - x1)
                     has_step = True
                     # print(f'Quadratic desired point:  x={x1 + step}')
             except:
