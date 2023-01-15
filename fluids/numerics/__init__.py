@@ -57,7 +57,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'exp_poly_ln_tau_coeffs3', 'exp_poly_ln_tau_coeffs2',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 'secant', 'halley',
-           'one_sided_secant', 'trunc_exp_numpy',
+           'one_sided_secant', 'trunc_exp_numpy', 'trunc_log_numpy',
            'splev', 'bisplev', 'derivative', 'jacobian', 'hessian',
            'normalize', 'oscillation_checker',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
@@ -1357,6 +1357,17 @@ def trunc_exp_numpy(x, trunc=1.7976931348622732e+308, out=None):
         out = np.full_like(x, trunc)
     mask = np.where(x< 709.782712893384)
     out[mask] = np.exp(x[mask])
+    return out
+
+def trunc_log_numpy(x, trunc=-744.4400719213812, out=None):
+    if out is not None:
+        out.fill(trunc)
+    else:
+        out = np.full_like(x, trunc)
+    if np.any(x < 0.0):
+        raise ValueError("math domain error")
+    mask = np.where(x > 0.0)
+    out[mask] = np.log(x[mask])
     return out
 
 

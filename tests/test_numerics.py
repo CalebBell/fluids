@@ -31,6 +31,7 @@ from fluids.numerics import (SolverInterface, array_as_tridiagonals, assert_clos
                              exp_cheb_and_der, exp_cheb_and_der2, exp_cheb_and_der3,
                              exp_cheb_ln_tau, exp_cheb_ln_tau_and_der, exp_cheb_ln_tau_and_der2,
                              fit_integral_linear_extrapolation,
+                             trunc_log_numpy,
                              fit_integral_over_T_linear_extrapolation, full, horner,
                              is_monotonic, is_poly_positive, jacobian, linspace, max_abs_error,
                              max_abs_rel_error, max_squared_error, max_squared_rel_error,
@@ -1313,6 +1314,35 @@ def test_trunc_exp_numpy():
     out_array = np.zeros(6)
     calc = trunc_exp_numpy(dat, out=out_array)
     assert_close1d(calc, expect, rtol=1e-13)
+    assert not np.any(np.isnan(expect))
+    assert not np.any(np.isinf(expect))
+    assert out_array is calc
+
+def test_trunc_log_numpy():
+    dat = np.array([0.0, 1e4, 0.0, 1.0, 1000.0])
+    expect = [-744.4400719213812, 9.210340371976184, -744.4400719213812, 0.0, 6.907755278982137]
+    calc = trunc_log_numpy(dat)
+    assert_close1d(calc, expect, rtol=1e-13)
+    assert not np.any(np.isnan(expect))
+    assert not np.any(np.isinf(expect))
+    
+    out_array = np.zeros(5)
+    calc = trunc_log_numpy(dat, out=out_array)
+    assert_close1d(calc, expect, rtol=1e-13)
+    assert not np.any(np.isnan(expect))
+    assert not np.any(np.isinf(expect))
+    assert out_array is calc
+    
+    dat = np.array([[0.0, 1e4, 1.0], [2.0, 0.0, 1000.0]])
+    expect = [[-744.4400719213812, 9.210340371976184, 0.0], [0.6931471805599453, -744.4400719213812, 6.907755278982137]]
+    calc = trunc_log_numpy(dat)
+    assert_close2d(calc, expect, rtol=1e-13)
+    assert not np.any(np.isnan(expect))
+    assert not np.any(np.isinf(expect))
+
+    out_array = np.zeros(6).reshape((2, 3))
+    calc = trunc_log_numpy(dat, out=out_array)
+    assert_close2d(calc, expect, rtol=1e-13)
     assert not np.any(np.isnan(expect))
     assert not np.any(np.isinf(expect))
     assert out_array is calc
