@@ -537,7 +537,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         extra_args = extra_args_std
     # Run module-by-module. Expensive, as we need to create module copies
     try:
-        all_submodules = normal.all_submodules()
+        all_submodules = normal.all_submodules(False)
     except:
         all_submodules = normal.submodules
     for mod in all_submodules:

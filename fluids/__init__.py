@@ -114,7 +114,7 @@ if not numerics.is_micropython:
                   flow_meter, geometry, mixing, open_flow, packed_bed, piping, pump,
                   safety_valve, packed_tower, two_phase_voidage, two_phase, drag,
                   saltation, separator, particle_size_distribution, jet_pump,
-                  control_valve]
+                  control_valve,]
 
     if numerics.PY37:
         def __getattr__(name):
@@ -135,15 +135,20 @@ if not numerics.is_micropython:
     else:
         from . import vectorized
     
-def all_submodules():
+def all_submodules(with_numerics=True):
+    from fluids.numerics import arrays, polynomial_roots, polynomial_evaluation, polynomial_utils
     import fluids.optional
     import fluids.optional.irradiance
     import fluids.optional.spa
     import fluids.nrlmsise00.nrlmsise_00_data
     import fluids.nrlmsise00.nrlmsise_00
     import fluids.nrlmsise00.nrlmsise_00_header
-    return submodules + [fluids.optional, fluids.optional.irradiance, fluids.optional.spa,
-                         fluids.nrlmsise00.nrlmsise_00_data, fluids.nrlmsise00.nrlmsise_00, fluids.nrlmsise00.nrlmsise_00_header]
+    new_submodules =  submodules + [fluids.optional, fluids.optional.irradiance, fluids.optional.spa,
+                         fluids.nrlmsise00.nrlmsise_00_data, fluids.nrlmsise00.nrlmsise_00, fluids.nrlmsise00.nrlmsise_00_header,
+                         ]
+    if with_numerics:
+        new_submodules += [arrays, polynomial_roots, polynomial_evaluation, polynomial_utils, constants, numerics]
+    return new_submodules
 
 def load_types():
     from fluids.typing_utils import type_module

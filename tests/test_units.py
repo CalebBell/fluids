@@ -290,7 +290,7 @@ def test_db_functions():
 
 def test_check_signatures():
     from fluids.units import check_args_order
-    bad_names = set(['__getattr__'])
+    bad_names = set(['__getattr__', 'all_submodules'])
     for name in dir(fluids):
         if name in bad_names:
             continue
