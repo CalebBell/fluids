@@ -97,6 +97,8 @@ def trunc_exp(x, trunc=1.7976931348622732e+308):
         # Really exp(709.7) 1.6549840276802644e+308
         return trunc
 
+
+
 def trunc_log(x, trunc=-744.4400719213812):
     # 5e-324 is the smallest floating point number above zero and its log is -744.4400719213812
     # do not allow negative numbers though, do not error on zero

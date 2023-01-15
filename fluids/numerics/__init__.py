@@ -57,7 +57,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'exp_poly_ln_tau_coeffs3', 'exp_poly_ln_tau_coeffs2',
            'implementation_optimize_tck', 'tck_interp2d_linear',
            'bisect', 'ridder', 'brenth', 'newton', 'secant', 'halley',
-           'one_sided_secant',
+           'one_sided_secant', 'trunc_exp_numpy',
            'splev', 'bisplev', 'derivative', 'jacobian', 'hessian',
            'normalize', 'oscillation_checker',
            'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
@@ -1349,6 +1349,15 @@ def evaluate_linear_fits_d2(data, x):
                 d2v = d2v*x + c
         calc.append(d2v)
     return calc
+
+def trunc_exp_numpy(x, trunc=1.7976931348622732e+308, out=None):
+    if out is not None:
+        out.fill(trunc)
+    else:
+        out = np.full_like(x, trunc)
+    mask = np.where(x< 709.782712893384)
+    out[mask] = np.exp(x[mask])
+    return out
 
 
 def chebval(x, c, offset=0.0, scale=1.0):

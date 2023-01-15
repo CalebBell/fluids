@@ -30,36 +30,19 @@ from fluids.numerics import (SolverInterface, array_as_tridiagonals, assert_clos
                              chebval_ln_tau_and_der3, cumsum, derivative, exp_cheb,
                              exp_cheb_and_der, exp_cheb_and_der2, exp_cheb_and_der3,
                              exp_cheb_ln_tau, exp_cheb_ln_tau_and_der, exp_cheb_ln_tau_and_der2,
-                             exp_horner_backwards, exp_horner_backwards_and_der,
-                             exp_horner_backwards_and_der2, exp_horner_backwards_and_der3,
-                             exp_horner_backwards_ln_tau, exp_horner_backwards_ln_tau_and_der,
-                             exp_horner_backwards_ln_tau_and_der2, exp_horner_stable,
-                             exp_horner_stable_and_der, exp_horner_stable_and_der2,
-                             exp_horner_stable_and_der3, exp_horner_stable_ln_tau,
-                             exp_horner_stable_ln_tau_and_der, exp_horner_stable_ln_tau_and_der2,
-                             exp_poly_ln_tau_coeffs2, exp_poly_ln_tau_coeffs3,
                              fit_integral_linear_extrapolation,
-                             deflate_cubic_real_roots,
                              fit_integral_over_T_linear_extrapolation, full, horner,
-                             horner_and_der2, horner_and_der3, horner_and_der4, horner_backwards,
-                             horner_backwards_ln_tau, horner_backwards_ln_tau_and_der,
-                             horner_backwards_ln_tau_and_der2, horner_backwards_ln_tau_and_der3,
-                             horner_domain, horner_stable, horner_stable_and_der,
-                             horner_stable_and_der2, horner_stable_and_der3, horner_stable_and_der4,
-                             horner_stable_ln_tau, horner_stable_ln_tau_and_der,
-                             horner_stable_ln_tau_and_der2, horner_stable_ln_tau_and_der3,
                              is_monotonic, is_poly_positive, jacobian, linspace, max_abs_error,
                              max_abs_rel_error, max_squared_error, max_squared_rel_error,
                              mean_abs_error, mean_abs_rel_error, mean_squared_error,
                              mean_squared_rel_error, min_max_ratios, newton_system,
                              poly_fit_integral_over_T_value, poly_fit_integral_value, polyint,
                              polyint_over_x, polylog2, polynomial_offset_scale,
-                             quadratic_from_f_ders, roots_quadratic, roots_quartic, secant, sincos,
+                             secant, sincos, trunc_exp_numpy,
                              solve_2_direct, solve_3_direct, solve_4_direct, solve_tridiagonal,
                              std, subset_matrix, translate_bound_f_jac, isclose,
                              translate_bound_func, translate_bound_jac, tridiagonals_as_array,
                              zeros)
-from scipy.integrate import quad
 from math import cos, erf, exp, isnan, log, sin
 from random import random
 from math import pi
@@ -1318,3 +1301,18 @@ def test_isclose():
     assert isclose(1e-300, 1e-300*(1+1e-14), rel_tol=2e-14, abs_tol=0.0)
     assert isclose(-1e300, -1e300*(1+1e-14), rel_tol=2e-14, abs_tol=0.0)
     assert isclose(-1e-300, -1e-300*(1+1e-14), rel_tol=2e-14, abs_tol=0.0)
+
+def test_trunc_exp_numpy():
+    dat = np.array([-1000, 1e4, -1.2, 0.0, 1.0, 1000.0])
+    expect = [0.0, 1.7976931348622732e+308, 0.30119421191220214, 1.0, 2.718281828459045, 1.7976931348622732e+308]
+    calc = trunc_exp_numpy(dat)
+    assert_close1d(calc, expect, rtol=1e-13)
+    assert not np.any(np.isnan(expect))
+    assert not np.any(np.isinf(expect))
+    
+    out_array = np.zeros(6)
+    calc = trunc_exp_numpy(dat, out=out_array)
+    assert_close1d(calc, expect, rtol=1e-13)
+    assert not np.any(np.isnan(expect))
+    assert not np.any(np.isinf(expect))
+    assert out_array is calc
