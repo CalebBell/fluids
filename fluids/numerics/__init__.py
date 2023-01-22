@@ -2727,7 +2727,6 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
     fval0 = None
     fval1 = None
     fval2 = None
-#    fval0 = None
     if bisection:
         a, b = None, None
         fa, fb = None, None
@@ -2737,8 +2736,8 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
     if fprime2_included:
         func2 = func
     hit_low, hit_high = 0, 0
-
-    for it in range(maxiter):
+    it = 0
+    while it < maxiter:
 #        if fprime2_included: # numba: uncomment
 #            fval, fder, fder2 = func(p0, *args) # numba: uncomment
 #        else: # numba: uncomment
@@ -2758,9 +2757,11 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
             fder = fprime(p0, *args, **kwargs) #numba: DELETE
 
         bad_fval = isnan(fval) or isinf(fval)
-        bad_fder = fder == 0.0
+        bad_fder = fder == 0.0 or isnan(fder) or isinf(fder)
+        # print(f'Guess {p0}, value {fval}, derivative {fder} on iteration {it}')
 
         if fval == 0.0:
+            # print('Completed search, fval is zer0')
             return p0 # Cannot continue or already finished
         elif bad_fder or bad_fval:
             if not bad_fval and (ytol is not None and abs(fval) < ytol):
@@ -2776,9 +2777,10 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
             else:
                 points = line_search_factors
                 reinitializing = False
-                # print(f'Guess {p0} could not progress value={fval} on iteration {it} , expanding search...')
+            # print(f'Guess {p0} could not progress value={fval} on iteration {it} , expanding search...')
             recovered = False
             for guess_factor in points:
+                it += 1
                 if reinitializing:
                     guess = p0*guess_factor if p0 != 0.0 else guess_factor
                 else:
@@ -2830,8 +2832,6 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
             if fprime2 is not None:
                 step = step/(1.0 - 0.5*step*fder2*fder_inv)
             p = damping_func(p0, -step, damping)
-#                variable, derivative, damping_factor
-
         elif fprime2 is None or isnan(fder2) or isinf(fder2):
             p = p0 - step*damping
         else:
@@ -2841,7 +2841,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
             if (not (a < p < b) and not (b < p < a)):
 #                if p < 0.0:
 #                    if p < a:
-#                    print('bisecting')
+                # print('bisecting')
                 p = 0.5*(a + b)
 #                else:
 #                    if p > b:
@@ -2865,11 +2865,8 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                     raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
             p = high
 
-
-
-
-        # p0 is last point (fval at that point), p is new
-
+        # p0 is last point (fval at that point), p is new (unknown fval)
+        it += 1
         if ytol is not None and xtol is not None:
             # Meet both tolerance - new value is under ytol, and old value
             ytol_met = abs(fval) <= ytol
@@ -2889,8 +2886,6 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                     return p0
                 return p
         fval0, fval1, fval2 = fval, fval0, fval1
-#            fval0, fval1 = fval, fval0
-# need a history of fval also
         if isnan(p) or isinf(p):
             raise UnconvergedError("Cannot continue - math error in function value on iteration %d, guess=%f, value=%f"%(it, p, fval))
         # print([p, p0, p1, p2], [fval, fval0, fval1, fval2], ytol_met, xtol_met)
@@ -2898,13 +2893,6 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
             raise UnconvergedError("Failed to converge; next guess is same as current guess on iteration %d, guess=%g, value=%g" %(it, p, fval))
 
         p0, p1, p2 = p, p0, p1
-
-        # p0 = p
-#    else:
-#        return secant(func, x0, args=args, maxiter=maxiter, low=low, high=high,
-#                      damping=damping,
-#                      xtol=xtol, ytol=ytol, kwargs=kwargs)
-#
     raise UnconvergedError("Failed to converge; maxiter (%d) reached, point=%g, error=%g" %(maxiter, p, fval))
 
 def halley(func, x0, args=(), maxiter=100,
