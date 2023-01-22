@@ -2768,44 +2768,54 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         if fval == 0.0:
             return p0 # Cannot continue or already finished
         elif fder == 0.0:
+            if ytol is not None and abs(fval) < ytol:
+                return p0
+            if it == 0 and not additional_guesses:
+                raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
             if it == 0 and additional_guesses:
-                # print(f'Slope was zero with initial guess {p0}, expanding search...')
-                for guess_factor in secant_bisection_factors:
-                    guess = p0*guess_factor if p0 != 0.0 else guess_factor
-                    if low is not None and guess < low:
-                        guess = low
-                    if high is not None and guess > high:
-                        guess = high
-
-                    if fprime2_included: # numba: DELETE
-                        fval, fder, fder2 = func2(guess, *args, **kwargs) # numba: DELETE
-                    elif fprime_included: # numba: DELETE
-                        fval, fder = func(guess, *args, **kwargs)
-                    elif fprime2 is not None: #numba: DELETE
-                        fval = func(guess, *args, **kwargs) #numba: DELETE
-                        fder = fprime(guess, *args, **kwargs) #numba: DELETE
-                        fder2 = fprime2(guess, *args, **kwargs) #numba: DELETE
-                    else: #numba: DELETE
-                        fval = func(guess, *args, **kwargs) #numba: DELETE
-                        fder = fprime(guess, *args, **kwargs) #numba: DELETE
-
-#                    if fprime2_included: # numba: uncomment
-#                        fval, fder, fder2 = func(guess, *args) # numba: uncomment
-#                    else: # numba: uncomment
-#                        fval, fder = func(guess, *args) # numba: uncomment
-#                        fder2 = 0.0 # numba: uncomment
-                    if isnan(fval) or isinf(fval) or fder == 0.0:
-                        continue
-                    else:
-                        p0 = guess
-                        # print(f'Found point the search can continue from {p0}')
-                        break
-
+                points = secant_bisection_factors
+                reinitializing = True
             else:
-                if not ytol is not None and abs(fval) < ytol:
-                    return p0
+                points = line_search_factors
+                reinitializing = False
+                # print(f'Slope was zero with initial guess {p0}, expanding search...')
+            recovered = False
+            for guess_factor in points:
+                if reinitializing:
+                    guess = p0*guess_factor if p0 != 0.0 else guess_factor
                 else:
-                    raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
+                    guess = p1 + (p0 - p1)*guess_factor
+                if low is not None and guess < low:
+                    guess = low
+                if high is not None and guess > high:
+                    guess = high
+
+                if fprime2_included: # numba: DELETE
+                    fval, fder, fder2 = func2(guess, *args, **kwargs) # numba: DELETE
+                elif fprime_included: # numba: DELETE
+                    fval, fder = func(guess, *args, **kwargs)
+                elif fprime2 is not None: #numba: DELETE
+                    fval = func(guess, *args, **kwargs) #numba: DELETE
+                    fder = fprime(guess, *args, **kwargs) #numba: DELETE
+                    fder2 = fprime2(guess, *args, **kwargs) #numba: DELETE
+                else: #numba: DELETE
+                    fval = func(guess, *args, **kwargs) #numba: DELETE
+                    fder = fprime(guess, *args, **kwargs) #numba: DELETE
+
+#                if fprime2_included: # numba: uncomment
+#                    fval, fder, fder2 = func(guess, *args) # numba: uncomment
+#                else: # numba: uncomment
+#                    fval, fder = func(guess, *args) # numba: uncomment
+#                    fder2 = 0.0 # numba: uncomment
+                if isnan(fval) or isinf(fval) or fder == 0.0:
+                    continue
+                else:
+                    p0 = guess
+                    recovered = True
+                    # print(f'Found point the search can continue from {p0}')
+                    break
+            if not recovered:
+                raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
 
         if bisection:
             if fval < 0.0:
