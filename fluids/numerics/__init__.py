@@ -2724,9 +2724,13 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
     p0 = 1.0*x0
     p1 = None
     p2 = None
+    p3 = None # Yes triple loops occur
     fval0 = None
     fval1 = None
     fval2 = None
+    fval3 = None
+    fder0 = None
+    fder1 = None
     if bisection:
         a, b = None, None
         fa, fb = None, None
@@ -2746,13 +2750,13 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
 #            fder2 = 0.0 # numba: uncomment
 
         if fprime2_included: # numba: DELETE
-            fval, fder, fder2 = func2(p0, *args, **kwargs) # numba: DELETE
+            fval, fder, fcurv = func2(p0, *args, **kwargs) # numba: DELETE
         elif fprime_included: # numba: DELETE
             fval, fder = func(p0, *args, **kwargs)
         elif fprime2 is not None: #numba: DELETE
             fval = func(p0, *args, **kwargs) #numba: DELETE
             fder = fprime(p0, *args, **kwargs) #numba: DELETE
-            fder2 = fprime2(p0, *args, **kwargs) #numba: DELETE
+            fcurv = fprime2(p0, *args, **kwargs) #numba: DELETE
         else: #numba: DELETE
             fval = func(p0, *args, **kwargs) #numba: DELETE
             fder = fprime(p0, *args, **kwargs) #numba: DELETE
@@ -2762,7 +2766,9 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         # print(f'Guess {p0}, value {fval}, derivative {fder} on iteration {it}')
         stuck = False
         if p1 is not None and p2 is not None: # for numba
-            stuck = p0 == p2 and p1 == p0
+            stuck = p0 == p2 and p1 == p0# or (fval == fval0 and fval == fval1)
+            if not stuck and p3 is not None:
+                stuck = p3 == p0# or fval == fval3# triple loop
 
         if fval == 0.0:
             # print('Completed search, fval is zer0')
@@ -2777,10 +2783,13 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                     raise UnconvergedError("Cannot continue - math error in function value on iteration %d, guess=%f, value=%f"%(it, p0, fval))
                 else:
                     raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
-            if additional_guesses and (it == 0 or stuck):
+            require_bracket = False
+            if additional_guesses and ((it == 0 or stuck) or (fval == fval0)):
+                # fval == fval0 checks if we are flat and a line search is pointless
                 points = secant_bisection_factors
                 reinitializing = True
                 did_additional_guesses = True
+                require_bracket = fval == fval0 and bisection# The derivative led us astray, try the other way
             else:
                 points = line_search_factors
                 reinitializing = False
@@ -2800,13 +2809,13 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                     continue
 
                 if fprime2_included: # numba: DELETE
-                    fval, fder, fder2 = func2(guess, *args, **kwargs) # numba: DELETE
+                    fval, fder, fcurv = func2(guess, *args, **kwargs) # numba: DELETE
                 elif fprime_included: # numba: DELETE
                     fval, fder = func(guess, *args, **kwargs)
                 elif fprime2 is not None: #numba: DELETE
                     fval = func(guess, *args, **kwargs) #numba: DELETE
                     fder = fprime(guess, *args, **kwargs) #numba: DELETE
-                    fder2 = fprime2(guess, *args, **kwargs) #numba: DELETE
+                    fcurv = fprime2(guess, *args, **kwargs) #numba: DELETE
                 else: #numba: DELETE
                     fval = func(guess, *args, **kwargs) #numba: DELETE
                     fder = fprime(guess, *args, **kwargs) #numba: DELETE
@@ -2817,6 +2826,8 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
 #                else: # numba: uncomment
 #                    fval, fder = func(guess, *args) # numba: uncomment
 #                    fder2 = 0.0 # numba: uncomment
+                if require_bracket and fval*fval1 >= 0.0:
+                    continue
                 if isnan(fval) or isinf(fval) or fder == 0.0:
                     continue
                 else:
@@ -2839,13 +2850,13 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         step = fval*fder_inv
         if damping_func is not None:
             if fprime2 is not None:
-                step = step/(1.0 - 0.5*step*fder2*fder_inv)
+                step = step/(1.0 - 0.5*step*fcurv*fder_inv)
             p = damping_func(p0, -step, damping)
-        elif fprime2 is None or isnan(fder2) or isinf(fder2):
+        elif fprime2 is None or isnan(fcurv) or isinf(fcurv):
             p = p0 - step*damping
         else:
             newton_step = step*damping
-            halley_step = newton_step/(1.0 - 0.5*step*fder2*fder_inv)
+            halley_step = newton_step/(1.0 - 0.5*step*fcurv*fder_inv)
             if halley_step*newton_step < 0.0:
                 # Both changes go in a different direction, therefore only use the newton step
                 p = p0 - newton_step
@@ -2900,12 +2911,13 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                 if require_eval:
                     return p0
                 return p
-        fval0, fval1, fval2 = fval, fval0, fval1
+        fval0, fval1, fval2, fval3 = fval, fval0, fval1, fval2
         if isnan(p) or isinf(p):
             raise UnconvergedError("Cannot continue - math error in function value on iteration %d, guess=%f, value=%f"%(it, p, fval))
         # print([p, p0, p1, p2], [fval, fval0, fval1, fval2], ytol_met, xtol_met)
 
-        p0, p1, p2 = p, p0, p1
+        p0, p1, p2, p3 = p, p0, p1, p2
+        fder0, fder1 = fder, fder0
     raise UnconvergedError("Failed to converge; maxiter (%d) reached, point=%g, error=%g" %(maxiter, p, fval))
 
 def halley(func, x0, args=(), maxiter=100,
