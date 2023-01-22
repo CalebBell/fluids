@@ -2397,7 +2397,8 @@ for i in range(len(factors_growing_positive)):
     for l in (factors_growing_positive, factors_shrinking_positive, 
               factors_growing_negative, factors_shrinking_negative,
               factors_nearby_increasing, factors_nearby_decreasing):
-        secant_bisection_factors.append(l[i])
+        if l[i] != 1.0:
+            secant_bisection_factors.append(l[i])
 
 
 def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
@@ -2624,7 +2625,6 @@ def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
                 a, b, c = quadratic_from_points(x0, x1, x2, y0, y1, y2)
                 # print('Quadratic coefficients', (a, b, c))
                 sln = roots_quadratic(a, b, c)
-                print(a, b, c, sln)
                 # print('Quadratic solutions', sln)
                 if sln[0].imag == 0:
                     if sln[0] != sln[1]:
