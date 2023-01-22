@@ -2438,13 +2438,7 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
         # try to guess again with a larger change, up to 16 orders of magnitude larger
         for guess_factor in secant_bisection_factors:
             # print('Slope was zero with initial guess, expanding search...')
-            p1 = x0*guess_factor
-        # for guess_power in range(1, 16):
-            # if x0 >= 0.0:
-                # p1 = x0*(1.0 + 1e-4*10.0**guess_power) + 1e-4*10**guess_power
-            # else:
-                # p1 = x0*(1.0 + 1e-4*10**guess_power) - 1e-4*10**guess_power
-            # May need to truncate p1
+            p1 = x0*guess_factor if x0 != 0.0 else guess_factor
             if low is not None and p1 < low:
                 p1 = low
             if high is not None and p1 > high:
@@ -2710,6 +2704,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
            fprime2=None, low=None, high=None, damping=1.0, ytol=None,
            xtol=1.48e-8, require_eval=False, require_xtol=True, damping_func=None,
            bisection=False, gap_detection=False, dy_dx_limit=1e100,
+           additional_guesses=False,
            max_bound_hits=4, kwargs={}):
     """Newton's method designed to be mostly compatible with SciPy's
     implementation, with a few features added and others now implemented.
@@ -2773,10 +2768,44 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         if fval == 0.0:
             return p0 # Cannot continue or already finished
         elif fder == 0.0:
-            if not ytol is not None and abs(fval) < ytol:
-                return p0
+            if it == 0 and additional_guesses:
+                # print(f'Slope was zero with initial guess {p0}, expanding search...')
+                for guess_factor in secant_bisection_factors:
+                    guess = p0*guess_factor if p0 != 0.0 else guess_factor
+                    if low is not None and guess < low:
+                        guess = low
+                    if high is not None and guess > high:
+                        guess = high
+
+                    if fprime2_included: # numba: DELETE
+                        fval, fder, fder2 = func2(guess, *args, **kwargs) # numba: DELETE
+                    elif fprime_included: # numba: DELETE
+                        fval, fder = func(guess, *args, **kwargs)
+                    elif fprime2 is not None: #numba: DELETE
+                        fval = func(guess, *args, **kwargs) #numba: DELETE
+                        fder = fprime(guess, *args, **kwargs) #numba: DELETE
+                        fder2 = fprime2(guess, *args, **kwargs) #numba: DELETE
+                    else: #numba: DELETE
+                        fval = func(guess, *args, **kwargs) #numba: DELETE
+                        fder = fprime(guess, *args, **kwargs) #numba: DELETE
+
+#                    if fprime2_included: # numba: uncomment
+#                        fval, fder, fder2 = func(guess, *args) # numba: uncomment
+#                    else: # numba: uncomment
+#                        fval, fder = func(guess, *args) # numba: uncomment
+#                        fder2 = 0.0 # numba: uncomment
+                    if isnan(fval) or isinf(fval) or fder == 0.0:
+                        continue
+                    else:
+                        p0 = guess
+                        # print(f'Found point the search can continue from {p0}')
+                        break
+
             else:
-                raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
+                if not ytol is not None and abs(fval) < ytol:
+                    return p0
+                else:
+                    raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
 
         if bisection:
             if fval < 0.0:
