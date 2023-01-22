@@ -2835,7 +2835,13 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         elif fprime2 is None or isnan(fder2) or isinf(fder2):
             p = p0 - step*damping
         else:
-            p = p0 - step/(1.0 - 0.5*step*fder2*fder_inv)*damping
+            newton_step = step*damping
+            halley_step = newton_step/(1.0 - 0.5*step*fder2*fder_inv)
+            if halley_step*newton_step < 0.0:
+                # Both changes go in a different direction, therefore only use the newton step
+                p = p0 - newton_step
+            else:
+                p = p0 - halley_step
 
         if bisection and a is not None and b is not None:
             if (not (a < p < b) and not (b < p < a)):
