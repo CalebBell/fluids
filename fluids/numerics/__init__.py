@@ -2243,10 +2243,6 @@ def bisect(f, a, b, args=(), xtol=1e-12, rtol=2.220446049250313e-16, maxiter=100
                 return xm
         elif (abs_dm < (xtol + rtol*abs_dm)):
             return xm
-#        elif gap_detection:
-#            dy_dx = abs((fm - fa)/(a-b))
-#            if dy_dx > dy_dx_limit:
-#                raise DiscontinuityError("Discontinuity detected")
 
     raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
 
@@ -2703,8 +2699,7 @@ def halley_compat_numba(func, x, *args):
 def newton(func, x0, fprime=None, args=(), maxiter=100,
            fprime2=None, low=None, high=None, damping=1.0, ytol=None,
            xtol=1.48e-8, require_eval=False, require_xtol=True, damping_func=None,
-           bisection=False, gap_detection=False, dy_dx_limit=1e100,
-           additional_guesses=False,
+           bisection=False, additional_guesses=False,
            max_bound_hits=4, kwargs={}):
     """Newton's method designed to be mostly compatible with SciPy's
     implementation, with a few features added and others now implemented.
@@ -2762,23 +2757,26 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
             fval = func(p0, *args, **kwargs) #numba: DELETE
             fder = fprime(p0, *args, **kwargs) #numba: DELETE
 
-        if isnan(fval) or isinf(fval):
-            raise UnconvergedError("Cannot continue - math error in function value on iteration %d, guess=%f, value=%f"%(it, p0, fval))
+        bad_fval = isnan(fval) or isinf(fval)
+        bad_fder = fder == 0.0
 
         if fval == 0.0:
             return p0 # Cannot continue or already finished
-        elif fder == 0.0:
-            if ytol is not None and abs(fval) < ytol:
+        elif bad_fder or bad_fval:
+            if not bad_fval and (ytol is not None and abs(fval) < ytol):
                 return p0
             if it == 0 and not additional_guesses:
-                raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
+                if bad_fval:
+                    raise UnconvergedError("Cannot continue - math error in function value on iteration %d, guess=%f, value=%f"%(it, p0, fval))
+                else:
+                    raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
             if it == 0 and additional_guesses:
                 points = secant_bisection_factors
                 reinitializing = True
             else:
                 points = line_search_factors
                 reinitializing = False
-                # print(f'Slope was zero with initial guess {p0}, expanding search...')
+                # print(f'Guess {p0} could not progress value={fval} on iteration {it} , expanding search...')
             recovered = False
             for guess_factor in points:
                 if reinitializing:
@@ -2801,6 +2799,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                 else: #numba: DELETE
                     fval = func(guess, *args, **kwargs) #numba: DELETE
                     fder = fprime(guess, *args, **kwargs) #numba: DELETE
+                # print(f"Guess={guess} value={fval} derivative={fder}")
 
 #                if fprime2_included: # numba: uncomment
 #                    fval, fder, fder2 = func(guess, *args) # numba: uncomment
@@ -2847,11 +2846,6 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
 #                else:
 #                    if p > b:
 #                        p = 0.5*(a + b)
-                if gap_detection:
-                    # Change in function value required to get goal in worst case
-                    dy_dx = abs((fa- fb)/(a-b))
-                    if dy_dx > dy_dx_limit: #or dy_dx > abs(fder)*10:
-                        raise DiscontinuityError("Discontinuity detected")
 
         if low is not None and p < low:
             hit_low += 1
@@ -2911,7 +2905,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
 #                      damping=damping,
 #                      xtol=xtol, ytol=ytol, kwargs=kwargs)
 #
-    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
+    raise UnconvergedError("Failed to converge; maxiter (%d) reached, point=%g, error=%g" %(maxiter, p, fval))
 
 def halley(func, x0, args=(), maxiter=100,
            low=None, high=None, damping=1.0, ytol=None,
