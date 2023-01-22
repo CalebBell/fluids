@@ -44,7 +44,7 @@ from fluids.numerics import (SolverInterface, array_as_tridiagonals, assert_clos
                              std, subset_matrix, translate_bound_f_jac, isclose,
                              translate_bound_func, translate_bound_jac, tridiagonals_as_array,
                              zeros)
-from math import cos, erf, exp, isnan, log, sin
+from math import cos, erf, exp, isnan, log, sin, sqrt
 from random import random
 from math import pi
 assert_allclose = np.testing.assert_allclose
@@ -1022,6 +1022,68 @@ def test_secant_cases_internet():
                     failed_fs.add(f)
                     fails += 1
         assert fails == 0
+
+def test_newton_halley_cases_internet():
+    debug = False
+    fcalls = 0
+    from math import inf, isinf, isnan
+    from fluids.numerics import newton
+    def print_err(fun):
+        def f(x):
+            nonlocal fcalls 
+            fcalls += 1
+            try:
+                err = fun(x) 
+            except:
+                return inf
+            if err.imag != 0.0:
+                return inf
+            if debug:
+                print(f"x={x}, err={err} fder={fder(x)}")
+            return err
+        return f
+    def print_fder(fun):
+        def f(x):
+            try:
+                fder = fun(x) 
+            except:
+                return inf
+            if fder.imag != 0.0:
+                return inf
+            return fder
+        return f
+
+    solvers = [newton]
+    solver_kwargs = [{'xtol': 1e-14, 'bisection': True, 'ytol': 1e-11, 'require_xtol': False,
+                    'require_eval': True, 'additional_guesses': True},
+                    ]
+    names = ['fluids newton']
+    for solver, kwargs, name in zip(solvers, solver_kwargs, names):
+        passes = 0
+        fails = 0
+        failed_fs = set([])
+        for f, fder, fder2, fder3, xs, low, high, note in solver_1d_test_cases:
+            for x0 in xs:
+                if debug:
+                    print(f'Solving with x0={x0}')
+                try:
+                    # low=low, high=high
+                    v = solver(print_err(f), x0, print_fder(fder), low=low, high=high, maxiter=3000, **kwargs)
+                    v = solver(print_err(f), x0, print_fder(fder), low=low, high=high, fprime2=fder2, maxiter=3000, **kwargs)
+                    v = solver(print_err(f), x0, print_fder(fder), fprime2=fder2, maxiter=3000, **kwargs)
+                    assert not isinf(v)
+                    assert not isnan(v)
+                    assert abs(f(v)) < 1e-10
+                    passes += 1
+                except Exception as e:
+                    print('Failed', e, note, x0, low, high)
+                    failed_fs.add(f)
+                    fails += 1
+        assert fails == 0
+
+
+
+
 
 def test_newton_system_no_iterations():
     def test_objf_direct(inputs):
