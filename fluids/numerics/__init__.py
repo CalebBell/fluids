@@ -2737,6 +2737,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         func2 = func
     hit_low, hit_high = 0, 0
     it = 0
+    did_additional_guesses = False
     while it < maxiter:
 #        if fprime2_included: # numba: uncomment
 #            fval, fder, fder2 = func(p0, *args) # numba: uncomment
@@ -2759,21 +2760,27 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         bad_fval = isnan(fval) or isinf(fval)
         bad_fder = fder == 0.0 or isnan(fder) or isinf(fder)
         # print(f'Guess {p0}, value {fval}, derivative {fder} on iteration {it}')
+        stuck = False
+        if p1 is not None and p2 is not None: # for numba
+            stuck = p0 == p2 and p1 == p0
 
         if fval == 0.0:
             # print('Completed search, fval is zer0')
             return p0 # Cannot continue or already finished
-        elif bad_fder or bad_fval:
+        elif bad_fder or bad_fval or stuck:
             if not bad_fval and (ytol is not None and abs(fval) < ytol):
                 return p0
+            if stuck and (not additional_guesses or did_additional_guesses):
+                raise UnconvergedError("Failed to converge; next guess is same as current guess on iteration %d, guess=%g, value=%g"%(it, p0, fval))
             if it == 0 and not additional_guesses:
                 if bad_fval:
                     raise UnconvergedError("Cannot continue - math error in function value on iteration %d, guess=%f, value=%f"%(it, p0, fval))
                 else:
                     raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
-            if it == 0 and additional_guesses:
+            if additional_guesses and (it == 0 or stuck):
                 points = secant_bisection_factors
                 reinitializing = True
+                did_additional_guesses = True
             else:
                 points = line_search_factors
                 reinitializing = False
@@ -2782,13 +2789,15 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
             for guess_factor in points:
                 it += 1
                 if reinitializing:
-                    guess = p0*guess_factor if p0 != 0.0 else guess_factor
+                    guess = x0*guess_factor if x0 != 0.0 else guess_factor
                 else:
                     guess = p1 + (p0 - p1)*guess_factor
                 if low is not None and guess < low:
                     guess = low
                 if high is not None and guess > high:
                     guess = high
+                if guess == p0:
+                    continue
 
                 if fprime2_included: # numba: DELETE
                     fval, fder, fder2 = func2(guess, *args, **kwargs) # numba: DELETE
@@ -2895,8 +2904,6 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         if isnan(p) or isinf(p):
             raise UnconvergedError("Cannot continue - math error in function value on iteration %d, guess=%f, value=%f"%(it, p, fval))
         # print([p, p0, p1, p2], [fval, fval0, fval1, fval2], ytol_met, xtol_met)
-        if p == p0 and p == p2:
-            raise UnconvergedError("Failed to converge; next guess is same as current guess on iteration %d, guess=%g, value=%g" %(it, p, fval))
 
         p0, p1, p2 = p, p0, p1
     raise UnconvergedError("Failed to converge; maxiter (%d) reached, point=%g, error=%g" %(maxiter, p, fval))
