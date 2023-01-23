@@ -174,7 +174,7 @@ def fuzzy_match(name, strings):
         return fuzzy_match_fun(name, strings)
 
     try:
-        from thefuzz import process
+        from thefuzz import process, fuzz
         fuzzy_match_fun = lambda name, strings: process.extract(name, strings, limit=10)[0][0]
         # extractOne is faster but less reliable
         #fuzzy_match_fun = lambda name, strings: process.extractOne(name, strings, scorer=fuzz.partial_ratio)[0]
