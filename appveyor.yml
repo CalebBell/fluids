@@ -26,7 +26,7 @@ init:
 install:
   - cmd: activate condaenv
   - cmd: conda install -yq numpy scipy pip pytest pandas numba IPython sphinx
-  - cmd: pip install pytest-cov coveralls sympy fuzzywuzzy pint pytz sphinx matplotlib
+  - cmd: pip install pytest-cov coveralls sympy thefuzz pint pytz sphinx matplotlib
 
 test_script:
   - cmd: py.test --cov-report html --cov=fluids -m "not online and not thermo and not numba"

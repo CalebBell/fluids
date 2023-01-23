@@ -174,7 +174,7 @@ def fuzzy_match(name, strings):
         return fuzzy_match_fun(name, strings)
 
     try:
-        from fuzzywuzzy import process
+        from thefuzz import process
         fuzzy_match_fun = lambda name, strings: process.extract(name, strings, limit=10)[0][0]
         # extractOne is faster but less reliable
         #fuzzy_match_fun = lambda name, strings: process.extractOne(name, strings, scorer=fuzz.partial_ratio)[0]
@@ -4058,7 +4058,7 @@ def nearest_material_roughness(name, clean=None):
     r'''Searches through either a dict of clean pipe materials or used pipe
     materials and conditions and returns the ID of the nearest material.
     Search is performed with either the standard library's difflib or with
-    the fuzzywuzzy module if available.
+    the thefuzz module if available.
 
     Parameters
     ----------
@@ -4099,7 +4099,7 @@ def material_roughness(ID, D=None, optimism=None):
     r'''Searches through either a dict of clean pipe materials or used pipe
     materials and conditions and returns the ID of the nearest material.
     Search is performed with either the standard library's difflib or with
-    the fuzzywuzzy module if available.
+    the thefuzz module if available.
 
     Parameters
     ----------
