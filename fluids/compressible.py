@@ -76,7 +76,7 @@ Stagnation Point
 from __future__ import division
 from math import sqrt, log, pi, exp, isinf
 from fluids.constants import R
-from fluids.numerics import lambertw, ridder, secant
+from fluids.numerics import lambertw, brenth, secant
 
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT', 'isothermal_gas',
@@ -906,7 +906,7 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
             return P1
         except:
             try:
-                return ridder(isothermal_gas_err_P1, a=P2, b=Pcf, args=(fd, rho, P2, L, D, m))
+                return brenth(isothermal_gas_err_P1, P2, Pcf, args=(fd, rho, P2, L, D, m))
             except:
                 m_max = isothermal_gas(rho, fd, P1=Pcf, P2=P2, L=L, D=D)  # numba: delete
                 raise ValueError('The desired mass flow rate of %f kg/s cannot ' # numba: delete
@@ -938,7 +938,7 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
         except:
             Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
             try:
-                return ridder(isothermal_gas_err_P2, a=Pcf, b=P1, args=(rho, fd, P1, L, D, m))
+                return brenth(isothermal_gas_err_P2, Pcf, P1, args=(rho, fd, P1, L, D, m))
             except:
                 m_max = isothermal_gas(rho, fd, P1=P1, P2=Pcf, L=L, D=D)
                 raise ValueError('The desired mass flow rate cannot be achieved ' # numba: delete
@@ -946,7 +946,7 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
                                  'kg/s at a downstream pressure of %f' %(P1, m_max, Pcf)) # numba: delete
 #                raise ValueError("Failed") # numba: uncomment
             # A solver which respects its boundaries is required here.
-            # ridder cuts the time down from 2 ms to 200 mircoseconds.
+            # brenth cuts the time down from 2 ms to 200 mircoseconds.
             # Is is believed Pcf and P1 will always bracked the root, however
             # leave the commented code for testing
     elif D is None and P2 is not None and P1 is not None and L is not None and m is not None:
