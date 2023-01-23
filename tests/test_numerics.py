@@ -1038,8 +1038,8 @@ def test_newton_halley_cases_internet():
                 return inf
             if err.imag != 0.0:
                 return inf
-            if debug:
-                print(f"x={x}, err={err} fder={fder(x)}")
+            # if debug:
+            #     print(f"x={x}, err={err} fder={fder(x)}")
             return err
         return f
     def print_fder(fun):
@@ -1064,8 +1064,8 @@ def test_newton_halley_cases_internet():
         failed_fs = set([])
         for f, fder, fder2, fder3, xs, low, high, note in solver_1d_test_cases:
             for x0 in xs:
-                if debug:
-                    print(f'Solving with x0={x0}')
+                # if debug:
+                #     print(f'Solving with x0={x0}')
                 try:
                     # low=low, high=high
                     v = solver(print_err(f), x0, print_fder(fder), low=low, high=high, maxiter=3000, **kwargs)
@@ -1076,7 +1076,7 @@ def test_newton_halley_cases_internet():
                     assert abs(f(v)) < 1e-10
                     passes += 1
                 except Exception as e:
-                    print('Failed', e, note, x0, low, high)
+                    # print('Failed', e, note, x0, low, high)
                     failed_fs.add(f)
                     fails += 1
         assert fails == 0

@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['2.7', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10', '3.11', 'pypy-3.6'] # 'pypy-3.7'
+        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10', '3.11', 'pypy-3.6'] # 'pypy-3.7'
         os: [windows-latest, ubuntu-latest, macos-latest]
         architecture: ['x86', 'x64']
         exclude:
@@ -21,15 +21,11 @@ jobs:
           # numpy.distutils.system_info.NotFoundError: No lapack/blas resources found.
           # even 32 bit pypy2 or pypy3 doesn't work
           - os: windows-latest
-            python-version: pypy2
-          - os: windows-latest
             python-version: pypy-3.6
           - os: windows-latest
             python-version: pypy-3.7
           # pypy2 Failure building pandas wheels
           # pypy3  error: library mach has Fortran sources but no Fortran compiler found
-          - os: macos-latest
-            python-version: pypy2
           - os: macos-latest
             python-version: pypy-3.6
           - os: macos-latest
@@ -53,10 +49,6 @@ jobs:
           - os: windows-latest
             architecture: x86
             python-version: 3.11
-          - os: ubuntu-latest
-            python-version: 2.7
-          - os: ubuntu-latest
-            python-version: 3.5
           - os: ubuntu-latest
             python-version: 3.6
     steps:
