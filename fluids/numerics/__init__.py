@@ -2290,8 +2290,7 @@ def ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
 
 def brenth(f, xa, xb, args=(),
             xtol=1e-12, rtol=4.440892098500626e-16, maxiter=100, ytol=None,
-            full_output=False, disp=True, q=False,
-            fa=None, fb=None, kwargs={}):
+            q=False, fa=None, fb=None, kwargs={}):
     xpre = xa
     xcur = xb
     xblk = 0.0
