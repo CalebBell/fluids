@@ -2863,7 +2863,9 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                 p = p0 - halley_step
 
         if bisection and a is not None and b is not None:
-            if (not (a < p < b) and not (b < p < a)):
+            if ((not (a < p < b) and not (b < p < a)) or it > 40):
+                # Arbitrary switch to bisection if we should have converged by now.
+                # A common issue is when the derivative has a small numerical issue around something
 #                if p < 0.0:
 #                    if p < a:
                 # print('bisecting')
