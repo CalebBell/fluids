@@ -2728,8 +2728,6 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
     fval1 = None
     fval2 = None
     fval3 = None
-    fder0 = None
-    fder1 = None
     if bisection:
         a, b = None, None
         fa, fb = None, None
@@ -2877,7 +2875,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         if low is not None and p < low:
             hit_low += 1
             if p0 == low and hit_low > max_bound_hits:
-                if abs(fval) < ytol:
+                if ytol is not None and abs(fval) < ytol:
                     return low
                 else:
                     raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
@@ -2886,7 +2884,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         if high is not None and p > high:
             hit_high += 1
             if p0 == high and hit_high > max_bound_hits:
-                if abs(fval) < ytol:
+                if ytol is not None and abs(fval) < ytol:
                     return high
                 else:
                     raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
@@ -2918,7 +2916,6 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         # print([p, p0, p1, p2], [fval, fval0, fval1, fval2], ytol_met, xtol_met)
 
         p0, p1, p2, p3 = p, p0, p1, p2
-        fder0, fder1 = fder, fder0
     raise UnconvergedError("Failed to converge; maxiter (%d) reached, point=%g, error=%g" %(maxiter, p, fval))
 
 def halley(func, x0, args=(), maxiter=100,
