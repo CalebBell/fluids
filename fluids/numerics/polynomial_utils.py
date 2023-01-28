@@ -34,6 +34,12 @@ def stable_poly_to_unstable(coeffs, low, high):
         from numpy.polynomial import Polynomial
         # Handle the case of no transformation, no limits
         my_poly = Polynomial([-0.5*(high + low)*2.0/(high - low), 2.0/(high - low)])
+        def horner(coeffs, x):
+            # Keep this copy here
+            tot = 0.0
+            for c in coeffs:
+                tot = tot*x + c
+            return tot
         coeffs = horner(coeffs, my_poly).coef[::-1].tolist()
     return coeffs
 
