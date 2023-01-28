@@ -106,7 +106,7 @@ def test_quadratic_from_f_ders():
     poly = [1.12, 432.32, 325.5342, .235532, 32.235]
     p = 3.0
     v, d1, d2 = horner_and_der2(poly, p)
-    quadratic = quadratic_from_f_ders(p, v, d1, d2)
+    quadratic = list(quadratic_from_f_ders(p, v, d1, d2))
     v_new, d1_new, d2_new = horner_and_der2(quadratic, p)
 
     assert_close(v_new, v)
