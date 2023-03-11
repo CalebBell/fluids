@@ -45,9 +45,14 @@ else:
 #    except ImportError:
 #        np = None
 
-__all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product',
+__all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product', 'transpose',
            'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix']
 primitive_containers = frozenset([list, tuple])
+
+def transpose(x):
+    return [list(i) for i in zip(*x)]
+
+
 
 def det(matrix):
     """Seem sto work fine.
