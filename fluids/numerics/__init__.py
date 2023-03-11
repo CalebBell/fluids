@@ -28,7 +28,7 @@ from math import (sin, exp, pi, fabs, copysign, log, isinf, isnan, acos, cos, si
 from cmath import sqrt as csqrt, log as clog
 import sys
 from fluids.numerics.arrays import (solve as py_solve, inv, dot, norm2, inner_product, eye,
-                     array_as_tridiagonals, tridiagonals_as_array,
+                     array_as_tridiagonals, tridiagonals_as_array, transpose,
                      solve_tridiagonal, subset_matrix)
 
 from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
@@ -3161,10 +3161,11 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
 
     if xtol is None and (ytol is not None and err0 < ytol):
         return x0, 0
-    else:
-        x = x0
-        if not jac_also:  # numba: delete
-            j = jac(x, *args)  # numba: delete
+
+    
+    x = x0
+    if not jac_also:  # numba: delete
+        j = jac(x, *args)  # numba: delete
     if check_numbers:# numba: delete
         j = check_jacobian(x=x0, j=j, func=f, jac_error_allowed=jac_error_allowed)# numba: delete
     factors = newton_line_search_factors if line_search else newton_line_search_factors_disabled
