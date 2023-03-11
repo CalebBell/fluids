@@ -32,7 +32,7 @@ from fluids.numerics.arrays import (solve as py_solve, inv, dot, norm2, inner_pr
                      solve_tridiagonal, subset_matrix)
 
 from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
-                                     trunc_exp, trunc_log)
+                                     trunc_exp, trunc_log, cbrt)
 
 from fluids.numerics.polynomial_roots import (roots_quadratic, roots_quartic, roots_cubic_a1, roots_cubic_a2, roots_cubic)
 from fluids.numerics.polynomial_evaluation import (horner, horner_and_der, horner_and_der2,
