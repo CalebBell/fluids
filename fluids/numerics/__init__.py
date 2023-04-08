@@ -119,7 +119,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'exp_horner_stable_ln_tau_and_der2',
            'is_monotonic',
            'sort_nelder_mead_points_numba', 'sort_nelder_mead_points_python', 
-           'bounds_clip_naive', 'nelder_mead',
+           'bounds_clip_naive', 'nelder_mead', 'cbrt',
            ]
 
 from fluids.numerics import doubledouble
@@ -240,6 +240,11 @@ except:
     cacos = py_cacos
     catan = py_catan
     catanh = py_catanh
+try:
+    from math import cbrt
+except:
+    def cbrt(x):
+        return x**(1.0/3.0)
 
 _wraps = None
 def my_wraps():
