@@ -193,8 +193,12 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
 
 @numba.njit(cache=caching, **extra_args_std)
 def normalize(values):
-    tot_inv = 1.0/sum(values)
-    return np.array([i*tot_inv for i in values])
+    N = len(values)
+    tot_inv = 1.0/np.sum(values)
+    out = np.zeros(N)
+    for i in range(N):
+        out[i] = values[i]*tot_inv
+    return out
 
 @numba.njit(cache=caching, **extra_args_std)
 def bisplev(x, y, tck, dx=0, dy=0):
@@ -438,7 +442,7 @@ def create_numerics(replaced, vec=False):
     NUMERICS_SUBMOD.numba = numba
     NUMERICS_SUBMOD.jitclass = jitclass
     NUMERICS_SUBMOD.njit = numba.njit
-    NUMERICS_SUBMOD.jit = numba.jit
+    NUMERICS_SUBMOD.jit = numba.njit
     NUMERICS_SUBMOD.array_if_needed = np.array
     NUMERICS_SUBMOD.sum = np.sum
 
@@ -548,7 +552,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
         SUBMOD.numba = numba
         SUBMOD.jitclass = jitclass
         SUBMOD.njit = numba.njit
-        SUBMOD.jit = numba.jit
+        SUBMOD.jit = numba.njit
         SUBMOD.prange = numba.prange
 
         if vec:
