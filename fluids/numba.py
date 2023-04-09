@@ -521,7 +521,7 @@ def create_numerics(replaced, vec=False):
     
     return replaced, NUMERICS_SUBMOD
 
-replaced = {'sum': np.sum, 'combinations': combinations, 'np': np}
+replaced = {'sum': np.sum, 'cbrt': np.cbrt, 'combinations': combinations, 'np': np}
 replaced, NUMERICS_SUBMOD = create_numerics(replaced, vec=False)
 numerics_dict = replaced
 numerics = NUMERICS_SUBMOD
