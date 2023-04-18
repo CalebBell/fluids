@@ -3348,7 +3348,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
 
 ### Plate heat exchanger single phase
 
-def friction_plate_Martin_1999(Re, plate_enlargement_factor):
+def friction_plate_Martin_1999(Re, chevron_angle):
     r'''Calculates Darcy friction factor for single-phase flow in a
     Chevron-style plate heat exchanger according to [1]_.
 
@@ -3373,9 +3373,11 @@ def friction_plate_Martin_1999(Re, plate_enlargement_factor):
     Re : float
         Reynolds number with respect to the hydraulic diameter of the channels,
         [-]
-    plate_enlargement_factor : float
-        The extra surface area multiplier as compared to a flat plate
-        caused the corrugations, [-]
+    chevron_angle : float
+        Angle of the plate corrugations with respect to the vertical axis
+        (the direction of flow if the plates were straight), between 0 and
+        90. Many plate exchangers use two alternating patterns; use their
+        average angle for that situation [degrees]
 
     Returns
     -------
@@ -3402,8 +3404,8 @@ def friction_plate_Martin_1999(Re, plate_enlargement_factor):
 
     Examples
     --------
-    >>> friction_plate_Martin_1999(Re=20000, plate_enlargement_factor=1.15)
-    2.284018089834135
+    >>> friction_plate_Martin_1999(Re=20000, chevron_angle=45)
+    0.7818916308365043
 
     References
     ----------
@@ -3418,7 +3420,7 @@ def friction_plate_Martin_1999(Re, plate_enlargement_factor):
     .. [3] Shah, Ramesh K., and Dusan P. Sekulic. Fundamentals of Heat
        Exchanger Design. 1st edition. Hoboken, NJ: Wiley, 2002.
     '''
-    phi = plate_enlargement_factor
+    phi = radians(chevron_angle)
 
     if Re < 2000.:
         f0 = 16./Re
@@ -3433,7 +3435,7 @@ def friction_plate_Martin_1999(Re, plate_enlargement_factor):
     return ff*4.0
 
 
-def friction_plate_Martin_VDI(Re, plate_enlargement_factor):
+def friction_plate_Martin_VDI(Re, chevron_angle):
     r'''Calculates Darcy friction factor for single-phase flow in a
     Chevron-style plate heat exchanger according to [1]_.
 
@@ -3458,9 +3460,11 @@ def friction_plate_Martin_VDI(Re, plate_enlargement_factor):
     Re : float
         Reynolds number with respect to the hydraulic diameter of the channels,
         [-]
-    plate_enlargement_factor : float
-        The extra surface area multiplier as compared to a flat plate
-        caused the corrugations, [-]
+    chevron_angle : float
+        Angle of the plate corrugations with respect to the vertical axis
+        (the direction of flow if the plates were straight), between 0 and
+        90. Many plate exchangers use two alternating patterns; use their
+        average angle for that situation [degrees]
 
     Returns
     -------
@@ -3493,15 +3497,15 @@ def friction_plate_Martin_VDI(Re, plate_enlargement_factor):
 
     Examples
     --------
-    >>> friction_plate_Martin_VDI(Re=20000, plate_enlargement_factor=1.15)
-    2.702534119024076
+    >>> friction_plate_Martin_VDI(Re=20000, chevron_angle=45)
+    0.93076451142552
 
     References
     ----------
     .. [1] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
     '''
-    phi = plate_enlargement_factor
+    phi = radians(chevron_angle)
 
     if Re < 2000.:
         f0 = 64./Re
