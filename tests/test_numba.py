@@ -142,7 +142,7 @@ def test_C_Reader_Harris_Gallagher_wet_venturi_tube_numba():
 
 @mark_as_numba
 def test_rename_constant():
-    assert_close(fluids.numba.friction_plate_Martin_1999(Re=20000, plate_enlargement_factor=1.15), 2.284018089834135)
+    assert_close(fluids.numba.friction_plate_Martin_1999(Re=20000, chevron_angle=45), 0.7818916308365043)
 
 @mark_as_numba
 def test_list_in_list_constant_converted():

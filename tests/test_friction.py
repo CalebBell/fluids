@@ -486,17 +486,17 @@ def test_friction_factor_curved():
         helical_Re_crit(Di=0.02, Dc=0.5, Method=m)
 
 def test_friction_plate():
-    fd = friction_plate_Martin_1999(Re=20000., plate_enlargement_factor=1.15)
-    assert_close(fd, 2.284018089834134)
+    fd = friction_plate_Martin_1999(Re=20000., chevron_angle=45)
+    assert_close(fd, 0.7818916308365043)
 
-    fd = friction_plate_Martin_1999(Re=1999., plate_enlargement_factor=1.15)
-    assert_close(fd, 2.749383588479863)
+    fd = friction_plate_Martin_1999(Re=1999., chevron_angle=45)
+    assert_close(fd, 0.8346709330530173)
 
-    fd = friction_plate_Martin_VDI(Re=20000., plate_enlargement_factor=1.15)
-    assert_close(fd, 2.702534119024076)
+    fd = friction_plate_Martin_VDI(Re=20000., chevron_angle=45)
+    assert_close(fd, 0.93076451142552)
 
-    fd = friction_plate_Martin_VDI(Re=1999., plate_enlargement_factor=1.15)
-    assert_close(fd, 3.294294334690556)
+    fd = friction_plate_Martin_VDI(Re=1999., chevron_angle=45)
+    assert_close(fd, 0.9952660732533454)
 
     fd = friction_plate_Muley_Manglik(Re=2000., chevron_angle=45., plate_enlargement_factor=1.2)
     assert_close(fd, 1.0880870804075413)
