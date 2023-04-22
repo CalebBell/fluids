@@ -3812,11 +3812,19 @@ def max_abs_error(data, calc):
             max_err = diff
     return max_err
 
-def max_abs_rel_error(data, calc):
+def max_abs_rel_error(data, calc, max_val=1000.0):
     max_err = 0.0
     N = len(data)
     for i in range(N):
-        diff = abs((data[i] - calc[i])/data[i])
+        if data[i] == 0.0:
+            if calc[i] == 0.0:
+                diff = 0.0
+            else:
+                diff = max_val
+        else:
+            diff = abs((data[i] - calc[i])/data[i])
+            if diff > max_val:
+                diff = max_val
         if diff > max_err:
             max_err = diff
     return max_err
