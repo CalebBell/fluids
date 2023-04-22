@@ -32,6 +32,7 @@ import fluids as normal_fluids
 import numba
 from numba import float64
 from numba.experimental import jitclass
+import os
 import linecache
 import numba.types
 import fluids.optional.spa
@@ -39,8 +40,10 @@ import ctypes
 from numba.extending import get_cython_function_address
 from numba.extending import overload
 
+disable_numba_cache = os.environ.get('NUMBA_FUNCTION_CACHE_SIZE', None) == '0'
 
-caching = True
+# caching = True
+caching = not disable_numba_cache
 extra_args_std = {'nogil': True, 'fastmath': True}
 extra_args_vec = {}
 __all__ = []
@@ -103,13 +106,17 @@ except:
 
 
 def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name='cache-safe'):
-    filepath = "<ipython-%s>" % cache_name
-    lines = [line + '\n' for line in source.splitlines()]
-    linecache.cache[filepath] = (len(source), None, lines, filepath)
     if lcs is None:
         lcs = {}
     if gbls is None:
         gbls = globals()
+    if disable_numba_cache:
+        exec(source, gbls, lcs)
+        return lcs, gbls
+        
+    filepath = "<ipython-%s>" % cache_name
+    lines = [line + '\n' for line in source.splitlines()]
+    linecache.cache[filepath] = (len(source), None, lines, filepath)
     exec(compile(source, filepath, 'exec'), gbls, lcs)
     return lcs, gbls
 
