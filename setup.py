@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016-2021, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016-2023, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -44,11 +44,11 @@ classifiers = [
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Programming Language :: Python :: Implementation :: CPython',
     'Programming Language :: Python :: Implementation :: PyPy',
     'Programming Language :: Python :: Implementation :: MicroPython',
     'Programming Language :: Python :: Implementation :: IronPython',
-    'Programming Language :: Python :: Implementation :: Jython',
     'Topic :: Education',
     'Topic :: Scientific/Engineering :: Atmospheric Science',
     'Topic :: Scientific/Engineering :: Chemistry',
@@ -66,8 +66,8 @@ setup(
     name='fluids',
     packages=['fluids'],
     license='MIT',
-    version='1.0.22',
-    download_url='https://github.com/CalebBell/fluids/tarball/1.0.22',
+    version='1.0.23',
+    download_url='https://github.com/CalebBell/fluids/tarball/1.0.23',
     description=description,
     long_description=open('README.rst').read(),
     install_requires=["numpy>=1.5.0", "scipy>=0.9.0"],
@@ -82,7 +82,9 @@ setup(
     classifiers=classifiers,
     package_data={
         'fluids': [
-            'data/*', 'nrlmsise00/*', 'optional/*', 'numerics/*', 'constants/*'
+            'data/*', 'nrlmsise00/*',
+             'optional/*.py', 'optional/*.dat', 'optional/*.f90', 'optional/*.for', 'optional/*.pyf', 'optional/*.bin',
+             'numerics/*', 'constants/*'
         ]
     },
 )

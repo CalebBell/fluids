@@ -47,7 +47,7 @@ Fluids was originally tightly integrated with SciPy and NumPy; today they
 are optional components used for only a small amount of functionality
 which do not have pure-Python numerical methods implemented.
 Fluids targets Python 3.6 and up as well as PyPy3. Additionally,
-fluids has been tested by the author to load in IronPython, Jython,
+fluids has been tested by the author to load in IronPython,
 and micropython.
 
 While the routines in Fluids are normally quite fast and as efficiently
@@ -127,5 +127,5 @@ Citation
 
 To cite fluids in publications use::
 
-    Caleb Bell (2016-2023). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
+    Caleb Bell and Contributors (2016-2023). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
     https://github.com/CalebBell/fluids.

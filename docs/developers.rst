@@ -93,16 +93,14 @@ Monkeytype on the `fluids` test suite takes ~15 minutes to run, and generates a 
 
 Supported Python Versions
 -------------------------
-Fluids targets Python 3.6 and up as well as PyPy3. Additionally, fluids has been tested by the author to load in IronPython, Jython, and Micropython.
+Fluids targets Python 3.6 and up as well as PyPy3. Additionally, fluids has been tested by the author to load in IronPython, and Micropython.
 
-Unfortunately there is no CI infrastructure for these other Python implementations. For IronPython, Jython, and Micropython there is no NumPy/SciPy which means there is no hope of passing the whole test suite on them either; indeed pytest won't load on any of them.
+Unfortunately there is no CI infrastructure for these other Python implementations. For IronPython, and Micropython there is no NumPy/SciPy which means there is no hope of passing the whole test suite on them either; indeed pytest won't load on any of them.
 If you have a need for a specific feature to work in an implementation, don't hesitate to reach out to the author to discuss it.
 
 It is intended for IronPython to support everything except functionality which has a hard dependency on NumPy or SciPy. IronPython Python 3 variant being most of the way there. This may lead to integration with other programs in the future as IronPython is often used as a scripting language.
 
 Micropython is designed to run on limited RAM, and fluids is too large for most microprocessors. You will likely have to copy/paste the specific parts of `fluids` you want to use for this application.
-
-Jython is not very popular, but please reach out of you are using `fluids` with it.
 
 Packaging
 ---------
@@ -128,7 +126,13 @@ On UNIX/Mac OS/WSL, the notebook results can be regenerated with the following s
 
 .. code-block:: bash
 
-   for i in *.ipynb ; do python3 -m nbconvert --to notebook --inplace --execute "$i" ; done
+   for i in *.ipynb ; do python3 -m nbconvert --to notebook --inplace --ClearMatadataPreprocessor.clear_cell_metadata=True --ClearMetadataPreprocessor.enabled=True  --ClearMetadataPreprocessor.clear_notebook_metadata=True --execute "$i" ; done
+
+Or to do the same on all notebooks in all directories:
+
+.. code-block:: bash
+
+    find . -iname '*.ipynb' -exec python3 -m nbconvert --to notebook --inplace --ClearMatadataPreprocessor.clear_cell_metadata=True --ClearMetadataPreprocessor.enabled=True  --ClearMetadataPreprocessor.clear_notebook_metadata=True --execute {} \;
 
 Continuous Integration
 ----------------------

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021 Caleb Bell
+Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Caleb Bell
 <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -156,7 +156,7 @@ def load_types():
         type_module(m)
 
 
-__version__ = '1.0.22'
+__version__ = '1.0.23'
 
 try:
     fluids_dir = os.path.dirname(__file__)

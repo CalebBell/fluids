@@ -291,7 +291,7 @@ def V_horiz_conical(D, L, a, h, headonly=False):
         M = \left|\frac{R-h}{R}\right|
 
     .. math::
-        Af = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
+        A_f = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
 
     Parameters
     ----------
@@ -354,7 +354,7 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
         V_f = A_fL + \pi a h^2\left(1 - \frac{h}{3R}\right)
 
     .. math::
-        Af = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
+        A_f = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
 
     Parameters
     ----------
@@ -405,7 +405,7 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
         +\frac{2a}{9R}\sqrt{2Rh - h^2}(2h-3R)(h+R)
 
     .. math::
-        Af = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
+        A_f = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
 
     Parameters
     ----------
@@ -480,7 +480,7 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
         ,\;\; h \ne R, D; a \ne 0, R, -R, |a| < 0.01D
 
     .. math::
-        Af = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
+        A_f = R^2\cos^{-1}\frac{R-h}{R} - (R-h)\sqrt{2Rh - h^2}
 
     .. math::
         r = \frac{a^2 + R^2}{2|a|}
@@ -3980,6 +3980,7 @@ def plate_enlargement_factor(amplitude, wavelength):
     .. math::
         \phi = \frac{1}{6}\left(1+\sqrt{1+A^2} + 4\sqrt{1+A^2/2}\right)
 
+    .. math::
         A = \frac{2\pi a}{\lambda}
 
     Most plate heat exchangers approximate a sinusoidal geometry only.
