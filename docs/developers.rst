@@ -128,6 +128,12 @@ On UNIX/Mac OS/WSL, the notebook results can be regenerated with the following s
 
    for i in *.ipynb ; do python3 -m nbconvert --to notebook --inplace --ClearMatadataPreprocessor.clear_cell_metadata=True --ClearMetadataPreprocessor.enabled=True  --ClearMetadataPreprocessor.clear_notebook_metadata=True --execute "$i" ; done
 
+Or to do the same on all notebooks in all directories:
+
+.. code-block:: bash
+
+    find . -iname '*.ipynb' -exec python3 -m nbconvert --to notebook --inplace --ClearMatadataPreprocessor.clear_cell_metadata=True --ClearMetadataPreprocessor.enabled=True  --ClearMetadataPreprocessor.clear_notebook_metadata=True --execute {} \;
+
 Continuous Integration
 ----------------------
 Github Actions, Travis and Appveyor are presently used. They test only code in the `release` branch. Some tests, like those that download data from the internet, are not ran by design on their platforms. The same goes for testing `numba` online - getting an up to date version of numba is challenging.
