@@ -82,7 +82,9 @@ setup(
     classifiers=classifiers,
     package_data={
         'fluids': [
-            'data/*', 'nrlmsise00/*', 'optional/*', 'numerics/*', 'constants/*'
+            'data/*', 'nrlmsise00/*',
+             'optional/*.py', 'optional/*.dat', 'optional/*.f90', 'optional/*.for', 'optional/*.pyf', 'optional/*.bin',
+             'numerics/*', 'constants/*'
         ]
     },
 )
