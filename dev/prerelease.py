@@ -20,7 +20,7 @@ now = datetime.now()
 
 main_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-remove_folders = ('__pycache__', '.mypy_cache', '_build', '.cache')
+remove_folders = ('__pycache__', '.mypy_cache', '_build', '.cache', '.ipynb_checkpoints')
 bad_extensions = ('.pyc', '.nbi', '.nbc')
 
 
