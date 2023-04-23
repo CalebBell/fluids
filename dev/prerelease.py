@@ -1,5 +1,6 @@
 import sys
 import os
+import shutil
 import importlib.util
 
 if sys.version_info.major != 3 and sys.version_info.minor != 11:
@@ -19,14 +20,26 @@ now = datetime.now()
 
 main_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
+remove_folders = ('__pycache__', '.mypy_cache', '_build', '.cache')
+bad_extensions = ('.pyc', '.nbi', '.nbc')
+
 
 paths = [main_dir]
 
 for p in paths:
     for (dirpath, dirnames, filenames) in os.walk(p):
+        for bad_folder in remove_folders:
+            if dirpath.endswith(bad_folder):
+                shutil.rmtree(dirpath)
+                continue
         for filename in filenames:
             full_path = os.path.join(dirpath, filename)
+            if not os.path.exists(full_path):
+                continue
             set_file_modification_time(full_path, now)
+            for bad_extension in bad_extensions:
+                if full_path.endswith(bad_extension):
+                    os.remove(full_path)
 
 
 
