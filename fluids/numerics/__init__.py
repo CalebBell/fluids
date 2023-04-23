@@ -28,11 +28,11 @@ from math import (sin, exp, pi, fabs, copysign, log, isinf, isnan, acos, cos, si
 from cmath import sqrt as csqrt, log as clog
 import sys
 from fluids.numerics.arrays import (solve as py_solve, inv, dot, norm2, inner_product, eye,
-                     array_as_tridiagonals, tridiagonals_as_array,
+                     array_as_tridiagonals, tridiagonals_as_array, transpose,
                      solve_tridiagonal, subset_matrix)
 
 from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
-                                     trunc_exp, trunc_log)
+                                     trunc_exp, trunc_log, cbrt)
 
 from fluids.numerics.polynomial_roots import (roots_quadratic, roots_quartic, roots_cubic_a1, roots_cubic_a2, roots_cubic)
 from fluids.numerics.polynomial_evaluation import (horner, horner_and_der, horner_and_der2,
@@ -119,7 +119,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'exp_horner_stable_ln_tau_and_der2',
            'is_monotonic',
            'sort_nelder_mead_points_numba', 'sort_nelder_mead_points_python', 
-           'bounds_clip_naive', 'nelder_mead',
+           'bounds_clip_naive', 'nelder_mead', 'cbrt',
            ]
 
 from fluids.numerics import doubledouble
@@ -240,6 +240,12 @@ except:
     cacos = py_cacos
     catan = py_catan
     catanh = py_catanh
+    
+try:
+    from math import cbrt
+except:
+    def cbrt(x):
+        return x**(1.0/3.0)
 
 _wraps = None
 def my_wraps():
@@ -2290,8 +2296,7 @@ def ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
 
 def brenth(f, xa, xb, args=(),
             xtol=1e-12, rtol=4.440892098500626e-16, maxiter=100, ytol=None,
-            full_output=False, disp=True, q=False,
-            fa=None, fb=None, kwargs={}):
+            q=False, fa=None, fb=None, kwargs={}):
     xpre = xa
     xcur = xb
     xblk = 0.0
@@ -2729,8 +2734,6 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
     fval1 = None
     fval2 = None
     fval3 = None
-    fder0 = None
-    fder1 = None
     if bisection:
         a, b = None, None
         fa, fb = None, None
@@ -2864,7 +2867,9 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                 p = p0 - halley_step
 
         if bisection and a is not None and b is not None:
-            if (not (a < p < b) and not (b < p < a)):
+            if ((not (a < p < b) and not (b < p < a)) or it > 40):
+                # Arbitrary switch to bisection if we should have converged by now.
+                # A common issue is when the derivative has a small numerical issue around something
 #                if p < 0.0:
 #                    if p < a:
                 # print('bisecting')
@@ -2876,7 +2881,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         if low is not None and p < low:
             hit_low += 1
             if p0 == low and hit_low > max_bound_hits:
-                if abs(fval) < ytol:
+                if ytol is not None and abs(fval) < ytol:
                     return low
                 else:
                     raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
@@ -2885,7 +2890,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         if high is not None and p > high:
             hit_high += 1
             if p0 == high and hit_high > max_bound_hits:
-                if abs(fval) < ytol:
+                if ytol is not None and abs(fval) < ytol:
                     return high
                 else:
                     raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
@@ -2917,7 +2922,6 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         # print([p, p0, p1, p2], [fval, fval0, fval1, fval2], ytol_met, xtol_met)
 
         p0, p1, p2, p3 = p, p0, p1, p2
-        fder0, fder1 = fder, fder0
     raise UnconvergedError("Failed to converge; maxiter (%d) reached, point=%g, error=%g" %(maxiter, p, fval))
 
 def halley(func, x0, args=(), maxiter=100,
@@ -3163,10 +3167,11 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
 
     if xtol is None and (ytol is not None and err0 < ytol):
         return x0, 0
-    else:
-        x = x0
-        if not jac_also:  # numba: delete
-            j = jac(x, *args)  # numba: delete
+
+    
+    x = x0
+    if not jac_also:  # numba: delete
+        j = jac(x, *args)  # numba: delete
     if check_numbers:# numba: delete
         j = check_jacobian(x=x0, j=j, func=f, jac_error_allowed=jac_error_allowed)# numba: delete
     factors = newton_line_search_factors if line_search else newton_line_search_factors_disabled
@@ -3807,11 +3812,19 @@ def max_abs_error(data, calc):
             max_err = diff
     return max_err
 
-def max_abs_rel_error(data, calc):
+def max_abs_rel_error(data, calc, max_val=1000.0):
     max_err = 0.0
     N = len(data)
     for i in range(N):
-        diff = abs((data[i] - calc[i])/data[i])
+        if data[i] == 0.0:
+            if calc[i] == 0.0:
+                diff = 0.0
+            else:
+                diff = max_val
+        else:
+            diff = abs((data[i] - calc[i])/data[i])
+            if diff > max_val:
+                diff = max_val
         if diff > max_err:
             max_err = diff
     return max_err

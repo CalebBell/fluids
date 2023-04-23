@@ -1223,11 +1223,11 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     x1 = x2*x2*x1
 
     if cavitating:
-    	eta_cav = 0.32*eta_turb*sqrt((P1 - P2)/(dPc*xFzp1))*exp(5.0*xFzp1)*sqrt((1.0
+        eta_cav = 0.32*eta_turb*sqrt((P1 - P2)/(dPc*xFzp1))*exp(5.0*xFzp1)*sqrt((1.0
                              - xFzp1)/(1.0 - xF))*(x1)*x0*sqrt(x0)
-    	Wa = (eta_turb+eta_cav)*Wm
+        Wa = (eta_turb+eta_cav)*Wm
     else:
-    	Wa = eta_turb*Wm
+        Wa = eta_turb*Wm
 
     Lpi = 10.0*log10(3.2E9*Wa*rho*c/(Di*Di))
     Stp = 0.036*FL*FL*C*Fd**0.75/(N34*xFzp1*sqrt(xFzp1)*d*d)*(1.0/(P1 - Psat))**0.57

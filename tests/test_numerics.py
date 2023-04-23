@@ -1408,3 +1408,9 @@ def test_trunc_log_numpy():
     assert not np.any(np.isnan(expect))
     assert not np.any(np.isinf(expect))
     assert out_array is calc
+
+def test_transpose():
+    from fluids.numerics import transpose
+    l=[[1,2,3],[4,5,6],[7,8,9]]
+    out = transpose(l)
+    assert_close2d(out, [[1, 4, 7], [2, 5, 8], [3, 6, 9]])

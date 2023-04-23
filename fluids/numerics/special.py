@@ -30,6 +30,11 @@ try:
     from math import log1p
 except:
     log1p = log
+try:
+    from math import cbrt
+except:
+    def cbrt(x):
+        return x**(1.0/3.0)
 
 inf = float("inf")
 
