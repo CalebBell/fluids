@@ -10,6 +10,8 @@
 ### Changed
 - Internal cleanup
 
+### Removed
+- Dropped support for Python before 3.6
 
 ## [0.1.84] - 2020-08-01
 
