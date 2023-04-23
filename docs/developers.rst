@@ -126,7 +126,7 @@ On UNIX/Mac OS/WSL, the notebook results can be regenerated with the following s
 
 .. code-block:: bash
 
-   for i in *.ipynb ; do python3 -m nbconvert --to notebook --inplace --execute "$i" ; done
+   for i in *.ipynb ; do python3 -m nbconvert --to notebook --inplace --ClearMatadataPreprocessor.clear_cell_metadata=True --ClearMetadataPreprocessor.enabled=True  --ClearMetadataPreprocessor.clear_notebook_metadata=True --execute "$i" ; done
 
 Continuous Integration
 ----------------------
