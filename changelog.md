@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [1.0.23] - 2023-04-23
+
+### Added
+- Option to use numba interface without IPython by disabling caching (set the environmental variable NUMBA_FUNCTION_CACHE_SIZE to 0 before loading fluids)
+
+### Changed
+- Internal cleanup
+
+
 ## [0.1.84] - 2020-08-01
 
 ### Added
