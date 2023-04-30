@@ -29,10 +29,7 @@ __all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
 #           'geopy_geolocator', 'geopy_cache', 'SimpleGeolocatorCache',
            'geocode']
 
-try: # pragma: no cover
-    from cStringIO import StringIO
-except: # pragma: no cover
-    from io import BytesIO as StringIO
+from io import BytesIO as StringIO
 from io import open
 import os
 import gzip
@@ -41,21 +38,14 @@ from calendar import isleap
 from collections import namedtuple
 
 import numpy as np
-from fluids.core import F2K
 from fluids.constants import mile, knot, inch
 from scipy.spatial import cKDTree
-from scipy.stats import scoreatpercentile
 
 
-try: # pragma: no cover
-    from urllib.request import urlopen
-    from urllib.error import HTTPError
-except ImportError: # pragma: no cover
-    from urllib2 import urlopen
-    from urllib2 import HTTPError
+from urllib.request import urlopen
 
 try:  # pragma: no cover
-    from appdirs import user_data_dir, user_config_dir
+    from appdirs import user_config_dir
     data_dir = user_config_dir('fluids')
 except ImportError:  # pragma: no cover
     data_dir = ''
@@ -68,11 +58,6 @@ try:  # pragma: no cover
 except ImportError:  # pragma: no cover
     geopy = None
     Location = None
-try:  # pragma: no cover
-    # python 3 compat
-    import cPickle as pickle
-except:  # pragma: no cover
-    import pickle
 
 # Geopy cache/lookup layer, also requires appdirs for caching, can work without
 geolocator = None
