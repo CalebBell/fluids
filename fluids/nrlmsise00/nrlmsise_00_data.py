@@ -38,7 +38,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  * updated releases of this package.
  */
 """
-from __future__ import division
 __all__ = ['pt', 'pd', 'ps', 'pdl', 'ptm', 'pdm', 'ptl', 'pma', 'sam', 'pavgm']
 
 #TEMPERATURE

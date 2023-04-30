@@ -137,7 +137,6 @@ The main sources for these correlations are as follows [100]_ [101]_ [102]_ [103
 
 """
 
-from __future__ import division
 from math import sqrt, cos, sin, tan, atan, pi, radians, degrees, log10, log
 from fluids.constants import deg2rad, rad2deg
 from fluids.friction import (friction_factor, Clamond,

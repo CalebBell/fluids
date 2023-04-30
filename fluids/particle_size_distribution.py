@@ -87,7 +87,6 @@ Point Spacing
 -------------
 .. autofunction:: psd_spacing
 """
-from __future__ import division
 
 __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'PSDLognormal', 'PSDGatesGaudinSchuhman', 'PSDRosinRammler',
@@ -115,7 +114,7 @@ ROOT_TWO_PI = sqrt(2.0*pi)
 NO_MATPLOTLIB_MSG = 'Optional dependency matplotlib is required for plotting'
 
 
-class Sieve(object):
+class Sieve:
     r'''Class for storing data on sieves. If a property is not available, it is
     set to None.
 
@@ -1175,7 +1174,7 @@ _mean_size_iso_docstring =  r'''Calculates the mean particle size according to m
 
 
 
-class ParticleSizeDistributionContinuous(object):
+class ParticleSizeDistributionContinuous:
     r'''Base class representing a continuous particle size distribution
     specified by a mathematical/statistical function. This class holds the
     common methods only.

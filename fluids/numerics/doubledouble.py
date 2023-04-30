@@ -21,7 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from __future__ import division
 from math import sqrt as msqrt, log as mlog
 
 __all__ = ['add_dd', 'mul_noerrors_dd', 'mul_dd', 'div_dd', 'sqrt_dd',

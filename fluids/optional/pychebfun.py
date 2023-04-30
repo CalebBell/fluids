@@ -28,7 +28,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 """
 
-from __future__ import division
 import operator
 from functools import wraps
 import numpy as np
@@ -168,7 +167,7 @@ def cast_scalar(method):
 
 
 
-class Polyfun(object):
+class Polyfun:
     """Construct a Lagrange interpolating polynomial over arbitrary points.
 
     Polyfun objects consist in essence of two components:     1) An interpolant

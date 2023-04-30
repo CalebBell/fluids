@@ -129,7 +129,6 @@ Utilities
 
 """
 
-from __future__ import division
 from math import sqrt, log, log10, exp, cos, sin, tan, pi, radians, isinf
 from fluids.constants import inch, g
 from fluids.numerics import secant, lambertw

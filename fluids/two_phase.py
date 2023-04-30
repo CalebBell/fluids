@@ -70,7 +70,6 @@ Two Phase Flow Regime Correlations
 
 """
 
-from __future__ import division
 __all__ = ['two_phase_dP', 'two_phase_dP_methods', 'two_phase_dP_acceleration',
            'two_phase_dP_dz_acceleration', 'two_phase_dP_gravitational',
            'two_phase_dP_dz_gravitational',

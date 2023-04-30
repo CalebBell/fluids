@@ -40,7 +40,6 @@ Misc Functions
 
 """
 
-from __future__ import division
 from fluids.constants import g
 from math import log, pi, sqrt
 

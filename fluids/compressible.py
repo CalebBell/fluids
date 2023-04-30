@@ -73,7 +73,6 @@ Stagnation Point
 
 """
 
-from __future__ import division
 from math import sqrt, log, pi, exp, isinf
 from fluids.constants import R
 from fluids.numerics import lambertw, brenth, secant

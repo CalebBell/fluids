@@ -37,7 +37,6 @@ Functions
 .. autofunction :: K_Sounders_Brown_theoretical
 """
 
-from __future__ import division
 from math import log, exp, sqrt
 from fluids.constants import g, foot, psi
 from fluids.numerics import splev, implementation_optimize_tck

@@ -50,7 +50,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 
-from __future__ import division
 from math import degrees, sin, cos, tan, radians, atan, asin, atan2, acos
 from fluids.constants import deg2rad, rad2deg
 from fluids.numerics import sincos

@@ -59,7 +59,6 @@ Voidage Correlations
 
 """
 
-from __future__ import division
 from math import exp, pi, sqrt
 
 __all__ = ['dP_packed_bed', 'dP_packed_bed_methods', 'Ergun', 'Kuo_Nydegger', 'Jones_Krier', 'Carman', 'Hicks',

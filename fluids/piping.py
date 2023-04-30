@@ -47,7 +47,6 @@ Pipe Methods
 
 """
 
-from __future__ import division
 from fluids.constants import inch, lb, foot
 from math import sqrt
 __all__ = ['nearest_pipe', 'gauge_from_t', 't_from_gauge', 'wire_schedules',

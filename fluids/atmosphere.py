@@ -95,7 +95,7 @@ def to_int_dP_ATMOSPHERE_1976(Z, dT):
     atm = ATMOSPHERE_1976(Z, dT)
     return atm.g*atm.rho
 
-class ATMOSPHERE_1976(object):
+class ATMOSPHERE_1976:
     r'''US Standard Atmosphere 1976 class, which calculates `T`, `P`,
     `rho`, `v_sonic`, `mu`, `k`, and `g` as a function of altitude above
     sea level. Designed to provide reasonable results up to an elevation
@@ -343,7 +343,7 @@ class ATMOSPHERE_1976(object):
 
 
 
-class ATMOSPHERE_NRLMSISE00(object):
+class ATMOSPHERE_NRLMSISE00:
     r'''NRLMSISE 00 model for calculating temperature and density of gases in
     the atmosphere, from ground level to 1000 km, as a function of time of year,
     longitude and latitude, solar activity and earth's geomagnetic disturbance.

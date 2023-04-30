@@ -56,7 +56,6 @@ Functions and Data
 
 """
 
-from __future__ import division
 from math import log10, pi, sqrt
 from fluids.constants import atm, inch
 from fluids.compressible import is_critical_flow

@@ -46,7 +46,6 @@ Vacuum Air Leakage Estimation
 
 """
 
-from __future__ import division
 from math import log, pi, sqrt, exp
 from fluids.constants import foot_cubed_inv, torr_inv, mmHg_inv, lb, hour_inv, inchHg
 from fluids.numerics import brenth, secant, numpy as np

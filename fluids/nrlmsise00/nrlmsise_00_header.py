@@ -38,7 +38,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  * updated releases of this package.
  */
 """
-from __future__ import division
 __all__ = ['nrlmsise_flags', 'ap_array', 'nrlmsise_input', 'nrlmsise_output']
 
 
@@ -47,7 +46,7 @@ __all__ = ['nrlmsise_flags', 'ap_array', 'nrlmsise_input', 'nrlmsise_output']
 #/* ------------------------------------------------------------------- */
 
 
-class nrlmsise_flags(object):
+class nrlmsise_flags:
     """
  *   Switches: to turn on and off particular variations use these switches.
  *   0 is off, 1 is on, and 2 is main effects off but cross terms on.
@@ -92,7 +91,7 @@ class nrlmsise_flags(object):
         self.swc = [0.0]*24
 
 
-class ap_array(object):
+class ap_array:
     """
  * Array containing the following magnetic values:
  *   0 : daily AP
@@ -109,7 +108,7 @@ class ap_array(object):
         self.a = [0.0]*7
 
 
-class nrlmsise_input(object):
+class nrlmsise_input:
     """
 /*
  *   NOTES ON INPUT VARIABLES:
@@ -152,7 +151,7 @@ class nrlmsise_input(object):
 #/* ------------------------------ OUTPUT ----------------------------- */
 #/* ------------------------------------------------------------------- */
 
-class nrlmsise_output(object):
+class nrlmsise_output:
     """
 /*
  *   OUTPUT VARIABLES:

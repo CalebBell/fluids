@@ -93,7 +93,6 @@ Flow Meter Utilities
 
 """
 
-from __future__ import division
 from math import acos, exp, log, log10, pi, sqrt
 from fluids.core import Froude_densimetric
 from fluids.numerics import bisplev, brenth, implementation_optimize_tck, interp, secant

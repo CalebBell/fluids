@@ -21,7 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from __future__ import division
 
 __all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
            'get_closest_station', 'get_station_year_text', 'gsod_day_parser',
@@ -100,7 +99,7 @@ def geopy_cache():
     return simple_geopy_cache
 
 
-class SimpleGeolocatorCache(object):
+class SimpleGeolocatorCache:
     """Very basic on-disk address -> (lat, lon) cache, using Python's sqlite
     database for on-disk persistence.
 
@@ -320,7 +319,7 @@ def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'),
     df.to_csv(dest, sep='\t', index=False, header=False)
 
 
-class IntegratedSurfaceDatabaseStation(object):
+class IntegratedSurfaceDatabaseStation:
     """Class to hold data on a weather station in the Integrated Surface
     Database.
 
@@ -389,7 +388,7 @@ class IntegratedSurfaceDatabaseStation(object):
         self.END = int(END)
 
 
-class StationDataGSOD(object):
+class StationDataGSOD:
     # Holds data, caches and retrieves data
     def __init__(self, station, data_dir_override=None):
         self.data_dir_override = data_dir_override

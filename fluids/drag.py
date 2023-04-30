@@ -63,7 +63,6 @@ Drag Correlations
 .. autofunction:: Song_Xu
 """
 
-from __future__ import division
 from math import sqrt, exp, log, log10, tanh
 from fluids.constants import g
 from fluids.numerics import secant

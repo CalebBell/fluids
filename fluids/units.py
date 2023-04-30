@@ -21,7 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from __future__ import division
 
 __all__ = ['wraps_numpydoc', 'u']
 
@@ -331,7 +330,7 @@ def wraps_numpydoc(ureg, strict=True):
     return decorator
 
 
-class UnitAwareClass(object):
+class UnitAwareClass:
     wrapped = None
     ureg = u
     strict = True

@@ -41,7 +41,6 @@ Correlations
 
 """
 
-from __future__ import division
 from fluids.constants import g, pi
 from math import sqrt
 

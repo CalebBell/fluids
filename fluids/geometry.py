@@ -129,7 +129,6 @@ Pellet Properties
 
 """
 
-from __future__ import division
 from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
                   degrees, sqrt)
 from cmath import sqrt as csqrt
@@ -3031,7 +3030,7 @@ def tank_from_two_specs_err(guess, spec0, spec1, spec0_name, spec1_name,
 #    print(err0, err1, D, L_over_D, h)
     return [err0, err1]
 
-class TANK(object):
+class TANK:
     """Class representing tank volumes and levels. All parameters are also
     attributes.
 
@@ -3772,7 +3771,7 @@ class TANK(object):
 
 
 
-class HelicalCoil(object):
+class HelicalCoil:
     r'''Class representing a helical coiled tube, as are found in many heated
     tanks and some small nuclear reactors. All parameters are also attributes.
 
@@ -3994,7 +3993,7 @@ def plate_enlargement_factor(amplitude, wavelength):
     b = 2.*amplitude
     return 2.*float(ellipe(-b*b*pi*pi/(wavelength*wavelength)))/pi
 
-class PlateExchanger(object):
+class PlateExchanger:
     r'''Class representing a plate heat exchanger with sinusoidal ridges.
     All parameters are also attributes.
 
@@ -4155,7 +4154,7 @@ chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength
             self.channels_per_fluid = 0.5*self.channels
 
 
-class RectangularFinExchanger(object):
+class RectangularFinExchanger:
     r'''Class representing a plate-fin heat exchanger with straight rectangular
     fins. All parameters are also attributes.
 
@@ -4331,7 +4330,7 @@ class RectangularOffsetStripFinExchanger(RectangularFinExchanger):
         self.set_overall_geometry()
 
 
-class HyperbolicCoolingTower(object):
+class HyperbolicCoolingTower:
     r'''Class representing the geometry of a hyperbolic cooling tower, as used
     in many industries especially the poewr industry.  All parameters are also
     attributes.
@@ -4512,7 +4511,7 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
         return R*2.0
 
 
-class AirCooledExchanger(object):
+class AirCooledExchanger:
     r'''Class representing the geometry of an air cooled heat exchanger with
     one or more tube bays, fans, or bundles.
     All parameters are also attributes.

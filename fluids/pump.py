@@ -70,7 +70,6 @@ Electrical Utilities
 
 """
 
-from __future__ import division
 from math import log, sqrt
 from fluids.constants import hp
 from fluids.numerics import interp, tck_interp2d_linear, bisplev
@@ -651,7 +650,7 @@ def current_ideal(P, V, phase=3, PF=1):
         return P/(V*PF)
 
 
-class CountryPower(object):
+class CountryPower:
     """Class to hold information on the residential or electrical data of a
     country. Data from Wikipedia, obtained in 2017.
 

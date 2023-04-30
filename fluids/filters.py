@@ -42,7 +42,6 @@ Loss Coefficients for Grills
 
 """
 
-from __future__ import division
 from math import radians, cos
 from fluids.numerics import interp, implementation_optimize_tck, splev
 
