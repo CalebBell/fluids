@@ -1941,7 +1941,7 @@ def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
     vls = m*(1-x)/(rhol*pi/4*D**2)
     first = vgs*(1 + (vls/vgs)**((rhog/rhol)**0.1))
     second = 2.9*sqrt(sqrt((g*D*sigma*(1 + cos(radians(angle)))*(rhol-rhog))/rhol**2))
-    if P is None: 
+    if P is None:
         P = 101325.0
     third = (1.22 + 1.22*sin(radians(angle)))**(101325./P)
     return vgs/(first + second*third)

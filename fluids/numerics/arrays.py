@@ -38,7 +38,7 @@ else:
         IS_PYPY = False
 
 #IS_PYPY = True # for testing
-    
+
 #if not IS_PYPY and not REQUIRE_DEPENDENCIES:
 #    try:
 #        import numpy as np
@@ -87,9 +87,9 @@ def det(matrix):
         return a*(e*i - h*f) - d*(b*i - h*c) + g*(b*f - e*c)
     elif size == 4:
         (a, b, c, d), (e, f, g, h), (i, j, k, l), (m, n, o, p) = matrix
-        return (a*f*k*p - a*f*l*o - a*g*j*p + a*g*l*n + a*h*j*o - a*h*k*n 
-                - b*e*k*p + b*e*l*o + b*g*i*p - b*g*l*m - b*h*i*o + b*h*k*m 
-                + c*e*j*p - c*e*l*n - c*f*i*p + c*f*l*m + c*h*i*n - c*h*j*m 
+        return (a*f*k*p - a*f*l*o - a*g*j*p + a*g*l*n + a*h*j*o - a*h*k*n
+                - b*e*k*p + b*e*l*o + b*g*i*p - b*g*l*m - b*h*i*o + b*h*k*m
+                + c*e*j*p - c*e*l*n - c*f*i*p + c*f*l*m + c*h*i*n - c*h*j*m
                 - d*e*j*o + d*e*k*n + d*f*i*o - d*f*k*m - d*g*i*n + d*g*j*m)
     elif size == 5:
         (a, b, c, d, e), (f, g, h, i, j), (k, l, m, n, o), (p, q, r, s, t), (u, v, w, x, y) = matrix
@@ -172,25 +172,25 @@ def det(matrix):
         x76 = e*h*n
         x77 = e*i*k
         x78 = e*i*l
-        x79 = e*i*m        
-        return (x0*x1 - x0*x24 + x0*x27 + x0*x42 - x0*x45 - x0*x7 - x1*x6 
+        x79 = e*i*m
+        return (x0*x1 - x0*x24 + x0*x27 + x0*x42 - x0*x45 - x0*x7 - x1*x6
                 + x10*x11 - x10*x21 - x10*x44 + x10*x52 + x10*x69 - x10*x74
                 - x11*x20 + x12*x13 + x12*x25 - x12*x3 - x12*x32 - x12*x56
                 + x12*x59 - x13*x2 + x14*x15 + x14*x43 - x14*x48 - x14*x57
-                + x14*x62 - x14*x9 - x15*x8 + x16*x17 - x16*x23 - x16*x58 
+                + x14*x62 - x14*x9 - x15*x8 + x16*x17 - x16*x23 - x16*x58
                 + x16*x65 + x16*x70 - x16*x77 - x17*x22 + x18*x19 + x18*x26
                 - x18*x37 - x18*x5 - x18*x68 + x18*x71 - x19*x4 - x2*x25
-                + x2*x3 + x2*x32 + x2*x56 - x2*x59 + x20*x21 + x20*x44 
+                + x2*x3 + x2*x32 + x2*x56 - x2*x59 + x20*x21 + x20*x44
                 - x20*x52 - x20*x69 + x20*x74 + x22*x23 + x22*x58 - x22*x65
-                - x22*x70 + x22*x77 + x24*x6 - x26*x4 - x27*x6 + x28*x29 
+                - x22*x70 + x22*x77 + x24*x6 - x26*x4 - x27*x6 + x28*x29
                 - x28*x34 - x28*x46 + x28*x49 + x28*x60 - x28*x63 - x29*x33
                 + x30*x31 - x30*x39 - x30*x47 + x30*x53 + x30*x72 - x30*x75
-                - x31*x38 + x33*x34 + x33*x46 - x33*x49 - x33*x60 + x33*x63 
-                + x35*x36 - x35*x41 - x35*x61 + x35*x66 + x35*x73 - x35*x78 
-                - x36*x40 + x37*x4 + x38*x39 + x38*x47 - x38*x53 - x38*x72 
+                - x31*x38 + x33*x34 + x33*x46 - x33*x49 - x33*x60 + x33*x63
+                + x35*x36 - x35*x41 - x35*x61 + x35*x66 + x35*x73 - x35*x78
+                - x36*x40 + x37*x4 + x38*x39 + x38*x47 - x38*x53 - x38*x72
                 + x38*x75 + x4*x5 + x4*x68 - x4*x71 + x40*x41 + x40*x61
-                - x40*x66 - x40*x73 + x40*x78 - x42*x6 - x43*x8 + x45*x6 
-                + x48*x8 + x50*x51 - x50*x55 - x50*x64 + x50*x67 + x50*x76 
+                - x40*x66 - x40*x73 + x40*x78 - x42*x6 - x43*x8 + x45*x6
+                + x48*x8 + x50*x51 - x50*x55 - x50*x64 + x50*x67 + x50*x76
                 - x50*x79 - x51*x54 + x54*x55 + x54*x64 - x54*x67 - x54*x76
                 + x54*x79 + x57*x8 + x6*x7 - x62*x8 + x8*x9)
     else:
@@ -317,10 +317,10 @@ def inv(matrix):
         x48 = d*o
         x49 = d*g
         x50 = j*m
-        x51 = 1.0/(a*j*x38 - b*i*x38 - e*j*x48 + f*i*x48 + p*x15 
-                 + p*x16 + p*x17 - p*x18 - p*x19 - p*x20 + x1*x39 
+        x51 = 1.0/(a*j*x38 - b*i*x38 - e*j*x48 + f*i*x48 + p*x15
+                 + p*x16 + p*x17 - p*x18 - p*x19 - p*x20 + x1*x39
                  - x13*x39 + x36*x37 - x36*x41 - x37*x40 + x40*x41
-                 + x42*x43 - x42*x47 - x43*x46 + x44*x45 - x44*x50 
+                 + x42*x43 - x42*x47 - x43*x46 + x44*x45 - x44*x50
                  - x45*x49 + x46*x47 + x49*x50)
         x52 = x21*x51
         x53 = x35*x52
@@ -346,9 +346,9 @@ def inv(matrix):
 
 
 def shape(value):
-    '''Find and return the shape of an array, whether it is a numpy array or 
+    '''Find and return the shape of an array, whether it is a numpy array or
     a list-of-lists or other combination of iterators.
-    
+
     Parameters
     ----------
     value : various
@@ -358,7 +358,7 @@ def shape(value):
     -------
     shape : tuple(int, dimension)
         Dimensions of array, [-]
-    
+
     Notes
     -----
     It is assumed the shape is consistent - not something like [[1.1, 2.2], [2.4]]
@@ -412,7 +412,7 @@ def eye(N):
         r[i] = 1.0
         mat.append(r)
     return mat
-   
+
 def dot(a, b):
     try:
         ab = [sum([ri*bi for ri, bi in zip(row, b)]) for row in a]
@@ -429,7 +429,7 @@ def inner_product(a, b):
 
 def inplace_LU(A, ipivot, N):
     Np1 = N+1
-    
+
     for j in range(1, Np1):
         for i in range(1, j):
             tot = A[i][j]
@@ -443,13 +443,13 @@ def inplace_LU(A, ipivot, N):
             for k in range(1, j):
                 tot -= A[i][k]*A[k][j]
             A[i][j] = tot
-            
+
             if apiv < abs(A[i][j]):
                 apiv, ipiv = abs(A[i][j]), i
         if apiv == 0:
             raise ValueError("Singular matrix")
         ipivot[j] = ipiv
-        
+
         if ipiv != j:
             for k in range(1, Np1):
                 t = A[ipiv][k]
@@ -460,7 +460,7 @@ def inplace_LU(A, ipivot, N):
         for i in range(j+1, Np1):
             A[i][j] *= Ajjinv
     return None
-                
+
 
 def solve_from_lu(A, pivots, b, N):
     Np1 = N + 1
@@ -472,7 +472,7 @@ def solve_from_lu(A, pivots, b, N):
         for j in range(1, i):
             tot -= A[i][j]*b[j]
         b[i] = tot
-        
+
     for i in range(N, 0, -1):
         tot = b[i]
         for j in range(i+1, Np1):
@@ -482,7 +482,7 @@ def solve_from_lu(A, pivots, b, N):
 
 def solve_LU_decomposition(A, b):
     N = len(b)
-    
+
     A_copy = [[0.0]*(N+1)]
     for row in A:
         # Note- list call is very slow faster to replace with [i for i in row]
@@ -490,7 +490,7 @@ def solve_LU_decomposition(A, b):
 #        r = list(row)
 #        r.insert(0, 0.0)
         A_copy.append(r)
-    
+
     pivots = [0.0]*(N+1)
     inplace_LU(A_copy, pivots, N)
     return solve_from_lu(A_copy, pivots, b, N)[1:]
@@ -506,18 +506,18 @@ def inv_lu(a):
         r.insert(0, 0.0)
         A_copy.append(r)
     a = A_copy
-    
+
     ainv = [[0.0]*N for i in range(N)]
     pivots = [0]*Np1
     inplace_LU(a, pivots, N)
-    
+
     for j in range(N):
         b = [0.0]*N
-        b[j] = 1.0                          
+        b[j] = 1.0
         b = solve_from_lu(a, pivots, b, N)[1:]
-        for i in range(N): 
+        for i in range(N):
             ainv[i][j] = b[i]
-            
+
     return ainv
 
 
@@ -529,7 +529,7 @@ def solve(a, b):
         return np.linalg.solve(a, b).tolist()
     else:
         return dot(inv(a), b)
-    
+
 
 
 def norm2(arr):
@@ -590,7 +590,7 @@ def solve_tridiagonal(a, b, c, d):
         m = a[i]/b[i]
         b[i+1] -= m*c[i]
         d[i+1] -= m*d[i]
-    
+
     b[-1] = d[-1]/b[-1]
     for i in range(N-2, -1, -1):
         b[i] = (d[i] - c[i]*b[i+1])/b[i]

@@ -222,7 +222,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
         raise ValueError('Outside regime ranges')
 
     LV = Vsl*sqrt(sqrt(rhol/(g*sigma)))
-    if angle is None: 
+    if angle is None:
         angle = 0.0
     angle = deg2rad*angle
 
@@ -253,7 +253,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     dP_ele = g*sin(angle)*rhos*L
     dP_fric = ftp*L/D*0.5*rhom*Vm*Vm
     # rhos here is pretty clearly rhos according to Shoham
-    if P is None: 
+    if P is None:
         P = 101325.0
     if not acceleration:
         dP = dP_ele + dP_fric

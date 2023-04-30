@@ -358,25 +358,25 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
 
     .. math::
         P_5 = P_4 + \frac{1}{2}\rho_d V_4^2 - K_d\left(\frac{1}{2}\rho_d V_4^2\right)
-        
-    
+
+
     The mixing chamber loss coefficient should be obtained through the following
     expression, using the mixing chamber exit velocity to obtain the friction
-    factor. 
-    
+    factor.
+
     .. math::
         K_m = \frac{4f_d L}{D}
-    
+
     .. math::
-        K_d = \frac{P_4 - P_5}{0.5 \rho_d V_4^2} = 1 - \left(\frac{A_4}{A_5} 
+        K_d = \frac{P_4 - P_5}{0.5 \rho_d V_4^2} = 1 - \left(\frac{A_4}{A_5}
         \right)^2 - C_{pr}
-        
+
     .. math::
         K_s = \frac{P_2 - P_3}{0.5\rho_s V_3^2} - 1
-        
+
     .. math::
         K_p = \frac{P_1 - P_n}{0.5\rho_p V_n^2} - 1
-        
+
 
     Continuity of the ejector:
 
@@ -561,34 +561,34 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
 
     with np.errstate(all='ignore'):
         from scipy.optimize import fsolve, root
-    
+
         def solve_with_fsolve(var_guesses):
             res = fsolve(obj_err, var_guesses, full_output=True)
             if sum(abs(res[1]['fvec'])) > 1E-7:
                 raise ValueError('Could not solve')
-    
+
             for u, v in zip(unknown_vars, res[0].tolist()):
                 vals[u] = abs(v)
             return vals
-    
+
         try:
             return solve_with_fsolve(var_guesses)
         except:
             pass
-    
+
         # Tying different guesses with fsolve is faster than trying different solvers
         for meth in ['hybr', 'lm', 'broyden1', 'broyden2']: #
             try:
                 res = root(obj_err, var_guesses, method=meth, tol=1E-9)
                 if sum(abs(res['fun'])) > 1E-7:
                     raise ValueError('Could not solve')
-    
+
                 for u, v in zip(unknown_vars, res['x'].tolist()):
                     vals[u] = abs(v)
                 return vals
             except (ValueError, OverflowError):
                 continue
-    
+
         # Just do variations on this until it works
         for _ in range(int(max_variations/8)):
             for idx in [0, 1]:
@@ -614,28 +614,28 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
                     except:
                         pass
         raise ValueError('Could not solve')
-        
-        
+
+
 def vacuum_air_leakage_Ryans_Croll(V, P, P_atm=101325.0):
     r'''Calculates an estimated leakage of air into a vessel using
     a correlation from Ryans and Croll (1981) [1]_ as given in [2]_ and [3]_.
-    
+
     if P < 10 torr:
-        
+
     .. math::
         W = 0.026P^{0.34}V^{0.6}
 
     if P < 100 torr:
-        
+
     .. math::
         W = 0.032P^{0.26}V^{0.6}
-    
+
     else:
-        
+
     .. math::
         W = 0.106V^{0.6}
-        
-        
+
+
     In the above equation, the units are lb/hour, torr (vacuum), and cubic feet;
     they are converted in this function.
 
@@ -668,7 +668,7 @@ def vacuum_air_leakage_Ryans_Croll(V, P, P_atm=101325.0):
     .. [2] Coker, Kayode. Ludwig's Applied Process Design for Chemical and
        Petrochemical Plants. 4 edition. Amsterdam ; Boston: Gulf Professional
        Publishing, 2007.
-    .. [3] Govoni, Patrick. "An Overview of Vacuum System Design" 
+    .. [3] Govoni, Patrick. "An Overview of Vacuum System Design"
        Chemical Engineering Magazine, September 2017.
     '''
     V *= foot_cubed_inv
@@ -692,7 +692,7 @@ def vacuum_air_leakage_Seider(V, P, P_atm=101325.0):
         W = 5 + \left[
         0.0298 + 0.03088\ln P - 0.0005733(\ln P)^2
         \right]V^{0.66}
-        
+
     In the above equation, the units are lb/hour, torr (vacuum), and cubic feet;
     they are converted in this function.
 
@@ -721,7 +721,7 @@ def vacuum_air_leakage_Seider(V, P, P_atm=101325.0):
 
     References
     ----------
-    .. [1] Seider, Warren D., J. D. Seader, and Daniel R. Lewin. 
+    .. [1] Seider, Warren D., J. D. Seader, and Daniel R. Lewin.
        Product and Process Design Principles: Synthesis, Analysis,
        and Evaluation. 2nd edition. New York: Wiley, 2003.
     '''
@@ -738,11 +738,11 @@ def vacuum_air_leakage_HEI2633(V, P, P_atm=101325.0):
     r'''Calculates an estimated leakage of air into a vessel using
     fits to a graph of HEI-2633-00 for air leakage in commercially `tight`
     vessels [1]_.
-    
+
     There are 5 fits, for < 1 mmHg; 1-3 mmHg; 3-20 mmHg, 20-90 mmHg, and
-    90 mmHg to atmospheric. The fits are for `maximum` air leakage. 
-    
-    Actual values may be significantly larger or smaller depending on the 
+    90 mmHg to atmospheric. The fits are for `maximum` air leakage.
+
+    Actual values may be significantly larger or smaller depending on the
     condition of the seals, manufacturing defects, and the application.
 
 
@@ -764,7 +764,7 @@ def vacuum_air_leakage_HEI2633(V, P, P_atm=101325.0):
     -----
     The volume is capped to 10 ft^3 on the low end, but extrapolation past
     the maximum size of 10000 ft^3 is allowed.
-    
+
     It is believed :obj:`vacuum_air_leakage_Seider` was derived from this data,
     so this function should be used in preference to it.
 
@@ -784,7 +784,7 @@ def vacuum_air_leakage_HEI2633(V, P, P_atm=101325.0):
     if V < 10:
         V = 10.0
     logV = log(V)
-    
+
     if P_vacuum <= 1:
         c0, c1 = 0.6667235169997174, -3.71246576520232
     elif P_vacuum <= 3:
@@ -832,7 +832,7 @@ def vacuum_air_leakage_Coker_Worthington(P, P_atm=101325.0, conservative=True):
        Petrochemical Plants. 4 edition. Amsterdam ; Boston: Gulf Professional
        Publishing, 2007.
     '''
-    
+
     P /= inchHg # convert to inch Hg
     P_atm /= inchHg # convert to inch Hg
     P_vacuum = P_atm - P

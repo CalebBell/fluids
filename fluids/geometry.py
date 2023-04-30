@@ -1754,9 +1754,9 @@ def circle_segment_area_inner(h, R, A_expect):
 
 def circle_segment_h_from_A(A, D):
     r'''Calculates the height of a chord of a circle given the area of that
-    circle segment. This is a numerical problem, solving the 
+    circle segment. This is a numerical problem, solving the
     following equation for `h`.
-    
+
     .. math::
         \text{A} = R^2\cos^{-1}\frac{(R - h)}{R} - (R - h)\sqrt{(2Rh - h^2)}
 
@@ -1770,7 +1770,7 @@ def circle_segment_h_from_A(A, D):
     Returns
     -------
     h : float
-        Height measured from bottom of circle to the end of the circle section, 
+        Height measured from bottom of circle to the end of the circle section,
         [m]
 
     Notes
@@ -1789,7 +1789,7 @@ def circle_segment_h_from_A(A, D):
     if A == 0.0:
         return 0.0
     R = 0.5*D
-    return newton(circle_segment_area_inner, x0=0.25*R, fprime=True, high=R, low=0.0, 
+    return newton(circle_segment_area_inner, x0=0.25*R, fprime=True, high=R, low=0.0,
                   args=(R, A), xtol=1e-12, bisection=True)
 
 
@@ -1844,7 +1844,7 @@ def SA_partial_horiz_conical_head(D, a, h):
 def _SA_partial_horiz_spherical_head_to_int(x, R2, a4, c1, c2):
     x2 = x*x
     to_pow = (R2 - x2)/(c2 - a4*x2)
-    if to_pow < 0.0: 
+    if to_pow < 0.0:
         to_pow = 0.0
     num = c1*sqrt(to_pow)
     try:

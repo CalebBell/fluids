@@ -15,7 +15,7 @@ For a full list of contributors to this file, see the `pvlib` repository.
 
 
 The copyright notice (BSD-3 clause) is as follows:
-    
+
 BSD 3-Clause License
 
 Copyright (c) 2013-2018, Sandia National Laboratories and pvlib python Development Team
@@ -66,7 +66,7 @@ def aoi(surface_tilt, surface_azimuth, solar_zenith, solar_azimuth):
 
 def poa_components(aoi, dni, poa_sky_diffuse, poa_ground_diffuse):
     poa_direct = max(dni * cos(radians(aoi)), 0.0)
-    
+
     if poa_sky_diffuse is not None:
         poa_diffuse = poa_sky_diffuse + poa_ground_diffuse
     else:
@@ -91,9 +91,9 @@ def get_sky_diffuse(surface_tilt, surface_azimuth,
                     solar_zenith, solar_azimuth,
                     dni, ghi, dhi, dni_extra=None, airmass=None,
                     model='isotropic',
-                    model_perez='allsitescomposite1990'):    
+                    model_perez='allsitescomposite1990'):
     if model == 'isotropic':
-        return isotropic(surface_tilt, dhi)    
+        return isotropic(surface_tilt, dhi)
     else:
         from pvlib import get_sky_diffuse
         return get_sky_diffuse(surface_tilt, surface_azimuth,
@@ -101,8 +101,8 @@ def get_sky_diffuse(surface_tilt, surface_azimuth,
                     dni, ghi, dhi, dni_extra=dni_extra, airmass=airmass,
                     model=model,
                     model_perez=model_perez)
-        
-        
+
+
 def get_absolute_airmass(airmass_relative, pressure=101325.):
     airmass_absolute = airmass_relative*pressure/101325.
     return airmass_absolute
@@ -179,22 +179,22 @@ def ineichen(apparent_zenith, airmass_absolute, linke_turbidity,
 
     # BncI = "normal beam clear sky radiation"
     b = 0.664 + 0.163/fh1
-    bnci = b * exp(-0.09 * airmass_absolute * (tl - 1))    
+    bnci = b * exp(-0.09 * airmass_absolute * (tl - 1))
     if bnci > 0.0:
         bnci = dni_extra * bnci
     else:
         bnci = 0.0
-        
+
     # "empirical correction" SE 73, 157 & SE 73, 312.
     try:
         bnci_2 = ((1.0 - (0.1 - 0.2*exp(-tl))/(0.1 + 0.882/fh1)) /
                   cos_zenith)
     except:
         bnci_2 = 1e20
-    
+
     multiplier = (bnci_2 if bnci_2 > 0.0 else bnci_2)
     multiplier = 1e20 if multiplier > 1e20 else multiplier
-    
+
     bnci_2 = ghi*multiplier
 
     dni = bnci if bnci < bnci_2 else bnci_2

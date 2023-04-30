@@ -31,7 +31,7 @@ __all__ = ['horner', 'horner_and_der', 'horner_and_der2', 'horner_and_der3',
  'horner_backwards_ln_tau', 'horner_backwards_ln_tau_and_der', 'horner_backwards_ln_tau_and_der2', 'horner_backwards_ln_tau_and_der3',
  'exp_horner_backwards_ln_tau', 'exp_horner_backwards_ln_tau_and_der', 'exp_horner_backwards_ln_tau_and_der2',
  'horner_domain', 'horner_stable', 'horner_stable_and_der', 'horner_stable_and_der2', 'horner_stable_and_der3', 'horner_stable_and_der4',
- 'horner_stable_ln_tau', 'horner_stable_ln_tau_and_der', 
+ 'horner_stable_ln_tau', 'horner_stable_ln_tau_and_der',
 'horner_stable_ln_tau_and_der2', 'horner_stable_ln_tau_and_der3',
 'exp_horner_stable', 'exp_horner_stable_and_der', 'exp_horner_stable_and_der2', 'exp_horner_stable_and_der3',
 'exp_horner_stable_ln_tau', 'exp_horner_stable_ln_tau_and_der', 'exp_horner_stable_ln_tau_and_der2', 'horner_log']
@@ -183,7 +183,7 @@ def horner_backwards_ln_tau_and_der2(T, Tc, coeffs):
     lntau = log(1.0 - T/Tc)
     val, poly_der, poly_der2 = horner_and_der2(coeffs, lntau)
     der = -poly_der/(Tc*(-T/Tc + 1))
-    
+
     der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
     return val, der, der2
 
@@ -195,9 +195,9 @@ def horner_backwards_ln_tau_and_der3(T, Tc, coeffs):
     der = -poly_der/(Tc*(-T/Tc + 1))
     der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
     der3 = (2.0*poly_der - 3.0*poly_der2 + poly_der3)/(Tc**3*(T/Tc - 1)**3)
-    
+
     return val, der, der2, der3
-  
+
 def exp_horner_backwards_ln_tau(T, Tc, coeffs):
     # This formulation has the nice property of being linear-linear when plotted
     # for surface tension
@@ -229,7 +229,7 @@ def exp_horner_backwards_ln_tau_and_der2(T, Tc, coeffs):
     temp = 1.0/(Tc*tau)
     der = -temp*val*poly_val_der
     der2 = (poly_val_der*poly_val_der - poly_val_der + poly_val_der2)*val*(temp*temp)
-    
+
     return val, der, der2
 
 def horner_domain(x, coeffs, xmin, xmax):
@@ -341,7 +341,7 @@ def horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale):
     val, poly_der, poly_der2 = horner_stable_and_der2(lntau, coeffs, offset, scale)
     den = 1.0/(Tc*tau)
     der = -poly_der*den
-    
+
     der2 = (-poly_der + poly_der2)*den*den
     return val, der, der2
 
@@ -355,7 +355,7 @@ def horner_stable_ln_tau_and_der3(T, Tc, coeffs, offset, scale):
     der = -poly_der*den
     der2 = (-poly_der + poly_der2)*den*den
     der3 = -(2.0*poly_der - 3.0*poly_der2 + poly_der3)*den*den*den
-    
+
     return val, der, der2, der3
 
 def exp_horner_stable(x, coeffs, offset, scale):
@@ -406,7 +406,7 @@ def exp_horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale):
     val = exp(poly_val)
     der = -val*poly_val_der/(Tc*tau)
     der2 = (poly_val_der*poly_val_der - poly_val_der + poly_val_der2)*val/(Tc*Tc*(tau*tau))
-    
+
     return val, der, der2
 
 def horner_log(coeffs, log_coeff, x):

@@ -185,11 +185,11 @@ def exp_poly_ln_tau_coeffs3(T, Tc, val, der, der2):
     lntau = log(1 - T/Tc)
     sigma = exp(horner(coeffs, lntau))
     d0 = diff(sigma, T)
-    
+
     Eq0 = Eq(sigma,val)
     Eq1 = Eq(d0, der)
     Eq2 = Eq(diff(d0, T), der2)
-    
+
     # s = solve([Eq0, Eq1], [a, b])
     s = solve([Eq0, Eq1, Eq2], [a, b, c])
     '''

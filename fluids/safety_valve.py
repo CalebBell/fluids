@@ -223,7 +223,7 @@ def API520_F2(k, P1, P2):
 def API520_N(P1):
     r'''Calculates correction due to steam pressure for steam flow for use in
     API 520 relief valve sizing.
-    
+
     For pressures below 10339 kPa, the correction factor is 1.
 
     .. math::
@@ -320,20 +320,20 @@ _KSH_factors_7E = [[1, 0.98, 0.93, 0.88, 0.84, 0.8, 0.77, 0.74, 0.72, 0.7],
 [1, 1, 1, 1, 0.95, 0.85, 0.78, 0.73, 0.69, 0.66],
 [1, 1, 1, 1, 1, 0.82, 0.74, 0.69, 0.65, 0.62]]
 
-_KSH_Pa_10E = [500000.0, 750000.0, 1000000.0, 1250000.0, 1500000.0, 1750000.0, 
+_KSH_Pa_10E = [500000.0, 750000.0, 1000000.0, 1250000.0, 1500000.0, 1750000.0,
                2000000.0, 2250000.0, 2500000.0, 2750000.0, 3000000.0, 3250000.0,
                3500000.0, 3750000.0, 4000000.0, 4250000.0, 4500000.0, 4750000.0,
                5000000.0, 5250000.0, 5500000.0, 5750000.0, 6000000.0, 6250000.0,
-               6500000.0, 6750000.0, 7000000.0, 7250000.0, 7500000.0, 7750000.0, 
+               6500000.0, 6750000.0, 7000000.0, 7250000.0, 7500000.0, 7750000.0,
                8000000.0, 8250000.0, 8500000.0, 8750000.0, 9000000.0, 9250000.0,
-               9500000.0, 9750000.0, 10000000.0, 10250000.0, 10500000.0, 
+               9500000.0, 9750000.0, 10000000.0, 10250000.0, 10500000.0,
                10750000.0, 11000000.0, 11250000.0, 11500000.0, 11750000.0,
-               12000000.0, 12250000.0, 12500000.0, 12750000.0, 13000000.0, 
-               13250000.0, 13500000.0, 14000000.0, 14250000.0, 14500000.0, 
-               14750000.0, 15000000.0, 15250000.0, 15500000.0, 15750000.0, 
-               16000000.0, 16250000.0, 16500000.0, 16750000.0, 17000000.0, 
-               17250000.0, 17500000.0, 17750000.0, 18000000.0, 18250000.0, 
-               18500000.0, 18750000.0, 19000000.0, 19250000.0, 19500000.0, 
+               12000000.0, 12250000.0, 12500000.0, 12750000.0, 13000000.0,
+               13250000.0, 13500000.0, 14000000.0, 14250000.0, 14500000.0,
+               14750000.0, 15000000.0, 15250000.0, 15500000.0, 15750000.0,
+               16000000.0, 16250000.0, 16500000.0, 16750000.0, 17000000.0,
+               17250000.0, 17500000.0, 17750000.0, 18000000.0, 18250000.0,
+               18500000.0, 18750000.0, 19000000.0, 19250000.0, 19500000.0,
                19750000.0, 20000000.0, 20250000.0, 20500000.0, 20750000.0,
                21000000.0, 21250000.0, 21500000.0, 21750000.0, 22000000.0, ]
 
@@ -612,7 +612,7 @@ def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
         Correction due to vapor backpressure [-]
     Kc : float, optional
         Combination correction factor for installation with a rupture disk
-        upstream of the PRV; 1.0 when a rupture disk is not installed, and 
+        upstream of the PRV; 1.0 when a rupture disk is not installed, and
         0.9 if a rupture disk is present and the combination has not been
         certified, []
 
@@ -682,7 +682,7 @@ def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1, edition=TENTH_EDITION):
         Correction due to backpressure, see :obj:`API520_B` [-]
     Kc : float, optional
         Combination correction factor for installation with a rupture disk
-        upstream of the PRV; 1.0 when a rupture disk is not installed, and 
+        upstream of the PRV; 1.0 when a rupture disk is not installed, and
         0.9 if a rupture disk is present and the combination has not been
         certified, []
     edition : str, optional
@@ -708,7 +708,7 @@ def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1, edition=TENTH_EDITION):
     0.001103471242369
 
     Example 4 from the 10th edition of [1]_:
-        
+
     >>> API520_A_steam(m=69615/3600., T=707.0389, P1=12236E3, Kd=0.975, Kb=1, Kc=1, edition='10E')
     0.00128518893191
 
@@ -728,20 +728,20 @@ def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1, edition=TENTH_EDITION):
 def API520_Kv(Re, edition=TENTH_EDITION):
     r'''Calculates correction due to viscosity for liquid flow for use in
     API 520 relief valve sizing.
-    
+
     From the 7th to 9th editions, the formula for this calculation is as
     follows:
-    
+
     .. math::
         K_v = \left(0.9935 + \frac{2.878}{Re^{0.5}} + \frac{342.75}
         {Re^{1.5}}\right)^{-1}
-        
-    Startign in the 10th edition, the formula is 
-    
+
+    Startign in the 10th edition, the formula is
+
     .. math::
         K_v = \left(1 + \frac{170}{Re}\right)^{-0.5}
-        
-    In the 10th edition, the formula is applicable for Re > 80. It is also 
+
+    In the 10th edition, the formula is applicable for Re > 80. It is also
     recommended there that if the viscosity is < 0.1 Pa*s, this correction
     should be set to 1.
 
@@ -764,7 +764,7 @@ def API520_Kv(Re, edition=TENTH_EDITION):
 
     .. math::
         Re = \frac{Q(18800G_1)}{\mu \sqrt{A}}
-        
+
     The constant 18800 is derived as follows, combining multiple unit
     conversions and the formula from diameter from area together. The precise
     value is shown below.
@@ -772,17 +772,17 @@ def API520_Kv(Re, edition=TENTH_EDITION):
     >>> from scipy.constants import *
     >>> liter/minute*1000./(0.001*(milli**2)**0.5)*sqrt(4/pi)
     18806.319451591
-    
+
     Note that 4 formulas are provided in API 520 part 1; two metric and two
     imperial. One pair of formulas uses viscosity in conventional units; the
     other uses it in Saybolt Universal Seconds. A conversion is essentially
     embedded in the the Saybolt Universal Seconds formula. A more precise
-    conversion can be obtained from 
+    conversion can be obtained from
     :obj:`chemicals.viscosity.viscosity_converter`.
-    
+
     In both editions, if the formula is used below the recommended Re range
     and into the very low Re region this correction tends towards 0.
-    
+
     In the 10th edition, the formula tends to 1 exactly as Re increases. In the
     7th edition, the formula can actually produce corrections above 1; this is
     handled by truncating the factor to 1.
@@ -793,14 +793,14 @@ def API520_Kv(Re, edition=TENTH_EDITION):
 
     >>> API520_Kv(100, edition='7E')
     0.615744589
-    
+
     From [2]_ 10E, checked with example 5:
-        
+
     >>> API520_Kv(4525, edition='10E')
     0.9817287137013179
-    
+
     Example in [3]_, using the 7th edition formula:
-        
+
     >>> API520_Kv(2110, edition='7E')
     0.943671807
 
@@ -808,7 +808,7 @@ def API520_Kv(Re, edition=TENTH_EDITION):
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection, 7E
     .. [2] API Standard 520, Part 1 - Sizing and Selection, 10E
-    .. [3] CCPS. Guidelines for Pressure Relief and Effluent Handling Systems. 
+    .. [3] CCPS. Guidelines for Pressure Relief and Effluent Handling Systems.
        2nd edition. New York, NY: Wiley-AIChE, 2017.
     '''
     if edition == SEVENTH_EDITION:
@@ -871,9 +871,9 @@ def API520_W(Pset, Pback):
 
     >>> API520_W(1E6, 3E5) # 22% overpressure
     0.95114718480085
-    
+
     Example 5 from [2]_, set pressure 250 psig and backpressure up to 50 psig:
-        
+
     >>> API520_W(Pset=1825014, Pback=446062)
     0.97242133397677
 
@@ -891,11 +891,11 @@ def API520_W(Pset, Pback):
 
 rho0 = 999.0107539518483
 
-def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0, 
+def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
                Kw=None, Kv=None, edition=TENTH_EDITION, mu=None):
     r'''Calculates required relief valve area for an API 520 valve passing
     a liquid in sub-critical flow.
-    
+
     .. math::
         A = \frac{11.78Q}{K_d K_w K_c K_v}\left(\frac{G_1}{P1 - P2}\right)^{0.5}
 
@@ -919,7 +919,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
         rupture disc as described in [1]_, []
     Kc : float, optional
         Combination correction factor for installation with a rupture disk
-        upstream of the PRV; 1.0 when a rupture disk is not installed, and 
+        upstream of the PRV; 1.0 when a rupture disk is not installed, and
         0.9 if a rupture disk is present and the combination has not been
         certified, []
     Kw : float, optional
@@ -940,37 +940,37 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     Notes
     -----
     Units are interlally kg/hr, kPa, and mm^2 to match [1]_.
-    
-    This expression is essentially a form of the Loss coefficient `K` 
+
+    This expression is essentially a form of the Loss coefficient `K`
     expression, with many factors and unit conversions. The raw expression in
     SI units, with `K` the true loss coefficient, is as follows:
-        
+
     .. math::
         A = \frac{\sqrt{2} m \sqrt{\frac{K}{\rho \left(P_{1} - P_{2}\right)}}}{2}
-    
+
     The constant 11.78 is the result of the following conversions:
-    
+
         * 60000, converting from m^3/s to L/min
         * sqrt(2)/2 as a factor from algebra
         * 1e6 converting from m^2 to mm^2
         * sqrt(1e-3*(rho0)) converting from Pa to kPa and kg/m^3 to specific gravity
-        
+
     The full precise value is (depending on the reference density chosen)
-    
+
     >>> sqrt(1e-3*(999.0107539518483))/60000*sqrt(2)/2*1e6
     11.779282389196
-    
+
     The K value from a relief valve sized with this method can be calculated
     as follows:
-        
+
     .. math::
         K = \frac{2 A^{2} \rho \left(P_{1} - P_{2}\right)}{m^{2}}
-        
-        
-    The K value can also be directly calculated from the coefficients Kd, Kc, 
+
+
+    The K value can also be directly calculated from the coefficients Kd, Kc,
     Kw, and Kv. The calculation is as follows, making use of the correction
     above.
-    
+
     .. math::
         K = \left(\frac{1}{K_d K_w K_c K_v\cdot (11.779282389196/11.78)}\right)^2
 
@@ -978,7 +978,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     --------
     Example 5 in [1]_, 10th edition. The calculation involves numerous steps,
     shown below and ending with a recalculation with a viscosity correction.
-    
+
     >>> Q = 6814*1.6666666666666667e-05 # L/min to m^3/s
     >>> rho = 0.9*999 # specific gravity times density of water kg/m^3
     >>> m = rho*Q # mass flow rate, kg/s
@@ -988,71 +988,71 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     >>> backpressure = 0.2
     >>> mu = 0.388 # viscosity, Pa*s, converted from 2000 Saybolt Universal Seconds
     >>> P2 = backpressure*P_design_g + 101325.0 # backpressure, Pa
-    
+
     Do the first calculation, using the value of Kw=0.97 shown in [1]
-    
+
     >>> A0 = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kw=0.97, Kc=1.0, Kv=1.0)
     >>> A0
     0.0030661356203
-    
+
     This value matches the 3066 mm^2 shown in the example calculation.
-    
+
     Do the same calculation but allow the calculation of `Kw` automatically:
-        
+
     >>> A0 = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kc=1.0, Kv=1.0)
     >>> A0
     0.0030585022573
-    
+
     There is a slight deviation with a more precise `Kw` value.
-    
+
     Compute Reynolds number from this original area
-    
+
     >>> from math import pi
     >>> D = (A0*4/pi)**0.5
     >>> v = Q/A0
     >>> Re = rho*v*D/mu
     >>> Re
     5369.4253339
-    
+
     The reynolds number shown in [1] is 4525; the difference comes from the less
-    precise Saybolt Universal Seconds conversion. 
-    
+    precise Saybolt Universal Seconds conversion.
+
     Compute the viscosity correction:
-    
+
     >>> Kv = API520_Kv(Re, '10E')
     >>> Kv
     0.984535878488
-    
+
     Compute the final area
 
     >>> A = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kc=1.0, Kv=Kv)
     >>> A
     0.003106542203
-    
-    The final answer given in API 520 example 5 is 3122 mm^2, a very similar 
+
+    The final answer given in API 520 example 5 is 3122 mm^2, a very similar
     value despite the small differences.
-    
-    If is also possible to have `Kv` be calculated by this routine 
+
+    If is also possible to have `Kv` be calculated by this routine
     automatically, by setting `Kv` to None and providing the fluid's viscosity.
-    
+
     >>> A = API520_A_l(m=m, rho=rho, P1=P1, P2=P2, overpressure=overpressure, Kd=0.65, Kc=1.0, Kv=None, mu=mu)
     >>> A
     0.003106542203
-    
+
     As described in the note, an overall K value can be calculated for the
     valve
-    
+
     >>> K = 2*A**2*rho*(P1 - P2)/m**2
     >>> K
     2.5825844233354602
-    
-    We can check the calculation 
-    
+
+    We can check the calculation
+
     >>> from fluids.core import dP_from_K
     >>> v = Q/A
     >>> dP_from_K(K=K, rho=rho, V=v), P1-P2
     (1551600.000, 1551600.00)
-    
+
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
@@ -1060,7 +1060,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     G1 = rho/rho0
     Q = m/rho # m^3/s
     Q *= 60000.0 # m^3/s to L/min in the original equation
-    
+
     P_set_guage = (P1 - atm)/(1.0 + overpressure)
     P_set = P_set_guage + atm
     if Kw is None:
@@ -1118,14 +1118,14 @@ def API521_noise_graph(P_ratio):
     return value
 
 def API521_noise(m, P1, P2, c, r):
-    r'''Calculate the the noise coming from a flare tip at a 
+    r'''Calculate the the noise coming from a flare tip at a
     specified distance according to API 521. A graphical technique
     is used to get the noise at 30 m from the tip, and it is then
     adjusted for distance.
-    
+
     .. math::
         L_{30 \text{m}} = L - 10 \log_{10}(0.5 m c^2)
-        
+
     .. math::
         L_p = L_{30 \text{m}} - 20 \log_{10}(r/(30 \text{m}))
 
@@ -1151,11 +1151,11 @@ def API521_noise(m, P1, P2, c, r):
 
     Notes
     -----
-    
+
     Examples
     --------
     Example as shown in [1]_:
-        
+
     >>> API521_noise(m=14.6, P1=330E3, P2=101325, c=353.0, r=30)
     113.6841057
 
@@ -1189,7 +1189,7 @@ def VDI_3732_noise_ground_flare(m):
 
     Notes
     -----
-    
+
     Examples
     --------
     >>> VDI_3732_noise_ground_flare(3.0)
@@ -1197,10 +1197,10 @@ def VDI_3732_noise_ground_flare(m):
 
     References
     ----------
-    .. [1] VDI 3732 - Standard Noise Levels of Technical Sound 
-       Sources - Flares, 1999. 
+    .. [1] VDI 3732 - Standard Noise Levels of Technical Sound
+       Sources - Flares, 1999.
        https://www.vdi.de/en/home/vdi-standards/details/vdi-3732-standard-noise-levels-of-technical-sound-sources-flares.
-    .. [2] AdminFlare Noise Calculator. WKC Group (blog). 
+    .. [2] AdminFlare Noise Calculator. WKC Group (blog).
        https://www.wkcgroup.com/tools-room/flare-noise-calculator/.
 
     '''
@@ -1210,7 +1210,7 @@ def VDI_3732_noise_ground_flare(m):
 def VDI_3732_noise_elevated_flare(m):
     r'''Calculate the the noise at the flare tip of an elevated flare stack
     [1]_, [2]_.
-    
+
     .. math::
         L = 112 + 17\log_{10}\left(\frac{m}{\text{tonne/hour}}\right)
 
@@ -1226,7 +1226,7 @@ def VDI_3732_noise_elevated_flare(m):
 
     Notes
     -----
-    
+
     Examples
     --------
     >>> VDI_3732_noise_elevated_flare(3.0)
@@ -1234,10 +1234,10 @@ def VDI_3732_noise_elevated_flare(m):
 
     References
     ----------
-    .. [1] VDI 3732 - Standard Noise Levels of Technical Sound 
-       Sources - Flares, 1999. 
+    .. [1] VDI 3732 - Standard Noise Levels of Technical Sound
+       Sources - Flares, 1999.
        https://www.vdi.de/en/home/vdi-standards/details/vdi-3732-standard-noise-levels-of-technical-sound-sources-flares.
-    .. [2] AdminFlare Noise Calculator. WKC Group (blog). 
+    .. [2] AdminFlare Noise Calculator. WKC Group (blog).
        https://www.wkcgroup.com/tools-room/flare-noise-calculator/.
     '''
     m *= 360.0

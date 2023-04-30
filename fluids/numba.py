@@ -86,7 +86,7 @@ try:
         ('ellipeinc', float64, float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', 'ellipeinc')),
         ('erf', float64): ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)(get_cython_function_address('scipy.special.cython_special', '__pyx_fuse_1erf')),
     }
-    
+
 
     def select_kernel(name, signature):
         f2 = name_and_types_to_pointer[(name, *signature)]
@@ -113,7 +113,7 @@ def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name='cache-safe'):
     if disable_numba_cache:
         exec(source, gbls, lcs)
         return lcs, gbls
-        
+
     filepath = "<ipython-%s>" % cache_name
     lines = [line + '\n' for line in source.splitlines()]
     linecache.cache[filepath] = (len(source), None, lines, filepath)
@@ -396,7 +396,7 @@ settypes = {set, frozenset}
 def transform_dataypes_module(SUBMOD):
     module_constants_changed_type = {}
     for arr_name in SUBMOD.__dict__:
-        if arr_name in no_conv_data_names: 
+        if arr_name in no_conv_data_names:
             continue
         obj = getattr(SUBMOD, arr_name)
         obj_type = type(obj)
@@ -406,13 +406,13 @@ def transform_dataypes_module(SUBMOD):
             r_type = type(r)
             if r_type in numtypes:
                 arr = np.array(obj)
-                if arr.dtype.char != 'O': 
+                if arr.dtype.char != 'O':
                     module_constants_changed_type[arr_name] = arr
             elif r_type is list and r and type(r[0]) in numtypes:
                 if len(set([len(r) for r in obj])) == 1:
                     # All same size - nice numpy array
                     arr = np.array(obj)
-                    if arr.dtype.char != 'O': 
+                    if arr.dtype.char != 'O':
                         module_constants_changed_type[arr_name] = arr
                 else:
                     # Tuple of different size numpy arrays
@@ -477,7 +477,7 @@ def create_numerics(replaced, vec=False):
     bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck', 'py_solve'])
     bad_names.update(to_set_num)
 
-    solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct', 
+    solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct',
                'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect', 'nelder_mead'] #
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
@@ -527,8 +527,8 @@ def create_numerics(replaced, vec=False):
     replaced['normalize'] = normalize
     for k, v in NUMERICS_SUBMOD.fit_minimization_targets.items():
         NUMERICS_SUBMOD.fit_minimization_targets[k] = replaced[v.__name__]
-    
-    
+
+
     return replaced, NUMERICS_SUBMOD
 
 replaced = {'sum': np.sum, 'cbrt': np.cbrt, 'combinations': combinations, 'np': np}

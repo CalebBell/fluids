@@ -537,10 +537,10 @@ def wrap_numpydoc_obj(obj_to_wrap):
         #     pass
 
         if 'Attributes' in parsed:
-            property_unit_map.update({var:parse_expression_cached(make_dimensionless_units(unit), u) for var, unit in 
+            property_unit_map.update({var:parse_expression_cached(make_dimensionless_units(unit), u) for var, unit in
                                       zip(parsed['Attributes']['vars'], parsed['Attributes']['units'])} )
         if 'Parameters' in parsed:
-            property_unit_map.update({var:parse_expression_cached(make_dimensionless_units(unit), u) for var, unit in 
+            property_unit_map.update({var:parse_expression_cached(make_dimensionless_units(unit), u) for var, unit in
                                       zip(parsed['Parameters']['vars'], parsed['Parameters']['units'])} )
 
     name = obj_to_wrap.__name__

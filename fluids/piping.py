@@ -1031,7 +1031,7 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
 def erosional_velocity(rho, C):
     r'''Calculate the erosional velocity according to the
     API RP 14E equation.
-    
+
     .. math::
         V_e = \frac{C}{\sqrt{\rho_m}}
 
@@ -1050,10 +1050,10 @@ def erosional_velocity(rho, C):
     Notes
     -----
     Some suggested factors in [1]_ are:
-    
+
     With solids, it is suggested the factor be determined from specific
     studies.
-    
+
     For corrosive fluids in continuous service, C=100.
     For corrosive fluids in intermittent service, C=125.
     For non-corrosive fluids in continuous service, C=150-200.
@@ -1065,13 +1065,13 @@ def erosional_velocity(rho, C):
     --------
     >>> erosional_velocity(1000, 100)
     3.8576728004
-    
+
     References
     ----------
-    .. [1] "API RP 14E : Recommended Practice for Design and Installation 
+    .. [1] "API RP 14E : Recommended Practice for Design and Installation
        of Offshore Production Platform Piping Systems." 5E, 2000
-    .. [2] Madani Sani, F., S. Huizinga, K. A. Esaklul, and S. Nesic. "Review of 
-       the API RP 14E Erosional Velocity Equation: Origin, Applications, Misuses, 
+    .. [2] Madani Sani, F., S. Huizinga, K. A. Esaklul, and S. Nesic. "Review of
+       the API RP 14E Erosional Velocity Equation: Origin, Applications, Misuses,
        Limitations and Alternatives." Wear, 22nd International Conference on
        Wear of Materials, 426-427 (April 30, 2019): 620-36.
        https://doi.org/10.1016/j.wear.2019.01.119.

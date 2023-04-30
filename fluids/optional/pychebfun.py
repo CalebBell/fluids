@@ -13,7 +13,7 @@ it has not been released.
 .. moduleauthor :: Gregory Potter <ghpotter@gmail.com>
 
 The copyright notice (BSD-3 clause) is as follows:
-    
+
 Copyright 2017 Olivier Verdier
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -86,16 +86,16 @@ def build_solve_pychebfun(f, goal, domain, N=15, N_max=100, find_roots=2):
         val = f(x)
         cache[x] = val
         return val
-    
+
     fun = build_pychebfun(cached_fun, domain, N=N)
     roots = (fun - goal).roots()
-    
+
     while (len(roots) < find_roots and len(fun._values) < N_max):
         N *= 2
         fun = build_pychebfun(cached_fun, domain, N=N)
         roots = (fun - goal).roots()
         roots = [i for i in roots if domain[0] < i < domain[1]]
-        
+
     return roots, fun
 
 def chebfun_to_poly(coeffs_or_fun, domain=None, text=False):
@@ -124,7 +124,7 @@ def chebfun_to_poly(coeffs_or_fun, domain=None, text=False):
 def cheb_to_poly(coeffs_or_fun, domain=None):
     """Just call horner on the outputs!"""
     from fluids.numerics import horner as horner_poly
-    
+
     if isinstance(coeffs_or_fun, Chebfun):
         coeffs = coeffs_or_fun.coefficients()
         domain = coeffs_or_fun._domain
@@ -153,7 +153,7 @@ def cheb_range_simplifier(low, high, text=False):
     if text:
         return 'chebval(%.20g*(x + %.20g), coeffs)' %(factor, constant)
     return constant, factor
-    
+
 
 
 def cast_scalar(method):
@@ -259,10 +259,10 @@ class Polyfun(object):
                 args['raise_no_convergence'] = False
             else:
                 args['raise_no_convergence'] = True
-    
+
             # Find out the right number of coefficients to keep
             coeffs = self.dichotomy(**args)
-    
+
             return self.from_coeff(coeffs, domain)
 
     @classmethod
@@ -758,29 +758,29 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
     """
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=RuntimeWarning)
-        
-        
+
+
         # Chebyshev coefficients
         if chebcoeff is not None:
             return Chebfun.from_coeff(chebcoeff, domain)
-    
+
         # another instance
         if isinstance(f, Polyfun):
             return Chebfun.from_fun(f)
-    
+
         # callable
         if hasattr(f, '__call__'):
             return Chebfun.from_function(f, domain, N)
-    
+
         # from here on, assume that f is None, or iterable
         if np.isscalar(f):
             f = [f]
-    
+
         try:
             iter(f) # interpolation values provided
         except TypeError:
             pass
         else:
             return Chebfun(f, domain)
-    
+
         raise TypeError('Impossible to initialise the object from an object of type {}'.format(type(f)))

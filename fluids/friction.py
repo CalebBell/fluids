@@ -4251,7 +4251,7 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i, D_i=None):
     length and should be called as part of a segment solver routine.
 
     .. math::
-        - \left(\frac{\Delta P}{\Delta z}\right)_{acc} = 
+        - \left(\frac{\Delta P}{\Delta z}\right)_{acc} =
         0.5\rho_i v_i^2 - 0.5\rho_o v_o^2
 
     Parameters
@@ -4290,10 +4290,10 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i, D_i=None):
 
     Q_i = m/rho_i
     v_i = Q_i/A_i
-    
+
     Q_o = m/rho_o
     v_o = Q_o/A_o
-    
+
     rho_avg = 0.5*(rho_o + rho_i)
 
     return 0.5*rho_avg*(v_o**2 - v_i**2)

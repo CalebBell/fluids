@@ -114,7 +114,7 @@ foot_cubed = foot*foot*foot
 foot_cubed_inv = 1.0/foot_cubed
 yard = 3 * foot
 mile = 1760 * yard
-mil = 0.001*inch 
+mil = 0.001*inch
 pt = point = inch / 72  # typography
 survey_foot = 1200.0 / 3937
 survey_mile = 5280.0 * survey_foot

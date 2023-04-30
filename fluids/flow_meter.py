@@ -1340,18 +1340,18 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
     Notes
     -----
     This formula was determined for the range of P2/P1 >= 0.75.
-    
+
     Mathematically the equation cannot be evaluated at `k` = 1, but if the
     limit of the equation is taken the following equation is obtained and is
     implemented:
-        
-    
+
+
     .. math::
         \epsilon = \sqrt{\frac{- D^{4} P_{1} P_{2}^{2} \log{\left(\frac{P_{2}}
-        {P_{1}} \right)} + Do^{4} P_{1} P_{2}^{2} \log{\left(\frac{P_{2}}{P_{1}} 
+        {P_{1}} \right)} + Do^{4} P_{1} P_{2}^{2} \log{\left(\frac{P_{2}}{P_{1}}
         \right)}}{D^{4} P_{1}^{3} - D^{4} P_{1}^{2} P_{2} - Do^{4} P_{1}
         P_{2}^{2} + Do^{4} P_{2}^{3}}}
-                  
+
     Note also there is a small amount of floating-point error around the range
     of `k` ~1+1e-5 to ~1-1e-5, starting with 1e-7 and increasing to the point
     of giving values larger than 1 or zero in the  `k` ~1+1e-12 to ~1-1e-12
@@ -1390,7 +1390,7 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
         limit_val = (P1*P2**2*(-D**4 + Do**4)*log(P2/P1)/(D**4*P1**3
                     - D**4*P1**2*P2 - Do**4*P1*P2**2 + Do**4*P2**3))
         return sqrt(limit_val)
-    
+
     term1 = k*tau**(2.0/k)/(k - 1.0)
     term2 = (1.0 - beta4)/(1.0 - beta4*tau**(2.0/k))
     if tau == 1.0:
@@ -2847,15 +2847,15 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
     1788.5717754177406
     '''
     if meter_type in _dP_orifice_set:
-        if C is None: 
+        if C is None:
             raise ValueError(_missing_C_msg)
         dP = dP_orifice(D=D, Do=D2, P1=P1, P2=P2, C=C)
     elif meter_type == LONG_RADIUS_NOZZLE:
-        if C is None: 
+        if C is None:
             raise ValueError(_missing_C_msg)
         dP = dP_orifice(D=D, Do=D2, P1=P1, P2=P2, C=C)
     elif meter_type == ISA_1932_NOZZLE:
-        if C is None: 
+        if C is None:
             raise ValueError(_missing_C_msg)
         dP = dP_orifice(D=D, Do=D2, P1=P1, P2=P2, C=C)
     elif meter_type == VENTURI_NOZZLE:

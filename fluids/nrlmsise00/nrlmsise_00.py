@@ -82,7 +82,7 @@ meso_tgn3 = [0.0, 0.0]
 
 #/* LPOLY */
 dfa = 0.0
-plg = [[0.0 for _ in range(9)] for _ in range(4)] 
+plg = [[0.0 for _ in range(9)] for _ in range(4)]
 ctloc = 0.0
 stloc = 0.0
 c2tloc = 0.0
@@ -446,7 +446,7 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
     for k in range(mn):
         xs[k] = zeta(zn3[k],z1) / zgdif
         ys[k] = 1.0 / tn3[k]
-    
+
     yd1=-tgn3[0] / (t1*t1) * zgdif
     yd2=-tgn3[1] / (t2*t2) * zgdif * (pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0))
 
@@ -472,7 +472,7 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
 
         #/* Density at altitude */
         densm_tmp = densm_tmp * (t1 / tz[0]) * exp(-expl)
-    
+
     if (xm==0.0):
         return tz[0]
     else:
@@ -508,7 +508,7 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
 
     #/* geopotential altitude difference from ZLB */
     zg2 = zeta(z, zlb)
-    
+
     #/* Bates temperature */
     tt = tinf - (tinf - tlb) * exp(-s2*zg2)
     ta = tt
@@ -537,7 +537,7 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
         for k in range(mn):
             xs[k] = zeta(zn1[k], z1) / zgdif
             ys[k] = 1.0 / tn1[k]
-        
+
         #/* end node derivatives */
         yd1 = -tgn1[0] / (t1*t1) * zgdif
         yd2 = -tgn1[1] / (t2*t2) * zgdif * pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0)
@@ -612,7 +612,7 @@ def sg0(ex, p, ap):
 
 def globe7(p, Input, flags):
     '''
-/*       CALCULATE G(L) FUNCTION 
+/*       CALCULATE G(L) FUNCTION
  *       Upper Thermosphere Parameters */
 '''
     t = [0]*15  #modified this, there was a for loop that did this
@@ -660,7 +660,7 @@ def globe7(p, Input, flags):
     plg[2][6] =(11.0*c*plg[2][5]-7.0*plg[2][4])/4.0
     plg[2][7] =(13.0*c*plg[2][6]-8.0*plg[2][5])/5.0
     plg[3][3] = 15.0*s2*s
-    plg[3][4] = 105.0*s2*s*c 
+    plg[3][4] = 105.0*s2*s*c
     plg[3][5] =(9.0*c*plg[3][4]-7.*plg[3][3])/2.0
     plg[3][6] =(11.0*c*plg[3][5]-8.*plg[3][4])/3.0
 
@@ -725,7 +725,7 @@ def globe7(p, Input, flags):
         t81 = (p[23]*plg[2][3]+p[35]*plg[2][5])*cd14*flags.swc[5]
         t82 = (p[33]*plg[2][3]+p[36]*plg[2][5])*cd14*flags.swc[5]
         t[7] = f2*((p[5]*plg[2][2]+ p[41]*plg[2][4] + t81)*c2tloc +(p[8]*plg[2][2] + p[42]*plg[2][4] + t82)*s2tloc)
-    
+
 
     #/* TERDIURNAL */
     if (flags.sw[14]):
@@ -751,8 +751,8 @@ def globe7(p, Input, flags):
                         (p[125]*plg[0][1]+p[126]*plg[0][3]+p[127]*plg[0][5])*cd14*flags.swc[5]+ \
                         (p[128]*plg[1][1]+p[129]*plg[1][3]+p[130]*plg[1][5])*flags.swc[7]* \
                                        cos(hr*(tloc-p[131])))
-                    
-            
+
+
     else:
         apd=Input.ap-4.0
         p44=p[43]
@@ -766,8 +766,8 @@ def globe7(p, Input, flags):
              (p[100]*plg[0][1]+p[101]*plg[0][3]+p[102]*plg[0][5])*cd14*flags.swc[5]+
              (p[121]*plg[1][1]+p[122]*plg[1][3]+p[123]*plg[1][5])*flags.swc[7]*
                 cos(hr*(tloc-p[124])))
-            
-    
+
+
 
     if ((flags.sw[10]) and (Input.g_long>-1000.0)):
 
@@ -782,7 +782,7 @@ def globe7(p, Input, flags):
                       +p[106]*plg[1][1]+p[107]*plg[1][3]+p[108]*plg[1][5]\
                       +flags.swc[5]*(p[112]*plg[1][1]+p[113]*plg[1][3]+p[114]*plg[1][5])*cd14)* \
                       sin(dgtr*Input.g_long))
-            
+
 
             #/* ut and mixed ut, longitude */
             if (flags.sw[12]):
@@ -793,7 +793,7 @@ def globe7(p, Input, flags):
                     t[11]+=flags.swc[11]*\
                             (p[76]*plg[2][3]+p[77]*plg[2][5]+p[78]*plg[2][7])*\
                             cos(sr*(Input.sec-p[79])+2.0*dgtr*Input.g_long)*(1.0+p[137]*dfa*flags.swc[1])
-            
+
 
             #/* ut, longitude magnetic activity */
             if (flags.sw[13]):
@@ -808,7 +808,7 @@ def globe7(p, Input, flags):
                                     +apt[0]*flags.swc[12]* \
                                     (p[55]*plg[0][1]+p[56]*plg[0][3]+p[57]*plg[0][5])*\
                                     cos(sr*(Input.sec-p[58]))
-                        
+
                 else:
                     t[12] = apdf*flags.swc[11]*(1.0+p[120]*plg[0][1])*\
                             ((p[60]*plg[1][2]+p[61]*plg[1][4]+p[62]*plg[1][6])*\
@@ -819,9 +819,9 @@ def globe7(p, Input, flags):
                             + apdf*flags.swc[12]* \
                             (p[83]*plg[0][1]+p[84]*plg[0][3]+p[85]*plg[0][5])* \
                             cos(sr*(Input.sec-p[75]))
-                                
-            
-    
+
+
+
 
     #/* parms not used: 82, 89, 99, 139-149 */
     tinf = p[30]
@@ -837,7 +837,7 @@ def globe7(p, Input, flags):
 '''
 def glob7s(p, Input, flags):
     '''
-/*    VERSION OF GLOBE FOR LOWER ATMOSPHERE 10/26/99 
+/*    VERSION OF GLOBE FOR LOWER ATMOSPHERE 10/26/99
  */
  '''
     pset = 2.0
@@ -848,7 +848,7 @@ def glob7s(p, Input, flags):
     #/* confirm parameter set */
     if (p[99]==0): # pragma: no cover
         p[99]=pset
-    
+
     #for j in range(14):    #Already taken care of
     #    t[j]=0.0;
     cd32 = cos(dr*(Input.doy-p[31]))
@@ -882,28 +882,28 @@ def glob7s(p, Input, flags):
     if (flags.sw[7]):
         t71 = p[11]*plg[1][2]*cd14*flags.swc[5]
         t72 = p[12]*plg[1][2]*cd14*flags.swc[5]
-        t[6] = ((p[3]*plg[1][1] + p[4]*plg[1][3] + t71) * ctloc + (p[6]*plg[1][1] + p[7]*plg[1][3] + t72) * stloc) 
-    
+        t[6] = ((p[3]*plg[1][1] + p[4]*plg[1][3] + t71) * ctloc + (p[6]*plg[1][1] + p[7]*plg[1][3] + t72) * stloc)
+
 
     #/* SEMIDIURNAL */
     if (flags.sw[8]):
         t81 = (p[23]*plg[2][3]+p[35]*plg[2][5])*cd14*flags.swc[5]
         t82 = (p[33]*plg[2][3]+p[36]*plg[2][5])*cd14*flags.swc[5]
         t[7] = ((p[5]*plg[2][2] + p[41]*plg[2][4] + t81) * c2tloc + (p[8]*plg[2][2] + p[42]*plg[2][4] + t82) * s2tloc)
-    
+
 
     #/* TERDIURNAL */
     if (flags.sw[14]):
             t[13] = p[39] * plg[3][3] * s3tloc + p[40] * plg[3][3] * c3tloc
-    
+
 
     #/* MAGNETIC ACTIVITY */
     if (flags.sw[9]):
         if (flags.sw[9]==1):
             t[8] = apdf * (p[32] + p[45] * plg[0][2] * flags.swc[2])
-        if (flags.sw[9]==-1):	
+        if (flags.sw[9]==-1):
             t[8]=(p[50]*apt[0] + p[96]*plg[0][2] * apt[0]*flags.swc[2])
-    
+
 
     #/* LONGITUDINAL */
     if ( not((flags.sw[10]==0) or (flags.sw[11]==0) or (Input.g_long<=-1000.0))):
@@ -917,7 +917,7 @@ def glob7s(p, Input, flags):
                     +(p[90]*plg[1][2]+p[91]*plg[1][4]+p[92]*plg[1][6]\
                     +p[77]*plg[1][1]+p[78]*plg[1][3]+p[79]*plg[1][5]\
                     )*sin(dgtr*Input.g_long))
-    
+
     tt=0
     for i in range(14):
         tt+=abs(flags.sw[i+1])*t[i]
@@ -970,7 +970,7 @@ def gtd7(Input, flags, output):
         dm28m = dm28
     output.t[0]=soutput.t[0]
     output.t[1]=soutput.t[1]
-    if (Input.alt>=zn2[0]): 
+    if (Input.alt>=zn2[0]):
         for i in range(9):
             output.d[i]=soutput.d[i]
         return
@@ -999,7 +999,7 @@ def gtd7(Input, flags, output):
         meso_tn3[3]=pma[5][0]*pavgm[5]/(1.0-flags.sw[22]*glob7s(pma[5], Input, flags))
         meso_tn3[4]=pma[6][0]*pavgm[6]/(1.0-flags.sw[22]*glob7s(pma[6], Input, flags))
         meso_tgn3[1]=pma[7][0]*pavgm[7]*(1.0+flags.sw[22]*glob7s(pma[7], Input, flags)) *meso_tn3[4]*meso_tn3[4]/(pow((pma[6][0]*pavgm[6]),2.0))
-    
+
 
     #/* LINEAR TRANSITION TO FULL MIXING BELOW zn2[0] */
 
@@ -1007,7 +1007,7 @@ def gtd7(Input, flags, output):
     if (Input.alt>zmix):
         dmc = 1.0 - (zn2[0]-Input.alt)/(zn2[0] - zmix)
     dz28=soutput.d[2]
-    
+
     #/**** N2 density ****/
     dmr=soutput.d[2] / dm28m - 1.0
     tz = [0.0]
@@ -1127,7 +1127,7 @@ def ghp7(Input, flags, output, press): # pragma: no cover
         diff = pl - log10(p)
         if (sqrt(diff*diff)<test):
             return
-        
+
         xm = output.d[5] / xn / 1.66E-24
         if (flags.sw[0]):
             xm = xm * 1.0E3
@@ -1151,7 +1151,7 @@ def gts7(Input, flags, output):
     '''
 /*     Thermospheric portion of NRLMSISE-00
  *     See GTD7 for more extensive comments
- *     alt > 72.5 km! 
+ *     alt > 72.5 km!
  */
  '''
     zn1 = [120.0, 110.0, 100.0, 90.0, 72.5]
@@ -1197,7 +1197,7 @@ def gts7(Input, flags, output):
         meso_tn1[3]=ptm[7]*ptl[2][0]
         meso_tn1[4]=ptm[4]*ptl[3][0]
         meso_tgn1[1]=ptm[8]*pma[8][0]*meso_tn1[4]*meso_tn1[4]/(pow((ptm[4]*ptl[3][0]),2.0))
-    
+
 
     z0 = zn1[3]
     t0 = meso_tn1[3]
@@ -1224,7 +1224,7 @@ def gts7(Input, flags, output):
     dd=output.d[2]
     #/* Turbopause */
     zh28=pdm[2][2]*zhf
-    zhm28=pdm[2][3]*pdl[1][5] 
+    zhm28=pdm[2][3]*pdl[1][5]
     xmd=28.0-xmm
     #/* Mixed density at Zlb */
     tz = [0]
@@ -1235,7 +1235,7 @@ def gts7(Input, flags, output):
         dm28=densu(z,b28,tinf,tlb,xmm,alpha[2],tz,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1)
         #/*  Net density at Alt */
         output.d[2]=dnet(output.d[2],dm28,zhm28,xmm,28.0)
-    
+
 
 
     #/**** HE DENSITY ****/
@@ -1270,7 +1270,7 @@ def gts7(Input, flags, output):
         hc04=pdm[0][5]*pdl[1][1]
         #/*  Net density corrected at Alt */
         output.d[0]=output.d[0]*ccor(z,rl,hc04,zc04)
-    
+
 
 
     #/**** O DENSITY ****/
@@ -1310,7 +1310,7 @@ def gts7(Input, flags, output):
         rc16=pdm[1][3]*pdl[1][14]
         #/*  Net density corrected at Alt */
         output.d[1]=output.d[1]*ccor(z,rc16,hcc16,zcc16)
-    
+
 
 
     #/**** O2 DENSITY ****/
@@ -1345,7 +1345,7 @@ def gts7(Input, flags, output):
             hc32=pdm[3][5]*pdl[1][7]
             zc32=pdm[3][4]*pdl[1][6]
             output.d[3]=output.d[3]*ccor(z,rl,hc32,zc32)
-        
+
         #/*  Correction for general departure from diffusive equilibrium above Zlb */
         hcc32=pdm[3][7]*pdl[1][22]
         hcc232=pdm[3][7]*pdl[0][22]
@@ -1353,7 +1353,7 @@ def gts7(Input, flags, output):
         rc32=pdm[3][3]*pdl[1][23]*(1.+flags.sw[1]*pdl[0][23]*(Input.f107A-150.))
         #/*  Net density corrected at Alt */
         output.d[3]=output.d[3]*ccor2(z,rc32,hcc32,zcc32,hcc232)
-    
+
 
 
     #/**** AR DENSITY ****/
@@ -1388,7 +1388,7 @@ def gts7(Input, flags, output):
         zc40=pdm[4][4]*pdl[1][8]
         #/*  Net density corrected at Alt */
         output.d[4]=output.d[4]*ccor(z,rl,hc40,zc40)
-      
+
 
 
     #/**** HYDROGEN DENSITY ****/
@@ -1442,7 +1442,7 @@ def gts7(Input, flags, output):
     output.d[7]=densu(z,db14,tinf,tlb,14.,alpha[7],RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1)
     output.t[1] = RandomVariable[0]
     dd=output.d[7]
-    if ((flags.sw[15]) and (z<=altl[7])): 
+    if ((flags.sw[15]) and (z<=altl[7])):
         #/*   Turbopause */
         zh14=pdm[6][2]
         #/*  Mixed density at Zlb */
@@ -1468,7 +1468,7 @@ def gts7(Input, flags, output):
         rc14=pdm[6][3]*pdl[0][5]
         #/*  Net density corrected at Alt */
         output.d[7]=output.d[7]*ccor(z,rc14,hcc14,zcc14)
-    
+
 
 
     #/**** Anomalous OXYGEN DENSITY ****/
