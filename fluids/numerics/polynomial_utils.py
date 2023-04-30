@@ -119,7 +119,6 @@ def quadratic_from_points(x0, x1, x2, f0, f1, f2):
     sln = solve([Eq0, Eq1, Eq2], [a, b, c])
     cse([sln[a], sln[b], sln[c]], optimizations='basic', symbols=utilities.iterables.numbered_symbols(prefix='v'))
     '''
-
     v0 = -x2
     v1 = f0*(v0 + x1)
     v2 = f2*(x0 - x1)

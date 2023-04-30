@@ -1136,7 +1136,6 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
         A string of the function name to use, as in the dictionary
         packed_beds_correlations
     '''
-
     if Method is None:
         Method2 = 'Harrison, Brunner & Hecker' if Dt is not None else 'Erdim, Akgiray & Demir'
     else:

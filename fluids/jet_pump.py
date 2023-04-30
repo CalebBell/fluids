@@ -829,7 +829,6 @@ def vacuum_air_leakage_Coker_Worthington(P, P_atm=101325.0, conservative=True):
        Petrochemical Plants. 4 edition. Amsterdam ; Boston: Gulf Professional
        Publishing, 2007.
     '''
-
     P /= inchHg # convert to inch Hg
     P_atm /= inchHg # convert to inch Hg
     P_vacuum = P_atm - P

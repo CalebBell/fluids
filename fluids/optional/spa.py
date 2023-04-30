@@ -933,7 +933,6 @@ def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
     .. [2] I. Reda and A. Andreas, Corrigendum to Solar position algorithm for
     solar radiation applications. Solar Energy, vol. 81, no. 6, p. 838, 2007.
     """
-
     jd = julian_day(unixtime)
     jde = julian_ephemeris_day(jd, delta_t)
     jc = julian_century(jd)

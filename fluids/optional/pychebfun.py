@@ -218,7 +218,6 @@ class Polyfun:
         kmin, kmax: log2 of number of interpolation points to try
         raise_no_convergence: whether to raise an exception if the dichotomy does not converge
         """
-
         for k in range(kmin, kmax):
             N = pow(2, k)
 
