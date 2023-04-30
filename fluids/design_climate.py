@@ -104,6 +104,7 @@ class SimpleGeolocatorCache:
 
     Offers very reasonable performance compared to online lookups.
     """
+
     def __init__(self, file_name):
         self.connection = conn = sqlite3.connect(file_name)
         cursor = self.connection.cursor()
@@ -360,6 +361,7 @@ class IntegratedSurfaceDatabaseStation:
     END : Ending Period Of Record (YYYYMMDD). There may be reporting gaps
         within the P.O.R.
     """
+
     __slots__ = ['USAF', 'WBAN', 'NAME', 'CTRY', 'ST', 'ICAO', 'LAT', 'LON',
                  'ELEV', 'BEGIN', 'END', 'raw_data', 'parsed_data']
 

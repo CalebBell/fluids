@@ -271,7 +271,8 @@ class Polyfun:
     @classmethod
     def _cutoff(self, coeffs, vscale):
         """Compute cutoff index after which the coefficients are deemed
-        negligible."""
+        negligible.
+        """
         bnd = self._threshold(vscale)
         inds  = np.nonzero(abs(coeffs) >= bnd)
         if len(inds[0]):
@@ -463,6 +464,7 @@ class Chebfun(Polyfun):
 
     This will enable piecewise smooth representations al la Matlab Chebfun v2.0.
     """
+
     # ----------------------------------------------------------------
     # Standard construction class methods.
     # ----------------------------------------------------------------
@@ -494,7 +496,8 @@ class Chebfun(Polyfun):
 
     def sum(self):
         """Evaluate the integral over the given interval using Clenshaw-Curtis
-        quadrature."""
+        quadrature.
+        """
         ak = self.coefficients()
         ak2 = ak[::2]
         n = len(ak2)
@@ -627,7 +630,8 @@ class Chebfun(Polyfun):
     @classmethod
     def interpolator(self, x, values):
         """Returns a polynomial with vector coefficients which interpolates the
-        values at the Chebyshev points x."""
+        values at the Chebyshev points x.
+        """
         # hacking the barycentric interpolator by computing the weights in advance
         from scipy.interpolate import BarycentricInterpolator as Bary
         p = Bary([0.])

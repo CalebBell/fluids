@@ -569,7 +569,8 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
 def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,
                         C1, C2, C3, H):
     """Internal function which calculates the errors of the two Stichlmair
-    objective functions, and their jacobian."""
+    objective functions, and their jacobian.
+    """
     Vg, dP_irr = float(inputs[0]), float(inputs[1])
     dp = 6.0*(1.0 - voidage)/specific_area
     Re = Vg*rhog*dp/mug

@@ -55,7 +55,8 @@ def polyint(coeffs):
     """not quite a copy of numpy's version because this was faster to
     implement.
     Tried out a bunch of optimizations, and this hits a good balance
-    between CPython and pypy speed."""
+    between CPython and pypy speed.
+    """
 #    return ([0.0] + [c/(i+1) for i, c in enumerate(coeffs[::-1])])[::-1]
     N = len(coeffs)
     out = [0.0]*(N+1)
@@ -89,7 +90,8 @@ def polyint_over_x(coeffs):
 
 def polyder(c, m=1):
     """not quite a copy of numpy's version because this was faster to
-    implement."""
+    implement.
+    """
     cnt = m
 
     if cnt == 0:

@@ -457,7 +457,6 @@ def inplace_LU(A, ipivot, N):
         Ajjinv = 1.0/A[j][j]
         for i in range(j+1, Np1):
             A[i][j] *= Ajjinv
-    return None
 
 
 def solve_from_lu(A, pivots, b, N):

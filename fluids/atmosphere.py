@@ -456,6 +456,7 @@ class ATMOSPHERE_NRLMSISE00:
     .. [3] Natalia Papitashvili. "NRLMSISE-00 Atmosphere Model." Accessed
        November 27, 2016. http://ccmc.gsfc.nasa.gov/modelweb/models/nrlmsise00.php.
     '''
+
     components = ['N2', 'O2', 'Ar', 'He', 'O', 'H', 'N']
     atrrs = ['N2_density', 'O2_density', 'Ar_density', 'He_density',
              'O_density', 'H_density', 'N_density']

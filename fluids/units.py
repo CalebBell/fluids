@@ -89,7 +89,8 @@ def get_docstring(f):
 
 def func_args(func):
     """Basic function which returns a tuple of arguments of a function or
-    method."""
+    method.
+    """
     try:
         return tuple(inspect.getfullargspec(func).args)
     except:

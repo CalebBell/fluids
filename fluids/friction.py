@@ -3210,7 +3210,7 @@ def friction_factor_curved_methods(Re, Di, Dc, roughness=0.0,
         `Di` and `Dc`.
     '''
     Re_crit = helical_Re_crit(Di=Di, Dc=Dc, Method='Schmidt')
-    turbulent = False if Re < Re_crit else True
+    turbulent = not Re < Re_crit
     if check_ranges:
         if turbulent:
             return list(curved_friction_turbulent_methods_list)
@@ -3308,7 +3308,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
        Hemisphere Pub. Corp., 1983.
     '''
     Re_crit = helical_Re_crit(Di=Di, Dc=Dc, Method=Rec_method)
-    turbulent = False if Re < Re_crit else True
+    turbulent = not Re < Re_crit
 
     if Method is None:
         Method2 = turbulent_method if turbulent else laminar_method

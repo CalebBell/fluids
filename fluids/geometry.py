@@ -196,7 +196,8 @@ def SA_partial_sphere(D, h):
     References
     ----------
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
-       http://mathworld.wolfram.com/SphericalCap.html.'''
+       http://mathworld.wolfram.com/SphericalCap.html.
+    '''
     r = D*0.5
     a = sqrt(h*(2.*r - h))
     return pi*(a*a + h*h)
@@ -234,7 +235,8 @@ def V_partial_sphere(D, h):
     References
     ----------
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
-       http://mathworld.wolfram.com/SphericalCap.html.'''
+       http://mathworld.wolfram.com/SphericalCap.html.
+    '''
     if h <= 0.0:
         return 0.0
     r = 0.5*D
@@ -319,7 +321,8 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
-       http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+       http://www.webcalc.com.br/blog/Tank_Volume.PDF
+    '''
     if h <= 0.0:
         return 0.0
     R = 0.5*D
@@ -382,7 +385,8 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
-       http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+       http://www.webcalc.com.br/blog/Tank_Volume.PDF
+    '''
     if h <= 0.0:
         return 0.0
     R = 0.5*D
@@ -433,7 +437,8 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
-       http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+       http://www.webcalc.com.br/blog/Tank_Volume.PDF
+    '''
     if h <= 0.0:
         return 0.0
     R = 0.5*D
@@ -520,7 +525,8 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
-       http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+       http://www.webcalc.com.br/blog/Tank_Volume.PDF
+    '''
     if h <= 0.0:
         return 0.0
     R = D/2.
@@ -665,7 +671,8 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
-       http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+       http://www.webcalc.com.br/blog/Tank_Volume.PDF
+    '''
     if h <= 0.0:
         return 0.0
     if f is None or k is None:
@@ -754,7 +761,8 @@ def V_vertical_conical(D, a, h):
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
-       http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+       http://www.webcalc.com.br/blog/Tank_Volume.PDF
+    '''
     if h <= 0.0:
         return 0.0
     if h < a:
@@ -798,7 +806,8 @@ def V_vertical_ellipsoidal(D, a, h):
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
-       http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+       http://www.webcalc.com.br/blog/Tank_Volume.PDF
+    '''
     if h <= 0.0:
         return 0.0
     if h < a:
@@ -842,7 +851,8 @@ def V_vertical_spherical(D, a, h):
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
-       http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+       http://www.webcalc.com.br/blog/Tank_Volume.PDF
+    '''
     if h <= 0.0:
         return 0.0
     if h < a:
@@ -926,7 +936,8 @@ def V_vertical_torispherical(D, f, k, h):
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
-       http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+       http://www.webcalc.com.br/blog/Tank_Volume.PDF
+    '''
     if h <= 0.0:
         return 0.0
     if f is None or k is None:
@@ -1302,7 +1313,8 @@ def SA_conical_head(D, a):
     References
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
-       http://mathworld.wolfram.com/Cone.html.'''
+       http://mathworld.wolfram.com/Cone.html.
+    '''
     return 0.5*pi*D*sqrt(a*a + 0.25*D*D)
 
 
@@ -1334,7 +1346,8 @@ def SA_guppy_head(D, a):
     References
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
-       http://mathworld.wolfram.com/Cone.html.'''
+       http://mathworld.wolfram.com/Cone.html.
+    '''
     return 0.25*pi*D*sqrt(a*a + D*D) + 0.5*pi*D*a
 
 
@@ -2672,7 +2685,8 @@ def a_torispherical(D, f, k):
     References
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
-       http://www.webcalc.com.br/blog/Tank_Volume.PDF'''
+       http://www.webcalc.com.br/blog/Tank_Volume.PDF
+    '''
     alpha = asin((1-2*k)/(2*(f-k)))
     a1 = f*D*(1 - cos(alpha))
     a2 = k*D*cos(alpha)
@@ -3194,6 +3208,7 @@ class TANK:
     >>> TANK(L_over_D=0.469953105701, horizontal=False, sideA='conical', sideB='conical', V=500).L
     4.699531057
     """
+
     table = False
     chebyshev = False
     __full_path__ = __module__  + '.TANK'
@@ -3871,6 +3886,7 @@ class HelicalCoil:
        Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
     '''
+
     def __repr__(self): # pragma : no cover
         s = '<Helical coil, total height={} m, total outer diameter={} m, tube \
 outer diameter={} m, number of turns={}, pitch={} m'.format(self.H_total, self.Do_total, self.Dt, self.N, self.pitch)
@@ -4077,6 +4093,7 @@ class PlateExchanger:
        Part 1: Review and Experimental Database." International Journal of
        Refrigeration 61 (January 2016): 166-84. doi:10.1016/j.ijrefrig.2015.07.010.
     '''
+
     def __repr__(self):  # pragma : no cover
         s = '<Plate heat exchanger, amplitude={:g} m, wavelength={:g} m, \
 chevron_angles={} degrees, area enhancement factor={:g}'.format(self.a, self.wavelength, '/'.join([str(i) for i in self.chevron_angles]), self.plate_enlargement_factor)
@@ -4248,6 +4265,7 @@ class RectangularFinExchanger:
        Renewable and Sustainable Energy Reviews 14, no. 1 (January 2010):
        478-85. doi:10.1016/j.rser.2009.06.033.
     '''
+
     def __init__(self, fin_height, fin_thickness, fin_spacing, length=None, width=None, layers=None, plate_thickness=None, flow='crossflow'):
         self.h = self.fin_height = fin_height # including 2x thickness
         self.t = self.fin_thickness = fin_thickness
@@ -4418,6 +4436,7 @@ class HyperbolicCoolingTower:
     .. [2] Ansary, A. M. El, A. A. El Damatty, and A. O. Nassef. Optimum Shape
        and Design of Cooling Towers, 2011.
     '''
+
     def __repr__(self):  # pragma : no cover
         s = """<Hyperbolic cooling tower, inlet diameter=%g m, outlet diameter=%g m, inlet height=%g m, \
 outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m>"""
@@ -4737,6 +4756,7 @@ class AirCooledExchanger:
        Transfer. Heat Exchanger Design Handbook. Washington:
        Hemisphere Pub. Corp., 1983.
     '''
+
     def __repr__(self):
         s = '<Air Cooler Geometry, %s>'
         t = ''

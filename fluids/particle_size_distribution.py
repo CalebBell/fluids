@@ -164,6 +164,7 @@ class Sieve:
         Permissible maximum wire diameter of specified sieve size, [m]
 
     '''
+
     __slots__ = ('designation', 'old_designation', 'opening', 'opening_inch',
                  'Y_variation_avg', 'X_variation_max', 'max_opening',
                  'calibration_samples', 'compliance_sd', 'inspection_samples',
@@ -1196,6 +1197,7 @@ class ParticleSizeDistributionContinuous:
        Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and
        Moments from Particle Size Distributions.
     '''
+
     def _pdf_basis_integral_definite(self, d_min, d_max, n):
         # Needed as an api for numerical integrals
         return (self._pdf_basis_integral(d=d_max, n=n)
@@ -1776,6 +1778,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
        Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and
        Moments from Particle Size Distributions.
     '''
+
     def __repr__(self):
         txt = '<Particle Size Distribution, points=%d, D[3, 3]=%f m>'
         return txt %(self.N, self.mean_size(p=3, q=3))

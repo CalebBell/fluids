@@ -84,6 +84,7 @@ class nrlmsise_flags:
     *   22 - all TN3 var
     *   23 - turbo scale height var
     """
+
     def __init__(self):
         self.switches = [0.0]*24
         self.sw = [0.0]*24
@@ -103,6 +104,7 @@ class ap_array:
     *   6 : Average of eight 3 hr AP indices from 36 to 57 hrs
     *           prior to current time
     """
+
     def __init__(self):
         self.a = [0.0]*7
 
@@ -130,6 +132,7 @@ class nrlmsise_input:
     *      150., 150., and 4. respectively.
     */
     """
+
     def __init__(self, year=0, doy=0, sec=0.0, alt=0.0, g_lat=0.0, g_long=0.0,
                  lst=0.0, f107A=0.0, f107=0.0, ap=0.0, ap_a=None):
         self.year = year #/* year, currently ignored */
@@ -186,6 +189,7 @@ class nrlmsise_output:
     *        in this model, INCLUDING anomalous oxygen.
     */
     """
+
     def __init__(self):
         self.d = [0.0]*9 #/* densities */
         self.t = [0.0]*2 #/* temperatures */

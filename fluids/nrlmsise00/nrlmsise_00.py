@@ -115,7 +115,6 @@ def tselec(flags):
         else:
             flags.sw[i]=flags.switches[i]
             flags.swc[i]=flags.switches[i]
-    return
 
 
 """
@@ -130,7 +129,6 @@ def glatf(lat, gv, reff):
     #Need to return these since the c program wants pointers to these
     gv[0] = 980.616 * (1.0 - 0.0026373 * c2)
     reff[0] = 2.0 * (gv[0]) / (3.085462E-6 + 2.27E-9 * c2) * 1.0E-5 #The may-be troubled line
-    return #gv, rref
 
 """
 /* ------------------------------------------------------------------- */
@@ -265,7 +263,6 @@ def splini(xa, ya, y2a, n, x, y):
         klo += 1
         khi += 1
     y[0] = yi
-    return #yi
 
 
 """
@@ -298,7 +295,6 @@ def splint(xa, ya, y2a, n, x, y):
     b = (x - xa[klo])/h
     yi = a * ya[klo] + b * ya[khi] + ((a*a*a - a) * y2a[klo] + (b*b*b - b) * y2a[khi]) * h * h/6.0
     y[0] = yi #may not need this
-    return #yi #or this
 
 
 """
@@ -352,7 +348,6 @@ def spline(x, y, n, yp1, ypn, y2):
     #for k in range(n-2, -1, -1):
     #    y2[k] = y2[k] * y2[k+1] + u[k]
     #no need to free u here
-    return
 
 
 """
@@ -1064,7 +1059,6 @@ def gtd7d(Input, flags, output): # pragma: no cover
     output.d[5] = 1.66E-24 * (4.0 * output.d[0] + 16.0 * output.d[1] + 28.0 * output.d[2] + 32.0 * output.d[3] + 40.0 * output.d[4] + output.d[6] + 14.0 * output.d[7] + 16.0 * output.d[8])
     if (flags.sw[0]):
         output.d[5]=output.d[5]/1000
-    return
 
 
 """
@@ -1498,4 +1492,3 @@ def gts7(Input, flags, output):
         for i in range(9):
             output.d[i]=output.d[i]*1.0E6
         output.d[5]=output.d[5]/1000
-    return

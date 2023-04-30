@@ -409,7 +409,8 @@ def exp_horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale):
 
 def horner_log(coeffs, log_coeff, x):
     """Technically possible to save one addition of the last term of coeffs is
-    removed but benchmarks said nothing was saved."""
+    removed but benchmarks said nothing was saved.
+    """
     tot = 0.0
     for c in coeffs:
         tot = tot*x + c
