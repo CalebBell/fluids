@@ -1227,8 +1227,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     import calendar
     from fluids.optional import spa
     from fluids.optional.irradiance import (get_relative_airmass, get_absolute_airmass,
-                                            ineichen, get_relative_airmass,
-                                            get_absolute_airmass, get_total_irradiance)
+                                            ineichen, get_total_irradiance)
 
     moment_timetuple = moment.timetuple()
     moment_arg_dni = (moment_timetuple.tm_yday if

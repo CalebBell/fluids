@@ -222,7 +222,8 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
         raise ValueError('Outside regime ranges')
 
     LV = Vsl*sqrt(sqrt(rhol/(g*sigma)))
-    if angle is None: angle = 0.0
+    if angle is None: 
+        angle = 0.0
     angle = deg2rad*angle
 
     if regime != 1:

@@ -3845,14 +3845,12 @@ concrete_water_conduits = {
     'Used, prefabricated monoliths, cement plaster (wood floated), rough joints':
     (5.0E-4, 1.0E-3, None),
     'Conduits for water, sprayed surface of concrete': (5.0E-4, 1.0E-3, None),
-    'Smoothed air-placed, either sprayed concrete or concrete on more concrete':
-    (None, None, 5.0E-4),
     'Brushed air-placed, either sprayed concrete or concrete on more concrete':
     (None, None, 2.3E-3),
     'Non-smoothed air-placed, either sprayed concrete or concrete on more concrete':
     (3.0E-3, 6.0E-3, None),
     'Smoothed air-placed, either sprayed concrete or concrete on more concrete':
-    (6.0E-3, 1.7E-2, None)}
+    (6.0E-3, 1.7E-2, 5.0E-4)}
 
 concrete_reinforced_tubes = {'New': (2.5E-4, 3.4E-4, None),
                              'Nonprocessed': (2.5E-3, None, None)}

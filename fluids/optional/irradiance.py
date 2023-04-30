@@ -47,10 +47,8 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 from __future__ import division
-from math import degrees, sin, cos, radians, radians, exp, isnan
+from math import degrees, sin, cos, acos, radians, exp, isnan
 nan = float("nan")
-
-from math import degrees, acos
 
 
 def aoi_projection(surface_tilt, surface_azimuth, solar_zenith, solar_azimuth):

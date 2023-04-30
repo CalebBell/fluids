@@ -1844,7 +1844,8 @@ def SA_partial_horiz_conical_head(D, a, h):
 def _SA_partial_horiz_spherical_head_to_int(x, R2, a4, c1, c2):
     x2 = x*x
     to_pow = (R2 - x2)/(c2 - a4*x2)
-    if to_pow < 0.0: to_pow = 0.0
+    if to_pow < 0.0: 
+        to_pow = 0.0
     num = c1*sqrt(to_pow)
     try:
         return asin(num)

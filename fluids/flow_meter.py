@@ -2847,13 +2847,16 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
     1788.5717754177406
     '''
     if meter_type in _dP_orifice_set:
-        if C is None: raise ValueError(_missing_C_msg)
+        if C is None: 
+            raise ValueError(_missing_C_msg)
         dP = dP_orifice(D=D, Do=D2, P1=P1, P2=P2, C=C)
     elif meter_type == LONG_RADIUS_NOZZLE:
-        if C is None: raise ValueError(_missing_C_msg)
+        if C is None: 
+            raise ValueError(_missing_C_msg)
         dP = dP_orifice(D=D, Do=D2, P1=P1, P2=P2, C=C)
     elif meter_type == ISA_1932_NOZZLE:
-        if C is None: raise ValueError(_missing_C_msg)
+        if C is None: 
+            raise ValueError(_missing_C_msg)
         dP = dP_orifice(D=D, Do=D2, P1=P1, P2=P2, C=C)
     elif meter_type == VENTURI_NOZZLE:
         raise NotImplementedError("Venturi meter does not have an implemented pressure drop correlation")

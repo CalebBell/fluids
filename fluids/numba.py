@@ -396,7 +396,8 @@ settypes = {set, frozenset}
 def transform_dataypes_module(SUBMOD):
     module_constants_changed_type = {}
     for arr_name in SUBMOD.__dict__:
-        if arr_name in no_conv_data_names: continue
+        if arr_name in no_conv_data_names: 
+            continue
         obj = getattr(SUBMOD, arr_name)
         obj_type = type(obj)
         if obj_type is list and obj:
@@ -405,12 +406,14 @@ def transform_dataypes_module(SUBMOD):
             r_type = type(r)
             if r_type in numtypes:
                 arr = np.array(obj)
-                if arr.dtype.char != 'O': module_constants_changed_type[arr_name] = arr
+                if arr.dtype.char != 'O': 
+                    module_constants_changed_type[arr_name] = arr
             elif r_type is list and r and type(r[0]) in numtypes:
                 if len(set([len(r) for r in obj])) == 1:
                     # All same size - nice numpy array
                     arr = np.array(obj)
-                    if arr.dtype.char != 'O': module_constants_changed_type[arr_name] = arr
+                    if arr.dtype.char != 'O': 
+                        module_constants_changed_type[arr_name] = arr
                 else:
                     # Tuple of different size numpy arrays
                     module_constants_changed_type[arr_name] = tuple([np.array(v) for v in obj])
