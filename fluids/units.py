@@ -468,8 +468,8 @@ def clean_parsed_info(parsed_info):
 def wrap_numpydoc_obj(obj_to_wrap):
     callable_methods = {}
     property_unit_map = {}
-    static_methods = set([])
-    class_methods = set([])
+    static_methods = set()
+    class_methods = set()
     try:
         replace = [('`units`', obj_to_wrap.units)]
     except:
@@ -477,7 +477,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
     other_bases = obj_to_wrap.__mro__[1:-1]
     for prop in dir(obj_to_wrap):
         attr = getattr(obj_to_wrap, prop)
-        if isinstance(attr, types.FunctionType) or isinstance(attr, types.MethodType) or type(attr) == property:
+        if isinstance(attr, (types.FunctionType, types.MethodType)) or type(attr) == property:
             try:
                 if isinstance(obj_to_wrap.__dict__[prop], staticmethod):
                     static_methods.add(prop)

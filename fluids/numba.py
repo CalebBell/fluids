@@ -47,7 +47,7 @@ extra_args_vec = {}
 __all__ = []
 
 __funcs = {}
-no_conv_data_names = set(['__builtins__', 'fmethods'])
+no_conv_data_names = {'__builtins__', 'fmethods'}
 
 try:
     import scipy.special as sc
@@ -290,7 +290,7 @@ numpy_not_list_expr = r'np.full((\4,), \1)'
 match_prange = r'range\( *([a-zA-Z0-9_]+) *\) *: *# * (numba|NUMBA) *: *(prange|PRANGE)'
 sub_prange = r'prange(\1):'
 
-def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_blacklist=set([])):
+def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_blacklist=set()):
     if vec:
         conv_fun = numba.vectorize
         extra_args = extra_args_vec
@@ -428,13 +428,13 @@ def transform_dataypes_module(SUBMOD):
     return module_constants_changed_type
 
 #nopython = set(['Clamond'])
-skip = set([])
-total_skip = set([])
-skip_cache = set(['secant', 'brenth', 'py_solve'])
-bad_names = set(('__file__', '__name__', '__package__', '__cached__', 'solve'))
+skip = set()
+total_skip = set()
+skip_cache = {'secant', 'brenth', 'py_solve'}
+bad_names = {'__file__', '__name__', '__package__', '__cached__', 'solve'}
 
 def create_numerics(replaced, vec=False):
-    cache_unsuported = set(['brenth', 'newton_system', 'quad', 'quad_adaptive', 'fixed_quad_Gauss_Kronrod', 'py_lambertw', 'secant', 'lambertw', 'ridder', 'bisect'])
+    cache_unsuported = {'brenth', 'newton_system', 'quad', 'quad_adaptive', 'fixed_quad_Gauss_Kronrod', 'py_lambertw', 'secant', 'lambertw', 'ridder', 'bisect'}
 #    cache_unsuported = set([])
 #    if vec:
 #        conv_fun = numba.vectorize
@@ -472,7 +472,7 @@ def create_numerics(replaced, vec=False):
 
     NUMERICS_SUBMOD.py_solve = np.linalg.solve
 
-    bad_names = set(['tck_interp2d_linear', 'implementation_optimize_tck', 'py_solve'])
+    bad_names = {'tck_interp2d_linear', 'implementation_optimize_tck', 'py_solve'}
     bad_names.update(to_set_num)
 
     solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct',
@@ -539,7 +539,7 @@ normal = normal_fluids
 
 
 def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([]),
-                     cache_blacklist=set([])):
+                     cache_blacklist=set()):
     new_mods = []
     if vec:
         conv_fun = numba.vectorize
@@ -630,7 +630,7 @@ def transform_module(normal, __funcs, replaced, vec=False, blacklist=frozenset([
 
 
 def transform_complete(replaced, __funcs, __all__, normal, vec=False):
-    cache_blacklist = set(['Stichlmair_flood', 'airmass',
+    cache_blacklist = {'Stichlmair_flood', 'airmass',
    'Spitzglass_high', '_to_solve_Spitzglass_high',
    '_to_solve_Spitzglass_low', 'Spitzglass_low',
    'Oliphant', '_to_solve_Oliphant',
@@ -642,7 +642,7 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
    'SA_partial_horiz_spherical_head', '_SA_partial_horiz_spherical_head_to_int',
    '_SA_partial_horiz_ellipsoidal_head_to_int', '_SA_partial_horiz_ellipsoidal_head_limits', 'SA_partial_horiz_ellipsoidal_head',
    '_SA_partial_horiz_guppy_head_to_int', 'SA_partial_horiz_guppy_head', 'SA_partial_horiz_torispherical_head',
-   'SA_from_h', 'V_tank'])
+   'SA_from_h', 'V_tank'}
 #    cache_blacklist = set([])
     if vec:
         conv_fun = numba.vectorize
@@ -706,10 +706,10 @@ def transform_complete(replaced, __funcs, __all__, normal, vec=False):
 #    PlateExchanger = jitclass(PlateExchanger_spec)(getattr(__funcs['geometry'], 'PlateExchanger'))
 #    __funcs['PlateExchanger'] = __funcs['geometry'].PlateExchanger = PlateExchanger
 
-    HelicalCoil = jitclass(HelicalCoil_spec)(getattr(__funcs['geometry'], 'HelicalCoil'))
+    HelicalCoil = jitclass(HelicalCoil_spec)(__funcs['geometry'].HelicalCoil)
     __funcs['HelicalCoil'] = __funcs['geometry'].HelicalCoil = HelicalCoil
 
-    ATMOSPHERE_1976 = jitclass(ATMOSPHERE_1976_spec)(getattr(__funcs['atmosphere'], 'ATMOSPHERE_1976'))
+    ATMOSPHERE_1976 = jitclass(ATMOSPHERE_1976_spec)(__funcs['atmosphere'].ATMOSPHERE_1976)
     __funcs['ATMOSPHERE_1976'] = __funcs['atmosphere'].ATMOSPHERE_1976 = ATMOSPHERE_1976
 
 

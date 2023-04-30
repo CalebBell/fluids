@@ -3020,7 +3020,7 @@ def Engauge_2d_parser(lines, flat=False):
             working_ys = []
             new_curve = False
         else:
-            x, y = [float(i) for i in line.strip().split(',')]
+            x, y = (float(i) for i in line.strip().split(','))
             working_xs.append(x)
             working_ys.append(y)
     x_lists.append(working_xs)

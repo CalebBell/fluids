@@ -55,7 +55,7 @@ __all__ = []
 
 __funcs = {}
 
-bad_names = set(('__file__', '__name__', '__package__', '__cached__'))
+bad_names = {'__file__', '__name__', '__package__', '__cached__'}
 
 if isinstance(np, FakePackage):
     pass

@@ -1067,9 +1067,9 @@ def sunrise_sunset(moment, latitude, longitude):
     return sunrise, sunset, transit
 
 
-apparent_zenith_airmass_models = set(['simple', 'kasten1966', 'kastenyoung1989',
-                                   'gueymard1993', 'pickering2002'])
-true_zenith_airmass_models = set(['youngirvine1967', 'young1994'])
+apparent_zenith_airmass_models = {'simple', 'kasten1966', 'kastenyoung1989',
+                                   'gueymard1993', 'pickering2002'}
+true_zenith_airmass_models = {'youngirvine1967', 'young1994'}
 
 
 def _get_extra_radiation_shim(datetime_or_doy, solar_constant=1366.1,

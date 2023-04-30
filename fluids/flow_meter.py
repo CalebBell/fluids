@@ -2775,7 +2775,7 @@ def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=
         raise ValueError('Solver is capable of solving for one of P1, P2, D2, or m only.')
 
 # Set of orifice types that get their dP calculated with `dP_orifice`.
-_dP_orifice_set = set([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
+_dP_orifice_set = {ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                   ISO_15377_CONICAL_ORIFICE, ISO_15377_QUARTER_CIRCLE_ORIFICE,
 
                   MILLER_ORIFICE, MILLER_ECCENTRIC_ORIFICE,
@@ -2785,7 +2785,7 @@ _dP_orifice_set = set([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                   HOLLINGSHEAD_ORIFICE,
 
                   CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, CONICAL_ORIFICE,
-                  SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE])
+                  SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE}
 
 _missing_C_msg = "Parameter C is required for this orifice type"
 
