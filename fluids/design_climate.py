@@ -28,7 +28,6 @@ __all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
            'geocode']
 
 from io import BytesIO as StringIO
-from io import open
 import os
 import gzip
 import datetime
