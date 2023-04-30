@@ -112,7 +112,7 @@ def get_relative_airmass(zenith, model='kastenyoung1989'):
     if 'kastenyoung1989' == model:
         try:
             am = (1.0 / (cos(zenith_rad) +
-                  0.50572*(((6.07995 + (90.0 - z))**-1.6364))))
+                  0.50572*((6.07995 + (90.0 - z))**-1.6364)))
         except:
             am = nan
         if isinstance(am, complex):

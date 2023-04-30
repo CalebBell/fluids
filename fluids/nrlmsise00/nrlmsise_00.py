@@ -561,7 +561,7 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
         expl=50.0
 
     #/* density at altitude */
-    densa = dlb * pow((tlb/tt),((1.0+alpha+gamma))) * expl
+    densa = dlb * pow((tlb/tt),(1.0+alpha+gamma)) * expl
     densu_temp=densa
     if (alt>=za):
         return densu_temp

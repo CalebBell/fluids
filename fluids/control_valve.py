@@ -1207,7 +1207,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
 
     if xFz is None:
         xFz = 0.9*1.0/sqrt(1.0 + 3.0*Fd*sqrt(C/(N34*FL)))
-    xFzp1 = xFz*sqrt(sqrt(sqrt((6E5/P1))))
+    xFzp1 = xFz*sqrt(sqrt(sqrt(6E5/P1)))
 
     Dj = N14*Fd*sqrt(C*FL)
 
@@ -1411,7 +1411,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     x_vcc = 1.0 - (2.0/(k + 1.0))**(k/(k - 1.0)) # mostly matches
     xc = FL_term**2*x_vcc
     alpha = (1.0 - x_vcc)/(1.0 - xc)
-    xB = 1.0 - 1.0/alpha*(1.0/k)**((k/(k - 1.0)))
+    xB = 1.0 - 1.0/alpha*(1.0/k)**(k/(k - 1.0))
     xCE = 1.0 - 1.0/(22.0*alpha)
 
     # Regime determination check - should be ordered or won't work

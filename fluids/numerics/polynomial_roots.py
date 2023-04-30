@@ -258,7 +258,7 @@ def roots_cubic(a, b, c, d):
         if T >= 0.0:
             U = (T**(third))
         else:
-            U = -(((-T)**(third)))
+            U = -((-T)**(third))
 
         SU = S + U
         b_3a = b*(third*a_inv)
