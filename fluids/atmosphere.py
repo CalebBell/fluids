@@ -693,7 +693,7 @@ def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
         try:
             from fluids.optional import hwm14
         except:
-            import optional.hwm14
+            from optional import hwm14
     except: # pragma: no cover
         raise ImportError(no_gfortran_error)
     ans = hwm14.hwm14(day, seconds, Z*1e-3, latitude, longitude, 0, 0,
@@ -1223,8 +1223,6 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
        https://doi.org/10.5281/zenodo.1016425.
     '''
     # Atmospheric refraction at sunrise/sunset (0.5667 deg is an often used value)
-    import calendar
-    from fluids.optional import spa
     from fluids.optional.irradiance import (get_relative_airmass, get_absolute_airmass,
                                             ineichen, get_total_irradiance)
 
@@ -1258,7 +1256,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
 
     if linke_turbidity is None:
         try:
-            import pvlib
+            import pvlib # noqa: F401
         except:
             raise ImportError(PVLIB_MISSING_MSG)
         from pvlib.clearsky import lookup_linke_turbidity
