@@ -51,15 +51,12 @@ Wind Models (requires Fortran compiler!)
 .. autofunction:: hwm14
 """
 
-from __future__ import division
-
 from math import sqrt, exp, cos, radians, pi, sin
-import time
 import os
 from fluids.constants import N_A, R, au
 from fluids.numerics import brenth, quad, numpy as np
 try:
-    from datetime import datetime, timedelta
+    from datetime import datetime
 except:
     pass
 
@@ -797,6 +794,7 @@ def earthsun_distance(moment):
 
     Examples
     --------
+    >>> from datetime import datetime, timedelta
     >>> earthsun_distance(datetime(2003, 10, 17, 13, 30, 30))
     149090925951.18338
 
@@ -903,6 +901,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     Examples
     --------
     >>> import pytz
+    >>> from datetime import datetime, timedelta
 
     Perth, Australia - sunrise
 

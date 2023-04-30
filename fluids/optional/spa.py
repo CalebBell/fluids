@@ -988,10 +988,6 @@ def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
 
 try:
     if IS_NUMBA:  # type: ignore
-        try:
-            import numpy as np
-        except:
-            pass
         import numba
         import numpy as np
         import threading
