@@ -316,8 +316,8 @@ entrance_distance_Idelchik_dat = [
 
 entrance_distance_Idelchik_tck = tck_interp2d_linear(entrance_distance_Idelchik_l_Di,
                                                      entrance_distance_Idelchik_t_Di,
-            													entrance_distance_Idelchik_dat,
-													          kx=1, ky=1)
+                                                                entrance_distance_Idelchik_dat,
+                                                              kx=1, ky=1)
 
 entrance_distance_Idelchik_obj = lambda x, y: float(bisplev(x, y, entrance_distance_Idelchik_tck))
 entrance_distance_Idelchik_obj = lambda x, y: bisplev(x, y, entrance_distance_Idelchik_tck)
