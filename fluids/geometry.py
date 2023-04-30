@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell.
 
@@ -4421,8 +4420,8 @@ class HyperbolicCoolingTower:
        and Design of Cooling Towers, 2011.
     '''
     def __repr__(self):  # pragma : no cover
-        s = '''<Hyperbolic cooling tower, inlet diameter=%g m, outlet diameter=%g m, inlet height=%g m, \
-outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m>'''
+        s = """<Hyperbolic cooling tower, inlet diameter=%g m, outlet diameter=%g m, inlet height=%g m, \
+outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m>"""
         s = s%(self.D_inlet, self.D_outlet, self.H_inlet, self.H_outlet, self.D_throat, self.H_throat, self.D_base)
         return s
 

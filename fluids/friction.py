@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -184,11 +183,11 @@ def fuzzy_match(name, strings):
     return fuzzy_match_fun(name, strings)
 
 LAMINAR_TRANSITION_PIPE = 2040.
-'''Believed to be the most accurate result to date. Accurate to +/- 10.
+"""Believed to be the most accurate result to date. Accurate to +/- 10.
 Avila, Kerstin, David Moxey, Alberto de Lozar, Marc Avila, Dwight Barkley, and
 Björn Hof. "The Onset of Turbulence in Pipe Flow." Science 333, no. 6039
 (July 8, 2011): 192-196. doi:10.1126/science.1203223.
-'''
+"""
 
 oregon_Res = [11.21, 20.22, 29.28, 43.19, 57.73, 64.58, 86.05, 113.3, 135.3,
               157.5, 179.4, 206.4, 228.0, 270.9, 315.2, 358.9, 402.9, 450.2,
@@ -210,11 +209,11 @@ oregon_fd_smooth = [5.537, 3.492, 2.329, 1.523, 1.173, 0.9863, 0.7826, 0.5709,
                     0.01462, 0.01365, 0.01313, 0.01244, 0.01198]
 
 oregon_smooth_data = (oregon_Res, oregon_fd_smooth)
-'''Holds a tuple of experimental results from the smooth pipe flow experiments
+"""Holds a tuple of experimental results from the smooth pipe flow experiments
 presented in McKEON, B. J., C. J. SWANSON, M. V. ZAGAROLA, R. J. DONNELLY, and
 A. J. SMITS. "Friction Factors for Smooth Pipe Flow." Journal of Fluid
 Mechanics 511 (July 1, 2004): 41-44. doi:10.1017/S0022112004009796.
-'''
+"""
 
 def friction_laminar(Re):
     r'''Calculates Darcy friction factor for laminar flow, as shown in [1]_ or
@@ -3107,8 +3106,8 @@ curved_friction_transition_methods = {'Seth Stahel': helical_transition_Re_Seth_
                                       'Schmidt': helical_transition_Re_Schmidt,
                                       'Srinivasan': helical_transition_Re_Srinivasan}
 
-_bad_curved_transition_method = '''Invalid method specified for transition Reynolds number;
-valid methods are %s''' % list(curved_friction_transition_methods.keys())
+_bad_curved_transition_method = """Invalid method specified for transition Reynolds number;
+valid methods are %s""" % list(curved_friction_transition_methods.keys())
 
 curved_friction_turbulent_methods_list = ['Schmidt turbulent', 'Mori Nakayama turbulent', 'Prasad', 'Czop', 'Guo', 'Ju', 'Mandel Nigam', 'Srinivasan turbulent']
 curved_friction_laminar_methods_list = ['White', 'Mori Nakayama laminar', 'Schmidt laminar']
@@ -3925,11 +3924,11 @@ _roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
 
 # Create a more friendly data structure
 
-'''Holds a dict of tuples in format (min, max, average) roughness values in
+"""Holds a dict of tuples in format (min, max, average) roughness values in
 meters from the source
 Idelʹchik, I. E, and A. S Ginevskiĭ. Handbook of Hydraulic
 Resistance. Redding, CT: Begell House, 2007.
-'''
+"""
 HHR_roughness = {}
 
 

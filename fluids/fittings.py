@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -1193,9 +1192,9 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
 
     C_roughness = Miller_bend_roughness_correction(Re=Re, Di=Di,
                                                    roughness=roughness)
-    '''Section 9.2.2 - Reynolds Number Correction
+    """Section 9.2.2 - Reynolds Number Correction
     Allow some extrapolation up to 1E8 (1E7 max in graph but the trend looks good)
-    '''
+    """
     Re_C_Re = min(max(Re, 1E4), 1E8)
     if radius_ratio >= 2.0:
         if Re_C_Re == 1E8:
@@ -3090,9 +3089,9 @@ DARBY_VALVES = [DARBY_ANGLE_45DEG_FULL_VALVE, DARBY_ANGLE_90DEG_FULL_VALVE,
 
 ###  3 Darby 3K Method (with valves)
 Darby = {}
-'''Dictionary of coefficients for Darby's 3K fitting pressure drop method;
+"""Dictionary of coefficients for Darby's 3K fitting pressure drop method;
 the tuple contains :math:`K_1` and :math:`K_i` and :math:`K_d` in that order.
-'''
+"""
 Darby['Elbow, 90°, threaded, standard, (r/D = 1)'] = (800.0, 0.14, 4.0)
 Darby['Elbow, 90°, threaded, long radius, (r/D = 1.5)'] = (800.0, 0.071, 4.2)
 Darby['Elbow, 90°, flanged, welded, bends, (r/D = 1)'] = (800.0, 0.091, 4.0)
@@ -3236,9 +3235,9 @@ HOOPER_VALVES = [HOOPER_CHECK_VALVE_TILTING_DISK, HOOPER_CHECK_VALVE_SWING,
                    HOOPER_BALL_REDUCED_TRIM_VALVE, HOOPER_GATE_FULL_LINE_SIZE_VALVE]
 
 Hooper = {}
-r'''Dictionary of coefficients for Hooper's 2K fitting pressure drop method;
+r"""Dictionary of coefficients for Hooper's 2K fitting pressure drop method;
 the tuple contains :math:`K_1` and :math:`K_\infty` in that order.
-'''
+"""
 Hooper['Elbow, 90°, Standard (R/D = 1), Screwed'] = (800.0, 0.4)
 Hooper['Elbow, 90°, Standard (R/D = 1), Flanged/welded'] = (800.0, 0.25)
 Hooper['Elbow, 90°, Long-radius (R/D = 1.5), All types'] = (800.0, 0.2)

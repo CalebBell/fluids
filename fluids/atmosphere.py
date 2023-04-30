@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -64,9 +63,9 @@ __all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
            'earthsun_distance', 'solar_position', 'solar_irradiation',
            'sunrise_sunset']
 
-no_gfortran_error = '''This function uses f2py to encapsulate a fortran \
+no_gfortran_error = """This function uses f2py to encapsulate a fortran \
 routine. However, f2py did not detect one on installation and could not compile \
-this routine. '''
+this routine. """
 
 try:
     # Needed by hwm14

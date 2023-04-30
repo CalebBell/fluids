@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -244,11 +243,11 @@ nema_sizes_hp = [0.25, 0.3333333333333333, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0,
                  5.0, 5.5, 7.5, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0, 60.0,
                  75.0, 100.0, 125.0, 150.0, 175.0, 200.0, 250.0, 300.0, 350.0,
                  400.0, 450.0, 500.0]
-'''list: all NEMA motor sizes in increasing order, in horsepower.
-'''
+"""list: all NEMA motor sizes in increasing order, in horsepower.
+"""
 nema_sizes = [i*hp for i in nema_sizes_hp]
-'''list: all NEMA motor sizes in increasing order, in Watts.
-'''
+"""list: all NEMA motor sizes in increasing order, in Watts.
+"""
 
 
 def motor_round_size(P):
@@ -882,7 +881,7 @@ residential_power = {
     "ca": CountryPower(plugs=('A', 'B'), voltage=120, freq=60, country="Canada"),
     "cr": CountryPower(plugs=('A', 'B'), voltage=120, freq=60, country="Costa Rica")
 }
-'''Dictionary of country-code to CountryPower instances for residential use.'''
+"""Dictionary of country-code to CountryPower instances for residential use."""
 
 CONST_380 = 380
 CONST_400 = 400
@@ -1095,16 +1094,16 @@ industrial_power = {
     "ca": CountryPower(voltage=(120, 208, 240, CONST_480, 347, 600), freq=60, country='Canada'),
     "cr": CountryPower(voltage=TUP_240, freq=60, country='Costa Rica')
 }
-'''Dictionary of country-code to CountryPower instances for industrial use.'''
+"""Dictionary of country-code to CountryPower instances for industrial use."""
 
 electrical_plug_types = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']
-'''List of all electrical plug types in use around the world.'''
+"""List of all electrical plug types in use around the world."""
 voltages_1_phase_residential = [100, 110, 115, 120, 127, 220, 230, 240]
-'''List of all AC 1-phase voltages used in residential settings around the world.'''
+"""List of all AC 1-phase voltages used in residential settings around the world."""
 voltages_3_phase = [120, 190, 200, 208, 220, 230, 240, 277, 380, 400, 415, 440, 480]
-'''List of all AC 3-phase voltages used in industrial settings around the world.'''
+"""List of all AC 3-phase voltages used in industrial settings around the world."""
 residential_power_frequencies = [50, 60]
-'''List of all AC 1-phase frequencies used in residential settings around the world.'''
+"""List of all AC 1-phase frequencies used in residential settings around the world."""
 
 
 # https://www.grainger.com/content/supplylink-v-belt-maintenance-key-to-electric-motor-efficiency
@@ -1185,11 +1184,11 @@ fan_bare_shaft_efficiencies = {'FEG90': FEG90,
                                'FEG53': FEG53,
                                'FEG50': FEG50}
 
-'''for key, values in fan_bare_shaft_efficiencies.items():
+"""for key, values in fan_bare_shaft_efficiencies.items():
     plt.plot(fan_diameters, values, label=key)
 
 plt.legend()
-plt.show()'''
+plt.show()"""
 
 
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Vendorized, partial version of scipy.constants which does not implement the
 full codata formulations.
 

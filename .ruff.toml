@@ -12,7 +12,10 @@ exclude = [
 # ]
 #select = ["ALL"]
 extend-ignore = [
-# Originally from astropy's pyproject.toml, see about removing many of them later
+    "D415", # First docstring line should end with a period, question mark, or exclamation point
+
+    # Originally from astropy's pyproject.toml, see about removing many of them later
+    
     "A00",
     "ANN",
     "ARG001", "ARG002", "ARG003", "ARG004", "ARG005",

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # type: ignore
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018, 2019, 2020, 2021, 2022, 2023 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
@@ -193,13 +192,13 @@ def roots_cubic(a, b, c, d):
        http://www.1728.org/cubic2.htm.
 
     '''
-    '''
+    """
     Notes
     -----
     Known issue is inputs that look like
     1, -0.999999999978168, 1.698247818501352e-11, -8.47396642608142e-17
     Errors grown unbound, starting when b is -.99999 and close to 1.
-    '''
+    """
     if a == 0.0:
         if b == 0.0:
             root = -d/c
@@ -218,9 +217,9 @@ def roots_cubic(a, b, c, d):
     a_inv = 1.0/a
     a_inv2 = a_inv*a_inv
     bb = b*b
-    '''Herbie modifications for f:
+    """Herbie modifications for f:
     c*a_inv - b_a*b_a*third
-    '''
+    """
 
     b_a = b*a_inv
     b_a2 = b_a*b_a
@@ -231,8 +230,8 @@ def roots_cubic(a, b, c, d):
 
     h = (0.25*(g*g) + (f*f*f)*one_27)
 #    print(f, g, h)
-    '''h has no savings on precision - 0.4 error to 0.2.
-    '''
+    """h has no savings on precision - 0.4 error to 0.2.
+    """
 #    print(f, g, h, 'f, g, h')
     if h == 0.0 and g == 0.0 and f == 0.0:
         if d/a >= 0.0:
@@ -278,9 +277,9 @@ def roots_cubic(a, b, c, d):
         t14 = b*b
         t15 = t14*b
 
-        '''This method is inaccurate when choice_term is too small; but still
+        """This method is inaccurate when choice_term is too small; but still
         more accurate than the other method.
-        '''
+        """
         choice_term = -18.0*a*b*c*d + 4.0*a*t10*c + 4.0*t15*d - t14*t10 + 27.0*t2*t3
         if (abs(choice_term) > 1e-12 or abs(b + 1.0) < 1e-7):
 #            print('mine')
@@ -302,8 +301,8 @@ def roots_cubic(a, b, c, d):
             # example is going in here
             i = sqrt(((g*g)*0.25) - h)
             j = i**third # There was a saving for j but it was very weird with if statements!
-            '''Clamied nothing saved for k.
-            '''
+            """Clamied nothing saved for k.
+            """
             k = acos(-0.5*g/i)
 #            L = -j
 

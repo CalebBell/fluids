@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -70,12 +69,12 @@ __all__ = ['API526_A_sq_inch', 'API526_letters', 'API526_A',
 
 API526_A_sq_inch = [0.110, 0.196, 0.307, 0.503, 0.785, 1.287, 1.838, 2.853, 3.60,
              4.34, 6.38, 11.05, 16.00, 26.00] # square inches
-'''list: Nominal relief area in for different valve sizes in API 520, [in^2]'''
+"""list: Nominal relief area in for different valve sizes in API 520, [in^2]"""
 API526_letters = ['D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R','T']
-'''list: Letter size designations for different valve sizes in API 520'''
+"""list: Letter size designations for different valve sizes in API 520"""
 inch2 = inch*inch
 API526_A = [i*inch2 for i in API526_A_sq_inch]
-'''list: Nominal relief area in for different valve sizes in API 520, [m^2]'''
+"""list: Nominal relief area in for different valve sizes in API 520, [m^2]"""
 del inch2
 
 TENTH_EDITION = '10E'

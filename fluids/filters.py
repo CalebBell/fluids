@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -50,26 +49,26 @@ __all__ = ['round_edge_screen', 'round_edge_open_mesh', 'square_edge_screen',
 
 round_Res = [20.0, 30.0, 40.0, 60.0, 80.0, 100.0, 200.0, 400.0]
 round_betas = [1.3, 1.1, 0.95, 0.83, 0.75, 0.7, 0.6, 0.52]
-'''Quadratic interpolation with no smoothing, constant value extremities
-returned when outside table limits'''
+"""Quadratic interpolation with no smoothing, constant value extremities
+returned when outside table limits"""
 
 
 round_thetas = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 85.0]
 round_gammas = [1.0, 0.97, 0.88, 0.75, 0.59, 0.45, 0.3, 0.23, 0.15, 0.09]
-'''Quadratic interpolation with no smoothing, constant value extremities
-returned when outside table limits'''
+"""Quadratic interpolation with no smoothing, constant value extremities
+returned when outside table limits"""
 
-'''Quadratic interpolation with no smoothing, constant value extremities
+"""Quadratic interpolation with no smoothing, constant value extremities
 returned when outside table limits. Last actual value in the original table is
-K=1000 at alpha=0.05; the rest are extrapolated.'''
+K=1000 at alpha=0.05; the rest are extrapolated."""
 square_alphas = [0.0015625, 0.003125, 0.00625, 0.0125, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 1.]
 square_Ks = [1024000., 256000, 64000, 16000, 4000, 1000., 250., 85., 52., 30., 17., 11., 7.7, 5.5, 3.8, 2.8, 2, 1.5, 1.1, 0.78, 0.53, 0.35, 0.08, 0.]
 
 
 grills_rounded_alphas = [0.3, 0.4, 0.5, 0.6, 0.7]
 grills_rounded_Ks = [2.0, 1.0, 0.6, 0.4, 0.2]
-'''Cubic interpolation with no smoothing, constant value extremities
-returned when outside table limits'''
+"""Cubic interpolation with no smoothing, constant value extremities
+returned when outside table limits"""
 grills_rounded_tck = implementation_optimize_tck([[0.3, 0.3, 0.3, 0.45, 0.55, 0.7, 0.7, 0.7],
                                                   [2.0, 1.0014285714285716, 0.5799999999999998,
                                                    0.3585714285714287, 0.2, 0.0, 0.0, 0.0],

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -66,8 +65,8 @@ geolocator_disk_cache_loc = os.path.join(data_dir, geolocator_disk_cache_name)
 
 simple_geopy_cache = None
 
-geopy_missing_msg = '''Geocoder module `geopy` is required for this
-functionality.'''
+geopy_missing_msg = """Geocoder module `geopy` is required for this
+functionality."""
 
 def geopy_geolocator():
     """Lazy loader for geocoder from geopy.
@@ -594,12 +593,12 @@ class StationDataGSOD:
 
 stations = []
 _latlongs = []
-'''Read in the parsed data into
+"""Read in the parsed data into
 1) a list of latitudes and longitudes, temporary, which will get converted to
 a numpy array for use in KDTree
 2) a list of IntegratedSurfaceDatabaseStation objects; the query will return
 the index of the nearest weather stations.
-'''
+"""
 with open(os.path.join(folder, 'isd-history-cleaned.tsv'), encoding='utf-8') as f:
     for line in f:
         values = line.split('\t')

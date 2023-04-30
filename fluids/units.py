@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2017, 2018, 2019, 2020, 2021, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -49,8 +48,8 @@ except ImportError: # pragma: no cover
                       'https://github.com/hgrecco/pint')
 
 
-'''See fluids.units.rst for documentation for this module.
-'''
+"""See fluids.units.rst for documentation for this module.
+"""
 
 try:
     doc_stripped = sys.flags.optimize == 2

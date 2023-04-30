@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -1375,7 +1374,7 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
     beta4 = beta2*beta2
     tau = P2/P1
     if k == 1.0:
-        '''Avoid a zero division error:
+        """Avoid a zero division error:
         from sympy import *
         D, Do, P1, P2, k = symbols('D, Do, P1, P2, k')
         beta = Do/D
@@ -1385,7 +1384,7 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
         term3 = (1 - tau**((k - 1)/k))/(1 - tau)
         val= sqrt(term1*term2*term3)
         print(simplify(limit((term1*term2*term3), k, 1)))
-        '''
+        """
         limit_val = (P1*P2**2*(-D**4 + Do**4)*log(P2/P1)/(D**4*P1**3
                     - D**4*P1**2*P2 - Do**4*P1*P2**2 + Do**4*P2**3))
         return sqrt(limit_val)
@@ -1393,13 +1392,13 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
     term1 = k*tau**(2.0/k)/(k - 1.0)
     term2 = (1.0 - beta4)/(1.0 - beta4*tau**(2.0/k))
     if tau == 1.0:
-        '''Avoid a zero division error.
+        """Avoid a zero division error.
         Obtained with:
             from sympy import *
             tau, k = symbols('tau, k')
             expr = (1 - tau**((k - 1)/k))/(1 - tau)
             limit(expr, tau, 1)
-        '''
+        """
         term3 = (k - 1.0)/k
     else:
         # This form of the equation is mathematically equivalent but
@@ -2243,19 +2242,19 @@ venturi_sharp_Cs_Hollingshead = [0.146, 0.3, 0.401, 0.498, 0.554, 0.596, 0.65, 0
 
 
 CONE_METER_C = 0.82
-'''Constant loss coefficient for flow cone meters'''
+"""Constant loss coefficient for flow cone meters"""
 
 ROUGH_WELDED_CONVERGENT_VENTURI_TUBE_C = 0.985
-'''Constant loss coefficient for rough-welded convergent venturi tubes'''
+"""Constant loss coefficient for rough-welded convergent venturi tubes"""
 
 MACHINED_CONVERGENT_VENTURI_TUBE_C = 0.995
-'''Constant loss coefficient for machined convergent venturi tubes'''
+"""Constant loss coefficient for machined convergent venturi tubes"""
 
 AS_CAST_VENTURI_TUBE_C = 0.984
-'''Constant loss coefficient for as-cast venturi tubes'''
+"""Constant loss coefficient for as-cast venturi tubes"""
 
 ISO_15377_CONICAL_ORIFICE_C = 0.734
-'''Constant loss coefficient for conical orifice plates according to ISO 15377'''
+"""Constant loss coefficient for conical orifice plates according to ISO 15377"""
 
 cone_Res_Hollingshead = [1.0, 5.0, 10.0, 20.0, 30.0, 40.0, 60.0, 80.0, 100.0, 150.0, 200.0, 300.0, 500.0, 1000.0, 2000.0, 3000.0, 4000.0, 5000.0, 7500.0,
     10000.0, 20000.0, 30000.0, 100000.0, 1000000.0, 10000000.0, 50000000.0
@@ -2350,9 +2349,9 @@ beta_simple_meters = frozenset([ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
                       ROUGH_WELDED_CONVERGENT_VENTURI_TUBE])
 
 all_meters = frozenset(list(beta_simple_meters) + [CONE_METER, WEDGE_METER, HOLLINGSHEAD_CONE, HOLLINGSHEAD_WEDGE])
-'''Set of string inputs representing all of the different supported flow meters
+"""Set of string inputs representing all of the different supported flow meters
 and their correlations.
-'''
+"""
 _unsupported_meter_msg = "Supported meter types are %s" % all_meters
 
 def differential_pressure_meter_beta(D, D2, meter_type):

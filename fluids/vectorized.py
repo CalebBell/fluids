@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2017, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -24,7 +23,7 @@ SOFTWARE.
 from fluids.numerics import numpy as np, FakePackage
 import fluids as normal_fluids
 
-'''Basic module which wraps all fluids functions with numpy's vectorize.
+"""Basic module which wraps all fluids functions with numpy's vectorize.
 All other object - dicts, classes, etc - are not wrapped. Supports star
 imports; so the same objects exported when importing from the main library
 will be imported from here.
@@ -50,7 +49,7 @@ The correct syntax is as follows:
 
 This module is lightweight! It takes approximately 3 ms to load, and increases
 ram usage by only 250 KB.
-'''
+"""
 
 __all__ = []
 

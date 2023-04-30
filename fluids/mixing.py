@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -314,10 +313,10 @@ def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
     return COV
 
 ### Commercial motionless mixers
-'''Data from:
+"""Data from:
 Paul, Edward L, Victor A Atiemo-Obeng, and Suzanne M Kresta.
 Handbook of Industrial Mixing: Science and Practice.
-Hoboken, N.J.: Wiley-Interscience, 2004.'''
+Hoboken, N.J.: Wiley-Interscience, 2004."""
 StatixMixers = {}
 StatixMixers['KMS'] = {'Name': 'KMS', 'Vendor': 'Chemineer', 'Description': 'Twisted ribbon. Alternating left and right twists.', 'KL': 6.9, 'KiL': 0.87, 'KT': 150, 'KiT': 0.5}
 StatixMixers['SMX'] = {'Name': 'SMX', 'Vendor': 'Koch-Glitsch', 'Description': 'Guide vanes 45 degrees to pipe axis. Adjacent elements rotated 90 degrees.', 'KL': 37.5, 'KiL': 0.63, 'KT': 500, 'KiT': 0.46}

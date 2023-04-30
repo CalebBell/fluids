@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -1328,14 +1327,14 @@ def v_terminal(D, rhop, rho, mu, Method=None):
        Solid-Liquid Filtration and Separation Technology. 1st edition. Weinheim ;
        New York: Wiley-VCH, 1996.
     '''
-    '''The following would be the ideal implementation. The actual function is
+    """The following would be the ideal implementation. The actual function is
     optimized for speed, not readability
     def err(V):
         Re = rho*V*D/mu
         Cd = Barati_high(Re)
         V2 = (4/3.*g*D*(rhop-rho)/rho/Cd)**0.5
         return (V-V2)
-    return fsolve(err, 1.)'''
+    return fsolve(err, 1.)"""
     v_lam = g*D*D*(rhop-rho)/(18*mu)
     Re_lam = Reynolds(V=v_lam, D=D, rho=rho, mu=mu)
     if Re_lam < 0.01 or Method == 'Stokes':

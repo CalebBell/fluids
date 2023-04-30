@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 12/19/2013
 Author: Joshua Milas
@@ -196,7 +195,7 @@ class nrlmsise_output:
 #/* --------------------------- PROTOTYPES ---------------------------- */
 #/* ------------------------------------------------------------------- */
 # No prototypes are used here, these are here for reference
-'''
+"""
 /* GTD7 */
 /*   Neutral Atmosphere Empircial Model from the surface to lower
  *   exosphere.
@@ -217,4 +216,4 @@ class nrlmsise_output:
 /*   To specify outputs at a pressure level (press) rather than at
  *   an altitude.
  */
- '''
+ """

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 12/19/2013
 Author: Joshua Milas

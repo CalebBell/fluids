@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2020, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -346,11 +345,11 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_black
 
 set_signatures = {}
 
-remove_comment_line = re.compile(r'''r?(['"])\1\1(.*?)\1{3}''', re.DOTALL)
+remove_comment_line = re.compile(r"""r?(['"])\1\1(.*?)\1{3}""", re.DOTALL)
 
 def remove_for_numba(source):
-    source = re.sub(r'''.*# ?(numba|NUMBA) ?: *(DELETE|delete|comment|COMMENT).*''', '', source)
-    source = re.sub(r'''#(.*)# ?(numba|NUMBA) ?: *(UNCOMMENT|uncomment).*''', r'\1', source)
+    source = re.sub(r""".*# ?(numba|NUMBA) ?: *(DELETE|delete|comment|COMMENT).*""", '', source)
+    source = re.sub(r"""#(.*)# ?(numba|NUMBA) ?: *(UNCOMMENT|uncomment).*""", r'\1', source)
     return source
 
 def remove_branch(source, branch):
@@ -486,7 +485,7 @@ def create_numerics(replaced, vec=False):
         source = source.replace('%d iterations" %maxiter', '"')
         source = source.replace('ytol=None', 'ytol=1e100')
         source = source.replace(', value=%s" %(maxiter, x)', '"')
-        source = re.sub(r'''UnconvergedError\(.*''', '''UnconvergedError("Failed to converge")''', source) # Gotta keep errors all one one line
+        source = re.sub(r"""UnconvergedError\(.*""", """UnconvergedError("Failed to converge")""", source) # Gotta keep errors all one one line
         source = remove_for_numba(source)
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
 

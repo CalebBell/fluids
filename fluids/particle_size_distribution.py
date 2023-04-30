@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -273,14 +272,14 @@ ASTM_E11_sieves = {'0.02': Sieve(calibration_samples=300.0, d_wire_min=2e-08, d_
  '9.5': Sieve(calibration_samples=30.0, d_wire_min=0.0019, d_wire=0.00224, inspection_sd=0.222, calibration_sd=0.237, old_designation='3/8 in.', opening=0.0095, compliance_samples=150.0, opening_inch=0.000375, inspection_samples=15.0, designation='9.5', d_wire_max=0.0026, max_opening=10.18, X_variation_max=0.00068, Y_variation_avg=0.000295, compliance_sd=0.33),
  '90': Sieve(d_wire_min=0.0054, d_wire=0.0063, old_designation='3 1/2 in.', opening=0.09, compliance_samples=20.0, opening_inch=0.0035, designation='90', d_wire_max=0.0072, max_opening=93.53, X_variation_max=0.00353, Y_variation_avg=0.00265)
  }
-'''Dictionary containing ASTM E-11 sieve series :py:func:`Sieve` objects, indexed by
+"""Dictionary containing ASTM E-11 sieve series :py:func:`Sieve` objects, indexed by
 their size in mm as a string.
 
 References
 ----------
 .. [1] ASTM E11 - 17 - Standard Specification for Woven Wire Test Sieve
    Cloth and Test Sieves.
-'''
+"""
 
 ASTM_E11_sieve_designations = ['125', '106', '100', '90', '75', '63', '53',
                                '50', '45', '37.5', '31.5', '26.5', '25',
@@ -399,14 +398,14 @@ ISO_3310_1_sieves = {
  '9.5': Sieve(designation='9.5', d_wire_max=0.0026, compliance_sd=0.000294, X_variation_max=0.00061, d_wire=0.00224, Y_variation_avg=0.00027, d_wire_min=0.0019, opening=0.0095),
  '90': Sieve(designation='90', d_wire_max=0.0072, X_variation_max=0.00318, d_wire=0.0063, Y_variation_avg=0.00239, d_wire_min=0.0054, opening=0.09)
 }
-'''Dictionary containing all of the individual :py:func:`Sieve` objects, on the
+"""Dictionary containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 series, indexed by their size in mm as a string.
 
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
    -- Part 1: Test Sieves of Metal Wire Cloth.
-'''
+"""
 
 ISO_3310_1_sieve_designations  = ['125', '112', '106', '100', '90', '80', '75',
                                   '71', '63', '56', '53', '50', '45', '40',
@@ -430,47 +429,47 @@ ISO_3310_1_sieve_list = [ISO_3310_1_sieves[i] for i in ISO_3310_1_sieve_designat
 
 
 ISO_3310_1_R20_3 = [ISO_3310_1_sieves[i] for i in ('125', '90', '63', '45', '31.5', '22.4', '16', '11.2', '8', '5.6', '4', '2.8', '2', '1.4', '1', '0.71', '0.5', '0.355', '0.25', '0.18', '0.125', '0.09', '0.063', '0.045')]
-'''List containing all of the individual :py:func:`Sieve` objects, on the
+"""List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R20/3 series only, ordered from largest  openings to smallest.
 
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
    -- Part 1: Test Sieves of Metal Wire Cloth.
-'''
+"""
 
 ISO_3310_1_R20 = ['125', '112', '100', '90', '80', '71', '63', '56', '50', '45', '40', '35.5', '31.5', '28', '25', '22.4', '20', '18', '16', '14', '12.5', '11.2', '10', '9', '8', '7.1', '6.3', '5.6', '5', '4.5', '4', '3.55', '3.15', '2.8', '2.5', '2.24', '2', '1.8', '1.6', '1.4', '1.25', '1.12', '1', '0.9', '0.8', '0.71', '0.63', '0.56', '0.5', '0.45', '0.4', '0.355', '0.315', '0.28', '0.25', '0.224', '0.2', '0.18', '0.16', '0.14', '0.125', '0.112', '0.1', '0.09', '0.08', '0.071', '0.063', '0.056', '0.05', '0.045', '0.04', '0.036']
 ISO_3310_1_R20 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R20]
-'''List containing all of the individual :py:func:`Sieve` objects, on the
+"""List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R20 series only, ordered from largest  openings to smallest.
 
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
    -- Part 1: Test Sieves of Metal Wire Cloth.
-'''
+"""
 
 ISO_3310_1_R40_3 = ['125', '106', '90', '75', '63', '53', '45', '37.5', '31.5', '26.5', '22.4', '19', '16', '13.2', '11.2', '9.5', '8', '6.7', '5.6', '4.75', '4', '3.35', '2.8', '2.36', '2', '1.7', '1.4', '1.18', '1', '0.85', '0.71', '0.6', '0.5', '0.425', '0.355', '0.3', '0.25', '0.212', '0.18', '0.15', '0.125', '0.106', '0.09', '0.075', '0.063', '0.053', '0.045', '0.038']
 ISO_3310_1_R40_3 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R40_3]
-'''List containing all of the individual :py:func:`Sieve` objects, on the
+"""List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R40/3 series only, ordered from largest  openings to smallest.
 
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
    -- Part 1: Test Sieves of Metal Wire Cloth.
-'''
+"""
 
 ISO_3310_1_R10 = ['0.036', '0.032', '0.025', '0.02']
 ISO_3310_1_R10 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R10]
-'''List containing all of the individual :py:func:`Sieve` objects, on the
+"""List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R10 series only, ordered from largest  openings to smallest.
 
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
    -- Part 1: Test Sieves of Metal Wire Cloth.
-'''
+"""
 
 sieve_spacing_options = {'ISO 3310-1': ISO_3310_1_sieve_list,
                          'ISO 3310-1 R20': ISO_3310_1_R20,
@@ -1034,7 +1033,7 @@ def _label_distribution_n(n):  # pragma: no cover
     else:
         return 'Order %s distribution' %str(n)
 
-_mean_size_docstring = r'''Calculates the mean particle size according to moment-ratio
+_mean_size_docstring = r"""Calculates the mean particle size according to moment-ratio
         notation. This is the more common and often convenient definition.
 
         .. math::
@@ -1107,9 +1106,9 @@ _mean_size_docstring = r'''Calculates the mean particle size according to moment
         .. [3] ISO 9276-2:2014 - Representation of Results of Particle Size
            Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
            and Moments from Particle Size Distributions.
-'''
+"""
 
-_mean_size_iso_docstring =  r'''Calculates the mean particle size according to moment
+_mean_size_iso_docstring =  r"""Calculates the mean particle size according to moment
         notation (ISO). This system is related to the moment-ratio notation
         as follows; see the `mean_size` method for the full formulas.
 
@@ -1169,7 +1168,7 @@ _mean_size_iso_docstring =  r'''Calculates the mean particle size according to m
         .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size
            Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
            and Moments from Particle Size Distributions.
-        '''
+        """
 
 
 
@@ -2149,14 +2148,14 @@ class PSDRosinRammler(ParticleSizeDistributionContinuous):
         return pdf_Rosin_Rammler_basis_integral(d, k=self.k, m=self.m, n=n)
 
 
-'''# These are all brutally slow!
+"""# These are all brutally slow!
 from scipy.stats import *
 from fluids import *
 distribution = lognorm(s=0.5, scale=5E-6)
 psd = PSDCustom(distribution)
 
 # psd.dn(0.5, n=2.0) # Doesn't work at all, but the main things do including plots
-'''
+"""
 
 class PSDCustom(ParticleSizeDistributionContinuous):
     name = ''
