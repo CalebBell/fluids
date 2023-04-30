@@ -1,8 +1,16 @@
 
 line-length = 160
+target-version = "py37"
+
 exclude = [
     "*.pyi",
     ]
+# extend-select = [
+#   "UP030",
+#   "UP031",
+#   "UP032",
+# ]
+#select = ["ALL"]
 extend-ignore = [
 # Originally from astropy's pyproject.toml, see about removing many of them later
     "A00",
