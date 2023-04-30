@@ -1,5 +1,8 @@
 
 line-length = 160
+exclude = [
+    "*.pyi",
+    ]
 extend-ignore = [
 # Originally from astropy's pyproject.toml, see about removing many of them later
     "A00",
