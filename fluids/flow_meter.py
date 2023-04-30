@@ -561,14 +561,14 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
 _Miller_1996_unsupported_type = "Supported orifice types are %s" %str(
         (CONCENTRIC_ORIFICE, SEGMENTAL_ORIFICE, ECCENTRIC_ORIFICE,
          CONICAL_ORIFICE, QUARTER_CIRCLE_ORIFICE))
-_Miller_1996_unsupported_tap_concentric = "Supported taps for subtype '%s' are %s" %(
+_Miller_1996_unsupported_tap_concentric = "Supported taps for subtype '{}' are {}".format(
         CONCENTRIC_ORIFICE, (ORIFICE_CORNER_TAPS, ORIFICE_FLANGE_TAPS,
                              ORIFICE_D_AND_D_2_TAPS, ORIFICE_PIPE_TAPS))
-_Miller_1996_unsupported_tap_pos_eccentric = "Supported tap positions for subtype '%s' are %s" %(
+_Miller_1996_unsupported_tap_pos_eccentric = "Supported tap positions for subtype '{}' are {}".format(
         ECCENTRIC_ORIFICE, (TAPS_OPPOSITE, TAPS_SIDE))
-_Miller_1996_unsupported_tap_eccentric = "Supported taps for subtype '%s' are %s" %(
+_Miller_1996_unsupported_tap_eccentric = "Supported taps for subtype '{}' are {}".format(
         ECCENTRIC_ORIFICE, (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS))
-_Miller_1996_unsupported_tap_segmental = "Supported taps for subtype '%s' are %s" %(
+_Miller_1996_unsupported_tap_segmental = "Supported taps for subtype '{}' are {}".format(
         SEGMENTAL_ORIFICE, (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS))
 
 def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
@@ -795,7 +795,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
     beta8 = beta4*beta4
     beta21 = beta**2.1
 
-    if subtype == MILLER_ORIFICE or subtype == CONCENTRIC_ORIFICE:
+    if subtype in (MILLER_ORIFICE, CONCENTRIC_ORIFICE):
         b = 91.706*beta**2.5
         n = 0.75
         if taps == ORIFICE_CORNER_TAPS:
@@ -811,7 +811,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
             C_inf = 0.5959 + 0.461*beta21 + 0.48*beta8 + 0.039*beta4/(1.0 - beta4)
         else:
             raise ValueError(_Miller_1996_unsupported_tap_concentric)
-    elif subtype == MILLER_ECCENTRIC_ORIFICE or subtype == ECCENTRIC_ORIFICE:
+    elif subtype in (MILLER_ECCENTRIC_ORIFICE, ECCENTRIC_ORIFICE):
         if tap_position != TAPS_OPPOSITE and tap_position != TAPS_SIDE:
             raise ValueError(_Miller_1996_unsupported_tap_pos_eccentric)
         n = 0.75
@@ -847,7 +847,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
                     C_inf = 0.5949 + 0.4078*beta21 + 0.0547*beta8 +0.0955*beta4/(1-beta4) - 0.5608*beta3
         else:
             raise ValueError(_Miller_1996_unsupported_tap_eccentric)
-    elif subtype == MILLER_SEGMENTAL_ORIFICE or subtype == SEGMENTAL_ORIFICE:
+    elif subtype in (MILLER_SEGMENTAL_ORIFICE, SEGMENTAL_ORIFICE):
         n = b = 0.0
         if taps == ORIFICE_FLANGE_TAPS:
             if D < 0.1:
@@ -862,13 +862,13 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
                 C_inf = 0.6276 + 0.0828*beta21 + 0.2739*beta8 - 0.0934*beta4/(1-beta4) - 0.1132*beta3
         else:
             raise ValueError(_Miller_1996_unsupported_tap_segmental)
-    elif subtype == MILLER_CONICAL_ORIFICE or subtype == CONICAL_ORIFICE:
+    elif subtype in (MILLER_CONICAL_ORIFICE, CONICAL_ORIFICE):
         n = b = 0.0
         if 250.0*beta <= Re <= 500.0*beta:
             C_inf = 0.734
         else:
             C_inf = 0.730
-    elif subtype == MILLER_QUARTER_CIRCLE_ORIFICE or subtype == QUARTER_CIRCLE_ORIFICE:
+    elif subtype in (MILLER_QUARTER_CIRCLE_ORIFICE, QUARTER_CIRCLE_ORIFICE):
         n = b = 0.0
         C_inf = (0.7746 - 0.1334*beta21 + 1.4098*beta8
                  + 0.0675*beta4/(1.0 - beta4) + 0.3865*beta3)
@@ -2394,9 +2394,9 @@ def differential_pressure_meter_beta(D, D2, meter_type):
     '''
     if meter_type in beta_simple_meters:
         beta = D2/D
-    elif meter_type == CONE_METER or meter_type == HOLLINGSHEAD_CONE:
+    elif meter_type in (CONE_METER, HOLLINGSHEAD_CONE):
         beta = diameter_ratio_cone_meter(D=D, Dc=D2)
-    elif meter_type == WEDGE_METER or meter_type == HOLLINGSHEAD_WEDGE:
+    elif meter_type in (WEDGE_METER, HOLLINGSHEAD_WEDGE):
         beta = diameter_ratio_wedge_meter(D=D, H=D2)
     else:
         raise ValueError(_unsupported_meter_msg)
@@ -2860,16 +2860,12 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
     elif meter_type == VENTURI_NOZZLE:
         raise NotImplementedError("Venturi meter does not have an implemented pressure drop correlation")
 
-    elif (meter_type == AS_CAST_VENTURI_TUBE
-          or meter_type == MACHINED_CONVERGENT_VENTURI_TUBE
-          or meter_type == ROUGH_WELDED_CONVERGENT_VENTURI_TUBE
-          or meter_type == HOLLINGSHEAD_VENTURI_SMOOTH
-          or meter_type == HOLLINGSHEAD_VENTURI_SHARP):
+    elif (meter_type in (AS_CAST_VENTURI_TUBE, MACHINED_CONVERGENT_VENTURI_TUBE, ROUGH_WELDED_CONVERGENT_VENTURI_TUBE, HOLLINGSHEAD_VENTURI_SMOOTH, HOLLINGSHEAD_VENTURI_SHARP)):
         dP = dP_venturi_tube(D=D, Do=D2, P1=P1, P2=P2)
 
-    elif meter_type == CONE_METER or meter_type == HOLLINGSHEAD_CONE:
+    elif meter_type in (CONE_METER, HOLLINGSHEAD_CONE):
         dP = dP_cone_meter(D=D, Dc=D2, P1=P1, P2=P2)
-    elif meter_type == WEDGE_METER or meter_type == HOLLINGSHEAD_WEDGE:
+    elif meter_type in (WEDGE_METER, HOLLINGSHEAD_WEDGE):
         dP = dP_wedge_meter(D=D, H=D2, P1=P1, P2=P2)
     else:
         raise ValueError(_unsupported_meter_msg)

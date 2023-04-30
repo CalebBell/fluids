@@ -185,7 +185,7 @@ class Sieve:
 #        return s %(s2)
 
     def __repr__(self):
-        return '<Sieve, designation %s mm, opening %g m>' %(self.designation, self.opening)
+        return '<Sieve, designation {} mm, opening {:g} m>'.format(self.designation, self.opening)
 
     def __init__(self, designation, old_designation=None, opening=None,
                  opening_inch=None, Y_variation_avg=None, X_variation_max=None,
@@ -1634,8 +1634,8 @@ class ParticleSizeDistributionContinuous:
             plt.semilogx(ds, fractions, label=_label_distribution_n(n))
         plt.ylabel('Probability density function, [-]')
         plt.xlabel('Particle diameter, [m]')
-        plt.title('Probability density function of %s distribution with '
-                  'parameters %s' %(self.name, self.parameters))
+        plt.title('Probability density function of {} distribution with '
+                  'parameters {}'.format(self.name, self.parameters))
         plt.legend()
         plt.show()
         return fractions
@@ -1690,8 +1690,8 @@ class ParticleSizeDistributionContinuous:
 
         plt.ylabel('Cumulative density function, [-]')
         plt.xlabel('Particle diameter, [m]')
-        plt.title('Cumulative density function of %s distribution with '
-                  'parameters %s' %(self.name, self.parameters))
+        plt.title('Cumulative density function of {} distribution with '
+                  'parameters {}'.format(self.name, self.parameters))
         plt.legend()
         plt.show()
 

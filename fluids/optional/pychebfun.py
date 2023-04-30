@@ -116,7 +116,7 @@ def chebfun_to_poly(coeffs_or_fun, domain=None, text=False):
     delta = high - low
     delta_sum = high + low
     # Generate the expression
-    s += 'horner(coeffs, %.18g*(x - %.18g))' %(2.0/delta, 0.5*delta_sum)
+    s += 'horner(coeffs, {:.18g}*(x - {:.18g}))'.format(2.0/delta, 0.5*delta_sum)
     # return the string
     return s
 
@@ -150,7 +150,7 @@ def cheb_range_simplifier(low, high, text=False):
     constant = 0.5*(-low-high)
     factor = 2.0/(high-low)
     if text:
-        return 'chebval(%.20g*(x + %.20g), coeffs)' %(factor, constant)
+        return 'chebval({:.20g}*(x + {:.20g}), coeffs)'.format(factor, constant)
     return constant, factor
 
 

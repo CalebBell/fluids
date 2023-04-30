@@ -3206,19 +3206,19 @@ class TANK:
             if self.sideA_a == self.sideB_a:
                 sides = self.sideA + (' heads, a=%f m' %(self.sideA_a))
             else:
-                sides = self.sideA + ' heads, sideA a=%f m, sideB a=%f m' % (self.sideA_a, self.sideB_a)
+                sides = self.sideA + ' heads, sideA a={:f} m, sideB a={:f} m'.format(self.sideA_a, self.sideB_a)
         else:
             if self.sideA:
-                A = '%s head on sideA with a=%f m' % (self.sideA, self.sideA_a)
+                A = '{} head on sideA with a={:f} m'.format(self.sideA, self.sideA_a)
             else:
                 A = 'no head on sideA'
             if self.sideB:
-                B = ' and %s head on sideB with a=%f m' % (self.sideB, self.sideB_a)
+                B = ' and {} head on sideB with a={:f} m'.format(self.sideB, self.sideB_a)
             else:
                 B = ' and no head on sideB'
             sides = A + B
 
-        return '<%s tank, V=%f m^3, D=%f m, L=%f m, %s.>' %(orient, self.V_total, self.D, self.L, sides)
+        return '<{} tank, V={:f} m^3, D={:f} m, L={:f} m, {}.>'.format(orient, self.V_total, self.D, self.L, sides)
 
 
     def __init__(self, D=None, L=None, horizontal=True,
@@ -3874,8 +3874,8 @@ class HelicalCoil:
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
     '''
     def __repr__(self): # pragma : no cover
-        s = '<Helical coil, total height=%s m, total outer diameter=%s m, tube \
-outer diameter=%s m, number of turns=%s, pitch=%s m' % (self.H_total, self.Do_total, self.Dt, self.N, self.pitch)
+        s = '<Helical coil, total height={} m, total outer diameter={} m, tube \
+outer diameter={} m, number of turns={}, pitch={} m'.format(self.H_total, self.Do_total, self.Dt, self.N, self.pitch)
         if self.Di:
              s += ', inside diameter %s m' %(self.Di)
         s += '>'
@@ -4080,14 +4080,14 @@ class PlateExchanger:
        Refrigeration 61 (January 2016): 166-84. doi:10.1016/j.ijrefrig.2015.07.010.
     '''
     def __repr__(self):  # pragma : no cover
-        s = '<Plate heat exchanger, amplitude=%g m, wavelength=%g m, \
-chevron_angles=%s degrees, area enhancement factor=%g' %(self.a, self.wavelength, '/'.join([str(i) for i in self.chevron_angles]), self.plate_enlargement_factor)
+        s = '<Plate heat exchanger, amplitude={:g} m, wavelength={:g} m, \
+chevron_angles={} degrees, area enhancement factor={:g}'.format(self.a, self.wavelength, '/'.join([str(i) for i in self.chevron_angles]), self.plate_enlargement_factor)
         if self.width and self.length:
-            s += ', width=%g m, length=%g m' %(self.width, self.length)
+            s += ', width={:g} m, length={:g} m'.format(self.width, self.length)
         if self.d_port:
             s += ', port diameter=%g m' %(self.d_port)
         if self.plates:
-            s += ', heat transfer area=%g m^2, %g plates>' %(self.A_heat_transfer, self.plates)
+            s += ', heat transfer area={:g} m^2, {:g} plates>'.format(self.A_heat_transfer, self.plates)
         else:
             s += '>'
         return s
@@ -4744,9 +4744,9 @@ class AirCooledExchanger:
         t = ''
         for k, v in self.__dict__.items():
             try:
-                t += '%s=%g, ' %(k, v)
+                t += '{}={:g}, '.format(k, v)
             except:
-                t += '%s=%s, ' %(k, v)
+                t += '{}={}, '.format(k, v)
         t = t[0:-2]
         return s%t
 

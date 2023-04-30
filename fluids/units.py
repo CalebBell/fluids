@@ -193,8 +193,8 @@ def check_args_order(func):
         parsed_units += parsed_data['Other Parameters']['units']
 
     if argspec.args != parsed_parameters: # pragma: no cover
-        raise ValueError('Function %s signature is not the same as the documentation'
-                        ' signature = %s; documentation = %s' %(func.__name__, argspec.args, parsed_parameters))
+        raise ValueError('Function {} signature is not the same as the documentation'
+                        ' signature = {}; documentation = {}'.format(func.__name__, argspec.args, parsed_parameters))
 
 
 def match_parse_units(doc, i=-1):
@@ -228,7 +228,7 @@ def convert_input(val, unit, ureg, strict=True):
             else:
                 return val
         except DimensionalityError as e:
-            raise ValueError('Converting %s to units of %s raised DimensionalityError: %s'%(val, unit, str(e)))
+            raise ValueError('Converting {} to units of {} raised DimensionalityError: {}'.format(val, unit, str(e)))
     else:
         if type(val) == ureg.Quantity:
             return val.to_base_units().magnitude
@@ -374,7 +374,7 @@ class UnitAwareClass:
         try:
             value = getattr(self.wrapped, name)
         except Exception as e:
-            raise AttributeError('Failed to get property %s with error %s' %(str(name), str(e)))
+            raise AttributeError('Failed to get property {} with error {}'.format(str(name), str(e)))
         if value is not None:
             if name in self.property_units:
                 if type(value) == dict:
