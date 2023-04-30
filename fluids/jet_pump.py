@@ -322,7 +322,6 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
 
     Notes
     -----
-
     The assumptions of the model are:
 
     * The flows are one dimensional except in the mixing chamber.

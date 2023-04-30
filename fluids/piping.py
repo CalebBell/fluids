@@ -988,7 +988,6 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
 
     Notes
     -----
-
     * Birmingham Wire Gauge (BWG) ranges from 0.2 (0.5 inch) to 36 (0.004 inch).
     * American Wire Gauge (AWG) ranges from 0.167 (0.58 inch) to 51 (0.00099
       inch). These are used for electrical wires.

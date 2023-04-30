@@ -1404,7 +1404,6 @@ def Sherwood(K, L, D):
 
     Notes
     -----
-
     .. math::
         Sh = \frac{\text{Mass transfer by convection}}
         {\text{Mass transfer by diffusion}} = \frac{K}{D/L}

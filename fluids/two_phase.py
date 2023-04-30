@@ -2647,7 +2647,6 @@ def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
 
     Notes
     -----
-
     This calculation has the `homogeneous` model built in to it as its
     derivation is shown in [1]_. The discrete calculation is more flexible as
     different void fractions may be used.

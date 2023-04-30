@@ -1674,7 +1674,6 @@ def diameter_ratio_cone_meter(D, Dc):
 
     Notes
     -----
-
     A mathematically equivalent formula often written is:
 
     .. math::
