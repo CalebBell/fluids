@@ -1,2 +1,6 @@
 # Never enforce `E501` (line length violations).
-ignore = ["E501"]
+ignore = ["E501", "E741"]
+line-length = 160
+
+[mccabe]
+max-complexity = 10
