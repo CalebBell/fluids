@@ -893,12 +893,14 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     if D1 is None and D2 is None and d is None:
         # Assume turbulent if no diameters are provided, no other calculations
         Rev = 1e5
-        if full_output: ans['Rev'] = None  # numba: delete
+        if full_output:  # numba: delete
+            ans['Rev'] = None  # numba: delete
     else:
         # m to mm, according to constants in standard
         D1, D2, d = D1*1000., D2*1000., d*1000. # Convert diameters to mm which is used in the standard
         Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
-        if full_output: ans['Rev'] = Rev  # numba: delete
+        if full_output:  # numba: delete
+            ans['Rev'] = Rev  # numba: delete
 
         if (Rev > 10000 or not allow_laminar) and (D1 != d or D2 != d):
             # gas, using xTP and FLP

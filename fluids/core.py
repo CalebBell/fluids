@@ -115,7 +115,10 @@ Miscellaneous Functions
 .. autofunction:: gravity
 
 """
-from __future__ import division
+from math import pi, sin, sqrt
+from fluids.constants import g, R
+import sys
+
 '''
 Additional copyright:
 The functions C2K, K2C, F2C, C2F, F2K, K2F, C2R, K2R, F2R, R2C, R2K, R2F
@@ -159,9 +162,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '''
 
-from math import pi, sin, sqrt
-from fluids.constants import g, R
-import sys
 
 __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
