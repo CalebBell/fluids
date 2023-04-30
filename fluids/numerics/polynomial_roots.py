@@ -22,9 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 from __future__ import division
-from math import (sin, exp, pi, fabs, copysign, log, isinf, isnan, acos, cos, sin,
-                  atan2, asinh, sqrt, gamma)
-from cmath import sqrt as csqrt, log as clog
+from math import (sin, acos, cos, sin,
+                  sqrt)
+from cmath import sqrt as csqrt
 
 __all__ = ['roots_quadratic', 'roots_quartic', 'roots_cubic_a1', 'roots_cubic_a2',
 'roots_cubic']

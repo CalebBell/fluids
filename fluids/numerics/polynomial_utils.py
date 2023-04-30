@@ -23,7 +23,6 @@ SOFTWARE.
 """
 from __future__ import division
 from math import sqrt, log
-from fluids.numerics.polynomial_evaluation import horner
 __all__ = ['polyint', 'polyint_over_x', 'polyder', 'quadratic_from_points',
 'deflate_cubic_real_roots',  'exp_poly_ln_tau_coeffs3', 'exp_poly_ln_tau_coeffs2',
 'polynomial_offset_scale', 'stable_poly_to_unstable',

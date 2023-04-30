@@ -29,7 +29,7 @@ import types
 import re
 import inspect
 import sys
-from inspect import getsource, cleandoc
+from inspect import cleandoc
 import functools
 try:
     from collections.abc import Iterable
@@ -41,7 +41,6 @@ import fluids.vectorized
 import numpy as np
 ndarray = np.ndarray
 try:
-    import pint
     from pint import _DEFAULT_REGISTRY as u
     from pint import DimensionalityError
 

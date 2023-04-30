@@ -47,11 +47,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 from __future__ import division
-import os
-import time
-from datetime import datetime
-import math
-from math import degrees, sin, cos, tan, radians, asin, atan2, radians, exp, isnan
+from math import degrees, sin, cos, radians, radians, exp, isnan
 nan = float("nan")
 
 from math import degrees, acos

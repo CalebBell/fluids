@@ -51,11 +51,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 from __future__ import division
-import os
-import time
-from datetime import datetime
-import math
-from math import degrees, sin, cos, tan, radians, atan, asin, atan2, sqrt, acos
+from math import degrees, sin, cos, tan, radians, atan, asin, atan2, acos
 from fluids.constants import deg2rad, rad2deg
 from fluids.numerics import sincos
 __all__ = ['julian_day_dt', 'julian_day', 'julian_ephemeris_day', 'julian_century',

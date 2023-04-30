@@ -1575,7 +1575,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
     if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise ValueError('Unspoorted head type for side B')
     R = 0.5*D
-    V = sideA_V = sideB_V = lateral_V = 0.0
+    sideA_V = sideB_V = lateral_V = 0.0
     if horizontal:
         # Conical case
         if sideA == 'conical' and sideB == 'conical' and sideA_a == sideB_a:

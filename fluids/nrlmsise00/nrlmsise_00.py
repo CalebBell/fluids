@@ -52,11 +52,11 @@ __all__ = ['gtd7']
 """
 
 #/* PARMB */
-gsurf = [0.0];
-re_nrlmsise_00 = [0.0];
+gsurf = [0.0]
+re_nrlmsise_00 = [0.0]
 
 #/* GTS3C */
-dd = 0.0;
+dd = 0.0
 
 #/* DMIX */
 dm04 = 0.0
@@ -68,12 +68,12 @@ dm01 = 0.0
 dm14 = 0.0
 
 #/* MESO7 */
-meso_tn1 = [0.0]*5;
-meso_tn2 = [0.0]*4;
-meso_tn3 = [0.0]*5;
-meso_tgn1 = [0.0, 0.0];
-meso_tgn2 = [0.0, 0.0];
-meso_tgn3 = [0.0, 0.0];
+meso_tn1 = [0.0]*5
+meso_tn2 = [0.0]*4
+meso_tn3 = [0.0]*5
+meso_tgn1 = [0.0, 0.0]
+meso_tgn2 = [0.0, 0.0]
+meso_tgn3 = [0.0, 0.0]
 
 #/* POWER7 */
 #/* LOWER7 */
@@ -172,16 +172,16 @@ def ccor2(alt, r, h1, zh, h2):
  *         H2 - transition scale length #2 ?
  */
  '''
-    e1 = (alt - zh) / h1;
-    e2 = (alt - zh) / h2;
+    e1 = (alt - zh) / h1
+    e2 = (alt - zh) / h2
     if ((e1 > 70.0) or (e2 > 70)): # pragma: no cover
         return 1.0 # exp(0)
     if ((e1 < -70) and (e2 < -70)): # pragma: no cover
         return exp(r)
-    ex1 = exp(e1);
-    ex2 = exp(e2);
-    ccor2v = r / (1.0 + 0.5 * (ex1 + ex2));
-    return exp(ccor2v);
+    ex1 = exp(e1)
+    ex2 = exp(e2)
+    ccor2v = r / (1.0 + 0.5 * (ex1 + ex2))
+    return exp(ccor2v)
 
 
 
@@ -263,9 +263,9 @@ def splini(xa, ya, y2a, n, x, y):
         b = (xx - xa[klo])/h
         a2 = a*a
         b2 = b*b
-        yi += ((1.0 - a2) * ya[klo] / 2.0 + b2 * ya[khi] / 2.0 + ((-(1.0+a2*a2)/4.0 + a2/2.0) * y2a[klo] + (b2*b2/4.0 - b2/2.0) * y2a[khi]) * h * h / 6.0) * h;
-        klo += 1;
-        khi += 1;
+        yi += ((1.0 - a2) * ya[klo] / 2.0 + b2 * ya[khi] / 2.0 + ((-(1.0+a2*a2)/4.0 + a2/2.0) * y2a[klo] + (b2*b2/4.0 - b2/2.0) * y2a[khi]) * h * h / 6.0) * h
+        klo += 1
+        khi += 1
     y[0] = yi
     return #yi
 
@@ -290,15 +290,15 @@ def splint(xa, ya, y2a, n, x, y):
     khi = n-1
 
     while((khi-klo)>1):
-        k=int((khi+klo)/2);
+        k=int((khi+klo)/2)
         if (xa[k]>x):
             khi = k
         else:
             klo = k
-    h = xa[khi] - xa[klo];
-    a = (xa[khi] - x)/h;
-    b = (x - xa[klo])/h;
-    yi = a * ya[klo] + b * ya[khi] + ((a*a*a - a) * y2a[klo] + (b*b*b - b) * y2a[khi]) * h * h/6.0;
+    h = xa[khi] - xa[klo]
+    a = (xa[khi] - x)/h
+    b = (x - xa[klo])/h
+    yi = a * ya[klo] + b * ya[khi] + ((a*a*a - a) * y2a[klo] + (b*b*b - b) * y2a[khi]) * h * h/6.0
     y[0] = yi #may not need this
     return #yi #or this
 
@@ -334,16 +334,16 @@ def spline(x, y, n, yp1, ypn, y2):
         sig = (x[i]-x[i-1])/(x[i+1] - x[i-1])
         p = sig * y2[i-1] + 2.0
         y2[i] = (sig - 1.0) / p
-        u[i] = (6.0 * ((y[i+1] - y[i])/(x[i+1] - x[i]) -(y[i] - y[i-1]) / (x[i] - x[i-1]))/(x[i+1] - x[i-1]) - sig * u[i-1])/p;
+        u[i] = (6.0 * ((y[i+1] - y[i])/(x[i+1] - x[i]) -(y[i] - y[i-1]) / (x[i] - x[i-1]))/(x[i+1] - x[i-1]) - sig * u[i-1])/p
 
     if (ypn>0.99E30): # pragma: no cover
-        qn = 0;
+        qn = 0
         un = 0
     else:
         qn = 0.5
-        un = (3.0 / (x[n-1] - x[n-2])) * (ypn - (y[n-1] - y[n-2])/(x[n-1] - x[n-2]));
+        un = (3.0 / (x[n-1] - x[n-2])) * (ypn - (y[n-1] - y[n-2])/(x[n-1] - x[n-2]))
 
-    y2[n-1] = (un - qn * u[n-2]) / (qn * y2[n-2] + 1.0);
+    y2[n-1] = (un - qn * u[n-2]) / (qn * y2[n-2] + 1.0)
 
     #it uses a for loop here, but its not something python can do (I dont think)
     k = n-2
@@ -385,44 +385,44 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
     if (alt>zn2[mn2-1]):
         z=alt
     else:
-        z=zn2[mn2-1];
-    mn=mn2;
-    z1=zn2[0];
-    z2=zn2[mn-1];
-    t1=tn2[0];
-    t2=tn2[mn-1];
-    zg = zeta(z, z1);
-    zgdif = zeta(z2, z1);
+        z=zn2[mn2-1]
+    mn=mn2
+    z1=zn2[0]
+    z2=zn2[mn-1]
+    t1=tn2[0]
+    t2=tn2[mn-1]
+    zg = zeta(z, z1)
+    zgdif = zeta(z2, z1)
 
     #/* set up spline nodes */
     for k in range(mn):
-        xs[k]=zeta(zn2[k],z1)/zgdif;
-        ys[k]=1.0 / tn2[k];
-    yd1=-tgn2[0] / (t1*t1) * zgdif;
-    yd2=-tgn2[1] / (t2*t2) * zgdif * (pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0));
+        xs[k]=zeta(zn2[k],z1)/zgdif
+        ys[k]=1.0 / tn2[k]
+    yd1=-tgn2[0] / (t1*t1) * zgdif
+    yd2=-tgn2[1] / (t2*t2) * zgdif * (pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0))
 
     #/* calculate spline coefficients */
-    spline (xs, ys, mn, yd1, yd2, y2out);   #No need to change this
-    x = zg/zgdif;
+    spline (xs, ys, mn, yd1, yd2, y2out)   #No need to change this
+    x = zg/zgdif
     y = [0.0]
-    splint (xs, ys, y2out, mn, x, y);
+    splint (xs, ys, y2out, mn, x, y)
 
     #/* temperature at altitude */
-    tz[0] = 1.0 / y[0];
+    tz[0] = 1.0 / y[0]
     if (xm!=0.0):
         #/* calaculate stratosphere / mesospehere density */
-        glb = gsurf[0] / (pow((1.0 + z1/re_nrlmsise_00[0]),2.0));
-        gamm = xm * glb * zgdif / rgas;
+        glb = gsurf[0] / (pow((1.0 + z1/re_nrlmsise_00[0]),2.0))
+        gamm = xm * glb * zgdif / rgas
 
         #/* Integrate temperature profile */
         yi = [0.0]
-        splini(xs, ys, y2out, mn, x, yi);
-        expl=gamm*yi[0];
+        splini(xs, ys, y2out, mn, x, yi)
+        expl=gamm*yi[0]
         if (expl>50.0): # pragma: no cover
             expl=50.0
 
         #/* Density at altitude */
-        densm_tmp = densm_tmp * (t1 / tz[0]) * exp(-expl);
+        densm_tmp = densm_tmp * (t1 / tz[0]) * exp(-expl)
 
     if (alt>zn3[0]):
         if (xm==0.0):
@@ -431,52 +431,52 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
             return densm_tmp
 
     #/* troposhere / stratosphere temperature */
-    z = alt;
-    mn = mn3;
-    z1=zn3[0];
-    z2=zn3[mn-1];
-    t1=tn3[0];
-    t2=tn3[mn-1];
-    zg=zeta(z,z1);
-    zgdif=zeta(z2,z1);
+    z = alt
+    mn = mn3
+    z1=zn3[0]
+    z2=zn3[mn-1]
+    t1=tn3[0]
+    t2=tn3[mn-1]
+    zg=zeta(z,z1)
+    zgdif=zeta(z2,z1)
 
 
 
     #/* set up spline nodes */
     for k in range(mn):
-        xs[k] = zeta(zn3[k],z1) / zgdif;
-        ys[k] = 1.0 / tn3[k];
+        xs[k] = zeta(zn3[k],z1) / zgdif
+        ys[k] = 1.0 / tn3[k]
     
-    yd1=-tgn3[0] / (t1*t1) * zgdif;
-    yd2=-tgn3[1] / (t2*t2) * zgdif * (pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0));
+    yd1=-tgn3[0] / (t1*t1) * zgdif
+    yd2=-tgn3[1] / (t2*t2) * zgdif * (pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0))
 
     #/* calculate spline coefficients */
-    spline (xs, ys, mn, yd1, yd2, y2out);
-    x = zg/zgdif;
+    spline (xs, ys, mn, yd1, yd2, y2out)
+    x = zg/zgdif
     y = [0.0]
-    splint (xs, ys, y2out, mn, x, y);
+    splint (xs, ys, y2out, mn, x, y)
 
     #/* temperature at altitude */
-    tz[0] = 1.0 / y[0];
+    tz[0] = 1.0 / y[0]
     if (xm!=0.0):
         #/* calaculate tropospheric / stratosphere density */
-        glb = gsurf[0] / (pow((1.0 + z1/re_nrlmsise_00[0]),2.0));
-        gamm = xm * glb * zgdif / rgas;
+        glb = gsurf[0] / (pow((1.0 + z1/re_nrlmsise_00[0]),2.0))
+        gamm = xm * glb * zgdif / rgas
 
         #/* Integrate temperature profile */
         yi = [0.0]
-        splini(xs, ys, y2out, mn, x, yi);
-        expl=gamm*yi[0];
+        splini(xs, ys, y2out, mn, x, yi)
+        expl=gamm*yi[0]
         if (expl>50.0): # pragma: no cover
-            expl=50.0;
+            expl=50.0
 
         #/* Density at altitude */
-        densm_tmp = densm_tmp * (t1 / tz[0]) * exp(-expl);
+        densm_tmp = densm_tmp * (t1 / tz[0]) * exp(-expl)
     
     if (xm==0.0):
-        return tz[0];
+        return tz[0]
     else:
-        return densm_tmp;
+        return densm_tmp
 
 
 '''
@@ -500,90 +500,90 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
     y2out = [0.0]*5
 
     #/* joining altitudes of Bates and spline */
-    za=zn1[0];
+    za=zn1[0]
     if (alt>za):
-        z=alt;
+        z=alt
     else:
-        z=za;
+        z=za
 
     #/* geopotential altitude difference from ZLB */
-    zg2 = zeta(z, zlb);
+    zg2 = zeta(z, zlb)
     
     #/* Bates temperature */
-    tt = tinf - (tinf - tlb) * exp(-s2*zg2);
-    ta = tt;
+    tt = tinf - (tinf - tlb) * exp(-s2*zg2)
+    ta = tt
     tz[0] = tt
     densu_temp = tz[0]
 
     if (alt<za):
         #/* calculate temperature below ZA
         # * temperature gradient at ZA from Bates profile */
-        dta = (tinf - ta) * s2 * pow(((re_nrlmsise_00[0]+zlb)/(re_nrlmsise_00[0]+za)),2.0);
-        tgn1[0]=dta;
-        tn1[0]=ta;
+        dta = (tinf - ta) * s2 * pow(((re_nrlmsise_00[0]+zlb)/(re_nrlmsise_00[0]+za)),2.0)
+        tgn1[0]=dta
+        tn1[0]=ta
         if (alt>zn1[mn1-1]):
-            z=alt;
+            z=alt
         else:
-            z=zn1[mn1-1];
-        mn=mn1;
-        z1=zn1[0];
-        z2=zn1[mn-1];
-        t1=tn1[0];
-        t2=tn1[mn-1];
+            z=zn1[mn1-1]
+        mn=mn1
+        z1=zn1[0]
+        z2=zn1[mn-1]
+        t1=tn1[0]
+        t2=tn1[mn-1]
         #/* geopotental difference from z1 */
-        zg = zeta (z, z1);
-        zgdif = zeta(z2, z1);
+        zg = zeta (z, z1)
+        zgdif = zeta(z2, z1)
         #/* set up spline nodes */
         for k in range(mn):
-            xs[k] = zeta(zn1[k], z1) / zgdif;
-            ys[k] = 1.0 / tn1[k];
+            xs[k] = zeta(zn1[k], z1) / zgdif
+            ys[k] = 1.0 / tn1[k]
         
         #/* end node derivatives */
-        yd1 = -tgn1[0] / (t1*t1) * zgdif;
-        yd2 = -tgn1[1] / (t2*t2) * zgdif * pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0);
+        yd1 = -tgn1[0] / (t1*t1) * zgdif
+        yd2 = -tgn1[1] / (t2*t2) * zgdif * pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0)
         #/* calculate spline coefficients */
-        spline (xs, ys, mn, yd1, yd2, y2out);
-        x = zg / zgdif;
+        spline (xs, ys, mn, yd1, yd2, y2out)
+        x = zg / zgdif
         y = [0.0]
-        splint (xs, ys, y2out, mn, x, y);
+        splint (xs, ys, y2out, mn, x, y)
         #/* temperature at altitude */
-        tz[0] = 1.0 / y[0];
-        densu_temp = tz[0];
+        tz[0] = 1.0 / y[0]
+        densu_temp = tz[0]
 
     if (xm==0):
-        return densu_temp;
+        return densu_temp
 
     #/* calculate density above za */
-    glb = gsurf[0] / pow((1.0 + zlb/re_nrlmsise_00[0]),2.0);
-    gamma = xm * glb / (s2 * rgas * tinf);
-    expl = exp(-s2 * gamma * zg2);
+    glb = gsurf[0] / pow((1.0 + zlb/re_nrlmsise_00[0]),2.0)
+    gamma = xm * glb / (s2 * rgas * tinf)
+    expl = exp(-s2 * gamma * zg2)
     if (expl>50.0): # pragma: no cover
-        expl=50.0;
+        expl=50.0
     if (tt<=0): # pragma: no cover
-        expl=50.0;
+        expl=50.0
 
     #/* density at altitude */
-    densa = dlb * pow((tlb/tt),((1.0+alpha+gamma))) * expl;
-    densu_temp=densa;
+    densa = dlb * pow((tlb/tt),((1.0+alpha+gamma))) * expl
+    densu_temp=densa
     if (alt>=za):
-        return densu_temp;
+        return densu_temp
 
     #/* calculate density below za */
-    glb = gsurf[0] / pow((1.0 + z1/re_nrlmsise_00[0]),2.0);
-    gamm = xm * glb * zgdif / rgas;
+    glb = gsurf[0] / pow((1.0 + z1/re_nrlmsise_00[0]),2.0)
+    gamm = xm * glb * zgdif / rgas
 
     #/* integrate spline temperatures */
     yi = [0]
-    splini (xs, ys, y2out, mn, x, yi);
-    expl = gamm * yi[0];
+    splini (xs, ys, y2out, mn, x, yi)
+    expl = gamm * yi[0]
     if (expl>50.0): # pragma: no cover
-        expl=50.0;
+        expl=50.0
     if (tz[0]<=0): # pragma: no cover
-        expl=50.0;
+        expl=50.0
 
     #/* density at altitude */
-    densu_temp = densu_temp * pow ((t1 / tz[0]),(1.0 + alpha)) * exp(-expl);
-    return densu_temp;
+    densu_temp = densu_temp * pow ((t1 / tz[0]),(1.0 + alpha)) * exp(-expl)
+    return densu_temp
 
 
 '''
@@ -595,19 +595,19 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
 #/*    3hr Magnetic activity functions */
 #/*    Eq. A24d */
 def g0_nrlmsise00(a, p):
-    return (a - 4.0 + (p[25] - 1.0) * (a - 4.0 + (exp(-sqrt(p[24]*p[24]) * (a - 4.0)) - 1.0) / sqrt(p[24]*p[24])));
+    return (a - 4.0 + (p[25] - 1.0) * (a - 4.0 + (exp(-sqrt(p[24]*p[24]) * (a - 4.0)) - 1.0) / sqrt(p[24]*p[24])))
 
 
 #/*    Eq. A24c */
 def sumex(ex):
-    return (1.0 + (1.0 - pow(ex,19.0)) / (1.0 - ex) * pow(ex,0.5));
+    return (1.0 + (1.0 - pow(ex,19.0)) / (1.0 - ex) * pow(ex,0.5))
 
 
 #/*    Eq. A24a */
 def sg0(ex, p, ap):
     return (g0_nrlmsise00(ap[1], p) + (g0_nrlmsise00(ap[2], p)*ex + g0_nrlmsise00(ap[3], p)*ex*ex + \
                                        g0_nrlmsise00(ap[4], p)*pow(ex, 3.0) + (g0_nrlmsise00(ap[5], p)*pow(ex, 4.0) + \
-                                                                               g0_nrlmsise00(ap[6], p)*pow(ex, 12.0))*(1.0 - pow(ex, 8.0))/(1.0 - ex)))/sumex(ex);
+                                                                               g0_nrlmsise00(ap[6], p)*pow(ex, 12.0))*(1.0 - pow(ex, 8.0))/(1.0 - ex)))/sumex(ex)
 
 
 def globe7(p, Input, flags):
@@ -617,10 +617,10 @@ def globe7(p, Input, flags):
 '''
     t = [0]*15  #modified this, there was a for loop that did this
     sw9 = 1
-    sr = 7.2722E-5;
-    dgtr = 1.74533E-2;
-    dr = 1.72142E-2;
-    hr = 0.2618;
+    sr = 7.2722E-5
+    dgtr = 1.74533E-2
+    dr = 1.72142E-2
+    hr = 0.2618
 
     tloc = Input.lst
     #for j in range(14):
@@ -632,116 +632,116 @@ def globe7(p, Input, flags):
     xlong = Input.g_long
 
     #/* calculate legendre polynomials */
-    c = sin(Input.g_lat * dgtr);
-    s = cos(Input.g_lat * dgtr);
-    c2 = c*c;
-    c4 = c2*c2;
-    s2 = s*s;
+    c = sin(Input.g_lat * dgtr)
+    s = cos(Input.g_lat * dgtr)
+    c2 = c*c
+    c4 = c2*c2
+    s2 = s*s
 
-    plg[0][1] = c;
-    plg[0][2] = 0.5*(3.0*c2 -1.0);
-    plg[0][3] = 0.5*(5.0*c*c2-3.0*c);
-    plg[0][4] = (35.0*c4 - 30.0*c2 + 3.0)/8.0;
-    plg[0][5] = (63.0*c2*c2*c - 70.0*c2*c + 15.0*c)/8.0;
-    plg[0][6] = (11.0*c*plg[0][5] - 5.0*plg[0][4])/6.0;
+    plg[0][1] = c
+    plg[0][2] = 0.5*(3.0*c2 -1.0)
+    plg[0][3] = 0.5*(5.0*c*c2-3.0*c)
+    plg[0][4] = (35.0*c4 - 30.0*c2 + 3.0)/8.0
+    plg[0][5] = (63.0*c2*c2*c - 70.0*c2*c + 15.0*c)/8.0
+    plg[0][6] = (11.0*c*plg[0][5] - 5.0*plg[0][4])/6.0
 #/*      plg[0][7] = (13.0*c*plg[0][6] - 6.0*plg[0][5])/7.0; */
-    plg[1][1] = s;
-    plg[1][2] = 3.0*c*s;
-    plg[1][3] = 1.5*(5.0*c2-1.0)*s;
-    plg[1][4] = 2.5*(7.0*c2*c-3.0*c)*s;
-    plg[1][5] = 1.875*(21.0*c4 - 14.0*c2 +1.0)*s;
-    plg[1][6] = (11.0*c*plg[1][5]-6.0*plg[1][4])/5.0;
+    plg[1][1] = s
+    plg[1][2] = 3.0*c*s
+    plg[1][3] = 1.5*(5.0*c2-1.0)*s
+    plg[1][4] = 2.5*(7.0*c2*c-3.0*c)*s
+    plg[1][5] = 1.875*(21.0*c4 - 14.0*c2 +1.0)*s
+    plg[1][6] = (11.0*c*plg[1][5]-6.0*plg[1][4])/5.0
 #/*      plg[1][7] = (13.0*c*plg[1][6]-7.0*plg[1][5])/6.0; */
 #/*      plg[1][8] = (15.0*c*plg[1][7]-8.0*plg[1][6])/7.0; */
-    plg[2][2] = 3.0*s2;
-    plg[2][3] = 15.0*s2*c;
-    plg[2][4] = 7.5*(7.0*c2 -1.0)*s2;
-    plg[2][5] = 3.0*c*plg[2][4]-2.0*plg[2][3];
-    plg[2][6] =(11.0*c*plg[2][5]-7.0*plg[2][4])/4.0;
-    plg[2][7] =(13.0*c*plg[2][6]-8.0*plg[2][5])/5.0;
-    plg[3][3] = 15.0*s2*s;
-    plg[3][4] = 105.0*s2*s*c; 
-    plg[3][5] =(9.0*c*plg[3][4]-7.*plg[3][3])/2.0;
-    plg[3][6] =(11.0*c*plg[3][5]-8.*plg[3][4])/3.0;
+    plg[2][2] = 3.0*s2
+    plg[2][3] = 15.0*s2*c
+    plg[2][4] = 7.5*(7.0*c2 -1.0)*s2
+    plg[2][5] = 3.0*c*plg[2][4]-2.0*plg[2][3]
+    plg[2][6] =(11.0*c*plg[2][5]-7.0*plg[2][4])/4.0
+    plg[2][7] =(13.0*c*plg[2][6]-8.0*plg[2][5])/5.0
+    plg[3][3] = 15.0*s2*s
+    plg[3][4] = 105.0*s2*s*c 
+    plg[3][5] =(9.0*c*plg[3][4]-7.*plg[3][3])/2.0
+    plg[3][6] =(11.0*c*plg[3][5]-8.*plg[3][4])/3.0
 
     if( not (((flags.sw[7]==0) and (flags.sw[8]==0)) and (flags.sw[14] == 0))):
         global stloc
-        stloc = sin(hr*tloc);
+        stloc = sin(hr*tloc)
         global ctloc
-        ctloc = cos(hr*tloc);
+        ctloc = cos(hr*tloc)
         global s2tloc
-        s2tloc = sin(2.0*hr*tloc);
+        s2tloc = sin(2.0*hr*tloc)
         global c2tloc
-        c2tloc = cos(2.0*hr*tloc);
+        c2tloc = cos(2.0*hr*tloc)
         global s3tloc
-        s3tloc = sin(3.0*hr*tloc);
+        s3tloc = sin(3.0*hr*tloc)
         global c3tloc
-        c3tloc = cos(3.0*hr*tloc);
+        c3tloc = cos(3.0*hr*tloc)
 
-    cd32 = cos(dr*(Input.doy-p[31]));
-    cd18 = cos(2.0*dr*(Input.doy-p[17]));
-    cd14 = cos(dr*(Input.doy-p[13]));
-    cd39 = cos(2.0*dr*(Input.doy-p[38]));
-    p32=p[31];
-    p18=p[17];
-    p14=p[13];
-    p39=p[38];
+    cd32 = cos(dr*(Input.doy-p[31]))
+    cd18 = cos(2.0*dr*(Input.doy-p[17]))
+    cd14 = cos(dr*(Input.doy-p[13]))
+    cd39 = cos(2.0*dr*(Input.doy-p[38]))
+    p32=p[31]
+    p18=p[17]
+    p14=p[13]
+    p39=p[38]
 
     #/* F10.7 EFFECT */
-    df = Input.f107 - Input.f107A;
+    df = Input.f107 - Input.f107A
     global dfa
-    dfa = Input.f107A - 150.0;
-    t[0] =  p[19]*df*(1.0+p[59]*dfa) + p[20]*df*df + p[21]*dfa + p[29]*pow(dfa,2.0);
-    f1 = 1.0 + (p[47]*dfa +p[19]*df+p[20]*df*df)*flags.swc[1];
-    f2 = 1.0 + (p[49]*dfa+p[19]*df+p[20]*df*df)*flags.swc[1];
+    dfa = Input.f107A - 150.0
+    t[0] =  p[19]*df*(1.0+p[59]*dfa) + p[20]*df*df + p[21]*dfa + p[29]*pow(dfa,2.0)
+    f1 = 1.0 + (p[47]*dfa +p[19]*df+p[20]*df*df)*flags.swc[1]
+    f2 = 1.0 + (p[49]*dfa+p[19]*df+p[20]*df*df)*flags.swc[1]
 
     #/*  TIME INDEPENDENT */
     t[1] = (p[1]*plg[0][2]+ p[2]*plg[0][4]+p[22]*plg[0][6]) + \
-          (p[14]*plg[0][2])*dfa*flags.swc[1] +p[26]*plg[0][1];
+          (p[14]*plg[0][2])*dfa*flags.swc[1] +p[26]*plg[0][1]
 
     #/*  SYMMETRICAL ANNUAL */
-    t[2] = p[18]*cd32;
+    t[2] = p[18]*cd32
 
     #/*  SYMMETRICAL SEMIANNUAL */
-    t[3] = (p[15]+p[16]*plg[0][2])*cd18;
+    t[3] = (p[15]+p[16]*plg[0][2])*cd18
 
     #/*  ASYMMETRICAL ANNUAL */
-    t[4] =  f1*(p[9]*plg[0][1]+p[10]*plg[0][3])*cd14;
+    t[4] =  f1*(p[9]*plg[0][1]+p[10]*plg[0][3])*cd14
 
     #/*  ASYMMETRICAL SEMIANNUAL */
-    t[5] =    p[37]*plg[0][1]*cd39;
+    t[5] =    p[37]*plg[0][1]*cd39
 
     #/* DIURNAL */
     if (flags.sw[7]):
-        t71 = (p[11]*plg[1][2])*cd14*flags.swc[5];
-        t72 = (p[12]*plg[1][2])*cd14*flags.swc[5];
+        t71 = (p[11]*plg[1][2])*cd14*flags.swc[5]
+        t72 = (p[12]*plg[1][2])*cd14*flags.swc[5]
         t[6] = f2*((p[3]*plg[1][1] + p[4]*plg[1][3] + p[27]*plg[1][5] + t71) * \
                    ctloc + (p[6]*plg[1][1] + p[7]*plg[1][3] + p[28]*plg[1][5] \
-                            + t72)*stloc);
+                            + t72)*stloc)
 
 
     #/* SEMIDIURNAL */
     if (flags.sw[8]):
-        t81 = (p[23]*plg[2][3]+p[35]*plg[2][5])*cd14*flags.swc[5];
-        t82 = (p[33]*plg[2][3]+p[36]*plg[2][5])*cd14*flags.swc[5];
-        t[7] = f2*((p[5]*plg[2][2]+ p[41]*plg[2][4] + t81)*c2tloc +(p[8]*plg[2][2] + p[42]*plg[2][4] + t82)*s2tloc);
+        t81 = (p[23]*plg[2][3]+p[35]*plg[2][5])*cd14*flags.swc[5]
+        t82 = (p[33]*plg[2][3]+p[36]*plg[2][5])*cd14*flags.swc[5]
+        t[7] = f2*((p[5]*plg[2][2]+ p[41]*plg[2][4] + t81)*c2tloc +(p[8]*plg[2][2] + p[42]*plg[2][4] + t82)*s2tloc)
     
 
     #/* TERDIURNAL */
     if (flags.sw[14]):
-        t[13] = f2 * ((p[39]*plg[3][3]+(p[93]*plg[3][4]+p[46]*plg[3][6])*cd14*flags.swc[5])* s3tloc +(p[40]*plg[3][3]+(p[94]*plg[3][4]+p[48]*plg[3][6])*cd14*flags.swc[5])* c3tloc);
+        t[13] = f2 * ((p[39]*plg[3][3]+(p[93]*plg[3][4]+p[46]*plg[3][6])*cd14*flags.swc[5])* s3tloc +(p[40]*plg[3][3]+(p[94]*plg[3][4]+p[48]*plg[3][6])*cd14*flags.swc[5])* c3tloc)
 
 
     #/* magnetic activity based on daily ap */
     if (flags.sw[9]==-1):
-        ap = Input.ap_a;
+        ap = Input.ap_a
         if (p[51]!=0):
-            exp1 = exp(-10800.0*sqrt(p[51]*p[51])/(1.0+p[138]*(45.0-sqrt(Input.g_lat*Input.g_lat))));
+            exp1 = exp(-10800.0*sqrt(p[51]*p[51])/(1.0+p[138]*(45.0-sqrt(Input.g_lat*Input.g_lat))))
             if (exp1>0.99999): # pragma: no cover
-                    exp1=0.99999;
+                    exp1=0.99999
             if (p[24]<1.0E-4): # pragma: no cover
-                    p[24]=1.0E-4;
-            apt[0]=sg0(exp1,p,ap.a);
+                    p[24]=1.0E-4
+            apt[0]=sg0(exp1,p,ap.a)
             #/* apt[1]=sg2(exp1,p,ap->a);
             #   apt[2]=sg0(exp2,p,ap->a);
             #   apt[3]=sg2(exp2,p,ap->a);
@@ -750,22 +750,22 @@ def globe7(p, Input, flags):
                 t[8] = apt[0]*(p[50]+p[96]*plg[0][2]+p[54]*plg[0][4]+ \
                         (p[125]*plg[0][1]+p[126]*plg[0][3]+p[127]*plg[0][5])*cd14*flags.swc[5]+ \
                         (p[128]*plg[1][1]+p[129]*plg[1][3]+p[130]*plg[1][5])*flags.swc[7]* \
-                                       cos(hr*(tloc-p[131])));
+                                       cos(hr*(tloc-p[131])))
                     
             
     else:
-        apd=Input.ap-4.0;
-        p44=p[43];
-        p45=p[44];
+        apd=Input.ap-4.0
+        p44=p[43]
+        p45=p[44]
         if (p44<0): # pragma: no cover
-            p44 = 1.0E-5;
+            p44 = 1.0E-5
         global apdf
-        apdf = apd + (p45-1.0)*(apd + (exp(-p44 * apd) - 1.0)/p44);
+        apdf = apd + (p45-1.0)*(apd + (exp(-p44 * apd) - 1.0)/p44)
         if (flags.sw[9]):
             t[8]=apdf*(p[32]+p[45]*plg[0][2]+p[34]*plg[0][4]+ \
              (p[100]*plg[0][1]+p[101]*plg[0][3]+p[102]*plg[0][5])*cd14*flags.swc[5]+
              (p[121]*plg[1][1]+p[122]*plg[1][3]+p[123]*plg[1][5])*flags.swc[7]*
-                cos(hr*(tloc-p[124])));
+                cos(hr*(tloc-p[124])))
             
     
 
@@ -781,7 +781,7 @@ def globe7(p, Input, flags):
                       +(p[90]*plg[1][2]+p[91]*plg[1][4]+p[92]*plg[1][6]\
                       +p[106]*plg[1][1]+p[107]*plg[1][3]+p[108]*plg[1][5]\
                       +flags.swc[5]*(p[112]*plg[1][1]+p[113]*plg[1][3]+p[114]*plg[1][5])*cd14)* \
-                      sin(dgtr*Input.g_long));
+                      sin(dgtr*Input.g_long))
             
 
             #/* ut and mixed ut, longitude */
@@ -789,10 +789,10 @@ def globe7(p, Input, flags):
                     t[11]=(1.0+p[95]*plg[0][1])*(1.0+p[81]*dfa*flags.swc[1])*\
                             (1.0+p[119]*plg[0][1]*flags.swc[5]*cd14)*\
                             ((p[68]*plg[0][1]+p[69]*plg[0][3]+p[70]*plg[0][5])*\
-                            cos(sr*(Input.sec-p[71])));
+                            cos(sr*(Input.sec-p[71])))
                     t[11]+=flags.swc[11]*\
                             (p[76]*plg[2][3]+p[77]*plg[2][5]+p[78]*plg[2][7])*\
-                            cos(sr*(Input.sec-p[79])+2.0*dgtr*Input.g_long)*(1.0+p[137]*dfa*flags.swc[1]);
+                            cos(sr*(Input.sec-p[79])+2.0*dgtr*Input.g_long)*(1.0+p[137]*dfa*flags.swc[1])
             
 
             #/* ut, longitude magnetic activity */
@@ -807,7 +807,7 @@ def globe7(p, Input, flags):
                                     cd14*cos(dgtr*(Input.g_long-p[136])) \
                                     +apt[0]*flags.swc[12]* \
                                     (p[55]*plg[0][1]+p[56]*plg[0][3]+p[57]*plg[0][5])*\
-                                    cos(sr*(Input.sec-p[58]));
+                                    cos(sr*(Input.sec-p[58]))
                         
                 else:
                     t[12] = apdf*flags.swc[11]*(1.0+p[120]*plg[0][1])*\
@@ -818,7 +818,7 @@ def globe7(p, Input, flags):
                             cd14*cos(dgtr*(Input.g_long-p[118])) \
                             + apdf*flags.swc[12]* \
                             (p[83]*plg[0][1]+p[84]*plg[0][3]+p[85]*plg[0][5])* \
-                            cos(sr*(Input.sec-p[75]));
+                            cos(sr*(Input.sec-p[75]))
                     			
             
     

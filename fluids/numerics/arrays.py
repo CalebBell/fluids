@@ -23,7 +23,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin, sqrt
+from math import sqrt
 import sys
 
 REQUIRE_DEPENDENCIES = False

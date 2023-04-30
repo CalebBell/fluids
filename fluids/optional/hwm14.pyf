@@ -48,9 +48,9 @@ python module hwm14 ! in
                 integer(kind=4) intent(in) :: nmax
                 integer(kind=4) intent(in) :: mmax
                 real(kind=8) intent(in) :: theta
-                real(kind=8) dimension(nmax + 1,mmax + 1),intent(out),depend(nmax,mmax) :: p
-                real(kind=8) dimension(nmax + 1,mmax + 1),intent(out),depend(nmax,mmax) :: v
-                real(kind=8) dimension(nmax + 1,mmax + 1),intent(out),depend(nmax,mmax) :: w
+                real(kind=8) dimension(1 + nmax,1 + mmax),intent(out),depend(nmax,mmax) :: p
+                real(kind=8) dimension(1 + nmax,1 + mmax),intent(out),depend(nmax,mmax) :: v
+                real(kind=8) dimension(1 + nmax,1 + mmax),intent(out),depend(nmax,mmax) :: w
             end subroutine alfbasis
             subroutine initalf(nmaxin,mmaxin) ! in :hwm14:hwm14.f90:alf
                 integer(kind=4) intent(in) :: nmaxin
@@ -242,5 +242,6 @@ python module hwm14 ! in
     end interface 
 end python module hwm14
 
-! This file was auto-generated with f2py (version:2).
-! See http://cens.ioc.ee/projects/f2py2e/
+! This file was auto-generated with f2py (version:1.24.1).
+! See:
+! https://web.archive.org/web/20140822061353/http://cens.ioc.ee/projects/f2py2e

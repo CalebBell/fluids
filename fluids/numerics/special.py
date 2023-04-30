@@ -22,8 +22,7 @@ SOFTWARE.
 """
 
 from __future__ import division
-from math import (sin, exp, pi, fabs, copysign, log, isinf, acos, cos, sin,
-                  atan2, asinh, sqrt, gamma)
+from math import (exp, pi, fabs, copysign, log, atan2, asinh, sqrt)
 from cmath import sqrt as csqrt, log as clog
 
 try:
