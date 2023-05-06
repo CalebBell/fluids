@@ -185,7 +185,7 @@ class Sieve:
 #        return s %(s2)
 
     def __repr__(self):
-        return '<Sieve, designation {} mm, opening {:g} m>'.format(self.designation, self.opening)
+        return f'<Sieve, designation {self.designation} mm, opening {self.opening:g} m>'
 
     def __init__(self, designation, old_designation=None, opening=None,
                  opening_inch=None, Y_variation_avg=None, X_variation_max=None,

@@ -3220,19 +3220,19 @@ class TANK:
             if self.sideA_a == self.sideB_a:
                 sides = self.sideA + (' heads, a=%f m' %(self.sideA_a))
             else:
-                sides = self.sideA + ' heads, sideA a={:f} m, sideB a={:f} m'.format(self.sideA_a, self.sideB_a)
+                sides = self.sideA + f' heads, sideA a={self.sideA_a:f} m, sideB a={self.sideB_a:f} m'
         else:
             if self.sideA:
-                A = '{} head on sideA with a={:f} m'.format(self.sideA, self.sideA_a)
+                A = f'{self.sideA} head on sideA with a={self.sideA_a:f} m'
             else:
                 A = 'no head on sideA'
             if self.sideB:
-                B = ' and {} head on sideB with a={:f} m'.format(self.sideB, self.sideB_a)
+                B = f' and {self.sideB} head on sideB with a={self.sideB_a:f} m'
             else:
                 B = ' and no head on sideB'
             sides = A + B
 
-        return '<{} tank, V={:f} m^3, D={:f} m, L={:f} m, {}.>'.format(orient, self.V_total, self.D, self.L, sides)
+        return f'<{orient} tank, V={self.V_total:f} m^3, D={self.D:f} m, L={self.L:f} m, {sides}.>'
 
 
     def __init__(self, D=None, L=None, horizontal=True,
@@ -4098,11 +4098,11 @@ class PlateExchanger:
         s = '<Plate heat exchanger, amplitude={:g} m, wavelength={:g} m, \
 chevron_angles={} degrees, area enhancement factor={:g}'.format(self.a, self.wavelength, '/'.join([str(i) for i in self.chevron_angles]), self.plate_enlargement_factor)
         if self.width and self.length:
-            s += ', width={:g} m, length={:g} m'.format(self.width, self.length)
+            s += f', width={self.width:g} m, length={self.length:g} m'
         if self.d_port:
             s += ', port diameter=%g m' %(self.d_port)
         if self.plates:
-            s += ', heat transfer area={:g} m^2, {:g} plates>'.format(self.A_heat_transfer, self.plates)
+            s += f', heat transfer area={self.A_heat_transfer:g} m^2, {self.plates:g} plates>'
         else:
             s += '>'
         return s
@@ -4762,9 +4762,9 @@ class AirCooledExchanger:
         t = ''
         for k, v in self.__dict__.items():
             try:
-                t += '{}={:g}, '.format(k, v)
+                t += f'{k}={v:g}, '
             except:
-                t += '{}={}, '.format(k, v)
+                t += f'{k}={v}, '
         t = t[0:-2]
         return s%t
 

@@ -149,7 +149,7 @@ def cheb_range_simplifier(low, high, text=False):
     constant = 0.5*(-low-high)
     factor = 2.0/(high-low)
     if text:
-        return 'chebval({:.20g}*(x + {:.20g}), coeffs)'.format(factor, constant)
+        return f'chebval({factor:.20g}*(x + {constant:.20g}), coeffs)'
     return constant, factor
 
 
@@ -711,7 +711,7 @@ def _add_operator(cls, op):
     cast_method = cast_scalar(method)
     name = '__'+op.__name__+'__'
     cast_method.__name__ = name
-    cast_method.__doc__ = "operator {}".format(name)
+    cast_method.__doc__ = f"operator {name}"
     setattr(cls, name, cast_method)
 
 def rdiv(a, b):
@@ -729,7 +729,7 @@ def _add_delegate(ufunc, nonlinear=True):
         return self.from_function(lambda x: ufunc(self(x)), domain=self.domain())
     name = ufunc.__name__
     method.__name__ = name
-    method.__doc__ = "delegate for numpy's ufunc {}".format(name)
+    method.__doc__ = f"delegate for numpy's ufunc {name}"
     setattr(Polyfun, name, method)
 
 # Following list generated from:
@@ -784,4 +784,4 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
         else:
             return Chebfun(f, domain)
 
-        raise TypeError('Impossible to initialise the object from an object of type {}'.format(type(f)))
+        raise TypeError(f'Impossible to initialise the object from an object of type {type(f)}')

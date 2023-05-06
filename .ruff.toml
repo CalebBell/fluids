@@ -14,6 +14,7 @@ select = ["ALL"]
 extend-ignore = [
     "D415", # First docstring line should end with a period, question mark, or exclamation point
     "DTZ004", # utcfromtimestamp makes sense for atmosphere model
+    "PGH003", # type ignoring makes sense for numba-related things
 
     # Originally from astropy's pyproject.toml, see about removing many of them later
     

@@ -228,7 +228,7 @@ def convert_input(val, unit, ureg, strict=True):
             else:
                 return val
         except DimensionalityError as e:
-            raise ValueError('Converting {} to units of {} raised DimensionalityError: {}'.format(val, unit, str(e)))
+            raise ValueError(f'Converting {val} to units of {unit} raised DimensionalityError: {str(e)}')
     else:
         if type(val) == ureg.Quantity:
             return val.to_base_units().magnitude
@@ -374,7 +374,7 @@ class UnitAwareClass:
         try:
             value = getattr(self.wrapped, name)
         except Exception as e:
-            raise AttributeError('Failed to get property {} with error {}'.format(str(name), str(e)))
+            raise AttributeError(f'Failed to get property {str(name)} with error {str(e)}')
         if value is not None:
             if name in self.property_units:
                 if type(value) == dict:
