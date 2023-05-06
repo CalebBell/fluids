@@ -328,7 +328,7 @@ class Polyfun:
                 a,b,self.size(),vals[-1],vals[0],self._vscale,)
 
     def __str__(self):
-        return "<{0}({1})>".format(
+        return "<{}({})>".format(
             str(type(self)).split('.')[-1].split('>')[0][:-1],self.size(),)
 
     # ----------------------------------------------------------------

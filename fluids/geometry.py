@@ -4119,7 +4119,7 @@ chevron_angles={} degrees, area enhancement factor={:g}'.format(self.a, self.wav
         amplitude_rounded = round(self.amplitude*1000, 2)
         a1 = self.chevron_angles[0]
         a2 = self.chevron_angles[1]
-        s = ('L{0}A{1}B{2}-{3}'.format(wave_rounded, amplitude_rounded, a1, a2))
+        s = ('L{}A{}B{}-{}'.format(wave_rounded, amplitude_rounded, a1, a2))
         return s
 
 
