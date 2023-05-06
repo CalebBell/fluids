@@ -600,7 +600,7 @@ a numpy array for use in KDTree
 2) a list of IntegratedSurfaceDatabaseStation objects; the query will return
 the index of the nearest weather stations.
 """
-with open(os.path.join(folder, 'isd-history-cleaned.tsv'), encoding='utf-8') as f:
+with open(os.path.join(folder, 'isd-history-cleaned.tsv')) as f:
     for line in f:
         values = line.split('\t')
         for i in range(0, 11):
@@ -719,7 +719,7 @@ def get_station_year_text(WMO, WBAN, year, data_dir_override=None):
         gsod_year_dir = os.path.join(data_dir_override, str(year))
     path = os.path.join(gsod_year_dir, station + '.op')
     if os.path.exists(path):
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = f.read()
             if data and data != 'Exception':
                 return data
