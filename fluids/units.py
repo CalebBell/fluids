@@ -32,7 +32,7 @@ import functools
 try:
     from collections.abc import Iterable
 except:
-    from collections import Iterable
+    from collections.abc import Iterable
 from copy import copy
 import fluids
 import fluids.vectorized
@@ -316,7 +316,7 @@ def wraps_numpydoc(ureg, strict=True):
             for name, val in kw.items():
                 unit = in_vars_to_dict[name]
                 kwargs[name] = convert_input(val, unit, ureg, strict)
-            if any([type(i.m) == np.ndarray for i in list(kw.values()) + list(values) if type(i) == u.Quantity]):
+            if any(type(i.m) == np.ndarray for i in list(kw.values()) + list(values) if type(i) == u.Quantity):
                 result = getattr(fluids.vectorized, func.__name__)(*conv_values, **kwargs)
             else:
                 result = func(*conv_values, **kwargs)

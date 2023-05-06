@@ -407,7 +407,7 @@ def transform_dataypes_module(SUBMOD):
                 if arr.dtype.char != 'O':
                     module_constants_changed_type[arr_name] = arr
             elif r_type is list and r and type(r[0]) in numtypes:
-                if len(set([len(r) for r in obj])) == 1:
+                if len({len(r) for r in obj}) == 1:
                     # All same size - nice numpy array
                     arr = np.array(obj)
                     if arr.dtype.char != 'O':
