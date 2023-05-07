@@ -984,7 +984,7 @@ def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
 
 
 try:
-    if IS_NUMBA:  # type: ignore
+    if IS_NUMBA:  # type: ignore # noqa: F821
         import numba
         import numpy as np
         import threading
@@ -1089,8 +1089,6 @@ try:
                 unixtime = unixtime.astype(np.float64)
 
             if ulength < numthreads:
-                warnings.warn('The number of threads is more than the length of '
-                              'the time array. Only using %s threads.' %(length))
                 numthreads = ulength
 
             if numthreads <= 1:

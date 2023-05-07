@@ -520,7 +520,7 @@ def inv_lu(a):
 
 def solve(a, b):
     if len(a) > 4:
-        if IS_PYPY or np is None:
+        if IS_PYPY:
             return solve_LU_decomposition(a, b)
         import numpy as np
         return np.linalg.solve(a, b).tolist()

@@ -3131,7 +3131,7 @@ Darby[DARBY_SWING_CHECK_VALVE] = (1500.0, 0.46, 4.0)
 Darby[DARBY_LIFT_CHECK_VALVE] = (2000.00, 2.85, 3.8)
 
 try:
-    if IS_NUMBA: # type: ignore
+    if IS_NUMBA: # type: ignore # noqa: F821
         Darby_keys = tuple(Darby.keys())
         Darby_values = tuple(Darby.values())
 except:
@@ -3274,7 +3274,7 @@ Hooper[HOOPER_CHECK_VALVE_SWING] = (1500.0, 1.5)
 Hooper[HOOPER_CHECK_VALVE_TILTING_DISK] = (1000.0, 0.5)
 
 try:
-    if IS_NUMBA: # type: ignore
+    if IS_NUMBA: # type: ignore # noqa: F821
         Hooper_keys = tuple(Hooper.keys())
         Hooper_values = tuple(Hooper.values())
 except:

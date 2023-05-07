@@ -3954,7 +3954,7 @@ _Farshad_roughness = {'Plastic coated': (5E-6, 0.0002, -1.0098),
                       'Cr13, bare': (55E-6, 0.0021, -1.0055)  }
 
 try:
-    if IS_NUMBA: # type: ignore
+    if IS_NUMBA: # type: ignore # noqa: F821
         _Farshad_roughness_keys = tuple(_Farshad_roughness.keys())
         _Farshad_roughness_values = tuple(_Farshad_roughness.values())
 except:
