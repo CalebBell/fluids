@@ -65,9 +65,8 @@ else:
         obj = getattr(normal_fluids, name)
         if isinstance(obj, types.FunctionType):
             obj = np.vectorize(obj)
-        elif isinstance(obj, str):
-            if name in bad_names:
-                continue
+        elif isinstance(obj, str) and name in bad_names:
+            continue
         __all__.append(name)
         __funcs[name] = obj
 globals().update(__funcs)

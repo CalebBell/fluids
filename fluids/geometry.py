@@ -3333,12 +3333,10 @@ class TANK:
         self.R = self.D/2.
 
         # If a_ratio is provided for either heads, use it.
-        if self.sideA is not None and D is not None:
-            if self.sideA_a is None and self.sideA in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
-                self.sideA_a = D*self.sideA_a_ratio
-        if self.sideB is not None and D is not None:
-            if self.sideB_a is None and self.sideB in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
-                self.sideB_a = D*self.sideB_a_ratio
+        if self.sideA is not None and D is not None and self.sideA_a is None and self.sideA in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
+            self.sideA_a = D*self.sideA_a_ratio
+        if self.sideB is not None and D is not None and self.sideB_a is None and self.sideB in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
+            self.sideB_a = D*self.sideB_a_ratio
 
         # Calculate a for torispherical heads
         if self.sideA == 'torispherical' and self.sideA_f is not None and self.sideA_k is not None:

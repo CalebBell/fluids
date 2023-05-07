@@ -1897,9 +1897,8 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
                 d_characteristic = sum([fi*di for fi, di in zip(self.fractions, self.Dis)])
                 m = 1.5
                 x0 = [d_characteristic, m]
-        elif distribution == 'RR':
-            if x0 is None:
-                x0 = [5E-6, 1e-2]
+        elif distribution == 'RR' and x0 is None:
+            x0 = [5E-6, 1e-2]
         from scipy.optimize import minimize
         return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)
 
