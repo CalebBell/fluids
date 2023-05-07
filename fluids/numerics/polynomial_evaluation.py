@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 from math import exp, log
+
 from fluids.numerics.special import trunc_exp
 
 __all__ = ['horner', 'horner_and_der', 'horner_and_der2', 'horner_and_der3',

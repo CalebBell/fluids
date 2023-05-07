@@ -46,8 +46,10 @@ Pipe Methods
 
 """
 
-from fluids.constants import inch, lb, foot
 from math import sqrt
+
+from fluids.constants import foot, inch, lb
+
 __all__ = ['nearest_pipe', 'gauge_from_t', 't_from_gauge', 'wire_schedules',
            'erosional_velocity']
 

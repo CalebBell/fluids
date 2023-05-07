@@ -21,8 +21,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from math import sqrt
 import sys
+from math import sqrt
 
 REQUIRE_DEPENDENCIES = False
 if not REQUIRE_DEPENDENCIES:

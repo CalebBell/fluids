@@ -20,7 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from math import sqrt, log
+from math import log, sqrt
+
 __all__ = ['polyint', 'polyint_over_x', 'polyder', 'quadratic_from_points',
 'deflate_cubic_real_roots',  'exp_poly_ln_tau_coeffs3', 'exp_poly_ln_tau_coeffs2',
 'polynomial_offset_scale', 'stable_poly_to_unstable',

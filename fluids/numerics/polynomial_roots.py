@@ -20,9 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from math import (sin, acos, cos,
-                  sqrt)
 from cmath import sqrt as csqrt
+from math import acos, cos, sin, sqrt
 
 __all__ = ['roots_quadratic', 'roots_quartic', 'roots_cubic_a1', 'roots_cubic_a2',
 'roots_cubic']

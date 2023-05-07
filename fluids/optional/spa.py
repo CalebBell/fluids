@@ -49,9 +49,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 
-from math import degrees, sin, cos, tan, radians, atan, asin, atan2, acos
+from math import acos, asin, atan, atan2, cos, degrees, radians, sin, tan
+
 from fluids.constants import deg2rad, rad2deg
 from fluids.numerics import sincos
+
 __all__ = ['julian_day_dt', 'julian_day', 'julian_ephemeris_day', 'julian_century',
            'julian_ephemeris_century', 'julian_ephemeris_millennium', 'heliocentric_longitude',
            'heliocentric_latitude', 'heliocentric_radius_vector', 'geocentric_longitude',
@@ -985,9 +987,10 @@ def solar_position(unixtime, lat, lon, elev, pressure, temp, delta_t,
 
 try:
     if IS_NUMBA:  # type: ignore # noqa: F821
+        import threading
+
         import numba
         import numpy as np
-        import threading
         # This is 3x slower without nogil
         @numba.njit(nogil=True)
         def solar_position_loop(unixtime, loc_args, out):

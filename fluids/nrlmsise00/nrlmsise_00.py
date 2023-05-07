@@ -38,9 +38,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  */
 """
 
-from .nrlmsise_00_header import nrlmsise_output
+from math import cos, exp, log, log10, pow, sin, sqrt
+
 from .nrlmsise_00_data import pavgm, pd, pdl, pdm, pma, ps, pt, ptl, ptm
-from math import sin, cos, pow, exp, log, sqrt, log10
+from .nrlmsise_00_header import nrlmsise_output
+
 __all__ = ['gtd7']
 
 """

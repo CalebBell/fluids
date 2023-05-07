@@ -39,8 +39,9 @@ Misc Functions
 
 """
 
-from fluids.constants import g
 from math import log, pi, sqrt
+
+from fluids.constants import g
 
 __all__ = ['agitator_time_homogeneous',
 'Kp_helical_ribbon_Rieger', 'time_helical_ribbon_Grenville', 'size_tee',

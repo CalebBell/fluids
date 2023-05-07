@@ -27,19 +27,18 @@ __all__ = ['get_clean_isd_history', 'IntegratedSurfaceDatabaseStation',
 #           'geopy_geolocator', 'geopy_cache', 'SimpleGeolocatorCache',
            'geocode']
 
-from io import BytesIO as StringIO
-import os
-import gzip
 import datetime
+import gzip
+import os
 from calendar import isleap
 from collections import namedtuple
+from io import BytesIO as StringIO
+from urllib.request import urlopen
 
 import numpy as np
-from fluids.constants import mile, knot, inch
 from scipy.spatial import cKDTree
 
-
-from urllib.request import urlopen
+from fluids.constants import inch, knot, mile
 
 try:  # pragma: no cover
     from appdirs import user_config_dir
@@ -48,10 +47,11 @@ except ImportError:  # pragma: no cover
     data_dir = ''
 
 try:  # pragma: no cover
-    import geopy
-    from geopy.location import Location
     # No point loading cPickle or sqlite for this reason
     import sqlite3
+
+    import geopy
+    from geopy.location import Location
 except ImportError:  # pragma: no cover
     geopy = None
     Location = None

@@ -20,8 +20,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from fluids.numerics import numpy as np, FakePackage
 import fluids as normal_fluids
+from fluids.numerics import FakePackage
+from fluids.numerics import numpy as np
 
 """Basic module which wraps all fluids functions with numpy's vectorize.
 All other object - dicts, classes, etc - are not wrapped. Supports star

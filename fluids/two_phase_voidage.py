@@ -87,7 +87,8 @@ Gas/Liquid Viscosity
 
 """
 
-from math import exp, log, pi, sin, cos, radians, sqrt
+from math import cos, exp, log, pi, radians, sin, sqrt
+
 from fluids.constants import g
 from fluids.core import Froude
 

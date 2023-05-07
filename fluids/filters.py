@@ -41,8 +41,9 @@ Loss Coefficients for Grills
 
 """
 
-from math import radians, cos
-from fluids.numerics import interp, implementation_optimize_tck, splev
+from math import cos, radians
+
+from fluids.numerics import implementation_optimize_tck, interp, splev
 
 __all__ = ['round_edge_screen', 'round_edge_open_mesh', 'square_edge_screen',
 'square_edge_grill', 'round_edge_grill']

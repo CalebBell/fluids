@@ -23,20 +23,24 @@ SOFTWARE.
 
 __all__ = ['wraps_numpydoc', 'u']
 
-import types
-import re
-import inspect
-import sys
-from inspect import cleandoc
 import functools
+import inspect
+import re
+import sys
+import types
+from inspect import cleandoc
+
 try:
     from collections.abc import Iterable
 except:
     from collections.abc import Iterable
 from copy import copy
+
+import numpy as np
+
 import fluids
 import fluids.vectorized
-import numpy as np
+
 ndarray = np.ndarray
 try:
     from pint import _DEFAULT_REGISTRY as u

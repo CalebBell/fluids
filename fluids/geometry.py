@@ -128,12 +128,10 @@ Pellet Properties
 
 """
 
-from math import (pi, sin, cos, tan, asin, acos, atan, acosh, log, radians,
-                  degrees, sqrt)
 from cmath import sqrt as csqrt
-from fluids.numerics import (cacos, catan, secant, brenth, newton, ellipe, ellipkinc,
-                             ellipeinc, chebval, linspace, derivative, quad,
-                             translate_bound_func)
+from math import acos, acosh, asin, atan, cos, degrees, log, pi, radians, sin, sqrt, tan
+
+from fluids.numerics import brenth, cacos, catan, chebval, derivative, ellipe, ellipeinc, ellipkinc, linspace, newton, quad, secant, translate_bound_func
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
@@ -2366,7 +2364,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
         return 2.0*SA
     elif limit_1 < h <= R:
         if (D*.499 < h < D*.501): # numba: delete
-            from scipy.integrate import dblquad # numba: delete
+            from scipy.integrate import dblquad  # numba: delete
             SA = 2.0*dblquad(_SA_partial_horiz_torispherical_head_int_3, 0.0, a2, lambda x: 0, G_lim, args=(s, t2))[0] # numba: delete
         else: # numba: delete
             # Numerical issues
@@ -3704,8 +3702,9 @@ class TANK:
             The degree of the chebyshev polynomial to be created for the
             `h_from_V` curve, [-]
         '''
-        from fluids.optional.pychebfun import Chebfun
         import numpy as np
+
+        from fluids.optional.pychebfun import Chebfun
         to_fit = lambda h: self.V_from_h(h, 'full')
 
         # These high-degree polynomials cannot safety be evaluated using Horner's methods

@@ -20,8 +20,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from math import (exp, pi, fabs, copysign, log, atan2, asinh, sqrt)
-from cmath import sqrt as csqrt, log as clog
+from cmath import log as clog
+from cmath import sqrt as csqrt
+from math import asinh, atan2, copysign, exp, fabs, log, pi, sqrt
 
 try:
     from math import log1p

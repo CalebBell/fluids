@@ -20,23 +20,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import ctypes
 import importlib.util
-import re
-import types
 import inspect
+import linecache
+import os
+import re
 import string
-import numpy as np
-import fluids as normal_fluids
+import types
+
 import numba
+import numba.types
+import numpy as np
 from numba import float64
 from numba.experimental import jitclass
-import os
-import linecache
-import numba.types
+from numba.extending import get_cython_function_address, overload
+
+import fluids as normal_fluids
 import fluids.optional.spa
-import ctypes
-from numba.extending import get_cython_function_address
-from numba.extending import overload
 
 disable_numba_cache = os.environ.get('NUMBA_FUNCTION_CACHE_SIZE', None) == '0'
 

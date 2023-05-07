@@ -56,10 +56,10 @@ Functions and Data
 """
 
 from math import log10, pi, sqrt
-from fluids.constants import atm, inch
-from fluids.compressible import is_critical_flow
-from fluids.numerics import interp, tck_interp2d_linear, bisplev
 
+from fluids.compressible import is_critical_flow
+from fluids.constants import atm, inch
+from fluids.numerics import bisplev, interp, tck_interp2d_linear
 
 __all__ = ['API526_A_sq_inch', 'API526_letters', 'API526_A',
 'API520_round_size', 'API520_C', 'API520_F2', 'API520_Kv', 'API520_N',

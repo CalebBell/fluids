@@ -128,11 +128,11 @@ Utilities
 
 """
 
-from math import sqrt, log, log10, exp, cos, sin, tan, pi, radians, isinf
-from fluids.constants import inch, g
-from fluids.numerics import secant, lambertw
-from fluids.core import Dean, Reynolds
+from math import cos, exp, isinf, log, log10, pi, radians, sin, sqrt, tan
 
+from fluids.constants import g, inch
+from fluids.core import Dean, Reynolds
+from fluids.numerics import lambertw, secant
 
 __all__ = ['friction_factor', 'friction_factor_methods',
            'friction_factor_curved', 'helical_Re_crit',
@@ -389,8 +389,9 @@ def Colebrook(Re, eD, tol=None):
 #        den = log(10)*eD_Re - 18.574*lambert_term
 #        return float(log(10)**2*Rational('3.7')**2*Rational('2.51')**2/(den*den))
         try:
-            from mpmath import mpf, log, mp, sqrt as sqrtmp
             from mpmath import lambertw as mp_lambertw
+            from mpmath import log, mp, mpf
+            from mpmath import sqrt as sqrtmp
         except:
             raise ImportError('For exact solutions, the `mpmath` library is '
                               'required')

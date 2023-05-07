@@ -57,6 +57,7 @@ Demister Geometry
 """
 
 from math import log, sqrt
+
 from fluids.constants import g, pi
 from fluids.numerics import newton_system, secant, solve_2_direct
 

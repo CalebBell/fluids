@@ -55,7 +55,8 @@ Manning Coefficients
 .. autodata:: n_dicts
 """
 
-from math import tan, radians, sqrt
+from math import radians, sqrt, tan
+
 from fluids.constants import g
 from fluids.numerics import interp
 

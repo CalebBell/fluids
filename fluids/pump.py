@@ -70,8 +70,9 @@ Electrical Utilities
 """
 
 from math import log, sqrt
+
 from fluids.constants import hp
-from fluids.numerics import interp, tck_interp2d_linear, bisplev
+from fluids.numerics import bisplev, interp, tck_interp2d_linear
 
 __all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
 'Corripio_pump_efficiency', 'Corripio_motor_efficiency',

@@ -136,13 +136,13 @@ The main sources for these correlations are as follows [100]_ [101]_ [102]_ [103
 
 """
 
-from math import sqrt, cos, sin, tan, atan, pi, radians, degrees, log10, log
+from math import atan, cos, degrees, log, log10, pi, radians, sin, sqrt, tan
+
 from fluids.constants import deg2rad, rad2deg
-from fluids.friction import (friction_factor, Clamond,
-                             friction_factor_curved, ft_Crane)
-from fluids.numerics import (horner, interp, splev, bisplev,
-                             implementation_optimize_tck, tck_interp2d_linear)
-from fluids.piping import S40i, NPS40
+from fluids.friction import Clamond, friction_factor, friction_factor_curved, ft_Crane
+from fluids.numerics import bisplev, horner, implementation_optimize_tck, interp, splev, tck_interp2d_linear
+from fluids.piping import NPS40, S40i
+
 __all__ = ['contraction_sharp', 'contraction_round',
            'contraction_round_Miller',
 'contraction_conical', 'contraction_conical_Crane', 'contraction_beveled',  'diffuser_sharp',

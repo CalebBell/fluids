@@ -72,9 +72,10 @@ Stagnation Point
 
 """
 
-from math import sqrt, log, pi, exp, isinf
+from math import exp, isinf, log, pi, sqrt
+
 from fluids.constants import R
-from fluids.numerics import lambertw, brenth, secant
+from fluids.numerics import brenth, lambertw, secant
 
 __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT', 'isothermal_gas',

@@ -20,7 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from math import sqrt as msqrt, log as mlog
+from math import log as mlog
+from math import sqrt as msqrt
 
 __all__ = ['add_dd', 'mul_noerrors_dd', 'mul_dd', 'div_dd', 'sqrt_dd',
            'square_dd', 'mul_imag_dd', 'mul_imag_noerrors_dd', 'sqrt_imag_dd',

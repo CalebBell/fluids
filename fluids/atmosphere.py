@@ -50,10 +50,13 @@ Wind Models (requires Fortran compiler!)
 .. autofunction:: hwm14
 """
 
-from math import sqrt, exp, cos, radians, pi, sin
 import os
+from math import cos, exp, pi, radians, sin, sqrt
+
 from fluids.constants import N_A, R, au
-from fluids.numerics import brenth, quad, numpy as np
+from fluids.numerics import brenth, quad
+from fluids.numerics import numpy as np
+
 try:
     from datetime import datetime
 except:
@@ -473,7 +476,7 @@ class ATMOSPHERE_NRLMSISE00:
         self.f107_avg = f107_avg
         self.geomagnetic_disturbance_indices = geomagnetic_disturbance_indices
 
-        from fluids.nrlmsise00 import gtd7, nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
+        from fluids.nrlmsise00 import ap_array, gtd7, nrlmsise_flags, nrlmsise_input, nrlmsise_output
         alt = Z*1e-3
         output_obj = nrlmsise_output()
         input_obj = nrlmsise_input()
@@ -959,8 +962,9 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
        Astronomy Stack Exchange."
        https://astronomy.stackexchange.com/questions/237/what-azimuth-description-systems-are-in-use?rq=1.
     '''
-    from fluids.optional import spa
     import calendar
+
+    from fluids.optional import spa
     tt = moment.utctimetuple()
     delta_t = spa.calculate_deltat(tt.tm_year, tt.tm_mon)
     unixtime = calendar.timegm(tt)
@@ -1041,8 +1045,9 @@ def sunrise_sunset(moment, latitude, longitude):
        Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
        577-89. https://doi.org/10.1016/j.solener.2003.12.003.
     '''
-    from fluids.optional import spa
     import calendar
+
+    from fluids.optional import spa
     if moment.utcoffset() is not None:
         moment_utc = moment + moment.utcoffset()
     else:
@@ -1223,8 +1228,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
        https://doi.org/10.5281/zenodo.1016425.
     '''
     # Atmospheric refraction at sunrise/sunset (0.5667 deg is an often used value)
-    from fluids.optional.irradiance import (get_relative_airmass, get_absolute_airmass,
-                                            ineichen, get_total_irradiance)
+    from fluids.optional.irradiance import get_absolute_airmass, get_relative_airmass, get_total_irradiance, ineichen
 
     moment_timetuple = moment.timetuple()
     moment_arg_dni = (moment_timetuple.tm_yday if
@@ -1256,11 +1260,11 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
 
     if linke_turbidity is None:
         try:
-            import pvlib # noqa: F401
+            import pvlib  # noqa: F401
         except:
             raise ImportError(PVLIB_MISSING_MSG)
-        from pvlib.clearsky import lookup_linke_turbidity
         import pandas as pd
+        from pvlib.clearsky import lookup_linke_turbidity
         linke_turbidity = float(lookup_linke_turbidity(
             pd.DatetimeIndex([moment]), latitude, longitude).values)
 

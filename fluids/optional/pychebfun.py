@@ -28,14 +28,15 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 """
 
 import operator
-from functools import wraps
-import numpy as np
-
-import numpy.polynomial as poly
-from numpy.polynomial.chebyshev import cheb2poly, Chebyshev
-from numpy.polynomial.polynomial import Polynomial
-import warnings
 import sys
+import warnings
+from functools import wraps
+
+import numpy as np
+import numpy.polynomial as poly
+from numpy.polynomial.chebyshev import Chebyshev, cheb2poly
+from numpy.polynomial.polynomial import Polynomial
+
 emach = sys.float_info.epsilon # machine epsilon
 
 global sp_fftpack_ifft

@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from inspect import isclass
 import types
+from inspect import isclass
 
 try:
     import importlib.machinery

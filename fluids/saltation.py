@@ -40,8 +40,9 @@ Correlations
 
 """
 
-from fluids.constants import g, pi
 from math import sqrt
+
+from fluids.constants import g, pi
 
 __all__ = ['Rizk', 'Matsumoto_1974', 'Matsumoto_1975', 'Matsumoto_1977',
 'Schade', 'Weber_saltation', 'Geldart_Ling']

@@ -36,9 +36,10 @@ Functions
 .. autofunction :: K_Sounders_Brown_theoretical
 """
 
-from math import log, exp, sqrt
-from fluids.constants import g, foot, psi
-from fluids.numerics import splev, implementation_optimize_tck
+from math import exp, log, sqrt
+
+from fluids.constants import foot, g, psi
+from fluids.numerics import implementation_optimize_tck, splev
 
 __all__ = ['v_Sounders_Brown', 'K_separator_Watkins',
            'K_separator_demister_York', 'K_Sounders_Brown_theoretical']

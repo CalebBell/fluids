@@ -80,13 +80,13 @@ __all__ = ['two_phase_dP', 'two_phase_dP_methods', 'two_phase_dP_acceleration',
            'Mishima_Hibiki', 'Bankoff',
            'Mandhane_Gregory_Aziz_regime', 'Taitel_Dukler_regime']
 
-from math import pi, log, exp, sin, cos, radians, log10, sqrt
-from fluids.constants import g, deg2rad
-from fluids.numerics import splev, implementation_optimize_tck
-from fluids.friction import friction_factor
-from fluids.core import Reynolds, Froude, Weber, Confinement, Bond, Suratman
-from fluids.two_phase_voidage import homogeneous, Lockhart_Martinelli_Xtt
+from math import cos, exp, log, log10, pi, radians, sin, sqrt
 
+from fluids.constants import deg2rad, g
+from fluids.core import Bond, Confinement, Froude, Reynolds, Suratman, Weber
+from fluids.friction import friction_factor
+from fluids.numerics import implementation_optimize_tck, splev
+from fluids.two_phase_voidage import Lockhart_Martinelli_Xtt, homogeneous
 
 Beggs_Brill_dat = {'segregated': (0.98, 0.4846, 0.0868),
 'intermittent': (0.845, 0.5351, 0.0173),

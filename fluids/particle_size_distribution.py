@@ -104,9 +104,9 @@ __all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
            'ISO_3310_1_R20_3', 'ISO_3310_1_R20', 'ISO_3310_1_R10',
            'ISO_3310_1_R40_3']
 
-from math import log, exp, pi, log10, sqrt
-from fluids.numerics import (brenth, epsilon, gamma, erf, gammaincc,
-                             linspace, logspace, cumsum, diff, normalize, quad)
+from math import exp, log, log10, pi, sqrt
+
+from fluids.numerics import brenth, cumsum, diff, epsilon, erf, gamma, gammaincc, linspace, logspace, normalize, quad
 
 ROOT_TWO_PI = sqrt(2.0*pi)
 
