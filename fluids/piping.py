@@ -1067,7 +1067,7 @@ def erosional_velocity(rho, C):
 
     References
     ----------
-    .. [1] "API RP 14E : Recommended Practice for Design and Installation
+    .. [1] "API RP 14E : Recommended Practice for Design and Installation
        of Offshore Production Platform Piping Systems." 5E, 2000
     .. [2] Madani Sani, F., S. Huizinga, K. A. Esaklul, and S. Nesic. "Review of
        the API RP 14E Erosional Velocity Equation: Origin, Applications, Misuses,

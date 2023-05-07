@@ -664,7 +664,7 @@ def vacuum_air_leakage_Ryans_Croll(V, P, P_atm=101325.0):
     ----------
     .. [1] Ryans, J. L. and Croll, S. "Selecting Vacuum Systems," 1981.
     .. [2] Coker, Kayode. Ludwig's Applied Process Design for Chemical and
-       Petrochemical Plants. 4 edition. Amsterdam ; Boston: Gulf Professional
+       Petrochemical Plants. 4 edition. Amsterdam ; Boston: Gulf Professional
        Publishing, 2007.
     .. [3] Govoni, Patrick. "An Overview of Vacuum System Design"
        Chemical Engineering Magazine, September 2017.
@@ -827,7 +827,7 @@ def vacuum_air_leakage_Coker_Worthington(P, P_atm=101325.0, conservative=True):
     References
     ----------
     .. [1] Coker, Kayode. Ludwig's Applied Process Design for Chemical and
-       Petrochemical Plants. 4 edition. Amsterdam ; Boston: Gulf Professional
+       Petrochemical Plants. 4 edition. Amsterdam ; Boston: Gulf Professional
        Publishing, 2007.
     '''
     P /= inchHg # convert to inch Hg

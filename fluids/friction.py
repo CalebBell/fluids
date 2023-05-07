@@ -289,7 +289,7 @@ def Blasius(Re):
        Berlin, Heidelberg: Springer Berlin Heidelberg, 1913.
        http://rd.springer.com/chapter/10.1007/978-3-662-02239-9_1.
     .. [2] Hager, W. H. "Blasius: A Life in Research and Education." In
-       Experiments in Fluids, 566–571, 2003.
+       Experiments in Fluids, 566-571, 2003.
     '''
     return 0.3164/sqrt(sqrt(Re))
 
@@ -2323,7 +2323,7 @@ def helical_laminar_fd_Mori_Nakayama(Re, Di, Dc):
     References
     ----------
     .. [1] Mori, Yasuo, and Wataru Nakayama. "Study on Forced Convective Heat
-       Transfer in Curved Pipes : 1st Report, Laminar Region." Transactions of
+       Transfer in Curved Pipes : 1st Report, Laminar Region." Transactions of
        the Japan Society of Mechanical Engineers 30, no. 216 (1964): 977-88.
        doi:10.1299/kikai1938.30.977.
     .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and
@@ -2706,7 +2706,7 @@ def helical_turbulent_fd_Guo(Re, Di, Dc):
     References
     ----------
     .. [1] Guo, Liejin, Ziping Feng, and Xuejun Chen. "An Experimental
-       Investigation of the Frictional Pressure Drop of Steam–water Two-Phase
+       Investigation of the Frictional Pressure Drop of Steam-water Two-Phase
        Flow in Helical Coils." International Journal of Heat and Mass Transfer
        44, no. 14 (July 2001): 2601-10. doi:10.1016/S0017-9310(00)00312-4.
     .. [2] El-Genk, Mohamed S., and Timothy M. Schriener. "A Review and
@@ -4084,7 +4084,7 @@ def nearest_material_roughness(name, clean=None):
 
     References
     ----------
-    .. [1] Idelʹchik, I. E, and A. S Ginevskiĭ. Handbook of Hydraulic
+    .. [1] Idel`chik, I. E, and A. S Ginevskiĭ. Handbook of Hydraulic
        Resistance. Redding, CT: Begell House, 2007.
     '''
     if clean is None:
@@ -4128,7 +4128,7 @@ def material_roughness(ID, D=None, optimism=None):
 
     References
     ----------
-    .. [1] Idelʹchik, I. E, and A. S Ginevskiĭ. Handbook of Hydraulic
+    .. [1] Idel`chik, I. E, and A. S Ginevskiĭ. Handbook of Hydraulic
        Resistance. Redding, CT: Begell House, 2007.
     .. [2] Farshad, Fred F., and Herman H. Rieke. "Surface Roughness Design
        Values for Modern Pipes." SPE Drilling & Completion 21, no. 3 (September

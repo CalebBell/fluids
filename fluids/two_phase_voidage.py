@@ -155,7 +155,7 @@ def Thom(x, rhol, rhog, mul, mug):
        doi:10.1016/0017-9310(64)90002-X.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -205,7 +205,7 @@ def Zivi(x, rhol, rhog):
        Transfer 86, no. 2 (May 1, 1964): 247-51. doi:10.1115/1.3687113.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -260,7 +260,7 @@ def Smith(x, rhol, rhog):
        doi:10.1243/PIME_PROC_1969_184_051_02.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -313,7 +313,7 @@ def Fauske(x, rhol, rhog):
        Press, 1961, p. 79-89.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -364,7 +364,7 @@ def Chisholm_voidage(x, rhol, rhog):
        1973): 347-58. doi:10.1016/0017-9310(73)90063-X.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -420,7 +420,7 @@ def Turner_Wallis(x, rhol, rhog, mul, mug):
        Hampshire, USA, 1965.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -466,7 +466,7 @@ def homogeneous(x, rhol, rhog):
     ----------
     .. [1] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [2] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -522,7 +522,7 @@ def Chisholm_Armand(x, rhol, rhog):
        Establishment, 1959.
     .. [3] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [4] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -573,7 +573,7 @@ def Armand(x, rhol, rhog):
        Establishment, 1959.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -630,7 +630,7 @@ def Nishino_Yamazaki(x, rhol, rhog):
        39-46. doi:10.3327/jaesj.5.39.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Woldesemayat, Melkamu A., and Afshin J. Ghajar. "Comparison of Void
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
@@ -685,7 +685,7 @@ def Guzhov(x, rhol, rhog, m, D):
        1967.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     .. [3] Woldesemayat, Melkamu A., and Afshin J. Ghajar. "Comparison of Void
        Fraction Correlations for Different Flow Patterns in Horizontal and
@@ -748,7 +748,7 @@ def Kawahara(x, rhol, rhog, D):
        doi:10.1080/01457630590907158.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -877,7 +877,7 @@ def Baroczy(x, rhol, rhog, mul, mug):
        179-191.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -957,7 +957,7 @@ def Tandon_Varma_Gupta(x, rhol, rhog, mul, mug, m, D):
        doi:10.1016/0017-9310(85)90021-3.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -1029,7 +1029,7 @@ def Harms(x, rhol, rhog, mul, mug, m, D):
        doi:10.1016/0017-9310(85)90021-3.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -1096,7 +1096,7 @@ def Domanski_Didion(x, rhol, rhog, mul, mug):
        Report. UNT Digital Library, May 1983.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -1165,7 +1165,7 @@ def Graham(x, rhol, rhog, mul, mug, m, D, g=g):
        at Urbana-Champaign., December 1997.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -1231,7 +1231,7 @@ def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
        67-82. doi:10.1080/10789669.2001.10391430.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -1284,7 +1284,7 @@ def Huq_Loth(x, rhol, rhog):
        (January 1, 1992): 139-44. doi:10.2514/3.329.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -1356,7 +1356,7 @@ def Kopte_Newell_Chato(x, rhol, rhog, mul, mug, m, D, g=g):
        University of Illinois at Urbana-Champaign., August 1998.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     '''
     G = m/(pi/4*D**2)
     Ft = sqrt(G**2*x**3/((1-x)*rhog**2*g*D))
@@ -1419,7 +1419,7 @@ def Steiner(x, rhol, rhog, sigma, m, D, g=g):
        Berlin; New York:: Springer, 2010.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Dalkilic, A. S., S. Laohalertdecha, and S. Wongwises. "Effect of
        Void Fraction Models on the Two-Phase Friction Factor of R134a during
        Condensation in Vertical Downward Flow in a Smooth Tube." International
@@ -1485,7 +1485,7 @@ def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
        doi:10.1016/0017-9310(70)90114-6.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Woldesemayat, Melkamu A., and Afshin J. Ghajar. "Comparison of Void
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
@@ -1550,7 +1550,7 @@ def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
        doi:10.1016/0017-9310(70)90114-6.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Woldesemayat, Melkamu A., and Afshin J. Ghajar. "Comparison of Void
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
@@ -1610,7 +1610,7 @@ def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
        tubes", Trans. Inst. Chem. Eng. 40 (1962) 61-68.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Woldesemayat, Melkamu A., and Afshin J. Ghajar. "Comparison of Void
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
@@ -1666,7 +1666,7 @@ def Gregory_Scott(x, rhol, rhog):
        doi:10.1002/aic.690150623.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Woldesemayat, Melkamu A., and Afshin J. Ghajar. "Comparison of Void
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
@@ -1738,7 +1738,7 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
        Berkeley, 1971.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Woldesemayat, Melkamu A., and Afshin J. Ghajar. "Comparison of Void
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
@@ -1808,7 +1808,7 @@ def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
        Experiments, 1980, pp. 1-10. Orlando, Florida, USA.
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     .. [3] Woldesemayat, Melkamu A., and Afshin J. Ghajar. "Comparison of Void
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
@@ -1868,7 +1868,7 @@ def Xu_Fang_voidage(x, rhol, rhog, m, D, g=g):
     ----------
     .. [1] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
-       1-2 (March 2014): 242–51. doi:10.1016/j.applthermaleng.2013.12.032.
+       1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     '''
     G = m/(pi/4*D**2)
     alpha_h = homogeneous(x, rhol, rhog)

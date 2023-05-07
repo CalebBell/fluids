@@ -147,7 +147,7 @@ def isothermal_work_compression(P1, P2, T, Z=1.0):
     References
     ----------
     .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
-       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
+       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     '''
     return Z*R*T*log(P2/P1)
@@ -245,7 +245,7 @@ def isentropic_work_compression(T1, k, Z=1.0, P1=None, P2=None, W=None, eta=None
     References
     ----------
     .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
-       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
+       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     '''
     if W is None and eta is not None and P1 is not None and P2 is not None:
@@ -306,7 +306,7 @@ def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
     References
     ----------
     .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
-       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
+       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     .. [2] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
        Suppliers Association, Tulsa, OK, 2012.
@@ -359,7 +359,7 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
     References
     ----------
     .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
-       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
+       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     '''
     if eta_s is None and eta_p is not None:
@@ -409,7 +409,7 @@ def polytropic_exponent(k, n=None, eta_p=None):
     References
     ----------
     .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
-       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
+       Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
     '''
     if n is None and eta_p is not None:

@@ -927,7 +927,7 @@ def glob7s(p, Input, flags):
 def gtd7(Input, flags, output):
     """The standard model subroutine (GTD7) always computes the.
 
-    ‘‘thermospheric’’ mass density by explicitly summing the masses of the
+    ``thermospheric`` mass density by explicitly summing the masses of the
     species in equilibrium at the thermospheric temperature T(z).
     """
     mn3 = 5
@@ -1050,7 +1050,7 @@ def gtd7(Input, flags, output):
 /* ------------------------------------------------------------------- */
 """
 def gtd7d(Input, flags, output): # pragma: no cover
-    """A separate subroutine (GTD7D) computes the ‘‘effec- tive’’ mass density
+    """A separate subroutine (GTD7D) computes the ``effec- tive`` mass density
     by summing the thermospheric mass density and the mass density of the
     anomalous oxygen component.
 

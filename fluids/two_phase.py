@@ -1039,7 +1039,7 @@ def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     .. [2] Kim, Sung-Min, and Issam Mudawar. "Universal Approach to Predicting
        Two-Phase Frictional Pressure Drop for Adiabatic and Condensing Mini/
        Micro-Channel Flows." International Journal of Heat and Mass Transfer
-       55, no. 11–12 (May 2012): 3246-61.
+       55, no. 11-12 (May 2012): 3246-61.
        doi:10.1016/j.ijheatmasstransfer.2012.02.047.
     .. [3] Filip, Alina, Florin Băltăreţu, and Radu-Mircea Damian. "Comparison
        of Two-Phase Pressure Drop Models for Condensing Flows in Horizontal
@@ -1120,7 +1120,7 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     .. [2] Kim, Sung-Min, and Issam Mudawar. "Universal Approach to Predicting
        Two-Phase Frictional Pressure Drop for Adiabatic and Condensing Mini/
        Micro-Channel Flows." International Journal of Heat and Mass Transfer
-       55, no. 11–12 (May 2012): 3246-61.
+       55, no. 11-12 (May 2012): 3246-61.
        doi:10.1016/j.ijheatmasstransfer.2012.02.047.
     .. [3] Choi, Kwang-Il, A. S. Pamitran, Chun-Young Oh, and Jong-Taek Oh.
        "Two-Phase Pressure Drop of R-410A in Horizontal Smooth Minichannels."
@@ -1214,13 +1214,13 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     References
     ----------
     .. [1] Chen, Ing Youn, Kai-Shing Yang, Yu-Juei Chang, and Chi-Chung Wang.
-       "Two-Phase Pressure Drop of Air–water and R-410A in Small Horizontal
+       "Two-Phase Pressure Drop of Air-water and R-410A in Small Horizontal
        Tubes." International Journal of Multiphase Flow 27, no. 7 (July 2001):
        1293-99. doi:10.1016/S0301-9322(01)00004-0.
     .. [2] Kim, Sung-Min, and Issam Mudawar. "Universal Approach to Predicting
        Two-Phase Frictional Pressure Drop for Adiabatic and Condensing Mini/
        Micro-Channel Flows." International Journal of Heat and Mass Transfer
-       55, no. 11–12 (May 2012): 3246-61.
+       55, no. 11-12 (May 2012): 3246-61.
        doi:10.1016/j.ijheatmasstransfer.2012.02.047.
     .. [3] Choi, Kwang-Il, A. S. Pamitran, Chun-Young Oh, and Jong-Taek Oh.
        "Two-Phase Pressure Drop of R-410A in Horizontal Smooth Minichannels."
@@ -1577,7 +1577,7 @@ def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        doi:10.1016/j.ijheatmasstransfer.2012.02.047.
     .. [3] Xu, Yu, Xiande Fang, Xianghui Su, Zhanru Zhou, and Weiwei Chen.
        "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow
-       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
+       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
     '''
     # Actual Liquid flow
@@ -1663,7 +1663,7 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        doi:10.1016/j.ijheatmasstransfer.2012.02.047.
     .. [3] Xu, Yu, Xiande Fang, Xianghui Su, Zhanru Zhou, and Weiwei Chen.
        "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow
-       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
+       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
     '''
     G_tp = m/(pi/4*D**2)
@@ -1761,7 +1761,7 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        doi:10.1016/j.ijheatmasstransfer.2012.02.047.
     .. [3] Xu, Yu, Xiande Fang, Xianghui Su, Zhanru Zhou, and Weiwei Chen.
        "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow
-       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
+       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
     '''
     # Liquid-only flow
@@ -1870,7 +1870,7 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
        doi:10.1016/j.ijheatmasstransfer.2012.02.047.
     .. [3] Xu, Yu, Xiande Fang, Xianghui Su, Zhanru Zhou, and Weiwei Chen.
        "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow
-       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
+       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
     '''
     # Actual Liquid flow
@@ -1969,7 +1969,7 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        doi:10.1016/j.ijheatmasstransfer.2012.02.047.
     .. [3] Xu, Yu, Xiande Fang, Xianghui Su, Zhanru Zhou, and Weiwei Chen.
        "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow
-       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
+       in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
     '''
     # Actual Liquid flow

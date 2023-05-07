@@ -1234,7 +1234,7 @@ def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
 
     References
     ----------
-    .. [1] Benyahia, F., and K. E. O’Neill. "Enhanced Voidage Correlations for
+    .. [1] Benyahia, F., and K. E. O`Neill. "Enhanced Voidage Correlations for
        Packed Beds of Various Particle Shapes and Sizes." Particulate Science
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
@@ -1275,7 +1275,7 @@ def voidage_Benyahia_Oneil_spherical(Dp, Dt):
 
     References
     ----------
-    .. [1] Benyahia, F., and K. E. O’Neill. "Enhanced Voidage Correlations for
+    .. [1] Benyahia, F., and K. E. O`Neill. "Enhanced Voidage Correlations for
        Packed Beds of Various Particle Shapes and Sizes." Particulate Science
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
@@ -1319,7 +1319,7 @@ def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
 
     References
     ----------
-    .. [1] Benyahia, F., and K. E. O’Neill. "Enhanced Voidage Correlations for
+    .. [1] Benyahia, F., and K. E. O`Neill. "Enhanced Voidage Correlations for
        Packed Beds of Various Particle Shapes and Sizes." Particulate Science
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.

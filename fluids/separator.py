@@ -298,7 +298,7 @@ def v_Sounders_Brown(K, rhol, rhog):
        Columns I. Entrainment and Capacity." Industrial & Engineering Chemistry
        26, no. 1 (January 1, 1934): 98-103. https://doi.org/10.1021/ie50289a025.
     .. [2] Vasude, Gael D. Ulrich and Palligarnai T. Chemical Engineering
-       Process Design and Economics : A Practical Guide. 2nd edition. Durham,
+       Process Design and Economics : A Practical Guide. 2nd edition. Durham,
        N.H: Process Publishing, 2004.
     '''
     return K*sqrt((rhol - rhog)/rhog)

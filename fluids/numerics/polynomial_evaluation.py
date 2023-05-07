@@ -84,7 +84,7 @@ def horner(coeffs, x):
 
     References
     ----------
-    .. [1] "Horner’s Method." Wikipedia, October 6, 2018.
+    .. [1] "Horner`s Method." Wikipedia, October 6, 2018.
     https://en.wikipedia.org/w/index.php?title=Horner%27s_method&oldid=862709437.
     '''
     tot = 0.0

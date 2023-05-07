@@ -454,7 +454,7 @@ class ATMOSPHERE_NRLMSISE00:
        "NRLMSISE-00 Empirical Model of the Atmosphere: Statistical Comparisons
        and Scientific Issues." Journal of Geophysical Research: Space Physics
        107, no. A12 (December 1, 2002): 1468. doi:10.1029/2002JA009430.
-    .. [2] Tapping, K. F. "The 10.7 Cm Solar Radio Flux (F10.7)." Space Weather
+    .. [2] Tapping, K. F. "The 10.7 Cm Solar Radio Flux (F10.7)." Space Weather
        11, no. 7 (July 1, 2013): 394-406. doi:10.1002/swe.20064.
     .. [3] Natalia Papitashvili. "NRLMSISE-00 Atmosphere Model." Accessed
        November 27, 2016. http://ccmc.gsfc.nasa.gov/modelweb/models/nrlmsise00.php.

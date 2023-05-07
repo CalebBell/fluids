@@ -5057,7 +5057,7 @@ def sphericity(A, V):
     References
     ----------
     .. [1] Rhodes, Martin J., ed. Introduction to Particle Technology. 2E.
-       Chichester, England ; Hoboken, NJ: Wiley, 2008.
+       Chichester, England ; Hoboken, NJ: Wiley, 2008.
     .. [2] "Sphericity." Wikipedia, March 8, 2017.
        https://en.wikipedia.org/w/index.php?title=Sphericity&oldid=769183043
     '''

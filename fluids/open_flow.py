@@ -131,8 +131,8 @@ def Q_weir_V_Shen(h1, angle=90):
     References
     ----------
     .. [1] Shen, John. "Discharge Characteristics of Triangular-Notch
-       Thin-Plate Weirs : Studies of Flow to Water over Weirs and Dams."
-       USGS Numbered Series. Water Supply Paper. U.S. Geological Survey :
+       Thin-Plate Weirs : Studies of Flow to Water over Weirs and Dams."
+       USGS Numbered Series. Water Supply Paper. U.S. Geological Survey :
        U.S. G.P.O., 1981
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
@@ -300,7 +300,7 @@ def Q_weir_rectangular_full_Ackers(h1, h2, b):
     References
     ----------
     .. [1] Ackers, Peter, W. R. White, J. A. Perkins, and A. J. M. Harrison.
-       Weirs and Flumes for Flow Measurement. Chichester ; New York:
+       Weirs and Flumes for Flow Measurement. Chichester ; New York:
        John Wiley & Sons Ltd, 1978.
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.

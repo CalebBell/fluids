@@ -1325,7 +1325,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Rushton, Albert, Anthony S. Ward, and Richard G. Holdich.
-       Solid-Liquid Filtration and Separation Technology. 1st edition. Weinheim ;
+       Solid-Liquid Filtration and Separation Technology. 1st edition. Weinheim ;
        New York: Wiley-VCH, 1996.
     '''
     """The following would be the ideal implementation. The actual function is

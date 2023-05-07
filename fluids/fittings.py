@@ -127,7 +127,7 @@ The main sources for these correlations are as follows [100]_ [101]_ [102]_ [103
    and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
 .. [102] Miller, Donald S. Internal Flow Systems: Design and Performance
    Prediction. Gulf Publishing Company, 1990.
-.. [103] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
+.. [103] Idel`chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
    Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
    Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
    Treniya). National technical information Service, 1966.
@@ -263,7 +263,7 @@ def entrance_sharp(method='Rennels'):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     .. [2] Miller, Donald S. Internal Flow Systems: Design and Performance
        Prediction. Gulf Publishing Company, 1990.
-    .. [3] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
+    .. [3] Idel`chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
        Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
@@ -426,7 +426,7 @@ def entrance_distance(Di, t=None, l=None, method='Rennels'):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     .. [2] Miller, Donald S. Internal Flow Systems: Design and Performance
        Prediction. Gulf Publishing Company, 1990.
-    .. [3] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
+    .. [3] Idel`chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
        Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
@@ -562,7 +562,7 @@ def entrance_angled(angle, method='Idelchik'):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    .. [2] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
+    .. [2] Idel`chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
        Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
@@ -705,7 +705,7 @@ def entrance_rounded(Di, rc, method='Rennels'):
        2009.
     .. [7] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    .. [8] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
+    .. [8] Idel`chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
        Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
@@ -833,7 +833,7 @@ def entrance_beveled(Di, l, angle, method='Rennels'):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    .. [2] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
+    .. [2] Idel`chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
        Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
@@ -2017,7 +2017,7 @@ def contraction_round(Di1, Di2, rc, method='Rennels'):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     .. [2] Miller, Donald S. Internal Flow Systems: Design and Performance
        Prediction. Gulf Publishing Company, 1990.
-    .. [3] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
+    .. [3] Idel`chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
        Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
@@ -2309,7 +2309,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    .. [2] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
+    .. [2] Idel`chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
        Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
@@ -2804,7 +2804,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    .. [2] Idel’chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
+    .. [2] Idel`chik, I. E. Handbook of Hydraulic Resistance: Coefficients of
        Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
@@ -3331,7 +3331,7 @@ def Hooper2K(Di, Re, name=None, K1=None, Kinfty=None):
     .. [2] Hooper, William B. "Calculate Head Loss Caused by Change in Pipe
        Size." Chemical Engineering 95, no. 16 (November 7, 1988): 89.
     .. [3] Kayode Coker. Ludwig's Applied Process Design for Chemical and
-       Petrochemical Plants. 4E. Amsterdam ; Boston: Gulf Professional
+       Petrochemical Plants. 4E. Amsterdam ; Boston: Gulf Professional
        Publishing, 2007.
     '''
     if name is not None:

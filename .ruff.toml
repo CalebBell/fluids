@@ -95,7 +95,7 @@ extend-ignore = [
     "PTH",
     "RET",
     "RSE102",  
-    "RUF001", "RUF002", "RUF003",  
+    "RUF001", "RUF003",  
     "RUF005",  
     "S101",  
     "S105",  
