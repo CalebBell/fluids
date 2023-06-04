@@ -16,6 +16,8 @@ extend-ignore = [
     "DTZ004", # utcfromtimestamp makes sense for atmosphere model
     "PGH003", # type ignoring makes sense for numba-related things
     "S102", # Yes, exec is dangerous but it can be quite useful as well
+    
+    "TD002","TD003","TD004","TD005",
 
     # Originally from astropy's pyproject.toml, see about removing many of them later
     
