@@ -385,7 +385,7 @@ def exp_horner_stable_ln_tau(T, Tc, coeffs, offset, scale):
     if T >= Tc:
         return 0.0
     lntau = log(1.0 - T/Tc)
-    return exp(horner_stable(lntau, coeffs, offset, scale))
+    return trunc_exp(horner_stable(lntau, coeffs, offset, scale))
 
 def exp_horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale):
     if T >= Tc:
@@ -393,7 +393,7 @@ def exp_horner_stable_ln_tau_and_der(T, Tc, coeffs, offset, scale):
     tau = 1.0 - T/Tc
     lntau = log(tau)
     poly_val, poly_der_val = horner_stable_and_der(lntau, coeffs, offset, scale)
-    val = exp(poly_val)
+    val = trunc_exp(poly_val)
     return val, -val*poly_der_val/(Tc*tau)
 
 def exp_horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale):
@@ -402,7 +402,7 @@ def exp_horner_stable_ln_tau_and_der2(T, Tc, coeffs, offset, scale):
     tau = 1.0 - T/Tc
     lntau = log(tau)
     poly_val, poly_val_der, poly_val_der2 = horner_stable_and_der2(lntau, coeffs, offset, scale)
-    val = exp(poly_val)
+    val = trunc_exp(poly_val)
     der = -val*poly_val_der/(Tc*tau)
     der2 = (poly_val_der*poly_val_der - poly_val_der + poly_val_der2)*val/(Tc*Tc*(tau*tau))
 

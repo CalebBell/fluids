@@ -378,7 +378,7 @@ class UnitAwareClass:
         try:
             value = getattr(self.wrapped, name)
         except Exception as e:
-            raise AttributeError(f'Failed to get property {str(name)} with error {str(e)}')
+            raise AttributeError(f'Failed to get property {name!s} with error {str(e)}')
         if value is not None:
             if name in self.property_units:
                 if type(value) == dict:
