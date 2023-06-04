@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.0.23] - 2023-06-04
+
+### Changed
+- Code cleanup with ruff (experiment)
+- Update notes on IronPython
+
 ## [1.0.23] - 2023-04-23
 
 ### Added
