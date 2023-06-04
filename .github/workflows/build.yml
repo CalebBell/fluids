@@ -84,6 +84,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-${{ runner.architecture }}-${{ runner.python-version }}pip-
 
+    - name: Install Ubuntu dependencies
+      if: startsWith(runner.os, 'Linux')
+      run: |
+        # Taken from scipy
+        sudo apt-get update
+        sudo apt-get install -y libopenblas-dev libatlas-base-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev
+    
     - name: Install dependencies
       run: |
         python -c "import platform; print(platform.platform()); print(platform.architecture())"
