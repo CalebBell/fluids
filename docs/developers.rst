@@ -93,23 +93,30 @@ Monkeytype on the `fluids` test suite takes ~15 minutes to run, and generates a 
 
 Supported Python Versions
 -------------------------
-Fluids targets Python 3.6 and up as well as PyPy3. Additionally, fluids has been tested by the author to load in IronPython, and Micropython.
+Fluids targets Python 3.6 and up as well as PyPy3. Additionally, fluids has been tested by the author at various points to load in IronPython, and Micropython.
 
-Unfortunately there is no CI infrastructure for these other Python implementations. For IronPython, and Micropython there is no NumPy/SciPy which means there is no hope of passing the whole test suite on them either; indeed pytest won't load on any of them.
-If you have a need for a specific feature to work in an implementation, don't hesitate to reach out to the author to discuss it.
+Unfortunately there is no CI infrastructure for these other Python implementations. 
+For IronPython and Micropython there is no NumPy/SciPy which means there is no hope of passing the whole test suite on them either; indeed pytest won't load on any of them.
 
-It is intended for IronPython to support everything except functionality which has a hard dependency on NumPy or SciPy. IronPython Python 3 variant being most of the way there. This may lead to integration with other programs in the future as IronPython is often used as a scripting language.
+At one point, the author hoped IronPython 3 would support everything except functionality which has a hard dependency on NumPy or SciPy.
+This could allow for integration with other programs in the future as IronPython is often used as a scripting language.
+Over the years the development speed of Python and IronPython have diverged significantly. 
+Although a Python 3 IronPython was released at the end of 2022, the Python version implemented (3.4) was already dropped from support by Fluids; the CI could no longer work with it.
+At this point it would probably be recommended to use an older version of fluids with IronPython.
 
-Micropython is designed to run on limited RAM, and fluids is too large for most microprocessors. You will likely have to copy/paste the specific parts of `fluids` you want to use for this application.
+Micropython is designed to run on limited RAM, and fluids is too large for most microprocessors. 
+You will likely have to copy/paste the specific parts of `fluids` you want to use on a microprocessor.
 
 Packaging
 ---------
 The most up to date fluids can be obtained on GitHub, and new releases are pushed to PyPi whenever a new release is made.
-Fluids is available on Conda thanks to Diego Volpatto and on Debian and thus Ubuntu thanks to Kurt Kremitzki. Conda updates more or less automatically but takes hours to build.
+Fluids is available on Conda thanks to Diego Volpatto and on Debian and derivatives - special thanks to Kurt Kremitzki for packaging this. 
+Conda updates more or less automatically but takes hours to build.
 
 Code Formatting
 ---------------
-Pep8 is loosely followed. Do your best to follow it if possible, otherwise don't worry about it. Please don't submit a PR for just style changes. Some arguments like `Method` or classes like TANK are unfortunately not pep8 for historical reasons.
+Pep8 is loosely followed. Do your best to follow it if possible, otherwise don't worry about it. Please don't submit a PR for just style changes.
+Some arguments like `Method` or classes like TANK are unfortunately not pep8 for historical reasons.
 
 
 Documentation
@@ -136,7 +143,8 @@ Or to do the same on all notebooks in all directories:
 
 Continuous Integration
 ----------------------
-Github Actions, Travis and Appveyor are presently used. They test only code in the `release` branch. Some tests, like those that download data from the internet, are not ran by design on their platforms. The same goes for testing `numba` online - getting an up to date version of numba is challenging.
+Github Actions, Travis and Appveyor are presently used. They test only code in the `release` branch. Some tests, like those that download data from the internet, are not ran by design on their platforms.
+The same goes for testing `numba` online - getting an up to date version of numba is challenging.
 
 Load Speed
 ----------
