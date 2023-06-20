@@ -394,7 +394,7 @@ def test_differential_pressure_meter_solver_misc():
 
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, rho=1.2, mu=0.00011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
     assert_close(m, 0.2695835697819371)
-    
+
     m_expect = 7.9299168920313425
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D', epsilon_specified=1)
     assert_close(m, m_expect)
@@ -477,7 +477,7 @@ def test_nozzle_expansibility():
     assert_close(epsilon, 0.9945702344566746)
 
     assert_close(nozzle_expansibility(D=0.0739, Do=0.0222, P1=1E5, P2=1e5, k=1.4), 1, rtol=1e-14)
-    
+
     assert_close(nozzle_expansibility(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, k=1), 0.9924074233062772, rtol=1e-13)
 
 def test_C_long_radius_nozzle():
@@ -891,7 +891,7 @@ def test_differential_pressure_meter_C_epsilon():
 def test_issue_49():
     kwargs = {'D': 0.36,  'rho': 39.6, 'mu': 1.32e-05, 'k': 1.3,'D2': 0.28,'P1': 5000000.0,
                  'P2': 4995000.0, 'meter_type': 'long radius nozzle'}
-    
+
     massflow = differential_pressure_meter_solver(kwargs['D'], kwargs['rho'],
                                                                     kwargs['mu'], kwargs['k'],
                                                                     kwargs['D2'], kwargs['P1'],
@@ -911,9 +911,9 @@ def test_fuzz_K_to_discharge_coefficient():
     [i.subs({'K': 5.2314291729754, 'beta': 0.05/0.07366}) for i in solns]
 
     [-sqrt(-beta**4/(-2*sqrt(K)*beta**4 + K*beta**4) + 1/(-2*sqrt(K)*beta**4 + K*beta**4)),
- sqrt(-beta**4/(-2*sqrt(K)*beta**4 + K*beta**4) + 1/(-2*sqrt(K)*beta**4 + K*beta**4)),
- -sqrt(-beta**4/(2*sqrt(K)*beta**4 + K*beta**4) + 1/(2*sqrt(K)*beta**4 + K*beta**4)),
- sqrt(-beta**4/(2*sqrt(K)*beta**4 + K*beta**4) + 1/(2*sqrt(K)*beta**4 + K*beta**4))]
+    sqrt(-beta**4/(-2*sqrt(K)*beta**4 + K*beta**4) + 1/(-2*sqrt(K)*beta**4 + K*beta**4)),
+    -sqrt(-beta**4/(2*sqrt(K)*beta**4 + K*beta**4) + 1/(2*sqrt(K)*beta**4 + K*beta**4)),
+    sqrt(-beta**4/(2*sqrt(K)*beta**4 + K*beta**4) + 1/(2*sqrt(K)*beta**4 + K*beta**4))]
 
     # Getting the formula
     from sympy import *
@@ -922,7 +922,6 @@ def test_fuzz_K_to_discharge_coefficient():
     expr = Eq(K, (sqrt(1 - beta**4*(1 - C*C))/(C*beta**2) - 1)**2)
     print(latex(solve(expr, C)[3]))
     '''
-
     Ds = logspace(log10(1-1E-9), log10(1E-9), 8)
     for D_ratio in Ds:
         Ks = logspace(log10(1E-9), log10(50000), 8)

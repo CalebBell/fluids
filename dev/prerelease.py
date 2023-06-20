@@ -17,7 +17,7 @@ from datetime import datetime
 def set_file_modification_time(filename, mtime):
     atime = os.stat(filename).st_atime
     os.utime(filename, times=(atime, mtime.timestamp()))
-    
+
 now = datetime.now()
 
 main_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

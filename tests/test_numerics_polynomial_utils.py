@@ -132,11 +132,11 @@ def test_quadratic_from_f_ders():
 
 def test_deflate_cubic_real_roots():
     assert_close1d(deflate_cubic_real_roots(2.0, 4.5, 1.1, 43.0), (0.0005684682709485855, -45.00056846827095), rtol=1e-14)
-    
+
     assert_close1d(deflate_cubic_real_roots(2.0, 4.5, -1e5, 43.0),  (0.0, 0.0), atol=0.0)
 
 def test_exp_poly_ln_tau_coeffs2():
-    
+
     args = (300, 647.096, 0.06576090309133853, -0.0002202298609576884)
     a, b = exp_poly_ln_tau_coeffs2(*args)
     assert_close1d([a, b], [1.1624065398371628, -1.9976745939643825 ], rtol=1e-9)
@@ -156,7 +156,7 @@ def test_stable_poly_to_unstable():
     out = stable_poly_to_unstable(stuff, 10, 100)
     expect = [1.0973936899862826e-05, -0.0008230452674897121, 0.05761316872427985, 1.4951989026063095]
     assert_close1d(out, expect, rtol=1e-12)
-    
+
     out = stable_poly_to_unstable(stuff, 10, 10)
     assert_close1d(out, stuff)
 

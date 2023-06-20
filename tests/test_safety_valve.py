@@ -68,7 +68,7 @@ def test_safety_valve():
     B_calc = [API520_B(1E6, 3E5), API520_B(1E6, 5E5), API520_B(1E6, 5E5, overpressure=.16), API520_B(1E6, 5E5, overpressure=.21)]
     Bs = [1, 0.7929945420944432, 0.94825439189912, 1]
     assert_close1d(B_calc, Bs)
-    
+
     # Issue # 45
     assert 1 == API520_B(2*atm, 1.5*atm, overpressure=.21)
 
@@ -86,9 +86,9 @@ def test_API520_Kv():
     Kv_calcs = [API520_Kv(100, edition='7E'), API520_Kv(4525, edition='7E'), API520_Kv(1E5, edition='7E')]
     Kvs = [0.6157445891444229, 0.9639390032437682, 0.9973949303006829]
     assert_close1d(Kv_calcs, Kvs)
-    
+
     assert API520_Kv(1e9, edition='7E') == 1
-    
+
     assert_close(API520_Kv(4525, edition='10E'), 0.9817287137013179)
 
 
@@ -110,7 +110,7 @@ def test_API520_SH():
         API520_SH(593+273.15, 23E6, '10E')
     with pytest.raises(Exception):
         API520_SH(1000, 1066E3, '10E')
-        
+
     assert API520_SH(470, 1066E3, '10E') == 1.0
     from fluids.safety_valve import _KSH_K_10E, _KSH_Pa_10E
     KSH_10E_tot =  sum([API520_SH(T, P, '10E') for P in _KSH_Pa_10E for T in _KSH_K_10E])
@@ -143,9 +143,9 @@ def test_API521_noise_graph():
 
 def test_API521_noise():
     assert_close(API521_noise(m=14.6, P1=330E3, P2=101325, c=353.0, r=30), 113.68410573691534)
-    
-    
+
+
 def test_VDI_3732():
     assert_close(VDI_3732_noise_elevated_flare(3.0), 163.56820384327)
     assert_close(VDI_3732_noise_ground_flare(3.0), 145.501356332)
-    
+

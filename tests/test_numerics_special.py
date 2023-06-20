@@ -31,16 +31,16 @@ def test_hypot():
     rtol = 1e-14
     for (x, y) in values:
         assert_close(py_hypot(x, y), hypot(x, y), rtol=rtol)
-        
-        
+
+
 def test_trunc_exp():
     for v in (-1e100, -1e-10, -1e-1, 0.0, 0.1, 10.0, 300.0, 709.782712893384):
         assert_close(trunc_exp(v), exp(v), atol=0.0, rtol=0.0)
-        
+
     assert trunc_exp(1000.0) >= exp(709.0)
     assert not isnan(trunc_exp(1000.0))
     assert not isinf(trunc_exp(1000.0))
-    
+
 def test_trunc_log():
     for v in (5e-324, 1e-100, 1e-10, 0.1, 10.0, 300.0, 1e10, 1e100, 3e300):
         assert_close(trunc_log(v), log(v), atol=0.0, rtol=0.0)

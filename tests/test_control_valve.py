@@ -57,9 +57,9 @@ def test_control_valve():
         is_choked_turbulent_l(460.0, 680.0, 70.1, 0.9442375225233299)
 
     # Example 4, compressible flow - small flow trim sized for gas flow:
-    assert False == is_choked_turbulent_g(0.536, 1.193, 0.8)
+    assert False is is_choked_turbulent_g(0.536, 1.193, 0.8)
     # Custom example
-    assert True == is_choked_turbulent_g(0.9, 1.193, 0.7)
+    assert True is is_choked_turbulent_g(0.9, 1.193, 0.7)
 
     with pytest.raises(Exception):
         is_choked_turbulent_g(0.544, 0.929)
@@ -153,7 +153,7 @@ def test_control_valve_size_l():
     ans = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.1, D1=0.1, D2=0.1, d=0.1, FL=0.6, Fd=0.98, allow_choked=False, full_output=True)
     assert_close(ans['Kv'], 164.9954763704956)
     assert_close(ans['Rev'], 7805019.992655547)
-    assert ans['choked'] == True # Still true even though the choke is ignored
+    assert ans['choked'] is True # Still true even though the choke is ignored
     assert ans['FF']
     assert ans['FLP'] is None
     assert ans['FP'] is None
@@ -199,8 +199,8 @@ def test_control_valve_size_g():
     Kv = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=1.3E5, Q=0.46/3600., xT=0.8)
     assert_close(Kv, 0.012691357950765944)
     ans = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=1.3E5, Q=0.46/3600., xT=0.8, full_output=True)
-    assert ans['laminar'] == False
-    assert ans['choked'] == False
+    assert ans['laminar'] is False
+    assert ans['choked'] is False
     assert ans['FP'] is None
     assert ans['FR'] is None
     assert ans['xTP'] is None

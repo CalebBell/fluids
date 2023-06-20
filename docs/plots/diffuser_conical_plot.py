@@ -23,7 +23,7 @@ for angle, axes in zip(angles.ravel(), axarr.ravel()):
         Ks = [diffuser_conical(Di1=float(Di), Di2=1, Re=1E6, angle=float(angle), method=method) for Di in D_ratios]
         Ds2 = D_ratios**2
         axes.plot(Ds2, Ks, label=method) # + ', angle = ' + str(angle)
-        
+
         #axes.legend()
         axes.set_title(r'$%g^\circ$ Angle' %angle)
         #axes.set_xlabel('Area ratio')
@@ -31,9 +31,9 @@ for angle, axes in zip(angles.ravel(), axarr.ravel()):
         for item in ([axes.title, axes.xaxis.label, axes.yaxis.label] +
              axes.get_xticklabels() + axes.get_yticklabels()):
             item.set_fontsize(6.5)
-            
+
         ttl = axes.title.set_position([.5, .93])
-    
+
 plt.subplots_adjust(wspace=.35, hspace=.35)
 
 f.suptitle('Comparison of available methods for conical pipe diffusers\n Area ratio (x) vs. Loss coefficient (y)')

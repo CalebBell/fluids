@@ -43,7 +43,7 @@ def test_roots_quadratic():
         v1, v0 = v0, v1
     assert_close(v0, -1+1.4142135623730951j, rtol=1e-12)
     assert_close(v1, -1-1.4142135623730951j, rtol=1e-12)
-    
+
     a, b, c = .1,2,3
     v0, v1 = roots_quadratic(a, b, c)
     if v0.real < v1.real:
@@ -56,7 +56,7 @@ def test_roots_quadratic():
     assert_close(v0, -1.5, rtol=1e-12)
     assert_close(v1, -1.5, rtol=1e-12)
     assert v0 == v1
-    
+
 def test_roots_cubic_a1():
     v0, v1, v2 = roots_cubic_a1(123.4,-23.34,1.234)
     assert_close(v0.real, 0.09446632563251711, rtol=1e-12)

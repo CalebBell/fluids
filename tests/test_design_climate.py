@@ -105,7 +105,7 @@ def test_get_closest_station():
          get_closest_station(51.02532675, -114.049868485806, 90150000)
 
 
-sample_data_random_station_1999 = '''STN--- WBAN   YEARMODA    TEMP       DEWP      SLP        STP       VISIB      WDSP     MXSPD   GUST    MAX     MIN   PRCP   SNDP   FRSHTT
+sample_data_random_station_1999 = """STN--- WBAN   YEARMODA    TEMP       DEWP      SLP        STP       VISIB      WDSP     MXSPD   GUST    MAX     MIN   PRCP   SNDP   FRSHTT
 712650 99999  19990101    12.3 24     3.1 24  1022.8 24  1013.0 24    8.4 24   15.0 24   22.9   29.9    23.7     4.1   0.00G 999.9  001000
 712650 99999  19990102    10.1 24    -0.6 24  1034.1 24  1024.1 24    6.8 24   12.7 24   29.9   35.0    23.0*    5.0*  0.00G 999.9  001000
 712650 99999  19990103    28.1 24    24.9 24  1007.5 24   997.9 24    3.6 24   24.2 24   36.9   43.9    35.6*   21.2*  0.71G 999.9  001000
@@ -468,7 +468,7 @@ sample_data_random_station_1999 = '''STN--- WBAN   YEARMODA    TEMP       DEWP  
 712650 99999  19991229    23.1 24    14.9 24  1004.7 23   994.4  4    8.1 24   13.1 24   29.9   35.9    32.0*   14.0*  0.00G 999.9  001000
 712650 99999  19991230    34.5 24    24.7 24  1003.9 24   992.8  4    8.7 24   17.9 24   35.0   45.1    42.3    12.6   0.00G 999.9  001000
 712650 99999  19991231    22.9 24    13.1 24  1018.2 24  1008.2  4    9.0 24    6.2 24   11.1   29.9    42.3    16.3   0.02G 999.9  000000
-'''
+"""
 
 
 @pytest.mark.slow

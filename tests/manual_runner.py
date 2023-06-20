@@ -7,7 +7,7 @@ try:
     import test_drag
 except:
     print('run this from the tests directory')
-    exit()
+    sys.exit()
 #import test_numerics
 import test_atmosphere
 import test_compressible

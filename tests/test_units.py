@@ -131,13 +131,13 @@ def test_convert_input():
 
 def test_convert_output():
     assert convert_output(None, ['Pa'], ['Pt'], u) is None
-    assert convert_output(True, ['Pa'], ['Pt'], u) == True
+    assert convert_output(True, ['Pa'], ['Pt'], u) is True
     assert convert_output('hi', ['Pa'], ['Pt'], u) == 'hi'
-    
+
     val = convert_output(5.5, ['Pa'], ['Pt'], u)
     assert_close(val.to_base_units().magnitude, 5.5)
     assert dict(val.dimensionality) == {'[length]': -1, '[mass]': 1, '[time]': -2}
-    
+
     mat = convert_output(np.array([[1,2, 6], [3,4,9.5]]), ['Pa'], ['Pt'], u)
     assert mat.shape == (2, 3)
     assert dict(val.dimensionality) == {'[length]': -1, '[mass]': 1, '[time]': -2}
@@ -179,7 +179,7 @@ def test_sample_cases():
     # boolean
     P1 = 8*u.bar + 1*u.atm
     P2 = 1*u.atm
-    assert True == is_critical_flow(P1, P2, k=1.4*u.dimensionless)
+    assert True is is_critical_flow(P1, P2, k=1.4 * u.dimensionless)
 
     A = size_control_valve_g(T=433.*u.K, MW=44.01*u.g/u.mol, mu=1.4665E-4*u.Pa*u.s, gamma=1.30,
     Z=0.988, P1=680*u.kPa, P2=310*u.kPa, Q=38/36.*u.m**3/u.s, D1=0.08*u.m, D2=0.1*u.m, d=0.05*u.m,
@@ -329,7 +329,7 @@ def test_db_functions():
 
 def test_check_signatures():
     from fluids.units import check_args_order
-    bad_names = set(['__getattr__', 'all_submodules'])
+    bad_names = {'__getattr__', 'all_submodules'}
     for name in dir(fluids):
         if name in bad_names:
             continue

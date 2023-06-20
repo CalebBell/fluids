@@ -23,9 +23,9 @@ for t in tests:
     dat += '\n__all__: List[str]'
     open(type_hit_path, 'w').write(dat)
 
-'''
+"""
 First thing not supported by monkeytype: Tuple[t1, ...]  in CountryPower
-'''
+"""
 try:
     os.remove("monkeytype.sqlite3")
 except:

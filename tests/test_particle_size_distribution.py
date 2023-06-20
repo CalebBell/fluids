@@ -271,8 +271,8 @@ def test_pdf_Gates_Gaudin_Schuhman_basis_integral():
 def test_pdf_Gates_Gaudin_Schuhman_basis_integral_fuzz():
     from scipy.integrate import quad
 
-    '''Note: Test takes 10x longer with the quad/points.
-    '''
+    """Note: Test takes 10x longer with the quad/points.
+    """
 
     analytical_vales = []
     numerical_values = []
@@ -299,10 +299,10 @@ def test_cdf_Rosin_Rammler():
 
 def test_pdf_Rosin_Rammler():
     '''
-from sympy import *
-d, k, n = symbols('d, k, n')
-model = 1 - exp(-k*d**n)
-print(latex(diff(model, d)))
+    from sympy import *
+    d, k, n = symbols('d, k, n')
+    model = 1 - exp(-k*d**n)
+    print(latex(diff(model, d)))
     '''
     from scipy.integrate import quad
 

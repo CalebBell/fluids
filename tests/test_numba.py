@@ -425,7 +425,7 @@ def test_misc_compressible():
 def test_misc_compressible_isothermal_gas():
     assert_close(fluids.numba.isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, m=145.48475726),
                  fluids.isothermal_gas(rho=11.3, fd=0.00185, P1=1E6, P2=9E5, L=1000, m=145.48475726))
-    
+
     # the below used to work in numba not anymore
     # isothermal_gas(rho=11.3, fd=0.00185, m=145.4847572636031, P2=9E5, L=1000, D=0.5)
 
@@ -614,8 +614,8 @@ def tets_ATMOSPHERE_1976():
 
     assert_close(fluids.numba.atmosphere.airmass(my_int, 90.0),
                  fluids.atmosphere.airmass(lambda Z : ATMOSPHERE_1976(Z).rho, 90))
-    
-    
+
+
     assert_close(fluids.numba.atmosphere.ATMOSPHERE_1976.pressure_integral(300, 1e5, 10),
                  fluids.atmosphere.ATMOSPHERE_1976.pressure_integral(300, 1e5, 10))
 

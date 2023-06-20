@@ -299,7 +299,7 @@ autosummary_generate = True
 add_function_parentheses = False
 
 autodoc_default_flags = ['undoc-members', 'show-inheritance']
- 
+
 katex_css_path = \
     'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css'
 katex_js_path = 'katex.min.js'
@@ -313,12 +313,12 @@ intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
 
 def has_cmd(cmd):
     return subprocess.call("type " + cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
-'''The below approach is not working at this time. It can be fixed with enough development, but for now is
+"""The below approach is not working at this time. It can be fixed with enough development, but for now is
 not the highest priority.
 
 https://github.com/readthedocs/readthedocs.org/issues/7788
 https://github.com/hagenw/sphinxcontrib-katex/issues/37
-'''
+"""
 #try:
     #if not has_cmd('katex'):
         #os.system('npm install katex')
