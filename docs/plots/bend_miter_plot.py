@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+
 from fluids.fittings import bend_miter, bend_miter_methods
+
 styles = ['--', '-.', '-', ':', '.', ',', 'o', 'v', '^', '<', '>', '1', '2', '3', '4']
 
 angles = np.linspace(0.0, 120.0, 100)

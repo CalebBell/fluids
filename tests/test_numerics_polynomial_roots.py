@@ -17,14 +17,12 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.numerics import numpy as np
-import pytest
-import fluids.numerics
-from fluids.numerics import ( assert_close, assert_close1d)
-from fluids.numerics.polynomial_roots import (roots_cubic_a1, roots_cubic_a2, 
-roots_cubic, roots_quartic, roots_quadratic)
+from fluids.numerics import assert_close, assert_close1d
+from fluids.numerics.polynomial_roots import roots_cubic, roots_cubic_a1, roots_cubic_a2, roots_quadratic, roots_quartic
+
 
 def test_roots_quartic():
     coeffs = [1.0, -3.274390673429134, 0.3619541556604501, 2.4841800045762747, -0.49619076425603237]

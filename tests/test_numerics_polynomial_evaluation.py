@@ -17,22 +17,38 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.numerics import numpy as np
-import pytest
-from fluids.numerics import assert_close, assert_close1d, trunc_exp
 from math import exp, log
 
-from fluids.numerics import derivative
-from fluids.numerics.polynomial_evaluation import (horner_domain, horner_stable, horner_stable_and_der, horner_stable_and_der2, horner_stable_and_der3, horner_stable_and_der4,
-horner_stable_ln_tau, horner_stable_ln_tau_and_der, horner_stable_ln_tau_and_der2, horner_stable_ln_tau_and_der3,
-exp_horner_stable, exp_horner_stable_and_der, exp_horner_stable_and_der2, exp_horner_stable_and_der3,
-exp_horner_stable_ln_tau, exp_horner_stable_ln_tau_and_der, exp_horner_stable_ln_tau_and_der2, horner_log)
+from fluids.numerics import assert_close, assert_close1d, derivative
+from fluids.numerics import numpy as np
+from fluids.numerics.polynomial_evaluation import (
+    exp_horner_stable,
+    exp_horner_stable_and_der,
+    exp_horner_stable_and_der2,
+    exp_horner_stable_and_der3,
+    exp_horner_stable_ln_tau,
+    exp_horner_stable_ln_tau_and_der,
+    exp_horner_stable_ln_tau_and_der2,
+    horner_domain,
+    horner_log,
+    horner_stable,
+    horner_stable_and_der,
+    horner_stable_and_der2,
+    horner_stable_and_der3,
+    horner_stable_and_der4,
+    horner_stable_ln_tau,
+    horner_stable_ln_tau_and_der,
+    horner_stable_ln_tau_and_der2,
+    horner_stable_ln_tau_and_der3,
+)
 from fluids.numerics.polynomial_utils import polynomial_offset_scale
 
+
 def test_horner():
-    from fluids.numerics.polynomial_evaluation import horner, horner_backwards, horner_and_der2, horner_and_der3, horner_and_der4
+    from fluids.numerics.polynomial_evaluation import horner, horner_and_der2, horner_and_der3, horner_and_der4, horner_backwards
     assert_close(horner([1.0, 3.0], 2.0), 5.0, rtol=1e-15)
     assert_close(horner_backwards(2.0, [1.0, 3.0]), 5.0, rtol=1e-15)
     assert_close(horner([3.0], 2.0), 3.0, rtol=1e-15)
@@ -47,7 +63,12 @@ def test_horner():
 
 
 def test_exp_horner_backwards():
-    from fluids.numerics.polynomial_evaluation import exp_horner_backwards, exp_horner_backwards_and_der, exp_horner_backwards_and_der2, exp_horner_backwards_and_der3
+    from fluids.numerics.polynomial_evaluation import (
+        exp_horner_backwards,
+        exp_horner_backwards_and_der,
+        exp_horner_backwards_and_der2,
+        exp_horner_backwards_and_der3,
+    )
     assert_close((exp_horner_backwards(2.0, [1.0, 3.0])), exp(5.0))
     
     # Test the derivatives
@@ -74,7 +95,12 @@ def test_exp_horner_backwards():
 
 
 def test_horner_backwards_ln_tau():
-    from fluids.numerics.polynomial_evaluation import horner_backwards_ln_tau, horner_backwards_ln_tau_and_der, horner_backwards_ln_tau_and_der2, horner_backwards_ln_tau_and_der3
+    from fluids.numerics.polynomial_evaluation import (
+        horner_backwards_ln_tau,
+        horner_backwards_ln_tau_and_der,
+        horner_backwards_ln_tau_and_der2,
+        horner_backwards_ln_tau_and_der3,
+    )
     coeffs = [9.661381155485653, 224.16316385569456, 2195.419519751738, 11801.26111760343, 37883.05110910901, 74020.46380982929, 87244.40329893673, 69254.45831263301, 61780.155823216155]
     Tc = 591.75
     val = horner_backwards_ln_tau(500.0, Tc, coeffs)
@@ -106,9 +132,9 @@ def test_horner_backwards_ln_tau():
 
 
 def test_exp_horner_backwards_ln_tau():
-    from fluids.numerics.polynomial_evaluation import (exp_horner_backwards_ln_tau, exp_horner_backwards_ln_tau_and_der, exp_horner_backwards_ln_tau_and_der2)
+    from fluids.numerics.polynomial_evaluation import exp_horner_backwards_ln_tau, exp_horner_backwards_ln_tau_and_der, exp_horner_backwards_ln_tau_and_der2
     # Coefficients for water from REFPROP, fit
-    cs=[-1.2616237655927602e-05, -0.0004061873638525952, -0.005563382112542401, -0.04240531802937599, -0.19805733513004808, -0.5905741856310869, -1.1388001144550794, -0.1477584393673108, -2.401287527958821] 
+    cs=[-1.2616237655927602e-05, -0.0004061873638525952, -0.005563382112542401, -0.04240531802937599, -0.19805733513004808, -0.5905741856310869, -1.1388001144550794, -0.1477584393673108, -2.401287527958821]
     Tc = 647.096
     T = 300.0
     expect = 0.07175344047522199
@@ -158,21 +184,21 @@ def test_horner_stable():
     assert_close(der_num, der_analytical, rtol=1e-7)
     
     
-    der_num = derivative(lambda *args: horner_stable_and_der(*args)[1], x, 
+    der_num = derivative(lambda *args: horner_stable_and_der(*args)[1], x,
                          args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
     der_analytical = horner_stable_and_der2(x, test_stable_coeffs, offset, scale)[2]
     assert_close(der_analytical, 0.0014327609525395784, rtol=1e-14)
     assert_close(der_num, der_analytical, rtol=1e-7)
     
     
-    der_num = derivative(lambda *args: horner_stable_and_der2(*args)[-1], x, 
+    der_num = derivative(lambda *args: horner_stable_and_der2(*args)[-1], x,
                          args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
     der_analytical = horner_stable_and_der3(x, test_stable_coeffs, offset, scale)[-1]
     assert_close(der_analytical, -7.345952769973301e-06, rtol=1e-14)
     assert_close(der_num, der_analytical, rtol=1e-7)
     
     
-    der_num = derivative(lambda *args: horner_stable_and_der3(*args)[-1], x, 
+    der_num = derivative(lambda *args: horner_stable_and_der3(*args)[-1], x,
                          args=(test_stable_coeffs, offset, scale), dx=x*1e-7)
     der_analytical = horner_stable_and_der4(x, test_stable_coeffs, offset, scale)[-1]
     assert_close(der_analytical, -2.8269861583547557e-07, rtol=1e-14)
@@ -241,14 +267,14 @@ def test_exp_stablepoly_fit():
     assert_close(der_num, der_analytical, rtol=1e-7)
     assert_close(der_analytical, 4056.436943642117, rtol=1e-14)
     
-    der_num = derivative(lambda *args: exp_horner_stable_and_der(*args)[1], x, 
+    der_num = derivative(lambda *args: exp_horner_stable_and_der(*args)[1], x,
                          args=(coeffs, offset, scale), dx=x*1e-7)
     der_analytical = exp_horner_stable_and_der2(x, coeffs, offset, scale)[-1]
     assert_close(der_analytical, 81.32645570045084, rtol=1e-14)
     assert_close(der_num, der_analytical, rtol=1e-7)
 
 
-    der_num = derivative(lambda *args: exp_horner_stable_and_der2(*args)[-1], x, 
+    der_num = derivative(lambda *args: exp_horner_stable_and_der2(*args)[-1], x,
                          args=(coeffs, offset, scale), dx=x*1e-7)
     der_analytical = exp_horner_stable_and_der3(x, coeffs, offset, scale)[-1]
     assert_close(der_num, der_analytical, rtol=1e-7)

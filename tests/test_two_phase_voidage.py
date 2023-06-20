@@ -17,19 +17,56 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.two_phase_voidage import (Armand, Baroczy, Beattie_Whalley, Chisholm_Armand, Chisholm_voidage, Cicchitti,
-                    Dix, Domanski_Didion, Duckler, Fauske, Fourar_Bories, Graham, Gregory_Scott,
-                    Guzhov, Harms, Huq_Loth, Kawahara, Kopte_Newell_Chato, Lin_Kwok,
-                    Lockhart_Martinelli_Xtt, McAdams, Nicklin_Wilkes_Davidson, Nishino_Yamazaki,
-                    Rouhani_1, Rouhani_2, Smith, Steiner, Sun_Duffey_Peng, Tandon_Varma_Gupta, Thom,
-                    Turner_Wallis, Woldesemayat_Ghajar, Xu_Fang_voidage, Yashar, Zivi,
-                    density_two_phase, gas_liquid_viscosity, gas_liquid_viscosity_methods,
-                    homogeneous, liquid_gas_voidage, liquid_gas_voidage_methods,
-                    two_phase_voidage_experimental)
-from fluids.numerics import assert_close, assert_close1d, linspace
 import pytest
+
+from fluids.numerics import assert_close, assert_close1d, linspace
+from fluids.two_phase_voidage import (
+    Armand,
+    Baroczy,
+    Beattie_Whalley,
+    Chisholm_Armand,
+    Chisholm_voidage,
+    Cicchitti,
+    Dix,
+    Domanski_Didion,
+    Duckler,
+    Fauske,
+    Fourar_Bories,
+    Graham,
+    Gregory_Scott,
+    Guzhov,
+    Harms,
+    Huq_Loth,
+    Kawahara,
+    Kopte_Newell_Chato,
+    Lin_Kwok,
+    Lockhart_Martinelli_Xtt,
+    McAdams,
+    Nicklin_Wilkes_Davidson,
+    Nishino_Yamazaki,
+    Rouhani_1,
+    Rouhani_2,
+    Smith,
+    Steiner,
+    Sun_Duffey_Peng,
+    Tandon_Varma_Gupta,
+    Thom,
+    Turner_Wallis,
+    Woldesemayat_Ghajar,
+    Xu_Fang_voidage,
+    Yashar,
+    Zivi,
+    density_two_phase,
+    gas_liquid_viscosity,
+    gas_liquid_viscosity_methods,
+    homogeneous,
+    liquid_gas_voidage,
+    liquid_gas_voidage_methods,
+    two_phase_voidage_experimental,
+)
 
 
 def test_Thom():

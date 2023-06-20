@@ -17,17 +17,21 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.separator import K_separator_Watkins, K_separator_demister_York, v_Sounders_Brown, K_Sounders_Brown_theoretical
 import pytest
+
 from fluids.numerics import assert_close, assert_close1d, assert_close2d
+from fluids.separator import K_separator_demister_York, K_separator_Watkins, K_Sounders_Brown_theoretical, v_Sounders_Brown
+
 
 @pytest.mark.scipy
 def test_K_separator_Watkins_fit():
     import numpy as np
+    from scipy.interpolate import UnivariateSpline, splrep
+
     from fluids.separator import tck_Watkins
-    from scipy.interpolate import UnivariateSpline, splev, splrep
     v_factors_Watkins = [0.006, 0.00649546, 0.00700535, 0.00755527, 0.00817788,
         0.00881991, 0.00954676, 0.0103522, 0.0112256, 0.0121947, 0.0132476,
         0.0143655, 0.0156059, 0.0169841, 0.018484, 0.0201165, 0.0219329,
@@ -83,7 +87,7 @@ def test_K_separator_Watkins():
 
 
 def test_K_separator_demister_York():
-    from fluids.constants import  psi
+    from fluids.constants import psi
     Ks_expect = [0.056387999999999994, 0.056387999999999994, 0.09662736507185091,
                  0.10667999999999998, 0.10520347947487964, 0.1036391539227465, 0.07068690636639535]
     Ks = []

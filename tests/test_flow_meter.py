@@ -17,39 +17,78 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.flow_meter import flow_meter_discharge
-from fluids.flow_meter import (AS_CAST_VENTURI_TUBE, CONCENTRIC_ORIFICE, CONE_METER,
-                               C_ISA_1932_nozzle, C_Miller_1996, C_Reader_Harris_Gallagher,
-                               C_Reader_Harris_Gallagher_wet_venturi_tube,
-                               C_eccentric_orifice_ISO_15377_1998, C_long_radius_nozzle,
-                               C_quarter_circle_orifice_ISO_15377_1998, C_venturi_nozzle,
-                               C_wedge_meter_ISO_5167_6_2017, C_wedge_meter_Miller,
-                               HOLLINGSHEAD_CONE, HOLLINGSHEAD_ORIFICE, HOLLINGSHEAD_VENTURI_SHARP,
-                               HOLLINGSHEAD_VENTURI_SMOOTH, HOLLINGSHEAD_WEDGE, ISA_1932_NOZZLE,
-                               ISO_15377_CONICAL_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
-                               ISO_15377_QUARTER_CIRCLE_ORIFICE, ISO_5167_ORIFICE,
-                               K_to_discharge_coefficient, LONG_RADIUS_NOZZLE,
-                               MACHINED_CONVERGENT_VENTURI_TUBE, MILLER_CONICAL_ORIFICE,
-                               MILLER_ECCENTRIC_ORIFICE, MILLER_ORIFICE,
-                               MILLER_QUARTER_CIRCLE_ORIFICE, MILLER_SEGMENTAL_ORIFICE,
-                               ORIFICE_CORNER_TAPS, ORIFICE_D_AND_D_2_TAPS, ORIFICE_FLANGE_TAPS,
-                               ORIFICE_PIPE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS,
-                               ROUGH_WELDED_CONVERGENT_VENTURI_TUBE, TAPS_OPPOSITE, TAPS_SIDE,
-                               VENTURI_NOZZLE, WEDGE_METER, cone_meter_expansibility_Stewart,
-                               dP_Reader_Harris_Gallagher_wet_venturi_tube, dP_cone_meter,
-                               dP_orifice, dP_venturi_tube, dP_wedge_meter,
-                               diameter_ratio_cone_meter, diameter_ratio_wedge_meter,
-                               differential_pressure_meter_C_epsilon,
-                               differential_pressure_meter_beta, differential_pressure_meter_dP,
-                               differential_pressure_meter_solver, discharge_coefficient_to_K,
-                               flow_coefficient, nozzle_expansibility, orifice_expansibility,
-                               orifice_expansibility_1989, velocity_of_approach_factor)
-from fluids.constants import inch
-from math import log10, log, exp
-from fluids.numerics import secant, linspace, logspace, assert_close, isclose, assert_close1d, assert_close2d
+from math import log, log10
+
 import pytest
+
+from fluids.constants import inch
+from fluids.flow_meter import (
+    AS_CAST_VENTURI_TUBE,
+    CONCENTRIC_ORIFICE,
+    CONE_METER,
+    HOLLINGSHEAD_CONE,
+    HOLLINGSHEAD_ORIFICE,
+    HOLLINGSHEAD_VENTURI_SHARP,
+    HOLLINGSHEAD_VENTURI_SMOOTH,
+    HOLLINGSHEAD_WEDGE,
+    ISA_1932_NOZZLE,
+    ISO_5167_ORIFICE,
+    ISO_15377_CONICAL_ORIFICE,
+    ISO_15377_ECCENTRIC_ORIFICE,
+    ISO_15377_QUARTER_CIRCLE_ORIFICE,
+    LONG_RADIUS_NOZZLE,
+    MACHINED_CONVERGENT_VENTURI_TUBE,
+    MILLER_CONICAL_ORIFICE,
+    MILLER_ECCENTRIC_ORIFICE,
+    MILLER_ORIFICE,
+    MILLER_QUARTER_CIRCLE_ORIFICE,
+    MILLER_SEGMENTAL_ORIFICE,
+    ORIFICE_CORNER_TAPS,
+    ORIFICE_D_AND_D_2_TAPS,
+    ORIFICE_FLANGE_TAPS,
+    ORIFICE_PIPE_TAPS,
+    ORIFICE_VENA_CONTRACTA_TAPS,
+    ROUGH_WELDED_CONVERGENT_VENTURI_TUBE,
+    TAPS_OPPOSITE,
+    TAPS_SIDE,
+    VENTURI_NOZZLE,
+    WEDGE_METER,
+    C_eccentric_orifice_ISO_15377_1998,
+    C_ISA_1932_nozzle,
+    C_long_radius_nozzle,
+    C_Miller_1996,
+    C_quarter_circle_orifice_ISO_15377_1998,
+    C_Reader_Harris_Gallagher,
+    C_Reader_Harris_Gallagher_wet_venturi_tube,
+    C_venturi_nozzle,
+    C_wedge_meter_ISO_5167_6_2017,
+    C_wedge_meter_Miller,
+    K_to_discharge_coefficient,
+    cone_meter_expansibility_Stewart,
+    diameter_ratio_cone_meter,
+    diameter_ratio_wedge_meter,
+    differential_pressure_meter_beta,
+    differential_pressure_meter_C_epsilon,
+    differential_pressure_meter_dP,
+    differential_pressure_meter_solver,
+    discharge_coefficient_to_K,
+    dP_cone_meter,
+    dP_orifice,
+    dP_Reader_Harris_Gallagher_wet_venturi_tube,
+    dP_venturi_tube,
+    dP_wedge_meter,
+    flow_coefficient,
+    flow_meter_discharge,
+    nozzle_expansibility,
+    orifice_expansibility,
+    orifice_expansibility_1989,
+    velocity_of_approach_factor,
+)
+from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose, logspace, secant
+
 
 def test_flow_meter_discharge():
     m = flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646, C=0.5988, expansibility=0.9975)
@@ -897,9 +936,10 @@ def test_fuzz_K_to_discharge_coefficient():
 @pytest.mark.scipy
 @pytest.mark.slow
 def test_orifice_std_Hollingshead_fit():
-    from scipy.interpolate import RectBivariateSpline, bisplev
-    from fluids.flow_meter import orifice_std_Hollingshead_tck, orifice_std_logRes_Hollingshead, orifice_std_betas_Hollingshead, orifice_std_Hollingshead_Cs
     import numpy as np
+    from scipy.interpolate import RectBivariateSpline, bisplev
+
+    from fluids.flow_meter import orifice_std_betas_Hollingshead, orifice_std_Hollingshead_Cs, orifice_std_Hollingshead_tck, orifice_std_logRes_Hollingshead
 
     obj = RectBivariateSpline(orifice_std_betas_Hollingshead, orifice_std_logRes_Hollingshead,
                               np.array(orifice_std_Hollingshead_Cs), s=0, kx=3, ky=3)
@@ -914,9 +954,10 @@ def test_orifice_std_Hollingshead_fit():
 @pytest.mark.scipy
 @pytest.mark.slow
 def test_wedge_Hollingshead_fit():
-    from scipy.interpolate import RectBivariateSpline, bisplev
     import numpy as np
-    from fluids.flow_meter import wedge_betas_Hollingshead, wedge_logRes_Hollingshead, wedge_Hollingshead_Cs, wedge_Hollingshead_tck
+    from scipy.interpolate import RectBivariateSpline, bisplev
+
+    from fluids.flow_meter import wedge_betas_Hollingshead, wedge_Hollingshead_Cs, wedge_Hollingshead_tck, wedge_logRes_Hollingshead
 
     obj = RectBivariateSpline(wedge_betas_Hollingshead, wedge_logRes_Hollingshead,
                               np.array(wedge_Hollingshead_Cs), s=0, kx=1, ky=3)
@@ -929,9 +970,10 @@ def test_wedge_Hollingshead_fit():
 @pytest.mark.scipy
 @pytest.mark.slow
 def test_cone_Hollingshead_fit():
-    from scipy.interpolate import RectBivariateSpline, bisplev
     import numpy as np
-    from fluids.flow_meter import cone_logRes_Hollingshead, cone_betas_Hollingshead, cone_Hollingshead_Cs, cone_Hollingshead_tck
+    from scipy.interpolate import RectBivariateSpline, bisplev
+
+    from fluids.flow_meter import cone_betas_Hollingshead, cone_Hollingshead_Cs, cone_Hollingshead_tck, cone_logRes_Hollingshead
 
     obj = RectBivariateSpline(cone_betas_Hollingshead, cone_logRes_Hollingshead,
                               np.array(cone_Hollingshead_Cs), s=0, kx=2, ky=3)

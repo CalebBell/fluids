@@ -1,7 +1,6 @@
-import sys
 import os
 import shutil
-import importlib.util
+import sys
 
 if sys.version_info.major != 3 and sys.version_info.minor != 11:
 	raise ValueError("""This prerelease script will only run on Python 3.11.
@@ -10,8 +9,11 @@ and other parts only have obsolete dependencies i.e. pint on Python 2.
 For that reason, while the pytest test suite runs everywhere,
 the notebooks and doctests only run on one platform.""")
 
+import os
+import sys
 from datetime import datetime
-import os, sys
+
+
 def set_file_modification_time(filename, mtime):
     atime = os.stat(filename).st_atime
     os.utime(filename, times=(atime, mtime.timestamp()))
@@ -44,7 +46,6 @@ for p in paths:
 
 
 
-import fluids
 test_dir = os.path.join(main_dir, 'tests')
 os.chdir(test_dir)
 
@@ -53,5 +54,6 @@ os.chdir(test_dir)
 # mod_spec.loader.exec_module(make_test_stubs)
 
 import pytest
+
 os.chdir(main_dir)
 pytest.main(["--doctest-glob='*.rst'", "--doctest-modules", "--nbval", "-n", "8", "--dist", "loadscope", "-v"])

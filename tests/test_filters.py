@@ -17,12 +17,13 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.filters import (round_edge_grill, round_edge_open_mesh, round_edge_screen,
-                            square_edge_grill, square_edge_screen)
-from fluids.numerics import assert_close, assert_close1d
 import pytest
+
+from fluids.filters import round_edge_grill, round_edge_open_mesh, round_edge_screen, square_edge_grill, square_edge_screen
+from fluids.numerics import assert_close, assert_close1d
 
 
 def test_filters():
@@ -57,7 +58,8 @@ def test_filters():
 @pytest.mark.scipy
 def test_grills_rounded():
     from scipy.interpolate import splrep
-    from fluids.filters import grills_rounded_tck, grills_rounded_alphas, grills_rounded_Ks
+
+    from fluids.filters import grills_rounded_alphas, grills_rounded_Ks, grills_rounded_tck
     tck_recalc = splrep(grills_rounded_alphas, grills_rounded_Ks, s=0, k=2)
     [assert_close1d(i, j) for i, j in zip(grills_rounded_tck[:-1], tck_recalc[:-1])]
 

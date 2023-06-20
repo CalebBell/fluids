@@ -17,14 +17,21 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids import (liquid_jet_pump, liquid_jet_pump_ancillary,
-                    vacuum_air_leakage_Coker_Worthington, vacuum_air_leakage_HEI2633,
-                    vacuum_air_leakage_Ryans_Croll, vacuum_air_leakage_Seider)
-from fluids.constants import mmHg, atm
-from fluids.numerics import linspace, assert_close, assert_close1d
 import pytest
+
+from fluids import (
+    liquid_jet_pump,
+    liquid_jet_pump_ancillary,
+    vacuum_air_leakage_Coker_Worthington,
+    vacuum_air_leakage_HEI2633,
+    vacuum_air_leakage_Ryans_Croll,
+    vacuum_air_leakage_Seider,
+)
+from fluids.constants import atm, mmHg
+from fluids.numerics import assert_close, assert_close1d, linspace
 
 
 def test_liquid_jet_pump_ancillary():
@@ -319,7 +326,7 @@ def test_vacuum_air_leakage_Ryans_Croll():
     l = vacuum_air_leakage_Ryans_Croll(100, 99900, P_atm=1e5)
     assert_close(l, 0.00039961577892830735)
 
-    assert vacuum_air_leakage_Ryans_Croll(10, 94000) > vacuum_air_leakage_Ryans_Croll(10, 95000) 
+    assert vacuum_air_leakage_Ryans_Croll(10, 94000) > vacuum_air_leakage_Ryans_Croll(10, 95000)
     
     l = vacuum_air_leakage_Ryans_Croll(10, 70000)
     assert_close(0.0004512759324612646, l)

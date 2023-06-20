@@ -17,11 +17,14 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.numerics.special import py_cacos, py_catanh, py_hypot, trunc_exp, trunc_log
+from math import exp, hypot, isinf, isnan, log
+
 from fluids.numerics import assert_close
-from math import hypot, exp, isnan, isinf, log
+from fluids.numerics.special import py_cacos, py_catanh, py_hypot, trunc_exp, trunc_log
+
 
 def test_hypot():
     values = [(.5, -1), (-.5, 1), (100, -100), (-100, 100)]

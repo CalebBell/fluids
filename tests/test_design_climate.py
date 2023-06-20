@@ -17,20 +17,27 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from numpy.testing import assert_allclose
-from fluids.numerics import assert_close, assert_close1d
-import pytest
-import numpy as np
-from fluids.design_climate import (IntegratedSurfaceDatabaseStation, StationDataGSOD,
-                                   cooling_degree_days, geocode, get_closest_station,
-                                   get_station_year_text, heating_degree_days)
-from fluids.design_climate import _latlongs, stations
 import os
 
+import pytest
+
+from fluids.design_climate import (
+    IntegratedSurfaceDatabaseStation,
+    StationDataGSOD,
+    _latlongs,
+    cooling_degree_days,
+    geocode,
+    get_closest_station,
+    get_station_year_text,
+    heating_degree_days,
+    stations,
+)
+from fluids.numerics import assert_close, assert_close1d
+
 try:
-    import geopy
     has_geopy = True
 except:
     has_geopy = False

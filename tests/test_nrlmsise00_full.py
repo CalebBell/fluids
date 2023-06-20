@@ -17,12 +17,16 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.numerics import assert_close1d, assert_close
-from fluids.atmosphere import ATMOSPHERE_NRLMSISE00
-import pytest
 import os
+
+import pytest
+
+from fluids.atmosphere import ATMOSPHERE_NRLMSISE00
+from fluids.numerics import assert_close, assert_close1d
+
 
 def helper_test_match(f, atms):
     indexes = [1, 2, 3, 7, 8, 10]

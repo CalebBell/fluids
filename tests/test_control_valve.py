@@ -17,15 +17,29 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.control_valve import cavitation_index, FF_critical_pressure_ratio_l, is_choked_turbulent_l, is_choked_turbulent_g, Reynolds_valve, loss_coefficient_piping, Reynolds_factor
-from fluids.fittings import Cv_to_Kv
-from fluids.control_valve import (control_valve_choke_P_g, control_valve_choke_P_l,
-                                  control_valve_noise_g_2011, control_valve_noise_l_2015,
-                                  size_control_valve_g, size_control_valve_l)
-from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose
 import pytest
+
+from fluids.control_valve import (
+    FF_critical_pressure_ratio_l,
+    Reynolds_factor,
+    Reynolds_valve,
+    cavitation_index,
+    control_valve_choke_P_g,
+    control_valve_choke_P_l,
+    control_valve_noise_g_2011,
+    control_valve_noise_l_2015,
+    is_choked_turbulent_g,
+    is_choked_turbulent_l,
+    loss_coefficient_piping,
+    size_control_valve_g,
+    size_control_valve_l,
+)
+from fluids.fittings import Cv_to_Kv
+from fluids.numerics import assert_close, assert_close1d, isclose
+
 
 def test_control_valve():
     CI = cavitation_index(1E6, 8E5, 2E5)
@@ -347,7 +361,8 @@ def test_control_valve_noise_g_2011():
 def test_opening_quick_data():
     # Add some tolerance to tests after failures on arm64 https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=976558
     from scipy.interpolate import splrep
-    from fluids.control_valve import opening_quick_tck, opening_quick, frac_CV_quick
+
+    from fluids.control_valve import frac_CV_quick, opening_quick, opening_quick_tck
     tck_recalc = splrep(opening_quick, frac_CV_quick, k=3, s=0)
     [assert_close1d(i, j, atol=1e-10) for i, j in zip(opening_quick_tck[:-1], tck_recalc[:-1])]
 
@@ -355,6 +370,7 @@ def test_opening_quick_data():
 def test_opening_equal_data():
     # Add some tolerance to tests after failures on arm64 https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=976558
     from scipy.interpolate import splrep
-    from fluids.control_valve import opening_equal, frac_CV_equal, opening_equal_tck
+
+    from fluids.control_valve import frac_CV_equal, opening_equal, opening_equal_tck
     tck_recalc = splrep(opening_equal, frac_CV_equal, k=3, s=0)
     [assert_close1d(i, j, atol=1e-10) for i, j in zip(opening_equal_tck[:-1], tck_recalc[:-1])]

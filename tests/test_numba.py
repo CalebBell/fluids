@@ -17,17 +17,20 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
+
+import pytest
 
 import fluids
-from fluids import (ATMOSPHERE_1976, SA_ellipsoidal_head, SA_from_h,
-                    SA_partial_horiz_torispherical_head, SA_tank, friction_plate_Kumar)
 import fluids.vectorized
+from fluids import ATMOSPHERE_1976, SA_ellipsoidal_head, SA_from_h, SA_partial_horiz_torispherical_head, SA_tank, friction_plate_Kumar
 from fluids.constants import hp
 from fluids.numerics import assert_close, assert_close1d
-import pytest
+
 try:
     import numba
+
     import fluids.numba
     import fluids.numba_vectorized
 except:
@@ -39,8 +42,7 @@ try:
     import test_friction
     import test_utils
 except:
-    from . import test_friction
-    from . import test_utils
+    from . import test_friction, test_utils
 
 
 

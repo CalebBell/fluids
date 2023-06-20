@@ -17,46 +17,93 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from math import log10, log, exp, isnan, pi
-from fluids.numerics import secant, logspace, linspace, assert_close, assert_close1d, assert_close2d, assert_close3d
-import fluids.friction
-from fluids.friction import (Alshul_1952, Avci_Karagoz_2009, Barr_1981, Blasius, Brkic_2011_1,
-                             Brkic_2011_2, Buzzelli_2008, Chen_1979, Churchill_1973, Churchill_1977,
-                             Clamond, Colebrook, Eck_1973, Fang_2011, Haaland, Jain_1976,
-                             Manadilli_1997, Moody, Papaevangelo_2010, Prandtl_von_Karman_Nikuradse,
-                             Rao_Kumar_2007, Romeo_2002, Round_1980, Serghides_1, Serghides_2,
-                             Shacham_1980, Sonnad_Goudar_2006, Swamee_Jain_1976, Tsal_1989,
-                             Wood_1966, Zigrang_Sylvester_1, Zigrang_Sylvester_2, friction_factor,
-                             friction_factor_curved, friction_factor_curved_methods,
-                             friction_factor_methods, friction_laminar, friction_plate_Kumar,
-                             friction_plate_Martin_1999, friction_plate_Martin_VDI,
-                             friction_plate_Muley_Manglik, ft_Crane, helical_Re_crit,
-                             helical_laminar_fd_Mori_Nakayama, helical_laminar_fd_Schmidt,
-                             helical_laminar_fd_White, helical_transition_Re_Ito,
-                             helical_transition_Re_Kubair_Kuloor,
-                             helical_transition_Re_Kutateladze_Borishanskii,
-                             helical_transition_Re_Schmidt, helical_transition_Re_Seth_Stahel,
-                             helical_transition_Re_Srinivasan, helical_turbulent_fd_Czop,
-                             helical_turbulent_fd_Guo, helical_turbulent_fd_Ju,
-                             helical_turbulent_fd_Mandal_Nigam, helical_turbulent_fd_Mori_Nakayama,
-                             helical_turbulent_fd_Prasad, helical_turbulent_fd_Schmidt,
-                             helical_turbulent_fd_Srinivasan, material_roughness,
-                             nearest_material_roughness, one_phase_dP, one_phase_dP_dz_acceleration,
-                             one_phase_dP_gravitational, roughness_Farshad, transmission_factor,
-                             von_Karman)
+from math import isnan, log10, pi
+
 import pytest
-from fluids.friction import _roughness, _Farshad_roughness
+
+from fluids.friction import (
+    Alshul_1952,
+    Avci_Karagoz_2009,
+    Barr_1981,
+    Blasius,
+    Brkic_2011_1,
+    Brkic_2011_2,
+    Buzzelli_2008,
+    Chen_1979,
+    Churchill_1973,
+    Churchill_1977,
+    Clamond,
+    Colebrook,
+    Eck_1973,
+    Fang_2011,
+    Haaland,
+    Jain_1976,
+    Manadilli_1997,
+    Moody,
+    Papaevangelo_2010,
+    Prandtl_von_Karman_Nikuradse,
+    Rao_Kumar_2007,
+    Romeo_2002,
+    Round_1980,
+    Serghides_1,
+    Serghides_2,
+    Shacham_1980,
+    Sonnad_Goudar_2006,
+    Swamee_Jain_1976,
+    Tsal_1989,
+    Wood_1966,
+    Zigrang_Sylvester_1,
+    Zigrang_Sylvester_2,
+    _Farshad_roughness,
+    _roughness,
+    friction_factor,
+    friction_factor_curved,
+    friction_factor_curved_methods,
+    friction_factor_methods,
+    friction_laminar,
+    friction_plate_Kumar,
+    friction_plate_Martin_1999,
+    friction_plate_Martin_VDI,
+    friction_plate_Muley_Manglik,
+    ft_Crane,
+    helical_laminar_fd_Mori_Nakayama,
+    helical_laminar_fd_Schmidt,
+    helical_laminar_fd_White,
+    helical_Re_crit,
+    helical_transition_Re_Ito,
+    helical_transition_Re_Kubair_Kuloor,
+    helical_transition_Re_Kutateladze_Borishanskii,
+    helical_transition_Re_Schmidt,
+    helical_transition_Re_Seth_Stahel,
+    helical_transition_Re_Srinivasan,
+    helical_turbulent_fd_Czop,
+    helical_turbulent_fd_Guo,
+    helical_turbulent_fd_Ju,
+    helical_turbulent_fd_Mandal_Nigam,
+    helical_turbulent_fd_Mori_Nakayama,
+    helical_turbulent_fd_Prasad,
+    helical_turbulent_fd_Schmidt,
+    helical_turbulent_fd_Srinivasan,
+    material_roughness,
+    nearest_material_roughness,
+    one_phase_dP,
+    one_phase_dP_dz_acceleration,
+    one_phase_dP_gravitational,
+    roughness_Farshad,
+    transmission_factor,
+    von_Karman,
+)
+from fluids.numerics import assert_close, assert_close1d, assert_close3d, linspace, logspace, secant
 
 try:
-    import thefuzz
     has_thefuzz = True
 except:
     has_thefuzz = False
 
 try:
-    import mpmath
     has_mpmath = True
 except:
     has_mpmath = False
@@ -222,10 +269,10 @@ def test_one_phase_dP_dz_acceleration():
 @pytest.mark.skip
 def test_one_phase_dP_dz_acceleration_example():
     # This requires thermo!
-    from thermo import Stream, Vm_to_rho
-    from fluids import one_phase_dP, one_phase_dP_acceleration
-    import numpy as np
     from scipy.integrate import odeint
+    from thermo import Stream, Vm_to_rho
+
+    from fluids import one_phase_dP, one_phase_dP_acceleration
     from fluids.numerics import assert_close
 
     P0 = 1E5

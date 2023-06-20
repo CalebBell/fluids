@@ -17,15 +17,41 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.drag import drag_sphere, drag_sphere_methods, v_terminal, integrate_drag_sphere, time_v_terminal_Stokes, drag_sphere_correlations
-from fluids.drag import (Almedeij, Barati, Barati_high, Ceylan, Cheng, Clift, Clift_Gauvin,
-                         Engelund_Hansen, Flemmer_Banks, Graf, Haider_Levenspiel, Khan_Richardson,
-                         Mikhailov_Freire, Morrison, Morsi_Alexander, Rouse, Song_Xu, Stokes,
-                         Swamee_Ojha, Terfous, Yen)
-from fluids.numerics import assert_close1d, assert_close
 import pytest
+
+from fluids.drag import (
+    Almedeij,
+    Barati,
+    Barati_high,
+    Ceylan,
+    Cheng,
+    Clift,
+    Clift_Gauvin,
+    Engelund_Hansen,
+    Flemmer_Banks,
+    Graf,
+    Haider_Levenspiel,
+    Khan_Richardson,
+    Mikhailov_Freire,
+    Morrison,
+    Morsi_Alexander,
+    Rouse,
+    Song_Xu,
+    Stokes,
+    Swamee_Ojha,
+    Terfous,
+    Yen,
+    drag_sphere,
+    drag_sphere_correlations,
+    drag_sphere_methods,
+    integrate_drag_sphere,
+    time_v_terminal_Stokes,
+    v_terminal,
+)
+from fluids.numerics import assert_close, assert_close1d
 
 close = assert_close1d
 

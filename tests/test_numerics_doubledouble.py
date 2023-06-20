@@ -17,15 +17,39 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.numerics.doubledouble import (add_dd, add_imag_dd, cbrt_dd, cbrt_imag_dd, cube_dd,
-                                          div_dd, div_imag_dd, eq_dd, exp_dd, ge_dd, gt_dd,
-                                          imag_inv_dd, intpow_dd, le_dd, log_dd, lt_dd, mul_dd,
-                                          mul_imag_dd, mul_imag_noerrors_dd, mul_noerrors_dd,
-                                          neq_dd, pow_dd, sqrt_dd, sqrt_imag_dd, square_dd)
-from fluids.numerics import assert_close, assert_close1d
 import pytest
+
+from fluids.numerics import assert_close, assert_close1d
+from fluids.numerics.doubledouble import (
+    add_dd,
+    add_imag_dd,
+    cbrt_dd,
+    cbrt_imag_dd,
+    cube_dd,
+    div_dd,
+    div_imag_dd,
+    eq_dd,
+    exp_dd,
+    ge_dd,
+    gt_dd,
+    imag_inv_dd,
+    intpow_dd,
+    le_dd,
+    log_dd,
+    lt_dd,
+    mul_dd,
+    mul_imag_dd,
+    mul_imag_noerrors_dd,
+    mul_noerrors_dd,
+    neq_dd,
+    pow_dd,
+    sqrt_dd,
+    sqrt_imag_dd,
+    square_dd,
+)
 
 try:
     import mpmath as mp

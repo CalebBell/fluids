@@ -17,14 +17,25 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.numerics import numpy as np
-import pytest
-import fluids.numerics
-from fluids.numerics import ( assert_close, assert_close1d, horner, horner_and_der2)
-from fluids.numerics import (polyint, polyint_over_x, polyder, quadratic_from_points, quadratic_from_f_ders, deflate_cubic_real_roots,
-exp_poly_ln_tau_coeffs2, exp_poly_ln_tau_coeffs3, polynomial_offset_scale, horner_domain, stable_poly_to_unstable)
+from fluids.numerics import (
+    assert_close,
+    assert_close1d,
+    deflate_cubic_real_roots,
+    exp_poly_ln_tau_coeffs2,
+    exp_poly_ln_tau_coeffs3,
+    horner_and_der2,
+    polyder,
+    polyint,
+    polyint_over_x,
+    polynomial_offset_scale,
+    quadratic_from_f_ders,
+    quadratic_from_points,
+    stable_poly_to_unstable,
+)
+
 
 def test_polyint():
     coeffs = [-6.496329615255804e-23,2.1505678500404716e-19, -2.2204849352453665e-16,

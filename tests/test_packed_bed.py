@@ -17,15 +17,34 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.packed_bed import (Brauer, Carman, Erdim_Akgiray_Demir, Ergun, Fahien_Schriver, Guo_Sun,
-                               Harrison_Brunner_Hecker, Hicks, Idelchik, Jones_Krier, KTA,
-                               Kuo_Nydegger, Montillet_Akkari_Comiti, Tallmadge, dP_packed_bed,
-                               dP_packed_bed_methods, voidage_Benyahia_Oneil,
-                               voidage_Benyahia_Oneil_cylindrical, voidage_Benyahia_Oneil_spherical)
-from fluids.numerics import assert_close, assert_close1d
 import pytest
+
+from fluids.numerics import assert_close, assert_close1d
+from fluids.packed_bed import (
+    KTA,
+    Brauer,
+    Carman,
+    Erdim_Akgiray_Demir,
+    Ergun,
+    Fahien_Schriver,
+    Guo_Sun,
+    Harrison_Brunner_Hecker,
+    Hicks,
+    Idelchik,
+    Jones_Krier,
+    Kuo_Nydegger,
+    Montillet_Akkari_Comiti,
+    Tallmadge,
+    dP_packed_bed,
+    dP_packed_bed_methods,
+    voidage_Benyahia_Oneil,
+    voidage_Benyahia_Oneil_cylindrical,
+    voidage_Benyahia_Oneil_spherical,
+)
+
 
 def test_packed_bed():
     dP = Ergun(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)

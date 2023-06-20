@@ -17,30 +17,69 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids import (A_cylinder, A_hollow_cylinder, A_multiple_hole_cylinder, A_partial_circle,
-                    AirCooledExchanger, HelicalCoil, PlateExchanger, RectangularFinExchanger,
-                    RectangularOffsetStripFinExchanger, SA_conical_head, SA_ellipsoidal_head,
-                    SA_from_h, SA_guppy_head, SA_partial_cylindrical_body,
-                    SA_partial_horiz_conical_head, SA_partial_horiz_ellipsoidal_head,
-                    SA_partial_horiz_guppy_head, SA_partial_horiz_spherical_head,
-                    SA_partial_horiz_torispherical_head, SA_partial_sphere,
-                    SA_partial_vertical_conical_head, SA_partial_vertical_ellipsoidal_head,
-                    SA_partial_vertical_spherical_head, SA_partial_vertical_torispherical_head,
-                    SA_tank, SA_torispheroidal, TANK, V_cylinder, V_from_h, V_hollow_cylinder,
-                    V_horiz_conical, V_horiz_ellipsoidal, V_horiz_guppy, V_horiz_spherical,
-                    V_horiz_torispherical, V_multiple_hole_cylinder, V_partial_sphere,
-                    V_vertical_conical, V_vertical_conical_concave, V_vertical_ellipsoidal,
-                    V_vertical_ellipsoidal_concave, V_vertical_spherical,
-                    V_vertical_spherical_concave, V_vertical_torispherical,
-                    V_vertical_torispherical_concave, a_torispherical, aspect_ratio,
-                    circle_segment_h_from_A, circularity, pitch_angle_solver,
-                    plate_enlargement_factor, sphericity)
-from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose, linspace
 from math import cos
-from fluids.constants import foot, inch, pi
+
 import pytest
+
+from fluids import (
+    TANK,
+    A_cylinder,
+    A_hollow_cylinder,
+    A_multiple_hole_cylinder,
+    A_partial_circle,
+    AirCooledExchanger,
+    HelicalCoil,
+    PlateExchanger,
+    RectangularFinExchanger,
+    RectangularOffsetStripFinExchanger,
+    SA_conical_head,
+    SA_ellipsoidal_head,
+    SA_from_h,
+    SA_guppy_head,
+    SA_partial_cylindrical_body,
+    SA_partial_horiz_conical_head,
+    SA_partial_horiz_ellipsoidal_head,
+    SA_partial_horiz_guppy_head,
+    SA_partial_horiz_spherical_head,
+    SA_partial_horiz_torispherical_head,
+    SA_partial_sphere,
+    SA_partial_vertical_conical_head,
+    SA_partial_vertical_ellipsoidal_head,
+    SA_partial_vertical_spherical_head,
+    SA_partial_vertical_torispherical_head,
+    SA_tank,
+    SA_torispheroidal,
+    V_cylinder,
+    V_from_h,
+    V_hollow_cylinder,
+    V_horiz_conical,
+    V_horiz_ellipsoidal,
+    V_horiz_guppy,
+    V_horiz_spherical,
+    V_horiz_torispherical,
+    V_multiple_hole_cylinder,
+    V_partial_sphere,
+    V_vertical_conical,
+    V_vertical_conical_concave,
+    V_vertical_ellipsoidal,
+    V_vertical_ellipsoidal_concave,
+    V_vertical_spherical,
+    V_vertical_spherical_concave,
+    V_vertical_torispherical,
+    V_vertical_torispherical_concave,
+    a_torispherical,
+    aspect_ratio,
+    circle_segment_h_from_A,
+    circularity,
+    pitch_angle_solver,
+    plate_enlargement_factor,
+    sphericity,
+)
+from fluids.constants import foot, inch, pi
+from fluids.numerics import assert_close, assert_close1d, linspace
 
 
 def test_SA_partial_sphere():
@@ -1279,7 +1318,6 @@ def test_HyperbolicCoolingTower():
 
 
 def test_circle_segment_h_from_A():
-    from fluids.geometry import circle_segment_area_inner
     assert_close(circle_segment_h_from_A(1.3, 4.5), 0.6128105860337293, rtol=1e-13)
     assert_close(circle_segment_h_from_A(D=20, A=137.113), 8.99999918630794, rtol=1e-13)
     

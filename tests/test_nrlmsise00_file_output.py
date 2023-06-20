@@ -61,13 +61,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 '''
 
-import time
-from fluids.nrlmsise00.nrlmsise_00 import gtd7
-from fluids.nrlmsise00.nrlmsise_00_header import nrlmsise_output, nrlmsise_input, nrlmsise_flags , ap_array
 import hashlib
 import os
+
 import pytest
 
+from fluids.nrlmsise00.nrlmsise_00 import gtd7
+from fluids.nrlmsise00.nrlmsise_00_header import ap_array, nrlmsise_flags, nrlmsise_input, nrlmsise_output
 
 base = ''
 

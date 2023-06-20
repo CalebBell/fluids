@@ -1,5 +1,6 @@
-import sys
 import platform
+import sys
+
 is_pypy = 'PyPy' in sys.version
 ver_tup = platform.python_version_tuple()[0:2]
 ver_tup = tuple(int(i) for i in ver_tup)

@@ -17,12 +17,12 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.mixing import (COV_motionless_mixer, K_motionless_mixer, Kp_helical_ribbon_Rieger,
-                           agitator_time_homogeneous, size_tee, time_helical_ribbon_Grenville)
+
+from fluids.mixing import COV_motionless_mixer, K_motionless_mixer, Kp_helical_ribbon_Rieger, agitator_time_homogeneous, size_tee, time_helical_ribbon_Grenville
 from fluids.numerics import assert_close, assert_close1d
-import pytest
 
 
 def test_mixing():

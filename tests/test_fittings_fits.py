@@ -17,22 +17,21 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
 import os
+from math import log10
+
 import numpy as np
-from math import pi, log10, log
-from random import uniform
+import pytest
 from numpy.testing import assert_allclose
+from scipy.interpolate import RectBivariateSpline, UnivariateSpline, bisplev, bisplrep, splev, splrep
 from scipy.optimize import fsolve, newton
-from scipy.interpolate import (RectBivariateSpline, UnivariateSpline, bisplev, bisplrep, splev,
-                               splrep)
+
 from fluids import fluids_data_dir
 from fluids.core import Engauge_2d_parser
 from fluids.optional.pychebfun import chebfun, chebfun_to_poly
-
-import pytest
-
 
 ### Contractions
 
@@ -286,7 +285,7 @@ def test_entrance_rounded_Miller_coefficients():
 ### Bends
 
 def test_bend_rounded_Crane_coefficients():
-    from fluids.fittings import bend_rounded_Crane_ratios, bend_rounded_Crane_fds, bend_rounded_Crane_coeffs
+    from fluids.fittings import bend_rounded_Crane_coeffs, bend_rounded_Crane_fds, bend_rounded_Crane_ratios
     bend_rounded_Crane_obj = UnivariateSpline(bend_rounded_Crane_ratios, bend_rounded_Crane_fds, s=0)
 
     fun = chebfun(f=bend_rounded_Crane_obj, domain=[1,20], N=10)
@@ -302,7 +301,6 @@ def test_bend_rounded_Crane_coefficients():
 def test_bend_rounded_Miller_K_coefficients():
     from fluids import fluids_data_dir
     from fluids.core import Engauge_2d_parser
-    from fluids.fittings import tck_bend_rounded_Miller
     Kb_curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 smooth bends Kb.csv')
     lines = open(Kb_curve_path).readlines()
     all_zs, all_xs, all_ys = Engauge_2d_parser(lines, flat=True)
@@ -370,8 +368,7 @@ def test_bend_rounded_Miller_Re_correction():
 #        plt.semilogx(Res, Cs_spline, '-')
 #    plt.show()
 
-    from fluids.fittings import bend_rounded_Miller_C_Re_limit_1
-    from fluids.fittings import bend_rounded_Miller_C_Re
+    from fluids.fittings import bend_rounded_Miller_C_Re, bend_rounded_Miller_C_Re_limit_1
     ps = np.linspace(1, 2)
     qs = [newton(lambda x: bend_rounded_Miller_C_Re(x, i)-1, 2e5) for i in ps]
     rs = np.polyfit(ps, qs, 4).tolist()
@@ -380,7 +377,6 @@ def test_bend_rounded_Miller_Re_correction():
 
 @pytest.mark.slow
 def test_bend_rounded_Miller_outlet_tangent_correction():
-    from fluids.fittings import tck_bend_rounded_Miller_C_Re
     Re_curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 smooth bends outlet tangent length correction.csv')
     text = open(Re_curve_path).readlines()
 
@@ -480,7 +476,12 @@ def test_bend_miter_Miller_coefficients():
 
 
 def test_diffuser_conical_Idelchik_coefficients():
-    from fluids.fittings import diffuser_conical_Idelchik_tck, diffuser_conical_Idelchik_angles, diffuser_conical_Idelchik_A_ratios, diffuser_conical_Idelchik_data
+    from fluids.fittings import (
+        diffuser_conical_Idelchik_A_ratios,
+        diffuser_conical_Idelchik_angles,
+        diffuser_conical_Idelchik_data,
+        diffuser_conical_Idelchik_tck,
+    )
 
     diffuser_conical_Idelchik_obj = RectBivariateSpline(np.array(diffuser_conical_Idelchik_A_ratios),
                                                     np.array(diffuser_conical_Idelchik_angles),
@@ -492,7 +493,7 @@ def test_diffuser_conical_Idelchik_coefficients():
 
 
 def test_entrance_rounded_Idelchik_coeffs():
-    from fluids.fittings import entrance_rounded_ratios_Idelchik, entrance_rounded_Ks_Idelchik, entrance_rounded_Idelchik_tck
+    from fluids.fittings import entrance_rounded_Idelchik_tck, entrance_rounded_Ks_Idelchik, entrance_rounded_ratios_Idelchik
 
     tck_refit = splrep(entrance_rounded_ratios_Idelchik, entrance_rounded_Ks_Idelchik, s=0, k=2)
     [assert_allclose(i, j, rtol=1e-3) for i, j in zip(tck_refit, entrance_rounded_Idelchik_tck)]
@@ -501,7 +502,7 @@ def test_entrance_rounded_Idelchik_coeffs():
 #                                             s=0, k=2, ext=3)
 #
 def test_entrance_rounded_Harris_coeffs():
-    from fluids.fittings import entrance_rounded_ratios_Harris, entrance_rounded_Ks_Harris, entrance_rounded_Harris_tck
+    from fluids.fittings import entrance_rounded_Harris_tck, entrance_rounded_Ks_Harris, entrance_rounded_ratios_Harris
 
     tck_refit = splrep(entrance_rounded_ratios_Harris, entrance_rounded_Ks_Harris, s=0, k=2)
     [assert_allclose(i, j, rtol=1e-3) for i, j in zip(tck_refit, entrance_rounded_Harris_tck)]
@@ -512,9 +513,7 @@ def test_entrance_rounded_Harris_coeffs():
 #                                           s=0, k=2, ext=3)
 
 def test_entrance_distance_Harris_coeffs():
-    from fluids.fittings import( entrance_distance_Harris_t_Di,
-                                entrance_distance_Harris_Ks,
-                                entrance_distance_Harris_tck)
+    from fluids.fittings import entrance_distance_Harris_Ks, entrance_distance_Harris_t_Di, entrance_distance_Harris_tck
 
     tck_refit = splrep(entrance_distance_Harris_t_Di, entrance_distance_Harris_Ks, s=0, k=3)
     [assert_allclose(i, j, rtol=1e-3) for i, j in zip(tck_refit, entrance_distance_Harris_tck)]

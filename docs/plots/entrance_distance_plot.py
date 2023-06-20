@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from fluids.fittings import entrance_distance_methods
-from fluids.fittings import entrance_distance
+
+from fluids.fittings import entrance_distance, entrance_distance_methods
 
 ts = np.linspace(0,0.3, 1000)
 for method in entrance_distance_methods:

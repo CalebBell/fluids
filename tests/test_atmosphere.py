@@ -17,20 +17,19 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-import os
 from fluids.atmosphere import earthsun_distance, solar_irradiation, solar_position, sunrise_sunset
-import fluids
-from fluids.numerics import assert_close, assert_close1d, assert_close2d
-import fluids.optional
+from fluids.numerics import assert_close, assert_close1d
+
 try:
     from datetime import datetime, timedelta
 except:
     pass
 import pytest
+
 try:
-    import pvlib
     has_pvlib = True
 except:
     has_pvlib = False
@@ -39,7 +38,8 @@ try:
 except:
     pass
 
-from fluids.atmosphere import ATMOSPHERE_1976, hwm93, hwm14, airmass
+from fluids.atmosphere import ATMOSPHERE_1976, airmass, hwm14, hwm93
+
 
 def test_ATMOSPHERE_1976():
     # Test values from 'Atmosphere to 86 Km by 2 Km (SI units)', from

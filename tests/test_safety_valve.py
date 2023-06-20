@@ -17,16 +17,31 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.safety_valve import (API520_A_g, API520_A_steam, API520_B, API520_C, API520_F2,
-                                 API520_Kv, API520_N, API520_SH, API520_W, API520_round_size,
-                                 API521_noise, API521_noise_graph, API526_A, API526_letters,
-                                 VDI_3732_noise_elevated_flare, VDI_3732_noise_ground_flare)
-from fluids.numerics import assert_close, assert_close1d, linspace
-from fluids.constants import atm
 import pytest
 
+from fluids.constants import atm
+from fluids.numerics import assert_close, assert_close1d, linspace
+from fluids.safety_valve import (
+    API520_B,
+    API520_C,
+    API520_F2,
+    API520_N,
+    API520_SH,
+    API520_W,
+    API526_A,
+    API520_A_g,
+    API520_A_steam,
+    API520_Kv,
+    API520_round_size,
+    API521_noise,
+    API521_noise_graph,
+    API526_letters,
+    VDI_3732_noise_elevated_flare,
+    VDI_3732_noise_ground_flare,
+)
 
 
 def test_safety_valve():
@@ -97,13 +112,13 @@ def test_API520_SH():
         API520_SH(1000, 1066E3, '10E')
         
     assert API520_SH(470, 1066E3, '10E') == 1.0
-    from fluids.safety_valve import _KSH_Pa_10E, _KSH_K_10E
+    from fluids.safety_valve import _KSH_K_10E, _KSH_Pa_10E
     KSH_10E_tot =  sum([API520_SH(T, P, '10E') for P in _KSH_Pa_10E for T in _KSH_K_10E])
     assert_close(1336.4789999999996, KSH_10E_tot)
 
     for P in linspace(_KSH_Pa_10E[0], _KSH_Pa_10E[-1], 30):
         for T in linspace(_KSH_K_10E[0], _KSH_K_10E[-1], 30):
-            val = API520_SH(T, P, '10E') 
+            val = API520_SH(T, P, '10E')
             assert val <= (1+1e-15)
             assert val >= 0.627
 

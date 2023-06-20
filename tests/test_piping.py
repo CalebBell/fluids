@@ -17,12 +17,13 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.piping import nearest_pipe, gauge_from_t, t_from_gauge, erosional_velocity
-from fluids.numerics import assert_close, assert_close1d
 import pytest
 
+from fluids.numerics import assert_close, assert_close1d
+from fluids.piping import erosional_velocity, gauge_from_t, nearest_pipe, t_from_gauge
 
 
 def test_piping():

@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+
 from fluids.fittings import contraction_round, contraction_round_methods
+
 styles = ['--', '-.', '-', ':', '.', ',', 'o', 'v', '^', '<', '>', '1', '2', '3', '4']
 
 D_ratios = np.linspace(1-1e-9, .01, 1000)

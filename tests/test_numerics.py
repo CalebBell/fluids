@@ -17,34 +17,79 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.numerics import numpy as np
+from math import cos, erf, exp, isnan, log, pi, sin, sqrt
+
 import pytest
-import fluids.numerics
-from fluids.numerics import (SolverInterface, array_as_tridiagonals, assert_close, assert_close1d,
-                             assert_close2d, best_bounding_bounds, chebder, chebint, chebval,
-                             chebval_ln_tau, chebval_ln_tau_and_der, chebval_ln_tau_and_der2,
-                             chebval_ln_tau_and_der3, cumsum, derivative, exp_cheb,
-                             exp_cheb_and_der, exp_cheb_and_der2, exp_cheb_and_der3,
-                             exp_cheb_ln_tau, exp_cheb_ln_tau_and_der, exp_cheb_ln_tau_and_der2,
-                             fit_integral_linear_extrapolation,
-                             trunc_log_numpy,
-                             fit_integral_over_T_linear_extrapolation, full, horner,
-                             is_monotonic, is_poly_positive, jacobian, linspace, max_abs_error,
-                             max_abs_rel_error, max_squared_error, max_squared_rel_error,
-                             mean_abs_error, mean_abs_rel_error, mean_squared_error,
-                             mean_squared_rel_error, min_max_ratios, newton_system,
-                             poly_fit_integral_over_T_value, poly_fit_integral_value, polyint,
-                             polyint_over_x, polylog2, polynomial_offset_scale,
-                             secant, sincos, trunc_exp_numpy,
-                             solve_2_direct, solve_3_direct, solve_4_direct, solve_tridiagonal,
-                             std, subset_matrix, translate_bound_f_jac, isclose,
-                             translate_bound_func, translate_bound_jac, tridiagonals_as_array,
-                             zeros)
-from math import cos, erf, exp, isnan, log, sin, sqrt
-from random import random
-from math import pi
+
+from fluids.numerics import (
+    SolverInterface,
+    array_as_tridiagonals,
+    assert_close,
+    assert_close1d,
+    assert_close2d,
+    best_bounding_bounds,
+    chebder,
+    chebint,
+    chebval,
+    chebval_ln_tau,
+    chebval_ln_tau_and_der,
+    chebval_ln_tau_and_der2,
+    chebval_ln_tau_and_der3,
+    cumsum,
+    derivative,
+    exp_cheb,
+    exp_cheb_and_der,
+    exp_cheb_and_der2,
+    exp_cheb_and_der3,
+    exp_cheb_ln_tau,
+    exp_cheb_ln_tau_and_der,
+    exp_cheb_ln_tau_and_der2,
+    fit_integral_linear_extrapolation,
+    fit_integral_over_T_linear_extrapolation,
+    full,
+    horner,
+    is_monotonic,
+    is_poly_positive,
+    isclose,
+    jacobian,
+    linspace,
+    max_abs_error,
+    max_abs_rel_error,
+    max_squared_error,
+    max_squared_rel_error,
+    mean_abs_error,
+    mean_abs_rel_error,
+    mean_squared_error,
+    mean_squared_rel_error,
+    min_max_ratios,
+    newton_system,
+    poly_fit_integral_over_T_value,
+    poly_fit_integral_value,
+    polyint,
+    polyint_over_x,
+    polylog2,
+    polynomial_offset_scale,
+    secant,
+    sincos,
+    solve_2_direct,
+    solve_3_direct,
+    solve_4_direct,
+    solve_tridiagonal,
+    std,
+    subset_matrix,
+    translate_bound_f_jac,
+    translate_bound_func,
+    translate_bound_jac,
+    tridiagonals_as_array,
+    trunc_exp_numpy,
+    trunc_log_numpy,
+    zeros,
+)
+from fluids.numerics import numpy as np
+
 assert_allclose = np.testing.assert_allclose
 
 def test_py_solve_bad_cases():
@@ -86,6 +131,7 @@ def test_sincos():
 
 def test_bisect_log_exp_terminations():
     from math import exp, log
+
     from fluids.numerics import bisect
     def to_solve(x):
         try:
@@ -176,8 +222,9 @@ def test_full():
                     np.full((2, 3, 4, 5), 1), atol=0)
 
 def test_splev():
-    from fluids.numerics import py_splev
     from scipy.interpolate import splev
+
+    from fluids.numerics import py_splev
     # Originally Dukler_XA_tck
     tck = [np.array([-2.4791105294648372, -2.4791105294648372, -2.4791105294648372,
                                -2.4791105294648372, 0.14360803483759585, 1.7199938263676038,
@@ -213,8 +260,9 @@ def test_splev():
 
 
 def test_bisplev():
-    from fluids.numerics import bisplev as my_bisplev
     from scipy.interpolate import bisplev
+
+    from fluids.numerics import bisplev as my_bisplev
 
     tck = [np.array([0.0, 0.0, 0.0, 0.0, 0.0213694, 0.0552542, 0.144818,
                                      0.347109, 0.743614, 0.743614, 0.743614, 0.743614]),
@@ -676,8 +724,9 @@ def test_min_max_ratios():
     
     
 def test_py_factorial():
-    from fluids.numerics import py_factorial
     import math
+
+    from fluids.numerics import py_factorial
     for i in range(30):
         assert math.factorial(i) == py_factorial(i)
     
@@ -774,14 +823,14 @@ def test_exp_cheb():
     assert_close(der_analytical, 4056.277312107932, rtol=1e-14)
     
     
-    der_num = derivative(lambda *args: exp_cheb_and_der(*args)[1], x, 
+    der_num = derivative(lambda *args: exp_cheb_and_der(*args)[1], x,
                          args=(coeffs, coeffs_d, offset, scale), dx=x*1e-7)
     der_analytical = exp_cheb_and_der2(x, coeffs, coeffs_d, coeffs_d2, offset, scale)[-1]
     assert_close(der_analytical, 81.34302144188977, rtol=1e-14)
     assert_close(der_num, der_analytical, rtol=1e-7)
 
 
-    der_num = derivative(lambda *args: exp_cheb_and_der2(*args)[-1], x, 
+    der_num = derivative(lambda *args: exp_cheb_and_der2(*args)[-1], x,
                          args=(coeffs, coeffs_d, coeffs_d2, offset, scale), dx=x*1e-7)
     der_analytical = exp_cheb_and_der3(x, coeffs, coeffs_d, coeffs_d2, coeffs_d3, offset, scale)[-1]
     assert_close(der_num, der_analytical, rtol=1e-7)
@@ -968,7 +1017,7 @@ solver_1d_test_cases = [(lambda x: sin(x) - x/2, lambda x: cos(x) - 1/2, lambda 
         (lambda x: 2 * cos(x) + cos(2 * x), lambda x: -2*sin(x) - 2*sin(2*x), lambda x: -2*(cos(x) + 2*cos(2*x)), lambda x: 2*(sin(x) + 4*sin(2*x)), [-1.5629423451609221, -0.7853981633974483, 0.7853981633974483, 1.5707963267948966, 2.356194490192345,
                                                 3.141592653589793, 3.9269908169872414, 5.497787143782138, 6.275331325545612],
             -pi / 2, 2 * pi, 'Scipy/Problem11'),
-        (lambda x: (sin(x))**3.0 + (cos(x))**3.0, lambda x: 3*sin(x)**2*cos(x) - 3*sin(x)*cos(x)**2, lambda x: 3*(-sin(x)**3 + 2*sin(x)**2*cos(x) + 2*sin(x)*cos(x)**2 - cos(x)**3), lambda x: 3*(-2*sin(x)**3 - 7*sin(x)**2*cos(x) + 7*sin(x)*cos(x)**2 + 2*cos(x)**3), [0.006283185307179587, 0.6283185307179586, 1.8849555921538759, 2.5132741228718345, 
+        (lambda x: (sin(x))**3.0 + (cos(x))**3.0, lambda x: 3*sin(x)**2*cos(x) - 3*sin(x)*cos(x)**2, lambda x: 3*(-sin(x)**3 + 2*sin(x)**2*cos(x) + 2*sin(x)*cos(x)**2 - cos(x)**3), lambda x: 3*(-2*sin(x)**3 - 7*sin(x)**2*cos(x) + 7*sin(x)*cos(x)**2 + 2*cos(x)**3), [0.006283185307179587, 0.6283185307179586, 1.8849555921538759, 2.5132741228718345,
                                                     3.141592653589793, 3.7699111843077517, 4.39822971502571, 5.654866776461628, 6.276902121872407],
             0, 2*pi, 'Scipy/Problem12'),
         (lambda x: -exp(-x) * sin(2.0 * pi * x), lambda x: exp(-x)*sin(2*pi*x) - 2*pi*exp(-x)*cos(2*pi*x), lambda x: (-sin(2*pi*x) + 4*pi**2*sin(2*pi*x) + 4*pi*cos(2*pi*x))*exp(-x), lambda x: (-12*pi**2*sin(2*pi*x) + sin(2*pi*x) - 6*pi*cos(2*pi*x) + 8*pi**3*cos(2*pi*x))*exp(-x), [0.004, 0.4, 1.2, 1.6, 2.0, 2.4, 2.8, 3.6, 3.996], 0, 4, 'Scipy/Problem14'),
@@ -1000,7 +1049,7 @@ def test_secant_cases_internet():
     names = ['fluids secant']
     def print_err(fun):
         def f(x):
-            err = fun(x) 
+            err = fun(x)
     #         print([err, x])
             return err
         return f
@@ -1025,13 +1074,14 @@ def test_newton_halley_cases_internet():
     debug = False
     fcalls = 0
     from math import inf, isinf, isnan
+
     from fluids.numerics import newton
     def print_err(fun):
         def f(x):
-            nonlocal fcalls 
+            nonlocal fcalls
             fcalls += 1
             try:
-                err = fun(x) 
+                err = fun(x)
             except:
                 return inf
             if err.imag != 0.0:
@@ -1043,7 +1093,7 @@ def test_newton_halley_cases_internet():
     def print_fder(fun):
         def f(x):
             try:
-                fder = fun(x) 
+                fder = fun(x)
             except:
                 return inf
             if fder.imag != 0.0:
@@ -1119,21 +1169,21 @@ def test_newton_system_with_damping_function():
         return [120*x-75*k*(1-x), -x*(873-T)-11.0*(T-300)]
     def test_jac_with_damping(inputs):
         x, T = inputs
-        ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+        ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120,
                 (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
                [T - 873,
                 x - 11.0]]
         return ans
     
     near_solution = [0.05995136780143791, 300]
-    ans, iterations = newton_system(test_objf_with_damping, near_solution, jac=test_jac_with_damping, 
+    ans, iterations = newton_system(test_objf_with_damping, near_solution, jac=test_jac_with_damping,
                                     line_search=True, damping=1,
                                     ytol=1e-7, xtol=None, damping_func=damping_func_max_one_second)
     
     assert Ts[0:4] == [300, 299, 298, 297]
     
     Ts = []
-    ans, iterations = newton_system(test_objf_with_damping, near_solution, jac=test_jac_with_damping, 
+    ans, iterations = newton_system(test_objf_with_damping, near_solution, jac=test_jac_with_damping,
                                     line_search=True, damping=2,
                                     ytol=1e-7, xtol=None, damping_func=damping_func_max_one_second)
     assert [300, 298] == Ts[0:2]
@@ -1150,7 +1200,7 @@ def test_newton_system_nan_inf_inputs_outputs():
             return [120*x-75*k*(1-x), -x*(873-T)-11.0*(T-300)]
         def test_jac_with_nan_point(inputs):
             x, T = inputs
-            ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+            ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120,
                     (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
                    [T - 873,
                     x - 11.0]]
@@ -1158,13 +1208,13 @@ def test_newton_system_nan_inf_inputs_outputs():
         
         near_solution = [0.05995136780143791, 300]
         with pytest.raises(ValueError):
-            newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+            newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point,
                                         line_search=False, check_numbers=True,
                                         ytol=1e-7, xtol=None)
         Ts = []
         
         # The line search will allow the solver to try again
-        ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+        ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point,
                                         line_search=True, check_numbers=True, xtol=1e-12)
         assert_close1d(ans, [0.059951367801437914, 296.85996516970505])
         
@@ -1172,7 +1222,7 @@ def test_newton_system_nan_inf_inputs_outputs():
         for progress in (True, False):
             with pytest.raises(ValueError):
                 Ts = []
-                ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+                ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point,
                                                 line_search=False, check_numbers=True, xtol=1e-12, require_progress=progress)
         
 
@@ -1185,7 +1235,7 @@ def test_newton_jacobian_has_nan_inf():
         return [120*x-75*k*(1-x), -x*(873-T)-11.0*(T-300)]
     def test_jac_with_nan_point(inputs):
         x, T = inputs
-        ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+        ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120,
                 (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
                [T - 873,
                 x - 11.0]]
@@ -1195,24 +1245,24 @@ def test_newton_jacobian_has_nan_inf():
     
     near_solution = [0.05995136780143791, 300]
     with pytest.raises(ValueError):
-        newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+        newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point,
                                     line_search=False, check_numbers=True,
                                     ytol=1e-7, xtol=None)
     Ts = []
     
     # # The line search will allow the solver to try again
-    ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+    ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point,
                                     line_search=True, check_numbers=True, xtol=1e-12, jac_error_allowed=True)
     assert_close1d(ans, [0.059951367801437914, 296.85996516970505])
     
     # Should also work without a linesearch
     Ts = []
-    ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point, 
+    ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point,
                                     line_search=False, check_numbers=True, xtol=1e-12, jac_error_allowed=True)
     
     def test_jac_with_nan_point_first_only(inputs):
         x, T = inputs
-        ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+        ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120,
                 (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
                [T - 873,
                 x - 11.0]]
@@ -1223,12 +1273,12 @@ def test_newton_jacobian_has_nan_inf():
     # Check that if the initial jacobian is bad, it gets caught
     Ts = []
     with pytest.raises(ValueError):
-        ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point_first_only, 
+        ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point_first_only,
                                         line_search=True, check_numbers=True, xtol=1e-12, jac_error_allowed=False)
         
     Ts = []
     # check that the initial jacobian won't stop the problem if we say yes
-    ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point_first_only, 
+    ans, iterations = newton_system(test_objf_with_nan_iterations, near_solution, jac=test_jac_with_nan_point_first_only,
                                     line_search=False, check_numbers=True, xtol=1e-12, jac_error_allowed=True)
     assert_close1d(ans, [0.059951367801437914, 296.85996516970505])
 
@@ -1254,7 +1304,7 @@ def to_solve_jac_newton_python(inputs):
     if not isinstance(inputs, list):
         raise ValueError("Bad input type")
     x, T = inputs
-    ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+    ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120,
             (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
            [T - 873,
             x - 11.0]]
@@ -1265,7 +1315,7 @@ def to_solve_jac_newton_numpy(inputs):
     if not isinstance(inputs, np.ndarray):
         raise ValueError("Bad input type")
     x, T = inputs
-    ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120, 
+    ans = [[9.0*exp(0.00335570469798658*(12581*T - 3749138.0)/T) + 120,
             (42.2181208053691/T - 0.00335570469798658*(12581*T - 3749138.0)/T**2)*(9.0*x - 9.0)*exp(0.00335570469798658*(12581*T - 3749138.0)/T),],
            [T - 873,
             x - 11.0]]
@@ -1291,7 +1341,7 @@ except:
     
 @pytest.mark.parametrize("jacob_method", jacob_methods)
 @pytest.mark.filterwarnings("ignore:Method")
-def test_SolverInterface_basics(jacob_method):    
+def test_SolverInterface_basics(jacob_method):
     solver = SolverInterface(method='newton_system', objf=to_solve_newton_python,
                              jacobian_method=jacob_method, jac=to_solve_jac_newton_python)
     # Not testing convergence so start quite close to the point
@@ -1307,7 +1357,7 @@ def test_SolverInterface_basics(jacob_method):
     assert_close2d(to_solve_jac_newton_numpy(np.array(x0)), j0, rtol=1e-5)
     
     if jacob_method == 'python':
-        working_methods = ('newton_system_line_search', 'homotopy_solver', 'hybr', 'lm', 
+        working_methods = ('newton_system_line_search', 'homotopy_solver', 'hybr', 'lm',
                        'krylov', 'df-sane', 'Nelder-Mead', 'Powell', 'BFGS', 'Newton-CG',
                        'TNC', 'SLSQP')
     else:

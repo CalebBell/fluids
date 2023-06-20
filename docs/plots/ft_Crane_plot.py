@@ -1,8 +1,10 @@
+from math import log10
+
 import matplotlib.pyplot as plt
 import numpy as np
-from math import log10
 from scipy.interpolate import UnivariateSpline
-from fluids.friction import Crane_fts_Ds, Crane_fts, ft_Crane, roughness_Farshad, friction_factor
+
+from fluids.friction import Crane_fts, Crane_fts_Ds, friction_factor, roughness_Farshad
 
 roughness = .05E-3
 

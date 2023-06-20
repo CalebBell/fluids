@@ -1,8 +1,7 @@
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from fluids.fittings import entrance_rounded_methods
-from fluids.fittings import entrance_rounded
+
+from fluids.fittings import entrance_rounded, entrance_rounded_methods
 
 rcs = np.linspace(0,0.4, 1000)
 for method in entrance_rounded_methods:

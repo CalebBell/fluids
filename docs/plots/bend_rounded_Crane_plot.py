@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.interpolate import UnivariateSpline
+
+from fluids.fittings import bend_rounded_Crane_fds, bend_rounded_Crane_ratios
 from fluids.optional.pychebfun import chebfun
-from fluids.fittings import bend_rounded_Crane_ratios, bend_rounded_Crane_fds, bend_rounded_Crane_coeffs
 
 ratios = np.linspace(1, 20, 1000)
 

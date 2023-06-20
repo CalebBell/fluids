@@ -17,20 +17,45 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from math import log, log10
-from fluids.two_phase_voidage import homogeneous
-from fluids.two_phase import (Bankoff, Baroczy_Chisholm, Beggs_Brill, Chen_Friedel, Chisholm,
-                              Friedel, Gronnerud, Hwang_Kim, Jung_Radermacher, Kim_Mudawar,
-                              Lockhart_Martinelli, Lombardi_Pedrocchi, Mishima_Hibiki,
-                              Muller_Steinhagen_Heck, Theissing, Tran, Wang_Chiang_Lu, Xu_Fang,
-                              Yu_France, Zhang_Hibiki_Mishima, Zhang_Webb, two_phase_dP,
-                              two_phase_dP_acceleration, two_phase_dP_dz_acceleration,
-                              two_phase_dP_dz_gravitational, two_phase_dP_gravitational,
-                              two_phase_dP_methods)
-from fluids.numerics import assert_close, assert_close1d
+from math import log10
+
 import pytest
+
+from fluids.numerics import assert_close, assert_close1d
+from fluids.two_phase import (
+    Bankoff,
+    Baroczy_Chisholm,
+    Beggs_Brill,
+    Chen_Friedel,
+    Chisholm,
+    Friedel,
+    Gronnerud,
+    Hwang_Kim,
+    Jung_Radermacher,
+    Kim_Mudawar,
+    Lockhart_Martinelli,
+    Lombardi_Pedrocchi,
+    Mishima_Hibiki,
+    Muller_Steinhagen_Heck,
+    Theissing,
+    Tran,
+    Wang_Chiang_Lu,
+    Xu_Fang,
+    Yu_France,
+    Zhang_Hibiki_Mishima,
+    Zhang_Webb,
+    two_phase_dP,
+    two_phase_dP_acceleration,
+    two_phase_dP_dz_acceleration,
+    two_phase_dP_dz_gravitational,
+    two_phase_dP_gravitational,
+    two_phase_dP_methods,
+)
+from fluids.two_phase_voidage import homogeneous
+
 try:
     from random import uniform
 except:
@@ -572,8 +597,9 @@ Dukler_XC_Cs = [1.9554, 2.1281, 2.3405, 2.5742, 2.8012, 3.2149, 4.0579, 4.8075, 
 
 @pytest.mark.scipy
 def test_Taitel_Dukler_splines():
-    from scipy.interpolate import splrep, splev
     import numpy as np
+    from scipy.interpolate import splrep
+
     from fluids.two_phase import Dukler_XA_tck, Dukler_XC_tck, Dukler_XD_tck
     Dukler_XA_tck2 = splrep(np.log10(Dukler_XA_Xs), np.log10(Dukler_XA_As), s=5e-3, k=3)
     [assert_close1d(i, j) for i, j in zip(Dukler_XA_tck[:-1], Dukler_XA_tck2[:-1])]
@@ -593,8 +619,8 @@ def test_Taitel_Dukler_splines():
     # Curves look great to 1E-4! Also to 1E4.
 
 def plot_Taitel_Dukler_splines():
-    import numpy as np
     import matplotlib.pyplot as plt
+    import numpy as np
 
     from fluids.two_phase import XA_interp_obj, XC_interp_obj, XD_interp_obj
     Xs = np.logspace(np.log10(1e-5), np.log10(1e5), 1000)

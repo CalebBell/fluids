@@ -17,13 +17,12 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.saltation import (Geldart_Ling, Matsumoto_1974, Matsumoto_1975, Matsumoto_1977, Rizk,
-                              Schade, Weber_saltation)
+
 from fluids.numerics import assert_close, assert_close1d
-import pytest
-
+from fluids.saltation import Geldart_Ling, Matsumoto_1974, Matsumoto_1975, Matsumoto_1977, Rizk, Schade, Weber_saltation
 
 
 def test_Rizk():

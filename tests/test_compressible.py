@@ -17,21 +17,41 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids.compressible import (Fritzsche, IGT, Muller, Oliphant, P_critical_flow,
-                                 P_isothermal_critical_flow, P_stagnation, Panhandle_A, Panhandle_B,
-                                 Spitzglass_high, Spitzglass_low, T_critical_flow, T_stagnation,
-                                 T_stagnation_ideal, Weymouth, is_critical_flow,
-                                 isentropic_T_rise_compression, isentropic_efficiency,
-                                 isentropic_work_compression, isothermal_gas,
-                                 isothermal_work_compression, polytropic_exponent,
-                                 stagnation_energy)
+from math import log, pi
+
+import pytest
+
+from fluids.compressible import (
+    IGT,
+    Fritzsche,
+    Muller,
+    Oliphant,
+    P_critical_flow,
+    P_isothermal_critical_flow,
+    P_stagnation,
+    Panhandle_A,
+    Panhandle_B,
+    Spitzglass_high,
+    Spitzglass_low,
+    T_critical_flow,
+    T_stagnation,
+    T_stagnation_ideal,
+    Weymouth,
+    is_critical_flow,
+    isentropic_efficiency,
+    isentropic_T_rise_compression,
+    isentropic_work_compression,
+    isothermal_gas,
+    isothermal_work_compression,
+    polytropic_exponent,
+    stagnation_energy,
+)
 from fluids.constants import day, foot, inch, psi
 from fluids.core import F2K
-from fluids.numerics import assert_close, assert_close1d
-import pytest
-from math import log, pi
+from fluids.numerics import assert_close
 
 
 def test_isothermal_work_compression():

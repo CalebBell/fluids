@@ -11,7 +11,6 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
 import subprocess
 
@@ -27,22 +26,18 @@ import subprocess
 #MOCK_MODULES = ['scipy', 'scipy.interpolate', 'scipy.constants', 'argparse',
 #'numpy', 'pandas']
 #sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
-
-
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
-
 # -- General configuration ------------------------------------------------
-
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
-
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 import fluids
+
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
@@ -76,9 +71,10 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Fluids'
+import datetime
 import os
 import time
-import datetime
+
 build_date = datetime.datetime.utcfromtimestamp(
     int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))
 )
@@ -307,7 +303,7 @@ autodoc_default_flags = ['undoc-members', 'show-inheritance']
 katex_css_path = \
     'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css'
 katex_js_path = 'katex.min.js'
-katex_autorender_path = 'auto-render.min.js'    
+katex_autorender_path = 'auto-render.min.js'
 katex_prerender = True
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
                        'numpy': ('http://docs.scipy.org/doc/numpy', None),
@@ -336,8 +332,9 @@ nbsphinx_requirejs_path = '' # fixes katex not working
 
 from sphinx.ext.autodoc import between
 
+
 def setup(app):
-    #app.add_javascript('copybutton.js') 
+    #app.add_javascript('copybutton.js')
     # Register a sphinx.ext.autodoc.between listener to ignore everything
     # between lines that contain the word IGNORE
     app.connect('autodoc-process-docstring', between('(^Chemical Engineering Design Library).*|(^SOFTWARE.$).*', exclude=True))

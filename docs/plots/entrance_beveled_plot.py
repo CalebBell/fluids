@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from fluids.fittings import entrance_beveled_methods
-from fluids.fittings import entrance_beveled
+
+from fluids.fittings import entrance_beveled, entrance_beveled_methods
 
 angles = np.linspace(0, 90, 200) # 90 or 180? Plotted in Rennels only to 90.
 styles = ['--', '-.', '-', ':', '.', ',', 'o', 'v', '^', '<', '>', '1', '2', '3', '4']

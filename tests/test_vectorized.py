@@ -17,13 +17,14 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.'''
+SOFTWARE.
+'''
 
-from fluids import Morsi_Alexander
-from numpy.testing import assert_allclose
-import pytest
-import fluids.vectorized
 import numpy as np
+from numpy.testing import assert_allclose
+
+import fluids.vectorized
+from fluids import Morsi_Alexander
 
 
 def test_a_complicated_function():

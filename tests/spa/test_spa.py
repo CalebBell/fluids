@@ -50,7 +50,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-import os
 import datetime as dt
 
 try:
@@ -61,13 +60,12 @@ except ImportError:
     except ImportError:
         pass
 
-import numpy as np
-from numpy.testing import assert_almost_equal, assert_allclose
-import pandas as pd
-
 import unittest
-import pytest
 
+import numpy as np
+import pandas as pd
+import pytest
+from numpy.testing import assert_allclose, assert_almost_equal
 
 try:
     from numba import __version__ as numba_version
@@ -461,8 +459,9 @@ except:
 def test_deltat_astropy():
     # Can't do a full range of tests because astropy doesn't have
     # answers before 1960, after 1999 in this version
-    from astropy.time import Time
     from datetime import datetime
+
+    from astropy.time import Time
     def delta_t_astropy(dt):
         t = Time(dt, scale='utc')
         return -(dt - t.tt.value).total_seconds()
