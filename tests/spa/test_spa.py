@@ -144,6 +144,7 @@ mix_month_actual = mix_year_actual
 
 class SpaBase:
     """Test functions common to numpy and numba spa"""
+
     def test_julian_day_dt(self):
         dt = times.tz_convert('UTC')[0]
         year = dt.year
@@ -408,6 +409,7 @@ class SpaBase:
 
 class NumpySpaTest(unittest.TestCase, SpaBase):
     """Import spa without compiling to numba then run tests"""
+
     @classmethod
     def setUpClass(self):
         from fluids.optional import spa
@@ -426,6 +428,7 @@ class NumpySpaTest(unittest.TestCase, SpaBase):
                     reason='Numba not installed or version not >= 0.17.0')
 class NumbaSpaTest(unittest.TestCase, SpaBase):
     """Import spa, compiling to numba, and run tests"""
+
     @classmethod
     def setUpClass(self):
         if numba_version_int >= 17:

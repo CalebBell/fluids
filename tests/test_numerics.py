@@ -386,7 +386,7 @@ def test_diff():
             diff_py = diff(arr, n=n)
             assert_allclose(diff_np, diff_py)
 
-    assert tuple(diff([1,2,3], n=0)) == tuple([1,2,3])
+    assert tuple(diff([1,2,3], n=0)) == (1,2,3)
     with pytest.raises(Exception):
         diff([1,2,3], n=-1)
 
