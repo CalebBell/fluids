@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -20,7 +19,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from __future__ import division
 from fluids.packed_tower import (dP_demister_dry_Setekleiv_Svendsen, Stichlmair_dry,
                                  dP_demister_wet_ElDessouky, separation_demister_ElDessouky, Robbins,
                                  dP_demister_dry_Setekleiv_Svendsen_lit, Stichlmair_wet,

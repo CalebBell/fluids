@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -20,7 +19,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from __future__ import division
 from fluids.safety_valve import (API520_A_g, API520_A_steam, API520_B, API520_C, API520_F2,
                                  API520_Kv, API520_N, API520_SH, API520_W, API520_round_size,
                                  API521_noise, API521_noise_graph, API526_A, API526_letters,

@@ -27,7 +27,7 @@ if not IS_PYPY:
     def numba_int_airmass(Z):
         return fluids.numba.atmosphere.ATMOSPHERE_1976(Z, 0).rho
 
-class BaseTimeSuite(object):
+class BaseTimeSuite:
     def setup(self):
         if not IS_PYPY:
             for k in dir(self.__class__):

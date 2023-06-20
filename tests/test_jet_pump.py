@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -20,7 +19,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from __future__ import division
 from fluids import (liquid_jet_pump, liquid_jet_pump_ancillary,
                     vacuum_air_leakage_Coker_Worthington, vacuum_air_leakage_HEI2633,
                     vacuum_air_leakage_Ryans_Croll, vacuum_air_leakage_Seider)

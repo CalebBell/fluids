@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2021, 2023 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -20,7 +19,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from __future__ import division
 from fluids.numerics.doubledouble import (add_dd, add_imag_dd, cbrt_dd, cbrt_imag_dd, cube_dd,
                                           div_dd, div_imag_dd, eq_dd, exp_dd, ge_dd, gt_dd,
                                           imag_inv_dd, intpow_dd, le_dd, log_dd, lt_dd, mul_dd,

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -20,7 +19,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from __future__ import division
 import os
 import numpy as np
 from math import pi, log10, log
@@ -447,7 +445,7 @@ def test_bend_rounded_Miller_outlet_tangent_correction():
         template = 'np.array(%s),\n'
         t1 = template%str(univar[0].tolist())
         t2 = template%str(univar[1].tolist())
-        s = s + '[%s%s3]' %(t1, t2)
+        s = s + f'[{t1}{t2}3]'
 #        print(s)
         min_vals.append(float(splev(0.01, univar)))
         tcks.append(univar)

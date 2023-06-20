@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -20,7 +19,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.'''
 
-from __future__ import division
 from fluids.numerics import numpy as np
 import pytest
 import fluids.numerics
@@ -892,8 +890,8 @@ def flat_stanley(x):
         return 0
     else:
         if x < 1:
-            return -exp(log(1000) + log((1.0 - x)) - 1.0/(x - 1.0)**2)
-        return exp(log(1000) + log((x - 1.0)) - 1.0/(x - 1.0)**2)
+            return -exp(log(1000) + log(1.0 - x) - 1.0/(x - 1.0)**2)
+        return exp(log(1000) + log(x - 1.0) - 1.0/(x - 1.0)**2)
         # factor = (-1.0 if x < 1.0 else 1.0)
         # return factor*exp(log(1000) + log(abs(x - 1.0)) - 1.0/(x - 1.0)**2)
 

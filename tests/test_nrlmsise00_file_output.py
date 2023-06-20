@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -62,7 +61,6 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 '''
 
-from __future__ import division
 import time
 from fluids.nrlmsise00.nrlmsise_00 import gtd7
 from fluids.nrlmsise00.nrlmsise_00_header import nrlmsise_output, nrlmsise_input, nrlmsise_flags , ap_array

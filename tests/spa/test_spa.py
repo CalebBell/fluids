@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 test_spa unit test suite from pvlib
 ===================================
@@ -145,7 +144,7 @@ mix_month_array = np.full((10), month)
 mix_year_actual = np.full((10), dt_actual)
 mix_month_actual = mix_year_actual
 
-class SpaBase(object):
+class SpaBase:
     """Test functions common to numpy and numba spa"""
     def test_julian_day_dt(self):
         dt = times.tz_convert('UTC')[0]
