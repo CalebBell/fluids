@@ -22,7 +22,7 @@ SOFTWARE.
 
 from math import exp, hypot, isinf, isnan, log
 
-from fluids.numerics import assert_close
+from fluids.numerics import assert_close, comb
 from fluids.numerics.special import py_cacos, py_catanh, py_hypot, trunc_exp, trunc_log
 
 
@@ -183,3 +183,21 @@ def test_py_catanh():
 #        assert res_good.imag == res_implemented.imag
 
 
+
+
+def test_py_factorial():
+    import math
+
+    from fluids.numerics.special import py_factorial
+    for i in range(30):
+        assert math.factorial(i) == py_factorial(i)
+
+
+def test_py_comb():
+    from fluids.numerics.special import py_comb
+    max_n = 20
+    max_k = 30
+    for n in range(max_n):
+        for k in range(max_k):
+            test, good = py_comb(n, k), comb(n,k)
+            assert test == good

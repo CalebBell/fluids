@@ -726,7 +726,7 @@ def test_min_max_ratios():
 def test_py_factorial():
     import math
 
-    from fluids.numerics import py_factorial
+    from fluids.numerics.special import py_factorial
     for i in range(30):
         assert math.factorial(i) == py_factorial(i)
 

@@ -34,11 +34,32 @@ except:
     def cbrt(x):
         return x**(1.0/3.0)
 
+def py_factorial(n):
+    if n < 0:
+        raise ValueError("Positive values only")
+    factorial = 1
+    for i in range(2, n + 1):
+        factorial *= i
+    return factorial
+try:
+    from math import factorial
+except:
+    factorial = py_factorial
+
+def py_comb(n, k):
+    if k < 0 or k > n:
+        return 0
+    return factorial(n) // (factorial(k) * factorial(n - k))
+try:
+    from math import comb
+except:
+    comb = py_comb
+
 inf = float("inf")
 
 
 __all__ = ['py_hypot', 'py_cacos', 'py_catan', 'py_catanh', 'trunc_exp',
-           'trunc_log']
+           'trunc_log', 'py_comb', 'comb', 'py_factorial', 'factorial']
 
 DBL_MAX = 1.7976931348623157e+308
 CM_LARGE_DOUBLE = DBL_MAX/4.

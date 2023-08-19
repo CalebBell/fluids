@@ -20,11 +20,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from math import log, sqrt
+from math import log, sqrt, comb
 
 __all__ = ['polyint', 'polyint_over_x', 'polyder', 'quadratic_from_points',
 'deflate_cubic_real_roots',  'exp_poly_ln_tau_coeffs3', 'exp_poly_ln_tau_coeffs2',
 'polynomial_offset_scale', 'stable_poly_to_unstable',
+'polyint_stable',
+'polyint_over_x_stable',
 ]
 
 def stable_poly_to_unstable(coeffs, low, high):
@@ -42,6 +44,21 @@ def stable_poly_to_unstable(coeffs, low, high):
     return coeffs
 
 
+def polyint_stable(coeffs, xmin, xmax):
+    offset, scale = polynomial_offset_scale(xmin, xmax)
+    scale = 1.0/scale
+    N = len(coeffs)
+    out = [0.0]*(N+1)
+    for i in range(N):
+        out[i] = scale*coeffs[i]/(N-i)
+    return out
+
+    # from numpy.polynomial import Polynomial
+    # numpy_to_int = Polynomial(coeffs[::-1], domain=(xmin, xmax))
+    # new_thing = numpy_to_int.integ()
+    # coeffs_from_numpy = new_thing.coef
+    # coeffs_from_numpy = coeffs_from_numpy[::-1].tolist()
+    # return coeffs_from_numpy
 
 
 
@@ -238,3 +255,48 @@ def deflate_cubic_real_roots(b, c, d, x0):
     return (x1, x2)
 
 
+
+def polyint_over_x_stable_helper(coeffs, i, n, scale, offset, scale_powers, offset_powers):
+#     term = scale**(i)
+    term = scale_powers[i]
+    inner_term = 0.0
+    for j in range(0, n):
+        multiplier = comb(j, i)
+#         delta = multiplier*coeffs[-j-1]*offset**(j-i)
+        delta = multiplier*coeffs[-j-1]*offset_powers[j-i]
+        inner_term += delta
+    return term*inner_term/i
+    
+def polyint_over_x_stable(coeffs, xmin, xmax):
+    '''Take a stable polynomial coefficient series as
+    evaluated by horner_stable and the limits e.g. Tmin, Tmax
+    and transform them into the integral over x.
+    
+    This has the unfortunate property of breaking the stability
+    of the series. The impact of this is unknown right now.
+    
+    The output int_over_x_coeffs, log_coeff should
+    be evaulated with horner_log.
+    '''
+    offset, scale = polynomial_offset_scale(xmin, xmax)
+    n = len(coeffs)
+    scale_iter = 1.0
+    scale_powers = [scale_iter]
+    for i in range(n):
+        scale_iter *= scale
+        scale_powers.append(scale_iter)
+    offset_iter = 1.0
+    offset_powers = [offset_iter]
+    for i in range(n):
+        offset_iter *= offset
+        offset_powers.append(offset_iter)
+    
+    log_coeff = 0.
+    for i, coeff in enumerate(coeffs[::-1]):
+        log_coeff += coeff*offset_powers[i]
+    terms = [0.0]
+    for i in range(1, n):
+        term = polyint_over_x_stable_helper(coeffs, i, n, scale, offset, scale_powers, offset_powers)
+        terms.append(term)
+    terms.reverse()
+    return terms, log_coeff

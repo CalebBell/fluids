@@ -32,7 +32,7 @@ from fluids.numerics.arrays import (solve as py_solve, inv, dot, norm2, inner_pr
                      solve_tridiagonal, subset_matrix)
 
 from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
-                                     trunc_exp, trunc_log, cbrt)
+                                     trunc_exp, trunc_log, cbrt, factorial, comb)
 
 from fluids.numerics.polynomial_roots import (roots_quadratic, roots_quartic, roots_cubic_a1, roots_cubic_a2, roots_cubic)
 from fluids.numerics.polynomial_evaluation import (horner, horner_and_der, horner_and_der2,
@@ -48,7 +48,7 @@ from fluids.numerics.polynomial_evaluation import (horner, horner_and_der, horne
  )
 
 from fluids.numerics.polynomial_utils import (polyint, polyint_over_x, polyder, quadratic_from_points, quadratic_from_f_ders, deflate_cubic_real_roots,
-exp_poly_ln_tau_coeffs3, exp_poly_ln_tau_coeffs2, polynomial_offset_scale, stable_poly_to_unstable)
+exp_poly_ln_tau_coeffs3, exp_poly_ln_tau_coeffs2, polynomial_offset_scale, stable_poly_to_unstable, polyint_stable, polyint_over_x_stable)
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_and_der3', 'quadratic_from_f_ders', 'chebval', 'interp',
@@ -65,7 +65,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'solve_4_direct', 'sincos', 'horner_and_der4',
            'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
            'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2', 'roots_quadratic',
-           'numpy', 'nquad', 'catanh', 'factorial', 'SolverInterface',
+           'numpy', 'nquad', 'catanh', 'factorial', 'comb', 'SolverInterface',
            'multivariate_solvers', 'jacobian_methods',
            'polyint_over_x', 'horner_log', 'polyint', 'zeros', 'full',
            'chebder', 'chebint', 'exp_cheb',
@@ -120,6 +120,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'is_monotonic',
            'sort_nelder_mead_points_numba', 'sort_nelder_mead_points_python', 
            'bounds_clip_naive', 'nelder_mead', 'cbrt',
+           'polyint_stable', 'polyint_over_x_stable',
            ]
 
 from fluids.numerics import doubledouble
@@ -4566,17 +4567,6 @@ fit_minimization_targets = {'MeanAbsErr': mean_abs_error,
                             }
 
 
-def py_factorial(n):
-    if n < 0:
-        raise ValueError("Positive values only")
-    factorial = 1
-    for i in range(2, n + 1):
-        factorial *= i
-    return factorial
-try:
-    from math import factorial
-except:
-    factorial = py_factorial
 
 # interp, horner, derivative methods (and maybe newton?) should always be used.
 if not IS_PYPY:
