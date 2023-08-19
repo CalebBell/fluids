@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
-
+import pytest
 from fluids.numerics import (
     assert_close,
     assert_close1d,
@@ -37,6 +37,12 @@ from fluids.numerics import (
     polyint_stable,
     polyint_over_x_stable
 )
+
+try:
+    import mpmath
+    has_mpmath = True
+except:
+    has_mpmath = False
 
 
 def test_polyint():
@@ -192,3 +198,25 @@ def test_polyint_over_x_stable_real():
     int_over_x_coeffs, log_coeff_expect = polyint_over_x_stable(coeffs, Tmin, Tmax)
     assert_close(log_coeff_expect, log_coeff_expect, rtol=1e-13)
     assert_close1d(int_over_x_coeffs, int_over_x_coeffs_expect, rtol=1e-13)
+
+
+@pytest.mark.mpmath
+@pytest.mark.skipif(not has_mpmath, reason='mpmath is not installed')
+def test_polyint_over_x_stable_real_precise():
+    import mpmath as mp
+    from numpy.polynomial.polynomial import Polynomial
+    coeffs_num = [-1.1807560231661693, 1.0707500453237926, 6.219226796524199, -5.825940187155626, -13.479685202800221, 12.536206919506746, 16.713022858280983, -14.805461693468148, -13.840786121365808, 11.753575516231718, 7.020730111250113, -5.815540568906596, -2.001592044472603, 0.9210441915058972, 1.6279658993728698, -1.0508623065949019, -0.2536958793947375, 1.1354682714079252, -1.3567430363825075, 0.3415188644466688, 1.604997313795647, -2.26022568959622, -1.62374341299051, 10.875220288166474, 42.85532802412628]
+    Tmin, Tmax = 251.165, 2000.0
+    int_T_coeffs_expect = [-0.04919816763192372, 0.11263751330617996, 0.13111045246317343, -0.45423261676182597, -0.060044010117414455, 0.7411591719418316, -0.07854882531076747, -0.7638508595972384, 0.17966146925345727, 0.5368870307001614, -0.238984435878899, -0.1160558677189392, -0.004958654675811305, 0.09069452297160363, 0.034376716486728694, -0.16593023302511933, 0.20857847967437174, -0.1446358723821105, -0.008913096668590397, 0.08207169354184629, 0.26919218469883643, -1.215427392470841, 1.5349428351610082, 6.923550076265145, 3.2254691726042486]
+
+    mp.mp.dps = 50
+    coeffs_mp = [mp.mpf(v) for v in coeffs_num]
+    int_T_coeffs, log_term = polyint_over_x_stable(coeffs_mp, mp.mpf(Tmin), mp.mpf(Tmax))
+
+
+    to_change_poly = Polynomial(int_T_coeffs[::-1])
+    domain_new = (mp.mpf(Tmin), mp.mpf(Tmax))
+    fixed =  to_change_poly.convert(domain=domain_new).coef.tolist()[::-1]
+    coeffs_fixed = [float(v) for v in fixed]
+
+    assert_close1d(coeffs_fixed, int_T_coeffs_expect, rtol=1e-15)
