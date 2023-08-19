@@ -273,10 +273,22 @@ def polyint_over_x_stable(coeffs, xmin, xmax):
     and transform them into the integral over x.
     
     This has the unfortunate property of breaking the stability
-    of the series. The impact of this is unknown right now.
+    of the series. The impact of this is bad but nothing
+    catastropic has been found yet.
     
     The output int_over_x_coeffs, log_coeff should
     be evaulated with horner_log.
+
+    I tried using math.fsum for power accuracy in the coefficients but it
+    did not help.
+
+    The coefficients from this function can be converted
+    to stable form as follows:
+    
+    from numpy.polynomial.polynomial import Polynomial
+    stable_coeffs = Polynomial(terms[::-1]).convert(domain=(Tmin, Tmax)).coef.tolist()
+
+    However, the precision of the conversion is worse.
     '''
     offset, scale = polynomial_offset_scale(xmin, xmax)
     n = len(coeffs)
