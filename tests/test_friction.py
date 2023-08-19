@@ -99,11 +99,13 @@ from fluids.friction import (
 from fluids.numerics import assert_close, assert_close1d, assert_close3d, linspace, logspace, secant
 
 try:
+    import thefuzz
     has_thefuzz = True
 except:
     has_thefuzz = False
 
 try:
+    import mpmath
     has_mpmath = True
 except:
     has_mpmath = False
