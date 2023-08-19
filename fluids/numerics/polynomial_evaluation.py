@@ -33,7 +33,8 @@ __all__ = ['horner', 'horner_and_der', 'horner_and_der2', 'horner_and_der3',
  'horner_stable_ln_tau', 'horner_stable_ln_tau_and_der',
 'horner_stable_ln_tau_and_der2', 'horner_stable_ln_tau_and_der3',
 'exp_horner_stable', 'exp_horner_stable_and_der', 'exp_horner_stable_and_der2', 'exp_horner_stable_and_der3',
-'exp_horner_stable_ln_tau', 'exp_horner_stable_ln_tau_and_der', 'exp_horner_stable_ln_tau_and_der2', 'horner_log']
+'exp_horner_stable_ln_tau', 'exp_horner_stable_ln_tau_and_der', 'exp_horner_stable_ln_tau_and_der2', 'horner_log',
+'horner_stable_log']
 
 
 def horner(coeffs, x):
@@ -418,3 +419,6 @@ def horner_log(coeffs, log_coeff, x):
     return tot + log_coeff*log(x)
 
 
+def horner_stable_log(x, coeffs, offset, scale, log_coeff):
+    tot = horner_stable(x, coeffs, offset, scale)
+    return tot + log_coeff*log(x)

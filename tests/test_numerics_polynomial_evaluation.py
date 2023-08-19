@@ -43,6 +43,7 @@ from fluids.numerics.polynomial_evaluation import (
     horner_stable_ln_tau_and_der,
     horner_stable_ln_tau_and_der2,
     horner_stable_ln_tau_and_der3,
+    horner_stable_log,
 )
 from fluids.numerics.polynomial_utils import polynomial_offset_scale
 
@@ -321,3 +322,16 @@ def test_horner_log():
     calc = horner_log(coeffs, 5.3, 4.5)
     expect = 40.22161020291425
     assert_close(calc, expect, rtol=1e-13)
+
+
+def test_horner_stable_log():
+    # Have yet to be able to get coeffs for horner_stable_log directly
+    # Would work with mpmath for sure though
+    int_T_stable_coeffs = [3.2254691548856482, 6.923549962582991, 1.5349425170308109, -1.2154278928596742, 0.2691917024300867, 0.08207134574884214, -0.00891350763588927, -0.14463666181618448, 0.20857726049059955, -0.16593159587411, 0.034375567510854466, 0.0906937625089119, -0.0049590621229368415, -0.11605604886860361, -0.23898450392809112, 0.5368870089626024, 0.1796614633975993, -0.7638508609027873, -0.07854882554664272, 0.7411591719079632, -0.06004401012118543, -0.45423261676213483, 0.13111045246315745, 0.11263751330617959, -0.04919816763192376]
+
+    int_T_log_coeff = 33.94307866530405
+    offset = -1.2872369320147412
+    scale= 0.0011436184660073706
+
+    calc = horner_stable_log(300, int_T_stable_coeffs, offset, scale, int_T_log_coeff)
+    assert_close(calc, 193.51466126959178)

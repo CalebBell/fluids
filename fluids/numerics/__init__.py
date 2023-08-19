@@ -44,7 +44,7 @@ from fluids.numerics.polynomial_evaluation import (horner, horner_and_der, horne
  horner_stable_ln_tau, horner_stable_ln_tau_and_der, horner_stable_ln_tau_and_der2, horner_stable_ln_tau_and_der3,
  exp_horner_stable, exp_horner_stable_and_der, exp_horner_stable_and_der2, exp_horner_stable_and_der3,
  exp_horner_stable_ln_tau, exp_horner_stable_ln_tau_and_der, exp_horner_stable_ln_tau_and_der2,
- horner_log
+ horner_log, horner_stable_log,
  )
 
 from fluids.numerics.polynomial_utils import (polyint, polyint_over_x, polyder, quadratic_from_points, quadratic_from_f_ders, deflate_cubic_real_roots,
@@ -84,6 +84,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'assert_close4d', 'translate_bound_func', 'translate_bound_jac',
            'translate_bound_f_jac', 'curve_fit',
            'quad', 'quad_adaptive', 'stable_poly_to_unstable', 'homotopy_solver',
+           'horner_stable_log',
            
            'std', 'min_max_ratios', 'detect_outlier_normal',
            'max_abs_error', 'max_abs_rel_error', 'max_squared_error',
