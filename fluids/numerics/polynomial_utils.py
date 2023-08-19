@@ -283,10 +283,10 @@ def polyint_over_x_stable(coeffs, xmin, xmax):
     did not help.
 
     The coefficients from this function can be converted
-    to stable form as follows:
+    to stable form (goes directly into horner_stable_log) as follows:
     
     from numpy.polynomial.polynomial import Polynomial
-    stable_coeffs = Polynomial(terms[::-1]).convert(domain=(Tmin, Tmax)).coef.tolist()
+    stable_coeffs = Polynomial(terms[::-1]).convert(domain=(Tmin, Tmax)).coef.tolist()[::-1]
 
     However, the precision of the conversion is worse.
     '''
