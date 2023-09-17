@@ -56,4 +56,4 @@ os.chdir(test_dir)
 import pytest
 
 os.chdir(main_dir)
-pytest.main(["--doctest-glob='*.rst'", "--doctest-modules", "--nbval", "-n", "8", "--dist", "loadscope", "-v"])
+pytest.main(["--doctest-glob='*.rst'", "--doctest-modules", "--nbval", "-n", "2", "--dist", "loadscope", "-v"])
