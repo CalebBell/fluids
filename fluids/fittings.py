@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 This module contains correlations for the loss coefficient of various types
-of pipe fittings. Whether you are desining a network or modeling a single
+of pipe fittings. Whether you are designing a network or modeling a single
 element, the correlations here cover most cases.
 
 For reporting bugs, adding feature requests, or submitting pull requests,
