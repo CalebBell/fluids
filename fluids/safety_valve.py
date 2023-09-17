@@ -1214,7 +1214,7 @@ def VDI_3732_noise_elevated_flare(m):
     Parameters
     ----------
     m : float
-        Mass flow rate of relieving fluid, [m]
+        Mass flow rate of relieving fluid, [kg/s]
 
     Returns
     -------
