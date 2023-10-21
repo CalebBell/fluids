@@ -295,6 +295,7 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+numpydoc_xref_param_type = True
 
 html_theme = "nature"
 numpydoc_show_class_members = True
