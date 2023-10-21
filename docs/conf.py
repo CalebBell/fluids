@@ -304,7 +304,7 @@ numpydoc_class_members_toctree = False
 autosummary_generate = True
 add_function_parentheses = False
 
-autodoc_default_flags = ['undoc-members', 'show-inheritance']
+autodoc_default_flags = ['undoc-members', 'show-inheritance'] 
  
 katex_css_path = \
     'https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css'
