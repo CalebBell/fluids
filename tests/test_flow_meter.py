@@ -960,7 +960,7 @@ def test_wedge_Hollingshead_fit():
 
     obj = RectBivariateSpline(wedge_betas_Hollingshead, wedge_logRes_Hollingshead,
                               np.array(wedge_Hollingshead_Cs), s=0, kx=1, ky=3)
-    assert_close(obj(.55, log(1e4)), bisplev(.55, log(1e4), wedge_Hollingshead_tck))
+    assert_close(obj(.55, log(1e4))[0][0], bisplev(.55, log(1e4), wedge_Hollingshead_tck))
 
     assert_close1d(obj.tck[0], wedge_Hollingshead_tck[0])
     assert_close1d(obj.tck[1], wedge_Hollingshead_tck[1])
@@ -976,7 +976,7 @@ def test_cone_Hollingshead_fit():
 
     obj = RectBivariateSpline(cone_betas_Hollingshead, cone_logRes_Hollingshead,
                               np.array(cone_Hollingshead_Cs), s=0, kx=2, ky=3)
-    assert_close(obj(.77, log(1e4)), bisplev(.77, log(1e4), cone_Hollingshead_tck))
+    assert_close(obj(.77, log(1e4))[0][0], bisplev(.77, log(1e4), cone_Hollingshead_tck))
 
     assert_close1d(obj.tck[0], cone_Hollingshead_tck[0])
     assert_close1d(obj.tck[1], cone_Hollingshead_tck[1])

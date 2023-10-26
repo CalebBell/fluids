@@ -627,13 +627,13 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
 
     Parameters
     ----------
-    Do : float
+    Do : float, optional
         Pipe outer diameter, [m]
-    Di : float
+    Di : float, optional
         Pipe inner diameter, [m]
-    NPS : float
+    NPS : float, optional
         Nominal pipe size, [-]
-    schedule : str
+    schedule : str, optional
         String representing schedule size
 
     Returns
@@ -695,7 +695,6 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
        https://doi.org/10.1520/F0441_F0441M-15.
     .. [11] F17 Committee. "Specification for High-Density Polyethylene (PE)
        Line Pipe." ASTM International. https://doi.org/10.1520/F2619_F2619M-20.
-
     '''
     if Di:
         Di *= 1E3
@@ -725,7 +724,7 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
     if nums is None:
         raise ValueError('Pipe input is larger than max of selected schedule')
     _nps, _di, _do, _t = nums
-    return _nps, _di/1E3, _do/1E3, _t/1E3
+    return _nps, _di*1e-3, _do*1e-3, _t*1e-3
 
 
 ### Wire gauge schedules

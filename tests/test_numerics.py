@@ -87,6 +87,7 @@ from fluids.numerics import (
     trunc_exp_numpy,
     trunc_log_numpy,
     zeros,
+    is_increasing,
 )
 from fluids.numerics import numpy as np
 
@@ -1063,6 +1064,39 @@ def test_secant_cases_internet():
                     fails += 1
         assert fails == 0
 
+@pytest.mark.filterwarnings("ignore:divide by zero encountered in scalar divide")
+@pytest.mark.filterwarnings("ignore:invalid value encountered in power")
+@pytest.mark.filterwarnings("ignore:invalid value encountered in scalar power")
+def test_secant_cases_nan_inf():
+    import numpy as np
+    from fluids.numerics import UnconvergedError
+    def div_by_zero(x):
+        err = 1 / (np.array(x) - 1)
+        return err
+
+    def sqrt_of_negative(x):
+        x = np.array(x)
+        return (x - 2) ** 0.5
+
+    with pytest.raises((ValueError, UnconvergedError)):
+        secant(div_by_zero, 1)
+
+    with pytest.raises((ValueError, UnconvergedError)):
+        secant(div_by_zero, x0=2, x1=1)
+
+    with pytest.raises((ValueError, UnconvergedError)):
+        secant(sqrt_of_negative, 1)
+
+    with pytest.raises((ValueError, UnconvergedError)):
+        secant(sqrt_of_negative, x0=4, x1=1)
+
+    # test we can solve :)
+    assert secant(sqrt_of_negative, 2, x1=2.1) == 2
+
+    # Force the solver to go into the nan regime via a high damping factor
+    with pytest.raises((ValueError, UnconvergedError)):
+        secant(sqrt_of_negative, 3, x1=2.1, damping=4)
+
 def test_newton_halley_cases_internet():
     debug = False
     fcalls = 0
@@ -1381,7 +1415,37 @@ def test_SolverInterface_basics(jacob_method):
             res = solver.solve([1, 400.])
             assert type(res) is list
 
+def fixed_point_1_func(x):
+    conversion = 0.8
+    stoichiometry = [-1, 0.5, 2, 1, 0.1, 0.001, 0, 0]
+    fixed_point_1_feed = [20, 10, 0, 0, 0, 0, 30, 15]
+    recycle = [x_i for x_i in x]
+    reactor_feed = [recycle_i + feed_i for recycle_i, feed_i in zip(recycle, fixed_point_1_feed)]
+    effluent = [reactor_feed_i + (reactor_feed[0] * stoich_i * conversion)
+                for reactor_feed_i, stoich_i in zip(reactor_feed, stoichiometry)]
+    product = [effluent_i * 0.1 for effluent_i in effluent]
+    thing = [effluent_i - product_i for effluent_i, product_i in zip(effluent, product)]
+    return [xi- ti for xi, ti in zip(x, thing)]
 
+fixed_point_1_guess = [20, 10, 0, 0, 0, 0, 30, 15]
+fixed_point_1_expect = [4.390243902439022, 177.80487804878027, 351.2195121951214, 175.6097560975607, 17.560975609756067, 0.17560975609756074, 269.9999999999998, 134.9999999999999]
+def test_SolverInterface_fixed_point():
+    # Largely from Yoel's Flexsolve which is excellent, and wikipedia sample code https://en.wikipedia.org/wiki/Aitken%27s_delta-squared_process
+    # Works really nice, few parameters not exposed still though
+    solver = SolverInterface(method='fixed_point', objf=fixed_point_1_func, maxiter=1000, xtol=1e-9)
+    ans = solver.solve(fixed_point_1_guess)
+    assert_close1d(ans, fixed_point_1_expect, rtol=1e-6)
+
+    solver = SolverInterface(method='fixed_point_aitken', objf=fixed_point_1_func, maxiter=1000, xtol=1e-12)
+    ans = solver.solve(fixed_point_1_guess)
+    assert solver.fval_iter == 79
+    assert_close1d(ans, fixed_point_1_expect, rtol=1e-6)
+
+    solver = SolverInterface(method='fixed_point_gdem', objf=fixed_point_1_func, maxiter=1000, xtol=1e-12)
+    ans = solver.solve(fixed_point_1_guess)
+    assert solver.fval_iter == 37
+    assert_close1d(ans, fixed_point_1_expect, rtol=1e-12)
+    
 
 def test_isclose():
     assert not isclose(1.0, 2.0, rel_tol=0.0, abs_tol=0.0)
@@ -1455,3 +1519,36 @@ def test_transpose():
     l=[[1,2,3],[4,5,6],[7,8,9]]
     out = transpose(l)
     assert_close2d(out, [[1, 4, 7], [2, 5, 8], [3, 6, 9]])
+
+
+def test_is_increasing():
+    assert is_increasing([1, 2, 3, 4])
+    assert not is_increasing([1, 1, 2, 3])
+    assert not is_increasing([4, 3, 2, 1])
+    assert is_increasing([1000000, 1000001, 1000002, 1000003])
+    assert not is_increasing([1000003, 1000002, 1000001, 1000000])
+    assert is_increasing([1.1, 2.2, 3.3, 4.4])
+    assert not is_increasing([4.4, 3.3, 2.2, 1.1])
+    assert is_increasing([1, 2.5, 3, 4.5])
+    assert not is_increasing([4.5, 3, 2.5, 1])
+    assert is_increasing([1000000])
+    assert is_increasing([3.14159])
+    assert is_increasing([-4, -3, -2, -1])
+    assert not is_increasing([-1, -2, -3, -4])
+    assert is_increasing([])
+    assert is_increasing([1, 2])
+    assert not is_increasing([2, 1])
+
+def test_py_lambertw():
+    from fluids.numerics import py_lambertw
+    # from scipy.special import lambertw as py_lambertw
+    """ Test the basic functionality of the Lambert W function """
+    # Check a simple positive value
+    assert abs(py_lambertw(0).real - 0) < 0.22
+    # Check a value greater than 1
+    result = py_lambertw(exp(1) - 1).real  # LambertW(e-1) should be 1
+    assert_close(abs(result - 1), 0.21570504021558445)
+
+    # Test the boundary at -1/e
+    minus_one_over_e = -1/exp(1)
+    res = abs(py_lambertw(minus_one_over_e, k=-1).real + 1)

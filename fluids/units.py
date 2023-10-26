@@ -108,6 +108,7 @@ expr2 = re.compile('Returns *\n *-+\n +')
 match_sections = re.compile('\n *[A-Za-z ]+ *\n *-+')
 match_section_names = re.compile('\n *[A-Za-z]+ *\n *-+')
 variable = re.compile('[a-zA-Z_0-9]* : ')
+variable_type = re.compile('[a-zA-Z_0-9]* : .*')
 match_units = re.compile(r'\[[a-zA-Z0-9().\/*^\- ]*\]')
 
 def make_dimensionless_units(unit_str):
@@ -147,11 +148,14 @@ def parse_numpydoc_variables_units_docstring(text):
     for section in ['Parameters', 'Returns', 'Attributes', 'Other Parameters']:
         if section not in sections:
             # Handle the case where the function has nothing in a section
-            parsed[section] = {'units': [], 'vars': []}
+            parsed[section] = {'units': [], 'vars': [], 'types': [], 'optional': []}
             continue
 
         p = sections[section]
         parameter_vars = [i[:-2].strip() for i in variable.findall(p)]
+        parameter_types = [i.split(' :')[1].strip() for i in variable_type.findall(p)] 
+        optionals = [('optional' in v or 'Optional' in v) for v in parameter_types]
+        parameter_types = [v.replace(', Optional', '').replace(', optional', '').replace(',optional', '').replace(',Optional', '').strip() for v in parameter_types]
         unit_strings = [i.strip() for i in variable.split(p)[1:]]
         units = []
         for i in unit_strings:
@@ -170,7 +174,7 @@ def parse_numpydoc_variables_units_docstring(text):
             #     match = 'dimensionless' # TODO - write special wrappers for these cases
             units.append(match)
 
-        parsed[section] = {'units': units, 'vars': parameter_vars}
+        parsed[section] = {'units': units, 'vars': parameter_vars, 'types': parameter_types, 'optional': optionals}
     return parsed
 
 

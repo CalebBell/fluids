@@ -1504,7 +1504,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     '''
     # Delayed import of necessaray functions
     import numpy as np
-    from scipy.integrate import cumtrapz, odeint
+    from scipy.integrate import cumulative_trapezoid, odeint
     laminar_initial = Reynolds(V=V, rho=rho, D=D, mu=mu) < 0.01
     v_laminar_end_assumed = v_terminal(D=D, rhop=rhop, rho=rho, mu=mu, Method=Method)
     laminar_end = Reynolds(V=v_laminar_end_assumed, rho=rho, D=D, mu=mu) < 0.01
@@ -1556,12 +1556,13 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     c2 = -0.75*rho/(D*rhop)
 
     def dv_dt(V, t):
+        V = float(V[0]) # comes in as a 1 element 1d ndarray
         if V == 0:
             # 64/Re goes to infinity, but gets multiplied by 0 squared.
             t2 = 0.0
         else:
 #            t2 = c2*V*V*Stokes(Re_ish*V)
-            t2 = c2*V*V*drag_sphere(float(Re_ish*V), Method=Method)
+            t2 = c2*V*V*drag_sphere(Re_ish*V, Method=Method)
         return c1 + t2
 
     # Number of intervals for the solution to be solved for; the integrator
@@ -1574,10 +1575,10 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     # Perform the integration
     Vs = odeint(dv_dt, [V], ts)
     #
-    V_end = float(Vs[-1])
+    V_end = float(Vs[-1][0])
     if distance:
         # Calculate the distance traveled
-        x = float(cumtrapz(np.ravel(Vs), ts)[-1])
+        x = float(cumulative_trapezoid(np.ravel(Vs), ts)[-1])
         return V_end, x
     else:
         return V_end

@@ -166,6 +166,9 @@ def test_V_horiz_spherical():
     V_head2 =  V_horiz_spherical(108., 156., 42., 84., headonly=True)/231.
     assert_close1d([V_head1, V_head2], [886.1351957493874]*2)
 
+    # case that wasn't working
+    V = V_horiz_spherical(0.8855699976977874, 2.6567099930933624, 0.4427849988488937, 0.8855699976977874, True)
+
 def test_V_horiz_torispherical():
 
     # Two examples from [1]_, and at midway, full, empty, and 1 inch; covering
@@ -179,6 +182,13 @@ def test_V_horiz_torispherical():
     V_head2 = V_horiz_torispherical(108., 156., 1., 0.06, 36, headonly=True)/231.
     assert_close1d([V_head1, V_head2], [111.71919144384525]*2)
     assert 0.0 == V_horiz_torispherical(108., 156., 1., 0.06, 0.0)
+
+    # case that wasn't working
+    V = V_horiz_torispherical(0.7515011011912177, 2.254503303573653, 1.0, 0.06, 0.7515011011912177, True)
+    assert_close(V, 0.03437704511588912, rtol=1e-9)
+
+    # Another case that wasn't working
+    V = V_horiz_torispherical(3.411696249215663, 10.235088747646989, 1.0, 0.06, 3.4116962492156633, True)
 
 def test_V_vertical_conical():
     # Two examples from [1]_, and at empty and h=D.
@@ -875,6 +885,11 @@ def test_AirCooledExchangerFull():
 
     assert_close(AC.Di, 0.018639999999999997)
     assert_close(AC.A_tube_flow, 0.00027288627771317794)
+    assert_close(AC.A_tube_flow_per_row, 0.015281631551937964)
+    assert_close(AC.A_tube_flow_per_bundle, 0.06112652620775186)
+    assert_close(AC.A_tube_flow_per_bay, 0.12225305241550372)
+    assert_close(AC.A_tube_flow_total, 0.36675915724651115)
+
     assert_close(AC.tube_volume_per_tube, 0.0029943265480911587)
     assert_close(AC.tube_volume_per_row, AC.tube_volume_per_tube*AC.tubes_per_row)
     assert_close(AC.tube_volume_per_bundle, AC.tube_volume_per_tube*AC.tubes_per_bundle)
@@ -1329,3 +1344,16 @@ def test_circle_segment_h_from_A():
     assert circle_segment_h_from_A(0.0, 4.5) == 0.0
 
     assert_close(circle_segment_h_from_A(pi/4*4.5**2/2, 4.5), 2.25, rtol=1e-13)
+
+
+def test_TANK_bug_tolerance():
+    obj = TANK(L_over_D=3.0, V=100, horizontal=True, sideA='torispherical', sideB='torispherical',sideA_f=1.0, sideA_k=0.06, sideB_f=1.0, sideB_k=0.06)
+    assert_close(obj.V_from_h(obj.h_max*100.0/100), obj.V)
+    
+    assert_close(obj.A_cross_sectional(0), 0.0)
+    assert_close(obj.A_cross_sectional(obj.h_max), 0.0)
+
+    import numpy as np
+    out = obj.SA_from_h(np.float64(2.2744641661437752))
+    assert_close(out, 81.77418568825574)
+

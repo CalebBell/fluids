@@ -2728,12 +2728,12 @@ def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=
     >>> differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0,
     ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33,
     ... meter_type='ISO 5167 orifice', taps='D')
-    7.702338035732167
+    7.70233803573
 
     >>> differential_pressure_meter_solver(D=0.07366, m=7.702338, P1=200000.0,
     ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33,
     ... meter_type='ISO 5167 orifice', taps='D')
-    0.04999999990831885
+    0.0499999999
     '''
     if k is None and epsilon_specified is not None:
         k = 1.4
@@ -2754,24 +2754,27 @@ def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=
     elif D2 is None and D is not None and m is not None and P1 is not None and P2 is not None:
         args = (D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified)
         try:
-            return brenth(err_dp_meter_solver_D2, D*(1-1E-9), D*5E-3, args=args)
-        except:
             try:
-                return secant(err_dp_meter_solver_D2, D*.3, args=args, high=D, low=D*1e-10)
+                return secant(err_dp_meter_solver_D2, D*.3, args=args, high=D, low=D*1e-10, bisection=True)
             except:
-                return secant(err_dp_meter_solver_D2, D*.75, args=args, high=D, low=D*1e-10)
+                return secant(err_dp_meter_solver_D2, D*.75, args=args, high=D, low=D*1e-10, bisection=True)
+        except:
+            return brenth(err_dp_meter_solver_D2, D*(1-1E-9), D*5E-3, args=args)
     elif P2 is None and D is not None and D2 is not None and m is not None and P1 is not None:
         args = (D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified)
         try:
-            return brenth(err_dp_meter_solver_P2, P1*(1-1E-9), P1*0.5, args=args)
+            try:
+                return secant(err_dp_meter_solver_P2, P1*0.9, low=P1*0.5, args=args, high=P1, bisection=True)
+            except:
+                return secant(err_dp_meter_solver_P2, P1*0.9, low=P1*1e-10, args=args, high=P1, bisection=True)
         except:
-            return secant(err_dp_meter_solver_P2, P1*0.5, low=P1*1e-10, args=args, high=P1, bisection=True)
+            return brenth(err_dp_meter_solver_P2, P1*(1-1E-9), P1*0.5, args=args)
     elif P1 is None and D is not None and D2 is not None and m is not None and P2 is not None:
         args = (D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified)
         try:
-            return brenth(err_dp_meter_solver_P1, P2*(1+1E-9), P2*1.4, args=args)
-        except:
             return secant(err_dp_meter_solver_P1, P2*1.5, args=args, low=P2, bisection=True)
+        except:
+            return brenth(err_dp_meter_solver_P1, P2*(1+1E-9), P2*1.4, args=args)
     else:
         raise ValueError('Solver is capable of solving for one of P1, P2, D2, or m only.')
 

@@ -555,11 +555,11 @@ def specific_diameter(Q, H, D):
     return D*sqrt(sqrt(H)/Q)
 
 
-def speed_synchronous(f, poles=2, phase=3):
-    r'''Returns the synchronous speed of a synchronous motor according to [1]_.
+def speed_synchronous(f, poles=2):
+    r'''Returns the synchronous speed of a synchronous AC motor according to [1]_.
 
     .. math::
-        N_s = \frac{120 f \cdot\text{phase}}{\text{poles}}
+        N_s = \frac{120 f}{\text{poles}}
 
     Parameters
     ----------
@@ -567,8 +567,6 @@ def speed_synchronous(f, poles=2, phase=3):
         Line frequency, [Hz]
     poles : int, optional
         The number of poles of the motor
-    phase : int, optional
-        Line AC phase
 
     Returns
     -------
@@ -583,8 +581,8 @@ def speed_synchronous(f, poles=2, phase=3):
     Examples
     --------
     >>> speed_synchronous(50, poles=12)
-    1500.0
-    >>> speed_synchronous(60, phase=1)
+    500.0
+    >>> speed_synchronous(60, poles=2)
     3600.0
 
     References
@@ -592,7 +590,7 @@ def speed_synchronous(f, poles=2, phase=3):
     .. [1] All About Circuits. Synchronous Motors. Chapter 13 - AC Motors
        http://www.allaboutcircuits.com/textbook/alternating-current/chpt-13/synchronous-motors/
     '''
-    return 120.*f*phase/poles
+    return 120.*f/poles
 
 
 def current_ideal(P, V, phase=3, PF=1):
@@ -613,7 +611,7 @@ def current_ideal(P, V, phase=3, PF=1):
     Parameters
     ----------
     P : float
-        Power, [W]
+        Power of the motor, [W]
     V : float
         Voltage, [V]
     phase : int, optional
@@ -642,7 +640,7 @@ def current_ideal(P, V, phase=3, PF=1):
        3-Phase Parameters." April 1, 2008.
        http://ecmweb.com/basics/calculating-single-and-3-phase-parameters.
     '''
-    if phase not in [1, 3]:
+    if phase not in (1, 3):
         raise ValueError('Only 1 and 3 phase power supported')
     if phase == 3:
         return P/(V*sqrt(3)*PF)

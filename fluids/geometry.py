@@ -129,7 +129,7 @@ Pellet Properties
 """
 
 from cmath import sqrt as csqrt
-from math import acos, acosh, asin, atan, cos, degrees, log, pi, radians, sin, sqrt, tan
+from math import acos, acosh, asin, atan, cos, degrees, log, pi, radians, sin, sqrt, tan, isclose, log1p
 
 from fluids.numerics import brenth, cacos, catan, chebval, derivative, ellipe, ellipeinc, ellipkinc, linspace, newton, quad, secant, translate_bound_func
 
@@ -531,7 +531,11 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     r = (a*a + R*R)/2./abs(a)
     w = R - h
     y = sqrt(2*R*h - h**2)
-    z = sqrt(r**2 - R**2)
+    if isclose(r, R, rel_tol=2e-15):
+        # Handle the case of small issues in calculation of `r` blowing up the calculation
+        z = 0.0
+    else:
+        z = sqrt(r**2 - R**2)
     Af = R**2*acos((R-h)/R) - (R-h)*sqrt(2*R*h - h**2)
 
     if h == R and abs(a) <= R:
@@ -671,10 +675,14 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
     '''
+    # print((D, L, f, k, h, headonly))
     if h <= 0.0:
         return 0.0
     if f is None or k is None:
         raise ValueError("Missing f or k")
+    if isclose(h, D, rel_tol=2e-15):
+        h = D
+
     R = 0.5*D
     R2 = R*R
     hh = h*h
@@ -711,9 +719,15 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         wmax2 = R - h2
         wwerird = R - (D - h)
 
-        V1max = quad(V_horiz_torispherical_toint_1, 0.0, sqrt(2.0*k*D*h1-h1*h1), (wmax1,c10, c11))[0]
-        V1weird = quad(V_horiz_torispherical_toint_1, 0.0, sqrt(2.0*k*D*(D-h)-(D-h)*(D-h)), (wwerird,c10, c11))[0]
-        V2max = quad(V_horiz_torispherical_toint_2, 0.0, k*D*cos_alpha, (wmax2, c10, c11, g, g2))[0]
+        upper_1 = sqrt(2.0*k*D*h1-h1*h1)
+        upper_2 = sqrt(2.0*k*D*(D-h)-(D-h)*(D-h))
+        upper_3 = k*D*cos_alpha
+        V1max = quad(V_horiz_torispherical_toint_1, 0.0, upper_1, (wmax1,c10, c11))[0]
+        if upper_2 != 0.0:
+            V1weird = quad(V_horiz_torispherical_toint_1, 0.0, upper_2, (wwerird,c10, c11))[0]
+        else:
+            V1weird = 0.0
+        V2max = quad(V_horiz_torispherical_toint_2, 0.0, upper_3, (wmax2, c10, c11, g, g2))[0]
         V3max = pi*a1/6.*(3.0*g*g + a1*a1)
         Vf = 2.0*(2.0*V1max - V1weird + V2max + V3max)
     if headonly:
@@ -1273,7 +1287,7 @@ def SA_ellipsoidal_head(D, a):
 
         if e1 != 1.0:
 #        try:
-            log_term = log((1.0 + e1)/(1.0 - e1))
+            log_term = log1p(e1) - log1p(-e1)
 #        except ZeroDivisionError:
         else:
             # Limit as a goes to zero relative to D; may only be ~6 orders of
@@ -2170,6 +2184,7 @@ def SA_partial_horiz_guppy_head(D, a, h):
     return SA
 
 def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
+    x = float(x) # double check python float here to avoid numpy not erroring on sqrt
     x0 = x*x
     x1 = b - x0
     x2 = sqrt(x1)
@@ -2193,6 +2208,7 @@ def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
 #    from mpmath import mp, mpf, atanh as catanh
 #    mp.dps=30
 #    y, t2, s, c1 = mpf(y), mpf(t2), mpf(s), mpf(c1)
+    y = float(y)  # double check python float here to avoid numpy not erroring on sqrt
     y2 = y*y
     try:
         x10 = sqrt(t2 - y2)
@@ -2759,6 +2775,12 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     R = 0.5*D
     V = 0.0
     if horizontal:
+        if h > D: # Must be before Af, which will raise a domain error
+            if isclose(h, D, rel_tol=2e-15):
+                h = D
+            else:
+                raise ValueError('Input height is above top of tank')
+
         # Conical case
         if sideA == 'conical' and sideB == 'conical' and sideA_a == sideB_a:
             V += 2.0*V_horiz_conical(D, L, sideA_a, h, headonly=True)
@@ -2800,8 +2822,6 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
                 V += V_horiz_torispherical(D, L, sideA_f, sideA_k, h, headonly=True)
             if sideB == 'torispherical':
                 V += V_horiz_torispherical(D, L, sideB_f, sideB_k, h, headonly=True)
-        if h > D: # Must be before Af, which will raise a domain error
-            raise ValueError('Input height is above top of tank')
         Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2.0*R*h - h*h)
         V += L*Af
     else:
@@ -3210,7 +3230,7 @@ class TANK:
     table = False
     chebyshev = False
     __full_path__ = __module__  + '.TANK'
-    def __repr__(self): # pragma: no cover
+    def __str__(self): # pragma: no cover
         orient = 'Horizontal' if self.horizontal else 'Vertical'
         if self.sideA is None and self.sideB is None:
             sides = 'no heads'
@@ -3232,6 +3252,15 @@ class TANK:
 
         return f'<{orient} tank, V={self.V_total:f} m^3, D={self.D:f} m, L={self.L:f} m, {sides}.>'
 
+    def __repr__(self):
+        attributes = ', '.join(f"{slot}={getattr(self, slot)!r}" for slot in self.model_inputs if getattr(self, slot) is not None)
+        return f"{self.__class__.__name__}({attributes})"
+
+    def __hash__(self):
+        return hash(tuple(getattr(self, slot) for slot in self.model_inputs))
+
+    model_inputs = ('D', 'L', 'horizontal', 'sideA', 'sideB', 'sideA_a', 'sideB_a',
+    'sideA_f', 'sideA_k', 'sideB_f', 'sideB_k', 'sideA_a_ratio', 'sideB_a_ratio', 'L_over_D', 'V')
 
     def __init__(self, D=None, L=None, horizontal=True,
                  sideA=None, sideB=None, sideA_a=None, sideB_a=None,
@@ -3624,7 +3653,7 @@ class TANK:
             return self.h_from_V_cheb(V)
         elif method == 'brenth':
             to_solve = lambda h : self.V_from_h(h, method='full') - V
-            return brenth(to_solve, self.h_max, 0)
+            return secant(to_solve, x0=0.5*self.h_max, low=0, high=self.h_max, bisection=True)
         else:
             raise ValueError("Allowable methods are 'full' or 'chebyshev', "
                             "or 'brenth'.")
@@ -3652,7 +3681,8 @@ class TANK:
         '''
         # The derivative will give bad values in some cases, when right up against boundaries
         # Analytical formulations can be done, but will be lots of code
-
+        if h == self.h_max or h == 0.0:
+            return 0.0
         return derivative(lambda h: self.V_from_h(h), h, dx=1e-7*h, order=3, n=1)
 
     def set_table(self, n=100, dx=None):
@@ -3675,6 +3705,7 @@ class TANK:
             self.heights = linspace(0.0, self.h_max, n)
         self.volumes = [self.V_from_h(h) for h in self.heights]
         from scipy.interpolate import UnivariateSpline
+        # TODO replace with splrep/splev to avoid the object
         self.interp_h_from_V = UnivariateSpline(self.volumes, self.heights, ext=3, s=0.0)
         self.table = True
 
@@ -3708,7 +3739,8 @@ class TANK:
         to_fit = lambda h: self.V_from_h(h, 'full')
 
         # These high-degree polynomials cannot safety be evaluated using Horner's methods
-        # chebval is 2.5x as slow but 100% required; around 40 coefficients results are junk
+        # chebval is 2.5x as slow but 100% required; depending on the geometry, but
+        # experience shows typically at around 40 coefficients the results are become junk
         self.c_forward = Chebfun.from_function(np.vectorize(to_fit),
                                                [0.0, self.h_max], N=deg_forward).coefficients().tolist()
 
@@ -3716,6 +3748,7 @@ class TANK:
 
         to_fit = lambda h: self.h_from_V(h, 'brenth')
         self.c_backward = Chebfun.from_function(np.vectorize(to_fit), [0.0, self.V_total], N=deg_backwards).coefficients().tolist()
+        # TODO do not use lambda
         self.h_from_V_cheb = lambda x : chebval((2.0*x-self.V_total)/(self.V_total), self.c_backward)
         self.chebyshev = True
 
@@ -3728,11 +3761,13 @@ class TANK:
 
         Should only be used by _solve_tank_for_V method.
         """
+        # print('Vtarget, D, L, L_D', Vtarget, D, L, L/D)
         a = TANK(D=float(D), L=float(L), horizontal=horizontal, sideA=sideA, sideB=sideB,
                  sideA_a=sideA_a, sideB_a=sideB_a, sideA_f=sideA_f,
                  sideA_k=sideA_k, sideB_f=sideB_f, sideB_k=sideB_k,
                  sideA_a_ratio=sideA_a_ratio, sideB_a_ratio=sideB_a_ratio)
         error = (Vtarget - a.V_total)
+        # print(error, 'error')
         return error
 
 
@@ -4524,7 +4559,6 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
         R = self.D_throat*sqrt(H*H + b*b)/(2.0*b)
         return R*2.0
 
-
 class AirCooledExchanger:
     r'''Class representing the geometry of an air cooled heat exchanger with
     one or more tube bays, fans, or bundles.
@@ -4691,6 +4725,18 @@ class AirCooledExchanger:
     A_tube_flow : float
         The area for the fluid to flow in one tube, :math:`\pi/4\cdot D_i^2`,
         [m^2]
+    A_tube_flow_per_row : float
+        The area for the fluid to flow in one row, :math:`\pi/4\cdot D_i^2 N_{tubes/row}`,
+        [m^2]
+    A_tube_flow_per_bundle : float
+        The area for the fluid to flow in one bundle, :math:`\pi/4\cdot D_i^2 N_{tubes/bundle}`,
+        [m^2]
+    A_tube_flow_per_bay : float
+        The area for the fluid to flow in one bay, :math:`\pi/4\cdot D_i^2 N_{tubes/bay}`,
+        [m^2]
+    A_tube_flow_total : float
+        The area for the fluid to flow in all tubes combined, as if there
+        were a single pass [m^2]
     channels : int
         The number of tubes the fluid flows through at the inlet header, [-]
 
@@ -4755,15 +4801,17 @@ class AirCooledExchanger:
     '''
 
     def __repr__(self):
-        s = '<Air Cooler Geometry, %s>'
-        t = ''
-        for k, v in self.__dict__.items():
-            try:
-                t += f'{k}={v:g}, '
-            except:
-                t += f'{k}={v}, '
-        t = t[0:-2]
-        return s%t
+        attributes = ', '.join(f"{slot}={getattr(self, slot)!r}" for slot in self.model_inputs)
+        return f"{self.__class__.__name__}({attributes})"
+
+    def __hash__(self):
+        return hash(tuple(getattr(self, slot) for slot in self.model_inputs))
+
+    # pitch_ratio is skipped in favor of pitch; 
+    model_inputs = ('tube_rows', 'tube_passes', 'tubes_per_row', 'tube_length', 'tube_diameter',
+             'fin_thickness', 'angle', 'pitch', 'pitch_parallel', 'pitch_normal', 'fin_diameter', 
+             'fin_height', 'fin_density', 'fin_interval', 'parallel_bays', 'bundles_per_bay',
+             'fans_per_bay', 'corbels', 'tube_thickness', 'fan_diameter')
 
     def __init__(self, tube_rows, tube_passes, tubes_per_row, tube_length,
                  tube_diameter, fin_thickness,
@@ -4799,6 +4847,7 @@ class AirCooledExchanger:
             pitch_normal=pitch_normal)
         self.angle = angle
         self.pitch = pitch
+        self.pitch_ratio = pitch/self.tube_diameter
         self.pitch_parallel = pitch_parallel
         self.pitch_normal = pitch_normal
 
@@ -4888,6 +4937,11 @@ class AirCooledExchanger:
         if self.tube_thickness is not None:
             self.Di = self.tube_diameter - self.tube_thickness*2.0
             self.A_tube_flow = pi/4.0*self.Di*self.Di
+
+            self.A_tube_flow_per_row = self.A_tube_flow*self.tubes_per_row
+            self.A_tube_flow_per_bundle = self.A_tube_flow*self.tubes_per_bundle
+            self.A_tube_flow_per_bay = self.A_tube_flow*self.tubes_per_bay
+            self.A_tube_flow_total = self.A_tube_flow*self.tubes
 
             self.tube_volume_per_tube = self.A_tube_flow*self.tube_length
             self.tube_volume_per_row = self.tube_volume_per_tube*self.tubes_per_row

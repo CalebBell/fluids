@@ -23,7 +23,9 @@ Module Contents:
    modules.rst
    examples.rst
    data.rst
+   sample_programs.rst
    developers.rst
+
 
 Installation
 ------------

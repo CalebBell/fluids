@@ -311,7 +311,11 @@ def transform_lists_to_arrays(module, to_change, __funcs, vec=False, cache_black
                 real_mod = getattr(real_mod, s)
 
         orig_func = getattr(real_mod, func)
-        source = inspect.getsource(orig_func)
+        try:
+            source = inspect.getsource(orig_func)
+        except TypeError:
+            # Bad method
+            continue
         source = remove_for_numba(source)  # do before anything else
         if type(orig_func) is not type:
             source = return_value_numpy(source)
@@ -477,7 +481,7 @@ def create_numerics(replaced, vec=False):
     bad_names.update(to_set_num)
 
     solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct',
-               'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect', 'nelder_mead'] #
+               'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect', 'nelder_mead', 'quad_adaptive', 'quad', 'fixed_quad_Gauss_Kronrod'] #
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
         source = source.replace(', kwargs={}', '').replace(', **kwargs', '').replace(', kwargs=kwargs', '')
@@ -490,8 +494,8 @@ def create_numerics(replaced, vec=False):
         source = remove_for_numba(source)
         source = re.sub(list_mult_expr, numpy_not_list_expr, source)
 
-        # if any(i in s for i in ('nelder_mead',)):
-            # print(source)
+        # if any(i in s for i in ('quad','quad_adaptive', 'fixed_quad_Gauss_Kronrod')):
+        #     print(source)
         numba_exec_cacheable(source, NUMERICS_SUBMOD.__dict__, NUMERICS_SUBMOD.__dict__)
 
 

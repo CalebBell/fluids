@@ -410,7 +410,7 @@ def test_bend_rounded_Miller_outlet_tangent_correction():
         y = y/30 # 0-1 linear
         y *= 1641 # to max
         err = lambda x: BioScience_GeneralizedSubstrateDepletion_model(x) - y
-        return float(fsolve(err, 1))
+        return float(fsolve(err, 1)[0])
 
     for values in length_ratio_lists:
         for i in range(len(values)):

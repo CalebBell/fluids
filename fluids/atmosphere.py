@@ -54,7 +54,7 @@ import os
 from math import cos, exp, pi, radians, sin, sqrt
 
 from fluids.constants import N_A, R, au
-from fluids.numerics import brenth, quad
+from fluids.numerics import secant, quad
 from fluids.numerics import numpy as np
 
 try:
@@ -336,7 +336,7 @@ class ATMOSPHERE_1976:
             Pressure difference between the elevations, [Pa]
         '''
         # Compute the elevation to obtain the pressure specified
-        H_ref = brenth(H_for_P_ATMOSPHERE_1976_err, -610.0, 86000.0, args=(P1,))
+        H_ref = secant(H_for_P_ATMOSPHERE_1976_err, x0=10.0, low=-610.0, high=86000.0, bisection=True, args=(P1,))
 
         # Compute the temperature delta
         dT = T1 - ATMOSPHERE_1976(H_ref, 0.0).T
