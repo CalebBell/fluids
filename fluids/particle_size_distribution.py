@@ -596,7 +596,7 @@ def pdf_lognormal(d, d_characteristic, s):
     computation with  `d_characteristic` as the value of `scale`.
 
     >>> import scipy.stats
-    >>> scipy.stats.lognorm.pdf(x=1E-4, s=1.1, scale=1E-5)
+    >>> float(scipy.stats.lognorm.pdf(x=1E-4, s=1.1, scale=1E-5))
     405.5420921
 
     Scipy's calculation is over 300 times slower however, and this expression
@@ -656,7 +656,7 @@ def cdf_lognormal(d, d_characteristic, s):
     computation with  `d_characteristic` as the value of `scale`.
 
     >>> import scipy.stats
-    >>> scipy.stats.lognorm.cdf(x=1E-4, s=1.1, scale=1E-5)
+    >>> float(scipy.stats.lognorm.cdf(x=1E-4, s=1.1, scale=1E-5))
     0.9818369875798177
 
     Scipy's calculation is over 100 times slower however.
