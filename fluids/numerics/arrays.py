@@ -44,7 +44,8 @@ else:
 #        np = None
 
 __all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product', 'transpose',
-           'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix']
+           'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix',
+           'argsort1d']
 primitive_containers = frozenset([list, tuple])
 
 def transpose(x):
@@ -611,3 +612,34 @@ def subset_matrix(whole, subset):
 #        for j in subset:
 #            r.append(whole_i[j])
     return new
+
+
+
+## argsort implementation
+
+def argsort1d(arr):
+    """
+    Returns the indices that would sort a 1D list.
+
+    Parameters
+    ----------
+    arr : list
+        Input array [-]
+
+    Returns
+    -------
+    indices : list[int]
+        List of indices that sort the input array [-]
+
+    Notes
+    -----
+    This function uses the built-in sorted function with a custom key to get the indices.
+    Note this does not match numpy's sorting for nan and inf values.
+
+    Examples
+    --------
+    >>> arr = [3, 1, 2]
+    >>> argsort1d(arr)
+    [1, 2, 0]
+    """
+    return [i[0] for i in sorted(enumerate(arr), key=lambda x: x[1])]

@@ -29,7 +29,7 @@ from cmath import sqrt as csqrt, log as clog
 import sys
 from fluids.numerics.arrays import (solve as py_solve, inv, dot, norm2, inner_product, eye,
                      array_as_tridiagonals, tridiagonals_as_array, transpose,
-                     solve_tridiagonal, subset_matrix)
+                     solve_tridiagonal, subset_matrix, argsort1d)
 
 from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
                                      trunc_exp, trunc_log, cbrt, factorial, comb)
@@ -123,6 +123,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'sort_nelder_mead_points_numba', 'sort_nelder_mead_points_python', 
            'bounds_clip_naive', 'nelder_mead', 'cbrt',
            'polyint_stable', 'polyint_over_x_stable',
+           'argsort1d',
            ]
 
 from fluids.numerics import doubledouble

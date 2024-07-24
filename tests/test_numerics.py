@@ -88,6 +88,7 @@ from fluids.numerics import (
     trunc_log_numpy,
     zeros,
     is_increasing,
+    argsort1d,
 )
 from fluids.numerics import numpy as np
 
@@ -1552,3 +1553,33 @@ def test_py_lambertw():
     # Test the boundary at -1/e
     minus_one_over_e = -1/exp(1)
     res = abs(py_lambertw(minus_one_over_e, k=-1).real + 1)
+
+
+def test_argsort1d():
+
+    def check_argsort1d(input_list, expected, error_message):
+        numpy_argsort1d = lambda x: list(np.argsort(x))
+        assert argsort1d(input_list) == expected, error_message
+        assert argsort1d(input_list) == numpy_argsort1d(input_list), error_message
+
+
+    check_argsort1d([3, 1, 2], [1, 2, 0], "Failed on simple test case")
+    check_argsort1d([-1, -3, -2], [1, 2, 0], "Failed with negative numbers")
+    check_argsort1d([], [], "Failed on empty list")
+    check_argsort1d([42], [0], "Failed with single element list")
+    check_argsort1d([99, 21, 31, 80, 70], [1, 2, 4, 3, 0], "Mismatch with expected output")
+    check_argsort1d([2, 3, 1, 5, 4], [2, 0, 1, 4, 3], "Mismatch with expected output")
+    
+    check_argsort1d([3.5, 1, 2.2], [1, 2, 0], "Failed with mixed floats and ints")
+    check_argsort1d([0.1, 0.2, 0.3], [0, 1, 2], "Failed with floats")
+
+    check_argsort1d([True, False, True], [1, 0, 2], "Failed with boolean values")
+
+    check_argsort1d(['apple', 'banana', 'cherry'], [0, 1, 2], "Failed with strings")
+
+    check_argsort1d([2, 3, 2, 3, 3], [0, 2, 1, 3, 4], "Failed with duplicate numbers")
+
+    check_argsort1d([-3, -1, 0, 1, 3], [0, 1, 2, 3, 4], "Failed with negative and positive numbers")
+
+    # infinities and nan behavior does not match
+    # check_argsort1d([-np.inf, np.inf, np.nan, 0, -1], [0, 4, 3, 2, 1], "Failed with infinities and NaN")
