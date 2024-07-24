@@ -2179,7 +2179,7 @@ def SA_partial_horiz_guppy_head(D, a, h):
 #        t2 = (1.0 - t1)
 #        return (1.0 + c2*t2*t2 + a_R_ratio2*t1)**0.5
 #    quad_val = dblquad(to_quad, -R, h-R, lambda x: 0.0, lambda x: (R*R - x*x)**0.5)[0]
-    quad_val = quad(_SA_partial_horiz_guppy_head_to_int, -R, h-R, args=(a, R))[0]
+    quad_val = float(quad(_SA_partial_horiz_guppy_head_to_int, -R, h-R, args=(a, R))[0])
     SA = 2.0*quad_val
     return SA
 

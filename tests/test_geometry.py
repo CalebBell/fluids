@@ -482,6 +482,7 @@ def test_SA_partial_horiz_guppy_head():
         SA = (2*SA_partial_horiz_guppy_head(D=D, a=48*inch, h=h_values[i])
               + SA_partial_cylindrical_body(D=D, L=L, h=h_values[i]))
         assert_close(SA, SA_expect[i], rtol=5e-8)
+        assert type(SA) is float
 
     assert 0 == SA_partial_horiz_guppy_head(D=72., a=48.0, h=1e-20)
     assert 0 == SA_partial_horiz_guppy_head(D=72., a=48.0, h=-1e-12)
