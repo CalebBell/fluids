@@ -534,7 +534,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     # Reynolds numbers.
     x1 = 63.095734448019314*(Re_D_inv)**0.3 # 63.095... = (1e6)**0.3
     x2 = 22.7 - 0.0047*Re_D
-    t2 = x1 if x1 > x2 else x2
+    t2 = max(x2, x1)
     # max term is not in the ISO standard
     C_inf_C_s = (0.5961 + 0.0261*beta2 - 0.216*beta8
                  + 0.000521*(1E6*beta*Re_D_inv)**0.7
@@ -564,12 +564,9 @@ _Miller_1996_unsupported_type = "Supported orifice types are %s" %str(
 _Miller_1996_unsupported_tap_concentric = "Supported taps for subtype '{}' are {}".format(
         CONCENTRIC_ORIFICE, (ORIFICE_CORNER_TAPS, ORIFICE_FLANGE_TAPS,
                              ORIFICE_D_AND_D_2_TAPS, ORIFICE_PIPE_TAPS))
-_Miller_1996_unsupported_tap_pos_eccentric = "Supported tap positions for subtype '{}' are {}".format(
-        ECCENTRIC_ORIFICE, (TAPS_OPPOSITE, TAPS_SIDE))
-_Miller_1996_unsupported_tap_eccentric = "Supported taps for subtype '{}' are {}".format(
-        ECCENTRIC_ORIFICE, (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS))
-_Miller_1996_unsupported_tap_segmental = "Supported taps for subtype '{}' are {}".format(
-        SEGMENTAL_ORIFICE, (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS))
+_Miller_1996_unsupported_tap_pos_eccentric = f"Supported tap positions for subtype '{ECCENTRIC_ORIFICE}' are {(TAPS_OPPOSITE, TAPS_SIDE)}"
+_Miller_1996_unsupported_tap_eccentric = f"Supported taps for subtype '{ECCENTRIC_ORIFICE}' are {(ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS)}"
+_Miller_1996_unsupported_tap_segmental = f"Supported taps for subtype '{SEGMENTAL_ORIFICE}' are {(ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS)}"
 
 def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
                   taps=ORIFICE_CORNER_TAPS, tap_position=TAPS_OPPOSITE):

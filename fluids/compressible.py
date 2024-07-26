@@ -885,7 +885,7 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
         Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
         if P2 < Pcf:
             raise ValueError('Given outlet pressure is not physically possible ' # numba: delete
-'due to the formation of choked flow at P2={:f}, specified outlet pressure was {:f}'.format(Pcf, P2)) # numba: delete
+f'due to the formation of choked flow at P2={Pcf:f}, specified outlet pressure was {P2:f}') # numba: delete
 #            raise ValueError("Not possible") # numba: uncomment
         if P2 > P1:
             raise ValueError('Specified outlet pressure is larger than the '
@@ -908,9 +908,9 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
                 return brenth(isothermal_gas_err_P1, P2, Pcf, args=(fd, rho, P2, L, D, m))
             except:
                 m_max = isothermal_gas(rho, fd, P1=Pcf, P2=P2, L=L, D=D)  # numba: delete
-                raise ValueError('The desired mass flow rate of {:f} kg/s cannot ' # numba: delete
+                raise ValueError(f'The desired mass flow rate of {m:f} kg/s cannot ' # numba: delete
                                  'be achieved with the specified downstream pressure; the maximum flowrate is ' # numba: delete
-                                 '{:f} kg/s at an upstream pressure of {:f} Pa'.format(m, m_max, Pcf)) # numba: delete
+                                 f'{m_max:f} kg/s at an upstream pressure of {Pcf:f} Pa') # numba: delete
 #                raise ValueError("Failed") # numba: uncomment
     elif P2 is None and L is not None and P1 is not None and D is not None and m is not None:
         try:
@@ -941,8 +941,8 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
             except:
                 m_max = isothermal_gas(rho, fd, P1=P1, P2=Pcf, L=L, D=D)
                 raise ValueError('The desired mass flow rate cannot be achieved ' # numba: delete
-                                 'with the specified upstream pressure of {:f} Pa; the maximum flowrate is {:f} ' # numba: delete
-                                 'kg/s at a downstream pressure of {:f}'.format(P1, m_max, Pcf)) # numba: delete
+                                 f'with the specified upstream pressure of {P1:f} Pa; the maximum flowrate is {m_max:f} ' # numba: delete
+                                 f'kg/s at a downstream pressure of {Pcf:f}') # numba: delete
 #                raise ValueError("Failed") # numba: uncomment
             # A solver which respects its boundaries is required here.
             # brenth cuts the time down from 2 ms to 200 mircoseconds.

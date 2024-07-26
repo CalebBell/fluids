@@ -129,9 +129,9 @@ Pellet Properties
 """
 
 from cmath import sqrt as csqrt
-from math import acos, acosh, asin, atan, cos, degrees, log, pi, radians, sin, sqrt, tan, isclose, log1p
+from math import acos, acosh, asin, atan, cos, degrees, isclose, log, log1p, pi, radians, sin, sqrt, tan
 
-from fluids.numerics import brenth, cacos, catan, chebval, derivative, ellipe, ellipeinc, ellipkinc, linspace, newton, quad, secant, translate_bound_func
+from fluids.numerics import cacos, catan, chebval, derivative, ellipe, ellipeinc, ellipkinc, linspace, newton, quad, secant, translate_bound_func
 
 __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
            'RectangularOffsetStripFinExchanger', 'HyperbolicCoolingTower',
@@ -3920,8 +3920,8 @@ class HelicalCoil:
     '''
 
     def __repr__(self): # pragma : no cover
-        s = '<Helical coil, total height={} m, total outer diameter={} m, tube \
-outer diameter={} m, number of turns={}, pitch={} m'.format(self.H_total, self.Do_total, self.Dt, self.N, self.pitch)
+        s = f'<Helical coil, total height={self.H_total} m, total outer diameter={self.Do_total} m, tube \
+outer diameter={self.Dt} m, number of turns={self.N}, pitch={self.pitch} m'
         if self.Di:
              s += ', inside diameter %s m' %(self.Di)
         s += '>'
@@ -4807,9 +4807,9 @@ class AirCooledExchanger:
     def __hash__(self):
         return hash(tuple(getattr(self, slot) for slot in self.model_inputs))
 
-    # pitch_ratio is skipped in favor of pitch; 
+    # pitch_ratio is skipped in favor of pitch;
     model_inputs = ('tube_rows', 'tube_passes', 'tubes_per_row', 'tube_length', 'tube_diameter',
-             'fin_thickness', 'angle', 'pitch', 'pitch_parallel', 'pitch_normal', 'fin_diameter', 
+             'fin_thickness', 'angle', 'pitch', 'pitch_parallel', 'pitch_normal', 'fin_diameter',
              'fin_height', 'fin_density', 'fin_interval', 'parallel_bays', 'bundles_per_bay',
              'fans_per_bay', 'corbels', 'tube_thickness', 'fan_diameter')
 

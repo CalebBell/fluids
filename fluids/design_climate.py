@@ -603,7 +603,7 @@ the index of the nearest weather stations.
 with open(os.path.join(folder, 'isd-history-cleaned.tsv')) as f:
     for line in f:
         values = line.split('\t')
-        for i in range(0, 11):
+        for i in range(11):
             # First two are not values
             v = values[i]
             if v == '':
@@ -673,7 +673,6 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
     # but there's little point for more points, it gets slower.
     # bad data is returned if k > station_count
     distances, indexes = kd_tree.query([latitude, longitude], k=min(match_max, station_count))
-    #
     for i in indexes:
         latlon = _latlongs[i]
         enddate = stations[i].END

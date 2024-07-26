@@ -481,7 +481,7 @@ def create_numerics(replaced, vec=False):
     bad_names.update(to_set_num)
 
     solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct',
-               'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect', 'nelder_mead', 'quad_adaptive', 'quad', 'fixed_quad_Gauss_Kronrod'] #
+               'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect', 'nelder_mead', 'quad_adaptive', 'quad', 'fixed_quad_Gauss_Kronrod']
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
         source = source.replace(', kwargs={}', '').replace(', **kwargs', '').replace(', kwargs=kwargs', '')

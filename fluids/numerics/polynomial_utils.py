@@ -262,13 +262,13 @@ def polyint_over_x_stable_helper(coeffs, i, n, scale, offset, scale_powers, offs
 #     term = scale**(i)
     term = scale_powers[i]
     inner_term = 0.0
-    for j in range(0, n):
+    for j in range(n):
         multiplier = comb(j, i)
 #         delta = multiplier*coeffs[-j-1]*offset**(j-i)
         delta = multiplier*coeffs[-j-1]*offset_powers[j-i]
         inner_term += delta
     return term*inner_term/i
-    
+
 def polyint_over_x_stable(coeffs, xmin, xmax):
     '''Take a stable polynomial coefficient series as
     evaluated by horner_stable and the limits e.g. Tmin, Tmax
@@ -304,7 +304,7 @@ def polyint_over_x_stable(coeffs, xmin, xmax):
     for i in range(n):
         offset_iter *= offset
         offset_powers.append(offset_iter)
-    
+
     log_coeff = 0.
     for i, coeff in enumerate(coeffs[::-1]):
         log_coeff += coeff*offset_powers[i]

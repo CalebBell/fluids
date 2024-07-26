@@ -116,7 +116,7 @@ def chebfun_to_poly(coeffs_or_fun, domain=None, text=False):
     delta = high - low
     delta_sum = high + low
     # Generate the expression
-    s += 'horner(coeffs, {:.18g}*(x - {:.18g}))'.format(2.0/delta, 0.5*delta_sum)
+    s += f'horner(coeffs, {2.0/delta:.18g}*(x - {0.5*delta_sum:.18g}))'
     # return the string
     return s
 

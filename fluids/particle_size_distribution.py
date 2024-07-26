@@ -1636,8 +1636,8 @@ class ParticleSizeDistributionContinuous:
             plt.semilogx(ds, fractions, label=_label_distribution_n(n))
         plt.ylabel('Probability density function, [-]')
         plt.xlabel('Particle diameter, [m]')
-        plt.title('Probability density function of {} distribution with '
-                  'parameters {}'.format(self.name, self.parameters))
+        plt.title(f'Probability density function of {self.name} distribution with '
+                  f'parameters {self.parameters}')
         plt.legend()
         plt.show()
         return fractions
@@ -1692,8 +1692,8 @@ class ParticleSizeDistributionContinuous:
 
         plt.ylabel('Cumulative density function, [-]')
         plt.xlabel('Particle diameter, [m]')
-        plt.title('Cumulative density function of {} distribution with '
-                  'parameters {}'.format(self.name, self.parameters))
+        plt.title(f'Cumulative density function of {self.name} distribution with '
+                  f'parameters {self.parameters}')
         plt.legend()
         plt.show()
 
