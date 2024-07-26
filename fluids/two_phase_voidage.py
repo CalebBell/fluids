@@ -1977,7 +1977,7 @@ two_phase_voidage_correlations = {'Thom' : (Thom, ('x', 'rhol', 'rhog', 'mul', '
 'Xu Fang voidage' : (Xu_Fang_voidage, ('x', 'rhol', 'rhog', 'm', 'D', 'g')),
 'Woldesemayat Ghajar' : (Woldesemayat_Ghajar, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'P', 'angle', 'g'))}
 
-_unknown_two_phase_voidage_corr = 'Method not recognized; available methods are %s' %list(two_phase_voidage_correlations.keys())
+_unknown_two_phase_voidage_corr = f'Method not recognized; available methods are {list(two_phase_voidage_correlations.keys())}'
 # All the available arguments are:
 #{'rhol', 'angle=0', 'x', 'P', 'mug', 'rhog', 'D', 'g', 'Pc', 'sigma', 'mul', 'm'}
 def liquid_gas_voidage_methods(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
@@ -2639,7 +2639,7 @@ def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
     if rhol is not None and rhog is not None:
         methods = liquid_gas_viscosity_correlations_list
     return methods
-_gas_liquid_viscosity_method_unknown = 'Method not recognized; available methods are %s' %list(liquid_gas_viscosity_correlations.keys())
+_gas_liquid_viscosity_method_unknown = f'Method not recognized; available methods are {list(liquid_gas_viscosity_correlations.keys())}'
 
 
 def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None):

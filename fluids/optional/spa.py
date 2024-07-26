@@ -756,9 +756,6 @@ def topocentric_elevation_angle_without_atmosphere(observer_latitude,
                                                    topocentric_sun_declination,
                                                    topocentric_local_hour_angle
                                                    ):
-    observer_latitude = observer_latitude
-    topocentric_sun_declination = topocentric_sun_declination
-    topocentric_local_hour_angle = topocentric_local_hour_angle
 
     r_observer_latitude = deg2rad*observer_latitude
     r_topocentric_sun_declination = deg2rad*topocentric_sun_declination

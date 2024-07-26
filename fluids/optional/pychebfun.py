@@ -39,7 +39,6 @@ from numpy.polynomial.polynomial import Polynomial
 
 emach = sys.float_info.epsilon # machine epsilon
 
-global sp_fftpack_ifft
 sp_fftpack_ifft = None
 def fftpack_ifft(*args, **kwargs):
     global sp_fftpack_ifft
@@ -47,7 +46,6 @@ def fftpack_ifft(*args, **kwargs):
         from scipy.fftpack import ifft as sp_fftpack_ifft
     return sp_fftpack_ifft(*args, **kwargs)
 
-global sp_fftpack_fft
 sp_fftpack_fft = None
 def fftpack_fft(*args, **kwargs):
     global sp_fftpack_fft
@@ -55,7 +53,6 @@ def fftpack_fft(*args, **kwargs):
         from scipy.fftpack import fft as sp_fftpack_fft
     return sp_fftpack_fft(*args, **kwargs)
 
-global sp_eigvals
 sp_eigvals = None
 def eigvals(*args, **kwargs):
     global sp_eigvals
@@ -63,7 +60,6 @@ def eigvals(*args, **kwargs):
         from scipy.linalg import eigvals as sp_eigvals
     return sp_eigvals(*args, **kwargs)
 
-global sp_toeplitz
 sp_toeplitz = None
 def toeplitz(*args, **kwargs):
     global sp_toeplitz
@@ -112,11 +108,11 @@ def chebfun_to_poly(coeffs_or_fun, domain=None, text=False):
     poly_coeffs = cheb2poly(coeffs)[::-1].tolist()
     if not text:
         return poly_coeffs
-    s = 'coeffs = %s\n' %poly_coeffs
+    s = f'coeffs = {poly_coeffs}\n'
     delta = high - low
     delta_sum = high + low
     # Generate the expression
-    s += 'horner(coeffs, {:.18g}*(x - {:.18g}))'.format(2.0/delta, 0.5*delta_sum)
+    s += f'horner(coeffs, {2.0/delta:.18g}*(x - {0.5*delta_sum:.18g}))'
     # return the string
     return s
 

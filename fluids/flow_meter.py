@@ -502,7 +502,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
         L1, L2_prime = 0.0, 0.0
     elif taps == 'flange':
         L1 = L2_prime = 0.0254/D
-    elif taps  == 'D' or taps == 'D/2' or taps == ORIFICE_D_AND_D_2_TAPS:
+    elif taps in ('D', 'D/2', ORIFICE_D_AND_D_2_TAPS):
         L1 = 1.0
         L2_prime = 0.47
     else:
@@ -534,7 +534,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     # Reynolds numbers.
     x1 = 63.095734448019314*(Re_D_inv)**0.3 # 63.095... = (1e6)**0.3
     x2 = 22.7 - 0.0047*Re_D
-    t2 = x1 if x1 > x2 else x2
+    t2 = max(x2, x1)
     # max term is not in the ISO standard
     C_inf_C_s = (0.5961 + 0.0261*beta2 - 0.216*beta8
                  + 0.000521*(1E6*beta*Re_D_inv)**0.7
@@ -558,18 +558,15 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     return C
 
 
-_Miller_1996_unsupported_type = "Supported orifice types are %s" %str(
+_Miller_1996_unsupported_type = "Supported orifice types are {}".format(str(
         (CONCENTRIC_ORIFICE, SEGMENTAL_ORIFICE, ECCENTRIC_ORIFICE,
-         CONICAL_ORIFICE, QUARTER_CIRCLE_ORIFICE))
+         CONICAL_ORIFICE, QUARTER_CIRCLE_ORIFICE)))
 _Miller_1996_unsupported_tap_concentric = "Supported taps for subtype '{}' are {}".format(
         CONCENTRIC_ORIFICE, (ORIFICE_CORNER_TAPS, ORIFICE_FLANGE_TAPS,
                              ORIFICE_D_AND_D_2_TAPS, ORIFICE_PIPE_TAPS))
-_Miller_1996_unsupported_tap_pos_eccentric = "Supported tap positions for subtype '{}' are {}".format(
-        ECCENTRIC_ORIFICE, (TAPS_OPPOSITE, TAPS_SIDE))
-_Miller_1996_unsupported_tap_eccentric = "Supported taps for subtype '{}' are {}".format(
-        ECCENTRIC_ORIFICE, (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS))
-_Miller_1996_unsupported_tap_segmental = "Supported taps for subtype '{}' are {}".format(
-        SEGMENTAL_ORIFICE, (ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS))
+_Miller_1996_unsupported_tap_pos_eccentric = f"Supported tap positions for subtype '{ECCENTRIC_ORIFICE}' are {(TAPS_OPPOSITE, TAPS_SIDE)}"
+_Miller_1996_unsupported_tap_eccentric = f"Supported taps for subtype '{ECCENTRIC_ORIFICE}' are {(ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS)}"
+_Miller_1996_unsupported_tap_segmental = f"Supported taps for subtype '{SEGMENTAL_ORIFICE}' are {(ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS)}"
 
 def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
                   taps=ORIFICE_CORNER_TAPS, tap_position=TAPS_OPPOSITE):
@@ -812,7 +809,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
         else:
             raise ValueError(_Miller_1996_unsupported_tap_concentric)
     elif subtype in (MILLER_ECCENTRIC_ORIFICE, ECCENTRIC_ORIFICE):
-        if tap_position != TAPS_OPPOSITE and tap_position != TAPS_SIDE:
+        if tap_position not in (TAPS_OPPOSITE, TAPS_SIDE):
             raise ValueError(_Miller_1996_unsupported_tap_pos_eccentric)
         n = 0.75
         if taps == ORIFICE_FLANGE_TAPS:
@@ -2353,7 +2350,7 @@ all_meters = frozenset(list(beta_simple_meters) + [CONE_METER, WEDGE_METER, HOLL
 """Set of string inputs representing all of the different supported flow meters
 and their correlations.
 """
-_unsupported_meter_msg = "Supported meter types are %s" % all_meters
+_unsupported_meter_msg = f"Supported meter types are {all_meters}"
 
 def differential_pressure_meter_beta(D, D2, meter_type):
     r'''Calculates the beta ratio of a differential pressure meter.

@@ -153,7 +153,7 @@ def parse_numpydoc_variables_units_docstring(text):
 
         p = sections[section]
         parameter_vars = [i[:-2].strip() for i in variable.findall(p)]
-        parameter_types = [i.split(' :')[1].strip() for i in variable_type.findall(p)] 
+        parameter_types = [i.split(' :')[1].strip() for i in variable_type.findall(p)]
         optionals = [('optional' in v or 'Optional' in v) for v in parameter_types]
         parameter_types = [v.replace(', Optional', '').replace(', optional', '').replace(',optional', '').replace(',Optional', '').strip() for v in parameter_types]
         unit_strings = [i.strip() for i in variable.split(p)[1:]]
@@ -201,8 +201,8 @@ def check_args_order(func):
         parsed_units += parsed_data['Other Parameters']['units']
 
     if argspec.args != parsed_parameters: # pragma: no cover
-        raise ValueError('Function {} signature is not the same as the documentation'
-                        ' signature = {}; documentation = {}'.format(func.__name__, argspec.args, parsed_parameters))
+        raise ValueError(f'Function {func.__name__} signature is not the same as the documentation'
+                        f' signature = {argspec.args}; documentation = {parsed_parameters}')
 
 
 def match_parse_units(doc, i=-1):
@@ -232,11 +232,11 @@ def convert_input(val, unit, ureg, strict=True):
             return val.to(unit).magnitude
         except AttributeError:
             if strict:
-                raise TypeError('%s has no quantity' %(val))
+                raise TypeError(f'{val} has no quantity')
             else:
                 return val
         except DimensionalityError as e:
-            raise ValueError(f'Converting {val} to units of {unit} raised DimensionalityError: {str(e)}')
+            raise ValueError(f'Converting {val} to units of {unit} raised DimensionalityError: {e!s}')
     else:
         if type(val) == ureg.Quantity:
             return val.to_base_units().magnitude
@@ -382,7 +382,7 @@ class UnitAwareClass:
         try:
             value = getattr(self.wrapped, name)
         except Exception as e:
-            raise AttributeError(f'Failed to get property {name!s} with error {str(e)}')
+            raise AttributeError(f'Failed to get property {name!s} with error {e!s}')
         if value is not None:
             if name in self.property_units:
                 if type(value) == dict:
@@ -446,9 +446,9 @@ class UnitAwareClass:
         # For keyword arguments, lookup their unit; convert to that;
         # handle dimensionless arguments the same way
         kwargs = {}
-        for name, val in kw.items():
-            unit = in_vars_to_dict[name]
-            kwargs[name] = convert_input(val, unit, self.ureg, self.strict)
+        for kw_name, val in kw.items():
+            unit = in_vars_to_dict[kw_name]
+            kwargs[kw_name] = convert_input(val, unit, self.ureg, self.strict)
         return conv_values, kwargs
 
 
@@ -525,7 +525,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
                         if name[0] == '_':
                             found_unit = u.dimensionless
                         else:
-                            print('Failed on attribute %s' %name)
+                            print(f'Failed on attribute {name}')
                             raise e
                     property_unit_map[name] = found_unit
                 else:
@@ -591,7 +591,7 @@ for name in dir(fluids):
         continue
     if 'ParticleSizeDistribution' in name:
         continue
-    if name == '__getattr__' or name == '__test__':
+    if name in ('__getattr__', '__test__'):
         continue
     obj = getattr(fluids, name)
     if isinstance(obj, types.FunctionType):

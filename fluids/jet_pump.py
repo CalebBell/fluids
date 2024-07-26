@@ -575,7 +575,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
             pass
 
         # Tying different guesses with fsolve is faster than trying different solvers
-        for meth in ['hybr', 'lm', 'broyden1', 'broyden2']: #
+        for meth in ['hybr', 'lm', 'broyden1', 'broyden2']:
             try:
                 res = root(obj_err, var_guesses, method=meth, tol=1E-9)
                 if sum(abs(res['fun'])) > 1E-7:

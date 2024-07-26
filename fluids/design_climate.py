@@ -586,7 +586,7 @@ class StationDataGSOD:
         # Need to get the data, and process it and score interpolation regimes.
         # Or could just randomly drop data and try to fill it in.
         accepted_values = []
-        for year, data in self.parsed_data.items():
+        for year in self.parsed_data.keys():
             if not (older_year <= year <= newer_year):
                 continue # Ignore out-of-range years easily
 
@@ -603,7 +603,7 @@ the index of the nearest weather stations.
 with open(os.path.join(folder, 'isd-history-cleaned.tsv')) as f:
     for line in f:
         values = line.split('\t')
-        for i in range(0, 11):
+        for i in range(11):
             # First two are not values
             v = values[i]
             if v == '':
@@ -673,7 +673,6 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
     # but there's little point for more points, it gets slower.
     # bad data is returned if k > station_count
     distances, indexes = kd_tree.query([latitude, longitude], k=min(match_max, station_count))
-    #
     for i in indexes:
         latlon = _latlongs[i]
         enddate = stations[i].END
@@ -743,7 +742,7 @@ def get_station_year_text(WMO, WBAN, year, data_dir_override=None):
         raise ValueError('Could not obtain desired data; check '
                         'if the year has data published for the '
                         'specified station and the station was specified '
-                        'in the correct form. The full error is %s' %(e))
+                        f'in the correct form. The full error is {e}')
 
     data = data.read()
     data_thing = StringIO(data)

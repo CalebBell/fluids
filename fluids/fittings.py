@@ -223,8 +223,7 @@ def change_K_basis(K1, D1, D2):
 
 entrance_sharp_methods = ['Rennels', 'Swamee', 'Blevins', 'Idelchik', 'Crane',
                           'Miller']
-entrance_sharp_method_missing = ('Specified method not recognized; methods are %s'
-                         %(entrance_sharp_methods))
+entrance_sharp_method_missing = (f'Specified method not recognized; methods are {entrance_sharp_methods}')
 
 def entrance_sharp(method='Rennels'):
     r'''Returns loss coefficient for a sharp entrance to a pipe.
@@ -359,7 +358,7 @@ entrance_distance_Harris_obj = lambda x : float(splev(x, entrance_distance_Harri
 entrance_distance_methods = ['Rennels', 'Miller', 'Idelchik', 'Harris',
                              'Crane']
 
-entrance_distance_unrecognized_msg = 'Specified method not recognized; methods are %s' %(entrance_distance_methods)
+entrance_distance_unrecognized_msg = f'Specified method not recognized; methods are {entrance_distance_methods}'
 
 def entrance_distance(Di, t=None, l=None, method='Rennels'):
     r'''Returns the loss coefficient for a sharp entrance to a pipe at a distance
@@ -521,8 +520,7 @@ def entrance_distance_45_Miller(Di, Di0):
 
 entrance_angled_methods = ['Idelchik']
 
-entrance_angled_methods_missing = ('Specified method not recognized; methods are %s'
-                                   %(entrance_angled_methods))
+entrance_angled_methods_missing = (f'Specified method not recognized; methods are {entrance_angled_methods}')
 def entrance_angled(angle, method='Idelchik'):
     r'''Returns loss coefficient for a sharp, angled entrance to a pipe
     flush with the wall of a reservoir. First published in [2]_, it has been
@@ -616,8 +614,7 @@ entrance_rounded_Harris = lambda x : float(splev(x, entrance_rounded_Harris_tck)
 
 entrance_rounded_methods = ['Rennels', 'Crane', 'Miller', 'Idelchik', 'Harris',
                             'Swamee']
-entrance_rounded_methods_error = ('Specified method not recognized; methods are %s'
-                                  %(entrance_rounded_methods))
+entrance_rounded_methods_error = (f'Specified method not recognized; methods are {entrance_rounded_methods}')
 
 def entrance_rounded(Di, rc, method='Rennels'):
     r'''Returns loss coefficient for a rounded entrance to a pipe
@@ -748,7 +745,7 @@ def entrance_rounded(Di, rc, method='Rennels'):
 
 
 entrance_beveled_methods = ['Rennels', 'Idelchik']
-entrance_beveled_methods_unknown_msg = 'Specified method not recognized; methods are %s' %entrance_beveled_methods
+entrance_beveled_methods_unknown_msg = f'Specified method not recognized; methods are {entrance_beveled_methods}'
 
 entrance_beveled_Idelchik_l_Di = [0.025, 0.05, 0.075, 0.1, 0.15, 0.6]
 entrance_beveled_Idelchik_angles = [0.0, 10.0, 20.0, 30.0, 40.0, 60.0, 100.0,
@@ -1351,7 +1348,7 @@ crane_standard_bend_angles = [45.0, 90.0, 180.0]
 crane_standard_bend_losses = [16.0, 30.0, 50.0]
 
 bend_rounded_methods = ['Rennels', 'Crane', 'Crane standard', 'Miller', 'Swamee', 'Ito']
-bend_rounded_method_unknown = 'Specified method not recognized; methods are %s' %(bend_rounded_methods)
+bend_rounded_method_unknown = f'Specified method not recognized; methods are {bend_rounded_methods}'
 
 def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=None,
                  Re=None, roughness=0.0, L_unimpeded=None, method='Rennels'):
@@ -1573,7 +1570,7 @@ bend_miter_Blevins_angles = [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0
 bend_miter_Blevins_Ks = [0.0, .025, .055, .1, .2, .35, .5, .7, .9, 1.1, 1.5]
 
 bend_miter_methods = ['Rennels', 'Miller', 'Crane', 'Blevins']
-bend_miter_method_unknown_msg = 'Specified method not recognized; methods are %s' %(bend_miter_methods)
+bend_miter_method_unknown_msg = f'Specified method not recognized; methods are {bend_miter_methods}'
 
 def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
                method='Rennels'):
@@ -1824,7 +1821,7 @@ def contraction_round_Miller(Di1, Di2, rc):
 
 
 contraction_sharp_methods = ['Rennels', 'Hooper', 'Crane']
-contraction_sharp_method_unknown = 'Specified method not recognized; methods are %s' %(contraction_sharp_methods)
+contraction_sharp_method_unknown = f'Specified method not recognized; methods are {contraction_sharp_methods}'
 
 def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
                       method='Rennels'):
@@ -1953,7 +1950,7 @@ contraction_round_Idelchik_factors = [0.5, 0.43, 0.37, 0.31, 0.26, 0.22, 0.20,
 # Third factor is 0.36 in 1960 edition, 0.37 in Design Guide
 
 contraction_round_methods = ['Rennels', 'Miller', 'Idelchik']
-contraction_round_unknown_method = 'Specified method not recognized; methods are %s' %(contraction_round_methods)
+contraction_round_unknown_method = f'Specified method not recognized; methods are {contraction_round_methods}'
 
 def contraction_round(Di1, Di2, rc, method='Rennels'):
     r'''Returns loss coefficient for any any round edged pipe contraction.
@@ -2183,7 +2180,7 @@ contraction_conical_Miller_obj = lambda l_r2, A_ratio: max(min(float(bisplev(log
 
 contraction_conical_methods = ['Rennels', 'Idelchik', 'Crane', 'Swamee',
                                'Blevins', 'Miller', 'Hooper']
-contraction_conical_method_unknown = 'Specified method not recognized; methods are %s' %(contraction_conical_methods)
+contraction_conical_method_unknown = f'Specified method not recognized; methods are {contraction_conical_methods}'
 
 def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
                         Re=None, roughness=0.0, method='Rennels'):
@@ -2481,7 +2478,7 @@ def contraction_beveled(Di1, Di2, l=None, angle=None):
 ### Expansions (diffusers)
 
 diffuser_sharp_methods = ['Rennels', 'Hooper']
-diffuser_sharp_method_unknown = 'Specified method not recognized; methods are %s' %(diffuser_sharp_methods)
+diffuser_sharp_method_unknown = f'Specified method not recognized; methods are {diffuser_sharp_methods}'
 
 def diffuser_sharp(Di1, Di2, Re=None, fd=None, roughness=0.0, method='Rennels'):
     r'''Returns loss coefficient for any sudden pipe diameter expansion
@@ -2688,7 +2685,7 @@ diffuser_conical_Idelchik_tck = implementation_optimize_tck([[0.0, 0.0, 0.0, 0.0
 diffuser_conical_Idelchik_obj = lambda x, y : float(bisplev(x, y, diffuser_conical_Idelchik_tck))
 
 diffuser_conical_methods = ['Rennels', 'Crane', 'Miller', 'Swamee', 'Idelchik', 'Hooper']
-diffuser_conical_method_unknown = 'Specified method not recognized; methods are %s' %(diffuser_conical_methods)
+diffuser_conical_method_unknown = f'Specified method not recognized; methods are {diffuser_conical_methods}'
 
 def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
                      roughness=0.0, method='Rennels'):
@@ -3820,7 +3817,7 @@ def K_angle_valve_Crane(D1, D2, fd=None, style=0):
     if fd is None:
         fd = ft_Crane(D2)
 
-    if style == 0 or style == 2:
+    if style in (0, 2):
         K1 = 55.0*fd
     else:
         K1 = 150.0*fd
@@ -5054,7 +5051,7 @@ def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
                 G = 1 + 0.3*Q_ratio*Q_ratio
 
     Note that there are several errors in the text of [1]_; the errata can be
-    obtained here: 
+    obtained here:
     https://web.archive.org/web/20200125134233if_/http://flowoffluids.com:80/media/1002/metric-errata-document-nov2012.pdf
 
     Note that the text specifies three case of behavior but no guidance for the range

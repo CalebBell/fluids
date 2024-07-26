@@ -1574,7 +1574,6 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
 
     # Perform the integration
     Vs = odeint(dv_dt, [V], ts)
-    #
     V_end = float(Vs[-1][0])
     if distance:
         # Calculate the distance traveled

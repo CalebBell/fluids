@@ -113,7 +113,7 @@ def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name='cache-safe'):
         exec(source, gbls, lcs)
         return lcs, gbls
 
-    filepath = "<ipython-%s>" % cache_name
+    filepath = f"<ipython-{cache_name}>"
     lines = [line + '\n' for line in source.splitlines()]
     linecache.cache[filepath] = (len(source), None, lines, filepath)
     exec(compile(source, filepath, 'exec'), gbls, lcs)
@@ -280,7 +280,7 @@ def return_value_numpy(source):
                 enclosing -= 1
             if not enclosing:
                 break
-        return source[:start_bracket-1] + 'np.array([%s)' %source[start_bracket:i+start_bracket+1]
+        return source[:start_bracket-1] + f'np.array([{source[start_bracket:i+start_bracket+1]})'
     return source
 
 
@@ -360,7 +360,7 @@ def remove_for_numba(source):
 def remove_branch(source, branch):
     source = re.sub(remove_comment_line, '', source)
 
-    ret = re.search(r'if +%s *' %branch, source)
+    ret = re.search(rf'if +{branch} *', source)
     if ret:
         start_return, start_bracket = ret.regs[-1]
         enclosing_square = enclosing_curley = enclosing_round = 0
@@ -481,7 +481,7 @@ def create_numerics(replaced, vec=False):
     bad_names.update(to_set_num)
 
     solvers = ['secant', 'brenth', 'newton', 'halley', 'ridder', 'newton_system', 'solve_2_direct',
-               'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect', 'nelder_mead', 'quad_adaptive', 'quad', 'fixed_quad_Gauss_Kronrod'] #
+               'solve_3_direct', 'solve_4_direct', 'basic_damping', 'bisect', 'nelder_mead', 'quad_adaptive', 'quad', 'fixed_quad_Gauss_Kronrod']
     for s in solvers:
         source = inspect.getsource(getattr(NUMERICS_SUBMOD, s))
         source = source.replace(', kwargs={}', '').replace(', **kwargs', '').replace(', kwargs=kwargs', '')
