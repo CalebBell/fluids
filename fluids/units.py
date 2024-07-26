@@ -446,9 +446,9 @@ class UnitAwareClass:
         # For keyword arguments, lookup their unit; convert to that;
         # handle dimensionless arguments the same way
         kwargs = {}
-        for name, val in kw.items():
-            unit = in_vars_to_dict[name]
-            kwargs[name] = convert_input(val, unit, self.ureg, self.strict)
+        for kw_name, val in kw.items():
+            unit = in_vars_to_dict[kw_name]
+            kwargs[kw_name] = convert_input(val, unit, self.ureg, self.strict)
         return conv_values, kwargs
 
 

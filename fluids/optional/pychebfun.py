@@ -39,7 +39,6 @@ from numpy.polynomial.polynomial import Polynomial
 
 emach = sys.float_info.epsilon # machine epsilon
 
-global sp_fftpack_ifft
 sp_fftpack_ifft = None
 def fftpack_ifft(*args, **kwargs):
     global sp_fftpack_ifft
@@ -47,7 +46,6 @@ def fftpack_ifft(*args, **kwargs):
         from scipy.fftpack import ifft as sp_fftpack_ifft
     return sp_fftpack_ifft(*args, **kwargs)
 
-global sp_fftpack_fft
 sp_fftpack_fft = None
 def fftpack_fft(*args, **kwargs):
     global sp_fftpack_fft
@@ -55,7 +53,6 @@ def fftpack_fft(*args, **kwargs):
         from scipy.fftpack import fft as sp_fftpack_fft
     return sp_fftpack_fft(*args, **kwargs)
 
-global sp_eigvals
 sp_eigvals = None
 def eigvals(*args, **kwargs):
     global sp_eigvals
@@ -63,7 +60,6 @@ def eigvals(*args, **kwargs):
         from scipy.linalg import eigvals as sp_eigvals
     return sp_eigvals(*args, **kwargs)
 
-global sp_toeplitz
 sp_toeplitz = None
 def toeplitz(*args, **kwargs):
     global sp_toeplitz
