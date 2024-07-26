@@ -17,6 +17,10 @@ extend-ignore = [
     "PGH003", # type ignoring makes sense for numba-related things
     "S102", # Yes, exec is dangerous but it can be quite useful as well
 
+    "PYI056", # changing __all__
+
+    "RUF012", # not using typing today
+
     # chemicals specific
     "E701", # lots of this here
     
