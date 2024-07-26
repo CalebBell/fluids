@@ -135,11 +135,11 @@ On UNIX/Mac OS/WSL, the notebook results can be regenerated with the following s
 
    for i in *.ipynb ; do python3 -m nbconvert --to notebook --inplace --ClearMatadataPreprocessor.clear_cell_metadata=True --ClearMetadataPreprocessor.enabled=True  --ClearMetadataPreprocessor.clear_notebook_metadata=True --execute "$i" ; done
 
-Or to do the same on all notebooks in all directories:
+Or to do the same on all notebooks in all directories, in parallel (4 processes):
 
 .. code-block:: bash
 
-    find . -iname '*.ipynb' -exec python3 -m nbconvert --to notebook --inplace --ClearMatadataPreprocessor.clear_cell_metadata=True --ClearMetadataPreprocessor.enabled=True  --ClearMetadataPreprocessor.clear_notebook_metadata=True --execute {} \;
+    find . -iname '*.ipynb' -print0 | xargs -0 -P 4 -I {} python3 -m nbconvert --to notebook --inplace --ClearMatadataPreprocessor.clear_cell_metadata=True --ClearMetadataPreprocessor.enabled=True --ClearMetadataPreprocessor.clear_notebook_metadata=True --execute {}
 
 Continuous Integration
 ----------------------
