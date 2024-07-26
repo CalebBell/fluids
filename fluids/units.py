@@ -232,7 +232,7 @@ def convert_input(val, unit, ureg, strict=True):
             return val.to(unit).magnitude
         except AttributeError:
             if strict:
-                raise TypeError('%s has no quantity' %(val))
+                raise TypeError(f'{val} has no quantity')
             else:
                 return val
         except DimensionalityError as e:
@@ -525,7 +525,7 @@ def wrap_numpydoc_obj(obj_to_wrap):
                         if name[0] == '_':
                             found_unit = u.dimensionless
                         else:
-                            print('Failed on attribute %s' %name)
+                            print(f'Failed on attribute {name}')
                             raise e
                     property_unit_map[name] = found_unit
                 else:
@@ -591,7 +591,7 @@ for name in dir(fluids):
         continue
     if 'ParticleSizeDistribution' in name:
         continue
-    if name == '__getattr__' or name == '__test__':
+    if name in ('__getattr__', '__test__'):
         continue
     obj = getattr(fluids, name)
     if isinstance(obj, types.FunctionType):

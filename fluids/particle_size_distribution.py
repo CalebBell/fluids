@@ -1032,7 +1032,7 @@ def _label_distribution_n(n):  # pragma: no cover
     if n in names:
         return names[n]
     else:
-        return 'Order %s distribution' %str(n)
+        return f'Order {n!s} distribution'
 
 _mean_size_docstring = r"""Calculates the mean particle size according to moment-ratio
         notation. This is the more common and often convenient definition.

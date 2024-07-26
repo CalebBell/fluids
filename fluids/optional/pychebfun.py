@@ -112,7 +112,7 @@ def chebfun_to_poly(coeffs_or_fun, domain=None, text=False):
     poly_coeffs = cheb2poly(coeffs)[::-1].tolist()
     if not text:
         return poly_coeffs
-    s = 'coeffs = %s\n' %poly_coeffs
+    s = f'coeffs = {poly_coeffs}\n'
     delta = high - low
     delta_sum = high + low
     # Generate the expression

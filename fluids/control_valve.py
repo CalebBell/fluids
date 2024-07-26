@@ -240,7 +240,7 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
         raise ValueError('Specified P1 is too low for choking to occur '
                         'at any downstream pressure; minimum '
                         'upstream pressure for choking to be possible '
-                        'is %g Pa.' %Pmin_absolute)
+                        f'is {Pmin_absolute:g} Pa.')
     return ans
 
 
@@ -1436,7 +1436,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     Mj5 = sqrt(2.0/(k - 1.0)*( 22.0**((k-1.0)/k) - 1.0  ))
     if regime == 1:
         Mvc = sqrt((2.0/(k-1.0)) *((1.0 - x/FL_term**2)**((1.0 - k)/k)   - 1.0)) # Not match
-    elif regime == 2 or regime == 3 or regime == 4:
+    elif regime in (2, 3, 4):
         Mj = sqrt((2.0/(k-1.0))*((1.0/(alpha*(1.0-x)))**((k - 1.0)/k) - 1.0)) # Not match
         Mj = min(Mj, Mj5)
 #    elif regime == 5:
@@ -1454,7 +1454,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
 
     if regime == 1:
         fp = Stp*Mvc*cvc/Dj
-    elif regime == 2 or regime == 3:
+    elif regime in (2, 3):
         fp = Stp*Mj*cvcc/Dj
     elif regime == 4:
         fp = 1.4*Stp*cvcc/Dj/sqrt(Mj*Mj - 1.0)

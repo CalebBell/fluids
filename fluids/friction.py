@@ -3107,8 +3107,8 @@ curved_friction_transition_methods = {'Seth Stahel': helical_transition_Re_Seth_
                                       'Schmidt': helical_transition_Re_Schmidt,
                                       'Srinivasan': helical_transition_Re_Srinivasan}
 
-_bad_curved_transition_method = """Invalid method specified for transition Reynolds number;
-valid methods are %s""" % list(curved_friction_transition_methods.keys())
+_bad_curved_transition_method = f"""Invalid method specified for transition Reynolds number;
+valid methods are {list(curved_friction_transition_methods.keys())}"""
 
 curved_friction_turbulent_methods_list = ['Schmidt turbulent', 'Mori Nakayama turbulent', 'Prasad', 'Czop', 'Guo', 'Ju', 'Mandel Nigam', 'Srinivasan turbulent']
 curved_friction_laminar_methods_list = ['White', 'Mori Nakayama laminar', 'Schmidt laminar']

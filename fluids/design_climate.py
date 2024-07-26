@@ -586,7 +586,7 @@ class StationDataGSOD:
         # Need to get the data, and process it and score interpolation regimes.
         # Or could just randomly drop data and try to fill it in.
         accepted_values = []
-        for year, data in self.parsed_data.items():
+        for year in self.parsed_data.keys():
             if not (older_year <= year <= newer_year):
                 continue # Ignore out-of-range years easily
 
@@ -742,7 +742,7 @@ def get_station_year_text(WMO, WBAN, year, data_dir_override=None):
         raise ValueError('Could not obtain desired data; check '
                         'if the year has data published for the '
                         'specified station and the station was specified '
-                        'in the correct form. The full error is %s' %(e))
+                        f'in the correct form. The full error is {e}')
 
     data = data.read()
     data_thing = StringIO(data)

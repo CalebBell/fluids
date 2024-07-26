@@ -273,11 +273,11 @@ def polyint_over_x_stable(coeffs, xmin, xmax):
     '''Take a stable polynomial coefficient series as
     evaluated by horner_stable and the limits e.g. Tmin, Tmax
     and transform them into the integral over x.
-    
+
     This has the unfortunate property of breaking the stability
     of the series. The impact of this is bad but nothing
     catastropic has been found yet.
-    
+
     The output int_over_x_coeffs, log_coeff should
     be evaulated with horner_log.
 
@@ -286,7 +286,7 @@ def polyint_over_x_stable(coeffs, xmin, xmax):
 
     The coefficients from this function can be converted
     to stable form (goes directly into horner_stable_log) as follows:
-    
+
     from numpy.polynomial.polynomial import Polynomial
     stable_coeffs = Polynomial(terms[::-1]).convert(domain=(Tmin, Tmax)).coef.tolist()[::-1]
 

@@ -2303,7 +2303,7 @@ two_phase_correlations = {
     'Zhang_Hibiki_Mishima flow boiling': (Zhang_Hibiki_Mishima, 103),
     'Beggs-Brill': (Beggs_Brill, 104)
 }
-_unknown_msg_two_phase = "Unknown method; available methods are %s" %(list(two_phase_correlations.keys()))
+_unknown_msg_two_phase = f"Unknown method; available methods are {list(two_phase_correlations.keys())}"
 
 def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
                          sigma=None, P=None, Pc=None, roughness=0.0, angle=0,
