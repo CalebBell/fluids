@@ -5054,7 +5054,12 @@ def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
                 G = 1 + 0.3*Q_ratio*Q_ratio
 
     Note that there are several errors in the text of [1]_; the errata can be
-    obtained here: http://www.flowoffluids.com/publications/tp-410-errata.aspx
+    obtained here: 
+    https://web.archive.org/web/20200125134233if_/http://flowoffluids.com:80/media/1002/metric-errata-document-nov2012.pdf
+
+    Note that the text specifies three case of behavior but no guidance for the range
+    60...90 degrees so the gap between tees and wyes is solved by splitting the
+    different behavior at the angle of 75 degrees.
 
     Examples
     --------
@@ -5081,6 +5086,8 @@ def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     else:
         H, J = 0.3, 0
     if angle < 75:
+        # 75 degree transition chosen instead of 60, splitting the difference
+        # between behavior at 60 and 90
         if beta2 <= 0.35:
             if Q_ratio <= 0.4:
                 G = 1.1 - 0.7*Q_ratio

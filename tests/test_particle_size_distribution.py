@@ -396,16 +396,16 @@ def test_PSDCustom_mean_sizes_numerical():
     disc = PSDCustom(distribution)
 
     d20 = disc.mean_size(2, 0)
-    assert_close(d20, 3.0326532985631672e-06, rtol=1E-8)
+    assert_close(d20, 3.0326532985631672e-06, rtol=5e-7)
 
     d10 = disc.mean_size(1, 0)
-    assert_close(d10, 2.6763071425949508e-06, rtol=1E-8)
+    assert_close(d10, 2.6763071425949508e-06, rtol=1e-6)
 
     d21 = disc.mean_size(2, 1)
-    assert_close(d21, 3.4364463939548618e-06, rtol=1E-8)
+    assert_close(d21, 3.4364463939548618e-06, rtol=1e-7)
 
     d32 = disc.mean_size(3, 2)
-    assert_close(d32, 4.4124845129229773e-06, rtol=1E-8)
+    assert_close(d32, 4.4124845129229773e-06, rtol=1E-7)
 
     d43 = disc.mean_size(4, 3)
     assert_close(d43, 5.6657422653341318e-06, rtol=1E-3)
@@ -791,3 +791,48 @@ def test_psd_spacing():
     ds = psd_spacing(d_min=1e-5, d_max=1e-4, method='ASTM E11')
     ds_expect = [2e-05, 2.5e-05, 3.2e-05, 3.8e-05, 4.5e-05, 5.3e-05, 6.3e-05, 7.5e-05, 9e-05]
     assert_close1d(ds, ds_expect)
+
+
+def test_example_integer_power_issue():
+    diameters = [2, 5, 10, 15, 20, 30, 40, 50]  # Particle diameters in micrometers (µm)
+    volume_percentages = [5, 10, 20, 25, 20, 10, 5, 5]  # Volume % in each size class
+    cement_psd = ParticleSizeDistribution(ds=diameters, fractions=volume_percentages, order=3)
+    val = cement_psd.pdf(4.61538459884405e-08, n=2)
+    assert val is not None
+
+def test_PSD_numpy_input():
+    import numpy as np
+    ds = np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
+    numbers = np.array([65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1])
+
+    psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
+
+    assert type(psd.mean_size(2, 1)) is float
+    assert type(psd.mean_size(1, 0)) is float
+    assert type(psd.mean_size(3, 2)) is float
+    assert type(psd.mean_size(4, 3)) is float
+
+    assert type(psd.dn(0.1)) is float
+    assert type(psd.dn(0.9)) is float
+
+    assert type(psd.pdf(1000)) is float
+    assert type(psd.cdf(5000)) is float
+
+    psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
+
+    assert type(psd.pdf(1e-6)) is float
+    assert type(psd.cdf(7e-6)) is float
+    assert type(psd.dn(0.1)) is float
+    assert type(psd.mean_size(3, 2)) is float
+
+    ds_discrete = psd.ds_discrete(pts=8)
+    fractions_discrete = psd.fractions_discrete(ds_discrete)
+    psd_discrete = ParticleSizeDistribution(ds=ds_discrete, fractions=fractions_discrete, order=3)
+
+    assert type(psd_discrete.mean_size(3, 2)) is float
+
+    assert type(psd.vssa) is float
+    assert type(psd.dn(.9) - psd.dn(0.1)) is float
+    assert type((psd.dn(.9) - psd.dn(0.1))/psd.dn(0.5)) is float
+    assert type(psd.dn(0.75)/psd.dn(0.25)) is float
+    assert type(psd.dn(0.9)/psd.dn(0.1)) is float

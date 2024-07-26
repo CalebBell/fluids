@@ -266,14 +266,14 @@ then requested is returned:
 >>> Di
 0.57504
 >>> nearest_pipe(Do=0.5)
-(20, 0.47781999999999997, 0.508, 0.01509)
+(20, 0.47782, 0.508, 0.01509)
 
 By default, the pipe schedule used for the lookup is schedule 40. Other schedules 
 that are available are: '5', '10', '20', '30', '40', '60', '80', '100',
 '120', '140', '160', 'STD', 'XS', 'XXS', '5S', '10S', '40S', '80S'.
 
 >>> nearest_pipe(Do=0.5, schedule='40S')
-(20, 0.48894, 0.508, 0.009529999999999999)
+(20, 0.48894, 0.508, 0.00953)
 >>> nearest_pipe(Do=0.5, schedule='80')
 (20, 0.45562, 0.508, 0.02619)
 
@@ -353,7 +353,7 @@ will be 25% of the size of the tank's diameter. For torispherical heads, the
 distance is similar but more complicated.
 
 >>> TANK(D=10., V=500, horizontal=False, sideA='ellipsoidal', sideB='ellipsoidal', sideA_a=1, sideB_a=1)
-<Vertical tank, V=500.000000 m^3, D=10.000000 m, L=5.032864 m, ellipsoidal heads, a=1.000000 m.>
+TANK(D=10.0, L=5.032864390, horizontal=False, sideA='ellipsoidal', sideB='ellipsoidal', sideA_a=1, sideB_a=1, sideA_a_ratio=0.1, sideB_a_ratio=0.1, L_over_D=0.503286439, V=500)
 
 Each TANK has __repr__ implemented, to describe the tank when printed.
 
@@ -362,7 +362,7 @@ standard ratios can also be used; the documentation for :py:class:`~.TANK` lists
 their values. Here we implement DIN 28011's ratios.
 
 >>> TANK(D=0.01, V=0.25, horizontal=False, sideA='torispherical', sideB='torispherical')
-<Vertical tank, V=0.250000 m^3, D=0.010000 m, L=3183.096799 m, torispherical heads, a=0.001693 m.>
+TANK(D=0.01, L=3183.09679, horizontal=False, sideA='torispherical', sideB='torispherical', sideA_a=0.00169337613708, sideB_a=0.001693376137, sideA_f=1.0, sideA_k=0.06, sideB_f=1.0, sideB_k=0.06, sideA_a_ratio=0.1693376137, sideB_a_ratio=0.1693376137, L_over_D=318309.6, V=0.25)
 >>> DIN = TANK(L=3, D=5, horizontal=False, sideA='torispherical', sideB='torispherical', sideA_f=1, sideA_k=0.1, sideB_f=1, sideB_k=0.1)
 >>> print(DIN)
 <Vertical tank, V=83.646361 m^3, D=5.000000 m, L=3.000000 m, torispherical heads, a=0.968871 m.>

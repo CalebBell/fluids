@@ -596,7 +596,7 @@ def pdf_lognormal(d, d_characteristic, s):
     computation with  `d_characteristic` as the value of `scale`.
 
     >>> import scipy.stats
-    >>> scipy.stats.lognorm.pdf(x=1E-4, s=1.1, scale=1E-5)
+    >>> float(scipy.stats.lognorm.pdf(x=1E-4, s=1.1, scale=1E-5))
     405.5420921
 
     Scipy's calculation is over 300 times slower however, and this expression
@@ -604,7 +604,7 @@ def pdf_lognormal(d, d_characteristic, s):
 
     Examples
     --------
-    >>> pdf_lognormal(d=1E-4, d_characteristic=1E-5, s=1.1)
+    >>> pdf_lognormal(1E-4, 1E-5, 1.1)
     405.5420921
 
     References
@@ -656,7 +656,7 @@ def cdf_lognormal(d, d_characteristic, s):
     computation with  `d_characteristic` as the value of `scale`.
 
     >>> import scipy.stats
-    >>> scipy.stats.lognorm.cdf(x=1E-4, s=1.1, scale=1E-5)
+    >>> float(scipy.stats.lognorm.cdf(x=1E-4, s=1.1, scale=1E-5))
     0.9818369875798177
 
     Scipy's calculation is over 100 times slower however.
@@ -1383,6 +1383,7 @@ class ParticleSizeDistributionContinuous:
         >>> psd.dn(0)
         0.0
         '''
+        fraction = float(fraction)
         if fraction == 1.0:
             # Avoid returning the maximum value of the search interval
             fraction = 1.0 - epsilon
@@ -1547,7 +1548,7 @@ class ParticleSizeDistributionContinuous:
         root_power = p - q
         pow3 = p - self.order
         numerator = self._pdf_basis_integral_definite(d_min=self.d_minimum, d_max=self.d_excessive, n=pow3)
-        return (numerator/denominator)**(1.0/(root_power))
+        return float((numerator/denominator)**(1.0/(root_power)))
 
     def mean_size_ISO(self, k, r):
         '''
@@ -1840,7 +1841,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
 
 
         # Things for interoperability with the Continuous distribution
-        self.d_excessive = self.ds[-1]
+        self.d_excessive = float(self.ds[-1])
         self.d_minimum = 0.0
         self.parameters = {}
         self.order = 3
@@ -1961,7 +1962,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
             # Note: D(p, q) = D(q, p); in ISO and proven experimentally
             numerator = sum(self.di_power(i=i, power=p)*self.number_fractions[i] for i in range(self.N))
             denominator = sum(self.di_power(i=i, power=q)*self.number_fractions[i] for i in range(self.N))
-            return (numerator/denominator)**(1.0/(p-q))
+            return float((numerator/denominator)**(1.0/(p-q)))
         else:
             numerator = sum(log(self.di_power(i=i, power=1))*self.di_power(i=i, power=p)*self.number_fractions[i] for i in range(self.N))
             denominator = sum(self.di_power(i=i, power=q)*self.number_fractions[i] for i in range(self.N))
@@ -2059,13 +2060,13 @@ class PSDLognormal(ParticleSizeDistributionContinuous):
             self._cdf_d_min = self._cdf(self.d_min)
 
     def _pdf(self, d):
-        return pdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
+        return pdf_lognormal(d, self.d_characteristic, self.s)
 
     def _cdf(self, d):
-        return cdf_lognormal(d, d_characteristic=self.d_characteristic, s=self.s)
+        return cdf_lognormal(d, self.d_characteristic, self.s)
 
     def _pdf_basis_integral(self, d, n):
-        return pdf_lognormal_basis_integral(d, d_characteristic=self.d_characteristic, s=self.s, n=n)
+        return pdf_lognormal_basis_integral(d, self.d_characteristic, self.s, n)
 
 
 class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
@@ -2227,9 +2228,9 @@ class PSDCustom(ParticleSizeDistributionContinuous):
         else:
             to_int = lambda d : d**n*self._pdf(d)
 
-#        points = logspace(log10(max(d_max*1e-3, d_min)), log10(d_max*.999), 40)
+        # points = logspace(log10(max(d_max*1e-3, d_min)), log10(d_max*.999), 40)
         points = [d_max*1e-3] # d_min*.999 d_min
-        return float(quad(to_int, d_min, d_max, points=points)[0]) #
+        return float(quad(to_int, d_min, d_max, points=points, epsrel=1e-11)[0])
 
 
 class PSDInterpolated(ParticleSizeDistributionContinuous):
@@ -2296,7 +2297,8 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
         if n not in self.basis_integrals:
             ds = np.array(self.ds[1:])
             pdf_vals = self.pdf_spline(ds)
-            basis_integral = ds**n*pdf_vals
+            # n may be an integer, numpy says "Integers to negative integer powers are not allowed" if we don't make it a float
+            basis_integral = ds**float(n)*pdf_vals
             if self.monotonic:
                 from scipy.interpolate import PchipInterpolator
                 self.basis_integrals[n] = PchipInterpolator(ds, basis_integral, extrapolate=True).antiderivative(1)

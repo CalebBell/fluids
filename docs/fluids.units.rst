@@ -47,9 +47,9 @@ For arguments whose documentation specify they are dimensionless, they can
 optionally be passed in without making them dimensionless numbers with pint.
 
 >>> speed_synchronous(50*u.Hz, poles=12*u.dimensionless) # doctest: +SKIP
-<Quantity(1500.0, 'revolutions_per_minute')>
+<Quantity(500.0, 'revolutions_per_minute')>
 >>> speed_synchronous(50*u.Hz, poles=12)
-<Quantity(1500.0, 'revolutions_per_minute')>
+<Quantity(500.0, 'revolutions_per_minute')>
 
 It is good practice to use dimensionless quantities as follows, but it is 
 optional.

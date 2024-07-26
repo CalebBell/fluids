@@ -23,7 +23,9 @@ Module Contents:
    modules.rst
    examples.rst
    data.rst
+   sample_programs.rst
    developers.rst
+
 
 Installation
 ------------
@@ -107,7 +109,7 @@ Citation
 
 To cite fluids in publications use::
 
-    Caleb Bell and Contributors (2016-2023). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
+    Caleb Bell and Contributors (2016-2024). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
     https://github.com/CalebBell/fluids.
 
 

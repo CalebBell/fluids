@@ -15,7 +15,7 @@ def pytest_ignore_collect(path):
         return True
     if 'is_pypy' and 'test_spa' in path:
         return True
-    if ver_tup < (3, 7) or ver_tup >= (3, 12) or is_pypy:
+    if ver_tup < (3, 7) or ver_tup >= (3, 13) or is_pypy:
         # numba does not yet run under pypy
         if 'numba' in path:
             return True

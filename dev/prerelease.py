@@ -5,7 +5,7 @@ import sys
 if sys.version_info.major != 3 and sys.version_info.minor != 11:
 	raise ValueError("""This prerelease script will only run on Python 3.11.
 Some parts of a library change the last few decimals numbers between releases,
-and other parts only have obsolete dependencies i.e. pint on Python 2.
+and other parts only have obsolete dependencies i.e. pint on earlier Python versions.
 For that reason, while the pytest test suite runs everywhere,
 the notebooks and doctests only run on one platform.""")
 
@@ -56,4 +56,4 @@ os.chdir(test_dir)
 import pytest
 
 os.chdir(main_dir)
-pytest.main(["--doctest-glob='*.rst'", "--doctest-modules", "--nbval", "-n", "2", "--dist", "loadscope", "-v"])
+pytest.main(["--doctest-glob='*.rst'", "--doctest-modules", "--nbval", "-n", "8", "--dist", "loadscope", "-v"])

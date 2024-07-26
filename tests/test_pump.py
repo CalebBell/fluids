@@ -112,8 +112,8 @@ def test_specific_diameter():
 
 
 def test_speed_synchronous():
-    s1, s2 = speed_synchronous(50.0, poles=12), speed_synchronous(60.0, phase=1)
-    assert_close1d([s1, s2], [1500, 3600])
+    s1, s2 = speed_synchronous(50.0, poles=12), speed_synchronous(60.0, poles=2)
+    assert_close1d([s1, s2], [500, 3600])
 
 
 def test_current_ideal():

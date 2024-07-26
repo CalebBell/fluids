@@ -1,5 +1,5 @@
 '''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
-Copyright (C) 2016-2023, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
+Copyright (C) 2016-2024, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -45,6 +45,7 @@ classifiers = [
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
     'Programming Language :: Python :: Implementation :: CPython',
     'Programming Language :: Python :: Implementation :: PyPy',
     'Programming Language :: Python :: Implementation :: MicroPython',
@@ -66,11 +67,11 @@ setup(
     name='fluids',
     packages=['fluids'],
     license='MIT',
-    version='1.0.25',
-    download_url='https://github.com/CalebBell/fluids/tarball/1.0.25',
+    version='1.0.26',
+    download_url='https://github.com/CalebBell/fluids/tarball/1.0.26',
     description=description,
     long_description=open('README.rst').read(),
-    install_requires=["numpy>=1.5.0", "scipy>=0.9.0"],
+    install_requires=["numpy>=1.5.0", "scipy>=1.6.0"],
     extras_require={
         'Coverage documentation':  ['wsgiref>=0.1.2', 'coverage>=4.0.3', 'pint']
     },

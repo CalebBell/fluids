@@ -29,7 +29,7 @@ from cmath import sqrt as csqrt, log as clog
 import sys
 from fluids.numerics.arrays import (solve as py_solve, inv, dot, norm2, inner_product, eye,
                      array_as_tridiagonals, tridiagonals_as_array, transpose,
-                     solve_tridiagonal, subset_matrix)
+                     solve_tridiagonal, subset_matrix, argsort1d)
 
 from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
                                      trunc_exp, trunc_log, cbrt, factorial, comb)
@@ -85,6 +85,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'translate_bound_f_jac', 'curve_fit',
            'quad', 'quad_adaptive', 'stable_poly_to_unstable', 'homotopy_solver',
            'horner_stable_log',
+           'is_increasing',
            
            'std', 'min_max_ratios', 'detect_outlier_normal',
            'max_abs_error', 'max_abs_rel_error', 'max_squared_error',
@@ -122,6 +123,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'sort_nelder_mead_points_numba', 'sort_nelder_mead_points_python', 
            'bounds_clip_naive', 'nelder_mead', 'cbrt',
            'polyint_stable', 'polyint_over_x_stable',
+           'argsort1d',
            ]
 
 from fluids.numerics import doubledouble
@@ -1158,6 +1160,39 @@ def is_poly_negative(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1
     return is_poly_positive(poly, domain=domain, rand_pts=rand_pts, j_tol=j_tol, root_perturb=root_perturb)
 
 def is_monotonic(points):
+    """Checks if the input sequence of points is monotonic.
+
+    A sequence is monotonic if it is entirely increasing or ecreasing. 
+    This function iterates through the provided sequence to determine if 
+    it meets this criterion.
+
+    Parameters
+    ----------
+    points : list or array_like
+        A list of numerical values representing a sequence of points, [-]
+
+    Returns
+    -------
+    monotonic : bool
+        `True` if the sequence is monotonic, `False` if the sequence 
+        contains both increases and decreases.
+
+    Examples
+    --------
+    >>> is_monotonic([1, 2, 2, 3])
+    True
+    >>> is_monotonic([3, 2, 1])
+    True
+    >>> is_monotonic([1, 3, 2, 4])
+    False
+    >>> is_monotonic([1e5, 1e7, 1e10])
+    True
+
+    Notes
+    -----
+    The function considers a single-element sequence as monotonic. It also 
+    treats sequences with equal adjacent values as monotonic (e.g., [1, 2, 2, 3]).
+    """
     N = len(points)
     if N == 1:
         return True
@@ -1170,6 +1205,47 @@ def is_monotonic(points):
         if points[i+1] < points[i]:
             a_point_decreased = True
     return not (a_point_increased and a_point_decreased) 
+
+def is_increasing(points):
+    """Check if a given sequence of points is entirely increasing. Points
+    must be larger, not equal, by this criteria
+
+    Parameters
+    ----------
+    points : list or array_like
+        A list of numerical values representing a sequence of points, [-]
+
+    Returns
+    -------
+    increasing : bool
+        `True` if the sequence is entirely increasing (each element 
+        is strictly greater than its predecessor), `False` otherwise, [-]
+
+    Examples
+    --------
+    >>> is_increasing([1, 2, 3, 4])
+    True
+    >>> is_increasing([1, 1, 2, 3])
+    False
+    >>> is_increasing([4, 3, 2, 1])
+    False
+
+    Notes
+    -----
+    Empty sequences or length 1 sequences are considered increasing.
+    """
+    N = len(points)
+    if N < 2:
+        return True
+    
+    previous = points[0]
+    for i in range(1, N):
+        current = points[i]
+        if current <= previous:
+            return False
+        previous = current
+
+    return True
 
 def min_max_ratios(actual, calculated):
     '''Given known and calculated data, compare
@@ -1515,10 +1591,15 @@ def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
     diff = abs(a - b)
     return (((diff <= rel_tol*abs(b)) or
              (diff <= rel_tol*abs(a))) or (diff <= abs_tol))
+
+# Voodoo to handle the fact numba doesn't have isclose
 try:
-    from math import isclose
-except ImportError:
-    pass
+    IS_NUMBA
+except:
+    try:
+        from math import isclose
+    except ImportError:
+        pass
 
 def assert_close(a, b, rtol=1e-7, atol=0.0):
     if a is b:
@@ -2429,6 +2510,8 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
         q0 = func(p0, *args, **kwargs)
     else:
         q0 = f0
+    if isnan(q0) or isinf(q0):
+        raise UnconvergedError("Bad function evaluation on first starting point", iterations=0, point=p0, err=q0)
     if (ytol is not None and abs(q0) < ytol and not require_xtol) or q0 == 0.0:
         return p0
 
@@ -2436,6 +2519,9 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
         q1 = func(p1, *args, **kwargs)
     else:
         q1 = f1
+    if isnan(q1) or isinf(q1):
+        raise UnconvergedError("Bad function evaluation on second starting point", iterations=0, point=p1, err=q1)
+
     if q1 == q0 and additional_guesses:
         # we cannot proceed when the guessed point has the same value; need to increase the search space
         # try to guess again with a larger change, up to 16 orders of magnitude larger
@@ -2448,7 +2534,7 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
                 p1 = high
             q1 = func(p1, *args, **kwargs)
             # For the check, we will require a significant difference in result magnitude
-            if abs(q1/q0-1.0) > 1e-10:
+            if not (isnan(q1) or isinf(q1)) and abs(q1/q0-1.0) > 1e-10:
                 break
     
     did_additional_guesses = False
@@ -2533,7 +2619,7 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
                             continue
                         temp_q = func(p, *args, **kwargs)
                         # print(f'Did not bisect the problem at x={p}')
-                        if temp_q*q0 < 0.0:
+                        if not (isnan(q1) or isinf(q1)) and temp_q*q0 < 0.0:
                             # print('Bisected the problem, restarting with new point')
                             break
                     
@@ -2548,6 +2634,8 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
         q0 = q1
         p1 = p
         q1 = func(p1, *args, **kwargs)
+        if (isnan(q1) or isinf(q1)):
+            raise UnconvergedError("Bad function evaluation", iterations=i, point=p1, err=q1)
         if q1 == 0.0:
             return p1
         if bisection:
@@ -3177,7 +3265,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
     if check_numbers:# numba: delete
         j = check_jacobian(x=x0, j=j, func=f, jac_error_allowed=jac_error_allowed)# numba: delete
     factors = newton_line_search_factors if line_search else newton_line_search_factors_disabled
-
+    jac_updated = True # numba: delete
     iteration = 1
     while iteration < maxiter:
         try:# numba: delete
@@ -3200,6 +3288,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             try: # numba: delete
                 if jac_also: # numba: delete
                     fnew, jnew = f(xnew, *args) # numba: delete
+                    jac_updated = True # numba: delete
                 else: # numba: delete
                     fnew = f(xnew, *args)  # numba: delete
                 # print(xnew, 'xnew')
@@ -3247,13 +3336,13 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                     Armijo_rhs = Armijo_c1*factor*derphi0 + phi0
                     if Armijo_lhs <= Armijo_rhs:
                         if not jac_also: # numba: delete
-                            jnew = jac(xnew, *args) # numba: delete
+                            jac_updated = False # numba: delete
                         break
                     # else:
                         # print('lhs and rhs not same', Armijo_lhs, Armijo_rhs)
                 else:
                     if not jac_also: # numba: delete
-                        jnew = jac(xnew, *args) # numba: delete
+                        jac_updated = False # numba: delete
                     break
             
         if (line_search and err_new > err0) and require_progress:
@@ -3267,14 +3356,10 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             else:# numba: delete
                 if not jac_also: # numba: delete
                     jnew = jac(xnew, *args)  # numba: delete
+                    jac_updated = True # numba: delete
                 # print(xnew)
-        if check_numbers:# numba: delete
-            jnew = check_jacobian(x=xnew, j=jnew, func=f, jac_error_allowed=jac_error_allowed)# numba: delete
-        # print('jnew', jnew)
-        j = jnew
         err0 = err_new
         x = xnew
-        
         iteration += 1
 
         if xtol is not None:
@@ -3283,6 +3368,13 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
         elif ytol is not None:
             if err0 < ytol:
                 break
+        if not jac_updated: # numba: delete
+            jnew = jac(x, *args) # numba: delete
+        if check_numbers:# numba: delete
+            jnew = check_jacobian(x=xnew, j=jnew, func=f, jac_error_allowed=jac_error_allowed) # numba: delete
+        # print('jnew', jnew)
+        j = jnew
+        jac_updated = False
 
         # if not jac_also:  # numba: delete
         #     j = jac(x, *args)  # numba: delete
@@ -3481,6 +3573,216 @@ def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
             err += abs(fi)
 
     return xs, iter
+
+def fixed_point(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
+                args=(), require_progress=False, check_numbers=False):
+    fcur = f(x0, *args) 
+    err0 = 0.0
+    for v in fcur:
+        err0 += abs(v)
+    if xtol is None and (ytol is not None and err0 < ytol):
+        return x0, 0.0
+    x = [xi - fi for xi, fi in zip(x0, fcur)]
+    iteration = 1
+    while iteration < maxiter:
+        fcur = f(x, *args)
+        if check_numbers:
+            for v in fcur:
+                if isinf(v) or isnan(v):
+                    raise ValueError("Cannot continue - math error in function value")
+        x = [xi - fi*damping for xi, fi in zip(x, fcur)]
+        err1 = 0.0
+        for v in fcur:
+            err1 += abs(v)
+        iteration += 1        
+        if xtol is not None:
+            if (norm2(fcur) < xtol) and (ytol is None or err1 < ytol):
+                break
+        elif ytol is not None:
+            if err1 < ytol:
+                break
+        if err1 >= err0 and require_progress:
+            raise ValueError("Fixed point is not making progress, cannot proceed")
+        err0 = err1
+                
+                
+                
+    if xtol is not None and norm2(fcur) > xtol:
+        raise UnconvergedError("Failed to converge")
+    if ytol is not None:
+        err0 = 0.0
+        for v in fcur:
+            err0 += abs(v)
+        if err0 > ytol:
+            raise UnconvergedError("Failed to converge")
+    return x, iteration
+
+def aitken_delta_squared_accelerate(x, x1, x2, max_change_ratio=1.0):
+    N = len(x)
+    out = [0.0]*N
+    for i in range(N):
+        dx1 = x2[i] - x1[i]
+        dx = x1[i] - x[i]
+        den = dx1 - dx
+        if den != 0.0:
+            change = -dx1*dx1/den
+#             print(i, abs(change/x[i]))
+            if change != 0.0 and x[i] != 0.0 and abs(change/x[i]) < max_change_ratio:
+                out[i] = change
+    return out
+
+def fixed_point_aitken(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
+                args=(), require_progress=False, check_numbers=False, acc_frequency=4,
+                acc_damping=1.0, acc_max_change_ratio=1.0):
+    all_guesses = [x0]
+    fcur = f(x0, *args) 
+    err0 = 0.0
+    for v in fcur:
+        err0 += abs(v)
+    if xtol is None and (ytol is not None and err0 < ytol):
+        return x0, 0.0
+
+    x = [xi - fi for xi, fi in zip(x0, fcur)]
+    iteration = 1
+    while iteration < maxiter:
+        all_guesses.append(x)
+        fcur = f(x, *args)
+        if check_numbers:
+            for v in fcur:
+                if isinf(v) or isnan(v):
+                    raise ValueError("Cannot continue - math error in function value")
+        if (iteration % acc_frequency) == 0:
+            x1, x2 = all_guesses[-2], all_guesses[-3]
+            dx = aitken_delta_squared_accelerate(x, x1, x2, acc_max_change_ratio)
+            x = [xi + dxi*acc_damping for xi, dxi in zip(x, dx)]
+        else:
+            x = [xi - fi*damping for xi, fi in zip(x, fcur)]
+        err1 = 0.0
+        for v in fcur:
+            err1 += abs(v)
+        iteration += 1        
+        if xtol is not None:
+            if (norm2(fcur) < xtol) and (ytol is None or err1 < ytol):
+                break
+        elif ytol is not None:
+            if err1 < ytol:
+                break
+        if err1 >= err0 and require_progress:
+            raise ValueError("Fixed point is not making progress, cannot proceed")
+        err0 = err1
+                
+    if xtol is not None and norm2(fcur) > xtol:
+        raise UnconvergedError("Failed to converge")
+    if ytol is not None:
+        err0 = 0.0
+        for v in fcur:
+            err0 += abs(v)
+        if err0 > ytol:
+            raise UnconvergedError("Failed to converge")
+    return x, iteration
+
+def dem(x, x1, x2, max_change_ratio=1.0):
+    N = len(x)
+    dx1 = [x1[i] - x2[i] for i in range(N)]
+    dx = [x[i] - x1[i] for i in range(N)]
+    dot_dx1_dx = 0.0
+    dot_dx_dx = 0.0
+    for i in range(N):
+        dot_dx_dx += dx[i]*dx[i]
+        dot_dx1_dx += dx1[i]*dx[i]
+    if dot_dx_dx == 0:
+        return [0.0]*N
+    lbda = dot_dx1_dx/dot_dx_dx
+    den = 1.0 - lbda
+    if den == 0.0:
+        return [0.0]*N
+    # Not entirely sure why negative is needed
+    den_inv = abs(1.0/den)
+    dacc = [dx[i]*den_inv for i in range(N)]
+    return dacc
+
+def gdem(x, x1, x2, x3, max_change_ratio=1.0):
+    N = len(x)
+    dx2 = [x[i] - x3[i] for i in range(N)]
+    dx1 = [x[i] - x2[i] for i in range(N)]
+    dx = [x[i] - x1[i] for i in range(N)]
+
+    b01, b02, b12, b11, b22 = 0.0, 0.0, 0.0, 0.0, 0.0
+
+    for i in range(N):
+        b01 += dx[i]*dx1[i]
+        b02 += dx[i]*dx2[i]
+        b12 += dx1[i]*dx2[i]
+        b11 += dx1[i]*dx1[i]
+        b22 += dx2[i]*dx2[i]
+    to_den = b11*b22 - b12*b12
+    if abs(to_den) == 0:
+        return dem(x, x1, x2, max_change_ratio)
+    den_inv = 1.0/(to_den)
+    mu1 = den_inv*(b02*b12 - b01*b22)
+    mu2 = den_inv*(b01*b12 - b02*b11)
+    
+    to_den2 = 1.0 + mu1 + mu2
+    if to_den2 == 0:
+        return dem(x, x1, x2, max_change_ratio)
+    factor = 1.0/(to_den2)
+    dx_out = [dxi for dxi in dx]
+    for i in range(N):
+        change = factor*(dx[i] - mu2*dx1[i])
+        if x[i] != 0.0 and abs(change/x[i]) < max_change_ratio:
+            dx_out[i] = change
+    return dx_out
+
+def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
+                args=(), require_progress=False, check_numbers=False, acc_frequency=5,
+                acc_damping=1.0, acc_max_change_ratio=1.0):
+    all_guesses = [x0]
+    fcur = f(x0, *args) 
+    err0 = 0.0
+    for v in fcur:
+        err0 += abs(v)
+    if xtol is None and (ytol is not None and err0 < ytol):
+        return x0, 0.0
+
+    x = [xi - fi for xi, fi in zip(x0, fcur)]
+    iteration = 1
+    while iteration < maxiter:
+        all_guesses.append(x)
+        fcur = f(x, *args)
+        if check_numbers:
+            for v in fcur:
+                if isinf(v) or isnan(v):
+                    raise ValueError("Cannot continue - math error in function value")
+        if (iteration % acc_frequency) == 0:
+            x1, x2, x3 = all_guesses[-2], all_guesses[-3], all_guesses[-4]
+            dx = gdem(x, x1, x2, x3, acc_max_change_ratio)            
+            # print(np.array([xi - fi*acc_damping for xi, fi in zip(x, fcur)])/[xi + dxi*acc_damping for xi, dxi in zip(x, dx)])
+            x = [xi + dxi*acc_damping for xi, dxi in zip(x, dx)]
+        else:
+            x = [xi - fi*damping for xi, fi in zip(x, fcur)]
+        err1 = 0.0
+        for v in fcur:
+            err1 += abs(v)
+        iteration += 1        
+        if xtol is not None:
+            if (norm2(fcur) < xtol) and (ytol is None or err1 < ytol):
+                break
+        elif ytol is not None:
+            if err1 < ytol:
+                break
+        if err1 >= err0 and require_progress:
+            raise ValueError("Fixed point is not making progress, cannot proceed")
+        err0 = err1
+                
+    if xtol is not None and norm2(fcur) > xtol:
+        raise UnconvergedError("Failed to converge")
+    if ytol is not None:
+        err0 = 0.0
+        for v in fcur:
+            err0 += abs(v)
+        if err0 > ytol:
+            raise UnconvergedError("Failed to converge")
+    return x, iteration
 
 def normalize(values):
     r'''Simple function which normalizes a series of values to be from 0 to 1,
@@ -3984,7 +4286,21 @@ def fixed_quad_Gauss_Kronrod(f, a, b, k_points, k_weights, l_weights, args):
 def quad_adaptive(f, a, b, args=(), kronrod_points=array_if_needed(kronrod_points[10]),
                   kronrod_weights=array_if_needed(kronrod_weights[10]), legendre_weights=array_if_needed(legendre_weights[10]),
                   epsrel=1.49e-8, epsabs=1.49e-8, depth=0, points=None):
-    # Disregard `points` for now
+    # if points is not None: # numba: delete
+    #     if b < a:  # numba: delete
+    #         a, b = b, a  # numba: delete
+    #     points = list(sorted(set([p for p in points if a < p < b]))) # numba: delete
+    #     points = [a] + points + [b]  # numba: delete
+    #     area_accumulator = 0.0  # numba: delete
+    #     error_accumulator = 0.0  # numba: delete
+    #     for i in range(len(points) - 1):  # numba: delete
+    #         local_a, local_b = points[i], points[i + 1]       # numba: delete   
+    #         local_area, local_error = quad_adaptive(f, local_a, local_b, args, kronrod_points, kronrod_weights, legendre_weights, epsrel, epsabs)  # numba: delete
+    #         area_accumulator += local_area  # numba: delete
+    #         error_accumulator += local_error  # numba: delete
+    #     return area_accumulator, error_accumulator # numba: delete
+
+
     area, err_abs = fixed_quad_Gauss_Kronrod(f, a, b, kronrod_points, kronrod_weights,
                                              legendre_weights, args)
     # Match behavior, documented at https://www.johndcook.com/blog/2012/03/20/scipy-integration/
@@ -4210,7 +4526,7 @@ scipy_root_options = ('hybr', 'lm', 'broyden1', 'broyden2', 'anderson',
 scipy_root_options_set = frozenset(scipy_root_options)
 
 python_solvers = ('newton_system', 'newton_system_line_search', 'newton_system_line_search_progress',
-                  'homotopy_solver', 'broyden2_python')
+                  'homotopy_solver', 'broyden2_python', 'fixed_point', 'fixed_point_aitken', 'fixed_point_gdem')
 python_solvers_set = frozenset(python_solvers)
 
 scipy_minimize_options = ('Nelder-Mead', 'Powell', 'CG', 'BFGS', 'Newton-CG', 'L-BFGS-B', 
@@ -4523,6 +4839,12 @@ class SolverInterface(object):
         elif method == 'broyden2_python':
             sln, niter = broyden2(x0, self.objf, self.jacobian, xtol=self.xtol, maxiter=self.maxiter,
                                   args=args)
+        elif method == 'fixed_point':
+            sln, niter = fixed_point(self.objf, x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
+        elif method == 'fixed_point_aitken':
+            sln, niter = fixed_point_aitken(self.objf, x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
+        elif method == 'fixed_point_gdem':
+            sln, niter = fixed_point_gdem(self.objf, x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
         elif method in scipy_root_options_set:
             process_root = True
             jacobian_method = self.jacobian_method
@@ -4739,3 +5061,13 @@ try:
 
 except:
     pass
+
+
+# Make some dedicated references to the solvers which accet generic types e.g. mpmath
+# These should be used instead of e.g. newton anywhere mpmath/sympy/etc types get thrown in
+# This avoid numba issues
+newton_generic = newton
+secant_generic = secant
+bisect_generic = bisect
+brenth_generic = brenth
+
