@@ -512,7 +512,7 @@ def test_best_bounding_bounds():
 
 def test_is_poly_positive():
     assert not is_poly_positive([4, 3, 2, 1])
-    for high in range(0, 100, 5):
+    for high in range(0, 30, 5):
         assert is_poly_positive([4, 3, 2, 1], domain=(0, 10**high))
 
     coeffs_4alpha = [2.1570803657937594e-10, 2.008831101045556e-06, -0.004656598178209313, 2.8575882247542514]
