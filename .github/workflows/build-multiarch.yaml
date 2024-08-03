@@ -34,6 +34,19 @@ jobs:
             distro: ubuntu_latest
           - arch: ppc64le
             distro: ubuntu_latest
+
+          - arch: armv6
+            distro: alpine_latest
+          - arch: armv7
+            distro: alpine_latest
+          - arch: aarch64
+            distro: alpine_latest
+          - arch: riscv64
+            distro: alpine_latest
+          - arch: s390x
+            distro: alpine_latest
+          - arch: ppc64le
+            distro: alpine_latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -47,8 +60,13 @@ jobs:
           distro: ${{ matrix.distro }}
           githubToken: ${{ github.token }}
           install: |
-            apt-get update
-            apt-get install -y libopenblas-dev libatlas-base-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas
+            if [[ "${{ matrix.distro }}" == "alpine_latest" ]]; then
+              apk update
+              apk add python3 py3-pip py3-scipy py3-matplotlib py3-numpy py3-pandas
+            elif [[ "${{ matrix.distro }}" == "ubuntu_latest" || "${{ matrix.distro }}" == "bookworm" ]]; then
+              apt-get update
+              apt-get install -y libopenblas-dev libatlas-base-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas
+            fi
           run: |
               if python3 -c "import subprocess; exit('no such option' not in subprocess.getoutput('pip3 install --break-system-packages'))"; then
                 # If the exit status is 0 (True), this means the option is not supported
