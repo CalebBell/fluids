@@ -27,8 +27,8 @@ jobs:
           githubToken: ${{ github.token }}
           install: |
             apt-get update
-            apt-get install -y libopenblas-dev libatlas-base-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip
+            apt-get install -y libopenblas-dev libatlas-base-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas
           run: |
             python3 -m pip install wheel --break-system-packages
-            pip3 install -r requirements_test.txt --break-system-packages
-            pytest . -v -m "not online and not thermo"
+            pip3 install -r requirements_test_multiarch.txt --break-system-packages
+            pytest . -v -m "not online and not thermo and not numba"
