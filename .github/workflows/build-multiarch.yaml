@@ -29,7 +29,6 @@ jobs:
             apt-get update
             apt-get install -y libopenblas-dev libatlas-base-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip
           run: |
-            python3 -m pip install --upgrade pip --break-system-packages
             python3 -m pip install wheel --break-system-packages
             pip3 install -r requirements_test.txt --break-system-packages
             pytest . -v -m "not online and not thermo"
