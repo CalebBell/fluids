@@ -38,4 +38,4 @@ jobs:
                 python3 -m pip install wheel --break-system-packages
                 pip3 install -r requirements_test_multiarch.txt --break-system-packages
               fi
-              pytest . -v -m "not online and not thermo and not numba"
+              python3 -m pytest . -v -m "not online and not thermo and not numba"
