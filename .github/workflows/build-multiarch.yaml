@@ -10,6 +10,7 @@ jobs:
   multi-arch-test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         arch: [armv7, aarch64, riscv64, s390x, ppc64le]
     steps:
