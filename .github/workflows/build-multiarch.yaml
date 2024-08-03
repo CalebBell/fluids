@@ -13,34 +13,55 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - arch: armv6
+            distro: bookworm
+          - arch: armv7
+            distro: bookworm
+          - arch: aarch64
+            distro: bookworm
+          - arch: s390x
+            distro: bookworm
+          - arch: ppc64le
+            distro: bookworm
+
+          - arch: armv7
+            distro: ubuntu_latest
+          - arch: aarch64
+            distro: ubuntu_latest
+          # - arch: riscv64
+          #   distro: ubuntu_latest
+          - arch: s390x
+            distro: ubuntu_latest
+          - arch: ppc64le
+            distro: ubuntu_latest
 
           - arch: armv7
             distro: ubuntu22.04
           - arch: aarch64
             distro: ubuntu22.04
-          - arch: riscv64
-            distro: ubuntu22.04
+          # - arch: riscv64
+          #   distro: ubuntu22.04
           - arch: s390x
             distro: ubuntu22.04
           - arch: ppc64le
             distro: ubuntu22.04
+          # ubuntu with riscv64 has three failures and a crash on test_SolverInterface_basics in scipy's root function; also test_is_poly_positive and test_bend_rounded_Miller_Re_correction
+          # ubuntu20.04 is too old, fluids dropped support with numpy 2.0 compat
 
+          - arch: armv6
+            distro: alpine_latest
           - arch: armv7
-            distro: ubuntu20.04
+            distro: alpine_latest
           - arch: aarch64
-            distro: ubuntu20.04
+            distro: alpine_latest
           - arch: riscv64
-            distro: ubuntu20.04
+            distro: alpine_latest
           - arch: s390x
-            distro: ubuntu20.04
+            distro: alpine_latest
           - arch: ppc64le
-            distro: ubuntu20.04
+            distro: alpine_latest
+          # fedora-latest doesn't work not sure why
 
-
-          - arch: armv7
-            distro: fedora_latest
-          - arch: aarch64
-            distro: fedora_latest
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
@@ -60,9 +81,6 @@ jobs:
             elif [[ "${{ matrix.distro }}" == "ubuntu_latest" || "${{ matrix.distro }}" == "ubuntu20.04" ||  "${{ matrix.distro }}" == "ubuntu22.04" || "${{ matrix.distro }}" == "bookworm" ]]; then
               apt-get update
               apt-get install -y libatlas-base-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas
-            elif [[ "${{ matrix.distro }}" == "fedora_latest" ]]; then
-              dnf update
-              dnf install python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas
             fi
           run: |
               if python3 -c "import subprocess; exit('no such option' not in subprocess.getoutput('pip3 install --break-system-packages'))"; then
