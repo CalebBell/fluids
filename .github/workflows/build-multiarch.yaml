@@ -85,7 +85,7 @@ jobs:
             if [[ "${{ matrix.distro }}" == "alpine_latest" ]]; then
               apk update
               apk add python3 py3-pip py3-scipy py3-matplotlib py3-numpy py3-pandas
-            elif [[ "${{ matrix.distro }}" == "ubuntu_latest" || "${{ matrix.distro }}" == "bookworm" ]]; then
+            elif [[ "${{ matrix.distro }}" == "ubuntu_latest" || "${{ matrix.distro }}" == "ubuntu20.04" ||  "${{ matrix.distro }}" == "ubuntu22.04" || "${{ matrix.distro }}" == "bookworm" ]]; then
               apt-get update
               apt-get install -y libopenblas-dev libatlas-base-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas
             fi
