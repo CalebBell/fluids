@@ -25,15 +25,15 @@ jobs:
             distro: bookworm
 
           - arch: armv7
-            distro: ubuntu_latest
+            distro: ubuntu_rolling
           - arch: aarch64
-            distro: ubuntu_latest
-          # - arch: riscv64
-          #   distro: ubuntu_latest
+            distro: ubuntu_rolling
+          - arch: riscv64
+            distro: ubuntu_rolling
           - arch: s390x
-            distro: ubuntu_latest
+            distro: ubuntu_rolling
           - arch: ppc64le
-            distro: ubuntu_latest
+            distro: ubuntu_rolling
 
           - arch: armv7
             distro: ubuntu22.04
