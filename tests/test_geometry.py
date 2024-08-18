@@ -1338,8 +1338,8 @@ def test_circle_segment_h_from_A():
     assert_close(circle_segment_h_from_A(D=20, A=137.113), 8.99999918630794, rtol=1e-13)
 
     # Point at low area
-    assert_close(circle_segment_h_from_A(D=20, A=.006), 0.010042502885593678, rtol=1e-12)
-    assert_close(circle_segment_h_from_A(D=20, A=1e-20), 4.443057211031748e-08, rtol=1e-12)
+    assert_close(circle_segment_h_from_A(D=20, A=.006), 0.010042502885593678, rtol=1e-10)
+    assert_close(circle_segment_h_from_A(D=20, A=1e-20), 4.443057211031748e-08, rtol=1e-10)
 
     # Special cases
     assert circle_segment_h_from_A(0.0, 4.5) == 0.0

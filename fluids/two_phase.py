@@ -2259,10 +2259,16 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
         C = 20.0
 
     # Frictoin factor as in the original model
-    fd_l =  64./Re_l if Re_l < Re_c else 0.184*Re_l**-0.2
-    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    x_only_liquid_tol = 1e-30
+    x_only_vapor_tol = 1e-13
     fd_g =  64./Re_g if Re_g < Re_c else 0.184*Re_g**-0.2
     dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+    if x > 1 - x_only_vapor_tol:
+        return dP_g
+    fd_l =  64./Re_l if Re_l < Re_c else 0.184*Re_l**-0.2
+    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    if x < x_only_liquid_tol:
+        return dP_l
 
     X = sqrt(dP_l/dP_g)
 
