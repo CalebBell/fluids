@@ -1005,7 +1005,7 @@ def V_vertical_conical_concave(D, a, h):
     Matching example from [1]_, with inputs in inches and volume in gallons.
 
     >>> V_vertical_conical_concave(D=113., a=-33, h=15)/231
-    251.15825565795188
+    251.158255657951
 
     References
     ----------
@@ -1016,9 +1016,10 @@ def V_vertical_conical_concave(D, a, h):
     if h <= 0.0:
         return 0.0
     if h < abs(a):
-        Vf = pi*D**2/12.*(3*h + a - (a+h)**3/a**2)
+        a_plus_h = a + h
+        Vf = pi*D*D*(1.0/12.)*(3.0*h + a - a_plus_h*a_plus_h*a_plus_h/(a*a))
     else:
-        Vf = pi*D**2/12.*(3*h + a)
+        Vf = pi*D*D*(1.0/12.)*(3.0*h + a)
     return Vf
 
 
