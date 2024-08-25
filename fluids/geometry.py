@@ -1201,14 +1201,16 @@ def V_vertical_torispherical_concave(D, f, k, h):
     '''
     if h <= 0.0:
         return 0.0
-    alpha = asin((1-2*k)/(2.*(f-k)))
-    a1 = f*D*(1-cos(alpha))
-    a2 = k*D*cos(alpha)
-    D1 = 2*f*D*sin(alpha)
-    s = (k*D*sin(alpha))**2
+    alpha = asin((1.0-2.0*k)/(2.*(f-k)))
+    cos_alpha = cos(alpha)
+    sin_alpha = sin(alpha)
+    a1 = f*D*(1-cos_alpha)
+    a2 = k*D*cos_alpha
+    D1 = 2*f*D*sin_alpha
+    s = (k*D*sin_alpha)**2
     t = 2*a2
     def V1(h):
-        u = h-f*D*(1-cos(alpha))
+        u = h-f*D*(1.0-cos_alpha)
         v1 = pi/4*(2*a1**3/3. + a1*D1**2/2.) + pi*u*((D/2.-k*D)**2 +s)
         v1 += pi*t*u**2/2. - pi*u**3/3.
         v1 += pi*D*(1-2*k)*((2*u-t)/4.*sqrt(s+t*u-u**2) + t*sqrt(s)/4.
