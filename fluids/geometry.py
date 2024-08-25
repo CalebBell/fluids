@@ -963,12 +963,13 @@ def V_vertical_torispherical(D, f, k, h):
         x2 = (0.5*D - k*D)
         u2 = u*u
         Vf = (0.25*pi*a1*((2.0/3.0)*a1*a1 + 0.5*D1*D1) + pi*u*(x2*x2 + s)
-        + pi*u2*(0.5*t - u/3.) + pi*D*(1.0 - 2.0*k)*(0.25*(2.0*u - t)*sqrt(s + t*u
+        + pi*u2*(0.5*t - u*(1.0/3.)) + pi*D*(1.0 - 2.0*k)*(0.25*(2.0*u - t)*sqrt(s + t*u
                 - u2) + 0.25*t*sqrt(s) + 0.5*k*k*D*D*(acos((t - 2.0*u)/(2.0*k*D)) - alpha)))
     else:
-        Vf = 0.25*pi*((2.0/3.0)*a1*a1*a1 + 0.5*a1*D1*D1) + 0.5*pi*t*((0.5*D - k*D)**2
+        ratio = (0.5*D - k*D)
+        Vf = 0.25*pi*((2.0/3.0)*a1*a1*a1 + 0.5*a1*D1*D1) + 0.5*pi*t*(ratio*ratio
         + s) + pi*t*t*t*(1.0/12.) + pi*D*(1.0 - 2.0*k)*(0.25*t*sqrt(s)
-        + k*k*D*D*(1.0/2.0)*asin(cos(alpha))) + pi*D**2/4*(h - (a1 + a2))
+        + k*k*D*D*(1.0/2.0)*asin(cos(alpha))) + 0.25*pi*D*D*(h - (a1 + a2))
     return Vf
 
 
