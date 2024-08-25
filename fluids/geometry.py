@@ -1944,11 +1944,11 @@ def _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y, c1, R2, R4, h):
     x2 = x*x
     num = c1*(x2 + y2) - R4
     den = x2 + (y2 - R2) # Brackets help numerical truncation; zero div without it
-    try:
-        return sqrt(num/den)
-    except:
+    to_sqrt = num/den
+    if to_sqrt < 0.0:
          # Equation is undefined for y == R when x is zero; avoid it
         return _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y*(1.0 - 1e-12), c1, R2, R4, h)
+    return sqrt(to_sqrt)
 
 def _SA_partial_horiz_ellipsoidal_head_limits(x, c1, R2, R4, h):
     return [0.0, sqrt(R2 - x*x)]
