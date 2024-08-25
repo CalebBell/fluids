@@ -2391,7 +2391,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
         int_1_term1 = high - _SA_partial_horiz_torispherical_head_int_1(R-h, b, c)
         SA += 2.0*f*D*int_1_term1
     else:
-        SA = 2.0*pi*f*D*a1 + 2*pi*k*D*(a2 + (R - k*D)*asin(a2/(k*D)))
+        SA = 2.0*pi*f*D*a1 + 2.0*pi*k*D*(a2 + (R - k*D)*asin(a2/(k*D)))
         SA -= SA_partial_horiz_torispherical_head(D, f, k, h=D-h)
     return SA
 
