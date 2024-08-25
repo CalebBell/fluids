@@ -2706,9 +2706,10 @@ def a_torispherical(D, f, k):
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
     '''
-    alpha = asin((1-2*k)/(2*(f-k)))
-    a1 = f*D*(1 - cos(alpha))
-    a2 = k*D*cos(alpha)
+    alpha = asin((1.0-2.0*k)/(2.0*(f-k)))
+    cos_alpha = cos(alpha)
+    a1 = f*D*(1 - cos_alpha)
+    a2 = k*D*cos_alpha
     return a1 + a2
 
 
