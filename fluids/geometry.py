@@ -1286,9 +1286,7 @@ def SA_ellipsoidal_head(D, a):
         e1 = sqrt(1.0 - R*R/(a*a))
 
         if e1 != 1.0:
-#        try:
             log_term = log1p(e1) - log1p(-e1)
-#        except ZeroDivisionError:
         else:
             # Limit as a goes to zero relative to D; may only be ~6 orders of
             # magnitude smaller than D and will still occur
@@ -1509,7 +1507,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
             raise ValueError("Missing torispherical `k` parameter for sideA")
         sideA_SA = SA_torispheroidal(D=D, f=sideA_f, k=sideA_k)
     else:
-        sideA_SA = pi/4*D**2 # Circle
+        sideA_SA = 0.25*pi*D*D # Circle
     # Side B
     if sideB == 'conical':
         sideB_SA = SA_conical_head(D=D, a=sideB_a)
@@ -1526,7 +1524,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
             raise ValueError("Missing torispherical `k` parameter for sideB")
         sideB_SA = SA_torispheroidal(D=D, f=sideB_f, k=sideB_k)
     else:
-        sideB_SA = pi/4*D**2 # Circle
+        sideB_SA = 0.25*pi*D*D # Circle
 
     lateral_SA = pi*D*L
 
