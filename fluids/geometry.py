@@ -2843,9 +2843,9 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
                 V += V_vertical_torispherical(D, sideA_f, sideA_k, h=min(sideA_a, h))
         # Cylindrical section
         if h >= sideA_a + L:
-            V += pi/4*D**2*L # All middle
+            V += 0.25*pi*D*D*L # All middle
         elif h > sideA_a:
-            V += pi/4*D**2*(h - sideA_a) # Partial middle
+            V += 0.25*pi*D*D*(h - sideA_a) # Partial middle
         # Top head
         if h > sideA_a + L:
             h2 = sideB_a - (h - sideA_a - L)
