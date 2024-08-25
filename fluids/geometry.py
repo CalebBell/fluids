@@ -2660,6 +2660,9 @@ def SA_partial_vertical_torispherical_head(D, f, k, h):
         SA = 2.0*pi*f*D*a1
         kD_inv = 1.0/(k*D)
         SA += 2.0*pi*k*D*(h - a1 + (R - k*D)*(asin(a2*kD_inv) - asin((a-h)*kD_inv)))
+    else:
+        # This case should not occur due to the earlier checks
+        return 0.0
     return SA
 
 
@@ -3099,7 +3102,7 @@ class TANK:
         Dimensionless dish-radius parameter for side A; also commonly given as
         the product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
-    sideA_k : float, optional
+    sideA_k : float, optional   
         Dimensionless knuckle-radius parameter for side A; also commonly given
         as the product of `k` and `D` (`kD`), which is called the knuckle
         radius and has units of length, [-]
