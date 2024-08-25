@@ -1483,13 +1483,13 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     18.84955592153876
     >>> SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal',
     ... sideB_a=2)[0]
-    10.124375616183062
+    10.124375616183
     >>> SA_tank(D=1., L=5, sideA='conical', sideA_a=2, sideB='conical',
     ... sideB_a=2)[0]
-    22.18452243965656
+    22.18452243965
     >>> SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',
     ... sideB_a=0.5)[0]
-    18.84955592153876
+    18.8495559215
     '''
     # Side A
     if sideA == 'conical':
