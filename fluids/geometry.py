@@ -1215,8 +1215,8 @@ def V_vertical_torispherical_concave(D, f, k, h):
         ratio = (0.5*D-k*D)
         v1 = 0.25*pi*((2.0/3.0)*a1*a1*a1 + 0.5*a1*D1*D1) + pi*u*(ratio*ratio +s)
         v1 += u*u*(0.5*pi*t - pi*(1.0/3.)*u)
-        v1 += pi*D*(1-2*k)*((2*u-t)/4.*sqrt(s+t*u-u**2) + t*sqrt(s)/4.
-        + k**2*D**2/2.*(acos((t-2*u)/(2*k*D)) -alpha))
+        v1 += pi*D*(1.0-2.0*k)*((2.0*u-t)*0.25*sqrt(s+t*u-u*u) + 0.25*t*sqrt(s)
+        + k*k*D*D*0.5*(acos((t-2*u)/(2*k*D)) -alpha))
         return v1
     def V2(h):
         v2 = pi*h**2/4.*(2*a1 + D1**2/(2.*a1) - 4*h/3.)
