@@ -1653,7 +1653,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
             sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
 
         # Cylindrical section
-        lateral_V = pi/4*D**2*L # All middle
+        lateral_V = 0.25*pi*D*D*L # All middle
 
         if sideB == 'conical':
             sideB_V = V_vertical_conical(D, sideB_a, h=sideB_a)
