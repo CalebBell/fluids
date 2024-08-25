@@ -196,6 +196,10 @@ def SA_partial_sphere(D, h):
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
        http://mathworld.wolfram.com/SphericalCap.html.
     '''
+    if h > D:
+        h = D
+    elif h < 0.0:
+        h = 0.0
     r = D*0.5
     a = sqrt(h*(2.*r - h))
     return pi*(a*a + h*h)
@@ -237,35 +241,11 @@ def V_partial_sphere(D, h):
     '''
     if h <= 0.0:
         return 0.0
+    if h > D:
+        h = D
     r = 0.5*D
     a = sqrt(h*(2.*r - h))
     return 1/6.*pi*h*(3.*a*a + h*h)
-
-
-
-#def V_horizontal_bullet(D, L, H, b=None):
-#    # As in GPSA
-#    if not b:
-#        b = 0.25*D # elliptical 2:1 heads
-#    Ze = H/D
-#    Zc = H/D
-#    K1 = 2*b/D
-#    alpha = 2*atan(H/sqrt(2*H*D/2 - H**2))
-#    fZc = (alpha - sin(alpha)*cos(alpha))/pi
-#    fZe = -H**2/D**2*(-3 + 2*H/D)
-#    V = 1/6.*pi*K1*D**3*fZe + 1/4.*pi*D**2*L*fZc
-#    return V
-
-#print(V_horizontal_bullet(1., 5., .4999999999999, 0.000000000000000001))
-
-#def V_vertical_bullet(D, L, H, b=None):
-#    K1 = 2*b/D
-#    Ze = (H1 + H2)/K1*D # is divided by D?
-#    fZe = -((H1 + H2))
-#
-#    V = 1/6.*pi*K1*D**3*fZe + 1/4.*pi*D**2*L*fZc
-#    return V
-
 
 
 ### Functions as developed by Dan Jones
@@ -323,11 +303,11 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     '''
     if h <= 0.0:
         return 0.0
+    elif h > D:
+        h = D
     R = 0.5*D
-    R_third = R/3.0
+    R_third = R*(1.0/3.0)
     t0 = (R-h)/R
-    if t0 < -1.0 or t0 > 1.0:
-        raise ValueError("Unphysical height")
     Af = R*R*acos(t0) - (R-h)*sqrt(h*(R + R - h))
     M = abs(t0)
     if h == R:
@@ -387,6 +367,8 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
     '''
     if h <= 0.0:
         return 0.0
+    elif h > D:
+        h = D
     R = 0.5*D
     Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2*R*h - h*h)
     Vf = pi*a*h*h*(1 - h/(3.*R))
@@ -439,6 +421,8 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
     '''
     if h <= 0.0:
         return 0.0
+    elif h > D:
+        h = D
     R = 0.5*D
     x0 = sqrt(2.*R*h - h*h)
     Af = R*R*acos((R-h)/R) - (R-h)*x0
@@ -527,6 +511,8 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     '''
     if h <= 0.0:
         return 0.0
+    elif h > D:
+        h = D
     R = D/2.
     r = (a*a + R*R)/2./abs(a)
     w = R - h
@@ -535,7 +521,7 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
         # Handle the case of small issues in calculation of `r` blowing up the calculation
         z = 0.0
     else:
-        z = sqrt(r**2 - R**2)
+        z = sqrt(r*r - R*R)
     Af = R**2*acos((R-h)/R) - (R-h)*sqrt(2*R*h - h**2)
 
     if h == R and abs(a) <= R:
@@ -678,10 +664,10 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     # print((D, L, f, k, h, headonly))
     if h <= 0.0:
         return 0.0
+    if h > D or isclose(h, D, rel_tol=2e-15):
+        h = D
     if f is None or k is None:
         raise ValueError("Missing f or k")
-    if isclose(h, D, rel_tol=2e-15):
-        h = D
 
     R = 0.5*D
     R2 = R*R
@@ -777,6 +763,7 @@ def V_vertical_conical(D, a, h):
     '''
     if h <= 0.0:
         return 0.0
+    # vertical tanks can have `h` arbitrarily high unlike horizontal tanks
     if h < a:
         Vf = pi/4*(D*h/a)**2*(h/3.)
     else:
@@ -2443,6 +2430,8 @@ def SA_partial_vertical_conical_head(D, a, h):
         return 0.25*pi*D*D
     elif h <= 0.0:
         return 0.0
+    elif h > a:
+        h = a
     R = 0.5*D
     SA = pi*R*h*h*sqrt(a*a + R*R)/(a*a)
     return SA
@@ -2506,6 +2495,8 @@ def SA_partial_vertical_ellipsoidal_head(D, a, h):
         return 0.25*pi*D*D
     elif h <= 0.0:
         return 0.0
+    elif h > a:
+        h = a
     # h should be less than a
     R = 0.5*D
     SA = pi*R*R
@@ -2570,6 +2561,8 @@ def SA_partial_vertical_spherical_head(D, a, h):
         return 0.25*pi*D*D
     elif h <= 0.0:
         return 0.0
+    elif h > a:
+        h = a
     R = 0.5*D
     SA = pi*h*((a*a + R*R)/a)
     return SA
@@ -2647,6 +2640,8 @@ def SA_partial_vertical_torispherical_head(D, f, k, h):
     a1 = f*D*(1.0 - cos_alpha)
     a2 = k*D*cos_alpha
     a = a1 + a2
+    if h > a:
+        h = a
     if h < a1:
         SA = 2.0*pi*f*D*h
     elif a1 <= h <= a:
