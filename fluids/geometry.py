@@ -245,7 +245,7 @@ def V_partial_sphere(D, h):
         h = D
     r = 0.5*D
     a = sqrt(h*(2.*r - h))
-    return 1/6.*pi*h*(3.*a*a + h*h)
+    return (1/6.)*pi*h*(3.*a*a + h*h)
 
 
 ### Functions as developed by Dan Jones
@@ -426,7 +426,7 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
     R = 0.5*D
     x0 = sqrt(2.*R*h - h*h)
     Af = R*R*acos((R-h)/R) - (R-h)*x0
-    Vf = 2.*a*R*R/3.*acos(1. - h/R) + 2.*a/9./R*x0*(2.0*h - 3.0*R)*(h + R)
+    Vf = (2./3.0)*a*R*R*acos(1. - h/R) + (2./9.)*a/R*x0*(2.0*h - 3.0*R)*(h + R)
     if headonly:
         Vf = Vf*0.5
     else:
@@ -502,7 +502,7 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     Matching example from [1]_, with inputs in inches and volume in gallons.
 
     >>> V_horiz_spherical(D=108., L=156., a=42., h=36)/231.
-    2303.9615116986183
+    2303.96151169861
 
     References
     ----------
@@ -513,36 +513,37 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
         return 0.0
     elif h > D:
         h = D
-    R = D/2.
-    r = (a*a + R*R)/2./abs(a)
+    R = 0.5*D
+    r = 0.5*(a*a + R*R)/abs(a)
     w = R - h
-    y = sqrt(2*R*h - h**2)
+    y = sqrt(2.0*R*h - h*h)
     if isclose(r, R, rel_tol=2e-15):
         # Handle the case of small issues in calculation of `r` blowing up the calculation
         z = 0.0
     else:
         z = sqrt(r*r - R*R)
-    Af = R**2*acos((R-h)/R) - (R-h)*sqrt(2*R*h - h**2)
+    Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2.0*R*h - h*h)
 
     if h == R and abs(a) <= R:
-        Vf = pi*a/6*(3*R**2 + a**2)
+        Vf = (pi/6.0)*a*(3.0*R*R + a*a)
     elif h == D and abs(a) <= R:
-        Vf = pi*a/3*(3*R**2 + a**2)
+        Vf = (pi/3.0)*a*(3.0*R*R + a*a)
     elif h == 0 or a in (0.0, R, -R) or z == 0.0:
-        Vf = pi*a*h**2*(1 - h/3./R)
+        Vf = pi*a*h*h*(1.0 - h/R*(1.0/3.0))
     elif abs(a) >= 0.01*D:
+        R_r = R/r
         Vf = a/abs(a)*(
-        2*r**3/3.*(acos((R**2 - r*w)/(R*(w-r))) + acos((R**2+r*w)/(R*(w+r)))
-        - z/r*(2+(R/r)**2)*acos(w/R))
-        - 2*(w*r**2 - w**3/3)*atan(y/z) + 4*w*y*z/3)
+        (2.0/3.0)*r*r*r*(acos((R*R - r*w)/(R*(w-r))) + acos((R*R+r*w)/(R*(w+r)))
+        - z/r*(2.0+R_r*R_r)*acos(w/R))
+        - 2.0*(w*r*r - w*w*w*(1.0/3.0))*atan(y/z) + (4.0/3.0)*w*y*z)
     else:
         r2 = r*r
         R2 = R*R
         den_inv = 1.0/(r2 - R2)
         integrated = quad(_V_horiz_spherical_toint, w, R, args=(r2, R2, den_inv))[0] # , epsrel=1.49e-13,
-        Vf = a/abs(a)*(2*integrated - Af*z)
+        Vf = a/abs(a)*(2.0*integrated - Af*z)
     if headonly:
-        Vf = Vf/2.
+        Vf = 0.5*Vf
     else:
         Vf += Af*L
     return Vf
