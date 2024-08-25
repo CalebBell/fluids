@@ -1115,7 +1115,8 @@ def V_vertical_spherical_concave(D, a, h):
     D2 = D*D
     a2 = a*a
     if h < abs(a):
-        Vf = pi*(1.0/12)*(3.0*D2*h + a*(1.0/2.)*(3.0*D2 + 4.0*a2) + (a+h)**3*(4 - (3*D**2+12*a**2)/(2.*a*(a+h))))
+        a_plus_h = a + h
+        Vf = pi*(1.0/12)*(3.0*D2*h + a*(1.0/2.)*(3.0*D2 + 4.0*a2) + a_plus_h*a_plus_h*a_plus_h*(4.0 - (3.0*D2+12.0*a2)/(2.*a*a_plus_h)))
     else:
         Vf = pi*(1.0/12)*(3.0*D2*h + a*(1.0/2.)*(3.0*D2 + 4.0*a2))
     return Vf
