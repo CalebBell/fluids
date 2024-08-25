@@ -1064,9 +1064,10 @@ def V_vertical_ellipsoidal_concave(D, a, h):
     if h <= 0.0:
         return 0.0
     if h < abs(a):
-        Vf = pi*D**2/12.*(3*h + 2*a - (a+h)**2*(2*a-h)/a**2)
+        a_plus_h = a + h
+        Vf = pi*D*D*(1.0/12.)*(3.0*h + 2.0*a - a_plus_h*a_plus_h*(2.0*a-h)/(a*a))
     else:
-        Vf = pi*D**2/12.*(3*h + 2*a)
+        Vf = pi*D*D*(1.0/12.)*(3.0*h + 2.0*a)
     return Vf
 
 
