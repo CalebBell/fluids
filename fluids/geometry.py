@@ -1868,11 +1868,10 @@ def _SA_partial_horiz_spherical_head_to_int(x, R2, a4, c1, c2):
     if to_pow < 0.0:
         to_pow = 0.0
     num = c1*sqrt(to_pow)
-    try:
-        return asin(num)
-    except:
-        # Tried to asin a number just slightly higher than 1
+    if num > 1.0:
+        # Sometimes, the numerical error will result in trying to asin a number just slightly higher than 1 unless we catch it
         return 0.5*pi
+    return asin(num)
 
 def SA_partial_horiz_spherical_head(D, a, h):
     r'''Calculates the partial area of a spherical tank head in the context of
