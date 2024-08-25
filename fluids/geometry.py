@@ -1216,17 +1216,17 @@ def V_vertical_torispherical_concave(D, f, k, h):
         v1 = 0.25*pi*((2.0/3.0)*a1*a1*a1 + 0.5*a1*D1*D1) + pi*u*(ratio*ratio +s)
         v1 += u*u*(0.5*pi*t - pi*(1.0/3.)*u)
         v1 += pi*D*(1.0-2.0*k)*((2.0*u-t)*0.25*sqrt(s+t*u-u*u) + 0.25*t*sqrt(s)
-        + k*k*D*D*0.5*(acos((t-2*u)/(2*k*D)) -alpha))
+        + k*k*D*D*0.5*(acos((t-2.0*u)/(2.0*k*D)) -alpha))
         return v1
     def V2(h):
-        v2 = pi*h**2/4.*(2*a1 + D1**2/(2.*a1) - 4*h/3.)
+        v2 = 0.25*pi*h*h*(2.0*a1 + D1*D1/(2.*a1) - 4/3.0*h)
         return v2
     if 0 <= h < a2:
-        Vf = pi*D**2*h/4 - V1(a1+a2) + V1(a1+a2-h)
+        Vf = 0.25*pi*D*D*h - V1(a1+a2) + V1(a1+a2-h)
     elif a2 <= h < a1 + a2:
-        Vf = pi*D**2*h/4 - V1(a1+a2) + V2(a1+a2-h)
+        Vf = 0.25*pi*D*D*h - V1(a1+a2) + V2(a1+a2-h)
     else:
-        Vf = pi*D**2*h/4 - V1(a1+a2)
+        Vf = 0.25*pi*D*D*h - V1(a1+a2)
     return Vf
 
 
