@@ -2182,6 +2182,7 @@ def SA_partial_horiz_guppy_head(D, a, h):
 
 def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     x = float(x) # double check python float here to avoid numpy not erroring on sqrt
+    # May be best to always use complex numbers here
     x0 = x*x
     x1 = b - x0
     x2 = sqrt(x1)
@@ -2202,6 +2203,7 @@ def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     return abs(ans.real)
 
 def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
+    # May be best to always use complex numbers here
 #    from mpmath import mp, mpf, atanh as catanh
 #    mp.dps=30
 #    y, t2, s, c1 = mpf(y), mpf(t2), mpf(s), mpf(c1)
