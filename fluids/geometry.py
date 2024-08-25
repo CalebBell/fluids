@@ -715,10 +715,10 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         else:
             V1weird = 0.0
         V2max = quad(V_horiz_torispherical_toint_2, 0.0, upper_3, (wmax2, c10, c11, g, g2))[0]
-        V3max = pi*a1/6.*(3.0*g*g + a1*a1)
+        V3max = (pi/6.0)*a1*(3.0*g*g + a1*a1)
         Vf = 2.0*(2.0*V1max - V1weird + V2max + V3max)
     if headonly:
-        Vf = Vf/2.
+        Vf = 0.5*Vf
     else:
         Vf += Af*L
     return Vf
@@ -766,9 +766,10 @@ def V_vertical_conical(D, a, h):
         return 0.0
     # vertical tanks can have `h` arbitrarily high unlike horizontal tanks
     if h < a:
-        Vf = pi/4*(D*h/a)**2*(h/3.)
+        ratio = D*h/a
+        Vf = 0.25*pi*ratio*ratio*(1.0/3.0)*h
     else:
-        Vf = pi*D**2/4*(h - 2*a/3.)
+        Vf = 0.25*pi*D*D*(h - a*(2.0/3.))
     return Vf
 
 
@@ -811,9 +812,10 @@ def V_vertical_ellipsoidal(D, a, h):
     if h <= 0.0:
         return 0.0
     if h < a:
-        Vf = pi/4*(D*h/a)**2*(a - h/3.)
+        ratio = D*h/a
+        Vf = 0.25*pi*ratio*ratio*(a - h*(1.0/3.))
     else:
-        Vf = pi*D**2/4*(h - a/3.)
+        Vf = 0.25*pi*D*D*(h - a*(1.0/3.))
     return Vf
 
 
@@ -856,9 +858,9 @@ def V_vertical_spherical(D, a, h):
     if h <= 0.0:
         return 0.0
     if h < a:
-        Vf = pi*h**2/4*(2*a + D**2/2/a - 4*h/3)
+        Vf = 0.25*pi*h*h*(2.0*a + 0.5*D*D/a - (4/3.0)*h)
     else:
-        Vf = pi/4*(2*a**3/3 - a*D**2/2 + h*D**2)
+        Vf = 0.25*pi*((2.0/3.0)*a*a*a - 0.5*a*D*D+ h*D*D)
     return Vf
 
 
