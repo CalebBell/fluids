@@ -88,20 +88,37 @@ def test_SA_partial_sphere():
     SA2 = SA_partial_sphere(2, 1) # One spherical head's surface area:
     assert_close(SA2, 6.283185307179586)
 
+    # Edge cases
+    assert_close(SA_partial_sphere(1., 0),
+                    SA_partial_sphere(1., -1e-12))
+    assert_close(SA_partial_sphere(1., 0),
+                    SA_partial_sphere(1., -1e100))
+
+    assert_close(SA_partial_sphere(1., 1),
+                    SA_partial_sphere(1., 1+1e-12))
+    assert_close(SA_partial_sphere(1., 1),
+                    SA_partial_sphere(1., 1e100))
+
 def test_V_partial_sphere():
     V1 = V_partial_sphere(1., 0.7)
     assert_close(V1, 0.4105014400690663)
     assert 0.0 == V_partial_sphere(1., 0.0)
+    assert 0.0 == V_partial_sphere(1., -1e-10)
+    assert 0.0 == V_partial_sphere(1., -1e-300)
+    assert 0.0 == V_partial_sphere(1., -1e300)
+
+    assert_close(V_partial_sphere(1., 1),
+                 V_partial_sphere(1., 1+1e-12))
+
+    assert_close(V_partial_sphere(1., 1),
+                 V_partial_sphere(1., 1+1e12))
+
 
 def test_V_horiz_conical():
     # Two examples from [1]_, and at midway, full, and empty.
     Vs_horiz_conical1 = [V_horiz_conical(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)]
     Vs_horiz_conical1s = [2041.1923581273443, 6180.540773905826, 3648.490668241736, 7296.981336483472, 0.0]
     assert_close1d(Vs_horiz_conical1, Vs_horiz_conical1s)
-
-    with pytest.raises(Exception):
-        V_horiz_conical(D=108., L=156., a=42., h=109)
-
 
     # Head only custom example:
     V_head1 = V_horiz_conical(D=108., L=156., a=42., h=84., headonly=True)/231.
@@ -110,7 +127,17 @@ def test_V_horiz_conical():
 
     assert V_horiz_conical(D=108., L=156., a=42., h=0, headonly=True) == 0.0
 
-def test_V_horiz_ellipsoidal():
+    # Check that if `h` is larger than `D`, it is truncated. This is helpful for floating point error cases.
+    assert_close(V_horiz_conical(D=108., L=156., a=42., h=108),
+                V_horiz_conical(D=108., L=156., a=42., h=109))
+
+    assert_close(V_horiz_conical(D=108., L=156., a=42., h=108),
+                V_horiz_conical(D=108., L=156., a=42., h=2000))
+    
+    # Check the function handles floating point errors for a slightly negative value of `h`
+    assert_close(V_horiz_conical(D=108., L=156., a=42., h=0), V_horiz_conical(D=108., L=156., a=42., h=-1e-30))
+    assert_close(V_horiz_conical(D=108., L=156., a=42., h=0), V_horiz_conical(D=108., L=156., a=42., h=-1e30))
+
     # Two examples from [1]_, and at midway, full, and empty.
     Vs_horiz_ellipsoidal = [V_horiz_ellipsoidal(D=108., L=156., a=42., h=i)/231. for i in (36, 84, 54, 108, 0)]
     Vs_horiz_ellipsoidals = [2380.9565415578145, 7103.445235921378, 4203.695769930696, 8407.391539861392, 0.0]
@@ -121,6 +148,13 @@ def test_V_horiz_ellipsoidal():
     V_head2 = V_horiz_ellipsoidal(108., 156., 42., 84., headonly=True)/231.
     assert_close1d([V_head1, V_head2], [970.2761310723387]*2)
     assert 0.0 == V_horiz_ellipsoidal(108., 156., 42., 0., headonly=True)
+
+
+    assert_close(V_horiz_ellipsoidal(D=108., L=156., a=42., h=108),
+                V_horiz_ellipsoidal(D=108., L=156., a=42., h=108+1e-10))
+
+    assert_close(V_horiz_ellipsoidal(D=108., L=156., a=42., h=108),
+                V_horiz_ellipsoidal(D=108., L=156., a=42., h=108+1e10))
 
 def test_V_horiz_guppy():
 
@@ -134,6 +168,12 @@ def test_V_horiz_guppy():
     V_head2 = V_horiz_guppy(108., 156., 42., 36, headonly=True)/231.
     assert_close1d([V_head1, V_head2], [63.266257496613804]*2)
     assert 0.0 == V_horiz_guppy(108., 156., 42., 0.0, headonly=True)
+
+    assert_close(V_horiz_guppy(D=108., L=156., a=42., h=108, headonly=True),
+                    V_horiz_guppy(D=108., L=156., a=42., h=108+1e-10, headonly=True))
+
+    assert_close(V_horiz_guppy(D=108., L=156., a=42., h=108, headonly=True),
+                    V_horiz_guppy(D=108., L=156., a=42., h=108+1e10, headonly=True))
 
 def test_V_horiz_spherical():
     # Two examples from [1]_, and at midway, full, and empty.
@@ -169,6 +209,12 @@ def test_V_horiz_spherical():
     # case that wasn't working
     V = V_horiz_spherical(0.8855699976977874, 2.6567099930933624, 0.4427849988488937, 0.8855699976977874, True)
 
+    # Case with h over D
+    assert_close(V_horiz_spherical(D=108., L=156., a=42., h=108., headonly=True),
+                 V_horiz_spherical(D=108., L=156., a=42., h=108.+1e-8, headonly=True))
+    assert_close(V_horiz_spherical(D=108., L=156., a=42., h=108., headonly=True),
+                 V_horiz_spherical(D=108., L=156., a=42., h=108.+1e8, headonly=True))
+    
 def test_V_horiz_torispherical():
 
     # Two examples from [1]_, and at midway, full, empty, and 1 inch; covering
@@ -190,12 +236,25 @@ def test_V_horiz_torispherical():
     # Another case that wasn't working
     V = V_horiz_torispherical(3.411696249215663, 10.235088747646989, 1.0, 0.06, 3.4116962492156633, True)
 
+
+    assert_close(V_horiz_torispherical(108., 156., 1., 0.06, 108, headonly=True),
+                 V_horiz_torispherical(108., 156., 1., 0.06, 108+1e-5, headonly=True))
+    assert_close(V_horiz_torispherical(108., 156., 1., 0.06, 108, headonly=True),
+                 V_horiz_torispherical(108., 156., 1., 0.06, 108+1e5, headonly=True))
+
+    # cases that weren't tested
+    assert_close(V_horiz_torispherical(2, 0, 0.8, 0.154, 1.9623962396239625), 2.0899393249597247, rtol=1e-9)
+    assert_close(V_horiz_torispherical(2, 0, 0.9, 0.17, 1.8301830183018302), 2.0778125327193195, rtol=1e-9)
+    assert_close(V_horiz_torispherical(1.018018018018018, 0, 0.8, 0.1, 1), 0.2316373202419867, rtol=1e-9)
+
 def test_V_vertical_conical():
     # Two examples from [1]_, and at empty and h=D.
     Vs_calc = [V_vertical_conical(132., 33., i)/231. for i in [24, 60, 0, 132]]
     Vs = [250.67461381371024, 2251.175535772343, 0.0, 6516.560761446257]
     assert_close1d(Vs_calc, Vs)
     assert 0.0 == V_vertical_conical(132., 33., 0.0)
+    assert 0.0 == V_vertical_conical(132., 33., -1)
+
 
 def test_V_vertical_ellipsoidal():
 
@@ -640,6 +699,12 @@ def test_SA_partial_vertical_conical_head():
     SA = SA_partial_vertical_conical_head(D=72., a=48.0, h=24.0)
     assert_close(SA, 1696.4600329384882)
 
+    assert_close(SA_partial_vertical_conical_head(D=72., a=48.0, h=48.0),
+                 SA_partial_vertical_conical_head(D=72., a=48.0, h=48.0*(1+1e-12)))
+    assert_close(SA_partial_vertical_conical_head(D=72., a=48.0, h=48.0),
+                 SA_partial_vertical_conical_head(D=72., a=48.0, h=48.0+1e12))
+
+
     # Integration tests
     T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='conical', sideA_a=36*inch, sideB='same')
     assert_close(T1.SA_from_h(36*inch)/foot**2, 39.98595)
@@ -667,6 +732,11 @@ def test_SA_partial_vertical_conical_head():
 def test_SA_partial_vertical_spherical_head():
     SA = SA_partial_vertical_spherical_head(72, a=24, h=12)
     assert_close(SA, 2940.5307237600464)
+
+    assert_close(SA_partial_vertical_spherical_head(D=72., a=48.0, h=48.0),
+                 SA_partial_vertical_spherical_head(D=72., a=48.0, h=48.0*(1+1e-12)))
+    assert_close(SA_partial_vertical_spherical_head(D=72., a=48.0, h=48.0),
+                 SA_partial_vertical_spherical_head(D=72., a=48.0, h=48.0+1e12))
 
     # Make sure we cover zeros, avoid the zero division
     assert_close(SA_partial_vertical_spherical_head(D=1, a=0.0, h=1e-100), 0.7853981633974483, rtol=1e-12)
@@ -696,6 +766,11 @@ def test_SA_partial_vertical_spherical_head():
 def test_SA_partial_vertical_torispherical_head():
     assert_close(SA_partial_vertical_torispherical_head(D=1.8288, f=1, k=.06, h=0.2127198169675985*(1-1e-12)),
              SA_partial_vertical_torispherical_head(D=1.8288, f=1, k=.06, h=0.2127198169675985*(1+1e-12)), rtol=1e-9)
+
+    assert_close(SA_partial_vertical_torispherical_head(D=1.8288, f=1, k=.06, h=0.3096846279495426*(1-1e-12)),
+             SA_partial_vertical_torispherical_head(D=1.8288, f=1, k=.06, h=0.3096846279495426*(1+1e12)), rtol=1e-9)
+    assert_close(SA_partial_vertical_torispherical_head(D=1.8288, f=1, k=.06, h=0.3096846279495426*(1-1e-12)),
+             SA_partial_vertical_torispherical_head(D=1.8288, f=1, k=.06, h=0.3096846279495426*(1)), rtol=1e-9)
 
     assert_close(SA_partial_vertical_torispherical_head(D=1.8288, f=1, k=.06, h=.2), 2.2981378579540053, rtol=1e-12)
     assert_close(SA_partial_vertical_torispherical_head(D=1.8288, f=1, k=.06, h=.3), 3.056637737809865, rtol=1e-12)
@@ -728,6 +803,11 @@ def test_SA_partial_vertical_torispherical_head():
 def test_SA_partial_vertical_ellipsoidal_head():
     SA = SA_partial_vertical_ellipsoidal_head(D=72., a=48.0, h=24.0)
     assert_close(SA, 4675.237891376319, rtol=1e-12)
+
+    assert_close(SA_partial_vertical_ellipsoidal_head(D=72., a=48.0, h=48.0),
+                 SA_partial_vertical_ellipsoidal_head(D=72., a=48.0, h=48.0*(1+1e-12)))
+    assert_close(SA_partial_vertical_ellipsoidal_head(D=72., a=48.0, h=48.0),
+                 SA_partial_vertical_ellipsoidal_head(D=72., a=48.0, h=48.0+1e12))
 
     # Integration tests
     T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='ellipsoidal', sideA_a=24*inch, sideB='same')
@@ -1339,7 +1419,8 @@ def test_circle_segment_h_from_A():
 
     # Point at low area
     assert_close(circle_segment_h_from_A(D=20, A=.006), 0.010042502885593678, rtol=1e-10)
-    assert_close(circle_segment_h_from_A(D=20, A=1e-20), 4.443057211031748e-08, rtol=1e-10)
+    # Note that as A becomes too low, the result becomes highly sensitive to the trig routine. A=1e-7 for D = 20 was too low.
+    
 
     # Special cases
     assert circle_segment_h_from_A(0.0, 4.5) == 0.0

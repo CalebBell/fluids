@@ -196,6 +196,10 @@ def SA_partial_sphere(D, h):
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
        http://mathworld.wolfram.com/SphericalCap.html.
     '''
+    if h > D:
+        h = D
+    elif h < 0.0:
+        h = 0.0
     r = D*0.5
     a = sqrt(h*(2.*r - h))
     return pi*(a*a + h*h)
@@ -237,35 +241,11 @@ def V_partial_sphere(D, h):
     '''
     if h <= 0.0:
         return 0.0
+    if h > D:
+        h = D
     r = 0.5*D
     a = sqrt(h*(2.*r - h))
-    return 1/6.*pi*h*(3.*a*a + h*h)
-
-
-
-#def V_horizontal_bullet(D, L, H, b=None):
-#    # As in GPSA
-#    if not b:
-#        b = 0.25*D # elliptical 2:1 heads
-#    Ze = H/D
-#    Zc = H/D
-#    K1 = 2*b/D
-#    alpha = 2*atan(H/sqrt(2*H*D/2 - H**2))
-#    fZc = (alpha - sin(alpha)*cos(alpha))/pi
-#    fZe = -H**2/D**2*(-3 + 2*H/D)
-#    V = 1/6.*pi*K1*D**3*fZe + 1/4.*pi*D**2*L*fZc
-#    return V
-
-#print(V_horizontal_bullet(1., 5., .4999999999999, 0.000000000000000001))
-
-#def V_vertical_bullet(D, L, H, b=None):
-#    K1 = 2*b/D
-#    Ze = (H1 + H2)/K1*D # is divided by D?
-#    fZe = -((H1 + H2))
-#
-#    V = 1/6.*pi*K1*D**3*fZe + 1/4.*pi*D**2*L*fZc
-#    return V
-
+    return (1/6.)*pi*h*(3.*a*a + h*h)
 
 
 ### Functions as developed by Dan Jones
@@ -323,11 +303,11 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     '''
     if h <= 0.0:
         return 0.0
+    elif h > D:
+        h = D
     R = 0.5*D
-    R_third = R/3.0
+    R_third = R*(1.0/3.0)
     t0 = (R-h)/R
-    if t0 < -1.0 or t0 > 1.0:
-        raise ValueError("Unphysical height")
     Af = R*R*acos(t0) - (R-h)*sqrt(h*(R + R - h))
     M = abs(t0)
     if h == R:
@@ -387,6 +367,8 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
     '''
     if h <= 0.0:
         return 0.0
+    elif h > D:
+        h = D
     R = 0.5*D
     Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2*R*h - h*h)
     Vf = pi*a*h*h*(1 - h/(3.*R))
@@ -439,10 +421,12 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
     '''
     if h <= 0.0:
         return 0.0
+    elif h > D:
+        h = D
     R = 0.5*D
     x0 = sqrt(2.*R*h - h*h)
     Af = R*R*acos((R-h)/R) - (R-h)*x0
-    Vf = 2.*a*R*R/3.*acos(1. - h/R) + 2.*a/9./R*x0*(2.0*h - 3.0*R)*(h + R)
+    Vf = (2./3.0)*a*R*R*acos(1. - h/R) + (2./9.)*a/R*x0*(2.0*h - 3.0*R)*(h + R)
     if headonly:
         Vf = Vf*0.5
     else:
@@ -518,7 +502,7 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     Matching example from [1]_, with inputs in inches and volume in gallons.
 
     >>> V_horiz_spherical(D=108., L=156., a=42., h=36)/231.
-    2303.9615116986183
+    2303.96151169861
 
     References
     ----------
@@ -527,36 +511,39 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     '''
     if h <= 0.0:
         return 0.0
-    R = D/2.
-    r = (a*a + R*R)/2./abs(a)
+    elif h > D:
+        h = D
+    R = 0.5*D
+    r = 0.5*(a*a + R*R)/abs(a)
     w = R - h
-    y = sqrt(2*R*h - h**2)
+    y = sqrt(2.0*R*h - h*h)
     if isclose(r, R, rel_tol=2e-15):
         # Handle the case of small issues in calculation of `r` blowing up the calculation
         z = 0.0
     else:
-        z = sqrt(r**2 - R**2)
-    Af = R**2*acos((R-h)/R) - (R-h)*sqrt(2*R*h - h**2)
+        z = sqrt(r*r - R*R)
+    Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2.0*R*h - h*h)
 
     if h == R and abs(a) <= R:
-        Vf = pi*a/6*(3*R**2 + a**2)
+        Vf = (pi/6.0)*a*(3.0*R*R + a*a)
     elif h == D and abs(a) <= R:
-        Vf = pi*a/3*(3*R**2 + a**2)
+        Vf = (pi/3.0)*a*(3.0*R*R + a*a)
     elif h == 0 or a in (0.0, R, -R) or z == 0.0:
-        Vf = pi*a*h**2*(1 - h/3./R)
+        Vf = pi*a*h*h*(1.0 - h/R*(1.0/3.0))
     elif abs(a) >= 0.01*D:
+        R_r = R/r
         Vf = a/abs(a)*(
-        2*r**3/3.*(acos((R**2 - r*w)/(R*(w-r))) + acos((R**2+r*w)/(R*(w+r)))
-        - z/r*(2+(R/r)**2)*acos(w/R))
-        - 2*(w*r**2 - w**3/3)*atan(y/z) + 4*w*y*z/3)
+        (2.0/3.0)*r*r*r*(acos((R*R - r*w)/(R*(w-r))) + acos((R*R+r*w)/(R*(w+r)))
+        - z/r*(2.0+R_r*R_r)*acos(w/R))
+        - 2.0*(w*r*r - w*w*w*(1.0/3.0))*atan(y/z) + (4.0/3.0)*w*y*z)
     else:
         r2 = r*r
         R2 = R*R
         den_inv = 1.0/(r2 - R2)
         integrated = quad(_V_horiz_spherical_toint, w, R, args=(r2, R2, den_inv))[0] # , epsrel=1.49e-13,
-        Vf = a/abs(a)*(2*integrated - Af*z)
+        Vf = a/abs(a)*(2.0*integrated - Af*z)
     if headonly:
-        Vf = Vf/2.
+        Vf = 0.5*Vf
     else:
         Vf += Af*L
     return Vf
@@ -678,10 +665,10 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     # print((D, L, f, k, h, headonly))
     if h <= 0.0:
         return 0.0
+    if h > D or isclose(h, D, rel_tol=2e-15):
+        h = D
     if f is None or k is None:
         raise ValueError("Missing f or k")
-    if isclose(h, D, rel_tol=2e-15):
-        h = D
 
     R = 0.5*D
     R2 = R*R
@@ -728,10 +715,10 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
         else:
             V1weird = 0.0
         V2max = quad(V_horiz_torispherical_toint_2, 0.0, upper_3, (wmax2, c10, c11, g, g2))[0]
-        V3max = pi*a1/6.*(3.0*g*g + a1*a1)
+        V3max = (pi/6.0)*a1*(3.0*g*g + a1*a1)
         Vf = 2.0*(2.0*V1max - V1weird + V2max + V3max)
     if headonly:
-        Vf = Vf/2.
+        Vf = 0.5*Vf
     else:
         Vf += Af*L
     return Vf
@@ -777,10 +764,12 @@ def V_vertical_conical(D, a, h):
     '''
     if h <= 0.0:
         return 0.0
+    # vertical tanks can have `h` arbitrarily high unlike horizontal tanks
     if h < a:
-        Vf = pi/4*(D*h/a)**2*(h/3.)
+        ratio = D*h/a
+        Vf = 0.25*pi*ratio*ratio*(1.0/3.0)*h
     else:
-        Vf = pi*D**2/4*(h - 2*a/3.)
+        Vf = 0.25*pi*D*D*(h - a*(2.0/3.))
     return Vf
 
 
@@ -823,9 +812,10 @@ def V_vertical_ellipsoidal(D, a, h):
     if h <= 0.0:
         return 0.0
     if h < a:
-        Vf = pi/4*(D*h/a)**2*(a - h/3.)
+        ratio = D*h/a
+        Vf = 0.25*pi*ratio*ratio*(a - h*(1.0/3.))
     else:
-        Vf = pi*D**2/4*(h - a/3.)
+        Vf = 0.25*pi*D*D*(h - a*(1.0/3.))
     return Vf
 
 
@@ -868,9 +858,9 @@ def V_vertical_spherical(D, a, h):
     if h <= 0.0:
         return 0.0
     if h < a:
-        Vf = pi*h**2/4*(2*a + D**2/2/a - 4*h/3)
+        Vf = 0.25*pi*h*h*(2.0*a + 0.5*D*D/a - (4/3.0)*h)
     else:
-        Vf = pi/4*(2*a**3/3 - a*D**2/2 + h*D**2)
+        Vf = 0.25*pi*((2.0/3.0)*a*a*a - 0.5*a*D*D+ h*D*D)
     return Vf
 
 
@@ -973,12 +963,13 @@ def V_vertical_torispherical(D, f, k, h):
         x2 = (0.5*D - k*D)
         u2 = u*u
         Vf = (0.25*pi*a1*((2.0/3.0)*a1*a1 + 0.5*D1*D1) + pi*u*(x2*x2 + s)
-        + pi*u2*(0.5*t - u/3.) + pi*D*(1.0 - 2.0*k)*(0.25*(2.0*u - t)*sqrt(s + t*u
+        + pi*u2*(0.5*t - u*(1.0/3.)) + pi*D*(1.0 - 2.0*k)*(0.25*(2.0*u - t)*sqrt(s + t*u
                 - u2) + 0.25*t*sqrt(s) + 0.5*k*k*D*D*(acos((t - 2.0*u)/(2.0*k*D)) - alpha)))
     else:
-        Vf = pi/4*(2*a1**3/3. + a1*D1**2/2.) + pi*t/2.*((D/2 - k*D)**2
-        + s) + pi*t**3/12. + pi*D*(1 - 2*k)*(t*sqrt(s)/4
-        + k**2*D**2/2*asin(cos(alpha))) + pi*D**2/4*(h - (a1 + a2))
+        ratio = (0.5*D - k*D)
+        Vf = 0.25*pi*((2.0/3.0)*a1*a1*a1 + 0.5*a1*D1*D1) + 0.5*pi*t*(ratio*ratio
+        + s) + pi*t*t*t*(1.0/12.) + pi*D*(1.0 - 2.0*k)*(0.25*t*sqrt(s)
+        + k*k*D*D*(1.0/2.0)*asin(cos(alpha))) + 0.25*pi*D*D*(h - (a1 + a2))
     return Vf
 
 
@@ -1014,7 +1005,7 @@ def V_vertical_conical_concave(D, a, h):
     Matching example from [1]_, with inputs in inches and volume in gallons.
 
     >>> V_vertical_conical_concave(D=113., a=-33, h=15)/231
-    251.15825565795188
+    251.158255657951
 
     References
     ----------
@@ -1025,9 +1016,10 @@ def V_vertical_conical_concave(D, a, h):
     if h <= 0.0:
         return 0.0
     if h < abs(a):
-        Vf = pi*D**2/12.*(3*h + a - (a+h)**3/a**2)
+        a_plus_h = a + h
+        Vf = pi*D*D*(1.0/12.)*(3.0*h + a - a_plus_h*a_plus_h*a_plus_h/(a*a))
     else:
-        Vf = pi*D**2/12.*(3*h + a)
+        Vf = pi*D*D*(1.0/12.)*(3.0*h + a)
     return Vf
 
 
@@ -1072,9 +1064,10 @@ def V_vertical_ellipsoidal_concave(D, a, h):
     if h <= 0.0:
         return 0.0
     if h < abs(a):
-        Vf = pi*D**2/12.*(3*h + 2*a - (a+h)**2*(2*a-h)/a**2)
+        a_plus_h = a + h
+        Vf = pi*D*D*(1.0/12.)*(3.0*h + 2.0*a - a_plus_h*a_plus_h*(2.0*a-h)/(a*a))
     else:
-        Vf = pi*D**2/12.*(3*h + 2*a)
+        Vf = pi*D*D*(1.0/12.)*(3.0*h + 2.0*a)
     return Vf
 
 
@@ -1119,10 +1112,13 @@ def V_vertical_spherical_concave(D, a, h):
     '''
     if h <= 0.0:
         return 0.0
+    D2 = D*D
+    a2 = a*a
     if h < abs(a):
-        Vf = pi/12*(3*D**2*h + a/2.*(3*D**2 + 4*a**2) + (a+h)**3*(4 - (3*D**2+12*a**2)/(2.*a*(a+h))))
+        a_plus_h = a + h
+        Vf = pi*(1.0/12)*(3.0*D2*h + a*(1.0/2.)*(3.0*D2 + 4.0*a2) + a_plus_h*a_plus_h*a_plus_h*(4.0 - (3.0*D2+12.0*a2)/(2.*a*a_plus_h)))
     else:
-        Vf = pi/12*(3*D**2*h + a/2.*(3*D**2 + 4*a**2))
+        Vf = pi*(1.0/12)*(3.0*D2*h + a*(1.0/2.)*(3.0*D2 + 4.0*a2))
     return Vf
 
 
@@ -1205,28 +1201,32 @@ def V_vertical_torispherical_concave(D, f, k, h):
     '''
     if h <= 0.0:
         return 0.0
-    alpha = asin((1-2*k)/(2.*(f-k)))
-    a1 = f*D*(1-cos(alpha))
-    a2 = k*D*cos(alpha)
-    D1 = 2*f*D*sin(alpha)
-    s = (k*D*sin(alpha))**2
-    t = 2*a2
+    alpha = asin((1.0-2.0*k)/(2.*(f-k)))
+    cos_alpha = cos(alpha)
+    sin_alpha = sin(alpha)
+    a1 = f*D*(1-cos_alpha)
+    a2 = k*D*cos_alpha
+    D1 = 2.0*f*D*sin_alpha
+    s = (k*D*sin_alpha)
+    s *= s
+    t = 2.0*a2
     def V1(h):
-        u = h-f*D*(1-cos(alpha))
-        v1 = pi/4*(2*a1**3/3. + a1*D1**2/2.) + pi*u*((D/2.-k*D)**2 +s)
-        v1 += pi*t*u**2/2. - pi*u**3/3.
-        v1 += pi*D*(1-2*k)*((2*u-t)/4.*sqrt(s+t*u-u**2) + t*sqrt(s)/4.
-        + k**2*D**2/2.*(acos((t-2*u)/(2*k*D)) -alpha))
+        u = h-f*D*(1.0-cos_alpha)
+        ratio = (0.5*D-k*D)
+        v1 = 0.25*pi*((2.0/3.0)*a1*a1*a1 + 0.5*a1*D1*D1) + pi*u*(ratio*ratio +s)
+        v1 += u*u*(0.5*pi*t - pi*(1.0/3.)*u)
+        v1 += pi*D*(1.0-2.0*k)*((2.0*u-t)*0.25*sqrt(s+t*u-u*u) + 0.25*t*sqrt(s)
+        + k*k*D*D*0.5*(acos((t-2.0*u)/(2.0*k*D)) -alpha))
         return v1
     def V2(h):
-        v2 = pi*h**2/4.*(2*a1 + D1**2/(2.*a1) - 4*h/3.)
+        v2 = 0.25*pi*h*h*(2.0*a1 + D1*D1/(2.*a1) - 4/3.0*h)
         return v2
     if 0 <= h < a2:
-        Vf = pi*D**2*h/4 - V1(a1+a2) + V1(a1+a2-h)
+        Vf = 0.25*pi*D*D*h - V1(a1+a2) + V1(a1+a2-h)
     elif a2 <= h < a1 + a2:
-        Vf = pi*D**2*h/4 - V1(a1+a2) + V2(a1+a2-h)
+        Vf = 0.25*pi*D*D*h - V1(a1+a2) + V2(a1+a2-h)
     else:
-        Vf = pi*D**2*h/4 - V1(a1+a2)
+        Vf = 0.25*pi*D*D*h - V1(a1+a2)
     return Vf
 
 
@@ -1286,9 +1286,7 @@ def SA_ellipsoidal_head(D, a):
         e1 = sqrt(1.0 - R*R/(a*a))
 
         if e1 != 1.0:
-#        try:
             log_term = log1p(e1) - log1p(-e1)
-#        except ZeroDivisionError:
         else:
             # Limit as a goes to zero relative to D; may only be ~6 orders of
             # magnitude smaller than D and will still occur
@@ -1485,13 +1483,13 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     18.84955592153876
     >>> SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal',
     ... sideB_a=2)[0]
-    10.124375616183062
+    10.124375616183
     >>> SA_tank(D=1., L=5, sideA='conical', sideA_a=2, sideB='conical',
     ... sideB_a=2)[0]
-    22.18452243965656
+    22.18452243965
     >>> SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',
     ... sideB_a=0.5)[0]
-    18.84955592153876
+    18.8495559215
     '''
     # Side A
     if sideA == 'conical':
@@ -1509,7 +1507,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
             raise ValueError("Missing torispherical `k` parameter for sideA")
         sideA_SA = SA_torispheroidal(D=D, f=sideA_f, k=sideA_k)
     else:
-        sideA_SA = pi/4*D**2 # Circle
+        sideA_SA = 0.25*pi*D*D # Circle
     # Side B
     if sideB == 'conical':
         sideB_SA = SA_conical_head(D=D, a=sideB_a)
@@ -1526,7 +1524,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
             raise ValueError("Missing torispherical `k` parameter for sideB")
         sideB_SA = SA_torispheroidal(D=D, f=sideB_f, k=sideB_k)
     else:
-        sideB_SA = pi/4*D**2 # Circle
+        sideB_SA = 0.25*pi*D*D # Circle
 
     lateral_SA = pi*D*L
 
@@ -1655,7 +1653,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
             sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
 
         # Cylindrical section
-        lateral_V = pi/4*D**2*L # All middle
+        lateral_V = 0.25*pi*D*D*L # All middle
 
         if sideB == 'conical':
             sideB_V = V_vertical_conical(D, sideB_a, h=sideB_a)
@@ -1870,11 +1868,10 @@ def _SA_partial_horiz_spherical_head_to_int(x, R2, a4, c1, c2):
     if to_pow < 0.0:
         to_pow = 0.0
     num = c1*sqrt(to_pow)
-    try:
-        return asin(num)
-    except:
-        # Tried to asin a number just slightly higher than 1
+    if num > 1.0:
+        # Sometimes, the numerical error will result in trying to asin a number just slightly higher than 1 unless we catch it
         return 0.5*pi
+    return asin(num)
 
 def SA_partial_horiz_spherical_head(D, a, h):
     r'''Calculates the partial area of a spherical tank head in the context of
@@ -1947,11 +1944,11 @@ def _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y, c1, R2, R4, h):
     x2 = x*x
     num = c1*(x2 + y2) - R4
     den = x2 + (y2 - R2) # Brackets help numerical truncation; zero div without it
-    try:
-        return sqrt(num/den)
-    except:
+    to_sqrt = num/den
+    if to_sqrt < 0.0:
          # Equation is undefined for y == R when x is zero; avoid it
         return _SA_partial_horiz_ellipsoidal_head_to_int_dbl(x, y*(1.0 - 1e-12), c1, R2, R4, h)
+    return sqrt(to_sqrt)
 
 def _SA_partial_horiz_ellipsoidal_head_limits(x, c1, R2, R4, h):
     return [0.0, sqrt(R2 - x*x)]
@@ -2185,6 +2182,7 @@ def SA_partial_horiz_guppy_head(D, a, h):
 
 def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     x = float(x) # double check python float here to avoid numpy not erroring on sqrt
+    # May be best to always use complex numbers here
     x0 = x*x
     x1 = b - x0
     x2 = sqrt(x1)
@@ -2205,6 +2203,7 @@ def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     return abs(ans.real)
 
 def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
+    # May be best to always use complex numbers here
 #    from mpmath import mp, mpf, atanh as catanh
 #    mp.dps=30
 #    y, t2, s, c1 = mpf(y), mpf(t2), mpf(s), mpf(c1)
@@ -2394,7 +2393,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
         int_1_term1 = high - _SA_partial_horiz_torispherical_head_int_1(R-h, b, c)
         SA += 2.0*f*D*int_1_term1
     else:
-        SA = 2.0*pi*f*D*a1 + 2*pi*k*D*(a2 + (R - k*D)*asin(a2/(k*D)))
+        SA = 2.0*pi*f*D*a1 + 2.0*pi*k*D*(a2 + (R - k*D)*asin(a2/(k*D)))
         SA -= SA_partial_horiz_torispherical_head(D, f, k, h=D-h)
     return SA
 
@@ -2443,6 +2442,8 @@ def SA_partial_vertical_conical_head(D, a, h):
         return 0.25*pi*D*D
     elif h <= 0.0:
         return 0.0
+    elif h > a:
+        h = a
     R = 0.5*D
     SA = pi*R*h*h*sqrt(a*a + R*R)/(a*a)
     return SA
@@ -2506,6 +2507,8 @@ def SA_partial_vertical_ellipsoidal_head(D, a, h):
         return 0.25*pi*D*D
     elif h <= 0.0:
         return 0.0
+    elif h > a:
+        h = a
     # h should be less than a
     R = 0.5*D
     SA = pi*R*R
@@ -2570,6 +2573,8 @@ def SA_partial_vertical_spherical_head(D, a, h):
         return 0.25*pi*D*D
     elif h <= 0.0:
         return 0.0
+    elif h > a:
+        h = a
     R = 0.5*D
     SA = pi*h*((a*a + R*R)/a)
     return SA
@@ -2647,12 +2652,17 @@ def SA_partial_vertical_torispherical_head(D, f, k, h):
     a1 = f*D*(1.0 - cos_alpha)
     a2 = k*D*cos_alpha
     a = a1 + a2
+    if h > a:
+        h = a
     if h < a1:
         SA = 2.0*pi*f*D*h
     elif a1 <= h <= a:
         SA = 2.0*pi*f*D*a1
         kD_inv = 1.0/(k*D)
         SA += 2.0*pi*k*D*(h - a1 + (R - k*D)*(asin(a2*kD_inv) - asin((a-h)*kD_inv)))
+    else:
+        # This case should not occur due to the earlier checks
+        return 0.0
     return SA
 
 
@@ -2701,9 +2711,10 @@ def a_torispherical(D, f, k):
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
     '''
-    alpha = asin((1-2*k)/(2*(f-k)))
-    a1 = f*D*(1 - cos(alpha))
-    a2 = k*D*cos(alpha)
+    alpha = asin((1.0-2.0*k)/(2.0*(f-k)))
+    cos_alpha = cos(alpha)
+    a1 = f*D*(1 - cos_alpha)
+    a2 = k*D*cos_alpha
     return a1 + a2
 
 
@@ -2837,9 +2848,9 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
                 V += V_vertical_torispherical(D, sideA_f, sideA_k, h=min(sideA_a, h))
         # Cylindrical section
         if h >= sideA_a + L:
-            V += pi/4*D**2*L # All middle
+            V += 0.25*pi*D*D*L # All middle
         elif h > sideA_a:
-            V += pi/4*D**2*(h - sideA_a) # Partial middle
+            V += 0.25*pi*D*D*(h - sideA_a) # Partial middle
         # Top head
         if h > sideA_a + L:
             h2 = sideB_a - (h - sideA_a - L)
@@ -3091,7 +3102,7 @@ class TANK:
         Dimensionless dish-radius parameter for side A; also commonly given as
         the product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
-    sideA_k : float, optional
+    sideA_k : float, optional   
         Dimensionless knuckle-radius parameter for side A; also commonly given
         as the product of `k` and `D` (`kD`), which is called the knuckle
         radius and has units of length, [-]
