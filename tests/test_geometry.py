@@ -1419,7 +1419,8 @@ def test_circle_segment_h_from_A():
 
     # Point at low area
     assert_close(circle_segment_h_from_A(D=20, A=.006), 0.010042502885593678, rtol=1e-10)
-    assert_close(circle_segment_h_from_A(D=20, A=1e-7), 6.551963568133292e-06, rtol=1e-10)
+    # Note that as A becomes too low, the result becomes highly sensitive to the trig routine. A=1e-7 for D = 20 was too low.
+    
 
     # Special cases
     assert circle_segment_h_from_A(0.0, 4.5) == 0.0
