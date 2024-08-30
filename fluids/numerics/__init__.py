@@ -4859,7 +4859,7 @@ fit_minimization_targets = {'MeanAbsErr': mean_abs_error,
 
 
 # interp, horner, derivative methods (and maybe newton?) should always be used.
-if not IS_PYPY and 0:
+if not IS_PYPY:
     def splev(*args, **kwargs):
         from scipy.interpolate import splev
         return splev(*args, **kwargs)
