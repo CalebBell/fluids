@@ -1459,7 +1459,7 @@ def C_long_radius_nozzle(D, Do, rho, mu, m):
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 3: Nozzles and Venturi Nozzles.
     '''
-    A_pipe = pi/4.*D*D
+    A_pipe = 0.25*pi*D*D
     v = m/(A_pipe*rho)
     Re_D = rho*v*D/mu
     beta = Do/D
@@ -1515,7 +1515,7 @@ def C_ISA_1932_nozzle(D, Do, rho, mu, m):
     Re_D = rho*v*D/mu
     beta = Do/D
     C = (0.9900 - 0.2262*beta**4.1
-         - (0.00175*beta**2 - 0.0033*beta**4.15)*(1E6/Re_D)**1.15)
+         - (0.00175*beta*beta - 0.0033*beta**4.15)*(1E6/Re_D)**1.15)
     return C
 
 
