@@ -3978,7 +3978,8 @@ def fpbspl(t, n, k, x, l, h, hh):
             h[i + 1] = f*(x - t[li - j])
 
 
-def init_w(t, k, x, w):
+def init_w(t, k, x):
+    w = [0.0]*(k+1)
     tb = t[k]
     n = len(t)
     h = [0]*6
@@ -3986,7 +3987,6 @@ def init_w(t, k, x, w):
     te = t[n - k - 1]
     l1 = k + 1
     l2 = l1 + 1
-    i = 0
     arg = x
     if arg < tb:
         arg = tb
@@ -4018,12 +4018,8 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
 
     nky1 = ny - ky1
 
-    wx = [0.0]*kx1
-    wy = [0.0]*ky1
-
-
-    lx, wx = init_w(tx, kx, x[0], wx)
-    ly, wy = init_w(ty, ky, y[0], wy)
+    lx, wx = init_w(tx, kx, x[0])
+    ly, wy = init_w(ty, ky, y[0])
 
     sp = 0.0
     err = 0.0
