@@ -1301,7 +1301,10 @@ def flow_coefficient(D, Do, C):
     .. [2] Miller, Richard W. Flow Measurement Engineering Handbook. 3rd
        edition. New York: McGraw-Hill Education, 1996.
     '''
-    return C*1.0/sqrt(1.0 - (Do/D)**4)
+    beta_ratio_4 = Do/D
+    beta_ratio_4 *= beta_ratio_4
+    beta_ratio_4 *= beta_ratio_4
+    return C*1.0/sqrt(1.0 - beta_ratio_4)
 
 
 def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
