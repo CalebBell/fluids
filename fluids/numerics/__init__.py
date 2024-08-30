@@ -3955,7 +3955,7 @@ def py_bisplev(x, y, tck, dx=0, dy=0):
     if isinstance(y, (float, int)):
         y = [y]
 
-    z = [[cy_bispev(tx, ty, c, kx, ky, [xi], [yi])[0] for yi in y] for xi in x]
+    z = [[cy_bispev(tx, ty, c, kx, ky, [xi], [yi]) for yi in y] for xi in x]
     if len(x) == len(y) == 1:
         return z[0][0]
     return z
@@ -4009,11 +4009,12 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
     ny = len(ty)
     mx = len(x)
     my = len(y)
-
+    
+    assert my == 1
+    assert mx == 1
     kx1 = kx + 1
     ky1 = ky + 1
 
-    nkx1 = nx - kx1
     nky1 = ny - ky1
 
     wx = [[0.0]*kx1]*mx
@@ -4021,25 +4022,21 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
     lx = [0]*mx
     ly = [0]*my
 
-    size_z = mx*my
 
-    z = [0.0]*size_z
     init_w(tx, kx, x, lx, wx)
     init_w(ty, ky, y, ly, wy)
 
-    for j in range(my):
-        for i in range(mx):
-            sp = 0.0
-            err = 0.0
-            for i1 in range(kx1):
-                for j1 in range(ky1):
-                    l2 = lx[i]*nky1 + ly[j] + i1*nky1 + j1
-                    a = c[l2]*wx[i][i1]*wy[j][j1] - err
-                    tmp = sp + a
-                    err = (tmp - sp) - a
-                    sp = tmp
-            z[j*mx + i] += sp
-    return z
+    i = j = 0
+    sp = 0.0
+    err = 0.0
+    for i1 in range(kx1):
+        for j1 in range(ky1):
+            l2 = lx[0]*nky1 + ly[0] + i1*nky1 + j1
+            a = c[l2]*wx[0][i1]*wy[0][j1] - err
+            tmp = sp + a
+            err = (tmp - sp) - a
+            sp = tmp
+    return sp
 
 
 p_0_70 = array_if_needed([0.06184590404457956, -0.7460693871557973, 2.2435704485433376, -2.1944070385048526, 0.3382265629285811, 0.2791966558569478])
@@ -4882,7 +4879,7 @@ fit_minimization_targets = {'MeanAbsErr': mean_abs_error,
 
 
 # interp, horner, derivative methods (and maybe newton?) should always be used.
-if not IS_PYPY:
+if not IS_PYPY and 0:
     def splev(*args, **kwargs):
         from scipy.interpolate import splev
         return splev(*args, **kwargs)
