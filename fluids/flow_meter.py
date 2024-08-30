@@ -790,13 +790,14 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
     D_mm = D*1000.0
 
     beta = Do/D
-    beta3 = beta*beta*beta
+    beta2 = beta*beta
+    beta3 = beta2*beta
     beta4 = beta*beta3
     beta8 = beta4*beta4
     beta21 = beta**2.1
 
     if subtype in (MILLER_ORIFICE, CONCENTRIC_ORIFICE):
-        b = 91.706*beta**2.5
+        b = 91.706*beta2*sqrt(beta)
         n = 0.75
         if taps == ORIFICE_CORNER_TAPS:
             C_inf = 0.5959 + 0.0312*beta21 - 0.184*beta8
@@ -818,48 +819,48 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
         if taps == ORIFICE_FLANGE_TAPS:
             if tap_position == TAPS_OPPOSITE:
                 if D < 0.1:
-                    b = 7.3 - 15.7*beta + 170.8*beta**2 - 399.7*beta3 + 332.2*beta4
-                    C_inf = 0.5917 + 0.3061*beta21 + .3406*beta8 -.1019*beta4/(1-beta4) - 0.2715*beta3
+                    b = 7.3 - 15.7*beta + 170.8*beta2 - 399.7*beta3 + 332.2*beta4
+                    C_inf = 0.5917 + 0.3061*beta21 + .3406*beta8 -.1019*beta4/(1.0-beta4) - 0.2715*beta3
                 else:
-                    b = -139.7 + 1328.8*beta - 4228.2*beta**2 + 5691.9*beta3 - 2710.4*beta4
-                    C_inf = 0.6016 + 0.3312*beta21 - 1.5581*beta8 + 0.6510*beta4/(1-beta4) - 0.7308*beta3
+                    b = -139.7 + 1328.8*beta - 4228.2*beta2 + 5691.9*beta3 - 2710.4*beta4
+                    C_inf = 0.6016 + 0.3312*beta21 - 1.5581*beta8 + 0.6510*beta4/(1.0-beta4) - 0.7308*beta3
             elif tap_position == TAPS_SIDE:
                 if D < 0.1:
-                    b = 69.1 - 469.4*beta + 1245.6*beta**2 -1287.5*beta3 + 486.2*beta4
-                    C_inf = 0.5866 + 0.3917*beta21 + 0.7586*beta8 -.2273*beta4/(1-beta4) - .3343*beta3
+                    b = 69.1 - 469.4*beta + 1245.6*beta2 -1287.5*beta3 + 486.2*beta4
+                    C_inf = 0.5866 + 0.3917*beta21 + 0.7586*beta8 -.2273*beta4/(1.0-beta4) - .3343*beta3
                 else:
-                    b = -103.2 + 898.3*beta - 2557.3*beta**2 + 2977.0*beta3 - 1131.3*beta4
-                    C_inf = 0.6037 + 0.1598*beta21 - 0.2918*beta8 + 0.0244*beta4/(1-beta4) - 0.0790*beta3
+                    b = -103.2 + 898.3*beta - 2557.3*beta2 + 2977.0*beta3 - 1131.3*beta4
+                    C_inf = 0.6037 + 0.1598*beta21 - 0.2918*beta8 + 0.0244*beta4/(1.0-beta4) - 0.0790*beta3
         elif taps == ORIFICE_VENA_CONTRACTA_TAPS:
             if tap_position == TAPS_OPPOSITE:
                 if D < 0.1:
-                    b = 23.3 -207.0*beta + 821.5*beta**2 -1388.6*beta3 + 900.3*beta4
-                    C_inf = 0.5925 + 0.3380*beta21 + 0.4016*beta8 -.1046*beta4/(1-beta4) - 0.3212*beta3
+                    b = 23.3 -207.0*beta + 821.5*beta2 -1388.6*beta3 + 900.3*beta4
+                    C_inf = 0.5925 + 0.3380*beta21 + 0.4016*beta8 -.1046*beta4/(1.0-beta4) - 0.3212*beta3
                 else:
-                    b = 55.7 - 471.4*beta + 1721.8*beta**2 - 2722.6*beta3 + 1569.4*beta4
-                    C_inf = 0.5922 + 0.3932*beta21 + .3412*beta8 -.0569*beta4/(1-beta4) - 0.4628*beta3
+                    b = 55.7 - 471.4*beta + 1721.8*beta2 - 2722.6*beta3 + 1569.4*beta4
+                    C_inf = 0.5922 + 0.3932*beta21 + .3412*beta8 -.0569*beta4/(1.0-beta4) - 0.4628*beta3
             elif tap_position == TAPS_SIDE:
                 if D < 0.1:
-                    b = -69.3 + 556.9*beta - 1332.2*beta**2 + 1303.7*beta3 - 394.8*beta4
-                    C_inf = 0.5875 + 0.3813*beta21 + 0.6898*beta8 -0.1963*beta4/(1-beta4) - 0.3366*beta3
+                    b = -69.3 + 556.9*beta - 1332.2*beta2 + 1303.7*beta3 - 394.8*beta4
+                    C_inf = 0.5875 + 0.3813*beta21 + 0.6898*beta8 -0.1963*beta4/(1.0-beta4) - 0.3366*beta3
                 else:
-                    b = 52.8 - 434.2*beta + 1571.2*beta**2 - 2460.9*beta3 + 1420.2*beta4
-                    C_inf = 0.5949 + 0.4078*beta21 + 0.0547*beta8 +0.0955*beta4/(1-beta4) - 0.5608*beta3
+                    b = 52.8 - 434.2*beta + 1571.2*beta2 - 2460.9*beta3 + 1420.2*beta4
+                    C_inf = 0.5949 + 0.4078*beta21 + 0.0547*beta8 +0.0955*beta4/(1.0-beta4) - 0.5608*beta3
         else:
             raise ValueError(_Miller_1996_unsupported_tap_eccentric)
     elif subtype in (MILLER_SEGMENTAL_ORIFICE, SEGMENTAL_ORIFICE):
         n = b = 0.0
         if taps == ORIFICE_FLANGE_TAPS:
             if D < 0.1:
-                C_inf = 0.6284 + 0.1462*beta21 - 0.8464*beta8 + 0.2603*beta4/(1-beta4) - 0.2886*beta3
+                C_inf = 0.6284 + 0.1462*beta21 - 0.8464*beta8 + 0.2603*beta4/(1.0-beta4) - 0.2886*beta3
             else:
-                C_inf = 0.6276 + 0.0828*beta21 + 0.2739*beta8 - 0.0934*beta4/(1-beta4) - 0.1132*beta3
+                C_inf = 0.6276 + 0.0828*beta21 + 0.2739*beta8 - 0.0934*beta4/(1.0-beta4) - 0.1132*beta3
         elif taps == ORIFICE_VENA_CONTRACTA_TAPS:
             if D < 0.1:
-                C_inf = 0.6261 + 0.1851*beta21 - 0.2879*beta8 + 0.1170*beta4/(1-beta4) - 0.2845*beta3
+                C_inf = 0.6261 + 0.1851*beta21 - 0.2879*beta8 + 0.1170*beta4/(1.0-beta4) - 0.2845*beta3
             else:
                 # Yes these are supposed to be the same as the flange, large set
-                C_inf = 0.6276 + 0.0828*beta21 + 0.2739*beta8 - 0.0934*beta4/(1-beta4) - 0.1132*beta3
+                C_inf = 0.6276 + 0.0828*beta21 + 0.2739*beta8 - 0.0934*beta4/(1.0-beta4) - 0.1132*beta3
         else:
             raise ValueError(_Miller_1996_unsupported_tap_segmental)
     elif subtype in (MILLER_CONICAL_ORIFICE, CONICAL_ORIFICE):
