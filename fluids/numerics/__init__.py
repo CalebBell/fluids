@@ -3978,29 +3978,30 @@ def fpbspl(t, n, k, x, l, h, hh):
             h[i + 1] = f*(x - t[li - j])
 
 
-def init_w(t, k, x, lx, w):
+def init_w(t, k, x, w):
     tb = t[k]
     n = len(t)
-    m = len(x)
     h = [0]*6
     hh = [0]*5
     te = t[n - k - 1]
     l1 = k + 1
     l2 = l1 + 1
-    for i in range(m):
-        arg = x[i]
-        if arg < tb:
-            arg = tb
-        if arg > te:
-            arg = te
-        while not (arg < t[l1] or l1 == (n - k - 1)):
-            l1 = l2
-            l2 = l1 + 1
-        fpbspl(t, n, k, arg, l1, h, hh)
+    i = 0
+    arg = x
+    if arg < tb:
+        arg = tb
+    if arg > te:
+        arg = te
+    while not (arg < t[l1] or l1 == (n - k - 1)):
+        l1 = l2
+        l2 = l1 + 1
+    fpbspl(t, n, k, arg, l1, h, hh)
 
-        lx[i] = l1 - k - 1
-        for j in range(k + 1):
-            w[j] = h[j]
+    lx = l1 - k - 1
+    for j in range(k + 1):
+        w[j] = h[j]
+
+    return lx, w
 
 
 def cy_bispev(tx, ty, c, kx, ky, x, y):
@@ -4019,19 +4020,16 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
 
     wx = [0.0]*kx1
     wy = [0.0]*ky1
-    lx = [0]*mx
-    ly = [0]*my
 
 
-    init_w(tx, kx, x, lx, wx)
-    init_w(ty, ky, y, ly, wy)
+    lx, wx = init_w(tx, kx, x[0], wx)
+    ly, wy = init_w(ty, ky, y[0], wy)
 
-    i = j = 0
     sp = 0.0
     err = 0.0
     for i1 in range(kx1):
         for j1 in range(ky1):
-            l2 = lx[0]*nky1 + ly[0] + i1*nky1 + j1
+            l2 = lx*nky1 + ly + i1*nky1 + j1
             a = c[l2]*wx[i1]*wy[j1] - err
             tmp = sp + a
             err = (tmp - sp) - a
