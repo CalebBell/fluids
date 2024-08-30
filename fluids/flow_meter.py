@@ -373,7 +373,10 @@ def orifice_expansibility_1989(D, Do, P1, P2, k):
     .. [2] Miller, Richard W. Flow Measurement Engineering Handbook. 3rd
        edition. New York: McGraw-Hill Education, 1996.
     '''
-    return 1.0 - (0.41 + 0.35*(Do/D)**4)*(P1 - P2)/(k*P1)
+    beta_ratio_4 = Do/D
+    beta_ratio_4 = beta_ratio_4*beta_ratio_4
+    beta_ratio_4 = beta_ratio_4*beta_ratio_4
+    return 1.0 - (0.41 + 0.35*beta_ratio_4)*(P1 - P2)/(k*P1)
 
 
 def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
