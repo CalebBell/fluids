@@ -1509,7 +1509,7 @@ def C_ISA_1932_nozzle(D, Do, rho, mu, m):
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 3: Nozzles and Venturi Nozzles.
     '''
-    A_pipe = pi/4.*D*D
+    A_pipe = 0.25*pi*D*D
     v = m/(A_pipe*rho)
     Re_D = rho*v*D/mu
     beta = Do/D
@@ -1554,7 +1554,9 @@ def C_venturi_nozzle(D, Do):
        Full -- Part 3: Nozzles and Venturi Nozzles.
     '''
     beta = Do/D
-    return 0.9858 - 0.198*beta**4.5
+    beta_ratio_4 = beta*beta
+    beta_ratio_4 *= beta_ratio_4
+    return 0.9858 - 0.198*beta_ratio_4*sqrt(beta)
 
 
 # Relative pressure loss as a function of beta reatio for venturi nozzles
