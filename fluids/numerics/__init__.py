@@ -3955,7 +3955,7 @@ def py_bisplev(x, y, tck, dx=0, dy=0):
     if isinstance(y, (float, int)):
         y = [y]
 
-    z = [[cy_bispev(tx, ty, c, kx, ky, [xi], [yi]) for yi in y] for xi in x]
+    z = [[bispev_inner(tx, ty, c, kx, ky, xi, yi) for yi in y] for xi in x]
     if len(x) == len(y) == 1:
         return z[0][0]
     return z
@@ -3996,31 +3996,17 @@ def init_w(t, k, x):
         l1 = l2
         l2 = l1 + 1
     fpbspl(t, n, k, arg, l1, h, hh)
-
     lx = l1 - k - 1
     for j in range(k + 1):
         w[j] = h[j]
-
     return lx, w
 
-
-def cy_bispev(tx, ty, c, kx, ky, x, y):
-    """Possible optimization: Do not evaluate derivatives, ever."""
-    nx = len(tx)
-    ny = len(ty)
-    mx = len(x)
-    my = len(y)
-    
-    assert my == 1
-    assert mx == 1
+def bispev_inner(tx, ty, c, kx, ky, x, y):
     kx1 = kx + 1
     ky1 = ky + 1
-
-    nky1 = ny - ky1
-
-    lx, wx = init_w(tx, kx, x[0])
-    ly, wy = init_w(ty, ky, y[0])
-
+    nky1 = len(ty) - ky1
+    lx, wx = init_w(tx, kx, x)
+    ly, wy = init_w(ty, ky, y)
     sp = 0.0
     err = 0.0
     for i1 in range(kx1):
