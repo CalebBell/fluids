@@ -1253,7 +1253,10 @@ def velocity_of_approach_factor(D, Do):
     .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
     '''
-    return 1.0/sqrt(1.0 - (Do/D)**4)
+    beta_ratio_4 = Do/D
+    beta_ratio_4 *= beta_ratio_4
+    beta_ratio_4 *= beta_ratio_4
+    return 1.0/sqrt(1.0 - beta_ratio_4)
 
 
 def flow_coefficient(D, Do, C):
