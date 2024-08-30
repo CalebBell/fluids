@@ -3876,13 +3876,11 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
     e = ext
     if tck is not None:
         t, c, k = tck
-    x = [x]
 #    if isinstance(x, (float, int, complex)):
 #        x = [x]
 
     m = 1#len(x)
     n = len(t)
-    y = [] # output array
 
     k1 = k + 1
     k2 = k1 + 1
@@ -3892,42 +3890,35 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
     l = k1
     l1 = l + 1
 
-    for i in range(0, m): # m is only 1
-        # i only used in loop for 1
-        arg = x[i]
-        if arg < tb or arg > te:
-            if e == 0:
-                arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
-            elif e == 1:
-                y.append(0.0)
-                continue
-            elif e == 2:
-                raise ValueError("X value not in domain; set `ext` to 0 to "
-                                 "extrapolate")
-            elif e == 3:
-                if arg < tb:
-                    arg = tb
-                else:
-                    arg = te
-                arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
-        else:
+    arg = x
+    if arg < tb or arg > te:
+        if e == 0:
             arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
+        elif e == 1:
+            return 0.0
+        elif e == 2:
+            raise ValueError("X value not in domain; set `ext` to 0 to "
+                                "extrapolate")
+        elif e == 3:
+            if arg < tb:
+                arg = tb
+            else:
+                arg = te
+            arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
+    else:
+        arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
 
-        # Local arrays used in fpbspl and to carry its result
-        h = [0.0]*20
-        hh = [0.0]*19
+    # Local arrays used in fpbspl and to carry its result
+    h = [0.0]*20
+    hh = [0.0]*19
 
-        fpbspl(t, n, k, arg, l, h, hh)
-        sp = 0.0E0
-        ll = l - k1
-        for j in range(0, k1):
-            ll = ll + 1
-            sp = sp + c[ll-1]*h[j] # -1 to get right index
-        y.append(sp)
-    return y[0]
-#    if len(y) == 1:
-#        return y[0]
-#    return y
+    fpbspl(t, n, k, arg, l, h, hh)
+    sp = 0.0E0
+    ll = l - k1
+    for j in range(0, k1):
+        ll = ll + 1
+        sp = sp + c[ll-1]*h[j] # -1 to get right index
+    return sp
 
 
 def py_bisplev(x, y, tck, dx=0, dy=0):
