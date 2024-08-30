@@ -3879,7 +3879,6 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
 #    if isinstance(x, (float, int, complex)):
 #        x = [x]
 
-    m = 1#len(x)
     n = len(t)
 
     k1 = k + 1
@@ -3909,8 +3908,8 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
         arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
 
     # Local arrays used in fpbspl and to carry its result
-    h = [0.0]*20
-    hh = [0.0]*19
+    h = [0.0]* (k + 1)
+    hh = [0.0]*k
 
     fpbspl(t, n, k, arg, l, h, hh)
     sp = 0.0E0
