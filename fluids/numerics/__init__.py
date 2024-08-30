@@ -4000,7 +4000,7 @@ def init_w(t, k, x, lx, w):
 
         lx[i] = l1 - k - 1
         for j in range(k + 1):
-            w[i][j] = h[j]
+            w[j] = h[j]
 
 
 def cy_bispev(tx, ty, c, kx, ky, x, y):
@@ -4017,8 +4017,8 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
 
     nky1 = ny - ky1
 
-    wx = [[0.0]*kx1]*mx
-    wy = [[0.0]*ky1]*my
+    wx = [0.0]*kx1
+    wy = [0.0]*ky1
     lx = [0]*mx
     ly = [0]*my
 
@@ -4032,7 +4032,7 @@ def cy_bispev(tx, ty, c, kx, ky, x, y):
     for i1 in range(kx1):
         for j1 in range(ky1):
             l2 = lx[0]*nky1 + ly[0] + i1*nky1 + j1
-            a = c[l2]*wx[0][i1]*wy[0][j1] - err
+            a = c[l2]*wx[i1]*wy[j1] - err
             tmp = sp + a
             err = (tmp - sp) - a
             sp = tmp
