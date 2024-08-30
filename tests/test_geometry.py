@@ -381,9 +381,9 @@ def test_geometry():
     Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideB='guppy', sideA='torispherical', sideB_a=2, sideA_f=1., sideA_k=0.06) for h in [1, 2.5, 5, 7.5, 10]]
     assert_close1d(Vs_calc, Vs)
 
-    with pytest.raises(Exception):
-        V_from_h(h=7, D=1.5, L=5)
-
+    # Test the error handling for elevation
+    assert_close(V_from_h(h=1.5, D=1.5, L=5, horizontal=True),
+                V_from_h(h=7, D=1.5, L=5, horizontal=True))
     # bad head cases
     with pytest.raises(Exception):
         V_from_h(h=2.6, D=10., L=25., horizontal=True, sideA='BADHEAD', sideB='torispherical', sideA_a=2, sideB_f=1., sideB_k=0.06)
@@ -409,8 +409,9 @@ def test_geometry():
     Vs = [0, 4.417864669110647, 8.835729338221293]
     assert_close1d(Vs_calc, Vs)
 
-    with pytest.raises(Exception):
-        V_from_h(h=7, D=1.5, L=5., horizontal=False)
+    # truncate height
+    assert_close(V_from_h(h=7, D=1.5, L=5., horizontal=False),
+                V_from_h(h=5, D=1.5, L=5., horizontal=False),)
 
 def test_TANK_cross_sectional_area():
     T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='torispherical' ,sideB='same')

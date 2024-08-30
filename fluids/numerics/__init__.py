@@ -3847,7 +3847,7 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
         An point or array of points at which to calculate and return the value
         of the  spline, [-]
     tck : 3-tuple
-        Ssequence of length 3 returned by
+        Sequence of length 3 returned by
         `splrep` containing the knots, coefficients, and degree
         of the spline, [-]
     ext : int, optional, default 0

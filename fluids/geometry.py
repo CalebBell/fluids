@@ -1499,32 +1499,33 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     elif sideA == 'guppy':
         sideA_SA = SA_guppy_head(D=D, a=sideA_a)
     elif sideA == 'spherical':
-        sideA_SA = pi*(sideA_a*sideA_a + 0.25*D*D) # (SA_partial_sphere(D=D, h=sideA_a)
+        sideA_SA = pi * (sideA_a * sideA_a + 0.25 * D * D)
     elif sideA == 'torispherical':
-        if sideA_f is None:
-            raise ValueError("Missing torispherical `f` parameter for sideA")
-        if sideA_k is None:
-            raise ValueError("Missing torispherical `k` parameter for sideA")
+        if sideA_f is None or sideA_k is None:
+            raise ValueError("Missing torispherical 'f' or 'k' parameter for sideA")
         sideA_SA = SA_torispheroidal(D=D, f=sideA_f, k=sideA_k)
     else:
         sideA_SA = 0.25*pi*D*D # Circle
     # Side B
-    if sideB == 'conical':
-        sideB_SA = SA_conical_head(D=D, a=sideB_a)
-    elif sideB == 'ellipsoidal':
-        sideB_SA = SA_ellipsoidal_head(D=D, a=sideB_a)
-    elif sideB == 'guppy':
-        sideB_SA = SA_guppy_head(D=D, a=sideB_a)
-    elif sideB == 'spherical':
-        sideB_SA = pi*(sideB_a*sideB_a + 0.25*D*D)#SA_partial_sphere(D=D, h=sideB_a)
-    elif sideB == 'torispherical':
-        if sideB_f is None:
-            raise ValueError("Missing torispherical `f` parameter for sideB")
-        if sideB_k is None:
-            raise ValueError("Missing torispherical `k` parameter for sideB")
-        sideB_SA = SA_torispheroidal(D=D, f=sideB_f, k=sideB_k)
+    # Calculate side B (reuse side A calculation if parameters are identical)
+    if (sideA == sideB and sideA_a == sideB_a and 
+        sideA_f == sideB_f and sideA_k == sideB_k):
+        sideB_SA = sideA_SA
     else:
-        sideB_SA = 0.25*pi*D*D # Circle
+        if sideB == 'conical':
+            sideB_SA = SA_conical_head(D=D, a=sideB_a)
+        elif sideB == 'ellipsoidal':
+            sideB_SA = SA_ellipsoidal_head(D=D, a=sideB_a)
+        elif sideB == 'guppy':
+            sideB_SA = SA_guppy_head(D=D, a=sideB_a)
+        elif sideB == 'spherical':
+            sideB_SA = pi*(sideB_a*sideB_a + 0.25*D*D)#SA_partial_sphere(D=D, h=sideB_a)
+        elif sideB == 'torispherical':
+            if sideB_f is None or sideB_k is None:
+                raise ValueError("Missing torispherical 'f' or 'k' parameter for sideB")
+            sideB_SA = SA_torispheroidal(D=D, f=sideB_f, k=sideB_k)
+        else:
+            sideB_SA = 0.25*pi*D*D # Circle
 
     lateral_SA = pi*D*L
 
@@ -1643,26 +1644,40 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
         lateral_V = L*Af
     else:
         # Bottom head
-        if sideA == 'conical':
-            sideA_V = V_vertical_conical(D, sideA_a, h=sideA_a)
-        if sideA == 'ellipsoidal':
-            sideA_V = V_vertical_ellipsoidal(D, sideA_a, h=sideA_a)
-        if sideA == 'spherical':
-            sideA_V = V_vertical_spherical(D, sideA_a, h=sideA_a)
-        if sideA == 'torispherical':
-            sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
+        if sideA == 'conical' and sideB == 'conical' and sideA_a == sideB_a:
+            sideB_V = sideA_V = V_vertical_conical(D, sideA_a, h=sideA_a)
+        else:
+            if sideA == 'conical':
+                sideA_V = V_vertical_conical(D, sideA_a, h=sideA_a)
+            if sideB == 'conical':
+                sideB_V = V_vertical_conical(D, sideB_a, h=sideB_a)
+        
+        if sideA == 'ellipsoidal' and sideB == 'ellipsoidal' and sideA_a == sideB_a:
+            sideB_V = sideA_V = V_vertical_ellipsoidal(D, sideA_a, h=sideA_a)
+        else:
+            if sideA == 'ellipsoidal':
+                sideA_V = V_vertical_ellipsoidal(D, sideA_a, h=sideA_a)
+            if sideB == 'ellipsoidal':
+                sideB_V = V_vertical_ellipsoidal(D, sideB_a, h=sideB_a)
+        
+        if sideA == 'spherical' and sideB == 'spherical' and sideA_a == sideB_a:
+            sideB_V = sideA_V = V_vertical_spherical(D, sideA_a, h=sideA_a)
+        else:
+            if sideA == 'spherical':
+                sideA_V = V_vertical_spherical(D, sideA_a, h=sideA_a)
+            if sideB == 'spherical':
+                sideB_V = V_vertical_spherical(D, sideB_a, h=sideB_a)
+        
+        if sideA == 'torispherical' and sideB == 'torispherical' and sideA_f == sideB_f and sideA_k == sideB_k:
+            sideB_V = sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
+        else:
+            if sideA == 'torispherical':
+                sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
+            if sideB == 'torispherical':
+                sideB_V = V_vertical_torispherical(D, sideB_f, sideB_k, h=sideB_a)
 
         # Cylindrical section
-        lateral_V = 0.25*pi*D*D*L # All middle
-
-        if sideB == 'conical':
-            sideB_V = V_vertical_conical(D, sideB_a, h=sideB_a)
-        if sideB == 'ellipsoidal':
-            sideB_V = V_vertical_ellipsoidal(D, sideB_a, h=sideB_a)
-        if sideB == 'spherical':
-            sideB_V = V_vertical_spherical(D, sideB_a, h=sideB_a)
-        if sideB == 'torispherical':
-            sideB_V = V_vertical_torispherical(D, sideB_f, sideB_k, h=sideB_a)
+        lateral_V = 0.25 * pi * D * D * L
     return lateral_V + sideA_V + sideB_V, sideA_V, sideB_V, lateral_V
 
 
@@ -2183,6 +2198,7 @@ def SA_partial_horiz_guppy_head(D, a, h):
 def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     x = float(x) # double check python float here to avoid numpy not erroring on sqrt
     # May be best to always use complex numbers here
+    # print('_SA_partial_horiz_torispherical_head_int_1', x, b, c)
     x0 = x*x
     x1 = b - x0
     x2 = sqrt(x1)
@@ -2200,6 +2216,7 @@ def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
         x3_pow = (x3+0j)**(-1.5)
     ans = (x*cacos(c/x2) + x3_pow*x5*(-c*x1*csqrt(-x6*x6)*catan(x*x2/(csqrt(x3)*csqrt(x6)))
         + x6*x7*csqrt(-x1*x1)*catan(c*x*x5/x7))/csqrt(-x6/x1))
+    # print('_SA_partial_horiz_torispherical_head_int_1', abs(ans.real))
     return abs(ans.real)
 
 def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
@@ -2247,7 +2264,7 @@ def _SA_partial_horiz_torispherical_head_int_3(y, x, s, t2):
     x2 = x*x
     y2 = y*y
     x10 = sqrt(t2 - x2)
-    num = (s + x10)*(s + x10)*x2 + (t2 - x2)*y2
+    num = (s + x10)*(s + x10)*x2 + (t2  - x2)*y2
     den = (t2 - x2)*(s*s + t2 - x2 - y2 + 2.0*s*x10)
     f = sqrt(1.0 + num/den)
     return f
@@ -2381,9 +2398,11 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
         if (D*.499 < h < D*.501): # numba: delete
             from scipy.integrate import dblquad  # numba: delete
             SA = 2.0*dblquad(_SA_partial_horiz_torispherical_head_int_3, 0.0, a2, lambda x: 0, G_lim, args=(s, t2))[0] # numba: delete
+            # print(SA/2.)
         else: # numba: delete
             # Numerical issues
             SA = 2.0*quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, a2, args=(t2, s, c1))[0] # numba: delete
+            # print('SA', SA)
 #        SA = 2.0*quad(_SA_partial_horiz_torispherical_head_int_2, 0.0, a2, args=(t2, s, c1))[0] # numba: uncomment
         try:
             high = _SA_partial_horiz_torispherical_head_int_1(f*D*sin_alpha, b, c)
@@ -2723,6 +2742,9 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     r'''Calculates partially full volume of a vertical or horizontal tank with
     different head types according to [1]_.
 
+    If the height specified is above the height of the tank, it is truncated
+    to the top of the tank. 
+
     Parameters
     ----------
     h : float
@@ -2787,10 +2809,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     V = 0.0
     if horizontal:
         if h > D: # Must be before Af, which will raise a domain error
-            if isclose(h, D, rel_tol=2e-15):
-                h = D
-            else:
-                raise ValueError('Input height is above top of tank')
+            h = D
 
         # Conical case
         if sideA == 'conical' and sideB == 'conical' and sideA_a == sideB_a:
@@ -2836,6 +2855,9 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
         Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2.0*R*h - h*h)
         V += L*Af
     else:
+        max_h = L + sideA_a + sideB_a
+        if h > max_h:
+            h = max_h
         # Bottom head
         if sideA in ('conical', 'ellipsoidal', 'torispherical', 'spherical'):
             if sideA == 'conical':
@@ -2866,8 +2888,6 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
             if sideB == 'torispherical':
                 V += V_vertical_torispherical(D, sideB_f, sideB_k, h=sideB_a)
                 V -= max(0.0, V_vertical_torispherical(D, sideB_f, sideB_k, h=h2))
-        if h > L + sideA_a + sideB_a:
-            raise ValueError('Input height is above top of tank')
     return V
 
 
