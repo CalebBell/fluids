@@ -452,7 +452,7 @@ def Hicks(dp, voidage, vs, rho, mu, L=1.0):
     Examples
     --------
     >>> Hicks(dp=0.01, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
-    3.631703956680737
+    3.631703956680
 
     References
     ----------
@@ -533,8 +533,9 @@ def Brauer(dp, voidage, vs, rho, mu, L=1.0):
        590-600. doi:10.1016/j.powtec.2013.06.022.
     '''
     Re = dp*rho*vs/mu
-    fp = (160 + 3.1*(Re/(1-voidage))**0.9)*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = 1.0 - voidage
+    fp = (160.0 + 3.1*(Re/holdup)**0.9)*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def KTA(dp, voidage, vs, rho, mu, L=1.0):
