@@ -261,7 +261,7 @@ def Tallmadge(dp, voidage, vs, rho, mu, L=1.0):
     Examples
     --------
     >>> Tallmadge(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
-    1365.2739144209424
+    1365.273914420
 
     References
     ----------
@@ -277,8 +277,9 @@ def Tallmadge(dp, voidage, vs, rho, mu, L=1.0):
        doi:10.1016/j.cep.2006.07.002.
     '''
     Re = dp*rho*vs/mu
-    fp = (150.0 + 4.2*(Re/(1-voidage))**(5.0/6.0))*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = (1.0-voidage)
+    fp = (150.0 + 4.2*(Re/holdup)**(5.0/6.0))*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Jones_Krier(dp, voidage, vs, rho, mu, L=1.0):
@@ -327,7 +328,7 @@ def Jones_Krier(dp, voidage, vs, rho, mu, L=1.0):
     Examples
     --------
     >>> Jones_Krier(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
-    1362.2719449873746
+    1362.2719449873
 
     References
     ----------
@@ -339,8 +340,9 @@ def Jones_Krier(dp, voidage, vs, rho, mu, L=1.0):
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
     '''
     Re = dp*rho*vs/mu
-    fp = (150 + 3.89*(Re/(1-voidage))**0.87)*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = (1.0-voidage)
+    fp = (150 + 3.89*(Re/holdup)**0.87)*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Carman(dp, voidage, vs, rho, mu, L=1.0):
