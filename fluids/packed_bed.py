@@ -871,12 +871,13 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
     '''
     Re = dp*rho*vs/mu
+    holdup = 1.0 - voidage
     if Dt is None:
         A, B = 1.0, 1.0
     else:
-        A = (1 + pi*dp/(6*(1-voidage)*Dt))**2
-        B = 1 - pi**2*dp/24/Dt*(1 - dp/(2*Dt))
-    fp = (119.8*A + 4.63*B*(Re/(1-voidage))**(5/6.))*(1-voidage)**2/(voidage**3*Re)
+        A = (1.0 + pi*dp/(6.0*holdup*Dt))**2
+        B = 1 - pi*pi*dp/24/Dt*(1 - dp/(2.0*Dt))
+    fp = (119.8*A + 4.63*B*(Re/holdup)**(5/6.))*holdup*holdup/(voidage**3*Re)
     return fp*rho*vs**2*L/dp
 
 
