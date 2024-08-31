@@ -656,9 +656,10 @@ def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1.0):
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
     '''
-    Rem = dp*rho*vs/mu/(1-voidage)
-    fv = 160 + 2.81*Rem**0.904
-    return fv*(mu*vs*L/dp**2)*(1-voidage)**2/voidage**3
+    holdup = (1.0-voidage)
+    Rem = dp*rho*vs/(holdup*mu)
+    fv = 160.0 + 2.81*Rem**0.904
+    return fv*(mu*vs*L/(dp*dp))*holdup*holdup/(voidage*voidage*voidage)
 
 
 def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1.0):
