@@ -717,7 +717,7 @@ def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1.0):
     Examples
     --------
     >>> Fahien_Schriver(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
-    1470.6175541844711
+    1470.6175541844
 
     References
     ----------
@@ -728,13 +728,15 @@ def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1.0):
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
     '''
-    Rem = dp*rho*vs/mu/(1-voidage)
-    q = exp(-voidage**2*(1-voidage)/12.6*Rem)
-    f1L = 136/(1-voidage)**0.38
-    f1T = 29/((1-voidage)**1.45*voidage**2)
-    f2 = 1.87*voidage**0.75/(1-voidage)**0.26
-    fp = (q*f1L/Rem + (1-q)*(f2 + f1T/Rem))*(1-voidage)/voidage**3
-    return fp*rho*vs**2*L/dp
+    holdup = (1.0-voidage)
+    voidage2 = voidage*voidage
+    Rem = dp*rho*vs/(holdup*mu)
+    q = exp(-voidage2*holdup*(1.0/12.6)*Rem)
+    f1L = 136.0/holdup**0.38
+    f1T = 29.0/(holdup**1.45*voidage2)
+    f2 = 1.87*voidage**0.75/holdup**0.26
+    fp = (q*f1L/Rem + (1.0-q)*(f2 + f1T/Rem))*holdup/(voidage2*voidage)
+    return fp*rho*vs*vs*L/dp
 
 
 def Idelchik(dp, voidage, vs, rho, mu, L=1.0):
