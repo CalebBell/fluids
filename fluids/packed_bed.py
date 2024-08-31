@@ -404,8 +404,9 @@ def Carman(dp, voidage, vs, rho, mu, L=1.0):
        590-600. doi:10.1016/j.powtec.2013.06.022.
     '''
     Re = dp*rho*vs/mu
-    fp = (180 + 2.871*(Re/(1-voidage))**0.9)*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = 1.0 - voidage
+    fp = (180 + 2.871*(Re/holdup)**0.9)*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Hicks(dp, voidage, vs, rho, mu, L=1.0):
