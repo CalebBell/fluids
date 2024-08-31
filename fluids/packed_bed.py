@@ -468,8 +468,9 @@ def Hicks(dp, voidage, vs, rho, mu, L=1.0):
        590-600. doi:10.1016/j.powtec.2013.06.022.
     '''
     Re = dp*rho*vs/mu
-    fp = 6.8*(1-voidage)**1.2/Re**0.2/voidage**3
-    return fp*rho*vs**2*L/dp
+    holdup = 1.0 - voidage
+    fp = 6.8*holdup**1.2/(Re**0.2*voidage*voidage*voidage)
+    return fp*rho*vs*vs*L/dp
 
 
 def Brauer(dp, voidage, vs, rho, mu, L=1.0):
