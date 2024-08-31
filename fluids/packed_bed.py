@@ -877,7 +877,7 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
     else:
         A = (1.0 + pi*dp/(6.0*holdup*Dt))**2
         B = 1 - pi*pi*dp/24/Dt*(1 - dp/(2.0*Dt))
-    fp = (119.8*A + 4.63*B*(Re/holdup)**(5/6.))*holdup*holdup/(voidage**3*Re)
+    fp = (119.8*A + 4.63*B*(Re/holdup)**(5/6.))*holdup*holdup/(voidage*voidage*voidage*Re)
     return fp*rho*vs**2*L/dp
 
 
