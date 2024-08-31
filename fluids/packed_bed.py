@@ -597,8 +597,9 @@ def KTA(dp, voidage, vs, rho, mu, L=1.0):
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
     '''
     Re = dp*rho*vs/mu
-    fp = (160 + 3*(Re/(1-voidage))**0.9)*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = 1.0 - voidage
+    fp = (160.0 + 3.0*(Re/holdup)**0.9)*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1.0):
