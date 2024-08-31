@@ -147,8 +147,9 @@ def Ergun(dp, voidage, vs, rho, mu, L=1.0):
        Engineering 105, no. 2 (June 1, 1983): 168-172. doi:10.1115/1.3240959.
     '''
     Re = dp*rho*vs/mu
-    fp = (150 + 1.75*(Re/(1-voidage)))*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = 1.0 - voidage
+    fp = (150.0 + 1.75*(Re/holdup))*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1.0):
