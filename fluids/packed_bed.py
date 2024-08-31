@@ -859,7 +859,7 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
     Examples
     --------
     >>> Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=1E-2)
-    1255.1625662548427
+    1255.1625662
 
     References
     ----------
@@ -875,10 +875,11 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
     if Dt is None:
         A, B = 1.0, 1.0
     else:
-        A = (1.0 + pi*dp/(6.0*holdup*Dt))**2
+        A = (1.0 + pi*dp/(6.0*holdup*Dt))
+        A = A*A
         B = 1 - pi*pi*dp/24/Dt*(1 - dp/(2.0*Dt))
     fp = (119.8*A + 4.63*B*(Re/holdup)**(5/6.))*holdup*holdup/(voidage*voidage*voidage*Re)
-    return fp*rho*vs**2*L/dp
+    return fp*rho*vs*vs*L/dp
 
 
 def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
@@ -1111,11 +1112,11 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
     Examples
     --------
     >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
-    1438.2826958844414
+    1438.2826958844
     >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01)
-    1255.1625662548427
+    1255.1625662548
     >>> dP_packed_bed(dp=0.05, voidage=0.492, vs=0.1, rho=1E3, mu=1E-3, Dt=0.015, Method='Guo, Sun, Zhang, Ding & Liu')
-    18782.499710673364
+    18782.499710673
 
     Parameters
     ----------
