@@ -797,7 +797,7 @@ def Idelchik(dp, voidage, vs, rho, mu, L=1.0):
     Re = rho*vs*dp/mu/(1-voidage)
     Re = (0.45/sqrt(voidage))*Re
     right = 0.765/voidage**4.2*(30./Re + 3./Re**0.7 + 0.3)
-    left = dp/L/rho/vs**2
+    left = dp/(L*rho*vs*vs)
     return right/left
 
 
