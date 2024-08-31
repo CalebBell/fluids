@@ -794,9 +794,9 @@ def Idelchik(dp, voidage, vs, rho, mu, L=1.0):
        Arrangement and Roughness." Powder Technology 246 (September 2013):
        590-600. doi:10.1016/j.powtec.2013.06.022.
     '''
-    Re = rho*vs*dp/mu/(1-voidage)
+    Re = rho*vs*dp/(mu*(1.0-voidage))
     Re = (0.45/sqrt(voidage))*Re
-    right = 0.765/voidage**4.2*(30./Re + 3./Re**0.7 + 0.3)
+    right = 0.765*voidage**-4.2*(30./Re + 3.*Re**-0.7 + 0.3)
     left = dp/(L*rho*vs*vs)
     return right/left
 
