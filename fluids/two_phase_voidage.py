@@ -1750,7 +1750,7 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
     G = m/A
     C0 = vgs/(vls+vgs)*(1.0 + (vls/vgs)**((rhog/rhol)**0.1))
     vgm = 2.9*sqrt(sqrt(g*sigma*(rhol-rhog)/(rhol*rhol)))
-    return x/(rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G))
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
 def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
@@ -1815,11 +1815,11 @@ def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    G = m/(pi/4*D**2)
+    G = m/(0.25*pi*D*D)
     Pr = P/Pc if Pc is not None else 0.5
-    C0 = (0.82 + 0.18*Pr)**-1
-    vgm = 1.41*sqrt(sqrt(g*sigma*(rhol-rhog)/rhol**2))
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    C0 = 1.0/(0.82 + 0.18*Pr)
+    vgm = 1.41*sqrt(sqrt(g*sigma*(rhol-rhog)/(rhol*rhol)))
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
 # Correlations developed in reviews
