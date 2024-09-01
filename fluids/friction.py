@@ -1790,7 +1790,8 @@ def Fang_2011(Re, eD):
        Reactor Technology (SMiRT19) Special Section, 241, no. 3 (March 2011):
        897-902. doi:10.1016/j.nucengdes.2010.12.019.
     '''
-    return log(0.234*eD**1.1007 - 60.525/Re**1.1105 + 56.291/Re**1.0712)**-2*1.613
+    term = log(0.234*eD**1.1007 - 60.525*Re**-1.1105 + 56.291*Re**-1.0712)
+    return 1.613/(term*term)
 
 
 def von_Karman(eD):
