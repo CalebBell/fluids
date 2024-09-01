@@ -799,8 +799,8 @@ def Swamee_Jain_1976(Re, eD):
        Pipe-Flow Problems." Journal of the Hydraulics Division 102, no. 5
        (May 1976): 657-664.
     '''
-    ff = (-4*log10((6.97/Re)**0.9 + eD/3.7))**-2
-    return 4*ff
+    term = (-4.0*log10((6.97/Re)**0.9 + eD*(1.0/3.7)))
+    return 4.0/(term*term)
 
 
 def Churchill_1977(Re, eD):
