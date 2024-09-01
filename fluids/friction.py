@@ -1366,7 +1366,8 @@ def Manadilli_1997(Re, eD):
     .. [2] 	Manadilli, G.: Replace implicit equations with signomial functions.
        Chem. Eng. 104, 129 (1997)
     '''
-    return (-2.0*log10(eD*(1.0/3.7) + 95.0*Re**-0.983 - 96.82/Re))**-2
+    term = (-2.0*log10(eD*(1.0/3.7) + 95.0*Re**-0.983 - 96.82/Re))
+    return 1.0/(term*term)
 
 
 def Romeo_2002(Re, eD):
