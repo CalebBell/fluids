@@ -832,7 +832,7 @@ def Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug, pow_x=0.9, pow_rho=0.5,
     if n is not None:
         pow_x = (2-n)/2.
         pow_mu = n/2.
-    return ((1-x)/x)**pow_x * (rhog/rhol)**pow_rho * (mul/mug)**pow_mu
+    return ((1.0-x)/x)**pow_x * (rhog/rhol)**pow_rho * (mul/mug)**pow_mu
 
 
 def Baroczy(x, rhol, rhog, mul, mug):
@@ -890,7 +890,7 @@ def Baroczy(x, rhol, rhog, mul, mug):
     '''
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug,
                                   pow_x=0.74, pow_rho=0.65, pow_mu=0.13)
-    return (1 + Xtt)**-1
+    return 1.0/(1 + Xtt)
 
 
 def Tandon_Varma_Gupta(x, rhol, rhog, mul, mug, m, D):
