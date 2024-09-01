@@ -1871,10 +1871,10 @@ def Xu_Fang_voidage(x, rhol, rhog, m, D, g=g):
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
        1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     '''
-    G = m/(pi/4*D**2)
+    G = m/(0.25*pi*D*D)
     alpha_h = homogeneous(x, rhol, rhog)
-    Frlo = G**2/(g*D*rhol**2)
-    return (1 + (1 + 2*Frlo**-0.2*alpha_h**3.5)*((1-x)/x)*(rhog/rhol))**-1
+    Frlo = G*G/(g*D*rhol*rhol)
+    return 1.0/(1.0 + (1.0 + 2.0*Frlo**-0.2*alpha_h**3.5)*((1.0-x)/x)*(rhog/rhol))
 
 
 def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
