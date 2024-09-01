@@ -1540,7 +1540,7 @@ def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
     Examples
     --------
     >>> Rouhani_2(0.4, 800., 2.5, sigma=0.02, m=1, D=0.3)
-    0.44819733138968865
+    0.44819733138968
 
     References
     ----------
@@ -1556,10 +1556,10 @@ def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    G = m/(pi/4*D**2)
-    C0 = 1 + 0.2*(1-x)*sqrt(sqrt(g*D))*sqrt(rhol/G)
-    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    G = m/(0.25*pi*D*D)
+    C0 = 1.0 + 0.2*(1.0-x)*sqrt(sqrt(g*D))*sqrt(rhol/G)
+    vgm = 1.18*(1.0-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
+    return x/(rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G))
 
 
 def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
