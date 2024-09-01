@@ -985,8 +985,8 @@ def Shacham_1980(Re, eD):
        Factor in Pipe.'" Industrial & Engineering Chemistry Fundamentals 19,
        no. 2 (May 1, 1980): 228-228. doi:10.1021/i160074a019.
     '''
-    ff = (-4*log10(eD/3.7 - 5.02/Re*log10(eD/3.7 + 14.5/Re)))**-2
-    return 4*ff
+    term = (-4.0*log10(eD*(1.0/3.7) - 5.02/Re*log10(eD*(1.0/3.7) + 14.5/Re)))
+    return 4.0/(term*term)
 
 
 def Barr_1981(Re, eD):
