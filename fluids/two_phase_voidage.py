@@ -1744,9 +1744,10 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    vgs = m*x/(rhog*pi/4*D**2)
-    vls = m*(1-x)/(rhol*pi/4*D**2)
-    G = m/(pi/4*D**2)
+    A = 0.25*pi*D*D
+    vgs = m*x/(rhog*A)
+    vls = m*(1.0-x)/(rhol*A)
+    G = m/A
     C0 = vgs/(vls+vgs)*(1 + (vls/vgs)**((rhog/rhol)**0.1))
     vgm = 2.9*sqrt(sqrt(g*sigma*(rhol-rhog)/rhol**2))
     return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
