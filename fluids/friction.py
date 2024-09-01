@@ -1220,10 +1220,12 @@ def Serghides_1(Re, eD):
     .. [2] Serghides T.K (1984)."Estimate friction factor accurately"
        Chemical Engineering, Vol. 91(5), pp. 63-64.
     '''
-    A = -2*log10(eD/3.7 + 12/Re)
-    B = -2*log10(eD/3.7 + 2.51*A/Re)
-    C = -2*log10(eD/3.7 + 2.51*B/Re)
-    return (A - (B-A)**2/(C-2*B + A))**-2
+    A = -2.0*log10(eD*(1.0/3.7) + 12.0/Re)
+    B = -2.0*log10(eD*(1.0/3.7) + 2.51*A/Re)
+    C = -2.0*log10(eD*(1.0/3.7) + 2.51*B/Re)
+    B_minus_A = B - A
+    term = (A - B_minus_A*B_minus_A/(C-2.0*B + A))
+    return 1.0/(term*term)
 
 
 def Serghides_2(Re, eD):
