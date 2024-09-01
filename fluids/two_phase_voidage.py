@@ -1240,8 +1240,8 @@ def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    G = m/(pi/4*D**2)
-    Ft = sqrt(G**2*x**3/((1-x)*rhog**2*g*D))
+    G = m/(0.25*pi*D*D)
+    Ft = sqrt(G*G*x*x*x/((1.0-x)*rhog*rhog*g*D))
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
     return (1 + 1./Ft + Xtt)**-0.321
 
