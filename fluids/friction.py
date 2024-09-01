@@ -1510,7 +1510,7 @@ def Rao_Kumar_2007(Re, eD):
     '''
     term = (log(Re/6.5))
     beta = 1.0 - 0.55*exp(-0.33*term*term)
-    return (2*log10(1.0/(2.0*eD*beta)/((0.444+0.135*Re)/Re)))**-2
+    return (2*log10(1.0/((2.0*eD*beta)*((0.444+0.135*Re)/Re))))**-2
 
 
 def Buzzelli_2008(Re, eD):
