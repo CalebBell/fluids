@@ -1105,8 +1105,8 @@ def Domanski_Didion(x, rhol, rhog, mul, mug):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
-    if Xtt < 10:
-        return (1 + Xtt**0.8)**-0.378
+    if Xtt < 10.0:
+        return (1.0 + Xtt**0.8)**-0.378
     else:
         return 0.823 - 0.157*log(Xtt)
 
@@ -1173,12 +1173,13 @@ def Graham(x, rhol, rhog, mul, mug, m, D, g=g):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    G = m/(pi/4*D**2)
-    Ft = sqrt(G**2*x**3/((1-x)*rhog**2*g*D))
+    G = m/(0.25*pi*D*D)
+    Ft = sqrt(G*G*x*x*x/((1.0-x)*rhog*rhog*g*D))
     if Ft < 0.01032:
-        return 0
+        return 0.0
     else:
-        return 1 - exp(-1 - 0.3*log(Ft) - 0.0328*log(Ft)**2)
+        log_Ft = log(Ft)
+        return 1.0 - exp(-1.0 - 0.3*log_Ft - 0.0328*log_Ft*log_Ft)
 
 
 def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
