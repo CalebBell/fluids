@@ -1294,7 +1294,8 @@ def voidage_Benyahia_Oneil_spherical(Dp, Dt):
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
     '''
-    return 0.390 + 1.740/(Dt/Dp + 1.140)**2
+    x1 = Dt/Dp + 1.140
+    return 0.390 + 1.740/(x1*x1)
 
 
 def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
