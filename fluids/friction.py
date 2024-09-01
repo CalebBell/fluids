@@ -1459,7 +1459,8 @@ def Sonnad_Goudar_2006(Re, eD):
        doi:10.1061/(ASCE)0733-9429(2007)133:11(1270).
     '''
     S = 0.124*eD*Re + log(0.4587*Re)
-    return (.8686*log(.4587*Re/S**(S/(S+1))))**-2
+    term = (.8686*log(.4587*Re/S**(S/(S+1.0))))
+    return 1.0/(term*term)
 
 
 def Rao_Kumar_2007(Re, eD):
