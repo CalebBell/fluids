@@ -941,8 +941,8 @@ def Round_1980(Re, eD):
        Canadian Journal of Chemical Engineering 58, no. 1 (February 1, 1980):
        122-23. doi:10.1002/cjce.5450580119.
     '''
-    ff = (-3.6*log10(Re/(0.135*Re*eD+6.5)))**-2
-    return 4*ff
+    term = (-3.6*log10(Re/(0.135*Re*eD+6.5)))
+    return 4.0/(term*term)
 
 
 def Shacham_1980(Re, eD):
