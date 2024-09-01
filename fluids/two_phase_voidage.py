@@ -1492,9 +1492,9 @@ def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     G = m/(0.25*pi*D*D)
-    C0 = 1.0 + 0.2*(1-x)
-    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
-    return x/(rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G))
+    C0 = 1.0 + 0.2*(1.0-x)
+    vgm = 1.18*(1.0-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
 def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
