@@ -714,7 +714,8 @@ def Eck_1973(Re, eD):
        doi:10.1007/s10494-012-9419-7
     .. [2] Eck, B.: Technische Stromungslehre. Springer, New York (1973)
     '''
-    return (-2*log10(eD/3.715 + 15/Re))**-2
+    term = (-2.0*log10(eD*(1.0/3.715) + 15.0/Re))
+    return 1.0/(term*term)
 
 
 def Jain_1976(Re, eD):
