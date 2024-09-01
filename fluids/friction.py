@@ -586,7 +586,7 @@ def Alshul_1952(Re, eD):
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
     '''
-    return 0.11*sqrt(sqrt(68/Re + eD))
+    return 0.11*sqrt(sqrt(68.0/Re + eD))
 
 
 def Wood_1966(Re, eD):
@@ -631,7 +631,7 @@ def Wood_1966(Re, eD):
        Civil Engineering American Society of Civil Engineers (1966)
     '''
     A1 = 1.62*eD**0.134
-    return 0.094*eD**0.225 + 0.53*eD +88*eD**0.4*Re**-A1
+    return 0.094*eD**0.225 + 0.53*eD +88.0*eD**0.4*Re**-A1
 
 
 def Churchill_1973(Re, eD):
@@ -673,7 +673,8 @@ def Churchill_1973(Re, eD):
        Stress in Turbulent Flow in Commercial Pipe." AIChE Journal 19, no. 2
        (March 1, 1973): 375-76. doi:10.1002/aic.690190228.
     '''
-    return (-2*log10(eD/3.7 + (7./Re)**0.9))**-2
+    term = (-2.0*log10(eD*(1.0/3.7) + (7./Re)**0.9))
+    return 1.0/(term*term)
 
 
 def Eck_1973(Re, eD):
