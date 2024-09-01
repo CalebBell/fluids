@@ -1297,9 +1297,10 @@ def Huq_Loth(x, rhol, rhog):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    B = 2*x*(1-x)
-    D = sqrt(1 + 2*B*(rhol/rhog -1))
-    return 1 - 2*(1-x)**2/(1 - 2*x + D)
+    term = 1.0 - x
+    B = 2.0*x*term
+    D = sqrt(1.0 + 2.0*B*(rhol/rhog -1.0))
+    return 1.0 - 2.0*term*term/(1.0 - 2.0*x + D)
 
 
 def Kopte_Newell_Chato(x, rhol, rhog, mul, mug, m, D, g=g):
