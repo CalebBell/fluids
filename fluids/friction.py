@@ -1125,10 +1125,10 @@ def Zigrang_Sylvester_2(Re, eD):
        Solution of Colebrook's Friction Factor Equation." AIChE Journal 28,
        no. 3 (May 1, 1982): 514-15. doi:10.1002/aic.690280323.
     '''
-    A5 = eD/3.7 + 13/Re
-    A6 = eD/3.7 - 5.02/Re*log10(A5)
-    ff = (-4*log10(eD/3.7 - 5.02/Re*log10(A6)))**-2
-    return 4*ff
+    A5 = eD*(1.0/3.7) + 13.0/Re
+    A6 = eD*(1.0/3.7) - 5.02/Re*log10(A5)
+    term = (-4.0*log10(eD*(1.0/3.7) - 5.02/Re*log10(A6)))
+    return 4.0/(term*term)
 
 
 def Haaland(Re, eD):
