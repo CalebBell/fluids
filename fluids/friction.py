@@ -132,7 +132,7 @@ from math import cos, exp, isinf, log, log10, pi, radians, sin, sqrt, tan
 
 from fluids.constants import g, inch
 from fluids.core import Dean, Reynolds
-from fluids.numerics import lambertw, secant
+from fluids.numerics import lambertw, secant, cbrt
 
 __all__ = ['friction_factor', 'friction_factor_methods',
            'friction_factor_curved', 'helical_Re_crit',
@@ -548,7 +548,7 @@ def Moody(Re, eD):
     .. [2] Moody, L.F.: An approximate formula for pipe friction factors.
        Trans. Am. Soc. Mech. Eng. 69,1005-1006 (1947)
     '''
-    return 4*(1.375E-3*(1 + (2E4*eD + 1E6/Re)**(1/3.)))
+    return 4.0*(1.375E-3*(1.0 + cbrt(2E4*eD + 1E6/Re)))
 
 
 def Alshul_1952(Re, eD):
