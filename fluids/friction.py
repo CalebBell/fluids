@@ -745,7 +745,7 @@ def Jain_1976(Re, eD):
     Examples
     --------
     >>> Jain_1976(1E5, 1E-4)
-    0.018436560312693327
+    0.018436560312
 
     References
     ----------
@@ -756,8 +756,8 @@ def Jain_1976(Re, eD):
     .. [2] 	Jain, Akalank K."Accurate Explicit Equation for Friction Factor."
        Journal of the Hydraulics Division 102, no. 5 (May 1976): 674-77.
     '''
-    ff = (2.28-4*log10(eD+(29.843/Re)**0.9))**-2
-    return 4*ff
+    term = (2.28-4.0*log10(eD+(29.843/Re)**0.9))
+    return 4.0/(term*term)
 
 
 def Swamee_Jain_1976(Re, eD):
