@@ -320,7 +320,7 @@ def Fauske(x, rhol, rhog):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    return (1 + (1-x)/x*sqrt(rhog/rhol))**-1
+    return 1.0/(1.0 + (1.0-x)/x*sqrt(rhog/rhol))
 
 
 def Chisholm_voidage(x, rhol, rhog):
