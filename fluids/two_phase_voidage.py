@@ -534,7 +534,7 @@ def Chisholm_Armand(x, rhol, rhog):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     alpha_h = homogeneous(x, rhol, rhog)
-    return alpha_h/(alpha_h + sqrt(1-alpha_h))
+    return alpha_h/(alpha_h + sqrt(1.0-alpha_h))
 
 
 def Armand(x, rhol, rhog):
@@ -637,7 +637,7 @@ def Nishino_Yamazaki(x, rhol, rhog):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     alpha_h = homogeneous(x, rhol, rhog)
-    return 1 - sqrt((1-x)*rhog/x/rhol)*sqrt(alpha_h)
+    return 1.0 - sqrt((1.0-x)*rhog/(x*rhol))*sqrt(alpha_h)
 
 
 def Guzhov(x, rhol, rhog, m, D):
@@ -692,7 +692,7 @@ def Guzhov(x, rhol, rhog, m, D):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    rho_tp = ((1-x)/rhol + x/rhog)**-1
+    rho_tp = 1.0/((1-x)/rhol + x/rhog)
     G = m/(pi/4*D**2)
     V_tp = G/rho_tp
     Fr = Froude(V=V_tp, L=D, squared=True) # squaring in undone later; Fr**0.5
