@@ -1008,7 +1008,7 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1.0):
     Examples
     --------
     >>> Guo_Sun(dp=14.2E-3, voidage=0.492, vs=0.6, rho=1E3, mu=1E-3, Dt=40.9E-3)
-    42019.529911473706
+    42019.529911
 
     References
     ----------
@@ -1022,7 +1022,7 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1.0):
     Rem = dp*rho*vs/(mu*holdup)
     ratio = dp/Dt if Dt is not None else 3.5 # Never ran
     fv = 180.0 + (9.5374*ratio - 2.8054)*Rem**0.97
-    return fv*(mu*vs*L/(dp*dp))*holdup*holdup/(voidage*voidage*voidage)
+    return fv*(mu*vs*L/(dp*dp*voidage*voidage*voidage))*holdup*holdup
 
 
 
