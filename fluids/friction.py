@@ -1793,7 +1793,6 @@ def Fang_2011(Re, eD):
     term = log(0.234*eD**1.1007 - 60.525*Re**-1.1105 + 56.291*Re**-1.0712)
     return 1.613/(term*term)
 
-
 def von_Karman(eD):
     r'''Calculates Darcy friction factor for rough pipes at infinite Reynolds
     number from the von Karman equation (as given in [1]_ and [2]_:
@@ -1830,7 +1829,7 @@ def von_Karman(eD):
     .. [2] McGovern, Jim. "Technical Note: Friction Factor Diagrams for Pipe
        Flow." Paper, October 3, 2011. http://arrow.dit.ie/engschmecart/28.
     '''
-    x = log10(eD/3.71)
+    x = log10(eD*(1.0/3.71))
     return 0.25/(x*x)
 
 
@@ -2579,7 +2578,8 @@ def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
        Helical Coil Tubes." Fluid Dynamics Research 28, no. 4 (April 2001):
        295-310. doi:10.1016/S0169-5983(00)00034-4.
     '''
-    term = (Re*(Di/Dc)**2)**-0.2
+    Di_Dc = Di/Dc
+    term = (Re*Di_Dc*Di_Dc)**-0.2
     return 0.3*1.0/sqrt(Dc/Di)*term*(1. + 0.112*term)
 
 
