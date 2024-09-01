@@ -371,8 +371,8 @@ def Chisholm_voidage(x, rhol, rhog):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    S = sqrt(1 - x*(1-rhol/rhog))
-    alpha = (1 + (1-x)/x*rhog/rhol*S)**-1
+    S = sqrt(1.0 - x*(1.0-rhol/rhog))
+    alpha = 1.0/(1.0 + (1.0-x)/x*rhog/rhol*S)
     return alpha
 
 
