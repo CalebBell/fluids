@@ -1018,10 +1018,11 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1.0):
        doi:10.1016/j.powtec.2017.08.024.
     '''
     #  2 < D/d < 3, particles in contact with the wall tend to form a highly ordered ring structure.
-    Rem = dp*rho*vs/mu/(1-voidage)
+    holdup = 1.0 - voidage
+    Rem = dp*rho*vs/(mu*holdup)
     ratio = dp/Dt if Dt is not None else 3.5 # Never ran
-    fv = 180 + (9.5374*ratio - 2.8054)*Rem**0.97
-    return fv*(mu*vs*L/dp**2)*(1-voidage)**2/voidage**3
+    fv = 180.0 + (9.5374*ratio - 2.8054)*Rem**0.97
+    return fv*(mu*vs*L/(dp*dp))*holdup*holdup/(voidage*voidage*voidage)
 
 
 
