@@ -1619,7 +1619,7 @@ def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
     G = m/(0.25*pi*D*D)
     C0 = 1.2
     vgm = 0.35*sqrt(g*D)
-    return x/(rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G))
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
 def Gregory_Scott(x, rhol, rhog):
@@ -1673,7 +1673,7 @@ def Gregory_Scott(x, rhol, rhog):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     C0 = 1.19
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol))**-1
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol)))
 
 
 def Dix(x, rhol, rhog, sigma, m, D, g=g):
