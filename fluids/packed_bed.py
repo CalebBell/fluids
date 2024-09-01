@@ -1253,8 +1253,8 @@ def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
     '''
-    return 0.1504 + 0.2024/sphericity + 1.0814/(Dt/Dpe + 0.1226)**2
-
+    x1 = Dt/Dpe + 0.1226
+    return 0.1504 + 0.2024/sphericity + 1.0814/(x1*x1)
 
 def voidage_Benyahia_Oneil_spherical(Dp, Dt):
     r'''Calculates voidage of a bed of spheres
