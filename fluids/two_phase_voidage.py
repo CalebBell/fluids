@@ -968,14 +968,14 @@ def Tandon_Varma_Gupta(x, rhol, rhog, mul, mug, m, D):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    G = m/(pi/4*D**2)
+    G = m/(0.25*pi*D*D)
     Rel = G*D/mul
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
-    Fxtt = 0.15*(Xtt**-1 + 2.85*Xtt**-0.476)
-    if Rel < 1125:
-        alpha = 1 - 1.928*Rel**-0.315/Fxtt + 0.9293*Rel**-0.63/Fxtt**2
+    Fxtt = 0.15*(1.0/Xtt + 2.85*Xtt**-0.476)
+    if Rel < 1125.0:
+        alpha = 1.0 - 1.928*Rel**-0.315/Fxtt + 0.9293*Rel**-0.63/(Fxtt*Fxtt)
     else:
-        alpha = 1 - 0.38*Rel**-0.088/Fxtt + 0.0361*Rel**-0.176/Fxtt**2
+        alpha = 1.0 - 0.38*Rel**-0.088/Fxtt + 0.0361*Rel**-0.176/(Fxtt*Fxtt)
     return alpha
 
 
