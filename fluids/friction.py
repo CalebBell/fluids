@@ -2633,7 +2633,8 @@ def helical_turbulent_fd_Prasad(Re, Di, Dc,roughness=0):
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
     '''
     fd = friction_factor(Re=Re, eD=roughness/Di)
-    return fd*(1. + 0.18*sqrt(sqrt(Re*(Di/Dc)**2)))
+    Di_Dc = Di/Dc
+    return fd*(1. + 0.18*sqrt(sqrt(Re*Di_Dc*Di_Dc)))
 
 
 def helical_turbulent_fd_Czop (Re, Di, Dc):
