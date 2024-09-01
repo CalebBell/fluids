@@ -1170,8 +1170,8 @@ def Haaland(Re, eD):
        in Turbulent Pipe Flow." Journal of Fluids Engineering 105, no. 1
        (March 1, 1983): 89-90. doi:10.1115/1.3240948.
     '''
-    ff = (-3.6*log10(6.9/Re +(eD/3.7)**1.11))**-2
-    return 4*ff
+    term = (-3.6*log10(6.9/Re +(eD*(1.0/3.7))**1.11))
+    return 4.0/(term*term)
 
 
 def Serghides_1(Re, eD):
