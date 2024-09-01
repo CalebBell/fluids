@@ -427,7 +427,7 @@ def Turner_Wallis(x, rhol, rhog, mul, mug):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    return (1 + ((1-x)/x)**0.72 * (rhog/rhol)**0.4 * (mul/mug)**0.08)**-1
+    return 1.0/(1.0 + ((1.0-x)/x)**0.72 * (rhog/rhol)**0.4 * (mul/mug)**0.08)
 
 
 ### Models using the Homogeneous flow model
