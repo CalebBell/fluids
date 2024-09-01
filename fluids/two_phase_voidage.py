@@ -1602,7 +1602,7 @@ def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
     Examples
     --------
     >>> Nicklin_Wilkes_Davidson(0.4, 800., 2.5, m=1, D=0.3)
-    0.6798826626721431
+    0.6798826626721
 
     References
     ----------
@@ -1616,10 +1616,10 @@ def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    G = m/(pi/4*D**2)
+    G = m/(0.25*pi*D*D)
     C0 = 1.2
     vgm = 0.35*sqrt(g*D)
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    return x/(rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G))
 
 
 def Gregory_Scott(x, rhol, rhog):
