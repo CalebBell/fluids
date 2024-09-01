@@ -268,9 +268,9 @@ def Smith(x, rhol, rhog):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
     K = 0.4
-    x_ratio = (1-x)/x
-    root = sqrt((rhol/rhog + K*x_ratio) / (1 + K*x_ratio))
-    alpha = (1 + (x_ratio) * (rhog/rhol) * (K + (1-K)*root))**-1
+    x_ratio = (1.0-x)/x
+    root = sqrt((rhol/rhog + K*x_ratio) / (1.0 + K*x_ratio))
+    alpha = 1.0/(1.0 + (x_ratio) * (rhog/rhol) * (K + (1.0-K)*root))
     return alpha
 
 
