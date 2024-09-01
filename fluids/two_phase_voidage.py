@@ -1426,10 +1426,10 @@ def Steiner(x, rhol, rhog, sigma, m, D, g=g):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    G = m/(pi/4*D**2)
-    C0 = 1 + 0.12*(1-x)
-    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    G = m/(0.25*pi*D*D)
+    C0 = 1.0 + 0.12*(1.0-x)
+    vgm = 1.18*(1.0-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
 def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
