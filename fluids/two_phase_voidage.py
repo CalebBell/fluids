@@ -162,7 +162,7 @@ def Thom(x, rhol, rhog, mul, mug):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    return (1 + (1-x)/x * (rhog/rhol)**0.89 * (mul/mug)**0.18)**-1
+    return 1.0/(1.0 + (1.0-x)/x * (rhog/rhol)**0.89 * (mul/mug)**0.18)
 #    return x*((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6/(x*(((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6 - 1) + 1)
 
 
