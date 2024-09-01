@@ -928,7 +928,7 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
     Custom example:
 
     >>> Montillet_Akkari_Comiti(dp=0.0008, voidage=0.4, L=0.5, vs=0.00132629120, rho=1000., mu=1.00E-003)
-    1148.1905244077548
+    1148.19052440
 
     References
     ----------
@@ -951,8 +951,8 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
         Dterm = 2.2
     else:
         Dterm = (Dt/dp)**0.2
-    right = a*Dterm*(1000./Re + 60/sqrt(Re) + 12)
-    left = dp/L/rho/vs**2*voidage**3/(1-voidage)
+    right = a*Dterm*(1000./Re + 60.0/sqrt(Re) + 12.0)
+    left = dp/(L*rho*vs*vs*(1.0-voidage))*voidage*voidage*voidage
     return right/left
 
 
