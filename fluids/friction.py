@@ -1742,8 +1742,9 @@ def Brkic_2011_2(Re, eD):
        Engineering 77, no. 1 (April 2011): 34-48.
        doi:10.1016/j.petrol.2011.02.006.
     '''
-    beta = log(Re/(1.816*log(1.1*Re/log(1+1.1*Re))))
-    return (-2*log10(2.18*beta/Re + eD/3.71))**-2
+    beta = log(Re/(1.816*log(1.1*Re/log(1.0+1.1*Re))))
+    term = (-2.0*log10(2.18*beta/Re + eD*(1.0/3.71)))
+    return 1.0/(term*term)
 
 
 def Fang_2011(Re, eD):
