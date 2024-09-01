@@ -1357,12 +1357,13 @@ def Kopte_Newell_Chato(x, rhol, rhog, m, D, g=g):
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
        1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     '''
-    G = m/(pi/4*D**2)
-    Ft = sqrt(G**2*x**3/((1-x)*rhog**2*g*D))
+    G = m/(0.25*pi*D*D)
+    Ft = sqrt(G*G*x*x*x/((1.0-x)*rhog*rhog*g*D))
     if Ft < 0.044:
         return homogeneous(x, rhol, rhog)
     else:
-        return 1.045 - exp(-1 - 0.342*log(Ft) - 0.0268*log(Ft)**2 + 0.00597*log(Ft)**3)
+        log_Ft = log(Ft)
+        return 1.045 - exp(-1 - 0.342*log_Ft - 0.0268*log_Ft*log_Ft + 0.00597*log_Ft*log_Ft*log_Ft)
 
 ### Drift flux models
 
