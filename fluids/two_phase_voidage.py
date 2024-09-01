@@ -1036,11 +1036,12 @@ def Harms(x, rhol, rhog, mul, mug, m, D):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    G = m/(pi/4*D**2)
-    Rel = G*D*(1-x)/mul
+    G = m/(0.25*pi*D*D)
+    Rel = G*D*(1.0-x)/mul
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
-    return (1 - 10.06*Rel**-0.875*(1.74 + 0.104*sqrt(Rel))**2
-            *1.0/sqrt(1.376 + 7.242/Xtt**1.655))
+    term = (1.74 + 0.104*sqrt(Rel))
+    return (1 - 10.06*Rel**-0.875*term*term
+            *1.0/sqrt(1.376 + 7.242*Xtt**-1.655))
 
 
 def Domanski_Didion(x, rhol, rhog, mul, mug):
