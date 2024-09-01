@@ -1547,7 +1547,7 @@ def Buzzelli_2008(Re, eD):
     Examples
     --------
     >>> Buzzelli_2008(1E5, 1E-4)
-    0.018513948401365277
+    0.018513948401
 
     References
     ----------
@@ -1559,8 +1559,9 @@ def Buzzelli_2008(Re, eD):
        Mach. Des. 80, 54-55 (2008)
     '''
     B1 = (.774*log(Re)-1.41)/(1.0 + 1.32*sqrt(eD))
-    B2 = eD/3.7*Re + 2.51*B1
-    return (B1- (B1+2*log10(B2/Re))/(1+2.18/B2))**-2
+    B2 = eD*(1.0/3.7)*Re + 2.51*B1
+    term = (B1- (B1+2.0*log10(B2/Re))/(1.0+2.18/B2))
+    return 1.0/(term*term)
 
 
 def Avci_Karagoz_2009(Re, eD):
