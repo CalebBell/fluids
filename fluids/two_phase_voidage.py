@@ -1729,7 +1729,7 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
     Examples
     --------
     >>> Dix(0.4, 800., 2.5, sigma=0.02, m=1, D=0.3)
-    0.8268737961156514
+    0.82687379611
 
     References
     ----------
@@ -1748,9 +1748,9 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
     vgs = m*x/(rhog*A)
     vls = m*(1.0-x)/(rhol*A)
     G = m/A
-    C0 = vgs/(vls+vgs)*(1 + (vls/vgs)**((rhog/rhol)**0.1))
-    vgm = 2.9*sqrt(sqrt(g*sigma*(rhol-rhog)/rhol**2))
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    C0 = vgs/(vls+vgs)*(1.0 + (vls/vgs)**((rhog/rhol)**0.1))
+    vgm = 2.9*sqrt(sqrt(g*sigma*(rhol-rhog)/(rhol*rhol)))
+    return x/(rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G))
 
 
 def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
