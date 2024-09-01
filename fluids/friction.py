@@ -884,7 +884,7 @@ def Chen_1979(Re, eD):
     Examples
     --------
     >>> Chen_1979(1E5, 1E-4)
-    0.018552817507472126
+    0.0185528175074
 
     References
     ----------
@@ -896,9 +896,9 @@ def Chen_1979(Re, eD):
        Pipe." Industrial & Engineering Chemistry Fundamentals 18, no. 3
        (August 1, 1979): 296-97. doi:10.1021/i160071a019.
     '''
-    A4 = eD**1.1098/2.8257 + (7.149/Re)**0.8981
-    ff = (-4*log10(eD/3.7065 - 5.0452/Re*log10(A4)))**-2
-    return 4*ff
+    A4 = eD**1.1098*(1.0/2.8257) + (7.149/Re)**0.8981
+    term = (-4.0*log10(eD*(1.0/3.7065) - 5.0452/Re*log10(A4)))
+    return 4.0/(term*term)
 
 
 def Round_1980(Re, eD):
