@@ -4301,8 +4301,8 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i, D_i=None):
     '''
     if D_i is None:
         D_i = D
-    A_i = pi/4*D_i**2
-    A_o = pi/4*D**2
+    A_i = 0.25*pi*D_i*D_i
+    A_o = 0.25*pi*D*D
 
     Q_i = m/rho_i
     v_i = Q_i/A_i
@@ -4312,7 +4312,7 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i, D_i=None):
 
     rho_avg = 0.5*(rho_o + rho_i)
 
-    return 0.5*rho_avg*(v_o**2 - v_i**2)
+    return 0.5*rho_avg*(v_o*v_o - v_i*v_i)
     # return 0.5*rho_o*v_o**2 - 0.5*rho_i*v_i**2
     # G = m/(pi*D*D)
     # G_i = m/(pi*D_i*D_i)
