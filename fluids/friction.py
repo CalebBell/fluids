@@ -1412,8 +1412,8 @@ def Romeo_2002(Re, eD):
        Pipes." Chemical Engineering Journal 86, no. 3 (April 28, 2002): 369-74.
        doi:10.1016/S1385-8947(01)00254-6.
     '''
-    fd = (-2*log10(eD/3.7065-5.0272/Re*log10(eD/3.827-4.567/Re*log10((eD/7.7918)**0.9924+(5.3326/(208.815+Re))**0.9345))))**-2
-    return fd
+    term = (-2.0*log10(eD*(1.0/3.7065)-5.0272/Re*log10(eD*(1.0/3.827)-4.567/Re*log10((eD*(1.0/7.7918))**0.9924+(5.3326/(208.815+Re))**0.9345))))
+    return 1.0/(term*term)
 
 
 def Sonnad_Goudar_2006(Re, eD):
