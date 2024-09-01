@@ -1508,7 +1508,8 @@ def Rao_Kumar_2007(Re, eD):
        Division of Mechanical Sciences, Civil Engineering Indian Institute of
        Science Bangalore, India ID Code 9587 (2007)
     '''
-    beta = 1 - 0.55*exp(-0.33*(log(Re/6.5))**2)
+    term = (log(Re/6.5))
+    beta = 1.0 - 0.55*exp(-0.33*term*term)
     return (2*log10((2*eD)**-1/beta/((0.444+0.135*Re)/Re)))**-2
 
 
