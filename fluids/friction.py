@@ -1321,7 +1321,7 @@ def Tsal_1989(Re, eD):
     .. [2] Tsal, R.J.: Altshul-Tsal friction factor equation.
        Heat-Piping-Air Cond. 8, 30-45 (1989)
     '''
-    A = 0.11*sqrt(sqrt(68/Re + eD))
+    A = 0.11*sqrt(sqrt(68.0/Re + eD))
     if A >= 0.018:
         return A
     else:
@@ -1366,7 +1366,7 @@ def Manadilli_1997(Re, eD):
     .. [2] 	Manadilli, G.: Replace implicit equations with signomial functions.
        Chem. Eng. 104, 129 (1997)
     '''
-    return (-2*log10(eD/3.7 + 95/Re**0.983 - 96.82/Re))**-2
+    return (-2.0*log10(eD*(1.0/3.7) + 95.0*Re**-0.983 - 96.82/Re))**-2
 
 
 def Romeo_2002(Re, eD):
