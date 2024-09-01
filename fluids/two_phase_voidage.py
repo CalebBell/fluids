@@ -2531,7 +2531,8 @@ def Fourar_Bories(x, mul, mug, rhol, rhog):
     rhom = 1./(x/rhog + (1. - x)/rhol)
     nul = mul/rhol # = nu_mu_converter(rho=rhol, mu=mul)
     nug = mug/rhog # = nu_mu_converter(rho=rhog, mu=mug)
-    return rhom*(sqrt(x*nug) + sqrt((1. - x)*nul))**2
+    term = (sqrt(x*nug) + sqrt((1. - x)*nul))
+    return rhom*term*term
 
 
 def Duckler(x, mul, mug, rhol, rhog):
