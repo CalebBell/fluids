@@ -1491,10 +1491,10 @@ def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    G = m/(pi/4*D**2)
-    C0 = 1 + 0.2*(1-x)
+    G = m/(0.25*pi*D*D)
+    C0 = 1.0 + 0.2*(1-x)
     vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    return x/(rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G))
 
 
 def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
