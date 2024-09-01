@@ -1303,7 +1303,7 @@ def Huq_Loth(x, rhol, rhog):
     return 1.0 - 2.0*term*term/(1.0 - 2.0*x + D)
 
 
-def Kopte_Newell_Chato(x, rhol, rhog, mul, mug, m, D, g=g):
+def Kopte_Newell_Chato(x, rhol, rhog, m, D, g=g):
     r'''Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_.
 
@@ -1325,10 +1325,6 @@ def Kopte_Newell_Chato(x, rhol, rhog, mul, mug, m, D, g=g):
         Density of the liquid [kg/m^3]
     rhog : float
         Density of the gas [kg/m^3]
-    mul : float
-        Viscosity of liquid [Pa*s]
-    mug : float
-        Viscosity of gas [Pa*s]
     m : float
         Mass flow rate of both phases, [kg/s]
     D : float
@@ -1348,7 +1344,7 @@ def Kopte_Newell_Chato(x, rhol, rhog, mul, mug, m, D, g=g):
 
     Examples
     --------
-    >>> Kopte_Newell_Chato(.4, 800, 2.5, 1E-3, 1E-5, m=1, D=0.3)
+    >>> Kopte_Newell_Chato(.4, 800, 2.5, m=1, D=0.3)
     0.6864466770087425
 
     References
@@ -1969,7 +1965,7 @@ two_phase_voidage_correlations = {'Thom' : (Thom, ('x', 'rhol', 'rhog', 'mul', '
 'Graham' : (Graham, ('x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D', 'g')),
 'Yashar' : (Yashar, ('x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D', 'g')),
 'Huq_Loth' : (Huq_Loth, ('x', 'rhol', 'rhog')),
-'Kopte_Newell_Chato' : (Kopte_Newell_Chato, ('x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D', 'g')),
+'Kopte_Newell_Chato' : (Kopte_Newell_Chato, ('x', 'rhol', 'rhog', 'm', 'D', 'g')),
 'Steiner' : (Steiner, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g')),
 'Rouhani 1' : (Rouhani_1, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g')),
 'Rouhani 2' : (Rouhani_2, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g')),
@@ -2151,7 +2147,7 @@ def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
     elif Method2 == "Huq_Loth":
         return Huq_Loth(x=x, rhol=rhol, rhog=rhog)
     elif Method2 == "Kopte_Newell_Chato":
-        return Kopte_Newell_Chato(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, m=m, D=D, g=g)
+        return Kopte_Newell_Chato(x=x, rhol=rhol, rhog=rhog, m=m, D=D, g=g)
     elif Method2 == "Steiner":
         return Steiner(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, g=g)
     elif Method2 == "Rouhani 1":
