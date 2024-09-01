@@ -693,7 +693,7 @@ def Guzhov(x, rhol, rhog, m, D):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     rho_tp = 1.0/((1-x)/rhol + x/rhog)
-    G = m/(pi/4*D**2)
+    G = m/(0.25*pi*D*D)
     V_tp = G/rho_tp
     Fr = Froude(V=V_tp, L=D, squared=True) # squaring in undone later; Fr**0.5
     alpha_h = homogeneous(x, rhol, rhog)
