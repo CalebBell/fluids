@@ -1604,7 +1604,7 @@ def Avci_Karagoz_2009(Re, eD):
        Friction Factor in Smooth and Rough Pipes." Journal of Fluids
        Engineering 131, no. 6 (2009): 061203. doi:10.1115/1.3129132.
     '''
-    return 6.4*(log(Re) - log(1 + 0.01*Re*eD*(1+10*sqrt(eD))))**-2.4
+    return 6.4*(log(Re) - log(1.0 + 0.01*Re*eD*(1.0+10.0*sqrt(eD))))**-2.4
 
 
 def Papaevangelo_2010(Re, eD):
@@ -1648,7 +1648,8 @@ def Papaevangelo_2010(Re, eD):
        Corfu, Greece: University of Ioannina Greece and Stevens Institute of
        Technology New Jersey (2010)
     '''
-    return (0.2479-0.0000947*(7-log(Re))**4)/(log10(eD/3.615 + 7.366/Re**0.9142))**2
+    x1 = (7.0-log(Re))
+    return (0.2479-0.0000947*x1*x1*x1*x1)/(log10(eD*(1.0/3.615) + 7.366*Re**-0.9142))**2
 
 
 def Brkic_2011_1(Re, eD):
