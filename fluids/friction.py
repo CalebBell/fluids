@@ -1649,7 +1649,8 @@ def Papaevangelo_2010(Re, eD):
        Technology New Jersey (2010)
     '''
     x1 = (7.0-log(Re))
-    return (0.2479-0.0000947*x1*x1*x1*x1)/(log10(eD*(1.0/3.615) + 7.366*Re**-0.9142))**2
+    term = (log10(eD*(1.0/3.615) + 7.366*Re**-0.9142))
+    return (0.2479-0.0000947*x1*x1*x1*x1)/(term*term)
 
 
 def Brkic_2011_1(Re, eD):
