@@ -264,7 +264,7 @@ def test_splev():
 def test_bisplev():
     from scipy.interpolate import bisplev
 
-    from fluids.numerics import bisplev as my_bisplev
+    from fluids.numerics import py_bisplev as my_bisplev
 
     tck = [np.array([0.0, 0.0, 0.0, 0.0, 0.0213694, 0.0552542, 0.144818,
                                      0.347109, 0.743614, 0.743614, 0.743614, 0.743614]),

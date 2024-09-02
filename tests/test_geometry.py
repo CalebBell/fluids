@@ -855,13 +855,15 @@ def test_SA_from_h_basics():
     with pytest.raises(ValueError):
         SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideB='conical', sideA='NOTASIDE', sideA_a=2., sideB_a=1.)
 
-    # height above tank height
-    with pytest.raises(ValueError):
-        SA_from_h(h=70, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
 
     # height above tank height
-    with pytest.raises(ValueError):
-        SA_from_h(h=15, D=1.5, L=5., horizontal=True, sideA=None, sideB=None)
+    assert_close(SA_from_h(h=15, D=1.5, L=5., horizontal=True, sideA=None, sideB=None),
+                 SA_from_h(h=1.5, D=1.5, L=5., horizontal=True, sideA=None, sideB=None),)
+
+
+    assert_close(SA_from_h(h=70, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
+                SA_from_h(h=8, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
+
 
 
     assert_close(SA_from_h(h=1.5, D=1.5, L=5., horizontal=True, sideA=None, sideB=None),

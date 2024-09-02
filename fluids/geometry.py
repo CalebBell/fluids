@@ -2959,6 +2959,8 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
     R = 0.5*D
     SA = 0.0
     if horizontal:
+        if h > D:
+            h = D
         # Conical case
         if sideA == 'conical':
             SA += SA_partial_horiz_conical_head(D, sideA_a, h)
@@ -2995,10 +2997,11 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
             SA += A_partial_circle(D, h)
         if sideB is None:
             SA += A_partial_circle(D, h)
-        if h > D: # Must be before Af, which will raise a domain error
-            raise ValueError('Input height is above top of tank')
         SA += L*D*acos((D - h - h)/D)
     else:
+        max_h = L + sideA_a + sideB_a
+        if h > max_h:
+            h = max_h
         # Bottom head
         if sideA in ('conical', 'ellipsoidal', 'torispherical', 'spherical'):
             if sideA == 'conical':
@@ -3052,8 +3055,6 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
             elif sideB is None and h == sideA_a + L:
                 # End cap if flat
                 SA += 0.25*pi*D*D
-        if h > L + sideA_a + sideB_a:
-            raise ValueError('Input height is above top of tank')
     return SA
 
 def tank_from_two_specs_err(guess, spec0, spec1, spec0_name, spec1_name,
