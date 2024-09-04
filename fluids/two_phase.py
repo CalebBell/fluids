@@ -85,7 +85,7 @@ from math import cos, exp, log, log10, pi, radians, sin, sqrt
 from fluids.constants import deg2rad, g
 from fluids.core import Bond, Confinement, Froude, Reynolds, Suratman, Weber
 from fluids.friction import friction_factor
-from fluids.numerics import implementation_optimize_tck, splev
+from fluids.numerics import implementation_optimize_tck, splev, cbrt
 from fluids.two_phase_voidage import Lockhart_Martinelli_Xtt, homogeneous
 
 Beggs_Brill_dat = {'segregated': (0.98, 0.4846, 0.0868),
@@ -120,7 +120,8 @@ def _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV):
         C = 0.0
 
     # Correction factor for inclination angle
-    Psi = 1.0 + C*(sin(1.8*angle) - 1.0/3.0*sin(1.8*angle)**3)
+    x1 = sin(1.8*angle)
+    Psi = 1.0 + C*x1*(1.0 - (1.0/3.0)*x1*x1)
     if (angle > 0 and regime == 3) or angle == 0:
         Psi = 1.0
     Hl = HL0*Psi
@@ -357,25 +358,26 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
         In Conventional and Miniature Systems. Cambridge University Press, 2007.
     '''
     # Liquid-only properties, for calculation of E, dP_lo
-    v_lo = m/rhol/(pi/4*D**2)
+    A = 0.25*pi*D*D
+    v_lo = m/(A*rhol)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
 
     # Gas-only properties, for calculation of E
-    v_go = m/rhog/(pi/4*D**2)
+    v_go = m/(rhog*A)
     Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
     fd_go = friction_factor(Re=Re_go, eD=roughness/D)
 
     F = x**0.78*(1-x)**0.224
-    H = (rhol/rhog)**0.91*(mug/mul)**0.19*(1 - mug/mul)**0.7
-    E = (1-x)**2 + x**2*(rhol*fd_go/(rhog*fd_lo))
+    H = (rhol/rhog)**0.91*(mug/mul)**0.19*(1.0 - mug/mul)**0.7
+    E = (1.0-x)*(1.0-x) + x*x*(rhol*fd_go/(rhog*fd_lo))
 
     # Homogeneous properties, for Froude/Weber numbers
     voidage_h = homogeneous(x, rhol, rhog)
-    rho_h = rhol*(1-voidage_h) + rhog*voidage_h
+    rho_h = rhol*(1.0-voidage_h) + rhog*voidage_h
     Q_h = m/rho_h
-    v_h = Q_h/(pi/4*D**2)
+    v_h = Q_h/A
 
     Fr = Froude(V=v_h, L=D, squared=True) # checked with (m/(pi/4*D**2))**2/g/D/rho_h**2
     We = Weber(V=v_h, L=D, rho=rho_h, sigma=sigma) # checked with (m/(pi/4*D**2))**2*D/sigma/rho_h
@@ -458,21 +460,22 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     .. [4] Thome, John R. "Engineering Data Book III." Wolverine Tube Inc
        (2004). http://www.wlv.com/heat-transfer-databook/
     '''
-    G = m/(pi/4*D**2)
+    G = m/(0.25*pi*D*D)
     V = G/rhol
     Frl = Froude(V=V, L=D, squared=True)
     if Frl >= 1:
-        f_Fr = 1
+        f_Fr = 1.0
     else:
-        f_Fr = Frl**0.3 + 0.0055*(log(1./Frl))**2
-    dP_dL_Fr = f_Fr*(x + 4*(x**1.8 - x**10*sqrt(f_Fr)))
-    phi_gd = 1 + dP_dL_Fr*((rhol/rhog)/sqrt(sqrt(mul/mug)) - 1)
+        term = (log(1./Frl))
+        f_Fr = Frl**0.3 + 0.0055*term*term
+    dP_dL_Fr = f_Fr*(x + 4.0*(x**1.8 - x**10.0*sqrt(f_Fr)))
+    phi_gd = 1.0 + dP_dL_Fr*((rhol/rhog)/sqrt(sqrt(mul/mug)) - 1.0)
 
     # Liquid-only properties, for calculation of E, dP_lo
-    v_lo = m/rhol/(pi/4*D**2)
+    v_lo = m/(rhol*(0.25*pi*D*D))
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
     return phi_gd*dP_lo
 
 
@@ -566,7 +569,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
     --------
     >>> Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
     ... mug=14E-6, D=0.05, roughness=0.0, L=1.0)
-    1084.1489922923738
+    1084.148992292
 
     References
     ----------
@@ -584,42 +587,44 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
        Engineering Science 20, no. 6 (December 1, 1978): 353-354.
        doi:10.1243/JMES_JOUR_1978_020_061_02.
     '''
-    G_tp = m/(pi/4*D**2)
+    A = 0.25*pi*D*D
+    G_tp = m/A
     n = 0.25 # Blasius friction factor exponent
     # Liquid-only properties, for calculation of dP_lo
-    v_lo = m/rhol/(pi/4*D**2)
+    v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
 
     # Gas-only properties, for calculation of dP_go
-    v_go = m/rhog/(pi/4*D**2)
+    v_go = m/(rhog*A)
     Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
     fd_go = friction_factor(Re=Re_go, eD=roughness/D)
-    dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
+    dP_go = fd_go*L/D*(0.5*rhog*v_go*v_go)
 
     Gamma = sqrt(dP_go/dP_lo)
     if Gamma <= 9.5:
-        if G_tp <= 500:
+        if G_tp <= 500.0:
             B = 4.8
-        elif G_tp < 1900:
+        elif G_tp < 1900.0:
             B = 2400./G_tp
         else:
             B = 55.0/sqrt(G_tp)
-    elif Gamma <= 28:
-        if G_tp <= 600:
+    elif Gamma <= 28.0:
+        if G_tp <= 600.0:
             B = 520./sqrt(G_tp)/Gamma
         else:
             B = 21./Gamma
     else:
-        B = 15000./sqrt(G_tp)/Gamma**2
+        B = 15000./(Gamma*Gamma*sqrt(G_tp))
 
     if rough_correction:
         n = log(fd_lo/fd_go)/log(Re_go/Re_lo)
-        B_ratio = (0.5*(1 + (mug/mul)**2 + 10**(-600*roughness/D)))**((0.25-n)/0.25)
+        mu_ratio = mug/mul
+        B_ratio = (0.5*(1.0 + mu_ratio*mu_ratio + 10**(-600.0*roughness/D)))**((0.25-n)*4.0)
         B = B*B_ratio
 
-    phi2_ch = 1 + (Gamma**2-1)*(B*x**((2-n)/2.)*(1-x)**((2-n)/2.) + x**(2-n))
+    phi2_ch = 1.0 + (Gamma*Gamma-1.0)*(B*x**((2-n)*0.5)*(1.0-x)**((2.0-n)*0.5) + x**(2.0-n))
     return phi2_ch*dP_lo
 
 
@@ -689,7 +694,7 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     --------
     >>> Baroczy_Chisholm(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
     ... mug=14E-6, D=0.05, roughness=0.0, L=1.0)
-    1084.1489922923738
+    1084.148992292
 
     References
     ----------
@@ -703,28 +708,29 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        Correlations for Isothermal Two-Phase Horizontal Flow." Thesis, Oklahoma
        State University, 2013. https://shareok.org/handle/11244/11109.
     '''
-    G_tp = m/(pi/4*D**2)
+    A = 0.25*pi*D*D
+    G_tp = m/A
     n = 0.25 # Blasius friction factor exponent
     # Liquid-only properties, for calculation of dP_lo
-    v_lo = m/rhol/(pi/4*D**2)
+    v_lo = m/(A*rhol)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
 
     # Gas-only properties, for calculation of dP_go
-    v_go = m/rhog/(pi/4*D**2)
+    v_go = m/(A*rhog)
     Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
     fd_go = friction_factor(Re=Re_go, eD=roughness/D)
-    dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
+    dP_go = fd_go*L/D*(0.5*rhog*v_go*v_go)
 
     Gamma = sqrt(dP_go/dP_lo)
     if Gamma <= 9.5:
         B = 55.0/sqrt(G_tp)
     elif Gamma <= 28:
-        B = 520./sqrt(G_tp)/Gamma
+        B = 520./(sqrt(G_tp)*Gamma)
     else:
-        B = 15000./sqrt(G_tp)/Gamma**2
-    phi2_ch = 1 + (Gamma**2-1)*(B*x**((2-n)/2.)*(1-x)**((2-n)/2.) + x**(2-n))
+        B = 15000./(sqrt(G_tp)*(Gamma*Gamma))
+    phi2_ch = 1.0 + (Gamma*Gamma-1.0)*(B*x**((2.0-n)*0.5)*(1.0-x)**((2.0-n)*0.5) + x**(2.0-n))
     return phi2_ch*dP_lo
 
 
@@ -774,7 +780,7 @@ def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     --------
     >>> Muller_Steinhagen_Heck(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
     ... mug=14E-6, D=0.05, roughness=0.0, L=1.0)
-    793.4465457435081
+    793.446545743
 
     References
     ----------
@@ -788,20 +794,21 @@ def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     .. [3] Thome, John R. "Engineering Data Book III." Wolverine Tube Inc
        (2004). http://www.wlv.com/heat-transfer-databook/
     '''
+    A = 0.25*pi*D*D
     # Liquid-only properties, for calculation of dP_lo
-    v_lo = m/rhol/(pi/4*D**2)
+    v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
 
     # Gas-only properties, for calculation of dP_go
-    v_go = m/rhog/(pi/4*D**2)
+    v_go = m/(rhog*A)
     Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
     fd_go = friction_factor(Re=Re_go, eD=roughness/D)
-    dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
+    dP_go = fd_go*L/D*(0.5*rhog*v_go*v_go)
 
-    G_MSH = dP_lo + 2*(dP_go - dP_lo)*x
-    return G_MSH*(1-x)**(1/3.) + dP_go*x**3
+    G_MSH = dP_lo + 2.0*(dP_go - dP_lo)*x
+    return G_MSH*cbrt(1.0-x)+ dP_go*x*x*x
 
 
 def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1.0):
@@ -859,8 +866,8 @@ def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1.0):
        487-506. doi:10.1080/01457632.2015.1060733.
     '''
     voidage_h = homogeneous(x, rhol, rhog)
-    rho_h = rhol*(1-voidage_h) + rhog*voidage_h
-    G_tp = m/(pi/4*D**2)
+    rho_h = rhol*(1.0-voidage_h) + rhog*voidage_h
+    G_tp = m/(0.25*pi*D*D)
     return 0.83*G_tp**1.4*sigma**0.4*L/(D**1.2*rho_h**0.866)
 
 
@@ -943,17 +950,18 @@ def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        Horizontal Tube. Comparison with Correlations." Heat and Mass Transfer
        42, no. 8 (April 6, 2006): 709-725. doi:10.1007/s00231-005-0020-7.
     '''
+    A = 0.25*pi*D*D
     # Liquid-only flow
-    v_lo = m/rhol/(pi/4*D**2)
+    v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
 
     # Gas-only flow
-    v_go = m/rhog/(pi/4*D**2)
+    v_go = m/(rhog*A)
     Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
     fd_go = friction_factor(Re=Re_go, eD=roughness/D)
-    dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
+    dP_go = fd_go*L/D*(0.5*rhog*v_go*v_go)
 
     # Handle x = 0, x=1:
     if x == 0:
@@ -962,23 +970,24 @@ def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
         return dP_go
 
     # Actual Liquid flow
-    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    v_l = m*(1.0-x)/(rhol*A)
     Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
     fd_l = friction_factor(Re=Re_l, eD=roughness/D)
-    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l*v_l)
 
     # Actual gas flow
-    v_g = m*x/rhog/(pi/4*D**2)
+    v_g = m*x/(rhog*A)
     Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
     fd_g = friction_factor(Re=Re_g, eD=roughness/D)
-    dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+    dP_g = fd_g*L/D*(0.5*rhog*v_g*v_g)
 
     # The model
     n1 = log(dP_l/dP_lo)/log(1.-x)
     n2 = log(dP_g/dP_go)/log(x)
-    n = (n1 + n2*(dP_g/dP_l)**0.1)/(1 + (dP_g/dP_l)**0.1)
-    epsilon = 3 - 2*(2*sqrt(rhol/rhog)/(1.+rhol/rhog))**(0.7/n)
-    dP = (dP_lo**(1./(n*epsilon))*(1-x)**(1./epsilon)
+    ratio = (dP_g/dP_l)**0.1
+    n = (n1 + n2*ratio)/(1.0 + ratio)
+    epsilon = 3.0 - 2.0*(2.0*sqrt(rhol/rhog)/(1.+rhol/rhog))**(0.7/n)
+    dP = (dP_lo**(1./(n*epsilon))*(1.0-x)**(1./epsilon)
           + dP_go**(1./(n*epsilon))*x**(1./epsilon))**(n*epsilon)
     return dP
 
@@ -1046,10 +1055,11 @@ def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        Tubes." Mathematical Modelling in Civil Engineering 10, no. 4 (2015):
        19-27. doi:10.2478/mmce-2014-0019.
     '''
-    v_lo = m/rhol/(pi/4*D**2)
+    A = 0.25*pi*D*D
+    v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
 
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
     phi_tp2 = 12.82*Xtt**-1.47*(1.-x)**1.8
@@ -1108,7 +1118,7 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     --------
     >>> Tran(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
-    423.2563312951232
+    423.2563312951
 
     References
     ----------
@@ -1127,21 +1137,22 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        International Journal of Refrigeration 31, no. 1 (January 2008): 119-29.
        doi:10.1016/j.ijrefrig.2007.06.006.
     '''
+    A = 0.25*pi*D*D
     # Liquid-only properties, for calculation of dP_lo
-    v_lo = m/rhol/(pi/4*D**2)
+    v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
 
     # Gas-only properties, for calculation of dP_go
-    v_go = m/rhog/(pi/4*D**2)
+    v_go = m/(rhog*A)
     Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
     fd_go = friction_factor(Re=Re_go, eD=roughness/D)
-    dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
+    dP_go = fd_go*L/D*(0.5*rhog*v_go*v_go)
 
     Gamma2 = dP_go/dP_lo
     Co = Confinement(D=D, rhol=rhol, rhog=rhog, sigma=sigma)
-    phi_lo2 = 1 + (4.3*Gamma2 -1)*(Co*x**0.875*(1-x)**0.875 + x**1.75)
+    phi_lo2 = 1.0 + (4.3*Gamma2 - 1.0)*(Co*x**0.875*(1.0-x)**0.875 + x**1.75)
     return dP_lo*phi_lo2
 
 
@@ -1209,7 +1220,7 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     --------
     >>> Chen_Friedel(m=.0005, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5,
     ... sigma=0.02, D=0.003, roughness=0.0, L=1.0)
-    6249.247540588871
+    6249.247540
 
     References
     ----------
@@ -1227,25 +1238,26 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        International Journal of Refrigeration 31, no. 1 (January 2008): 119-29.
        doi:10.1016/j.ijrefrig.2007.06.006.
     '''
+    A = 0.25*pi*D*D
     # Liquid-only properties, for calculation of E, dP_lo
-    v_lo = m/rhol/(pi/4*D**2)
+    v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
 
     # Gas-only properties, for calculation of E
-    v_go = m/rhog/(pi/4*D**2)
+    v_go = m/(rhog*A)
     Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
     fd_go = friction_factor(Re=Re_go, eD=roughness/D)
 
-    F = x**0.78*(1-x)**0.224
+    F = x**0.78*(1.0-x)**0.224
     H = (rhol/rhog)**0.91*(mug/mul)**0.19*(1 - mug/mul)**0.7
-    E = (1-x)**2 + x**2*(rhol*fd_go/(rhog*fd_lo))
+    E = (1.0-x)*(1.0-x) + x*x*(rhol*fd_go/(rhog*fd_lo))
 
     # Homogeneous properties, for Froude/Weber numbers
-    rho_h = 1./(x/rhog + (1-x)/rhol)
+    rho_h = 1./(x/rhog + (1.0-x)/rhol)
     Q_h = m/rho_h
-    v_h = Q_h/(pi/4*D**2)
+    v_h = Q_h/A
 
     Fr = Froude(V=v_h, L=D, squared=True) # checked with (m/(pi/4*D**2))**2/g/D/rho_h**2
     We = Weber(V=v_h, L=D, rho=rho_h, sigma=sigma) # checked with (m/(pi/4*D**2))**2*D/sigma/rho_h
@@ -1260,9 +1272,9 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
 
     if Bo < 2.5:
         # Actual gas flow, needed for this case only.
-        v_g = m*x/rhog/(pi/4*D**2)
+        v_g = m*x/(rhog*A)
         Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
-        Omega = 0.0333*Re_lo**0.45/(Re_g**0.09*(1 + 0.5*exp(-Bo)))
+        Omega = 0.0333*Re_lo**0.45/(Re_g**0.09*(1.0 + 0.5*exp(-Bo)))
     else:
         Omega = We**0.2/(2.5 + 0.06*Bo)
     return dP*Omega
@@ -1330,12 +1342,13 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1.0):
        doi:10.1016/j.ijrefrig.2007.06.006.
     '''
     # Liquid-only properties, for calculation of dP_lo
-    v_lo = m/rhol/(pi/4*D**2)
+    A = 0.25*pi*D*D
+    v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
     Pr = 0.5 if (Pc is None or P is None) else P/Pc
-    phi_lo2 = (1-x)**2 + 2.87*x**2/Pr + 1.68*x**0.8*sqrt(sqrt(1-x))*Pr**-1.64
+    phi_lo2 = (1.0-x)*(1.0-x) + 2.87*x*x/Pr + 1.68*x**0.8*sqrt(sqrt(1-x))*Pr**-1.64
     return dP_lo*phi_lo2
 
 
@@ -1406,14 +1419,15 @@ def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        Correlations for Isothermal Two-Phase Horizontal Flow." Thesis, Oklahoma
        State University, 2013. https://shareok.org/handle/11244/11109.
     '''
+    A = 0.25*pi*D*D
     # Liquid-only properties, for calculation of dP_lo
-    v_lo = m/rhol/(pi/4*D**2)
+    v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
 
     gamma = (0.71 + 2.35*rhog/rhol)/(1. + (1.-x)/x*rhog/rhol)
-    phi_Bf = 1./(1.-x)*(1 - gamma*(1 - rhog/rhol))**(3/7.)*(1. + x*(rhol/rhog -1.))
+    phi_Bf = 1./(1.-x)*(1.0 - gamma*(1.0 - rhog/rhol))**(3.0/7.)*(1. + x*(rhol/rhog -1.))
     return dP_lo*phi_Bf**(7/4.)
 
 
@@ -1477,7 +1491,7 @@ def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     --------
     >>> Xu_Fang(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
-    604.0595632116267
+    604.059563211
 
     References
     ----------
@@ -1485,22 +1499,22 @@ def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        Pressure Drop for Condensing Flow in Pipes." Nuclear Engineering and
        Design 263 (October 2013): 87-96. doi:10.1016/j.nucengdes.2013.04.017.
     '''
-    A = pi/4*D*D
+    A = 0.25*pi*D*D
     # Liquid-only properties, for calculation of E, dP_lo
-    v_lo = m/rhol/A
+    v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
     fd_lo = friction_factor(Re=Re_lo, eD=roughness/D)
-    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo**2)
+    dP_lo = fd_lo*L/D*(0.5*rhol*v_lo*v_lo)
 
     # Gas-only properties, for calculation of E
-    v_go = m/rhog/A
+    v_go = m/(rhog*A)
     Re_go = Reynolds(V=v_go, rho=rhog, mu=mug, D=D)
     fd_go = friction_factor(Re=Re_go, eD=roughness/D)
-    dP_go = fd_go*L/D*(0.5*rhog*v_go**2)
+    dP_go = fd_go*L/D*(0.5*rhog*v_go*v_go)
 
     # Homogeneous properties, for Froude/Weber numbers
     voidage_h = homogeneous(x, rhol, rhog)
-    rho_h = rhol*(1-voidage_h) + rhog*voidage_h
+    rho_h = rhol*(1.0-voidage_h) + rhog*voidage_h
 
     Q_h = m/rho_h
     v_h = Q_h/A
@@ -1509,7 +1523,7 @@ def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     We = Weber(V=v_h, L=D, rho=rho_h, sigma=sigma)
     Y2 = dP_go/dP_lo
 
-    phi_lo2 = Y2*x**3 + (1-x**2.59)**0.632*(1 + 2*x**1.17*(Y2-1)
+    phi_lo2 = Y2*x*x*x + (1.0-x**2.59)**0.632*(1.0 + 2.0*x**1.17*(Y2-1.0)
             + 0.00775*x**-0.475*Fr**0.535*We**0.188)
 
     return phi_lo2*dP_lo
@@ -1580,17 +1594,18 @@ def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
     '''
+    A = 0.25*pi*D*D
     # Actual Liquid flow
-    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    v_l = m*(1.0-x)/(rhol*A)
     Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
     fd_l = friction_factor(Re=Re_l, eD=roughness/D)
-    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l*v_l)
 
     # Actual gas flow
-    v_g = m*x/rhog/(pi/4*D**2)
+    v_g = m*x/(rhog*A)
     Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
 
-    X = 18.65*sqrt(rhog/rhol)*(1-x)/x*Re_g**0.1/sqrt(Re_l)
+    X = 18.65*sqrt(rhog/rhol)*(1.0-x)/x*Re_g**0.1/sqrt(Re_l)
     phi_l2 = X**-1.9
     return phi_l2*dP_l
 
@@ -1648,7 +1663,7 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     --------
     >>> Wang_Chiang_Lu(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
     ... mug=14E-6, D=0.05, roughness=0.0, L=1.0)
-    448.29981978639137
+    448.2998197863
 
     References
     ----------
@@ -1666,30 +1681,31 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
     '''
-    G_tp = m/(pi/4*D**2)
+    A = 0.25*pi*D*D
+    G_tp = m/A
 
     # Actual Liquid flow
-    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    v_l = m*(1.0-x)/(rhol*A)
     Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
     fd_l = friction_factor(Re=Re_l, eD=roughness/D)
-    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l*v_l)
 
     # Actual gas flow
-    v_g = m*x/rhog/(pi/4*D**2)
+    v_g = m*x/(rhog*A)
     Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
     fd_g = friction_factor(Re=Re_g, eD=roughness/D)
-    dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+    dP_g = fd_g*L/D*(0.5*rhog*v_g*v_g)
 
     X = sqrt(dP_l/dP_g)
 
-    if G_tp >= 200:
-        phi_g2 = 1 + 9.397*X**0.62 + 0.564*X**2.45
+    if G_tp >= 200.0:
+        phi_g2 = 1.0 + 9.397*X**0.62 + 0.564*X**2.45
     else:
         # Liquid-only flow; Re_lo is oddly needed
-        v_lo = m/rhol/(pi/4*D**2)
+        v_lo = m/(rhol*A)
         Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
         C = 0.000004566*X**0.128*Re_lo**0.938*(rhol/rhog)**-2.15*(mul/mug)**5.1
-        phi_g2 = 1 + C*X + X**2
+        phi_g2 = 1 + C*X + X*X
     return dP_g*phi_g2
 
 
@@ -1764,27 +1780,28 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
     '''
+    A = 0.25*pi*D*D
     # Liquid-only flow
-    v_lo = m/rhol/(pi/4*D**2)
+    v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
 
     # Actual Liquid flow
-    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    v_l = m*(1.0-x)/(rhol*A)
     Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
     fd_l = friction_factor(Re=Re_l, eD=roughness/D)
-    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l*v_l)
 
     # Actual gas flow
-    v_g = m*x/rhog/(pi/4*D**2)
+    v_g = m*x/(rhog*A)
     Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
     fd_g = friction_factor(Re=Re_g, eD=roughness/D)
-    dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+    dP_g = fd_g*L/D*(0.5*rhog*v_g*v_g)
 
     # Actual model
     X = sqrt(dP_l/dP_g)
     Co = Confinement(D=D, rhol=rhol, rhog=rhog, sigma=sigma)
     C = 0.227*Re_lo**0.452*X**-0.320*Co**-0.820
-    phi_l2 = 1 + C/X + 1./X**2
+    phi_l2 = 1 + C/X + 1./(X*X)
     return dP_l*phi_l2
 
 
@@ -1874,16 +1891,17 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
     '''
     # Actual Liquid flow
-    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    A = 0.25*pi*D*D
+    v_l = m*(1.0-x)/(rhol*A)
     Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
     fd_l = friction_factor(Re=Re_l, eD=roughness/D)
-    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l*v_l)
 
     # Actual gas flow
-    v_g = m*x/rhog/(pi/4*D**2)
+    v_g = m*x/(rhog*A)
     Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
     fd_g = friction_factor(Re=Re_g, eD=roughness/D)
-    dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+    dP_g = fd_g*L/D*(0.5*rhog*v_g*v_g)
 
     # Actual model
     X = sqrt(dP_l/dP_g)
@@ -1899,7 +1917,7 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
         raise ValueError("Only flow types 'adiabatic vapor', 'adiabatic gas, \
 and 'flow boiling' are recognized.")
 
-    phi_l2 = 1 + C/X + 1./X**2
+    phi_l2 = 1 + C/X + 1./(X*X)
     return dP_l*phi_l2
 
 
@@ -1954,7 +1972,7 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     --------
     >>> Mishima_Hibiki(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
     ... mug=14E-6, sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
-    732.4268200606265
+    732.4268200606
 
     References
     ----------
@@ -1972,22 +1990,23 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
     '''
+    A = 0.25*pi*D*D
     # Actual Liquid flow
-    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    v_l = m*(1.0-x)/(rhol*A)
     Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
     fd_l = friction_factor(Re=Re_l, eD=roughness/D)
-    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l*v_l)
 
     # Actual gas flow
-    v_g = m*x/rhog/(pi/4*D**2)
+    v_g = m*x/(rhog*A)
     Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
     fd_g = friction_factor(Re=Re_g, eD=roughness/D)
-    dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+    dP_g = fd_g*L/D*(0.5*rhog*v_g*v_g)
 
     # Actual model
     X = sqrt(dP_l/dP_g)
-    C = 21*(1 - exp(-0.319E3*D))
-    phi_l2 = 1 + C/X + 1./X**2
+    C = 21*(1.0 - exp(-0.319E3*D))
+    phi_l2 = 1.0 + C/X + 1./(X*X)
     return dP_l*phi_l2
 
 def friction_factor_Kim_Mudawar(Re):
@@ -2091,7 +2110,7 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
     --------
     >>> Kim_Mudawar(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... sigma=0.0487, D=0.05, L=1.0)
-    840.4137796786074
+    840.41377967
 
     References
     ----------
@@ -2106,25 +2125,26 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
     '''
+    A = 0.25*pi*D*D
     # Actual Liquid flow
-    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    v_l = m*(1.0-x)/(rhol*A)
     Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
     fd_l = friction_factor_Kim_Mudawar(Re=Re_l)
-    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l*v_l)
 
     # Actual gas flow
-    v_g = m*x/rhog/(pi/4*D**2)
+    v_g = m*x/(rhog*A)
     Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
     fd_g = friction_factor_Kim_Mudawar(Re=Re_g)
-    dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
+    dP_g = fd_g*L/D*(0.5*rhog*v_g*v_g)
 
     # Liquid-only flow
-    v_lo = m/rhol/(pi/4*D**2)
+    v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
 
     Su = Suratman(L=D, rho=rhog, mu=mug, sigma=sigma)
     X = sqrt(dP_l/dP_g)
-    Re_c = 2000 # Transition Reynolds number
+    Re_c = 2000.0 # Transition Reynolds number
 
     if Re_l < Re_c and Re_g < Re_c:
         C = 3.5E-5*Re_lo**0.44*sqrt(Su)*(rhol/rhog)**0.48
@@ -2135,7 +2155,7 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
     else: # Turbulent case
         C = 0.39*Re_lo**0.03*Su**0.10*(rhol/rhog)**0.35
 
-    phi_l2 = 1 + C/X + 1./X**2
+    phi_l2 = 1 + C/X + 1./(X*X)
     return dP_l*phi_l2
 
 
@@ -2222,7 +2242,7 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
     --------
     >>> Lockhart_Martinelli(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6,
     ... mug=14E-6, D=0.05, L=1.0)
-    716.4695654888484
+    716.469565488
 
     References
     ----------
@@ -2242,9 +2262,10 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
        55, no. 11-12 (May 2012): 3246-61.
        doi:10.1016/j.ijheatmasstransfer.2012.02.047.
     '''
-    v_l = m*(1-x)/rhol/(pi/4*D**2)
+    A = 0.25*pi*D*D
+    v_l = m*(1.0-x)/(rhol*A)
     Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
-    v_g = m*x/rhog/(pi/4*D**2)
+    v_g = m*x/(rhog*A)
     Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
 
     if Re_l < Re_c and Re_g < Re_c:
@@ -2263,16 +2284,16 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
     x_only_vapor_tol = 1e-13
     fd_g =  64./Re_g if Re_g < Re_c else 0.184*Re_g**-0.2
     dP_g = fd_g*L/D*(0.5*rhog*v_g**2)
-    if x > 1 - x_only_vapor_tol:
+    if x > 1.0 - x_only_vapor_tol:
         return dP_g
     fd_l =  64./Re_l if Re_l < Re_c else 0.184*Re_l**-0.2
-    dP_l = fd_l*L/D*(0.5*rhol*v_l**2)
+    dP_l = fd_l*L/D*(0.5*rhol*v_l*v_l)
     if x < x_only_liquid_tol:
         return dP_l
 
     X = sqrt(dP_l/dP_g)
 
-    phi_l2 = 1 + C/X + 1./X**2
+    phi_l2 = 1 + C/X + 1./(X*X)
     return dP_l*phi_l2
 
 
@@ -2442,7 +2463,7 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
     --------
     >>> two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... sigma=0.0487, D=0.05, L=1.0)
-    840.4137796786074
+    840.4137796786
     '''
     if Method is None:
         if rhog is not None and mul is not None and mug is not None and sigma is not None:
@@ -2593,13 +2614,13 @@ def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
     '''
-    G = 4*m/(pi*D*D)
+    G = 4.0*m/(pi*D*D)
     if rho_lo is None:
         rho_lo = rho_li
     if rho_go is None:
         rho_go = rho_gi
-    in_term = (1.-xi)**2/(rho_li*(1.-alpha_i)) + xi*xi/(rho_gi*alpha_i)
-    out_term = (1.-xo)**2/(rho_lo*(1.-alpha_o)) + xo*xo/(rho_go*alpha_o)
+    in_term = (1.-xi)*(1.-xi)/(rho_li*(1.-alpha_i)) + xi*xi/(rho_gi*alpha_i)
+    out_term = (1.-xo)*(1.-xo)/(rho_lo*(1.-alpha_o)) + xo*xo/(rho_go*alpha_o)
     return G*G*(out_term - in_term)
 
 
@@ -2775,7 +2796,7 @@ def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
     angle = radians(angle)
     in_term = alpha_i*rho_gi + (1. - alpha_i)*rho_li
     out_term = alpha_o*rho_go + (1. - alpha_o)*rho_lo
-    return g*z*sin(angle)*(out_term + in_term)/2.
+    return g*z*sin(angle)*(out_term + in_term)*0.5
 
 
 def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
