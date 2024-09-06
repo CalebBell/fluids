@@ -2397,7 +2397,7 @@ def brenth(f, xa, xb, args=(),
     else:
         fcur = fb
 
-    if fpre*fcur > 0.0:
+    if fpre*fcur > 0.0 or isnan(fpre) or isnan(fcur):
         raise NotBoundedError("f(a) and f(b) must have different signs")
     elif fpre == 0.0:
         return xa
