@@ -166,8 +166,8 @@ def test_drag_sphere():
     with pytest.raises(Exception):
         drag_sphere(200, Method='BADMETHOD')
 
-    with pytest.raises(Exception):
-        drag_sphere(1E7)
+    # for now, use a limiting number of Re = 1e6 and truncate input
+    assert_close(drag_sphere(1E7), drag_sphere(1e6))
 
 
     methods = drag_sphere_methods(3E5, True)

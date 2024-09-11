@@ -179,7 +179,7 @@ def Barati_high(Re):
 
     Notes
     -----
-    Range is Re <= 1E6
+    Range is Re <= 1E6. If Re is larger than 1e6 it is limited to 1e6.
     This model is the wider-range model the authors developed.
     At sufficiently low diameters or Re values, drag is no longer a phenomena.
 
@@ -198,6 +198,8 @@ def Barati_high(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     '''
+    if Re > 1e6:
+        Re = 1e6
     Re2 = Re*Re
     t0 = 1.0/Re
     t1 = Re*(1.0/6530.)
@@ -1207,10 +1209,8 @@ def drag_sphere(Re, Method=None):
             # Smooth transition point between the two models
             if Re <= 212963.26847812787:
                 return Barati(Re)
-            elif Re <= 1E6:
-                return Barati_high(Re)
             else:
-                raise ValueError('No models implement a solution for Re > 1E6')
+                return Barati_high(Re)
         elif Re >= 0.01:
             # Re from 0.01 to 0.1
             ratio = (Re - 0.01)/(0.1 - 0.01)
@@ -1417,7 +1417,7 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
             else:
                 v_term = v_term_base*(1.0 - tol)
             numerator = term + 18.*mu*v_term
-            return log(numerator/denominator)*const
+            return log((numerator/denominator))*const
         except:
             tol = tol + tol
             if tol > 0.01:
