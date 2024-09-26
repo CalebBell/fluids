@@ -938,15 +938,15 @@ def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(), b
     return gradient
 
 
-def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, args=(), **kwargs):
+def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, base=None, args=(), **kwargs):
     # Takes n**2/2 + 3*n/2 + 1 function evaluations! Can still be quite fast.
     # For scalar - returns list[list], size of input variables
     # For vector - returns list of list of list - size of input variables * input variables * output variables
     # Could add backwards/complex, multiple evaluations, detection of poor condition
     # types and limits, jacobian as output, fevals
 
-
-    base = f(x0, *args, **kwargs)
+    if base is None:
+        base = f(x0, *args, **kwargs)
     nx = len(x0)
 
     if not isinstance(base, (float, int, complex)):

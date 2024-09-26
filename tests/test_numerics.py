@@ -40,6 +40,8 @@ from fluids.numerics import (
     chebval_ln_tau_and_der3,
     cumsum,
     derivative,
+    hessian,
+    assert_close3d,
     exp_cheb,
     exp_cheb_and_der,
     exp_cheb_and_der2,
@@ -1583,3 +1585,45 @@ def test_argsort1d():
 
     # infinities and nan behavior does not match
     # check_argsort1d([-np.inf, np.inf, np.nan, 0, -1], [0, 4, 3, 2, 1], "Failed with infinities and NaN")
+
+
+def test_hessian():
+    def f(x):
+        return x[0]**2 + x[1]**2
+
+    x0 = [1.0, 2.0]
+    result = hessian(f, x0, perturbation=1e-4)
+    expected = [[2.0, 0.0], [0.0, 2.0]]
+    assert_close2d(result, expected)
+
+
+    def f(x):
+        return 1000*sin(x[0]) + 4000*cos(x[1])
+
+    x0 = [.3, .7]
+    result = hessian(f, x0, perturbation=1e-6)
+    expected = [[-296.1312838005886, 0.0], [0.0, -3055.5183310366906]]
+    assert_close2d(result, expected, rtol=0.1)
+
+
+
+
+    def f(x):
+        return x[0]**2 + 2*x[1]**2 + x[0]*x[1]
+
+    x0 = [1.0, 1.0]
+    result = hessian(f, x0, full=False, perturbation=1e-4)
+    expected = [[2.0], [1.0, 4.0]]
+    assert_close1d(result[0], expected[0])
+    assert_close1d(result[1], expected[1])
+
+
+    def f(x):
+        return [x[0]**2 - x[1], x[0]*x[1]]
+
+    x0 = [1.0, 1.0]
+    result = hessian(f, x0, scalar=False, perturbation=1e-4)
+    expected = [[[2.0, 0.0], [0.0, 1.0]], [[0.0, 1.0], [0.0, 0.0]]]
+    assert_close3d(result, expected, rtol=1e-5)
+
+
