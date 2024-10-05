@@ -26,7 +26,7 @@ __all__ = ['polyint', 'polyint_over_x', 'polyder', 'quadratic_from_points',
 'deflate_cubic_real_roots',  'exp_poly_ln_tau_coeffs3', 'exp_poly_ln_tau_coeffs2',
 'polynomial_offset_scale', 'stable_poly_to_unstable',
 'polyint_stable',
-'polyint_over_x_stable',
+'polyint_over_x_stable', 'poly_convert',
 ]
 from fluids.numerics.special import comb
 
@@ -356,3 +356,42 @@ def polyint_over_x_stable(coeffs, xmin, xmax):
         terms.append(term)
     terms.reverse()
     return terms, log_coeff
+
+def poly_convert(coeffs, Tmin, Tmax):
+    # from numpy.polynomial.polynomial import Polynomial
+    # return Polynomial(coeffs).convert(domain=(Tmin, Tmax)).coef.tolist()
+    off = (Tmin + Tmax) / 2.0
+    scl = (Tmax - Tmin) / 2.0
+    degree_P = len(coeffs) - 1
+    Q_coeffs = [0.0] * (degree_P + 1)
+
+    # Precompute binomial coefficients up to degree_P
+    binomials = []
+    for i in range(degree_P + 1):
+        row = [1.0]
+        c = 1.0
+        for k in range(1, i + 1):
+            c *= (i - k + 1) / k
+            row.append(c)
+        binomials.append(row)
+
+    # Precompute powers of off up to degree_P
+    off_powers = [1.0]
+    for _ in range(degree_P):
+        off_powers.append(off_powers[-1] * off)
+
+    # Precompute powers of scl up to degree_P
+    scl_powers = [1.0]
+    for _ in range(degree_P):
+        scl_powers.append(scl_powers[-1] * scl)
+
+    for i in range(len(coeffs)):
+        coeff_i = coeffs[i]
+        binom_coeffs = binomials[i]
+        for k in range(i + 1):
+            off_power = off_powers[i - k]
+            scl_power = scl_powers[k]
+            term = coeff_i * binom_coeffs[k] * off_power * scl_power
+            Q_coeffs[k] += term
+    return Q_coeffs
+

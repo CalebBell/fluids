@@ -35,7 +35,8 @@ from fluids.numerics import (
     quadratic_from_points,
     stable_poly_to_unstable,
     polyint_stable,
-    polyint_over_x_stable
+    polyint_over_x_stable,
+    poly_convert,
 )
 
 try:
@@ -520,3 +521,96 @@ def test_polyint_over_x_stable_real_precise():
     coeffs_fixed = [float(v) for v in fixed]
 
     assert_close1d(coeffs_fixed, int_T_coeffs_expect, rtol=3e-15)
+
+
+def test_poly_convert():
+    coeffs = [1, 2, 3, 4]
+    Tmin, Tmax = 0, 1
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [3.25, 4.0, 2.25, 0.5]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [1, -1, 1]
+    Tmin, Tmax = -1, 1
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [1.0, -1.0, 1.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [1, 0, 0, 1]
+    Tmin, Tmax = 0, 100
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [125001.0, 375000.0, 375000.0, 125000.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [1, 2, 3, 4, 5]
+    Tmin, Tmax = -10, 10
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [1.0, 20.0, 300.0, 4000.0, 50000.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [0.1, 0.2, 0.3]
+    Tmin, Tmax = 0, 5
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [2.475, 4.25, 1.875]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [10, 20, 30]
+    Tmin, Tmax = 100, 1000
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [9086010.0, 14859000.0, 6075000.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [1e-05, 2e-05, 3e-05]
+    Tmin, Tmax = -1000, 1000
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [1e-05, 0.02, 30.000000000000004]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [1]
+    Tmin, Tmax = -3.141592653589793, 3.141592653589793
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [1.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    Tmin, Tmax = 0, 10
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [21362305.0, 187683105.0, 733375550.0, 1672744750.0, 2454221250.0, 2401906250.0, 1567984375.0, 658359375.0, 161328125.0, 17578125.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [1, -1, 1, -1, 1]
+    Tmin, Tmax = -100, 100
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [1.0, -100.0, 10000.0, -1000000.0, 100000000.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [1.0, 0.5, 0.3333333333333333, 0.25]
+    Tmin, Tmax = 0.1, 1.0
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [1.4174270833333333, 0.4920937500000001, 0.15103125, 0.022781250000000003]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [2.718281828459045, 3.141592653589793]
+    Tmin, Tmax = -10, 10
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [2.718281828459045, 31.41592653589793]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [0, 0, 0, 1]
+    Tmin, Tmax = -1, 1
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [0.0, 0.0, 0.0, 1.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [1, 10, 100, 1000]
+    Tmin, Tmax = 1, 1000
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [125400430156.0, 375424629570.0, 374649575400.0, 124625374875.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    coeffs = [1, 2, 3]
+    Tmin, Tmax = 251.165, 2000.0
+    result = poly_convert(coeffs, Tmin, Tmax)
+    expected = [3803060.0579187497, 5907123.0491625, 2293817.89291875]
+    assert_close1d(result, expected, rtol=1e-13)
+

@@ -48,7 +48,7 @@ from fluids.numerics.polynomial_evaluation import (horner, horner_and_der, horne
  )
 
 from fluids.numerics.polynomial_utils import (polyint, polyint_over_x, polyder, quadratic_from_points, quadratic_from_f_ders, deflate_cubic_real_roots,
-exp_poly_ln_tau_coeffs3, exp_poly_ln_tau_coeffs2, polynomial_offset_scale, stable_poly_to_unstable, polyint_stable, polyint_over_x_stable)
+exp_poly_ln_tau_coeffs3, exp_poly_ln_tau_coeffs2, polynomial_offset_scale, stable_poly_to_unstable, polyint_stable, polyint_over_x_stable, poly_convert)
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_and_der3', 'quadratic_from_f_ders', 'chebval', 'interp',
@@ -123,7 +123,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'sort_nelder_mead_points_numba', 'sort_nelder_mead_points_python', 
            'bounds_clip_naive', 'nelder_mead', 'cbrt',
            'polyint_stable', 'polyint_over_x_stable',
-           'argsort1d',
+           'argsort1d', 'poly_convert',
            ]
 
 from fluids.numerics import doubledouble
