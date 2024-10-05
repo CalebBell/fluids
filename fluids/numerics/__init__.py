@@ -1509,31 +1509,39 @@ def chebint(c, m=1, lbnd=0, scl=1):
         raise ValueError("Negative integration error not allowed")
     if cnt == 0:
         return c
-    n = len(c)
-    c2 = [0.0]*n # Make a copy of c
-    for i in range(n):
-        c2[i] = c[i]
-    c = c2
-
-    for i in range(cnt):
-        n = len(c)
-        for o in range(n):
-            c[o] *= scl
-        if n == 1 and c[0] == 0:
-            continue
+    n0 = len(c)
+    if n0 == 1 and c[0] == 0.0:
+        return c
+    nmax = n0 + cnt # Maximum size after integrations
+    c0 = [0.0] * nmax  # Pre-allocate c0 and tmp with maximum needed size
+    tmp = [0.0] * nmax
+    # Copy initial coefficients into c0
+    c0[:n0] = c[:]
+    n = n0  # Current length of c0
+    for _ in range(cnt):
+        # Scale c0 if necessary
+        if scl != 1:
+            for i in range(n):
+                c0[i] *= scl
+        if n == 1 and c0[0] == 0:
+            # Special case where c0 is zero
+            pass
         else:
-            tmp = [0.0]*(n+1)
-            tmp[1] = c[0]
+            tmp[1] = c0[0]
             if n > 1:
-                tmp[2] = 0.25*c[1]
+                tmp[2] = 0.25 * c0[1]
             for j in range(2, n):
-                cval = c[j]
-                tmp[j + 1] = cval/(2.0*(j + 1.0))
-                tmp[j - 1] -= cval/(2.0*(j - 1.0))
-            # Scale is handled separately
-            tmp[0] -= chebval(lbnd, tmp)
-            c = tmp
-    return c
+                cval = c0[j]
+                tmp[j + 1] = cval / (2.0 * (j + 1))
+                tmp[j - 1] -= cval / (2.0 * (j - 1))
+            val = chebval(lbnd, tmp)
+            tmp[0] -= val
+            # Swap c0 and tmp for next iteration
+            c0, tmp = tmp, c0
+            n += 1  # Degree increases by 1 after integration
+    return c0
+
+
 
 def binary_search(key, arr, size=None):
     if size is None:
