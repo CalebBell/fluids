@@ -1481,15 +1481,14 @@ def chebder(c, m=1, scl=1.0):
     a new chebyshev seriese to be evaluated by chebval.
     """
     c = list(c)
-    cnt = int(m)
-    if cnt == 0:
+    if m == 0:
         return c
 
     n = len(c)
-    if cnt >= n:
+    if m >= n:
         return []
     
-    for i in range(cnt):
+    for _ in range(m):
         n = n - 1
         if scl != 1.0:
             for j in range(n+1):
