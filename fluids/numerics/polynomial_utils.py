@@ -358,40 +358,25 @@ def polyint_over_x_stable(coeffs, xmin, xmax):
     return terms, log_coeff
 
 def poly_convert(coeffs, Tmin, Tmax):
-    # from numpy.polynomial.polynomial import Polynomial
-    # return Polynomial(coeffs).convert(domain=(Tmin, Tmax)).coef.tolist()
-    off = (Tmin + Tmax) / 2.0
-    scl = (Tmax - Tmin) / 2.0
+    off = 0.5*(Tmin + Tmax)
+    scl = 0.5*(Tmax - Tmin)
     degree_P = len(coeffs) - 1
     Q_coeffs = [0.0] * (degree_P + 1)
 
-    # Precompute binomial coefficients up to degree_P
-    binomials = []
-    for i in range(degree_P + 1):
-        row = [1.0]
-        c = 1.0
-        for k in range(1, i + 1):
-            c *= (i - k + 1) / k
-            row.append(c)
-        binomials.append(row)
-
-    # Precompute powers of off up to degree_P
+    # Precompute powers of off and scl up to degree_P
     off_powers = [1.0]
-    for _ in range(degree_P):
-        off_powers.append(off_powers[-1] * off)
-
-    # Precompute powers of scl up to degree_P
     scl_powers = [1.0]
     for _ in range(degree_P):
+        off_powers.append(off_powers[-1] * off)
         scl_powers.append(scl_powers[-1] * scl)
 
     for i in range(len(coeffs)):
         coeff_i = coeffs[i]
-        binom_coeffs = binomials[i]
+        binom = 1.0
         for k in range(i + 1):
-            off_power = off_powers[i - k]
-            scl_power = scl_powers[k]
-            term = coeff_i * binom_coeffs[k] * off_power * scl_power
+            term = coeff_i * binom * off_powers[i - k] * scl_powers[k]
             Q_coeffs[k] += term
+            binom *= (i - k) / (k + 1.0)
+
     return Q_coeffs
 
