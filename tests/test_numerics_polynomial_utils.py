@@ -369,6 +369,125 @@ def test_polyint_over_x_stable_simple():
     assert_close(log_coeff_expect, log_coeff_expect, rtol=1e-13)
     assert_close1d(int_over_x_coeffs, int_over_x_coeffs_expect, rtol=1e-13)
 
+    coeffs = [1, 2, 3, 4, 5, 6]
+    xmin, xmax = 251.165, 2000.0
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [3.9123328133529204e-16, -1.8970302735986266e-12, 4.622646341408311e-09, -5.905414280620714e-06, 0.0071812547510319395, 0.0]
+    expected_log_coeff = 1.749905045767787
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [1]
+    xmin, xmax = 0, 1
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [0.0]
+    expected_log_coeff = 1.0
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [1, 2]
+    xmin, xmax = -1, 1
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [1.0, 0.0]
+    expected_log_coeff = 2.0
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [0, 0, 1]
+    xmin, xmax = 0, 100
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [0.0, 0.0, 0.0]
+    expected_log_coeff = 1.0
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [1, -1, 1, -1, 1]
+    xmin, xmax = -10, 10
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [2.5000000000000008e-05, -0.00033333333333333343, 0.005000000000000001, -0.1, 0.0]
+    expected_log_coeff = 1.0
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [0.1, 0.2, 0.3, 0.4, 0.5]
+    xmin, xmax = 0, 5
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [0.0006400000000000003, -0.004266666666666668, 0.024000000000000004, 4.4408920985006264e-17, 0.0]
+    expected_log_coeff = 0.29999999999999993
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [10, 20, 30, 40, 50]
+    xmin, xmax = 100, 1000
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [6.096631611034904e-11, -1.05674947924605e-07, 0.00011431184270690446, -0.03718945282731293, 0.0]
+    expected_log_coeff = 31.72534674592288
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [1e-05, 2e-05, 3e-05, 4e-05]
+    xmin, xmax = -1000, 1000
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [3.333333333333334e-15, 1.0000000000000001e-11, 3.0000000000000004e-08, 0.0]
+    expected_log_coeff = 4e-05
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [1, 0, 0, 0, 1]
+    xmin, xmax = -3.141592653589793, 3.141592653589793
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [0.0025664955636710844, 0.0, 0.0, 0.0, 0.0]
+    expected_log_coeff = 1.0
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    xmin, xmax = 0, 10
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [0.0, 3.2000000000000017e-07, -1.0971428571428577e-05, 0.0001813333333333334, -0.0017920000000000008, 0.012000000000000004, -0.053333333333333344, 0.20000000000000004, 0.0, 0.0]
+    expected_log_coeff = 5.0
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [1, -1, 1, -1, 1, -1, 1, -1]
+    xmin, xmax = -100, 100
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [1.4285714285714287e-15, -1.666666666666667e-13, 2.0000000000000002e-11, -2.5000000000000005e-09, 3.333333333333334e-07, -5e-05, 0.01, 0.0]
+    expected_log_coeff = -1.0
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [1.0, 0.5, 0.3333333333333333, 0.25, 0.2, 0.16666666666666666]
+    xmin, xmax = 0.1, 1.0
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [10.838456197395386, -34.20887737302919, 46.92148328789087, -36.41636606885808, 19.086081051330257, 0.0]
+    expected_log_coeff = -1.9245702721468616
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [2.718281828459045, 3.141592653589793, 2.718, 3.142]
+    xmin, xmax = -10, 10
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [0.0009060939428196819, 0.015707963267948967, 0.2718, 0.0]
+    expected_log_coeff = 3.142
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [0, 0, 0, 0, 0, 1]
+    xmin, xmax = -1, 1
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    expected_log_coeff = 1.0
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
+
+    coeffs = [1, 10, 100, 1000, 10000]
+    xmin, xmax = 1, 1000
+    int_over_x_coeffs, log_coeff = polyint_over_x_stable(coeffs, xmin, xmax)
+    expected_int_over_x_coeffs = [4.016040080140224e-12, 1.6026677279812922e-08, 0.00015223228836852077, 1.6530445801958276, 0.0]
+    expected_log_coeff = 9089.346650907131
+    assert_close1d(int_over_x_coeffs, expected_int_over_x_coeffs, rtol=1e-13)
+    assert_close(log_coeff, expected_log_coeff, rtol=1e-13)
 
 def test_polyint_over_x_stable_real():
     int_over_x_coeffs_expect = [-1.2322441102026994e-72, 3.575470736932928e-68, -4.9223708612288747e-64, 4.277576156314128e-60, -2.6333674644719005e-56, 1.2218089960807912e-52, -4.437607286601807e-49, 1.2935905647823088e-45, -3.0786333426941215e-42, 6.052509795894643e-39, -9.907217102698286e-36, 1.3567568865208235e-32, -1.5579127525009192e-29, 1.499553966471978e-26, -1.2065502962399921e-23, 8.069449660788723e-21, -4.445415598884699e-18, 1.9901372278914136e-15, -7.100819961746428e-13, 1.9642027689940838e-10, -4.050907926020504e-08, 5.890729117069776e-06, -0.0005458412005135644, 0.022571673162274146, 0.0]
