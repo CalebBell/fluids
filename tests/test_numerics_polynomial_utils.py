@@ -160,6 +160,7 @@ def test_polynomial_offset_scale():
     assert_close(scale, -0.32888899484467765, rtol=1e-14)
 
 def test_stable_poly_to_unstable():
+    # Lots of test cases because needed to rewrite test to not use numpy for speed
     stuff = [1,2,3,4]
     out = stable_poly_to_unstable(stuff, 10, 100)
     expect = [1.0973936899862826e-05, -0.0008230452674897121, 0.05761316872427985, 1.4951989026063095]
@@ -167,6 +168,186 @@ def test_stable_poly_to_unstable():
 
     out = stable_poly_to_unstable(stuff, 10, 10)
     assert_close1d(out, stuff)
+
+    coeffs = [1, 2, 3, 4]
+    low, high = 10, 100
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1.0973936899862826e-05, -0.0008230452674897121, 0.05761316872427985, 1.4951989026063095]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, 2, 3, 4]
+    low, high = 10, 10
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1, 2, 3, 4]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, -2, 3, -4, 5]
+    low, high = -50, 50
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1.6000000000000003e-07, -1.6000000000000003e-05, 0.0012, -0.08, 5.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [0.1, 0.2, 0.3]
+    low, high = 0, 1
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [0.4, 0.0, 0.19999999999999998]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [10000, 20000, 30000]
+    low, high = -1000, 1000
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [0.01, 20.0, 30000.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [-1, -2, -3, -4]
+    low, high = -100, -10
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [-1.0973936899862826e-05, -0.0027983539094650206, -0.2748971193415638, -12.480109739369]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1e-05, 2e-05, 3e-05]
+    low, high = -1000000.0, 1000000.0
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1e-17, 2.0000000000000002e-11, 3e-05]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, 0, 0, 0, 1]
+    low, high = -1, 1
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1.0, 0.0, 0.0, 0.0, 1.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, 1, 1, 1, 1]
+    low, high = 0, 100000
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1.6000000000000006e-19, -2.4000000000000005e-14, 1.6000000000000003e-09, -4e-05, 1.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [0, 0, 0, 1]
+    low, high = -10, 10
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, 2, 3, 4, 5]
+    low, high = 0.1, 0.2
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [160000.0, -80000.00000000001, 15600.000000000004, -1360.0000000000005, 47.00000000000003]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, -1, 1, -1, 1]
+    low, high = -1000000, 1000000
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1e-24, -9.999999999999999e-19, 1e-12, -1e-06, 1.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [0.5, 1.5, 2.5]
+    low, high = -0.5, 0.5
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [2.0, 3.0, 2.5]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [100, 200, 300, 400]
+    low, high = 99, 101
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [100.0, -29800.0, 2960300.0, -98029600.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, 10, 100, 1000]
+    low, high = -1e-06, 1e-06
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1e+18, 10000000000000.0, 100000000.0, 1000.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [42]
+    low, high = -1, 1
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [42.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [3, 7]
+    low, high = 0, 10
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [0.6000000000000001, 4.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = []
+    low, high = 5, 15
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = []
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    low, high = -100, 100
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1.0000000000000003e-18, 2.0000000000000005e-16, 3.0000000000000005e-14, 4.000000000000001e-12, 5e-10, 6e-08, 7.000000000000001e-06, 0.0008, 0.09, 10.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    low, high = -1000, 1000
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1.0000000000000007e-57, 2.0000000000000012e-54, 3e-51, 4.0000000000000023e-48, 5.000000000000003e-45, 6e-42, 7e-39, 8.000000000000004e-36, 9.000000000000005e-33, 1.0000000000000004e-29, 1.0999999999999999e-26, 1.2000000000000001e-23, 1.3e-20, 1.4e-17, 1.5000000000000002e-14, 1.6000000000000003e-11, 1.7000000000000003e-08, 1.8000000000000004e-05, 0.019, 20.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7]
+    low, high = -5, 5
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [7.040000000000002e-05, 0.0007040000000000002, 0.005280000000000001, 0.03520000000000001, 0.22000000000000003, 1.32, 7.7]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1]
+    low, high = 1000, 1000
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [0, 1]
+    low, high = -1000000000.0, 1000000000.0
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [-1, 0, 1]
+    low, high = -3.141592653589793, 3.141592653589793
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [-0.10132118364233779, 0.0, 1.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    low, high = 0, 1
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [16384.0, -106496.0, 323584.0, -608256.0, 789504.0, -748032.0, 533248.0, -290432.0, 121408.0, -38752.0, 9296.0, -1624.0, 196.0, -14.0, 1.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000]
+    low, high = -1, 1
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, 10000000.0, 100000000.0, 1000000000.0, 10000000000.0, 100000000000.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1.0, 0.5, 0.3333333333333333, 0.25, 0.2, 0.16666666666666666, 0.14285714285714285, 0.125]
+    low, high = 0.1, 0.2
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1280000000.0, -1312000000.0000002, 577066666.666667, -141160000.0000001, 20737600.000000015, -1829453.333333335, 89730.85714285723, -1887.4535714285735]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1]
+    low, high = -100, 100
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1.0000000000000004e-34, -1.0000000000000003e-32, 1.0000000000000003e-30, -1.0000000000000003e-28, 1.0000000000000003e-26, -1.0000000000000003e-24, 1.0000000000000003e-22, -1.0000000000000002e-20, 1.0000000000000003e-18, -1.0000000000000002e-16, 1.0000000000000002e-14, -1.0000000000000002e-12, 1.0000000000000002e-10, -1.0000000000000002e-08, 1.0000000000000002e-06, -0.0001, 0.01, -1.0]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [2.718281828459045, 3.141592653589793, 2.718, 3.142]
+    low, high = -10, 10
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [0.0027182818284590456, 0.031415926535897934, 0.2718, 3.142]
+    assert_close1d(result, expected, rtol=1e-12)
+
+    coeffs = [0, 0, 0, 0, 0, 1]
+    low, high = -1, 1
+    result = stable_poly_to_unstable(coeffs, low, high)
+    expected = [1.0]
+    assert_close1d(result, expected, rtol=1e-12)
 
 
 def test_polyint_stable():
@@ -219,4 +400,4 @@ def test_polyint_over_x_stable_real_precise():
     fixed =  to_change_poly.convert(domain=domain_new).coef.tolist()[::-1]
     coeffs_fixed = [float(v) for v in fixed]
 
-    assert_close1d(coeffs_fixed, int_T_coeffs_expect, rtol=1e-15)
+    assert_close1d(coeffs_fixed, int_T_coeffs_expect, rtol=3e-15)

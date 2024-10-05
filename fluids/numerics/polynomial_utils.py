@@ -32,6 +32,8 @@ from fluids.numerics.special import comb
 
 
 def stable_poly_to_unstable(coeffs, low, high):
+    if len(coeffs) == 0:
+        return coeffs
     if high != low:
         from numpy.polynomial import Polynomial
         # Handle the case of no transformation, no limits
