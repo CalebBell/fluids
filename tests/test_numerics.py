@@ -1114,7 +1114,167 @@ def test_cheb_more():
     expected = -1999999998.0
     assert_close(result, expected, rtol=1e-13)
 
+    c = [42]
+    x = 0.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 42.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [42]
+    x = 1000
+    offset = 1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = 42.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [42]
+    x = -1000
+    offset = -1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = 42.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-09]
+    x = 1000000000.0
+    offset = 1e-09
+    scale = 1000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 1.0e-9
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1000000000.0]
+    x = 1e-09
+    offset = 1000000000.0
+    scale = 1e-09
+    result = chebval(x, c, offset, scale)
+    expected = 1000000000.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2]
+    x = 0.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 2.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2]
+    x = 1000
+    offset = 1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = 2000001.002
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2]
+    x = -1000
+    offset = -1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = -1999999.002
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-09, 2e-09]
+    x = 1000000000.0
+    offset = 1e-09
+    scale = 1000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 2000000000.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1000000000.0, 2000000000.0]
+    x = 1e-09
+    offset = 1000000000.0
+    scale = 1e-09
+    result = chebval(x, c, offset, scale)
+    expected = 2.000000001e+18
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 0.5
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 1000
+    offset = 1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = 6000002011998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = -1000
+    offset = -1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = 5999998011998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-09, 2e-09, 3e-09]
+    x = 1000000000.0
+    offset = 1e-09
+    scale = 1000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 6.0e+27
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1000000000.0, 2000000000.0, 3000000000.0]
+    x = 1e-09
+    offset = 1000000000.0
+    scale = 1e-09
+    result = chebval(x, c, offset, scale)
+    expected = 6.000000002e+27
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [0]
+    x = 3.141592653589793
+    offset = -1000000.0
+    scale = 1000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 0.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 0]
+    x = 1e-09
+    offset = 1000000000.0
+    scale = 1e-09
+    result = chebval(x, c, offset, scale)
+    expected = 1.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [0, 0, 1]
+    x = 1000000000.0
+    offset = -1000000000.0
+    scale = 2000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 7.999999992e+36
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-15]
+    x = 1000000000000000.0
+    offset = 1000000000000000.0
+    scale = 1e-15
+    result = chebval(x, c, offset, scale)
+    expected = 1.0e-15
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1000000000000000.0, 1e-15]
+    x = 1e-15
+    offset = 1e-15
+    scale = 1000000000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 1.0e+15
+    assert_close(result, expected, rtol=1e-13)
     
+        
 def test_is_monotonic():
     assert is_monotonic([1,2,3])
     assert is_monotonic([3, 2, 1])
