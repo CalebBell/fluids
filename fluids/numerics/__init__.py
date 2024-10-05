@@ -1520,7 +1520,7 @@ def chebint(c, m=1, lbnd=0, scl=1):
         for o in range(n):
             c[o] *= scl
         if n == 1 and c[0] == 0:
-            pass
+            continue
         else:
             tmp = [0.0]*(n+1)
             tmp[1] = c[0]
