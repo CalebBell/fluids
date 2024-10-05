@@ -1483,7 +1483,7 @@ def chebder(c, m=1, scl=1.0):
     if m == 0:
         return c
     c = list(c)
-    n = len_c = len(c)
+    n = len(c)
     if m >= n:
         return []
     der = [0.0] * (n - 1)  # Pre-allocate der with maximum possible size
@@ -1499,21 +1499,16 @@ def chebder(c, m=1, scl=1.0):
             der[1] = 4.0 * c[2]
         der[0] = c[1]
         c, der = der, c  # Swap c and der
-    # keep the same list
-    for _ in range(len_c-1-n):
+    for _ in range(len(c) - n):
         c.pop()
     return c
 
 def chebint(c, m=1, lbnd=0, scl=1):
-    #  k=[], is used by numpy to provide integration constants
     cnt = int(m) # the order of integration
     if cnt < 0:
         raise ValueError("Negative integration error not allowed")
-#     if len(k) > cnt:
-#         raise ValueError("Size of integration constants not consistent with order of integration")
     if cnt == 0:
         return c
-#     k = list(k) + [0]*(cnt - len(k))
     n = len(c)
     c2 = [0.0]*n # Make a copy of c
     for i in range(n):
@@ -1526,18 +1521,16 @@ def chebint(c, m=1, lbnd=0, scl=1):
             c[o] *= scl
         if n == 1 and c[0] == 0:
             pass
-#             c[0] += k[i]
         else:
             tmp = [0.0]*(n+1)
             tmp[1] = c[0]
             if n > 1:
-                tmp[2] = c[1]/4
+                tmp[2] = 0.25*c[1]
             for j in range(2, n):
                 cval = c[j]
                 tmp[j + 1] = cval/(2.0*(j + 1.0))
                 tmp[j - 1] -= cval/(2.0*(j - 1.0))
             # Scale is handled separately
-#             tmp[0] += k[i] - chebval(lbnd, tmp)
             tmp[0] -= chebval(lbnd, tmp)
             c = tmp
     return c
