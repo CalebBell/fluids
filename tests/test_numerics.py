@@ -873,7 +873,248 @@ def test_cheb():
 
     assert toluene_TRC_cheb_fit == toluene_TRC_cheb_fit_copy
 
+def test_cheb_more():
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 0.5
+    assert_close(result, expected, rtol=1e-13)
 
+    c = [1]
+    x = 1.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 1.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2]
+    x = -1.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = -1.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [0, 0, 1]
+    x = 2.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 7.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, -1, 1, -1, 1]
+    x = 0.1
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 1.1368
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [0.1, 0.2, 0.3, 0.4, 0.5]
+    x = 3.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 333.8999999999999
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [10, 20, 30, 40, 50]
+    x = -5.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 222030.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-05, 2e-05, 3e-05, 4e-05]
+    x = 100.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 160.58998000000003
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 0, 0, 0, 1]
+    x = 3.141592653589793
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 702.3158930633044
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    x = 0.75
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 6.9560546875
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, -1, 1, -1, 1, -1, 1, -1]
+    x = -0.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 1.5
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1.0, 0.5, 0.3333333333333333, 0.25, 0.2, 0.16666666666666666]
+    x = 1.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 20.116666666666664
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [2.718281828459045, 3.141592653589793, 2.718, 3.142]
+    x = 0.25
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = -1.0346950081435065
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = -1
+    scale = 2
+    result = chebval(x, c, offset, scale)
+    expected = -2.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    x = 1.0
+    offset = 10
+    scale = 100
+    result = chebval(x, c, offset, scale)
+    expected = 5877283503.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0.001
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 0.508006
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1e-06
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 0.5000080000060003
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1000.0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 6008000.5
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1000000.0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 6000008000000.5
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1000000000.0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 6.000000008e+18
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 0.001
+    result = chebval(x, c, offset, scale)
+    expected = -1.9989985
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = -1.9999989999985
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1000.0
+    result = chebval(x, c, offset, scale)
+    expected = 1500998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 1500000999998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 1.500000001e+18
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1e-06
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = -1.9999969999865
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1000000.0
+    scale = 1000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 13500002999998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = -1000000000.0
+    scale = 2000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = -2.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-09, 2e-09, 3e-09]
+    x = 1000000000.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 6000000002.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1000000000.0, 2000000000.0, 3000000000.0]
+    x = 1e-09
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = -1999999998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    
 def test_is_monotonic():
     assert is_monotonic([1,2,3])
     assert is_monotonic([3, 2, 1])

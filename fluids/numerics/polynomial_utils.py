@@ -358,6 +358,8 @@ def polyint_over_x_stable(coeffs, xmin, xmax):
     return terms, log_coeff
 
 def poly_convert(coeffs, Tmin, Tmax):
+    # from numpy.polynomial.polynomial import Polynomial
+    # return Polynomial(coeffs).convert(domain=(Tmin, Tmax)).coef.tolist()
     off = 0.5*(Tmin + Tmax)
     scl = 0.5*(Tmax - Tmin)
     degree_P = len(coeffs) - 1
