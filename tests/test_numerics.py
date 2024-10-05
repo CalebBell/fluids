@@ -1273,8 +1273,155 @@ def test_cheb_more():
     result = chebval(x, c, offset, scale)
     expected = 1.0e+15
     assert_close(result, expected, rtol=1e-13)
+
+def test_chebder_more():
+    c = [1, 2, 3, 4, 5]
+    m = 0
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [1, 2, 3, 4, 5]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 1
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [14.0, 52.0, 24, 40]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 1
+    scl = 2.0
+    result = chebder(c, m, scl)
+    expected = [28.0, 104.0, 48.0, 80.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 1
+    scl = 0.5
+    result = chebder(c, m, scl)
+    expected = [7.0, 26.0, 12.0, 20.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 2
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [172.0, 96.0, 240]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 2
+    scl = 2.0
+    result = chebder(c, m, scl)
+    expected = [688.0, 384.0, 960.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 2
+    scl = 0.5
+    result = chebder(c, m, scl)
+    expected = [43.0, 24.0, 60.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 3
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [96.0, 960.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 3
+    scl = 2.0
+    result = chebder(c, m, scl)
+    expected = [768.0, 7680.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 3
+    scl = 0.5
+    result = chebder(c, m, scl)
+    expected = [12.0, 120.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 4
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [960.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 4
+    scl = 2.0
+    result = chebder(c, m, scl)
+    expected = [15360.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 4
+    scl = 0.5
+    result = chebder(c, m, scl)
+    expected = [60.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1]
+    m = 1
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = []
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2]
+    m = 1
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [2]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    m = 3
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = []
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    m = 4
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = []
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    m = 5
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = []
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 0, 1, 0, 1]
+    m = 2
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [36.0, 0.0, 48]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1e-05, 2e-05, 3e-05, 4e-05]
+    m = 1
+    scl = 100000.0
+    result = chebder(c, m, scl)
+    expected = [14.0, 12.0, 24.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [100000.0, 200000.0, 300000.0, 400000.0]
+    m = 1
+    scl = 1e-05
+    result = chebder(c, m, scl)
+    expected = [14.0, 12.000000000000002, 24.0]
+    assert_close1d(result, expected, rtol=1e-13)
     
-        
 def test_is_monotonic():
     assert is_monotonic([1,2,3])
     assert is_monotonic([3, 2, 1])

@@ -1462,16 +1462,15 @@ def chebval(x, c, offset=0.0, scale=1.0):
     x = offset + scale*x
     len_c = len(c)
     if len_c == 1:
-        c0, c1 = c[0], 0.0
-    elif len_c == 2:
-        c0, c1 = c[0], c[1]
-    else:
-        x2 = 2.0*x
-        c0, c1 = c[-2], c[-1]
-        for i in range(3, len_c + 1):
-            c0_prev = c0
-            c0 = c[-i] - c1
-            c1 = c0_prev + c1*x2
+        return c[0]
+    if len_c == 2:
+        return c[0] + c[1] * x
+    x2 = 2.0*x
+    c0, c1 = c[-2], c[-1]
+    for i in range(3, len_c + 1):
+        c0_prev = c0
+        c0 = c[-i] - c1
+        c1 = c0_prev + c1*x2
     return c0 + c1*x
 
 def chebder(c, m=1, scl=1.0):
@@ -1488,21 +1487,21 @@ def chebder(c, m=1, scl=1.0):
 
     n = len(c)
     if cnt >= n:
-        c = []
-    else:
-        for i in range(cnt):
-            n = n - 1
-            if scl != 1.0:
-                for j in range(len(c)):
-                    c[j] *= scl
-            der = [0.0 for _ in range(n)]
-            for j in range(n, 2, -1):
-                der[j - 1] = (j + j)*c[j]
-                c[j - 2] += (j*c[j])/(j - 2.0)
-            if n > 1:
-                der[1] = 4.0*c[2]
-            der[0] = c[1]
-            c = der
+        return []
+    
+    for i in range(cnt):
+        n = n - 1
+        if scl != 1.0:
+            for j in range(n+1):
+                c[j] *= scl
+        der = [0.0]*n
+        for j in range(n, 2, -1):
+            der[j - 1] = (j + j)*c[j]
+            c[j - 2] += (j*c[j])/(j - 2.0)
+        if n > 1:
+            der[1] = 4.0*c[2]
+        der[0] = c[1]
+        c = der
     return c
 
 def chebint(c, m=1, lbnd=0, scl=1):
