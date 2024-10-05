@@ -1499,11 +1499,10 @@ def chebder(c, m=1, scl=1.0):
             der[1] = 4.0 * c[2]
         der[0] = c[1]
         c, der = der, c  # Swap c and der
-        der.pop()
-        # Reset der for next iteration
-        for i in range(n):
-            der[i] = 0.0
-    return c[:n]  # Return only the valid part of c
+    # keep the same list
+    for _ in range(len_c-1-n):
+        c.pop()
+    return c
 
 def chebint(c, m=1, lbnd=0, scl=1):
     #  k=[], is used by numpy to provide integration constants
