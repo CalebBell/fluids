@@ -1483,24 +1483,27 @@ def chebder(c, m=1, scl=1.0):
     if m == 0:
         return c
     c = list(c)
-    n = len(c)
+    n = len_c = len(c)
     if m >= n:
         return []
-    
+    der = [0.0] * (n - 1)  # Pre-allocate der with maximum possible size
     for _ in range(m):
         n = n - 1
         if scl != 1.0:
             for j in range(n+1):
                 c[j] *= scl
-        der = [0.0]*n
         for j in range(n, 2, -1):
-            der[j - 1] = (j + j)*c[j]
-            c[j - 2] += (j*c[j])/(j - 2.0)
+            der[j - 1] = (j + j) * c[j]
+            c[j - 2] += (j * c[j]) / (j - 2.0)
         if n > 1:
-            der[1] = 4.0*c[2]
+            der[1] = 4.0 * c[2]
         der[0] = c[1]
-        c = der
-    return c
+        c, der = der, c  # Swap c and der
+        der.pop()
+        # Reset der for next iteration
+        for i in range(n):
+            der[i] = 0.0
+    return c[:n]  # Return only the valid part of c
 
 def chebint(c, m=1, lbnd=0, scl=1):
     #  k=[], is used by numpy to provide integration constants
