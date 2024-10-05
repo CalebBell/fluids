@@ -1480,10 +1480,9 @@ def chebder(c, m=1, scl=1.0):
     This does not evaluate the value of a cheb series at a point; it returns
     a new chebyshev seriese to be evaluated by chebval.
     """
-    c = list(c)
     if m == 0:
         return c
-
+    c = list(c)
     n = len(c)
     if m >= n:
         return []
