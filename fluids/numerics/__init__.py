@@ -991,13 +991,18 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
         for j in range(i+1):
             f_perturb_j = fs_perturb_i[j]
             tmp_j = x_perturb[j]
-            x_perturb[j] += deltas[j]
+            if i == j:
+                x_perturb[j] = tmp_i + 2.0*deltas[j]
+            else:
+                x_perturb[j] += deltas[j]
             f_perturb_ij = f(x_perturb, *args, **kwargs)
 
             if scalar:
-                dii0 = (f_perturb_i - base)
-                dii1 = (f_perturb_ij - f_perturb_j)
-                dij = (dii1 - dii0)*deltas_inv[j]*deltas_inv[i]
+                # dii0 = (f_perturb_i - base)
+                # dii1 = (f_perturb_ij - f_perturb_j)
+                # dij = (dii1 - dii0)*deltas_inv[j]*deltas_inv[i]
+                # This exact equation helps avoid errors when the equations are independent
+                dij = ((f_perturb_ij+base) - (f_perturb_i+f_perturb_j) )*deltas_inv[j]*deltas_inv[i]
             else:
 #                 dii0s = [(fi - bi)*deltas_inv[i] for fi, bi in zip(f_perturb_i, base)]
 #                 dii1s = [(fij - fj)*deltas_inv[i] for fij, fj in zip(f_perturb_ij, f_perturb_j)]
