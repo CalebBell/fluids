@@ -465,7 +465,15 @@ def test_diffuser_conical():
     assert_close(K, 0.26814269611625413)
 
     K = diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, Re=100, method='Hooper')
-    assert_close(K, 1.9753086419753085)
+    assert_close(K, 0.6703567402906352)
+
+    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=50.0, Re=1e6, method='Hooper')
+    assert_close(K, 0.79748427282836)
+
+    # The two equations don't actually converge, there may be a case for interpolating here in the future 
+    # to produce smooth results
+    assert_close(diffuser_conical(Di1=1/3., Di2=1.0, angle=45*(1+1e-13), Re=1e6, method='Hooper'),
+                 diffuser_conical(Di1=1/3., Di2=1.0, angle=45*(1-1e-13), Re=1e6, method='Hooper'), rtol=1e-2)
 
     with pytest.raises(Exception):
         diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, method='Hooper')

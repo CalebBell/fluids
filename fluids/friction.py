@@ -3457,7 +3457,7 @@ def friction_plate_Martin_VDI(Re, chevron_angle):
     Chevron-style plate heat exchanger according to [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_d}} = \frac{\cos \phi}{\sqrt{0.28\tan\phi
+        \frac{1}{\sqrt{f_d}} = \frac{\cos \phi}{\sqrt{0.18\tan\phi
         + 0.36\sin\phi + f_0/\cos(\phi)}} + \frac{1-\cos\phi}{\sqrt{3.8f_1}}
 
     .. math::
@@ -3515,7 +3515,7 @@ def friction_plate_Martin_VDI(Re, chevron_angle):
     Examples
     --------
     >>> friction_plate_Martin_VDI(Re=20000, chevron_angle=45)
-    0.93076451142552
+    0.781589041624
 
     References
     ----------
@@ -3531,7 +3531,7 @@ def friction_plate_Martin_VDI(Re, chevron_angle):
         f0 = (1.8*log10(Re) - 1.5)**-2
         f1 = 39.*Re**-0.289
 
-    a, b, c = 3.8, 0.28, 0.36
+    a, b, c = 3.8, 0.18, 0.36
 
     rhs = cos(phi)*1.0/sqrt(b*tan(phi) + c*sin(phi) + f0/cos(phi))
     rhs += (1. - cos(phi))*1.0/sqrt(a*f1)

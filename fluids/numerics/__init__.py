@@ -970,10 +970,11 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
 
     fs_perturb_i = []
     for i in range(nx):
+        tmp = x_perturb[i]
         x_perturb[i] += deltas[i]
         f_perturb_i = f(x_perturb, *args, **kwargs)
         fs_perturb_i.append(f_perturb_i)
-        x_perturb[i] -= deltas[i]
+        x_perturb[i] = tmp # specifically set the same value back - floating point prec can't add and subtract to get the exact same value always
 
     if full:
         hessian = [[None]*nx for _ in range(nx)]
@@ -984,10 +985,12 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
         if not full:
             row = []
         f_perturb_i = fs_perturb_i[i]
+        tmp_i = x_perturb[i]
         x_perturb[i] += deltas[i]
 
         for j in range(i+1):
             f_perturb_j = fs_perturb_i[j]
+            tmp_j = x_perturb[j]
             x_perturb[j] += deltas[j]
             f_perturb_ij = f(x_perturb, *args, **kwargs)
 
@@ -1008,10 +1011,10 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
             else:
                 hessian[i][j] = hessian[j][i] = dij
 
-            x_perturb[j] -= deltas[j]
+            x_perturb[j] = tmp_j
         if not full:
             hessian.append(row)
-        x_perturb[i] -= deltas[i]
+        x_perturb[i] = tmp_i
     return hessian
 
 
