@@ -2342,7 +2342,7 @@ def test_hessian():
         return 1000*sin(x[0]) + 4000*cos(x[1])
 
     x0 = [.3, .7]
-    result = hessian(f, x0, perturbation=1e-6)
+    result = hessian(f, x0, perturbation=1e-5)
     expected = [[-296.1312838005886, 0.0], [0.0, -3055.5183310366906]]
     assert_close2d(result, expected, rtol=0.1)
 
