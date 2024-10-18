@@ -540,10 +540,10 @@ def test_friction_plate():
     assert_close(fd, 0.8346709330530173)
 
     fd = friction_plate_Martin_VDI(Re=20000., chevron_angle=45)
-    assert_close(fd, 0.93076451142552)
+    assert_close(fd, 0.7815890416247431)
 
     fd = friction_plate_Martin_VDI(Re=1999., chevron_angle=45)
-    assert_close(fd, 0.9952660732533454)
+    assert_close(fd, 0.8346777166415049)
 
     fd = friction_plate_Muley_Manglik(Re=2000., chevron_angle=45., plate_enlargement_factor=1.2)
     assert_close(fd, 1.0880870804075413)

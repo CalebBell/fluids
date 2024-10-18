@@ -2895,14 +2895,18 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         if Re is None:
             raise ValueError("Method `Hooper` requires Reynolds number")
         if Re < 4000.0:
-            return 2.0*(1.0 - beta*beta*beta*beta) # Not the same formula as Rennels
+            K_sharp = 2.0*(1.0 - beta*beta*beta*beta) # Not the same formula as Rennels
+            if angle_rad > 0.25*pi:
+                return K_sharp
+            return K_sharp*2.6*sin(0.5*angle_rad)
+
         if fd is None:
             fd = Clamond(Re=Re, eD=roughness/Di1)
         x = 1.0 - beta*beta
-        K = (1.0 + 0.8*fd)*x*x
+        K_sharp = (1.0 + 0.8*fd)*x*x
         if angle_rad > 0.25*pi:
-            return K
-        return K*2.6*sin(0.5*angle_rad)
+            return K_sharp
+        return K_sharp*2.6*sin(0.5*angle_rad)
     else:
         raise ValueError(diffuser_conical_method_unknown)
 

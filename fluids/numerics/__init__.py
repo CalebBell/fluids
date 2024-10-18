@@ -48,7 +48,7 @@ from fluids.numerics.polynomial_evaluation import (horner, horner_and_der, horne
  )
 
 from fluids.numerics.polynomial_utils import (polyint, polyint_over_x, polyder, quadratic_from_points, quadratic_from_f_ders, deflate_cubic_real_roots,
-exp_poly_ln_tau_coeffs3, exp_poly_ln_tau_coeffs2, polynomial_offset_scale, stable_poly_to_unstable, polyint_stable, polyint_over_x_stable)
+exp_poly_ln_tau_coeffs3, exp_poly_ln_tau_coeffs2, polynomial_offset_scale, stable_poly_to_unstable, polyint_stable, polyint_over_x_stable, poly_convert)
 
 __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'horner_and_der3', 'quadratic_from_f_ders', 'chebval', 'interp',
@@ -123,7 +123,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'sort_nelder_mead_points_numba', 'sort_nelder_mead_points_python', 
            'bounds_clip_naive', 'nelder_mead', 'cbrt',
            'polyint_stable', 'polyint_over_x_stable',
-           'argsort1d',
+           'argsort1d', 'poly_convert',
            ]
 
 from fluids.numerics import doubledouble
@@ -938,15 +938,15 @@ def jacobian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, args=(), b
     return gradient
 
 
-def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, args=(), **kwargs):
+def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, base=None, args=(), **kwargs):
     # Takes n**2/2 + 3*n/2 + 1 function evaluations! Can still be quite fast.
     # For scalar - returns list[list], size of input variables
     # For vector - returns list of list of list - size of input variables * input variables * output variables
     # Could add backwards/complex, multiple evaluations, detection of poor condition
     # types and limits, jacobian as output, fevals
 
-
-    base = f(x0, *args, **kwargs)
+    if base is None:
+        base = f(x0, *args, **kwargs)
     nx = len(x0)
 
     if not isinstance(base, (float, int, complex)):
@@ -970,10 +970,11 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
 
     fs_perturb_i = []
     for i in range(nx):
+        tmp = x_perturb[i]
         x_perturb[i] += deltas[i]
         f_perturb_i = f(x_perturb, *args, **kwargs)
         fs_perturb_i.append(f_perturb_i)
-        x_perturb[i] -= deltas[i]
+        x_perturb[i] = tmp # specifically set the same value back - floating point prec can't add and subtract to get the exact same value always
 
     if full:
         hessian = [[None]*nx for _ in range(nx)]
@@ -984,17 +985,24 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
         if not full:
             row = []
         f_perturb_i = fs_perturb_i[i]
+        tmp_i = x_perturb[i]
         x_perturb[i] += deltas[i]
 
         for j in range(i+1):
             f_perturb_j = fs_perturb_i[j]
-            x_perturb[j] += deltas[j]
+            tmp_j = x_perturb[j]
+            if i == j:
+                x_perturb[j] = tmp_i + 2.0*deltas[j]
+            else:
+                x_perturb[j] += deltas[j]
             f_perturb_ij = f(x_perturb, *args, **kwargs)
 
             if scalar:
-                dii0 = (f_perturb_i - base)*deltas_inv[i]
-                dii1 = (f_perturb_ij - f_perturb_j)*deltas_inv[i]
-                dij = (dii1 - dii0)*deltas_inv[j]
+                # dii0 = (f_perturb_i - base)
+                # dii1 = (f_perturb_ij - f_perturb_j)
+                # dij = (dii1 - dii0)*deltas_inv[j]*deltas_inv[i]
+                # This exact equation helps avoid errors when the equations are independent
+                dij = ((f_perturb_ij+base) - (f_perturb_i+f_perturb_j) )*deltas_inv[j]*deltas_inv[i]
             else:
 #                 dii0s = [(fi - bi)*deltas_inv[i] for fi, bi in zip(f_perturb_i, base)]
 #                 dii1s = [(fij - fj)*deltas_inv[i] for fij, fj in zip(f_perturb_ij, f_perturb_j)]
@@ -1008,10 +1016,10 @@ def hessian(f, x0, scalar=True, perturbation=1e-9, zero_offset=1e-7, full=True, 
             else:
                 hessian[i][j] = hessian[j][i] = dij
 
-            x_perturb[j] -= deltas[j]
+            x_perturb[j] = tmp_j
         if not full:
             hessian.append(row)
-        x_perturb[i] -= deltas[i]
+        x_perturb[i] = tmp_i
     return hessian
 
 
@@ -1462,16 +1470,15 @@ def chebval(x, c, offset=0.0, scale=1.0):
     x = offset + scale*x
     len_c = len(c)
     if len_c == 1:
-        c0, c1 = c[0], 0.0
-    elif len_c == 2:
-        c0, c1 = c[0], c[1]
-    else:
-        x2 = 2.0*x
-        c0, c1 = c[-2], c[-1]
-        for i in range(3, len_c + 1):
-            c0_prev = c0
-            c0 = c[-i] - c1
-            c1 = c0_prev + c1*x2
+        return c[0]
+    if len_c == 2:
+        return c[0] + c[1] * x
+    x2 = 2.0*x
+    c0, c1 = c[-2], c[-1]
+    for i in range(3, len_c + 1):
+        c0_prev = c0
+        c0 = c[-i] - c1
+        c1 = c0_prev + c1*x2
     return c0 + c1*x
 
 def chebder(c, m=1, scl=1.0):
@@ -1481,67 +1488,68 @@ def chebder(c, m=1, scl=1.0):
     This does not evaluate the value of a cheb series at a point; it returns
     a new chebyshev seriese to be evaluated by chebval.
     """
-    c = list(c)
-    cnt = int(m)
-    if cnt == 0:
+    if m == 0:
         return c
-
+    c = list(c)
     n = len(c)
-    if cnt >= n:
-        c = []
-    else:
-        for i in range(cnt):
-            n = n - 1
-            if scl != 1.0:
-                for j in range(len(c)):
-                    c[j] *= scl
-            der = [0.0 for _ in range(n)]
-            for j in range(n, 2, -1):
-                der[j - 1] = (j + j)*c[j]
-                c[j - 2] += (j*c[j])/(j - 2.0)
-            if n > 1:
-                der[1] = 4.0*c[2]
-            der[0] = c[1]
-            c = der
+    if m >= n:
+        return []
+    der = [0.0] * (n - 1)  # Pre-allocate der with maximum possible size
+    for _ in range(m):
+        n = n - 1
+        if scl != 1.0:
+            for j in range(n+1):
+                c[j] *= scl
+        for j in range(n, 2, -1):
+            der[j - 1] = (j + j) * c[j]
+            c[j - 2] += (j * c[j]) / (j - 2.0)
+        if n > 1:
+            der[1] = 4.0 * c[2]
+        der[0] = c[1]
+        c, der = der, c  # Swap c and der
+    for _ in range(len(c) - n):
+        c.pop()
     return c
 
 def chebint(c, m=1, lbnd=0, scl=1):
-    #  k=[], is used by numpy to provide integration constants
     cnt = int(m) # the order of integration
     if cnt < 0:
         raise ValueError("Negative integration error not allowed")
-#     if len(k) > cnt:
-#         raise ValueError("Size of integration constants not consistent with order of integration")
     if cnt == 0:
         return c
-#     k = list(k) + [0]*(cnt - len(k))
-    n = len(c)
-    c2 = [0.0]*n # Make a copy of c
-    for i in range(n):
-        c2[i] = c[i]
-    c = c2
-
-    for i in range(cnt):
-        n = len(c)
-        for o in range(n):
-            c[o] *= scl
-        if n == 1 and c[0] == 0:
+    n0 = len(c)
+    if n0 == 1 and c[0] == 0.0:
+        return c
+    nmax = n0 + cnt # Maximum size after integrations
+    c0 = [0.0] * nmax  # Pre-allocate c0 and tmp with maximum needed size
+    tmp = [0.0] * nmax
+    # Copy initial coefficients into c0
+    c0[:n0] = c[:]
+    n = n0  # Current length of c0
+    for _ in range(cnt):
+        # Scale c0 if necessary
+        if scl != 1:
+            for i in range(n):
+                c0[i] *= scl
+        if n == 1 and c0[0] == 0:
+            # Special case where c0 is zero
             pass
-#             c[0] += k[i]
         else:
-            tmp = [0.0]*(n+1)
-            tmp[1] = c[0]
+            tmp[1] = c0[0]
             if n > 1:
-                tmp[2] = c[1]/4
+                tmp[2] = 0.25 * c0[1]
             for j in range(2, n):
-                cval = c[j]
-                tmp[j + 1] = cval/(2.0*(j + 1.0))
-                tmp[j - 1] -= cval/(2.0*(j - 1.0))
-            # Scale is handled separately
-#             tmp[0] += k[i] - chebval(lbnd, tmp)
-            tmp[0] -= chebval(lbnd, tmp)
-            c = tmp
-    return c
+                cval = c0[j]
+                tmp[j + 1] = cval / (2.0 * (j + 1))
+                tmp[j - 1] -= cval / (2.0 * (j - 1))
+            val = chebval(lbnd, tmp)
+            tmp[0] -= val
+            # Swap c0 and tmp for next iteration
+            c0, tmp = tmp, c0
+            n += 1  # Degree increases by 1 after integration
+    return c0
+
+
 
 def binary_search(key, arr, size=None):
     if size is None:
@@ -2397,7 +2405,7 @@ def brenth(f, xa, xb, args=(),
     else:
         fcur = fb
 
-    if fpre*fcur > 0.0:
+    if fpre*fcur > 0.0 or isnan(fpre) or isnan(fcur):
         raise NotBoundedError("f(a) and f(b) must have different signs")
     elif fpre == 0.0:
         return xa
@@ -3847,7 +3855,7 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
         An point or array of points at which to calculate and return the value
         of the  spline, [-]
     tck : 3-tuple
-        Ssequence of length 3 returned by
+        Sequence of length 3 returned by
         `splrep` containing the knots, coefficients, and degree
         of the spline, [-]
     ext : int, optional, default 0
@@ -3876,13 +3884,10 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
     e = ext
     if tck is not None:
         t, c, k = tck
-    x = [x]
 #    if isinstance(x, (float, int, complex)):
 #        x = [x]
 
-    m = 1#len(x)
     n = len(t)
-    y = [] # output array
 
     k1 = k + 1
     k2 = k1 + 1
@@ -3892,42 +3897,35 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
     l = k1
     l1 = l + 1
 
-    for i in range(0, m): # m is only 1
-        # i only used in loop for 1
-        arg = x[i]
-        if arg < tb or arg > te:
-            if e == 0:
-                arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
-            elif e == 1:
-                y.append(0.0)
-                continue
-            elif e == 2:
-                raise ValueError("X value not in domain; set `ext` to 0 to "
-                                 "extrapolate")
-            elif e == 3:
-                if arg < tb:
-                    arg = tb
-                else:
-                    arg = te
-                arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
-        else:
+    arg = x
+    if arg < tb or arg > te:
+        if e == 0:
             arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
+        elif e == 1:
+            return 0.0
+        elif e == 2:
+            raise ValueError("X value not in domain; set `ext` to 0 to "
+                                "extrapolate")
+        elif e == 3:
+            if arg < tb:
+                arg = tb
+            else:
+                arg = te
+            arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
+    else:
+        arg, t, l, l1, k2, nk1 = func_35_splev(arg, t, l, l1, k2, nk1)
 
-        # Local arrays used in fpbspl and to carry its result
-        h = [0.0]*20
-        hh = [0.0]*19
+    # Local arrays used in fpbspl and to carry its result
+    h = [0.0]* (k + 1)
+    hh = [0.0]*k
 
-        fpbspl(t, n, k, arg, l, h, hh)
-        sp = 0.0E0
-        ll = l - k1
-        for j in range(0, k1):
-            ll = ll + 1
-            sp = sp + c[ll-1]*h[j] # -1 to get right index
-        y.append(sp)
-    return y[0]
-#    if len(y) == 1:
-#        return y[0]
-#    return y
+    fpbspl(t, n, k, arg, l, h, hh)
+    sp = 0.0E0
+    ll = l - k1
+    for j in range(0, k1):
+        ll = ll + 1
+        sp = sp + c[ll-1]*h[j] # -1 to get right index
+    return sp
 
 
 def py_bisplev(x, y, tck, dx=0, dy=0):
@@ -3965,7 +3963,7 @@ def py_bisplev(x, y, tck, dx=0, dy=0):
     if isinstance(y, (float, int)):
         y = [y]
 
-    z = [[cy_bispev(tx, ty, c, kx, ky, [xi], [yi])[0] for yi in y] for xi in x]
+    z = [[bispev_inner(tx, ty, c, kx, ky, xi, yi) for yi in y] for xi in x]
     if len(x) == len(y) == 1:
         return z[0][0]
     return z
@@ -3988,68 +3986,45 @@ def fpbspl(t, n, k, x, l, h, hh):
             h[i + 1] = f*(x - t[li - j])
 
 
-def init_w(t, k, x, lx, w):
+def init_w(t, k, x):
+    w = [0.0]*(k+1)
     tb = t[k]
     n = len(t)
-    m = len(x)
     h = [0]*6
     hh = [0]*5
     te = t[n - k - 1]
     l1 = k + 1
     l2 = l1 + 1
-    for i in range(m):
-        arg = x[i]
-        if arg < tb:
-            arg = tb
-        if arg > te:
-            arg = te
-        while not (arg < t[l1] or l1 == (n - k - 1)):
-            l1 = l2
-            l2 = l1 + 1
-        fpbspl(t, n, k, arg, l1, h, hh)
+    arg = x
+    if arg < tb:
+        arg = tb
+    if arg > te:
+        arg = te
+    while not (arg < t[l1] or l1 == (n - k - 1)):
+        l1 = l2
+        l2 = l1 + 1
+    fpbspl(t, n, k, arg, l1, h, hh)
+    lx = l1 - k - 1
+    for j in range(k + 1):
+        w[j] = h[j]
+    return lx, w
 
-        lx[i] = l1 - k - 1
-        for j in range(k + 1):
-            w[i][j] = h[j]
-
-
-def cy_bispev(tx, ty, c, kx, ky, x, y):
-    """Possible optimization: Do not evaluate derivatives, ever."""
-    nx = len(tx)
-    ny = len(ty)
-    mx = len(x)
-    my = len(y)
-
+def bispev_inner(tx, ty, c, kx, ky, x, y):
     kx1 = kx + 1
     ky1 = ky + 1
-
-    nkx1 = nx - kx1
-    nky1 = ny - ky1
-
-    wx = [[0.0]*kx1]*mx
-    wy = [[0.0]*ky1]*my
-    lx = [0]*mx
-    ly = [0]*my
-
-    size_z = mx*my
-
-    z = [0.0]*size_z
-    init_w(tx, kx, x, lx, wx)
-    init_w(ty, ky, y, ly, wy)
-
-    for j in range(my):
-        for i in range(mx):
-            sp = 0.0
-            err = 0.0
-            for i1 in range(kx1):
-                for j1 in range(ky1):
-                    l2 = lx[i]*nky1 + ly[j] + i1*nky1 + j1
-                    a = c[l2]*wx[i][i1]*wy[j][j1] - err
-                    tmp = sp + a
-                    err = (tmp - sp) - a
-                    sp = tmp
-            z[j*mx + i] += sp
-    return z
+    nky1 = len(ty) - ky1
+    lx, wx = init_w(tx, kx, x)
+    ly, wy = init_w(ty, ky, y)
+    sp = 0.0
+    err = 0.0
+    for i1 in range(kx1):
+        for j1 in range(ky1):
+            l2 = lx*nky1 + ly + i1*nky1 + j1
+            a = c[l2]*wx[i1]*wy[j1] - err
+            tmp = sp + a
+            err = (tmp - sp) - a
+            sp = tmp
+    return sp
 
 
 p_0_70 = array_if_needed([0.06184590404457956, -0.7460693871557973, 2.2435704485433376, -2.1944070385048526, 0.3382265629285811, 0.2791966558569478])

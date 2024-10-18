@@ -419,9 +419,13 @@ class UnitAwareClass:
                     def call_func_with_inputs_to_SI(*args, **kwargs):
                         args_base, kwargs_base = self.input_units_to_dimensionless(name, *args, **kwargs)
                         result = value(*args_base, **kwargs_base)
+                        try:
+                            wrapped_type = self.wrapped.__name__
+                        except:
+                            wrapped_type = self.wrapped.__class__.__name__
                         if name == '__init__':
                             return result
-                        elif type(result) is self.wrapped:
+                        elif (type(result) is self.wrapped) or (result.__class__.__name__ == wrapped_type):
                             # Creating a new class, wrap it
                             return self.wrap(result)
                         _, _, _, out_vars, out_units = self.method_units[name]

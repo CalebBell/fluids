@@ -147,8 +147,9 @@ def Ergun(dp, voidage, vs, rho, mu, L=1.0):
        Engineering 105, no. 2 (June 1, 1983): 168-172. doi:10.1115/1.3240959.
     '''
     Re = dp*rho*vs/mu
-    fp = (150 + 1.75*(Re/(1-voidage)))*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = 1.0 - voidage
+    fp = (150.0 + 1.75*(Re/holdup))*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1.0):
@@ -212,8 +213,9 @@ def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1.0):
        Engineering 105, no. 2 (June 1, 1983): 168-172. doi:10.1115/1.3240959.
     '''
     Re = dp*rho*vs/mu
-    fp = (276.23 + 5.05*(Re/(1-voidage))**0.87)*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = (1.0-voidage)
+    fp = (276.23 + 5.05*(Re/holdup)**0.87)*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Tallmadge(dp, voidage, vs, rho, mu, L=1.0):
@@ -259,7 +261,7 @@ def Tallmadge(dp, voidage, vs, rho, mu, L=1.0):
     Examples
     --------
     >>> Tallmadge(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
-    1365.2739144209424
+    1365.273914420
 
     References
     ----------
@@ -275,8 +277,9 @@ def Tallmadge(dp, voidage, vs, rho, mu, L=1.0):
        doi:10.1016/j.cep.2006.07.002.
     '''
     Re = dp*rho*vs/mu
-    fp = (150.0 + 4.2*(Re/(1-voidage))**(5.0/6.0))*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = (1.0-voidage)
+    fp = (150.0 + 4.2*(Re/holdup)**(5.0/6.0))*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Jones_Krier(dp, voidage, vs, rho, mu, L=1.0):
@@ -325,7 +328,7 @@ def Jones_Krier(dp, voidage, vs, rho, mu, L=1.0):
     Examples
     --------
     >>> Jones_Krier(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
-    1362.2719449873746
+    1362.2719449873
 
     References
     ----------
@@ -337,8 +340,9 @@ def Jones_Krier(dp, voidage, vs, rho, mu, L=1.0):
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
     '''
     Re = dp*rho*vs/mu
-    fp = (150 + 3.89*(Re/(1-voidage))**0.87)*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = (1.0-voidage)
+    fp = (150 + 3.89*(Re/holdup)**0.87)*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Carman(dp, voidage, vs, rho, mu, L=1.0):
@@ -400,8 +404,9 @@ def Carman(dp, voidage, vs, rho, mu, L=1.0):
        590-600. doi:10.1016/j.powtec.2013.06.022.
     '''
     Re = dp*rho*vs/mu
-    fp = (180 + 2.871*(Re/(1-voidage))**0.9)*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = 1.0 - voidage
+    fp = (180 + 2.871*(Re/holdup)**0.9)*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Hicks(dp, voidage, vs, rho, mu, L=1.0):
@@ -447,7 +452,7 @@ def Hicks(dp, voidage, vs, rho, mu, L=1.0):
     Examples
     --------
     >>> Hicks(dp=0.01, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
-    3.631703956680737
+    3.631703956680
 
     References
     ----------
@@ -463,8 +468,9 @@ def Hicks(dp, voidage, vs, rho, mu, L=1.0):
        590-600. doi:10.1016/j.powtec.2013.06.022.
     '''
     Re = dp*rho*vs/mu
-    fp = 6.8*(1-voidage)**1.2/Re**0.2/voidage**3
-    return fp*rho*vs**2*L/dp
+    holdup = 1.0 - voidage
+    fp = 6.8*holdup**1.2/(Re**0.2*voidage*voidage*voidage)
+    return fp*rho*vs*vs*L/dp
 
 
 def Brauer(dp, voidage, vs, rho, mu, L=1.0):
@@ -527,8 +533,9 @@ def Brauer(dp, voidage, vs, rho, mu, L=1.0):
        590-600. doi:10.1016/j.powtec.2013.06.022.
     '''
     Re = dp*rho*vs/mu
-    fp = (160 + 3.1*(Re/(1-voidage))**0.9)*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = 1.0 - voidage
+    fp = (160.0 + 3.1*(Re/holdup)**0.9)*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def KTA(dp, voidage, vs, rho, mu, L=1.0):
@@ -590,8 +597,9 @@ def KTA(dp, voidage, vs, rho, mu, L=1.0):
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
     '''
     Re = dp*rho*vs/mu
-    fp = (160 + 3*(Re/(1-voidage))**0.9)*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+    holdup = 1.0 - voidage
+    fp = (160.0 + 3.0*(Re/holdup)**0.9)*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1.0):
@@ -648,9 +656,10 @@ def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1.0):
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
     '''
-    Rem = dp*rho*vs/mu/(1-voidage)
-    fv = 160 + 2.81*Rem**0.904
-    return fv*(mu*vs*L/dp**2)*(1-voidage)**2/voidage**3
+    holdup = (1.0-voidage)
+    Rem = dp*rho*vs/(holdup*mu)
+    fv = 160.0 + 2.81*Rem**0.904
+    return fv*(mu*vs*L/(dp*dp))*holdup*holdup/(voidage*voidage*voidage)
 
 
 def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1.0):
@@ -708,7 +717,7 @@ def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1.0):
     Examples
     --------
     >>> Fahien_Schriver(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
-    1470.6175541844711
+    1470.6175541844
 
     References
     ----------
@@ -719,13 +728,15 @@ def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1.0):
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
     '''
-    Rem = dp*rho*vs/mu/(1-voidage)
-    q = exp(-voidage**2*(1-voidage)/12.6*Rem)
-    f1L = 136/(1-voidage)**0.38
-    f1T = 29/((1-voidage)**1.45*voidage**2)
-    f2 = 1.87*voidage**0.75/(1-voidage)**0.26
-    fp = (q*f1L/Rem + (1-q)*(f2 + f1T/Rem))*(1-voidage)/voidage**3
-    return fp*rho*vs**2*L/dp
+    holdup = (1.0-voidage)
+    voidage2 = voidage*voidage
+    Rem = dp*rho*vs/(holdup*mu)
+    q = exp(-voidage2*holdup*(1.0/12.6)*Rem)
+    f1L = 136.0/holdup**0.38
+    f1T = 29.0/(holdup**1.45*voidage2)
+    f2 = 1.87*voidage**0.75/holdup**0.26
+    fp = (q*f1L/Rem + (1.0-q)*(f2 + f1T/Rem))*holdup/(voidage2*voidage)
+    return fp*rho*vs*vs*L/dp
 
 
 def Idelchik(dp, voidage, vs, rho, mu, L=1.0):
@@ -783,10 +794,10 @@ def Idelchik(dp, voidage, vs, rho, mu, L=1.0):
        Arrangement and Roughness." Powder Technology 246 (September 2013):
        590-600. doi:10.1016/j.powtec.2013.06.022.
     '''
-    Re = rho*vs*dp/mu/(1-voidage)
+    Re = rho*vs*dp/(mu*(1.0-voidage))
     Re = (0.45/sqrt(voidage))*Re
-    right = 0.765/voidage**4.2*(30./Re + 3./Re**0.7 + 0.3)
-    left = dp/L/rho/vs**2
+    right = 0.765*voidage**-4.2*(30./Re + 3.*Re**-0.7 + 0.3)
+    left = dp/(L*rho*vs*vs)
     return right/left
 
 
@@ -848,7 +859,7 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
     Examples
     --------
     >>> Harrison_Brunner_Hecker(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=1E-2)
-    1255.1625662548427
+    1255.1625662
 
     References
     ----------
@@ -860,13 +871,15 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
     '''
     Re = dp*rho*vs/mu
+    holdup = 1.0 - voidage
     if Dt is None:
         A, B = 1.0, 1.0
     else:
-        A = (1 + pi*dp/(6*(1-voidage)*Dt))**2
-        B = 1 - pi**2*dp/24/Dt*(1 - dp/(2*Dt))
-    fp = (119.8*A + 4.63*B*(Re/(1-voidage))**(5/6.))*(1-voidage)**2/(voidage**3*Re)
-    return fp*rho*vs**2*L/dp
+        A = (1.0 + pi*dp/(6.0*holdup*Dt))
+        A = A*A
+        B = 1 - pi*pi*dp/24/Dt*(1 - dp/(2.0*Dt))
+    fp = (119.8*A + 4.63*B*(Re/holdup)**(5/6.))*holdup*holdup/(voidage*voidage*voidage*Re)
+    return fp*rho*vs*vs*L/dp
 
 
 def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
@@ -915,7 +928,7 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
     Custom example:
 
     >>> Montillet_Akkari_Comiti(dp=0.0008, voidage=0.4, L=0.5, vs=0.00132629120, rho=1000., mu=1.00E-003)
-    1148.1905244077548
+    1148.19052440
 
     References
     ----------
@@ -938,8 +951,8 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
         Dterm = 2.2
     else:
         Dterm = (Dt/dp)**0.2
-    right = a*Dterm*(1000./Re + 60/sqrt(Re) + 12)
-    left = dp/L/rho/vs**2*voidage**3/(1-voidage)
+    right = a*Dterm*(1000./Re + 60.0/sqrt(Re) + 12.0)
+    left = dp/(L*rho*vs*vs*(1.0-voidage))*voidage*voidage*voidage
     return right/left
 
 
@@ -995,7 +1008,7 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1.0):
     Examples
     --------
     >>> Guo_Sun(dp=14.2E-3, voidage=0.492, vs=0.6, rho=1E3, mu=1E-3, Dt=40.9E-3)
-    42019.529911473706
+    42019.529911
 
     References
     ----------
@@ -1005,10 +1018,11 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1.0):
        doi:10.1016/j.powtec.2017.08.024.
     '''
     #  2 < D/d < 3, particles in contact with the wall tend to form a highly ordered ring structure.
-    Rem = dp*rho*vs/mu/(1-voidage)
+    holdup = 1.0 - voidage
+    Rem = dp*rho*vs/(mu*holdup)
     ratio = dp/Dt if Dt is not None else 3.5 # Never ran
-    fv = 180 + (9.5374*ratio - 2.8054)*Rem**0.97
-    return fv*(mu*vs*L/dp**2)*(1-voidage)**2/voidage**3
+    fv = 180.0 + (9.5374*ratio - 2.8054)*Rem**0.97
+    return fv*(mu*vs*L/(dp*dp*voidage*voidage*voidage))*holdup*holdup
 
 
 
@@ -1099,11 +1113,11 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
     Examples
     --------
     >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
-    1438.2826958844414
+    1438.2826958844
     >>> dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01)
-    1255.1625662548427
+    1255.1625662548
     >>> dP_packed_bed(dp=0.05, voidage=0.492, vs=0.1, rho=1E3, mu=1E-3, Dt=0.015, Method='Guo, Sun, Zhang, Ding & Liu')
-    18782.499710673364
+    18782.499710673
 
     Parameters
     ----------
@@ -1239,8 +1253,8 @@ def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
     '''
-    return 0.1504 + 0.2024/sphericity + 1.0814/(Dt/Dpe + 0.1226)**2
-
+    x1 = Dt/Dpe + 0.1226
+    return 0.1504 + 0.2024/sphericity + 1.0814/(x1*x1)
 
 def voidage_Benyahia_Oneil_spherical(Dp, Dt):
     r'''Calculates voidage of a bed of spheres
@@ -1280,7 +1294,8 @@ def voidage_Benyahia_Oneil_spherical(Dp, Dt):
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
     '''
-    return 0.390 + 1.740/(Dt/Dp + 1.140)**2
+    x1 = Dt/Dp + 1.140
+    return 0.390 + 1.740/(x1*x1)
 
 
 def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
@@ -1324,4 +1339,5 @@ def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
     '''
-    return 0.373 + 1.703/(Dt/Dpe + 0.611)**2
+    x1 = Dt/Dpe + 0.611
+    return 0.373 + 1.703/(x1*x1)

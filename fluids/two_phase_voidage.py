@@ -162,7 +162,7 @@ def Thom(x, rhol, rhog, mul, mug):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    return (1 + (1-x)/x * (rhog/rhol)**0.89 * (mul/mug)**0.18)**-1
+    return 1.0/(1.0 + (1.0-x)/x * (rhog/rhol)**0.89 * (mul/mug)**0.18)
 #    return x*((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6/(x*(((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6 - 1) + 1)
 
 
@@ -212,7 +212,7 @@ def Zivi(x, rhol, rhog):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    return (1 + (1-x)/x * (rhog/rhol)**(2/3.))**-1
+    return 1.0/(1.0 + (1.0-x)/x * (rhog/rhol)**(2/3.))
 
 
 def Smith(x, rhol, rhog):
@@ -268,9 +268,9 @@ def Smith(x, rhol, rhog):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
     K = 0.4
-    x_ratio = (1-x)/x
-    root = sqrt((rhol/rhog + K*x_ratio) / (1 + K*x_ratio))
-    alpha = (1 + (x_ratio) * (rhog/rhol) * (K + (1-K)*root))**-1
+    x_ratio = (1.0-x)/x
+    root = sqrt((rhol/rhog + K*x_ratio) / (1.0 + K*x_ratio))
+    alpha = 1.0/(1.0 + (x_ratio) * (rhog/rhol) * (K + (1.0-K)*root))
     return alpha
 
 
@@ -320,7 +320,7 @@ def Fauske(x, rhol, rhog):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    return (1 + (1-x)/x*sqrt(rhog/rhol))**-1
+    return 1.0/(1.0 + (1.0-x)/x*sqrt(rhog/rhol))
 
 
 def Chisholm_voidage(x, rhol, rhog):
@@ -371,8 +371,8 @@ def Chisholm_voidage(x, rhol, rhog):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    S = sqrt(1 - x*(1-rhol/rhog))
-    alpha = (1 + (1-x)/x*rhog/rhol*S)**-1
+    S = sqrt(1.0 - x*(1.0-rhol/rhog))
+    alpha = 1.0/(1.0 + (1.0-x)/x*rhog/rhol*S)
     return alpha
 
 
@@ -427,7 +427,7 @@ def Turner_Wallis(x, rhol, rhog, mul, mug):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    return (1 + ((1-x)/x)**0.72 * (rhog/rhol)**0.4 * (mul/mug)**0.08)**-1
+    return 1.0/(1.0 + ((1.0-x)/x)**0.72 * (rhog/rhol)**0.4 * (mul/mug)**0.08)
 
 
 ### Models using the Homogeneous flow model
@@ -534,7 +534,7 @@ def Chisholm_Armand(x, rhol, rhog):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     alpha_h = homogeneous(x, rhol, rhog)
-    return alpha_h/(alpha_h + sqrt(1-alpha_h))
+    return alpha_h/(alpha_h + sqrt(1.0-alpha_h))
 
 
 def Armand(x, rhol, rhog):
@@ -637,7 +637,7 @@ def Nishino_Yamazaki(x, rhol, rhog):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     alpha_h = homogeneous(x, rhol, rhog)
-    return 1 - sqrt((1-x)*rhog/x/rhol)*sqrt(alpha_h)
+    return 1.0 - sqrt((1.0-x)*rhog/(x*rhol))*sqrt(alpha_h)
 
 
 def Guzhov(x, rhol, rhog, m, D):
@@ -692,8 +692,8 @@ def Guzhov(x, rhol, rhog, m, D):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    rho_tp = ((1-x)/rhol + x/rhog)**-1
-    G = m/(pi/4*D**2)
+    rho_tp = 1.0/((1-x)/rhol + x/rhog)
+    G = m/(0.25*pi*D*D)
     V_tp = G/rho_tp
     Fr = Froude(V=V_tp, L=D, squared=True) # squaring in undone later; Fr**0.5
     alpha_h = homogeneous(x, rhol, rhog)
@@ -832,7 +832,7 @@ def Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug, pow_x=0.9, pow_rho=0.5,
     if n is not None:
         pow_x = (2-n)/2.
         pow_mu = n/2.
-    return ((1-x)/x)**pow_x * (rhog/rhol)**pow_rho * (mul/mug)**pow_mu
+    return ((1.0-x)/x)**pow_x * (rhog/rhol)**pow_rho * (mul/mug)**pow_mu
 
 
 def Baroczy(x, rhol, rhog, mul, mug):
@@ -890,7 +890,7 @@ def Baroczy(x, rhol, rhog, mul, mug):
     '''
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug,
                                   pow_x=0.74, pow_rho=0.65, pow_mu=0.13)
-    return (1 + Xtt)**-1
+    return 1.0/(1 + Xtt)
 
 
 def Tandon_Varma_Gupta(x, rhol, rhog, mul, mug, m, D):
@@ -968,14 +968,14 @@ def Tandon_Varma_Gupta(x, rhol, rhog, mul, mug, m, D):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    G = m/(pi/4*D**2)
+    G = m/(0.25*pi*D*D)
     Rel = G*D/mul
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
-    Fxtt = 0.15*(Xtt**-1 + 2.85*Xtt**-0.476)
-    if Rel < 1125:
-        alpha = 1 - 1.928*Rel**-0.315/Fxtt + 0.9293*Rel**-0.63/Fxtt**2
+    Fxtt = 0.15*(1.0/Xtt + 2.85*Xtt**-0.476)
+    if Rel < 1125.0:
+        alpha = 1.0 - 1.928*Rel**-0.315/Fxtt + 0.9293*Rel**-0.63/(Fxtt*Fxtt)
     else:
-        alpha = 1 - 0.38*Rel**-0.088/Fxtt + 0.0361*Rel**-0.176/Fxtt**2
+        alpha = 1.0 - 0.38*Rel**-0.088/Fxtt + 0.0361*Rel**-0.176/(Fxtt*Fxtt)
     return alpha
 
 
@@ -1036,11 +1036,12 @@ def Harms(x, rhol, rhog, mul, mug, m, D):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    G = m/(pi/4*D**2)
-    Rel = G*D*(1-x)/mul
+    G = m/(0.25*pi*D*D)
+    Rel = G*D*(1.0-x)/mul
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
-    return (1 - 10.06*Rel**-0.875*(1.74 + 0.104*sqrt(Rel))**2
-            *1.0/sqrt(1.376 + 7.242/Xtt**1.655))
+    term = (1.74 + 0.104*sqrt(Rel))
+    return (1 - 10.06*Rel**-0.875*term*term
+            *1.0/sqrt(1.376 + 7.242*Xtt**-1.655))
 
 
 def Domanski_Didion(x, rhol, rhog, mul, mug):
@@ -1104,8 +1105,8 @@ def Domanski_Didion(x, rhol, rhog, mul, mug):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
-    if Xtt < 10:
-        return (1 + Xtt**0.8)**-0.378
+    if Xtt < 10.0:
+        return (1.0 + Xtt**0.8)**-0.378
     else:
         return 0.823 - 0.157*log(Xtt)
 
@@ -1172,12 +1173,13 @@ def Graham(x, rhol, rhog, mul, mug, m, D, g=g):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    G = m/(pi/4*D**2)
-    Ft = sqrt(G**2*x**3/((1-x)*rhog**2*g*D))
+    G = m/(0.25*pi*D*D)
+    Ft = sqrt(G*G*x*x*x/((1.0-x)*rhog*rhog*g*D))
     if Ft < 0.01032:
-        return 0
+        return 0.0
     else:
-        return 1 - exp(-1 - 0.3*log(Ft) - 0.0328*log(Ft)**2)
+        log_Ft = log(Ft)
+        return 1.0 - exp(-1.0 - 0.3*log_Ft - 0.0328*log_Ft*log_Ft)
 
 
 def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
@@ -1238,8 +1240,8 @@ def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    G = m/(pi/4*D**2)
-    Ft = sqrt(G**2*x**3/((1-x)*rhog**2*g*D))
+    G = m/(0.25*pi*D*D)
+    Ft = sqrt(G*G*x*x*x/((1.0-x)*rhog*rhog*g*D))
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
     return (1 + 1./Ft + Xtt)**-0.321
 
@@ -1295,12 +1297,13 @@ def Huq_Loth(x, rhol, rhog):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    B = 2*x*(1-x)
-    D = sqrt(1 + 2*B*(rhol/rhog -1))
-    return 1 - 2*(1-x)**2/(1 - 2*x + D)
+    term = 1.0 - x
+    B = 2.0*x*term
+    D = sqrt(1.0 + 2.0*B*(rhol/rhog -1.0))
+    return 1.0 - 2.0*term*term/(1.0 - 2.0*x + D)
 
 
-def Kopte_Newell_Chato(x, rhol, rhog, mul, mug, m, D, g=g):
+def Kopte_Newell_Chato(x, rhol, rhog, m, D, g=g):
     r'''Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_.
 
@@ -1322,10 +1325,6 @@ def Kopte_Newell_Chato(x, rhol, rhog, mul, mug, m, D, g=g):
         Density of the liquid [kg/m^3]
     rhog : float
         Density of the gas [kg/m^3]
-    mul : float
-        Viscosity of liquid [Pa*s]
-    mug : float
-        Viscosity of gas [Pa*s]
     m : float
         Mass flow rate of both phases, [kg/s]
     D : float
@@ -1345,7 +1344,7 @@ def Kopte_Newell_Chato(x, rhol, rhog, mul, mug, m, D, g=g):
 
     Examples
     --------
-    >>> Kopte_Newell_Chato(.4, 800, 2.5, 1E-3, 1E-5, m=1, D=0.3)
+    >>> Kopte_Newell_Chato(.4, 800, 2.5, m=1, D=0.3)
     0.6864466770087425
 
     References
@@ -1358,12 +1357,13 @@ def Kopte_Newell_Chato(x, rhol, rhog, mul, mug, m, D, g=g):
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
        1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     '''
-    G = m/(pi/4*D**2)
-    Ft = sqrt(G**2*x**3/((1-x)*rhog**2*g*D))
+    G = m/(0.25*pi*D*D)
+    Ft = sqrt(G*G*x*x*x/((1.0-x)*rhog*rhog*g*D))
     if Ft < 0.044:
         return homogeneous(x, rhol, rhog)
     else:
-        return 1.045 - exp(-1 - 0.342*log(Ft) - 0.0268*log(Ft)**2 + 0.00597*log(Ft)**3)
+        log_Ft = log(Ft)
+        return 1.045 - exp(-1 - 0.342*log_Ft - 0.0268*log_Ft*log_Ft + 0.00597*log_Ft*log_Ft*log_Ft)
 
 ### Drift flux models
 
@@ -1426,10 +1426,10 @@ def Steiner(x, rhol, rhog, sigma, m, D, g=g):
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     '''
-    G = m/(pi/4*D**2)
-    C0 = 1 + 0.12*(1-x)
-    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    G = m/(0.25*pi*D*D)
+    C0 = 1.0 + 0.12*(1.0-x)
+    vgm = 1.18*(1.0-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
 def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
@@ -1491,10 +1491,10 @@ def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    G = m/(pi/4*D**2)
-    C0 = 1 + 0.2*(1-x)
-    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    G = m/(0.25*pi*D*D)
+    C0 = 1.0 + 0.2*(1.0-x)
+    vgm = 1.18*(1.0-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
 def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
@@ -1540,7 +1540,7 @@ def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
     Examples
     --------
     >>> Rouhani_2(0.4, 800., 2.5, sigma=0.02, m=1, D=0.3)
-    0.44819733138968865
+    0.44819733138968
 
     References
     ----------
@@ -1556,10 +1556,10 @@ def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    G = m/(pi/4*D**2)
-    C0 = 1 + 0.2*(1-x)*sqrt(sqrt(g*D))*sqrt(rhol/G)
-    vgm = 1.18*(1-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    G = m/(0.25*pi*D*D)
+    C0 = 1.0 + 0.2*(1.0-x)*sqrt(sqrt(g*D))*sqrt(rhol/G)
+    vgm = 1.18*(1.0-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
+    return x/(rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G))
 
 
 def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
@@ -1602,7 +1602,7 @@ def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
     Examples
     --------
     >>> Nicklin_Wilkes_Davidson(0.4, 800., 2.5, m=1, D=0.3)
-    0.6798826626721431
+    0.6798826626721
 
     References
     ----------
@@ -1616,10 +1616,10 @@ def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    G = m/(pi/4*D**2)
+    G = m/(0.25*pi*D*D)
     C0 = 1.2
     vgm = 0.35*sqrt(g*D)
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
 def Gregory_Scott(x, rhol, rhog):
@@ -1673,7 +1673,7 @@ def Gregory_Scott(x, rhol, rhog):
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
     C0 = 1.19
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol))**-1
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol)))
 
 
 def Dix(x, rhol, rhog, sigma, m, D, g=g):
@@ -1729,7 +1729,7 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
     Examples
     --------
     >>> Dix(0.4, 800., 2.5, sigma=0.02, m=1, D=0.3)
-    0.8268737961156514
+    0.82687379611
 
     References
     ----------
@@ -1744,12 +1744,13 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    vgs = m*x/(rhog*pi/4*D**2)
-    vls = m*(1-x)/(rhol*pi/4*D**2)
-    G = m/(pi/4*D**2)
-    C0 = vgs/(vls+vgs)*(1 + (vls/vgs)**((rhog/rhol)**0.1))
-    vgm = 2.9*sqrt(sqrt(g*sigma*(rhol-rhog)/rhol**2))
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    A = 0.25*pi*D*D
+    vgs = m*x/(rhog*A)
+    vls = m*(1.0-x)/(rhol*A)
+    G = m/A
+    C0 = vgs/(vls+vgs)*(1.0 + (vls/vgs)**((rhog/rhol)**0.1))
+    vgm = 2.9*sqrt(sqrt(g*sigma*(rhol-rhog)/(rhol*rhol)))
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
 def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
@@ -1814,11 +1815,11 @@ def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    G = m/(pi/4*D**2)
+    G = m/(0.25*pi*D*D)
     Pr = P/Pc if Pc is not None else 0.5
-    C0 = (0.82 + 0.18*Pr)**-1
-    vgm = 1.41*sqrt(sqrt(g*sigma*(rhol-rhog)/rhol**2))
-    return x/rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G)**-1
+    C0 = 1.0/(0.82 + 0.18*Pr)
+    vgm = 1.41*sqrt(sqrt(g*sigma*(rhol-rhog)/(rhol*rhol)))
+    return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
 # Correlations developed in reviews
@@ -1870,10 +1871,10 @@ def Xu_Fang_voidage(x, rhol, rhog, m, D, g=g):
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
        1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
     '''
-    G = m/(pi/4*D**2)
+    G = m/(0.25*pi*D*D)
     alpha_h = homogeneous(x, rhol, rhog)
-    Frlo = G**2/(g*D*rhol**2)
-    return (1 + (1 + 2*Frlo**-0.2*alpha_h**3.5)*((1-x)/x)*(rhog/rhol))**-1
+    Frlo = G*G/(g*D*rhol*rhol)
+    return 1.0/(1.0 + (1.0 + 2.0*Frlo**-0.2*alpha_h**3.5)*((1.0-x)/x)*(rhog/rhol))
 
 
 def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
@@ -1936,10 +1937,11 @@ def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
     '''
-    vgs = m*x/(rhog*pi/4*D**2)
-    vls = m*(1-x)/(rhol*pi/4*D**2)
-    first = vgs*(1 + (vls/vgs)**((rhog/rhol)**0.1))
-    second = 2.9*sqrt(sqrt((g*D*sigma*(1 + cos(radians(angle)))*(rhol-rhog))/rhol**2))
+    A = 0.25*pi*D*D
+    vgs = m*x/(rhog*A)
+    vls = m*(1.0-x)/(rhol*A)
+    first = vgs*(1.0 + (vls/vgs)**((rhog/rhol)**0.1))
+    second = 2.9*sqrt(sqrt((g*D*sigma*(1.0 + cos(radians(angle)))*(rhol-rhog))/(rhol*rhol)))
     if P is None:
         P = 101325.0
     third = (1.22 + 1.22*sin(radians(angle)))**(101325./P)
@@ -1966,7 +1968,7 @@ two_phase_voidage_correlations = {'Thom' : (Thom, ('x', 'rhol', 'rhog', 'mul', '
 'Graham' : (Graham, ('x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D', 'g')),
 'Yashar' : (Yashar, ('x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D', 'g')),
 'Huq_Loth' : (Huq_Loth, ('x', 'rhol', 'rhog')),
-'Kopte_Newell_Chato' : (Kopte_Newell_Chato, ('x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D', 'g')),
+'Kopte_Newell_Chato' : (Kopte_Newell_Chato, ('x', 'rhol', 'rhog', 'm', 'D', 'g')),
 'Steiner' : (Steiner, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g')),
 'Rouhani 1' : (Rouhani_1, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g')),
 'Rouhani 2' : (Rouhani_2, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g')),
@@ -2148,7 +2150,7 @@ def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
     elif Method2 == "Huq_Loth":
         return Huq_Loth(x=x, rhol=rhol, rhog=rhog)
     elif Method2 == "Kopte_Newell_Chato":
-        return Kopte_Newell_Chato(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, m=m, D=D, g=g)
+        return Kopte_Newell_Chato(x=x, rhol=rhol, rhog=rhog, m=m, D=D, g=g)
     elif Method2 == "Steiner":
         return Steiner(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, g=g)
     elif Method2 == "Rouhani 1":
@@ -2529,7 +2531,8 @@ def Fourar_Bories(x, mul, mug, rhol, rhog):
     rhom = 1./(x/rhog + (1. - x)/rhol)
     nul = mul/rhol # = nu_mu_converter(rho=rhol, mu=mul)
     nug = mug/rhog # = nu_mu_converter(rho=rhog, mu=mug)
-    return rhom*(sqrt(x*nug) + sqrt((1. - x)*nul))**2
+    term = (sqrt(x*nug) + sqrt((1. - x)*nul))
+    return rhom*term*term
 
 
 def Duckler(x, mul, mug, rhol, rhog):

@@ -132,7 +132,7 @@ from math import cos, exp, isinf, log, log10, pi, radians, sin, sqrt, tan
 
 from fluids.constants import g, inch
 from fluids.core import Dean, Reynolds
-from fluids.numerics import lambertw, secant
+from fluids.numerics import lambertw, secant, cbrt
 
 __all__ = ['friction_factor', 'friction_factor_methods',
            'friction_factor_curved', 'helical_Re_crit',
@@ -548,7 +548,7 @@ def Moody(Re, eD):
     .. [2] Moody, L.F.: An approximate formula for pipe friction factors.
        Trans. Am. Soc. Mech. Eng. 69,1005-1006 (1947)
     '''
-    return 4*(1.375E-3*(1 + (2E4*eD + 1E6/Re)**(1/3.)))
+    return 4.0*(1.375E-3*(1.0 + cbrt(2E4*eD + 1E6/Re)))
 
 
 def Alshul_1952(Re, eD):
@@ -586,7 +586,7 @@ def Alshul_1952(Re, eD):
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
     '''
-    return 0.11*sqrt(sqrt(68/Re + eD))
+    return 0.11*sqrt(sqrt(68.0/Re + eD))
 
 
 def Wood_1966(Re, eD):
@@ -631,7 +631,7 @@ def Wood_1966(Re, eD):
        Civil Engineering American Society of Civil Engineers (1966)
     '''
     A1 = 1.62*eD**0.134
-    return 0.094*eD**0.225 + 0.53*eD +88*eD**0.4*Re**-A1
+    return 0.094*eD**0.225 + 0.53*eD +88.0*eD**0.4*Re**-A1
 
 
 def Churchill_1973(Re, eD):
@@ -673,7 +673,8 @@ def Churchill_1973(Re, eD):
        Stress in Turbulent Flow in Commercial Pipe." AIChE Journal 19, no. 2
        (March 1, 1973): 375-76. doi:10.1002/aic.690190228.
     '''
-    return (-2*log10(eD/3.7 + (7./Re)**0.9))**-2
+    term = (-2.0*log10(eD*(1.0/3.7) + (7./Re)**0.9))
+    return 1.0/(term*term)
 
 
 def Eck_1973(Re, eD):
@@ -713,7 +714,8 @@ def Eck_1973(Re, eD):
        doi:10.1007/s10494-012-9419-7
     .. [2] Eck, B.: Technische Stromungslehre. Springer, New York (1973)
     '''
-    return (-2*log10(eD/3.715 + 15/Re))**-2
+    term = (-2.0*log10(eD*(1.0/3.715) + 15.0/Re))
+    return 1.0/(term*term)
 
 
 def Jain_1976(Re, eD):
@@ -743,7 +745,7 @@ def Jain_1976(Re, eD):
     Examples
     --------
     >>> Jain_1976(1E5, 1E-4)
-    0.018436560312693327
+    0.018436560312
 
     References
     ----------
@@ -754,8 +756,8 @@ def Jain_1976(Re, eD):
     .. [2] 	Jain, Akalank K."Accurate Explicit Equation for Friction Factor."
        Journal of the Hydraulics Division 102, no. 5 (May 1976): 674-77.
     '''
-    ff = (2.28-4*log10(eD+(29.843/Re)**0.9))**-2
-    return 4*ff
+    term = (2.28-4.0*log10(eD+(29.843/Re)**0.9))
+    return 4.0/(term*term)
 
 
 def Swamee_Jain_1976(Re, eD):
@@ -797,8 +799,8 @@ def Swamee_Jain_1976(Re, eD):
        Pipe-Flow Problems." Journal of the Hydraulics Division 102, no. 5
        (May 1976): 657-664.
     '''
-    ff = (-4*log10((6.97/Re)**0.9 + eD/3.7))**-2
-    return 4*ff
+    term = (-4.0*log10((6.97/Re)**0.9 + eD*(1.0/3.7)))
+    return 4.0/(term*term)
 
 
 def Churchill_1977(Re, eD):
@@ -847,8 +849,8 @@ def Churchill_1977(Re, eD):
     '''
     A3 = (37530/Re)**16
     A2 = (2.457*log((7./Re)**0.9 + 0.27*eD))**16
-    ff = 2*((8/Re)**12 + 1/(A2+A3)**1.5)**(1/12.)
-    return 4*ff
+    ff = 2.0*((8.0/Re)**12 + 1.0/(A2+A3)**1.5)**(1.0/12.)
+    return 4.0*ff
 
 
 def Chen_1979(Re, eD):
@@ -882,7 +884,7 @@ def Chen_1979(Re, eD):
     Examples
     --------
     >>> Chen_1979(1E5, 1E-4)
-    0.018552817507472126
+    0.0185528175074
 
     References
     ----------
@@ -894,9 +896,9 @@ def Chen_1979(Re, eD):
        Pipe." Industrial & Engineering Chemistry Fundamentals 18, no. 3
        (August 1, 1979): 296-97. doi:10.1021/i160071a019.
     '''
-    A4 = eD**1.1098/2.8257 + (7.149/Re)**0.8981
-    ff = (-4*log10(eD/3.7065 - 5.0452/Re*log10(A4)))**-2
-    return 4*ff
+    A4 = eD**1.1098*(1.0/2.8257) + (7.149/Re)**0.8981
+    term = (-4.0*log10(eD*(1.0/3.7065) - 5.0452/Re*log10(A4)))
+    return 4.0/(term*term)
 
 
 def Round_1980(Re, eD):
@@ -939,8 +941,8 @@ def Round_1980(Re, eD):
        Canadian Journal of Chemical Engineering 58, no. 1 (February 1, 1980):
        122-23. doi:10.1002/cjce.5450580119.
     '''
-    ff = (-3.6*log10(Re/(0.135*Re*eD+6.5)))**-2
-    return 4*ff
+    term = (-3.6*log10(Re/(0.135*Re*eD+6.5)))
+    return 4.0/(term*term)
 
 
 def Shacham_1980(Re, eD):
@@ -983,8 +985,8 @@ def Shacham_1980(Re, eD):
        Factor in Pipe.'" Industrial & Engineering Chemistry Fundamentals 19,
        no. 2 (May 1, 1980): 228-228. doi:10.1021/i160074a019.
     '''
-    ff = (-4*log10(eD/3.7 - 5.02/Re*log10(eD/3.7 + 14.5/Re)))**-2
-    return 4*ff
+    term = (-4.0*log10(eD*(1.0/3.7) - 5.02/Re*log10(eD*(1.0/3.7) + 14.5/Re)))
+    return 4.0/(term*term)
 
 
 def Barr_1981(Re, eD):
@@ -1028,8 +1030,8 @@ def Barr_1981(Re, eD):
        ICE Proceedings 71, no. 2 (January 6, 1981): 529-35.
        doi:10.1680/iicep.1981.1895.
     '''
-    fd = (-2*log10(eD/3.7 + 4.518*log10(Re/7.)/(Re*(1+Re**0.52/29*eD**0.7))))**-2
-    return fd
+    term = (-2.0*log10(eD*(1.0/3.7) + 4.518*log10(Re*(1.0/7.))/(Re*(1.0+Re**0.52*(1.0/29.0)*eD**0.7))))
+    return 1.0/(term*term)
 
 
 def Zigrang_Sylvester_1(Re, eD):
@@ -1073,9 +1075,9 @@ def Zigrang_Sylvester_1(Re, eD):
        Solution of Colebrook's Friction Factor Equation." AIChE Journal 28,
        no. 3 (May 1, 1982): 514-15. doi:10.1002/aic.690280323.
     '''
-    A5 = eD/3.7 + 13/Re
-    ff = (-4*log10(eD/3.7 - 5.02/Re*log10(A5)))**-2
-    return 4*ff
+    A5 = eD*(1.0/3.7) + 13.0/Re
+    term = (-4.0*log10(eD*(1.0/3.7) - 5.02/Re*log10(A5)))
+    return 4.0/(term*term)
 
 
 def Zigrang_Sylvester_2(Re, eD):
@@ -1123,10 +1125,10 @@ def Zigrang_Sylvester_2(Re, eD):
        Solution of Colebrook's Friction Factor Equation." AIChE Journal 28,
        no. 3 (May 1, 1982): 514-15. doi:10.1002/aic.690280323.
     '''
-    A5 = eD/3.7 + 13/Re
-    A6 = eD/3.7 - 5.02/Re*log10(A5)
-    ff = (-4*log10(eD/3.7 - 5.02/Re*log10(A6)))**-2
-    return 4*ff
+    A5 = eD*(1.0/3.7) + 13.0/Re
+    A6 = eD*(1.0/3.7) - 5.02/Re*log10(A5)
+    term = (-4.0*log10(eD*(1.0/3.7) - 5.02/Re*log10(A6)))
+    return 4.0/(term*term)
 
 
 def Haaland(Re, eD):
@@ -1168,8 +1170,8 @@ def Haaland(Re, eD):
        in Turbulent Pipe Flow." Journal of Fluids Engineering 105, no. 1
        (March 1, 1983): 89-90. doi:10.1115/1.3240948.
     '''
-    ff = (-3.6*log10(6.9/Re +(eD/3.7)**1.11))**-2
-    return 4*ff
+    term = (-3.6*log10(6.9/Re +(eD*(1.0/3.7))**1.11))
+    return 4.0/(term*term)
 
 
 def Serghides_1(Re, eD):
@@ -1218,10 +1220,12 @@ def Serghides_1(Re, eD):
     .. [2] Serghides T.K (1984)."Estimate friction factor accurately"
        Chemical Engineering, Vol. 91(5), pp. 63-64.
     '''
-    A = -2*log10(eD/3.7 + 12/Re)
-    B = -2*log10(eD/3.7 + 2.51*A/Re)
-    C = -2*log10(eD/3.7 + 2.51*B/Re)
-    return (A - (B-A)**2/(C-2*B + A))**-2
+    A = -2.0*log10(eD*(1.0/3.7) + 12.0/Re)
+    B = -2.0*log10(eD*(1.0/3.7) + 2.51*A/Re)
+    C = -2.0*log10(eD*(1.0/3.7) + 2.51*B/Re)
+    B_minus_A = B - A
+    term = (A - B_minus_A*B_minus_A/(C-2.0*B + A))
+    return 1.0/(term*term)
 
 
 def Serghides_2(Re, eD):
@@ -1269,9 +1273,11 @@ def Serghides_2(Re, eD):
     .. [2]	Serghides T.K (1984)."Estimate friction factor accurately"
        Chemical Engineering, Vol. 91(5), pp. 63-64.
     '''
-    A = -2*log10(eD/3.7 + 12/Re)
-    B = -2*log10(eD/3.7 + 2.51*A/Re)
-    return (4.781 - (A - 4.781)**2/(B - 2*A + 4.781))**-2
+    A = -2.0*log10(eD*(1.0/3.7) + 12.0/Re)
+    B = -2.0*log10(eD*(1.0/3.7) + 2.51*A/Re)
+    x1 = A - 4.781
+    term = (4.781 - x1*x1/(B - 2.0*A + 4.781))
+    return 1.0/(term*term)
 
 
 def Tsal_1989(Re, eD):
@@ -1315,7 +1321,7 @@ def Tsal_1989(Re, eD):
     .. [2] Tsal, R.J.: Altshul-Tsal friction factor equation.
        Heat-Piping-Air Cond. 8, 30-45 (1989)
     '''
-    A = 0.11*sqrt(sqrt(68/Re + eD))
+    A = 0.11*sqrt(sqrt(68.0/Re + eD))
     if A >= 0.018:
         return A
     else:
@@ -1360,7 +1366,8 @@ def Manadilli_1997(Re, eD):
     .. [2] 	Manadilli, G.: Replace implicit equations with signomial functions.
        Chem. Eng. 104, 129 (1997)
     '''
-    return (-2*log10(eD/3.7 + 95/Re**0.983 - 96.82/Re))**-2
+    term = (-2.0*log10(eD*(1.0/3.7) + 95.0*Re**-0.983 - 96.82/Re))
+    return 1.0/(term*term)
 
 
 def Romeo_2002(Re, eD):
@@ -1405,8 +1412,8 @@ def Romeo_2002(Re, eD):
        Pipes." Chemical Engineering Journal 86, no. 3 (April 28, 2002): 369-74.
        doi:10.1016/S1385-8947(01)00254-6.
     '''
-    fd = (-2*log10(eD/3.7065-5.0272/Re*log10(eD/3.827-4.567/Re*log10((eD/7.7918)**0.9924+(5.3326/(208.815+Re))**0.9345))))**-2
-    return fd
+    term = (-2.0*log10(eD*(1.0/3.7065)-5.0272/Re*log10(eD*(1.0/3.827)-4.567/Re*log10((eD*(1.0/7.7918))**0.9924+(5.3326/(208.815+Re))**0.9345))))
+    return 1.0/(term*term)
 
 
 def Sonnad_Goudar_2006(Re, eD):
@@ -1452,7 +1459,8 @@ def Sonnad_Goudar_2006(Re, eD):
        doi:10.1061/(ASCE)0733-9429(2007)133:11(1270).
     '''
     S = 0.124*eD*Re + log(0.4587*Re)
-    return (.8686*log(.4587*Re/S**(S/(S+1))))**-2
+    term = (.8686*log(.4587*Re/S**(S/(S+1.0))))
+    return 1.0/(term*term)
 
 
 def Rao_Kumar_2007(Re, eD):
@@ -1500,8 +1508,10 @@ def Rao_Kumar_2007(Re, eD):
        Division of Mechanical Sciences, Civil Engineering Indian Institute of
        Science Bangalore, India ID Code 9587 (2007)
     '''
-    beta = 1 - 0.55*exp(-0.33*(log(Re/6.5))**2)
-    return (2*log10((2*eD)**-1/beta/((0.444+0.135*Re)/Re)))**-2
+    term = log(Re*(1.0/6.5))
+    beta = 1.0 - 0.55*exp(-0.33*term*term)
+    term = (2.0*log10(1.0/((2.0*eD*beta)*((0.444+0.135*Re)/Re))))
+    return 1.0/(term*term)
 
 
 def Buzzelli_2008(Re, eD):
@@ -1537,7 +1547,7 @@ def Buzzelli_2008(Re, eD):
     Examples
     --------
     >>> Buzzelli_2008(1E5, 1E-4)
-    0.018513948401365277
+    0.018513948401
 
     References
     ----------
@@ -1549,8 +1559,9 @@ def Buzzelli_2008(Re, eD):
        Mach. Des. 80, 54-55 (2008)
     '''
     B1 = (.774*log(Re)-1.41)/(1.0 + 1.32*sqrt(eD))
-    B2 = eD/3.7*Re + 2.51*B1
-    return (B1- (B1+2*log10(B2/Re))/(1+2.18/B2))**-2
+    B2 = eD*(1.0/3.7)*Re + 2.51*B1
+    term = (B1- (B1+2.0*log10(B2/Re))/(1.0+2.18/B2))
+    return 1.0/(term*term)
 
 
 def Avci_Karagoz_2009(Re, eD):
@@ -1593,7 +1604,7 @@ def Avci_Karagoz_2009(Re, eD):
        Friction Factor in Smooth and Rough Pipes." Journal of Fluids
        Engineering 131, no. 6 (2009): 061203. doi:10.1115/1.3129132.
     '''
-    return 6.4*(log(Re) - log(1 + 0.01*Re*eD*(1+10*sqrt(eD))))**-2.4
+    return 6.4*(log(Re) - log(1.0 + 0.01*Re*eD*(1.0+10.0*sqrt(eD))))**-2.4
 
 
 def Papaevangelo_2010(Re, eD):
@@ -1637,7 +1648,9 @@ def Papaevangelo_2010(Re, eD):
        Corfu, Greece: University of Ioannina Greece and Stevens Institute of
        Technology New Jersey (2010)
     '''
-    return (0.2479-0.0000947*(7-log(Re))**4)/(log10(eD/3.615 + 7.366/Re**0.9142))**2
+    x1 = (7.0-log(Re))
+    term = (log10(eD*(1.0/3.615) + 7.366*Re**-0.9142))
+    return (0.2479-0.0000947*x1*x1*x1*x1)/(term*term)
 
 
 def Brkic_2011_1(Re, eD):
@@ -1682,8 +1695,9 @@ def Brkic_2011_1(Re, eD):
        Engineering 77, no. 1 (April 2011): 34-48.
        doi:10.1016/j.petrol.2011.02.006.
     '''
-    beta = log(Re/(1.816*log(1.1*Re/log(1+1.1*Re))))
-    return (-2*log10(10**(-0.4343*beta)+eD/3.71))**-2
+    beta = log(Re/(1.816*log(1.1*Re/log(1.0+1.1*Re))))
+    term = (-2.0*log10(10.0**(-0.4343*beta)+eD*(1.0/3.71)))
+    return 1.0/(term*term)
 
 
 def Brkic_2011_2(Re, eD):
@@ -1728,8 +1742,9 @@ def Brkic_2011_2(Re, eD):
        Engineering 77, no. 1 (April 2011): 34-48.
        doi:10.1016/j.petrol.2011.02.006.
     '''
-    beta = log(Re/(1.816*log(1.1*Re/log(1+1.1*Re))))
-    return (-2*log10(2.18*beta/Re + eD/3.71))**-2
+    beta = log(Re/(1.816*log(1.1*Re/log(1.0+1.1*Re))))
+    term = (-2.0*log10(2.18*beta/Re + eD*(1.0/3.71)))
+    return 1.0/(term*term)
 
 
 def Fang_2011(Re, eD):
@@ -1775,8 +1790,8 @@ def Fang_2011(Re, eD):
        Reactor Technology (SMiRT19) Special Section, 241, no. 3 (March 2011):
        897-902. doi:10.1016/j.nucengdes.2010.12.019.
     '''
-    return log(0.234*eD**1.1007 - 60.525/Re**1.1105 + 56.291/Re**1.0712)**-2*1.613
-
+    term = log(0.234*eD**1.1007 - 60.525*Re**-1.1105 + 56.291*Re**-1.0712)
+    return 1.613/(term*term)
 
 def von_Karman(eD):
     r'''Calculates Darcy friction factor for rough pipes at infinite Reynolds
@@ -1814,7 +1829,7 @@ def von_Karman(eD):
     .. [2] McGovern, Jim. "Technical Note: Friction Factor Diagrams for Pipe
        Flow." Paper, October 3, 2011. http://arrow.dit.ie/engschmecart/28.
     '''
-    x = log10(eD/3.71)
+    x = log10(eD*(1.0/3.71))
     return 0.25/(x*x)
 
 
@@ -2563,7 +2578,8 @@ def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
        Helical Coil Tubes." Fluid Dynamics Research 28, no. 4 (April 2001):
        295-310. doi:10.1016/S0169-5983(00)00034-4.
     '''
-    term = (Re*(Di/Dc)**2)**-0.2
+    Di_Dc = Di/Dc
+    term = (Re*Di_Dc*Di_Dc)**-0.2
     return 0.3*1.0/sqrt(Dc/Di)*term*(1. + 0.112*term)
 
 
@@ -2617,7 +2633,8 @@ def helical_turbulent_fd_Prasad(Re, Di, Dc,roughness=0):
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
     '''
     fd = friction_factor(Re=Re, eD=roughness/Di)
-    return fd*(1. + 0.18*sqrt(sqrt(Re*(Di/Dc)**2)))
+    Di_Dc = Di/Dc
+    return fd*(1. + 0.18*sqrt(sqrt(Re*Di_Dc*Di_Dc)))
 
 
 def helical_turbulent_fd_Czop (Re, Di, Dc):
@@ -3440,7 +3457,7 @@ def friction_plate_Martin_VDI(Re, chevron_angle):
     Chevron-style plate heat exchanger according to [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_d}} = \frac{\cos \phi}{\sqrt{0.28\tan\phi
+        \frac{1}{\sqrt{f_d}} = \frac{\cos \phi}{\sqrt{0.18\tan\phi
         + 0.36\sin\phi + f_0/\cos(\phi)}} + \frac{1-\cos\phi}{\sqrt{3.8f_1}}
 
     .. math::
@@ -3498,7 +3515,7 @@ def friction_plate_Martin_VDI(Re, chevron_angle):
     Examples
     --------
     >>> friction_plate_Martin_VDI(Re=20000, chevron_angle=45)
-    0.93076451142552
+    0.781589041624
 
     References
     ----------
@@ -3514,7 +3531,7 @@ def friction_plate_Martin_VDI(Re, chevron_angle):
         f0 = (1.8*log10(Re) - 1.5)**-2
         f1 = 39.*Re**-0.289
 
-    a, b, c = 3.8, 0.28, 0.36
+    a, b, c = 3.8, 0.18, 0.36
 
     rhs = cos(phi)*1.0/sqrt(b*tan(phi) + c*sin(phi) + f0/cos(phi))
     rhs += (1. - cos(phi))*1.0/sqrt(a*f1)
@@ -4284,8 +4301,8 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i, D_i=None):
     '''
     if D_i is None:
         D_i = D
-    A_i = pi/4*D_i**2
-    A_o = pi/4*D**2
+    A_i = 0.25*pi*D_i*D_i
+    A_o = 0.25*pi*D*D
 
     Q_i = m/rho_i
     v_i = Q_i/A_i
@@ -4295,7 +4312,7 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i, D_i=None):
 
     rho_avg = 0.5*(rho_o + rho_i)
 
-    return 0.5*rho_avg*(v_o**2 - v_i**2)
+    return 0.5*rho_avg*(v_o*v_o - v_i*v_i)
     # return 0.5*rho_o*v_o**2 - 0.5*rho_i*v_i**2
     # G = m/(pi*D*D)
     # G_i = m/(pi*D_i*D_i)

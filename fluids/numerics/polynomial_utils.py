@@ -26,23 +26,65 @@ __all__ = ['polyint', 'polyint_over_x', 'polyder', 'quadratic_from_points',
 'deflate_cubic_real_roots',  'exp_poly_ln_tau_coeffs3', 'exp_poly_ln_tau_coeffs2',
 'polynomial_offset_scale', 'stable_poly_to_unstable',
 'polyint_stable',
-'polyint_over_x_stable',
+'polyint_over_x_stable', 'poly_convert',
 ]
 from fluids.numerics.special import comb
 
 
+# def stable_poly_to_unstable(coeffs, low, high):
+#     if len(coeffs) == 0:
+#         return coeffs
+#     if high != low:
+#         from numpy.polynomial import Polynomial
+#         # Handle the case of no transformation, no limits
+#         my_poly = Polynomial([-0.5*(high + low)*2.0/(high - low), 2.0/(high - low)])
+#         def horner(coeffs, x):
+#             # Keep this copy here
+#             tot = 0.0
+#             for c in coeffs:
+#                 tot = tot*x + c
+#             return tot
+#         coeffs = horner(coeffs, my_poly).coef[::-1].tolist()
+#     return coeffs
+
+def poly_add(p1, p2):
+    # Adds two polynomials p1 and p2
+    max_len = max(len(p1), len(p2))
+    result = [0.0] * max_len
+    for i in range(max_len):
+        coeff1 = p1[i] if i < len(p1) else 0.0
+        coeff2 = p2[i] if i < len(p2) else 0.0
+        result[i] = coeff1 + coeff2
+    return result
+
+def poly_mul(p1, p2):
+    # Multiplies two polynomials p1 and p2
+    result = [0.0] * (len(p1) + len(p2) - 1)
+    for i in range(len(p1)):
+        for j in range(len(p2)):
+            result[i + j] += p1[i] * p2[j]
+    return result
+
+
 def stable_poly_to_unstable(coeffs, low, high):
+    if len(coeffs) == 0:
+        return coeffs
     if high != low:
-        from numpy.polynomial import Polynomial
-        # Handle the case of no transformation, no limits
-        my_poly = Polynomial([-0.5*(high + low)*2.0/(high - low), 2.0/(high - low)])
-        def horner(coeffs, x):
-            # Keep this copy here
-            tot = 0.0
-            for c in coeffs:
-                tot = tot*x + c
-            return tot
-        coeffs = horner(coeffs, my_poly).coef[::-1].tolist()
+        a = 2.0 / (high - low)
+        b = - (high + low) / (high - low)
+        x_poly = [b, a]  # Represents the polynomial b + a*x
+        # Initialize the result with the first coefficient of the polynomial
+        result = [coeffs[0]]
+        for c in coeffs[1:]:
+            # Multiply the current result by x_poly
+            result = poly_mul(result, x_poly)
+            # Add the current coefficient c
+            result = poly_add(result, [c])
+        coeffs = result[::-1]  # Reverse to match the original coefficient order
+        # Removes leading zeros from a polynomial
+    for i in range(len(coeffs)):
+        if coeffs[i] != 0.0:
+            return coeffs[i:]
     return coeffs
 
 
@@ -314,3 +356,29 @@ def polyint_over_x_stable(coeffs, xmin, xmax):
         terms.append(term)
     terms.reverse()
     return terms, log_coeff
+
+def poly_convert(coeffs, Tmin, Tmax):
+    # from numpy.polynomial.polynomial import Polynomial
+    # return Polynomial(coeffs).convert(domain=(Tmin, Tmax)).coef.tolist()
+    off = 0.5*(Tmin + Tmax)
+    scl = 0.5*(Tmax - Tmin)
+    degree_P = len(coeffs) - 1
+    Q_coeffs = [0.0] * (degree_P + 1)
+
+    # Precompute powers of off and scl up to degree_P
+    off_powers = [1.0]
+    scl_powers = [1.0]
+    for _ in range(degree_P):
+        off_powers.append(off_powers[-1] * off)
+        scl_powers.append(scl_powers[-1] * scl)
+
+    for i in range(len(coeffs)):
+        coeff_i = coeffs[i]
+        binom = 1.0
+        for k in range(i + 1):
+            term = coeff_i * binom * off_powers[i - k] * scl_powers[k]
+            Q_coeffs[k] += term
+            binom *= (i - k) / (k + 1.0)
+
+    return Q_coeffs
+

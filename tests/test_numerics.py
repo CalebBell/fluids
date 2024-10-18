@@ -40,6 +40,8 @@ from fluids.numerics import (
     chebval_ln_tau_and_der3,
     cumsum,
     derivative,
+    hessian,
+    assert_close3d,
     exp_cheb,
     exp_cheb_and_der,
     exp_cheb_and_der2,
@@ -264,7 +266,7 @@ def test_splev():
 def test_bisplev():
     from scipy.interpolate import bisplev
 
-    from fluids.numerics import bisplev as my_bisplev
+    from fluids.numerics import py_bisplev as my_bisplev
 
     tck = [np.array([0.0, 0.0, 0.0, 0.0, 0.0213694, 0.0552542, 0.144818,
                                      0.347109, 0.743614, 0.743614, 0.743614, 0.743614]),
@@ -871,6 +873,747 @@ def test_cheb():
 
     assert toluene_TRC_cheb_fit == toluene_TRC_cheb_fit_copy
 
+def test_cheb_more():
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 0.5
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1]
+    x = 1.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 1.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2]
+    x = -1.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = -1.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [0, 0, 1]
+    x = 2.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 7.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, -1, 1, -1, 1]
+    x = 0.1
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 1.1368
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [0.1, 0.2, 0.3, 0.4, 0.5]
+    x = 3.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 333.8999999999999
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [10, 20, 30, 40, 50]
+    x = -5.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 222030.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-05, 2e-05, 3e-05, 4e-05]
+    x = 100.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 160.58998000000003
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 0, 0, 0, 1]
+    x = 3.141592653589793
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 702.3158930633044
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    x = 0.75
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 6.9560546875
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, -1, 1, -1, 1, -1, 1, -1]
+    x = -0.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 1.5
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1.0, 0.5, 0.3333333333333333, 0.25, 0.2, 0.16666666666666666]
+    x = 1.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 20.116666666666664
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [2.718281828459045, 3.141592653589793, 2.718, 3.142]
+    x = 0.25
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = -1.0346950081435065
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = -1
+    scale = 2
+    result = chebval(x, c, offset, scale)
+    expected = -2.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    x = 1.0
+    offset = 10
+    scale = 100
+    result = chebval(x, c, offset, scale)
+    expected = 5877283503.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0.001
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 0.508006
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1e-06
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 0.5000080000060003
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1000.0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 6008000.5
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1000000.0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 6000008000000.5
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1000000000.0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 6.000000008e+18
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 0.001
+    result = chebval(x, c, offset, scale)
+    expected = -1.9989985
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = -1.9999989999985
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1000.0
+    result = chebval(x, c, offset, scale)
+    expected = 1500998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 1500000999998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 1.500000001e+18
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1e-06
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = -1.9999969999865
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 1000000.0
+    scale = 1000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 13500002999998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = -1000000000.0
+    scale = 2000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = -2.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-09, 2e-09, 3e-09]
+    x = 1000000000.0
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 6000000002.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1000000000.0, 2000000000.0, 3000000000.0]
+    x = 1e-09
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = -1999999998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [42]
+    x = 0.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 42.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [42]
+    x = 1000
+    offset = 1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = 42.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [42]
+    x = -1000
+    offset = -1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = 42.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-09]
+    x = 1000000000.0
+    offset = 1e-09
+    scale = 1000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 1.0e-9
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1000000000.0]
+    x = 1e-09
+    offset = 1000000000.0
+    scale = 1e-09
+    result = chebval(x, c, offset, scale)
+    expected = 1000000000.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2]
+    x = 0.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 2.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2]
+    x = 1000
+    offset = 1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = 2000001.002
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2]
+    x = -1000
+    offset = -1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = -1999999.002
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-09, 2e-09]
+    x = 1000000000.0
+    offset = 1e-09
+    scale = 1000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 2000000000.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1000000000.0, 2000000000.0]
+    x = 1e-09
+    offset = 1000000000.0
+    scale = 1e-09
+    result = chebval(x, c, offset, scale)
+    expected = 2.000000001e+18
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 0.5
+    offset = 0
+    scale = 1
+    result = chebval(x, c, offset, scale)
+    expected = 0.5
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = 1000
+    offset = 1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = 6000002011998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    x = -1000
+    offset = -1000000.0
+    scale = 1e-06
+    result = chebval(x, c, offset, scale)
+    expected = 5999998011998.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-09, 2e-09, 3e-09]
+    x = 1000000000.0
+    offset = 1e-09
+    scale = 1000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 6.0e+27
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1000000000.0, 2000000000.0, 3000000000.0]
+    x = 1e-09
+    offset = 1000000000.0
+    scale = 1e-09
+    result = chebval(x, c, offset, scale)
+    expected = 6.000000002e+27
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [0]
+    x = 3.141592653589793
+    offset = -1000000.0
+    scale = 1000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 0.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1, 0]
+    x = 1e-09
+    offset = 1000000000.0
+    scale = 1e-09
+    result = chebval(x, c, offset, scale)
+    expected = 1.0
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [0, 0, 1]
+    x = 1000000000.0
+    offset = -1000000000.0
+    scale = 2000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 7.999999992e+36
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1e-15]
+    x = 1000000000000000.0
+    offset = 1000000000000000.0
+    scale = 1e-15
+    result = chebval(x, c, offset, scale)
+    expected = 1.0e-15
+    assert_close(result, expected, rtol=1e-13)
+
+    c = [1000000000000000.0, 1e-15]
+    x = 1e-15
+    offset = 1e-15
+    scale = 1000000000000000.0
+    result = chebval(x, c, offset, scale)
+    expected = 1.0e+15
+    assert_close(result, expected, rtol=1e-13)
+
+def test_chebder_more():
+    c = [1, 2, 3, 4, 5]
+    m = 0
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [1, 2, 3, 4, 5]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 1
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [14.0, 52.0, 24, 40]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 1
+    scl = 2.0
+    result = chebder(c, m, scl)
+    expected = [28.0, 104.0, 48.0, 80.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 1
+    scl = 0.5
+    result = chebder(c, m, scl)
+    expected = [7.0, 26.0, 12.0, 20.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 2
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [172.0, 96.0, 240]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 2
+    scl = 2.0
+    result = chebder(c, m, scl)
+    expected = [688.0, 384.0, 960.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 2
+    scl = 0.5
+    result = chebder(c, m, scl)
+    expected = [43.0, 24.0, 60.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 3
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [96.0, 960.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 3
+    scl = 2.0
+    result = chebder(c, m, scl)
+    expected = [768.0, 7680.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 3
+    scl = 0.5
+    result = chebder(c, m, scl)
+    expected = [12.0, 120.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 4
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [960.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 4
+    scl = 2.0
+    result = chebder(c, m, scl)
+    expected = [15360.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 4
+    scl = 0.5
+    result = chebder(c, m, scl)
+    expected = [60.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1]
+    m = 1
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = []
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2]
+    m = 1
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [2]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    m = 3
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = []
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    m = 4
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = []
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 2, 3]
+    m = 5
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = []
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1, 0, 1, 0, 1]
+    m = 2
+    scl = 1.0
+    result = chebder(c, m, scl)
+    expected = [36.0, 0.0, 48]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [1e-05, 2e-05, 3e-05, 4e-05]
+    m = 1
+    scl = 100000.0
+    result = chebder(c, m, scl)
+    expected = [14.0, 12.0, 24.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+    c = [100000.0, 200000.0, 300000.0, 400000.0]
+    m = 1
+    scl = 1e-05
+    result = chebder(c, m, scl)
+    expected = [14.0, 12.000000000000002, 24.0]
+    assert_close1d(result, expected, rtol=1e-13)
+
+def test_chebint_more():
+    c = [1, 2, 3, 4, 5]
+    m = 0
+    lbnd = 0
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [1.0, 2.0, 3.0, 4.0, 5.0]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 1
+    lbnd = 0
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [-1.0, -0.5, -0.5, -0.33333333333333337, 0.5, 0.5]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 1
+    lbnd = 1
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [0.3333333333333335, -0.5, -0.5, -0.33333333333333337, 0.5, 0.5]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 1
+    lbnd = -1
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [-0.33333333333333337, -0.5, -0.5, -0.33333333333333337, 0.5, 0.5]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 1
+    lbnd = 0
+    scl = 2.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [-2.0, -1.0, -1.0, -0.6666666666666667, 1.0, 1.0]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 1
+    lbnd = 0
+    scl = 0.5
+    result = chebint(c, m, lbnd, scl)
+    expected = [-0.5, -0.25, -0.25, -0.16666666666666669, 0.25, 0.25]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 2
+    lbnd = 0
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [0.10416666666666669, -0.75, -0.04166666666666666, -0.16666666666666666, -0.10416666666666667, 0.05, 0.041666666666666664]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 2
+    lbnd = 1
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [-0.36250000000000016, 0.5833333333333335, -0.04166666666666666, -0.16666666666666666, -0.10416666666666667, 0.05, 0.041666666666666664]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 2
+    lbnd = -1
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [-0.09583333333333335, -0.08333333333333337, -0.04166666666666666, -0.16666666666666666, -0.10416666666666667, 0.05, 0.041666666666666664]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 2
+    lbnd = 0
+    scl = 2.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [0.41666666666666674, -3.0, -0.16666666666666663, -0.6666666666666666, -0.4166666666666667, 0.2, 0.16666666666666666]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 3
+    lbnd = 0
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [-0.11458333333333334, 0.125, -0.14583333333333334, 0.010416666666666668, -0.027083333333333334, -0.014583333333333334, 0.004166666666666667, 0.002976190476190476]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 3
+    lbnd = 1
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [0.17827380952380967, -0.34166666666666684, 0.18750000000000003, 0.010416666666666668, -0.027083333333333334, -0.014583333333333334, 0.004166666666666667, 0.002976190476190476]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 3
+    lbnd = -1
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [-0.07410714285714287, -0.07500000000000002, 0.020833333333333322, 0.010416666666666668, -0.027083333333333334, -0.014583333333333334, 0.004166666666666667, 0.002976190476190476]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 4
+    lbnd = 0
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [0.023871527777777776, -0.04166666666666667, 0.028645833333333332, -0.019791666666666666, 0.003125, -0.003125, -0.0014632936507936508, 0.0002976190476190476, 0.00018601190476190475]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4, 5]
+    m = 4
+    lbnd = 1
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [-0.03128720238095246, 0.08452380952380965, -0.08802083333333338, 0.035763888888888894, 0.003125, -0.003125, -0.0014632936507936508, 0.0002976190476190476, 0.00018601190476190475]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1]
+    m = 1
+    lbnd = 0
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [0.0, 1.0]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2]
+    m = 1
+    lbnd = 0
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [0.5, 1.0, 0.5]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [0]
+    m = 1
+    lbnd = 0
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [0.0]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3]
+    m = 5
+    lbnd = 0
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [0.0008680555555555565, -0.009114583333333336, 0.0013020833333333343, -0.004427083333333334, 0.0005208333333333334, -0.0007812499999999999, 8.680555555555556e-05, 3.720238095238095e-05]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 0, 1, 0, 1]
+    m = 2
+    lbnd = 0
+    scl = 1.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [0.14583333333333334, 0.0, 0.125, 0.0, -0.0125, 0.0, 0.008333333333333333]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1e-05, 2e-05, 3e-05, 4e-05]
+    m = 1
+    lbnd = 0
+    scl = 100000.0
+    result = chebint(c, m, lbnd, scl)
+    expected = [-1.0, -0.5, -0.5, 0.5, 0.5]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [100000.0, 200000.0, 300000.0, 400000.0]
+    m = 1
+    lbnd = 0
+    scl = 1e-05
+    result = chebint(c, m, lbnd, scl)
+    expected = [-1.0, -0.5000000000000002, -0.5, 0.5000000000000001, 0.5]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3]
+    m = 1
+    lbnd = 2
+    scl = 3
+    result = chebint(c, m, lbnd, scl)
+    expected = [-46.5, -1.5, 1.5, 1.5]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
+
+    c = [1, 2, 3, 4]
+    m = 2
+    lbnd = -1
+    scl = 0.5
+    result = chebint(c, m, lbnd, scl)
+    expected = [0.08020833333333333, 0.0625, -0.0625, -0.041666666666666664, 0.015625, 0.0125]
+    assert_close1d(result, expected, rtol=1e-13, atol=1e-13)
 
 def test_is_monotonic():
     assert is_monotonic([1,2,3])
@@ -1583,3 +2326,45 @@ def test_argsort1d():
 
     # infinities and nan behavior does not match
     # check_argsort1d([-np.inf, np.inf, np.nan, 0, -1], [0, 4, 3, 2, 1], "Failed with infinities and NaN")
+
+
+def test_hessian():
+    def f(x):
+        return x[0]**2 + x[1]**2
+
+    x0 = [1.0, 2.0]
+    result = hessian(f, x0, perturbation=1e-4)
+    expected = [[2.0, 0.0], [0.0, 2.0]]
+    assert_close2d(result, expected)
+
+
+    def f(x):
+        return 1000*sin(x[0]) + 4000*cos(x[1])
+
+    x0 = [.3, .7]
+    result = hessian(f, x0, perturbation=1e-5)
+    expected = [[-296.1312838005886, 0.0], [0.0, -3055.5183310366906]]
+    assert_close2d(result, expected, rtol=0.1)
+
+
+
+
+    def f(x):
+        return x[0]**2 + 2*x[1]**2 + x[0]*x[1]
+
+    x0 = [1.0, 1.0]
+    result = hessian(f, x0, full=False, perturbation=1e-4)
+    expected = [[2.0], [1.0, 4.0]]
+    assert_close1d(result[0], expected[0])
+    assert_close1d(result[1], expected[1])
+
+
+    def f(x):
+        return [x[0]**2 - x[1], x[0]*x[1]]
+
+    x0 = [1.0, 1.0]
+    result = hessian(f, x0, scalar=False, perturbation=1e-4)
+    expected = [[[2.0, 0.0], [0.0, 1.0]], [[0.0, 1.0], [0.0, 0.0]]]
+    assert_close3d(result, expected, rtol=1e-5)
+
+

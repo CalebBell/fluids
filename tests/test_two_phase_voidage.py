@@ -188,8 +188,8 @@ def test_Huq_Loth():
 
 
 def test_Kopte_Newell_Chato():
-    assert_close(Kopte_Newell_Chato(.4, 800, 2.5, 1E-3, 1E-5, m=1, D=0.3), 0.6864466770087425)
-    assert_close(Kopte_Newell_Chato(.4, 800, 2.5, 1E-3, 1E-5, m=.01, D=0.3), 0.995334370139969)
+    assert_close(Kopte_Newell_Chato(.4, 800, 2.5, m=1, D=0.3), 0.6864466770087425)
+    assert_close(Kopte_Newell_Chato(.4, 800, 2.5, m=.01, D=0.3), 0.995334370139969)
 
 
 def test_Steiner():
