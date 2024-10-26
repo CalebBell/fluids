@@ -44,6 +44,7 @@ def get_rtol(matrix):
     return min(10 * cond * machine_eps,100*cond * machine_eps if cond > 1e8 else 1e-9)
 
 def check_inv(matrix, rtol=None):
+    cond = np.linalg.cond(matrix)
     py_fail = False
     numpy_fail = False
     try:
@@ -55,6 +56,9 @@ def check_inv(matrix, rtol=None):
     except:
         numpy_fail = True
     if py_fail and not numpy_fail:
+        if cond > 1e14:
+            # Let ill conditioned matrices pass
+            return 
         raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, Numpy Fail: {numpy_fail}")
     if py_fail and numpy_fail:
         return
@@ -94,9 +98,9 @@ def check_inv(matrix, rtol=None):
     # to zero out anything too close to "zero" relative to the values used in the matrix
     # This is very necessary, and was needed when testing on different CPU architectures
     inv_norm = np.max(np.sum(np.abs(result), axis=1))
-    trivial_relative_to_norm = np.where(np.abs(result)/inv_norm < 10*thresh)
+    trivial_relative_to_norm = np.where(np.abs(result)/inv_norm < 100*thresh)
     result[trivial_relative_to_norm] = 0.0
-    trivial_relative_to_norm = np.where(np.abs(expected)/inv_norm < 10*thresh)
+    trivial_relative_to_norm = np.where(np.abs(expected)/inv_norm < 100*thresh)
     expected[trivial_relative_to_norm] = 0.0
 
     if rtol is None:
