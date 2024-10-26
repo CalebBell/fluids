@@ -90,6 +90,15 @@ def check_inv(matrix, rtol=None):
         numpy_values_at_our_zeros
     )
 
+    # We also need to check against the values we get in the inverse; it is helpful 
+    # to zero out anything too close to "zero" relative to the values used in the matrix
+    # This is very necessary, and was needed when testing on different CPU architectures
+    inv_norm = np.max(np.sum(np.abs(result), axis=1))
+    trivial_relative_to_norm = np.where(np.abs(result)/inv_norm < 10*thresh)
+    result[trivial_relative_to_norm] = 0.0
+    trivial_relative_to_norm = np.where(np.abs(expected)/inv_norm < 10*thresh)
+    expected[trivial_relative_to_norm] = 0.0
+
     if rtol is None:
         rtol = get_rtol(matrix)
     # For each element, use absolute tolerance if the expected value is near zero
