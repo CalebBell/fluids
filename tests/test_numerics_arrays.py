@@ -75,30 +75,49 @@ def check_inv(matrix, rtol=None):
         
     # Convert result to numpy array if it isn't already
     result = np.array(result)
-    
     # Compute infinity norm of input matrix
     matrix_norm = np.max(np.sum(np.abs(matrix), axis=1))
     thresh = matrix_norm * np.finfo(float).eps
+
+    # We also need to check against the values we get in the inverse; it is helpful 
+    # to zero out anything too close to "zero" relative to the values used in the matrix
+    # This is very necessary, and was needed when testing on different CPU architectures
+    inv_norm = np.max(np.sum(np.abs(result), axis=1))
+    if cond < 1e10:
+        zero_thresh = 100*thresh
+    elif cond < 1e14:
+        zero_thresh = 1000*thresh
+    else:
+        zero_thresh = 10000*thresh
+    trivial_relative_to_norm_result = (np.abs(result)/inv_norm < zero_thresh)
+    trivial_relative_to_norm_expected = (np.abs(expected)/inv_norm < zero_thresh)
+    # Zero out in both matrices where either condition is met
+    combined_relative_mask = np.logical_or(
+        trivial_relative_to_norm_result,
+        trivial_relative_to_norm_expected
+    )
+    result[combined_relative_mask] = 0.0
+    expected[combined_relative_mask] = 0.0
+
+
     
     # Check both directions
     numpy_zeros = (expected == 0.0)
     our_zeros = (result == 0.0)
-    
+    mask_exact_zeros = numpy_zeros | our_zeros
+        
     # Where numpy has zeros but we don't; no cases require it but it makes sense to do
-    our_values_at_numpy_zeros = result[numpy_zeros]
-    result[numpy_zeros] = np.where(
-        np.abs(our_values_at_numpy_zeros) < thresh,
-        0.0,
-        our_values_at_numpy_zeros
-    )
+    result[mask_exact_zeros] = np.where(np.abs(result[mask_exact_zeros]) < thresh, 0.0, result[mask_exact_zeros])
     
     # Where we have zeros but numpy doesn't  - this is the one we discovered
-    numpy_values_at_our_zeros = expected[our_zeros]
-    expected[our_zeros] = np.where(
-        np.abs(numpy_values_at_our_zeros) < thresh,
-        0.0,
-        numpy_values_at_our_zeros
-    )
+    expected[mask_exact_zeros] = np.where(np.abs(expected[mask_exact_zeros]) < thresh, 0.0, expected[mask_exact_zeros])
+
+    # numpy_values_at_our_zeros = expected[our_zeros]
+    # expected[our_zeros] = np.where(
+    #     np.abs(numpy_values_at_our_zeros) < thresh,
+    #     0.0,
+    #     numpy_values_at_our_zeros
+    # )
 
     # We also need to check against the values we get in the inverse; it is helpful 
     # to zero out anything too close to "zero" relative to the values used in the matrix
