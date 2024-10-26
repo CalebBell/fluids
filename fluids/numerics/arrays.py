@@ -54,7 +54,7 @@ def transpose(x):
 
 
 def det(matrix):
-    """Seem sto work fine.
+    """Seems to work fine.
 
     >> from sympy import *
     >> from sympy.abc import *
@@ -197,151 +197,225 @@ def det(matrix):
         import numpy as np
         return float(np.linalg.det(matrix))
 
+# The inverse function below is generated via the following script
+'''
+import sympy as sp
+import re
+from sympy import Matrix, Symbol, simplify, zeros, cse
 
+def replace_power_with_multiplication(match):
+    """Replace x**n with x*x*...*x n times"""
+    var = match.group(1)
+    power = int(match.group(2))
+    if power <= 1:
+        return var
+    return '*'.join([var] * power)
+
+def generate_symbolic_matrix(n):
+    """Generate an nxn symbolic matrix with unique symbols"""
+    syms = [[Symbol(f'm_{i}{j}') for j in range(n)] for i in range(n)]
+    return Matrix(syms), syms
+
+def analyze_matrix(n):
+    """Generate symbolic expressions for determinant and inverse"""
+    M, syms = generate_symbolic_matrix(n)
+    det = M.det()
+    inv = M.inv()
+    return det, inv, syms
+
+def post_process_code(code_str):
+    """Apply optimizing transformations to the generated code"""
+    # Replace x**n patterns with x*x*x... (n times)
+    code_str = re.sub(r'([a-zA-Z_][a-zA-Z0-9_]*)\*\*(\d+)', replace_power_with_multiplication, code_str)
+    # Replace **0.5 with sqrt()
+    code_str = re.sub(r'\((.*?)\)\*\*0\.5', r'sqrt(\1)', code_str)
+    return code_str
+
+def generate_python_inv():
+    """Generate a single unified matrix inversion function with optimized 1x1, 2x2, and 3x3 cases"""
+    # Generate the specialized code for 2x2 and 3x3
+    size_specific_code = {}
+    for N in [2, 3, 4]:
+        det, inv, _ = analyze_matrix(N)
+        exprs = [det] + list(inv)
+        replacements, reduced = cse(exprs, optimizations='basic')
+        det_expr = reduced[0]
+        inv_exprs = reduced[1:]
+        
+        # Build the size-specific code block
+        code = []
+        
+        # Unpack matrix elements
+        unpack_rows = []
+        for i in range(N):
+            row_vars = [f"m_{i}{j}" for j in range(N)]
+            unpack_rows.append("(" + ", ".join(row_vars) + ")")
+        code.append(f"        {', '.join(unpack_rows)} = matrix")
+        
+        # Common subexpressions
+        code.append("\n        # Common subexpressions")
+        for i, (temp, expr) in enumerate(replacements):
+            code.append(f"        x{i} = {expr}")
+        
+        # Determinant check
+        code.append("\n        # Calculate determinant and check if we need to use LU decomposition")
+        code.append(f"        det = {det_expr}")
+        code.append("        if abs(det) <= 1e-7:")
+        code.append("            return inv_lu(matrix)")
+        
+        # Return matrix
+        return_matrix = []
+        for i in range(N):
+            row = []
+            for j in range(N):
+                idx = i * N + j
+                row.append(str(inv_exprs[idx]))
+            return_matrix.append(f"            [{', '.join(row)}]")
+        
+        code.append("\n        return [")
+        code.append(",\n".join(return_matrix))
+        code.append("        ]")
+        
+        size_specific_code[N] = post_process_code("\n".join(code))
+    
+    # Generate the complete function
+    complete_code = [
+        "def inv(matrix):",
+        "    size = len(matrix)",
+        "    if size == 1:",
+        "        return [[1.0/matrix[0][0]]]",
+        "    elif size == 2:",
+        size_specific_code[2],
+        "    elif size == 3:",
+        size_specific_code[3],
+        "    elif size == 4:",
+        size_specific_code[4],
+        "    else:",
+        "        return inv_lu(matrix)",
+        ""
+    ]
+    
+    return "\n".join(complete_code)
+
+# Generate and print the complete function
+print(generate_python_inv())
+'''
+# def inv(matrix):
+#     """5 has way too many multiplies.
+
+#     >> from sympy import *
+#     >> from sympy.abc import *
+#     >> Matrix([a]).inv()
+#     Matrix([[1/a]])
+
+#     >> cse(Matrix([[a, b], [c, d]]).inv())
+#     Matrix([
+#     [1/a + b*c/(a**2*(d - b*c/a)), -b/(a*(d - b*c/a))],
+#     [          -c/(a*(d - b*c/a)),      1/(d - b*c/a)]])
+
+#     >> m_3 = Matrix([[a, b, c], [d, e, f], [g, h, i]])
+#     >> #cse(m_3.inv())
+
+#     >> m_4 = Matrix([[a, b, c, d], [e, f, g, h], [i, j, k, l], [m, n, o, p]])
+#     >> cse(m_4.inv())
+
+#     # Note: for 3, 4 - forgot to generate code using optimizations='basic'
+#     """
+#     size = len(matrix)
+#     if size == 1:
+#         return [[1.0/matrix[0][0]]]
+#     elif size == 2:
+#         try:
+#             (a, b), (c, d) = matrix
+#             x0 = 1.0/a
+#             x1 = b*x0
+#             x2 = 1.0/(d - c*x1)
+#             x3 = c*x2
+#             return [[x0 + b*x3*x0*x0, -x1*x2],
+#                     [-x0*x3, x2]]
+#         except:
+#             import numpy as np
+#             return np.linalg.inv(matrix).tolist()
+#     elif size == 3:
+#         try:
+#             (a, b, c), (d, e, f), (g, h, i) = matrix
+#             x0 = 1./a
+#             x1 = b*d
+#             x2 = e - x0*x1
+#             x3 = 1./x2
+#             x4 = b*g
+#             x5 = h - x0*x4
+#             x6 = x0*x3
+#             x7 = d*x6
+#             x8 = -g*x0 + x5*x7
+#             x9 = c*d
+#             x10 = f - x0*x9
+#             x11 = b*x6
+#             x12 = c*x0 - x10*x11
+#             x13 = a*e
+#             x14 = -x1 + x13
+#             x15 = 1./(-a*f*h - c*e*g + f*x4 + h*x9 - i*x1 + i*x13)
+#             x16 = x14*x15
+#             x17 = x12*x16
+#             x18 = x14*x15*x3
+#             x19 = x18*x5
+#             x20 = x10*x18
+#             return [[x0 - x17*x8 + x1*x3*x0*x0, -x11 + x12*x19, -x17],
+#                     [-x20*x8 - x7, x10*x16*x5/(x2*x2) + x3, -x20],
+#                     [ x16*x8, -x19, x16]]
+#         except:
+#             import numpy as np
+#             return np.linalg.inv(matrix).tolist()
+#     else:
+#         return inv_lu(matrix)
+#         # TODO algorithm?
+# #        import numpy as np
+# #        return np.linalg.inv(matrix).tolist()
 def inv(matrix):
-    """5 has way too many multiplies.
-
-    >> from sympy import *
-    >> from sympy.abc import *
-    >> Matrix([a]).inv()
-    Matrix([[1/a]])
-
-    >> cse(Matrix([[a, b], [c, d]]).inv())
-    Matrix([
-    [1/a + b*c/(a**2*(d - b*c/a)), -b/(a*(d - b*c/a))],
-    [          -c/(a*(d - b*c/a)),      1/(d - b*c/a)]])
-
-    >> m_3 = Matrix([[a, b, c], [d, e, f], [g, h, i]])
-    >> #cse(m_3.inv())
-
-    >> m_4 = Matrix([[a, b, c, d], [e, f, g, h], [i, j, k, l], [m, n, o, p]])
-    >> cse(m_4.inv())
-
-    # Note: for 3, 4 - forgot to generate code using optimizations='basic'
-    """
     size = len(matrix)
     if size == 1:
-        try:
-            return [1.0/matrix[0]]
-        except:
-            return [1.0/matrix[0][0]]
+        return [[1.0/matrix[0][0]]]
     elif size == 2:
-        try:
-            (a, b), (c, d) = matrix
-            x0 = 1.0/a
-            x1 = b*x0
-            x2 = 1.0/(d - c*x1)
-            x3 = c*x2
-            return [[x0 + b*x3*x0*x0, -x1*x2],
-                    [-x0*x3, x2]]
-        except:
-            import numpy as np
-            return np.linalg.inv(matrix).tolist()
+        (m_00, m_01), (m_10, m_11) = matrix
+
+        # Common subexpressions
+        x0 = m_00*m_11 - m_01*m_10
+
+        # Calculate determinant and check if we need to use LU decomposition
+        det = x0
+        if abs(det) <= 1e-7:
+            return inv_lu(matrix)
+
+        x1 = 1/x0
+        return [
+            [m_11*x1, -m_01*x1],
+            [-m_10*x1, m_00*x1]
+        ]
     elif size == 3:
-        (a, b, c), (d, e, f), (g, h, i) = matrix
-        x0 = 1./a
-        x1 = b*d
-        x2 = e - x0*x1
-        x3 = 1./x2
-        x4 = b*g
-        x5 = h - x0*x4
-        x6 = x0*x3
-        x7 = d*x6
-        x8 = -g*x0 + x5*x7
-        x9 = c*d
-        x10 = f - x0*x9
-        x11 = b*x6
-        x12 = c*x0 - x10*x11
-        x13 = a*e
-        x14 = -x1 + x13
-        x15 = 1./(-a*f*h - c*e*g + f*x4 + h*x9 - i*x1 + i*x13)
-        x16 = x14*x15
-        x17 = x12*x16
-        x18 = x14*x15*x3
-        x19 = x18*x5
-        x20 = x10*x18
-        return [[x0 - x17*x8 + x1*x3*x0*x0, -x11 + x12*x19, -x17],
-                [-x20*x8 - x7, x10*x16*x5*x2**-2 + x3, -x20],
-                [ x16*x8, -x19, x16]]
-    elif size == 4:
-        (a, b, c, d), (e, f, g, h), (i, j, k, l), (m, n, o, p) = matrix
-        x0 = 1./a
-        x1 = b*e
-        x2 = f - x0*x1
-        x3 = 1./x2
-        x4 = i*x0
-        x5 = -b*x4 + j
-        x6 = x0*x3
-        x7 = e*x6
-        x8 = -x4 + x5*x7
-        x9 = c*x0
-        x10 = -e*x9 + g
-        x11 = b*x6
-        x12 = -x10*x11 + x9
-        x13 = a*f
-        x14 = -x1 + x13
-        x15 = k*x13
-        x16 = b*g*i
-        x17 = c*e*j
-        x18 = a*g*j
-        x19 = k*x1
-        x20 = c*f*i
-        x21 = x15 + x16 + x17 - x18 - x19 - x20
-        x22 = 1/x21
-        x23 = x14*x22
-        x24 = x12*x23
-        x25 = m*x0
-        x26 = -b*x25 + n
-        x27 = x26*x3
-        x28 = -m*x9 + o - x10*x27
-        x29 = x23*x8
-        x30 = -x25 + x26*x7 - x28*x29
-        x31 = d*x0
-        x32 = -e*x31 + h
-        x33 = x3*x32
-        x34 = -i*x31 + l - x33*x5
-        x35 = -x11*x32 - x24*x34 + x31
-        x36 = a*n
-        x37 = g*l
-        x38 = h*o
-        x39 = l*o
-        x40 = b*m
-        x41 = h*k
-        x42 = c*l
-        x43 = f*m
-        x44 = c*h
-        x45 = i*n
-        x46 = d*k
-        x47 = e*n
-        x48 = d*o
-        x49 = d*g
-        x50 = j*m
-        x51 = 1.0/(a*j*x38 - b*i*x38 - e*j*x48 + f*i*x48 + p*x15
-                 + p*x16 + p*x17 - p*x18 - p*x19 - p*x20 + x1*x39
-                 - x13*x39 + x36*x37 - x36*x41 - x37*x40 + x40*x41
-                 + x42*x43 - x42*x47 - x43*x46 + x44*x45 - x44*x50
-                 - x45*x49 + x46*x47 + x49*x50)
-        x52 = x21*x51
-        x53 = x35*x52
-        x54 = x14*x22*x3
-        x55 = x5*x54
-        x56 = -x27 + x28*x55
-        x57 = x52*x56
-        x58 = x14*x51
-        x59 = x28*x58
-        x60 = x10*x54
-        x61 = x33 - x34*x60
-        x62 = x52*x61
-        x63 = x34*x58
-        return [[x0 - x24*x8 - x30*x53 + x1*x3*x0*x0, -x11 + x12*x55 - x35*x57, -x24 + x35*x59, -x53],
-             [-x30*x62 - x60*x8 - x7, x10*x23*x5*x2**-2 + x3 - x56*x62, x59*x61 - x60, -x62],
-             [x29 - x30*x63, -x55 - x56*x63, x14*x14*x22*x28*x34*x51 + x23, -x63],
-             [x30*x52, x57, -x59, x52]]
+        (m_00, m_01, m_02), (m_10, m_11, m_12), (m_20, m_21, m_22) = matrix
+
+        # Common subexpressions
+        x0 = m_11*m_22
+        x1 = m_01*m_12
+        x2 = m_02*m_21
+        x3 = m_12*m_21
+        x4 = m_01*m_22
+        x5 = m_02*m_11
+        x6 = m_00*x0 - m_00*x3 + m_10*x2 - m_10*x4 + m_20*x1 - m_20*x5
+
+        # Calculate determinant and check if we need to use LU decomposition
+        det = x6
+        if abs(det) <= 1e-7:
+            return inv_lu(matrix)
+        x7 = 1/x6
+
+        return [
+            [x7*(x0 - x3), -x7*(-x2 + x4), x7*(x1 - x5)],
+            [-x7*(m_10*m_22 - m_12*m_20), x7*(m_00*m_22 - m_02*m_20), -x7*(m_00*m_12 - m_02*m_10)],
+            [x7*(m_10*m_21 - m_11*m_20), -x7*(m_00*m_21 - m_01*m_20), x7*(m_00*m_11 - m_01*m_10)]
+        ]
     else:
         return inv_lu(matrix)
-        # TODO algorithm?
-#        import numpy as np
-#        return np.linalg.inv(matrix).tolist()
 
 
 def shape(value):

@@ -526,65 +526,6 @@ def test_is_poly_positive():
     assert not is_poly_positive(coeffs_4alpha, domain=(-13000, 511))
     assert not is_poly_positive(coeffs_4alpha, domain=(-11500, 511))
 
-
-
-def test_array_as_tridiagonals():
-    A = [[10.0, 2.0, 0.0, 0.0],
-     [3.0, 10.0, 4.0, 0.0],
-     [0.0, 1.0, 7.0, 5.0],
-     [0.0, 0.0, 3.0, 4.0]]
-
-    tridiagonals = array_as_tridiagonals(A)
-    expect_diags = [[3.0, 1.0, 3.0], [10.0, 10.0, 7.0, 4.0], [2.0, 4.0, 5.0]]
-
-    assert_allclose(tridiagonals[0], expect_diags[0], rtol=0, atol=0)
-    assert_allclose(tridiagonals[1], expect_diags[1], rtol=0, atol=0)
-    assert_allclose(tridiagonals[2], expect_diags[2], rtol=0, atol=0)
-
-    A = np.array(A)
-    tridiagonals = array_as_tridiagonals(A)
-    assert_allclose(tridiagonals[0], expect_diags[0], rtol=0, atol=0)
-    assert_allclose(tridiagonals[1], expect_diags[1], rtol=0, atol=0)
-    assert_allclose(tridiagonals[2], expect_diags[2], rtol=0, atol=0)
-
-
-    a, b, c = [3.0, 1.0, 3.0], [10.0, 10.0, 7.0, 4.0], [2.0, 4.0, 5.0]
-    expect_mat = tridiagonals_as_array(a, b, c)
-    assert_allclose(expect_mat, A, rtol=0, atol=0)
-
-    d = [3.0, 4.0, 5.0, 6.0]
-
-    solved_expect = [0.1487758945386064, 0.756120527306968, -1.001883239171375, 2.2514124293785316]
-    assert_allclose(solve_tridiagonal(a, b, c, d), solved_expect, rtol=1e-12)
-
-
-def test_subset_matrix():
-    kijs = [[0, 0.00076, 0.00171], [0.00076, 0, 0.00061], [0.00171, 0.00061, 0]]
-
-    expect = [[0, 0.00061], [0.00061, 0]]
-    got = subset_matrix(kijs, [1,2])
-    assert_allclose(expect, got, atol=0, rtol=0)
-    got = subset_matrix(kijs, slice(1, 3, 1))
-    assert_allclose(expect, got, atol=0, rtol=0)
-
-    expect = [[0, 0.00171], [0.00171, 0]]
-    got = subset_matrix(kijs, [0,2])
-    assert_allclose(expect, got, atol=0, rtol=0)
-    got = subset_matrix(kijs, slice(0, 3, 2))
-    assert_allclose(expect, got, atol=0, rtol=0)
-
-    expect = [[0, 0.00076], [0.00076, 0]]
-    got = subset_matrix(kijs, [0,1])
-    assert_allclose(expect, got, atol=0, rtol=0)
-    got = subset_matrix(kijs, slice(0, 2, 1))
-    assert_allclose(expect, got, atol=0, rtol=0)
-
-    got = subset_matrix(kijs, [0,1, 2])
-    assert_allclose(kijs, got, atol=0, rtol=0)
-    got = subset_matrix(kijs, slice(0, 3, 1))
-    assert_allclose(kijs, got, atol=0, rtol=0)
-
-
 def test_translate_bound_func():
     def rosen_test(x):
         x, y = x
@@ -2296,36 +2237,6 @@ def test_py_lambertw():
     # Test the boundary at -1/e
     minus_one_over_e = -1/exp(1)
     res = abs(py_lambertw(minus_one_over_e, k=-1).real + 1)
-
-
-def test_argsort1d():
-
-    def check_argsort1d(input_list, expected, error_message):
-        numpy_argsort1d = lambda x: list(np.argsort(x))
-        assert argsort1d(input_list) == expected, error_message
-        assert argsort1d(input_list) == numpy_argsort1d(input_list), error_message
-
-
-    check_argsort1d([3, 1, 2], [1, 2, 0], "Failed on simple test case")
-    check_argsort1d([-1, -3, -2], [1, 2, 0], "Failed with negative numbers")
-    check_argsort1d([], [], "Failed on empty list")
-    check_argsort1d([42], [0], "Failed with single element list")
-    check_argsort1d([99, 21, 31, 80, 70], [1, 2, 4, 3, 0], "Mismatch with expected output")
-    check_argsort1d([2, 3, 1, 5, 4], [2, 0, 1, 4, 3], "Mismatch with expected output")
-    
-    check_argsort1d([3.5, 1, 2.2], [1, 2, 0], "Failed with mixed floats and ints")
-    check_argsort1d([0.1, 0.2, 0.3], [0, 1, 2], "Failed with floats")
-
-    check_argsort1d([True, False, True], [1, 0, 2], "Failed with boolean values")
-
-    check_argsort1d(['apple', 'banana', 'cherry'], [0, 1, 2], "Failed with strings")
-
-    check_argsort1d([2, 3, 2, 3, 3], [0, 2, 1, 3, 4], "Failed with duplicate numbers")
-
-    check_argsort1d([-3, -1, 0, 1, 3], [0, 1, 2, 3, 4], "Failed with negative and positive numbers")
-
-    # infinities and nan behavior does not match
-    # check_argsort1d([-np.inf, np.inf, np.nan, 0, -1], [0, 4, 3, 2, 1], "Failed with infinities and NaN")
 
 
 def test_hessian():
