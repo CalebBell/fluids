@@ -84,11 +84,11 @@ def check_inv(matrix, rtol=None):
     # This is very necessary, and was needed when testing on different CPU architectures
     inv_norm = np.max(np.sum(np.abs(result), axis=1))
     if cond < 1e10:
-        zero_thresh = 10*thresh
+        zero_thresh = thresh
     elif cond < 1e14:
-        zero_thresh = 100*thresh
+        zero_thresh = 10*thresh
     else:
-        zero_thresh = 1000*thresh
+        zero_thresh = 100*thresh
     trivial_relative_to_norm_result = (np.abs(result)/inv_norm < zero_thresh)
     trivial_relative_to_norm_expected = (np.abs(expected)/inv_norm < zero_thresh)
     # Zero out in both matrices where either condition is met
