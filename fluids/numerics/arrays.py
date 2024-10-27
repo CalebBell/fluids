@@ -421,98 +421,86 @@ def inner_product(a, b):
     return tot
 
 
-def inplace_LU(A, ipivot, N):
-    Np1 = N+1
-
-    for j in range(1, Np1):
-        for i in range(1, j):
+def inplace_LU(A, ipivot):
+    N = len(A)
+    
+    for j in range(N):
+        for i in range(j):
             tot = A[i][j]
-            for k in range(1, i):
-                tot -= A[i][k]*A[k][j]
+            for k in range(i):
+                tot -= A[i][k] * A[k][j]
             A[i][j] = tot
 
         apiv = 0.0
-        for i in range(j, Np1):
+        ipiv = j
+        for i in range(j, N):
             tot = A[i][j]
-            for k in range(1, j):
-                tot -= A[i][k]*A[k][j]
+            for k in range(j):
+                tot -= A[i][k] * A[k][j]
             A[i][j] = tot
 
             if apiv < abs(A[i][j]):
-                apiv, ipiv = abs(A[i][j]), i
+                apiv = abs(A[i][j])
+                ipiv = i
+                
         if apiv == 0:
             raise ValueError("Singular matrix")
         ipivot[j] = ipiv
 
         if ipiv != j:
-            for k in range(1, Np1):
+            for k in range(N):
                 t = A[ipiv][k]
                 A[ipiv][k] = A[j][k]
                 A[j][k] = t
 
         Ajjinv = 1.0/A[j][j]
-        for i in range(j+1, Np1):
+        for i in range(j + 1, N):
             A[i][j] *= Ajjinv
 
 
-def solve_from_lu(A, pivots, b, N):
-    Np1 = N + 1
-        # Note- list call is very slow faster to replace with [i for i in row]
-    b = [0.0] + [i for i in b] #list(b)
-    for i in range(1, Np1):
+def solve_from_lu(A, pivots, b):
+    N = len(b)
+    b = b.copy()  # Create a copy to avoid modifying the input
+    
+    for i in range(N):
         tot = b[pivots[i]]
         b[pivots[i]] = b[i]
-        for j in range(1, i):
-            tot -= A[i][j]*b[j]
+        for j in range(i):
+            tot -= A[i][j] * b[j]
         b[i] = tot
 
-    for i in range(N, 0, -1):
+    for i in range(N-1, -1, -1):
         tot = b[i]
-        for j in range(i+1, Np1):
-            tot -= A[i][j]*b[j]
+        for j in range(i+1, N):
+            tot -= A[i][j] * b[j]
         b[i] = tot/A[i][i]
     return b
 
+
 def solve_LU_decomposition(A, b):
     N = len(b)
-
-    A_copy = [[0.0]*(N+1)]
-    for row in A:
-        # Note- list call is very slow faster to replace with [i for i in row]
-        r = [0.0] + [i for i in row]
-#        r = list(row)
-#        r.insert(0, 0.0)
-        A_copy.append(r)
-
-    pivots = [0.0]*(N+1)
-    inplace_LU(A_copy, pivots, N)
-    return solve_from_lu(A_copy, pivots, b, N)[1:]
+    A_copy = [row.copy() for row in A]  # Deep copy of A
+    pivots = [0] * N
+    inplace_LU(A_copy, pivots)
+    return solve_from_lu(A_copy, pivots, b)
 
 
 def inv_lu(a):
     N = len(a)
-    Np1 = N + 1
-    A_copy = [[0.0]*Np1]
-    for row in a:
-        # Note- list call is very slow faster to replace with [i for i in row]
-        r = list(row)
-        r.insert(0, 0.0)
-        A_copy.append(r)
-    a = A_copy
-
-    ainv = [[0.0]*N for i in range(N)]
-    pivots = [0]*Np1
-    inplace_LU(a, pivots, N)
+    A_copy = [row.copy() for row in a]  # Deep copy of a
+    
+    ainv = [[0.0] * N for i in range(N)]
+    pivots = [0] * N
+    inplace_LU(A_copy, pivots)
 
     for j in range(N):
-        b = [0.0]*N
+        b = [0.0] * N
         b[j] = 1.0
-        b = solve_from_lu(a, pivots, b, N)[1:]
+        b = solve_from_lu(A_copy, pivots, b)
         for i in range(N):
             ainv[i][j] = b[i]
 
     return ainv
-
 
 '''Script to generate solve function. Note that just like in inv the N = 4 case has too much numerical instability.
 import sympy as sp
