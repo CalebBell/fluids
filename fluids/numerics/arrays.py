@@ -315,7 +315,7 @@ def inv(matrix):
         if abs(det) <= 1e-7:
             return inv_lu(matrix)
 
-        x1 = 1/x0
+        x1 = 1.0/x0
         return [
             [m_11*x1, -m_01*x1],
             [-m_10*x1, m_00*x1]
@@ -336,7 +336,7 @@ def inv(matrix):
         det = x6
         if abs(det) <= 1e-7:
             return inv_lu(matrix)
-        x7 = 1/x6
+        x7 = 1.0/x6
 
         return [
             [x7*(x0 - x3), -x7*(-x2 + x4), x7*(x1 - x5)],
