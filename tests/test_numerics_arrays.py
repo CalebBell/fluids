@@ -22,7 +22,7 @@ SOFTWARE.
 from math import cos, erf, exp, isnan, log, pi, sin, sqrt
 
 import pytest
-from fluids.numerics.arrays import inv, solve, lu, gelsd, eye, dot_product
+from fluids.numerics.arrays import inv, solve, lu, gelsd, eye, dot_product, transpose
 from fluids.numerics import (
     array_as_tridiagonals,
     assert_close,
@@ -1731,3 +1731,37 @@ def test_dot_product():
     # Test error cases
     with pytest.raises(ValueError):
         dot_product([1, 2], [1, 2, 3])  # Different lengths
+
+
+def test_transpose():
+    # Empty matrix and empty rows
+    assert transpose([]) == []
+    assert transpose([[]]) == []
+    
+    # 1x1 matrix
+    assert transpose([[1]]) == [[1]]
+    
+    # 2x2 matrix
+    assert transpose([[1, 2], [3, 4]]) == [[1, 3], [2, 4]]
+    
+    # 3x3 matrix 
+    assert transpose([[1, 2, 3],
+                     [4, 5, 6],
+                     [7, 8, 9]]) == [[1, 4, 7],
+                                   [2, 5, 8],
+                                   [3, 6, 9]]
+                                   
+    # Rectangular matrices
+    assert transpose([[1, 2, 3],
+                     [4, 5, 6]]) == [[1, 4],
+                                    [2, 5], 
+                                    [3, 6]]
+                                    
+    # Single row/column
+    assert transpose([[1, 2, 3]]) == [[1], [2], [3]]
+    assert transpose([[1], [2], [3]]) == [[1, 2, 3]]
+    
+    # Mixed types
+    result = transpose([[1, 2.5], [3, 4.2]])
+    assert result[0][0] == 1
+    assert abs(result[1][1] - 4.2) < 1e-10  # Float comparison with tolerance

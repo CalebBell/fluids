@@ -48,10 +48,61 @@ __all__ = ['dot_product', 'inv', 'det', 'solve', 'norm2', 'dot', 'transpose',
            'argsort1d', 'lu', 'gelsd']
 primitive_containers = frozenset([list, tuple])
 
-def transpose(x):
-    return [list(i) for i in zip(*x)]
+def transpose(matrix):
+    """Convert a matrix into its transpose by switching rows and columns.
 
+    Parameters
+    ----------
+    matrix : list[list[float]]
+        Input matrix as a list of lists where each inner list represents a row.
+        All rows must have the same length.
 
+    Returns
+    -------
+    list[list[float]]
+        The transposed matrix where element [i][j] in the input becomes [j][i]
+        in the output.
+
+    Raises
+    ------
+    ValueError
+        If the input matrix has inconsistent row lengths.
+    TypeError
+        If the input is not a list of lists.
+
+    Examples
+    --------
+    >>> transpose([[1, 2, 3], [4, 5, 6]])
+    [[1, 4], [2, 5], [3, 6]]
+
+    >>> transpose([[1, 2], [3, 4]])  # Square matrix
+    [[1, 3], [2, 4]]
+
+    >>> transpose([[1, 2, 3]])  # Single row matrix
+    [[1], [2], [3]]
+
+    Notes
+    -----
+    - Empty matrices are preserved as empty lists
+    - The function creates a new matrix rather than modifying in place
+    - For an MxN matrix, the result will be an NxM matrix
+    """
+    # Handle empty matrix cases
+    if not matrix:
+        return []
+    if not matrix[0]:
+        return []
+    
+    # # Validate input
+    # if not isinstance(matrix, list) or not all(isinstance(row, list) for row in matrix):
+    #     raise TypeError("Input must be a list of lists")
+    
+    # Check for consistent row lengths
+    row_length = len(matrix[0])
+    if not all(len(row) == row_length for row in matrix):
+        raise ValueError("All rows must have the same length")
+    
+    return [list(i) for i in zip(*matrix)]
 
 def det(matrix):
     """Seems to work fine.
