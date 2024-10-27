@@ -45,7 +45,7 @@ else:
 
 __all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product', 'transpose',
            'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix',
-           'argsort1d', 'lu']
+           'argsort1d', 'lu', 'gelsd']
 primitive_containers = frozenset([list, tuple])
 
 def transpose(x):
@@ -798,3 +798,97 @@ def argsort1d(arr):
     [1, 2, 0]
     """
     return [i[0] for i in sorted(enumerate(arr), key=lambda x: x[1])]
+
+
+
+def gelsd(a, b, rcond=None):
+    """Solve a linear least-squares problem using SVD (Singular Value Decomposition).
+    This is a simplified implementation that uses numpy's SVD internally.
+    
+    The function solves the equation arg min(|b - Ax|) for x, where A is
+    an M x N matrix and b is a length M vector.
+    
+    Parameters
+    ----------
+    a : list[list[float]] or list[float]
+        Input matrix A of shape (M, N)
+    b : list[float]
+        Input vector b of length M
+    rcond : float, optional
+        Cutoff ratio for small singular values. Singular values smaller
+        than rcond * largest_singular_value are considered zero.
+        Default: max(M,N) * eps where eps is the machine precision
+    
+    Returns
+    -------
+    x : list[float]
+        Solution vector of length N
+    residuals : float
+        Sum of squared residuals of the solution. Only computed for overdetermined 
+        systems (M > N)
+    rank : int
+        Effective rank of matrix A
+    s : list[float]
+        Singular values of A in descending order
+    
+    Notes
+    -----
+    The implementation uses numpy.linalg.svd for the core computation but
+    maintains a pure Python interface for input and output.
+    """
+    import numpy as np
+    
+    # Convert inputs to numpy arrays for computation
+    A = np.array(a, dtype=np.float64)
+    B = np.array(b, dtype=np.float64).reshape(-1, 1)  # Ensure column vector
+    
+
+    # Force 2D array for empty matrices too
+    if len(A.shape) == 1:
+        A = A.reshape(-1, 1)
+        
+    # Get dimensions
+    m, n = A.shape
+    
+    # Special cases for empty matrices
+    if m == 0:
+        if n == 0:
+            return [], 0.0, 0, []  # Completely empty matrix
+        else:
+            return [0.0] * n, 0.0, 0, []  # Empty rows
+    elif n == 0:
+        return [], 0.0, 0, []  # Empty columns
+        
+    # Check compatibility of dimensions
+    if len(b) != m:
+        raise ValueError(f"Incompatible dimensions: A is {m}x{n}, b has length {len(b)}")
+                        
+    # Compute the SVD of A
+    # U (m x m), s (min(m,n)), Vt (n x n)
+    U, s, Vt = np.linalg.svd(A, full_matrices=False)
+    
+    # Set rcond default if not provided
+    if rcond is None:
+        rcond = np.finfo(A.dtype).eps * max(m, n)
+    
+    # Determine effective rank using rcond
+    tol = rcond * s[0]  # Threshold is rcond times largest singular value
+    rank = np.sum(s > tol)
+    
+    # Construct inverse of singular values, zeroing out small ones
+    s_inv = np.zeros_like(s)
+    s_inv[:rank] = 1/s[:rank]
+    
+    # Compute solution: x = V @ diag(1/s) @ U.T @ b
+    x = Vt.T @ (s_inv.reshape(-1, 1) * (U.T @ B))
+    
+    # Compute residuals for overdetermined systems
+    residuals = 0.0
+    if m > n and rank == n:  # Only for full-rank overdetermined systems
+        residuals = float(np.sum((B - A @ x)**2))
+    
+    # Convert back to Python types for return
+    return (x.ravel().tolist(),  # Flatten solution to 1D list
+            residuals,
+            int(rank),
+            s.tolist())

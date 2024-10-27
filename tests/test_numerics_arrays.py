@@ -22,7 +22,7 @@ SOFTWARE.
 from math import cos, erf, exp, isnan, log, pi, sin, sqrt
 
 import pytest
-from fluids.numerics.arrays import inv, solve, lu
+from fluids.numerics.arrays import inv, solve, lu, gelsd
 from fluids.numerics import (
     array_as_tridiagonals,
     assert_close,
@@ -1321,10 +1321,240 @@ def test_lu_singular_matrices(matrix):
 
 
 
+def test_gelsd_basic():
+    """Test basic functionality with simple well-conditioned problems"""
+    # Simple 2x2 system
+    A = [[1.0, 2.0],
+         [3.0, 4.0]]
+    b = [5.0, 6.0]
+    x, residuals, rank, s = gelsd(A, b)
+    
+    # Compare with numpy's lstsq
+    x_numpy = np.linalg.lstsq(np.array(A), np.array(b), rcond=None)[0]
+    assert_allclose(x, x_numpy, rtol=1e-14)
+    assert rank == 2
+    assert len(s) == 2
+
+
+def test_gelsd_overdetermined():
+    """Test overdetermined system (more equations than unknowns)"""
+    A = [[1.0, 2.0],
+         [3.0, 4.0],
+         [5.0, 6.0]]
+    b = [7.0, 8.0, 9.0]
+    x, residuals, rank, s = gelsd(A, b)
+    
+    # Verify dimensions
+    assert len(x) == 2
+    assert rank == 2
+    assert len(s) == 2
+    
+    # Check residuals are positive for overdetermined system
+    assert residuals > 0
+
+def test_gelsd_underdetermined():
+    """Test underdetermined system (fewer equations than unknowns)"""
+    A = [[1.0, 2.0, 3.0],
+         [4.0, 5.0, 6.0]]
+    b = [7.0, 8.0]
+    x, residuals, rank, s = gelsd(A, b)
+    
+    # Verify dimensions
+    assert len(x) == 3
+    assert rank == 2
+    assert len(s) == 2
+    assert residuals == 0.0  # Should be exactly solvable
+
+def test_gelsd_ill_conditioned():
+    """Test behavior with ill-conditioned matrix"""
+    A = [[1.0, 1.0],
+         [1.0, 1.0 + 1e-15]]
+    b = [2.0, 2.0]
+    x, residuals, rank, s = gelsd(A, b)
+    
+    # Matrix should be detected as rank deficient
+    assert rank == 1
+    assert s[0]/s[1] > 1e14  # Check condition number
+
+def test_gelsd_zero_matrix():
+    """Test with zero matrix"""
+    A = [[0.0, 0.0],
+         [0.0, 0.0]]
+    b = [1.0, 1.0]
+    x, residuals, rank, s = gelsd(A, b)
+    
+    assert rank == 0
+    assert all(sv == 0 for sv in s)
 
 
 
+def test_gelsd_against_lapack():
+    """Compare results against LAPACK's dgelsd"""
+    from scipy.linalg import lapack
+    A = [[1.0, 2.0, 3.0],
+         [4.0, 5.0, 6.0],
+         [7.0, 8.0, 9.0],
+         [10.0, 11.0, 12.0]]
+    b = [13.0, 14.0, 15.0, 16.0]
+    
+    # Our implementation
+    x1, residuals1, rank1, s1 = gelsd(A, b)
+    
+    # LAPACK implementation
+    m, n = np.array(A).shape
+    minmn = min(m, n)
+    maxmn = max(m, n)
+    x2, s2, rank2, info = lapack.dgelsd(A, b, lwork=10000, size_iwork=10000)
+    x2 = x2.ravel()
+    # Compare results
+    assert_allclose(x1, x2[:n], rtol=1e-12, atol=1e-12)
+    assert_allclose(s1, s2[:minmn], rtol=1e-12, atol=1e-12)
+    assert rank1 == rank2
 
+@pytest.mark.parametrize("A, b, name", [
+    # Standard square matrix
+    ([[1.0, 2.0], 
+      [3.0, 4.0]], 
+     [5.0, 6.0],
+     "2x2 well-conditioned"),
+    
+    # Original test case
+    ([[1.0, 2.0, 3.0],
+      [4.0, 5.0, 6.0],
+      [7.0, 8.0, 9.0],
+      [10.0, 11.0, 12.0]], 
+     [13.0, 14.0, 15.0, 16.0],
+     "4x3 overdetermined"),
+     
+    # Overdetermined system
+    ([[1.0, 2.0], 
+      [3.0, 4.0],
+      [5.0, 6.0]], 
+     [7.0, 8.0, 9.0],
+     "3x2 overdetermined"),
+    
+    # Nearly singular system
+    ([[1.0, 1.0], 
+      [1.0, 1.0 + 1e-10]], 
+     [2.0, 2.0],
+     "2x2 nearly singular"),
+    
+    # Zero matrix
+    ([[0.0, 0.0], 
+      [0.0, 0.0]], 
+     [1.0, 1.0],
+     "2x2 zero matrix"),
+     
+    # Underdetermined system
+    ([[1.0, 2.0, 3.0], 
+      [4.0, 5.0, 6.0]], 
+     [7.0, 8.0],
+     "2x3 underdetermined"),
+     
+    # Ill-conditioned matrix
+    ([[1e-10, 1.0], 
+      [1.0, 1.0]], 
+     [1.0, 2.0],
+     "2x2 ill-conditioned"),
+     
+    # Larger system
+    ([[1.0, 2.0, 3.0, 4.0],
+      [5.0, 6.0, 7.0, 8.0],
+      [9.0, 10.0, 11.0, 12.0],
+      [13.0, 14.0, 15.0, 16.0],
+      [17.0, 18.0, 19.0, 20.0]], 
+     [21.0, 22.0, 23.0, 24.0, 25.0],
+     "5x4 larger system")
+])
+def test_gelsd_against_lapack2(A, b, name):
+    """Compare GELSD results against LAPACK's dgelsd for various test cases"""
+    from scipy.linalg import lapack
+    try:
+        # Our implementation
+        x1, residuals1, rank1, s1 = gelsd(A, b)
+        
+        # LAPACK implementation
+        m, n = np.array(A).shape
+        minmn = min(m, n)
+        maxmn = max(m, n)
+        if len(b) < maxmn:
+            b_padded = np.zeros(maxmn, dtype=np.float64)
+            b_padded[:len(b)] = b
+            b_arr = b_padded
+        else:
+            b_arr = np.array(b)
+        x2, s2, rank2, info = lapack.dgelsd(A, b_arr, lwork=10000, size_iwork=10000)
+        x2 = x2.ravel()
+        
+        # Compare results
+        assert_allclose(x1, x2[:n], rtol=1e-12, atol=1e-12)
+        assert_allclose(s1, s2[:minmn], rtol=1e-12, atol=1e-12)
+        assert rank1 == rank2
+        
+    except Exception as e:
+        raise AssertionError(f"Failed for case: {name}\nError: {str(e)}")
+
+
+def test_gelsd_rcond():
+    A = [[0., 1., 0., 1., 2., 0.],
+         [0., 2., 0., 0., 1., 0.],
+         [1., 0., 1., 0., 0., 4.],
+         [0., 0., 0., 2., 3., 0.]]
+    A = np.array(A).T.tolist()
+    b = [1, 0, 0, 0, 0, 0]
+    # With rcond=-1, should give full rank
+    x1, residuals1, rank1, s1 = gelsd(A, b, rcond=-1)
+    assert rank1 == 4
+    # With default rcond, should detect rank deficiency
+    x2, residuals2, rank2, s2 = gelsd(A, b)
+    assert rank2 == 3
+
+
+@pytest.mark.parametrize("m,n,n_rhs", [
+    (4, 2, 1),  # Overdetermined, single RHS
+    (4, 0, 1),  # Empty columns
+    (4, 2, 1),  # Standard overdetermined
+    (2, 4, 1),  # Underdetermined
+])
+def test_gelsd_empty_and_shapes(m, n, n_rhs):
+    """Test various matrix shapes including empty matrices"""
+    # Create test matrices
+    if m * n > 0:
+        A = np.arange(m * n).reshape(m, n).tolist()
+    else:
+        A = np.zeros((m, n)).tolist()
+    
+    if m > 0:
+        b = np.ones(m).tolist()
+    else:
+        b = np.ones(0).tolist()
+
+    x, residuals, rank, s = gelsd(A, b)
+
+    # Check dimensions
+    assert len(x) == n
+    assert len(s) == min(m, n)
+    # Check rank
+    assert rank == min(m, n)
+    
+    # For zero-sized matrices, solution should be zero
+    if m == 0:
+        assert_allclose(x, np.zeros(n))
+
+    # For overdetermined systems, check residuals
+    if m > n and n > 0:
+        r = np.array(b) - np.dot(A, x)
+        expected_residuals = float(np.sum(r * r))
+        assert_allclose(residuals, expected_residuals)
+
+def test_gelsd_incompatible_dims():
+    """Test error handling for incompatible dimensions"""
+    A = [[1.0, 2.0],
+         [3.0, 4.0]]
+    b = [1.0, 2.0, 3.0]  # Wrong dimension
+    
+    with pytest.raises(ValueError):
+        gelsd(A, b)
 
 
 
@@ -1420,3 +1650,5 @@ def test_argsort1d():
 
     # infinities and nan behavior does not match
     # check_argsort1d([-np.inf, np.inf, np.nan, 0, -1], [0, 4, 3, 2, 1], "Failed with infinities and NaN")
+
+
