@@ -45,7 +45,7 @@ else:
 
 __all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product', 'transpose',
            'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix',
-           'argsort1d']
+           'argsort1d', 'lu']
 primitive_containers = frozenset([list, tuple])
 
 def transpose(x):
@@ -501,6 +501,49 @@ def inv_lu(a):
             ainv[i][j] = b[i]
 
     return ainv
+
+def lu(A):
+    """
+    Compute LU decomposition of a matrix with partial pivoting.
+    Returns P, L, U such that PA = LU
+    
+    Parameters:
+        A: list of lists representing square matrix
+        
+    Returns:
+        P: permutation matrix as list of lists
+        L: lower triangular matrix with unit diagonal as list of lists
+        U: upper triangular matrix as list of lists
+    """
+    N = len(A)
+    
+    # Create working copy and pivots array
+    A_copy = [row.copy() for row in A]
+    pivots = [0] * N
+    
+    # Perform LU decomposition
+    inplace_LU(A_copy, pivots)
+    
+    # Extract L (unit diagonal and below diagonal elements)
+    L = [[1.0 if i == j else 0.0 for j in range(N)] for i in range(N)]
+    for i in range(N):
+        for j in range(i):
+            L[i][j] = A_copy[i][j]
+    
+    # Extract U (upper triangular including diagonal)
+    U = [[0.0]*N for _ in range(N)]
+    for i in range(N):
+        for j in range(i, N):
+            U[i][j] = A_copy[i][j]
+    
+    # Create permutation matrix directly from pivot sequence
+    P = [[1.0 if j == i else 0.0 for j in range(N)] for i in range(N)]
+    for i, pivot in enumerate(pivots):
+        if pivot != i:
+            P[i], P[pivot] = P[pivot], P[i]
+            
+    return P, L, U
+
 
 '''Script to generate solve function. Note that just like in inv the N = 4 case has too much numerical instability.
 import sympy as sp
