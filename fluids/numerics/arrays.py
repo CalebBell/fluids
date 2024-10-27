@@ -514,7 +514,7 @@ def inv_lu(a):
     return ainv
 
 
-'''Script to generate solve function
+'''Script to generate solve function. Note that just like in inv the N = 4 case has too much numerical instability.
 import sympy as sp
 from sympy import Matrix, Symbol, simplify, solve_linear_system
 import re
