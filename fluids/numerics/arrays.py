@@ -300,77 +300,6 @@ def generate_python_inv():
 # Generate and print the complete function
 print(generate_python_inv())
 '''
-# def inv(matrix):
-#     """5 has way too many multiplies.
-
-#     >> from sympy import *
-#     >> from sympy.abc import *
-#     >> Matrix([a]).inv()
-#     Matrix([[1/a]])
-
-#     >> cse(Matrix([[a, b], [c, d]]).inv())
-#     Matrix([
-#     [1/a + b*c/(a**2*(d - b*c/a)), -b/(a*(d - b*c/a))],
-#     [          -c/(a*(d - b*c/a)),      1/(d - b*c/a)]])
-
-#     >> m_3 = Matrix([[a, b, c], [d, e, f], [g, h, i]])
-#     >> #cse(m_3.inv())
-
-#     >> m_4 = Matrix([[a, b, c, d], [e, f, g, h], [i, j, k, l], [m, n, o, p]])
-#     >> cse(m_4.inv())
-
-#     # Note: for 3, 4 - forgot to generate code using optimizations='basic'
-#     """
-#     size = len(matrix)
-#     if size == 1:
-#         return [[1.0/matrix[0][0]]]
-#     elif size == 2:
-#         try:
-#             (a, b), (c, d) = matrix
-#             x0 = 1.0/a
-#             x1 = b*x0
-#             x2 = 1.0/(d - c*x1)
-#             x3 = c*x2
-#             return [[x0 + b*x3*x0*x0, -x1*x2],
-#                     [-x0*x3, x2]]
-#         except:
-#             import numpy as np
-#             return np.linalg.inv(matrix).tolist()
-#     elif size == 3:
-#         try:
-#             (a, b, c), (d, e, f), (g, h, i) = matrix
-#             x0 = 1./a
-#             x1 = b*d
-#             x2 = e - x0*x1
-#             x3 = 1./x2
-#             x4 = b*g
-#             x5 = h - x0*x4
-#             x6 = x0*x3
-#             x7 = d*x6
-#             x8 = -g*x0 + x5*x7
-#             x9 = c*d
-#             x10 = f - x0*x9
-#             x11 = b*x6
-#             x12 = c*x0 - x10*x11
-#             x13 = a*e
-#             x14 = -x1 + x13
-#             x15 = 1./(-a*f*h - c*e*g + f*x4 + h*x9 - i*x1 + i*x13)
-#             x16 = x14*x15
-#             x17 = x12*x16
-#             x18 = x14*x15*x3
-#             x19 = x18*x5
-#             x20 = x10*x18
-#             return [[x0 - x17*x8 + x1*x3*x0*x0, -x11 + x12*x19, -x17],
-#                     [-x20*x8 - x7, x10*x16*x5/(x2*x2) + x3, -x20],
-#                     [ x16*x8, -x19, x16]]
-#         except:
-#             import numpy as np
-#             return np.linalg.inv(matrix).tolist()
-#     else:
-#         return inv_lu(matrix)
-#         # TODO algorithm?
-# #        import numpy as np
-# #        return np.linalg.inv(matrix).tolist()
 def inv(matrix):
     size = len(matrix)
     if size == 1:
@@ -469,14 +398,6 @@ def shape(value):
     except:
         pass
     return tuple(dims)
-    # try:
-    #     try:
-    #         new_shape = (len(value), len(value[0]), len(value[0][0]))
-    #     except:
-    #         new_shape = (len(value), len(value[0]))
-    # except:
-    #     new_shape = (len(value),)
-    # return new_shape
 
 def eye(N):
     mat = []
@@ -594,13 +515,16 @@ def inv_lu(a):
 
 
 def solve(a, b):
-    if len(a) > 4:
-        if IS_PYPY:
-            return solve_LU_decomposition(a, b)
-        import numpy as np
-        return np.linalg.solve(a, b).tolist()
-    else:
-        return dot(inv(a), b)
+    if len(b) > 3:
+        return solve_LU_decomposition(a, b)
+    return dot(inv(a), b)
+    # if len(a) > 4:
+    #     # if IS_PYPY:
+    #     return solve_LU_decomposition(a, b)
+    #     # import numpy as np
+    #     # return np.linalg.solve(a, b).tolist()
+    # else:
+    #     return dot(inv(a), b)
 
 
 

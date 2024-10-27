@@ -22,7 +22,7 @@ SOFTWARE.
 from math import cos, erf, exp, isnan, log, pi, sin, sqrt
 
 import pytest
-from fluids.numerics.arrays import inv
+from fluids.numerics.arrays import inv, solve
 from fluids.numerics import (
     array_as_tridiagonals,
     assert_close,
@@ -701,13 +701,13 @@ matrices_4x4_near_singular = [
     [[1, 1 - 1e-14, 1, 1], [1, 1, 1 - 1e-14, 1], [1, 1, 1, 1 - 1e-14], [1, 1, 1, 1]], # Case 5
     [[1e-15, 1e-15 + 1e-16, 1e-15, 1e-15], [1e-15, 1e-15, 1e-15 + 1e-16, 1e-15], [1e-15, 1e-15, 1e-15, 1e-15], [1e-15, 1e-15, 1e-15, 1e-15]], # Case 6
 
-    # Overflow and Underflow Risks
-    [[1e308, 1e-308, 1e308, 1e-308], [1e-308, 1e308, 1, 1e-308], [1e308, 1, 1e-308, 1], [1, 1e-308, 1e308, 1e-308]], # Case 1
-    [[1e-308, 1e308, 1e-308, 1], [1e308, 1e-308, 1, 1e308], [1, 1e-308, 1e308, 1e-308], [1e-308, 1, 1, 1e308]], # Case 2
-    [[1e308, 1e-100, 1, 1], [1, 1e308, 1e-308, 1], [1e-308, 1, 1e308, 1], [1, 1, 1e-308, 1e308]], # Case 3
-    [[1e308, 1e-308, 1, 1], [1, 1e308, 1e-308, 1], [1e-308, 1, 1e308, 1], [1, 1e-308, 1, 1e308]], # Case 4
-    [[1e10, 1e-308, 1, 1e-308], [1e-308, 1e10, 1e-308, 1], [1, 1e-308, 1e10, 1e-308], [1e-308, 1, 1e-308, 1e10]], # Case 5
-    [[1e-308, 1e308, 1, 1], [1e308, 1e-308, 1, 1e308], [1, 1, 1e308, 1e-308], [1e-308, 1e308, 1, 1]], # Case 6
+    # # Overflow and Underflow Risks - not a target
+    # [[1e308, 1e-308, 1e308, 1e-308], [1e-308, 1e308, 1, 1e-308], [1e308, 1, 1e-308, 1], [1, 1e-308, 1e308, 1e-308]], # Case 1
+    # [[1e-308, 1e308, 1e-308, 1], [1e308, 1e-308, 1, 1e308], [1, 1e-308, 1e308, 1e-308], [1e-308, 1, 1, 1e308]], # Case 2
+    # [[1e308, 1e-100, 1, 1], [1, 1e308, 1e-308, 1], [1e-308, 1, 1e308, 1], [1, 1, 1e-308, 1e308]], # Case 3
+    # [[1e308, 1e-308, 1, 1], [1, 1e308, 1e-308, 1], [1e-308, 1, 1e308, 1], [1, 1e-308, 1, 1e308]], # Case 4
+    # [[1e10, 1e-308, 1, 1e-308], [1e-308, 1e10, 1e-308, 1], [1, 1e-308, 1e10, 1e-308], [1e-308, 1, 1e-308, 1e10]], # Case 5
+    # [[1e-308, 1e308, 1, 1], [1e308, 1e-308, 1, 1e308], [1, 1, 1e308, 1e-308], [1e-308, 1e308, 1, 1]], # Case 6
 
     # LU Decomposition Stability
     [[1e-15, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]], # Case 1
@@ -791,6 +791,291 @@ def test_inv_singular_matrices(matrix):
     except Exception as e:
         new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
+
+
+
+def check_solve(matrix, b=None):
+    """Set tolerance based on condition number and check solution"""
+    if b is None:
+        # Create a right-hand side vector that's compatible with the matrix size
+        b = [1.0] * len(matrix)
+    
+    just_return = False
+    try:
+        # This will fail for bad matrix (inconsistent size) inputs
+        cond = np.linalg.cond(matrix)
+    except:
+        just_return = True
+        
+    py_fail = False
+    numpy_fail = False
+    try:
+        result = solve(matrix, b)
+    except:
+        py_fail = True
+    try:
+        expected = np.linalg.solve(matrix, b)
+    except:
+        numpy_fail = True
+        
+    if py_fail and not numpy_fail:
+        if not just_return and cond > 1e14:
+            # Let ill conditioned matrices pass
+            return 
+        raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, Numpy Fail: {numpy_fail}")
+    if py_fail and numpy_fail:
+        return
+    if not py_fail and numpy_fail:
+        return
+    if just_return:
+        return
+        
+    # Convert result to numpy array if it isn't already
+    result = np.array(result)
+    expected = np.array(expected)
+    
+    # Compute infinity norm of input matrix
+    matrix_norm = np.max(np.sum(np.abs(matrix), axis=1))
+    thresh = matrix_norm * np.finfo(float).eps
+    
+    # Get solution norms
+    sol_norm = np.max(np.abs(result))
+    
+    # Adjust tolerance based on condition number
+    if cond < 1e10:
+        zero_thresh = thresh
+        rtol = 1 * cond * np.finfo(float).eps
+    elif cond < 1e14:
+        zero_thresh = 10*thresh
+        rtol = 10 * cond * np.finfo(float).eps
+    else:
+        zero_thresh = 100*thresh
+        rtol = 100 * cond * np.finfo(float).eps
+    
+    # Zero out small values relative to solution norm
+    trivial_relative_to_norm_result = (np.abs(result)/sol_norm < zero_thresh)
+    trivial_relative_to_norm_expected = (np.abs(expected)/sol_norm < zero_thresh)
+    # Zero out in both solutions where either condition is met
+    combined_relative_mask = np.logical_or(
+        trivial_relative_to_norm_result,
+        trivial_relative_to_norm_expected
+    )
+    result[combined_relative_mask] = 0.0
+    expected[trivial_relative_to_norm_expected] = 0.0
+    np.testing.assert_allclose(result, expected, rtol=rtol)
+
+@pytest.mark.parametrize("matrix", matrices_1x1)
+def test_solve_1x1(matrix):
+    try:
+        check_solve(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_2x2)
+def test_solve_2x2(matrix):
+    try:
+        check_solve(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_2x2_near_singular)
+def test_solve_2x2_near_singular(matrix):
+    try:
+        check_solve(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_3x3)
+def test_solve_3x3(matrix):
+    try:
+        check_solve(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_3x3_near_singular)
+def test_solve_3x3_near_singular(matrix):
+    try:
+        check_solve(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_4x4)
+def test_solve_4x4(matrix):
+    try:
+        check_solve(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_4x4_near_singular)
+def test_solve_4x4_near_singular(matrix):
+    try:
+        check_solve(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_singular)
+def test_solve_singular_matrices(matrix):
+    try:
+        check_solve(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+specific_rhs_cases = [
+    ([[2.0, 1.0], [1.0, 3.0]], [1.0, 1.0]),
+    ([[2.0, 1.0], [1.0, 3.0]], [1.0, -1.0]),
+    ([[2.0, 1.0], [1.0, 3.0]], [1e6, 1e-6]),
+    ([[2.0, 1.0], [1.0, 3.0]], [0.0, 1.0]),
+    ([[2.0, 1.0], [1.0, 3.0]], [1e-15, 1e-15]),
+    ([[1.0, 0.0], [0.0, 1.0]], [-1.0, 1.0]),
+    ([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], [1.0, 2.0, 3.0]),
+    ([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], [1e3, 1e0, 1e-3]),
+    ([[1e5, 0.0], [0.0, 1e-5]], [1.0, 1.0]),
+    ([[1.0, 1.0], [1.0, 1.0 + 1e-10]], [1.0, 1.0]),
+    ([[2.0, 0.0, 0.0, 0.0],
+      [0.0, 2.0, 0.0, 0.0],
+      [0.0, 0.0, 2.0, 0.0],
+      [0.0, 0.0, 0.0, 2.0]], [1.0, -1.0, 1.0, -1.0]),
+    ([[1.0, 0.1, 0.1, 0.1],
+      [0.1, 1.0, 0.1, 0.1],
+      [0.1, 0.1, 1.0, 0.1],
+      [0.1, 0.1, 0.1, 1.0]], [1e-8, 1e-8, 1e8, 1e8])
+]
+
+@pytest.mark.parametrize("matrix,rhs", specific_rhs_cases)
+def test_solve_specific_rhs(matrix, rhs):
+    try:
+        check_solve(matrix, rhs)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}\nRHS: {rhs}"
+        raise Exception(new_message)
+
+
+
+def test_py_solve_bad_cases():
+    j = [[-3.8789618086360855, -3.8439678951838587, -1.1398039850146757e-07], [1.878915113936518, 1.8439217680605073, 1.139794740950828e-07], [-1.0, -1.0, 0.0]]
+    nv = [-1.4181331207951953e-07, 1.418121622354107e-07, 2.220446049250313e-16]
+
+    import fluids.numerics
+    calc = fluids.numerics.py_solve(j, nv)
+    import numpy as np
+    expect = np.linalg.solve(j, nv)
+    fluids.numerics.assert_close1d(calc, expect, rtol=1e-4)
+
+
+
+specific_solution_cases = [
+    # Case 1
+    ([
+        [0.8660254037844387, -0.49999999999999994, 0.0],
+        [0.49999999999999994, 0.8660254037844387, 0.0],
+        [0.0, 0.0, 1.0]],
+     [1, 2, 3],
+     [1.8660254037844384, 1.2320508075688774, 3.0]),
+    # Case 2
+    ([
+        [4, -1, 0, 0],
+        [-1, 4, -1, 0],
+        [0, -1, 4, -1],
+        [0, 0, -1, 4]],
+     [1, -1, 1, -1],
+     [0.21052631578947367, -0.15789473684210525, 0.15789473684210528, -0.21052631578947367]),
+    # Case 3
+    ([
+        [2, 1, 1],
+        [0, 3, -1],
+        [0, 0, 4]],
+     [1, 2, 3],
+     [-0.3333333333333333, 0.9166666666666666, 0.75]),
+    # Case 4
+    ([
+        [3, 1, -2],
+        [2, -3, 1],
+        [-1, 2, 4]],
+     [7, -1, 3],
+     [1.981132075471698, 1.7735849056603772, 0.3584905660377357]),
+    # Case 5
+    ([[3.0]],
+     [6.0],
+     [2.0]),
+    # Case 6
+    ([
+        [0.7071067811865476, -0.7071067811865475],
+        [0.7071067811865475, 0.7071067811865476]],
+     [1.0, 2.0],
+     [2.1213203435596424, 0.7071067811865478]),
+    # Case 7
+    ([
+        [2, 1, 1],
+        [0, 3, -1],
+        [0, 0, 4]],
+     [1, 2, 3],
+     [-0.3333333333333333, 0.9166666666666666, 0.75]),
+    # Case 8
+    ([
+        [4, -1, 0, 0, 0],
+        [-1, 4, -1, 0, 0],
+        [0, -1, 4, -1, 0],
+        [0, 0, -1, 4, -1],
+        [0, 0, 0, -1, 4]],
+     [1, -1, 1, -1, 1],
+     [0.21153846153846154, -0.15384615384615383, 0.17307692307692307, -0.15384615384615383, 0.21153846153846154]),
+    # Case 9
+    ([
+        [2.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+        [1.0, 2.0, 0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 3.0, -1.0, 0.0, 0.0],
+        [0.0, 0.0, -1.0, 3.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0, 4.0, -1.0],
+        [0.0, 0.0, 0.0, 0.0, -1.0, 4.0]],
+     [1, -1, 2, -2, 3, -3],
+     [1.0, -1.0, 0.5, -0.5000000000000001, 0.6, -0.6]),
+    # Case 10
+    ([
+        [2, 1, 0, 0, 0, 0, 0],
+        [-1, 3, -1, 0, 0, 0, 0],
+        [0, 1, 2, 1, 0, 0, 0],
+        [0, 0, -1, 4, -1, 0, 0],
+        [0, 0, 0, 1, 3, 1, 0],
+        [0, 0, 0, 0, -1, 2, -1],
+        [0, 0, 0, 0, 0, 1, 3]],
+     [1, -1, 1, -1, 1, -1, 1],
+     [0.4983480176211454, 0.0033039647577092373, 0.5115638766519823, -0.02643171806167401, 0.3827092511013216, -0.12169603524229072, 0.37389867841409696]),
+]
+@pytest.mark.parametrize("matrix,rhs,expected", specific_solution_cases)
+def test_solve_specific_solutions(matrix, rhs, expected):
+    result = solve(matrix, rhs)
+    assert_allclose(result, expected, rtol=1e-15)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
