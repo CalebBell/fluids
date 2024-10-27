@@ -22,7 +22,7 @@ SOFTWARE.
 from math import cos, erf, exp, isnan, log, pi, sin, sqrt
 
 import pytest
-from fluids.numerics.arrays import inv, solve, lu, gelsd, eye
+from fluids.numerics.arrays import inv, solve, lu, gelsd, eye, dot_product
 from fluids.numerics import (
     array_as_tridiagonals,
     assert_close,
@@ -1701,4 +1701,33 @@ def test_eye():
     # Check type consistency for different dtypes
     check_type_consistency(eye(3, dtype=float), float)
     check_type_consistency(eye(3, dtype=int), int)
+
+
+def test_dot_product():
+    assert dot_product([1, 2, 3], [4, 5, 6]) == 32.0
+    assert dot_product([1, 0], [0, 1]) == 0.0  # Orthogonal vectors
+    assert dot_product([1, 1], [1, 1]) == 2.0  # Parallel vectors
+    assert_close(dot_product([0.1, 0.2], [0.3, 0.4]), 0.11)
+    assert_close(dot_product([-1, -2], [3, 4]), -11.0)
     
+    # Test properties of dot product
+    def test_commutative(a, b):
+        """Test if a·b = b·a"""
+        assert_close(dot_product(a, b), dot_product(b, a), rtol=1e-14)
+    
+    def test_distributive(a, b, c):
+        """Test if a·(b + c) = a·b + a·c"""
+        # Create vector sum b + c
+        vec_sum = [bi + ci for bi, ci in zip(b, c)]
+        left = dot_product(a, vec_sum)
+        right = dot_product(a, b) + dot_product(a, c)
+        return assert_close(left, right, rtol=1e-14)
+    
+    # Test mathematical properties
+    a, b, c = [1, 2], [3, 4], [5, 6]
+    test_commutative(a, b)
+    test_distributive(a, b, c)
+    
+    # Test error cases
+    with pytest.raises(ValueError):
+        dot_product([1, 2], [1, 2, 3])  # Different lengths

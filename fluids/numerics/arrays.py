@@ -43,7 +43,7 @@ else:
 #    except ImportError:
 #        np = None
 
-__all__ = ['dot', 'inv', 'det', 'solve', 'norm2', 'inner_product', 'transpose',
+__all__ = ['dot_product', 'inv', 'det', 'solve', 'norm2', 'dot', 'transpose',
            'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix',
            'argsort1d', 'lu', 'gelsd']
 primitive_containers = frozenset([list, tuple])
@@ -458,7 +458,43 @@ def dot(a, b):
         ab = [sum([ai*bi for ai, bi in zip(a, b)])]
     return ab
 
-def inner_product(a, b):
+def dot_product(a, b):
+    """
+    Compute the dot product (scalar product, inner product) of two vectors.
+    
+    Calculates sum(a[i] * b[i]) for i in range(len(a)).
+    
+    Parameters
+    ----------
+    a : list[float]
+        First vector
+    b : list[float]
+        Second vector of same length as a
+        
+    Returns
+    -------
+    float
+        The dot product of vectors a and b
+        
+    Examples
+    --------
+    >>> dot_product([1, 2, 3], [4, 5, 6])
+    32.0
+    >>> dot_product([1, 0], [0, 1])
+    0.0
+    
+    Notes
+    -----
+    
+    Raises
+    ------
+    ValueError
+        If vectors are not the same length
+    TypeError 
+        If inputs are not valid vector types
+    """
+    if len(a) != len(b):
+        raise ValueError("Vectors must have same length") 
     tot = 0.0
     for i in range(len(a)):
         tot += a[i]*b[i]

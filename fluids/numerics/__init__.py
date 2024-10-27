@@ -27,7 +27,7 @@ from math import (sin, exp, pi, fabs, copysign, log, isinf, isnan, acos, cos, si
                   atan2, asinh, sqrt, gamma)
 from cmath import sqrt as csqrt, log as clog
 import sys
-from fluids.numerics.arrays import (solve as py_solve, inv, dot, norm2, inner_product, eye,
+from fluids.numerics.arrays import (solve as py_solve, inv, dot_product, norm2, dot, eye,
                      array_as_tridiagonals, tridiagonals_as_array, transpose,
                      solve_tridiagonal, subset_matrix, argsort1d)
 
@@ -3566,8 +3566,8 @@ def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
 
 
         dmu = [d[i]-u[i] for i in eqns]
-        dmu_d = inner_product(dmu, d)
-        den_inv = 1.0/inner_product(d, u)
+        dmu_d = dot_product(dmu, d)
+        den_inv = 1.0/dot_product(d, u)
         factor = den_inv*dmu_d
         J_delta = [[factor*j for j in row] for row in J]
         for i in eqns:
