@@ -22,7 +22,7 @@ SOFTWARE.
 from math import cos, erf, exp, isnan, log, pi, sin, sqrt
 
 import pytest
-from fluids.numerics.arrays import inv, solve
+from fluids.numerics.arrays import inv, solve, lu
 from fluids.numerics import (
     array_as_tridiagonals,
     assert_close,
@@ -1058,12 +1058,265 @@ def test_solve_specific_solutions(matrix, rhs, expected):
 
 
 
+def check_lu(matrix):
+    """Compare our LU decomposition against SciPy's"""
+    import numpy as np
+    from scipy import linalg
+    
+    just_return = False
+    try:
+        # This will fail for bad matrix (inconsistent size) inputs
+        cond = np.linalg.cond(matrix)
+    except:
+        just_return = True
+        
+    py_fail = False
+    scipy_fail = False
+    try:
+        P, L, U = lu(matrix)
+    except:
+        py_fail = True
+    try:
+        p, l, u = linalg.lu(matrix)
+    except:
+        scipy_fail = True
+        
+    if py_fail and not scipy_fail:
+        if not just_return and cond > 1e14:
+            # Let ill conditioned matrices pass
+            return 
+        raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, SciPy Fail: {scipy_fail}")
+    if py_fail and scipy_fail:
+        return
+    if not py_fail and scipy_fail:
+        return
+    if just_return:
+        return
+        
+    # Convert results to numpy arrays
+    P, L, U = np.array(P), np.array(L), np.array(U)
+    
+    # Compute infinity norm of input matrix
+    matrix_norm = np.max(np.sum(np.abs(matrix), axis=1))
+    thresh = matrix_norm * np.finfo(float).eps
+
+    # Verify L is lower triangular with unit diagonal
+    tril_mask = np.tril(np.ones_like(L, dtype=bool))
+    assert_allclose(L[~tril_mask], 0, atol=thresh)
+    assert_allclose(np.diag(L), 1, rtol=thresh)
+
+    # Verify U is upper triangular
+    triu_mask = np.triu(np.ones_like(U, dtype=bool))
+    assert_allclose(U[~triu_mask], 0, atol=thresh)
+
+    # Check that P is a permutation matrix
+    P_sum_rows = np.sum(P, axis=1)
+    P_sum_cols = np.sum(P, axis=0)
+    assert_allclose(P_sum_rows, np.ones(len(matrix)), rtol=thresh)
+    assert_allclose(P_sum_cols, np.ones(len(matrix)), rtol=thresh)
 
 
+    # Most importantly: verify that PA = LU
+    PA = P @ matrix
+    LU = L @ U
+    assert_allclose(PA, LU, rtol=1e-13, atol=10*thresh)
+
+    # Compare with SciPy's results:
+    # Since pivot choices might differ, we compare
+    # The upper triangular factor (which should be unique up to sign changes)
+    # Normalize each row to handle sign differences
+    U_normalized = U / (np.max(np.abs(U), axis=1, keepdims=True) + np.finfo(float).eps)
+    u_normalized = u / (np.max(np.abs(u), axis=1, keepdims=True) + np.finfo(float).eps)
+    if cond < 1e7:
+        np.testing.assert_allclose(np.abs(U_normalized), np.abs(u_normalized), rtol=1e-13)
+
+specific_lu_cases = [
+    # Case 1
+    (
+    [[0.8660254037844387, -0.49999999999999994, 0.0],
+ [0.49999999999999994, 0.8660254037844387, 0.0],
+ [0.0, 0.0, 1.0]],
+    [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+    [[1.0, 0.0, 0.0], [0.5773502691896256, 1.0, 0.0], [0.0, 0.0, 1.0]],
+    [[0.8660254037844387, -0.49999999999999994, 0.0],
+ [0.0, 1.1547005383792515, 0.0],
+ [0.0, 0.0, 1.0]]
+    ),
+    # Case 2
+    (
+    [[4.0, -1.0, 0.0, 0.0],
+ [-1.0, 4.0, -1.0, 0.0],
+ [0.0, -1.0, 4.0, -1.0],
+ [0.0, 0.0, -1.0, 4.0]],
+    [[1.0, 0.0, 0.0, 0.0],
+ [0.0, 1.0, 0.0, 0.0],
+ [0.0, 0.0, 1.0, 0.0],
+ [0.0, 0.0, 0.0, 1.0]],
+    [[1.0, 0.0, 0.0, 0.0],
+ [-0.25, 1.0, 0.0, 0.0],
+ [0.0, -0.26666666666666666, 1.0, 0.0],
+ [0.0, 0.0, -0.26785714285714285, 1.0]],
+    [[4.0, -1.0, 0.0, 0.0],
+ [0.0, 3.75, -1.0, 0.0],
+ [0.0, 0.0, 3.7333333333333334, -1.0],
+ [0.0, 0.0, 0.0, 3.732142857142857]]
+    ),
+    # Case 3
+    (
+    [[2.0, 1.0, 1.0], [0.0, 3.0, -1.0], [0.0, 0.0, 4.0]],
+    [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+    [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+    [[2.0, 1.0, 1.0], [0.0, 3.0, -1.0], [0.0, 0.0, 4.0]]
+    ),
+    # Case 4
+    (
+    [[3.0, 1.0, -2.0], [2.0, -3.0, 1.0], [-1.0, 2.0, 4.0]],
+    [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+    [[1.0, 0.0, 0.0],
+ [0.6666666666666666, 1.0, 0.0],
+ [-0.3333333333333333, -0.6363636363636365, 1.0]],
+    [[3.0, 1.0, -2.0],
+ [0.0, -3.6666666666666665, 2.333333333333333],
+ [0.0, 0.0, 4.818181818181818]]
+    ),
+    # Case 5
+    (
+    [[3.0]],
+    [[1.0]],
+    [[1.0]],
+    [[3.0]]
+    ),
+    # Case 6
+    (
+    [[0.7071067811865476, -0.7071067811865475],
+ [0.7071067811865475, 0.7071067811865476]],
+    [[1.0, 0.0], [0.0, 1.0]],
+    [[1.0, 0.0], [0.9999999999999998, 1.0]],
+    [[0.7071067811865476, -0.7071067811865475], [0.0, 1.414213562373095]]
+    ),
+    # Case 7
+    (
+    [[4.0, -1.0, 0.0, 0.0, 0.0],
+ [-1.0, 4.0, -1.0, 0.0, 0.0],
+ [0.0, -1.0, 4.0, -1.0, 0.0],
+ [0.0, 0.0, -1.0, 4.0, -1.0],
+ [0.0, 0.0, 0.0, -1.0, 4.0]],
+    [[1.0, 0.0, 0.0, 0.0, 0.0],
+ [0.0, 1.0, 0.0, 0.0, 0.0],
+ [0.0, 0.0, 1.0, 0.0, 0.0],
+ [0.0, 0.0, 0.0, 1.0, 0.0],
+ [0.0, 0.0, 0.0, 0.0, 1.0]],
+    [[1.0, 0.0, 0.0, 0.0, 0.0],
+ [-0.25, 1.0, 0.0, 0.0, 0.0],
+ [0.0, -0.26666666666666666, 1.0, 0.0, 0.0],
+ [0.0, 0.0, -0.26785714285714285, 1.0, 0.0],
+ [0.0, 0.0, 0.0, -0.2679425837320574, 1.0]],
+    [[4.0, -1.0, 0.0, 0.0, 0.0],
+ [0.0, 3.75, -1.0, 0.0, 0.0],
+ [0.0, 0.0, 3.7333333333333334, -1.0, 0.0],
+ [0.0, 0.0, 0.0, 3.732142857142857, -1.0],
+ [0.0, 0.0, 0.0, 0.0, 3.7320574162679425]]
+    ),
+    # Case 8
+    (
+    [[2.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+ [1.0, 2.0, 0.0, 0.0, 0.0, 0.0],
+ [0.0, 0.0, 3.0, -1.0, 0.0, 0.0],
+ [0.0, 0.0, -1.0, 3.0, 0.0, 0.0],
+ [0.0, 0.0, 0.0, 0.0, 4.0, -1.0],
+ [0.0, 0.0, 0.0, 0.0, -1.0, 4.0]],
+    [[1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+ [0.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+ [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+ [0.0, 0.0, 0.0, 1.0, 0.0, 0.0],
+ [0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+ [0.0, 0.0, 0.0, 0.0, 0.0, 1.0]],
+    [[1.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+ [0.5, 1.0, 0.0, 0.0, 0.0, 0.0],
+ [0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
+ [0.0, 0.0, -0.3333333333333333, 1.0, 0.0, 0.0],
+ [0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+ [0.0, 0.0, 0.0, 0.0, -0.25, 1.0]],
+    [[2.0, 1.0, 0.0, 0.0, 0.0, 0.0],
+ [0.0, 1.5, 0.0, 0.0, 0.0, 0.0],
+ [0.0, 0.0, 3.0, -1.0, 0.0, 0.0],
+ [0.0, 0.0, 0.0, 2.6666666666666665, 0.0, 0.0],
+ [0.0, 0.0, 0.0, 0.0, 4.0, -1.0],
+ [0.0, 0.0, 0.0, 0.0, 0.0, 3.75]]
+    ),
+]
+
+@pytest.mark.parametrize("matrix,p_expected,l_expected,u_expected", specific_lu_cases)
+def test_lu_specific_cases(matrix, p_expected, l_expected, u_expected):
+    p, l, u = lu(matrix)
+    assert_allclose(p, p_expected, rtol=1e-15)
+    assert_allclose(l, l_expected, rtol=1e-15)
+    assert_allclose(u, u_expected, rtol=1e-15)
 
 
+@pytest.mark.parametrize("matrix", matrices_1x1)
+def test_lu_1x1(matrix):
+    try:
+        check_lu(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
 
+@pytest.mark.parametrize("matrix", matrices_2x2)
+def test_lu_2x2(matrix):
+    try:
+        check_lu(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
 
+@pytest.mark.parametrize("matrix", matrices_2x2_near_singular)
+def test_lu_2x2_near_singular(matrix):
+    try:
+        check_lu(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_3x3)
+def test_lu_3x3(matrix):
+    try:
+        check_lu(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_3x3_near_singular)
+def test_lu_3x3_near_singular(matrix):
+    try:
+        check_lu(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_4x4)
+def test_lu_4x4(matrix):
+    try:
+        check_lu(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_4x4_near_singular)
+def test_lu_4x4_near_singular(matrix):
+    try:
+        check_lu(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_singular)
+def test_lu_singular_matrices(matrix):
+    try:
+        check_lu(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        raise Exception(new_message)
 
 
 
