@@ -399,13 +399,57 @@ def shape(value):
         pass
     return tuple(dims)
 
-def eye(N):
-    mat = []
+def eye(N, dtype=float):
+    """
+    Return a 2-D array with ones on the diagonal and zeros elsewhere.
+    
+    Parameters
+    ----------
+    N : int
+        Number of rows and columns in the output matrix.
+    dtype : type, optional
+        The type of the array elements. Defaults to float.
+        
+    Returns
+    -------
+    list[list]
+        A N x N matrix with ones on the diagonal and zeros elsewhere.
+        
+    Examples
+    --------
+    >>> eye(3)
+    [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+    
+    >>> eye(2, dtype=int)
+    [[1, 0], [0, 1]]
+    
+    Notes
+    -----
+    This function creates an identity matrix similar to numpy's eye function,
+    but implemented in pure Python using nested lists.
+    
+    Raises
+    ------
+    ValueError
+        If N is not a positive integer.
+    TypeError
+        If N is not an integer or dtype is not a valid type.
+    """
+    # Input validation
+    if not isinstance(N, int):
+        raise TypeError("N must be an integer")
+    if N <= 0:
+        raise ValueError("N must be a positive integer")
+    
+    # Create the matrix
+    matrix = []
+    zero, one = dtype(0), dtype(1)
     for i in range(N):
-        r = [0.0]*N
-        r[i] = 1.0
-        mat.append(r)
-    return mat
+        row = [zero] * N  # Initialize row with zeros
+        row[i] = one    # Set diagonal element to 1
+        matrix.append(row)
+    
+    return matrix
 
 def dot(a, b):
     try:

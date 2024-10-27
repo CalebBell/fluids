@@ -22,7 +22,7 @@ SOFTWARE.
 from math import cos, erf, exp, isnan, log, pi, sin, sqrt
 
 import pytest
-from fluids.numerics.arrays import inv, solve, lu, gelsd
+from fluids.numerics.arrays import inv, solve, lu, gelsd, eye
 from fluids.numerics import (
     array_as_tridiagonals,
     assert_close,
@@ -1652,3 +1652,53 @@ def test_argsort1d():
     # check_argsort1d([-np.inf, np.inf, np.nan, 0, -1], [0, 4, 3, 2, 1], "Failed with infinities and NaN")
 
 
+
+
+
+def test_eye():
+    # Test basic functionality
+    assert eye(1) == [[1.0]]
+    assert eye(2) == [[1.0, 0.0], [0.0, 1.0]]
+    assert eye(3) == [[1.0, 0.0, 0.0], 
+                     [0.0, 1.0, 0.0], 
+                     [0.0, 0.0, 1.0]]
+    
+    # Test with different dtypes
+    assert eye(2, dtype=int) == [[1, 0], [0, 1]]
+    assert eye(2, dtype=float) == [[1.0, 0.0], [0.0, 1.0]]
+    
+    # Test error cases
+    with pytest.raises(ValueError):
+        eye(0)  # Zero size
+    with pytest.raises(ValueError):
+        eye(-1)  # Negative size
+    with pytest.raises(TypeError):
+        eye(2.5)  # Non-integer size
+    
+    # Test matrix properties
+    def check_matrix_properties(matrix):
+        N = len(matrix)
+        # Check dimensions
+        assert all(len(row) == N for row in matrix), "Matrix rows have inconsistent lengths"
+        # Check diagonal elements
+        assert all(matrix[i][i] == 1 for i in range(N)), "Diagonal elements are not 1"
+        # Check off-diagonal elements
+        assert all(matrix[i][j] == 0 
+                  for i in range(N) 
+                  for j in range(N) 
+                  if i != j), "Off-diagonal elements are not 0"
+    
+    # Test matrix properties for various sizes
+    for size in [1, 2, 3, 4, 5, 10]:
+        check_matrix_properties(eye(size))
+    
+    # Test type consistency
+    def check_type_consistency(matrix, expected_type):
+        assert all(isinstance(x, expected_type) 
+                  for row in matrix 
+                  for x in row), f"Not all elements are of type {expected_type}"
+    
+    # Check type consistency for different dtypes
+    check_type_consistency(eye(3, dtype=float), float)
+    check_type_consistency(eye(3, dtype=int), int)
+    
