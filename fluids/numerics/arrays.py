@@ -514,17 +514,143 @@ def inv_lu(a):
     return ainv
 
 
-def solve(a, b):
-    if len(b) > 3:
-        return solve_LU_decomposition(a, b)
-    return dot(inv(a), b)
-    # if len(a) > 4:
-    #     # if IS_PYPY:
-    #     return solve_LU_decomposition(a, b)
-    #     # import numpy as np
-    #     # return np.linalg.solve(a, b).tolist()
-    # else:
-    #     return dot(inv(a), b)
+'''Script to generate solve function
+import sympy as sp
+from sympy import Matrix, Symbol, simplify, solve_linear_system
+import re
+
+def generate_symbolic_system(n):
+    """Generate an nxn symbolic matrix A and n-vector b"""
+    A = Matrix([[Symbol(f'a_{i}{j}') for j in range(n)] for i in range(n)])
+    b = Matrix([Symbol(f'b_{i}') for i in range(n)])
+    return A, b
+
+def generate_cramer_solution(n):
+    """Generate symbolic solution using Cramer's rule for small matrices"""
+    A, b = generate_symbolic_system(n)
+    det_A = A.det()
+    
+    # Solve for each variable using Cramer's rule
+    solutions = []
+    for i in range(n):
+        # Create matrix with i-th column replaced by b
+        A_i = A.copy()
+        A_i[:, i] = b
+        det_i = A_i.det()
+        # Store numerator only - we'll multiply by inv_det later
+        solutions.append(det_i)
+    
+    return det_A, solutions
+
+def generate_python_solve():
+    """Generate a unified matrix solve function with optimized 1x1, 2x2, and 3x3 cases"""
+    size_specific_code = {}
+    
+    # Special case for N=1
+    size_specific_code[1] = """        # Direct solution for 1x1
+        return [b[0]/matrix[0][0]]"""
+    
+    # Generate specialized code for sizes 2 and 3
+    for N in [2, 3]:
+        det, solutions = generate_cramer_solution(N)
+        
+        code = []
+        
+        # Unpack matrix elements
+        unpack_rows = []
+        for i in range(N):
+            row_vars = [f"a_{i}{j}" for j in range(N)]
+            unpack_rows.append("(" + ", ".join(row_vars) + ")")
+        code.append(f"        {', '.join(unpack_rows)} = matrix")
+        
+        # Unpack b vector
+        code.append(f"        {', '.join(f'b_{i}' for i in range(N))} = b")
+        
+        # Calculate determinant
+        det_expr = str(det)
+        code.append("\n        # Calculate determinant")
+        code.append(f"        det = {det_expr}")
+        
+        # Check for singular matrix
+        code.append("\n        # Check for singular matrix")
+        code.append("        if abs(det) <= 1e-7:")
+        code.append("            return solve_LU_decomposition(matrix, b)")
+        
+        # Calculate solution
+        code.append("\n        # Calculate solution")
+        code.append("        inv_det = 1.0/det")
+        
+        # Generate solution expressions (multiply by inv_det, don't divide by det)
+        solution_lines = []
+        for i, sol in enumerate(solutions):
+            solution_lines.append(f"        x_{i} = ({sol}) * inv_det")
+        code.append("\n".join(solution_lines))
+        
+        # Return solution
+        code.append("\n        return [" + ", ".join(f"x_{i}" for i in range(N)) + "]")
+        
+        size_specific_code[N] = "\n".join(code)
+    
+    # Generate the complete function
+    complete_code = [
+        "def solve(matrix, b):",
+        "    size = len(matrix)",
+        "    if size == 1:",
+        size_specific_code[1],
+        "    elif size == 2:",
+        size_specific_code[2],
+        "    elif size == 3:",
+        size_specific_code[3],
+        "    else:",
+        "        return solve_LU_decomposition(matrix, b)",
+        ""
+    ]
+    
+    return "\n".join(complete_code)
+
+# Generate and print the optimized solve function
+print(generate_python_solve())
+'''
+
+def solve(matrix, b):
+    size = len(matrix)
+    if size == 2:
+        (a_00, a_01), (a_10, a_11) = matrix
+        b_0, b_1 = b
+
+        # Calculate determinant
+        det = a_00*a_11 - a_01*a_10
+
+        # Check for singular matrix
+        if abs(det) <= 1e-7:
+            return solve_LU_decomposition(matrix, b)
+
+        # Calculate solution
+        inv_det = 1.0/det
+        x_0 = (a_11*b_0 - a_01*b_1) * inv_det
+        x_1 = (-a_10*b_0 + a_00*b_1) * inv_det
+
+        return [x_0, x_1]
+    elif size == 3:
+        (a_00, a_01, a_02), (a_10, a_11, a_12), (a_20, a_21, a_22) = matrix
+        b_0, b_1, b_2 = b
+
+        # Calculate determinant
+        det = a_00*a_11*a_22 - a_00*a_12*a_21 - a_01*a_10*a_22 + a_01*a_12*a_20 + a_02*a_10*a_21 - a_02*a_11*a_20
+
+        # Check for singular matrix
+        if abs(det) <= 1e-7:
+            return solve_LU_decomposition(matrix, b)
+
+        # Calculate solution
+        inv_det = 1.0/det
+        x_0 = (b_0*(a_11*a_22 - a_12*a_21) + b_1*(-a_01*a_22 + a_02*a_21) + b_2*(a_01*a_12 - a_02*a_11)) * inv_det
+        x_1 = (b_0*(-a_10*a_22 + a_12*a_20) + b_1*(a_00*a_22 - a_02*a_20) + b_2*(-a_00*a_12 + a_02*a_10)) * inv_det
+        x_2 = (b_0*(a_10*a_21 - a_11*a_20) + b_1*(-a_00*a_21 + a_01*a_20) + b_2*(a_00*a_11 - a_01*a_10)) * inv_det
+
+        return [x_0, x_1, x_2]
+    else:
+        return solve_LU_decomposition(matrix, b)
 
 
 
