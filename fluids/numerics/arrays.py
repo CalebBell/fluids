@@ -511,7 +511,7 @@ def dot(a, b):
 
 def dot_product(a, b):
     """
-    Compute the dot product (scalar product, inner product) of two vectors.
+    Compute the dot product (also known as scalar product or inner product) of two vectors.
     
     Calculates sum(a[i] * b[i]) for i in range(len(a)).
     
