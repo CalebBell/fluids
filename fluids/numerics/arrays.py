@@ -43,9 +43,12 @@ else:
 #    except ImportError:
 #        np = None
 
-__all__ = ['dot_product', 'inv', 'det', 'solve', 'norm2', 'dot', 'transpose',
+__all__ = ['dot_product', 'inv', 'det', 'solve', 'norm2', 'transpose', 'shape',
            'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix',
-           'argsort1d', 'lu', 'gelsd']
+           'argsort1d', 'lu', 'gelsd', 'matrix_vector_dot', 'matrix_multiply',
+           'sum_matrix_rows', 'sum_matrix_cols',
+           'scalar_divide_matrix', 'scalar_multiply_matrix', 'scalar_subtract_matrices', 'scalar_add_matrices',
+           'stack_vectors']
 primitive_containers = frozenset([list, tuple])
 
 def transpose(matrix):
@@ -502,12 +505,6 @@ def eye(N, dtype=float):
     
     return matrix
 
-def dot(a, b):
-    try:
-        ab = [sum([ri*bi for ri, bi in zip(row, b)]) for row in a]
-    except:
-        ab = [sum([ai*bi for ai, bi in zip(a, b)])]
-    return ab
 
 def dot_product(a, b):
     """
@@ -551,7 +548,395 @@ def dot_product(a, b):
         tot += a[i]*b[i]
     return tot
 
+def matrix_vector_dot(matrix, vector):
+    """
+    Compute the product of a matrix and a vector.
 
+    Parameters
+    ----------
+    matrix : list[list[float]]
+        Input matrix represented as a list of lists.
+    vector : list[float]
+        Input vector represented as a list of floats.
+
+    Returns
+    -------
+    list[float]
+        The result of the matrix-vector multiplication as a vector.
+
+    Raises
+    ------
+    ValueError
+        If the number of columns in the matrix does not match the length of the vector.
+    TypeError
+        If inputs are not valid matrix and vector types.
+
+    Examples
+    --------
+    >>> matrix_vector_dot([[1, 2, 3], [4, 5, 6]], [1, 0, 1])
+    [4, 10]
+    >>> matrix_vector_dot([[1.0, 2.0], [3.0, 4.0]], [0, 1])
+    [2.0, 4.0]
+    """
+    # Validate matrix dimensions
+    N = len(vector)
+    if not all(len(row) == N for row in matrix):
+        raise ValueError("Matrix columns must match vector length")
+
+    result = [sum(row[i] * vector[i] for i in range(N)) for row in matrix]
+    return result
+
+def matrix_multiply(A, B):
+    r"""Multiply two matrices using pure Python.
+    
+    Computes the matrix product C = A·B where A is an m×p matrix and B is a p×n matrix,
+    resulting in an m×n matrix C.
+    
+    Parameters
+    ----------
+    A : list[list[float]]
+        First matrix as list of lists, with shape (m, p)
+    B : list[list[float]]
+        Second matrix as list of lists, with shape (p, n)
+        
+    Returns
+    -------
+    list[list[float]]
+        Resulting matrix C with shape (m, n)
+        
+    Examples
+    --------
+    >>> A = [[1, 2], [3, 4]]
+    >>> B = [[5, 6], [7, 8]]
+    >>> matrix_multiply(A, B)
+    [[19.0, 22.0], [43.0, 50.0]]
+    
+    Notes
+    -----
+    Uses a straightforward three-loop implementation optimized for pure Python:
+    C[i,j] = sum(A[i,k] * B[k,j] for k in range(p))
+    
+    The implementation avoids repeated len() calls and list accesses by caching
+    frequently used values.
+    
+    Raises
+    ------
+    ValueError
+        If matrices have incompatible dimensions for multiplication
+        If input matrices are empty or irregular (rows of different lengths)
+    TypeError
+        If A or B contains non-numeric values or is not a list of lists.
+    """
+    # Input validation
+    if not A or not A[0] or not B or not B[0]:
+        raise ValueError("Empty matrices cannot be multiplied")
+    
+    # Get dimensions
+    m = len(A)  # rows in A
+    p = len(A[0]) if m else 0 # cols in A = rows in B
+    n = len(B[0]) if B else 0  # cols in B
+    
+    # Validate dimensions
+    if not all(len(row) == p for row in A):
+        raise ValueError("First matrix has irregular row lengths")
+    if len(B) != p:
+        raise ValueError(f"Incompatible dimensions: A is {m}x{p}, B is {len(B)}x{n}")
+    if not all(len(row) == n for row in B):
+        raise ValueError("Second matrix has irregular row lengths")
+    
+    # Pre-allocate result matrix with zeros
+    C = [[0.0] * n for _ in range(m)]
+    
+    # Compute product using simple indexed loops
+    for i in range(m):
+        A_i = A[i]  # Cache current row of A
+        C_i = C[i]  # Cache current row of C
+        for j in range(n):
+            tot = 0.0
+            for k in range(p):
+                tot += A_i[k] * B[k][j]
+            C_i[j] = tot
+            
+    return C
+
+def sum_matrix_rows(matrix):
+    """Sum a 2D matrix along rows, equivalent to numpy.sum(matrix, axis=1).
+    
+    Parameters
+    ----------
+    matrix : list[list[float]]
+        Input matrix as a list of lists where each inner list is a row
+        
+    Returns
+    -------
+    list[float]
+        List containing the sum of each row
+        
+    Examples
+    --------
+    >>> sum_matrix_rows([[1, 2, 3], [4, 5, 6]])
+    [6.0, 15.0]
+    >>> sum_matrix_rows([[1], [2]])
+    [1.0, 2.0]
+    
+    Notes
+    -----
+    For a matrix with shape (m, n), returns a list of length m
+    where each element is the sum of the corresponding row.
+    
+    Raises
+    ------
+    ValueError
+        If matrix is empty or has irregular row lengths
+    TypeError
+        If matrix is not a list of lists of numbers
+    """
+    if not matrix or not matrix[0]:
+        raise ValueError("Empty matrix")
+        
+    n = len(matrix[0])
+    if not all(len(row) == n for row in matrix):
+        raise ValueError("Matrix has irregular row lengths")
+    
+    result = []
+    for row in matrix:
+        tot = 0.0
+        for val in row:
+            tot += val
+        result.append(tot)
+    return result
+
+def sum_matrix_cols(matrix):
+    """Sum a 2D matrix along columns, equivalent to numpy.sum(matrix, axis=0).
+    
+    Parameters
+    ----------
+    matrix : list[list[float]]
+        Input matrix as a list of lists where each inner list is a row
+        
+    Returns
+    -------
+    list[float]
+        List containing the sum of each column
+        
+    Examples
+    --------
+    >>> sum_matrix_cols([[1, 2, 3], [4, 5, 6]])
+    [5.0, 7.0, 9.0]
+    >>> sum_matrix_cols([[1], [2]])
+    [3.0]
+    
+    Notes
+    -----
+    For a matrix with shape (m, n), returns a list of length n
+    where each element is the sum of the corresponding column.
+    
+    Raises
+    ------
+    ValueError
+        If matrix is empty or has irregular row lengths
+    TypeError
+        If matrix is not a list of lists of numbers
+    """
+    if not matrix or not matrix[0]:
+        raise ValueError("Empty matrix")
+        
+    n = len(matrix[0])
+    if not all(len(row) == n for row in matrix):
+        raise ValueError("Matrix has irregular row lengths")
+    
+    result = [0.0] * n
+    for row in matrix:
+        for j, val in enumerate(row):
+            result[j] += val
+    return result
+
+def scalar_add_matrices(A, B):
+    """Add two matrices element-wise.
+    
+    Computes the element-wise sum of two matrices of the same dimensions.
+    
+    Parameters
+    ----------
+    A : list[list[float]]
+        First matrix as a list of lists.
+    B : list[list[float]]
+        Second matrix as a list of lists.
+        
+    Returns
+    -------
+    list[list[float]]
+        Resulting matrix after element-wise addition.
+        
+    Examples
+    --------
+    >>> A = [[1.0, 2.0], [3.0, 4.0]]
+    >>> B = [[5.0, 6.0], [7.0, 8.0]]
+    >>> scalar_add_matrices(A, B)
+    [[6.0, 8.0], [10.0, 12.0]]
+    
+    Raises
+    ------
+    ValueError
+        If matrices A and B have different shapes or if they are empty.
+    TypeError
+        If A or B contains non-numeric values or is not a list of lists.
+    """
+    if not A or not B or len(A) != len(B) or len(A[0]) != len(B[0]) or not len(A[0]):
+        raise ValueError("Matrices must have the same dimensions and be non-empty")
+    
+    result = []
+    for row_A, row_B in zip(A, B):
+        if len(row_A) != len(row_B):
+            raise ValueError("Matrices must have the same dimensions")
+        result.append([a + b for a, b in zip(row_A, row_B)])
+    return result
+
+
+def scalar_subtract_matrices(A, B):
+    """Subtract two matrices element-wise.
+    
+    Computes the element-wise difference of two matrices of the same dimensions.
+    
+    Parameters
+    ----------
+    A : list[list[float]]
+        First matrix as a list of lists.
+    B : list[list[float]]
+        Second matrix as a list of lists.
+        
+    Returns
+    -------
+    list[list[float]]
+        Resulting matrix after element-wise subtraction.
+        
+    Examples
+    --------
+    >>> A = [[5.0, 6.0], [7.0, 8.0]]
+    >>> B = [[1.0, 2.0], [3.0, 4.0]]
+    >>> scalar_subtract_matrices(A, B)
+    [[4.0, 4.0], [4.0, 4.0]]
+    
+    Raises
+    ------
+    ValueError
+        If matrices A and B have different shapes or if they are empty.
+    TypeError
+        If A or B contains non-numeric values or is not a list of lists.
+    """
+    if not A or not B or len(A) != len(B) or len(A[0]) != len(B[0]) or not len(A[0]):
+        raise ValueError("Matrices must have the same dimensions and be non-empty")
+    
+    result = []
+    for row_A, row_B in zip(A, B):
+        if len(row_A) != len(row_B):
+            raise ValueError("Matrices must have the same dimensions")
+        result.append([a - b for a, b in zip(row_A, row_B)])
+    return result
+
+
+def scalar_multiply_matrix(scalar, matrix):
+    """Multiply a matrix by a scalar.
+    
+    Multiplies each element of the matrix by the specified scalar.
+    
+    Parameters
+    ----------
+    scalar : float
+        Scalar value to multiply each element by.
+    matrix : list[list[float]]
+        Input matrix as a list of lists.
+        
+    Returns
+    -------
+    list[list[float]]
+        Resulting matrix after scalar multiplication.
+        
+    Examples
+    --------
+    >>> matrix = [[1, 2], [3, 4]]
+    >>> scalar_multiply_matrix(2.0, matrix)
+    [[2.0, 4.0], [6.0, 8.0]]
+    
+    Raises
+    ------
+    ValueError
+        If the input matrix is empty.
+    TypeError
+        If the matrix contains non-numeric values or is not a list of lists.
+    """
+    if not matrix or not matrix[0]:
+        raise ValueError("Input matrix cannot be empty")
+    
+    result = []
+    for row in matrix:
+        result.append([scalar * val for val in row])
+    return result
+
+
+def scalar_divide_matrix(scalar, matrix):
+    """Divide a matrix by a scalar.
+    
+    Divides each element of the matrix by the specified scalar.
+    
+    Parameters
+    ----------
+    scalar : float
+        Scalar value to divide each element by (cannot be zero).
+    matrix : list[list[float]]
+        Input matrix as a list of lists.
+        
+    Returns
+    -------
+    list[list[float]]
+        Resulting matrix after scalar division.
+        
+    Examples
+    --------
+    >>> matrix = [[2, 4], [6, 8]]
+    >>> scalar_divide_matrix(2.0, matrix)
+    [[1.0, 2.0], [3.0, 4.0]]
+    
+    Raises
+    ------
+    ValueError
+        If the input matrix is empty or if the scalar is zero.
+    TypeError
+        If the matrix contains non-numeric values or is not a list of lists.
+    ZeroDivisionError
+        If scalar is zero.
+    """
+    if scalar == 0:
+        raise ZeroDivisionError("Cannot divide by zero")
+    if not matrix or not matrix[0]:
+        raise ValueError("Input matrix cannot be empty")
+    
+    result = []
+    for row in matrix:
+        result.append([val / scalar for val in row])
+    return result
+
+def stack_vectors(vectors):
+    """Stack a list of vectors into a matrix, similar to numpy.stack.
+    
+    Parameters
+    ----------
+    vectors : list[list[float]]
+        List of vectors to stack into rows of a matrix
+        
+    Returns
+    -------
+    list[list[float]]
+        Matrix where each row is one of the input vectors
+        
+    Examples
+    --------
+    >>> stack_vectors([[1, 2], [3, 4]])
+    [[1, 2], [3, 4]]
+    """
+    if not vectors:
+        return []
+    return [list(v) for v in vectors]  # Create copies of vectors
 def inplace_LU(A, ipivot):
     N = len(A)
     
@@ -824,6 +1209,47 @@ def norm2(arr):
 
 
 def array_as_tridiagonals(arr):
+    """Extract the three diagonals from a tridiagonal matrix.
+    
+    A tridiagonal matrix is a matrix that has nonzero elements only on the 
+    main diagonal, the first diagonal below this (subdiagonal), and the first 
+    diagonal above this (superdiagonal).
+    
+    Parameters
+    ----------
+    arr : list[list[float]]
+        Square matrix in tridiagonal form, where elements not on the three
+        main diagonals are zero
+    
+    Returns
+    -------
+    tuple[list[float], list[float], list[float]]
+        Three lists containing:
+        a: subdiagonal elements (length n-1)
+        b: main diagonal elements (length n)
+        c: superdiagonal elements (length n-1)
+        
+    Examples
+    --------
+    >>> arr = [[2, 1, 0], [1, 2, 1], [0, 1, 2]]
+    >>> a, b, c = array_as_tridiagonals(arr)
+    >>> a  # subdiagonal
+    [1, 1]
+    >>> b  # main diagonal
+    [2, 2, 2]
+    >>> c  # superdiagonal
+    [1, 1]
+    
+    Notes
+    -----
+    For a matrix of size n×n, returns:
+    - a[i] contains elements at position (i+1,i) for i=0..n-2
+    - b[i] contains elements at position (i,i) for i=0..n-1
+    - c[i] contains elements at position (i,i+1) for i=0..n-2
+    
+    No validation is performed to ensure the input matrix is actually tridiagonal.
+    Elements outside the three diagonals are ignored.
+    """
     row_last = arr[0]
     a, b, c = [], [row_last[0]], []
     for i in range(1, len(row_last)):
@@ -836,6 +1262,48 @@ def array_as_tridiagonals(arr):
 
 
 def tridiagonals_as_array(a, b, c, zero=0.0):
+    r"""Construct a square matrix from three diagonals.
+    
+    Creates a tridiagonal matrix using the provided sub-, main, and super-diagonal 
+    elements. All other elements are set to zero.
+    
+    Parameters
+    ----------
+    a : list[float]
+        Subdiagonal elements (length n-1)
+    b : list[float]
+        Main diagonal elements (length n)
+    c : list[float]
+        Superdiagonal elements (length n-1)
+    zero : float, optional
+        Value to use for non-diagonal elements. Defaults to 0.0
+    
+    Returns
+    -------
+    list[list[float]]
+        Square matrix of size n×n where n is the length of b
+        
+    Examples
+    --------
+    >>> a = [1, 1]  # subdiagonal
+    >>> b = [2, 2, 2]  # main diagonal
+    >>> c = [1, 1]  # superdiagonal
+    >>> tridiagonals_as_array(a, b, c)
+    [[2, 1, 0.0], [1, 2, 1], [0.0, 1, 2]]
+    
+    Notes
+    -----
+    For output matrix M of size n×n:
+    - a[i] becomes M[i+1][i] for i=0..n-2
+    - b[i] becomes M[i][i] for i=0..n-1
+    - c[i] becomes M[i][i+1] for i=0..n-2
+    
+    No validation is performed on input lengths. For correct results:
+    - len(b) should be n
+    - len(a) and len(c) should be n-1
+    
+    The function is the inverse of array_as_tridiagonals() when zero=0.0
+    """
     N = len(b)
     arr = [[zero]*N for _ in range(N)]
     row_last = arr[0]
@@ -848,38 +1316,86 @@ def tridiagonals_as_array(a, b, c, zero=0.0):
         row_last = row
     return arr
 
-
 def solve_tridiagonal(a, b, c, d):
-    '''
+    """Solve a tridiagonal system of equations using the Thomas algorithm.
+    
+    Solves the equation system Ax = d where A is a tridiagonal matrix composed of
+    diagonals a, b, and c. This is an efficient O(n) method also known as the
+    tridiagonal matrix algorithm (TDMA).
+    
+    The system of equations has the form:
+    b[0]x[0] + c[0]x[1] = d[0]
+    a[i]x[i-1] + b[i]x[i] + c[i]x[i+1] = d[i], for i=1..n-2
+    a[n-1]x[n-2] + b[n-1]x[n-1] = d[n-1]
+    
     Parameters
     ----------
     a : list[float]
-        Lower diagonal, [-]
+        Lower diagonal (subdiagonal) elements a[i] at (i+1,i), length n-1, [-]
     b : list[float]
-        Main diagonal along axis, [-]
+        Main diagonal elements b[i] at (i,i), length n, [-]
     c : list[float]
-        Upper diagonal, [-]
+        Upper diagonal (superdiagonal) elements c[i] at (i,i+1), length n-1, [-]
     d : list[float]
-        Array being solved for, [-]
-
+        Right-hand side vector, length n, [-]
+        
     Returns
     -------
-    solve : list[float]
-        result, [-]
-    '''
-    # the algorithm is in place
+    x : list[float]
+        Solution vector, length n, [-]
+        
+    Examples
+    --------
+    >>> # Solve the system:
+    >>> # [9 -1  0] [x0]   [1]
+    >>> # [-1 2 -1] [x1] = [0]
+    >>> # [0 -1  2] [x2]   [1]
+    >>> a = [-1, -1]  # lower diagonal
+    >>> b = [9, 2, 2]  # main diagonal
+    >>> c = [-1, -1]  # upper diagonal
+    >>> d = [1, 0, 1]  # right hand side
+    >>> solve_tridiagonal(a, b, c, d)
+    [0.16, 0.44, 0.72]
+    
+    Notes
+    -----
+    The algorithm modifies the input arrays b and d in-place to save memory,
+    but makes copies first to preserve the originals.
+    
+    
+    The algorithm fails if any diagonal element becomes zero during elimination.
+    
+    This implementation uses the Thomas algorithm, which is a specialized form
+    of Gaussian elimination that exploits the tridiagonal structure for O(n)
+    efficiency.
+    
+    No validation is performed on input lengths. For correct results:
+    - len(b) should be n
+    - len(a), len(c) should be n-1
+    - len(d) should be n
+    where n is the size of the system.
+    
+    References
+    ----------
+    .. [1] "Tridiagonal matrix algorithm", Wikipedia,
+           https://en.wikipedia.org/wiki/Tridiagonal_matrix_algorithm
+    """
+    # Make copies since the algorithm modifies arrays in-place
     b, d = [i for i in b], [i for i in d]
     N = len(d)
+    
+    # Forward elimination phase
     for i in range(N - 1):
         m = a[i]/b[i]
         b[i+1] -= m*c[i]
         d[i+1] -= m*d[i]
-
+    
+    # Back substitution phase
     b[-1] = d[-1]/b[-1]
     for i in range(N-2, -1, -1):
         b[i] = (d[i] - c[i]*b[i+1])/b[i]
+        
     return b
-
 def subset_matrix(whole, subset):
     if type(subset) is slice:
         subset = range(subset.start, subset.stop, subset.step)
@@ -900,8 +1416,6 @@ def subset_matrix(whole, subset):
     return new
 
 
-
-## argsort implementation
 
 def argsort1d(arr):
     """
@@ -941,7 +1455,7 @@ def gelsd(a, b, rcond=None):
     
     Parameters
     ----------
-    a : list[list[float]] or list[float]
+    a : list[list[float]]
         Input matrix A of shape (M, N)
     b : list[float]
         Input vector b of length M
@@ -969,57 +1483,57 @@ def gelsd(a, b, rcond=None):
     """
     import numpy as np
     
-    # Convert inputs to numpy arrays for computation
-    A = np.array(a, dtype=np.float64)
-    B = np.array(b, dtype=np.float64).reshape(-1, 1)  # Ensure column vector
     
-
-    # Force 2D array for empty matrices too
-    if len(A.shape) == 1:
-        A = A.reshape(-1, 1)
-        
-    # Get dimensions
-    m, n = A.shape
+    # Get dimensions and handle empty cases
+    m = len(a)
+    n = len(a[0]) if m > 0 else 0
     
-    # Special cases for empty matrices
     if m == 0:
         if n == 0:
-            return [], 0.0, 0, []  # Completely empty matrix
-        else:
-            return [0.0] * n, 0.0, 0, []  # Empty rows
+            return [], 0.0, 0, []  # Empty matrix
+        return [0.0] * n, 0.0, 0, []  # Empty rows
     elif n == 0:
         return [], 0.0, 0, []  # Empty columns
-        
-    # Check compatibility of dimensions
+    
+    # Check compatibility
     if len(b) != m:
         raise ValueError(f"Incompatible dimensions: A is {m}x{n}, b has length {len(b)}")
-                        
-    # Compute the SVD of A
-    # U (m x m), s (min(m,n)), Vt (n x n)
-    U, s, Vt = np.linalg.svd(A, full_matrices=False)
     
-    # Set rcond default if not provided
+    # Use numpy only for SVD computation
+    U, s, Vt = np.linalg.svd(np.array(a, dtype=np.float64), full_matrices=False)
+    
+    # Convert numpy arrays to Python lists
+    U = U.tolist()
+    s = s.tolist()
+    Vt = Vt.tolist()
+    
+    # Set default rcond
     if rcond is None:
-        rcond = np.finfo(A.dtype).eps * max(m, n)
+        rcond = max(m, n) * 2.2e-16  # Approximate machine epsilon for float64
     
-    # Determine effective rank using rcond
-    tol = rcond * s[0]  # Threshold is rcond times largest singular value
-    rank = np.sum(s > tol)
+    # Determine rank using rcond
+    tol = rcond * s[0]
+    rank = sum(sv > tol for sv in s)    
+    # Compute U.T @ b using pure Python
+    Ut = transpose(U)
+    Utb = matrix_vector_dot(Ut, b)
     
-    # Construct inverse of singular values, zeroing out small ones
-    s_inv = np.zeros_like(s)
-    s_inv[:rank] = 1/s[:rank]
+    # Apply 1/singular values with truncation
+    s_inv_Utb = [0.0] * len(s)
+    for i in range(rank):
+        s_inv_Utb[i] = Utb[i] / s[i]
     
-    # Compute solution: x = V @ diag(1/s) @ U.T @ b
-    x = Vt.T @ (s_inv.reshape(-1, 1) * (U.T @ B))
+    # Compute final solution using V
+    V = transpose(Vt)  # V is transpose of Vt
+    x = matrix_vector_dot(V, s_inv_Utb)
     
     # Compute residuals for overdetermined systems
     residuals = 0.0
-    if m > n and rank == n:  # Only for full-rank overdetermined systems
-        residuals = float(np.sum((B - A @ x)**2))
-    
-    # Convert back to Python types for return
-    return (x.ravel().tolist(),  # Flatten solution to 1D list
-            residuals,
-            int(rank),
-            s.tolist())
+    if m > n and rank == n:
+        # Compute Ax
+        Ax = matrix_vector_dot(a, x)
+        
+        # Compute residuals as |b - Ax|^2
+        diff = [b[i] - Ax[i] for i in range(m)]
+        residuals = dot_product(diff, diff)
+    return x, residuals, rank, s

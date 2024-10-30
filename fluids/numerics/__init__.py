@@ -27,9 +27,10 @@ from math import (sin, exp, pi, fabs, copysign, log, isinf, isnan, acos, cos, si
                   atan2, asinh, sqrt, gamma)
 from cmath import sqrt as csqrt, log as clog
 import sys
-from fluids.numerics.arrays import (solve as py_solve, inv, dot_product, norm2, dot, eye,
+from fluids.numerics.arrays import (solve as py_solve, inv, dot_product, norm2, matrix_vector_dot, eye,
                      array_as_tridiagonals, tridiagonals_as_array, transpose,
-                     solve_tridiagonal, subset_matrix, argsort1d)
+                     solve_tridiagonal, subset_matrix, argsort1d, shape,
+                     stack_vectors, matrix_multiply, transpose, eye, inv, sum_matrix_rows, gelsd)
 
 from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
                                      trunc_exp, trunc_log, cbrt, factorial, comb)
@@ -86,7 +87,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'quad', 'quad_adaptive', 'stable_poly_to_unstable', 'homotopy_solver',
            'horner_stable_log',
            'is_increasing',
-           
+           'fixed_point_anderson',
            'std', 'min_max_ratios', 'detect_outlier_normal',
            'max_abs_error', 'max_abs_rel_error', 'max_squared_error',
            'max_squared_rel_error', 'mean_abs_error', 'mean_abs_rel_error', 
@@ -3553,14 +3554,14 @@ def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
         err += abs(fi)
 
     while err > xtol and iter < maxiter:
-        s = dot(J, fcur)
+        s = matrix_vector_dot(J, fcur)
 
         xs = [xs[i] - s[i] for i in eqns]
 
         fnew = fun(xs, *args)
         z = [fnew[i] - fcur[i] for i in eqns]
 
-        u = dot(J, z)
+        u = matrix_vector_dot(J, z)
 
         d = [-i for i in s]
 
@@ -3791,6 +3792,135 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
         if err0 > ytol:
             raise UnconvergedError("Failed to converge")
     return x, iteration
+
+
+
+# not working yet
+# def anderson_acceleration_step(x, residuals_hist, x_hist, gx_hist, window_size=5, reg=0.0, mixing_param=1.0):
+#     """Compute one step of Anderson acceleration.
+    
+#     Parameters
+#     ----------
+#     x : list[float]
+#         Current iterate
+#     residuals_hist : list[list[float]]
+#         History of residuals
+#     x_hist : list[list[float]]
+#         History of iterates
+#     gx_hist : list[list[float]]
+#         History of function applications
+#     window_size : int, optional
+#         Number of previous iterates to use
+#     reg : float, optional
+#         Regularization parameter
+#     mixing_param : float, optional
+#         Mixing parameter between 0 and 1
+        
+#     Returns
+#     -------
+#     x_acc : list[float]
+#         Accelerated iterate
+#     """
+#     # Stack residuals into matrix
+#     Ft = stack_vectors(residuals_hist)
+    
+#     # Compute RR = Ft @ Ft.T
+#     RR = matrix_multiply(Ft, transpose(Ft))
+    
+#     # Add regularization
+#     N = len(RR)
+#     eye_matrix = eye(N)
+#     for i in range(N):
+#         RR[i][i] += reg
+        
+#     try:
+#         # Try to compute inverse
+#         RR_inv = inv(RR)
+#         print(shape(RR))
+#         print('inv worked')
+#         # Sum rows to get alpha
+#         alpha = sum_matrix_rows(RR_inv)
+#     except ValueError:
+#         # Singular matrix, so solve least squares instead
+#         ones = [1.0] * len(Ft)
+#         alpha = gelsd(RR, ones)[0]  # Take first return value only
+
+#     # Normalize alpha
+#     alpha_sum = sum(alpha)+1e-12
+#     # if abs(alpha_sum) < 1e-12:
+#     #     alpha_sum = 1e-12
+#     alpha = [a / alpha_sum for a in alpha]
+
+#     # Initialize accelerated iterate
+#     x_acc = [0.0] * len(x)
+    
+#     # Compute the weighted sum for both terms
+#     for a_i, x_i, gx_i in zip(alpha, x_hist, gx_hist):
+#         # First term: (1 - mixing_param) * alpha_i * x_i
+#         term1_factor = (1 - mixing_param) * a_i
+#         for j in range(len(x)):
+#             x_acc[j] += term1_factor * x_i[j]
+            
+#         # Second term: mixing_param * alpha_i * gx_i
+#         term2_factor = mixing_param * a_i
+#         for j in range(len(x)):
+#             x_acc[j] += term2_factor * gx_i[j]
+            
+#     return x_acc
+# def fixed_point_anderson(f, x0, xtol=None, ytol=None, maxiter=100, window_size=7,
+#                         reg=1e-12, mixing_param=0.5, args=(), require_progress=False,
+#                         check_numbers=False):
+#     """Solve a fixed-point problem using Anderson acceleration."""
+#     # Initialize histories
+#     residuals_hist = []
+#     x_hist = []
+#     gx_hist = []
+    
+#     x = x0[:]
+#     iteration = 0
+#     err0 = float('inf')
+    
+#     while iteration < maxiter:
+#         x_prev = x[:]
+#         # Evaluate function (fixed-point iteration)
+#         x = f(x_prev, *args)  # x = g(x_prev)
+        
+#         # Store gx_hist
+#         gx_hist.append(x)
+#         if len(gx_hist) > window_size + 1:
+#             gx_hist.pop(0)
+        
+#         # Compute residual
+#         residual = [x[i] - x_prev[i] for i in range(len(x))]
+#         residuals_hist.append(residual)
+#         if len(residuals_hist) > window_size + 1:
+#             residuals_hist.pop(0)
+        
+#         # Append previous x to history
+#         x_hist.append(x_prev)
+#         if len(x_hist) > window_size + 1:
+#             x_hist.pop(0)
+        
+#         # Apply acceleration if we have enough history
+#         if len(residuals_hist) >= 7:
+#             x = anderson_acceleration_step(x, residuals_hist, x_hist, gx_hist, 
+#                                         window_size, reg, mixing_param)
+#         print(x, 'accelerated gammas')
+#         # Check convergence
+#         # rel_errors = []
+#         # for i in range(len(x)):
+#         #     rel_errors.append(abs((x[i] - x_prev[i]) / x_prev[i]))
+#         # err = max(rel_errors)        
+#         err = norm2(residual)
+#         if xtol is not None and err < xtol:
+#             break
+#         if require_progress and err >= err0:
+#             raise ValueError("Fixed point is not making progress, cannot proceed")
+#         err0 = err
+#         iteration += 1
+                
+#     return x, iteration
+
 
 def normalize(values):
     r'''Simple function which normalizes a series of values to be from 0 to 1,
@@ -4501,7 +4631,7 @@ scipy_root_options = ('hybr', 'lm', 'broyden1', 'broyden2', 'anderson',
 scipy_root_options_set = frozenset(scipy_root_options)
 
 python_solvers = ('newton_system', 'newton_system_line_search', 'newton_system_line_search_progress',
-                  'homotopy_solver', 'broyden2_python', 'fixed_point', 'fixed_point_aitken', 'fixed_point_gdem')
+                  'homotopy_solver', 'broyden2_python', 'fixed_point', 'fixed_point_aitken', 'fixed_point_gdem', 'fixed_point_anderson')
 python_solvers_set = frozenset(python_solvers)
 
 scipy_minimize_options = ('Nelder-Mead', 'Powell', 'CG', 'BFGS', 'Newton-CG', 'L-BFGS-B', 
@@ -4820,6 +4950,8 @@ class SolverInterface(object):
             sln, niter = fixed_point_aitken(self.objf, x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
         elif method == 'fixed_point_gdem':
             sln, niter = fixed_point_gdem(self.objf, x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
+        elif method == 'fixed_point_anderson':
+            sln, niter = fixed_point_anderson(self.objf, x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter)
         elif method in scipy_root_options_set:
             process_root = True
             jacobian_method = self.jacobian_method

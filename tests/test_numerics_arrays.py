@@ -22,7 +22,8 @@ SOFTWARE.
 from math import cos, erf, exp, isnan, log, pi, sin, sqrt
 
 import pytest
-from fluids.numerics.arrays import inv, solve, lu, gelsd, eye, dot_product, transpose
+from fluids.numerics.arrays import (inv, solve, lu, gelsd, eye, dot_product, transpose, matrix_vector_dot, matrix_multiply, sum_matrix_rows, sum_matrix_cols,
+    scalar_divide_matrix, scalar_multiply_matrix, scalar_subtract_matrices, scalar_add_matrices)
 from fluids.numerics import (
     array_as_tridiagonals,
     assert_close,
@@ -1545,7 +1546,7 @@ def test_gelsd_empty_and_shapes(m, n, n_rhs):
     if m > n and n > 0:
         r = np.array(b) - np.dot(A, x)
         expected_residuals = float(np.sum(r * r))
-        assert_allclose(residuals, expected_residuals)
+        assert_allclose(residuals, expected_residuals, atol=1e-28)
 
 def test_gelsd_incompatible_dims():
     """Test error handling for incompatible dimensions"""
@@ -1733,6 +1734,31 @@ def test_dot_product():
         dot_product([1, 2], [1, 2, 3])  # Different lengths
 
 
+def test_matrix_vector_dot():
+    """Test the matrix-vector dot product function"""
+    # Basic multiplication
+    matrix = [[1, 2], [3, 4]]
+    vector = [1, 2]
+    result = matrix_vector_dot(matrix, vector)
+    assert_close1d(result, [5, 11])
+    
+    # Identity matrix
+    matrix = [[1, 0], [0, 1]]
+    assert_close1d(matrix_vector_dot(matrix, [2, 3]), [2, 3])
+    
+    # Zero matrix
+    matrix = [[0, 0], [0, 0]]
+    assert_close1d(matrix_vector_dot(matrix, [1, 1]), [0, 0])
+    
+    # Rectangular matrix (more rows than columns)
+    matrix = [[1, 2], [3, 4], [5, 6]]
+    vector = [1, 2]
+    assert_close1d(matrix_vector_dot(matrix, vector), [5, 11, 17])
+    
+    # Error cases
+    with pytest.raises(ValueError):
+        matrix_vector_dot([[1, 2], [3, 4]], [1, 2, 3])  # Incompatible dimensions
+
 def test_transpose():
     # Empty matrix and empty rows
     assert transpose([]) == []
@@ -1765,3 +1791,333 @@ def test_transpose():
     result = transpose([[1, 2.5], [3, 4.2]])
     assert result[0][0] == 1
     assert abs(result[1][1] - 4.2) < 1e-10  # Float comparison with tolerance
+
+
+def test_matrix_multiply():
+    # 2x2 matrices
+    A = [[1, 2], [3, 4]]
+    B = [[5, 6], [7, 8]]
+    result = matrix_multiply(A, B)
+    expect = [[19, 22], [43, 50]]
+    assert_close2d(result, expect)
+    
+    # Identity matrix
+    I = [[1, 0], [0, 1]]
+    assert_close2d(matrix_multiply(A, I), A)
+    assert_close2d(matrix_multiply(I, A), A)
+    
+    # Zero matrix
+    Z = [[0, 0], [0, 0]]
+    assert_close2d(matrix_multiply(A, Z), Z)
+    
+    # Different shapes
+    A = [[1, 2, 3], [4, 5, 6]]  # 2x3
+    B = [[7, 8], [9, 10], [11, 12]]  # 3x2
+    result = matrix_multiply(A, B)
+    expect = [[58, 64], [139, 154]]
+    assert_close2d(result, expect)
+
+    # Very small numbers
+    A = [[1e-15, 1e-15], [1e-15, 1e-15]]
+    result = matrix_multiply(A, A)
+    expect = [[2e-30, 2e-30], [2e-30, 2e-30]]
+    assert_close2d(result, expect)
+    
+    # Very large numbers
+    A = [[1e15, 1e15], [1e15, 1e15]]
+    result = matrix_multiply(A, A)
+    expect = [[2e30, 2e30], [2e30, 2e30]]
+    assert_close2d(result, expect)
+    
+    # Mixed scales
+    A = [[1e10, 1e-10], [1e-10, 1e10]]
+    result = matrix_multiply(A, A)
+    expect = [[1e20 + 1e-20, 2], [2, 1e20 + 1e-20]]
+    assert_close2d(result, expect)
+
+
+    # Single-element matrices
+    A = [[2]]
+    B = [[3]]
+    C = [[6.0]]
+    assert matrix_multiply(A, B) == C
+
+    # Large matrices (should not raise error)
+    A = [[i for i in range(10)] for _ in range(10)]
+    B = [[i for i in range(10)] for _ in range(10)]
+    C = matrix_multiply(A, B)
+    assert len(C) == 10 and len(C[0]) == 10
+
+    # Empty matrices
+    with pytest.raises(ValueError):
+        matrix_multiply([], [])
+    with pytest.raises(ValueError):
+        matrix_multiply([[]], [[]])
+
+    with pytest.raises(ValueError):
+        matrix_multiply([], [[1]])
+    with pytest.raises(ValueError):
+        matrix_multiply([[1]], [])  
+          
+    # Incompatible dimensions
+    with pytest.raises(ValueError):
+        matrix_multiply([[1, 2]], [[1], [2], [3]])
+        
+    # Irregular matrices
+    with pytest.raises(ValueError):
+        matrix_multiply([[1, 2], [1]], [[1, 2]])
+    with pytest.raises(ValueError):
+        matrix_multiply([[1, 2]], [[1], [1, 2]])
+
+    # Non-numeric values
+    with pytest.raises(TypeError):
+        A = [[1, 2, 'a']]
+        B = [[4, 5], [6, 7], [8, 9]]
+        matrix_multiply(A, B)
+
+
+def test_sum_matrix_rows():
+    """Test row-wise matrix summation"""
+    # Basic functionality
+    assert_close1d(sum_matrix_rows([[1, 2, 3], [4, 5, 6]]), [6.0, 15.0])
+    assert_close1d(sum_matrix_rows([[1], [2]]), [1.0, 2.0])
+    
+    # Handle zeros
+    assert_close1d(sum_matrix_rows([[0, 0], [0, 0]]), [0.0, 0.0])
+    
+    # Mixed positive and negative
+    assert_close1d(sum_matrix_rows([[-1, 2], [3, -4]]), [1.0, -1.0])
+    
+    # Large numbers
+    assert_close1d(sum_matrix_rows([[1e15, 1e15], [1e15, 1e15]]), [2e15, 2e15])
+    
+    # Small numbers
+    assert_close1d(sum_matrix_rows([[1e-15, 1e-15], [1e-15, 1e-15]]), [2e-15, 2e-15])
+
+    # Test with single row
+    assert sum_matrix_cols([[1, 2, 3]]) == [1.0, 2.0, 3.0]
+    
+    # Test with single column
+    assert sum_matrix_cols([[1], [2], [3]]) == [6.0]
+
+    # Error cases
+    with pytest.raises(ValueError):
+        sum_matrix_rows([])  # Empty matrix
+    with pytest.raises(ValueError):
+        sum_matrix_rows([[]])  # Empty rows
+    with pytest.raises(ValueError):
+        sum_matrix_rows([[1, 2], [1]])  # Irregular rows
+    # Test non-numeric values
+    with pytest.raises(TypeError):
+        sum_matrix_cols([[1, 'a'], [2, 3]])
+
+
+def test_sum_matrix_cols():
+    """Test column-wise matrix summation"""
+    # Basic functionality
+    assert_close1d(sum_matrix_cols([[1, 2, 3], [4, 5, 6]]), [5.0, 7.0, 9.0])
+    assert_close1d(sum_matrix_cols([[1], [2]]), [3.0])
+
+
+    # Test with single row
+    assert sum_matrix_rows([[1, 2, 3]]) == [6.0]
+    
+    # Test with single column
+    assert sum_matrix_rows([[1], [2], [3]]) == [1.0, 2.0, 3.0]
+        
+    # Handle zeros
+    assert_close1d(sum_matrix_cols([[0, 0], [0, 0]]), [0.0, 0.0])
+    
+    # Mixed positive and negative
+    assert_close1d(sum_matrix_cols([[-1, 2], [3, -4]]), [2.0, -2.0])
+    
+    # Large numbers
+    assert_close1d(sum_matrix_cols([[1e15, 1e15], [1e15, 1e15]]), [2e15, 2e15])
+    
+    # Small numbers
+    assert_close1d(sum_matrix_cols([[1e-15, 1e-15], [1e-15, 1e-15]]), [2e-15, 2e-15])
+    
+    # Error cases
+    with pytest.raises(ValueError):
+        sum_matrix_cols([])  # Empty matrix
+    with pytest.raises(ValueError):
+        sum_matrix_cols([[]])  # Empty rows
+    with pytest.raises(ValueError):
+        sum_matrix_cols([[1, 2], [1]])  # Irregular rows
+    with pytest.raises(TypeError):
+        sum_matrix_rows([[1, 'a'], [2, 3]])
+    
+def test_scalar_add_matrices():
+    """Test matrix addition functionality"""
+    # Basic functionality
+    assert_close2d(scalar_add_matrices([[1, 2], [3, 4]], [[5, 6], [7, 8]]), 
+                  [[6.0, 8.0], [10.0, 12.0]])
+    
+    # Single element matrices
+    assert_close2d(scalar_add_matrices([[1]], [[2]]), [[3.0]])
+    
+    # Test with zeros
+    assert_close2d(scalar_add_matrices([[0, 0], [0, 0]], [[0, 0], [0, 0]]),
+                  [[0.0, 0.0], [0.0, 0.0]])
+    
+    # Mixed positive and negative
+    assert_close2d(scalar_add_matrices([[-1, 2], [3, -4]], [[1, -2], [-3, 4]]),
+                  [[0.0, 0.0], [0.0, 0.0]], atol=1e-14)
+    
+    # Large numbers
+    assert_close2d(scalar_add_matrices([[1e15, 1e15], [1e15, 1e15]], 
+                                     [[1e15, 1e15], [1e15, 1e15]]),
+                  [[2e15, 2e15], [2e15, 2e15]])
+    
+    # Small numbers
+    assert_close2d(scalar_add_matrices([[1e-15, 1e-15], [1e-15, 1e-15]], 
+                                     [[1e-15, 1e-15], [1e-15, 1e-15]]),
+                  [[2e-15, 2e-15], [2e-15, 2e-15]])
+                  
+    # Different shapes of matrices
+    rect1 = [[1, 2, 3], [4, 5, 6]]
+    rect2 = [[7, 8, 9], [10, 11, 12]]
+    assert_close2d(scalar_add_matrices(rect1, rect2),
+                  [[8.0, 10.0, 12.0], [14.0, 16.0, 18.0]])
+    
+    # Error cases
+    with pytest.raises(ValueError):
+        scalar_add_matrices([], [])  # Empty matrices
+    with pytest.raises(ValueError):
+        scalar_add_matrices([[]], [[]])  # Empty rows
+    with pytest.raises(ValueError):
+        scalar_add_matrices([[1, 2], [1]], [[1, 2], [3, 4]])  # Irregular rows A
+    with pytest.raises(ValueError):
+        scalar_add_matrices([[1, 2], [3, 4]], [[1, 2], [3]])  # Irregular rows B
+    with pytest.raises(ValueError):
+        scalar_add_matrices([[1, 2]], [[1, 2, 3]])  # Incompatible shapes
+    with pytest.raises(TypeError):
+        scalar_add_matrices([[1, 'a']], [[1, 2]])  # Invalid type
+
+
+def test_scalar_subtract_matrices():
+    """Test matrix subtraction functionality"""
+    # Basic functionality
+    assert_close2d(scalar_subtract_matrices([[1, 2], [3, 4]], [[5, 6], [7, 8]]),
+                  [[-4.0, -4.0], [-4.0, -4.0]])
+    
+    # Single element matrices
+    assert_close2d(scalar_subtract_matrices([[1]], [[2]]), [[-1.0]])
+    
+    # Test with zeros
+    assert_close2d(scalar_subtract_matrices([[0, 0], [0, 0]], [[0, 0], [0, 0]]),
+                  [[0.0, 0.0], [0.0, 0.0]])
+    
+    # Mixed positive and negative
+    assert_close2d(scalar_subtract_matrices([[-1, 2], [3, -4]], [[1, -2], [-3, 4]]),
+                  [[-2.0, 4.0], [6.0, -8.0]])
+    
+    # Large numbers
+    assert_close2d(scalar_subtract_matrices([[1e15, 1e15], [1e15, 1e15]], 
+                                          [[1e15, 1e15], [1e15, 1e15]]),
+                  [[0.0, 0.0], [0.0, 0.0]])
+    
+    # Small numbers
+    assert_close2d(scalar_subtract_matrices([[1e-15, 1e-15], [1e-15, 1e-15]], 
+                                          [[1e-15, 1e-15], [1e-15, 1e-15]]),
+                  [[0.0, 0.0], [0.0, 0.0]])
+    
+    # Different shapes of matrices
+    rect1 = [[1, 2, 3], [4, 5, 6]]
+    rect2 = [[7, 8, 9], [10, 11, 12]]
+    assert_close2d(scalar_subtract_matrices(rect1, rect2),
+                  [[-6.0, -6.0, -6.0], [-6.0, -6.0, -6.0]])
+    
+    # Error cases
+    with pytest.raises(ValueError):
+        scalar_subtract_matrices([], [])  # Empty matrices
+    with pytest.raises(ValueError):
+        scalar_subtract_matrices([[]], [[]])  # Empty rows
+    with pytest.raises(ValueError):
+        scalar_subtract_matrices([[1, 2], [1]], [[1, 2], [3, 4]])  # Irregular rows A
+    with pytest.raises(ValueError):
+        scalar_subtract_matrices([[1, 2], [3, 4]], [[1, 2], [3]])  # Irregular rows B
+    with pytest.raises(ValueError):
+        scalar_subtract_matrices([[1, 2]], [[1, 2, 3]])  # Incompatible shapes
+    with pytest.raises(TypeError):
+        scalar_subtract_matrices([[1, 'a']], [[1, 2]])  # Invalid type
+
+def test_scalar_multiply_matrix():
+    """Test matrix scalar multiplication functionality"""
+    # Basic functionality
+    assert_close2d(scalar_multiply_matrix(2.0, [[1, 2], [3, 4]]),
+                  [[2.0, 4.0], [6.0, 8.0]])
+    
+    # Single element matrices
+    assert_close2d(scalar_multiply_matrix(3.0, [[2]]), [[6.0]])
+    
+    # Test with zeros
+    assert_close2d(scalar_multiply_matrix(0.0, [[1, 2], [3, 4]]),
+                  [[0.0, 0.0], [0.0, 0.0]])
+    
+    # Test with negative scalar
+    assert_close2d(scalar_multiply_matrix(-1.0, [[1, 2], [3, 4]]),
+                  [[-1.0, -2.0], [-3.0, -4.0]])
+    
+    # Large numbers
+    assert_close2d(scalar_multiply_matrix(1e15, [[1, 2], [3, 4]]),
+                  [[1e15, 2e15], [3e15, 4e15]])
+    
+    # Small numbers
+    assert_close2d(scalar_multiply_matrix(1e-15, [[1, 2], [3, 4]]),
+                  [[1e-15, 2e-15], [3e-15, 4e-15]])
+    
+    # Rectangle matrix
+    rect = [[1, 2, 3], [4, 5, 6]]
+    assert_close2d(scalar_multiply_matrix(2.0, rect),
+                  [[2.0, 4.0, 6.0], [8.0, 10.0, 12.0]])
+    
+    # Error cases
+    with pytest.raises(ValueError):
+        scalar_multiply_matrix(2.0, [])  # Empty matrix
+    with pytest.raises(ValueError):
+        scalar_multiply_matrix(2.0, [[]])  # Empty rows
+    with pytest.raises(TypeError):
+        scalar_multiply_matrix(2.0, [[1, 'a']])  # Invalid type
+
+def test_scalar_divide_matrix():
+    """Test matrix scalar division functionality"""
+    # Basic functionality
+    assert_close2d(scalar_divide_matrix(2.0, [[2, 4], [6, 8]]),
+                  [[1.0, 2.0], [3.0, 4.0]])
+    
+    # Single element matrices
+    assert_close2d(scalar_divide_matrix(2.0, [[4]]), [[2.0]])
+    
+    # Test with ones (identity case)
+    assert_close2d(scalar_divide_matrix(1.0, [[1, 2], [3, 4]]),
+                  [[1.0, 2.0], [3.0, 4.0]])
+    
+    # Test with negative scalar
+    assert_close2d(scalar_divide_matrix(-2.0, [[2, 4], [6, 8]]),
+                  [[-1.0, -2.0], [-3.0, -4.0]])
+    
+    # Large numbers
+    assert_close2d(scalar_divide_matrix(1e15, [[1e15, 2e15], [3e15, 4e15]]),
+                  [[1.0, 2.0], [3.0, 4.0]])
+    
+    # Small numbers
+    assert_close2d(scalar_divide_matrix(1e-15, [[1e-15, 2e-15], [3e-15, 4e-15]]),
+                  [[1.0, 2.0], [3.0, 4.0]])
+    
+    # Rectangle matrix
+    rect = [[2, 4, 6], [8, 10, 12]]
+    assert_close2d(scalar_divide_matrix(2.0, rect),
+                  [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+    
+    # Error cases
+    with pytest.raises(ValueError):
+        scalar_divide_matrix(2.0, [])  # Empty matrix
+    with pytest.raises(ValueError):
+        scalar_divide_matrix(2.0, [[]])  # Empty rows
+    with pytest.raises(TypeError):
+        scalar_divide_matrix(2.0, [[1, 'a']])  # Invalid type
+    with pytest.raises(TypeError):
+        scalar_divide_matrix('2', [[1, 2]])  # Invalid scalar type
+    with pytest.raises(ZeroDivisionError):
+        scalar_divide_matrix(0.0, [[1, 2]])  # Division by zero
