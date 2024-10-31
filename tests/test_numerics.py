@@ -76,6 +76,7 @@ from fluids.numerics import (
     polynomial_offset_scale,
     secant,
     sincos,
+    fixed_point,
     solve_2_direct,
     solve_3_direct,
     solve_4_direct,
@@ -91,6 +92,12 @@ from fluids.numerics import (
     zeros,
     is_increasing,
     argsort1d,
+    fixed_point_to_residual,
+    residual_to_fixed_point,
+    broyden2,
+    fixed_point_aitken, 
+    fixed_point_gdem,
+    fixed_point_anderson,
 )
 from fluids.numerics import numpy as np
 
@@ -1835,6 +1842,39 @@ def test_newton_halley_cases_internet():
 
 
 
+def test_basic_newton_system():
+    # Define system of equations
+    def system(inputs):
+        x, y = inputs
+        # Example system:
+        # f1 = x^2 + y^2 - 4 = 0
+        # f2 = exp(x) - y = 0
+        return [x**2 + y**2 - 4, exp(x) - y]
+    
+    # Define Jacobian matrix
+    def jacobian(inputs):
+        x, y = inputs
+        return [
+            [2*x, 2*y],
+            [exp(x), -1]
+        ]
+    # Initial guess
+    x0 = [1.0, 1.0]
+    # Solve system
+    solution, iterations = newton_system(
+        f=system,
+        x0=x0,
+        jac=jacobian,
+        xtol=1e-10,
+        maxiter=100
+    )
+    
+    # Check results
+    assert iterations > 0 
+    assert iterations < 10  # Should converge in about 6 iters
+    # Verify solution satisfies equations
+    final_residuals = system(solution)
+    assert_close1d(final_residuals, [0, 0], atol=1e-6)
 
 def test_newton_system_no_iterations():
     def test_objf_direct(inputs):
@@ -2105,19 +2145,90 @@ def fixed_point_1_func(x):
 
 fixed_point_1_guess = [20, 10, 0, 0, 0, 0, 30, 15]
 fixed_point_1_expect = [4.390243902439022, 177.80487804878027, 351.2195121951214, 175.6097560975607, 17.560975609756067, 0.17560975609756074, 269.9999999999998, 134.9999999999999]
+
+
+
+def test_fixed_point_process():
+    result, iterations = fixed_point(fixed_point_1_func, fixed_point_1_guess, xtol=1e-9, maxiter=1000)
+    assert iterations < 250 # 235 last time
+    assert_close1d(result, fixed_point_1_expect, rtol=1e-9)
+
+    # Test the function with an adapter with broyden
+    result, iterations = broyden2(fixed_point_1_guess, fixed_point_to_residual(fixed_point_1_func), jac=None, skip_J=True, xtol=1e-9, maxiter=1000)
+    assert iterations < 50 # 38 last time
+    assert_close1d(result, fixed_point_1_expect, rtol=1e-9)
+
+    # Test it with standard newton forms:
+    def basic_system(inputs):
+        x, y = inputs
+        return [x**2 + y**2 - 4, exp(x) - y]
+
+    # Initial guess, note it does not converge with damping of 1. It seems many functions will not converge no matter the function.
+    x0 = [1.0, 1.0]
+    solution, iterations = fixed_point(
+        f=residual_to_fixed_point(basic_system),
+        x0=x0,
+        xtol=1e-10,
+        maxiter=1000,
+        damping=.3, 
+    )
+    assert iterations < 80 # 74 last check
+    assert_close1d(basic_system(solution), [0, 0], atol=1e-6)
+
+    # Check the other methods converge
+    solution, iterations = fixed_point_aitken(
+        f=residual_to_fixed_point(basic_system),
+        x0=x0,
+        xtol=1e-10,
+        maxiter=1000,
+        damping=0.3, 
+        acc_damping=0.4,# 44 last run iterations
+    )
+    assert iterations < 100
+    assert_close1d(basic_system(solution), [0, 0], atol=1e-6)
+
+    # Check the other methods converge
+    solution, iterations = fixed_point_gdem(
+        f=residual_to_fixed_point(basic_system),
+        x0=x0,
+        xtol=1e-10,
+        maxiter=1000,
+        damping=0.3, 
+        acc_damping=0.3, # 81 last run
+    )
+    assert iterations < 100
+    assert_close1d(basic_system(solution), [0, 0], atol=1e-6)
+
+    # # Anderson acceleration isn't really fixed point here? NVM figured it out
+    solution, iterations = fixed_point_anderson(
+        f=residual_to_fixed_point(basic_system),
+        x0=x0,
+        xtol=1e-10,
+        maxiter=1000,
+        # acc_after=80,
+        # acc_frequency=4,
+        window_size=5, reg=0, mixing_param=0.5,
+        # damping=0.3,
+    )
+    assert iterations < 40 # 25 last time
+    assert_close1d(basic_system(solution), [0, 0], atol=1e-6)
+
+
+    
+
 def test_SolverInterface_fixed_point():
     # Largely from Yoel's Flexsolve which is excellent, and wikipedia sample code https://en.wikipedia.org/wiki/Aitken%27s_delta-squared_process
     # Works really nice, few parameters not exposed still though
-    solver = SolverInterface(method='fixed_point', objf=fixed_point_1_func, maxiter=1000, xtol=1e-9)
+    solver = SolverInterface(method='fixed_point', objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-9)
     ans = solver.solve(fixed_point_1_guess)
     assert_close1d(ans, fixed_point_1_expect, rtol=1e-6)
 
-    solver = SolverInterface(method='fixed_point_aitken', objf=fixed_point_1_func, maxiter=1000, xtol=1e-12)
+    solver = SolverInterface(method='fixed_point_aitken', objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-12)
     ans = solver.solve(fixed_point_1_guess)
     assert solver.fval_iter == 79
     assert_close1d(ans, fixed_point_1_expect, rtol=1e-6)
 
-    solver = SolverInterface(method='fixed_point_gdem', objf=fixed_point_1_func, maxiter=1000, xtol=1e-12)
+    solver = SolverInterface(method='fixed_point_gdem', objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-12)
     ans = solver.solve(fixed_point_1_guess)
     assert solver.fval_iter == 37
     assert_close1d(ans, fixed_point_1_expect, rtol=1e-12)
