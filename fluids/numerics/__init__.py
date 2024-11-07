@@ -30,7 +30,7 @@ import sys
 from typing import List, Tuple, Callable
 from fluids.numerics.arrays import (solve as py_solve, inv, dot_product, norm2, matrix_vector_dot, eye,
                      array_as_tridiagonals, tridiagonals_as_array, transpose,
-                     solve_tridiagonal, subset_matrix, argsort1d, shape,
+                     solve_tridiagonal, subset_matrix, argsort1d, shape, sort_paired_lists,
                      stack_vectors, matrix_multiply, transpose, eye, inv, sum_matrix_rows, gelsd)
 
 from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
@@ -95,6 +95,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'mean_squared_error', 'mean_squared_rel_error',
 
            'fixed_point_to_residual', 'residual_to_fixed_point',
+           'sort_paired_lists',
 
            # Complex number math missing in micropython
            'cacos', 'catan',

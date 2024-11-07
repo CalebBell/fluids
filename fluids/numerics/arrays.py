@@ -46,7 +46,7 @@ else:
 __all__ = ['dot_product', 'inv', 'det', 'solve', 'norm2', 'transpose', 'shape',
            'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix',
            'argsort1d', 'lu', 'gelsd', 'matrix_vector_dot', 'matrix_multiply',
-           'sum_matrix_rows', 'sum_matrix_cols',
+           'sum_matrix_rows', 'sum_matrix_cols', 'sort_paired_lists',
            'scalar_divide_matrix', 'scalar_multiply_matrix', 'scalar_subtract_matrices', 'scalar_add_matrices',
            'stack_vectors']
 primitive_containers = frozenset([list, tuple])
@@ -1444,7 +1444,58 @@ def argsort1d(arr):
     """
     return [i[0] for i in sorted(enumerate(arr), key=lambda x: x[1])]
 
-
+def sort_paired_lists(list1, list2):
+    """
+    Sort two lists based on the values in the first list while maintaining 
+    the relationship between corresponding elements.
+    
+    Parameters
+    ----------
+    list1 : list
+        First list that determines the sorting order
+    list2 : list
+        Second list that will be sorted according to list1's ordering
+        
+    Returns
+    -------
+    tuple
+        A tuple containing (sorted_list1, sorted_list2)
+        
+    Raises
+    ------
+    ValueError
+        If the lists have different lengths
+    TypeError
+        If either input is not a list
+        
+    Examples
+    --------
+    >>> temps = [300, 100, 200]
+    >>> props = ['hot', 'cold', 'warm']
+    >>> sort_paired_lists(temps, props)
+    ([100, 200, 300], ['cold', 'warm', 'hot'])
+    
+    Notes
+    -----
+    This function maintains the one-to-one relationship between elements
+    in both lists while sorting them based on list1's values.
+    """
+    # Input validation
+    if len(list1) != len(list2):
+        raise ValueError("Lists must have equal length")
+        
+    # Handle empty lists
+    if len(list1) == 0:
+        return ([], [])
+        
+    # Get sorting indices using argsort1d
+    sorted_indices = argsort1d(list1)
+    
+    # Apply the sorting to both lists
+    sorted_list1 = [list1[i] for i in sorted_indices]
+    sorted_list2 = [list2[i] for i in sorted_indices]
+    
+    return sorted_list1, sorted_list2
 
 def gelsd(a, b, rcond=None):
     """Solve a linear least-squares problem using SVD (Singular Value Decomposition).

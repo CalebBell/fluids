@@ -33,6 +33,7 @@ from fluids.numerics import (
     subset_matrix,
     tridiagonals_as_array,
     argsort1d,
+    sort_paired_lists,
 )
 from fluids.numerics import numpy as np
 
@@ -2121,3 +2122,19 @@ def test_scalar_divide_matrix():
         scalar_divide_matrix('2', [[1, 2]])  # Invalid scalar type
     with pytest.raises(ZeroDivisionError):
         scalar_divide_matrix(0.0, [[1, 2]])  # Division by zero
+
+
+
+def test_sort_paired_lists():
+    assert sort_paired_lists([3, 1, 2], ['c', 'a', 'b']) == ([1, 2, 3], ['a', 'b', 'c'])
+    assert sort_paired_lists([], []) == ([], [])
+    assert sort_paired_lists([2, 2, 1], ['a', 'b', 'c']) == ([1, 2, 2], ['c', 'a', 'b'])
+    assert sort_paired_lists([-3, -1, -2], ['c', 'a', 'b']) == ([-3, -2, -1], ['c', 'b', 'a'])
+    temps = [300.5, 100.1, 200.7]
+    props = ['hot', 'cold', 'warm']
+    assert sort_paired_lists(temps, props) == ([100.1, 200.7, 300.5], ['cold', 'warm', 'hot'])
+    
+    with pytest.raises(ValueError):
+        # Test 6: Unequal length lists
+        sort_paired_lists([1, 2], [1])
+    
