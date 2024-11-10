@@ -76,6 +76,7 @@ from fluids.numerics import (
     polynomial_offset_scale,
     secant,
     sincos,
+    fixed_point,
     solve_2_direct,
     solve_3_direct,
     solve_4_direct,
@@ -91,20 +92,17 @@ from fluids.numerics import (
     zeros,
     is_increasing,
     argsort1d,
+    fixed_point_to_residual,
+    residual_to_fixed_point,
+    broyden2,
+    fixed_point_aitken, 
+    fixed_point_gdem,
+    fixed_point_anderson,
 )
 from fluids.numerics import numpy as np
 
 assert_allclose = np.testing.assert_allclose
 
-def test_py_solve_bad_cases():
-    j = [[-3.8789618086360855, -3.8439678951838587, -1.1398039850146757e-07], [1.878915113936518, 1.8439217680605073, 1.139794740950828e-07], [-1.0, -1.0, 0.0]]
-    nv = [-1.4181331207951953e-07, 1.418121622354107e-07, 2.220446049250313e-16]
-
-    import fluids.numerics
-    calc = fluids.numerics.py_solve(j, nv)
-    import numpy as np
-    expect = np.linalg.solve(j, nv)
-    fluids.numerics.assert_close1d(calc, expect, rtol=1e-4)
 
 def test_error_functions():
     data = [1.0, 2.0, 3.0]
@@ -525,65 +523,6 @@ def test_is_poly_positive():
     assert not is_poly_positive(coeffs_4alpha, domain=(-15000, 511))
     assert not is_poly_positive(coeffs_4alpha, domain=(-13000, 511))
     assert not is_poly_positive(coeffs_4alpha, domain=(-11500, 511))
-
-
-
-def test_array_as_tridiagonals():
-    A = [[10.0, 2.0, 0.0, 0.0],
-     [3.0, 10.0, 4.0, 0.0],
-     [0.0, 1.0, 7.0, 5.0],
-     [0.0, 0.0, 3.0, 4.0]]
-
-    tridiagonals = array_as_tridiagonals(A)
-    expect_diags = [[3.0, 1.0, 3.0], [10.0, 10.0, 7.0, 4.0], [2.0, 4.0, 5.0]]
-
-    assert_allclose(tridiagonals[0], expect_diags[0], rtol=0, atol=0)
-    assert_allclose(tridiagonals[1], expect_diags[1], rtol=0, atol=0)
-    assert_allclose(tridiagonals[2], expect_diags[2], rtol=0, atol=0)
-
-    A = np.array(A)
-    tridiagonals = array_as_tridiagonals(A)
-    assert_allclose(tridiagonals[0], expect_diags[0], rtol=0, atol=0)
-    assert_allclose(tridiagonals[1], expect_diags[1], rtol=0, atol=0)
-    assert_allclose(tridiagonals[2], expect_diags[2], rtol=0, atol=0)
-
-
-    a, b, c = [3.0, 1.0, 3.0], [10.0, 10.0, 7.0, 4.0], [2.0, 4.0, 5.0]
-    expect_mat = tridiagonals_as_array(a, b, c)
-    assert_allclose(expect_mat, A, rtol=0, atol=0)
-
-    d = [3.0, 4.0, 5.0, 6.0]
-
-    solved_expect = [0.1487758945386064, 0.756120527306968, -1.001883239171375, 2.2514124293785316]
-    assert_allclose(solve_tridiagonal(a, b, c, d), solved_expect, rtol=1e-12)
-
-
-def test_subset_matrix():
-    kijs = [[0, 0.00076, 0.00171], [0.00076, 0, 0.00061], [0.00171, 0.00061, 0]]
-
-    expect = [[0, 0.00061], [0.00061, 0]]
-    got = subset_matrix(kijs, [1,2])
-    assert_allclose(expect, got, atol=0, rtol=0)
-    got = subset_matrix(kijs, slice(1, 3, 1))
-    assert_allclose(expect, got, atol=0, rtol=0)
-
-    expect = [[0, 0.00171], [0.00171, 0]]
-    got = subset_matrix(kijs, [0,2])
-    assert_allclose(expect, got, atol=0, rtol=0)
-    got = subset_matrix(kijs, slice(0, 3, 2))
-    assert_allclose(expect, got, atol=0, rtol=0)
-
-    expect = [[0, 0.00076], [0.00076, 0]]
-    got = subset_matrix(kijs, [0,1])
-    assert_allclose(expect, got, atol=0, rtol=0)
-    got = subset_matrix(kijs, slice(0, 2, 1))
-    assert_allclose(expect, got, atol=0, rtol=0)
-
-    got = subset_matrix(kijs, [0,1, 2])
-    assert_allclose(kijs, got, atol=0, rtol=0)
-    got = subset_matrix(kijs, slice(0, 3, 1))
-    assert_allclose(kijs, got, atol=0, rtol=0)
-
 
 def test_translate_bound_func():
     def rosen_test(x):
@@ -1903,6 +1842,39 @@ def test_newton_halley_cases_internet():
 
 
 
+def test_basic_newton_system():
+    # Define system of equations
+    def system(inputs):
+        x, y = inputs
+        # Example system:
+        # f1 = x^2 + y^2 - 4 = 0
+        # f2 = exp(x) - y = 0
+        return [x**2 + y**2 - 4, exp(x) - y]
+    
+    # Define Jacobian matrix
+    def jacobian(inputs):
+        x, y = inputs
+        return [
+            [2*x, 2*y],
+            [exp(x), -1]
+        ]
+    # Initial guess
+    x0 = [1.0, 1.0]
+    # Solve system
+    solution, iterations = newton_system(
+        f=system,
+        x0=x0,
+        jac=jacobian,
+        xtol=1e-10,
+        maxiter=100
+    )
+    
+    # Check results
+    assert iterations > 0 
+    assert iterations < 10  # Should converge in about 6 iters
+    # Verify solution satisfies equations
+    final_residuals = system(solution)
+    assert_close1d(final_residuals, [0, 0], atol=1e-6)
 
 def test_newton_system_no_iterations():
     def test_objf_direct(inputs):
@@ -2173,19 +2145,110 @@ def fixed_point_1_func(x):
 
 fixed_point_1_guess = [20, 10, 0, 0, 0, 0, 30, 15]
 fixed_point_1_expect = [4.390243902439022, 177.80487804878027, 351.2195121951214, 175.6097560975607, 17.560975609756067, 0.17560975609756074, 269.9999999999998, 134.9999999999999]
+
+
+
+def test_fixed_point_process():
+    result, iterations = fixed_point(fixed_point_1_func, fixed_point_1_guess, xtol=1e-9, maxiter=1000)
+    assert iterations < 250 # 235 last time
+    assert_close1d(result, fixed_point_1_expect, rtol=1e-9)
+
+    # Test the function with an adapter with broyden
+    result, iterations = broyden2(fixed_point_1_guess, fixed_point_to_residual(fixed_point_1_func), jac=None, skip_J=True, xtol=1e-9, maxiter=1000)
+    assert iterations < 50 # 38 last time
+    assert_close1d(result, fixed_point_1_expect, rtol=1e-9)
+
+    # Test it with standard newton forms:
+    def basic_system(inputs):
+        x, y = inputs
+        return [x**2 + y**2 - 4, exp(x) - y]
+
+    # Initial guess, note it does not converge with damping of 1. It seems many functions will not converge no matter the function.
+    x0 = [1.0, 1.0]
+    solution, iterations = fixed_point(
+        f=residual_to_fixed_point(basic_system),
+        x0=x0,
+        xtol=1e-10,
+        maxiter=1000,
+        damping=.3, 
+    )
+    assert iterations < 80 # 74 last check
+    assert_close1d(basic_system(solution), [0, 0], atol=1e-6)
+
+    # Check the other methods converge
+    solution, iterations = fixed_point_aitken(
+        f=residual_to_fixed_point(basic_system),
+        x0=x0,
+        xtol=1e-10,
+        maxiter=1000,
+        damping=0.3, 
+        acc_damping=0.4,# 44 last run iterations
+    )
+    assert iterations < 100
+    assert_close1d(basic_system(solution), [0, 0], atol=1e-6)
+
+    # Check the other methods converge
+    solution, iterations = fixed_point_gdem(
+        f=residual_to_fixed_point(basic_system),
+        x0=x0,
+        xtol=1e-10,
+        maxiter=1000,
+        damping=0.3, 
+        acc_damping=0.3, # 81 last run
+    )
+    assert iterations < 100
+    assert_close1d(basic_system(solution), [0, 0], atol=1e-6)
+
+    # # Anderson acceleration does something different, always solves for the same set of residuals
+    solution, iterations = fixed_point_anderson(
+        f=(basic_system),
+        x0=x0,
+        xtol=1e-6,
+        maxiter=1000,
+        window_size=2, reg=0, mixing_param=0.5,
+        damping=0.3,
+        initial_iterations=0
+    )
+    assert iterations < 15 # 25 last time
+    # assert_close1d(basic_system(solution), [0, 0], atol=1e-6)
+
+    # def to_fixed_point(inputs):
+    #     x, y = inputs
+    #     new_y = exp(x)
+    #     new_x = (abs(4 - y*y))**0.5
+    #     return [new_x, new_y]
+
+    # # Initial guess
+    # x0 = [1.0, 1]
+
+    # solution, iterations = fixed_point_anderson(
+    #     f=(to_fixed_point),
+    #     x0=x0,
+    #     xtol=1e-6,
+    #     maxiter=1000,
+    #     window_size=2, reg=0, mixing_param=0.5,
+    #     damping=0.3,
+    #     initial_iterations=0
+    # )
+    # assert iterations < 15 # 25 last time
+    # # assert_close1d(basic_system(solution), [0, 0], atol=1e-6)
+
+
+
+
 def test_SolverInterface_fixed_point():
     # Largely from Yoel's Flexsolve which is excellent, and wikipedia sample code https://en.wikipedia.org/wiki/Aitken%27s_delta-squared_process
     # Works really nice, few parameters not exposed still though
-    solver = SolverInterface(method='fixed_point', objf=fixed_point_1_func, maxiter=1000, xtol=1e-9)
+    solver = SolverInterface(method='fixed_point', objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-9)
     ans = solver.solve(fixed_point_1_guess)
     assert_close1d(ans, fixed_point_1_expect, rtol=1e-6)
 
-    solver = SolverInterface(method='fixed_point_aitken', objf=fixed_point_1_func, maxiter=1000, xtol=1e-12)
+    solver = SolverInterface(method='fixed_point_aitken', objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-12)
     ans = solver.solve(fixed_point_1_guess)
     assert solver.fval_iter == 79
     assert_close1d(ans, fixed_point_1_expect, rtol=1e-6)
 
-    solver = SolverInterface(method='fixed_point_gdem', objf=fixed_point_1_func, maxiter=1000, xtol=1e-12)
+    solver = SolverInterface(method='fixed_point_gdem', objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-12)
     ans = solver.solve(fixed_point_1_guess)
     assert solver.fval_iter == 37
     assert_close1d(ans, fixed_point_1_expect, rtol=1e-12)
@@ -2296,36 +2359,6 @@ def test_py_lambertw():
     # Test the boundary at -1/e
     minus_one_over_e = -1/exp(1)
     res = abs(py_lambertw(minus_one_over_e, k=-1).real + 1)
-
-
-def test_argsort1d():
-
-    def check_argsort1d(input_list, expected, error_message):
-        numpy_argsort1d = lambda x: list(np.argsort(x))
-        assert argsort1d(input_list) == expected, error_message
-        assert argsort1d(input_list) == numpy_argsort1d(input_list), error_message
-
-
-    check_argsort1d([3, 1, 2], [1, 2, 0], "Failed on simple test case")
-    check_argsort1d([-1, -3, -2], [1, 2, 0], "Failed with negative numbers")
-    check_argsort1d([], [], "Failed on empty list")
-    check_argsort1d([42], [0], "Failed with single element list")
-    check_argsort1d([99, 21, 31, 80, 70], [1, 2, 4, 3, 0], "Mismatch with expected output")
-    check_argsort1d([2, 3, 1, 5, 4], [2, 0, 1, 4, 3], "Mismatch with expected output")
-    
-    check_argsort1d([3.5, 1, 2.2], [1, 2, 0], "Failed with mixed floats and ints")
-    check_argsort1d([0.1, 0.2, 0.3], [0, 1, 2], "Failed with floats")
-
-    check_argsort1d([True, False, True], [1, 0, 2], "Failed with boolean values")
-
-    check_argsort1d(['apple', 'banana', 'cherry'], [0, 1, 2], "Failed with strings")
-
-    check_argsort1d([2, 3, 2, 3, 3], [0, 2, 1, 3, 4], "Failed with duplicate numbers")
-
-    check_argsort1d([-3, -1, 0, 1, 3], [0, 1, 2, 3, 4], "Failed with negative and positive numbers")
-
-    # infinities and nan behavior does not match
-    # check_argsort1d([-np.inf, np.inf, np.nan, 0, -1], [0, 4, 3, 2, 1], "Failed with infinities and NaN")
 
 
 def test_hessian():

@@ -27,9 +27,11 @@ from math import (sin, exp, pi, fabs, copysign, log, isinf, isnan, acos, cos, si
                   atan2, asinh, sqrt, gamma)
 from cmath import sqrt as csqrt, log as clog
 import sys
-from fluids.numerics.arrays import (solve as py_solve, inv, dot, norm2, inner_product, eye,
+from typing import List, Tuple, Callable
+from fluids.numerics.arrays import (solve as py_solve, inv, dot_product, norm2, matrix_vector_dot, eye,
                      array_as_tridiagonals, tridiagonals_as_array, transpose,
-                     solve_tridiagonal, subset_matrix, argsort1d)
+                     solve_tridiagonal, subset_matrix, argsort1d, shape, sort_paired_lists,
+                     stack_vectors, matrix_multiply, transpose, eye, inv, sum_matrix_rows, gelsd)
 
 from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
                                      trunc_exp, trunc_log, cbrt, factorial, comb)
@@ -86,11 +88,14 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'quad', 'quad_adaptive', 'stable_poly_to_unstable', 'homotopy_solver',
            'horner_stable_log',
            'is_increasing',
-           
+           'fixed_point_anderson',
            'std', 'min_max_ratios', 'detect_outlier_normal',
            'max_abs_error', 'max_abs_rel_error', 'max_squared_error',
            'max_squared_rel_error', 'mean_abs_error', 'mean_abs_rel_error', 
            'mean_squared_error', 'mean_squared_rel_error',
+
+           'fixed_point_to_residual', 'residual_to_fixed_point',
+           'sort_paired_lists',
 
            # Complex number math missing in micropython
            'cacos', 'catan',
@@ -3553,21 +3558,21 @@ def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
         err += abs(fi)
 
     while err > xtol and iter < maxiter:
-        s = dot(J, fcur)
+        s = matrix_vector_dot(J, fcur)
 
         xs = [xs[i] - s[i] for i in eqns]
 
         fnew = fun(xs, *args)
         z = [fnew[i] - fcur[i] for i in eqns]
 
-        u = dot(J, z)
+        u = matrix_vector_dot(J, z)
 
         d = [-i for i in s]
 
 
         dmu = [d[i]-u[i] for i in eqns]
-        dmu_d = inner_product(dmu, d)
-        den_inv = 1.0/inner_product(d, u)
+        dmu_d = dot_product(dmu, d)
+        den_inv = 1.0/dot_product(d, u)
         factor = den_inv*dmu_d
         J_delta = [[factor*j for j in row] for row in J]
         for i in eqns:
@@ -3791,6 +3796,811 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
         if err0 > ytol:
             raise UnconvergedError("Failed to converge")
     return x, iteration
+
+
+
+
+# def compute_accelerated_step(
+#     residuals: List[List[float]], 
+#     x_hist: List[List[float]], 
+#     gx_hist: List[List[float]], 
+#     reg: float = 1e-8,
+#     mixing_param: float = 1.0
+# ) -> List[float]:
+#     """Compute Anderson acceleration coefficients and the accelerated iterate."""
+#     # Compute R = Ft @ Ft.T with regularization
+#     RR = matrix_multiply(residuals, transpose(residuals))
+#     N = len(RR)
+#     for i in range(N):
+#         RR[i][i] += reg
+        
+#     try:
+#         RR_inv = inv(RR)
+#         alpha = sum_matrix_rows(RR_inv)
+#     except:
+#         # Fallback to least squares if matrix is singular
+#         ones = [1.0] * len(residuals)
+#         alpha = gelsd(RR, ones)[0]
+    
+#     # Normalize alpha
+#     alpha_sum = sum(alpha)
+#     # DO NOT REMOVE part of what is needed to switch to f in residual_to_fixed_point form
+#     if alpha_sum == 0:
+#         raise ValueError("Sum of alpha coefficients is zero")
+#     elif alpha_sum < 0:
+#         alpha = [-a for a in alpha]
+#         alpha_sum = -alpha_sum
+    
+#     # Compute the accelerated iterate
+#     dim = len(x_hist[0])
+#     x_acc = [0.0] * dim
+    
+#     for a, x, gx in zip(alpha, x_hist, gx_hist):
+#         for i in range(dim):
+#             x_acc[i] += (1 - mixing_param) * a * x[i] + mixing_param * a * gx[i]
+            
+#     return x_acc
+
+# def anderson_step(
+#     x_hist: List[List[float]],
+#     gx_hist: List[List[float]],
+#     residuals_hist: List[List[float]],
+#     x: List[float],
+#     window_size: int,
+#     reg: float = 1e-8,
+#     mixing_param: float = 1.0
+# ) -> Tuple[List[float], List[List[float]], List[List[float]], List[List[float]]]:
+#     """Perform one step of Anderson acceleration."""
+#     # First iteration case
+#     if not x_hist:
+#         return x, [x], [], []
+    
+#     # Update histories
+#     x_prev = x_hist[-1]
+#     residual = [xi - xp for xi, xp in zip(x, x_prev)]
+    
+#     new_residuals_hist = residuals_hist + [residual]
+#     new_gx_hist = gx_hist + [x]
+    
+#     # Maintain window size
+#     if len(new_residuals_hist) > window_size + 1:
+#         new_residuals_hist = new_residuals_hist[1:]
+#         new_gx_hist = new_gx_hist[1:]
+    
+#     # Compute accelerated iterate
+#     x_acc = compute_accelerated_step(
+#         new_residuals_hist,
+#         x_hist,
+#         new_gx_hist,
+#         reg,
+#         mixing_param
+#     )
+    
+#     # Update x history
+#     new_x_hist = x_hist + [x_acc]
+#     if len(new_x_hist) > window_size + 1:
+#         new_x_hist = new_x_hist[1:]
+    
+#     return x_acc, new_x_hist, new_gx_hist, new_residuals_hist
+
+# def fixed_point_anderson(
+#     f: Callable,
+#     x0: List[float],
+#     xtol: float = 1e-7,
+#     ytol: float = None,
+#     maxiter: int = 100,
+#     args: tuple = (),
+#     require_progress: bool = False,
+#     check_numbers: bool = False,
+#     window_size: int = 5,
+#     reg: float = 1e-8,
+#     mixing_param: float = 1.0
+# ) -> Tuple[List[float], int]:
+#     """Fixed point iteration with Anderson acceleration (functional version)."""
+#     # Initialize state
+#     x_hist: List[List[float]] = []
+#     gx_hist: List[List[float]] = []
+#     residuals_hist: List[List[float]] = []
+#     x = x0
+#     fcur = f(x, *args)
+    
+#     # Check initial convergence for ytol
+#     err0 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
+#     if ytol is not None and xtol is None and err0 < ytol:
+#         return x0, 0
+    
+#     # Main iteration loop
+#     for iteration in range(maxiter):
+#         x_new = f(x, *args)
+        
+#         # Check for inf/nan
+#         if check_numbers and any(isnan(v) or isinf(v) for v in x_new):
+#             raise ValueError("Cannot continue - math error in function value")
+        
+#         # Apply Anderson acceleration
+#         x_acc, x_hist, gx_hist, residuals_hist = anderson_step(
+#             x_hist, gx_hist, residuals_hist, x_new, 
+#             window_size, reg, mixing_param
+#         )
+        
+#         # Calculate errors
+#         err1 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
+        
+#         # Check progress
+#         if require_progress and ytol is not None and err1 >= err0:
+#             raise ValueError("Fixed point is not making progress")
+        
+#         # Update error
+#         err0 = err1 if ytol is not None else 0.0
+        
+#         # Check convergence
+#         if xtol is not None:
+#             x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
+#             if x_err < xtol and (ytol is None or err1 < ytol):
+#                 return x_acc, iteration
+#         elif ytol is not None and err1 < ytol:
+#             return x_acc, iteration
+        
+#         x = x_acc
+    
+#     # Check final convergence
+#     x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
+#     if xtol is not None and x_err > xtol:
+#         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {x_err}")
+#     if ytol is not None and err1 > ytol:
+#         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {err1}")
+    
+#     return x, iteration
+
+
+
+
+
+
+
+
+
+
+
+
+def compute_accelerated_step(
+    residuals: List[List[float]], 
+    x_hist: List[List[float]], 
+    gx_hist: List[List[float]], 
+    reg: float = 1e-8,
+    mixing_param: float = 1.0
+) -> List[float]:
+    """Compute Anderson acceleration coefficients and the accelerated iterate."""
+    # Compute R = Ft @ Ft.T with regularization
+    RR = matrix_multiply(residuals, transpose(residuals))
+    N = len(RR)
+    for i in range(N):
+        RR[i][i] += reg
+        
+    try:
+        RR_inv = inv(RR)
+        alpha = sum_matrix_rows(RR_inv)
+    except:
+        # Fallback to least squares if matrix is singular
+        ones = [1.0] * len(residuals)
+        alpha = gelsd(RR, ones)[0]
+    
+    # Normalize alpha
+    alpha_sum = sum(alpha)
+    # DO NOT REMOVE part of what is needed to switch to f in residual_to_fixed_point form
+    if alpha_sum == 0:
+        raise ValueError("Sum of alpha coefficients is zero")
+    elif alpha_sum < 0:
+        alpha = [-a for a in alpha]
+        alpha_sum = -alpha_sum
+    
+    # sometimes alpha needs to be negative
+    alpha = [a / alpha_sum for a in alpha]
+    
+    # Compute the accelerated iterate
+    dim = len(x_hist[0])
+    x_acc = [0.0] * dim
+    for a, x, gx in zip(alpha, x_hist, gx_hist):
+        for i in range(dim):
+            # Flip between these to change the basis
+            # x_acc[i] += (1 - mixing_param) * a * x[i] + mixing_param * a * gx[i]
+            x_acc[i] +=(1 - mixing_param) * a * x[i] - mixing_param * a * gx[i]
+    return x_acc
+
+# def anderson_step(
+#     x_hist: List[List[float]],
+#     gx_hist: List[List[float]],
+#     residuals_hist: List[List[float]],
+#     x: List[float],
+#     window_size: int,
+#     reg: float = 1e-8,
+#     mixing_param: float = 1.0
+# ) -> Tuple[List[float], List[List[float]], List[List[float]], List[List[float]]]:
+#     """Perform one step of Anderson acceleration."""
+#     # First iteration case
+#     if not x_hist:
+#         return x, [x], [], []
+    
+#     # Update histories
+#     x_prev = x_hist[-1]
+#     # Flip between these to change the basis
+#     residual = [xi - xp for xi, xp in zip(x, x_prev)]
+#     # residual = [xi + xp for xi, xp in zip(x, x_prev)]
+
+#     new_residuals_hist = residuals_hist + [residual]
+#     new_gx_hist = gx_hist + [x]
+    
+#     # Maintain window size
+#     if len(new_residuals_hist) > window_size + 1:
+#         new_residuals_hist = new_residuals_hist[1:]
+#         new_gx_hist = new_gx_hist[1:]
+    
+#     # Compute accelerated iterate
+#     x_acc = compute_accelerated_step(
+#         new_residuals_hist,
+#         x_hist,
+#         new_gx_hist,
+#         reg,
+#         mixing_param
+#     )
+    
+#     # Update x history
+#     new_x_hist = x_hist + [x_acc]
+#     if len(new_x_hist) > window_size + 1:
+#         new_x_hist = new_x_hist[1:]
+    
+#     return x_acc, new_x_hist, new_gx_hist, new_residuals_hist
+
+# def fixed_point_anderson(
+#     f: Callable,
+#     x0: List[float],
+#     xtol: float = 1e-7,
+#     ytol: float = None,
+#     maxiter: int = 100,
+#     args: tuple = (),
+#     require_progress: bool = False,
+#     check_numbers: bool = False,
+#     window_size: int = 5,
+#     reg: float = 1e-8,
+#     mixing_param: float = 1.0
+# ) -> Tuple[List[float], int]:
+#     """Fixed point iteration with Anderson acceleration (functional version)."""
+#     # Initialize state
+#     x_hist: List[List[float]] = []
+#     gx_hist: List[List[float]] = []
+#     residuals_hist: List[List[float]] = []
+#     x = x0
+#     # f = residual_to_fixed_point(f) # this commented out means the first lines should be uncommented; second lines commented
+#     fcur = f(x, *args)
+    
+#     # Check initial convergence for ytol
+#     err0 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
+#     if ytol is not None and xtol is None and err0 < ytol:
+#         return x0, 0
+    
+#     # Main iteration loop
+#     for iteration in range(maxiter):
+#         x_new = f(x, *args)
+        
+#         # Check for inf/nan
+#         if check_numbers and any(isnan(v) or isinf(v) for v in x_new):
+#             raise ValueError("Cannot continue - math error in function value")
+        
+#         # Apply Anderson acceleration
+#         x_acc, x_hist, gx_hist, residuals_hist = anderson_step(
+#             x_hist, gx_hist, residuals_hist, x_new, 
+#             window_size, reg, mixing_param
+#         )
+        
+#         # Calculate errors
+#         err1 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
+        
+#         # Check progress
+#         if require_progress and ytol is not None and err1 >= err0:
+#             raise ValueError("Fixed point is not making progress")
+        
+#         # Update error
+#         err0 = err1 if ytol is not None else 0.0
+        
+#         # Check convergence
+#         if xtol is not None:
+#             x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
+#             if x_err < xtol and (ytol is None or err1 < ytol):
+#                 return x_acc, iteration
+#         elif ytol is not None and err1 < ytol:
+#             return x_acc, iteration
+        
+#         x = x_acc
+    
+#     # Check final convergence
+#     x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
+#     if xtol is not None and x_err > xtol:
+#         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {x_err}")
+#     if ytol is not None and err1 > ytol:
+#         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {err1}")
+    
+#     return x, iteration
+
+
+# def anderson_step(
+#     x_hist: List[List[float]],
+#     gx_hist: List[List[float]],
+#     residuals_hist: List[List[float]],
+#     x: List[float],
+#     window_size: int,
+#     reg: float = 1e-8,
+#     mixing_param: float = 1.0,
+#     current_iteration: int = 0,
+#     delay_iterations: int = 0
+# ) -> Tuple[List[float], List[List[float]], List[List[float]], List[List[float]]]:
+#     """Perform one step of Anderson acceleration with history building during delay."""
+#     # First iteration case
+#     if not x_hist:
+#         return x, [x], [x], []
+    
+#     # Update histories
+#     x_prev = x_hist[-1]
+#     # Flip between these to change the basis
+#     residual = [xi - xp for xi, xp in zip(x, x_prev)]
+#     # residual = [xi + xp for xi, xp in zip(x, x_prev)]
+    
+#     new_x_hist = x_hist + [x]
+#     new_gx_hist = gx_hist + [x]
+#     new_residuals_hist = residuals_hist + [residual]
+    
+#     # Maintain window size
+#     if len(new_residuals_hist) > window_size + 1:
+#         new_residuals_hist = new_residuals_hist[1:]
+#         new_gx_hist = new_gx_hist[1:]
+#         new_x_hist = new_x_hist[1:]
+    
+#     # During delay period, just return the current point but keep updating histories
+#     if current_iteration < delay_iterations:
+#         return x, new_x_hist, new_gx_hist, new_residuals_hist
+    
+#     # After delay, compute accelerated iterate using accumulated history
+#     x_acc = compute_accelerated_step(
+#         new_residuals_hist,
+#         new_x_hist,
+#         new_gx_hist,
+#         reg,
+#         mixing_param
+#     )
+    
+#     # Update x history with accelerated point
+#     final_x_hist = new_x_hist[:-1] + [x_acc]
+    
+#     return x_acc, final_x_hist, new_gx_hist, new_residuals_hist
+
+# def fixed_point_anderson(
+#     f: Callable,
+#     x0: List[float],
+#     xtol: float = 1e-7,
+#     ytol: float = None,
+#     maxiter: int = 100,
+#     args: tuple = (),
+#     require_progress: bool = False,
+#     check_numbers: bool = False,
+#     window_size: int = 5,
+#     reg: float = 1e-8,
+#     mixing_param: float = 1.0,
+#     delay_iterations: int = 0
+# ) -> Tuple[List[float], int]:
+#     """Fixed point iteration with Anderson acceleration and history building during delay."""
+#     # Initialize state
+#     x_hist: List[List[float]] = []
+#     gx_hist: List[List[float]] = []
+#     residuals_hist: List[List[float]] = []
+#     x = x0
+#     # f = residual_to_fixed_point(f) # this commented out means the first lines should be uncommented; second lines commented
+#     fcur = f(x, *args)
+    
+#     # Check initial convergence for ytol
+#     err0 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
+#     if ytol is not None and xtol is None and err0 < ytol:
+#         return x0, 0
+    
+#     # Main iteration loop
+#     for iteration in range(maxiter):
+#         x_new = f(x, *args)
+        
+#         # Check for inf/nan
+#         if check_numbers and any(isnan(v) or isinf(v) for v in x_new):
+#             raise ValueError("Cannot continue - math error in function value")
+        
+#         # Apply Anderson acceleration with delay but keep building history
+#         x_acc, x_hist, gx_hist, residuals_hist = anderson_step(
+#             x_hist, gx_hist, residuals_hist, x_new, 
+#             window_size, reg, mixing_param,
+#             iteration, delay_iterations
+#         )
+        
+#         # Calculate errors
+#         err1 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
+        
+#         # Check progress
+#         if require_progress and ytol is not None and err1 >= err0:
+#             raise ValueError("Fixed point is not making progress")
+        
+#         # Update error
+#         err0 = err1 if ytol is not None else 0.0
+        
+#         # Check convergence
+#         if xtol is not None:
+#             x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
+#             if x_err < xtol and (ytol is None or err1 < ytol):
+#                 return x_acc, iteration
+#         elif ytol is not None and err1 < ytol:
+#             return x_acc, iteration
+        
+#         x = x_acc
+    
+#     # Check final convergence
+#     x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
+#     if xtol is not None and x_err > xtol:
+#         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {x_err}")
+#     if ytol is not None and err1 > ytol:
+#         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {err1}")
+    
+#     return x, iteration
+
+
+
+
+
+
+
+
+def compute_accelerated_step(
+    residuals: List[List[float]], 
+    x_hist: List[List[float]], 
+    gx_hist: List[List[float]], 
+    reg: float = 1e-8,
+    mixing_param: float = 1.0
+) -> List[float]:
+    """Compute Anderson acceleration coefficients and the accelerated iterate."""
+    # Compute R = Ft @ Ft.T with regularization
+    RR = matrix_multiply(residuals, transpose(residuals))
+    N = len(RR)
+    for i in range(N):
+        RR[i][i] += reg
+        
+    try:
+        RR_inv = inv(RR)
+        alpha = sum_matrix_rows(RR_inv)
+    except:
+        # Fallback to least squares if matrix is singular
+        ones = [1.0] * len(residuals)
+        alpha = gelsd(RR, ones)[0]
+    
+    # Normalize alpha
+    alpha_sum = sum(alpha)
+    if alpha_sum == 0:
+        raise ValueError("Sum of alpha coefficients is zero")
+    elif alpha_sum < 0:
+        alpha = [-a for a in alpha]
+        alpha_sum = -alpha_sum
+    
+    # sometimes alpha needs to be negative
+    alpha = [a / alpha_sum for a in alpha]
+    
+    # Compute the accelerated iterate
+    dim = len(x_hist[0])
+    x_acc = [0.0] * dim
+    for a, x, gx in zip(alpha, x_hist, gx_hist):
+        for i in range(dim):
+            # Flip between these to change the basis
+            x_acc[i] += (1 - mixing_param) * a * x[i] + mixing_param * a * gx[i]
+            # x_acc[i] +=(1 - mixing_param) * a * x[i] - mixing_param * a * gx[i]
+    return x_acc
+
+def anderson_step(
+    x_hist: List[List[float]],
+    gx_hist: List[List[float]],
+    residuals_hist: List[List[float]],
+    x: List[float],
+    window_size: int,
+    reg: float = 1e-8,
+    mixing_param: float = 1.0
+) -> Tuple[List[float], List[List[float]], List[List[float]], List[List[float]]]:
+    """Perform one step of Anderson acceleration."""
+    # First iteration case
+    if not x_hist:
+        return x, [x], [], []
+    
+    # Update histories
+    x_prev = x_hist[-1]
+    # Flip between these to change the basis
+    residual = [xi - xp for xi, xp in zip(x, x_prev)]
+    # residual = [xi + xp for xi, xp in zip(x, x_prev)]
+
+    new_residuals_hist = residuals_hist + [residual]
+    new_gx_hist = gx_hist + [x]
+    
+    # Maintain window size
+    if len(new_residuals_hist) > window_size + 1:
+        new_residuals_hist = new_residuals_hist[1:]
+        new_gx_hist = new_gx_hist[1:]
+    
+    # Compute accelerated iterate
+    x_acc = compute_accelerated_step(
+        new_residuals_hist,
+        x_hist,
+        new_gx_hist,
+        reg,
+        mixing_param
+    )
+    
+    # Update x history
+    new_x_hist = x_hist + [x_acc]
+    if len(new_x_hist) > window_size + 1:
+        new_x_hist = new_x_hist[1:]
+    
+    return x_acc, new_x_hist, new_gx_hist, new_residuals_hist
+
+
+
+
+def fixed_point_anderson(
+    f: Callable,
+    x0: List[float],
+    xtol: float = 1e-7,
+    ytol: float = None,
+    maxiter: int = 100,
+    args: tuple = (),
+    require_progress: bool = False,
+    check_numbers: bool = False,
+    window_size: int = 5,
+    reg: float = 1e-8,
+    mixing_param: float = 1.0,
+    initial_iterations: int = 4,
+    damping: float = 0.9,
+    acc_damping: float = 1,  # Damping for acceleration phase
+    max_step_size: float = 10000,  # Maximum allowed relative step size
+    phase_in_steps: int = 3  # Number of steps to phase in acceleration
+) -> Tuple[List[float], int]:
+    # Initialize state
+    x_hist: List[List[float]] = []
+    gx_hist: List[List[float]] = []
+    residuals_hist: List[List[float]] = []
+    x = x0
+    # f = residual_to_fixed_point(f) # this commented out means the first lines should be uncommented; second lines commented
+    fcur = f(x, *args)
+
+    # Truncate window size based on the dimensionality of the problem
+    # sometimes being 1 larger can be OK, for now not allowing it
+    if len(fcur) < window_size:
+        window_size = len(fcur)
+    
+    # Check initial convergence for ytol
+    err0 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
+    if ytol is not None and xtol is None and err0 < ytol:
+        return x0, 0
+    
+    # Main iteration loop
+    for iteration in range(maxiter):
+        x_new = f(x, *args)
+        
+        # Check for inf/nan
+        if check_numbers and any(isnan(v) or isinf(v) for v in x_new):
+            raise ValueError("Cannot continue - math error in function value")
+        
+        if iteration < initial_iterations:
+            # Damped fixed-point iteration
+            x_acc = [
+                (1 - damping) * x[i] + damping * x_new[i]
+                for i in range(len(x))
+            ]
+            # Collect history for later use
+            if iteration > 0:
+                residual = [xi - xp for xi, xp in zip(x_new, x)]
+                residuals_hist.append(residual)
+                gx_hist.append(x_new)
+                x_hist.append(x_acc)
+                
+                # Maintain window size
+                if len(residuals_hist) > window_size:
+                    residuals_hist = residuals_hist[1:]
+                    gx_hist = gx_hist[1:]
+                    x_hist = x_hist[1:]
+        else:
+            # Apply Anderson acceleration with safeguards
+            x_acc_raw, x_hist, gx_hist, residuals_hist = anderson_step(
+                x_hist, gx_hist, residuals_hist, x_new, 
+                window_size, reg, mixing_param
+            )
+            
+            # Calculate phase-in factor (gradually increase from 0 to 1)
+            phase = min(1.0, (iteration - initial_iterations + 1) / phase_in_steps)
+            
+            # Compute damped acceleration step
+            x_acc_damped = []
+            for i in range(len(x)):
+                # Regular damped fixed-point step
+                fp_step = (1 - damping) * x[i] + damping * x_new[i]
+                
+                # Anderson acceleration step with its own damping
+                acc_step = (1 - acc_damping) * x[i] + acc_damping * x_acc_raw[i]
+                
+                # Blend between fixed-point and acceleration based on phase
+                x_acc_i = (1 - phase) * fp_step + phase * acc_step
+                
+                # Limit maximum step size relative to current position
+                max_change = abs(x[i] * (1.0-max_step_size))
+                change = x_acc_i - x[i]
+                if abs(change) > max_change:
+                    # Clamp the change to the maximum allowed
+                    x_acc_i = x[i] + max_change * (1 if change > 0 else -1)
+                
+                x_acc_damped.append(x_acc_i)
+            
+            x_acc = x_acc_damped
+            x_hist[-1] = x_acc
+        
+        # Calculate errors
+        err1 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
+        
+        # Check progress
+        if require_progress and ytol is not None and err1 >= err0:
+            raise ValueError("Fixed point is not making progress")
+        
+        # Update error
+        err0 = err1 if ytol is not None else 0.0
+        
+        # Check convergence
+        if xtol is not None:
+            x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
+            if x_err < xtol and (ytol is None or err1 < ytol):
+                return x_acc, iteration
+        elif ytol is not None and err1 < ytol:
+            return x_acc, iteration
+        
+        x = x_acc
+    
+    # Check final convergence
+    x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
+    if xtol is not None and x_err > xtol:
+        raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {x_err}")
+    if ytol is not None and err1 > ytol:
+        raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {err1}")
+    
+    return x, iteration
+
+
+
+def fixed_point_anderson_residual(
+    f: Callable,  
+    x0: List[float],
+    xtol: float = 1e-7,
+    ytol: float = None,
+    maxiter: int = 100,
+    args: tuple = (),
+    require_progress: bool = False,
+    check_numbers: bool = False,
+    window_size: int = 5,
+    reg: float = 1e-8,
+    initial_iterations: int = 1000,
+    damping: float = 0.3,
+    acc_damping: float = 1
+) -> Tuple[List[float], int]:
+    x_hist: List[List[float]] = []
+    gx_hist: List[List[float]] = []  # Will store the updates/steps
+    residuals_hist: List[List[float]] = []
+    x = x0
+    
+    # Evaluate initial residual
+    fcur = f(x, *args)
+    if len(fcur) < window_size:
+        window_size = len(fcur)
+    err0 = sum(abs(v) for v in fcur)
+    
+    if ytol is not None and xtol is None and err0 < ytol:
+        return x0, 0
+    
+    for iteration in range(maxiter):
+        # Compute residual
+        fcur = f(x, *args)
+        
+        # Check for inf/nan
+        if check_numbers and any(isnan(v) or isinf(v) for v in fcur):
+            raise ValueError("Cannot continue - math error in function value")
+        
+        if iteration < initial_iterations:
+            # Damped step during initial phase
+            x_step = [-fi * damping for fi in fcur]
+            x_new = [xi + si for xi, si in zip(x, x_step)]
+            
+            # Collect history (store steps instead of points)
+            if iteration > 0:
+                # For history, store the full steps
+                full_step = [-fi for fi in fcur]
+                residuals_hist.append(fcur)
+                gx_hist.append(full_step)
+                x_hist.append(x)
+                
+                # Maintain window size
+                if len(residuals_hist) > window_size:
+                    residuals_hist = residuals_hist[1:]
+                    gx_hist = gx_hist[1:]
+                    x_hist = x_hist[1:]
+        else:
+            # Full steps for acceleration phase
+            x_step = [-fi for fi in fcur]
+            
+            # Update histories
+            residuals_hist.append(fcur)
+            gx_hist.append(x_step)
+            x_hist.append(x)
+            
+            if len(residuals_hist) > window_size:
+                residuals_hist = residuals_hist[1:]
+                gx_hist = gx_hist[1:]
+                x_hist = x_hist[1:]
+            
+            # Compute Anderson coefficients
+            RR = matrix_multiply(residuals_hist, transpose(residuals_hist))
+            N = len(RR)
+            for i in range(N):
+                RR[i][i] += reg
+            
+            try:
+                RR_inv = inv(RR)
+                alpha = sum_matrix_rows(RR_inv)
+            except:
+                ones = [1.0] * len(residuals_hist)
+                alpha = gelsd(RR, ones)[0]
+            
+            # Normalize alpha
+            alpha_sum = sum(alpha)
+            if alpha_sum == 0:
+                raise ValueError("Sum of alpha coefficients is zero")
+            
+            alpha = [a / alpha_sum for a in alpha]
+            
+            # Apply acceleration to the steps
+            acc_step = [0.0] * len(x)
+            for a, step in zip(alpha, gx_hist):
+                for i in range(len(x)):
+                    acc_step[i] += a * step[i]
+            
+            # Apply accelerated step with damping
+            x_new = [xi + si * acc_damping for xi, si in zip(x, acc_step)]
+        
+        # Calculate errors
+        err1 = sum(abs(v) for v in fcur)
+        
+        # Check progress
+        if require_progress and err1 >= err0:
+            raise ValueError("Not making progress")
+        
+        err0 = err1
+        
+        # Check convergence
+        if xtol is not None:
+            if err1 < xtol and (ytol is None or err1 < ytol):
+                return x_new, iteration
+        elif ytol is not None and err1 < ytol:
+            return x_new, iteration
+        
+        x = x_new
+    
+    if xtol is not None and err1 > xtol:
+        raise ValueError(f"Failed to converge after {maxiter} iterations")
+    if ytol is not None and err1 > ytol:
+        raise ValueError(f"Failed to converge after {maxiter} iterations")
+    
+    return x, iteration
+
+
+
+
+
+
+
+
+
+
+
 
 def normalize(values):
     r'''Simple function which normalizes a series of values to be from 0 to 1,
@@ -4494,6 +5304,41 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
     return x, fval, iterations
 
 
+def fixed_point_to_residual(f_fixed_point):
+    """
+    Transforms a fixed-point iteration function to a residual-based function.
+    
+    Parameters:
+    - f_fixed_point: Function that takes x and returns the difference x - thing
+    
+    Returns:
+    - A function that outputs residuals: thing - x
+    """
+    def residual_function(x, *args):
+        # Get the original fixed-point differences (x - thing)
+        fp_diff = f_fixed_point(x, *args)
+        # Calculate the residuals as (thing - x)
+        return [-diff for diff in fp_diff]
+    
+    return residual_function
+
+def residual_to_fixed_point(f_residual):
+    """
+    Transforms a residual-based function to a fixed-point iteration function.
+    
+    Parameters:
+    - f_residual: Function that takes x and returns residuals (thing - x)
+    
+    Returns:
+    - A function that outputs differences for fixed-point: x - thing
+    """
+    def fixed_point_function(x, *args):
+        # Get the residuals (thing - x)
+        res = f_residual(x, *args)
+        # Calculate the fixed-point differences as (x - thing)
+        return [-r for r in res]
+    
+    return fixed_point_function
 
 
 scipy_root_options = ('hybr', 'lm', 'broyden1', 'broyden2', 'anderson',
@@ -4501,7 +5346,7 @@ scipy_root_options = ('hybr', 'lm', 'broyden1', 'broyden2', 'anderson',
 scipy_root_options_set = frozenset(scipy_root_options)
 
 python_solvers = ('newton_system', 'newton_system_line_search', 'newton_system_line_search_progress',
-                  'homotopy_solver', 'broyden2_python', 'fixed_point', 'fixed_point_aitken', 'fixed_point_gdem')
+                  'homotopy_solver', 'broyden2_python', 'fixed_point', 'fixed_point_aitken', 'fixed_point_gdem', 'fixed_point_anderson')
 python_solvers_set = frozenset(python_solvers)
 
 scipy_minimize_options = ('Nelder-Mead', 'Powell', 'CG', 'BFGS', 'Newton-CG', 'L-BFGS-B', 
@@ -4815,11 +5660,13 @@ class SolverInterface(object):
             sln, niter = broyden2(x0, self.objf, self.jacobian, xtol=self.xtol, maxiter=self.maxiter,
                                   args=args)
         elif method == 'fixed_point':
-            sln, niter = fixed_point(self.objf, x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
+            sln, niter = fixed_point(residual_to_fixed_point(self.objf), x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
         elif method == 'fixed_point_aitken':
-            sln, niter = fixed_point_aitken(self.objf, x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
+            sln, niter = fixed_point_aitken(residual_to_fixed_point(self.objf), x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
         elif method == 'fixed_point_gdem':
-            sln, niter = fixed_point_gdem(self.objf, x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
+            sln, niter = fixed_point_gdem(residual_to_fixed_point(self.objf), x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
+        elif method == 'fixed_point_anderson':
+            sln, niter = fixed_point_anderson_residual(residual_to_fixed_point(self.objf), x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, window_size=5, reg=1e-8, initial_iterations=5, acc_damping=0.3, damping=1.0)
         elif method in scipy_root_options_set:
             process_root = True
             jacobian_method = self.jacobian_method
