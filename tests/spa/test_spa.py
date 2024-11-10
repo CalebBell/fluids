@@ -79,7 +79,7 @@ except:
 from fluids.optional import spa
 
 times = (pd.date_range('2003-10-17 12:30:30', periods=1, freq='D')
-           .tz_localize('MST'))
+           .tz_localize('America/Phoenix'))
 unixtimes = np.array(times.tz_convert('UTC').view(np.int64)*1.0/10**9)
 unixtimes = float(np.array(times.tz_convert('UTC').view(np.int64)*1.0/10**9)[0])
 lat = 39.742476
@@ -346,12 +346,12 @@ class SpaBase:
                                     dt.datetime(2015, 4, 2, 5, 43),
                                     dt.datetime(2015, 8, 2, 5, 1),
                                     dt.datetime(2015, 12, 2, 7, 1),],
-                                   ).tz_localize('MST').view(np.int64)*1.0/10**9
+                                   ).tz_localize('America/Phoenix').view(np.int64)*1.0/10**9
         sunset = pd.DatetimeIndex([dt.datetime(2015, 1, 2, 16, 49),
                                    dt.datetime(2015, 4, 2, 18, 24),
                                    dt.datetime(2015, 8, 2, 19, 10),
                                    dt.datetime(2015, 12, 2, 16, 38),],
-                                  ).tz_localize('MST').view(np.int64)*1.0/10**9
+                                  ).tz_localize('America/Phoenix').view(np.int64)*1.0/10**9
         times = np.array(times)
         sunrise = np.array(sunrise)
         sunset = np.array(sunset)
@@ -388,7 +388,7 @@ class SpaBase:
 
     def test_earthsun_distance(self):
         times = (pd.date_range('2003-10-17 12:30:30', periods=1, freq='D')
-           .tz_localize('MST'))
+           .tz_localize('America/Phoenix'))
         unixtimes = times.tz_convert('UTC').view(np.int64)*1.0/10**9
         unixtimes = float(np.array(unixtimes)[0])
         result = self.spa.earthsun_distance(unixtimes, 64.0)
