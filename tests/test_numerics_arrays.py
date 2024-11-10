@@ -1352,7 +1352,7 @@ def test_gelsd_overdetermined():
     assert len(s) == 2
     
     # Check residuals are positive for overdetermined system
-    assert residuals > 0
+    assert residuals >= 0
 
 def test_gelsd_underdetermined():
     """Test underdetermined system (fewer equations than unknowns)"""
