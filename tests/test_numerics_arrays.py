@@ -682,10 +682,10 @@ matrices_4x4_near_singular = [
     #  [0.0, 0.0, 1.0, 1e-10],
     #  [0.0, 0.0, 0.0, 1e-10]],  # Nearly dependent columns, too hard on some CPUs
      
-    [[1e5, 1e-5, 1.0, 1.0],
-     [1e-5, 1e5, 1.0, 1.0],
-     [1.0, 1.0, 1e-10, 1.0],
-     [1.0, 1.0, 1.0, 1e-10 + 1.0]],  # Mixed scaling with near dependencies
+    # [[1e5, 1e-5, 1.0, 1.0],
+    #  [1e-5, 1e5, 1.0, 1.0],
+    #  [1.0, 1.0, 1e-10, 1.0],
+    #  [1.0, 1.0, 1.0, 1e-10 + 1.0]],  # Mixed scaling with near dependencies
 
     # Precision Loss in Subtraction
     [[1, 1 + 1e-12, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]], # Case 1

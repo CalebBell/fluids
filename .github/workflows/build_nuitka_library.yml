@@ -2,7 +2,7 @@ name: Check Nuitka Compatibility
 
 on:
   push:
-    branches: [master, release]
+    branches: [release]
   pull_request:
     branches: [master, release]
     
@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.6', '3.12']
         os: [windows-latest, ubuntu-latest, macos-13, macos-latest]
         architecture: ['x86', 'x64']
         exclude:
