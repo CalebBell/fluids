@@ -27,7 +27,6 @@ from math import (sin, exp, pi, fabs, copysign, log, isinf, isnan, acos, cos, si
                   atan2, asinh, sqrt, gamma)
 from cmath import sqrt as csqrt, log as clog
 import sys
-from typing import List, Tuple, Callable
 from fluids.numerics.arrays import (solve as py_solve, inv, dot_product, norm2, matrix_vector_dot, eye,
                      array_as_tridiagonals, tridiagonals_as_array, transpose,
                      solve_tridiagonal, subset_matrix, argsort1d, shape, sort_paired_lists,
@@ -3964,12 +3963,12 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
 
 
 def compute_accelerated_step(
-    residuals: List[List[float]], 
-    x_hist: List[List[float]], 
-    gx_hist: List[List[float]], 
+    residuals, 
+    x_hist, 
+    gx_hist, 
     reg: float = 1e-8,
     mixing_param: float = 1.0
-) -> List[float]:
+):
     """Compute Anderson acceleration coefficients and the accelerated iterate."""
     # Compute R = Ft @ Ft.T with regularization
     RR = matrix_multiply(residuals, transpose(residuals))
@@ -4252,12 +4251,12 @@ def compute_accelerated_step(
 
 
 def compute_accelerated_step(
-    residuals: List[List[float]], 
-    x_hist: List[List[float]], 
-    gx_hist: List[List[float]], 
+    residuals, 
+    x_hist, 
+    gx_hist, 
     reg: float = 1e-8,
     mixing_param: float = 1.0
-) -> List[float]:
+):
     """Compute Anderson acceleration coefficients and the accelerated iterate."""
     # Compute R = Ft @ Ft.T with regularization
     RR = matrix_multiply(residuals, transpose(residuals))
@@ -4295,14 +4294,14 @@ def compute_accelerated_step(
     return x_acc
 
 def anderson_step(
-    x_hist: List[List[float]],
-    gx_hist: List[List[float]],
-    residuals_hist: List[List[float]],
-    x: List[float],
+    x_hist,
+    gx_hist,
+    residuals_hist,
+    x,
     window_size: int,
     reg: float = 1e-8,
     mixing_param: float = 1.0
-) -> Tuple[List[float], List[List[float]], List[List[float]], List[List[float]]]:
+):
     """Perform one step of Anderson acceleration."""
     # First iteration case
     if not x_hist:
@@ -4342,8 +4341,8 @@ def anderson_step(
 
 
 def fixed_point_anderson(
-    f: Callable,
-    x0: List[float],
+    f,
+    x0,
     xtol: float = 1e-7,
     ytol: float = None,
     maxiter: int = 100,
@@ -4358,11 +4357,11 @@ def fixed_point_anderson(
     acc_damping: float = 1,  # Damping for acceleration phase
     max_step_size: float = 10000,  # Maximum allowed relative step size
     phase_in_steps: int = 3  # Number of steps to phase in acceleration
-) -> Tuple[List[float], int]:
+):
     # Initialize state
-    x_hist: List[List[float]] = []
-    gx_hist: List[List[float]] = []
-    residuals_hist: List[List[float]] = []
+    x_hist = []
+    gx_hist = []
+    residuals_hist = []
     x = x0
     # f = residual_to_fixed_point(f) # this commented out means the first lines should be uncommented; second lines commented
     fcur = f(x, *args)
@@ -4469,8 +4468,8 @@ def fixed_point_anderson(
 
 
 def fixed_point_anderson_residual(
-    f: Callable,  
-    x0: List[float],
+    f,  
+    x0,
     xtol: float = 1e-7,
     ytol: float = None,
     maxiter: int = 100,
@@ -4482,10 +4481,10 @@ def fixed_point_anderson_residual(
     initial_iterations: int = 1000,
     damping: float = 0.3,
     acc_damping: float = 1
-) -> Tuple[List[float], int]:
-    x_hist: List[List[float]] = []
-    gx_hist: List[List[float]] = []  # Will store the updates/steps
-    residuals_hist: List[List[float]] = []
+):
+    x_hist = []
+    gx_hist = []  # Will store the updates/steps
+    residuals_hist = []
     x = x0
     
     # Evaluate initial residual
