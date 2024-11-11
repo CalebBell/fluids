@@ -11,7 +11,7 @@
 - Fix Issue #54 https://github.com/CalebBell/fluids/issues/54
 - Fix Issue #16 https://github.com/CalebBell/fluids/issues/16
 - Use the canonical timezone for Mountain Time https://github.com/CalebBell/fluids/pull/71
-
+ 
 ## [1.0.24] - 2023-06-04
 
 ### Changed
