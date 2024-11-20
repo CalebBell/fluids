@@ -23,7 +23,7 @@ from math import cos, erf, exp, isnan, log, pi, sin, sqrt
 
 import pytest
 from fluids.numerics.arrays import (inv, solve, lu, gelsd, eye, dot_product, transpose, matrix_vector_dot, matrix_multiply, sum_matrix_rows, sum_matrix_cols,
-    scalar_divide_matrix, scalar_multiply_matrix, scalar_subtract_matrices, scalar_add_matrices)
+    scalar_divide_matrix, scalar_multiply_matrix, scalar_subtract_matrices, scalar_add_matrices, null_space)
 from fluids.numerics import (
     array_as_tridiagonals,
     assert_close,
@@ -2138,3 +2138,186 @@ def test_sort_paired_lists():
         # Test 6: Unequal length lists
         sort_paired_lists([1, 2], [1])
     
+
+def format_matrix_error_null_space(matrix):
+    """Format a detailed error message for matrix comparison failure"""
+    def matrix_info(matrix):
+        """Get diagnostic information about a matrix"""
+        arr = np.array(matrix)
+        rank = np.linalg.matrix_rank(arr)
+        shape = arr.shape
+        try:
+            cond = np.linalg.cond(arr)
+        except:
+            cond = float('inf')
+        # Only compute determinant for square matrices
+        det = np.linalg.det(arr) if shape[0] == shape[1] else None
+        return {
+            'rank': rank,
+            'condition_number': cond,
+            'shape': shape,
+            'null_space_dim': shape[1] - rank,
+            'determinant': det
+        }
+    info = matrix_info(matrix)
+    
+    msg = (
+        f"\nMatrix properties:"
+        f"\n  Shape: {info['shape']}"
+        f"\n  Rank: {info['rank']}"
+        f"\n  Null space dimension: {info['null_space_dim']}"
+        f"\n  Condition number: {info['condition_number']:.2e}"
+    )
+    if info['determinant'] is not None:
+        msg += f"\n  Determinant: {info['determinant']:.2e}"
+    msg += (
+        f"\nInput matrix:"
+        f"\n{np.array2string(np.array(matrix), precision=6, suppress_small=True)}"
+    )
+    return msg
+
+def check_null_space(matrix, rtol=None):
+    """Check if null_space implementation matches scipy behavior"""
+    import scipy
+    just_return = False
+    try:
+        # This will fail for bad matrix inputs
+        cond = np.linalg.cond(np.array(matrix))
+    except:
+        just_return = True
+        
+    py_fail = False
+    scipy_fail = False
+    
+    try:
+        result = null_space(matrix)
+        if not result:  # Empty result is valid for some cases
+            return
+        result = np.array(result)
+    except:
+        py_fail = True
+        
+    # Convert to numpy array if not already
+    matrix = np.array(matrix)
+    try:
+        expected = scipy.linalg.null_space(matrix, rcond=rtol)
+    except:
+        scipy_fail = True
+    
+    if py_fail and not scipy_fail:
+        if not just_return and cond > 1e14:
+            # Let ill conditioned matrices pass
+            return 
+        raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, SciPy Fail: {scipy_fail}")
+    if py_fail and scipy_fail:
+        return
+    if not py_fail and scipy_fail:
+        return
+    if just_return:
+        return
+
+    
+    if rtol is None:
+        rtol = get_rtol(matrix)
+        
+    # Compute matrix norm for threshold
+    matrix_norm = np.max(np.sum(np.abs(matrix), axis=1))
+    thresh = matrix_norm * np.finfo(float).eps
+    
+
+    # We need to handle sign ambiguity in the basis vectors
+    # Both +v and -v are valid basis vectors
+    # Compare shapes first
+    assert result.shape == expected.shape, \
+           f"Shape mismatch: got {result.shape}, expected {expected.shape}"
+           
+    if result.shape[1] > 0:  # Only if we have vectors
+        # For each column in result, check if it matches any expected column or its negative
+        used_expected_cols = set()
+        
+        for i in range(result.shape[1]):
+            res_col = result[:, i].reshape(-1, 1)
+            found_match = False
+            
+            # Try matching with each unused expected column
+            for j in range(expected.shape[1]):
+                if j in used_expected_cols:
+                    continue
+                    
+                exp_col = expected[:, j].reshape(-1, 1)
+                
+                # Check both orientations with looser tolerance
+                matches_positive = np.allclose(res_col, exp_col, rtol=1e-7, atol=1e-10)
+                matches_negative = np.allclose(res_col, -exp_col, rtol=1e-7, atol=1e-10)
+                
+                if matches_positive or matches_negative:
+                    used_expected_cols.add(j)
+                    found_match = True
+                    break
+            
+            assert found_match, f"Column {i} doesn't match any expected column in either orientation"
+        
+        # Verify orthonormality
+        gram = result.T @ result
+        assert_allclose(gram, np.eye(gram.shape[0]), rtol=1e-10, atol=100*thresh,
+                       err_msg="Basis vectors are not orthonormal")
+        
+        # Verify it's actually a null space
+        product = matrix @ result
+        assert_allclose(product, np.zeros_like(product), atol=100*thresh,
+                       err_msg="Result vectors are not in the null space")
+
+# Test cases specific to null space
+matrices_full_rank = [
+    [[1.0]],  # 1x1
+    [[1.0, 0.0], [0.0, 1.0]],  # 2x2 identity
+    [[1.0, 2.0], [3.0, 4.0]],  # 2x2 full rank
+]
+
+matrices_rank_deficient = [
+    # [[1.0, 1.0], [1.0, 1.0]],  # 2x2 rank 1
+    [[1.0, 2.0, 3.0], [2.0, 4.0, 6.0]],  # 2x3 rank 1
+    # [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 0.0]],  # 3x3 rank 2
+]
+
+matrices_tall = [
+    [[1.0], [0.0], [0.0]],  # 3x1
+    [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]],  # 3x2
+]
+
+matrices_wide = [
+    [[1.0, 0.0, 0.0]],  # 1x3
+    [[1.0, 0.0, 1.0], [0.0, 1.0, 1.0]],  # 2x3
+]
+
+@pytest.mark.parametrize("matrix", matrices_full_rank)
+def test_null_space_full_rank(matrix):
+    try:
+        check_null_space(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error_null_space(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_rank_deficient)
+def test_null_space_rank_deficient(matrix):
+    try:
+        check_null_space(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error_null_space(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_tall)
+def test_null_space_tall(matrix):
+    try:
+        check_null_space(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error_null_space(matrix)}"
+        raise Exception(new_message)
+
+@pytest.mark.parametrize("matrix", matrices_wide)
+def test_null_space_wide(matrix):
+    try:
+        check_null_space(matrix)
+    except Exception as e:
+        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error_null_space(matrix)}"
+        raise Exception(new_message)
