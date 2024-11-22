@@ -48,7 +48,7 @@ __all__ = ['dot_product', 'inv', 'det', 'solve', 'norm2', 'transpose', 'shape',
            'argsort1d', 'lu', 'gelsd', 'matrix_vector_dot', 'matrix_multiply',
            'sum_matrix_rows', 'sum_matrix_cols', 'sort_paired_lists',
            'scalar_divide_matrix', 'scalar_multiply_matrix', 'scalar_subtract_matrices', 'scalar_add_matrices',
-           'stack_vectors']
+           'stack_vectors', 'null_space']
 primitive_containers = frozenset([list, tuple])
 
 def transpose(matrix):
@@ -1588,3 +1588,51 @@ def gelsd(a, b, rcond=None):
         diff = [b[i] - Ax[i] for i in range(m)]
         residuals = dot_product(diff, diff)
     return x, residuals, rank, s
+
+def null_space(a, rcond=None):
+    """
+    Construct an orthonormal basis for the null space of A using SVD.
+
+    Parameters
+    ----------
+    a : list[list[float]]
+        Input matrix A of shape (M, N)
+    rcond : float, optional
+        Relative condition number. Singular values ``s`` smaller than
+        ``rcond * max(s)`` are considered zero.
+        Default: floating point eps * max(M,N).
+
+    Returns
+    -------
+    Z : list[list[float]]
+        Orthonormal basis for the null space of A.
+        K = dimension of effective null space, as determined by rcond
+    """
+    import numpy as np
+    
+    # Get dimensions and handle empty cases
+    m = len(a)
+    n = len(a[0]) if m > 0 else 0
+    
+    if m == 0 or n == 0:
+        return []  # Empty matrix
+    
+    # Use numpy only for SVD computation
+    U, s, Vt = np.linalg.svd(np.array(a, dtype=np.float64), full_matrices=True)
+    
+    # Convert numpy arrays to Python lists
+    s = s.tolist()
+    Vt = Vt.tolist()
+    
+    # Set default rcond
+    if rcond is None:
+        rcond = max(m, n) * 2.2e-16  # Approximate machine epsilon for float64
+    
+    # Determine effective null space dimension using rcond
+    tol = max(s) * rcond if s else 0.0
+    num = sum(sv > tol for sv in s)
+    # Extract null space basis
+    V = transpose(Vt)  # V is transpose of Vt
+    Z = [row[num:] for row in V]  # Extract last N - num columns
+    
+    return Z

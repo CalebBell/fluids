@@ -30,7 +30,8 @@ import sys
 from fluids.numerics.arrays import (solve as py_solve, inv, dot_product, norm2, matrix_vector_dot, eye,
                      array_as_tridiagonals, tridiagonals_as_array, transpose,
                      solve_tridiagonal, subset_matrix, argsort1d, shape, sort_paired_lists,
-                     stack_vectors, matrix_multiply, transpose, eye, inv, sum_matrix_rows, gelsd)
+                     stack_vectors, matrix_multiply, transpose, eye, inv, sum_matrix_rows, gelsd,
+                     null_space)
 
 from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
                                      trunc_exp, trunc_log, cbrt, factorial, comb)

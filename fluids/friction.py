@@ -355,10 +355,6 @@ def Colebrook(Re, eD, tol=None):
     for hundreds of thousand of points within the region 1E-12 < Re < 1E12
     and 0 < eD < 0.1.
 
-    The numerical solution attempts the secant method using `scipy`'s `newton`
-    solver, and in the event of nonconvergence, attempts the `fsolve` solver
-    as well. An initial guess is provided via the `Clamond` function.
-
     The numerical and analytical solution take similar amounts of time; the
     `mpmath` solution used when `tol=0` is approximately 45 times slower. This
     function takes approximately 8 us normally.
