@@ -129,6 +129,8 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
            'bounds_clip_naive', 'nelder_mead', 'cbrt',
            'polyint_stable', 'polyint_over_x_stable',
            'argsort1d', 'poly_convert',
+
+           'cumulative_trapezoid',
            ]
 
 from fluids.numerics import doubledouble
@@ -386,6 +388,57 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
     else:
         return y
 
+def cumulative_trapezoid(y, x=None, dx=None):
+    """Compute cumulative integral using trapezoidal rule.
+    
+    Parameters
+    ----------
+    y : list[float]
+        Values of the function to integrate
+    x : list[float], optional
+        The x coordinates. If None, assumes unit spacing.
+        
+    Returns
+    -------
+    list[float]
+        Cumulative integral. Length is len(y)-1
+        
+    Examples
+    --------
+    >>> x = [0, 1, 2]
+    >>> y = [1, 2, 3]  # y = x + 1
+    >>> cumulative_trapezoid(y, x)  # Integral of (x+1) is x^2/2 + x
+    [1.5, 4.0]
+    """
+    if not y:
+        return []
+        
+    n = len(y)
+    if n < 2:
+        return []
+    
+    if x is None:
+        # Unit spacing
+        if dx is None:
+            raise ValueError("either dx or x should be provided")
+        result = []
+        integral = 0.0
+        for i in range(n-1):
+            integral += (y[i] + y[i+1]) * dx*0.5
+            result.append(integral)
+        return result
+    
+    if len(x) != n:
+        raise ValueError("x and y must have same length")
+    
+    # potentially variable spacing
+    result = []
+    integral = 0.0
+    for i in range(n-1):
+        dx = x[i+1] - x[i]
+        integral += (y[i] + y[i+1]) * dx*0.5
+        result.append(integral)
+    return result
 
 def logspace(start, stop, num=50, endpoint=True, base=10.0, dtype=None):
     y = linspace(start, stop, num=num, endpoint=endpoint)
@@ -5345,7 +5398,7 @@ scipy_root_options = ('hybr', 'lm', 'broyden1', 'broyden2', 'anderson',
                       'linearmixing', 'diagbroyden', 'excitingmixing', 'krylov', 'df-sane')
 scipy_root_options_set = frozenset(scipy_root_options)
 
-python_solvers = ('newton_system', 'newton_system_line_search', 'newton_system_line_search_progress',
+python_solvers = ('newton_system', 'newton_system_line_search', 'newton_system_line_search_progress', 'newton_minimize',
                   'homotopy_solver', 'broyden2_python', 'fixed_point', 'fixed_point_aitken', 'fixed_point_gdem', 'fixed_point_anderson')
 python_solvers_set = frozenset(python_solvers)
 
@@ -5381,7 +5434,8 @@ class SolverInterface(object):
                  'jacobian_perturbation', 'jacobian_zero_offset', 'jacobian_method', 
                  'jacobian_order', 'objf_numpy', 'matrix_solver', 'jacobian_numpy',
                  'solver_numpy', 'objf', 'solver_analytical_jac', 'hess_iter',
-                 'hess_fval_count', 'hessian_method', 'hessian_numpy')
+                 'hess_fval_count', 'hessian_method', 'hessian_numpy',
+                 'scalar_objective')
 
     def objf_counting(self, *args):
         self.fval_iter += 1
@@ -5431,10 +5485,18 @@ class SolverInterface(object):
         jval = self.original_jac(x, *args)
         return 2.0*np.dot(fval, jval)
 
+    def objf_python_return_numpy_scalar(self, x, *args):
+        self.fval_iter += 1
+        return float(self.objf_original(x if type(x) is list else x.tolist(), *args))
+
+    def objf_numpy_return_python_scalar(self, x, *args):
+        self.fval_iter += 1
+        return float(self.objf_original(np.array(x), *args))
+
     def __init__(self, method, objf, jac=None, xtol=1e-8, ytol=None, maxiter=100, damping=1.0,
                  jacobian_method='python', jacobian_perturbation=1e-9, jacobian_zero_offset=1e-7,
                  hessian_method='python',
-                 jacobian_order=1, objf_numpy=False, matrix_solver=py_solve):
+                 jacobian_order=1, objf_numpy=False, matrix_solver=py_solve, scalar_objective=False):
         self.method, self.objf_original, self.original_jac = method, objf, jac
         self.xtol, self.ytol, self.maxiter, self.damping = xtol, ytol, maxiter, damping
         
@@ -5460,33 +5522,47 @@ class SolverInterface(object):
         
         self.minimizing = False
         self.fval_iter = self.jac_iter = self.jac_fval_count = self.hess_iter = self.hess_fval_count = 0
-        
+        self.scalar_objective = scalar_objective
         # whether or not the objf uses numpy
         # if jac is provided it is assumed it is in the same basis
 
-        if method in scipy_minimize_options_set:
-            self.minimizing = True
-            if jacobian_method == 'scipy' and method in scipy_requires_jacobian_options_set:
-                self.jacobian_method = 'python'
-            self.objf = self.objf_numpy_minimizing if objf_numpy else self.objf_python_minimizing
-        elif solver_numpy:
-            if not objf_numpy:
-                self.objf = self.objf_python_return_numpy
+        if self.scalar_objective:
+            # Direct scalar minimization
+            if solver_numpy:
+                if not objf_numpy:
+                    self.objf = self.objf_python_return_numpy_scalar
+                else:
+                    self.objf = self.objf_counting
             else:
-                self.objf = self.objf_counting
+                if objf_numpy:
+                    self.objf = self.objf_numpy_return_python_scalar
+                else:
+                    self.objf = self.objf_counting
         else:
-            if objf_numpy:
-                self.objf = self.objf_numpy_return_python
+            
+            if method in scipy_minimize_options_set:
+                self.minimizing = True
+                if jacobian_method == 'scipy' and method in scipy_requires_jacobian_options_set:
+                    self.jacobian_method = 'python'
+                self.objf = self.objf_numpy_minimizing if objf_numpy else self.objf_python_minimizing
+            elif solver_numpy:
+                if not objf_numpy:
+                    self.objf = self.objf_python_return_numpy
+                else:
+                    self.objf = self.objf_counting
             else:
-                self.objf = self.objf_counting
-                
-        if self.minimizing:
-            if objf_numpy:
-                self.solver_analytical_jac = self.jac_minimizing_numpy
+                if objf_numpy:
+                    self.objf = self.objf_numpy_return_python
+                else:
+                    self.objf = self.objf_counting
+                    
+            if self.minimizing:
+                if objf_numpy:
+                    self.solver_analytical_jac = self.jac_minimizing_numpy
+                else:
+                    self.solver_analytical_jac = self.jac_minimizing
             else:
-                self.solver_analytical_jac = self.jac_minimizing
-        else:
-            self.solver_analytical_jac = self.original_jac
+                self.solver_analytical_jac = self.original_jac
         
                 
                 
@@ -5496,50 +5572,68 @@ class SolverInterface(object):
         self.hess_iter += 1
         fval_iter, hessian_method, objf_numpy, hessian_numpy = self.fval_iter, self.hessian_method, self.objf_numpy, self.hessian_numpy
         return_numpy = type(x) is not list
-        if hessian_method == 'analytical':
-            if objf_numpy and not return_numpy:
-                x = np.array(x)
-            elif return_numpy and not objf_numpy:
-                x = x.tolist()
-            raise NotImplementedError
-            h = self.solver_analytical_hess(x, *args)
-        else:
-            # if the hessian method doesn't speak numpy, convert x to a list
-            if not hessian_numpy:
+
+        if self.scalar_objective:
+            # For scalar objectives, always use the efficient scalar calculator
+            if not self.hessian_numpy:
                 x = x if type(x) is list else x.tolist()
             else:
                 x = np.array(x)
-            # If the objf doesn't speak numpy but the hessian does, use the converter
-            if self.minimizing:
-                if objf_numpy:
-                    objf = self.objf_numpy_minimizing
-                else:
-                    objf = self.objf_python_minimizing
+            # Use the correct objf based on numpy/python preferences
+            if self.objf_numpy:
+                objf = self.objf_counting
             else:
+                objf = self.objf_python_return_numpy if self.hessian_numpy else self.objf_counting
+                
+            h = hessian(objf, x, scalar=True, 
+                       perturbation=self.jacobian_perturbation,
+                       zero_offset=self.jacobian_zero_offset, 
+                       args=args)
+        else:
+            if hessian_method == 'analytical':
+                if objf_numpy and not return_numpy:
+                    x = np.array(x)
+                elif return_numpy and not objf_numpy:
+                    x = x.tolist()
+                raise NotImplementedError
+                h = self.solver_analytical_hess(x, *args)
+            else:
+                # if the hessian method doesn't speak numpy, convert x to a list
                 if not hessian_numpy:
-                    if objf_numpy:
-                        objf = self.objf_numpy_return_python
-                    else:
-                        objf = self.objf_counting
+                    x = x if type(x) is list else x.tolist()
                 else:
+                    x = np.array(x)
+                # If the objf doesn't speak numpy but the hessian does, use the converter
+                if self.minimizing:
                     if objf_numpy:
-                        objf = self.objf_counting
+                        objf = self.objf_numpy_minimizing
                     else:
-                        objf = self.objf_python_return_numpy
+                        objf = self.objf_python_minimizing
+                else:
+                    if not hessian_numpy:
+                        if objf_numpy:
+                            objf = self.objf_numpy_return_python
+                        else:
+                            objf = self.objf_counting
+                    else:
+                        if objf_numpy:
+                            objf = self.objf_counting
+                        else:
+                            objf = self.objf_python_return_numpy
 
-            if hessian_method.startswith('numdifftools'):
-                import numdifftools as nd
-            if hessian_method == 'python':
-                h = hessian(objf, x, scalar=self.minimizing, perturbation=1e-4,
-                             zero_offset=self.jacobian_zero_offset, args=args)
+                if hessian_method.startswith('numdifftools'):
+                    import numdifftools as nd
+                if hessian_method == 'python':
+                    h = hessian(objf, x, scalar=self.minimizing, perturbation=1e-4,
+                                zero_offset=self.jacobian_zero_offset, args=args)
 
-            elif hessian_method == 'numdifftools_forward':
-                h = nd.Hessian(objf, method='forward')(x)
-            elif hessian_method == 'numdifftools_reverse':
-                h = nd.Hessian(objf, method='reverse')(x)
-            elif hessian_method == 'numdifftools_central':
-                h = nd.Hessian(objf, method='central')(x)
-        
+                elif hessian_method == 'numdifftools_forward':
+                    h = nd.Hessian(objf, method='forward')(x)
+                elif hessian_method == 'numdifftools_reverse':
+                    h = nd.Hessian(objf, method='reverse')(x)
+                elif hessian_method == 'numdifftools_central':
+                    h = nd.Hessian(objf, method='central')(x)
+            
         # Up the hessian fval count, set the fval back
         self.hess_fval_count += self.fval_iter - fval_iter
         self.fval_iter = fval_iter
@@ -5557,60 +5651,78 @@ class SolverInterface(object):
         self.jac_iter += 1
         fval_iter, jacobian_method, objf_numpy, jacobian_numpy = self.fval_iter, self.jacobian_method, self.objf_numpy, self.jacobian_numpy
         return_numpy = type(x) is not list
-        if jacobian_method == 'analytical':
-            if objf_numpy and not return_numpy:
-                x = np.array(x)
-            elif return_numpy and not objf_numpy:
-                x = x.tolist()
-            j = self.solver_analytical_jac(x, *args)
-        else:
-            # if the jacobian method doesn't speak numpy, convert x to a list
-            if not jacobian_numpy:
+        if self.scalar_objective:
+            # For scalar objectives, always use the efficient scalar calculator
+            if not self.jacobian_numpy:
                 x = x if type(x) is list else x.tolist()
             else:
                 x = np.array(x)
-            # If the objf doesn't speak numpy but the jacobian does, use the converter
-            if self.minimizing:
-                if objf_numpy:
-                    objf = self.objf_numpy_minimizing
-                else:
-                    objf = self.objf_python_minimizing
+                
+            # Use the correct objf based on numpy/python preferences
+            if self.objf_numpy:
+                objf = self.objf_counting
             else:
+                objf = self.objf_python_return_numpy if self.jacobian_numpy else self.objf_counting
+                
+            j = jacobian(objf, x, scalar=True, 
+                        perturbation=self.jacobian_perturbation,
+                        zero_offset=self.jacobian_zero_offset, 
+                        args=args)
+        else:
+            if jacobian_method == 'analytical':
+                if objf_numpy and not return_numpy:
+                    x = np.array(x)
+                elif return_numpy and not objf_numpy:
+                    x = x.tolist()
+                j = self.solver_analytical_jac(x, *args)
+            else:
+                # if the jacobian method doesn't speak numpy, convert x to a list
                 if not jacobian_numpy:
-                    if objf_numpy:
-                        objf = self.objf_numpy_return_python
-                    else:
-                        objf = self.objf_counting
+                    x = x if type(x) is list else x.tolist()
                 else:
+                    x = np.array(x)
+                # If the objf doesn't speak numpy but the jacobian does, use the converter
+                if self.minimizing:
                     if objf_numpy:
-                        objf = self.objf_counting
+                        objf = self.objf_numpy_minimizing
                     else:
-                        objf = self.objf_python_return_numpy
+                        objf = self.objf_python_minimizing
+                else:
+                    if not jacobian_numpy:
+                        if objf_numpy:
+                            objf = self.objf_numpy_return_python
+                        else:
+                            objf = self.objf_counting
+                    else:
+                        if objf_numpy:
+                            objf = self.objf_counting
+                        else:
+                            objf = self.objf_python_return_numpy
 
-            if jacobian_method.startswith('numdifftools'):
-                import numdifftools as nd
-                numdifftools_func = nd.Gradient if self.minimizing else nd.Jacobian
-                step = self.jacobian_perturbation*x
-                step[np.where(step==0)] = self.jacobian_zero_offset
-            elif jacobian_method.startswith('jacobi'):
-                from jacobi import jacobi
-            if jacobian_method == 'python':
-                j = jacobian(objf, x, scalar=self.minimizing, perturbation=self.jacobian_perturbation,
-                             zero_offset=self.jacobian_zero_offset, args=args)
+                if jacobian_method.startswith('numdifftools'):
+                    import numdifftools as nd
+                    numdifftools_func = nd.Gradient if self.minimizing else nd.Jacobian
+                    step = self.jacobian_perturbation*x
+                    step[np.where(step==0)] = self.jacobian_zero_offset
+                elif jacobian_method.startswith('jacobi'):
+                    from jacobi import jacobi
+                if jacobian_method == 'python':
+                    j = jacobian(objf, x, scalar=self.minimizing, perturbation=self.jacobian_perturbation,
+                                zero_offset=self.jacobian_zero_offset, args=args)
 
-            elif jacobian_method == 'numdifftools_forward':
-                j = numdifftools_func(objf, method='forward', order=self.jacobian_order, step=step)(x)
-            elif jacobian_method == 'numdifftools_reverse':
-                j = numdifftools_func(objf, method='reverse', order=self.jacobian_order, step=step)(x)
-            elif jacobian_method == 'numdifftools_central':
-                j = numdifftools_func(objf, method='central', order=self.jacobian_order, step=step)(x)
+                elif jacobian_method == 'numdifftools_forward':
+                    j = numdifftools_func(objf, method='forward', order=self.jacobian_order, step=step)(x)
+                elif jacobian_method == 'numdifftools_reverse':
+                    j = numdifftools_func(objf, method='reverse', order=self.jacobian_order, step=step)(x)
+                elif jacobian_method == 'numdifftools_central':
+                    j = numdifftools_func(objf, method='central', order=self.jacobian_order, step=step)(x)
 
-            elif jacobian_method == 'jacobi_forward':
-                j = jacobi(objf, x, method=1)[0]
-            elif jacobian_method == 'jacobi_central':
-                j = jacobi(objf, x, method=0)[0]
-            elif jacobian_method == 'jacobi_backward':
-                j = jacobi(objf, x, method=1)[0]
+                elif jacobian_method == 'jacobi_forward':
+                    j = jacobi(objf, x, method=1)[0]
+                elif jacobian_method == 'jacobi_central':
+                    j = jacobi(objf, x, method=0)[0]
+                elif jacobian_method == 'jacobi_backward':
+                    j = jacobi(objf, x, method=1)[0]
         
         # Up the jacobian fval count, set the fval back
         self.jac_fval_count += self.fval_iter - fval_iter
@@ -5678,6 +5790,12 @@ class SolverInterface(object):
             jac = self.jacobian if jacobian_method != 'scipy' else None
             hess = self.hessian if method in scipy_requires_hessian_options_set else None
             result = minimize(self.objf, x0, args=args, method=method, jac=jac, tol=self.xtol, hess=hess)
+        elif method == 'newton_minimize':
+            sln, niter = newton_minimize(
+                    self.objf, x0, jac=self.jacobian, hess=self.hessian,
+                    xtol=self.xtol, ytol=self.ytol, 
+                    maxiter=self.maxiter, damping=self.damping,
+                    args=args)
         if process_root:
             sln = result.x
             

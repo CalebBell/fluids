@@ -48,7 +48,7 @@ Vacuum Air Leakage Estimation
 from math import exp, log, pi, sqrt
 
 from fluids.constants import foot_cubed_inv, hour_inv, inchHg, lb, mmHg_inv, torr_inv
-from fluids.numerics import brenth, secant
+from fluids.numerics import brenth, secant, SolverInterface
 from fluids.numerics import numpy as np
 
 __all__ = ['liquid_jet_pump', 'liquid_jet_pump_ancillary',
@@ -558,35 +558,22 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
         return vals
 
     with np.errstate(all='ignore'):
-        from scipy.optimize import fsolve, root
+        def solve_with_newton(var_guesses):
+            solver = SolverInterface(method='newton_system_line_search_progress', objf=obj_err, xtol=3E-7, maxiter=100, jacobian_perturbation=1e-7)
+            solution = solver.solve(var_guesses)
+            errs = obj_err(solution)
 
-        def solve_with_fsolve(var_guesses):
-            res = fsolve(obj_err, var_guesses, full_output=True)
-            if sum(abs(res[1]['fvec'])) > 1E-7:
+            if (abs(errs[0]) + abs(errs[1])) > 1E-5:
                 raise ValueError('Could not solve')
 
-            for u, v in zip(unknown_vars, res[0].tolist()):
+            for u, v in zip(unknown_vars, solution):
                 vals[u] = abs(v)
             return vals
 
         try:
-            return solve_with_fsolve(var_guesses)
+            return solve_with_newton(var_guesses)
         except:
             pass
-
-        # Tying different guesses with fsolve is faster than trying different solvers
-        for meth in ['hybr', 'lm', 'broyden1', 'broyden2']:
-            try:
-                res = root(obj_err, var_guesses, method=meth, tol=1E-9)
-                if sum(abs(res['fun'])) > 1E-7:
-                    raise ValueError('Could not solve')
-
-                for u, v in zip(unknown_vars, res['x'].tolist()):
-                    vals[u] = abs(v)
-                return vals
-            except (ValueError, OverflowError):
-                continue
-
         # Just do variations on this until it works
         for _ in range(int(max_variations/8)):
             for idx in [0, 1]:
@@ -595,7 +582,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
                     try:
                         l = list(var_guesses)
                         l[idx] = l[idx]*i
-                        return solve_with_fsolve(l)
+                        return solve_with_newton(l)
                     except:
                         pass
         # Vary both parameters at once
@@ -608,7 +595,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
                         l = list(var_guesses)
                         l[0] = l[0]*i
                         l[1] = l[1]*j
-                        return solve_with_fsolve(l)
+                        return solve_with_newton(l)
                     except:
                         pass
         raise ValueError('Could not solve')

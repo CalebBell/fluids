@@ -1900,6 +1900,9 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
                 x0 = [d_characteristic, m]
         elif distribution == 'RR' and x0 is None:
             x0 = [5E-6, 1e-2]
+        # from fluids.numerics import SolverInterface
+        # solver = SolverInterface('newton_minimize', self._fit_obj_function, xtol=1e-10, jacobian_perturbation=1e-5, scalar_objective=True, **kwargs)
+        # return solver.solve(x0, args=(dist, n))
         from scipy.optimize import minimize
         return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)
 
@@ -2239,7 +2242,7 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
     truncated = False
     def __init__(self, ds, fractions, order=3, monotonic=True):
         self.order = order
-        self.monotonic = monotonic
+        self.monotonic = monotonic # always true now
         self.parameters = {}
 
         ds = list(ds)
@@ -2264,16 +2267,8 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
         self.fraction_cdf = cumsum(fractions)
         if self.monotonic:
             from scipy.interpolate import PchipInterpolator
-            globals()['PchipInterpolator'] = PchipInterpolator
-
             self.cdf_spline = PchipInterpolator(ds, self.fraction_cdf, extrapolate=True)
             self.pdf_spline = PchipInterpolator(ds, self.fraction_cdf, extrapolate=True).derivative(1)
-        else:
-            from scipy.interpolate import UnivariateSpline
-            globals()['UnivariateSpline'] = UnivariateSpline
-
-            self.cdf_spline = UnivariateSpline(ds, self.fraction_cdf, ext=3, s=0)
-            self.pdf_spline = UnivariateSpline(ds, self.fraction_cdf, ext=3, s=0).derivative(1)
 
         # The pdf basis integral splines will be stored here
         self.basis_integrals = {}
@@ -2302,8 +2297,5 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
             if self.monotonic:
                 from scipy.interpolate import PchipInterpolator
                 self.basis_integrals[n] = PchipInterpolator(ds, basis_integral, extrapolate=True).antiderivative(1)
-            else:
-                from scipy.interpolate import UnivariateSpline
-                self.basis_integrals[n] = UnivariateSpline(ds, basis_integral, ext=3, s=0).antiderivative(n=1)
         return max(float(self.basis_integrals[n](d)), 0.0)
 

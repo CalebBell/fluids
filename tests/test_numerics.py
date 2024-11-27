@@ -98,6 +98,7 @@ from fluids.numerics import (
     fixed_point_aitken, 
     fixed_point_gdem,
     fixed_point_anderson,
+    cumulative_trapezoid,
 )
 from fluids.numerics import numpy as np
 
@@ -292,6 +293,55 @@ def test_bisplev():
     ys_scipy = bisplev(0.5, .7, tck)
     ys = my_bisplev(.5, .7, my_tck)
     assert_allclose(ys, ys_scipy)
+
+def test_cumulative_trapezoid():
+    """Test the cumulative_trapezoid implementation against scipy's version
+    and known analytical solutions."""
+    from scipy.integrate import cumulative_trapezoid as scipy_cumtrapz
+    
+    # Compare against scipy for linear function
+    x = np.linspace(-2, 2, num=20).tolist()
+    y = x.copy()  # f(x) = x, integral should be x^2/2
+    y_scipy = scipy_cumtrapz(y, x).tolist()
+    y_py = cumulative_trapezoid(y, x)
+    assert_allclose(y_py, y_scipy)
+
+    # Unit spacing (x=1)
+    y = [1, 2, 3, 4]  # Integral should be [1.5, 4.0, 7.5]
+    y_scipy = scipy_cumtrapz(y, dx=1).tolist()
+    y_py = cumulative_trapezoid(y, dx=1)
+    assert_allclose(y_py, y_scipy)
+    
+    # Error handling
+    # Test mismatched lengths
+    with pytest.raises(ValueError):
+        cumulative_trapezoid([1, 2, 3], [1, 2])
+    
+    # Non-uniform spacing
+    x = [0, 1, 4, 10]  # Non-uniform grid
+    y = [0, 1, 4, 10]  # f(x) = x
+    y_scipy = scipy_cumtrapz(y, x).tolist()
+    y_py = cumulative_trapezoid(y, x)
+    assert_allclose(y_py, y_scipy)
+    
+    # Constant function
+    x = np.linspace(0, 1, 5).tolist()
+    y = [2.0] * 5  # f(x) = 2
+    y_scipy = scipy_cumtrapz(y, x).tolist()
+    y_py = cumulative_trapezoid(y, x)
+    assert_allclose(y_py, y_scipy)
+    
+    # Negative values
+    x = [-2, -1, 0, 1, 2]
+    y = [-4, -1, 0, 1, 4]
+    y_scipy = scipy_cumtrapz(y, x).tolist()
+    y_py = cumulative_trapezoid(y, x)
+    assert_allclose(y_py, y_scipy)
+
+    # Test empty inputs
+    assert cumulative_trapezoid([]) == []
+    assert cumulative_trapezoid([1]) == []
+    
 
 
 def test_linspace():

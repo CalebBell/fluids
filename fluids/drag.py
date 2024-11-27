@@ -66,7 +66,7 @@ from math import exp, log, log10, sqrt, tanh
 
 from fluids.constants import g
 from fluids.core import Reynolds
-from fluids.numerics import secant
+from fluids.numerics import secant, cumulative_trapezoid
 
 __all__ = ['drag_sphere', 'drag_sphere_methods', 'v_terminal', 'integrate_drag_sphere',
 'time_v_terminal_Stokes', 'Stokes',
@@ -1504,7 +1504,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     '''
     # Delayed import of necessaray functions
     import numpy as np
-    from scipy.integrate import cumulative_trapezoid, odeint
+    from scipy.integrate import odeint
     laminar_initial = Reynolds(V=V, rho=rho, D=D, mu=mu) < 0.01
     v_laminar_end_assumed = v_terminal(D=D, rhop=rhop, rho=rho, mu=mu, Method=Method)
     laminar_end = Reynolds(V=v_laminar_end_assumed, rho=rho, D=D, mu=mu) < 0.01
@@ -1577,7 +1577,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     V_end = float(Vs[-1][0])
     if distance:
         # Calculate the distance traveled
-        x = float(cumulative_trapezoid(np.ravel(Vs), ts)[-1])
+        x = cumulative_trapezoid(np.ravel(Vs).tolist(), ts.tolist())[-1]
         return V_end, x
     else:
         return V_end

@@ -3736,9 +3736,9 @@ class TANK:
         else:
             self.heights = linspace(0.0, self.h_max, n)
         self.volumes = [self.V_from_h(h) for h in self.heights]
-        from scipy.interpolate import UnivariateSpline
+        from scipy.interpolate import PchipInterpolator
         # TODO replace with splrep/splev to avoid the object
-        self.interp_h_from_V = UnivariateSpline(self.volumes, self.heights, ext=3, s=0.0)
+        self.interp_h_from_V = PchipInterpolator(self.volumes, self.heights, extrapolate=False)
         self.table = True
 
     def set_chebyshev_approximators(self, deg_forward=50, deg_backwards=200):
