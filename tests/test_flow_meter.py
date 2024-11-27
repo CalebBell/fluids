@@ -247,11 +247,11 @@ def test_differential_pressure_meter_discharge():
 
     # Cone meter
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
-    assert_close(m, 9.997923896460703)
+    assert_close(m, 12.33112236221754)
 
     # wedge meter
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
-    assert_close(m, 8.941980099523539)
+    assert_close(m, 18.010019841564873)
 
     with pytest.raises(ValueError):
         differential_pressure_meter_solver(D=.07366, m=7.702338, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
@@ -283,11 +283,11 @@ def test_differential_pressure_meter_diameter():
     assert_close(D2, 0.05)
 
     # Cone meter
-    D2 = differential_pressure_meter_solver(D=0.07366, m=9.997923896460703, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
+    D2 = differential_pressure_meter_solver(D=0.07366, m=12.33112236221754, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
     assert_close(D2, 0.05)
 
     # wedge meter
-    D2 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
+    D2 = differential_pressure_meter_solver(D=0.07366, m=18.010019841564873, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
     assert_close(D2, 0.05)
 
 
@@ -316,11 +316,11 @@ def test_differential_pressure_meter_P2():
     assert_close(P2, 183000.0)
 
     # Cone meter
-    P2 = differential_pressure_meter_solver(D=0.07366, m=9.997923896460703, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
+    P2 = differential_pressure_meter_solver(D=0.07366, m=12.33112236221754, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
     assert_close(P2, 183000.0)
 
     # Wedge meter
-    P2 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
+    P2 = differential_pressure_meter_solver(D=0.07366, m=18.010019841564873, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
     assert_close(P2, 183000.0)
 
 def test_differential_pressure_meter_P1():
@@ -348,11 +348,11 @@ def test_differential_pressure_meter_P1():
     assert_close(P1, 200000)
 
     # Cone meter
-    P1 = differential_pressure_meter_solver(D=0.07366, m=9.997923896460703, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
+    P1 = differential_pressure_meter_solver(D=0.07366, m=12.33112236221754, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=CONE_METER)
     assert_close(P1, 200000)
 
     # Wedge meter
-    P1 = differential_pressure_meter_solver(D=0.07366, m=8.941980099523539, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
+    P1 = differential_pressure_meter_solver(D=0.07366, m=18.010019841564873, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=WEDGE_METER)
     assert_close(P1, 200000)
 
 

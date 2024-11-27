@@ -196,13 +196,12 @@ __all__.extend(['CONCENTRIC_ORIFICE', 'ECCENTRIC_ORIFICE',
                 'QUARTER_CIRCLE_ORIFICE'])
 
 
-def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
-    r'''Calculates the flow rate of an orifice plate based on the geometry
-    of the plate, measured pressures of the orifice, and the density of the
-    fluid.
+def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='ISO 5167 orifice'):
+    r'''Calculates the flow rate of a differential pressure flow meter based on the 
+    geometry of the meter, measured pressures, and the density of the fluid.
 
     .. math::
-        m = \left(\frac{\pi D_o^2}{4}\right) C \frac{\sqrt{2\Delta P \rho_1}}
+        m = \left(\frac{\pi (D\beta)^2}{4}\right) C \frac{\sqrt{2\Delta P \rho_1}}
         {\sqrt{1 - \beta^4}}\cdot \epsilon
 
     Parameters
@@ -210,20 +209,26 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
     D : float
         Upstream internal pipe diameter, [m]
     Do : float
-        Diameter of orifice at flow conditions, [m]
+        Meter characteristic dimension - for orifices the diameter of the orifice
+        hole; for flow tubes and venturi meters the throat diameter; for cone
+        meters the end diameter; for wedge meters the fluid flow height, [m]
     P1 : float
-        Static pressure of fluid upstream of orifice at the cross-section of
+        Static pressure of fluid upstream of the meter at the cross-section of
         the pressure tap, [Pa]
     P2 : float
-        Static pressure of fluid downstream of orifice at the cross-section of
+        Static pressure of fluid downstream of the meter at the cross-section of
         the pressure tap, [Pa]
     rho : float
         Density of fluid at `P1`, [kg/m^3]
     C : float
-        Coefficient of discharge of the orifice, [-]
+        Coefficient of discharge of the meter, [-]
     expansibility : float, optional
         Expansibility factor (1 for incompressible fluids, less than 1 for
         real fluids), [-]
+    meter_type : str, optional
+        The type of differential pressure meter. All types use a different formula
+        for their beta ratio calculation. If unspecified, uses the ISO 5167 orifice 
+        formula; one of the types listed in the `all_meters` variable, [-]
 
     Returns
     -------
@@ -232,13 +237,19 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
 
     Notes
     -----
-    This is formula 1-12 in [1]_ and also [2]_.
+    This is formula 1-12 in [1]_ and also [2]_. Note however, that for wedge
+    meters and cone meters, this same form of the equation is used but the
+    beta ratio is calculated differently.
 
     Examples
     --------
     >>> flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646,
     ... C=0.5988, expansibility=0.9975)
     0.01120390943807026
+    
+    >>> flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646,
+    ... C=0.5988, expansibility=0.9975, meter_type='cone meter')
+    0.2709595056939325
 
     References
     ----------
@@ -248,9 +259,10 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0):
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 2: Orifice Plates.
     '''
-    beta = Do/D
+    beta = differential_pressure_meter_beta(D=D, D2=Do, meter_type=meter_type)
     beta2 = beta*beta
-    return (0.25*pi*Do*Do)*C*expansibility*sqrt((2.0*rho*(P1 - P2))/(1.0 - beta2*beta2))
+    D_beta = D*beta
+    return (0.25*pi*D_beta*D_beta)*C*expansibility*sqrt((2.0*rho*(P1 - P2))/(1.0 - beta2*beta2))
 
 
 def orifice_expansibility(D, Do, P1, P2, k):
@@ -2614,7 +2626,7 @@ def err_dp_meter_solver_m(m_D, D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_
                                                   taps=taps, tap_position=tap_position,
                                                   C_specified=C_specified, epsilon_specified=epsilon_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho,
-                                C=C, expansibility=epsilon)
+                                C=C, expansibility=epsilon, meter_type=meter_type)
     err =  m - m_calc
     return err
 
@@ -2624,7 +2636,7 @@ def err_dp_meter_solver_P2(P2, D, D2, m, P1, rho, mu, k, meter_type, taps, tap_p
                                                   taps=taps, tap_position=tap_position,
                                                   C_specified=C_specified, epsilon_specified=epsilon_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho,
-                                C=C, expansibility=epsilon)
+                                C=C, expansibility=epsilon, meter_type=meter_type)
     return m - m_calc
 
 def err_dp_meter_solver_D2(D2, D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified):
@@ -2633,7 +2645,7 @@ def err_dp_meter_solver_D2(D2, D, m, P1, P2, rho, mu, k, meter_type, taps, tap_p
                                                   taps=taps, tap_position=tap_position, C_specified=C_specified,
                                                   epsilon_specified=epsilon_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho,
-                                C=C, expansibility=epsilon)
+                                C=C, expansibility=epsilon, meter_type=meter_type)
     return m - m_calc
 
 def err_dp_meter_solver_P1(P1, D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified):
@@ -2642,7 +2654,7 @@ def err_dp_meter_solver_P1(P1, D, D2, m, P2, rho, mu, k, meter_type, taps, tap_p
                                                   taps=taps, tap_position=tap_position, C_specified=C_specified,
                                                   epsilon_specified=epsilon_specified)
     m_calc = flow_meter_discharge(D=D, Do=D2, P1=P1, P2=P2, rho=rho,
-                                C=C, expansibility=epsilon)
+                                C=C, expansibility=epsilon, meter_type=meter_type)
     return m - m_calc
 
 def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=None,

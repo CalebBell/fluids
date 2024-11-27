@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [1.0.28] - 2024-11-28
+
+### Fixed
+- Fixed differential_pressure_meter_solver to use meter-specific beta calculation; cone and wedge meters were not calculated correctly before this change 
+ 
+
 
 ## [1.0.27] - 2024-11-10
 
