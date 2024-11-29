@@ -4791,29 +4791,23 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
     return sp
 
 
-def py_bisplev(x, y, tck, dx=0, dy=0):
-    """Evaluate a bivariate B-spline or its derivatives. For scalars, returns a
-    float; for other inputs, mimics the formats of SciPy's `bisplev`.
+def py_bisplev(x, y, tck):
+    """Evaluate a bivariate B-spline.
 
     Parameters
     ----------
-    x : float or list[float]
-        x value (rank 1), [-]
-    y : float or list[float]
-        y value (rank 1), [-]
+    x : float 
+        x value, [-]
+    y : float
+        y value, [-]
     tck : tuple(list, list, list, int, int)
         Tuple of knot locations, coefficients, and the degree of the spline,
         [tx, ty, c, kx, ky], [-]
-    dx : int, optional
-        Order of partial derivative with respect to `x`, [-]
-    dy : int, optional
-        Order of partial derivative with respect to `y`, [-]
 
     Returns
     -------
-    values : float or list[list[float]]
-        Calculated values from spline or their derivatives; according to the
-        same format as SciPy's `bisplev`, [-]
+    value : float
+        Calculated values from spline, [-]
 
     Notes
     -----
@@ -4821,15 +4815,7 @@ def py_bisplev(x, y, tck, dx=0, dy=0):
     port of it.
     """
     tx, ty, c, kx, ky = tck
-    if isinstance(x, (float, int)):
-        x = [x]
-    if isinstance(y, (float, int)):
-        y = [y]
-
-    z = [[bispev_inner(tx, ty, c, kx, ky, xi, yi) for yi in y] for xi in x]
-    if len(x) == len(y) == 1:
-        return z[0][0]
-    return z
+    return bispev_inner(tx, ty, c, kx, ky, x, y)
 
 
 def fpbspl(t, n, k, x, l, h, hh):

@@ -287,7 +287,7 @@ def test_bisplev():
     zs = np.linspace(0, 1, 10)
 
     ys_scipy = bisplev(xs, zs, tck)
-    ys = my_bisplev(xs, zs, my_tck)
+    ys = [[my_bisplev(xi, zi, my_tck) for zi in zs] for xi in xs]
     assert_allclose(ys, ys_scipy)
 
     ys_scipy = bisplev(0.5, .7, tck)
