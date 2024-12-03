@@ -99,7 +99,7 @@ def log_uniform(low, high):
 
 def test_fittings():
 
-    K = entrance_beveled_orifice(Di=0.1, do=.07, l=0.003, angle=45.0)
+    K = entrance_beveled_orifice(Di=0.1, Do=.07, l=0.003, angle=45.0)
     assert_close(K, 1.2987552913818574)
 
     ### Exits

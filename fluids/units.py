@@ -204,6 +204,63 @@ def check_args_order(func):
         raise ValueError(f'Function {func.__name__} signature is not the same as the documentation'
                         f' signature = {argspec.args}; documentation = {parsed_parameters}')
 
+def check_module_docstring_parameters(module, bad_names={'__getattr__', 'all_submodules'}):
+    """Reads all functions in a module and compares their Parameters and Other
+    Parameters sections from their numpydoc docstrings with the actual function 
+    signatures. Raises an exception if any functions have mismatched definitions.
+
+    Parameters
+    ----------
+    module : module
+        The Python module whose functions should be checked
+    bad_names : set[str], optional
+        Set of function names to skip during checking [-]
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    AssertionError
+        If any function's signature does not match its docstring parameters
+
+    Examples
+    --------
+    >>> import fluids
+    >>> check_module_docstring_parameters(fluids)
+    """
+    for name in dir(module):
+        if name in bad_names:
+            continue
+            
+        obj = getattr(module, name)
+        if not isinstance(obj, types.FunctionType):
+            continue
+            
+        if ((hasattr(obj, 'func_name') and obj.func_name == '<lambda>') or 
+            (hasattr(obj, '__name__') and obj.__name__ == '<lambda>')):
+            continue
+
+        if not obj.__doc__:
+            continue
+
+        try:
+            sig_params = list(inspect.signature(obj).parameters.keys())
+        except:
+            sig_params = inspect.getargspec(obj).args
+
+        parsed = parse_numpydoc_variables_units(obj)
+        doc_params = parsed['Parameters']['vars']
+
+        if 'Other Parameters' in parsed:
+            doc_params.extend(parsed['Other Parameters']['vars'])
+
+        if isinstance(obj, types.MethodType) and sig_params and sig_params[0] == 'self':
+            sig_params = sig_params[1:]
+
+        assert sig_params == doc_params, \
+            f"Mismatch in {obj.__name__}:\nSignature: {sig_params}\nDocstring: {doc_params}"
 
 def match_parse_units(doc, i=-1):
     if doc is None:

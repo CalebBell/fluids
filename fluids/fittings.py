@@ -847,21 +847,21 @@ def entrance_beveled(Di, l, angle, method='Rennels'):
         raise ValueError(entrance_beveled_methods_unknown_msg)
 
 
-def entrance_beveled_orifice(Di, do, l, angle):
+def entrance_beveled_orifice(Di, Do, l, angle):
     r'''Returns loss coefficient for a beveled or chamfered orifice entrance to
     a pipe flush with the wall of a reservoir, as shown in [1]_.
 
     .. math::
-        K = 0.0696\left(1 - C_b\frac{l}{d_o}\right)\lambda^2 + \left(\lambda
-        -\left(\frac{d_o}{D_i}\right)^2\right)^2
+        K = 0.0696\left(1 - C_b\frac{l}{D_o}\right)\lambda^2 + \left(\lambda
+        -\left(\frac{D_o}{D_i}\right)^2\right)^2
 
     .. math::
-        \lambda = 1 + 0.622\left[1-C_b\left(\frac{l}{d_o}\right)^{\frac{1-
-        (l/d_o)^{0.25}}{2}}\right]
+        \lambda = 1 + 0.622\left[1-C_b\left(\frac{l}{D_o}\right)^{\frac{1-
+        (l/D_o)^{0.25}}{2}}\right]
 
     .. math::
         C_b = \left(1 - \frac{\Psi}{90}\right)\left(\frac{\Psi}{90}
-        \right)^{\frac{1}{1+l/d_o}}
+        \right)^{\frac{1}{1+l/D_o}}
 
     .. figure:: fittings/flush_mounted_beveled_orifice_entrance.png
        :scale: 30 %
@@ -871,7 +871,7 @@ def entrance_beveled_orifice(Di, do, l, angle):
     ----------
     Di : float
         Inside diameter of pipe, [m]
-    do : float
+    Do : float
         Inside diameter of orifice, [m]
     l : float
         Length of bevel measured parallel to the pipe length, [m]
@@ -885,7 +885,7 @@ def entrance_beveled_orifice(Di, do, l, angle):
 
     Examples
     --------
-    >>> entrance_beveled_orifice(Di=0.1, do=.07, l=0.003, angle=45)
+    >>> entrance_beveled_orifice(Di=0.1, Do=.07, l=0.003, angle=45)
     1.2987552913818574
 
     References
@@ -893,9 +893,9 @@ def entrance_beveled_orifice(Di, do, l, angle):
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     '''
-    Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/do ))
-    lbd = 1 + 0.622*(1 - Cb*(l/do)**((1 - sqrt(sqrt(l/do)))/2.))
-    return 0.0696*(1 - Cb*l/do)*lbd**2 + (lbd - (do/Di)**2)**2
+    Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/Do ))
+    lbd = 1 + 0.622*(1 - Cb*(l/Do)**((1 - sqrt(sqrt(l/Do)))/2.))
+    return 0.0696*(1 - Cb*l/Do)*lbd**2 + (lbd - (Do/Di)**2)**2
 
 
 ### Exits

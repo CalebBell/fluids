@@ -27,6 +27,7 @@ import pytest
 
 import fluids
 from fluids.numerics import assert_close, assert_close1d, assert_close2d
+from fluids.units import check_module_docstring_parameters
 from fluids.units import (
     ATMOSPHERE_1976,
     ATMOSPHERE_NRLMSISE00,
@@ -341,7 +342,9 @@ def test_check_signatures():
                 continue # 3
             check_args_order(obj)
 
-
+def test_parse_numpydoc_variables_units():
+    import fluids
+    check_module_docstring_parameters(fluids)
 
 def test_differential_pressure_meter_solver():
     m = differential_pressure_meter_solver(D=0.07366*u.m, D2=0.05*u.m, P1=200000.0*u.Pa,
