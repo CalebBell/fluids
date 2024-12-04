@@ -1192,17 +1192,14 @@ def drag_sphere(Re, Method=None):
     Re : float
         Particle Reynolds number of the sphere using the surrounding fluid
         density and viscosity, [-]
+    Method : string, optional
+        A string of the function name to use, as in the dictionary
+        drag_sphere_correlations
 
     Returns
     -------
     Cd : float
         Drag coefficient [-]
-
-    Other Parameters
-    ----------------
-    Method : string, optional
-        A string of the function name to use, as in the dictionary
-        drag_sphere_correlations
     '''
     if Method is None:
         if Re > 0.1:

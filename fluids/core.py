@@ -2132,7 +2132,7 @@ def Bejan_p(dP, K, mu, alpha):
         Pressure drop, [Pa]
     K : float
         Permeability, [m^2]
-    mu : float, optional
+    mu : float
         Dynamic viscosity, [Pa*s]
     alpha : float
         Thermal diffusivity, [m^2/s]

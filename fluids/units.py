@@ -251,14 +251,14 @@ def check_module_docstring_parameters(module, bad_names={'__getattr__', 'all_sub
             sig_params = inspect.getargspec(obj).args
 
         parsed = parse_numpydoc_variables_units(obj)
-        doc_params = parsed['Parameters']['vars']
+        # need to clone, parse_numpydoc_variables_units is not intended to produce data that can be edited
+        doc_params = list(parsed['Parameters']['vars'])
 
         if 'Other Parameters' in parsed:
             doc_params.extend(parsed['Other Parameters']['vars'])
 
         if isinstance(obj, types.MethodType) and sig_params and sig_params[0] == 'self':
             sig_params = sig_params[1:]
-
         assert sig_params == doc_params, \
             f"Mismatch in {obj.__name__}:\nSignature: {sig_params}\nDocstring: {doc_params}"
 
