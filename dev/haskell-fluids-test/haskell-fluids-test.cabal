@@ -1,0 +1,31 @@
+cabal-version:      2.4
+name:               haskell-fluids-test
+version:            0.1.0.0
+
+-- A short (one-line) description of the package.
+-- synopsis:
+
+-- A longer description of the package.
+-- description:
+
+-- A URL where users can report bugs.
+-- bug-reports:
+
+-- The license under which the package is released.
+-- license:
+author:             Caleb Bell
+maintainer:         Caleb.Andrew.Bell@gmail.com
+
+-- A copyright notice.
+-- copyright:
+-- category:
+extra-source-files: CHANGELOG.md
+
+executable haskell-fluids-test
+    main-is:          Main.hs
+    build-depends:    base ^>=4.15.1.0,
+                      cpython,
+                      time,
+                      text
+    hs-source-dirs:   app
+    default-language: Haskell2010
