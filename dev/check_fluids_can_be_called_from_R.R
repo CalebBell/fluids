@@ -173,6 +173,32 @@ test_psd <- function() {
     stop("PSD test suite failed")
   })
 }
+benchmark_fluids <- function() {
+  fluids <- import("fluids")
+  cat("\nRunning benchmarks:\n")
+  
+  # Benchmark friction factor calculation
+  cat("\nBenchmarking friction_factor:\n")
+  t1 <- system.time({
+    for(i in 1:10000) {
+      fluids$friction_factor(Re=1e5, eD=0.0001)
+    }
+  })
+  cat(sprintf("Time for 10000 friction_factor calls: %.6f seconds\n", t1["elapsed"]))
+  cat(sprintf("Average time per call: %.6f seconds\n", t1["elapsed"]/10000))
+  
+  # Benchmark tank creation
+  cat("\nBenchmarking TANK creation:\n")
+  t2 <- system.time({
+    for(i in 1:1000) {
+      fluids$TANK(L=3, D=5, horizontal=FALSE,
+                  sideA="torispherical", sideB="torispherical",
+                  sideA_f=1, sideA_k=0.1, sideB_f=1, sideB_k=0.1)
+    }
+  })
+  cat(sprintf("Time for 1000 TANK creations: %.6f seconds\n", t2["elapsed"]))
+  cat(sprintf("Average time per creation: %.6f seconds\n", t2["elapsed"]/1000))
+}
 
 # Run the tests
 test_fluids()
@@ -180,3 +206,4 @@ test_atmosphere()
 test_tank()
 test_reynolds()
 test_psd()
+benchmark_fluids()
