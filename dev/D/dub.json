@@ -1,0 +1,16 @@
+{
+    "name": "pyd-test",
+    "description": "A test PyD project",
+    "dependencies": {
+        "pyd": "~>0.14.4"
+    },
+    "targetType": "executable",
+    "configurations": [
+        {
+            "name": "python311",
+            "subConfigurations": {
+                "pyd": "python311"
+            }
+        }
+    ]
+}
