@@ -2,11 +2,21 @@
 
 ## [Unreleased]
 
-## [1.0.28] - 2024-11-28
+## [1.1.0] - 2024-12-07
+
+### Added
+- Numerous examples showing how to use fluids from other programming langues (inspired by advent of code)
 
 ### Fixed
-- Fixed differential_pressure_meter_solver to use meter-specific beta calculation; cone and wedge meters were not calculated correctly before this change 
+- Fixed `differential_pressure_meter_solver` to use meter-specific beta calculation; cone and wedge meters were not calculated correctly in that function before this change
+
+### Changed
+- Internal cleanup
+- Corrected a constant `venuri nozzle` to `venturi nozzle` in the flow meter section
+- Second argument of `entrance_beveled_orifice` was renamed from `do` to `Do` for consistency
  
+### Removed
+- Removed unloved and not installed by default components hwm93 and hwm07; the pyglow (https://github.com/timduly4/pyglow) package provides excellent interfaces to those models and more and is recommended by the author
 
 
 ## [1.0.27] - 2024-11-10

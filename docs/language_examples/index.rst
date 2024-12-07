@@ -1,5 +1,5 @@
-Language Integration Examples
-=============================
+Calling Fluids/Python from Other Languages
+==========================================
 
 Fluids can be called from many different programming languages through various Python bindings and interfaces. 
 These examples demonstrate some of the ways to communicate with or embed Python into a program written in another language.
@@ -10,8 +10,12 @@ The author has developed these examples with AI assistance and does not claim to
 The difficulty of a language integration varies from trivial in Julia to manually managing reference counts and dealing with the C API in Fortran. 
 The intent of these examples is to show possibilities, not to provide complete wrappers for all functionality.
 
-Available Languages
--------------------
+These examples should also show how the `ht <https://github.com/CalebBell/ht>`_, 
+`chemicals <https://github.com/CalebBell/chemicals>`_, and `thermo <https://github.com/CalebBell/thermo>`_ libraries can be used from other languages.
+
+
+Languages
+---------
 
 .. toctree::
    :maxdepth: 1

@@ -27,13 +27,13 @@ import pytest
 from fluids.design_climate import (
     IntegratedSurfaceDatabaseStation,
     StationDataGSOD,
-    _latlongs,
+    get_latlongs,
     cooling_degree_days,
     geocode,
     get_closest_station,
     get_station_year_text,
     heating_degree_days,
-    stations,
+    get_stations,
 )
 from fluids.numerics import assert_close, assert_close1d
 
@@ -82,8 +82,8 @@ def test_IntegratedSurfaceDatabaseStation():
         assert value == getattr(test_station, attr)
 
 def test_data():
-    assert _latlongs.shape[0] >= 27591
-    for station in stations:
+    assert get_latlongs().shape[0] >= 27591
+    for station in get_stations():
         assert abs(station.LAT) <= 90
         assert abs(station.LON) <= 180
 

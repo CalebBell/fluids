@@ -290,7 +290,7 @@ def cooling_degree_days(T, T_base=283.15, truncate=True):
 
 
 def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'),
-                          url="ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv"): # pragma: no cover
+                          url="https://www.ncei.noaa.gov/pub/data/noaa/isd-history.csv"): # pragma: no cover
     """Basic method to update the isd-history file from the NOAA. This is useful
     as new weather stations are updated all the time.
 
@@ -592,40 +592,77 @@ class StationDataGSOD:
 
 
 
-stations = []
-_latlongs = []
-"""Read in the parsed data into
-1) a list of latitudes and longitudes, temporary, which will get converted to
-a numpy array for use in KDTree
-2) a list of IntegratedSurfaceDatabaseStation objects; the query will return
-the index of the nearest weather stations.
-"""
-with open(os.path.join(folder, 'isd-history-cleaned.tsv')) as f:
-    for line in f:
-        values = line.split('\t')
-        for i in range(11):
-            # First two are not values
-            v = values[i]
-            if v == '':
-                values[i] = None # '' case
-            else:
-                try:
-                    if i > 2:
-                        values[i] = float(v)
-                    if int(v) == 99999:
+
+_stations = None
+_latlongs = None
+_station_count = None
+_kd_tree = None
+
+def _load_station_data():
+    """Read in the parsed data into
+    1) a list of latitudes and longitudes, temporary, which will get converted to
+    a numpy array for use in KDTree
+    2) a list of IntegratedSurfaceDatabaseStation objects; the query will return
+    the index of the nearest weather stations.
+    """
+    global _stations, _latlongs, _station_count, _kd_tree
+    if _stations is None:
+        _stations = []
+        temp_latlongs = []
+
+        history_file = os.path.join(folder, 'isd-history-cleaned.tsv')
+        if not os.path.exists(history_file):
+            get_clean_isd_history(dest=history_file)        
+        
+        with open(os.path.join(folder, history_file)) as f:
+            for line in f:
+                values = line.split('\t')
+                for i in range(11):
+                    v = values[i]
+                    if v == '':
                         values[i] = None
-                except:
-                    continue
-        lat, lon = values[6], values[7]
-        if lat and lon:
-            # Some stations have no lat-long; this isn't useful
-            stations.append(IntegratedSurfaceDatabaseStation(*values))
-            _latlongs.append((lat, lon))
-_latlongs = np.array(_latlongs)
-station_count = len(stations)
+                    else:
+                        try:
+                            if i > 2:
+                                values[i] = float(v)
+                            if int(v) == 99999:
+                                values[i] = None
+                        except:
+                            continue
+                lat, lon = values[6], values[7]
+                # Some stations have no lat-long; this isn't useful
+                if lat and lon:
+                    _stations.append(IntegratedSurfaceDatabaseStation(*values))
+                    temp_latlongs.append((lat, lon))
+        
+        # _latlongs must be unchanged as data is not copied
+        _latlongs = np.array(temp_latlongs)
+        _station_count = len(_stations)
+        _kd_tree = cKDTree(_latlongs)
 
+def get_station_count():
+    """Get the total number of stations."""
+    if _station_count is None:
+        _load_station_data()
+    return _station_count
 
-kd_tree = cKDTree(_latlongs) # _latlongs must be unchanged as data is not copied
+def get_stations():
+    """Get the list of weather stations."""
+    if _stations is None:
+        _load_station_data()
+    return _stations
+
+def get_latlongs():
+    """Get the array of station coordinates."""
+    if _latlongs is None:
+        _load_station_data()
+    return _latlongs
+
+def get_kd_tree():
+    """Get the KD-tree for spatial queries."""
+    if _kd_tree is None:
+        _load_station_data()
+    return _kd_tree
 
 
 def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
@@ -666,13 +703,15 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
     Examples
     --------
     >>> get_closest_station(51.02532675, -114.049868485806, 20150000)
-    <Weather station registered in the Integrated Surface Database, name CALGARY INTL CS, country CA, USAF 713930, WBAN None, coords (51.1, -114.0) Weather data from 2004 to 2020>
+    <Weather station registered in the Integrated Surface Database, name CALGARY INTL CS, country CA, USAF 713930, WBAN None, coords (51.1, -114.0) Weather data from 2004 to 2024>
     """
     # Both station strings may be important
     # Searching for 100 stations is fine, 70 microseconds vs 50 microsecond for 1
     # but there's little point for more points, it gets slower.
     # bad data is returned if k > station_count
-    distances, indexes = kd_tree.query([latitude, longitude], k=min(match_max, station_count))
+    station_count = get_station_count()
+    stations = get_stations()
+    distances, indexes = get_kd_tree().query([latitude, longitude], k=min(match_max, station_count))
     for i in indexes:
         latlon = _latlongs[i]
         enddate = stations[i].END

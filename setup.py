@@ -67,8 +67,8 @@ setup(
     name='fluids',
     packages=['fluids'],
     license='MIT',
-    version='1.0.27',
-    download_url='https://github.com/CalebBell/fluids/tarball/1.0.27',
+    version='1.1.0',
+    download_url='https://github.com/CalebBell/fluids/tarball/1.1.0',
     description=description,
     long_description=open('README.rst').read(),
     install_requires=["numpy>=1.5.0", "scipy>=1.6.0"],
@@ -83,8 +83,8 @@ setup(
     classifiers=classifiers,
     package_data={
         'fluids': [
-            'data/*', 'nrlmsise00/*',
-             'optional/*.py', 'optional/*.dat', 'optional/*.f90', 'optional/*.for', 'optional/*.pyf', 'optional/*.bin',
+            'data/*.csv', 'nrlmsise00/*',
+             'optional/*.py',
              'numerics/*', 'constants/*'
         ]
     },
