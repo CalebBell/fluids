@@ -152,13 +152,6 @@ def test_sample_cases():
     assert_close(Re.to_base_units().magnitude, 6979700.0)
     assert dict(Re.dimensionality) == {}
 
-
-#    vs = hwm93(5E5*u.m, 45*u.degrees, 50*u.degrees, 365*u.day)
-#    vs_known = [-73.00312042236328, 0.1485661268234253]
-#    for v_known, v_calc in zip(vs_known, vs):
-#        assert_close(v_known, v_calc.to_base_units().magnitude)
-#        assert dict(v_calc.dimensionality) == {u'[length]': 1.0, u'[time]': -1.0}
-
     A = API520_A_g(m=24270*u.kg/u.hour, T=348.*u.K, Z=0.90, MW=51.*u.g/u.mol, k=1.11, P1=670*u.kPa, Kb=1, Kc=1)
     assert_close(A.to_base_units().magnitude, 0.00369904606468)
     assert dict(A.dimensionality) == {'[length]': 2.0}

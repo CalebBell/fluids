@@ -44,10 +44,6 @@ Solar Radiation and Position
 .. autofunction:: sunrise_sunset
 .. autofunction:: earthsun_distance
 
-Wind Models (requires Fortran compiler!)
-----------------------------------------
-.. autofunction:: hwm93
-.. autofunction:: hwm14
 """
 
 import os
@@ -62,20 +58,9 @@ try:
 except:
     pass
 
-__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'hwm93', 'hwm14',
+__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00',
            'earthsun_distance', 'solar_position', 'solar_irradiation',
            'sunrise_sunset']
-
-no_gfortran_error = """This function uses f2py to encapsulate a fortran \
-routine. However, f2py did not detect one on installation and could not compile \
-this routine. """
-
-try:
-    # Needed by hwm14
-    os.environ["HWMPATH"] = os.path.join(os.path.dirname(__file__), 'optional')
-except:
-    pass
-
 
 H_std = [0.0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852.0]
 T_grad = [-6.5E-3, 0.0, 1E-3, 2.8E-3, 0.0, -2.8E-3, -2E-3, 0.0]
@@ -522,186 +507,6 @@ class ATMOSPHERE_NRLMSISE00:
 
         self.particle_density = sum(getattr(self, a) for a in self.atrrs)
         self.zs = [getattr(self, a)/self.particle_density for a in self.atrrs]
-
-
-def hwm93(Z, latitude=0, longitude=0, day=0, seconds=0, f107=150.,
-          f107_avg=150., geomagnetic_disturbance_index=4):
-    r'''Horizontal Wind Model 1993, for calculating wind velocity in the
-    atmosphere as a function of time of year, longitude and latitude, solar
-    activity and earth's geomagnetic disturbance.
-
-    The model is described across the publications [1]_, [2]_, and [3]_.
-
-    Parameters
-    ----------
-    Z : float
-        Elevation, [m]
-    latitude : float, optional
-        Latitude, between -90 and 90 [degrees]
-    longitude : float, optional
-        Longitude, between -180 and 180 or 0 and 360, [degrees]
-    day : float, optional
-        Day of year, 0-366 [day]
-    seconds : float, optional
-        Seconds since start of day, in UT1 time; using UTC provides no loss in
-        accuracy [s]
-    f107 : float, optional
-        Daily average 10.7 cm solar flux measurement of the strength of solar
-        emissions on the 100 MHz band centered on 2800 MHz, averaged hourly; in
-        sfu units, which are multiples of 10^-22 W/m^2/Hz; use 150 as a default
-        [W/m^2/Hz]
-    f107_avg : float, optional
-        81-day sfu average; centered on specified day if possible, otherwise
-        use the previous days [W/m^2/Hz]
-    geomagnetic_disturbance_index : float, optional
-        Average daily `Ap` or also known as planetary magnetic index.
-
-    Returns
-    -------
-    v_north : float
-        Wind velocity, meridional (Northward) [m/s]
-    v_east : float
-        Wind velocity, zonal (Eastward) [m/s]
-
-    Examples
-    --------
-    >>> hwm93(5E5, 45, 50, 365) # doctest: +SKIP
-    (-73.00312042236328, 0.1485661268234253)
-
-    Notes
-    -----
-    No full description has been published of this model; it has been defined by
-    its implementation only. It was written in FORTRAN, and is accessible
-    at ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/hwm93/.
-
-    F2PY auto-compilation support is not yet currently supported.
-    To compile this file, run the following command in a shell after navigating
-    to $FLUIDSPATH/fluids/optional/. This should generate the file hwm93.so
-    in that directory.
-
-    .. code-block:: bash
-
-        f2py -c hwm93.pyf hwm93.for --f77flags="-std=legacy"
-
-    If the module is not compiled, an import error will be raised.
-
-    References
-    ----------
-    .. [1] Hedin, A. E., N. W. Spencer, and T. L. Killeen. "Empirical Global
-       Model of Upper Thermosphere Winds Based on Atmosphere and Dynamics
-       Explorer Satellite Data." Journal of Geophysical Research: Space Physics
-       93, no. A9 (September 1, 1988): 9959-78. doi:10.1029/JA093iA09p09959.
-    .. [2] Hedin, A. E., M. A. Biondi, R. G. Burnside, G. Hernandez, R. M.
-       Johnson, T. L. Killeen, C. Mazaudier, et al. "Revised Global Model of
-       Thermosphere Winds Using Satellite and Ground-Based Observations."
-       Journal of Geophysical Research: Space Physics 96, no. A5 (May 1, 1991):
-       7657-88. doi:10.1029/91JA00251.
-    .. [3] Hedin, A. E., E. L. Fleming, A. H. Manson, F. J. Schmidlin, S. K.
-       Avery, R. R. Clark, S. J. Franke, et al. "Empirical Wind Model for the
-       Upper, Middle and Lower Atmosphere." Journal of Atmospheric and
-       Terrestrial Physics 58, no. 13 (September 1996): 1421-47.
-       doi:10.1016/0021-9169(95)00122-0.
-    '''
-    try:
-        from fluids.optional.hwm93 import gws5
-    except: # pragma: no cover
-        raise ImportError(no_gfortran_error)
-    slt_hour = seconds/3600. + longitude/15.
-    ans = gws5(day, seconds, Z/1000., latitude, longitude, slt_hour, f107,
-               f107_avg, geomagnetic_disturbance_index)
-    return tuple(ans.tolist())
-
-
-def hwm14(Z, latitude=0, longitude=0, day=0, seconds=0,
-          geomagnetic_disturbance_index=4):
-    r'''Horizontal Wind Model 2014, for calculating wind velocity in the
-    atmosphere as a function of time of year, longitude and latitude, and
-    earth's geomagnetic disturbance. The model is described in [1]_.
-
-    The model no longer accounts for solar flux.
-
-    Parameters
-    ----------
-    Z : float
-        Elevation, [m]
-    latitude : float, optional
-        Latitude, between -90 and 90 [degrees]
-    longitude : float, optional
-        Longitude, between -180 and 180 or 0 and 360, [degrees]
-    day : float, optional
-        Day of year, 0-366 [day]
-    seconds : float, optional
-        Seconds since start of day, in UT1 time; using UTC provides no loss in
-        accuracy [s]
-    geomagnetic_disturbance_index : float, optional
-        Average daily `Ap` or also known as planetary magnetic index.
-
-    Returns
-    -------
-    v_north : float
-        Wind velocity, meridional (Northward) [m/s]
-    v_east : float
-        Wind velocity, zonal (Eastward) [m/s]
-
-
-    Examples
-    --------
-    >>> hwm14(5E5, 45, 50, 365) # doctest: +SKIP
-    (-38.64341354370117, 12.871272087097168)
-
-    Notes
-    -----
-    No full description has been published of this model; it has been defined by
-    its implementation only. It was written in FORTRAN, and is accessible
-    at http://onlinelibrary.wiley.com/store/10.1002/2014EA000089/asset/supinfo/ess224-sup-0002-supinfo.tgz?v=1&s=2a957ba70b7cf9dd0612d9430076297c3634ea75.
-
-    F2PY auto-compilation support is not yet currently supported.
-    To compile this file, run the following commands in a shell after navigating
-    to $FLUIDSPATH/fluids/optional/. This should generate the file hwm14.so
-    in that directory.
-
-
-    Generate a .pyf signature file:
-
-    .. code-block:: bash
-
-        f2py -m hwm14 -h hwm14.pyf hwm14.f90
-
-    Compile the interface:
-
-    .. code-block:: bash
-
-        f2py -c hwm14.pyf hwm14.f90
-
-
-    If the module is not compiled, an import error will be raised.
-
-    No patches were necessary to either the generated pyf or hwm14.f90 file,
-    as the authors of [1]_ have made it F2PY compatible.
-
-    Developed using 73 million data points taken by 44 instruments over 60
-    years.
-
-    References
-    ----------
-    .. [1] Drob, Douglas P., John T. Emmert, John W. Meriwether, Jonathan J.
-       Makela, Eelco Doornbos, Mark Conde, Gonzalo Hernandez, et al. "An Update
-       to the Horizontal Wind Model (HWM): The Quiet Time Thermosphere." Earth
-       and Space Science 2, no. 7 (July 1, 2015): 2014EA000089.
-       doi:10.1002/2014EA000089.
-    '''
-    # Needed by hwm14
-    os.environ["HWMPATH"] = os.path.join(os.path.dirname(__file__), 'optional')
-    try:
-        try:
-            from fluids.optional import hwm14
-        except:
-            from optional import hwm14
-    except: # pragma: no cover
-        raise ImportError(no_gfortran_error)
-    ans = hwm14.hwm14(day, seconds, Z*1e-3, latitude, longitude, 0, 0,
-               0, np.array([np.nan, geomagnetic_disturbance_index]))
-    return tuple(ans.tolist())
 
 
 def to_int_airmass(Z, c1, c2, angle_term, R_planet_inv, func):

@@ -1497,6 +1497,40 @@ def sort_paired_lists(list1, list2):
     
     return sorted_list1, sorted_list2
 
+def svd(matrix):
+    """Compute the singular value decomposition of a matrix.
+    
+    This function wraps numpy.linalg.svd but maintains pure Python input/output
+    interfaces.
+    
+    Parameters
+    ----------
+    matrix : list[list[float]]
+        Input matrix A to decompose
+        
+    Returns
+    -------
+    tuple[list[list[float]], list[float], list[list[float]]]
+        Returns (U, s, Vt) where:
+        - U is the left singular vectors as a matrix
+        - s is the singular values as a 1D array
+        - Vt is the transpose of the right singular vectors as a matrix
+        
+    Notes
+    -----
+
+    Examples
+    --------
+    >>> A = [[1, 2], [3, 4]]
+    >>> U, s, Vt = svd(A)
+    """
+    import numpy as np
+    # Compute SVD
+    U, s, Vt = np.linalg.svd(np.array(matrix, dtype=np.float64), full_matrices=True)
+    # Convert back to Python lists
+    return U.tolist(), s.tolist(), Vt.tolist()
+
+
 def gelsd(a, b, rcond=None):
     """Solve a linear least-squares problem using SVD (Singular Value Decomposition).
     This is a simplified implementation that uses numpy's SVD internally.
@@ -1532,9 +1566,6 @@ def gelsd(a, b, rcond=None):
     The implementation uses numpy.linalg.svd for the core computation but
     maintains a pure Python interface for input and output.
     """
-    import numpy as np
-    
-    
     # Get dimensions and handle empty cases
     m = len(a)
     n = len(a[0]) if m > 0 else 0
@@ -1550,32 +1581,32 @@ def gelsd(a, b, rcond=None):
     if len(b) != m:
         raise ValueError(f"Incompatible dimensions: A is {m}x{n}, b has length {len(b)}")
     
-    # Use numpy only for SVD computation
-    U, s, Vt = np.linalg.svd(np.array(a, dtype=np.float64), full_matrices=False)
-    
-    # Convert numpy arrays to Python lists
-    U = U.tolist()
-    s = s.tolist()
-    Vt = Vt.tolist()
-    
+    U, s, Vt = svd(a)
+
     # Set default rcond
     if rcond is None:
         rcond = max(m, n) * 2.2e-16  # Approximate machine epsilon for float64
     
     # Determine rank using rcond
     tol = rcond * s[0]
-    rank = sum(sv > tol for sv in s)    
-    # Compute U.T @ b using pure Python
+    rank = sum(sv > tol for sv in s)
+    
+    # Handle zero matrix case (all singular values below threshold)
+    if rank == 0:
+        return [0.0] * n, sum(bi * bi for bi in b), 0, s
+    
+    # We only need the first rank columns of U and V
+    # If U is economy sized (M×min(M,N)), this is fine
+    # If U is full sized (M×M), we still only use first rank columns
     Ut = transpose(U)
-    Utb = matrix_vector_dot(Ut, b)
+    Utb = matrix_vector_dot(Ut[:rank], b)
     
     # Apply 1/singular values with truncation
-    s_inv_Utb = [0.0] * len(s)
-    for i in range(rank):
-        s_inv_Utb[i] = Utb[i] / s[i]
+    s_inv_Utb = [Utb[i] / s[i] for i in range(rank)]
     
-    # Compute final solution using V
-    V = transpose(Vt)  # V is transpose of Vt
+    # Get the first rank rows of V (transpose of first rank columns of Vt)
+    # Again, works with both economy and full-size Vt
+    V = transpose(Vt[:rank])
     x = matrix_vector_dot(V, s_inv_Utb)
     
     # Compute residuals for overdetermined systems
@@ -1608,22 +1639,13 @@ def null_space(a, rcond=None):
         Orthonormal basis for the null space of A.
         K = dimension of effective null space, as determined by rcond
     """
-    import numpy as np
-    
     # Get dimensions and handle empty cases
     m = len(a)
     n = len(a[0]) if m > 0 else 0
     
     if m == 0 or n == 0:
         return []  # Empty matrix
-    
-    # Use numpy only for SVD computation
-    U, s, Vt = np.linalg.svd(np.array(a, dtype=np.float64), full_matrices=True)
-    
-    # Convert numpy arrays to Python lists
-    s = s.tolist()
-    Vt = Vt.tolist()
-    
+    U, s, Vt = svd(a)
     # Set default rcond
     if rcond is None:
         rcond = max(m, n) * 2.2e-16  # Approximate machine epsilon for float64
