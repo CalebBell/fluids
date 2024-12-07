@@ -1,6 +1,5 @@
 using PyCall
 using Printf
-# Import fluids
 const fluids = pyimport("fluids")
 
 function test_fluids()

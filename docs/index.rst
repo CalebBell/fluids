@@ -25,7 +25,7 @@ Module Contents:
    data.rst
    sample_programs.rst
    developers.rst
-
+   language_examples/index
 
 Installation
 ------------
