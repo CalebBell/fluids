@@ -2045,13 +2045,19 @@ def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None,
             raise NotImplementedError("Fail")
 
     def translate_into(x):
-        x = [float(i) for i in x]
+        if not as_np:
+            x = [float(i) for i in x]
+        else:
+            x = x.copy()
         for i in range(len(x)):
             x[i] = -trunc_log((high[i] - x[i])/(x[i] - low[i]))
         return x
 
     def translate_outof(x):
-        x = [float(i) for i in x]
+        if not as_np:
+            x = [float(i) for i in x]
+        else:
+            x = x.copy()
         for i in range(len(x)):
             x[i] = (low[i] + (high[i] - low[i])/(1.0 + trunc_exp(-x[i])))
         return x
