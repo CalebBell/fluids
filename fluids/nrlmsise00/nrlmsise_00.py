@@ -597,7 +597,6 @@ def globe7(p, Input, flags):
     *       Upper Thermosphere Parameters */
     '''
     t = [0]*15  #modified this, there was a for loop that did this
-    sw9 = 1
     sr = 7.2722E-5
     dgtr = 1.74533E-2
     dr = 1.72142E-2
@@ -605,11 +604,6 @@ def globe7(p, Input, flags):
     tloc = Input.lst
     #for j in range(14):
     #    t[j] = 0
-    if(flags.sw[9] > 0):
-        sw9 = 1
-    elif(flags.sw[9] < 0): # pragma: no cover
-        sw9 = -1
-    xlong = Input.g_long
 
     #/* calculate legendre polynomials */
     c = sin(Input.g_lat * dgtr)
@@ -650,10 +644,6 @@ def globe7(p, Input, flags):
     cd18 = cos(2.0*dr*(Input.doy-p[17]))
     cd14 = cos(dr*(Input.doy-p[13]))
     cd39 = cos(2.0*dr*(Input.doy-p[38]))
-    p32=p[31]
-    p18=p[17]
-    p14=p[13]
-    p39=p[38]
 
     #/* F10.7 EFFECT */
     df = Input.f107 - Input.f107A
@@ -819,10 +809,6 @@ def glob7s(p, Input, flags):
     cd18 = cos(2.0*dr*(Input.doy-p[17]))
     cd14 = cos(dr*(Input.doy-p[13]))
     cd39 = cos(2.0*dr*(Input.doy-p[38]))
-    p32=p[31]
-    p18=p[17]
-    p14=p[13]
-    p39=p[38]
     dfa = Input.f107A - 150.0
 
     #/* F10.7 */
@@ -1082,9 +1068,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
         meso_tgn1[1]=ptm[8]*pma[8][0]*meso_tn1[4]*meso_tn1[4]/(pow((ptm[4]*ptl[3][0]),2.0))
 
 
-    z0 = zn1[3]
-    t0 = meso_tn1[3]
-    tr12 = 1.0
 
     #/* N2 variation factor at Zlb */
     g28=flags.sw[21]*globe7(pd[2], Input, flags)
@@ -1370,7 +1353,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
 
     #/* total mass density */
     output.d[5] = 1.66E-24*(4.0*output.d[0]+16.0*output.d[1]+28.0*output.d[2]+32.0*output.d[3]+40.0*output.d[4]+ output.d[6]+14.0*output.d[7])
-    db48=1.66E-24*(4.0*db04+16.0*db16+28.0*db28+32.0*db32+40.0*db40+db01+14.0*db14)
 
 
 
