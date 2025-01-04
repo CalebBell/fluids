@@ -272,7 +272,7 @@ def splini(xa, ya, y2a, n, x, y):
 /* ------------------------------- SPLINT ---------------------------- */
 /* ------------------------------------------------------------------- */
 """
-def splint(xa, ya, y2a, n, x, y):
+def splint(xa, ya, y2a, n, x):
     '''
     /*      CALCULATE CUBIC SPLINE INTERP VALUE
     *       ADAPTED FROM NUMERICAL RECIPES BY PRESS ET AL.
@@ -280,7 +280,6 @@ def splint(xa, ya, y2a, n, x, y):
     *       Y2A: ARRAY OF SECOND DERIVATIVES
     *       N: SIZE OF ARRAYS XA,YA,Y2A
     *       X: ABSCISSA FOR INTERPOLATION
-    *       Y: OUTPUT VALUE
     */
     '''
     klo = 0
@@ -296,8 +295,7 @@ def splint(xa, ya, y2a, n, x, y):
     a = (xa[khi] - x)/h
     b = (x - xa[klo])/h
     yi = a * ya[klo] + b * ya[khi] + ((a*a*a - a) * y2a[klo] + (b*b*b - b) * y2a[khi]) * h * h/6.0
-    y[0] = yi #may not need this
-
+    return yi
 
 """
 /* ------------------------------------------------------------------- */
@@ -399,11 +397,10 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
     #/* calculate spline coefficients */
     spline (xs, ys, mn, yd1, yd2, y2out)   #No need to change this
     x = zg/zgdif
-    y = [0.0]
-    splint (xs, ys, y2out, mn, x, y)
+    y = splint(xs, ys, y2out, mn, x)
 
     #/* temperature at altitude */
-    tz[0] = 1.0 / y[0]
+    tz[0] = 1.0 / y
     if (xm!=0.0):
         #/* calaculate stratosphere / mesospehere density */
         glb = gsurf[0] / (pow((1.0 + z1/re_nrlmsise_00[0]),2.0))
@@ -448,11 +445,10 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
     #/* calculate spline coefficients */
     spline (xs, ys, mn, yd1, yd2, y2out)
     x = zg/zgdif
-    y = [0.0]
-    splint (xs, ys, y2out, mn, x, y)
+    y = splint(xs, ys, y2out, mn, x)
 
     #/* temperature at altitude */
-    tz[0] = 1.0 / y[0]
+    tz[0] = 1.0 / y
     if (xm!=0.0):
         #/* calaculate tropospheric / stratosphere density */
         glb = gsurf[0] / (pow((1.0 + z1/re_nrlmsise_00[0]),2.0))
@@ -539,10 +535,9 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
         #/* calculate spline coefficients */
         spline (xs, ys, mn, yd1, yd2, y2out)
         x = zg / zgdif
-        y = [0.0]
-        splint (xs, ys, y2out, mn, x, y)
+        y = splint(xs, ys, y2out, mn, x)
         #/* temperature at altitude */
-        tz[0] = 1.0 / y[0]
+        tz[0] = 1.0 / y
         densu_temp = tz[0]
 
     if (xm==0):
