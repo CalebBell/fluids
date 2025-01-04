@@ -236,14 +236,13 @@ def dnet(dd, dm, zhm, xmm, xm):
 /* ------------------------------- SPLINI ---------------------------- */
 /* ------------------------------------------------------------------- */
 """
-def splini(xa, ya, y2a, n, x, y):
+def splini(xa, ya, y2a, n, x):
     '''
     /*      INTEGRATE CUBIC SPLINE FUNCTION FROM XA(1) TO X
     *       XA,YA: ARRAYS OF TABULATED FUNCTION IN ASCENDING ORDER BY X
     *       Y2A: ARRAY OF SECOND DERIVATIVES
     *       N: SIZE OF ARRAYS XA,YA,Y2A
     *       X: ABSCISSA ENDPOINT FOR INTEGRATION
-    *       Y: OUTPUT VALUE
     */
     '''
     yi = 0
@@ -264,8 +263,7 @@ def splini(xa, ya, y2a, n, x, y):
         yi += ((1.0 - a2) * ya[klo] / 2.0 + b2 * ya[khi] / 2.0 + ((-(1.0+a2*a2)/4.0 + a2/2.0) * y2a[klo] + (b2*b2/4.0 - b2/2.0) * y2a[khi]) * h * h / 6.0) * h
         klo += 1
         khi += 1
-    y[0] = yi
-
+    return yi
 
 """
 /* ------------------------------------------------------------------- */
@@ -407,9 +405,8 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
         gamm = xm * glb * zgdif / rgas
 
         #/* Integrate temperature profile */
-        yi = [0.0]
-        splini(xs, ys, y2out, mn, x, yi)
-        expl=gamm*yi[0]
+        y = splini(xs, ys, y2out, mn, x)
+        expl=gamm*y
         if (expl>50.0): # pragma: no cover
             expl=50.0
 
@@ -455,9 +452,8 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
         gamm = xm * glb * zgdif / rgas
 
         #/* Integrate temperature profile */
-        yi = [0.0]
-        splini(xs, ys, y2out, mn, x, yi)
-        expl=gamm*yi[0]
+        y = splini(xs, ys, y2out, mn, x)
+        expl=gamm*y
         if (expl>50.0): # pragma: no cover
             expl=50.0
 
@@ -563,9 +559,8 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
     gamm = xm * glb * zgdif / rgas
 
     #/* integrate spline temperatures */
-    yi = [0]
-    splini (xs, ys, y2out, mn, x, yi)
-    expl = gamm * yi[0]
+    y = splini (xs, ys, y2out, mn, x)
+    expl = gamm * y
     if (expl>50.0): # pragma: no cover
         expl=50.0
     if (tz[0]<=0): # pragma: no cover
