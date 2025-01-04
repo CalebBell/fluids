@@ -53,8 +53,6 @@ __all__ = ['gtd7']
 
 
 
-#/* DMIX */
-dm28 = 0.0
 
 #/* MESO7 */
 meso_tn1 = [0.0]*5
@@ -183,7 +181,6 @@ def ccor2(alt, r, h1, zh, h2):
 /* ------------------------------------------------------------------- */
 """
 def scalh(alt, xm, temp, gsurf, re_nrlmsise_00):
-    #rgas = 831.44621    #maybe make this a global constant?
     rgas = 831.4
     g = gsurf/ (pow( (1.0 + alt/re_nrlmsise_00),2.0))
     g = rgas * temp / (g * xm)
@@ -909,7 +906,7 @@ def gtd7(Input, flags, output):
     tmp=Input.alt
     Input.alt=altt
 
-    gts7(Input, flags, soutput, gsurf, re_nrlmsise_00)
+    dm28 = gts7(Input, flags, soutput, gsurf, re_nrlmsise_00)
     altt=Input.alt
     Input.alt=tmp
     if (flags.sw[0]): # pragma: no cover  #/* metric adjustment */
@@ -1010,6 +1007,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
     *     alt > 72.5 km!
     */
     '''
+    dm28 = 0.0
     zn1 = [120.0, 110.0, 100.0, 90.0, 72.5]
     mn1 = 5
     dgtr=1.74533E-2
@@ -1084,7 +1082,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
     b28=densu(zh28,db28,tinf,tlb,xmd,(alpha[2]-1.0),tz,ptm[5],s,mn1, zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
     if ((flags.sw[15]) and (z<=altl[2])):
         #/*  Mixed density at Alt */
-        global dm28
         dm28=densu(z,b28,tinf,tlb,xmm,alpha[2],tz,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         #/*  Net density at Alt */
         output.d[2]=dnet(output.d[2],dm28,zhm28,xmm,28.0)
@@ -1346,3 +1343,4 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
         for i in range(9):
             output.d[i]=output.d[i]*1.0E6
         output.d[5]=output.d[5]/1000
+    return dm28
