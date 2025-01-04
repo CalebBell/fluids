@@ -60,7 +60,6 @@ dm28 = 0.0
 dm32 = 0.0
 dm40 = 0.0
 dm01 = 0.0
-dm14 = 0.0
 
 #/* MESO7 */
 meso_tn1 = [0.0]*5
@@ -69,10 +68,6 @@ meso_tn3 = [0.0]*5
 meso_tgn1 = [0.0, 0.0]
 meso_tgn2 = [0.0, 0.0]
 meso_tgn3 = [0.0, 0.0]
-
-#/* POWER7 */
-#/* LOWER7 */
-#Dont to need to do anyt of the externs, they are all here
 
 
 #/* LPOLY */
@@ -1314,7 +1309,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
         output.t[1] = RandomVariable[0]
         #/*  Mixed density at Alt */
         RandomVariable = [output.t[1]]
-        global dm14
         dm14=densu(z,b14,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         output.t[1] = RandomVariable[0]
         zhm14=zhm28
