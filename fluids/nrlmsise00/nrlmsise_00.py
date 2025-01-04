@@ -83,15 +83,26 @@ meso_tgn3 = [0.0, 0.0]
 #/* LPOLY */
 dfa = 0.0
 plg = [[0.0 for _ in range(9)] for _ in range(4)]
-ctloc = 0.0
-stloc = 0.0
-c2tloc = 0.0
-s2tloc = 0.0
-s3tloc = 0.0
-c3tloc = 0.0
 apdf = 0.0
 apt = [0.0]*4
 
+hr = 0.2618
+def calc_trig_loc(tloc, sw7, sw8, sw14):
+    """
+    Calculate location-based trigonometric values used by globe7 and glob7s functions.
+    Returns tuple of (stloc, ctloc, s2tloc, c2tloc, s3tloc, c3tloc)
+    Sets all values to 0 if the switch condition isn't met.
+    """
+    if not (((sw7 == 0) and (sw8 == 0)) and (sw14 == 0)):
+        return (
+            sin(hr*tloc),      # stloc
+            cos(hr*tloc),      # ctloc  
+            sin(2.0*hr*tloc),  # s2tloc
+            cos(2.0*hr*tloc),  # c2tloc
+            sin(3.0*hr*tloc),  # s3tloc
+            cos(3.0*hr*tloc)   # c3tloc
+        )
+    return (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 
 #since rgas is used eerywehre usignthe same variable, ill make it glboal
 #rgas = 831.44621
@@ -593,7 +604,6 @@ def globe7(p, Input, flags):
     sr = 7.2722E-5
     dgtr = 1.74533E-2
     dr = 1.72142E-2
-    hr = 0.2618
 
     tloc = Input.lst
     #for j in range(14):
@@ -637,19 +647,7 @@ def globe7(p, Input, flags):
     plg[3][5] =(9.0*c*plg[3][4]-7.*plg[3][3])/2.0
     plg[3][6] =(11.0*c*plg[3][5]-8.*plg[3][4])/3.0
 
-    if( not (((flags.sw[7]==0) and (flags.sw[8]==0)) and (flags.sw[14] == 0))):
-        global stloc
-        stloc = sin(hr*tloc)
-        global ctloc
-        ctloc = cos(hr*tloc)
-        global s2tloc
-        s2tloc = sin(2.0*hr*tloc)
-        global c2tloc
-        c2tloc = cos(2.0*hr*tloc)
-        global s3tloc
-        s3tloc = sin(3.0*hr*tloc)
-        global c3tloc
-        c3tloc = cos(3.0*hr*tloc)
+    stloc, ctloc, s2tloc, c2tloc, s3tloc, c3tloc = calc_trig_loc(tloc, flags.sw[7], flags.sw[8], flags.sw[14])
 
     cd32 = cos(dr*(Input.doy-p[31]))
     cd18 = cos(2.0*dr*(Input.doy-p[17]))
@@ -817,6 +815,7 @@ def glob7s(p, Input, flags):
     t = [0.0]*14
     dr=1.72142E-2
     dgtr=1.74533E-2
+    stloc, ctloc, s2tloc, c2tloc, s3tloc, c3tloc = calc_trig_loc(Input.lst, flags.sw[7], flags.sw[8], flags.sw[14])
 
     #/* confirm parameter set */
     if (p[99]==0): # pragma: no cover
