@@ -82,7 +82,7 @@ meso_tgn3 = [0.0, 0.0]
 
 #/* LPOLY */
 plg = [[0.0 for _ in range(9)] for _ in range(4)]
-apt = [0.0]*4
+apt = [0.0]
 
 hr = 0.2618
 def calc_trig_loc(tloc, sw7, sw8, sw14):
@@ -712,10 +712,6 @@ def globe7(p, Input, flags):
             if (p[24]<1.0E-4): # pragma: no cover
                     p[24]=1.0E-4
             apt[0]=sg0(exp1,p,ap.a)
-            #/* apt[1]=sg2(exp1,p,ap->a);
-            #   apt[2]=sg0(exp2,p,ap->a);
-            #   apt[3]=sg2(exp2,p,ap->a);
-            #*/
             if (flags.sw[9]):
                 t[8] = apt[0]*(p[50]+p[96]*plg[0][2]+p[54]*plg[0][4]+ \
                         (p[125]*plg[0][1]+p[126]*plg[0][3]+p[127]*plg[0][5])*cd14*flags.swc[5]+ \
