@@ -59,7 +59,6 @@ dm16 = 0.0
 dm28 = 0.0
 dm32 = 0.0
 dm40 = 0.0
-dm01 = 0.0
 
 #/* MESO7 */
 meso_tn1 = [0.0]*5
@@ -1269,7 +1268,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
         output.t[1] = RandomVariable[0]
         #/*  Mixed density at Alt */
         RandomVariable = [output.t[1]]
-        global dm01
         dm01=densu(z,b01,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         output.t[1] = RandomVariable[0]
         zhm01=zhm28
