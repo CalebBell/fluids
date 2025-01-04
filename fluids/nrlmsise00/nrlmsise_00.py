@@ -563,23 +563,8 @@ def sg0(ex, p, ap):
                                        g0_nrlmsise00(ap[4], p)*pow(ex, 3.0) + (g0_nrlmsise00(ap[5], p)*pow(ex, 4.0) + \
                                                                                g0_nrlmsise00(ap[6], p)*pow(ex, 12.0))*(1.0 - pow(ex, 8.0))/(1.0 - ex)))/sumex(ex)
 
-### Everything above this does not use the global constants to store state.
-### These are the state variables remaining to be refactored to avoid being stateful/support threading
 
-#/* MESO7 */
-meso_tn1 = [0.0]*5
-meso_tn2 = [0.0]*4
-meso_tn3 = [0.0]*5
-meso_tgn1 = [0.0, 0.0]
-meso_tgn2 = [0.0, 0.0]
-meso_tgn3 = [0.0, 0.0]
-
-
-#/* LPOLY */
-plg = [[0.0 for _ in range(9)] for _ in range(4)]
-apt = [0.0]
-
-def globe7(p, Input, flags):
+def globe7(p, Input, flags, apt, plg):
     '''
     /*       CALCULATE G(L) FUNCTION
     *       Upper Thermosphere Parameters */
@@ -776,7 +761,7 @@ def globe7(p, Input, flags):
 /* ------------------------------- GLOB7S ---------------------------- */
 /* ------------------------------------------------------------------- */
 """
-def glob7s(p, Input, flags):
+def glob7s(p, Input, flags, apt, plg):
     '''
     /*    VERSION OF GLOBE FOR LOWER ATMOSPHERE 10/26/99
     */
@@ -877,12 +862,30 @@ def glob7s(p, Input, flags):
 /* ------------------------------- GTD7 ------------------------------ */
 /* ------------------------------------------------------------------- */
 """
+meso_tn3 = [0.0]*5
 def gtd7(Input, flags, output):
     """The standard model subroutine (GTD7) always computes the.
 
     ``thermospheric`` mass density by explicitly summing the masses of the
     species in equilibrium at the thermospheric temperature T(z).
     """
+    ### Everything above this does not use the global constants to store state.
+    ### These are the state variables remaining to be refactored to avoid being stateful/support threading
+
+    #/* MESO7 */
+    meso_tn1 = [0.0]*5
+    meso_tn2 = [0.0]*4
+    meso_tgn1 = [0.0, 0.0]
+    meso_tgn2 = [0.0, 0.0]
+    meso_tgn3 = [0.0, 0.0]
+
+
+    #/* LPOLY */
+    plg = [[0.0 for _ in range(9)] for _ in range(4)]
+    apt = [0.0]
+
+
+
     mn3 = 5
     zn3 = [32.5,20.0,15.0,10.0,0.0]
     mn2 = 4
@@ -909,7 +912,7 @@ def gtd7(Input, flags, output):
     tmp=Input.alt
     Input.alt=altt
 
-    dm28 = gts7(Input, flags, soutput, gsurf, re_nrlmsise_00)
+    dm28 = gts7(Input, flags, soutput, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_tn2, meso_tn3, meso_tgn1, meso_tgn2, meso_tgn3)
     altt=Input.alt
     Input.alt=tmp
     if (flags.sw[0]): # pragma: no cover  #/* metric adjustment */
@@ -930,10 +933,10 @@ def gtd7(Input, flags, output):
 #*/
     meso_tgn2[0]=meso_tgn1[1]
     meso_tn2[0]=meso_tn1[4]
-    meso_tn2[1]=pma[0][0]*pavgm[0]/(1.0-flags.sw[20]*glob7s(pma[0], Input, flags))
-    meso_tn2[2]=pma[1][0]*pavgm[1]/(1.0-flags.sw[20]*glob7s(pma[1], Input, flags))
-    meso_tn2[3]=pma[2][0]*pavgm[2]/(1.0-flags.sw[20]*flags.sw[22]*glob7s(pma[2], Input, flags))
-    meso_tgn2[1]=pavgm[8]*pma[9][0]*(1.0+flags.sw[20]*flags.sw[22]*glob7s(pma[9], Input, flags))*meso_tn2[3]*meso_tn2[3]/(pow((pma[2][0]*pavgm[2]),2.0))
+    meso_tn2[1]=pma[0][0]*pavgm[0]/(1.0-flags.sw[20]*glob7s(pma[0], Input, flags, apt, plg))
+    meso_tn2[2]=pma[1][0]*pavgm[1]/(1.0-flags.sw[20]*glob7s(pma[1], Input, flags, apt, plg))
+    meso_tn2[3]=pma[2][0]*pavgm[2]/(1.0-flags.sw[20]*flags.sw[22]*glob7s(pma[2], Input, flags, apt, plg))
+    meso_tgn2[1]=pavgm[8]*pma[9][0]*(1.0+flags.sw[20]*flags.sw[22]*glob7s(pma[9], Input, flags, apt, plg))*meso_tn2[3]*meso_tn2[3]/(pow((pma[2][0]*pavgm[2]),2.0))
     meso_tn3[0]=meso_tn2[3]
 
     if (Input.alt<zn3[0]):
@@ -942,11 +945,11 @@ def gtd7(Input, flags, output):
 #*         Inverse temperature a linear function of spherical harmonics
 #*/
         meso_tgn3[0]=meso_tgn2[1]
-        meso_tn3[1]=pma[3][0]*pavgm[3]/(1.0-flags.sw[22]*glob7s(pma[3], Input, flags))
-        meso_tn3[2]=pma[4][0]*pavgm[4]/(1.0-flags.sw[22]*glob7s(pma[4], Input, flags))
-        meso_tn3[3]=pma[5][0]*pavgm[5]/(1.0-flags.sw[22]*glob7s(pma[5], Input, flags))
-        meso_tn3[4]=pma[6][0]*pavgm[6]/(1.0-flags.sw[22]*glob7s(pma[6], Input, flags))
-        meso_tgn3[1]=pma[7][0]*pavgm[7]*(1.0+flags.sw[22]*glob7s(pma[7], Input, flags)) *meso_tn3[4]*meso_tn3[4]/(pow((pma[6][0]*pavgm[6]),2.0))
+        meso_tn3[1]=pma[3][0]*pavgm[3]/(1.0-flags.sw[22]*glob7s(pma[3], Input, flags, apt, plg))
+        meso_tn3[2]=pma[4][0]*pavgm[4]/(1.0-flags.sw[22]*glob7s(pma[4], Input, flags, apt, plg))
+        meso_tn3[3]=pma[5][0]*pavgm[5]/(1.0-flags.sw[22]*glob7s(pma[5], Input, flags, apt, plg))
+        meso_tn3[4]=pma[6][0]*pavgm[6]/(1.0-flags.sw[22]*glob7s(pma[6], Input, flags, apt, plg))
+        meso_tgn3[1]=pma[7][0]*pavgm[7]*(1.0+flags.sw[22]*glob7s(pma[7], Input, flags, apt, plg)) *meso_tn3[4]*meso_tn3[4]/(pow((pma[6][0]*pavgm[6]),2.0))
 
 
     #/* LINEAR TRANSITION TO FULL MIXING BELOW zn2[0] */
@@ -1003,7 +1006,7 @@ def gtd7(Input, flags, output):
 /* ------------------------------- GTS7 ------------------------------ */
 /* ------------------------------------------------------------------- */
 """
-def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
+def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_tn2, meso_tn3, meso_tgn1, meso_tgn2, meso_tgn3):
     '''
     /*     Thermospheric portion of NRLMSISE-00
     *     See GTD7 for more extensive comments
@@ -1026,7 +1029,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
     #/* TINF VARIATIONS NOT IMPORTANT BELOW ZA OR ZN1(1) */
     if (Input.alt>zn1[0]):
         tinf = ptm[0]*pt[0] * \
-                    (1.0+flags.sw[16]*globe7(pt,Input,flags))
+                    (1.0+flags.sw[16]*globe7(pt,Input,flags, apt, plg))
     else:
         tinf = ptm[0]*pt[0]
     output.t[0]=tinf
@@ -1034,20 +1037,20 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
     #/*  GRADIENT VARIATIONS NOT IMPORTANT BELOW ZN1(5) */
     if (Input.alt>zn1[4]):
         g0 = ptm[3]*ps[0] * \
-            (1.0+flags.sw[19]*globe7(ps,Input,flags))
+            (1.0+flags.sw[19]*globe7(ps,Input,flags, apt, plg))
     else:
         g0 = ptm[3]*ps[0]
-    tlb = ptm[1] * (1.0 + flags.sw[17]*globe7(pd[3],Input,flags))*pd[3][0]
+    tlb = ptm[1] * (1.0 + flags.sw[17]*globe7(pd[3],Input,flags, apt, plg))*pd[3][0]
     s = g0 / (tinf - tlb)
 
 #/*      Lower thermosphere temp variations not significant for
 # *       density above 300 km */
     if (Input.alt<300.0):
-        meso_tn1[1]=ptm[6]*ptl[0][0]/(1.0-flags.sw[18]*glob7s(ptl[0], Input, flags))
-        meso_tn1[2]=ptm[2]*ptl[1][0]/(1.0-flags.sw[18]*glob7s(ptl[1], Input, flags))
-        meso_tn1[3]=ptm[7]*ptl[2][0]/(1.0-flags.sw[18]*glob7s(ptl[2], Input, flags))
-        meso_tn1[4]=ptm[4]*ptl[3][0]/(1.0-flags.sw[18]*flags.sw[20]*glob7s(ptl[3], Input, flags))
-        meso_tgn1[1]=ptm[8]*pma[8][0]*(1.0+flags.sw[18]*flags.sw[20]*glob7s(pma[8], Input, flags))*meso_tn1[4]*meso_tn1[4]/(pow((ptm[4]*ptl[3][0]),2.0))
+        meso_tn1[1]=ptm[6]*ptl[0][0]/(1.0-flags.sw[18]*glob7s(ptl[0], Input, flags, apt, plg))
+        meso_tn1[2]=ptm[2]*ptl[1][0]/(1.0-flags.sw[18]*glob7s(ptl[1], Input, flags, apt, plg))
+        meso_tn1[3]=ptm[7]*ptl[2][0]/(1.0-flags.sw[18]*glob7s(ptl[2], Input, flags, apt, plg))
+        meso_tn1[4]=ptm[4]*ptl[3][0]/(1.0-flags.sw[18]*flags.sw[20]*glob7s(ptl[3], Input, flags, apt, plg))
+        meso_tgn1[1]=ptm[8]*pma[8][0]*(1.0+flags.sw[18]*flags.sw[20]*glob7s(pma[8], Input, flags, apt, plg))*meso_tn1[4]*meso_tn1[4]/(pow((ptm[4]*ptl[3][0]),2.0))
     else:
         meso_tn1[1]=ptm[6]*ptl[0][0]
         meso_tn1[2]=ptm[2]*ptl[1][0]
@@ -1058,7 +1061,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
 
 
     #/* N2 variation factor at Zlb */
-    g28=flags.sw[21]*globe7(pd[2], Input, flags)
+    g28=flags.sw[21]*globe7(pd[2], Input, flags, apt, plg)
 
     #/* VARIATION OF TURBOPAUSE HEIGHT */
     zhf=pdl[1][24]*(1.0+flags.sw[5]*pdl[0][24]*sin(dgtr*Input.g_lat)*cos(dr*(Input.doy-pt[13])))
@@ -1094,7 +1097,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
     #/**** HE DENSITY ****/
 
     #/*   Density variation factor at Zlb */
-    g4 = flags.sw[21]*globe7(pd[0], Input, flags)
+    g4 = flags.sw[21]*globe7(pd[0], Input, flags, apt, plg)
     #/*  Diffusive density at Zlb */
     db04 = pdm[0][0]*exp(g4)*pd[0][0]
     #/*  Diffusive density at Alt */
@@ -1128,7 +1131,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
     #/**** O DENSITY ****/
 
     #/*  Density variation factor at Zlb */
-    g16= flags.sw[21]*globe7(pd[1],Input,flags)
+    g16= flags.sw[21]*globe7(pd[1],Input,flags,apt, plg)
     #/*  Diffusive density at Zlb */
     db16 =  pdm[1][0]*exp(g16)*pd[1][0]
     #/*   Diffusive density at Alt */
@@ -1167,7 +1170,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
     #/**** O2 DENSITY ****/
 
     #/*   Density variation factor at Zlb */
-    g32= flags.sw[21]*globe7(pd[4], Input, flags)
+    g32= flags.sw[21]*globe7(pd[4], Input, flags,apt, plg)
     #/*  Diffusive density at Zlb */
     db32 = pdm[3][0]*exp(g32)*pd[4][0]
     #/*   Diffusive density at Alt */
@@ -1209,7 +1212,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
     #/**** AR DENSITY ****/
 
     #/*   Density variation factor at Zlb */
-    g40= flags.sw[21]*globe7(pd[5],Input,flags)
+    g40= flags.sw[21]*globe7(pd[5],Input,flags,apt, plg)
     #/*  Diffusive density at Zlb */
     db40 = pdm[4][0]*exp(g40)*pd[5][0]
     #/*   Diffusive density at Alt */
@@ -1243,7 +1246,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
     #/**** HYDROGEN DENSITY ****/
 
     #/*   Density variation factor at Zlb */
-    g1 = flags.sw[21]*globe7(pd[6], Input, flags)
+    g1 = flags.sw[21]*globe7(pd[6], Input, flags,apt, plg)
     #/*  Diffusive density at Zlb */
     db01 = pdm[5][0]*exp(g1)*pd[6][0]
     #/*   Diffusive density at Alt */
@@ -1282,7 +1285,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
     #/**** ATOMIC NITROGEN DENSITY ****/
 
     #/*   Density variation factor at Zlb */
-    g14 = flags.sw[21]*globe7(pd[7],Input,flags)
+    g14 = flags.sw[21]*globe7(pd[7],Input,flags,apt, plg)
     #/*  Diffusive density at Zlb */
     db14 = pdm[6][0]*exp(g14)*pd[7][0]
     #/*   Diffusive density at Alt */
@@ -1320,7 +1323,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
 
     #/**** Anomalous OXYGEN DENSITY ****/
 
-    g16h = flags.sw[21]*globe7(pd[8],Input,flags)
+    g16h = flags.sw[21]*globe7(pd[8],Input,flags,apt, plg)
     db16h = pdm[7][0]*exp(g16h)*pd[8][0]
     tho = pdm[7][9]*pdl[0][6]
     RandomVariable = [output.t[1]]
