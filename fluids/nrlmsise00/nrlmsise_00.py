@@ -82,7 +82,6 @@ meso_tgn3 = [0.0, 0.0]
 
 #/* LPOLY */
 plg = [[0.0 for _ in range(9)] for _ in range(4)]
-apdf = 0.0
 apt = [0.0]*4
 
 hr = 0.2618
@@ -580,6 +579,8 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
 def g0_nrlmsise00(a, p):
     return (a - 4.0 + (p[25] - 1.0) * (a - 4.0 + (exp(-sqrt(p[24]*p[24]) * (a - 4.0)) - 1.0) / sqrt(p[24]*p[24])))
 
+def compute_apdf(apd, p44, p45):
+    return apd + (p45-1.0)*(apd + (exp(-p44 * apd) - 1.0)/p44)
 
 #/*    Eq. A24c */
 def sumex(ex):
@@ -728,8 +729,8 @@ def globe7(p, Input, flags):
         p45=p[44]
         if (p44<0): # pragma: no cover
             p44 = 1.0E-5
-        global apdf
-        apdf = apd + (p45-1.0)*(apd + (exp(-p44 * apd) - 1.0)/p44)
+        apdf = compute_apdf(apd, p44, p45)
+        
         if (flags.sw[9]):
             t[8]=apdf*(p[32]+p[45]*plg[0][2]+p[34]*plg[0][4]+ \
              (p[100]*plg[0][1]+p[101]*plg[0][3]+p[102]*plg[0][5])*cd14*flags.swc[5]+
@@ -871,6 +872,15 @@ def glob7s(p, Input, flags):
     #/* MAGNETIC ACTIVITY */
     if (flags.sw[9]):
         if (flags.sw[9]==1):
+            apd=Input.ap-4.0
+            p44=p[43]
+            p45=p[44]
+            if (p44<0): # pragma: no cover
+                p44 = 1.0E-5
+            if p44 == 0:
+                apdf = 0.0
+            else:
+                apdf = compute_apdf(apd, p44, p45)
             t[8] = apdf * (p[32] + p[45] * plg[0][2] * flags.swc[2])
         if (flags.sw[9]==-1):
             t[8]=(p[50]*apt[0] + p[96]*plg[0][2] * apt[0]*flags.swc[2])
