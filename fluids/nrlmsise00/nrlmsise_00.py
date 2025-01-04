@@ -439,36 +439,32 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2, gsurf, re_n
 /* ------------------------------- DENSU ----------------------------- */
 /* ------------------------------------------------------------------- */
 """
-def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1, gsurf, re_nrlmsise_00):
+def densu(alt, dlb, tinf, tlb, xm, alpha, zlb, s2, mn1, zn1, tn1, tgn1, gsurf, re_nrlmsise_00):
     '''
     /*      Calculate Temperature and Density Profiles for MSIS models
-    *      New lower thermo polynomial
+    *      New lower thermo polynomial 
     */
     tz, zn1, tn1, and tgn1 are simulated pointers
+    Returns (density, temperature) tuple
     '''
     rgas = 831.4
     #rgas = 831.44621    #maybe make this a global constant?
     densu_temp = 1.0
-
     xs = [0.0]*5
     ys = [0.0]*5
-
     #/* joining altitudes of Bates and spline */
     za=zn1[0]
     if (alt>za):
         z=alt
     else:
         z=za
-
     #/* geopotential altitude difference from ZLB */
     zg2 = zeta(z, zlb, re_nrlmsise_00)
-
     #/* Bates temperature */
     tt = tinf - (tinf - tlb) * exp(-s2*zg2)
     ta = tt
-    tz[0] = tt
-    densu_temp = tz[0]
-
+    temperature = tt
+    densu_temp = temperature
     if (alt<za):
         #/* calculate temperature below ZA
         # * temperature gradient at ZA from Bates profile */
@@ -491,7 +487,6 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1, gsur
         for k in range(mn):
             xs[k] = zeta(zn1[k], z1, re_nrlmsise_00) / zgdif
             ys[k] = 1.0 / tn1[k]
-
         #/* end node derivatives */
         yd1 = -tgn1[0] / (t1*t1) * zgdif
         yd2 = -tgn1[1] / (t2*t2) * zgdif * pow(((re_nrlmsise_00+z2)/(re_nrlmsise_00+z1)),2.0)
@@ -500,12 +495,10 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1, gsur
         x = zg / zgdif
         y = splint(xs, ys, y2out, mn, x)
         #/* temperature at altitude */
-        tz[0] = 1.0 / y
-        densu_temp = tz[0]
-
+        temperature = 1.0 / y
+        densu_temp = temperature
     if (xm==0):
-        return densu_temp
-
+        return (densu_temp, temperature)
     #/* calculate density above za */
     glb = gsurf/ pow((1.0 + zlb/re_nrlmsise_00),2.0)
     gamma = xm * glb / (s2 * rgas * tinf)
@@ -514,29 +507,24 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1, gsur
         expl=50.0
     if (tt<=0): # pragma: no cover
         expl=50.0
-
     #/* density at altitude */
     densa = dlb * pow((tlb/tt),(1.0+alpha+gamma)) * expl
     densu_temp=densa
     if (alt>=za):
-        return densu_temp
-
+        return (densu_temp, temperature)
     #/* calculate density below za */
     glb = gsurf/ pow((1.0 + z1/re_nrlmsise_00),2.0)
     gamm = xm * glb * zgdif / rgas
-
     #/* integrate spline temperatures */
     y = splini (xs, ys, y2out, mn, x)
     expl = gamm * y
     if (expl>50.0): # pragma: no cover
         expl=50.0
-    if (tz[0]<=0): # pragma: no cover
+    if (temperature<=0): # pragma: no cover
         expl=50.0
-
     #/* density at altitude */
-    densu_temp = densu_temp * pow ((t1 / tz[0]),(1.0 + alpha)) * exp(-expl)
-    return densu_temp
-
+    densu_temp = densu_temp * pow ((t1 / temperature),(1.0 + alpha)) * exp(-expl)
+    return (densu_temp, temperature)
 
 """
 /* ------------------------------------------------------------------- */
@@ -1056,8 +1044,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
         meso_tn1[4]=ptm[4]*ptl[3][0]
         meso_tgn1[1]=ptm[8]*pma[8][0]*meso_tn1[4]*meso_tn1[4]/(pow((ptm[4]*ptl[3][0]),2.0))
 
-
-
     #/* N2 variation factor at Zlb */
     g28=flags.sw[21]*globe7(pd[2], Input, flags, apt, plg)
 
@@ -1067,30 +1053,24 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
     xmm = pdm[2][4]
     z = Input.alt
 
-
     #/**** N2 DENSITY ****/
 
     #/* Diffusive density at Zlb */
     db28 = pdm[2][0]*exp(g28)*pd[2][0]
     #/* Diffusive density at Alt */
-    RandomVariable = [output.t[1]]
-    output.d[2]=densu(z,db28,tinf,tlb,28.0,alpha[2],RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-    output.t[1] = RandomVariable[0]
+    output.d[2], output.t[1] = densu(z,db28,tinf,tlb,28.0,alpha[2],ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
     dd=output.d[2]
     #/* Turbopause */
     zh28=pdm[2][2]*zhf
     zhm28=pdm[2][3]*pdl[1][5]
     xmd=28.0-xmm
     #/* Mixed density at Zlb */
-    tz = [0]
-    b28=densu(zh28,db28,tinf,tlb,xmd,(alpha[2]-1.0),tz,ptm[5],s,mn1, zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
+    b28, _ = densu(zh28,db28,tinf,tlb,xmd,(alpha[2]-1.0),ptm[5],s,mn1, zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
     if ((flags.sw[15]) and (z<=altl[2])):
         #/*  Mixed density at Alt */
-        dm28=densu(z,b28,tinf,tlb,xmm,alpha[2],tz,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
+        dm28, _ = densu(z,b28,tinf,tlb,xmm,alpha[2],ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         #/*  Net density at Alt */
         output.d[2]=dnet(output.d[2],dm28,zhm28,xmm,28.0)
-
-
 
     #/**** HE DENSITY ****/
 
@@ -1099,21 +1079,15 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
     #/*  Diffusive density at Zlb */
     db04 = pdm[0][0]*exp(g4)*pd[0][0]
     #/*  Diffusive density at Alt */
-    RandomVariable = [output.t[1]]
-    output.d[0]=densu(z,db04,tinf,tlb, 4.,alpha[0],RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-    output.t[1] = RandomVariable[0]
+    output.d[0], output.t[1] = densu(z,db04,tinf,tlb, 4.,alpha[0],ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
     dd=output.d[0]
     if ((flags.sw[15]) and (z<altl[0])):
         #/*  Turbopause */
         zh04=pdm[0][2]
         #/*  Mixed density at Zlb */
-        RandomVariable = [output.t[1]]
-        b04=densu(zh04,db04,tinf,tlb,4.-xmm,alpha[0]-1.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-        output.t[1] = RandomVariable[0]
+        b04, output.t[1] = densu(zh04,db04,tinf,tlb,4.-xmm,alpha[0]-1.,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         #/*  Mixed density at Alt */
-        RandomVariable = [output.t[1]]
-        dm04=densu(z,b04,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-        output.t[1] = RandomVariable[0]
+        dm04, output.t[1] = densu(z,b04,tinf,tlb,xmm,0.,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         zhm04=zhm28
         #/*  Net density at Alt */
         output.d[0]=dnet(output.d[0],dm04,zhm04,xmm,4.)
@@ -1124,8 +1098,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
         #/*  Net density corrected at Alt */
         output.d[0]=output.d[0]*ccor(z,rl,hc04,zc04)
 
-
-
     #/**** O DENSITY ****/
 
     #/*  Density variation factor at Zlb */
@@ -1133,21 +1105,15 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
     #/*  Diffusive density at Zlb */
     db16 =  pdm[1][0]*exp(g16)*pd[1][0]
     #/*   Diffusive density at Alt */
-    RandomVariable = [output.t[1]]
-    output.d[1]=densu(z,db16,tinf,tlb, 16.,alpha[1],RandomVariable,ptm[5],s,mn1, zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-    output.t[1] = RandomVariable[0]
+    output.d[1], output.t[1] = densu(z,db16,tinf,tlb, 16.,alpha[1],ptm[5],s,mn1, zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
     dd=output.d[1]
     if ((flags.sw[15]) and (z<=altl[1])):
         #/*   Turbopause */
         zh16=pdm[1][2]
         #/*  Mixed density at Zlb */
-        RandomVariable = [output.t[1]]
-        b16=densu(zh16,db16,tinf,tlb,16.0-xmm,(alpha[1]-1.0), RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-        output.t[1] = RandomVariable[0]
+        b16, output.t[1] = densu(zh16,db16,tinf,tlb,16.0-xmm,(alpha[1]-1.0),ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         #/*  Mixed density at Alt */
-        RandomVariable = [output.t[1]]
-        dm16=densu(z,b16,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-        output.t[1] = RandomVariable[0]
+        dm16, output.t[1] = densu(z,b16,tinf,tlb,xmm,0.,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         zhm16=zhm28
         #/*  Net density at Alt */
         output.d[1]=dnet(output.d[1],dm16,zhm16,xmm,16.)
@@ -1163,8 +1129,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
         #/*  Net density corrected at Alt */
         output.d[1]=output.d[1]*ccor(z,rc16,hcc16,zcc16)
 
-
-
     #/**** O2 DENSITY ****/
 
     #/*   Density variation factor at Zlb */
@@ -1172,22 +1136,16 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
     #/*  Diffusive density at Zlb */
     db32 = pdm[3][0]*exp(g32)*pd[4][0]
     #/*   Diffusive density at Alt */
-    RandomVariable = [output.t[1]]
-    output.d[3]=densu(z,db32,tinf,tlb, 32.,alpha[3],RandomVariable,ptm[5],s,mn1, zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-    output.t[1] = RandomVariable[0]
+    output.d[3], output.t[1] = densu(z,db32,tinf,tlb, 32.,alpha[3],ptm[5],s,mn1, zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
     dd=output.d[3]
     if (flags.sw[15]):
         if (z<=altl[3]):
             #/*   Turbopause */
             zh32=pdm[3][2]
             #/*  Mixed density at Zlb */
-            RandomVariable = [output.t[1]]
-            b32=densu(zh32,db32,tinf,tlb,32.-xmm,alpha[3]-1., RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-            output.t[1] = RandomVariable[0]
+            b32, output.t[1] = densu(zh32,db32,tinf,tlb,32.-xmm,alpha[3]-1.,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
             #/*  Mixed density at Alt */
-            RandomVariable = [output.t[1]]
-            dm32=densu(z,b32,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-            output.t[1] = RandomVariable[0]
+            dm32, output.t[1] = densu(z,b32,tinf,tlb,xmm,0.,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
             zhm32=zhm28
             #/*  Net density at Alt */
             output.d[3]=dnet(output.d[3],dm32,zhm32,xmm,32.)
@@ -1205,8 +1163,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
         #/*  Net density corrected at Alt */
         output.d[3]=output.d[3]*ccor2(z,rc32,hcc32,zcc32,hcc232)
 
-
-
     #/**** AR DENSITY ****/
 
     #/*   Density variation factor at Zlb */
@@ -1214,21 +1170,15 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
     #/*  Diffusive density at Zlb */
     db40 = pdm[4][0]*exp(g40)*pd[5][0]
     #/*   Diffusive density at Alt */
-    RandomVariable = [output.t[1]]
-    output.d[4]=densu(z,db40,tinf,tlb, 40.,alpha[4],RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-    output.t[1] = RandomVariable[0]
+    output.d[4], output.t[1] = densu(z,db40,tinf,tlb, 40.,alpha[4],ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
     dd=output.d[4]
     if ((flags.sw[15]) and (z<=altl[4])):
         #/*   Turbopause */
         zh40=pdm[4][2]
         #/*  Mixed density at Zlb */
-        RandomVariable = [output.t[1]]
-        b40=densu(zh40,db40,tinf,tlb,40.-xmm,alpha[4]-1.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-        output.t[1] = RandomVariable[0]
+        b40, output.t[1] = densu(zh40,db40,tinf,tlb,40.-xmm,alpha[4]-1.,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         #/*  Mixed density at Alt */
-        RandomVariable = [output.t[1]]
-        dm40=densu(z,b40,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-        output.t[1] = RandomVariable[0]
+        dm40, output.t[1] = densu(z,b40,tinf,tlb,xmm,0.,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         zhm40=zhm28
         #/*  Net density at Alt */
         output.d[4]=dnet(output.d[4],dm40,zhm40,xmm,40.)
@@ -1239,8 +1189,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
         #/*  Net density corrected at Alt */
         output.d[4]=output.d[4]*ccor(z,rl,hc40,zc40)
 
-
-
     #/**** HYDROGEN DENSITY ****/
 
     #/*   Density variation factor at Zlb */
@@ -1248,21 +1196,15 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
     #/*  Diffusive density at Zlb */
     db01 = pdm[5][0]*exp(g1)*pd[6][0]
     #/*   Diffusive density at Alt */
-    RandomVariable = [output.t[1]]
-    output.d[6]=densu(z,db01,tinf,tlb,1.,alpha[6],RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-    output.t[1] = RandomVariable[0]
+    output.d[6], output.t[1] = densu(z,db01,tinf,tlb,1.,alpha[6],ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
     dd=output.d[6]
     if ((flags.sw[15]) and (z<=altl[6])):
         #/*   Turbopause */
         zh01=pdm[5][2]
         #/*  Mixed density at Zlb */
-        RandomVariable = [output.t[1]]
-        b01=densu(zh01,db01,tinf,tlb,1.-xmm,alpha[6]-1., RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-        output.t[1] = RandomVariable[0]
+        b01, output.t[1] = densu(zh01,db01,tinf,tlb,1.-xmm,alpha[6]-1.,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         #/*  Mixed density at Alt */
-        RandomVariable = [output.t[1]]
-        dm01=densu(z,b01,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-        output.t[1] = RandomVariable[0]
+        dm01, output.t[1] = densu(z,b01,tinf,tlb,xmm,0.,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         zhm01=zhm28
         #/*  Net density at Alt */
         output.d[6]=dnet(output.d[6],dm01,zhm01,xmm,1.)
@@ -1278,8 +1220,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
         #/*  Net density corrected at Alt */
         output.d[6]=output.d[6]*ccor(z,rc01,hcc01,zcc01)
 
-
-
     #/**** ATOMIC NITROGEN DENSITY ****/
 
     #/*   Density variation factor at Zlb */
@@ -1287,21 +1227,15 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
     #/*  Diffusive density at Zlb */
     db14 = pdm[6][0]*exp(g14)*pd[7][0]
     #/*   Diffusive density at Alt */
-    RandomVariable = [output.t[1]]
-    output.d[7]=densu(z,db14,tinf,tlb,14.,alpha[7],RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-    output.t[1] = RandomVariable[0]
+    output.d[7], output.t[1] = densu(z,db14,tinf,tlb,14.,alpha[7],ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
     dd=output.d[7]
     if ((flags.sw[15]) and (z<=altl[7])):
         #/*   Turbopause */
         zh14=pdm[6][2]
         #/*  Mixed density at Zlb */
-        RandomVariable = [output.t[1]]
-        b14=densu(zh14,db14,tinf,tlb,14.-xmm,alpha[7]-1., RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-        output.t[1] = RandomVariable[0]
+        b14, output.t[1] = densu(zh14,db14,tinf,tlb,14.-xmm,alpha[7]-1.,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         #/*  Mixed density at Alt */
-        RandomVariable = [output.t[1]]
-        dm14=densu(z,b14,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-        output.t[1] = RandomVariable[0]
+        dm14, output.t[1] = densu(z,b14,tinf,tlb,xmm,0.,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         zhm14=zhm28
         #/*  Net density at Alt */
         output.d[7]=dnet(output.d[7],dm14,zhm14,xmm,14.)
@@ -1317,32 +1251,24 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
         #/*  Net density corrected at Alt */
         output.d[7]=output.d[7]*ccor(z,rc14,hcc14,zcc14)
 
-
-
     #/**** Anomalous OXYGEN DENSITY ****/
 
     g16h = flags.sw[21]*globe7(pd[8],Input,flags,apt, plg)
     db16h = pdm[7][0]*exp(g16h)*pd[8][0]
     tho = pdm[7][9]*pdl[0][6]
-    RandomVariable = [output.t[1]]
-    dd=densu(z,db16h,tho,tho,16.,alpha[8],RandomVariable,ptm[5],s,mn1, zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
-    output.t[1] = RandomVariable[0]
+    dd, output.t[1] = densu(z,db16h,tho,tho,16.,alpha[8],ptm[5],s,mn1, zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
     zsht=pdm[7][5]
     zmho=pdm[7][4]
     zsho=scalh(zmho,16.0,tho, gsurf, re_nrlmsise_00)
     output.d[8]=dd*exp(-zsht/zsho*(exp(-(z-zmho)/zsht)-1.))
 
-
     #/* total mass density */
     output.d[5] = 1.66E-24*(4.0*output.d[0]+16.0*output.d[1]+28.0*output.d[2]+32.0*output.d[3]+40.0*output.d[4]+ output.d[6]+14.0*output.d[7])
 
-
-
     #/* temperature */
     z = sqrt(Input.alt*Input.alt)
-    RandomVariable = [output.t[1]]
-    ddum = densu(z,1.0, tinf, tlb, 0.0, 0.0, RandomVariable, ptm[5], s, mn1, zn1, meso_tn1, meso_tgn1,gsurf, re_nrlmsise_00)
-    output.t[1] = RandomVariable[0]
+    ddum, output.t[1] = densu(z,1.0, tinf, tlb, 0.0, 0.0, ptm[5], s, mn1, zn1, meso_tn1, meso_tgn1,gsurf, re_nrlmsise_00)
+    
     if (flags.sw[0]): # pragma: no cover
         for i in range(9):
             output.d[i]=output.d[i]*1.0E6
