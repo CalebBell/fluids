@@ -81,7 +81,6 @@ meso_tgn3 = [0.0, 0.0]
 
 
 #/* LPOLY */
-dfa = 0.0
 plg = [[0.0 for _ in range(9)] for _ in range(4)]
 apdf = 0.0
 apt = [0.0]*4
@@ -660,7 +659,6 @@ def globe7(p, Input, flags):
 
     #/* F10.7 EFFECT */
     df = Input.f107 - Input.f107A
-    global dfa
     dfa = Input.f107A - 150.0
     t[0] =  p[19]*df*(1.0+p[59]*dfa) + p[20]*df*df + p[21]*dfa + p[29]*pow(dfa,2.0)
     f1 = 1.0 + (p[47]*dfa +p[19]*df+p[20]*df*df)*flags.swc[1]
@@ -831,6 +829,7 @@ def glob7s(p, Input, flags):
     p18=p[17]
     p14=p[13]
     p39=p[38]
+    dfa = Input.f107A - 150.0
 
     #/* F10.7 */
     t[0] = p[21]*dfa
