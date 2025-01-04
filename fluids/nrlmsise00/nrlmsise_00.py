@@ -54,18 +54,6 @@ __all__ = ['gtd7']
 
 
 
-#/* MESO7 */
-meso_tn1 = [0.0]*5
-meso_tn2 = [0.0]*4
-meso_tn3 = [0.0]*5
-meso_tgn1 = [0.0, 0.0]
-meso_tgn2 = [0.0, 0.0]
-meso_tgn3 = [0.0, 0.0]
-
-
-#/* LPOLY */
-plg = [[0.0 for _ in range(9)] for _ in range(4)]
-apt = [0.0]
 
 hr = 0.2618
 def calc_trig_loc(tloc, sw7, sw8, sw14):
@@ -575,6 +563,21 @@ def sg0(ex, p, ap):
                                        g0_nrlmsise00(ap[4], p)*pow(ex, 3.0) + (g0_nrlmsise00(ap[5], p)*pow(ex, 4.0) + \
                                                                                g0_nrlmsise00(ap[6], p)*pow(ex, 12.0))*(1.0 - pow(ex, 8.0))/(1.0 - ex)))/sumex(ex)
 
+### Everything above this does not use the global constants to store state.
+### These are the state variables remaining to be refactored to avoid being stateful/support threading
+
+#/* MESO7 */
+meso_tn1 = [0.0]*5
+meso_tn2 = [0.0]*4
+meso_tn3 = [0.0]*5
+meso_tgn1 = [0.0, 0.0]
+meso_tgn2 = [0.0, 0.0]
+meso_tgn3 = [0.0, 0.0]
+
+
+#/* LPOLY */
+plg = [[0.0 for _ in range(9)] for _ in range(4)]
+apt = [0.0]
 
 def globe7(p, Input, flags):
     '''
