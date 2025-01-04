@@ -52,8 +52,6 @@ __all__ = ['gtd7']
 """
 
 
-#/* GTS3C */
-dd = 0.0
 
 #/* DMIX */
 dm04 = 0.0
@@ -1003,7 +1001,6 @@ def gtd7(Input, flags, output):
         output.d[5]=output.d[5]/1000
 
     #/**** temperature at altitude ****/
-    global dd
     dd = densm(Input.alt, 1.0, 0, tz, mn3, zn3, meso_tn3, meso_tgn3, mn2, zn2, meso_tn2, meso_tgn2, gsurf, re_nrlmsise_00)
     output.t[1]=tz[0]
     return
