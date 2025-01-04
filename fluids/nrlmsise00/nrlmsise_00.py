@@ -868,9 +868,7 @@ def gtd7(Input, flags, output):
     ``thermospheric`` mass density by explicitly summing the masses of the
     species in equilibrium at the thermospheric temperature T(z).
     """
-    ### Everything above this does not use the global constants to store state.
-    ### These are the state variables remaining to be refactored to avoid being stateful/support threading
-
+    ### These used to be global variables but have been refactored to avoid being stateful/support threading
     #/* MESO7 */
     meso_tn1 = [0.0]*5
     meso_tn2 = [0.0]*4
@@ -879,7 +877,6 @@ def gtd7(Input, flags, output):
     meso_tgn3 = [0.0, 0.0]
     # meso_tn3 must not be zero for some reason
     meso_tn3 = [1e-10]*5
-
 
     #/* LPOLY */
     plg = [[0.0 for _ in range(9)] for _ in range(4)]
