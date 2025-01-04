@@ -54,11 +54,7 @@ __all__ = ['gtd7']
 
 
 #/* DMIX */
-dm04 = 0.0
-dm16 = 0.0
 dm28 = 0.0
-dm32 = 0.0
-dm40 = 0.0
 
 #/* MESO7 */
 meso_tn1 = [0.0]*5
@@ -1115,7 +1111,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
         output.t[1] = RandomVariable[0]
         #/*  Mixed density at Alt */
         RandomVariable = [output.t[1]]
-        global dm04
         dm04=densu(z,b04,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         output.t[1] = RandomVariable[0]
         zhm04=zhm28
@@ -1150,7 +1145,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
         output.t[1] = RandomVariable[0]
         #/*  Mixed density at Alt */
         RandomVariable = [output.t[1]]
-        global dm16
         dm16=densu(z,b16,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         output.t[1] = RandomVariable[0]
         zhm16=zhm28
@@ -1191,7 +1185,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
             output.t[1] = RandomVariable[0]
             #/*  Mixed density at Alt */
             RandomVariable = [output.t[1]]
-            global dm32
             dm32=densu(z,b32,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
             output.t[1] = RandomVariable[0]
             zhm32=zhm28
@@ -1233,7 +1226,6 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00):
         output.t[1] = RandomVariable[0]
         #/*  Mixed density at Alt */
         RandomVariable = [output.t[1]]
-        global dm40
         dm40=densu(z,b40,tinf,tlb,xmm,0.,RandomVariable,ptm[5],s,mn1,zn1,meso_tn1,meso_tgn1,gsurf, re_nrlmsise_00)
         output.t[1] = RandomVariable[0]
         zhm40=zhm28
