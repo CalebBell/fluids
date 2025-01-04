@@ -862,6 +862,7 @@ def glob7s(p, Input, flags, apt, plg):
 /* ------------------------------- GTD7 ------------------------------ */
 /* ------------------------------------------------------------------- */
 """
+# Test fails if this isn't a global - unsure
 meso_tn3 = [0.0]*5
 def gtd7(Input, flags, output):
     """The standard model subroutine (GTD7) always computes the.
