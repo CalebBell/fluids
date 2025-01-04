@@ -295,12 +295,7 @@ def splint(xa, ya, y2a, n, x):
     yi = a * ya[klo] + b * ya[khi] + ((a*a*a - a) * y2a[klo] + (b*b*b - b) * y2a[khi]) * h * h/6.0
     return yi
 
-"""
-/* ------------------------------------------------------------------- */
-/* ------------------------------- SPLINE ---------------------------- */
-/* ------------------------------------------------------------------- */
-"""
-def spline(x, y, n, yp1, ypn, y2):
+def spline(x, y, n, yp1, ypn):
     '''
     /*       CALCULATE 2ND DERIVATIVES OF CUBIC SPLINE INTERP FUNCTION
     *       ADAPTED FROM NUMERICAL RECIPES BY PRESS ET AL
@@ -308,13 +303,12 @@ def spline(x, y, n, yp1, ypn, y2):
     *       N: SIZE OF ARRAYS X,Y
     *       YP1,YPN: SPECIFIED DERIVATIVES AT X[0] AND X[N-1]; VALUES
     *                >= 1E30 SIGNAL SIGNAL SECOND DERIVATIVE ZERO
-    *       Y2: OUTPUT ARRAY OF SECOND DERIVATIVES
+    *       RETURNS: ARRAY OF SECOND DERIVATIVES
     */
     '''
-    u = [0.0]*n #I think this is the same as malloc
-
-    #no need for the out of memory
-
+    y2 = [0.0]*n
+    u = [0.0]*n 
+    
     if (yp1 > 0.99E30): # pragma: no cover
         y2[0] = 0
         u[0] = 0
@@ -337,16 +331,12 @@ def spline(x, y, n, yp1, ypn, y2):
 
     y2[n-1] = (un - qn * u[n-2]) / (qn * y2[n-2] + 1.0)
 
-    #it uses a for loop here, but its not something python can do (I dont think)
     k = n-2
     while(k >= 0):
         y2[k] = y2[k] * y2[k+1] + u[k]
         k -= 1
-    #This for loop might work
-    #for k in range(n-2, -1, -1):
-    #    y2[k] = y2[k] * y2[k+1] + u[k]
-    #no need to free u here
 
+    return y2
 
 """
 /* ------------------------------------------------------------------- */
@@ -362,7 +352,6 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
     '''
     xs = [0.0]*10
     ys = [0.0]*10
-    y2out = [0.0]*10
     rgas = 831.4
     #rgas = 831.44621    #maybe make this a global constant?
     densm_tmp=d0
@@ -393,7 +382,7 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
     yd2=-tgn2[1] / (t2*t2) * zgdif * (pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0))
 
     #/* calculate spline coefficients */
-    spline (xs, ys, mn, yd1, yd2, y2out)   #No need to change this
+    y2out = spline (xs, ys, mn, yd1, yd2)   #No need to change this
     x = zg/zgdif
     y = splint(xs, ys, y2out, mn, x)
 
@@ -440,7 +429,7 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2):
     yd2=-tgn3[1] / (t2*t2) * zgdif * (pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0))
 
     #/* calculate spline coefficients */
-    spline (xs, ys, mn, yd1, yd2, y2out)
+    y2out = spline (xs, ys, mn, yd1, yd2)
     x = zg/zgdif
     y = splint(xs, ys, y2out, mn, x)
 
@@ -484,7 +473,6 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
 
     xs = [0.0]*5
     ys = [0.0]*5
-    y2out = [0.0]*5
 
     #/* joining altitudes of Bates and spline */
     za=zn1[0]
@@ -529,7 +517,7 @@ def densu(alt, dlb, tinf, tlb, xm, alpha, tz, zlb, s2, mn1, zn1, tn1, tgn1):
         yd1 = -tgn1[0] / (t1*t1) * zgdif
         yd2 = -tgn1[1] / (t2*t2) * zgdif * pow(((re_nrlmsise_00[0]+z2)/(re_nrlmsise_00[0]+z1)),2.0)
         #/* calculate spline coefficients */
-        spline (xs, ys, mn, yd1, yd2, y2out)
+        y2out = spline (xs, ys, mn, yd1, yd2)
         x = zg / zgdif
         y = splint(xs, ys, y2out, mn, x)
         #/* temperature at altitude */
