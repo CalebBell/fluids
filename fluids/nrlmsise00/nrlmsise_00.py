@@ -910,7 +910,7 @@ def gtd7(Input, flags, output):
     tmp=Input.alt
     Input.alt=altt
 
-    dm28 = gts7(Input, flags, soutput, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_tn2, meso_tn3, meso_tgn1, meso_tgn2, meso_tgn3)
+    dm28 = gts7(Input, flags, soutput, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_tgn1)
     altt=Input.alt
     Input.alt=tmp
     if (flags.sw[0]): # pragma: no cover  #/* metric adjustment */
@@ -1004,7 +1004,7 @@ def gtd7(Input, flags, output):
 /* ------------------------------- GTS7 ------------------------------ */
 /* ------------------------------------------------------------------- */
 """
-def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_tn2, meso_tn3, meso_tgn1, meso_tgn2, meso_tgn3):
+def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_tgn1):
     '''
     /*     Thermospheric portion of NRLMSISE-00
     *     See GTD7 for more extensive comments
