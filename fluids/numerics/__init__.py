@@ -2046,7 +2046,8 @@ def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None,
 
     def translate_into(x):
         if not as_np:
-            x = [float(i) for i in x]
+            # cannot cast to float as used with mpmath tests
+            x = [i for i in x]
         else:
             x = x.copy()
         for i in range(len(x)):
@@ -2055,7 +2056,8 @@ def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None,
 
     def translate_outof(x):
         if not as_np:
-            x = [float(i) for i in x]
+            # cannot cast to float as used with mpmath tests
+            x = [i for i in x]
         else:
             x = x.copy()
         for i in range(len(x)):
