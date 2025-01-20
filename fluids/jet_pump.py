@@ -58,7 +58,7 @@ __all__ = ['liquid_jet_pump', 'liquid_jet_pump_ancillary',
 
 def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
                               Qp=None, Qs=None, P1=None, P2=None):
-    r'''Calculates the remaining variable in a liquid jet pump when solving for
+    r"""Calculates the remaining variable in a liquid jet pump when solving for
     one if the inlet variables only and the rest of them are known. The
     equation comes from conservation of energy and momentum in the mixing
     chamber.
@@ -147,7 +147,7 @@ def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
     ----------
     .. [1] Ejectors and Jet Pumps. Design and Performance for Incompressible
        Liquid Flow. 85032. ESDU International PLC, 1985.
-    '''
+    """
     unknowns = sum(i is None for i in (d_nozzle, d_mixing, Qs, Qp, P1, P2))
     if unknowns > 1:
         raise ValueError('Too many unknowns')
@@ -244,7 +244,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
                     d_nozzle=None, d_mixing=None, d_diffuser=None,
                     Qp=None, Qs=None, P1=None, P2=None, P5=None,
                     nozzle_retracted=True, max_variations=100):
-    r'''Calculate the remaining two variables in a liquid jet pump, using a
+    r"""Calculate the remaining two variables in a liquid jet pump, using a
     model presented in [1]_ as well as [2]_, [3]_, and [4]_.
 
     .. math::
@@ -404,7 +404,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
        Ejector Performance," November 11, 2016, V007T09A013.
     .. [4] Ejectors and Jet Pumps. Design and Performance for Incompressible
        Liquid Flow. 85032. ESDU International PLC, 1985.
-    '''
+    """
     from random import uniform
     solution_vars = ['d_nozzle', 'd_mixing', 'Qp', 'Qs', 'P1', 'P2', 'P5']
     unknown_vars = []
@@ -602,7 +602,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
 
 
 def vacuum_air_leakage_Ryans_Croll(V, P, P_atm=101325.0):
-    r'''Calculates an estimated leakage of air into a vessel using
+    r"""Calculates an estimated leakage of air into a vessel using
     a correlation from Ryans and Croll (1981) [1]_ as given in [2]_ and [3]_.
 
     if P < 10 torr:
@@ -655,7 +655,7 @@ def vacuum_air_leakage_Ryans_Croll(V, P, P_atm=101325.0):
        Publishing, 2007.
     .. [3] Govoni, Patrick. "An Overview of Vacuum System Design"
        Chemical Engineering Magazine, September 2017.
-    '''
+    """
     V *= foot_cubed_inv
     P *= torr_inv
     P_atm *= torr_inv
@@ -670,7 +670,7 @@ def vacuum_air_leakage_Ryans_Croll(V, P, P_atm=101325.0):
     return leakage
 
 def vacuum_air_leakage_Seider(V, P, P_atm=101325.0):
-    r'''Calculates an estimated leakage of air into a vessel using
+    r"""Calculates an estimated leakage of air into a vessel using
     a correlation from Seider [1]_.
 
     .. math::
@@ -709,7 +709,7 @@ def vacuum_air_leakage_Seider(V, P, P_atm=101325.0):
     .. [1] Seider, Warren D., J. D. Seader, and Daniel R. Lewin.
        Product and Process Design Principles: Synthesis, Analysis,
        and Evaluation. 2nd edition. New York: Wiley, 2003.
-    '''
+    """
     P *= torr_inv
     P_atm *= torr_inv
     P_vacuum = P_atm - P
@@ -720,7 +720,7 @@ def vacuum_air_leakage_Seider(V, P, P_atm=101325.0):
     return leakage
 
 def vacuum_air_leakage_HEI2633(V, P, P_atm=101325.0):
-    r'''Calculates an estimated leakage of air into a vessel using
+    r"""Calculates an estimated leakage of air into a vessel using
     fits to a graph of HEI-2633-00 for air leakage in commercially `tight`
     vessels [1]_.
 
@@ -761,7 +761,7 @@ def vacuum_air_leakage_HEI2633(V, P, P_atm=101325.0):
     References
     ----------
     .. [1] "Standards for Steam Jet Vacuum Systems", 5th Edition
-    '''
+    """
     P_atm *= mmHg_inv
     P *= mmHg_inv
     P_vacuum = P_atm - P
@@ -785,7 +785,7 @@ def vacuum_air_leakage_HEI2633(V, P, P_atm=101325.0):
     return leakage
 
 def vacuum_air_leakage_Coker_Worthington(P, P_atm=101325.0, conservative=True):
-    r'''Calculates an estimated leakage of air into a vessel using
+    r"""Calculates an estimated leakage of air into a vessel using
     a tabular lookup from Coker cited as being from Worthington Corp's
     1955 Steam-Jet Ejector Application Handbook, Bulletin W-205-E21 [1]_.
 
@@ -816,7 +816,7 @@ def vacuum_air_leakage_Coker_Worthington(P, P_atm=101325.0, conservative=True):
     .. [1] Coker, Kayode. Ludwig's Applied Process Design for Chemical and
        Petrochemical Plants. 4 edition. Amsterdam ; Boston: Gulf Professional
        Publishing, 2007.
-    '''
+    """
     P /= inchHg # convert to inch Hg
     P_atm /= inchHg # convert to inch Hg
     P_vacuum = P_atm - P

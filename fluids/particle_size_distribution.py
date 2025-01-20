@@ -114,7 +114,7 @@ NO_MATPLOTLIB_MSG = 'Optional dependency matplotlib is required for plotting'
 
 
 class Sieve:
-    r'''Class for storing data on sieves. If a property is not available, it is
+    r"""Class for storing data on sieves. If a property is not available, it is
     set to None.
 
     Attributes
@@ -163,7 +163,7 @@ class Sieve:
     d_wire_max : float
         Permissible maximum wire diameter of specified sieve size, [m]
 
-    '''
+    """
 
     __slots__ = ('designation', 'old_designation', 'opening', 'opening_inch',
                  'Y_variation_avg', 'X_variation_max', 'max_opening',
@@ -481,7 +481,7 @@ sieve_spacing_options = {'ISO 3310-1': ISO_3310_1_sieve_list,
 
 
 def psd_spacing(d_min=None, d_max=None, pts=20, method='logarithmic'):
-    r'''Create a particle spacing mesh in one of several ways for use in
+    r"""Create a particle spacing mesh in one of several ways for use in
     modeling discrete particle size distributions. The allowable meshes are
     'linear', 'logarithmic', a geometric series specified by a Renard number
     such as 'R10', or the meshes available in one of several sieve standards.
@@ -525,7 +525,7 @@ def psd_spacing(d_min=None, d_max=None, pts=20, method='logarithmic'):
        Cloth and Test Sieves.
     .. [2] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
        -- Part 1: Test Sieves of Metal Wire Cloth.
-    '''
+    """
     if d_min is not None:
         d_min = float(d_min)
     if d_max is not None:
@@ -561,7 +561,7 @@ def psd_spacing(d_min=None, d_max=None, pts=20, method='logarithmic'):
 
 
 def pdf_lognormal(d, d_characteristic, s):
-    r'''Calculates the probability density function of a lognormal particle
+    r"""Calculates the probability density function of a lognormal particle
     distribution given a particle diameter `d`, characteristic particle
     diameter `d_characteristic`, and distribution standard deviation `s`.
 
@@ -612,7 +612,7 @@ def pdf_lognormal(d, d_characteristic, s):
     .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size
        Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and
        Moments from Particle Size Distributions.
-    '''
+    """
     try:
         log_term = log(d/d_characteristic)/s
     except ValueError:
@@ -621,7 +621,7 @@ def pdf_lognormal(d, d_characteristic, s):
 
 
 def cdf_lognormal(d, d_characteristic, s):
-    r'''Calculates the cumulative distribution function of a lognormal particle
+    r"""Calculates the cumulative distribution function of a lognormal particle
     distribution given a particle diameter `d`, characteristic particle
     diameter `d_characteristic`, and distribution standard deviation `s`.
 
@@ -671,7 +671,7 @@ def cdf_lognormal(d, d_characteristic, s):
     .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size
        Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and
        Moments from Particle Size Distributions.
-    '''
+    """
     try:
         return 0.5*(1.0 + erf((log(d/d_characteristic))/(s*sqrt(2.0))))
     except:
@@ -680,7 +680,7 @@ def cdf_lognormal(d, d_characteristic, s):
 
 
 def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
-    r'''Calculates the integral of the multiplication of d^n by the lognormal
+    r"""Calculates the integral of the multiplication of d^n by the lognormal
     pdf, given a particle diameter `d`, characteristic particle
     diameter `d_characteristic`, distribution standard deviation `s`, and
     exponent `n`.
@@ -727,7 +727,7 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
     --------
     >>> pdf_lognormal_basis_integral(d=1E-4, d_characteristic=1E-5, s=1.1, n=-2)
     56228306549.26362
-    '''
+    """
     try:
         s2 = s*s
         t0 = exp(s2*n*n*0.5)
@@ -740,7 +740,7 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
 
 
 def pdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
-    r'''Calculates the probability density of a particle
+    r"""Calculates the probability density of a particle
     distribution following the Gates, Gaudin and Schuhman (GGS) model given a
     particle diameter `d`, characteristic (maximum) particle
     diameter `d_characteristic`, and exponent `m`.
@@ -786,7 +786,7 @@ def pdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
     .. [2] Bayat, Hossein, Mostafa Rastgo, Moharram Mansouri Zadeh, and Harry
        Vereecken. "Particle Size Distribution Models, Their Characteristics and
        Fitting Capability." Journal of Hydrology 529 (October 1, 2015): 872-89.
-    '''
+    """
     if d <= d_characteristic:
         return m/d*(d/d_characteristic)**m
     else:
@@ -794,7 +794,7 @@ def pdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
 
 
 def cdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
-    r'''Calculates the cumulative distribution function of a particle
+    r"""Calculates the cumulative distribution function of a particle
     distribution following the Gates, Gaudin and Schuhman (GGS) model given a
     particle diameter `d`, characteristic (maximum) particle
     diameter `d_characteristic`, and exponent `m`.
@@ -840,7 +840,7 @@ def cdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
     .. [2] Bayat, Hossein, Mostafa Rastgo, Moharram Mansouri Zadeh, and Harry
        Vereecken. "Particle Size Distribution Models, Their Characteristics and
        Fitting Capability." Journal of Hydrology 529 (October 1, 2015): 872-89.
-    '''
+    """
     if d <= d_characteristic:
         return (d/d_characteristic)**m
     else:
@@ -848,7 +848,7 @@ def cdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
 
 
 def pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic, m, n):
-    r'''Calculates the integral of the multiplication of d^n by the Gates,
+    r"""Calculates the integral of the multiplication of d^n by the Gates,
     Gaudin and Schuhman (GGS) model given a particle diameter `d`,
     characteristic (maximum) particle diameter `d_characteristic`, and exponent
     `m`.
@@ -882,12 +882,12 @@ def pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic, m, n):
     --------
     >>> pdf_Gates_Gaudin_Schuhman_basis_integral(d=2E-4, d_characteristic=1E-3, m=2.3, n=-3)
     -10136984887.543015
-    '''
+    """
     return m/(m+n)*d**n*(d/d_characteristic)**m
 
 
 def pdf_Rosin_Rammler(d, k, m):
-    r'''Calculates the probability density of a particle
+    r"""Calculates the probability density of a particle
     distribution following the Rosin-Rammler (RR) model given a
     particle diameter `d`, and the two parameters `k` and `m`.
 
@@ -923,12 +923,12 @@ def pdf_Rosin_Rammler(d, k, m):
     .. [2] Bayat, Hossein, Mostafa Rastgo, Moharram Mansouri Zadeh, and Harry
        Vereecken. "Particle Size Distribution Models, Their Characteristics and
        Fitting Capability." Journal of Hydrology 529 (October 1, 2015): 872-89.
-    '''
+    """
     return d**(m - 1.0)*k*m*exp(-d**m*k)
 
 
 def cdf_Rosin_Rammler(d, k, m):
-    r'''Calculates the cumulative distribution function of a particle
+    r"""Calculates the cumulative distribution function of a particle
     distribution following the Rosin-Rammler (RR) model given a
     particle diameter `d`, and the two parameters `k` and `m`.
 
@@ -969,12 +969,12 @@ def cdf_Rosin_Rammler(d, k, m):
     .. [2] Bayat, Hossein, Mostafa Rastgo, Moharram Mansouri Zadeh, and Harry
        Vereecken. "Particle Size Distribution Models, Their Characteristics and
        Fitting Capability." Journal of Hydrology 529 (October 1, 2015): 872-89.
-    '''
+    """
     return 1.0 - exp(-k*d**m)
 
 
 def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
-    r'''Calculates the integral of the multiplication of d^n by the Rosin
+    r"""Calculates the integral of the multiplication of d^n by the Rosin
     Rammler (RR) pdf, given a particle diameter `d`, and the two parameters `k`
     and `m`.
 
@@ -1012,7 +1012,7 @@ def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
     --------
     >>> "{:g}".format(pdf_Rosin_Rammler_basis_integral(5E-2, 200, 2, 3))
     '-0.000452399'
-    '''
+    """
     # Also not able to compute the limit for d approaching 0.
     try:
         a = (m + n)/m
@@ -1175,7 +1175,7 @@ _mean_size_iso_docstring =  r"""Calculates the mean particle size according to m
 
 
 class ParticleSizeDistributionContinuous:
-    r'''Base class representing a continuous particle size distribution
+    r"""Base class representing a continuous particle size distribution
     specified by a mathematical/statistical function. This class holds the
     common methods only.
 
@@ -1196,7 +1196,7 @@ class ParticleSizeDistributionContinuous:
     .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size
        Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and
        Moments from Particle Size Distributions.
-    '''
+    """
 
     def _pdf_basis_integral_definite(self, d_min, d_max, n):
         # Needed as an api for numerical integrals
@@ -1204,7 +1204,7 @@ class ParticleSizeDistributionContinuous:
                 - self._pdf_basis_integral(d=d_min, n=n))
 
     def pdf(self, d, n=None):
-        r'''Computes the probability density function of a
+        r"""Computes the probability density function of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
         the distribution chosen. The interconversion between distribution
@@ -1253,7 +1253,7 @@ class ParticleSizeDistributionContinuous:
         .. [1] Masuda, Hiroaki, Ko Higashitani, and Hideto Yoshida. Powder
            Technology: Fundamentals of Particles, Powder Beds, and Particle
            Generation. CRC Press, 2006.
-        '''
+        """
         ans = self._pdf(d=d)
         if n is not None and n != self.order:
             power = n - self.order
@@ -1269,7 +1269,7 @@ class ParticleSizeDistributionContinuous:
         return ans
 
     def cdf(self, d, n=None):
-        r'''Computes the cumulative distribution density function of a
+        r"""Computes the cumulative distribution density function of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
         the distribution chosen.
@@ -1302,7 +1302,7 @@ class ParticleSizeDistributionContinuous:
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> [psd.cdf(5e-6, n) for n in range(4)]
         [0.933192798731, 0.8413447460685, 0.6914624612740, 0.5]
-        '''
+        """
         if n is not None and n != self.order:
             power = n - self.order
             # One of the pdf_basis_integral calls could be saved except for
@@ -1322,7 +1322,7 @@ class ParticleSizeDistributionContinuous:
         return ans
 
     def delta_cdf(self, d_min, d_max, n=None):
-        r'''Computes the difference in cumulative distribution function between
+        r"""Computes the difference in cumulative distribution function between
         two particle size diameters.
 
         .. math::
@@ -1350,11 +1350,11 @@ class ParticleSizeDistributionContinuous:
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.delta_cdf(1e-6, 1e-5)
         0.9165280099853876
-        '''
+        """
         return self.cdf(d_max, n=n) - self.cdf(d_min, n=n)
 
     def dn(self, fraction, n=None):
-        r'''Computes the diameter at which a specified `fraction` of the
+        r"""Computes the diameter at which a specified `fraction` of the
         distribution falls under. Utilizes a bounded solver to search for the
         desired diameter.
 
@@ -1382,7 +1382,7 @@ class ParticleSizeDistributionContinuous:
         0.0002947436533523378
         >>> psd.dn(0)
         0.0
-        '''
+        """
         fraction = float(fraction)
         if fraction == 1.0:
             # Avoid returning the maximum value of the search interval
@@ -1415,7 +1415,7 @@ class ParticleSizeDistributionContinuous:
 
     def ds_discrete(self, d_min=None, d_max=None, pts=20, limit=1e-9,
                     method='logarithmic'):
-        r'''Create a particle spacing mesh to perform calculations with,
+        r"""Create a particle spacing mesh to perform calculations with,
         according to one of several ways. The allowable meshes are
         'linear', 'logarithmic', a geometric series specified by a Renard
         number such as 'R10', or the meshes available in one of several sieve
@@ -1459,7 +1459,7 @@ class ParticleSizeDistributionContinuous:
            Cloth and Test Sieves.
         .. [2] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
            -- Part 1: Test Sieves of Metal Wire Cloth.
-        '''
+        """
         if method[0] not in ('R', 'r'):
             if d_min is None:
                 d_min = self.dn(limit)
@@ -1468,7 +1468,7 @@ class ParticleSizeDistributionContinuous:
         return psd_spacing(d_min=d_min, d_max=d_max, pts=pts, method=method)
 
     def fractions_discrete(self, ds, n=None):
-        r'''Computes the fractions of the cumulative distribution functions
+        r"""Computes the fractions of the cumulative distribution functions
         which lie between the specified specified particle diameters. The first
         diameter contains the cdf from 0 to it.
 
@@ -1492,12 +1492,12 @@ class ParticleSizeDistributionContinuous:
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.fractions_discrete([1e-6, 1e-5, 1e-4, 1e-3])
         [0.00064347101291, 0.916528009985, 0.0828285179619, 1.039798e-09]
-        '''
+        """
         cdfs = [self.cdf(d, n=n) for d in ds]
         return [cdfs[0]] + diff(cdfs)
 
     def cdf_discrete(self, ds, n=None):
-        r'''Computes the cumulative distribution functions for a list of
+        r"""Computes the cumulative distribution functions for a list of
         specified particle diameters.
 
         Parameters
@@ -1520,11 +1520,11 @@ class ParticleSizeDistributionContinuous:
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6, order=3)
         >>> psd.cdf_discrete([1e-6, 1e-5, 1e-4, 1e-3])
         [0.000643471012913, 0.917171480998, 0.999999998960, 1.0]
-        '''
+        """
         return [self.cdf(d, n=n) for d in ds]
 
     def mean_size(self, p, q):
-        '''
+        """
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
         >>> psd.mean_size(3, 2)
         4.412484512922977e-06
@@ -1538,7 +1538,7 @@ class ParticleSizeDistributionContinuous:
 
         >>> psd.mean_size(3, 3)
         4.9999999304923345e-06
-        '''
+        """
         if p == q:
             p -= 1e-9
             q += 1e-9
@@ -1551,18 +1551,18 @@ class ParticleSizeDistributionContinuous:
         return float((numerator/denominator)**(1.0/(root_power)))
 
     def mean_size_ISO(self, k, r):
-        '''
+        """
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
         >>> psd.mean_size_ISO(1, 2)
         4.412484512922977e-06
-        '''
+        """
         p = k + r
         q = r
         return self.mean_size(p=p, q=q)
 
     @property
     def vssa(self):
-        r'''The volume-specific surface area of a particle size distribution.
+        r"""The volume-specific surface area of a particle size distribution.
 
         .. math::
             \text{VSSA} = \frac{6}{\bar x_{1,2}}
@@ -1582,13 +1582,13 @@ class ParticleSizeDistributionContinuous:
         .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size
            Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
            and Moments from Particle Size Distributions.
-        '''
+        """
         return 6/self.mean_size(3, 2)
 
 
     def plot_pdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500,
                  normalized=False, method='linear'):  # pragma: no cover
-        r'''Plot the probability density function of the particle size
+        r"""Plot the probability density function of the particle size
         distribution. The plotted range can be specified using `d_min` and
         `d_max`, or estimated automatically. One or more order can be plotted,
         by providing an iterable of ints as the value of `n` or just one int.
@@ -1617,7 +1617,7 @@ class ParticleSizeDistributionContinuous:
             or'R2.5', or one of the sieve standards 'ISO 3310-1 R40/3',
             'ISO 3310-1 R20', 'ISO 3310-1 R20/3', 'ISO 3310-1',
             'ISO 3310-1 R10', 'ASTM E11', [-]
-        '''
+        """
         try:
             import matplotlib.pyplot as plt
         except:  # pragma: no cover
@@ -1644,7 +1644,7 @@ class ParticleSizeDistributionContinuous:
 
     def plot_cdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500,
                  method='logarithmic'):   # pragma: no cover
-        r'''Plot the cumulative distribution function of the particle size
+        r"""Plot the cumulative distribution function of the particle size
         distribution. The plotted range can be specified using `d_min` and
         `d_max`, or estimated automatically. One or more order can be plotted,
         by providing an iterable of ints as the value of `n` or just one int.
@@ -1666,7 +1666,7 @@ class ParticleSizeDistributionContinuous:
             or'R2.5', or one of the sieve standards 'ISO 3310-1 R40/3',
             'ISO 3310-1 R20', 'ISO 3310-1 R20/3', 'ISO 3310-1',
             'ISO 3310-1 R10', 'ASTM E11', [-]
-        '''
+        """
         try:
             import matplotlib.pyplot as plt
         except:  # pragma: no cover
@@ -1699,7 +1699,7 @@ class ParticleSizeDistributionContinuous:
 
 
 class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
-    r'''Class representing a discrete particle size distribution specified by a
+    r"""Class representing a discrete particle size distribution specified by a
     series of diameter bins, and the quantity of particles in each bin. The
     quantities may be specified as either the fraction of particles in each
     bin, or as cumulative distributions. The input fractions can be
@@ -1778,7 +1778,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     .. [2] ISO 9276-2:2014 - Representation of Results of Particle Size
        Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and
        Moments from Particle Size Distributions.
-    '''
+    """
 
     def __repr__(self):
         txt = '<Particle Size Distribution, points=%d, D[3, 3]=%f m>'
@@ -1912,7 +1912,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         return [self.di_power(i, power=1) for i in range(self.N)]
 
     def di_power(self, i, power=1):
-        r'''Method to calculate a power of a particle class/bin in a generic
+        r"""Method to calculate a power of a particle class/bin in a generic
         way so as to support when there are as many `ds` as `fractions`,
         or one more diameter spec than `fractions`.
 
@@ -1945,7 +1945,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         ----------
         .. [1] ASTM E799 - 03(2015) - Standard Practice for Determining Data
            Criteria and Processing for Liquid Drop Size Analysis.
-        '''
+        """
         if self.size_classes:
             rt = power + 1
             return ((self.ds[i+1]**rt - self.ds[i]**rt)/((self.ds[i+1] - self.ds[i])*rt))
@@ -1953,14 +1953,14 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
             return self.ds[i]**power
 
     def mean_size(self, p, q):
-        '''
+        """
         >>> import numpy as np
         >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
         >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
         >>> psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
         >>> psd.mean_size(3, 2)
         0.002269321031745045
-        '''
+        """
         if p != q:
             # Note: D(p, q) = D(q, p); in ISO and proven experimentally
             numerator = sum(self.di_power(i=i, power=p)*self.number_fractions[i] for i in range(self.N))
@@ -1972,21 +1972,21 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
             return exp(numerator/denominator)
 
     def mean_size_ISO(self, k, r):
-        r'''
+        r"""
         >>> import numpy as np
         >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
         >>> numbers = [65, 119, 232, 410, 629, 849, 990, 981, 825, 579, 297, 111, 21, 1]
         >>> psd = ParticleSizeDistribution(ds=ds, fractions=numbers, order=0)
         >>> psd.mean_size_ISO(1, 2)
         0.002269321031745045
-        '''
+        """
         p = k + r
         q = r
         return self.mean_size(p=p, q=q)
 
     @property
     def vssa(self):
-        r'''The volume-specific surface area of a particle size distribution.
+        r"""The volume-specific surface area of a particle size distribution.
         Note this uses the diameters provided by the method `Dis`.
 
         .. math::
@@ -2002,7 +2002,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size
            Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
            and Moments from Particle Size Distributions.
-        '''
+        """
         ds = self.Dis
         Vs = [pi/6*di**3 for di in ds]
         SAs = [pi*di**2 for di in ds]

@@ -49,7 +49,7 @@ __all__ = ['Rizk', 'Matsumoto_1974', 'Matsumoto_1975', 'Matsumoto_1977',
 
 
 def Rizk(mp, dp, rhog, D):
-    r'''Calculates saltation velocity of the gas for pneumatic conveying,
+    r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_ as described in [2]_ and many others.
 
     .. math::
@@ -98,7 +98,7 @@ def Rizk(mp, dp, rhog, D):
        Conveying of Solids: A Theoretical and Practical Approach.
        Springer, 2013.
     .. [3] Rhodes, Martin J. Introduction to Particle Technology. Wiley, 2013.
-    '''
+    """
     alpha = 1440.0*dp + 1.96
     beta = 1100.0*dp + 2.5
     term1 = 0.1**alpha
@@ -109,7 +109,7 @@ def Rizk(mp, dp, rhog, D):
 
 
 def Matsumoto_1974(mp, rhop, dp, rhog, D, Vterminal=1):
-    r'''Calculates saltation velocity of the gas for pneumatic conveying,
+    r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_. Also described in [2]_.
 
     .. math::
@@ -167,7 +167,7 @@ def Matsumoto_1974(mp, rhop, dp, rhog, D, Vterminal=1):
        Saltation Velocity in Horizontal Pneumatic Conveying." Industrial &
        Engineering Chemistry Process Design and Development 17, no. 4
        (October 1, 1978): 571-75. doi:10.1021/i260068a031
-    '''
+    """
     A = pi/4*D**2
     Frp = Vterminal/sqrt(g*dp)
     Frs_sorta = 1./sqrt(g*D)
@@ -177,7 +177,7 @@ def Matsumoto_1974(mp, rhop, dp, rhog, D, Vterminal=1):
 
 
 def Matsumoto_1975(mp, rhop, dp, rhog, D, Vterminal=1):
-    r'''Calculates saltation velocity of the gas for pneumatic conveying,
+    r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_. Also described in [2]_.
 
     .. math::
@@ -235,7 +235,7 @@ def Matsumoto_1975(mp, rhop, dp, rhog, D, Vterminal=1):
        Saltation Velocity in Horizontal Pneumatic Conveying." Industrial &
        Engineering Chemistry Process Design and Development 17, no. 4
        (October 1, 1978): 571-75. doi:10.1021/i260068a031
-    '''
+    """
     A = pi/4*D**2
     Frp = Vterminal/sqrt(g*dp)
     Frs_sorta = 1./sqrt(g*D)
@@ -245,7 +245,7 @@ def Matsumoto_1975(mp, rhop, dp, rhog, D, Vterminal=1):
 
 
 def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
-    r'''Calculates saltation velocity of the gas for pneumatic conveying,
+    r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_ and reproduced in [2]_, [3]_, and [4]_.
 
     First equation is used if third equation yields d* higher than dp.
@@ -321,7 +321,7 @@ def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
        Particle-Fluid Flows in Horizontal Pipes and Ducts: Literature Review."
        Reviews in Chemical Engineering 27, no. 5-6 (January 1, 2011).
        doi:10.1515/REVCE.2011.011.
-    '''
+    """
     limit = 1.39*D*(rhop/rhog)**-0.74
     A = pi/4*D**2
     if limit < dp:
@@ -339,7 +339,7 @@ def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
 
 
 def Schade(mp, rhop, dp, rhog, D):
-    r'''Calculates saltation velocity of the gas for pneumatic conveying,
+    r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_ as described in [2]_, [3]_, [4]_, and [5]_.
 
     .. math::
@@ -401,7 +401,7 @@ def Schade(mp, rhop, dp, rhog, D):
        Pickup and Saltation Velocities in Pneumatic Conveying." Brazilian
        Journal of Chemical Engineering 31, no. 1 (March 2014): 35-46.
        doi:10.1590/S0104-66322014000100005
-    '''
+    """
     B = (D/dp)**0.025*(rhop/rhog)**0.34
     A = sqrt(g*D)
     C = mp/(rhog*pi/4*D**2)
@@ -409,7 +409,7 @@ def Schade(mp, rhop, dp, rhog, D):
 
 
 def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
-    r'''Calculates saltation velocity of the gas for pneumatic conveying,
+    r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_ as described in [2]_, [3]_, [4]_, and [5]_.
 
     If Vterminal is under 3 m/s, use equation 1; otherwise, equation 2.
@@ -479,7 +479,7 @@ def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
        Pickup and Saltation Velocities in Pneumatic Conveying." Brazilian
        Journal of Chemical Engineering 31, no. 1 (March 2014): 35-46.
        doi:10.1590/S0104-66322014000100005
-    '''
+    """
     if Vterminal <= 3:
         term1 = (7 + 8/3.*Vterminal)*(dp/D)**0.1
     else:
@@ -490,7 +490,7 @@ def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
 
 
 def Geldart_Ling(mp, rhog, D, mug):
-    r'''Calculates saltation velocity of the gas for pneumatic conveying,
+    r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_ as described in [2]_ and [3]_.
 
     if Gs/D < 47000, use equation 1, otherwise use equation 2.
@@ -551,7 +551,7 @@ def Geldart_Ling(mp, rhog, D, mug):
        Pickup and Saltation Velocities in Pneumatic Conveying." Brazilian
        Journal of Chemical Engineering 31, no. 1 (March 2014): 35-46.
        doi:10.1590/S0104-66322014000100005
-    '''
+    """
     Gs = mp/(0.25*pi*D*D)
     if Gs/D <= 47000.0:
         return 1.5*Gs**0.465*D**-0.01*mug**0.055*rhog**-0.42

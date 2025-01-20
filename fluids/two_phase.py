@@ -129,7 +129,7 @@ def _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV):
 
 def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
                 L=1.0, g=g, acceleration=True):
-    r'''Calculates the two-phase pressure drop according to the Beggs-Brill
+    r"""Calculates the two-phase pressure drop according to the Beggs-Brill
     correlation ([1]_, [2]_, [3]_).
 
     Parameters
@@ -193,7 +193,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     .. [3] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in
        Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
        2006.
-    '''
+    """
     # 0 - segregated; 1 - transition; 2 - intermittent; 3 - distributed
     qg = x*m/rhog
     ql = (1.0 - x)*m/rhol
@@ -263,7 +263,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
 
 
 def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Friedel correlation.
+    r"""Calculates two-phase pressure drop with the Friedel correlation.
 
     .. math::
         \Delta P_{friction} = \Delta P_{lo} \phi_{lo}^2
@@ -356,7 +356,7 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        (2004). http://www.wlv.com/heat-transfer-databook/
     .. [6] Ghiaasiaan, S. Mostafa. Two-Phase Flow, Boiling, and Condensation:
         In Conventional and Miniature Systems. Cambridge University Press, 2007.
-    '''
+    """
     # Liquid-only properties, for calculation of E, dP_lo
     A = 0.25*pi*D*D
     v_lo = m/(A*rhol)
@@ -387,7 +387,7 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
 
 
 def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Gronnerud correlation as
+    r"""Calculates two-phase pressure drop with the Gronnerud correlation as
     presented in [2]_, [3]_, and [4]_.
 
     .. math::
@@ -459,7 +459,7 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        State University, 2013. https://shareok.org/handle/11244/11109.
     .. [4] Thome, John R. "Engineering Data Book III." Wolverine Tube Inc
        (2004). http://www.wlv.com/heat-transfer-databook/
-    '''
+    """
     G = m/(0.25*pi*D*D)
     V = G/rhol
     Frl = Froude(V=V, L=D, squared=True)
@@ -481,7 +481,7 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
 
 def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
              rough_correction=False):
-    r'''Calculates two-phase pressure drop with the Chisholm (1973) correlation
+    r"""Calculates two-phase pressure drop with the Chisholm (1973) correlation
     from [1]_, also in [2]_ and [3]_.
 
     .. math::
@@ -586,7 +586,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
        Friction Pressure Gradient during Two-Phase Flow." Journal of Mechanical
        Engineering Science 20, no. 6 (December 1, 1978): 353-354.
        doi:10.1243/JMES_JOUR_1978_020_061_02.
-    '''
+    """
     A = 0.25*pi*D*D
     G_tp = m/A
     n = 0.25 # Blasius friction factor exponent
@@ -629,7 +629,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
 
 
 def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Baroczy (1966) model.
+    r"""Calculates two-phase pressure drop with the Baroczy (1966) model.
     It was presented in graphical form originally; Chisholm (1973) made the
     correlation non-graphical. The model is also shown in [3]_.
 
@@ -707,7 +707,7 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     .. [3] Mekisso, Henock Mateos. "Comparison of Frictional Pressure Drop
        Correlations for Isothermal Two-Phase Horizontal Flow." Thesis, Oklahoma
        State University, 2013. https://shareok.org/handle/11244/11109.
-    '''
+    """
     A = 0.25*pi*D*D
     G_tp = m/A
     n = 0.25 # Blasius friction factor exponent
@@ -735,7 +735,7 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
 
 
 def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Muller-Steinhagen and Heck
+    r"""Calculates two-phase pressure drop with the Muller-Steinhagen and Heck
     (1986) correlation from [1]_, also in [2]_ and [3]_.
 
     .. math::
@@ -793,7 +793,7 @@ def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        State University, 2013. https://shareok.org/handle/11244/11109.
     .. [3] Thome, John R. "Engineering Data Book III." Wolverine Tube Inc
        (2004). http://www.wlv.com/heat-transfer-databook/
-    '''
+    """
     A = 0.25*pi*D*D
     # Liquid-only properties, for calculation of dP_lo
     v_lo = m/(rhol*A)
@@ -812,7 +812,7 @@ def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
 
 
 def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1.0):
-    r'''Calculates two-phase pressure drop with the Lombardi-Pedrocchi (1972)
+    r"""Calculates two-phase pressure drop with the Lombardi-Pedrocchi (1972)
     correlation from [1]_ as shown in [2]_ and [3]_.
 
     .. math::
@@ -864,7 +864,7 @@ def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1.0):
        "Comparison of Flow Boiling Pressure Drop Correlations for Smooth
        Macrotubes." Heat Transfer Engineering 37, no. 6 (April 12, 2016):
        487-506. doi:10.1080/01457632.2015.1060733.
-    '''
+    """
     voidage_h = homogeneous(x, rhol, rhog)
     rho_h = rhol*(1.0-voidage_h) + rhog*voidage_h
     G_tp = m/(0.25*pi*D*D)
@@ -872,7 +872,7 @@ def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1.0):
 
 
 def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Theissing (1980)
+    r"""Calculates two-phase pressure drop with the Theissing (1980)
     correlation as shown in [2]_ and [3]_.
 
     .. math::
@@ -949,7 +949,7 @@ def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        Gradients during Evaporation of Pure and Mixed Refrigerants in a Smooth
        Horizontal Tube. Comparison with Correlations." Heat and Mass Transfer
        42, no. 8 (April 6, 2006): 709-725. doi:10.1007/s00231-005-0020-7.
-    '''
+    """
     A = 0.25*pi*D*D
     # Liquid-only flow
     v_lo = m/(rhol*A)
@@ -993,7 +993,7 @@ def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
 
 
 def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Jung-Radermacher (1989)
+    r"""Calculates two-phase pressure drop with the Jung-Radermacher (1989)
     correlation, also shown in [2]_ and [3]_.
 
     .. math::
@@ -1054,7 +1054,7 @@ def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        of Two-Phase Pressure Drop Models for Condensing Flows in Horizontal
        Tubes." Mathematical Modelling in Civil Engineering 10, no. 4 (2015):
        19-27. doi:10.2478/mmce-2014-0019.
-    '''
+    """
     A = 0.25*pi*D*D
     v_lo = m/(rhol*A)
     Re_lo = Reynolds(V=v_lo, rho=rhol, mu=mul, D=D)
@@ -1067,7 +1067,7 @@ def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
 
 
 def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Tran (2000) correlation,
+    r"""Calculates two-phase pressure drop with the Tran (2000) correlation,
     also shown in [2]_ and [3]_.
 
     .. math::
@@ -1136,7 +1136,7 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        "Two-Phase Pressure Drop of R-410A in Horizontal Smooth Minichannels."
        International Journal of Refrigeration 31, no. 1 (January 2008): 119-29.
        doi:10.1016/j.ijrefrig.2007.06.006.
-    '''
+    """
     A = 0.25*pi*D*D
     # Liquid-only properties, for calculation of dP_lo
     v_lo = m/(rhol*A)
@@ -1157,7 +1157,7 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
 
 
 def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Chen modification of the
+    r"""Calculates two-phase pressure drop with the Chen modification of the
     Friedel correlation, as given in [1]_ and also shown in [2]_ and [3]_.
 
     .. math::
@@ -1237,7 +1237,7 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        "Two-Phase Pressure Drop of R-410A in Horizontal Smooth Minichannels."
        International Journal of Refrigeration 31, no. 1 (January 2008): 119-29.
        doi:10.1016/j.ijrefrig.2007.06.006.
-    '''
+    """
     A = 0.25*pi*D*D
     # Liquid-only properties, for calculation of E, dP_lo
     v_lo = m/(rhol*A)
@@ -1281,7 +1281,7 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
 
 
 def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Zhang-Webb (2001)
+    r"""Calculates two-phase pressure drop with the Zhang-Webb (2001)
     correlation as shown in [1]_ and also given in [2]_.
 
     .. math::
@@ -1340,7 +1340,7 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1.0):
        "Two-Phase Pressure Drop of R-410A in Horizontal Smooth Minichannels."
        International Journal of Refrigeration 31, no. 1 (January 2008): 119-29.
        doi:10.1016/j.ijrefrig.2007.06.006.
-    '''
+    """
     # Liquid-only properties, for calculation of dP_lo
     A = 0.25*pi*D*D
     v_lo = m/(rhol*A)
@@ -1353,7 +1353,7 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1.0):
 
 
 def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Bankoff (1960) correlation,
+    r"""Calculates two-phase pressure drop with the Bankoff (1960) correlation,
     as shown in [2]_, [3]_, and [4]_.
 
     .. math::
@@ -1418,7 +1418,7 @@ def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     .. [4] Mekisso, Henock Mateos. "Comparison of Frictional Pressure Drop
        Correlations for Isothermal Two-Phase Horizontal Flow." Thesis, Oklahoma
        State University, 2013. https://shareok.org/handle/11244/11109.
-    '''
+    """
     A = 0.25*pi*D*D
     # Liquid-only properties, for calculation of dP_lo
     v_lo = m/(rhol*A)
@@ -1432,7 +1432,7 @@ def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
 
 
 def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Xu and Fang (2013)
+    r"""Calculates two-phase pressure drop with the Xu and Fang (2013)
     correlation. Developed after a comprehensive review of available
     correlations, likely meaning it is quite accurate.
 
@@ -1498,7 +1498,7 @@ def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     .. [1] Xu, Yu, and Xiande Fang. "A New Correlation of Two-Phase Frictional
        Pressure Drop for Condensing Flow in Pipes." Nuclear Engineering and
        Design 263 (October 2013): 87-96. doi:10.1016/j.nucengdes.2013.04.017.
-    '''
+    """
     A = 0.25*pi*D*D
     # Liquid-only properties, for calculation of E, dP_lo
     v_lo = m/(rhol*A)
@@ -1530,7 +1530,7 @@ def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
 
 
 def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Yu, France, Wambsganss,
+    r"""Calculates two-phase pressure drop with the Yu, France, Wambsganss,
     and Hull (2002) correlation given in [1]_ and reviewed in [2]_ and [3]_.
 
     .. math::
@@ -1593,7 +1593,7 @@ def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow
        in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
-    '''
+    """
     A = 0.25*pi*D*D
     # Actual Liquid flow
     v_l = m*(1.0-x)/(rhol*A)
@@ -1611,7 +1611,7 @@ def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
 
 
 def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Wang, Chiang, and Lu (1997)
+    r"""Calculates two-phase pressure drop with the Wang, Chiang, and Lu (1997)
     correlation given in [1]_ and reviewed in [2]_ and [3]_.
 
     .. math::
@@ -1680,7 +1680,7 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
        "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow
        in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
-    '''
+    """
     A = 0.25*pi*D*D
     G_tp = m/A
 
@@ -1710,7 +1710,7 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
 
 
 def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Hwang and Kim (2006)
+    r"""Calculates two-phase pressure drop with the Hwang and Kim (2006)
     correlation as in [1]_, also presented in [2]_ and [3]_.
 
     .. math::
@@ -1779,7 +1779,7 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow
        in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
-    '''
+    """
     A = 0.25*pi*D*D
     # Liquid-only flow
     v_lo = m/(rhol*A)
@@ -1807,7 +1807,7 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
 
 def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
                          L=1.0, flowtype='adiabatic vapor'):
-    r'''Calculates two-phase pressure drop with the Zhang, Hibiki, Mishima and
+    r"""Calculates two-phase pressure drop with the Zhang, Hibiki, Mishima and
     (2010) correlation as in [1]_, also presented in [2]_ and [3]_.
 
     .. math::
@@ -1889,7 +1889,7 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
        "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow
        in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
-    '''
+    """
     # Actual Liquid flow
     A = 0.25*pi*D*D
     v_l = m*(1.0-x)/(rhol*A)
@@ -1922,7 +1922,7 @@ and 'flow boiling' are recognized.")
 
 
 def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
-    r'''Calculates two-phase pressure drop with the Mishima and Hibiki (1996)
+    r"""Calculates two-phase pressure drop with the Mishima and Hibiki (1996)
     correlation as in [1]_, also presented in [2]_ and [3]_.
 
     .. math::
@@ -1989,7 +1989,7 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
        "Evaluation of Frictional Pressure Drop Correlations for Two-Phase Flow
        in Pipes." Nuclear Engineering and Design, SI : CFD4NRS-3, 253 (December
        2012): 86-97. doi:10.1016/j.nucengdes.2012.08.007.
-    '''
+    """
     A = 0.25*pi*D*D
     # Actual Liquid flow
     v_l = m*(1.0-x)/(rhol*A)
@@ -2019,7 +2019,7 @@ def friction_factor_Kim_Mudawar(Re):
 
 
 def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
-    r'''Calculates two-phase pressure drop with the Kim and Mudawar (2012)
+    r"""Calculates two-phase pressure drop with the Kim and Mudawar (2012)
     correlation as in [1]_, also presented in [2]_.
 
     .. math::
@@ -2124,7 +2124,7 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
        Boiling Mini/Micro-Channel Flows." International Journal of Heat and
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
-    '''
+    """
     A = 0.25*pi*D*D
     # Actual Liquid flow
     v_l = m*(1.0-x)/(rhol*A)
@@ -2160,7 +2160,7 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
 
 
 def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
-    r'''Calculates two-phase pressure drop with the Lockhart and Martinelli
+    r"""Calculates two-phase pressure drop with the Lockhart and Martinelli
     (1949) correlation as presented in non-graphical form by Chisholm (1967).
 
     .. math::
@@ -2261,7 +2261,7 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
        Micro-Channel Flows." International Journal of Heat and Mass Transfer
        55, no. 11-12 (May 2012): 3246-61.
        doi:10.1016/j.ijheatmasstransfer.2012.02.047.
-    '''
+    """
     A = 0.25*pi*D*D
     v_l = m*(1.0-x)/(rhol*A)
     Re_l = Reynolds(V=v_l, rho=rhol, mu=mul, D=D)
@@ -2335,7 +2335,7 @@ _unknown_msg_two_phase = f"Unknown method; available methods are {list(two_phase
 def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
                          sigma=None, P=None, Pc=None, roughness=0.0, angle=0,
                          check_ranges=False):
-    r'''This function returns a list of names of correlations for two-phase
+    r"""This function returns a list of names of correlations for two-phase
     liquid-gas pressure drop for flow inside channels.
     24 calculation methods are available, with varying input requirements.
 
@@ -2380,7 +2380,7 @@ def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
     --------
     >>> len(two_phase_dP_methods(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1.0, angle=30.0, roughness=1e-4, P=1e5, Pc=1e6))
     24
-    '''
+    """
     usable_indices = []
     if rhog is not None and sigma is not None:
         usable_indices.append(5)
@@ -2397,7 +2397,7 @@ def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
 
 def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None,
                  P=None, Pc=None, roughness=0.0, angle=None, Method=None):
-    r'''This function handles calculation of two-phase liquid-gas pressure drop
+    r"""This function handles calculation of two-phase liquid-gas pressure drop
     for flow inside channels. 23 calculation methods are available, with
     varying input requirements. A correlation will be automatically selected if
     none is specified. The full list of correlation can be obtained with the
@@ -2464,7 +2464,7 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
     >>> two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... sigma=0.0487, D=0.05, L=1.0)
     840.4137796786
-    '''
+    """
     if Method is None:
         if rhog is not None and mul is not None and mug is not None and sigma is not None:
             Method2 = 'Kim_Mudawar' # Kim_Mudawar preferred
@@ -2541,7 +2541,7 @@ than provided; provide more inputs!')
 
 def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
                               rho_lo=None, rho_go=None):
-    r'''This function handles calculation of two-phase liquid-gas pressure drop
+    r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to acceleration for flow inside channels. This is a discrete
     calculation for a segment with a known difference in quality (and ideally
     known inlet and outlet pressures so density dependence can be included).
@@ -2613,7 +2613,7 @@ def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
        Boiling Mini/Micro-Channel Flows." International Journal of Heat and
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
-    '''
+    """
     G = 4.0*m/(pi*D*D)
     if rho_lo is None:
         rho_lo = rho_li
@@ -2626,7 +2626,7 @@ def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
 
 def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
                                  dP_dL, dA_dL):
-    r'''This function handles calculation of two-phase liquid-gas pressure drop
+    r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to acceleration for flow inside channels. This is a continuous
     calculation, providing the differential in pressure per unit length and
     should be called as part of an integration routine ([1]_, [2]_, [3]_).
@@ -2696,7 +2696,7 @@ def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
        Boiling Mini/Micro-Channel Flows." International Journal of Heat and
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
-    '''
+    """
     A = 0.25*pi*D*D
     G = m/A
     t1 = (1.0/rhog - 1.0/rhol)*dP_dL*dx_dP + dP_dL*(x*dv_dP_g + (1.0 - x)*dv_dP_l)
@@ -2710,7 +2710,7 @@ def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
 
 def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
                                alpha_o=None, rho_lo=None, rho_go=None, g=g):
-    r'''This function handles calculation of two-phase liquid-gas pressure drop
+    r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to gravitation for flow inside channels. This is a discrete
     calculation for a segment with a known difference in elevation (and ideally
     known inlet and outlet pressures so density dependence can be included).
@@ -2786,7 +2786,7 @@ def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
     .. [3] Thome, John R. "Engineering Data Book III." Wolverine Tube Inc
        (2004). http://www.wlv.com/heat-transfer-databook/
-    '''
+    """
     if rho_lo is None:
         rho_lo = rho_li
     if rho_go is None:
@@ -2800,7 +2800,7 @@ def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
 
 
 def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
-    r'''This function handles calculation of two-phase liquid-gas pressure drop
+    r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to gravitation for flow inside channels. This is a differential
     calculation for a segment with an infinitesimal difference in elevation for
     use in performing integration over a pipe as shown in [1]_ and [2]_.
@@ -2845,7 +2845,7 @@ def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
        Boiling Mini/Micro-Channel Flows." International Journal of Heat and
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
-    '''
+    """
     angle = radians(angle)
     return g*sin(angle)*(alpha*rhog + (1. - alpha)*rhol)
 
@@ -2875,7 +2875,7 @@ XD_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XD_tck))
 
 def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
                          g=g):
-    r'''Classifies the regime of a two-phase flow according to Taitel and
+    r"""Classifies the regime of a two-phase flow according to Taitel and
     Dukler (1976) ([1]_, [2]_).
 
     The flow regimes in this method are 'annular', 'bubbly', 'intermittent',
@@ -2957,7 +2957,7 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
     .. [3] Shoham, Ovadia. Mechanistic Modeling of Gas-Liquid Two-Phase Flow in
        Pipes. Pap/Cdr edition. Richardson, TX: Society of Petroleum Engineers,
        2006.
-    '''
+    """
     angle = radians(angle)
     A = 0.25*pi*D*D
     # Liquid-superficial properties, for calculation of dP_ls, dP_ls
@@ -3006,7 +3006,7 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
 
 
 def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
-    r'''Classifies the regime of a two-phase flow according to Mandhane,
+    r"""Classifies the regime of a two-phase flow according to Mandhane,
     Gregory, and Azis  (1974) flow map.
 
     The flow regimes in this method are 'elongated bubble', 'stratified',
@@ -3062,7 +3062,7 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
        Gas-liquid Flow in Horizontal Pipes." International Journal of
        Multiphase Flow 1, no. 4 (October 30, 1974): 537-53.
        doi:10.1016/0301-9322(74)90006-8.
-    '''
+    """
     A = 0.25*pi*D*D
     Vsl =  m*(1.0 - x)/(rhol*A)
     Vsg = m*x/(rhog*A)

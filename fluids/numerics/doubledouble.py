@@ -33,39 +33,39 @@ __all__ = ['add_dd', 'mul_noerrors_dd', 'mul_dd', 'div_dd', 'sqrt_dd',
 third = 1/3.0
 
 def eq_dd(r0, e0, r1, e1):
-    '''Return True if two numbers are equal, False otherwise.
-    '''
+    """Return True if two numbers are equal, False otherwise.
+    """
     return r0 == r1 and e0 == e1
 
 def neq_dd(r0, e0, r1, e1):
-    '''Return False if two numbers are equal, True otherwise.
-    '''
+    """Return False if two numbers are equal, True otherwise.
+    """
     return r0 != r1 or e0 != e1
 
 def lt_dd(r0, e0, r1, e1):
-    '''Return True if first number is less than second number, otherwise False.
-    '''
+    """Return True if first number is less than second number, otherwise False.
+    """
     return r0 < r1 or (r0 == r1 and e0 < e1)
 
 def le_dd(r0, e0, r1, e1):
-    '''Return True if first number is less than or equal to second number, otherwise False.
-    '''
+    """Return True if first number is less than or equal to second number, otherwise False.
+    """
     return r0 < r1 or (r0 == r1 and e0 <= e1)
 
 def gt_dd(r0, e0, r1, e1):
-    '''Return True if first number is larger than second number, otherwise False.
-    '''
+    """Return True if first number is larger than second number, otherwise False.
+    """
     return r0 > r1 or (r0 == r1 and e0 > e1)
 
 def ge_dd(r0, e0, r1, e1):
-    '''Return True if first number is larger or equal to the second number, otherwise False.
-    '''
+    """Return True if first number is larger or equal to the second number, otherwise False.
+    """
     return r0 > r1 or (r0 == r1 and e0 >= e1)
 
 def add_dd(x0, y0, x1, y1):
-    '''Add two floating point doule doubles.
+    """Add two floating point doule doubles.
     args: first number main, first number small...
-    '''
+    """
     r = x0 + x1
     t = r - x0
     e = (x0 - (r - t)) + (x1 - t)
@@ -75,9 +75,9 @@ def add_dd(x0, y0, x1, y1):
     return r2, e
 
 def mul_noerrors_dd(x0, x1):
-    '''Multiply two floating point numbers which were previously only
+    """Multiply two floating point numbers which were previously only
     doubles, and return ther
-    '''
+    """
     u = x0*134217729.0
     v = x1*134217729.0
     s = u - (u - x0)
@@ -144,10 +144,10 @@ def square_dd(x0, y0):
     return r0, e
 
 def intpow_dd(r, e, n):
-    '''Compute and return the integer power of
+    """Compute and return the integer power of
     a double-double number `r` and `e` to the
     `n`. (r+e)^n.
-    '''
+    """
     br, be = r, e
     i = abs(n)
     rr, re = 1.0, 0.0
@@ -188,8 +188,8 @@ def exp_dd(r, e):
 
 
 def log_dd(r, e):
-    '''Compute the log.
-    '''
+    """Compute the log.
+    """
     rr, re = mlog(r), 0.0
     ur, ue = exp_dd(rr, re)
     tmpr, tmpe = add_dd(ur, ue, -r, -e)
@@ -199,7 +199,7 @@ def log_dd(r, e):
     return add_dd(rr, re, -tmpr, -tmpe)
 
 def pow_dd(r, e, nr, ne):
-    '''Compute the power'''
+    """Compute the power"""
     if ne == 0.0 and (nr %1) == 0:
         return intpow_dd(r, e, nr)
     tmpr, tmpe = log_dd(r, e)

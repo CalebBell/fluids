@@ -184,7 +184,7 @@ PY3 = PY_MAJOR >= 3
 
 ### Not quite dimensionless groups
 def thermal_diffusivity(k, rho, Cp):
-    r'''Calculates thermal diffusivity or `alpha` for a fluid with the given
+    r"""Calculates thermal diffusivity or `alpha` for a fluid with the given
     parameters.
 
     .. math::
@@ -216,7 +216,7 @@ def thermal_diffusivity(k, rho, Cp):
     ----------
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     return k/(rho*Cp)
 
 
@@ -224,7 +224,7 @@ def thermal_diffusivity(k, rho, Cp):
 
 
 def c_ideal_gas(T, k, MW):
-    r'''Calculates speed of sound `c` in an ideal gas at temperature T.
+    r"""Calculates speed of sound `c` in an ideal gas at temperature T.
 
     .. math::
         c = \sqrt{kR_{specific}T}
@@ -262,7 +262,7 @@ def c_ideal_gas(T, k, MW):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     Rspecific = R*1000./MW
     return sqrt(k*Rspecific*T)
 
@@ -270,7 +270,7 @@ def c_ideal_gas(T, k, MW):
 ### Dimensionless groups with documentation
 
 def Reynolds(V, D, rho=None, mu=None, nu=None):
-    r'''Calculates Reynolds number or `Re` for a fluid with the given
+    r"""Calculates Reynolds number or `Re` for a fluid with the given
     properties for the specified velocity and diameter.
 
     .. math::
@@ -319,7 +319,7 @@ def Reynolds(V, D, rho=None, mu=None, nu=None):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     if rho is not None and mu is not None:
         nu = mu/rho
     elif nu is None:
@@ -329,7 +329,7 @@ def Reynolds(V, D, rho=None, mu=None, nu=None):
 
 
 def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
-    r'''Calculates heat transfer Peclet number or `Pe` for a specified velocity
+    r"""Calculates heat transfer Peclet number or `Pe` for a specified velocity
     `V`, characteristic length `L`, and specified properties for the given
     fluid.
 
@@ -381,7 +381,7 @@ def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     if rho is not None and Cp is not None and k is not None:
         alpha =  k/(rho*Cp)
     elif alpha is None:
@@ -391,7 +391,7 @@ def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
 
 
 def Peclet_mass(V, L, D):
-    r'''Calculates mass transfer Peclet number or `Pe` for a specified velocity
+    r"""Calculates mass transfer Peclet number or `Pe` for a specified velocity
     `V`, characteristic length `L`, and diffusion coefficient `D`.
 
     .. math::
@@ -425,12 +425,12 @@ def Peclet_mass(V, L, D):
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
-    '''
+    """
     return V*L/D
 
 
 def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
-    r'''Calculates heat transfer Fourier number or `Fo` for a specified time
+    r"""Calculates heat transfer Fourier number or `Fo` for a specified time
     `t`, characteristic length `L`, and specified properties for the given
     fluid.
 
@@ -483,7 +483,7 @@ def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     if rho is not None and Cp is not None and k is not None:
         alpha =  k/(rho*Cp)
     elif alpha is None:
@@ -493,7 +493,7 @@ density, or thermal diffusivity is needed')
 
 
 def Fourier_mass(t, L, D):
-    r'''Calculates mass transfer Fourier number or `Fo` for a specified time
+    r"""Calculates mass transfer Fourier number or `Fo` for a specified time
     `t`, characteristic length `L`, and diffusion coefficient `D`.
 
     .. math::
@@ -527,12 +527,12 @@ def Fourier_mass(t, L, D):
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
-    '''
+    """
     return t*D/(L*L)
 
 
 def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
-    r'''Calculates Graetz number or `Gz` for a specified velocity
+    r"""Calculates Graetz number or `Gz` for a specified velocity
     `V`, diameter `D`, axial distance `x`, and specified properties for the
     given fluid.
 
@@ -589,7 +589,7 @@ def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
     .. [1] Bergman, Theodore L., Adrienne S. Lavine, Frank P. Incropera, and
        David P. DeWitt. Introduction to Heat Transfer. 6E. Hoboken, NJ:
        Wiley, 2011.
-    '''
+    """
     if rho is not None and Cp is not None and k is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
@@ -599,7 +599,7 @@ def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
 
 
 def Schmidt(D, mu=None, nu=None, rho=None):
-    r'''Calculates Schmidt number or `Sc` for a fluid with the given
+    r"""Calculates Schmidt number or `Sc` for a fluid with the given
     parameters.
 
     .. math::
@@ -647,7 +647,7 @@ def Schmidt(D, mu=None, nu=None, rho=None):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     if rho is not None and mu is not None:
         return mu/(rho*D)
     elif nu is not None:
@@ -657,7 +657,7 @@ def Schmidt(D, mu=None, nu=None, rho=None):
 
 
 def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
-    r'''Calculates Lewis number or `Le` for a fluid with the given parameters.
+    r"""Calculates Lewis number or `Le` for a fluid with the given parameters.
 
     .. math::
         Le = \frac{k}{\rho C_p D} = \frac{\alpha}{D}
@@ -708,7 +708,7 @@ def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
-    '''
+    """
     if k is not None and Cp is not None and rho is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
@@ -717,7 +717,7 @@ def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
 
 
 def Weber(V, L, rho, sigma):
-    r'''Calculates Weber number, `We`, for a fluid with the given density,
+    r"""Calculates Weber number, `We`, for a fluid with the given density,
     surface tension, velocity, and geometric parameter (usually diameter
     of bubble).
 
@@ -760,12 +760,12 @@ def Weber(V, L, rho, sigma):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
-    '''
+    """
     return V*V*L*rho/sigma
 
 
 def Mach(V, c):
-    r'''Calculates Mach number or `Ma` for a fluid of velocity `V` with speed
+    r"""Calculates Mach number or `Ma` for a fluid of velocity `V` with speed
     of sound `c`.
 
     .. math::
@@ -801,12 +801,12 @@ def Mach(V, c):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return V/c
 
 
 def Confinement(D, rhol, rhog, sigma, g=g):
-    r'''Calculates Confinement number or `Co` for a fluid in a channel of
+    r"""Calculates Confinement number or `Co` for a fluid in a channel of
     diameter `D` with liquid and gas densities `rhol` and `rhog` and surface
     tension `sigma`, under the influence of gravitational force `g`.
 
@@ -858,12 +858,12 @@ def Confinement(D, rhol, rhog, sigma, g=g):
        Experimental Investigation and Correlation Development." International
        Journal of Multiphase Flow 26, no. 11 (November 1, 2000): 1739-54.
        doi:10.1016/S0301-9322(99)00119-6.
-    '''
+    """
     return sqrt(sigma/(g*(rhol-rhog)))/D
 
 
 def Morton(rhol, rhog, mul, sigma, g=g):
-    r'''Calculates Morton number or `Mo` for a liquid and vapor with the
+    r"""Calculates Morton number or `Mo` for a liquid and vapor with the
     specified properties, under the influence of gravitational force `g`.
 
     .. math::
@@ -904,13 +904,13 @@ def Morton(rhol, rhog, mul, sigma, g=g):
        Yijun Cao, and Jiongtian Liu. “Drag Coefficient Prediction of a Single
        Bubble Rising in Liquids.” Industrial & Engineering Chemistry Research,
        April 2, 2018. https://doi.org/10.1021/acs.iecr.7b04743.
-    '''
+    """
     mul2 = mul*mul
     return g*mul2*mul2*(rhol - rhog)/(rhol*rhol*sigma*sigma*sigma)
 
 
 def Knudsen(path, L):
-    r'''Calculates Knudsen number or `Kn` for a fluid with mean free path
+    r"""Calculates Knudsen number or `Kn` for a fluid with mean free path
     `path` and for a characteristic length `L`.
 
     .. math::
@@ -946,12 +946,12 @@ def Knudsen(path, L):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return path/L
 
 
 def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
-    r'''Calculates Prandtl number or `Pr` for a fluid with the given
+    r"""Calculates Prandtl number or `Pr` for a fluid with the given
     parameters.
 
     .. math::
@@ -1007,7 +1007,7 @@ def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
-    '''
+    """
     if k is not None and Cp is not None and mu is not None:
         return Cp*mu/k
     elif nu is not None and rho is not None and Cp is not None and k is not None:
@@ -1019,7 +1019,7 @@ def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
 
 
 def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
-    r'''Calculates Grashof number or `Gr` for a fluid with the given
+    r"""Calculates Grashof number or `Gr` for a fluid with the given
     properties, temperature difference, and characteristic length.
 
     .. math::
@@ -1079,7 +1079,7 @@ def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     if rho is not None and mu is not None:
         nu = mu/rho
     elif nu is None:
@@ -1089,7 +1089,7 @@ def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
 
 
 def Bond(rhol, rhog, sigma, L):
-    r'''Calculates Bond number, `Bo` also known as Eotvos number,
+    r"""Calculates Bond number, `Bo` also known as Eotvos number,
     for a fluid with the given liquid and gas densities, surface tension,
     and geometric parameter (usually length).
 
@@ -1121,14 +1121,14 @@ def Bond(rhol, rhog, sigma, L):
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
-    '''
+    """
     return (g*(rhol-rhog)*L*L/sigma)
 
 Eotvos = Bond
 
 
 def Rayleigh(Pr, Gr):
-    r'''Calculates Rayleigh number or `Ra` using Prandtl number `Pr` and
+    r"""Calculates Rayleigh number or `Ra` using Prandtl number `Pr` and
     Grashof number `Gr` for a fluid with the given
     properties, temperature difference, and characteristic length used
     to calculate `Gr` and `Pr`.
@@ -1163,12 +1163,12 @@ def Rayleigh(Pr, Gr):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return Pr*Gr
 
 
 def Froude(V, L, g=g, squared=False):
-    r'''Calculates Froude number `Fr` for velocity `V` and geometric length
+    r"""Calculates Froude number `Fr` for velocity `V` and geometric length
     `L`. If desired, gravity can be specified as well. Normally the function
     returns the result of the equation below; Froude number is also often
     said to be defined as the square of the equation below.
@@ -1212,7 +1212,7 @@ def Froude(V, L, g=g, squared=False):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     Fr = V/sqrt(L*g)
     if squared:
         Fr *= Fr
@@ -1220,7 +1220,7 @@ def Froude(V, L, g=g, squared=False):
 
 
 def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
-    r'''Calculates the densimetric Froude number :math:`Fr_{den}` for velocity
+    r"""Calculates the densimetric Froude number :math:`Fr_{den}` for velocity
     `V` geometric length `L`, heavier fluid density `rho1`, and lighter fluid
     density `rho2`. If desired, gravity can be specified as well. Depending on
     the application, this dimensionless number may be defined with the heavy
@@ -1281,7 +1281,7 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
        Differential Pressure Meters with Wet Gas Flows." In International
        SouthEast Asia Hydrocarbon Flow Measurement Workshop, KualaLumpur,
        Malaysia, 2008.
-    '''
+    """
     if heavy:
         rho3 = rho1
     else:
@@ -1290,7 +1290,7 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
 
 
 def Strouhal(f, L, V):
-    r'''Calculates Strouhal number `St` for a characteristic frequency `f`,
+    r"""Calculates Strouhal number `St` for a characteristic frequency `f`,
     characteristic length `L`, and velocity `V`.
 
     .. math::
@@ -1329,12 +1329,12 @@ def Strouhal(f, L, V):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return f*L/V
 
 
 def Nusselt(h, L, k):
-    r'''Calculates Nusselt number `Nu` for a heat transfer coefficient `h`,
+    r"""Calculates Nusselt number `Nu` for a heat transfer coefficient `h`,
     characteristic length `L`, and thermal conductivity `k`.
 
     .. math::
@@ -1377,12 +1377,12 @@ def Nusselt(h, L, k):
     .. [2] Bergman, Theodore L., Adrienne S. Lavine, Frank P. Incropera, and
        David P. DeWitt. Introduction to Heat Transfer. 6E. Hoboken, NJ:
        Wiley, 2011.
-    '''
+    """
     return h*L/k
 
 
 def Sherwood(K, L, D):
-    r'''Calculates Sherwood number `Sh` for a mass transfer coefficient `K`,
+    r"""Calculates Sherwood number `Sh` for a mass transfer coefficient `K`,
     characteristic length `L`, and diffusivity `D`.
 
     .. math::
@@ -1417,12 +1417,12 @@ def Sherwood(K, L, D):
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
-    '''
+    """
     return K*L/D
 
 
 def Biot(h, L, k):
-    r'''Calculates Biot number `Br` for heat transfer coefficient `h`,
+    r"""Calculates Biot number `Br` for heat transfer coefficient `h`,
     geometric length `L`, and thermal conductivity `k`.
 
     .. math::
@@ -1464,12 +1464,12 @@ def Biot(h, L, k):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return h*L/k
 
 
 def Stanton(h, V, rho, Cp):
-    r'''Calculates Stanton number or `St` for a specified heat transfer
+    r"""Calculates Stanton number or `St` for a specified heat transfer
     coefficient `h`, velocity `V`, density `rho`, and heat capacity `Cp` [1]_
     [2]_.
 
@@ -1509,12 +1509,12 @@ def Stanton(h, V, rho, Cp):
     .. [2] Bergman, Theodore L., Adrienne S. Lavine, Frank P. Incropera, and
        David P. DeWitt. Introduction to Heat Transfer. 6E. Hoboken, NJ:
        Wiley, 2011.
-    '''
+    """
     return h/(V*rho*Cp)
 
 
 def Euler(dP, rho, V):
-    r'''Calculates Euler number or `Eu` for a fluid of velocity `V` and
+    r"""Calculates Euler number or `Eu` for a fluid of velocity `V` and
     density `rho` experiencing a pressure drop `dP`.
 
     .. math::
@@ -1554,12 +1554,12 @@ def Euler(dP, rho, V):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return dP/(rho*V*V)
 
 
 def Cavitation(P, Psat, rho, V):
-    r'''Calculates Cavitation number or `Ca` for a fluid of velocity `V` with
+    r"""Calculates Cavitation number or `Ca` for a fluid of velocity `V` with
     a pressure `P`, vapor pressure `Psat`, and density `rho`.
 
     .. math::
@@ -1601,12 +1601,12 @@ def Cavitation(P, Psat, rho, V):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return (P-Psat)/(0.5*rho*V*V)
 
 
 def Eckert(V, Cp, dT):
-    r'''Calculates Eckert number or `Ec` for a fluid of velocity `V` with
+    r"""Calculates Eckert number or `Ec` for a fluid of velocity `V` with
     a heat capacity `Cp`, between two temperature given as `dT`.
 
     .. math::
@@ -1642,12 +1642,12 @@ def Eckert(V, Cp, dT):
     ----------
     .. [1] Goldstein, Richard J. ECKERT NUMBER. Thermopedia. Hemisphere, 2011.
        10.1615/AtoZ.e.eckert_number
-    '''
+    """
     return V*V/(Cp*dT)
 
 
 def Jakob(Cp, Hvap, Te):
-    r'''Calculates Jakob number or `Ja` for a boiling fluid with sensible heat
+    r"""Calculates Jakob number or `Ja` for a boiling fluid with sensible heat
     capacity `Cp`, enthalpy of vaporization `Hvap`, and boiling at `Te` degrees
     above its saturation boiling point.
 
@@ -1687,12 +1687,12 @@ def Jakob(Cp, Hvap, Te):
        Wiley, 2011.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return Cp*Te/Hvap
 
 
 def Power_number(P, L, N, rho):
-    r'''Calculates power number, `Po`, for an agitator applying a specified
+    r"""Calculates power number, `Po`, for an agitator applying a specified
     power `P` with a characteristic length `L`, rotational speed `N`, to
     a fluid with a specified density `rho`.
 
@@ -1733,12 +1733,12 @@ def Power_number(P, L, N, rho):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return P/(rho*N*N*N*L**5)
 
 
 def Drag(F, A, V, rho):
-    r'''Calculates drag coefficient `Cd` for a given drag force `F`,
+    r"""Calculates drag coefficient `Cd` for a given drag force `F`,
     projected area `A`, characteristic velocity `V`, and density `rho`.
 
     .. math::
@@ -1779,12 +1779,12 @@ def Drag(F, A, V, rho):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return F/(0.5*A*rho*V*V)
 
 
 def Stokes_number(V, Dp, D, rhop, mu):
-    r'''Calculates Stokes Number for a given characteristic velocity `V`,
+    r"""Calculates Stokes Number for a given characteristic velocity `V`,
     particle diameter `Dp`, characteristic diameter `D`, particle density
     `rhop`, and fluid viscosity `mu`.
 
@@ -1826,12 +1826,12 @@ def Stokes_number(V, Dp, D, rhop, mu):
        Al-Masry. "Investigating Droplet Separation Efficiency in Wire-Mesh Mist
        Eliminators in Bubble Column." Journal of Saudi Chemical Society 14, no.
        4 (October 1, 2010): 331-39. https://doi.org/10.1016/j.jscs.2010.04.001.
-    '''
+    """
     return rhop*V*(Dp*Dp)/(18.0*mu*D)
 
 
 def Capillary(V, mu, sigma):
-    r'''Calculates Capillary number `Ca` for a characteristic velocity `V`,
+    r"""Calculates Capillary number `Ca` for a characteristic velocity `V`,
     viscosity `mu`, and surface tension `sigma`.
 
     .. math::
@@ -1871,12 +1871,12 @@ def Capillary(V, mu, sigma):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Kundu, Pijush K., Ira M. Cohen, and David R. Dowling. Fluid
        Mechanics. Academic Press, 2012.
-    '''
+    """
     return V*mu/sigma
 
 
 def Archimedes(L, rhof, rhop, mu, g=g):
-    r'''Calculates Archimedes number, `Ar`, for a fluid and particle with the
+    r"""Calculates Archimedes number, `Ar`, for a fluid and particle with the
     given densities, characteristic length, viscosity, and gravity
     (usually diameter of particle).
 
@@ -1919,12 +1919,12 @@ def Archimedes(L, rhof, rhop, mu, g=g):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return L*L*L*rhof*(rhop-rhof)*g/(mu*mu)
 
 
 def Ohnesorge(L, rho, mu, sigma):
-    r'''Calculates Ohnesorge number, `Oh`, for a fluid with the given
+    r"""Calculates Ohnesorge number, `Oh`, for a fluid with the given
     characteristic length, density, viscosity, and surface tension.
 
     .. math::
@@ -1963,12 +1963,12 @@ def Ohnesorge(L, rho, mu, sigma):
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
-    '''
+    """
     return mu/sqrt(L*rho*sigma)
 
 
 def Suratman(L, rho, mu, sigma):
-    r'''Calculates Suratman number, `Su`, for a fluid with the given
+    r"""Calculates Suratman number, `Su`, for a fluid with the given
     characteristic length, density, viscosity, and surface tension.
 
     .. math::
@@ -2016,12 +2016,12 @@ def Suratman(L, rho, mu, sigma):
     .. [2] Catchpole, John P., and George. Fulford. "DIMENSIONLESS GROUPS."
        Industrial & Engineering Chemistry 58, no. 3 (March 1, 1966): 46-60.
        doi:10.1021/ie50675a012.
-    '''
+    """
     return rho*sigma*L/(mu*mu)
 
 
 def Hagen(Re, fd):
-    r'''Calculates Hagen number, `Hg`, for a fluid with the given
+    r"""Calculates Hagen number, `Hg`, for a fluid with the given
     Reynolds number and friction factor.
 
     .. math::
@@ -2070,12 +2070,12 @@ def Hagen(Re, fd):
        Exchanger Design. 1st edition. Hoboken, NJ: Wiley, 2002.
     .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
-    '''
+    """
     return 0.5*fd*Re*Re
 
 
 def Bejan_L(dP, L, mu, alpha):
-    r'''Calculates Bejan number of a length or `Be_L` for a fluid with the
+    r"""Calculates Bejan number of a length or `Be_L` for a fluid with the
     given parameters flowing over a characteristic length `L` and experiencing
     a pressure drop `dP`.
 
@@ -2114,12 +2114,12 @@ def Bejan_L(dP, L, mu, alpha):
        doi:10.1016/j.ijheatmasstransfer.2015.11.073.
     .. [2] Bejan, Adrian. Convection Heat Transfer. 4E. Hoboken, New Jersey:
        Wiley, 2013.
-    '''
+    """
     return dP*L*L/(alpha*mu)
 
 
 def Bejan_p(dP, K, mu, alpha):
-    r'''Calculates Bejan number of a permeability or `Be_p` for a fluid with
+    r"""Calculates Bejan number of a permeability or `Be_p` for a fluid with
     the given parameters and a permeability `K` experiencing a pressure drop
     `dP`.
 
@@ -2158,12 +2158,12 @@ def Bejan_p(dP, K, mu, alpha):
        doi:10.1016/j.ijheatmasstransfer.2015.11.073.
     .. [2] Bejan, Adrian. Convection Heat Transfer. 4E. Hoboken, New Jersey:
        Wiley, 2013.
-    '''
+    """
     return dP*K/(alpha*mu)
 
 
 def Boiling(G, q, Hvap):
-    r'''Calculates Boiling number or `Bg` using heat flux, two-phase mass flux,
+    r"""Calculates Boiling number or `Bg` using heat flux, two-phase mass flux,
     and heat of vaporization of the fluid flowing. Used in two-phase heat
     transfer calculations.
 
@@ -2212,12 +2212,12 @@ def Boiling(G, q, Hvap):
        A. R. Mumford and T. Ravese "Studies of heat transmission through boiler
        tubing at pressures from 500 to 3300 pounds" Trans. ASME, Vol. 65, 9,
        February 1943, pp. 553-591.
-    '''
+    """
     return q/(G*Hvap)
 
 
 def Dean(Re, Di, D):
-    r'''Calculates Dean number, `De`, for a fluid with the Reynolds number `Re`,
+    r"""Calculates Dean number, `De`, for a fluid with the Reynolds number `Re`,
     inner diameter `Di`, and a secondary diameter `D`. `D` may be the
     diameter of curvature, the diameter of a spiral, or some other dimension.
 
@@ -2257,12 +2257,12 @@ def Dean(Re, Di, D):
     .. [1] Catchpole, John P., and George. Fulford. "DIMENSIONLESS GROUPS."
        Industrial & Engineering Chemistry 58, no. 3 (March 1, 1966): 46-60.
        doi:10.1021/ie50675a012.
-    '''
+    """
     return sqrt(Di/D)*Re
 
 
 def relative_roughness(D, roughness=1.52e-06):
-    r'''Calculates relative roughness `eD` using a diameter and the roughness
+    r"""Calculates relative roughness `eD` using a diameter and the roughness
     of the material of the wall. Default roughness is that of steel.
 
     .. math::
@@ -2291,14 +2291,14 @@ def relative_roughness(D, roughness=1.52e-06):
        Eighth Edition. McGraw-Hill Professional, 2007.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return roughness/D
 
 
 ### Misc utilities
 
 def nu_mu_converter(rho, mu=None, nu=None):
-    r'''Calculates either kinematic or dynamic viscosity, depending on inputs.
+    r"""Calculates either kinematic or dynamic viscosity, depending on inputs.
     Used when one type of viscosity is known as well as density, to obtain
     the other type. Raises an error if both types of viscosity or neither type
     of viscosity is provided.
@@ -2332,7 +2332,7 @@ def nu_mu_converter(rho, mu=None, nu=None):
     ----------
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     if (nu is not None and mu is not None) or rho is None or (nu is None and mu is None):
         raise ValueError('Inputs must be rho and one of mu and nu.')
     if mu is not None:
@@ -2342,7 +2342,7 @@ def nu_mu_converter(rho, mu=None, nu=None):
 
 
 def gravity(latitude, H):
-    r'''Calculates local acceleration due to gravity `g` according to [1]_.
+    r"""Calculates local acceleration due to gravity `g` according to [1]_.
     Uses latitude and height to calculate `g`.
 
     .. math::
@@ -2374,7 +2374,7 @@ def gravity(latitude, H):
     ----------
     .. [1] Haynes, W.M., Thomas J. Bruno, and David R. Lide. CRC Handbook of
        Chemistry and Physics. [Boca Raton, FL]: CRC press, 2014.
-    '''
+    """
     lat = latitude*pi/180
     g = 9.780356*(1+0.0052885*sin(lat)**2 -0.0000059*sin(2*lat)**2)-3.086E-6*H
     return g
@@ -2382,7 +2382,7 @@ def gravity(latitude, H):
 ### Friction loss conversion functions
 
 def K_from_f(fd, L, D):
-    r'''Calculates loss coefficient, K, for a given section of pipe
+    r"""Calculates loss coefficient, K, for a given section of pipe
     at a specified friction factor.
 
     .. math::
@@ -2411,11 +2411,11 @@ def K_from_f(fd, L, D):
     --------
     >>> K_from_f(fd=0.018, L=100., D=.3)
     6.0
-    '''
+    """
     return fd*L/D
 
 def f_from_K(K, L, D):
-    r'''Calculates friction factor, `fd`, from a loss coefficient, K,
+    r"""Calculates friction factor, `fd`, from a loss coefficient, K,
     for a given section of pipe.
 
     .. math::
@@ -2444,12 +2444,12 @@ def f_from_K(K, L, D):
     --------
     >>> f_from_K(K=0.6, L=100., D=.3)
     0.0018
-    '''
+    """
     return K*D/L
 
 
 def K_from_L_equiv(L_D, fd=0.015):
-    r'''Calculates loss coefficient, for a given equivalent length (L/D).
+    r"""Calculates loss coefficient, for a given equivalent length (L/D).
 
     .. math::
         K = f_d \frac{L}{D}
@@ -2475,12 +2475,12 @@ def K_from_L_equiv(L_D, fd=0.015):
     --------
     >>> K_from_L_equiv(240)
     3.5999999999999996
-    '''
+    """
     return fd*L_D
 
 
 def L_equiv_from_K(K, fd=0.015):
-    r'''Calculates equivalent length of pipe (L/D), for a given loss
+    r"""Calculates equivalent length of pipe (L/D), for a given loss
     coefficient.
 
     .. math::
@@ -2506,12 +2506,12 @@ def L_equiv_from_K(K, fd=0.015):
     --------
     >>> L_equiv_from_K(3.6)
     240.00000000000003
-    '''
+    """
     return K/fd
 
 
 def L_from_K(K, D, fd=0.015):
-    r'''Calculates the length of straight pipe at a specified friction factor
+    r"""Calculates the length of straight pipe at a specified friction factor
     required to produce a given loss coefficient `K`.
 
     .. math::
@@ -2535,12 +2535,12 @@ def L_from_K(K, D, fd=0.015):
     --------
     >>> L_from_K(K=6, D=.3, fd=0.018)
     100.0
-    '''
+    """
     return K*D/fd
 
 
 def dP_from_K(K, rho, V):
-    r'''Calculates pressure drop, for a given loss coefficient,
+    r"""Calculates pressure drop, for a given loss coefficient,
     at a specified density and velocity.
 
     .. math::
@@ -2569,12 +2569,12 @@ def dP_from_K(K, rho, V):
     --------
     >>> dP_from_K(K=10, rho=1000, V=3)
     45000.0
-    '''
+    """
     return K*0.5*rho*V*V
 
 
 def head_from_K(K, V, g=g):
-    r'''Calculates head loss, for a given loss coefficient,
+    r"""Calculates head loss, for a given loss coefficient,
     at a specified velocity.
 
     .. math::
@@ -2603,12 +2603,12 @@ def head_from_K(K, V, g=g):
     --------
     >>> head_from_K(K=10, V=1.5)
     1.1471807396001694
-    '''
+    """
     return K*0.5*V*V/g
 
 
 def head_from_P(P, rho, g=g):
-    r'''Calculates head for a fluid of specified density at specified
+    r"""Calculates head for a fluid of specified density at specified
     pressure.
 
     .. math::
@@ -2637,12 +2637,12 @@ def head_from_P(P, rho, g=g):
     --------
     >>> head_from_P(P=98066.5, rho=1000)
     10.000000000000002
-    '''
+    """
     return P/rho/g
 
 
 def P_from_head(head, rho, g=g):
-    r'''Calculates head for a fluid of specified density at specified
+    r"""Calculates head for a fluid of specified density at specified
     pressure.
 
     .. math::
@@ -2669,7 +2669,7 @@ def P_from_head(head, rho, g=g):
     --------
     >>> P_from_head(head=5., rho=800.)
     39226.6
-    '''
+    """
     return head*rho*g
 
 

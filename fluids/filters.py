@@ -77,7 +77,7 @@ grills_rounded_tck = implementation_optimize_tck([[0.3, 0.3, 0.3, 0.45, 0.55, 0.
 
 
 def round_edge_screen(alpha, Re, angle=0.0):
-    r'''Returns the loss coefficient for a round edged wire screen or bar
+    r"""Returns the loss coefficient for a round edged wire screen or bar
     screen, as shown in [1]_. Angle of inclination may be specified as well.
 
     Parameters
@@ -117,7 +117,7 @@ def round_edge_screen(alpha, Re, angle=0.0):
     ----------
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     beta = interp(Re, round_Res, round_betas)
     alpha2 = alpha*alpha
     K = beta*(1.0 - alpha2)/alpha2
@@ -131,7 +131,7 @@ def round_edge_screen(alpha, Re, angle=0.0):
 
 
 def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0.0):
-    r'''Returns the loss coefficient for a round edged open net/screen
+    r"""Returns the loss coefficient for a round edged open net/screen
     made of one of the following patterns, according to [1]_:
 
     'round bar screen':
@@ -187,7 +187,7 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0.0):
     ----------
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     one_m_alpha = (1.0-alpha)
     if subtype == 'round bar screen':
         K = 0.95 + 0.2*one_m_alpha
@@ -209,7 +209,7 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0.0):
 
 
 def square_edge_screen(alpha):
-    r'''Returns the loss coefficient for a square wire screen or square bar
+    r"""Returns the loss coefficient for a square wire screen or square bar
     screen or perforated plate with squared edges, as shown in [1]_.
 
     Parameters
@@ -237,12 +237,12 @@ def square_edge_screen(alpha):
     ----------
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     return interp(alpha, square_alphas, square_Ks)
 
 
 def square_edge_grill(alpha, l=None, Dh=None, fd=None):
-    r'''Returns the loss coefficient for a square grill or square bar
+    r"""Returns the loss coefficient for a square grill or square bar
     screen or perforated plate with squared edges of thickness l, as shown in
     [1]_.
 
@@ -293,7 +293,7 @@ def square_edge_grill(alpha, l=None, Dh=None, fd=None):
     ----------
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     x0 = 0.5*(1.0 - alpha)
     alpha2 = alpha*alpha
     x0 += (1.0 - alpha2)
@@ -303,7 +303,7 @@ def square_edge_grill(alpha, l=None, Dh=None, fd=None):
 
 
 def round_edge_grill(alpha, l=None, Dh=None, fd=None):
-    r'''Returns the loss coefficient for a rounded square grill or square bar
+    r"""Returns the loss coefficient for a rounded square grill or square bar
     screen or perforated plate with rounded edges of thickness l, as shown in
     [1]_.
 
@@ -355,7 +355,7 @@ def round_edge_grill(alpha, l=None, Dh=None, fd=None):
     ----------
     .. [1] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     t1 = float(splev(alpha, grills_rounded_tck))
     if Dh and l and fd and l > 50.0*Dh:
         return t1 + fd*l/Dh

@@ -141,7 +141,7 @@ def ccor(alt, r, h1, zh):
 /* ------------------------------------------------------------------- */
 """
 def ccor2(alt, r, h1, zh, h2):
-    '''
+    """
     /*        CHEMISTRY/DISSOCIATION CORRECTION FOR MSIS MODELS
     *         ALT - altitude
     *         R - target ratio
@@ -149,7 +149,7 @@ def ccor2(alt, r, h1, zh, h2):
     *         ZH - altitude of 1/2 R
     *         H2 - transition scale length #2 ?
     */
-    '''
+    """
     e1 = (alt - zh) / h1
     e2 = (alt - zh) / h2
     if ((e1 > 70.0) or (e2 > 70)): # pragma: no cover
@@ -181,7 +181,7 @@ def scalh(alt, xm, temp, gsurf, re_nrlmsise_00):
 /* ------------------------------------------------------------------- */
 """
 def dnet(dd, dm, zhm, xmm, xm):
-    '''
+    """
     /*       TURBOPAUSE CORRECTION FOR MSIS MODELS
     *        Root mean density
     *         DD - diffusive density
@@ -191,7 +191,7 @@ def dnet(dd, dm, zhm, xmm, xm):
     *         XM  - species molecular weight
     *         DNET - combined density
     */
-    '''
+    """
     a  = zhm / (xmm-xm)
     if( not((dm>0) and (dd>0))): # pragma: no cover
         if((dd==0) and (dm==0)):
@@ -216,14 +216,14 @@ def dnet(dd, dm, zhm, xmm, xm):
 /* ------------------------------------------------------------------- */
 """
 def splini(xa, ya, y2a, n, x):
-    '''
+    """
     /*      INTEGRATE CUBIC SPLINE FUNCTION FROM XA(1) TO X
     *       XA,YA: ARRAYS OF TABULATED FUNCTION IN ASCENDING ORDER BY X
     *       Y2A: ARRAY OF SECOND DERIVATIVES
     *       N: SIZE OF ARRAYS XA,YA,Y2A
     *       X: ABSCISSA ENDPOINT FOR INTEGRATION
     */
-    '''
+    """
     yi = 0
     klo = 0
     khi = 1
@@ -250,7 +250,7 @@ def splini(xa, ya, y2a, n, x):
 /* ------------------------------------------------------------------- */
 """
 def splint(xa, ya, y2a, n, x):
-    '''
+    """
     /*      CALCULATE CUBIC SPLINE INTERP VALUE
     *       ADAPTED FROM NUMERICAL RECIPES BY PRESS ET AL.
     *       XA,YA: ARRAYS OF TABULATED FUNCTION IN ASCENDING ORDER BY X
@@ -258,7 +258,7 @@ def splint(xa, ya, y2a, n, x):
     *       N: SIZE OF ARRAYS XA,YA,Y2A
     *       X: ABSCISSA FOR INTERPOLATION
     */
-    '''
+    """
     klo = 0
     khi = n-1
 
@@ -275,7 +275,7 @@ def splint(xa, ya, y2a, n, x):
     return yi
 
 def spline(x, y, n, yp1, ypn):
-    '''
+    """
     /*       CALCULATE 2ND DERIVATIVES OF CUBIC SPLINE INTERP FUNCTION
     *       ADAPTED FROM NUMERICAL RECIPES BY PRESS ET AL
     *       X,Y: ARRAYS OF TABULATED FUNCTION IN ASCENDING ORDER BY X
@@ -284,7 +284,7 @@ def spline(x, y, n, yp1, ypn):
     *                >= 1E30 SIGNAL SIGNAL SECOND DERIVATIVE ZERO
     *       RETURNS: ARRAY OF SECOND DERIVATIVES
     */
-    '''
+    """
     y2 = [0.0]*n
     u = [0.0]*n 
     
@@ -326,9 +326,9 @@ def zeta(zz, zl, re_nrlmsise_00):
     return ((zz-zl)*(re_nrlmsise_00+zl)/(re_nrlmsise_00+zz))    #re is the global variable
 
 def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2, gsurf, re_nrlmsise_00):
-    '''
+    """
     /*      Calculate Temperature and Density Profiles for lower atmos.  */
-    '''
+    """
     xs = [0.0]*10
     ys = [0.0]*10
     rgas = 831.4
@@ -440,13 +440,13 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2, gsurf, re_n
 /* ------------------------------------------------------------------- */
 """
 def densu(alt, dlb, tinf, tlb, xm, alpha, zlb, s2, mn1, zn1, tn1, tgn1, gsurf, re_nrlmsise_00):
-    '''
+    """
     /*      Calculate Temperature and Density Profiles for MSIS models
     *      New lower thermo polynomial 
     */
     tz, zn1, tn1, and tgn1 are simulated pointers
     Returns (density, temperature) tuple
-    '''
+    """
     rgas = 831.4
     #rgas = 831.44621    #maybe make this a global constant?
     densu_temp = 1.0
@@ -553,10 +553,10 @@ def sg0(ex, p, ap):
 
 
 def globe7(p, Input, flags, apt, plg):
-    '''
+    """
     /*       CALCULATE G(L) FUNCTION
     *       Upper Thermosphere Parameters */
-    '''
+    """
     t = [0]*15  #modified this, there was a for loop that did this
     sr = 7.2722E-5
     dgtr = 1.74533E-2
@@ -750,10 +750,10 @@ def globe7(p, Input, flags, apt, plg):
 /* ------------------------------------------------------------------- */
 """
 def glob7s(p, Input, flags, apt, plg):
-    '''
+    """
     /*    VERSION OF GLOBE FOR LOWER ATMOSPHERE 10/26/99
     */
-    '''
+    """
     pset = 2.0
     t = [0.0]*14
     dr=1.72142E-2
@@ -993,12 +993,12 @@ def gtd7(Input, flags, output):
 /* ------------------------------------------------------------------- */
 """
 def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_tgn1):
-    '''
+    """
     /*     Thermospheric portion of NRLMSISE-00
     *     See GTD7 for more extensive comments
     *     alt > 72.5 km!
     */
-    '''
+    """
     dm28 = 0.0
     zn1 = [120.0, 110.0, 100.0, 90.0, 72.5]
     mn1 = 5

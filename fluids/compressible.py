@@ -87,7 +87,7 @@ __all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
            'T_stagnation', 'T_stagnation_ideal']
 
 def isothermal_work_compression(P1, P2, T, Z=1.0):
-    r'''Calculates the work of compression or expansion of a gas going through
+    r"""Calculates the work of compression or expansion of a gas going through
     an isothermal process.
 
     .. math::
@@ -149,12 +149,12 @@ def isothermal_work_compression(P1, P2, T, Z=1.0):
     .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
-    '''
+    """
     return Z*R*T*log(P2/P1)
 
 
 def isentropic_work_compression(T1, k, Z=1.0, P1=None, P2=None, W=None, eta=None):
-    r'''Calculation function for dealing with compressing or expanding a gas
+    r"""Calculation function for dealing with compressing or expanding a gas
     going through an isentropic, adiabatic process assuming constant Cp and Cv.
     The polytropic model is the same equation; just provide `n` instead of `k`
     and use a polytropic efficiency for `eta` instead of a isentropic
@@ -247,7 +247,7 @@ def isentropic_work_compression(T1, k, Z=1.0, P1=None, P2=None, W=None, eta=None
     .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
-    '''
+    """
     if W is None and eta is not None and P1 is not None and P2 is not None:
         return k/(k - 1.0)*Z*R*T1*((P2/P1)**((k-1.)/k) - 1.0)/eta
     elif P1 is None and eta is not None and W is not None and P2 is not None:
@@ -261,7 +261,7 @@ def isentropic_work_compression(T1, k, Z=1.0, P1=None, P2=None, W=None, eta=None
 
 
 def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
-    r'''Calculates the increase in temperature of a fluid which is compressed
+    r"""Calculates the increase in temperature of a fluid which is compressed
     or expanded under isentropic, adiabatic conditions assuming constant
     Cp and Cv.  The polytropic model is the same equation; just provide `n`
     instead of `k` and use a polytropic efficienty for `eta` instead of a
@@ -310,13 +310,13 @@ def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
        Professional Publishing, 2009.
     .. [2] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
        Suppliers Association, Tulsa, OK, 2012.
-    '''
+    """
     dT = T1*((P2/P1)**((k - 1.0)/k) - 1.0)/eta
     return T1 + dT
 
 
 def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
-    r'''Calculates either isentropic or polytropic efficiency from the other
+    r"""Calculates either isentropic or polytropic efficiency from the other
     type of efficiency.
 
     .. math::
@@ -361,7 +361,7 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
     .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
-    '''
+    """
     if eta_s is None and eta_p is not None:
         return ((P2/P1)**((k-1.0)/k)-1.0)/((P2/P1)**((k-1.0)/(k*eta_p))-1.0)
     elif eta_p is None and eta_s is not None:
@@ -372,7 +372,7 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
 
 
 def polytropic_exponent(k, n=None, eta_p=None):
-    r'''Calculates one of:
+    r"""Calculates one of:
 
         * Polytropic exponent from polytropic efficiency
         * Polytropic efficiency from the polytropic exponent
@@ -411,7 +411,7 @@ def polytropic_exponent(k, n=None, eta_p=None):
     .. [1] Couper, James R., W. Roy Penney, and James R. Fair. Chemical Process
        Equipment: Selection and Design. 2nd ed. Amsterdam ; Boston: Gulf
        Professional Publishing, 2009.
-    '''
+    """
     if n is None and eta_p is not None:
         return k*eta_p/(1.0 - k*(1.0 - eta_p))
     elif eta_p is None and n is not None:
@@ -421,7 +421,7 @@ def polytropic_exponent(k, n=None, eta_p=None):
 
 
 def T_critical_flow(T, k):
-    r'''Calculates critical flow temperature `Tcf` for a fluid with the
+    r"""Calculates critical flow temperature `Tcf` for a fluid with the
     given isentropic coefficient. `Tcf` is in a flow (with Ma=1) whose
     stagnation conditions are known. Normally used with converging/diverging
     nozzles.
@@ -456,12 +456,12 @@ def T_critical_flow(T, k):
     ----------
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return T*2.0/(k + 1.0)
 
 
 def P_critical_flow(P, k):
-    r'''Calculates critical flow pressure `Pcf` for a fluid with the
+    r"""Calculates critical flow pressure `Pcf` for a fluid with the
     given isentropic coefficient. `Pcf` is in a flow (with Ma=1) whose
     stagnation conditions are known. Normally used with converging/diverging
     nozzles.
@@ -496,12 +496,12 @@ def P_critical_flow(P, k):
     ----------
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return P*(2.0/(k + 1.))**(k/(k - 1.0))
 
 
 def P_isothermal_critical_flow(P, fd, D, L):
-    r'''Calculates critical flow pressure `Pcf` for a fluid flowing
+    r"""Calculates critical flow pressure `Pcf` for a fluid flowing
     isothermally and suffering pressure drop caused by a pipe's friction factor.
 
     .. math::
@@ -544,7 +544,7 @@ def P_isothermal_critical_flow(P, fd, D, L):
     .. [1] Wilkes, James O. Fluid Mechanics for Chemical Engineers with
        Microfluidics and CFD. 2 edition. Upper Saddle River, NJ: Prentice Hall,
        2005.
-    '''
+    """
     # Correct branch of lambertw found by trial and error
     lambert_term = float((lambertw(-exp((-D - L*fd)/D), -1)).real)
     return P*exp((D*(lambert_term + 1.0) + L*fd)/(2.0*D))
@@ -564,7 +564,7 @@ def P_upstream_isothermal_critical_flow(P, fd, D, L):
 
 
 def is_critical_flow(P1, P2, k):
-    r'''Determines if a flow of a fluid driven by pressure gradient
+    r"""Determines if a flow of a fluid driven by pressure gradient
     P1 - P2 is critical, for a fluid with the given isentropic coefficient.
     This function calculates critical flow pressure, and checks if this is
     larger than P2. If so, the flow is critical and choked.
@@ -600,13 +600,13 @@ def is_critical_flow(P1, P2, k):
     ----------
     .. [1] API. 2014. API 520 - Part 1 Sizing, Selection, and Installation of
        Pressure-relieving Devices, Part I - Sizing and Selection, 9E.
-    '''
+    """
     Pcf = P_critical_flow(P1, k)
     return Pcf > P2
 
 
 def stagnation_energy(V):
-    r'''Calculates the increase in enthalpy `dH` which is provided by a fluid's
+    r"""Calculates the increase in enthalpy `dH` which is provided by a fluid's
     velocity `V`.
 
     .. math::
@@ -635,12 +635,12 @@ def stagnation_energy(V):
     ----------
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return 0.5*V*V
 
 
 def P_stagnation(P, T, Tst, k):
-    r'''Calculates stagnation flow pressure `Pst` for a fluid with the
+    r"""Calculates stagnation flow pressure `Pst` for a fluid with the
     given isentropic coefficient and specified stagnation temperature and
     normal temperature. Normally used with converging/diverging nozzles.
 
@@ -678,12 +678,12 @@ def P_stagnation(P, T, Tst, k):
     ----------
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return P*(Tst/T)**(k/(k - 1.0))
 
 
 def T_stagnation(T, P, Pst, k):
-    r'''Calculates stagnation flow temperature `Tst` for a fluid with the
+    r"""Calculates stagnation flow temperature `Tst` for a fluid with the
     given isentropic coefficient and specified stagnation pressure and
     normal pressure. Normally used with converging/diverging nozzles.
 
@@ -721,12 +721,12 @@ def T_stagnation(T, P, Pst, k):
     ----------
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return T*(Pst/P)**((k - 1.0)/k)
 
 
 def T_stagnation_ideal(T, V, Cp):
-    r'''Calculates the ideal stagnation temperature `Tst` calculated assuming
+    r"""Calculates the ideal stagnation temperature `Tst` calculated assuming
     the fluid has a constant heat capacity `Cp` and with a specified
     velocity `V` and temperature `T`.
 
@@ -758,7 +758,7 @@ def T_stagnation_ideal(T, V, Cp):
     ----------
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return T + 0.5*V*V/Cp
 
 def isothermal_gas_err_P1(P1, fd, rho, P2, L, D, m):
@@ -774,7 +774,7 @@ def isothermal_gas_err_D(D, m, rho, fd, P1, P2, L):
     return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
 
 def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
-    r'''Calculation function for dealing with flow of a compressible gas in a
+    r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline for the complete isothermal flow equation. Can calculate any of
     the following, given all other inputs:
 
@@ -880,7 +880,7 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
        2005.
     .. [4] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
+    """
     if m is None and P1 is not None and P2 is not None and L is not None and D is not None:
         Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
         if P2 < Pcf:
@@ -958,7 +958,7 @@ must be provided.')
 
 def Panhandle_A(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
                 Ps=101325., Zavg=1.0, E=0.92):
-    r'''Calculation function for dealing with flow of a compressible gas in a
+    r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Panhandle A formula. Can calculate any of the following,
     given all other inputs:
 
@@ -1056,7 +1056,7 @@ def Panhandle_A(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
        (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
     .. [6] Ikoku, Chi U. Natural Gas Production Engineering. Malabar, Fla:
        Krieger Pub Co, 1991.
-    '''
+    """
     c1 = 1.0788
     c2 = 0.8539
     c3 = 0.5394
@@ -1080,7 +1080,7 @@ must be provided.')
 
 def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
                 Ps=101325., Zavg=1.0, E=0.92):
-    r'''Calculation function for dealing with flow of a compressible gas in a
+    r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Panhandle B formula. Can calculate any of the following,
     given all other inputs:
 
@@ -1175,7 +1175,7 @@ def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
        (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
     .. [6] Ikoku, Chi U. Natural Gas Production Engineering. Malabar, Fla:
        Krieger Pub Co, 1991.
-    '''
+    """
     c1 = 1.02 # reference condition power
     c2 = 0.961 # sg power
     c3 = 0.51 # main power
@@ -1199,7 +1199,7 @@ must be provided.')
 
 def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
              Ps=101325., Zavg=1.0, E=0.92):
-    r'''Calculation function for dealing with flow of a compressible gas in a
+    r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Weymouth formula. Can calculate any of the following,
     given all other inputs:
 
@@ -1293,7 +1293,7 @@ def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
        (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
     .. [6] Ikoku, Chi U. Natural Gas Production Engineering. Malabar, Fla:
        Krieger Pub Co, 1991.
-    '''
+    """
     c3 = 0.5 # main power
     c4 = 2.667 # diameter power
     c5 = 137.3295809942512546732179684618143090992 # 37435*10**(501/1000)/864
@@ -1319,7 +1319,7 @@ def _to_solve_Spitzglass_high(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
 
 def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
                 Ps=101325., Zavg=1.0, E=1.):
-    r'''Calculation function for dealing with flow of a compressible gas in a
+    r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Spitzglass (high pressure drop) formula. Can calculate
     any of the following, given all other inputs:
 
@@ -1391,7 +1391,7 @@ def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7
        (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
     .. [2] Menon, E. Shashi. Gas Pipeline Hydraulics. 1st edition. Boca Raton,
        FL: CRC Press, 2005.
-    '''
+    """
     c3 = 1.181102362204724409448818897637795275591 # 0.03/inch or 150/127
     c4 = 0.09144
     c5 = 125.1060
@@ -1423,7 +1423,7 @@ def _to_solve_Spitzglass_low(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
 
 def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
                 Ps=101325., Zavg=1.0, E=1.):
-    r'''Calculation function for dealing with flow of a compressible gas in a
+    r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Spitzglass (low pressure drop) formula. Can calculate
     any of the following, given all other inputs:
 
@@ -1515,7 +1515,7 @@ def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
        Suppliers Association, Tulsa, OK, 2012.
     .. [4] PetroWiki. "Pressure Drop Evaluation along Pipelines" Accessed
        September 11, 2016. http://petrowiki.org/Pressure_drop_evaluation_along_pipelines#Spitzglass_equation_2.
-    '''
+    """
     c3 = 1.181102362204724409448818897637795275591 # 0.03/inch or 150/127
     c4 = 0.09144
     c5 = 125.1060
@@ -1539,7 +1539,7 @@ def _to_solve_Oliphant(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
 
 def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
              Ps=101325., Zavg=1.0, E=0.92):
-    r'''Calculation function for dealing with flow of a compressible gas in a
+    r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Oliphant formula. Can calculate any of the following,
     given all other inputs:
 
@@ -1611,7 +1611,7 @@ def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     .. [1] GPSA. GPSA Engineering Data Book. 13th edition. Gas Processors
        Suppliers Association, Tulsa, OK, 2012.
     .. [2] F. N. Oliphant, "Production of Natural Gas," Report. USGS, 1902.
-    '''
+    """
     # c1 = 42*24*Q*foot**3/day*(mile)**0.5*9/5.*(5/9.)**0.5*psi*(1/psi)*14.4/520.*0.6**0.5*520**0.5/inch**2.5
     c1 = 84.587176139918568651410168968141078948974609375000
     c2 = 0.2091519350460528670065940559652517549694 # 1/(30.*0.0254**0.5)
@@ -1633,7 +1633,7 @@ must be provided.')
 
 def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
               Ps=101325., Zavg=1.0, E=1.0):
-    r'''Calculation function for dealing with flow of a compressible gas in a
+    r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Fritzsche formula. Can calculate any of the following,
     given all other inputs:
 
@@ -1705,7 +1705,7 @@ def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
        for Steady State Flow in Natural Gas Pipelines." Journal of the
        Brazilian Society of Mechanical Sciences and Engineering 29, no. 3
        (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
-    '''
+    """
     # Rational('2.827E-3')/(3600*24)*(1000)**Rational('2.69')*(1000)**Rational('0.538')*1000/(1000**2)**Rational('0.538')
     c5 = 93.50009798751128188757518688244137811221 # 14135*10**(57/125)/432
     c2 = 0.8587
@@ -1727,7 +1727,7 @@ def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
 
 def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
            Ps=101325., Zavg=1.0, E=1.0):
-    r'''Calculation function for dealing with flow of a compressible gas in a
+    r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Muller formula. Can calculate any of the following,
     given all other inputs:
 
@@ -1814,7 +1814,7 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
        for Steady State Flow in Natural Gas Pipelines." Journal of the
        Brazilian Society of Mechanical Sciences and Engineering 29, no. 3
        (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
-    '''
+    """
     # 1000*foot**3/hour*0.4937/inch**2.725*foot**0.575*(5/9.)**0.575*9/5.*(pound/foot)**0.15*psi*(1/psi**2)**0.575
     c5 = 15.77439908642077352939746374951659525108 # 5642991*196133**(17/20)*2**(3/5)*3**(11/40)*5**(7/40)/30645781250
     c2 = 0.575 # main power
@@ -1837,7 +1837,7 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
 
 def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
         Ps=101325., Zavg=1.0, E=1.0):
-    r'''Calculation function for dealing with flow of a compressible gas in a
+    r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the IGT formula. Can calculate any of the following,
     given all other inputs:
 
@@ -1921,7 +1921,7 @@ def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
        for Steady State Flow in Natural Gas Pipelines." Journal of the
        Brazilian Society of Mechanical Sciences and Engineering 29, no. 3
        (September 2007): 262-73. doi:10.1590/S1678-58782007000300005.
-    '''
+    """
     # 1000*foot**3/hour*0.6643/inch**(8/3.)*foot**(5/9.)*(5/9.)**(5/9.)*9/5.*(pound/foot)**(1/9.)*psi*(1/psi**2)**(5/9.)
     c5 = 24.62412451461407054875301709443930350550 # 1084707*196133**(8/9)*2**(1/9)*6**(1/3)/4377968750
     c2 = 5/9. # main power

@@ -402,7 +402,7 @@ def inv(matrix):
 
 
 def shape(value):
-    '''Find and return the shape of an array, whether it is a numpy array or
+    """Find and return the shape of an array, whether it is a numpy array or
     a list-of-lists or other combination of iterators.
 
     Parameters
@@ -431,7 +431,7 @@ def shape(value):
     (1, 3, 1)
     >>> shape(['110-54-3'])
     (1,)
-    '''
+    """
     try:
         return value.shape
     except:

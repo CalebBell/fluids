@@ -51,13 +51,13 @@ max_Fo_for_turbulent = 1/1225.
 min_regime_constant_for_turbulent = 6370.
 
 def adjust_homogeneity(fraction):
-    '''Base: 95% homogeneity'''
+    """Base: 95% homogeneity"""
     multiplier = log(1-fraction)/log(0.05)
     return multiplier
 
 
 def agitator_time_homogeneous(N, P, T, H, mu, rho, D=None, homogeneity=.95):
-    r'''Calculates time for a fluid mizing in a tank with an impeller to
+    r"""Calculates time for a fluid mizing in a tank with an impeller to
     reach a specified level of homogeneity, according to [1]_.
 
     .. math::
@@ -122,7 +122,7 @@ def agitator_time_homogeneous(N, P, T, H, mu, rho, D=None, homogeneity=.95):
     .. [1] Paul, Edward L, Victor A Atiemo-Obeng, and Suzanne M Kresta.
        Handbook of Industrial Mixing: Science and Practice.
        Hoboken, N.J.: Wiley-Interscience, 2004.
-    '''
+    """
     if not D:
         D = T*0.5
     Np = P*g/rho/N**3/D**5
@@ -138,7 +138,7 @@ def agitator_time_homogeneous(N, P, T, H, mu, rho, D=None, homogeneity=.95):
 
 
 def Kp_helical_ribbon_Rieger(D, h, nb, pitch, width, T):
-    r'''Calculates product of power number and Reynolds number for a
+    r"""Calculates product of power number and Reynolds number for a
     specified geometry for a heilical ribbon mixer in the laminar regime.
     One of several correlations listed in [1]_, it used more data than other
     listed correlations and was recommended.
@@ -184,13 +184,13 @@ def Kp_helical_ribbon_Rieger(D, h, nb, pitch, width, T):
     .. [2] Rieger, F., V. Novak, and D. Havelkov (1988). The influence of the
        geometrical shape on the power requirements of ribbon impellers,
        Int. Chem. Eng., 28, 376-383.
-    '''
+    """
     c = 0.5*(T - D)
     return 82.8*h/D*(c/D)**-.38*(pitch/D)**-0.35*(width/D)**0.2*nb**0.78
 
 
 def time_helical_ribbon_Grenville(Kp, N):
-    r'''Calculates product of time required for mixing in a helical ribbon
+    r"""Calculates product of time required for mixing in a helical ribbon
     coil in the laminar regime according to the Grenville [2]_ method
     recommended in [1]_.
 
@@ -227,14 +227,14 @@ def time_helical_ribbon_Grenville(Kp, N):
     .. [2] Grenville, R. K., T. M. Hutchinson, and R. W. Higbee (2001).
        Optimisation of helical ribbon geometry for blending in the laminar
        regime, presented at MIXING XVIII, NAMF.
-    '''
+    """
     return 896E3*Kp**-1.69/N
 
 
 ### Tee mixer
 
 def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
-    r'''Calculates CoV of an optimal or specified tee for mixing at a tee
+    r"""Calculates CoV of an optimal or specified tee for mixing at a tee
     according to [1]_. Assumes turbulent flow.
     The smaller stream in injected into the main pipe, which continues
     straight.
@@ -280,7 +280,7 @@ def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
        "Numerical Study of Multi-Jet Mixing." Chemical Engineering Research and
        Design, Fluid Flow, 79, no. 5 (July 2001): 515-22.
        doi:10.1205/02638760152424280.
-    '''
+    """
     V1 = Q1/(pi/4*D**2)
     # Cv = Q2/(Q1 + Q2)
     # COV0 = sqrt((1-Cv)/Cv)
@@ -326,7 +326,7 @@ StatixMixers['SMF'] = {'Name': 'SMF', 'Vendor': 'Koch-Glitsch', 'Description': '
 
 
 def COV_motionless_mixer(Ki, Q1, Q2, pipe_diameters):
-    r'''Calculates CoV of a motionless mixer with a regression parameter in
+    r"""Calculates CoV of a motionless mixer with a regression parameter in
     [1]_ and originally in [2]_.
 
     .. math::
@@ -365,7 +365,7 @@ def COV_motionless_mixer(Ki, Q1, Q2, pipe_diameters):
     .. [2] Streiff, F. A., S. Jaffer, and G. Schneider (1999). Design and
        application of motionless mixer technology, Proc. ISMIP3, Osaka,
        pp. 107-114.
-    '''
+    """
     Cv = Q2/(Q1 + Q2)
     COV0 = sqrt((1-Cv)/Cv)
     COVr = Ki**(pipe_diameters)
@@ -374,7 +374,7 @@ def COV_motionless_mixer(Ki, Q1, Q2, pipe_diameters):
 
 
 def K_motionless_mixer(K, L, D, fd):
-    r'''Calculates loss coefficient of a motionless mixer with a regression
+    r"""Calculates loss coefficient of a motionless mixer with a regression
     parameter in [1]_ and originally in [2]_.
 
     .. math::
@@ -414,6 +414,6 @@ def K_motionless_mixer(K, L, D, fd):
     .. [2] Streiff, F. A., S. Jaffer, and G. Schneider (1999). Design and
        application of motionless mixer technology, Proc. ISMIP3, Osaka,
        pp. 107-114.
-    '''
+    """
     return L/D*fd*K
 

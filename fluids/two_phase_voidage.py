@@ -109,7 +109,7 @@ __all__ = ['Thom', 'Zivi', 'Smith', 'Fauske', 'Chisholm_voidage', 'Turner_Wallis
 ### Models based on slip ratio
 
 def Thom(x, rhol, rhog, mul, mug):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_.
 
     .. math::
@@ -161,13 +161,13 @@ def Thom(x, rhol, rhog, mul, mug):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     return 1.0/(1.0 + (1.0-x)/x * (rhog/rhol)**0.89 * (mul/mug)**0.18)
 #    return x*((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6/(x*(((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6 - 1) + 1)
 
 
 def Zivi(x, rhol, rhog):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
     .. math::
@@ -211,12 +211,12 @@ def Zivi(x, rhol, rhog):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     return 1.0/(1.0 + (1.0-x)/x * (rhog/rhol)**(2/3.))
 
 
 def Smith(x, rhol, rhog):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_, also given in [2]_ and [3]_.
 
     .. math::
@@ -266,7 +266,7 @@ def Smith(x, rhol, rhog):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     K = 0.4
     x_ratio = (1.0-x)/x
     root = sqrt((rhol/rhog + K*x_ratio) / (1.0 + K*x_ratio))
@@ -275,7 +275,7 @@ def Smith(x, rhol, rhog):
 
 
 def Fauske(x, rhol, rhog):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_, as given in [2]_ and [3]_.
 
     .. math::
@@ -319,12 +319,12 @@ def Fauske(x, rhol, rhog):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     return 1.0/(1.0 + (1.0-x)/x*sqrt(rhog/rhol))
 
 
 def Chisholm_voidage(x, rhol, rhog):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_, as given in [2]_ and [3]_.
 
     .. math::
@@ -370,14 +370,14 @@ def Chisholm_voidage(x, rhol, rhog):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     S = sqrt(1.0 - x*(1.0-rhol/rhog))
     alpha = 1.0/(1.0 + (1.0-x)/x*rhog/rhol*S)
     return alpha
 
 
 def Turner_Wallis(x, rhol, rhog, mul, mug):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_, as given in [2]_ and [3]_.
 
     .. math::
@@ -426,7 +426,7 @@ def Turner_Wallis(x, rhol, rhog, mul, mug):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     return 1.0/(1.0 + ((1.0-x)/x)**0.72 * (rhog/rhol)**0.4 * (mul/mug)**0.08)
 
 
@@ -434,7 +434,7 @@ def Turner_Wallis(x, rhol, rhog, mul, mug):
 
 
 def homogeneous(x, rhol, rhog):
-    r'''Calculates void fraction in two-phase flow according to the homogeneous
+    r"""Calculates void fraction in two-phase flow according to the homogeneous
     flow model, reviewed in [1]_, [2]_, and [3]_.
 
     .. math::
@@ -476,7 +476,7 @@ def homogeneous(x, rhol, rhog):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     if x == 1.0:
         return 1.0
     elif x == 0.0:
@@ -485,7 +485,7 @@ def homogeneous(x, rhol, rhog):
 
 
 def Chisholm_Armand(x, rhol, rhog):
-    r'''Calculates void fraction in two-phase flow according to the model
+    r"""Calculates void fraction in two-phase flow according to the model
     presented in [1]_ based on that of [2]_ as shown in [3]_, [4]_, and [5]_.
 
     .. math::
@@ -532,13 +532,13 @@ def Chisholm_Armand(x, rhol, rhog):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     alpha_h = homogeneous(x, rhol, rhog)
     return alpha_h/(alpha_h + sqrt(1.0-alpha_h))
 
 
 def Armand(x, rhol, rhog):
-    r'''Calculates void fraction in two-phase flow according to the model
+    r"""Calculates void fraction in two-phase flow according to the model
     presented in [1]_  as shown in [2]_, [3]_, and [4]_.
 
     .. math::
@@ -583,12 +583,12 @@ def Armand(x, rhol, rhog):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     return 0.833*homogeneous(x, rhol, rhog)
 
 
 def Nishino_Yamazaki(x, rhol, rhog):
-    r'''Calculates void fraction in two-phase flow according to the model
+    r"""Calculates void fraction in two-phase flow according to the model
     presented in [1]_ as shown in [2]_.
 
     .. math::
@@ -635,13 +635,13 @@ def Nishino_Yamazaki(x, rhol, rhog):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     alpha_h = homogeneous(x, rhol, rhog)
     return 1.0 - sqrt((1.0-x)*rhog/(x*rhol))*sqrt(alpha_h)
 
 
 def Guzhov(x, rhol, rhog, m, D):
-    r'''Calculates void fraction in two-phase flow according to the model
+    r"""Calculates void fraction in two-phase flow according to the model
     in [1]_ as shown in [2]_ and [3]_.
 
     .. math::
@@ -691,7 +691,7 @@ def Guzhov(x, rhol, rhog, m, D):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     rho_tp = 1.0/((1-x)/rhol + x/rhog)
     G = m/(0.25*pi*D*D)
     V_tp = G/rho_tp
@@ -701,7 +701,7 @@ def Guzhov(x, rhol, rhog, m, D):
 
 
 def Kawahara(x, rhol, rhog, D):
-    r'''Calculates void fraction in two-phase flow according to the model
+    r"""Calculates void fraction in two-phase flow according to the model
     presented in [1]_, also reviewed in [2]_ and [3]_. This expression is for
     microchannels.
 
@@ -754,7 +754,7 @@ def Kawahara(x, rhol, rhog, D):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     if D > 250E-6:
         return Armand(x, rhol, rhog)
     elif D > 75E-6:
@@ -768,7 +768,7 @@ def Kawahara(x, rhol, rhog, D):
 
 def Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug, pow_x=0.9, pow_rho=0.5,
                             pow_mu=0.1, n=None):
-    r'''Calculates the Lockhart-Martinelli Xtt two-phase flow parameter in a
+    r"""Calculates the Lockhart-Martinelli Xtt two-phase flow parameter in a
     general way according to [2]_. [1]_ is said to describe this. However,
     very different definitions of this parameter have been used elsewhere.
     Accordingly, the powers of each of the terms can be set. Alternatively, if
@@ -828,7 +828,7 @@ def Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug, pow_x=0.9, pow_rho=0.5,
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     if n is not None:
         pow_x = (2-n)/2.
         pow_mu = n/2.
@@ -836,7 +836,7 @@ def Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug, pow_x=0.9, pow_rho=0.5,
 
 
 def Baroczy(x, rhol, rhog, mul, mug):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_, [3]_, and [4]_.
 
     .. math::
@@ -887,14 +887,14 @@ def Baroczy(x, rhol, rhog, mul, mug):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug,
                                   pow_x=0.74, pow_rho=0.65, pow_mu=0.13)
     return 1.0/(1 + Xtt)
 
 
 def Tandon_Varma_Gupta(x, rhol, rhog, mul, mug, m, D):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_, [3]_, and [4]_.
 
     For 50 < Rel < 1125:
@@ -967,7 +967,7 @@ def Tandon_Varma_Gupta(x, rhol, rhog, mul, mug, m, D):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     G = m/(0.25*pi*D*D)
     Rel = G*D/mul
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
@@ -980,7 +980,7 @@ def Tandon_Varma_Gupta(x, rhol, rhog, mul, mug, m, D):
 
 
 def Harms(x, rhol, rhog, mul, mug, m, D):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_ and [3]_.
 
     .. math::
@@ -1035,7 +1035,7 @@ def Harms(x, rhol, rhog, mul, mug, m, D):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     G = m/(0.25*pi*D*D)
     Rel = G*D*(1.0-x)/mul
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
@@ -1045,7 +1045,7 @@ def Harms(x, rhol, rhog, mul, mug, m, D):
 
 
 def Domanski_Didion(x, rhol, rhog, mul, mug):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_ and [3]_.
 
     if Xtt < 10:
@@ -1103,7 +1103,7 @@ def Domanski_Didion(x, rhol, rhog, mul, mug):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
     if Xtt < 10.0:
         return (1.0 + Xtt**0.8)**-0.378
@@ -1112,7 +1112,7 @@ def Domanski_Didion(x, rhol, rhog, mul, mug):
 
 
 def Graham(x, rhol, rhog, mul, mug, m, D, g=g):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_ and [3]_.
 
     .. math::
@@ -1172,7 +1172,7 @@ def Graham(x, rhol, rhog, mul, mug, m, D, g=g):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     G = m/(0.25*pi*D*D)
     Ft = sqrt(G*G*x*x*x/((1.0-x)*rhog*rhog*g*D))
     if Ft < 0.01032:
@@ -1183,7 +1183,7 @@ def Graham(x, rhol, rhog, mul, mug, m, D, g=g):
 
 
 def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_ and [3]_.
 
     .. math::
@@ -1239,7 +1239,7 @@ def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     G = m/(0.25*pi*D*D)
     Ft = sqrt(G*G*x*x*x/((1.0-x)*rhog*rhog*g*D))
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
@@ -1247,7 +1247,7 @@ def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
 
 
 def Huq_Loth(x, rhol, rhog):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_, also given in [2]_, [3]_, and [4]_.
 
     .. math::
@@ -1296,7 +1296,7 @@ def Huq_Loth(x, rhol, rhog):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     term = 1.0 - x
     B = 2.0*x*term
     D = sqrt(1.0 + 2.0*B*(rhol/rhog -1.0))
@@ -1304,7 +1304,7 @@ def Huq_Loth(x, rhol, rhog):
 
 
 def Kopte_Newell_Chato(x, rhol, rhog, m, D, g=g):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_.
 
     .. math::
@@ -1356,7 +1356,7 @@ def Kopte_Newell_Chato(x, rhol, rhog, m, D, g=g):
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
        1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
-    '''
+    """
     G = m/(0.25*pi*D*D)
     Ft = sqrt(G*G*x*x*x/((1.0-x)*rhog*rhog*g*D))
     if Ft < 0.044:
@@ -1369,7 +1369,7 @@ def Kopte_Newell_Chato(x, rhol, rhog, m, D, g=g):
 
 
 def Steiner(x, rhol, rhog, sigma, m, D, g=g):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_ and [3]_.
 
     .. math::
@@ -1425,7 +1425,7 @@ def Steiner(x, rhol, rhog, sigma, m, D, g=g):
        Condensation in Vertical Downward Flow in a Smooth Tube." International
        Communications in Heat and Mass Transfer 35, no. 8 (October 2008):
        921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
-    '''
+    """
     G = m/(0.25*pi*D*D)
     C0 = 1.0 + 0.12*(1.0-x)
     vgm = 1.18*(1.0-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
@@ -1433,7 +1433,7 @@ def Steiner(x, rhol, rhog, sigma, m, D, g=g):
 
 
 def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
     .. math::
@@ -1490,7 +1490,7 @@ def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     G = m/(0.25*pi*D*D)
     C0 = 1.0 + 0.2*(1.0-x)
     vgm = 1.18*(1.0-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
@@ -1498,7 +1498,7 @@ def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
 
 
 def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
     .. math::
@@ -1555,7 +1555,7 @@ def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     G = m/(0.25*pi*D*D)
     C0 = 1.0 + 0.2*(1.0-x)*sqrt(sqrt(g*D))*sqrt(rhol/G)
     vgm = 1.18*(1.0-x)/sqrt(rhol)*sqrt(sqrt(g*sigma*(rhol-rhog)))
@@ -1563,7 +1563,7 @@ def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
 
 
 def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
     .. math::
@@ -1615,7 +1615,7 @@ def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     G = m/(0.25*pi*D*D)
     C0 = 1.2
     vgm = 0.35*sqrt(g*D)
@@ -1623,7 +1623,7 @@ def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
 
 
 def Gregory_Scott(x, rhol, rhog):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
     .. math::
@@ -1671,13 +1671,13 @@ def Gregory_Scott(x, rhol, rhog):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     C0 = 1.19
     return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol)))
 
 
 def Dix(x, rhol, rhog, sigma, m, D, g=g):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
     .. math::
@@ -1743,7 +1743,7 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     A = 0.25*pi*D*D
     vgs = m*x/(rhog*A)
     vls = m*(1.0-x)/(rhol*A)
@@ -1754,7 +1754,7 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
 
 
 def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
     .. math::
@@ -1814,7 +1814,7 @@ def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     G = m/(0.25*pi*D*D)
     Pr = P/Pc if Pc is not None else 0.5
     C0 = 1.0/(0.82 + 0.18*Pr)
@@ -1826,7 +1826,7 @@ def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
 
 
 def Xu_Fang_voidage(x, rhol, rhog, m, D, g=g):
-    r'''Calculates void fraction in two-phase flow according to the model
+    r"""Calculates void fraction in two-phase flow according to the model
     developed in the review of [1]_.
 
     .. math::
@@ -1870,7 +1870,7 @@ def Xu_Fang_voidage(x, rhol, rhog, m, D, g=g):
     .. [1] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
        1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
-    '''
+    """
     G = m/(0.25*pi*D*D)
     alpha_h = homogeneous(x, rhol, rhog)
     Frlo = G*G/(g*D*rhol*rhol)
@@ -1878,7 +1878,7 @@ def Xu_Fang_voidage(x, rhol, rhog, m, D, g=g):
 
 
 def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
-    r'''Calculates void fraction in two-phase flow according to the model of
+    r"""Calculates void fraction in two-phase flow according to the model of
     [1]_.
 
     .. math::
@@ -1936,7 +1936,7 @@ def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
        no. 4 (April 2007): 347-370. doi:10.1016/j.ijmultiphaseflow.2006.09.004.
-    '''
+    """
     A = 0.25*pi*D*D
     vgs = m*x/(rhog*A)
     vls = m*(1.0-x)/(rhol*A)
@@ -1985,7 +1985,7 @@ _unknown_two_phase_voidage_corr = f'Method not recognized; available methods are
 def liquid_gas_voidage_methods(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
                                sigma=None, P=None, Pc=None, angle=0.0, g=g,
                                check_ranges=False):
-    r'''This function returns a list of liquid-gas voidage correlation names
+    r"""This function returns a list of liquid-gas voidage correlation names
     which can perform the calculation with the provided inputs. The holdup is
     for two-phase liquid-gas flow inside channels. 29 calculation methods are
     available, with varying input requirements.
@@ -2030,7 +2030,7 @@ def liquid_gas_voidage_methods(x, rhol, rhog, D=None, m=None, mul=None, mug=None
     --------
     >>> len(liquid_gas_voidage_methods(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05))
     27
-    '''
+    """
     vals = {'x': x, 'rhol': rhol, 'rhog': rhog, 'D': D, 'm': m, 'mul': mul,
             'mug': mug, 'sigma': sigma, 'P': P, 'Pc': Pc, 'angle': angle,
             'g': g, 'check_ranges': check_ranges}
@@ -2043,7 +2043,7 @@ def liquid_gas_voidage_methods(x, rhol, rhog, D=None, m=None, mul=None, mug=None
 
 def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
                        sigma=None, P=None, Pc=None, angle=0, g=g, Method=None):
-    r'''This function handles calculation of two-phase liquid-gas voidage
+    r"""This function handles calculation of two-phase liquid-gas voidage
     for flow inside channels. 29 calculation methods are available, with
     varying input requirements. A correlation will be automatically selected if
     none is specified.
@@ -2105,7 +2105,7 @@ def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
     >>> liquid_gas_voidage(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6,
     ... sigma=0.0487, D=0.05)
     0.9744097632663492
-    '''
+    """
     if Method is None:
         Method2 = 'homogeneous'
     else:
@@ -2174,7 +2174,7 @@ def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
 
 
 def density_two_phase(alpha, rhol, rhog):
-    r'''Calculates the "effective" density of fluid in a liquid-gas flow. If
+    r"""Calculates the "effective" density of fluid in a liquid-gas flow. If
     the weight of fluid in a pipe pipe could be measured and the volume of
     the pipe were known, an effective density of the two-phase mixture could be
     calculated. This is directly relatable to the void fraction of the pipe,
@@ -2213,12 +2213,12 @@ def density_two_phase(alpha, rhol, rhog):
     .. [1] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for
        Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
        no. 1 (October 1, 2008): 106-13.
-    '''
+    """
     return alpha*rhog + (1. - alpha)*rhol
 
 
 def two_phase_voidage_experimental(rho_lg, rhol, rhog):
-    r'''Calculates the void fraction for two-phase liquid-gas pipeflow. If
+    r"""Calculates the void fraction for two-phase liquid-gas pipeflow. If
     the weight of fluid in a pipe pipe could be measured and the volume of
     the pipe were known, an effective density of the two-phase mixture could be
     calculated. This is directly relatable to the void fraction of the pipe,
@@ -2256,7 +2256,7 @@ def two_phase_voidage_experimental(rho_lg, rhol, rhog):
     .. [1] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for
        Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
        no. 1 (October 1, 2008): 106-13.
-    '''
+    """
     return (rho_lg - rhol)/(rhog - rhol)
 
 
@@ -2264,7 +2264,7 @@ def two_phase_voidage_experimental(rho_lg, rhol, rhog):
 
 
 def Beattie_Whalley(x, mul, mug, rhol, rhog):
-    r'''Calculates a suggested definition for liquid-gas two-phase flow
+    r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_ and [3]_.
 
@@ -2318,13 +2318,13 @@ def Beattie_Whalley(x, mul, mug, rhol, rhog):
        Boiling Mini/Micro-Channel Flows." International Journal of Heat and
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
-    '''
+    """
     alpha = homogeneous(x, rhol, rhog)
     return mul*(1. - alpha)*(1. + 2.5*alpha) + mug*alpha
 
 
 def McAdams(x, mul, mug):
-    r'''Calculates a suggested definition for liquid-gas two-phase flow
+    r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_ and [3]_.
 
@@ -2371,12 +2371,12 @@ def McAdams(x, mul, mug):
        Boiling Mini/Micro-Channel Flows." International Journal of Heat and
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
-    '''
+    """
     return 1./(x/mug + (1. - x)/mul)
 
 
 def Cicchitti(x, mul, mug):
-    r'''Calculates a suggested definition for liquid-gas two-phase flow
+    r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_ and [3]_.
 
@@ -2422,12 +2422,12 @@ def Cicchitti(x, mul, mug):
        Boiling Mini/Micro-Channel Flows." International Journal of Heat and
        Mass Transfer 77 (October 2014): 74-97.
        doi:10.1016/j.ijheatmasstransfer.2014.04.035.
-    '''
+    """
     return x*mug + (1. - x)*mul
 
 
 def Lin_Kwok(x, mul, mug):
-    r'''Calculates a suggested definition for liquid-gas two-phase flow
+    r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_.
 
@@ -2468,12 +2468,12 @@ def Lin_Kwok(x, mul, mug):
     .. [2] Awad, M. M., and Y. S. Muzychka. "Effective Property Models for
        Homogeneous Two-Phase Flows." Experimental Thermal and Fluid Science 33,
        no. 1 (October 1, 2008): 106-13.
-    '''
+    """
     return mul*mug/(mug + x**1.4*(mul - mug))
 
 
 def Fourar_Bories(x, mul, mug, rhol, rhog):
-    r'''Calculates a suggested definition for liquid-gas two-phase flow
+    r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_ and [3]_.
 
@@ -2527,7 +2527,7 @@ def Fourar_Bories(x, mul, mug, rhol, rhog):
     .. [3] Aung, NZ, and T. Yuwono. "Evaluation of Mixture Viscosity Models in
        the Prediction of Two-Phase Flow Pressure Drops." ASEAN Journal on
        Science and Technology for Development 29, no. 2 (2012).
-    '''
+    """
     rhom = 1./(x/rhog + (1. - x)/rhol)
     nul = mul/rhol # = nu_mu_converter(rho=rhol, mu=mul)
     nug = mug/rhog # = nu_mu_converter(rho=rhog, mu=mug)
@@ -2536,7 +2536,7 @@ def Fourar_Bories(x, mul, mug, rhol, rhog):
 
 
 def Duckler(x, mul, mug, rhol, rhog):
-    r'''Calculates a suggested definition for liquid-gas two-phase flow
+    r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_, [3]_, and [4]_.
 
@@ -2598,7 +2598,7 @@ def Duckler(x, mul, mug, rhol, rhog):
     .. [4] Aung, NZ, and T. Yuwono. "Evaluation of Mixture Viscosity Models in
        the Prediction of Two-Phase Flow Pressure Drops." ASEAN Journal on
        Science and Technology for Development 29, no. 2 (2012).
-    '''
+    """
     return (x*mug/rhog + (1. - x)*mul/rhol)/(x/rhog + (1. - x)/rhol)
 
 
@@ -2611,7 +2611,7 @@ liquid_gas_viscosity_correlations = {'Beattie Whalley': (Beattie_Whalley, 1),
 liquid_gas_viscosity_correlations_list = ['Beattie Whalley', 'Fourar Bories', 'Duckler', 'McAdams', 'Cicchitti', 'Lin Kwok']
 
 def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
-    r'''This function returns a list of methods which can be used for calculating
+    r"""This function returns a list of methods which can be used for calculating
     two-phase liquid-gas viscosity.
     Six calculation methods are available; three of them require only `x`,
     `mul`, and `mug`; the other three require `rhol` and `rhog` as well.
@@ -2637,7 +2637,7 @@ def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
     ['McAdams', 'Cicchitti', 'Lin Kwok']
     >>> gas_liquid_viscosity_methods(rhol=1000, rhog=2)
     ['Beattie Whalley', 'Fourar Bories', 'Duckler', 'McAdams', 'Cicchitti', 'Lin Kwok']
-    '''
+    """
     methods = ['McAdams', 'Cicchitti', 'Lin Kwok']
     if rhol is not None and rhog is not None:
         methods = liquid_gas_viscosity_correlations_list
@@ -2646,7 +2646,7 @@ _gas_liquid_viscosity_method_unknown = f'Method not recognized; available method
 
 
 def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None):
-    r'''This function handles the calculation of two-phase liquid-gas viscosity.
+    r"""This function handles the calculation of two-phase liquid-gas viscosity.
     Six calculation methods are available; three of them require only `x`,
     `mul`, and `mug`; the other three require `rhol` and `rhog` as well.
 
@@ -2696,7 +2696,7 @@ def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None):
     1.2092040385066917e-05
     >>> gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5)
     2.4630541871921184e-05
-    '''
+    """
     if Method is None:
         Method = 'McAdams'
 

@@ -62,8 +62,8 @@ except:
 # is_critical_flow is broken
 
 def get_docstring(f):
-    '''Returns the docstring of a function, working in -OO mode also.
-    '''
+    """Returns the docstring of a function, working in -OO mode also.
+    """
     try:
         if f.__doc__ is not None:
             return f.__doc__
@@ -403,9 +403,9 @@ class UnitAwareClass:
     method_units = {}
 
     def __repr__(self):
-        '''Called only on the class instance, not any instance - ever.
+        """Called only on the class instance, not any instance - ever.
         https://stackoverflow.com/questions/10376604/overriding-special-methods-on-an-instance
-        '''
+        """
         return self.wrapped.__repr__()
 
     def __add__(self, other):
@@ -627,13 +627,13 @@ def wrap_numpydoc_obj(obj_to_wrap):
     return fun
 
 def kwargs_to_args(args, kwargs, signature):
-    '''Accepts an *args and **kwargs and a signature
+    """Accepts an *args and **kwargs and a signature
     like ['rho', 'mu', 'nu'] which is an ordered list of
     all accepted arguments.
 
     Returns a list containing all the arguments, sorted, and
     left as None if not specified
-    '''
+    """
     argument_number = len(signature)
     arg_number = len(args)
     output = list(args)

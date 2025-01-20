@@ -82,7 +82,7 @@ k_Shen = [0.0028, 0.0017, 0.0012, 0.001, 0.001]
 ### V-Notch Weirs (Triangular weir)
 
 def Q_weir_V_Shen(h1, angle=90):
-    r'''Calculates the flow rate across a V-notch (triangular) weir from
+    r"""Calculates the flow rate across a V-notch (triangular) weir from
     the height of the liquid above the tip of the notch, and with the angle
     of the notch. Most of these type of weir are 90 degrees. Model from [1]_
     as reproduced in [2]_.
@@ -136,7 +136,7 @@ def Q_weir_V_Shen(h1, angle=90):
        U.S. G.P.O., 1981
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     C = interp(angle, angles_Shen, Cs_Shen)
     k = interp(angle, angles_Shen, k_Shen)
     return C*tan(radians(angle)/2)*sqrt(g)*(h1 + k)**2.5
@@ -146,7 +146,7 @@ def Q_weir_V_Shen(h1, angle=90):
 
 
 def Q_weir_rectangular_Kindsvater_Carter(h1, h2, b):
-    r'''Calculates the flow rate across rectangular weir from
+    r"""Calculates the flow rate across rectangular weir from
     the height of the liquid above the crest of the notch, the liquid depth
     beneath it, and the width of the notch. Model from [1]_ as reproduced in
     [2]_.
@@ -193,12 +193,12 @@ def Q_weir_rectangular_Kindsvater_Carter(h1, h2, b):
        Hydraulics Division 83, no. 6 (December 1957): 1-36.
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     return 0.554*(1 - 0.0035*h1/h2)*(b + 0.0025)*sqrt(g)*(h1 + 0.0001)**1.5
 
 
 def Q_weir_rectangular_SIA(h1, h2, b, b1):
-    r'''Calculates the flow rate across rectangular weir from
+    r"""Calculates the flow rate across rectangular weir from
     the height of the liquid above the crest of the notch, the liquid depth
     beneath it, and the width of the notch. Model from [1]_ as reproduced in
     [2]_.
@@ -248,7 +248,7 @@ def Q_weir_rectangular_SIA(h1, h2, b, b1):
        an Wasserkraftmaschinen. SIA, 1924.
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     h = h1 + h2
     Q = 0.544*(1 + 0.064*(b/b1)**2 + (0.00626 - 0.00519*(b/b1)**2)/(h1 + 0.0016))\
     *(1 + 0.5*(b/b1)**4*(h1/(h1 + h2))**2)*b*sqrt(g)*h**1.5
@@ -258,7 +258,7 @@ def Q_weir_rectangular_SIA(h1, h2, b, b1):
 ### Rectangular Weirs, full channel
 
 def Q_weir_rectangular_full_Ackers(h1, h2, b):
-    r'''Calculates the flow rate across a full-channel rectangular weir from
+    r"""Calculates the flow rate across a full-channel rectangular weir from
     the height of the liquid above the crest of the weir, the liquid depth
     beneath it, and the width of the channel. Model from [1]_ as reproduced in
     [2]_, confirmed with [3]_.
@@ -306,12 +306,12 @@ def Q_weir_rectangular_full_Ackers(h1, h2, b):
        Van Nostrand Reinhold Co., 1984.
     .. [3] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return 0.564*(1 + 0.150*h1/h2)*b*sqrt(g)*(h1 + 0.001)**1.5
 
 
 def Q_weir_rectangular_full_SIA(h1, h2, b):
-    r'''Calculates the flow rate across a full-channel rectangular weir from
+    r"""Calculates the flow rate across a full-channel rectangular weir from
     the height of the liquid above the crest of the weir, the liquid depth
     beneath it, and the width of the channel. Model from [1]_ as reproduced in
     [2]_.
@@ -359,14 +359,14 @@ def Q_weir_rectangular_full_SIA(h1, h2, b):
        Wasserkraftmaschinen. SIA, 1924.
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     Q = 2/3.*sqrt(2)*(0.615 + 0.000615/(h1 + 0.0016))*b*sqrt(g)*h1 \
     + 0.5*(h1/(h1+h2))**2*b*sqrt(g)*h1**1.5
     return Q
 
 
 def Q_weir_rectangular_full_Rehbock(h1, h2, b):
-    r'''Calculates the flow rate across a full-channel rectangular weir from
+    r"""Calculates the flow rate across a full-channel rectangular weir from
     the height of the liquid above the crest of the weir, the liquid depth
     beneath it, and the width of the channel. Model from [1]_ as reproduced in
     [2]_.
@@ -414,14 +414,14 @@ def Q_weir_rectangular_full_Rehbock(h1, h2, b):
        93, no. 1 (January 1929): 1111-78.
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     return 2/3.*sqrt(2)*(0.602 + 0.0832*h1/h2)*b*sqrt(g)*(h1+0.00125)**1.5
 
 #print [Q_weir_rectangular_full_Rehbock(h1=0.3, h2=0.4, b=2)]
 
 
 def Q_weir_rectangular_full_Kindsvater_Carter(h1, h2, b):
-    r'''Calculates the flow rate across a full-channel rectangular weir from
+    r"""Calculates the flow rate across a full-channel rectangular weir from
     the height of the liquid above the crest of the weir, the liquid depth
     beneath it, and the width of the channel. Model from [1]_ as reproduced in
     [2]_.
@@ -467,7 +467,7 @@ def Q_weir_rectangular_full_Kindsvater_Carter(h1, h2, b):
        Hydraulics Division 83, no. 6 (December 1957): 1-36.
     .. [2] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     Q = 2/3.*sqrt(2)*(0.602 + 0.075*h1/h2)*(b - 0.001)*sqrt(g)*(h1 + 0.001)**1.5
     return Q
 #print [Q_weir_rectangular_full_Kindsvater_Carter(h1=0.3, h2=0.4, b=2)]
@@ -477,7 +477,7 @@ def Q_weir_rectangular_full_Kindsvater_Carter(h1, h2, b):
 ### Open flow calculations - Manning and Chezy
 
 def V_Manning(Rh, S, n):
-    r'''Predicts the average velocity of a flow across an open channel of
+    r"""Predicts the average velocity of a flow across an open channel of
     hydraulic radius Rh and slope S, given the Manning roughness coefficient
     n.
 
@@ -520,12 +520,12 @@ def V_Manning(Rh, S, n):
        Van Nostrand Reinhold Co., 1984.
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
-    '''
+    """
     return Rh**(2.0/3.)*sqrt(S)/n
 
 
 def n_Manning_to_C_Chezy(n, Rh):
-    r'''Converts a Manning roughness coefficient to a Chezy coefficient,
+    r"""Converts a Manning roughness coefficient to a Chezy coefficient,
     given the hydraulic radius of the channel.
 
     .. math::
@@ -556,12 +556,12 @@ def n_Manning_to_C_Chezy(n, Rh):
     References
     ----------
     .. [1] Chow, Ven Te. Open-Channel Hydraulics. New York: McGraw-Hill, 1959.
-    '''
+    """
     return 1./n*Rh**(1/6.)
 
 
 def C_Chezy_to_n_Manning(C, Rh):
-    r'''Converts a Chezy coefficient to a Manning roughness coefficient,
+    r"""Converts a Chezy coefficient to a Manning roughness coefficient,
     given the hydraulic radius of the channel.
 
     .. math::
@@ -592,12 +592,12 @@ def C_Chezy_to_n_Manning(C, Rh):
     References
     ----------
     .. [1] Chow, Ven Te. Open-Channel Hydraulics. New York: McGraw-Hill, 1959.
-    '''
+    """
     return Rh**(1/6.)/C
 
 
 def V_Chezy(Rh, S, C):
-    r'''Predicts the average velocity of a flow across an open channel of
+    r"""Predicts the average velocity of a flow across an open channel of
     hydraulic radius Rh and slope S, given the Chezy coefficient C.
 
     Flow rate is given by:
@@ -636,7 +636,7 @@ def V_Chezy(Rh, S, C):
     .. [2] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     .. [3] Chow, Ven Te. Open-Channel Hydraulics. New York: McGraw-Hill, 1959.
-    '''
+    """
     return C*sqrt(S*Rh)
 
 

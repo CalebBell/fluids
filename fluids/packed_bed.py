@@ -70,7 +70,7 @@ __all__ = ['dP_packed_bed', 'dP_packed_bed_methods', 'Ergun', 'Kuo_Nydegger', 'J
 
 
 def Ergun(dp, voidage, vs, rho, mu, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_ and [3]_. Eighteenth most
     accurate correlation overall in the review of [2]_.
 
@@ -145,7 +145,7 @@ def Ergun(dp, voidage, vs, rho, mu, L=1.0):
     .. [3] Jones, D. P., and H. Krier. "Gas Flow Resistance Measurements
        Through Packed Beds at High Reynolds Numbers." Journal of Fluids
        Engineering 105, no. 2 (June 1, 1983): 168-172. doi:10.1115/1.3240959.
-    '''
+    """
     Re = dp*rho*vs/mu
     holdup = 1.0 - voidage
     fp = (150.0 + 1.75*(Re/holdup))*holdup*holdup/(voidage*voidage*voidage*Re)
@@ -153,7 +153,7 @@ def Ergun(dp, voidage, vs, rho, mu, L=1.0):
 
 
 def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_ and [3]. Thirty-eighth most
     accurate correlation overall in the review of [2]_.
 
@@ -211,7 +211,7 @@ def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1.0):
     .. [3] Jones, D. P., and H. Krier. "Gas Flow Resistance Measurements
        Through Packed Beds at High Reynolds Numbers." Journal of Fluids
        Engineering 105, no. 2 (June 1, 1983): 168-172. doi:10.1115/1.3240959.
-    '''
+    """
     Re = dp*rho*vs/mu
     holdup = (1.0-voidage)
     fp = (276.23 + 5.05*(Re/holdup)**0.87)*holdup*holdup/(voidage*voidage*voidage*Re)
@@ -219,7 +219,7 @@ def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1.0):
 
 
 def Tallmadge(dp, voidage, vs, rho, mu, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_ and [3].
 
     .. math::
@@ -275,7 +275,7 @@ def Tallmadge(dp, voidage, vs, rho, mu, L=1.0):
        in a Large Range of Reynolds Numbers." Chemical Engineering and
        Processing: Process Intensification 46, no. 4 (April 2007): 329-33.
        doi:10.1016/j.cep.2006.07.002.
-    '''
+    """
     Re = dp*rho*vs/mu
     holdup = (1.0-voidage)
     fp = (150.0 + 4.2*(Re/holdup)**(5.0/6.0))*holdup*holdup/(voidage*voidage*voidage*Re)
@@ -283,7 +283,7 @@ def Tallmadge(dp, voidage, vs, rho, mu, L=1.0):
 
 
 def Jones_Krier(dp, voidage, vs, rho, mu, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, also shown in [2]_. Tenth most accurate
     correlation overall in the review of [2]_.
 
@@ -338,7 +338,7 @@ def Jones_Krier(dp, voidage, vs, rho, mu, L=1.0):
     .. [2] Erdim, Esra, Ömer Akgiray, and İbrahim Demir. "A Revisit of Pressure
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
-    '''
+    """
     Re = dp*rho*vs/mu
     holdup = (1.0-voidage)
     fp = (150 + 3.89*(Re/holdup)**0.87)*holdup*holdup/(voidage*voidage*voidage*Re)
@@ -346,7 +346,7 @@ def Jones_Krier(dp, voidage, vs, rho, mu, L=1.0):
 
 
 def Carman(dp, voidage, vs, rho, mu, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_. Fifth most accurate
     correlation overall in the review of [2]_. Also shown in [3]_.
 
@@ -402,7 +402,7 @@ def Carman(dp, voidage, vs, rho, mu, L=1.0):
        Pressure Drop Dependence on Particle Shape, Size Distribution, Packing
        Arrangement and Roughness." Powder Technology 246 (September 2013):
        590-600. doi:10.1016/j.powtec.2013.06.022.
-    '''
+    """
     Re = dp*rho*vs/mu
     holdup = 1.0 - voidage
     fp = (180 + 2.871*(Re/holdup)**0.9)*holdup*holdup/(voidage*voidage*voidage*Re)
@@ -410,7 +410,7 @@ def Carman(dp, voidage, vs, rho, mu, L=1.0):
 
 
 def Hicks(dp, voidage, vs, rho, mu, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_. Twenty-third most accurate
     correlation overall in the review of [2]_. Also shown in [3]_.
 
@@ -466,7 +466,7 @@ def Hicks(dp, voidage, vs, rho, mu, L=1.0):
        Pressure Drop Dependence on Particle Shape, Size Distribution, Packing
        Arrangement and Roughness." Powder Technology 246 (September 2013):
        590-600. doi:10.1016/j.powtec.2013.06.022.
-    '''
+    """
     Re = dp*rho*vs/mu
     holdup = 1.0 - voidage
     fp = 6.8*holdup**1.2/(Re**0.2*voidage*voidage*voidage)
@@ -474,7 +474,7 @@ def Hicks(dp, voidage, vs, rho, mu, L=1.0):
 
 
 def Brauer(dp, voidage, vs, rho, mu, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_. Seventh most accurate
     correlation overall in the review of [2]_. Also shown in [3]_.
 
@@ -531,7 +531,7 @@ def Brauer(dp, voidage, vs, rho, mu, L=1.0):
        Pressure Drop Dependence on Particle Shape, Size Distribution, Packing
        Arrangement and Roughness." Powder Technology 246 (September 2013):
        590-600. doi:10.1016/j.powtec.2013.06.022.
-    '''
+    """
     Re = dp*rho*vs/mu
     holdup = 1.0 - voidage
     fp = (160.0 + 3.1*(Re/holdup)**0.9)*holdup*holdup/(voidage*voidage*voidage*Re)
@@ -539,7 +539,7 @@ def Brauer(dp, voidage, vs, rho, mu, L=1.0):
 
 
 def KTA(dp, voidage, vs, rho, mu, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_. Third most accurate
     correlation overall in the review of [2]_.
 
@@ -595,7 +595,7 @@ def KTA(dp, voidage, vs, rho, mu, L=1.0):
     .. [2] Erdim, Esra, Ömer Akgiray, and İbrahim Demir. "A Revisit of Pressure
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
-    '''
+    """
     Re = dp*rho*vs/mu
     holdup = 1.0 - voidage
     fp = (160.0 + 3.0*(Re/holdup)**0.9)*holdup*holdup/(voidage*voidage*voidage*Re)
@@ -603,7 +603,7 @@ def KTA(dp, voidage, vs, rho, mu, L=1.0):
 
 
 def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, claiming to be the best model to date.
 
     .. math::
@@ -655,7 +655,7 @@ def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1.0):
     .. [1] Erdim, Esra, Ömer Akgiray, and İbrahim Demir. "A Revisit of Pressure
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
-    '''
+    """
     holdup = (1.0-voidage)
     Rem = dp*rho*vs/(holdup*mu)
     fv = 160.0 + 2.81*Rem**0.904
@@ -663,7 +663,7 @@ def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1.0):
 
 
 def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_. Second most accurate
     correlation overall in the review of [2]_.
 
@@ -727,7 +727,7 @@ def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1.0):
     .. [2] Erdim, Esra, Ömer Akgiray, and İbrahim Demir. "A Revisit of Pressure
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
-    '''
+    """
     holdup = (1.0-voidage)
     voidage2 = voidage*voidage
     Rem = dp*rho*vs/(holdup*mu)
@@ -740,7 +740,7 @@ def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1.0):
 
 
 def Idelchik(dp, voidage, vs, rho, mu, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres as in [2]_,
+    r"""Calculates pressure drop across a packed bed of spheres as in [2]_,
     originally in [1]_.
 
     .. math::
@@ -793,7 +793,7 @@ def Idelchik(dp, voidage, vs, rho, mu, L=1.0):
        Pressure Drop Dependence on Particle Shape, Size Distribution, Packing
        Arrangement and Roughness." Powder Technology 246 (September 2013):
        590-600. doi:10.1016/j.powtec.2013.06.022.
-    '''
+    """
     Re = rho*vs*dp/(mu*(1.0-voidage))
     Re = (0.45/sqrt(voidage))*Re
     right = 0.765*voidage**-4.2*(30./Re + 3.*Re**-0.7 + 0.3)
@@ -802,7 +802,7 @@ def Idelchik(dp, voidage, vs, rho, mu, L=1.0):
 
 
 def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, also shown in [2]_. Fourth most accurate
     correlation overall in the review of [2]_.
     Applies a wall correction if diameter of tube is provided.
@@ -869,7 +869,7 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
     .. [2] Erdim, Esra, Ömer Akgiray, and İbrahim Demir. "A Revisit of Pressure
        Drop-Flow Rate Correlations for Packed Beds of Spheres." Powder
        Technology 283 (October 2015): 488-504. doi:10.1016/j.powtec.2015.06.017.
-    '''
+    """
     Re = dp*rho*vs/mu
     holdup = 1.0 - voidage
     if Dt is None:
@@ -883,7 +883,7 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
 
 
 def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
-    r'''Calculates pressure drop across a packed bed of spheres as in [2]_,
+    r"""Calculates pressure drop across a packed bed of spheres as in [2]_,
     originally in [1]_. Wall effect adjustment is used if `Dt` is provided.
 
     .. math::
@@ -941,7 +941,7 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
        Pressure Drop Dependence on Particle Shape, Size Distribution, Packing
        Arrangement and Roughness." Powder Technology 246 (September 2013):
        590-600. doi:10.1016/j.powtec.2013.06.022.
-    '''
+    """
     Re = rho*vs*dp/mu
     if voidage < 0.4:
         a = 0.061
@@ -957,7 +957,7 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
 
 
 def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1.0):
-    r'''Calculates pressure drop across a packed bed of spheres using a
+    r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_. This is valid for highly-packed particles
     at particle/tube diameter ratios between 2 and 3, where a ring packing
     structure occurs. If a packing ratio is so low, it is important to use this
@@ -1016,7 +1016,7 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1.0):
        "Pressure Drop in Slender Packed Beds with Novel Packing Arrangement."
        Powder Technology 321 (November 2017): 286-92.
        doi:10.1016/j.powtec.2017.08.024.
-    '''
+    """
     #  2 < D/d < 3, particles in contact with the wall tend to form a highly ordered ring structure.
     holdup = 1.0 - voidage
     Rem = dp*rho*vs/(mu*holdup)
@@ -1046,7 +1046,7 @@ packed_beds_correlations = {
 }
 
 def dP_packed_bed_methods(dp, voidage, vs, rho, mu, L=1.0, Dt=None, check_ranges=False):
-    r'''This function handles determining which pressure drop in a packed bed
+    r"""This function handles determining which pressure drop in a packed bed
     correlation are suitable for the provided inputs.
 
     Preferred correlations are 'Erdim, Akgiray & Demir' when tube
@@ -1084,7 +1084,7 @@ def dP_packed_bed_methods(dp, voidage, vs, rho, mu, L=1.0, Dt=None, check_ranges
     -------
     methods : list
         List of methods which can be used to calculate `dP` with the given inputs
-    '''
+    """
     methods = []
     if (dp is not None and voidage is not None and vs is not None
         and rho is not None and mu is not None and L is not None):
@@ -1099,7 +1099,7 @@ def dP_packed_bed_methods(dp, voidage, vs, rho, mu, L=1.0, Dt=None, check_ranges
 
 def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
                   Method=None):
-    r'''This function handles choosing which pressure drop in a packed bed
+    r"""This function handles choosing which pressure drop in a packed bed
     correlation is used. Automatically select which correlation
     to use if none is provided. Returns None if insufficient information is
     provided.
@@ -1146,7 +1146,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
     -------
     dP : float
         Pressure drop across the bed [Pa]
-    '''
+    """
     if Method is None:
         Method2 = 'Harrison, Brunner & Hecker' if Dt is not None else 'Erdim, Akgiray & Demir'
     else:
@@ -1209,7 +1209,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
 ### Voidage correlations
 
 def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
-    r'''Calculates voidage of a bed of arbitrarily shaped uniform particles
+    r"""Calculates voidage of a bed of arbitrarily shaped uniform particles
     packed into a bed or tube of diameter `Dt`, with equivalent sphere diameter
     `Dp`. Shown in [1]_, and cited by various authors. Correlations exist
     also for spheres, solid cylinders, hollow cylinders, and 4-hole cylinders.
@@ -1249,12 +1249,12 @@ def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
        Packed Beds of Various Particle Shapes and Sizes." Particulate Science
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
-    '''
+    """
     x1 = Dt/Dpe + 0.1226
     return 0.1504 + 0.2024/sphericity + 1.0814/(x1*x1)
 
 def voidage_Benyahia_Oneil_spherical(Dp, Dt):
-    r'''Calculates voidage of a bed of spheres
+    r"""Calculates voidage of a bed of spheres
     packed into a bed or tube of diameter `Dt`, with sphere diameters
     `Dp`. Shown in [1]_, and cited by various authors. Correlations exist
     also for solid cylinders, hollow cylinders, and 4-hole cylinders.
@@ -1290,13 +1290,13 @@ def voidage_Benyahia_Oneil_spherical(Dp, Dt):
        Packed Beds of Various Particle Shapes and Sizes." Particulate Science
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
-    '''
+    """
     x1 = Dt/Dp + 1.140
     return 0.390 + 1.740/(x1*x1)
 
 
 def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
-    r'''Calculates voidage of a bed of cylindrical uniform particles
+    r"""Calculates voidage of a bed of cylindrical uniform particles
     packed into a bed or tube of diameter `Dt`, with equivalent sphere diameter
     `Dpe`. Shown in [1]_, and cited by various authors. Correlations exist
     also for spheres, solid cylinders, hollow cylinders, and 4-hole cylinders.
@@ -1335,6 +1335,6 @@ def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
        Packed Beds of Various Particle Shapes and Sizes." Particulate Science
        and Technology 23, no. 2 (April 1, 2005): 169-77.
        doi:10.1080/02726350590922242.
-    '''
+    """
     x1 = Dt/Dpe + 0.611
     return 0.373 + 1.703/(x1*x1)
