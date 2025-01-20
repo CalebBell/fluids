@@ -1396,8 +1396,8 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     k = gamma # alias
     C = Kv_to_Cv(Kv)
     N14 = 4.6E-3
-    N16 = 4.89E4
-    fs = 1.0 # structural loss factor reference frequency, Hz
+    # N16 = 4.89E4
+    # fs = 1.0 # structural loss factor reference frequency, Hz
     P_air_std = 101325.0
     if T2 is None:
         T2 = T1
@@ -1407,7 +1407,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     # FLP/FP when fittings attached
     FL_term = FLP/FP if FP is not None else FL
 
-    P_vc = P1*(1.0 - x/FL_term**2)
+    # P_vc = P1*(1.0 - x/FL_term**2)
 
     x_vcc = 1.0 - (2.0/(k + 1.0))**(k/(k - 1.0)) # mostly matches
     xc = FL_term**2*x_vcc
@@ -1443,11 +1443,11 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
 #        pass
 
     if regime == 1:
-        Tvc = T1*(1.0 - x/(FL_term)**2)**((k - 1.0)/k)
+        # Tvc = T1*(1.0 - x/(FL_term)**2)**((k - 1.0)/k)
         cvc = sqrt(k*P1/rho*(1 - x/(FL_term)**2)**((k-1.0)/k))
         Wm = 0.5*m*(Mvc*cvc)**2
     else:
-        Tvcc = 2.0*T1/(k + 1.0)
+        # Tvcc = 2.0*T1/(k + 1.0)
         cvcc = sqrt(2.0*k*P1/(k+1.0)/rho)
         Wm = 0.5*m*cvcc*cvcc
 #     print('Wm', Wm)
@@ -1481,7 +1481,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     # Speed of sound
     c2 = sqrt(k*R*T2/(MW/1000.))
 
-    Mo = 4.0*m/(pi*d*d*rho2*c2)
+    # Mo = 4.0*m/(pi*d*d*rho2*c2)
 
     M2 = 4.0*m/(pi*Di*Di*rho2*c2)
 #     print('M2', M2)
