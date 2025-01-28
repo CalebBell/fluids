@@ -83,7 +83,7 @@ def to_int_dP_ATMOSPHERE_1976(Z, dT):
     return atm.g*atm.rho
 
 class ATMOSPHERE_1976:
-    r'''US Standard Atmosphere 1976 class, which calculates `T`, `P`,
+    r"""US Standard Atmosphere 1976 class, which calculates `T`, `P`,
     `rho`, `v_sonic`, `mu`, `k`, and `g` as a function of altitude above
     sea level. Designed to provide reasonable results up to an elevation
     of 86,000 m (0.4 Pa). The model is also valid under sea level, to
@@ -140,7 +140,7 @@ class ATMOSPHERE_1976:
     .. [3] Yager, Robert J. "Calculating Atmospheric Conditions (Temperature,
        Pressure, Air Density, and Speed of Sound) Using C++," June 2013.
        http://www.dtic.mil/cgi-bin/GetTRDoc?AD=ADA588839
-    '''
+    """
 
     def __init__(self, Z, dT=0.0):
         self.Z = Z
@@ -174,10 +174,10 @@ class ATMOSPHERE_1976:
 
     @staticmethod
     def _get_ind_from_H(H):
-        r'''Method defined in the US Standard Atmosphere 1976 for determining
+        r"""Method defined in the US Standard Atmosphere 1976 for determining
         the index of the layer a specified elevation is above. Levels are
         0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852 meters respectively.
-        '''
+        """
         if H <= 0.0:
             return 0
         for ind, Hi in enumerate(H_std):
@@ -187,7 +187,7 @@ class ATMOSPHERE_1976:
 
     @staticmethod
     def thermal_conductivity(T):
-        r'''Method defined in the US Standard Atmosphere 1976 for calculating
+        r"""Method defined in the US Standard Atmosphere 1976 for calculating
         thermal conductivity of air as a function of `T` only.
 
         .. math::
@@ -203,13 +203,13 @@ class ATMOSPHERE_1976:
         -------
         kg : float
             Thermal conductivity, [W/m/K]
-        '''
+        """
         # 10**(-12./T) = exp(-12*log(10)/T) = -27.63102111...
         return 2.64638E-3*T*sqrt(T)/(T + 245.4*exp(-27.63102111592855/T))
 
     @staticmethod
     def viscosity(T):
-        r'''Method defined in the US Standard Atmosphere 1976 for calculating
+        r"""Method defined in the US Standard Atmosphere 1976 for calculating
         viscosity of air as a function of `T` only.
 
         .. math::
@@ -224,12 +224,12 @@ class ATMOSPHERE_1976:
         -------
         mug : float
             Viscosity, [Pa*s]
-        '''
+        """
         return 1.458E-6*T*sqrt(T)/(T + 110.4)
 
     @staticmethod
     def density(T, P):
-        r'''Method defined in the US Standard Atmosphere 1976 for calculating
+        r"""Method defined in the US Standard Atmosphere 1976 for calculating
         density of air as a function of `T` and `P`. MW is defined as 28.9644
         g/mol, and R as 8314.32 J/kmol/K
 
@@ -247,13 +247,13 @@ class ATMOSPHERE_1976:
         -------
         rho : float
             Mass density, [kg/m^3]
-        '''
+        """
         # 0.00348367635597379 = M0/R
         return P*0.00348367635597379/T
 
     @staticmethod
     def sonic_velocity(T):
-        r'''Method defined in the US Standard Atmosphere 1976 for calculating
+        r"""Method defined in the US Standard Atmosphere 1976 for calculating
         the speed of sound in air as a function of `T` only.
 
         .. math::
@@ -268,13 +268,13 @@ class ATMOSPHERE_1976:
         -------
         c : float
             Speed of sound, [m/s]
-        '''
+        """
         # 401.87... = gamma*R/MO
         return sqrt(401.87430086589046*T)
 
     @staticmethod
     def gravity(Z):
-        r'''Method defined in the US Standard Atmosphere 1976 for calculating
+        r"""Method defined in the US Standard Atmosphere 1976 for calculating
         the gravitational acceleration above earth as a function of elevation
         only.
 
@@ -290,13 +290,13 @@ class ATMOSPHERE_1976:
         -------
         g : float
             Acceleration due to gravity, [m/s^2]
-        '''
+        """
         x0 = (r0/(r0+Z))
         return g0*x0*x0
 
     @staticmethod
     def pressure_integral(T1, P1, dH):
-        r'''Method to compute an integral of the pressure differential of an
+        r"""Method to compute an integral of the pressure differential of an
         elevation difference with a base elevation defined by temperature `T1`
         and pressure `P1`. This is
         similar to subtracting the pressures at two different elevations,
@@ -319,7 +319,7 @@ class ATMOSPHERE_1976:
         -------
         delta_P : float
             Pressure difference between the elevations, [Pa]
-        '''
+        """
         # Compute the elevation to obtain the pressure specified
         H_ref = secant(H_for_P_ATMOSPHERE_1976_err, x0=10.0, low=-610.0, high=86000.0, bisection=True, args=(P1,))
 
@@ -331,7 +331,7 @@ class ATMOSPHERE_1976:
 
 
 class ATMOSPHERE_NRLMSISE00:
-    r'''NRLMSISE 00 model for calculating temperature and density of gases in
+    r"""NRLMSISE 00 model for calculating temperature and density of gases in
     the atmosphere, from ground level to 1000 km, as a function of time of year,
     longitude and latitude, solar activity and earth's geomagnetic disturbance.
 
@@ -443,7 +443,7 @@ class ATMOSPHERE_NRLMSISE00:
        11, no. 7 (July 1, 2013): 394-406. doi:10.1002/swe.20064.
     .. [3] Natalia Papitashvili. "NRLMSISE-00 Atmosphere Model." Accessed
        November 27, 2016. http://ccmc.gsfc.nasa.gov/modelweb/models/nrlmsise00.php.
-    '''
+    """
 
     components = ['N2', 'O2', 'Ar', 'He', 'O', 'H', 'N']
     atrrs = ['N2_density', 'O2_density', 'Ar_density', 'He_density',
@@ -518,7 +518,7 @@ def to_int_airmass(Z, c1, c2, angle_term, R_planet_inv, func):
     return rho*t3
 
 def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
-    r'''Calculates mass of air per square meter in the atmosphere using a
+    r"""Calculates mass of air per square meter in the atmosphere using a
     provided atmospheric model. The lowest air mass is calculated straight up;
     as the angle is lowered to nearer and nearer the horizon, the air mass
     increases, and can approach 40x or more the minimum airmass.
@@ -565,7 +565,7 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
     .. [1] Kasten, Fritz, and Andrew T. Young. "Revised Optical Air Mass Tables
        and Approximation Formula." Applied Optics 28, no. 22 (November 15,
        1989): 4735-38. https://doi.org/10.1364/AO.28.004735.
-    '''
+    """
     delta0 = RI - 1.0
     rho0_inv = 1.0/func(0.0)
     angle_term = cos(radians(angle))
@@ -582,7 +582,7 @@ PVLIB_MISSING_MSG = 'The module pvlib is required for this function; install it 
 
 
 def earthsun_distance(moment):
-    r'''Calculates the distance between the earth and the sun as a function
+    r"""Calculates the distance between the earth and the sun as a function
     of date and time. Uses the Reda and Andreas (2004) model described in [1]_,
     originally incorporated into the excellent
     `pvlib library <https://github.com/pvlib/pvlib-python>`_
@@ -644,7 +644,7 @@ def earthsun_distance(moment):
     .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for
        Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
        577-89. https://doi.org/10.1016/j.solener.2003.12.003.
-    '''
+    """
     from fluids.optional import spa
     delta_t = spa.calculate_deltat(moment.year, moment.month)
     import calendar
@@ -655,7 +655,7 @@ def earthsun_distance(moment):
 
 def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
                    atmos_refract=0.5667):
-    r'''Calculate the position of the sun in the sky. It is defined in terms of
+    r"""Calculate the position of the sun in the sky. It is defined in terms of
     two angles - the zenith and the azimith. The azimuth tells where a sundial
     would see the sun as coming from; the zenith tells how high in the sky it
     is. The solar elevation angle is returned for convenience; it is the
@@ -766,7 +766,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     .. [2] "Navigation - What Azimuth Description Systems Are in Use? -
        Astronomy Stack Exchange."
        https://astronomy.stackexchange.com/questions/237/what-azimuth-description-systems-are-in-use?rq=1.
-    '''
+    """
     import calendar
 
     from fluids.optional import spa
@@ -788,7 +788,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
 
 
 def sunrise_sunset(moment, latitude, longitude):
-    r'''Calculates the times at which the sun is at sunset; sunrise; and
+    r"""Calculates the times at which the sun is at sunset; sunrise; and
     halfway between sunrise and sunset (transit).
 
     Uses the Reda and Andreas (2004) model described in [1]_,
@@ -849,7 +849,7 @@ def sunrise_sunset(moment, latitude, longitude):
     .. [1] Reda, Ibrahim, and Afshin Andreas. "Solar Position Algorithm for
        Solar Radiation Applications." Solar Energy 76, no. 5 (January 1, 2004):
        577-89. https://doi.org/10.1016/j.solener.2003.12.003.
-    '''
+    """
     import calendar
 
     from fluids.optional import spa
@@ -909,7 +909,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
                       extraradiation_method='spencer',
                       airmass_model='kastenyoung1989',
                       cache=None):
-    r'''Calculates the amount of solar radiation and radiation reflected back
+    r"""Calculates the amount of solar radiation and radiation reflected back
     the atmosphere which hits a surface at a specified tilt, and facing a
     specified azimuth.
 
@@ -1031,7 +1031,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     .. [1] Will Holmgren, Calama-Consulting, Tony Lorenzo, Uwe Krien, bmu,
        DaCoEx, mayudong, et al. Pvlib/Pvlib-Python: 0.5.1. Zenodo, 2017.
        https://doi.org/10.5281/zenodo.1016425.
-    '''
+    """
     # Atmospheric refraction at sunrise/sunset (0.5667 deg is an often used value)
     from fluids.optional.irradiance import get_absolute_airmass, get_relative_airmass, get_total_irradiance, ineichen
 

@@ -172,7 +172,7 @@ def polyder(c, m=1):
     return c
 
 def quadratic_from_points(x0, x1, x2, f0, f1, f2):
-    '''
+    """
     from sympy import *
     f, a, b, c, x, x0, x1, x2, f0, f1, f2 = symbols('f, a, b, c, x, x0, x1, x2, f0, f1, f2')
 
@@ -182,7 +182,7 @@ def quadratic_from_points(x0, x1, x2, f0, f1, f2):
     Eq2 = Eq(func.subs(x, x2), f2)
     sln = solve([Eq0, Eq1, Eq2], [a, b, c])
     cse([sln[a], sln[b], sln[c]], optimizations='basic', symbols=utilities.iterables.numbered_symbols(prefix='v'))
-    '''
+    """
     v0 = -x2
     v1 = f0*(v0 + x1)
     v2 = f2*(x0 - x1)
@@ -198,7 +198,7 @@ def quadratic_from_points(x0, x1, x2, f0, f1, f2):
     return (a, b, c)
 
 def quadratic_from_f_ders(x, v, d1, d2):
-    '''from sympy import *
+    """from sympy import *
     f, a, b, c, x, v, d1, d2 = symbols('f, a, b, c, x, v, d1, d2')
 
     f0 = a*x**2 + b*x + c
@@ -206,7 +206,7 @@ def quadratic_from_f_ders(x, v, d1, d2):
     f2 = diff(f0, x, 2)
 
     solve([Eq(f0, v), Eq(f1, d1), Eq(f2, d2)], [a, b, c])
-    '''
+    """
     a = d2*0.5
     b = d1 - d2*x
     c = -d1*x + d2*x*x*0.5 + v
@@ -214,7 +214,7 @@ def quadratic_from_f_ders(x, v, d1, d2):
 
 
 def exp_poly_ln_tau_coeffs2(T, Tc, val, der):
-    '''
+    """
     from sympy import *
     T, Tc, T0, T1, T2, sigma0, sigma1, sigma2 = symbols('T, Tc, T0, T1, T2, sigma0, sigma1, sigma2')
     val, der = symbols('val, der')
@@ -227,7 +227,7 @@ def exp_poly_ln_tau_coeffs2(T, Tc, val, der):
     Eq0 = Eq(sigma,val)
     Eq1 = Eq(d0, der)
     s = solve([Eq0, Eq1], [a, b])
-    '''
+    """
     x0 = 1.0/val
     x1 = T - Tc
     x2 = der*log(-x1/Tc)
@@ -236,7 +236,7 @@ def exp_poly_ln_tau_coeffs2(T, Tc, val, der):
     return (c0, c1)
 
 def exp_poly_ln_tau_coeffs3(T, Tc, val, der, der2):
-    '''
+    """
     from sympy import *
     T, Tc, T0, T1, T2, sigma0, sigma1, sigma2 = symbols('T, Tc, T0, T1, T2, sigma0, sigma1, sigma2')
     val, der, der2 = symbols('val, der, der2')
@@ -253,7 +253,7 @@ def exp_poly_ln_tau_coeffs3(T, Tc, val, der, der2):
 
     # s = solve([Eq0, Eq1], [a, b])
     s = solve([Eq0, Eq1, Eq2], [a, b, c])
-    '''
+    """
     x0 = der*val
     x1 = Tc*x0
     x2 = T*x0
@@ -312,7 +312,7 @@ def polyint_over_x_stable_helper(coeffs, i, n, scale, offset, scale_powers, offs
     return term*inner_term/i
 
 def polyint_over_x_stable(coeffs, xmin, xmax):
-    '''Take a stable polynomial coefficient series as
+    """Take a stable polynomial coefficient series as
     evaluated by horner_stable and the limits e.g. Tmin, Tmax
     and transform them into the integral over x.
 
@@ -333,7 +333,7 @@ def polyint_over_x_stable(coeffs, xmin, xmax):
     stable_coeffs = Polynomial(terms[::-1]).convert(domain=(Tmin, Tmax)).coef.tolist()[::-1]
 
     However, the precision of the conversion is worse.
-    '''
+    """
     offset, scale = polynomial_offset_scale(xmin, xmax)
     n = len(coeffs)
     scale_iter = 1.0

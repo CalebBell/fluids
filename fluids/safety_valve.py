@@ -81,7 +81,7 @@ TENTH_EDITION = '10E'
 SEVENTH_EDITION = '7E'
 
 def API520_round_size(A):
-    r'''Rounds up the area from an API 520 calculation to an API526 standard
+    r"""Rounds up the area from an API 520 calculation to an API526 standard
     valve area. The returned area is always larger or equal to the input area.
 
     Parameters
@@ -116,7 +116,7 @@ def API520_round_size(A):
     References
     ----------
     .. [1] API Standard 526.
-    '''
+    """
     for area in API526_A:
         if area >= A:
             return area
@@ -124,7 +124,7 @@ def API520_round_size(A):
 
 
 def API520_C(k):
-    r'''Calculates coefficient C for use in API 520 critical flow relief valve
+    r"""Calculates coefficient C for use in API 520 critical flow relief valve
     sizing.
 
     .. math::
@@ -163,7 +163,7 @@ def API520_C(k):
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
-    '''
+    """
     if k != 1:
         kp1 = k+1
         return 0.03948*sqrt(k*(2./kp1)**(kp1/(k-1.)))
@@ -173,7 +173,7 @@ def API520_C(k):
 
 
 def API520_F2(k, P1, P2):
-    r'''Calculates coefficient F2 for subcritical flow for use in API 520
+    r"""Calculates coefficient F2 for subcritical flow for use in API 520
     subcritical flow relief valve sizing.
 
     .. math::
@@ -213,13 +213,13 @@ def API520_F2(k, P1, P2):
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
-    '''
+    """
     r = P2/P1
     return sqrt(k/(k-1.0)*r**(2./k) * ((1-r**((k-1.)/k))/(1.-r)))
 
 
 def API520_N(P1):
-    r'''Calculates correction due to steam pressure for steam flow for use in
+    r"""Calculates correction due to steam pressure for steam flow for use in
     API 520 relief valve sizing.
 
     For pressures below 10339 kPa, the correction factor is 1.
@@ -254,7 +254,7 @@ def API520_N(P1):
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
-    '''
+    """
     P1 = P1*1e-3 # Pa to kPa
     if P1 <= 10339.0:
         KN = 1.0
@@ -430,7 +430,7 @@ API520_KSH_tck_10E = tck_interp2d_linear(_KSH_K_10E, _KSH_Pa_10E, _KSH_factors_1
 
 
 def API520_SH(T1, P1, edition=TENTH_EDITION):
-    r'''Calculates correction due to steam superheat for steam flow for use in
+    r"""Calculates correction due to steam superheat for steam flow for use in
     API 520 relief valve sizing. 2D interpolation among a table with 28
     pressures and 10 temperatures is performed.
 
@@ -466,7 +466,7 @@ def API520_SH(T1, P1, edition=TENTH_EDITION):
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
-    '''
+    """
     if T1 > 922.15:
         raise ValueError('Superheat cannot be above 649 degrees Celcius')
     if edition == SEVENTH_EDITION:
@@ -515,7 +515,7 @@ Kb_10_over_y = [0.998106, 0.995265, 0.99053, 0.985795, 0.981061, 0.975379,
 
 
 def API520_B(Pset, Pback, overpressure=0.1):
-    r'''Calculates capacity correction due to backpressure on balanced
+    r"""Calculates capacity correction due to backpressure on balanced
     spring-loaded PRVs in vapor service. For pilot operated valves,
     this is always 1. Applicable up to 50% of the percent gauge backpressure,
     For use in API 520 relief valve sizing. 1D interpolation among a table with
@@ -552,7 +552,7 @@ def API520_B(Pset, Pback, overpressure=0.1):
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
-    '''
+    """
     gauge_backpressure = (Pback-atm)/(Pset-atm)*100.0 # in percent
     if overpressure not in (0.1, 0.16, 0.21):
         raise ValueError('Only overpressure of 10%, 16%, or 21% are permitted')
@@ -570,7 +570,7 @@ def API520_B(Pset, Pback, overpressure=0.1):
 
 
 def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
-    r'''Calculates required relief valve area for an API 520 valve passing
+    r"""Calculates required relief valve area for an API 520 valve passing
     a gas or a vapor, at either critical or sub-critical flow.
 
     For critical flow:
@@ -643,7 +643,7 @@ def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
-    '''
+    """
     P1, P2 = P1*1e-3, P2*1e-3 # Pa to Kpa in the standard
     m = m*3600. # kg/s to kg/hr
     if is_critical_flow(P1, P2, k):
@@ -656,7 +656,7 @@ def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
 
 
 def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1, edition=TENTH_EDITION):
-    r'''Calculates required relief valve area for an API 520 valve passing
+    r"""Calculates required relief valve area for an API 520 valve passing
     a steam, at either saturation or superheat but not partially condensed.
 
     .. math::
@@ -712,7 +712,7 @@ def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1, edition=TENTH_EDITION):
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
-    '''
+    """
     KN = API520_N(P1)
     KSH = API520_SH(T, P1, edition)
     P1 = P1*1e-3 # Pa to kPa
@@ -723,7 +723,7 @@ def API520_A_steam(m, T, P1, Kd=0.975, Kb=1, Kc=1, edition=TENTH_EDITION):
 ### Liquids
 
 def API520_Kv(Re, edition=TENTH_EDITION):
-    r'''Calculates correction due to viscosity for liquid flow for use in
+    r"""Calculates correction due to viscosity for liquid flow for use in
     API 520 relief valve sizing.
 
     From the 7th to 9th editions, the formula for this calculation is as
@@ -807,7 +807,7 @@ def API520_Kv(Re, edition=TENTH_EDITION):
     .. [2] API Standard 520, Part 1 - Sizing and Selection, 10E
     .. [3] CCPS. Guidelines for Pressure Relief and Effluent Handling Systems.
        2nd edition. New York, NY: Wiley-AIChE, 2017.
-    '''
+    """
     if edition == SEVENTH_EDITION:
         factor = 1.0/(0.9935 + 2.878/sqrt(Re) + 342.75/(Re*sqrt(Re)))
         if factor > 1.0:
@@ -839,7 +839,7 @@ Kw_y = [1, 0.996283, 0.992565, 0.987918, 0.982342, 0.976766, 0.97119, 0.964684,
 
 
 def API520_W(Pset, Pback):
-    r'''Calculates capacity correction due to backpressure on balanced
+    r"""Calculates capacity correction due to backpressure on balanced
     spring-loaded PRVs in liquid service. For pilot operated valves,
     this is always 1. Applicable up to 50% of the percent gauge backpressure,
     For use in API 520 relief valve sizing. 1D interpolation among a table with
@@ -878,7 +878,7 @@ def API520_W(Pset, Pback):
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection. 7E
     .. [2] API Standard 520, Part 1 - Sizing and Selection. 10E
-    '''
+    """
     gauge_backpressure = (Pback-atm)/(Pset-atm)*100.0 # in percent
     if gauge_backpressure < 15.0:
         return 1.0
@@ -890,7 +890,7 @@ rho0 = 999.0107539518483
 
 def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
                Kw=None, Kv=None, edition=TENTH_EDITION, mu=None):
-    r'''Calculates required relief valve area for an API 520 valve passing
+    r"""Calculates required relief valve area for an API 520 valve passing
     a liquid in sub-critical flow.
 
     .. math::
@@ -1053,7 +1053,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     References
     ----------
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
-    '''
+    """
     G1 = rho/rho0
     Q = m/rho # m^3/s
     Q *= 60000.0 # m^3/s to L/min in the original equation
@@ -1075,7 +1075,7 @@ def API520_A_l(m, rho, P1, P2, overpressure, Kd=0.65, Kc=1.0,
     return A
 
 def API521_noise_graph(P_ratio):
-    r'''Calculate the `L` parameter used in the API 521
+    r"""Calculate the `L` parameter used in the API 521
     noise calculation, from their Figure 18, Sound
     Pressure Level at 30 m from the stack tip.
 
@@ -1098,7 +1098,7 @@ def API521_noise_graph(P_ratio):
     References
     ----------
     .. [1] API Standard 521.
-    '''
+    """
     if P_ratio < 1.0:
         P_ratio = 1.0
     lgX = log10(P_ratio)
@@ -1115,7 +1115,7 @@ def API521_noise_graph(P_ratio):
     return value
 
 def API521_noise(m, P1, P2, c, r):
-    r'''Calculate the the noise coming from a flare tip at a
+    r"""Calculate the the noise coming from a flare tip at a
     specified distance according to API 521. A graphical technique
     is used to get the noise at 30 m from the tip, and it is then
     adjusted for distance.
@@ -1159,7 +1159,7 @@ def API521_noise(m, P1, P2, c, r):
     References
     ----------
     .. [1] API Standard 521.
-    '''
+    """
     P_ratio = P1/P2
     L = API521_noise_graph(P_ratio) # from chart, hardcoded for now
     L30 = L + 10.0*log10(0.5*m*c*c)
@@ -1168,7 +1168,7 @@ def API521_noise(m, P1, P2, c, r):
 
 
 def VDI_3732_noise_ground_flare(m):
-    r'''Calculate the the noise at the flare tip of a ground flare
+    r"""Calculate the the noise at the flare tip of a ground flare
     [1]_, [2]_.
 
     .. math::
@@ -1200,12 +1200,12 @@ def VDI_3732_noise_ground_flare(m):
     .. [2] AdminFlare Noise Calculator. WKC Group (blog).
        https://www.wkcgroup.com/tools-room/flare-noise-calculator/.
 
-    '''
+    """
     m *= 360.0
     return 100.0 + 15.0*log10(m)
 
 def VDI_3732_noise_elevated_flare(m):
-    r'''Calculate the the noise at the flare tip of an elevated flare stack
+    r"""Calculate the the noise at the flare tip of an elevated flare stack
     [1]_, [2]_.
 
     .. math::
@@ -1236,6 +1236,6 @@ def VDI_3732_noise_elevated_flare(m):
        https://www.vdi.de/en/home/vdi-standards/details/vdi-3732-standard-noise-levels-of-technical-sound-sources-flares.
     .. [2] AdminFlare Noise Calculator. WKC Group (blog).
        https://www.wkcgroup.com/tools-room/flare-noise-calculator/.
-    '''
+    """
     m *= 360.0
     return 112.0 + 17.0*log10(m)

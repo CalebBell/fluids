@@ -167,7 +167,7 @@ __all__ = ['contraction_sharp', 'contraction_round',
 
 
 def change_K_basis(K1, D1, D2):
-    r'''Converts a loss coefficient `K1` from the basis of one diameter `D1`
+    r"""Converts a loss coefficient `K1` from the basis of one diameter `D1`
     to another diameter, `D2`. This is necessary when dealing with pipelines
     of changing diameter.
 
@@ -213,7 +213,7 @@ def change_K_basis(K1, D1, D2):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
+    """
     r = D2/D1
     r *= r
     return K1*r*r
@@ -226,7 +226,7 @@ entrance_sharp_methods = ['Rennels', 'Swamee', 'Blevins', 'Idelchik', 'Crane',
 entrance_sharp_method_missing = (f'Specified method not recognized; methods are {entrance_sharp_methods}')
 
 def entrance_sharp(method='Rennels'):
-    r'''Returns loss coefficient for a sharp entrance to a pipe.
+    r"""Returns loss coefficient for a sharp entrance to a pipe.
     Six sources are available; four of them recommending K = 0.5,
     the most recent 'Rennels', method recommending K = 0.57, and the
     'Miller' method recommending ~0.51 as read from a graph.
@@ -272,7 +272,7 @@ def entrance_sharp(method='Rennels'):
        2009.
     .. [6] Swamee, Prabhata K., and Ashok K. Sharma. Design of Water Supply
        Pipe Networks. John Wiley & Sons, 2008.
-    '''
+    """
     if method is None:
         method = 'Rennels'
     if method in ('Swamee', 'Blevins', 'Crane', 'Idelchik'):
@@ -361,7 +361,7 @@ entrance_distance_methods = ['Rennels', 'Miller', 'Idelchik', 'Harris',
 entrance_distance_unrecognized_msg = f'Specified method not recognized; methods are {entrance_distance_methods}'
 
 def entrance_distance(Di, t=None, l=None, method='Rennels'):
-    r'''Returns the loss coefficient for a sharp entrance to a pipe at a distance
+    r"""Returns the loss coefficient for a sharp entrance to a pipe at a distance
     from the wall of a reservoir. This calculation has five methods available;
     all but 'Idelchik' require the pipe to be at least `Di/2` into the
     reservoir.
@@ -435,7 +435,7 @@ def entrance_distance(Di, t=None, l=None, method='Rennels'):
        Van Nostrand Reinhold Co., 1984.
     .. [6] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if method is None:
         method = 'Rennels'
     if method == 'Rennels':
@@ -476,7 +476,7 @@ entrance_distance_45_Miller_coeffs = [1.866792110435199, -2.8873199398381075, -4
 
 
 def entrance_distance_45_Miller(Di, Di0):
-    r'''Returns loss coefficient for a sharp entrance to a pipe at a distance
+    r"""Returns loss coefficient for a sharp entrance to a pipe at a distance
     from the wall of a reservoir with an initial 45 degree slope conical
     section of diameter `Di0` added to reduce the overall loss coefficient.
 
@@ -510,7 +510,7 @@ def entrance_distance_45_Miller(Di, Di0):
     ----------
     .. [1] Miller, Donald S. Internal Flow Systems: Design and Performance
        Prediction. Gulf Publishing Company, 1990.
-    '''
+    """
     t = 0.5*(Di0 - Di)
     t_Di = t/Di
     if t_Di > 0.3:
@@ -522,7 +522,7 @@ entrance_angled_methods = ['Idelchik']
 
 entrance_angled_methods_missing = (f'Specified method not recognized; methods are {entrance_angled_methods}')
 def entrance_angled(angle, method='Idelchik'):
-    r'''Returns loss coefficient for a sharp, angled entrance to a pipe
+    r"""Returns loss coefficient for a sharp, angled entrance to a pipe
     flush with the wall of a reservoir. First published in [2]_, it has been
     recommended in [3]_ as well as in [1]_.
 
@@ -566,7 +566,7 @@ def entrance_angled(angle, method='Idelchik'):
        Treniya). National technical information Service, 1966.
     .. [3] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     if method == 'Idelchik' or method is None:
         cos_term = cos(deg2rad*angle)
         return 0.57 + cos_term*(0.2*cos_term + 0.3)
@@ -617,7 +617,7 @@ entrance_rounded_methods = ['Rennels', 'Crane', 'Miller', 'Idelchik', 'Harris',
 entrance_rounded_methods_error = (f'Specified method not recognized; methods are {entrance_rounded_methods}')
 
 def entrance_rounded(Di, rc, method='Rennels'):
-    r'''Returns loss coefficient for a rounded entrance to a pipe
+    r"""Returns loss coefficient for a rounded entrance to a pipe
     flush with the wall of a reservoir. This calculation has six methods
     available.
 
@@ -706,7 +706,7 @@ def entrance_rounded(Di, rc, method='Rennels'):
        Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
-    '''
+    """
     if method is None:
         method = 'Rennels'
     ratio = rc/Di
@@ -767,7 +767,7 @@ entrance_beveled_Idelchik_tck = tck_interp2d_linear(entrance_beveled_Idelchik_an
 entrance_beveled_Idelchik_obj = lambda x, y : float(bisplev(x, y, entrance_beveled_Idelchik_tck))
 
 def entrance_beveled(Di, l, angle, method='Rennels'):
-    r'''Returns loss coefficient for a beveled or chamfered entrance to a pipe
+    r"""Returns loss coefficient for a beveled or chamfered entrance to a pipe
     flush with the wall of a reservoir. This calculation has two methods
     available.
 
@@ -834,7 +834,7 @@ def entrance_beveled(Di, l, angle, method='Rennels'):
        Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
-    '''
+    """
     if method is None:
         method = 'Rennels'
     if method == 'Rennels':
@@ -848,7 +848,7 @@ def entrance_beveled(Di, l, angle, method='Rennels'):
 
 
 def entrance_beveled_orifice(Di, Do, l, angle):
-    r'''Returns loss coefficient for a beveled or chamfered orifice entrance to
+    r"""Returns loss coefficient for a beveled or chamfered orifice entrance to
     a pipe flush with the wall of a reservoir, as shown in [1]_.
 
     .. math::
@@ -892,7 +892,7 @@ def entrance_beveled_orifice(Di, Do, l, angle):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
+    """
     Cb = (1-angle/90.)*(angle/90.)**(1./(1 + l/Do ))
     lbd = 1 + 0.622*(1 - Cb*(l/Do)**((1 - sqrt(sqrt(l/Do)))/2.))
     return 0.0696*(1 - Cb*l/Do)*lbd**2 + (lbd - (Do/Di)**2)**2
@@ -901,7 +901,7 @@ def entrance_beveled_orifice(Di, Do, l, angle):
 ### Exits
 
 def exit_normal():
-    r'''Returns loss coefficient for any exit to a pipe
+    r"""Returns loss coefficient for any exit to a pipe
     as shown in [1]_ and in other sources.
 
     .. math::
@@ -930,7 +930,7 @@ def exit_normal():
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
+    """
     return 1.0
 
 
@@ -1104,7 +1104,7 @@ def Miller_bend_unimpeded_correction(Kb, Di, L_unimpeded):
 
 def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
                         roughness=0.0, L_unimpeded=None):
-    r'''Calculates the loss coefficient for a rounded pipe bend according to
+    r"""Calculates the loss coefficient for a rounded pipe bend according to
     Miller [1]_. This is a sophisticated model which uses corrections for
     pipe roughness, the length of the pipe downstream before another
     interruption, and a correction for Reynolds number. It interpolates several
@@ -1163,7 +1163,7 @@ def bend_rounded_Miller(Di, angle, Re, rc=None, bend_diameters=None,
     ----------
     .. [1] Miller, Donald S. Internal Flow Systems: Design and Performance
        Prediction. Gulf Publishing Company, 1990.
-    '''
+    """
     if rc is None:
         if bend_diameters is None:
             bend_diameters = 5.0
@@ -1241,7 +1241,7 @@ bend_rounded_Crane_coeffs = [111.75011378177442, -331.89911345404107, -27.841951
 
 
 def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
-    r'''Calculates the loss coefficient for any rounded bend in a pipe
+    r"""Calculates the loss coefficient for any rounded bend in a pipe
     according to the Crane TP 410M [1]_ method. This method effectively uses
     an interpolation from tabulated values in [1]_ for friction factor
     multipliers vs. curvature radius.
@@ -1287,7 +1287,7 @@ def bend_rounded_Crane(Di, angle, rc=None, bend_diameters=None):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if (rc is not None and bend_diameters is not None): # numba: delete
         if abs(Di*bend_diameters/rc - 1.0) > 1e-12: # numba: delete
             raise ValueError("Cannot specify both `rc` and `bend_diameters`") # numba: delete
@@ -1352,7 +1352,7 @@ bend_rounded_method_unknown = f'Specified method not recognized; methods are {be
 
 def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=None,
                  Re=None, roughness=0.0, L_unimpeded=None, method='Rennels'):
-    r'''Returns loss coefficient for rounded bend in a pipe of diameter `Di`,
+    r"""Returns loss coefficient for rounded bend in a pipe of diameter `Di`,
     `angle`, with a specified either radius of curvature `rc` or curvature
     defined by `bend_diameters`, Reynolds number `Re` and optionally pipe
     roughness, unimpeded length downstrean, and with the specified method.
@@ -1454,7 +1454,7 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=None,
        Engineering 82, no. 1 (March 1, 1960): 131-40. doi:10.1115/1.3662501
     .. [6] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     if method is None:
         method = 'Rennels'
     if bend_diameters is None and rc is None:
@@ -1502,7 +1502,7 @@ bend_miter_Miller_coeffs = [-12.050299402650126, -4.472433689233185, 50.51478860
                             0.5080285124448385]
 
 def bend_miter_Miller(Di, angle, Re, roughness=0.0, L_unimpeded=None):
-    r'''Calculates the loss coefficient for a single miter bend according to
+    r"""Calculates the loss coefficient for a single miter bend according to
     Miller [1]_. This is a sophisticated model which uses corrections for
     pipe roughness, the length of the pipe downstream before another
     interruption, and a correction for Reynolds number. It interpolates several
@@ -1544,7 +1544,7 @@ def bend_miter_Miller(Di, angle, Re, roughness=0.0, L_unimpeded=None):
     ----------
     .. [1] Miller, Donald S. Internal Flow Systems: Design and Performance
        Prediction. Gulf Publishing Company, 1990.
-    '''
+    """
     if L_unimpeded is None:
         L_unimpeded = 20.0*Di
     if angle > 120.0:
@@ -1574,7 +1574,7 @@ bend_miter_method_unknown_msg = f'Specified method not recognized; methods are {
 
 def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
                method='Rennels'):
-    r'''Returns loss coefficient for any single-joint miter bend in a pipe
+    r"""Returns loss coefficient for any single-joint miter bend in a pipe
     of angle `angle`, diameter `Di`, Reynolds number `Re`, roughness
     `roughness` unimpeded downstream length `L_unimpeded`, and using the
     specified method. This calculation has four methods available.
@@ -1650,7 +1650,7 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
        2009.
     .. [4] Blevins, Robert D. Applied Fluid Dynamics Handbook. New York, N.Y.:
        Van Nostrand Reinhold Co., 1984.
-    '''
+    """
     if method is None:
         method = 'Rennels'
     if method == 'Rennels':
@@ -1672,7 +1672,7 @@ def bend_miter(angle, Di=None, Re=None, roughness=0.0, L_unimpeded=None,
 
 
 def helix(Di, rs, pitch, N, fd):
-    r'''Returns loss coefficient for any size constant-pitch helix
+    r"""Returns loss coefficient for any size constant-pitch helix
     as shown in [1]_. Has applications in immersed coils in tanks.
 
     .. math::
@@ -1712,12 +1712,12 @@ def helix(Di, rs, pitch, N, fd):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
+    """
     return N*(fd*sqrt((2*pi*rs)**2 + pitch**2)/Di + 0.20 + 4.8*fd)
 
 
 def spiral(Di, rmax, rmin, pitch, fd):
-    r'''Returns loss coefficient for any size constant-pitch spiral
+    r"""Returns loss coefficient for any size constant-pitch spiral
     as shown in [1]_. Has applications in immersed coils in tanks.
 
     .. math::
@@ -1756,7 +1756,7 @@ def spiral(Di, rmax, rmin, pitch, fd):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
+    """
     return (rmax-rmin)/pitch*(fd*pi*(rmax+rmin)/Di + 0.20 + 4.8*fd) + 13.2*fd/(rmin/Di)**2
 
 ### Contractions
@@ -1777,7 +1777,7 @@ tck_contraction_abrupt_Miller = implementation_optimize_tck([
 
 
 def contraction_round_Miller(Di1, Di2, rc):
-    r'''Returns loss coefficient for any round edged pipe contraction
+    r"""Returns loss coefficient for any round edged pipe contraction
     using the method of Miller [1]_. This method uses a spline fit to a graph
     with area ratios 0 to 1, and radius ratios (rc/Di2) from 0.1 to 0.
 
@@ -1808,7 +1808,7 @@ def contraction_round_Miller(Di1, Di2, rc):
     ----------
     .. [1] Miller, Donald S. Internal Flow Systems: Design and Performance
        Prediction. Gulf Publishing Company, 1990.
-    '''
+    """
     A_ratio = Di2*Di2/(Di1*Di1)
     radius_ratio = rc/Di2
     if radius_ratio > 0.1:
@@ -1825,7 +1825,7 @@ contraction_sharp_method_unknown = f'Specified method not recognized; methods ar
 
 def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
                       method='Rennels'):
-    r'''Returns loss coefficient for a sharp edged pipe contraction.
+    r"""Returns loss coefficient for a sharp edged pipe contraction.
 
     This calculation has two methods available. The 'Rennels' [2]_ method is a
     fit for turbulent regimes, while the `Hooper` method is more complicated
@@ -1918,7 +1918,7 @@ def contraction_sharp(Di1, Di2, fd=None, Re=None, roughness=0.0,
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     .. [2] Hooper, William B. "Calculate Head Loss Caused by Change in Pipe
        Size." Chemical Engineering 95, no. 16 (November 7, 1988): 89.
-    '''
+    """
     if method == 'Rennels':
         beta = Di2/Di1
         beta2 = beta*beta
@@ -1953,7 +1953,7 @@ contraction_round_methods = ['Rennels', 'Miller', 'Idelchik']
 contraction_round_unknown_method = f'Specified method not recognized; methods are {contraction_round_methods}'
 
 def contraction_round(Di1, Di2, rc, method='Rennels'):
-    r'''Returns loss coefficient for any any round edged pipe contraction.
+    r"""Returns loss coefficient for any any round edged pipe contraction.
     This calculation has three methods available. The 'Miller' [2]_ method is a
     bivariate spline digitization of a graph; the 'Idelchik' [3]_ method is an
     interpolation using a formula and a table of values.
@@ -2018,7 +2018,7 @@ def contraction_round(Di1, Di2, rc, method='Rennels'):
        Local Resistance and of Friction (Spravochnik Po Gidravlicheskim
        Soprotivleniyam, Koeffitsienty Mestnykh Soprotivlenii i Soprotivleniya
        Treniya). National technical information Service, 1966.
-    '''
+    """
     beta = Di2/Di1
     if method is None:
         method = 'Rennels'
@@ -2037,7 +2037,7 @@ def contraction_round(Di1, Di2, rc, method='Rennels'):
 
 
 def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
-    r'''Returns loss coefficient for a conical pipe contraction
+    r"""Returns loss coefficient for a conical pipe contraction
     as shown in Crane TP 410M [1]_ between 0 and 180 degrees.
 
     If :math:`\theta < 45^{\circ}`:
@@ -2085,7 +2085,7 @@ def contraction_conical_Crane(Di1, Di2, l=None, angle=None):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if l is not None:
         if l == 0.0:
             angle_rad = pi
@@ -2184,7 +2184,7 @@ contraction_conical_method_unknown = f'Specified method not recognized; methods 
 
 def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
                         Re=None, roughness=0.0, method='Rennels'):
-    r'''Returns the loss coefficient for any conical pipe contraction.
+    r"""Returns the loss coefficient for any conical pipe contraction.
     This calculation has five methods available. The 'Idelchik' [2]_ and
     'Blevins' [3]_ methods use interpolation among tables of values; 'Miller'
     uses a 2d spline representation of a graph; and the
@@ -2320,7 +2320,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
        Prediction. Gulf Publishing Company, 1990.
     .. [7] Hooper, William B. "Calculate Head Loss Caused by Change in Pipe
        Size." Chemical Engineering 95, no. 16 (November 7, 1988): 89.
-    '''
+    """
     beta = Di2/Di1
     if angle is not None:
         angle_rad = angle*deg2rad
@@ -2418,7 +2418,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
 
 
 def contraction_beveled(Di1, Di2, l=None, angle=None):
-    r'''Returns loss coefficient for any sharp beveled pipe contraction
+    r"""Returns loss coefficient for any sharp beveled pipe contraction
     as shown in [1]_.
 
     .. math::
@@ -2466,7 +2466,7 @@ def contraction_beveled(Di1, Di2, l=None, angle=None):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
+    """
     angle = radians(angle)
     beta = Di2/Di1
     CB = l/Di2*2.0*beta*tan(0.5*angle)/(1.0 - beta)
@@ -2481,7 +2481,7 @@ diffuser_sharp_methods = ['Rennels', 'Hooper']
 diffuser_sharp_method_unknown = f'Specified method not recognized; methods are {diffuser_sharp_methods}'
 
 def diffuser_sharp(Di1, Di2, Re=None, fd=None, roughness=0.0, method='Rennels'):
-    r'''Returns loss coefficient for any sudden pipe diameter expansion
+    r"""Returns loss coefficient for any sudden pipe diameter expansion
     according to the specified method.
 
     The main theoretical formula is as follows, in [1]_ and in other sources
@@ -2543,7 +2543,7 @@ def diffuser_sharp(Di1, Di2, Re=None, fd=None, roughness=0.0, method='Rennels'):
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     .. [2] Hooper, William B. "Calculate Head Loss Caused by Change in Pipe
        Size." Chemical Engineering 95, no. 16 (November 7, 1988): 89.
-    '''
+    """
     beta = Di1/Di2
     if method == 'Rennels':
         r = 1.0 - beta*beta
@@ -2689,7 +2689,7 @@ diffuser_conical_method_unknown = f'Specified method not recognized; methods are
 
 def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
                      roughness=0.0, method='Rennels'):
-    r'''Returns the loss coefficient for any conical pipe diffuser.
+    r"""Returns the loss coefficient for any conical pipe diffuser.
     This calculation has six methods available.
 
     The 'Rennels' [1]_ formulas are as follows (three different formulas are
@@ -2813,7 +2813,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
        Prediction. Gulf Publishing Company, 1990.
     .. [6] Hooper, William B. "Calculate Head Loss Caused by Change in Pipe
        Size." Chemical Engineering 95, no. 16 (November 7, 1988): 89.
-    '''
+    """
     beta = Di1/Di2
     beta2 = beta*beta
     if l is not None:
@@ -2912,7 +2912,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
 
 
 def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
-    r'''Returns loss coefficient for any series of staged conical pipe expansions
+    r"""Returns loss coefficient for any series of staged conical pipe expansions
     as shown in [1]_. Five different formulas are used, depending on
     the angle and the ratio of diameters. This function calls diffuser_conical.
 
@@ -2955,7 +2955,7 @@ def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
+    """
     K = 0.0
     K += diffuser_conical(Di1=Di1, Di2=DEs[0], l=ls[0], fd=fd, method=method)
     K += diffuser_conical(Di1=DEs[-1], Di2=Di2, l=ls[-1], fd=fd, method=method)
@@ -2965,7 +2965,7 @@ def diffuser_conical_staged(Di1, Di2, DEs, ls, fd=None, method='Rennels'):
 
 
 def diffuser_curved(Di1, Di2, l):
-    r'''Returns loss coefficient for any curved wall pipe expansion
+    r"""Returns loss coefficient for any curved wall pipe expansion
     as shown in [1]_.
 
     .. math::
@@ -3008,14 +3008,14 @@ def diffuser_curved(Di1, Di2, l):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
+    """
     beta = Di1/Di2
     phi = 1.01 - 0.624*l/Di1 + 0.30*(l/Di1)**2 - 0.074*(l/Di1)**3 + 0.0070*(l/Di1)**4
     return phi*(1.43 - 1.3*beta**2)*(1 - beta**2)**2
 
 
 def diffuser_pipe_reducer(Di1, Di2, l, fd1, fd2=None):
-    r'''Returns loss coefficient for any pipe reducer pipe expansion
+    r"""Returns loss coefficient for any pipe reducer pipe expansion
     as shown in [1]. This is an approximate formula.
 
     .. math::
@@ -3060,7 +3060,7 @@ def diffuser_pipe_reducer(Di1, Di2, l, fd1, fd2=None):
     ----------
     .. [1] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
-    '''
+    """
     if fd2 is None:
         fd2 = fd1
     beta = Di1/Di2
@@ -3140,7 +3140,7 @@ except:
 
 
 def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None, Di=None):
-    r'''Returns loss coefficient for any various fittings, depending
+    r"""Returns loss coefficient for any various fittings, depending
     on the name input. Alternatively, the Darby constants K1, Ki and Kd
     may be provided and used instead. Source of data is [1]_.
     Reviews of this model are favorable.
@@ -3198,7 +3198,7 @@ def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None, Di=None):
        Valves and Tees." Chemical Engineering 106, no. 7 (July 1999): 101.
     .. [2] Silverberg, Peter. "Correlate Pressure Drops Through Fittings."
        Chemical Engineering 108, no. 4 (April 2001): 127,129-130.
-    '''
+    """
     if Di is not None:
         NPS = interp(Di*1000.0, S40i, NPS40, extrapolate=True)
     if name is not None:
@@ -3283,7 +3283,7 @@ except:
 
 
 def Hooper2K(Di, Re, name=None, K1=None, Kinfty=None):
-    r'''Returns loss coefficient for any various fittings, depending
+    r"""Returns loss coefficient for any various fittings, depending
     on the name input. Alternatively, the Hooper constants K1, Kinfty
     may be provided and used instead. Source of data is [1]_.
     Reviews of this model are favorable less favorable than the Darby method
@@ -3334,7 +3334,7 @@ def Hooper2K(Di, Re, name=None, K1=None, Kinfty=None):
     .. [3] Kayode Coker. Ludwig's Applied Process Design for Chemical and
        Petrochemical Plants. 4E. Amsterdam ; Boston: Gulf Professional
        Publishing, 2007.
-    '''
+    """
     if name is not None:
         K1 = None
         if name in Hooper: # NUMBA: DELETE
@@ -3356,7 +3356,7 @@ def Hooper2K(Di, Re, name=None, K1=None, Kinfty=None):
 
 
 def Kv_to_Cv(Kv):
-    r'''Convert valve flow coefficient from imperial to common metric units.
+    r"""Convert valve flow coefficient from imperial to common metric units.
 
     .. math::
         C_v = 1.156 K_v
@@ -3393,12 +3393,12 @@ def Kv_to_Cv(Kv):
     References
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
-    '''
+    """
     return 1.1560992283536566*Kv
 
 
 def Cv_to_Kv(Cv):
-    r'''Convert valve flow coefficient from imperial to common metric units.
+    r"""Convert valve flow coefficient from imperial to common metric units.
 
     .. math::
         K_v = C_v/1.156
@@ -3435,12 +3435,12 @@ def Cv_to_Kv(Cv):
     References
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
-    '''
+    """
     return Cv/1.1560992283536566
 
 
 def Kv_to_K(Kv, D):
-    r'''Convert valve flow coefficient from common metric units to regular
+    r"""Convert valve flow coefficient from common metric units to regular
     loss coefficients.
 
     .. math::
@@ -3486,12 +3486,12 @@ def Kv_to_K(Kv, D):
     References
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
-    '''
+    """
     return 1.6E9*D**4*Kv**-2
 
 
 def K_to_Kv(K, D):
-    r'''Convert regular loss coefficient to valve flow coefficient.
+    r"""Convert regular loss coefficient to valve flow coefficient.
 
     .. math::
         K_v = 4\times 10^4 \sqrt{ \frac{D^4}{K}}
@@ -3536,12 +3536,12 @@ def K_to_Kv(K, D):
     References
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
-    '''
+    """
     return D*D*sqrt(1.6E9/K)
 
 
 def K_to_Cv(K, D):
-    r'''Convert regular loss coefficient to imperial valve flow coefficient.
+    r"""Convert regular loss coefficient to imperial valve flow coefficient.
 
     .. math::
         K_v = 1.156 \cdot 4\times 10^4 \sqrt{ \frac{D^4}{K}}
@@ -3576,12 +3576,12 @@ def K_to_Cv(K, D):
     References
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
-    '''
+    """
     return 1.1560992283536566*D*D*sqrt(1.6E9/K)
 
 
 def Cv_to_K(Cv, D):
-    r'''Convert imperial valve flow coefficient from imperial units to regular
+    r"""Convert imperial valve flow coefficient from imperial units to regular
     loss coefficients.
 
     .. math::
@@ -3613,7 +3613,7 @@ def Cv_to_K(Cv, D):
     References
     ----------
     .. [1] ISA-75.01.01-2007 (60534-2-1 Mod) Draft
-    '''
+    """
     D2 = D*D
     term = (Cv*(1.0/1.1560992283536566))
     return 1.6E9*D2*D2/(term*term)
@@ -3621,7 +3621,7 @@ def Cv_to_K(Cv, D):
 
 
 def K_gate_valve_Crane(D1, D2, angle, fd=None):
-    r'''Returns loss coefficient for a gate valve of types wedge disc, double
+    r"""Returns loss coefficient for a gate valve of types wedge disc, double
     disc, or plug type, as shown in [1]_.
 
     If β = 1 and θ = 0:
@@ -3686,7 +3686,7 @@ def K_gate_valve_Crane(D1, D2, angle, fd=None):
     .. [2] Harvey Wilson. "Pressure Drop in Pipe Fittings and Valves |
        Equivalent Length and Resistance Coefficient." Katmar Software. Accessed
        July 28, 2017. http://www.katmarsoftware.com/articles/pipe-fitting-pressure-drop.htm.
-    '''
+    """
     angle = radians(angle)
     beta = D1/D2
     if fd is None:
@@ -3705,7 +3705,7 @@ def K_gate_valve_Crane(D1, D2, angle, fd=None):
 
 
 def K_globe_valve_Crane(D1, D2, fd=None):
-    r'''Returns the loss coefficient for all types of globe valve, (reduced
+    r"""Returns the loss coefficient for all types of globe valve, (reduced
     seat or throttled) as shown in [1]_.
 
     If β = 1:
@@ -3749,7 +3749,7 @@ def K_globe_valve_Crane(D1, D2, fd=None):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     beta = D1/D2
     if fd is None:
         fd = ft_Crane(D2)
@@ -3765,7 +3765,7 @@ def K_globe_valve_Crane(D1, D2, fd=None):
 
 
 def K_angle_valve_Crane(D1, D2, fd=None, style=0):
-    r'''Returns the loss coefficient for all types of angle valve, (reduced
+    r"""Returns the loss coefficient for all types of angle valve, (reduced
     seat or throttled) as shown in [1]_.
 
     If β = 1:
@@ -3814,7 +3814,7 @@ def K_angle_valve_Crane(D1, D2, fd=None, style=0):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     beta = D1/D2
     if style not in (0, 1, 2):
         raise ValueError('Valve style should be 0, 1, or 2')
@@ -3832,7 +3832,7 @@ def K_angle_valve_Crane(D1, D2, fd=None, style=0):
 
 
 def K_swing_check_valve_Crane(D=None, fd=None, angled=True):
-    r'''Returns the loss coefficient for a swing check valve as shown in [1]_.
+    r"""Returns the loss coefficient for a swing check valve as shown in [1]_.
 
     .. math::
         K_2 = N\cdot f_d
@@ -3871,7 +3871,7 @@ def K_swing_check_valve_Crane(D=None, fd=None, angled=True):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if D is None and fd is None:
         raise ValueError('Either `D` or `fd` must be specified')
     if fd is None:
@@ -3882,7 +3882,7 @@ def K_swing_check_valve_Crane(D=None, fd=None, angled=True):
 
 
 def K_lift_check_valve_Crane(D1, D2, fd=None, angled=True):
-    r'''Returns the loss coefficient for a lift check valve as shown in [1]_.
+    r"""Returns the loss coefficient for a lift check valve as shown in [1]_.
 
     If β = 1:
 
@@ -3930,7 +3930,7 @@ def K_lift_check_valve_Crane(D1, D2, fd=None, angled=True):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     beta = D1/D2
     if fd is None:
         fd = ft_Crane(D2)
@@ -3949,7 +3949,7 @@ def K_lift_check_valve_Crane(D1, D2, fd=None, angled=True):
 
 
 def K_tilting_disk_check_valve_Crane(D, angle, fd=None):
-    r'''Returns the loss coefficient for a tilting disk check valve as shown in
+    r"""Returns the loss coefficient for a tilting disk check valve as shown in
     [1]_. Results are specified in [1]_ to be for the disk's resting position
     to be at 5 or 25 degrees to the flow direction.  The model is implemented
     here so as to switch to the higher loss 15 degree coefficients at 10
@@ -4005,7 +4005,7 @@ def K_tilting_disk_check_valve_Crane(D, angle, fd=None):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if fd is None:
         fd = ft_Crane(D)
     if angle < 10:
@@ -4036,7 +4036,7 @@ globe_stop_check_valve_Crane_coeffs = {0: 400.0, 1: 300.0, 2: 55.0}
 
 
 def K_globe_stop_check_valve_Crane(D1, D2, fd=None, style=0):
-    r'''Returns the loss coefficient for a globe stop check valve as shown in
+    r"""Returns the loss coefficient for a globe stop check valve as shown in
     [1]_.
 
     If β = 1:
@@ -4088,7 +4088,7 @@ def K_globe_stop_check_valve_Crane(D1, D2, fd=None, style=0):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if fd is None:
         fd = ft_Crane(D2)
     if style == 0:
@@ -4110,7 +4110,7 @@ angle_stop_check_valve_Crane_coeffs = {0: 200.0, 1: 350.0, 2: 55.0}
 
 
 def K_angle_stop_check_valve_Crane(D1, D2, fd=None, style=0):
-    r'''Returns the loss coefficient for a angle stop check valve as shown in
+    r"""Returns the loss coefficient for a angle stop check valve as shown in
     [1]_.
 
     If β = 1:
@@ -4162,7 +4162,7 @@ def K_angle_stop_check_valve_Crane(D1, D2, fd=None, style=0):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if fd is None:
         fd = ft_Crane(D2)
     if style == 0:
@@ -4182,7 +4182,7 @@ def K_angle_stop_check_valve_Crane(D1, D2, fd=None, style=0):
 
 
 def K_ball_valve_Crane(D1, D2, angle, fd=None):
-    r'''Returns the loss coefficient for a ball valve as shown in [1]_.
+    r"""Returns the loss coefficient for a ball valve as shown in [1]_.
 
     If β = 1:
 
@@ -4235,7 +4235,7 @@ def K_ball_valve_Crane(D1, D2, angle, fd=None):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if fd is None:
         fd = ft_Crane(D2)
     beta = D1/D2
@@ -4254,7 +4254,7 @@ diaphragm_valve_Crane_coeffs = {0: 149.0, 1: 39.0}
 
 
 def K_diaphragm_valve_Crane(D=None, fd=None, style=0):
-    r'''Returns the loss coefficient for a diaphragm valve of either weir
+    r"""Returns the loss coefficient for a diaphragm valve of either weir
     (`style` = 0) or straight-through (`style` = 1) as shown in [1]_.
 
     .. math::
@@ -4294,7 +4294,7 @@ def K_diaphragm_valve_Crane(D=None, fd=None, style=0):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if D is None and fd is None:
         raise ValueError('Either `D` or `fd` must be specified')
     if fd is None:
@@ -4312,7 +4312,7 @@ foot_valve_Crane_coeffs = {0: 420.0, 1: 75.0}
 
 
 def K_foot_valve_Crane(D=None, fd=None, style=0):
-    r'''Returns the loss coefficient for a foot valve of either poppet disc
+    r"""Returns the loss coefficient for a foot valve of either poppet disc
     (`style` = 0) or hinged-disk (`style` = 1) as shown in [1]_. Both valves
     are specified include the loss of the attached strainer.
 
@@ -4353,7 +4353,7 @@ def K_foot_valve_Crane(D=None, fd=None, style=0):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if D is None and fd is None:
         raise ValueError('Either `D` or `fd` must be specified')
     if fd is None:
@@ -4372,7 +4372,7 @@ butterfly_valve_Crane_coeffs = {0: (45.0, 35.0, 25.0), 1: (74.0, 52.0, 43.0),
 
 
 def K_butterfly_valve_Crane(D, fd=None, style=0):
-    r'''Returns the loss coefficient for a butterfly valve as shown in
+    r"""Returns the loss coefficient for a butterfly valve as shown in
     [1]_. Three different types are supported; Centric (`style` = 0),
     double offset (`style` = 1), and triple offset (`style` = 2).
 
@@ -4425,7 +4425,7 @@ def K_butterfly_valve_Crane(D, fd=None, style=0):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if fd is None:
         fd = ft_Crane(D)
     if style == 0:
@@ -4451,7 +4451,7 @@ plug_valve_Crane_coeffs = {0: 18.0, 1: 30.0, 2: 90.0}
 
 
 def K_plug_valve_Crane(D1, D2, angle, fd=None, style=0):
-    r'''Returns the loss coefficient for a plug valve or cock valve as shown in
+    r"""Returns the loss coefficient for a plug valve or cock valve as shown in
     [1]_.
 
     If β = 1:
@@ -4506,7 +4506,7 @@ def K_plug_valve_Crane(D1, D2, angle, fd=None, style=0):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if fd is None:
         fd = ft_Crane(D2)
     beta = D1/D2
@@ -4526,7 +4526,7 @@ def K_plug_valve_Crane(D1, D2, angle, fd=None, style=0):
 
 
 def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
-    r'''Calculates the approximate minimum velocity required to lift the disk
+    r"""Calculates the approximate minimum velocity required to lift the disk
     or other controlling element of a check valve to a fully open, stable,
     position according to the Crane method [1]_.
 
@@ -4609,7 +4609,7 @@ def v_lift_valve_Crane(rho, D1=None, D2=None, style='swing check angled'):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     specific_volume = 1./rho
     if D1 is not None and D2 is not None:
         beta = D1/D2
@@ -4693,7 +4693,7 @@ CRANE_VALVES = [CRANE_GATE_VALVE, CRANE_GLOBE_VALVE, CRANE_ANGLE_VALVE_0,
                 CRANE_PLUG_VALVE_3_WAY_90_DEG, ]
 
 def Crane_loss_coefficient(D1, D2, angle, fitting, fd=None):
-    r'''Returns the loss coefficient for a particular Crane valve fitting.
+    r"""Returns the loss coefficient for a particular Crane valve fitting.
     [1]_. This function is intended for internal use, to test all the
     correlations, at this point.
 
@@ -4731,7 +4731,7 @@ def Crane_loss_coefficient(D1, D2, angle, fitting, fd=None):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     if fitting == CRANE_GATE_VALVE:
         return K_gate_valve_Crane(D1, D2, angle, fd=fd)
     elif fitting == CRANE_GLOBE_VALVE:
@@ -4797,7 +4797,7 @@ branch_converging_Crane_angles = [30.0, 45.0, 60.0, 90.0]
 
 
 def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90.0):
-    r'''Returns the loss coefficient for the branch of a converging tee or wye
+    r"""Returns the loss coefficient for the branch of a converging tee or wye
     according to the Crane method [1]_.
 
     .. math::
@@ -4879,7 +4879,7 @@ def K_branch_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90.0):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     beta = (D_branch/D_run)
     beta2 = beta*beta
     Q_comb = Q_run + Q_branch
@@ -4900,7 +4900,7 @@ run_converging_Crane_Fs = [1.74, 1.41, 1.0]
 run_converging_Crane_angles = [30.0, 45.0, 60.0]
 
 def K_run_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
-    r'''Returns the loss coefficient for the run of a converging tee or wye
+    r"""Returns the loss coefficient for the run of a converging tee or wye
     according to the Crane method [1]_.
 
     .. math::
@@ -4975,7 +4975,7 @@ def K_run_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     beta = (D_branch/D_run)
     beta2 = beta*beta
     Q_comb = Q_run + Q_branch
@@ -4992,7 +4992,7 @@ def K_run_converging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
 
 
 def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
-    r'''Returns the loss coefficient for the branch of a diverging tee or wye
+    r"""Returns the loss coefficient for the branch of a diverging tee or wye
     according to the Crane method [1]_.
 
     .. math::
@@ -5076,7 +5076,7 @@ def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     beta = (D_branch/D_run)
     beta2 = beta*beta
     Q_comb = Q_run + Q_branch
@@ -5110,7 +5110,7 @@ def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
 
 
 def K_run_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
-    r'''Returns the loss coefficient for the run of a converging tee or wye
+    r"""Returns the loss coefficient for the run of a converging tee or wye
     according to the Crane method [1]_.
 
     .. math::
@@ -5171,7 +5171,7 @@ def K_run_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
     ----------
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
-    '''
+    """
     beta = (D_branch/D_run)
     beta2 = beta*beta
     Q_comb = Q_run + Q_branch

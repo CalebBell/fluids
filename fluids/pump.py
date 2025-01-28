@@ -85,7 +85,7 @@ __all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underload
 
 
 def Corripio_pump_efficiency(Q):
-    r'''Estimates pump efficiency using the method in Corripio (1982)
+    r"""Estimates pump efficiency using the method in Corripio (1982)
     as shown in [1]_ and originally in [2]_. Estimation only
 
     .. math::
@@ -122,14 +122,14 @@ def Corripio_pump_efficiency(Q):
     .. [2] Corripio, A.B., K.S. Chrien, and L.B. Evans, "Estimate Costs of
        Centrifugal Pumps and Electric Motors," Chem. Eng., 89, 115-118,
        February 22 (1982).
-    '''
+    """
     Q *= 15850.323
     logQ = log(Q)
     return -0.316 + 0.24015*logQ - 0.01199*logQ*logQ
 
 
 def Corripio_motor_efficiency(P):
-    r'''Estimates motor efficiency using the method in Corripio (1982)
+    r"""Estimates motor efficiency using the method in Corripio (1982)
     as shown in [1]_ and originally in [2]_. Estimation only.
 
     .. math::
@@ -162,7 +162,7 @@ def Corripio_motor_efficiency(P):
     .. [2] Corripio, A.B., K.S. Chrien, and L.B. Evans, "Estimate Costs of
        Centrifugal Pumps and Electric Motors," Chem. Eng., 89, 115-118,
        February 22 (1982).
-    '''
+    """
     P = P/745.69987
     logP = log(P)
     return 0.8 + 0.0319*logP - 0.00182*logP*logP
@@ -187,7 +187,7 @@ VFD_efficiency_tck = tck_interp2d_linear(VFD_efficiency_loads,
 
 
 def VFD_efficiency(P, load=1):
-    r'''Returns the efficiency of a Variable Frequency Drive according to [1]_.
+    r"""Returns the efficiency of a Variable Frequency Drive according to [1]_.
     These values are generic, and not standardized as minimum values.
     Older VFDs often have much worse performance.
 
@@ -229,7 +229,7 @@ def VFD_efficiency(P, load=1):
     ----------
     .. [1] GoHz.com. Variable Frequency Drive Efficiency.
        http://www.variablefrequencydrive.org/vfd-efficiency
-    '''
+    """
     P = P/hp # convert to hp
     if P < 3.0:
         P = 3.0
@@ -252,7 +252,7 @@ nema_sizes = [i*hp for i in nema_sizes_hp]
 
 
 def motor_round_size(P):
-    r'''Rounds up the power for a motor to the nearest NEMA standard power.
+    r"""Rounds up the power for a motor to the nearest NEMA standard power.
     The returned power is always larger or equal to the input power.
 
     Parameters
@@ -280,7 +280,7 @@ def motor_round_size(P):
     .. [1] Natural Resources Canada. Electric Motors (1 to 500 HP/0.746 to
        375 kW). As modified 2015-12-17.
        https://www.nrcan.gc.ca/energy/regulations-codes-standards/products/6885
-    '''
+    """
     for P_actual in nema_sizes:
         if P_actual >= P:
             return P_actual
@@ -318,7 +318,7 @@ nema_min_full_closed_8p_i = (nema_min_P, nema_min_full_closed_8p)
 
 
 def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
-    r'''Returns the efficiency of a NEMA motor according to [1]_.
+    r"""Returns the efficiency of a NEMA motor according to [1]_.
     These values are standards, but are only for full-load operation.
 
     Parameters
@@ -369,7 +369,7 @@ def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
     .. [1] Natural Resources Canada. Electric Motors (1 to 500 HP/0.746 to
        375 kW). As modified 2015-12-17.
        https://www.nrcan.gc.ca/energy/regulations-codes-standards/products/6885
-    '''
+    """
     P = P/hp
     # This could be replaced by a dict and a jump list
     if high_efficiency:
@@ -420,7 +420,7 @@ _efficiency_lists = [_to_1, _to_5, _to_10, _to_25, _to_60, _to_infty]
 _efficiency_ones = [0.9218102, 0.64307597, 0.61724113, 0.61569791, 0.6172238, 0.40648294]
 
 def motor_efficiency_underloaded(P, load=0.5):
-    r'''Returns the efficiency of a motor operating under its design power
+    r"""Returns the efficiency of a motor operating under its design power
     according to [1]_.These values are generic; manufacturers usually list 4
     points on their product information, but full-scale data is hard to find
     and not regulated.
@@ -456,7 +456,7 @@ def motor_efficiency_underloaded(P, load=0.5):
     ----------
     .. [1] Washington State Energy Office. Energy-Efficient Electric Motor
        Selection Handbook. 1993.
-    '''
+    """
     P = P/hp
     if P <= 1.0:
         i = 0
@@ -478,7 +478,7 @@ def motor_efficiency_underloaded(P, load=0.5):
 
 
 def specific_speed(Q, H, n=3600.):
-    r'''Returns the specific speed of a pump operating at a specified Q, H,
+    r"""Returns the specific speed of a pump operating at a specified Q, H,
     and n.
 
     .. math::
@@ -513,12 +513,12 @@ def specific_speed(Q, H, n=3600.):
     References
     ----------
     .. [1] HI 1.3 Rotodynamic Centrifugal Pumps for Design and Applications
-    '''
+    """
     return n*sqrt(Q)/H**0.75
 
 
 def specific_diameter(Q, H, D):
-    r'''Returns the specific diameter of a pump operating at a specified Q, H,
+    r"""Returns the specific diameter of a pump operating at a specified Q, H,
     and D.
 
     .. math::
@@ -551,12 +551,12 @@ def specific_diameter(Q, H, D):
     ----------
     .. [1] Green, Don, and Robert Perry. Perry's Chemical Engineers' Handbook,
        Eighth Edition. McGraw-Hill Professional, 2007.
-    '''
+    """
     return D*sqrt(sqrt(H)/Q)
 
 
 def speed_synchronous(f, poles=2):
-    r'''Returns the synchronous speed of a synchronous AC motor according to [1]_.
+    r"""Returns the synchronous speed of a synchronous AC motor according to [1]_.
 
     .. math::
         N_s = \frac{120 f}{\text{poles}}
@@ -589,12 +589,12 @@ def speed_synchronous(f, poles=2):
     ----------
     .. [1] All About Circuits. Synchronous Motors. Chapter 13 - AC Motors
        http://www.allaboutcircuits.com/textbook/alternating-current/chpt-13/synchronous-motors/
-    '''
+    """
     return 120.*f/poles
 
 
 def current_ideal(P, V, phase=3, PF=1):
-    r'''Returns the current drawn by a motor of power `P` operating at voltage
+    r"""Returns the current drawn by a motor of power `P` operating at voltage
     `V`, with line AC of phase `phase` and power factor `PF` according to [1]_.
 
     Single-phase power:
@@ -639,7 +639,7 @@ def current_ideal(P, V, phase=3, PF=1):
     .. [1] Electrical Construction, and Maintenance. "Calculating Single- and
        3-Phase Parameters." April 1, 2008.
        http://ecmweb.com/basics/calculating-single-and-3-phase-parameters.
-    '''
+    """
     if phase not in (1, 3):
         raise ValueError('Only 1 and 3 phase power supported')
     if phase == 3:

@@ -139,7 +139,7 @@ def roots_cubic_a2(a, b, c, d):
     return (root1, root2, root3)
 
 def roots_cubic(a, b, c, d):
-    r'''Cubic equation solver based on a variety of sources, algorithms, and
+    r"""Cubic equation solver based on a variety of sources, algorithms, and
     numerical tools. It seems evident after some work that no analytical
     solution using floating points will ever have high-precision results
     for all cases of inputs. Some other solvers, such as NumPy's roots
@@ -190,7 +190,7 @@ def roots_cubic(a, b, c, d):
     .. [1] "Solving Cubic Equations." Accessed January 5, 2019.
        http://www.1728.org/cubic2.htm.
 
-    '''
+    """
     """
     Notes
     -----

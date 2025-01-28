@@ -76,7 +76,7 @@ __all__ = ['drag_sphere', 'drag_sphere_methods', 'v_terminal', 'integrate_drag_s
 'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison', 'Song_Xu']
 
 def Stokes(Re):
-    r'''Calculates drag coefficient of a smooth sphere using Stoke's law.
+    r"""Calculates drag coefficient of a smooth sphere using Stoke's law.
 
     .. math::
         C_D = 24/Re
@@ -104,12 +104,12 @@ def Stokes(Re):
     References
     ----------
     .. [1] Rhodes, Martin J. Introduction to Particle Technology. Wiley, 2013.
-    '''
+    """
     return 24./Re
 
 
 def Barati(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_.
 
     .. math::
@@ -146,7 +146,7 @@ def Barati(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     Re_inv = 1.0/Re
     Cd = (5.4856E9*tanh(4.3774E-9*Re_inv) + 0.0709*tanh(700.6574*Re_inv)
     + 0.3894*tanh(74.1539*Re_inv) - 0.1198*tanh(7429.0843*Re_inv)
@@ -155,7 +155,7 @@ def Barati(Re):
 
 
 def Barati_high(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_.
 
     .. math::
@@ -197,7 +197,7 @@ def Barati_high(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     if Re > 1e6:
         Re = 1e6
     Re2 = Re*Re
@@ -218,7 +218,7 @@ def Barati_high(Re):
 
 
 def Rouse(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -253,12 +253,12 @@ def Rouse(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     return 24./Re + 3/sqrt(Re) + 0.34
 
 
 def Engelund_Hansen(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -294,12 +294,12 @@ def Engelund_Hansen(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     return 24./Re + 1.5
 
 
 def Clift_Gauvin(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -335,12 +335,12 @@ def Clift_Gauvin(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     return 24./Re*(1 + 0.152*Re**0.677) + 0.417/(1 + 5070*Re**-0.94)
 
 
 def Morsi_Alexander(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     If Re < 0.1:
@@ -414,7 +414,7 @@ def Morsi_Alexander(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     if Re < 0.1:
         return 24./Re
     elif Re < 1:
@@ -434,7 +434,7 @@ def Morsi_Alexander(Re):
 
 
 def Graf(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -469,12 +469,12 @@ def Graf(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     return 24./Re + 7.3/(1 + sqrt(Re)) + 0.25
 
 
 def Flemmer_Banks(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -513,13 +513,13 @@ def Flemmer_Banks(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     E = 0.383*Re**0.356 - 0.207*Re**0.396 - 0.143/(1 + (log10(Re))**2)
     return 24./Re*10**E
 
 
 def Khan_Richardson(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -555,12 +555,12 @@ def Khan_Richardson(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     return (2.49*Re**-0.328 + 0.34*Re**0.067)**3.18
 
 
 def Swamee_Ojha(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -597,13 +597,13 @@ def Swamee_Ojha(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     Cd = 0.5*sqrt(sqrt(16*((24./Re)**1.6 + (130./Re)**0.72)**2.5 + 1.0/sqrt(sqrt((40000./Re)**2 + 1))))
     return Cd
 
 
 def Yen(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -639,12 +639,12 @@ def Yen(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     return 24./Re*(1 + 0.15*sqrt(Re) + 0.017*Re) - 0.208/(1 + 1E4*1.0/sqrt(Re))
 
 
 def Haider_Levenspiel(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -682,12 +682,12 @@ def Haider_Levenspiel(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     return 24./Re*(1 + 0.1806*Re**0.6459) + (0.4251/(1 + 6880.95/Re))
 
 
 def Cheng(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -723,12 +723,12 @@ def Cheng(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     return 24./Re*(1. + 0.27*Re)**0.43 + 0.47*(1. - exp(-0.04*Re**0.38))
 
 
 def Terfous(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -765,12 +765,12 @@ def Terfous(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     return 2.689 + 21.683/Re + 0.131/Re**2 - 10.616/Re**0.1 + 12.216/Re**0.2
 
 
 def Mikhailov_Freire(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -807,14 +807,14 @@ def Mikhailov_Freire(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     Cd = (3808.*((1617933./2030.) + (178861./1063.)*Re + (1219./1084.)*Re**2)
           /(681.*Re*((77531./422.) + (13529./976.)*Re - (1./71154.)*Re**2)))
     return Cd
 
 
 def Clift(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     If Re < 0.01:
@@ -891,7 +891,7 @@ def Clift(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     if Re < 0.01:
         return 24./Re + 3/16.
     elif Re < 20:
@@ -913,7 +913,7 @@ def Clift(Re):
 
 
 def Ceylan(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -954,7 +954,7 @@ def Ceylan(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     Cd = (1 - 0.5*exp(0.182) + 10.11*Re**(-2/3.)*exp(0.952/sqrt(sqrt(Re)))
     - 0.03859*Re**(-4/3.)*exp(1.30/sqrt(Re)) + 0.037E-4*Re*exp(-0.125E-4*Re)
     - 0.116E-10*Re**2*exp(-0.444E-5*Re))
@@ -962,7 +962,7 @@ def Ceylan(Re):
 
 
 def Almedeij(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -1011,7 +1011,7 @@ def Almedeij(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     phi4 = ((6E-17*Re**2.63)**-10 + 0.2**-10)**-1
     phi3 = (1.57E8*Re**-1.625)**10
     phi2 = ((0.148*Re**0.11)**-10 + 0.5**-10)**-1
@@ -1020,7 +1020,7 @@ def Almedeij(Re):
 
 
 def Morrison(Re):
-    r'''Calculates drag coefficient of a smooth sphere using the method in
+    r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
@@ -1057,14 +1057,14 @@ def Morrison(Re):
        Estimation of Drag Coefficient of Flow around a Smooth Sphere: An
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
-    '''
+    """
     Cd = (24./Re + 2.6*Re/5./(1 + (Re/5.)**1.52) + 0.411*(Re/263000.)**-7.94/(1 + (Re/263000.)**-8)
     + Re**0.8/461000.)
     return Cd
 
 
 def Song_Xu(Re, sphericity=1., S=1.):
-    r'''Calculates drag coefficient of a particle using the method in
+    r"""Calculates drag coefficient of a particle using the method in
     [1]_. Developed with data for spheres, cubes, and cylinders. Claims 3.52%
     relative error for 0.001 < Re < 100 based on 336 tests data.
 
@@ -1104,7 +1104,7 @@ def Song_Xu(Re, sphericity=1., S=1.):
        of Spherical and Non-Spherical Particle in Newtonian Fluid." Powder
        Technology 321 (November 2017): 242-50.
        doi:10.1016/j.powtec.2017.08.017.
-    '''
+    """
     return 24/(Re*sphericity**0.65*S**0.3)*(1+0.35*Re)**0.44
 
 
@@ -1133,7 +1133,7 @@ drag_sphere_correlations = {
 }
 
 def drag_sphere_methods(Re, check_ranges=True):
-    r'''This function returns a list of methods that can be used to calculate
+    r"""This function returns a list of methods that can be used to calculate
     the drag coefficient of a sphere.
     Twenty one methods are available, all requiring only the Reynolds number of
     the sphere. Most methods are valid from Re=0 to Re=200,000.
@@ -1160,7 +1160,7 @@ def drag_sphere_methods(Re, check_ranges=True):
     -------
     methods : list, only returned if AvailableMethods == True
         List of methods which can be used to calculate `Cd` with the given `Re`
-    '''
+    """
     methods = []
     for key, (func, Re_min, Re_max) in drag_sphere_correlations.items():
         if ((Re_min is None or Re > Re_min) and (Re_max is None or Re < Re_max)) or not check_ranges:
@@ -1168,7 +1168,7 @@ def drag_sphere_methods(Re, check_ranges=True):
     return methods
 
 def drag_sphere(Re, Method=None):
-    r'''This function handles calculation of drag coefficient on spheres.
+    r"""This function handles calculation of drag coefficient on spheres.
     Twenty methods are available, all requiring only the Reynolds number of the
     sphere. Most methods are valid from Re=0 to Re=200,000. A correlation will
     be automatically selected if none is specified.
@@ -1200,7 +1200,7 @@ def drag_sphere(Re, Method=None):
     -------
     Cd : float
         Drag coefficient [-]
-    '''
+    """
     if Method is None:
         if Re > 0.1:
             # Smooth transition point between the two models
@@ -1267,7 +1267,7 @@ def _v_terminal_err(V, Method, Re_almost, main):
     return V - sqrt(main/Cd)
 
 def v_terminal(D, rhop, rho, mu, Method=None):
-    r'''Calculates terminal velocity of a falling sphere using any drag
+    r"""Calculates terminal velocity of a falling sphere using any drag
     coefficient method supported by `drag_sphere`. The laminar solution for
     Re < 0.01 is first tried; if the resulting terminal velocity does not
     put it in the laminar regime, a numerical solution is used.
@@ -1324,7 +1324,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     .. [2] Rushton, Albert, Anthony S. Ward, and Richard G. Holdich.
        Solid-Liquid Filtration and Separation Technology. 1st edition. Weinheim ;
        New York: Wiley-VCH, 1996.
-    '''
+    """
     """The following would be the ideal implementation. The actual function is
     optimized for speed, not readability
     def err(V):
@@ -1348,7 +1348,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
 
 
 def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
-    r'''Calculates the time required for a particle in Stoke's regime only to
+    r"""Calculates the time required for a particle in Stoke's regime only to
     reach terminal velocity (approximately). An infinitely long period is
     required theoretically, but with floating points, it is possible to
     calculate the time required to come within a specified `tol` of that
@@ -1399,7 +1399,7 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
     >>> time_v_terminal_Stokes(D=1e-2, rhop=2200., rho=1.2, mu=1.78E-5, V0=1,
     ... tol=1e-30)
     24800.636391801996
-    '''
+    """
     if tol < 1e-17:
         tol = 2e-17
     term = D*D*g*rho - D*D*g*rhop
@@ -1424,7 +1424,7 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
 
 def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
                           distance=False):
-    r'''Integrates the velocity and distance traveled by a particle moving
+    r"""Integrates the velocity and distance traveled by a particle moving
     at a speed which will converge to its terminal velocity.
 
     Performs an integration of the following expression for acceleration:
@@ -1498,7 +1498,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     .. [1] Timmerman, Peter, and Jacobus P. van der Weele. "On the Rise and
        Fall of a Ball with Linear or Quadratic Drag." American Journal of
        Physics 67, no. 6 (June 1999): 538-46. https://doi.org/10.1119/1.19320.
-    '''
+    """
     # Delayed import of necessaray functions
     import numpy as np
     from scipy.integrate import odeint

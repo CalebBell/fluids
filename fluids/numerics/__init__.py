@@ -2045,13 +2045,21 @@ def translate_bound_f_jac(f, jac, bounds=None, low=None, high=None,
             raise NotImplementedError("Fail")
 
     def translate_into(x):
-        #x = [float(i) for i in x]
+        if not as_np:
+            # cannot cast to float as used with mpmath tests
+            x = [i for i in x]
+        else:
+            x = x.copy()
         for i in range(len(x)):
             x[i] = -trunc_log((high[i] - x[i])/(x[i] - low[i]))
         return x
 
     def translate_outof(x):
-        #x = [float(i) for i in x]
+        if not as_np:
+            # cannot cast to float as used with mpmath tests
+            x = [i for i in x]
+        else:
+            x = x.copy()
         for i in range(len(x)):
             x[i] = (low[i] + (high[i] - low[i])/(1.0 + trunc_exp(-x[i])))
         return x
@@ -2163,6 +2171,7 @@ def make_damp_initial(steps=5, damping=1.0, *args):
 
 def make_max_step_initial(max_step, steps=5, *args):
     steps_holder = [steps]
+    scalar_max_step = not isinstance(max_step, list)
 
     def damping_func(x, step, *args):
         if steps_holder[0] <= 0:
@@ -2176,10 +2185,16 @@ def make_max_step_initial(max_step, steps=5, *args):
                 next = []
                 for i in range(len(x)):
                     the_step = step[i]
-                    if abs(the_step) > max_step:
-                        next.append(x[i] + copysign(max_step[i], the_step))
+                    if scalar_max_step:
+                        if abs(the_step) > max_step:
+                            next.append(x[i] + copysign(max_step, the_step))
+                        else:
+                            next.append(x[i] + the_step)
                     else:
-                        next.append(x[i] + the_step)
+                        if abs(the_step) > max_step[i]:
+                            next.append(x[i] + copysign(max_step[i], the_step))
+                        else:
+                            next.append(x[i] + the_step)
                 return next
 
             the_step = step

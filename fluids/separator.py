@@ -63,7 +63,7 @@ tck_Watkins = implementation_optimize_tck([[-5.115995809754082, -5.1159958097540
                                          3])
 
 def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
-    r'''Calculates the Sounders-Brown `K` factor as used in determining maximum
+    r"""Calculates the Sounders-Brown `K` factor as used in determining maximum
     allowable gas velocity in a two-phase separator in either a horizontal or
     vertical orientation. This function approximates a graph published in [1]_
     to determine `K` as used in the following equation:
@@ -138,7 +138,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
        Calculator. New York: Mcgraw-Hill, 1984.
     .. [3] Branan, Carl R. Pocket Guide to Chemical Engineering. 1st edition.
        Houston, Tex: Gulf Professional Publishing, 1999.
-    '''
+    """
     factor = (1. - x)/x*sqrt(rhog/rhol)
     if method == 'spline':
         K = exp(float(splev(log(factor), tck_Watkins)))
@@ -168,7 +168,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
 
 
 def K_separator_demister_York(P, horizontal=False):
-    r'''Calculates the Sounders Brown `K` factor as used in determining maximum
+    r"""Calculates the Sounders Brown `K` factor as used in determining maximum
     permissible gas velocity in a two-phase separator in either a horizontal or
     vertical orientation, *with a demister*.
     This function is a curve fit to [1]_ published in [2]_ and is widely used.
@@ -221,7 +221,7 @@ def K_separator_demister_York(P, horizontal=False):
     .. [1] Svrcek, W. Y., and W. D. Monnery. "Design Two-Phase Separators
        within the Right Limits" Chemical Engineering Progress, (October 1,
        1993): 53-60.
-    '''
+    """
     P = P/psi # Correlation in terms of psia
     if P < 15:
         if P < 1:
@@ -245,7 +245,7 @@ def K_separator_demister_York(P, horizontal=False):
 
 
 def v_Sounders_Brown(K, rhol, rhog):
-    r'''Calculates the maximum allowable vapor velocity in a two-phase
+    r"""Calculates the maximum allowable vapor velocity in a two-phase
     separator to permit separation between entrained droplets and the gas
     using an empirical `K` factor, named after Sounders and Brown [1]_.
     This is a simplifying expression for terminal velocity and drag on
@@ -300,12 +300,12 @@ def v_Sounders_Brown(K, rhol, rhog):
     .. [2] Vasude, Gael D. Ulrich and Palligarnai T. Chemical Engineering
        Process Design and Economics : A Practical Guide. 2nd edition. Durham,
        N.H: Process Publishing, 2004.
-    '''
+    """
     return K*sqrt((rhol - rhog)/rhog)
 
 
 def K_Sounders_Brown_theoretical(D, Cd, g=g):
-    r'''Converts a known drag coefficient into a Sounders-Brown `K` factor
+    r"""Converts a known drag coefficient into a Sounders-Brown `K` factor
     for two-phase separator design. This factor is the traditional way for
     separator diameters to be obtained although it is unnecessary and the
     theoretical drag coefficient method can be used instead.
@@ -374,5 +374,5 @@ def K_Sounders_Brown_theoretical(D, Cd, g=g):
     .. [1] Svrcek, W. Y., and W. D. Monnery. "Design Two-Phase Separators
        within the Right Limits" Chemical Engineering Progress, (October 1,
        1993): 53-60.
-    '''
+    """
     return sqrt((4.0/3.0)*g*D/(Cd))

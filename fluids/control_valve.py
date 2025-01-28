@@ -95,7 +95,7 @@ rho0 = 999.10329075702327 # Water at 288.15 K
 
 
 def cavitation_index(P1, P2, Psat):
-    r'''Calculates the cavitation index of a valve with upstream and downstream
+    r"""Calculates the cavitation index of a valve with upstream and downstream
     absolute pressures `P1` and `P2` for a fluid with a vapor pressure `Psat`.
 
     .. math::
@@ -143,12 +143,12 @@ def cavitation_index(P1, P2, Psat):
     ----------
     .. [1] ISA. "RP75.23 Considerations for Evaluating Control Valve
        Cavitation." 1995.
-    '''
+    """
     return (P1 - Psat)/(P1 - P2)
 
 
 def FF_critical_pressure_ratio_l(Psat, Pc):
-    r'''Calculates FF, the liquid critical pressure ratio factor,
+    r"""Calculates FF, the liquid critical pressure ratio factor,
     for use in IEC 60534 liquid valve sizing calculations.
 
     .. math::
@@ -176,12 +176,12 @@ def FF_critical_pressure_ratio_l(Psat, Pc):
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
-    '''
+    """
     return 0.96 - 0.28*sqrt(Psat/Pc)
 
 
 def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
-    r'''Calculates either the upstream or downstream pressure at which choked
+    r"""Calculates either the upstream or downstream pressure at which choked
     flow though a liquid control valve occurs, given either a set upstream or
     downstream pressure. Implements an analytical solution of
     the needed equations from the full function
@@ -227,7 +227,7 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
     458887.5306077305
     >>> control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6, P2=458887.5306077305)
     680000.0
-    '''
+    """
     FF = 0.96 - 0.28*sqrt(Psat/Pc) #FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
     Pmin_absolute = FF*Psat
     if P2 is None:
@@ -245,7 +245,7 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
 
 
 def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
-    r'''Calculates either the upstream or downstream pressure at which choked
+    r"""Calculates either the upstream or downstream pressure at which choked
     flow though a gas control valve occurs, given either a set upstream or
     downstream pressure. Implements an analytical solution of
     the needed equations from the full function
@@ -285,7 +285,7 @@ def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
     7142.857142857143
     >>> control_valve_choke_P_g(1.0, 1.3, P2=7142.857142857143)
     100000.0
-    '''
+    """
     if P2 is None:
         ans = P2 = P1*(-5.0*gamma*xT + 7.0)/7.0
     elif P1 is None:
@@ -296,7 +296,7 @@ def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
 
 
 def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
-    r'''Calculates if a liquid flow in IEC 60534 calculations is critical or
+    r"""Calculates if a liquid flow in IEC 60534 calculations is critical or
     not, for use in IEC 60534 liquid valve sizing calculations.
     Either FL may be provided or FLP and FP, depending on the calculation
     process.
@@ -340,7 +340,7 @@ def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
-    '''
+    """
     if FLP and FP:
         return dP >= FLP*FLP/(FP*FP)*(P1-FF*Psat)
     elif FL:
@@ -350,7 +350,7 @@ def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
 
 
 def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
-    r'''Calculates if a gas flow in IEC 60534 calculations is critical or
+    r"""Calculates if a gas flow in IEC 60534 calculations is critical or
     not, for use in IEC 60534 gas valve sizing calculations.
     Either xT or xTP must be provided, depending on the calculation process.
 
@@ -390,7 +390,7 @@ def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
-    '''
+    """
     if xT:
         return x >= Fgamma*xT
     elif xTP:
@@ -400,7 +400,7 @@ def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
 
 
 def Reynolds_valve(nu, Q, D1, FL, Fd, C):
-    r'''Calculates Reynolds number of a control valve for a liquid or gas
+    r"""Calculates Reynolds number of a control valve for a liquid or gas
     flowing through it at a specified Q, for a specified D1, FL, Fd, C, and
     with kinematic viscosity `nu` according to IEC 60534 calculations.
 
@@ -438,12 +438,12 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
-    '''
+    """
     return N4*Fd*Q/nu*1.0/sqrt(C*FL)*sqrt(sqrt(FL*FL*C*C/N2*D1**-4.0 + 1.0))
 
 
 def loss_coefficient_piping(d, D1=None, D2=None):
-    r'''Calculates the sum of loss coefficients from possible
+    r"""Calculates the sum of loss coefficients from possible
     inlet/outlet reducers/expanders around a control valve according to
     IEC 60534 calculations.
 
@@ -486,7 +486,7 @@ def loss_coefficient_piping(d, D1=None, D2=None):
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
-    '''
+    """
     loss = 0.
     if D1:
         dr = d/D1
@@ -502,7 +502,7 @@ def loss_coefficient_piping(d, D1=None, D2=None):
 
 
 def Reynolds_factor(FL, C, d, Rev, full_trim=True):
-    r'''Calculates the Reynolds number factor `FR` for a valve with a Reynolds
+    r"""Calculates the Reynolds number factor `FR` for a valve with a Reynolds
     number `Rev`, diameter `d`, flow coefficient `C`, liquid pressure recovery
     factor `FL`, and with either full or reduced trim, all according to
     IEC 60534 calculations.
@@ -570,7 +570,7 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
-    '''
+    """
     if full_trim:
         n1 = N2/(min(C/(d*d), 0.04))**2 # C/d**2 must not exceed 0.04
         FR_1a = 1.0 + (0.33*sqrt(FL))/sqrt(sqrt(n1))*log10(Rev/10000.)
@@ -593,7 +593,7 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
 def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
                          d=None, FL=0.9, Fd=1, allow_choked=True,
                          allow_laminar=True, full_output=False):
-    r'''Calculates flow coefficient of a control valve passing a liquid
+    r"""Calculates flow coefficient of a control valve passing a liquid
     according to IEC 60534. Uses a large number of inputs in SI units. Note the
     return value is not standard SI. All parameters are required.
     This sizing model does not officially apply to liquid mixtures, slurries,
@@ -676,7 +676,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
-    '''
+    """
     if full_output:
         ans = {'FLP': None, 'FP': None, 'FR': None}
     # Pa to kPa, according to constants in standard
@@ -768,7 +768,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
 def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
                          d=None, FL=0.9, Fd=1, xT=0.7, allow_choked=True,
                          allow_laminar=True, full_output=False):
-    r'''Calculates flow coefficient of a control valve passing a gas
+    r"""Calculates flow coefficient of a control valve passing a gas
     according to IEC 60534. Uses a large number of inputs in SI units. Note the
     return value is not standard SI. All parameters are required. For details
     of the calculations, consult [1]_. Note the inlet gas flow conditions.
@@ -862,7 +862,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
     References
     ----------
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
-    '''
+    """
     MAX_C_POSSIBLE = 1E40 # Quit iterations if C reaches this high
     # Pa to kPa, according to constants in standard
     P1, P2 = P1*1e-3, P2*1e-3
@@ -1111,7 +1111,7 @@ A_weights_l_2015 = [-63.4, -56.7, -50.5, -44.7, -39.4, -34.6, -30.2, -26.2,
 def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
                                t_pipe, rho_pipe=7800.0, c_pipe=5000.0,
                                rho_air=1.2, c_air=343.0, xFz=None, An=-4.6):
-    r'''Calculates the sound made by a liquid flowing through a control valve
+    r"""Calculates the sound made by a liquid flowing through a control valve
     according to the standard IEC 60534-8-4 (2015) [1]_.
 
     Parameters
@@ -1197,7 +1197,7 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     .. [1] IEC 60534-8-4 : Industrial-Process Control Valves - Part 8-4: Noise
        Considerations - Prediction of Noise Generated by Hydrodynamic Flow.
        (2015)
-    '''
+    """
     # Convert Kv to Cv as C
     N34 = 1.17 # for Cv - conversion constant but not to many decimals
     N14 = 0.0046
@@ -1302,7 +1302,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
                                rho_pipe=7800.0, c_pipe=5000.0,
                                P_air=101325.0, rho_air=1.2, c_air=343.0,
                                An=-3.8, Stp=0.2, T2=None, beta=0.93):
-    r'''Calculates the sound made by a gas flowing through a control valve
+    r"""Calculates the sound made by a gas flowing through a control valve
     according to the standard IEC 60534-8-3 (2011) [1]_.
 
     Parameters
@@ -1392,12 +1392,12 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     ----------
     .. [1] IEC 60534-8-3 : Industrial-Process Control Valves - Part 8-3: Noise
        Considerations - Control Valve Aerodynamic Noise Prediction Method."
-    '''
+    """
     k = gamma # alias
     C = Kv_to_Cv(Kv)
     N14 = 4.6E-3
-    N16 = 4.89E4
-    fs = 1.0 # structural loss factor reference frequency, Hz
+    # N16 = 4.89E4
+    # fs = 1.0 # structural loss factor reference frequency, Hz
     P_air_std = 101325.0
     if T2 is None:
         T2 = T1
@@ -1407,7 +1407,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     # FLP/FP when fittings attached
     FL_term = FLP/FP if FP is not None else FL
 
-    P_vc = P1*(1.0 - x/FL_term**2)
+    # P_vc = P1*(1.0 - x/FL_term**2)
 
     x_vcc = 1.0 - (2.0/(k + 1.0))**(k/(k - 1.0)) # mostly matches
     xc = FL_term**2*x_vcc
@@ -1443,11 +1443,11 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
 #        pass
 
     if regime == 1:
-        Tvc = T1*(1.0 - x/(FL_term)**2)**((k - 1.0)/k)
+        # Tvc = T1*(1.0 - x/(FL_term)**2)**((k - 1.0)/k)
         cvc = sqrt(k*P1/rho*(1 - x/(FL_term)**2)**((k-1.0)/k))
         Wm = 0.5*m*(Mvc*cvc)**2
     else:
-        Tvcc = 2.0*T1/(k + 1.0)
+        # Tvcc = 2.0*T1/(k + 1.0)
         cvcc = sqrt(2.0*k*P1/(k+1.0)/rho)
         Wm = 0.5*m*cvcc*cvcc
 #     print('Wm', Wm)
@@ -1481,7 +1481,7 @@ def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
     # Speed of sound
     c2 = sqrt(k*R*T2/(MW/1000.))
 
-    Mo = 4.0*m/(pi*d*d*rho2*c2)
+    # Mo = 4.0*m/(pi*d*d*rho2*c2)
 
     M2 = 4.0*m/(pi*Di*Di*rho2*c2)
 #     print('M2', M2)

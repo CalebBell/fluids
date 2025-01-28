@@ -163,7 +163,7 @@ __all__ = ['TANK', 'HelicalCoil', 'PlateExchanger', 'RectangularFinExchanger',
 
 
 def SA_partial_sphere(D, h):
-    r'''Calculates surface area of a partial sphere according to [1]_.
+    r"""Calculates surface area of a partial sphere according to [1]_.
     If h is half of D, the shape is half a sphere. No bottom is considered in
     this function. Valid inputs are positive values of D and h, with h always
     smaller or equal to D.
@@ -195,7 +195,7 @@ def SA_partial_sphere(D, h):
     ----------
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
        http://mathworld.wolfram.com/SphericalCap.html.
-    '''
+    """
     if h > D:
         h = D
     elif h < 0.0:
@@ -206,7 +206,7 @@ def SA_partial_sphere(D, h):
 
 
 def V_partial_sphere(D, h):
-    r'''Calculates volume of a partial sphere according to [1]_.
+    r"""Calculates volume of a partial sphere according to [1]_.
     If h is half of D, the shape is half a sphere. No bottom is considered in
     this function. Valid inputs are positive values of D and h, with h always
     smaller or equal to D.
@@ -238,7 +238,7 @@ def V_partial_sphere(D, h):
     ----------
     .. [1] Weisstein, Eric W. "Spherical Cap." Text. Accessed December 22, 2015.
        http://mathworld.wolfram.com/SphericalCap.html.
-    '''
+    """
     if h <= 0.0:
         return 0.0
     if h > D:
@@ -251,7 +251,7 @@ def V_partial_sphere(D, h):
 ### Functions as developed by Dan Jones
 
 def V_horiz_conical(D, L, a, h, headonly=False):
-    r'''Calculates volume of a tank with conical ends, according to [1]_.
+    r"""Calculates volume of a tank with conical ends, according to [1]_.
 
     .. math::
         V_f = A_fL + \frac{2aR^2}{3}K, \;\;0 \le h < R\\
@@ -300,7 +300,7 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
-    '''
+    """
     if h <= 0.0:
         return 0.0
     elif h > D:
@@ -327,7 +327,7 @@ def V_horiz_conical(D, L, a, h, headonly=False):
 
 
 def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
-    r'''Calculates volume of a tank with ellipsoidal ends, according to [1]_.
+    r"""Calculates volume of a tank with ellipsoidal ends, according to [1]_.
 
     .. math::
         V_f = A_fL + \pi a h^2\left(1 - \frac{h}{3R}\right)
@@ -364,7 +364,7 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
-    '''
+    """
     if h <= 0.0:
         return 0.0
     elif h > D:
@@ -380,7 +380,7 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
 
 
 def V_horiz_guppy(D, L, a, h, headonly=False):
-    r'''Calculates volume of a tank with guppy heads, according to [1]_.
+    r"""Calculates volume of a tank with guppy heads, according to [1]_.
 
     .. math::
         V_f = A_fL + \frac{2aR^2}{3}\cos^{-1}\left(1 - \frac{h}{R}\right)
@@ -418,7 +418,7 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
-    '''
+    """
     if h <= 0.0:
         return 0.0
     elif h > D:
@@ -439,7 +439,7 @@ def _V_horiz_spherical_toint(x, r2, R2, den_inv):
 
 
 def V_horiz_spherical(D, L, a, h, headonly=False):
-    r'''Calculates volume of a tank with spherical heads, according to [1]_.
+    r"""Calculates volume of a tank with spherical heads, according to [1]_.
 
     .. math::
         V_f = A_fL + \frac{\pi a}{6}(3R^2 + a^2),\;\; h = R, |a|\le R
@@ -508,7 +508,7 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
-    '''
+    """
     if h <= 0.0:
         return 0.0
     elif h > D:
@@ -571,7 +571,7 @@ def V_horiz_torispherical_toint_3(x, r2, g2, z_inv):
     return (r2 - x2)*atan(sqrt(g2 - x2)*z_inv)
 
 def V_horiz_torispherical(D, L, f, k, h, headonly=False):
-    r'''Calculates volume of a tank with torispherical heads, according to [1]_.
+    r"""Calculates volume of a tank with torispherical heads, according to [1]_.
 
     .. math::
         V_f  = A_fL + 2V_1, \;\; 0 \le h \le h_1\\
@@ -661,7 +661,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
-    '''
+    """
     # print((D, L, f, k, h, headonly))
     if h <= 0.0:
         return 0.0
@@ -727,7 +727,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
 ### Begin vertical tanks
 
 def V_vertical_conical(D, a, h):
-    r'''Calculates volume of a vertical tank with a convex conical bottom,
+    r"""Calculates volume of a vertical tank with a convex conical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
     .. math::
@@ -761,7 +761,7 @@ def V_vertical_conical(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
-    '''
+    """
     if h <= 0.0:
         return 0.0
     # vertical tanks can have `h` arbitrarily high unlike horizontal tanks
@@ -774,7 +774,7 @@ def V_vertical_conical(D, a, h):
 
 
 def V_vertical_ellipsoidal(D, a, h):
-    r'''Calculates volume of a vertical tank with a convex ellipsoidal bottom,
+    r"""Calculates volume of a vertical tank with a convex ellipsoidal bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
     .. math::
@@ -808,7 +808,7 @@ def V_vertical_ellipsoidal(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
-    '''
+    """
     if h <= 0.0:
         return 0.0
     if h < a:
@@ -820,7 +820,7 @@ def V_vertical_ellipsoidal(D, a, h):
 
 
 def V_vertical_spherical(D, a, h):
-    r'''Calculates volume of a vertical tank with a convex spherical bottom,
+    r"""Calculates volume of a vertical tank with a convex spherical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
     .. math::
@@ -854,7 +854,7 @@ def V_vertical_spherical(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
-    '''
+    """
     if h <= 0.0:
         return 0.0
     if h < a:
@@ -865,7 +865,7 @@ def V_vertical_spherical(D, a, h):
 
 
 def V_vertical_torispherical(D, f, k, h):
-    r'''Calculates volume of a vertical tank with a convex torispherical bottom,
+    r"""Calculates volume of a vertical tank with a convex torispherical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
     .. math::
@@ -939,7 +939,7 @@ def V_vertical_torispherical(D, f, k, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
-    '''
+    """
     if h <= 0.0:
         return 0.0
     if f is None or k is None:
@@ -976,7 +976,7 @@ def V_vertical_torispherical(D, f, k, h):
 ### Begin vertical tanks with concave heads
 
 def V_vertical_conical_concave(D, a, h):
-    r'''Calculates volume of a vertical tank with a concave conical bottom,
+    r"""Calculates volume of a vertical tank with a concave conical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
     .. math::
@@ -1012,7 +1012,7 @@ def V_vertical_conical_concave(D, a, h):
     .. [1] Jones, D. "Compute Fluid Volumes in Vertical Tanks." Chemical
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
-    '''
+    """
     if h <= 0.0:
         return 0.0
     if h < abs(a):
@@ -1024,7 +1024,7 @@ def V_vertical_conical_concave(D, a, h):
 
 
 def V_vertical_ellipsoidal_concave(D, a, h):
-    r'''Calculates volume of a vertical tank with a concave ellipsoidal bottom,
+    r"""Calculates volume of a vertical tank with a concave ellipsoidal bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
     .. math::
@@ -1060,7 +1060,7 @@ def V_vertical_ellipsoidal_concave(D, a, h):
     .. [1] Jones, D. "Compute Fluid Volumes in Vertical Tanks." Chemical
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
-    '''
+    """
     if h <= 0.0:
         return 0.0
     if h < abs(a):
@@ -1072,7 +1072,7 @@ def V_vertical_ellipsoidal_concave(D, a, h):
 
 
 def V_vertical_spherical_concave(D, a, h):
-    r'''Calculates volume of a vertical tank with a concave spherical bottom,
+    r"""Calculates volume of a vertical tank with a concave spherical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
     .. math::
@@ -1109,7 +1109,7 @@ def V_vertical_spherical_concave(D, a, h):
     .. [1] Jones, D. "Compute Fluid Volumes in Vertical Tanks." Chemical
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
-    '''
+    """
     if h <= 0.0:
         return 0.0
     D2 = D*D
@@ -1123,7 +1123,7 @@ def V_vertical_spherical_concave(D, a, h):
 
 
 def V_vertical_torispherical_concave(D, f, k, h):
-    r'''Calculates volume of a vertical tank with a concave torispherical bottom,
+    r"""Calculates volume of a vertical tank with a concave torispherical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
     .. math::
@@ -1198,7 +1198,7 @@ def V_vertical_torispherical_concave(D, f, k, h):
     .. [1] Jones, D. "Compute Fluid Volumes in Vertical Tanks." Chemical
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
-    '''
+    """
     if h <= 0.0:
         return 0.0
     alpha = asin((1.0-2.0*k)/(2.*(f-k)))
@@ -1233,7 +1233,7 @@ def V_vertical_torispherical_concave(D, f, k, h):
 ### Total surface area of heads, orientation-independent
 
 def SA_ellipsoidal_head(D, a):
-    r'''Calculates the surface area of an ellipsoidal head according to [1]_ and [2]_.
+    r"""Calculates the surface area of an ellipsoidal head according to [1]_ and [2]_.
     The formula below is for the full shape, the result of which is halved. The
     formula is for :math:`a < R`. In the equations, `a` is the same and `c` is `D`.
 
@@ -1277,7 +1277,7 @@ def SA_ellipsoidal_head(D, a):
        http://mathworld.wolfram.com/Spheroid.html.
     .. [2] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
-    '''
+    """
     if D == a*2.0:
         return 0.5*pi*D*D # necessary to avoid a division by zero when D == a
     R = 0.5*D
@@ -1298,7 +1298,7 @@ def SA_ellipsoidal_head(D, a):
 
 
 def SA_conical_head(D, a):
-    r'''Calculates the surface area of a conical head according to [1]_.
+    r"""Calculates the surface area of a conical head according to [1]_.
 
     .. math::
         SA = \frac{\pi D}{2} \sqrt{a^2 + \left(\frac{D}{2}\right)^2}
@@ -1324,12 +1324,12 @@ def SA_conical_head(D, a):
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Cone.html.
-    '''
+    """
     return 0.5*pi*D*sqrt(a*a + 0.25*D*D)
 
 
 def SA_guppy_head(D, a):
-    r'''Calculates the surface area of a guppy head according to [1]_.
+    r"""Calculates the surface area of a guppy head according to [1]_.
     Some work was involved in combining formulas for the ellipse of the head,
     and the conic section on the sides.
 
@@ -1357,12 +1357,12 @@ def SA_guppy_head(D, a):
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Cone.html.
-    '''
+    """
     return 0.25*pi*D*sqrt(a*a + D*D) + 0.5*pi*D*a
 
 
 def SA_torispheroidal(D, f, k):
-    r'''Calculates surface area of a torispherical head according to [1]_.
+    r"""Calculates surface area of a torispherical head according to [1]_.
     Somewhat involved. Equations are adapted to be used for a full head.
 
     .. math::
@@ -1416,7 +1416,7 @@ def SA_torispheroidal(D, f, k):
     .. [1] Honeywell. "Calculate Surface Areas and Cross-sectional Areas in
        Vessels with Dished Heads". https://www.honeywellprocess.com/library/marketing/whitepapers/WP-VesselsWithDishedHeads-UniSimDesign.pdf
        Whitepaper. 2014.
-    '''
+    """
     D2 = D*D
     x1 = 2.0*pi*D2
     k_inv = 1.0/k
@@ -1433,7 +1433,7 @@ def SA_torispheroidal(D, f, k):
 
 def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
             sideB_a=0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
-    r'''Calculates the surface are of a cylindrical tank with optional heads.
+    r"""Calculates the surface are of a cylindrical tank with optional heads.
     In the degenerate case of being provided with only `D` and `L`, provides
     the surface area of a cylinder.
 
@@ -1490,7 +1490,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     >>> SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',
     ... sideB_a=0.5)[0]
     18.8495559215
-    '''
+    """
     # Side A
     if sideA == 'conical':
         sideA_SA = SA_conical_head(D=D, a=sideA_a)
@@ -1535,7 +1535,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
 
 def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
            sideB_a=0.0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
-    r'''Calculates the total volume of a vertical or horizontal tank with
+    r"""Calculates the total volume of a vertical or horizontal tank with
     different head types.
 
     Parameters
@@ -1591,7 +1591,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
     >>> V_tank(D=1.5, L=5., horizontal=False, sideA='conical',
     ... sideB='conical', sideA_a=2., sideB_a=1.)
     (10.602875205865551, 1.1780972450961726, 0.5890486225480863, 8.835729338221293)
-    '''
+    """
     if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise ValueError('Unspoorted head type for side A')
     if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
@@ -1682,7 +1682,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
 
 
 def SA_partial_cylindrical_body(L, D, h):
-    r'''Calculates the partial area of a cylinder's body in the context of
+    r"""Calculates the partial area of a cylinder's body in the context of
     a horizontal cylindrical vessel and liquid partially
     filling it. This computes the wetted surface area of the bottom of the
     cylinder.
@@ -1719,7 +1719,7 @@ def SA_partial_cylindrical_body(L, D, h):
     ----------
     .. [1] Weisstein, Eric W. "Circular Segment." Text. Wolfram Research, Inc.
        Accessed May 10, 2020. https://mathworld.wolfram.com/CircularSegment.html.
-    '''
+    """
     if h < 0.0:
         return 0.0
     elif h > D:
@@ -1729,7 +1729,7 @@ def SA_partial_cylindrical_body(L, D, h):
 
 
 def A_partial_circle(D, h):
-    r'''Calculates the partial area of a circle, in the context of the circle
+    r"""Calculates the partial area of a circle, in the context of the circle
     being an end cap to a horizontal cylindrical vessel and liquid partially
     filling it. This computes the wetted surface area of one of the end caps.
 
@@ -1765,7 +1765,7 @@ def A_partial_circle(D, h):
     ----------
     .. [1] Weisstein, Eric W. "Circular Segment." Text. Wolfram Research, Inc.
        Accessed May 10, 2020. https://mathworld.wolfram.com/CircularSegment.html.
-    '''
+    """
     if h > D:
         h = D # Catch the case of a computed `h` being trivially larger than `D` due to floating point
     elif h < 0.0:
@@ -1789,7 +1789,7 @@ def circle_segment_area_inner(h, R, A_expect):
 
 
 def circle_segment_h_from_A(A, D):
-    r'''Calculates the height of a chord of a circle given the area of that
+    r"""Calculates the height of a chord of a circle given the area of that
     circle segment. This is a numerical problem, solving the
     following equation for `h`.
 
@@ -1821,7 +1821,7 @@ def circle_segment_h_from_A(A, D):
     ----------
     .. [1] Weisstein, Eric W. "Circular Segment." Text. Wolfram Research, Inc.
        Accessed May 10, 2020. https://mathworld.wolfram.com/CircularSegment.html.
-    '''
+    """
     if A == 0.0:
         return 0.0
     R = 0.5*D
@@ -1830,7 +1830,7 @@ def circle_segment_h_from_A(A, D):
 
 
 def SA_partial_horiz_conical_head(D, a, h):
-    r'''Calculates the partial area of a conical tank head in the context of
+    r"""Calculates the partial area of a conical tank head in the context of
     a horizontal vessel and liquid partially
     filling it. This computes the wetted surface area of one of the conical
     heads only.
@@ -1868,7 +1868,7 @@ def SA_partial_horiz_conical_head(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
-    '''
+    """
     if h > D:
         h = D
     elif h < 0:
@@ -1889,7 +1889,7 @@ def _SA_partial_horiz_spherical_head_to_int(x, R2, a4, c1, c2):
     return asin(num)
 
 def SA_partial_horiz_spherical_head(D, a, h):
-    r'''Calculates the partial area of a spherical tank head in the context of
+    r"""Calculates the partial area of a spherical tank head in the context of
     a horizontal vessel and liquid partially
     filling it. This computes the wetted surface area of one of the spherical
     heads only.
@@ -1934,7 +1934,7 @@ def SA_partial_horiz_spherical_head(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
-    '''
+    """
     R = 0.5*D
     if a == R:
         return pi*R*h
@@ -1980,7 +1980,7 @@ def _SA_partial_horiz_ellipsoidal_head_to_int(y, c1, R2, R4):
     return ans
 
 def SA_partial_horiz_ellipsoidal_head(D, a, h):
-    r'''Calculates the partial area of a ellipsoidal tank head in the context of
+    r"""Calculates the partial area of a ellipsoidal tank head in the context of
     a horizontal vessel and liquid partially
     filling it. This computes the wetted surface area of one of the ellipsoidal
     heads only.
@@ -2038,7 +2038,7 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
-    '''
+    """
     R = 0.5*D
     if h < 0.0:
         return 0.0
@@ -2089,7 +2089,7 @@ def _SA_partial_horiz_guppy_head_to_int(x, a, R):
 
 
 def SA_partial_horiz_guppy_head(D, a, h):
-    r'''Calculates the partial area of a guppy tank head in the context of
+    r"""Calculates the partial area of a guppy tank head in the context of
     a horizontal vessel and liquid partially
     filling it. This computes the wetted surface area of one of the guppy
     heads only.
@@ -2169,7 +2169,7 @@ def SA_partial_horiz_guppy_head(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
-    '''
+    """
     R = 0.5*D
     if a == R:
         return pi*R*h
@@ -2270,7 +2270,7 @@ def _SA_partial_horiz_torispherical_head_int_3(y, x, s, t2):
     return f
 
 def SA_partial_horiz_torispherical_head(D, f, k, h):
-    r'''Calculates the partial area of a torispherical tank head in the context of
+    r"""Calculates the partial area of a torispherical tank head in the context of
     a horizontal vessel and liquid partially
     filling it. This computes the wetted surface area of one of the torispherical
     heads only.
@@ -2357,7 +2357,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
-    '''
+    """
     if h <= 0.0:
         return 0.0
     elif h > D:
@@ -2418,7 +2418,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
 
 
 def SA_partial_vertical_conical_head(D, a, h):
-    r'''Calculates the partial area of a conical tank head in the context of
+    r"""Calculates the partial area of a conical tank head in the context of
     a vertical vessel and liquid partially
     filling it. This computes the wetted surface area of one of the conical
     heads only, and is valid for `h` up to `a` only.
@@ -2456,7 +2456,7 @@ def SA_partial_vertical_conical_head(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
-    '''
+    """
     if a == 0.0:
         return 0.25*pi*D*D
     elif h <= 0.0:
@@ -2469,7 +2469,7 @@ def SA_partial_vertical_conical_head(D, a, h):
 
 
 def SA_partial_vertical_ellipsoidal_head(D, a, h):
-    r'''Calculates the partial area of a ellipsoidal tank head in the context of
+    r"""Calculates the partial area of a ellipsoidal tank head in the context of
     a vertical vessel and liquid partially
     filling it. This computes the wetted surface area of one of the ellipsoidal
     heads only, and is valid for `h` up to `a` only.
@@ -2521,7 +2521,7 @@ def SA_partial_vertical_ellipsoidal_head(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
-    '''
+    """
     if a == 0.0:
         return 0.25*pi*D*D
     elif h <= 0.0:
@@ -2549,7 +2549,7 @@ def SA_partial_vertical_ellipsoidal_head(D, a, h):
     return SA
 
 def SA_partial_vertical_spherical_head(D, a, h):
-    r'''Calculates the partial area of a spherical tank head in the context of
+    r"""Calculates the partial area of a spherical tank head in the context of
     a vertical vessel and liquid partially
     filling it. This computes the wetted surface area of one of the conical
     heads only, and is valid for `h` up to `a` only.
@@ -2587,7 +2587,7 @@ def SA_partial_vertical_spherical_head(D, a, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
-    '''
+    """
     if a == 0.0:
         return 0.25*pi*D*D
     elif h <= 0.0:
@@ -2600,7 +2600,7 @@ def SA_partial_vertical_spherical_head(D, a, h):
 
 
 def SA_partial_vertical_torispherical_head(D, f, k, h):
-    r'''Calculates the partial area of a torispherical tank head in the context of
+    r"""Calculates the partial area of a torispherical tank head in the context of
     a vertical vessel and liquid partially
     filling it. This computes the wetted surface area of one of the torispherical
     heads only.
@@ -2662,7 +2662,7 @@ def SA_partial_vertical_torispherical_head(D, f, k, h):
     ----------
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
-    '''
+    """
     if h <= 0.0:
         return 0.0
     R = 0.5*D
@@ -2686,7 +2686,7 @@ def SA_partial_vertical_torispherical_head(D, f, k, h):
 
 
 def a_torispherical(D, f, k):
-    r'''Calculates depth of a torispherical head according to [1]_.
+    r"""Calculates depth of a torispherical head according to [1]_.
 
     .. math::
         a = a_1 + a_2
@@ -2729,7 +2729,7 @@ def a_torispherical(D, f, k):
     ----------
     .. [1] Jones, D. "Calculating Tank Volume." Text. Accessed December 22, 2015.
        http://www.webcalc.com.br/blog/Tank_Volume.PDF
-    '''
+    """
     alpha = asin((1.0-2.0*k)/(2.0*(f-k)))
     cos_alpha = cos(alpha)
     a1 = f*D*(1 - cos_alpha)
@@ -2739,7 +2739,7 @@ def a_torispherical(D, f, k):
 
 def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
              sideB_a=0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
-    r'''Calculates partially full volume of a vertical or horizontal tank with
+    r"""Calculates partially full volume of a vertical or horizontal tank with
     different head types according to [1]_.
 
     If the height specified is above the height of the tank, it is truncated
@@ -2800,7 +2800,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     .. [1] Jones, D. "Compute Fluid Volumes in Vertical Tanks." Chemical
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
-    '''
+    """
     if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise ValueError('Unspoorted head type for side A')
     if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
@@ -2893,7 +2893,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
 
 def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
              sideB_a=0.0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
-    r'''Calculates partially full wetted surface area of a vertical or horizontal tank with
+    r"""Calculates partially full wetted surface area of a vertical or horizontal tank with
     different head types according to [1]_.
 
     Parameters
@@ -2951,7 +2951,7 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
        http://www.chemicalprocessing.com/articles/2003/193/
-    '''
+    """
     if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
         raise ValueError('Unspoorted head type for side A')
     if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
@@ -3450,7 +3450,7 @@ class TANK:
                        sideA=None, sideB=None, sideA_a=None, sideB_a=None,
                        sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
                        sideA_a_ratio=None, sideB_a_ratio=None):
-        r'''Method to create a new tank instance according to two
+        r"""Method to create a new tank instance according to two
         specifications which are not direct geometry parameters.
 
         The allowable options are 'V', 'SA', 'V_partial', 'SA_partial',
@@ -3512,7 +3512,7 @@ class TANK:
         -----
         Limited testing has been done on this method. The bounds are D between
         0.1 mm and 10 km, with L_D ratios of 1e-4 to 1e4.
-        '''
+        """
         args = (spec0, spec1, spec0_name, spec1_name,
                 h, horizontal, sideA, sideB, sideA_a, sideB_a,
                 sideA_f, sideA_k, sideB_f, sideB_k,
@@ -3535,7 +3535,7 @@ class TANK:
 
     def add_thickness(self, thickness, sideA_thickness=None,
                       sideB_thickness=None):
-        r'''Method to create a new tank instance with the same parameters as
+        r"""Method to create a new tank instance with the same parameters as
         itself, except with an added thickness to it. This is useful to obtain
         ex. the inside of a tank and the outside; their different in volumes is
         the volume of the shell, and could be used to determine weight.
@@ -3562,7 +3562,7 @@ class TANK:
         lengths, or the head will become concave! The same applies to adding
         a thickness to convex heads - they can become convex.
 
-        '''
+        """
         kwargs = dict(D=self.D, L=self.L, horizontal=self.horizontal,
                  sideA=self.sideA, sideB=self.sideB, sideA_a=self.sideA_a,
                  sideB_a=self.sideB_a, sideA_f=self.sideA_f,
@@ -3592,7 +3592,7 @@ class TANK:
         return TANK(**kwargs)
 
     def SA_from_h(self, h, method='full'):
-        r'''Method to calculate the volume of liquid in a fully defined tank
+        r"""Method to calculate the volume of liquid in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
 
         Parameters
@@ -3609,7 +3609,7 @@ class TANK:
 
         Notes
         -----
-        '''
+        """
         if method == 'full':
             return SA_from_h(h, self.D, self.L, self.horizontal, self.sideA,
                             self.sideB, self.sideA_a, self.sideB_a,
@@ -3619,7 +3619,7 @@ class TANK:
             raise ValueError("Allowable methods are 'full' .")
 
     def V_from_h(self, h, method='full'):
-        r'''Method to calculate the volume of liquid in a fully defined tank
+        r"""Method to calculate the volume of liquid in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
         If the method is 'chebyshev', and the coefficients have not yet been
         calculated, they are created by calling `set_chebyshev_approximators`.
@@ -3638,7 +3638,7 @@ class TANK:
 
         Notes
         -----
-        '''
+        """
         if method == 'full':
             return V_from_h(h, self.D, self.L, self.horizontal, self.sideA,
                             self.sideB, self.sideA_a, self.sideB_a,
@@ -3652,7 +3652,7 @@ class TANK:
             raise ValueError("Allowable methods are 'full' or 'chebyshev'.")
 
     def h_from_V(self, V, method='spline'):
-        r'''Method to calculate the height of liquid in a fully defined tank
+        r"""Method to calculate the height of liquid in a fully defined tank
         given a specified volume of liquid in it `V`. `V` must be under the
         maximum volume. If the method is 'spline', and the interpolation table
         is not yet defined, creates it by calling the method set_table. If the
@@ -3670,7 +3670,7 @@ class TANK:
         -------
         h : float
             Height of liquid at which the volume is as desired, [m]
-        '''
+        """
         if method == 'spline':
             try:
                 if not self.table:
@@ -3691,7 +3691,7 @@ class TANK:
                             "or 'brenth'.")
 
     def A_cross_sectional(self, h, method='full'):
-        r'''Method to calculate the cross-sectional liquid surface area
+        r"""Method to calculate the cross-sectional liquid surface area
         from which gas can evolve in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
         This is calculated by numeric differentiation for most cases.
@@ -3710,7 +3710,7 @@ class TANK:
 
         Notes
         -----
-        '''
+        """
         # The derivative will give bad values in some cases, when right up against boundaries
         # Analytical formulations can be done, but will be lots of code
         if h in (self.h_max, 0.0):
@@ -3718,7 +3718,7 @@ class TANK:
         return derivative(lambda h: self.V_from_h(h), h, dx=1e-7*h, order=3, n=1)
 
     def set_table(self, n=100, dx=None):
-        r'''Method to set an interpolation table of liquids levels versus
+        r"""Method to set an interpolation table of liquids levels versus
         volumes in the tank, for a fully defined tank. Normally run by the
         h_from_V method, this may be run prior to its use with a custom
         specification. Either the number of points on the table, or the
@@ -3730,7 +3730,7 @@ class TANK:
             Number of points in the interpolation table, [-]
         dx : float, optional
             Vertical distance between steps in the interpolation table, [m]
-        '''
+        """
         if dx:
             self.heights = linspace(0.0, self.h_max, int(self.h_max/dx)+1)
         else:
@@ -3742,7 +3742,7 @@ class TANK:
         self.table = True
 
     def set_chebyshev_approximators(self, deg_forward=50, deg_backwards=200):
-        r'''Method to derive and set coefficients for chebyshev polynomial
+        r"""Method to derive and set coefficients for chebyshev polynomial
         function approximation of the height-volume and volume-height
         relationship.
 
@@ -3764,7 +3764,7 @@ class TANK:
         deg_backwards : int, optional
             The degree of the chebyshev polynomial to be created for the
             `h_from_V` curve, [-]
-        '''
+        """
         import numpy as np
 
         from fluids.optional.pychebfun import Chebfun
@@ -3849,7 +3849,7 @@ class TANK:
 
 
 class HelicalCoil:
-    r'''Class representing a helical coiled tube, as are found in many heated
+    r"""Class representing a helical coiled tube, as are found in many heated
     tanks and some small nuclear reactors. All parameters are also attributes.
 
     One set of the following parameters is required; inner tube diameter is
@@ -3949,7 +3949,7 @@ class HelicalCoil:
        Correlations for Convection Heat Transfer and Pressure Losses in
        Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
-    '''
+    """
 
     def __repr__(self): # pragma : no cover
         s = f'<Helical coil, total height={self.H_total} m, total outer diameter={self.Do_total} m, tube \
@@ -4013,7 +4013,7 @@ outer diameter={self.Dt} m, number of turns={self.N}, pitch={self.pitch} m'
 
 
 def plate_enlargement_factor(amplitude, wavelength):
-    r'''Calculates the enhancement factor of the sinusoidal waves of the
+    r"""Calculates the enhancement factor of the sinusoidal waves of the
     plate heat exchanger. This is the multiplier for the flat plate area
     to obtain the actual area available for heat transfer. Obtained from
     the following integral:
@@ -4067,12 +4067,12 @@ def plate_enlargement_factor(amplitude, wavelength):
     --------
     >>> plate_enlargement_factor(amplitude=5E-4, wavelength=3.7E-3)
     1.1611862034509677
-    '''
+    """
     b = 2.*amplitude
     return 2.*float(ellipe(-b*b*pi*pi/(wavelength*wavelength)))/pi
 
 class PlateExchanger:
-    r'''Class representing a plate heat exchanger with sinusoidal ridges.
+    r"""Class representing a plate heat exchanger with sinusoidal ridges.
     All parameters are also attributes.
 
     Parameters
@@ -4156,7 +4156,7 @@ class PlateExchanger:
        "Flow Boiling and Frictional Pressure Gradients in Plate Heat Exchangers.
        Part 1: Review and Experimental Database." International Journal of
        Refrigeration 61 (January 2016): 166-84. doi:10.1016/j.ijrefrig.2015.07.010.
-    '''
+    """
 
     def __repr__(self):  # pragma : no cover
         s = '<Plate heat exchanger, amplitude={:g} m, wavelength={:g} m, \
@@ -4234,7 +4234,7 @@ chevron_angles={} degrees, area enhancement factor={:g}'.format(self.a, self.wav
 
 
 class RectangularFinExchanger:
-    r'''Class representing a plate-fin heat exchanger with straight rectangular
+    r"""Class representing a plate-fin heat exchanger with straight rectangular
     fins. All parameters are also attributes.
 
     Parameters
@@ -4328,7 +4328,7 @@ class RectangularFinExchanger:
        Characteristics of Compact Plate-Fin Heat Exchangers-A Review."
        Renewable and Sustainable Energy Reviews 14, no. 1 (January 2010):
        478-85. doi:10.1016/j.rser.2009.06.033.
-    '''
+    """
 
     def __init__(self, fin_height, fin_thickness, fin_spacing, length=None, width=None, layers=None, plate_thickness=None, flow='crossflow'):
         self.h = self.fin_height = fin_height # including 2x thickness
@@ -4411,7 +4411,7 @@ class RectangularOffsetStripFinExchanger(RectangularFinExchanger):
 
 
 class HyperbolicCoolingTower:
-    r'''Class representing the geometry of a hyperbolic cooling tower, as used
+    r"""Class representing the geometry of a hyperbolic cooling tower, as used
     in many industries especially the poewr industry.  All parameters are also
     attributes.
 
@@ -4499,7 +4499,7 @@ class HyperbolicCoolingTower:
        Second Edition. Boca Raton, Fla: CRC Press, 2005.
     .. [2] Ansary, A. M. El, A. A. El Damatty, and A. O. Nassef. Optimum Shape
        and Design of Cooling Towers, 2011.
-    '''
+    """
 
     def __repr__(self):  # pragma : no cover
         s = """<Hyperbolic cooling tower, inlet diameter=%g m, outlet diameter=%g m, inlet height=%g m, \
@@ -4559,7 +4559,7 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
         plt.show()
 
     def diameter(self, H):
-        r'''Calculates cooling tower diameter at a specified height, using
+        r"""Calculates cooling tower diameter at a specified height, using
         the formulas for either hyperbola, depending on the height specified.
 
         .. math::
@@ -4579,7 +4579,7 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
         -------
         D : float
             Diameter of the cooling tower at the specified height, [m]
-        '''
+        """
         # Compute the diameter at H
         if H <= self.H_throat:
             # Height relative to throat height
@@ -4592,7 +4592,7 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
         return R*2.0
 
 class AirCooledExchanger:
-    r'''Class representing the geometry of an air cooled heat exchanger with
+    r"""Class representing the geometry of an air cooled heat exchanger with
     one or more tube bays, fans, or bundles.
     All parameters are also attributes.
 
@@ -4830,7 +4830,7 @@ class AirCooledExchanger:
     .. [1] Schlunder, Ernst U, and International Center for Heat and Mass
        Transfer. Heat Exchanger Design Handbook. Washington:
        Hemisphere Pub. Corp., 1983.
-    '''
+    """
 
     def __repr__(self):
         attributes = ', '.join(f"{slot}={getattr(self, slot)!r}" for slot in self.model_inputs)
@@ -5018,7 +5018,7 @@ class AirCooledExchanger:
 
 def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
                        pitch_normal=None):
-    r'''Utility to take any two of `angle`, `pitch`, `pitch_parallel`, and
+    r"""Utility to take any two of `angle`, `pitch`, `pitch_parallel`, and
     `pitch_normal` and calculate the other two. This is useful for applications
     with tube banks, as in shell and tube heat exchangers or air coolers and
     allows for a wider range of user input.
@@ -5078,7 +5078,7 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
     .. [1] Schlunder, Ernst U, and International Center for Heat and Mass
        Transfer. Heat Exchanger Design Handbook. Washington:
        Hemisphere Pub. Corp., 1983.
-    '''
+    """
     if angle is not None and pitch is not None:
         pitch_normal = pitch*sin(radians(angle))
         pitch_parallel = pitch*cos(radians(angle))
@@ -5103,7 +5103,7 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
 
 
 def sphericity(A, V):
-    r'''Returns the sphericity of a particle of surface area `A` and volume
+    r"""Returns the sphericity of a particle of surface area `A` and volume
     `V`. Sphericity is the ratio of the surface area of a sphere with the same
     volume as the particle (equivalent diameter) to the actual surface area of
     the particle.
@@ -5146,12 +5146,12 @@ def sphericity(A, V):
        Chichester, England ; Hoboken, NJ: Wiley, 2008.
     .. [2] "Sphericity." Wikipedia, March 8, 2017.
        https://en.wikipedia.org/w/index.php?title=Sphericity&oldid=769183043
-    '''
+    """
     return pi**(1/3.)*(6*V)**(2/3.)/A
 
 
 def aspect_ratio(Dmin, Dmax):
-    r'''Returns the aspect ratio of a shape with minimum and maximum dimension,
+    r"""Returns the aspect ratio of a shape with minimum and maximum dimension,
     `Dmin` and `Dmax`.
 
     .. math::
@@ -5173,12 +5173,12 @@ def aspect_ratio(Dmin, Dmax):
     --------
     >>> aspect_ratio(.2, 2)
     0.1
-    '''
+    """
     return Dmin/Dmax
 
 
 def circularity(A, P):
-    r'''Returns the circularity of a shape with area `A` and perimeter `P`.
+    r"""Returns the circularity of a shape with area `A` and perimeter `P`.
 
     .. math::
         f_{circ} = \frac {4 \pi A} {P^2}
@@ -5213,12 +5213,12 @@ def circularity(A, P):
     >>> P = 2*D1 + 2*D2
     >>> circularity(A, P)
     0.030796908671598795
-    '''
+    """
     return 4*pi*A/P**2
 
 
 def A_cylinder(D, L):
-    r'''Returns the surface area of a cylinder.
+    r"""Returns the surface area of a cylinder.
 
     .. math::
         A = \pi D L + 2\cdot \frac{\pi D^2}{4}
@@ -5239,14 +5239,14 @@ def A_cylinder(D, L):
     --------
     >>> A_cylinder(0.01, .1)
     0.0032986722862692833
-    '''
+    """
     cap = pi*D**2/4*2
     side = pi*D*L
     return cap + side
 
 
 def V_cylinder(D, L):
-    r'''Returns the volume of a cylinder.
+    r"""Returns the volume of a cylinder.
 
     .. math::
         V = \frac{\pi D^2}{4}L
@@ -5267,12 +5267,12 @@ def V_cylinder(D, L):
     --------
     >>> V_cylinder(0.01, .1)
     7.853981633974484e-06
-    '''
+    """
     return pi*D**2/4*L
 
 
 def A_hollow_cylinder(Di, Do, L):
-    r'''Returns the surface area of a hollow cylinder.
+    r"""Returns the surface area of a hollow cylinder.
 
     .. math::
         A = \pi D_o L + \pi D_i L  + 2\cdot \frac{\pi D_o^2}{4}
@@ -5296,7 +5296,7 @@ def A_hollow_cylinder(Di, Do, L):
     --------
     >>> A_hollow_cylinder(0.005, 0.01, 0.1)
     0.004830198704894308
-    '''
+    """
     side_o = pi*Do*L
     side_i = pi*Di*L
     cap_circle = pi*Do**2/4*2
@@ -5305,7 +5305,7 @@ def A_hollow_cylinder(Di, Do, L):
 
 
 def V_hollow_cylinder(Di, Do, L):
-    r'''Returns the volume of a hollow cylinder.
+    r"""Returns the volume of a hollow cylinder.
 
     .. math::
         V = \frac{\pi D_o^2}{4}L - L\frac{\pi D_i^2}{4}
@@ -5328,12 +5328,12 @@ def V_hollow_cylinder(Di, Do, L):
     --------
     >>> V_hollow_cylinder(0.005, 0.01, 0.1)
     5.890486225480862e-06
-    '''
+    """
     return pi*Do**2/4*L - pi*Di**2/4*L
 
 
 def A_multiple_hole_cylinder(Do, L, holes):
-    r'''Returns the surface area of a cylinder with multiple holes.
+    r"""Returns the surface area of a cylinder with multiple holes.
     Calculation will naively return a negative value or other impossible
     result if the number of cylinders added is physically impossible.
     Holes may be of different shapes, but must be perpendicular to the
@@ -5362,7 +5362,7 @@ def A_multiple_hole_cylinder(Do, L, holes):
     --------
     >>> A_multiple_hole_cylinder(0.01, 0.1, [(0.005, 1)])
     0.004830198704894308
-    '''
+    """
     side_o = pi*Do*L
     cap_circle = pi*Do**2/4*2
     A = cap_circle + side_o
@@ -5374,7 +5374,7 @@ def A_multiple_hole_cylinder(Do, L, holes):
 
 
 def V_multiple_hole_cylinder(Do, L, holes):
-    r'''Returns the solid volume of a cylinder with multiple cylindrical holes.
+    r"""Returns the solid volume of a cylinder with multiple cylindrical holes.
     Calculation will naively return a negative value or other impossible
     result if the number of cylinders added is physically impossible.
 
@@ -5400,7 +5400,7 @@ def V_multiple_hole_cylinder(Do, L, holes):
     --------
     >>> V_multiple_hole_cylinder(0.01, 0.1, [(0.005, 1)])
     5.890486225480862e-06
-    '''
+    """
     V = pi*Do**2/4*L
     for Di, n in holes:
         V -= pi*Di*Di/4*L*n

@@ -620,7 +620,7 @@ def NPS_lookup(NPS, NPSes, Dis, Dos, ts):
 
 
 def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
-    r'''Searches for and finds the nearest standard pipe size to a given
+    r"""Searches for and finds the nearest standard pipe size to a given
     specification. Acceptable inputs are:
 
     - Nominal pipe size
@@ -718,7 +718,7 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
        https://doi.org/10.1520/F0441_F0441M-15.
     .. [11] F17 Committee. "Specification for High-Density Polyethylene (PE)
        Line Pipe." ASTM International. https://doi.org/10.1520/F2619_F2619M-20.
-    '''
+    """
     if Di:
         Di *= 1E3
     if Do:
@@ -904,7 +904,7 @@ wire_schedules = {'BWG': (BWG_integers, BWG_inch, BWG_SI, True),
 
 
 def gauge_from_t(t, SI=True, schedule='BWG'):
-    r'''Looks up the gauge of a given wire thickness of given schedule.
+    r"""Looks up the gauge of a given wire thickness of given schedule.
     Values are all non-linear, and tabulated internally.
 
     Parameters
@@ -950,7 +950,7 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
     ----------
     .. [1] Oberg, Erik, Franklin D. Jones, and Henry H. Ryffel. Machinery's
        Handbook. Industrial Press, Incorporated, 2012.
-    '''
+    """
     tol = 0.1
     # Handle units
     if SI:
@@ -992,7 +992,7 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
 
 
 def t_from_gauge(gauge, SI=True, schedule='BWG'):
-    r'''Looks up the thickness of a given wire gauge of given schedule.
+    r"""Looks up the thickness of a given wire gauge of given schedule.
     Values are all non-linear, and tabulated internally.
 
     Parameters
@@ -1032,7 +1032,7 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
     ----------
     .. [1] Oberg, Erik, Franklin D. Jones, and Henry H. Ryffel. Machinery's
        Handbook. Industrial Press, Incorporated, 2012.
-    '''
+    """
     try:
         sch_integers, sch_inch, sch_SI, decreasing = wire_schedules[schedule]
     except:
@@ -1050,7 +1050,7 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
 
 
 def erosional_velocity(rho, C):
-    r'''Calculate the erosional velocity according to the
+    r"""Calculate the erosional velocity according to the
     API RP 14E equation.
 
     .. math::
@@ -1097,7 +1097,7 @@ def erosional_velocity(rho, C):
        Wear of Materials, 426-427 (April 30, 2019): 620-36.
        https://doi.org/10.1016/j.wear.2019.01.119.
 
-    '''
+    """
     rho_lb_ft3 = rho/(lb/foot**3)
     v_ft_s = C/sqrt(rho_lb_ft3)
     v = v_ft_s*foot

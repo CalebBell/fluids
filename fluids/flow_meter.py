@@ -197,7 +197,7 @@ __all__.extend(['CONCENTRIC_ORIFICE', 'ECCENTRIC_ORIFICE',
 
 
 def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='ISO 5167 orifice'):
-    r'''Calculates the flow rate of a differential pressure flow meter based on the 
+    r"""Calculates the flow rate of a differential pressure flow meter based on the 
     geometry of the meter, measured pressures, and the density of the fluid.
 
     .. math::
@@ -258,7 +258,7 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='I
     .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 2: Orifice Plates.
-    '''
+    """
     beta = differential_pressure_meter_beta(D=D, D2=Do, meter_type=meter_type)
     beta2 = beta*beta
     D_beta = D*beta
@@ -266,7 +266,7 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='I
 
 
 def orifice_expansibility(D, Do, P1, P2, k):
-    r'''Calculates the expansibility factor for orifice plate calculations
+    r"""Calculates the expansibility factor for orifice plate calculations
     based on the geometry of the plate, measured pressures of the orifice, and
     the isentropic exponent of the fluid.
 
@@ -316,7 +316,7 @@ def orifice_expansibility(D, Do, P1, P2, k):
     .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 2: Orifice Plates.
-    '''
+    """
     beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
@@ -325,7 +325,7 @@ def orifice_expansibility(D, Do, P1, P2, k):
 
 
 def orifice_expansibility_1989(D, Do, P1, P2, k):
-    r'''Calculates the expansibility factor for orifice plate calculations
+    r"""Calculates the expansibility factor for orifice plate calculations
     based on the geometry of the plate, measured pressures of the orifice, and
     the isentropic exponent of the fluid.
 
@@ -384,7 +384,7 @@ def orifice_expansibility_1989(D, Do, P1, P2, k):
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2005.
     .. [2] Miller, Richard W. Flow Measurement Engineering Handbook. 3rd
        edition. New York: McGraw-Hill Education, 1996.
-    '''
+    """
     beta_ratio_4 = Do/D
     beta_ratio_4 = beta_ratio_4*beta_ratio_4
     beta_ratio_4 = beta_ratio_4*beta_ratio_4
@@ -392,7 +392,7 @@ def orifice_expansibility_1989(D, Do, P1, P2, k):
 
 
 def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
-    r'''Calculates the coefficient of discharge of the orifice based on the
+    r"""Calculates the coefficient of discharge of the orifice based on the
     geometry of the plate, measured pressures of the orifice, mass flow rate
     through the orifice, and the density and viscosity of the fluid.
 
@@ -506,7 +506,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
        209-214.
     .. [4] Reader-Harris, Michael. Orifice Plates and Venturi Tubes. Springer,
        2015.
-    '''
+    """
     A_pipe = 0.25*pi*D*D
     v = m/(A_pipe*rho)
     Re_D = rho*v*D/mu
@@ -585,7 +585,7 @@ _Miller_1996_unsupported_tap_segmental = f"Supported taps for subtype '{SEGMENTA
 
 def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
                   taps=ORIFICE_CORNER_TAPS, tap_position=TAPS_OPPOSITE):
-    r'''Calculates the coefficient of discharge of any of the orifice types
+    r"""Calculates the coefficient of discharge of any of the orifice types
     supported by the Miller (1996) [1]_ correlation set. These correlations
     cover a wide range of industrial applications and sizes. Most of them are
     functions of `beta` ratio and Reynolds number. Unlike the ISO standards,
@@ -795,7 +795,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
        McGraw-Hill Education, 1996.
     .. [2] "RW Miller & Associates." Accessed April 13, 2020.
        http://rwmillerassociates.com/.
-    '''
+    """
     A_pipe = 0.25*pi*D*D
     v = m/(A_pipe*rho)
     Re = rho*v*D/mu
@@ -939,7 +939,7 @@ orifice_std_Hollingshead_tck = implementation_optimize_tck([
 ])
 
 def C_eccentric_orifice_ISO_15377_1998(D, Do):
-    r'''Calculates the coefficient of discharge of an eccentric orifice based
+    r"""Calculates the coefficient of discharge of an eccentric orifice based
     on the geometry of the plate according to ISO 15377, first introduced in
     1998 and also presented in the second 2007 edition. It also appears in BS
     1042-1.2: 1989.
@@ -1006,13 +1006,13 @@ def C_eccentric_orifice_ISO_15377_1998(D, Do):
     .. [2] Yashvanth, S., Varadarajan Seshadri, and J. YogeshKumarK. "CFD
        Analysis of Flow through Single and Multi Stage Eccentric Orifice Plate
        Assemblies," 2017.
-    '''
+    """
     beta = Do/D
     C = beta*(beta*(3.0428 - 1.7989*beta) - 1.6889) + 0.9355
     return C
 
 def C_quarter_circle_orifice_ISO_15377_1998(D, Do):
-    r'''Calculates the coefficient of discharge of a quarter circle orifice based
+    r"""Calculates the coefficient of discharge of a quarter circle orifice based
     on the geometry of the plate according to ISO 15377, first introduced in
     1998 and also presented in the second 2007 edition. It also appears in BS
     1042-1.2: 1989.
@@ -1067,13 +1067,13 @@ def C_quarter_circle_orifice_ISO_15377_1998(D, Do):
     .. [1] TC 30/SC 2, ISO. ISO/TR 15377:1998, Measurement of Fluid Flow by
        Means of Pressure-Differential Devices - Guide for the Specification of
        Nozzles and Orifice Plates beyond the Scope of ISO 5167-1.
-    '''
+    """
     beta = Do/D
     C = beta*(beta*(1.5084*beta - 1.16158) + 0.3309) + 0.73823
     return C
 
 def discharge_coefficient_to_K(D, Do, C):
-    r'''Converts a discharge coefficient to a standard loss coefficient,
+    r"""Converts a discharge coefficient to a standard loss coefficient,
     for use in computation of the actual pressure drop of an orifice or other
     device.
 
@@ -1114,7 +1114,7 @@ def discharge_coefficient_to_K(D, Do, C):
     .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 2: Orifice Plates.
-    '''
+    """
     beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
@@ -1123,7 +1123,7 @@ def discharge_coefficient_to_K(D, Do, C):
 
 
 def K_to_discharge_coefficient(D, Do, K):
-    r'''Converts a standard loss coefficient to a discharge coefficient.
+    r"""Converts a standard loss coefficient to a discharge coefficient.
 
     .. math::
         C = \sqrt{\frac{1}{2 \sqrt{K} \beta^{4} + K \beta^{4}}
@@ -1166,7 +1166,7 @@ def K_to_discharge_coefficient(D, Do, K):
     .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 2: Orifice Plates.
-    '''
+    """
     beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
@@ -1174,7 +1174,7 @@ def K_to_discharge_coefficient(D, Do, K):
     return sqrt((1.0 - beta4)/((2.0*root_K + K)*beta4))
 
 def dP_orifice(D, Do, P1, P2, C):
-    r'''Calculates the non-recoverable pressure drop of an orifice plate based
+    r"""Calculates the non-recoverable pressure drop of an orifice plate based
     on the pressure drop and the geometry of the plate and the discharge
     coefficient.
 
@@ -1224,7 +1224,7 @@ def dP_orifice(D, Do, P1, P2, C):
     .. [2] ISO 5167-2:2003 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 2: Orifice Plates.
-    '''
+    """
     beta = Do/D
     beta2 = beta*beta
     beta4 = beta2*beta2
@@ -1235,7 +1235,7 @@ def dP_orifice(D, Do, P1, P2, C):
 
 
 def velocity_of_approach_factor(D, Do):
-    r'''Calculates a factor for orifice plate design called the `velocity of
+    r"""Calculates a factor for orifice plate design called the `velocity of
     approach`.
 
     .. math::
@@ -1265,7 +1265,7 @@ def velocity_of_approach_factor(D, Do):
     ----------
     .. [1] American Society of Mechanical Engineers. Mfc-3M-2004 Measurement
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
-    '''
+    """
     beta_ratio_4 = Do/D
     beta_ratio_4 *= beta_ratio_4
     beta_ratio_4 *= beta_ratio_4
@@ -1273,7 +1273,7 @@ def velocity_of_approach_factor(D, Do):
 
 
 def flow_coefficient(D, Do, C):
-    r'''Calculates a factor for differential pressure flow meter design called
+    r"""Calculates a factor for differential pressure flow meter design called
     the `flow coefficient`. This should not be confused with the flow
     coefficient often used when discussing valves.
 
@@ -1313,7 +1313,7 @@ def flow_coefficient(D, Do, C):
        Of Fluid Flow In Pipes Using Orifice, Nozzle, And Venturi. ASME, 2001.
     .. [2] Miller, Richard W. Flow Measurement Engineering Handbook. 3rd
        edition. New York: McGraw-Hill Education, 1996.
-    '''
+    """
     beta_ratio_4 = Do/D
     beta_ratio_4 *= beta_ratio_4
     beta_ratio_4 *= beta_ratio_4
@@ -1321,7 +1321,7 @@ def flow_coefficient(D, Do, C):
 
 
 def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
-    r'''Calculates the expansibility factor for a nozzle or venturi nozzle,
+    r"""Calculates the expansibility factor for a nozzle or venturi nozzle,
     based on the geometry of the plate, measured pressures of the orifice, and
     the isentropic exponent of the fluid.
 
@@ -1387,7 +1387,7 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
     .. [2] ISO 5167-3:2003 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 3: Nozzles and Venturi Nozzles.
-    '''
+    """
     if beta is None:
         beta = Do/D
     beta2 = beta*beta
@@ -1429,7 +1429,7 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
 
 
 def C_long_radius_nozzle(D, Do, rho, mu, m):
-    r'''Calculates the coefficient of discharge of a long radius nozzle used
+    r"""Calculates the coefficient of discharge of a long radius nozzle used
     for measuring flow rate of fluid, based on the geometry of the nozzle,
     mass flow rate through the nozzle, and the density and viscosity of the
     fluid.
@@ -1470,7 +1470,7 @@ def C_long_radius_nozzle(D, Do, rho, mu, m):
     .. [2] ISO 5167-3:2003 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 3: Nozzles and Venturi Nozzles.
-    '''
+    """
     A_pipe = 0.25*pi*D*D
     v = m/(A_pipe*rho)
     Re_D = rho*v*D/mu
@@ -1479,7 +1479,7 @@ def C_long_radius_nozzle(D, Do, rho, mu, m):
 
 
 def C_ISA_1932_nozzle(D, Do, rho, mu, m):
-    r'''Calculates the coefficient of discharge of an ISA 1932 style nozzle
+    r"""Calculates the coefficient of discharge of an ISA 1932 style nozzle
     used for measuring flow rate of fluid, based on the geometry of the nozzle,
     mass flow rate through the nozzle, and the density and viscosity of the
     fluid.
@@ -1521,7 +1521,7 @@ def C_ISA_1932_nozzle(D, Do, rho, mu, m):
     .. [2] ISO 5167-3:2003 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 3: Nozzles and Venturi Nozzles.
-    '''
+    """
     A_pipe = 0.25*pi*D*D
     v = m/(A_pipe*rho)
     Re_D = rho*v*D/mu
@@ -1532,7 +1532,7 @@ def C_ISA_1932_nozzle(D, Do, rho, mu, m):
 
 
 def C_venturi_nozzle(D, Do):
-    r'''Calculates the coefficient of discharge of an Venturi style nozzle
+    r"""Calculates the coefficient of discharge of an Venturi style nozzle
     used for measuring flow rate of fluid, based on the geometry of the nozzle.
 
     .. math::
@@ -1565,7 +1565,7 @@ def C_venturi_nozzle(D, Do):
     .. [2] ISO 5167-3:2003 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 3: Nozzles and Venturi Nozzles.
-    '''
+    """
     beta = Do/D
     beta_ratio_4 = beta*beta
     beta_ratio_4 *= beta_ratio_4
@@ -1614,7 +1614,7 @@ D_bound_venturi_tube = [0.065, 0.5]
 
 
 def dP_venturi_tube(D, Do, P1, P2):
-    r'''Calculates the non-recoverable pressure drop of a venturi tube
+    r"""Calculates the non-recoverable pressure drop of a venturi tube
     differential pressure meter based on the pressure drop and the geometry of
     the venturi meter.
 
@@ -1665,7 +1665,7 @@ def dP_venturi_tube(D, Do, P1, P2):
     .. [2] ISO 5167-4:2003 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 4: Venturi Tubes.
-    '''
+    """
     # Effect of Re is not currently included
     beta = Do/D
     epsilon_D65 = interp(beta, venturi_tube_betas, venturi_tube_dP_high)
@@ -1675,7 +1675,7 @@ def dP_venturi_tube(D, Do, P1, P2):
 
 
 def diameter_ratio_cone_meter(D, Dc):
-    r'''Calculates the diameter ratio `beta` used to characterize a cone
+    r"""Calculates the diameter ratio `beta` used to characterize a cone
     flow meter.
 
     .. math::
@@ -1711,13 +1711,13 @@ def diameter_ratio_cone_meter(D, Dc):
        Standard Concentric Orifice Plate, V-Cone, and Wedge Flow Meters at
        Small Reynolds Numbers." May 1, 2011.
        https://digitalcommons.usu.edu/etd/869.
-    '''
+    """
     D_ratio = Dc/D
     return sqrt(1.0 - D_ratio*D_ratio)
 
 
 def cone_meter_expansibility_Stewart(D, Dc, P1, P2, k):
-    r'''Calculates the expansibility factor for a cone flow meter,
+    r"""Calculates the expansibility factor for a cone flow meter,
     based on the geometry of the cone meter, measured pressures of the orifice,
     and the isentropic exponent of the fluid. Developed in [1]_, also shown
     in [2]_.
@@ -1764,7 +1764,7 @@ def cone_meter_expansibility_Stewart(D, Dc, P1, P2, k):
     .. [2] ISO 5167-5:2016 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 5: Cone meters.
-    '''
+    """
     dP = P1 - P2
     beta = diameter_ratio_cone_meter(D, Dc)
     beta *= beta
@@ -1773,7 +1773,7 @@ def cone_meter_expansibility_Stewart(D, Dc, P1, P2, k):
 
 
 def dP_cone_meter(D, Dc, P1, P2):
-    r'''Calculates the non-recoverable pressure drop of a cone meter
+    r"""Calculates the non-recoverable pressure drop of a cone meter
     based on the measured pressures before and at the cone end, and the
     geometry of the cone meter according to [1]_.
 
@@ -1813,14 +1813,14 @@ def dP_cone_meter(D, Dc, P1, P2):
     .. [1] ISO 5167-5:2016 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 5: Cone meters.
-    '''
+    """
     dP = P1 - P2
     beta = diameter_ratio_cone_meter(D, Dc)
     return (1.09 - 0.813*beta)*dP
 
 
 def diameter_ratio_wedge_meter(D, H):
-    r'''Calculates the diameter ratio `beta` used to characterize a wedge
+    r"""Calculates the diameter ratio `beta` used to characterize a wedge
     flow meter as given in [1]_ and [2]_.
 
     .. math::
@@ -1858,7 +1858,7 @@ def diameter_ratio_wedge_meter(D, H):
        https://digitalcommons.usu.edu/etd/869.
     .. [2] IntraWedge WEDGE FLOW METER Type: IWM. January 2011.
        http://www.intra-automation.com/download.php?file=pdf/products/technical_information/en/ti_iwm_en.pdf
-    '''
+    """
     H_D = H/D
     t0 = 1.0 - 2.0*H_D
     t1 = acos(t0)
@@ -1869,7 +1869,7 @@ def diameter_ratio_wedge_meter(D, H):
 
 
 def C_wedge_meter_Miller(D, H):
-    r'''Calculates the coefficient of discharge of an wedge flow meter
+    r"""Calculates the coefficient of discharge of an wedge flow meter
     used for measuring flow rate of fluid, based on the geometry of the
     differential pressure flow meter.
 
@@ -1922,7 +1922,7 @@ def C_wedge_meter_Miller(D, H):
     .. [2] Seshadri, V., S. N. Singh, and S. Bhargava. "Effect of Wedge Shape
        and Pressure Tap Locations on the Characteristics of a Wedge Flowmeter."
        IJEMS Vol.01(5), October 1994.
-    '''
+    """
     beta = diameter_ratio_wedge_meter(D, H)
     beta *= beta
     if D <= 0.7*inch:
@@ -1937,7 +1937,7 @@ def C_wedge_meter_Miller(D, H):
 
 
 def C_wedge_meter_ISO_5167_6_2017(D, H):
-    r'''Calculates the coefficient of discharge of an wedge flow meter
+    r"""Calculates the coefficient of discharge of an wedge flow meter
     used for measuring flow rate of fluid, based on the geometry of the
     differential pressure flow meter according to the ISO 5167-6 standard
     (draft 2017).
@@ -1984,13 +1984,13 @@ def C_wedge_meter_ISO_5167_6_2017(D, H):
     .. [1] ISO/DIS 5167-6 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 6: Wedge Meters.
-    '''
+    """
     beta = diameter_ratio_wedge_meter(D, H)
     return 0.77 - 0.09*beta
 
 
 def dP_wedge_meter(D, H, P1, P2):
-    r'''Calculates the non-recoverable pressure drop of a wedge meter
+    r"""Calculates the non-recoverable pressure drop of a wedge meter
     based on the measured pressures before and at the wedge meter, and the
     geometry of the wedge meter according to [1]_.
 
@@ -2031,14 +2031,14 @@ def dP_wedge_meter(D, H, P1, P2):
     .. [1] ISO/DIS 5167-6 - Measurement of Fluid Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits Running
        Full -- Part 6: Wedge Meters.
-    '''
+    """
     dP = P1 - P2
     beta = diameter_ratio_wedge_meter(D, H)
     return (1.09 - 0.79*beta)*dP
 
 
 def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
-    r'''Calculates the coefficient of discharge of the wet gas venturi tube
+    r"""Calculates the coefficient of discharge of the wet gas venturi tube
     based on the  geometry of the tube, mass flow rates of liquid and vapor
     through the tube, the density of the liquid and gas phases, and an
     adjustable coefficient `H`.
@@ -2129,7 +2129,7 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
        Venturi-Tube Over-Reading in Wet Gas, 2009.
     .. [2] ISO/TR 11583:2012 Measurement of Wet Gas Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits.
-    '''
+    """
     V = 4.0*mg/(rhog*pi*D*D)
     Frg = Froude_densimetric(V, L=D, rho1=rhol, rho2=rhog, heavy=False)
     beta = Do/D
@@ -2151,7 +2151,7 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
 
 def dP_Reader_Harris_Gallagher_wet_venturi_tube(D, Do, P1, P2, ml, mg, rhol,
                                                 rhog, H=1.0):
-    r'''Calculates the non-recoverable pressure drop of a wet gas venturi
+    r"""Calculates the non-recoverable pressure drop of a wet gas venturi
     nozzle based on the pressure drop and the geometry of the venturi nozzle,
     the mass flow rates of liquid and gas through it, the densities of the
     vapor and liquid phase, and an adjustable coefficient `H`.
@@ -2223,7 +2223,7 @@ def dP_Reader_Harris_Gallagher_wet_venturi_tube(D, Do, P1, P2, ml, mg, rhol,
        Venturi-Tube Over-Reading in Wet Gas, 2009.
     .. [2] ISO/TR 11583:2012 Measurement of Wet Gas Flow by Means of Pressure
        Differential Devices Inserted in Circular Cross-Section Conduits.
-    '''
+    """
     dP = P1 - P2
     beta = Do/D
     X =  ml/mg*sqrt(rhog/rhol)
@@ -2377,7 +2377,7 @@ and their correlations.
 _unsupported_meter_msg = f"Supported meter types are {all_meters}"
 
 def differential_pressure_meter_beta(D, D2, meter_type):
-    r'''Calculates the beta ratio of a differential pressure meter.
+    r"""Calculates the beta ratio of a differential pressure meter.
 
     Parameters
     ----------
@@ -2411,7 +2411,7 @@ def differential_pressure_meter_beta(D, D2, meter_type):
     >>> differential_pressure_meter_beta(D=0.2575, D2=0.184,
     ... meter_type='cone meter')
     0.6995709873957624
-    '''
+    """
     if meter_type in beta_simple_meters:
         beta = D2/D
     elif meter_type in (CONE_METER, HOLLINGSHEAD_CONE):
@@ -2435,7 +2435,7 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
                                           meter_type, taps=None,
                                           tap_position=None, C_specified=None,
                                           epsilon_specified=None):
-    r'''Calculates the discharge coefficient and expansibility of a flow
+    r"""Calculates the discharge coefficient and expansibility of a flow
     meter given the mass flow rate, the upstream pressure, the second
     pressure value, and the orifice diameter for a differential
     pressure flow meter based on the geometry of the meter, measured pressures
@@ -2513,7 +2513,7 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
     ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168,
     ... meter_type='ISO 5167 orifice', taps='D')
     (0.6151252900244296, 0.9711026966676307)
-    '''
+    """
 #    # Translate default meter type to implementation specific correlation
     if meter_type == CONCENTRIC_ORIFICE:
         meter_type = ISO_5167_ORIFICE
@@ -2661,7 +2661,7 @@ def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=
                                        m=None, meter_type=ISO_5167_ORIFICE,
                                        taps=None, tap_position=None,
                                        C_specified=None, epsilon_specified=None):
-    r'''Calculates either the mass flow rate, the upstream pressure, the second
+    r"""Calculates either the mass flow rate, the upstream pressure, the second
     pressure value, or the orifice diameter for a differential
     pressure flow meter based on the geometry of the meter, measured pressures
     of the meter, and the density, viscosity, and isentropic exponent of the
@@ -2755,7 +2755,7 @@ def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=
     ... P2=183000.0, rho=999.1, mu=0.0011, k=1.33,
     ... meter_type='ISO 5167 orifice', taps='D')
     0.0499999999
-    '''
+    """
     if k is None and epsilon_specified is not None:
         k = 1.4
     if m is None and D is not None and D2 is not None and P1 is not None and P2 is not None:
@@ -2816,7 +2816,7 @@ _missing_C_msg = "Parameter C is required for this orifice type"
 
 def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
                                    meter_type=ISO_5167_ORIFICE):
-    r'''Calculates the non-recoverable pressure drop of a differential
+    r"""Calculates the non-recoverable pressure drop of a differential
     pressure flow meter based on the geometry of the meter, measured pressures
     of the meter, and for most models the meter discharge coefficient.
 
@@ -2867,7 +2867,7 @@ def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
     >>> differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,
     ... P2=183000.0, meter_type='as cast convergent venturi tube')
     1788.5717754177406
-    '''
+    """
     if meter_type in _dP_orifice_set:
         if C is None:
             raise ValueError(_missing_C_msg)

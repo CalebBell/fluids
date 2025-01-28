@@ -51,8 +51,9 @@ extensions = [
     'sphinxcontrib.katex',
     'sphinx_sitemap',
     'sphinx.ext.intersphinx',
+    'sphinxcontrib.googleanalytics'
 ]
-
+googleanalytics_id = 'G-2JPSGDWWCP'
 html_baseurl = 'https://fluids.readthedocs.io/'
 sitemap_url_scheme = "{link}"
 sitemap_filename = 'sitemap2.xml' # readthedocs generates its own

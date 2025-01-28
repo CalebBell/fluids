@@ -180,7 +180,7 @@ folder = os.path.join(os.path.dirname(__file__), 'data')
 
 
 def heating_degree_days(T, T_base=291.4833333333333, truncate=True):
-    r'''Calculates the heating degree days for a period of time.
+    r"""Calculates the heating degree days for a period of time.
 
     .. math::
         \text{heating degree days} = max(T - T_{base}, 0)
@@ -228,7 +228,7 @@ def heating_degree_days(T, T_base=291.4833333333333, truncate=True):
     ----------
     .. [1] "Heating Degree Day." Wikipedia, January 24, 2018.
        https://en.wikipedia.org/w/index.php?title=Heating_degree_day&oldid=822187764.
-    '''
+    """
     dd = T - T_base
     if truncate and dd < 0.0:
         dd = 0.0
@@ -236,7 +236,7 @@ def heating_degree_days(T, T_base=291.4833333333333, truncate=True):
 
 
 def cooling_degree_days(T, T_base=283.15, truncate=True):
-    r'''Calculates the cooling degree days for a period of time.
+    r"""Calculates the cooling degree days for a period of time.
 
     .. math::
         \text{cooling degree days} = max(T_{base} - T, 0)
@@ -282,7 +282,7 @@ def cooling_degree_days(T, T_base=283.15, truncate=True):
     ----------
     .. [1] "Heating Degree Day." Wikipedia, January 24, 2018.
        https://en.wikipedia.org/w/index.php?title=Heating_degree_day&oldid=822187764.
-    '''
+    """
     dd = T_base - T
     if truncate and dd < 0.0:
         dd = 0.0
@@ -449,12 +449,12 @@ class StationDataGSOD:
 
     def month_average_temperature(self, older_year=None, newer_year=None,
                                   include_yearly=False, minimum_days=23):
-        '''
+        """
         >> station = get_closest_station(38.8572, -77.0369)
         >> station_data = StationDataGSOD(station)
         >> station_data.month_average_temperature(1990, 2000, include_yearly=False)
         [276.1599380905833, 277.5375516246206, 281.1881231671554, 286.7367003367004, 291.8689638318671, 296.79545454545456, 299.51868686868687, 298.2097914630174, 294.4116161616162, 288.25883023786247, 282.3188552188553, 277.8282339524275]
-        '''
+        """
         # Take years, make them inclusive; add minimum valid days.
         year_month_averages = {}
         year_month_counts = {}
