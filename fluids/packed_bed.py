@@ -956,7 +956,7 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
     return right/left
 
 
-def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1.0):
+def Guo_Sun(dp, voidage, vs, rho, mu, Dt=None, L=1.0):
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_. This is valid for highly-packed particles
     at particle/tube diameter ratios between 2 and 3, where a ring packing
@@ -986,7 +986,7 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt, L=1.0):
         Density of the fluid [kg/m^3]
     mu : float
         Viscosity of the fluid, [Pa*s]
-    Dt : float
+    Dt : float, optional
         Diameter of the tube, [m]
     L : float, optional
         Length the fluid flows in the packed bed [m]
