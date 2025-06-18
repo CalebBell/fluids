@@ -1,0 +1,383 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module hwm93 ! in 
+    interface  ! in :hwm93
+        subroutine gws5(iyd,sec,alt,glat,glong,stl,f107a,f107,ap,w) ! in :hwm93:hwm93.for
+            integer :: iyd
+            real :: sec
+            real :: alt
+            real :: glat
+            real :: glong
+            real :: stl
+            real :: f107a
+            real :: f107
+            real dimension(1) :: ap
+            real dimension(2), intent(out) :: w
+            integer dimension(3) :: isdate
+            integer dimension(2) :: istime
+            integer dimension(2) :: name
+            real dimension(25) :: sw
+            integer :: isw
+            real dimension(25) :: swc
+            real dimension(200) :: pwb
+            real dimension(200) :: pwc
+            real dimension(150) :: pwbl
+            real dimension(150) :: pwcl
+            real dimension(150) :: pwbld
+            real dimension(150) :: pwcld
+            real dimension(150) :: pb12
+            real dimension(150) :: pc12
+            real dimension(150) :: pb13
+            real dimension(150) :: pc13
+            real dimension(150) :: pb14
+            real dimension(150) :: pc14
+            real dimension(150) :: pb15
+            real dimension(150) :: pc15
+            real dimension(150) :: pb15d
+            real dimension(150) :: pc15d
+            real dimension(100,26) :: pwp
+            integer dimension(3) :: isd
+            integer dimension(2) :: ist
+            integer dimension(2) :: nam
+            real dimension(2) :: wbt
+            real dimension(2) :: wct
+            integer :: nnw
+            common /datime/ isdate,istime,name
+            common /csw/ sw,isw,swc
+            common /parmw5/ pwb,pwc,pwbl,pwcl,pwbld,pwcld,pb12,pc12,pb13,pc13,pb14,pc14,pb15,pc15,pb15d,pc15d,pwp
+            common /datw/ isd,ist,nam
+            common /hwmc/ wbt,wct
+            entry setnw5(nnw)
+        end subroutine gws5
+        function wprof(z,zl,s,uinf,ulb,ulbd,mn1,zn1,un1,ugn1,mn2,zn2,un2,ugn2) ! in :hwm93:hwm93.for
+            real :: z
+            real :: zl
+            real :: s
+            real :: uinf
+            real :: ulb
+            real :: ulbd
+            integer, optional,check(len(zn1)>=mn1),depend(zn1) :: mn1=len(zn1)
+            real dimension(mn1) :: zn1
+            real dimension(mn1),depend(mn1) :: un1
+            real dimension(2) :: ugn1
+            integer, optional,check(len(zn2)>=mn2),depend(zn2) :: mn2=len(zn2)
+            real dimension(mn2) :: zn2
+            real dimension(mn2),depend(mn2) :: un2
+            real dimension(2) :: ugn2
+            real :: wprof
+        end function wprof
+        subroutine glbw5e(yrd,sec,lat,long_bn,stl,f107a,f107,ap,pb,pc,ww) ! in :hwm93:hwm93.for
+            real :: yrd
+            real :: sec
+            real :: lat
+            real :: long_bn
+            real :: stl
+            real :: f107a
+            real :: f107
+            real dimension(1) :: ap
+            real dimension(1) :: pb
+            real dimension(1) :: pc
+            real dimension(2) :: ww
+            real :: xvl
+            integer :: lvl
+            integer :: mvl
+            real :: clat
+            real :: slat
+            real dimension(20,20) :: bt
+            real dimension(20,20) :: bp
+            real dimension(25) :: sw
+            integer :: isw
+            real dimension(25) :: swc
+            real :: tll
+            integer :: nsvl
+            real :: cstl
+            real :: sstl
+            real :: c2stl
+            real :: s2stl
+            real :: c3stl
+            real :: s3stl
+            real :: xll
+            integer :: ngvl
+            real :: clong
+            real :: slong
+            real :: c2long
+            real :: s2long
+            real dimension(2) :: wbt
+            real dimension(2) :: wct
+            common /vpoly2/ xvl,lvl,mvl,clat,slat,bt,bp
+            common /csw/ sw,isw,swc
+            common /ltcomp/ tll,nsvl,cstl,sstl,c2stl,s2stl,c3stl,s3stl
+            common /lgcomp/ xll,ngvl,clong,slong,c2long,s2long
+            common /hwmc/ wbt,wct
+        end subroutine glbw5e
+        subroutine glbw5m(yrd,sec,lat,long_bn,stl,f107a,f107,ap,pb,pc,ww) ! in :hwm93:hwm93.for
+            real :: yrd
+            real :: sec
+            real :: lat
+            real :: long_bn
+            real :: stl
+            real :: f107a
+            real :: f107
+            real dimension(1) :: ap
+            real dimension(1) :: pb
+            real dimension(1) :: pc
+            real dimension(2) :: ww
+            real :: xvl
+            integer :: lvl
+            integer :: mvl
+            real :: clat
+            real :: slat
+            real dimension(20,20) :: bt
+            real dimension(20,20) :: bp
+            real dimension(25) :: sw
+            integer :: isw
+            real dimension(25) :: swc
+            real :: tll
+            integer :: nsvl
+            real :: cstl
+            real :: sstl
+            real :: c2stl
+            real :: s2stl
+            real :: c3stl
+            real :: s3stl
+            real :: xll
+            integer :: ngvl
+            real :: clong
+            real :: slong
+            real :: c2long
+            real :: s2long
+            real dimension(2) :: wbt
+            real dimension(2) :: wct
+            common /vpoly2/ xvl,lvl,mvl,clat,slat,bt,bp
+            common /csw/ sw,isw,swc
+            common /ltcomp/ tll,nsvl,cstl,sstl,c2stl,s2stl,c3stl,s3stl
+            common /lgcomp/ xll,ngvl,clong,slong,c2long,s2long
+            common /hwmc/ wbt,wct
+        end subroutine glbw5m
+        subroutine glbw5s(iyd,lat,long_bn,stl,pb,pc,ww) ! in :hwm93:hwm93.for
+            integer :: iyd
+            real :: lat
+            real :: long_bn
+            real :: stl
+            real dimension(1) :: pb
+            real dimension(1) :: pc
+            real dimension(2) :: ww
+            real :: xvl
+            integer :: lvl
+            integer :: mvl
+            real :: clat
+            real :: slat
+            real dimension(20,20) :: bt
+            real dimension(20,20) :: bp
+            real dimension(25) :: sw
+            integer :: isw
+            real dimension(25) :: swc
+            real :: tll
+            integer :: nsvl
+            real :: cstl
+            real :: sstl
+            real :: c2stl
+            real :: s2stl
+            real :: c3stl
+            real :: s3stl
+            real :: xll
+            integer :: ngvl
+            real :: clong
+            real :: slong
+            real :: c2long
+            real :: s2long
+            real dimension(2) :: wbt
+            real dimension(2) :: wct
+            common /vpoly2/ xvl,lvl,mvl,clat,slat,bt,bp
+            common /csw/ sw,isw,swc
+            common /ltcomp/ tll,nsvl,cstl,sstl,c2stl,s2stl,c3stl,s3stl
+            common /lgcomp/ xll,ngvl,clong,slong,c2long,s2long
+            common /hwmc/ wbt,wct
+        end subroutine glbw5s
+        subroutine tselec(sv) ! in :hwm93:hwm93.for
+            real dimension(1) :: sv
+            real dimension(25) :: sw
+            integer :: isw
+            real dimension(25) :: swc
+            real dimension(1) :: svv
+            common /csw/ sw,isw,swc
+            entry tretrv(svv)
+        end subroutine tselec
+        subroutine vsphr1(c,s,l,m,bt,bp,lmax) ! in :hwm93:hwm93.for
+            real :: c
+            real :: s
+            integer :: l
+            integer :: m
+            real dimension(lmax,1) :: bt
+            real dimension(lmax,1),depend(lmax) :: bp
+            integer, optional,check(shape(bt,0)==lmax),depend(bt) :: lmax=shape(bt,0)
+        end subroutine vsphr1
+        subroutine legpl1(c,s,l,m,plg,lmax) ! in :hwm93:hwm93.for
+            real :: c
+            real :: s
+            integer :: l
+            integer :: m
+            real dimension(lmax,1) :: plg
+            integer, optional,check(shape(plg,0)==lmax),depend(plg) :: lmax=shape(plg,0)
+        end subroutine legpl1
+        subroutine spline(x,y,n,yp1,ypn,y2) ! in :hwm93:hwm93.for
+            real dimension(n) :: x
+            real dimension(n),depend(n) :: y
+            integer, optional,check(len(x)>=n),depend(x) :: n=len(x)
+            real :: yp1
+            real :: ypn
+            real dimension(n),depend(n) :: y2
+        end subroutine spline
+        subroutine splint(xa,ya,y2a,n,x,y) ! in :hwm93:hwm93.for
+            real dimension(n) :: xa
+            real dimension(n),depend(n) :: ya
+            real dimension(n),depend(n) :: y2a
+            integer, optional,check(len(xa)>=n),depend(xa) :: n=len(xa)
+            real :: x
+            real :: y
+        end subroutine splint
+        block data initw5 ! in :hwm93:hwm93.for
+            real, optional :: xvl=-999.0
+            integer, optional :: lvl=-1
+            integer, optional :: mvl=-1
+            real :: clat
+            real :: slat
+            real dimension(20,20) :: bt
+            real dimension(20,20) :: bp
+            real dimension(25) :: sw
+            integer, optional :: isw=0
+            real dimension(25) :: swc
+            real, optional :: tll=-999.0
+            integer, optional :: nsvl=-1
+            real :: cstl
+            real :: sstl
+            real :: c2stl
+            real :: s2stl
+            real :: c3stl
+            real :: s3stl
+            real, optional :: xll=-999.0
+            integer, optional :: ngvl=-1
+            real :: clong
+            real :: slong
+            real :: c2long
+            real :: s2long
+            common /vpoly2/ xvl,lvl,mvl,clat,slat,bt,bp
+            common /csw/ sw,isw,swc
+            common /ltcomp/ tll,nsvl,cstl,sstl,c2stl,s2stl,c3stl,s3stl
+            common /lgcomp/ xll,ngvl,clong,slong,c2long,s2long
+        end block data initw5
+        block data gwsbk5 ! in :hwm93:hwm93.for
+            character, optional,dimension(3,4),intent(c) :: isdate='28-j'
+            character, optional,dimension(2,4),intent(c) :: istime='20:3'
+            character, optional,dimension(2,4),intent(c) :: name='hwm9'
+            real, optional,dimension(50) :: pba1=0.00000e+00
+            real, optional,dimension(50) :: pba2=-3.82415e-01
+            real, optional,dimension(50) :: pba3=0.00000e+00
+            real, optional,dimension(50) :: pba4=2.08426e+00
+            real, optional,dimension(50) :: pca1=0.00000e+00
+            real, optional,dimension(50) :: pca2=-1.36730e+00
+            real, optional,dimension(50) :: pca3=0.00000e+00
+            real, optional,dimension(50) :: pca4=-2.31583e+00
+            real, optional,dimension(50) :: pbb1=6.22831e-01
+            real, optional,dimension(50) :: pbb2=0.00000e+00
+            real, optional,dimension(50) :: pbb3=0.00000e+00
+            real, optional,dimension(50) :: pcb1=5.45009e-01
+            real, optional,dimension(50) :: pcb2=0.00000e+00
+            real, optional,dimension(50) :: pcb3=0.00000e+00
+            real, optional,dimension(50) :: pbc1=6.09940e-01
+            real, optional,dimension(50) :: pbc2=0.00000e+00
+            real, optional,dimension(50) :: pbc3=0.00000e+00
+            real, optional,dimension(50) :: pcc1=5.46739e-01
+            real, optional,dimension(50) :: pcc2=0.00000e+00
+            real, optional,dimension(50) :: pcc3=0.00000e+00
+            real, optional,dimension(50) :: pbd1=4.99007e-01
+            real, optional,dimension(50) :: pbd2=0.00000e+00
+            real, optional,dimension(50) :: pbd3=0.00000e+00
+            real, optional,dimension(50) :: pcd1=0.00000e+00
+            real, optional,dimension(50) :: pcd2=0.00000e+00
+            real, optional,dimension(50) :: pcd3=0.00000e+00
+            real, optional,dimension(50) :: pbe1=0.00000e+00
+            real, optional,dimension(50) :: pbe2=0.00000e+00
+            real, optional,dimension(50) :: pbe3=0.00000e+00
+            real, optional,dimension(50) :: pce1=0.00000e+00
+            real, optional,dimension(50) :: pce2=0.00000e+00
+            real, optional,dimension(50) :: pce3=0.00000e+00
+            real, optional,dimension(50) :: pbf1=0.00000e+00
+            real, optional,dimension(50) :: pbf2=0.00000e+00
+            real, optional,dimension(50) :: pbf3=0.00000e+00
+            real, optional,dimension(50) :: pcf1=0.00000e+00
+            real, optional,dimension(50) :: pcf2=0.00000e+00
+            real, optional,dimension(50) :: pcf3=0.00000e+00
+            real, optional,dimension(50) :: pbg1=0.00000e+00
+            real, optional,dimension(50) :: pbg2=0.00000e+00
+            real, optional,dimension(50) :: pbg3=0.00000e+00
+            real, optional,dimension(50) :: pcg1=0.00000e+00
+            real, optional,dimension(50) :: pcg2=0.00000e+00
+            real, optional,dimension(50) :: pcg3=0.00000e+00
+            real, optional,dimension(50) :: pbh1=0.00000e+00
+            real, optional,dimension(50) :: pbh2=0.00000e+00
+            real, optional,dimension(50) :: pbh3=0.00000e+00
+            real, optional,dimension(50) :: pch1=0.00000e+00
+            real, optional,dimension(50) :: pch2=0.00000e+00
+            real, optional,dimension(50) :: pch3=0.00000e+00
+            real, optional,dimension(50) :: pbi1=0.00000e+00
+            real, optional,dimension(50) :: pbi2=0.00000e+00
+            real, optional,dimension(50) :: pci1=0.00000e+00
+            real, optional,dimension(50) :: pci2=0.00000e+00
+            real, optional,dimension(50) :: pbj1=0.00000e+00
+            real, optional,dimension(50) :: pbj2=0.00000e+00
+            real, optional,dimension(50) :: pcj1=0.00000e+00
+            real, optional,dimension(50) :: pcj2=-7.33184e-01
+            real, optional,dimension(50) :: pbk1=0.00000e+00
+            real, optional,dimension(50) :: pbk2=0.00000e+00
+            real, optional,dimension(50) :: pck1=0.00000e+00
+            real, optional,dimension(50) :: pck2=-6.06026e-01
+            real, optional,dimension(50) :: pbl1=0.00000e+00
+            real, optional,dimension(50) :: pbl2=0.00000e+00
+            real, optional,dimension(50) :: pcl1=0.00000e+00
+            real, optional,dimension(50) :: pcl2=1.63964e-02
+            real, optional,dimension(50) :: pbm1=0.00000e+00
+            real, optional,dimension(50) :: pbm2=0.00000e+00
+            real, optional,dimension(50) :: pcm1=0.00000e+00
+            real, optional,dimension(50) :: pcm2=3.48181e-01
+            real, optional,dimension(50) :: pbn1=0.00000e+00
+            real, optional,dimension(50) :: pbn2=0.00000e+00
+            real, optional,dimension(50) :: pcn1=0.00000e+00
+            real, optional,dimension(50) :: pcn2=3.79580e-01
+            real, optional,dimension(50) :: pbo1=0.00000e+00
+            real, optional,dimension(50) :: pbo2=0.00000e+00
+            real, optional,dimension(50) :: pco1=0.00000e+00
+            real, optional,dimension(50) :: pco2=6.37036e-01
+            real, optional,dimension(50) :: pbp1=0.00000e+00
+            real, optional,dimension(50) :: pbp2=0.00000e+00
+            real, optional,dimension(50) :: pcp1=0.00000e+00
+            real, optional,dimension(50) :: pcp2=9.80142e-01
+            real, optional,dimension(50) :: pbq1=0.00000e+00
+            real, optional,dimension(50) :: pbq2=0.00000e+00
+            real, optional,dimension(50) :: pcq1=0.00000e+00
+            real, optional,dimension(50) :: pcq2=7.31799e-01
+            real, optional,dimension(50) :: pbr1=0.00000e+00
+            real, optional,dimension(50) :: pbr2=0.00000e+00
+            real, optional,dimension(50) :: pcr1=0.00000e+00
+            real, optional,dimension(50) :: pcr2=3.07191e-01
+            real, optional,dimension(50) :: pbs1=0.00000e+00
+            real, optional,dimension(50) :: pbs2=0.00000e+00
+            real, optional,dimension(50) :: pcs1=0.00000e+00
+            real, optional,dimension(50) :: pcs2=1.09405e-02
+            real, optional,dimension(50) :: pbt1=0.00000e+00
+            real, optional,dimension(50) :: pbt2=0.00000e+00
+            real, optional,dimension(50) :: pct1=0.00000e+00
+            real, optional,dimension(50) :: pct2=0.00000e+00
+            real, optional,dimension(50) :: pbu1=0.00000e+00
+            real, optional,dimension(50) :: pbu2=0.00000e+00
+            real, optional,dimension(50) :: pcu1=0.00000e+00
+            real, optional,dimension(50) :: pcu2=0.00000e+00
+            common /datw/ isdate,istime,name
+            common /parmw5/ pba1,pba2,pba3,pba4,pca1,pca2,pca3,pca4,pbb1,pbb2,pbb3,pcb1,pcb2,pcb3,pbc1,pbc2,pbc3,pcc1,pcc2,pcc3,pbd1,pbd2,pbd3,pcd1,pcd2,pcd3,pbe1,pbe2,pbe3,pce1,pce2,pce3,pbf1,pbf2,pbf3,pcf1,pcf2,pcf3,pbg1,pbg2,pbg3,pcg1,pcg2,pcg3,pbh1,pbh2,pbh3,pch1,pch2,pch3,pbi1,pbi2,pci1,pci2,pbj1,pbj2,pcj1,pcj2,pbk1,pbk2,pck1,pck2,pbl1,pbl2,pcl1,pcl2,pbm1,pbm2,pcm1,pcm2,pbn1,pbn2,pcn1,pcn2,pbo1,pbo2,pco1,pco2,pbp1,pbp2,pcp1,pcp2,pbq1,pbq2,pcq1,pcq2,pbr1,pbr2,pcr1,pcr2,pbs1,pbs2,pcs1,pcs2,pbt1,pbt2,pct1,pct2,pbu1,pbu2,pcu1,pcu2
+        end block data gwsbk5
+    end interface 
+end python module hwm93
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/

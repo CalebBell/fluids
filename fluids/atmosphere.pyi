@@ -33,6 +33,26 @@ def airmass(
 
 def earthsun_distance(moment: datetime) -> float: ...
 
+def hwm14(
+    Z: float,
+    latitude: float = ...,
+    longitude: float = ...,
+    day: float = ...,
+    seconds: float = ...,
+    geomagnetic_disturbance_index: float = ...
+) -> Tuple[float, float]: ...
+
+
+def hwm93(
+    Z: float,
+    latitude: float = ...,
+    longitude: float = ...,
+    day: float = ...,
+    seconds: float = ...,
+    f107: float = ...,
+    f107_avg: float = ...,
+    geomagnetic_disturbance_index: float = ...
+) -> Tuple[float, float]: ...
 
 def solar_irradiation(
     latitude: float,

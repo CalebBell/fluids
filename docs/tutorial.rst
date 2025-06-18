@@ -424,6 +424,8 @@ Various main classes are available to model the atmosphere, of varying accuracy.
 US Standard Atmosphere 1976 (:py:class:`~.ATMOSPHERE_1976`), a basic
 but very quick model; the NRLMSISE 00 model, substantially more powerful and
 accurate and still the standard to this day (:py:class:`~.ATMOSPHERE_NRLMSISE00`).
+ Horizontal Wind Model 1993 (:py:func:`~.hwm93`),
+ Horizontal Wind Model 2014 (:py:func:`~.hwm14`),
  Solar models are :py:func:`~.earthsun_distance`,
 :py:func:`~.solar_position`, :py:func:`~.sunrise_sunset` and :py:func:`~.solar_irradiation`.
 
@@ -485,6 +487,24 @@ Mole fractions of each species are available as well.
 ['N2', 'O2', 'Ar', 'He', 'O', 'H', 'N']
 >>> atm.zs
 [0.7811046, 0.2095469, 0.009343, 5.2417e-06, 0.0, 0.0, 0.0]
+
+The horizontal wind models have almost the same API, and calculate wind speedAdd commentMore actions
+and direction as a function of elevation, latitude, longitude, day of year and
+time of day. hwm93 can also take as an argument local geomagnetic conditions 
+and solar activity, but this effect was found to be so negligible it was removed
+from future versions of the model such as hwm14.
+
+Calculation of wind velocity, meridional (m/sec Northward) and zonal (m/sec
+Eastward) for 1000 m elevation, 45 degrees latitude and longitude, 150th day
+of year, 0 seconds in, with both models:
+
+>>> hwm93(Z=1000, latitude=45, longitude=45, day=150)  # doctest: +SKIP
+(-0.0038965975400060415, 3.8324742317199707)
+>>> hwm14(Z=1000, latitude=45, longitude=45, day=150)  # doctest: +SKIP
+(-0.9920163154602051, 0.4105832874774933)
+
+These wind velocities are only historical normals; conditions may vary year to 
+year. 
 
 The solar radiation model is based around the Sun Position Algorithm (SPA)
 developed by NREL; it can calculate the position of the sun in the sky at

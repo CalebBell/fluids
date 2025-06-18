@@ -1,0 +1,81 @@
+[tool.poetry]
+name = "fluids"
+version = "1.1.0"
+description = "Fluid dynamics component of Chemical Engineering Design Library (ChEDL)"
+authors = ["Caleb Bell <Caleb.Andrew.Bell@gmail.com>"]
+license = "MIT"
+readme = "README.rst"
+homepage = "https://github.com/CalebBell/fluids"
+repository = "https://github.com/CalebBell/fluids"
+keywords = [
+    "fluid dynamics", "atmosphere", "pipe", "fluids", "compressible", "chemical engineering",
+    "mechanical engineering", "valve", "open channel", "tank", "friction", "pressure drop",
+    "two phase", "pump", "drag", "reynolds", "sedimentation", "engineering", "pipeline",
+    "process simulation", "particle", "size distribution"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Manufacturing",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: BSD",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Unix",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Python :: Implementation :: MicroPython",
+    "Programming Language :: Python :: Implementation :: IronPython",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics"
+]
+include = [
+    "fluids/data/*.csv",
+    "fluids/nrlmsise00/*",
+    "fluids/optional/*.py",
+    "fluids/numerics/*",
+    "fluids/constants/*"
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.14"
+numpy = ">=1.5.0"
+scipy = ">=1.6.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+pytest-cov = "^6.2.1"
+scipy = "^1.15.3"
+sympy = "^1.14.0"
+thefuzz = "^0.22.1"
+pint = "^0.24.4"
+pytz = "^2025.2"
+pandas = "^2.3.0"
+wheel = "^0.45.1"
+
+[tool.poetry.extras]
+coverage-documentation = ["wsgiref", "coverage", "pint"]
+
+[tool.poetry.build]
+script = "scripts/build.py"
+
+[build-system]
+requires = ["poetry-core","python-minifier","setuptools","meson","numpy"]
+build-backend = "poetry.core.masonry.api"
