@@ -105,18 +105,21 @@ except:
 
 
 def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name='cache-safe'):
+    # executing fluids source code autoedited for numba compatibility only
     if lcs is None:
         lcs = {}
     if gbls is None:
         gbls = globals()
     if disable_numba_cache:
-        exec(source, gbls, lcs)
+        exec(source, gbls, lcs)  # nosec B102
         return lcs, gbls
 
     filepath = f"<ipython-{cache_name}>"
     lines = [line + '\n' for line in source.splitlines()]
     linecache.cache[filepath] = (len(source), None, lines, filepath)
-    exec(compile(source, filepath, 'exec'), gbls, lcs)
+    # executing fluids source code autoedited for numba compatibility only
+    compiled = compile(source, filepath, 'exec')
+    exec(compiled, gbls, lcs)  # nosec B102
     return lcs, gbls
 
 # Some unfotrunate code duplication

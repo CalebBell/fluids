@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [master, release]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/release' }}
+
 jobs:
   multi-arch-test:
     runs-on: ubuntu-latest
@@ -65,11 +69,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: all
       - name: Run on ${{ matrix.arch }}
-        uses: uraimo/run-on-arch-action@v2
+        uses: uraimo/run-on-arch-action@v3
         with:
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
@@ -80,7 +84,9 @@ jobs:
               apk add python3 py3-pip py3-scipy py3-matplotlib py3-numpy py3-pandas
             elif [[ "${{ matrix.distro }}" == "ubuntu_latest" || "${{ matrix.distro }}" == "ubuntu_rolling" || "${{ matrix.distro }}" == "ubuntu_devel" || "${{ matrix.distro }}" == "ubuntu20.04" ||  "${{ matrix.distro }}" == "ubuntu22.04" || "${{ matrix.distro }}" == "bookworm" ]]; then
               apt-get update
-              apt-get install -y libatlas-base-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas
+              # Install libatlas-base-dev if available (not available on some architectures like riscv64)
+              apt-get install -y liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas
+              apt-get install -y libatlas-base-dev || true
             fi
           run: |
               if python3 -c "import subprocess; exit('no such option' not in subprocess.getoutput('pip3 install --break-system-packages'))"; then

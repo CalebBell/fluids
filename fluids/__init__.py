@@ -23,7 +23,6 @@ SOFTWARE.
 """
 
 import os
-global vectorized, numba, units, numba_vectorized
 
 from . import numerics
 from . import constants
@@ -118,19 +117,22 @@ if not numerics.is_micropython:
 
     if numerics.PY37:
         def __getattr__(name):
-            global vectorized, numba, units, numba_vectorized
             if name == 'vectorized':
-                import fluids.vectorized as vectorized
-                return vectorized
+                import fluids.vectorized
+                globals()[name] = fluids.vectorized
+                return fluids.vectorized
             if name == 'numba':
-                import fluids.numba as numba
-                return numba
+                import fluids.numba
+                globals()[name] = fluids.numba
+                return fluids.numba
             if name == 'units':
-                import fluids.units as units
-                return units
+                import fluids.units
+                globals()[name] = fluids.units
+                return fluids.units
             if name == 'numba_vectorized':
-                import fluids.numba_vectorized as numba_vectorized
-                return numba_vectorized
+                import fluids.numba_vectorized
+                globals()[name] = fluids.numba_vectorized
+                return fluids.numba_vectorized
             raise AttributeError("module %s has no attribute %s" %(__name__, name))
     else:
         from . import vectorized

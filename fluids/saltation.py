@@ -292,8 +292,8 @@ def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
 
     Notes
     -----
-    Model is rearanged to be explicit in terms of saltation velocity
-    internally.r
+    Model is rearranged to be explicit in terms of saltation velocity
+    internally.
 
     Examples
     --------
@@ -500,9 +500,6 @@ def Geldart_Ling(mp, rhog, D, mug):
 
     .. math::
         V_{salt} = 8.7G_s^{0.302}D^{0.153} \mu^{0.055}\rho_f^{-0.42}
-
-    .. math::
-        Fr_s = 15\mu^{0.25}\left(\frac{d_p}{D}\right)^{0.1}
 
     .. math::
         Fr_s = \frac{V_{salt}}{\sqrt{gD}}

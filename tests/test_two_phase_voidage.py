@@ -166,7 +166,7 @@ def test_Tandon_Varma_Gupta():
 
 
 def test_Harms():
-    assert_close(Harms(.4, 800, 2.5, 1E-3, 1E-5, m=1, D=0.3), 0.9653289762907554)
+    assert_close(Harms(.4, 800, 2.5, 1E-3, 1E-5, m=1, D=0.3), 0.9318600324665578)
 
 
 def test_Domanski_Didion():

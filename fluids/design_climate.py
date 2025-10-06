@@ -772,7 +772,7 @@ def get_station_year_text(WMO, WBAN, year, data_dir_override=None):
     toget = ('ftp://ftp.ncdc.noaa.gov/pub/data/gsod/' + str(year) + '/'
              + station + '-' + str(year) +'.op.gz')
     try:
-        data = urlopen(toget, timeout=5)
+        data = urlopen(toget, timeout=5)  # nosec B310
     except Exception as e:
         if not os.path.exists(gsod_year_dir):
             os.makedirs(gsod_year_dir)
