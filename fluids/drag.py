@@ -181,7 +181,7 @@ def Barati_high(Re):
     -----
     Range is Re <= 1E6. If Re is larger than 1e6 it is limited to 1e6.
     This model is the wider-range model the authors developed.
-    At sufficiently low diameters or Re values, drag is no longer a phenomena.
+    At sufficiently low diameters or Re values, drag is no longer a phenomenon.
 
     Examples
     --------
@@ -254,7 +254,7 @@ def Rouse(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     """
-    return 24./Re + 3/sqrt(Re) + 0.34
+    return 24./Re + 3./sqrt(Re) + 0.34
 
 
 def Engelund_Hansen(Re):
@@ -287,7 +287,7 @@ def Engelund_Hansen(Re):
     References
     ----------
     .. [1] F. Engelund, E. Hansen, Monograph on Sediment Transport in Alluvial
-       Streams, Monograpsh Denmark Technical University, Hydraulic Lab,
+       Streams, Monographs Denmark Technical University, Hydraulic Lab,
        Denmark, 1967.
     .. [2] Barati, Reza, Seyed Ali Akbar Salehi Neyshabouri, and Goodarz
        Ahmadi. "Development of Empirical Models with High Accuracy for
@@ -361,7 +361,7 @@ def Morsi_Alexander(Re):
     If 10 < Re < 100:
 
     .. math::
-        C_D =\frac{46.5}{Re}-\frac{116.67}{Re^2} + 0.6167
+        C_D = \frac{46.5}{Re}-\frac{116.67}{Re^2} + 0.6167
 
     If 100 < Re < 1000:
 
@@ -420,13 +420,13 @@ def Morsi_Alexander(Re):
     elif Re < 1:
         return 22.73/Re + 0.0903/Re**2 + 3.69
     elif Re < 10:
-        return 29.1667/Re - 3.8889/Re**2 + 1.222
+        return 29.1667/Re - 3.8889/Re**2 + 1.2220
     elif Re < 100:
         return 46.5/Re - 116.67/Re**2 + 0.6167
     elif Re < 1000:
         return 98.33/Re - 2778./Re**2 + 0.3644
     elif Re < 5000:
-        return 148.62/Re - 4.75E4/Re**2 + 0.357
+        return 148.62/Re - 4.75E4/Re**2 + 0.3570
     elif Re < 10000:
         return -490.546/Re + 57.87E4/Re**2 + 0.46
     else:
@@ -648,7 +648,7 @@ def Haider_Levenspiel(Re):
     [1]_ as described in [2]_.
 
     .. math::
-        C_D=\frac{24}{Re}(1+0.1806Re^{0.6459})+\left(\frac{0.4251}{1
+        C_D = \frac{24}{Re}(1+0.1806Re^{0.6459})+\left(\frac{0.4251}{1
         +\frac{6880.95}{Re}}\right)
 
     Parameters
@@ -691,7 +691,7 @@ def Cheng(Re):
     [1]_ as described in [2]_.
 
     .. math::
-        C_D=\frac{24}{Re}(1+0.27Re)^{0.43}+0.47[1-\exp(-0.04Re^{0.38})]
+        C_D = \frac{24}{Re}(1+0.27Re)^{0.43}+0.47[1-\exp(-0.04Re^{0.38})]
 
     Parameters
     ----------
@@ -835,22 +835,22 @@ def Clift(Re):
     If 260 < Re < 1500:
 
     .. math::
-        C_D = 10^{[1.6435 - 1.1242\log_{10} Re + 0.1558[\log_{10} Re]^2}
+        C_D = 10^{[1.6435 - 1.1242\log_{10} Re + 0.1558[\log_{10} Re]^2]}
 
     If 1500 < Re < 12000:
 
     .. math::
-        C_D = 10^{[-2.4571 + 2.5558\log_{10} Re - 0.9295[\log_{10} Re]^2 + 0.1049[\log_{10} Re]^3}
+        C_D = 10^{[-2.4571 + 2.5558\log_{10} Re - 0.9295[\log_{10} Re]^2 + 0.1049[\log_{10} Re]^3]}
 
     If 12000 < Re < 44000:
 
     .. math::
-        C_D = 10^{[-1.9181 + 0.6370\log_{10} Re - 0.0636[\log_{10} Re]^2}
+        C_D = 10^{[-1.9181 + 0.6370\log_{10} Re - 0.0636[\log_{10} Re]^2]}
 
     If 44000 < Re < 338000:
 
     .. math::
-        C_D = 10^{[-4.3390 + 1.5809\log_{10} Re - 0.1546[\log_{10} Re]^2}
+        C_D = 10^{[-4.3390 + 1.5809\log_{10} Re - 0.1546[\log_{10} Re]^2]}
 
     If 338000 < Re < 400000:
 
@@ -893,7 +893,7 @@ def Clift(Re):
        doi:10.1016/j.powtec.2014.02.045.
     """
     if Re < 0.01:
-        return 24./Re + 3/16.
+        return 24./Re + 3./16.
     elif Re < 20:
         return 24./Re*(1 + 0.1315*Re**(0.82 - 0.05*log10(Re)))
     elif Re < 260:
@@ -920,7 +920,7 @@ def Ceylan(Re):
         C_D = 1 - 0.5\exp(0.182) + 10.11Re^{-2/3}\exp(0.952Re^{-1/4})
         - 0.03859Re^{-4/3}\exp(1.30Re^{-1/2})
         + 0.037\times10^{-4}Re\exp(-0.125\times10^{-4}Re)
-        -0.116\times10^{-10}Re^2\exp(-0.444\times10^{-5}Re)
+        - 0.116\times10^{-10}Re^2\exp(-0.444\times10^{-5}Re)
 
     Parameters
     ----------
@@ -1158,7 +1158,7 @@ def drag_sphere_methods(Re, check_ranges=True):
 
     Returns
     -------
-    methods : list, only returned if AvailableMethods == True
+    methods : list
         List of methods which can be used to calculate `Cd` with the given `Re`
     """
     methods = []
@@ -1393,7 +1393,7 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
     If a solution cannot be obtained due to floating point error at very high
     tolerance, an exception is raised - but first, the tolerance is doubled,
     up to fifty times in an attempt to obtain the highest possible precision
-    while sill giving an answer. If at any point the tolerance is larger than
+    while still giving an answer. If at any point the tolerance is larger than
     1%, an exception is also raised.
 
     Examples
@@ -1486,7 +1486,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
         b = \frac{g(\rho_p-\rho_f)}{\rho_p}
 
     The analytical solution will automatically be used if the initial and
-    terminal velocity is show the particle's behavior to be laminar. Note
+    terminal velocity shows the particle's behavior to be laminar. Note
     that this behavior requires that the terminal velocity of the particle be
     solved for - this adds slight (1%) overhead for the cases where particles
     are not laminar.
@@ -1503,7 +1503,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
        Fall of a Ball with Linear or Quadratic Drag." American Journal of
        Physics 67, no. 6 (June 1999): 538-46. https://doi.org/10.1119/1.19320.
     """
-    # Delayed import of necessaray functions
+    # Delayed import of necessary functions
     import numpy as np
     from scipy.integrate import odeint
     laminar_initial = Reynolds(V=V, rho=rho, D=D, mu=mu) < 0.01
@@ -1535,7 +1535,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
 
             # This is a serious problem for small diameters
             # It would be possible to step slowly, using smaller increments
-            # of time to avlid overflows. However, this unfortunately quickly
+            # of time to avoid overflows. However, this unfortunately quickly
             # gets much, exponentially, slower than just using odeint because
             # for example solving 10000 seconds might require steps of .0001
             # seconds at a diameter of 1e-7 meters.

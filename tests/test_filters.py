@@ -53,7 +53,7 @@ def test_filters():
 
     K1 = round_edge_grill(.4)
     K2 = round_edge_grill(.4, l=.15, Dh=.002, fd=.0185)
-    assert_close1d([K1, K2], [1.0, 2.3874999999999997])
+    assert_close1d([K1, K2], [1.0, 9.671874999999996])
 
 @pytest.mark.scipy
 def test_grills_rounded():

@@ -174,12 +174,8 @@ __all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
 'head_from_K', 'head_from_P', 'f_from_K',
 'P_from_head', 'Eotvos',
 'C2K', 'K2C', 'F2C', 'C2F', 'F2K', 'K2F', 'C2R', 'K2R', 'F2R', 'R2C', 'R2K', 'R2F',
-'PY3',
 ]
 
-version_components = sys.version.split('.')
-PY_MAJOR, PY_MINOR = int(version_components[0]), int(version_components[1])
-PY3 = PY_MAJOR >= 3
 
 
 ### Not quite dimensionless groups
@@ -323,8 +319,7 @@ def Reynolds(V, D, rho=None, mu=None, nu=None):
     if rho is not None and mu is not None:
         nu = mu/rho
     elif nu is None:
-        raise ValueError('Either density and viscosity, or dynamic viscosity, \
-        is needed')
+        raise ValueError('Either density and viscosity, or kinematic viscosity is needed')
     return V*D/nu
 
 
@@ -383,10 +378,9 @@ def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     """
     if rho is not None and Cp is not None and k is not None:
-        alpha =  k/(rho*Cp)
+        alpha = k/(rho*Cp)
     elif alpha is None:
-        raise ValueError('Either heat capacity and thermal conductivity and\
-        density, or thermal diffusivity is needed')
+        raise ValueError('Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed')
     return V*L/alpha
 
 
@@ -485,10 +479,9 @@ def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     """
     if rho is not None and Cp is not None and k is not None:
-        alpha =  k/(rho*Cp)
+        alpha = k/(rho*Cp)
     elif alpha is None:
-        raise ValueError('Either heat capacity and thermal conductivity and \
-density, or thermal diffusivity is needed')
+        raise ValueError('Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed')
     return t*alpha/(L*L)
 
 
@@ -593,8 +586,7 @@ def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
     if rho is not None and Cp is not None and k is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
-        raise ValueError('Either heat capacity and thermal conductivity and\
-        density, or thermal diffusivity is needed')
+        raise ValueError('Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed')
     return V*D*D/(x*alpha)
 
 
@@ -1028,8 +1020,8 @@ def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
 
     Inputs either of any of the following sets:
 
-    * L, beta, T1 and T2, and density `rho` and kinematic viscosity `mu`
-    * L, beta, T1 and T2, and dynamic viscosity `nu`
+    * L, beta, T1 and T2, and density `rho` and dynamic viscosity `mu`
+    * L, beta, T1 and T2, and kinematic viscosity `nu`
 
     Parameters
     ----------
@@ -1083,8 +1075,7 @@ def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
     if rho is not None and mu is not None:
         nu = mu/rho
     elif nu is None:
-        raise ValueError('Either density and viscosity, or dynamic viscosity, \
-        is needed')
+        raise ValueError('Either density and viscosity, or kinematic viscosity is needed')
     return g*beta*abs(T2-T1)*L*L*L/(nu*nu)
 
 
@@ -1226,7 +1217,7 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
     the application, this dimensionless number may be defined with the heavy
     phase or the light phase density in the numerator of the square root.
     For some applications, both need to be calculated. The default is to
-    calculate with the heavy liquid ensity on top; set `heavy` to False
+    calculate with the heavy liquid density on top; set `heavy` to False
     to reverse this.
 
     .. math::
@@ -1264,7 +1255,7 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
     Where the gravity force is reduced by the relative densities of one fluid
     in another.
 
-    Note that an Exception will be raised if rho1 > rho2, as the square root
+    Note that an Exception will be raised if rho1 < rho2, as the square root
     becomes negative.
 
     Examples
@@ -1357,7 +1348,7 @@ def Nusselt(h, L, k):
     Notes
     -----
     Do not confuse k, the thermal conductivity of the fluid, with that
-    of within a solid object associated with!
+    of a solid object!
 
     .. math::
         Nu = \frac{\text{Convective heat transfer}}
@@ -1395,7 +1386,7 @@ def Sherwood(K, L, D):
     L : float
         Characteristic length, no typical definition [m]
     D : float
-        Diffusivity of a species [m/s^2]
+        Diffusivity of a species [m^2/s]
 
     Returns
     -------
@@ -1422,7 +1413,7 @@ def Sherwood(K, L, D):
 
 
 def Biot(h, L, k):
-    r"""Calculates Biot number `Br` for heat transfer coefficient `h`,
+    r"""Calculates Biot number `Bi` for heat transfer coefficient `h`,
     geometric length `L`, and thermal conductivity `k`.
 
     .. math::
@@ -1538,7 +1529,7 @@ def Euler(dP, rho, V):
     -----
     Used in pressure drop calculations.
     Rarely, this number is divided by two.
-    Named after Leonhard Euler applied calculus to fluid dynamics.
+    Named after Leonhard Euler who applied calculus to fluid dynamics.
 
     .. math::
         Eu = \frac{\text{Pressure drop}}{2\cdot \text{velocity head}}
@@ -1808,7 +1799,7 @@ def Stokes_number(V, Dp, D, rhop, mu):
     Returns
     -------
     Stk : float
-        Stokes numer, [-]
+        Stokes number, [-]
 
     Notes
     -----
@@ -1892,7 +1883,7 @@ def Archimedes(L, rhof, rhop, mu, g=g):
     rhop : float
         Density of particle, [kg/m^3]
     mu : float
-        Viscosity of fluid, [N/m]
+        Viscosity of fluid, [Pa*s]
     g : float, optional
         Acceleration due to gravity, [m/s^2]
 
@@ -2046,7 +2037,7 @@ def Hagen(Re, fd):
     Introduced in [1]_; further use of it is mostly of the correlations
     introduced in [1]_.
 
-    Notable for use use in correlations, because it does not have any
+    Notable for use in correlations, because it does not have any
     dependence on velocity.
 
     This expression is useful when designing backwards with a pressure drop
@@ -2346,7 +2337,7 @@ def gravity(latitude, H):
     Uses latitude and height to calculate `g`.
 
     .. math::
-        g = 9.780356(1 + 0.0052885\sin^2\phi - 0.0000059^22\phi)
+        g = 9.780356(1 + 0.0052885\sin^2\phi - 0.0000059\sin^2(2\phi))
         - 3.086\times 10^{-6} H
 
     Parameters
@@ -2642,8 +2633,8 @@ def head_from_P(P, rho, g=g):
 
 
 def P_from_head(head, rho, g=g):
-    r"""Calculates head for a fluid of specified density at specified
-    pressure.
+    r"""Calculates pressure for a fluid of specified density at specified
+    head.
 
     .. math::
         P = \rho g \cdot \text{head}

@@ -254,7 +254,7 @@ def square_edge_grill(alpha, l=None, Dh=None, fd=None):
     else:
 
     .. math::
-        K = \frac{0.5(1-\alpha) + (1-\alpha^2) + f{l}/D}{\alpha^2}
+        K = \frac{0.5(1-\alpha) + (1-\alpha^2) + fl/D}{\alpha^2}
 
     Parameters
     ----------
@@ -315,7 +315,7 @@ def round_edge_grill(alpha, l=None, Dh=None, fd=None):
     else:
 
     .. math::
-        K = lookup(alpha) + \frac{fl}{\alpha^2D}
+        K = lookup(alpha) + \frac{fl}{\alpha^2 D}
 
     Parameters
     ----------
@@ -349,7 +349,7 @@ def round_edge_grill(alpha, l=None, Dh=None, fd=None):
     >>> round_edge_grill(.4)
     1.0
     >>> round_edge_grill(.4, l=.15, Dh=.002, fd=.0185)
-    2.3874999999999997
+    9.67187499999
 
     References
     ----------
@@ -358,6 +358,7 @@ def round_edge_grill(alpha, l=None, Dh=None, fd=None):
     """
     t1 = float(splev(alpha, grills_rounded_tck))
     if Dh and l and fd and l > 50.0*Dh:
-        return t1 + fd*l/Dh
+        alpha2 = alpha*alpha
+        return t1 + fd*l/(alpha2*Dh)
     else:
         return t1
