@@ -2073,7 +2073,7 @@ class UnconvergedError(Exception):
     """Error raised when maxiter has been reached in an optimization problem."""
 
     def __repr__(self):
-        return ('UnconvergedError("Failed to converge; maxiter (%d) reached, value=%g, error %g)"' %(self.maxiter, self.point, self.err))
+        return ('UnconvergedError("Failed to converge; maxiter (%s) reached, value=%s, error %s)"' %(self.iterations, self.point, self.err))
 
     def __init__(self, message, iterations=None, err=None, point=None):
         super(UnconvergedError, self).__init__(message)

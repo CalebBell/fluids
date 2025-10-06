@@ -45,9 +45,6 @@ Installation
 .. image:: https://img.shields.io/pypi/pyversions/fluids.svg?
    :target: https://pypi.python.org/pypi/fluids
    :alt: Supported_versions
-.. image:: http://img.shields.io/appveyor/ci/calebbell/fluids.svg?
-   :target: https://ci.appveyor.com/project/calebbell/fluids/branch/master
-   :alt: Build_status
 .. image:: https://zenodo.org/badge/48924523.svg?
    :alt: Zendo
    :target: https://zenodo.org/badge/latestdoi/48924523
@@ -109,7 +106,7 @@ Citation
 
 To cite fluids in publications use::
 
-    Caleb Bell and Contributors (2016-2024). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
+    Caleb Bell and Contributors (2016-2025). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
     https://github.com/CalebBell/fluids.
 
 

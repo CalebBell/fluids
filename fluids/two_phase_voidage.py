@@ -101,7 +101,7 @@ __all__ = ['Thom', 'Zivi', 'Smith', 'Fauske', 'Chisholm_voidage', 'Turner_Wallis
            'Sun_Duffey_Peng', 'Xu_Fang_voidage', 'Woldesemayat_Ghajar',
            'Lockhart_Martinelli_Xtt', 'two_phase_voidage_experimental',
            'density_two_phase', 'Beattie_Whalley', 'McAdams', 'Cicchitti',
-           'Lin_Kwok', 'Fourar_Bories','Duckler', 'liquid_gas_voidage',
+           'Lin_Kwok', 'Fourar_Bories', 'Duckler', 'liquid_gas_voidage',
            'liquid_gas_voidage_methods', 'gas_liquid_viscosity',
            'gas_liquid_viscosity_methods',
            'two_phase_voidage_correlations', 'liquid_gas_viscosity_correlations']
@@ -686,7 +686,6 @@ def Guzhov(x, rhol, rhog, m, D):
     .. [2] Xu, Yu, and Xiande Fang. "Correlations of Void Fraction for Two-
        Phase Refrigerant Flow in Pipes." Applied Thermal Engineering 64, no.
        1-2 (March 2014): 242-51. doi:10.1016/j.applthermaleng.2013.12.032.
-       921-27. doi:10.1016/j.icheatmasstransfer.2008.04.001.
     .. [3] Woldesemayat, Melkamu A., and Afshin J. Ghajar. "Comparison of Void
        Fraction Correlations for Different Flow Patterns in Horizontal and
        Upward Inclined Pipes." International Journal of Multiphase Flow 33,
@@ -695,7 +694,7 @@ def Guzhov(x, rhol, rhog, m, D):
     rho_tp = 1.0/((1-x)/rhol + x/rhog)
     G = m/(0.25*pi*D*D)
     V_tp = G/rho_tp
-    Fr = Froude(V=V_tp, L=D, squared=True) # squaring in undone later; Fr**0.5
+    Fr = Froude(V=V_tp, L=D, squared=True) # squaring is undone later; Fr**0.5
     alpha_h = homogeneous(x, rhol, rhog)
     return 0.81*(1 - exp(-2.2*sqrt(Fr)))*alpha_h
 
@@ -1019,7 +1018,7 @@ def Harms(x, rhol, rhog, mul, mug, m, D):
     Examples
     --------
     >>> Harms(.4, 800, 2.5, 1E-3, 1E-5, m=1, D=0.3)
-    0.9653289762907554
+    0.931860032466
 
     References
     ----------
@@ -1041,7 +1040,7 @@ def Harms(x, rhol, rhog, mul, mug, m, D):
     Xtt = Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug)
     term = (1.74 + 0.104*sqrt(Rel))
     return (1 - 10.06*Rel**-0.875*term*term
-            *1.0/sqrt(1.376 + 7.242*Xtt**-1.655))
+            *1.0/sqrt(1.376 + 7.242*Xtt**-1.655))**2
 
 
 def Domanski_Didion(x, rhol, rhog, mul, mug):
@@ -1697,9 +1696,6 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
     .. math::
         v_{ls} = \frac{m(1-x)}{\rho_l \frac{\pi}{4}D^2}
 
-    .. math::
-        v_m = v_{gs} + v_{ls}
-
     Parameters
     ----------
     x : float
@@ -1947,7 +1943,7 @@ def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
     third = (1.22 + 1.22*sin(radians(angle)))**(101325./P)
     return vgs/(first + second*third)
 
-# x, rhol, rhog 2ill be the minimum inputs
+# x, rhol, rhog will be the minimum inputs
 
 two_phase_voidage_correlations = {'Thom' : (Thom, ('x', 'rhol', 'rhog', 'mul', 'mug')),
 'Zivi' : (Zivi, ('x', 'rhol', 'rhog')),
@@ -2504,7 +2500,7 @@ def Fourar_Bories(x, mul, mug, rhol, rhog):
     This model converges to the liquid or gas viscosity as the quality
     approaches either limits.
 
-    This was first expressed in the equalivalent form as follows:
+    This was first expressed in the equivalent form as follows:
 
     .. math::
         \mu_m = \rho_m\left(x\nu_g + (1-x)\nu_l + 2\sqrt{x(1-x)\nu_g\nu_l}

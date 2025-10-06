@@ -61,7 +61,6 @@ Critical Flow
 .. autofunction:: P_critical_flow
 .. autofunction:: is_critical_flow
 .. autofunction:: P_isothermal_critical_flow
-.. autofunction:: P_upstream_isothermal_critical_flow
 
 Stagnation Point
 ----------------
@@ -122,7 +121,7 @@ def isothermal_work_compression(P1, P2, T, Z=1.0):
 
     The substitutions are according to the ideal gas law with compressibility:
 
-    .. math:
+    .. math::
         PV = ZRT
 
     The work of compression/expansion is the change in enthalpy of the gas.
@@ -132,11 +131,11 @@ def isothermal_work_compression(P1, P2, T, Z=1.0):
     accuracy, this expression can be used repeatedly with small changes in
     pressure and the work from each step summed.
 
-    This is the best possible case for compression; all actual compresssors
+    This is the best possible case for compression; all actual compressors
     require more work to do the compression.
 
     By making the compression take a large number of stages and cooling the gas
-    between stages, this can be approached reasonable closely. Integrally
+    between stages, this can be approached reasonably closely. Integrally
     geared compressors are often used for this purpose.
 
     Examples
@@ -249,7 +248,7 @@ def isentropic_work_compression(T1, k, Z=1.0, P1=None, P2=None, W=None, eta=None
        Professional Publishing, 2009.
     """
     if W is None and eta is not None and P1 is not None and P2 is not None:
-        return k/(k - 1.0)*Z*R*T1*((P2/P1)**((k-1.)/k) - 1.0)/eta
+        return k/(k - 1.0)*Z*R*T1*((P2/P1)**((k - 1.0)/k) - 1.0)/eta
     elif P1 is None and eta is not None and W is not None and P2 is not None:
         return P2*(1.0 + W*eta/(R*T1*Z) - W*eta/(R*T1*Z*k))**(-k/(k - 1.0))
     elif P2 is None and eta is not None and W is not None and P1 is not None:
@@ -264,7 +263,7 @@ def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
     r"""Calculates the increase in temperature of a fluid which is compressed
     or expanded under isentropic, adiabatic conditions assuming constant
     Cp and Cv.  The polytropic model is the same equation; just provide `n`
-    instead of `k` and use a polytropic efficienty for `eta` instead of a
+    instead of `k` and use a polytropic efficiency for `eta` instead of a
     isentropic efficiency.
 
     .. math::
@@ -349,7 +348,7 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
 
     Notes
     -----
-    The form for obtained `eta_p` from `eta_s` was derived with SymPy.
+    The form for obtaining `eta_p` from `eta_s` was derived with SymPy.
 
     Examples
     --------
@@ -398,9 +397,6 @@ def polytropic_exponent(k, n=None, eta_p=None):
     n or eta_p : float
         Polytropic exponent or polytropic efficiency, depending on input, [-]
 
-    Notes
-    -----
-
     Examples
     --------
     >>> polytropic_exponent(1.4, eta_p=0.78)
@@ -434,7 +430,7 @@ def T_critical_flow(T, k):
     T : float
         Stagnation temperature of a fluid with Ma=1 [K]
     k : float
-        Isentropic coefficient []
+        Isentropic exponent [-]
 
     Returns
     -------
@@ -474,7 +470,7 @@ def P_critical_flow(P, k):
     P : float
         Stagnation pressure of a fluid with Ma=1 [Pa]
     k : float
-        Isentropic coefficient []
+        Isentropic exponent [-]
 
     Returns
     -------
@@ -497,7 +493,7 @@ def P_critical_flow(P, k):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     """
-    return P*(2.0/(k + 1.))**(k/(k - 1.0))
+    return P*(2.0/(k + 1.0))**(k/(k - 1.0))
 
 
 def P_isothermal_critical_flow(P, fd, D, L):
@@ -576,7 +572,7 @@ def is_critical_flow(P1, P2, k):
     P2 : float
         Lower, downstream pressure [Pa]
     k : float
-        Isentropic coefficient []
+        Isentropic exponent [-]
 
     Returns
     -------
@@ -620,7 +616,7 @@ def stagnation_energy(V):
     Returns
     -------
     dH : float
-        Incease in enthalpy [J/kg]
+        Increase in enthalpy [J/kg]
 
     Notes
     -----
@@ -656,7 +652,7 @@ def P_stagnation(P, T, Tst, k):
     Tst : float
         Stagnation temperature of a fluid moving at a certain velocity [K]
     k : float
-        Isentropic coefficient []
+        Isentropic exponent [-]
 
     Returns
     -------
@@ -699,7 +695,7 @@ def T_stagnation(T, P, Pst, k):
     Pst : float
         Stagnation pressure of a fluid moving at a certain velocity [Pa]
     k : float
-        Isentropic coefficient []
+        Isentropic exponent [-]
 
     Returns
     -------
@@ -736,7 +732,7 @@ def T_stagnation_ideal(T, V, Cp):
     Parameters
     ----------
     T : float
-        Tempearture [K]
+        Temperature [K]
     V : float
         Velocity [m/s]
     Cp : float
@@ -745,7 +741,7 @@ def T_stagnation_ideal(T, V, Cp):
     Returns
     -------
     Tst : float
-        Stagnation temperature [J/kg]
+        Stagnation temperature [K]
 
     Examples
     --------
@@ -834,7 +830,7 @@ def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
     `P_isothermal_critical_flow` for details. An exception is raised when
     they occur.
 
-    The 2 multiplied by the logarithm is often shown  as a power of the
+    The 2 multiplied by the logarithm is often shown as a power of the
     pressure ratio; this is only the case when the pressure ratio is raised to
     the power of 2 before its logarithm is taken.
 
@@ -909,7 +905,7 @@ f'due to the formation of choked flow at P2={Pcf:f}, specified outlet pressure w
             except:
                 m_max = isothermal_gas(rho, fd, P1=Pcf, P2=P2, L=L, D=D)  # numba: delete
                 raise ValueError(f'The desired mass flow rate of {m:f} kg/s cannot ' # numba: delete
-                                 'be achieved with the specified downstream pressure; the maximum flowrate is ' # numba: delete
+                                 'be achieved with the specified downstream pressure; the maximum flow rate is ' # numba: delete
                                  f'{m_max:f} kg/s at an upstream pressure of {Pcf:f} Pa') # numba: delete
 #                raise ValueError("Failed") # numba: uncomment
     elif P2 is None and L is not None and P1 is not None and D is not None and m is not None:
@@ -941,12 +937,12 @@ f'due to the formation of choked flow at P2={Pcf:f}, specified outlet pressure w
             except:
                 m_max = isothermal_gas(rho, fd, P1=P1, P2=Pcf, L=L, D=D)
                 raise ValueError('The desired mass flow rate cannot be achieved ' # numba: delete
-                                 f'with the specified upstream pressure of {P1:f} Pa; the maximum flowrate is {m_max:f} ' # numba: delete
+                                 f'with the specified upstream pressure of {P1:f} Pa; the maximum flow rate is {m_max:f} ' # numba: delete
                                  f'kg/s at a downstream pressure of {Pcf:f}') # numba: delete
 #                raise ValueError("Failed") # numba: uncomment
             # A solver which respects its boundaries is required here.
-            # brenth cuts the time down from 2 ms to 200 mircoseconds.
-            # Is is believed Pcf and P1 will always bracked the root, however
+            # brenth cuts the time down from 2 ms to 200 microseconds.
+            # It is believed Pcf and P1 will always bracket the root, however
             # leave the commented code for testing
     elif D is None and P2 is not None and P1 is not None and L is not None and m is not None:
         return secant(isothermal_gas_err_D, 0.1, args=(m, rho, fd, P1, P2, L))
@@ -1315,7 +1311,7 @@ must be provided.')
 
 def _to_solve_Spitzglass_high(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
      return Q - Spitzglass_high(SG=SG, Tavg=Tavg, L=L, D=D,
-                                  P1=P1, P2=P2, Ts=Ts, Ps=Ps,Zavg=Zavg, E=E)
+                                  P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
 
 def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
                 Ps=101325., Zavg=1.0, E=1.):
@@ -1924,10 +1920,10 @@ def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
     """
     # 1000*foot**3/hour*0.6643/inch**(8/3.)*foot**(5/9.)*(5/9.)**(5/9.)*9/5.*(pound/foot)**(1/9.)*psi*(1/psi**2)**(5/9.)
     c5 = 24.62412451461407054875301709443930350550 # 1084707*196133**(8/9)*2**(1/9)*6**(1/3)/4377968750
-    c2 = 5/9. # main power
-    c3 = 8/3. # D power
-    c4 = 4/9. # SG power
-    c1 = 1/9. # mu power
+    c2 = 5.0/9.0 # main power
+    c3 = 8.0/3.0 # D power
+    c4 = 4.0/9.0 # SG power
+    c1 = 1.0/9.0 # mu power
     if Q is None and L is not None and D is not None and P1 is not None and P2 is not None:
         return c5*Ts/Ps*E*((P1**2-P2**2)/Tavg/L/Zavg)**c2*D**c3/SG**c4/mu**c1
     elif D is None and L is not None and Q is not None and P1 is not None and P2 is not None:

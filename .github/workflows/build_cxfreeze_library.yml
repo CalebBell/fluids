@@ -1,4 +1,4 @@
-name: Check Nuitka Compatibility
+name: Check cx_Freeze Compatibility
 
 on:
   push:
@@ -19,47 +19,11 @@ jobs:
       matrix:
         python-version: ['3.13']
         os: [windows-latest, ubuntu-latest, macos-15-intel, macos-latest]
-        architecture: ['x86', 'x64']
-        exclude:
-          # no python builds available on macos 32 bit, arm or x64
-          - os: macos-latest
-            architecture: x86
-          - os: macos-15-intel
-            architecture: x86
-          # no python builds available on linux 32 bit
-          - os: ubuntu-latest
-            architecture: x86
-          # scipy dropped 32 bit windows builds 
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.8
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.9
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.10
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.11
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.12
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.13
 
-          # These are arm - old versions of Python are not supported
-          - os: macos-latest
-            python-version: 3.8
-          - os: macos-latest
-            python-version: 3.9
-          - os: macos-latest
-            python-version: 3.10
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }} ${{ matrix.architecture }}
-      uses: actions/setup-python@v5 
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
         architecture: ${{ matrix.architecture }}
@@ -95,25 +59,33 @@ jobs:
         # Taken from scipy
         sudo apt-get update
         sudo apt-get install -y libopenblas-dev libatlas-base-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev
-    
+
     - name: Install dependencies
       run: |
         python -c "import platform; print(platform.platform()); print(platform.architecture())"
         python -m pip install --upgrade pip
         python -m pip install wheel
         pip install -r requirements_test.txt
-        pip install nuitka
-    - name: Add numba
-      if: ${{ !contains(fromJSON('["pypy3.9"]'), matrix.python-version) }}
+        pip install cx_Freeze
+
+    - name: Install fluids
       run: |
-        pip install numba
-    - name: Build nuitka library
-      run: |
-        python -m nuitka --module fluids --include-package=fluids
-    - name: Delete fluids folder
+        pip install -e .
+
+    - name: Build cx_Freeze executable
       shell: bash
       run: |
-          rm -rf fluids/fluids
-    - name: Test build library can be imported
+        cd dev
+        python cx_freeze_basic_standalone_check_builder.py build
+        cd ..
+
+    - name: Test build on Linux/macOS
+      if: runner.os != 'Windows'
       run: |
-        python -c "import fluids; print(fluids.__version__)"
+        ./dev/build/exe.*/basic_standalone_fluids_check
+
+    - name: Test build on Windows
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        ./dev/build/exe.*/basic_standalone_fluids_check.exe

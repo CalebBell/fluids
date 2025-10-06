@@ -190,14 +190,14 @@ def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1.0):
     voidage : float
         Voidage of bed of the demister material, normally ~0.98 []
     d_wire : float
-        Diameter of mesh wire,[m]
+        Diameter of mesh wire, [m]
     L : float, optional
         Length of the demister [m]
 
     Returns
     -------
     dP : float
-        Pressure drop across a dry demister [Pa]
+        Pressure drop across a wet demister [Pa]
 
     Notes
     -----
@@ -253,7 +253,7 @@ def separation_demister_ElDessouky(vs, voidage, d_wire, d_drop):
     voidage : float
         Voidage of bed of the demister material, normally ~0.98 []
     d_wire : float
-        Diameter of mesh wire,[m]
+        Diameter of mesh wire, [m]
     d_drop : float
         Drop diameter, [m]
 
@@ -314,7 +314,7 @@ def voidage_experimental(m, rho, D, H):
     Parameters
     ----------
     m : float
-        Mass of mesh or bed particles weighted, [kg]
+        Mass of mesh or bed particles weighed, [kg]
     rho : float
         Density of solid particles or mesh [kg/m^3]
     D : float
@@ -435,7 +435,7 @@ def Stichlmair_dry(Vg, rhog, mug, voidage, specific_area, C1, C2, C3, H=1.):
     Notes
     -----
     This model is used by most process simulation tools. If H is not provided,
-    it defaults to 1. If Z is not provided, it defaults to 1.
+    it defaults to 1.
 
     Examples
     --------
@@ -462,7 +462,7 @@ def _Stichlmair_wet_err(dP_irr, h0, c1, dP_dry, H, voidage, c):
     return err
 
 def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=1.0):
-    r"""Calculates dry pressure drop across a packed column, using the
+    r"""Calculates wet pressure drop across a packed column, using the
     Stichlmair [1]_ correlation. Uses three regressed constants for each
     type of packing, and voidage and specific area. This model is for irrigated
     columns only.
@@ -475,7 +475,7 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
         \left(\frac{\epsilon}{\epsilon-h_T}\right)^{4.65}
 
     .. math::
-        h_T = h_0\left[1 + 20\left(\frac{\Delta Pirr}{H\rho_L g}\right)^2\right]
+        h_T = h_0\left[1 + 20\left(\frac{\Delta P_{irr}}{H\rho_L g}\right)^2\right]
 
     .. math::
         Fr_L = \frac{V_L^2 a}{g \epsilon^{4.65}}
@@ -529,7 +529,7 @@ def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, 
     Notes
     -----
     This model is used by most process simulation tools. If H is not provided,
-    it defaults to 1. If Z is not provided, it defaults to 1.
+    it defaults to 1.
     A numerical solver is used and needed by this model. Its initial guess
     is the dry pressure drop. Convergence problems may occur.
     The model as described in [1]_ appears to have a typo, and could not match
@@ -671,7 +671,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3,
         \left(\frac{\epsilon}{\epsilon-h_T}\right)^{4.65}
 
     .. math::
-        h_T = h_0\left[1 + 20\left(\frac{\Delta Pirr}{H\rho_L g}\right)^2\right]
+        h_T = h_0\left[1 + 20\left(\frac{\Delta P_{irr}}{H\rho_L g}\right)^2\right]
 
     .. math::
         Fr_L = \frac{V_L^2 a}{g \epsilon^{4.65}}
@@ -799,7 +799,7 @@ def Robbins(L, G, rhol, rhog, mul, H=1.0, Fpd=24.0):
 
     References
     ----------
-    .. [1] Robbins [Chem. Eng. Progr., p. 87 (May 1991) Improved Pressure Drop
+    .. [1] Robbins [Chem. Eng. Progr., p. 87 (May 1991)] Improved Pressure Drop
        Prediction with a New Correlation.
     """
     # Convert SI units to imperial for use in correlation
@@ -818,4 +818,4 @@ def Robbins(L, G, rhol, rhog, mul, H=1.0, Fpd=24.0):
     C4LF_10_GF2_C3 = C3*Gf2*10.0**(C4*Lf)
     C4LF_10_GF2_C3_2 = C4LF_10_GF2_C3*C4LF_10_GF2_C3
     dP = C4LF_10_GF2_C3 + 0.4*(5e-5*Lf)**0.1*(C4LF_10_GF2_C3_2*C4LF_10_GF2_C3_2)
-    return dP*817.22083*H # in. H2O to Pa/m
+    return dP*817.22083*H # in. H2O to Pa

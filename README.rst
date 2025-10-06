@@ -20,9 +20,6 @@ fluids
 .. image:: https://img.shields.io/pypi/pyversions/fluids.svg?
    :target: https://pypi.python.org/pypi/fluids
    :alt: Supported_versions
-.. image:: http://img.shields.io/appveyor/ci/calebbell/fluids.svg?
-   :target: https://ci.appveyor.com/project/calebbell/fluids/branch/master
-   :alt: Build_status
 .. image:: https://zenodo.org/badge/48924523.svg?
    :alt: Zendo
    :target: https://zenodo.org/badge/latestdoi/48924523
@@ -46,7 +43,7 @@ of engineering knowledge and utilities that relate to fluid dynamics.
 Fluids was originally tightly integrated with SciPy and NumPy; today they
 are optional components used for only a small amount of functionality
 which do not have pure-Python numerical methods implemented.
-Fluids targets Python 3.6 and up as well as PyPy3. Additionally,
+Fluids targets Python 3.8 and up as well as PyPy3. Additionally,
 fluids has been tested by the author to load in IronPython,
 and micropython.
 
@@ -127,5 +124,5 @@ Citation
 
 To cite fluids in publications use::
 
-    Caleb Bell and Contributors (2016-2024). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
+    Caleb Bell and Contributors (2016-2025). fluids: Fluid dynamics component of Chemical Engineering Design Library (ChEDL)
     https://github.com/CalebBell/fluids.

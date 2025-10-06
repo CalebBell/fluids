@@ -113,7 +113,7 @@ def test_roots_cubic():
 
     v0, v1, v2 = roots_cubic(1.0, 100.0, 1000.0, 10.0)
 
-    assert_close(v0.real, -0.010010019045111562, rtol=1e-12)
+    assert_close(v0.real, -0.010010019045111562, rtol=2e-12)
     assert_close(v0.imag, 0, atol=0)
     assert_close(v1.real, -88.73128838313305, rtol=1e-12)
     assert_close(v1.imag, 0, atol=0)

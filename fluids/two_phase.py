@@ -560,7 +560,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
 
     Notes
     -----
-    Applicable for  0 < x < 1. n = 0.25, the exponent in the Blassius equation.
+    Applicable for  0 < x < 1. n = 0.25, the exponent in the Blasius equation.
     Originally developed for smooth pipes, a roughness correction is included
     as well from the Chisholm's 1968 work [4]_. Neither [2]_ nor [3]_ have any
     mention of the correction however.
@@ -687,7 +687,7 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
 
     Notes
     -----
-    Applicable for  0 < x < 1. n = 0.25, the exponent in the Blassius equation.
+    Applicable for  0 < x < 1. n = 0.25, the exponent in the Blasius equation.
     The `Chisholm_1973` function should be used in preference to this.
 
     Examples
@@ -1220,7 +1220,7 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     --------
     >>> Chen_Friedel(m=.0005, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5,
     ... sigma=0.02, D=0.003, roughness=0.0, L=1.0)
-    6249.247540
+    6441.66327428
 
     References
     ----------
@@ -1274,7 +1274,7 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
         # Actual gas flow, needed for this case only.
         v_g = m*x/(rhog*A)
         Re_g = Reynolds(V=v_g, rho=rhog, mu=mug, D=D)
-        Omega = 0.0333*Re_lo**0.45/(Re_g**0.09*(1.0 + 0.5*exp(-Bo)))
+        Omega = 0.0333*Re_lo**0.45/(Re_g**0.09*(1.0 + 0.4*exp(-Bo)))
     else:
         Omega = We**0.2/(2.5 + 0.06*Bo)
     return dP*Omega
@@ -1822,17 +1822,17 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
     For adiabatic liquid-vapor two-phase flow:
 
     .. math::
-        C = 21[1 - \exp(-0.142/Co)]
+        C = 21 \cdot [1 - \exp(-0.142/Co)]
 
     For adiabatic liquid-gas two-phase flow:
 
     .. math::
-        C = 21[1 - \exp(-0.674/Co)]
+        C = 21 \cdot [1 - \exp(-0.674/Co)]
 
     For flow boiling:
 
     .. math::
-        C = 21[1 - \exp(-0.358/Co)]
+        C = 21 \cdot [1 - \exp(-0.358/Co)]
 
     Parameters
     ----------
@@ -1914,7 +1914,7 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
     elif flowtype == 'flow boiling':
         C = 21*(1 - exp(-0.358/Co))
     else:
-        raise ValueError("Only flow types 'adiabatic vapor', 'adiabatic gas, \
+        raise ValueError("Only flow types 'adiabatic vapor', 'adiabatic gas', \
 and 'flow boiling' are recognized.")
 
     phi_l2 = 1 + C/X + 1./(X*X)
@@ -1929,7 +1929,7 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
         \Delta P = \Delta P_{l} \phi_{l}^2
 
     .. math::
-        C = 21[1 - \exp(-319D)]
+        C = 21 \cdot [1 - \exp(-319D)]
 
     .. math::
         \phi_l^2 = 1 + \frac{C}{X} + \frac{1}{X^2}
@@ -2279,7 +2279,7 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
     else: # Turbulent case
         C = 20.0
 
-    # Frictoin factor as in the original model
+    # Friction factor as in the original model
     x_only_liquid_tol = 1e-30
     x_only_vapor_tol = 1e-13
     fd_g =  64./Re_g if Re_g < Re_c else 0.184*Re_g**-0.2
@@ -3007,7 +3007,7 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
 
 def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
     r"""Classifies the regime of a two-phase flow according to Mandhane,
-    Gregory, and Azis  (1974) flow map.
+    Gregory, and Aziz  (1974) flow map.
 
     The flow regimes in this method are 'elongated bubble', 'stratified',
     'annular mist', 'slug', 'dispersed bubble', and 'wave'.

@@ -55,10 +55,10 @@ from fluids.numerics import quad, secant
 
 try:
     from datetime import datetime
-except:
+except ImportError:
     pass
 
-__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00',
+__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'airmass',
            'earthsun_distance', 'solar_position', 'solar_irradiation',
            'sunrise_sunset']
 
@@ -419,7 +419,7 @@ class ATMOSPHERE_NRLMSISE00:
     its implementation only. It was written in FORTRAN, and is accessible
     at ftp://hanna.ccmc.gsfc.nasa.gov/pub/modelweb/atmospheric/msis/nrlmsise00/
 
-    A C port of the model by Dominik Brodowskihas become popular, and is
+    A C port of the model by Dominik Brodowski has become popular, and is
     available on his website: http://www.brodo.de/space/nrlmsise/.
 
     In 2013 Joshua Milas ported the C port to Python. This is an interface to
@@ -446,7 +446,7 @@ class ATMOSPHERE_NRLMSISE00:
     """
 
     components = ['N2', 'O2', 'Ar', 'He', 'O', 'H', 'N']
-    atrrs = ['N2_density', 'O2_density', 'Ar_density', 'He_density',
+    attrs = ['N2_density', 'O2_density', 'Ar_density', 'He_density',
              'O_density', 'H_density', 'N_density']
     MWs = [28.0134, 31.9988, 39.948, 4.002602, 15.9994, 1.00794, 14.0067]
 
@@ -500,13 +500,13 @@ class ATMOSPHERE_NRLMSISE00:
         self.T = output_obj.t[1]
 
         # Calculate pressure with the ideal gas law PV = nRT with V = 1 m^3
-        self.P = sum([getattr(self, a) for a in self.atrrs])*self.T*R/N_A
+        self.P = sum([getattr(self, a) for a in self.attrs])*self.T*R/N_A
         # Calculate mass density with known MWs
-        self.rho_calculated = sum([getattr(self, a)*MW for c, a, MW in
-                                   zip(self.components, self.atrrs, self.MWs)])/(1000.*N_A)
+        self.rho_calculated = sum([getattr(self, a)*MW for a, MW in
+                                   zip(self.attrs, self.MWs)])/(1000.*N_A)
 
-        self.particle_density = sum(getattr(self, a) for a in self.atrrs)
-        self.zs = [getattr(self, a)/self.particle_density for a in self.atrrs]
+        self.particle_density = sum(getattr(self, a) for a in self.attrs)
+        self.zs = [getattr(self, a)/self.particle_density for a in self.attrs]
 
 
 def to_int_airmass(Z, c1, c2, angle_term, R_planet_inv, func):
@@ -574,7 +574,7 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
     c0 = delta0 + delta0
     c1 = c0*rho0_inv
     c2 = 1.0 + c0
-    return quad(to_int_airmass, 0.0, 86400.0, args=(c1, c2, angle_term, R_planet_inv, func))[0]
+    return quad(to_int_airmass, 0.0, H_max, args=(c1, c2, angle_term, R_planet_inv, func))[0]
 
 
 
@@ -656,7 +656,7 @@ def earthsun_distance(moment):
 def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
                    atmos_refract=0.5667):
     r"""Calculate the position of the sun in the sky. It is defined in terms of
-    two angles - the zenith and the azimith. The azimuth tells where a sundial
+    two angles - the zenith and the azimuth. The azimuth tells where a sundial
     would see the sun as coming from; the zenith tells how high in the sky it
     is. The solar elevation angle is returned for convenience; it is the
     complimentary angle of the zenith.
@@ -754,7 +754,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     It is positive North eastwards 0° to 360°. Other conventions may be used.
 
     Note that due to differences in atmospheric refractivity, estimation of
-    sunset and sunrise are accuract to no more than one minute. Refraction
+    sunset and sunrise are accurate to no more than one minute. Refraction
     conditions truly vary across the atmosphere; so characterizing it by an
     average value is limiting as well.
 
@@ -1066,7 +1066,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     if linke_turbidity is None:
         try:
             import pvlib  # noqa: F401
-        except:
+        except ImportError:
             raise ImportError(PVLIB_MISSING_MSG)
         import pandas as pd
         from pvlib.clearsky import lookup_linke_turbidity

@@ -30,10 +30,10 @@ or contact the author at Caleb.Andrew.Bell@gmail.com.
 
 Functions
 ---------
-.. autofunction :: v_Sounders_Brown
+.. autofunction :: v_Souders_Brown
 .. autofunction :: K_separator_Watkins
 .. autofunction :: K_separator_demister_York
-.. autofunction :: K_Sounders_Brown_theoretical
+.. autofunction :: K_Souders_Brown_theoretical
 """
 
 from math import exp, log, sqrt
@@ -41,8 +41,9 @@ from math import exp, log, sqrt
 from fluids.constants import foot, g, psi
 from fluids.numerics import implementation_optimize_tck, splev
 
-__all__ = ['v_Sounders_Brown', 'K_separator_Watkins',
-           'K_separator_demister_York', 'K_Sounders_Brown_theoretical']
+__all__ = ['v_Souders_Brown', 'K_separator_Watkins',
+           'K_separator_demister_York', 'K_Souders_Brown_theoretical',
+           'v_Sounders_Brown', 'K_Sounders_Brown_theoretical']
 
 
 # 92 points taken from a 2172x3212 page scan, after dewarping the scan,
@@ -63,7 +64,7 @@ tck_Watkins = implementation_optimize_tck([[-5.115995809754082, -5.1159958097540
                                          3])
 
 def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
-    r"""Calculates the Sounders-Brown `K` factor as used in determining maximum
+    r"""Calculates the Souders-Brown `K` factor as used in determining maximum
     allowable gas velocity in a two-phase separator in either a horizontal or
     vertical orientation. This function approximates a graph published in [1]_
     to determine `K` as used in the following equation:
@@ -81,7 +82,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
     from the graph, which was digitized with Engauge-Digitizer.
 
     Also supported are two published curve fits to the graph. The first is that
-    of Blackwell (1984) [2]_, as follows:
+    of Branan (1999) [1]_, as follows:
 
     .. math::
         K_{SB} = \exp(-1.942936 -0.814894X -0.179390 X^2 -0.0123790 X^3
@@ -89,7 +90,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
 
         X = \ln\left[\frac{(1-x)}{x}\sqrt{\rho_g/\rho_l}\right]
 
-    The second is that of Branan (1999), as follows:
+    The second is that of Blackwell (1984) [2]_ as follows:
 
     .. math::
         K_{SB} = \exp(-1.877478097 -0.81145804597X -0.1870744085 X^2
@@ -114,7 +115,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
     Returns
     -------
     K : float
-        Sounders Brown horizontal or vertical `K` factor for two-phase
+        Souders Brown horizontal or vertical `K` factor for two-phase
         separator design only, [m/s]
 
     Notes
@@ -168,7 +169,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
 
 
 def K_separator_demister_York(P, horizontal=False):
-    r"""Calculates the Sounders Brown `K` factor as used in determining maximum
+    r"""Calculates the Souders Brown `K` factor as used in determining maximum
     permissible gas velocity in a two-phase separator in either a horizontal or
     vertical orientation, *with a demister*.
     This function is a curve fit to [1]_ published in [2]_ and is widely used.
@@ -183,7 +184,7 @@ def K_separator_demister_York(P, horizontal=False):
     .. math::
         K = 0.35
 
-    For P < 5500 psia:
+    For 40 < P <= 5500 psia:
 
     .. math::
         K = 0.430 - 0.023\ln P
@@ -201,7 +202,7 @@ def K_separator_demister_York(P, horizontal=False):
     Returns
     -------
     K : float
-        Sounders Brown Horizontal or vertical `K` factor for two-phase
+        Souders Brown Horizontal or vertical `K` factor for two-phase
         separator design with a demister, [m/s]
 
     Notes
@@ -244,10 +245,10 @@ def K_separator_demister_York(P, horizontal=False):
     return K
 
 
-def v_Sounders_Brown(K, rhol, rhog):
+def v_Souders_Brown(K, rhol, rhog):
     r"""Calculates the maximum allowable vapor velocity in a two-phase
     separator to permit separation between entrained droplets and the gas
-    using an empirical `K` factor, named after Sounders and Brown [1]_.
+    using an empirical `K` factor, named after Souders and Brown [1]_.
     This is a simplifying expression for terminal velocity and drag on
     particles.
 
@@ -257,7 +258,7 @@ def v_Sounders_Brown(K, rhol, rhog):
     Parameters
     ----------
     K : float
-        Sounders Brown `K` factor for two-phase separator design, [m/s]
+        Souders Brown `K` factor for two-phase separator design, [m/s]
     rhol : float
         Density of liquid phase [kg/m^3]
     rhog : float
@@ -271,7 +272,7 @@ def v_Sounders_Brown(K, rhol, rhog):
 
     Notes
     -----
-    The Sounders Brown K factor is related to the terminal velocity as shown in
+    The Souders Brown K factor is related to the terminal velocity as shown in
     the following expression.
 
     .. math::
@@ -284,12 +285,12 @@ def v_Sounders_Brown(K, rhol, rhog):
     Note this form corresponds to the Newton's law range (Re > 500), but in
     reality droplets are normally in the intermediate or Stoke's law region
     [2]_. For this reason using the drag coefficient expression directly is
-    cleaner, but identical results can be found with the Sounders Brown
+    cleaner, but identical results can be found with the Souders Brown
     equation.
 
     Examples
     --------
-    >>> v_Sounders_Brown(K=0.08, rhol=985.4, rhog=1.3)
+    >>> v_Souders_Brown(K=0.08, rhol=985.4, rhog=1.3)
     2.2010906387516167
 
     References
@@ -304,8 +305,8 @@ def v_Sounders_Brown(K, rhol, rhog):
     return K*sqrt((rhol - rhog)/rhog)
 
 
-def K_Sounders_Brown_theoretical(D, Cd, g=g):
-    r"""Converts a known drag coefficient into a Sounders-Brown `K` factor
+def K_Souders_Brown_theoretical(D, Cd, g=g):
+    r"""Converts a known drag coefficient into a Souders-Brown `K` factor
     for two-phase separator design. This factor is the traditional way for
     separator diameters to be obtained although it is unnecessary and the
     theoretical drag coefficient method can be used instead.
@@ -326,7 +327,7 @@ def K_Sounders_Brown_theoretical(D, Cd, g=g):
     Returns
     -------
     K : float
-        Sounders Brown `K` factor for two-phase separator design, [m/s]
+        Souders Brown `K` factor for two-phase separator design, [m/s]
 
     Notes
     -----
@@ -343,8 +344,8 @@ def K_Sounders_Brown_theoretical(D, Cd, g=g):
     >>> for i in range(10):
     ...     Re = Reynolds(V=V, rho=rho, mu=mu, D=D)
     ...     Cd = drag_sphere(Re)
-    ...     K = K_Sounders_Brown_theoretical(D=D, Cd=Cd)
-    ...     V = v_Sounders_Brown(K, rhol=rhol, rhog=rho)
+    ...     K = K_Souders_Brown_theoretical(D=D, Cd=Cd)
+    ...     V = v_Souders_Brown(K, rhol=rhol, rhog=rho)
     ...     print('%.14f' %V)
     0.76093307417658
     0.56242939340131
@@ -357,7 +358,7 @@ def K_Sounders_Brown_theoretical(D, Cd, g=g):
     0.48043916249756
     0.48040917690193
 
-    The use of Sounders-Brown constants can be replaced as follows (the
+    The use of Souders-Brown constants can be replaced as follows (the
     v_terminal method includes its own solver for terminal velocity):
 
     >>> from fluids.drag import v_terminal
@@ -366,7 +367,7 @@ def K_Sounders_Brown_theoretical(D, Cd, g=g):
 
     Examples
     --------
-    >>> K_Sounders_Brown_theoretical(D=150E-6, Cd=0.5)
+    >>> K_Souders_Brown_theoretical(D=150E-6, Cd=0.5)
     0.06263114241333939
 
     References
@@ -376,3 +377,6 @@ def K_Sounders_Brown_theoretical(D, Cd, g=g):
        1993): 53-60.
     """
     return sqrt((4.0/3.0)*g*D/(Cd))
+
+v_Sounders_Brown = v_Souders_Brown
+K_Sounders_Brown_theoretical = K_Souders_Brown_theoretical
