@@ -145,14 +145,14 @@ from fluids.piping import NPS40, S40i
 
 __all__ = ['contraction_sharp', 'contraction_round',
            'contraction_round_Miller',
-'contraction_conical', 'contraction_conical_Crane', 'contraction_beveled',  'diffuser_sharp',
+           'contraction_conical', 'contraction_conical_Crane', 'contraction_beveled',  'diffuser_sharp',
 'diffuser_conical', 'diffuser_conical_staged', 'diffuser_curved',
 'diffuser_pipe_reducer',
 'entrance_sharp', 'entrance_distance', 'entrance_angled',
 'entrance_rounded', 'entrance_beveled', 'entrance_beveled_orifice',
 'entrance_distance_45_Miller',
 'exit_normal', 'bend_rounded', 'bend_rounded_Miller', 'bend_rounded_Crane', 'bend_miter',
-'bend_miter_Miller', 'helix', 'spiral','Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
+'bend_miter_Miller', 'helix', 'spiral', 'Darby3K', 'Hooper2K', 'Kv_to_Cv', 'Cv_to_Kv',
 'Kv_to_K', 'K_to_Kv', 'Cv_to_K', 'K_to_Cv', 'change_K_basis', 'Darby',
 'Hooper', 'K_gate_valve_Crane', 'K_angle_valve_Crane', 'K_globe_valve_Crane',
 'K_swing_check_valve_Crane', 'K_lift_check_valve_Crane',
@@ -239,7 +239,7 @@ def entrance_sharp(method='Rennels'):
     ----------
     method : str, optional
         The method to use; one of 'Rennels', 'Swamee', 'Blevins',
-        'Idelchik', 'Crane', or 'Miller, [-]
+        'Idelchik', 'Crane', or 'Miller', [-]
 
     Returns
     -------
@@ -316,7 +316,6 @@ entrance_distance_Idelchik_tck = tck_interp2d_linear(entrance_distance_Idelchik_
                                                                 entrance_distance_Idelchik_dat,
                                                               kx=1, ky=1)
 
-entrance_distance_Idelchik_obj = lambda x, y: float(bisplev(x, y, entrance_distance_Idelchik_tck))
 entrance_distance_Idelchik_obj = lambda x, y: bisplev(x, y, entrance_distance_Idelchik_tck)
 
 entrance_distance_Harris_t_Di = [0.00322, 0.007255, 0.01223, 0.018015,
@@ -379,9 +378,9 @@ def entrance_distance(Di, t=None, l=None, method='Rennels'):
         K = 1.12 - 22\frac{t}{d} + 216\left(\frac{t}{d}\right)^2 +
         80\left(\frac{t}{d}\right)^3
 
-    .. figure:: fittings/sharp_edged_entrace_extended_mount.png
+    .. figure:: fittings/sharp_edged_entrance_extended_mount.png
        :scale: 30 %
-       :alt: sharp edged entrace, extended mount; after [1]_
+       :alt: sharp edged entrance, extended mount; after [1]_
 
     Parameters
     ----------
@@ -406,7 +405,7 @@ def entrance_distance(Di, t=None, l=None, method='Rennels'):
     It is not of practical interest according to [1]_.
 
     The 'Idelchik' [3]_ data is recommended in [5]_; it also provides rounded
-    values for the 'Harris. method.
+    values for the 'Harris' method.
 
     .. plot:: plots/entrance_distance_plot.py
 
@@ -531,7 +530,7 @@ def entrance_angled(angle, method='Idelchik'):
 
     .. figure:: fittings/entrance_mounted_at_an_angle.png
        :scale: 30 %
-       :alt: entrace mounted at an angle; after [1]_
+       :alt: entrance mounted at an angle; after [1]_
 
     Parameters
     ----------
@@ -575,8 +574,8 @@ def entrance_angled(angle, method='Idelchik'):
 
 
 entrance_rounded_Miller_coeffs = [1.3127209945178038, 0.19963046592715727, -6.49081916725612,
-                                  -0.10347409377743588, 12.68369791325003, -0.9435681020599904
-                                  , -12.44320584089916, 1.328251365167716, 6.668390027065714,
+                                  -0.10347409377743588, 12.68369791325003, -0.9435681020599904,
+                                  -12.44320584089916, 1.328251365167716, 6.668390027065714,
                                   -0.4356382649470076, -2.209229212394282, -0.07222448354500295,
                                   0.6786898049825905, -0.18686362789567468, 0.020064570486606065,
                                   -0.013120241146656442, 0.061951596342059975]
@@ -621,7 +620,7 @@ def entrance_rounded(Di, rc, method='Rennels'):
     flush with the wall of a reservoir. This calculation has six methods
     available.
 
-    The most conservative formulation is that of Rennels; with the Swammee
+    The most conservative formulation is that of Rennels; with the Swamee
     correlation being 0.02-0.07 lower. They were published in 2012 and 2008
     respectively, and for this reason could be regarded as more reliable.
 
@@ -646,7 +645,7 @@ def entrance_rounded(Di, rc, method='Rennels'):
 
     .. figure:: fittings/flush_mounted_rounded_entrance.png
        :scale: 30 %
-       :alt: rounded entrace mounted straight and flush; after [1]_
+       :alt: rounded entrance mounted straight and flush; after [1]_
 
     Parameters
     ----------
@@ -790,7 +789,7 @@ def entrance_beveled(Di, l, angle, method='Rennels'):
 
     .. figure:: fittings/flush_mounted_beveled_entrance.png
        :scale: 30 %
-       :alt: Beveled entrace mounted straight; after [1]_
+       :alt: Beveled entrance mounted straight; after [1]_
 
     Parameters
     ----------
@@ -865,7 +864,7 @@ def entrance_beveled_orifice(Di, Do, l, angle):
 
     .. figure:: fittings/flush_mounted_beveled_orifice_entrance.png
        :scale: 30 %
-       :alt: Beveled orifice entrace mounted straight; after [1]_
+       :alt: Beveled orifice entrance mounted straight; after [1]_
 
     Parameters
     ----------
@@ -1048,15 +1047,15 @@ bend_rounded_Miller_C_o_limit_0_01 = [0.6169055099514943, 0.8663244713199465, 1.
 
 def Miller_bend_roughness_correction(Re, Di, roughness):
     # Section 9.2.4 - Roughness correction
-    # Re limited to under 1E6 in friction factor falculations
+    # Re limited to under 1E6 in friction factor calculations
     # Use a cached smooth fd value if Re too high
     Re_fd_min = min(1E6, Re)
     if Re_fd_min < 1E6:
-        fd_smoth = friction_factor(Re=Re_fd_min, eD=0.0)
+        fd_smooth = friction_factor(Re=Re_fd_min, eD=0.0)
     else:
-        fd_smoth = 0.011645040997991626
+        fd_smooth = 0.011645040997991626
     fd_rough = friction_factor(Re=Re_fd_min, eD=roughness/Di)
-    C_roughness = fd_rough/fd_smoth
+    C_roughness = fd_rough/fd_smooth
     return C_roughness
 
 
@@ -1355,7 +1354,7 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=None,
     r"""Returns loss coefficient for rounded bend in a pipe of diameter `Di`,
     `angle`, with a specified either radius of curvature `rc` or curvature
     defined by `bend_diameters`, Reynolds number `Re` and optionally pipe
-    roughness, unimpeded length downstrean, and with the specified method.
+    roughness, unimpeded length downstream, and with the specified method.
     This calculation has six methods available.
 
     It is hard to describe one method as more conservative than another as
@@ -1486,7 +1485,7 @@ def bend_rounded(Di, angle, fd=None, rc=None, bend_diameters=None,
         return ft_Crane(Di)*interp(angle, crane_standard_bend_angles, crane_standard_bend_losses, extrapolate=True)
     elif method == 'Ito':
         if Re is None:
-            raise ValueError("The `Iso` method requires`Re`")
+            raise ValueError("The `Ito` method requires `Re`")
         return bend_rounded_Ito(Di=Di, angle=angle, Re=Re, rc=rc, bend_diameters=bend_diameters,
                      roughness=roughness)
     elif method == 'Swamee':
@@ -1953,7 +1952,7 @@ contraction_round_methods = ['Rennels', 'Miller', 'Idelchik']
 contraction_round_unknown_method = f'Specified method not recognized; methods are {contraction_round_methods}'
 
 def contraction_round(Di1, Di2, rc, method='Rennels'):
-    r"""Returns loss coefficient for any any round edged pipe contraction.
+    r"""Returns loss coefficient for any round edged pipe contraction.
     This calculation has three methods available. The 'Miller' [2]_ method is a
     bivariate spline digitization of a graph; the 'Idelchik' [3]_ method is an
     interpolation using a formula and a table of values.
