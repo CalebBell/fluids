@@ -23,7 +23,7 @@ SOFTWARE.
 import pytest
 
 from fluids.numerics import assert_close, assert_close1d, assert_close2d
-from fluids.separator import K_separator_demister_York, K_separator_Watkins, K_Sounders_Brown_theoretical, v_Sounders_Brown
+from fluids.separator import K_separator_demister_York, K_separator_Watkins, K_Souders_Brown_theoretical, v_Souders_Brown
 
 
 @pytest.mark.scipy
@@ -100,11 +100,11 @@ def test_K_separator_demister_York():
     assert_close(K, 0.13334999999999997)
 
 
-def test_v_Sounders_Brown():
-    v = v_Sounders_Brown(K=0.08, rhol=985.4, rhog=1.3)
+def test_v_Souders_Brown():
+    v = v_Souders_Brown(K=0.08, rhol=985.4, rhog=1.3)
     assert_close(v, 2.2010906387516167)
 
 
-def test_K_Sounders_Brown_theoretical():
-    K = K_Sounders_Brown_theoretical(D=150E-6, Cd=0.5)
+def test_K_Souders_Brown_theoretical():
+    K = K_Souders_Brown_theoretical(D=150E-6, Cd=0.5)
     assert_close(K, 0.06263114241333939)

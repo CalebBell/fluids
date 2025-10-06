@@ -252,108 +252,106 @@ def det(matrix):
         return float(np.linalg.det(matrix))
 
 # The inverse function below is generated via the following script
-'''
-import sympy as sp
-import re
-from sympy import Matrix, Symbol, simplify, zeros, cse
+# import sympy as sp
+# import re
+# from sympy import Matrix, Symbol, simplify, zeros, cse
 
-def replace_power_with_multiplication(match):
-    """Replace x**n with x*x*...*x n times"""
-    var = match.group(1)
-    power = int(match.group(2))
-    if power <= 1:
-        return var
-    return '*'.join([var] * power)
+# def replace_power_with_multiplication(match):
+#     """Replace x**n with x*x*...*x n times"""
+#     var = match.group(1)
+#     power = int(match.group(2))
+#     if power <= 1:
+#         return var
+#     return '*'.join([var] * power)
 
-def generate_symbolic_matrix(n):
-    """Generate an nxn symbolic matrix with unique symbols"""
-    syms = [[Symbol(f'm_{i}{j}') for j in range(n)] for i in range(n)]
-    return Matrix(syms), syms
+# def generate_symbolic_matrix(n):
+#     """Generate an nxn symbolic matrix with unique symbols"""
+#     syms = [[Symbol(f'm_{i}{j}') for j in range(n)] for i in range(n)]
+#     return Matrix(syms), syms
 
-def analyze_matrix(n):
-    """Generate symbolic expressions for determinant and inverse"""
-    M, syms = generate_symbolic_matrix(n)
-    det = M.det()
-    inv = M.inv()
-    return det, inv, syms
+# def analyze_matrix(n):
+#     """Generate symbolic expressions for determinant and inverse"""
+#     M, syms = generate_symbolic_matrix(n)
+#     det = M.det()
+#     inv = M.inv()
+#     return det, inv, syms
 
-def post_process_code(code_str):
-    """Apply optimizing transformations to the generated code"""
-    # Replace x**n patterns with x*x*x... (n times)
-    code_str = re.sub(r'([a-zA-Z_][a-zA-Z0-9_]*)\*\*(\d+)', replace_power_with_multiplication, code_str)
-    # Replace **0.5 with sqrt()
-    code_str = re.sub(r'\((.*?)\)\*\*0\.5', r'sqrt(\1)', code_str)
-    return code_str
+# def post_process_code(code_str):
+#     """Apply optimizing transformations to the generated code"""
+#     # Replace x**n patterns with x*x*x... (n times)
+#     code_str = re.sub(r'([a-zA-Z_][a-zA-Z0-9_]*)\*\*(\d+)', replace_power_with_multiplication, code_str)
+#     # Replace **0.5 with sqrt()
+#     code_str = re.sub(r'\((.*?)\)\*\*0\.5', r'sqrt(\1)', code_str)
+#     return code_str
 
-def generate_python_inv():
-    """Generate a single unified matrix inversion function with optimized 1x1, 2x2, and 3x3 cases"""
-    # Generate the specialized code for 2x2 and 3x3
-    size_specific_code = {}
-    for N in [2, 3, 4]:
-        det, inv, _ = analyze_matrix(N)
-        exprs = [det] + list(inv)
-        replacements, reduced = cse(exprs, optimizations='basic')
-        det_expr = reduced[0]
-        inv_exprs = reduced[1:]
+# def generate_python_inv():
+#     """Generate a single unified matrix inversion function with optimized 1x1, 2x2, and 3x3 cases"""
+#     # Generate the specialized code for 2x2 and 3x3
+#     size_specific_code = {}
+#     for N in [2, 3, 4]:
+#         det, inv, _ = analyze_matrix(N)
+#         exprs = [det] + list(inv)
+#         replacements, reduced = cse(exprs, optimizations='basic')
+#         det_expr = reduced[0]
+#         inv_exprs = reduced[1:]
         
-        # Build the size-specific code block
-        code = []
+#         # Build the size-specific code block
+#         code = []
         
-        # Unpack matrix elements
-        unpack_rows = []
-        for i in range(N):
-            row_vars = [f"m_{i}{j}" for j in range(N)]
-            unpack_rows.append("(" + ", ".join(row_vars) + ")")
-        code.append(f"        {', '.join(unpack_rows)} = matrix")
+#         # Unpack matrix elements
+#         unpack_rows = []
+#         for i in range(N):
+#             row_vars = [f"m_{i}{j}" for j in range(N)]
+#             unpack_rows.append("(" + ", ".join(row_vars) + ")")
+#         code.append(f"        {', '.join(unpack_rows)} = matrix")
         
-        # Common subexpressions
-        code.append("\n        # Common subexpressions")
-        for i, (temp, expr) in enumerate(replacements):
-            code.append(f"        x{i} = {expr}")
+#         # Common subexpressions
+#         code.append("\n        # Common subexpressions")
+#         for i, (temp, expr) in enumerate(replacements):
+#             code.append(f"        x{i} = {expr}")
         
-        # Determinant check
-        code.append("\n        # Calculate determinant and check if we need to use LU decomposition")
-        code.append(f"        det = {det_expr}")
-        code.append("        if abs(det) <= 1e-7:")
-        code.append("            return inv_lu(matrix)")
+#         # Determinant check
+#         code.append("\n        # Calculate determinant and check if we need to use LU decomposition")
+#         code.append(f"        det = {det_expr}")
+#         code.append("        if abs(det) <= 1e-7:")
+#         code.append("            return inv_lu(matrix)")
         
-        # Return matrix
-        return_matrix = []
-        for i in range(N):
-            row = []
-            for j in range(N):
-                idx = i * N + j
-                row.append(str(inv_exprs[idx]))
-            return_matrix.append(f"            [{', '.join(row)}]")
+#         # Return matrix
+#         return_matrix = []
+#         for i in range(N):
+#             row = []
+#             for j in range(N):
+#                 idx = i * N + j
+#                 row.append(str(inv_exprs[idx]))
+#             return_matrix.append(f"            [{', '.join(row)}]")
         
-        code.append("\n        return [")
-        code.append(",\n".join(return_matrix))
-        code.append("        ]")
+#         code.append("\n        return [")
+#         code.append(",\n".join(return_matrix))
+#         code.append("        ]")
         
-        size_specific_code[N] = post_process_code("\n".join(code))
+#         size_specific_code[N] = post_process_code("\n".join(code))
     
-    # Generate the complete function
-    complete_code = [
-        "def inv(matrix):",
-        "    size = len(matrix)",
-        "    if size == 1:",
-        "        return [[1.0/matrix[0][0]]]",
-        "    elif size == 2:",
-        size_specific_code[2],
-        "    elif size == 3:",
-        size_specific_code[3],
-        "    elif size == 4:",
-        size_specific_code[4],
-        "    else:",
-        "        return inv_lu(matrix)",
-        ""
-    ]
+#     # Generate the complete function
+#     complete_code = [
+#         "def inv(matrix):",
+#         "    size = len(matrix)",
+#         "    if size == 1:",
+#         "        return [[1.0/matrix[0][0]]]",
+#         "    elif size == 2:",
+#         size_specific_code[2],
+#         "    elif size == 3:",
+#         size_specific_code[3],
+#         "    elif size == 4:",
+#         size_specific_code[4],
+#         "    else:",
+#         "        return inv_lu(matrix)",
+#         ""
+#     ]
     
-    return "\n".join(complete_code)
+#     return "\n".join(complete_code)
 
-# Generate and print the complete function
-print(generate_python_inv())
-'''
+# # Generate and print the complete function
+# print(generate_python_inv())
 def inv(matrix):
     size = len(matrix)
     if size == 1:

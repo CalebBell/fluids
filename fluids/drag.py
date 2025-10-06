@@ -1200,6 +1200,10 @@ def drag_sphere(Re, Method=None):
     -------
     Cd : float
         Drag coefficient [-]
+
+    Notes
+    -----
+    Note that diameter is the characteristic number in the Reynolds number.
     """
     if Method is None:
         if Re > 0.1:

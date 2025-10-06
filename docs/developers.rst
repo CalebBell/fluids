@@ -93,7 +93,7 @@ Monkeytype on the `fluids` test suite takes ~15 minutes to run, and generates a 
 
 Supported Python Versions
 -------------------------
-Fluids targets Python 3.6 and up as well as PyPy3. Additionally, fluids has been tested by the author at various points to load in IronPython, and Micropython.
+Fluids targets Python 3.8 and up as well as PyPy3. Additionally, fluids has been tested by the author at various points to load in IronPython, and Micropython.
 
 Unfortunately there is no CI infrastructure for these other Python implementations. 
 For IronPython and Micropython there is no NumPy/SciPy which means there is no hope of passing the whole test suite on them either; indeed pytest won't load on any of them.
@@ -143,7 +143,7 @@ Or to do the same on all notebooks in all directories, in parallel (4 processes)
 
 Continuous Integration
 ----------------------
-Github Actions, Travis and Appveyor are presently used. They test only code in the `release` branch. Some tests, like those that download data from the internet, are not ran by design on their platforms.
+GitHub Actions is used for continuous integration. Tests run on pushes to the `master` and `release` branches, as well as on pull requests. Some tests, like those that download data from the internet, are not run by design on CI platforms.
 The same goes for testing `numba` online - getting an up to date version of numba is challenging.
 
 Load Speed

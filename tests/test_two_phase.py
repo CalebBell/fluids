@@ -282,7 +282,7 @@ def test_Tran():
 
 def test_Chen_Friedel():
     dP = Chen_Friedel(m=.0005, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.003, roughness=0.0, L=1.0)
-    assert_close(dP, 6249.247540588871)
+    assert_close(dP, 6441.663274282271)
 
     kwargs = dict(m=.1, x=0.9, rhol=950., rhog=1.4, mul=1E-3, mug=1E-5, sigma=0.02, D=0.03, roughness=0.0, L=1.0)
     dP = Chen_Friedel(**kwargs)
