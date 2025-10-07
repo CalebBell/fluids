@@ -1860,7 +1860,7 @@ def Prandtl_von_Karman_Nikuradse(Re):
 
     .. math::
         f_d = \frac{\frac{1}{4}\log_{10}^2}{\left(\text{lambertW}\left(\frac{
-        \lb(10)Re}{2(2.51)}\right)\right)^2}
+        \log(10)Re}{2(2.51)}\right)\right)^2}
 
     Examples
     --------
@@ -2350,7 +2350,7 @@ def helical_laminar_fd_Mori_Nakayama(Re, Di, Dc):
     fd = friction_laminar(Re)
     if De < 42.328036:
         return fd*1.405296
-    return fd*(0.108*sqrt(De))/(1. - 3.253*1.0/sqrt(De))
+    return fd*(0.108*sqrt(De))/(1. - 3.253/sqrt(De))
 
 
 def helical_laminar_fd_Schmidt(Re, Di, Dc):
@@ -2576,7 +2576,7 @@ def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
     """
     Di_Dc = Di/Dc
     term = (Re*Di_Dc*Di_Dc)**-0.2
-    return 0.3*1.0/sqrt(Dc/Di)*term*(1. + 0.112*term)
+    return 0.3/sqrt(Dc/Di)*term*(1. + 0.112*term)
 
 
 def helical_turbulent_fd_Prasad(Re, Di, Dc, roughness=0):
