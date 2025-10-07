@@ -93,50 +93,50 @@ from fluids.constants import g
 from fluids.core import Froude
 
 __all__ = [
-    'Armand',
-    'Baroczy',
-    'Beattie_Whalley',
-    'Chisholm_Armand',
-    'Chisholm_voidage',
-    'Cicchitti',
-    'Dix',
-    'Domanski_Didion',
-    'Duckler',
-    'Fauske',
-    'Fourar_Bories',
-    'Graham',
-    'Gregory_Scott',
-    'Guzhov',
-    'Harms',
-    'Huq_Loth',
-    'Kawahara',
-    'Kopte_Newell_Chato',
-    'Lin_Kwok',
-    'Lockhart_Martinelli_Xtt',
-    'McAdams',
-    'Nicklin_Wilkes_Davidson',
-    'Nishino_Yamazaki',
-    'Rouhani_1',
-    'Rouhani_2',
-    'Smith',
-    'Steiner',
-    'Sun_Duffey_Peng',
-    'Tandon_Varma_Gupta',
-    'Thom',
-    'Turner_Wallis',
-    'Woldesemayat_Ghajar',
-    'Xu_Fang_voidage',
-    'Yashar',
-    'Zivi',
-    'density_two_phase',
-    'gas_liquid_viscosity',
-    'gas_liquid_viscosity_methods',
-    'homogeneous',
-    'liquid_gas_viscosity_correlations',
-    'liquid_gas_voidage',
-    'liquid_gas_voidage_methods',
-    'two_phase_voidage_correlations',
-    'two_phase_voidage_experimental',
+    "Armand",
+    "Baroczy",
+    "Beattie_Whalley",
+    "Chisholm_Armand",
+    "Chisholm_voidage",
+    "Cicchitti",
+    "Dix",
+    "Domanski_Didion",
+    "Duckler",
+    "Fauske",
+    "Fourar_Bories",
+    "Graham",
+    "Gregory_Scott",
+    "Guzhov",
+    "Harms",
+    "Huq_Loth",
+    "Kawahara",
+    "Kopte_Newell_Chato",
+    "Lin_Kwok",
+    "Lockhart_Martinelli_Xtt",
+    "McAdams",
+    "Nicklin_Wilkes_Davidson",
+    "Nishino_Yamazaki",
+    "Rouhani_1",
+    "Rouhani_2",
+    "Smith",
+    "Steiner",
+    "Sun_Duffey_Peng",
+    "Tandon_Varma_Gupta",
+    "Thom",
+    "Turner_Wallis",
+    "Woldesemayat_Ghajar",
+    "Xu_Fang_voidage",
+    "Yashar",
+    "Zivi",
+    "density_two_phase",
+    "gas_liquid_viscosity",
+    "gas_liquid_viscosity_methods",
+    "homogeneous",
+    "liquid_gas_viscosity_correlations",
+    "liquid_gas_voidage",
+    "liquid_gas_voidage_methods",
+    "two_phase_voidage_correlations",
+    "two_phase_voidage_experimental",
 ]
 
 ### Models based on slip ratio
@@ -1978,37 +1978,37 @@ def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
 
 # x, rhol, rhog will be the minimum inputs
 
-two_phase_voidage_correlations = {'Thom' : (Thom, ('x', 'rhol', 'rhog', 'mul', 'mug')),
-'Zivi' : (Zivi, ('x', 'rhol', 'rhog')),
-'Smith' : (Smith, ('x', 'rhol', 'rhog')),
-'Fauske' : (Fauske, ('x', 'rhol', 'rhog')),
-'Chisholm_voidage' : (Chisholm_voidage, ('x', 'rhol', 'rhog')),
-'Turner Wallis' : (Turner_Wallis, ('x', 'rhol', 'rhog', 'mul', 'mug')),
-'homogeneous' : (homogeneous, ('x', 'rhol', 'rhog')),
-'Chisholm Armand' : (Chisholm_Armand, ('x', 'rhol', 'rhog')),
-'Armand' : (Armand, ('x', 'rhol', 'rhog')),
-'Nishino Yamazaki' : (Nishino_Yamazaki, ('x', 'rhol', 'rhog')),
-'Guzhov' : (Guzhov, ('x', 'rhol', 'rhog', 'm', 'D')),
-'Kawahara' : (Kawahara, ('x', 'rhol', 'rhog', 'D')),
-'Baroczy' : (Baroczy, ('x', 'rhol', 'rhog', 'mul', 'mug')),
-'Tandon Varma Gupta' : (Tandon_Varma_Gupta, ('x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D')),
-'Harms' : (Harms, ('x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D')),
-'Domanski Didion' : (Domanski_Didion, ('x', 'rhol', 'rhog', 'mul', 'mug')),
-'Graham' : (Graham, ('x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D', 'g')),
-'Yashar' : (Yashar, ('x', 'rhol', 'rhog', 'mul', 'mug', 'm', 'D', 'g')),
-'Huq_Loth' : (Huq_Loth, ('x', 'rhol', 'rhog')),
-'Kopte_Newell_Chato' : (Kopte_Newell_Chato, ('x', 'rhol', 'rhog', 'm', 'D', 'g')),
-'Steiner' : (Steiner, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g')),
-'Rouhani 1' : (Rouhani_1, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g')),
-'Rouhani 2' : (Rouhani_2, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g')),
-'Nicklin Wilkes Davidson' : (Nicklin_Wilkes_Davidson, ('x', 'rhol', 'rhog', 'm', 'D', 'g')),
-'Gregory_Scott' : (Gregory_Scott, ('x', 'rhol', 'rhog')),
-'Dix' : (Dix, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'g')),
-'Sun Duffey Peng' : (Sun_Duffey_Peng, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'P', 'Pc', 'g')),
-'Xu Fang voidage' : (Xu_Fang_voidage, ('x', 'rhol', 'rhog', 'm', 'D', 'g')),
-'Woldesemayat Ghajar' : (Woldesemayat_Ghajar, ('x', 'rhol', 'rhog', 'sigma', 'm', 'D', 'P', 'angle', 'g'))}
+two_phase_voidage_correlations = {"Thom" : (Thom, ("x", "rhol", "rhog", "mul", "mug")),
+"Zivi" : (Zivi, ("x", "rhol", "rhog")),
+"Smith" : (Smith, ("x", "rhol", "rhog")),
+"Fauske" : (Fauske, ("x", "rhol", "rhog")),
+"Chisholm_voidage" : (Chisholm_voidage, ("x", "rhol", "rhog")),
+"Turner Wallis" : (Turner_Wallis, ("x", "rhol", "rhog", "mul", "mug")),
+"homogeneous" : (homogeneous, ("x", "rhol", "rhog")),
+"Chisholm Armand" : (Chisholm_Armand, ("x", "rhol", "rhog")),
+"Armand" : (Armand, ("x", "rhol", "rhog")),
+"Nishino Yamazaki" : (Nishino_Yamazaki, ("x", "rhol", "rhog")),
+"Guzhov" : (Guzhov, ("x", "rhol", "rhog", "m", "D")),
+"Kawahara" : (Kawahara, ("x", "rhol", "rhog", "D")),
+"Baroczy" : (Baroczy, ("x", "rhol", "rhog", "mul", "mug")),
+"Tandon Varma Gupta" : (Tandon_Varma_Gupta, ("x", "rhol", "rhog", "mul", "mug", "m", "D")),
+"Harms" : (Harms, ("x", "rhol", "rhog", "mul", "mug", "m", "D")),
+"Domanski Didion" : (Domanski_Didion, ("x", "rhol", "rhog", "mul", "mug")),
+"Graham" : (Graham, ("x", "rhol", "rhog", "mul", "mug", "m", "D", "g")),
+"Yashar" : (Yashar, ("x", "rhol", "rhog", "mul", "mug", "m", "D", "g")),
+"Huq_Loth" : (Huq_Loth, ("x", "rhol", "rhog")),
+"Kopte_Newell_Chato" : (Kopte_Newell_Chato, ("x", "rhol", "rhog", "m", "D", "g")),
+"Steiner" : (Steiner, ("x", "rhol", "rhog", "sigma", "m", "D", "g")),
+"Rouhani 1" : (Rouhani_1, ("x", "rhol", "rhog", "sigma", "m", "D", "g")),
+"Rouhani 2" : (Rouhani_2, ("x", "rhol", "rhog", "sigma", "m", "D", "g")),
+"Nicklin Wilkes Davidson" : (Nicklin_Wilkes_Davidson, ("x", "rhol", "rhog", "m", "D", "g")),
+"Gregory_Scott" : (Gregory_Scott, ("x", "rhol", "rhog")),
+"Dix" : (Dix, ("x", "rhol", "rhog", "sigma", "m", "D", "g")),
+"Sun Duffey Peng" : (Sun_Duffey_Peng, ("x", "rhol", "rhog", "sigma", "m", "D", "P", "Pc", "g")),
+"Xu Fang voidage" : (Xu_Fang_voidage, ("x", "rhol", "rhog", "m", "D", "g")),
+"Woldesemayat Ghajar" : (Woldesemayat_Ghajar, ("x", "rhol", "rhog", "sigma", "m", "D", "P", "angle", "g"))}
 
-_unknown_two_phase_voidage_corr = f'Method not recognized; available methods are {list(two_phase_voidage_correlations.keys())}'
+_unknown_two_phase_voidage_corr = f"Method not recognized; available methods are {list(two_phase_voidage_correlations.keys())}"
 # All the available arguments are:
 #{'rhol', 'angle=0', 'x', 'P', 'mug', 'rhog', 'D', 'g', 'Pc', 'sigma', 'mul', 'm'}
 def liquid_gas_voidage_methods(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
@@ -2060,9 +2060,9 @@ def liquid_gas_voidage_methods(x, rhol, rhog, D=None, m=None, mul=None, mug=None
     >>> len(liquid_gas_voidage_methods(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05))
     27
     """
-    vals = {'x': x, 'rhol': rhol, 'rhog': rhog, 'D': D, 'm': m, 'mul': mul,
-            'mug': mug, 'sigma': sigma, 'P': P, 'Pc': Pc, 'angle': angle,
-            'g': g, 'check_ranges': check_ranges}
+    vals = {"x": x, "rhol": rhol, "rhog": rhog, "D": D, "m": m, "mul": mul,
+            "mug": mug, "sigma": sigma, "P": P, "Pc": Pc, "angle": angle,
+            "g": g, "check_ranges": check_ranges}
     usable_methods = []
     for method, value in two_phase_voidage_correlations.items():
         f, args = value
@@ -2136,7 +2136,7 @@ def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
     0.9744097632663492
     """
     if Method is None:
-        Method2 = 'homogeneous'
+        Method2 = "homogeneous"
     else:
         Method2 = Method
 
@@ -2631,13 +2631,13 @@ def Duckler(x, mul, mug, rhol, rhog):
     return (x*mug/rhog + (1. - x)*mul/rhol)/(x/rhog + (1. - x)/rhol)
 
 
-liquid_gas_viscosity_correlations = {'Beattie Whalley': (Beattie_Whalley, 1),
-                                     'Fourar Bories': (Fourar_Bories, 1),
-                                     'Duckler': (Duckler, 1),
-                                     'McAdams': (McAdams, 0),
-                                     'Cicchitti': (Cicchitti, 0),
-                                     'Lin Kwok': (Lin_Kwok, 0)}
-liquid_gas_viscosity_correlations_list = ['Beattie Whalley', 'Fourar Bories', 'Duckler', 'McAdams', 'Cicchitti', 'Lin Kwok']
+liquid_gas_viscosity_correlations = {"Beattie Whalley": (Beattie_Whalley, 1),
+                                     "Fourar Bories": (Fourar_Bories, 1),
+                                     "Duckler": (Duckler, 1),
+                                     "McAdams": (McAdams, 0),
+                                     "Cicchitti": (Cicchitti, 0),
+                                     "Lin Kwok": (Lin_Kwok, 0)}
+liquid_gas_viscosity_correlations_list = ["Beattie Whalley", "Fourar Bories", "Duckler", "McAdams", "Cicchitti", "Lin Kwok"]
 
 def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
     r"""This function returns a list of methods which can be used for calculating
@@ -2667,11 +2667,11 @@ def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
     >>> gas_liquid_viscosity_methods(rhol=1000, rhog=2)
     ['Beattie Whalley', 'Fourar Bories', 'Duckler', 'McAdams', 'Cicchitti', 'Lin Kwok']
     """
-    methods = ['McAdams', 'Cicchitti', 'Lin Kwok']
+    methods = ["McAdams", "Cicchitti", "Lin Kwok"]
     if rhol is not None and rhog is not None:
         methods = liquid_gas_viscosity_correlations_list
     return methods
-_gas_liquid_viscosity_method_unknown = f'Method not recognized; available methods are {list(liquid_gas_viscosity_correlations.keys())}'
+_gas_liquid_viscosity_method_unknown = f"Method not recognized; available methods are {list(liquid_gas_viscosity_correlations.keys())}"
 
 
 def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None):
@@ -2727,19 +2727,19 @@ def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None):
     2.4630541871921184e-05
     """
     if Method is None:
-        Method = 'McAdams'
+        Method = "McAdams"
 
-    if Method == 'Beattie Whalley':
+    if Method == "Beattie Whalley":
         return Beattie_Whalley(x, mul, mug, rhol=rhol, rhog=rhog)
-    elif Method == 'Fourar Bories':
+    elif Method == "Fourar Bories":
         return Fourar_Bories(x, mul, mug, rhol=rhol, rhog=rhog)
-    elif Method == 'Duckler':
+    elif Method == "Duckler":
         return Duckler(x, mul, mug, rhol=rhol, rhog=rhog)
-    elif Method == 'McAdams':
+    elif Method == "McAdams":
         return McAdams(x, mul, mug)
-    elif Method == 'Cicchitti':
+    elif Method == "Cicchitti":
         return Cicchitti(x, mul, mug)
-    elif Method == 'Lin Kwok':
+    elif Method == "Lin Kwok":
         return Lin_Kwok(x, mul, mug)
     else:
         raise ValueError(_gas_liquid_viscosity_method_unknown)

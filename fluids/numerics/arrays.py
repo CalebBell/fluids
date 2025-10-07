@@ -31,7 +31,7 @@ else:
     try:
         # The right way imports the platform module which costs to ms to load!
         # implementation = platform.python_implementation()
-        IS_PYPY = 'PyPy' in sys.version
+        IS_PYPY = "PyPy" in sys.version
     except AttributeError:
         IS_PYPY = False
 
@@ -44,31 +44,31 @@ else:
 #        np = None
 
 __all__ = [
-    'argsort1d',
-    'array_as_tridiagonals',
-    'det',
-    'dot_product',
-    'eye',
-    'gelsd',
-    'inv',
-    'lu',
-    'matrix_multiply',
-    'matrix_vector_dot',
-    'norm2',
-    'null_space',
-    'scalar_add_matrices',
-    'scalar_divide_matrix',
-    'scalar_multiply_matrix',
-    'scalar_subtract_matrices',
-    'shape',
-    'solve',
-    'solve_tridiagonal',
-    'sort_paired_lists',
-    'stack_vectors',
-    'subset_matrix',
-    'sum_matrix_cols',
-    'sum_matrix_rows',
-    'transpose',
+    "argsort1d",
+    "array_as_tridiagonals",
+    "det",
+    "dot_product",
+    "eye",
+    "gelsd",
+    "inv",
+    "lu",
+    "matrix_multiply",
+    "matrix_vector_dot",
+    "norm2",
+    "null_space",
+    "scalar_add_matrices",
+    "scalar_divide_matrix",
+    "scalar_multiply_matrix",
+    "scalar_subtract_matrices",
+    "shape",
+    "solve",
+    "solve_tridiagonal",
+    "sort_paired_lists",
+    "stack_vectors",
+    "subset_matrix",
+    "sum_matrix_cols",
+    "sum_matrix_rows",
+    "transpose",
 ]
 primitive_containers = frozenset([list, tuple])
 

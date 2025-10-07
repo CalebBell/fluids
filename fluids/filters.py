@@ -46,11 +46,11 @@ from math import cos, radians
 from fluids.numerics import implementation_optimize_tck, interp, splev
 
 __all__ = [
-    'round_edge_grill',
-    'round_edge_open_mesh',
-    'round_edge_screen',
-    'square_edge_grill',
-    'square_edge_screen',
+    "round_edge_grill",
+    "round_edge_open_mesh",
+    "round_edge_screen",
+    "square_edge_grill",
+    "square_edge_screen",
 ]
 
 round_Res = [20.0, 30.0, 40.0, 60.0, 80.0, 100.0, 200.0, 400.0]
@@ -135,7 +135,7 @@ def round_edge_screen(alpha, Re, angle=0.0):
     return K
 
 
-def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0.0):
+def round_edge_open_mesh(alpha, subtype="diamond pattern wire", angle=0.0):
     r"""Returns the loss coefficient for a round edged open net/screen
     made of one of the following patterns, according to [1]_:
 
@@ -194,16 +194,16 @@ def round_edge_open_mesh(alpha, subtype='diamond pattern wire', angle=0.0):
        Van Nostrand Reinhold Co., 1984.
     """
     one_m_alpha = (1.0-alpha)
-    if subtype == 'round bar screen':
+    if subtype == "round bar screen":
         K = 0.95 + 0.2*one_m_alpha
-    elif subtype == 'diamond pattern wire':
+    elif subtype == "diamond pattern wire":
         K = 0.67 + 1.3*one_m_alpha
-    elif subtype == 'knotted net':
+    elif subtype == "knotted net":
         K = 0.70 + 4.9*one_m_alpha
-    elif subtype == 'knotless net':
+    elif subtype == "knotless net":
         K = 0.72 + 2.1*one_m_alpha
     else:
-        raise ValueError('Subtype not recognized')
+        raise ValueError("Subtype not recognized")
     K *= one_m_alpha
     if angle is not None:
         if angle < 45.0:

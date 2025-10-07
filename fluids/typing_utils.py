@@ -27,10 +27,10 @@ try:
     import importlib.machinery
     import importlib.util
 except ImportError: # pragma: no cover
-    raise ImportError('The typing functionality requires a more recent version of Python')
+    raise ImportError("The typing functionality requires a more recent version of Python")
 
 
-__all__ = ['copy_types', 'type_module']
+__all__ = ["copy_types", "type_module"]
 
 
 def copy_types(typed_obj, untyped_obj):
@@ -43,14 +43,14 @@ def copy_types(typed_obj, untyped_obj):
     untyped_obj.__annotations__ = an
     if isclass(untyped_obj):
         for f_name in dir(typed_obj):
-            if len(f_name) > 2 and '__' == f_name[:2]:
+            if len(f_name) > 2 and "__" == f_name[:2]:
                 continue
             typed_fun = getattr(typed_obj, f_name)
             untyped_fun = getattr(untyped_obj, f_name)
             copy_types(typed_fun, untyped_fun)
 
 def type_module(mod):
-    loader = importlib.machinery.SourceFileLoader('dummy_module', mod.__file__ + 'i')
+    loader = importlib.machinery.SourceFileLoader("dummy_module", mod.__file__ + "i")
     mod_types = types.ModuleType(loader.name)
     loader.exec_module(mod_types)
 

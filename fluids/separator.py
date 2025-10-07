@@ -42,12 +42,12 @@ from fluids.constants import foot, g, psi
 from fluids.numerics import implementation_optimize_tck, splev
 
 __all__ = [
-    'K_Souders_Brown_theoretical',
-    'K_Sounders_Brown_theoretical',
-    'K_separator_Watkins',
-    'K_separator_demister_York',
-    'v_Souders_Brown',
-    'v_Sounders_Brown',
+    "K_Souders_Brown_theoretical",
+    "K_Sounders_Brown_theoretical",
+    "K_separator_Watkins",
+    "K_separator_demister_York",
+    "v_Souders_Brown",
+    "v_Sounders_Brown",
 ]
 
 
@@ -68,7 +68,7 @@ tck_Watkins = implementation_optimize_tck([[-5.115995809754082, -5.1159958097540
                                          0.0, 0.0, 0.0, 0.0],
                                          3])
 
-def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
+def K_separator_Watkins(x, rhol, rhog, horizontal=False, method="spline"):
     r"""Calculates the Souders-Brown `K` factor as used in determining maximum
     allowable gas velocity in a two-phase separator in either a horizontal or
     vertical orientation. This function approximates a graph published in [1]_
@@ -146,9 +146,9 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
        Houston, Tex: Gulf Professional Publishing, 1999.
     """
     factor = (1. - x)/x*sqrt(rhog/rhol)
-    if method == 'spline':
+    if method == "spline":
         K = exp(float(splev(log(factor), tck_Watkins)))
-    elif method == 'blackwell':
+    elif method == "blackwell":
         X = log(factor)
         A = -1.877478097
         B = -0.81145804597
@@ -156,7 +156,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method='spline'):
         D = -0.0145228667
         E = -0.00101148518
         K = exp(A + X*(B + X*(C + X*(D + E*X))))
-    elif method == 'branan':
+    elif method == "branan":
         X = log(factor)
         A = -1.942936
         B = -0.814894

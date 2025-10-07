@@ -52,12 +52,12 @@ from fluids.numerics import SolverInterface, brenth, secant
 from fluids.numerics import numpy as np
 
 __all__ = [
-    'liquid_jet_pump',
-    'liquid_jet_pump_ancillary',
-    'vacuum_air_leakage_Coker_Worthington',
-    'vacuum_air_leakage_HEI2633',
-    'vacuum_air_leakage_Ryans_Croll',
-    'vacuum_air_leakage_Seider',
+    "liquid_jet_pump",
+    "liquid_jet_pump_ancillary",
+    "vacuum_air_leakage_Coker_Worthington",
+    "vacuum_air_leakage_HEI2633",
+    "vacuum_air_leakage_Ryans_Croll",
+    "vacuum_air_leakage_Seider",
 ]
 
 
@@ -155,9 +155,9 @@ def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
     """
     unknowns = sum(i is None for i in (d_nozzle, d_mixing, Qs, Qp, P1, P2))
     if unknowns > 1:
-        raise ValueError('Too many unknowns')
+        raise ValueError("Too many unknowns")
     elif unknowns < 1:
-        raise ValueError('Overspecified')
+        raise ValueError("Overspecified")
     C = rhos/rhop
 
     if Qp is not None and Qs is not None:
@@ -229,9 +229,9 @@ def liquid_jet_pump_pressure_ratio(rhop, rhos, Km, Kd, Ks, Kp,
         return N - (P5 - P2)/(P1 - P5)
 
     solution = {}
-    solution['P1'] = P1
-    solution['P2'] = P2
-    solution['P5'] = P5
+    solution["P1"] = P1
+    solution["P2"] = P2
+    solution["P5"] = P5
 #    solution['d_nozzle'] = d_nozzle
 #    solution['d_mixing'] = d_mixing
 #    solution['d_diffuser'] = d_diffuser
@@ -411,40 +411,40 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
        Liquid Flow. 85032. ESDU International PLC, 1985.
     """
     from random import uniform
-    solution_vars = ['d_nozzle', 'd_mixing', 'Qp', 'Qs', 'P1', 'P2', 'P5']
+    solution_vars = ["d_nozzle", "d_mixing", "Qp", "Qs", "P1", "P2", "P5"]
     unknown_vars = []
     for i in solution_vars:
          if locals()[i] is None:
              unknown_vars.append(i)
 
     if len(unknown_vars) > 2:
-        raise ValueError('Too many unknowns')
+        raise ValueError("Too many unknowns")
     elif len(unknown_vars) < 2:
-        raise ValueError('Overspecified')
+        raise ValueError("Overspecified")
 
 
-    vals = {'d_nozzle': d_nozzle, 'd_mixing': d_mixing, 'Qp': Qp,
-            'Qs': Qs, 'P1': P1, 'P2': P2, 'P5': P5}
+    vals = {"d_nozzle": d_nozzle, "d_mixing": d_mixing, "Qp": Qp,
+            "Qs": Qs, "P1": P1, "P2": P2, "P5": P5}
     var_guesses = []
     # Initial guess algorithms for each variable here
     # No clever algorithms invented yet
     for v in unknown_vars:
-        if v == 'd_nozzle':
+        if v == "d_nozzle":
             try:
                 var_guesses.append(d_mixing*0.4)
             except:
                 var_guesses.append(0.01)
-        if v == 'd_mixing':
+        if v == "d_mixing":
             try:
                 var_guesses.append(d_nozzle*2)
             except:
                 var_guesses.append(0.02)
-        elif v == 'P1':
+        elif v == "P1":
             try:
                 var_guesses.append(P2*5)
             except:
                 var_guesses.append(P5*5)
-        elif v == 'P2':
+        elif v == "P2":
             try:
                 var_guesses.append((P1 + P5)*0.5)
             except:
@@ -452,17 +452,17 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
                     var_guesses.append(P1/1.1)
                 except:
                     var_guesses.append(P5*1.25)
-        elif v == 'P5':
+        elif v == "P5":
             try:
                 var_guesses.append(P1*1.12)
             except:
                 var_guesses.append(P2*1.12)
-        elif v == 'Qp':
+        elif v == "Qp":
             try:
                 var_guesses.append(Qs*1.04)
             except:
                 var_guesses.append(0.01)
-        elif v == 'Qs':
+        elif v == "Qs":
             try:
                 var_guesses.append(Qp*0.5)
             except:
@@ -482,7 +482,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
             d_diffuser = d_nozzle*1E3
         else:
             d_diffuser = 1000.0
-    vals['d_diffuser'] = d_diffuser
+    vals["d_diffuser"] = d_diffuser
 
 
     def obj_err(val):
@@ -504,39 +504,39 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
 #                vals['P2'] = max(vals['P2'], 1.001*vals['P2'])
 
         # Prelimary numbers
-        A_nozzle = pi/4*vals['d_nozzle']**2
-        alpha = vals['d_mixing']**2/d_diffuser**2
-        R = vals['d_nozzle']**2/vals['d_mixing']**2
-        M = vals['Qs']/vals['Qp']
+        A_nozzle = pi/4*vals["d_nozzle"]**2
+        alpha = vals["d_mixing"]**2/d_diffuser**2
+        R = vals["d_nozzle"]**2/vals["d_mixing"]**2
+        M = vals["Qs"]/vals["Qp"]
 
         err1 = liquid_jet_pump_pressure_ratio(rhop=rhop, rhos=rhos, Km=Km, Kd=Kd,
-                                              Ks=Ks, Kp=Kp, d_nozzle=vals['d_nozzle'],
-                                              d_mixing=vals['d_mixing'],
-                                              Qs=vals['Qs'], Qp=vals['Qp'],
-                                              P2=vals['P2'], P1=vals['P1'],
-                                              P5=vals['P5'],
+                                              Ks=Ks, Kp=Kp, d_nozzle=vals["d_nozzle"],
+                                              d_mixing=vals["d_mixing"],
+                                              Qs=vals["Qs"], Qp=vals["Qp"],
+                                              P2=vals["P2"], P1=vals["P1"],
+                                              P5=vals["P5"],
                                               nozzle_retracted=nozzle_retracted,
                                               d_diffuser=d_diffuser)
 
-        rhs = rhop/2.0*(vals['Qp']/A_nozzle)**2*((1.0 + Kp) - C*(1.0 + Ks)*((M*R)/(1.0 - R))**2 )
+        rhs = rhop/2.0*(vals["Qp"]/A_nozzle)**2*((1.0 + Kp) - C*(1.0 + Ks)*((M*R)/(1.0 - R))**2 )
 
-        err2 = rhs  - (vals['P1'] - vals['P2'])
+        err2 = rhs  - (vals["P1"] - vals["P2"])
 
-        vals['N'] = N = (vals['P5'] - vals['P2'])/(vals['P1']-vals['P5'])
-        vals['M'] = M
-        vals['R'] = R
-        vals['alpha'] = alpha
-        vals['efficiency'] = M*N
+        vals["N"] = N = (vals["P5"] - vals["P2"])/(vals["P1"]-vals["P5"])
+        vals["M"] = M
+        vals["R"] = R
+        vals["alpha"] = alpha
+        vals["efficiency"] = M*N
 
-        if vals['efficiency'] < 0:
+        if vals["efficiency"] < 0:
             if err1 < 0:
-                err1 -= abs(vals['efficiency'])
+                err1 -= abs(vals["efficiency"])
             else:
-                err1 += abs(vals['efficiency'])
+                err1 += abs(vals["efficiency"])
             if err2 < 0:
-                err2 -= abs(vals['efficiency'])
+                err2 -= abs(vals["efficiency"])
             else:
-                err2 += abs(vals['efficiency'])
+                err2 += abs(vals["efficiency"])
 
 #        elif vals['N'] < 0:
 #            err1, err2 =  abs(vals['N']) + err1,  abs(vals['N']) + err2
@@ -544,32 +544,32 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
         return err1, err2
 
     # Only one unknown var
-    if 'P5' in unknown_vars:
+    if "P5" in unknown_vars:
         ancillary = liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Kp=Kp,
                                               Ks=Ks, d_nozzle=d_nozzle,
                                               d_mixing=d_mixing, Qp=Qp, Qs=Qs,
                                               P1=P1, P2=P2)
-        if unknown_vars[0] == 'P5':
+        if unknown_vars[0] == "P5":
             vals[unknown_vars[1]] = ancillary
         else:
             vals[unknown_vars[0]] = ancillary
 
-        vals['P5'] = liquid_jet_pump_pressure_ratio(rhop=rhop, rhos=rhos, Km=Km, Kd=Kd, Ks=Ks, Kp=Kp, d_nozzle=vals['d_nozzle'],
-                               d_mixing=vals['d_mixing'], Qs=vals['Qs'], Qp=vals['Qp'], P2=vals['P2'],
-                               P1=vals['P1'], P5=None,
-                               nozzle_retracted=nozzle_retracted, d_diffuser=d_diffuser)['P5']
+        vals["P5"] = liquid_jet_pump_pressure_ratio(rhop=rhop, rhos=rhos, Km=Km, Kd=Kd, Ks=Ks, Kp=Kp, d_nozzle=vals["d_nozzle"],
+                               d_mixing=vals["d_mixing"], Qs=vals["Qs"], Qp=vals["Qp"], P2=vals["P2"],
+                               P1=vals["P1"], P5=None,
+                               nozzle_retracted=nozzle_retracted, d_diffuser=d_diffuser)["P5"]
         # Compute the remaining parameters
         obj_err([vals[unknown_vars[0]], vals[unknown_vars[1]]])
         return vals
 
-    with np.errstate(all='ignore'):
+    with np.errstate(all="ignore"):
         def solve_with_newton(var_guesses):
-            solver = SolverInterface(method='newton_system_line_search_progress', objf=obj_err, xtol=3E-7, maxiter=100, jacobian_perturbation=1e-7)
+            solver = SolverInterface(method="newton_system_line_search_progress", objf=obj_err, xtol=3E-7, maxiter=100, jacobian_perturbation=1e-7)
             solution = solver.solve(var_guesses)
             errs = obj_err(solution)
 
             if (abs(errs[0]) + abs(errs[1])) > 1E-5:
-                raise ValueError('Could not solve')
+                raise ValueError("Could not solve")
 
             for u, v in zip(unknown_vars, solution):
                 vals[u] = abs(v)
@@ -603,7 +603,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
                         return solve_with_newton(l)
                     except:
                         pass
-        raise ValueError('Could not solve')
+        raise ValueError("Could not solve")
 
 
 def vacuum_air_leakage_Ryans_Croll(V, P, P_atm=101325.0):

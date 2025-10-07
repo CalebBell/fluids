@@ -69,32 +69,32 @@ from fluids.core import Reynolds
 from fluids.numerics import cumulative_trapezoid, secant
 
 __all__ = [
-    'Almedeij',
-    'Barati',
-    'Barati_high',
-    'Ceylan',
-    'Cheng',
-    'Clift',
-    'Clift_Gauvin',
-    'Engelund_Hansen',
-    'Flemmer_Banks',
-    'Graf',
-    'Haider_Levenspiel',
-    'Khan_Richardson',
-    'Mikhailov_Freire',
-    'Morrison',
-    'Morsi_Alexander',
-    'Rouse',
-    'Song_Xu',
-    'Stokes',
-    'Swamee_Ojha',
-    'Terfous',
-    'Yen',
-    'drag_sphere',
-    'drag_sphere_methods',
-    'integrate_drag_sphere',
-    'time_v_terminal_Stokes',
-    'v_terminal',
+    "Almedeij",
+    "Barati",
+    "Barati_high",
+    "Ceylan",
+    "Cheng",
+    "Clift",
+    "Clift_Gauvin",
+    "Engelund_Hansen",
+    "Flemmer_Banks",
+    "Graf",
+    "Haider_Levenspiel",
+    "Khan_Richardson",
+    "Mikhailov_Freire",
+    "Morrison",
+    "Morsi_Alexander",
+    "Rouse",
+    "Song_Xu",
+    "Stokes",
+    "Swamee_Ojha",
+    "Terfous",
+    "Yen",
+    "drag_sphere",
+    "drag_sphere_methods",
+    "integrate_drag_sphere",
+    "time_v_terminal_Stokes",
+    "v_terminal",
 ]
 
 def Stokes(Re):
@@ -1131,27 +1131,27 @@ def Song_Xu(Re, sphericity=1., S=1.):
 
 
 drag_sphere_correlations = {
-    'Stokes': (Stokes, None, 0.3),
-    'Barati': (Barati, None, 2E5),
-    'Barati_high': (Barati_high, None, 1E6),
-    'Rouse': (Rouse, None, 2E5),
-    'Engelund_Hansen': (Engelund_Hansen, None, 2E5),
-    'Clift_Gauvin': (Clift_Gauvin, None, 2E5),
-    'Morsi_Alexander': (Morsi_Alexander, None, 2E5),
-    'Graf': (Graf, None, 2E5),
-    'Flemmer_Banks': (Flemmer_Banks, None, 2E5),
-    'Khan_Richardson': (Khan_Richardson, None, 2E5),
-    'Swamee_Ojha': (Swamee_Ojha, None, 1.5E5),
-    'Yen': (Yen, None, 2E5),
-    'Haider_Levenspiel': (Haider_Levenspiel, None, 2E5),
-    'Cheng': (Cheng, None, 2E5),
-    'Terfous': (Terfous, 0.1, 5E4),
-    'Mikhailov_Freire': (Mikhailov_Freire, None, 118300),
-    'Clift': (Clift, None, 1E6),
-    'Ceylan': (Ceylan, 0.1, 1E6),
-    'Almedeij': (Almedeij, None, 1E6),
-    'Morrison': (Morrison, None, 1E6),
-    'Song_Xu': (Song_Xu, None, 1E3)
+    "Stokes": (Stokes, None, 0.3),
+    "Barati": (Barati, None, 2E5),
+    "Barati_high": (Barati_high, None, 1E6),
+    "Rouse": (Rouse, None, 2E5),
+    "Engelund_Hansen": (Engelund_Hansen, None, 2E5),
+    "Clift_Gauvin": (Clift_Gauvin, None, 2E5),
+    "Morsi_Alexander": (Morsi_Alexander, None, 2E5),
+    "Graf": (Graf, None, 2E5),
+    "Flemmer_Banks": (Flemmer_Banks, None, 2E5),
+    "Khan_Richardson": (Khan_Richardson, None, 2E5),
+    "Swamee_Ojha": (Swamee_Ojha, None, 1.5E5),
+    "Yen": (Yen, None, 2E5),
+    "Haider_Levenspiel": (Haider_Levenspiel, None, 2E5),
+    "Cheng": (Cheng, None, 2E5),
+    "Terfous": (Terfous, 0.1, 5E4),
+    "Mikhailov_Freire": (Mikhailov_Freire, None, 118300),
+    "Clift": (Clift, None, 1E6),
+    "Ceylan": (Ceylan, 0.1, 1E6),
+    "Almedeij": (Almedeij, None, 1E6),
+    "Morrison": (Morrison, None, 1E6),
+    "Song_Xu": (Song_Xu, None, 1E3)
 }
 
 def drag_sphere_methods(Re, check_ranges=True):
@@ -1285,7 +1285,7 @@ def drag_sphere(Re, Method=None):
     elif Method == "Song_Xu":
         return Song_Xu(Re)
     else:
-        raise ValueError('Unrecognized method')
+        raise ValueError("Unrecognized method")
 
 
 def _v_terminal_err(V, Method, Re_almost, main):
@@ -1361,7 +1361,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     return fsolve(err, 1.)"""
     v_lam = g*D*D*(rhop-rho)/(18*mu)
     Re_lam = Reynolds(V=v_lam, D=D, rho=rho, mu=mu)
-    if Re_lam < 0.01 or Method == 'Stokes':
+    if Re_lam < 0.01 or Method == "Stokes":
         return v_lam
 
     Re_almost = rho*D/mu
@@ -1444,8 +1444,8 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
         except:
             tol = tol + tol
             if tol > 0.01:
-                raise ValueError('Could not find a solution')
-    raise ValueError('Could not find a solution')
+                raise ValueError("Could not find a solution")
+    raise ValueError("Could not find a solution")
 
 
 def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
@@ -1531,7 +1531,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
     laminar_initial = Reynolds(V=V, rho=rho, D=D, mu=mu) < 0.01
     v_laminar_end_assumed = v_terminal(D=D, rhop=rhop, rho=rho, mu=mu, Method=Method)
     laminar_end = Reynolds(V=v_laminar_end_assumed, rho=rho, D=D, mu=mu) < 0.01
-    if Method == 'Stokes' or (laminar_initial and laminar_end and Method is None):
+    if Method == "Stokes" or (laminar_initial and laminar_end and Method is None):
         try:
             t1 = 18.0*mu/(D*D*rhop)
             t2 = g*(rhop-rho)/rhop
@@ -1545,8 +1545,8 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
             # It is only necessary to integrate to terminal velocity
             t_to_terminal = time_v_terminal_Stokes(D, rhop, rho, mu, V0=V, tol=1e-9)
             if t_to_terminal > t:
-                raise ValueError('Should never happen')
-            V_end, x_end = integrate_drag_sphere(D=D, rhop=rhop, rho=rho, mu=mu, t=t_to_terminal, V=V, Method='Stokes', distance=True)
+                raise ValueError("Should never happen")
+            V_end, x_end = integrate_drag_sphere(D=D, rhop=rhop, rho=rho, mu=mu, t=t_to_terminal, V=V, Method="Stokes", distance=True)
             # terminal velocity has been reached - V does not change, but x does
             # No reason to believe this isn't working even though it isn't
             # matching the ode solver

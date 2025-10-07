@@ -97,7 +97,7 @@ def chebfun_to_poly(coeffs_or_fun, domain=None, text=False):
     if isinstance(coeffs_or_fun, Chebfun):
         coeffs = coeffs_or_fun.coefficients()
         domain = coeffs_or_fun._domain
-    elif hasattr(coeffs_or_fun, '__class__') and coeffs_or_fun.__class__.__name__ == 'ChebyshevExpansion':
+    elif hasattr(coeffs_or_fun, "__class__") and coeffs_or_fun.__class__.__name__ == "ChebyshevExpansion":
         coeffs = coeffs_or_fun.coef()
         domain = coeffs_or_fun.xmin(), coeffs_or_fun.xmax()
     else:
@@ -108,11 +108,11 @@ def chebfun_to_poly(coeffs_or_fun, domain=None, text=False):
     poly_coeffs = cheb2poly(coeffs)[::-1].tolist()
     if not text:
         return poly_coeffs
-    s = f'coeffs = {poly_coeffs}\n'
+    s = f"coeffs = {poly_coeffs}\n"
     delta = high - low
     delta_sum = high + low
     # Generate the expression
-    s += f'horner(coeffs, {2.0/delta:.18g}*(x - {0.5*delta_sum:.18g}))'
+    s += f"horner(coeffs, {2.0/delta:.18g}*(x - {0.5*delta_sum:.18g}))"
     # return the string
     return s
 
@@ -123,7 +123,7 @@ def cheb_to_poly(coeffs_or_fun, domain=None):
     if isinstance(coeffs_or_fun, Chebfun):
         coeffs = coeffs_or_fun.coefficients()
         domain = coeffs_or_fun._domain
-    elif hasattr(coeffs_or_fun, '__class__') and coeffs_or_fun.__class__.__name__ == 'ChebyshevExpansion':
+    elif hasattr(coeffs_or_fun, "__class__") and coeffs_or_fun.__class__.__name__ == "ChebyshevExpansion":
         coeffs = coeffs_or_fun.coef()
         domain = coeffs_or_fun.xmin(), coeffs_or_fun.xmax()
     else:
@@ -146,7 +146,7 @@ def cheb_range_simplifier(low, high, text=False):
     constant = 0.5*(-low-high)
     factor = 2.0/(high-low)
     if text:
-        return f'chebval({factor:.20g}*(x + {constant:.20g}), coeffs)'
+        return f"chebval({factor:.20g}*(x + {constant:.20g}), coeffs)"
     return constant, factor
 
 
@@ -245,14 +245,14 @@ class Polyfun:
             domain = self.get_default_domain(domain)
             a,b = domain[0], domain[-1]
             map_ui_ab = lambda t: 0.5*(b-a)*t + 0.5*(a+b)
-            args = {'f': lambda t: f(map_ui_ab(t))}
+            args = {"f": lambda t: f(map_ui_ab(t))}
             if N is not None: # N is provided
                 nextpow2 = int(np.log2(N))+1
-                args['kmin'] = nextpow2
-                args['kmax'] = nextpow2+1
-                args['raise_no_convergence'] = False
+                args["kmin"] = nextpow2
+                args["kmax"] = nextpow2+1
+                args["raise_no_convergence"] = False
             else:
-                args['raise_no_convergence'] = True
+                args["raise_no_convergence"] = True
 
             # Find out the right number of coefficients to keep
             coeffs = self.dichotomy(**args)
@@ -316,7 +316,7 @@ class Polyfun:
         """Display method."""
         a, b = self.domain()
         vals = self.values()
-        cls_name = str(type(self)).split('.')[-1].split('>')[0][:-1]
+        cls_name = str(type(self)).split(".")[-1].split(">")[0][:-1]
         return (
             f"{cls_name}\n"
             f"    domain        length     endpoint values\n"
@@ -326,7 +326,7 @@ class Polyfun:
 
     def __str__(self):
         return "<{}({})>".format(
-            str(type(self)).split('.')[-1].split('>')[0][:-1],self.size(),)
+            str(type(self)).split(".")[-1].split(">")[0][:-1],self.size(),)
 
     # ----------------------------------------------------------------
     # Basic Operator Overloads
@@ -709,7 +709,7 @@ def _add_operator(cls, op):
         return self.from_function(
             lambda x: op(self(x).T, other(x).T).T, domain=self.domain(), )
     cast_method = cast_scalar(method)
-    name = '__'+op.__name__+'__'
+    name = "__"+op.__name__+"__"
     cast_method.__name__ = name
     cast_method.__doc__ = f"operator {name}"
     setattr(cls, name, cast_method)
@@ -770,7 +770,7 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
             return Chebfun.from_fun(f)
 
         # callable
-        if hasattr(f, '__call__'):
+        if hasattr(f, "__call__"):
             return Chebfun.from_function(f, domain, N)
 
         # from here on, assume that f is None, or iterable
@@ -784,4 +784,4 @@ def chebfun(f=None, domain=[-1,1], N=None, chebcoeff=None,):
         else:
             return Chebfun(f, domain)
 
-        raise TypeError(f'Impossible to initialise the object from an object of type {type(f)}')
+        raise TypeError(f"Impossible to initialise the object from an object of type {type(f)}")

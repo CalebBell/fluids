@@ -61,25 +61,25 @@ Voidage Correlations
 from math import exp, pi, sqrt
 
 __all__ = [
-    'KTA',
-    'Brauer',
-    'Carman',
-    'Erdim_Akgiray_Demir',
-    'Ergun',
-    'Fahien_Schriver',
-    'Guo_Sun',
-    'Harrison_Brunner_Hecker',
-    'Hicks',
-    'Idelchik',
-    'Jones_Krier',
-    'Kuo_Nydegger',
-    'Montillet_Akkari_Comiti',
-    'Tallmadge',
-    'dP_packed_bed',
-    'dP_packed_bed_methods',
-    'voidage_Benyahia_Oneil',
-    'voidage_Benyahia_Oneil_cylindrical',
-    'voidage_Benyahia_Oneil_spherical',
+    "KTA",
+    "Brauer",
+    "Carman",
+    "Erdim_Akgiray_Demir",
+    "Ergun",
+    "Fahien_Schriver",
+    "Guo_Sun",
+    "Harrison_Brunner_Hecker",
+    "Hicks",
+    "Idelchik",
+    "Jones_Krier",
+    "Kuo_Nydegger",
+    "Montillet_Akkari_Comiti",
+    "Tallmadge",
+    "dP_packed_bed",
+    "dP_packed_bed_methods",
+    "voidage_Benyahia_Oneil",
+    "voidage_Benyahia_Oneil_cylindrical",
+    "voidage_Benyahia_Oneil_spherical",
 ]
 
 
@@ -1043,21 +1043,21 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt=None, L=1.0):
 
 # Format: Nice name : (formula, uses_dt)
 packed_beds_correlations = {
-'Ergun': (Ergun, False),
-'Tallmadge': (Tallmadge, False),
-'Kuo & Nydegger': (Kuo_Nydegger, False),
-'Jones & Krier': (Jones_Krier, False),
-'Carman': (Carman, False),
-'Hicks': (Hicks, False),
-'Brauer': (Brauer, False),
-'KTA': (KTA, False),
-'Fahien & Schriver': (Fahien_Schriver, False),
-'Idelchik': (Idelchik, False),
-'Erdim, Akgiray & Demir': (Erdim_Akgiray_Demir, False),
+"Ergun": (Ergun, False),
+"Tallmadge": (Tallmadge, False),
+"Kuo & Nydegger": (Kuo_Nydegger, False),
+"Jones & Krier": (Jones_Krier, False),
+"Carman": (Carman, False),
+"Hicks": (Hicks, False),
+"Brauer": (Brauer, False),
+"KTA": (KTA, False),
+"Fahien & Schriver": (Fahien_Schriver, False),
+"Idelchik": (Idelchik, False),
+"Erdim, Akgiray & Demir": (Erdim_Akgiray_Demir, False),
 
-'Harrison, Brunner & Hecker': (Harrison_Brunner_Hecker, True),
-'Montillet, Akkari & Comiti': (Montillet_Akkari_Comiti, True),
-'Guo, Sun, Zhang, Ding & Liu': (Guo_Sun, True)
+"Harrison, Brunner & Hecker": (Harrison_Brunner_Hecker, True),
+"Montillet, Akkari & Comiti": (Montillet_Akkari_Comiti, True),
+"Guo, Sun, Zhang, Ding & Liu": (Guo_Sun, True)
 }
 
 def dP_packed_bed_methods(dp, voidage, vs, rho, mu, L=1.0, Dt=None, check_ranges=False):
@@ -1104,11 +1104,11 @@ def dP_packed_bed_methods(dp, voidage, vs, rho, mu, L=1.0, Dt=None, check_ranges
     if (dp is not None and voidage is not None and vs is not None
         and rho is not None and mu is not None and L is not None):
         if Dt is not None:
-            methods = ['Harrison, Brunner & Hecker', 'Montillet, Akkari & Comiti', 'Guo, Sun, Zhang, Ding & Liu']
+            methods = ["Harrison, Brunner & Hecker", "Montillet, Akkari & Comiti", "Guo, Sun, Zhang, Ding & Liu"]
 
-        methods.extend(['Erdim, Akgiray & Demir', 'Idelchik', 'Fahien & Schriver',
-                        'KTA', 'Brauer', 'Hicks', 'Carman', 'Jones & Krier', 'Kuo & Nydegger',
-                        'Tallmadge', 'Ergun'])
+        methods.extend(["Erdim, Akgiray & Demir", "Idelchik", "Fahien & Schriver",
+                        "KTA", "Brauer", "Hicks", "Carman", "Jones & Krier", "Kuo & Nydegger",
+                        "Tallmadge", "Ergun"])
     return methods
 
 
@@ -1163,7 +1163,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
         Pressure drop across the bed [Pa]
     """
     if Method is None:
-        Method2 = 'Harrison, Brunner & Hecker' if Dt is not None else 'Erdim, Akgiray & Demir'
+        Method2 = "Harrison, Brunner & Hecker" if Dt is not None else "Erdim, Akgiray & Demir"
     else:
         Method2 = Method
 
@@ -1199,7 +1199,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
     elif Method2 == "Guo, Sun, Zhang, Ding & Liu":
         return Guo_Sun(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L, Dt=Dt)
     else:
-        raise ValueError('Unrecognized method')
+        raise ValueError("Unrecognized method")
 
 
 #import matplotlib.pyplot as plt

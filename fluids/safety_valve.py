@@ -62,38 +62,38 @@ from fluids.constants import atm, inch
 from fluids.numerics import bisplev, interp, tck_interp2d_linear
 
 __all__ = [
-    'API520_B',
-    'API520_C',
-    'API520_F2',
-    'API520_N',
-    'API520_SH',
-    'API520_W',
-    'API526_A',
-    'API520_A_g',
-    'API520_A_l',
-    'API520_A_steam',
-    'API520_Kv',
-    'API520_round_size',
-    'API521_noise',
-    'API521_noise_graph',
-    'API526_A_sq_inch',
-    'API526_letters',
-    'VDI_3732_noise_elevated_flare',
-    'VDI_3732_noise_ground_flare',
+    "API520_B",
+    "API520_C",
+    "API520_F2",
+    "API520_N",
+    "API520_SH",
+    "API520_W",
+    "API526_A",
+    "API520_A_g",
+    "API520_A_l",
+    "API520_A_steam",
+    "API520_Kv",
+    "API520_round_size",
+    "API521_noise",
+    "API521_noise_graph",
+    "API526_A_sq_inch",
+    "API526_letters",
+    "VDI_3732_noise_elevated_flare",
+    "VDI_3732_noise_ground_flare",
 ]
 
 API526_A_sq_inch = [0.110, 0.196, 0.307, 0.503, 0.785, 1.287, 1.838, 2.853, 3.60,
              4.34, 6.38, 11.05, 16.00, 26.00] # square inches
 """list: Nominal relief area in for different valve sizes in API 520, [in^2]"""
-API526_letters = ['D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R','T']
+API526_letters = ["D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R","T"]
 """list: Letter size designations for different valve sizes in API 520"""
 inch2 = inch*inch
 API526_A = [i*inch2 for i in API526_A_sq_inch]
 """list: Nominal relief area in for different valve sizes in API 520, [m^2]"""
 del inch2
 
-TENTH_EDITION = '10E'
-SEVENTH_EDITION = '7E'
+TENTH_EDITION = "10E"
+SEVENTH_EDITION = "7E"
 
 def API520_round_size(A):
     r"""Rounds up the area from an API 520 calculation to an API526 standard
@@ -135,7 +135,7 @@ def API520_round_size(A):
     for area in API526_A:
         if area >= A:
             return area
-    raise ValueError('Required relief area is larger than can be provided with one valve')
+    raise ValueError("Required relief area is larger than can be provided with one valve")
 
 
 def API520_C(k):
@@ -483,10 +483,10 @@ def API520_SH(T1, P1, edition=TENTH_EDITION):
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     """
     if T1 > 922.15:
-        raise ValueError('Superheat cannot be above 649 degrees Celcius')
+        raise ValueError("Superheat cannot be above 649 degrees Celcius")
     if edition == SEVENTH_EDITION:
         if P1 > 20780325.0: # 20679E3+atm
-            raise ValueError('For P above 20679 kPag, use the gas flow model')
+            raise ValueError("For P above 20679 kPag, use the gas flow model")
         if T1 < 422.15:
             return 1. # No superheat under 15 psig
         return float(bisplev(T1, P1, API520_KSH_tck_7E))
@@ -495,7 +495,7 @@ def API520_SH(T1, P1, edition=TENTH_EDITION):
             # Avoid extrapolating above 1.0
             return 1.0
         if P1 > 22063223.338138755:
-            raise ValueError('For P1 above 22.06 MPa, use the gas flow model')
+            raise ValueError("For P1 above 22.06 MPa, use the gas flow model")
         return float(bisplev(T1, P1, API520_KSH_tck_10E))
     else:
         raise ValueError("Acceptable editions are '7E', '10E'")
@@ -570,13 +570,13 @@ def API520_B(Pset, Pback, overpressure=0.1):
     """
     gauge_backpressure = (Pback-atm)/(Pset-atm)*100.0 # in percent
     if overpressure not in (0.1, 0.16, 0.21):
-        raise ValueError('Only overpressure of 10%, 16%, or 21% are permitted')
+        raise ValueError("Only overpressure of 10%, 16%, or 21% are permitted")
     if (overpressure == 0.1 and gauge_backpressure < 30.0) or (
         overpressure == 0.16 and gauge_backpressure < 38.0) or (
         overpressure == 0.21 and gauge_backpressure <= 50.0):
         return 1.0
     elif gauge_backpressure > 50.0:
-        raise ValueError('Gauge pressure must be < 50%')
+        raise ValueError("Gauge pressure must be < 50%")
     if overpressure == 0.16:
         Kb = interp(gauge_backpressure, Kb_16_over_x, Kb_16_over_y)
     elif overpressure == 0.1:

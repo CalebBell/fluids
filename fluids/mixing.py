@@ -44,12 +44,12 @@ from math import log, pi, sqrt
 from fluids.constants import g
 
 __all__ = [
-    'COV_motionless_mixer',
-    'K_motionless_mixer',
-    'Kp_helical_ribbon_Rieger',
-    'agitator_time_homogeneous',
-    'size_tee',
-    'time_helical_ribbon_Grenville',
+    "COV_motionless_mixer",
+    "K_motionless_mixer",
+    "Kp_helical_ribbon_Rieger",
+    "agitator_time_homogeneous",
+    "size_tee",
+    "time_helical_ribbon_Grenville",
 ]
 
 max_Fo_for_turbulent = 1/1225.
@@ -294,7 +294,7 @@ def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
     V2 = Q2/(pi/4*D2**2)
     B = n**2*(D2/D)**2*(V2/V1)**2
     if not n == 1 and not n == 2 and not n == 3 and not n ==4:
-        raise ValueError('Only 1 or 4 side streams investigated')
+        raise ValueError("Only 1 or 4 side streams investigated")
     if n == 1:
         if B < 0.7:
             E = 1.33
@@ -324,10 +324,10 @@ Paul, Edward L, Victor A Atiemo-Obeng, and Suzanne M Kresta.
 Handbook of Industrial Mixing: Science and Practice.
 Hoboken, N.J.: Wiley-Interscience, 2004."""
 StatixMixers = {}
-StatixMixers['KMS'] = {'Name': 'KMS', 'Vendor': 'Chemineer', 'Description': 'Twisted ribbon. Alternating left and right twists.', 'KL': 6.9, 'KiL': 0.87, 'KT': 150, 'KiT': 0.5}
-StatixMixers['SMX'] = {'Name': 'SMX', 'Vendor': 'Koch-Glitsch', 'Description': 'Guide vanes 45 degrees to pipe axis. Adjacent elements rotated 90 degrees.', 'KL': 37.5, 'KiL': 0.63, 'KT': 500, 'KiT': 0.46}
-StatixMixers['SMXL'] = {'Name': 'SMXL', 'Vendor': 'Koch-Glitsch', 'Description': 'Similar to SMX, but intersection bars at 30 degrees to pipe axis.', 'KL': 7.8, 'KiL': 0.85, 'KT': 100, 'KiT': 0.87}
-StatixMixers['SMF'] = {'Name': 'SMF', 'Vendor': 'Koch-Glitsch', 'Description': 'Three guide vanes projecting from the tube wall in a way as to not contact. Designed for applications subject to plugging.', 'KL': 5.6, 'KiL': 0.83, 'KT': 130, 'KiT': 0.4}
+StatixMixers["KMS"] = {"Name": "KMS", "Vendor": "Chemineer", "Description": "Twisted ribbon. Alternating left and right twists.", "KL": 6.9, "KiL": 0.87, "KT": 150, "KiT": 0.5}
+StatixMixers["SMX"] = {"Name": "SMX", "Vendor": "Koch-Glitsch", "Description": "Guide vanes 45 degrees to pipe axis. Adjacent elements rotated 90 degrees.", "KL": 37.5, "KiL": 0.63, "KT": 500, "KiT": 0.46}
+StatixMixers["SMXL"] = {"Name": "SMXL", "Vendor": "Koch-Glitsch", "Description": "Similar to SMX, but intersection bars at 30 degrees to pipe axis.", "KL": 7.8, "KiL": 0.85, "KT": 100, "KiT": 0.87}
+StatixMixers["SMF"] = {"Name": "SMF", "Vendor": "Koch-Glitsch", "Description": "Three guide vanes projecting from the tube wall in a way as to not contact. Designed for applications subject to plugging.", "KL": 5.6, "KiL": 0.83, "KT": 130, "KiT": 0.4}
 
 
 def COV_motionless_mixer(Ki, Q1, Q2, pipe_diameters):

@@ -66,23 +66,23 @@ from fluids.fittings import Cv_to_Kv, Kv_to_Cv
 from fluids.numerics import implementation_optimize_tck, interp, splev
 
 __all__ = [
-    'Cv_char_equal_percentage',
-    'Cv_char_linear',
-    'Cv_char_quick_opening',
-    'FF_critical_pressure_ratio_l',
-    'Reynolds_factor',
-    'Reynolds_valve',
-    'cavitation_index',
-    'control_valve_choke_P_g',
-    'control_valve_choke_P_l',
-    'control_valve_noise_g_2011',
-    'control_valve_noise_l_2015',
-    'convert_flow_coefficient',
-    'is_choked_turbulent_g',
-    'is_choked_turbulent_l',
-    'loss_coefficient_piping',
-    'size_control_valve_g',
-    'size_control_valve_l',
+    "Cv_char_equal_percentage",
+    "Cv_char_linear",
+    "Cv_char_quick_opening",
+    "FF_critical_pressure_ratio_l",
+    "Reynolds_factor",
+    "Reynolds_valve",
+    "cavitation_index",
+    "control_valve_choke_P_g",
+    "control_valve_choke_P_l",
+    "control_valve_noise_g_2011",
+    "control_valve_noise_l_2015",
+    "convert_flow_coefficient",
+    "is_choked_turbulent_g",
+    "is_choked_turbulent_l",
+    "loss_coefficient_piping",
+    "size_control_valve_g",
+    "size_control_valve_l",
 ]
 
 N1 = 0.1 # m^3/hr, kPa
@@ -245,12 +245,12 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
     elif P1 is None:
         ans = P1 = (FF*FL*FL*Psat - P2)/(FL*FL - 1.0)
     else:
-        raise ValueError('Either P1 or P2 needs to be specified')
+        raise ValueError("Either P1 or P2 needs to be specified")
     if P2 > P1 and disp:
-        raise ValueError('Specified P1 is too low for choking to occur '
-                        'at any downstream pressure; minimum '
-                        'upstream pressure for choking to be possible '
-                        f'is {Pmin_absolute:g} Pa.')
+        raise ValueError("Specified P1 is too low for choking to occur "
+                        "at any downstream pressure; minimum "
+                        "upstream pressure for choking to be possible "
+                        f"is {Pmin_absolute:g} Pa.")
     return ans
 
 
@@ -301,7 +301,7 @@ def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
     elif P1 is None:
         ans = P1 = -7.0*P2/(5.0*gamma*xT - 7.0)
     else:
-        raise ValueError('Either P1 or P2 needs to be specified')
+        raise ValueError("Either P1 or P2 needs to be specified")
     return ans
 
 
@@ -356,7 +356,7 @@ def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
     elif FL:
         return dP >= FL*FL*(P1-FF*Psat)
     else:
-        raise ValueError('Either (FLP and FP) or FL is needed')
+        raise ValueError("Either (FLP and FP) or FL is needed")
 
 
 def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
@@ -406,7 +406,7 @@ def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
     elif xTP:
         return x >= Fgamma*xTP
     else:
-        raise ValueError('Either xT or xTP is needed')
+        raise ValueError("Either xT or xTP is needed")
 
 
 def Reynolds_valve(nu, Q, D1, FL, Fd, C):
@@ -688,7 +688,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     """
     if full_output:
-        ans = {'FLP': None, 'FP': None, 'FR': None}
+        ans = {"FLP": None, "FP": None, "FR": None}
     # Pa to kPa, according to constants in standard
     P1, P2, Psat, Pc = P1/1000., P2/1000., Psat/1000., Pc/1000.
     Q = Q*3600. # m^3/s to m^3/hr, according to constants in standard
@@ -736,10 +736,10 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
                 if Ci/C < 0.99 and iterations < MAX_ITER and Ci < MAX_C_POSSIBLE:
                     C = iterate_piping_turbulent_l(C, iterations+1)
                 if MAX_ITER == iterations or Ci >= MAX_C_POSSIBLE:
-                    ans['warning'] = 'Not converged in inner loop'
+                    ans["warning"] = "Not converged in inner loop"
                 if full_output:
-                    ans['FLP'] = FLP
-                    ans['FP'] = FP
+                    ans["FLP"] = FLP
+                    ans["FP"] = FP
                 return C
 
             C = iterate_piping_turbulent_l(Ci, 0)
@@ -756,19 +756,19 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
                     Ci = iterate_piping_laminar_l(Ci) # pragma: no cover
 
                 if full_output:
-                    ans['Rev'] = Rev
-                    ans['FR'] = FR
+                    ans["Rev"] = Rev
+                    ans["FR"] = FR
                 return Ci
             C = iterate_piping_laminar_l(C)
     if full_output:
-        ans['FF'] = FF
-        ans['choked'] = choked
-        ans['Kv'] = C
-        ans['laminar'] = Rev <= 10000
+        ans["FF"] = FF
+        ans["choked"] = choked
+        ans["Kv"] = C
+        ans["laminar"] = Rev <= 10000
 
         # For the laminar case this is already set and needs to not be overwritten
-        if 'Rev' not in ans:
-            ans['Rev'] = Rev
+        if "Rev" not in ans:
+            ans["Rev"] = Rev
         return ans
     else:
 #        return C, choked, laminar, FF, FR, Rev, FP, FLP, warning
@@ -897,19 +897,19 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
 
 
     if full_output: # numba: delete
-        ans = {'FP': None, 'xTP': None, 'FR': None, 'choked': choked, 'Y': Y}  # numba: delete
+        ans = {"FP": None, "xTP": None, "FR": None, "choked": choked, "Y": Y}  # numba: delete
 
     if D1 is None and D2 is None and d is None:
         # Assume turbulent if no diameters are provided, no other calculations
         Rev = 1e5
         if full_output:  # numba: delete
-            ans['Rev'] = None  # numba: delete
+            ans["Rev"] = None  # numba: delete
     else:
         # m to mm, according to constants in standard
         D1, D2, d = D1*1000., D2*1000., d*1000. # Convert diameters to mm which is used in the standard
         Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
         if full_output:  # numba: delete
-            ans['Rev'] = Rev  # numba: delete
+            ans["Rev"] = Rev  # numba: delete
 
         if (Rev > 10000 or not allow_laminar) and (D1 != d or D2 != d):
             # gas, using xTP and FLP
@@ -931,11 +931,11 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
                 if Ci/C < 0.99 and iterations < MAX_ITER and Ci < MAX_C_POSSIBLE:
                     C = iterate_piping_coef_g(C, iterations+1)
                 if full_output:  # numba: delete
-                    ans['xTP'] = xTP  # numba: delete
-                    ans['FP'] = FP  # numba: delete
-                    ans['choked'] = choked  # numba: delete
+                    ans["xTP"] = xTP  # numba: delete
+                    ans["FP"] = FP  # numba: delete
+                    ans["choked"] = choked  # numba: delete
                     if MAX_ITER == iterations or Ci >= MAX_C_POSSIBLE:  # numba: delete
-                        ans['warning'] = 'Not converged in inner loop'  # numba: delete
+                        ans["warning"] = "Not converged in inner loop"  # numba: delete
                 return C
 
 #            def err_piping_coeff(Ci):
@@ -971,14 +971,14 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
                 if C/FR >= Ci:
                     Ci = iterate_piping_laminar_g(Ci)
                 if full_output:  # numba: delete
-                    ans['FR'] = FR  # numba: delete
-                    ans['Rev'] = Rev  # numba: delete
+                    ans["FR"] = FR  # numba: delete
+                    ans["Rev"] = Rev  # numba: delete
                 return Ci
             C = iterate_piping_laminar_g(C)
     if full_output:  # numba: delete
-        ans['Kv'] = C  # numba: delete
-        ans['laminar'] = Rev <= 10000  # numba: delete
-        ans['choked'] = choked # numba: delete
+        ans["Kv"] = C  # numba: delete
+        ans["laminar"] = Rev <= 10000  # numba: delete
+        ans["choked"] = choked # numba: delete
         return ans # numba: delete
     return C
 
@@ -1062,21 +1062,21 @@ def convert_flow_coefficient(flow_coefficient, old_scale, new_scale):
     0.0002776532068951358
     """
     # Convert from `old_scale` to Kv
-    if old_scale == 'Cv':
+    if old_scale == "Cv":
         Kv = Cv_to_Kv(flow_coefficient)
-    elif old_scale == 'Kv':
+    elif old_scale == "Kv":
         Kv = flow_coefficient
-    elif old_scale == 'Av':
+    elif old_scale == "Av":
         Cv = flow_coefficient/(sqrt(rho0/psi)*gallon/minute)
         Kv = Cv_to_Kv(Cv)
     else:
         raise NotImplementedError("Supported scales are 'Cv', 'Kv', and 'Av'")
 
-    if new_scale == 'Cv':
+    if new_scale == "Cv":
         ans = Kv_to_Cv(Kv)
-    elif new_scale == 'Kv':
+    elif new_scale == "Kv":
         ans = Kv
-    elif new_scale == 'Av':
+    elif new_scale == "Av":
         Cv = Kv_to_Cv(Kv)
         ans = Cv*(sqrt(rho0/psi)*gallon/minute)
     else:

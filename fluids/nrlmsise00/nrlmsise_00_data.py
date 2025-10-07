@@ -37,7 +37,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  * updated releases of this package.
  */
 """
-__all__ = ['pavgm', 'pd', 'pdl', 'pdm', 'pma', 'ps', 'pt', 'ptl', 'ptm', 'sam']
+__all__ = ["pavgm", "pd", "pdl", "pdm", "pma", "ps", "pt", "ptl", "ptm", "sam"]
 
 #TEMPERATURE
 pt = [9.86573E-01, 1.62228E-02, 1.55270E-02,-1.04323E-01,-3.75801E-03,

@@ -43,7 +43,7 @@ from math import cos, exp, log, pow, sin, sqrt
 from .nrlmsise_00_data import pavgm, pd, pdl, pdm, pma, ps, pt, ptl, ptm
 from .nrlmsise_00_header import nrlmsise_output
 
-__all__ = ['gtd7']
+__all__ = ["gtd7"]
 
 """
 /* ------------------------------------------------------------------- */

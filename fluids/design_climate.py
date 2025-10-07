@@ -22,15 +22,15 @@ SOFTWARE.
 
 
 __all__ = [
-    'IntegratedSurfaceDatabaseStation',
-    'StationDataGSOD',
-    'cooling_degree_days',
-    'geocode',
-    'get_clean_isd_history',
-    'get_closest_station',
-    'get_station_year_text',
-    'gsod_day_parser',
-    'heating_degree_days',
+    "IntegratedSurfaceDatabaseStation",
+    "StationDataGSOD",
+    "cooling_degree_days",
+    "geocode",
+    "get_clean_isd_history",
+    "get_closest_station",
+    "get_station_year_text",
+    "gsod_day_parser",
+    "heating_degree_days",
 ]
 
 import datetime
@@ -48,9 +48,9 @@ from fluids.constants import inch, knot, mile
 
 try:  # pragma: no cover
     from appdirs import user_config_dir
-    data_dir = user_config_dir('fluids')
+    data_dir = user_config_dir("fluids")
 except ImportError:  # pragma: no cover
-    data_dir = ''
+    data_dir = ""
 
 try:  # pragma: no cover
     # No point loading cPickle or sqlite for this reason
@@ -64,8 +64,8 @@ except ImportError:  # pragma: no cover
 
 # Geopy cache/lookup layer, also requires appdirs for caching, can work without
 geolocator = None
-geolocator_user_agent = 'fluids'
-geolocator_disk_cache_name = 'simple_geolocator_cache.sqlite3'
+geolocator_user_agent = "fluids"
+geolocator_disk_cache_name = "simple_geolocator_cache.sqlite3"
 geolocator_disk_cache_loc = os.path.join(data_dir, geolocator_disk_cache_name)
 
 simple_geopy_cache = None
@@ -113,13 +113,13 @@ class SimpleGeolocatorCache:
     def __init__(self, file_name):
         self.connection = conn = sqlite3.connect(file_name)
         cursor = self.connection.cursor()
-        cursor.execute('CREATE TABLE IF NOT EXISTS geopy ( '
-                       'address STRING PRIMARY KEY, latitude real, longitude real )')
+        cursor.execute("CREATE TABLE IF NOT EXISTS geopy ( "
+                       "address STRING PRIMARY KEY, latitude real, longitude real )")
         self.connection.commit()
 
     def cached_address(self, address):
         cursor = self.connection.cursor()
-        cursor.execute('SELECT latitude, longitude FROM geopy WHERE address=?', (address, ))
+        cursor.execute("SELECT latitude, longitude FROM geopy WHERE address=?", (address, ))
         res = cursor.fetchone()
         if res is None:
             return None
@@ -127,7 +127,7 @@ class SimpleGeolocatorCache:
 
     def cache_address(self, address, latitude, longitude):
         cursor = self.connection.cursor()
-        cursor.execute('INSERT INTO geopy(address, latitude, longitude) VALUES(?, ?, ?)',
+        cursor.execute("INSERT INTO geopy(address, latitude, longitude) VALUES(?, ?, ?)",
                        (address, latitude, longitude))
         self.connection.commit()
 
@@ -182,7 +182,7 @@ def geocode(address):
 
 
 
-folder = os.path.join(os.path.dirname(__file__), 'data')
+folder = os.path.join(os.path.dirname(__file__), "data")
 
 
 def heating_degree_days(T, T_base=291.4833333333333, truncate=True):
@@ -295,7 +295,7 @@ def cooling_degree_days(T, T_base=283.15, truncate=True):
     return dd
 
 
-def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'),
+def get_clean_isd_history(dest=os.path.join(folder, "isd-history-cleaned.tsv"),
                           url="https://www.ncei.noaa.gov/pub/data/noaa/isd-history.csv"): # pragma: no cover
     """Basic method to update the isd-history file from the NOAA. This is useful
     as new weather stations are updated all the time.
@@ -320,8 +320,8 @@ def get_clean_isd_history(dest=os.path.join(folder, 'isd-history-cleaned.tsv'),
         situation.
     """
     import pandas as pd
-    df = pd.read_csv(url, dtype={'USAF': str, 'WBAN': str})
-    df.to_csv(dest, sep='\t', index=False, header=False)
+    df = pd.read_csv(url, dtype={"USAF": str, "WBAN": str})
+    df.to_csv(dest, sep="\t", index=False, header=False)
 
 
 class IntegratedSurfaceDatabaseStation:
@@ -368,23 +368,23 @@ class IntegratedSurfaceDatabaseStation:
     """
 
     __slots__ = [
-        'BEGIN',
-        'CTRY',
-        'ELEV',
-        'END',
-        'ICAO',
-        'LAT',
-        'LON',
-        'NAME',
-        'ST',
-        'USAF',
-        'WBAN',
+        "BEGIN",
+        "CTRY",
+        "ELEV",
+        "END",
+        "ICAO",
+        "LAT",
+        "LON",
+        "NAME",
+        "ST",
+        "USAF",
+        "WBAN",
     ]
 
     def __repr__(self):
-        s = ('<Weather station registered in the Integrated Surface Database, '
-            'name %s, country %s, USAF %s, WBAN %s, coords (%s, %s) '
-            'Weather data from %s to %s>' )
+        s = ("<Weather station registered in the Integrated Surface Database, "
+            "name %s, country %s, USAF %s, WBAN %s, coords (%s, %s) "
+            "Weather data from %s to %s>" )
         return s%(self.NAME, self.CTRY, self.USAF, self.WBAN, self.LAT, self.LON, str(self.BEGIN)[0:4], str(self.END)[0:4])
 
     def __init__(self, USAF, WBAN, NAME, CTRY, ST, ICAO, LAT, LON, ELEV, BEGIN,
@@ -411,8 +411,8 @@ class StationDataGSOD:
         self.data_dir_override = data_dir_override
         self.station = station
 
-        self.begin = datetime.datetime.strptime(str(self.station.BEGIN), '%Y%m%d')
-        self.end = datetime.datetime.strptime(str(self.station.END), '%Y%m%d')
+        self.begin = datetime.datetime.strptime(str(self.station.BEGIN), "%Y%m%d")
+        self.end = datetime.datetime.strptime(str(self.station.END), "%Y%m%d")
 
         self.year_range = range(self.begin.year, self.end.year + 1)
 
@@ -445,7 +445,7 @@ class StationDataGSOD:
         for year, data in self.raw_text.items():
             if data is not None:
                 days = self.parsed_data[year]
-                for line in data.split('\n')[1:-1]:
+                for line in data.split("\n")[1:-1]:
                     parsed = gsod_day_parser(line)
                     doy = parsed.DATE.timetuple().tm_yday-1
                     days[doy] = parsed
@@ -598,7 +598,7 @@ class StationDataGSOD:
             return actual_averages
 
     def percentile_extreme_condition(self, older_year=None, newer_year=None,
-                                  include_yearly=False, minimum_days=23, attr='WDSP'):
+                                  include_yearly=False, minimum_days=23, attr="WDSP"):
         # Really need to normalize data with interpolation etc here.
         # Need to get the data, and process it and score interpolation regimes.
         # Or could just randomly drop data and try to fill it in.
@@ -627,16 +627,16 @@ def _load_station_data():
         _stations = []
         temp_latlongs = []
 
-        history_file = os.path.join(folder, 'isd-history-cleaned.tsv')
+        history_file = os.path.join(folder, "isd-history-cleaned.tsv")
         if not os.path.exists(history_file):
             get_clean_isd_history(dest=history_file)
 
         with open(os.path.join(folder, history_file)) as f:
             for line in f:
-                values = line.split('\t')
+                values = line.split("\t")
                 for i in range(11):
                     v = values[i]
-                    if v == '':
+                    if v == "":
                         values[i] = None
                     else:
                         try:
@@ -737,8 +737,8 @@ def get_closest_station(latitude, longitude, minumum_recent_data=20140000,
             return stations[i]
     if match_max < station_count:
         return get_closest_station(latitude, longitude, minumum_recent_data=minumum_recent_data, match_max=match_max*10)
-    raise ValueError('Could not find a station with more recent data than '
-                    'specified near the specified coordinates.')
+    raise ValueError("Could not find a station with more recent data than "
+                    "specified near the specified coordinates.")
 
 
 # This should be aggressively cached
@@ -767,16 +767,16 @@ def get_station_year_text(WMO, WBAN, year, data_dir_override=None):
         WMO = 999999
     if WBAN is None:
         WBAN = 99999
-    station = str(int(WMO)) + '-' + str(WBAN)
+    station = str(int(WMO)) + "-" + str(WBAN)
     if data_dir_override is None:
-        gsod_year_dir = os.path.join(data_dir, 'gsod', str(year))
+        gsod_year_dir = os.path.join(data_dir, "gsod", str(year))
     else:
         gsod_year_dir = os.path.join(data_dir_override, str(year))
-    path = os.path.join(gsod_year_dir, station + '.op')
+    path = os.path.join(gsod_year_dir, station + ".op")
     if os.path.exists(path):
         with open(path) as f:
             data = f.read()
-            if data and data != 'Exception':
+            if data and data != "Exception":
                 return data
             else:
                 # Remove the bad file and try to redownload it
@@ -786,19 +786,19 @@ def get_station_year_text(WMO, WBAN, year, data_dir_override=None):
                     pass
                 # raise ValueError(data)
 
-    toget = ('ftp://ftp.ncdc.noaa.gov/pub/data/gsod/' + str(year) + '/'
-             + station + '-' + str(year) +'.op.gz')
+    toget = ("ftp://ftp.ncdc.noaa.gov/pub/data/gsod/" + str(year) + "/"
+             + station + "-" + str(year) +".op.gz")
     try:
         data = urlopen(toget, timeout=5)  # nosec B310
     except Exception as e:
         if not os.path.exists(gsod_year_dir):
             os.makedirs(gsod_year_dir)
-        with open(path, 'w') as f:
-            f.write('Exception')
-        raise ValueError('Could not obtain desired data; check '
-                        'if the year has data published for the '
-                        'specified station and the station was specified '
-                        f'in the correct form. The full error is {e}')
+        with open(path, "w") as f:
+            f.write("Exception")
+        raise ValueError("Could not obtain desired data; check "
+                        "if the year has data published for the "
+                        "specified station and the station was specified "
+                        f"in the correct form. The full error is {e}")
 
     data = data.read()
     data_thing = StringIO(data)
@@ -806,52 +806,52 @@ def get_station_year_text(WMO, WBAN, year, data_dir_override=None):
     f = gzip.GzipFile(fileobj=data_thing, mode="r")
     year_station_data = f.read()
     try:
-        year_station_data = year_station_data.decode('utf-8')
+        year_station_data = year_station_data.decode("utf-8")
     except:
         pass
 
     # Cache the data for future use
     if not os.path.exists(gsod_year_dir):
         os.makedirs(gsod_year_dir)
-    open(path, 'w').write(year_station_data)
+    open(path, "w").write(year_station_data)
 
 
     return year_station_data
 
 
 
-gsod_fields = ['DATE', # 15-18 int year; 19-22 int month/day
-               'TEMP', # 25-30 Real Mean temperature for the day in degrees Fahrenheit to tenths. Missing = 9999.9
-               'TEMP_COUNT', # 32-33 Int. Number of observations used in calculating mean temperature
-               'DEWP', # 36-41 Real Mean dew point for the day in degrees Fahrenheit to tenths.  Missing = 9999.9
-               'DEWP_COUNT', # 43-44 Int. Number of observations used in calculating mean dew point
-               'SLP', # 47-52 Real Mean sea level pressure for the day in millibars to tenths.  Missing = 9999.9
-               'SLP_COUNT', # 54-55 Int. Number of observations used in calculating mean sea level pressure
-               'STP', # 58-63 Real Mean station pressure for the day in millibars to tenths. Missing = 9999.9
-               'STP_COUNT', # 65-66 Int. Number of observations used in calculating mean station pressure
-               'VISIB', # 69-73 Real Mean visibility for the day in miles to tenths. Missing = 999.9
-               'VISIB_COUNT', # 75-76 Int. Number of observations used in calculating mean visibility
-               'WDSP', # 79-83 Real Mean wind speed for the day in knots to tenths. Missing = 999.9
-               'WDSP_COUNT', # 85-86 Int. Number of observations used in calculating mean wind speed
-               'MXSPD', # 89-93 Real Maximum sustained wind speed reported for the day in knots to tenths. Missing = 999.9
-               'GUST', # 96-100 Real Maximum wind gust reported for the day in knots to tenths. Missing = 999.9
-               'MAX', # 103-108 Real Maximum temperature reported during the
+gsod_fields = ["DATE", # 15-18 int year; 19-22 int month/day
+               "TEMP", # 25-30 Real Mean temperature for the day in degrees Fahrenheit to tenths. Missing = 9999.9
+               "TEMP_COUNT", # 32-33 Int. Number of observations used in calculating mean temperature
+               "DEWP", # 36-41 Real Mean dew point for the day in degrees Fahrenheit to tenths.  Missing = 9999.9
+               "DEWP_COUNT", # 43-44 Int. Number of observations used in calculating mean dew point
+               "SLP", # 47-52 Real Mean sea level pressure for the day in millibars to tenths.  Missing = 9999.9
+               "SLP_COUNT", # 54-55 Int. Number of observations used in calculating mean sea level pressure
+               "STP", # 58-63 Real Mean station pressure for the day in millibars to tenths. Missing = 9999.9
+               "STP_COUNT", # 65-66 Int. Number of observations used in calculating mean station pressure
+               "VISIB", # 69-73 Real Mean visibility for the day in miles to tenths. Missing = 999.9
+               "VISIB_COUNT", # 75-76 Int. Number of observations used in calculating mean visibility
+               "WDSP", # 79-83 Real Mean wind speed for the day in knots to tenths. Missing = 999.9
+               "WDSP_COUNT", # 85-86 Int. Number of observations used in calculating mean wind speed
+               "MXSPD", # 89-93 Real Maximum sustained wind speed reported for the day in knots to tenths. Missing = 999.9
+               "GUST", # 96-100 Real Maximum wind gust reported for the day in knots to tenths. Missing = 999.9
+               "MAX", # 103-108 Real Maximum temperature reported during the
                       # day in Fahrenheit to tenths--time of max temp report varies by country and
                       # region, so this will sometimes not be the max for the calendar day.
                       # Missing = 9999.9; FLAG of '*' is present on 109-109!
-               'MIN', # 111-116 Real Minimum temperature reported during the day in Fahrenheit to tenths--time of min
+               "MIN", # 111-116 Real Minimum temperature reported during the day in Fahrenheit to tenths--time of min
                       # temp report varies by country and region, so this will sometimes not be
                       # the min for the calendar day. Missing = 9999.9 FLAG of '*' is present on 117-117!
-               'PRCP', # 119-123 Real Total precipitation (rain and/or melted snow) reported during the day in inches
+               "PRCP", # 119-123 Real Total precipitation (rain and/or melted snow) reported during the day in inches
                        # and hundredths; will usually not end with the midnight observation--i.e.,
                        # may include latter part of previous day. .00 indicates no measurable
                        # precipitation (includes a trace).
                        # Missing = 99.99
 
-               'SNDP', # 126-130 Real Snow depth in inches to tenths--last report for the day if reported more than
+               "SNDP", # 126-130 Real Snow depth in inches to tenths--last report for the day if reported more than
                        # once.  Missing = 999.9 Note: Most stations do not report '0' on days with no snow on the
                        # ground--therefore, '999.9' will often appear on these days.
-               'FRSHTT' # 133-138 Int. Indicators (1 = yes, 0 = no/not reported) for the occurrence during the day of:
+               "FRSHTT" # 133-138 Int. Indicators (1 = yes, 0 = no/not reported) for the occurrence during the day of:
                         # Fog ('F' - 1st digit).
                         # Rain or Drizzle ('R' - 2nd digit).
                         # Snow or Ice Pellets ('S' - 3rd digit).
@@ -861,22 +861,22 @@ gsod_fields = ['DATE', # 15-18 int year; 19-22 int month/day
               ]
 # Use TEMP and DEWP and STP to calculate wet bulb temperatures
 # Values to be converted to floats always
-gsod_float_fields = ('TEMP', 'DEWP', 'SLP', 'STP', 'VISIB', 'WDSP', 'MXSPD',
-                     'GUST', 'MAX', 'MIN', 'PRCP', 'SNDP')
+gsod_float_fields = ("TEMP", "DEWP", "SLP", "STP", "VISIB", "WDSP", "MXSPD",
+                     "GUST", "MAX", "MIN", "PRCP", "SNDP")
 # Values to be converted to ints always
-gsod_int_fields = ('TEMP_COUNT', 'DEWP_COUNT', 'SLP_COUNT', 'STP_COUNT',
-                   'VISIB_COUNT', 'WDSP_COUNT')
+gsod_int_fields = ("TEMP_COUNT", "DEWP_COUNT", "SLP_COUNT", "STP_COUNT",
+                   "VISIB_COUNT", "WDSP_COUNT")
 
 # Values which signify flags
-gsod_flag_chars = '*ABCDEFGHI'
+gsod_flag_chars = "*ABCDEFGHI"
 # Values which should be converted to None, as normally there is no value
-gsod_bad_values = frozenset(['99.99', '999.9', '9999.9'])
+gsod_bad_values = frozenset(["99.99", "999.9", "9999.9"])
 
-gsod_indicator_names = ['fog', 'rain', 'snow_ice', 'hail', 'thunder',
-                        'tornado']
+gsod_indicator_names = ["fog", "rain", "snow_ice", "hail", "thunder",
+                        "tornado"]
 five_ninths = 5.0/9.0
 
-gsod_day = namedtuple('gsod_day', gsod_fields + gsod_indicator_names)
+gsod_day = namedtuple("gsod_day", gsod_fields + gsod_indicator_names)
 
 
 def gsod_day_parser(line, SI=True, to_datetime=True):
@@ -923,9 +923,9 @@ def gsod_day_parser(line, SI=True, to_datetime=True):
 
     obj = dict(zip(gsod_fields, fields))
     # Convert the date to a datetime object if specified
-    if to_datetime and obj['DATE'] is not None:
-        date = obj['DATE']
-        obj['DATE'] = datetime.datetime(int(date[0:4]), int(date[4:6]), int(date[6:]))
+    if to_datetime and obj["DATE"] is not None:
+        date = obj["DATE"]
+        obj["DATE"] = datetime.datetime(int(date[0:4]), int(date[4:6]), int(date[6:]))
         #obj['DATE'] = datetime.datetime.strptime(obj['DATE'], '%Y%m%d')
 
     # Parse float values as floats
@@ -939,7 +939,7 @@ def gsod_day_parser(line, SI=True, to_datetime=True):
 
     if SI:
         # All temperatures are in deg F
-        for field in ('TEMP', 'DEWP', 'MAX', 'MIN'):
+        for field in ("TEMP", "DEWP", "MAX", "MIN"):
             value = obj[field]
             if value is not None:
                 # F2K inline for efficiency unfortunately
@@ -947,22 +947,22 @@ def gsod_day_parser(line, SI=True, to_datetime=True):
 
         # Convert visibility, wind speed, pressures
         # to si units of meters, Pascal, and meters/second.
-        if obj['VISIB'] is not None:
-            obj['VISIB'] = obj['VISIB']*mile
-        if obj['PRCP'] is not None:
-            obj['PRCP'] = obj['PRCP']*inch
-        if obj['SNDP'] is not None:
-            obj['SNDP'] = obj['SNDP']*inch
-        if obj['WDSP'] is not None:
-            obj['WDSP'] = obj['WDSP']*knot
-        if obj['MXSPD'] is not None:
-            obj['MXSPD'] = obj['MXSPD']*knot
-        if obj['GUST'] is not None:
-            obj['GUST'] = obj['GUST']*knot
-        if obj['SLP'] is not None:
-            obj['SLP'] = obj['SLP']*100.0
-        if obj['STP'] is not None:
-            obj['STP'] = obj['STP']*100.0
+        if obj["VISIB"] is not None:
+            obj["VISIB"] = obj["VISIB"]*mile
+        if obj["PRCP"] is not None:
+            obj["PRCP"] = obj["PRCP"]*inch
+        if obj["SNDP"] is not None:
+            obj["SNDP"] = obj["SNDP"]*inch
+        if obj["WDSP"] is not None:
+            obj["WDSP"] = obj["WDSP"]*knot
+        if obj["MXSPD"] is not None:
+            obj["MXSPD"] = obj["MXSPD"]*knot
+        if obj["GUST"] is not None:
+            obj["GUST"] = obj["GUST"]*knot
+        if obj["SLP"] is not None:
+            obj["SLP"] = obj["SLP"]*100.0
+        if obj["STP"] is not None:
+            obj["STP"] = obj["STP"]*100.0
 
     # Parse int values as ints
     for field in gsod_int_fields:
@@ -970,6 +970,6 @@ def gsod_day_parser(line, SI=True, to_datetime=True):
         if value is not None:
             obj[field] = int(value)
 
-    indicator_values = [flag == '1' for flag in obj['FRSHTT']]
+    indicator_values = [flag == "1" for flag in obj["FRSHTT"]]
     obj.update(zip(gsod_indicator_names, indicator_values))
     return gsod_day(**obj)

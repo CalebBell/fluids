@@ -134,60 +134,60 @@ from math import acos, acosh, asin, atan, cos, degrees, isclose, log, log1p, pi,
 from fluids.numerics import cacos, catan, chebval, derivative, ellipe, ellipeinc, ellipkinc, linspace, newton, quad, secant, translate_bound_func
 
 __all__ = [
-    'TANK',
-    'A_cylinder',
-    'A_hollow_cylinder',
-    'A_multiple_hole_cylinder',
-    'A_partial_circle',
-    'AirCooledExchanger',
-    'HelicalCoil',
-    'HyperbolicCoolingTower',
-    'PlateExchanger',
-    'RectangularFinExchanger',
-    'RectangularOffsetStripFinExchanger',
-    'SA_conical_head',
-    'SA_ellipsoidal_head',
-    'SA_from_h',
-    'SA_guppy_head',
-    'SA_partial_cylindrical_body',
-    'SA_partial_horiz_conical_head',
-    'SA_partial_horiz_ellipsoidal_head',
-    'SA_partial_horiz_guppy_head',
-    'SA_partial_horiz_spherical_head',
-    'SA_partial_horiz_torispherical_head',
-    'SA_partial_sphere',
-    'SA_partial_vertical_conical_head',
-    'SA_partial_vertical_ellipsoidal_head',
-    'SA_partial_vertical_spherical_head',
-    'SA_partial_vertical_torispherical_head',
-    'SA_tank',
-    'SA_torispheroidal',
-    'V_cylinder',
-    'V_from_h',
-    'V_hollow_cylinder',
-    'V_horiz_conical',
-    'V_horiz_ellipsoidal',
-    'V_horiz_guppy',
-    'V_horiz_spherical',
-    'V_horiz_torispherical',
-    'V_multiple_hole_cylinder',
-    'V_partial_sphere',
-    'V_tank',
-    'V_vertical_conical',
-    'V_vertical_conical_concave',
-    'V_vertical_ellipsoidal',
-    'V_vertical_ellipsoidal_concave',
-    'V_vertical_spherical',
-    'V_vertical_spherical_concave',
-    'V_vertical_torispherical',
-    'V_vertical_torispherical_concave',
-    'a_torispherical',
-    'aspect_ratio',
-    'circle_segment_h_from_A',
-    'circularity',
-    'pitch_angle_solver',
-    'plate_enlargement_factor',
-    'sphericity',
+    "TANK",
+    "A_cylinder",
+    "A_hollow_cylinder",
+    "A_multiple_hole_cylinder",
+    "A_partial_circle",
+    "AirCooledExchanger",
+    "HelicalCoil",
+    "HyperbolicCoolingTower",
+    "PlateExchanger",
+    "RectangularFinExchanger",
+    "RectangularOffsetStripFinExchanger",
+    "SA_conical_head",
+    "SA_ellipsoidal_head",
+    "SA_from_h",
+    "SA_guppy_head",
+    "SA_partial_cylindrical_body",
+    "SA_partial_horiz_conical_head",
+    "SA_partial_horiz_ellipsoidal_head",
+    "SA_partial_horiz_guppy_head",
+    "SA_partial_horiz_spherical_head",
+    "SA_partial_horiz_torispherical_head",
+    "SA_partial_sphere",
+    "SA_partial_vertical_conical_head",
+    "SA_partial_vertical_ellipsoidal_head",
+    "SA_partial_vertical_spherical_head",
+    "SA_partial_vertical_torispherical_head",
+    "SA_tank",
+    "SA_torispheroidal",
+    "V_cylinder",
+    "V_from_h",
+    "V_hollow_cylinder",
+    "V_horiz_conical",
+    "V_horiz_ellipsoidal",
+    "V_horiz_guppy",
+    "V_horiz_spherical",
+    "V_horiz_torispherical",
+    "V_multiple_hole_cylinder",
+    "V_partial_sphere",
+    "V_tank",
+    "V_vertical_conical",
+    "V_vertical_conical_concave",
+    "V_vertical_ellipsoidal",
+    "V_vertical_ellipsoidal_concave",
+    "V_vertical_spherical",
+    "V_vertical_spherical_concave",
+    "V_vertical_torispherical",
+    "V_vertical_torispherical_concave",
+    "a_torispherical",
+    "aspect_ratio",
+    "circle_segment_h_from_A",
+    "circularity",
+    "pitch_angle_solver",
+    "plate_enlargement_factor",
+    "sphericity",
 ]
 
 
@@ -1524,15 +1524,15 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     18.8495559215
     """
     # Side A
-    if sideA == 'conical':
+    if sideA == "conical":
         sideA_SA = SA_conical_head(D=D, a=sideA_a)
-    elif sideA == 'ellipsoidal':
+    elif sideA == "ellipsoidal":
         sideA_SA = SA_ellipsoidal_head(D=D, a=sideA_a)
-    elif sideA == 'guppy':
+    elif sideA == "guppy":
         sideA_SA = SA_guppy_head(D=D, a=sideA_a)
-    elif sideA == 'spherical':
+    elif sideA == "spherical":
         sideA_SA = pi * (sideA_a * sideA_a + 0.25 * D * D)
-    elif sideA == 'torispherical':
+    elif sideA == "torispherical":
         if sideA_f is None or sideA_k is None:
             raise ValueError("Missing torispherical 'f' or 'k' parameter for sideA")
         sideA_SA = SA_torispheroidal(D=D, f=sideA_f, k=sideA_k)
@@ -1544,15 +1544,15 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
         sideA_f == sideB_f and sideA_k == sideB_k):
         sideB_SA = sideA_SA
     else:
-        if sideB == 'conical':
+        if sideB == "conical":
             sideB_SA = SA_conical_head(D=D, a=sideB_a)
-        elif sideB == 'ellipsoidal':
+        elif sideB == "ellipsoidal":
             sideB_SA = SA_ellipsoidal_head(D=D, a=sideB_a)
-        elif sideB == 'guppy':
+        elif sideB == "guppy":
             sideB_SA = SA_guppy_head(D=D, a=sideB_a)
-        elif sideB == 'spherical':
+        elif sideB == "spherical":
             sideB_SA = pi*(sideB_a*sideB_a + 0.25*D*D)#SA_partial_sphere(D=D, h=sideB_a)
-        elif sideB == 'torispherical':
+        elif sideB == "torispherical":
             if sideB_f is None or sideB_k is None:
                 raise ValueError("Missing torispherical 'f' or 'k' parameter for sideB")
             sideB_SA = SA_torispheroidal(D=D, f=sideB_f, k=sideB_k)
@@ -1624,88 +1624,88 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
     ... sideB='conical', sideA_a=2., sideB_a=1.)
     (10.602875205865551, 1.1780972450961726, 0.5890486225480863, 8.835729338221293)
     """
-    if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unsupported head type for side A')
-    if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unsupported head type for side B')
+    if sideA is not None and sideA not in ("conical", "ellipsoidal", "torispherical", "spherical", "guppy"):
+        raise ValueError("Unsupported head type for side A")
+    if sideB is not None and sideB not in ("conical", "ellipsoidal", "torispherical", "spherical", "guppy"):
+        raise ValueError("Unsupported head type for side B")
     R = 0.5*D
     sideA_V = sideB_V = lateral_V = 0.0
     if horizontal:
         # Conical case
-        if sideA == 'conical' and sideB == 'conical' and sideA_a == sideB_a:
+        if sideA == "conical" and sideB == "conical" and sideA_a == sideB_a:
             sideB_V = sideA_V = V_horiz_conical(D, L, sideA_a, D, headonly=True)
         else:
-            if sideA == 'conical':
+            if sideA == "conical":
                 sideA_V = V_horiz_conical(D, L, sideA_a, D, headonly=True)
-            if sideB == 'conical':
+            if sideB == "conical":
                 sideB_V = V_horiz_conical(D, L, sideB_a, D, headonly=True)
         # Ellipsoidal case
-        if sideA == 'ellipsoidal' and sideB == 'ellipsoidal' and sideA_a == sideB_a:
+        if sideA == "ellipsoidal" and sideB == "ellipsoidal" and sideA_a == sideB_a:
             sideB_V = sideA_V = V_horiz_ellipsoidal(D, L, sideA_a, D, headonly=True)
         else:
-            if sideA == 'ellipsoidal':
+            if sideA == "ellipsoidal":
                 sideA_V = V_horiz_ellipsoidal(D, L, sideA_a, D, headonly=True)
-            if sideB == 'ellipsoidal':
+            if sideB == "ellipsoidal":
                 sideB_V = V_horiz_ellipsoidal(D, L, sideB_a, D, headonly=True)
         # Guppy case
-        if sideA == 'guppy' and sideB == 'guppy' and sideA_a == sideB_a:
+        if sideA == "guppy" and sideB == "guppy" and sideA_a == sideB_a:
             sideB_V = sideA_V = V_horiz_guppy(D, L, sideA_a, D, headonly=True)
         else:
-            if sideA == 'guppy':
+            if sideA == "guppy":
                 sideA_V = V_horiz_guppy(D, L, sideA_a, D, headonly=True)
-            if sideB == 'guppy':
+            if sideB == "guppy":
                 sideB_V = V_horiz_guppy(D, L, sideB_a, D, headonly=True)
         # Spherical case
-        if sideA == 'spherical' and sideB == 'spherical' and sideA_a == sideB_a:
+        if sideA == "spherical" and sideB == "spherical" and sideA_a == sideB_a:
             sideB_V = sideA_V = V_horiz_spherical(D, L, sideA_a, D, headonly=True)
         else:
-            if sideA == 'spherical':
+            if sideA == "spherical":
                 sideA_V = V_horiz_spherical(D, L, sideA_a, D, headonly=True)
-            if sideB == 'spherical':
+            if sideB == "spherical":
                 sideB_V = V_horiz_spherical(D, L, sideB_a, D, headonly=True)
         # Torispherical case
-        if (sideA == 'torispherical' and sideB == 'torispherical'
+        if (sideA == "torispherical" and sideB == "torispherical"
             and (sideA_f == sideB_f) and (sideA_k == sideB_k)):
             sideB_V = sideA_V = V_horiz_torispherical(D, L, sideA_f, sideA_k, D, headonly=True)
         else:
-            if sideA == 'torispherical':
+            if sideA == "torispherical":
                 sideA_V = V_horiz_torispherical(D, L, sideA_f, sideA_k, D, headonly=True)
-            if sideB == 'torispherical':
+            if sideB == "torispherical":
                 sideB_V = V_horiz_torispherical(D, L, sideB_f, sideB_k, D, headonly=True)
         Af = R*R*acos((R-D)/R) - (R-D)*sqrt(2.0*R*D - D*D)
         lateral_V = L*Af
     else:
         # Bottom head
-        if sideA == 'conical' and sideB == 'conical' and sideA_a == sideB_a:
+        if sideA == "conical" and sideB == "conical" and sideA_a == sideB_a:
             sideB_V = sideA_V = V_vertical_conical(D, sideA_a, h=sideA_a)
         else:
-            if sideA == 'conical':
+            if sideA == "conical":
                 sideA_V = V_vertical_conical(D, sideA_a, h=sideA_a)
-            if sideB == 'conical':
+            if sideB == "conical":
                 sideB_V = V_vertical_conical(D, sideB_a, h=sideB_a)
 
-        if sideA == 'ellipsoidal' and sideB == 'ellipsoidal' and sideA_a == sideB_a:
+        if sideA == "ellipsoidal" and sideB == "ellipsoidal" and sideA_a == sideB_a:
             sideB_V = sideA_V = V_vertical_ellipsoidal(D, sideA_a, h=sideA_a)
         else:
-            if sideA == 'ellipsoidal':
+            if sideA == "ellipsoidal":
                 sideA_V = V_vertical_ellipsoidal(D, sideA_a, h=sideA_a)
-            if sideB == 'ellipsoidal':
+            if sideB == "ellipsoidal":
                 sideB_V = V_vertical_ellipsoidal(D, sideB_a, h=sideB_a)
 
-        if sideA == 'spherical' and sideB == 'spherical' and sideA_a == sideB_a:
+        if sideA == "spherical" and sideB == "spherical" and sideA_a == sideB_a:
             sideB_V = sideA_V = V_vertical_spherical(D, sideA_a, h=sideA_a)
         else:
-            if sideA == 'spherical':
+            if sideA == "spherical":
                 sideA_V = V_vertical_spherical(D, sideA_a, h=sideA_a)
-            if sideB == 'spherical':
+            if sideB == "spherical":
                 sideB_V = V_vertical_spherical(D, sideB_a, h=sideB_a)
 
-        if sideA == 'torispherical' and sideB == 'torispherical' and sideA_f == sideB_f and sideA_k == sideB_k:
+        if sideA == "torispherical" and sideB == "torispherical" and sideA_f == sideB_f and sideA_k == sideB_k:
             sideB_V = sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
         else:
-            if sideA == 'torispherical':
+            if sideA == "torispherical":
                 sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
-            if sideB == 'torispherical':
+            if sideB == "torispherical":
                 sideB_V = V_vertical_torispherical(D, sideB_f, sideB_k, h=sideB_a)
 
         # Cylindrical section
@@ -2833,10 +2833,10 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
        Processing. December 18, 2003.
        http://www.chemicalprocessing.com/articles/2003/193/
     """
-    if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unsupported head type for side A')
-    if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unsupported head type for side B')
+    if sideA is not None and sideA not in ("conical", "ellipsoidal", "torispherical", "spherical", "guppy"):
+        raise ValueError("Unsupported head type for side A")
+    if sideB is not None and sideB not in ("conical", "ellipsoidal", "torispherical", "spherical", "guppy"):
+        raise ValueError("Unsupported head type for side B")
     R = 0.5*D
     V = 0.0
     if horizontal:
@@ -2844,45 +2844,45 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
             h = D
 
         # Conical case
-        if sideA == 'conical' and sideB == 'conical' and sideA_a == sideB_a:
+        if sideA == "conical" and sideB == "conical" and sideA_a == sideB_a:
             V += 2.0*V_horiz_conical(D, L, sideA_a, h, headonly=True)
         else:
-            if sideA == 'conical':
+            if sideA == "conical":
                 V += V_horiz_conical(D, L, sideA_a, h, headonly=True)
-            if sideB == 'conical':
+            if sideB == "conical":
                 V += V_horiz_conical(D, L, sideB_a, h, headonly=True)
         # Ellipsoidal case
-        if sideA == 'ellipsoidal' and sideB == 'ellipsoidal' and sideA_a == sideB_a:
+        if sideA == "ellipsoidal" and sideB == "ellipsoidal" and sideA_a == sideB_a:
             V += 2.0*V_horiz_ellipsoidal(D, L, sideA_a, h, headonly=True)
         else:
-            if sideA == 'ellipsoidal':
+            if sideA == "ellipsoidal":
                 V += V_horiz_ellipsoidal(D, L, sideA_a, h, headonly=True)
-            if sideB == 'ellipsoidal':
+            if sideB == "ellipsoidal":
                 V += V_horiz_ellipsoidal(D, L, sideB_a, h, headonly=True)
         # Guppy case
-        if sideA == 'guppy' and sideB == 'guppy' and sideA_a == sideB_a:
+        if sideA == "guppy" and sideB == "guppy" and sideA_a == sideB_a:
             V += 2.0*V_horiz_guppy(D, L, sideA_a, h, headonly=True)
         else:
-            if sideA == 'guppy':
+            if sideA == "guppy":
                 V += V_horiz_guppy(D, L, sideA_a, h, headonly=True)
-            if sideB == 'guppy':
+            if sideB == "guppy":
                 V += V_horiz_guppy(D, L, sideB_a, h, headonly=True)
         # Spherical case
-        if sideA == 'spherical' and sideB == 'spherical' and sideA_a == sideB_a:
+        if sideA == "spherical" and sideB == "spherical" and sideA_a == sideB_a:
             V += 2.0*V_horiz_spherical(D, L, sideA_a, h, headonly=True)
         else:
-            if sideA == 'spherical':
+            if sideA == "spherical":
                 V += V_horiz_spherical(D, L, sideA_a, h, headonly=True)
-            if sideB == 'spherical':
+            if sideB == "spherical":
                 V += V_horiz_spherical(D, L, sideB_a, h, headonly=True)
         # Torispherical case
-        if (sideA == 'torispherical' and sideB == 'torispherical'
+        if (sideA == "torispherical" and sideB == "torispherical"
             and (sideA_f == sideB_f) and (sideA_k == sideB_k)):
             V += 2.0*V_horiz_torispherical(D, L, sideA_f, sideA_k, h, headonly=True)
         else:
-            if sideA == 'torispherical':
+            if sideA == "torispherical":
                 V += V_horiz_torispherical(D, L, sideA_f, sideA_k, h, headonly=True)
-            if sideB == 'torispherical':
+            if sideB == "torispherical":
                 V += V_horiz_torispherical(D, L, sideB_f, sideB_k, h, headonly=True)
         Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2.0*R*h - h*h)
         V += L*Af
@@ -2891,14 +2891,14 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
         if h > max_h:
             h = max_h
         # Bottom head
-        if sideA in ('conical', 'ellipsoidal', 'torispherical', 'spherical'):
-            if sideA == 'conical':
+        if sideA in ("conical", "ellipsoidal", "torispherical", "spherical"):
+            if sideA == "conical":
                 V += V_vertical_conical(D, sideA_a, h=min(sideA_a, h))
-            if sideA == 'ellipsoidal':
+            if sideA == "ellipsoidal":
                 V += V_vertical_ellipsoidal(D, sideA_a, h=min(sideA_a, h))
-            if sideA == 'spherical':
+            if sideA == "spherical":
                 V += V_vertical_spherical(D, sideA_a, h=min(sideA_a, h))
-            if sideA == 'torispherical':
+            if sideA == "torispherical":
                 V += V_vertical_torispherical(D, sideA_f, sideA_k, h=min(sideA_a, h))
         # Cylindrical section
         if h >= sideA_a + L:
@@ -2908,16 +2908,16 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
         # Top head
         if h > sideA_a + L:
             h2 = sideB_a - (h - sideA_a - L)
-            if sideB == 'conical':
+            if sideB == "conical":
                 V += V_vertical_conical(D, sideB_a, h=sideB_a)
                 V -= V_vertical_conical(D, sideB_a, h=h2)
-            if sideB == 'ellipsoidal':
+            if sideB == "ellipsoidal":
                 V += V_vertical_ellipsoidal(D, sideB_a, h=sideB_a)
                 V -= V_vertical_ellipsoidal(D, sideB_a, h=h2)
-            if sideB == 'spherical':
+            if sideB == "spherical":
                 V += V_vertical_spherical(D, sideB_a, h=sideB_a)
                 V -= V_vertical_spherical(D, sideB_a, h=h2)
-            if sideB == 'torispherical':
+            if sideB == "torispherical":
                 V += V_vertical_torispherical(D, sideB_f, sideB_k, h=sideB_a)
                 V -= max(0.0, V_vertical_torispherical(D, sideB_f, sideB_k, h=h2))
     return V
@@ -2984,42 +2984,42 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
        http://www.chemicalprocessing.com/articles/2003/193/
     """
-    if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unsupported head type for side A')
-    if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unsupported head type for side B')
+    if sideA is not None and sideA not in ("conical", "ellipsoidal", "torispherical", "spherical", "guppy"):
+        raise ValueError("Unsupported head type for side A")
+    if sideB is not None and sideB not in ("conical", "ellipsoidal", "torispherical", "spherical", "guppy"):
+        raise ValueError("Unsupported head type for side B")
     R = 0.5*D
     SA = 0.0
     if horizontal:
         if h > D:
             h = D
         # Conical case
-        if sideA == 'conical':
+        if sideA == "conical":
             SA += SA_partial_horiz_conical_head(D, sideA_a, h)
-        if sideB == 'conical':
+        if sideB == "conical":
             SA += SA_partial_horiz_conical_head(D, sideB_a, h)
         # Ellipsoidal case
-        if sideA == 'ellipsoidal':
+        if sideA == "ellipsoidal":
             SA += SA_partial_horiz_ellipsoidal_head(D, sideA_a, h)
-        if sideB == 'ellipsoidal':
+        if sideB == "ellipsoidal":
             SA += SA_partial_horiz_ellipsoidal_head(D, sideB_a, h)
         # Guppy case
-        if sideA == 'guppy':
+        if sideA == "guppy":
             SA += SA_partial_horiz_guppy_head(D, sideA_a, h)
-        if sideB == 'guppy':
+        if sideB == "guppy":
             SA += SA_partial_horiz_guppy_head(D, sideB_a, h)
         # Spherical case
-        if sideA == 'spherical':
+        if sideA == "spherical":
             SA += SA_partial_horiz_spherical_head(D, sideA_a, h)
-        if sideB == 'spherical':
+        if sideB == "spherical":
             SA += SA_partial_horiz_spherical_head(D, sideB_a, h)
         # Torispherical case
-        if sideA == 'torispherical':
+        if sideA == "torispherical":
             if sideA_f is not None and sideA_k is not None:
                 SA += SA_partial_horiz_torispherical_head(D, sideA_f, sideA_k, h)
             else:
                 raise ValueError("Torispherical sideA but no `f` and `k` provided")
-        if sideB == 'torispherical':
+        if sideB == "torispherical":
             if sideB_f is not None and sideB_k is not None:
                 SA += SA_partial_horiz_torispherical_head(D, sideB_f, sideB_k, h)
             else:
@@ -3035,14 +3035,14 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
         if h > max_h:
             h = max_h
         # Bottom head
-        if sideA in ('conical', 'ellipsoidal', 'torispherical', 'spherical'):
-            if sideA == 'conical':
+        if sideA in ("conical", "ellipsoidal", "torispherical", "spherical"):
+            if sideA == "conical":
                 SA += SA_partial_vertical_conical_head(D, sideA_a, h=min(sideA_a, h))
-            elif sideA == 'ellipsoidal':
+            elif sideA == "ellipsoidal":
                 SA += SA_partial_vertical_ellipsoidal_head(D, sideA_a, h=min(sideA_a, h))
-            elif sideA == 'spherical':
+            elif sideA == "spherical":
                 SA += SA_partial_vertical_spherical_head(D, sideA_a, h=min(sideA_a, h))
-            elif sideA == 'torispherical':
+            elif sideA == "torispherical":
                 if sideA_f is not None and sideA_k is not None:
                     SA += SA_partial_vertical_torispherical_head(D, sideA_f, sideA_k, h=min(sideA_a, h))
                 else:
@@ -3057,25 +3057,25 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
         # Top head
         if h >= sideA_a + L: # greater or equals is needed! Flat head on top adds lots of area.
             h2 = sideB_a - (h - sideA_a - L)
-            if sideB == 'conical':
+            if sideB == "conical":
                 if sideB_a == 0.0:
                     SA += 0.25*pi*D*D
                 else:
                     SA += SA_partial_vertical_conical_head(D, sideB_a, h=sideB_a)
                     SA -= SA_partial_vertical_conical_head(D, sideB_a, h=h2)
-            elif sideB == 'ellipsoidal':
+            elif sideB == "ellipsoidal":
                 if sideB_a == 0.0:
                     SA += 0.25*pi*D*D
                 else:
                     SA += SA_partial_vertical_ellipsoidal_head(D, sideB_a, h=sideB_a)
                     SA -= SA_partial_vertical_ellipsoidal_head(D, sideB_a, h=h2)
-            elif sideB == 'spherical':
+            elif sideB == "spherical":
                 if sideB_a == 0.0:
                     SA += 0.25*pi*D*D
                 else:
                     SA += SA_partial_vertical_spherical_head(D, sideB_a, h=sideB_a)
                     SA -= SA_partial_vertical_spherical_head(D, sideB_a, h=h2)
-            elif sideB == 'torispherical':
+            elif sideB == "torispherical":
                 if sideB_a == 0.0:
                     SA += 0.25*pi*D*D
                 else:
@@ -3101,26 +3101,26 @@ def tank_from_two_specs_err(guess, spec0, spec1, spec0_name, spec1_name,
     # ensure h is always under the top
     h = min(h, obj.h_max)
 
-    if spec0_name == 'V':
+    if spec0_name == "V":
         err0 = obj.V_total - spec0
-    elif spec0_name == 'SA':
+    elif spec0_name == "SA":
         err0 = obj.A - spec0
-    elif spec0_name == 'V_partial':
+    elif spec0_name == "V_partial":
         err0 = obj.V_from_h(h) - spec0
-    elif spec0_name == 'SA_partial':
+    elif spec0_name == "SA_partial":
         err0 = obj.SA_from_h(h) - spec0
-    elif spec0_name == 'A_cross':
+    elif spec0_name == "A_cross":
         err0 = obj.A_cross_sectional(h) - spec0
 
-    if spec1_name == 'V':
+    if spec1_name == "V":
         err1 = obj.V_total - spec1
-    elif spec1_name == 'SA':
+    elif spec1_name == "SA":
         err1 = obj.A - spec1
-    elif spec1_name == 'V_partial':
+    elif spec1_name == "V_partial":
         err1 = obj.V_from_h(h) - spec1
-    elif spec1_name == 'SA_partial':
+    elif spec1_name == "SA_partial":
         err1 = obj.SA_from_h(h) - spec1
-    elif spec1_name == 'A_cross':
+    elif spec1_name == "A_cross":
         err1 = obj.A_cross_sectional(h) - spec1
 #    print(err0, err1, D, L_over_D, h)
     return [err0, err1]
@@ -3293,38 +3293,38 @@ class TANK:
 
     table = False
     chebyshev = False
-    __full_path__ = __module__  + '.TANK'
+    __full_path__ = __module__  + ".TANK"
     def __str__(self): # pragma: no cover
-        orient = 'Horizontal' if self.horizontal else 'Vertical'
+        orient = "Horizontal" if self.horizontal else "Vertical"
         if self.sideA is None and self.sideB is None:
-            sides = 'no heads'
+            sides = "no heads"
         elif self.sideA == self.sideB:
             if self.sideA_a == self.sideB_a:
-                sides = self.sideA + (f' heads, a={self.sideA_a:f} m')
+                sides = self.sideA + (f" heads, a={self.sideA_a:f} m")
             else:
-                sides = self.sideA + f' heads, sideA a={self.sideA_a:f} m, sideB a={self.sideB_a:f} m'
+                sides = self.sideA + f" heads, sideA a={self.sideA_a:f} m, sideB a={self.sideB_a:f} m"
         else:
             if self.sideA:
-                A = f'{self.sideA} head on sideA with a={self.sideA_a:f} m'
+                A = f"{self.sideA} head on sideA with a={self.sideA_a:f} m"
             else:
-                A = 'no head on sideA'
+                A = "no head on sideA"
             if self.sideB:
-                B = f' and {self.sideB} head on sideB with a={self.sideB_a:f} m'
+                B = f" and {self.sideB} head on sideB with a={self.sideB_a:f} m"
             else:
-                B = ' and no head on sideB'
+                B = " and no head on sideB"
             sides = A + B
 
-        return f'<{orient} tank, V={self.V_total:f} m^3, D={self.D:f} m, L={self.L:f} m, {sides}.>'
+        return f"<{orient} tank, V={self.V_total:f} m^3, D={self.D:f} m, L={self.L:f} m, {sides}.>"
 
     def __repr__(self):
-        attributes = ', '.join(f"{slot}={getattr(self, slot)!r}" for slot in self.model_inputs if getattr(self, slot) is not None)
+        attributes = ", ".join(f"{slot}={getattr(self, slot)!r}" for slot in self.model_inputs if getattr(self, slot) is not None)
         return f"{self.__class__.__name__}({attributes})"
 
     def __hash__(self):
         return hash(tuple(getattr(self, slot) for slot in self.model_inputs))
 
-    model_inputs = ('D', 'L', 'horizontal', 'sideA', 'sideB', 'sideA_a', 'sideB_a',
-    'sideA_f', 'sideA_k', 'sideB_f', 'sideB_k', 'sideA_a_ratio', 'sideB_a_ratio', 'L_over_D', 'V')
+    model_inputs = ("D", "L", "horizontal", "sideA", "sideB", "sideA_a", "sideB_a",
+    "sideA_f", "sideA_k", "sideB_f", "sideB_k", "sideA_a_ratio", "sideB_a_ratio", "L_over_D", "V")
 
     def __init__(self, D=None, L=None, horizontal=True,
                  sideA=None, sideB=None, sideA_a=None, sideB_a=None,
@@ -3336,7 +3336,7 @@ class TANK:
         self.V = V
         self.horizontal = horizontal
 
-        sideA_same, sideB_same = sideA == 'same', sideB == 'same'
+        sideA_same, sideB_same = sideA == "same", sideB == "same"
 
         if sideA_same and not sideB_same:
             sideA, sideA_a, sideA_a_ratio, sideA_f, sideA_k = sideB, sideB_a, sideB_a_ratio, sideB_f, sideB_k
@@ -3350,11 +3350,11 @@ class TANK:
             sideA_a = 0.0
 
         self.sideA_a = sideA_a
-        if sideA_a is None and sideA_a_ratio is None and (sideA is not None and sideA != 'torispherical'):
+        if sideA_a is None and sideA_a_ratio is None and (sideA is not None and sideA != "torispherical"):
             sideA_a_ratio = 0.25
         self.sideA_a_ratio = sideA_a_ratio
 
-        if sideA_a is None and sideA == 'torispherical':
+        if sideA_a is None and sideA == "torispherical":
             if sideA_f is None:
                 sideA_f = 1.0
             if sideA_k is None:
@@ -3368,11 +3368,11 @@ class TANK:
             sideB_a = 0.0
         self.sideB_a = sideB_a
 
-        if sideB_a is None and sideB_a_ratio is None and (sideB is not None and sideB != 'torispherical'):
+        if sideB_a is None and sideB_a_ratio is None and (sideB is not None and sideB != "torispherical"):
             sideB_a_ratio = 0.25
         self.sideB_a_ratio = sideB_a_ratio
 
-        if sideB_a is None and sideB == 'torispherical':
+        if sideB_a is None and sideB == "torispherical":
             if sideB_f is None:
                 sideB_f = 1.0
             if sideB_k is None:
@@ -3383,11 +3383,11 @@ class TANK:
 
         if self.horizontal:
             self.vertical = False
-            self.orientation = 'horizontal'
+            self.orientation = "horizontal"
             self.angle = 0
         else:
             self.vertical = True
-            self.orientation = 'vertical'
+            self.orientation = "vertical"
             self.angle = 90
 
         # If V is specified and either L or D are known, solve for L, D, L_over_D
@@ -3424,15 +3424,15 @@ class TANK:
         self.R = self.D/2.
 
         # If a_ratio is provided for either heads, use it.
-        if self.sideA is not None and D is not None and self.sideA_a is None and self.sideA in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
+        if self.sideA is not None and D is not None and self.sideA_a is None and self.sideA in ("conical", "ellipsoidal", "guppy", "spherical"):
             self.sideA_a = D*self.sideA_a_ratio
-        if self.sideB is not None and D is not None and self.sideB_a is None and self.sideB in ('conical', 'ellipsoidal', 'guppy', 'spherical'):
+        if self.sideB is not None and D is not None and self.sideB_a is None and self.sideB in ("conical", "ellipsoidal", "guppy", "spherical"):
             self.sideB_a = D*self.sideB_a_ratio
 
         # Calculate a for torispherical heads
-        if self.sideA == 'torispherical' and self.sideA_f is not None and self.sideA_k is not None:
+        if self.sideA == "torispherical" and self.sideA_f is not None and self.sideA_k is not None:
             self.sideA_a = a_torispherical(D, self.sideA_f, self.sideA_k)
-        if self.sideB == 'torispherical' and self.sideB_f is not None and self.sideB_k is not None:
+        if self.sideB == "torispherical" and self.sideB_f is not None and self.sideB_k is not None:
             self.sideB_a = a_torispherical(D, self.sideB_f, self.sideB_k)
 
         # Ensure the correct a_ratios are set, whether there is a default being used or not
@@ -3477,7 +3477,7 @@ class TANK:
         self.A_sideB_extra = self.A_sideB - A_circular_plate
 
     @staticmethod
-    def from_two_specs(spec0, spec1, spec0_name='V', spec1_name='A_cross',
+    def from_two_specs(spec0, spec1, spec0_name="V", spec1_name="A_cross",
                        h=None, horizontal=True,
                        sideA=None, sideB=None, sideA_a=None, sideB_a=None,
                        sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
@@ -3605,25 +3605,25 @@ class TANK:
             sideB_thickness = thickness
 
         # Do not transfer a_ratios or volume or L_over_D
-        kwargs['D'] += 2.0*thickness
-        kwargs['L'] += sideA_thickness + sideB_thickness
+        kwargs["D"] += 2.0*thickness
+        kwargs["L"] += sideA_thickness + sideB_thickness
 
         # For torispherical vessels, the heads are defined from the `f` and `k`
         # parameters which are already functions of diameter, and so will be
         # fixed automatically; if the `a` parameters are specified they would
         # not be corrected
-        if self.sideA != 'torispherical':
-            kwargs['sideA_a'] += sideA_thickness
+        if self.sideA != "torispherical":
+            kwargs["sideA_a"] += sideA_thickness
         else:
-            del kwargs['sideA_a']
+            del kwargs["sideA_a"]
 
-        if self.sideB != 'torispherical':
-            kwargs['sideB_a'] += sideB_thickness
+        if self.sideB != "torispherical":
+            kwargs["sideB_a"] += sideB_thickness
         else:
-            del kwargs['sideB_a']
+            del kwargs["sideB_a"]
         return TANK(**kwargs)
 
-    def SA_from_h(self, h, method='full'):
+    def SA_from_h(self, h, method="full"):
         r"""Method to calculate the volume of liquid in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
 
@@ -3642,7 +3642,7 @@ class TANK:
         Notes
         -----
         """
-        if method == 'full':
+        if method == "full":
             return SA_from_h(h, self.D, self.L, self.horizontal, self.sideA,
                             self.sideB, self.sideA_a, self.sideB_a,
                             self.sideA_f, self.sideA_k, self.sideB_f,
@@ -3650,7 +3650,7 @@ class TANK:
         else:
             raise ValueError("Allowable methods are 'full' .")
 
-    def V_from_h(self, h, method='full'):
+    def V_from_h(self, h, method="full"):
         r"""Method to calculate the volume of liquid in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
         If the method is 'chebyshev', and the coefficients have not yet been
@@ -3671,19 +3671,19 @@ class TANK:
         Notes
         -----
         """
-        if method == 'full':
+        if method == "full":
             return V_from_h(h, self.D, self.L, self.horizontal, self.sideA,
                             self.sideB, self.sideA_a, self.sideB_a,
                             self.sideA_f, self.sideA_k, self.sideB_f,
                             self.sideB_k)
-        elif method == 'chebyshev':
+        elif method == "chebyshev":
             if not self.chebyshev:
                 self.set_chebyshev_approximators()
             return self.V_from_h_cheb(h)
         else:
             raise ValueError("Allowable methods are 'full' or 'chebyshev'.")
 
-    def h_from_V(self, V, method='spline'):
+    def h_from_V(self, V, method="spline"):
         r"""Method to calculate the height of liquid in a fully defined tank
         given a specified volume of liquid in it `V`. `V` must be under the
         maximum volume. If the method is 'spline', and the interpolation table
@@ -3703,26 +3703,26 @@ class TANK:
         h : float
             Height of liquid at which the volume is as desired, [m]
         """
-        if method == 'spline':
+        if method == "spline":
             try:
                 if not self.table:
                     self.set_table()
                 return float(self.interp_h_from_V(V))
             except:
                 # Missing scipy
-                return self.h_from_V(V, 'brenth')
-        elif method == 'chebyshev':
+                return self.h_from_V(V, "brenth")
+        elif method == "chebyshev":
             if not self.chebyshev:
                 self.set_chebyshev_approximators()
             return self.h_from_V_cheb(V)
-        elif method == 'brenth':
-            to_solve = lambda h : self.V_from_h(h, method='full') - V
+        elif method == "brenth":
+            to_solve = lambda h : self.V_from_h(h, method="full") - V
             return secant(to_solve, x0=0.5*self.h_max, low=0, high=self.h_max, bisection=True)
         else:
             raise ValueError("Allowable methods are 'full' or 'chebyshev', "
                             "or 'brenth'.")
 
-    def A_cross_sectional(self, h, method='full'):
+    def A_cross_sectional(self, h, method="full"):
         r"""Method to calculate the cross-sectional liquid surface area
         from which gas can evolve in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
@@ -3800,7 +3800,7 @@ class TANK:
         import numpy as np
 
         from fluids.optional.pychebfun import Chebfun
-        to_fit = lambda h: self.V_from_h(h, 'full')
+        to_fit = lambda h: self.V_from_h(h, "full")
 
         # These high-degree polynomials cannot safety be evaluated using Horner's methods
         # chebval is 2.5x as slow but 100% required; depending on the geometry, but
@@ -3810,7 +3810,7 @@ class TANK:
 
         self.V_from_h_cheb = lambda x : chebval((2.0*x-self.h_max)/(self.h_max), self.c_forward)
 
-        to_fit = lambda h: self.h_from_V(h, 'brenth')
+        to_fit = lambda h: self.h_from_V(h, "brenth")
         self.c_backward = Chebfun.from_function(np.vectorize(to_fit), [0.0, self.V_total], N=deg_backwards).coefficients().tolist()
         # TODO do not use lambda
         self.h_from_V_cheb = lambda x : chebval((2.0*x-self.V_total)/(self.V_total), self.c_backward)
@@ -3852,13 +3852,13 @@ class TANK:
         Tested, but bugs and limitations are expected here.
         """
         if self.L and (self.sideA_a or self.sideB_a):
-            raise ValueError('Cannot specify head sizes when solving for V')
+            raise ValueError("Cannot specify head sizes when solving for V")
         if (self.D and self.L) or (self.D and self.L_over_D) or (self.L and self.L_over_D):
-            raise ValueError('Only one of D, L, or L_over_D can be specified\
-            when solving for V')
-        if ((self.sideA is not None and (self.sideA_a_ratio is None and self.sideA_a is None) and self.sideA != 'torispherical')
-             or (self.sideB is not None and (self.sideB_a_ratio is None and self.sideB_a is None) and self.sideB != 'torispherical')):
-            raise ValueError('When heads are specified, head parameter ratios are required')
+            raise ValueError("Only one of D, L, or L_over_D can be specified\
+            when solving for V")
+        if ((self.sideA is not None and (self.sideA_a_ratio is None and self.sideA_a is None) and self.sideA != "torispherical")
+             or (self.sideB is not None and (self.sideB_a_ratio is None and self.sideB_a is None) and self.sideB != "torispherical")):
+            raise ValueError("When heads are specified, head parameter ratios are required")
 
         if self.D:
             # Iterate until L is appropriate
@@ -3984,11 +3984,11 @@ class HelicalCoil:
     """
 
     def __repr__(self): # pragma : no cover
-        s = f'<Helical coil, total height={self.H_total} m, total outer diameter={self.Do_total} m, tube \
-outer diameter={self.Dt} m, number of turns={self.N}, pitch={self.pitch} m'
+        s = f"<Helical coil, total height={self.H_total} m, total outer diameter={self.Do_total} m, tube \
+outer diameter={self.Dt} m, number of turns={self.N}, pitch={self.pitch} m"
         if self.Di:
-             s += f', inside diameter {self.Di} m'
-        s += '>'
+             s += f", inside diameter {self.Di} m"
+        s += ">"
         return s
 
     def __init__(self, Dt, Do=None, pitch=None, H=None, N=None, H_total=None,
@@ -4012,18 +4012,18 @@ outer diameter={self.Dt} m, number of turns={self.N}, pitch={self.pitch} m'
             self.H = H
             self.pitch = self.H/N
             if self.pitch < self.Dt:
-                raise ValueError('Pitch is too small - tubes are colliding')#; maximum number of spirals is %f.'%(self.H/self.Dt))
+                raise ValueError("Pitch is too small - tubes are colliding")#; maximum number of spirals is %f.'%(self.H/self.Dt))
         elif H is not None and pitch is not None:
             self.pitch = pitch
             self.H = H
             self.N = self.H/self.pitch
             if self.pitch < self.Dt:
-                raise ValueError('Pitch is too small - tubes are colliding; pitch must be larger than tube diameter.')
+                raise ValueError("Pitch is too small - tubes are colliding; pitch must be larger than tube diameter.")
         if self.H is not None: # numba
             self.H_total = self.Dt + self.H
 
         if self.Dt > self.Do:
-            raise ValueError('Tube diameter is larger than helix outer diameter - not feasible.')
+            raise ValueError("Tube diameter is larger than helix outer diameter - not feasible.")
 
         self.tube_circumference = pi*self.Do
         self.tube_length = sqrt((self.tube_circumference*self.N)**2 + self.H**2)
@@ -4191,16 +4191,16 @@ class PlateExchanger:
     """
 
     def __repr__(self):  # pragma : no cover
-        s = '<Plate heat exchanger, amplitude={:g} m, wavelength={:g} m, \
-chevron_angles={} degrees, area enhancement factor={:g}'.format(self.a, self.wavelength, '/'.join([str(i) for i in self.chevron_angles]), self.plate_enlargement_factor)
+        s = "<Plate heat exchanger, amplitude={:g} m, wavelength={:g} m, \
+chevron_angles={} degrees, area enhancement factor={:g}".format(self.a, self.wavelength, "/".join([str(i) for i in self.chevron_angles]), self.plate_enlargement_factor)
         if self.width and self.length:
-            s += f', width={self.width:g} m, length={self.length:g} m'
+            s += f", width={self.width:g} m, length={self.length:g} m"
         if self.d_port:
-            s += f', port diameter={self.d_port:g} m'
+            s += f", port diameter={self.d_port:g} m"
         if self.plates:
-            s += f', heat transfer area={self.A_heat_transfer:g} m^2, {self.plates:g} plates>'
+            s += f", heat transfer area={self.A_heat_transfer:g} m^2, {self.plates:g} plates>"
         else:
-            s += '>'
+            s += ">"
         return s
 
     @property
@@ -4215,7 +4215,7 @@ chevron_angles={} degrees, area enhancement factor={:g}'.format(self.a, self.wav
         amplitude_rounded = round(self.amplitude*1000, 2)
         a1 = self.chevron_angles[0]
         a2 = self.chevron_angles[1]
-        s = (f'L{wave_rounded}A{amplitude_rounded}B{a1}-{a2}')
+        s = (f"L{wave_rounded}A{amplitude_rounded}B{a1}-{a2}")
         return s
 
 
@@ -4362,7 +4362,7 @@ class RectangularFinExchanger:
        478-85. doi:10.1016/j.rser.2009.06.033.
     """
 
-    def __init__(self, fin_height, fin_thickness, fin_spacing, length=None, width=None, layers=None, plate_thickness=None, flow='crossflow'):
+    def __init__(self, fin_height, fin_thickness, fin_spacing, length=None, width=None, layers=None, plate_thickness=None, flow="crossflow"):
         self.h = self.fin_height = fin_height # including 2x thickness
         self.t = self.fin_thickness = fin_thickness
         self.s = self.fin_spacing = fin_spacing
@@ -4392,7 +4392,7 @@ class RectangularFinExchanger:
 
         if self.length and self.width:
             self.layer_fin_count = round(self.fin_count*self.width, 0)
-            if hasattr(self, 'SA_fin'):
+            if hasattr(self, "SA_fin"):
                 self.A_HX_layer = self.layer_fin_count*self.SA_fin*self.length
             else:
                 self.A_HX_layer = self.P_channel*self.length*self.layer_fin_count
@@ -4406,7 +4406,7 @@ class RectangularFinExchanger:
 
 
 class RectangularOffsetStripFinExchanger(RectangularFinExchanger):
-    def __init__(self, fin_length, fin_height, fin_thickness, fin_spacing, length=None, width=None, layers=None, plate_thickness=None, flow='crossflow'):
+    def __init__(self, fin_length, fin_height, fin_thickness, fin_spacing, length=None, width=None, layers=None, plate_thickness=None, flow="crossflow"):
         self.l = self.fin_length = fin_length
         self.h = self.fin_height = fin_height
         self.t = self.fin_thickness = fin_thickness
@@ -4556,11 +4556,11 @@ outlet height=%g m, throat diameter=%g m, throat height=%g m, base diameter=%g m
             if D_inlet is not None:
                 D_throat = 0.63*D_inlet
             else:
-                raise ValueError('Provide either `D_throat`, or `D_inlet` so it may be estimated.')
+                raise ValueError("Provide either `D_throat`, or `D_inlet` so it may be estimated.")
         self.D_throat = D_throat
 
         if D_inlet is None and D_base is None:
-            raise ValueError('Need `D_inlet` or `D_base`')
+            raise ValueError("Need `D_inlet` or `D_base`")
         if D_base is not None:
             b = self.D_throat*self.H_throat/sqrt(D_base**2 - self.D_throat**2)
             D_inlet = 2*self.D_throat*sqrt((self.H_throat-H_inlet)**2 + b**2)/(2*b)
@@ -4865,17 +4865,17 @@ class AirCooledExchanger:
     """
 
     def __repr__(self):
-        attributes = ', '.join(f"{slot}={getattr(self, slot)!r}" for slot in self.model_inputs)
+        attributes = ", ".join(f"{slot}={getattr(self, slot)!r}" for slot in self.model_inputs)
         return f"{self.__class__.__name__}({attributes})"
 
     def __hash__(self):
         return hash(tuple(getattr(self, slot) for slot in self.model_inputs))
 
     # pitch_ratio is skipped in favor of pitch;
-    model_inputs = ('tube_rows', 'tube_passes', 'tubes_per_row', 'tube_length', 'tube_diameter',
-             'fin_thickness', 'angle', 'pitch', 'pitch_parallel', 'pitch_normal', 'fin_diameter',
-             'fin_height', 'fin_density', 'fin_interval', 'parallel_bays', 'bundles_per_bay',
-             'fans_per_bay', 'corbels', 'tube_thickness', 'fan_diameter')
+    model_inputs = ("tube_rows", "tube_passes", "tubes_per_row", "tube_length", "tube_diameter",
+             "fin_thickness", "angle", "pitch", "pitch_parallel", "pitch_normal", "fin_diameter",
+             "fin_height", "fin_density", "fin_interval", "parallel_bays", "bundles_per_bay",
+             "fans_per_bay", "corbels", "tube_thickness", "fan_diameter")
 
     def __init__(self, tube_rows, tube_passes, tubes_per_row, tube_length,
                  tube_diameter, fin_thickness,
@@ -4903,7 +4903,7 @@ class AirCooledExchanger:
             if pitch is not None:
                 pitch = self.tube_diameter*pitch_ratio
             else:
-                raise ValueError('Specify only one of `pitch_ratio` or `pitch`')
+                raise ValueError("Specify only one of `pitch_ratio` or `pitch`")
 
 
         angle, pitch, pitch_parallel, pitch_normal = pitch_angle_solver(
@@ -4919,7 +4919,7 @@ class AirCooledExchanger:
 
 
         if fin_diameter is None and fin_height is None:
-            raise ValueError('Specify only one of `fin_diameter` or `fin_height`')
+            raise ValueError("Specify only one of `fin_diameter` or `fin_height`")
         elif fin_diameter is not None:
             fin_height = 0.5*(fin_diameter - tube_diameter)
         elif fin_height is not None:
@@ -4928,7 +4928,7 @@ class AirCooledExchanger:
         self.fin_diameter = fin_diameter
 
         if fin_density is None and fin_interval is None:
-            raise ValueError('Specify only one of `fin_density` or `fin_interval`')
+            raise ValueError("Specify only one of `fin_density` or `fin_interval`")
         elif fin_density is not None:
             fin_interval = 1.0/fin_density
         elif fin_interval is not None:
@@ -5030,20 +5030,20 @@ class AirCooledExchanger:
             self.channels = self.tubes_per_row
 
         if self.angle == 30:
-            self.pitch_str = 'triangular'
-            self.pitch_class = 'staggered'
+            self.pitch_str = "triangular"
+            self.pitch_class = "staggered"
         elif self.angle == 60:
-            self.pitch_str = 'rotated triangular'
-            self.pitch_class = 'staggered'
+            self.pitch_str = "rotated triangular"
+            self.pitch_class = "staggered"
         elif self.angle == 45:
-            self.pitch_str = 'rotated square'
-            self.pitch_class = 'in-line'
+            self.pitch_str = "rotated square"
+            self.pitch_class = "in-line"
         elif self.angle == 90:
-            self.pitch_str = 'square'
-            self.pitch_class = 'in-line'
+            self.pitch_str = "square"
+            self.pitch_class = "in-line"
         else:
-            self.pitch_str = 'custom'
-            self.pitch_class = 'custom'
+            self.pitch_str = "custom"
+            self.pitch_class = "custom"
 
 
 
@@ -5130,7 +5130,7 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
         angle = degrees(asin(pitch_normal/sqrt(pitch_normal**2 + pitch_parallel**2)))
         pitch = sqrt(pitch_normal**2 + pitch_parallel**2)
     else:
-        raise ValueError('Two of the arguments are required')
+        raise ValueError("Two of the arguments are required")
     return angle, pitch, pitch_parallel, pitch_normal
 
 

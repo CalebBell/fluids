@@ -163,73 +163,73 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 __all__ = [
-    'C2F',
-    'C2K',
-    'C2R',
-    'F2C',
-    'F2K',
-    'F2R',
-    'K2C',
-    'K2F',
-    'K2R',
-    'R2C',
-    'R2F',
-    'R2K',
-    'Archimedes',
-    'Bejan_L',
-    'Bejan_p',
-    'Biot',
-    'Boiling',
-    'Bond',
-    'Capillary',
-    'Cavitation',
-    'Confinement',
-    'Dean',
-    'Drag',
-    'Eckert',
-    'Eotvos',
-    'Euler',
-    'Fourier_heat',
-    'Fourier_mass',
-    'Froude',
-    'Froude_densimetric',
-    'Graetz_heat',
-    'Grashof',
-    'Hagen',
-    'Jakob',
-    'K_from_L_equiv',
-    'K_from_f',
-    'Knudsen',
-    'L_equiv_from_K',
-    'L_from_K',
-    'Lewis',
-    'Mach',
-    'Morton',
-    'Nusselt',
-    'Ohnesorge',
-    'P_from_head',
-    'Peclet_heat',
-    'Peclet_mass',
-    'Power_number',
-    'Prandtl',
-    'Rayleigh',
-    'Reynolds',
-    'Schmidt',
-    'Sherwood',
-    'Stanton',
-    'Stokes_number',
-    'Strouhal',
-    'Suratman',
-    'Weber',
-    'c_ideal_gas',
-    'dP_from_K',
-    'f_from_K',
-    'gravity',
-    'head_from_K',
-    'head_from_P',
-    'nu_mu_converter',
-    'relative_roughness',
-    'thermal_diffusivity',
+    "C2F",
+    "C2K",
+    "C2R",
+    "F2C",
+    "F2K",
+    "F2R",
+    "K2C",
+    "K2F",
+    "K2R",
+    "R2C",
+    "R2F",
+    "R2K",
+    "Archimedes",
+    "Bejan_L",
+    "Bejan_p",
+    "Biot",
+    "Boiling",
+    "Bond",
+    "Capillary",
+    "Cavitation",
+    "Confinement",
+    "Dean",
+    "Drag",
+    "Eckert",
+    "Eotvos",
+    "Euler",
+    "Fourier_heat",
+    "Fourier_mass",
+    "Froude",
+    "Froude_densimetric",
+    "Graetz_heat",
+    "Grashof",
+    "Hagen",
+    "Jakob",
+    "K_from_L_equiv",
+    "K_from_f",
+    "Knudsen",
+    "L_equiv_from_K",
+    "L_from_K",
+    "Lewis",
+    "Mach",
+    "Morton",
+    "Nusselt",
+    "Ohnesorge",
+    "P_from_head",
+    "Peclet_heat",
+    "Peclet_mass",
+    "Power_number",
+    "Prandtl",
+    "Rayleigh",
+    "Reynolds",
+    "Schmidt",
+    "Sherwood",
+    "Stanton",
+    "Stokes_number",
+    "Strouhal",
+    "Suratman",
+    "Weber",
+    "c_ideal_gas",
+    "dP_from_K",
+    "f_from_K",
+    "gravity",
+    "head_from_K",
+    "head_from_P",
+    "nu_mu_converter",
+    "relative_roughness",
+    "thermal_diffusivity",
 ]
 
 
@@ -375,7 +375,7 @@ def Reynolds(V, D, rho=None, mu=None, nu=None):
     if rho is not None and mu is not None:
         nu = mu/rho
     elif nu is None:
-        raise ValueError('Either density and viscosity, or kinematic viscosity is needed')
+        raise ValueError("Either density and viscosity, or kinematic viscosity is needed")
     return V*D/nu
 
 
@@ -436,7 +436,7 @@ def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
     if rho is not None and Cp is not None and k is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
-        raise ValueError('Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed')
+        raise ValueError("Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed")
     return V*L/alpha
 
 
@@ -537,7 +537,7 @@ def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
     if rho is not None and Cp is not None and k is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
-        raise ValueError('Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed')
+        raise ValueError("Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed")
     return t*alpha/(L*L)
 
 
@@ -642,7 +642,7 @@ def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
     if rho is not None and Cp is not None and k is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
-        raise ValueError('Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed')
+        raise ValueError("Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed")
     return V*D*D/(x*alpha)
 
 
@@ -701,7 +701,7 @@ def Schmidt(D, mu=None, nu=None, rho=None):
     elif nu is not None:
         return nu/D
     else:
-        raise ValueError('Insufficient information provided for Schmidt number calculation')
+        raise ValueError("Insufficient information provided for Schmidt number calculation")
 
 
 def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
@@ -760,7 +760,7 @@ def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
     if k is not None and Cp is not None and rho is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
-        raise ValueError('Insufficient information provided for Le calculation')
+        raise ValueError("Insufficient information provided for Le calculation")
     return alpha/D
 
 
@@ -1063,7 +1063,7 @@ def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
     elif nu is not None and alpha is not None:
         return nu/alpha
     else:
-        raise ValueError('Insufficient information provided for Pr calculation')
+        raise ValueError("Insufficient information provided for Pr calculation")
 
 
 def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
@@ -1131,7 +1131,7 @@ def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
     if rho is not None and mu is not None:
         nu = mu/rho
     elif nu is None:
-        raise ValueError('Either density and viscosity, or kinematic viscosity is needed')
+        raise ValueError("Either density and viscosity, or kinematic viscosity is needed")
     return g*beta*abs(T2-T1)*L*L*L/(nu*nu)
 
 
@@ -2381,7 +2381,7 @@ def nu_mu_converter(rho, mu=None, nu=None):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     """
     if (nu is not None and mu is not None) or rho is None or (nu is None and mu is None):
-        raise ValueError('Inputs must be rho and one of mu and nu.')
+        raise ValueError("Inputs must be rho and one of mu and nu.")
     if mu is not None:
         return mu/rho
     else:
@@ -3056,10 +3056,10 @@ def Engauge_2d_parser(lines, flat=False):
 
     new_curve = True
     for line in lines:
-        if line.strip() == '':
+        if line.strip() == "":
             new_curve = True
         elif new_curve:
-            z = float(line.split(',')[1])
+            z = float(line.split(",")[1])
             z_values.append(z)
             if working_xs and working_ys:
                 x_lists.append(working_xs)
@@ -3068,7 +3068,7 @@ def Engauge_2d_parser(lines, flat=False):
             working_ys = []
             new_curve = False
         else:
-            x, y = (float(i) for i in line.strip().split(','))
+            x, y = (float(i) for i in line.strip().split(","))
             working_xs.append(x)
             working_ys.append(y)
     x_lists.append(working_xs)

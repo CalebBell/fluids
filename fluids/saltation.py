@@ -45,13 +45,13 @@ from math import sqrt
 from fluids.constants import g, pi
 
 __all__ = [
-    'Geldart_Ling',
-    'Matsumoto_1974',
-    'Matsumoto_1975',
-    'Matsumoto_1977',
-    'Rizk',
-    'Schade',
-    'Weber_saltation',
+    "Geldart_Ling",
+    "Matsumoto_1974",
+    "Matsumoto_1975",
+    "Matsumoto_1977",
+    "Rizk",
+    "Schade",
+    "Weber_saltation",
 ]
 
 

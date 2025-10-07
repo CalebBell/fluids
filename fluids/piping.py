@@ -51,11 +51,11 @@ from math import sqrt
 from fluids.constants import foot, inch, lb
 
 __all__ = [
-    'erosional_velocity',
-    'gauge_from_t',
-    'nearest_pipe',
-    't_from_gauge',
-    'wire_schedules',
+    "erosional_velocity",
+    "gauge_from_t",
+    "nearest_pipe",
+    "t_from_gauge",
+    "wire_schedules",
 ]
 
 # Schedules 5, 10, 20, 30, 40, 60, 80, 100, 120, 140, 160 from
@@ -494,107 +494,107 @@ HEAVYo_BS1387 = [13.9, 17.4, 21.7, 27.2, 34.2, 42.9, 48.8, 60.8, 76.6, 89.5, 114
 HEAVYi_BS1387 = [8.1, 11.6, 15.3, 20.8, 26.2, 34.9, 40.8, 51.8, 67.6, 79.5, 104.1, 129.8, 155.3]
 HEAVYt_BS1387 = [2.9, 2.9, 3.2, 3.2, 4, 4, 4, 4.5, 4.5, 5, 5.4, 5.4, 5.4]
 
-schedule_lookup = { '40': (NPS40, S40i, S40o, S40t),
-                    '5': (NPS5, S5i, S5o, S5t),
-                    '10': (NPS10, S10i, S10o, S10t),
-                    '20': (NPS20, S20i, S20o, S20t),
-                    '30': (NPS30, S30i, S30o, S30t),
-                    '60': (NPS60, S60i, S60o, S60t),
-                    '80': (NPS80, S80i, S80o, S80t),
-                    '100': (NPS100, S100i, S100o, S100t),
-                    '120': (NPS120, S120i, S120o, S120t),
-                    '140': (NPS140, S140i, S140o, S140t),
-                    '160': (NPS160, S160i, S160o, S160t),
-                    'STD': (NPSSTD, STDi, STDo, STDt),
-                    'XS': (NPSXS, XSi, XSo, XSt),
-                    'XXS': (NPSXXS, XXSi, XXSo, XXSt),
+schedule_lookup = { "40": (NPS40, S40i, S40o, S40t),
+                    "5": (NPS5, S5i, S5o, S5t),
+                    "10": (NPS10, S10i, S10o, S10t),
+                    "20": (NPS20, S20i, S20o, S20t),
+                    "30": (NPS30, S30i, S30o, S30t),
+                    "60": (NPS60, S60i, S60o, S60t),
+                    "80": (NPS80, S80i, S80o, S80t),
+                    "100": (NPS100, S100i, S100o, S100t),
+                    "120": (NPS120, S120i, S120o, S120t),
+                    "140": (NPS140, S140i, S140o, S140t),
+                    "160": (NPS160, S160i, S160o, S160t),
+                    "STD": (NPSSTD, STDi, STDo, STDt),
+                    "XS": (NPSXS, XSi, XSo, XSt),
+                    "XXS": (NPSXXS, XXSi, XXSo, XXSt),
 
-                    '5S': (NPSS5, SS5i, SS5o, SS5t),
-                    '10S': (NPSS10, SS10i, SS10o, SS10t),
-                    '40S': (NPSS40, SS40i, SS40o, SS40t),
-                    '80S': (NPSS80, SS80i, SS80o, SS80t),
+                    "5S": (NPSS5, SS5i, SS5o, SS5t),
+                    "10S": (NPSS10, SS10i, SS10o, SS10t),
+                    "40S": (NPSS40, SS40i, SS40o, SS40t),
+                    "80S": (NPSS80, SS80i, SS80o, SS80t),
 
-                    '40D1527': (NPS_D1527, S40i_D1527, S40o_D1527, S40t_D1527),
-                    '80D1527': (NPS_D1527, S80i_D1527, S80o_D1527, S80t_D1527),
+                    "40D1527": (NPS_D1527, S40i_D1527, S40o_D1527, S40t_D1527),
+                    "80D1527": (NPS_D1527, S80i_D1527, S80o_D1527, S80t_D1527),
 
-                    'ABSD2680': (NPS_D2680, SABSi_D2680, SABSo_D2680, SABSt_D2680),
-                    'PVCD2680': (NPS_D2680, SPVCi_D2680, SPVCo_D2680, SPVCt_D2680),
-                    'DR25C900': (NPS_C900, SDR25i_C900, SDR25o_C900, SDR25t_C900),
-                    'DR18C900': (NPS_C900, SDR18i_C900, SDR18o_C900, SDR18t_C900),
-                    'DR14C900': (NPS_C900, SDR14i_C900, SDR14o_C900, SDR14t_C900),
+                    "ABSD2680": (NPS_D2680, SABSi_D2680, SABSo_D2680, SABSt_D2680),
+                    "PVCD2680": (NPS_D2680, SPVCi_D2680, SPVCo_D2680, SPVCt_D2680),
+                    "DR25C900": (NPS_C900, SDR25i_C900, SDR25o_C900, SDR25t_C900),
+                    "DR18C900": (NPS_C900, SDR18i_C900, SDR18o_C900, SDR18t_C900),
+                    "DR14C900": (NPS_C900, SDR14i_C900, SDR14o_C900, SDR14t_C900),
 
-                    'CIDR51C905': (NPSCIDR51_C905, SCIDR51i_C905, SCIDR51o_C905, SCIDR51t_C905),
-                    'CIDR41C905': (NPSCIDR41_C905, SCIDR41i_C905, SCIDR41o_C905, SCIDR41t_C905),
-                    'CIDR325C905': (NPSCIDR325_C905, SCIDR325i_C905, SCIDR325o_C905, SCIDR325t_C905),
-                    'CIDR25C905': (NPSCIDR25_C905, SCIDR25i_C905, SCIDR25o_C905, SCIDR25t_C905),
-                    'CIDR21C905': (NPSCIDR21_C905, SCIDR21i_C905, SCIDR21o_C905, SCIDR21t_C905),
-                    'CIDR18C905': (NPSCIDR18_C905, SCIDR18i_C905, SCIDR18o_C905, SCIDR18t_C905),
-                    'CIDR14C905': (NPSCIDR14_C905, SCIDR14i_C905, SCIDR14o_C905, SCIDR14t_C905),
+                    "CIDR51C905": (NPSCIDR51_C905, SCIDR51i_C905, SCIDR51o_C905, SCIDR51t_C905),
+                    "CIDR41C905": (NPSCIDR41_C905, SCIDR41i_C905, SCIDR41o_C905, SCIDR41t_C905),
+                    "CIDR325C905": (NPSCIDR325_C905, SCIDR325i_C905, SCIDR325o_C905, SCIDR325t_C905),
+                    "CIDR25C905": (NPSCIDR25_C905, SCIDR25i_C905, SCIDR25o_C905, SCIDR25t_C905),
+                    "CIDR21C905": (NPSCIDR21_C905, SCIDR21i_C905, SCIDR21o_C905, SCIDR21t_C905),
+                    "CIDR18C905": (NPSCIDR18_C905, SCIDR18i_C905, SCIDR18o_C905, SCIDR18t_C905),
+                    "CIDR14C905": (NPSCIDR14_C905, SCIDR14i_C905, SCIDR14o_C905, SCIDR14t_C905),
 
-                    'IPSDR21': (NPSIPSDR21_C905, SIPSDR21i_C905, SIPSDR21o_C905, SIPSDR21t_C905),
-                    'IPSDR26': (NPSIPSDR26_C905, SIPSDR26i_C905, SIPSDR26o_C905, SIPSDR26t_C905),
-                    'IPSDR325': (NPSIPSDR325_C905, SIPSDR325i_C905, SIPSDR325o_C905, SIPSDR325t_C905),
-                    'IPSDR41': (NPSIPSDR41_C905, SIPSDR41i_C905, SIPSDR41o_C905, SIPSDR41t_C905),
+                    "IPSDR21": (NPSIPSDR21_C905, SIPSDR21i_C905, SIPSDR21o_C905, SIPSDR21t_C905),
+                    "IPSDR26": (NPSIPSDR26_C905, SIPSDR26i_C905, SIPSDR26o_C905, SIPSDR26t_C905),
+                    "IPSDR325": (NPSIPSDR325_C905, SIPSDR325i_C905, SIPSDR325o_C905, SIPSDR325t_C905),
+                    "IPSDR41": (NPSIPSDR41_C905, SIPSDR41i_C905, SIPSDR41o_C905, SIPSDR41t_C905),
 
-                    'PS115F679': (NPS_F679, SPS115i_F679, SPS115o_F679, SPS115t_F679),
-                    'PS75F679': (NPS_F679, SPS75i_F679, SPS75o_F679, SPS75t_F679),
-                    'PS46F679': (NPS_F679, SPS46i_F679, SPS46o_F679, SPS46t_F679),
+                    "PS115F679": (NPS_F679, SPS115i_F679, SPS115o_F679, SPS115t_F679),
+                    "PS75F679": (NPS_F679, SPS75i_F679, SPS75o_F679, SPS75t_F679),
+                    "PS46F679": (NPS_F679, SPS46i_F679, SPS46o_F679, SPS46t_F679),
 
-                    'PVCD2665': (NPS_D2665, SPVCi_D2665, SPVCo_D2665, SPVCt_D2665),
+                    "PVCD2665": (NPS_D2665, SPVCi_D2665, SPVCo_D2665, SPVCt_D2665),
 
-                    '40D1785': (NPS_D1785, S40i_D1785, S40o_D1785, S40t_D1785),
-                    '80D1785': (NPS_D1785, S80i_D1785, S80o_D1785, S80t_D1785),
-                    '120D1785': (NPS120_D1785, S120i_D1785, S120o_D1785, S120t_D1785),
+                    "40D1785": (NPS_D1785, S40i_D1785, S40o_D1785, S40t_D1785),
+                    "80D1785": (NPS_D1785, S80i_D1785, S80o_D1785, S80t_D1785),
+                    "120D1785": (NPS120_D1785, S120i_D1785, S120o_D1785, S120t_D1785),
 
-                    'DR135D2241': (NPSDR135_D2241, SDR135i_D2241, SDR135o_D2241, SDR135t_D2241),
-                    'DR17D2241': (NPSDR17_D2241, SDR17i_D2241, SDR17o_D2241, SDR17t_D2241),
-                    'DR21D2241': (NPSDR21_D2241, SDR21i_D2241, SDR21o_D2241, SDR21t_D2241),
-                    'DR26D2241': (NPSDR26_D2241, SDR26i_D2241, SDR26o_D2241, SDR26t_D2241),
-                    'DR325D2241': (NPSDR325_D2241, SDR325i_D2241, SDR325o_D2241, SDR325t_D2241),
-                    'DR41D2241': (NPSDR41_D2241, SDR41i_D2241, SDR41o_D2241, SDR41t_D2241),
-                    'DR64D2241': (NPSDR64_D2241, SDR64i_D2241, SDR64o_D2241, SDR64t_D2241),
+                    "DR135D2241": (NPSDR135_D2241, SDR135i_D2241, SDR135o_D2241, SDR135t_D2241),
+                    "DR17D2241": (NPSDR17_D2241, SDR17i_D2241, SDR17o_D2241, SDR17t_D2241),
+                    "DR21D2241": (NPSDR21_D2241, SDR21i_D2241, SDR21o_D2241, SDR21t_D2241),
+                    "DR26D2241": (NPSDR26_D2241, SDR26i_D2241, SDR26o_D2241, SDR26t_D2241),
+                    "DR325D2241": (NPSDR325_D2241, SDR325i_D2241, SDR325o_D2241, SDR325t_D2241),
+                    "DR41D2241": (NPSDR41_D2241, SDR41i_D2241, SDR41o_D2241, SDR41t_D2241),
+                    "DR64D2241": (NPSDR64_D2241, SDR64i_D2241, SDR64o_D2241, SDR64t_D2241),
 
-                    'DR21D2241CTS': (NPSDR21_D2241CTS, SDR21i_D2241CTS, SDR21o_D2241CTS, SDR21t_D2241CTS),
-                    'DR17D2241CTS': (NPSDR17_D2241CTS, SDR17i_D2241CTS, SDR17o_D2241CTS, SDR17t_D2241CTS),
-                    'DR135D2241CTS': (NPSDR135_D2241CTS, SDR135i_D2241CTS, SDR135o_D2241CTS, SDR135t_D2241CTS),
-                    'DR11D2241CTS': (NPSDR11_D2241CTS, SDR11i_D2241CTS, SDR11o_D2241CTS, SDR11t_D2241CTS),
+                    "DR21D2241CTS": (NPSDR21_D2241CTS, SDR21i_D2241CTS, SDR21o_D2241CTS, SDR21t_D2241CTS),
+                    "DR17D2241CTS": (NPSDR17_D2241CTS, SDR17i_D2241CTS, SDR17o_D2241CTS, SDR17t_D2241CTS),
+                    "DR135D2241CTS": (NPSDR135_D2241CTS, SDR135i_D2241CTS, SDR135o_D2241CTS, SDR135t_D2241CTS),
+                    "DR11D2241CTS": (NPSDR11_D2241CTS, SDR11i_D2241CTS, SDR11o_D2241CTS, SDR11t_D2241CTS),
 
-                    'DR21D2241PIP': (NPSDR21_D2241PIP, SDR21i_D2241PIP, SDR21o_D2241PIP, SDR21t_D2241PIP),
-                    'DR26D2241PIP': (NPSDR26_D2241PIP, SDR26i_D2241PIP, SDR26o_D2241PIP, SDR26t_D2241PIP),
-                    'DR325D2241PIP': (NPSDR325_D2241PIP, SDR325i_D2241PIP, SDR325o_D2241PIP, SDR325t_D2241PIP),
-                    'DR35D2241PIP': (NPSDR35_D2241PIP, SDR35i_D2241PIP, SDR35o_D2241PIP, SDR35t_D2241PIP),
-                    'DR41D2241PIP': (NPSDR41_D2241PIP, SDR41i_D2241PIP, SDR41o_D2241PIP, SDR41t_D2241PIP),
-                    'DR51D2241PIP': (NPSDR51_D2241PIP, SDR51i_D2241PIP, SDR51o_D2241PIP, SDR51t_D2241PIP),
-                    'DR81D2241PIP': (NPSDR81_D2241PIP, SDR81i_D2241PIP, SDR81o_D2241PIP, SDR81t_D2241PIP),
+                    "DR21D2241PIP": (NPSDR21_D2241PIP, SDR21i_D2241PIP, SDR21o_D2241PIP, SDR21t_D2241PIP),
+                    "DR26D2241PIP": (NPSDR26_D2241PIP, SDR26i_D2241PIP, SDR26o_D2241PIP, SDR26t_D2241PIP),
+                    "DR325D2241PIP": (NPSDR325_D2241PIP, SDR325i_D2241PIP, SDR325o_D2241PIP, SDR325t_D2241PIP),
+                    "DR35D2241PIP": (NPSDR35_D2241PIP, SDR35i_D2241PIP, SDR35o_D2241PIP, SDR35t_D2241PIP),
+                    "DR41D2241PIP": (NPSDR41_D2241PIP, SDR41i_D2241PIP, SDR41o_D2241PIP, SDR41t_D2241PIP),
+                    "DR51D2241PIP": (NPSDR51_D2241PIP, SDR51i_D2241PIP, SDR51o_D2241PIP, SDR51t_D2241PIP),
+                    "DR81D2241PIP": (NPSDR81_D2241PIP, SDR81i_D2241PIP, SDR81o_D2241PIP, SDR81t_D2241PIP),
 
-                    'S40F441IPS': (NPS_F441, S40i_F441IPS, S40o_F441IPS, S40t_F441IPS),
-                    'S80F441IPS': (NPS_F441, S80i_F441IPS, S80o_F441IPS, S80t_F441IPS),
-                    'S40F441SI': (DN_F441, S40i_F441SI, S40o_F441SI, S40t_F441SI),
-                    'S80F441SI': (DN_F441, S80i_F441SI, S80o_F441SI, S80t_F441SI),
+                    "S40F441IPS": (NPS_F441, S40i_F441IPS, S40o_F441IPS, S40t_F441IPS),
+                    "S80F441IPS": (NPS_F441, S80i_F441IPS, S80o_F441IPS, S80t_F441IPS),
+                    "S40F441SI": (DN_F441, S40i_F441SI, S40o_F441SI, S40t_F441SI),
+                    "S80F441SI": (DN_F441, S80i_F441SI, S80o_F441SI, S80t_F441SI),
 
-                    'DR325F2619SI': (NPSDR325_F2619, SDR325i_F2619SI, SDR325o_F2619SI, SDR325t_F2619SI),
-                    'DR26F2619SI': (NPSDR26_F2619, SDR26i_F2619SI, SDR26o_F2619SI, SDR26t_F2619SI),
-                    'DR21F2619SI': (NPSDR21_F2619, SDR21i_F2619SI, SDR21o_F2619SI, SDR21t_F2619SI),
-                    'DR17F2619SI': (NPSDR17_F2619, SDR17i_F2619SI, SDR17o_F2619SI, SDR17t_F2619SI),
-                    'DR135F2619SI': (NPSDR135_F2619, SDR135i_F2619SI, SDR135o_F2619SI, SDR135t_F2619SI),
-                    'DR11F2619SI': (NPSDR11_F2619, SDR11i_F2619SI, SDR11o_F2619SI, SDR11t_F2619SI),
-                    'DR9F2619SI': (NPSDR9_F2619, SDR9i_F2619SI, SDR9o_F2619SI, SDR9t_F2619SI),
-                    'DR73F2619SI': (NPSDR73_F2619, SDR73i_F2619SI, SDR73o_F2619SI, SDR73t_F2619SI),
-                    'DR7F2619SI': (NPSDR7_F2619, SDR7i_F2619SI, SDR7o_F2619SI, SDR7t_F2619SI),
+                    "DR325F2619SI": (NPSDR325_F2619, SDR325i_F2619SI, SDR325o_F2619SI, SDR325t_F2619SI),
+                    "DR26F2619SI": (NPSDR26_F2619, SDR26i_F2619SI, SDR26o_F2619SI, SDR26t_F2619SI),
+                    "DR21F2619SI": (NPSDR21_F2619, SDR21i_F2619SI, SDR21o_F2619SI, SDR21t_F2619SI),
+                    "DR17F2619SI": (NPSDR17_F2619, SDR17i_F2619SI, SDR17o_F2619SI, SDR17t_F2619SI),
+                    "DR135F2619SI": (NPSDR135_F2619, SDR135i_F2619SI, SDR135o_F2619SI, SDR135t_F2619SI),
+                    "DR11F2619SI": (NPSDR11_F2619, SDR11i_F2619SI, SDR11o_F2619SI, SDR11t_F2619SI),
+                    "DR9F2619SI": (NPSDR9_F2619, SDR9i_F2619SI, SDR9o_F2619SI, SDR9t_F2619SI),
+                    "DR73F2619SI": (NPSDR73_F2619, SDR73i_F2619SI, SDR73o_F2619SI, SDR73t_F2619SI),
+                    "DR7F2619SI": (NPSDR7_F2619, SDR7i_F2619SI, SDR7o_F2619SI, SDR7t_F2619SI),
 
-                    'DR325F2619IPS': (NPSDR325_F2619, SDR325i_F2619IPS, SDR325o_F2619IPS, SDR325t_F2619IPS),
-                    'DR26F2619IPS': (NPSDR26_F2619, SDR26i_F2619IPS, SDR26o_F2619IPS, SDR26t_F2619IPS),
-                    'DR21F2619IPS': (NPSDR21_F2619, SDR21i_F2619IPS, SDR21o_F2619IPS, SDR21t_F2619IPS),
-                    'DR17F2619IPS': (NPSDR17_F2619, SDR17i_F2619IPS, SDR17o_F2619IPS, SDR17t_F2619IPS),
-                    'DR135F2619IPS': (NPSDR135_F2619, SDR135i_F2619IPS, SDR135o_F2619IPS, SDR135t_F2619IPS),
-                    'DR11F2619IPS': (NPSDR11_F2619, SDR11i_F2619IPS, SDR11o_F2619IPS, SDR11t_F2619IPS),
-                    'DR9F2619IPS': (NPSDR9_F2619, SDR9i_F2619IPS, SDR9o_F2619IPS, SDR9t_F2619IPS),
-                    'DR73F2619IPS': (NPSDR73_F2619, SDR73i_F2619IPS, SDR73o_F2619IPS, SDR73t_F2619IPS),
-                    'DR7F2619IPS': (NPSDR7_F2619, SDR7i_F2619IPS, SDR7o_F2619IPS, SDR7t_F2619IPS),
+                    "DR325F2619IPS": (NPSDR325_F2619, SDR325i_F2619IPS, SDR325o_F2619IPS, SDR325t_F2619IPS),
+                    "DR26F2619IPS": (NPSDR26_F2619, SDR26i_F2619IPS, SDR26o_F2619IPS, SDR26t_F2619IPS),
+                    "DR21F2619IPS": (NPSDR21_F2619, SDR21i_F2619IPS, SDR21o_F2619IPS, SDR21t_F2619IPS),
+                    "DR17F2619IPS": (NPSDR17_F2619, SDR17i_F2619IPS, SDR17o_F2619IPS, SDR17t_F2619IPS),
+                    "DR135F2619IPS": (NPSDR135_F2619, SDR135i_F2619IPS, SDR135o_F2619IPS, SDR135t_F2619IPS),
+                    "DR11F2619IPS": (NPSDR11_F2619, SDR11i_F2619IPS, SDR11o_F2619IPS, SDR11t_F2619IPS),
+                    "DR9F2619IPS": (NPSDR9_F2619, SDR9i_F2619IPS, SDR9o_F2619IPS, SDR9t_F2619IPS),
+                    "DR73F2619IPS": (NPSDR73_F2619, SDR73i_F2619IPS, SDR73o_F2619IPS, SDR73t_F2619IPS),
+                    "DR7F2619IPS": (NPSDR7_F2619, SDR7i_F2619IPS, SDR7o_F2619IPS, SDR7t_F2619IPS),
 
-                    'BS1387LIGHT': (DN_LIGHT_BS1387, LIGHTi_BS1387, LIGHTo_BS1387, LIGHTt_BS1387),
-                    'BS1387MEDIUM': (DN_MEDIUM_BS1387, MEDIUMi_BS1387, MEDIUMo_BS1387, MEDIUMt_BS1387),
-                    'BS1387HEAVY': (DN_HEAVY_BS1387, HEAVYi_BS1387, HEAVYo_BS1387, HEAVYt_BS1387),
+                    "BS1387LIGHT": (DN_LIGHT_BS1387, LIGHTi_BS1387, LIGHTo_BS1387, LIGHTt_BS1387),
+                    "BS1387MEDIUM": (DN_MEDIUM_BS1387, MEDIUMi_BS1387, MEDIUMo_BS1387, MEDIUMt_BS1387),
+                    "BS1387HEAVY": (DN_HEAVY_BS1387, HEAVYi_BS1387, HEAVYo_BS1387, HEAVYt_BS1387),
                     }
 
 def Di_lookup(Di, NPSes, Dis, Dos, ts):
@@ -604,7 +604,7 @@ def Di_lookup(Di, NPSes, Dis, Dos, ts):
         if Dis[i] >= Di:
             _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
             return (_nps, _di, _do, _t)
-    raise ValueError('Di lookup failed')
+    raise ValueError("Di lookup failed")
 
 def Do_lookup(Do, NPSes, Dis, Dos, ts):
     for i in range(len(Dos)): # Go up ascending list; once larger than specified, return
@@ -613,18 +613,18 @@ def Do_lookup(Do, NPSes, Dis, Dos, ts):
         if Dos[i] >= Do:
             _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
             return (_nps, _di, _do, _t)
-    raise ValueError('Do lookup failed')
+    raise ValueError("Do lookup failed")
 
 def NPS_lookup(NPS, NPSes, Dis, Dos, ts):
     for i in range(len(NPSes)): # Go up ascending list; once larger than specified, return
         if NPSes[i] == NPS:
             _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
             return (_nps, _di, _do, _t)
-    raise ValueError('NPS not in list')
+    raise ValueError("NPS not in list")
 
 
 
-def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
+def nearest_pipe(Do=None, Di=None, NPS=None, schedule="40"):
     r"""Searches for and finds the nearest standard pipe size to a given
     specification. Acceptable inputs are:
 
@@ -737,7 +737,7 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
         schedule = str(int(schedule))
 
     if schedule not in schedule_lookup:
-        raise ValueError('Schedule not recognized')
+        raise ValueError("Schedule not recognized")
     else:
         NPSes, Dis, Dos, ts = schedule_lookup[schedule]
 
@@ -750,7 +750,7 @@ def nearest_pipe(Do=None, Di=None, NPS=None, schedule='40'):
         nums = NPS_lookup(NPS, NPSes, Dis, Dos, ts)
 
     if nums is None:
-        raise ValueError('Pipe input is larger than max of selected schedule')
+        raise ValueError("Pipe input is larger than max of selected schedule")
     _nps, _di, _do, _t = nums
     return _nps, _di*1e-3, _do*1e-3, _t*1e-3
 
@@ -900,15 +900,15 @@ BWG_SI = [0.0127, 0.011532, 0.010795, 0.009652, 0.008636, 0.00762, 0.007214,
           0.000559, 0.000508, 0.000457, 0.000406, 0.000356, 0.00033, 0.000305,
           0.000254, 0.000229, 0.000203, 0.000178, 0.000127, 0.000102]
 
-wire_schedules = {'BWG': (BWG_integers, BWG_inch, BWG_SI, True),
-                 'AWG': (AWG_integers, AWG_inch, AWG_SI, True),
-                 'SWG': (SWG_integers, SWG_inch, SWG_SI, True),
-                 'MWG': (MWG_integers, MWG_inch, MWG_SI, False),
-                 'BSWG': (BSWG_integers, BSWG_inch, BSWG_SI, True),
-                 'SSWG': (SSWG_integers, SSWG_inch, SSWG_SI, True)}
+wire_schedules = {"BWG": (BWG_integers, BWG_inch, BWG_SI, True),
+                 "AWG": (AWG_integers, AWG_inch, AWG_SI, True),
+                 "SWG": (SWG_integers, SWG_inch, SWG_SI, True),
+                 "MWG": (MWG_integers, MWG_inch, MWG_SI, False),
+                 "BSWG": (BSWG_integers, BSWG_inch, BSWG_SI, True),
+                 "SSWG": (SSWG_integers, SSWG_inch, SSWG_SI, True)}
 
 
-def gauge_from_t(t, SI=True, schedule='BWG'):
+def gauge_from_t(t, SI=True, schedule="BWG"):
     r"""Looks up the gauge of a given wire thickness of given schedule.
     Values are all non-linear, and tabulated internally.
 
@@ -967,12 +967,12 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
     try:
         sch_integers, sch_inch, sch_SI, decreasing = wire_schedules[schedule]
     except:
-        raise ValueError('Wire gauge schedule not found')
+        raise ValueError("Wire gauge schedule not found")
 
     # Check if outside limits
     sch_max, sch_min = sch_inch[0], sch_inch[-1]
     if t_inch > sch_max:
-        raise ValueError('Input thickness is above the largest in the selected schedule')
+        raise ValueError("Input thickness is above the largest in the selected schedule")
 
 
     # If given thickness is exactly in the index, be happy
@@ -996,7 +996,7 @@ def gauge_from_t(t, SI=True, schedule='BWG'):
     return gauge
 
 
-def t_from_gauge(gauge, SI=True, schedule='BWG'):
+def t_from_gauge(gauge, SI=True, schedule="BWG"):
     r"""Looks up the thickness of a given wire gauge of given schedule.
     Values are all non-linear, and tabulated internally.
 
@@ -1047,7 +1047,7 @@ def t_from_gauge(gauge, SI=True, schedule='BWG'):
     try:
         i = sch_integers.index(gauge)
     except:
-        raise ValueError('Input gauge not found in selected schedule')
+        raise ValueError("Input gauge not found in selected schedule")
     if SI:
         return sch_SI[i] # returns thickness in m
     else:

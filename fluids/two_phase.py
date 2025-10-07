@@ -70,35 +70,35 @@ Two Phase Flow Regime Correlations
 """
 
 __all__ = [
-    'Bankoff',
-    'Baroczy_Chisholm',
-    'Beggs_Brill',
-    'Chen_Friedel',
-    'Chisholm',
-    'Friedel',
-    'Gronnerud',
-    'Hwang_Kim',
-    'Jung_Radermacher',
-    'Kim_Mudawar',
-    'Lockhart_Martinelli',
-    'Lombardi_Pedrocchi',
-    'Mandhane_Gregory_Aziz_regime',
-    'Mishima_Hibiki',
-    'Muller_Steinhagen_Heck',
-    'Taitel_Dukler_regime',
-    'Theissing',
-    'Tran',
-    'Wang_Chiang_Lu',
-    'Xu_Fang',
-    'Yu_France',
-    'Zhang_Hibiki_Mishima',
-    'Zhang_Webb',
-    'two_phase_dP',
-    'two_phase_dP_acceleration',
-    'two_phase_dP_dz_acceleration',
-    'two_phase_dP_dz_gravitational',
-    'two_phase_dP_gravitational',
-    'two_phase_dP_methods',
+    "Bankoff",
+    "Baroczy_Chisholm",
+    "Beggs_Brill",
+    "Chen_Friedel",
+    "Chisholm",
+    "Friedel",
+    "Gronnerud",
+    "Hwang_Kim",
+    "Jung_Radermacher",
+    "Kim_Mudawar",
+    "Lockhart_Martinelli",
+    "Lombardi_Pedrocchi",
+    "Mandhane_Gregory_Aziz_regime",
+    "Mishima_Hibiki",
+    "Muller_Steinhagen_Heck",
+    "Taitel_Dukler_regime",
+    "Theissing",
+    "Tran",
+    "Wang_Chiang_Lu",
+    "Xu_Fang",
+    "Yu_France",
+    "Zhang_Hibiki_Mishima",
+    "Zhang_Webb",
+    "two_phase_dP",
+    "two_phase_dP_acceleration",
+    "two_phase_dP_dz_acceleration",
+    "two_phase_dP_dz_gravitational",
+    "two_phase_dP_gravitational",
+    "two_phase_dP_methods",
 ]
 
 from math import cos, exp, log, log10, pi, radians, sin, sqrt
@@ -109,9 +109,9 @@ from fluids.friction import friction_factor
 from fluids.numerics import cbrt, implementation_optimize_tck, splev
 from fluids.two_phase_voidage import Lockhart_Martinelli_Xtt, homogeneous
 
-Beggs_Brill_dat = {'segregated': (0.98, 0.4846, 0.0868),
-'intermittent': (0.845, 0.5351, 0.0173),
-'distributed': (1.065, 0.5824, 0.0609)}
+Beggs_Brill_dat = {"segregated": (0.98, 0.4846, 0.0868),
+"intermittent": (0.845, 0.5351, 0.0173),
+"distributed": (1.065, 0.5824, 0.0609)}
 
 def _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV):
     if regime == 0:
@@ -239,7 +239,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     elif (lambda_L < 0.4 and Fr >= L1) or (lambda_L >= 0.4 and Fr > L4):
         regime = 3
     else:
-        raise ValueError('Outside regime ranges')
+        raise ValueError("Outside regime ranges")
 
     LV = Vsl*sqrt(sqrt(rhol/(g*sigma)))
     if angle is None:
@@ -1827,7 +1827,7 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
 
 
 def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
-                         L=1.0, flowtype='adiabatic vapor'):
+                         L=1.0, flowtype="adiabatic vapor"):
     r"""Calculates two-phase pressure drop with the Zhang, Hibiki, Mishima and
     (2010) correlation as in [1]_, also presented in [2]_ and [3]_.
 
@@ -1928,11 +1928,11 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
     X = sqrt(dP_l/dP_g)
     Co = Confinement(D=D, rhol=rhol, rhog=rhog, sigma=sigma)
 
-    if flowtype == 'adiabatic vapor':
+    if flowtype == "adiabatic vapor":
         C = 21*(1 - exp(-0.142/Co))
-    elif flowtype == 'adiabatic gas':
+    elif flowtype == "adiabatic gas":
         C = 21*(1 - exp(-0.674/Co))
-    elif flowtype == 'flow boiling':
+    elif flowtype == "flow boiling":
         C = 21*(1 - exp(-0.358/Co))
     else:
         raise ValueError("Only flow types 'adiabatic vapor', 'adiabatic gas', \
@@ -2320,36 +2320,36 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
 
 two_phase_correlations = {
     # 0 index, args are: m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1
-    'Zhang_Webb': (Zhang_Webb, 0),
+    "Zhang_Webb": (Zhang_Webb, 0),
     # 1 index, args are: m, x, rhol, rhog, mul, mug, D, L=1
-    'Lockhart_Martinelli': (Lockhart_Martinelli, 1),
+    "Lockhart_Martinelli": (Lockhart_Martinelli, 1),
     # 2 index, args are: m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1
-    'Bankoff': (Bankoff, 2),
-    'Baroczy_Chisholm': (Baroczy_Chisholm, 2),
-    'Chisholm': (Chisholm, 2),
-    'Gronnerud': (Gronnerud, 2),
-    'Jung_Radermacher': (Jung_Radermacher, 2),
-    'Muller_Steinhagen_Heck': (Muller_Steinhagen_Heck, 2),
-    'Theissing': (Theissing, 2),
-    'Wang_Chiang_Lu': (Wang_Chiang_Lu, 2),
-    'Yu_France': (Yu_France, 2),
+    "Bankoff": (Bankoff, 2),
+    "Baroczy_Chisholm": (Baroczy_Chisholm, 2),
+    "Chisholm": (Chisholm, 2),
+    "Gronnerud": (Gronnerud, 2),
+    "Jung_Radermacher": (Jung_Radermacher, 2),
+    "Muller_Steinhagen_Heck": (Muller_Steinhagen_Heck, 2),
+    "Theissing": (Theissing, 2),
+    "Wang_Chiang_Lu": (Wang_Chiang_Lu, 2),
+    "Yu_France": (Yu_France, 2),
     # 3 index, args are: m, x, rhol, rhog, mul, mug, sigma, D, L=1
-    'Kim_Mudawar': (Kim_Mudawar, 3),
+    "Kim_Mudawar": (Kim_Mudawar, 3),
     # 4 index, args are: m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1
-    'Friedel': (Friedel, 4),
-    'Hwang_Kim': (Hwang_Kim, 4),
-    'Mishima_Hibiki': (Mishima_Hibiki, 4),
-    'Tran': (Tran, 4),
-    'Xu_Fang': (Xu_Fang, 4),
-    'Zhang_Hibiki_Mishima': (Zhang_Hibiki_Mishima, 4),
-    'Chen_Friedel': (Chen_Friedel, 4),
+    "Friedel": (Friedel, 4),
+    "Hwang_Kim": (Hwang_Kim, 4),
+    "Mishima_Hibiki": (Mishima_Hibiki, 4),
+    "Tran": (Tran, 4),
+    "Xu_Fang": (Xu_Fang, 4),
+    "Zhang_Hibiki_Mishima": (Zhang_Hibiki_Mishima, 4),
+    "Chen_Friedel": (Chen_Friedel, 4),
     # 5 index: args are m, x, rhol, rhog, sigma, D, L=1
-    'Lombardi_Pedrocchi': (Lombardi_Pedrocchi, 5),
+    "Lombardi_Pedrocchi": (Lombardi_Pedrocchi, 5),
     # Misc indexes:
-    'Chisholm rough': (Chisholm, 101),
-    'Zhang_Hibiki_Mishima adiabatic gas': (Zhang_Hibiki_Mishima, 102),
-    'Zhang_Hibiki_Mishima flow boiling': (Zhang_Hibiki_Mishima, 103),
-    'Beggs-Brill': (Beggs_Brill, 104)
+    "Chisholm rough": (Chisholm, 101),
+    "Zhang_Hibiki_Mishima adiabatic gas": (Zhang_Hibiki_Mishima, 102),
+    "Zhang_Hibiki_Mishima flow boiling": (Zhang_Hibiki_Mishima, 103),
+    "Beggs-Brill": (Beggs_Brill, 104)
 }
 _unknown_msg_two_phase = f"Unknown method; available methods are {list(two_phase_correlations.keys())}"
 
@@ -2488,16 +2488,16 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
     """
     if Method is None:
         if rhog is not None and mul is not None and mug is not None and sigma is not None:
-            Method2 = 'Kim_Mudawar' # Kim_Mudawar preferred
+            Method2 = "Kim_Mudawar" # Kim_Mudawar preferred
         elif rhog is not None and mul is not None and mug is not None:
-            Method2 = 'Chisholm' # Second choice, indexes 1 or 2
+            Method2 = "Chisholm" # Second choice, indexes 1 or 2
         elif mul is not None and P is not None and Pc is not None:
-            Method2 = 'Zhang_Webb' # Not a good choice
+            Method2 = "Zhang_Webb" # Not a good choice
         elif rhog is not None and sigma is not None:
-            Method2 = 'Lombardi_Pedrocchi' # Last try
+            Method2 = "Lombardi_Pedrocchi" # Last try
         else:
-            raise ValueError('All possible methods require more information \
-than provided; provide more inputs!')
+            raise ValueError("All possible methods require more information \
+than provided; provide more inputs!")
     else:
         Method2 = Method
 
@@ -2547,11 +2547,11 @@ than provided; provide more inputs!')
     elif Method2 == "Zhang_Hibiki_Mishima adiabatic gas":
         return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
                      sigma=sigma, D=D, L=L, roughness=roughness,
-                     flowtype='adiabatic gas')
+                     flowtype="adiabatic gas")
     elif Method2 == "Zhang_Hibiki_Mishima flow boiling":
         return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
                      sigma=sigma, D=D, L=L, roughness=roughness,
-                     flowtype='flow boiling')
+                     flowtype="flow boiling")
     elif Method2 == "Beggs-Brill":
         return Beggs_Brill(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
                      sigma=sigma, P=P, D=D, angle=angle, L=L,
@@ -3009,19 +3009,19 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
     X_B_transition = 1.7917 # Roughly
 
     if F >= F_A_at_X and X <= X_B_transition:
-        regime = 'annular'
+        regime = "annular"
     elif F >= F_A_at_X:
         T_D_at_X = XD_interp_obj(X)
         if T >= T_D_at_X:
-            regime = 'bubbly'
+            regime = "bubbly"
         else:
-            regime = 'intermittent'
+            regime = "intermittent"
     else:
         K_C_at_X = XC_interp_obj(X)
         if K >= K_C_at_X:
-            regime = 'stratified wavy'
+            regime = "stratified wavy"
         else:
-            regime = 'stratified smooth'
+            regime = "stratified smooth"
 
     return regime, X, T, F, K
 
@@ -3126,21 +3126,21 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
         Y456 = Y456*X1
 
         if Vsg <= Y1345 and Vsl >= Y31:
-            regime = 'elongated bubble'
+            regime = "elongated bubble"
         elif Vsg <= Y1345 and Vsl <= Y31:
-            regime = 'stratified'
+            regime = "stratified"
         elif Vsg >= Y1345 and Vsg <= Y456 and Vsl > Y45:
-            regime = 'slug'
+            regime = "slug"
         elif Vsg >= Y1345 and Vsg <= Y456 and Vsl <= Y45:
-            regime = 'wave'
+            regime = "wave"
         else:
-            regime = 'annular mist'
+            regime = "annular mist"
     elif Vsg <= (230.*(Vsl/14.)**0.206)*X1:
-        regime = 'dispersed bubble'
+        regime = "dispersed bubble"
     else:
-        regime = 'annular mist'
+        regime = "annular mist"
     return regime, Vsl, Vsg
 
-Mandhane_Gregory_Aziz_regimes = {'elongated bubble': 1, 'stratified': 2,
-                                 'slug':3, 'wave': 4,
-                                 'annular mist': 5, 'dispersed bubble': 6}
+Mandhane_Gregory_Aziz_regimes = {"elongated bubble": 1, "stratified": 2,
+                                 "slug":3, "wave": 4,
+                                 "annular mist": 5, "dispersed bubble": 6}

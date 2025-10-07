@@ -135,80 +135,80 @@ from fluids.core import Dean, Reynolds
 from fluids.numerics import cbrt, lambertw, secant
 
 __all__ = [
-    'LAMINAR_TRANSITION_PIPE',
-    'Alshul_1952',
-    'Avci_Karagoz_2009',
-    'Barr_1981',
-    'Blasius',
-    'Brkic_2011_1',
-    'Brkic_2011_2',
-    'Buzzelli_2008',
-    'Chen_1979',
-    'Churchill_1973',
-    'Churchill_1977',
-    'Clamond',
-    'Colebrook',
-    'Eck_1973',
-    'Fang_2011',
-    'HHR_roughness',
-    'Haaland',
-    'Jain_1976',
-    'Manadilli_1997',
-    'Moody',
-    'Papaevangelo_2010',
-    'Prandtl_von_Karman_Nikuradse',
-    'Rao_Kumar_2007',
-    'Romeo_2002',
-    'Round_1980',
-    'Serghides_1',
-    'Serghides_2',
-    'Shacham_1980',
-    'Sonnad_Goudar_2006',
-    'Swamee_Jain_1976',
-    'Tsal_1989',
-    'Wood_1966',
-    'Zigrang_Sylvester_1',
-    'Zigrang_Sylvester_2',
-    '_Farshad_roughness',
-    '_roughness',
-    'friction_factor',
-    'friction_factor_curved',
-    'friction_factor_curved_methods',
-    'friction_factor_methods',
-    'friction_laminar',
-    'friction_plate_Kumar',
-    'friction_plate_Martin_1999',
-    'friction_plate_Martin_VDI',
-    'friction_plate_Muley_Manglik',
-    'ft_Crane',
-    'helical_Re_crit',
-    'helical_laminar_fd_Mori_Nakayama',
-    'helical_laminar_fd_Schmidt',
-    'helical_laminar_fd_White',
-    'helical_transition_Re_Ito',
-    'helical_transition_Re_Kubair_Kuloor',
-    'helical_transition_Re_Kutateladze_Borishanskii',
-    'helical_transition_Re_Schmidt',
-    'helical_transition_Re_Seth_Stahel',
-    'helical_transition_Re_Srinivasan',
-    'helical_turbulent_fd_Czop',
-    'helical_turbulent_fd_Guo',
-    'helical_turbulent_fd_Ju',
-    'helical_turbulent_fd_Mandal_Nigam',
-    'helical_turbulent_fd_Mori_Nakayama',
-    'helical_turbulent_fd_Prasad',
-    'helical_turbulent_fd_Schmidt',
-    'helical_turbulent_fd_Srinivasan',
-    'material_roughness',
-    'nearest_material_roughness',
-    'one_phase_dP',
-    'one_phase_dP_acceleration',
-    'one_phase_dP_dz_acceleration',
-    'one_phase_dP_gravitational',
-    'oregon_smooth_data',
-    'roughness_Farshad',
-    'transmission_factor',
-    'von_Karman',
+    "LAMINAR_TRANSITION_PIPE",
+    "Alshul_1952",
+    "Avci_Karagoz_2009",
+    "Barr_1981",
+    "Blasius",
+    "Brkic_2011_1",
+    "Brkic_2011_2",
+    "Buzzelli_2008",
+    "Chen_1979",
+    "Churchill_1973",
+    "Churchill_1977",
+    "Clamond",
+    "Colebrook",
+    "Eck_1973",
+    "Fang_2011",
+    "HHR_roughness",
+    "Haaland",
+    "Jain_1976",
+    "Manadilli_1997",
+    "Moody",
+    "Papaevangelo_2010",
+    "Prandtl_von_Karman_Nikuradse",
+    "Rao_Kumar_2007",
+    "Romeo_2002",
+    "Round_1980",
+    "Serghides_1",
+    "Serghides_2",
+    "Shacham_1980",
+    "Sonnad_Goudar_2006",
+    "Swamee_Jain_1976",
+    "Tsal_1989",
+    "Wood_1966",
+    "Zigrang_Sylvester_1",
+    "Zigrang_Sylvester_2",
+    "_Farshad_roughness",
+    "_roughness",
+    "friction_factor",
+    "friction_factor_curved",
+    "friction_factor_curved_methods",
+    "friction_factor_methods",
+    "friction_laminar",
+    "friction_plate_Kumar",
+    "friction_plate_Martin_1999",
+    "friction_plate_Martin_VDI",
+    "friction_plate_Muley_Manglik",
+    "ft_Crane",
+    "helical_Re_crit",
+    "helical_laminar_fd_Mori_Nakayama",
+    "helical_laminar_fd_Schmidt",
+    "helical_laminar_fd_White",
+    "helical_transition_Re_Ito",
+    "helical_transition_Re_Kubair_Kuloor",
+    "helical_transition_Re_Kutateladze_Borishanskii",
+    "helical_transition_Re_Schmidt",
+    "helical_transition_Re_Seth_Stahel",
+    "helical_transition_Re_Srinivasan",
+    "helical_turbulent_fd_Czop",
+    "helical_turbulent_fd_Guo",
+    "helical_turbulent_fd_Ju",
+    "helical_turbulent_fd_Mandal_Nigam",
+    "helical_turbulent_fd_Mori_Nakayama",
+    "helical_turbulent_fd_Prasad",
+    "helical_turbulent_fd_Schmidt",
+    "helical_turbulent_fd_Srinivasan",
+    "material_roughness",
+    "nearest_material_roughness",
+    "one_phase_dP",
+    "one_phase_dP_acceleration",
+    "one_phase_dP_dz_acceleration",
+    "one_phase_dP_gravitational",
+    "oregon_smooth_data",
+    "roughness_Farshad",
+    "transmission_factor",
+    "von_Karman",
 ]
 
 
@@ -436,15 +436,15 @@ def Colebrook(Re, eD, tol=None):
             from mpmath import log, mp, mpf
             from mpmath import sqrt as sqrtmp
         except ImportError:
-            raise ImportError('For exact solutions, the `mpmath` library is '
-                              'required')
+            raise ImportError("For exact solutions, the `mpmath` library is "
+                              "required")
         mp.dps = 50
         Re = mpf(Re)
         eD_Re = mpf(eD)*Re
-        sub = 1/mpf('6.3001')*10**(1/mpf('9.287')*eD_Re)*Re*Re
+        sub = 1/mpf("6.3001")*10**(1/mpf("9.287")*eD_Re)*Re*Re
         lambert_term = mp_lambertw(log(sqrtmp(10))*sqrtmp(sub))
         den = log(10)*eD_Re - 18.574*lambert_term
-        return float(log(10)**2*mpf('3.7')**2*mpf('2.51')**2/(den*den))
+        return float(log(10)**2*mpf("3.7")**2*mpf("2.51")**2/(den*den))
     if tol is None:
         try:
             eD_Re = eD*Re
@@ -2016,36 +2016,36 @@ def ft_Crane(D):
     return Clamond(7.5E6*D, 3.4126825352925e-5*D**-1.0112, fast)
 
 
-fmethods = {'Moody': (4000.0, 100000000.0, 0.0, 0.01),
- 'Alshul_1952': (None, None, None, None),
- 'Wood_1966': (4000.0, 50000000.0, 1e-05, 0.04),
- 'Churchill_1973': (None, None, None, None),
- 'Eck_1973': (None, None, None, None),
- 'Jain_1976': (5000.0, 10000000.0, 4e-05, 0.05),
- 'Swamee_Jain_1976': (5000.0, 100000000.0, 1e-06, 0.05),
- 'Churchill_1977': (None, None, None, None),
- 'Chen_1979': (4000.0, 400000000.0, 1e-07, 0.05),
- 'Round_1980': (4000.0, 400000000.0, 0.0, 0.05),
- 'Shacham_1980': (4000.0, 400000000.0, None, None),
- 'Barr_1981': (None, None, None, None),
- 'Zigrang_Sylvester_1': (4000.0, 100000000.0, 4e-05, 0.05),
- 'Zigrang_Sylvester_2': (4000.0, 100000000.0, 4e-05, 0.05),
- 'Haaland': (4000.0, 100000000.0, 1e-06, 0.05),
- 'Serghides_1': (None, None, None, None),
- 'Serghides_2': (None, None, None, None),
- 'Tsal_1989': (4000.0, 100000000.0, 0.0, 0.05),
- 'Manadilli_1997': (5245.0, 100000000.0, 0.0, 0.05),
- 'Romeo_2002': (3000.0, 150000000.0, 0.0, 0.05),
- 'Sonnad_Goudar_2006': (4000.0, 100000000.0, 1e-06, 0.05),
- 'Rao_Kumar_2007': (None, None, None, None),
- 'Buzzelli_2008': (None, None, None, None),
- 'Avci_Karagoz_2009': (None, None, None, None),
- 'Papaevangelo_2010': (10000.0, 10000000.0, 1e-05, 0.001),
- 'Brkic_2011_1': (None, None, None, None),
- 'Brkic_2011_2': (None, None, None, None),
- 'Fang_2011': (3000.0, 100000000.0, 0.0, 0.05),
- 'Clamond': (0, None, 0.0, None),
- 'Colebrook': (0, None, 0.0, None)}
+fmethods = {"Moody": (4000.0, 100000000.0, 0.0, 0.01),
+ "Alshul_1952": (None, None, None, None),
+ "Wood_1966": (4000.0, 50000000.0, 1e-05, 0.04),
+ "Churchill_1973": (None, None, None, None),
+ "Eck_1973": (None, None, None, None),
+ "Jain_1976": (5000.0, 10000000.0, 4e-05, 0.05),
+ "Swamee_Jain_1976": (5000.0, 100000000.0, 1e-06, 0.05),
+ "Churchill_1977": (None, None, None, None),
+ "Chen_1979": (4000.0, 400000000.0, 1e-07, 0.05),
+ "Round_1980": (4000.0, 400000000.0, 0.0, 0.05),
+ "Shacham_1980": (4000.0, 400000000.0, None, None),
+ "Barr_1981": (None, None, None, None),
+ "Zigrang_Sylvester_1": (4000.0, 100000000.0, 4e-05, 0.05),
+ "Zigrang_Sylvester_2": (4000.0, 100000000.0, 4e-05, 0.05),
+ "Haaland": (4000.0, 100000000.0, 1e-06, 0.05),
+ "Serghides_1": (None, None, None, None),
+ "Serghides_2": (None, None, None, None),
+ "Tsal_1989": (4000.0, 100000000.0, 0.0, 0.05),
+ "Manadilli_1997": (5245.0, 100000000.0, 0.0, 0.05),
+ "Romeo_2002": (3000.0, 150000000.0, 0.0, 0.05),
+ "Sonnad_Goudar_2006": (4000.0, 100000000.0, 1e-06, 0.05),
+ "Rao_Kumar_2007": (None, None, None, None),
+ "Buzzelli_2008": (None, None, None, None),
+ "Avci_Karagoz_2009": (None, None, None, None),
+ "Papaevangelo_2010": (10000.0, 10000000.0, 1e-05, 0.001),
+ "Brkic_2011_1": (None, None, None, None),
+ "Brkic_2011_2": (None, None, None, None),
+ "Fang_2011": (3000.0, 100000000.0, 0.0, 0.05),
+ "Clamond": (0, None, 0.0, None),
+ "Colebrook": (0, None, 0.0, None)}
 
 
 def friction_factor_methods(Re, eD=0.0, check_ranges=True):
@@ -2075,7 +2075,7 @@ def friction_factor_methods(Re, eD=0.0, check_ranges=True):
     """
     if check_ranges:
         if Re < LAMINAR_TRANSITION_PIPE:
-            return ['laminar']
+            return ["laminar"]
         methods = []
         for n, (Re_min, Re_max, eD_min, eD_max) in fmethods.items():
             if Re_min is not None and Re < Re_min:
@@ -2089,10 +2089,10 @@ def friction_factor_methods(Re, eD=0.0, check_ranges=True):
             methods.append(n)
         return methods
     else:
-        return list(fmethods.keys()) + ['laminar']
+        return list(fmethods.keys()) + ["laminar"]
 
 
-def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True):
+def friction_factor(Re, eD=0.0, Method="Clamond", Darcy=True):
     r"""Calculates friction factor. Uses a specified method, or automatically
     picks one from the dictionary of available methods. 29 approximations are
     available as well as the direct solution, described in the table below.
@@ -2209,9 +2209,9 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True):
        333, no. 6039 (July 8, 2011): 192-96. doi:10.1126/science.1203223.
     """
     if Method is None:
-        Method = 'Clamond'
+        Method = "Clamond"
 
-    if Re < LAMINAR_TRANSITION_PIPE or Method == 'laminar':
+    if Re < LAMINAR_TRANSITION_PIPE or Method == "laminar":
         f = friction_laminar(Re)
     elif Method == "Clamond":
         f = Clamond(Re, eD, False)
@@ -3145,34 +3145,34 @@ def helical_transition_Re_Srinivasan(Di, Dc):
     return 2100.*(1. + 12.*sqrt(Di/Dc))
 
 
-curved_friction_laminar_methods = {'White': helical_laminar_fd_White,
-                           'Mori Nakayama laminar': helical_laminar_fd_Mori_Nakayama,
-                           'Schmidt laminar': helical_laminar_fd_Schmidt}
+curved_friction_laminar_methods = {"White": helical_laminar_fd_White,
+                           "Mori Nakayama laminar": helical_laminar_fd_Mori_Nakayama,
+                           "Schmidt laminar": helical_laminar_fd_Schmidt}
 
 # Format: 'key': (correlation, supports_roughness)
-curved_friction_turbulent_methods = {'Schmidt turbulent': (helical_turbulent_fd_Schmidt, True),
-                                     'Mori Nakayama turbulent': (helical_turbulent_fd_Mori_Nakayama, False),
-                                     'Prasad': (helical_turbulent_fd_Prasad, True),
-                                     'Czop': (helical_turbulent_fd_Czop, False),
-                                     'Guo': (helical_turbulent_fd_Guo, False),
-                                     'Ju': (helical_turbulent_fd_Ju, True),
-                                     'Mandal Nigam': (helical_turbulent_fd_Mandal_Nigam, True),
-                                     'Srinivasan turbulent': (helical_turbulent_fd_Srinivasan, False)}
+curved_friction_turbulent_methods = {"Schmidt turbulent": (helical_turbulent_fd_Schmidt, True),
+                                     "Mori Nakayama turbulent": (helical_turbulent_fd_Mori_Nakayama, False),
+                                     "Prasad": (helical_turbulent_fd_Prasad, True),
+                                     "Czop": (helical_turbulent_fd_Czop, False),
+                                     "Guo": (helical_turbulent_fd_Guo, False),
+                                     "Ju": (helical_turbulent_fd_Ju, True),
+                                     "Mandal Nigam": (helical_turbulent_fd_Mandal_Nigam, True),
+                                     "Srinivasan turbulent": (helical_turbulent_fd_Srinivasan, False)}
 
-curved_friction_transition_methods = {'Seth Stahel': helical_transition_Re_Seth_Stahel,
-                                      'Ito': helical_transition_Re_Ito,
-                                      'Kubair Kuloor': helical_transition_Re_Kubair_Kuloor,
-                                      'Kutateladze Borishanskii': helical_transition_Re_Kutateladze_Borishanskii,
-                                      'Schmidt': helical_transition_Re_Schmidt,
-                                      'Srinivasan': helical_transition_Re_Srinivasan}
+curved_friction_transition_methods = {"Seth Stahel": helical_transition_Re_Seth_Stahel,
+                                      "Ito": helical_transition_Re_Ito,
+                                      "Kubair Kuloor": helical_transition_Re_Kubair_Kuloor,
+                                      "Kutateladze Borishanskii": helical_transition_Re_Kutateladze_Borishanskii,
+                                      "Schmidt": helical_transition_Re_Schmidt,
+                                      "Srinivasan": helical_transition_Re_Srinivasan}
 
 _bad_curved_transition_method = f"""Invalid method specified for transition Reynolds number;
 valid methods are {list(curved_friction_transition_methods.keys())}"""
 
-curved_friction_turbulent_methods_list = ['Schmidt turbulent', 'Mori Nakayama turbulent', 'Prasad', 'Czop', 'Guo', 'Ju', 'Mandal Nigam', 'Srinivasan turbulent']
-curved_friction_laminar_methods_list = ['White', 'Mori Nakayama laminar', 'Schmidt laminar']
+curved_friction_turbulent_methods_list = ["Schmidt turbulent", "Mori Nakayama turbulent", "Prasad", "Czop", "Guo", "Ju", "Mandal Nigam", "Srinivasan turbulent"]
+curved_friction_laminar_methods_list = ["White", "Mori Nakayama laminar", "Schmidt laminar"]
 
-def helical_Re_crit(Di, Dc, Method='Schmidt'):
+def helical_Re_crit(Di, Dc, Method="Schmidt"):
     r"""Calculates the transition Reynolds number for fluid flowing in a
     curved pipe or helical coil. Selects the appropriate regime by default.
     Optionally, a specific correlation can be specified with the `Method`
@@ -3220,17 +3220,17 @@ def helical_Re_crit(Di, Dc, Method='Schmidt'):
        Transfer. Heat Exchanger Design Handbook. Washington:
        Hemisphere Pub. Corp., 1983.
     """
-    if Method == 'Schmidt':
+    if Method == "Schmidt":
         Re_crit = helical_transition_Re_Schmidt(Di, Dc)
-    elif Method == 'Seth Stahel':
+    elif Method == "Seth Stahel":
         Re_crit = helical_transition_Re_Seth_Stahel(Di, Dc)
-    elif Method == 'Ito':
+    elif Method == "Ito":
         Re_crit = helical_transition_Re_Ito(Di, Dc)
-    elif Method == 'Kubair Kuloor':
+    elif Method == "Kubair Kuloor":
         Re_crit = helical_transition_Re_Kubair_Kuloor(Di, Dc)
-    elif Method == 'Kutateladze Borishanskii':
+    elif Method == "Kutateladze Borishanskii":
         Re_crit = helical_transition_Re_Kutateladze_Borishanskii(Di, Dc)
-    elif Method == 'Srinivasan':
+    elif Method == "Srinivasan":
         Re_crit = helical_transition_Re_Srinivasan(Di, Dc)
     else:
         raise ValueError(_bad_curved_transition_method)
@@ -3269,7 +3269,7 @@ def friction_factor_curved_methods(Re, Di, Dc, roughness=0.0,
         List of methods in the regime the specified `Re` is in at the given
         `Di` and `Dc`.
     """
-    Re_crit = helical_Re_crit(Di=Di, Dc=Dc, Method='Schmidt')
+    Re_crit = helical_Re_crit(Di=Di, Dc=Dc, Method="Schmidt")
     turbulent = not Re < Re_crit
     if check_ranges:
         if turbulent:
@@ -3281,9 +3281,9 @@ def friction_factor_curved_methods(Re, Di, Dc, roughness=0.0,
 
 
 def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
-                           Rec_method='Schmidt',
-                           laminar_method='Schmidt laminar',
-                           turbulent_method='Schmidt turbulent', Darcy=True):
+                           Rec_method="Schmidt",
+                           laminar_method="Schmidt laminar",
+                           turbulent_method="Schmidt turbulent", Darcy=True):
     r"""Calculates friction factor fluid flowing in a curved pipe or helical
     coil, supporting both laminar and turbulent regimes. Selects the
     appropriate regime by default, and has default correlation choices.
@@ -3375,32 +3375,32 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
     else:
         Method2 = Method # Use second variable to keep numba types happy
     # Laminar
-    if Method2 == 'Schmidt laminar':
+    if Method2 == "Schmidt laminar":
         f = helical_laminar_fd_Schmidt(Re, Di, Dc)
-    elif Method2 == 'White':
+    elif Method2 == "White":
         f = helical_laminar_fd_White(Re, Di, Dc)
-    elif Method2 == 'Mori Nakayama laminar':
+    elif Method2 == "Mori Nakayama laminar":
         f = helical_laminar_fd_Mori_Nakayama(Re, Di, Dc)
     # Turbulent with roughness support
-    elif Method2 == 'Schmidt turbulent':
+    elif Method2 == "Schmidt turbulent":
         f = helical_turbulent_fd_Schmidt(Re, Di, Dc, roughness)
-    elif Method2 == 'Prasad':
+    elif Method2 == "Prasad":
         f = helical_turbulent_fd_Prasad(Re, Di, Dc, roughness)
-    elif Method2 == 'Ju':
+    elif Method2 == "Ju":
         f = helical_turbulent_fd_Ju(Re, Di, Dc, roughness)
-    elif Method2 == 'Mandal Nigam':
+    elif Method2 == "Mandal Nigam":
         f = helical_turbulent_fd_Mandal_Nigam(Re, Di, Dc, roughness)
     # Turbulent without roughness support
-    elif Method2 == 'Mori Nakayama turbulent':
+    elif Method2 == "Mori Nakayama turbulent":
         f = helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc)
-    elif Method2 == 'Czop':
+    elif Method2 == "Czop":
         f = helical_turbulent_fd_Czop(Re, Di, Dc)
-    elif Method2 == 'Guo':
+    elif Method2 == "Guo":
         f = helical_turbulent_fd_Guo(Re, Di, Dc)
-    elif Method2 == 'Srinivasan turbulent':
+    elif Method2 == "Srinivasan turbulent":
         f = helical_turbulent_fd_Srinivasan(Re, Di, Dc)
     else:
-        raise ValueError('Invalid method for friction factor calculation')
+        raise ValueError("Invalid method for friction factor calculation")
     if not Darcy:
         f *= 0.25
     return f
@@ -3759,227 +3759,227 @@ def friction_plate_Muley_Manglik(Re, chevron_angle, plate_enlargement_factor):
 
 # Data from the Handbook of Hydraulic Resistance, 4E, in format (min, max, avg)
 #  roughness in m; may have one, two, or three of the values.
-seamless_other_metals = {'Commercially smooth': (1.5E-6, 1.0E-5, None)}
+seamless_other_metals = {"Commercially smooth": (1.5E-6, 1.0E-5, None)}
 
-seamless_steel = {'New and unused': (2.0E-5, 1.0E-4, None),
-    'Cleaned, following years of use': (None, 4.0E-5, None),
-    'Bituminized': (None, 4.0E-5, None),
-    'Heating systems piping; either superheated steam pipes, or just water pipes of systems with deaerators and chemical treatment':
+seamless_steel = {"New and unused": (2.0E-5, 1.0E-4, None),
+    "Cleaned, following years of use": (None, 4.0E-5, None),
+    "Bituminized": (None, 4.0E-5, None),
+    "Heating systems piping; either superheated steam pipes, or just water pipes of systems with deaerators and chemical treatment":
     (None, None, 1.0E-4),
-    'Following one year as a gas pipeline': (None, None, 1.2E-4),
-    'Following multiple year as a gas pipeline': (4.0E-5, 2.0E-4, None),
-    'Casings in gas wells, different conditions, several years of use':
+    "Following one year as a gas pipeline": (None, None, 1.2E-4),
+    "Following multiple year as a gas pipeline": (4.0E-5, 2.0E-4, None),
+    "Casings in gas wells, different conditions, several years of use":
     (6.0E-5, 2.2E-4, None),
-    'Heating systems, saturated steam ducts or water pipes (with minor water leakage < 0.5%, and balance water deaerated)':
+    "Heating systems, saturated steam ducts or water pipes (with minor water leakage < 0.5%, and balance water deaerated)":
     (None, None, 2.0E-4),
-    'Water heating system pipelines, any source': (None, None, 2.0E-4),
-    'Oil pipelines, intermediate operating conditions': (None, None, 2.0E-4),
-    'Corroded, moderately': (None, None, 4.0E-4),
-    'Scale, small depositions only': (None, None, 4.0E-4),
-    'Condensate pipes in open systems or periodically operated steam pipelines':
+    "Water heating system pipelines, any source": (None, None, 2.0E-4),
+    "Oil pipelines, intermediate operating conditions": (None, None, 2.0E-4),
+    "Corroded, moderately": (None, None, 4.0E-4),
+    "Scale, small depositions only": (None, None, 4.0E-4),
+    "Condensate pipes in open systems or periodically operated steam pipelines":
     (None, None, 5.0E-4),
-    'Compressed air piping': (None, None, 8.0E-4),
-    'Following multiple years of operation, generally corroded or with small amounts of scale':
+    "Compressed air piping": (None, None, 8.0E-4),
+    "Following multiple years of operation, generally corroded or with small amounts of scale":
     (1.5E-4, 1.0E-3, None),
-    'Water heating piping without deaeration but with chemical treatment of water; leakage up to 3%; or condensate piping operated periodically':
+    "Water heating piping without deaeration but with chemical treatment of water; leakage up to 3%; or condensate piping operated periodically":
     (None, None, 1.0E-3),
-    'Used water piping': (1.2E-3, 1.5E-3, None),
-    'Poor condition': (5.0E-3, None, None)}
+    "Used water piping": (1.2E-3, 1.5E-3, None),
+    "Poor condition": (5.0E-3, None, None)}
 
-welded_steel = {'Good condition': (4.0E-5, 1.0E-4, None),
-    'New and covered with bitumen': (None, None, 5.0E-5),
-    'Used and covered with partially dissolved bitumen; corroded':
+welded_steel = {"Good condition": (4.0E-5, 1.0E-4, None),
+    "New and covered with bitumen": (None, None, 5.0E-5),
+    "Used and covered with partially dissolved bitumen; corroded":
     (None, None, 1.0E-4),
-    'Used, suffering general corrosion': (None, None, 1.5E-4),
-    'Surface looks like new, 10 mm lacquer inside, even joints':
+    "Used, suffering general corrosion": (None, None, 1.5E-4),
+    "Surface looks like new, 10 mm lacquer inside, even joints":
     (3.0E-4, 4.0E-4, None),
-    'Used Gas mains': (None, None, 5.0E-4),
-    'Double or simple transverse riveted joints; with or without lacquer; without corrosion':
+    "Used Gas mains": (None, None, 5.0E-4),
+    "Double or simple transverse riveted joints; with or without lacquer; without corrosion":
     (6.0E-4, 7.0E-4, None),
-    'Lacquered inside but rusted': (9.5E-4, 1.0E-3, None),
-    'Gas mains, many years of use, with layered deposits': (None, None, 1.1E-3),
-    'Non-corroded and with double transverse riveted joints':
+    "Lacquered inside but rusted": (9.5E-4, 1.0E-3, None),
+    "Gas mains, many years of use, with layered deposits": (None, None, 1.1E-3),
+    "Non-corroded and with double transverse riveted joints":
     (1.2E-3, 1.5E-3, None),
-    'Small deposits': (None, None, 1.5E-3),
-    'Heavily corroded and with double transverse riveted joints':
+    "Small deposits": (None, None, 1.5E-3),
+    "Heavily corroded and with double transverse riveted joints":
     (None, None, 2.0E-3),
-    'Appreciable deposits': (2.0E-3, 4.0E-3, None),
-    'Gas mains, many years of use, deposits of resin/naphthalene':
+    "Appreciable deposits": (2.0E-3, 4.0E-3, None),
+    "Gas mains, many years of use, deposits of resin/naphthalene":
         (None, None, 2.4E-3),
-    'Poor condition': (5.0E-3, None, None)}
+    "Poor condition": (5.0E-3, None, None)}
 
 riveted_steel = {
-    'Riveted laterally and longitudinally with one line; lacquered on the inside':
+    "Riveted laterally and longitudinally with one line; lacquered on the inside":
     (3.0E-4, 4.0E-4, None),
-    'Riveted laterally and longitudinally with two lines; with or without lacquer on the inside and without corrosion':
+    "Riveted laterally and longitudinally with two lines; with or without lacquer on the inside and without corrosion":
     (6.0E-4, 7.0E-4, None),
-    'Riveted laterally with one line and longitudinally with two lines; thickly lacquered or torred on the inside':
+    "Riveted laterally with one line and longitudinally with two lines; thickly lacquered or torred on the inside":
     (1.2E-3, 1.4E-3, None),
-    'Riveted longitudinally with six lines, after extensive use':
+    "Riveted longitudinally with six lines, after extensive use":
     (None, None, 2.0E-3),
-    'Riveted laterally with four line and longitudinally with six lines; overlapping joints inside':
+    "Riveted laterally with four line and longitudinally with six lines; overlapping joints inside":
     (None, None, 4.0E-3),
-    'Extremely poor surface; overlapping and uneven joints':
+    "Extremely poor surface; overlapping and uneven joints":
     (5.0E-3, None, None)}
 
-roofing_metal = {'Oiled': (1.5E-4, 1.1E-3, None),
-                 'Not Oiled': (2.0E-5, 4.0E-5, None)}
+roofing_metal = {"Oiled": (1.5E-4, 1.1E-3, None),
+                 "Not Oiled": (2.0E-5, 4.0E-5, None)}
 
-galvanized_steel_tube = {'Bright galvanization; new': (7.0E-5, 1.0E-4, None),
-                         'Ordinary galvanization': (1.0E-4, 1.5E-4, None)}
+galvanized_steel_tube = {"Bright galvanization; new": (7.0E-5, 1.0E-4, None),
+                         "Ordinary galvanization": (1.0E-4, 1.5E-4, None)}
 
-galvanized_steel_sheet = {'New': (None, None, 1.5E-4),
-                          'Used previously for water': (None, None, 1.8E-4)}
+galvanized_steel_sheet = {"New": (None, None, 1.5E-4),
+                          "Used previously for water": (None, None, 1.8E-4)}
 
-steel = {'Glass enamel coat': (1.0E-6, 1.0E-5, None),
-         'New': (2.5E-4, 1.0E-3, None)}
+steel = {"Glass enamel coat": (1.0E-6, 1.0E-5, None),
+         "New": (2.5E-4, 1.0E-3, None)}
 
-cast_iron = {'New, bituminized': (1.0E-4, 1.5E-4, None),
-             'Coated with asphalt': (1.2E-4, 3.0E-4, None),
-             'Used water pipelines': (None, None, 1.4E-3),
-             'Used and corroded': (1.0E-3, 1.5E-3, None),
-             'Deposits visible': (1.0E-3, 1.5E-3, None),
-             'Substantial deposits': (2.0E-3, 4.0E-3, None),
-             'Cleaned after extensive use': (3.0E-4, 1.5E-3, None),
-             'Severely corroded': (None, 3.0E-3, None)}
+cast_iron = {"New, bituminized": (1.0E-4, 1.5E-4, None),
+             "Coated with asphalt": (1.2E-4, 3.0E-4, None),
+             "Used water pipelines": (None, None, 1.4E-3),
+             "Used and corroded": (1.0E-3, 1.5E-3, None),
+             "Deposits visible": (1.0E-3, 1.5E-3, None),
+             "Substantial deposits": (2.0E-3, 4.0E-3, None),
+             "Cleaned after extensive use": (3.0E-4, 1.5E-3, None),
+             "Severely corroded": (None, 3.0E-3, None)}
 
 water_conduit_steel = {
-    'New, clean, seamless (without joints), well fitted':
+    "New, clean, seamless (without joints), well fitted":
     (1.5E-5, 4.0E-5, None),
-    'New, clean, welded lengthwise and well fitted': (1.2E-5, 3.0E-5, None),
-    'New, clean, welded lengthwise and well fitted, with transverse welded joints':
+    "New, clean, welded lengthwise and well fitted": (1.2E-5, 3.0E-5, None),
+    "New, clean, welded lengthwise and well fitted, with transverse welded joints":
     (8.0E-5, 1.7E-4, None),
-    'New, clean, coated, bituminized when manufactured': (1.4E-5, 1.8E-5, None),
-    'New, clean, coated, bituminized when manufactured, with transverse welded joints':
+    "New, clean, coated, bituminized when manufactured": (1.4E-5, 1.8E-5, None),
+    "New, clean, coated, bituminized when manufactured, with transverse welded joints":
     (2.0E-4, 6.0E-4, None),
-    'New, clean, coated, galvanized': (1.0E-4, 2.0E-4, None),
-    'New, clean, coated, roughly galvanized': (4.0E-4, 7.0E-4, None),
-    'New, clean, coated, bituminized, curved': (1.0E-4, 1.4E-3, None),
-    'Used, clean, slight corrosion': (1.0E-4, 3.0E-4, None),
-    'Used, clean, moderate corrosion or slight deposits':
+    "New, clean, coated, galvanized": (1.0E-4, 2.0E-4, None),
+    "New, clean, coated, roughly galvanized": (4.0E-4, 7.0E-4, None),
+    "New, clean, coated, bituminized, curved": (1.0E-4, 1.4E-3, None),
+    "Used, clean, slight corrosion": (1.0E-4, 3.0E-4, None),
+    "Used, clean, moderate corrosion or slight deposits":
     (3.0E-4, 7.0E-4, None),
-    'Used, clean, severe corrosion': (8.0E-4, 1.5E-3, None),
-    'Used, clean, previously cleaned of either deposits or rust':
+    "Used, clean, severe corrosion": (8.0E-4, 1.5E-3, None),
+    "Used, clean, previously cleaned of either deposits or rust":
         (1.5E-4, 2.0E-4, None)}
 
 water_conduit_steel_used = {
-    'Used, all welded, <2 years use, no deposits': (1.2E-4, 2.4E-4, None),
-    'Used, all welded, <20 years use, no deposits': (6.0E-4, 5.0E-3, None),
-    'Used, iron-bacterial corrosion': (3.0E-3, 4.0E-3, None),
-    'Used, heavy corrosion, or with incrustation (deposit 1.5 - 9 mm deep)':
+    "Used, all welded, <2 years use, no deposits": (1.2E-4, 2.4E-4, None),
+    "Used, all welded, <20 years use, no deposits": (6.0E-4, 5.0E-3, None),
+    "Used, iron-bacterial corrosion": (3.0E-3, 4.0E-3, None),
+    "Used, heavy corrosion, or with incrustation (deposit 1.5 - 9 mm deep)":
     (3.0E-3, 5.0E-3, None),
-    'Used, heavy corrosion, or with incrustation (deposit 3 - 25 mm deep)':
+    "Used, heavy corrosion, or with incrustation (deposit 3 - 25 mm deep)":
     (6.0E-3, 6.5E-3, None),
-    'Used, inside coating, bituminized, < 2 years use': (1.0E-4, 3.5E-4, None)}
+    "Used, inside coating, bituminized, < 2 years use": (1.0E-4, 3.5E-4, None)}
 
-steels = {'Seamless tubes made from brass, copper, lead, aluminum':
+steels = {"Seamless tubes made from brass, copper, lead, aluminum":
           seamless_other_metals,
-          'Seamless steel tubes': seamless_steel,
-          'Welded steel tubes': welded_steel,
-          'Riveted steel tubes': riveted_steel,
-          'Roofing steel sheets': roofing_metal,
-          'Galvanized steel tubes': galvanized_steel_tube,
-          'Galvanized sheet steel': galvanized_steel_sheet,
-          'Steel tubes': steel,
-          'Cast-iron tubes': cast_iron,
-          'Steel water conduits in generating stations': water_conduit_steel,
-          'Used steel water conduits in generating stations':
+          "Seamless steel tubes": seamless_steel,
+          "Welded steel tubes": welded_steel,
+          "Riveted steel tubes": riveted_steel,
+          "Roofing steel sheets": roofing_metal,
+          "Galvanized steel tubes": galvanized_steel_tube,
+          "Galvanized sheet steel": galvanized_steel_sheet,
+          "Steel tubes": steel,
+          "Cast-iron tubes": cast_iron,
+          "Steel water conduits in generating stations": water_conduit_steel,
+          "Used steel water conduits in generating stations":
           water_conduit_steel_used}
 
 
 concrete_water_conduits = {
-    'New and finished with plaster; excellent manufacture (joints aligned, prime coated and smoothed)':
+    "New and finished with plaster; excellent manufacture (joints aligned, prime coated and smoothed)":
     (5.0E-5, 1.5E-4, None),
-    'Used and corroded; with a wavy surface and wood framework':
+    "Used and corroded; with a wavy surface and wood framework":
     (1.0E-3, 4.0E-3, None),
-    'Old, poor fitting and manufacture; with an overgrown surface and deposits of sand and gravel':
+    "Old, poor fitting and manufacture; with an overgrown surface and deposits of sand and gravel":
     (1.0E-3, 4.0E-3, None),
-    'Very old; damaged surface, very overgrown': (5.0E-3, None, None),
-    'Water conduit, finished with smoothed plaster': (5.0E-3, None, None),
-    'New, very well manufactured, hand smoothed, prime-coated joints':
+    "Very old; damaged surface, very overgrown": (5.0E-3, None, None),
+    "Water conduit, finished with smoothed plaster": (5.0E-3, None, None),
+    "New, very well manufactured, hand smoothed, prime-coated joints":
     (1.0E-4, 2.0E-4, None),
-    'Hand-smoothed cement finish and smoothed joints': (1.5E-4, 3.5E-4, None),
-    'Used, no deposits, moderately smooth, steel or wooden casing, joints prime coated but not smoothed':
+    "Hand-smoothed cement finish and smoothed joints": (1.5E-4, 3.5E-4, None),
+    "Used, no deposits, moderately smooth, steel or wooden casing, joints prime coated but not smoothed":
     (3.0E-4, 6.0E-4, None),
-    'Used, prefabricated monoliths, cement plaster (wood floated), rough joints':
+    "Used, prefabricated monoliths, cement plaster (wood floated), rough joints":
     (5.0E-4, 1.0E-3, None),
-    'Conduits for water, sprayed surface of concrete': (5.0E-4, 1.0E-3, None),
-    'Brushed air-placed, either sprayed concrete or concrete on more concrete':
+    "Conduits for water, sprayed surface of concrete": (5.0E-4, 1.0E-3, None),
+    "Brushed air-placed, either sprayed concrete or concrete on more concrete":
     (None, None, 2.3E-3),
-    'Non-smoothed air-placed, either sprayed concrete or concrete on more concrete':
+    "Non-smoothed air-placed, either sprayed concrete or concrete on more concrete":
     (3.0E-3, 6.0E-3, None),
-    'Smoothed air-placed, either sprayed concrete or concrete on more concrete':
+    "Smoothed air-placed, either sprayed concrete or concrete on more concrete":
     (6.0E-3, 1.7E-2, 5.0E-4)}
 
-concrete_reinforced_tubes = {'New': (2.5E-4, 3.4E-4, None),
-                             'Nonprocessed': (2.5E-3, None, None)}
+concrete_reinforced_tubes = {"New": (2.5E-4, 3.4E-4, None),
+                             "Nonprocessed": (2.5E-3, None, None)}
 
-asbestos_cement = {'New': (5.0E-5, 1.0E-4, None),
-                   'Average': (6.0E-4, None, None)}
+asbestos_cement = {"New": (5.0E-5, 1.0E-4, None),
+                   "Average": (6.0E-4, None, None)}
 
-cement_tubes = {'Smoothed': (3.0E-4, 8.0E-4, None),
-                'Non processed': (1.0E-3, 2.0E-3, None),
-                'Joints, non smoothed': (1.9E-3, 6.4E-3, None)}
+cement_tubes = {"Smoothed": (3.0E-4, 8.0E-4, None),
+                "Non processed": (1.0E-3, 2.0E-3, None),
+                "Joints, non smoothed": (1.9E-3, 6.4E-3, None)}
 
 cement_mortar_channels = {
-    'Plaster, cement, smoothed joints and protrusions, and a casing':
+    "Plaster, cement, smoothed joints and protrusions, and a casing":
     (5.0E-5, 2.2E-4, None),
-    'Steel trowled': (None, None, 5.0E-4)}
+    "Steel trowled": (None, None, 5.0E-4)}
 
-cement_other = {'Plaster over a screen': (1.0E-2, 1.5E-2, None),
-                'Salt-glazed ceramic': (None, None, 1.4E-3),
-                'Slag-concrete': (None, None, 1.5E-3),
-                'Slag and alabaster-filling': (1.0E-3, 1.5E-3, None)}
+cement_other = {"Plaster over a screen": (1.0E-2, 1.5E-2, None),
+                "Salt-glazed ceramic": (None, None, 1.4E-3),
+                "Slag-concrete": (None, None, 1.5E-3),
+                "Slag and alabaster-filling": (1.0E-3, 1.5E-3, None)}
 
-concretes = {'Concrete water conduits, no finish': concrete_water_conduits,
-             'Reinforced concrete tubes': concrete_reinforced_tubes,
-             'Asbestos cement tubes': asbestos_cement,
-             'Cement tubes': cement_tubes,
-             'Cement-mortar plaster channels': cement_mortar_channels,
-             'Other': cement_other}
+concretes = {"Concrete water conduits, no finish": concrete_water_conduits,
+             "Reinforced concrete tubes": concrete_reinforced_tubes,
+             "Asbestos cement tubes": asbestos_cement,
+             "Cement tubes": cement_tubes,
+             "Cement-mortar plaster channels": cement_mortar_channels,
+             "Other": cement_other}
 
 
-wood_tube = {'Boards, thoroughly dressed': (None, None, 1.5E-4),
-             'Boards, well dressed': (None, None, 3.0E-4),
-             'Boards, undressed but fitted': (None, None, 7.0E-4),
-             'Boards, undressed': (None, None, 1.0E-3),
-             'Staved': (None, None, 6.0E-4)}
+wood_tube = {"Boards, thoroughly dressed": (None, None, 1.5E-4),
+             "Boards, well dressed": (None, None, 3.0E-4),
+             "Boards, undressed but fitted": (None, None, 7.0E-4),
+             "Boards, undressed": (None, None, 1.0E-3),
+             "Staved": (None, None, 6.0E-4)}
 
-plywood_tube = {'Birch plywood, transverse grain, good quality':
+plywood_tube = {"Birch plywood, transverse grain, good quality":
                 (None, None, 1.2E-4),
-                'Birch plywood, longitudal grain, good quality':
+                "Birch plywood, longitudal grain, good quality":
                 (3.0E-5, 5.0E-5, None)}
 
-glass_tube = {'Glass': (1.5E-6, 1.0E-5, None)}
+glass_tube = {"Glass": (1.5E-6, 1.0E-5, None)}
 
-wood_plywood_glass = {'Wood tubes': wood_tube,
-                      'Plywood tubes': plywood_tube,
-                      'Glass tubes': glass_tube}
+wood_plywood_glass = {"Wood tubes": wood_tube,
+                      "Plywood tubes": plywood_tube,
+                      "Glass tubes": glass_tube}
 
 
-rock_channels = {'Blast-hewed, little jointing': (1.0E-1, 1.4E-1, None),
-                 'Blast-hewed, substantial jointing': (1.3E-1, 5.0E-1, None),
-                 'Roughly cut or very uneven surface': (5.0E-1, 1.5E+0, None)}
+rock_channels = {"Blast-hewed, little jointing": (1.0E-1, 1.4E-1, None),
+                 "Blast-hewed, substantial jointing": (1.3E-1, 5.0E-1, None),
+                 "Roughly cut or very uneven surface": (5.0E-1, 1.5E+0, None)}
 
-unlined_tunnels = {'Rocks, gneiss, diameter 3-13.5 m': (3.0E-1, 7.0E-1, None),
-                   'Rocks, granite, diameter 3-9 m': (2.0E-1, 7.0E-1, None),
-                   'Shale, diameter 9-12 m': (2.5E-1, 6.5E-1, None),
-                   'Shale, quartz, quartzile, diameter 7-10 m':
+unlined_tunnels = {"Rocks, gneiss, diameter 3-13.5 m": (3.0E-1, 7.0E-1, None),
+                   "Rocks, granite, diameter 3-9 m": (2.0E-1, 7.0E-1, None),
+                   "Shale, diameter 9-12 m": (2.5E-1, 6.5E-1, None),
+                   "Shale, quartz, quartzile, diameter 7-10 m":
                    (2.0E-1, 6.0E-1, None),
-                   'Shale, sedimentary, diameter 4-7 m': (None, None, 4.0E-1),
-                   'Shale, nephrite bearing, diameter 3-8 m':
+                   "Shale, sedimentary, diameter 4-7 m": (None, None, 4.0E-1),
+                   "Shale, nephrite bearing, diameter 3-8 m":
                    (None, None, 2.0E-1)}
 
-tunnels = {'Rough channels in rock': rock_channels,
-           'Unlined tunnels': unlined_tunnels}
+tunnels = {"Rough channels in rock": rock_channels,
+           "Unlined tunnels": unlined_tunnels}
 
 
 # Roughness, in m
-_roughness = {'Brass': .00000152, 'Lead': .00000152, 'Glass': .00000152,
-'Steel': .00000152, 'Asphalted cast iron': .000122, 'Galvanized iron': .000152,
-'Cast iron': .000259, 'Wood stave': .000183, 'Rough wood stave': .000914,
-'Concrete': .000305, 'Rough concrete': .00305, 'Riveted steel': .000914,
-'Rough riveted steel': .00914}
+_roughness = {"Brass": .00000152, "Lead": .00000152, "Glass": .00000152,
+"Steel": .00000152, "Asphalted cast iron": .000122, "Galvanized iron": .000152,
+"Cast iron": .000259, "Wood stave": .000183, "Rough wood stave": .000914,
+"Concrete": .000305, "Rough concrete": .00305, "Riveted steel": .000914,
+"Rough riveted steel": .00914}
 
 
 # Create a more friendly data structure
@@ -3998,20 +3998,20 @@ HHR_roughness_categories = {}
 for d in HHR_roughness_dicts:
     for k, v in d.items():
         for name, values in v.items():
-            HHR_roughness[str(k)+', ' + name] = values
+            HHR_roughness[str(k)+", " + name] = values
 
 # For searching only
 _all_roughness = HHR_roughness.copy()
 _all_roughness.update(_roughness)
 
 # Format : ID: (avg_roughness, coef A (inches), coef B (inches))
-_Farshad_roughness = {'Plastic coated': (5E-6, 0.0002, -1.0098),
-                      'Carbon steel, honed bare': (12.5E-6, 0.0005, -1.0101),
-                      'Cr13, electropolished bare': (30E-6, 0.0012, -1.0086),
-                      'Cement lining': (33E-6, 0.0014, -1.0105),
-                      'Carbon steel, bare': (36E-6, 0.0014, -1.0112),
-                      'Fiberglass lining': (38E-6, 0.0016, -1.0086),
-                      'Cr13, bare': (55E-6, 0.0021, -1.0055)  }
+_Farshad_roughness = {"Plastic coated": (5E-6, 0.0002, -1.0098),
+                      "Carbon steel, honed bare": (12.5E-6, 0.0005, -1.0101),
+                      "Cr13, electropolished bare": (30E-6, 0.0012, -1.0086),
+                      "Cement lining": (33E-6, 0.0014, -1.0105),
+                      "Carbon steel, bare": (36E-6, 0.0014, -1.0112),
+                      "Fiberglass lining": (38E-6, 0.0016, -1.0086),
+                      "Cr13, bare": (55E-6, 0.0021, -1.0055)  }
 
 try:
     if IS_NUMBA: # type: ignore
@@ -4252,7 +4252,7 @@ def transmission_factor(fd=None, F=None):
     elif F is not None:
         return 4./(F*F)
     else:
-        raise ValueError('Either Darcy friction factor or transmission factor is needed')
+        raise ValueError("Either Darcy friction factor or transmission factor is needed")
 
 
 def one_phase_dP(m, rho, mu, D, roughness=0.0, L=1.0, Method=None):

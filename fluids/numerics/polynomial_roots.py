@@ -24,11 +24,11 @@ from cmath import sqrt as csqrt
 from math import acos, cos, sin, sqrt
 
 __all__ = [
-    'roots_cubic',
-    'roots_cubic_a1',
-    'roots_cubic_a2',
-    'roots_quadratic',
-    'roots_quartic',
+    "roots_cubic",
+    "roots_cubic_a1",
+    "roots_cubic_a2",
+    "roots_quadratic",
+    "roots_quartic",
 ]
 third = 1.0/3.0
 sixth = 1.0/6.0

@@ -57,13 +57,13 @@ except ImportError:
     pass
 
 __all__ = [
-    'ATMOSPHERE_1976',
-    'ATMOSPHERE_NRLMSISE00',
-    'airmass',
-    'earthsun_distance',
-    'solar_irradiation',
-    'solar_position',
-    'sunrise_sunset',
+    "ATMOSPHERE_1976",
+    "ATMOSPHERE_NRLMSISE00",
+    "airmass",
+    "earthsun_distance",
+    "solar_irradiation",
+    "solar_position",
+    "sunrise_sunset",
 ]
 
 H_std = [0.0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852.0]
@@ -449,9 +449,9 @@ class ATMOSPHERE_NRLMSISE00:
        November 27, 2016. http://ccmc.gsfc.nasa.gov/modelweb/models/nrlmsise00.php.
     """
 
-    components = ['N2', 'O2', 'Ar', 'He', 'O', 'H', 'N']
-    attrs = ['N2_density', 'O2_density', 'Ar_density', 'He_density',
-             'O_density', 'H_density', 'N_density']
+    components = ["N2", "O2", "Ar", "He", "O", "H", "N"]
+    attrs = ["N2_density", "O2_density", "Ar_density", "He_density",
+             "O_density", "H_density", "N_density"]
     MWs = [28.0134, 31.9988, 39.948, 4.002602, 15.9994, 1.00794, 14.0067]
 
     def __init__(self, Z, latitude=0.0, longitude=0.0, day=0, seconds=0.0,
@@ -582,7 +582,7 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
 
 
 
-PVLIB_MISSING_MSG = 'The module pvlib is required for this function; install it first'
+PVLIB_MISSING_MSG = "The module pvlib is required for this function; install it first"
 
 
 def earthsun_distance(moment):
@@ -881,14 +881,14 @@ def sunrise_sunset(moment, latitude, longitude):
     return sunrise, sunset, transit
 
 
-apparent_zenith_airmass_models = {'simple', 'kasten1966', 'kastenyoung1989',
-                                   'gueymard1993', 'pickering2002'}
-true_zenith_airmass_models = {'youngirvine1967', 'young1994'}
+apparent_zenith_airmass_models = {"simple", "kasten1966", "kastenyoung1989",
+                                   "gueymard1993", "pickering2002"}
+true_zenith_airmass_models = {"youngirvine1967", "young1994"}
 
 
 def _get_extra_radiation_shim(datetime_or_doy, solar_constant=1366.1,
-    method='spencer', epoch_year=2014, **kwargs):
-    if method == 'spencer':
+    method="spencer", epoch_year=2014, **kwargs):
+    if method == "spencer":
         if not isinstance(datetime_or_doy, (float, int)):
             dayofyear = datetime_or_doy.timetuple().tm_yday
         else:
@@ -910,8 +910,8 @@ def _get_extra_radiation_shim(datetime_or_doy, solar_constant=1366.1,
 def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
                       surface_azimuth, T=None, P=None, solar_constant=1366.1,
                       atmos_refract=0.5667, albedo=0.25, linke_turbidity=None,
-                      extraradiation_method='spencer',
-                      airmass_model='kastenyoung1989',
+                      extraradiation_method="spencer",
+                      airmass_model="kastenyoung1989",
                       cache=None):
     r"""Calculates the amount of solar radiation and radiation reflected back
     the atmosphere which hits a surface at a specified tilt, and facing a
@@ -1041,7 +1041,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
 
     moment_timetuple = moment.timetuple()
     moment_arg_dni = (moment_timetuple.tm_yday if
-                      extraradiation_method == 'spencer' else moment)
+                      extraradiation_method == "spencer" else moment)
 
     dni_extra = _get_extra_radiation_shim(moment_arg_dni, solar_constant=solar_constant,
                                method=extraradiation_method,
@@ -1056,10 +1056,10 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
         if P is None:
             P = atmosphere.P
 
-    if cache is not None and 'zenith' in cache:
-        zenith = cache['zenith']
-        apparent_zenith = cache['apparent_zenith']
-        azimuth = cache['azimuth']
+    if cache is not None and "zenith" in cache:
+        zenith = cache["zenith"]
+        apparent_zenith = cache["apparent_zenith"]
+        azimuth = cache["azimuth"]
     else:
         apparent_zenith, zenith, _, _, azimuth, _ = solar_position(moment=moment,
                                                                    latitude=latitude,
@@ -1083,7 +1083,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     elif airmass_model in true_zenith_airmass_models:
         used_zenith = zenith
     else:
-        raise ValueError('Unrecognized airmass model')
+        raise ValueError("Unrecognized airmass model")
 
     relative_airmass = get_relative_airmass(used_zenith, model=airmass_model)
     airmass_absolute = get_absolute_airmass(relative_airmass, pressure=P)
@@ -1093,9 +1093,9 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
                    airmass_absolute=airmass_absolute,
                    linke_turbidity=linke_turbidity,
                    altitude=Z, dni_extra=solar_constant, perez_enhancement=True)
-    ghi = ans['ghi']
-    dni = ans['dni']
-    dhi = ans['dhi']
+    ghi = ans["ghi"]
+    dni = ans["dni"]
+    dhi = ans["dhi"]
 
 
 #    from pvlib.irradiance import get_total_irradiance
@@ -1104,10 +1104,10 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
                       solar_zenith=apparent_zenith, solar_azimuth=azimuth,
                       dni=dni, ghi=ghi, dhi=dhi, dni_extra=dni_extra,
                       airmass=airmass_absolute, albedo=albedo)
-    poa_global = float(ans['poa_global'])
-    poa_direct = float(ans['poa_direct'])
-    poa_diffuse = float(ans['poa_diffuse'])
-    poa_sky_diffuse = float(ans['poa_sky_diffuse'])
-    poa_ground_diffuse = float(ans['poa_ground_diffuse'])
+    poa_global = float(ans["poa_global"])
+    poa_direct = float(ans["poa_direct"])
+    poa_diffuse = float(ans["poa_diffuse"])
+    poa_sky_diffuse = float(ans["poa_sky_diffuse"])
+    poa_ground_diffuse = float(ans["poa_ground_diffuse"])
     return (poa_global, poa_direct, poa_diffuse, poa_sky_diffuse,
             poa_ground_diffuse)

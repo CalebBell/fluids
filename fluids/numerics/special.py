@@ -59,16 +59,16 @@ inf = float("inf")
 
 
 __all__ = [
-    'comb',
-    'factorial',
-    'py_cacos',
-    'py_catan',
-    'py_catanh',
-    'py_comb',
-    'py_factorial',
-    'py_hypot',
-    'trunc_exp',
-    'trunc_log',
+    "comb",
+    "factorial",
+    "py_cacos",
+    "py_catan",
+    "py_catanh",
+    "py_comb",
+    "py_factorial",
+    "py_hypot",
+    "trunc_exp",
+    "trunc_log",
 ]
 
 DBL_MAX = 1.7976931348623157e+308
