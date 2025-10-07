@@ -418,7 +418,7 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
         Diameter of the pipe before the valve [m]
     FL : float, optional
         Liquid pressure recovery factor of a control valve without attached
-        fittings []
+        fittings [-]
     Fd : float
         Valve style modifier [-]
     C : float
@@ -738,7 +738,7 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
             def iterate_piping_laminar_l(C):
                 Ci = 1.3*C
                 Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)
-                if Ci/d**2 > 0.016*N18:
+                if Ci/(d*d) > 0.016*N18:
                     FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=False)
                 else:
                     FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)
@@ -954,7 +954,7 @@ def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
             def iterate_piping_laminar_g(C):
                 Ci = 1.3*C
                 Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=Ci)
-                if Ci/d**2 > 0.016*N18:
+                if Ci/(d*d) > 0.016*N18:
                     FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=False)
                 else:
                     FR = Reynolds_factor(FL=FL, C=Ci, d=d, Rev=Rev, full_trim=True)

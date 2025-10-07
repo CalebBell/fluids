@@ -127,7 +127,7 @@ ECCENTRIC_ORIFICE = 'eccentric orifice'
 CONICAL_ORIFICE = 'conical orifice'
 SEGMENTAL_ORIFICE = 'segmental orifice'
 QUARTER_CIRCLE_ORIFICE = 'quarter circle orifice'
-CONDITIONING_4_HOLE_ORIFICE = 'Rosemount 4 hole self conditioing'
+CONDITIONING_4_HOLE_ORIFICE = 'Rosemount 4 hole self conditioning'
 ORIFICE_HOLE_TYPES = [CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, CONICAL_ORIFICE,
                       SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE]
 
@@ -471,7 +471,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
 
     For orifice plates with D and D/2 or corner pressure taps:
 
-    * Orifice bore diameter muse be larger than 12.5 mm (0.5 inches)
+    * Orifice bore diameter must be larger than 12.5 mm (0.5 inches)
     * Pipe diameter between 50 mm and 1 m (2 to 40 inches)
     * Beta between 0.1 and 0.75 inclusive
     * Reynolds number larger than 5000 (for :math:`0.10 \le \beta \le 0.56`)
@@ -479,7 +479,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
 
     For orifice plates with flange pressure taps:
 
-    * Orifice bore diameter muse be larger than 12.5 mm (0.5 inches)
+    * Orifice bore diameter must be larger than 12.5 mm (0.5 inches)
     * Pipe diameter between 50 mm and 1 m (2 to 40 inches)
     * Beta between 0.1 and 0.75 inclusive
     * Reynolds number larger than 5000 and also larger than
@@ -619,7 +619,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
         support the all tap types [-]
     tap_position : str, optional
         The rotation of the taps, used **only for the eccentric orifice case**
-        where the pressure profile is are not symmetric; '180 degree' for the
+        where the pressure profile are not symmetric; '180 degree' for the
         normal case where the taps are opposite the orifice bore, and
         '90 degree' for the case where, normally for operational reasons, the
         taps are near the bore [-]
@@ -1018,7 +1018,7 @@ def C_quarter_circle_orifice_ISO_15377_1998(D, Do):
     1042-1.2: 1989.
 
     .. math::
-        C = 0.73823 + 0.3309\beta - 1.1615\beta^2 + 1.5084\beta^3
+        C = 0.73823 + 0.3309\beta - 1.16158\beta^2 + 1.5084\beta^3
 
     Parameters
     ----------
@@ -1300,7 +1300,7 @@ def flow_coefficient(D, Do, C):
     pressure flow meters [2]_.
 
     It is sometimes given the symbol K. It is also equal to the product of the
-    diacharge coefficient and the velocity of approach factor [2]_.
+    discharge coefficient and the velocity of approach factor [2]_.
 
     Examples
     --------
@@ -1422,7 +1422,7 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
         term3 = (k - 1.0)/k
     else:
         # This form of the equation is mathematically equivalent but
-        # does not have issues where k = `.
+        # does not have issues where k = 1.
         term3 = (P1 - P2*(tau)**(-1.0/k))/(P1 - P2)
         # term3 = (1.0 - tau**((k - 1.0)/k))/(1.0 - tau)
     return sqrt(term1*term2*term3)
@@ -1572,7 +1572,7 @@ def C_venturi_nozzle(D, Do):
     return 0.9858 - 0.198*beta_ratio_4*sqrt(beta)
 
 
-# Relative pressure loss as a function of beta reatio for venturi nozzles
+# Relative pressure loss as a function of beta ratio for venturi nozzles
 # Venturi nozzles should be between 65 mm and 500 mm; there are high and low
 # loss ratios , with the high losses corresponding to small diameters,
 # low high losses corresponding to large diameters
@@ -2479,7 +2479,7 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         applies for orifice meters only, [-]
     tap_position : str, optional
         The rotation of the taps, used **only for the eccentric orifice case**
-        where the pressure profile is are not symmetric; '180 degree' for the
+        where the pressure profile are not symmetric; '180 degree' for the
         normal case where the taps are opposite the orifice bore, and
         '90 degree' for the case where, normally for operational reasons, the
         taps are near the bore [-]
@@ -2705,7 +2705,7 @@ def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=
         applies for orifice meters only, [-]
     tap_position : str, optional
         The rotation of the taps, used **only for the eccentric orifice case**
-        where the pressure profile is are not symmetric; '180 degree' for the
+        where the pressure profile are not symmetric; '180 degree' for the
         normal case where the taps are opposite the orifice bore, and
         '90 degree' for the case where, normally for operational reasons, the
         taps are near the bore [-]
