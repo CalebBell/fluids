@@ -65,15 +65,25 @@ from fluids.constants import R, gallon, ln_10, ln_10_inv, minute, psi
 from fluids.fittings import Cv_to_Kv, Kv_to_Cv
 from fluids.numerics import implementation_optimize_tck, interp, splev
 
-__all__ = ['size_control_valve_l', 'size_control_valve_g', 'cavitation_index',
-           'FF_critical_pressure_ratio_l', 'is_choked_turbulent_l',
-           'is_choked_turbulent_g', 'Reynolds_valve',
-           'loss_coefficient_piping', 'Reynolds_factor',
-           'Cv_char_quick_opening', 'Cv_char_linear',
-           'Cv_char_equal_percentage',
-           'convert_flow_coefficient', 'control_valve_choke_P_l',
-           'control_valve_choke_P_g', 'control_valve_noise_l_2015',
-           'control_valve_noise_g_2011']
+__all__ = [
+    'Cv_char_equal_percentage',
+    'Cv_char_linear',
+    'Cv_char_quick_opening',
+    'FF_critical_pressure_ratio_l',
+    'Reynolds_factor',
+    'Reynolds_valve',
+    'cavitation_index',
+    'control_valve_choke_P_g',
+    'control_valve_choke_P_l',
+    'control_valve_noise_g_2011',
+    'control_valve_noise_l_2015',
+    'convert_flow_coefficient',
+    'is_choked_turbulent_g',
+    'is_choked_turbulent_l',
+    'loss_coefficient_piping',
+    'size_control_valve_g',
+    'size_control_valve_l',
+]
 
 N1 = 0.1 # m^3/hr, kPa
 N2 = 1.6E-3 # mm

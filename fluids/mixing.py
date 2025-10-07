@@ -43,9 +43,14 @@ from math import log, pi, sqrt
 
 from fluids.constants import g
 
-__all__ = ['agitator_time_homogeneous',
-'Kp_helical_ribbon_Rieger', 'time_helical_ribbon_Grenville', 'size_tee',
-'COV_motionless_mixer', 'K_motionless_mixer']
+__all__ = [
+    'COV_motionless_mixer',
+    'K_motionless_mixer',
+    'Kp_helical_ribbon_Rieger',
+    'agitator_time_homogeneous',
+    'size_tee',
+    'time_helical_ribbon_Grenville',
+]
 
 max_Fo_for_turbulent = 1/1225.
 min_regime_constant_for_turbulent = 6370.

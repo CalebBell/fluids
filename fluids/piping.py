@@ -50,8 +50,13 @@ from math import sqrt
 
 from fluids.constants import foot, inch, lb
 
-__all__ = ['nearest_pipe', 'gauge_from_t', 't_from_gauge', 'wire_schedules',
-           'erosional_velocity']
+__all__ = [
+    'erosional_velocity',
+    'gauge_from_t',
+    'nearest_pipe',
+    't_from_gauge',
+    'wire_schedules',
+]
 
 # Schedules 5, 10, 20, 30, 40, 60, 80, 100, 120, 140, 160 from
 # ASME B36.10M - Welded and Seamless Wrought Steel Pipe

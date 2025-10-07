@@ -21,7 +21,7 @@ SOFTWARE.
 """
 
 
-__all__ = ['wraps_numpydoc', 'u']
+__all__ = ['u', 'wraps_numpydoc']
 
 import functools
 import inspect
@@ -671,9 +671,16 @@ for name in dir(fluids):
     __pint_wrapped_functions.update({name: obj})
 
 globals().update(__pint_wrapped_functions)
-__all__.extend(['wraps_numpydoc', 'convert_output', 'convert_input',
-                'check_args_order', 'match_parse_units', 'parse_numpydoc_variables_units',
-                'wrap_numpydoc_obj', 'UnitAwareClass'])
+__all__.extend([
+    'UnitAwareClass',
+    'check_args_order',
+    'convert_input',
+    'convert_output',
+    'match_parse_units',
+    'parse_numpydoc_variables_units',
+    'wrap_numpydoc_obj',
+    'wraps_numpydoc',
+])
 
 
 def A_multiple_hole_cylinder(Do, L, holes):

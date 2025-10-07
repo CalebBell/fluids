@@ -76,14 +76,31 @@ from math import exp, isinf, log, pi, sqrt
 from fluids.constants import R
 from fluids.numerics import brenth, lambertw, secant
 
-__all__ = ['Panhandle_A', 'Panhandle_B', 'Weymouth', 'Spitzglass_high',
-           'Spitzglass_low', 'Oliphant', 'Fritzsche', 'Muller', 'IGT', 'isothermal_gas',
-           'isothermal_work_compression', 'polytropic_exponent',
-           'isentropic_work_compression', 'isentropic_efficiency',
-           'isentropic_T_rise_compression', 'T_critical_flow',
-           'P_critical_flow', 'P_isothermal_critical_flow',
-           'is_critical_flow', 'stagnation_energy', 'P_stagnation',
-           'T_stagnation', 'T_stagnation_ideal']
+__all__ = [
+    'IGT',
+    'Fritzsche',
+    'Muller',
+    'Oliphant',
+    'P_critical_flow',
+    'P_isothermal_critical_flow',
+    'P_stagnation',
+    'Panhandle_A',
+    'Panhandle_B',
+    'Spitzglass_high',
+    'Spitzglass_low',
+    'T_critical_flow',
+    'T_stagnation',
+    'T_stagnation_ideal',
+    'Weymouth',
+    'is_critical_flow',
+    'isentropic_T_rise_compression',
+    'isentropic_efficiency',
+    'isentropic_work_compression',
+    'isothermal_gas',
+    'isothermal_work_compression',
+    'polytropic_exponent',
+    'stagnation_energy',
+]
 
 def isothermal_work_compression(P1, P2, T, Z=1.0):
     r"""Calculates the work of compression or expansion of a gas going through

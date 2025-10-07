@@ -51,9 +51,14 @@ from fluids.constants import foot_cubed_inv, hour_inv, inchHg, lb, mmHg_inv, tor
 from fluids.numerics import SolverInterface, brenth, secant
 from fluids.numerics import numpy as np
 
-__all__ = ['liquid_jet_pump', 'liquid_jet_pump_ancillary',
-           'vacuum_air_leakage_Seider', 'vacuum_air_leakage_Coker_Worthington',
-           'vacuum_air_leakage_HEI2633', 'vacuum_air_leakage_Ryans_Croll']
+__all__ = [
+    'liquid_jet_pump',
+    'liquid_jet_pump_ancillary',
+    'vacuum_air_leakage_Coker_Worthington',
+    'vacuum_air_leakage_HEI2633',
+    'vacuum_air_leakage_Ryans_Croll',
+    'vacuum_air_leakage_Seider',
+]
 
 
 def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,

@@ -30,7 +30,7 @@ except ImportError: # pragma: no cover
     raise ImportError('The typing functionality requires a more recent version of Python')
 
 
-__all__ = ['type_module', 'copy_types']
+__all__ = ['copy_types', 'type_module']
 
 
 def copy_types(typed_obj, untyped_obj):

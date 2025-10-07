@@ -61,11 +61,18 @@ from math import log, sqrt
 from fluids.constants import g, pi
 from fluids.numerics import newton_system, secant, solve_2_direct
 
-__all__ = ['voidage_experimental', 'specific_area_mesh',
-'Stichlmair_dry', 'Stichlmair_wet', 'Stichlmair_flood', 'Robbins',
-'dP_demister_dry_Setekleiv_Svendsen_lit',
-'dP_demister_dry_Setekleiv_Svendsen',
-'dP_demister_wet_ElDessouky', 'separation_demister_ElDessouky']
+__all__ = [
+    'Robbins',
+    'Stichlmair_dry',
+    'Stichlmair_flood',
+    'Stichlmair_wet',
+    'dP_demister_dry_Setekleiv_Svendsen',
+    'dP_demister_dry_Setekleiv_Svendsen_lit',
+    'dP_demister_wet_ElDessouky',
+    'separation_demister_ElDessouky',
+    'specific_area_mesh',
+    'voidage_experimental',
+]
 
 ### Demister
 

@@ -17,6 +17,7 @@ exclude = [
 select = ["ALL"]
 
 extend-ignore = [
+    "RUF059", # Allow unused variables
     "FIX002", # TODO are OK
     "FIX004", # HACK is OK
     

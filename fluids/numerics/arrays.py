@@ -43,12 +43,33 @@ else:
 #    except ImportError:
 #        np = None
 
-__all__ = ['dot_product', 'inv', 'det', 'solve', 'norm2', 'transpose', 'shape',
-           'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix',
-           'argsort1d', 'lu', 'gelsd', 'matrix_vector_dot', 'matrix_multiply',
-           'sum_matrix_rows', 'sum_matrix_cols', 'sort_paired_lists',
-           'scalar_divide_matrix', 'scalar_multiply_matrix', 'scalar_subtract_matrices', 'scalar_add_matrices',
-           'stack_vectors', 'null_space']
+__all__ = [
+    'argsort1d',
+    'array_as_tridiagonals',
+    'det',
+    'dot_product',
+    'eye',
+    'gelsd',
+    'inv',
+    'lu',
+    'matrix_multiply',
+    'matrix_vector_dot',
+    'norm2',
+    'null_space',
+    'scalar_add_matrices',
+    'scalar_divide_matrix',
+    'scalar_multiply_matrix',
+    'scalar_subtract_matrices',
+    'shape',
+    'solve',
+    'solve_tridiagonal',
+    'sort_paired_lists',
+    'stack_vectors',
+    'subset_matrix',
+    'sum_matrix_cols',
+    'sum_matrix_rows',
+    'transpose',
+]
 primitive_containers = frozenset([list, tuple])
 
 def transpose(matrix):

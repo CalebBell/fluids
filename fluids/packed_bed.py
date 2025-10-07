@@ -60,12 +60,27 @@ Voidage Correlations
 
 from math import exp, pi, sqrt
 
-__all__ = ['dP_packed_bed', 'dP_packed_bed_methods', 'Ergun', 'Kuo_Nydegger', 'Jones_Krier', 'Carman', 'Hicks',
-           'Brauer', 'KTA', 'Erdim_Akgiray_Demir', 'Fahien_Schriver',
-           'Tallmadge', 'Idelchik',
-           'Harrison_Brunner_Hecker', 'Montillet_Akkari_Comiti', 'Guo_Sun',
-            'voidage_Benyahia_Oneil',
-           'voidage_Benyahia_Oneil_spherical', 'voidage_Benyahia_Oneil_cylindrical']
+__all__ = [
+    'KTA',
+    'Brauer',
+    'Carman',
+    'Erdim_Akgiray_Demir',
+    'Ergun',
+    'Fahien_Schriver',
+    'Guo_Sun',
+    'Harrison_Brunner_Hecker',
+    'Hicks',
+    'Idelchik',
+    'Jones_Krier',
+    'Kuo_Nydegger',
+    'Montillet_Akkari_Comiti',
+    'Tallmadge',
+    'dP_packed_bed',
+    'dP_packed_bed_methods',
+    'voidage_Benyahia_Oneil',
+    'voidage_Benyahia_Oneil_cylindrical',
+    'voidage_Benyahia_Oneil_spherical',
+]
 
 
 

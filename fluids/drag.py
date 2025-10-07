@@ -68,12 +68,34 @@ from fluids.constants import g
 from fluids.core import Reynolds
 from fluids.numerics import cumulative_trapezoid, secant
 
-__all__ = ['drag_sphere', 'drag_sphere_methods', 'v_terminal', 'integrate_drag_sphere',
-'time_v_terminal_Stokes', 'Stokes',
-'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
-'Clift_Gauvin', 'Morsi_Alexander', 'Graf', 'Flemmer_Banks', 'Khan_Richardson',
-'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
-'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison', 'Song_Xu']
+__all__ = [
+    'Almedeij',
+    'Barati',
+    'Barati_high',
+    'Ceylan',
+    'Cheng',
+    'Clift',
+    'Clift_Gauvin',
+    'Engelund_Hansen',
+    'Flemmer_Banks',
+    'Graf',
+    'Haider_Levenspiel',
+    'Khan_Richardson',
+    'Mikhailov_Freire',
+    'Morrison',
+    'Morsi_Alexander',
+    'Rouse',
+    'Song_Xu',
+    'Stokes',
+    'Swamee_Ojha',
+    'Terfous',
+    'Yen',
+    'drag_sphere',
+    'drag_sphere_methods',
+    'integrate_drag_sphere',
+    'time_v_terminal_Stokes',
+    'v_terminal',
+]
 
 def Stokes(Re):
     r"""Calculates drag coefficient of a smooth sphere using Stoke's law.

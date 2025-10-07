@@ -58,9 +58,15 @@ try:
 except ImportError:
     pass
 
-__all__ = ['ATMOSPHERE_1976', 'ATMOSPHERE_NRLMSISE00', 'airmass',
-           'earthsun_distance', 'solar_position', 'solar_irradiation',
-           'sunrise_sunset']
+__all__ = [
+    'ATMOSPHERE_1976',
+    'ATMOSPHERE_NRLMSISE00',
+    'airmass',
+    'earthsun_distance',
+    'solar_irradiation',
+    'solar_position',
+    'sunrise_sunset',
+]
 
 H_std = [0.0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852.0]
 T_grad = [-6.5E-3, 0.0, 1E-3, 2.8E-3, 0.0, -2.8E-3, -2E-3, 0.0]

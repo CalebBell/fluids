@@ -98,28 +98,39 @@ from fluids.constants import inch, inch_inv, pi_inv, root_two
 from fluids.core import Froude_densimetric
 from fluids.numerics import bisplev, brenth, implementation_optimize_tck, interp, secant
 
-__all__ = ['C_Reader_Harris_Gallagher',
-           'differential_pressure_meter_solver',
-           'differential_pressure_meter_dP',
-           'flow_meter_discharge', 'orifice_expansibility',
-           'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
-           'dP_orifice', 'velocity_of_approach_factor',
-           'flow_coefficient', 'nozzle_expansibility',
-           'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle',
-           'orifice_expansibility_1989', 'dP_venturi_tube',
-           'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter',
-           'cone_meter_expansibility_Stewart', 'dP_cone_meter',
-           'C_wedge_meter_Miller', 'C_wedge_meter_ISO_5167_6_2017',
-           'dP_wedge_meter',
-           'C_Reader_Harris_Gallagher_wet_venturi_tube',
-           'dP_Reader_Harris_Gallagher_wet_venturi_tube',
-           'differential_pressure_meter_C_epsilon',
-           'differential_pressure_meter_beta',
-           'C_eccentric_orifice_ISO_15377_1998',
-           'C_quarter_circle_orifice_ISO_15377_1998',
-           'C_Miller_1996',
-           'all_meters',
-           ]
+__all__ = [
+    'C_ISA_1932_nozzle',
+    'C_Miller_1996',
+    'C_Reader_Harris_Gallagher',
+    'C_Reader_Harris_Gallagher_wet_venturi_tube',
+    'C_eccentric_orifice_ISO_15377_1998',
+    'C_long_radius_nozzle',
+    'C_quarter_circle_orifice_ISO_15377_1998',
+    'C_venturi_nozzle',
+    'C_wedge_meter_ISO_5167_6_2017',
+    'C_wedge_meter_Miller',
+    'K_to_discharge_coefficient',
+    'all_meters',
+    'cone_meter_expansibility_Stewart',
+    'dP_Reader_Harris_Gallagher_wet_venturi_tube',
+    'dP_cone_meter',
+    'dP_orifice',
+    'dP_venturi_tube',
+    'dP_wedge_meter',
+    'diameter_ratio_cone_meter',
+    'diameter_ratio_wedge_meter',
+    'differential_pressure_meter_C_epsilon',
+    'differential_pressure_meter_beta',
+    'differential_pressure_meter_dP',
+    'differential_pressure_meter_solver',
+    'discharge_coefficient_to_K',
+    'flow_coefficient',
+    'flow_meter_discharge',
+    'nozzle_expansibility',
+    'orifice_expansibility',
+    'orifice_expansibility_1989',
+    'velocity_of_approach_factor',
+]
 
 
 CONCENTRIC_ORIFICE = 'orifice' # normal
@@ -174,26 +185,49 @@ HOLLINGSHEAD_WEDGE = 'Hollingshead wedge'
 
 CONE_METER = 'cone meter'
 WEDGE_METER = 'wedge meter'
-__all__.extend(['ISO_5167_ORIFICE','ISO_15377_ECCENTRIC_ORIFICE', 'MILLER_ORIFICE',
-                'MILLER_ECCENTRIC_ORIFICE', 'MILLER_SEGMENTAL_ORIFICE',
-                'LONG_RADIUS_NOZZLE', 'ISA_1932_NOZZLE',
-                'VENTURI_NOZZLE', 'AS_CAST_VENTURI_TUBE',
-                'MACHINED_CONVERGENT_VENTURI_TUBE',
-                'ROUGH_WELDED_CONVERGENT_VENTURI_TUBE', 'CONE_METER',
-                'WEDGE_METER', 'ISO_15377_CONICAL_ORIFICE',
-                'MILLER_CONICAL_ORIFICE',
-                'MILLER_QUARTER_CIRCLE_ORIFICE',
-                'ISO_15377_QUARTER_CIRCLE_ORIFICE', 'UNSPECIFIED_METER',
-                'HOLLINGSHEAD_ORIFICE', 'HOLLINGSHEAD_CONE', 'HOLLINGSHEAD_WEDGE',
-                'HOLLINGSHEAD_VENTURI_SMOOTH', 'HOLLINGSHEAD_VENTURI_SHARP'])
+__all__.extend([
+    'AS_CAST_VENTURI_TUBE',
+    'CONE_METER',
+    'HOLLINGSHEAD_CONE',
+    'HOLLINGSHEAD_ORIFICE',
+    'HOLLINGSHEAD_VENTURI_SHARP',
+    'HOLLINGSHEAD_VENTURI_SMOOTH',
+    'HOLLINGSHEAD_WEDGE',
+    'ISA_1932_NOZZLE',
+    'ISO_5167_ORIFICE',
+    'ISO_15377_CONICAL_ORIFICE',
+    'ISO_15377_ECCENTRIC_ORIFICE',
+    'ISO_15377_QUARTER_CIRCLE_ORIFICE',
+    'LONG_RADIUS_NOZZLE',
+    'MACHINED_CONVERGENT_VENTURI_TUBE',
+    'MILLER_CONICAL_ORIFICE',
+    'MILLER_ECCENTRIC_ORIFICE',
+    'MILLER_ORIFICE',
+    'MILLER_QUARTER_CIRCLE_ORIFICE',
+    'MILLER_SEGMENTAL_ORIFICE',
+    'ROUGH_WELDED_CONVERGENT_VENTURI_TUBE',
+    'UNSPECIFIED_METER',
+    'VENTURI_NOZZLE',
+    'WEDGE_METER',
+])
 
-__all__.extend(['ORIFICE_CORNER_TAPS', 'ORIFICE_FLANGE_TAPS',
-                'ORIFICE_D_AND_D_2_TAPS', 'ORIFICE_PIPE_TAPS',
-                'ORIFICE_VENA_CONTRACTA_TAPS', 'TAPS_OPPOSITE', 'TAPS_SIDE'])
+__all__.extend([
+    'ORIFICE_CORNER_TAPS',
+    'ORIFICE_D_AND_D_2_TAPS',
+    'ORIFICE_FLANGE_TAPS',
+    'ORIFICE_PIPE_TAPS',
+    'ORIFICE_VENA_CONTRACTA_TAPS',
+    'TAPS_OPPOSITE',
+    'TAPS_SIDE',
+])
 
-__all__.extend(['CONCENTRIC_ORIFICE', 'ECCENTRIC_ORIFICE',
-                'CONICAL_ORIFICE', 'SEGMENTAL_ORIFICE',
-                'QUARTER_CIRCLE_ORIFICE'])
+__all__.extend([
+    'CONCENTRIC_ORIFICE',
+    'CONICAL_ORIFICE',
+    'ECCENTRIC_ORIFICE',
+    'QUARTER_CIRCLE_ORIFICE',
+    'SEGMENTAL_ORIFICE',
+])
 
 
 def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='ISO 5167 orifice'):

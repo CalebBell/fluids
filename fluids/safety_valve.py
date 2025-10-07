@@ -61,11 +61,26 @@ from fluids.compressible import is_critical_flow
 from fluids.constants import atm, inch
 from fluids.numerics import bisplev, interp, tck_interp2d_linear
 
-__all__ = ['API526_A_sq_inch', 'API526_letters', 'API526_A',
-'API520_round_size', 'API520_C', 'API520_F2', 'API520_Kv', 'API520_N',
-'API520_SH', 'API520_B', 'API520_W', 'API520_A_g', 'API520_A_steam',
-'API521_noise', 'API521_noise_graph', 'VDI_3732_noise_ground_flare',
-'VDI_3732_noise_elevated_flare', 'API520_A_l']
+__all__ = [
+    'API520_B',
+    'API520_C',
+    'API520_F2',
+    'API520_N',
+    'API520_SH',
+    'API520_W',
+    'API526_A',
+    'API520_A_g',
+    'API520_A_l',
+    'API520_A_steam',
+    'API520_Kv',
+    'API520_round_size',
+    'API521_noise',
+    'API521_noise_graph',
+    'API526_A_sq_inch',
+    'API526_letters',
+    'VDI_3732_noise_elevated_flare',
+    'VDI_3732_noise_ground_flare',
+]
 
 API526_A_sq_inch = [0.110, 0.196, 0.307, 0.503, 0.785, 1.287, 1.838, 2.853, 3.60,
              4.34, 6.38, 11.05, 16.00, 26.00] # square inches

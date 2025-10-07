@@ -58,8 +58,18 @@ except:
 inf = float("inf")
 
 
-__all__ = ['py_hypot', 'py_cacos', 'py_catan', 'py_catanh', 'trunc_exp',
-           'trunc_log', 'py_comb', 'comb', 'py_factorial', 'factorial']
+__all__ = [
+    'comb',
+    'factorial',
+    'py_cacos',
+    'py_catan',
+    'py_catanh',
+    'py_comb',
+    'py_factorial',
+    'py_hypot',
+    'trunc_exp',
+    'trunc_log',
+]
 
 DBL_MAX = 1.7976931348623157e+308
 CM_LARGE_DOUBLE = DBL_MAX/4.

@@ -87,22 +87,32 @@ Point Spacing
 .. autofunction:: psd_spacing
 """
 
-__all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
-           'PSDLognormal', 'PSDGatesGaudinSchuhman', 'PSDRosinRammler',
-           'PSDInterpolated', 'PSDCustom',
-           'psd_spacing',
-
-           'pdf_lognormal', 'cdf_lognormal', 'pdf_lognormal_basis_integral',
-
-           'pdf_Gates_Gaudin_Schuhman', 'cdf_Gates_Gaudin_Schuhman',
-           'pdf_Gates_Gaudin_Schuhman_basis_integral',
-
-           'pdf_Rosin_Rammler', 'cdf_Rosin_Rammler',
-           'pdf_Rosin_Rammler_basis_integral',
-
-           'ASTM_E11_sieves', 'ISO_3310_1_sieves', 'Sieve',
-           'ISO_3310_1_R20_3', 'ISO_3310_1_R20', 'ISO_3310_1_R10',
-           'ISO_3310_1_R40_3']
+__all__ = [
+    'ISO_3310_1_R10',
+    'ISO_3310_1_R20',
+    'ISO_3310_1_R20_3',
+    'ISO_3310_1_R40_3',
+    'ASTM_E11_sieves',
+    'ISO_3310_1_sieves',
+    'PSDCustom',
+    'PSDGatesGaudinSchuhman',
+    'PSDInterpolated',
+    'PSDLognormal',
+    'PSDRosinRammler',
+    'ParticleSizeDistribution',
+    'ParticleSizeDistributionContinuous',
+    'Sieve',
+    'cdf_Gates_Gaudin_Schuhman',
+    'cdf_Rosin_Rammler',
+    'cdf_lognormal',
+    'pdf_Gates_Gaudin_Schuhman',
+    'pdf_Gates_Gaudin_Schuhman_basis_integral',
+    'pdf_Rosin_Rammler',
+    'pdf_Rosin_Rammler_basis_integral',
+    'pdf_lognormal',
+    'pdf_lognormal_basis_integral',
+    'psd_spacing',
+]
 
 from math import exp, log, log10, pi, sqrt
 

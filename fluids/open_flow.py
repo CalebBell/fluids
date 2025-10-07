@@ -60,13 +60,24 @@ from math import radians, sqrt, tan
 from fluids.constants import g
 from fluids.numerics import interp
 
-__all__ = ['Q_weir_V_Shen',
-'Q_weir_rectangular_Kindsvater_Carter', 'Q_weir_rectangular_SIA',
-'Q_weir_rectangular_full_Ackers', 'Q_weir_rectangular_full_SIA',
-'Q_weir_rectangular_full_Rehbock', 'Q_weir_rectangular_full_Kindsvater_Carter',
-'V_Manning', 'n_Manning_to_C_Chezy', 'C_Chezy_to_n_Manning', 'V_Chezy',
-'n_natural', 'n_excavated_dredged', 'n_lined_built', 'n_closed_conduit',
-'n_dicts']
+__all__ = [
+    'C_Chezy_to_n_Manning',
+    'Q_weir_V_Shen',
+    'Q_weir_rectangular_Kindsvater_Carter',
+    'Q_weir_rectangular_SIA',
+    'Q_weir_rectangular_full_Ackers',
+    'Q_weir_rectangular_full_Kindsvater_Carter',
+    'Q_weir_rectangular_full_Rehbock',
+    'Q_weir_rectangular_full_SIA',
+    'V_Chezy',
+    'V_Manning',
+    'n_Manning_to_C_Chezy',
+    'n_closed_conduit',
+    'n_dicts',
+    'n_excavated_dredged',
+    'n_lined_built',
+    'n_natural',
+]
 
 
 nape_types = ['free', 'depressed', 'clinging']

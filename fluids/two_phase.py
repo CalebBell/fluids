@@ -69,16 +69,37 @@ Two Phase Flow Regime Correlations
 
 """
 
-__all__ = ['two_phase_dP', 'two_phase_dP_methods', 'two_phase_dP_acceleration',
-           'two_phase_dP_dz_acceleration', 'two_phase_dP_gravitational',
-           'two_phase_dP_dz_gravitational',
-           'Beggs_Brill', 'Lockhart_Martinelli', 'Friedel', 'Chisholm',
-           'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
-           'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
-           'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
-           'Yu_France', 'Wang_Chiang_Lu', 'Hwang_Kim', 'Zhang_Hibiki_Mishima',
-           'Mishima_Hibiki', 'Bankoff',
-           'Mandhane_Gregory_Aziz_regime', 'Taitel_Dukler_regime']
+__all__ = [
+    'Bankoff',
+    'Baroczy_Chisholm',
+    'Beggs_Brill',
+    'Chen_Friedel',
+    'Chisholm',
+    'Friedel',
+    'Gronnerud',
+    'Hwang_Kim',
+    'Jung_Radermacher',
+    'Kim_Mudawar',
+    'Lockhart_Martinelli',
+    'Lombardi_Pedrocchi',
+    'Mandhane_Gregory_Aziz_regime',
+    'Mishima_Hibiki',
+    'Muller_Steinhagen_Heck',
+    'Taitel_Dukler_regime',
+    'Theissing',
+    'Tran',
+    'Wang_Chiang_Lu',
+    'Xu_Fang',
+    'Yu_France',
+    'Zhang_Hibiki_Mishima',
+    'Zhang_Webb',
+    'two_phase_dP',
+    'two_phase_dP_acceleration',
+    'two_phase_dP_dz_acceleration',
+    'two_phase_dP_dz_gravitational',
+    'two_phase_dP_gravitational',
+    'two_phase_dP_methods',
+]
 
 from math import cos, exp, log, log10, pi, radians, sin, sqrt
 

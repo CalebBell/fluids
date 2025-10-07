@@ -74,13 +74,29 @@ from math import log, sqrt
 from fluids.constants import hp
 from fluids.numerics import bisplev, interp, tck_interp2d_linear
 
-__all__ = ['VFD_efficiency', 'CSA_motor_efficiency', 'motor_efficiency_underloaded',
-'Corripio_pump_efficiency', 'Corripio_motor_efficiency',
-'specific_speed', 'specific_diameter', 'speed_synchronous', 'nema_sizes',
-'nema_sizes_hp', 'motor_round_size', 'nema_min_P', 'nema_high_P', 'electrical_plug_types',
-'voltages_1_phase_residential', 'voltages_3_phase', 'residential_power_frequencies',
-'residential_power', 'industrial_power', 'current_ideal',
-'CountryPower']
+__all__ = [
+    'CSA_motor_efficiency',
+    'Corripio_motor_efficiency',
+    'Corripio_pump_efficiency',
+    'CountryPower',
+    'VFD_efficiency',
+    'current_ideal',
+    'electrical_plug_types',
+    'industrial_power',
+    'motor_efficiency_underloaded',
+    'motor_round_size',
+    'nema_high_P',
+    'nema_min_P',
+    'nema_sizes',
+    'nema_sizes_hp',
+    'residential_power',
+    'residential_power_frequencies',
+    'specific_diameter',
+    'specific_speed',
+    'speed_synchronous',
+    'voltages_1_phase_residential',
+    'voltages_3_phase',
+]
 
 
 

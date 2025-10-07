@@ -41,9 +41,14 @@ from math import exp, log, sqrt
 from fluids.constants import foot, g, psi
 from fluids.numerics import implementation_optimize_tck, splev
 
-__all__ = ['v_Souders_Brown', 'K_separator_Watkins',
-           'K_separator_demister_York', 'K_Souders_Brown_theoretical',
-           'v_Sounders_Brown', 'K_Sounders_Brown_theoretical']
+__all__ = [
+    'K_Souders_Brown_theoretical',
+    'K_Sounders_Brown_theoretical',
+    'K_separator_Watkins',
+    'K_separator_demister_York',
+    'v_Souders_Brown',
+    'v_Sounders_Brown',
+]
 
 
 # 92 points taken from a 2172x3212 page scan, after dewarping the scan,

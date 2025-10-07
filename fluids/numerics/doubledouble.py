@@ -23,12 +23,34 @@ SOFTWARE.
 from math import log as mlog
 from math import sqrt as msqrt
 
-__all__ = ['add_dd', 'mul_noerrors_dd', 'mul_dd', 'div_dd', 'sqrt_dd',
-           'square_dd', 'mul_imag_dd', 'mul_imag_noerrors_dd', 'sqrt_imag_dd',
-           'add_imag_dd', 'imag_inv_dd', 'div_imag_dd', 'cbrt_imag_dd',
-           'cbrt_dd', 'cube_dd', 'cbrt_explicit_dd', 'eq_dd', 'neq_dd',
-           'lt_dd', 'gt_dd', 'le_dd', 'ge_dd', 'intpow_dd', 'exp_dd',
-           'log_dd', 'pow_dd']
+__all__ = [
+    'add_dd',
+    'add_imag_dd',
+    'cbrt_dd',
+    'cbrt_explicit_dd',
+    'cbrt_imag_dd',
+    'cube_dd',
+    'div_dd',
+    'div_imag_dd',
+    'eq_dd',
+    'exp_dd',
+    'ge_dd',
+    'gt_dd',
+    'imag_inv_dd',
+    'intpow_dd',
+    'le_dd',
+    'log_dd',
+    'lt_dd',
+    'mul_dd',
+    'mul_imag_dd',
+    'mul_imag_noerrors_dd',
+    'mul_noerrors_dd',
+    'neq_dd',
+    'pow_dd',
+    'sqrt_dd',
+    'sqrt_imag_dd',
+    'square_dd',
+]
 
 third = 1/3.0
 

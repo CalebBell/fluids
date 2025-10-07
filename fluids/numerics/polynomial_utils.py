@@ -22,11 +22,19 @@ SOFTWARE.
 """
 from math import log, sqrt
 
-__all__ = ['polyint', 'polyint_over_x', 'polyder', 'quadratic_from_points',
-'deflate_cubic_real_roots',  'exp_poly_ln_tau_coeffs3', 'exp_poly_ln_tau_coeffs2',
-'polynomial_offset_scale', 'stable_poly_to_unstable',
-'polyint_stable',
-'polyint_over_x_stable', 'poly_convert',
+__all__ = [
+    'deflate_cubic_real_roots',
+    'exp_poly_ln_tau_coeffs2',
+    'exp_poly_ln_tau_coeffs3',
+    'poly_convert',
+    'polyder',
+    'polyint',
+    'polyint_over_x',
+    'polyint_over_x_stable',
+    'polyint_stable',
+    'polynomial_offset_scale',
+    'quadratic_from_points',
+    'stable_poly_to_unstable',
 ]
 from fluids.numerics.special import comb
 
