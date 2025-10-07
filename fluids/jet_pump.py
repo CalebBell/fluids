@@ -48,7 +48,7 @@ Vacuum Air Leakage Estimation
 from math import exp, log, pi, sqrt
 
 from fluids.constants import foot_cubed_inv, hour_inv, inchHg, lb, mmHg_inv, torr_inv
-from fluids.numerics import brenth, secant, SolverInterface
+from fluids.numerics import SolverInterface, brenth, secant
 from fluids.numerics import numpy as np
 
 __all__ = ['liquid_jet_pump', 'liquid_jet_pump_ancillary',

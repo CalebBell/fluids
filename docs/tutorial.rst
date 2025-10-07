@@ -1542,5 +1542,4 @@ Fluids was originally tightly integrated with SciPy and NumPy; today they
 are optional components used for only a small amount of functionality
 which do not have pure-Python numerical methods implemented.
 Fluids targets Python 2.7 and up as well as PyPy2 and PyPy3. Additionally,
-fluids has been tested by the author to load in IronPython,
-and micropython.
+fluids has been tested by the author to load in micropython.

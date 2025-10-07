@@ -40,11 +40,10 @@ to_test = [#test_numerics,
            test_packed_tower, test_saltation, test_mixing, test_nrlmsise00_full]
 #to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
 
-if fluids.numerics.is_micropython or fluids.numerics.is_ironpython:
+if fluids.numerics.is_micropython:
     skip_marks = ['slow', 'fuzz', 'scipy', 'numpy', 'f2py', 'pytz', 'numba']
 else:
     skip_marks = ['slow', 'fuzz']
-# pytz loads but doesn't work right in ironpython
 skip_marks_set = set(skip_marks)
 if len(sys.argv) >= 2:
     #print(sys.argv)

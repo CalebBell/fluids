@@ -132,7 +132,7 @@ from math import cos, exp, isinf, log, log10, pi, radians, sin, sqrt, tan
 
 from fluids.constants import g, inch
 from fluids.core import Dean, Reynolds
-from fluids.numerics import lambertw, secant, cbrt
+from fluids.numerics import cbrt, lambertw, secant
 
 __all__ = ['friction_factor', 'friction_factor_methods',
            'friction_factor_curved', 'helical_Re_crit',

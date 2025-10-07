@@ -93,16 +93,16 @@ Monkeytype on the `fluids` test suite takes ~15 minutes to run, and generates a 
 
 Supported Python Versions
 -------------------------
-Fluids targets Python 3.8 and up as well as PyPy3. Additionally, fluids has been tested by the author at various points to load in IronPython, and Micropython.
+Fluids targets Python 3.8 and up as well as PyPy3. Additionally, fluids has been tested by the author at various points to load in Micropython.
 
 Unfortunately there is no CI infrastructure for these other Python implementations. 
-For IronPython and Micropython there is no NumPy/SciPy which means there is no hope of passing the whole test suite on them either; indeed pytest won't load on any of them.
+For Micropython there is no NumPy/SciPy which means there is no hope of passing the whole test suite on them either; indeed pytest won't load on any of them.
 
 At one point, the author hoped IronPython 3 would support everything except functionality which has a hard dependency on NumPy or SciPy.
 This could allow for integration with other programs in the future as IronPython is often used as a scripting language.
 Over the years the development speed of Python and IronPython have diverged significantly. 
 Although a Python 3 IronPython was released at the end of 2022, the Python version implemented (3.4) was already dropped from support by Fluids; the CI could no longer work with it.
-At this point it would probably be recommended to use an older version of fluids with IronPython.
+At this point it would probably be recommended to use an old version of fluids with IronPython and the library will probably fail to load in IronPython due to the use of modern syntax.
 
 Micropython is designed to run on limited RAM, and fluids is too large for most microprocessors. 
 You will likely have to copy/paste the specific parts of `fluids` you want to use on a microprocessor.

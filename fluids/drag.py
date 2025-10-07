@@ -66,7 +66,7 @@ from math import exp, log, log10, sqrt, tanh
 
 from fluids.constants import g
 from fluids.core import Reynolds
-from fluids.numerics import secant, cumulative_trapezoid
+from fluids.numerics import cumulative_trapezoid, secant
 
 __all__ = ['drag_sphere', 'drag_sphere_methods', 'v_terminal', 'integrate_drag_sphere',
 'time_v_terminal_Stokes', 'Stokes',

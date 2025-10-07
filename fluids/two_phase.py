@@ -85,7 +85,7 @@ from math import cos, exp, log, log10, pi, radians, sin, sqrt
 from fluids.constants import deg2rad, g
 from fluids.core import Bond, Confinement, Froude, Reynolds, Suratman, Weber
 from fluids.friction import friction_factor
-from fluids.numerics import implementation_optimize_tck, splev, cbrt
+from fluids.numerics import cbrt, implementation_optimize_tck, splev
 from fluids.two_phase_voidage import Lockhart_Martinelli_Xtt, homogeneous
 
 Beggs_Brill_dat = {'segregated': (0.98, 0.4846, 0.0868),

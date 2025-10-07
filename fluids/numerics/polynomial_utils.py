@@ -30,7 +30,6 @@ __all__ = ['polyint', 'polyint_over_x', 'polyder', 'quadratic_from_points',
 ]
 from fluids.numerics.special import comb
 
-
 # def stable_poly_to_unstable(coeffs, low, high):
 #     if len(coeffs) == 0:
 #         return coeffs

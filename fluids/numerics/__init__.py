@@ -188,13 +188,6 @@ try:
 except:
     is_micropython = False
 
-try:
-    is_ironpython =  sys.implementation.name == 'ironpython'
-    if is_ironpython:
-        IS_PYPY = True
-except:
-    is_ironpython = False
-
 if is_micropython:
     hypot = py_hypot
 
@@ -5846,7 +5839,7 @@ else:
 
 # Try out mpmath for special functions anyway
 has_scipy = False
-if not SKIP_DEPENDENCIES and not is_micropython and not is_ironpython:
+if not SKIP_DEPENDENCIES and not is_micropython:
     has_scipy = True
     # try:
     #     import scipy
