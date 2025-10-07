@@ -684,8 +684,10 @@ class CountryPower:
     __slots__ = ('country', 'freq', 'plugs', 'voltage')
 
     def __repr__(self):
-        return ('CountryPower(country="%s", voltage=%s, freq=%d, plugs=%s)'
-                %(self.plugs, self.voltage, self.freq, self.country))
+        return (
+            f'CountryPower(country="{self.country}", voltage={self.voltage}, '
+            f'freq={self.freq}, plugs={self.plugs})'
+        )
     def __init__(self, country, voltage, freq, plugs=None):
         self.plugs = plugs
         self.voltage = voltage

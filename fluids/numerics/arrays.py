@@ -608,8 +608,8 @@ def matrix_vector_dot(matrix, vector):
 def matrix_multiply(A, B):
     r"""Multiply two matrices using pure Python.
 
-    Computes the matrix product C = A·B where A is an m×p matrix and B is a p×n matrix,
-    resulting in an m×n matrix C.
+    Computes the matrix product C = A·B where A is an mxp matrix and B is a pxn matrix,
+    resulting in an mxn matrix C.
 
     Parameters
     ----------
@@ -1043,9 +1043,11 @@ def lu(A):
     Returns P, L, U such that PA = LU
 
     Parameters
+    ----------
         A: list of lists representing square matrix
 
     Returns
+    -------
         P: permutation matrix as list of lists
         L: lower triangular matrix with unit diagonal as list of lists
         U: upper triangular matrix as list of lists
@@ -1261,7 +1263,7 @@ def array_as_tridiagonals(arr):
 
     Notes
     -----
-    For a matrix of size n×n, returns:
+    For a matrix of size nxn, returns:
     - a[i] contains elements at position (i+1,i) for i=0..n-2
     - b[i] contains elements at position (i,i) for i=0..n-1
     - c[i] contains elements at position (i,i+1) for i=0..n-2
@@ -1300,7 +1302,7 @@ def tridiagonals_as_array(a, b, c, zero=0.0):
     Returns
     -------
     list[list[float]]
-        Square matrix of size n×n where n is the length of b
+        Square matrix of size nxn where n is the length of b
 
     Examples
     --------
@@ -1312,7 +1314,7 @@ def tridiagonals_as_array(a, b, c, zero=0.0):
 
     Notes
     -----
-    For output matrix M of size n×n:
+    For output matrix M of size nxn:
     - a[i] becomes M[i+1][i] for i=0..n-2
     - b[i] becomes M[i][i] for i=0..n-1
     - c[i] becomes M[i][i+1] for i=0..n-2
@@ -1615,8 +1617,8 @@ def gelsd(a, b, rcond=None):
         return [0.0] * n, sum(bi * bi for bi in b), 0, s
 
     # We only need the first rank columns of U and V
-    # If U is economy sized (M×min(M,N)), this is fine
-    # If U is full sized (M×M), we still only use first rank columns
+    # If U is economy sized (Mxmin(M,N)), this is fine
+    # If U is full sized (MxM), we still only use first rank columns
     Ut = transpose(U)
     Utb = matrix_vector_dot(Ut[:rank], b)
 

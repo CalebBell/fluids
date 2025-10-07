@@ -25,14 +25,12 @@ __all__ = [
     'IntegratedSurfaceDatabaseStation',
     'StationDataGSOD',
     'cooling_degree_days',
-    #           'geopy_geolocator', 'geopy_cache', 'SimpleGeolocatorCache',
     'geocode',
     'get_clean_isd_history',
     'get_closest_station',
     'get_station_year_text',
     'gsod_day_parser',
     'heating_degree_days',
-    'stations',
 ]
 
 import datetime

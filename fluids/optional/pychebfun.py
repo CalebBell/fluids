@@ -316,13 +316,13 @@ class Polyfun:
         """Display method."""
         a, b = self.domain()
         vals = self.values()
+        cls_name = str(type(self)).split('.')[-1].split('>')[0][:-1]
         return (
-            '%s \n '
-            '    domain        length     endpoint values\n '
-            ' [%5.1f, %5.1f]     %5d       %5.2f   %5.2f\n '
-            'vscale = %1.2e') % (
-                str(type(self)).split('.')[-1].split('>')[0][:-1],
-                a,b,self.size(),vals[-1],vals[0],self._vscale,)
+            f"{cls_name}\n"
+            f"    domain        length     endpoint values\n"
+            f" [{a:5.1f}, {b:5.1f}]     {self.size():5d}       {vals[-1]:5.2f}   {vals[0]:5.2f}\n"
+            f"vscale = {self._vscale:1.2e}"
+        )
 
     def __str__(self):
         return "<{}({})>".format(
@@ -344,6 +344,9 @@ class Polyfun:
         return not np.allclose(self.values(), 0)
 
     __nonzero__ = __bool__
+
+    def __hash__(self):
+        return hash(self.__dict__)
 
     def __eq__(self, other):
         return not(self - other)
