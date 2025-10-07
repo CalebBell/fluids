@@ -3651,7 +3651,7 @@ def friction_plate_Muley_Manglik(Re, chevron_angle, plate_enlargement_factor):
 
     .. math::
         f_f = [2.917 - 0.1277\beta + 2.016\times10^{-3} \beta^2]
-        \times[20.78 - 19.02\phi + 18.93\phi^2 - 5.341\phi^3]
+        \times[5.474 - 19.02\phi + 18.93\phi^2 - 5.341\phi^3]
         \times Re^{-[0.2 + 0.0577\sin[(\pi \beta/45)+2.1]]}
 
     Parameters
