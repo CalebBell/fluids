@@ -309,9 +309,9 @@ katex_js_path = 'katex.min.js'
 katex_autorender_path = 'auto-render.min.js'
 katex_prerender = True
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None),
-                       'numpy': ('http://docs.scipy.org/doc/numpy', None),
-                       'scipy': ('http://docs.scipy.org/doc/scipy/reference', None),
-                       'matplotlib': ('http://matplotlib.org/stable/', None),
+                       'numpy': ('https://numpy.org/doc/stable/', None),
+                       'scipy': ('https://docs.scipy.org/doc/scipy', None),
+                       'matplotlib': ('https://matplotlib.org/stable/', None),
                        'chemicals': ('https://chemicals.readthedocs.io/', None)}
 
 def has_cmd(cmd):
@@ -335,6 +335,8 @@ nbsphinx_requirejs_path = '' # fixes katex not working
 
 from sphinx.ext.autodoc import between
 
+# Notebooks should be saved with their output
+nbsphinx_execute = 'never'
 
 def setup(app):
     #app.add_javascript('copybutton.js')

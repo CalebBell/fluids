@@ -424,7 +424,7 @@ Various main classes are available to model the atmosphere, of varying accuracy.
 US Standard Atmosphere 1976 (:py:class:`~.ATMOSPHERE_1976`), a basic
 but very quick model; the NRLMSISE 00 model, substantially more powerful and
 accurate and still the standard to this day (:py:class:`~.ATMOSPHERE_NRLMSISE00`).
- Solar models are :py:func:`~.earthsun_distance`,
+Solar models are :py:func:`~.earthsun_distance`,
 :py:func:`~.solar_position`, :py:func:`~.sunrise_sunset` and :py:func:`~.solar_irradiation`.
 
 :py:class:`~.ATMOSPHERE_1976` is the simplest model, and very suitable for basic engineering

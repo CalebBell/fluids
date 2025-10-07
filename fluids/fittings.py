@@ -2121,11 +2121,11 @@ contraction_conical_friction_Idelchik = [
     [0.11, 0.07, 0.04, 0.03, 0.02, 0.02, 0.02, 0.02, 0.01],
     [0.09, 0.06, 0.03, 0.02, 0.02, 0.02, 0.02, 0.02, 0.01]]
 
-contraction_conical_frction_Idelchik_tck = tck_interp2d_linear(contraction_conical_angles_Idelchik,
-                                                               contraction_conical_A_ratios_Idelchik,
-                                                               contraction_conical_friction_Idelchik,
-                                                               kx=1, ky=1)
-contraction_conical_frction_Idelchik_obj = lambda x, y : float(bisplev(x, y, contraction_conical_frction_Idelchik_tck))
+contraction_conical_friction_Idelchik_tck = tck_interp2d_linear(contraction_conical_angles_Idelchik,
+                                                                contraction_conical_A_ratios_Idelchik,
+                                                                contraction_conical_friction_Idelchik,
+                                                                kx=1, ky=1)
+contraction_conical_friction_Idelchik_obj = lambda x, y : float(bisplev(x, y, contraction_conical_friction_Idelchik_tck))
 
 contraction_conical_l_ratios_Blevins = [0.0, 0.05, 0.1, 0.15, 0.6]
 contraction_conical_A_ratios_Blevins = [1.2, 1.5, 2.0, 3.0, 5.0, 10.0]
@@ -2184,7 +2184,7 @@ contraction_conical_method_unknown = f'Specified method not recognized; methods 
 def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
                         Re=None, roughness=0.0, method='Rennels'):
     r"""Returns the loss coefficient for any conical pipe contraction.
-    This calculation has five methods available. The 'Idelchik' [2]_ and
+    This calculation has seven methods available. The 'Idelchik' [2]_ and
     'Blevins' [3]_ methods use interpolation among tables of values; 'Miller'
     uses a 2d spline representation of a graph; and the
     'Rennels' [1]_, 'Crane' [4]_, 'Swamee' [5]_ and 'Hooper' methods use
@@ -2265,11 +2265,11 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         Reynolds number of the pipe (used in `Rennels` and `Hooper` method only
         if no friction factor given), [m]
     roughness : float, optional
-        Roughness of bend wall (used in Rennel method if no friction factor
+        Roughness of bend wall (used in Rennels method if no friction factor
         given), [m]
     method : str, optional
         The method to use for the calculation; one of 'Rennels', 'Idelchik',
-        'Crane', 'Swamee' 'Hooper', 'Miller', or 'Blevins', [-]
+        'Crane', 'Swamee', 'Hooper', 'Miller', or 'Blevins', [-]
 
     Returns
     -------
@@ -2368,7 +2368,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
         elif A_ratio_fric > 0.6:
             A_ratio_fric = 0.6
 
-        K_fr = float(contraction_conical_frction_Idelchik_obj(angle_fric, A_ratio_fric))
+        K_fr = float(contraction_conical_friction_Idelchik_obj(angle_fric, A_ratio_fric))
         return K0*(1.0 - A_ratio) + K_fr
     elif method == 'Blevins':
         A_ratio = Di1*Di1/(Di2*Di2)
@@ -2392,7 +2392,7 @@ def contraction_conical(Di1, Di2, fd=None, l=None, angle=None,
             l_ratio = 0.1
         elif l_ratio > 10.0:
             l_ratio = 10.0
-        # Turning on ofr off the limits - little difference in plot
+        # Turning on or off the limits - little difference in plot
         return contraction_conical_Miller_obj(l_ratio, A_ratio)
     elif method == 'Hooper':
         if Re is None:
@@ -2444,7 +2444,7 @@ def contraction_beveled(Di1, Di2, l=None, angle=None):
     Di2 : float
         Inside diameter of following pipe, [m]
     l : float
-        Length of the bevel along the pipe axis ,[m]
+        Length of the bevel along the pipe axis, [m]
     angle : float
         Angle of bevel, [degrees]
 
@@ -2771,7 +2771,7 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         Reynolds number of the pipe (used in Rennels method only if no friction
         factor given), [m]
     roughness : float, optional
-        Roughness of bend wall (used in Rennel method if no friction factor
+        Roughness of bend wall (used in Rennels method if no friction factor
         given), [m]
     method : str
         The method to use for the calculation; one of 'Rennels', 'Crane',
@@ -2881,12 +2881,12 @@ def diffuser_conical(Di1, Di2, l=None, angle=None, fd=None, Re=None,
         elif A_ratio_fric > 0.6:
             A_ratio_fric = 0.6
 
-        K_fr = float(contraction_conical_frction_Idelchik_obj(angle_fric, A_ratio_fric))
+        K_fr = float(contraction_conical_friction_Idelchik_obj(angle_fric, A_ratio_fric))
         K_exp = float(diffuser_conical_Idelchik_obj(min(0.6, A_ratio), max(3.0, angle_deg)))
         return K_fr + K_exp
 
     elif method == 'Swamee':
-        # Really starting to thing Swamee uses a different definition of loss coefficient!
+        # Really starting to think Swamee uses a different definition of loss coefficient!
         r = Di2/Di1
         K = 1.0/sqrt(0.25*angle_rad**-3*(1.0 + 0.6*r**(-1.67)*(pi-angle_rad)/angle_rad)**(0.533*r - 2.6))
         return K
@@ -3285,7 +3285,7 @@ def Hooper2K(Di, Re, name=None, K1=None, Kinfty=None):
     r"""Returns loss coefficient for any various fittings, depending
     on the name input. Alternatively, the Hooper constants K1, Kinfty
     may be provided and used instead. Source of data is [1]_.
-    Reviews of this model are favorable less favorable than the Darby method
+    Reviews of this model are less favorable than the Darby method
     but superior to the constant-K method.
 
     .. math::
@@ -3464,7 +3464,7 @@ def Kv_to_K(Kv, D):
 
     It also suggests the density of water should be found between 5-40°C.
     Older versions specify the density should be found at 60 °F, which is
-    used here, and the pessure for the appropriate density is back calculated.
+    used here, and the pressure for the appropriate density is back calculated.
 
     .. math::
         \Delta P = 1 \text{ bar} = \frac{1}{2}\rho V^2\cdot K
@@ -3514,7 +3514,7 @@ def K_to_Kv(K, D):
 
     It also suggests the density of water should be found between 5-40°C.
     Older versions specify the density should be found at 60 °F, which is
-    used here, and the pessure for the appropriate density is back calculated.
+    used here, and the pressure for the appropriate density is back calculated.
 
     .. math::
         \Delta P = 1 \text{ bar} = \frac{1}{2}\rho V^2\cdot K
@@ -4663,7 +4663,7 @@ CRANE_ANGLE_STOP_CHECK_VALVE_2 = 'CRANE_ANGLE_STOP_CHECK_VALVE_2'
 
 CRANE_BALL_VALVE = 'CRANE_BALL_VALVE'
 CRANE_DIAPHRAGM_VALVE_WEIR = 'CRANE_DIAPHRAGM_VALVE_WEIR'
-CRANE_DIAPHRAGM_VALVE_STAIGHT_THROUGH_WEIR = 'CRANE_DIAPHRAGM_VALVE_STAIGHT_THROUGH_WEIR'
+CRANE_DIAPHRAGM_VALVE_STRAIGHT_THROUGH_WEIR = 'CRANE_DIAPHRAGM_VALVE_STRAIGHT_THROUGH_WEIR'
 
 CRANE_FOOT_VALVE_POPPET_DISK = 'CRANE_FOOT_VALVE_POPPET_DISK'
 CRANE_FOOT_VALVE_HINGED_DISK = 'CRANE_FOOT_VALVE_HINGED_DISK'
@@ -4685,7 +4685,7 @@ CRANE_VALVES = [CRANE_GATE_VALVE, CRANE_GLOBE_VALVE, CRANE_ANGLE_VALVE_0,
                 CRANE_GLOBE_STOP_CHECK_VALVE_1, CRANE_GLOBE_STOP_CHECK_VALVE_2,
                 CRANE_ANGLE_STOP_CHECK_VALVE_0, CRANE_ANGLE_STOP_CHECK_VALVE_1,
                 CRANE_ANGLE_STOP_CHECK_VALVE_2, CRANE_BALL_VALVE, CRANE_DIAPHRAGM_VALVE_WEIR,
-                CRANE_DIAPHRAGM_VALVE_STAIGHT_THROUGH_WEIR, CRANE_FOOT_VALVE_POPPET_DISK,
+                CRANE_DIAPHRAGM_VALVE_STRAIGHT_THROUGH_WEIR, CRANE_FOOT_VALVE_POPPET_DISK,
                 CRANE_FOOT_VALVE_HINGED_DISK, CRANE_BUTTERFLY_VALVE_CENTRIC,
                 CRANE_BUTTERFLY_VALVE_DOUBLE_OFFSET, CRANE_BUTTERFLY_VALVE_TRIPLE_OFFSET,
                 CRANE_PLUG_VALVE_STRAIGHT_THROUGH, CRANE_PLUG_VALVE_3_WAY_STRAIGHT_THROUGH,
@@ -4769,7 +4769,7 @@ def Crane_loss_coefficient(D1, D2, angle, fitting, fd=None):
         return K_ball_valve_Crane(D1, D2, angle, fd)
     elif fitting == CRANE_DIAPHRAGM_VALVE_WEIR:
         return K_diaphragm_valve_Crane(D2, fd, 0)
-    elif fitting == CRANE_DIAPHRAGM_VALVE_STAIGHT_THROUGH_WEIR:
+    elif fitting == CRANE_DIAPHRAGM_VALVE_STRAIGHT_THROUGH_WEIR:
         return K_diaphragm_valve_Crane(D2, fd, 1)
     elif fitting == CRANE_FOOT_VALVE_POPPET_DISK:
         return K_foot_valve_Crane(D2, fd, 0)
@@ -5055,7 +5055,7 @@ def K_branch_diverging_Crane(D_run, D_branch, Q_run, Q_branch, angle=90):
 
     Note that there are several errors in the text of [1]_; the errata can be
     obtained here:
-    https://web.archive.org/web/20200125134233if_/http://flowoffluids.com:80/media/1002/metric-errata-document-nov2012.pdf
+    `<https://web.archive.org/web/20200125134233if_/http://flowoffluids.com:80/media/1002/metric-errata-document-nov2012.pdf>`_
 
     Note that the text specifies three case of behavior but no guidance for the range
     60...90 degrees so the gap between tees and wyes is solved by splitting the

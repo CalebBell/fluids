@@ -7,7 +7,7 @@ Source Code
 -----------
 
 .. literalinclude:: check_fluids_can_be_called_from_lisp.lisp
-   :language: lisp
+   :language: common-lisp
    :linenos:
 
 Requirements
