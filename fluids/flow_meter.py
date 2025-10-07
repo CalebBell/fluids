@@ -590,7 +590,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
     cover a wide range of industrial applications and sizes. Most of them are
     functions of `beta` ratio and Reynolds number. Unlike the ISO standards,
     these correlations do not come with well defined ranges of validity, so
-    caution should be applied using there correlations.
+    caution should be applied using these correlations.
 
     The base equation is as follows, and each orifice type and range has
     different values or correlations for :math:`C_{\infty}`, `b`, and `n`.
@@ -616,10 +616,10 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
     taps : str, optional
         The orientation of the taps; one of 'corner', 'flange',
         'D and D/2', 'pipe', or 'vena contracta'; not all orifice subtypes
-        support the all tap types [-]
+        support all tap types [-]
     tap_position : str, optional
         The rotation of the taps, used **only for the eccentric orifice case**
-        where the pressure profile are not symmetric; '180 degree' for the
+        where the pressure profiles are not symmetric; '180 degree' for the
         normal case where the taps are opposite the orifice bore, and
         '90 degree' for the case where, normally for operational reasons, the
         taps are near the bore [-]
@@ -832,7 +832,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
             if tap_position == TAPS_OPPOSITE:
                 if D < 0.1:
                     b = 7.3 - 15.7*beta + 170.8*beta2 - 399.7*beta3 + 332.2*beta4
-                    C_inf = 0.5917 + 0.3061*beta21 + .3406*beta8 -.1019*beta4/(1.0-beta4) - 0.2715*beta3
+                    C_inf = 0.5917 + 0.3061*beta21 + 0.3406*beta8 - 0.1019*beta4/(1.0-beta4) - 0.2715*beta3
                 else:
                     b = -139.7 + 1328.8*beta - 4228.2*beta2 + 5691.9*beta3 - 2710.4*beta4
                     C_inf = 0.6016 + 0.3312*beta21 - 1.5581*beta8 + 0.6510*beta4/(1.0-beta4) - 0.7308*beta3
@@ -847,10 +847,10 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
             if tap_position == TAPS_OPPOSITE:
                 if D < 0.1:
                     b = 23.3 -207.0*beta + 821.5*beta2 -1388.6*beta3 + 900.3*beta4
-                    C_inf = 0.5925 + 0.3380*beta21 + 0.4016*beta8 -.1046*beta4/(1.0-beta4) - 0.3212*beta3
+                    C_inf = 0.5925 + 0.3380*beta21 + 0.4016*beta8 - 0.1046*beta4/(1.0-beta4) - 0.3212*beta3
                 else:
                     b = 55.7 - 471.4*beta + 1721.8*beta2 - 2722.6*beta3 + 1569.4*beta4
-                    C_inf = 0.5922 + 0.3932*beta21 + .3412*beta8 -.0569*beta4/(1.0-beta4) - 0.4628*beta3
+                    C_inf = 0.5922 + 0.3932*beta21 + 0.3412*beta8 - 0.0569*beta4/(1.0-beta4) - 0.4628*beta3
             elif tap_position == TAPS_SIDE:
                 if D < 0.1:
                     b = -69.3 + 556.9*beta - 1332.2*beta2 + 1303.7*beta3 - 394.8*beta4
@@ -987,7 +987,7 @@ def C_eccentric_orifice_ISO_15377_1998(D, Do):
       is not symmetrical. The angle should ideally be at the top or bottom of
       the plate, opposite which side the bore is on - but this can cause
       issues with deposition if the taps are on the bottom or gas bubbles if
-      the taps are on the taps. The taps are often placed 30 degrees away from
+      the taps are on the top. The taps are often placed 30 degrees away from
       the ideal position to counteract this effect, with under an extra 2%
       error.
 
@@ -2048,7 +2048,7 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
         \sqrt{\frac{X}{0.016}}\right)
 
     .. math::
-        Fr_{gas, th} = \frac{Fr_{\text{gas, densionetric }}}{\beta^{2.5}}
+        Fr_{gas, th} = \frac{Fr_{\text{gas, densiometric }}}{\beta^{2.5}}
 
     .. math::
         \phi = \sqrt{1 + C_{Ch} X + X^2}
@@ -2479,7 +2479,7 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         applies for orifice meters only, [-]
     tap_position : str, optional
         The rotation of the taps, used **only for the eccentric orifice case**
-        where the pressure profile are not symmetric; '180 degree' for the
+        where the pressure profiles are not symmetric; '180 degree' for the
         normal case where the taps are opposite the orifice bore, and
         '90 degree' for the case where, normally for operational reasons, the
         taps are near the bore [-]
@@ -2705,7 +2705,7 @@ def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=
         applies for orifice meters only, [-]
     tap_position : str, optional
         The rotation of the taps, used **only for the eccentric orifice case**
-        where the pressure profile are not symmetric; '180 degree' for the
+        where the pressure profiles are not symmetric; '180 degree' for the
         normal case where the taps are opposite the orifice bore, and
         '90 degree' for the case where, normally for operational reasons, the
         taps are near the bore [-]

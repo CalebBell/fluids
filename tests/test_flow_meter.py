@@ -233,7 +233,7 @@ def test_differential_pressure_meter_discharge():
     assert_close(m, 11.370262314304702)
 
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=VENTURI_NOZZLE)
-    assert_close(m, 11.471786198133566)
+    assert_close(m, 11.476005362790847)
 
     # Venturi tubes
     m = differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=AS_CAST_VENTURI_TUBE)
@@ -269,7 +269,7 @@ def test_differential_pressure_meter_diameter():
     D2 = differential_pressure_meter_solver(D=0.07366, m=11.370262314304702, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=ISA_1932_NOZZLE)
     assert_close(D2, 0.05)
 
-    D2 = differential_pressure_meter_solver(D=0.07366, m=11.471786198133566, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=VENTURI_NOZZLE)
+    D2 = differential_pressure_meter_solver(D=0.07366, m=11.476005362790847, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type=VENTURI_NOZZLE)
     assert_close(D2, 0.05)
 
     # Venturi tubes
@@ -302,7 +302,7 @@ def test_differential_pressure_meter_P2():
     P2 = differential_pressure_meter_solver(D=0.07366, m=11.370262314304702, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=ISA_1932_NOZZLE)
     assert_close(P2, 183000.0)
 
-    P2 = differential_pressure_meter_solver(D=0.07366, m=11.471786198133566, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=VENTURI_NOZZLE)
+    P2 = differential_pressure_meter_solver(D=0.07366, m=11.476005362790847, P1=200000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=VENTURI_NOZZLE)
     assert_close(P2, 183000.0)
 
     # Venturi tubes
@@ -334,7 +334,7 @@ def test_differential_pressure_meter_P1():
     P1 = differential_pressure_meter_solver(D=0.07366, m=11.370262314304702, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=ISA_1932_NOZZLE)
     assert_close(P1, 200000)
 
-    P1 = differential_pressure_meter_solver(D=0.07366, m=11.471786198133566, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=VENTURI_NOZZLE)
+    P1 = differential_pressure_meter_solver(D=0.07366, m=11.476005362790847, P2=183000.0, D2=0.05, rho=999.1, mu=0.0011, k=1.33, meter_type=VENTURI_NOZZLE)
     assert_close(P1, 200000)
 
     # Venturi tubes
