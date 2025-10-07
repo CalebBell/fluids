@@ -231,7 +231,7 @@ __all__.extend([
 
 
 def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='ISO 5167 orifice'):
-    r"""Calculates the flow rate of a differential pressure flow meter based on the 
+    r"""Calculates the flow rate of a differential pressure flow meter based on the
     geometry of the meter, measured pressures, and the density of the fluid.
 
     .. math::
@@ -261,7 +261,7 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='I
         real fluids), [-]
     meter_type : str, optional
         The type of differential pressure meter. All types use a different formula
-        for their beta ratio calculation. If unspecified, uses the ISO 5167 orifice 
+        for their beta ratio calculation. If unspecified, uses the ISO 5167 orifice
         formula; one of the types listed in the `all_meters` variable, [-]
 
     Returns

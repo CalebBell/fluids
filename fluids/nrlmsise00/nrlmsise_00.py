@@ -65,7 +65,7 @@ def calc_trig_loc(tloc, sw7, sw8, sw14):
     if not (((sw7 == 0) and (sw8 == 0)) and (sw14 == 0)):
         return (
             sin(hr*tloc),      # stloc
-            cos(hr*tloc),      # ctloc  
+            cos(hr*tloc),      # ctloc
             sin(2.0*hr*tloc),  # s2tloc
             cos(2.0*hr*tloc),  # c2tloc
             sin(3.0*hr*tloc),  # s3tloc
@@ -286,7 +286,7 @@ def spline(x, y, n, yp1, ypn):
     */
     """
     y2 = [0.0]*n
-    u = [0.0]*n 
+    u = [0.0]*n
 
     if (yp1 > 0.99E30): # pragma: no cover
         y2[0] = 0
@@ -442,7 +442,7 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2, gsurf, re_n
 def densu(alt, dlb, tinf, tlb, xm, alpha, zlb, s2, mn1, zn1, tn1, tgn1, gsurf, re_nrlmsise_00):
     """
     /*      Calculate Temperature and Density Profiles for MSIS models
-    *      New lower thermo polynomial 
+    *      New lower thermo polynomial
     */
     tz, zn1, tn1, and tgn1 are simulated pointers
     Returns (density, temperature) tuple

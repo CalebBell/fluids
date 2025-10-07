@@ -557,11 +557,11 @@ def dot_product(a, b):
     ------
     ValueError
         If vectors are not the same length
-    TypeError 
+    TypeError
         If inputs are not valid vector types
     """
     if len(a) != len(b):
-        raise ValueError("Vectors must have same length") 
+        raise ValueError("Vectors must have same length")
     tot = 0.0
     for i in range(len(a)):
         tot += a[i]*b[i]
@@ -1230,8 +1230,8 @@ def norm2(arr):
 def array_as_tridiagonals(arr):
     """Extract the three diagonals from a tridiagonal matrix.
 
-    A tridiagonal matrix is a matrix that has nonzero elements only on the 
-    main diagonal, the first diagonal below this (subdiagonal), and the first 
+    A tridiagonal matrix is a matrix that has nonzero elements only on the
+    main diagonal, the first diagonal below this (subdiagonal), and the first
     diagonal above this (superdiagonal).
 
     Parameters
@@ -1283,7 +1283,7 @@ def array_as_tridiagonals(arr):
 def tridiagonals_as_array(a, b, c, zero=0.0):
     r"""Construct a square matrix from three diagonals.
 
-    Creates a tridiagonal matrix using the provided sub-, main, and super-diagonal 
+    Creates a tridiagonal matrix using the provided sub-, main, and super-diagonal
     elements. All other elements are set to zero.
 
     Parameters
@@ -1465,7 +1465,7 @@ def argsort1d(arr):
 
 def sort_paired_lists(list1, list2):
     """
-    Sort two lists based on the values in the first list while maintaining 
+    Sort two lists based on the values in the first list while maintaining
     the relationship between corresponding elements.
 
     Parameters
@@ -1573,7 +1573,7 @@ def gelsd(a, b, rcond=None):
     x : list[float]
         Solution vector of length N
     residuals : float
-        Sum of squared residuals of the solution. Only computed for overdetermined 
+        Sum of squared residuals of the solution. Only computed for overdetermined
         systems (M > N)
     rank : int
         Effective rank of matrix A

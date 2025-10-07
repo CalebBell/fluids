@@ -206,7 +206,7 @@ def check_args_order(func):
 
 def check_module_docstring_parameters(module, bad_names={'__getattr__', 'all_submodules'}):
     """Reads all functions in a module and compares their Parameters and Other
-    Parameters sections from their numpydoc docstrings with the actual function 
+    Parameters sections from their numpydoc docstrings with the actual function
     signatures. Raises an exception if any functions have mismatched definitions.
 
     Parameters
@@ -238,7 +238,7 @@ def check_module_docstring_parameters(module, bad_names={'__getattr__', 'all_sub
         if not isinstance(obj, types.FunctionType):
             continue
 
-        if ((hasattr(obj, 'func_name') and obj.func_name == '<lambda>') or 
+        if ((hasattr(obj, 'func_name') and obj.func_name == '<lambda>') or
             (hasattr(obj, '__name__') and obj.__name__ == '<lambda>')):
             continue
 

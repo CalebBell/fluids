@@ -369,8 +369,21 @@ class IntegratedSurfaceDatabaseStation:
         within the P.O.R.
     """
 
-    __slots__ = ['USAF', 'WBAN', 'NAME', 'CTRY', 'ST', 'ICAO', 'LAT', 'LON',
-                 'ELEV', 'BEGIN', 'END', 'raw_data', 'parsed_data']
+    __slots__ = [
+        'BEGIN',
+        'CTRY',
+        'ELEV',
+        'END',
+        'ICAO',
+        'LAT',
+        'LON',
+        'NAME',
+        'ST',
+        'USAF',
+        'WBAN',
+        'parsed_data',
+        'raw_data',
+    ]
 
     def __repr__(self):
         s = ('<Weather station registered in the Integrated Surface Database, '
@@ -620,7 +633,7 @@ def _load_station_data():
 
         history_file = os.path.join(folder, 'isd-history-cleaned.tsv')
         if not os.path.exists(history_file):
-            get_clean_isd_history(dest=history_file)        
+            get_clean_isd_history(dest=history_file)
 
         with open(os.path.join(folder, history_file)) as f:
             for line in f:

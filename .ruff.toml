@@ -33,6 +33,9 @@ extend-ignore = [
     "PERF203", # `try`-`except` within a loop incurs performance overhead
     "PERF401", # PERF401 Use a list comprehension to create a transformed list
 
+    "PLR1730", # use of min/max are less performant than `if
+    "PLC0415", # Allow lazy imports
+
     # chemicals specific
     "E701", # lots of this here
     

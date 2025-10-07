@@ -175,11 +175,25 @@ class Sieve:
 
     """
 
-    __slots__ = ('designation', 'old_designation', 'opening', 'opening_inch',
-                 'Y_variation_avg', 'X_variation_max', 'max_opening',
-                 'calibration_samples', 'compliance_sd', 'inspection_samples',
-                 'inspection_sd', 'calibration_samples', 'calibration_sd',
-                 'd_wire', 'd_wire_min', 'd_wire_max', 'compliance_samples')
+    __slots__ = (
+        'X_variation_max',
+        'Y_variation_avg',
+        'calibration_samples',
+        'calibration_samples',
+        'calibration_sd',
+        'compliance_samples',
+        'compliance_sd',
+        'd_wire',
+        'd_wire_max',
+        'd_wire_min',
+        'designation',
+        'inspection_samples',
+        'inspection_sd',
+        'max_opening',
+        'old_designation',
+        'opening',
+        'opening_inch',
+    )
 
 #    def __repr__(self):
 #        s = 'Sieve(%s)'

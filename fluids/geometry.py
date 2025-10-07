@@ -1540,7 +1540,7 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
         sideA_SA = 0.25*pi*D*D # Circle
     # Side B
     # Calculate side B (reuse side A calculation if parameters are identical)
-    if (sideA == sideB and sideA_a == sideB_a and 
+    if (sideA == sideB and sideA_a == sideB_a and
         sideA_f == sideB_f and sideA_k == sideB_k):
         sideB_SA = sideA_SA
     else:
@@ -2775,7 +2775,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     different head types according to [1]_.
 
     If the height specified is above the height of the tank, it is truncated
-    to the top of the tank. 
+    to the top of the tank.
 
     Parameters
     ----------
@@ -3155,7 +3155,7 @@ class TANK:
         Dimensionless dish-radius parameter for side A; also commonly given as
         the product of `f` and `D` (`fD`), which is called dish radius and
         has units of length, [-]
-    sideA_k : float, optional   
+    sideA_k : float, optional
         Dimensionless knuckle-radius parameter for side A; also commonly given
         as the product of `k` and `D` (`kD`), which is called the knuckle
         radius and has units of length, [-]

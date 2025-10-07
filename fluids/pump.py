@@ -681,7 +681,7 @@ class CountryPower:
         The name of the country, [-]
     """
 
-    __slots__ = ('plugs', 'voltage', 'freq', 'country')
+    __slots__ = ('country', 'freq', 'plugs', 'voltage')
 
     def __repr__(self):
         return ('CountryPower(country="%s", voltage=%s, freq=%d, plugs=%s)'
