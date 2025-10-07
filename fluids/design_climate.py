@@ -613,7 +613,7 @@ def _load_station_data():
         history_file = os.path.join(folder, 'isd-history-cleaned.tsv')
         if not os.path.exists(history_file):
             get_clean_isd_history(dest=history_file)        
-        
+
         with open(os.path.join(folder, history_file)) as f:
             for line in f:
                 values = line.split('\t')
@@ -634,7 +634,7 @@ def _load_station_data():
                 if lat and lon:
                     _stations.append(IntegratedSurfaceDatabaseStation(*values))
                     temp_latlongs.append((lat, lon))
-        
+
         # _latlongs must be unchanged as data is not copied
         _latlongs = np.array(temp_latlongs)
         _station_count = len(_stations)

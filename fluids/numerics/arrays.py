@@ -95,16 +95,16 @@ def transpose(matrix):
         return []
     if not matrix[0]:
         return []
-    
+
     # # Validate input
     # if not isinstance(matrix, list) or not all(isinstance(row, list) for row in matrix):
     #     raise TypeError("Input must be a list of lists")
-    
+
     # Check for consistent row lengths
     row_length = len(matrix[0])
     if not all(len(row) == row_length for row in matrix):
         raise ValueError("All rows must have the same length")
-    
+
     return [list(i) for i in zip(*matrix)]
 
 def det(matrix):
@@ -294,28 +294,28 @@ def det(matrix):
 #         replacements, reduced = cse(exprs, optimizations='basic')
 #         det_expr = reduced[0]
 #         inv_exprs = reduced[1:]
-        
+
 #         # Build the size-specific code block
 #         code = []
-        
+
 #         # Unpack matrix elements
 #         unpack_rows = []
 #         for i in range(N):
 #             row_vars = [f"m_{i}{j}" for j in range(N)]
 #             unpack_rows.append("(" + ", ".join(row_vars) + ")")
 #         code.append(f"        {', '.join(unpack_rows)} = matrix")
-        
+
 #         # Common subexpressions
 #         code.append("\n        # Common subexpressions")
 #         for i, (temp, expr) in enumerate(replacements):
 #             code.append(f"        x{i} = {expr}")
-        
+
 #         # Determinant check
 #         code.append("\n        # Calculate determinant and check if we need to use LU decomposition")
 #         code.append(f"        det = {det_expr}")
 #         code.append("        if abs(det) <= 1e-7:")
 #         code.append("            return inv_lu(matrix)")
-        
+
 #         # Return matrix
 #         return_matrix = []
 #         for i in range(N):
@@ -324,13 +324,13 @@ def det(matrix):
 #                 idx = i * N + j
 #                 row.append(str(inv_exprs[idx]))
 #             return_matrix.append(f"            [{', '.join(row)}]")
-        
+
 #         code.append("\n        return [")
 #         code.append(",\n".join(return_matrix))
 #         code.append("        ]")
-        
+
 #         size_specific_code[N] = post_process_code("\n".join(code))
-    
+
 #     # Generate the complete function
 #     complete_code = [
 #         "def inv(matrix):",
@@ -347,7 +347,7 @@ def det(matrix):
 #         "        return inv_lu(matrix)",
 #         ""
 #     ]
-    
+
 #     return "\n".join(complete_code)
 
 # # Generate and print the complete function
@@ -492,7 +492,7 @@ def eye(N, dtype=float):
         raise TypeError("N must be an integer")
     if N <= 0:
         raise ValueError("N must be a positive integer")
-    
+
     # Create the matrix
     matrix = []
     zero, one = dtype(0), dtype(1)
@@ -500,7 +500,7 @@ def eye(N, dtype=float):
         row = [zero] * N  # Initialize row with zeros
         row[i] = one    # Set diagonal element to 1
         matrix.append(row)
-    
+
     return matrix
 
 
@@ -628,12 +628,12 @@ def matrix_multiply(A, B):
     # Input validation
     if not A or not A[0] or not B or not B[0]:
         raise ValueError("Empty matrices cannot be multiplied")
-    
+
     # Get dimensions
     m = len(A)  # rows in A
     p = len(A[0]) if m else 0 # cols in A = rows in B
     n = len(B[0]) if B else 0  # cols in B
-    
+
     # Validate dimensions
     if not all(len(row) == p for row in A):
         raise ValueError("First matrix has irregular row lengths")
@@ -641,10 +641,10 @@ def matrix_multiply(A, B):
         raise ValueError(f"Incompatible dimensions: A is {m}x{p}, B is {len(B)}x{n}")
     if not all(len(row) == n for row in B):
         raise ValueError("Second matrix has irregular row lengths")
-    
+
     # Pre-allocate result matrix with zeros
     C = [[0.0] * n for _ in range(m)]
-    
+
     # Compute product using simple indexed loops
     for i in range(m):
         A_i = A[i]  # Cache current row of A
@@ -654,7 +654,7 @@ def matrix_multiply(A, B):
             for k in range(p):
                 tot += A_i[k] * B[k][j]
             C_i[j] = tot
-            
+
     return C
 
 def sum_matrix_rows(matrix):
@@ -691,11 +691,11 @@ def sum_matrix_rows(matrix):
     """
     if not matrix or not matrix[0]:
         raise ValueError("Empty matrix")
-        
+
     n = len(matrix[0])
     if not all(len(row) == n for row in matrix):
         raise ValueError("Matrix has irregular row lengths")
-    
+
     result = []
     for row in matrix:
         tot = 0.0
@@ -738,11 +738,11 @@ def sum_matrix_cols(matrix):
     """
     if not matrix or not matrix[0]:
         raise ValueError("Empty matrix")
-        
+
     n = len(matrix[0])
     if not all(len(row) == n for row in matrix):
         raise ValueError("Matrix has irregular row lengths")
-    
+
     result = [0.0] * n
     for row in matrix:
         for j, val in enumerate(row):
@@ -782,7 +782,7 @@ def scalar_add_matrices(A, B):
     """
     if not A or not B or len(A) != len(B) or len(A[0]) != len(B[0]) or not len(A[0]):
         raise ValueError("Matrices must have the same dimensions and be non-empty")
-    
+
     result = []
     for row_A, row_B in zip(A, B):
         if len(row_A) != len(row_B):
@@ -824,7 +824,7 @@ def scalar_subtract_matrices(A, B):
     """
     if not A or not B or len(A) != len(B) or len(A[0]) != len(B[0]) or not len(A[0]):
         raise ValueError("Matrices must have the same dimensions and be non-empty")
-    
+
     result = []
     for row_A, row_B in zip(A, B):
         if len(row_A) != len(row_B):
@@ -865,7 +865,7 @@ def scalar_multiply_matrix(scalar, matrix):
     """
     if not matrix or not matrix[0]:
         raise ValueError("Input matrix cannot be empty")
-    
+
     result = []
     for row in matrix:
         result.append([scalar * val for val in row])
@@ -908,7 +908,7 @@ def scalar_divide_matrix(scalar, matrix):
         raise ZeroDivisionError("Cannot divide by zero")
     if not matrix or not matrix[0]:
         raise ValueError("Input matrix cannot be empty")
-    
+
     result = []
     for row in matrix:
         result.append([val / scalar for val in row])
@@ -937,7 +937,7 @@ def stack_vectors(vectors):
     return [list(v) for v in vectors]  # Create copies of vectors
 def inplace_LU(A, ipivot):
     N = len(A)
-    
+
     for j in range(N):
         for i in range(j):
             tot = A[i][j]
@@ -956,7 +956,7 @@ def inplace_LU(A, ipivot):
             if apiv < abs(A[i][j]):
                 apiv = abs(A[i][j])
                 ipiv = i
-                
+
         if apiv == 0:
             raise ValueError("Singular matrix")
         ipivot[j] = ipiv
@@ -975,7 +975,7 @@ def inplace_LU(A, ipivot):
 def solve_from_lu(A, pivots, b):
     N = len(b)
     b = b.copy()  # Create a copy to avoid modifying the input
-    
+
     for i in range(N):
         tot = b[pivots[i]]
         b[pivots[i]] = b[i]
@@ -1002,7 +1002,7 @@ def solve_LU_decomposition(A, b):
 def inv_lu(a):
     N = len(a)
     A_copy = [row.copy() for row in a]  # Deep copy of a
-    
+
     ainv = [[0.0] * N for i in range(N)]
     pivots = [0] * N
     inplace_LU(A_copy, pivots)
@@ -1030,32 +1030,32 @@ def lu(A):
         U: upper triangular matrix as list of lists
     """
     N = len(A)
-    
+
     # Create working copy and pivots array
     A_copy = [row.copy() for row in A]
     pivots = [0] * N
-    
+
     # Perform LU decomposition
     inplace_LU(A_copy, pivots)
-    
+
     # Extract L (unit diagonal and below diagonal elements)
     L = [[1.0 if i == j else 0.0 for j in range(N)] for i in range(N)]
     for i in range(N):
         for j in range(i):
             L[i][j] = A_copy[i][j]
-    
+
     # Extract U (upper triangular including diagonal)
     U = [[0.0]*N for _ in range(N)]
     for i in range(N):
         for j in range(i, N):
             U[i][j] = A_copy[i][j]
-    
+
     # Create permutation matrix directly from pivot sequence
     P = [[1.0 if j == i else 0.0 for j in range(N)] for i in range(N)]
     for i, pivot in enumerate(pivots):
         if pivot != i:
             P[i], P[pivot] = P[pivot], P[i]
-            
+
     return P, L, U
 
 
@@ -1381,18 +1381,18 @@ def solve_tridiagonal(a, b, c, d):
     # Make copies since the algorithm modifies arrays in-place
     b, d = [i for i in b], [i for i in d]
     N = len(d)
-    
+
     # Forward elimination phase
     for i in range(N - 1):
         m = a[i]/b[i]
         b[i+1] -= m*c[i]
         d[i+1] -= m*d[i]
-    
+
     # Back substitution phase
     b[-1] = d[-1]/b[-1]
     for i in range(N-2, -1, -1):
         b[i] = (d[i] - c[i]*b[i+1])/b[i]
-        
+
     return b
 def subset_matrix(whole, subset):
     if type(subset) is slice:
@@ -1481,18 +1481,18 @@ def sort_paired_lists(list1, list2):
     # Input validation
     if len(list1) != len(list2):
         raise ValueError("Lists must have equal length")
-        
+
     # Handle empty lists
     if len(list1) == 0:
         return ([], [])
-        
+
     # Get sorting indices using argsort1d
     sorted_indices = argsort1d(list1)
-    
+
     # Apply the sorting to both lists
     sorted_list1 = [list1[i] for i in sorted_indices]
     sorted_list2 = [list2[i] for i in sorted_indices]
-    
+
     return sorted_list1, sorted_list2
 
 def svd(matrix):
@@ -1567,52 +1567,52 @@ def gelsd(a, b, rcond=None):
     # Get dimensions and handle empty cases
     m = len(a)
     n = len(a[0]) if m > 0 else 0
-    
+
     if m == 0:
         if n == 0:
             return [], 0.0, 0, []  # Empty matrix
         return [0.0] * n, 0.0, 0, []  # Empty rows
     elif n == 0:
         return [], 0.0, 0, []  # Empty columns
-    
+
     # Check compatibility
     if len(b) != m:
         raise ValueError(f"Incompatible dimensions: A is {m}x{n}, b has length {len(b)}")
-    
+
     U, s, Vt = svd(a)
 
     # Set default rcond
     if rcond is None:
         rcond = max(m, n) * 2.2e-16  # Approximate machine epsilon for float64
-    
+
     # Determine rank using rcond
     tol = rcond * s[0]
     rank = sum(sv > tol for sv in s)
-    
+
     # Handle zero matrix case (all singular values below threshold)
     if rank == 0:
         return [0.0] * n, sum(bi * bi for bi in b), 0, s
-    
+
     # We only need the first rank columns of U and V
     # If U is economy sized (M×min(M,N)), this is fine
     # If U is full sized (M×M), we still only use first rank columns
     Ut = transpose(U)
     Utb = matrix_vector_dot(Ut[:rank], b)
-    
+
     # Apply 1/singular values with truncation
     s_inv_Utb = [Utb[i] / s[i] for i in range(rank)]
-    
+
     # Get the first rank rows of V (transpose of first rank columns of Vt)
     # Again, works with both economy and full-size Vt
     V = transpose(Vt[:rank])
     x = matrix_vector_dot(V, s_inv_Utb)
-    
+
     # Compute residuals for overdetermined systems
     residuals = 0.0
     if m > n and rank == n:
         # Compute Ax
         Ax = matrix_vector_dot(a, x)
-        
+
         # Compute residuals as |b - Ax|^2
         diff = [b[i] - Ax[i] for i in range(m)]
         residuals = dot_product(diff, diff)
@@ -1640,19 +1640,19 @@ def null_space(a, rcond=None):
     # Get dimensions and handle empty cases
     m = len(a)
     n = len(a[0]) if m > 0 else 0
-    
+
     if m == 0 or n == 0:
         return []  # Empty matrix
     U, s, Vt = svd(a)
     # Set default rcond
     if rcond is None:
         rcond = max(m, n) * 2.2e-16  # Approximate machine epsilon for float64
-    
+
     # Determine effective null space dimension using rcond
     tol = max(s) * rcond if s else 0.0
     num = sum(sv > tol for sv in s)
     # Extract null space basis
     V = transpose(Vt)  # V is transpose of Vt
     Z = [row[num:] for row in V]  # Extract last N - num columns
-    
+
     return Z

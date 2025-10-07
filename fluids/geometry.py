@@ -1651,7 +1651,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
                 sideA_V = V_vertical_conical(D, sideA_a, h=sideA_a)
             if sideB == 'conical':
                 sideB_V = V_vertical_conical(D, sideB_a, h=sideB_a)
-        
+
         if sideA == 'ellipsoidal' and sideB == 'ellipsoidal' and sideA_a == sideB_a:
             sideB_V = sideA_V = V_vertical_ellipsoidal(D, sideA_a, h=sideA_a)
         else:
@@ -1659,7 +1659,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
                 sideA_V = V_vertical_ellipsoidal(D, sideA_a, h=sideA_a)
             if sideB == 'ellipsoidal':
                 sideB_V = V_vertical_ellipsoidal(D, sideB_a, h=sideB_a)
-        
+
         if sideA == 'spherical' and sideB == 'spherical' and sideA_a == sideB_a:
             sideB_V = sideA_V = V_vertical_spherical(D, sideA_a, h=sideA_a)
         else:
@@ -1667,7 +1667,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
                 sideA_V = V_vertical_spherical(D, sideA_a, h=sideA_a)
             if sideB == 'spherical':
                 sideB_V = V_vertical_spherical(D, sideB_a, h=sideB_a)
-        
+
         if sideA == 'torispherical' and sideB == 'torispherical' and sideA_f == sideB_f and sideA_k == sideB_k:
             sideB_V = sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
         else:

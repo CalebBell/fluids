@@ -233,11 +233,11 @@ def check_module_docstring_parameters(module, bad_names={'__getattr__', 'all_sub
     for name in dir(module):
         if name in bad_names:
             continue
-            
+
         obj = getattr(module, name)
         if not isinstance(obj, types.FunctionType):
             continue
-            
+
         if ((hasattr(obj, 'func_name') and obj.func_name == '<lambda>') or 
             (hasattr(obj, '__name__') and obj.__name__ == '<lambda>')):
             continue

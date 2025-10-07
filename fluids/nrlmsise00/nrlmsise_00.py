@@ -107,10 +107,10 @@ def tselec(flags):
 def glatf(lat):
     dgtr = 1.74533E-2
     c2 = cos(2.0*dgtr*lat)
-    
+
     gsurf = 980.616 * (1.0 - 0.0026373 * c2)
     re_nrlmsise = 2.0 * gsurf / (3.085462E-6 + 2.27E-9 * c2) * 1.0E-5
-    
+
     return gsurf, re_nrlmsise
 """
 /* ------------------------------------------------------------------- */
@@ -287,7 +287,7 @@ def spline(x, y, n, yp1, ypn):
     """
     y2 = [0.0]*n
     u = [0.0]*n 
-    
+
     if (yp1 > 0.99E30): # pragma: no cover
         y2[0] = 0
         u[0] = 0
@@ -674,7 +674,7 @@ def globe7(p, Input, flags, apt, plg):
         if (p44<0): # pragma: no cover
             p44 = 1.0E-5
         apdf = compute_apdf(apd, p44, p45)
-        
+
         if (flags.sw[9]):
             t[8]=apdf*(p[32]+p[45]*plg[0][2]+p[34]*plg[0][4]+ \
              (p[100]*plg[0][1]+p[101]*plg[0][3]+p[102]*plg[0][5])*cd14*flags.swc[5]+
@@ -1268,7 +1268,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
     #/* temperature */
     z = sqrt(Input.alt*Input.alt)
     ddum, output.t[1] = densu(z,1.0, tinf, tlb, 0.0, 0.0, ptm[5], s, mn1, zn1, meso_tn1, meso_tgn1,gsurf, re_nrlmsise_00)
-    
+
     if (flags.sw[0]): # pragma: no cover
         for i in range(9):
             output.d[i]=output.d[i]*1.0E6
