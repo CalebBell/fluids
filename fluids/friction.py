@@ -234,7 +234,7 @@ def friction_laminar(Re):
 
     Notes
     -----
-    For round pipes, this valid for :math:`Re \approx< 2040`.
+    For round pipes, this is valid for :math:`Re \approx< 2040`.
 
     Results in [2]_ show that this theoretical solution calculates too low of
     friction factors from Re = 10 and up, with an average deviation of 4%.
@@ -528,7 +528,7 @@ def Moody(Re, eD):
 
     Notes
     -----
-    Range is Re >= 4E3 and Re <= 1E8; eD >= 0 < 0.01.
+    Range is 4E3 <= Re <= 1E8; 0 <= eD < 0.01.
 
     Examples
     --------
@@ -800,7 +800,7 @@ def Swamee_Jain_1976(Re, eD):
 
 
 def Churchill_1977(Re, eD):
-    r"""Calculates Darcy friction factor using the method in Churchill and
+    r"""Calculates Darcy friction factor using the method of Churchill
     (1977) [2]_ as shown in [1]_.
 
     .. math::
@@ -1810,7 +1810,7 @@ def von_Karman(eD):
     -----
     This case does not actually occur; Reynolds number is always finite.
     It is normally applied as a "limiting" value when a pipe's roughness is so
-    high it has a friction factor curve effectively independent of Reynods
+    high it has a friction factor curve effectively independent of Reynolds
     number.
 
     Examples
@@ -2089,7 +2089,7 @@ def friction_factor(Re, eD=0.0, Method='Clamond', Darcy=True):
     Notes
     -----
     A table of the supposed limits of each correlation is as follows. Note that
-    the spaces in the method names are placed by underscores in the actual
+    the spaces in the method names are replaced by underscores in the actual
     function names and when provided as the `Method` argument. The default
     method is likely to be sufficient.
 
@@ -2579,7 +2579,7 @@ def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
     return 0.3*1.0/sqrt(Dc/Di)*term*(1. + 0.112*term)
 
 
-def helical_turbulent_fd_Prasad(Re, Di, Dc,roughness=0):
+def helical_turbulent_fd_Prasad(Re, Di, Dc, roughness=0):
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under turbulent conditions, using the method of
     Prasad [1]_, also shown in [2]_.
@@ -2633,7 +2633,7 @@ def helical_turbulent_fd_Prasad(Re, Di, Dc,roughness=0):
     return fd*(1. + 0.18*sqrt(sqrt(Re*Di_Dc*Di_Dc)))
 
 
-def helical_turbulent_fd_Czop (Re, Di, Dc):
+def helical_turbulent_fd_Czop(Re, Di, Dc):
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under turbulent conditions, using the method of
     Czop [1]_, also shown in [2]_.
@@ -2730,7 +2730,7 @@ def helical_turbulent_fd_Guo(Re, Di, Dc):
     return 0.638*Re**-0.15*(Di/Dc)**0.51
 
 
-def helical_turbulent_fd_Ju(Re, Di, Dc,roughness=0.0):
+def helical_turbulent_fd_Ju(Re, Di, Dc, roughness=0.0):
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under turbulent conditions, using the method of
     Ju et al. [1]_, also shown in [2]_.
@@ -3110,7 +3110,7 @@ curved_friction_turbulent_methods = {'Schmidt turbulent': (helical_turbulent_fd_
                                      'Czop': (helical_turbulent_fd_Czop, False),
                                      'Guo': (helical_turbulent_fd_Guo, False),
                                      'Ju': (helical_turbulent_fd_Ju, True),
-                                     'Mandel Nigam': (helical_turbulent_fd_Mandal_Nigam, True),
+                                     'Mandal Nigam': (helical_turbulent_fd_Mandal_Nigam, True),
                                      'Srinivasan turbulent': (helical_turbulent_fd_Srinivasan, False)}
 
 curved_friction_transition_methods = {'Seth Stahel': helical_transition_Re_Seth_Stahel,
@@ -3123,7 +3123,7 @@ curved_friction_transition_methods = {'Seth Stahel': helical_transition_Re_Seth_
 _bad_curved_transition_method = f"""Invalid method specified for transition Reynolds number;
 valid methods are {list(curved_friction_transition_methods.keys())}"""
 
-curved_friction_turbulent_methods_list = ['Schmidt turbulent', 'Mori Nakayama turbulent', 'Prasad', 'Czop', 'Guo', 'Ju', 'Mandel Nigam', 'Srinivasan turbulent']
+curved_friction_turbulent_methods_list = ['Schmidt turbulent', 'Mori Nakayama turbulent', 'Prasad', 'Czop', 'Guo', 'Ju', 'Mandal Nigam', 'Srinivasan turbulent']
 curved_friction_laminar_methods_list = ['White', 'Mori Nakayama laminar', 'Schmidt laminar']
 
 def helical_Re_crit(Di, Dc, Method='Schmidt'):
@@ -3284,7 +3284,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
         'Schmidt laminar'.
     turbulent_method : str, optional
         Friction factor correlation for the turbulent regime; one of
-        ['Guo', 'Ju', 'Schmidt turbulent', 'Prasad', 'Mandel Nigam',
+        ['Guo', 'Ju', 'Schmidt turbulent', 'Prasad', 'Mandal Nigam',
         'Mori Nakayama turbulent', 'Czop']; the default is 'Schmidt turbulent'.
     Darcy : bool, optional
         If False, will return fanning friction factor, 1/4 of the Darcy value
@@ -3312,7 +3312,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
 
     Notes
     -----
-    The range of accuracy of these correlations is much than that in a
+    The range of accuracy of these correlations is much less than that in a
     straight pipe.
 
     References
@@ -3342,7 +3342,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
         f = helical_turbulent_fd_Prasad(Re, Di, Dc, roughness)
     elif Method2 == 'Ju':
         f = helical_turbulent_fd_Ju(Re, Di, Dc, roughness)
-    elif Method2 == 'Mandel Nigam':
+    elif Method2 == 'Mandal Nigam':
         f = helical_turbulent_fd_Mandal_Nigam(Re, Di, Dc, roughness)
     # Turbulent without roughness support
     elif Method2 == 'Mori Nakayama turbulent':
@@ -3498,11 +3498,11 @@ def friction_plate_Martin_VDI(Re, chevron_angle):
     laminar to turbulent flow, although the literature suggests the transition
     is actually smooth.
 
-    This is a revision of the Martin's earlier model, adjusted to predidct
+    This is a revision of the Martin's earlier model, adjusted to predict
     higher friction factors.
 
-    There are three parameters in this model, a, b and c; it is posisble
-    to adjust them to better fit a know exchanger's pressure drop.
+    There are three parameters in this model, a, b and c; it is possible
+    to adjust them to better fit a known exchanger's pressure drop.
 
     See Also
     --------
@@ -3675,7 +3675,7 @@ def friction_plate_Muley_Manglik(Re, chevron_angle, plate_enlargement_factor):
 
     Notes
     -----
-    Based on experimental data of plate enacement factors up to 1.5, and valid
+    Based on experimental data of plate enhancement factors up to 1.5, and valid
     for Re > 1000 and chevron angles from 30 to 60 degrees with sinusoidal
     shape. See `PlateExchanger` for further clarification on the definitions.
 
@@ -3832,8 +3832,8 @@ steels = {'Seamless tubes made from brass, copper, lead, aluminum':
           'Welded steel tubes': welded_steel,
           'Riveted steel tubes': riveted_steel,
           'Roofing steel sheets': roofing_metal,
-          'Galzanized steel tubes': galvanized_steel_tube,
-          'Galzanized sheet steel': galvanized_steel_sheet,
+          'Galvanized steel tubes': galvanized_steel_tube,
+          'Galvanized sheet steel': galvanized_steel_sheet,
           'Steel tubes': steel,
           'Cast-iron tubes': cast_iron,
           'Steel water conduits in generating stations': water_conduit_steel,
@@ -3842,7 +3842,7 @@ steels = {'Seamless tubes made from brass, copper, lead, aluminum':
 
 
 concrete_water_conduits = {
-    'New and finished with plater; excellent manufacture (joints aligned, prime coated and smoothed)':
+    'New and finished with plaster; excellent manufacture (joints aligned, prime coated and smoothed)':
     (5.0E-5, 1.5E-4, None),
     'Used and corroded; with a wavy surface and wood framework':
     (1.0E-3, 4.0E-3, None),
@@ -3975,7 +3975,7 @@ except:
     pass
 
 def roughness_Farshad(ID=None, D=None, coeffs=None):
-    r"""Calculates of retrieves the roughness of a pipe based on the work of
+    r"""Calculates or retrieves the roughness of a pipe based on the work of
     [1]_. This function will return an average value for pipes of a given
     material, or if diameter is provided, will calculate one specifically for
     the pipe inner diameter according to the following expression with
@@ -3984,7 +3984,7 @@ def roughness_Farshad(ID=None, D=None, coeffs=None):
     .. math::
         \epsilon = A\cdot D^{B+1}
 
-    Please not that `A` has units of inches, and `B` requires `D` to be in
+    Please note that `A` has units of inches, and `B` requires `D` to be in
     inches as well.
 
     The list of supported materials is as follows:
