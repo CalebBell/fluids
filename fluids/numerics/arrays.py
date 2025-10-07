@@ -1042,10 +1042,10 @@ def lu(A):
     Compute LU decomposition of a matrix with partial pivoting.
     Returns P, L, U such that PA = LU
 
-    Parameters:
+    Parameters
         A: list of lists representing square matrix
 
-    Returns:
+    Returns
         P: permutation matrix as list of lists
         L: lower triangular matrix with unit diagonal as list of lists
         U: upper triangular matrix as list of lists

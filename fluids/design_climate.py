@@ -381,8 +381,6 @@ class IntegratedSurfaceDatabaseStation:
         'ST',
         'USAF',
         'WBAN',
-        'parsed_data',
-        'raw_data',
     ]
 
     def __repr__(self):

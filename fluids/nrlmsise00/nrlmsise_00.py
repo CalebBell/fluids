@@ -38,7 +38,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  */
 """
 
-from math import cos, exp, log, log10, pow, sin, sqrt
+from math import cos, exp, log, pow, sin, sqrt
 
 from .nrlmsise_00_data import pavgm, pd, pdl, pdm, pma, ps, pt, ptl, ptm
 from .nrlmsise_00_header import nrlmsise_output

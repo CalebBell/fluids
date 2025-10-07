@@ -1440,7 +1440,7 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
             else:
                 v_term = v_term_base*(1.0 - tol)
             numerator = term + 18.*mu*v_term
-            return log((numerator/denominator))*const
+            return log(numerator/denominator)*const
         except:
             tol = tol + tol
             if tol > 0.01:

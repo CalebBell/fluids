@@ -46,11 +46,9 @@ Solar Radiation and Position
 
 """
 
-import os
 from math import cos, exp, pi, radians, sin, sqrt
 
 from fluids.constants import N_A, R, au
-from fluids.numerics import numpy as np
 from fluids.numerics import quad, secant
 
 try:

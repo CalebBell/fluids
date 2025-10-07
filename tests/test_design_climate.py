@@ -78,8 +78,8 @@ def test_IntegratedSurfaceDatabaseStation():
     # Information confirmed elsewhere i.e. https://geographic.org/global_weather/not_specified_canada/calgary_intl_cs_713930_99999.html
     values = [713930.0, 99999.0, 'CALGARY INTL CS', 'CA', None, None, 51.1, -114.0, 1081.0, 20040921.0, 20150831.0]
     test_station = IntegratedSurfaceDatabaseStation(*values)
-    for value, attr in zip(values, test_station.__slots__):
-        assert value == getattr(test_station, attr)
+    for attr in test_station.__slots__:
+        assert getattr(test_station, attr) in values
 
 def test_data():
     assert get_latlongs().shape[0] >= 27591

@@ -114,7 +114,6 @@ Miscellaneous Functions
 .. autofunction:: gravity
 
 """
-import sys
 from math import pi, sin, sqrt
 
 from fluids.constants import R, g

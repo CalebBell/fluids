@@ -191,8 +191,7 @@ def ineichen(apparent_zenith, airmass_absolute, linke_turbidity,
     except:
         bnci_2 = 1e20
 
-    multiplier = (bnci_2 if bnci_2 > 0.0 else bnci_2)
-    multiplier = min(multiplier, 1e+20)
+    multiplier = min(bnci_2, 1e+20)
 
     bnci_2 = ghi*multiplier
 
