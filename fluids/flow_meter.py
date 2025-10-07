@@ -246,7 +246,7 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='I
     >>> flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646,
     ... C=0.5988, expansibility=0.9975)
     0.01120390943807026
-    
+
     >>> flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646,
     ... C=0.5988, expansibility=0.9975, meter_type='cone meter')
     0.2709595056939325
