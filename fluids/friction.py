@@ -1449,10 +1449,9 @@ def Sonnad_Goudar_2006(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] Travis, Quentin B., and Larry W. Mays. "Relationship between
-       Hazen-William and Colebrook-White Roughness Values." Journal of
-       Hydraulic Engineering 133, no. 11 (November 2007): 1270-73.
-       doi:10.1061/(ASCE)0733-9429(2007)133:11(1270).
+    .. [2] Goudar, Chetan T., and Jagadeesh R. Sonnad. "Explicit Friction Factor
+       Correlation for Turbulent Flow in Smooth Pipes." Industrial & Engineering
+       Chemistry Research 42, no. 12 (2003): 2878-80. https://doi.org/10.1021/ie0300676.
     """
     S = 0.124*eD*Re + log(0.4587*Re)
     term = (.8686*log(.4587*Re/S**(S/(S+1.0))))
@@ -1855,8 +1854,8 @@ def Prandtl_von_Karman_Nikuradse(Re):
     .. math::
         \frac{1}{\sqrt{f}}\approx 2\log_{10}(\text{Re}\sqrt{f})-0.8
 
-    This function is calculable for all Reynolds numbers between 1E151 and
-    1E-151. It is solved with the LambertW function from SciPy. The solution is:
+    This function is calculable for all Reynolds numbers between 1E150 and
+    1E-150. It is solved with the LambertW function from SciPy. The solution is:
 
     .. math::
         f_d = \frac{\frac{1}{4}\log_{10}^2}{\left(\text{lambertW}\left(\frac{
@@ -1970,7 +1969,7 @@ def ft_Crane(D):
     return Clamond(7.5E6*D, 3.4126825352925e-5*D**-1.0112, fast)
 
 
-fmethods = {'Moody': (4000.0, 100000000.0, 0.0, 1.0),
+fmethods = {'Moody': (4000.0, 100000000.0, 0.0, 0.01),
  'Alshul_1952': (None, None, None, None),
  'Wood_1966': (4000.0, 50000000.0, 1e-05, 0.04),
  'Churchill_1973': (None, None, None, None),
@@ -3549,7 +3548,7 @@ Kumar_C2s = [[50.0, 19.40, 2.990],
 
 # Is the second in the first row 0.589 (paper) or 0.598 (PHEWorks)
 # Believed to be the values from the paper, where this graph was
-# curve fit as the original did not contain and coefficients only a plot
+# curve fit as the original did not contain any coefficients only a plot
 Kumar_Ps = [[1.0, 0.589, 0.183],
       [1.0, 0.652, 0.206],
       [1.0, 0.631, 0.161],
@@ -3702,7 +3701,7 @@ def friction_plate_Muley_Manglik(Re, chevron_angle, plate_enlargement_factor):
        doi:10.1080/01457630304056.
     """
     beta, phi = chevron_angle, plate_enlargement_factor
-    # Beta is indeed chevron angle; with respect to angle of mvoement
+    # Beta is indeed chevron angle; with respect to angle of movement
     # Still might be worth another check
     t1 = (2.917 - 0.1277*beta + 2.016E-3*beta**2)
     t2 = (5.474 - 19.02*phi + 18.93*phi**2 - 5.341*phi**3)
@@ -3727,9 +3726,9 @@ seamless_steel = {'New and unused': (2.0E-5, 1.0E-4, None),
     'Heating systems, saturated steam ducts or water pipes (with minor water leakage < 0.5%, and balance water deaerated)':
     (None, None, 2.0E-4),
     'Water heating system pipelines, any source': (None, None, 2.0E-4),
-    'Oil pipelines, intermediate operating conditions ': (None, None, 2.0E-4),
-    'Corroded, moderately ': (None, None, 4.0E-4),
-    'Scale, small depositions only ': (None, None, 4.0E-4),
+    'Oil pipelines, intermediate operating conditions': (None, None, 2.0E-4),
+    'Corroded, moderately': (None, None, 4.0E-4),
+    'Scale, small depositions only': (None, None, 4.0E-4),
     'Condensate pipes in open systems or periodically operated steam pipelines':
     (None, None, 5.0E-4),
     'Compressed air piping': (None, None, 8.0E-4),
@@ -3755,7 +3754,7 @@ welded_steel = {'Good condition': (4.0E-5, 1.0E-4, None),
     'Non-corroded and with double transverse riveted joints':
     (1.2E-3, 1.5E-3, None),
     'Small deposits': (None, None, 1.5E-3),
-    'Heavily corroded and with  double transverse riveted joints':
+    'Heavily corroded and with double transverse riveted joints':
     (None, None, 2.0E-3),
     'Appreciable deposits': (2.0E-3, 4.0E-3, None),
     'Gas mains, many years of use, deposits of resin/naphthalene':
@@ -3917,7 +3916,7 @@ rock_channels = {'Blast-hewed, little jointing': (1.0E-1, 1.4E-1, None),
 
 unlined_tunnels = {'Rocks, gneiss, diameter 3-13.5 m': (3.0E-1, 7.0E-1, None),
                    'Rocks, granite, diameter 3-9 m': (2.0E-1, 7.0E-1, None),
-                   'Shale, diameter, diameter 9-12 m': (2.5E-1, 6.5E-1, None),
+                   'Shale, diameter 9-12 m': (2.5E-1, 6.5E-1, None),
                    'Shale, quartz, quartzile, diameter 7-10 m':
                    (2.0E-1, 6.0E-1, None),
                    'Shale, sedimentary, diameter 4-7 m': (None, None, 4.0E-1),
@@ -3971,7 +3970,7 @@ try:
     if IS_NUMBA: # type: ignore # noqa: F821
         _Farshad_roughness_keys = tuple(_Farshad_roughness.keys())
         _Farshad_roughness_values = tuple(_Farshad_roughness.values())
-except:
+except NameError:
     pass
 
 def roughness_Farshad(ID=None, D=None, coeffs=None):
