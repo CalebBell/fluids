@@ -1816,7 +1816,7 @@ def von_Karman(eD):
     Examples
     --------
     >>> von_Karman(1E-4)
-    0.01197365149564789
+    0.011979797083255311
 
     References
     ----------
@@ -1825,7 +1825,7 @@ def von_Karman(eD):
     .. [2] McGovern, Jim. "Technical Note: Friction Factor Diagrams for Pipe
        Flow." Paper, October 3, 2011. http://arrow.dit.ie/engschmecart/28.
     """
-    x = log10(eD*(1.0/3.71))
+    x = log10(eD*(1.0/3.7))
     return 0.25/(x*x)
 
 
@@ -2992,7 +2992,7 @@ def helical_transition_Re_Kutateladze_Borishanskii(Di, Dc):
     Examples
     --------
     >>> helical_transition_Re_Kutateladze_Borishanskii(1, 7.)
-    7121.143774574058
+    8156.79316568
 
     References
     ----------
@@ -3003,7 +3003,7 @@ def helical_transition_Re_Kutateladze_Borishanskii(Di, Dc):
        Toroidal and Helically Coiled Tubes." Heat Transfer Engineering 0, no. 0
        (June 7, 2016): 1-28. doi:10.1080/01457632.2016.1194693.
     """
-    return 2300. + 1.05E4*(Di/Dc)**0.4
+    return 2300. + 1.05E4*(Di/Dc)**0.3
 
 
 def helical_transition_Re_Schmidt(Di, Dc):

@@ -370,7 +370,7 @@ def test_material_roughness():
 
 def test_von_Karman():
     f = von_Karman(1E-4)
-    f_precalc = 0.01197365149564789
+    f_precalc = 0.011979797083255311
     assert_close(f, f_precalc)
 
 
@@ -484,8 +484,8 @@ def test_helical_transition_Re_Kubair_Kuloor():
 
 
 def test_helical_transition_Re_Kutateladze_Borishanskii():
-    assert_close(helical_transition_Re_Kutateladze_Borishanskii(1, 7.),  7121.143774574058)
-    assert_close(helical_transition_Re_Kutateladze_Borishanskii(1, 1E20), 2300)
+    assert_close(helical_transition_Re_Kutateladze_Borishanskii(1, 7.),  8156.793165684084)
+    assert_close(helical_transition_Re_Kutateladze_Borishanskii(1, 1E20), 2300.0105)
 
 
 def test_helical_transition_Re_Schmidt():
