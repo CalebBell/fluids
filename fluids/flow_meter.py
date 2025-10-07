@@ -560,7 +560,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     if D < 0.07112:
         # Limit is 2.8 inches, .1 inches smaller than the internal diameter of
         # a sched. 80 pipe.
-        # Suggested to be required not becausue of any effect of small
+        # Suggested to be required not because of any effect of small
         # diameters themselves, but because of edge radius differences.
         # max term is given in [4]_ Reader-Harris, Michael book
         # There is a check for t3 being negative and setting it to zero if so
@@ -839,7 +839,7 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
             elif tap_position == TAPS_SIDE:
                 if D < 0.1:
                     b = 69.1 - 469.4*beta + 1245.6*beta2 -1287.5*beta3 + 486.2*beta4
-                    C_inf = 0.5866 + 0.3917*beta21 + 0.7586*beta8 -.2273*beta4/(1.0-beta4) - .3343*beta3
+                    C_inf = 0.5866 + 0.3917*beta21 + 0.7586*beta8 - 0.2273*beta4/(1.0-beta4) - 0.3343*beta3
                 else:
                     b = -103.2 + 898.3*beta - 2557.3*beta2 + 2977.0*beta3 - 1131.3*beta4
                     C_inf = 0.6037 + 0.1598*beta21 - 0.2918*beta8 + 0.0244*beta4/(1.0-beta4) - 0.0790*beta3
@@ -854,10 +854,10 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
             elif tap_position == TAPS_SIDE:
                 if D < 0.1:
                     b = -69.3 + 556.9*beta - 1332.2*beta2 + 1303.7*beta3 - 394.8*beta4
-                    C_inf = 0.5875 + 0.3813*beta21 + 0.6898*beta8 -0.1963*beta4/(1.0-beta4) - 0.3366*beta3
+                    C_inf = 0.5875 + 0.3813*beta21 + 0.6898*beta8 - 0.1963*beta4/(1.0-beta4) - 0.3366*beta3
                 else:
                     b = 52.8 - 434.2*beta + 1571.2*beta2 - 2460.9*beta3 + 1420.2*beta4
-                    C_inf = 0.5949 + 0.4078*beta21 + 0.0547*beta8 +0.0955*beta4/(1.0-beta4) - 0.5608*beta3
+                    C_inf = 0.5949 + 0.4078*beta21 + 0.0547*beta8 + 0.0955*beta4/(1.0-beta4) - 0.5608*beta3
         else:
             raise ValueError(_Miller_1996_unsupported_tap_eccentric)
     elif subtype in (MILLER_SEGMENTAL_ORIFICE, SEGMENTAL_ORIFICE):
@@ -1556,7 +1556,7 @@ def C_venturi_nozzle(D, Do):
     Examples
     --------
     >>> C_venturi_nozzle(D=0.07391, Do=0.0422)
-    0.9698996454169576
+    0.970060255059
 
     References
     ----------
@@ -1569,13 +1569,13 @@ def C_venturi_nozzle(D, Do):
     beta = Do/D
     beta_ratio_4 = beta*beta
     beta_ratio_4 *= beta_ratio_4
-    return 0.9858 - 0.198*beta_ratio_4*sqrt(beta)
+    return 0.9858 - 0.196*beta_ratio_4*sqrt(beta)
 
 
 # Relative pressure loss as a function of beta ratio for venturi nozzles
 # Venturi nozzles should be between 65 mm and 500 mm; there are high and low
 # loss ratios , with the high losses corresponding to small diameters,
-# low high losses corresponding to large diameters
+# low losses corresponding to large diameters
 # Interpolation can be performed.
 
 venturi_tube_betas = [0.299160, 0.299470, 0.312390, 0.319010, 0.326580, 0.337290,
@@ -2514,7 +2514,7 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
     ... meter_type='ISO 5167 orifice', taps='D')
     (0.6151252900244296, 0.9711026966676307)
     """
-#    # Translate default meter type to implementation specific correlation
+    # Translate default meter type to implementation specific correlation
     if meter_type == CONCENTRIC_ORIFICE:
         meter_type = ISO_5167_ORIFICE
     elif meter_type == ECCENTRIC_ORIFICE:

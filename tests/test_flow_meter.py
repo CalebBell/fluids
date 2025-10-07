@@ -490,7 +490,7 @@ def test_C_ISA_1932_nozzle():
 
 def test_C_venturi_nozzle():
     C = C_venturi_nozzle(D=0.07391, Do=0.0422)
-    assert_close(C, 0.9698996454169576)
+    assert_close(C, 0.97006025505)
 
 
 def test_diameter_ratio_cone_meter():
