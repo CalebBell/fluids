@@ -234,7 +234,7 @@ def friction_laminar(Re):
 
     Notes
     -----
-    For round pipes, this is valid for :math:`Re \approx< 2040`.
+    For round pipes, this is valid for :math:`Re < 2040`.
 
     Results in [2]_ show that this theoretical solution calculates too low of
     friction factors from Re = 10 and up, with an average deviation of 4%.
@@ -297,7 +297,7 @@ def Blasius(Re):
 def Colebrook(Re, eD, tol=None):
     r"""Calculates Darcy friction factor using the Colebrook equation
     originally published in [1]_. Normally, this function uses an exact
-    solution to the Colebrook equation, derived with a CAS. A numerical can
+    solution to the Colebrook equation, derived with a CAS. A numerical solution can
     also be used.
 
     .. math::
@@ -388,7 +388,7 @@ def Colebrook(Re, eD, tol=None):
             from mpmath import lambertw as mp_lambertw
             from mpmath import log, mp, mpf
             from mpmath import sqrt as sqrtmp
-        except:
+        except ImportError:
             raise ImportError('For exact solutions, the `mpmath` library is '
                               'required')
         mp.dps = 50
@@ -458,7 +458,7 @@ def Clamond(Re, eD, fast=False):
     the LambertW function, and faster than many other approximations which are
     much less accurate.
 
-    The code used here is only slightly modified than that in [1]_, for further
+    The code used here is only slightly modified from that in [1]_, for further
     performance improvements.
 
     For 10 < Re < 1E12, and 0 < eD < 0.01, this equation has been confirmed
@@ -500,7 +500,7 @@ def Clamond(Re, eD, fast=False):
         E = (log(X1F) + F - X2)/(X1F1)
 
         b = (X1F1 + E*(1. + 1.0/3.0*E))
-        F = b/(b*F -  ((X1F1 + 0.5*E)*E*(X1F)))
+        F = b/(b*F - ((X1F1 + 0.5*E)*E*(X1F)))
         return 1.325474527619599502640416597148504422899*(F*F) # ((0.5*log(10))**2).evalf(40)
 
     return 1.325474527619599502640416597148504422899/(F*F) # ((0.5*log(10))**2).evalf(40)
@@ -623,11 +623,11 @@ def Wood_1966(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Wood, D.J.: An Explicit Friction Factor Relationship, vol. 60.
+    .. [2] Wood, D.J.: An Explicit Friction Factor Relationship, vol. 60.
        Civil Engineering American Society of Civil Engineers (1966)
     """
     A1 = 1.62*eD**0.134
-    return 0.094*eD**0.225 + 0.53*eD +88.0*eD**0.4*Re**-A1
+    return 0.094*eD**0.225 + 0.53*eD + 88.0*eD**0.4*Re**-A1
 
 
 def Churchill_1973(Re, eD):
@@ -708,7 +708,7 @@ def Eck_1973(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] Eck, B.: Technische Stromungslehre. Springer, New York (1973)
+    .. [2] Eck, B.: Technische Strömungslehre. Springer, New York (1973)
     """
     term = (-2.0*log10(eD*(1.0/3.715) + 15.0/Re))
     return 1.0/(term*term)
@@ -749,7 +749,7 @@ def Jain_1976(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Jain, Akalank K."Accurate Explicit Equation for Friction Factor."
+    .. [2] Jain, Akalank K. "Accurate Explicit Equation for Friction Factor."
        Journal of the Hydraulics Division 102, no. 5 (May 1976): 674-77.
     """
     term = (2.28-4.0*log10(eD+(29.843/Re)**0.9))
@@ -791,7 +791,7 @@ def Swamee_Jain_1976(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] Swamee, Prabhata K., and Akalank K. Jain."Explicit Equations for
+    .. [2] Swamee, Prabhata K., and Akalank K. Jain. "Explicit Equations for
        Pipe-Flow Problems." Journal of the Hydraulics Division 102, no. 5
        (May 1976): 657-664.
     """
@@ -840,7 +840,7 @@ def Churchill_1977(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2]	Churchill, S.W.: Friction factor equation spans all fluid flow
+    .. [2] Churchill, S.W.: Friction factor equation spans all fluid flow
        regimes. Chem. Eng. J. 91, 91-92 (1977)
     """
     A3 = (37530/Re)**16
@@ -888,7 +888,7 @@ def Chen_1979(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Chen, Ning Hsing. "An Explicit Equation for Friction Factor in
+    .. [2] Chen, Ning Hsing. "An Explicit Equation for Friction Factor in
        Pipe." Industrial & Engineering Chemistry Fundamentals 18, no. 3
        (August 1, 1979): 296-97. doi:10.1021/i160071a019.
     """
@@ -932,7 +932,7 @@ def Round_1980(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] Round, G. F."An Explicit Approximation for the Friction
+    .. [2] Round, G. F. "An Explicit Approximation for the Friction
        Factor-Reynolds Number Relation for Rough and Smooth Pipes." The
        Canadian Journal of Chemical Engineering 58, no. 1 (February 1, 1980):
        122-23. doi:10.1002/cjce.5450580119.
@@ -1021,7 +1021,7 @@ def Barr_1981(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2]	Barr, Dih, and Colebrook White."Technical Note. Solutions Of The
+    .. [2] Barr, Dih, and Colebrook White. "Technical Note. Solutions Of The
        Colebrook-White Function For Resistance To Uniform Turbulent Flow."
        ICE Proceedings 71, no. 2 (January 6, 1981): 529-35.
        doi:10.1680/iicep.1981.1895.
@@ -1032,7 +1032,7 @@ def Barr_1981(Re, eD):
 
 def Zigrang_Sylvester_1(Re, eD):
     r"""Calculates Darcy friction factor using the method in
-     Zigrang and Sylvester (1982) [2]_ as shown in [1]_.
+    Zigrang and Sylvester (1982) [2]_ as shown in [1]_.
 
     .. math::
         \frac{1}{\sqrt{f_f}} = -4\log_{10}\left[\frac{\epsilon}{3.7D}
@@ -1067,7 +1067,7 @@ def Zigrang_Sylvester_1(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Zigrang, D. J., and N. D. Sylvester."Explicit Approximations to the
+    .. [2] Zigrang, D. J., and N. D. Sylvester. "Explicit Approximations to the
        Solution of Colebrook's Friction Factor Equation." AIChE Journal 28,
        no. 3 (May 1, 1982): 514-15. doi:10.1002/aic.690280323.
     """
@@ -1078,7 +1078,7 @@ def Zigrang_Sylvester_1(Re, eD):
 
 def Zigrang_Sylvester_2(Re, eD):
     r"""Calculates Darcy friction factor using the second method in
-     Zigrang and Sylvester (1982) [2]_ as shown in [1]_.
+    Zigrang and Sylvester (1982) [2]_ as shown in [1]_.
 
     .. math::
         \frac{1}{\sqrt{f_f}} = -4\log_{10}\left[\frac{\epsilon}{3.7D}
@@ -1117,7 +1117,7 @@ def Zigrang_Sylvester_2(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Zigrang, D. J., and N. D. Sylvester."Explicit Approximations to the
+    .. [2] Zigrang, D. J., and N. D. Sylvester. "Explicit Approximations to the
        Solution of Colebrook's Friction Factor Equation." AIChE Journal 28,
        no. 3 (May 1, 1982): 514-15. doi:10.1002/aic.690280323.
     """
@@ -1129,7 +1129,7 @@ def Zigrang_Sylvester_2(Re, eD):
 
 def Haaland(Re, eD):
     r"""Calculates Darcy friction factor using the method in
-     Haaland (1983) [2]_ as shown in [1]_.
+    Haaland (1983) [2]_ as shown in [1]_.
 
     .. math::
         f_f = \left(-1.8\log_{10}\left[\left(\frac{\epsilon/D}{3.7}
@@ -1162,7 +1162,7 @@ def Haaland(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Haaland, S. E."Simple and Explicit Formulas for the Friction Factor
+    .. [2] Haaland, S. E. "Simple and Explicit Formulas for the Friction Factor
        in Turbulent Pipe Flow." Journal of Fluids Engineering 105, no. 1
        (March 1, 1983): 89-90. doi:10.1115/1.3240948.
     """
@@ -1213,7 +1213,7 @@ def Serghides_1(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] Serghides T.K (1984)."Estimate friction factor accurately"
+    .. [2] Serghides, T. K. (1984). "Estimate friction factor accurately"
        Chemical Engineering, Vol. 91(5), pp. 63-64.
     """
     A = -2.0*log10(eD*(1.0/3.7) + 12.0/Re)
@@ -1266,7 +1266,7 @@ def Serghides_2(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2]	Serghides T.K (1984)."Estimate friction factor accurately"
+    .. [2] Serghides, T. K. (1984). "Estimate friction factor accurately"
        Chemical Engineering, Vol. 91(5), pp. 63-64.
     """
     A = -2.0*log10(eD*(1.0/3.7) + 12.0/Re)
@@ -1359,7 +1359,7 @@ def Manadilli_1997(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Manadilli, G.: Replace implicit equations with signomial functions.
+    .. [2] Manadilli, G.: Replace implicit equations with signomial functions.
        Chem. Eng. 104, 129 (1997)
     """
     term = (-2.0*log10(eD*(1.0/3.7) + 95.0*Re**-0.983 - 96.82/Re))
@@ -1371,7 +1371,7 @@ def Romeo_2002(Re, eD):
     [2]_ as shown in [1]_.
 
     .. math::
-        \frac{1}{\sqrt{f_d}} = -2\log_{10}\left\{\frac{\epsilon}{3.7065D}\times
+        \frac{1}{\sqrt{f_d}} = -2\log_{10}\left\{\frac{\epsilon}{3.7065D} -
         \frac{5.0272}{Re}\times\log_{10}\left[\frac{\epsilon}{3.827D} -
         \frac{4.567}{Re}\times\log_{10}\left(\frac{\epsilon}{7.7918D}^{0.9924} +
         \left(\frac{5.3326}{208.815+Re}\right)^{0.9345}\right)\right]\right\}
@@ -1403,7 +1403,7 @@ def Romeo_2002(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] Romeo, Eva, Carlos Royo, and Antonio Monzon."Improved Explicit
+    .. [2] Romeo, Eva, Carlos Royo, and Antonio Monzon. "Improved Explicit
        Equations for Estimation of the Friction Factor in Rough and Smooth
        Pipes." Chemical Engineering Journal 86, no. 3 (April 28, 2002): 369-74.
        doi:10.1016/S1385-8947(01)00254-6.
@@ -1449,7 +1449,7 @@ def Sonnad_Goudar_2006(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Travis, Quentin B., and Larry W. Mays."Relationship between
+    .. [2] Travis, Quentin B., and Larry W. Mays. "Relationship between
        Hazen-William and Colebrook-White Roughness Values." Journal of
        Hydraulic Engineering 133, no. 11 (November 2007): 1270-73.
        doi:10.1061/(ASCE)0733-9429(2007)133:11(1270).
@@ -1551,12 +1551,12 @@ def Buzzelli_2008(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Buzzelli, D.: Calculating friction in one step.
+    .. [2] Buzzelli, D.: Calculating friction in one step.
        Mach. Des. 80, 54-55 (2008)
     """
     B1 = (.774*log(Re)-1.41)/(1.0 + 1.32*sqrt(eD))
     B2 = eD*(1.0/3.7)*Re + 2.51*B1
-    term = (B1- (B1+2.0*log10(B2/Re))/(1.0+2.18/B2))
+    term = (B1 - (B1 + 2.0*log10(B2/Re))/(1.0 + 2.18/B2))
     return 1.0/(term*term)
 
 
@@ -1596,7 +1596,7 @@ def Avci_Karagoz_2009(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2]	Avci, Atakan, and Irfan Karagoz."A Novel Explicit Equation for
+    .. [2] Avci, Atakan, and Irfan Karagoz. "A Novel Explicit Equation for
        Friction Factor in Smooth and Rough Pipes." Journal of Fluids
        Engineering 131, no. 6 (2009): 061203. doi:10.1115/1.3129132.
     """
@@ -1638,7 +1638,7 @@ def Papaevangelo_2010(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Papaevangelou, G., Evangelides, C., Tzimopoulos, C.: A New Explicit
+    .. [2] Papaevangelou, G., Evangelides, C., Tzimopoulos, C.: A New Explicit
        Relation for the Friction Factor Coefficient in the Darcy-Weisbach
        Equation, pp. 166-172. Protection and Restoration of the Environment
        Corfu, Greece: University of Ioannina Greece and Stevens Institute of
@@ -1686,7 +1686,7 @@ def Brkic_2011_1(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Brkic, Dejan."Review of Explicit Approximations to the Colebrook
+    .. [2] Brkic, Dejan. "Review of Explicit Approximations to the Colebrook
        Relation for Flow Friction." Journal of Petroleum Science and
        Engineering 77, no. 1 (April 2011): 34-48.
        doi:10.1016/j.petrol.2011.02.006.
@@ -1733,7 +1733,7 @@ def Brkic_2011_2(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Brkic, Dejan."Review of Explicit Approximations to the Colebrook
+    .. [2] Brkic, Dejan. "Review of Explicit Approximations to the Colebrook
        Relation for Flow Friction." Journal of Petroleum Science and
        Engineering 77, no. 1 (April 2011): 34-48.
        doi:10.1016/j.petrol.2011.02.006.
@@ -1779,7 +1779,7 @@ def Fang_2011(Re, eD):
        Computational Efficiency for Turbulent Flow in Pipes." Flow, Turbulence
        and Combustion 90, no. 1 (January 1, 2013): 1-27.
        doi:10.1007/s10494-012-9419-7
-    .. [2] 	Fang, Xiande, Yu Xu, and Zhanru Zhou."New Correlations of
+    .. [2] Fang, Xiande, Yu Xu, and Zhanru Zhou. "New Correlations of
        Single-Phase Friction Factor for Turbulent Pipe Flow and Evaluation of
        Existing Single-Phase Friction Factor Correlations." Nuclear Engineering
        and Design, The International Conference on Structural Mechanics in
@@ -1791,7 +1791,7 @@ def Fang_2011(Re, eD):
 
 def von_Karman(eD):
     r"""Calculates Darcy friction factor for rough pipes at infinite Reynolds
-    number from the von Karman equation (as given in [1]_ and [2]_:
+    number from the von Karman equation (as given in [1]_ and [2]_):
 
     .. math::
         \frac{1}{\sqrt{f_d}} = -2 \log_{10} \left(\frac{\epsilon/D}{3.7}\right)
