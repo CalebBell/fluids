@@ -1039,7 +1039,7 @@ def V_vertical_ellipsoidal_concave(D, a, h):
     D : float
         Diameter of the main cylindrical section, [m]
     a : float
-        Negative distance the eppilsoid head extends inside the main cylinder, [m]
+        Negative distance the ellipsoid head extends inside the main cylinder, [m]
     h : float
         Height, as measured up to where the fluid ends, [m]
 
@@ -1593,9 +1593,9 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
     (10.602875205865551, 1.1780972450961726, 0.5890486225480863, 8.835729338221293)
     """
     if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unspoorted head type for side A')
+        raise ValueError('Unsupported head type for side A')
     if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unspoorted head type for side B')
+        raise ValueError('Unsupported head type for side B')
     R = 0.5*D
     sideA_V = sideB_V = lateral_V = 0.0
     if horizontal:
@@ -1607,7 +1607,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
                 sideA_V = V_horiz_conical(D, L, sideA_a, D, headonly=True)
             if sideB == 'conical':
                 sideB_V = V_horiz_conical(D, L, sideB_a, D, headonly=True)
-        # Elliosoidal case
+        # Ellipsoidal case
         if sideA == 'ellipsoidal' and sideB == 'ellipsoidal' and sideA_a == sideB_a:
             sideB_V = sideA_V = V_horiz_ellipsoidal(D, L, sideA_a, D, headonly=True)
         else:
@@ -2802,9 +2802,9 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
        http://www.chemicalprocessing.com/articles/2003/193/
     """
     if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unspoorted head type for side A')
+        raise ValueError('Unsupported head type for side A')
     if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unspoorted head type for side B')
+        raise ValueError('Unsupported head type for side B')
     R = 0.5*D
     V = 0.0
     if horizontal:
@@ -2819,7 +2819,7 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
                 V += V_horiz_conical(D, L, sideA_a, h, headonly=True)
             if sideB == 'conical':
                 V += V_horiz_conical(D, L, sideB_a, h, headonly=True)
-        # Elliosoidal case
+        # Ellipsoidal case
         if sideA == 'ellipsoidal' and sideB == 'ellipsoidal' and sideA_a == sideB_a:
             V += 2.0*V_horiz_ellipsoidal(D, L, sideA_a, h, headonly=True)
         else:
@@ -2953,9 +2953,9 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
        http://www.chemicalprocessing.com/articles/2003/193/
     """
     if sideA is not None and sideA not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unspoorted head type for side A')
+        raise ValueError('Unsupported head type for side A')
     if sideB is not None and sideB not in ('conical', 'ellipsoidal', 'torispherical', 'spherical', 'guppy'):
-        raise ValueError('Unspoorted head type for side B')
+        raise ValueError('Unsupported head type for side B')
     R = 0.5*D
     SA = 0.0
     if horizontal:
@@ -2966,7 +2966,7 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
             SA += SA_partial_horiz_conical_head(D, sideA_a, h)
         if sideB == 'conical':
             SA += SA_partial_horiz_conical_head(D, sideB_a, h)
-        # Elliosoidal case
+        # Ellipsoidal case
         if sideA == 'ellipsoidal':
             SA += SA_partial_horiz_ellipsoidal_head(D, sideA_a, h)
         if sideB == 'ellipsoidal':
@@ -3188,7 +3188,7 @@ class TANK:
 
     Notes
     -----
-    For torpsherical tank heads, the following `f` and `k` parameters are used
+    For torispherical tank heads, the following `f` and `k` parameters are used
     in standards. The default is ASME F&D.
 
 
