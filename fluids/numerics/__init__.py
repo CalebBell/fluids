@@ -160,9 +160,6 @@ class FakePackage(object):
     def __init__(self, pkg):
         self.pkg = pkg
 
-version_components = sys.version.split('.')
-PY_MAJOR, PY_MINOR = int(version_components[0]), int(version_components[1])
-PY37 = (PY_MAJOR, PY_MINOR) >= (3, 7)
 
 try:
     # The right way imports the platform module which costs to ms to load!
