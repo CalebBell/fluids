@@ -217,6 +217,7 @@ def bisplev(x, y, tck, dx=0, dy=0):
 
 @numba.njit(cache=caching, **extra_args_std)
 def combinations(pool, r):
+    pool = np.array(pool)
     n = len(pool)
 #    indices = tuple(list(range(r)))
     indices = np.arange(r)
