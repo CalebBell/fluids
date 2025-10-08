@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2021, 2023 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import pytest
 
@@ -61,7 +61,7 @@ except:
 
 def mark_mpmath(f):
     f = pytest.mark.mpmath(f)
-    f = pytest.mark.skipif(not has_mpmath, reason='missing mpmath')(f)
+    f = pytest.mark.skipif(not has_mpmath, reason="missing mpmath")(f)
     return f
 
 def test_cube_dd():

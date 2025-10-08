@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import types
 
@@ -80,15 +80,15 @@ from fluids.units import (
 
 
 def test_kwargs_to_args():
-    sig = ['rho', 'mu', 'nu']
+    sig = ["rho", "mu", "nu"]
     args = (1,)
-    kwargs = {'mu': 2.2}
+    kwargs = {"mu": 2.2}
     assert [1, 2.2, None] == kwargs_to_args(args, kwargs, sig)
 
-    kwargs = {'nu': 2.2}
+    kwargs = {"nu": 2.2}
     assert [1, None, 2.2] == kwargs_to_args(args, kwargs, sig)
 
-    assert [12.2, 2.2, 5.5] == kwargs_to_args(tuple(), {'mu': 2.2, 'nu': 5.5, 'rho': 12.2}, sig)
+    assert [12.2, 2.2, 5.5] == kwargs_to_args(tuple(), {"mu": 2.2, "nu": 5.5, "rho": 12.2}, sig)
     assert [None, None, None] == kwargs_to_args(tuple(), {}, sig)
 
     assert [12.2, 2.2, 5.5] == kwargs_to_args((12.2, 2.2, 5.5), {}, sig)
@@ -114,7 +114,7 @@ def assert_pint_allclose2d(value, magnitude, units, rtol=1e-7, atol=0):
     assert dict(value.dimensionality) == units
 
 def test_in_right_units():
-    assert u.default_system == 'mks'
+    assert u.default_system == "mks"
 
 def test_nondimensional_reduction():
     Re = 171.8865229090909 *u.meter * u.pound / u.centipoise / u.foot ** 2 / u.second
@@ -125,27 +125,27 @@ def test_nondimensional_reduction():
 def test_convert_input():
     from fluids.units import convert_input
 
-    ans = convert_input(5, 'm', u, False)
+    ans = convert_input(5, "m", u, False)
     assert ans == 5
     with pytest.raises(Exception):
-        convert_input(5, 'm', u, True)
+        convert_input(5, "m", u, True)
 
 def test_convert_output():
-    assert convert_output(None, ['Pa'], ['Pt'], u) is None
-    assert convert_output(True, ['Pa'], ['Pt'], u) is True
-    assert convert_output('hi', ['Pa'], ['Pt'], u) == 'hi'
+    assert convert_output(None, ["Pa"], ["Pt"], u) is None
+    assert convert_output(True, ["Pa"], ["Pt"], u) is True
+    assert convert_output("hi", ["Pa"], ["Pt"], u) == "hi"
 
-    val = convert_output(5.5, ['Pa'], ['Pt'], u)
+    val = convert_output(5.5, ["Pa"], ["Pt"], u)
     assert_close(val.to_base_units().magnitude, 5.5)
-    assert dict(val.dimensionality) == {'[length]': -1, '[mass]': 1, '[time]': -2}
+    assert dict(val.dimensionality) == {"[length]": -1, "[mass]": 1, "[time]": -2}
 
-    mat = convert_output(np.array([[1,2, 6], [3,4,9.5]]), ['Pa'], ['Pt'], u)
+    mat = convert_output(np.array([[1,2, 6], [3,4,9.5]]), ["Pa"], ["Pt"], u)
     assert mat.shape == (2, 3)
-    assert dict(val.dimensionality) == {'[length]': -1, '[mass]': 1, '[time]': -2}
+    assert dict(val.dimensionality) == {"[length]": -1, "[mass]": 1, "[time]": -2}
 
-    mat = convert_output([[1,2, 6], [3,4,9.5]], ['Pa'], ['Pt'], u)
+    mat = convert_output([[1,2, 6], [3,4,9.5]], ["Pa"], ["Pt"], u)
     assert mat.shape == (2, 3)
-    assert dict(val.dimensionality) == {'[length]': -1, '[mass]': 1, '[time]': -2}
+    assert dict(val.dimensionality) == {"[length]": -1, "[mass]": 1, "[time]": -2}
 
 def test_sample_cases():
     Re = Reynolds(V=3.5*u.m/u.s, D=2*u.m, rho=997.1*u.kg/u.m**3, mu=1E-3*u.Pa*u.s)
@@ -154,11 +154,11 @@ def test_sample_cases():
 
     A = API520_A_g(m=24270*u.kg/u.hour, T=348.*u.K, Z=0.90, MW=51.*u.g/u.mol, k=1.11, P1=670*u.kPa, Kb=1, Kc=1)
     assert_close(A.to_base_units().magnitude, 0.00369904606468)
-    assert dict(A.dimensionality) == {'[length]': 2.0}
+    assert dict(A.dimensionality) == {"[length]": 2.0}
 
     T = T_critical_flow(473*u.K, 1.289)
     assert_close(T.to_base_units().magnitude, 413.280908694)
-    assert dict(T.dimensionality) == {'[temperature]': 1.0}
+    assert dict(T.dimensionality) == {"[temperature]": 1.0}
 
     T2 = T_critical_flow(473*u.K, 1.289*u.dimensionless)
 
@@ -179,59 +179,59 @@ def test_sample_cases():
     Z=0.988, P1=680*u.kPa, P2=310*u.kPa, Q=38/36.*u.m**3/u.s, D1=0.08*u.m, D2=0.1*u.m, d=0.05*u.m,
     FL=0.85, Fd=0.42, xT=0.60)
     assert_close(A.to_base_units().magnitude, 0.0201629570705307)
-    assert dict(A.dimensionality) == {'[length]': 3.0, '[time]': -1.0}
+    assert dict(A.dimensionality) == {"[length]": 3.0, "[time]": -1.0}
 
     A = API520_round_size(A=1E-4*u.m**2)
     assert_close(A.to_base_units().magnitude, 0.00012645136)
-    assert dict(A.dimensionality) == {'[length]': 2.0}
+    assert dict(A.dimensionality) == {"[length]": 2.0}
 
     SS = specific_speed(0.0402*u.m**3/u.s, 100*u.m, 3550*u.rpm)
     assert_close(SS.to_base_units().magnitude, 2.3570565251512066)
-    assert dict(SS.dimensionality) == {'[length]': 0.75, '[time]': -1.5}
+    assert dict(SS.dimensionality) == {"[length]": 0.75, "[time]": -1.5}
 
     v = Geldart_Ling(1.*u.kg/u.s, 1.2*u.kg/u.m**3, 0.1*u.m, 2E-5*u.Pa*u.s)
     assert_close(v.to_base_units().magnitude, 7.467495862402707)
-    assert dict(v.dimensionality) == {'[length]': 1.0, '[time]': -1.0}
+    assert dict(v.dimensionality) == {"[length]": 1.0, "[time]": -1.0}
 
     s = speed_synchronous(50*u.Hz, poles=12)
     assert_close(s.to_base_units().magnitude, 157.07963267948966/3)
-    assert dict(s.dimensionality) == {'[time]': -1.0}
+    assert dict(s.dimensionality) == {"[time]": -1.0}
 
-    t = t_from_gauge(.2, False, 'AWG')
+    t = t_from_gauge(.2, False, "AWG")
     assert_close(t.to_base_units().magnitude, 0.5165)
-    assert dict(t.dimensionality) == {'[length]': 1.0}
+    assert dict(t.dimensionality) == {"[length]": 1.0}
 
     dP = Robbins(G=2.03*u.kg/u.m**2/u.s, rhol=1000*u.kg/u.m**3, Fpd=24/u.ft, L=12.2*u.kg/u.m**2/u.s, rhog=1.1853*u.kg/u.m**3, mul=0.001*u.Pa*u.s, H=2*u.m)
     assert_close(dP.to_base_units().magnitude, 619.662459344 )
-    assert dict(dP.dimensionality) == {'[length]': -1.0, '[mass]': 1.0, '[time]': -2.0}
+    assert dict(dP.dimensionality) == {"[length]": -1.0, "[mass]": 1.0, "[time]": -2.0}
 
     dP = dP_packed_bed(dp=8E-4*u.m, voidage=0.4, vs=1E-3*u.m/u.s, rho=1E3*u.kg/u.m**3, mu=1E-3*u.Pa*u.s)
     assert_close(dP.to_base_units().magnitude, 1438.28269588 )
-    assert dict(dP.dimensionality) == {'[length]': -1.0, '[mass]': 1.0, '[time]': -2.0}
+    assert dict(dP.dimensionality) == {"[length]": -1.0, "[mass]": 1.0, "[time]": -2.0}
 
     dP = dP_packed_bed(dp=8E-4*u.m, voidage=0.4*u.dimensionless, vs=1E-3*u.m/u.s, rho=1E3*u.kg/u.m**3, mu=1E-3*u.Pa*u.s, Dt=0.01*u.m)
     assert_close(dP.to_base_units().magnitude, 1255.16256625)
-    assert dict(dP.dimensionality) == {'[length]': -1.0, '[mass]': 1.0, '[time]': -2.0}
+    assert dict(dP.dimensionality) == {"[length]": -1.0, "[mass]": 1.0, "[time]": -2.0}
 
     n = C_Chezy_to_n_Manning(26.15*u.m**0.5/u.s, Rh=5*u.m)
     assert_close(n.to_base_units().magnitude, 0.05000613713238358)
-    assert dict(n.dimensionality) == {'[length]': -0.3333333333333333, '[time]': 1.0}
+    assert dict(n.dimensionality) == {"[length]": -0.3333333333333333, "[time]": 1.0}
 
     Q = Q_weir_rectangular_SIA(0.2*u.m, 0.5*u.m, 1*u.m, 2*u.m)
     assert_close(Q.to_base_units().magnitude, 1.0408858453811165)
-    assert dict(Q.dimensionality) == {'[length]': 3.0, '[time]': -1.0}
+    assert dict(Q.dimensionality) == {"[length]": 3.0, "[time]": -1.0}
 
     t = agitator_time_homogeneous(D=36*.0254*u.m, N=56/60.*u.revolutions/u.second, P=957.*u.W, T=1.83*u.m, H=1.83*u.m, mu=0.018*u.Pa*u.s, rho=1020*u.kg/u.m**3, homogeneity=.995)
     assert_close(t.to_base_units().magnitude, 15.143198226374668)
-    assert dict(t.dimensionality) == {'[time]': 1.0}
+    assert dict(t.dimensionality) == {"[time]": 1.0}
 
     K = K_separator_Watkins(0.88*u.dimensionless, 985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, horizontal=True)
     assert_close(K.to_base_units().magnitude, 0.07951613600476297, rtol=1e-2)
-    assert dict(K.dimensionality) == {'[length]': 1.0, '[time]': -1.0}
+    assert dict(K.dimensionality) == {"[length]": 1.0, "[time]": -1.0}
 
     A = current_ideal(V=120*u.V, P=1E4*u.W, PF=1, phase=1)
     assert_close(A.to_base_units().magnitude, 83.33333333333333)
-    assert dict(A.dimensionality) == {'[current]': 1.0}
+    assert dict(A.dimensionality) == {"[current]": 1.0}
 
     fd = friction_factor(Re=1E5, eD=1E-4)
     assert_close(fd.to_base_units().magnitude, 0.01851386607747165)
@@ -243,7 +243,7 @@ def test_sample_cases():
 
     Cv = K_to_Cv(16, .015*u.m)
     assert_close(Cv.to_base_units().magnitude, 0.0001641116865931214)
-    assert dict(Cv.dimensionality) == {'[length]': 3.0, '[time]': -1.0}
+    assert dict(Cv.dimensionality) == {"[length]": 3.0, "[time]": -1.0}
 
     Cd = drag_sphere(200)
     assert_close(Cd.to_base_units().magnitude, 0.7682237950389874)
@@ -251,9 +251,9 @@ def test_sample_cases():
 
     V, D = integrate_drag_sphere(D=0.001*u.m, rhop=2200.*u.kg/u.m**3, rho=1.2*u.kg/u.m**3, mu=1.78E-5*u.Pa*u.s, t=0.5*u.s, V=30*u.m/u.s, distance=True)
     assert_close(V.to_base_units().magnitude, 9.686465044063436)
-    assert dict(V.dimensionality) == {'[length]': 1.0, '[time]': -1.0}
+    assert dict(V.dimensionality) == {"[length]": 1.0, "[time]": -1.0}
     assert_close(D.to_base_units().magnitude, 7.829454643649386)
-    assert dict(D.dimensionality) == {'[length]': 1.0}
+    assert dict(D.dimensionality) == {"[length]": 1.0}
 
     Bo = Bond(1000*u.kg/u.m**3, 1.2*u.kg/u.m**3, .0589*u.N/u.m, 2*u.m)
     assert_close(Bo.to_base_units().magnitude, 665187.2339558573)
@@ -261,54 +261,54 @@ def test_sample_cases():
 
     head = head_from_P(P=98066.5*u.Pa, rho=1000*u.kg/u.m**3)
     assert_close(head.to_base_units().magnitude, 10.000000000000002)
-    assert dict(head.dimensionality) == {'[length]': 1.0}
+    assert dict(head.dimensionality) == {"[length]": 1.0}
 
-    roughness = roughness_Farshad('Cr13, bare', 0.05*u.m)
+    roughness = roughness_Farshad("Cr13, bare", 0.05*u.m)
     assert_close(roughness.to_base_units().magnitude, 5.3141677781137006e-05)
-    assert dict(roughness.dimensionality) == {'[length]': 1.0}
+    assert dict(roughness.dimensionality) == {"[length]": 1.0}
 
 
 
 def test_custom_wraps():
     A = A_multiple_hole_cylinder(0.01*u.m, 0.1*u.m, [(0.005*u.m, 1)])
     assert_close(A.to_base_units().magnitude, 0.004830198704894308)
-    assert dict(A.dimensionality) == {'[length]': 2.0}
+    assert dict(A.dimensionality) == {"[length]": 2.0}
 
     V = V_multiple_hole_cylinder(0.01*u.m, 0.1*u.m, [(0.005*u.m, 1)])
     assert_close(V.to_base_units().magnitude, 5.890486225480862e-06)
-    assert dict(V.dimensionality) == {'[length]': 3.0}
+    assert dict(V.dimensionality) == {"[length]": 3.0}
 
     # custom compressible flow model wrappers
     functions = [Panhandle_A, Panhandle_B, Weymouth, Spitzglass_high, Oliphant, Fritzsche]
     values = [42.56082051195928, 42.35366178004172, 32.07729055913029, 29.42670246281681, 28.851535408143057, 39.421535157535565]
     for f, v in zip(functions, values):
         ans = f(D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, SG=0.693, Tavg=277.15*u.K)
-        assert_pint_allclose(ans, v, {'[length]': 3.0, '[time]': -1.0})
+        assert_pint_allclose(ans, v, {"[length]": 3.0, "[time]": -1.0})
 
     ans = IGT(D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, SG=0.693, mu=1E-5*u.Pa*u.s, Tavg=277.15*u.K)
-    assert_pint_allclose(ans, 48.92351786788815, {'[length]': 3.0, '[time]': -1.0})
+    assert_pint_allclose(ans, 48.92351786788815, {"[length]": 3.0, "[time]": -1.0})
 
     ans = Muller(D=0.340*u.m, P1=90E5*u.Pa, P2=20E5*u.Pa, L=160E3*u.m, SG=0.693, mu=1E-5*u.Pa*u.s, Tavg=277.15*u.K)
-    assert_pint_allclose(ans, 60.45796698148659, {'[length]': 3.0, '[time]': -1.0})
+    assert_pint_allclose(ans, 60.45796698148659, {"[length]": 3.0, "[time]": -1.0})
 
 
     nu = nu_mu_converter(rho=1000*u.kg/u.m**3, mu=1E-4*u.Pa*u.s)
-    assert_pint_allclose(nu, 1E-7, {'[length]': 2.0, '[time]': -1.0})
+    assert_pint_allclose(nu, 1E-7, {"[length]": 2.0, "[time]": -1.0})
 
     mu = nu_mu_converter(rho=1000*u.kg/u.m**3, nu=1E-7*u.m**2/u.s)
-    assert_pint_allclose(mu, 1E-4, {'[time]': -1.0, '[length]': -1.0, '[mass]': 1.0})
+    assert_pint_allclose(mu, 1E-4, {"[time]": -1.0, "[length]": -1.0, "[mass]": 1.0})
 
-    SA = SA_tank(D=1.*u.m, L=0*u.m, sideA='ellipsoidal', sideA_a=2*u.m, sideB='ellipsoidal', sideB_a=2*u.m)[0]
-    assert_pint_allclose(SA, 10.124375616183064, {'[length]': 2.0})
+    SA = SA_tank(D=1.*u.m, L=0*u.m, sideA="ellipsoidal", sideA_a=2*u.m, sideB="ellipsoidal", sideB_a=2*u.m)[0]
+    assert_pint_allclose(SA, 10.124375616183064, {"[length]": 2.0})
 
-    SA, sideA_SA, sideB_SA, lateral_SA = SA_tank(D=1.*u.m, L=0*u.m, sideA='ellipsoidal', sideA_a=2*u.m, sideB='ellipsoidal', sideB_a=2*u.m)
+    SA, sideA_SA, sideB_SA, lateral_SA = SA_tank(D=1.*u.m, L=0*u.m, sideA="ellipsoidal", sideA_a=2*u.m, sideB="ellipsoidal", sideB_a=2*u.m)
     expect = [10.124375616183064, 5.062187808091532, 5.062187808091532, 0]
     for value, expected in zip([SA, sideA_SA, sideB_SA, lateral_SA], expect):
-        assert_pint_allclose(value, expected, {'[length]': 2.0})
+        assert_pint_allclose(value, expected, {"[length]": 2.0})
 
 
     m = isothermal_gas(rho=11.3*u.kg/u.m**3, fd=0.00185*u.dimensionless, P1=1E6*u.Pa, P2=9E5*u.Pa, L=1000*u.m, D=0.5*u.m)
-    assert_pint_allclose(m, 145.484757, {'[mass]': 1.0, '[time]': -1.0})
+    assert_pint_allclose(m, 145.484757, {"[mass]": 1.0, "[time]": -1.0})
 
 
 def test_db_functions():
@@ -323,15 +323,15 @@ def test_db_functions():
 
 def test_check_signatures():
     from fluids.units import check_args_order
-    bad_names = {'__getattr__', 'all_submodules'}
+    bad_names = {"__getattr__", "all_submodules"}
     for name in dir(fluids):
         if name in bad_names:
             continue
         obj = getattr(fluids, name)
         if isinstance(obj, types.FunctionType):
-            if hasattr(obj, 'func_name') and obj.func_name == '<lambda>':
+            if hasattr(obj, "func_name") and obj.func_name == "<lambda>":
                 continue  # 2
-            if hasattr(obj, '__name__') and obj.__name__ == '<lambda>':
+            if hasattr(obj, "__name__") and obj.__name__ == "<lambda>":
                 continue # 3
             check_args_order(obj)
 
@@ -342,25 +342,25 @@ def test_parse_numpydoc_variables_units():
 def test_differential_pressure_meter_solver():
     m = differential_pressure_meter_solver(D=0.07366*u.m, D2=0.05*u.m, P1=200000.0*u.Pa,
         P2=183000.0*u.Pa, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless,
-        meter_type='ISO 5167 orifice', taps='D')
+        meter_type="ISO 5167 orifice", taps="D")
 
-    assert_pint_allclose(m, 7.702338035732167, {'[mass]': 1, '[time]': -1})
+    assert_pint_allclose(m, 7.702338035732167, {"[mass]": 1, "[time]": -1})
 
     P1 = differential_pressure_meter_solver(D=0.07366*u.m, D2=0.05*u.m, m=m,
         P2=183000.0*u.Pa, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless,
-        meter_type='ISO 5167 orifice', taps='D')
-    assert_pint_allclose(P1, 200000, {'[length]': -1, '[mass]': 1, '[time]': -2})
+        meter_type="ISO 5167 orifice", taps="D")
+    assert_pint_allclose(P1, 200000, {"[length]": -1, "[mass]": 1, "[time]": -2})
 
     P2 = differential_pressure_meter_solver(D=0.07366*u.m, D2=0.05*u.m, P1=200000.0*u.Pa,
         m=m, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless,
-        meter_type='ISO 5167 orifice', taps='D')
+        meter_type="ISO 5167 orifice", taps="D")
 
-    assert_pint_allclose(P2, 183000, {'[length]': -1, '[mass]': 1, '[time]': -2})
+    assert_pint_allclose(P2, 183000, {"[length]": -1, "[mass]": 1, "[time]": -2})
 
     D2 = differential_pressure_meter_solver(D=0.07366*u.m, m=m, P1=200000.0*u.Pa,
         P2=183000.0*u.Pa, rho=999.1*u.kg/u.m**3, mu=0.0011*u.Pa*u.s, k=1.33*u.dimensionless,
-        meter_type='ISO 5167 orifice', taps='D')
-    assert_pint_allclose(D2, .05, {'[length]': 1})
+        meter_type="ISO 5167 orifice", taps="D")
+    assert_pint_allclose(D2, .05, {"[length]": 1})
 
 
 
@@ -369,12 +369,12 @@ def test_Tank_units_full():
     T1 = TANK(L=3*u.m, D=150*u.cm, horizontal=True, sideA=None, sideB=None)
 
     # test all methods
-    V = T1.V_from_h(0.1*u.m, 'full')
+    V = T1.V_from_h(0.1*u.m, "full")
     assert_pint_allclose(V, 0.151783071377, u.m**3)
 
-    h = T1.h_from_V(0.151783071377*u.m**3, method='brenth')
+    h = T1.h_from_V(0.151783071377*u.m**3, method="brenth")
     assert_pint_allclose(h, 0.1, u.m)
-    h = T1.h_from_V(0.151783071377*u.m**3, 'brenth')
+    h = T1.h_from_V(0.151783071377*u.m**3, "brenth")
     assert_pint_allclose(h, 0.1, u.m)
 
     # Check the table and approximations

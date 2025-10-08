@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 from fluids.atmosphere import earthsun_distance, solar_irradiation, solar_position, sunrise_sunset
 from fluids.numerics import assert_close, assert_close1d
@@ -94,11 +94,11 @@ def test_airmass():
 
 @pytest.mark.pytz
 def test_solar_position():
-    pos = solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 7, 10, 57)), -31.95265, 115.85742)
+    pos = solar_position(pytz.timezone("Australia/Perth").localize(datetime(2020, 6, 6, 7, 10, 57)), -31.95265, 115.85742)
     pos_expect = [90.89617025931763, 90.89617025931763, -0.8961702593176304, -0.8961702593176304, 63.60160176917509, 79.07112321438035]
     assert_close1d(pos, pos_expect, rtol=1e-9)
 
-    pos = solar_position(pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 14, 30, 0)), -31.95265, 115.85742)
+    pos = solar_position(pytz.timezone("Australia/Perth").localize(datetime(2020, 6, 6, 14, 30, 0)), -31.95265, 115.85742)
     pos_expect = [63.40805686233129, 63.44000181582068, 26.591943137668704, 26.559998184179317, 325.1213762464115, 75.74674754854641]
     assert_close1d(pos, pos_expect, rtol=1e-9)
 
@@ -107,10 +107,10 @@ def test_solar_position():
     assert_close1d(pos, pos_expect, rtol=1e-9)
 
     local_time = datetime(2018, 4, 15, 6, 43, 5)
-    local_time = pytz.timezone('America/Edmonton').localize(local_time)
+    local_time = pytz.timezone("America/Edmonton").localize(local_time)
     assert_close(solar_position(local_time, 51.0486, -114.07)[0], 90.00054676987014, rtol=1e-9)
 
-    pos = solar_position(pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 20, 30, 28)), 51.0486, -114.07)
+    pos = solar_position(pytz.timezone("America/Edmonton").localize(datetime(2018, 4, 15, 20, 30, 28)), 51.0486, -114.07)
     pos_expect = [89.9995695661236, 90.54103812161853, 0.00043043387640950836, -0.5410381216185247, 286.8313781904518, 6.631429525878048]
     assert_close1d(pos, pos_expect, rtol=1e-9)
 
@@ -126,7 +126,7 @@ def test_earthsun_distance():
     dt = earthsun_distance(datetime(2013, 7, 5, 8, 44, 0, 0))
     assert_close(dt, 152097326908.20578, rtol=1e-10)
 
-    assert_close(earthsun_distance(pytz.timezone('America/Edmonton').localize(datetime(2020, 6, 6, 10, 0, 0, 0))),
+    assert_close(earthsun_distance(pytz.timezone("America/Edmonton").localize(datetime(2020, 6, 6, 10, 0, 0, 0))),
                  151817805599.67142, rtol=1e-10)
 
     assert_close(earthsun_distance(datetime(2020, 6, 6, 10, 0, 0, 0)),
@@ -147,7 +147,7 @@ def test_solar_irradiation():
 def test_solar_irradiation_pytz():
     import pytz
     # Providing linke_turbidity always saves .1 seconds on unit testing from loading database
-    ans = solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3, moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,  surface_azimuth=180.0)
+    ans = solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3, moment=pytz.timezone("America/Edmonton").localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,  surface_azimuth=180.0)
     ans_expect = [1065.7622492480543, 945.2657257434173, 120.49652350463705, 95.31534254980346, 25.18118095483359]
     assert_close1d(ans, ans_expect, rtol=1e-5)
 
@@ -164,7 +164,7 @@ def test_sunrise_sunset():
 
 @pytest.mark.pytz
 def test_sunrise_sunset_pytz():
-    calgary = pytz.timezone('America/Edmonton')
+    calgary = pytz.timezone("America/Edmonton")
     sunrise, sunset, transit = sunrise_sunset(calgary.localize(datetime(2018, 4, 17)), 51.0486, -114.07)
     assert sunrise == calgary.localize(datetime(2018, 4, 16, 6, 39, 1, 570479))
     assert sunset == calgary.localize(datetime(2018, 4, 16, 20, 32, 25, 778162))

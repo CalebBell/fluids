@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 from math import isnan, log10, pi
 
@@ -159,7 +159,7 @@ def test_friction():
     methods_1 = friction_factor_methods(Re=1E5, eD=1E-4)
     methods_1.sort()
 
-    methods_2 = ['Clamond', 'Colebrook', 'Manadilli_1997', 'Haaland', 'Alshul_1952', 'Avci_Karagoz_2009', 'Rao_Kumar_2007', 'Zigrang_Sylvester_2', 'Eck_1973', 'Buzzelli_2008', 'Tsal_1989', 'Papaevangelo_2010', 'Barr_1981', 'Jain_1976', 'Moody', 'Brkic_2011_2', 'Brkic_2011_1', 'Swamee_Jain_1976', 'Wood_1966', 'Shacham_1980', 'Romeo_2002', 'Chen_1979', 'Fang_2011', 'Round_1980', 'Sonnad_Goudar_2006', 'Churchill_1973', 'Churchill_1977', 'Serghides_2', 'Serghides_1', 'Zigrang_Sylvester_1']
+    methods_2 = ["Clamond", "Colebrook", "Manadilli_1997", "Haaland", "Alshul_1952", "Avci_Karagoz_2009", "Rao_Kumar_2007", "Zigrang_Sylvester_2", "Eck_1973", "Buzzelli_2008", "Tsal_1989", "Papaevangelo_2010", "Barr_1981", "Jain_1976", "Moody", "Brkic_2011_2", "Brkic_2011_1", "Swamee_Jain_1976", "Wood_1966", "Shacham_1980", "Romeo_2002", "Chen_1979", "Fang_2011", "Round_1980", "Sonnad_Goudar_2006", "Churchill_1973", "Churchill_1977", "Serghides_2", "Serghides_1", "Zigrang_Sylvester_1"]
     methods_2.sort()
     assert methods_1 == methods_2
 
@@ -167,12 +167,12 @@ def test_friction():
     assert_close(friction_factor(Re=128), 0.5)
 
     assert_close(friction_factor(Re=1E5, eD=0, Method=None), 0.01798977308427384)
-    assert_close(friction_factor(20000, eD=0.0, Method='laminar'), 0.0032)
+    assert_close(friction_factor(20000, eD=0.0, Method="laminar"), 0.0032)
 
     with pytest.raises(ValueError):
-        friction_factor(Re=1E5, eD=0, Method='BADMETHOD')
+        friction_factor(Re=1E5, eD=0, Method="BADMETHOD")
 
-    assert ['laminar'] == friction_factor_methods(200, 0, True)
+    assert ["laminar"] == friction_factor_methods(200, 0, True)
     assert 31 == len(friction_factor_methods(200, 0, False))
 
     for m in friction_factor_methods(200, 0, False):
@@ -180,7 +180,7 @@ def test_friction():
 
     fd = ft_Crane(.1)
     Di = 0.1
-    fd_act = Clamond(7.5E6*Di, eD=roughness_Farshad(ID='Carbon steel, bare', D=Di)/Di)
+    fd_act = Clamond(7.5E6*Di, eD=roughness_Farshad(ID="Carbon steel, bare", D=Di)/Di)
     assert_close(fd, fd_act, rtol=5e-6)
 
 def test_friction_Colebrook():
@@ -195,7 +195,7 @@ def test_friction_Colebrook():
 
 @pytest.mark.slow
 @pytest.mark.mpmath
-@pytest.mark.skipif(not has_mpmath, reason='mpmath is not installed')
+@pytest.mark.skipif(not has_mpmath, reason="mpmath is not installed")
 def test_Colebrook_numerical_mpmath():
     # tested at n=500 for both Re and eD
     Res = logspace(log10(1e-12), log10(1E12), 30) # 1E12 is too large for sympy - it slows down too much
@@ -208,7 +208,7 @@ def test_Colebrook_numerical_mpmath():
 
 @pytest.mark.slow
 @pytest.mark.mpmath
-@pytest.mark.skipif(not has_mpmath, reason='mpmath is not installed')
+@pytest.mark.skipif(not has_mpmath, reason="mpmath is not installed")
 def test_Colebrook_scipy_mpmath():
     # Faily grueling test - check the lambertw implementations are matching mostly
     # NOTE the test is to Re = 1E7; at higher Res the numerical solver is almost
@@ -278,7 +278,7 @@ def test_one_phase_dP_dz_acceleration_example():
     from fluids.numerics import assert_close
 
     P0 = 1E5
-    s = Stream(['nitrogen', 'methane'], T=300, P=P0, zs=[0.5, 0.5], m=1)
+    s = Stream(["nitrogen", "methane"], T=300, P=P0, zs=[0.5, 0.5], m=1)
     rho0 = s.rho
     D = 0.1
     def dP_dz(P, L, acc=False):
@@ -325,10 +325,10 @@ def test_transmission_factor():
 
 def test_roughness_Farshad():
 
-    e = roughness_Farshad('Cr13, bare', 0.05)
+    e = roughness_Farshad("Cr13, bare", 0.05)
     assert_close(e, 5.3141677781137006e-05)
 
-    e = roughness_Farshad('Cr13, bare')
+    e = roughness_Farshad("Cr13, bare")
     assert_close(e, 5.5e-05)
 
     e = roughness_Farshad(coeffs=(0.0021, -1.0055), D=0.05)
@@ -338,32 +338,32 @@ def test_roughness_Farshad():
     assert_close(tot, 7.0729095)
 
     with pytest.raises(Exception):
-        roughness_Farshad('BADID', 0.05)
+        roughness_Farshad("BADID", 0.05)
 
-@pytest.mark.skipif(not has_thefuzz, reason='missing thefuzz')
+@pytest.mark.skipif(not has_thefuzz, reason="missing thefuzz")
 def test_nearest_material_roughness():
-    hit1 = nearest_material_roughness('condensate pipes', clean=False)
-    assert hit1 == 'Seamless steel tubes, Condensate pipes in open systems or periodically operated steam pipelines'
+    hit1 = nearest_material_roughness("condensate pipes", clean=False)
+    assert hit1 == "Seamless steel tubes, Condensate pipes in open systems or periodically operated steam pipelines"
 
-    hit2 = nearest_material_roughness('Plastic', clean=True)
-    assert hit2 == 'Plastic coated'
+    hit2 = nearest_material_roughness("Plastic", clean=True)
+    assert hit2 == "Plastic coated"
 
 
-@pytest.mark.skipif(not has_thefuzz, reason='missing thefuzz')
+@pytest.mark.skipif(not has_thefuzz, reason="missing thefuzz")
 def test_material_roughness():
-    e1 = material_roughness('Plastic coated')
+    e1 = material_roughness("Plastic coated")
     assert_close(e1, 5e-06)
 
-    e2 = material_roughness('Plastic coated', D=1E-3)
+    e2 = material_roughness("Plastic coated", D=1E-3)
     assert_close(e2, 5.243618447826409e-06)
 
-    e3 = material_roughness('Brass')
+    e3 = material_roughness("Brass")
     assert_close(e3, 1.52e-06)
 
-    e4 = material_roughness('condensate pipes')
+    e4 = material_roughness("condensate pipes")
     assert_close(e4, 0.0005)
 
-    ID = 'Old, poor fitting and manufacture; with an overgrown surface'
+    ID = "Old, poor fitting and manufacture; with an overgrown surface"
     e5 = [material_roughness(ID, optimism=i) for i in (True, False)]
     assert_close1d(e5, [0.001, 0.004])
 
@@ -508,18 +508,18 @@ def test_friction_factor_curved():
     assert_close1d(fd_transition, [0.03323676794260526, 0.057221855744623344])
 
     with pytest.raises(Exception):
-        friction_factor_curved(16779, 0.01, .02, Method='BADMETHOD')
+        friction_factor_curved(16779, 0.01, .02, Method="BADMETHOD")
     with pytest.raises(Exception):
-        friction_factor_curved(16779, 0.01, .02, Rec_method='BADMETHOD')
+        friction_factor_curved(16779, 0.01, .02, Rec_method="BADMETHOD")
 
-    fd_rough_false = friction_factor_curved(20000, 0.01, .02, roughness=.0001, turbulent_method='Guo')
+    fd_rough_false = friction_factor_curved(20000, 0.01, .02, roughness=.0001, turbulent_method="Guo")
     assert_close(fd_rough_false, 0.1014240343662085)
 
     methods = friction_factor_curved_methods(20000, 0.01, .02, check_ranges=True)
-    assert sorted(methods) == sorted(['Guo','Ju','Schmidt turbulent','Prasad','Mandal Nigam','Mori Nakayama turbulent','Czop', 'Srinivasan turbulent'])
+    assert sorted(methods) == sorted(["Guo","Ju","Schmidt turbulent","Prasad","Mandal Nigam","Mori Nakayama turbulent","Czop", "Srinivasan turbulent"])
     methods = friction_factor_curved_methods(2000, 0.01, .02, check_ranges=True)
-    assert sorted(methods) == sorted(['White', 'Schmidt laminar', 'Mori Nakayama laminar'])
-    assert 'Schmidt turbulent' in friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5)
+    assert sorted(methods) == sorted(["White", "Schmidt laminar", "Mori Nakayama laminar"])
+    assert "Schmidt turbulent" in friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5)
     assert 11 == len(friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5, check_ranges=False))
 
     for m in friction_factor_curved_methods(Re=1E5, Di=0.02, Dc=0.5, check_ranges=False):
@@ -529,7 +529,7 @@ def test_friction_factor_curved():
     fd = friction_factor_curved(2E4, 0.01, .02, Darcy=False)
     assert_close(fd, 0.012533661655400756)
 
-    for m in ['Seth Stahel', 'Ito', 'Kubair Kuloor', 'Kutateladze Borishanskii', 'Schmidt', 'Srinivasan']:
+    for m in ["Seth Stahel", "Ito", "Kubair Kuloor", "Kutateladze Borishanskii", "Schmidt", "Srinivasan"]:
         helical_Re_crit(Di=0.02, Dc=0.5, Method=m)
 
 def test_friction_plate():

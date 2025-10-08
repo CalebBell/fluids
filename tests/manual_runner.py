@@ -6,7 +6,7 @@ import fluids.numerics
 try:
     import test_drag
 except:
-    print('run this from the tests directory')
+    print("run this from the tests directory")
     sys.exit()
 #import test_numerics
 import test_atmosphere
@@ -41,9 +41,9 @@ to_test = [#test_numerics,
 #to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
 
 if fluids.numerics.is_micropython:
-    skip_marks = ['slow', 'fuzz', 'scipy', 'numpy', 'f2py', 'pytz', 'numba']
+    skip_marks = ["slow", "fuzz", "scipy", "numpy", "f2py", "pytz", "numba"]
 else:
-    skip_marks = ['slow', 'fuzz']
+    skip_marks = ["slow", "fuzz"]
 skip_marks_set = set(skip_marks)
 if len(sys.argv) >= 2:
     #print(sys.argv)
@@ -54,13 +54,13 @@ for mod in to_test:
     for s in dir(mod):
         skip = False
         obj = getattr(mod, s)
-        if callable(obj) and hasattr(obj, '__name__') and obj.__name__.startswith('test'):
+        if callable(obj) and hasattr(obj, "__name__") and obj.__name__.startswith("test"):
             try:
                 for bad in skip_marks:
                     if bad in obj.__dict__:
                         skip = True
-                if 'pytestmark' in obj.__dict__:
-                    marked_names = [i.name for i in obj.__dict__['pytestmark']]
+                if "pytestmark" in obj.__dict__:
+                    marked_names = [i.name for i in obj.__dict__["pytestmark"]]
                     for mark_name in marked_names:
                         if mark_name in skip_marks_set:
                             skip = True
@@ -72,6 +72,6 @@ for mod in to_test:
                     #print(obj)
                     obj()
                 except Exception as e:
-                    print('FAILED TEST %s with error:' %s)
+                    print("FAILED TEST %s with error:" %s)
                     print(e)
                     

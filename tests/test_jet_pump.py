@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import pytest
 
@@ -42,12 +42,12 @@ def test_liquid_jet_pump_ancillary():
     Ks=0.11
     Kp=.04
 
-    solution_vars = {'P1': 426256.1597041593,
-     'P2': 133600,
-     'Qp': 0.01,
-     'Qs': 0.01,
-     'd_mixing': 0.045,
-     'd_nozzle': 0.022382858811037732}
+    solution_vars = {"P1": 426256.1597041593,
+     "P2": 133600,
+     "Qp": 0.01,
+     "Qs": 0.01,
+     "d_mixing": 0.045,
+     "d_nozzle": 0.022382858811037732}
 
     for key, value in solution_vars.items():
         kwargs = dict(solution_vars)
@@ -64,18 +64,18 @@ def test_liquid_jet_pump_ancillary_rhos_Ks_Ps():
             for Ks in [1E-9, 1E-3, 0.11, .5, 1, 5, 10, 100, 1000]:
                 for Kp in [1E-9, 1E-3, 0.11, .5, 1, 5, 10, 100, 1000]:
                     for P_mult in [0.1, 0.5, 1, 2, 10]:
-                        solution_vars = {'P1': 426256.1597041593,
-                         'P2': 133600,
-                         'Qp': 0.01,
-                         'd_mixing': 0.045,
-                         'd_nozzle': 0.022382858811037732}
-                        solution_vars['P1'] *= P_mult
-                        if solution_vars['P1'] < solution_vars['P2']:
+                        solution_vars = {"P1": 426256.1597041593,
+                         "P2": 133600,
+                         "Qp": 0.01,
+                         "d_mixing": 0.045,
+                         "d_nozzle": 0.022382858811037732}
+                        solution_vars["P1"] *= P_mult
+                        if solution_vars["P1"] < solution_vars["P2"]:
                             continue
 
                         # Finish calculating good known values
-                        solution_vars['Qs'] = liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Ks=Ks, Kp=Kp, **solution_vars)
-                        if solution_vars['Qs'].imag:
+                        solution_vars["Qs"] = liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Ks=Ks, Kp=Kp, **solution_vars)
+                        if solution_vars["Qs"].imag:
                             # Do not keep testing if obtained an imaginary flow rate
                             continue
                         # Try each variable with the solver
@@ -97,18 +97,18 @@ def test_liquid_jet_pump_ancillary_d_mixing():
     for rhos in [1098., 1100, 1200, 1600, 4000, 100]:
         for Ks in [1E-9, 1E-3, 0.11, .5, 1, 5, 10, 100, 1000]:
             for D_mult in linspace(0.1, 10, 100):
-                solution_vars = {'P1': 426256.1597041593,
-                 'P2': 133600,
-                 'Qp': 0.01,
-                 'd_mixing': 0.045,
-                 'd_nozzle': 0.022382858811037732}
-                solution_vars['d_mixing'] *= D_mult
-                if solution_vars['d_mixing'] < solution_vars['d_nozzle']*1.43:
+                solution_vars = {"P1": 426256.1597041593,
+                 "P2": 133600,
+                 "Qp": 0.01,
+                 "d_mixing": 0.045,
+                 "d_nozzle": 0.022382858811037732}
+                solution_vars["d_mixing"] *= D_mult
+                if solution_vars["d_mixing"] < solution_vars["d_nozzle"]*1.43:
                     continue
 
                 # Finish calculating good known values
-                solution_vars['Qs'] = liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Ks=Ks, Kp=Kp, **solution_vars)
-                if solution_vars['Qs'].imag:
+                solution_vars["Qs"] = liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Ks=Ks, Kp=Kp, **solution_vars)
+                if solution_vars["Qs"].imag:
                     # Do not keep testing if obtained an imaginary flow rate
                     continue
                 # Try each variable with the solver
@@ -123,7 +123,7 @@ def test_liquid_jet_pump_ancillary_d_mixing():
 
 def validate_liquid_jet_pump(rhop, rhos, Ks, Kp, Km, Kd, nozzle_retracted,
                              solution_vars, d_diffuser=None, full=False):
-    '''Helper function for testing `liquid_jet_pump`.
+    """Helper function for testing `liquid_jet_pump`.
     Returns the number of solutions where the return values are the same as
     those given in `solution_vars`, and the number of cases where it is not.
 
@@ -131,16 +131,16 @@ def validate_liquid_jet_pump(rhop, rhos, Ks, Kp, Km, Kd, nozzle_retracted,
     solutions in the case of many variable sets.
 
     Raises an exception if a solution cannot be found.
-    '''
+    """
     if full:
         all_solution_vars = dict(solution_vars)
         solution_vars = dict(solution_vars)
-        del solution_vars['M']
-        del solution_vars['N']
-        del solution_vars['R']
-        del solution_vars['alpha']
-        del solution_vars['d_diffuser']
-        del solution_vars['efficiency']
+        del solution_vars["M"]
+        del solution_vars["N"]
+        del solution_vars["R"]
+        del solution_vars["alpha"]
+        del solution_vars["d_diffuser"]
+        del solution_vars["efficiency"]
 
 
     same, different = 0, 0
@@ -182,43 +182,43 @@ def validate_liquid_jet_pump(rhop, rhos, Ks, Kp, Km, Kd, nozzle_retracted,
 def test_liquid_jet_pump_examples_round_robin():
 
     # Example one and two variants
-    solution_vars = {'P1': 426256.1597041593,
-     'P2': 133600,
-     'P5': 200000.0,
-     'Qp': 0.01,
-     'Qs': 0.01,
-     'd_mixing': 0.045,
-     'd_nozzle': 0.022382858811037732}
+    solution_vars = {"P1": 426256.1597041593,
+     "P2": 133600,
+     "P5": 200000.0,
+     "Qp": 0.01,
+     "Qs": 0.01,
+     "d_mixing": 0.045,
+     "d_nozzle": 0.022382858811037732}
     validate_liquid_jet_pump(rhop=998., rhos=1098., Ks=0.11, Kp=0.04, Km=.186, Kd=0.12, nozzle_retracted=False, solution_vars=solution_vars)
 
     solution_vars = {
-     'P1': 468726.56966322445,
-     'P2': 133600,
-     'P5': 200000.0,
-     'Qp': 0.01,
-     'Qs': 0.001,
-     'd_mixing': 0.0665377148831667,
-     'd_nozzle': 0.022382858811037732}
+     "P1": 468726.56966322445,
+     "P2": 133600,
+     "P5": 200000.0,
+     "Qp": 0.01,
+     "Qs": 0.001,
+     "d_mixing": 0.0665377148831667,
+     "d_nozzle": 0.022382858811037732}
     validate_liquid_jet_pump(rhop=998., rhos=1098., Ks=0.11, Kp=0.04, Km=.186, Kd=0.12, nozzle_retracted=False, solution_vars=solution_vars)
     solution_vars = {
-     'P1': 426256.1597041593,
-     'P2': 133600,
-     'P5': 200000.0,
-     'Qp': 0.1,
-     'Qs': 0.0201,
-     'd_mixing': 0.19926717348339726,
-     'd_nozzle': 0.07320212423451278}
+     "P1": 426256.1597041593,
+     "P2": 133600,
+     "P5": 200000.0,
+     "Qp": 0.1,
+     "Qs": 0.0201,
+     "d_mixing": 0.19926717348339726,
+     "d_nozzle": 0.07320212423451278}
     validate_liquid_jet_pump(rhop=998., rhos=1098., Ks=0.11, Kp=0.04, Km=.186, Kd=0.12, nozzle_retracted=False, solution_vars=solution_vars)
 
 
     # Example 2
-    solution_vars = {'P1': 550000.0,
-     'P2': 170000.0,
-     'P5': 192362.72123108635,
-     'Qp': 0.0005588580085548165,
-     'Qs': 0.0018975332068311196,
-     'd_mixing': 0.024,
-     'd_nozzle': 0.0048}
+    solution_vars = {"P1": 550000.0,
+     "P2": 170000.0,
+     "P5": 192362.72123108635,
+     "Qp": 0.0005588580085548165,
+     "Qs": 0.0018975332068311196,
+     "d_mixing": 0.024,
+     "d_nozzle": 0.0048}
 
     validate_liquid_jet_pump(rhop=790.5, rhos=790.5, Km=.1, Kd=0.1, Ks=0.1, Kp=0.03, nozzle_retracted=False, solution_vars=solution_vars)
 
@@ -238,41 +238,41 @@ def test_liquid_jet_pump_examples_round_robin_Ex3():
 
     # point 5
     solution_vars = {
-     'P1': 1000000.0,
-     'P2': 47500.0,
-     'P5': 109500.0,
-     'Qp': 0.0005587193619566122,
-     'Qs': 0.001400084261324908,
-    'd_mixing': 0.017,
-     'd_nozzle': 0.0038}
+     "P1": 1000000.0,
+     "P2": 47500.0,
+     "P5": 109500.0,
+     "Qp": 0.0005587193619566122,
+     "Qs": 0.001400084261324908,
+    "d_mixing": 0.017,
+     "d_nozzle": 0.0038}
     same, different = validate_liquid_jet_pump(nozzle_retracted=nozzle_retracted, d_diffuser=d_diffuser,rhop=rhop, rhos=rhos, Km=Km, Kd=Kd, Ks=Ks, Kp=Kp, solution_vars=solution_vars)
     assert same > 10
     # Point 4
     solution_vars = {
-     'P1': 800000.0,
-     'P2': 46020.0,
-     'P5': 95000.0,
-     'Qp': 0.0004971366273938245,
-     'Qs': 0.0012500084707104235,
-     'd_mixing': 0.017,
-     'd_nozzle': 0.0038}
+     "P1": 800000.0,
+     "P2": 46020.0,
+     "P5": 95000.0,
+     "Qp": 0.0004971366273938245,
+     "Qs": 0.0012500084707104235,
+     "d_mixing": 0.017,
+     "d_nozzle": 0.0038}
     same, different = validate_liquid_jet_pump(nozzle_retracted=nozzle_retracted, d_diffuser=d_diffuser,rhop=rhop, rhos=rhos, Km=Km, Kd=Kd, Ks=Ks, Kp=Kp, solution_vars=solution_vars)
     assert same > 10
 
     # Custom point with full validation
-    expected = {'M': 2.633280822186772,
-                 'N': 0.06818823529411765,
-                 'P1': 500000.0,
-                 'P2': 46020.0,
-                 'P5': 75000.0,
-                 'Qp': 0.0003864114714478578,
-                 'Qs': 0.0010175299172366153,
-                 'R': 0.05097107567130409,
-                 'alpha': 0.28014905021125414,
-                 'd_diffuser': 0.0318,
-                 'd_mixing': 0.016831456429424897,
-                 'd_nozzle': 0.0038,
-                 'efficiency': 0.1795587722987592}
+    expected = {"M": 2.633280822186772,
+                 "N": 0.06818823529411765,
+                 "P1": 500000.0,
+                 "P2": 46020.0,
+                 "P5": 75000.0,
+                 "Qp": 0.0003864114714478578,
+                 "Qs": 0.0010175299172366153,
+                 "R": 0.05097107567130409,
+                 "alpha": 0.28014905021125414,
+                 "d_diffuser": 0.0318,
+                 "d_mixing": 0.016831456429424897,
+                 "d_nozzle": 0.0038,
+                 "efficiency": 0.1795587722987592}
     same, different = validate_liquid_jet_pump(nozzle_retracted=nozzle_retracted, d_diffuser=d_diffuser,rhop=rhop, rhos=rhos, Km=Km, Kd=Kd, Ks=Ks, Kp=Kp, solution_vars=expected, full=True)
     assert same > 15
 del test_liquid_jet_pump_examples_round_robin_Ex3

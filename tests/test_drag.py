@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import pytest
 
@@ -154,7 +154,7 @@ def test_drag_sphere():
     Cd = drag_sphere(1E6)
     assert_close(Cd, 0.21254574397767056)
 
-    Cd = drag_sphere(1E6, Method='Barati_high')
+    Cd = drag_sphere(1E6, Method="Barati_high")
     assert_close(Cd, 0.21254574397767056)
 
     Cd = drag_sphere(0.001)
@@ -164,14 +164,14 @@ def test_drag_sphere():
     assert_close(Cd, 481.23769162684573)
 
     with pytest.raises(Exception):
-        drag_sphere(200, Method='BADMETHOD')
+        drag_sphere(200, Method="BADMETHOD")
 
     # for now, use a limiting number of Re = 1e6 and truncate input
     assert_close(drag_sphere(1E7), drag_sphere(1e6))
 
 
     methods = drag_sphere_methods(3E5, True)
-    method_known = ['Barati_high', 'Ceylan', 'Morrison', 'Clift', 'Almedeij']
+    method_known = ["Barati_high", "Ceylan", "Morrison", "Clift", "Almedeij"]
     assert sorted(method_known) == sorted(methods)
     assert 20 == len(drag_sphere_methods(200))
     assert 21 == len(drag_sphere_methods(200000, check_ranges=False))
@@ -197,7 +197,7 @@ def test_v_terminal():
     v_t = v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-1)
     assert_close(v_t, 4.271340888888888e-05)
 
-    v_t = v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-3, Method='Rouse')
+    v_t = v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-3, Method="Rouse")
     assert_close(v_t, 0.003991779430745852)
 
 @pytest.mark.scipy
@@ -215,17 +215,17 @@ def test_integrate_drag_sphere():
     assert_close(ans, 3.0607521920092645e-07)
 
     # Stokes law regime integration
-    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=0, distance=True, Method='Stokes')
+    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=0, distance=True, Method="Stokes")
     assert_close1d(ans, [0.9730274844308592, 0.04876946395795378])
 
-    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=10, distance=True, Method='Stokes')
+    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=10, distance=True, Method="Stokes")
     assert_close1d(ans, [10.828446488771524, 1.041522867361668])
 
-    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=-10, distance=True, Method='Stokes')
+    ans = integrate_drag_sphere(D=0.001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=-10, distance=True, Method="Stokes")
     assert_close1d(ans, [-8.882391519909806, -0.9439839394457605])
 
     # Stokes law regime - test case where particle is ensured to be laminar before and after the simulation
-    for m in (None, 'Stokes'):
+    for m in (None, "Stokes"):
         ans = integrate_drag_sphere(D=0.000001, rhop=2200., rho=1.2, mu=1.78E-5, t=0.1, V=0, distance=True, Method=m)
         assert_close1d(ans, [6.729981897140177e-05, 6.729519788530099e-06], rtol=1e-11)
 

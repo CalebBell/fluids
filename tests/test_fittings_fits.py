@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import os
 from math import log10
@@ -37,9 +37,9 @@ from fluids.optional.pychebfun import chebfun, chebfun_to_poly
 
 def test_contraction_conical_Miller_coefficients():
     from fluids.fittings import contraction_conical_Miller_tck
-    path = os.path.join(fluids_data_dir, 'Miller 2E 1990 conical contractions K part 1.csv')
+    path = os.path.join(fluids_data_dir, "Miller 2E 1990 conical contractions K part 1.csv")
     Kds, l_ratios, A_ratios = Engauge_2d_parser(open(path).readlines())
-    path = os.path.join(fluids_data_dir, 'Miller 2E 1990 conical contractions K part 2.csv')
+    path = os.path.join(fluids_data_dir, "Miller 2E 1990 conical contractions K part 2.csv")
     Kd2, l_ratio2, A_ratio2 = Engauge_2d_parser(open(path).readlines())
     Kds.extend(Kd2)
     l_ratios.extend(l_ratio2)
@@ -96,7 +96,7 @@ def test_contraction_conical_Miller_coefficients():
 @pytest.mark.slow
 def test_contraction_abrupt_Miller_coefficients():
     from fluids.fittings import tck_contraction_abrupt_Miller
-    curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 abrupt contraction K.csv')
+    curve_path = os.path.join(fluids_data_dir, "Miller 2E 1990 abrupt contraction K.csv")
     text = open(curve_path).readlines()
 
     zs, x_lists, y_lists = Engauge_2d_parser(text)
@@ -156,7 +156,7 @@ def test_contraction_abrupt_Miller_coefficients():
 @pytest.mark.slow
 def test_diffuser_conical_Miller_coefficients():
     from fluids.fittings import tck_diffuser_conical_Miller
-    path = os.path.join(fluids_data_dir, 'Miller 2E 1990 conical diffuser Kd.csv')
+    path = os.path.join(fluids_data_dir, "Miller 2E 1990 conical diffuser Kd.csv")
     Kds, l_ratios, A_ratios = Engauge_2d_parser(open(path).readlines())
     # Fixup stupidity
     A_ratios = [[i+1.0 for i in j] for j in A_ratios]
@@ -263,7 +263,7 @@ def test_entrance_distance_45_Miller_coefficients():
 
 def test_entrance_rounded_Miller_coefficients():
     from fluids.fittings import entrance_rounded_Miller_coeffs
-    path = os.path.join(fluids_data_dir, 'Miller 2E 1990 entrances rounded beveled K.csv')
+    path = os.path.join(fluids_data_dir, "Miller 2E 1990 entrances rounded beveled K.csv")
     lines = open(path).readlines()
     _, ratios, Ks = Engauge_2d_parser(lines)
     ratios_45, ratios_30, ratios_round = ratios
@@ -301,7 +301,7 @@ def test_bend_rounded_Crane_coefficients():
 def test_bend_rounded_Miller_K_coefficients():
     from fluids import fluids_data_dir
     from fluids.core import Engauge_2d_parser
-    Kb_curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 smooth bends Kb.csv')
+    Kb_curve_path = os.path.join(fluids_data_dir, "Miller 2E 1990 smooth bends Kb.csv")
     lines = open(Kb_curve_path).readlines()
     all_zs, all_xs, all_ys = Engauge_2d_parser(lines, flat=True)
 
@@ -317,7 +317,7 @@ def test_bend_rounded_Miller_Re_correction():
     from fluids import fluids_data_dir
     from fluids.core import Engauge_2d_parser
     from fluids.fittings import tck_bend_rounded_Miller_C_Re
-    Re_curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 smooth bends Re correction.csv')
+    Re_curve_path = os.path.join(fluids_data_dir, "Miller 2E 1990 smooth bends Re correction.csv")
     text = open(Re_curve_path).readlines()
     rds, Re_lists, C_lists = Engauge_2d_parser(text)
 
@@ -377,13 +377,13 @@ def test_bend_rounded_Miller_Re_correction():
 
 @pytest.mark.slow
 def test_bend_rounded_Miller_outlet_tangent_correction():
-    Re_curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 smooth bends outlet tangent length correction.csv')
+    Re_curve_path = os.path.join(fluids_data_dir, "Miller 2E 1990 smooth bends outlet tangent length correction.csv")
     text = open(Re_curve_path).readlines()
 
     Kbs, length_ratio_lists, Co_lists = Engauge_2d_parser(text)
 
     def BioScience_GeneralizedSubstrateDepletion_model(x_in):
-        '''Fit created using zunzun.com, comparing the non-linear,
+        """Fit created using zunzun.com, comparing the non-linear,
         non-logarithmic plot values with pixel positions on the graph.
 
         0	0.00
@@ -395,7 +395,7 @@ def test_bend_rounded_Miller_outlet_tangent_correction():
         20	1365
         30	1641
         40	1661
-        '''
+        """
         temp = 0.0
         a = 1.0796070184265327E+03
         b = 2.7557612059844967E+00
@@ -437,11 +437,11 @@ def test_bend_rounded_Miller_outlet_tangent_correction():
     tcks = []
     for Kb, lrs, Cos in zip(Kbs, length_ratio_lists, Co_lists):
         univar = splrep(lrs, Cos, s=4e-4) # Default smoothing is great!
-        s = ('tck_bend_rounded_Miller_C_o_%s = ' %str(Kb).replace('.', '_'))
-        template = 'np.array(%s),\n'
+        s = ("tck_bend_rounded_Miller_C_o_%s = " %str(Kb).replace(".", "_"))
+        template = "np.array(%s),\n"
         t1 = template%str(univar[0].tolist())
         t2 = template%str(univar[1].tolist())
-        s = s + f'[{t1}{t2}3]'
+        s = s + f"[{t1}{t2}3]"
 #        print(s)
         min_vals.append(float(splev(0.01, univar)))
         tcks.append(univar)
@@ -462,7 +462,7 @@ def test_bend_rounded_Miller_outlet_tangent_correction():
 
 def test_bend_miter_Miller_coefficients():
     from fluids.optional.pychebfun import chebfun, chebfun_to_poly
-    curve_path = os.path.join(fluids_data_dir, 'Miller 2E 1990 Kb mitre bend.csv')
+    curve_path = os.path.join(fluids_data_dir, "Miller 2E 1990 Kb mitre bend.csv")
     text = open(curve_path).readlines()
     zs, x_lists, y_lists = Engauge_2d_parser(text)
     x_raw, y_raw = x_lists[0], y_lists[0]

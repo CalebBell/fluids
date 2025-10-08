@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 from math import cos
 
@@ -336,17 +336,17 @@ def test_geometry():
     assert_close(SA1, 6.00394283477063, rtol=1e-12)
 
     SA1 = SA_tank(D=2, L=2)[0]
-    SA2 = SA_tank(D=1., L=0, sideA='ellipsoidal', sideA_a=2, sideB='ellipsoidal', sideB_a=2)[0]
-    SA3 = SA_tank(D=1., L=5, sideA='conical', sideA_a=2, sideB='conical', sideB_a=2)[0]
-    SA4 = SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical', sideB_a=0.5)[0]
+    SA2 = SA_tank(D=1., L=0, sideA="ellipsoidal", sideA_a=2, sideB="ellipsoidal", sideB_a=2)[0]
+    SA3 = SA_tank(D=1., L=5, sideA="conical", sideA_a=2, sideB="conical", sideB_a=2)[0]
+    SA4 = SA_tank(D=1., L=5, sideA="spherical", sideA_a=0.5, sideB="spherical", sideB_a=0.5)[0]
     SAs = [18.84955592153876, 10.124375616183064, 22.18452243965656, 18.84955592153876]
     assert_close1d([SA1, SA2, SA3, SA4], SAs)
 
-    SA1, SA2, SA3, SA4 = SA_tank(D=2.54, L=5, sideA='torispherical', sideB='torispherical', sideA_f=1.039370079, sideA_k=0.062362205, sideB_f=1.039370079, sideB_k=0.062362205)
+    SA1, SA2, SA3, SA4 = SA_tank(D=2.54, L=5, sideA="torispherical", sideB="torispherical", sideA_f=1.039370079, sideA_k=0.062362205, sideB_f=1.039370079, sideB_k=0.062362205)
     SAs = [51.90611237013163, 6.00394283477063, 6.00394283477063, 39.89822670059037]
     assert_close1d([SA1, SA2, SA3, SA4], SAs)
 
-    SA1 = SA_tank(D=1., L=5, sideA='guppy', sideA_a=0.5, sideB='guppy', sideB_a=0.5)[0]
+    SA1 = SA_tank(D=1., L=5, sideA="guppy", sideA_a=0.5, sideB="guppy", sideB_a=0.5)[0]
     assert_close(SA1, 19.034963277504044)
 
     a1 = a_torispherical(D=96., f=0.9, k=0.2)
@@ -358,27 +358,27 @@ def test_geometry():
     # Ellipsoidal/None, spherical/conical, None/None. Final test is guppy/torispherical,
     # no checks available.
 
-    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideA='ellipsoidal', sideB='ellipsoidal', sideA_a=2, sideB_a=2) for h in [1, 2.5, 5, 7.5, 10]]
+    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideA="ellipsoidal", sideB="ellipsoidal", sideA_a=2, sideB_a=2) for h in [1, 2.5, 5, 7.5, 10]]
     Vs = [108.05249928250362, 416.5904542901302, 1086.4674593664702, 1756.34446444281, 2172.9349187329403]
     assert_close1d(Vs_calc, Vs)
-    Vs_calc =[V_from_h(h=h, D=10., L=25., horizontal=True, sideA='ellipsoidal', sideA_a=2) for h in [1, 2.5, 5, 7.5, 10]]
+    Vs_calc =[V_from_h(h=h, D=10., L=25., horizontal=True, sideA="ellipsoidal", sideA_a=2) for h in [1, 2.5, 5, 7.5, 10]]
     Vs = [105.12034613915314, 400.22799255268336, 1034.1075818066402, 1667.9871710605971, 2068.2151636132803]
     assert_close1d(Vs_calc, Vs)
 
-    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideA='spherical', sideB='conical', sideA_a=2, sideB_a=2) for h in [1, 2.5, 5, 7.5, 10]]
+    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideA="spherical", sideB="conical", sideA_a=2, sideB_a=2) for h in [1, 2.5, 5, 7.5, 10]]
     Vs = [104.20408244287965, 400.47607362329063, 1049.291946298991, 1698.107818974691, 2098.583892597982]
     assert_close1d(Vs_calc, Vs)
-    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideB='spherical', sideA='conical', sideB_a=2, sideA_a=2) for h in [1, 2.5, 5, 7.5, 10]]
+    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideB="spherical", sideA="conical", sideB_a=2, sideA_a=2) for h in [1, 2.5, 5, 7.5, 10]]
     assert_close1d(Vs_calc, Vs)
 
     Vs_calc = [V_from_h(h=h, D=1.5, L=5., horizontal=True) for h in [0, 0.75, 1.5]]
     Vs = [0.0, 4.417864669110647, 8.835729338221293]
     assert_close1d(Vs_calc, Vs)
 
-    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideA='guppy', sideB='torispherical', sideA_a=2, sideB_f=1., sideB_k=0.06) for h in [1, 2.5, 5, 7.5, 10]]
+    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideA="guppy", sideB="torispherical", sideA_a=2, sideB_f=1., sideB_k=0.06) for h in [1, 2.5, 5, 7.5, 10]]
     Vs = [104.68706323659293, 399.0285611453449, 1037.3160340613756, 1683.391972469731, 2096.854290344973]
     assert_close1d(Vs_calc, Vs)
-    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideB='guppy', sideA='torispherical', sideB_a=2, sideA_f=1., sideA_k=0.06) for h in [1, 2.5, 5, 7.5, 10]]
+    Vs_calc = [V_from_h(h=h, D=10., L=25., horizontal=True, sideB="guppy", sideA="torispherical", sideB_a=2, sideA_f=1., sideA_k=0.06) for h in [1, 2.5, 5, 7.5, 10]]
     assert_close1d(Vs_calc, Vs)
 
     # Test the error handling for elevation
@@ -386,23 +386,23 @@ def test_geometry():
                 V_from_h(h=7, D=1.5, L=5, horizontal=True))
     # bad head cases
     with pytest.raises(Exception):
-        V_from_h(h=2.6, D=10., L=25., horizontal=True, sideA='BADHEAD', sideB='torispherical', sideA_a=2, sideB_f=1., sideB_k=0.06)
+        V_from_h(h=2.6, D=10., L=25., horizontal=True, sideA="BADHEAD", sideB="torispherical", sideA_a=2, sideB_f=1., sideB_k=0.06)
     with pytest.raises(Exception):
-        V_from_h(h=2.6, D=10., L=25., horizontal=True, sideA='torispherical', sideB='BADHEAD', sideA_a=2, sideB_f=1., sideB_k=0.06)
+        V_from_h(h=2.6, D=10., L=25., horizontal=True, sideA="torispherical", sideB="BADHEAD", sideA_a=2, sideB_f=1., sideB_k=0.06)
 
     # Vertical configurations, compared with TankCalc - conical*2, spherical*2,
     # ellipsoidal*2. Torispherical*2 has no check. None*2 checks.
 
-    Vs_calc = [V_from_h(h=h, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.) for h in [0, 1, 2, 5., 7, 7.2, 8]]
+    Vs_calc = [V_from_h(h=h, D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.) for h in [0, 1, 2, 5., 7, 7.2, 8]]
     Vs = [0.0, 0.14726215563702155, 1.1780972450961726, 6.4795348480289485, 10.013826583317465, 10.301282311120932, 10.602875205865551]
     assert_close1d(Vs_calc, Vs)
-    Vs_calc = [V_from_h(h=h, D=8., L=10., horizontal=False, sideA='spherical', sideB='spherical', sideA_a=3., sideB_a=4.) for h in [0, 1.5, 3, 8.5, 13., 15., 16.2, 17]]
+    Vs_calc = [V_from_h(h=h, D=8., L=10., horizontal=False, sideA="spherical", sideB="spherical", sideA_a=3., sideB_a=4.) for h in [0, 1.5, 3, 8.5, 13., 15., 16.2, 17]]
     Vs = [0.0, 25.91813939211579, 89.5353906273091, 365.99554414321085, 592.190215201676, 684.3435997069765, 718.7251897078633, 726.2315017548405]
     assert_close1d(Vs_calc, Vs)
-    Vs_calc = [V_from_h(h=h, D=8., L=10., horizontal=False, sideA='ellipsoidal', sideB='ellipsoidal', sideA_a=3., sideB_a=4.) for h in [0, 1.5, 3, 8.5, 13., 15., 16.2, 17]]
+    Vs_calc = [V_from_h(h=h, D=8., L=10., horizontal=False, sideA="ellipsoidal", sideB="ellipsoidal", sideA_a=3., sideB_a=4.) for h in [0, 1.5, 3, 8.5, 13., 15., 16.2, 17]]
     Vs = [0.0, 31.41592653589793, 100.53096491487338, 376.99111843077515, 603.1857894892403, 695.3391739945409, 729.7207639954277, 737.2270760424049]
     assert_close1d(Vs_calc, Vs)
-    Vs_calc = [V_from_h(h=h, D=8., L=10., horizontal=False, sideA='torispherical', sideB='torispherical', sideA_a=1.3547, sideB_a=1.3547, sideA_f=1.,  sideA_k=0.06, sideB_f=1., sideB_k=0.06) for h in [0, 1.3, 9.3, 10.1, 10.7094, 12]]
+    Vs_calc = [V_from_h(h=h, D=8., L=10., horizontal=False, sideA="torispherical", sideB="torispherical", sideA_a=1.3547, sideB_a=1.3547, sideA_f=1.,  sideA_k=0.06, sideB_f=1., sideB_k=0.06) for h in [0, 1.3, 9.3, 10.1, 10.7094, 12]]
     Vs = [0.0, 38.723353379954276, 440.84578224136413, 481.0581682073135, 511.68995321687544, 573.323556832692]
     assert_close1d(Vs_calc, Vs)
     Vs_calc = [V_from_h(h=h, D=1.5, L=5., horizontal=False) for h in [0, 2.5, 5]]
@@ -414,7 +414,7 @@ def test_geometry():
                 V_from_h(h=5, D=1.5, L=5., horizontal=False),)
 
 def test_TANK_cross_sectional_area():
-    T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='torispherical' ,sideB='same')
+    T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="torispherical" ,sideB="same")
 
     assert_close(T1.A_cross_sectional(0.5*T1.h_max), 0.25*pi*T1.D**2)
 
@@ -422,7 +422,7 @@ def test_from_two_specs():
     # Takes about 1 ms
     T0 = TANK(horizontal=True, L=15, D=3)
     A_cross = T0.A_cross_sectional(1.5)
-    T1 = TANK.from_two_specs(T0.V_total, A_cross, spec0_name='V', spec1_name='A_cross',
+    T1 = TANK.from_two_specs(T0.V_total, A_cross, spec0_name="V", spec1_name="A_cross",
                            h=1e-10, horizontal=False)
     assert_close(T1.V_total, T0.V_total)
     assert_close(T0.A_cross_sectional(1.5), T1.A_cross_sectional(1e-10))
@@ -474,7 +474,7 @@ def test_SA_partial_horiz_conical_head():
 
     # Integration tests
     T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
-              sideA='conical', sideA_a=48*inch, sideB='same')
+              sideA="conical", sideA_a=48*inch, sideB="same")
     assert_close(T1.SA_from_h(24*inch)/foot**2, 101.35826, rtol=1e-7)
     assert_close(T1.SA_from_h(36*inch)/foot**2, 141.37167, rtol=1e-7)
     assert_close(T1.SA_from_h(48*inch)/foot**2, 181.38508, rtol=1e-7)
@@ -511,7 +511,7 @@ def test_SA_partial_horiz_spherical_head():
 
     # Integration tests
     T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
-              sideA='spherical', sideA_a=24*inch, sideB='same')
+              sideA="spherical", sideA_a=24*inch, sideB="same")
     assert_close(T1.SA_from_h(24*inch)/foot**2, 99.49977, rtol=1e-7)
     assert_close(T1.SA_from_h(36*inch)/foot**2, 135.08848, rtol=1e-7)
     assert_close(T1.SA_from_h(48*inch)/foot**2, 170.67720, rtol=1e-7)
@@ -522,7 +522,7 @@ def test_SA_partial_horiz_spherical_head():
 
 
     T2 = TANK(L=120*inch, D=72*inch, horizontal=True,
-              sideA='spherical', sideA_a=36*inch, sideB='same')
+              sideA="spherical", sideA_a=36*inch, sideB="same")
     assert_close(T2.SA_from_h(24*inch)/foot**2, 111.55668, rtol=1e-7)
     assert_close(T2.SA_from_h(36*inch)/foot**2, 150.79645, rtol=1e-7)
     assert_close(T2.SA_from_h(48*inch)/foot**2, 190.03622, rtol=1e-7)
@@ -553,7 +553,7 @@ def test_SA_partial_horiz_guppy_head():
     assert pi*72*inch/2*72*inch == SA_partial_horiz_guppy_head(D=72*inch, a=36*inch, h=72*inch)
     # Area is NOT CONSISTENT!
     T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
-          sideA='guppy', sideA_a=48*inch, sideB='same')
+          sideA="guppy", sideA_a=48*inch, sideB="same")
     assert_close(T1.SA_from_h(24*inch)/foot**2, 94.24500, rtol=1e-7)
     assert_close(T1.SA_from_h(36*inch)/foot**2, 129.98330, rtol=1e-7)
     assert_close(T1.SA_from_h(48*inch)/foot**2, 167.06207, rtol=1e-7)
@@ -585,7 +585,7 @@ def test_SA_partial_horiz_ellipsoidal_head():
 
     # Integration tests
     T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
-              sideA='ellipsoidal', sideA_a=24*inch, sideB='same')
+              sideA="ellipsoidal", sideA_a=24*inch, sideB="same")
     assert_close(T1.SA_from_h(24*inch)/foot**2, 102.59905, rtol=1e-7)
     assert_close(T1.SA_from_h(36*inch)/foot**2, 138.74815, rtol=1e-7)
     assert_close(T1.SA_from_h(48*inch)/foot**2, 174.89725, rtol=1e-7)
@@ -593,7 +593,7 @@ def test_SA_partial_horiz_ellipsoidal_head():
     assert 0.0 == T1.SA_from_h(0)
 
     T2 = TANK(L=120*inch, D=72*inch, horizontal=True,
-              sideA='ellipsoidal', sideA_a=36*inch, sideB='same')
+              sideA="ellipsoidal", sideA_a=36*inch, sideB="same")
     assert_close(T2.SA_from_h(24*inch)/foot**2, 111.55668, rtol=1e-7)
     assert_close(T2.SA_from_h(36*inch)/foot**2, 150.79645, rtol=1e-7)
     assert_close(T2.SA_from_h(48*inch)/foot**2, 190.03622, rtol=1e-7)
@@ -601,7 +601,7 @@ def test_SA_partial_horiz_ellipsoidal_head():
     assert_close(T2.SA_from_h(T2.h_max), T2.A, rtol=1e-12)
 
     T3 = TANK(L=120*inch, D=72*inch, horizontal=True,
-              sideA='ellipsoidal', sideA_a=48*inch, sideB='same')
+              sideA="ellipsoidal", sideA_a=48*inch, sideB="same")
     assert_close(T3.SA_from_h(24*inch)/foot**2, 121.09692, rtol=1e-7)
     assert_close(T3.SA_from_h(36*inch)/foot**2, 163.71486, rtol=1e-7)
     assert_close(T3.SA_from_h(48*inch)/foot**2, 206.33279, rtol=1e-7)
@@ -664,7 +664,7 @@ def test_SA_partial_horiz_torispherical_head():
 
     # Torispherical tests
     T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
-              sideA='torispherical', sideA_f=1, sideA_k=.06, sideB='same')
+              sideA="torispherical", sideA_f=1, sideA_k=.06, sideB="same")
     assert_close(T1.SA_from_h(2.28*inch)/foot**2, 22.74924, rtol=1e-7)
     assert_close(T1.SA_from_h(24*inch)/foot**2, 94.29092, rtol=1e-7)
     assert_close(T1.SA_from_h(36*inch)/foot**2, 127.74876, rtol=1e-7)
@@ -674,7 +674,7 @@ def test_SA_partial_horiz_torispherical_head():
     assert_close(T1.SA_from_h(T1.h_max), T1.A, rtol=1e-12)
 
     T2 = TANK(L=120*inch, D=72*inch, horizontal=True,
-              sideA='torispherical', sideA_f=.9, sideA_k=.1, sideB='same')
+              sideA="torispherical", sideA_f=.9, sideA_k=.1, sideB="same")
     assert_close(T2.SA_from_h(3*inch)/foot**2, 26.82339, rtol=2e-7)
     assert_close(T2.SA_from_h(24*inch)/foot**2, 96.18257, rtol=1e-7)
     assert_close(T2.SA_from_h(36*inch)/foot**2, 130.22802, rtol=1e-7)
@@ -707,12 +707,12 @@ def test_SA_partial_vertical_conical_head():
 
 
     # Integration tests
-    T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='conical', sideA_a=36*inch, sideB='same')
+    T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="conical", sideA_a=36*inch, sideB="same")
     assert_close(T1.SA_from_h(36*inch)/foot**2, 39.98595)
     assert_close(T1.SA_from_h(0)/foot**2, 0)
     assert_close(T1.SA_from_h(-1e-14)/foot**2, 0)
 
-    T2 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='conical', sideA_a=48*inch, sideB='same')
+    T2 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="conical", sideA_a=48*inch, sideB="same")
     assert_close(T2.SA_from_h(24*inch)/foot**2, 11.78097, rtol=3e-7)
     assert_close(T2.SA_from_h(36*inch)/foot**2, 26.50719, rtol=1e-7)
     assert_close(T2.SA_from_h(48*inch)/foot**2, 47.12389, rtol=1e-7)
@@ -723,7 +723,7 @@ def test_SA_partial_vertical_conical_head():
     assert_close(T2.SA_from_h(T2.h_max), 26.26771571641428, rtol=1e-12)
     assert_close(T2.SA_from_h(T2.h_max*.95), 26.046081865057033, rtol=1e-12)
 
-    T_flat = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='conical', sideA_a=0, sideB='same')
+    T_flat = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="conical", sideA_a=0, sideB="same")
     T_actually_flat = TANK(L=120*inch, D=72*inch, horizontal=False)
     for h in (0, T_flat.h_max*.1, T_flat.h_max*.4, T_flat.h_max*.9, T_flat.h_max):
         assert_close(T_flat.SA_from_h(h), T_actually_flat.SA_from_h(h), rtol=1e-11)
@@ -743,12 +743,12 @@ def test_SA_partial_vertical_spherical_head():
     assert_close(SA_partial_vertical_spherical_head(D=1, a=0.0, h=1e-100), 0.7853981633974483, rtol=1e-12)
 
     # Integration tests
-    T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='spherical', sideA_a=24*inch, sideB='same')
+    T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="spherical", sideA_a=24*inch, sideB="same")
     assert_close(T1.SA_from_h(12*inch)/foot**2, 20.42035, rtol=2e-7)
     assert_close(T1.SA_from_h(24*inch)/foot**2, 40.84070, rtol=2e-7)
     assert_close(T1.SA_from_h(48*inch)/foot**2, 78.53982, rtol=2e-7)
 
-    T2 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='spherical', sideA_a=36*inch, sideB='same')
+    T2 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="spherical", sideA_a=36*inch, sideB="same")
     assert_close(T2.SA_from_h(18*inch)/foot**2, 28.27433, rtol=2e-7)
     assert_close(T2.SA_from_h(36*inch)/foot**2, 56.54867, rtol=2e-7)
     assert_close(T2.SA_from_h(60*inch)/foot**2, 94.24778, rtol=2e-7)
@@ -757,7 +757,7 @@ def test_SA_partial_vertical_spherical_head():
     assert 0 == T2.SA_from_h(-1e-12)
     # T2.SA_from_h(1e-320) # works :)
 
-    T_flat = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='spherical', sideA_a=0, sideB='same')
+    T_flat = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="spherical", sideA_a=0, sideB="same")
     T_actually_flat = TANK(L=120*inch, D=72*inch, horizontal=False)
     for h in (0, T_flat.h_max*.1, T_flat.h_max*.4, T_flat.h_max*.9, T_flat.h_max):
         assert_close(T_flat.SA_from_h(h), T_actually_flat.SA_from_h(h), rtol=1e-15)
@@ -780,14 +780,14 @@ def test_SA_partial_vertical_torispherical_head():
     assert 0 == SA_partial_vertical_torispherical_head(D=72*inch, f=1, k=.06, h=-1e-16)
 
     # Integration tests
-    T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='torispherical', sideA_f=1, sideA_k=.06, sideB='same')
+    T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="torispherical", sideA_f=1, sideA_k=.06, sideB="same")
     assert_close(T1.SA_from_h(2*inch)/foot**2, 6.28319, rtol=1e-6)
     assert_close(T1.SA_from_h(6*inch)/foot**2, 18.84956, rtol=2.5e-7)
     assert_close(T1.SA_from_h(12*inch)/foot**2, 33.19882, rtol=1e-7)
     assert_close(T1.SA_from_h(T1.sideA_a)/foot**2, 33.50098, rtol=1e-7)
     assert_close(T1.SA_from_h(36.19231*inch)/foot**2, 71.20010, rtol=1e-7)
 
-    T2 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='torispherical', sideA_f=.9, sideA_k=.1, sideB='same')
+    T2 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="torispherical", sideA_f=.9, sideA_k=.1, sideB="same")
     assert_close(T2.SA_from_h(6*inch)/foot**2, 16.96460, rtol=2e-7)
     assert_close(T2.SA_from_h(8*inch)/foot**2, 22.61947, rtol=2e-7)
     assert_close(T2.SA_from_h(12*inch)/foot**2, 31.28983, rtol=2e-7)
@@ -811,17 +811,17 @@ def test_SA_partial_vertical_ellipsoidal_head():
                  SA_partial_vertical_ellipsoidal_head(D=72., a=48.0, h=48.0+1e12))
 
     # Integration tests
-    T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='ellipsoidal', sideA_a=24*inch, sideB='same')
+    T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="ellipsoidal", sideA_a=24*inch, sideB="same")
     assert_close(T1.SA_from_h(12*inch)/foot**2, 24.71061)
     assert_close(T1.SA_from_h(24*inch)/foot**2, 44.50037)
     assert_close(T1.SA_from_h(48*inch)/foot**2, 82.19948)
 
-    T2 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='ellipsoidal', sideA_a=36*inch, sideB='same')
+    T2 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="ellipsoidal", sideA_a=36*inch, sideB="same")
     assert_close(T2.SA_from_h(18*inch)/foot**2, 28.27433, rtol=1.5e-7)
     assert_close(T2.SA_from_h(36*inch)/foot**2, 56.54867, rtol=1e-7)
     assert_close(T2.SA_from_h(60*inch)/foot**2, 94.24778, rtol=1e-7)
 
-    T3 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='ellipsoidal', sideA_a=48*inch, sideB='same')
+    T3 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="ellipsoidal", sideA_a=48*inch, sideB="same")
     assert_close(T3.SA_from_h(24*inch)/foot**2, 32.46693, rtol=1e-7)
     assert_close(T3.SA_from_h(48*inch)/foot**2, 69.46708, rtol=1e-7)
     assert_close(T3.SA_from_h(72*inch)/foot**2, 107.16619, rtol=1e-7)
@@ -830,7 +830,7 @@ def test_SA_partial_vertical_ellipsoidal_head():
     assert T3.SA_from_h(-1e-13) == 0
 
     # Flat test case
-    T_flat = TANK(L=120*inch, D=72*inch, horizontal=False, sideA='ellipsoidal', sideA_a=0, sideB='same')
+    T_flat = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="ellipsoidal", sideA_a=0, sideB="same")
     T_actually_flat = TANK(L=120*inch, D=72*inch, horizontal=False)
     for h in (0, T_flat.h_max*.1, T_flat.h_max*.4, T_flat.h_max*.9, T_flat.h_max):
         assert_close(T_flat.SA_from_h(h), T_actually_flat.SA_from_h(h), rtol=1e-11)
@@ -851,9 +851,9 @@ def test_SA_partial_vertical_ellipsoidal_head():
 def test_SA_from_h_basics():
     # Bad side names
     with pytest.raises(ValueError):
-        SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='NOTASIDE', sideA_a=2., sideB_a=1.)
+        SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA="conical", sideB="NOTASIDE", sideA_a=2., sideB_a=1.)
     with pytest.raises(ValueError):
-        SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideB='conical', sideA='NOTASIDE', sideA_a=2., sideB_a=1.)
+        SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideB="conical", sideA="NOTASIDE", sideA_a=2., sideB_a=1.)
 
 
     # height above tank height
@@ -861,8 +861,8 @@ def test_SA_from_h_basics():
                  SA_from_h(h=1.5, D=1.5, L=5., horizontal=True, sideA=None, sideB=None),)
 
 
-    assert_close(SA_from_h(h=70, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
-                SA_from_h(h=8, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
+    assert_close(SA_from_h(h=70, D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.),
+                SA_from_h(h=8, D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.))
 
 
 
@@ -871,21 +871,21 @@ def test_SA_from_h_basics():
 
 
 def test_pitch_angle_solver():
-    ans = [{'angle': 30.0, 'pitch': 2., 'pitch_parallel': 1.7320508075688774, 'pitch_normal': 1.},
-           {'angle': 60.0, 'pitch': 2., 'pitch_parallel': 1., 'pitch_normal': 1.7320508075688774},
-           {'angle': 45.0, 'pitch': 2., 'pitch_parallel': 1.414213562373095, 'pitch_normal': 1.414213562373095},
-           {'angle': 90.0, 'pitch': 1., 'pitch_parallel': 0., 'pitch_normal': 1.},
-           {'angle': 0.0, 'pitch': 1., 'pitch_parallel': 1., 'pitch_normal': 0.},
+    ans = [{"angle": 30.0, "pitch": 2., "pitch_parallel": 1.7320508075688774, "pitch_normal": 1.},
+           {"angle": 60.0, "pitch": 2., "pitch_parallel": 1., "pitch_normal": 1.7320508075688774},
+           {"angle": 45.0, "pitch": 2., "pitch_parallel": 1.414213562373095, "pitch_normal": 1.414213562373095},
+           {"angle": 90.0, "pitch": 1., "pitch_parallel": 0., "pitch_normal": 1.},
+           {"angle": 0.0, "pitch": 1., "pitch_parallel": 1., "pitch_normal": 0.},
            ]
     for ans_set in ans:
         for k1, v1 in ans_set.items():
             for k2, v2 in ans_set.items():
                 if k1 != k2 and v1 != 0 and v2 != 0:
                     angle, pitch, pitch_parallel, pitch_normal = pitch_angle_solver(**{k1:v1, k2:v2})
-                    assert_close(ans_set['angle'], angle, atol=1e-16)
-                    assert_close(ans_set['pitch'], pitch, atol=1e-16)
-                    assert_close(ans_set['pitch_parallel'], pitch_parallel, atol=1e-16)
-                    assert_close(ans_set['pitch_normal'], pitch_normal, atol=1e-16)
+                    assert_close(ans_set["angle"], angle, atol=1e-16)
+                    assert_close(ans_set["pitch"], pitch, atol=1e-16)
+                    assert_close(ans_set["pitch_parallel"], pitch_parallel, atol=1e-16)
+                    assert_close(ans_set["pitch_normal"], pitch_normal, atol=1e-16)
 
     with pytest.raises(Exception):
         pitch_angle_solver(30)
@@ -980,8 +980,8 @@ def test_AirCooledExchangerFull():
     assert_close(AC.tube_volume, AC.tube_volume_per_tube*AC.tubes)
 
     assert AC.channels == 56
-    assert AC.pitch_str == 'triangular'
-    assert AC.pitch_class == 'staggered'
+    assert AC.pitch_str == "triangular"
+    assert AC.pitch_class == "staggered"
 
     # test with corbels
     AC = AirCooledExchanger(tube_rows=4, tube_passes=4, tubes_per_row=56, tube_length=10.9728,
@@ -1001,20 +1001,20 @@ def test_geometry_tank():
     V3 = TANK(D=1.2, L=4, horizontal=False).h_from_V(.5)
     assert_close(V3, 0.44209706414415373)
 
-    T1 = TANK(V=10, L_over_D=0.7, sideB='conical', sideB_a=0.5)
+    T1 = TANK(V=10, L_over_D=0.7, sideB="conical", sideB_a=0.5)
 #    T1.set_table(dx=0.001)
     things_calc = T1.A, T1.A_sideA, T1.A_sideB, T1.A_lateral
     things = (24.94775907657148, 5.118555935958284, 5.497246519930003, 14.331956620683194)
     assert_close1d(things_calc, things)
 
-    L1 = TANK(D=10., horizontal=True, sideA='conical', sideB='conical', V=500).L
-    D1 = TANK(L=4.69953105701, horizontal=True, sideA='conical', sideB='conical', V=500).D
-    L2 = TANK(L_over_D=0.469953105701, horizontal=True, sideA='conical', sideB='conical', V=500).L
+    L1 = TANK(D=10., horizontal=True, sideA="conical", sideB="conical", V=500).L
+    D1 = TANK(L=4.69953105701, horizontal=True, sideA="conical", sideB="conical", V=500).D
+    L2 = TANK(L_over_D=0.469953105701, horizontal=True, sideA="conical", sideB="conical", V=500).L
     assert_close1d([L1, D1, L2], [4.699531057009146, 9.999999999999407, 4.69953105700979])
 
-    L1 = TANK(D=10., horizontal=False, sideA='conical', sideB='conical', V=500).L
-    D1 = TANK(L=4.69953105701, horizontal=False, sideA='conical', sideB='conical', V=500).D
-    L2 = TANK(L_over_D=0.469953105701, horizontal=False, sideA='conical', sideB='conical', V=500).L
+    L1 = TANK(D=10., horizontal=False, sideA="conical", sideB="conical", V=500).L
+    D1 = TANK(L=4.69953105701, horizontal=False, sideA="conical", sideB="conical", V=500).D
+    L2 = TANK(L_over_D=0.469953105701, horizontal=False, sideA="conical", sideB="conical", V=500).L
     assert_close1d([L1, D1, L2], [4.699531057009146, 9.999999999999407, 4.69953105700979])
 
     # Test L_over_D setting simple cases
@@ -1022,50 +1022,50 @@ def test_geometry_tank():
     D1 = TANK(L=1.2, L_over_D=3.5, horizontal=False).D
     assert_close1d([L1, D1], [4.2, 0.342857142857])
     # Test toripsherical a calculation
-    V = TANK(L=1.2, L_over_D=3.5, sideA='torispherical', sideB='torispherical', sideA_f=1.,  sideA_k=0.06, sideB_f=1., sideB_k=0.06).V_total
+    V = TANK(L=1.2, L_over_D=3.5, sideA="torispherical", sideB="torispherical", sideA_f=1.,  sideA_k=0.06, sideB_f=1., sideB_k=0.06).V_total
     assert_close(V, 0.117318265914)
 
     # Test default a_ratio
-    assert_close(0.25, TANK(V=10, L=10, sideA='conical', sideA_a_ratio=None).sideA_a_ratio)
+    assert_close(0.25, TANK(V=10, L=10, sideA="conical", sideA_a_ratio=None).sideA_a_ratio)
 
     with pytest.raises(Exception):
         # Test overdefinition case
         TANK(V=10, L=10, D=10)
     with pytest.raises(Exception):
         # Test sides specified with V solving
-        TANK(V=10, L=10, sideA='conical', sideB_a=0.5)
+        TANK(V=10, L=10, sideA="conical", sideB_a=0.5)
 
     # Couple points that needed some polishing
     base = TANK(D=10., horizontal=True, sideA_a_ratio=.25, sideB_f=1., sideB_k=0.06,
-         sideA='conical', sideB='torispherical', V=500)
+         sideA="conical", sideB="torispherical", V=500)
 
     forward = TANK(D=10.0, horizontal=True, sideA_a_ratio=.25, sideB_f=1., sideB_k=0.06,
-         sideA='conical', sideB='torispherical', L=base.L)
+         sideA="conical", sideB="torispherical", L=base.L)
     assert_close(base.V, forward.V_total, rtol=1e-11)
 
     base = TANK(D=10., horizontal=True, sideB_a_ratio=.25, sideA_f=1., sideA_k=0.06,
-         sideB='conical', sideA='torispherical', V=500)
+         sideB="conical", sideA="torispherical", V=500)
 
     forward = TANK(D=10.0, horizontal=True, sideB_a_ratio=.25, sideA_f=1., sideA_k=0.06,
-         sideB='conical', sideA='torispherical', L=base.L)
+         sideB="conical", sideA="torispherical", L=base.L)
     assert_close(base.V, forward.V_total, rtol=1e-11)
 
     # Same tank keyword
-    T1 = TANK(V=10, L_over_D=0.7, sideB='conical', sideB_a=0.5, sideA='same')
+    T1 = TANK(V=10, L_over_D=0.7, sideB="conical", sideB_a=0.5, sideA="same")
     assert T1.sideB == T1.sideA
     assert T1.sideB_a == T1.sideA_a
     assert T1.sideB_f == T1.sideA_f
     assert T1.sideB_k == T1.sideB_k
     assert T1.sideB_a_ratio == T1.sideA_a_ratio
 
-    T1 = TANK(D=10.0, horizontal=True, sideA_f=1., sideA_k=0.06, sideA='torispherical', L=3, sideB='same')
+    T1 = TANK(D=10.0, horizontal=True, sideA_f=1., sideA_k=0.06, sideA="torispherical", L=3, sideB="same")
     assert T1.sideB == T1.sideA
     assert T1.sideB_a == T1.sideA_a
     assert T1.sideB_f == T1.sideA_f
     assert T1.sideB_k == T1.sideB_k
     assert T1.sideB_a_ratio == T1.sideA_a_ratio
 
-    T1 = TANK(D=10.0, horizontal=True, sideB_f=1., sideB_k=0.06, sideB='torispherical', L=3, sideA='same')
+    T1 = TANK(D=10.0, horizontal=True, sideB_f=1., sideB_k=0.06, sideB="torispherical", L=3, sideA="same")
     assert T1.sideB == T1.sideA
     assert T1.sideB_a == T1.sideA_a
     assert T1.sideB_f == T1.sideA_f
@@ -1073,7 +1073,7 @@ def test_geometry_tank():
     assert T1.sideB_a_ratio == T1.sideA_a_ratio
 
     # No spec at all
-    T1 = TANK(D=10.0, horizontal=True, L=3, sideA='same')
+    T1 = TANK(D=10.0, horizontal=True, L=3, sideA="same")
     assert T1.sideB == T1.sideA
     assert T1.sideB_a == T1.sideA_a
     assert T1.sideB_f == T1.sideA_f
@@ -1082,10 +1082,10 @@ def test_geometry_tank():
     assert T1.sideB_a == 0
 
     with pytest.raises(Exception):
-        T1 = TANK(D=10.0, horizontal=True, L=3, sideA='same', sideB='same')
+        T1 = TANK(D=10.0, horizontal=True, L=3, sideA="same", sideB="same")
 
     # Default k, f
-    T1 = TANK(D=10.0, horizontal=True, L=3, sideA='torispherical', sideB='torispherical')
+    T1 = TANK(D=10.0, horizontal=True, L=3, sideA="torispherical", sideB="torispherical")
     assert T1.sideB == T1.sideA
     assert T1.sideB_a == T1.sideA_a
     assert T1.sideB_f == T1.sideA_f
@@ -1099,24 +1099,24 @@ def test_geometry_tank():
 
 def test_TANK_issues():
     # GH issue 31
-    Tk = TANK(L=3, D=5, horizontal=False,  sideA='torispherical', sideA_f=1, sideA_k=0.1, sideB='torispherical', sideB_f=1, sideB_k=0.1) #DIN28011
+    Tk = TANK(L=3, D=5, horizontal=False,  sideA="torispherical", sideA_f=1, sideA_k=0.1, sideB="torispherical", sideB_f=1, sideB_k=0.1) #DIN28011
     assert_close(Tk.V_total, Tk.V_from_h(Tk.h_max*.9999999999), rtol=1e-12)
 
     # Issue where checking sideA_a was for truthiness and not  not None
-    kwargs = {'L': 2.0, 'horizontal': False, 'L_over_D': None,
-              'V': None, 'sideA': 'ellipsoidal', 'sideB': 'ellipsoidal',
-              'sideA_a': 0.0, 'sideB_a': 1e-06, 'sideA_a_ratio': None,
-              'sideB_a_ratio': None, 'sideA_f': None, 'sideA_k': None,
-              'sideB_f': None, 'sideB_k': None}
+    kwargs = {"L": 2.0, "horizontal": False, "L_over_D": None,
+              "V": None, "sideA": "ellipsoidal", "sideB": "ellipsoidal",
+              "sideA_a": 0.0, "sideB_a": 1e-06, "sideA_a_ratio": None,
+              "sideB_a_ratio": None, "sideA_f": None, "sideA_k": None,
+              "sideB_f": None, "sideB_k": None}
     assert_close(TANK(D=.5, **kwargs).V_total, 0.39269921259841806, rtol=1e-11)
 
 
     # case that failed once
-    kwargs = {'D': 0.5, 'L': 2.0, 'horizontal': False, 'L_over_D': None,
-                     'V': None, 'sideA': 'ellipsoidal', 'sideB': 'ellipsoidal',
-                     'sideA_a': 0.0, 'sideB_a': 0.0, 'sideA_a_ratio': None,
-                     'sideB_a_ratio': None, 'sideA_f': None, 'sideA_k': None,
-                     'sideB_f': None, 'sideB_k': None}
+    kwargs = {"D": 0.5, "L": 2.0, "horizontal": False, "L_over_D": None,
+                     "V": None, "sideA": "ellipsoidal", "sideB": "ellipsoidal",
+                     "sideA_a": 0.0, "sideB_a": 0.0, "sideA_a_ratio": None,
+                     "sideB_a_ratio": None, "sideA_f": None, "sideA_k": None,
+                     "sideB_f": None, "sideB_k": None}
     TANK(**kwargs)
 
 
@@ -1129,9 +1129,9 @@ def assert_TANKs_equal(T1, T2):
 
 def test_add_thickness():
     t = 1e-4
-    T1 = TANK(L=3, D=.6, sideA='ellipsoidal', sideA_a = .2, sideB='conical', sideB_a=0.5)
+    T1 = TANK(L=3, D=.6, sideA="ellipsoidal", sideA_a = .2, sideB="conical", sideB_a=0.5)
     T1 = T1.add_thickness(t)
-    T2 = TANK(L=3+2*t, D=.6+2*t, sideA='ellipsoidal', sideA_a = .2+t, sideB='conical', sideB_a=0.5+t)
+    T2 = TANK(L=3+2*t, D=.6+2*t, sideA="ellipsoidal", sideA_a = .2+t, sideB="conical", sideB_a=0.5+t)
     assert_TANKs_equal(T1, T2)
 
     # Also add a test that there are no default values for `k` and `f` when the tank is not torispherical
@@ -1145,9 +1145,9 @@ def test_add_thickness():
         assert_close(T.sideB_a_ratio, 0.8332222592469177)
 
     t = .1
-    T1 = TANK(L=3, D=.6, sideA='spherical', sideA_a = .2, sideB='guppy', sideB_a=0.5)
+    T1 = TANK(L=3, D=.6, sideA="spherical", sideA_a = .2, sideB="guppy", sideB_a=0.5)
     T1 = T1.add_thickness(t)
-    T2 = TANK(L=3+2*t, D=.6+2*t, sideA='spherical', sideA_a = .2+t, sideB='guppy', sideB_a=0.5+t)
+    T2 = TANK(L=3+2*t, D=.6+2*t, sideA="spherical", sideA_a = .2+t, sideB="guppy", sideB_a=0.5+t)
     assert_TANKs_equal(T1, T2)
     for T in (T1, T2):
         assert T.sideA_f is None
@@ -1159,10 +1159,10 @@ def test_add_thickness():
 
     # Torispherical as well
     t = .15311351231
-    T1 = TANK(L=3, D=.6, sideA='torispherical', sideB='torispherical',
+    T1 = TANK(L=3, D=.6, sideA="torispherical", sideB="torispherical",
              sideA_f=0.9, sideA_k=0.17)
     T1 = T1.add_thickness(t)
-    T2 = TANK(L=3+2*t, D=.6+2*t, sideA='torispherical', sideA_f=0.9, sideA_k=0.17, sideB='torispherical')
+    T2 = TANK(L=3+2*t, D=.6+2*t, sideA="torispherical", sideA_f=0.9, sideA_k=0.17, sideB="torispherical")
     assert_TANKs_equal(T1, T2)
 
 
@@ -1170,46 +1170,46 @@ def test_add_thickness():
 def test_geometry_tank_chebyshev():
     # Test auto set Chebyshev table
     T = TANK(L=1.2, L_over_D=3.5)
-    assert_close(T.h_from_V(T.V_total, 'chebyshev'), T.h_max)
+    assert_close(T.h_from_V(T.V_total, "chebyshev"), T.h_max)
 
-    assert_close(T.h_from_V(.1, 'chebyshev'), 0.2901805880470152, rtol=1e-4)
-    assert_close(T.h_from_V(.05, 'chebyshev'), 0.15830377515496144, rtol=1e-4)
-    assert_close(T.h_from_V(.02, 'chebyshev'), 0.08101343184833742, rtol=1e-4)
+    assert_close(T.h_from_V(.1, "chebyshev"), 0.2901805880470152, rtol=1e-4)
+    assert_close(T.h_from_V(.05, "chebyshev"), 0.15830377515496144, rtol=1e-4)
+    assert_close(T.h_from_V(.02, "chebyshev"), 0.08101343184833742, rtol=1e-4)
 
     T = TANK(L=1.2, L_over_D=3.5)
-    assert_close(T.V_from_h(T.h_max, 'chebyshev'), T.V_total)
+    assert_close(T.V_from_h(T.h_max, "chebyshev"), T.V_total)
 
 
 @pytest.mark.slow
 def test_geometry_tank_fuzz_h_from_V():
-    T = TANK(L=1.2, L_over_D=3.5, sideA='torispherical', sideB='torispherical', sideA_f=1., horizontal=True, sideA_k=0.06, sideB_f=1., sideB_k=0.06)
+    T = TANK(L=1.2, L_over_D=3.5, sideA="torispherical", sideB="torispherical", sideA_f=1., horizontal=True, sideA_k=0.06, sideB_f=1., sideB_k=0.06)
     T.set_chebyshev_approximators(deg_forward=100, deg_backwards=600)
 
     # test V_from_h - pretty easy to get right
     for h in linspace(0, T.h_max, 30):
         # It's the top and the bottom of the tank that works poorly
-        V1 = T.V_from_h(h, 'full')
-        V2 = T.V_from_h(h, 'chebyshev')
+        V1 = T.V_from_h(h, "full")
+        V2 = T.V_from_h(h, "chebyshev")
         assert_close(V1, V2, rtol=1E-7, atol=1E-7)
 
     with pytest.raises(Exception):
-        T.V_from_h(1E-5, 'NOTAMETHOD')
+        T.V_from_h(1E-5, "NOTAMETHOD")
 
     # reverse - the spline is also pretty easy, with a limited number of points
     # when the required precision is low
     T.set_table(n=150)
     for V in linspace(0, T.V_total, 30):
-        h1 = T.h_from_V(V, 'brenth')
-        h2 = T.h_from_V(V, 'spline')
+        h1 = T.h_from_V(V, "brenth")
+        h2 = T.h_from_V(V, "spline")
         assert_close(h1, h2, rtol=1E-5, atol=1E-6)
 
-        h3 = T.h_from_V(V, 'chebyshev')
+        h3 = T.h_from_V(V, "chebyshev")
         # Even with a 600-degree polynomial, there will be failures if N
         # is high enough, but the tolerance should just be lowered
         assert_close(h1, h3, rtol=1E-7, atol=1E-7)
 
     with pytest.raises(Exception):
-        T.h_from_V(1E-5, 'NOTAMETHOD')
+        T.h_from_V(1E-5, "NOTAMETHOD")
 
 
 def test_basic():
@@ -1242,11 +1242,11 @@ def test_basic():
 
 
 def test_HelicalCoil():
-    for kwargs in [{'Do': 30, 'H': 20, 'pitch': 5, 'Dt':2},
-                   {'Do': 30, 'N': 4, 'pitch': 5, 'Dt':2},
-                   {'Do': 30, 'N': 4, 'H': 20, 'Dt':2},
-                   {'Do_total': 32, 'N': 4, 'H': 20, 'Dt':2},
-                   {'Do_total': 32, 'N': 4, 'H_total': 22, 'Dt':2}]:
+    for kwargs in [{"Do": 30, "H": 20, "pitch": 5, "Dt":2},
+                   {"Do": 30, "N": 4, "pitch": 5, "Dt":2},
+                   {"Do": 30, "N": 4, "H": 20, "Dt":2},
+                   {"Do_total": 32, "N": 4, "H": 20, "Dt":2},
+                   {"Do_total": 32, "N": 4, "H_total": 22, "Dt":2}]:
 
         a = HelicalCoil(Di=1.8, **kwargs)
         assert_close(a.N, 4)
@@ -1293,7 +1293,7 @@ def test_HelicalCoil():
 def test_PlateExchanger():
     ex = PlateExchanger(amplitude=5E-4, wavelength=3.7E-3, length=1.2, width=.3, d_port=.05, plates=51)
 
-    assert ex.plate_exchanger_identifier == 'L3.7A0.5B45-45'
+    assert ex.plate_exchanger_identifier == "L3.7A0.5B45-45"
     assert_close(ex.amplitude, 0.0005)
     assert_close(ex.a, 0.0005)
     assert_close(ex.b, 0.001)
@@ -1432,7 +1432,7 @@ def test_circle_segment_h_from_A():
 
 
 def test_TANK_bug_tolerance():
-    obj = TANK(L_over_D=3.0, V=100, horizontal=True, sideA='torispherical', sideB='torispherical',sideA_f=1.0, sideA_k=0.06, sideB_f=1.0, sideB_k=0.06)
+    obj = TANK(L_over_D=3.0, V=100, horizontal=True, sideA="torispherical", sideB="torispherical",sideA_f=1.0, sideA_k=0.06, sideB_f=1.0, sideB_k=0.06)
     assert_close(obj.V_from_h(obj.h_max*100.0/100), obj.V)
     
     assert_close(obj.A_cross_sectional(0), 0.0)

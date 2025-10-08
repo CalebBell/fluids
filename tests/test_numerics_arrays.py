@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2024 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 from math import cos, erf, exp, isnan, log, pi, sin, sqrt
 
 import pytest
@@ -133,9 +133,9 @@ def format_matrix_error(matrix):
         """Get diagnostic information about a matrix"""
         arr = np.array(matrix)
         return {
-            'condition_number': np.linalg.cond(arr),
-            'determinant': np.linalg.det(arr),
-            'shape': arr.shape
+            "condition_number": np.linalg.cond(arr),
+            "determinant": np.linalg.det(arr),
+            "shape": arr.shape
         }
     info = matrix_info(matrix)
     
@@ -1644,7 +1644,7 @@ def test_argsort1d():
 
     check_argsort1d([True, False, True], [1, 0, 2], "Failed with boolean values")
 
-    check_argsort1d(['apple', 'banana', 'cherry'], [0, 1, 2], "Failed with strings")
+    check_argsort1d(["apple", "banana", "cherry"], [0, 1, 2], "Failed with strings")
 
     check_argsort1d([2, 3, 2, 3, 3], [0, 2, 1, 3, 4], "Failed with duplicate numbers")
 
@@ -1872,7 +1872,7 @@ def test_matrix_multiply():
 
     # Non-numeric values
     with pytest.raises(TypeError):
-        A = [[1, 2, 'a']]
+        A = [[1, 2, "a"]]
         B = [[4, 5], [6, 7], [8, 9]]
         matrix_multiply(A, B)
 
@@ -1910,7 +1910,7 @@ def test_sum_matrix_rows():
         sum_matrix_rows([[1, 2], [1]])  # Irregular rows
     # Test non-numeric values
     with pytest.raises(TypeError):
-        sum_matrix_cols([[1, 'a'], [2, 3]])
+        sum_matrix_cols([[1, "a"], [2, 3]])
 
 
 def test_sum_matrix_cols():
@@ -1946,7 +1946,7 @@ def test_sum_matrix_cols():
     with pytest.raises(ValueError):
         sum_matrix_cols([[1, 2], [1]])  # Irregular rows
     with pytest.raises(TypeError):
-        sum_matrix_rows([[1, 'a'], [2, 3]])
+        sum_matrix_rows([[1, "a"], [2, 3]])
     
 def test_scalar_add_matrices():
     """Test matrix addition functionality"""
@@ -1993,7 +1993,7 @@ def test_scalar_add_matrices():
     with pytest.raises(ValueError):
         scalar_add_matrices([[1, 2]], [[1, 2, 3]])  # Incompatible shapes
     with pytest.raises(TypeError):
-        scalar_add_matrices([[1, 'a']], [[1, 2]])  # Invalid type
+        scalar_add_matrices([[1, "a"]], [[1, 2]])  # Invalid type
 
 
 def test_scalar_subtract_matrices():
@@ -2041,7 +2041,7 @@ def test_scalar_subtract_matrices():
     with pytest.raises(ValueError):
         scalar_subtract_matrices([[1, 2]], [[1, 2, 3]])  # Incompatible shapes
     with pytest.raises(TypeError):
-        scalar_subtract_matrices([[1, 'a']], [[1, 2]])  # Invalid type
+        scalar_subtract_matrices([[1, "a"]], [[1, 2]])  # Invalid type
 
 def test_scalar_multiply_matrix():
     """Test matrix scalar multiplication functionality"""
@@ -2079,7 +2079,7 @@ def test_scalar_multiply_matrix():
     with pytest.raises(ValueError):
         scalar_multiply_matrix(2.0, [[]])  # Empty rows
     with pytest.raises(TypeError):
-        scalar_multiply_matrix(2.0, [[1, 'a']])  # Invalid type
+        scalar_multiply_matrix(2.0, [[1, "a"]])  # Invalid type
 
 def test_scalar_divide_matrix():
     """Test matrix scalar division functionality"""
@@ -2117,22 +2117,22 @@ def test_scalar_divide_matrix():
     with pytest.raises(ValueError):
         scalar_divide_matrix(2.0, [[]])  # Empty rows
     with pytest.raises(TypeError):
-        scalar_divide_matrix(2.0, [[1, 'a']])  # Invalid type
+        scalar_divide_matrix(2.0, [[1, "a"]])  # Invalid type
     with pytest.raises(TypeError):
-        scalar_divide_matrix('2', [[1, 2]])  # Invalid scalar type
+        scalar_divide_matrix("2", [[1, 2]])  # Invalid scalar type
     with pytest.raises(ZeroDivisionError):
         scalar_divide_matrix(0.0, [[1, 2]])  # Division by zero
 
 
 
 def test_sort_paired_lists():
-    assert sort_paired_lists([3, 1, 2], ['c', 'a', 'b']) == ([1, 2, 3], ['a', 'b', 'c'])
+    assert sort_paired_lists([3, 1, 2], ["c", "a", "b"]) == ([1, 2, 3], ["a", "b", "c"])
     assert sort_paired_lists([], []) == ([], [])
-    assert sort_paired_lists([2, 2, 1], ['a', 'b', 'c']) == ([1, 2, 2], ['c', 'a', 'b'])
-    assert sort_paired_lists([-3, -1, -2], ['c', 'a', 'b']) == ([-3, -2, -1], ['c', 'b', 'a'])
+    assert sort_paired_lists([2, 2, 1], ["a", "b", "c"]) == ([1, 2, 2], ["c", "a", "b"])
+    assert sort_paired_lists([-3, -1, -2], ["c", "a", "b"]) == ([-3, -2, -1], ["c", "b", "a"])
     temps = [300.5, 100.1, 200.7]
-    props = ['hot', 'cold', 'warm']
-    assert sort_paired_lists(temps, props) == ([100.1, 200.7, 300.5], ['cold', 'warm', 'hot'])
+    props = ["hot", "cold", "warm"]
+    assert sort_paired_lists(temps, props) == ([100.1, 200.7, 300.5], ["cold", "warm", "hot"])
     
     with pytest.raises(ValueError):
         # Test 6: Unequal length lists
@@ -2149,15 +2149,15 @@ def format_matrix_error_null_space(matrix):
         try:
             cond = np.linalg.cond(arr)
         except:
-            cond = float('inf')
+            cond = float("inf")
         # Only compute determinant for square matrices
         det = np.linalg.det(arr) if shape[0] == shape[1] else None
         return {
-            'rank': rank,
-            'condition_number': cond,
-            'shape': shape,
-            'null_space_dim': shape[1] - rank,
-            'determinant': det
+            "rank": rank,
+            "condition_number": cond,
+            "shape": shape,
+            "null_space_dim": shape[1] - rank,
+            "determinant": det
         }
     info = matrix_info(matrix)
     
@@ -2168,7 +2168,7 @@ def format_matrix_error_null_space(matrix):
         f"\n  Null space dimension: {info['null_space_dim']}"
         f"\n  Condition number: {info['condition_number']:.2e}"
     )
-    if info['determinant'] is not None:
+    if info["determinant"] is not None:
         msg += f"\n  Determinant: {info['determinant']:.2e}"
     msg += (
         f"\nInput matrix:"
