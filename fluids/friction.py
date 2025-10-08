@@ -4013,12 +4013,10 @@ _Farshad_roughness = {"Plastic coated": (5E-6, 0.0002, -1.0098),
                       "Fiberglass lining": (38E-6, 0.0016, -1.0086),
                       "Cr13, bare": (55E-6, 0.0021, -1.0055)  }
 
-try:
-    if IS_NUMBA: # type: ignore
-        _Farshad_roughness_keys = tuple(_Farshad_roughness.keys())
-        _Farshad_roughness_values = tuple(_Farshad_roughness.values())
-except NameError:
-    pass
+IS_NUMBA = "IS_NUMBA" in globals()
+if IS_NUMBA:
+    _Farshad_roughness_keys = tuple(_Farshad_roughness.keys())
+    _Farshad_roughness_values = tuple(_Farshad_roughness.values())
 
 def roughness_Farshad(ID=None, D=None, coeffs=None):
     r"""Calculates or retrieves the roughness of a pipe based on the work of

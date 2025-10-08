@@ -3171,12 +3171,10 @@ Darby[DARBY_DIAPHRAGM_DAM_VALVE] = (1000.00, 0.69, 4.9)
 Darby[DARBY_SWING_CHECK_VALVE] = (1500.0, 0.46, 4.0)
 Darby[DARBY_LIFT_CHECK_VALVE] = (2000.00, 2.85, 3.8)
 
-try:
-    if IS_NUMBA: # type: ignore # noqa: F821
-        Darby_keys = tuple(Darby.keys())
-        Darby_values = tuple(Darby.values())
-except:
-    pass
+IS_NUMBA = "IS_NUMBA" in globals()
+if IS_NUMBA:
+    Darby_keys = tuple(Darby.keys())
+    Darby_values = tuple(Darby.values())
 
 
 def Darby3K(NPS=None, Re=None, name=None, K1=None, Ki=None, Kd=None, Di=None):
@@ -3314,13 +3312,9 @@ Hooper[HOOPER_CHECK_VALVE_LIFT] = (2000.0, 10.0)
 Hooper[HOOPER_CHECK_VALVE_SWING] = (1500.0, 1.5)
 Hooper[HOOPER_CHECK_VALVE_TILTING_DISK] = (1000.0, 0.5)
 
-try:
-    if IS_NUMBA: # type: ignore # noqa: F821
-        Hooper_keys = tuple(Hooper.keys())
-        Hooper_values = tuple(Hooper.values())
-except:
-    pass
-
+if IS_NUMBA:
+    Hooper_keys = tuple(Hooper.keys())
+    Hooper_values = tuple(Hooper.values())
 
 def Hooper2K(Di, Re, name=None, K1=None, Kinfty=None):
     r"""Returns loss coefficient for any various fittings, depending
