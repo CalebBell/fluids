@@ -92,7 +92,7 @@ def test_liquid_jet_pump_ancillary_d_mixing():
     rhos=1098.
     Ks=0.11
     Kp=.04
-    
+
 
     for rhos in [1098., 1100, 1200, 1600, 4000, 100]:
         for Ks in [1E-9, 1E-3, 0.11, .5, 1, 5, 10, 100, 1000]:

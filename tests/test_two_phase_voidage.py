@@ -298,11 +298,11 @@ def test_gas_liquid_viscosity():
     assert_close(mu, 1.2092040385066917e-05)
 
     simple_methods = gas_liquid_viscosity_methods()
-    assert list(sorted(simple_methods)) == list(sorted(["McAdams", "Cicchitti", "Lin Kwok"]))
+    assert sorted(simple_methods) == sorted(["McAdams", "Cicchitti", "Lin Kwok"])
 
     all_methods = gas_liquid_viscosity_methods(rhol=1000.0, rhog=2.)
     all_methods_expect = ["Beattie Whalley", "Fourar Bories", "Duckler", "McAdams", "Cicchitti", "Lin Kwok"]
-    assert list(sorted(all_methods)) == list(sorted(all_methods_expect))
+    assert sorted(all_methods) == sorted(all_methods_expect)
 
     for m in all_methods_expect:
         gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2, Method=m)

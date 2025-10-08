@@ -27,13 +27,13 @@ import pytest
 from fluids.design_climate import (
     IntegratedSurfaceDatabaseStation,
     StationDataGSOD,
-    get_latlongs,
     cooling_degree_days,
     geocode,
     get_closest_station,
+    get_latlongs,
     get_station_year_text,
-    heating_degree_days,
     get_stations,
+    heating_degree_days,
 )
 from fluids.numerics import assert_close, assert_close1d
 

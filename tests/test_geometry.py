@@ -133,7 +133,7 @@ def test_V_horiz_conical():
 
     assert_close(V_horiz_conical(D=108., L=156., a=42., h=108),
                 V_horiz_conical(D=108., L=156., a=42., h=2000))
-    
+
     # Check the function handles floating point errors for a slightly negative value of `h`
     assert_close(V_horiz_conical(D=108., L=156., a=42., h=0), V_horiz_conical(D=108., L=156., a=42., h=-1e-30))
     assert_close(V_horiz_conical(D=108., L=156., a=42., h=0), V_horiz_conical(D=108., L=156., a=42., h=-1e30))
@@ -214,7 +214,7 @@ def test_V_horiz_spherical():
                  V_horiz_spherical(D=108., L=156., a=42., h=108.+1e-8, headonly=True))
     assert_close(V_horiz_spherical(D=108., L=156., a=42., h=108., headonly=True),
                  V_horiz_spherical(D=108., L=156., a=42., h=108.+1e8, headonly=True))
-    
+
 def test_V_horiz_torispherical():
 
     # Two examples from [1]_, and at midway, full, empty, and 1 inch; covering
@@ -1423,7 +1423,7 @@ def test_circle_segment_h_from_A():
     # Point at low area
     assert_close(circle_segment_h_from_A(D=20, A=.006), 0.010042502885593678, rtol=1e-10)
     # Note that as A becomes too low, the result becomes highly sensitive to the trig routine. A=1e-7 for D = 20 was too low.
-    
+
 
     # Special cases
     assert circle_segment_h_from_A(0.0, 4.5) == 0.0
@@ -1434,7 +1434,7 @@ def test_circle_segment_h_from_A():
 def test_TANK_bug_tolerance():
     obj = TANK(L_over_D=3.0, V=100, horizontal=True, sideA="torispherical", sideB="torispherical",sideA_f=1.0, sideA_k=0.06, sideB_f=1.0, sideB_k=0.06)
     assert_close(obj.V_from_h(obj.h_max*100.0/100), obj.V)
-    
+
     assert_close(obj.A_cross_sectional(0), 0.0)
     assert_close(obj.A_cross_sectional(obj.h_max), 0.0)
 

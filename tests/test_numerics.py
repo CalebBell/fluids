@@ -26,11 +26,14 @@ import pytest
 
 from fluids.numerics import (
     SolverInterface,
+    argsort1d,
     array_as_tridiagonals,
     assert_close,
     assert_close1d,
     assert_close2d,
+    assert_close3d,
     best_bounding_bounds,
+    broyden2,
     chebder,
     chebint,
     chebval,
@@ -39,9 +42,8 @@ from fluids.numerics import (
     chebval_ln_tau_and_der2,
     chebval_ln_tau_and_der3,
     cumsum,
+    cumulative_trapezoid,
     derivative,
-    hessian,
-    assert_close3d,
     exp_cheb,
     exp_cheb_and_der,
     exp_cheb_and_der2,
@@ -51,8 +53,15 @@ from fluids.numerics import (
     exp_cheb_ln_tau_and_der2,
     fit_integral_linear_extrapolation,
     fit_integral_over_T_linear_extrapolation,
+    fixed_point,
+    fixed_point_aitken,
+    fixed_point_anderson,
+    fixed_point_gdem,
+    fixed_point_to_residual,
     full,
+    hessian,
     horner,
+    is_increasing,
     is_monotonic,
     is_poly_positive,
     isclose,
@@ -74,9 +83,9 @@ from fluids.numerics import (
     polyint_over_x,
     polylog2,
     polynomial_offset_scale,
+    residual_to_fixed_point,
     secant,
     sincos,
-    fixed_point,
     solve_2_direct,
     solve_3_direct,
     solve_4_direct,
@@ -90,15 +99,6 @@ from fluids.numerics import (
     trunc_exp_numpy,
     trunc_log_numpy,
     zeros,
-    is_increasing,
-    argsort1d,
-    fixed_point_to_residual,
-    residual_to_fixed_point,
-    broyden2,
-    fixed_point_aitken, 
-    fixed_point_gdem,
-    fixed_point_anderson,
-    cumulative_trapezoid,
 )
 from fluids.numerics import numpy as np
 
@@ -298,7 +298,7 @@ def test_cumulative_trapezoid():
     """Test the cumulative_trapezoid implementation against scipy's version
     and known analytical solutions."""
     from scipy.integrate import cumulative_trapezoid as scipy_cumtrapz
-    
+
     # Compare against scipy for linear function
     x = np.linspace(-2, 2, num=20).tolist()
     y = x.copy()  # f(x) = x, integral should be x^2/2
@@ -311,26 +311,26 @@ def test_cumulative_trapezoid():
     y_scipy = scipy_cumtrapz(y, dx=1).tolist()
     y_py = cumulative_trapezoid(y, dx=1)
     assert_allclose(y_py, y_scipy)
-    
+
     # Error handling
     # Test mismatched lengths
     with pytest.raises(ValueError):
         cumulative_trapezoid([1, 2, 3], [1, 2])
-    
+
     # Non-uniform spacing
     x = [0, 1, 4, 10]  # Non-uniform grid
     y = [0, 1, 4, 10]  # f(x) = x
     y_scipy = scipy_cumtrapz(y, x).tolist()
     y_py = cumulative_trapezoid(y, x)
     assert_allclose(y_py, y_scipy)
-    
+
     # Constant function
     x = np.linspace(0, 1, 5).tolist()
     y = [2.0] * 5  # f(x) = 2
     y_scipy = scipy_cumtrapz(y, x).tolist()
     y_py = cumulative_trapezoid(y, x)
     assert_allclose(y_py, y_scipy)
-    
+
     # Negative values
     x = [-2, -1, 0, 1, 2]
     y = [-4, -1, 0, 1, 4]
@@ -341,7 +341,7 @@ def test_cumulative_trapezoid():
     # Test empty inputs
     assert cumulative_trapezoid([]) == []
     assert cumulative_trapezoid([1]) == []
-    
+
 
 
 def test_linspace():
@@ -1802,6 +1802,7 @@ def test_secant_cases_internet():
 @pytest.mark.filterwarnings("ignore:invalid value encountered in scalar power")
 def test_secant_cases_nan_inf():
     import numpy as np
+
     from fluids.numerics import UnconvergedError
     def div_by_zero(x):
         err = 1 / (np.array(x) - 1)
@@ -1900,7 +1901,7 @@ def test_basic_newton_system():
         # f1 = x^2 + y^2 - 4 = 0
         # f2 = exp(x) - y = 0
         return [x**2 + y**2 - 4, exp(x) - y]
-    
+
     # Define Jacobian matrix
     def jacobian(inputs):
         x, y = inputs
@@ -1918,7 +1919,7 @@ def test_basic_newton_system():
         xtol=1e-10,
         maxiter=100
     )
-    
+
     # Check results
     assert iterations > 0 
     assert iterations < 10  # Should converge in about 6 iters
@@ -2302,7 +2303,7 @@ def test_SolverInterface_fixed_point():
     ans = solver.solve(fixed_point_1_guess)
     assert solver.fval_iter == 37
     assert_close1d(ans, fixed_point_1_expect, rtol=1e-12)
-    
+
 
 def test_isclose():
     assert not isclose(1.0, 2.0, rel_tol=0.0, abs_tol=0.0)

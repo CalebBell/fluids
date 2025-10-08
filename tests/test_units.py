@@ -27,7 +27,6 @@ import pytest
 
 import fluids
 from fluids.numerics import assert_close, assert_close1d, assert_close2d
-from fluids.units import check_module_docstring_parameters
 from fluids.units import (
     ATMOSPHERE_1976,
     ATMOSPHERE_NRLMSISE00,
@@ -57,6 +56,7 @@ from fluids.units import (
     V_multiple_hole_cylinder,
     Weymouth,
     agitator_time_homogeneous,
+    check_module_docstring_parameters,
     control_valve_noise_g_2011,
     convert_output,
     current_ideal,
