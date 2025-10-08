@@ -72,6 +72,6 @@ for mod in to_test:
                     #print(obj)
                     obj()
                 except Exception as e:
-                    print("FAILED TEST %s with error:" %s)
+                    print("FAILED TEST {} with error:".format(s))
                     print(e)
 

@@ -437,7 +437,7 @@ def test_bend_rounded_Miller_outlet_tangent_correction():
     tcks = []
     for Kb, lrs, Cos in zip(Kbs, length_ratio_lists, Co_lists):
         univar = splrep(lrs, Cos, s=4e-4) # Default smoothing is great!
-        s = ("tck_bend_rounded_Miller_C_o_%s = " %str(Kb).replace(".", "_"))
+        s = ("tck_bend_rounded_Miller_C_o_{} = ".format(str(Kb).replace(".", "_")))
         template = "np.array(%s),\n"
         t1 = template%str(univar[0].tolist())
         t2 = template%str(univar[1].tolist())

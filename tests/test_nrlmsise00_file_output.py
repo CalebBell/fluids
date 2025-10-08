@@ -134,9 +134,9 @@ def gtd7_file_output():
     for i in range(17):
         build_file("\n", end="")
         for j in range(9):
-            build_file("%E " % output[i].d[j], end="")
-        build_file("%E " % output[i].t[0], end="")
-        build_file("%E " % output[i].t[1], end="\n")
+            build_file("{:E} ".format(output[i].d[j]), end="")
+        build_file("{:E} ".format(output[i].t[0]), end="")
+        build_file("{:E} ".format(output[i].t[1]), end="\n")
         #/* DL omitted */
 
     #/* output type 2 */
@@ -147,61 +147,61 @@ def gtd7_file_output():
             build_file("         %3i" % Input[i*5+j].doy, end="")
         build_file("\nUT    ", end="")
         for j in range(5):
-            build_file("       %5.0f" % Input[i*5+j].sec, end="")
+            build_file("       {:5.0f}".format(Input[i*5+j].sec), end="")
         build_file("\nALT   ", end="")
         for j in range(5):
-            build_file("        %4.0f" % Input[i*5+j].alt, end="")
+            build_file("        {:4.0f}".format(Input[i*5+j].alt), end="")
         build_file("\nLAT   ", end="")
         for j in range(5):
-            build_file("         %3.0f" % Input[i*5+j].g_lat, end="")
+            build_file("         {:3.0f}".format(Input[i*5+j].g_lat), end="")
         build_file("\nLONG  ", end="")
         for j in range(5):
-            build_file("         %3.0f" % Input[i*5+j].g_long, end="")
+            build_file("         {:3.0f}".format(Input[i*5+j].g_long), end="")
         build_file("\nLST   ", end="")
         for j in range(5):
-            build_file("       %5.0f" % Input[i*5+j].lst, end="")
+            build_file("       {:5.0f}".format(Input[i*5+j].lst), end="")
         build_file("\nF107A ", end="")
         for j in range(5):
-            build_file("         %3.0f" % Input[i*5+j].f107A, end="")
+            build_file("         {:3.0f}".format(Input[i*5+j].f107A), end="")
         build_file("\nF107  ", end="")
         for j in range(5):
-            build_file("         %3.0f" % Input[i*5+j].f107, end="")
+            build_file("         {:3.0f}".format(Input[i*5+j].f107), end="")
 
         build_file("\n\n", end="")
 
         build_file("\nTINF  ", end="")
         for j in range(5):
-            build_file("     %7.2f" % output[i*5+j].t[0], end="")
+            build_file("     {:7.2f}".format(output[i*5+j].t[0]), end="")
         build_file("\nTG    ", end="")
         for j in range(5):
-            build_file("     %7.2f" % output[i*5+j].t[1], end="")
+            build_file("     {:7.2f}".format(output[i*5+j].t[1]), end="")
         build_file("\nHE    ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[0], end="")
+            build_file("   {:1.3e}".format(output[i*5+j].d[0]), end="")
         build_file("\nO     ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[1], end="")
+            build_file("   {:1.3e}".format(output[i*5+j].d[1]), end="")
         build_file("\nN2    ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[2], end="")
+            build_file("   {:1.3e}".format(output[i*5+j].d[2]), end="")
         build_file("\nO2    ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[3], end="")
+            build_file("   {:1.3e}".format(output[i*5+j].d[3]), end="")
         build_file("\nAR    ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[4], end="")
+            build_file("   {:1.3e}".format(output[i*5+j].d[4]), end="")
         build_file("\nH     ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[6], end="")
+            build_file("   {:1.3e}".format(output[i*5+j].d[6]), end="")
         build_file("\nN     ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[7], end="")
+            build_file("   {:1.3e}".format(output[i*5+j].d[7]), end="")
         build_file("\nANM   ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[8], end="")
+            build_file("   {:1.3e}".format(output[i*5+j].d[8]), end="")
         build_file("\nRHO   ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[5], end="")
+            build_file("   {:1.3e}".format(output[i*5+j].d[5]), end="")
         build_file("\n", "\n")
 
 

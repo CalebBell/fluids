@@ -9,11 +9,11 @@ except:
     pass
 
 for t in tests:
-    os.system("python3 -m monkeytype run manual_runner.py %s" %t)
+    os.system("python3 -m monkeytype run manual_runner.py {}".format(t))
 for t in tests:
     mod = t[5:]
     os.system(f"python3 -m monkeytype stub fluids.{mod} > ../fluids/{mod}.pyi")
-    type_hit_path = "../fluids/%s.pyi" %mod
+    type_hit_path = "../fluids/{}.pyi".format(mod)
     dat = open(type_hit_path).read()
     imports = "from typing import List\n"
     future = "from __future__ import annotations\n"
