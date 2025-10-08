@@ -115,27 +115,24 @@ if not numerics.is_micropython:
                   saltation, separator, particle_size_distribution, jet_pump,
                   control_valve,]
 
-    if numerics.PY37:
-        def __getattr__(name):
-            if name == 'vectorized':
-                import fluids.vectorized
-                globals()[name] = fluids.vectorized
-                return fluids.vectorized
-            if name == 'numba':
-                import fluids.numba
-                globals()[name] = fluids.numba
-                return fluids.numba
-            if name == 'units':
-                import fluids.units
-                globals()[name] = fluids.units
-                return fluids.units
-            if name == 'numba_vectorized':
-                import fluids.numba_vectorized
-                globals()[name] = fluids.numba_vectorized
-                return fluids.numba_vectorized
-            raise AttributeError("module %s has no attribute %s" %(__name__, name))
-    else:
-        from . import vectorized
+    def __getattr__(name):
+        if name == 'vectorized':
+            import fluids.vectorized
+            globals()[name] = fluids.vectorized
+            return fluids.vectorized
+        if name == 'numba':
+            import fluids.numba
+            globals()[name] = fluids.numba
+            return fluids.numba
+        if name == 'units':
+            import fluids.units
+            globals()[name] = fluids.units
+            return fluids.units
+        if name == 'numba_vectorized':
+            import fluids.numba_vectorized
+            globals()[name] = fluids.numba_vectorized
+            return fluids.numba_vectorized
+        raise AttributeError("module %s has no attribute %s" %(__name__, name))
     
 def all_submodules(with_numerics=True):
     from fluids.numerics import arrays, polynomial_roots, polynomial_evaluation, polynomial_utils
