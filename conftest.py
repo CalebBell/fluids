@@ -5,6 +5,7 @@ is_pypy = 'PyPy' in sys.version
 ver_tup = platform.python_version_tuple()[0:2]
 ver_tup = tuple(int(i) for i in ver_tup)
 
+is_graal = 'Graal' in sys.version
 
 is_x86_or_x86_64 = platform.machine().lower() in ('i386', 'i686', 'x86', 'x86_64', 'amd64')
 
@@ -17,9 +18,11 @@ def pytest_ignore_collect(path):
         return True
     if 'conf.py' in path:
         return True
-    if 'is_pypy' and 'test_spa' in path:
+    if (is_pypy or is_graal) and 'test_spa' in path:
         return True
-    if ver_tup < (3, 7) or ver_tup >= (3, 13) or is_pypy or not is_x86_or_x86_64:
+    if is_graal and 'units' in path:
+        return True
+    if ver_tup < (3, 7) or ver_tup >= (3, 14) or is_pypy or is_graal or not is_x86_or_x86_64:
         # numba does not yet run under pypy
         if 'numba' in path:
             return True
