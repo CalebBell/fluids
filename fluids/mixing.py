@@ -42,8 +42,9 @@ Misc Functions
 from math import log, pi, sqrt
 
 from fluids.constants import g
+from typing import List, Optional
 
-__all__ = [
+__all__: List[str] = [
     "COV_motionless_mixer",
     "K_motionless_mixer",
     "Kp_helical_ribbon_Rieger",
@@ -55,13 +56,13 @@ __all__ = [
 max_Fo_for_turbulent = 1/1225.
 min_regime_constant_for_turbulent = 6370.
 
-def adjust_homogeneity(fraction):
+def adjust_homogeneity(fraction: float) -> float:
     """Base: 95% homogeneity"""
     multiplier = log(1-fraction)/log(0.05)
     return multiplier
 
 
-def agitator_time_homogeneous(N, P, T, H, mu, rho, D=None, homogeneity=.95):
+def agitator_time_homogeneous(N: float, P: float, T: float, H: float, mu: float, rho: float, D: Optional[float]=None, homogeneity: float=.95) -> float:
     r"""Calculates time for a fluid mizing in a tank with an impeller to
     reach a specified level of homogeneity, according to [1]_.
 
@@ -142,7 +143,7 @@ def agitator_time_homogeneous(N, P, T, H, mu, rho, D=None, homogeneity=.95):
     return time*multiplier
 
 
-def Kp_helical_ribbon_Rieger(D, h, nb, pitch, width, T):
+def Kp_helical_ribbon_Rieger(D: float, h: float, nb: int, pitch: float, width: float, T: float) -> float:
     r"""Calculates product of power number and Reynolds number for a
     specified geometry for a heilical ribbon mixer in the laminar regime.
     One of several correlations listed in [1]_, it used more data than other
@@ -194,7 +195,7 @@ def Kp_helical_ribbon_Rieger(D, h, nb, pitch, width, T):
     return 82.8*h/D*(c/D)**-.38*(pitch/D)**-0.35*(width/D)**0.2*nb**0.78
 
 
-def time_helical_ribbon_Grenville(Kp, N):
+def time_helical_ribbon_Grenville(Kp: float, N: float) -> float:
     r"""Calculates product of time required for mixing in a helical ribbon
     coil in the laminar regime according to the Grenville [2]_ method
     recommended in [1]_.
@@ -238,7 +239,7 @@ def time_helical_ribbon_Grenville(Kp, N):
 
 ### Tee mixer
 
-def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
+def size_tee(Q1: float, Q2: float, D: float, D2: None, n: int=1, pipe_diameters: float=5) -> float:
     r"""Calculates CoV of an optimal or specified tee for mixing at a tee
     according to [1]_. Assumes turbulent flow.
     The smaller stream in injected into the main pipe, which continues
@@ -330,7 +331,7 @@ StatixMixers["SMXL"] = {"Name": "SMXL", "Vendor": "Koch-Glitsch", "Description":
 StatixMixers["SMF"] = {"Name": "SMF", "Vendor": "Koch-Glitsch", "Description": "Three guide vanes projecting from the tube wall in a way as to not contact. Designed for applications subject to plugging.", "KL": 5.6, "KiL": 0.83, "KT": 130, "KiT": 0.4}
 
 
-def COV_motionless_mixer(Ki, Q1, Q2, pipe_diameters):
+def COV_motionless_mixer(Ki: float, Q1: float, Q2: float, pipe_diameters: float) -> float:
     r"""Calculates CoV of a motionless mixer with a regression parameter in
     [1]_ and originally in [2]_.
 
@@ -378,7 +379,7 @@ def COV_motionless_mixer(Ki, Q1, Q2, pipe_diameters):
     return COV
 
 
-def K_motionless_mixer(K, L, D, fd):
+def K_motionless_mixer(K: float, L: float, D: float, fd: float) -> float:
     r"""Calculates loss coefficient of a motionless mixer with a regression
     parameter in [1]_ and originally in [2]_.
 

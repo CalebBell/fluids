@@ -67,8 +67,9 @@ from math import exp, log, log10, sqrt, tanh
 from fluids.constants import g
 from fluids.core import Reynolds
 from fluids.numerics import cumulative_trapezoid, secant
+from typing import List, Optional, Tuple, Union
 
-__all__ = [
+__all__: List[str] = [
     "Almedeij",
     "Barati",
     "Barati_high",
@@ -97,7 +98,7 @@ __all__ = [
     "v_terminal",
 ]
 
-def Stokes(Re):
+def Stokes(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using Stoke's law.
 
     .. math::
@@ -130,7 +131,7 @@ def Stokes(Re):
     return 24./Re
 
 
-def Barati(Re):
+def Barati(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_.
 
@@ -176,7 +177,7 @@ def Barati(Re):
     return Cd
 
 
-def Barati_high(Re):
+def Barati_high(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_.
 
@@ -239,7 +240,7 @@ def Barati_high(Re):
     return Cd
 
 
-def Rouse(Re):
+def Rouse(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -279,7 +280,7 @@ def Rouse(Re):
     return 24./Re + 3./sqrt(Re) + 0.34
 
 
-def Engelund_Hansen(Re):
+def Engelund_Hansen(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -320,7 +321,7 @@ def Engelund_Hansen(Re):
     return 24./Re + 1.5
 
 
-def Clift_Gauvin(Re):
+def Clift_Gauvin(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -361,7 +362,7 @@ def Clift_Gauvin(Re):
     return 24./Re*(1 + 0.152*Re**0.677) + 0.417/(1 + 5070*Re**-0.94)
 
 
-def Morsi_Alexander(Re):
+def Morsi_Alexander(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -455,7 +456,7 @@ def Morsi_Alexander(Re):
         return -1662.5/Re + 5.4167E6/Re**2 + 0.5191
 
 
-def Graf(Re):
+def Graf(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -495,7 +496,7 @@ def Graf(Re):
     return 24./Re + 7.3/(1 + sqrt(Re)) + 0.25
 
 
-def Flemmer_Banks(Re):
+def Flemmer_Banks(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -540,7 +541,7 @@ def Flemmer_Banks(Re):
     return 24./Re*10**E
 
 
-def Khan_Richardson(Re):
+def Khan_Richardson(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -581,7 +582,7 @@ def Khan_Richardson(Re):
     return (2.49*Re**-0.328 + 0.34*Re**0.067)**3.18
 
 
-def Swamee_Ojha(Re):
+def Swamee_Ojha(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -624,7 +625,7 @@ def Swamee_Ojha(Re):
     return Cd
 
 
-def Yen(Re):
+def Yen(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -665,7 +666,7 @@ def Yen(Re):
     return 24./Re*(1 + 0.15*sqrt(Re) + 0.017*Re) - 0.208/(1 + 1E4*1.0/sqrt(Re))
 
 
-def Haider_Levenspiel(Re):
+def Haider_Levenspiel(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -708,7 +709,7 @@ def Haider_Levenspiel(Re):
     return 24./Re*(1 + 0.1806*Re**0.6459) + (0.4251/(1 + 6880.95/Re))
 
 
-def Cheng(Re):
+def Cheng(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -749,7 +750,7 @@ def Cheng(Re):
     return 24./Re*(1. + 0.27*Re)**0.43 + 0.47*(1. - exp(-0.04*Re**0.38))
 
 
-def Terfous(Re):
+def Terfous(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -791,7 +792,7 @@ def Terfous(Re):
     return 2.689 + 21.683/Re + 0.131/Re**2 - 10.616/Re**0.1 + 12.216/Re**0.2
 
 
-def Mikhailov_Freire(Re):
+def Mikhailov_Freire(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -835,7 +836,7 @@ def Mikhailov_Freire(Re):
     return Cd
 
 
-def Clift(Re):
+def Clift(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -934,7 +935,7 @@ def Clift(Re):
         return 0.19*log10(Re) - 0.49
 
 
-def Ceylan(Re):
+def Ceylan(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -983,7 +984,7 @@ def Ceylan(Re):
     return Cd
 
 
-def Almedeij(Re):
+def Almedeij(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -1041,7 +1042,7 @@ def Almedeij(Re):
     return (1/((phi1 + phi2)**-1 + phi3**-1) + phi4)**0.1
 
 
-def Morrison(Re):
+def Morrison(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -1085,7 +1086,7 @@ def Morrison(Re):
     return Cd
 
 
-def Song_Xu(Re, sphericity=1., S=1.):
+def Song_Xu(Re: float, sphericity: float=1., S: float=1.) -> float:
     r"""Calculates drag coefficient of a particle using the method in
     [1]_. Developed with data for spheres, cubes, and cylinders. Claims 3.52%
     relative error for 0.001 < Re < 100 based on 336 tests data.
@@ -1154,7 +1155,7 @@ drag_sphere_correlations = {
     "Song_Xu": (Song_Xu, None, 1E3)
 }
 
-def drag_sphere_methods(Re, check_ranges=True):
+def drag_sphere_methods(Re: float, check_ranges: bool=True) -> List[str]:
     r"""This function returns a list of methods that can be used to calculate
     the drag coefficient of a sphere.
     Twenty one methods are available, all requiring only the Reynolds number of
@@ -1189,7 +1190,7 @@ def drag_sphere_methods(Re, check_ranges=True):
             methods.append(key)
     return methods
 
-def drag_sphere(Re, Method=None):
+def drag_sphere(Re: float, Method: Optional[str]=None) -> float:
     r"""This function handles calculation of drag coefficient on spheres.
     Twenty methods are available, all requiring only the Reynolds number of the
     sphere. Most methods are valid from Re=0 to Re=200,000. A correlation will
@@ -1288,11 +1289,11 @@ def drag_sphere(Re, Method=None):
         raise ValueError("Unrecognized method")
 
 
-def _v_terminal_err(V, Method, Re_almost, main):
+def _v_terminal_err(V: float, Method: Optional[str], Re_almost: float, main: float) -> float:
     Cd = drag_sphere(Re_almost*V, Method=Method)
     return V - sqrt(main/Cd)
 
-def v_terminal(D, rhop, rho, mu, Method=None):
+def v_terminal(D: float, rhop: float, rho: float, mu: float, Method: Optional[str]=None) -> float:
     r"""Calculates terminal velocity of a falling sphere using any drag
     coefficient method supported by `drag_sphere`. The laminar solution for
     Re < 0.01 is first tried; if the resulting terminal velocity does not
@@ -1373,7 +1374,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     return secant(_v_terminal_err, V_max*1e-2, xtol=1E-12, args=(Method, Re_almost, main))
 
 
-def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
+def time_v_terminal_Stokes(D: float, rhop: float, rho: float, mu: float, V0: float, tol: float=1e-14) -> float:
     r"""Calculates the time required for a particle in Stoke's regime only to
     reach terminal velocity (approximately). An infinitely long period is
     required theoretically, but with floating points, it is possible to
@@ -1448,8 +1449,8 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
     raise ValueError("Could not find a solution")
 
 
-def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
-                          distance=False):
+def integrate_drag_sphere(D: float, rhop: float, rho: float, mu: float, t: float, V: float=0, Method: Optional[str]=None,
+                          distance: bool=False) -> Union[Tuple[float, float], float]:
     r"""Integrates the velocity and distance traveled by a particle moving
     at a speed which will converge to its terminal velocity.
 

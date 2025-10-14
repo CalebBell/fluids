@@ -132,8 +132,10 @@ from cmath import sqrt as csqrt
 from math import acos, acosh, asin, atan, cos, degrees, isclose, log, log1p, pi, radians, sin, sqrt, tan
 
 from fluids.numerics import cacos, catan, chebval, derivative, ellipe, ellipeinc, ellipkinc, linspace, newton, quad, secant, translate_bound_func
+from numpy import float64
+from typing import List, Optional, Tuple, Union
 
-__all__ = [
+__all__: List[str] = [
     "TANK",
     "A_cylinder",
     "A_hollow_cylinder",
@@ -194,7 +196,7 @@ __all__ = [
 ### Spherical Vessels, partially filled
 
 
-def SA_partial_sphere(D, h):
+def SA_partial_sphere(D: float, h: float) -> float:
     r"""Calculates surface area of a partial sphere according to [1]_.
     If h is half of D, the shape is half a sphere. No bottom is considered in
     this function. Valid inputs are positive values of D and h, with h always
@@ -237,7 +239,7 @@ def SA_partial_sphere(D, h):
     return pi*(a*a + h*h)
 
 
-def V_partial_sphere(D, h):
+def V_partial_sphere(D: float, h: float) -> float:
     r"""Calculates volume of a partial sphere according to [1]_.
     If h is half of D, the shape is half a sphere. No bottom is considered in
     this function. Valid inputs are positive values of D and h, with h always
@@ -282,7 +284,7 @@ def V_partial_sphere(D, h):
 
 ### Functions as developed by Dan Jones
 
-def V_horiz_conical(D, L, a, h, headonly=False):
+def V_horiz_conical(D: float, L: float, a: float, h: float, headonly: bool=False) -> float:
     r"""Calculates volume of a tank with conical ends, according to [1]_.
 
     .. math::
@@ -358,7 +360,7 @@ def V_horiz_conical(D, L, a, h, headonly=False):
     return Vf
 
 
-def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
+def V_horiz_ellipsoidal(D: float, L: float, a: float, h: float, headonly: bool=False) -> float:
     r"""Calculates volume of a tank with ellipsoidal ends, according to [1]_.
 
     .. math::
@@ -411,7 +413,7 @@ def V_horiz_ellipsoidal(D, L, a, h, headonly=False):
     return Vf
 
 
-def V_horiz_guppy(D, L, a, h, headonly=False):
+def V_horiz_guppy(D: float, L: float, a: float, h: float, headonly: bool=False) -> float:
     r"""Calculates volume of a tank with guppy heads, according to [1]_.
 
     .. math::
@@ -465,12 +467,12 @@ def V_horiz_guppy(D, L, a, h, headonly=False):
         Vf += Af*L
     return Vf
 
-def _V_horiz_spherical_toint(x, r2, R2, den_inv):
+def _V_horiz_spherical_toint(x: float, r2: float, R2: float, den_inv: float) -> float:
     x2 = x*x
     return (r2 - x2)*atan(sqrt((R2 - x2)*den_inv))
 
 
-def V_horiz_spherical(D, L, a, h, headonly=False):
+def V_horiz_spherical(D: float, L: float, a: float, h: float, headonly: bool=False) -> float:
     r"""Calculates volume of a tank with spherical heads, according to [1]_.
 
     .. math::
@@ -581,14 +583,14 @@ def V_horiz_spherical(D, L, a, h, headonly=False):
     return Vf
 
 
-def V_horiz_torispherical_toint_1(x, w, c10, c11):
+def V_horiz_torispherical_toint_1(x: float, w: float, c10: float, c11: float) -> float:
     # No analytical integral available in MP
     n = c11 + sqrt(c10 - x*x)
     n2 = n*n
     t = sqrt(n2 - w*w)
     return n2*asin(t/n) - w*t
 
-def V_horiz_torispherical_toint_2(x, w, c10, c11, g, g2):
+def V_horiz_torispherical_toint_2(x: float, w: float, c10: float, c11: float, g: float, g2: float) -> float:
     # No analytical integral available in MP
     n = c11 + sqrt(c10 - x*x)
     n2 = n*n
@@ -596,13 +598,13 @@ def V_horiz_torispherical_toint_2(x, w, c10, c11, g, g2):
     ans = n2*(acos(w*n_inv) - acos(g*n_inv)) - w*sqrt(n2 - w*w) + g*sqrt(n2 - g2)
     return ans
 
-def V_horiz_torispherical_toint_3(x, r2, g2, z_inv):
+def V_horiz_torispherical_toint_3(x: float, r2: float, g2: float, z_inv: float) -> float:
     # There is an analytical integral in MP, but for all cases we seem to
     # get ZeroDivisionError: 0.0 cannot be raised to a negative power
     x2 = x*x
     return (r2 - x2)*atan(sqrt(g2 - x2)*z_inv)
 
-def V_horiz_torispherical(D, L, f, k, h, headonly=False):
+def V_horiz_torispherical(D: float, L: float, f: float, k: float, h: float, headonly: bool=False) -> float:
     r"""Calculates volume of a tank with torispherical heads, according to [1]_.
 
     .. math::
@@ -758,7 +760,7 @@ def V_horiz_torispherical(D, L, f, k, h, headonly=False):
 
 ### Begin vertical tanks
 
-def V_vertical_conical(D, a, h):
+def V_vertical_conical(D: float, a: float, h: float) -> float:
     r"""Calculates volume of a vertical tank with a convex conical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
@@ -805,7 +807,7 @@ def V_vertical_conical(D, a, h):
     return Vf
 
 
-def V_vertical_ellipsoidal(D, a, h):
+def V_vertical_ellipsoidal(D: float, a: float, h: float) -> float:
     r"""Calculates volume of a vertical tank with a convex ellipsoidal bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
@@ -851,7 +853,7 @@ def V_vertical_ellipsoidal(D, a, h):
     return Vf
 
 
-def V_vertical_spherical(D, a, h):
+def V_vertical_spherical(D: float, a: float, h: float) -> float:
     r"""Calculates volume of a vertical tank with a convex spherical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
@@ -896,7 +898,7 @@ def V_vertical_spherical(D, a, h):
     return Vf
 
 
-def V_vertical_torispherical(D, f, k, h):
+def V_vertical_torispherical(D: float, f: float, k: float, h: float) -> float:
     r"""Calculates volume of a vertical tank with a convex torispherical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
@@ -1007,7 +1009,7 @@ def V_vertical_torispherical(D, f, k, h):
 
 ### Begin vertical tanks with concave heads
 
-def V_vertical_conical_concave(D, a, h):
+def V_vertical_conical_concave(D: float, a: float, h: float) -> float:
     r"""Calculates volume of a vertical tank with a concave conical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
@@ -1055,7 +1057,7 @@ def V_vertical_conical_concave(D, a, h):
     return Vf
 
 
-def V_vertical_ellipsoidal_concave(D, a, h):
+def V_vertical_ellipsoidal_concave(D: float, a: float, h: float) -> float:
     r"""Calculates volume of a vertical tank with a concave ellipsoidal bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
@@ -1103,7 +1105,7 @@ def V_vertical_ellipsoidal_concave(D, a, h):
     return Vf
 
 
-def V_vertical_spherical_concave(D, a, h):
+def V_vertical_spherical_concave(D: float, a: float, h: float) -> float:
     r"""Calculates volume of a vertical tank with a concave spherical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
@@ -1154,7 +1156,7 @@ def V_vertical_spherical_concave(D, a, h):
     return Vf
 
 
-def V_vertical_torispherical_concave(D, f, k, h):
+def V_vertical_torispherical_concave(D: float, f: float, k: float, h: float) -> float:
     r"""Calculates volume of a vertical tank with a concave torispherical bottom,
     according to [1]_. No provision for the top of the tank is made here.
 
@@ -1264,7 +1266,7 @@ def V_vertical_torispherical_concave(D, f, k, h):
 
 ### Total surface area of heads, orientation-independent
 
-def SA_ellipsoidal_head(D, a):
+def SA_ellipsoidal_head(D: float, a: float) -> float:
     r"""Calculates the surface area of an ellipsoidal head according to [1]_ and [2]_.
     The formula below is for the full shape, the result of which is halved. The
     formula is for :math:`a < R`. In the equations, `a` is the same and `c` is `D`.
@@ -1329,7 +1331,7 @@ def SA_ellipsoidal_head(D, a):
         return pi*R*R + pi*a*a*R*1.0/sqrt(a*a - R*R)*acos(R/abs(a))
 
 
-def SA_conical_head(D, a):
+def SA_conical_head(D: float, a: float) -> float:
     r"""Calculates the surface area of a conical head according to [1]_.
 
     .. math::
@@ -1360,7 +1362,7 @@ def SA_conical_head(D, a):
     return 0.5*pi*D*sqrt(a*a + 0.25*D*D)
 
 
-def SA_guppy_head(D, a):
+def SA_guppy_head(D: float, a: float) -> float:
     r"""Calculates the surface area of a guppy head according to [1]_.
     Some work was involved in combining formulas for the ellipse of the head,
     and the conic section on the sides.
@@ -1393,7 +1395,7 @@ def SA_guppy_head(D, a):
     return 0.25*pi*D*sqrt(a*a + D*D) + 0.5*pi*D*a
 
 
-def SA_torispheroidal(D, f, k):
+def SA_torispheroidal(D: float, f: float, k: float) -> float:
     r"""Calculates surface area of a torispherical head according to [1]_.
     Somewhat involved. Equations are adapted to be used for a full head.
 
@@ -1463,8 +1465,8 @@ def SA_torispheroidal(D, f, k):
     return S1 + S2
 
 
-def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
-            sideB_a=0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
+def SA_tank(D: float, L: float, sideA: Optional[str]=None, sideB: Optional[str]=None, sideA_a: float=0,
+            sideB_a: float=0, sideA_f: Optional[float]=None, sideA_k: Optional[float]=None, sideB_f: Optional[float]=None, sideB_k: Optional[float]=None) -> Tuple[float, float, float, float]:
     r"""Calculates the surface are of a cylindrical tank with optional heads.
     In the degenerate case of being provided with only `D` and `L`, provides
     the surface area of a cylinder.
@@ -1565,8 +1567,8 @@ def SA_tank(D, L, sideA=None, sideB=None, sideA_a=0,
     return SA, sideA_SA, sideB_SA, lateral_SA
 
 
-def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
-           sideB_a=0.0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
+def V_tank(D: float, L: float, horizontal: bool=True, sideA: Optional[str]=None, sideB: Optional[str]=None, sideA_a: float=0.0,
+           sideB_a: float=0.0, sideA_f: Optional[float]=None, sideA_k: Optional[float]=None, sideB_f: Optional[float]=None, sideB_k: Optional[float]=None) -> Tuple[float, float, float, float]:
     r"""Calculates the total volume of a vertical or horizontal tank with
     different head types.
 
@@ -1713,7 +1715,7 @@ def V_tank(D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
     return lateral_V + sideA_V + sideB_V, sideA_V, sideB_V, lateral_V
 
 
-def SA_partial_cylindrical_body(L, D, h):
+def SA_partial_cylindrical_body(L: float, D: float, h: float) -> float:
     r"""Calculates the partial area of a cylinder's body in the context of
     a horizontal cylindrical vessel and liquid partially
     filling it. This computes the wetted surface area of the bottom of the
@@ -1760,7 +1762,7 @@ def SA_partial_cylindrical_body(L, D, h):
     return C*L
 
 
-def A_partial_circle(D, h):
+def A_partial_circle(D: float, h: float) -> float:
     r"""Calculates the partial area of a circle, in the context of the circle
     being an end cap to a horizontal cylindrical vessel and liquid partially
     filling it. This computes the wetted surface area of one of the end caps.
@@ -1808,7 +1810,7 @@ def A_partial_circle(D, h):
         SA = 0.0 # Catch trig errors
     return SA
 
-def circle_segment_area_inner(h, R, A_expect):
+def circle_segment_area_inner(h: float, R: float, A_expect: float) -> Tuple[float, float]:
     # 2 sqrt, 1 acos, 4 division
     x0 = R*R
     x1 = -h
@@ -1820,7 +1822,7 @@ def circle_segment_area_inner(h, R, A_expect):
     return A_err, der
 
 
-def circle_segment_h_from_A(A, D):
+def circle_segment_h_from_A(A: float, D: float) -> float:
     r"""Calculates the height of a chord of a circle given the area of that
     circle segment. This is a numerical problem, solving the
     following equation for `h`.
@@ -1861,7 +1863,7 @@ def circle_segment_h_from_A(A, D):
                   args=(R, A), xtol=1e-12, bisection=True)
 
 
-def SA_partial_horiz_conical_head(D, a, h):
+def SA_partial_horiz_conical_head(D: float, a: float, h: float) -> float:
     r"""Calculates the partial area of a conical tank head in the context of
     a horizontal vessel and liquid partially
     filling it. This computes the wetted surface area of one of the conical
@@ -1909,7 +1911,7 @@ def SA_partial_horiz_conical_head(D, a, h):
     R_inv = 1.0/R
     return sqrt(a*a + R*R)*R_inv*(R*R*acos((R-h)*R_inv) - (R-h)*sqrt(2.0*R*h - h*h))
 
-def _SA_partial_horiz_spherical_head_to_int(x, R2, a4, c1, c2):
+def _SA_partial_horiz_spherical_head_to_int(x: float, R2: float, a4: float, c1: float, c2: float) -> float:
     x2 = x*x
     to_pow = (R2 - x2)/(c2 - a4*x2)
     if to_pow < 0.0:
@@ -1920,7 +1922,7 @@ def _SA_partial_horiz_spherical_head_to_int(x, R2, a4, c1, c2):
         return 0.5*pi
     return asin(num)
 
-def SA_partial_horiz_spherical_head(D, a, h):
+def SA_partial_horiz_spherical_head(D: float, a: float, h: float) -> float:
     r"""Calculates the partial area of a spherical tank head in the context of
     a horizontal vessel and liquid partially
     filling it. This computes the wetted surface area of one of the spherical
@@ -2004,14 +2006,14 @@ def _SA_partial_horiz_ellipsoidal_head_limits2(c1, R2, R4, h):
     R = sqrt(R2)
     return [R-h, R]
 
-def _SA_partial_horiz_ellipsoidal_head_to_int(y, c1, R2, R4):
+def _SA_partial_horiz_ellipsoidal_head_to_int(y: float, c1: float, R2: float, R4: float) -> float:
     y2 = y*y
     t0 = c1*y2
     x6 = c1*(y2 - R2)/(t0 - R4)
     ans = sqrt(R4 - t0)*float(ellipe(x6))
     return ans
 
-def SA_partial_horiz_ellipsoidal_head(D, a, h):
+def SA_partial_horiz_ellipsoidal_head(D: float, a: float, h: float) -> float:
     r"""Calculates the partial area of a ellipsoidal tank head in the context of
     a horizontal vessel and liquid partially
     filling it. This computes the wetted surface area of one of the ellipsoidal
@@ -2091,7 +2093,7 @@ def SA_partial_horiz_ellipsoidal_head(D, a, h):
     return SA
 
 
-def _SA_partial_horiz_guppy_head_to_int(x, a, R):
+def _SA_partial_horiz_guppy_head_to_int(x: float, a: float, R: float) -> float64:
     x0 = a*a
     x1 = R - x
     x2 = x1*x1
@@ -2120,7 +2122,7 @@ def _SA_partial_horiz_guppy_head_to_int(x, a, R):
              + 8.0*x15*x9/x14)*1.0/sqrt(x4))
 
 
-def SA_partial_horiz_guppy_head(D, a, h):
+def SA_partial_horiz_guppy_head(D: float, a: float, h: float) -> float:
     r"""Calculates the partial area of a guppy tank head in the context of
     a horizontal vessel and liquid partially
     filling it. This computes the wetted surface area of one of the guppy
@@ -2227,7 +2229,7 @@ def SA_partial_horiz_guppy_head(D, a, h):
     SA = 2.0*quad_val
     return SA
 
-def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
+def _SA_partial_horiz_torispherical_head_int_1(x: float, b: float, c: float) -> float:
     x = float(x) # double check python float here to avoid numpy not erroring on sqrt
     # May be best to always use complex numbers here
     # print('_SA_partial_horiz_torispherical_head_int_1', x, b, c)
@@ -2251,7 +2253,7 @@ def _SA_partial_horiz_torispherical_head_int_1(x, b, c):
     # print('_SA_partial_horiz_torispherical_head_int_1', abs(ans.real))
     return abs(ans.real)
 
-def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
+def _SA_partial_horiz_torispherical_head_int_2(y: float, t2: float, s: float, c1: float) -> float:
     # May be best to always use complex numbers here
 #    from mpmath import mp, mpf, atanh as catanh
 #    mp.dps=30
@@ -2292,7 +2294,7 @@ def _SA_partial_horiz_torispherical_head_int_2(y, t2, s, c1):
 #    return float(ans.real)
     return ans.real
 
-def _SA_partial_horiz_torispherical_head_int_3(y, x, s, t2):
+def _SA_partial_horiz_torispherical_head_int_3(y: float, x: float, s: float, t2: float) -> float:
     x2 = x*x
     y2 = y*y
     x10 = sqrt(t2 - x2)
@@ -2301,7 +2303,7 @@ def _SA_partial_horiz_torispherical_head_int_3(y, x, s, t2):
     f = sqrt(1.0 + num/den)
     return f
 
-def SA_partial_horiz_torispherical_head(D, f, k, h):
+def SA_partial_horiz_torispherical_head(D: float, f: float, k: float, h: float) -> float:
     r"""Calculates the partial area of a torispherical tank head in the context of
     a horizontal vessel and liquid partially
     filling it. This computes the wetted surface area of one of the torispherical
@@ -2449,7 +2451,7 @@ def SA_partial_horiz_torispherical_head(D, f, k, h):
     return SA
 
 
-def SA_partial_vertical_conical_head(D, a, h):
+def SA_partial_vertical_conical_head(D: float, a: float, h: float) -> float:
     r"""Calculates the partial area of a conical tank head in the context of
     a vertical vessel and liquid partially
     filling it. This computes the wetted surface area of one of the conical
@@ -2500,7 +2502,7 @@ def SA_partial_vertical_conical_head(D, a, h):
     return SA
 
 
-def SA_partial_vertical_ellipsoidal_head(D, a, h):
+def SA_partial_vertical_ellipsoidal_head(D: float, a: float, h: float) -> float:
     r"""Calculates the partial area of a ellipsoidal tank head in the context of
     a vertical vessel and liquid partially
     filling it. This computes the wetted surface area of one of the ellipsoidal
@@ -2580,7 +2582,7 @@ def SA_partial_vertical_ellipsoidal_head(D, a, h):
         SA += pi*a2*R/x1*log(num/den)
     return SA
 
-def SA_partial_vertical_spherical_head(D, a, h):
+def SA_partial_vertical_spherical_head(D: float, a: float, h: float) -> float:
     r"""Calculates the partial area of a spherical tank head in the context of
     a vertical vessel and liquid partially
     filling it. This computes the wetted surface area of one of the conical
@@ -2631,7 +2633,7 @@ def SA_partial_vertical_spherical_head(D, a, h):
     return SA
 
 
-def SA_partial_vertical_torispherical_head(D, f, k, h):
+def SA_partial_vertical_torispherical_head(D: float, f: float, k: float, h: float) -> float:
     r"""Calculates the partial area of a torispherical tank head in the context of
     a vertical vessel and liquid partially
     filling it. This computes the wetted surface area of one of the torispherical
@@ -2717,7 +2719,7 @@ def SA_partial_vertical_torispherical_head(D, f, k, h):
     return SA
 
 
-def a_torispherical(D, f, k):
+def a_torispherical(D: float, f: float, k: float) -> float:
     r"""Calculates depth of a torispherical head according to [1]_.
 
     .. math::
@@ -2769,8 +2771,8 @@ def a_torispherical(D, f, k):
     return a1 + a2
 
 
-def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
-             sideB_a=0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
+def V_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: Optional[str]=None, sideB: Optional[str]=None, sideA_a: float=0,
+             sideB_a: float=0, sideA_f: Optional[float]=None, sideA_k: Optional[float]=None, sideB_f: Optional[float]=None, sideB_k: Optional[float]=None) -> float:
     r"""Calculates partially full volume of a vertical or horizontal tank with
     different head types according to [1]_.
 
@@ -2923,8 +2925,8 @@ def V_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0,
     return V
 
 
-def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
-             sideB_a=0.0, sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None):
+def SA_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: Optional[str]=None, sideB: Optional[str]=None, sideA_a: float=0.0,
+             sideB_a: float=0.0, sideA_f: Optional[float]=None, sideA_k: Optional[float]=None, sideB_f: Optional[float]=None, sideB_k: Optional[float]=None) -> float:
     r"""Calculates partially full wetted surface area of a vertical or horizontal tank with
     different head types according to [1]_.
 
@@ -3089,10 +3091,10 @@ def SA_from_h(h, D, L, horizontal=True, sideA=None, sideB=None, sideA_a=0.0,
                 SA += 0.25*pi*D*D
     return SA
 
-def tank_from_two_specs_err(guess, spec0, spec1, spec0_name, spec1_name,
-                            h, horizontal, sideA, sideB, sideA_a, sideB_a,
-                            sideA_f, sideA_k, sideB_f, sideB_k,
-                            sideA_a_ratio, sideB_a_ratio):
+def tank_from_two_specs_err(guess: List[float], spec0: float, spec1: float, spec0_name: str, spec1_name: str,
+                            h: float, horizontal: bool, sideA: None, sideB: None, sideA_a: None, sideB_a: None,
+                            sideA_f: None, sideA_k: None, sideB_f: None, sideB_k: None,
+                            sideA_a_ratio: None, sideB_a_ratio: None) -> List[float]:
     D, L_over_D = float(guess[0]), float(guess[1])
     obj = TANK(D=D, L_over_D=L_over_D, horizontal=horizontal,
          sideA=sideA, sideB=sideB, sideA_a=sideA_a, sideB_a=sideB_a,
@@ -3326,10 +3328,10 @@ class TANK:
     model_inputs = ("D", "L", "horizontal", "sideA", "sideB", "sideA_a", "sideB_a",
     "sideA_f", "sideA_k", "sideB_f", "sideB_k", "sideA_a_ratio", "sideB_a_ratio", "L_over_D", "V")
 
-    def __init__(self, D=None, L=None, horizontal=True,
-                 sideA=None, sideB=None, sideA_a=None, sideB_a=None,
-                 sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
-                 sideA_a_ratio=None, sideB_a_ratio=None, L_over_D=None, V=None):
+    def __init__(self, D: Optional[float]=None, L: Optional[float]=None, horizontal: bool=True,
+                 sideA: Optional[str]=None, sideB: Optional[str]=None, sideA_a: Optional[float]=None, sideB_a: Optional[float]=None,
+                 sideA_f: Optional[float]=None, sideA_k: Optional[float]=None, sideB_f: Optional[float]=None, sideB_k: Optional[float]=None,
+                 sideA_a_ratio: Optional[float]=None, sideB_a_ratio: Optional[float]=None, L_over_D: Optional[float]=None, V: Optional[int]=None) -> None:
         self.D = D
         self.L = L
         self.L_over_D = L_over_D
@@ -3395,7 +3397,7 @@ class TANK:
             self._solve_tank_for_V()
         self.set_misc()
 
-    def set_misc(self):
+    def set_misc(self) -> None:
         """Set more parameters, after the tank is better defined than in the
         __init__ function.
 
@@ -3477,11 +3479,11 @@ class TANK:
         self.A_sideB_extra = self.A_sideB - A_circular_plate
 
     @staticmethod
-    def from_two_specs(spec0, spec1, spec0_name="V", spec1_name="A_cross",
-                       h=None, horizontal=True,
-                       sideA=None, sideB=None, sideA_a=None, sideB_a=None,
-                       sideA_f=None, sideA_k=None, sideB_f=None, sideB_k=None,
-                       sideA_a_ratio=None, sideB_a_ratio=None):
+    def from_two_specs(spec0: float, spec1: float, spec0_name: str="V", spec1_name: str="A_cross",
+                       h: Optional[float]=None, horizontal: bool=True,
+                       sideA: None=None, sideB: None=None, sideA_a: None=None, sideB_a: None=None,
+                       sideA_f: None=None, sideA_k: None=None, sideB_f: None=None, sideB_k: None=None,
+                       sideA_a_ratio: None=None, sideB_a_ratio: None=None) -> "TANK":
         r"""Method to create a new tank instance according to two
         specifications which are not direct geometry parameters.
 
@@ -3565,8 +3567,8 @@ class TANK:
                     sideA_a_ratio=sideA_a_ratio, sideB_a_ratio=sideB_a_ratio,)
 
 
-    def add_thickness(self, thickness, sideA_thickness=None,
-                      sideB_thickness=None):
+    def add_thickness(self, thickness: float, sideA_thickness: None=None,
+                      sideB_thickness: None=None) -> "TANK":
         r"""Method to create a new tank instance with the same parameters as
         itself, except with an added thickness to it. This is useful to obtain
         ex. the inside of a tank and the outside; their different in volumes is
@@ -3623,7 +3625,7 @@ class TANK:
             del kwargs["sideB_a"]
         return TANK(**kwargs)
 
-    def SA_from_h(self, h, method="full"):
+    def SA_from_h(self, h: float, method: str="full") -> float:
         r"""Method to calculate the volume of liquid in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
 
@@ -3650,7 +3652,7 @@ class TANK:
         else:
             raise ValueError("Allowable methods are 'full' .")
 
-    def V_from_h(self, h, method="full"):
+    def V_from_h(self, h: float, method: str="full") -> float:
         r"""Method to calculate the volume of liquid in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
         If the method is 'chebyshev', and the coefficients have not yet been
@@ -3683,7 +3685,7 @@ class TANK:
         else:
             raise ValueError("Allowable methods are 'full' or 'chebyshev'.")
 
-    def h_from_V(self, V, method="spline"):
+    def h_from_V(self, V: float, method: str="spline") -> float:
         r"""Method to calculate the height of liquid in a fully defined tank
         given a specified volume of liquid in it `V`. `V` must be under the
         maximum volume. If the method is 'spline', and the interpolation table
@@ -3722,7 +3724,7 @@ class TANK:
             raise ValueError("Allowable methods are 'full' or 'chebyshev', "
                             "or 'brenth'.")
 
-    def A_cross_sectional(self, h, method="full"):
+    def A_cross_sectional(self, h: float, method: str="full") -> float:
         r"""Method to calculate the cross-sectional liquid surface area
         from which gas can evolve in a fully defined tank
         given a specified height `h`. `h` must be under the maximum height.
@@ -3749,7 +3751,7 @@ class TANK:
             return 0.0
         return derivative(lambda h: self.V_from_h(h), h, dx=1e-7*h, order=3, n=1)
 
-    def set_table(self, n=100, dx=None):
+    def set_table(self, n: int=100, dx: None=None) -> None:
         r"""Method to set an interpolation table of liquids levels versus
         volumes in the tank, for a fully defined tank. Normally run by the
         h_from_V method, this may be run prior to its use with a custom
@@ -3816,9 +3818,9 @@ class TANK:
         self.h_from_V_cheb = lambda x : chebval((2.0*x-self.V_total)/(self.V_total), self.c_backward)
         self.chebyshev = True
 
-    def _V_solver_error(self, Vtarget, D, L, horizontal, sideA, sideB, sideA_a,
-                       sideB_a, sideA_f, sideA_k, sideB_f, sideB_k,
-                       sideA_a_ratio, sideB_a_ratio):
+    def _V_solver_error(self, Vtarget: int, D: float, L: float, horizontal: bool, sideA: Optional[str], sideB: Optional[str], sideA_a: Optional[float],
+                       sideB_a: Optional[float], sideA_f: Optional[float], sideA_k: Optional[float], sideB_f: Optional[float], sideB_k: Optional[float],
+                       sideA_a_ratio: Optional[float], sideB_a_ratio: Optional[float]) -> float:
         """Function which uses only the variables given, and the TANK class
         itself, to determine how far from the desired volume, Vtarget, the
         volume produced by the specified parameters in a new TANK instance is.
@@ -3835,7 +3837,7 @@ class TANK:
         return error
 
 
-    def _solve_tank_for_V(self):
+    def _solve_tank_for_V(self) -> None:
         """Method which is called to solve for tank geometry when a certain
         volume is specified. Will be called by the __init__ method if V is set.
 
@@ -3991,8 +3993,8 @@ outer diameter={self.Dt} m, number of turns={self.N}, pitch={self.pitch} m"
         s += ">"
         return s
 
-    def __init__(self, Dt, Do=None, pitch=None, H=None, N=None, H_total=None,
-                 Do_total=None, Di=None):
+    def __init__(self, Dt: float, Do: Optional[int]=None, pitch: Optional[float]=None, H: Optional[int]=None, N: Optional[float]=None, H_total: Optional[int]=None,
+                 Do_total: Optional[float]=None, Di: Optional[float]=None) -> None:
         # H goes from center of tube in bottom of coil to center of tube in top of coil
         # Do goes from the center of the spiral to the center of the outer tube
 
@@ -4044,7 +4046,7 @@ outer diameter={self.Dt} m, number of turns={self.N}, pitch={self.pitch} m"
             self.annulus_volume = self.total_volume - self.inner_volume
 
 
-def plate_enlargement_factor(amplitude, wavelength):
+def plate_enlargement_factor(amplitude: float, wavelength: float) -> float:
     r"""Calculates the enhancement factor of the sinusoidal waves of the
     plate heat exchanger. This is the multiplier for the flat plate area
     to obtain the actual area available for heat transfer. Obtained from
@@ -4204,7 +4206,7 @@ chevron_angles={} degrees, area enhancement factor={:g}".format(self.a, self.wav
         return s
 
     @property
-    def plate_exchanger_identifier(self):
+    def plate_exchanger_identifier(self) -> str:
         """Method to create an identifying string in format 'L' + wavelength +
         'A' + amplitude + 'B' + chevron angle-chevron angle.
 
@@ -4219,9 +4221,9 @@ chevron_angles={} degrees, area enhancement factor={:g}".format(self.a, self.wav
         return s
 
 
-    def __init__(self, amplitude, wavelength, chevron_angle=45,
-                 chevron_angles=None, width=None, length=None, thickness=None,
-                 d_port=None, plates=None):
+    def __init__(self, amplitude: float, wavelength: float, chevron_angle: int=45,
+                 chevron_angles: Optional[Tuple[int, int]]=None, width: Optional[float]=None, length: Optional[float]=None, thickness: None=None,
+                 d_port: Optional[float]=None, plates: Optional[int]=None) -> None:
         self.amplitude = self.a = amplitude # half a sine wave's height
         self.b = 2*self.amplitude # Used in some models. From a flat plate, a press goes down this far into the plate. Also called the hot and cold gap
         self.wavelength = self.pitch = wavelength # self.lambda
@@ -4362,7 +4364,7 @@ class RectangularFinExchanger:
        478-85. doi:10.1016/j.rser.2009.06.033.
     """
 
-    def __init__(self, fin_height, fin_thickness, fin_spacing, length=None, width=None, layers=None, plate_thickness=None, flow="crossflow"):
+    def __init__(self, fin_height: float, fin_thickness: float, fin_spacing: float, length: Optional[float]=None, width: Optional[float]=None, layers: Optional[int]=None, plate_thickness: Optional[float]=None, flow: str="crossflow") -> None:
         self.h = self.fin_height = fin_height # including 2x thickness
         self.t = self.fin_thickness = fin_thickness
         self.s = self.fin_spacing = fin_spacing
@@ -4386,7 +4388,7 @@ class RectangularFinExchanger:
         self.set_overall_geometry()
 
 
-    def set_overall_geometry(self):
+    def set_overall_geometry(self) -> None:
         if self.plate_thickness:
             self.layer_thickness = self.plate_thickness + self.fin_height
 
@@ -4406,7 +4408,7 @@ class RectangularFinExchanger:
 
 
 class RectangularOffsetStripFinExchanger(RectangularFinExchanger):
-    def __init__(self, fin_length, fin_height, fin_thickness, fin_spacing, length=None, width=None, layers=None, plate_thickness=None, flow="crossflow"):
+    def __init__(self, fin_length: float, fin_height: float, fin_thickness: float, fin_spacing: float, length: None=None, width: None=None, layers: None=None, plate_thickness: None=None, flow: str="crossflow") -> None:
         self.l = self.fin_length = fin_length
         self.h = self.fin_height = fin_height
         self.t = self.fin_thickness = fin_thickness
@@ -4877,18 +4879,18 @@ class AirCooledExchanger:
              "fin_height", "fin_density", "fin_interval", "parallel_bays", "bundles_per_bay",
              "fans_per_bay", "corbels", "tube_thickness", "fan_diameter")
 
-    def __init__(self, tube_rows, tube_passes, tubes_per_row, tube_length,
-                 tube_diameter, fin_thickness,
+    def __init__(self, tube_rows: int, tube_passes: int, tubes_per_row: int, tube_length: float,
+                 tube_diameter: float, fin_thickness: float,
 
-                 angle=None, pitch=None, pitch_parallel=None, pitch_normal=None,
-                 pitch_ratio=None,
+                 angle: Optional[int]=None, pitch: Optional[float]=None, pitch_parallel: None=None, pitch_normal: None=None,
+                 pitch_ratio: None=None,
 
-                 fin_diameter=None, fin_height=None,
+                 fin_diameter: None=None, fin_height: Optional[float]=None,
 
-                 fin_density=None, fin_interval=None,
+                 fin_density: Optional[float]=None, fin_interval: None=None,
 
-                 parallel_bays=1, bundles_per_bay=1, fans_per_bay=1,
-                 corbels=False, tube_thickness=None, fan_diameter=None):
+                 parallel_bays: int=1, bundles_per_bay: int=1, fans_per_bay: int=1,
+                 corbels: bool=False, tube_thickness: Optional[float]=None, fan_diameter: None=None) -> None:
         # TODO: fin types
 
         self.tube_rows = tube_rows
@@ -5048,8 +5050,8 @@ class AirCooledExchanger:
 
 
 
-def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
-                       pitch_normal=None):
+def pitch_angle_solver(angle: Optional[float]=None, pitch: Optional[float]=None, pitch_parallel: Optional[float]=None,
+                       pitch_normal: Optional[float]=None) -> Union[Tuple[float, float, float, float], Tuple[int, float, float, float]]:
     r"""Utility to take any two of `angle`, `pitch`, `pitch_parallel`, and
     `pitch_normal` and calculate the other two. This is useful for applications
     with tube banks, as in shell and tube heat exchangers or air coolers and
@@ -5134,7 +5136,7 @@ def pitch_angle_solver(angle=None, pitch=None, pitch_parallel=None,
     return angle, pitch, pitch_parallel, pitch_normal
 
 
-def sphericity(A, V):
+def sphericity(A: float, V: float) -> float:
     r"""Returns the sphericity of a particle of surface area `A` and volume
     `V`. Sphericity is the ratio of the surface area of a sphere with the same
     volume as the particle (equivalent diameter) to the actual surface area of
@@ -5182,7 +5184,7 @@ def sphericity(A, V):
     return pi**(1/3.)*(6*V)**(2/3.)/A
 
 
-def aspect_ratio(Dmin, Dmax):
+def aspect_ratio(Dmin: float, Dmax: float) -> float:
     r"""Returns the aspect ratio of a shape with minimum and maximum dimension,
     `Dmin` and `Dmax`.
 
@@ -5209,7 +5211,7 @@ def aspect_ratio(Dmin, Dmax):
     return Dmin/Dmax
 
 
-def circularity(A, P):
+def circularity(A: float, P: float) -> float:
     r"""Returns the circularity of a shape with area `A` and perimeter `P`.
 
     .. math::
@@ -5249,7 +5251,7 @@ def circularity(A, P):
     return 4*pi*A/P**2
 
 
-def A_cylinder(D, L):
+def A_cylinder(D: float, L: float) -> float:
     r"""Returns the surface area of a cylinder.
 
     .. math::
@@ -5277,7 +5279,7 @@ def A_cylinder(D, L):
     return cap + side
 
 
-def V_cylinder(D, L):
+def V_cylinder(D: float, L: float) -> float:
     r"""Returns the volume of a cylinder.
 
     .. math::
@@ -5303,7 +5305,7 @@ def V_cylinder(D, L):
     return pi*D**2/4*L
 
 
-def A_hollow_cylinder(Di, Do, L):
+def A_hollow_cylinder(Di: float, Do: float, L: float) -> float:
     r"""Returns the surface area of a hollow cylinder.
 
     .. math::
@@ -5336,7 +5338,7 @@ def A_hollow_cylinder(Di, Do, L):
     return side_o + side_i + cap_circle - cap_removed
 
 
-def V_hollow_cylinder(Di, Do, L):
+def V_hollow_cylinder(Di: float, Do: float, L: float) -> float:
     r"""Returns the volume of a hollow cylinder.
 
     .. math::
@@ -5364,7 +5366,7 @@ def V_hollow_cylinder(Di, Do, L):
     return pi*Do**2/4*L - pi*Di**2/4*L
 
 
-def A_multiple_hole_cylinder(Do, L, holes):
+def A_multiple_hole_cylinder(Do: float, L: float, holes: List[Tuple[float, int]]) -> float:
     r"""Returns the surface area of a cylinder with multiple holes.
     Calculation will naively return a negative value or other impossible
     result if the number of cylinders added is physically impossible.
@@ -5405,7 +5407,7 @@ def A_multiple_hole_cylinder(Do, L, holes):
     return A
 
 
-def V_multiple_hole_cylinder(Do, L, holes):
+def V_multiple_hole_cylinder(Do: float, L: float, holes: List[Tuple[float, int]]) -> float:
     r"""Returns the solid volume of a cylinder with multiple cylindrical holes.
     Calculation will naively return a negative value or other impossible
     result if the number of cylinders added is physically impossible.

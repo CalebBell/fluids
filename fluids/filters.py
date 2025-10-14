@@ -44,8 +44,9 @@ Loss Coefficients for Grills
 from math import cos, radians
 
 from fluids.numerics import implementation_optimize_tck, interp, splev
+from typing import List, Optional
 
-__all__ = [
+__all__: List[str] = [
     "round_edge_grill",
     "round_edge_open_mesh",
     "round_edge_screen",
@@ -81,7 +82,7 @@ grills_rounded_tck = implementation_optimize_tck([[0.3, 0.3, 0.3, 0.45, 0.55, 0.
                                                    2])
 
 
-def round_edge_screen(alpha, Re, angle=0.0):
+def round_edge_screen(alpha: float, Re: float, angle: float=0.0) -> float:
     r"""Returns the loss coefficient for a round edged wire screen or bar
     screen, as shown in [1]_. Angle of inclination may be specified as well.
 
@@ -135,7 +136,7 @@ def round_edge_screen(alpha, Re, angle=0.0):
     return K
 
 
-def round_edge_open_mesh(alpha, subtype="diamond pattern wire", angle=0.0):
+def round_edge_open_mesh(alpha: float, subtype: str="diamond pattern wire", angle: float=0.0) -> float:
     r"""Returns the loss coefficient for a round edged open net/screen
     made of one of the following patterns, according to [1]_:
 
@@ -213,7 +214,7 @@ def round_edge_open_mesh(alpha, subtype="diamond pattern wire", angle=0.0):
     return K
 
 
-def square_edge_screen(alpha):
+def square_edge_screen(alpha: float) -> float:
     r"""Returns the loss coefficient for a square wire screen or square bar
     screen or perforated plate with squared edges, as shown in [1]_.
 
@@ -246,7 +247,7 @@ def square_edge_screen(alpha):
     return interp(alpha, square_alphas, square_Ks)
 
 
-def square_edge_grill(alpha, l=None, Dh=None, fd=None):
+def square_edge_grill(alpha: float, l: Optional[float]=None, Dh: Optional[float]=None, fd: Optional[float]=None) -> float:
     r"""Returns the loss coefficient for a square grill or square bar
     screen or perforated plate with squared edges of thickness l, as shown in
     [1]_.
@@ -307,7 +308,7 @@ def square_edge_grill(alpha, l=None, Dh=None, fd=None):
     return x0/alpha2
 
 
-def round_edge_grill(alpha, l=None, Dh=None, fd=None):
+def round_edge_grill(alpha: float, l: Optional[float]=None, Dh: Optional[float]=None, fd: Optional[float]=None) -> float:
     r"""Returns the loss coefficient for a rounded square grill or square bar
     screen or perforated plate with rounded edges of thickness l, as shown in
     [1]_.

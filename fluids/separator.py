@@ -40,8 +40,9 @@ from math import exp, log, sqrt
 
 from fluids.constants import foot, g, psi
 from fluids.numerics import implementation_optimize_tck, splev
+from typing import List
 
-__all__ = [
+__all__: List[str] = [
     "K_Souders_Brown_theoretical",
     "K_Sounders_Brown_theoretical",
     "K_separator_Watkins",
@@ -68,7 +69,7 @@ tck_Watkins = implementation_optimize_tck([[-5.115995809754082, -5.1159958097540
                                          0.0, 0.0, 0.0, 0.0],
                                          3])
 
-def K_separator_Watkins(x, rhol, rhog, horizontal=False, method="spline"):
+def K_separator_Watkins(x: float, rhol: float, rhog: float, horizontal: bool=False, method: str="spline") -> float:
     r"""Calculates the Souders-Brown `K` factor as used in determining maximum
     allowable gas velocity in a two-phase separator in either a horizontal or
     vertical orientation. This function approximates a graph published in [1]_
@@ -173,7 +174,7 @@ def K_separator_Watkins(x, rhol, rhog, horizontal=False, method="spline"):
     return K
 
 
-def K_separator_demister_York(P, horizontal=False):
+def K_separator_demister_York(P: float, horizontal: bool=False) -> float:
     r"""Calculates the Souders Brown `K` factor as used in determining maximum
     permissible gas velocity in a two-phase separator in either a horizontal or
     vertical orientation, *with a demister*.
@@ -250,7 +251,7 @@ def K_separator_demister_York(P, horizontal=False):
     return K
 
 
-def v_Souders_Brown(K, rhol, rhog):
+def v_Souders_Brown(K: float, rhol: float, rhog: float) -> float:
     r"""Calculates the maximum allowable vapor velocity in a two-phase
     separator to permit separation between entrained droplets and the gas
     using an empirical `K` factor, named after Souders and Brown [1]_.
@@ -310,7 +311,7 @@ def v_Souders_Brown(K, rhol, rhog):
     return K*sqrt((rhol - rhog)/rhog)
 
 
-def K_Souders_Brown_theoretical(D, Cd, g=g):
+def K_Souders_Brown_theoretical(D: float, Cd: float, g: float=g) -> float:
     r"""Converts a known drag coefficient into a Souders-Brown `K` factor
     for two-phase separator design. This factor is the traditional way for
     separator diameters to be obtained although it is unnecessary and the

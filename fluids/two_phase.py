@@ -68,8 +68,9 @@ Two Phase Flow Regime Correlations
 .. autofunction:: Taitel_Dukler_regime
 
 """
+from typing import List, Optional, Tuple
 
-__all__ = [
+__all__: List[str] = [
     "Bankoff",
     "Baroczy_Chisholm",
     "Beggs_Brill",
@@ -113,7 +114,7 @@ Beggs_Brill_dat = {"segregated": (0.98, 0.4846, 0.0868),
 "intermittent": (0.845, 0.5351, 0.0173),
 "distributed": (1.065, 0.5824, 0.0609)}
 
-def _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV):
+def _Beggs_Brill_holdup(regime: int, lambda_L: float, Fr: float, angle: float, LV: float) -> float:
     if regime == 0:
         a, b, c = 0.98, 0.4846, 0.0868
     elif regime == 2:
@@ -148,8 +149,8 @@ def _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV):
     Hl = HL0*Psi
     return Hl
 
-def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
-                L=1.0, g=g, acceleration=True):
+def Beggs_Brill(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, P: float, D: float, angle: float, roughness: float=0.0,
+                L: float=1.0, g: float=g, acceleration: bool=True) -> float:
     r"""Calculates the two-phase pressure drop according to the Beggs-Brill
     correlation ([1]_, [2]_, [3]_).
 
@@ -283,7 +284,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     return dP
 
 
-def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Friedel(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Friedel correlation.
 
     .. math::
@@ -407,7 +408,7 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     return phi_lo2*dP_lo
 
 
-def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Gronnerud(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Gronnerud correlation as
     presented in [2]_, [3]_, and [4]_.
 
@@ -500,8 +501,8 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return phi_gd*dP_lo
 
 
-def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
-             rough_correction=False):
+def Chisholm(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0,
+             rough_correction: bool=False) -> float:
     r"""Calculates two-phase pressure drop with the Chisholm (1973) correlation
     from [1]_, also in [2]_ and [3]_.
 
@@ -649,7 +650,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
     return phi2_ch*dP_lo
 
 
-def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Baroczy_Chisholm(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Baroczy (1966) model.
     It was presented in graphical form originally; Chisholm (1973) made the
     correlation non-graphical. The model is also shown in [3]_.
@@ -755,7 +756,7 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return phi2_ch*dP_lo
 
 
-def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Muller_Steinhagen_Heck(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Muller-Steinhagen and Heck
     (1986) correlation from [1]_, also in [2]_ and [3]_.
 
@@ -832,7 +833,7 @@ def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return G_MSH*cbrt(1.0-x)+ dP_go*x*x*x
 
 
-def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1.0):
+def Lombardi_Pedrocchi(m: float, x: float, rhol: float, rhog: float, sigma: float, D: float, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Lombardi-Pedrocchi (1972)
     correlation from [1]_ as shown in [2]_ and [3]_.
 
@@ -892,7 +893,7 @@ def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1.0):
     return 0.83*G_tp**1.4*sigma**0.4*L/(D**1.2*rho_h**0.866)
 
 
-def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Theissing(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Theissing (1980)
     correlation as shown in [2]_ and [3]_.
 
@@ -1013,7 +1014,7 @@ def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return dP
 
 
-def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Jung_Radermacher(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Jung-Radermacher (1989)
     correlation, also shown in [2]_ and [3]_.
 
@@ -1087,7 +1088,7 @@ def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return phi_tp2*dP_lo
 
 
-def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Tran(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Tran (2000) correlation,
     also shown in [2]_ and [3]_.
 
@@ -1177,7 +1178,7 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     return dP_lo*phi_lo2
 
 
-def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Chen_Friedel(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Chen modification of the
     Friedel correlation, as given in [1]_ and also shown in [2]_ and [3]_.
 
@@ -1301,7 +1302,7 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     return dP*Omega
 
 
-def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1.0):
+def Zhang_Webb(m: float, x: float, rhol: float, mul: float, P: float, Pc: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Zhang-Webb (2001)
     correlation as shown in [1]_ and also given in [2]_.
 
@@ -1373,7 +1374,7 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1.0):
     return dP_lo*phi_lo2
 
 
-def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Bankoff(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Bankoff (1960) correlation,
     as shown in [2]_, [3]_, and [4]_.
 
@@ -1452,7 +1453,7 @@ def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return dP_lo*phi_Bf**(7/4.)
 
 
-def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Xu_Fang(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Xu and Fang (2013)
     correlation. Developed after a comprehensive review of available
     correlations, likely meaning it is quite accurate.
@@ -1550,7 +1551,7 @@ def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     return phi_lo2*dP_lo
 
 
-def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Yu_France(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Yu, France, Wambsganss,
     and Hull (2002) correlation given in [1]_ and reviewed in [2]_ and [3]_.
 
@@ -1631,7 +1632,7 @@ def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return phi_l2*dP_l
 
 
-def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Wang_Chiang_Lu(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Wang, Chiang, and Lu (1997)
     correlation given in [1]_ and reviewed in [2]_ and [3]_.
 
@@ -1730,7 +1731,7 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return dP_g*phi_g2
 
 
-def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Hwang_Kim(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Hwang and Kim (2006)
     correlation as in [1]_, also presented in [2]_ and [3]_.
 
@@ -1826,8 +1827,8 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     return dP_l*phi_l2
 
 
-def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
-                         L=1.0, flowtype="adiabatic vapor"):
+def Zhang_Hibiki_Mishima(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0,
+                         L: float=1.0, flowtype: str="adiabatic vapor") -> float:
     r"""Calculates two-phase pressure drop with the Zhang, Hibiki, Mishima and
     (2010) correlation as in [1]_, also presented in [2]_ and [3]_.
 
@@ -1942,7 +1943,7 @@ and 'flow boiling' are recognized.")
     return dP_l*phi_l2
 
 
-def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Mishima_Hibiki(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Mishima and Hibiki (1996)
     correlation as in [1]_, also presented in [2]_ and [3]_.
 
@@ -2030,7 +2031,7 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     phi_l2 = 1.0 + C/X + 1./(X*X)
     return dP_l*phi_l2
 
-def friction_factor_Kim_Mudawar(Re):
+def friction_factor_Kim_Mudawar(Re: float) -> float:
     if Re < 2000:
         return 64./Re
     elif Re < 20000:
@@ -2039,7 +2040,7 @@ def friction_factor_Kim_Mudawar(Re):
         return 0.184*Re**-0.2
 
 
-def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
+def Kim_Mudawar(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Kim and Mudawar (2012)
     correlation as in [1]_, also presented in [2]_.
 
@@ -2180,7 +2181,7 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
     return dP_l*phi_l2
 
 
-def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
+def Lockhart_Martinelli(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, L: float=1.0, Re_c: float=2000.0) -> float:
     r"""Calculates two-phase pressure drop with the Lockhart and Martinelli
     (1949) correlation as presented in non-graphical form by Chisholm (1967).
 
@@ -2353,9 +2354,9 @@ two_phase_correlations = {
 }
 _unknown_msg_two_phase = f"Unknown method; available methods are {list(two_phase_correlations.keys())}"
 
-def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
-                         sigma=None, P=None, Pc=None, roughness=0.0, angle=0,
-                         check_ranges=False):
+def two_phase_dP_methods(m: float, x: float, rhol: float, D: float, L: float=1.0, rhog: Optional[float]=None, mul: Optional[float]=None, mug: Optional[float]=None,
+                         sigma: Optional[float]=None, P: Optional[float]=None, Pc: Optional[float]=None, roughness: float=0.0, angle: float=0,
+                         check_ranges: bool=False) -> List[str]:
     r"""This function returns a list of names of correlations for two-phase
     liquid-gas pressure drop for flow inside channels.
     24 calculation methods are available, with varying input requirements.
@@ -2416,8 +2417,8 @@ def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
         usable_indices.append(104)
     return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
 
-def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None,
-                 P=None, Pc=None, roughness=0.0, angle=None, Method=None):
+def two_phase_dP(m: float, x: float, rhol: float, D: float, L: float=1.0, rhog: Optional[float]=None, mul: Optional[float]=None, mug: Optional[float]=None, sigma: Optional[float]=None,
+                 P: Optional[float]=None, Pc: Optional[float]=None, roughness: float=0.0, angle: Optional[float]=None, Method: Optional[str]=None) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     for flow inside channels. 23 calculation methods are available, with
     varying input requirements. A correlation will be automatically selected if
@@ -2560,8 +2561,8 @@ than provided; provide more inputs!")
         raise ValueError(_unknown_msg_two_phase)
 
 
-def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
-                              rho_lo=None, rho_go=None):
+def two_phase_dP_acceleration(m: float, D: float, xi: float, xo: float, alpha_i: float, alpha_o: float, rho_li: float, rho_gi: float,
+                              rho_lo: Optional[float]=None, rho_go: Optional[float]=None) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to acceleration for flow inside channels. This is a discrete
     calculation for a segment with a known difference in quality (and ideally
@@ -2645,8 +2646,8 @@ def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
     return G*G*(out_term - in_term)
 
 
-def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
-                                 dP_dL, dA_dL):
+def two_phase_dP_dz_acceleration(m: float, D: float, x: float, rhol: float, rhog: float, dv_dP_l: float, dv_dP_g: float, dx_dP: float,
+                                 dP_dL: float, dA_dL: float) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to acceleration for flow inside channels. This is a continuous
     calculation, providing the differential in pressure per unit length and
@@ -2729,8 +2730,8 @@ def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
 
 
 
-def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
-                               alpha_o=None, rho_lo=None, rho_go=None, g=g):
+def two_phase_dP_gravitational(angle: float, z: float, alpha_i: float, rho_li: float, rho_gi: float,
+                               alpha_o: Optional[float]=None, rho_lo: Optional[float]=None, rho_go: Optional[float]=None, g: float=g) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to gravitation for flow inside channels. This is a discrete
     calculation for a segment with a known difference in elevation (and ideally
@@ -2820,7 +2821,7 @@ def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
     return g*z*sin(angle)*(out_term + in_term)*0.5
 
 
-def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
+def two_phase_dP_dz_gravitational(angle: float, alpha: float, rhol: float, rhog: float, g: float=g) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to gravitation for flow inside channels. This is a differential
     calculation for a segment with an infinitesimal difference in elevation for
@@ -2894,8 +2895,8 @@ XC_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XC_tck))
 XD_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XD_tck))
 
 
-def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
-                         g=g):
+def Taitel_Dukler_regime(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, angle: float, roughness: float=0.0,
+                         g: float=g) -> Tuple[str, float, float, float, float]:
     r"""Classifies the regime of a two-phase flow according to Taitel and
     Dukler (1976) ([1]_, [2]_).
 
@@ -3026,7 +3027,7 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
     return regime, X, T, F, K
 
 
-def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
+def Mandhane_Gregory_Aziz_regime(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float) -> Tuple[str, float, float]:
     r"""Classifies the regime of a two-phase flow according to Mandhane,
     Gregory, and Aziz  (1974) flow map.
 

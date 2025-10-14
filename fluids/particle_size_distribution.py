@@ -86,8 +86,10 @@ Point Spacing
 -------------
 .. autofunction:: psd_spacing
 """
+from numpy import float64, ndarray
+from typing import List, Optional, Union
 
-__all__ = [
+__all__: List[str] = [
     "ISO_3310_1_R10",
     "ISO_3310_1_R20",
     "ISO_3310_1_R20_3",
@@ -211,11 +213,11 @@ class Sieve:
     def __repr__(self):
         return f"<Sieve, designation {self.designation} mm, opening {self.opening:g} m>"
 
-    def __init__(self, designation, old_designation=None, opening=None,
-                 opening_inch=None, Y_variation_avg=None, X_variation_max=None,
-                 max_opening=None, compliance_samples=None, compliance_sd=None,
-                 inspection_samples=None, inspection_sd=None, calibration_samples=None,
-                 calibration_sd=None, d_wire=None, d_wire_min=None, d_wire_max=None):
+    def __init__(self, designation: str, old_designation: Optional[str]=None, opening: Optional[float]=None,
+                 opening_inch: Optional[float]=None, Y_variation_avg: Optional[float]=None, X_variation_max: Optional[float]=None,
+                 max_opening: Optional[float]=None, compliance_samples: Optional[float]=None, compliance_sd: Optional[float]=None,
+                 inspection_samples: Optional[float]=None, inspection_sd: Optional[float]=None, calibration_samples: Optional[float]=None,
+                 calibration_sd: Optional[float]=None, d_wire: Optional[float]=None, d_wire_min: Optional[float]=None, d_wire_max: Optional[float]=None) -> None:
 
         self.designation = designation
         self.old_designation = old_designation
@@ -504,7 +506,7 @@ sieve_spacing_options = {"ISO 3310-1": ISO_3310_1_sieve_list,
                          "ASTM E11": ASTM_E11_sieve_list,}
 
 
-def psd_spacing(d_min=None, d_max=None, pts=20, method="logarithmic"):
+def psd_spacing(d_min: Optional[float]=None, d_max: Optional[float]=None, pts: int=20, method: str="logarithmic") -> List[float]:
     r"""Create a particle spacing mesh in one of several ways for use in
     modeling discrete particle size distributions. The allowable meshes are
     'linear', 'logarithmic', a geometric series specified by a Renard number
@@ -584,7 +586,7 @@ def psd_spacing(d_min=None, d_max=None, pts=20, method="logarithmic"):
         raise ValueError("Method not recognized")
 
 
-def pdf_lognormal(d, d_characteristic, s):
+def pdf_lognormal(d: float, d_characteristic: float, s: float) -> float:
     r"""Calculates the probability density function of a lognormal particle
     distribution given a particle diameter `d`, characteristic particle
     diameter `d_characteristic`, and distribution standard deviation `s`.
@@ -644,7 +646,7 @@ def pdf_lognormal(d, d_characteristic, s):
     return 1./(d*s*ROOT_TWO_PI)*exp(-0.5*log_term*log_term)
 
 
-def cdf_lognormal(d, d_characteristic, s):
+def cdf_lognormal(d: float, d_characteristic: float, s: float) -> float:
     r"""Calculates the cumulative distribution function of a lognormal particle
     distribution given a particle diameter `d`, characteristic particle
     diameter `d_characteristic`, and distribution standard deviation `s`.
@@ -703,7 +705,7 @@ def cdf_lognormal(d, d_characteristic, s):
         return 0.0
 
 
-def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
+def pdf_lognormal_basis_integral(d: float, d_characteristic: float, s: float, n: float) -> float:
     r"""Calculates the integral of the multiplication of d^n by the lognormal
     pdf, given a particle diameter `d`, characteristic particle
     diameter `d_characteristic`, distribution standard deviation `s`, and
@@ -763,7 +765,7 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
         return pdf_lognormal_basis_integral(d=1E-80, d_characteristic=d_characteristic, s=s, n=n)
 
 
-def pdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
+def pdf_Gates_Gaudin_Schuhman(d: float, d_characteristic: float, m: float) -> float:
     r"""Calculates the probability density of a particle
     distribution following the Gates, Gaudin and Schuhman (GGS) model given a
     particle diameter `d`, characteristic (maximum) particle
@@ -817,7 +819,7 @@ def pdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
         return 0.0
 
 
-def cdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
+def cdf_Gates_Gaudin_Schuhman(d: float, d_characteristic: float, m: float) -> float:
     r"""Calculates the cumulative distribution function of a particle
     distribution following the Gates, Gaudin and Schuhman (GGS) model given a
     particle diameter `d`, characteristic (maximum) particle
@@ -871,7 +873,7 @@ def cdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
         return 1.0
 
 
-def pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic, m, n):
+def pdf_Gates_Gaudin_Schuhman_basis_integral(d: float, d_characteristic: float, m: float, n: int) -> float:
     r"""Calculates the integral of the multiplication of d^n by the Gates,
     Gaudin and Schuhman (GGS) model given a particle diameter `d`,
     characteristic (maximum) particle diameter `d_characteristic`, and exponent
@@ -910,7 +912,7 @@ def pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic, m, n):
     return m/(m+n)*d**n*(d/d_characteristic)**m
 
 
-def pdf_Rosin_Rammler(d, k, m):
+def pdf_Rosin_Rammler(d: float, k: float, m: float) -> float:
     r"""Calculates the probability density of a particle
     distribution following the Rosin-Rammler (RR) model given a
     particle diameter `d`, and the two parameters `k` and `m`.
@@ -951,7 +953,7 @@ def pdf_Rosin_Rammler(d, k, m):
     return d**(m - 1.0)*k*m*exp(-d**m*k)
 
 
-def cdf_Rosin_Rammler(d, k, m):
+def cdf_Rosin_Rammler(d: float, k: float, m: float) -> float:
     r"""Calculates the cumulative distribution function of a particle
     distribution following the Rosin-Rammler (RR) model given a
     particle diameter `d`, and the two parameters `k` and `m`.
@@ -997,7 +999,7 @@ def cdf_Rosin_Rammler(d, k, m):
     return 1.0 - exp(-k*d**m)
 
 
-def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
+def pdf_Rosin_Rammler_basis_integral(d: float, k: float, m: float, n: int) -> float:
     r"""Calculates the integral of the multiplication of d^n by the Rosin
     Rammler (RR) pdf, given a particle diameter `d`, and the two parameters `k`
     and `m`.
@@ -1222,12 +1224,12 @@ class ParticleSizeDistributionContinuous:
        Moments from Particle Size Distributions.
     """
 
-    def _pdf_basis_integral_definite(self, d_min, d_max, n):
+    def _pdf_basis_integral_definite(self, d_min: Union[float64, float], d_max: Union[float64, float], n: float) -> float:
         # Needed as an api for numerical integrals
         return (self._pdf_basis_integral(d=d_max, n=n)
                 - self._pdf_basis_integral(d=d_min, n=n))
 
-    def pdf(self, d, n=None):
+    def pdf(self, d: float, n: Optional[int]=None) -> float:
         r"""Computes the probability density function of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
@@ -1292,7 +1294,7 @@ class ParticleSizeDistributionContinuous:
             ans = (ans)/(self._cdf_d_max - self._cdf_d_min)
         return ans
 
-    def cdf(self, d, n=None):
+    def cdf(self, d: Union[int, float64, float], n: Optional[int]=None) -> float:
         r"""Computes the cumulative distribution density function of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
@@ -1377,7 +1379,7 @@ class ParticleSizeDistributionContinuous:
         """
         return self.cdf(d_max, n=n) - self.cdf(d_min, n=n)
 
-    def dn(self, fraction, n=None):
+    def dn(self, fraction: Union[int, float64, float], n: None=None) -> Union[float64, float]:
         r"""Computes the diameter at which a specified `fraction` of the
         distribution falls under. Utilizes a bounded solver to search for the
         desired diameter.
@@ -1437,8 +1439,8 @@ class ParticleSizeDistributionContinuous:
         return brenth(lambda d:self.cdf(d, n=n) -fraction,
                       self.d_minimum, self.d_excessive, maxiter=1000, xtol=1E-200)
 
-    def ds_discrete(self, d_min=None, d_max=None, pts=20, limit=1e-9,
-                    method="logarithmic"):
+    def ds_discrete(self, d_min: Optional[float]=None, d_max: Optional[float]=None, pts: int=20, limit: float=1e-9,
+                    method: str="logarithmic") -> List[float]:
         r"""Create a particle spacing mesh to perform calculations with,
         according to one of several ways. The allowable meshes are
         'linear', 'logarithmic', a geometric series specified by a Renard
@@ -1491,7 +1493,7 @@ class ParticleSizeDistributionContinuous:
                 d_max = self.dn(1.0 - limit)
         return psd_spacing(d_min=d_min, d_max=d_max, pts=pts, method=method)
 
-    def fractions_discrete(self, ds, n=None):
+    def fractions_discrete(self, ds: Union[List[float], ndarray], n: None=None) -> List[float]:
         r"""Computes the fractions of the cumulative distribution functions
         which lie between the specified specified particle diameters. The first
         diameter contains the cdf from 0 to it.
@@ -1520,7 +1522,7 @@ class ParticleSizeDistributionContinuous:
         cdfs = [self.cdf(d, n=n) for d in ds]
         return [cdfs[0]] + diff(cdfs)
 
-    def cdf_discrete(self, ds, n=None):
+    def cdf_discrete(self, ds: Union[List[float], ndarray], n: None=None) -> List[float]:
         r"""Computes the cumulative distribution functions for a list of
         specified particle diameters.
 
@@ -1547,7 +1549,7 @@ class ParticleSizeDistributionContinuous:
         """
         return [self.cdf(d, n=n) for d in ds]
 
-    def mean_size(self, p, q):
+    def mean_size(self, p: float, q: float) -> float:
         """
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
         >>> psd.mean_size(3, 2)
@@ -1574,7 +1576,7 @@ class ParticleSizeDistributionContinuous:
         numerator = self._pdf_basis_integral_definite(d_min=self.d_minimum, d_max=self.d_excessive, n=pow3)
         return float((numerator/denominator)**(1.0/(root_power)))
 
-    def mean_size_ISO(self, k, r):
+    def mean_size_ISO(self, k: int, r: int) -> float:
         """
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
         >>> psd.mean_size_ISO(1, 2)
@@ -1585,7 +1587,7 @@ class ParticleSizeDistributionContinuous:
         return self.mean_size(p=p, q=q)
 
     @property
-    def vssa(self):
+    def vssa(self) -> float:
         r"""The volume-specific surface area of a particle size distribution.
 
         .. math::
@@ -1813,7 +1815,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     points = True
     truncated = False
     name = "Discrete"
-    def __init__(self, ds, fractions, cdf=False, order=3, monotonic=True):
+    def __init__(self, ds: Union[List[float], List[float], ndarray], fractions: Union[List[float], List[int]], cdf: bool=False, order: int=3, monotonic: bool=True) -> None:
         self.monotonic = monotonic
         self.ds = ds
         self.order = order
@@ -1875,7 +1877,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         self.number_cdf = cumsum(self.number_fractions)
 
     @property
-    def interpolated(self):
+    def interpolated(self) -> "PSDInterpolated":
         if not self._interpolated:
             self._interpolated = PSDInterpolated(ds=self.ds,
                                                  fractions=self.fractions,
@@ -1883,13 +1885,13 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
                                                  monotonic=self.monotonic)
         return self._interpolated
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return self.interpolated._pdf(d)
 
-    def _cdf(self, d):
+    def _cdf(self, d: Union[int, float64, float]) -> float:
         return self.interpolated._cdf(d)
 
-    def _pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d: Union[float64, float], n: int) -> float:
         return self.interpolated._pdf_basis_integral(d, n)
 
     def _fit_obj_function(self, vals, distribution, n):
@@ -1931,11 +1933,11 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)
 
     @property
-    def Dis(self):
+    def Dis(self) -> Union[List[float], List[float64]]:
         """Representative diameters of each bin."""
         return [self.di_power(i, power=1) for i in range(self.N)]
 
-    def di_power(self, i, power=1):
+    def di_power(self, i: int, power: int=1) -> Union[float64, float]:
         r"""Method to calculate a power of a particle class/bin in a generic
         way so as to support when there are as many `ds` as `fractions`,
         or one more diameter spec than `fractions`.
@@ -1976,7 +1978,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         else:
             return self.ds[i]**power
 
-    def mean_size(self, p, q):
+    def mean_size(self, p: int, q: int) -> Union[float64, float]:
         """
         >>> import numpy as np
         >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
@@ -2009,7 +2011,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         return self.mean_size(p=p, q=q)
 
     @property
-    def vssa(self):
+    def vssa(self) -> float:
         r"""The volume-specific surface area of a particle size distribution.
         Note this uses the diameters provided by the method `Dis`.
 
@@ -2048,7 +2050,7 @@ class PSDLognormal(ParticleSizeDistributionContinuous):
     name = "Lognormal"
     points = False
     truncated = False
-    def __init__(self, d_characteristic, s, order=3, d_min=None, d_max=None):
+    def __init__(self, d_characteristic: float, s: float, order: int=3, d_min: Optional[float]=None, d_max: Optional[float]=None) -> None:
         self.s = s
         self.d_characteristic = d_characteristic
         self.order = order
@@ -2078,13 +2080,13 @@ class PSDLognormal(ParticleSizeDistributionContinuous):
             self._cdf_d_max = self._cdf(self.d_max)
             self._cdf_d_min = self._cdf(self.d_min)
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return pdf_lognormal(d, self.d_characteristic, self.s)
 
-    def _cdf(self, d):
+    def _cdf(self, d: float) -> float:
         return cdf_lognormal(d, self.d_characteristic, self.s)
 
-    def _pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
         return pdf_lognormal_basis_integral(d, self.d_characteristic, self.s, n)
 
 
@@ -2256,7 +2258,7 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
     name = "Interpolated"
     points = True
     truncated = False
-    def __init__(self, ds, fractions, order=3, monotonic=True):
+    def __init__(self, ds: Union[List[float], ndarray, List[float64]], fractions: Union[List[float], List[float64]], order: int=3, monotonic: bool=True) -> None:
         self.order = order
         self.monotonic = monotonic # always true now
         self.parameters = {}
@@ -2290,16 +2292,16 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
         self.basis_integrals = {}
 
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return max(0.0, float(self.pdf_spline(d)))
 
-    def _cdf(self, d):
+    def _cdf(self, d: Union[int, float64, float]) -> float:
         if d > self.d_excessive:
             # Handle spline values past 1 that decrease to zero
             return 1.0
         return max(0.0, float(self.cdf_spline(d)))
 
-    def _pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d: Union[float64, float], n: int) -> float:
         # there are slight errors with this approach - but they are OK to
         # ignore.
         # DO NOT evaluate the first point as it leads to inf values; just set

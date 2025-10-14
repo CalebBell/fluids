@@ -49,8 +49,9 @@ Pipe Methods
 from math import sqrt
 
 from fluids.constants import foot, inch, lb
+from typing import List, Optional, Tuple, Union
 
-__all__ = [
+__all__: List[str] = [
     "erosional_velocity",
     "gauge_from_t",
     "nearest_pipe",
@@ -597,7 +598,7 @@ schedule_lookup = { "40": (NPS40, S40i, S40o, S40t),
                     "BS1387HEAVY": (DN_HEAVY_BS1387, HEAVYi_BS1387, HEAVYo_BS1387, HEAVYt_BS1387),
                     }
 
-def Di_lookup(Di, NPSes, Dis, Dos, ts):
+def Di_lookup(Di: float, NPSes: List[float], Dis: List[float], Dos: List[float], ts: List[float]) -> Tuple[int, float, float, float]:
     for i in range(len(Dis)): # Go up ascending list; once larger than specified, return
         if Dis[-1] < Di:
             return None
@@ -606,7 +607,7 @@ def Di_lookup(Di, NPSes, Dis, Dos, ts):
             return (_nps, _di, _do, _t)
     raise ValueError("Di lookup failed")
 
-def Do_lookup(Do, NPSes, Dis, Dos, ts):
+def Do_lookup(Do: float, NPSes: List[float], Dis: List[float], Dos: List[float], ts: List[float]) -> Union[Tuple[int, float, int, float], Tuple[int, float, float, float]]:
     for i in range(len(Dos)): # Go up ascending list; once larger than specified, return
         if Dos[-1] < Do:
             return None
@@ -615,7 +616,7 @@ def Do_lookup(Do, NPSes, Dis, Dos, ts):
             return (_nps, _di, _do, _t)
     raise ValueError("Do lookup failed")
 
-def NPS_lookup(NPS, NPSes, Dis, Dos, ts):
+def NPS_lookup(NPS: float, NPSes: List[float], Dis: List[float], Dos: List[float], ts: List[float]) -> Tuple[int, float, float, float]:
     for i in range(len(NPSes)): # Go up ascending list; once larger than specified, return
         if NPSes[i] == NPS:
             _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
@@ -624,7 +625,7 @@ def NPS_lookup(NPS, NPSes, Dis, Dos, ts):
 
 
 
-def nearest_pipe(Do=None, Di=None, NPS=None, schedule="40"):
+def nearest_pipe(Do: Optional[float]=None, Di: Optional[float]=None, NPS: Optional[int]=None, schedule: Union[str, int, float]="40") -> Tuple[int, float, float, float]:
     r"""Searches for and finds the nearest standard pipe size to a given
     specification. Acceptable inputs are:
 
@@ -908,7 +909,7 @@ wire_schedules = {"BWG": (BWG_integers, BWG_inch, BWG_SI, True),
                  "SSWG": (SSWG_integers, SSWG_inch, SSWG_SI, True)}
 
 
-def gauge_from_t(t, SI=True, schedule="BWG"):
+def gauge_from_t(t: float, SI: bool=True, schedule: str="BWG") -> float:
     r"""Looks up the gauge of a given wire thickness of given schedule.
     Values are all non-linear, and tabulated internally.
 
@@ -996,7 +997,7 @@ def gauge_from_t(t, SI=True, schedule="BWG"):
     return gauge
 
 
-def t_from_gauge(gauge, SI=True, schedule="BWG"):
+def t_from_gauge(gauge: float, SI: bool=True, schedule: str="BWG") -> float:
     r"""Looks up the thickness of a given wire gauge of given schedule.
     Values are all non-linear, and tabulated internally.
 
@@ -1054,7 +1055,7 @@ def t_from_gauge(gauge, SI=True, schedule="BWG"):
         return sch_inch[i] # returns thickness in inch
 
 
-def erosional_velocity(rho, C):
+def erosional_velocity(rho: int, C: int) -> float:
     r"""Calculate the erosional velocity according to the
     API RP 14E equation.
 

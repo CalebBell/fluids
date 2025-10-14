@@ -91,8 +91,9 @@ from math import cos, exp, log, pi, radians, sin, sqrt
 
 from fluids.constants import g
 from fluids.core import Froude
+from typing import List, Optional
 
-__all__ = [
+__all__: List[str] = [
     "Armand",
     "Baroczy",
     "Beattie_Whalley",
@@ -141,7 +142,7 @@ __all__ = [
 
 ### Models based on slip ratio
 
-def Thom(x, rhol, rhog, mul, mug):
+def Thom(x: float, rhol: float, rhog: float, mul: float, mug: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_.
 
@@ -199,7 +200,7 @@ def Thom(x, rhol, rhog, mul, mug):
 #    return x*((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6/(x*(((mug/mul)**(111/1000)*(rhol/rhog)**(111/200))**1.6 - 1) + 1)
 
 
-def Zivi(x, rhol, rhog):
+def Zivi(x: float, rhol: float, rhog: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
@@ -248,7 +249,7 @@ def Zivi(x, rhol, rhog):
     return 1.0/(1.0 + (1.0-x)/x * (rhog/rhol)**(2/3.))
 
 
-def Smith(x, rhol, rhog):
+def Smith(x: float, rhol: float, rhog: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_, also given in [2]_ and [3]_.
 
@@ -307,7 +308,7 @@ def Smith(x, rhol, rhog):
     return alpha
 
 
-def Fauske(x, rhol, rhog):
+def Fauske(x: float, rhol: float, rhog: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_, as given in [2]_ and [3]_.
 
@@ -356,7 +357,7 @@ def Fauske(x, rhol, rhog):
     return 1.0/(1.0 + (1.0-x)/x*sqrt(rhog/rhol))
 
 
-def Chisholm_voidage(x, rhol, rhog):
+def Chisholm_voidage(x: float, rhol: float, rhog: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_, as given in [2]_ and [3]_.
 
@@ -409,7 +410,7 @@ def Chisholm_voidage(x, rhol, rhog):
     return alpha
 
 
-def Turner_Wallis(x, rhol, rhog, mul, mug):
+def Turner_Wallis(x: float, rhol: float, rhog: float, mul: float, mug: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_, as given in [2]_ and [3]_.
 
@@ -466,7 +467,7 @@ def Turner_Wallis(x, rhol, rhog, mul, mug):
 ### Models using the Homogeneous flow model
 
 
-def homogeneous(x, rhol, rhog):
+def homogeneous(x: float, rhol: float, rhog: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the homogeneous
     flow model, reviewed in [1]_, [2]_, and [3]_.
 
@@ -517,7 +518,7 @@ def homogeneous(x, rhol, rhog):
     return 1.0/(1.0 + (1.0 - x)/x*(rhog/rhol))
 
 
-def Chisholm_Armand(x, rhol, rhog):
+def Chisholm_Armand(x: float, rhol: float, rhog: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model
     presented in [1]_ based on that of [2]_ as shown in [3]_, [4]_, and [5]_.
 
@@ -570,7 +571,7 @@ def Chisholm_Armand(x, rhol, rhog):
     return alpha_h/(alpha_h + sqrt(1.0-alpha_h))
 
 
-def Armand(x, rhol, rhog):
+def Armand(x: float, rhol: float, rhog: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model
     presented in [1]_  as shown in [2]_, [3]_, and [4]_.
 
@@ -620,7 +621,7 @@ def Armand(x, rhol, rhog):
     return 0.833*homogeneous(x, rhol, rhog)
 
 
-def Nishino_Yamazaki(x, rhol, rhog):
+def Nishino_Yamazaki(x: float, rhol: float, rhog: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model
     presented in [1]_ as shown in [2]_.
 
@@ -673,7 +674,7 @@ def Nishino_Yamazaki(x, rhol, rhog):
     return 1.0 - sqrt((1.0-x)*rhog/(x*rhol))*sqrt(alpha_h)
 
 
-def Guzhov(x, rhol, rhog, m, D):
+def Guzhov(x: float, rhol: float, rhog: float, m: float, D: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model
     in [1]_ as shown in [2]_ and [3]_.
 
@@ -732,7 +733,7 @@ def Guzhov(x, rhol, rhog, m, D):
     return 0.81*(1 - exp(-2.2*sqrt(Fr)))*alpha_h
 
 
-def Kawahara(x, rhol, rhog, D):
+def Kawahara(x: float, rhol: float, rhog: float, D: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model
     presented in [1]_, also reviewed in [2]_ and [3]_. This expression is for
     microchannels.
@@ -798,8 +799,8 @@ def Kawahara(x, rhol, rhog, D):
 
 ### Miscellaneous correlations
 
-def Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug, pow_x=0.9, pow_rho=0.5,
-                            pow_mu=0.1, n=None):
+def Lockhart_Martinelli_Xtt(x: float, rhol: float, rhog: float, mul: float, mug: float, pow_x: float=0.9, pow_rho: float=0.5,
+                            pow_mu: float=0.1, n: Optional[float]=None) -> float:
     r"""Calculates the Lockhart-Martinelli Xtt two-phase flow parameter in a
     general way according to [2]_. [1]_ is said to describe this. However,
     very different definitions of this parameter have been used elsewhere.
@@ -867,7 +868,7 @@ def Lockhart_Martinelli_Xtt(x, rhol, rhog, mul, mug, pow_x=0.9, pow_rho=0.5,
     return ((1.0-x)/x)**pow_x * (rhog/rhol)**pow_rho * (mul/mug)**pow_mu
 
 
-def Baroczy(x, rhol, rhog, mul, mug):
+def Baroczy(x: float, rhol: float, rhog: float, mul: float, mug: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_, [3]_, and [4]_.
 
@@ -925,7 +926,7 @@ def Baroczy(x, rhol, rhog, mul, mug):
     return 1.0/(1 + Xtt)
 
 
-def Tandon_Varma_Gupta(x, rhol, rhog, mul, mug, m, D):
+def Tandon_Varma_Gupta(x: float, rhol: float, rhog: float, mul: float, mug: float, m: float, D: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_, [3]_, and [4]_.
 
@@ -1011,7 +1012,7 @@ def Tandon_Varma_Gupta(x, rhol, rhog, mul, mug, m, D):
     return alpha
 
 
-def Harms(x, rhol, rhog, mul, mug, m, D):
+def Harms(x: float, rhol: float, rhog: float, mul: float, mug: float, m: float, D: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_ and [3]_.
 
@@ -1076,7 +1077,7 @@ def Harms(x, rhol, rhog, mul, mug, m, D):
             *1.0/sqrt(1.376 + 7.242*Xtt**-1.655))**2
 
 
-def Domanski_Didion(x, rhol, rhog, mul, mug):
+def Domanski_Didion(x: float, rhol: float, rhog: float, mul: float, mug: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_ and [3]_.
 
@@ -1143,7 +1144,7 @@ def Domanski_Didion(x, rhol, rhog, mul, mug):
         return 0.823 - 0.157*log(Xtt)
 
 
-def Graham(x, rhol, rhog, mul, mug, m, D, g=g):
+def Graham(x: float, rhol: float, rhog: float, mul: float, mug: float, m: float, D: float, g: float=g) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_ and [3]_.
 
@@ -1214,7 +1215,7 @@ def Graham(x, rhol, rhog, mul, mug, m, D, g=g):
         return 1.0 - exp(-1.0 - 0.3*log_Ft - 0.0328*log_Ft*log_Ft)
 
 
-def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
+def Yashar(x: float, rhol: float, rhog: float, mul: float, mug: float, m: float, D: float, g: float=g) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_ and [3]_.
 
@@ -1278,7 +1279,7 @@ def Yashar(x, rhol, rhog, mul, mug, m, D, g=g):
     return (1 + 1./Ft + Xtt)**-0.321
 
 
-def Huq_Loth(x, rhol, rhog):
+def Huq_Loth(x: float, rhol: float, rhog: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_, also given in [2]_, [3]_, and [4]_.
 
@@ -1400,7 +1401,7 @@ def Kopte_Newell_Chato(x, rhol, rhog, m, D, g=g):
 ### Drift flux models
 
 
-def Steiner(x, rhol, rhog, sigma, m, D, g=g):
+def Steiner(x: float, rhol: float, rhog: float, sigma: float, m: float, D: float, g: float=g) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ also given in [2]_ and [3]_.
 
@@ -1464,7 +1465,7 @@ def Steiner(x, rhol, rhog, sigma, m, D, g=g):
     return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
-def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
+def Rouhani_1(x: float, rhol: float, rhog: float, sigma: float, m: float, D: float, g: float=g) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
@@ -1529,7 +1530,7 @@ def Rouhani_1(x, rhol, rhog, sigma, m, D, g=g):
     return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
-def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
+def Rouhani_2(x: float, rhol: float, rhog: float, sigma: float, m: float, D: float, g: float=g) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
@@ -1594,7 +1595,7 @@ def Rouhani_2(x, rhol, rhog, sigma, m, D, g=g):
     return x/(rhog*(C0*(x/rhog + (1-x)/rhol) + vgm/G))
 
 
-def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
+def Nicklin_Wilkes_Davidson(x: float, rhol: float, rhog: float, m: float, D: float, g: float=g) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
@@ -1654,7 +1655,7 @@ def Nicklin_Wilkes_Davidson(x, rhol, rhog, m, D, g=g):
     return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
-def Gregory_Scott(x, rhol, rhog):
+def Gregory_Scott(x: float, rhol: float, rhog: float) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
@@ -1708,7 +1709,7 @@ def Gregory_Scott(x, rhol, rhog):
     return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol)))
 
 
-def Dix(x, rhol, rhog, sigma, m, D, g=g):
+def Dix(x: float, rhol: float, rhog: float, sigma: float, m: float, D: float, g: float=g) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
@@ -1782,7 +1783,7 @@ def Dix(x, rhol, rhog, sigma, m, D, g=g):
     return x/(rhog*(C0*(x/rhog + (1.0-x)/rhol) + vgm/G))
 
 
-def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
+def Sun_Duffey_Peng(x: float, rhol: float, rhog: float, sigma: float, m: float, D: float, P: float, Pc: float, g: float=g) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_ as given in [2]_ and [3]_.
 
@@ -1854,7 +1855,7 @@ def Sun_Duffey_Peng(x, rhol, rhog, sigma, m, D, P, Pc, g=g):
 # Correlations developed in reviews
 
 
-def Xu_Fang_voidage(x, rhol, rhog, m, D, g=g):
+def Xu_Fang_voidage(x: float, rhol: float, rhog: float, m: float, D: float, g: float=g) -> float:
     r"""Calculates void fraction in two-phase flow according to the model
     developed in the review of [1]_.
 
@@ -1906,7 +1907,7 @@ def Xu_Fang_voidage(x, rhol, rhog, m, D, g=g):
     return 1.0/(1.0 + (1.0 + 2.0*Frlo**-0.2*alpha_h**3.5)*((1.0-x)/x)*(rhog/rhol))
 
 
-def Woldesemayat_Ghajar(x, rhol, rhog, sigma, m, D, P, angle=0, g=g):
+def Woldesemayat_Ghajar(x: float, rhol: float, rhog: float, sigma: float, m: float, D: float, P: float, angle: float=0, g: float=g) -> float:
     r"""Calculates void fraction in two-phase flow according to the model of
     [1]_.
 
@@ -2011,9 +2012,9 @@ two_phase_voidage_correlations = {"Thom" : (Thom, ("x", "rhol", "rhog", "mul", "
 _unknown_two_phase_voidage_corr = f"Method not recognized; available methods are {list(two_phase_voidage_correlations.keys())}"
 # All the available arguments are:
 #{'rhol', 'angle=0', 'x', 'P', 'mug', 'rhog', 'D', 'g', 'Pc', 'sigma', 'mul', 'm'}
-def liquid_gas_voidage_methods(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
-                               sigma=None, P=None, Pc=None, angle=0.0, g=g,
-                               check_ranges=False):
+def liquid_gas_voidage_methods(x: float, rhol: float, rhog: float, D: Optional[float]=None, m: Optional[float]=None, mul: Optional[float]=None, mug: Optional[float]=None,
+                               sigma: Optional[float]=None, P: Optional[float]=None, Pc: Optional[float]=None, angle: float=0.0, g: float=g,
+                               check_ranges: bool=False) -> List[str]:
     r"""This function returns a list of liquid-gas voidage correlation names
     which can perform the calculation with the provided inputs. The holdup is
     for two-phase liquid-gas flow inside channels. 29 calculation methods are
@@ -2070,8 +2071,8 @@ def liquid_gas_voidage_methods(x, rhol, rhog, D=None, m=None, mul=None, mug=None
             usable_methods.append(method)
     return usable_methods
 
-def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
-                       sigma=None, P=None, Pc=None, angle=0, g=g, Method=None):
+def liquid_gas_voidage(x: float, rhol: float, rhog: float, D: Optional[float]=None, m: Optional[float]=None, mul: Optional[float]=None, mug: Optional[float]=None,
+                       sigma: Optional[float]=None, P: Optional[float]=None, Pc: Optional[float]=None, angle: int=0, g: float=g, Method: Optional[str]=None) -> float:
     r"""This function handles calculation of two-phase liquid-gas voidage
     for flow inside channels. 29 calculation methods are available, with
     varying input requirements. A correlation will be automatically selected if
@@ -2202,7 +2203,7 @@ def liquid_gas_voidage(x, rhol, rhog, D=None, m=None, mul=None, mug=None,
         raise ValueError(_unknown_two_phase_voidage_corr)
 
 
-def density_two_phase(alpha, rhol, rhog):
+def density_two_phase(alpha: float, rhol: float, rhog: float) -> float:
     r"""Calculates the "effective" density of fluid in a liquid-gas flow. If
     the weight of fluid in a pipe pipe could be measured and the volume of
     the pipe were known, an effective density of the two-phase mixture could be
@@ -2246,7 +2247,7 @@ def density_two_phase(alpha, rhol, rhog):
     return alpha*rhog + (1. - alpha)*rhol
 
 
-def two_phase_voidage_experimental(rho_lg, rhol, rhog):
+def two_phase_voidage_experimental(rho_lg: float, rhol: float, rhog: float) -> float:
     r"""Calculates the void fraction for two-phase liquid-gas pipeflow. If
     the weight of fluid in a pipe pipe could be measured and the volume of
     the pipe were known, an effective density of the two-phase mixture could be
@@ -2292,7 +2293,7 @@ def two_phase_voidage_experimental(rho_lg, rhol, rhog):
 ### two-phase viscosity models
 
 
-def Beattie_Whalley(x, mul, mug, rhol, rhog):
+def Beattie_Whalley(x: float, mul: float, mug: float, rhol: float, rhog: float) -> float:
     r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_ and [3]_.
@@ -2352,7 +2353,7 @@ def Beattie_Whalley(x, mul, mug, rhol, rhog):
     return mul*(1. - alpha)*(1. + 2.5*alpha) + mug*alpha
 
 
-def McAdams(x, mul, mug):
+def McAdams(x: float, mul: float, mug: float) -> float:
     r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_ and [3]_.
@@ -2404,7 +2405,7 @@ def McAdams(x, mul, mug):
     return 1./(x/mug + (1. - x)/mul)
 
 
-def Cicchitti(x, mul, mug):
+def Cicchitti(x: float, mul: float, mug: float) -> float:
     r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_ and [3]_.
@@ -2455,7 +2456,7 @@ def Cicchitti(x, mul, mug):
     return x*mug + (1. - x)*mul
 
 
-def Lin_Kwok(x, mul, mug):
+def Lin_Kwok(x: float, mul: float, mug: float) -> float:
     r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_.
@@ -2501,7 +2502,7 @@ def Lin_Kwok(x, mul, mug):
     return mul*mug/(mug + x**1.4*(mul - mug))
 
 
-def Fourar_Bories(x, mul, mug, rhol, rhog):
+def Fourar_Bories(x: float, mul: float, mug: float, rhol: float, rhog: float) -> float:
     r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_ and [3]_.
@@ -2564,7 +2565,7 @@ def Fourar_Bories(x, mul, mug, rhol, rhog):
     return rhom*term*term
 
 
-def Duckler(x, mul, mug, rhol, rhog):
+def Duckler(x: float, mul: float, mug: float, rhol: float, rhog: float) -> float:
     r"""Calculates a suggested definition for liquid-gas two-phase flow
     viscosity in internal pipe flow according to the form in [1]_ and shown
     in [2]_, [3]_, and [4]_.
@@ -2639,7 +2640,7 @@ liquid_gas_viscosity_correlations = {"Beattie Whalley": (Beattie_Whalley, 1),
                                      "Lin Kwok": (Lin_Kwok, 0)}
 liquid_gas_viscosity_correlations_list = ["Beattie Whalley", "Fourar Bories", "Duckler", "McAdams", "Cicchitti", "Lin Kwok"]
 
-def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
+def gas_liquid_viscosity_methods(rhol: Optional[float]=None, rhog: Optional[float]=None, check_ranges: bool=False) -> List[str]:
     r"""This function returns a list of methods which can be used for calculating
     two-phase liquid-gas viscosity.
     Six calculation methods are available; three of them require only `x`,
@@ -2674,7 +2675,7 @@ def gas_liquid_viscosity_methods(rhol=None, rhog=None, check_ranges=False):
 _gas_liquid_viscosity_method_unknown = f"Method not recognized; available methods are {list(liquid_gas_viscosity_correlations.keys())}"
 
 
-def gas_liquid_viscosity(x, mul, mug, rhol=None, rhog=None, Method=None):
+def gas_liquid_viscosity(x: float, mul: float, mug: float, rhol: Optional[float]=None, rhog: Optional[float]=None, Method: Optional[str]=None) -> float:
     r"""This function handles the calculation of two-phase liquid-gas viscosity.
     Six calculation methods are available; three of them require only `x`,
     `mul`, and `mug`; the other three require `rhol` and `rhog` as well.

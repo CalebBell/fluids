@@ -59,8 +59,9 @@ from math import radians, sqrt, tan
 
 from fluids.constants import g
 from fluids.numerics import interp
+from typing import List
 
-__all__ = [
+__all__: List[str] = [
     "C_Chezy_to_n_Manning",
     "Q_weir_V_Shen",
     "Q_weir_rectangular_Kindsvater_Carter",
@@ -92,7 +93,7 @@ k_Shen = [0.0028, 0.0017, 0.0012, 0.001, 0.001]
 
 ### V-Notch Weirs (Triangular weir)
 
-def Q_weir_V_Shen(h1, angle=90):
+def Q_weir_V_Shen(h1: float, angle: int=90) -> float:
     r"""Calculates the flow rate across a V-notch (triangular) weir from
     the height of the liquid above the tip of the notch, and with the angle
     of the notch. Most of these type of weir are 90 degrees. Model from [1]_
@@ -156,7 +157,7 @@ def Q_weir_V_Shen(h1, angle=90):
 ### Rectangular Weirs
 
 
-def Q_weir_rectangular_Kindsvater_Carter(h1, h2, b):
+def Q_weir_rectangular_Kindsvater_Carter(h1: float, h2: float, b: float) -> float:
     r"""Calculates the flow rate across rectangular weir from
     the height of the liquid above the crest of the notch, the liquid depth
     beneath it, and the width of the notch. Model from [1]_ as reproduced in
@@ -208,7 +209,7 @@ def Q_weir_rectangular_Kindsvater_Carter(h1, h2, b):
     return 0.554*(1 - 0.0035*h1/h2)*(b + 0.0025)*sqrt(g)*(h1 + 0.0001)**1.5
 
 
-def Q_weir_rectangular_SIA(h1, h2, b, b1):
+def Q_weir_rectangular_SIA(h1: float, h2: float, b: float, b1: float) -> float:
     r"""Calculates the flow rate across rectangular weir from
     the height of the liquid above the crest of the notch, the liquid depth
     beneath it, and the width of the notch. Model from [1]_ as reproduced in
@@ -268,7 +269,7 @@ def Q_weir_rectangular_SIA(h1, h2, b, b1):
 
 ### Rectangular Weirs, full channel
 
-def Q_weir_rectangular_full_Ackers(h1, h2, b):
+def Q_weir_rectangular_full_Ackers(h1: float, h2: float, b: float) -> float:
     r"""Calculates the flow rate across a full-channel rectangular weir from
     the height of the liquid above the crest of the weir, the liquid depth
     beneath it, and the width of the channel. Model from [1]_ as reproduced in
@@ -321,7 +322,7 @@ def Q_weir_rectangular_full_Ackers(h1, h2, b):
     return 0.564*(1 + 0.150*h1/h2)*b*sqrt(g)*(h1 + 0.001)**1.5
 
 
-def Q_weir_rectangular_full_SIA(h1, h2, b):
+def Q_weir_rectangular_full_SIA(h1: float, h2: float, b: float) -> float:
     r"""Calculates the flow rate across a full-channel rectangular weir from
     the height of the liquid above the crest of the weir, the liquid depth
     beneath it, and the width of the channel. Model from [1]_ as reproduced in
@@ -376,7 +377,7 @@ def Q_weir_rectangular_full_SIA(h1, h2, b):
     return Q
 
 
-def Q_weir_rectangular_full_Rehbock(h1, h2, b):
+def Q_weir_rectangular_full_Rehbock(h1: float, h2: float, b: float) -> float:
     r"""Calculates the flow rate across a full-channel rectangular weir from
     the height of the liquid above the crest of the weir, the liquid depth
     beneath it, and the width of the channel. Model from [1]_ as reproduced in
@@ -431,7 +432,7 @@ def Q_weir_rectangular_full_Rehbock(h1, h2, b):
 #print [Q_weir_rectangular_full_Rehbock(h1=0.3, h2=0.4, b=2)]
 
 
-def Q_weir_rectangular_full_Kindsvater_Carter(h1, h2, b):
+def Q_weir_rectangular_full_Kindsvater_Carter(h1: float, h2: float, b: float) -> float:
     r"""Calculates the flow rate across a full-channel rectangular weir from
     the height of the liquid above the crest of the weir, the liquid depth
     beneath it, and the width of the channel. Model from [1]_ as reproduced in
@@ -487,7 +488,7 @@ def Q_weir_rectangular_full_Kindsvater_Carter(h1, h2, b):
 
 ### Open flow calculations - Manning and Chezy
 
-def V_Manning(Rh, S, n):
+def V_Manning(Rh: float, S: float, n: float) -> float:
     r"""Predicts the average velocity of a flow across an open channel of
     hydraulic radius Rh and slope S, given the Manning roughness coefficient
     n.
@@ -535,7 +536,7 @@ def V_Manning(Rh, S, n):
     return Rh**(2.0/3.)*sqrt(S)/n
 
 
-def n_Manning_to_C_Chezy(n, Rh):
+def n_Manning_to_C_Chezy(n: float, Rh: float) -> float:
     r"""Converts a Manning roughness coefficient to a Chezy coefficient,
     given the hydraulic radius of the channel.
 
@@ -571,7 +572,7 @@ def n_Manning_to_C_Chezy(n, Rh):
     return 1./n*Rh**(1/6.)
 
 
-def C_Chezy_to_n_Manning(C, Rh):
+def C_Chezy_to_n_Manning(C: float, Rh: float) -> float:
     r"""Converts a Chezy coefficient to a Manning roughness coefficient,
     given the hydraulic radius of the channel.
 
@@ -607,7 +608,7 @@ def C_Chezy_to_n_Manning(C, Rh):
     return Rh**(1/6.)/C
 
 
-def V_Chezy(Rh, S, C):
+def V_Chezy(Rh: float, S: float, C: float) -> float:
     r"""Predicts the average velocity of a flow across an open channel of
     hydraulic radius Rh and slope S, given the Chezy coefficient C.
 

@@ -1,69 +1,67 @@
 import platform
 import sys
 
+# Detect Python implementation and version
 is_pypy = 'PyPy' in sys.version
-ver_tup = platform.python_version_tuple()[0:2]
-ver_tup = tuple(int(i) for i in ver_tup)
-
 is_graal = 'Graal' in sys.version
-
+ver_tup = tuple(int(x) for x in platform.python_version_tuple()[:2])
 is_x86_or_x86_64 = platform.machine().lower() in ('i386', 'i686', 'x86', 'x86_64', 'amd64')
 
 
-def pytest_ignore_collect(path):
-    path = str(path)
-    if 'manual_runner' in path or 'make_test_stubs' in path or 'plot' in path or 'prerelease' in path:
+def pytest_ignore_collect( collection_path, config):
+    """Determine which paths pytest should ignore during test collection."""
+    # Normalize path to string
+    path = str(collection_path)
+    
+    # Skip utility and development directories
+    skip_paths = ('cx_freeze', 'py2exe', 'manual_runner', 'make_test_stubs', 'plot', 'prerelease', 'benchmarks', 'conf.py')
+    if any(skip_path in path for skip_path in skip_paths):
         return True
-    if 'benchmarks' in path:
-        return True
-    if 'conf.py' in path:
-        return True
-    if (is_pypy or is_graal) and 'test_spa' in path:
-        return True
-    if is_graal and 'units' in path:
-        return True
-    if ver_tup < (3, 7) or ver_tup >= (3, 14) or is_pypy or is_graal or not is_x86_or_x86_64:
-        # numba does not yet run under pypy
-        if 'numba' in path:
-            return True
-        if '.rst' in path: # skip .rst tests as different rendering from pint and no support for NUMBER flag
-            return True
-    if sys.version[0] == '2':
-        if 'numba' in path or 'typing_utils' in path:
-            return True
-        #if 'rst' in path:
-        #    if platform.python_version_tuple()[0:2] != ('3', '7'):
-        #        return True
-        if 'test' not in path:
-            return True
+    
+    # Skip notebook benchmarks
     if 'ipynb' in path and 'bench' in path:
         return True
-
-#def pytest_addoption(parser, pluginmanager):
-#    if sys.version[0] == '323523':
-#        parser.addoption("--doctest-modules")
-#        parser.addini(name="doctest_optionflags", help="", default="NORMALIZE_WHITESPACE NUMBER")
-
-#def pytest_configure(config):
-#    print(config)
-    #open('/home/caleb/testoutput', 'w').write(str(1))
-    #if sys.version[0] == '2':
-    #    args = []
-    #    #print(args)
-
-def pytest_load_initial_conftests(args):
-    a = 1
-    b = 2
+    
+    # PyPy/GraalVM compatibility exclusions
+    if (is_pypy or is_graal) and 'test_spa' in path:
+        return True
+    
+    if is_graal and 'units' in path:
+        return True
+    
+    # Skip numba and .rst tests for unsupported configurations
+    # Numba requires: CPython 3.8-3.13, x86/x86_64 architecture
+    unsupported_for_numba = (
+        ver_tup < (3, 8) or 
+        ver_tup >= (3, 14) or 
+        is_pypy or 
+        is_graal or 
+        not is_x86_or_x86_64
+    )
+    if unsupported_for_numba:
+        if 'numba' in path:
+            return True
+        # Skip .rst tests due to rendering differences and missing NUMBER flag support
+        if '.rst' in path:
+            return True
+    
+    return False
 
 
 def pytest_configure(config):
-    if sys.version[0] == '3':
-        import pytest
-        if pytest.__version__.split('.')[0] >= '6':
-            config.addinivalue_line("addopts", '--doctest-modules')
-            config.option.doctestmodules = True
-            config.addinivalue_line("doctest_optionflags", "NUMBER")
-#        config.addinivalue_line("addopts", config.inicfg['addopts'].replace('//', '') + ' --doctest-modules')
-        #config.inicfg['addopts'] = config.inicfg['addopts'] + ' --doctest-modules'
-        #
-        config.addinivalue_line("doctest_optionflags", "NORMALIZE_WHITESPACE")
+    """Configure pytest options for doctest support."""
+    # Only configure for Python 3
+    if sys.version[0] != '3':
+        return
+    
+    import pytest
+    pytest_major_version = int(pytest.__version__.split('.')[0])
+    
+    # Enable doctest modules for pytest >= 6
+    if pytest_major_version >= 6:
+        config.addinivalue_line("addopts", '--doctest-modules')
+        config.option.doctestmodules = True
+        config.addinivalue_line("doctest_optionflags", "NUMBER")
+    
+    # Always normalize whitespace in doctests
+    config.addinivalue_line("doctest_optionflags", "NORMALIZE_WHITESPACE")

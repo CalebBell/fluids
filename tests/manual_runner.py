@@ -1,8 +1,19 @@
 #!/usr/bin/env python3
+"""
+How to run this test file using micropython:
+
+1. Install required modules using mip (MicroPython's package manager):
+   micropython -c "import mip; mip.install('github:josverl/micropython-stubs/mip/typing_mpy.json')"
+   micropython -c "import mip; mip.install('datetime')"
+
+2. Run the test file with increased heap size:
+   micropython -X heapsize=4M tests/manual_runner.py
+
+Note: These modules will be installed to ~/.micropython/lib and only need to be installed once.
+"""
 import sys
 
 import fluids.numerics
-
 try:
     import test_drag
 except:

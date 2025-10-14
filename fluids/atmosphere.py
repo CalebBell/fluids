@@ -50,13 +50,10 @@ from math import cos, exp, pi, radians, sin, sqrt
 
 from fluids.constants import N_A, R, au
 from fluids.numerics import quad, secant
+from typing import Callable, List, Optional, Tuple
+import datetime
 
-try:
-    from datetime import datetime
-except ImportError:
-    pass
-
-__all__ = [
+__all__: List[str] = [
     "ATMOSPHERE_1976",
     "ATMOSPHERE_NRLMSISE00",
     "airmass",
@@ -79,10 +76,10 @@ M0 = 28.9644
 g0 = 9.80665
 gamma = 1.400
 
-def H_for_P_ATMOSPHERE_1976_err(H, P1):
+def H_for_P_ATMOSPHERE_1976_err(H: float, P1: float) -> float:
     return ATMOSPHERE_1976(H, 0.0).P - P1
 
-def to_int_dP_ATMOSPHERE_1976(Z, dT):
+def to_int_dP_ATMOSPHERE_1976(Z: float, dT: float) -> float:
     atm = ATMOSPHERE_1976(Z, dT)
     return atm.g*atm.rho
 
@@ -146,7 +143,7 @@ class ATMOSPHERE_1976:
        http://www.dtic.mil/cgi-bin/GetTRDoc?AD=ADA588839
     """
 
-    def __init__(self, Z, dT=0.0):
+    def __init__(self, Z: float, dT: float=0.0) -> None:
         self.Z = Z
         self.dT = dT
         self.H = r0*Z/(r0+Z)
@@ -177,7 +174,7 @@ class ATMOSPHERE_1976:
         self.g = self.gravity(self.Z)
 
     @staticmethod
-    def _get_ind_from_H(H):
+    def _get_ind_from_H(H: float) -> int:
         r"""Method defined in the US Standard Atmosphere 1976 for determining
         the index of the layer a specified elevation is above. Levels are
         0, 11E3, 20E3, 32E3, 47E3, 51E3, 71E3, 84852 meters respectively.
@@ -190,7 +187,7 @@ class ATMOSPHERE_1976:
         return 7 # case for > 84852 m.
 
     @staticmethod
-    def thermal_conductivity(T):
+    def thermal_conductivity(T: float) -> float:
         r"""Method defined in the US Standard Atmosphere 1976 for calculating
         thermal conductivity of air as a function of `T` only.
 
@@ -212,7 +209,7 @@ class ATMOSPHERE_1976:
         return 2.64638E-3*T*sqrt(T)/(T + 245.4*exp(-27.63102111592855/T))
 
     @staticmethod
-    def viscosity(T):
+    def viscosity(T: float) -> float:
         r"""Method defined in the US Standard Atmosphere 1976 for calculating
         viscosity of air as a function of `T` only.
 
@@ -232,7 +229,7 @@ class ATMOSPHERE_1976:
         return 1.458E-6*T*sqrt(T)/(T + 110.4)
 
     @staticmethod
-    def density(T, P):
+    def density(T: float, P: float) -> float:
         r"""Method defined in the US Standard Atmosphere 1976 for calculating
         density of air as a function of `T` and `P`. MW is defined as 28.9644
         g/mol, and R as 8314.32 J/kmol/K
@@ -256,7 +253,7 @@ class ATMOSPHERE_1976:
         return P*0.00348367635597379/T
 
     @staticmethod
-    def sonic_velocity(T):
+    def sonic_velocity(T: float) -> float:
         r"""Method defined in the US Standard Atmosphere 1976 for calculating
         the speed of sound in air as a function of `T` only.
 
@@ -277,7 +274,7 @@ class ATMOSPHERE_1976:
         return sqrt(401.87430086589046*T)
 
     @staticmethod
-    def gravity(Z):
+    def gravity(Z: float) -> float:
         r"""Method defined in the US Standard Atmosphere 1976 for calculating
         the gravitational acceleration above earth as a function of elevation
         only.
@@ -299,7 +296,7 @@ class ATMOSPHERE_1976:
         return g0*x0*x0
 
     @staticmethod
-    def pressure_integral(T1, P1, dH):
+    def pressure_integral(T1: float, P1: float, dH: float) -> float:
         r"""Method to compute an integral of the pressure differential of an
         elevation difference with a base elevation defined by temperature `T1`
         and pressure `P1`. This is
@@ -454,8 +451,8 @@ class ATMOSPHERE_NRLMSISE00:
              "O_density", "H_density", "N_density"]
     MWs = [28.0134, 31.9988, 39.948, 4.002602, 15.9994, 1.00794, 14.0067]
 
-    def __init__(self, Z, latitude=0.0, longitude=0.0, day=0, seconds=0.0,
-                 f107=150., f107_avg=150., geomagnetic_disturbance_indices=None):
+    def __init__(self, Z: float, latitude: float=0.0, longitude: float=0.0, day: int=0, seconds: float=0.0,
+                 f107: float=150., f107_avg: float=150., geomagnetic_disturbance_indices: None=None) -> None:
         self.Z = Z
         self.latitude = latitude
         self.longitude = longitude
@@ -513,7 +510,7 @@ class ATMOSPHERE_NRLMSISE00:
         self.zs = [getattr(self, a)/self.particle_density for a in self.attrs]
 
 
-def to_int_airmass(Z, c1, c2, angle_term, R_planet_inv, func):
+def to_int_airmass(Z: float, c1: float, c2: float, angle_term: float, R_planet_inv: float, func: Callable) -> float:
     rho = func(Z)
     t1 = c2 - rho*c1
     x0 = angle_term/(1.0 + Z*R_planet_inv)
@@ -521,7 +518,7 @@ def to_int_airmass(Z, c1, c2, angle_term, R_planet_inv, func):
     t3 = 1.0/sqrt(1.0 - t1*t2)
     return rho*t3
 
-def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
+def airmass(func: Callable, angle: float, H_max: float=86400.0, R_planet: float=6.371229E6, RI: float=1.000276) -> float:
     r"""Calculates mass of air per square meter in the atmosphere using a
     provided atmospheric model. The lowest air mass is calculated straight up;
     as the angle is lowered to nearer and nearer the horizon, the air mass
@@ -585,7 +582,7 @@ def airmass(func, angle, H_max=86400.0, R_planet=6.371229E6, RI=1.000276):
 PVLIB_MISSING_MSG = "The module pvlib is required for this function; install it first"
 
 
-def earthsun_distance(moment):
+def earthsun_distance(moment: datetime.datetime) -> float:
     r"""Calculates the distance between the earth and the sun as a function
     of date and time. Uses the Reda and Andreas (2004) model described in [1]_,
     originally incorporated into the excellent
@@ -657,8 +654,8 @@ def earthsun_distance(moment):
     return spa.earthsun_distance(unixtime, delta_t=delta_t)*au
 
 
-def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
-                   atmos_refract=0.5667):
+def solar_position(moment: datetime.datetime, latitude: float, longitude: float, Z: float=0.0, T: float=298.15, P: float=101325.0,
+                   atmos_refract: float=0.5667) -> List[float]:
     r"""Calculate the position of the sun in the sky. It is defined in terms of
     two angles - the zenith and the azimuth. The azimuth tells where a sundial
     would see the sun as coming from; the zenith tells how high in the sky it
@@ -791,7 +788,7 @@ def solar_position(moment, latitude, longitude, Z=0.0, T=298.15, P=101325.0,
     return result
 
 
-def sunrise_sunset(moment, latitude, longitude):
+def sunrise_sunset(moment: datetime.datetime, latitude: float, longitude: float) -> Tuple[datetime.datetime, datetime.datetime, datetime.datetime]:
     r"""Calculates the times at which the sun is at sunset; sunrise; and
     halfway between sunrise and sunset (transit).
 
@@ -825,7 +822,7 @@ def sunrise_sunset(moment, latitude, longitude):
 
     Examples
     --------
-    >>> sunrise, sunset, transit = sunrise_sunset(datetime(2018, 4, 17),
+    >>> sunrise, sunset, transit = sunrise_sunset(datetime.datetime(2018, 4, 17),
     ... 51.0486, -114.07)
     >>> sunrise
     datetime.datetime(2018, 4, 17, 12, 36, 55, 782660)
@@ -837,7 +834,7 @@ def sunrise_sunset(moment, latitude, longitude):
     Example with time zone:
 
     >>> import pytz
-    >>> sunrise_sunset(pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 17)), 51.0486, -114.07)
+    >>> sunrise_sunset(pytz.timezone('America/Edmonton').localize(datetime.datetime(2018, 4, 17)), 51.0486, -114.07)
     (datetime.datetime(2018, 4, 16, 6, 39, 1, 570479, tzinfo=<DstTzInfo 'America/Edmonton' MDT-1 day, 18:00:00 DST>), datetime.datetime(2018, 4, 16, 20, 32, 25, 778162, tzinfo=<DstTzInfo 'America/Edmonton' MDT-1 day, 18:00:00 DST>), datetime.datetime(2018, 4, 16, 13, 36, 0, 386341, tzinfo=<DstTzInfo 'America/Edmonton' MDT-1 day, 18:00:00 DST>))
 
     Note that the year/month/day as input with a timezone, is converted to UTC
@@ -864,15 +861,15 @@ def sunrise_sunset(moment, latitude, longitude):
 
     delta_t = spa.calculate_deltat(moment_utc.year, moment_utc.month)
     # Strip the part of the day
-    ymd_moment_utc = datetime(moment_utc.year, moment_utc.month, moment_utc.day)
+    ymd_moment_utc = datetime.datetime(moment_utc.year, moment_utc.month, moment_utc.day)
     unixtime = calendar.timegm(ymd_moment_utc.utctimetuple())
 
     unixtime = unixtime - unixtime % (86400) # Remove the remainder of the value, rounding it to the day it is
     transit, sunrise, sunset = spa.transit_sunrise_sunset(unixtime, lat=latitude, lon=longitude, delta_t=delta_t)
 
-    transit = datetime.utcfromtimestamp(transit)
-    sunrise = datetime.utcfromtimestamp(sunrise)
-    sunset = datetime.utcfromtimestamp(sunset)
+    transit = datetime.datetime.fromtimestamp(transit, datetime.timezone.utc).replace(tzinfo=None)
+    sunrise = datetime.datetime.fromtimestamp(sunrise, datetime.timezone.utc).replace(tzinfo=None)
+    sunset = datetime.datetime.fromtimestamp(sunset, datetime.timezone.utc).replace(tzinfo=None)
 
     if moment.tzinfo is not None:
         sunrise = moment.tzinfo.fromutc(sunrise)
@@ -886,8 +883,8 @@ apparent_zenith_airmass_models = {"simple", "kasten1966", "kastenyoung1989",
 true_zenith_airmass_models = {"youngirvine1967", "young1994"}
 
 
-def _get_extra_radiation_shim(datetime_or_doy, solar_constant=1366.1,
-    method="spencer", epoch_year=2014, **kwargs):
+def _get_extra_radiation_shim(datetime_or_doy: int, solar_constant: float=1366.1,
+    method: str="spencer", epoch_year: int=2014, **kwargs) -> float:
     if method == "spencer":
         if not isinstance(datetime_or_doy, (float, int)):
             dayofyear = datetime_or_doy.timetuple().tm_yday
@@ -907,12 +904,12 @@ def _get_extra_radiation_shim(datetime_or_doy, solar_constant=1366.1,
                               **kwargs)
 
 
-def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
-                      surface_azimuth, T=None, P=None, solar_constant=1366.1,
-                      atmos_refract=0.5667, albedo=0.25, linke_turbidity=None,
-                      extraradiation_method="spencer",
-                      airmass_model="kastenyoung1989",
-                      cache=None):
+def solar_irradiation(latitude: float, longitude: float, Z: float, moment: datetime.datetime, surface_tilt: float,
+                      surface_azimuth: float, T: None=None, P: None=None, solar_constant: float=1366.1,
+                      atmos_refract: float=0.5667, albedo: float=0.25, linke_turbidity: Optional[int]=None,
+                      extraradiation_method: str="spencer",
+                      airmass_model: str="kastenyoung1989",
+                      cache: None=None) -> Tuple[float, float, float, float, float]:
     r"""Calculates the amount of solar radiation and radiation reflected back
     the atmosphere which hits a surface at a specified tilt, and facing a
     specified azimuth.
@@ -992,13 +989,13 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     --------
     >>> import pytz
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
-    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,
+    ... moment=pytz.timezone('America/Edmonton').localize(datetime.datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,
     ... surface_azimuth=180.0)
     (1065.7621896280, 945.2656564506, 120.49653317744, 95.31535344213, 25.181179735317)
 
     >>> cache = {'apparent_zenith': 41.099082295767545, 'zenith': 41.11285376417578, 'azimuth': 182.5631874250523}
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07,
-    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,
+    ... moment=pytz.timezone('America/Edmonton').localize(datetime.datetime(2018, 4, 15, 13, 43, 5)), surface_tilt=41.0,
     ... linke_turbidity=3, T=300, P=1E5,
     ... surface_azimuth=180.0, cache=cache)
     (1042.567770367, 918.237754854, 124.3300155131, 99.622865737, 24.7071497753)
@@ -1006,7 +1003,7 @@ def solar_irradiation(latitude, longitude, Z, moment, surface_tilt,
     At night, there is no solar radiation and this function returns zeros:
 
     >>> solar_irradiation(Z=1100.0, latitude=51.0486, longitude=-114.07, linke_turbidity=3,
-    ... moment=pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 2, 43, 5)), surface_tilt=41.0,
+    ... moment=pytz.timezone('America/Edmonton').localize(datetime.datetime(2018, 4, 15, 2, 43, 5)), surface_tilt=41.0,
     ... surface_azimuth=180.0)
     (0.0, -0.0, 0.0, 0.0, 0.0)
 

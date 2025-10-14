@@ -60,8 +60,9 @@ from math import log, sqrt
 
 from fluids.constants import g, pi
 from fluids.numerics import newton_system, secant, solve_2_direct
+from typing import List, Tuple
 
-__all__ = [
+__all__: List[str] = [
     "Robbins",
     "Stichlmair_dry",
     "Stichlmair_flood",
@@ -76,7 +77,7 @@ __all__ = [
 
 ### Demister
 
-def dP_demister_dry_Setekleiv_Svendsen(S, voidage, vs, rho, mu, L=1.0):
+def dP_demister_dry_Setekleiv_Svendsen(S: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates dry pressure drop across a demister, using the
     correlation in [1]_. This model is for dry demisters with no holdup only.
 
@@ -128,7 +129,7 @@ def dP_demister_dry_Setekleiv_Svendsen(S, voidage, vs, rho, mu, L=1.0):
     return right*rho*vs**2/voidage**2
 
 
-def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1.0):
+def dP_demister_dry_Setekleiv_Svendsen_lit(S: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates dry pressure drop across a demister, using the
     correlation in [1]_. This model is for dry demisters with no holdup only.
     Developed with literature data included as well as their own experimental
@@ -182,7 +183,7 @@ def dP_demister_dry_Setekleiv_Svendsen_lit(S, voidage, vs, rho, mu, L=1.0):
     return right*rho*vs**2/voidage**2
 
 
-def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1.0):
+def dP_demister_wet_ElDessouky(vs: float, voidage: float, d_wire: float, L: float=1.0) -> float:
     r"""Calculates wet pressure drop across a demister, using the
     correlation in [1]_. Uses only their own experimental data.
 
@@ -245,7 +246,7 @@ def dP_demister_wet_ElDessouky(vs, voidage, d_wire, L=1.0):
     return L*0.002356999643727531*(1-voidage)**0.375798*vs**0.81317*d_wire**-1.56114147
 
 
-def separation_demister_ElDessouky(vs, voidage, d_wire, d_drop):
+def separation_demister_ElDessouky(vs: float, voidage: float, d_wire: float, d_drop: float) -> float:
     r"""Calculates droplet removal by a demister as a fraction from 0 to 1,
     using the correlation in [1]_. Uses only their own experimental data.
 
@@ -309,7 +310,7 @@ def separation_demister_ElDessouky(vs, voidage, d_wire, d_drop):
     return min(eta, 1.0)
 
 
-def voidage_experimental(m, rho, D, H):
+def voidage_experimental(m: float, rho: float, D: float, H: float) -> float:
     r"""Calculates voidage of a bed or mesh given an experimental weight and
     fixed density, diameter, and height, as shown in [1]_. The formula is also
     self-evident.
@@ -353,7 +354,7 @@ def voidage_experimental(m, rho, D, H):
     return 1 - m/(pi/4*D**2*H)/rho
 
 
-def specific_area_mesh(voidage, d):
+def specific_area_mesh(voidage: float, d: float) -> float:
     r"""Calculates the specific area of a wire mesh, as used in demisters or
     filters. Shown in [1]_, and also self-evident and non-empirical.
     Makes the ideal assumption that wires never touch.
@@ -396,7 +397,7 @@ def specific_area_mesh(voidage, d):
 ### Packing
 
 
-def Stichlmair_dry(Vg, rhog, mug, voidage, specific_area, C1, C2, C3, H=1.):
+def Stichlmair_dry(Vg: float, rhog: float, mug: float, voidage: float, specific_area: float, C1: float, C2: float, C3: float, H: float=1.) -> float:
     r"""Calculates dry pressure drop across a packed column, using the
     Stichlmair [1]_ correlation. Uses three regressed constants for each
     type of packing, and voidage and specific area.
@@ -463,12 +464,12 @@ def Stichlmair_dry(Vg, rhog, mug, voidage, specific_area, C1, C2, C3, H=1.):
     return 3/4.*f0*(1-voidage)/voidage**4.65*rhog*H/dp*Vg**2
 
 
-def _Stichlmair_wet_err(dP_irr, h0, c1, dP_dry, H, voidage, c):
+def _Stichlmair_wet_err(dP_irr: float, h0: float, c1: float, dP_dry: float, H: float, voidage: float, c: float) -> float:
     hT = h0*(1.0 + 20.0*dP_irr*dP_irr*c1)
     err = dP_dry/H*((1-voidage+hT)/(1.0 - voidage))**((2.0 + c)/3.)*(voidage/(voidage-hT))**4.65 -dP_irr/H
     return err
 
-def Stichlmair_wet(Vg, Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3, H=1.0):
+def Stichlmair_wet(Vg: float, Vl: float, rhog: float, rhol: float, mug: float, voidage: float, specific_area: float, C1: float, C2: float, C3: float, H: float=1.0) -> float:
     r"""Calculates wet pressure drop across a packed column, using the
     Stichlmair [1]_ correlation. Uses three regressed constants for each
     type of packing, and voidage and specific area. This model is for irrigated
@@ -594,8 +595,8 @@ def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,
     - 186.0*h0/(voidage - h0*(1.0 + 20.0*term)))
     return err1, err2
 
-def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage,
-                                specific_area, C1, C2, C3, H):
+def _Stichlmair_flood_f_and_jac(inputs: List[float], Vl: float, rhog: float, rhol: float, mug: float, voidage: float,
+                                specific_area: float, C1: float, C2: float, C3: float, H: float) -> Tuple[List[float], List[List[float]]]:
     """Internal function which calculates the errors of the two Stichlmair
     objective functions, and their jacobian.
 
@@ -664,8 +665,8 @@ def _Stichlmair_flood_f_and_jac(inputs, Vl, rhog, rhol, mug, voidage,
 
 
 
-def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3,
-                     H=1.0):
+def Stichlmair_flood(Vl: float, rhog: float, rhol: float, mug: float, voidage: float, specific_area: float, C1: float, C2: float, C3: float,
+                     H: float=1.0) -> float:
     r"""Calculates gas rate for flooding of a packed column, using the
     Stichlmair [1]_ correlation. Uses three regressed constants for each
     type of packing, and voidage and specific area.
@@ -754,7 +755,7 @@ def Stichlmair_flood(Vl, rhog, rhol, mug, voidage, specific_area, C1, C2, C3,
                          C2, C3, H), ytol=1e-11, solve_func=solve_2_direct)[0][0]
 
 
-def Robbins(L, G, rhol, rhog, mul, H=1.0, Fpd=24.0):
+def Robbins(L: float, G: float, rhol: float, rhog: float, mul: float, H: float=1.0, Fpd: float=24.0) -> float:
     r"""Calculates pressure drop across a packed column, using the Robbins
     equation.
 

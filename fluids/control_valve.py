@@ -64,8 +64,9 @@ from math import exp, log, log10, pi, sqrt
 from fluids.constants import R, gallon, ln_10, ln_10_inv, minute, psi
 from fluids.fittings import Cv_to_Kv, Kv_to_Cv
 from fluids.numerics import implementation_optimize_tck, interp, splev
+from typing import Dict, List, Optional, Union
 
-__all__ = [
+__all__: List[str] = [
     "Cv_char_equal_percentage",
     "Cv_char_linear",
     "Cv_char_quick_opening",
@@ -104,7 +105,7 @@ N32 = 1.4E2 # mm
 rho0 = 999.10329075702327 # Water at 288.15 K
 
 
-def cavitation_index(P1, P2, Psat):
+def cavitation_index(P1: float, P2: float, Psat: float) -> float:
     r"""Calculates the cavitation index of a valve with upstream and downstream
     absolute pressures `P1` and `P2` for a fluid with a vapor pressure `Psat`.
 
@@ -157,7 +158,7 @@ def cavitation_index(P1, P2, Psat):
     return (P1 - Psat)/(P1 - P2)
 
 
-def FF_critical_pressure_ratio_l(Psat, Pc):
+def FF_critical_pressure_ratio_l(Psat: float, Pc: float) -> float:
     r"""Calculates FF, the liquid critical pressure ratio factor,
     for use in IEC 60534 liquid valve sizing calculations.
 
@@ -190,7 +191,7 @@ def FF_critical_pressure_ratio_l(Psat, Pc):
     return 0.96 - 0.28*sqrt(Psat/Pc)
 
 
-def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
+def control_valve_choke_P_l(Psat: float, Pc: float, FL: float, P1: Optional[float]=None, P2: Optional[float]=None, disp: bool=True) -> float:
     r"""Calculates either the upstream or downstream pressure at which choked
     flow though a liquid control valve occurs, given either a set upstream or
     downstream pressure. Implements an analytical solution of
@@ -254,7 +255,7 @@ def control_valve_choke_P_l(Psat, Pc, FL, P1=None, P2=None, disp=True):
     return ans
 
 
-def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
+def control_valve_choke_P_g(xT: float, gamma: float, P1: Optional[float]=None, P2: Optional[float]=None) -> float:
     r"""Calculates either the upstream or downstream pressure at which choked
     flow though a gas control valve occurs, given either a set upstream or
     downstream pressure. Implements an analytical solution of
@@ -305,7 +306,7 @@ def control_valve_choke_P_g(xT, gamma, P1=None, P2=None):
     return ans
 
 
-def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
+def is_choked_turbulent_l(dP: float, P1: float, Psat: float, FF: float, FL: Optional[float]=None, FLP: Optional[float]=None, FP: Optional[float]=None) -> bool:
     r"""Calculates if a liquid flow in IEC 60534 calculations is critical or
     not, for use in IEC 60534 liquid valve sizing calculations.
     Either FL may be provided or FLP and FP, depending on the calculation
@@ -359,7 +360,7 @@ def is_choked_turbulent_l(dP, P1, Psat, FF, FL=None, FLP=None, FP=None):
         raise ValueError("Either (FLP and FP) or FL is needed")
 
 
-def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
+def is_choked_turbulent_g(x: float, Fgamma: float, xT: Optional[float]=None, xTP: Optional[float]=None) -> bool:
     r"""Calculates if a gas flow in IEC 60534 calculations is critical or
     not, for use in IEC 60534 gas valve sizing calculations.
     Either xT or xTP must be provided, depending on the calculation process.
@@ -409,7 +410,7 @@ def is_choked_turbulent_g(x, Fgamma, xT=None, xTP=None):
         raise ValueError("Either xT or xTP is needed")
 
 
-def Reynolds_valve(nu, Q, D1, FL, Fd, C):
+def Reynolds_valve(nu: float, Q: float, D1: float, FL: float, Fd: float, C: float) -> float:
     r"""Calculates Reynolds number of a control valve for a liquid or gas
     flowing through it at a specified Q, for a specified D1, FL, Fd, C, and
     with kinematic viscosity `nu` according to IEC 60534 calculations.
@@ -452,7 +453,7 @@ def Reynolds_valve(nu, Q, D1, FL, Fd, C):
     return N4*Fd*Q/nu*1.0/sqrt(C*FL)*sqrt(sqrt(FL*FL*C*C/N2*D1**-4.0 + 1.0))
 
 
-def loss_coefficient_piping(d, D1=None, D2=None):
+def loss_coefficient_piping(d: float, D1: Optional[float]=None, D2: Optional[float]=None) -> float:
     r"""Calculates the sum of loss coefficients from possible
     inlet/outlet reducers/expanders around a control valve according to
     IEC 60534 calculations.
@@ -511,7 +512,7 @@ def loss_coefficient_piping(d, D1=None, D2=None):
     return loss
 
 
-def Reynolds_factor(FL, C, d, Rev, full_trim=True):
+def Reynolds_factor(FL: float, C: float, d: float, Rev: float, full_trim: bool=True) -> float:
     r"""Calculates the Reynolds number factor `FR` for a valve with a Reynolds
     number `Rev`, diameter `d`, flow coefficient `C`, liquid pressure recovery
     factor `FL`, and with either full or reduced trim, all according to
@@ -600,9 +601,9 @@ def Reynolds_factor(FL, C, d, Rev, full_trim=True):
     return FR
 
 
-def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
-                         d=None, FL=0.9, Fd=1, allow_choked=True,
-                         allow_laminar=True, full_output=False):
+def size_control_valve_l(rho: float, Psat: float, Pc: float, mu: float, P1: float, P2: float, Q: float, D1: Optional[float]=None, D2: Optional[float]=None,
+                         d: Optional[float]=None, FL: float=0.9, Fd: float=1, allow_choked: bool=True,
+                         allow_laminar: bool=True, full_output: bool=False) -> Union[float, Dict[str, Optional[Union[bool, float]]], Dict[str, Optional[Union[float, bool, str]]]]:
     r"""Calculates flow coefficient of a control valve passing a liquid
     according to IEC 60534. Uses a large number of inputs in SI units. Note the
     return value is not standard SI. All parameters are required.
@@ -775,9 +776,9 @@ def size_control_valve_l(rho, Psat, Pc, mu, P1, P2, Q, D1=None, D2=None,
         return C
 
 
-def size_control_valve_g(T, MW, mu, gamma, Z, P1, P2, Q, D1=None, D2=None,
-                         d=None, FL=0.9, Fd=1, xT=0.7, allow_choked=True,
-                         allow_laminar=True, full_output=False):
+def size_control_valve_g(T: float, MW: float, mu: float, gamma: float, Z: float, P1: float, P2: float, Q: float, D1: Optional[float]=None, D2: Optional[float]=None,
+                         d: Optional[float]=None, FL: float=0.9, Fd: float=1, xT: float=0.7, allow_choked: bool=True,
+                         allow_laminar: bool=True, full_output: bool=False) -> Union[float, Dict[str, Optional[Union[bool, float]]], Dict[str, Optional[Union[float, bool, str]]]]:
     r"""Calculates flow coefficient of a control valve passing a gas
     according to IEC 60534. Uses a large number of inputs in SI units. Note the
     return value is not standard SI. All parameters are required. For details
@@ -1118,9 +1119,9 @@ A_weights_l_2015 = [-63.4, -56.7, -50.5, -44.7, -39.4, -34.6, -30.2, -26.2,
                     -2.5, -4.3, -6.6, -9.3]
 
 
-def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
-                               t_pipe, rho_pipe=7800.0, c_pipe=5000.0,
-                               rho_air=1.2, c_air=343.0, xFz=None, An=-4.6):
+def control_valve_noise_l_2015(m: int, P1: float, P2: float, Psat: float, rho: float, c: float, Kv: float, d: float, Di: float, FL: float, Fd: float,
+                               t_pipe: float, rho_pipe: float=7800.0, c_pipe: float=5000.0,
+                               rho_air: float=1.2, c_air: float=343.0, xFz: Optional[float]=None, An: float=-4.6) -> float:
     r"""Calculates the sound made by a liquid flowing through a control valve
     according to the standard IEC 60534-8-4 (2015) [1]_.
 
@@ -1307,11 +1308,11 @@ def control_valve_noise_l_2015(m, P1, P2, Psat, rho, c, Kv, d, Di, FL, Fd,
     return LpAe1m
 
 
-def control_valve_noise_g_2011(m, P1, P2, T1, rho, gamma, MW, Kv,
-                               d, Di, t_pipe, Fd, FL, FLP=None, FP=None,
-                               rho_pipe=7800.0, c_pipe=5000.0,
-                               P_air=101325.0, rho_air=1.2, c_air=343.0,
-                               An=-3.8, Stp=0.2, T2=None, beta=0.93):
+def control_valve_noise_g_2011(m: float, P1: float, P2: float, T1: int, rho: float, gamma: float, MW: float, Kv: float,
+                               d: float, Di: float, t_pipe: float, Fd: float, FL: None, FLP: Optional[float]=None, FP: Optional[float]=None,
+                               rho_pipe: float=7800.0, c_pipe: float=5000.0,
+                               P_air: float=101325.0, rho_air: float=1.2, c_air: float=343.0,
+                               An: float=-3.8, Stp: float=0.2, T2: None=None, beta: float=0.93) -> float:
     r"""Calculates the sound made by a gas flowing through a control valve
     according to the standard IEC 60534-8-3 (2011) [1]_.
 

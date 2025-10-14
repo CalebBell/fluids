@@ -73,8 +73,9 @@ from math import log, sqrt
 
 from fluids.constants import hp
 from fluids.numerics import bisplev, interp, tck_interp2d_linear
+from typing import Any, List, Optional
 
-__all__ = [
+__all__: List[str] = [
     "CSA_motor_efficiency",
     "Corripio_motor_efficiency",
     "Corripio_pump_efficiency",
@@ -100,7 +101,7 @@ __all__ = [
 
 
 
-def Corripio_pump_efficiency(Q):
+def Corripio_pump_efficiency(Q: float) -> float:
     r"""Estimates pump efficiency using the method in Corripio (1982)
     as shown in [1]_ and originally in [2]_. Estimation only
 
@@ -144,7 +145,7 @@ def Corripio_pump_efficiency(Q):
     return -0.316 + 0.24015*logQ - 0.01199*logQ*logQ
 
 
-def Corripio_motor_efficiency(P):
+def Corripio_motor_efficiency(P: float) -> float:
     r"""Estimates motor efficiency using the method in Corripio (1982)
     as shown in [1]_ and originally in [2]_. Estimation only.
 
@@ -202,7 +203,7 @@ VFD_efficiency_tck = tck_interp2d_linear(VFD_efficiency_loads,
                                          VFD_efficiencies)
 
 
-def VFD_efficiency(P, load=1):
+def VFD_efficiency(P: float, load: float=1) -> float:
     r"""Returns the efficiency of a Variable Frequency Drive according to [1]_.
     These values are generic, and not standardized as minimum values.
     Older VFDs often have much worse performance.
@@ -267,7 +268,7 @@ nema_sizes = [i*hp for i in nema_sizes_hp]
 """
 
 
-def motor_round_size(P):
+def motor_round_size(P: float) -> float:
     r"""Rounds up the power for a motor to the nearest NEMA standard power.
     The returned power is always larger or equal to the input power.
 
@@ -333,7 +334,7 @@ nema_min_full_closed_6p_i = (nema_min_P, nema_min_full_closed_6p)
 nema_min_full_closed_8p_i = (nema_min_P, nema_min_full_closed_8p)
 
 
-def CSA_motor_efficiency(P, closed=False, poles=2, high_efficiency=False):
+def CSA_motor_efficiency(P: float, closed: bool=False, poles: int=2, high_efficiency: bool=False) -> float:
     r"""Returns the efficiency of a NEMA motor according to [1]_.
     These values are standards, but are only for full-load operation.
 
@@ -435,7 +436,7 @@ _to_infty = [0.68235730304242914, 2.4402956771025748, -6.8306770996860182, 8.210
 _efficiency_lists = [_to_1, _to_5, _to_10, _to_25, _to_60, _to_infty]
 _efficiency_ones = [0.9218102, 0.64307597, 0.61724113, 0.61569791, 0.6172238, 0.40648294]
 
-def motor_efficiency_underloaded(P, load=0.5):
+def motor_efficiency_underloaded(P: float, load: float=0.5) -> float:
     r"""Returns the efficiency of a motor operating under its design power
     according to [1]_.These values are generic; manufacturers usually list 4
     points on their product information, but full-scale data is hard to find
@@ -493,7 +494,7 @@ def motor_efficiency_underloaded(P, load=0.5):
         return cs[0] + cs[1]*load + cs[2]*load**2 + cs[3]*load**3 + cs[4]*load**4
 
 
-def specific_speed(Q, H, n=3600.):
+def specific_speed(Q: float, H: float, n: float=3600.) -> float:
     r"""Returns the specific speed of a pump operating at a specified Q, H,
     and n.
 
@@ -533,7 +534,7 @@ def specific_speed(Q, H, n=3600.):
     return n*sqrt(Q)/H**0.75
 
 
-def specific_diameter(Q, H, D):
+def specific_diameter(Q: float, H: float, D: float) -> float:
     r"""Returns the specific diameter of a pump operating at a specified Q, H,
     and D.
 
@@ -609,7 +610,7 @@ def speed_synchronous(f, poles=2):
     return 120.*f/poles
 
 
-def current_ideal(P, V, phase=3, PF=1):
+def current_ideal(P: float, V: float, phase: int=3, PF: float=1) -> float:
     r"""Returns the current drawn by a motor of power `P` operating at voltage
     `V`, with line AC of phase `phase` and power factor `PF` according to [1]_.
 
@@ -688,7 +689,7 @@ class CountryPower:
             f'CountryPower(country="{self.country}", voltage={self.voltage}, '
             f'freq={self.freq}, plugs={self.plugs})'
         )
-    def __init__(self, country, voltage, freq, plugs=None):
+    def __init__(self, country: str, voltage: Any, freq: float, plugs: Optional[Any]=None) -> None:
         self.plugs = plugs
         self.voltage = voltage
         self.freq = freq

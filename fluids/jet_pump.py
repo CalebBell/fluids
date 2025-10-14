@@ -50,8 +50,9 @@ from math import exp, log, pi, sqrt
 from fluids.constants import foot_cubed_inv, hour_inv, inchHg, lb, mmHg_inv, torr_inv
 from fluids.numerics import SolverInterface, brenth, secant
 from fluids.numerics import numpy as np
+from typing import List, Optional
 
-__all__ = [
+__all__: List[str] = [
     "liquid_jet_pump",
     "liquid_jet_pump_ancillary",
     "vacuum_air_leakage_Coker_Worthington",
@@ -61,8 +62,8 @@ __all__ = [
 ]
 
 
-def liquid_jet_pump_ancillary(rhop, rhos, Kp, Ks, d_nozzle=None, d_mixing=None,
-                              Qp=None, Qs=None, P1=None, P2=None):
+def liquid_jet_pump_ancillary(rhop: float, rhos: float, Kp: float, Ks: float, d_nozzle: Optional[float]=None, d_mixing: Optional[float]=None,
+                              Qp: Optional[float]=None, Qs: Optional[float]=None, P1: Optional[float]=None, P2: Optional[int]=None) -> float:
     r"""Calculates the remaining variable in a liquid jet pump when solving for
     one if the inlet variables only and the rest of them are known. The
     equation comes from conservation of energy and momentum in the mixing
@@ -606,7 +607,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
         raise ValueError("Could not solve")
 
 
-def vacuum_air_leakage_Ryans_Croll(V, P, P_atm=101325.0):
+def vacuum_air_leakage_Ryans_Croll(V: int, P: int, P_atm: float=101325.0) -> float:
     r"""Calculates an estimated leakage of air into a vessel using
     a correlation from Ryans and Croll (1981) [1]_ as given in [2]_ and [3]_.
 
@@ -674,7 +675,7 @@ def vacuum_air_leakage_Ryans_Croll(V, P, P_atm=101325.0):
     leakage = air_leakage*lb*hour_inv
     return leakage
 
-def vacuum_air_leakage_Seider(V, P, P_atm=101325.0):
+def vacuum_air_leakage_Seider(V: int, P: int, P_atm: float=101325.0) -> float:
     r"""Calculates an estimated leakage of air into a vessel using
     a correlation from Seider [1]_.
 
@@ -724,7 +725,7 @@ def vacuum_air_leakage_Seider(V, P, P_atm=101325.0):
     leakage = leakage_lb_hr*lb*hour_inv
     return leakage
 
-def vacuum_air_leakage_HEI2633(V, P, P_atm=101325.0):
+def vacuum_air_leakage_HEI2633(V: float, P: float, P_atm: float=101325.0) -> float:
     r"""Calculates an estimated leakage of air into a vessel using
     fits to a graph of HEI-2633-00 for air leakage in commercially `tight`
     vessels [1]_.
@@ -789,7 +790,7 @@ def vacuum_air_leakage_HEI2633(V, P, P_atm=101325.0):
     leakage = leakage_lb_hr*lb*hour_inv
     return leakage
 
-def vacuum_air_leakage_Coker_Worthington(P, P_atm=101325.0, conservative=True):
+def vacuum_air_leakage_Coker_Worthington(P: float, P_atm: float=101325.0, conservative: bool=True) -> float:
     r"""Calculates an estimated leakage of air into a vessel using
     a tabular lookup from Coker cited as being from Worthington Corp's
     1955 Steam-Jet Ejector Application Handbook, Bulletin W-205-E21 [1]_.

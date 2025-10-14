@@ -133,8 +133,9 @@ from math import cos, exp, isinf, log, log10, pi, radians, sin, sqrt, tan
 from fluids.constants import g, inch
 from fluids.core import Dean, Reynolds
 from fluids.numerics import cbrt, lambertw, secant
+from typing import List, Optional, Set, Tuple
 
-__all__ = [
+__all__: List[str] = [
     "LAMINAR_TRANSITION_PIPE",
     "Alshul_1952",
     "Avci_Karagoz_2009",
@@ -213,7 +214,7 @@ __all__ = [
 
 
 fuzzy_match_fun = None
-def fuzzy_match(name, strings):
+def fuzzy_match(name: str, strings: Set[str]) -> str:
     global fuzzy_match_fun
     if fuzzy_match_fun is not None:
         return fuzzy_match_fun(name, strings)
@@ -262,7 +263,7 @@ A. J. SMITS. "Friction Factors for Smooth Pipe Flow." Journal of Fluid
 Mechanics 511 (July 1, 2004): 41-44. doi:10.1017/S0022112004009796.
 """
 
-def friction_laminar(Re):
+def friction_laminar(Re: float) -> float:
     r"""Calculates Darcy friction factor for laminar flow, as shown in [1]_ or
     anywhere else.
 
@@ -302,7 +303,7 @@ def friction_laminar(Re):
     return 64./Re
 
 
-def Blasius(Re):
+def Blasius(Re: float) -> float:
     r"""Calculates Darcy friction factor according to the Blasius formulation,
     originally presented in [1]_ and described more recently in [2]_.
 
@@ -341,7 +342,7 @@ def Blasius(Re):
     return 0.3164/sqrt(sqrt(Re))
 
 
-def Colebrook(Re, eD, tol=None):
+def Colebrook(Re: float, eD: float, tol: Optional[int]=None) -> float:
     r"""Calculates Darcy friction factor using the Colebrook equation
     originally published in [1]_. Normally, this function uses an exact
     solution to the Colebrook equation, derived with a CAS. A numerical solution can
@@ -479,7 +480,7 @@ def Colebrook(Re, eD, tol=None):
     return fd
 
 
-def Clamond(Re, eD, fast=False):
+def Clamond(Re: float, eD: float, fast: bool=False) -> float:
     r"""Calculates Darcy friction factor using a solution accurate to almost
     machine precision. Recommended very strongly. For details of the algorithm,
     see [1]_.
@@ -553,7 +554,7 @@ def Clamond(Re, eD, fast=False):
     return 1.325474527619599502640416597148504422899/(F*F) # ((0.5*log(10))**2).evalf(40)
 
 
-def Moody(Re, eD):
+def Moody(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Moody (1947)
     as shown in [1]_ and originally in [2]_.
 
@@ -594,7 +595,7 @@ def Moody(Re, eD):
     return 4.0*(1.375E-3*(1.0 + cbrt(2E4*eD + 1E6/Re)))
 
 
-def Alshul_1952(Re, eD):
+def Alshul_1952(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Alshul (1952)
     as shown in [1]_.
 
@@ -632,7 +633,7 @@ def Alshul_1952(Re, eD):
     return 0.11*sqrt(sqrt(68.0/Re + eD))
 
 
-def Wood_1966(Re, eD):
+def Wood_1966(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Wood (1966) [2]_
     as shown in [1]_.
 
@@ -677,7 +678,7 @@ def Wood_1966(Re, eD):
     return 0.094*eD**0.225 + 0.53*eD + 88.0*eD**0.4*Re**-A1
 
 
-def Churchill_1973(Re, eD):
+def Churchill_1973(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Churchill (1973)
     [2]_ as shown in [1]_
 
@@ -720,7 +721,7 @@ def Churchill_1973(Re, eD):
     return 1.0/(term*term)
 
 
-def Eck_1973(Re, eD):
+def Eck_1973(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Eck (1973)
     [2]_ as shown in [1]_.
 
@@ -761,7 +762,7 @@ def Eck_1973(Re, eD):
     return 1.0/(term*term)
 
 
-def Jain_1976(Re, eD):
+def Jain_1976(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Jain (1976)
     [2]_ as shown in [1]_.
 
@@ -803,7 +804,7 @@ def Jain_1976(Re, eD):
     return 4.0/(term*term)
 
 
-def Swamee_Jain_1976(Re, eD):
+def Swamee_Jain_1976(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Swamee and
     Jain (1976) [2]_ as shown in [1]_.
 
@@ -846,7 +847,7 @@ def Swamee_Jain_1976(Re, eD):
     return 4.0/(term*term)
 
 
-def Churchill_1977(Re, eD):
+def Churchill_1977(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method of Churchill
     (1977) [2]_ as shown in [1]_.
 
@@ -896,7 +897,7 @@ def Churchill_1977(Re, eD):
     return 4.0*ff
 
 
-def Chen_1979(Re, eD):
+def Chen_1979(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Chen (1979) [2]_
     as shown in [1]_.
 
@@ -944,7 +945,7 @@ def Chen_1979(Re, eD):
     return 4.0/(term*term)
 
 
-def Round_1980(Re, eD):
+def Round_1980(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Round (1980) [2]_
     as shown in [1]_.
 
@@ -988,7 +989,7 @@ def Round_1980(Re, eD):
     return 4.0/(term*term)
 
 
-def Shacham_1980(Re, eD):
+def Shacham_1980(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Shacham (1980) [2]_
     as shown in [1]_.
 
@@ -1032,7 +1033,7 @@ def Shacham_1980(Re, eD):
     return 4.0/(term*term)
 
 
-def Barr_1981(Re, eD):
+def Barr_1981(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Barr (1981) [2]_
     as shown in [1]_.
 
@@ -1077,7 +1078,7 @@ def Barr_1981(Re, eD):
     return 1.0/(term*term)
 
 
-def Zigrang_Sylvester_1(Re, eD):
+def Zigrang_Sylvester_1(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in
     Zigrang and Sylvester (1982) [2]_ as shown in [1]_.
 
@@ -1123,7 +1124,7 @@ def Zigrang_Sylvester_1(Re, eD):
     return 4.0/(term*term)
 
 
-def Zigrang_Sylvester_2(Re, eD):
+def Zigrang_Sylvester_2(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the second method in
     Zigrang and Sylvester (1982) [2]_ as shown in [1]_.
 
@@ -1174,7 +1175,7 @@ def Zigrang_Sylvester_2(Re, eD):
     return 4.0/(term*term)
 
 
-def Haaland(Re, eD):
+def Haaland(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in
     Haaland (1983) [2]_ as shown in [1]_.
 
@@ -1217,7 +1218,7 @@ def Haaland(Re, eD):
     return 4.0/(term*term)
 
 
-def Serghides_1(Re, eD):
+def Serghides_1(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Serghides (1984)
     [2]_ as shown in [1]_.
 
@@ -1271,7 +1272,7 @@ def Serghides_1(Re, eD):
     return 1.0/(term*term)
 
 
-def Serghides_2(Re, eD):
+def Serghides_2(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Serghides (1984)
     [2]_ as shown in [1]_.
 
@@ -1323,7 +1324,7 @@ def Serghides_2(Re, eD):
     return 1.0/(term*term)
 
 
-def Tsal_1989(Re, eD):
+def Tsal_1989(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Tsal (1989)
     [2]_ as shown in [1]_.
 
@@ -1371,7 +1372,7 @@ def Tsal_1989(Re, eD):
         return 0.0028 + 0.85*A
 
 
-def Manadilli_1997(Re, eD):
+def Manadilli_1997(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Manadilli (1997)
     [2]_ as shown in [1]_.
 
@@ -1413,7 +1414,7 @@ def Manadilli_1997(Re, eD):
     return 1.0/(term*term)
 
 
-def Romeo_2002(Re, eD):
+def Romeo_2002(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Romeo (2002)
     [2]_ as shown in [1]_.
 
@@ -1459,7 +1460,7 @@ def Romeo_2002(Re, eD):
     return 1.0/(term*term)
 
 
-def Sonnad_Goudar_2006(Re, eD):
+def Sonnad_Goudar_2006(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Sonnad and Goudar
     (2006) [2]_ as shown in [1]_.
 
@@ -1505,7 +1506,7 @@ def Sonnad_Goudar_2006(Re, eD):
     return 1.0/(term*term)
 
 
-def Rao_Kumar_2007(Re, eD):
+def Rao_Kumar_2007(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Rao and Kumar
     (2007) [2]_ as shown in [1]_.
 
@@ -1556,7 +1557,7 @@ def Rao_Kumar_2007(Re, eD):
     return 1.0/(term*term)
 
 
-def Buzzelli_2008(Re, eD):
+def Buzzelli_2008(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Buzzelli (2008)
     [2]_ as shown in [1]_.
 
@@ -1606,7 +1607,7 @@ def Buzzelli_2008(Re, eD):
     return 1.0/(term*term)
 
 
-def Avci_Karagoz_2009(Re, eD):
+def Avci_Karagoz_2009(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Avci and Karagoz
     (2009) [2]_ as shown in [1]_.
 
@@ -1649,7 +1650,7 @@ def Avci_Karagoz_2009(Re, eD):
     return 6.4*(log(Re) - log(1.0 + 0.01*Re*eD*(1.0+10.0*sqrt(eD))))**-2.4
 
 
-def Papaevangelo_2010(Re, eD):
+def Papaevangelo_2010(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Papaevangelo
     (2010) [2]_ as shown in [1]_.
 
@@ -1695,7 +1696,7 @@ def Papaevangelo_2010(Re, eD):
     return (0.2479-0.0000947*x1*x1*x1*x1)/(term*term)
 
 
-def Brkic_2011_1(Re, eD):
+def Brkic_2011_1(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Brkic
     (2011) [2]_ as shown in [1]_.
 
@@ -1742,7 +1743,7 @@ def Brkic_2011_1(Re, eD):
     return 1.0/(term*term)
 
 
-def Brkic_2011_2(Re, eD):
+def Brkic_2011_2(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Brkic
     (2011) [2]_ as shown in [1]_.
 
@@ -1789,7 +1790,7 @@ def Brkic_2011_2(Re, eD):
     return 1.0/(term*term)
 
 
-def Fang_2011(Re, eD):
+def Fang_2011(Re: float, eD: float) -> float:
     r"""Calculates Darcy friction factor using the method in Fang
     (2011) [2]_ as shown in [1]_.
 
@@ -1835,7 +1836,7 @@ def Fang_2011(Re, eD):
     term = log(0.234*eD**1.1007 - 60.525*Re**-1.1105 + 56.291*Re**-1.0712)
     return 1.613/(term*term)
 
-def von_Karman(eD):
+def von_Karman(eD: float) -> float:
     r"""Calculates Darcy friction factor for rough pipes at infinite Reynolds
     number from the von Karman equation (as given in [1]_ and [2]_):
 
@@ -1875,7 +1876,7 @@ def von_Karman(eD):
     return 0.25/(x*x)
 
 
-def Prandtl_von_Karman_Nikuradse(Re):
+def Prandtl_von_Karman_Nikuradse(Re: float) -> float:
     r"""Calculates Darcy friction factor for smooth pipes as a function of
     Reynolds number from the Prandtl-von Karman Nikuradse equation as given
     in [1]_ and [2]_:
@@ -1938,7 +1939,7 @@ Crane_fts = [.026, .024, .022, .021, .02, .019, .018, .017, .016, .015, .015,
              .014, .013, .013, .012, .012, .011, .011]
 
 
-def ft_Crane(D):
+def ft_Crane(D: float) -> float:
     r"""Calculates the Crane fully turbulent Darcy friction factor for flow in
     commercial pipe, as used in the Crane formulas for loss coefficients in
     various fittings. Note that this is **not generally applicable to loss
@@ -2048,7 +2049,7 @@ fmethods = {"Moody": (4000.0, 100000000.0, 0.0, 0.01),
  "Colebrook": (0, None, 0.0, None)}
 
 
-def friction_factor_methods(Re, eD=0.0, check_ranges=True):
+def friction_factor_methods(Re: float, eD: float=0.0, check_ranges: bool=True) -> List[str]:
     r"""Returns a list of correlation names for calculating friction factor
     for internal pipe flow.
 
@@ -2092,7 +2093,7 @@ def friction_factor_methods(Re, eD=0.0, check_ranges=True):
         return list(fmethods.keys()) + ["laminar"]
 
 
-def friction_factor(Re, eD=0.0, Method="Clamond", Darcy=True):
+def friction_factor(Re: float, eD: float=0.0, Method: Optional[str]="Clamond", Darcy: bool=True) -> float:
     r"""Calculates friction factor. Uses a specified method, or automatically
     picks one from the dictionary of available methods. 29 approximations are
     available as well as the direct solution, described in the table below.
@@ -2280,7 +2281,7 @@ def friction_factor(Re, eD=0.0, Method="Clamond", Darcy=True):
     return f
 
 
-def helical_laminar_fd_White(Re, Di, Dc):
+def helical_laminar_fd_White(Re: float, Di: float, Dc: float) -> float:
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under laminar conditions, using the method of
     White [1]_ as shown in [2]_.
@@ -2340,7 +2341,7 @@ def helical_laminar_fd_White(Re, Di, Dc):
     return fd/(1. - (1. - (11.6/De)**0.45)**(1./0.45)) # 1/.45 sometimes said to be 2.2
 
 
-def helical_laminar_fd_Mori_Nakayama(Re, Di, Dc):
+def helical_laminar_fd_Mori_Nakayama(Re: float, Di: float, Dc: float) -> float:
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under laminar conditions, using the method of
     Mori and Nakayama [1]_ as shown in [2]_ and [3]_.
@@ -2399,7 +2400,7 @@ def helical_laminar_fd_Mori_Nakayama(Re, Di, Dc):
     return fd*(0.108*sqrt(De))/(1. - 3.253/sqrt(De))
 
 
-def helical_laminar_fd_Schmidt(Re, Di, Dc):
+def helical_laminar_fd_Schmidt(Re: float, Di: float, Dc: float) -> float:
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under laminar conditions, using the method of
     Schmidt [1]_ as shown in [2]_ and [3]_.
@@ -2456,7 +2457,7 @@ def helical_laminar_fd_Schmidt(Re, Di, Dc):
     return fd*(1. + 0.14*D_ratio**0.97*Re**(1. - 0.644*D_ratio**0.312))
 
 
-def helical_turbulent_fd_Srinivasan(Re, Di, Dc):
+def helical_turbulent_fd_Srinivasan(Re: float, Di: float, Dc: float) -> float:
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under turbulent conditions, using the method of
     Srinivasan [1]_, as shown in [2]_ and [3]_.
@@ -2507,7 +2508,7 @@ def helical_turbulent_fd_Srinivasan(Re, Di, Dc):
     return 0.336*De**-0.2
 
 
-def helical_turbulent_fd_Schmidt(Re, Di, Dc, roughness=0):
+def helical_turbulent_fd_Schmidt(Re: float, Di: float, Dc: float, roughness: float=0) -> float:
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under turbulent conditions, using the method of
     Schmidt [1]_, also shown in [2]_.
@@ -2569,7 +2570,7 @@ def helical_turbulent_fd_Schmidt(Re, Di, Dc, roughness=0):
         return fd*(1. + 0.0823*(1. + Di/Dc)*(Di/Dc)**0.53*sqrt(sqrt(Re)))
 
 
-def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
+def helical_turbulent_fd_Mori_Nakayama(Re: float, Di: float, Dc: float) -> float:
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under turbulent conditions, using the method of
     Mori and Nakayama [1]_, also shown in [2]_ and [3]_.
@@ -2625,7 +2626,7 @@ def helical_turbulent_fd_Mori_Nakayama(Re, Di, Dc):
     return 0.3/sqrt(Dc/Di)*term*(1. + 0.112*term)
 
 
-def helical_turbulent_fd_Prasad(Re, Di, Dc, roughness=0):
+def helical_turbulent_fd_Prasad(Re: float, Di: float, Dc: float, roughness: float=0) -> float:
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under turbulent conditions, using the method of
     Prasad [1]_, also shown in [2]_.
@@ -2679,7 +2680,7 @@ def helical_turbulent_fd_Prasad(Re, Di, Dc, roughness=0):
     return fd*(1. + 0.18*sqrt(sqrt(Re*Di_Dc*Di_Dc)))
 
 
-def helical_turbulent_fd_Czop(Re, Di, Dc):
+def helical_turbulent_fd_Czop(Re: float, Di: float, Dc: float) -> float:
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under turbulent conditions, using the method of
     Czop [1]_, also shown in [2]_.
@@ -2728,7 +2729,7 @@ def helical_turbulent_fd_Czop(Re, Di, Dc):
     return 0.096*De**-0.1517
 
 
-def helical_turbulent_fd_Guo(Re, Di, Dc):
+def helical_turbulent_fd_Guo(Re: float, Di: float, Dc: float) -> float:
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under turbulent conditions, using the method of
     Guo [1]_, also shown in [2]_.
@@ -2776,7 +2777,7 @@ def helical_turbulent_fd_Guo(Re, Di, Dc):
     return 0.638*Re**-0.15*(Di/Dc)**0.51
 
 
-def helical_turbulent_fd_Ju(Re, Di, Dc, roughness=0.0):
+def helical_turbulent_fd_Ju(Re: float, Di: float, Dc: float, roughness: float=0.0) -> float:
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under turbulent conditions, using the method of
     Ju et al. [1]_, also shown in [2]_.
@@ -2827,7 +2828,7 @@ def helical_turbulent_fd_Ju(Re, Di, Dc, roughness=0.0):
     return fd*(1. + 0.11*Re**0.23*(Di/Dc)**0.14)
 
 
-def helical_turbulent_fd_Mandal_Nigam(Re, Di, Dc, roughness=0):
+def helical_turbulent_fd_Mandal_Nigam(Re: float, Di: float, Dc: float, roughness: float=0) -> float:
     r"""Calculates Darcy friction factor for a fluid flowing inside a curved
     pipe such as a helical coil under turbulent conditions, using the method of
     Mandal and Nigam [1]_, also shown in [2]_.
@@ -2879,7 +2880,7 @@ def helical_turbulent_fd_Mandal_Nigam(Re, Di, Dc, roughness=0):
     return fd*(1. + 0.03*De**0.27)
 
 
-def helical_transition_Re_Seth_Stahel(Di, Dc):
+def helical_transition_Re_Seth_Stahel(Di: float, Dc: float) -> float:
     r"""Calculates the transition Reynolds number for flow inside a curved or
     helical coil between laminar and turbulent flow, using the method of [1]_.
 
@@ -2917,7 +2918,7 @@ def helical_transition_Re_Seth_Stahel(Di, Dc):
     return 1900.*(1. + 8.*sqrt(Di/Dc))
 
 
-def helical_transition_Re_Ito(Di, Dc):
+def helical_transition_Re_Ito(Di: float, Dc: float) -> float:
     r"""Calculates the transition Reynolds number for flow inside a curved or
     helical coil between laminar and turbulent flow, using the method of [1]_,
     as shown in [2]_ and in [3]_.
@@ -2964,7 +2965,7 @@ def helical_transition_Re_Ito(Di, Dc):
     return 2E4*(Di/Dc)**0.32
 
 
-def helical_transition_Re_Kubair_Kuloor(Di, Dc):
+def helical_transition_Re_Kubair_Kuloor(Di: float, Dc: float) -> float:
     r"""Calculates the transition Reynolds number for flow inside a curved or
     helical coil between laminar and turbulent flow, using the method of [1]_,
     as shown in [2]_.
@@ -3009,7 +3010,7 @@ def helical_transition_Re_Kubair_Kuloor(Di, Dc):
     return 1.273E4*(Di/Dc)**0.2
 
 
-def helical_transition_Re_Kutateladze_Borishanskii(Di, Dc):
+def helical_transition_Re_Kutateladze_Borishanskii(Di: float, Dc: float) -> float:
     r"""Calculates the transition Reynolds number for flow inside a curved or
     helical coil between laminar and turbulent flow, using the method of [1]_,
     also shown in [2]_.
@@ -3052,7 +3053,7 @@ def helical_transition_Re_Kutateladze_Borishanskii(Di, Dc):
     return 2300. + 1.05E4*(Di/Dc)**0.3
 
 
-def helical_transition_Re_Schmidt(Di, Dc):
+def helical_transition_Re_Schmidt(Di: float, Dc: float) -> float:
     r"""Calculates the transition Reynolds number for flow inside a curved or
     helical coil between laminar and turbulent flow, using the method of [1]_,
     also shown in [2]_ and [3]_. Correlation recommended in [3]_.
@@ -3099,7 +3100,7 @@ def helical_transition_Re_Schmidt(Di, Dc):
     return 2300.*(1. + 8.6*(Di/Dc)**0.45)
 
 
-def helical_transition_Re_Srinivasan(Di, Dc):
+def helical_transition_Re_Srinivasan(Di: float, Dc: float) -> float:
     r"""Calculates the transition Reynolds number for flow inside a curved or
     helical coil between laminar and turbulent flow, using the method of [1]_,
     also shown in [2]_ and [3]_. Correlation recommended in [3]_.
@@ -3172,7 +3173,7 @@ valid methods are {list(curved_friction_transition_methods.keys())}"""
 curved_friction_turbulent_methods_list = ["Schmidt turbulent", "Mori Nakayama turbulent", "Prasad", "Czop", "Guo", "Ju", "Mandal Nigam", "Srinivasan turbulent"]
 curved_friction_laminar_methods_list = ["White", "Mori Nakayama laminar", "Schmidt laminar"]
 
-def helical_Re_crit(Di, Dc, Method="Schmidt"):
+def helical_Re_crit(Di: float, Dc: float, Method: str="Schmidt") -> float:
     r"""Calculates the transition Reynolds number for fluid flowing in a
     curved pipe or helical coil. Selects the appropriate regime by default.
     Optionally, a specific correlation can be specified with the `Method`
@@ -3237,8 +3238,8 @@ def helical_Re_crit(Di, Dc, Method="Schmidt"):
     return Re_crit
 
 
-def friction_factor_curved_methods(Re, Di, Dc, roughness=0.0,
-                                   check_ranges=True):
+def friction_factor_curved_methods(Re: float, Di: float, Dc: float, roughness: float=0.0,
+                                   check_ranges: bool=True) -> List[str]:
     r"""Returns a list of correlation names for calculating friction factor
     of fluid flowing in a curved pipe or helical coil, supporting both laminar
     and turbulent regimes.
@@ -3280,10 +3281,10 @@ def friction_factor_curved_methods(Re, Di, Dc, roughness=0.0,
         return curved_friction_turbulent_methods_list + curved_friction_laminar_methods_list
 
 
-def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
-                           Rec_method="Schmidt",
-                           laminar_method="Schmidt laminar",
-                           turbulent_method="Schmidt turbulent", Darcy=True):
+def friction_factor_curved(Re: float, Di: float, Dc: float, roughness: float=0.0, Method: Optional[str]=None,
+                           Rec_method: str="Schmidt",
+                           laminar_method: str="Schmidt laminar",
+                           turbulent_method: str="Schmidt turbulent", Darcy: bool=True) -> float:
     r"""Calculates friction factor fluid flowing in a curved pipe or helical
     coil, supporting both laminar and turbulent regimes. Selects the
     appropriate regime by default, and has default correlation choices.
@@ -3407,7 +3408,7 @@ def friction_factor_curved(Re, Di, Dc, roughness=0.0, Method=None,
 
 ### Plate heat exchanger single phase
 
-def friction_plate_Martin_1999(Re, chevron_angle):
+def friction_plate_Martin_1999(Re: float, chevron_angle: float) -> float:
     r"""Calculates Darcy friction factor for single-phase flow in a
     Chevron-style plate heat exchanger according to [1]_.
 
@@ -3494,7 +3495,7 @@ def friction_plate_Martin_1999(Re, chevron_angle):
     return ff*4.0
 
 
-def friction_plate_Martin_VDI(Re, chevron_angle):
+def friction_plate_Martin_VDI(Re: float, chevron_angle: float) -> float:
     r"""Calculates Darcy friction factor for single-phase flow in a
     Chevron-style plate heat exchanger according to [1]_.
 
@@ -3603,7 +3604,7 @@ Kumar_Ps = [[1.0, 0.589, 0.183],
       [1.0, 0.451, 0.213]]
 
 
-def friction_plate_Kumar(Re, chevron_angle):
+def friction_plate_Kumar(Re: float, chevron_angle: float) -> float:
     r"""Calculates Darcy friction factor for single-phase flow in a
     **well-designed** Chevron-style plate heat exchanger according to [1]_.
     The data is believed to have been developed by APV International Limited,
@@ -3690,7 +3691,7 @@ def friction_plate_Kumar(Re, chevron_angle):
     return 4.0*C2*Re**-p
 
 
-def friction_plate_Muley_Manglik(Re, chevron_angle, plate_enlargement_factor):
+def friction_plate_Muley_Manglik(Re: float, chevron_angle: float, plate_enlargement_factor: float) -> float:
     r"""Calculates Darcy friction factor for single-phase flow in a
     Chevron-style plate heat exchanger according to [1]_, also shown and
     recommended in [2]_.
@@ -4018,7 +4019,7 @@ if IS_NUMBA:
     _Farshad_roughness_keys = tuple(_Farshad_roughness.keys())
     _Farshad_roughness_values = tuple(_Farshad_roughness.values())
 
-def roughness_Farshad(ID=None, D=None, coeffs=None):
+def roughness_Farshad(ID: Optional[str]=None, D: Optional[float]=None, coeffs: Optional[Tuple[float, float]]=None) -> float:
     r"""Calculates or retrieves the roughness of a pipe based on the work of
     [1]_. This function will return an average value for pipes of a given
     material, or if diameter is provided, will calculate one specifically for
@@ -4113,7 +4114,7 @@ roughness_clean_names = set(_roughness.keys())
 roughness_clean_names.update(_Farshad_roughness.keys())
 
 
-def nearest_material_roughness(name, clean=None):
+def nearest_material_roughness(name: str, clean: Optional[bool]=None) -> str:
     r"""Searches through either a dict of clean pipe materials or used pipe
     materials and conditions and returns the ID of the nearest material.
     Search is performed with either the standard library's difflib or with
@@ -4154,7 +4155,7 @@ def nearest_material_roughness(name, clean=None):
     return fuzzy_match(name, d)
 
 
-def material_roughness(ID, D=None, optimism=None):
+def material_roughness(ID: str, D: Optional[float]=None, optimism: Optional[bool]=None) -> float:
     r"""Searches through either a dict of clean pipe materials or used pipe
     materials and conditions and returns the ID of the nearest material.
     Search is performed with either the standard library's difflib or with
@@ -4207,7 +4208,7 @@ def material_roughness(ID, D=None, optimism=None):
         return material_roughness(nearest_material_roughness(ID, clean=False),
                                   D=D, optimism=optimism)
 
-def transmission_factor(fd=None, F=None):
+def transmission_factor(fd: Optional[float]=None, F: Optional[float]=None) -> float:
     r"""Calculates either transmission factor from Darcy friction factor,
     or Darcy friction factor from the transmission factor. Raises an exception
     if neither input is given.
@@ -4253,7 +4254,7 @@ def transmission_factor(fd=None, F=None):
         raise ValueError("Either Darcy friction factor or transmission factor is needed")
 
 
-def one_phase_dP(m, rho, mu, D, roughness=0.0, L=1.0, Method=None):
+def one_phase_dP(m: float, rho: float, mu: float, D: float, roughness: float=0.0, L: float=1.0, Method: None=None) -> float:
     r"""Calculates single-phase pressure drop. This is a wrapper
     around other methods.
 
@@ -4359,7 +4360,7 @@ def one_phase_dP_acceleration(m, D, rho_o, rho_i, D_i=None):
     # return 8.0*(G*G/rho_o - G_i*G_i/rho_i)
 
 
-def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, dA_dL):
+def one_phase_dP_dz_acceleration(m: float, D: float, rho: float, dv_dP: float, dP_dL: float, dA_dL: float) -> float:
     r"""This function handles calculation of one-phase fluid pressure drop
     due to acceleration for flow inside channels. This is a continuous
     calculation, providing the differential in pressure per unit length and
@@ -4417,7 +4418,7 @@ def one_phase_dP_dz_acceleration(m, D, rho, dv_dP, dP_dL, dA_dL):
     return -G*G*(dP_dL*dv_dP - dA_dL/(rho*A))
 
 
-def one_phase_dP_gravitational(angle, rho, L=1.0, g=g):
+def one_phase_dP_gravitational(angle: float, rho: float, L: float=1.0, g: float=g) -> float:
     r"""This function handles calculation of one-phase liquid-gas pressure drop
     due to gravitation for flow inside channels. This is either a differential
     calculation for a segment with an infinitesimal difference in elevation

@@ -75,8 +75,9 @@ from math import exp, isinf, log, pi, sqrt
 
 from fluids.constants import R
 from fluids.numerics import brenth, lambertw, secant
+from typing import List, Optional
 
-__all__ = [
+__all__: List[str] = [
     "IGT",
     "Fritzsche",
     "Muller",
@@ -102,7 +103,7 @@ __all__ = [
     "stagnation_energy",
 ]
 
-def isothermal_work_compression(P1, P2, T, Z=1.0):
+def isothermal_work_compression(P1: float, P2: float, T: float, Z: float=1.0) -> float:
     r"""Calculates the work of compression or expansion of a gas going through
     an isothermal process.
 
@@ -169,7 +170,7 @@ def isothermal_work_compression(P1, P2, T, Z=1.0):
     return Z*R*T*log(P2/P1)
 
 
-def isentropic_work_compression(T1, k, Z=1.0, P1=None, P2=None, W=None, eta=None):
+def isentropic_work_compression(T1: Optional[float], k: float, Z: float=1.0, P1: Optional[float]=None, P2: Optional[float]=None, W: Optional[float]=None, eta: Optional[float]=None) -> float:
     r"""Calculation function for dealing with compressing or expanding a gas
     going through an isentropic, adiabatic process assuming constant Cp and Cv.
     The polytropic model is the same equation; just provide `n` instead of `k`
@@ -276,7 +277,7 @@ def isentropic_work_compression(T1, k, Z=1.0, P1=None, P2=None, W=None, eta=None
         raise ValueError("Three of W, P1, P2, and eta must be specified.")
 
 
-def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
+def isentropic_T_rise_compression(T1: float, P1: float, P2: float, k: float, eta: float=1) -> float:
     r"""Calculates the increase in temperature of a fluid which is compressed
     or expanded under isentropic, adiabatic conditions assuming constant
     Cp and Cv.  The polytropic model is the same equation; just provide `n`
@@ -331,7 +332,7 @@ def isentropic_T_rise_compression(T1, P1, P2, k, eta=1):
     return T1 + dT
 
 
-def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
+def isentropic_efficiency(P1: float, P2: float, k: float, eta_s: Optional[float]=None, eta_p: Optional[float]=None) -> float:
     r"""Calculates either isentropic or polytropic efficiency from the other
     type of efficiency.
 
@@ -387,7 +388,7 @@ def isentropic_efficiency(P1, P2, k, eta_s=None, eta_p=None):
         raise ValueError("Either eta_s or eta_p is required")
 
 
-def polytropic_exponent(k, n=None, eta_p=None):
+def polytropic_exponent(k: float, n: Optional[float]=None, eta_p: Optional[float]=None) -> float:
     r"""Calculates one of:
 
         * Polytropic exponent from polytropic efficiency
@@ -433,7 +434,7 @@ def polytropic_exponent(k, n=None, eta_p=None):
         raise ValueError("Either n or eta_p is required")
 
 
-def T_critical_flow(T, k):
+def T_critical_flow(T: float, k: float) -> float:
     r"""Calculates critical flow temperature `Tcf` for a fluid with the
     given isentropic coefficient. `Tcf` is in a flow (with Ma=1) whose
     stagnation conditions are known. Normally used with converging/diverging
@@ -473,7 +474,7 @@ def T_critical_flow(T, k):
     return T*2.0/(k + 1.0)
 
 
-def P_critical_flow(P, k):
+def P_critical_flow(P: float, k: float) -> float:
     r"""Calculates critical flow pressure `Pcf` for a fluid with the
     given isentropic coefficient. `Pcf` is in a flow (with Ma=1) whose
     stagnation conditions are known. Normally used with converging/diverging
@@ -513,7 +514,7 @@ def P_critical_flow(P, k):
     return P*(2.0/(k + 1.0))**(k/(k - 1.0))
 
 
-def P_isothermal_critical_flow(P, fd, D, L):
+def P_isothermal_critical_flow(P: float, fd: float, D: float, L: float) -> float:
     r"""Calculates critical flow pressure `Pcf` for a fluid flowing
     isothermally and suffering pressure drop caused by a pipe's friction factor.
 
@@ -563,7 +564,7 @@ def P_isothermal_critical_flow(P, fd, D, L):
     return P*exp((D*(lambert_term + 1.0) + L*fd)/(2.0*D))
 
 
-def P_upstream_isothermal_critical_flow(P, fd, D, L):
+def P_upstream_isothermal_critical_flow(P: float, fd: float, D: float, L: float) -> float:
     """Not part of the public API. Reverses `P_isothermal_critical_flow`.
 
     Examples
@@ -576,7 +577,7 @@ def P_upstream_isothermal_critical_flow(P, fd, D, L):
     return exp(-0.5*(D*lambertw_term+fd*L+D)/D)*P
 
 
-def is_critical_flow(P1, P2, k):
+def is_critical_flow(P1: float, P2: float, k: float) -> bool:
     r"""Determines if a flow of a fluid driven by pressure gradient
     P1 - P2 is critical, for a fluid with the given isentropic coefficient.
     This function calculates critical flow pressure, and checks if this is
@@ -618,7 +619,7 @@ def is_critical_flow(P1, P2, k):
     return Pcf > P2
 
 
-def stagnation_energy(V):
+def stagnation_energy(V: float) -> float:
     r"""Calculates the increase in enthalpy `dH` which is provided by a fluid's
     velocity `V`.
 
@@ -652,7 +653,7 @@ def stagnation_energy(V):
     return 0.5*V*V
 
 
-def P_stagnation(P, T, Tst, k):
+def P_stagnation(P: float, T: float, Tst: float, k: float) -> float:
     r"""Calculates stagnation flow pressure `Pst` for a fluid with the
     given isentropic coefficient and specified stagnation temperature and
     normal temperature. Normally used with converging/diverging nozzles.
@@ -695,7 +696,7 @@ def P_stagnation(P, T, Tst, k):
     return P*(Tst/T)**(k/(k - 1.0))
 
 
-def T_stagnation(T, P, Pst, k):
+def T_stagnation(T: float, P: float, Pst: float, k: float) -> float:
     r"""Calculates stagnation flow temperature `Tst` for a fluid with the
     given isentropic coefficient and specified stagnation pressure and
     normal pressure. Normally used with converging/diverging nozzles.
@@ -738,7 +739,7 @@ def T_stagnation(T, P, Pst, k):
     return T*(Pst/P)**((k - 1.0)/k)
 
 
-def T_stagnation_ideal(T, V, Cp):
+def T_stagnation_ideal(T: float, V: float, Cp: float) -> float:
     r"""Calculates the ideal stagnation temperature `Tst` calculated assuming
     the fluid has a constant heat capacity `Cp` and with a specified
     velocity `V` and temperature `T`.
@@ -774,19 +775,19 @@ def T_stagnation_ideal(T, V, Cp):
     """
     return T + 0.5*V*V/Cp
 
-def isothermal_gas_err_P1(P1, fd, rho, P2, L, D, m):
+def isothermal_gas_err_P1(P1: float, fd: float, rho: float, P2: float, L: float, D: float, m: float) -> float:
     return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
 
-def isothermal_gas_err_P2(P2, rho, fd, P1, L, D, m):
+def isothermal_gas_err_P2(P2: float, rho: float, fd: float, P1: float, L: float, D: float, m: float) -> float:
     return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
 
-def isothermal_gas_err_P2_basis(P1, P2, rho, fd, m, L, D):
+def isothermal_gas_err_P2_basis(P1: float, P2: float, rho: float, fd: float, m: float, L: float, D: float) -> float:
     return abs(P2 - isothermal_gas(rho, fd, m=m, P1=P1, P2=None, L=L, D=D))
 
-def isothermal_gas_err_D(D, m, rho, fd, P1, P2, L):
+def isothermal_gas_err_D(D: float, m: float, rho: float, fd: float, P1: float, P2: float, L: float) -> float:
     return m - isothermal_gas(rho, fd, P1=P1, P2=P2, L=L, D=D)
 
-def isothermal_gas(rho, fd, P1=None, P2=None, L=None, D=None, m=None):
+def isothermal_gas(rho: float, fd: float, P1: Optional[float]=None, P2: Optional[float]=None, L: Optional[float]=None, D: Optional[float]=None, m: Optional[float]=None) -> float:
     r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline for the complete isothermal flow equation. Can calculate any of
     the following, given all other inputs:
@@ -969,8 +970,8 @@ pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.")
 
 
-def Panhandle_A(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-                Ps=101325., Zavg=1.0, E=0.92):
+def Panhandle_A(SG: float, Tavg: float, L: Optional[float]=None, D: Optional[float]=None, P1: Optional[float]=None, P2: Optional[float]=None, Q: Optional[float]=None, Ts: float=288.7,
+                Ps: float=101325., Zavg: float=1.0, E: float=0.92) -> float:
     r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Panhandle A formula. Can calculate any of the following,
     given all other inputs:
@@ -1091,8 +1092,8 @@ pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.")
 
 
-def Panhandle_B(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-                Ps=101325., Zavg=1.0, E=0.92):
+def Panhandle_B(SG: float, Tavg: float, L: Optional[float]=None, D: Optional[float]=None, P1: Optional[float]=None, P2: Optional[float]=None, Q: Optional[float]=None, Ts: float=288.7,
+                Ps: float=101325., Zavg: float=1.0, E: float=0.92) -> float:
     r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Panhandle B formula. Can calculate any of the following,
     given all other inputs:
@@ -1210,8 +1211,8 @@ pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.")
 
 
-def Weymouth(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-             Ps=101325., Zavg=1.0, E=0.92):
+def Weymouth(SG: float, Tavg: float, L: Optional[float]=None, D: Optional[float]=None, P1: Optional[float]=None, P2: Optional[float]=None, Q: Optional[float]=None, Ts: float=288.7,
+             Ps: float=101325., Zavg: float=1.0, E: float=0.92) -> float:
     r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Weymouth formula. Can calculate any of the following,
     given all other inputs:
@@ -1326,12 +1327,12 @@ pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.")
 
 
-def _to_solve_Spitzglass_high(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
+def _to_solve_Spitzglass_high(D: float, Q: float, SG: float, Tavg: float, L: float, P1: float, P2: float, Ts: float, Ps: float, Zavg: float, E: float) -> float:
      return Q - Spitzglass_high(SG=SG, Tavg=Tavg, L=L, D=D,
                                   P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
 
-def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-                Ps=101325., Zavg=1.0, E=1.):
+def Spitzglass_high(SG: float, Tavg: float, L: Optional[float]=None, D: Optional[float]=None, P1: Optional[float]=None, P2: Optional[float]=None, Q: Optional[float]=None, Ts: float=288.7,
+                Ps: float=101325., Zavg: float=1.0, E: float=1.) -> float:
     r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Spitzglass (high pressure drop) formula. Can calculate
     any of the following, given all other inputs:
@@ -1431,11 +1432,11 @@ def Spitzglass_high(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.")
 
-def _to_solve_Spitzglass_low(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
+def _to_solve_Spitzglass_low(D: float, Q: float, SG: float, Tavg: float, L: float, P1: float, P2: float, Ts: float, Ps: float, Zavg: float, E: float) -> float:
     return Q - Spitzglass_low(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
 
-def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-                Ps=101325., Zavg=1.0, E=1.):
+def Spitzglass_low(SG: float, Tavg: float, L: Optional[float]=None, D: Optional[float]=None, P1: Optional[float]=None, P2: Optional[float]=None, Q: Optional[float]=None, Ts: float=288.7,
+                Ps: float=101325., Zavg: float=1.0, E: float=1.) -> float:
     r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Spitzglass (low pressure drop) formula. Can calculate
     any of the following, given all other inputs:
@@ -1547,11 +1548,11 @@ def Spitzglass_low(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
 pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.")
 
-def _to_solve_Oliphant(D, Q, SG, Tavg, L, P1, P2, Ts, Ps, Zavg, E):
+def _to_solve_Oliphant(D: float, Q: float, SG: float, Tavg: float, L: float, P1: float, P2: float, Ts: float, Ps: float, Zavg: float, E: float) -> float:
     return Q - Oliphant(SG=SG, Tavg=Tavg, L=L, D=D, P1=P1, P2=P2, Ts=Ts, Ps=Ps, Zavg=Zavg, E=E)
 
-def Oliphant(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-             Ps=101325., Zavg=1.0, E=0.92):
+def Oliphant(SG: float, Tavg: float, L: Optional[float]=None, D: Optional[float]=None, P1: Optional[float]=None, P2: Optional[float]=None, Q: Optional[float]=None, Ts: float=288.7,
+             Ps: float=101325., Zavg: float=1.0, E: float=0.92) -> float:
     r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Oliphant formula. Can calculate any of the following,
     given all other inputs:
@@ -1644,8 +1645,8 @@ pressure, downstream pressure, diameter, or length; all other inputs \
 must be provided.")
 
 
-def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-              Ps=101325., Zavg=1.0, E=1.0):
+def Fritzsche(SG: float, Tavg: float, L: Optional[float]=None, D: Optional[float]=None, P1: Optional[float]=None, P2: Optional[float]=None, Q: Optional[float]=None, Ts: float=288.7,
+              Ps: float=101325., Zavg: float=1.0, E: float=1.0) -> float:
     r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Fritzsche formula. Can calculate any of the following,
     given all other inputs:
@@ -1738,8 +1739,8 @@ def Fritzsche(SG, Tavg, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
         raise ValueError("This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.")
 
 
-def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-           Ps=101325., Zavg=1.0, E=1.0):
+def Muller(SG: float, Tavg: float, mu: float, L: Optional[float]=None, D: Optional[float]=None, P1: Optional[float]=None, P2: Optional[float]=None, Q: Optional[float]=None, Ts: float=288.7,
+           Ps: float=101325., Zavg: float=1.0, E: float=1.0) -> float:
     r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the Muller formula. Can calculate any of the following,
     given all other inputs:
@@ -1848,8 +1849,8 @@ def Muller(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
         raise ValueError("This function solves for either flow, upstream pressure, downstream pressure, diameter, or length; all other inputs must be provided.")
 
 
-def IGT(SG, Tavg, mu, L=None, D=None, P1=None, P2=None, Q=None, Ts=288.7,
-        Ps=101325., Zavg=1.0, E=1.0):
+def IGT(SG: float, Tavg: float, mu: float, L: Optional[float]=None, D: Optional[float]=None, P1: Optional[float]=None, P2: Optional[float]=None, Q: Optional[float]=None, Ts: float=288.7,
+        Ps: float=101325., Zavg: float=1.0, E: float=1.0) -> float:
     r"""Calculation function for dealing with flow of a compressible gas in a
     pipeline with the IGT formula. Can calculate any of the following,
     given all other inputs:
