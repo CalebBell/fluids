@@ -149,11 +149,6 @@ def all_submodules(with_numerics=True):
         new_submodules += [arrays, polynomial_roots, polynomial_evaluation, polynomial_utils, constants, numerics]
     return new_submodules
 
-def load_types():
-    from fluids.typing_utils import type_module
-    for m in submodules:
-        type_module(m)
-
 
 __version__ = '1.1.0'
 

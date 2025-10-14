@@ -2417,6 +2417,47 @@ def two_phase_dP_methods(m: float, x: float, rhol: float, D: float, L: float=1.0
         usable_indices.append(104)
     return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
 
+# # Uncomment to regenerate the frozensets when adding new methods:
+# def _generate_two_phase_dP_parameter_requirements():
+#     """Generate frozensets of which methods require which parameters."""
+#     # Get all methods with all parameters present
+#     all_methods = set(two_phase_dP_methods(m=1.0, x=0.5, rhol=1000.0, D=0.1, L=1.0,
+#                                             rhog=1.0, mul=1e-3, mug=1e-5, sigma=0.05,
+#                                             P=1e5, Pc=1e6, angle=0.0, roughness=1e-5))
+
+#     params_to_check = [
+#         ('rhog', 'rhog'),
+#         ('mul', 'mul'),
+#         ('mug', 'mug'),
+#         ('sigma', 'sigma'),
+#         ('P', 'P'),
+#         ('Pc', 'Pc'),
+#         ('angle', 'angle'),
+#     ]
+
+#     for param_name, kwarg_name in params_to_check:
+#         # Get methods without this parameter
+#         kwargs = {'m': 1.0, 'x': 0.5, 'rhol': 1000.0, 'D': 0.1, 'L': 1.0,
+#                   'rhog': 1.0, 'mul': 1e-3, 'mug': 1e-5, 'sigma': 0.05,
+#                   'P': 1e5, 'Pc': 1e6, 'angle': 0.0, 'roughness': 1e-5}
+#         kwargs[kwarg_name] = None
+#         methods_without = set(two_phase_dP_methods(**kwargs))
+
+#         # Methods that require this parameter are those in all_methods but not in methods_without
+#         methods_needing = all_methods - methods_without
+#         print(f"two_phase_dP_methods_needing_{param_name} = frozenset({sorted(methods_needing)!r})")
+
+# _generate_two_phase_dP_parameter_requirements()
+
+# Generated frozensets (regenerate by uncommenting above code):
+two_phase_dP_methods_needing_rhog = frozenset(['Bankoff', 'Baroczy_Chisholm', 'Beggs-Brill', 'Chen_Friedel', 'Chisholm', 'Chisholm rough', 'Friedel', 'Gronnerud', 'Hwang_Kim', 'Jung_Radermacher', 'Kim_Mudawar', 'Lockhart_Martinelli', 'Lombardi_Pedrocchi', 'Mishima_Hibiki', 'Muller_Steinhagen_Heck', 'Theissing', 'Tran', 'Wang_Chiang_Lu', 'Xu_Fang', 'Yu_France', 'Zhang_Hibiki_Mishima', 'Zhang_Hibiki_Mishima adiabatic gas', 'Zhang_Hibiki_Mishima flow boiling'])
+two_phase_dP_methods_needing_mul = frozenset(['Bankoff', 'Baroczy_Chisholm', 'Beggs-Brill', 'Chen_Friedel', 'Chisholm', 'Chisholm rough', 'Friedel', 'Gronnerud', 'Hwang_Kim', 'Jung_Radermacher', 'Kim_Mudawar', 'Lockhart_Martinelli', 'Mishima_Hibiki', 'Muller_Steinhagen_Heck', 'Theissing', 'Tran', 'Wang_Chiang_Lu', 'Xu_Fang', 'Yu_France', 'Zhang_Hibiki_Mishima', 'Zhang_Hibiki_Mishima adiabatic gas', 'Zhang_Hibiki_Mishima flow boiling', 'Zhang_Webb'])
+two_phase_dP_methods_needing_mug = frozenset(['Bankoff', 'Baroczy_Chisholm', 'Beggs-Brill', 'Chen_Friedel', 'Chisholm', 'Chisholm rough', 'Friedel', 'Gronnerud', 'Hwang_Kim', 'Jung_Radermacher', 'Kim_Mudawar', 'Lockhart_Martinelli', 'Mishima_Hibiki', 'Muller_Steinhagen_Heck', 'Theissing', 'Tran', 'Wang_Chiang_Lu', 'Xu_Fang', 'Yu_France', 'Zhang_Hibiki_Mishima', 'Zhang_Hibiki_Mishima adiabatic gas', 'Zhang_Hibiki_Mishima flow boiling'])
+two_phase_dP_methods_needing_sigma = frozenset(['Beggs-Brill', 'Chen_Friedel', 'Friedel', 'Hwang_Kim', 'Kim_Mudawar', 'Lombardi_Pedrocchi', 'Mishima_Hibiki', 'Tran', 'Xu_Fang', 'Zhang_Hibiki_Mishima', 'Zhang_Hibiki_Mishima adiabatic gas', 'Zhang_Hibiki_Mishima flow boiling'])
+two_phase_dP_methods_needing_P = frozenset(['Beggs-Brill', 'Zhang_Webb'])
+two_phase_dP_methods_needing_Pc = frozenset(['Zhang_Webb'])
+two_phase_dP_methods_needing_angle = frozenset(['Beggs-Brill'])
+
 def two_phase_dP(m: float, x: float, rhol: float, D: float, L: float=1.0, rhog: Optional[float]=None, mul: Optional[float]=None, mug: Optional[float]=None, sigma: Optional[float]=None,
                  P: Optional[float]=None, Pc: Optional[float]=None, roughness: float=0.0, angle: Optional[float]=None, Method: Optional[str]=None) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
@@ -2502,60 +2543,99 @@ than provided; provide more inputs!")
     else:
         Method2 = Method
 
+    # Type narrowing: validate required parameters based on selected method
+    # Initialize to dummy values for numba (will be overwritten before use)
+    rhog2 = 0.0
+    mul2 = 0.0
+    mug2 = 0.0
+    sigma2 = 0.0
+    P2 = 0.0
+    Pc2 = 0.0
+    angle2 = 0.0
+
+    if Method2 in two_phase_dP_methods_needing_rhog:
+        if rhog is None:
+            raise TypeError(f"{Method2} requires rhog")
+        rhog2 = rhog
+    if Method2 in two_phase_dP_methods_needing_mul:
+        if mul is None:
+            raise TypeError(f"{Method2} requires mul")
+        mul2 = mul
+    if Method2 in two_phase_dP_methods_needing_mug:
+        if mug is None:
+            raise TypeError(f"{Method2} requires mug")
+        mug2 = mug
+    if Method2 in two_phase_dP_methods_needing_sigma:
+        if sigma is None:
+            raise TypeError(f"{Method2} requires sigma")
+        sigma2 = sigma
+    if Method2 in two_phase_dP_methods_needing_P:
+        if P is None:
+            raise TypeError(f"{Method2} requires P")
+        P2 = P
+    if Method2 in two_phase_dP_methods_needing_Pc:
+        if Pc is None:
+            raise TypeError(f"{Method2} requires Pc")
+        Pc2 = Pc
+    if Method2 in two_phase_dP_methods_needing_angle:
+        if angle is None:
+            raise TypeError(f"{Method2} requires angle")
+        angle2 = angle
+
     if Method2 == "Zhang_Webb":
-        return Zhang_Webb(m=m, x=x, rhol=rhol, mul=mul, P=P, Pc=Pc, D=D, roughness=roughness, L=L)
+        return Zhang_Webb(m=m, x=x, rhol=rhol, mul=mul2, P=P2, Pc=Pc2, D=D, roughness=roughness, L=L)
     elif Method2 == "Lockhart_Martinelli":
-        return Lockhart_Martinelli(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, L=L)
+        return Lockhart_Martinelli(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, L=L)
     elif Method2 == "Bankoff":
-        return Bankoff(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Bankoff(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Baroczy_Chisholm":
-        return Baroczy_Chisholm(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Baroczy_Chisholm(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Chisholm":
-        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Gronnerud":
-        return Gronnerud(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Gronnerud(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Jung_Radermacher":
-        return Jung_Radermacher(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Jung_Radermacher(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Muller_Steinhagen_Heck":
-        return Muller_Steinhagen_Heck(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Muller_Steinhagen_Heck(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Theissing":
-        return Theissing(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Theissing(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Wang_Chiang_Lu":
-        return Wang_Chiang_Lu(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Wang_Chiang_Lu(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Yu_France":
-        return Yu_France(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Yu_France(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Kim_Mudawar":
-        return Kim_Mudawar(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, L=L)
+        return Kim_Mudawar(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, L=L)
     elif Method2 == "Friedel":
-        return Friedel(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Friedel(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Hwang_Kim":
-        return Hwang_Kim(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Hwang_Kim(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Mishima_Hibiki":
-        return Mishima_Hibiki(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Mishima_Hibiki(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Tran":
-        return Tran(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Tran(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Xu_Fang":
-        return Xu_Fang(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Xu_Fang(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Zhang_Hibiki_Mishima":
-        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Chen_Friedel":
-        return Chen_Friedel(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Chen_Friedel(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Lombardi_Pedrocchi":
-        return Lombardi_Pedrocchi(m=m, x=x, rhol=rhol, rhog=rhog, sigma=sigma, D=D, L=L)
+        return Lombardi_Pedrocchi(m=m, x=x, rhol=rhol, rhog=rhog2, sigma=sigma2, D=D, L=L)
     elif Method2 == "Chisholm rough":
-        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D,
+        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D,
                      L=L, roughness=roughness, rough_correction=True)
     elif Method2 == "Zhang_Hibiki_Mishima adiabatic gas":
-        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
-                     sigma=sigma, D=D, L=L, roughness=roughness,
+        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2,
+                     sigma=sigma2, D=D, L=L, roughness=roughness,
                      flowtype="adiabatic gas")
     elif Method2 == "Zhang_Hibiki_Mishima flow boiling":
-        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
-                     sigma=sigma, D=D, L=L, roughness=roughness,
+        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2,
+                     sigma=sigma2, D=D, L=L, roughness=roughness,
                      flowtype="flow boiling")
     elif Method2 == "Beggs-Brill":
-        return Beggs_Brill(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
-                     sigma=sigma, P=P, D=D, angle=angle, L=L,
+        return Beggs_Brill(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2,
+                     sigma=sigma2, P=P2, D=D, angle=angle2, L=L,
                      roughness=roughness, acceleration=False, g=g)
     else:
         raise ValueError(_unknown_msg_two_phase)
