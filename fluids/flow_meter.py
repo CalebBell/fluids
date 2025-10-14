@@ -91,15 +91,15 @@ Flow Meter Utilities
 .. autodata:: all_meters
 
 """
+from __future__ import annotations
 
 from math import acos, exp, log, log10, pi, sqrt
 
 from fluids.constants import inch, inch_inv, pi_inv, root_two
 from fluids.core import Froude_densimetric
 from fluids.numerics import bisplev, brenth, implementation_optimize_tck, interp, secant
-from typing import List, Optional, Tuple, Union
 
-__all__: List[str] = [
+__all__: list[str] = [
     "C_ISA_1932_nozzle",
     "C_Miller_1996",
     "C_Reader_Harris_Gallagher",
@@ -619,7 +619,7 @@ _Miller_1996_unsupported_tap_eccentric = f"Supported taps for subtype '{ECCENTRI
 _Miller_1996_unsupported_tap_segmental = f"Supported taps for subtype '{SEGMENTAL_ORIFICE}' are {(ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS)}"
 
 def C_Miller_1996(D: float, Do: float, rho: float, mu: float, m: float, subtype: str="orifice",
-                  taps: Optional[str]=ORIFICE_CORNER_TAPS, tap_position: Optional[str]=TAPS_OPPOSITE) -> float:
+                  taps: str | None=ORIFICE_CORNER_TAPS, tap_position: str | None=TAPS_OPPOSITE) -> float:
     r"""Calculates the coefficient of discharge of any of the orifice types
     supported by the Miller (1996) [1]_ correlation set. These correlations
     cover a wide range of industrial applications and sizes. Most of them are
@@ -1355,7 +1355,7 @@ def flow_coefficient(D: float, Do: float, C: float) -> float:
     return C*1.0/sqrt(1.0 - beta_ratio_4)
 
 
-def nozzle_expansibility(D: float, Do: float, P1: float, P2: float, k: float, beta: Optional[float]=None) -> float:
+def nozzle_expansibility(D: float, Do: float, P1: float, P2: float, k: float, beta: float | None=None) -> float:
     r"""Calculates the expansibility factor for a nozzle or venturi nozzle,
     based on the geometry of the plate, measured pressures of the orifice, and
     the isentropic exponent of the fluid.
@@ -2467,9 +2467,9 @@ _meter_type_to_corr_default = {
     }
 
 def differential_pressure_meter_C_epsilon(D: float, D2: float, m: float, P1: float, P2: float, rho: float, mu: float, k: float,
-                                          meter_type: str, taps: Optional[str]=None,
-                                          tap_position: Optional[str]=None, C_specified: Optional[float]=None,
-                                          epsilon_specified: Optional[int]=None) -> Union[Tuple[float, float], Tuple[float, int]]:
+                                          meter_type: str, taps: str | None=None,
+                                          tap_position: str | None=None, C_specified: float | None=None,
+                                          epsilon_specified: int | None=None) -> tuple[float, float] | tuple[float, int]:
     r"""Calculates the discharge coefficient and expansibility of a flow
     meter given the mass flow rate, the upstream pressure, the second
     pressure value, and the orifice diameter for a differential
@@ -2654,7 +2654,7 @@ def differential_pressure_meter_C_epsilon(D: float, D2: float, m: float, P1: flo
 
 
 
-def err_dp_meter_solver_m(m_D: float, D: float, D2: float, P1: float, P2: float, rho: float, mu: float, k: float, meter_type: str, taps: Optional[str], tap_position: Optional[str], C_specified: Optional[float], epsilon_specified: Optional[int]) -> float:
+def err_dp_meter_solver_m(m_D: float, D: float, D2: float, P1: float, P2: float, rho: float, mu: float, k: float, meter_type: str, taps: str | None, tap_position: str | None, C_specified: float | None, epsilon_specified: int | None) -> float:
     m = m_D*D
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
@@ -2665,7 +2665,7 @@ def err_dp_meter_solver_m(m_D: float, D: float, D2: float, P1: float, P2: float,
     err =  m - m_calc
     return err
 
-def err_dp_meter_solver_P2(P2: float, D: float, D2: float, m: float, P1: float, rho: float, mu: float, k: float, meter_type: str, taps: Optional[str], tap_position: Optional[str], C_specified: Optional[float], epsilon_specified: None) -> float:
+def err_dp_meter_solver_P2(P2: float, D: float, D2: float, m: float, P1: float, rho: float, mu: float, k: float, meter_type: str, taps: str | None, tap_position: str | None, C_specified: float | None, epsilon_specified: None) -> float:
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
                                                   taps=taps, tap_position=tap_position,
@@ -2674,7 +2674,7 @@ def err_dp_meter_solver_P2(P2: float, D: float, D2: float, m: float, P1: float, 
                                 C=C, expansibility=epsilon, meter_type=meter_type)
     return m - m_calc
 
-def err_dp_meter_solver_D2(D2: float, D: float, m: float, P1: float, P2: float, rho: float, mu: float, k: float, meter_type: str, taps: Optional[str], tap_position: Optional[str], C_specified: Optional[float], epsilon_specified: None) -> float:
+def err_dp_meter_solver_D2(D2: float, D: float, m: float, P1: float, P2: float, rho: float, mu: float, k: float, meter_type: str, taps: str | None, tap_position: str | None, C_specified: float | None, epsilon_specified: None) -> float:
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
                                                   taps=taps, tap_position=tap_position, C_specified=C_specified,
@@ -2683,7 +2683,7 @@ def err_dp_meter_solver_D2(D2: float, D: float, m: float, P1: float, P2: float, 
                                 C=C, expansibility=epsilon, meter_type=meter_type)
     return m - m_calc
 
-def err_dp_meter_solver_P1(P1: float, D: float, D2: float, m: float, P2: float, rho: float, mu: float, k: float, meter_type: str, taps: Optional[str], tap_position: Optional[str], C_specified: Optional[float], epsilon_specified: None) -> float:
+def err_dp_meter_solver_P1(P1: float, D: float, D2: float, m: float, P2: float, rho: float, mu: float, k: float, meter_type: str, taps: str | None, tap_position: str | None, C_specified: float | None, epsilon_specified: None) -> float:
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
                                                   taps=taps, tap_position=tap_position, C_specified=C_specified,
@@ -2692,10 +2692,10 @@ def err_dp_meter_solver_P1(P1: float, D: float, D2: float, m: float, P2: float, 
                                 C=C, expansibility=epsilon, meter_type=meter_type)
     return m - m_calc
 
-def differential_pressure_meter_solver(D: float, rho: float, mu: float, k: Optional[float]=None, D2: Optional[float]=None, P1: Optional[float]=None, P2: Optional[float]=None,
-                                       m: Optional[float]=None, meter_type: str=ISO_5167_ORIFICE,
-                                       taps: Optional[str]=None, tap_position: Optional[str]=None,
-                                       C_specified: Optional[float]=None, epsilon_specified: Optional[int]=None) -> float:
+def differential_pressure_meter_solver(D: float, rho: float, mu: float, k: float | None=None, D2: float | None=None, P1: float | None=None, P2: float | None=None,
+                                       m: float | None=None, meter_type: str=ISO_5167_ORIFICE,
+                                       taps: str | None=None, tap_position: str | None=None,
+                                       C_specified: float | None=None, epsilon_specified: int | None=None) -> float:
     r"""Calculates either the mass flow rate, the upstream pressure, the second
     pressure value, or the orifice diameter for a differential
     pressure flow meter based on the geometry of the meter, measured pressures
@@ -2849,7 +2849,7 @@ _dP_orifice_set = {ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
 
 _missing_C_msg = "Parameter C is required for this orifice type"
 
-def differential_pressure_meter_dP(D: float, D2: float, P1: float, P2: float, C: Optional[float]=None,
+def differential_pressure_meter_dP(D: float, D2: float, P1: float, P2: float, C: float | None=None,
                                    meter_type: str=ISO_5167_ORIFICE) -> float:
     r"""Calculates the non-recoverable pressure drop of a differential
     pressure flow meter based on the geometry of the meter, measured pressures

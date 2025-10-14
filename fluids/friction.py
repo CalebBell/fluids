@@ -127,15 +127,15 @@ Utilities
 .. autofunction:: transmission_factor
 
 """
+from __future__ import annotations
 
 from math import cos, exp, isinf, log, log10, pi, radians, sin, sqrt, tan
 
 from fluids.constants import g, inch
 from fluids.core import Dean, Reynolds
 from fluids.numerics import cbrt, lambertw, secant
-from typing import List, Optional, Set, Tuple
 
-__all__: List[str] = [
+__all__: list[str] = [
     "LAMINAR_TRANSITION_PIPE",
     "Alshul_1952",
     "Avci_Karagoz_2009",
@@ -214,7 +214,7 @@ __all__: List[str] = [
 
 
 fuzzy_match_fun = None
-def fuzzy_match(name: str, strings: Set[str]) -> str:
+def fuzzy_match(name: str, strings: set[str]) -> str:
     global fuzzy_match_fun
     if fuzzy_match_fun is not None:
         return fuzzy_match_fun(name, strings)
@@ -342,7 +342,7 @@ def Blasius(Re: float) -> float:
     return 0.3164/sqrt(sqrt(Re))
 
 
-def Colebrook(Re: float, eD: float, tol: Optional[int]=None) -> float:
+def Colebrook(Re: float, eD: float, tol: int | None=None) -> float:
     r"""Calculates Darcy friction factor using the Colebrook equation
     originally published in [1]_. Normally, this function uses an exact
     solution to the Colebrook equation, derived with a CAS. A numerical solution can
@@ -2049,7 +2049,7 @@ fmethods = {"Moody": (4000.0, 100000000.0, 0.0, 0.01),
  "Colebrook": (0, None, 0.0, None)}
 
 
-def friction_factor_methods(Re: float, eD: float=0.0, check_ranges: bool=True) -> List[str]:
+def friction_factor_methods(Re: float, eD: float=0.0, check_ranges: bool=True) -> list[str]:
     r"""Returns a list of correlation names for calculating friction factor
     for internal pipe flow.
 
@@ -2093,7 +2093,7 @@ def friction_factor_methods(Re: float, eD: float=0.0, check_ranges: bool=True) -
         return list(fmethods.keys()) + ["laminar"]
 
 
-def friction_factor(Re: float, eD: float=0.0, Method: Optional[str]="Clamond", Darcy: bool=True) -> float:
+def friction_factor(Re: float, eD: float=0.0, Method: str | None="Clamond", Darcy: bool=True) -> float:
     r"""Calculates friction factor. Uses a specified method, or automatically
     picks one from the dictionary of available methods. 29 approximations are
     available as well as the direct solution, described in the table below.
@@ -3239,7 +3239,7 @@ def helical_Re_crit(Di: float, Dc: float, Method: str="Schmidt") -> float:
 
 
 def friction_factor_curved_methods(Re: float, Di: float, Dc: float, roughness: float=0.0,
-                                   check_ranges: bool=True) -> List[str]:
+                                   check_ranges: bool=True) -> list[str]:
     r"""Returns a list of correlation names for calculating friction factor
     of fluid flowing in a curved pipe or helical coil, supporting both laminar
     and turbulent regimes.
@@ -3281,7 +3281,7 @@ def friction_factor_curved_methods(Re: float, Di: float, Dc: float, roughness: f
         return curved_friction_turbulent_methods_list + curved_friction_laminar_methods_list
 
 
-def friction_factor_curved(Re: float, Di: float, Dc: float, roughness: float=0.0, Method: Optional[str]=None,
+def friction_factor_curved(Re: float, Di: float, Dc: float, roughness: float=0.0, Method: str | None=None,
                            Rec_method: str="Schmidt",
                            laminar_method: str="Schmidt laminar",
                            turbulent_method: str="Schmidt turbulent", Darcy: bool=True) -> float:
@@ -4019,7 +4019,7 @@ if IS_NUMBA:
     _Farshad_roughness_keys = tuple(_Farshad_roughness.keys())
     _Farshad_roughness_values = tuple(_Farshad_roughness.values())
 
-def roughness_Farshad(ID: Optional[str]=None, D: Optional[float]=None, coeffs: Optional[Tuple[float, float]]=None) -> float:
+def roughness_Farshad(ID: str | None=None, D: float | None=None, coeffs: tuple[float, float] | None=None) -> float:
     r"""Calculates or retrieves the roughness of a pipe based on the work of
     [1]_. This function will return an average value for pipes of a given
     material, or if diameter is provided, will calculate one specifically for
@@ -4114,7 +4114,7 @@ roughness_clean_names = set(_roughness.keys())
 roughness_clean_names.update(_Farshad_roughness.keys())
 
 
-def nearest_material_roughness(name: str, clean: Optional[bool]=None) -> str:
+def nearest_material_roughness(name: str, clean: bool | None=None) -> str:
     r"""Searches through either a dict of clean pipe materials or used pipe
     materials and conditions and returns the ID of the nearest material.
     Search is performed with either the standard library's difflib or with
@@ -4155,7 +4155,7 @@ def nearest_material_roughness(name: str, clean: Optional[bool]=None) -> str:
     return fuzzy_match(name, d)
 
 
-def material_roughness(ID: str, D: Optional[float]=None, optimism: Optional[bool]=None) -> float:
+def material_roughness(ID: str, D: float | None=None, optimism: bool | None=None) -> float:
     r"""Searches through either a dict of clean pipe materials or used pipe
     materials and conditions and returns the ID of the nearest material.
     Search is performed with either the standard library's difflib or with
@@ -4208,7 +4208,7 @@ def material_roughness(ID: str, D: Optional[float]=None, optimism: Optional[bool
         return material_roughness(nearest_material_roughness(ID, clean=False),
                                   D=D, optimism=optimism)
 
-def transmission_factor(fd: Optional[float]=None, F: Optional[float]=None) -> float:
+def transmission_factor(fd: float | None=None, F: float | None=None) -> float:
     r"""Calculates either transmission factor from Darcy friction factor,
     or Darcy friction factor from the transmission factor. Raises an exception
     if neither input is given.

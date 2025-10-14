@@ -55,14 +55,14 @@ Demister Geometry
 .. autofunction:: fluids.packed_tower.voidage_experimental
 .. autofunction:: fluids.packed_tower.specific_area_mesh
 """
+from __future__ import annotations
 
 from math import log, sqrt
 
 from fluids.constants import g, pi
 from fluids.numerics import newton_system, secant, solve_2_direct
-from typing import List, Tuple
 
-__all__: List[str] = [
+__all__: list[str] = [
     "Robbins",
     "Stichlmair_dry",
     "Stichlmair_flood",
@@ -595,8 +595,8 @@ def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,
     - 186.0*h0/(voidage - h0*(1.0 + 20.0*term)))
     return err1, err2
 
-def _Stichlmair_flood_f_and_jac(inputs: List[float], Vl: float, rhog: float, rhol: float, mug: float, voidage: float,
-                                specific_area: float, C1: float, C2: float, C3: float, H: float) -> Tuple[List[float], List[List[float]]]:
+def _Stichlmair_flood_f_and_jac(inputs: list[float], Vl: float, rhog: float, rhol: float, mug: float, voidage: float,
+                                specific_area: float, C1: float, C2: float, C3: float, H: float) -> tuple[list[float], list[list[float]]]:
     """Internal function which calculates the errors of the two Stichlmair
     objective functions, and their jacobian.
 

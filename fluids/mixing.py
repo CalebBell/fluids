@@ -38,13 +38,13 @@ Misc Functions
 .. autofunction:: time_helical_ribbon_Grenville
 
 """
+from __future__ import annotations
 
 from math import log, pi, sqrt
 
 from fluids.constants import g
-from typing import List, Optional
 
-__all__: List[str] = [
+__all__: list[str] = [
     "COV_motionless_mixer",
     "K_motionless_mixer",
     "Kp_helical_ribbon_Rieger",
@@ -62,7 +62,7 @@ def adjust_homogeneity(fraction: float) -> float:
     return multiplier
 
 
-def agitator_time_homogeneous(N: float, P: float, T: float, H: float, mu: float, rho: float, D: Optional[float]=None, homogeneity: float=.95) -> float:
+def agitator_time_homogeneous(N: float, P: float, T: float, H: float, mu: float, rho: float, D: float | None=None, homogeneity: float=.95) -> float:
     r"""Calculates time for a fluid mizing in a tank with an impeller to
     reach a specified level of homogeneity, according to [1]_.
 

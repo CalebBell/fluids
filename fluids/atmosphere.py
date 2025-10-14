@@ -45,15 +45,16 @@ Solar Radiation and Position
 .. autofunction:: earthsun_distance
 
 """
+from __future__ import annotations
 
+import datetime
 from math import cos, exp, pi, radians, sin, sqrt
+from typing import Callable
 
 from fluids.constants import N_A, R, au
 from fluids.numerics import quad, secant
-from typing import Callable, List, Optional, Tuple
-import datetime
 
-__all__: List[str] = [
+__all__: list[str] = [
     "ATMOSPHERE_1976",
     "ATMOSPHERE_NRLMSISE00",
     "airmass",
@@ -655,7 +656,7 @@ def earthsun_distance(moment: datetime.datetime) -> float:
 
 
 def solar_position(moment: datetime.datetime, latitude: float, longitude: float, Z: float=0.0, T: float=298.15, P: float=101325.0,
-                   atmos_refract: float=0.5667) -> List[float]:
+                   atmos_refract: float=0.5667) -> list[float]:
     r"""Calculate the position of the sun in the sky. It is defined in terms of
     two angles - the zenith and the azimuth. The azimuth tells where a sundial
     would see the sun as coming from; the zenith tells how high in the sky it
@@ -788,7 +789,7 @@ def solar_position(moment: datetime.datetime, latitude: float, longitude: float,
     return result
 
 
-def sunrise_sunset(moment: datetime.datetime, latitude: float, longitude: float) -> Tuple[datetime.datetime, datetime.datetime, datetime.datetime]:
+def sunrise_sunset(moment: datetime.datetime, latitude: float, longitude: float) -> tuple[datetime.datetime, datetime.datetime, datetime.datetime]:
     r"""Calculates the times at which the sun is at sunset; sunrise; and
     halfway between sunrise and sunset (transit).
 
@@ -906,10 +907,10 @@ def _get_extra_radiation_shim(datetime_or_doy: int, solar_constant: float=1366.1
 
 def solar_irradiation(latitude: float, longitude: float, Z: float, moment: datetime.datetime, surface_tilt: float,
                       surface_azimuth: float, T: None=None, P: None=None, solar_constant: float=1366.1,
-                      atmos_refract: float=0.5667, albedo: float=0.25, linke_turbidity: Optional[int]=None,
+                      atmos_refract: float=0.5667, albedo: float=0.25, linke_turbidity: int | None=None,
                       extraradiation_method: str="spencer",
                       airmass_model: str="kastenyoung1989",
-                      cache: None=None) -> Tuple[float, float, float, float, float]:
+                      cache: None=None) -> tuple[float, float, float, float, float]:
     r"""Calculates the amount of solar radiation and radiation reflected back
     the atmosphere which hits a surface at a specified tilt, and facing a
     specified azimuth.

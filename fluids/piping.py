@@ -45,13 +45,13 @@ Pipe Methods
 .. autofunction:: erosional_velocity
 
 """
+from __future__ import annotations
 
 from math import sqrt
 
 from fluids.constants import foot, inch, lb
-from typing import List, Optional, Tuple, Union
 
-__all__: List[str] = [
+__all__: list[str] = [
     "erosional_velocity",
     "gauge_from_t",
     "nearest_pipe",
@@ -598,7 +598,7 @@ schedule_lookup = { "40": (NPS40, S40i, S40o, S40t),
                     "BS1387HEAVY": (DN_HEAVY_BS1387, HEAVYi_BS1387, HEAVYo_BS1387, HEAVYt_BS1387),
                     }
 
-def Di_lookup(Di: float, NPSes: List[float], Dis: List[float], Dos: List[float], ts: List[float]) -> Tuple[int, float, float, float]:
+def Di_lookup(Di: float, NPSes: list[float], Dis: list[float], Dos: list[float], ts: list[float]) -> tuple[int, float, float, float]:
     for i in range(len(Dis)): # Go up ascending list; once larger than specified, return
         if Dis[-1] < Di:
             return None
@@ -607,7 +607,7 @@ def Di_lookup(Di: float, NPSes: List[float], Dis: List[float], Dos: List[float],
             return (_nps, _di, _do, _t)
     raise ValueError("Di lookup failed")
 
-def Do_lookup(Do: float, NPSes: List[float], Dis: List[float], Dos: List[float], ts: List[float]) -> Union[Tuple[int, float, int, float], Tuple[int, float, float, float]]:
+def Do_lookup(Do: float, NPSes: list[float], Dis: list[float], Dos: list[float], ts: list[float]) -> tuple[int, float, int, float] | tuple[int, float, float, float]:
     for i in range(len(Dos)): # Go up ascending list; once larger than specified, return
         if Dos[-1] < Do:
             return None
@@ -616,7 +616,7 @@ def Do_lookup(Do: float, NPSes: List[float], Dis: List[float], Dos: List[float],
             return (_nps, _di, _do, _t)
     raise ValueError("Do lookup failed")
 
-def NPS_lookup(NPS: float, NPSes: List[float], Dis: List[float], Dos: List[float], ts: List[float]) -> Tuple[int, float, float, float]:
+def NPS_lookup(NPS: float, NPSes: list[float], Dis: list[float], Dos: list[float], ts: list[float]) -> tuple[int, float, float, float]:
     for i in range(len(NPSes)): # Go up ascending list; once larger than specified, return
         if NPSes[i] == NPS:
             _nps, _di, _do, _t = NPSes[i], Dis[i], Dos[i], ts[i]
@@ -625,7 +625,7 @@ def NPS_lookup(NPS: float, NPSes: List[float], Dis: List[float], Dos: List[float
 
 
 
-def nearest_pipe(Do: Optional[float]=None, Di: Optional[float]=None, NPS: Optional[int]=None, schedule: Union[str, int, float]="40") -> Tuple[int, float, float, float]:
+def nearest_pipe(Do: float | None=None, Di: float | None=None, NPS: int | None=None, schedule: str | float="40") -> tuple[int, float, float, float]:
     r"""Searches for and finds the nearest standard pipe size to a given
     specification. Acceptable inputs are:
 

@@ -86,10 +86,11 @@ Point Spacing
 -------------
 .. autofunction:: psd_spacing
 """
-from numpy import float64, ndarray
-from typing import List, Optional, Union
+from __future__ import annotations
 
-__all__: List[str] = [
+from typing import TYPE_CHECKING
+
+__all__: list[str] = [
     "ISO_3310_1_R10",
     "ISO_3310_1_R20",
     "ISO_3310_1_R20_3",
@@ -119,6 +120,9 @@ __all__: List[str] = [
 from math import exp, log, log10, pi, sqrt
 
 from fluids.numerics import brenth, cumsum, diff, epsilon, erf, gamma, gammaincc, linspace, logspace, normalize, quad
+
+if TYPE_CHECKING:
+    from numpy import float64, ndarray
 
 ROOT_TWO_PI = sqrt(2.0*pi)
 
@@ -213,11 +217,11 @@ class Sieve:
     def __repr__(self):
         return f"<Sieve, designation {self.designation} mm, opening {self.opening:g} m>"
 
-    def __init__(self, designation: str, old_designation: Optional[str]=None, opening: Optional[float]=None,
-                 opening_inch: Optional[float]=None, Y_variation_avg: Optional[float]=None, X_variation_max: Optional[float]=None,
-                 max_opening: Optional[float]=None, compliance_samples: Optional[float]=None, compliance_sd: Optional[float]=None,
-                 inspection_samples: Optional[float]=None, inspection_sd: Optional[float]=None, calibration_samples: Optional[float]=None,
-                 calibration_sd: Optional[float]=None, d_wire: Optional[float]=None, d_wire_min: Optional[float]=None, d_wire_max: Optional[float]=None) -> None:
+    def __init__(self, designation: str, old_designation: str | None=None, opening: float | None=None,
+                 opening_inch: float | None=None, Y_variation_avg: float | None=None, X_variation_max: float | None=None,
+                 max_opening: float | None=None, compliance_samples: float | None=None, compliance_sd: float | None=None,
+                 inspection_samples: float | None=None, inspection_sd: float | None=None, calibration_samples: float | None=None,
+                 calibration_sd: float | None=None, d_wire: float | None=None, d_wire_min: float | None=None, d_wire_max: float | None=None) -> None:
 
         self.designation = designation
         self.old_designation = old_designation
@@ -506,7 +510,7 @@ sieve_spacing_options = {"ISO 3310-1": ISO_3310_1_sieve_list,
                          "ASTM E11": ASTM_E11_sieve_list,}
 
 
-def psd_spacing(d_min: Optional[float]=None, d_max: Optional[float]=None, pts: int=20, method: str="logarithmic") -> List[float]:
+def psd_spacing(d_min: float | None=None, d_max: float | None=None, pts: int=20, method: str="logarithmic") -> list[float]:
     r"""Create a particle spacing mesh in one of several ways for use in
     modeling discrete particle size distributions. The allowable meshes are
     'linear', 'logarithmic', a geometric series specified by a Renard number
@@ -1224,12 +1228,12 @@ class ParticleSizeDistributionContinuous:
        Moments from Particle Size Distributions.
     """
 
-    def _pdf_basis_integral_definite(self, d_min: Union[float64, float], d_max: Union[float64, float], n: float) -> float:
+    def _pdf_basis_integral_definite(self, d_min: float64 | float, d_max: float64 | float, n: float) -> float:
         # Needed as an api for numerical integrals
         return (self._pdf_basis_integral(d=d_max, n=n)
                 - self._pdf_basis_integral(d=d_min, n=n))
 
-    def pdf(self, d: float, n: Optional[int]=None) -> float:
+    def pdf(self, d: float, n: int | None=None) -> float:
         r"""Computes the probability density function of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
@@ -1294,7 +1298,7 @@ class ParticleSizeDistributionContinuous:
             ans = (ans)/(self._cdf_d_max - self._cdf_d_min)
         return ans
 
-    def cdf(self, d: Union[int, float64, float], n: Optional[int]=None) -> float:
+    def cdf(self, d: float64 | float, n: int | None=None) -> float:
         r"""Computes the cumulative distribution density function of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
@@ -1379,7 +1383,7 @@ class ParticleSizeDistributionContinuous:
         """
         return self.cdf(d_max, n=n) - self.cdf(d_min, n=n)
 
-    def dn(self, fraction: Union[int, float64, float], n: None=None) -> Union[float64, float]:
+    def dn(self, fraction: float64 | float, n: None=None) -> float64 | float:
         r"""Computes the diameter at which a specified `fraction` of the
         distribution falls under. Utilizes a bounded solver to search for the
         desired diameter.
@@ -1439,8 +1443,8 @@ class ParticleSizeDistributionContinuous:
         return brenth(lambda d:self.cdf(d, n=n) -fraction,
                       self.d_minimum, self.d_excessive, maxiter=1000, xtol=1E-200)
 
-    def ds_discrete(self, d_min: Optional[float]=None, d_max: Optional[float]=None, pts: int=20, limit: float=1e-9,
-                    method: str="logarithmic") -> List[float]:
+    def ds_discrete(self, d_min: float | None=None, d_max: float | None=None, pts: int=20, limit: float=1e-9,
+                    method: str="logarithmic") -> list[float]:
         r"""Create a particle spacing mesh to perform calculations with,
         according to one of several ways. The allowable meshes are
         'linear', 'logarithmic', a geometric series specified by a Renard
@@ -1493,7 +1497,7 @@ class ParticleSizeDistributionContinuous:
                 d_max = self.dn(1.0 - limit)
         return psd_spacing(d_min=d_min, d_max=d_max, pts=pts, method=method)
 
-    def fractions_discrete(self, ds: Union[List[float], ndarray], n: None=None) -> List[float]:
+    def fractions_discrete(self, ds: list[float] | ndarray, n: None=None) -> list[float]:
         r"""Computes the fractions of the cumulative distribution functions
         which lie between the specified specified particle diameters. The first
         diameter contains the cdf from 0 to it.
@@ -1522,7 +1526,7 @@ class ParticleSizeDistributionContinuous:
         cdfs = [self.cdf(d, n=n) for d in ds]
         return [cdfs[0]] + diff(cdfs)
 
-    def cdf_discrete(self, ds: Union[List[float], ndarray], n: None=None) -> List[float]:
+    def cdf_discrete(self, ds: list[float] | ndarray, n: None=None) -> list[float]:
         r"""Computes the cumulative distribution functions for a list of
         specified particle diameters.
 
@@ -1815,7 +1819,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     points = True
     truncated = False
     name = "Discrete"
-    def __init__(self, ds: Union[List[float], List[float], ndarray], fractions: Union[List[float], List[int]], cdf: bool=False, order: int=3, monotonic: bool=True) -> None:
+    def __init__(self, ds: list[float] | ndarray, fractions: list[float] | list[int], cdf: bool=False, order: int=3, monotonic: bool=True) -> None:
         self.monotonic = monotonic
         self.ds = ds
         self.order = order
@@ -1877,7 +1881,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         self.number_cdf = cumsum(self.number_fractions)
 
     @property
-    def interpolated(self) -> "PSDInterpolated":
+    def interpolated(self) -> PSDInterpolated:
         if not self._interpolated:
             self._interpolated = PSDInterpolated(ds=self.ds,
                                                  fractions=self.fractions,
@@ -1888,10 +1892,10 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     def _pdf(self, d: float) -> float:
         return self.interpolated._pdf(d)
 
-    def _cdf(self, d: Union[int, float64, float]) -> float:
+    def _cdf(self, d: float64 | float) -> float:
         return self.interpolated._cdf(d)
 
-    def _pdf_basis_integral(self, d: Union[float64, float], n: int) -> float:
+    def _pdf_basis_integral(self, d: float64 | float, n: int) -> float:
         return self.interpolated._pdf_basis_integral(d, n)
 
     def _fit_obj_function(self, vals, distribution, n):
@@ -1933,11 +1937,11 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)
 
     @property
-    def Dis(self) -> Union[List[float], List[float64]]:
+    def Dis(self) -> list[float] | list[float64]:
         """Representative diameters of each bin."""
         return [self.di_power(i, power=1) for i in range(self.N)]
 
-    def di_power(self, i: int, power: int=1) -> Union[float64, float]:
+    def di_power(self, i: int, power: int=1) -> float64 | float:
         r"""Method to calculate a power of a particle class/bin in a generic
         way so as to support when there are as many `ds` as `fractions`,
         or one more diameter spec than `fractions`.
@@ -1978,7 +1982,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         else:
             return self.ds[i]**power
 
-    def mean_size(self, p: int, q: int) -> Union[float64, float]:
+    def mean_size(self, p: int, q: int) -> float64 | float:
         """
         >>> import numpy as np
         >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
@@ -2050,7 +2054,7 @@ class PSDLognormal(ParticleSizeDistributionContinuous):
     name = "Lognormal"
     points = False
     truncated = False
-    def __init__(self, d_characteristic: float, s: float, order: int=3, d_min: Optional[float]=None, d_max: Optional[float]=None) -> None:
+    def __init__(self, d_characteristic: float, s: float, order: int=3, d_min: float | None=None, d_max: float | None=None) -> None:
         self.s = s
         self.d_characteristic = d_characteristic
         self.order = order
@@ -2258,7 +2262,7 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
     name = "Interpolated"
     points = True
     truncated = False
-    def __init__(self, ds: Union[List[float], ndarray, List[float64]], fractions: Union[List[float], List[float64]], order: int=3, monotonic: bool=True) -> None:
+    def __init__(self, ds: list[float] | ndarray | list[float64], fractions: list[float] | list[float64], order: int=3, monotonic: bool=True) -> None:
         self.order = order
         self.monotonic = monotonic # always true now
         self.parameters = {}
@@ -2295,13 +2299,13 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
     def _pdf(self, d: float) -> float:
         return max(0.0, float(self.pdf_spline(d)))
 
-    def _cdf(self, d: Union[int, float64, float]) -> float:
+    def _cdf(self, d: float64 | float) -> float:
         if d > self.d_excessive:
             # Handle spline values past 1 that decrease to zero
             return 1.0
         return max(0.0, float(self.cdf_spline(d)))
 
-    def _pdf_basis_integral(self, d: Union[float64, float], n: int) -> float:
+    def _pdf_basis_integral(self, d: float64 | float, n: int) -> float:
         # there are slight errors with this approach - but they are OK to
         # ignore.
         # DO NOT evaluate the first point as it leads to inf values; just set

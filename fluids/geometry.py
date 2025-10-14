@@ -127,15 +127,18 @@ Pellet Properties
 .. autofunction:: V_multiple_hole_cylinder
 
 """
+from __future__ import annotations
 
 from cmath import sqrt as csqrt
 from math import acos, acosh, asin, atan, cos, degrees, isclose, log, log1p, pi, radians, sin, sqrt, tan
+from typing import TYPE_CHECKING
 
 from fluids.numerics import cacos, catan, chebval, derivative, ellipe, ellipeinc, ellipkinc, linspace, newton, quad, secant, translate_bound_func
-from numpy import float64
-from typing import List, Optional, Tuple, Union
 
-__all__: List[str] = [
+if TYPE_CHECKING:
+    from numpy import float64
+
+__all__: list[str] = [
     "TANK",
     "A_cylinder",
     "A_hollow_cylinder",
@@ -1465,8 +1468,8 @@ def SA_torispheroidal(D: float, f: float, k: float) -> float:
     return S1 + S2
 
 
-def SA_tank(D: float, L: float, sideA: Optional[str]=None, sideB: Optional[str]=None, sideA_a: float=0,
-            sideB_a: float=0, sideA_f: Optional[float]=None, sideA_k: Optional[float]=None, sideB_f: Optional[float]=None, sideB_k: Optional[float]=None) -> Tuple[float, float, float, float]:
+def SA_tank(D: float, L: float, sideA: str | None=None, sideB: str | None=None, sideA_a: float=0,
+            sideB_a: float=0, sideA_f: float | None=None, sideA_k: float | None=None, sideB_f: float | None=None, sideB_k: float | None=None) -> tuple[float, float, float, float]:
     r"""Calculates the surface are of a cylindrical tank with optional heads.
     In the degenerate case of being provided with only `D` and `L`, provides
     the surface area of a cylinder.
@@ -1567,8 +1570,8 @@ def SA_tank(D: float, L: float, sideA: Optional[str]=None, sideB: Optional[str]=
     return SA, sideA_SA, sideB_SA, lateral_SA
 
 
-def V_tank(D: float, L: float, horizontal: bool=True, sideA: Optional[str]=None, sideB: Optional[str]=None, sideA_a: float=0.0,
-           sideB_a: float=0.0, sideA_f: Optional[float]=None, sideA_k: Optional[float]=None, sideB_f: Optional[float]=None, sideB_k: Optional[float]=None) -> Tuple[float, float, float, float]:
+def V_tank(D: float, L: float, horizontal: bool=True, sideA: str | None=None, sideB: str | None=None, sideA_a: float=0.0,
+           sideB_a: float=0.0, sideA_f: float | None=None, sideA_k: float | None=None, sideB_f: float | None=None, sideB_k: float | None=None) -> tuple[float, float, float, float]:
     r"""Calculates the total volume of a vertical or horizontal tank with
     different head types.
 
@@ -1810,7 +1813,7 @@ def A_partial_circle(D: float, h: float) -> float:
         SA = 0.0 # Catch trig errors
     return SA
 
-def circle_segment_area_inner(h: float, R: float, A_expect: float) -> Tuple[float, float]:
+def circle_segment_area_inner(h: float, R: float, A_expect: float) -> tuple[float, float]:
     # 2 sqrt, 1 acos, 4 division
     x0 = R*R
     x1 = -h
@@ -2771,8 +2774,8 @@ def a_torispherical(D: float, f: float, k: float) -> float:
     return a1 + a2
 
 
-def V_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: Optional[str]=None, sideB: Optional[str]=None, sideA_a: float=0,
-             sideB_a: float=0, sideA_f: Optional[float]=None, sideA_k: Optional[float]=None, sideB_f: Optional[float]=None, sideB_k: Optional[float]=None) -> float:
+def V_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: str | None=None, sideB: str | None=None, sideA_a: float=0,
+             sideB_a: float=0, sideA_f: float | None=None, sideA_k: float | None=None, sideB_f: float | None=None, sideB_k: float | None=None) -> float:
     r"""Calculates partially full volume of a vertical or horizontal tank with
     different head types according to [1]_.
 
@@ -2925,8 +2928,8 @@ def V_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: Optiona
     return V
 
 
-def SA_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: Optional[str]=None, sideB: Optional[str]=None, sideA_a: float=0.0,
-             sideB_a: float=0.0, sideA_f: Optional[float]=None, sideA_k: Optional[float]=None, sideB_f: Optional[float]=None, sideB_k: Optional[float]=None) -> float:
+def SA_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: str | None=None, sideB: str | None=None, sideA_a: float=0.0,
+             sideB_a: float=0.0, sideA_f: float | None=None, sideA_k: float | None=None, sideB_f: float | None=None, sideB_k: float | None=None) -> float:
     r"""Calculates partially full wetted surface area of a vertical or horizontal tank with
     different head types according to [1]_.
 
@@ -3091,10 +3094,10 @@ def SA_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: Option
                 SA += 0.25*pi*D*D
     return SA
 
-def tank_from_two_specs_err(guess: List[float], spec0: float, spec1: float, spec0_name: str, spec1_name: str,
+def tank_from_two_specs_err(guess: list[float], spec0: float, spec1: float, spec0_name: str, spec1_name: str,
                             h: float, horizontal: bool, sideA: None, sideB: None, sideA_a: None, sideB_a: None,
                             sideA_f: None, sideA_k: None, sideB_f: None, sideB_k: None,
-                            sideA_a_ratio: None, sideB_a_ratio: None) -> List[float]:
+                            sideA_a_ratio: None, sideB_a_ratio: None) -> list[float]:
     D, L_over_D = float(guess[0]), float(guess[1])
     obj = TANK(D=D, L_over_D=L_over_D, horizontal=horizontal,
          sideA=sideA, sideB=sideB, sideA_a=sideA_a, sideB_a=sideB_a,
@@ -3328,10 +3331,10 @@ class TANK:
     model_inputs = ("D", "L", "horizontal", "sideA", "sideB", "sideA_a", "sideB_a",
     "sideA_f", "sideA_k", "sideB_f", "sideB_k", "sideA_a_ratio", "sideB_a_ratio", "L_over_D", "V")
 
-    def __init__(self, D: Optional[float]=None, L: Optional[float]=None, horizontal: bool=True,
-                 sideA: Optional[str]=None, sideB: Optional[str]=None, sideA_a: Optional[float]=None, sideB_a: Optional[float]=None,
-                 sideA_f: Optional[float]=None, sideA_k: Optional[float]=None, sideB_f: Optional[float]=None, sideB_k: Optional[float]=None,
-                 sideA_a_ratio: Optional[float]=None, sideB_a_ratio: Optional[float]=None, L_over_D: Optional[float]=None, V: Optional[int]=None) -> None:
+    def __init__(self, D: float | None=None, L: float | None=None, horizontal: bool=True,
+                 sideA: str | None=None, sideB: str | None=None, sideA_a: float | None=None, sideB_a: float | None=None,
+                 sideA_f: float | None=None, sideA_k: float | None=None, sideB_f: float | None=None, sideB_k: float | None=None,
+                 sideA_a_ratio: float | None=None, sideB_a_ratio: float | None=None, L_over_D: float | None=None, V: int | None=None) -> None:
         self.D = D
         self.L = L
         self.L_over_D = L_over_D
@@ -3480,10 +3483,10 @@ class TANK:
 
     @staticmethod
     def from_two_specs(spec0: float, spec1: float, spec0_name: str="V", spec1_name: str="A_cross",
-                       h: Optional[float]=None, horizontal: bool=True,
+                       h: float | None=None, horizontal: bool=True,
                        sideA: None=None, sideB: None=None, sideA_a: None=None, sideB_a: None=None,
                        sideA_f: None=None, sideA_k: None=None, sideB_f: None=None, sideB_k: None=None,
-                       sideA_a_ratio: None=None, sideB_a_ratio: None=None) -> "TANK":
+                       sideA_a_ratio: None=None, sideB_a_ratio: None=None) -> TANK:
         r"""Method to create a new tank instance according to two
         specifications which are not direct geometry parameters.
 
@@ -3568,7 +3571,7 @@ class TANK:
 
 
     def add_thickness(self, thickness: float, sideA_thickness: None=None,
-                      sideB_thickness: None=None) -> "TANK":
+                      sideB_thickness: None=None) -> TANK:
         r"""Method to create a new tank instance with the same parameters as
         itself, except with an added thickness to it. This is useful to obtain
         ex. the inside of a tank and the outside; their different in volumes is
@@ -3818,9 +3821,9 @@ class TANK:
         self.h_from_V_cheb = lambda x : chebval((2.0*x-self.V_total)/(self.V_total), self.c_backward)
         self.chebyshev = True
 
-    def _V_solver_error(self, Vtarget: int, D: float, L: float, horizontal: bool, sideA: Optional[str], sideB: Optional[str], sideA_a: Optional[float],
-                       sideB_a: Optional[float], sideA_f: Optional[float], sideA_k: Optional[float], sideB_f: Optional[float], sideB_k: Optional[float],
-                       sideA_a_ratio: Optional[float], sideB_a_ratio: Optional[float]) -> float:
+    def _V_solver_error(self, Vtarget: int, D: float, L: float, horizontal: bool, sideA: str | None, sideB: str | None, sideA_a: float | None,
+                       sideB_a: float | None, sideA_f: float | None, sideA_k: float | None, sideB_f: float | None, sideB_k: float | None,
+                       sideA_a_ratio: float | None, sideB_a_ratio: float | None) -> float:
         """Function which uses only the variables given, and the TANK class
         itself, to determine how far from the desired volume, Vtarget, the
         volume produced by the specified parameters in a new TANK instance is.
@@ -3993,8 +3996,8 @@ outer diameter={self.Dt} m, number of turns={self.N}, pitch={self.pitch} m"
         s += ">"
         return s
 
-    def __init__(self, Dt: float, Do: Optional[int]=None, pitch: Optional[float]=None, H: Optional[int]=None, N: Optional[float]=None, H_total: Optional[int]=None,
-                 Do_total: Optional[float]=None, Di: Optional[float]=None) -> None:
+    def __init__(self, Dt: float, Do: int | None=None, pitch: float | None=None, H: int | None=None, N: float | None=None, H_total: int | None=None,
+                 Do_total: float | None=None, Di: float | None=None) -> None:
         # H goes from center of tube in bottom of coil to center of tube in top of coil
         # Do goes from the center of the spiral to the center of the outer tube
 
@@ -4222,8 +4225,8 @@ chevron_angles={} degrees, area enhancement factor={:g}".format(self.a, self.wav
 
 
     def __init__(self, amplitude: float, wavelength: float, chevron_angle: int=45,
-                 chevron_angles: Optional[Tuple[int, int]]=None, width: Optional[float]=None, length: Optional[float]=None, thickness: None=None,
-                 d_port: Optional[float]=None, plates: Optional[int]=None) -> None:
+                 chevron_angles: tuple[int, int] | None=None, width: float | None=None, length: float | None=None, thickness: None=None,
+                 d_port: float | None=None, plates: int | None=None) -> None:
         self.amplitude = self.a = amplitude # half a sine wave's height
         self.b = 2*self.amplitude # Used in some models. From a flat plate, a press goes down this far into the plate. Also called the hot and cold gap
         self.wavelength = self.pitch = wavelength # self.lambda
@@ -4364,7 +4367,7 @@ class RectangularFinExchanger:
        478-85. doi:10.1016/j.rser.2009.06.033.
     """
 
-    def __init__(self, fin_height: float, fin_thickness: float, fin_spacing: float, length: Optional[float]=None, width: Optional[float]=None, layers: Optional[int]=None, plate_thickness: Optional[float]=None, flow: str="crossflow") -> None:
+    def __init__(self, fin_height: float, fin_thickness: float, fin_spacing: float, length: float | None=None, width: float | None=None, layers: int | None=None, plate_thickness: float | None=None, flow: str="crossflow") -> None:
         self.h = self.fin_height = fin_height # including 2x thickness
         self.t = self.fin_thickness = fin_thickness
         self.s = self.fin_spacing = fin_spacing
@@ -4882,15 +4885,15 @@ class AirCooledExchanger:
     def __init__(self, tube_rows: int, tube_passes: int, tubes_per_row: int, tube_length: float,
                  tube_diameter: float, fin_thickness: float,
 
-                 angle: Optional[int]=None, pitch: Optional[float]=None, pitch_parallel: None=None, pitch_normal: None=None,
+                 angle: int | None=None, pitch: float | None=None, pitch_parallel: None=None, pitch_normal: None=None,
                  pitch_ratio: None=None,
 
-                 fin_diameter: None=None, fin_height: Optional[float]=None,
+                 fin_diameter: None=None, fin_height: float | None=None,
 
-                 fin_density: Optional[float]=None, fin_interval: None=None,
+                 fin_density: float | None=None, fin_interval: None=None,
 
                  parallel_bays: int=1, bundles_per_bay: int=1, fans_per_bay: int=1,
-                 corbels: bool=False, tube_thickness: Optional[float]=None, fan_diameter: None=None) -> None:
+                 corbels: bool=False, tube_thickness: float | None=None, fan_diameter: None=None) -> None:
         # TODO: fin types
 
         self.tube_rows = tube_rows
@@ -5050,8 +5053,8 @@ class AirCooledExchanger:
 
 
 
-def pitch_angle_solver(angle: Optional[float]=None, pitch: Optional[float]=None, pitch_parallel: Optional[float]=None,
-                       pitch_normal: Optional[float]=None) -> Union[Tuple[float, float, float, float], Tuple[int, float, float, float]]:
+def pitch_angle_solver(angle: float | None=None, pitch: float | None=None, pitch_parallel: float | None=None,
+                       pitch_normal: float | None=None) -> tuple[float, float, float, float] | tuple[int, float, float, float]:
     r"""Utility to take any two of `angle`, `pitch`, `pitch_parallel`, and
     `pitch_normal` and calculate the other two. This is useful for applications
     with tube banks, as in shell and tube heat exchangers or air coolers and
@@ -5366,7 +5369,7 @@ def V_hollow_cylinder(Di: float, Do: float, L: float) -> float:
     return pi*Do**2/4*L - pi*Di**2/4*L
 
 
-def A_multiple_hole_cylinder(Do: float, L: float, holes: List[Tuple[float, int]]) -> float:
+def A_multiple_hole_cylinder(Do: float, L: float, holes: list[tuple[float, int]]) -> float:
     r"""Returns the surface area of a cylinder with multiple holes.
     Calculation will naively return a negative value or other impossible
     result if the number of cylinders added is physically impossible.
@@ -5407,7 +5410,7 @@ def A_multiple_hole_cylinder(Do: float, L: float, holes: List[Tuple[float, int]]
     return A
 
 
-def V_multiple_hole_cylinder(Do: float, L: float, holes: List[Tuple[float, int]]) -> float:
+def V_multiple_hole_cylinder(Do: float, L: float, holes: list[tuple[float, int]]) -> float:
     r"""Returns the solid volume of a cylinder with multiple cylindrical holes.
     Calculation will naively return a negative value or other impossible
     result if the number of cylinders added is physically impossible.

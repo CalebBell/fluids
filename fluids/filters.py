@@ -40,13 +40,13 @@ Loss Coefficients for Grills
 .. autofunction:: round_edge_grill
 
 """
+from __future__ import annotations
 
 from math import cos, radians
 
 from fluids.numerics import implementation_optimize_tck, interp, splev
-from typing import List, Optional
 
-__all__: List[str] = [
+__all__: list[str] = [
     "round_edge_grill",
     "round_edge_open_mesh",
     "round_edge_screen",
@@ -247,7 +247,7 @@ def square_edge_screen(alpha: float) -> float:
     return interp(alpha, square_alphas, square_Ks)
 
 
-def square_edge_grill(alpha: float, l: Optional[float]=None, Dh: Optional[float]=None, fd: Optional[float]=None) -> float:
+def square_edge_grill(alpha: float, l: float | None=None, Dh: float | None=None, fd: float | None=None) -> float:
     r"""Returns the loss coefficient for a square grill or square bar
     screen or perforated plate with squared edges of thickness l, as shown in
     [1]_.
@@ -308,7 +308,7 @@ def square_edge_grill(alpha: float, l: Optional[float]=None, Dh: Optional[float]
     return x0/alpha2
 
 
-def round_edge_grill(alpha: float, l: Optional[float]=None, Dh: Optional[float]=None, fd: Optional[float]=None) -> float:
+def round_edge_grill(alpha: float, l: float | None=None, Dh: float | None=None, fd: float | None=None) -> float:
     r"""Returns the loss coefficient for a rounded square grill or square bar
     screen or perforated plate with rounded edges of thickness l, as shown in
     [1]_.

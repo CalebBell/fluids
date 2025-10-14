@@ -35,14 +35,14 @@ Functions
 .. autofunction :: K_separator_demister_York
 .. autofunction :: K_Souders_Brown_theoretical
 """
+from __future__ import annotations
 
 from math import exp, log, sqrt
 
 from fluids.constants import foot, g, psi
 from fluids.numerics import implementation_optimize_tck, splev
-from typing import List
 
-__all__: List[str] = [
+__all__: list[str] = [
     "K_Souders_Brown_theoretical",
     "K_Sounders_Brown_theoretical",
     "K_separator_Watkins",

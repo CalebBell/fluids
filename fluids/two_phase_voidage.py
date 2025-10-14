@@ -86,14 +86,14 @@ Gas/Liquid Viscosity
 .. autofunction:: Duckler
 
 """
+from __future__ import annotations
 
 from math import cos, exp, log, pi, radians, sin, sqrt
 
 from fluids.constants import g
 from fluids.core import Froude
-from typing import List, Optional
 
-__all__: List[str] = [
+__all__: list[str] = [
     "Armand",
     "Baroczy",
     "Beattie_Whalley",
@@ -800,7 +800,7 @@ def Kawahara(x: float, rhol: float, rhog: float, D: float) -> float:
 ### Miscellaneous correlations
 
 def Lockhart_Martinelli_Xtt(x: float, rhol: float, rhog: float, mul: float, mug: float, pow_x: float=0.9, pow_rho: float=0.5,
-                            pow_mu: float=0.1, n: Optional[float]=None) -> float:
+                            pow_mu: float=0.1, n: float | None=None) -> float:
     r"""Calculates the Lockhart-Martinelli Xtt two-phase flow parameter in a
     general way according to [2]_. [1]_ is said to describe this. However,
     very different definitions of this parameter have been used elsewhere.
@@ -2012,9 +2012,9 @@ two_phase_voidage_correlations = {"Thom" : (Thom, ("x", "rhol", "rhog", "mul", "
 _unknown_two_phase_voidage_corr = f"Method not recognized; available methods are {list(two_phase_voidage_correlations.keys())}"
 # All the available arguments are:
 #{'rhol', 'angle=0', 'x', 'P', 'mug', 'rhog', 'D', 'g', 'Pc', 'sigma', 'mul', 'm'}
-def liquid_gas_voidage_methods(x: float, rhol: float, rhog: float, D: Optional[float]=None, m: Optional[float]=None, mul: Optional[float]=None, mug: Optional[float]=None,
-                               sigma: Optional[float]=None, P: Optional[float]=None, Pc: Optional[float]=None, angle: float=0.0, g: float=g,
-                               check_ranges: bool=False) -> List[str]:
+def liquid_gas_voidage_methods(x: float, rhol: float, rhog: float, D: float | None=None, m: float | None=None, mul: float | None=None, mug: float | None=None,
+                               sigma: float | None=None, P: float | None=None, Pc: float | None=None, angle: float=0.0, g: float=g,
+                               check_ranges: bool=False) -> list[str]:
     r"""This function returns a list of liquid-gas voidage correlation names
     which can perform the calculation with the provided inputs. The holdup is
     for two-phase liquid-gas flow inside channels. 29 calculation methods are
@@ -2071,8 +2071,8 @@ def liquid_gas_voidage_methods(x: float, rhol: float, rhog: float, D: Optional[f
             usable_methods.append(method)
     return usable_methods
 
-def liquid_gas_voidage(x: float, rhol: float, rhog: float, D: Optional[float]=None, m: Optional[float]=None, mul: Optional[float]=None, mug: Optional[float]=None,
-                       sigma: Optional[float]=None, P: Optional[float]=None, Pc: Optional[float]=None, angle: int=0, g: float=g, Method: Optional[str]=None) -> float:
+def liquid_gas_voidage(x: float, rhol: float, rhog: float, D: float | None=None, m: float | None=None, mul: float | None=None, mug: float | None=None,
+                       sigma: float | None=None, P: float | None=None, Pc: float | None=None, angle: int=0, g: float=g, Method: str | None=None) -> float:
     r"""This function handles calculation of two-phase liquid-gas voidage
     for flow inside channels. 29 calculation methods are available, with
     varying input requirements. A correlation will be automatically selected if
@@ -2640,7 +2640,7 @@ liquid_gas_viscosity_correlations = {"Beattie Whalley": (Beattie_Whalley, 1),
                                      "Lin Kwok": (Lin_Kwok, 0)}
 liquid_gas_viscosity_correlations_list = ["Beattie Whalley", "Fourar Bories", "Duckler", "McAdams", "Cicchitti", "Lin Kwok"]
 
-def gas_liquid_viscosity_methods(rhol: Optional[float]=None, rhog: Optional[float]=None, check_ranges: bool=False) -> List[str]:
+def gas_liquid_viscosity_methods(rhol: float | None=None, rhog: float | None=None, check_ranges: bool=False) -> list[str]:
     r"""This function returns a list of methods which can be used for calculating
     two-phase liquid-gas viscosity.
     Six calculation methods are available; three of them require only `x`,
@@ -2675,7 +2675,7 @@ def gas_liquid_viscosity_methods(rhol: Optional[float]=None, rhog: Optional[floa
 _gas_liquid_viscosity_method_unknown = f"Method not recognized; available methods are {list(liquid_gas_viscosity_correlations.keys())}"
 
 
-def gas_liquid_viscosity(x: float, mul: float, mug: float, rhol: Optional[float]=None, rhog: Optional[float]=None, Method: Optional[str]=None) -> float:
+def gas_liquid_viscosity(x: float, mul: float, mug: float, rhol: float | None=None, rhog: float | None=None, Method: str | None=None) -> float:
     r"""This function handles the calculation of two-phase liquid-gas viscosity.
     Six calculation methods are available; three of them require only `x`,
     `mul`, and `mug`; the other three require `rhol` and `rhog` as well.

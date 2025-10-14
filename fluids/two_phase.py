@@ -68,9 +68,9 @@ Two Phase Flow Regime Correlations
 .. autofunction:: Taitel_Dukler_regime
 
 """
-from typing import List, Optional, Tuple
+from __future__ import annotations
 
-__all__: List[str] = [
+__all__: list[str] = [
     "Bankoff",
     "Baroczy_Chisholm",
     "Beggs_Brill",
@@ -2354,9 +2354,9 @@ two_phase_correlations = {
 }
 _unknown_msg_two_phase = f"Unknown method; available methods are {list(two_phase_correlations.keys())}"
 
-def two_phase_dP_methods(m: float, x: float, rhol: float, D: float, L: float=1.0, rhog: Optional[float]=None, mul: Optional[float]=None, mug: Optional[float]=None,
-                         sigma: Optional[float]=None, P: Optional[float]=None, Pc: Optional[float]=None, roughness: float=0.0, angle: float=0,
-                         check_ranges: bool=False) -> List[str]:
+def two_phase_dP_methods(m: float, x: float, rhol: float, D: float, L: float=1.0, rhog: float | None=None, mul: float | None=None, mug: float | None=None,
+                         sigma: float | None=None, P: float | None=None, Pc: float | None=None, roughness: float=0.0, angle: float=0,
+                         check_ranges: bool=False) -> list[str]:
     r"""This function returns a list of names of correlations for two-phase
     liquid-gas pressure drop for flow inside channels.
     24 calculation methods are available, with varying input requirements.
@@ -2450,16 +2450,16 @@ def two_phase_dP_methods(m: float, x: float, rhol: float, D: float, L: float=1.0
 # _generate_two_phase_dP_parameter_requirements()
 
 # Generated frozensets (regenerate by uncommenting above code):
-two_phase_dP_methods_needing_rhog = frozenset(['Bankoff', 'Baroczy_Chisholm', 'Beggs-Brill', 'Chen_Friedel', 'Chisholm', 'Chisholm rough', 'Friedel', 'Gronnerud', 'Hwang_Kim', 'Jung_Radermacher', 'Kim_Mudawar', 'Lockhart_Martinelli', 'Lombardi_Pedrocchi', 'Mishima_Hibiki', 'Muller_Steinhagen_Heck', 'Theissing', 'Tran', 'Wang_Chiang_Lu', 'Xu_Fang', 'Yu_France', 'Zhang_Hibiki_Mishima', 'Zhang_Hibiki_Mishima adiabatic gas', 'Zhang_Hibiki_Mishima flow boiling'])
-two_phase_dP_methods_needing_mul = frozenset(['Bankoff', 'Baroczy_Chisholm', 'Beggs-Brill', 'Chen_Friedel', 'Chisholm', 'Chisholm rough', 'Friedel', 'Gronnerud', 'Hwang_Kim', 'Jung_Radermacher', 'Kim_Mudawar', 'Lockhart_Martinelli', 'Mishima_Hibiki', 'Muller_Steinhagen_Heck', 'Theissing', 'Tran', 'Wang_Chiang_Lu', 'Xu_Fang', 'Yu_France', 'Zhang_Hibiki_Mishima', 'Zhang_Hibiki_Mishima adiabatic gas', 'Zhang_Hibiki_Mishima flow boiling', 'Zhang_Webb'])
-two_phase_dP_methods_needing_mug = frozenset(['Bankoff', 'Baroczy_Chisholm', 'Beggs-Brill', 'Chen_Friedel', 'Chisholm', 'Chisholm rough', 'Friedel', 'Gronnerud', 'Hwang_Kim', 'Jung_Radermacher', 'Kim_Mudawar', 'Lockhart_Martinelli', 'Mishima_Hibiki', 'Muller_Steinhagen_Heck', 'Theissing', 'Tran', 'Wang_Chiang_Lu', 'Xu_Fang', 'Yu_France', 'Zhang_Hibiki_Mishima', 'Zhang_Hibiki_Mishima adiabatic gas', 'Zhang_Hibiki_Mishima flow boiling'])
-two_phase_dP_methods_needing_sigma = frozenset(['Beggs-Brill', 'Chen_Friedel', 'Friedel', 'Hwang_Kim', 'Kim_Mudawar', 'Lombardi_Pedrocchi', 'Mishima_Hibiki', 'Tran', 'Xu_Fang', 'Zhang_Hibiki_Mishima', 'Zhang_Hibiki_Mishima adiabatic gas', 'Zhang_Hibiki_Mishima flow boiling'])
-two_phase_dP_methods_needing_P = frozenset(['Beggs-Brill', 'Zhang_Webb'])
-two_phase_dP_methods_needing_Pc = frozenset(['Zhang_Webb'])
-two_phase_dP_methods_needing_angle = frozenset(['Beggs-Brill'])
+two_phase_dP_methods_needing_rhog = frozenset(["Bankoff", "Baroczy_Chisholm", "Beggs-Brill", "Chen_Friedel", "Chisholm", "Chisholm rough", "Friedel", "Gronnerud", "Hwang_Kim", "Jung_Radermacher", "Kim_Mudawar", "Lockhart_Martinelli", "Lombardi_Pedrocchi", "Mishima_Hibiki", "Muller_Steinhagen_Heck", "Theissing", "Tran", "Wang_Chiang_Lu", "Xu_Fang", "Yu_France", "Zhang_Hibiki_Mishima", "Zhang_Hibiki_Mishima adiabatic gas", "Zhang_Hibiki_Mishima flow boiling"])
+two_phase_dP_methods_needing_mul = frozenset(["Bankoff", "Baroczy_Chisholm", "Beggs-Brill", "Chen_Friedel", "Chisholm", "Chisholm rough", "Friedel", "Gronnerud", "Hwang_Kim", "Jung_Radermacher", "Kim_Mudawar", "Lockhart_Martinelli", "Mishima_Hibiki", "Muller_Steinhagen_Heck", "Theissing", "Tran", "Wang_Chiang_Lu", "Xu_Fang", "Yu_France", "Zhang_Hibiki_Mishima", "Zhang_Hibiki_Mishima adiabatic gas", "Zhang_Hibiki_Mishima flow boiling", "Zhang_Webb"])
+two_phase_dP_methods_needing_mug = frozenset(["Bankoff", "Baroczy_Chisholm", "Beggs-Brill", "Chen_Friedel", "Chisholm", "Chisholm rough", "Friedel", "Gronnerud", "Hwang_Kim", "Jung_Radermacher", "Kim_Mudawar", "Lockhart_Martinelli", "Mishima_Hibiki", "Muller_Steinhagen_Heck", "Theissing", "Tran", "Wang_Chiang_Lu", "Xu_Fang", "Yu_France", "Zhang_Hibiki_Mishima", "Zhang_Hibiki_Mishima adiabatic gas", "Zhang_Hibiki_Mishima flow boiling"])
+two_phase_dP_methods_needing_sigma = frozenset(["Beggs-Brill", "Chen_Friedel", "Friedel", "Hwang_Kim", "Kim_Mudawar", "Lombardi_Pedrocchi", "Mishima_Hibiki", "Tran", "Xu_Fang", "Zhang_Hibiki_Mishima", "Zhang_Hibiki_Mishima adiabatic gas", "Zhang_Hibiki_Mishima flow boiling"])
+two_phase_dP_methods_needing_P = frozenset(["Beggs-Brill", "Zhang_Webb"])
+two_phase_dP_methods_needing_Pc = frozenset(["Zhang_Webb"])
+two_phase_dP_methods_needing_angle = frozenset(["Beggs-Brill"])
 
-def two_phase_dP(m: float, x: float, rhol: float, D: float, L: float=1.0, rhog: Optional[float]=None, mul: Optional[float]=None, mug: Optional[float]=None, sigma: Optional[float]=None,
-                 P: Optional[float]=None, Pc: Optional[float]=None, roughness: float=0.0, angle: Optional[float]=None, Method: Optional[str]=None) -> float:
+def two_phase_dP(m: float, x: float, rhol: float, D: float, L: float=1.0, rhog: float | None=None, mul: float | None=None, mug: float | None=None, sigma: float | None=None,
+                 P: float | None=None, Pc: float | None=None, roughness: float=0.0, angle: float | None=None, Method: str | None=None) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     for flow inside channels. 23 calculation methods are available, with
     varying input requirements. A correlation will be automatically selected if
@@ -2642,7 +2642,7 @@ than provided; provide more inputs!")
 
 
 def two_phase_dP_acceleration(m: float, D: float, xi: float, xo: float, alpha_i: float, alpha_o: float, rho_li: float, rho_gi: float,
-                              rho_lo: Optional[float]=None, rho_go: Optional[float]=None) -> float:
+                              rho_lo: float | None=None, rho_go: float | None=None) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to acceleration for flow inside channels. This is a discrete
     calculation for a segment with a known difference in quality (and ideally
@@ -2811,7 +2811,7 @@ def two_phase_dP_dz_acceleration(m: float, D: float, x: float, rhol: float, rhog
 
 
 def two_phase_dP_gravitational(angle: float, z: float, alpha_i: float, rho_li: float, rho_gi: float,
-                               alpha_o: Optional[float]=None, rho_lo: Optional[float]=None, rho_go: Optional[float]=None, g: float=g) -> float:
+                               alpha_o: float | None=None, rho_lo: float | None=None, rho_go: float | None=None, g: float=g) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to gravitation for flow inside channels. This is a discrete
     calculation for a segment with a known difference in elevation (and ideally
@@ -2976,7 +2976,7 @@ XD_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XD_tck))
 
 
 def Taitel_Dukler_regime(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, angle: float, roughness: float=0.0,
-                         g: float=g) -> Tuple[str, float, float, float, float]:
+                         g: float=g) -> tuple[str, float, float, float, float]:
     r"""Classifies the regime of a two-phase flow according to Taitel and
     Dukler (1976) ([1]_, [2]_).
 
@@ -3107,7 +3107,7 @@ def Taitel_Dukler_regime(m: float, x: float, rhol: float, rhog: float, mul: floa
     return regime, X, T, F, K
 
 
-def Mandhane_Gregory_Aziz_regime(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float) -> Tuple[str, float, float]:
+def Mandhane_Gregory_Aziz_regime(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float) -> tuple[str, float, float]:
     r"""Classifies the regime of a two-phase flow according to Mandhane,
     Gregory, and Aziz  (1974) flow map.
 

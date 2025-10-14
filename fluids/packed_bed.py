@@ -57,11 +57,11 @@ Voidage Correlations
 .. autofunction:: voidage_Benyahia_Oneil_cylindrical
 
 """
+from __future__ import annotations
 
 from math import exp, pi, sqrt
-from typing import List, Optional
 
-__all__: List[str] = [
+__all__: list[str] = [
     "KTA",
     "Brauer",
     "Carman",
@@ -817,7 +817,7 @@ def Idelchik(dp: float, voidage: float, vs: float, rho: float, mu: float, L: flo
     return right/left
 
 
-def Harrison_Brunner_Hecker(dp: float, voidage: float, vs: float, rho: float, mu: float, L: int=1, Dt: Optional[float]=None) -> float:
+def Harrison_Brunner_Hecker(dp: float, voidage: float, vs: float, rho: float, mu: float, L: int=1, Dt: float | None=None) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, also shown in [2]_. Fourth most accurate
     correlation overall in the review of [2]_.
@@ -898,7 +898,7 @@ def Harrison_Brunner_Hecker(dp: float, voidage: float, vs: float, rho: float, mu
     return fp*rho*vs*vs*L/dp
 
 
-def Montillet_Akkari_Comiti(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1, Dt: Optional[float]=None) -> float:
+def Montillet_Akkari_Comiti(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1, Dt: float | None=None) -> float:
     r"""Calculates pressure drop across a packed bed of spheres as in [2]_,
     originally in [1]_. Wall effect adjustment is used if `Dt` is provided.
 
@@ -972,7 +972,7 @@ def Montillet_Akkari_Comiti(dp: float, voidage: float, vs: float, rho: float, mu
     return right/left
 
 
-def Guo_Sun(dp: float, voidage: float, vs: float, rho: float, mu: float, Dt: float=None, L: float=1.0) -> float:
+def Guo_Sun(dp: float, voidage: float, vs: float, rho: float, mu: float, Dt: float | None=None, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_. This is valid for highly-packed particles
     at particle/tube diameter ratios between 2 and 3, where a ring packing
@@ -1061,7 +1061,7 @@ packed_beds_correlations = {
 "Guo, Sun, Zhang, Ding & Liu": (Guo_Sun, True)
 }
 
-def dP_packed_bed_methods(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0, Dt: Optional[float]=None, check_ranges: bool=False) -> List[str]:
+def dP_packed_bed_methods(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0, Dt: float | None=None, check_ranges: bool=False) -> list[str]:
     r"""This function handles determining which pressure drop in a packed bed
     correlation are suitable for the provided inputs.
 
@@ -1113,8 +1113,8 @@ def dP_packed_bed_methods(dp: float, voidage: float, vs: float, rho: float, mu: 
     return methods
 
 
-def dP_packed_bed(dp: float, voidage: float, vs: float, rho: float, mu: float, L: int=1, Dt: Optional[float]=None, sphericity: Optional[float]=None,
-                  Method: Optional[str]=None) -> float:
+def dP_packed_bed(dp: float, voidage: float, vs: float, rho: float, mu: float, L: int=1, Dt: float | None=None, sphericity: float | None=None,
+                  Method: str | None=None) -> float:
     r"""This function handles choosing which pressure drop in a packed bed
     correlation is used. Automatically select which correlation
     to use if none is provided. Returns None if insufficient information is

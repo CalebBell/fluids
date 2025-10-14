@@ -68,14 +68,15 @@ Electrical Utilities
 .. autodata :: residential_power
 
 """
+from __future__ import annotations
 
 from math import log, sqrt
+from typing import Any
 
 from fluids.constants import hp
 from fluids.numerics import bisplev, interp, tck_interp2d_linear
-from typing import Any, List, Optional
 
-__all__: List[str] = [
+__all__: list[str] = [
     "CSA_motor_efficiency",
     "Corripio_motor_efficiency",
     "Corripio_pump_efficiency",
@@ -689,7 +690,7 @@ class CountryPower:
             f'CountryPower(country="{self.country}", voltage={self.voltage}, '
             f'freq={self.freq}, plugs={self.plugs})'
         )
-    def __init__(self, country: str, voltage: Any, freq: float, plugs: Optional[Any]=None) -> None:
+    def __init__(self, country: str, voltage: Any, freq: float, plugs: Any | None=None) -> None:
         self.plugs = plugs
         self.voltage = voltage
         self.freq = freq

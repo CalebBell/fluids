@@ -54,14 +54,14 @@ Manning Coefficients
 .. autodata:: n_closed_conduit
 .. autodata:: n_dicts
 """
+from __future__ import annotations
 
 from math import radians, sqrt, tan
 
 from fluids.constants import g
 from fluids.numerics import interp
-from typing import List
 
-__all__: List[str] = [
+__all__: list[str] = [
     "C_Chezy_to_n_Manning",
     "Q_weir_V_Shen",
     "Q_weir_rectangular_Kindsvater_Carter",

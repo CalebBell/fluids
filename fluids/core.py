@@ -114,10 +114,11 @@ Miscellaneous Functions
 .. autofunction:: gravity
 
 """
+from __future__ import annotations
+
 from math import pi, sin, sqrt
 
 from fluids.constants import R, g
-from typing import List, Optional
 
 """
 Additional copyright:
@@ -163,7 +164,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 
-__all__: List[str] = [
+__all__: list[str] = [
     "C2F",
     "C2K",
     "C2R",
@@ -322,7 +323,7 @@ def c_ideal_gas(T: float, k: float, MW: float) -> float:
 
 ### Dimensionless groups with documentation
 
-def Reynolds(V: float, D: float, rho: Optional[float]=None, mu: Optional[float]=None, nu: Optional[float]=None) -> float:
+def Reynolds(V: float, D: float, rho: float | None=None, mu: float | None=None, nu: float | None=None) -> float:
     r"""Calculates Reynolds number or `Re` for a fluid with the given
     properties for the specified velocity and diameter.
 
@@ -380,7 +381,7 @@ def Reynolds(V: float, D: float, rho: Optional[float]=None, mu: Optional[float]=
     return V*D/nu
 
 
-def Peclet_heat(V: float, L: float, rho: Optional[float]=None, Cp: Optional[float]=None, k: Optional[float]=None, alpha: Optional[float]=None) -> float:
+def Peclet_heat(V: float, L: float, rho: float | None=None, Cp: float | None=None, k: float | None=None, alpha: float | None=None) -> float:
     r"""Calculates heat transfer Peclet number or `Pe` for a specified velocity
     `V`, characteristic length `L`, and specified properties for the given
     fluid.
@@ -480,7 +481,7 @@ def Peclet_mass(V: float, L: float, D: float) -> float:
     return V*L/D
 
 
-def Fourier_heat(t: float, L: float, rho: Optional[float]=None, Cp: Optional[float]=None, k: Optional[float]=None, alpha: Optional[float]=None) -> float:
+def Fourier_heat(t: float, L: float, rho: float | None=None, Cp: float | None=None, k: float | None=None, alpha: float | None=None) -> float:
     r"""Calculates heat transfer Fourier number or `Fo` for a specified time
     `t`, characteristic length `L`, and specified properties for the given
     fluid.
@@ -581,7 +582,7 @@ def Fourier_mass(t: float, L: float, D: float) -> float:
     return t*D/(L*L)
 
 
-def Graetz_heat(V: float, D: float, x: float, rho: Optional[float]=None, Cp: Optional[float]=None, k: Optional[float]=None, alpha: Optional[float]=None) -> float:
+def Graetz_heat(V: float, D: float, x: float, rho: float | None=None, Cp: float | None=None, k: float | None=None, alpha: float | None=None) -> float:
     r"""Calculates Graetz number or `Gz` for a specified velocity
     `V`, diameter `D`, axial distance `x`, and specified properties for the
     given fluid.
@@ -647,7 +648,7 @@ def Graetz_heat(V: float, D: float, x: float, rho: Optional[float]=None, Cp: Opt
     return V*D*D/(x*alpha)
 
 
-def Schmidt(D: float, mu: Optional[float]=None, nu: Optional[float]=None, rho: Optional[float]=None) -> float:
+def Schmidt(D: float, mu: float | None=None, nu: float | None=None, rho: float | None=None) -> float:
     r"""Calculates Schmidt number or `Sc` for a fluid with the given
     parameters.
 
@@ -705,7 +706,7 @@ def Schmidt(D: float, mu: Optional[float]=None, nu: Optional[float]=None, rho: O
         raise ValueError("Insufficient information provided for Schmidt number calculation")
 
 
-def Lewis(D: Optional[float]=None, alpha: Optional[float]=None, Cp: Optional[float]=None, k: Optional[float]=None, rho: Optional[float]=None) -> float:
+def Lewis(D: float | None=None, alpha: float | None=None, Cp: float | None=None, k: float | None=None, rho: float | None=None) -> float:
     r"""Calculates Lewis number or `Le` for a fluid with the given parameters.
 
     .. math::
@@ -999,7 +1000,7 @@ def Knudsen(path: float, L: float) -> float:
     return path/L
 
 
-def Prandtl(Cp: Optional[float]=None, k: Optional[float]=None, mu: Optional[float]=None, nu: Optional[float]=None, rho: Optional[float]=None, alpha: Optional[float]=None) -> float:
+def Prandtl(Cp: float | None=None, k: float | None=None, mu: float | None=None, nu: float | None=None, rho: float | None=None, alpha: float | None=None) -> float:
     r"""Calculates Prandtl number or `Pr` for a fluid with the given
     parameters.
 
@@ -1067,7 +1068,7 @@ def Prandtl(Cp: Optional[float]=None, k: Optional[float]=None, mu: Optional[floa
         raise ValueError("Insufficient information provided for Pr calculation")
 
 
-def Grashof(L: float, beta: float, T1: float, T2: float=0, rho: Optional[float]=None, mu: Optional[float]=None, nu: Optional[float]=None, g: float=g) -> float:
+def Grashof(L: float, beta: float, T1: float, T2: float=0, rho: float | None=None, mu: float | None=None, nu: float | None=None, g: float=g) -> float:
     r"""Calculates Grashof number or `Gr` for a fluid with the given
     properties, temperature difference, and characteristic length.
 
@@ -2345,7 +2346,7 @@ def relative_roughness(D: float, roughness: float=1.52e-06) -> float:
 
 ### Misc utilities
 
-def nu_mu_converter(rho: float, mu: Optional[float]=None, nu: Optional[float]=None) -> float:
+def nu_mu_converter(rho: float, mu: float | None=None, nu: float | None=None) -> float:
     r"""Calculates either kinematic or dynamic viscosity, depending on inputs.
     Used when one type of viscosity is known as well as density, to obtain
     the other type. Raises an error if both types of viscosity or neither type

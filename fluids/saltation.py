@@ -39,13 +39,13 @@ Correlations
 .. autofunction :: Geldart_Ling
 
 """
+from __future__ import annotations
 
 from math import sqrt
 
 from fluids.constants import g, pi
-from typing import List
 
-__all__: List[str] = [
+__all__: list[str] = [
     "Geldart_Ling",
     "Matsumoto_1974",
     "Matsumoto_1975",

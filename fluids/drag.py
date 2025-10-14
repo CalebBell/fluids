@@ -61,15 +61,15 @@ Drag Correlations
 .. autofunction:: Morrison
 .. autofunction:: Song_Xu
 """
+from __future__ import annotations
 
 from math import exp, log, log10, sqrt, tanh
 
 from fluids.constants import g
 from fluids.core import Reynolds
 from fluids.numerics import cumulative_trapezoid, secant
-from typing import List, Optional, Tuple, Union
 
-__all__: List[str] = [
+__all__: list[str] = [
     "Almedeij",
     "Barati",
     "Barati_high",
@@ -1155,7 +1155,7 @@ drag_sphere_correlations = {
     "Song_Xu": (Song_Xu, None, 1E3)
 }
 
-def drag_sphere_methods(Re: float, check_ranges: bool=True) -> List[str]:
+def drag_sphere_methods(Re: float, check_ranges: bool=True) -> list[str]:
     r"""This function returns a list of methods that can be used to calculate
     the drag coefficient of a sphere.
     Twenty one methods are available, all requiring only the Reynolds number of
@@ -1190,7 +1190,7 @@ def drag_sphere_methods(Re: float, check_ranges: bool=True) -> List[str]:
             methods.append(key)
     return methods
 
-def drag_sphere(Re: float, Method: Optional[str]=None) -> float:
+def drag_sphere(Re: float, Method: str | None=None) -> float:
     r"""This function handles calculation of drag coefficient on spheres.
     Twenty methods are available, all requiring only the Reynolds number of the
     sphere. Most methods are valid from Re=0 to Re=200,000. A correlation will
@@ -1289,11 +1289,11 @@ def drag_sphere(Re: float, Method: Optional[str]=None) -> float:
         raise ValueError("Unrecognized method")
 
 
-def _v_terminal_err(V: float, Method: Optional[str], Re_almost: float, main: float) -> float:
+def _v_terminal_err(V: float, Method: str | None, Re_almost: float, main: float) -> float:
     Cd = drag_sphere(Re_almost*V, Method=Method)
     return V - sqrt(main/Cd)
 
-def v_terminal(D: float, rhop: float, rho: float, mu: float, Method: Optional[str]=None) -> float:
+def v_terminal(D: float, rhop: float, rho: float, mu: float, Method: str | None=None) -> float:
     r"""Calculates terminal velocity of a falling sphere using any drag
     coefficient method supported by `drag_sphere`. The laminar solution for
     Re < 0.01 is first tried; if the resulting terminal velocity does not
@@ -1449,8 +1449,8 @@ def time_v_terminal_Stokes(D: float, rhop: float, rho: float, mu: float, V0: flo
     raise ValueError("Could not find a solution")
 
 
-def integrate_drag_sphere(D: float, rhop: float, rho: float, mu: float, t: float, V: float=0, Method: Optional[str]=None,
-                          distance: bool=False) -> Union[Tuple[float, float], float]:
+def integrate_drag_sphere(D: float, rhop: float, rho: float, mu: float, t: float, V: float=0, Method: str | None=None,
+                          distance: bool=False) -> tuple[float, float] | float:
     r"""Integrates the velocity and distance traveled by a particle moving
     at a speed which will converge to its terminal velocity.
 

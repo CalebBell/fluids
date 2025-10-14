@@ -54,15 +54,15 @@ Functions and Data
 .. autodata:: API526_A
 
 """
+from __future__ import annotations
 
 from math import log10, pi, sqrt
 
 from fluids.compressible import is_critical_flow
 from fluids.constants import atm, inch
 from fluids.numerics import bisplev, interp, tck_interp2d_linear
-from typing import List
 
-__all__: List[str] = [
+__all__: list[str] = [
     "API520_B",
     "API520_C",
     "API520_F2",
