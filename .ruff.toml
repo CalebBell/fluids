@@ -23,8 +23,6 @@ extend-ignore = [
     "FIX002", # TODO are OK
     "FIX004", # HACK is OK
 
-    "PD901",
-
     "SIM109", # multiple equality comparisons are more performant than a set in small cases
     "PLR1714", # multiple equality comparisons are more performant than a set in small cases
 
