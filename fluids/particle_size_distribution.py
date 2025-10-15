@@ -138,11 +138,11 @@ class Sieve:
     designation : str
         The standard name of the sieve - its opening's length in units of
         millimeters
+    opening : float
+        The opening length of the sieve holes, [m]
     old_designation : str
         The older, imperial-esque name of the sieve; in Numbers, or inches for
         large sieves
-    opening : float
-        The opening length of the sieve holes, [m]
     opening_inch : float
         The opening length of the sieve holes in the rounded inches as stated
         in common tables (not exactly equal to the `opening`), [inch]
@@ -217,12 +217,11 @@ class Sieve:
     def __repr__(self):
         return f"<Sieve, designation {self.designation} mm, opening {self.opening:g} m>"
 
-    def __init__(self, designation: str, old_designation: str | None=None, opening: float | None=None,
+    def __init__(self, designation: str, opening: float, old_designation: str | None=None,
                  opening_inch: float | None=None, Y_variation_avg: float | None=None, X_variation_max: float | None=None,
                  max_opening: float | None=None, compliance_samples: float | None=None, compliance_sd: float | None=None,
                  inspection_samples: float | None=None, inspection_sd: float | None=None, calibration_samples: float | None=None,
                  calibration_sd: float | None=None, d_wire: float | None=None, d_wire_min: float | None=None, d_wire_max: float | None=None) -> None:
-
         self.designation = designation
         self.old_designation = old_designation
         self.opening_inch = opening_inch
@@ -573,21 +572,21 @@ def psd_spacing(d_min: float | None=None, d_max: float | None=None, pts: int=20,
             for i in range(pts-1):
                 ds.append(ds[-1]*ratio)
             return ds
-        elif d_max is not None:
+        elif d_max is not None and d_min is None:
             ds = [d_max]
             for i in range(pts-1):
                 ds.append(ds[-1]/ratio)
             return list(reversed(ds))
         else:
-            raise ValueError("For geometric (Renard) series, one of `d_min` or `d_max` must be provided")
+            raise ValueError("For geometric (Renard) series, exactly one of `d_min` or `d_max` must be provided")
     elif method in sieve_spacing_options:
-        l = sieve_spacing_options[method]
-        ds = []
         if d_min is None or d_max is None:
             raise ValueError("d_min and d_max must be provided for sieve spacing")
+        l = sieve_spacing_options[method]
+        ds = []
         for sieve in l:
-           if  d_min <= sieve.opening <= d_max:
-               ds.append(sieve.opening)
+            if  d_min <= sieve.opening <= d_max:
+                ds.append(sieve.opening)
         return list(reversed(ds))
     else:
         raise ValueError("Method not recognized")
