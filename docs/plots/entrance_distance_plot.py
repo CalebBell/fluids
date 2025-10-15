@@ -9,6 +9,6 @@ for method in entrance_distance_methods:
     plt.plot(ts, Ks, label=method)
 plt.legend()
 plt.title("Comparison of available methods for re-entrant entrances")
-plt.xlabel('t/Di')
-plt.ylabel('K')
+plt.xlabel("t/Di")
+plt.ylabel("K")
 #plt.show()
