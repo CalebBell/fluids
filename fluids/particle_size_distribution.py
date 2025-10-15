@@ -469,8 +469,8 @@ References
    -- Part 1: Test Sieves of Metal Wire Cloth.
 """
 
-ISO_3310_1_R20 = ["125", "112", "100", "90", "80", "71", "63", "56", "50", "45", "40", "35.5", "31.5", "28", "25", "22.4", "20", "18", "16", "14", "12.5", "11.2", "10", "9", "8", "7.1", "6.3", "5.6", "5", "4.5", "4", "3.55", "3.15", "2.8", "2.5", "2.24", "2", "1.8", "1.6", "1.4", "1.25", "1.12", "1", "0.9", "0.8", "0.71", "0.63", "0.56", "0.5", "0.45", "0.4", "0.355", "0.315", "0.28", "0.25", "0.224", "0.2", "0.18", "0.16", "0.14", "0.125", "0.112", "0.1", "0.09", "0.08", "0.071", "0.063", "0.056", "0.05", "0.045", "0.04", "0.036"]
-ISO_3310_1_R20 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R20]
+ISO_3310_1_R20_keys = ["125", "112", "100", "90", "80", "71", "63", "56", "50", "45", "40", "35.5", "31.5", "28", "25", "22.4", "20", "18", "16", "14", "12.5", "11.2", "10", "9", "8", "7.1", "6.3", "5.6", "5", "4.5", "4", "3.55", "3.15", "2.8", "2.5", "2.24", "2", "1.8", "1.6", "1.4", "1.25", "1.12", "1", "0.9", "0.8", "0.71", "0.63", "0.56", "0.5", "0.45", "0.4", "0.355", "0.315", "0.28", "0.25", "0.224", "0.2", "0.18", "0.16", "0.14", "0.125", "0.112", "0.1", "0.09", "0.08", "0.071", "0.063", "0.056", "0.05", "0.045", "0.04", "0.036"]
+ISO_3310_1_R20 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R20_keys]
 """List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R20 series only, ordered from largest  openings to smallest.
 
@@ -480,8 +480,8 @@ References
    -- Part 1: Test Sieves of Metal Wire Cloth.
 """
 
-ISO_3310_1_R40_3 = ["125", "106", "90", "75", "63", "53", "45", "37.5", "31.5", "26.5", "22.4", "19", "16", "13.2", "11.2", "9.5", "8", "6.7", "5.6", "4.75", "4", "3.35", "2.8", "2.36", "2", "1.7", "1.4", "1.18", "1", "0.85", "0.71", "0.6", "0.5", "0.425", "0.355", "0.3", "0.25", "0.212", "0.18", "0.15", "0.125", "0.106", "0.09", "0.075", "0.063", "0.053", "0.045", "0.038"]
-ISO_3310_1_R40_3 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R40_3]
+ISO_3310_1_R40_3_keys = ["125", "106", "90", "75", "63", "53", "45", "37.5", "31.5", "26.5", "22.4", "19", "16", "13.2", "11.2", "9.5", "8", "6.7", "5.6", "4.75", "4", "3.35", "2.8", "2.36", "2", "1.7", "1.4", "1.18", "1", "0.85", "0.71", "0.6", "0.5", "0.425", "0.355", "0.3", "0.25", "0.212", "0.18", "0.15", "0.125", "0.106", "0.09", "0.075", "0.063", "0.053", "0.045", "0.038"]
+ISO_3310_1_R40_3 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R40_3_keys]
 """List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R40/3 series only, ordered from largest  openings to smallest.
 
@@ -491,8 +491,8 @@ References
    -- Part 1: Test Sieves of Metal Wire Cloth.
 """
 
-ISO_3310_1_R10 = ["0.036", "0.032", "0.025", "0.02"]
-ISO_3310_1_R10 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R10]
+ISO_3310_1_R10_keys = ["0.036", "0.032", "0.025", "0.02"]
+ISO_3310_1_R10 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R10_keys]
 """List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R10 series only, ordered from largest  openings to smallest.
 
@@ -561,15 +561,14 @@ def psd_spacing(d_min: float | None=None, d_max: float | None=None, pts: int=20,
     if d_max is not None:
         d_max = float(d_max)
     if method == "logarithmic":
+        if d_min is None or d_max is None:
+            raise ValueError("d_min and d_max must be provided for logarithmic spacing")
         return logspace(log10(d_min), log10(d_max), pts)
     elif method == "linear":
         return linspace(d_min, d_max, pts)
     elif method[0] in ("R", "r"):
         ratio = 10**(1.0/float(method[1:]))
-        if d_min is not None and d_max is not None:
-            raise ValueError("For geometric (Renard) series, only "
-                            "one of `d_min` and `d_max` should be provided")
-        if d_min is not None:
+        if d_min is not None and d_max is None:
             ds = [d_min]
             for i in range(pts-1):
                 ds.append(ds[-1]*ratio)
@@ -579,9 +578,13 @@ def psd_spacing(d_min: float | None=None, d_max: float | None=None, pts: int=20,
             for i in range(pts-1):
                 ds.append(ds[-1]/ratio)
             return list(reversed(ds))
+        else:
+            raise ValueError("For geometric (Renard) series, one of `d_min` or `d_max` must be provided")
     elif method in sieve_spacing_options:
         l = sieve_spacing_options[method]
         ds = []
+        if d_min is None or d_max is None:
+            raise ValueError("d_min and d_max must be provided for sieve spacing")
         for sieve in l:
            if  d_min <= sieve.opening <= d_max:
                ds.append(sieve.opening)
@@ -1819,7 +1822,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     points = True
     truncated = False
     name = "Discrete"
-    def __init__(self, ds: list[float] | ndarray, fractions: list[float] | list[int], cdf: bool=False, order: int=3, monotonic: bool=True) -> None:
+    def __init__(self, ds: list[float] | ndarray, fractions: list[float], cdf: bool=False, order: int=3, monotonic: bool=True) -> None:
         self.monotonic = monotonic
         self.ds = ds
         self.order = order
@@ -1834,8 +1837,8 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
             if len(fractions)+1 == len(ds):
                 fractions = [fractions[0]] + diff(fractions)
             else:
-                fractions = diff(fractions)
-                fractions.insert(0, 0.0)
+                fractions_diff = diff(fractions)
+                fractions = [0.0] + fractions_diff
         elif sum(fractions) != 1.0:
             # Normalize flow inputs
             tot_inv = 1.0/sum(fractions)
@@ -1873,7 +1876,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         # Things for interoperability with the Continuous distribution
         self.d_excessive = float(self.ds[-1])
         self.d_minimum = 0.0
-        self.parameters = {}
+        self.parameters: dict[str, float | None] = {}
         self.order = 3
         self.fraction_cdf = self.volume_cdf = cumsum(self.fractions)
         self.area_cdf = cumsum(self.area_fractions)
@@ -1982,7 +1985,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         else:
             return self.ds[i]**power
 
-    def mean_size(self, p: int, q: int) -> float64 | float:
+    def mean_size(self, p: float, q: float) ->  float:
         """
         >>> import numpy as np
         >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
@@ -2265,7 +2268,7 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
     def __init__(self, ds: list[float] | ndarray | list[float64], fractions: list[float] | list[float64], order: int=3, monotonic: bool=True) -> None:
         self.order = order
         self.monotonic = monotonic # always true now
-        self.parameters = {}
+        self.parameters: dict[str, float | None] = {}
 
         ds = list(ds)
         fractions = list(fractions)
@@ -2275,9 +2278,9 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
             fractions.insert(0, 0.0)
             self.d_minimum = min(ds)
         elif ds[0] != 0:
-            ds = [0] + ds
+            ds = [0.0] + ds
             if len(ds) != len(fractions):
-                fractions = [0] + fractions
+                fractions = [0.0] + fractions
             self.d_minimum = 0.0
 
         self.ds = ds
@@ -2293,7 +2296,7 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
             self.pdf_spline = PchipInterpolator(ds, self.fraction_cdf, extrapolate=True).derivative(1)
 
         # The pdf basis integral splines will be stored here
-        self.basis_integrals = {}
+        self.basis_integrals: dict[int, object] = {}
 
 
     def _pdf(self, d: float) -> float:
