@@ -479,27 +479,31 @@ def entrance_distance(Di: float, t: float | None=None, l: float | None=None, met
     """
     if method is None:
         method = "Rennels"
+    if method in ("Rennels", "Miller", "Idelchik", "Harris"):
+        if t is None:
+            raise ValueError(f"t is required for {method} method")
+        t2 = t
     if method == "Rennels":
-        t_Di = t/Di
+        t_Di = t2/Di
         if t_Di > 0.05:
             t_Di = 0.05
         return 1.12 + t_Di*(t_Di*(80.0*t_Di + 216.0) - 22.0)
     elif method == "Miller":
-        t_Di = t/Di
+        t_Di = t2/Di
         if t_Di > 0.3:
             t_Di = 0.3
         return horner(entrance_distance_Miller_coeffs, 20.0/3.0*(t_Di - 0.15))
     elif method == "Idelchik":
         if l is None:
             l = Di
-        t_Di = min(t/Di, 1.0)
+        t_Di = min(t2/Di, 1.0)
         l_Di = min(l/Di, 10.0)
         K = float(entrance_distance_Idelchik_obj(l_Di, t_Di))
         if K < 0.0:
             K = 0.0
         return K
     elif method == "Harris":
-        ratio = min(t/Di, 0.289145) # max value for interpolation - extrapolation looks bad
+        ratio = min(t2/Di, 0.289145) # max value for interpolation - extrapolation looks bad
         K = float(entrance_distance_Harris_obj(ratio))
         return K
     elif method == "Crane":
@@ -1141,9 +1145,10 @@ def Miller_bend_unimpeded_correction(Kb: float, Di: float, L_unimpeded: float) -
                 Co_high = float(splev(L_unimpeded_ratio, tck_bend_rounded_Miller_C_os[i+1]))
             C_o = Co_low + (Kb_C_o - Kb_low)*(Co_high - Co_low)/(Kb_high - Kb_low)
             return C_o
+    raise ValueError(f"No matching Kb range found for Kb={Kb}")
 
 
-def bend_rounded_Miller(Di: float, angle: int, Re: float, rc: float | None=None, bend_diameters: float | None=None,
+def bend_rounded_Miller(Di: float, angle: float, Re: float, rc: float | None=None, bend_diameters: float | None=None,
                         roughness: float=0.0, L_unimpeded: float | None=None) -> float:
     r"""Calculates the loss coefficient for a rounded pipe bend according to
     Miller [1]_. This is a sophisticated model which uses corrections for
@@ -1350,7 +1355,7 @@ def bend_rounded_Crane(Di: float, angle: float, rc: float | None=None, bend_diam
 
 
 _Ito_angles = [45.0, 90.0, 180.0]
-def bend_rounded_Ito(Di: float, angle: int, Re: float, rc: float | None=None, bend_diameters: float | None=None,
+def bend_rounded_Ito(Di: float, angle: float, Re: float, rc: float | None=None, bend_diameters: float | None=None,
                      roughness: float=0.0) -> float:
     """Ito method as shown in Blevins.
 
@@ -1501,7 +1506,12 @@ def bend_rounded(Di: float, angle: float, fd: float | None=None, rc: float | Non
     if bend_diameters is None and rc is None:
         bend_diameters = 5.0
     if rc is None:
-        rc = Di*bend_diameters
+        if bend_diameters is None:
+            bend_diameters = 5.0  # already handled by earlier check
+        bend_diameters2 = bend_diameters
+        rc = Di*bend_diameters2
+    else:
+        bend_diameters2 = bend_diameters if bend_diameters is not None else 5.0
 
     if method == "Rennels":
         angle = radians(angle)
@@ -1517,18 +1527,18 @@ def bend_rounded(Di: float, angle: float, fd: float | None=None, rc: float | Non
         if Re is None:
             raise ValueError("Miller method requires Reynolds number")
         return bend_rounded_Miller(Di=Di, angle=angle, Re=Re, rc=rc,
-                                   bend_diameters=bend_diameters,
+                                   bend_diameters=bend_diameters2,
                                    roughness=roughness,
                                    L_unimpeded=L_unimpeded)
     elif method == "Crane":
         return bend_rounded_Crane(Di=Di, angle=angle, rc=rc,
-                                  bend_diameters=bend_diameters)
+                                  bend_diameters=bend_diameters2)
     elif method == "Crane standard":
         return ft_Crane(Di)*interp(angle, crane_standard_bend_angles, crane_standard_bend_losses, extrapolate=True)
     elif method == "Ito":
         if Re is None:
             raise ValueError("The `Ito` method requires `Re`")
-        return bend_rounded_Ito(Di=Di, angle=angle, Re=Re, rc=rc, bend_diameters=bend_diameters,
+        return bend_rounded_Ito(Di=Di, angle=angle, Re=Re, rc=rc, bend_diameters=bend_diameters2,
                      roughness=roughness)
     elif method == "Swamee":
         return (0.0733 + 0.923*(Di/rc)**3.5)*sqrt(radians(angle))
@@ -1699,11 +1709,19 @@ def bend_miter(angle: float, Di: float | None=None, Re: float | None=None, rough
         sin_half_angle = sin(angle_rad*0.5)
         return 0.42*sin_half_angle + 2.56*sin_half_angle*sin_half_angle*sin_half_angle
     elif method == "Crane":
+        if Di is None:
+            raise ValueError("Crane method requires Di")
         factor = interp(angle, bend_miter_Crane_angles, bend_miter_Crane_fds)
         return ft_Crane(Di)*factor
     elif method == "Miller":
+        if Di is None:
+            raise ValueError("Miller method requires Di")
+        if Re is None:
+            raise ValueError("Miller method requires Re")
         return bend_miter_Miller(Di=Di, angle=angle, Re=Re, roughness=roughness, L_unimpeded=L_unimpeded)
     elif method == "Blevins":
+        if Re is None:
+            raise ValueError("Blevins method requires Re")
         # data from Idelchik, Miller, an earlier ASME publication
         # For 90-120 degrees, a polynomial/spline would be better than a linear fit
         K_base = interp(angle, bend_miter_Blevins_angles, bend_miter_Blevins_Ks)
@@ -2458,7 +2476,7 @@ def contraction_conical(Di1: float, Di2: float, fd: float | None=None, l: float 
         raise ValueError(contraction_conical_method_unknown)
 
 
-def contraction_beveled(Di1: float, Di2: float, l: float | None=None, angle: float | None=None) -> float:
+def contraction_beveled(Di1: float, Di2: float, l: float, angle: float) -> float:
     r"""Returns loss coefficient for any sharp beveled pipe contraction
     as shown in [1]_.
 
@@ -3178,7 +3196,7 @@ if IS_NUMBA:
     Darby_values = tuple(Darby.values())
 
 
-def Darby3K(NPS: float | None=None, Re: float | None=None, name: str | None=None, K1: float | None=None, Ki: float | None=None, Kd: float | None=None, Di: None=None) -> float:
+def Darby3K(NPS: float | None=None, Re: float | None=None, name: str | None=None, K1: float | None=None, Ki: float | None=None, Kd: float | None=None, Di: float | None=None) -> float:
     r"""Returns loss coefficient for any various fittings, depending
     on the name input. Alternatively, the Darby constants K1, Ki and Kd
     may be provided and used instead. Source of data is [1]_.
@@ -3253,6 +3271,8 @@ def Darby3K(NPS: float | None=None, Re: float | None=None, name: str | None=None
         pass
     else:
         raise ValueError("Name of fitting or constants are required")
+    if NPS is None or Re is None or K1 is None or Ki is None or Kd is None:
+        raise ValueError("NPS, Re, and K constants must be set")
     return K1/Re + Ki*(1. + Kd*NPS**-0.3)
 
 
@@ -3383,6 +3403,8 @@ def Hooper2K(Di: float, Re: float, name: str | None=None, K1: float | None=None,
         pass
     else:
         raise ValueError("Name of fitting or constants are required")
+    if K1 is None or Kinfty is None:
+        raise ValueError("K1 and Kinfty must be set")
     return K1/Re + Kinfty*(1. + 1./Di)
 
 
@@ -3907,9 +3929,9 @@ def K_swing_check_valve_Crane(D: float | None=None, fd: float | None=None, angle
     .. [1] Crane Co. Flow of Fluids Through Valves, Fittings, and Pipe. Crane,
        2009.
     """
-    if D is None and fd is None:
-        raise ValueError("Either `D` or `fd` must be specified")
     if fd is None:
+        if D is None:
+            raise ValueError("D must be specified if fd is not provided")
         fd = ft_Crane(D)
     if angled:
         return 100.*fd
@@ -4333,6 +4355,8 @@ def K_diaphragm_valve_Crane(D: float | None=None, fd: float | None=None, style: 
     if D is None and fd is None:
         raise ValueError("Either `D` or `fd` must be specified")
     if fd is None:
+        if D is None:
+            raise ValueError("D must be specified if fd is not provided")
         fd = ft_Crane(D)
     if style == 0:
         K = 149.0*fd
@@ -4392,6 +4416,8 @@ def K_foot_valve_Crane(D: float | None=None, fd: float | None=None, style: int=0
     if D is None and fd is None:
         raise ValueError("Either `D` or `fd` must be specified")
     if fd is None:
+        if D is None:
+            raise ValueError("D must be specified if fd is not provided")
         fd = ft_Crane(D)
     if style == 0:
         K = 420.0*fd
@@ -4675,6 +4701,8 @@ def v_lift_valve_Crane(rho: float, D1: float | None=None, D2: float | None=None,
         return 20.0*sqrt(specific_volume)
     elif style == "foot valve hinged disc":
         return 45.0*sqrt(specific_volume)
+    else:
+        raise ValueError(f"Unknown valve style: {style}")
 
 CRANE_GATE_VALVE = "CRANE_GATE_VALVE"
 CRANE_GLOBE_VALVE = "CRANE_GLOBE_VALVE"
