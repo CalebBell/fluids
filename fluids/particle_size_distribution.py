@@ -88,8 +88,6 @@ Point Spacing
 """
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 __all__: list[str] = [
     "ISO_3310_1_R10",
     "ISO_3310_1_R20",
@@ -120,9 +118,7 @@ __all__: list[str] = [
 from math import exp, log, log10, pi, sqrt
 
 from fluids.numerics import brenth, cumsum, diff, epsilon, erf, gamma, gammaincc, linspace, logspace, normalize, quad
-
-if TYPE_CHECKING:
-    from numpy import float64, ndarray
+from fluids.numerics import numpy as np
 
 ROOT_TWO_PI = sqrt(2.0*pi)
 
@@ -1230,7 +1226,7 @@ class ParticleSizeDistributionContinuous:
        Moments from Particle Size Distributions.
     """
 
-    def _pdf_basis_integral_definite(self, d_min: float64 | float, d_max: float64 | float, n: float) -> float:
+    def _pdf_basis_integral_definite(self, d_min: float, d_max: float, n: float) -> float:
         # Needed as an api for numerical integrals
         return (self._pdf_basis_integral(d=d_max, n=n)
                 - self._pdf_basis_integral(d=d_min, n=n))
@@ -1300,7 +1296,7 @@ class ParticleSizeDistributionContinuous:
             ans = (ans)/(self._cdf_d_max - self._cdf_d_min)
         return ans
 
-    def cdf(self, d: float64 | float, n: int | None=None) -> float:
+    def cdf(self, d: float, n: int | None=None) -> float:
         r"""Computes the cumulative distribution density function of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
@@ -1385,7 +1381,7 @@ class ParticleSizeDistributionContinuous:
         """
         return self.cdf(d_max, n=n) - self.cdf(d_min, n=n)
 
-    def dn(self, fraction: float64 | float, n: None=None) -> float64 | float:
+    def dn(self, fraction: float, n: None=None) -> float:
         r"""Computes the diameter at which a specified `fraction` of the
         distribution falls under. Utilizes a bounded solver to search for the
         desired diameter.
@@ -1499,7 +1495,7 @@ class ParticleSizeDistributionContinuous:
                 d_max = self.dn(1.0 - limit)
         return psd_spacing(d_min=d_min, d_max=d_max, pts=pts, method=method)
 
-    def fractions_discrete(self, ds: list[float] | ndarray, n: None=None) -> list[float]:
+    def fractions_discrete(self, ds: list[float] | np.ndarray, n: None=None) -> list[float]:
         r"""Computes the fractions of the cumulative distribution functions
         which lie between the specified specified particle diameters. The first
         diameter contains the cdf from 0 to it.
@@ -1528,7 +1524,7 @@ class ParticleSizeDistributionContinuous:
         cdfs = [self.cdf(d, n=n) for d in ds]
         return [cdfs[0]] + diff(cdfs)
 
-    def cdf_discrete(self, ds: list[float] | ndarray, n: None=None) -> list[float]:
+    def cdf_discrete(self, ds: list[float] | np.ndarray, n: None=None) -> list[float]:
         r"""Computes the cumulative distribution functions for a list of
         specified particle diameters.
 
@@ -1821,7 +1817,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     points = True
     truncated = False
     name = "Discrete"
-    def __init__(self, ds: list[float] | ndarray, fractions: list[float], cdf: bool=False, order: int=3, monotonic: bool=True) -> None:
+    def __init__(self, ds: list[float] | np.ndarray, fractions: list[float], cdf: bool=False, order: int=3, monotonic: bool=True) -> None:
         self.monotonic = monotonic
         self.ds = ds
         self.order = order
@@ -1894,10 +1890,10 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     def _pdf(self, d: float) -> float:
         return self.interpolated._pdf(d)
 
-    def _cdf(self, d: float64 | float) -> float:
+    def _cdf(self, d: float) -> float:
         return self.interpolated._cdf(d)
 
-    def _pdf_basis_integral(self, d: float64 | float, n: int) -> float:
+    def _pdf_basis_integral(self, d: float, n: int) -> float:
         return self.interpolated._pdf_basis_integral(d, n)
 
     def _fit_obj_function(self, vals, distribution, n):
@@ -1939,11 +1935,11 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)
 
     @property
-    def Dis(self) -> list[float] | list[float64]:
+    def Dis(self) -> list[float]:
         """Representative diameters of each bin."""
         return [self.di_power(i, power=1) for i in range(self.N)]
 
-    def di_power(self, i: int, power: int=1) -> float64 | float:
+    def di_power(self, i: int, power: float=1) -> float:
         r"""Method to calculate a power of a particle class/bin in a generic
         way so as to support when there are as many `ds` as `fractions`,
         or one more diameter spec than `fractions`.
@@ -2264,7 +2260,7 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
     name = "Interpolated"
     points = True
     truncated = False
-    def __init__(self, ds: list[float] | ndarray | list[float64], fractions: list[float] | list[float64], order: int=3, monotonic: bool=True) -> None:
+    def __init__(self, ds: list[float] | np.ndarray, fractions: list[float] | np.ndarray, order: int=3, monotonic: bool=True) -> None:
         self.order = order
         self.monotonic = monotonic # always true now
         self.parameters: dict[str, float | None] = {}
@@ -2301,18 +2297,17 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
     def _pdf(self, d: float) -> float:
         return max(0.0, float(self.pdf_spline(d)))
 
-    def _cdf(self, d: float64 | float) -> float:
+    def _cdf(self, d: float) -> float:
         if d > self.d_excessive:
             # Handle spline values past 1 that decrease to zero
             return 1.0
         return max(0.0, float(self.cdf_spline(d)))
 
-    def _pdf_basis_integral(self, d: float64 | float, n: int) -> float:
+    def _pdf_basis_integral(self, d: float, n: int) -> float:
         # there are slight errors with this approach - but they are OK to
         # ignore.
         # DO NOT evaluate the first point as it leads to inf values; just set
         # it to zero
-        from fluids.numerics import numpy as np
         if n not in self.basis_integrals:
             ds = np.array(self.ds[1:])
             pdf_vals = self.pdf_spline(ds)
