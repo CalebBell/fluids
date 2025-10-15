@@ -26,8 +26,6 @@ import pytest
 
 from fluids.numerics import (
     SolverInterface,
-    argsort1d,
-    array_as_tridiagonals,
     assert_close,
     assert_close1d,
     assert_close2d,
@@ -89,13 +87,10 @@ from fluids.numerics import (
     solve_2_direct,
     solve_3_direct,
     solve_4_direct,
-    solve_tridiagonal,
     std,
-    subset_matrix,
     translate_bound_f_jac,
     translate_bound_func,
     translate_bound_jac,
-    tridiagonals_as_array,
     trunc_exp_numpy,
     trunc_log_numpy,
     zeros,
@@ -296,7 +291,8 @@ def test_bisplev():
 
 def test_cumulative_trapezoid():
     """Test the cumulative_trapezoid implementation against scipy's version
-    and known analytical solutions."""
+    and known analytical solutions.
+    """
     from scipy.integrate import cumulative_trapezoid as scipy_cumtrapz
 
     # Compare against scipy for linear function
@@ -1921,7 +1917,7 @@ def test_basic_newton_system():
     )
 
     # Check results
-    assert iterations > 0 
+    assert iterations > 0
     assert iterations < 10  # Should converge in about 6 iters
     # Verify solution satisfies equations
     final_residuals = system(solution)
@@ -2120,13 +2116,11 @@ try:
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         try:
-            import numdifftools as nd
             jacob_methods = ["analytical", "python", "numdifftools_forward"]
         except:
             jacob_methods = ["analytical", "python"]
 
         try:
-            import jacobi
             jacob_methods += ["jacobi_forward"]
         except:
             pass
@@ -2221,7 +2215,7 @@ def test_fixed_point_process():
         x0=x0,
         xtol=1e-10,
         maxiter=1000,
-        damping=.3, 
+        damping=.3,
     )
     assert iterations < 80 # 74 last check
     assert_close1d(basic_system(solution), [0, 0], atol=1e-6)
@@ -2232,7 +2226,7 @@ def test_fixed_point_process():
         x0=x0,
         xtol=1e-10,
         maxiter=1000,
-        damping=0.3, 
+        damping=0.3,
         acc_damping=0.4,# 44 last run iterations
     )
     assert iterations < 100
@@ -2244,7 +2238,7 @@ def test_fixed_point_process():
         x0=x0,
         xtol=1e-10,
         maxiter=1000,
-        damping=0.3, 
+        damping=0.3,
         acc_damping=0.3, # 81 last run
     )
     assert iterations < 100

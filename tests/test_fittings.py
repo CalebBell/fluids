@@ -470,7 +470,7 @@ def test_diffuser_conical():
     K = diffuser_conical(Di1=1/3., Di2=1.0, angle=50.0, Re=1e6, method="Hooper")
     assert_close(K, 0.79748427282836)
 
-    # The two equations don't actually converge, there may be a case for interpolating here in the future 
+    # The two equations don't actually converge, there may be a case for interpolating here in the future
     # to produce smooth results
     assert_close(diffuser_conical(Di1=1/3., Di2=1.0, angle=45*(1+1e-13), Re=1e6, method="Hooper"),
                  diffuser_conical(Di1=1/3., Di2=1.0, angle=45*(1-1e-13), Re=1e6, method="Hooper"), rtol=1e-2)

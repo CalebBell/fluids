@@ -14,8 +14,10 @@ Note: These modules will be installed to ~/.micropython/lib and only need to be 
 """
 import sys
 
-import fluids.numerics
 import test_drag
+
+import fluids.numerics
+
 try:
     import test_drag
 except:
@@ -85,6 +87,6 @@ for mod in to_test:
                     #print(obj)
                     obj()
                 except Exception as e:
-                    print("FAILED TEST {} with error:".format(s))
+                    print(f"FAILED TEST {s} with error:")
                     print(e)
 

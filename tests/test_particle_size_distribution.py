@@ -446,7 +446,6 @@ def test_PSDLognormal_mean_sizes_analytical():
     # There guys - need more work
     d33 = disc.mean_size(3.0, 3.0)
     assert_close(d33, 5.000E-6, rtol=0, atol=1E-6)
-#
     d00 = disc.mean_size(0.0, 0.0)
     assert_close(d00, 2.362E-6, rtol=1e-4)
 
@@ -553,7 +552,7 @@ def test_PSDLognormal_cdf_orders():
                   [ 0.033432418408916864, 0.15347299656473007, 0.3276949357115424, 0.5, 0.64231108623683952, 0.74950869138681098, 0.91717148099830148, 0.99721938213769046, 0.99983050191355338, 0.99999793935660408, 0.99999993474010451, 0.99999999896020164, 0.99999999999991951, 1.0, 1.0]]
 
     calc = []
-    for n in range(0, 4):
+    for n in range(4):
         calc.append([disc.cdf(i, n=n) for i in ds])
 
     assert_close2d(ans_expect, calc, rtol=1E-9)

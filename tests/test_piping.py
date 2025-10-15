@@ -155,7 +155,7 @@ def test_gauge():
 def test_piping_schedule_basics():
     from fluids.piping import schedule_lookup
 
-    for k, (NPSs, Dis, Dos, ts) in schedule_lookup.items():
+    for (NPSs, Dis, Dos, ts) in schedule_lookup.values():
         assert len(NPSs) == len(Dis)
         assert len(Dis) == len(Dos)
         assert len(Dos) == len(ts)

@@ -35,6 +35,6 @@ print(plot_files)
 
 @pytest.mark.parametrize("file", plot_files)
 def test_documentation_plots(file):
-    import matplotlib
-    matplotlib.use("Agg")
+    import matplotlib as mpl
+    mpl.use("Agg")
     exec(open(os.path.join(plots_folder, file)).read(), globals())

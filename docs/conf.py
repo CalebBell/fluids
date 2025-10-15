@@ -78,7 +78,7 @@ import time
 build_date = datetime.datetime.utcfromtimestamp(
     int(os.environ.get("SOURCE_DATE_EPOCH", time.time()))
 )
-copyright = "2016 - %s, Caleb Bell <Caleb.Andrew.Bell@gmail.com>" % build_date.year
+copyright = f"2016 - {build_date.year}, Caleb Bell <Caleb.Andrew.Bell@gmail.com>"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

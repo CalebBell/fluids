@@ -22,7 +22,7 @@ for angle, axes in zip(angles.ravel(), axarr.ravel()):
         axes.plot(Ds2, Ks, label=method) # + ', angle = ' + str(angle)
 
         #axes.legend()
-        axes.set_title(r"$%g^\circ$ Angle" %angle)
+        axes.set_title(rf"${angle:g}^\circ$ Angle")
         #axes.set_xlabel('Area ratio')
         #axes.set_ylabel('K')
         for item in ([axes.title, axes.xaxis.label, axes.yaxis.label] +

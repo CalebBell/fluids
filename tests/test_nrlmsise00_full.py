@@ -93,7 +93,7 @@ def test_ATMOSPHERE_NRLMSISE00_lon():
     import numpy as np
     name = os.path.join(os.path.dirname(__file__), "nrlmsise00", "known_data_longitudes.txt")
     f = np.loadtxt(name, delimiter=" ")
-    atms = [ATMOSPHERE_NRLMSISE00(100000., latitude=45, longitude=l, day=1, seconds=0, geomagnetic_disturbance_indices=[4]*7) for l in range(0, 361)]
+    atms = [ATMOSPHERE_NRLMSISE00(100000., latitude=45, longitude=l, day=1, seconds=0, geomagnetic_disturbance_indices=[4]*7) for l in range(361)]
     helper_test_match(f, atms)
 
 @pytest.mark.slow

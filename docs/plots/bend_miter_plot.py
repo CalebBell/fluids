@@ -20,7 +20,7 @@ for Re, axes in zip(Res.ravel(), axarr.ravel()):
         Ks = [bend_miter(angle=angle, Di=Di, Re=Re, roughness=.05E-3, L_unimpeded=Di*20, method=method) for angle in angles]
         axes.plot(angles, Ks, label=method) # + ', angle = ' + str(angle)
 
-        axes.set_title(r"Re = %g" %Re)
+        axes.set_title(rf"Re = {Re:g}")
         for item in ([axes.title, axes.xaxis.label, axes.yaxis.label] +
              axes.get_xticklabels() + axes.get_yticklabels()):
             item.set_fontsize(6.5)

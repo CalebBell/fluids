@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from math import cos, erf, exp, isnan, log, pi, sin, sqrt
+from math import sqrt
 
 import pytest
 
@@ -82,7 +82,7 @@ def check_inv(matrix, rtol=None):
     if py_fail and not numpy_fail:
         if not just_return and cond > 1e14:
             # Let ill conditioned matrices pass
-            return 
+            return
         raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, Numpy Fail: {numpy_fail}")
     if py_fail and numpy_fail:
         return
@@ -98,7 +98,7 @@ def check_inv(matrix, rtol=None):
     matrix_norm = np.max(np.sum(np.abs(matrix), axis=1))
     thresh = matrix_norm * np.finfo(float).eps
 
-    # We also need to check against the values we get in the inverse; it is helpful 
+    # We also need to check against the values we get in the inverse; it is helpful
     # to zero out anything too close to "zero" relative to the values used in the matrix
     # This is very necessary, and was needed when testing on different CPU architectures
     inv_norm = np.max(np.sum(np.abs(result), axis=1))
@@ -140,7 +140,7 @@ def check_inv(matrix, rtol=None):
         assert_allclose(result[mask], expected[mask], atol=thresh)
         assert_allclose(result[~mask], expected[~mask], rtol=rtol)
     else:
-        assert_allclose(result, expected, rtol=rtol)    
+        assert_allclose(result, expected, rtol=rtol)
 
 
 
@@ -177,7 +177,7 @@ matrices_1x1 = [
 
 # 2x2 matrices - regular cases
 matrices_2x2 = [
-    [[1.0, 0.0], 
+    [[1.0, 0.0],
      [0.0, 1.0]],  # Identity matrix
 
     [[2.0, 1.0],
@@ -840,7 +840,7 @@ def check_solve(matrix, b=None):
     if py_fail and not numpy_fail:
         if not just_return and cond > 1e14:
             # Let ill conditioned matrices pass
-            return 
+            return
         raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, Numpy Fail: {numpy_fail}")
     if py_fail and numpy_fail:
         return
@@ -968,7 +968,7 @@ specific_rhs_cases = [
       [0.1, 0.1, 0.1, 1.0]], [1e-8, 1e-8, 1e8, 1e8])
 ]
 
-@pytest.mark.parametrize("matrix,rhs", specific_rhs_cases)
+@pytest.mark.parametrize(("matrix", "rhs"), specific_rhs_cases)
 def test_solve_specific_rhs(matrix, rhs):
     try:
         check_solve(matrix, rhs)
@@ -1068,7 +1068,7 @@ specific_solution_cases = [
      [1, -1, 1, -1, 1, -1, 1],
      [0.4983480176211454, 0.0033039647577092373, 0.5115638766519823, -0.02643171806167401, 0.3827092511013216, -0.12169603524229072, 0.37389867841409696]),
 ]
-@pytest.mark.parametrize("matrix,rhs,expected", specific_solution_cases)
+@pytest.mark.parametrize(("matrix", "rhs", "expected"), specific_solution_cases)
 def test_solve_specific_solutions(matrix, rhs, expected):
     result = solve(matrix, rhs)
     assert_allclose(result, expected, rtol=1e-15)
@@ -1103,7 +1103,7 @@ def check_lu(matrix):
     if py_fail and not scipy_fail:
         if not just_return and cond > 1e14:
             # Let ill conditioned matrices pass
-            return 
+            return
         raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, SciPy Fail: {scipy_fail}")
     if py_fail and scipy_fail:
         return
@@ -1265,7 +1265,7 @@ specific_lu_cases = [
     ),
 ]
 
-@pytest.mark.parametrize("matrix,p_expected,l_expected,u_expected", specific_lu_cases)
+@pytest.mark.parametrize(("matrix", "p_expected", "l_expected", "u_expected"), specific_lu_cases)
 def test_lu_specific_cases(matrix, p_expected, l_expected, u_expected):
     p, l, u = lu(matrix)
     assert_allclose(p, p_expected, rtol=1e-15)
@@ -1430,10 +1430,10 @@ def test_gelsd_against_lapack():
     assert_allclose(s1, s2[:minmn], rtol=1e-12, atol=1e-12)
     assert rank1 == rank2
 
-@pytest.mark.parametrize("A, b, name", [
+@pytest.mark.parametrize(("A", "b", "name"), [
     # Standard square matrix
-    ([[1.0, 2.0], 
-      [3.0, 4.0]], 
+    ([[1.0, 2.0],
+      [3.0, 4.0]],
      [5.0, 6.0],
      "2x2 well-conditioned"),
 
@@ -1441,38 +1441,38 @@ def test_gelsd_against_lapack():
     ([[1.0, 2.0, 3.0],
       [4.0, 5.0, 6.0],
       [7.0, 8.0, 9.0],
-      [10.0, 11.0, 12.0]], 
+      [10.0, 11.0, 12.0]],
      [13.0, 14.0, 15.0, 16.0],
      "4x3 overdetermined"),
 
     # Overdetermined system
-    ([[1.0, 2.0], 
+    ([[1.0, 2.0],
       [3.0, 4.0],
-      [5.0, 6.0]], 
+      [5.0, 6.0]],
      [7.0, 8.0, 9.0],
      "3x2 overdetermined"),
 
     # # Nearly singular system
-    # ([[1.0, 1.0], 
+    # ([[1.0, 1.0],
     #   [1.0, 1.0 + 1e-6]],  # 1e-10 broke on some CPUs 1e-6 didn't help
     #  [2.0, 2.0],
     #  "2x2 nearly singular"),
 
     # Zero matrix
-    ([[0.0, 0.0], 
-      [0.0, 0.0]], 
+    ([[0.0, 0.0],
+      [0.0, 0.0]],
      [1.0, 1.0],
      "2x2 zero matrix"),
 
     # Underdetermined system
-    ([[1.0, 2.0, 3.0], 
-      [4.0, 5.0, 6.0]], 
+    ([[1.0, 2.0, 3.0],
+      [4.0, 5.0, 6.0]],
      [7.0, 8.0],
      "2x3 underdetermined"),
 
     # Ill-conditioned matrix
-    ([[1e-10, 1.0], 
-      [1.0, 1.0]], 
+    ([[1e-10, 1.0],
+      [1.0, 1.0]],
      [1.0, 2.0],
      "2x2 ill-conditioned"),
 
@@ -1481,7 +1481,7 @@ def test_gelsd_against_lapack():
       [5.0, 6.0, 7.0, 8.0],
       [9.0, 10.0, 11.0, 12.0],
       [13.0, 14.0, 15.0, 16.0],
-      [17.0, 18.0, 19.0, 20.0]], 
+      [17.0, 18.0, 19.0, 20.0]],
      [21.0, 22.0, 23.0, 24.0, 25.0],
      "5x4 larger system")
 ])
@@ -1529,7 +1529,7 @@ def test_gelsd_rcond():
     assert rank2 == 3
 
 
-@pytest.mark.parametrize("m,n,n_rhs", [
+@pytest.mark.parametrize(("m", "n", "n_rhs"), [
     (4, 2, 1),  # Overdetermined, single RHS
     (4, 0, 1),  # Empty columns
     (4, 2, 1),  # Standard overdetermined
@@ -1561,7 +1561,7 @@ def test_gelsd_empty_and_shapes(m, n, n_rhs):
         assert_allclose(x, np.zeros(n))
 
     # For overdetermined systems, check residuals
-    if m > n and n > 0:
+    if m > n > 0:
         r = np.array(b) - np.dot(A, x)
         expected_residuals = float(np.sum(r * r))
         assert_allclose(residuals, expected_residuals, atol=1e-28)
@@ -1678,8 +1678,8 @@ def test_eye():
     # Test basic functionality
     assert eye(1) == [[1.0]]
     assert eye(2) == [[1.0, 0.0], [0.0, 1.0]]
-    assert eye(3) == [[1.0, 0.0, 0.0], 
-                     [0.0, 1.0, 0.0], 
+    assert eye(3) == [[1.0, 0.0, 0.0],
+                     [0.0, 1.0, 0.0],
                      [0.0, 0.0, 1.0]]
 
     # Test with different dtypes
@@ -1702,9 +1702,9 @@ def test_eye():
         # Check diagonal elements
         assert all(matrix[i][i] == 1 for i in range(N)), "Diagonal elements are not 1"
         # Check off-diagonal elements
-        assert all(matrix[i][j] == 0 
-                  for i in range(N) 
-                  for j in range(N) 
+        assert all(matrix[i][j] == 0
+                  for i in range(N)
+                  for j in range(N)
                   if i != j), "Off-diagonal elements are not 0"
 
     # Test matrix properties for various sizes
@@ -1713,8 +1713,8 @@ def test_eye():
 
     # Test type consistency
     def check_type_consistency(matrix, expected_type):
-        assert all(isinstance(x, expected_type) 
-                  for row in matrix 
+        assert all(isinstance(x, expected_type)
+                  for row in matrix
                   for x in row), f"Not all elements are of type {expected_type}"
 
     # Check type consistency for different dtypes
@@ -1788,7 +1788,7 @@ def test_transpose():
     # 2x2 matrix
     assert transpose([[1, 2], [3, 4]]) == [[1, 3], [2, 4]]
 
-    # 3x3 matrix 
+    # 3x3 matrix
     assert transpose([[1, 2, 3],
                      [4, 5, 6],
                      [7, 8, 9]]) == [[1, 4, 7],
@@ -1798,7 +1798,7 @@ def test_transpose():
     # Rectangular matrices
     assert transpose([[1, 2, 3],
                      [4, 5, 6]]) == [[1, 4],
-                                    [2, 5], 
+                                    [2, 5],
                                     [3, 6]]
 
     # Single row/column
@@ -1864,7 +1864,8 @@ def test_matrix_multiply():
     A = [[i for i in range(10)] for _ in range(10)]
     B = [[i for i in range(10)] for _ in range(10)]
     C = matrix_multiply(A, B)
-    assert len(C) == 10 and len(C[0]) == 10
+    assert len(C) == 10
+    assert len(C[0]) == 10
 
     # Empty matrices
     with pytest.raises(ValueError):
@@ -1875,7 +1876,7 @@ def test_matrix_multiply():
     with pytest.raises(ValueError):
         matrix_multiply([], [[1]])
     with pytest.raises(ValueError):
-        matrix_multiply([[1]], [])  
+        matrix_multiply([[1]], [])
 
     # Incompatible dimensions
     with pytest.raises(ValueError):
@@ -1968,7 +1969,7 @@ def test_sum_matrix_cols():
 def test_scalar_add_matrices():
     """Test matrix addition functionality"""
     # Basic functionality
-    assert_close2d(scalar_add_matrices([[1, 2], [3, 4]], [[5, 6], [7, 8]]), 
+    assert_close2d(scalar_add_matrices([[1, 2], [3, 4]], [[5, 6], [7, 8]]),
                   [[6.0, 8.0], [10.0, 12.0]])
 
     # Single element matrices
@@ -1983,12 +1984,12 @@ def test_scalar_add_matrices():
                   [[0.0, 0.0], [0.0, 0.0]], atol=1e-14)
 
     # Large numbers
-    assert_close2d(scalar_add_matrices([[1e15, 1e15], [1e15, 1e15]], 
+    assert_close2d(scalar_add_matrices([[1e15, 1e15], [1e15, 1e15]],
                                      [[1e15, 1e15], [1e15, 1e15]]),
                   [[2e15, 2e15], [2e15, 2e15]])
 
     # Small numbers
-    assert_close2d(scalar_add_matrices([[1e-15, 1e-15], [1e-15, 1e-15]], 
+    assert_close2d(scalar_add_matrices([[1e-15, 1e-15], [1e-15, 1e-15]],
                                      [[1e-15, 1e-15], [1e-15, 1e-15]]),
                   [[2e-15, 2e-15], [2e-15, 2e-15]])
 
@@ -2031,12 +2032,12 @@ def test_scalar_subtract_matrices():
                   [[-2.0, 4.0], [6.0, -8.0]])
 
     # Large numbers
-    assert_close2d(scalar_subtract_matrices([[1e15, 1e15], [1e15, 1e15]], 
+    assert_close2d(scalar_subtract_matrices([[1e15, 1e15], [1e15, 1e15]],
                                           [[1e15, 1e15], [1e15, 1e15]]),
                   [[0.0, 0.0], [0.0, 0.0]])
 
     # Small numbers
-    assert_close2d(scalar_subtract_matrices([[1e-15, 1e-15], [1e-15, 1e-15]], 
+    assert_close2d(scalar_subtract_matrices([[1e-15, 1e-15], [1e-15, 1e-15]],
                                           [[1e-15, 1e-15], [1e-15, 1e-15]]),
                   [[0.0, 0.0], [0.0, 0.0]])
 
@@ -2224,7 +2225,7 @@ def check_null_space(matrix, rtol=None):
     if py_fail and not scipy_fail:
         if not just_return and cond > 1e14:
             # Let ill conditioned matrices pass
-            return 
+            return
         raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, SciPy Fail: {scipy_fail}")
     if py_fail and scipy_fail:
         return

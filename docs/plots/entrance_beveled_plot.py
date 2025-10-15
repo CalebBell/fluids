@@ -10,7 +10,7 @@ l_ratios = [0.025, 0.05, 0.1, 0.25, .5, .75, 1]
 for l, style in zip(l_ratios, styles):
     for method in entrance_beveled_methods:
         Ks = [entrance_beveled(Di=1.0, l=l, angle=angle, method=method) for angle in angles]
-        plt.plot(angles, Ks, style, label=method + ", l/Di=%g" %l)
+        plt.plot(angles, Ks, style, label=method + f", l/Di={l:g}")
 plt.legend()
 plt.title("Comparison of available methods for beveled entrances")
 plt.xlabel("angle")
