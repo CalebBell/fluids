@@ -75,7 +75,7 @@ from __future__ import annotations
 from math import exp, isinf, log, pi, sqrt
 
 from fluids.constants import R
-from fluids.numerics import brenth, lambertw, secant
+from fluids.numerics import brenth, lambertw, secant  # type: ignore[attr-defined]
 
 __all__: list[str] = [
     "IGT",
@@ -170,7 +170,7 @@ def isothermal_work_compression(P1: float, P2: float, T: float, Z: float=1.0) ->
     return Z*R*T*log(P2/P1)
 
 
-def isentropic_work_compression(T1: float | None, k: float, Z: float=1.0, P1: float | None=None, P2: float | None=None, W: float | None=None, eta: float | None=None) -> float:
+def isentropic_work_compression(T1: float, k: float, Z: float=1.0, P1: float | None=None, P2: float | None=None, W: float | None=None, eta: float | None=None) -> float:
     r"""Calculation function for dealing with compressing or expanding a gas
     going through an isentropic, adiabatic process assuming constant Cp and Cv.
     The polytropic model is the same equation; just provide `n` instead of `k`

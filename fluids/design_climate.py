@@ -876,7 +876,8 @@ gsod_indicator_names = ["fog", "rain", "snow_ice", "hail", "thunder",
                         "tornado"]
 five_ninths = 5.0/9.0
 
-gsod_day = namedtuple("gsod_day", gsod_fields + gsod_indicator_names)
+gsod_day_fields: list = list(gsod_fields) + list(gsod_indicator_names)
+gsod_day = namedtuple("gsod_day", gsod_day_fields)  # type: ignore[misc]
 
 
 def gsod_day_parser(line, SI=True, to_datetime=True):

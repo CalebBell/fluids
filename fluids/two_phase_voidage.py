@@ -2010,6 +2010,7 @@ two_phase_voidage_correlations = {"Thom" : (Thom, ("x", "rhol", "rhog", "mul", "
 "Woldesemayat Ghajar" : (Woldesemayat_Ghajar, ("x", "rhol", "rhog", "sigma", "m", "D", "P", "angle", "g"))}
 
 _unknown_two_phase_voidage_corr = f"Method not recognized; available methods are {list(two_phase_voidage_correlations.keys())}"
+
 # All the available arguments are:
 #{'rhol', 'angle=0', 'x', 'P', 'mug', 'rhog', 'D', 'g', 'Pc', 'sigma', 'mul', 'm'}
 def liquid_gas_voidage_methods(x: float, rhol: float, rhog: float, D: float | None=None, m: float | None=None, mul: float | None=None, mug: float | None=None,
@@ -2070,6 +2071,49 @@ def liquid_gas_voidage_methods(x: float, rhol: float, rhog: float, D: float | No
         if all(vals[i] is not None for i in args):
             usable_methods.append(method)
     return usable_methods
+
+
+# Uncomment to regenerate the frozensets when adding new methods:
+# def _generate_liquid_gas_voidage_parameter_requirements():
+#     """Generate frozensets of which methods require which parameters."""
+#     # Get all methods with all parameters present
+#     all_methods = set(liquid_gas_voidage_methods(x=0.5, rhol=1000.0, rhog=1.0, D=0.1,
+#                                                   m=1.0, mul=1e-3, mug=1e-5, sigma=0.05,
+#                                                   P=1e5, Pc=1e6, angle=0.0, g=9.81))
+
+#     params_to_check = [
+#         ('D', 'D'),
+#         ('m', 'm'),
+#         ('mul', 'mul'),
+#         ('mug', 'mug'),
+#         ('sigma', 'sigma'),
+#         ('P', 'P'),
+#         ('Pc', 'Pc'),
+#     ]
+
+#     for param_name, kwarg_name in params_to_check:
+#         # Get methods without this parameter
+#         kwargs = {'x': 0.5, 'rhol': 1000.0, 'rhog': 1.0, 'D': 0.1,
+#                   'm': 1.0, 'mul': 1e-3, 'mug': 1e-5, 'sigma': 0.05,
+#                   'P': 1e5, 'Pc': 1e6, 'angle': 0.0, 'g': 9.81}
+#         kwargs[kwarg_name] = None
+#         methods_without = set(liquid_gas_voidage_methods(**kwargs))
+
+#         # Methods that require this parameter are those in all_methods but not in methods_without
+#         methods_needing = all_methods - methods_without
+#         print(f"liquid_gas_voidage_methods_needing_{param_name} = frozenset({sorted(methods_needing)!r})")
+
+# _generate_liquid_gas_voidage_parameter_requirements()
+
+# Generated frozensets (regenerate by uncommenting above code):
+liquid_gas_voidage_methods_needing_D = frozenset(["Dix", "Graham", "Guzhov", "Harms", "Kawahara", "Kopte_Newell_Chato", "Nicklin Wilkes Davidson", "Rouhani 1", "Rouhani 2", "Steiner", "Sun Duffey Peng", "Tandon Varma Gupta", "Woldesemayat Ghajar", "Xu Fang voidage", "Yashar"])
+liquid_gas_voidage_methods_needing_m = frozenset(["Dix", "Graham", "Guzhov", "Harms", "Kopte_Newell_Chato", "Nicklin Wilkes Davidson", "Rouhani 1", "Rouhani 2", "Steiner", "Sun Duffey Peng", "Tandon Varma Gupta", "Woldesemayat Ghajar", "Xu Fang voidage", "Yashar"])
+liquid_gas_voidage_methods_needing_mul = frozenset(["Baroczy", "Domanski Didion", "Graham", "Harms", "Tandon Varma Gupta", "Thom", "Turner Wallis", "Yashar"])
+liquid_gas_voidage_methods_needing_mug = frozenset(["Baroczy", "Domanski Didion", "Graham", "Harms", "Tandon Varma Gupta", "Thom", "Turner Wallis", "Yashar"])
+liquid_gas_voidage_methods_needing_sigma = frozenset(["Dix", "Rouhani 1", "Rouhani 2", "Steiner", "Sun Duffey Peng", "Woldesemayat Ghajar"])
+liquid_gas_voidage_methods_needing_P = frozenset(["Sun Duffey Peng", "Woldesemayat Ghajar"])
+liquid_gas_voidage_methods_needing_Pc = frozenset(["Sun Duffey Peng"])
+
 
 def liquid_gas_voidage(x: float, rhol: float, rhog: float, D: float | None=None, m: float | None=None, mul: float | None=None, mug: float | None=None,
                        sigma: float | None=None, P: float | None=None, Pc: float | None=None, angle: int=0, g: float=g, Method: str | None=None) -> float:
@@ -2141,8 +2185,47 @@ def liquid_gas_voidage(x: float, rhol: float, rhog: float, D: float | None=None,
     else:
         Method2 = Method
 
+    # Type narrowing: validate required parameters based on selected method
+    # Initialize to dummy values for numba (will be overwritten before use)
+    D2 = 0.0
+    m2 = 0.0
+    mul2 = 0.0
+    mug2 = 0.0
+    sigma2 = 0.0
+    P2 = 0.0
+    Pc2 = 0.0
+
+    if Method2 in liquid_gas_voidage_methods_needing_D:
+        if D is None:
+            raise TypeError(f"{Method2} requires D")
+        D2 = D
+    if Method2 in liquid_gas_voidage_methods_needing_m:
+        if m is None:
+            raise TypeError(f"{Method2} requires m")
+        m2 = m
+    if Method2 in liquid_gas_voidage_methods_needing_mul:
+        if mul is None:
+            raise TypeError(f"{Method2} requires mul")
+        mul2 = mul
+    if Method2 in liquid_gas_voidage_methods_needing_mug:
+        if mug is None:
+            raise TypeError(f"{Method2} requires mug")
+        mug2 = mug
+    if Method2 in liquid_gas_voidage_methods_needing_sigma:
+        if sigma is None:
+            raise TypeError(f"{Method2} requires sigma")
+        sigma2 = sigma
+    if Method2 in liquid_gas_voidage_methods_needing_P:
+        if P is None:
+            raise TypeError(f"{Method2} requires P")
+        P2 = P
+    if Method2 in liquid_gas_voidage_methods_needing_Pc:
+        if Pc is None:
+            raise TypeError(f"{Method2} requires Pc")
+        Pc2 = Pc
+
     if Method2 == "Thom":
-        return Thom(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug)
+        return Thom(x=x, rhol=rhol, rhog=rhog, mul=mul2, mug=mug2)
     elif Method2 == "Zivi":
         return Zivi(x=x, rhol=rhol, rhog=rhog)
     elif Method2 == "Smith":
@@ -2152,7 +2235,7 @@ def liquid_gas_voidage(x: float, rhol: float, rhog: float, D: float | None=None,
     elif Method2 == "Chisholm_voidage":
         return Chisholm_voidage(x=x, rhol=rhol, rhog=rhog)
     elif Method2 == "Turner Wallis":
-        return Turner_Wallis(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug)
+        return Turner_Wallis(x=x, rhol=rhol, rhog=rhog, mul=mul2, mug=mug2)
     elif Method2 == "homogeneous":
         return homogeneous(x=x, rhol=rhol, rhog=rhog)
     elif Method2 == "Chisholm Armand":
@@ -2162,43 +2245,43 @@ def liquid_gas_voidage(x: float, rhol: float, rhog: float, D: float | None=None,
     elif Method2 == "Nishino Yamazaki":
         return Nishino_Yamazaki(x=x, rhol=rhol, rhog=rhog)
     elif Method2 == "Guzhov":
-        return Guzhov(x=x, rhol=rhol, rhog=rhog, m=m, D=D)
+        return Guzhov(x=x, rhol=rhol, rhog=rhog, m=m2, D=D2)
     elif Method2 == "Kawahara":
-        return Kawahara(x=x, rhol=rhol, rhog=rhog, D=D)
+        return Kawahara(x=x, rhol=rhol, rhog=rhog, D=D2)
     elif Method2 == "Baroczy":
-        return Baroczy(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug)
+        return Baroczy(x=x, rhol=rhol, rhog=rhog, mul=mul2, mug=mug2)
     elif Method2 == "Tandon Varma Gupta":
-        return Tandon_Varma_Gupta(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, m=m, D=D)
+        return Tandon_Varma_Gupta(x=x, rhol=rhol, rhog=rhog, mul=mul2, mug=mug2, m=m2, D=D2)
     elif Method2 == "Harms":
-        return Harms(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, m=m, D=D)
+        return Harms(x=x, rhol=rhol, rhog=rhog, mul=mul2, mug=mug2, m=m2, D=D2)
     elif Method2 == "Domanski Didion":
-        return Domanski_Didion(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug)
+        return Domanski_Didion(x=x, rhol=rhol, rhog=rhog, mul=mul2, mug=mug2)
     elif Method2 == "Graham":
-        return Graham(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, m=m, D=D, g=g)
+        return Graham(x=x, rhol=rhol, rhog=rhog, mul=mul2, mug=mug2, m=m2, D=D2, g=g)
     elif Method2 == "Yashar":
-        return Yashar(x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, m=m, D=D, g=g)
+        return Yashar(x=x, rhol=rhol, rhog=rhog, mul=mul2, mug=mug2, m=m2, D=D2, g=g)
     elif Method2 == "Huq_Loth":
         return Huq_Loth(x=x, rhol=rhol, rhog=rhog)
     elif Method2 == "Kopte_Newell_Chato":
-        return Kopte_Newell_Chato(x=x, rhol=rhol, rhog=rhog, m=m, D=D, g=g)
+        return Kopte_Newell_Chato(x=x, rhol=rhol, rhog=rhog, m=m2, D=D2, g=g)
     elif Method2 == "Steiner":
-        return Steiner(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, g=g)
+        return Steiner(x=x, rhol=rhol, rhog=rhog, sigma=sigma2, m=m2, D=D2, g=g)
     elif Method2 == "Rouhani 1":
-        return Rouhani_1(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, g=g)
+        return Rouhani_1(x=x, rhol=rhol, rhog=rhog, sigma=sigma2, m=m2, D=D2, g=g)
     elif Method2 == "Rouhani 2":
-        return Rouhani_2(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, g=g)
+        return Rouhani_2(x=x, rhol=rhol, rhog=rhog, sigma=sigma2, m=m2, D=D2, g=g)
     elif Method2 == "Nicklin Wilkes Davidson":
-        return Nicklin_Wilkes_Davidson(x=x, rhol=rhol, rhog=rhog, m=m, D=D, g=g)
+        return Nicklin_Wilkes_Davidson(x=x, rhol=rhol, rhog=rhog, m=m2, D=D2, g=g)
     elif Method2 == "Gregory_Scott":
         return Gregory_Scott(x=x, rhol=rhol, rhog=rhog)
     elif Method2 == "Dix":
-        return Dix(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, g=g)
+        return Dix(x=x, rhol=rhol, rhog=rhog, sigma=sigma2, m=m2, D=D2, g=g)
     elif Method2 == "Sun Duffey Peng":
-        return Sun_Duffey_Peng(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, P=P, Pc=Pc, g=g)
+        return Sun_Duffey_Peng(x=x, rhol=rhol, rhog=rhog, sigma=sigma2, m=m2, D=D2, P=P2, Pc=Pc2, g=g)
     elif Method2 == "Xu Fang voidage":
-        return Xu_Fang_voidage(x=x, rhol=rhol, rhog=rhog, m=m, D=D, g=g)
+        return Xu_Fang_voidage(x=x, rhol=rhol, rhog=rhog, m=m2, D=D2, g=g)
     elif Method2 == "Woldesemayat Ghajar":
-        return Woldesemayat_Ghajar(x=x, rhol=rhol, rhog=rhog, sigma=sigma, m=m, D=D, P=P, angle=angle, g=g)
+        return Woldesemayat_Ghajar(x=x, rhol=rhol, rhog=rhog, sigma=sigma2, m=m2, D=D2, P=P2, angle=angle, g=g)
     else:
         raise ValueError(_unknown_two_phase_voidage_corr)
 
@@ -2674,6 +2757,32 @@ def gas_liquid_viscosity_methods(rhol: float | None=None, rhog: float | None=Non
     return methods
 _gas_liquid_viscosity_method_unknown = f"Method not recognized; available methods are {list(liquid_gas_viscosity_correlations.keys())}"
 
+# # Uncomment to regenerate the frozensets when adding new methods:
+# def _generate_gas_liquid_viscosity_parameter_requirements():
+#     """Generate frozensets of which methods require which parameters."""
+#     # Get all methods with all parameters present
+#     all_methods = set(gas_liquid_viscosity_methods(rhol=1000.0, rhog=1.0))
+#
+#     params_to_check = [
+#         ('rhol', 'rhol'),
+#         ('rhog', 'rhog'),
+#     ]
+#
+#     for param_name, kwarg_name in params_to_check:
+#         # Get methods without this parameter
+#         kwargs = {'rhol': 1000.0, 'rhog': 1.0}
+#         kwargs[kwarg_name] = None
+#         methods_without = set(gas_liquid_viscosity_methods(**kwargs))
+#
+#         # Methods that require this parameter are those in all_methods but not in methods_without
+#         methods_needing = all_methods - methods_without
+#         print(f"gas_liquid_viscosity_methods_needing_{param_name} = frozenset({sorted(methods_needing)!r})")
+#
+# _generate_gas_liquid_viscosity_parameter_requirements()
+
+# Generated frozensets (regenerate by uncommenting above code):
+gas_liquid_viscosity_methods_needing_rhol = frozenset(["Beattie Whalley", "Duckler", "Fourar Bories"])
+gas_liquid_viscosity_methods_needing_rhog = frozenset(["Beattie Whalley", "Duckler", "Fourar Bories"])
 
 def gas_liquid_viscosity(x: float, mul: float, mug: float, rhol: float | None=None, rhog: float | None=None, Method: str | None=None) -> float:
     r"""This function handles the calculation of two-phase liquid-gas viscosity.
@@ -2730,12 +2839,26 @@ def gas_liquid_viscosity(x: float, mul: float, mug: float, rhol: float | None=No
     if Method is None:
         Method = "McAdams"
 
+    # Type narrowing: validate required parameters based on selected method
+    # Initialize to dummy values for numba (will be overwritten before use)
+    rhol2 = 0.0
+    rhog2 = 0.0
+
+    if Method in gas_liquid_viscosity_methods_needing_rhol:
+        if rhol is None:
+            raise TypeError(f"{Method} requires rhol")
+        rhol2 = rhol
+    if Method in gas_liquid_viscosity_methods_needing_rhog:
+        if rhog is None:
+            raise TypeError(f"{Method} requires rhog")
+        rhog2 = rhog
+
     if Method == "Beattie Whalley":
-        return Beattie_Whalley(x, mul, mug, rhol=rhol, rhog=rhog)
+        return Beattie_Whalley(x, mul, mug, rhol=rhol2, rhog=rhog2)
     elif Method == "Fourar Bories":
-        return Fourar_Bories(x, mul, mug, rhol=rhol, rhog=rhog)
+        return Fourar_Bories(x, mul, mug, rhol=rhol2, rhog=rhog2)
     elif Method == "Duckler":
-        return Duckler(x, mul, mug, rhol=rhol, rhog=rhog)
+        return Duckler(x, mul, mug, rhol=rhol2, rhog=rhog2)
     elif Method == "McAdams":
         return McAdams(x, mul, mug)
     elif Method == "Cicchitti":

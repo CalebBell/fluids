@@ -63,7 +63,7 @@ __all__: list[str] = [
 
 
 def liquid_jet_pump_ancillary(rhop: float, rhos: float, Kp: float, Ks: float, d_nozzle: float | None=None, d_mixing: float | None=None,
-                              Qp: float | None=None, Qs: float | None=None, P1: float | None=None, P2: int | None=None) -> float:
+                              Qp: float | None=None, Qs: float | None=None, P1: float | None=None, P2: float | None=None) -> float:
     r"""Calculates the remaining variable in a liquid jet pump when solving for
     one if the inlet variables only and the rest of them are known. The
     equation comes from conservation of energy and momentum in the mixing

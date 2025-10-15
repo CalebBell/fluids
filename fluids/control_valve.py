@@ -242,6 +242,8 @@ def control_valve_choke_P_l(Psat: float, Pc: float, FL: float, P1: float | None=
     FF = 0.96 - 0.28*sqrt(Psat/Pc) #FF_critical_pressure_ratio_l(Psat=Psat, Pc=Pc)
     Pmin_absolute = FF*Psat
     if P2 is None:
+        if P1 is None:
+            raise ValueError("Either P1 or P2 needs to be specified")
         ans = P2 = FF*FL*FL*Psat - FL*FL*P1 + P1
     elif P1 is None:
         ans = P1 = (FF*FL*FL*Psat - P2)/(FL*FL - 1.0)
@@ -298,6 +300,8 @@ def control_valve_choke_P_g(xT: float, gamma: float, P1: float | None=None, P2: 
     100000.0
     """
     if P2 is None:
+        if P1 is None:
+            raise ValueError("Either P1 or P2 needs to be specified")
         ans = P2 = P1*(-5.0*gamma*xT + 7.0)/7.0
     elif P1 is None:
         ans = P1 = -7.0*P2/(5.0*gamma*xT - 7.0)
@@ -689,7 +693,7 @@ def size_control_valve_l(rho: float, Psat: float, Pc: float, mu: float, P1: floa
     .. [1] IEC 60534-2-1 / ISA-75.01.01-2007
     """
     if full_output:
-        ans = {"FLP": None, "FP": None, "FR": None}
+        ans: dict[str, bool | float | None] = {"FLP": None, "FP": None, "FR": None}
     # Pa to kPa, according to constants in standard
     P1, P2, Psat, Pc = P1/1000., P2/1000., Psat/1000., Pc/1000.
     Q = Q*3600. # m^3/s to m^3/hr, according to constants in standard
@@ -710,6 +714,8 @@ def size_control_valve_l(rho: float, Psat: float, Pc: float, mu: float, P1: floa
         Rev = 1e5
     else:
         # m to mm, according to constants in standard
+        if D1 is None or D2 is None or d is None:
+            raise ValueError("If any diameter is specified, all three (D1, D2, d) must be specified")
         D1, D2, d = D1*1000., D2*1000., d*1000.
         Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
         # normal calculation path
@@ -907,6 +913,8 @@ def size_control_valve_g(T: float, MW: float, mu: float, gamma: float, Z: float,
             ans["Rev"] = None  # numba: delete
     else:
         # m to mm, according to constants in standard
+        if D1 is None or D2 is None or d is None:
+            raise ValueError("If any diameter is specified, all three (D1, D2, d) must be specified")
         D1, D2, d = D1*1000., D2*1000., d*1000. # Convert diameters to mm which is used in the standard
         Rev = Reynolds_valve(nu=nu, Q=Q, D1=D1, FL=FL, Fd=Fd, C=C)
         if full_output:  # numba: delete
@@ -1308,11 +1316,11 @@ def control_valve_noise_l_2015(m: int, P1: float, P2: float, Psat: float, rho: f
     return LpAe1m
 
 
-def control_valve_noise_g_2011(m: float, P1: float, P2: float, T1: int, rho: float, gamma: float, MW: float, Kv: float,
-                               d: float, Di: float, t_pipe: float, Fd: float, FL: None, FLP: float | None=None, FP: float | None=None,
+def control_valve_noise_g_2011(m: float, P1: float, P2: float, T1: float, rho: float, gamma: float, MW: float, Kv: float,
+                               d: float, Di: float, t_pipe: float, Fd: float, FL: float | None, FLP: float | None=None, FP: float | None=None,
                                rho_pipe: float=7800.0, c_pipe: float=5000.0,
                                P_air: float=101325.0, rho_air: float=1.2, c_air: float=343.0,
-                               An: float=-3.8, Stp: float=0.2, T2: None=None, beta: float=0.93) -> float:
+                               An: float=-3.8, Stp: float=0.2, T2: float | None=None, beta: float=0.93) -> float:
     r"""Calculates the sound made by a gas flowing through a control valve
     according to the standard IEC 60534-8-3 (2011) [1]_.
 
@@ -1414,9 +1422,13 @@ def control_valve_noise_g_2011(m: float, P1: float, P2: float, T1: int, rho: flo
         T2 = T1
     x = (P1 - P2)/P1
 
-
     # FLP/FP when fittings attached
-    FL_term = FLP/FP if FP is not None else FL
+    if FP is not None and FLP is not None:
+        FL_term = FLP/FP
+    elif FL is not None:
+        FL_term = FL
+    else:
+        raise ValueError("Either FL must be specified, or both FLP and FP must be specified")
 
     # P_vc = P1*(1.0 - x/FL_term**2)
 

@@ -1633,6 +1633,24 @@ def V_tank(D: float, L: float, horizontal: bool=True, sideA: str | None=None, si
         raise ValueError("Unsupported head type for side A")
     if sideB is not None and sideB not in ("conical", "ellipsoidal", "torispherical", "spherical", "guppy"):
         raise ValueError("Unsupported head type for side B")
+
+    # Validate torispherical parameters and type narrowing
+    sideA_f2 = 0.0
+    sideA_k2 = 0.0
+    sideB_f2 = 0.0
+    sideB_k2 = 0.0
+
+    if sideA == "torispherical":
+        if sideA_f is None or sideA_k is None:
+            raise ValueError("sideA_f and sideA_k are required when sideA is 'torispherical'")
+        sideA_f2 = sideA_f
+        sideA_k2 = sideA_k
+    if sideB == "torispherical":
+        if sideB_f is None or sideB_k is None:
+            raise ValueError("sideB_f and sideB_k are required when sideB is 'torispherical'")
+        sideB_f2 = sideB_f
+        sideB_k2 = sideB_k
+
     R = 0.5*D
     sideA_V = sideB_V = lateral_V = 0.0
     if horizontal:
@@ -1671,12 +1689,12 @@ def V_tank(D: float, L: float, horizontal: bool=True, sideA: str | None=None, si
         # Torispherical case
         if (sideA == "torispherical" and sideB == "torispherical"
             and (sideA_f == sideB_f) and (sideA_k == sideB_k)):
-            sideB_V = sideA_V = V_horiz_torispherical(D, L, sideA_f, sideA_k, D, headonly=True)
+            sideB_V = sideA_V = V_horiz_torispherical(D, L, sideA_f2, sideA_k2, D, headonly=True)
         else:
             if sideA == "torispherical":
-                sideA_V = V_horiz_torispherical(D, L, sideA_f, sideA_k, D, headonly=True)
+                sideA_V = V_horiz_torispherical(D, L, sideA_f2, sideA_k2, D, headonly=True)
             if sideB == "torispherical":
-                sideB_V = V_horiz_torispherical(D, L, sideB_f, sideB_k, D, headonly=True)
+                sideB_V = V_horiz_torispherical(D, L, sideB_f2, sideB_k2, D, headonly=True)
         Af = R*R*acos((R-D)/R) - (R-D)*sqrt(2.0*R*D - D*D)
         lateral_V = L*Af
     else:
@@ -1706,12 +1724,12 @@ def V_tank(D: float, L: float, horizontal: bool=True, sideA: str | None=None, si
                 sideB_V = V_vertical_spherical(D, sideB_a, h=sideB_a)
 
         if sideA == "torispherical" and sideB == "torispherical" and sideA_f == sideB_f and sideA_k == sideB_k:
-            sideB_V = sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
+            sideB_V = sideA_V = V_vertical_torispherical(D, sideA_f2, sideA_k2, h=sideA_a)
         else:
             if sideA == "torispherical":
-                sideA_V = V_vertical_torispherical(D, sideA_f, sideA_k, h=sideA_a)
+                sideA_V = V_vertical_torispherical(D, sideA_f2, sideA_k2, h=sideA_a)
             if sideB == "torispherical":
-                sideB_V = V_vertical_torispherical(D, sideB_f, sideB_k, h=sideB_a)
+                sideB_V = V_vertical_torispherical(D, sideB_f2, sideB_k2, h=sideB_a)
 
         # Cylindrical section
         lateral_V = 0.25 * pi * D * D * L
@@ -2842,6 +2860,24 @@ def V_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: str | N
         raise ValueError("Unsupported head type for side A")
     if sideB is not None and sideB not in ("conical", "ellipsoidal", "torispherical", "spherical", "guppy"):
         raise ValueError("Unsupported head type for side B")
+
+    # Validate torispherical parameters and type narrowing
+    sideA_f2 = 0.0
+    sideA_k2 = 0.0
+    sideB_f2 = 0.0
+    sideB_k2 = 0.0
+
+    if sideA == "torispherical":
+        if sideA_f is None or sideA_k is None:
+            raise ValueError("sideA_f and sideA_k are required when sideA is 'torispherical'")
+        sideA_f2 = sideA_f
+        sideA_k2 = sideA_k
+    if sideB == "torispherical":
+        if sideB_f is None or sideB_k is None:
+            raise ValueError("sideB_f and sideB_k are required when sideB is 'torispherical'")
+        sideB_f2 = sideB_f
+        sideB_k2 = sideB_k
+
     R = 0.5*D
     V = 0.0
     if horizontal:
@@ -2883,12 +2919,12 @@ def V_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: str | N
         # Torispherical case
         if (sideA == "torispherical" and sideB == "torispherical"
             and (sideA_f == sideB_f) and (sideA_k == sideB_k)):
-            V += 2.0*V_horiz_torispherical(D, L, sideA_f, sideA_k, h, headonly=True)
+            V += 2.0*V_horiz_torispherical(D, L, sideA_f2, sideA_k2, h, headonly=True)
         else:
             if sideA == "torispherical":
-                V += V_horiz_torispherical(D, L, sideA_f, sideA_k, h, headonly=True)
+                V += V_horiz_torispherical(D, L, sideA_f2, sideA_k2, h, headonly=True)
             if sideB == "torispherical":
-                V += V_horiz_torispherical(D, L, sideB_f, sideB_k, h, headonly=True)
+                V += V_horiz_torispherical(D, L, sideB_f2, sideB_k2, h, headonly=True)
         Af = R*R*acos((R-h)/R) - (R-h)*sqrt(2.0*R*h - h*h)
         V += L*Af
     else:
@@ -2904,7 +2940,7 @@ def V_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: str | N
             if sideA == "spherical":
                 V += V_vertical_spherical(D, sideA_a, h=min(sideA_a, h))
             if sideA == "torispherical":
-                V += V_vertical_torispherical(D, sideA_f, sideA_k, h=min(sideA_a, h))
+                V += V_vertical_torispherical(D, sideA_f2, sideA_k2, h=min(sideA_a, h))
         # Cylindrical section
         if h >= sideA_a + L:
             V += 0.25*pi*D*D*L # All middle
@@ -2923,8 +2959,8 @@ def V_from_h(h: float, D: float, L: float, horizontal: bool=True, sideA: str | N
                 V += V_vertical_spherical(D, sideB_a, h=sideB_a)
                 V -= V_vertical_spherical(D, sideB_a, h=h2)
             if sideB == "torispherical":
-                V += V_vertical_torispherical(D, sideB_f, sideB_k, h=sideB_a)
-                V -= max(0.0, V_vertical_torispherical(D, sideB_f, sideB_k, h=h2))
+                V += V_vertical_torispherical(D, sideB_f2, sideB_k2, h=sideB_a)
+                V -= max(0.0, V_vertical_torispherical(D, sideB_f2, sideB_k2, h=h2))
     return V
 
 

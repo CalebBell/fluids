@@ -2562,7 +2562,8 @@ def differential_pressure_meter_C_epsilon(D: float, D2: float, m: float, P1: flo
         meter_type = MILLER_SEGMENTAL_ORIFICE
 
     if meter_type == ISO_5167_ORIFICE:
-        C = C_Reader_Harris_Gallagher(D, D2, rho, mu, m, taps)
+        taps_val = taps if taps is not None else "corner"
+        C = C_Reader_Harris_Gallagher(D, D2, rho, mu, m, taps_val)
         epsilon = orifice_expansibility(D, D2, P1, P2, k)
     elif meter_type == ISO_15377_ECCENTRIC_ORIFICE:
         C = C_eccentric_orifice_ISO_15377_1998(D, D2)

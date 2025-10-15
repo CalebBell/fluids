@@ -1547,7 +1547,8 @@ def integrate_drag_sphere(D: float, rhop: float, rho: float, mu: float, t: float
             t_to_terminal = time_v_terminal_Stokes(D, rhop, rho, mu, V0=V, tol=1e-9)
             if t_to_terminal > t:
                 raise ValueError("Should never happen")
-            V_end, x_end = integrate_drag_sphere(D=D, rhop=rhop, rho=rho, mu=mu, t=t_to_terminal, V=V, Method="Stokes", distance=True)
+            result = integrate_drag_sphere(D=D, rhop=rhop, rho=rho, mu=mu, t=t_to_terminal, V=V, Method="Stokes", distance=True)
+            V_end, x_end = result  # type: ignore[misc]
             # terminal velocity has been reached - V does not change, but x does
             # No reason to believe this isn't working even though it isn't
             # matching the ode solver

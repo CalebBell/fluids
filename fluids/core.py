@@ -706,7 +706,7 @@ def Schmidt(D: float, mu: float | None=None, nu: float | None=None, rho: float |
         raise ValueError("Insufficient information provided for Schmidt number calculation")
 
 
-def Lewis(D: float | None=None, alpha: float | None=None, Cp: float | None=None, k: float | None=None, rho: float | None=None) -> float:
+def Lewis(D: float, alpha: float | None=None, Cp: float | None=None, k: float | None=None, rho: float | None=None) -> float:
     r"""Calculates Lewis number or `Le` for a fluid with the given parameters.
 
     .. math::
@@ -759,6 +759,8 @@ def Lewis(D: float | None=None, alpha: float | None=None, Cp: float | None=None,
     .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
     """
+    if D is None:
+        raise ValueError("Diffusivity D is required for Le calculation")
     if k is not None and Cp is not None and rho is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
@@ -2382,13 +2384,11 @@ def nu_mu_converter(rho: float, mu: float | None=None, nu: float | None=None) ->
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     """
-    if (nu is not None and mu is not None) or rho is None or (nu is None and mu is None):
-        raise ValueError("Inputs must be rho and one of mu and nu.")
-    if mu is not None:
+    if mu is not None and nu is None:
         return mu/rho
-    else:
+    elif nu is not None and mu is None:
         return nu*rho
-
+    raise ValueError("Inputs must be rho and one of mu and nu.")
 
 def gravity(latitude: float, H: float) -> float:
     r"""Calculates local acceleration due to gravity `g` according to [1]_.

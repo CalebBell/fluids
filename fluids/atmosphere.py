@@ -855,8 +855,9 @@ def sunrise_sunset(moment: datetime.datetime, latitude: float, longitude: float)
     import calendar
 
     from fluids.optional import spa
-    if moment.utcoffset() is not None:
-        moment_utc = moment + moment.utcoffset()
+    utc_offset = moment.utcoffset()
+    if utc_offset is not None:
+        moment_utc = moment + utc_offset
     else:
         moment_utc = moment
 
@@ -884,7 +885,7 @@ apparent_zenith_airmass_models = {"simple", "kasten1966", "kastenyoung1989",
 true_zenith_airmass_models = {"youngirvine1967", "young1994"}
 
 
-def _get_extra_radiation_shim(datetime_or_doy: int, solar_constant: float=1366.1,
+def _get_extra_radiation_shim(datetime_or_doy: int | datetime.datetime, solar_constant: float=1366.1,
     method: str="spencer", epoch_year: int=2014, **kwargs) -> float:
     if method == "spencer":
         if not isinstance(datetime_or_doy, (float, int)):
@@ -907,7 +908,7 @@ def _get_extra_radiation_shim(datetime_or_doy: int, solar_constant: float=1366.1
 
 def solar_irradiation(latitude: float, longitude: float, Z: float, moment: datetime.datetime, surface_tilt: float,
                       surface_azimuth: float, T: None=None, P: None=None, solar_constant: float=1366.1,
-                      atmos_refract: float=0.5667, albedo: float=0.25, linke_turbidity: int | None=None,
+                      atmos_refract: float=0.5667, albedo: float=0.25, linke_turbidity: float | None=None,
                       extraradiation_method: str="spencer",
                       airmass_model: str="kastenyoung1989",
                       cache: None=None) -> tuple[float, float, float, float, float]:
@@ -1045,14 +1046,17 @@ def solar_irradiation(latitude: float, longitude: float, Z: float, moment: datet
                                method=extraradiation_method,
                                epoch_year=moment.year)
 
+    T_calc: float
+    P_calc: float
     if T is None or P is None:
         atmosphere = ATMOSPHERE_NRLMSISE00(Z=Z, latitude=latitude,
                                            longitude=longitude,
                                            day=moment_timetuple.tm_yday)
-        if T is None:
-            T = atmosphere.T
-        if P is None:
-            P = atmosphere.P
+        T_calc = atmosphere.T if T is None else T
+        P_calc = atmosphere.P if P is None else P
+    else:
+        T_calc = T
+        P_calc = P
 
     if cache is not None and "zenith" in cache:
         zenith = cache["zenith"]
@@ -1062,7 +1066,7 @@ def solar_irradiation(latitude: float, longitude: float, Z: float, moment: datet
         apparent_zenith, zenith, _, _, azimuth, _ = solar_position(moment=moment,
                                                                    latitude=latitude,
                                                                    longitude=longitude,
-                                                                   Z=Z, T=T, P=P,
+                                                                   Z=Z, T=T_calc, P=P_calc,
                                                                    atmos_refract=atmos_refract)
 
     if linke_turbidity is None:
@@ -1084,7 +1088,7 @@ def solar_irradiation(latitude: float, longitude: float, Z: float, moment: datet
         raise ValueError("Unrecognized airmass model")
 
     relative_airmass = get_relative_airmass(used_zenith, model=airmass_model)
-    airmass_absolute = get_absolute_airmass(relative_airmass, pressure=P)
+    airmass_absolute = get_absolute_airmass(relative_airmass, pressure=P_calc)
 
 
     ans = ineichen(apparent_zenith=apparent_zenith,

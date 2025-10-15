@@ -239,7 +239,7 @@ def time_helical_ribbon_Grenville(Kp: float, N: float) -> float:
 
 ### Tee mixer
 
-def size_tee(Q1: float, Q2: float, D: float, D2: None, n: int=1, pipe_diameters: float=5) -> float:
+def size_tee(Q1: float, Q2: float, D: float, D2: float | None, n: int=1, pipe_diameters: float=5) -> float:
     r"""Calculates CoV of an optimal or specified tee for mixing at a tee
     according to [1]_. Assumes turbulent flow.
     The smaller stream in injected into the main pipe, which continues
