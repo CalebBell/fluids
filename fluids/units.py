@@ -28,13 +28,9 @@ import inspect
 import re
 import sys
 import types
-from inspect import cleandoc
-
-try:
-    from collections.abc import Iterable
-except:
-    from collections.abc import Iterable
+from collections.abc import Iterable
 from copy import copy
+from inspect import cleandoc
 
 import numpy as np
 

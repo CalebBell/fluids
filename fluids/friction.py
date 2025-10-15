@@ -220,7 +220,7 @@ def fuzzy_match(name: str, strings: set[str]) -> str:
         return fuzzy_match_fun(name, strings)
 
     try:
-        from thefuzz import process
+        from thefuzz import process  # type: ignore[import-untyped]
         fuzzy_match_fun = lambda name, strings: process.extract(name, strings, limit=10)[0][0]
         # from thefuzz import process, fuzz
         # extractOne is faster but less reliable
@@ -342,7 +342,7 @@ def Blasius(Re: float) -> float:
     return 0.3164/sqrt(sqrt(Re))
 
 
-def Colebrook(Re: float, eD: float, tol: int | None=None) -> float:
+def Colebrook(Re: float, eD: float, tol: float | None=None) -> float:
     r"""Calculates Darcy friction factor using the Colebrook equation
     originally published in [1]_. Normally, this function uses an exact
     solution to the Colebrook equation, derived with a CAS. A numerical solution can
@@ -3998,7 +3998,7 @@ HHR_roughness_categories = {}
 [HHR_roughness_categories.update(i) for i in HHR_roughness_dicts]
 for d in HHR_roughness_dicts:
     for k, v in d.items():
-        for name, values in v.items():
+        for name, values in v.items():  # type: ignore[attr-defined]
             HHR_roughness[str(k)+", " + name] = values
 
 # For searching only
@@ -4094,6 +4094,8 @@ def roughness_Farshad(ID: str | None=None, D: float | None=None, coeffs: tuple[f
     """
     # Case 1, coeffs given; only run if ID is not given.
     if ID is None and coeffs is not None:
+        if D is None:
+            raise ValueError("D is required when using coeffs")
         A, B = coeffs
         return A*(D/inch)**(B + 1.0)*inch
     # Case 2, lookup parameters
@@ -4146,13 +4148,13 @@ def nearest_material_roughness(name: str, clean: bool | None=None) -> str:
        Resistance. Redding, CT: Begell House, 2007.
     """
     if clean is None:
-        d = _all_roughness.keys()
+        d = _all_roughness.keys()  # type: ignore[assignment]
     else:
         if clean:
-            d = roughness_clean_names
+            d = roughness_clean_names  # type: ignore[assignment]
         else:
             d = HHR_roughness.keys()
-    return fuzzy_match(name, d)
+    return fuzzy_match(name, d)  # type: ignore[arg-type]
 
 
 def material_roughness(ID: str, D: float | None=None, optimism: bool | None=None) -> float:
