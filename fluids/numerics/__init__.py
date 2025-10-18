@@ -102,87 +102,209 @@ from fluids.numerics.polynomial_utils import (
 )
 from fluids.numerics.special import cbrt, comb, factorial, py_cacos, py_catan, py_catanh, py_hypot, trunc_exp, trunc_log
 
-__all__ = ["isclose", "horner", "horner_and_der", "horner_and_der2",
-           "horner_and_der3", "quadratic_from_f_ders", "chebval", "interp",
-           "linspace", "logspace", "cumsum", "diff", "basic_damping",
-           "is_poly_negative", "is_poly_positive",
-           "exp_poly_ln_tau_coeffs3", "exp_poly_ln_tau_coeffs2",
-           "implementation_optimize_tck", "tck_interp2d_linear",
-           "bisect", "ridder", "brenth", "newton", "secant", "halley",
-           "one_sided_secant", "trunc_exp_numpy", "trunc_log_numpy",
-           "splev", "bisplev", "derivative", "jacobian", "hessian",
-           "normalize", "oscillation_checker",
-           "IS_PYPY", "roots_cubic", "roots_quartic", "newton_system",
-           "broyden2", "basic_damping", "solve_2_direct", "solve_3_direct",
-           "solve_4_direct", "sincos", "horner_and_der4",
-           "lambertw", "ellipe", "gamma", "gammaincc", "erf",
-           "i1", "i0", "k1", "k0", "iv", "mean", "polylog2", "roots_quadratic",
-           "numpy", "nquad", "catanh", "factorial", "comb", "SolverInterface",
-           "multivariate_solvers", "jacobian_methods",
-           "polyint_over_x", "horner_log", "polyint", "zeros", "full",
-           "chebder", "chebint", "exp_cheb",
-           "polyder", "make_damp_initial", "quadratic_from_points",
-           "OscillationError", "UnconvergedError", "caching_decorator",
-           "NoSolutionError", "SamePointError", "NotBoundedError",
-           "damping_maintain_sign", "oscillation_checking_wrapper",
-           "trunc_exp", "trunc_log", "fit_integral_linear_extrapolation",
-           "fit_integral_over_T_linear_extrapolation",
-           "poly_fit_integral_value", "poly_fit_integral_over_T_value",
-           "evaluate_linear_fits", "evaluate_linear_fits_d",
-           "evaluate_linear_fits_d2",
-           "best_bounding_bounds", "newton_minimize", "array_as_tridiagonals",
-           "tridiagonals_as_array", "solve_tridiagonal", "subset_matrix",
-           "assert_close", "assert_close1d", "assert_close2d", "assert_close3d",
-           "assert_close4d", "translate_bound_func", "translate_bound_jac",
-           "translate_bound_f_jac", "curve_fit",
-           "quad", "quad_adaptive", "stable_poly_to_unstable", "homotopy_solver",
-           "horner_stable_log",
-           "is_increasing",
-           "fixed_point_anderson",
-           "std", "min_max_ratios", "detect_outlier_normal",
-           "max_abs_error", "max_abs_rel_error", "max_squared_error",
-           "max_squared_rel_error", "mean_abs_error", "mean_abs_rel_error",
-           "mean_squared_error", "mean_squared_rel_error",
-
-           "fixed_point_to_residual", "residual_to_fixed_point",
-           "sort_paired_lists",
-           "is_micropython",
-
-           # Complex number math missing in micropython
-           "cacos", "catan",
-           "deflate_cubic_real_roots", "fit_minimization_targets",
-
-           "root", "minimize", "fsolve", "differential_evolution",
-           "lmder", "lmfit", "horner_backwards", "exp_horner_backwards",
-           "horner_backwards_ln_tau", "exp_horner_backwards_ln_tau",
-           "exp_horner_backwards_ln_tau_and_der", "exp_horner_backwards_ln_tau_and_der2",
-           "exp_poly_ln_tau_coeffs2", "exp_poly_ln_tau_coeffs3",
-           "exp_horner_backwards_and_der", "exp_horner_backwards_and_der2",
-           "exp_horner_backwards_and_der3",
-           "horner_backwards_ln_tau_and_der", "horner_backwards_ln_tau_and_der2",
-           "horner_backwards_ln_tau_and_der3",
-
-           "horner_domain", "polynomial_offset_scale", "horner_stable",
-           "horner_stable_and_der", "horner_stable_and_der2",
-           "horner_stable_and_der3", "horner_stable_and_der4",
-           "exp_horner_stable", "exp_horner_stable_and_der",
-           "exp_horner_stable_and_der2", "exp_horner_stable_and_der3",
-           "exp_cheb_and_der", "exp_cheb_and_der2", "exp_cheb_and_der3",
-           "chebval_ln_tau", "chebval_ln_tau_and_der",
-           "chebval_ln_tau_and_der2", "chebval_ln_tau_and_der3",
-           "horner_stable_ln_tau", "horner_stable_ln_tau_and_der",
-           "horner_stable_ln_tau_and_der2", "horner_stable_ln_tau_and_der3",
-           "exp_cheb_ln_tau", "exp_cheb_ln_tau_and_der", "exp_cheb_ln_tau_and_der2",
-           "exp_horner_stable_ln_tau", "exp_horner_stable_ln_tau_and_der",
-           "exp_horner_stable_ln_tau_and_der2",
-           "is_monotonic",
-           "sort_nelder_mead_points_numba", "sort_nelder_mead_points_python",
-           "bounds_clip_naive", "nelder_mead", "cbrt",
-           "polyint_stable", "polyint_over_x_stable",
-           "argsort1d", "poly_convert",
-
-           "cumulative_trapezoid",
-           ]
+__all__ = [
+    "IS_PYPY",
+    "NoSolutionError",
+    "NotBoundedError",
+    "OscillationError",
+    "SamePointError",
+    "SolverInterface",
+    "UnconvergedError",
+    "argsort1d",
+    "array_as_tridiagonals",
+    "assert_close",
+    "assert_close1d",
+    "assert_close2d",
+    "assert_close3d",
+    "assert_close4d",
+    "basic_damping",
+    "basic_damping",
+    "best_bounding_bounds",
+    "bisect",
+    "bisplev",
+    "bounds_clip_naive",
+    "brenth",
+    "broyden2",
+    "caching_decorator",
+    # Complex number math missing in micropython
+    "cacos",
+    "catan",
+    "catanh",
+    "cbrt",
+    "chebder",
+    "chebint",
+    "chebval",
+    "chebval_ln_tau",
+    "chebval_ln_tau_and_der",
+    "chebval_ln_tau_and_der2",
+    "chebval_ln_tau_and_der3",
+    "comb",
+    "cumsum",
+    "cumulative_trapezoid",
+    "curve_fit",
+    "damping_maintain_sign",
+    "deflate_cubic_real_roots",
+    "derivative",
+    "detect_outlier_normal",
+    "diff",
+    "differential_evolution",
+    "ellipe",
+    "ellipeinc",
+    "ellipkinc",
+    "erf",
+    "evaluate_linear_fits",
+    "evaluate_linear_fits_d",
+    "evaluate_linear_fits_d2",
+    "exp_cheb",
+    "exp_cheb_and_der",
+    "exp_cheb_and_der2",
+    "exp_cheb_and_der3",
+    "exp_cheb_ln_tau",
+    "exp_cheb_ln_tau_and_der",
+    "exp_cheb_ln_tau_and_der2",
+    "exp_horner_backwards",
+    "exp_horner_backwards_and_der",
+    "exp_horner_backwards_and_der2",
+    "exp_horner_backwards_and_der3",
+    "exp_horner_backwards_ln_tau",
+    "exp_horner_backwards_ln_tau_and_der",
+    "exp_horner_backwards_ln_tau_and_der2",
+    "exp_horner_stable",
+    "exp_horner_stable_and_der",
+    "exp_horner_stable_and_der2",
+    "exp_horner_stable_and_der3",
+    "exp_horner_stable_ln_tau",
+    "exp_horner_stable_ln_tau_and_der",
+    "exp_horner_stable_ln_tau_and_der2",
+    "exp_poly_ln_tau_coeffs2",
+    "exp_poly_ln_tau_coeffs2",
+    "exp_poly_ln_tau_coeffs3",
+    "exp_poly_ln_tau_coeffs3",
+    "factorial",
+    "fit_integral_linear_extrapolation",
+    "fit_integral_over_T_linear_extrapolation",
+    "fit_minimization_targets",
+    "fixed_point_anderson",
+    "fixed_point_to_residual",
+    "fsolve",
+    "full",
+    "gamma",
+    "gammaincc",
+    "gammaincc",
+    "halley",
+    "hessian",
+    "homotopy_solver",
+    "horner",
+    "horner_and_der",
+    "horner_and_der2",
+    "horner_and_der3",
+    "horner_and_der4",
+    "horner_backwards",
+    "horner_backwards_ln_tau",
+    "horner_backwards_ln_tau_and_der",
+    "horner_backwards_ln_tau_and_der2",
+    "horner_backwards_ln_tau_and_der3",
+    "horner_domain",
+    "horner_log",
+    "horner_stable",
+    "horner_stable_and_der",
+    "horner_stable_and_der2",
+    "horner_stable_and_der3",
+    "horner_stable_and_der4",
+    "horner_stable_ln_tau",
+    "horner_stable_ln_tau_and_der",
+    "horner_stable_ln_tau_and_der2",
+    "horner_stable_ln_tau_and_der3",
+    "horner_stable_log",
+    "hyp2f1",
+    "i0",
+    "i1",
+    "implementation_optimize_tck",
+    "interp",
+    "is_increasing",
+    "is_micropython",
+    "is_monotonic",
+    "is_poly_negative",
+    "is_poly_positive",
+    "isclose",
+    "iv",
+    "iv",
+    "jacobian",
+    "jacobian_methods",
+    "k0",
+    "k1",
+    "lambertw",
+    "linspace",
+    "lmder",
+    "lmfit",
+    "logspace",
+    "make_damp_initial",
+    "max_abs_error",
+    "max_abs_rel_error",
+    "max_squared_error",
+    "max_squared_rel_error",
+    "mean",
+    "mean_abs_error",
+    "mean_abs_rel_error",
+    "mean_squared_error",
+    "mean_squared_rel_error",
+    "min_max_ratios",
+    "minimize",
+    "multivariate_solvers",
+    "nelder_mead",
+    "newton",
+    "newton_minimize",
+    "newton_system",
+    "normalize",
+    "nquad",
+    "numpy",
+    "one_sided_secant",
+    "oscillation_checker",
+    "oscillation_checking_wrapper",
+    "poly_convert",
+    "poly_fit_integral_over_T_value",
+    "poly_fit_integral_value",
+    "polyder",
+    "polyint",
+    "polyint_over_x",
+    "polyint_over_x_stable",
+    "polyint_stable",
+    "polylog2",
+    "polynomial_offset_scale",
+    "quad",
+    "quad_adaptive",
+    "quadratic_from_f_ders",
+    "quadratic_from_points",
+    "residual_to_fixed_point",
+    "ridder",
+    "root",
+    "roots_cubic",
+    "roots_quadratic",
+    "roots_quartic",
+    "secant",
+    "sincos",
+    "solve_2_direct",
+    "solve_3_direct",
+    "solve_4_direct",
+    "solve_tridiagonal",
+    "sort_nelder_mead_points_numba",
+    "sort_nelder_mead_points_python",
+    "sort_paired_lists",
+    "splev",
+    "stable_poly_to_unstable",
+    "std",
+    "subset_matrix",
+    "tck_interp2d_linear",
+    "translate_bound_f_jac",
+    "translate_bound_func",
+    "translate_bound_jac",
+    "tridiagonals_as_array",
+    "trunc_exp",
+    "trunc_exp_numpy",
+    "trunc_log",
+    "trunc_log_numpy",
+    "zeros",
+]
 
 from fluids.numerics import doubledouble
 from fluids.numerics.doubledouble import *
@@ -207,7 +329,7 @@ SKIP_DEPENDENCIES = False # for testing
 class FakePackage:
     pkg = None
     def __getattr__(self, name):
-        raise ImportError("%s in not installed and required by this feature" %(self.pkg))
+        raise ImportError("{} in not installed and required by this feature".format(self.pkg))
 
     def __init__(self, pkg):
         self.pkg = pkg
@@ -435,19 +557,19 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
 
 def cumulative_trapezoid(y, x=None, dx=None):
     """Compute cumulative integral using trapezoidal rule.
-    
+
     Parameters
     ----------
     y : list[float]
         Values of the function to integrate
     x : list[float], optional
         The x coordinates. If None, assumes unit spacing.
-        
+
     Returns
     -------
     list[float]
         Cumulative integral. Length is len(y)-1
-        
+
     Examples
     --------
     >>> x = [0, 1, 2]
@@ -516,7 +638,7 @@ def diff(a, n=1, axis=-1):
         return a
     if n < 0:
         raise ValueError(
-            "order must be non-negative but got %s" %(n))
+            "order must be non-negative but got {}".format(n))
 #    nd = 1 # hardcode
     diffs = []
     for i in range(1, len(a)):
@@ -1273,8 +1395,8 @@ def is_poly_negative(poly, domain=None, rand_pts=10, j_tol=1e-12, root_perturb=1
 def is_monotonic(points):
     """Checks if the input sequence of points is monotonic.
 
-    A sequence is monotonic if it is entirely increasing or ecreasing. 
-    This function iterates through the provided sequence to determine if 
+    A sequence is monotonic if it is entirely increasing or ecreasing.
+    This function iterates through the provided sequence to determine if
     it meets this criterion.
 
     Parameters
@@ -1285,7 +1407,7 @@ def is_monotonic(points):
     Returns
     -------
     monotonic : bool
-        `True` if the sequence is monotonic, `False` if the sequence 
+        `True` if the sequence is monotonic, `False` if the sequence
         contains both increases and decreases.
 
     Examples
@@ -1301,7 +1423,7 @@ def is_monotonic(points):
 
     Notes
     -----
-    The function considers a single-element sequence as monotonic. It also 
+    The function considers a single-element sequence as monotonic. It also
     treats sequences with equal adjacent values as monotonic (e.g., [1, 2, 2, 3]).
     """
     N = len(points)
@@ -1329,7 +1451,7 @@ def is_increasing(points):
     Returns
     -------
     increasing : bool
-        `True` if the sequence is entirely increasing (each element 
+        `True` if the sequence is entirely increasing (each element
         is strictly greater than its predecessor), `False` otherwise, [-]
 
     Examples
@@ -1363,7 +1485,7 @@ def min_max_ratios(actual, calculated):
     the two and provide two numbers describing
     how far away from the known data the calculated
     data is.
-    
+
     The numbers are the ratio of the lowest relative
     calc, and the highest relative calc.
     """
@@ -1586,7 +1708,7 @@ def chebval(x, c, offset=0.0, scale=1.0):
 def chebder(c, m=1, scl=1.0):
     """not quite a copy of numpy's version because this was faster to
     implement.
-    
+
     This does not evaluate the value of a cheb series at a point; it returns
     a new chebyshev seriese to be evaluated by chebval.
     """
@@ -2117,10 +2239,10 @@ class UnconvergedError(Exception):
     """Error raised when maxiter has been reached in an optimization problem."""
 
     def __repr__(self):
-        return ('UnconvergedError("Failed to converge; maxiter (%s) reached, value=%s, error %s)"' %(self.iterations, self.point, self.err))
+        return ('UnconvergedError("Failed to converge; maxiter ({}) reached, value={}, error {})"'.format(self.iterations, self.point, self.err))
 
     def __init__(self, message, iterations=None, err=None, point=None):
-        super(UnconvergedError, self).__init__(message)
+        super().__init__(message)
         self.point = point
         self.iterations = iterations
         self.err = err
@@ -2134,7 +2256,7 @@ class SamePointError(UnconvergedError):
         return "TODO"
 
     def __init__(self, message, iterations=None, err=None, q1=None, p1=None, q0=None, p0=None):
-        super(UnconvergedError, self).__init__(message)
+        super().__init__(message)
         self.q1 = q1
         self.p1 = p1
         self.q0 = q0
@@ -3574,7 +3696,7 @@ def homotopy_function(x, lambd, F0, objf, args=()):
     """
     .. math::
         H(x, lambda) = F(x) - (1-lambda)*F(x_original)
-    
+
     x : list[float]
         The current guesses, [-]
     lambd : float
@@ -4079,49 +4201,49 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
 
 
 
-def compute_accelerated_step(
-    residuals,
-    x_hist,
-    gx_hist,
-    reg: float = 1e-8,
-    mixing_param: float = 1.0
-):
-    """Compute Anderson acceleration coefficients and the accelerated iterate."""
-    # Compute R = Ft @ Ft.T with regularization
-    RR = matrix_multiply(residuals, transpose(residuals))
-    N = len(RR)
-    for i in range(N):
-        RR[i][i] += reg
+# def compute_accelerated_step(
+#     residuals,
+#     x_hist,
+#     gx_hist,
+#     reg: float = 1e-8,
+#     mixing_param: float = 1.0
+# ):
+#     """Compute Anderson acceleration coefficients and the accelerated iterate."""
+#     # Compute R = Ft @ Ft.T with regularization
+#     RR = matrix_multiply(residuals, transpose(residuals))
+#     N = len(RR)
+#     for i in range(N):
+#         RR[i][i] += reg
 
-    try:
-        RR_inv = inv(RR)
-        alpha = sum_matrix_rows(RR_inv)
-    except:
-        # Fallback to least squares if matrix is singular
-        ones = [1.0] * len(residuals)
-        alpha = gelsd(RR, ones)[0]
+#     try:
+#         RR_inv = inv(RR)
+#         alpha = sum_matrix_rows(RR_inv)
+#     except:
+#         # Fallback to least squares if matrix is singular
+#         ones = [1.0] * len(residuals)
+#         alpha = gelsd(RR, ones)[0]
 
-    # Normalize alpha
-    alpha_sum = sum(alpha)
-    # DO NOT REMOVE part of what is needed to switch to f in residual_to_fixed_point form
-    if alpha_sum == 0:
-        raise ValueError("Sum of alpha coefficients is zero")
-    elif alpha_sum < 0:
-        alpha = [-a for a in alpha]
-        alpha_sum = -alpha_sum
+#     # Normalize alpha
+#     alpha_sum = sum(alpha)
+#     # DO NOT REMOVE part of what is needed to switch to f in residual_to_fixed_point form
+#     if alpha_sum == 0:
+#         raise ValueError("Sum of alpha coefficients is zero")
+#     elif alpha_sum < 0:
+#         alpha = [-a for a in alpha]
+#         alpha_sum = -alpha_sum
 
-    # sometimes alpha needs to be negative
-    alpha = [a / alpha_sum for a in alpha]
+#     # sometimes alpha needs to be negative
+#     alpha = [a / alpha_sum for a in alpha]
 
-    # Compute the accelerated iterate
-    dim = len(x_hist[0])
-    x_acc = [0.0] * dim
-    for a, x, gx in zip(alpha, x_hist, gx_hist):
-        for i in range(dim):
-            # Flip between these to change the basis
-            # x_acc[i] += (1 - mixing_param) * a * x[i] + mixing_param * a * gx[i]
-            x_acc[i] +=(1 - mixing_param) * a * x[i] - mixing_param * a * gx[i]
-    return x_acc
+#     # Compute the accelerated iterate
+#     dim = len(x_hist[0])
+#     x_acc = [0.0] * dim
+#     for a, x, gx in zip(alpha, x_hist, gx_hist):
+#         for i in range(dim):
+#             # Flip between these to change the basis
+#             # x_acc[i] += (1 - mixing_param) * a * x[i] + mixing_param * a * gx[i]
+#             x_acc[i] +=(1 - mixing_param) * a * x[i] - mixing_param * a * gx[i]
+#     return x_acc
 
 # def anderson_step(
 #     x_hist: List[List[float]],
@@ -4859,7 +4981,7 @@ def py_bisplev(x, y, tck):
 
     Parameters
     ----------
-    x : float 
+    x : float
         x value, [-]
     y : float
         y value, [-]
@@ -5076,7 +5198,6 @@ def mean_squared_rel_error(data, calc):
         mean_err += err*err
     return mean_err/N
 
-global sp_root
 sp_root = None
 def root(*args, **kwargs):
     global sp_root
@@ -5084,7 +5205,6 @@ def root(*args, **kwargs):
         from scipy.optimize import root as sp_root
     return sp_root(*args, **kwargs)
 
-global sp_minimize
 sp_minimize = None
 def minimize(*args, **kwargs):
     global sp_minimize
@@ -5093,7 +5213,6 @@ def minimize(*args, **kwargs):
     return sp_minimize(*args, **kwargs)
 
 
-global sp_fsolve
 sp_fsolve = None
 def fsolve(*args, **kwargs):
     global sp_fsolve
@@ -5101,7 +5220,6 @@ def fsolve(*args, **kwargs):
         from scipy.optimize import fsolve as sp_fsolve
     return sp_fsolve(*args, **kwargs)
 
-global sp_curve_fit
 sp_curve_fit = None
 def curve_fit(*args, **kwargs):
     global sp_curve_fit
@@ -5109,7 +5227,6 @@ def curve_fit(*args, **kwargs):
         from scipy.optimize import curve_fit as sp_curve_fit
     return sp_curve_fit(*args, **kwargs)
 
-global sp_leastsq
 sp_leastsq = None
 def leastsq(*args, **kwargs):
     global sp_leastsq
@@ -5117,7 +5234,6 @@ def leastsq(*args, **kwargs):
         from scipy.optimize import leastsq as sp_leastsq
     return sp_leastsq(*args, **kwargs)
 
-global sp_differential_evolution
 sp_differential_evolution = None
 def differential_evolution(*args, **kwargs):
     global sp_differential_evolution
@@ -5125,7 +5241,6 @@ def differential_evolution(*args, **kwargs):
         from scipy.optimize import differential_evolution as sp_differential_evolution
     return sp_differential_evolution(*args, **kwargs)
 
-global sp_lmder
 sp_lmder = None
 def lmder(*args, **kwargs):
     global sp_lmder
@@ -5133,7 +5248,6 @@ def lmder(*args, **kwargs):
         from scipy.optimize._minpack import _lmder as sp_lmder
     return sp_lmder(*args, **kwargs)
 
-global sp_lmfit
 sp_lmfit = None
 def lmfit(*args, **kwargs):
     global sp_lmfit
@@ -5203,7 +5317,6 @@ def quad_adaptive(f, a, b, args=(), kronrod_points=array_if_needed(kronrod_point
                     epsrel=epsrel, epsabs=epsabs*0.5, depth=depth+1)
     return area_A + area_B, abs(err_abs_A) + abs(err_abs_B)
 
-global sp_quad
 sp_quad = None
 def lazy_quad(f, a, b, args=(), epsrel=1.49e-08, epsabs=1.49e-8, **kwargs):
     global sp_quad
@@ -5248,6 +5361,7 @@ else:
     quad = lazy_quad
 
 def bounds_clip_naive(x, low, high):
+    N = len(low)
     if low is not None:
         for i in range(N):
             if x[i] < low[i]:
@@ -5409,11 +5523,11 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
 def fixed_point_to_residual(f_fixed_point):
     """
     Transforms a fixed-point iteration function to a residual-based function.
-    
+
     Parameters
     ----------
     - f_fixed_point: Function that takes x and returns the difference x - thing
-    
+
     Returns
     -------
     - A function that outputs residuals: thing - x
@@ -5429,11 +5543,11 @@ def fixed_point_to_residual(f_fixed_point):
 def residual_to_fixed_point(f_residual):
     """
     Transforms a residual-based function to a fixed-point iteration function.
-    
+
     Parameters
     ----------
     - f_residual: Function that takes x and returns residuals (thing - x)
-    
+
     Returns
     -------
     - A function that outputs differences for fixed-point: x - thing
