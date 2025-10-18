@@ -431,7 +431,7 @@ ISO 3310-1:2016 series, indexed by their size in mm as a string.
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-   -- Part 1: Test Sieves of Metal Wire Cloth.
+   Part 1: Test Sieves of Metal Wire Cloth.
 """
 
 ISO_3310_1_sieve_designations  = ["125", "112", "106", "100", "90", "80", "75",
@@ -462,7 +462,7 @@ ISO 3310-1:2016 R20/3 series only, ordered from largest  openings to smallest.
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-   -- Part 1: Test Sieves of Metal Wire Cloth.
+   Part 1: Test Sieves of Metal Wire Cloth.
 """
 
 ISO_3310_1_R20_keys = ["125", "112", "100", "90", "80", "71", "63", "56", "50", "45", "40", "35.5", "31.5", "28", "25", "22.4", "20", "18", "16", "14", "12.5", "11.2", "10", "9", "8", "7.1", "6.3", "5.6", "5", "4.5", "4", "3.55", "3.15", "2.8", "2.5", "2.24", "2", "1.8", "1.6", "1.4", "1.25", "1.12", "1", "0.9", "0.8", "0.71", "0.63", "0.56", "0.5", "0.45", "0.4", "0.355", "0.315", "0.28", "0.25", "0.224", "0.2", "0.18", "0.16", "0.14", "0.125", "0.112", "0.1", "0.09", "0.08", "0.071", "0.063", "0.056", "0.05", "0.045", "0.04", "0.036"]
@@ -473,7 +473,7 @@ ISO 3310-1:2016 R20 series only, ordered from largest  openings to smallest.
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-   -- Part 1: Test Sieves of Metal Wire Cloth.
+   Part 1: Test Sieves of Metal Wire Cloth.
 """
 
 ISO_3310_1_R40_3_keys = ["125", "106", "90", "75", "63", "53", "45", "37.5", "31.5", "26.5", "22.4", "19", "16", "13.2", "11.2", "9.5", "8", "6.7", "5.6", "4.75", "4", "3.35", "2.8", "2.36", "2", "1.7", "1.4", "1.18", "1", "0.85", "0.71", "0.6", "0.5", "0.425", "0.355", "0.3", "0.25", "0.212", "0.18", "0.15", "0.125", "0.106", "0.09", "0.075", "0.063", "0.053", "0.045", "0.038"]
@@ -484,7 +484,7 @@ ISO 3310-1:2016 R40/3 series only, ordered from largest  openings to smallest.
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-   -- Part 1: Test Sieves of Metal Wire Cloth.
+   Part 1: Test Sieves of Metal Wire Cloth.
 """
 
 ISO_3310_1_R10_keys = ["0.036", "0.032", "0.025", "0.02"]
@@ -495,7 +495,7 @@ ISO 3310-1:2016 R10 series only, ordered from largest  openings to smallest.
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-   -- Part 1: Test Sieves of Metal Wire Cloth.
+   Part 1: Test Sieves of Metal Wire Cloth.
 """
 
 sieve_spacing_options = {"ISO 3310-1": ISO_3310_1_sieve_list,
@@ -550,7 +550,7 @@ def psd_spacing(d_min: float | None=None, d_max: float | None=None, pts: int=20,
     .. [1] ASTM E11 - 17 - Standard Specification for Woven Wire Test Sieve
        Cloth and Test Sieves.
     .. [2] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-       -- Part 1: Test Sieves of Metal Wire Cloth.
+       Part 1: Test Sieves of Metal Wire Cloth.
     """
     if d_min is not None:
         d_min = float(d_min)
@@ -1505,7 +1505,7 @@ class ParticleSizeDistributionContinuous:
         .. [1] ASTM E11 - 17 - Standard Specification for Woven Wire Test Sieve
            Cloth and Test Sieves.
         .. [2] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-           -- Part 1: Test Sieves of Metal Wire Cloth.
+           Part 1: Test Sieves of Metal Wire Cloth.
         """
         if method[0] not in ("R", "r"):
             if d_min is None:

@@ -21,10 +21,8 @@ setup:
     @echo ">>> Creating virtual environment in ./.venv..."
     @uv venv
     @echo "\n>>> Installing dependencies from requirements files..."
-    # CORRECTED: Call uv directly. It will automatically find the .venv.
     @uv pip install -r requirements_docs.txt
     @echo "\n>>> Installing 'fluids' in editable mode..."
-    # CORRECTED: Call uv directly here as well.
     @uv pip install -e .
     @echo "\n✅ Environment setup complete! You can now run other commands."
 
