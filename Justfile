@@ -88,7 +88,7 @@ ci: lint typecheck test
 ## 🧹 clean: Remove build artifacts and Python caches.
 clean:
     @echo ">>> Cleaning up build artifacts and cache files..."
-    @rm -rf _build .mypy_cache .pytest_cache dist *.egg-info
+    @rm -rf _build .mypy_cache .pytest_cache dist *.egg-info htmlcov prof
     @find . -type d -name "__pycache__" -exec rm -rf {} +
     @echo "✅ Cleanup complete."
 

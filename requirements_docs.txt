@@ -19,6 +19,7 @@ ruff
 mypy
 pytest-xdist
 pytest
+pytest-cov
 pytz
 jacobi
 numdifftools
