@@ -19,3 +19,8 @@ ruff
 mypy
 pytest-xdist
 pytest
+pytz
+jacobi
+numdifftools
+mpmath
+pandas

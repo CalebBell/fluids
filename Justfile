@@ -29,7 +29,6 @@ setup:
 ## 📚 docs: Build the Sphinx documentation.
 docs:
     @echo ">>> Building Sphinx docs..."
-    # This is correct because we want to run the `sphinx` installed inside the venv.
     @{{VENV_PYTHON}} -m sphinx -b html -d _build/doctrees docs _build/html -j auto
     @echo "✅ Docs built in _build/html"
 

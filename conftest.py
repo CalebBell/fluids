@@ -14,6 +14,10 @@ def pytest_ignore_collect( collection_path, config):
     # Normalize path to string
     path = str(collection_path)
 
+    # Skip virtual environments
+    if "venv" in path or "site-packages" in path:
+        return True
+
     # Skip utility and development directories
     skip_paths = ("cx_freeze", "py2exe", "manual_runner", "make_test_stubs", "plot", "prerelease", "benchmarks", "conf.py")
     if any(skip_path in path for skip_path in skip_paths):
