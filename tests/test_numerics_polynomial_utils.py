@@ -41,7 +41,7 @@ from fluids.numerics import (
 )
 
 try:
-    import mpmath
+    import mpmath # noqa: F401, I001
     has_mpmath = True
 except:
     has_mpmath = False

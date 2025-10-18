@@ -413,6 +413,8 @@ class NumpySpaTest(unittest.TestCase, SpaBase):
     @classmethod
     def setUpClass(self):
         from fluids.optional import spa
+        if hasattr(spa, 'IS_NUMBA'):
+            delattr(spa, 'IS_NUMBA')
         spa = reload(spa)
         self.spa = spa
 
@@ -433,6 +435,8 @@ class NumbaSpaTest(unittest.TestCase, SpaBase):
     def setUpClass(self):
         if numba_version_int >= 17:
             from fluids.optional import spa
+            if hasattr(spa, 'IS_NUMBA'):
+                delattr(spa, 'IS_NUMBA')
             spa = reload(spa)
             self.spa = spa
 

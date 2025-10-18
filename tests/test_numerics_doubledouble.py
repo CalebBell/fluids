@@ -52,7 +52,7 @@ from fluids.numerics.doubledouble import (
 )
 
 try:
-    import mpmath as mp
+    import mpmath as mp # noqa: F401, I001
     has_mpmath = True
     mp.mp.dps=100
 

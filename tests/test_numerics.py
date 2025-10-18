@@ -2116,11 +2116,13 @@ try:
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         try:
+            import numdifftools # noqa: F401, I001
             jacob_methods = ["analytical", "python", "numdifftools_forward"]
         except:
             jacob_methods = ["analytical", "python"]
 
         try:
+            import jacobi # noqa: F401, I001
             jacob_methods += ["jacobi_forward"]
         except:
             pass

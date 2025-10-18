@@ -104,7 +104,6 @@ try:
 except:
     pass
 
-
 def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name="cache-safe"):
     # executing fluids source code autoedited for numba compatibility only
     if lcs is None:
@@ -119,7 +118,10 @@ def numba_exec_cacheable(source, lcs=None, gbls=None, cache_name="cache-safe"):
     lines = [line + "\n" for line in source.splitlines()]
     linecache.cache[filepath] = (len(source), None, lines, filepath)
     # executing fluids source code autoedited for numba compatibility only
-    compiled = compile(source, filepath, "exec")
+    # Import the future flags and pass them to compile - exec doesn't support __future__ in code
+    import __future__
+    compiled = compile(source, filepath, "exec", 
+                      flags=__future__.annotations.compiler_flag)
     exec(compiled, gbls, lcs)  # nosec B102
     return lcs, gbls
 
