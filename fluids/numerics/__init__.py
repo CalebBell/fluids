@@ -1855,19 +1855,19 @@ def assert_close(a, b, rtol=1e-7, atol=0.0):
 def assert_close1d(a, b, rtol=1e-7, atol=0.0):
     N = len(a)
     if N != len(b):
-        raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
+        raise ValueError(f"Variables are not the same length: {N}, {len(b)}")
     for i in range(N):
         assert_close(a[i], b[i], rtol=rtol, atol=atol)
 
 def assert_close2d(a, b, rtol=1e-7, atol=0.0):
 #    N = len(a)
 #    if N != len(b):
-#        raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
+#        raise ValueError(f"Variables are not the same length: {N}, {len(b)}")
 #    for i in range(N):
 #        assert_close1d(a[i], b[i], rtol=rtol, atol=atol)
     N = len(a)
     if N != len(b):
-        raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
+        raise ValueError(f"Variables are not the same length: {N}, {len(b)}")
     if not __debug__:
         # Do not run these branches in -O, -OO mode
         from numpy.testing import assert_allclose
@@ -1876,7 +1876,7 @@ def assert_close2d(a, b, rtol=1e-7, atol=0.0):
         a0, b0 = a[i], b[i]
         N0 = len(a0)
         if N0 != len(b0):
-            raise ValueError("Variables are not the same length: %d, %d" %(N0, len(b0)))
+            raise ValueError(f"Variables are not the same length: {N0}, {len(b0)}")
         for j in range(N0):
 #            assert_close(a0[j], b0[j], rtol=rtol, atol=atol)
             good = True
@@ -1904,21 +1904,21 @@ def assert_close2d(a, b, rtol=1e-7, atol=0.0):
 def assert_close3d(a, b, rtol=1e-7, atol=0.0):
     N = len(a)
     if N != len(b):
-        raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
+        raise ValueError(f"Variables are not the same length: {N}, {len(b)}")
     for i in range(N):
         assert_close2d(a[i], b[i], rtol=rtol, atol=atol)
 
 def assert_close4d(a, b, rtol=1e-7, atol=0.0):
     N = len(a)
     if N != len(b):
-        raise ValueError("Variables are not the same length: %d, %d" %(N, len(b)))
+        raise ValueError(f"Variables are not the same length: {N}, {len(b)}")
 #    for i in range(N):
 #        assert_close3d(a[i], b[i], rtol=rtol, atol=atol)
     for i in range(N):
         a0, b0 = a[i], b[i]
         N0 = len(a0)
         if N0 != len(b0):
-            raise ValueError("Variables are not the same length: %d, %d" %(N0, len(b0)))
+            raise ValueError(f"Variables are not the same length: {N0}, {len(b0)}")
         for j in range(N0):
             assert_close2d(a0[j], b0[j], rtol=rtol, atol=atol)
 
@@ -2585,7 +2585,7 @@ def bisect(f, a, b, args=(), xtol=1e-12, rtol=2.220446049250313e-16, maxiter=100
         elif (abs_dm < (xtol + rtol*abs_dm)):
             return xm
 
-    raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
+    raise UnconvergedError(f"Failed to converge after {maxiter} iterations")
 
 
 def ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
@@ -2626,7 +2626,7 @@ def ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
         tol = xtol + rtol*xn
         if (fn == 0.0 or fabs(b - a) < tol):
             return xn
-    raise UnconvergedError("Failed to converge after %d iterations" %maxiter) # numba: delete
+    raise UnconvergedError(f"Failed to converge after {maxiter} iterations") # numba: delete
 #    raise UnconvergedError("Failed to converge") # numba: uncomment
 
 def brenth(f, xa, xb, args=(),
@@ -2719,7 +2719,7 @@ def brenth(f, xa, xb, args=(),
                 xcur -= delta
 
         fcur = f(xcur, *args, **kwargs)
-    raise UnconvergedError("Failed to converge after %d iterations" %maxiter)
+    raise UnconvergedError(f"Failed to converge after {maxiter} iterations")
 
 factors_growing_positive = [3.0**i for i in range(1, 20)]
 factors_shrinking_positive = [3.0**(-i) for i in range(1, 20)]
@@ -3122,12 +3122,12 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
             if not bad_fval and (ytol is not None and abs(fval) < ytol):
                 return p0
             if stuck and (not additional_guesses or did_additional_guesses):
-                raise UnconvergedError("Failed to converge; next guess is same as current guess on iteration %d, guess=%g, value=%g"%(it, p0, fval))
+                raise UnconvergedError(f"Failed to converge; next guess is same as current guess on iteration {it}, guess={p0:g}, value={fval:g}")
             if it == 0 and not additional_guesses:
                 if bad_fval:
-                    raise UnconvergedError("Cannot continue - math error in function value on iteration %d, guess=%f, value=%f"%(it, p0, fval))
+                    raise UnconvergedError(f"Cannot continue - math error in function value on iteration {it}, guess={p0:f}, value={fval:f}")
                 else:
-                    raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
+                    raise UnconvergedError(f"Derivative became zero on iteration {it}, guess={p0:f} ")
             require_bracket = False
             if additional_guesses and ((it == 0 or stuck) or (fval == fval0)):
                 # fval == fval0 checks if we are flat and a line search is pointless
@@ -3181,7 +3181,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                     # print(f'Found point the search can continue from {p0}')
                     break
             if not recovered:
-                raise UnconvergedError("Derivative became zero on iteration %d, guess=%f " %(it, p0))
+                raise UnconvergedError(f"Derivative became zero on iteration {it}, guess={p0:f} ")
 
         if bisection:
             if fval < 0.0:
@@ -3226,7 +3226,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                 if ytol is not None and abs(fval) < ytol:
                     return low
                 else:
-                    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
+                    raise UnconvergedError(f"Failed to converge; maxiter ({maxiter}) reached, value={p:f} ")
                 # Stuck - not going to converge, hammering the boundary. Check ytol
             p = low
         if high is not None and p > high:
@@ -3235,7 +3235,7 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                 if ytol is not None and abs(fval) < ytol:
                     return high
                 else:
-                    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
+                    raise UnconvergedError(f"Failed to converge; maxiter ({maxiter}) reached, value={p:f} ")
             p = high
 
         # p0 is last point (fval at that point), p is new (unknown fval)
@@ -3260,11 +3260,11 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
                 return p
         fval0, fval1, fval2, fval3 = fval, fval0, fval1, fval2
         if isnan(p) or isinf(p):
-            raise UnconvergedError("Cannot continue - math error in function value on iteration %d, guess=%f, value=%f"%(it, p, fval))
+            raise UnconvergedError(f"Cannot continue - math error in function value on iteration {it}, guess={p:f}, value={fval:f}")
         # print([p, p0, p1, p2], [fval, fval0, fval1, fval2], ytol_met, xtol_met)
 
         p0, p1, p2, p3 = p, p0, p1, p2
-    raise UnconvergedError("Failed to converge; maxiter (%d) reached, point=%g, error=%g" %(maxiter, p, fval))
+    raise UnconvergedError(f"Failed to converge; maxiter ({maxiter}) reached, point={p:g}, error={fval:g}")
 
 def halley(func, x0, args=(), maxiter=100,
            low=None, high=None, damping=1.0, ytol=None,
@@ -3286,7 +3286,7 @@ def halley(func, x0, args=(), maxiter=100,
             if ytol is None or abs(fval) < ytol:
                 return p0
             else:
-                raise UnconvergedError("Derivative became zero; maxiter (%d) reached, value=%f " %(maxiter, p0))
+                raise UnconvergedError(f"Derivative became zero; maxiter ({maxiter}) reached, value={p0:f} ")
 
         if bisection:
             if fval < 0.0:
@@ -3321,7 +3321,7 @@ def halley(func, x0, args=(), maxiter=100,
                 if abs(fval) < ytol:
                     return low
                 else:
-                    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
+                    raise UnconvergedError(f"Failed to converge; maxiter ({maxiter}) reached, value={p:f} ")
                 # Stuck - not going to converge, hammering the boundary. Check ytol
             p = low
         if high is not None and p > high:
@@ -3330,7 +3330,7 @@ def halley(func, x0, args=(), maxiter=100,
                 if abs(fval) < ytol:
                     return high
                 else:
-                    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " % (maxiter, p))
+                    raise UnconvergedError(f"Failed to converge; maxiter ({maxiter}) reached, value={p:f} ")
             p = high
 
 
@@ -3356,7 +3356,7 @@ def halley(func, x0, args=(), maxiter=100,
                     return p
 
         p0 = p
-    raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%f " %(maxiter, p))
+    raise UnconvergedError(f"Failed to converge; maxiter ({maxiter}) reached, value={p:f} ")
 
 def newton_err(F):
     err = sum([abs(i) for i in F])
@@ -3686,9 +3686,9 @@ def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping
             break
 
     if xtol is not None and norm2(j) > xtol:
-        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s " %(maxiter, x))
+        raise UnconvergedError(f"Failed to converge; maxiter ({maxiter}) reached, value={x} ")
     if ytol is not None and err(j) > ytol:
-        raise UnconvergedError("Failed to converge; maxiter (%d) reached, value=%s " %(maxiter, x))
+        raise UnconvergedError(f"Failed to converge; maxiter ({maxiter}) reached, value={x} ")
 
     return x, iter
 
