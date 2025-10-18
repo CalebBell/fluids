@@ -4,6 +4,7 @@ import sys
 # Detect Python implementation and version
 is_pypy = "PyPy" in sys.version
 is_graal = "Graal" in sys.version
+is_free_threaded = hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled()
 ver_tup = tuple(int(x) for x in platform.python_version_tuple()[:2])
 is_x86_or_x86_64 = platform.machine().lower() in ("i386", "i686", "x86", "x86_64", "amd64")
 
@@ -30,12 +31,13 @@ def pytest_ignore_collect( collection_path, config):
         return True
 
     # Skip numba and .rst tests for unsupported configurations
-    # Numba requires: CPython 3.8-3.13, x86/x86_64 architecture
+    # Numba requires: CPython 3.8-3.13, x86/x86_64 architecture, GIL-enabled
     unsupported_for_numba = (
         ver_tup < (3, 8) or
         ver_tup >= (3, 14) or
         is_pypy or
         is_graal or
+        is_free_threaded or
         not is_x86_or_x86_64
     )
     if unsupported_for_numba:
