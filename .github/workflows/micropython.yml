@@ -1,0 +1,34 @@
+name: MicroPython
+
+on:
+  push:
+    branches: [master, release]
+  pull_request:
+    branches: [master, release]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' && github.ref != 'refs/heads/release' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install MicroPython
+      uses: BrianPugh/install-micropython@v2
+      with:
+        reference: v1.24.1
+
+    - name: Install MicroPython dependencies
+      run: |
+        micropython -c "import mip; mip.install('github:josverl/micropython-stubs/mip/typing_mpy.json')"
+        micropython -c "import mip; mip.install('datetime')"
+        micropython -c "import mip; mip.install('__future__')"
+
+    - name: Run tests
+      run: |
+        cd tests
+        micropython -X heapsize=4M manual_runner.py

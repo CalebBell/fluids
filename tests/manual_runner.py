@@ -21,7 +21,7 @@ import fluids.numerics
 try:
     import test_drag
 except:
-    print("run this from the tests directory")
+    print("run this from the fluids directory")
     sys.exit()
 #import test_numerics
 import test_atmosphere
@@ -64,6 +64,8 @@ if len(sys.argv) >= 2:
     #print(sys.argv)
     # Run modules specified by user
     to_test = [globals()[i] for i in sys.argv[1:]]
+
+failed_tests = []
 for mod in to_test:
     print(mod)
     for s in dir(mod):
@@ -89,4 +91,9 @@ for mod in to_test:
                 except Exception as e:
                     print(f"FAILED TEST {s} with error:")
                     print(e)
+                    failed_tests.append(s)
+
+if failed_tests:
+    print(f"\n{len(failed_tests)} test(s) failed")
+    sys.exit(1)
 
