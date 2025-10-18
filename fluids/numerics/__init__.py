@@ -19,6 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+from __future__ import annotations
 
 import sys
 from cmath import log as clog
@@ -3134,8 +3135,8 @@ def newton(func, x0, fprime=None, args=(), maxiter=100,
         a, b = None, None
         fa, fb = None, None
 
-    fprime2_included = fprime2 == True
-    fprime_included = fprime == True
+    fprime2_included = fprime2 == True  # noqa: E712
+    fprime_included = fprime == True  # noqa: E712
     if fprime2_included:
         func2 = func
     hit_low, hit_high = 0, 0
