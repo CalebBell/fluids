@@ -101,6 +101,34 @@ from fluids.numerics.polynomial_utils import (
     stable_poly_to_unstable,
 )
 from fluids.numerics.special import cbrt, comb, factorial, py_cacos, py_catan, py_catanh, py_hypot, trunc_exp, trunc_log
+from fluids.numerics.doubledouble import (
+    add_dd,
+    add_imag_dd,
+    cbrt_dd,
+    cbrt_explicit_dd,
+    cbrt_imag_dd,
+    cube_dd,
+    div_dd,
+    div_imag_dd,
+    eq_dd,
+    exp_dd,
+    ge_dd,
+    gt_dd,
+    imag_inv_dd,
+    intpow_dd,
+    le_dd,
+    log_dd,
+    lt_dd,
+    mul_dd,
+    mul_imag_dd,
+    mul_imag_noerrors_dd,
+    mul_noerrors_dd,
+    neq_dd,
+    pow_dd,
+    sqrt_dd,
+    sqrt_imag_dd,
+    square_dd,
+)
 
 __all__ = [
     "IS_PYPY",
@@ -110,6 +138,13 @@ __all__ = [
     "SamePointError",
     "SolverInterface",
     "UnconvergedError",
+    # Math library re-exports for micropython compatibility
+    "acos",
+    "asinh",
+    "atan2",
+    "clog",
+    "csqrt",
+    "pi",
     "argsort1d",
     "array_as_tridiagonals",
     "assert_close",
@@ -257,6 +292,7 @@ __all__ = [
     "newton_system",
     "normalize",
     "nquad",
+    "null_space",
     "numpy",
     "one_sided_secant",
     "oscillation_checker",
@@ -279,9 +315,12 @@ __all__ = [
     "ridder",
     "root",
     "roots_cubic",
+    "roots_cubic_a1",
+    "roots_cubic_a2",
     "roots_quadratic",
     "roots_quartic",
     "secant",
+    "shape",
     "sincos",
     "solve_2_direct",
     "solve_3_direct",
@@ -292,6 +331,7 @@ __all__ = [
     "sort_paired_lists",
     "splev",
     "stable_poly_to_unstable",
+    "stack_vectors",
     "std",
     "subset_matrix",
     "tck_interp2d_linear",
@@ -304,13 +344,33 @@ __all__ = [
     "trunc_log",
     "trunc_log_numpy",
     "zeros",
+    'add_dd',
+    'add_imag_dd',
+    'cbrt_dd',
+    'cbrt_explicit_dd',
+    'cbrt_imag_dd',
+    'cube_dd',
+    'div_dd',
+    'div_imag_dd',
+    'eq_dd',
+    'exp_dd',
+    'ge_dd',
+    'gt_dd',
+    'imag_inv_dd',
+    'intpow_dd',
+    'le_dd',
+    'log_dd',
+    'lt_dd',
+    'mul_dd',
+    'mul_imag_dd',
+    'mul_imag_noerrors_dd',
+    'mul_noerrors_dd',
+    'neq_dd',
+    'pow_dd',
+    'sqrt_dd',
+    'sqrt_imag_dd',
+    'square_dd',
 ]
-
-from fluids.numerics import doubledouble
-from fluids.numerics.doubledouble import *
-
-__all__.extend(doubledouble.__all__)
-
 
 __numba_additional_funcs__ = ["py_bisplev", "py_splev", "binary_search",
                               "py_lambertw", "_lambertw_err", "newton_err",
@@ -329,7 +389,7 @@ SKIP_DEPENDENCIES = False # for testing
 class FakePackage:
     pkg = None
     def __getattr__(self, name):
-        raise ImportError("{} in not installed and required by this feature".format(self.pkg))
+        raise ImportError(f"{self.pkg} in not installed and required by this feature")
 
     def __init__(self, pkg):
         self.pkg = pkg
