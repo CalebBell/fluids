@@ -27,7 +27,7 @@ import os
 from . import numerics
 from . import constants
 
-if not numerics.is_micropython:
+if not numerics.is_micropython: # type: ignore
     from . import atmosphere
     from . import compressible
     from . import core

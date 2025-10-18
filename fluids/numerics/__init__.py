@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# type: ignore
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -96,6 +95,7 @@ __all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
 
            'fixed_point_to_residual', 'residual_to_fixed_point',
            'sort_paired_lists',
+           'is_micropython',
 
            # Complex number math missing in micropython
            'cacos', 'catan',

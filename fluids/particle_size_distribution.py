@@ -119,6 +119,7 @@ from math import exp, log, log10, pi, sqrt
 
 from fluids.numerics import brenth, cumsum, diff, epsilon, erf, gamma, gammaincc, linspace, logspace, normalize, quad
 from fluids.numerics import numpy as np
+from typing import Callable
 
 ROOT_TWO_PI = sqrt(2.0*pi)
 
@@ -875,7 +876,7 @@ def cdf_Gates_Gaudin_Schuhman(d: float, d_characteristic: float, m: float) -> fl
         return 1.0
 
 
-def pdf_Gates_Gaudin_Schuhman_basis_integral(d: float, d_characteristic: float, m: float, n: int) -> float:
+def pdf_Gates_Gaudin_Schuhman_basis_integral(d: float, d_characteristic: float, m: float, n: float) -> float:
     r"""Calculates the integral of the multiplication of d^n by the Gates,
     Gaudin and Schuhman (GGS) model given a particle diameter `d`,
     characteristic (maximum) particle diameter `d_characteristic`, and exponent
@@ -1001,7 +1002,7 @@ def cdf_Rosin_Rammler(d: float, k: float, m: float) -> float:
     return 1.0 - exp(-k*d**m)
 
 
-def pdf_Rosin_Rammler_basis_integral(d: float, k: float, m: float, n: int) -> float:
+def pdf_Rosin_Rammler_basis_integral(d: float, k: float, m: float, n: float) -> float:
     r"""Calculates the integral of the multiplication of d^n by the Rosin
     Rammler (RR) pdf, given a particle diameter `d`, and the two parameters `k`
     and `m`.
@@ -1225,13 +1226,30 @@ class ParticleSizeDistributionContinuous:
        Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and
        Moments from Particle Size Distributions.
     """
+    order: int
+    d_excessive: float
+    truncated: bool
+    d_min: float
+    d_max: float
+    d_minimum: float
+    _cdf_d_max: float
+    _cdf_d_min: float
+
+    def _pdf(self, d: float) -> float:
+        raise NotImplementedError("Must be implemented by subclasses")
+
+    def _cdf(self, d: float) -> float:
+        raise NotImplementedError("Must be implemented by subclasses")
+
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
+        raise NotImplementedError("Must be implemented by subclasses")
 
     def _pdf_basis_integral_definite(self, d_min: float, d_max: float, n: float) -> float:
         # Needed as an api for numerical integrals
         return (self._pdf_basis_integral(d=d_max, n=n)
                 - self._pdf_basis_integral(d=d_min, n=n))
 
-    def pdf(self, d: float, n: int | None=None) -> float:
+    def pdf(self, d: float, n: float | None=None) -> float:
         r"""Computes the probability density function of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
@@ -1296,7 +1314,7 @@ class ParticleSizeDistributionContinuous:
             ans = (ans)/(self._cdf_d_max - self._cdf_d_min)
         return ans
 
-    def cdf(self, d: float, n: int | None=None) -> float:
+    def cdf(self, d: float, n: float | None=None) -> float:
         r"""Computes the cumulative distribution density function of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
@@ -1893,7 +1911,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     def _cdf(self, d: float) -> float:
         return self.interpolated._cdf(d)
 
-    def _pdf_basis_integral(self, d: float, n: int) -> float:
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
         return self.interpolated._pdf_basis_integral(d, n)
 
     def _fit_obj_function(self, vals, distribution, n):
@@ -2058,26 +2076,32 @@ class PSDLognormal(ParticleSizeDistributionContinuous):
         self.order = order
         self.parameters = {"s": s, "d_characteristic": d_characteristic,
                            "d_min": d_min, "d_max": d_max}
-        self.d_min = d_min
-        self.d_max = d_max
+        if d_min is not None:
+            self.d_min = d_min
+        if d_max is not None:
+            self.d_max = d_max
         # Pick an upper bound for the search algorithm of 15 orders of magnitude larger than
         # the characteristic diameter; should never be a problem, as diameters can only range
         # so much, physically.
-        if self.d_max is not None:
-            self.d_excessive = self.d_max
+        if d_max is not None:
+            self.d_excessive = d_max
         else:
             self.d_excessive = 1E15*self.d_characteristic
-        if self.d_min is not None:
-            self.d_minimum = self.d_min
+        if d_min is not None:
+            self.d_minimum = d_min
         else:
             self.d_minimum = 0.0
 
-        if self.d_min is not None or self.d_max is not None:
+        if d_min is not None or d_max is not None:
             self.truncated = True
-            if self.d_max is None:
+            if d_max is None:
                 self.d_max = self.d_excessive
-            if self.d_min is None:
+            else:
+                self.d_max = d_max
+            if d_min is None:
                 self.d_min = 0.0
+            else:
+                self.d_min = d_min
 
             self._cdf_d_max = self._cdf(self.d_max)
             self._cdf_d_min = self._cdf(self.d_min)
@@ -2103,35 +2127,39 @@ class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
         self.parameters = {"m": m, "d_characteristic": d_characteristic,
                            "d_min": d_min, "d_max": d_max}
 
-        if self.d_max is not None:
+        if d_max is not None:
             # PDF above this is zero
             self.d_excessive = self.d_max
         else:
             self.d_excessive = self.d_characteristic
-        if self.d_min is not None:
-            self.d_minimum = self.d_min
+        if d_min is not None:
+            self.d_minimum = d_min
         else:
             self.d_minimum = 0.0
 
-        if self.d_min is not None or self.d_max is not None:
+        if d_min is not None or d_max is not None:
             self.truncated = True
-            if self.d_max is None:
+            if d_max is None:
                 self.d_max = self.d_excessive
-            if self.d_min is None:
+            else:
+                self.d_max = d_max
+            if d_min is None:
                 self.d_min = 0.0
+            else:
+                self.d_min = d_min
 
             self._cdf_d_max = self._cdf(self.d_max)
             self._cdf_d_min = self._cdf(self.d_min)
 
 
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return pdf_Gates_Gaudin_Schuhman(d, d_characteristic=self.d_characteristic, m=self.m)
 
-    def _cdf(self, d):
+    def _cdf(self, d : float) -> float:
         return cdf_Gates_Gaudin_Schuhman(d, d_characteristic=self.d_characteristic, m=self.m)
 
-    def _pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
         return pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic=self.d_characteristic, m=self.m, n=n)
 
 
@@ -2145,32 +2173,36 @@ class PSDRosinRammler(ParticleSizeDistributionContinuous):
         self.order = order
         self.parameters = {"m": m, "k": k, "d_min": d_min, "d_max": d_max}
 
-        if self.d_max is not None:
-            self.d_excessive = self.d_max
+        if d_max is not None:
+            self.d_excessive = d_max
         else:
             self.d_excessive = 1e15
-        if self.d_min is not None:
-            self.d_minimum = self.d_min
+        if d_min is not None:
+            self.d_minimum = d_min
         else:
             self.d_minimum = 0.0
 
-        if self.d_min is not None or self.d_max is not None:
+        if d_min is not None or d_max is not None:
             self.truncated = True
-            if self.d_max is None:
+            if d_max is None:
                 self.d_max = self.d_excessive
-            if self.d_min is None:
+            else:
+                self.d_max = d_max
+            if d_min is None:
                 self.d_min = 0.0
+            else:
+                self.d_min = d_min
 
             self._cdf_d_max = self._cdf(self.d_max)
             self._cdf_d_min = self._cdf(self.d_min)
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return pdf_Rosin_Rammler(d, k=self.k, m=self.m)
 
-    def _cdf(self, d):
+    def _cdf(self, d: float) -> float:
         return cdf_Rosin_Rammler(d, k=self.k, m=self.m)
 
-    def _pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
         return pdf_Rosin_Rammler_basis_integral(d, k=self.k, m=self.m, n=n)
 
 
@@ -2204,34 +2236,36 @@ class PSDCustom(ParticleSizeDistributionContinuous):
 
         self.distribution = distribution
         self.order = order
-        self.d_max = d_max
-        self.d_min = d_min
 
-        if self.d_max is not None:
-            self.d_excessive = self.d_max
+        if d_max is not None:
+            self.d_excessive = d_max
         else:
             self.d_excessive = d_excessive
-        if self.d_min is not None:
-            self.d_minimum = self.d_min
+        if d_min is not None:
+            self.d_minimum = d_min
         else:
             self.d_minimum = 0.0
 
-        if self.d_min is not None or self.d_max is not None:
+        if d_min is not None or d_max is not None:
             self.truncated = True
-            if self.d_max is None:
+            if d_max is None:
                 self.d_max = self.d_excessive
-            if self.d_min is None:
+            else:
+                self.d_max = d_max
+            if d_min is None:
                 self.d_min = 0.0
+            else:
+                self.d_min = d_min
 
             self._cdf_d_max = self._cdf(self.d_max)
             self._cdf_d_min = self._cdf(self.d_min)
 
 
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return self.distribution.pdf(d)
 
-    def _cdf(self, d):
+    def _cdf(self, d: float) -> float:
         return self.distribution.cdf(d)
 
     def _pdf_basis_integral_definite(self, d_min, d_max, n):
@@ -2290,8 +2324,7 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
             self.cdf_spline = PchipInterpolator(ds, self.fraction_cdf, extrapolate=True)
             self.pdf_spline = PchipInterpolator(ds, self.fraction_cdf, extrapolate=True).derivative(1)
 
-        # The pdf basis integral splines will be stored here
-        self.basis_integrals: dict[int, object] = {}
+        self.basis_integrals: dict[int, Callable[[float], float]] = {}
 
 
     def _pdf(self, d: float) -> float:
@@ -2303,7 +2336,7 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
             return 1.0
         return max(0.0, float(self.cdf_spline(d)))
 
-    def _pdf_basis_integral(self, d: float, n: int) -> float:
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
         # there are slight errors with this approach - but they are OK to
         # ignore.
         # DO NOT evaluate the first point as it leads to inf values; just set
@@ -2315,6 +2348,6 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
             basis_integral = ds**float(n)*pdf_vals
             if self.monotonic:
                 from scipy.interpolate import PchipInterpolator
-                self.basis_integrals[n] = PchipInterpolator(ds, basis_integral, extrapolate=True).antiderivative(1)
-        return max(float(self.basis_integrals[n](d)), 0.0)
+                self.basis_integrals[int(n)] = PchipInterpolator(ds, basis_integral, extrapolate=True).antiderivative(1)
+        return max(float(self.basis_integrals[int(n)](d)), 0.0)
 

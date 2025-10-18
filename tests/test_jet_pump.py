@@ -21,7 +21,7 @@ SOFTWARE.
 """
 
 import pytest
-
+from math import isnan
 from fluids import (
     liquid_jet_pump,
     liquid_jet_pump_ancillary,
@@ -75,7 +75,7 @@ def test_liquid_jet_pump_ancillary_rhos_Ks_Ps():
 
                         # Finish calculating good known values
                         solution_vars["Qs"] = liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Ks=Ks, Kp=Kp, **solution_vars)
-                        if solution_vars["Qs"].imag:
+                        if isnan(solution_vars["Qs"]):
                             # Do not keep testing if obtained an imaginary flow rate
                             continue
                         # Try each variable with the solver
@@ -108,7 +108,7 @@ def test_liquid_jet_pump_ancillary_d_mixing():
 
                 # Finish calculating good known values
                 solution_vars["Qs"] = liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Ks=Ks, Kp=Kp, **solution_vars)
-                if solution_vars["Qs"].imag:
+                if isnan(solution_vars["Qs"]):
                     # Do not keep testing if obtained an imaginary flow rate
                     continue
                 # Try each variable with the solver

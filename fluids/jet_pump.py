@@ -169,23 +169,23 @@ def liquid_jet_pump_ancillary(rhop: float, rhos: float, Kp: float, Ks: float, d_
             A_mixing = pi/4*d_mixing*d_mixing
             R = A_nozzle/A_mixing
 
-    if P1 is None:
+    if P1 is None and Qp is not None and A_nozzle is not None and M is not None and R is not None and P2 is not None:
         return rhop/2*(Qp/A_nozzle)**2*((1+Kp) - C*(1 + Ks)*((M*R)/(1-R))**2 ) + P2
-    elif P2 is None:
+    elif P2 is None and Qp is not None and A_nozzle is not None and M is not None and R is not None and P1 is not None:
         return -rhop/2*(Qp/A_nozzle)**2*((1+Kp) - C*(1 + Ks)*((M*R)/(1-R))**2 ) + P1
-    elif Qs is None:
+    elif Qs is None and A_nozzle is not None and A_mixing is not None and P1 is not None and P2 is not None and Qp is not None:
         try:
             return sqrt((-2*A_nozzle**2*P1 + 2*A_nozzle**2*P2 + Kp*Qp**2*rhop + Qp**2*rhop)/(C*rhop*(Ks + 1)))*(A_mixing - A_nozzle)/A_nozzle
         except ValueError:
-            return -1j
-    elif Qp is None:
+            return float("nan")
+    elif Qp is None and A_nozzle is not None and A_mixing is not None and P1 is not None and P2 is not None and Qs is not None:
         return A_nozzle*sqrt((2*A_mixing**2*P1 - 2*A_mixing**2*P2 - 4*A_mixing*A_nozzle*P1 + 4*A_mixing*A_nozzle*P2 + 2*A_nozzle**2*P1 - 2*A_nozzle**2*P2 + C*Ks*Qs**2*rhop + C*Qs**2*rhop)/(rhop*(Kp + 1)))/(A_mixing - A_nozzle)
-    elif d_nozzle is None:
+    elif d_nozzle is None and d_mixing is not None and P1 is not None and P2 is not None and Qp is not None and Qs is not None:
         def err(d_nozzle):
             return P1 - liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Kp=Kp, Ks=Ks, d_nozzle=d_nozzle, d_mixing=d_mixing, Qp=Qp, Qs=Qs,
                               P1=None, P2=P2)
         return brenth(err, 1E-9, d_mixing*20)
-    elif d_mixing is None:
+    elif d_mixing is None and d_nozzle is not None and P1 is not None and P2 is not None and Qp is not None and Qs is not None:
         def err(d_mixing):
             return P1 - liquid_jet_pump_ancillary(rhop=rhop, rhos=rhos, Kp=Kp, Ks=Ks, d_nozzle=d_nozzle, d_mixing=d_mixing, Qp=Qp, Qs=Qs,
                               P1=None, P2=P2)
@@ -193,6 +193,8 @@ def liquid_jet_pump_ancillary(rhop: float, rhos: float, Kp: float, Ks: float, d_
             return brenth(err, 1E-9, d_nozzle*20)
         except:
             return secant(err, d_nozzle*2)
+    else:
+        raise ValueError("Impossible")
 
 
 
@@ -607,7 +609,7 @@ def liquid_jet_pump(rhop, rhos, Kp=0.0, Ks=0.1, Km=.15, Kd=0.1,
         raise ValueError("Could not solve")
 
 
-def vacuum_air_leakage_Ryans_Croll(V: int, P: int, P_atm: float=101325.0) -> float:
+def vacuum_air_leakage_Ryans_Croll(V: float, P: float, P_atm: float=101325.0) -> float:
     r"""Calculates an estimated leakage of air into a vessel using
     a correlation from Ryans and Croll (1981) [1]_ as given in [2]_ and [3]_.
 
@@ -675,7 +677,7 @@ def vacuum_air_leakage_Ryans_Croll(V: int, P: int, P_atm: float=101325.0) -> flo
     leakage = air_leakage*lb*hour_inv
     return leakage
 
-def vacuum_air_leakage_Seider(V: int, P: int, P_atm: float=101325.0) -> float:
+def vacuum_air_leakage_Seider(V: float, P: float, P_atm: float=101325.0) -> float:
     r"""Calculates an estimated leakage of air into a vessel using
     a correlation from Seider [1]_.
 
@@ -828,22 +830,22 @@ def vacuum_air_leakage_Coker_Worthington(P: float, P_atm: float=101325.0, conser
     P_vacuum = P_atm - P
     if conservative:
         if P_vacuum > 8:
-            leakage = 40
+            leakage = 40.0
         elif P_vacuum > 5:
-            leakage = 30
+            leakage = 30.0
         elif P_vacuum > 3:
-            leakage = 25
+            leakage = 25.0
         else:
-            leakage = 20
+            leakage = 20.0
     else:
         if P_vacuum > 8:
-            leakage = 30
+            leakage = 30.0
         elif P_vacuum > 5:
-            leakage = 25
+            leakage = 25.0
         elif P_vacuum > 3:
-            leakage = 20
+            leakage = 20.0
         else:
-            leakage = 10
+            leakage = 10.0
     leakage = leakage*lb*hour_inv
     return leakage
 

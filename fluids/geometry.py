@@ -2262,7 +2262,7 @@ def _SA_partial_horiz_torispherical_head_int_1(x: float, b: float, c: float) -> 
     try:
         x5 = 1.0/sqrt(x1 - x4)
     except:
-        x5 = 1.0/csqrt(x1 - x4)
+        x5 = 1.0/csqrt(x1 - x4) # type: ignore
     x6 = x3 + x4
     x7 = sqrt(b)
     try:
@@ -2291,7 +2291,7 @@ def _SA_partial_horiz_torispherical_head_int_2(y: float, t2: float, s: float, c1
             x = (csqrt(c1 - y2 + (s+s)*x10 + 0.0j)).real
 
     except:
-        x10 = csqrt(t2 - y2+0.0j)
+        x10 = csqrt(t2 - y2+0.0j) # type: ignore
         x = (csqrt(c1 - y2 + (s+s)*x10 + 0.0j)).real
     try:
         x0 = t2 - y2
@@ -3488,15 +3488,17 @@ class TANK:
             self.sideB_a_ratio = self.sideB_a/D
 
 
-        # Calculate maximum tank height, h_max
+        # Calculate maximum tank height, h_max, mypy nonsense workaround
+        h_max = 0.0
         if self.horizontal:
-            self.h_max = D
+            h_max += self.D
         else:
-            self.h_max = self.L
-            if self.sideA_a:
-                self.h_max += self.sideA_a
-            if self.sideB_a:
-                self.h_max += self.sideB_a
+            h_max += self.L
+            if self.sideA_a is not None:
+                h_max += self.sideA_a
+            if self.sideB_a is not None:
+                h_max += self.sideB_a
+        self.h_max = h_max
 
         # Set maximum height
 #        self.V_total = self.V_from_h(self.h_max)
@@ -4032,7 +4034,7 @@ outer diameter={self.Dt} m, number of turns={self.N}, pitch={self.pitch} m"
         s += ">"
         return s
 
-    def __init__(self, Dt: float, Do: int | None=None, pitch: float | None=None, H: int | None=None, N: float | None=None, H_total: int | None=None,
+    def __init__(self, Dt: float, Do: float | None=None, pitch: float | None=None, H: float | None=None, N: float | None=None, H_total: float | None=None,
                  Do_total: float | None=None, Di: float | None=None) -> None:
         # H goes from center of tube in bottom of coil to center of tube in top of coil
         # Do goes from the center of the spiral to the center of the outer tube
@@ -4041,27 +4043,39 @@ outer diameter={self.Dt} m, number of turns={self.N}, pitch={self.pitch} m"
             H = H_total - Dt
         if Do_total is not None:
             Do = Do_total - Dt
-        self.Do = Do
+
+        if Do is not None:
+            Do_final: float = Do
+        else:
+            raise ValueError("Either `Do` or `Do_total` must be specified")
+
+        self.Do = Do_final
         self.Dt = Dt
         self.Do_total = self.Do+self.Dt
+
         if N is not None and pitch is not None:
-            self.N = N
-            self.pitch = pitch
-            self.H = N*pitch
+            N_final: float = N
+            pitch_final: float = pitch
+            H_final: float = N*pitch
         elif N is not None and H is not None:
-            self.N = N
-            self.H = H
-            self.pitch = self.H/N
-            if self.pitch < self.Dt:
+            N_final = N
+            H_final = H
+            pitch_final = H/N
+            if pitch_final < self.Dt:
                 raise ValueError("Pitch is too small - tubes are colliding")#; maximum number of spirals is %f.'%(self.H/self.Dt))
         elif H is not None and pitch is not None:
-            self.pitch = pitch
-            self.H = H
-            self.N = self.H/self.pitch
-            if self.pitch < self.Dt:
+            pitch_final = pitch
+            H_final = H
+            N_final = H/pitch
+            if pitch_final < self.Dt:
                 raise ValueError("Pitch is too small - tubes are colliding; pitch must be larger than tube diameter.")
-        if self.H is not None: # numba
-            self.H_total = self.Dt + self.H
+        else:
+            raise ValueError("Must specify two of: N, pitch, or H")
+
+        self.N = N_final
+        self.pitch = pitch_final
+        self.H = H_final
+        self.H_total = self.Dt + self.H
 
         if self.Dt > self.Do:
             raise ValueError("Tube diameter is larger than helix outer diameter - not feasible.")
@@ -4921,15 +4935,15 @@ class AirCooledExchanger:
     def __init__(self, tube_rows: int, tube_passes: int, tubes_per_row: int, tube_length: float,
                  tube_diameter: float, fin_thickness: float,
 
-                 angle: int | None=None, pitch: float | None=None, pitch_parallel: None=None, pitch_normal: None=None,
-                 pitch_ratio: None=None,
+                 angle: float | None=None, pitch: float | None=None, pitch_parallel: float | None=None, pitch_normal: float | None=None,
+                 pitch_ratio: float | None=None,
 
-                 fin_diameter: None=None, fin_height: float | None=None,
+                 fin_diameter: float | None=None, fin_height: float | None=None,
 
-                 fin_density: float | None=None, fin_interval: None=None,
+                 fin_density: float | None=None, fin_interval: float | None=None,
 
                  parallel_bays: int=1, bundles_per_bay: int=1, fans_per_bay: int=1,
-                 corbels: bool=False, tube_thickness: float | None=None, fan_diameter: None=None) -> None:
+                 corbels: bool=False, tube_thickness: float | None=None, fan_diameter: float | None=None) -> None:
         # TODO: fin types
 
         self.tube_rows = tube_rows
@@ -4963,19 +4977,29 @@ class AirCooledExchanger:
             raise ValueError("Specify only one of `fin_diameter` or `fin_height`")
         elif fin_diameter is not None:
             fin_height = 0.5*(fin_diameter - tube_diameter)
+            fin_diameter_final: float = fin_diameter
+            fin_height_final: float = fin_height
         elif fin_height is not None:
-            fin_diameter = tube_diameter + 2.0*fin_height
-        self.fin_height = fin_height
-        self.fin_diameter = fin_diameter
+            fin_diameter_final = tube_diameter + 2.0*fin_height
+            fin_height_final = fin_height
+        else:
+            raise ValueError("This should never happen")
+        self.fin_height = fin_height_final
+        self.fin_diameter = fin_diameter_final
 
         if fin_density is None and fin_interval is None:
             raise ValueError("Specify only one of `fin_density` or `fin_interval`")
         elif fin_density is not None:
             fin_interval = 1.0/fin_density
+            fin_density_final: float = fin_density
+            fin_interval_final: float = fin_interval
         elif fin_interval is not None:
-            fin_density = 1.0/fin_interval
-        self.fin_interval = fin_interval
-        self.fin_density = fin_density
+            fin_density_final = 1.0/fin_interval
+            fin_interval_final = fin_interval
+        else:
+            raise ValueError("This should never happen")
+        self.fin_interval = fin_interval_final
+        self.fin_density = fin_density_final
 
         self.parallel_bays = parallel_bays
         self.bundles_per_bay = bundles_per_bay
@@ -4985,6 +5009,7 @@ class AirCooledExchanger:
         self.tube_thickness = tube_thickness
 
 
+        self.bare_length: float | None
         if self.fin_interval:
             self.bare_length = self.fin_interval - self.fin_thickness
         else:
@@ -5026,8 +5051,8 @@ class AirCooledExchanger:
 
         # TODO A_extra could be calculated based on a fixed width and height of the bay
         A_extra = 0.0
-        self.A_diagonal_per_bundle = 2.0*self.tubes_per_row*self.tube_length*(self.pitch_diagonal - self.tube_diameter - 2.0*fin_density*self.fin_height*self.fin_thickness) + A_extra
-        self.A_normal_per_bundle = self.tubes_per_row*self.tube_length*(self.pitch_normal - self.tube_diameter - 2.0*fin_density*self.fin_height*self.fin_thickness) + A_extra
+        self.A_diagonal_per_bundle = 2.0*self.tubes_per_row*self.tube_length*(self.pitch_diagonal - self.tube_diameter - 2.0*self.fin_density*self.fin_height*self.fin_thickness) + A_extra
+        self.A_normal_per_bundle = self.tubes_per_row*self.tube_length*(self.pitch_normal - self.tube_diameter - 2.0*self.fin_density*self.fin_height*self.fin_thickness) + A_extra
         self.A_min_per_bundle = min(self.A_diagonal_per_bundle, self.A_normal_per_bundle)
         self.A_min_per_bay = self.A_min_per_bundle*self.bundles_per_bay
         self.A_min = self.A_min_per_bay*self.parallel_bays
@@ -5038,6 +5063,18 @@ class AirCooledExchanger:
         self.A_face = self.A_face_per_bay*self.parallel_bays
 
         self.flow_area_contraction_ratio = self.A_min/self.A_face
+
+        self.Di: float | None
+        self.A_tube_flow: float | None
+        self.A_tube_flow_per_row: float | None
+        self.A_tube_flow_per_bundle: float | None
+        self.A_tube_flow_per_bay: float | None
+        self.A_tube_flow_total: float | None
+        self.tube_volume_per_tube: float | None
+        self.tube_volume_per_row: float | None
+        self.tube_volume_per_bundle: float | None
+        self.tube_volume_per_bay: float | None
+        self.tube_volume: float | None
 
         if self.tube_thickness is not None:
             self.Di = self.tube_diameter - self.tube_thickness*2.0
@@ -5056,7 +5093,10 @@ class AirCooledExchanger:
         else:
             self.Di = None
             self.A_tube_flow = None
-
+            self.A_tube_flow_per_row = None
+            self.A_tube_flow_per_bundle = None
+            self.A_tube_flow_per_bay = None
+            self.A_tube_flow_total = None
             self.tube_volume_per_tube = None
             self.tube_volume_per_row = None
             self.tube_volume_per_bundle = None
