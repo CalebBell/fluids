@@ -405,11 +405,11 @@ except AttributeError:
 
 # Hacks for numba - allow the module to run in different ways
 try:
-    IS_PYPY = FORCE_PYPY
+    IS_PYPY = FORCE_PYPY  # noqa: F821
 except:
     pass
 try:
-    array_if_needed
+    array_if_needed  # noqa: F821, B018
 except:
     array_if_needed = lambda x: x
 
@@ -502,7 +502,7 @@ if not SKIP_DEPENDENCIES:
     try:
         # Regardless of actual interpreter, fall back to pure python implementations
         # if scipy and numpy are not available.
-        import numpy
+        import numpy  # noqa: ICN001
         np = numpy
     except ImportError:
         # Allow a fake numpy to be imported, but will raise an excption on any use
@@ -6203,7 +6203,7 @@ else:
         import mpmath
         return mpmath.ellipe(*args, **kwargs)
 
-    def gammaincc(a, x):
+    def gammaincc(a, x):  # noqa: F811
         import mpmath
         return mpmath.gammainc(a, a=x, regularized=True)
 
@@ -6215,7 +6215,7 @@ else:
         import mpmath
         return mpmath.hyp2f1(*args, **kwargs)
 
-    def iv(*args, **kwargs):
+    def iv(*args, **kwargs):  # noqa: F811
         import mpmath
         return mpmath.besseli(*args, **kwargs)
     def i1(x):
@@ -6238,7 +6238,7 @@ else:
         return mpmath.ellipe.ellipeinc(phi, m)
 
 try:
-    if FORCE_PYPY:
+    if FORCE_PYPY:  # noqa: F821
         lambertw = py_lambertw
         from scipy.special import ellipe, ellipeinc, ellipkinc, gamma, gammaincc, hyp2f1, i0, i1, iv, k0, k1  # fluids  # ht
         if erf is None:
