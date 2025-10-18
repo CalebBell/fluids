@@ -699,7 +699,7 @@ def diff(a, n=1, axis=-1):
         return a
     if n < 0:
         raise ValueError(
-            "order must be non-negative but got {}".format(n))
+            f"order must be non-negative but got {n}")
 #    nd = 1 # hardcode
     diffs = []
     for i in range(1, len(a)):
@@ -2143,7 +2143,6 @@ def tck_interp2d_linear(x, y, z, kx=1, ky=1):
 
 
 def caching_decorator(f, full=False):
-    from functools import wraps
     cache = {}
     info_cache = {}
     wraps = my_wraps()
@@ -2298,7 +2297,7 @@ class UnconvergedError(Exception):
     """Error raised when maxiter has been reached in an optimization problem."""
 
     def __repr__(self):
-        return ('UnconvergedError("Failed to converge; maxiter ({}) reached, value={}, error {})"'.format(self.iterations, self.point, self.err))
+        return f'UnconvergedError("Failed to converge; maxiter ({self.iterations}) reached, value={self.point}, error {self.err})"'
 
     def __init__(self, message, iterations=None, err=None, point=None):
         super().__init__(message)
@@ -2509,14 +2508,10 @@ class oscillation_checker:
 #            print(gain_pos, gain_neg, y)
             if self.both_sides:
                 if gain_pos < minimum_progress and gain_neg < minimum_progress:
-                    if self.good_err is not None and min(abs(ys_neg[-1]), abs(ys_pos[-1])) < self.good_err:
-                        return False
-                    return True
+                    return not (self.good_err is not None and min(abs(ys_neg[-1]), abs(ys_pos[-1])) < self.good_err)
             else:
                 if gain_pos < minimum_progress or gain_neg < minimum_progress:
-                    if self.good_err is not None and min(abs(ys_neg[-1]), abs(ys_pos[-1])) < self.good_err:
-                        return False
-                    return True
+                    return not (self.good_err is not None and min(abs(ys_neg[-1]), abs(ys_pos[-1])) < self.good_err)
         return False
 
     __call__ = is_solve_oscilating
@@ -3552,7 +3547,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                   Armijo=False, Armijo_c1=1e-4,
                   solve_func=py_solve, with_point=False, jac_error_allowed=False): # numba: delete
 #                 solve_func=np.linalg.solve): # numba: uncomment
-    jac_also = True if jac == True else False
+    jac_also = True if jac == True else False  # noqa: E712, SIM210
 
 
     if jac_also:
@@ -3706,8 +3701,8 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
 
 def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping=1.0,
                   args=(), damping_func=None):
-    jac_also = True if jac == True else False
-    hess_also = True if hess == True else False
+    jac_also = True if jac == True else False  # noqa: E712, SIM210
+    hess_also = True if hess == True else False  # noqa: E712, SIM210
     def err(F):
         err = sum([abs(i) for i in F])
         return err
@@ -4642,7 +4637,7 @@ def fixed_point_anderson(
     f,
     x0,
     xtol: float = 1e-7,
-    ytol: float = None,
+    ytol: float | None = None,
     maxiter: int = 100,
     args: tuple = (),
     require_progress: bool = False,
@@ -4769,7 +4764,7 @@ def fixed_point_anderson_residual(
     f,
     x0,
     xtol: float = 1e-7,
-    ytol: float = None,
+    ytol: float | None = None,
     maxiter: int = 100,
     args: tuple = (),
     require_progress: bool = False,
