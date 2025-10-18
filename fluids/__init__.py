@@ -150,7 +150,7 @@ if not numerics.is_micropython: # type: ignore
             import fluids.numba_vectorized
             globals()[name] = fluids.numba_vectorized
             return fluids.numba_vectorized
-        raise AttributeError("module %s has no attribute %s" %(__name__, name))
+        raise AttributeError(f"module {__name__} has no attribute {name}")
 
 def all_submodules(with_numerics=True):
     import fluids.nrlmsise00.nrlmsise_00

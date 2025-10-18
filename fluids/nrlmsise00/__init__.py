@@ -26,7 +26,7 @@ from . import nrlmsise_00, nrlmsise_00_data, nrlmsise_00_header
 from .nrlmsise_00 import gtd7
 from .nrlmsise_00_header import ap_array, nrlmsise_flags, nrlmsise_input, nrlmsise_output
 
-__all__ = ["nrlmsise_00", "nrlmsise_00_data", "nrlmsise_00_header"]
+__all__ = ["nrlmsise_00", "nrlmsise_00_data", "nrlmsise_00_header", "gtd7", "ap_array", "nrlmsise_flags", "nrlmsise_input", "nrlmsise_output"]
 
 __all__.extend(nrlmsise_00.__all__)
 __all__.extend(nrlmsise_00_header.__all__)

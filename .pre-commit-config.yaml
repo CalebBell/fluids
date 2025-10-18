@@ -6,7 +6,7 @@ repos:
       # Run the linter.
       - id: ruff-check
         args: [--fix]
-        files: ^(fluids|docs)/
+        files: ^(fluids)/
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
