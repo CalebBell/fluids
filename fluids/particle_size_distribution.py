@@ -1063,142 +1063,144 @@ def _label_distribution_n(n):  # pragma: no cover
     else:
         return f"Order {n!s} distribution"
 
-_mean_size_docstring = r"""Calculates the mean particle size according to moment-ratio
-        notation. This is the more common and often convenient definition.
+_mean_size_docstring = r"""Calculates the mean particle size according to moment-ratio notation.
 
-        .. math::
-            \left[\bar D_{p,q} \right]^{(p-q)} = \frac{\sum_i n_i  D_i^p }
-            {\sum_i n_i D_i^q}
+This is the more common and often convenient definition.
 
-            \left[\bar D_{p,p} \right] = \exp\left[\frac{\sum_i n_i  D_i^p\ln
-            D_i }{\sum_i n_i D_i^p}\right]  \text{, if p = q}
+.. math::
+    \left[\bar D_{p,q} \right]^{(p-q)} = \frac{\sum_i n_i  D_i^p }
+    {\sum_i n_i D_i^q}
 
-        Note that :math:`n_i` in the above equation is replaceable with
-        the fraction of particles in that bin.
+    \left[\bar D_{p,p} \right] = \exp\left[\frac{\sum_i n_i  D_i^p\ln
+    D_i }{\sum_i n_i D_i^p}\right]  \text{, if p = q}
 
-        Parameters
-        ----------
-        p : int
-            Power and/or subscript of D moment in the above equations, [-]
-        q : int
-            Power and/or subscript of D moment in the above equations, [-]
+Note that :math:`n_i` in the above equation is replaceable with
+the fraction of particles in that bin.
 
-        Returns
-        -------
-        d_pq : float
-            Mean particle size according to the specified p and q, [m]
+Parameters
+----------
+p : int
+    Power and/or subscript of D moment in the above equations, [-]
+q : int
+    Power and/or subscript of D moment in the above equations, [-]
 
-        Notes
-        -----
-        The following is a list of common names for specific mean diameters.
+Returns
+-------
+d_pq : float
+    Mean particle size according to the specified p and q, [m]
 
-        * **D[-3, 0]**: arithmetic harmonic mean volume diameter
-        * **D[-2, 1]**: size-weighted harmonic mean volume diameter
-        * **D[-1, 2]**: area-weighted harmonic mean volume diameter
-        * **D[-2, 0]**: arithmetic harmonic mean area diameter
-        * **D[-1, 1]**: size-weighted harmonic mean area diameter
-        * **D[-1, 0]**: arithmetic harmonic mean diameter
-        * **D[0, 0]**: arithmetic geometric mean diameter
-        * **D[1, 1]**: size-weighted geometric mean diameter
-        * **D[2, 2]**: area-weighted geometric mean diameter
-        * **D[3, 3]**: volume-weighted geometric mean diameter
-        * **D[1, 0]**: arithmetic mean diameter
-        * **D[2, 1]**: size-weighted mean diameter
-        * **D[3, 2]**: area-weighted mean diameter, **Sauter mean diameter**
-        * **D[4, 3]**: volume-weighted mean diameter, **De Brouckere diameter**
-        * **D[2, 0]**: arithmetic mean area diameter
-        * **D[3, 1]**: size-weighted mean area diameter
-        * **D[4, 2]**: area-weighted mean area diameter
-        * **D[5, 3]**: volume-weighted mean area diameter
-        * **D[3, 0]**: arithmetic mean volume diameter
-        * **D[4, 1]**: size-weighted mean volume diameter
-        * **D[5, 2]**: area-weighted mean volume diameter
-        * **D[6, 3]**: volume-weighted mean volume diameter
+Notes
+-----
+The following is a list of common names for specific mean diameters.
 
-        This notation was first introduced in [1]_.
+* **D[-3, 0]**: arithmetic harmonic mean volume diameter
+* **D[-2, 1]**: size-weighted harmonic mean volume diameter
+* **D[-1, 2]**: area-weighted harmonic mean volume diameter
+* **D[-2, 0]**: arithmetic harmonic mean area diameter
+* **D[-1, 1]**: size-weighted harmonic mean area diameter
+* **D[-1, 0]**: arithmetic harmonic mean diameter
+* **D[0, 0]**: arithmetic geometric mean diameter
+* **D[1, 1]**: size-weighted geometric mean diameter
+* **D[2, 2]**: area-weighted geometric mean diameter
+* **D[3, 3]**: volume-weighted geometric mean diameter
+* **D[1, 0]**: arithmetic mean diameter
+* **D[2, 1]**: size-weighted mean diameter
+* **D[3, 2]**: area-weighted mean diameter, **Sauter mean diameter**
+* **D[4, 3]**: volume-weighted mean diameter, **De Brouckere diameter**
+* **D[2, 0]**: arithmetic mean area diameter
+* **D[3, 1]**: size-weighted mean area diameter
+* **D[4, 2]**: area-weighted mean area diameter
+* **D[5, 3]**: volume-weighted mean area diameter
+* **D[3, 0]**: arithmetic mean volume diameter
+* **D[4, 1]**: size-weighted mean volume diameter
+* **D[5, 2]**: area-weighted mean volume diameter
+* **D[6, 3]**: volume-weighted mean volume diameter
 
-        The sum of p and q is called the order of the mean size [3]_.
+This notation was first introduced in [1]_.
 
-        .. math::
-            \bar D_{p,q}  \equiv \bar D_{q, p}
+The sum of p and q is called the order of the mean size [3]_.
 
-        Examples
-        --------
+.. math::
+    \bar D_{p,q}  \equiv \bar D_{q, p}
+
+Examples
+--------
 %s
 
-        References
-        ----------
-        .. [1] Mugele, R. A., and H. D. Evans. "Droplet Size Distribution in
-           Sprays." Industrial & Engineering Chemistry 43, no. 6 (June 1951):
-           1317-24. https://doi.org/10.1021/ie50498a023.
-        .. [2] ASTM E799 - 03(2015) - Standard Practice for Determining Data
-           Criteria and Processing for Liquid Drop Size Analysis.
-        .. [3] ISO 9276-2:2014 - Representation of Results of Particle Size
-           Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
-           and Moments from Particle Size Distributions.
+References
+----------
+.. [1] Mugele, R. A., and H. D. Evans. "Droplet Size Distribution in
+       Sprays." Industrial & Engineering Chemistry 43, no. 6 (June 1951):
+       1317-24. https://doi.org/10.1021/ie50498a023.
+.. [2] ASTM E799 - 03(2015) - Standard Practice for Determining Data
+       Criteria and Processing for Liquid Drop Size Analysis.
+.. [3] ISO 9276-2:2014 - Representation of Results of Particle Size
+       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
+       and Moments from Particle Size Distributions.
 """
 
-_mean_size_iso_docstring =  r"""Calculates the mean particle size according to moment
-        notation (ISO). This system is related to the moment-ratio notation
-        as follows; see the `mean_size` method for the full formulas.
+_mean_size_iso_docstring =  r"""Calculates the mean particle size according to moment notation (ISO).
 
-        .. math::
-            \bar x_{p-q, q} \equiv \bar x_{k+r, r}  \equiv \bar D_{p,q}
+This system is related to the moment-ratio notation
+as follows; see the `mean_size` method for the full formulas.
 
-        Parameters
-        ----------
-        k : int
-            Power and/or subscript of D moment in the above equations, [-]
-        r : int
-            Power and/or subscript of D moment in the above equations, [-]
+.. math::
+    \bar x_{p-q, q} \equiv \bar x_{k+r, r}  \equiv \bar D_{p,q}
 
-        Returns
-        -------
-        x_kr : float
-            Mean particle size according to the specified k and r in the ISO
-            series, [m]
+Parameters
+----------
+k : int
+    Power and/or subscript of D moment in the above equations, [-]
+r : int
+    Power and/or subscript of D moment in the above equations, [-]
 
-        Notes
-        -----
-        The following is a list of common names for specific mean diameters in
-        the ISO naming convention.
+Returns
+-------
+x_kr : float
+    Mean particle size according to the specified k and r in the ISO
+    series, [m]
 
-        * **x[-3, 0]**: arithmetic harmonic mean volume diameter
-        * **x[-3, 1]**: size-weighted harmonic mean volume diameter
-        * **x[-3, 2]**: area-weighted harmonic mean volume diameter
-        * **x[-2, 0]**: arithmetic harmonic mean area diameter
-        * **x[-2, 1]**: size-weighted harmonic mean area diameter
-        * **x[-1, 0]**: arithmetic harmonic mean diameter
-        * **x[0, 0]**: arithmetic geometric mean diameter
-        * **x[0, 1]**: size-weighted geometric mean diameter
-        * **x[0, 2]**: area-weighted geometric mean diameter
-        * **x[0, 3]**: volume-weighted geometric mean diameter
-        * **x[1, 0]**: arithmetic mean diameter
-        * **x[1, 1]**: size-weighted mean diameter
-        * **x[1, 2]**: area-weighted mean diameter, **Sauter mean diameter**
-        * **x[1, 3]**: volume-weighted mean diameter, **De Brouckere diameter**
-        * **x[2, 0]**: arithmetic mean area diameter
-        * **x[1, 1]**: size-weighted mean area diameter
-        * **x[2, 2]**: area-weighted mean area diameter
-        * **x[2, 3]**: volume-weighted mean area diameter
-        * **x[3, 0]**: arithmetic mean volume diameter
-        * **x[3, 1]**: size-weighted mean volume diameter
-        * **x[3, 2]**: area-weighted mean volume diameter
-        * **x[3, 3]**: volume-weighted mean volume diameter
+Notes
+-----
+The following is a list of common names for specific mean diameters in
+the ISO naming convention.
 
-        When working with continuous distributions, the ISO series must be used
-        to perform the actual calculations.
+* **x[-3, 0]**: arithmetic harmonic mean volume diameter
+* **x[-3, 1]**: size-weighted harmonic mean volume diameter
+* **x[-3, 2]**: area-weighted harmonic mean volume diameter
+* **x[-2, 0]**: arithmetic harmonic mean area diameter
+* **x[-2, 1]**: size-weighted harmonic mean area diameter
+* **x[-1, 0]**: arithmetic harmonic mean diameter
+* **x[0, 0]**: arithmetic geometric mean diameter
+* **x[0, 1]**: size-weighted geometric mean diameter
+* **x[0, 2]**: area-weighted geometric mean diameter
+* **x[0, 3]**: volume-weighted geometric mean diameter
+* **x[1, 0]**: arithmetic mean diameter
+* **x[1, 1]**: size-weighted mean diameter
+* **x[1, 2]**: area-weighted mean diameter, **Sauter mean diameter**
+* **x[1, 3]**: volume-weighted mean diameter, **De Brouckere diameter**
+* **x[2, 0]**: arithmetic mean area diameter
+* **x[1, 1]**: size-weighted mean area diameter
+* **x[2, 2]**: area-weighted mean area diameter
+* **x[2, 3]**: volume-weighted mean area diameter
+* **x[3, 0]**: arithmetic mean volume diameter
+* **x[3, 1]**: size-weighted mean volume diameter
+* **x[3, 2]**: area-weighted mean volume diameter
+* **x[3, 3]**: volume-weighted mean volume diameter
 
-        Examples
-        --------
+When working with continuous distributions, the ISO series must be used
+to perform the actual calculations.
+
+Examples
+--------
 %s
 
-        References
-        ----------
-        .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size
-           Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
-           and Moments from Particle Size Distributions.
-        """
+References
+----------
+.. [1] ISO 9276-2:2014 - Representation of Results of Particle Size
+       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
+       and Moments from Particle Size Distributions.
+"""
 
 
 
