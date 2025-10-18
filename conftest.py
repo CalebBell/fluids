@@ -14,8 +14,8 @@ def pytest_ignore_collect( collection_path, config):
     # Normalize path to string
     path = str(collection_path)
 
-    # Skip virtual environments
-    if "venv" in path or "site-packages" in path:
+    # Skip virtual environments and ASV benchmark environments
+    if "venv" in path or "site-packages" in path or ".asv" in path:
         return True
 
     # Skip utility and development directories

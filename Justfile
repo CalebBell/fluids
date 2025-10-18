@@ -16,14 +16,16 @@ VENV_RUFF   := ".venv/bin/ruff"
 default:
     @just --list
 
-## ⚙️  setup: Create a uv virtual environment and install all dependencies.
-setup:
+## ⚙️  install: Create a uv virtual environment and install all dependencies.
+install:
     @echo ">>> Creating virtual environment in ./.venv..."
     @uv venv
     @echo "\n>>> Installing dependencies from requirements files..."
     @uv pip install -r requirements_docs.txt
     @echo "\n>>> Installing 'fluids' in editable mode..."
     @uv pip install -e .
+    @echo "\n>>> Installing prek hooks..."
+    @prek install
     @echo "\n✅ Environment setup complete! You can now run other commands."
 
 ## 📚 docs: Build the Sphinx documentation.
@@ -37,6 +39,12 @@ test:
     @echo ">>> Running pytest..."
     @{{VENV_PYTEST}} -n auto
 
+## 📊 test-cov: Run tests with coverage report.
+test-cov:
+    @echo ">>> Running pytest with coverage..."
+    @{{VENV_PYTEST}} -n auto --cov=fluids --cov-report=html --cov-report=term
+    @echo "✅ Coverage report generated in htmlcov/"
+
 ## 🧐 typecheck: Check static types with mypy.
 typecheck:
     @echo ">>> Running mypy..."
@@ -49,6 +57,33 @@ lint:
 
 ## 🏁 check: Run all checks (linting and type checking).
 check: lint typecheck
+
+## 🪝 precommit: Run pre-commit hooks on all files.
+precommit:
+    @echo ">>> Running pre-commit hooks..."
+    @prek run --all-files
+
+## 🔌 hooks-install: Install prek hooks.
+hooks-install:
+    @echo ">>> Installing prek hooks..."
+    @prek install
+    @echo "✅ Hooks installed."
+
+## 🗑️  hooks-remove: Remove prek hooks.
+hooks-remove:
+    @echo ">>> Removing prek hooks..."
+    @prek uninstall
+    @echo "✅ Hooks removed."
+
+# asv is broken
+# ## ⚡ bench: Run performance benchmarks.
+# bench:
+#     @echo ">>> Running benchmarks..."
+#     @asv run
+
+## 🚀 ci: Run all CI checks (lint, typecheck, test).
+ci: lint typecheck test
+    @echo "✅ All CI checks passed!"
 
 ## 🧹 clean: Remove build artifacts and Python caches.
 clean:
