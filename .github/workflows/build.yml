@@ -120,7 +120,7 @@ jobs:
         python -m pip install wheel
         pip install -r requirements_test.txt
     - name: Add numba
-      if: ${{ !contains(fromJSON('["pypy3.9"]'), matrix.python-version) }}
+      if: ${{ !contains(fromJSON('["pypy3.9", "3.13t"]'), matrix.python-version) }}
       run: |
         pip install numba
     - name: Test with pytest

@@ -28,6 +28,11 @@ jobs:
         micropython -c "import mip; mip.install('datetime')"
         micropython -c "import mip; mip.install('__future__')"
 
+    - name: Install pytest shim
+      run: |
+        mkdir -p ~/.micropython/lib/pytest
+        cp dev/micropython_pytest_shim.py ~/.micropython/lib/pytest/__init__.py
+
     - name: Run tests
       run: |
         cd tests
