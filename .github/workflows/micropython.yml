@@ -33,6 +33,10 @@ jobs:
         mkdir -p ~/.micropython/lib/pytest
         cp dev/micropython_pytest_shim.py ~/.micropython/lib/pytest/__init__.py
 
+    - name: Symlink fluids module
+      run: |
+        ln -s $PWD/fluids ~/.micropython/lib/fluids
+
     - name: Run tests
       run: |
         cd tests
