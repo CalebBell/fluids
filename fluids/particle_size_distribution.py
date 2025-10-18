@@ -198,20 +198,21 @@ class Sieve:
         "opening_inch",
     )
 
-#    def __repr__(self):
-#        s = 'Sieve(%s)'
-#        s2 = ''
-#        for attr, value in self.__dict__.items():
-#            if value is not None:
-#                if type(value) == float:
-#                    value = round(value, 8)
-#                elif type(value) == str:
-#                    value = "'" + value + "'"
-#                s2 += '%s=%s, '%(attr, value)
-#        s2 = s2[0:-2]
-#        return s %(s2)
-
     def __repr__(self):
+        s = 'Sieve(%s)'
+        s2 = ''
+        for attr in self.__slots__:
+            value = getattr(self, attr)
+            if value is not None:
+                if type(value) == float:
+                    value = f'{value:g}'
+                elif type(value) == str:
+                    value = "'" + value + "'"
+                s2 += '%s=%s, '%(attr, value)
+        s2 = s2[0:-2]
+        return s %(s2)
+
+    def __str__(self):
         return f"<Sieve, designation {self.designation} mm, opening {self.opening:g} m>"
 
     def __init__(self, designation: str, opening: float, old_designation: str | None=None,
