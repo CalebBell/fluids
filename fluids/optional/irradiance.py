@@ -73,11 +73,11 @@ def poa_components(aoi, dni, poa_sky_diffuse, poa_ground_diffuse):
     poa_global = poa_direct + poa_diffuse
 
     irrads = {}
-    irrads['poa_global'] = poa_global
-    irrads['poa_direct'] = poa_direct
-    irrads['poa_diffuse'] = poa_diffuse
-    irrads['poa_sky_diffuse'] = poa_sky_diffuse
-    irrads['poa_ground_diffuse'] = poa_ground_diffuse
+    irrads["poa_global"] = poa_global
+    irrads["poa_direct"] = poa_direct
+    irrads["poa_diffuse"] = poa_diffuse
+    irrads["poa_sky_diffuse"] = poa_sky_diffuse
+    irrads["poa_ground_diffuse"] = poa_ground_diffuse
 
     return irrads
 
@@ -89,9 +89,9 @@ def get_ground_diffuse(surface_tilt, ghi, albedo=.25, surface_type=None):
 def get_sky_diffuse(surface_tilt, surface_azimuth,
                     solar_zenith, solar_azimuth,
                     dni, ghi, dhi, dni_extra=None, airmass=None,
-                    model='isotropic',
-                    model_perez='allsitescomposite1990'):
-    if model == 'isotropic':
+                    model="isotropic",
+                    model_perez="allsitescomposite1990"):
+    if model == "isotropic":
         return isotropic(surface_tilt, dhi)
     else:
         from pvlib import get_sky_diffuse
@@ -106,11 +106,11 @@ def get_absolute_airmass(airmass_relative, pressure=101325.):
     airmass_absolute = airmass_relative*pressure/101325.
     return airmass_absolute
 
-def get_relative_airmass(zenith, model='kastenyoung1989'):
+def get_relative_airmass(zenith, model="kastenyoung1989"):
     z = zenith
     zenith_rad = radians(z)
 
-    if 'kastenyoung1989' == model:
+    if "kastenyoung1989" == model:
         try:
             am = (1.0 / (cos(zenith_rad) +
                   0.50572*((6.07995 + (90.0 - z))**-1.6364)))
@@ -119,7 +119,7 @@ def get_relative_airmass(zenith, model='kastenyoung1989'):
         if isinstance(am, complex):
             am = nan
     else:
-        raise ValueError('%s is not a valid model for relativeairmass', model)
+        raise ValueError("%s is not a valid model for relativeairmass", model)
     return am
 
 
@@ -127,8 +127,8 @@ def get_total_irradiance(surface_tilt, surface_azimuth,
                          solar_zenith, solar_azimuth,
                          dni, ghi, dhi, dni_extra=None, airmass=None,
                          albedo=.25, surface_type=None,
-                         model='isotropic',
-                         model_perez='allsitescomposite1990', **kwargs):
+                         model="isotropic",
+                         model_perez="allsitescomposite1990", **kwargs):
     poa_sky_diffuse = get_sky_diffuse(
         surface_tilt, surface_azimuth, solar_zenith, solar_azimuth,
         dni, ghi, dhi, dni_extra=dni_extra, airmass=airmass, model=model,
@@ -150,7 +150,7 @@ def isotropic(surface_tilt, dhi):
 def ineichen(apparent_zenith, airmass_absolute, linke_turbidity,
              altitude=0, dni_extra=1364., perez_enhancement=False):
     if isnan(airmass_absolute) or isnan(apparent_zenith):
-        return {'ghi': 0.0, 'dni': 0.0, 'dhi': 0.0}
+        return {"ghi": 0.0, "dni": 0.0, "dhi": 0.0}
 
     # use max so that nighttime values will result in 0s instead of
     # negatives. propagates nans.
@@ -191,8 +191,7 @@ def ineichen(apparent_zenith, airmass_absolute, linke_turbidity,
     except:
         bnci_2 = 1e20
 
-    multiplier = (bnci_2 if bnci_2 > 0.0 else bnci_2)
-    multiplier = min(multiplier, 1e+20)
+    multiplier = min(bnci_2, 1e+20)
 
     bnci_2 = ghi*multiplier
 
@@ -200,7 +199,7 @@ def ineichen(apparent_zenith, airmass_absolute, linke_turbidity,
 
     dhi = ghi - dni*cos_zenith
 
-    return {'ghi': ghi, 'dni': dni, 'dhi': dhi}
+    return {"ghi": ghi, "dni": dni, "dhi": dhi}
 
 
 

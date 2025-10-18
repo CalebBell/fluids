@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 202 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import os
 
@@ -29,13 +29,12 @@ Tests that run aspects of the documentation should go in here.
 The only bit included right now are the plots, which should run without an
 error; no contents checking is performed.
 """
-plots_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'docs', 'plots')
-plot_files = [i for i in os.listdir(plots_folder) if i.endswith('.py')]
+plots_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs", "plots")
+plot_files = [i for i in os.listdir(plots_folder) if i.endswith(".py")]
 print(plot_files)
 
 @pytest.mark.parametrize("file", plot_files)
 def test_documentation_plots(file):
-    import matplotlib
-    matplotlib.use('Agg')
+    import matplotlib as mpl
+    mpl.use("Agg")
     exec(open(os.path.join(plots_folder, file)).read(), globals())
-#

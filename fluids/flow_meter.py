@@ -91,6 +91,7 @@ Flow Meter Utilities
 .. autodata:: all_meters
 
 """
+from __future__ import annotations
 
 from math import acos, exp, log, log10, pi, sqrt
 
@@ -98,106 +99,140 @@ from fluids.constants import inch, inch_inv, pi_inv, root_two
 from fluids.core import Froude_densimetric
 from fluids.numerics import bisplev, brenth, implementation_optimize_tck, interp, secant
 
-__all__ = ['C_Reader_Harris_Gallagher',
-           'differential_pressure_meter_solver',
-           'differential_pressure_meter_dP',
-           'flow_meter_discharge', 'orifice_expansibility',
-           'discharge_coefficient_to_K', 'K_to_discharge_coefficient',
-           'dP_orifice', 'velocity_of_approach_factor',
-           'flow_coefficient', 'nozzle_expansibility',
-           'C_long_radius_nozzle', 'C_ISA_1932_nozzle', 'C_venturi_nozzle',
-           'orifice_expansibility_1989', 'dP_venturi_tube',
-           'diameter_ratio_cone_meter', 'diameter_ratio_wedge_meter',
-           'cone_meter_expansibility_Stewart', 'dP_cone_meter',
-           'C_wedge_meter_Miller', 'C_wedge_meter_ISO_5167_6_2017',
-           'dP_wedge_meter',
-           'C_Reader_Harris_Gallagher_wet_venturi_tube',
-           'dP_Reader_Harris_Gallagher_wet_venturi_tube',
-           'differential_pressure_meter_C_epsilon',
-           'differential_pressure_meter_beta',
-           'C_eccentric_orifice_ISO_15377_1998',
-           'C_quarter_circle_orifice_ISO_15377_1998',
-           'C_Miller_1996',
-           'all_meters',
-           ]
+__all__: list[str] = [
+    "C_ISA_1932_nozzle",
+    "C_Miller_1996",
+    "C_Reader_Harris_Gallagher",
+    "C_Reader_Harris_Gallagher_wet_venturi_tube",
+    "C_eccentric_orifice_ISO_15377_1998",
+    "C_long_radius_nozzle",
+    "C_quarter_circle_orifice_ISO_15377_1998",
+    "C_venturi_nozzle",
+    "C_wedge_meter_ISO_5167_6_2017",
+    "C_wedge_meter_Miller",
+    "K_to_discharge_coefficient",
+    "all_meters",
+    "cone_meter_expansibility_Stewart",
+    "dP_Reader_Harris_Gallagher_wet_venturi_tube",
+    "dP_cone_meter",
+    "dP_orifice",
+    "dP_venturi_tube",
+    "dP_wedge_meter",
+    "diameter_ratio_cone_meter",
+    "diameter_ratio_wedge_meter",
+    "differential_pressure_meter_C_epsilon",
+    "differential_pressure_meter_beta",
+    "differential_pressure_meter_dP",
+    "differential_pressure_meter_solver",
+    "discharge_coefficient_to_K",
+    "flow_coefficient",
+    "flow_meter_discharge",
+    "nozzle_expansibility",
+    "orifice_expansibility",
+    "orifice_expansibility_1989",
+    "velocity_of_approach_factor",
+]
 
 
-CONCENTRIC_ORIFICE = 'orifice' # normal
-ECCENTRIC_ORIFICE = 'eccentric orifice'
-CONICAL_ORIFICE = 'conical orifice'
-SEGMENTAL_ORIFICE = 'segmental orifice'
-QUARTER_CIRCLE_ORIFICE = 'quarter circle orifice'
-CONDITIONING_4_HOLE_ORIFICE = 'Rosemount 4 hole self conditioing'
+CONCENTRIC_ORIFICE = "orifice" # normal
+ECCENTRIC_ORIFICE = "eccentric orifice"
+CONICAL_ORIFICE = "conical orifice"
+SEGMENTAL_ORIFICE = "segmental orifice"
+QUARTER_CIRCLE_ORIFICE = "quarter circle orifice"
+CONDITIONING_4_HOLE_ORIFICE = "Rosemount 4 hole self conditioning"
 ORIFICE_HOLE_TYPES = [CONCENTRIC_ORIFICE, ECCENTRIC_ORIFICE, CONICAL_ORIFICE,
                       SEGMENTAL_ORIFICE, QUARTER_CIRCLE_ORIFICE]
 
-ORIFICE_CORNER_TAPS = 'corner'
-ORIFICE_FLANGE_TAPS = 'flange'
-ORIFICE_D_AND_D_2_TAPS = 'D and D/2'
-ORIFICE_PIPE_TAPS = 'pipe' # Not in ISO 5167
-ORIFICE_VENA_CONTRACTA_TAPS = 'vena contracta' # Not in ISO 5167, normally segmental or eccentric orifices
+ORIFICE_CORNER_TAPS = "corner"
+ORIFICE_FLANGE_TAPS = "flange"
+ORIFICE_D_AND_D_2_TAPS = "D and D/2"
+ORIFICE_PIPE_TAPS = "pipe" # Not in ISO 5167
+ORIFICE_VENA_CONTRACTA_TAPS = "vena contracta" # Not in ISO 5167, normally segmental or eccentric orifices
 
 # Used by miller; modifier on taps
-TAPS_OPPOSITE = '180 degree'
-TAPS_SIDE = '90 degree'
+TAPS_OPPOSITE = "180 degree"
+TAPS_SIDE = "90 degree"
 
 
-ISO_5167_ORIFICE = 'ISO 5167 orifice'
-ISO_15377_ECCENTRIC_ORIFICE = 'ISO 15377 eccentric orifice'
-ISO_15377_QUARTER_CIRCLE_ORIFICE = 'ISO 15377 quarter-circle orifice'
-ISO_15377_CONICAL_ORIFICE = 'ISO 15377 conical orifice'
+ISO_5167_ORIFICE = "ISO 5167 orifice"
+ISO_15377_ECCENTRIC_ORIFICE = "ISO 15377 eccentric orifice"
+ISO_15377_QUARTER_CIRCLE_ORIFICE = "ISO 15377 quarter-circle orifice"
+ISO_15377_CONICAL_ORIFICE = "ISO 15377 conical orifice"
 
-MILLER_ORIFICE = 'Miller orifice'
-MILLER_ECCENTRIC_ORIFICE = 'Miller eccentric orifice'
-MILLER_SEGMENTAL_ORIFICE = 'Miller segmental orifice'
-MILLER_CONICAL_ORIFICE = 'Miller conical orifice'
-MILLER_QUARTER_CIRCLE_ORIFICE = 'Miller quarter circle orifice'
+MILLER_ORIFICE = "Miller orifice"
+MILLER_ECCENTRIC_ORIFICE = "Miller eccentric orifice"
+MILLER_SEGMENTAL_ORIFICE = "Miller segmental orifice"
+MILLER_CONICAL_ORIFICE = "Miller conical orifice"
+MILLER_QUARTER_CIRCLE_ORIFICE = "Miller quarter circle orifice"
 
-UNSPECIFIED_METER = 'unspecified meter'
-
-
-LONG_RADIUS_NOZZLE = 'long radius nozzle'
-ISA_1932_NOZZLE = 'ISA 1932 nozzle'
-VENTURI_NOZZLE = 'venturi nozzle'
-
-AS_CAST_VENTURI_TUBE = 'as cast convergent venturi tube'
-MACHINED_CONVERGENT_VENTURI_TUBE = 'machined convergent venturi tube'
-ROUGH_WELDED_CONVERGENT_VENTURI_TUBE = 'rough welded convergent venturi tube'
+UNSPECIFIED_METER = "unspecified meter"
 
 
-HOLLINGSHEAD_ORIFICE = 'Hollingshead orifice'
-HOLLINGSHEAD_VENTURI_SMOOTH = 'Hollingshead venturi smooth'
-HOLLINGSHEAD_VENTURI_SHARP = 'Hollingshead venturi sharp'
-HOLLINGSHEAD_CONE = 'Hollingshead v cone'
-HOLLINGSHEAD_WEDGE = 'Hollingshead wedge'
+LONG_RADIUS_NOZZLE = "long radius nozzle"
+ISA_1932_NOZZLE = "ISA 1932 nozzle"
+VENTURI_NOZZLE = "venturi nozzle"
+
+AS_CAST_VENTURI_TUBE = "as cast convergent venturi tube"
+MACHINED_CONVERGENT_VENTURI_TUBE = "machined convergent venturi tube"
+ROUGH_WELDED_CONVERGENT_VENTURI_TUBE = "rough welded convergent venturi tube"
 
 
-CONE_METER = 'cone meter'
-WEDGE_METER = 'wedge meter'
-__all__.extend(['ISO_5167_ORIFICE','ISO_15377_ECCENTRIC_ORIFICE', 'MILLER_ORIFICE',
-                'MILLER_ECCENTRIC_ORIFICE', 'MILLER_SEGMENTAL_ORIFICE',
-                'LONG_RADIUS_NOZZLE', 'ISA_1932_NOZZLE',
-                'VENTURI_NOZZLE', 'AS_CAST_VENTURI_TUBE',
-                'MACHINED_CONVERGENT_VENTURI_TUBE',
-                'ROUGH_WELDED_CONVERGENT_VENTURI_TUBE', 'CONE_METER',
-                'WEDGE_METER', 'ISO_15377_CONICAL_ORIFICE',
-                'MILLER_CONICAL_ORIFICE',
-                'MILLER_QUARTER_CIRCLE_ORIFICE',
-                'ISO_15377_QUARTER_CIRCLE_ORIFICE', 'UNSPECIFIED_METER',
-                'HOLLINGSHEAD_ORIFICE', 'HOLLINGSHEAD_CONE', 'HOLLINGSHEAD_WEDGE',
-                'HOLLINGSHEAD_VENTURI_SMOOTH', 'HOLLINGSHEAD_VENTURI_SHARP'])
-
-__all__.extend(['ORIFICE_CORNER_TAPS', 'ORIFICE_FLANGE_TAPS',
-                'ORIFICE_D_AND_D_2_TAPS', 'ORIFICE_PIPE_TAPS',
-                'ORIFICE_VENA_CONTRACTA_TAPS', 'TAPS_OPPOSITE', 'TAPS_SIDE'])
-
-__all__.extend(['CONCENTRIC_ORIFICE', 'ECCENTRIC_ORIFICE',
-                'CONICAL_ORIFICE', 'SEGMENTAL_ORIFICE',
-                'QUARTER_CIRCLE_ORIFICE'])
+HOLLINGSHEAD_ORIFICE = "Hollingshead orifice"
+HOLLINGSHEAD_VENTURI_SMOOTH = "Hollingshead venturi smooth"
+HOLLINGSHEAD_VENTURI_SHARP = "Hollingshead venturi sharp"
+HOLLINGSHEAD_CONE = "Hollingshead v cone"
+HOLLINGSHEAD_WEDGE = "Hollingshead wedge"
 
 
-def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='ISO 5167 orifice'):
-    r"""Calculates the flow rate of a differential pressure flow meter based on the 
+CONE_METER = "cone meter"
+WEDGE_METER = "wedge meter"
+__all__.extend([
+    "AS_CAST_VENTURI_TUBE",
+    "CONE_METER",
+    "HOLLINGSHEAD_CONE",
+    "HOLLINGSHEAD_ORIFICE",
+    "HOLLINGSHEAD_VENTURI_SHARP",
+    "HOLLINGSHEAD_VENTURI_SMOOTH",
+    "HOLLINGSHEAD_WEDGE",
+    "ISA_1932_NOZZLE",
+    "ISO_5167_ORIFICE",
+    "ISO_15377_CONICAL_ORIFICE",
+    "ISO_15377_ECCENTRIC_ORIFICE",
+    "ISO_15377_QUARTER_CIRCLE_ORIFICE",
+    "LONG_RADIUS_NOZZLE",
+    "MACHINED_CONVERGENT_VENTURI_TUBE",
+    "MILLER_CONICAL_ORIFICE",
+    "MILLER_ECCENTRIC_ORIFICE",
+    "MILLER_ORIFICE",
+    "MILLER_QUARTER_CIRCLE_ORIFICE",
+    "MILLER_SEGMENTAL_ORIFICE",
+    "ROUGH_WELDED_CONVERGENT_VENTURI_TUBE",
+    "UNSPECIFIED_METER",
+    "VENTURI_NOZZLE",
+    "WEDGE_METER",
+])
+
+__all__.extend([
+    "ORIFICE_CORNER_TAPS",
+    "ORIFICE_D_AND_D_2_TAPS",
+    "ORIFICE_FLANGE_TAPS",
+    "ORIFICE_PIPE_TAPS",
+    "ORIFICE_VENA_CONTRACTA_TAPS",
+    "TAPS_OPPOSITE",
+    "TAPS_SIDE",
+])
+
+__all__.extend([
+    "CONCENTRIC_ORIFICE",
+    "CONICAL_ORIFICE",
+    "ECCENTRIC_ORIFICE",
+    "QUARTER_CIRCLE_ORIFICE",
+    "SEGMENTAL_ORIFICE",
+])
+
+
+def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type="ISO 5167 orifice"):
+    r"""Calculates the flow rate of a differential pressure flow meter based on the
     geometry of the meter, measured pressures, and the density of the fluid.
 
     .. math::
@@ -227,7 +262,7 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='I
         real fluids), [-]
     meter_type : str, optional
         The type of differential pressure meter. All types use a different formula
-        for their beta ratio calculation. If unspecified, uses the ISO 5167 orifice 
+        for their beta ratio calculation. If unspecified, uses the ISO 5167 orifice
         formula; one of the types listed in the `all_meters` variable, [-]
 
     Returns
@@ -246,7 +281,7 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='I
     >>> flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646,
     ... C=0.5988, expansibility=0.9975)
     0.01120390943807026
-    
+
     >>> flow_meter_discharge(D=0.0739, Do=0.0222, P1=1E5, P2=9.9E4, rho=1.1646,
     ... C=0.5988, expansibility=0.9975, meter_type='cone meter')
     0.2709595056939325
@@ -265,7 +300,7 @@ def flow_meter_discharge(D, Do, P1, P2, rho, C, expansibility=1.0, meter_type='I
     return (0.25*pi*D_beta*D_beta)*C*expansibility*sqrt((2.0*rho*(P1 - P2))/(1.0 - beta2*beta2))
 
 
-def orifice_expansibility(D, Do, P1, P2, k):
+def orifice_expansibility(D: float, Do: float, P1: float, P2: float, k: float) -> float:
     r"""Calculates the expansibility factor for orifice plate calculations
     based on the geometry of the plate, measured pressures of the orifice, and
     the isentropic exponent of the fluid.
@@ -324,7 +359,7 @@ def orifice_expansibility(D, Do, P1, P2, k):
             1.0 - (P2/P1)**(1./k)))
 
 
-def orifice_expansibility_1989(D, Do, P1, P2, k):
+def orifice_expansibility_1989(D: float, Do: float, P1: float, P2: float, k: float) -> float:
     r"""Calculates the expansibility factor for orifice plate calculations
     based on the geometry of the plate, measured pressures of the orifice, and
     the isentropic exponent of the fluid.
@@ -391,7 +426,7 @@ def orifice_expansibility_1989(D, Do, P1, P2, k):
     return 1.0 - (0.41 + 0.35*beta_ratio_4)*(P1 - P2)/(k*P1)
 
 
-def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
+def C_Reader_Harris_Gallagher(D: float, Do: float, rho: float, mu: float, m: float, taps: str="corner") -> float:
     r"""Calculates the coefficient of discharge of the orifice based on the
     geometry of the plate, measured pressures of the orifice, mass flow rate
     through the orifice, and the density and viscosity of the fluid.
@@ -471,7 +506,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
 
     For orifice plates with D and D/2 or corner pressure taps:
 
-    * Orifice bore diameter muse be larger than 12.5 mm (0.5 inches)
+    * Orifice bore diameter must be larger than 12.5 mm (0.5 inches)
     * Pipe diameter between 50 mm and 1 m (2 to 40 inches)
     * Beta between 0.1 and 0.75 inclusive
     * Reynolds number larger than 5000 (for :math:`0.10 \le \beta \le 0.56`)
@@ -479,7 +514,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
 
     For orifice plates with flange pressure taps:
 
-    * Orifice bore diameter muse be larger than 12.5 mm (0.5 inches)
+    * Orifice bore diameter must be larger than 12.5 mm (0.5 inches)
     * Pipe diameter between 50 mm and 1 m (2 to 40 inches)
     * Beta between 0.1 and 0.75 inclusive
     * Reynolds number larger than 5000 and also larger than
@@ -513,15 +548,15 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     Re_D_inv = 1.0/Re_D
 
     beta = Do/D
-    if taps == 'corner':
+    if taps == "corner":
         L1, L2_prime = 0.0, 0.0
-    elif taps == 'flange':
+    elif taps == "flange":
         L1 = L2_prime = 0.0254/D
-    elif taps in ('D', 'D/2', ORIFICE_D_AND_D_2_TAPS):
+    elif taps in ("D", "D/2", ORIFICE_D_AND_D_2_TAPS):
         L1 = 1.0
         L2_prime = 0.47
     else:
-        raise ValueError('Unsupported tap location')
+        raise ValueError("Unsupported tap location")
 
     beta2 = beta*beta
     beta4 = beta2*beta2
@@ -560,7 +595,7 @@ def C_Reader_Harris_Gallagher(D, Do, rho, mu, m, taps='corner'):
     if D < 0.07112:
         # Limit is 2.8 inches, .1 inches smaller than the internal diameter of
         # a sched. 80 pipe.
-        # Suggested to be required not becausue of any effect of small
+        # Suggested to be required not because of any effect of small
         # diameters themselves, but because of edge radius differences.
         # max term is given in [4]_ Reader-Harris, Michael book
         # There is a check for t3 being negative and setting it to zero if so
@@ -583,14 +618,14 @@ _Miller_1996_unsupported_tap_pos_eccentric = f"Supported tap positions for subty
 _Miller_1996_unsupported_tap_eccentric = f"Supported taps for subtype '{ECCENTRIC_ORIFICE}' are {(ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS)}"
 _Miller_1996_unsupported_tap_segmental = f"Supported taps for subtype '{SEGMENTAL_ORIFICE}' are {(ORIFICE_FLANGE_TAPS, ORIFICE_VENA_CONTRACTA_TAPS)}"
 
-def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
-                  taps=ORIFICE_CORNER_TAPS, tap_position=TAPS_OPPOSITE):
+def C_Miller_1996(D: float, Do: float, rho: float, mu: float, m: float, subtype: str="orifice",
+                  taps: str | None=ORIFICE_CORNER_TAPS, tap_position: str | None=TAPS_OPPOSITE) -> float:
     r"""Calculates the coefficient of discharge of any of the orifice types
     supported by the Miller (1996) [1]_ correlation set. These correlations
     cover a wide range of industrial applications and sizes. Most of them are
     functions of `beta` ratio and Reynolds number. Unlike the ISO standards,
     these correlations do not come with well defined ranges of validity, so
-    caution should be applied using there correlations.
+    caution should be applied using these correlations.
 
     The base equation is as follows, and each orifice type and range has
     different values or correlations for :math:`C_{\infty}`, `b`, and `n`.
@@ -616,10 +651,10 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
     taps : str, optional
         The orientation of the taps; one of 'corner', 'flange',
         'D and D/2', 'pipe', or 'vena contracta'; not all orifice subtypes
-        support the all tap types [-]
+        support all tap types [-]
     tap_position : str, optional
         The rotation of the taps, used **only for the eccentric orifice case**
-        where the pressure profile is are not symmetric; '180 degree' for the
+        where the pressure profiles are not symmetric; '180 degree' for the
         normal case where the taps are opposite the orifice bore, and
         '90 degree' for the case where, normally for operational reasons, the
         taps are near the bore [-]
@@ -832,14 +867,14 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
             if tap_position == TAPS_OPPOSITE:
                 if D < 0.1:
                     b = 7.3 - 15.7*beta + 170.8*beta2 - 399.7*beta3 + 332.2*beta4
-                    C_inf = 0.5917 + 0.3061*beta21 + .3406*beta8 -.1019*beta4/(1.0-beta4) - 0.2715*beta3
+                    C_inf = 0.5917 + 0.3061*beta21 + 0.3406*beta8 - 0.1019*beta4/(1.0-beta4) - 0.2715*beta3
                 else:
                     b = -139.7 + 1328.8*beta - 4228.2*beta2 + 5691.9*beta3 - 2710.4*beta4
                     C_inf = 0.6016 + 0.3312*beta21 - 1.5581*beta8 + 0.6510*beta4/(1.0-beta4) - 0.7308*beta3
             elif tap_position == TAPS_SIDE:
                 if D < 0.1:
                     b = 69.1 - 469.4*beta + 1245.6*beta2 -1287.5*beta3 + 486.2*beta4
-                    C_inf = 0.5866 + 0.3917*beta21 + 0.7586*beta8 -.2273*beta4/(1.0-beta4) - .3343*beta3
+                    C_inf = 0.5866 + 0.3917*beta21 + 0.7586*beta8 - 0.2273*beta4/(1.0-beta4) - 0.3343*beta3
                 else:
                     b = -103.2 + 898.3*beta - 2557.3*beta2 + 2977.0*beta3 - 1131.3*beta4
                     C_inf = 0.6037 + 0.1598*beta21 - 0.2918*beta8 + 0.0244*beta4/(1.0-beta4) - 0.0790*beta3
@@ -847,17 +882,17 @@ def C_Miller_1996(D, Do, rho, mu, m, subtype='orifice',
             if tap_position == TAPS_OPPOSITE:
                 if D < 0.1:
                     b = 23.3 -207.0*beta + 821.5*beta2 -1388.6*beta3 + 900.3*beta4
-                    C_inf = 0.5925 + 0.3380*beta21 + 0.4016*beta8 -.1046*beta4/(1.0-beta4) - 0.3212*beta3
+                    C_inf = 0.5925 + 0.3380*beta21 + 0.4016*beta8 - 0.1046*beta4/(1.0-beta4) - 0.3212*beta3
                 else:
                     b = 55.7 - 471.4*beta + 1721.8*beta2 - 2722.6*beta3 + 1569.4*beta4
-                    C_inf = 0.5922 + 0.3932*beta21 + .3412*beta8 -.0569*beta4/(1.0-beta4) - 0.4628*beta3
+                    C_inf = 0.5922 + 0.3932*beta21 + 0.3412*beta8 - 0.0569*beta4/(1.0-beta4) - 0.4628*beta3
             elif tap_position == TAPS_SIDE:
                 if D < 0.1:
                     b = -69.3 + 556.9*beta - 1332.2*beta2 + 1303.7*beta3 - 394.8*beta4
-                    C_inf = 0.5875 + 0.3813*beta21 + 0.6898*beta8 -0.1963*beta4/(1.0-beta4) - 0.3366*beta3
+                    C_inf = 0.5875 + 0.3813*beta21 + 0.6898*beta8 - 0.1963*beta4/(1.0-beta4) - 0.3366*beta3
                 else:
                     b = 52.8 - 434.2*beta + 1571.2*beta2 - 2460.9*beta3 + 1420.2*beta4
-                    C_inf = 0.5949 + 0.4078*beta21 + 0.0547*beta8 +0.0955*beta4/(1.0-beta4) - 0.5608*beta3
+                    C_inf = 0.5949 + 0.4078*beta21 + 0.0547*beta8 + 0.0955*beta4/(1.0-beta4) - 0.5608*beta3
         else:
             raise ValueError(_Miller_1996_unsupported_tap_eccentric)
     elif subtype in (MILLER_SEGMENTAL_ORIFICE, SEGMENTAL_ORIFICE):
@@ -938,7 +973,7 @@ orifice_std_Hollingshead_tck = implementation_optimize_tck([
     ], 3, 3
 ])
 
-def C_eccentric_orifice_ISO_15377_1998(D, Do):
+def C_eccentric_orifice_ISO_15377_1998(D: float, Do: float) -> float:
     r"""Calculates the coefficient of discharge of an eccentric orifice based
     on the geometry of the plate according to ISO 15377, first introduced in
     1998 and also presented in the second 2007 edition. It also appears in BS
@@ -987,7 +1022,7 @@ def C_eccentric_orifice_ISO_15377_1998(D, Do):
       is not symmetrical. The angle should ideally be at the top or bottom of
       the plate, opposite which side the bore is on - but this can cause
       issues with deposition if the taps are on the bottom or gas bubbles if
-      the taps are on the taps. The taps are often placed 30 degrees away from
+      the taps are on the top. The taps are often placed 30 degrees away from
       the ideal position to counteract this effect, with under an extra 2%
       error.
 
@@ -1011,14 +1046,14 @@ def C_eccentric_orifice_ISO_15377_1998(D, Do):
     C = beta*(beta*(3.0428 - 1.7989*beta) - 1.6889) + 0.9355
     return C
 
-def C_quarter_circle_orifice_ISO_15377_1998(D, Do):
+def C_quarter_circle_orifice_ISO_15377_1998(D: float, Do: float) -> float:
     r"""Calculates the coefficient of discharge of a quarter circle orifice based
     on the geometry of the plate according to ISO 15377, first introduced in
     1998 and also presented in the second 2007 edition. It also appears in BS
     1042-1.2: 1989.
 
     .. math::
-        C = 0.73823 + 0.3309\beta - 1.1615\beta^2 + 1.5084\beta^3
+        C = 0.73823 + 0.3309\beta - 1.16158\beta^2 + 1.5084\beta^3
 
     Parameters
     ----------
@@ -1072,7 +1107,7 @@ def C_quarter_circle_orifice_ISO_15377_1998(D, Do):
     C = beta*(beta*(1.5084*beta - 1.16158) + 0.3309) + 0.73823
     return C
 
-def discharge_coefficient_to_K(D, Do, C):
+def discharge_coefficient_to_K(D: float, Do: float, C: float) -> float:
     r"""Converts a discharge coefficient to a standard loss coefficient,
     for use in computation of the actual pressure drop of an orifice or other
     device.
@@ -1122,7 +1157,7 @@ def discharge_coefficient_to_K(D, Do, C):
     return root_K*root_K
 
 
-def K_to_discharge_coefficient(D, Do, K):
+def K_to_discharge_coefficient(D: float, Do: float, K: float) -> float:
     r"""Converts a standard loss coefficient to a discharge coefficient.
 
     .. math::
@@ -1173,7 +1208,7 @@ def K_to_discharge_coefficient(D, Do, K):
     root_K = sqrt(K)
     return sqrt((1.0 - beta4)/((2.0*root_K + K)*beta4))
 
-def dP_orifice(D, Do, P1, P2, C):
+def dP_orifice(D: float, Do: float, P1: float, P2: float, C: float) -> float:
     r"""Calculates the non-recoverable pressure drop of an orifice plate based
     on the pressure drop and the geometry of the plate and the discharge
     coefficient.
@@ -1234,7 +1269,7 @@ def dP_orifice(D, Do, P1, P2, C):
     return delta_w
 
 
-def velocity_of_approach_factor(D, Do):
+def velocity_of_approach_factor(D: float, Do: float) -> float:
     r"""Calculates a factor for orifice plate design called the `velocity of
     approach`.
 
@@ -1272,7 +1307,7 @@ def velocity_of_approach_factor(D, Do):
     return 1.0/sqrt(1.0 - beta_ratio_4)
 
 
-def flow_coefficient(D, Do, C):
+def flow_coefficient(D: float, Do: float, C: float) -> float:
     r"""Calculates a factor for differential pressure flow meter design called
     the `flow coefficient`. This should not be confused with the flow
     coefficient often used when discussing valves.
@@ -1300,7 +1335,7 @@ def flow_coefficient(D, Do, C):
     pressure flow meters [2]_.
 
     It is sometimes given the symbol K. It is also equal to the product of the
-    diacharge coefficient and the velocity of approach factor [2]_.
+    discharge coefficient and the velocity of approach factor [2]_.
 
     Examples
     --------
@@ -1320,7 +1355,7 @@ def flow_coefficient(D, Do, C):
     return C*1.0/sqrt(1.0 - beta_ratio_4)
 
 
-def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
+def nozzle_expansibility(D: float, Do: float, P1: float, P2: float, k: float, beta: float | None=None) -> float:
     r"""Calculates the expansibility factor for a nozzle or venturi nozzle,
     based on the geometry of the plate, measured pressures of the orifice, and
     the isentropic exponent of the fluid.
@@ -1422,13 +1457,13 @@ def nozzle_expansibility(D, Do, P1, P2, k, beta=None):
         term3 = (k - 1.0)/k
     else:
         # This form of the equation is mathematically equivalent but
-        # does not have issues where k = `.
+        # does not have issues where k = 1.
         term3 = (P1 - P2*(tau)**(-1.0/k))/(P1 - P2)
         # term3 = (1.0 - tau**((k - 1.0)/k))/(1.0 - tau)
     return sqrt(term1*term2*term3)
 
 
-def C_long_radius_nozzle(D, Do, rho, mu, m):
+def C_long_radius_nozzle(D: float, Do: float, rho: float, mu: float, m: float) -> float:
     r"""Calculates the coefficient of discharge of a long radius nozzle used
     for measuring flow rate of fluid, based on the geometry of the nozzle,
     mass flow rate through the nozzle, and the density and viscosity of the
@@ -1478,7 +1513,7 @@ def C_long_radius_nozzle(D, Do, rho, mu, m):
     return 0.9965 - 0.00653*sqrt(beta)*sqrt(1E6/Re_D)
 
 
-def C_ISA_1932_nozzle(D, Do, rho, mu, m):
+def C_ISA_1932_nozzle(D: float, Do: float, rho: float, mu: float, m: float) -> float:
     r"""Calculates the coefficient of discharge of an ISA 1932 style nozzle
     used for measuring flow rate of fluid, based on the geometry of the nozzle,
     mass flow rate through the nozzle, and the density and viscosity of the
@@ -1531,7 +1566,7 @@ def C_ISA_1932_nozzle(D, Do, rho, mu, m):
     return C
 
 
-def C_venturi_nozzle(D, Do):
+def C_venturi_nozzle(D: float, Do: float) -> float:
     r"""Calculates the coefficient of discharge of an Venturi style nozzle
     used for measuring flow rate of fluid, based on the geometry of the nozzle.
 
@@ -1556,7 +1591,7 @@ def C_venturi_nozzle(D, Do):
     Examples
     --------
     >>> C_venturi_nozzle(D=0.07391, Do=0.0422)
-    0.9698996454169576
+    0.970060255059
 
     References
     ----------
@@ -1569,13 +1604,13 @@ def C_venturi_nozzle(D, Do):
     beta = Do/D
     beta_ratio_4 = beta*beta
     beta_ratio_4 *= beta_ratio_4
-    return 0.9858 - 0.198*beta_ratio_4*sqrt(beta)
+    return 0.9858 - 0.196*beta_ratio_4*sqrt(beta)
 
 
-# Relative pressure loss as a function of beta reatio for venturi nozzles
+# Relative pressure loss as a function of beta ratio for venturi nozzles
 # Venturi nozzles should be between 65 mm and 500 mm; there are high and low
 # loss ratios , with the high losses corresponding to small diameters,
-# low high losses corresponding to large diameters
+# low losses corresponding to large diameters
 # Interpolation can be performed.
 
 venturi_tube_betas = [0.299160, 0.299470, 0.312390, 0.319010, 0.326580, 0.337290,
@@ -1613,7 +1648,7 @@ venturi_tube_dP_low = [0.089232, 0.089218, 0.088671, 0.088435, 0.088206,
 D_bound_venturi_tube = [0.065, 0.5]
 
 
-def dP_venturi_tube(D, Do, P1, P2):
+def dP_venturi_tube(D: float, Do: float, P1: float, P2: float) -> float:
     r"""Calculates the non-recoverable pressure drop of a venturi tube
     differential pressure meter based on the pressure drop and the geometry of
     the venturi meter.
@@ -1674,7 +1709,7 @@ def dP_venturi_tube(D, Do, P1, P2):
     return epsilon*(P1 - P2)
 
 
-def diameter_ratio_cone_meter(D, Dc):
+def diameter_ratio_cone_meter(D: float, Dc: float) -> float:
     r"""Calculates the diameter ratio `beta` used to characterize a cone
     flow meter.
 
@@ -1716,7 +1751,7 @@ def diameter_ratio_cone_meter(D, Dc):
     return sqrt(1.0 - D_ratio*D_ratio)
 
 
-def cone_meter_expansibility_Stewart(D, Dc, P1, P2, k):
+def cone_meter_expansibility_Stewart(D: float, Dc: float, P1: float, P2: float, k: float) -> float:
     r"""Calculates the expansibility factor for a cone flow meter,
     based on the geometry of the cone meter, measured pressures of the orifice,
     and the isentropic exponent of the fluid. Developed in [1]_, also shown
@@ -1772,7 +1807,7 @@ def cone_meter_expansibility_Stewart(D, Dc, P1, P2, k):
     return 1.0 - (0.649 + 0.696*beta)*dP/(k*P1)
 
 
-def dP_cone_meter(D, Dc, P1, P2):
+def dP_cone_meter(D: float, Dc: float, P1: float, P2: float) -> float:
     r"""Calculates the non-recoverable pressure drop of a cone meter
     based on the measured pressures before and at the cone end, and the
     geometry of the cone meter according to [1]_.
@@ -1819,7 +1854,7 @@ def dP_cone_meter(D, Dc, P1, P2):
     return (1.09 - 0.813*beta)*dP
 
 
-def diameter_ratio_wedge_meter(D, H):
+def diameter_ratio_wedge_meter(D: float, H: float) -> float:
     r"""Calculates the diameter ratio `beta` used to characterize a wedge
     flow meter as given in [1]_ and [2]_.
 
@@ -1868,7 +1903,7 @@ def diameter_ratio_wedge_meter(D, H):
     return sqrt(pi_inv*t4)
 
 
-def C_wedge_meter_Miller(D, H):
+def C_wedge_meter_Miller(D: float, H: float) -> float:
     r"""Calculates the coefficient of discharge of an wedge flow meter
     used for measuring flow rate of fluid, based on the geometry of the
     differential pressure flow meter.
@@ -1936,7 +1971,7 @@ def C_wedge_meter_Miller(D, H):
     return C
 
 
-def C_wedge_meter_ISO_5167_6_2017(D, H):
+def C_wedge_meter_ISO_5167_6_2017(D: float, H: float) -> float:
     r"""Calculates the coefficient of discharge of an wedge flow meter
     used for measuring flow rate of fluid, based on the geometry of the
     differential pressure flow meter according to the ISO 5167-6 standard
@@ -1989,7 +2024,7 @@ def C_wedge_meter_ISO_5167_6_2017(D, H):
     return 0.77 - 0.09*beta
 
 
-def dP_wedge_meter(D, H, P1, P2):
+def dP_wedge_meter(D: float, H: float, P1: float, P2: float) -> float:
     r"""Calculates the non-recoverable pressure drop of a wedge meter
     based on the measured pressures before and at the wedge meter, and the
     geometry of the wedge meter according to [1]_.
@@ -2037,7 +2072,7 @@ def dP_wedge_meter(D, H, P1, P2):
     return (1.09 - 0.79*beta)*dP
 
 
-def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
+def C_Reader_Harris_Gallagher_wet_venturi_tube(mg: float, ml: float, rhog: float, rhol: float, D: float, Do: float, H: float=1) -> float:
     r"""Calculates the coefficient of discharge of the wet gas venturi tube
     based on the  geometry of the tube, mass flow rates of liquid and vapor
     through the tube, the density of the liquid and gas phases, and an
@@ -2048,7 +2083,7 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
         \sqrt{\frac{X}{0.016}}\right)
 
     .. math::
-        Fr_{gas, th} = \frac{Fr_{\text{gas, densionetric }}}{\beta^{2.5}}
+        Fr_{gas, th} = \frac{Fr_{\text{gas, densiometric }}}{\beta^{2.5}}
 
     .. math::
         \phi = \sqrt{1 + C_{Ch} X + X^2}
@@ -2149,8 +2184,8 @@ def C_Reader_Harris_Gallagher_wet_venturi_tube(mg, ml, rhog, rhol, D, Do, H=1):
     return C
 
 
-def dP_Reader_Harris_Gallagher_wet_venturi_tube(D, Do, P1, P2, ml, mg, rhol,
-                                                rhog, H=1.0):
+def dP_Reader_Harris_Gallagher_wet_venturi_tube(D: float, Do: float, P1: float, P2: float, ml: float, mg: float, rhol: float,
+                                                rhog: float, H: float=1.0) -> float:
     r"""Calculates the non-recoverable pressure drop of a wet gas venturi
     nozzle based on the pressure drop and the geometry of the venturi nozzle,
     the mass flow rates of liquid and gas through it, the densities of the
@@ -2376,7 +2411,7 @@ and their correlations.
 """
 _unsupported_meter_msg = f"Supported meter types are {all_meters}"
 
-def differential_pressure_meter_beta(D, D2, meter_type):
+def differential_pressure_meter_beta(D: float, D2: float, meter_type: str) -> float:
     r"""Calculates the beta ratio of a differential pressure meter.
 
     Parameters
@@ -2431,10 +2466,10 @@ _meter_type_to_corr_default = {
     SEGMENTAL_ORIFICE: MILLER_SEGMENTAL_ORIFICE,
     }
 
-def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
-                                          meter_type, taps=None,
-                                          tap_position=None, C_specified=None,
-                                          epsilon_specified=None):
+def differential_pressure_meter_C_epsilon(D: float, D2: float, m: float, P1: float, P2: float, rho: float, mu: float, k: float,
+                                          meter_type: str, taps: str | None=None,
+                                          tap_position: str | None=None, C_specified: float | None=None,
+                                          epsilon_specified: int | None=None) -> tuple[float, float] | tuple[float, int]:
     r"""Calculates the discharge coefficient and expansibility of a flow
     meter given the mass flow rate, the upstream pressure, the second
     pressure value, and the orifice diameter for a differential
@@ -2479,7 +2514,7 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         applies for orifice meters only, [-]
     tap_position : str, optional
         The rotation of the taps, used **only for the eccentric orifice case**
-        where the pressure profile is are not symmetric; '180 degree' for the
+        where the pressure profiles are not symmetric; '180 degree' for the
         normal case where the taps are opposite the orifice bore, and
         '90 degree' for the case where, normally for operational reasons, the
         taps are near the bore [-]
@@ -2514,7 +2549,7 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
     ... meter_type='ISO 5167 orifice', taps='D')
     (0.6151252900244296, 0.9711026966676307)
     """
-#    # Translate default meter type to implementation specific correlation
+    # Translate default meter type to implementation specific correlation
     if meter_type == CONCENTRIC_ORIFICE:
         meter_type = ISO_5167_ORIFICE
     elif meter_type == ECCENTRIC_ORIFICE:
@@ -2527,7 +2562,8 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
         meter_type = MILLER_SEGMENTAL_ORIFICE
 
     if meter_type == ISO_5167_ORIFICE:
-        C = C_Reader_Harris_Gallagher(D, D2, rho, mu, m, taps)
+        taps_val = taps if taps is not None else "corner"
+        C = C_Reader_Harris_Gallagher(D, D2, rho, mu, m, taps_val)
         epsilon = orifice_expansibility(D, D2, P1, P2, k)
     elif meter_type == ISO_15377_ECCENTRIC_ORIFICE:
         C = C_eccentric_orifice_ISO_15377_1998(D, D2)
@@ -2619,7 +2655,7 @@ def differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho, mu, k,
 
 
 
-def err_dp_meter_solver_m(m_D, D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified):
+def err_dp_meter_solver_m(m_D: float, D: float, D2: float, P1: float, P2: float, rho: float, mu: float, k: float, meter_type: str, taps: str | None, tap_position: str | None, C_specified: float | None, epsilon_specified: int | None) -> float:
     m = m_D*D
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
@@ -2630,7 +2666,7 @@ def err_dp_meter_solver_m(m_D, D, D2, P1, P2, rho, mu, k, meter_type, taps, tap_
     err =  m - m_calc
     return err
 
-def err_dp_meter_solver_P2(P2, D, D2, m, P1, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified):
+def err_dp_meter_solver_P2(P2: float, D: float, D2: float, m: float, P1: float, rho: float, mu: float, k: float, meter_type: str, taps: str | None, tap_position: str | None, C_specified: float | None, epsilon_specified: None) -> float:
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
                                                   taps=taps, tap_position=tap_position,
@@ -2639,7 +2675,7 @@ def err_dp_meter_solver_P2(P2, D, D2, m, P1, rho, mu, k, meter_type, taps, tap_p
                                 C=C, expansibility=epsilon, meter_type=meter_type)
     return m - m_calc
 
-def err_dp_meter_solver_D2(D2, D, m, P1, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified):
+def err_dp_meter_solver_D2(D2: float, D: float, m: float, P1: float, P2: float, rho: float, mu: float, k: float, meter_type: str, taps: str | None, tap_position: str | None, C_specified: float | None, epsilon_specified: None) -> float:
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
                                                   taps=taps, tap_position=tap_position, C_specified=C_specified,
@@ -2648,7 +2684,7 @@ def err_dp_meter_solver_D2(D2, D, m, P1, P2, rho, mu, k, meter_type, taps, tap_p
                                 C=C, expansibility=epsilon, meter_type=meter_type)
     return m - m_calc
 
-def err_dp_meter_solver_P1(P1, D, D2, m, P2, rho, mu, k, meter_type, taps, tap_position, C_specified, epsilon_specified):
+def err_dp_meter_solver_P1(P1: float, D: float, D2: float, m: float, P2: float, rho: float, mu: float, k: float, meter_type: str, taps: str | None, tap_position: str | None, C_specified: float | None, epsilon_specified: None) -> float:
     C, epsilon = differential_pressure_meter_C_epsilon(D, D2, m, P1, P2, rho,
                                                   mu, k, meter_type,
                                                   taps=taps, tap_position=tap_position, C_specified=C_specified,
@@ -2657,10 +2693,10 @@ def err_dp_meter_solver_P1(P1, D, D2, m, P2, rho, mu, k, meter_type, taps, tap_p
                                 C=C, expansibility=epsilon, meter_type=meter_type)
     return m - m_calc
 
-def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=None,
-                                       m=None, meter_type=ISO_5167_ORIFICE,
-                                       taps=None, tap_position=None,
-                                       C_specified=None, epsilon_specified=None):
+def differential_pressure_meter_solver(D: float, rho: float, mu: float, k: float | None=None, D2: float | None=None, P1: float | None=None, P2: float | None=None,
+                                       m: float | None=None, meter_type: str=ISO_5167_ORIFICE,
+                                       taps: str | None=None, tap_position: str | None=None,
+                                       C_specified: float | None=None, epsilon_specified: int | None=None) -> float:
     r"""Calculates either the mass flow rate, the upstream pressure, the second
     pressure value, or the orifice diameter for a differential
     pressure flow meter based on the geometry of the meter, measured pressures
@@ -2705,7 +2741,7 @@ def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=
         applies for orifice meters only, [-]
     tap_position : str, optional
         The rotation of the taps, used **only for the eccentric orifice case**
-        where the pressure profile is are not symmetric; '180 degree' for the
+        where the pressure profiles are not symmetric; '180 degree' for the
         normal case where the taps are opposite the orifice bore, and
         '90 degree' for the case where, normally for operational reasons, the
         taps are near the bore [-]
@@ -2797,7 +2833,7 @@ def differential_pressure_meter_solver(D, rho, mu, k=None, D2=None, P1=None, P2=
         except:
             return brenth(err_dp_meter_solver_P1, P2*(1+1E-9), P2*1.4, args=args)
     else:
-        raise ValueError('Solver is capable of solving for one of P1, P2, D2, or m only.')
+        raise ValueError("Solver is capable of solving for one of P1, P2, D2, or m only.")
 
 # Set of orifice types that get their dP calculated with `dP_orifice`.
 _dP_orifice_set = {ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
@@ -2814,8 +2850,8 @@ _dP_orifice_set = {ISO_5167_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE,
 
 _missing_C_msg = "Parameter C is required for this orifice type"
 
-def differential_pressure_meter_dP(D, D2, P1, P2, C=None,
-                                   meter_type=ISO_5167_ORIFICE):
+def differential_pressure_meter_dP(D: float, D2: float, P1: float, P2: float, C: float | None=None,
+                                   meter_type: str=ISO_5167_ORIFICE) -> float:
     r"""Calculates the non-recoverable pressure drop of a differential
     pressure flow meter based on the geometry of the meter, measured pressures
     of the meter, and for most models the meter discharge coefficient.

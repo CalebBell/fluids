@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2024 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,24 +18,41 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
-from math import cos, erf, exp, isnan, log, pi, sin, sqrt
+"""
+from math import sqrt
 
 import pytest
-from fluids.numerics.arrays import (inv, solve, lu, gelsd, eye, dot_product, transpose, matrix_vector_dot, matrix_multiply, sum_matrix_rows, sum_matrix_cols,
-    scalar_divide_matrix, scalar_multiply_matrix, scalar_subtract_matrices, scalar_add_matrices, null_space)
+
 from fluids.numerics import (
+    argsort1d,
     array_as_tridiagonals,
     assert_close,
     assert_close1d,
     assert_close2d,
     solve_tridiagonal,
+    sort_paired_lists,
     subset_matrix,
     tridiagonals_as_array,
-    argsort1d,
-    sort_paired_lists,
 )
 from fluids.numerics import numpy as np
+from fluids.numerics.arrays import (
+    dot_product,
+    eye,
+    gelsd,
+    inv,
+    lu,
+    matrix_multiply,
+    matrix_vector_dot,
+    null_space,
+    scalar_add_matrices,
+    scalar_divide_matrix,
+    scalar_multiply_matrix,
+    scalar_subtract_matrices,
+    solve,
+    sum_matrix_cols,
+    sum_matrix_rows,
+    transpose,
+)
 
 assert_allclose = np.testing.assert_allclose
 
@@ -65,7 +82,7 @@ def check_inv(matrix, rtol=None):
     if py_fail and not numpy_fail:
         if not just_return and cond > 1e14:
             # Let ill conditioned matrices pass
-            return 
+            return
         raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, Numpy Fail: {numpy_fail}")
     if py_fail and numpy_fail:
         return
@@ -74,14 +91,14 @@ def check_inv(matrix, rtol=None):
         return
     if just_return:
         return
-        
+
     # Convert result to numpy array if it isn't already
     result = np.array(result)
     # Compute infinity norm of input matrix
     matrix_norm = np.max(np.sum(np.abs(matrix), axis=1))
     thresh = matrix_norm * np.finfo(float).eps
 
-    # We also need to check against the values we get in the inverse; it is helpful 
+    # We also need to check against the values we get in the inverse; it is helpful
     # to zero out anything too close to "zero" relative to the values used in the matrix
     # This is very necessary, and was needed when testing on different CPU architectures
     inv_norm = np.max(np.sum(np.abs(result), axis=1))
@@ -106,10 +123,10 @@ def check_inv(matrix, rtol=None):
     numpy_zeros = (expected == 0.0)
     our_zeros = (result == 0.0)
     mask_exact_zeros = numpy_zeros | our_zeros
-        
+
     # Where numpy has zeros but we don't; no cases require it but it makes sense to do
     result[mask_exact_zeros] = np.where(np.abs(result[mask_exact_zeros]) < thresh, 0.0, result[mask_exact_zeros])
-    
+
     # Where we have zeros but numpy doesn't - this is the one we discovered. Apply the check only to `numpy_zeros`
     expected[numpy_zeros] = np.where(np.abs(expected[numpy_zeros]) < thresh, 0.0, expected[numpy_zeros])
 
@@ -123,7 +140,7 @@ def check_inv(matrix, rtol=None):
         assert_allclose(result[mask], expected[mask], atol=thresh)
         assert_allclose(result[~mask], expected[~mask], rtol=rtol)
     else:
-        assert_allclose(result, expected, rtol=rtol)    
+        assert_allclose(result, expected, rtol=rtol)
 
 
 
@@ -133,12 +150,12 @@ def format_matrix_error(matrix):
         """Get diagnostic information about a matrix"""
         arr = np.array(matrix)
         return {
-            'condition_number': np.linalg.cond(arr),
-            'determinant': np.linalg.det(arr),
-            'shape': arr.shape
+            "condition_number": np.linalg.cond(arr),
+            "determinant": np.linalg.det(arr),
+            "shape": arr.shape
         }
     info = matrix_info(matrix)
-    
+
     return (
         f"\nMatrix properties:"
         f"\n  Shape: {info['shape']}"
@@ -160,18 +177,18 @@ matrices_1x1 = [
 
 # 2x2 matrices - regular cases
 matrices_2x2 = [
-    [[1.0, 0.0], 
+    [[1.0, 0.0],
      [0.0, 1.0]],  # Identity matrix
-    
+
     [[2.0, 1.0],
      [1.0, 2.0]],  # Symmetric matrix
-    
+
     [[1.0, 2.0],
      [3.0, 4.0]],  # General case
-    
+
     [[1e-5, 1.0],
      [1.0, 1e5]],  # Poorly conditioned
-    
+
     [[0.1, 0.2],
      [0.3, 0.4]],  # Decimal values
 
@@ -183,7 +200,7 @@ matrices_2x2 = [
      [1.0, -1.0]],
     [[1.0, -1.0],
      [-1.0, 1.0]],
-     
+
     # Upper triangular
     [[2.0, 3.0],
      [0.0, 4.0]],
@@ -191,7 +208,7 @@ matrices_2x2 = [
      [0.0, 2.0]],
     [[5.0, -3.0],
      [0.0, 1.0]],
-     
+
     # Lower triangular
     [[2.0, 0.0],
      [3.0, 4.0]],
@@ -199,7 +216,7 @@ matrices_2x2 = [
      [10.0, 2.0]],
     [[5.0, 0.0],
      [-3.0, 1.0]],
-     
+
     # Rotation matrices (θ = 30°, 45°, 60°)
     [[0.866, -0.5],
      [0.5, 0.866]],
@@ -207,7 +224,7 @@ matrices_2x2 = [
      [0.707, 0.707]],
     [[0.5, -0.866],
      [0.866, 0.5]],
-     
+
     # Reflection matrices
     [[1.0, 0.0],
      [0.0, -1.0]],
@@ -215,7 +232,7 @@ matrices_2x2 = [
      [0.0, 1.0]],
     [[0.0, 1.0],
      [1.0, 0.0]],
-     
+
     # Scaling matrices
     [[10.0, 0.0],
      [0.0, 0.1]],
@@ -223,7 +240,7 @@ matrices_2x2 = [
      [0.0, 0.01]],
     [[1000.0, 0.0],
      [0.0, 0.001]],
-     
+
     # Nearly zero determinant (different from existing near-singular)
     [[1.0, 2.0],
      [0.5, 1.0 + 1e-12]],
@@ -231,7 +248,7 @@ matrices_2x2 = [
      [1.0, 2.0 + 1e-13]],
     [[3.0, 6.0],
      [1.5, 3.0 + 1e-11]],
-     
+
     # Mixed scale
     [[1e6, 1e-6],
      [1e-6, 1e6]],
@@ -239,7 +256,7 @@ matrices_2x2 = [
      [1e-4, 1e8]],
     [[1e10, 1e-2],
      [1e-2, 1e10]],
-     
+
     # Nilpotent matrices
     [[0.0, 1.0],
      [0.0, 0.0]],
@@ -247,7 +264,7 @@ matrices_2x2 = [
      [0.0, 0.0]],
     [[0.0, 0.5],
      [0.0, 0.0]],
-     
+
     # Hadamard matrices (normalized)
     [[1/sqrt(2), 1/sqrt(2)],
      [1/sqrt(2), -1/sqrt(2)]],
@@ -255,23 +272,23 @@ matrices_2x2 = [
      [-1/sqrt(2), 1/sqrt(2)]],
     [[-1/sqrt(2), 1/sqrt(2)],
      [1/sqrt(2), 1/sqrt(2)]]
-     
+
 ]
 
 # 2x2 matrices - nearly singular cases
 matrices_2x2_near_singular = [
     [[1.0, 2.0],
      [1.0 + 1e-10, 2.0 + 1e-10]],  # Almost linearly dependent rows
-    
+
     [[1.0, 1.0],
      [1.0, 1.0 + 1e-10]],  # Almost zero determinant
-     
+
     [[1e5, 1e5],
      [1e5, 1e5 + 1.0]],  # Scaled nearly singular
-     
+
     [[1e-10, 1.0],
      [1.0, 1.0]],  # One very small pivot
-     
+
     [[1.0, -1e-10],
      [1e-10, 1.0]],  # Almost identity with perturbation
 
@@ -313,15 +330,15 @@ matrices_3x3 = [
     [[1.0, 0.0, 0.0],
      [0.0, 1.0, 0.0],
      [0.0, 0.0, 1.0]],  # Identity matrix
-    
+
     [[1.0, 2.0, 3.0],
      [4.0, 5.0, 6.0],
      [7.0, 8.0, 9.0]],  # Nearly singular
-    
+
     [[1.0, 0.5, 0.3],
      [0.5, 2.0, 0.7],
      [0.3, 0.7, 3.0]],  # Symmetric positive definite
-    
+
     [[1e-3, 1.0, 1e3],
      [1.0, 1.0, 1.0],
      [1e3, 1.0, 1e-3]],  # Poorly conditioned
@@ -336,7 +353,7 @@ matrices_3x3 = [
     [[1.0, -1.0, 1.0],
      [-1.0, 1.0, -1.0],
      [1.0, -1.0, 1.0]],
-     
+
     # Upper triangular
     [[2.0, 3.0, 4.0],
      [0.0, 5.0, 6.0],
@@ -347,7 +364,7 @@ matrices_3x3 = [
     [[10.0, 20.0, 30.0],
      [0.0, 40.0, 50.0],
      [0.0, 0.0, 60.0]],
-     
+
     # Lower triangular
     [[2.0, 0.0, 0.0],
      [3.0, 4.0, 0.0],
@@ -358,7 +375,7 @@ matrices_3x3 = [
     [[10.0, 0.0, 0.0],
      [20.0, 30.0, 0.0],
      [40.0, 50.0, 60.0]],
-     
+
     # 3D Rotation matrices (around x, y, and z axes, 45 degrees)
     [[1.0, 0.0, 0.0],
      [0.0, 0.707, -0.707],
@@ -369,7 +386,7 @@ matrices_3x3 = [
     [[0.707, -0.707, 0.0],
      [0.707, 0.707, 0.0],
      [0.0, 0.0, 1.0]],
-     
+
     # Permutation matrices
     [[0.0, 1.0, 0.0],
      [0.0, 0.0, 1.0],
@@ -380,7 +397,7 @@ matrices_3x3 = [
     [[1.0, 0.0, 0.0],
      [0.0, 0.0, 1.0],
      [0.0, 1.0, 0.0]],
-     
+
     # Rank deficient (rank 2)
     [[1.0, 0.0, 1.0],
      [0.0, 1.0, 0.0],
@@ -391,7 +408,7 @@ matrices_3x3 = [
     [[1.0, 2.0, 3.0],
      [4.0, 5.0, 6.0],
      [7.0, 8.0, 9.0]],
-     
+
     # Skew-symmetric matrices
     [[0.0, 1.0, -2.0],
      [-1.0, 0.0, 3.0],
@@ -402,7 +419,7 @@ matrices_3x3 = [
     [[0.0, 5.0, -3.0],
      [-5.0, 0.0, 1.0],
      [3.0, -1.0, 0.0]],
-     
+
     # Toeplitz matrices
     [[1.0, 2.0, 3.0],
      [2.0, 1.0, 2.0],
@@ -413,7 +430,7 @@ matrices_3x3 = [
     [[2.0, 3.0, 4.0],
      [3.0, 2.0, 3.0],
      [4.0, 3.0, 2.0]],
-     
+
     # Circulant matrices
     [[1.0, 2.0, 3.0],
      [3.0, 1.0, 2.0],
@@ -424,7 +441,7 @@ matrices_3x3 = [
     [[2.0, 3.0, 1.0],
      [1.0, 2.0, 3.0],
      [3.0, 1.0, 2.0]],
-     
+
     # # Mixed scale with near dependencies
     [[1e6, 1e-3, 1.0],
      [1e-3, 1e6, 1.0],
@@ -440,15 +457,15 @@ matrices_3x3 = [
     [[1e3, 1e-2, 1.0],
      [1e-2, 1e3, 1.0],
      [1.0, 1.0, 1e-3]],  # Condition number ~10^6
-     
+
     [[1e4, 1e-3, 1.0],
      [1e-3, 1e4, 1.0],
      [1.0, 1.0, 1e-4]],  # Condition number ~10^8
-     
+
     [[1e5, 1e-4, 2.0],
      [1e-4, 1e5, 2.0],
      [2.0, 2.0, 1e-5]]   # Condition number ~10^10
-     
+
 ]
 
 # 3x3 matrices - nearly singular cases
@@ -456,19 +473,19 @@ matrices_3x3_near_singular = [
     [[1.0, 2.0, 3.0],
      [2.0, 4.0, 6.0],
      [3.0, 6.0, 9.0 + 1e-10]],  # Almost linearly dependent rows
-     
+
     [[1e5, 1e5, 1e5],
      [1e5, 1e5, 1e5],
      [1e5, 1e5, 1e5 + 1.0]],  # Almost zero determinant with scaling
-     
+
     [[1.0, 0.0, 1.0],
      [0.0, 1.0, 1e-10],
      [0.0, 0.0, 1e-10]],  # Nearly dependent columns
-     
+
     [[1.0, 0.0, 1e-10],
      [0.0, 1.0, 1e-10],
      [1e-10, 1e-10, 1.0]],  # Almost rank 2
-     
+
     [[1e8, 1e-8, 1.0],
      [1e-8, 1e8, 1.0],
      [1.0, 1.0, 1e-10 + 1.0]],  # Scaled with small perturbations
@@ -512,12 +529,12 @@ matrices_4x4 = [
      [0.0, 1.0, 0.0, 0.0],
      [0.0, 0.0, 1.0, 0.0],
      [0.0, 0.0, 0.0, 1.0]],  # Identity matrix
-    
+
     [[1.0, 2.0, 3.0, 4.0],
      [5.0, 6.0, 7.0, 8.0],
      [9.0, 10.0, 11.0, 12.0],
      [13.0, 14.0, 15.0, 16.0]],  # Singular
-    
+
     [[1.0, 0.1, 0.1, 0.1],
      [0.1, 2.0, 0.2, 0.2],
      [0.1, 0.2, 3.0, 0.3],
@@ -671,17 +688,17 @@ matrices_4x4_near_singular = [
      [2.0, 4.0, 6.0, 8.0],
      [3.0, 6.0, 9.0, 12.0],
      [4.0, 8.0, 12.0, 16.0 + 1e-10]],  # Almost linearly dependent rows
-     
+
     [[1e3, 1e3, 1e3, 1e3],
      [1e3, 1e3, 1e3, 1e3],
      [1e3, 1e3, 1e3, 1e3],
      [1e3, 1e3, 1e3, 1e3 + 1.0]],  # Almost zero determinant with scaling
-     
+
     # [[1.0, 0.0, 0.0, 1.0],
     #  [0.0, 1.0, 0.0, 1e-10],
     #  [0.0, 0.0, 1.0, 1e-10],
     #  [0.0, 0.0, 0.0, 1e-10]],  # Nearly dependent columns, too hard on some CPUs
-     
+
     # [[1e5, 1e-5, 1.0, 1.0],
     #  [1e-5, 1e5, 1.0, 1.0],
     #  [1.0, 1.0, 1e-10, 1.0],
@@ -718,7 +735,7 @@ matrices_4x4_near_singular = [
     [[1, 1 + 1e-12, 1, 1], [1 + 1e-12, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]], # Case 4
     [[1, 1, 1, 1], [1, 1, 1, 1 + 1e-16], [1, 1, 1, 1], [1, 1, 1, 1]], # Case 5
     [[1e-10, 1, 1, 1], [1, 1e-10, 1, 1], [1, 1, 1e-10, 1], [1, 1, 1, 1e-10 + 1e-15]], # Case 6
-    
+
 ]
 
 # Singular matrices that should raise exceptions
@@ -735,7 +752,7 @@ def test_inv_1x1(matrix):
     try:
         check_inv(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_2x2)
@@ -743,7 +760,7 @@ def test_inv_2x2(matrix):
     try:
         check_inv(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_2x2_near_singular)
@@ -751,7 +768,7 @@ def test_inv_2x2_near_singular(matrix):
     try:
         check_inv(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_3x3)
@@ -759,7 +776,7 @@ def test_inv_3x3(matrix):
     try:
         check_inv(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_3x3_near_singular)
@@ -767,7 +784,7 @@ def test_inv_3x3_near_singular(matrix):
     try:
         check_inv(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_4x4)
@@ -775,7 +792,7 @@ def test_inv_4x4(matrix):
     try:
         check_inv(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_4x4_near_singular)
@@ -783,7 +800,7 @@ def test_inv_4x4_near_singular(matrix):
     try:
         check_inv(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_singular)
@@ -791,7 +808,7 @@ def test_inv_singular_matrices(matrix):
     try:
         check_inv(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 
@@ -801,14 +818,14 @@ def check_solve(matrix, b=None):
     if b is None:
         # Create a right-hand side vector that's compatible with the matrix size
         b = [1.0] * len(matrix)
-    
+
     just_return = False
     try:
         # This will fail for bad matrix (inconsistent size) inputs
         cond = np.linalg.cond(matrix)
     except:
         just_return = True
-        
+
     py_fail = False
     numpy_fail = False
     try:
@@ -819,11 +836,11 @@ def check_solve(matrix, b=None):
         expected = np.linalg.solve(matrix, b)
     except:
         numpy_fail = True
-        
+
     if py_fail and not numpy_fail:
         if not just_return and cond > 1e14:
             # Let ill conditioned matrices pass
-            return 
+            return
         raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, Numpy Fail: {numpy_fail}")
     if py_fail and numpy_fail:
         return
@@ -831,18 +848,18 @@ def check_solve(matrix, b=None):
         return
     if just_return:
         return
-        
+
     # Convert result to numpy array if it isn't already
     result = np.array(result)
     expected = np.array(expected)
-    
+
     # Compute infinity norm of input matrix
     matrix_norm = np.max(np.sum(np.abs(matrix), axis=1))
     thresh = matrix_norm * np.finfo(float).eps
-    
+
     # Get solution norms
     sol_norm = np.max(np.abs(result))
-    
+
     # Adjust tolerance based on condition number
     if cond < 1e10:
         zero_thresh = thresh
@@ -853,7 +870,7 @@ def check_solve(matrix, b=None):
     else:
         zero_thresh = 100*thresh
         rtol = 100 * cond * np.finfo(float).eps
-    
+
     # Zero out small values relative to solution norm
     trivial_relative_to_norm_result = (np.abs(result)/sol_norm < zero_thresh)
     trivial_relative_to_norm_expected = (np.abs(expected)/sol_norm < zero_thresh)
@@ -871,7 +888,7 @@ def test_solve_1x1(matrix):
     try:
         check_solve(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_2x2)
@@ -879,7 +896,7 @@ def test_solve_2x2(matrix):
     try:
         check_solve(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_2x2_near_singular)
@@ -887,7 +904,7 @@ def test_solve_2x2_near_singular(matrix):
     try:
         check_solve(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_3x3)
@@ -895,7 +912,7 @@ def test_solve_3x3(matrix):
     try:
         check_solve(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_3x3_near_singular)
@@ -903,7 +920,7 @@ def test_solve_3x3_near_singular(matrix):
     try:
         check_solve(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_4x4)
@@ -911,7 +928,7 @@ def test_solve_4x4(matrix):
     try:
         check_solve(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_4x4_near_singular)
@@ -919,7 +936,7 @@ def test_solve_4x4_near_singular(matrix):
     try:
         check_solve(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_singular)
@@ -927,7 +944,7 @@ def test_solve_singular_matrices(matrix):
     try:
         check_solve(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 specific_rhs_cases = [
@@ -951,12 +968,12 @@ specific_rhs_cases = [
       [0.1, 0.1, 0.1, 1.0]], [1e-8, 1e-8, 1e8, 1e8])
 ]
 
-@pytest.mark.parametrize("matrix,rhs", specific_rhs_cases)
+@pytest.mark.parametrize(("matrix", "rhs"), specific_rhs_cases)
 def test_solve_specific_rhs(matrix, rhs):
     try:
         check_solve(matrix, rhs)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}\nRHS: {rhs}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}\nRHS: {rhs}"
         raise Exception(new_message)
 
 
@@ -1051,7 +1068,7 @@ specific_solution_cases = [
      [1, -1, 1, -1, 1, -1, 1],
      [0.4983480176211454, 0.0033039647577092373, 0.5115638766519823, -0.02643171806167401, 0.3827092511013216, -0.12169603524229072, 0.37389867841409696]),
 ]
-@pytest.mark.parametrize("matrix,rhs,expected", specific_solution_cases)
+@pytest.mark.parametrize(("matrix", "rhs", "expected"), specific_solution_cases)
 def test_solve_specific_solutions(matrix, rhs, expected):
     result = solve(matrix, rhs)
     assert_allclose(result, expected, rtol=1e-15)
@@ -1064,14 +1081,14 @@ def check_lu(matrix):
     """Compare our LU decomposition against SciPy's"""
     import numpy as np
     from scipy import linalg
-    
+
     just_return = False
     try:
         # This will fail for bad matrix (inconsistent size) inputs
         cond = np.linalg.cond(matrix)
     except:
         just_return = True
-        
+
     py_fail = False
     scipy_fail = False
     try:
@@ -1082,11 +1099,11 @@ def check_lu(matrix):
         p, l, u = linalg.lu(matrix)
     except:
         scipy_fail = True
-        
+
     if py_fail and not scipy_fail:
         if not just_return and cond > 1e14:
             # Let ill conditioned matrices pass
-            return 
+            return
         raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, SciPy Fail: {scipy_fail}")
     if py_fail and scipy_fail:
         return
@@ -1094,10 +1111,10 @@ def check_lu(matrix):
         return
     if just_return:
         return
-        
+
     # Convert results to numpy arrays
     P, L, U = np.array(P), np.array(L), np.array(U)
-    
+
     # Compute infinity norm of input matrix
     matrix_norm = np.max(np.sum(np.abs(matrix), axis=1))
     thresh = matrix_norm * np.finfo(float).eps
@@ -1248,7 +1265,7 @@ specific_lu_cases = [
     ),
 ]
 
-@pytest.mark.parametrize("matrix,p_expected,l_expected,u_expected", specific_lu_cases)
+@pytest.mark.parametrize(("matrix", "p_expected", "l_expected", "u_expected"), specific_lu_cases)
 def test_lu_specific_cases(matrix, p_expected, l_expected, u_expected):
     p, l, u = lu(matrix)
     assert_allclose(p, p_expected, rtol=1e-15)
@@ -1261,7 +1278,7 @@ def test_lu_1x1(matrix):
     try:
         check_lu(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_2x2)
@@ -1269,7 +1286,7 @@ def test_lu_2x2(matrix):
     try:
         check_lu(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_2x2_near_singular)
@@ -1277,7 +1294,7 @@ def test_lu_2x2_near_singular(matrix):
     try:
         check_lu(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_3x3)
@@ -1285,7 +1302,7 @@ def test_lu_3x3(matrix):
     try:
         check_lu(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_3x3_near_singular)
@@ -1293,7 +1310,7 @@ def test_lu_3x3_near_singular(matrix):
     try:
         check_lu(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_4x4)
@@ -1301,7 +1318,7 @@ def test_lu_4x4(matrix):
     try:
         check_lu(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_4x4_near_singular)
@@ -1309,7 +1326,7 @@ def test_lu_4x4_near_singular(matrix):
     try:
         check_lu(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_singular)
@@ -1317,7 +1334,7 @@ def test_lu_singular_matrices(matrix):
     try:
         check_lu(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error(matrix)}"
         raise Exception(new_message)
 
 
@@ -1330,7 +1347,7 @@ def test_gelsd_basic():
          [3.0, 4.0]]
     b = [5.0, 6.0]
     x, residuals, rank, s = gelsd(A, b)
-    
+
     # Compare with numpy's lstsq
     x_numpy = np.linalg.lstsq(np.array(A), np.array(b), rcond=None)[0]
     assert_allclose(x, x_numpy, rtol=1e-14)
@@ -1345,12 +1362,12 @@ def test_gelsd_overdetermined():
          [5.0, 6.0]]
     b = [7.0, 8.0, 9.0]
     x, residuals, rank, s = gelsd(A, b)
-    
+
     # Verify dimensions
     assert len(x) == 2
     assert rank == 2
     assert len(s) == 2
-    
+
     # Check residuals are positive for overdetermined system
     assert residuals >= 0
 
@@ -1360,7 +1377,7 @@ def test_gelsd_underdetermined():
          [4.0, 5.0, 6.0]]
     b = [7.0, 8.0]
     x, residuals, rank, s = gelsd(A, b)
-    
+
     # Verify dimensions
     assert len(x) == 3
     assert rank == 2
@@ -1373,7 +1390,7 @@ def test_gelsd_ill_conditioned():
          [1.0, 1.0 + 1e-15]]
     b = [2.0, 2.0]
     x, residuals, rank, s = gelsd(A, b)
-    
+
     # Matrix should be detected as rank deficient
     assert rank == 1
     assert s[0]/s[1] > 1e14  # Check condition number
@@ -1384,7 +1401,7 @@ def test_gelsd_zero_matrix():
          [0.0, 0.0]]
     b = [1.0, 1.0]
     x, residuals, rank, s = gelsd(A, b)
-    
+
     assert rank == 0
     assert all(sv == 0 for sv in s)
 
@@ -1398,10 +1415,10 @@ def test_gelsd_against_lapack():
          [7.0, 8.0, 9.0],
          [10.0, 11.0, 12.0]]
     b = [13.0, 14.0, 15.0, 16.0]
-    
+
     # Our implementation
     x1, residuals1, rank1, s1 = gelsd(A, b)
-    
+
     # LAPACK implementation
     m, n = np.array(A).shape
     minmn = min(m, n)
@@ -1413,58 +1430,58 @@ def test_gelsd_against_lapack():
     assert_allclose(s1, s2[:minmn], rtol=1e-12, atol=1e-12)
     assert rank1 == rank2
 
-@pytest.mark.parametrize("A, b, name", [
+@pytest.mark.parametrize(("A", "b", "name"), [
     # Standard square matrix
-    ([[1.0, 2.0], 
-      [3.0, 4.0]], 
+    ([[1.0, 2.0],
+      [3.0, 4.0]],
      [5.0, 6.0],
      "2x2 well-conditioned"),
-    
+
     # Original test case
     ([[1.0, 2.0, 3.0],
       [4.0, 5.0, 6.0],
       [7.0, 8.0, 9.0],
-      [10.0, 11.0, 12.0]], 
+      [10.0, 11.0, 12.0]],
      [13.0, 14.0, 15.0, 16.0],
      "4x3 overdetermined"),
-     
+
     # Overdetermined system
-    ([[1.0, 2.0], 
+    ([[1.0, 2.0],
       [3.0, 4.0],
-      [5.0, 6.0]], 
+      [5.0, 6.0]],
      [7.0, 8.0, 9.0],
      "3x2 overdetermined"),
-    
+
     # # Nearly singular system
-    # ([[1.0, 1.0], 
+    # ([[1.0, 1.0],
     #   [1.0, 1.0 + 1e-6]],  # 1e-10 broke on some CPUs 1e-6 didn't help
     #  [2.0, 2.0],
     #  "2x2 nearly singular"),
-    
+
     # Zero matrix
-    ([[0.0, 0.0], 
-      [0.0, 0.0]], 
+    ([[0.0, 0.0],
+      [0.0, 0.0]],
      [1.0, 1.0],
      "2x2 zero matrix"),
-     
+
     # Underdetermined system
-    ([[1.0, 2.0, 3.0], 
-      [4.0, 5.0, 6.0]], 
+    ([[1.0, 2.0, 3.0],
+      [4.0, 5.0, 6.0]],
      [7.0, 8.0],
      "2x3 underdetermined"),
-     
+
     # Ill-conditioned matrix
-    ([[1e-10, 1.0], 
-      [1.0, 1.0]], 
+    ([[1e-10, 1.0],
+      [1.0, 1.0]],
      [1.0, 2.0],
      "2x2 ill-conditioned"),
-     
+
     # Larger system
     ([[1.0, 2.0, 3.0, 4.0],
       [5.0, 6.0, 7.0, 8.0],
       [9.0, 10.0, 11.0, 12.0],
       [13.0, 14.0, 15.0, 16.0],
-      [17.0, 18.0, 19.0, 20.0]], 
+      [17.0, 18.0, 19.0, 20.0]],
      [21.0, 22.0, 23.0, 24.0, 25.0],
      "5x4 larger system")
 ])
@@ -1474,7 +1491,7 @@ def test_gelsd_against_lapack2(A, b, name):
     try:
         # Our implementation
         x1, residuals1, rank1, s1 = gelsd(A, b)
-        
+
         # LAPACK implementation
         m, n = np.array(A).shape
         minmn = min(m, n)
@@ -1487,14 +1504,14 @@ def test_gelsd_against_lapack2(A, b, name):
             b_arr = np.array(b)
         x2, s2, rank2, info = lapack.dgelsd(A, b_arr, lwork=10000, size_iwork=10000)
         x2 = x2.ravel()
-        
+
         # Compare results
         assert_allclose(x1, x2[:n], rtol=1e-12, atol=1e-12)
         assert_allclose(s1, s2[:minmn], rtol=1e-12, atol=1e-12)
         assert rank1 == rank2
-        
+
     except Exception as e:
-        raise AssertionError(f"Failed for case: {name}\nError: {str(e)}")
+        raise AssertionError(f"Failed for case: {name}\nError: {e!s}")
 
 
 def test_gelsd_rcond():
@@ -1512,7 +1529,7 @@ def test_gelsd_rcond():
     assert rank2 == 3
 
 
-@pytest.mark.parametrize("m,n,n_rhs", [
+@pytest.mark.parametrize(("m", "n", "n_rhs"), [
     (4, 2, 1),  # Overdetermined, single RHS
     (4, 0, 1),  # Empty columns
     (4, 2, 1),  # Standard overdetermined
@@ -1525,7 +1542,7 @@ def test_gelsd_empty_and_shapes(m, n, n_rhs):
         A = np.arange(m * n).reshape(m, n).tolist()
     else:
         A = np.zeros((m, n)).tolist()
-    
+
     if m > 0:
         b = np.ones(m).tolist()
     else:
@@ -1538,13 +1555,13 @@ def test_gelsd_empty_and_shapes(m, n, n_rhs):
     assert len(s) == min(m, n)
     # Check rank
     assert rank == min(m, n)
-    
+
     # For zero-sized matrices, solution should be zero
     if m == 0:
         assert_allclose(x, np.zeros(n))
 
     # For overdetermined systems, check residuals
-    if m > n and n > 0:
+    if m > n > 0:
         r = np.array(b) - np.dot(A, x)
         expected_residuals = float(np.sum(r * r))
         assert_allclose(residuals, expected_residuals, atol=1e-28)
@@ -1554,7 +1571,7 @@ def test_gelsd_incompatible_dims():
     A = [[1.0, 2.0],
          [3.0, 4.0]]
     b = [1.0, 2.0, 3.0]  # Wrong dimension
-    
+
     with pytest.raises(ValueError):
         gelsd(A, b)
 
@@ -1638,13 +1655,13 @@ def test_argsort1d():
     check_argsort1d([42], [0], "Failed with single element list")
     check_argsort1d([99, 21, 31, 80, 70], [1, 2, 4, 3, 0], "Mismatch with expected output")
     check_argsort1d([2, 3, 1, 5, 4], [2, 0, 1, 4, 3], "Mismatch with expected output")
-    
+
     check_argsort1d([3.5, 1, 2.2], [1, 2, 0], "Failed with mixed floats and ints")
     check_argsort1d([0.1, 0.2, 0.3], [0, 1, 2], "Failed with floats")
 
     check_argsort1d([True, False, True], [1, 0, 2], "Failed with boolean values")
 
-    check_argsort1d(['apple', 'banana', 'cherry'], [0, 1, 2], "Failed with strings")
+    check_argsort1d(["apple", "banana", "cherry"], [0, 1, 2], "Failed with strings")
 
     check_argsort1d([2, 3, 2, 3, 3], [0, 2, 1, 3, 4], "Failed with duplicate numbers")
 
@@ -1661,14 +1678,14 @@ def test_eye():
     # Test basic functionality
     assert eye(1) == [[1.0]]
     assert eye(2) == [[1.0, 0.0], [0.0, 1.0]]
-    assert eye(3) == [[1.0, 0.0, 0.0], 
-                     [0.0, 1.0, 0.0], 
+    assert eye(3) == [[1.0, 0.0, 0.0],
+                     [0.0, 1.0, 0.0],
                      [0.0, 0.0, 1.0]]
-    
+
     # Test with different dtypes
     assert eye(2, dtype=int) == [[1, 0], [0, 1]]
     assert eye(2, dtype=float) == [[1.0, 0.0], [0.0, 1.0]]
-    
+
     # Test error cases
     with pytest.raises(ValueError):
         eye(0)  # Zero size
@@ -1676,7 +1693,7 @@ def test_eye():
         eye(-1)  # Negative size
     with pytest.raises(TypeError):
         eye(2.5)  # Non-integer size
-    
+
     # Test matrix properties
     def check_matrix_properties(matrix):
         N = len(matrix)
@@ -1685,21 +1702,21 @@ def test_eye():
         # Check diagonal elements
         assert all(matrix[i][i] == 1 for i in range(N)), "Diagonal elements are not 1"
         # Check off-diagonal elements
-        assert all(matrix[i][j] == 0 
-                  for i in range(N) 
-                  for j in range(N) 
+        assert all(matrix[i][j] == 0
+                  for i in range(N)
+                  for j in range(N)
                   if i != j), "Off-diagonal elements are not 0"
-    
+
     # Test matrix properties for various sizes
     for size in [1, 2, 3, 4, 5, 10]:
         check_matrix_properties(eye(size))
-    
+
     # Test type consistency
     def check_type_consistency(matrix, expected_type):
-        assert all(isinstance(x, expected_type) 
-                  for row in matrix 
+        assert all(isinstance(x, expected_type)
+                  for row in matrix
                   for x in row), f"Not all elements are of type {expected_type}"
-    
+
     # Check type consistency for different dtypes
     check_type_consistency(eye(3, dtype=float), float)
     check_type_consistency(eye(3, dtype=int), int)
@@ -1711,12 +1728,12 @@ def test_dot_product():
     assert dot_product([1, 1], [1, 1]) == 2.0  # Parallel vectors
     assert_close(dot_product([0.1, 0.2], [0.3, 0.4]), 0.11)
     assert_close(dot_product([-1, -2], [3, 4]), -11.0)
-    
+
     # Test properties of dot product
     def test_commutative(a, b):
         """Test if a·b = b·a"""
         assert_close(dot_product(a, b), dot_product(b, a), rtol=1e-14)
-    
+
     def test_distributive(a, b, c):
         """Test if a·(b + c) = a·b + a·c"""
         # Create vector sum b + c
@@ -1724,12 +1741,12 @@ def test_dot_product():
         left = dot_product(a, vec_sum)
         right = dot_product(a, b) + dot_product(a, c)
         return assert_close(left, right, rtol=1e-14)
-    
+
     # Test mathematical properties
     a, b, c = [1, 2], [3, 4], [5, 6]
     test_commutative(a, b)
     test_distributive(a, b, c)
-    
+
     # Test error cases
     with pytest.raises(ValueError):
         dot_product([1, 2], [1, 2, 3])  # Different lengths
@@ -1742,20 +1759,20 @@ def test_matrix_vector_dot():
     vector = [1, 2]
     result = matrix_vector_dot(matrix, vector)
     assert_close1d(result, [5, 11])
-    
+
     # Identity matrix
     matrix = [[1, 0], [0, 1]]
     assert_close1d(matrix_vector_dot(matrix, [2, 3]), [2, 3])
-    
+
     # Zero matrix
     matrix = [[0, 0], [0, 0]]
     assert_close1d(matrix_vector_dot(matrix, [1, 1]), [0, 0])
-    
+
     # Rectangular matrix (more rows than columns)
     matrix = [[1, 2], [3, 4], [5, 6]]
     vector = [1, 2]
     assert_close1d(matrix_vector_dot(matrix, vector), [5, 11, 17])
-    
+
     # Error cases
     with pytest.raises(ValueError):
         matrix_vector_dot([[1, 2], [3, 4]], [1, 2, 3])  # Incompatible dimensions
@@ -1764,30 +1781,30 @@ def test_transpose():
     # Empty matrix and empty rows
     assert transpose([]) == []
     assert transpose([[]]) == []
-    
+
     # 1x1 matrix
     assert transpose([[1]]) == [[1]]
-    
+
     # 2x2 matrix
     assert transpose([[1, 2], [3, 4]]) == [[1, 3], [2, 4]]
-    
-    # 3x3 matrix 
+
+    # 3x3 matrix
     assert transpose([[1, 2, 3],
                      [4, 5, 6],
                      [7, 8, 9]]) == [[1, 4, 7],
                                    [2, 5, 8],
                                    [3, 6, 9]]
-                                   
+
     # Rectangular matrices
     assert transpose([[1, 2, 3],
                      [4, 5, 6]]) == [[1, 4],
-                                    [2, 5], 
+                                    [2, 5],
                                     [3, 6]]
-                                    
+
     # Single row/column
     assert transpose([[1, 2, 3]]) == [[1], [2], [3]]
     assert transpose([[1], [2], [3]]) == [[1, 2, 3]]
-    
+
     # Mixed types
     result = transpose([[1, 2.5], [3, 4.2]])
     assert result[0][0] == 1
@@ -1801,16 +1818,16 @@ def test_matrix_multiply():
     result = matrix_multiply(A, B)
     expect = [[19, 22], [43, 50]]
     assert_close2d(result, expect)
-    
+
     # Identity matrix
     I = [[1, 0], [0, 1]]
     assert_close2d(matrix_multiply(A, I), A)
     assert_close2d(matrix_multiply(I, A), A)
-    
+
     # Zero matrix
     Z = [[0, 0], [0, 0]]
     assert_close2d(matrix_multiply(A, Z), Z)
-    
+
     # Different shapes
     A = [[1, 2, 3], [4, 5, 6]]  # 2x3
     B = [[7, 8], [9, 10], [11, 12]]  # 3x2
@@ -1823,13 +1840,13 @@ def test_matrix_multiply():
     result = matrix_multiply(A, A)
     expect = [[2e-30, 2e-30], [2e-30, 2e-30]]
     assert_close2d(result, expect)
-    
+
     # Very large numbers
     A = [[1e15, 1e15], [1e15, 1e15]]
     result = matrix_multiply(A, A)
     expect = [[2e30, 2e30], [2e30, 2e30]]
     assert_close2d(result, expect)
-    
+
     # Mixed scales
     A = [[1e10, 1e-10], [1e-10, 1e10]]
     result = matrix_multiply(A, A)
@@ -1847,7 +1864,8 @@ def test_matrix_multiply():
     A = [[i for i in range(10)] for _ in range(10)]
     B = [[i for i in range(10)] for _ in range(10)]
     C = matrix_multiply(A, B)
-    assert len(C) == 10 and len(C[0]) == 10
+    assert len(C) == 10
+    assert len(C[0]) == 10
 
     # Empty matrices
     with pytest.raises(ValueError):
@@ -1858,12 +1876,12 @@ def test_matrix_multiply():
     with pytest.raises(ValueError):
         matrix_multiply([], [[1]])
     with pytest.raises(ValueError):
-        matrix_multiply([[1]], [])  
-          
+        matrix_multiply([[1]], [])
+
     # Incompatible dimensions
     with pytest.raises(ValueError):
         matrix_multiply([[1, 2]], [[1], [2], [3]])
-        
+
     # Irregular matrices
     with pytest.raises(ValueError):
         matrix_multiply([[1, 2], [1]], [[1, 2]])
@@ -1872,7 +1890,7 @@ def test_matrix_multiply():
 
     # Non-numeric values
     with pytest.raises(TypeError):
-        A = [[1, 2, 'a']]
+        A = [[1, 2, "a"]]
         B = [[4, 5], [6, 7], [8, 9]]
         matrix_multiply(A, B)
 
@@ -1882,22 +1900,22 @@ def test_sum_matrix_rows():
     # Basic functionality
     assert_close1d(sum_matrix_rows([[1, 2, 3], [4, 5, 6]]), [6.0, 15.0])
     assert_close1d(sum_matrix_rows([[1], [2]]), [1.0, 2.0])
-    
+
     # Handle zeros
     assert_close1d(sum_matrix_rows([[0, 0], [0, 0]]), [0.0, 0.0])
-    
+
     # Mixed positive and negative
     assert_close1d(sum_matrix_rows([[-1, 2], [3, -4]]), [1.0, -1.0])
-    
+
     # Large numbers
     assert_close1d(sum_matrix_rows([[1e15, 1e15], [1e15, 1e15]]), [2e15, 2e15])
-    
+
     # Small numbers
     assert_close1d(sum_matrix_rows([[1e-15, 1e-15], [1e-15, 1e-15]]), [2e-15, 2e-15])
 
     # Test with single row
     assert sum_matrix_cols([[1, 2, 3]]) == [1.0, 2.0, 3.0]
-    
+
     # Test with single column
     assert sum_matrix_cols([[1], [2], [3]]) == [6.0]
 
@@ -1910,7 +1928,7 @@ def test_sum_matrix_rows():
         sum_matrix_rows([[1, 2], [1]])  # Irregular rows
     # Test non-numeric values
     with pytest.raises(TypeError):
-        sum_matrix_cols([[1, 'a'], [2, 3]])
+        sum_matrix_cols([[1, "a"], [2, 3]])
 
 
 def test_sum_matrix_cols():
@@ -1922,22 +1940,22 @@ def test_sum_matrix_cols():
 
     # Test with single row
     assert sum_matrix_rows([[1, 2, 3]]) == [6.0]
-    
+
     # Test with single column
     assert sum_matrix_rows([[1], [2], [3]]) == [1.0, 2.0, 3.0]
-        
+
     # Handle zeros
     assert_close1d(sum_matrix_cols([[0, 0], [0, 0]]), [0.0, 0.0])
-    
+
     # Mixed positive and negative
     assert_close1d(sum_matrix_cols([[-1, 2], [3, -4]]), [2.0, -2.0])
-    
+
     # Large numbers
     assert_close1d(sum_matrix_cols([[1e15, 1e15], [1e15, 1e15]]), [2e15, 2e15])
-    
+
     # Small numbers
     assert_close1d(sum_matrix_cols([[1e-15, 1e-15], [1e-15, 1e-15]]), [2e-15, 2e-15])
-    
+
     # Error cases
     with pytest.raises(ValueError):
         sum_matrix_cols([])  # Empty matrix
@@ -1946,41 +1964,41 @@ def test_sum_matrix_cols():
     with pytest.raises(ValueError):
         sum_matrix_cols([[1, 2], [1]])  # Irregular rows
     with pytest.raises(TypeError):
-        sum_matrix_rows([[1, 'a'], [2, 3]])
-    
+        sum_matrix_rows([[1, "a"], [2, 3]])
+
 def test_scalar_add_matrices():
     """Test matrix addition functionality"""
     # Basic functionality
-    assert_close2d(scalar_add_matrices([[1, 2], [3, 4]], [[5, 6], [7, 8]]), 
+    assert_close2d(scalar_add_matrices([[1, 2], [3, 4]], [[5, 6], [7, 8]]),
                   [[6.0, 8.0], [10.0, 12.0]])
-    
+
     # Single element matrices
     assert_close2d(scalar_add_matrices([[1]], [[2]]), [[3.0]])
-    
+
     # Test with zeros
     assert_close2d(scalar_add_matrices([[0, 0], [0, 0]], [[0, 0], [0, 0]]),
                   [[0.0, 0.0], [0.0, 0.0]])
-    
+
     # Mixed positive and negative
     assert_close2d(scalar_add_matrices([[-1, 2], [3, -4]], [[1, -2], [-3, 4]]),
                   [[0.0, 0.0], [0.0, 0.0]], atol=1e-14)
-    
+
     # Large numbers
-    assert_close2d(scalar_add_matrices([[1e15, 1e15], [1e15, 1e15]], 
+    assert_close2d(scalar_add_matrices([[1e15, 1e15], [1e15, 1e15]],
                                      [[1e15, 1e15], [1e15, 1e15]]),
                   [[2e15, 2e15], [2e15, 2e15]])
-    
+
     # Small numbers
-    assert_close2d(scalar_add_matrices([[1e-15, 1e-15], [1e-15, 1e-15]], 
+    assert_close2d(scalar_add_matrices([[1e-15, 1e-15], [1e-15, 1e-15]],
                                      [[1e-15, 1e-15], [1e-15, 1e-15]]),
                   [[2e-15, 2e-15], [2e-15, 2e-15]])
-                  
+
     # Different shapes of matrices
     rect1 = [[1, 2, 3], [4, 5, 6]]
     rect2 = [[7, 8, 9], [10, 11, 12]]
     assert_close2d(scalar_add_matrices(rect1, rect2),
                   [[8.0, 10.0, 12.0], [14.0, 16.0, 18.0]])
-    
+
     # Error cases
     with pytest.raises(ValueError):
         scalar_add_matrices([], [])  # Empty matrices
@@ -1993,7 +2011,7 @@ def test_scalar_add_matrices():
     with pytest.raises(ValueError):
         scalar_add_matrices([[1, 2]], [[1, 2, 3]])  # Incompatible shapes
     with pytest.raises(TypeError):
-        scalar_add_matrices([[1, 'a']], [[1, 2]])  # Invalid type
+        scalar_add_matrices([[1, "a"]], [[1, 2]])  # Invalid type
 
 
 def test_scalar_subtract_matrices():
@@ -2001,34 +2019,34 @@ def test_scalar_subtract_matrices():
     # Basic functionality
     assert_close2d(scalar_subtract_matrices([[1, 2], [3, 4]], [[5, 6], [7, 8]]),
                   [[-4.0, -4.0], [-4.0, -4.0]])
-    
+
     # Single element matrices
     assert_close2d(scalar_subtract_matrices([[1]], [[2]]), [[-1.0]])
-    
+
     # Test with zeros
     assert_close2d(scalar_subtract_matrices([[0, 0], [0, 0]], [[0, 0], [0, 0]]),
                   [[0.0, 0.0], [0.0, 0.0]])
-    
+
     # Mixed positive and negative
     assert_close2d(scalar_subtract_matrices([[-1, 2], [3, -4]], [[1, -2], [-3, 4]]),
                   [[-2.0, 4.0], [6.0, -8.0]])
-    
+
     # Large numbers
-    assert_close2d(scalar_subtract_matrices([[1e15, 1e15], [1e15, 1e15]], 
+    assert_close2d(scalar_subtract_matrices([[1e15, 1e15], [1e15, 1e15]],
                                           [[1e15, 1e15], [1e15, 1e15]]),
                   [[0.0, 0.0], [0.0, 0.0]])
-    
+
     # Small numbers
-    assert_close2d(scalar_subtract_matrices([[1e-15, 1e-15], [1e-15, 1e-15]], 
+    assert_close2d(scalar_subtract_matrices([[1e-15, 1e-15], [1e-15, 1e-15]],
                                           [[1e-15, 1e-15], [1e-15, 1e-15]]),
                   [[0.0, 0.0], [0.0, 0.0]])
-    
+
     # Different shapes of matrices
     rect1 = [[1, 2, 3], [4, 5, 6]]
     rect2 = [[7, 8, 9], [10, 11, 12]]
     assert_close2d(scalar_subtract_matrices(rect1, rect2),
                   [[-6.0, -6.0, -6.0], [-6.0, -6.0, -6.0]])
-    
+
     # Error cases
     with pytest.raises(ValueError):
         scalar_subtract_matrices([], [])  # Empty matrices
@@ -2041,103 +2059,103 @@ def test_scalar_subtract_matrices():
     with pytest.raises(ValueError):
         scalar_subtract_matrices([[1, 2]], [[1, 2, 3]])  # Incompatible shapes
     with pytest.raises(TypeError):
-        scalar_subtract_matrices([[1, 'a']], [[1, 2]])  # Invalid type
+        scalar_subtract_matrices([[1, "a"]], [[1, 2]])  # Invalid type
 
 def test_scalar_multiply_matrix():
     """Test matrix scalar multiplication functionality"""
     # Basic functionality
     assert_close2d(scalar_multiply_matrix(2.0, [[1, 2], [3, 4]]),
                   [[2.0, 4.0], [6.0, 8.0]])
-    
+
     # Single element matrices
     assert_close2d(scalar_multiply_matrix(3.0, [[2]]), [[6.0]])
-    
+
     # Test with zeros
     assert_close2d(scalar_multiply_matrix(0.0, [[1, 2], [3, 4]]),
                   [[0.0, 0.0], [0.0, 0.0]])
-    
+
     # Test with negative scalar
     assert_close2d(scalar_multiply_matrix(-1.0, [[1, 2], [3, 4]]),
                   [[-1.0, -2.0], [-3.0, -4.0]])
-    
+
     # Large numbers
     assert_close2d(scalar_multiply_matrix(1e15, [[1, 2], [3, 4]]),
                   [[1e15, 2e15], [3e15, 4e15]])
-    
+
     # Small numbers
     assert_close2d(scalar_multiply_matrix(1e-15, [[1, 2], [3, 4]]),
                   [[1e-15, 2e-15], [3e-15, 4e-15]])
-    
+
     # Rectangle matrix
     rect = [[1, 2, 3], [4, 5, 6]]
     assert_close2d(scalar_multiply_matrix(2.0, rect),
                   [[2.0, 4.0, 6.0], [8.0, 10.0, 12.0]])
-    
+
     # Error cases
     with pytest.raises(ValueError):
         scalar_multiply_matrix(2.0, [])  # Empty matrix
     with pytest.raises(ValueError):
         scalar_multiply_matrix(2.0, [[]])  # Empty rows
     with pytest.raises(TypeError):
-        scalar_multiply_matrix(2.0, [[1, 'a']])  # Invalid type
+        scalar_multiply_matrix(2.0, [[1, "a"]])  # Invalid type
 
 def test_scalar_divide_matrix():
     """Test matrix scalar division functionality"""
     # Basic functionality
     assert_close2d(scalar_divide_matrix(2.0, [[2, 4], [6, 8]]),
                   [[1.0, 2.0], [3.0, 4.0]])
-    
+
     # Single element matrices
     assert_close2d(scalar_divide_matrix(2.0, [[4]]), [[2.0]])
-    
+
     # Test with ones (identity case)
     assert_close2d(scalar_divide_matrix(1.0, [[1, 2], [3, 4]]),
                   [[1.0, 2.0], [3.0, 4.0]])
-    
+
     # Test with negative scalar
     assert_close2d(scalar_divide_matrix(-2.0, [[2, 4], [6, 8]]),
                   [[-1.0, -2.0], [-3.0, -4.0]])
-    
+
     # Large numbers
     assert_close2d(scalar_divide_matrix(1e15, [[1e15, 2e15], [3e15, 4e15]]),
                   [[1.0, 2.0], [3.0, 4.0]])
-    
+
     # Small numbers
     assert_close2d(scalar_divide_matrix(1e-15, [[1e-15, 2e-15], [3e-15, 4e-15]]),
                   [[1.0, 2.0], [3.0, 4.0]])
-    
+
     # Rectangle matrix
     rect = [[2, 4, 6], [8, 10, 12]]
     assert_close2d(scalar_divide_matrix(2.0, rect),
                   [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
-    
+
     # Error cases
     with pytest.raises(ValueError):
         scalar_divide_matrix(2.0, [])  # Empty matrix
     with pytest.raises(ValueError):
         scalar_divide_matrix(2.0, [[]])  # Empty rows
     with pytest.raises(TypeError):
-        scalar_divide_matrix(2.0, [[1, 'a']])  # Invalid type
+        scalar_divide_matrix(2.0, [[1, "a"]])  # Invalid type
     with pytest.raises(TypeError):
-        scalar_divide_matrix('2', [[1, 2]])  # Invalid scalar type
+        scalar_divide_matrix("2", [[1, 2]])  # Invalid scalar type
     with pytest.raises(ZeroDivisionError):
         scalar_divide_matrix(0.0, [[1, 2]])  # Division by zero
 
 
 
 def test_sort_paired_lists():
-    assert sort_paired_lists([3, 1, 2], ['c', 'a', 'b']) == ([1, 2, 3], ['a', 'b', 'c'])
+    assert sort_paired_lists([3, 1, 2], ["c", "a", "b"]) == ([1, 2, 3], ["a", "b", "c"])
     assert sort_paired_lists([], []) == ([], [])
-    assert sort_paired_lists([2, 2, 1], ['a', 'b', 'c']) == ([1, 2, 2], ['c', 'a', 'b'])
-    assert sort_paired_lists([-3, -1, -2], ['c', 'a', 'b']) == ([-3, -2, -1], ['c', 'b', 'a'])
+    assert sort_paired_lists([2, 2, 1], ["a", "b", "c"]) == ([1, 2, 2], ["c", "a", "b"])
+    assert sort_paired_lists([-3, -1, -2], ["c", "a", "b"]) == ([-3, -2, -1], ["c", "b", "a"])
     temps = [300.5, 100.1, 200.7]
-    props = ['hot', 'cold', 'warm']
-    assert sort_paired_lists(temps, props) == ([100.1, 200.7, 300.5], ['cold', 'warm', 'hot'])
-    
+    props = ["hot", "cold", "warm"]
+    assert sort_paired_lists(temps, props) == ([100.1, 200.7, 300.5], ["cold", "warm", "hot"])
+
     with pytest.raises(ValueError):
         # Test 6: Unequal length lists
         sort_paired_lists([1, 2], [1])
-    
+
 
 def format_matrix_error_null_space(matrix):
     """Format a detailed error message for matrix comparison failure"""
@@ -2149,18 +2167,18 @@ def format_matrix_error_null_space(matrix):
         try:
             cond = np.linalg.cond(arr)
         except:
-            cond = float('inf')
+            cond = float("inf")
         # Only compute determinant for square matrices
         det = np.linalg.det(arr) if shape[0] == shape[1] else None
         return {
-            'rank': rank,
-            'condition_number': cond,
-            'shape': shape,
-            'null_space_dim': shape[1] - rank,
-            'determinant': det
+            "rank": rank,
+            "condition_number": cond,
+            "shape": shape,
+            "null_space_dim": shape[1] - rank,
+            "determinant": det
         }
     info = matrix_info(matrix)
-    
+
     msg = (
         f"\nMatrix properties:"
         f"\n  Shape: {info['shape']}"
@@ -2168,7 +2186,7 @@ def format_matrix_error_null_space(matrix):
         f"\n  Null space dimension: {info['null_space_dim']}"
         f"\n  Condition number: {info['condition_number']:.2e}"
     )
-    if info['determinant'] is not None:
+    if info["determinant"] is not None:
         msg += f"\n  Determinant: {info['determinant']:.2e}"
     msg += (
         f"\nInput matrix:"
@@ -2185,10 +2203,10 @@ def check_null_space(matrix, rtol=None):
         cond = np.linalg.cond(np.array(matrix))
     except:
         just_return = True
-        
+
     py_fail = False
     scipy_fail = False
-    
+
     try:
         result = null_space(matrix)
         if not result:  # Empty result is valid for some cases
@@ -2196,18 +2214,18 @@ def check_null_space(matrix, rtol=None):
         result = np.array(result)
     except:
         py_fail = True
-        
+
     # Convert to numpy array if not already
     matrix = np.array(matrix)
     try:
         expected = scipy.linalg.null_space(matrix, rcond=rtol)
     except:
         scipy_fail = True
-    
+
     if py_fail and not scipy_fail:
         if not just_return and cond > 1e14:
             # Let ill conditioned matrices pass
-            return 
+            return
         raise ValueError(f"Inconsistent failure states: Python Fail: {py_fail}, SciPy Fail: {scipy_fail}")
     if py_fail and scipy_fail:
         return
@@ -2216,52 +2234,52 @@ def check_null_space(matrix, rtol=None):
     if just_return:
         return
 
-    
+
     if rtol is None:
         rtol = get_rtol(matrix)
-        
+
     # Compute matrix norm for threshold
     matrix_norm = np.max(np.sum(np.abs(matrix), axis=1))
     thresh = matrix_norm * np.finfo(float).eps
-    
+
 
     # We need to handle sign ambiguity in the basis vectors
     # Both +v and -v are valid basis vectors
     # Compare shapes first
     assert result.shape == expected.shape, \
            f"Shape mismatch: got {result.shape}, expected {expected.shape}"
-           
+
     if result.shape[1] > 0:  # Only if we have vectors
         # For each column in result, check if it matches any expected column or its negative
         used_expected_cols = set()
-        
+
         for i in range(result.shape[1]):
             res_col = result[:, i].reshape(-1, 1)
             found_match = False
-            
+
             # Try matching with each unused expected column
             for j in range(expected.shape[1]):
                 if j in used_expected_cols:
                     continue
-                    
+
                 exp_col = expected[:, j].reshape(-1, 1)
-                
+
                 # Check both orientations with looser tolerance
                 matches_positive = np.allclose(res_col, exp_col, rtol=1e-7, atol=1e-10)
                 matches_negative = np.allclose(res_col, -exp_col, rtol=1e-7, atol=1e-10)
-                
+
                 if matches_positive or matches_negative:
                     used_expected_cols.add(j)
                     found_match = True
                     break
-            
+
             assert found_match, f"Column {i} doesn't match any expected column in either orientation"
-        
+
         # Verify orthonormality
         gram = result.T @ result
         assert_allclose(gram, np.eye(gram.shape[0]), rtol=1e-10, atol=100*thresh,
                        err_msg="Basis vectors are not orthonormal")
-        
+
         # Verify it's actually a null space
         product = matrix @ result
         assert_allclose(product, np.zeros_like(product), atol=100*thresh,
@@ -2295,7 +2313,7 @@ def test_null_space_full_rank(matrix):
     try:
         check_null_space(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error_null_space(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error_null_space(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_rank_deficient)
@@ -2303,7 +2321,7 @@ def test_null_space_rank_deficient(matrix):
     try:
         check_null_space(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error_null_space(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error_null_space(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_tall)
@@ -2311,7 +2329,7 @@ def test_null_space_tall(matrix):
     try:
         check_null_space(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error_null_space(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error_null_space(matrix)}"
         raise Exception(new_message)
 
 @pytest.mark.parametrize("matrix", matrices_wide)
@@ -2319,5 +2337,5 @@ def test_null_space_wide(matrix):
     try:
         check_null_space(matrix)
     except Exception as e:
-        new_message = f"Original error: {str(e)}\nAdditional context: {format_matrix_error_null_space(matrix)}"
+        new_message = f"Original error: {e!s}\nAdditional context: {format_matrix_error_null_space(matrix)}"
         raise Exception(new_message)

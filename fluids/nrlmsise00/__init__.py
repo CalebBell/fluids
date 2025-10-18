@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -23,15 +22,11 @@ SOFTWARE.
 
 
 
-from . import nrlmsise_00
-from . import nrlmsise_00_header
-from . import nrlmsise_00_data
-
+from . import nrlmsise_00, nrlmsise_00_data, nrlmsise_00_header
 from .nrlmsise_00 import gtd7
-from .nrlmsise_00_header import nrlmsise_output, nrlmsise_input, nrlmsise_flags, ap_array
+from .nrlmsise_00_header import ap_array, nrlmsise_flags, nrlmsise_input, nrlmsise_output
 
-
-__all__ = ['nrlmsise_00', 'nrlmsise_00_header', 'nrlmsise_00_data']
+__all__ = ["ap_array", "gtd7", "nrlmsise_00", "nrlmsise_00_data", "nrlmsise_00_header", "nrlmsise_flags", "nrlmsise_input", "nrlmsise_output"]
 
 __all__.extend(nrlmsise_00.__all__)
 __all__.extend(nrlmsise_00_header.__all__)

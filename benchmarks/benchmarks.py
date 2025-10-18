@@ -35,7 +35,7 @@ class BaseTimeSuite:
     def setup(self):
         if not IS_PYPY:
             for k in dir(self.__class__):
-                if 'time' in k and 'numba' in k:
+                if "time" in k and "numba" in k:
                     c = getattr(self, k)
                     c()
 
@@ -44,8 +44,8 @@ class TimeAtmosphereSuite(BaseTimeSuite):
         if not IS_PYPY:
             self.time_ATMOSPHERE_1976_numba()
         self.date_test_es = datetime(2020, 6, 6, 10, 0, 0, 0)
-        self.tz_dt = pytz.timezone('Australia/Perth').localize(datetime(2020, 6, 6, 7, 10, 57))
-        self.tz_dt2 = pytz.timezone('America/Edmonton').localize(datetime(2018, 4, 15, 13, 43, 5))
+        self.tz_dt = pytz.timezone("Australia/Perth").localize(datetime(2020, 6, 6, 7, 10, 57))
+        self.tz_dt2 = pytz.timezone("America/Edmonton").localize(datetime(2018, 4, 15, 13, 43, 5))
 
 
 
@@ -177,10 +177,10 @@ if not IS_PYPY:
 class TimeDragSuite(BaseTimeSuite):
 
     def time_drag_sphere(self):
-        drag_sphere(20000.0, 'Barati_high')
+        drag_sphere(20000.0, "Barati_high")
 
     def time_drag_sphere_numba(self):
-        drag_sphere_numba(20000.0, 'Barati_high')
+        drag_sphere_numba(20000.0, "Barati_high")
 
     def time_v_terminal(self):
         v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-3)
@@ -220,28 +220,28 @@ class TimeFittingsSuite(BaseTimeSuite):
         change_K_basis_numba(K1=32.68875692997804, D1=.01, D2=.02)
 
     def time_entrance_distance_idelchik(self):
-        entrance_distance(Di=0.1, t=0.0005, l=.02, method='Idelchik')
+        entrance_distance(Di=0.1, t=0.0005, l=.02, method="Idelchik")
 
     def time_entrance_distance_idelchik_numba(self):
-        entrance_distance_numba(Di=0.1, t=0.0005, l=.02, method='Idelchik')
+        entrance_distance_numba(Di=0.1, t=0.0005, l=.02, method="Idelchik")
 
     def time_entrance_distance_harris(self):
-        entrance_distance(Di=0.1, t=0.0005, l=.02, method='Harris')
+        entrance_distance(Di=0.1, t=0.0005, l=.02, method="Harris")
 
     def time_entrance_distance_harris_numba(self):
-        entrance_distance_numba(Di=0.1, t=0.0005, l=.02, method='Harris')
+        entrance_distance_numba(Di=0.1, t=0.0005, l=.02, method="Harris")
 
     def time_Darby3K(self):
-        Darby3K(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
+        Darby3K(NPS=2., Re=10000., name="Valve, Angle valve, 45°, full line size, β = 1")
 
     def time_Darby3K_numba(self):
-        Darby3K_numba(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
+        Darby3K_numba(NPS=2., Re=10000., name="Valve, Angle valve, 45°, full line size, β = 1")
 
     def time_Hooper2K(self):
-         Hooper2K(Di=2., Re=10000., name='Valve, Globe, Standard')
+         Hooper2K(Di=2., Re=10000., name="Valve, Globe, Standard")
 
     def time_Hooper2K_numba(self):
-         Hooper2K_numba(Di=2., Re=10000., name='Valve, Globe, Standard')
+         Hooper2K_numba(Di=2., Re=10000., name="Valve, Globe, Standard")
 
     def time_K_angle_valve_Crane(self):
          K_angle_valve_Crane(.01, .02)
@@ -250,10 +250,10 @@ class TimeFittingsSuite(BaseTimeSuite):
          K_angle_valve_Crane_numba(.01, .02)
 
     def time_v_lift_valve_Crane(self):
-        v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style='lift check straight')
+        v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style="lift check straight")
 
     def time_v_lift_valve_Crane_numba(self):
-        v_lift_valve_Crane_numba(rho=998.2, D1=0.0627, D2=0.0779, style='lift check straight')
+        v_lift_valve_Crane_numba(rho=998.2, D1=0.0627, D2=0.0779, style="lift check straight")
 
     def time_K_branch_converging_Crane(self):
         K_branch_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633)
@@ -272,10 +272,10 @@ if not IS_PYPY:
 class TimeFlowMeterSuite(BaseTimeSuite):
 
     def time_C_Reader_Harris_Gallagher(self):
-        C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange')
+        C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps="flange")
 
     def time_C_Reader_Harris_Gallagher_numba(self):
-        C_Reader_Harris_Gallagher_numba(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange')
+        C_Reader_Harris_Gallagher_numba(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps="flange")
 
     def time_dP_venturi_tube(self):
         dP_venturi_tube(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0)
@@ -284,81 +284,81 @@ class TimeFlowMeterSuite(BaseTimeSuite):
         dP_venturi_tube_numba(D=0.07366, Do=0.05, P1=200000.0, P2=183000.0)
 
     def time_differential_pressure_meter_solver_m(self):
-        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D")
 
     def time_differential_pressure_meter_solver_numba_m(self):
-        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D")
 
     def time_differential_pressure_meter_solver_P2(self):
-        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D")
 
     def time_differential_pressure_meter_solver_numba_P2(self):
-        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D")
 
     def time_differential_pressure_meter_solver_P1(self):
-        differential_pressure_meter_solver(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+        differential_pressure_meter_solver(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D")
 
     def time_differential_pressure_meter_solver_numba_P1(self):
-        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D")
 
     def time_differential_pressure_meter_solver_D2(self):
-        differential_pressure_meter_solver(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+        differential_pressure_meter_solver(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D")
 
     def time_differential_pressure_meter_solver_numba_D2(self):
-        differential_pressure_meter_solver_numba(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D')
+        differential_pressure_meter_solver_numba(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D")
 
 
 
     def time_differential_pressure_meter_solver_m_Hollingshead(self):
-        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='Hollingshead orifice', taps='D')
+        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type="Hollingshead orifice", taps="D")
 
     def time_differential_pressure_meter_solver_numba_m_Hollingshead(self):
-        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='Hollingshead orifice', taps='D')
+        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type="Hollingshead orifice", taps="D")
 
     def time_differential_pressure_meter_solver_P2_Hollingshead(self):
-        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Hollingshead orifice', taps='D')
+        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Hollingshead orifice", taps="D")
 
     def time_differential_pressure_meter_solver_numba_P2_Hollingshead(self):
-        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Hollingshead orifice', taps='D')
+        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Hollingshead orifice", taps="D")
 
     def time_differential_pressure_meter_solver_P1_Hollingshead(self):
-        differential_pressure_meter_solver(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Hollingshead orifice', taps='D')
+        differential_pressure_meter_solver(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Hollingshead orifice", taps="D")
 
     def time_differential_pressure_meter_solver_numba_P1_Hollingshead(self):
-        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Hollingshead orifice', taps='D')
+        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Hollingshead orifice", taps="D")
 
     def time_differential_pressure_meter_solver_D2_Hollingshead(self):
-        differential_pressure_meter_solver(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Hollingshead orifice', taps='D')
+        differential_pressure_meter_solver(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Hollingshead orifice", taps="D")
 
     def time_differential_pressure_meter_solver_numba_D2_Hollingshead(self):
-        differential_pressure_meter_solver_numba(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Hollingshead orifice', taps='D')
+        differential_pressure_meter_solver_numba(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Hollingshead orifice", taps="D")
 
 
 
 
     def time_differential_pressure_meter_solver_m_Miller_orifice(self):
-        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='Miller orifice', taps='corner')
+        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type="Miller orifice", taps="corner")
 
     def time_differential_pressure_meter_solver_numba_m_Miller_orifice(self):
-        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='Miller orifice', taps='corner')
+        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type="Miller orifice", taps="corner")
 
     def time_differential_pressure_meter_solver_P2_Miller_orifice(self):
-        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Miller orifice', taps='corner')
+        differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Miller orifice", taps="corner")
 
     def time_differential_pressure_meter_solver_numba_P2_Miller_orifice(self):
-        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Miller orifice', taps='corner')
+        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P1=200000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Miller orifice", taps="corner")
 
     def time_differential_pressure_meter_solver_P1_Miller_orifice(self):
-        differential_pressure_meter_solver(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Miller orifice', taps='corner')
+        differential_pressure_meter_solver(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Miller orifice", taps="corner")
 
     def time_differential_pressure_meter_solver_numba_P1_Miller_orifice(self):
-        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Miller orifice', taps='corner')
+        differential_pressure_meter_solver_numba(D=0.07366, D2=0.05, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Miller orifice", taps="corner")
 
     def time_differential_pressure_meter_solver_D2_Miller_orifice(self):
-        differential_pressure_meter_solver(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Miller orifice', taps='corner')
+        differential_pressure_meter_solver(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Miller orifice", taps="corner")
 
     def time_differential_pressure_meter_solver_numba_D2_Miller_orifice(self):
-        differential_pressure_meter_solver_numba(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type='Miller orifice', taps='corner')
+        differential_pressure_meter_solver_numba(D=0.07366, P1=200000.0, P2=183000.0, m=7.702338035732167, rho=999.1, mu=0.0011, k=1.33, meter_type="Miller orifice", taps="corner")
 
 
 from fluids import friction_factor, friction_factor_curved, friction_plate_Kumar, ft_Crane, roughness_Farshad
@@ -385,10 +385,10 @@ class TimeFrictionSuite(BaseTimeSuite):
         friction_factor_numba(Re=1E5, eD=1E-4)
 
     def time_friction_factor_S2(self):
-        friction_factor(Re=2.9E5, eD=1E-5, Method='Serghides_2')
+        friction_factor(Re=2.9E5, eD=1E-5, Method="Serghides_2")
 
     def time_friction_factor_S2_numba(self):
-        friction_factor_numba(Re=2.9E5, eD=1E-5, Method='Serghides_2')
+        friction_factor_numba(Re=2.9E5, eD=1E-5, Method="Serghides_2")
 
     def time_friction_factor_curved(self):
         friction_factor_curved(Re=1E5, Di=0.02, Dc=0.5)
@@ -403,10 +403,10 @@ class TimeFrictionSuite(BaseTimeSuite):
         friction_plate_Kumar_numba(Re=2000.0, chevron_angle=30.0)
 
     def time_roughness_Farshad(self):
-        roughness_Farshad('Cr13, bare', 0.05)
+        roughness_Farshad("Cr13, bare", 0.05)
 
     def time_roughness_Farshad_numba(self):
-        roughness_Farshad_numba('Cr13, bare', 0.05)
+        roughness_Farshad_numba("Cr13, bare", 0.05)
 
 
 
@@ -482,17 +482,17 @@ class TimeGeometrySuite(BaseTimeSuite):
 
 
     def time_SA_tank_1(self):
-        SA_tank(D=2.54, L=5, sideA='torispherical', sideB='torispherical', sideA_f=1.039370079, sideA_k=0.062362205, sideB_f=1.039370079, sideB_k=0.062362205)
+        SA_tank(D=2.54, L=5, sideA="torispherical", sideB="torispherical", sideA_f=1.039370079, sideA_k=0.062362205, sideB_f=1.039370079, sideB_k=0.062362205)
 
     def time_SA_tank_1_numba(self):
-        SA_tank_numba(D=2.54, L=5, sideA='torispherical', sideB='torispherical', sideA_f=1.039370079, sideA_k=0.062362205, sideB_f=1.039370079, sideB_k=0.062362205)
+        SA_tank_numba(D=2.54, L=5, sideA="torispherical", sideB="torispherical", sideA_f=1.039370079, sideA_k=0.062362205, sideB_f=1.039370079, sideB_k=0.062362205)
 
 
     def time_V_tank_1(self):
-        V_tank(D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+        V_tank(D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.)
 
     def time_V_tank_1_numba(self):
-        V_tank_numba(D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+        V_tank_numba(D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.)
 
 
     def time_SA_partial_horiz_spherical_head(self):
@@ -536,17 +536,17 @@ class TimeGeometrySuite(BaseTimeSuite):
 
 
     def time_V_from_h(self):
-        V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+        V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.)
 
     def time_V_from_h_numba(self):
-        V_from_h_numba(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+        V_from_h_numba(h=7, D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.)
 
 
     def time_SA_from_h(self):
-        SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+        SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.)
 
     def time_SA_from_h_numba(self):
-        SA_from_h_numba(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.)
+        SA_from_h_numba(h=7, D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.)
 
 
     # TODO test classes in geometry
@@ -574,10 +574,10 @@ if not IS_PYPY:
 
 class TimePackedBedSuite(BaseTimeSuite):
     def time_dP_packed_bed(self):
-        dP_packed_bed(dp=0.05, voidage=0.492, vs=0.1, rho=1E3, mu=1E-3, Dt=0.015, Method='Guo, Sun, Zhang, Ding & Liu')
+        dP_packed_bed(dp=0.05, voidage=0.492, vs=0.1, rho=1E3, mu=1E-3, Dt=0.015, Method="Guo, Sun, Zhang, Ding & Liu")
 
     def time_dP_packed_bed_numba(self):
-        dP_packed_bed_numba(dp=0.05, voidage=0.492, vs=0.1, rho=1E3, mu=1E-3, Dt=0.015, Method='Guo, Sun, Zhang, Ding & Liu')
+        dP_packed_bed_numba(dp=0.05, voidage=0.492, vs=0.1, rho=1E3, mu=1E-3, Dt=0.015, Method="Guo, Sun, Zhang, Ding & Liu")
 
 
 from fluids import Stichlmair_flood, Stichlmair_wet
@@ -630,10 +630,10 @@ class TimePipingSuite(BaseTimeSuite):
         nearest_pipe(Di=0.021)
 
     def time_gauge_from_t(self):
-        gauge_from_t(.5, SI=False, schedule='BWG')
+        gauge_from_t(.5, SI=False, schedule="BWG")
 
     def time_t_from_gauge(self):
-        t_from_gauge(.2, False, 'BWG')
+        t_from_gauge(.2, False, "BWG")
 
 from fluids import CSA_motor_efficiency, VFD_efficiency
 
@@ -715,10 +715,10 @@ class TimeTwoPhaseVoidageSuite(BaseTimeSuite):
 
 
     def time_gas_liquid_viscosity(self):
-        gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method='Duckler')
+        gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method="Duckler")
 
     def time_gas_liquid_viscosity_numba(self):
-        gas_liquid_viscosity_numba(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method='Duckler')
+        gas_liquid_viscosity_numba(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method="Duckler")
 
 from fluids import Mandhane_Gregory_Aziz_regime, Taitel_Dukler_regime, two_phase_dP
 
@@ -764,14 +764,14 @@ for suite in suites:
     # Do I want to write a file that writes this benchmark file?
     glbs, lcls = {}, {}
     for k in dir(suite):
-        if 'time' in k:
+        if "time" in k:
             f = getattr(suite, k)
-            if hasattr(f, 'duplicate_with_numba'):
+            if hasattr(f, "duplicate_with_numba"):
                 source = inspect.getsource(f)
-                source = '\n'.join([s[4:] for s in source.split('\n')[1:]])
-                orig_function = k.replace('time_', '')
-                numba_function = orig_function + '_numba'
-                new_function_name = k + '_numba'
+                source = "\n".join([s[4:] for s in source.split("\n")[1:]])
+                orig_function = k.replace("time_", "")
+                numba_function = orig_function + "_numba"
+                new_function_name = k + "_numba"
                 new_source = source.replace(orig_function, numba_function)
                 exec(new_source, glbs, lcls)
                 setattr(suite, new_function_name, lcls[new_function_name])
@@ -779,6 +779,6 @@ for suite in suites:
 if IS_PYPY:
     for s in suites:
         for k in dir(s):
-            if 'time' in k and 'numba' in k:
+            if "time" in k and "numba" in k:
                 delattr(s, k)
 

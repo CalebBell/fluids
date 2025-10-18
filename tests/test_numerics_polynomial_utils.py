@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018, 2023 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,8 +18,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 import pytest
+
 from fluids.numerics import (
     assert_close,
     assert_close1d,
@@ -27,20 +28,20 @@ from fluids.numerics import (
     exp_poly_ln_tau_coeffs2,
     exp_poly_ln_tau_coeffs3,
     horner_and_der2,
+    poly_convert,
     polyder,
     polyint,
     polyint_over_x,
+    polyint_over_x_stable,
+    polyint_stable,
     polynomial_offset_scale,
     quadratic_from_f_ders,
     quadratic_from_points,
     stable_poly_to_unstable,
-    polyint_stable,
-    polyint_over_x_stable,
-    poly_convert,
 )
 
 try:
-    import mpmath
+    import mpmath # noqa: F401, I001
     has_mpmath = True
 except:
     has_mpmath = False
@@ -502,7 +503,7 @@ def test_polyint_over_x_stable_real():
 
 
 @pytest.mark.mpmath
-@pytest.mark.skipif(not has_mpmath, reason='mpmath is not installed')
+@pytest.mark.skipif(not has_mpmath, reason="mpmath is not installed")
 def test_polyint_over_x_stable_real_precise():
     import mpmath as mp
     from numpy.polynomial.polynomial import Polynomial

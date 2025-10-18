@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 from math import log10
 
@@ -72,36 +72,36 @@ def test_Beggs_Brill():
                       acceleration=True)
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, 384066.2949427367)
-    kwargs['angle'] = 45
+    kwargs["angle"] = 45
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, 289002.94186339306)
-    kwargs['x'] = 0.6
+    kwargs["x"] = 0.6
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, 220672.4414664162)
-    kwargs['x'] = 0.9
+    kwargs["x"] = 0.9
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, 240589.47045109692)
-    kwargs['angle'] = 0
+    kwargs["angle"] = 0
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, 4310.718513863349)
-    kwargs['x'] = 1e-7
+    kwargs["x"] = 1e-7
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, 1386.362401988662)
-    kwargs['angle'] = -15
+    kwargs["angle"] = -15
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, -154405.0395988586)
 
-    kwargs['m'] = 100
-    kwargs['x'] = 0.3
-    kwargs['angle'] = 0
+    kwargs["m"] = 100
+    kwargs["x"] = 0.3
+    kwargs["angle"] = 0
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, 15382421.32990976)
 
-    kwargs['angle'] = 10
+    kwargs["angle"] = 10
     dP = Beggs_Brill(**kwargs)
     assert_close(dP, 15439041.350531114)
 
-    kwargs = {'rhol': 2250.004745138356, 'rhog': 58.12314177331951, 'L': 111.74530635808999, 'sigma': 0.5871528902653206, 'P': 9587894383.375906, 'm': 0.005043652829299738, 'roughness': 0.07803567727862296, 'x': 0.529765332332195, 'mug': 1.134544741297285e-06, 'mul': 0.12943468582774414, 'D': 1.9772420342193617, 'angle': -77.18096944813536}
+    kwargs = {"rhol": 2250.004745138356, "rhog": 58.12314177331951, "L": 111.74530635808999, "sigma": 0.5871528902653206, "P": 9587894383.375906, "m": 0.005043652829299738, "roughness": 0.07803567727862296, "x": 0.529765332332195, "mug": 1.134544741297285e-06, "mul": 0.12943468582774414, "D": 1.9772420342193617, "angle": -77.18096944813536}
     dP = Beggs_Brill(**kwargs)
     # Check this calculation works - S gets too large, overflows in this region
 
@@ -132,7 +132,7 @@ def test_Friedel():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Friedel(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -150,7 +150,7 @@ def test_Gronnerud():
     assert_close(dP, 384.125411444741)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Gronnerud(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -188,7 +188,7 @@ def test_Chisholm():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Chisholm(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -208,7 +208,7 @@ def test_Baroczy_Chisholm():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Baroczy_Chisholm(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -220,7 +220,7 @@ def test_Muller_Steinhagen_Heck():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Muller_Steinhagen_Heck(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -232,7 +232,7 @@ def test_Lombardi_Pedrocchi():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Lombardi_Pedrocchi(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -251,7 +251,7 @@ def test_Theissing():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Theissing(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -263,7 +263,7 @@ def test_Jung_Radermacher():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Jung_Radermacher(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -275,7 +275,7 @@ def test_Tran():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Tran(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -290,7 +290,7 @@ def test_Chen_Friedel():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Chen_Friedel(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -302,7 +302,7 @@ def test_Zhang_Webb():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Zhang_Webb(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -314,7 +314,7 @@ def test_Bankoff():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Bankoff(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -325,7 +325,7 @@ def test_Xu_Fang():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Xu_Fang(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -336,7 +336,7 @@ def test_Yu_France():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Yu_France(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -351,7 +351,7 @@ def test_Wang_Chiang_Lu():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Wang_Chiang_Lu(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -363,7 +363,7 @@ def test_Hwang_Kim():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Hwang_Kim(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -373,21 +373,21 @@ def test_Zhang_Hibiki_Mishima():
     dP = Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1.0)
     assert_close(dP, 444.9718476894804)
 
-    dP = Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1, flowtype='adiabatic gas')
+    dP = Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1, flowtype="adiabatic gas")
     assert_close(dP, 1109.1976111277042)
 
-    kwargs = dict(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1, flowtype='flow boiling')
+    kwargs = dict(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1, flowtype="flow boiling")
     dP = Zhang_Hibiki_Mishima(**kwargs)
     dP_expect = 770.0975665928916
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Zhang_Hibiki_Mishima(**kwargs)
     assert_close(dP, dP_expect*10)
 
     with pytest.raises(Exception):
-        Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1, flowtype='BADMETHOD')
+        Zhang_Hibiki_Mishima(m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1, flowtype="BADMETHOD")
 
 
 def test_Kim_Mudawar():
@@ -414,7 +414,7 @@ def test_Kim_Mudawar():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Kim_Mudawar(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -438,7 +438,7 @@ def test_Lockhart_Martinelli():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Lockhart_Martinelli(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -450,7 +450,7 @@ def test_Mishima_Hibiki():
     assert_close(dP, dP_expect)
 
     # Internal consistency for length dependence
-    kwargs['L'] *= 10
+    kwargs["L"] *= 10
     dP = Mishima_Hibiki(**kwargs)
     assert_close(dP, dP_expect*10)
 
@@ -460,16 +460,16 @@ def test_two_phase_dP():
 
     # TODO; Delete two_phase_dP method calls
     # Case 0
-    assert ['Lombardi_Pedrocchi'] == two_phase_dP_methods(10, 0.7, 1000, 0.1, rhog=1.2, sigma=0.02)
+    assert ["Lombardi_Pedrocchi"] == two_phase_dP_methods(10, 0.7, 1000, 0.1, rhog=1.2, sigma=0.02)
     # Case 5
-    assert ['Zhang_Webb'] == two_phase_dP_methods(10, 0.7, 1000, 0.1, mul=1E-3, P=1E5, Pc=1E6,)
+    assert ["Zhang_Webb"] == two_phase_dP_methods(10, 0.7, 1000, 0.1, mul=1E-3, P=1E5, Pc=1E6,)
     # Case 1,2
 
-    expect = ['Jung_Radermacher', 'Muller_Steinhagen_Heck', 'Baroczy_Chisholm', 'Yu_France', 'Wang_Chiang_Lu', 'Theissing', 'Chisholm rough', 'Chisholm', 'Gronnerud', 'Lockhart_Martinelli', 'Bankoff']
+    expect = ["Jung_Radermacher", "Muller_Steinhagen_Heck", "Baroczy_Chisholm", "Yu_France", "Wang_Chiang_Lu", "Theissing", "Chisholm rough", "Chisholm", "Gronnerud", "Lockhart_Martinelli", "Bankoff"]
     assert sorted(expect) == sorted(two_phase_dP_methods(10, 0.7, 1000, 0.1, rhog=1.2, mul=1E-3, mug=1E-6))
 
     # Case 3, 4; drags in 5, 1, 2
-    expect = ['Zhang_Hibiki_Mishima adiabatic gas', 'Kim_Mudawar', 'Friedel', 'Jung_Radermacher', 'Hwang_Kim', 'Muller_Steinhagen_Heck', 'Baroczy_Chisholm', 'Tran', 'Yu_France', 'Zhang_Hibiki_Mishima flow boiling', 'Xu_Fang', 'Wang_Chiang_Lu', 'Theissing', 'Chisholm rough', 'Chisholm', 'Mishima_Hibiki', 'Gronnerud', 'Chen_Friedel', 'Lombardi_Pedrocchi', 'Zhang_Hibiki_Mishima', 'Lockhart_Martinelli', 'Bankoff']
+    expect = ["Zhang_Hibiki_Mishima adiabatic gas", "Kim_Mudawar", "Friedel", "Jung_Radermacher", "Hwang_Kim", "Muller_Steinhagen_Heck", "Baroczy_Chisholm", "Tran", "Yu_France", "Zhang_Hibiki_Mishima flow boiling", "Xu_Fang", "Wang_Chiang_Lu", "Theissing", "Chisholm rough", "Chisholm", "Mishima_Hibiki", "Gronnerud", "Chen_Friedel", "Lombardi_Pedrocchi", "Zhang_Hibiki_Mishima", "Lockhart_Martinelli", "Bankoff"]
     assert sorted(expect) == sorted(two_phase_dP_methods(10, 0.7, 1000, 0.1, rhog=1.2, mul=1E-3, mug=1E-6, sigma=0.014,))
 
     assert 24 == len(two_phase_dP_methods(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, L=1, angle=30.0, roughness=1e-4, P=1e5, Pc=1e6))
@@ -495,23 +495,23 @@ def test_two_phase_dP():
     assert_close(dP, 840.4137796786074)
 
     # Case where i = 4
-    dP = two_phase_dP(Method='Friedel', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
+    dP = two_phase_dP(Method="Friedel", m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05, roughness=0.0, L=1.0)
     assert_close(dP, 738.6500525002243)
 
     # Case where i = 1
-    dP = two_phase_dP(Method='Lockhart_Martinelli', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, L=1.0)
+    dP = two_phase_dP(Method="Lockhart_Martinelli", m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, L=1.0)
     assert_close(dP, 716.4695654888484)
 
     # Case where i = 101, 'Chisholm rough'
-    dP = two_phase_dP(Method='Chisholm rough', m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=1E-4, L=1.0)
+    dP = two_phase_dP(Method="Chisholm rough", m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, D=0.05, roughness=1E-4, L=1.0)
     assert_close(dP, 846.6778299960783)
 
     # Case where i = 102:
-    dP = two_phase_dP(Method='Zhang_Hibiki_Mishima adiabatic gas', m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1.0)
+    dP = two_phase_dP(Method="Zhang_Hibiki_Mishima adiabatic gas", m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1.0)
     assert_close(dP, 1109.1976111277042)
 
     # Case where i = 103:
-    dP = two_phase_dP(Method='Zhang_Hibiki_Mishima flow boiling', m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1.0)
+    dP = two_phase_dP(Method="Zhang_Hibiki_Mishima flow boiling", m=0.0005, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.003, roughness=0.0, L=1.0)
     assert_close(dP, 770.0975665928916)
 
     # Don't give enough information:
@@ -519,7 +519,7 @@ def test_two_phase_dP():
         two_phase_dP(m=0.6, x=0.1, rhol=915., D=0.05, L=1.0)
 
     with pytest.raises(Exception):
-        two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1, Method='BADMETHOD')
+        two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1, Method="BADMETHOD")
 
 
 def test_two_phase_dP_acceleration():
@@ -565,22 +565,22 @@ def test_Taitel_Dukler_regime():
     regime = Taitel_Dukler_regime(m=1.0, x=0.05, rhol=600.12, rhog=80.67, mul=180E-6,
                                    mug=14E-6, D=0.02, roughness=0.0, angle=0.0)[0]
 
-    assert regime == 'bubbly'
+    assert regime == "bubbly"
     regime = Taitel_Dukler_regime(m=1, x=0.05, rhol=600.12, rhog=80.67, mul=180E-6,
                                   mug=14E-6, D=0.021, roughness=0.0, angle=0)[0]
-    assert regime == 'intermittent'
+    assert regime == "intermittent"
 
     regime = Taitel_Dukler_regime(m=.06, x=0.5, rhol=900.12, rhog=90.67, mul=180E-6,
                                   mug=14E-6, D=0.05, roughness=0.0, angle=0)[0]
-    assert regime == 'stratified smooth'
+    assert regime == "stratified smooth"
 
     regime = Taitel_Dukler_regime(m=.07, x=0.5, rhol=900.12, rhog=90.67, mul=180E-6,
                                    mug=14E-6, D=0.05, roughness=0.0, angle=0)[0]
-    assert regime == 'stratified wavy'
+    assert regime == "stratified wavy"
 
     regime, X, T, F, K = Taitel_Dukler_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6,
                                                mug=14E-6, D=0.05, roughness=0.0, angle=0)
-    assert regime == 'annular'
+    assert regime == "annular"
     assert_close(F, 0.9902249725092789)
     assert_close(K, 271.86280111125365)
     assert_close(T, 0.04144054776101148)
@@ -636,14 +636,14 @@ def plot_Taitel_Dukler_splines():
     ax1.loglog(C_Xs, C)
     ax1.set_ylim(1, 10**4)
     ax1.set_ylim(.01, 10**4)
-    ax1.loglog(Dukler_XC_Xs, Dukler_XC_Cs, 'x')
+    ax1.loglog(Dukler_XC_Xs, Dukler_XC_Cs, "x")
 
     ax2 = ax1.twinx()
 
     ax2.loglog(A_Xs, A)
     ax2.loglog(D_Xs, D)
-    ax2.loglog(Dukler_XD_Xs, Dukler_XD_Ds, '.')
-    ax2.loglog(Dukler_XA_Xs, Dukler_XA_As, '+')
+    ax2.loglog(Dukler_XD_Xs, Dukler_XD_Ds, ".")
+    ax2.loglog(Dukler_XA_Xs, Dukler_XA_As, "+")
 
     ax2.set_ylim(1e-3, 10)
 
@@ -654,13 +654,13 @@ def plot_Taitel_Dukler_splines():
 def test_Mandhane_Gregory_Aziz_regime():
     from fluids.two_phase import Mandhane_Gregory_Aziz_regime
     regime = Mandhane_Gregory_Aziz_regime(m=0.6, x=0.112, rhol=915.12, rhog=2.67,  mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)[0]
-    assert regime == 'slug'
+    assert regime == "slug"
 
     regime = Mandhane_Gregory_Aziz_regime(m=6, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)[0]
-    assert regime == 'annular mist'
+    assert regime == "annular mist"
 
     regime =  Mandhane_Gregory_Aziz_regime(m=.05, x=0.112, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.05)[0]
-    assert regime == 'stratified'
+    assert regime == "stratified"
 
     regime = Mandhane_Gregory_Aziz_regime(m=.005, x=0.95, rhol=915.12, rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.065, D=0.01)[0]
-    assert regime == 'wave'
+    assert regime == "wave"

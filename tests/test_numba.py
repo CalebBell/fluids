@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import pytest
 
@@ -60,11 +60,11 @@ def test_normalize():
 
 @mark_as_numba
 def test_roughness_Farshad_numba():
-    assert_close(fluids.roughness_Farshad('Cr13, bare', 0.05),
-                 fluids.numba.roughness_Farshad('Cr13, bare', 0.05))
+    assert_close(fluids.roughness_Farshad("Cr13, bare", 0.05),
+                 fluids.numba.roughness_Farshad("Cr13, bare", 0.05))
 
-    assert_close(fluids.roughness_Farshad('Cr13, bare'),
-                 fluids.numba.roughness_Farshad('Cr13, bare'))
+    assert_close(fluids.roughness_Farshad("Cr13, bare"),
+                 fluids.numba.roughness_Farshad("Cr13, bare"))
 
     assert_close(fluids.roughness_Farshad(coeffs=(0.0021, -1.0055), D=0.05),
                  fluids.numba.roughness_Farshad(coeffs=(0.0021, -1.0055), D=0.05))
@@ -87,10 +87,10 @@ def test_Clamond_numba():
 
 @mark_as_numba
 def test_string_error_message_outside_function():
-    fluids.numba.entrance_sharp('Miller')
+    fluids.numba.entrance_sharp("Miller")
     fluids.numba.entrance_sharp()
 
-    fluids.numba.entrance_angled(30, 'Idelchik')
+    fluids.numba.entrance_angled(30, "Idelchik")
     fluids.numba.entrance_angled(30, None)
     fluids.numba.entrance_angled(30.0)
 
@@ -130,7 +130,7 @@ def test_core_from_other_module():
 @mark_as_numba
 def test_string_branches():
     # Currently slower
-    assert_close(fluids.numba.C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange'),  0.5990326277163659)
+    assert_close(fluids.numba.C_Reader_Harris_Gallagher(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps="flange"),  0.5990326277163659)
 
 @mark_as_numba
 def test_interp_with_own_list():
@@ -157,8 +157,8 @@ def test_have_to_make_zero_division_a_check():
 
 @mark_as_numba
 def test_functions_used_to_return_different_return_value_signatures_changed():
-    assert_close1d(fluids.numba.SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',sideB_a=0.5),
-                    SA_tank(D=1., L=5, sideA='spherical', sideA_a=0.5, sideB='spherical',sideB_a=0.5))
+    assert_close1d(fluids.numba.SA_tank(D=1., L=5, sideA="spherical", sideA_a=0.5, sideB="spherical",sideB_a=0.5),
+                    SA_tank(D=1., L=5, sideA="spherical", sideA_a=0.5, sideB="spherical",sideB_a=0.5))
 
 @mark_as_numba
 def test_Colebrook_ignored():
@@ -217,8 +217,8 @@ def test_friction_factor():
     fluids.numba.friction_factor(1e5, 1e-3)
 
 
-    assert_close(fluids.numba.friction.friction_factor(1e4, 1e-4, Method='Churchill_1973'),
-                 fluids.friction_factor(1e4, 1e-4, Method='Churchill_1973'))
+    assert_close(fluids.numba.friction.friction_factor(1e4, 1e-4, Method="Churchill_1973"),
+                 fluids.friction_factor(1e4, 1e-4, Method="Churchill_1973"))
     assert_close(fluids.numba.friction.friction_factor(1e4, 1e-4),
                  fluids.friction_factor(1e4, 1e-4))
     assert_close(fluids.numba.friction.friction_factor(1e2, 1e-4),
@@ -238,7 +238,7 @@ def test_AvailableMethods_removal():
 
 @mark_as_numba
 def test_bisplev_uses():
-    K = fluids.numba.entrance_beveled(Di=0.1, l=0.003, angle=45, method='Idelchik')
+    K = fluids.numba.entrance_beveled(Di=0.1, l=0.003, angle=45, method="Idelchik")
     assert_close(K, 0.39949999999999997)
 
     assert_close(fluids.numba.VFD_efficiency(100*hp, load=0.2),
@@ -246,7 +246,7 @@ def test_bisplev_uses():
 
 @mark_as_numba
 def test_splev_uses():
-    methods = ['Rennels', 'Miller', 'Idelchik', 'Harris',  'Crane']
+    methods = ["Rennels", "Miller", "Idelchik", "Harris",  "Crane"]
     Ks = [fluids.numba.entrance_distance(Di=0.1, t=0.0005, method=m) for m in methods]
     Ks_orig = [fluids.fittings.entrance_distance(Di=0.1, t=0.0005, method=m) for m in methods]
     assert_close1d(Ks, Ks_orig)
@@ -263,7 +263,7 @@ def test_splev_uses():
 
 @mark_as_numba
 def test_misc_fittings():
-    methods = ['Rennels', 'Miller', 'Crane', 'Blevins']
+    methods = ["Rennels", "Miller", "Crane", "Blevins"]
     assert_close1d([fluids.numba.bend_miter(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20, method=m) for m in methods],
                    [fluids.fittings.bend_miter(Di=.6, angle=45, Re=1e6, roughness=1e-5, L_unimpeded=20, method=m) for m in methods])
 
@@ -282,8 +282,8 @@ def test_misc_fittings():
     assert_close(fluids.numba.K_gate_valve_Crane(D1=.1, D2=.146, angle=13.115),
                  fluids.K_gate_valve_Crane(D1=.1, D2=.146, angle=13.115))
 
-    assert_close(fluids.numba.v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style='lift check straight'),
-                 fluids.v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style='lift check straight'))
+    assert_close(fluids.numba.v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style="lift check straight"),
+                 fluids.v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style="lift check straight"))
 
     assert_close(fluids.numba.K_branch_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633),
                  fluids.K_branch_converging_Crane(0.1023, 0.1023, 0.018917, 0.00633),)
@@ -324,14 +324,14 @@ def test_misc_fittings():
                  fluids.K_plug_valve_Crane(D1=.01, D2=.02, angle=50))
 
     # Darby and Hooper got slower because they don't a dict lookup
-    assert_close(fluids.numba.Darby3K(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1'),
-                 fluids.Darby3K(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1'))
+    assert_close(fluids.numba.Darby3K(NPS=2., Re=10000., name="Valve, Angle valve, 45°, full line size, β = 1"),
+                 fluids.Darby3K(NPS=2., Re=10000., name="Valve, Angle valve, 45°, full line size, β = 1"))
 
     assert_close(fluids.numba.Darby3K(NPS=12., Re=10000., K1=950,  Ki=0.25,  Kd=4),
                  fluids.Darby3K(NPS=12., Re=10000., K1=950,  Ki=0.25,  Kd=4))
 
-    assert_close(fluids.numba.Hooper2K(Di=2., Re=10000., name='Valve, Globe, Standard'),
-                 fluids.Hooper2K(Di=2., Re=10000., name='Valve, Globe, Standard'))
+    assert_close(fluids.numba.Hooper2K(Di=2., Re=10000., name="Valve, Globe, Standard"),
+                 fluids.Hooper2K(Di=2., Re=10000., name="Valve, Globe, Standard"))
 
     assert_close(fluids.numba.Hooper2K(Di=2., Re=10000., K1=900, Kinfty=4),
                  fluids.Hooper2K(Di=2., Re=10000., K1=900, Kinfty=4))
@@ -442,8 +442,8 @@ def test_misc_control_valve():
     assert_close(fluids.numba.Reynolds_factor(FL=0.98, C=0.015483, d=15., Rev=1202., full_trim=False),
                  fluids.Reynolds_factor(FL=0.98, C=0.015483, d=15., Rev=1202., full_trim=False))
 
-    assert_close(fluids.numba.convert_flow_coefficient(10, 'Kv', 'Av'),
-                 fluids.convert_flow_coefficient(10, 'Kv', 'Av'))
+    assert_close(fluids.numba.convert_flow_coefficient(10, "Kv", "Av"),
+                 fluids.convert_flow_coefficient(10, "Kv", "Av"))
 
 
 @mark_as_numba
@@ -494,26 +494,26 @@ def test_misc_packed_tower():
 
 @mark_as_numba
 def test_misc_flow_meter():
-    assert_close(fluids.numba.differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type='cone meter'),
-                 fluids.differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type='cone meter'))
+    assert_close(fluids.numba.differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type="cone meter"),
+                 fluids.differential_pressure_meter_beta(D=0.2575, D2=0.184, meter_type="cone meter"))
 
-    assert_close(fluids.numba.C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange', subtype='orifice'),
-                 fluids.C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps='flange', subtype='orifice'))
+    assert_close(fluids.numba.C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps="flange", subtype="orifice"),
+                 fluids.C_Miller_1996(D=0.07391, Do=0.0222, rho=1.165, mu=1.85E-5, m=0.12, taps="flange", subtype="orifice"))
 
-    assert_close1d(fluids.numba.differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168, meter_type='ISO 5167 orifice', taps='D'),
-                   fluids.differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168, meter_type='ISO 5167 orifice', taps='D'))
+    assert_close1d(fluids.numba.differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168, meter_type="ISO 5167 orifice", taps="D"),
+                   fluids.differential_pressure_meter_C_epsilon(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168, meter_type="ISO 5167 orifice", taps="D"))
 
-    assert_close(fluids.numba.differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, meter_type='as cast convergent venturi tube'),
-                 fluids.differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, meter_type='as cast convergent venturi tube'))
+    assert_close(fluids.numba.differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, meter_type="as cast convergent venturi tube"),
+                 fluids.differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0,  P2=183000.0, meter_type="as cast convergent venturi tube"))
 
-    assert_close(fluids.numba.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D'),
-                 fluids.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D'))
+    assert_close(fluids.numba.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D"),
+                 fluids.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D"))
 
-    assert_close(fluids.numba.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D', epsilon_specified=1),
-                 fluids.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type='ISO 5167 orifice', taps='D', epsilon_specified=1))
+    assert_close(fluids.numba.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D", epsilon_specified=1),
+                 fluids.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, k=1.33, meter_type="ISO 5167 orifice", taps="D", epsilon_specified=1))
 
-    assert_close(fluids.numba.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, meter_type='ISO 5167 orifice', taps='D', epsilon_specified=1),
-                 fluids.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, meter_type='ISO 5167 orifice', taps='D', epsilon_specified=1))
+    assert_close(fluids.numba.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, meter_type="ISO 5167 orifice", taps="D", epsilon_specified=1),
+                 fluids.differential_pressure_meter_solver(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, rho=999.1, mu=0.0011, meter_type="ISO 5167 orifice", taps="D", epsilon_specified=1))
 
 @mark_as_numba
 def test_misc_core():
@@ -559,8 +559,8 @@ def test_misc_drag():
     assert_close(fluids.numba.drag_sphere(200),
                  fluids.drag_sphere(200))
 
-    assert_close(fluids.numba.drag_sphere(1e6, Method='Almedeij'),
-                 fluids.drag_sphere(1e6, Method='Almedeij'))
+    assert_close(fluids.numba.drag_sphere(1e6, Method="Almedeij"),
+                 fluids.drag_sphere(1e6, Method="Almedeij"))
 
 
     assert_close(fluids.numba.v_terminal(D=70E-6, rhop=2600., rho=1000., mu=1E-3),
@@ -571,8 +571,8 @@ def test_misc_drag():
 
 @mark_as_numba
 def test_misc_two_phase_voidage():
-    assert_close(fluids.numba.gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method='Duckler'),
-                 fluids.gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method='Duckler'))
+    assert_close(fluids.numba.gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method="Duckler"),
+                 fluids.gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850, rhog=1.2, Method="Duckler"))
 
     assert_close(fluids.numba.liquid_gas_voidage(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05),
                  fluids.liquid_gas_voidage(m=0.6, x=0.1, rhol=915., rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487, D=0.05))
@@ -637,17 +637,17 @@ def test_misc_geometry():
     assert_close(fluids.numba.SA_partial_horiz_torispherical_head(D=72., f=1.0, k=.1, h=1.0),
                  SA_partial_horiz_torispherical_head(D=72., f=1.0, k=.1, h=1.0))
 
-    assert_close(fluids.numba.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
-                 fluids.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
+    assert_close(fluids.numba.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.),
+                 fluids.V_from_h(h=7, D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.))
 
-    assert_close(fluids.numba.V_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
-                 fluids.V_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
+    assert_close(fluids.numba.V_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.),
+                 fluids.V_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.))
 
-    assert_close(fluids.numba.SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
-                 SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
+    assert_close(fluids.numba.SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.),
+                 SA_from_h(h=7, D=1.5, L=5., horizontal=False, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.))
 
-    assert_close(fluids.numba.SA_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.),
-                 SA_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA='conical', sideB='conical', sideA_a=2., sideB_a=1.))
+    assert_close(fluids.numba.SA_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.),
+                 SA_from_h(h=1.2, D=1.5, L=5., horizontal=True, sideA="conical", sideB="conical", sideA_a=2., sideB_a=1.))
 
 @mark_as_numba
 def tets_newton_system():

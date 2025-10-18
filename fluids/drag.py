@@ -61,21 +61,44 @@ Drag Correlations
 .. autofunction:: Morrison
 .. autofunction:: Song_Xu
 """
+from __future__ import annotations
 
 from math import exp, log, log10, sqrt, tanh
 
 from fluids.constants import g
 from fluids.core import Reynolds
-from fluids.numerics import secant, cumulative_trapezoid
+from fluids.numerics import cumulative_trapezoid, secant
 
-__all__ = ['drag_sphere', 'drag_sphere_methods', 'v_terminal', 'integrate_drag_sphere',
-'time_v_terminal_Stokes', 'Stokes',
-'Barati', 'Barati_high', 'Rouse', 'Engelund_Hansen',
-'Clift_Gauvin', 'Morsi_Alexander', 'Graf', 'Flemmer_Banks', 'Khan_Richardson',
-'Swamee_Ojha', 'Yen', 'Haider_Levenspiel', 'Cheng', 'Terfous',
-'Mikhailov_Freire', 'Clift', 'Ceylan', 'Almedeij', 'Morrison', 'Song_Xu']
+__all__: list[str] = [
+    "Almedeij",
+    "Barati",
+    "Barati_high",
+    "Ceylan",
+    "Cheng",
+    "Clift",
+    "Clift_Gauvin",
+    "Engelund_Hansen",
+    "Flemmer_Banks",
+    "Graf",
+    "Haider_Levenspiel",
+    "Khan_Richardson",
+    "Mikhailov_Freire",
+    "Morrison",
+    "Morsi_Alexander",
+    "Rouse",
+    "Song_Xu",
+    "Stokes",
+    "Swamee_Ojha",
+    "Terfous",
+    "Yen",
+    "drag_sphere",
+    "drag_sphere_methods",
+    "integrate_drag_sphere",
+    "time_v_terminal_Stokes",
+    "v_terminal",
+]
 
-def Stokes(Re):
+def Stokes(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using Stoke's law.
 
     .. math::
@@ -108,7 +131,7 @@ def Stokes(Re):
     return 24./Re
 
 
-def Barati(Re):
+def Barati(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_.
 
@@ -154,7 +177,7 @@ def Barati(Re):
     return Cd
 
 
-def Barati_high(Re):
+def Barati_high(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_.
 
@@ -181,7 +204,7 @@ def Barati_high(Re):
     -----
     Range is Re <= 1E6. If Re is larger than 1e6 it is limited to 1e6.
     This model is the wider-range model the authors developed.
-    At sufficiently low diameters or Re values, drag is no longer a phenomena.
+    At sufficiently low diameters or Re values, drag is no longer a phenomenon.
 
     Examples
     --------
@@ -217,7 +240,7 @@ def Barati_high(Re):
     return Cd
 
 
-def Rouse(Re):
+def Rouse(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -254,10 +277,10 @@ def Rouse(Re):
        Evolutionary Approach." Powder Technology 257 (May 2014): 11-19.
        doi:10.1016/j.powtec.2014.02.045.
     """
-    return 24./Re + 3/sqrt(Re) + 0.34
+    return 24./Re + 3./sqrt(Re) + 0.34
 
 
-def Engelund_Hansen(Re):
+def Engelund_Hansen(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -287,7 +310,7 @@ def Engelund_Hansen(Re):
     References
     ----------
     .. [1] F. Engelund, E. Hansen, Monograph on Sediment Transport in Alluvial
-       Streams, Monograpsh Denmark Technical University, Hydraulic Lab,
+       Streams, Monographs Denmark Technical University, Hydraulic Lab,
        Denmark, 1967.
     .. [2] Barati, Reza, Seyed Ali Akbar Salehi Neyshabouri, and Goodarz
        Ahmadi. "Development of Empirical Models with High Accuracy for
@@ -298,7 +321,7 @@ def Engelund_Hansen(Re):
     return 24./Re + 1.5
 
 
-def Clift_Gauvin(Re):
+def Clift_Gauvin(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -339,7 +362,7 @@ def Clift_Gauvin(Re):
     return 24./Re*(1 + 0.152*Re**0.677) + 0.417/(1 + 5070*Re**-0.94)
 
 
-def Morsi_Alexander(Re):
+def Morsi_Alexander(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -361,7 +384,7 @@ def Morsi_Alexander(Re):
     If 10 < Re < 100:
 
     .. math::
-        C_D =\frac{46.5}{Re}-\frac{116.67}{Re^2} + 0.6167
+        C_D = \frac{46.5}{Re}-\frac{116.67}{Re^2} + 0.6167
 
     If 100 < Re < 1000:
 
@@ -420,20 +443,20 @@ def Morsi_Alexander(Re):
     elif Re < 1:
         return 22.73/Re + 0.0903/Re**2 + 3.69
     elif Re < 10:
-        return 29.1667/Re - 3.8889/Re**2 + 1.222
+        return 29.1667/Re - 3.8889/Re**2 + 1.2220
     elif Re < 100:
         return 46.5/Re - 116.67/Re**2 + 0.6167
     elif Re < 1000:
         return 98.33/Re - 2778./Re**2 + 0.3644
     elif Re < 5000:
-        return 148.62/Re - 4.75E4/Re**2 + 0.357
+        return 148.62/Re - 4.75E4/Re**2 + 0.3570
     elif Re < 10000:
         return -490.546/Re + 57.87E4/Re**2 + 0.46
     else:
         return -1662.5/Re + 5.4167E6/Re**2 + 0.5191
 
 
-def Graf(Re):
+def Graf(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -473,7 +496,7 @@ def Graf(Re):
     return 24./Re + 7.3/(1 + sqrt(Re)) + 0.25
 
 
-def Flemmer_Banks(Re):
+def Flemmer_Banks(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -518,7 +541,7 @@ def Flemmer_Banks(Re):
     return 24./Re*10**E
 
 
-def Khan_Richardson(Re):
+def Khan_Richardson(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -559,7 +582,7 @@ def Khan_Richardson(Re):
     return (2.49*Re**-0.328 + 0.34*Re**0.067)**3.18
 
 
-def Swamee_Ojha(Re):
+def Swamee_Ojha(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -602,7 +625,7 @@ def Swamee_Ojha(Re):
     return Cd
 
 
-def Yen(Re):
+def Yen(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -643,12 +666,12 @@ def Yen(Re):
     return 24./Re*(1 + 0.15*sqrt(Re) + 0.017*Re) - 0.208/(1 + 1E4*1.0/sqrt(Re))
 
 
-def Haider_Levenspiel(Re):
+def Haider_Levenspiel(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
-        C_D=\frac{24}{Re}(1+0.1806Re^{0.6459})+\left(\frac{0.4251}{1
+        C_D = \frac{24}{Re}(1+0.1806Re^{0.6459})+\left(\frac{0.4251}{1
         +\frac{6880.95}{Re}}\right)
 
     Parameters
@@ -686,12 +709,12 @@ def Haider_Levenspiel(Re):
     return 24./Re*(1 + 0.1806*Re**0.6459) + (0.4251/(1 + 6880.95/Re))
 
 
-def Cheng(Re):
+def Cheng(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
     .. math::
-        C_D=\frac{24}{Re}(1+0.27Re)^{0.43}+0.47[1-\exp(-0.04Re^{0.38})]
+        C_D = \frac{24}{Re}(1+0.27Re)^{0.43}+0.47[1-\exp(-0.04Re^{0.38})]
 
     Parameters
     ----------
@@ -727,7 +750,7 @@ def Cheng(Re):
     return 24./Re*(1. + 0.27*Re)**0.43 + 0.47*(1. - exp(-0.04*Re**0.38))
 
 
-def Terfous(Re):
+def Terfous(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -769,7 +792,7 @@ def Terfous(Re):
     return 2.689 + 21.683/Re + 0.131/Re**2 - 10.616/Re**0.1 + 12.216/Re**0.2
 
 
-def Mikhailov_Freire(Re):
+def Mikhailov_Freire(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -813,7 +836,7 @@ def Mikhailov_Freire(Re):
     return Cd
 
 
-def Clift(Re):
+def Clift(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -835,22 +858,22 @@ def Clift(Re):
     If 260 < Re < 1500:
 
     .. math::
-        C_D = 10^{[1.6435 - 1.1242\log_{10} Re + 0.1558[\log_{10} Re]^2}
+        C_D = 10^{[1.6435 - 1.1242\log_{10} Re + 0.1558[\log_{10} Re]^2]}
 
     If 1500 < Re < 12000:
 
     .. math::
-        C_D = 10^{[-2.4571 + 2.5558\log_{10} Re - 0.9295[\log_{10} Re]^2 + 0.1049[\log_{10} Re]^3}
+        C_D = 10^{[-2.4571 + 2.5558\log_{10} Re - 0.9295[\log_{10} Re]^2 + 0.1049[\log_{10} Re]^3]}
 
     If 12000 < Re < 44000:
 
     .. math::
-        C_D = 10^{[-1.9181 + 0.6370\log_{10} Re - 0.0636[\log_{10} Re]^2}
+        C_D = 10^{[-1.9181 + 0.6370\log_{10} Re - 0.0636[\log_{10} Re]^2]}
 
     If 44000 < Re < 338000:
 
     .. math::
-        C_D = 10^{[-4.3390 + 1.5809\log_{10} Re - 0.1546[\log_{10} Re]^2}
+        C_D = 10^{[-4.3390 + 1.5809\log_{10} Re - 0.1546[\log_{10} Re]^2]}
 
     If 338000 < Re < 400000:
 
@@ -893,7 +916,7 @@ def Clift(Re):
        doi:10.1016/j.powtec.2014.02.045.
     """
     if Re < 0.01:
-        return 24./Re + 3/16.
+        return 24./Re + 3./16.
     elif Re < 20:
         return 24./Re*(1 + 0.1315*Re**(0.82 - 0.05*log10(Re)))
     elif Re < 260:
@@ -912,7 +935,7 @@ def Clift(Re):
         return 0.19*log10(Re) - 0.49
 
 
-def Ceylan(Re):
+def Ceylan(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -920,7 +943,7 @@ def Ceylan(Re):
         C_D = 1 - 0.5\exp(0.182) + 10.11Re^{-2/3}\exp(0.952Re^{-1/4})
         - 0.03859Re^{-4/3}\exp(1.30Re^{-1/2})
         + 0.037\times10^{-4}Re\exp(-0.125\times10^{-4}Re)
-        -0.116\times10^{-10}Re^2\exp(-0.444\times10^{-5}Re)
+        - 0.116\times10^{-10}Re^2\exp(-0.444\times10^{-5}Re)
 
     Parameters
     ----------
@@ -961,7 +984,7 @@ def Ceylan(Re):
     return Cd
 
 
-def Almedeij(Re):
+def Almedeij(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -1019,7 +1042,7 @@ def Almedeij(Re):
     return (1/((phi1 + phi2)**-1 + phi3**-1) + phi4)**0.1
 
 
-def Morrison(Re):
+def Morrison(Re: float) -> float:
     r"""Calculates drag coefficient of a smooth sphere using the method in
     [1]_ as described in [2]_.
 
@@ -1063,7 +1086,7 @@ def Morrison(Re):
     return Cd
 
 
-def Song_Xu(Re, sphericity=1., S=1.):
+def Song_Xu(Re: float, sphericity: float=1., S: float=1.) -> float:
     r"""Calculates drag coefficient of a particle using the method in
     [1]_. Developed with data for spheres, cubes, and cylinders. Claims 3.52%
     relative error for 0.001 < Re < 100 based on 336 tests data.
@@ -1109,30 +1132,30 @@ def Song_Xu(Re, sphericity=1., S=1.):
 
 
 drag_sphere_correlations = {
-    'Stokes': (Stokes, None, 0.3),
-    'Barati': (Barati, None, 2E5),
-    'Barati_high': (Barati_high, None, 1E6),
-    'Rouse': (Rouse, None, 2E5),
-    'Engelund_Hansen': (Engelund_Hansen, None, 2E5),
-    'Clift_Gauvin': (Clift_Gauvin, None, 2E5),
-    'Morsi_Alexander': (Morsi_Alexander, None, 2E5),
-    'Graf': (Graf, None, 2E5),
-    'Flemmer_Banks': (Flemmer_Banks, None, 2E5),
-    'Khan_Richardson': (Khan_Richardson, None, 2E5),
-    'Swamee_Ojha': (Swamee_Ojha, None, 1.5E5),
-    'Yen': (Yen, None, 2E5),
-    'Haider_Levenspiel': (Haider_Levenspiel, None, 2E5),
-    'Cheng': (Cheng, None, 2E5),
-    'Terfous': (Terfous, 0.1, 5E4),
-    'Mikhailov_Freire': (Mikhailov_Freire, None, 118300),
-    'Clift': (Clift, None, 1E6),
-    'Ceylan': (Ceylan, 0.1, 1E6),
-    'Almedeij': (Almedeij, None, 1E6),
-    'Morrison': (Morrison, None, 1E6),
-    'Song_Xu': (Song_Xu, None, 1E3)
+    "Stokes": (Stokes, None, 0.3),
+    "Barati": (Barati, None, 2E5),
+    "Barati_high": (Barati_high, None, 1E6),
+    "Rouse": (Rouse, None, 2E5),
+    "Engelund_Hansen": (Engelund_Hansen, None, 2E5),
+    "Clift_Gauvin": (Clift_Gauvin, None, 2E5),
+    "Morsi_Alexander": (Morsi_Alexander, None, 2E5),
+    "Graf": (Graf, None, 2E5),
+    "Flemmer_Banks": (Flemmer_Banks, None, 2E5),
+    "Khan_Richardson": (Khan_Richardson, None, 2E5),
+    "Swamee_Ojha": (Swamee_Ojha, None, 1.5E5),
+    "Yen": (Yen, None, 2E5),
+    "Haider_Levenspiel": (Haider_Levenspiel, None, 2E5),
+    "Cheng": (Cheng, None, 2E5),
+    "Terfous": (Terfous, 0.1, 5E4),
+    "Mikhailov_Freire": (Mikhailov_Freire, None, 118300),
+    "Clift": (Clift, None, 1E6),
+    "Ceylan": (Ceylan, 0.1, 1E6),
+    "Almedeij": (Almedeij, None, 1E6),
+    "Morrison": (Morrison, None, 1E6),
+    "Song_Xu": (Song_Xu, None, 1E3)
 }
 
-def drag_sphere_methods(Re, check_ranges=True):
+def drag_sphere_methods(Re: float, check_ranges: bool=True) -> list[str]:
     r"""This function returns a list of methods that can be used to calculate
     the drag coefficient of a sphere.
     Twenty one methods are available, all requiring only the Reynolds number of
@@ -1158,7 +1181,7 @@ def drag_sphere_methods(Re, check_ranges=True):
 
     Returns
     -------
-    methods : list, only returned if AvailableMethods == True
+    methods : list
         List of methods which can be used to calculate `Cd` with the given `Re`
     """
     methods = []
@@ -1167,7 +1190,7 @@ def drag_sphere_methods(Re, check_ranges=True):
             methods.append(key)
     return methods
 
-def drag_sphere(Re, Method=None):
+def drag_sphere(Re: float, Method: str | None=None) -> float:
     r"""This function handles calculation of drag coefficient on spheres.
     Twenty methods are available, all requiring only the Reynolds number of the
     sphere. Most methods are valid from Re=0 to Re=200,000. A correlation will
@@ -1263,14 +1286,14 @@ def drag_sphere(Re, Method=None):
     elif Method == "Song_Xu":
         return Song_Xu(Re)
     else:
-        raise ValueError('Unrecognized method')
+        raise ValueError("Unrecognized method")
 
 
-def _v_terminal_err(V, Method, Re_almost, main):
+def _v_terminal_err(V: float, Method: str | None, Re_almost: float, main: float) -> float:
     Cd = drag_sphere(Re_almost*V, Method=Method)
     return V - sqrt(main/Cd)
 
-def v_terminal(D, rhop, rho, mu, Method=None):
+def v_terminal(D: float, rhop: float, rho: float, mu: float, Method: str | None=None) -> float:
     r"""Calculates terminal velocity of a falling sphere using any drag
     coefficient method supported by `drag_sphere`. The laminar solution for
     Re < 0.01 is first tried; if the resulting terminal velocity does not
@@ -1339,7 +1362,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     return fsolve(err, 1.)"""
     v_lam = g*D*D*(rhop-rho)/(18*mu)
     Re_lam = Reynolds(V=v_lam, D=D, rho=rho, mu=mu)
-    if Re_lam < 0.01 or Method == 'Stokes':
+    if Re_lam < 0.01 or Method == "Stokes":
         return v_lam
 
     Re_almost = rho*D/mu
@@ -1351,7 +1374,7 @@ def v_terminal(D, rhop, rho, mu, Method=None):
     return secant(_v_terminal_err, V_max*1e-2, xtol=1E-12, args=(Method, Re_almost, main))
 
 
-def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
+def time_v_terminal_Stokes(D: float, rhop: float, rho: float, mu: float, V0: float, tol: float=1e-14) -> float:
     r"""Calculates the time required for a particle in Stoke's regime only to
     reach terminal velocity (approximately). An infinitely long period is
     required theoretically, but with floating points, it is possible to
@@ -1393,7 +1416,7 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
     If a solution cannot be obtained due to floating point error at very high
     tolerance, an exception is raised - but first, the tolerance is doubled,
     up to fifty times in an attempt to obtain the highest possible precision
-    while sill giving an answer. If at any point the tolerance is larger than
+    while still giving an answer. If at any point the tolerance is larger than
     1%, an exception is also raised.
 
     Examples
@@ -1418,16 +1441,16 @@ def time_v_terminal_Stokes(D, rhop, rho, mu, V0, tol=1e-14):
             else:
                 v_term = v_term_base*(1.0 - tol)
             numerator = term + 18.*mu*v_term
-            return log((numerator/denominator))*const
+            return log(numerator/denominator)*const
         except:
             tol = tol + tol
             if tol > 0.01:
-                raise ValueError('Could not find a solution')
-    raise ValueError('Could not find a solution')
+                raise ValueError("Could not find a solution")
+    raise ValueError("Could not find a solution")
 
 
-def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
-                          distance=False):
+def integrate_drag_sphere(D: float, rhop: float, rho: float, mu: float, t: float, V: float=0, Method: str | None=None,
+                          distance: bool=False) -> tuple[float, float] | float:
     r"""Integrates the velocity and distance traveled by a particle moving
     at a speed which will converge to its terminal velocity.
 
@@ -1486,7 +1509,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
         b = \frac{g(\rho_p-\rho_f)}{\rho_p}
 
     The analytical solution will automatically be used if the initial and
-    terminal velocity is show the particle's behavior to be laminar. Note
+    terminal velocity shows the particle's behavior to be laminar. Note
     that this behavior requires that the terminal velocity of the particle be
     solved for - this adds slight (1%) overhead for the cases where particles
     are not laminar.
@@ -1503,13 +1526,13 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
        Fall of a Ball with Linear or Quadratic Drag." American Journal of
        Physics 67, no. 6 (June 1999): 538-46. https://doi.org/10.1119/1.19320.
     """
-    # Delayed import of necessaray functions
+    # Delayed import of necessary functions
     import numpy as np
     from scipy.integrate import odeint
     laminar_initial = Reynolds(V=V, rho=rho, D=D, mu=mu) < 0.01
     v_laminar_end_assumed = v_terminal(D=D, rhop=rhop, rho=rho, mu=mu, Method=Method)
     laminar_end = Reynolds(V=v_laminar_end_assumed, rho=rho, D=D, mu=mu) < 0.01
-    if Method == 'Stokes' or (laminar_initial and laminar_end and Method is None):
+    if Method == "Stokes" or (laminar_initial and laminar_end and Method is None):
         try:
             t1 = 18.0*mu/(D*D*rhop)
             t2 = g*(rhop-rho)/rhop
@@ -1523,8 +1546,9 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
             # It is only necessary to integrate to terminal velocity
             t_to_terminal = time_v_terminal_Stokes(D, rhop, rho, mu, V0=V, tol=1e-9)
             if t_to_terminal > t:
-                raise ValueError('Should never happen')
-            V_end, x_end = integrate_drag_sphere(D=D, rhop=rhop, rho=rho, mu=mu, t=t_to_terminal, V=V, Method='Stokes', distance=True)
+                raise ValueError("Should never happen")
+            result = integrate_drag_sphere(D=D, rhop=rhop, rho=rho, mu=mu, t=t_to_terminal, V=V, Method="Stokes", distance=True)
+            V_end, x_end = result  # type: ignore[misc]
             # terminal velocity has been reached - V does not change, but x does
             # No reason to believe this isn't working even though it isn't
             # matching the ode solver
@@ -1535,7 +1559,7 @@ def integrate_drag_sphere(D, rhop, rho, mu, t, V=0, Method=None,
 
             # This is a serious problem for small diameters
             # It would be possible to step slowly, using smaller increments
-            # of time to avlid overflows. However, this unfortunately quickly
+            # of time to avoid overflows. However, this unfortunately quickly
             # gets much, exponentially, slower than just using odeint because
             # for example solving 10000 seconds might require steps of .0001
             # seconds at a diameter of 1e-7 meters.

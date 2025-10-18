@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import pytest
 
@@ -91,28 +91,28 @@ def test_packed_bed():
 
     dP1 = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3)
     dP2 = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01)
-    dP3 = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, Method='Ergun')
-    dP4 = dP_packed_bed(dp=8E-4, voidage=0.4, sphericity=0.6, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, Method='Ergun')
+    dP3 = dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, Method="Ergun")
+    dP4 = dP_packed_bed(dp=8E-4, voidage=0.4, sphericity=0.6, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, Method="Ergun")
     dP5 = dP_packed_bed(8E-4, 0.4, 1E-3, 1E3, 1E-3)
     assert_close1d([dP1, dP2, dP3, dP4, dP5], [1438.2826958844414, 1255.1625662548427, 1338.8671874999995, 3696.2890624999986, 1438.2826958844414])
 
     # REMOVE ONCE DEPRECATED
-    methods_dP_val = ['Harrison, Brunner & Hecker', 'Carman', 'Guo, Sun, Zhang, Ding & Liu', 'Hicks', 'Montillet, Akkari & Comiti', 'Idelchik', 'Erdim, Akgiray & Demir', 'KTA', 'Kuo & Nydegger', 'Ergun', 'Brauer', 'Fahien & Schriver', 'Jones & Krier', 'Tallmadge']
+    methods_dP_val = ["Harrison, Brunner & Hecker", "Carman", "Guo, Sun, Zhang, Ding & Liu", "Hicks", "Montillet, Akkari & Comiti", "Idelchik", "Erdim, Akgiray & Demir", "KTA", "Kuo & Nydegger", "Ergun", "Brauer", "Fahien & Schriver", "Jones & Krier", "Tallmadge"]
     methods_dP_val.sort()
 
     for m in methods_dP_val:
         dP_packed_bed(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, Dt=0.01, Method=m)
 
     all_methods = dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1, Dt=1e-2)
-    assert 'Erdim, Akgiray & Demir' == dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1.0)[0]
-    assert 'Harrison, Brunner & Hecker' == all_methods[0]
+    assert "Erdim, Akgiray & Demir" == dP_packed_bed_methods(dp=8E-4, voidage=0.4, vs=1E-3, rho=1E3, mu=1E-3, L=1.0)[0]
+    assert "Harrison, Brunner & Hecker" == all_methods[0]
     all_methods.sort()
     assert all_methods == methods_dP_val
 
 
 
     with pytest.raises(Exception):
-        dP_packed_bed(8E-4, 0.4, 1E-3, 1E3, 1E-3, Method='Fail')
+        dP_packed_bed(8E-4, 0.4, 1E-3, 1E3, 1E-3, Method="Fail")
 
     v = voidage_Benyahia_Oneil(1E-3, 1E-2, .8)
     assert_close(v, 0.41395363849210065)

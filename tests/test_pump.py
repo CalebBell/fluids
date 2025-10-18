@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import pytest
 
@@ -146,23 +146,23 @@ def test_power_sources():
     assert sum([i.freq for i in residential_power.values()]) == 10530
     assert len(residential_power) == 203
 
-    ca = residential_power['ca']
-    assert (ca.voltage, ca.freq, ca.plugs) == (120, 60, ('A', 'B'))
+    ca = residential_power["ca"]
+    assert (ca.voltage, ca.freq, ca.plugs) == (120, 60, ("A", "B"))
 
     assert sum([sum(i.voltage) for i in industrial_power.values()]) == 82144
     assert sum([i.freq for i in industrial_power.values()]) == 10210
     assert len(industrial_power) == 197
 
-    ca = industrial_power['ca']
+    ca = industrial_power["ca"]
     assert (ca.voltage, ca.freq) == ((120, 208, 240, 480, 347, 600), 60)
 
 
 def test_CountryPower():
-    a = CountryPower(plugs=('C', 'F', 'M', 'N'), voltage=230.0, freq=50.0, country="South Africa")
+    a = CountryPower(plugs=("C", "F", "M", "N"), voltage=230.0, freq=50.0, country="South Africa")
     assert type(a) is CountryPower
     assert type(a.voltage) is float
     assert type(a.freq) is float
 
-    CountryPower(plugs=('G',), voltage=240, freq=50, country="Seychelles")
-    CountryPower(plugs=('C', 'F'), voltage=230, freq=50, country="Armenia")
-    CountryPower(plugs=('D', 'G', 'J', 'K', 'L'), voltage=230, freq=50, country="Maldives")
+    CountryPower(plugs=("G",), voltage=240, freq=50, country="Seychelles")
+    CountryPower(plugs=("C", "F"), voltage=230, freq=50, country="Armenia")
+    CountryPower(plugs=("D", "G", "J", "K", "L"), voltage=230, freq=50, country="Maldives")

@@ -38,25 +38,31 @@ Misc Functions
 .. autofunction:: time_helical_ribbon_Grenville
 
 """
+from __future__ import annotations
 
 from math import log, pi, sqrt
 
 from fluids.constants import g
 
-__all__ = ['agitator_time_homogeneous',
-'Kp_helical_ribbon_Rieger', 'time_helical_ribbon_Grenville', 'size_tee',
-'COV_motionless_mixer', 'K_motionless_mixer']
+__all__: list[str] = [
+    "COV_motionless_mixer",
+    "K_motionless_mixer",
+    "Kp_helical_ribbon_Rieger",
+    "agitator_time_homogeneous",
+    "size_tee",
+    "time_helical_ribbon_Grenville",
+]
 
 max_Fo_for_turbulent = 1/1225.
 min_regime_constant_for_turbulent = 6370.
 
-def adjust_homogeneity(fraction):
+def adjust_homogeneity(fraction: float) -> float:
     """Base: 95% homogeneity"""
     multiplier = log(1-fraction)/log(0.05)
     return multiplier
 
 
-def agitator_time_homogeneous(N, P, T, H, mu, rho, D=None, homogeneity=.95):
+def agitator_time_homogeneous(N: float, P: float, T: float, H: float, mu: float, rho: float, D: float | None=None, homogeneity: float=.95) -> float:
     r"""Calculates time for a fluid mizing in a tank with an impeller to
     reach a specified level of homogeneity, according to [1]_.
 
@@ -137,7 +143,7 @@ def agitator_time_homogeneous(N, P, T, H, mu, rho, D=None, homogeneity=.95):
     return time*multiplier
 
 
-def Kp_helical_ribbon_Rieger(D, h, nb, pitch, width, T):
+def Kp_helical_ribbon_Rieger(D: float, h: float, nb: int, pitch: float, width: float, T: float) -> float:
     r"""Calculates product of power number and Reynolds number for a
     specified geometry for a heilical ribbon mixer in the laminar regime.
     One of several correlations listed in [1]_, it used more data than other
@@ -189,7 +195,7 @@ def Kp_helical_ribbon_Rieger(D, h, nb, pitch, width, T):
     return 82.8*h/D*(c/D)**-.38*(pitch/D)**-0.35*(width/D)**0.2*nb**0.78
 
 
-def time_helical_ribbon_Grenville(Kp, N):
+def time_helical_ribbon_Grenville(Kp: float, N: float) -> float:
     r"""Calculates product of time required for mixing in a helical ribbon
     coil in the laminar regime according to the Grenville [2]_ method
     recommended in [1]_.
@@ -233,7 +239,7 @@ def time_helical_ribbon_Grenville(Kp, N):
 
 ### Tee mixer
 
-def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
+def size_tee(Q1: float, Q2: float, D: float, D2: float | None, n: int=1, pipe_diameters: float=5) -> float:
     r"""Calculates CoV of an optimal or specified tee for mixing at a tee
     according to [1]_. Assumes turbulent flow.
     The smaller stream in injected into the main pipe, which continues
@@ -289,7 +295,7 @@ def size_tee(Q1, Q2, D, D2, n=1, pipe_diameters=5):
     V2 = Q2/(pi/4*D2**2)
     B = n**2*(D2/D)**2*(V2/V1)**2
     if not n == 1 and not n == 2 and not n == 3 and not n ==4:
-        raise ValueError('Only 1 or 4 side streams investigated')
+        raise ValueError("Only 1 or 4 side streams investigated")
     if n == 1:
         if B < 0.7:
             E = 1.33
@@ -319,13 +325,13 @@ Paul, Edward L, Victor A Atiemo-Obeng, and Suzanne M Kresta.
 Handbook of Industrial Mixing: Science and Practice.
 Hoboken, N.J.: Wiley-Interscience, 2004."""
 StatixMixers = {}
-StatixMixers['KMS'] = {'Name': 'KMS', 'Vendor': 'Chemineer', 'Description': 'Twisted ribbon. Alternating left and right twists.', 'KL': 6.9, 'KiL': 0.87, 'KT': 150, 'KiT': 0.5}
-StatixMixers['SMX'] = {'Name': 'SMX', 'Vendor': 'Koch-Glitsch', 'Description': 'Guide vanes 45 degrees to pipe axis. Adjacent elements rotated 90 degrees.', 'KL': 37.5, 'KiL': 0.63, 'KT': 500, 'KiT': 0.46}
-StatixMixers['SMXL'] = {'Name': 'SMXL', 'Vendor': 'Koch-Glitsch', 'Description': 'Similar to SMX, but intersection bars at 30 degrees to pipe axis.', 'KL': 7.8, 'KiL': 0.85, 'KT': 100, 'KiT': 0.87}
-StatixMixers['SMF'] = {'Name': 'SMF', 'Vendor': 'Koch-Glitsch', 'Description': 'Three guide vanes projecting from the tube wall in a way as to not contact. Designed for applications subject to plugging.', 'KL': 5.6, 'KiL': 0.83, 'KT': 130, 'KiT': 0.4}
+StatixMixers["KMS"] = {"Name": "KMS", "Vendor": "Chemineer", "Description": "Twisted ribbon. Alternating left and right twists.", "KL": 6.9, "KiL": 0.87, "KT": 150, "KiT": 0.5}
+StatixMixers["SMX"] = {"Name": "SMX", "Vendor": "Koch-Glitsch", "Description": "Guide vanes 45 degrees to pipe axis. Adjacent elements rotated 90 degrees.", "KL": 37.5, "KiL": 0.63, "KT": 500, "KiT": 0.46}
+StatixMixers["SMXL"] = {"Name": "SMXL", "Vendor": "Koch-Glitsch", "Description": "Similar to SMX, but intersection bars at 30 degrees to pipe axis.", "KL": 7.8, "KiL": 0.85, "KT": 100, "KiT": 0.87}
+StatixMixers["SMF"] = {"Name": "SMF", "Vendor": "Koch-Glitsch", "Description": "Three guide vanes projecting from the tube wall in a way as to not contact. Designed for applications subject to plugging.", "KL": 5.6, "KiL": 0.83, "KT": 130, "KiT": 0.4}
 
 
-def COV_motionless_mixer(Ki, Q1, Q2, pipe_diameters):
+def COV_motionless_mixer(Ki: float, Q1: float, Q2: float, pipe_diameters: float) -> float:
     r"""Calculates CoV of a motionless mixer with a regression parameter in
     [1]_ and originally in [2]_.
 
@@ -373,7 +379,7 @@ def COV_motionless_mixer(Ki, Q1, Q2, pipe_diameters):
     return COV
 
 
-def K_motionless_mixer(K, L, D, fd):
+def K_motionless_mixer(K: float, L: float, D: float, fd: float) -> float:
     r"""Calculates loss coefficient of a motionless mixer with a regression
     parameter in [1]_ and originally in [2]_.
 

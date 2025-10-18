@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import pytest
 
@@ -47,7 +47,7 @@ from fluids.safety_valve import (
 def test_safety_valve():
     A = API520_round_size(1E-4)
     assert_close(A, 0.00012645136)
-    assert 'E' == API526_letters[API526_A.index(API520_round_size(1E-4))]
+    assert "E" == API526_letters[API526_A.index(API520_round_size(1E-4))]
     with pytest.raises(Exception):
         API520_round_size(1)
 
@@ -83,52 +83,52 @@ def test_safety_valve():
     assert_close1d([A1, A2], As)
 
 def test_API520_Kv():
-    Kv_calcs = [API520_Kv(100, edition='7E'), API520_Kv(4525, edition='7E'), API520_Kv(1E5, edition='7E')]
+    Kv_calcs = [API520_Kv(100, edition="7E"), API520_Kv(4525, edition="7E"), API520_Kv(1E5, edition="7E")]
     Kvs = [0.6157445891444229, 0.9639390032437682, 0.9973949303006829]
     assert_close1d(Kv_calcs, Kvs)
 
-    assert API520_Kv(1e9, edition='7E') == 1
+    assert API520_Kv(1e9, edition="7E") == 1
 
-    assert_close(API520_Kv(4525, edition='10E'), 0.9817287137013179)
+    assert_close(API520_Kv(4525, edition="10E"), 0.9817287137013179)
 
 
 def test_API520_SH():
     with pytest.raises(Exception):
-        API520_SH(593+273.15, 21E6, '7E')
+        API520_SH(593+273.15, 21E6, "7E")
     with pytest.raises(Exception):
-        API520_SH(1000, 1066E3, '7E')
+        API520_SH(1000, 1066E3, "7E")
     # Test under 15 psig sat case
-    assert API520_SH(320, 5E4, '7E') == 1
+    assert API520_SH(320, 5E4, "7E") == 1
 
     from fluids.safety_valve import _KSH_Pa_7E, _KSH_tempKs_7E
-    KSH_tot =  sum([API520_SH(T, P, '7E') for P in _KSH_Pa_7E[:-1] for T in _KSH_tempKs_7E])
+    KSH_tot =  sum([API520_SH(T, P, "7E") for P in _KSH_Pa_7E[:-1] for T in _KSH_tempKs_7E])
     assert_close(229.93, KSH_tot)
 
     # 10E
     with pytest.raises(Exception):
         # too high temp
-        API520_SH(593+273.15, 23E6, '10E')
+        API520_SH(593+273.15, 23E6, "10E")
     with pytest.raises(Exception):
-        API520_SH(1000, 1066E3, '10E')
+        API520_SH(1000, 1066E3, "10E")
 
-    assert API520_SH(470, 1066E3, '10E') == 1.0
+    assert API520_SH(470, 1066E3, "10E") == 1.0
     from fluids.safety_valve import _KSH_K_10E, _KSH_Pa_10E
-    KSH_10E_tot =  sum([API520_SH(T, P, '10E') for P in _KSH_Pa_10E for T in _KSH_K_10E])
+    KSH_10E_tot =  sum([API520_SH(T, P, "10E") for P in _KSH_Pa_10E for T in _KSH_K_10E])
     assert_close(1336.4789999999996, KSH_10E_tot)
 
     for P in linspace(_KSH_Pa_10E[0], _KSH_Pa_10E[-1], 30):
         for T in linspace(_KSH_K_10E[0], _KSH_K_10E[-1], 30):
-            val = API520_SH(T, P, '10E')
+            val = API520_SH(T, P, "10E")
             assert val <= (1+1e-15)
             assert val >= 0.627
 
 
 
 def test_API520_A_steam():
-    A = API520_A_steam(m=69615/3600., T=592.5, P1=12236E3, Kd=0.975, Kb=1.0, Kc=1.0, edition='7E')
+    A = API520_A_steam(m=69615/3600., T=592.5, P1=12236E3, Kd=0.975, Kb=1.0, Kc=1.0, edition="7E")
     assert_close(A, 0.0011034712423692733)
 
-    A = API520_A_steam(m=69615/3600., T=707.0389, P1=12236E3, Kd=0.975, Kb=1, Kc=1, edition='10E')
+    A = API520_A_steam(m=69615/3600., T=707.0389, P1=12236E3, Kd=0.975, Kb=1, Kc=1, edition="10E")
     assert_close(A, 0.00128518893191)
 
 

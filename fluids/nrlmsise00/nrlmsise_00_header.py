@@ -37,7 +37,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  * updated releases of this package.
  */
 """
-__all__ = ['nrlmsise_flags', 'ap_array', 'nrlmsise_input', 'nrlmsise_output']
+__all__ = ["ap_array", "nrlmsise_flags", "nrlmsise_input", "nrlmsise_output"]
 
 
 #/* ------------------------------------------------------------------- */

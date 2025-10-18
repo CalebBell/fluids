@@ -114,7 +114,8 @@ Miscellaneous Functions
 .. autofunction:: gravity
 
 """
-import sys
+from __future__ import annotations
+
 from math import pi, sin, sqrt
 
 from fluids.constants import R, g
@@ -163,27 +164,80 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 
-__all__ = ['Reynolds', 'Prandtl', 'Grashof', 'Nusselt', 'Sherwood', 'Rayleigh',
-'Schmidt', 'Peclet_heat', 'Peclet_mass', 'Fourier_heat', 'Fourier_mass',
-'Graetz_heat', 'Lewis', 'Weber', 'Mach', 'Knudsen', 'Bond', 'Dean', 'Morton',
-'Froude', 'Froude_densimetric', 'Strouhal', 'Biot', 'Stanton', 'Euler', 'Cavitation', 'Eckert',
-'Jakob', 'Power_number', 'Stokes_number', 'Drag', 'Capillary', 'Bejan_L', 'Bejan_p', 'Boiling',
-'Confinement', 'Archimedes', 'Ohnesorge', 'Suratman', 'Hagen', 'thermal_diffusivity', 'c_ideal_gas',
-'relative_roughness', 'nu_mu_converter', 'gravity',
-'K_from_f', 'K_from_L_equiv', 'L_equiv_from_K', 'L_from_K', 'dP_from_K',
-'head_from_K', 'head_from_P', 'f_from_K',
-'P_from_head', 'Eotvos',
-'C2K', 'K2C', 'F2C', 'C2F', 'F2K', 'K2F', 'C2R', 'K2R', 'F2R', 'R2C', 'R2K', 'R2F',
-'PY3',
+__all__: list[str] = [
+    "C2F",
+    "C2K",
+    "C2R",
+    "F2C",
+    "F2K",
+    "F2R",
+    "K2C",
+    "K2F",
+    "K2R",
+    "R2C",
+    "R2F",
+    "R2K",
+    "Archimedes",
+    "Bejan_L",
+    "Bejan_p",
+    "Biot",
+    "Boiling",
+    "Bond",
+    "Capillary",
+    "Cavitation",
+    "Confinement",
+    "Dean",
+    "Drag",
+    "Eckert",
+    "Eotvos",
+    "Euler",
+    "Fourier_heat",
+    "Fourier_mass",
+    "Froude",
+    "Froude_densimetric",
+    "Graetz_heat",
+    "Grashof",
+    "Hagen",
+    "Jakob",
+    "K_from_L_equiv",
+    "K_from_f",
+    "Knudsen",
+    "L_equiv_from_K",
+    "L_from_K",
+    "Lewis",
+    "Mach",
+    "Morton",
+    "Nusselt",
+    "Ohnesorge",
+    "P_from_head",
+    "Peclet_heat",
+    "Peclet_mass",
+    "Power_number",
+    "Prandtl",
+    "Rayleigh",
+    "Reynolds",
+    "Schmidt",
+    "Sherwood",
+    "Stanton",
+    "Stokes_number",
+    "Strouhal",
+    "Suratman",
+    "Weber",
+    "c_ideal_gas",
+    "dP_from_K",
+    "f_from_K",
+    "gravity",
+    "head_from_K",
+    "head_from_P",
+    "nu_mu_converter",
+    "relative_roughness",
+    "thermal_diffusivity",
 ]
 
-version_components = sys.version.split('.')
-PY_MAJOR, PY_MINOR = int(version_components[0]), int(version_components[1])
-PY3 = PY_MAJOR >= 3
 
 
 ### Not quite dimensionless groups
-def thermal_diffusivity(k, rho, Cp):
+def thermal_diffusivity(k: float, rho: float, Cp: float) -> float:
     r"""Calculates thermal diffusivity or `alpha` for a fluid with the given
     parameters.
 
@@ -223,7 +277,7 @@ def thermal_diffusivity(k, rho, Cp):
 ### Ideal gas fluid properties
 
 
-def c_ideal_gas(T, k, MW):
+def c_ideal_gas(T: float, k: float, MW: float) -> float:
     r"""Calculates speed of sound `c` in an ideal gas at temperature T.
 
     .. math::
@@ -269,7 +323,7 @@ def c_ideal_gas(T, k, MW):
 
 ### Dimensionless groups with documentation
 
-def Reynolds(V, D, rho=None, mu=None, nu=None):
+def Reynolds(V: float, D: float, rho: float | None=None, mu: float | None=None, nu: float | None=None) -> float:
     r"""Calculates Reynolds number or `Re` for a fluid with the given
     properties for the specified velocity and diameter.
 
@@ -323,12 +377,11 @@ def Reynolds(V, D, rho=None, mu=None, nu=None):
     if rho is not None and mu is not None:
         nu = mu/rho
     elif nu is None:
-        raise ValueError('Either density and viscosity, or dynamic viscosity, \
-        is needed')
+        raise ValueError("Either density and viscosity, or kinematic viscosity is needed")
     return V*D/nu
 
 
-def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
+def Peclet_heat(V: float, L: float, rho: float | None=None, Cp: float | None=None, k: float | None=None, alpha: float | None=None) -> float:
     r"""Calculates heat transfer Peclet number or `Pe` for a specified velocity
     `V`, characteristic length `L`, and specified properties for the given
     fluid.
@@ -383,14 +436,13 @@ def Peclet_heat(V, L, rho=None, Cp=None, k=None, alpha=None):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     """
     if rho is not None and Cp is not None and k is not None:
-        alpha =  k/(rho*Cp)
+        alpha = k/(rho*Cp)
     elif alpha is None:
-        raise ValueError('Either heat capacity and thermal conductivity and\
-        density, or thermal diffusivity is needed')
+        raise ValueError("Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed")
     return V*L/alpha
 
 
-def Peclet_mass(V, L, D):
+def Peclet_mass(V: float, L: float, D: float) -> float:
     r"""Calculates mass transfer Peclet number or `Pe` for a specified velocity
     `V`, characteristic length `L`, and diffusion coefficient `D`.
 
@@ -429,7 +481,7 @@ def Peclet_mass(V, L, D):
     return V*L/D
 
 
-def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
+def Fourier_heat(t: float, L: float, rho: float | None=None, Cp: float | None=None, k: float | None=None, alpha: float | None=None) -> float:
     r"""Calculates heat transfer Fourier number or `Fo` for a specified time
     `t`, characteristic length `L`, and specified properties for the given
     fluid.
@@ -485,14 +537,13 @@ def Fourier_heat(t, L, rho=None, Cp=None, k=None, alpha=None):
        Applications. Boston: McGraw Hill Higher Education, 2006.
     """
     if rho is not None and Cp is not None and k is not None:
-        alpha =  k/(rho*Cp)
+        alpha = k/(rho*Cp)
     elif alpha is None:
-        raise ValueError('Either heat capacity and thermal conductivity and \
-density, or thermal diffusivity is needed')
+        raise ValueError("Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed")
     return t*alpha/(L*L)
 
 
-def Fourier_mass(t, L, D):
+def Fourier_mass(t: float, L: float, D: float) -> float:
     r"""Calculates mass transfer Fourier number or `Fo` for a specified time
     `t`, characteristic length `L`, and diffusion coefficient `D`.
 
@@ -531,7 +582,7 @@ def Fourier_mass(t, L, D):
     return t*D/(L*L)
 
 
-def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
+def Graetz_heat(V: float, D: float, x: float, rho: float | None=None, Cp: float | None=None, k: float | None=None, alpha: float | None=None) -> float:
     r"""Calculates Graetz number or `Gz` for a specified velocity
     `V`, diameter `D`, axial distance `x`, and specified properties for the
     given fluid.
@@ -593,12 +644,11 @@ def Graetz_heat(V, D, x, rho=None, Cp=None, k=None, alpha=None):
     if rho is not None and Cp is not None and k is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
-        raise ValueError('Either heat capacity and thermal conductivity and\
-        density, or thermal diffusivity is needed')
+        raise ValueError("Either heat capacity and thermal conductivity and density, or thermal diffusivity is needed")
     return V*D*D/(x*alpha)
 
 
-def Schmidt(D, mu=None, nu=None, rho=None):
+def Schmidt(D: float, mu: float | None=None, nu: float | None=None, rho: float | None=None) -> float:
     r"""Calculates Schmidt number or `Sc` for a fluid with the given
     parameters.
 
@@ -653,10 +703,10 @@ def Schmidt(D, mu=None, nu=None, rho=None):
     elif nu is not None:
         return nu/D
     else:
-        raise ValueError('Insufficient information provided for Schmidt number calculation')
+        raise ValueError("Insufficient information provided for Schmidt number calculation")
 
 
-def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
+def Lewis(D: float, alpha: float | None=None, Cp: float | None=None, k: float | None=None, rho: float | None=None) -> float:
     r"""Calculates Lewis number or `Le` for a fluid with the given parameters.
 
     .. math::
@@ -709,14 +759,16 @@ def Lewis(D=None, alpha=None, Cp=None, k=None, rho=None):
     .. [3] Gesellschaft, V. D. I., ed. VDI Heat Atlas. 2nd edition.
        Berlin; New York:: Springer, 2010.
     """
+    if D is None:
+        raise ValueError("Diffusivity D is required for Le calculation")
     if k is not None and Cp is not None and rho is not None:
         alpha = k/(rho*Cp)
     elif alpha is None:
-        raise ValueError('Insufficient information provided for Le calculation')
+        raise ValueError("Insufficient information provided for Le calculation")
     return alpha/D
 
 
-def Weber(V, L, rho, sigma):
+def Weber(V: float, L: float, rho: float, sigma: float) -> float:
     r"""Calculates Weber number, `We`, for a fluid with the given density,
     surface tension, velocity, and geometric parameter (usually diameter
     of bubble).
@@ -764,7 +816,7 @@ def Weber(V, L, rho, sigma):
     return V*V*L*rho/sigma
 
 
-def Mach(V, c):
+def Mach(V: float, c: float) -> float:
     r"""Calculates Mach number or `Ma` for a fluid of velocity `V` with speed
     of sound `c`.
 
@@ -805,7 +857,7 @@ def Mach(V, c):
     return V/c
 
 
-def Confinement(D, rhol, rhog, sigma, g=g):
+def Confinement(D: float, rhol: float, rhog: float, sigma: float, g: float=g) -> float:
     r"""Calculates Confinement number or `Co` for a fluid in a channel of
     diameter `D` with liquid and gas densities `rhol` and `rhog` and surface
     tension `sigma`, under the influence of gravitational force `g`.
@@ -862,7 +914,7 @@ def Confinement(D, rhol, rhog, sigma, g=g):
     return sqrt(sigma/(g*(rhol-rhog)))/D
 
 
-def Morton(rhol, rhog, mul, sigma, g=g):
+def Morton(rhol: float, rhog: float, mul: float, sigma: float, g: float=g) -> float:
     r"""Calculates Morton number or `Mo` for a liquid and vapor with the
     specified properties, under the influence of gravitational force `g`.
 
@@ -909,7 +961,7 @@ def Morton(rhol, rhog, mul, sigma, g=g):
     return g*mul2*mul2*(rhol - rhog)/(rhol*rhol*sigma*sigma*sigma)
 
 
-def Knudsen(path, L):
+def Knudsen(path: float, L: float) -> float:
     r"""Calculates Knudsen number or `Kn` for a fluid with mean free path
     `path` and for a characteristic length `L`.
 
@@ -950,7 +1002,7 @@ def Knudsen(path, L):
     return path/L
 
 
-def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
+def Prandtl(Cp: float | None=None, k: float | None=None, mu: float | None=None, nu: float | None=None, rho: float | None=None, alpha: float | None=None) -> float:
     r"""Calculates Prandtl number or `Pr` for a fluid with the given
     parameters.
 
@@ -1015,10 +1067,10 @@ def Prandtl(Cp=None, k=None, mu=None, nu=None, rho=None, alpha=None):
     elif nu is not None and alpha is not None:
         return nu/alpha
     else:
-        raise ValueError('Insufficient information provided for Pr calculation')
+        raise ValueError("Insufficient information provided for Pr calculation")
 
 
-def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
+def Grashof(L: float, beta: float, T1: float, T2: float=0, rho: float | None=None, mu: float | None=None, nu: float | None=None, g: float=g) -> float:
     r"""Calculates Grashof number or `Gr` for a fluid with the given
     properties, temperature difference, and characteristic length.
 
@@ -1028,8 +1080,8 @@ def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
 
     Inputs either of any of the following sets:
 
-    * L, beta, T1 and T2, and density `rho` and kinematic viscosity `mu`
-    * L, beta, T1 and T2, and dynamic viscosity `nu`
+    * L, beta, T1 and T2, and density `rho` and dynamic viscosity `mu`
+    * L, beta, T1 and T2, and kinematic viscosity `nu`
 
     Parameters
     ----------
@@ -1083,12 +1135,11 @@ def Grashof(L, beta, T1, T2=0, rho=None, mu=None, nu=None, g=g):
     if rho is not None and mu is not None:
         nu = mu/rho
     elif nu is None:
-        raise ValueError('Either density and viscosity, or dynamic viscosity, \
-        is needed')
+        raise ValueError("Either density and viscosity, or kinematic viscosity is needed")
     return g*beta*abs(T2-T1)*L*L*L/(nu*nu)
 
 
-def Bond(rhol, rhog, sigma, L):
+def Bond(rhol: float, rhog: float, sigma: float, L: float) -> float:
     r"""Calculates Bond number, `Bo` also known as Eotvos number,
     for a fluid with the given liquid and gas densities, surface tension,
     and geometric parameter (usually length).
@@ -1127,7 +1178,7 @@ def Bond(rhol, rhog, sigma, L):
 Eotvos = Bond
 
 
-def Rayleigh(Pr, Gr):
+def Rayleigh(Pr: float, Gr: float) -> float:
     r"""Calculates Rayleigh number or `Ra` using Prandtl number `Pr` and
     Grashof number `Gr` for a fluid with the given
     properties, temperature difference, and characteristic length used
@@ -1167,7 +1218,7 @@ def Rayleigh(Pr, Gr):
     return Pr*Gr
 
 
-def Froude(V, L, g=g, squared=False):
+def Froude(V: float, L: float, g: float=g, squared: bool=False) -> float:
     r"""Calculates Froude number `Fr` for velocity `V` and geometric length
     `L`. If desired, gravity can be specified as well. Normally the function
     returns the result of the equation below; Froude number is also often
@@ -1219,14 +1270,14 @@ def Froude(V, L, g=g, squared=False):
     return Fr
 
 
-def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
+def Froude_densimetric(V: float, L: float, rho1: float, rho2: float, heavy: bool=True, g: float=g) -> float:
     r"""Calculates the densimetric Froude number :math:`Fr_{den}` for velocity
     `V` geometric length `L`, heavier fluid density `rho1`, and lighter fluid
     density `rho2`. If desired, gravity can be specified as well. Depending on
     the application, this dimensionless number may be defined with the heavy
     phase or the light phase density in the numerator of the square root.
     For some applications, both need to be calculated. The default is to
-    calculate with the heavy liquid ensity on top; set `heavy` to False
+    calculate with the heavy liquid density on top; set `heavy` to False
     to reverse this.
 
     .. math::
@@ -1264,7 +1315,7 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
     Where the gravity force is reduced by the relative densities of one fluid
     in another.
 
-    Note that an Exception will be raised if rho1 > rho2, as the square root
+    Note that an Exception will be raised if rho1 < rho2, as the square root
     becomes negative.
 
     Examples
@@ -1289,7 +1340,7 @@ def Froude_densimetric(V, L, rho1, rho2, heavy=True, g=g):
     return V/(sqrt(g*L))*sqrt(rho3/(rho1 - rho2))
 
 
-def Strouhal(f, L, V):
+def Strouhal(f: float, L: float, V: float) -> float:
     r"""Calculates Strouhal number `St` for a characteristic frequency `f`,
     characteristic length `L`, and velocity `V`.
 
@@ -1333,7 +1384,7 @@ def Strouhal(f, L, V):
     return f*L/V
 
 
-def Nusselt(h, L, k):
+def Nusselt(h: float, L: float, k: float) -> float:
     r"""Calculates Nusselt number `Nu` for a heat transfer coefficient `h`,
     characteristic length `L`, and thermal conductivity `k`.
 
@@ -1357,7 +1408,7 @@ def Nusselt(h, L, k):
     Notes
     -----
     Do not confuse k, the thermal conductivity of the fluid, with that
-    of within a solid object associated with!
+    of a solid object!
 
     .. math::
         Nu = \frac{\text{Convective heat transfer}}
@@ -1381,7 +1432,7 @@ def Nusselt(h, L, k):
     return h*L/k
 
 
-def Sherwood(K, L, D):
+def Sherwood(K: float, L: float, D: float) -> float:
     r"""Calculates Sherwood number `Sh` for a mass transfer coefficient `K`,
     characteristic length `L`, and diffusivity `D`.
 
@@ -1395,7 +1446,7 @@ def Sherwood(K, L, D):
     L : float
         Characteristic length, no typical definition [m]
     D : float
-        Diffusivity of a species [m/s^2]
+        Diffusivity of a species [m^2/s]
 
     Returns
     -------
@@ -1421,8 +1472,8 @@ def Sherwood(K, L, D):
     return K*L/D
 
 
-def Biot(h, L, k):
-    r"""Calculates Biot number `Br` for heat transfer coefficient `h`,
+def Biot(h: float, L: float, k: float) -> float:
+    r"""Calculates Biot number `Bi` for heat transfer coefficient `h`,
     geometric length `L`, and thermal conductivity `k`.
 
     .. math::
@@ -1468,7 +1519,7 @@ def Biot(h, L, k):
     return h*L/k
 
 
-def Stanton(h, V, rho, Cp):
+def Stanton(h: float, V: float, rho: float, Cp: float) -> float:
     r"""Calculates Stanton number or `St` for a specified heat transfer
     coefficient `h`, velocity `V`, density `rho`, and heat capacity `Cp` [1]_
     [2]_.
@@ -1513,7 +1564,7 @@ def Stanton(h, V, rho, Cp):
     return h/(V*rho*Cp)
 
 
-def Euler(dP, rho, V):
+def Euler(dP: float, rho: float, V: float) -> float:
     r"""Calculates Euler number or `Eu` for a fluid of velocity `V` and
     density `rho` experiencing a pressure drop `dP`.
 
@@ -1538,7 +1589,7 @@ def Euler(dP, rho, V):
     -----
     Used in pressure drop calculations.
     Rarely, this number is divided by two.
-    Named after Leonhard Euler applied calculus to fluid dynamics.
+    Named after Leonhard Euler who applied calculus to fluid dynamics.
 
     .. math::
         Eu = \frac{\text{Pressure drop}}{2\cdot \text{velocity head}}
@@ -1558,7 +1609,7 @@ def Euler(dP, rho, V):
     return dP/(rho*V*V)
 
 
-def Cavitation(P, Psat, rho, V):
+def Cavitation(P: float, Psat: float, rho: float, V: float) -> float:
     r"""Calculates Cavitation number or `Ca` for a fluid of velocity `V` with
     a pressure `P`, vapor pressure `Psat`, and density `rho`.
 
@@ -1605,7 +1656,7 @@ def Cavitation(P, Psat, rho, V):
     return (P-Psat)/(0.5*rho*V*V)
 
 
-def Eckert(V, Cp, dT):
+def Eckert(V: float, Cp: float, dT: float) -> float:
     r"""Calculates Eckert number or `Ec` for a fluid of velocity `V` with
     a heat capacity `Cp`, between two temperature given as `dT`.
 
@@ -1646,7 +1697,7 @@ def Eckert(V, Cp, dT):
     return V*V/(Cp*dT)
 
 
-def Jakob(Cp, Hvap, Te):
+def Jakob(Cp: float, Hvap: float, Te: float) -> float:
     r"""Calculates Jakob number or `Ja` for a boiling fluid with sensible heat
     capacity `Cp`, enthalpy of vaporization `Hvap`, and boiling at `Te` degrees
     above its saturation boiling point.
@@ -1691,7 +1742,7 @@ def Jakob(Cp, Hvap, Te):
     return Cp*Te/Hvap
 
 
-def Power_number(P, L, N, rho):
+def Power_number(P: float, L: float, N: float, rho: float) -> float:
     r"""Calculates power number, `Po`, for an agitator applying a specified
     power `P` with a characteristic length `L`, rotational speed `N`, to
     a fluid with a specified density `rho`.
@@ -1737,7 +1788,7 @@ def Power_number(P, L, N, rho):
     return P/(rho*N*N*N*L**5)
 
 
-def Drag(F, A, V, rho):
+def Drag(F: float, A: float, V: float, rho: float) -> float:
     r"""Calculates drag coefficient `Cd` for a given drag force `F`,
     projected area `A`, characteristic velocity `V`, and density `rho`.
 
@@ -1783,7 +1834,7 @@ def Drag(F, A, V, rho):
     return F/(0.5*A*rho*V*V)
 
 
-def Stokes_number(V, Dp, D, rhop, mu):
+def Stokes_number(V: float, Dp: float, D: float, rhop: float, mu: float) -> float:
     r"""Calculates Stokes Number for a given characteristic velocity `V`,
     particle diameter `Dp`, characteristic diameter `D`, particle density
     `rhop`, and fluid viscosity `mu`.
@@ -1808,7 +1859,7 @@ def Stokes_number(V, Dp, D, rhop, mu):
     Returns
     -------
     Stk : float
-        Stokes numer, [-]
+        Stokes number, [-]
 
     Notes
     -----
@@ -1830,7 +1881,7 @@ def Stokes_number(V, Dp, D, rhop, mu):
     return rhop*V*(Dp*Dp)/(18.0*mu*D)
 
 
-def Capillary(V, mu, sigma):
+def Capillary(V: float, mu: float, sigma: float) -> float:
     r"""Calculates Capillary number `Ca` for a characteristic velocity `V`,
     viscosity `mu`, and surface tension `sigma`.
 
@@ -1875,7 +1926,7 @@ def Capillary(V, mu, sigma):
     return V*mu/sigma
 
 
-def Archimedes(L, rhof, rhop, mu, g=g):
+def Archimedes(L: float, rhof: float, rhop: float, mu: float, g: float=g) -> float:
     r"""Calculates Archimedes number, `Ar`, for a fluid and particle with the
     given densities, characteristic length, viscosity, and gravity
     (usually diameter of particle).
@@ -1892,7 +1943,7 @@ def Archimedes(L, rhof, rhop, mu, g=g):
     rhop : float
         Density of particle, [kg/m^3]
     mu : float
-        Viscosity of fluid, [N/m]
+        Viscosity of fluid, [Pa*s]
     g : float, optional
         Acceleration due to gravity, [m/s^2]
 
@@ -1923,7 +1974,7 @@ def Archimedes(L, rhof, rhop, mu, g=g):
     return L*L*L*rhof*(rhop-rhof)*g/(mu*mu)
 
 
-def Ohnesorge(L, rho, mu, sigma):
+def Ohnesorge(L: float, rho: float, mu: float, sigma: float) -> float:
     r"""Calculates Ohnesorge number, `Oh`, for a fluid with the given
     characteristic length, density, viscosity, and surface tension.
 
@@ -1967,7 +2018,7 @@ def Ohnesorge(L, rho, mu, sigma):
     return mu/sqrt(L*rho*sigma)
 
 
-def Suratman(L, rho, mu, sigma):
+def Suratman(L: float, rho: float, mu: float, sigma: float) -> float:
     r"""Calculates Suratman number, `Su`, for a fluid with the given
     characteristic length, density, viscosity, and surface tension.
 
@@ -2020,7 +2071,7 @@ def Suratman(L, rho, mu, sigma):
     return rho*sigma*L/(mu*mu)
 
 
-def Hagen(Re, fd):
+def Hagen(Re: float, fd: float) -> float:
     r"""Calculates Hagen number, `Hg`, for a fluid with the given
     Reynolds number and friction factor.
 
@@ -2046,7 +2097,7 @@ def Hagen(Re, fd):
     Introduced in [1]_; further use of it is mostly of the correlations
     introduced in [1]_.
 
-    Notable for use use in correlations, because it does not have any
+    Notable for use in correlations, because it does not have any
     dependence on velocity.
 
     This expression is useful when designing backwards with a pressure drop
@@ -2074,7 +2125,7 @@ def Hagen(Re, fd):
     return 0.5*fd*Re*Re
 
 
-def Bejan_L(dP, L, mu, alpha):
+def Bejan_L(dP: float, L: float, mu: float, alpha: float) -> float:
     r"""Calculates Bejan number of a length or `Be_L` for a fluid with the
     given parameters flowing over a characteristic length `L` and experiencing
     a pressure drop `dP`.
@@ -2118,7 +2169,7 @@ def Bejan_L(dP, L, mu, alpha):
     return dP*L*L/(alpha*mu)
 
 
-def Bejan_p(dP, K, mu, alpha):
+def Bejan_p(dP: float, K: float, mu: float, alpha: float) -> float:
     r"""Calculates Bejan number of a permeability or `Be_p` for a fluid with
     the given parameters and a permeability `K` experiencing a pressure drop
     `dP`.
@@ -2162,7 +2213,7 @@ def Bejan_p(dP, K, mu, alpha):
     return dP*K/(alpha*mu)
 
 
-def Boiling(G, q, Hvap):
+def Boiling(G: float, q: float, Hvap: float) -> float:
     r"""Calculates Boiling number or `Bg` using heat flux, two-phase mass flux,
     and heat of vaporization of the fluid flowing. Used in two-phase heat
     transfer calculations.
@@ -2216,7 +2267,7 @@ def Boiling(G, q, Hvap):
     return q/(G*Hvap)
 
 
-def Dean(Re, Di, D):
+def Dean(Re: float, Di: float, D: float) -> float:
     r"""Calculates Dean number, `De`, for a fluid with the Reynolds number `Re`,
     inner diameter `Di`, and a secondary diameter `D`. `D` may be the
     diameter of curvature, the diameter of a spiral, or some other dimension.
@@ -2261,7 +2312,7 @@ def Dean(Re, Di, D):
     return sqrt(Di/D)*Re
 
 
-def relative_roughness(D, roughness=1.52e-06):
+def relative_roughness(D: float, roughness: float=1.52e-06) -> float:
     r"""Calculates relative roughness `eD` using a diameter and the roughness
     of the material of the wall. Default roughness is that of steel.
 
@@ -2297,7 +2348,7 @@ def relative_roughness(D, roughness=1.52e-06):
 
 ### Misc utilities
 
-def nu_mu_converter(rho, mu=None, nu=None):
+def nu_mu_converter(rho: float, mu: float | None=None, nu: float | None=None) -> float:
     r"""Calculates either kinematic or dynamic viscosity, depending on inputs.
     Used when one type of viscosity is known as well as density, to obtain
     the other type. Raises an error if both types of viscosity or neither type
@@ -2333,20 +2384,18 @@ def nu_mu_converter(rho, mu=None, nu=None):
     .. [1] Cengel, Yunus, and John Cimbala. Fluid Mechanics: Fundamentals and
        Applications. Boston: McGraw Hill Higher Education, 2006.
     """
-    if (nu is not None and mu is not None) or rho is None or (nu is None and mu is None):
-        raise ValueError('Inputs must be rho and one of mu and nu.')
-    if mu is not None:
+    if mu is not None and nu is None:
         return mu/rho
-    else:
+    elif nu is not None and mu is None:
         return nu*rho
+    raise ValueError("Inputs must be rho and one of mu and nu.")
 
-
-def gravity(latitude, H):
+def gravity(latitude: float, H: float) -> float:
     r"""Calculates local acceleration due to gravity `g` according to [1]_.
     Uses latitude and height to calculate `g`.
 
     .. math::
-        g = 9.780356(1 + 0.0052885\sin^2\phi - 0.0000059^22\phi)
+        g = 9.780356(1 + 0.0052885\sin^2\phi - 0.0000059\sin^2(2\phi))
         - 3.086\times 10^{-6} H
 
     Parameters
@@ -2381,7 +2430,7 @@ def gravity(latitude, H):
 
 ### Friction loss conversion functions
 
-def K_from_f(fd, L, D):
+def K_from_f(fd: float, L: float, D: float) -> float:
     r"""Calculates loss coefficient, K, for a given section of pipe
     at a specified friction factor.
 
@@ -2414,7 +2463,7 @@ def K_from_f(fd, L, D):
     """
     return fd*L/D
 
-def f_from_K(K, L, D):
+def f_from_K(K: float, L: float, D: float) -> float:
     r"""Calculates friction factor, `fd`, from a loss coefficient, K,
     for a given section of pipe.
 
@@ -2448,7 +2497,7 @@ def f_from_K(K, L, D):
     return K*D/L
 
 
-def K_from_L_equiv(L_D, fd=0.015):
+def K_from_L_equiv(L_D: float, fd: float=0.015) -> float:
     r"""Calculates loss coefficient, for a given equivalent length (L/D).
 
     .. math::
@@ -2479,7 +2528,7 @@ def K_from_L_equiv(L_D, fd=0.015):
     return fd*L_D
 
 
-def L_equiv_from_K(K, fd=0.015):
+def L_equiv_from_K(K: float, fd: float=0.015) -> float:
     r"""Calculates equivalent length of pipe (L/D), for a given loss
     coefficient.
 
@@ -2510,7 +2559,7 @@ def L_equiv_from_K(K, fd=0.015):
     return K/fd
 
 
-def L_from_K(K, D, fd=0.015):
+def L_from_K(K: float, D: float, fd: float=0.015) -> float:
     r"""Calculates the length of straight pipe at a specified friction factor
     required to produce a given loss coefficient `K`.
 
@@ -2539,7 +2588,7 @@ def L_from_K(K, D, fd=0.015):
     return K*D/fd
 
 
-def dP_from_K(K, rho, V):
+def dP_from_K(K: float, rho: float, V: float) -> float:
     r"""Calculates pressure drop, for a given loss coefficient,
     at a specified density and velocity.
 
@@ -2573,7 +2622,7 @@ def dP_from_K(K, rho, V):
     return K*0.5*rho*V*V
 
 
-def head_from_K(K, V, g=g):
+def head_from_K(K: float, V: float, g: float=g) -> float:
     r"""Calculates head loss, for a given loss coefficient,
     at a specified velocity.
 
@@ -2607,7 +2656,7 @@ def head_from_K(K, V, g=g):
     return K*0.5*V*V/g
 
 
-def head_from_P(P, rho, g=g):
+def head_from_P(P: float, rho: float, g: float=g) -> float:
     r"""Calculates head for a fluid of specified density at specified
     pressure.
 
@@ -2641,9 +2690,9 @@ def head_from_P(P, rho, g=g):
     return P/rho/g
 
 
-def P_from_head(head, rho, g=g):
-    r"""Calculates head for a fluid of specified density at specified
-    pressure.
+def P_from_head(head: float, rho: float, g: float=g) -> float:
+    r"""Calculates pressure for a fluid of specified density at specified
+    head.
 
     .. math::
         P = \rho g \cdot \text{head}
@@ -2683,7 +2732,7 @@ Pr = Prandtl # Synonym
 zero_Celsius = 273.15
 degree_Fahrenheit = 1.0/1.8 # only for differences
 
-def C2K(C):
+def C2K(C: float) -> float:
     """Convert Celsius to Kelvin.
 
     Parameters
@@ -2709,7 +2758,7 @@ def C2K(C):
     return C + zero_Celsius
 
 
-def K2C(K):
+def K2C(K: float) -> float:
     """Convert Kelvin to Celsius.
 
     Parameters
@@ -2735,7 +2784,7 @@ def K2C(K):
     return K - zero_Celsius
 
 
-def F2C(F):
+def F2C(F: float) -> float:
     """Convert Fahrenheit to Celsius.
 
     Parameters
@@ -2760,7 +2809,7 @@ def F2C(F):
     return (F - 32.0) / 1.8
 
 
-def C2F(C):
+def C2F(C: float) -> float:
     """Convert Celsius to Fahrenheit.
 
     Parameters
@@ -2785,7 +2834,7 @@ def C2F(C):
     return 1.8*C + 32.0
 
 
-def F2K(F):
+def F2K(F: float) -> float:
     """Convert Fahrenheit to Kelvin.
 
     Parameters
@@ -2812,7 +2861,7 @@ def F2K(F):
     return (F - 32.0)/1.8 + zero_Celsius
 
 
-def K2F(K):
+def K2F(K: float) -> float:
     """Convert Kelvin to Fahrenheit.
 
     Parameters
@@ -2839,7 +2888,7 @@ def K2F(K):
     return 1.8*(K - zero_Celsius) + 32.0
 
 
-def C2R(C):
+def C2R(C: float) -> float:
     """Convert Celsius to Rankine.
 
     Parameters
@@ -2866,7 +2915,7 @@ def C2R(C):
     return 1.8 * (C + zero_Celsius)
 
 
-def K2R(K):
+def K2R(K: float) -> float:
     """Convert Kelvin to Rankine.
 
     Parameters
@@ -2891,7 +2940,7 @@ def K2R(K):
     return 1.8 * K
 
 
-def F2R(F):
+def F2R(F: float) -> float:
     """Convert Fahrenheit to Rankine.
 
     Parameters
@@ -2918,7 +2967,7 @@ def F2R(F):
     return F - 32.0 + 1.8 * zero_Celsius
 
 
-def R2C(Ra):
+def R2C(Ra: float) -> float:
     """Convert Rankine to Celsius.
 
     Parameters
@@ -2945,7 +2994,7 @@ def R2C(Ra):
     return Ra / 1.8 - zero_Celsius
 
 
-def R2K(Ra):
+def R2K(Ra: float) -> float:
     """Convert Rankine to Kelvin.
 
     Parameters
@@ -2970,7 +3019,7 @@ def R2K(Ra):
     return Ra / 1.8
 
 
-def R2F(Ra):
+def R2F(Ra: float) -> float:
     """Convert Rankine to Fahrenheit.
 
     Parameters
@@ -3009,10 +3058,10 @@ def Engauge_2d_parser(lines, flat=False):
 
     new_curve = True
     for line in lines:
-        if line.strip() == '':
+        if line.strip() == "":
             new_curve = True
         elif new_curve:
-            z = float(line.split(',')[1])
+            z = float(line.split(",")[1])
             z_values.append(z)
             if working_xs and working_ys:
                 x_lists.append(working_xs)
@@ -3021,7 +3070,7 @@ def Engauge_2d_parser(lines, flat=False):
             working_ys = []
             new_curve = False
         else:
-            x, y = (float(i) for i in line.strip().split(','))
+            x, y = (float(i) for i in line.strip().split(","))
             working_xs.append(x)
             working_ys.append(y)
     x_lists.append(working_xs)

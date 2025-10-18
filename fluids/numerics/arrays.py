@@ -31,7 +31,7 @@ else:
     try:
         # The right way imports the platform module which costs to ms to load!
         # implementation = platform.python_implementation()
-        IS_PYPY = 'PyPy' in sys.version
+        IS_PYPY = "PyPy" in sys.version
     except AttributeError:
         IS_PYPY = False
 
@@ -43,12 +43,33 @@ else:
 #    except ImportError:
 #        np = None
 
-__all__ = ['dot_product', 'inv', 'det', 'solve', 'norm2', 'transpose', 'shape',
-           'eye', 'array_as_tridiagonals', 'solve_tridiagonal', 'subset_matrix',
-           'argsort1d', 'lu', 'gelsd', 'matrix_vector_dot', 'matrix_multiply',
-           'sum_matrix_rows', 'sum_matrix_cols', 'sort_paired_lists',
-           'scalar_divide_matrix', 'scalar_multiply_matrix', 'scalar_subtract_matrices', 'scalar_add_matrices',
-           'stack_vectors', 'null_space']
+__all__ = [
+    "argsort1d",
+    "array_as_tridiagonals",
+    "det",
+    "dot_product",
+    "eye",
+    "gelsd",
+    "inv",
+    "lu",
+    "matrix_multiply",
+    "matrix_vector_dot",
+    "norm2",
+    "null_space",
+    "scalar_add_matrices",
+    "scalar_divide_matrix",
+    "scalar_multiply_matrix",
+    "scalar_subtract_matrices",
+    "shape",
+    "solve",
+    "solve_tridiagonal",
+    "sort_paired_lists",
+    "stack_vectors",
+    "subset_matrix",
+    "sum_matrix_cols",
+    "sum_matrix_rows",
+    "transpose",
+]
 primitive_containers = frozenset([list, tuple])
 
 def transpose(matrix):
@@ -95,16 +116,16 @@ def transpose(matrix):
         return []
     if not matrix[0]:
         return []
-    
+
     # # Validate input
     # if not isinstance(matrix, list) or not all(isinstance(row, list) for row in matrix):
     #     raise TypeError("Input must be a list of lists")
-    
+
     # Check for consistent row lengths
     row_length = len(matrix[0])
     if not all(len(row) == row_length for row in matrix):
         raise ValueError("All rows must have the same length")
-    
+
     return [list(i) for i in zip(*matrix)]
 
 def det(matrix):
@@ -294,28 +315,28 @@ def det(matrix):
 #         replacements, reduced = cse(exprs, optimizations='basic')
 #         det_expr = reduced[0]
 #         inv_exprs = reduced[1:]
-        
+
 #         # Build the size-specific code block
 #         code = []
-        
+
 #         # Unpack matrix elements
 #         unpack_rows = []
 #         for i in range(N):
 #             row_vars = [f"m_{i}{j}" for j in range(N)]
 #             unpack_rows.append("(" + ", ".join(row_vars) + ")")
 #         code.append(f"        {', '.join(unpack_rows)} = matrix")
-        
+
 #         # Common subexpressions
 #         code.append("\n        # Common subexpressions")
 #         for i, (temp, expr) in enumerate(replacements):
 #             code.append(f"        x{i} = {expr}")
-        
+
 #         # Determinant check
 #         code.append("\n        # Calculate determinant and check if we need to use LU decomposition")
 #         code.append(f"        det = {det_expr}")
 #         code.append("        if abs(det) <= 1e-7:")
 #         code.append("            return inv_lu(matrix)")
-        
+
 #         # Return matrix
 #         return_matrix = []
 #         for i in range(N):
@@ -324,13 +345,13 @@ def det(matrix):
 #                 idx = i * N + j
 #                 row.append(str(inv_exprs[idx]))
 #             return_matrix.append(f"            [{', '.join(row)}]")
-        
+
 #         code.append("\n        return [")
 #         code.append(",\n".join(return_matrix))
 #         code.append("        ]")
-        
+
 #         size_specific_code[N] = post_process_code("\n".join(code))
-    
+
 #     # Generate the complete function
 #     complete_code = [
 #         "def inv(matrix):",
@@ -347,7 +368,7 @@ def det(matrix):
 #         "        return inv_lu(matrix)",
 #         ""
 #     ]
-    
+
 #     return "\n".join(complete_code)
 
 # # Generate and print the complete function
@@ -454,32 +475,32 @@ def shape(value):
 def eye(N, dtype=float):
     """
     Return a 2-D array with ones on the diagonal and zeros elsewhere.
-    
+
     Parameters
     ----------
     N : int
         Number of rows and columns in the output matrix.
     dtype : type, optional
         The type of the array elements. Defaults to float.
-        
+
     Returns
     -------
     list[list]
         A N x N matrix with ones on the diagonal and zeros elsewhere.
-        
+
     Examples
     --------
     >>> eye(3)
     [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-    
+
     >>> eye(2, dtype=int)
     [[1, 0], [0, 1]]
-    
+
     Notes
     -----
     This function creates an identity matrix similar to numpy's eye function,
     but implemented in pure Python using nested lists.
-    
+
     Raises
     ------
     ValueError
@@ -492,7 +513,7 @@ def eye(N, dtype=float):
         raise TypeError("N must be an integer")
     if N <= 0:
         raise ValueError("N must be a positive integer")
-    
+
     # Create the matrix
     matrix = []
     zero, one = dtype(0), dtype(1)
@@ -500,47 +521,47 @@ def eye(N, dtype=float):
         row = [zero] * N  # Initialize row with zeros
         row[i] = one    # Set diagonal element to 1
         matrix.append(row)
-    
+
     return matrix
 
 
 def dot_product(a, b):
     """
     Compute the dot product (also known as scalar product or inner product) of two vectors.
-    
+
     Calculates sum(a[i] * b[i]) for i in range(len(a)).
-    
+
     Parameters
     ----------
     a : list[float]
         First vector
     b : list[float]
         Second vector of same length as a
-        
+
     Returns
     -------
     float
         The dot product of vectors a and b
-        
+
     Examples
     --------
     >>> dot_product([1, 2, 3], [4, 5, 6])
     32.0
     >>> dot_product([1, 0], [0, 1])
     0.0
-    
+
     Notes
     -----
-    
+
     Raises
     ------
     ValueError
         If vectors are not the same length
-    TypeError 
+    TypeError
         If inputs are not valid vector types
     """
     if len(a) != len(b):
-        raise ValueError("Vectors must have same length") 
+        raise ValueError("Vectors must have same length")
     tot = 0.0
     for i in range(len(a)):
         tot += a[i]*b[i]
@@ -586,37 +607,37 @@ def matrix_vector_dot(matrix, vector):
 
 def matrix_multiply(A, B):
     r"""Multiply two matrices using pure Python.
-    
-    Computes the matrix product C = A·B where A is an m×p matrix and B is a p×n matrix,
-    resulting in an m×n matrix C.
-    
+
+    Computes the matrix product C = A·B where A is an mxp matrix and B is a pxn matrix,
+    resulting in an mxn matrix C.
+
     Parameters
     ----------
     A : list[list[float]]
         First matrix as list of lists, with shape (m, p)
     B : list[list[float]]
         Second matrix as list of lists, with shape (p, n)
-        
+
     Returns
     -------
     list[list[float]]
         Resulting matrix C with shape (m, n)
-        
+
     Examples
     --------
     >>> A = [[1, 2], [3, 4]]
     >>> B = [[5, 6], [7, 8]]
     >>> matrix_multiply(A, B)
     [[19.0, 22.0], [43.0, 50.0]]
-    
+
     Notes
     -----
     Uses a straightforward three-loop implementation optimized for pure Python:
     C[i,j] = sum(A[i,k] * B[k,j] for k in range(p))
-    
+
     The implementation avoids repeated len() calls and list accesses by caching
     frequently used values.
-    
+
     Raises
     ------
     ValueError
@@ -628,12 +649,12 @@ def matrix_multiply(A, B):
     # Input validation
     if not A or not A[0] or not B or not B[0]:
         raise ValueError("Empty matrices cannot be multiplied")
-    
+
     # Get dimensions
     m = len(A)  # rows in A
     p = len(A[0]) if m else 0 # cols in A = rows in B
     n = len(B[0]) if B else 0  # cols in B
-    
+
     # Validate dimensions
     if not all(len(row) == p for row in A):
         raise ValueError("First matrix has irregular row lengths")
@@ -641,10 +662,10 @@ def matrix_multiply(A, B):
         raise ValueError(f"Incompatible dimensions: A is {m}x{p}, B is {len(B)}x{n}")
     if not all(len(row) == n for row in B):
         raise ValueError("Second matrix has irregular row lengths")
-    
+
     # Pre-allocate result matrix with zeros
     C = [[0.0] * n for _ in range(m)]
-    
+
     # Compute product using simple indexed loops
     for i in range(m):
         A_i = A[i]  # Cache current row of A
@@ -654,34 +675,34 @@ def matrix_multiply(A, B):
             for k in range(p):
                 tot += A_i[k] * B[k][j]
             C_i[j] = tot
-            
+
     return C
 
 def sum_matrix_rows(matrix):
     """Sum a 2D matrix along rows, equivalent to numpy.sum(matrix, axis=1).
-    
+
     Parameters
     ----------
     matrix : list[list[float]]
         Input matrix as a list of lists where each inner list is a row
-        
+
     Returns
     -------
     list[float]
         List containing the sum of each row
-        
+
     Examples
     --------
     >>> sum_matrix_rows([[1, 2, 3], [4, 5, 6]])
     [6.0, 15.0]
     >>> sum_matrix_rows([[1], [2]])
     [1.0, 2.0]
-    
+
     Notes
     -----
     For a matrix with shape (m, n), returns a list of length m
     where each element is the sum of the corresponding row.
-    
+
     Raises
     ------
     ValueError
@@ -691,11 +712,11 @@ def sum_matrix_rows(matrix):
     """
     if not matrix or not matrix[0]:
         raise ValueError("Empty matrix")
-        
+
     n = len(matrix[0])
     if not all(len(row) == n for row in matrix):
         raise ValueError("Matrix has irregular row lengths")
-    
+
     result = []
     for row in matrix:
         tot = 0.0
@@ -706,29 +727,29 @@ def sum_matrix_rows(matrix):
 
 def sum_matrix_cols(matrix):
     """Sum a 2D matrix along columns, equivalent to numpy.sum(matrix, axis=0).
-    
+
     Parameters
     ----------
     matrix : list[list[float]]
         Input matrix as a list of lists where each inner list is a row
-        
+
     Returns
     -------
     list[float]
         List containing the sum of each column
-        
+
     Examples
     --------
     >>> sum_matrix_cols([[1, 2, 3], [4, 5, 6]])
     [5.0, 7.0, 9.0]
     >>> sum_matrix_cols([[1], [2]])
     [3.0]
-    
+
     Notes
     -----
     For a matrix with shape (m, n), returns a list of length n
     where each element is the sum of the corresponding column.
-    
+
     Raises
     ------
     ValueError
@@ -738,11 +759,11 @@ def sum_matrix_cols(matrix):
     """
     if not matrix or not matrix[0]:
         raise ValueError("Empty matrix")
-        
+
     n = len(matrix[0])
     if not all(len(row) == n for row in matrix):
         raise ValueError("Matrix has irregular row lengths")
-    
+
     result = [0.0] * n
     for row in matrix:
         for j, val in enumerate(row):
@@ -751,28 +772,28 @@ def sum_matrix_cols(matrix):
 
 def scalar_add_matrices(A, B):
     """Add two matrices element-wise.
-    
+
     Computes the element-wise sum of two matrices of the same dimensions.
-    
+
     Parameters
     ----------
     A : list[list[float]]
         First matrix as a list of lists.
     B : list[list[float]]
         Second matrix as a list of lists.
-        
+
     Returns
     -------
     list[list[float]]
         Resulting matrix after element-wise addition.
-        
+
     Examples
     --------
     >>> A = [[1.0, 2.0], [3.0, 4.0]]
     >>> B = [[5.0, 6.0], [7.0, 8.0]]
     >>> scalar_add_matrices(A, B)
     [[6.0, 8.0], [10.0, 12.0]]
-    
+
     Raises
     ------
     ValueError
@@ -782,7 +803,7 @@ def scalar_add_matrices(A, B):
     """
     if not A or not B or len(A) != len(B) or len(A[0]) != len(B[0]) or not len(A[0]):
         raise ValueError("Matrices must have the same dimensions and be non-empty")
-    
+
     result = []
     for row_A, row_B in zip(A, B):
         if len(row_A) != len(row_B):
@@ -793,28 +814,28 @@ def scalar_add_matrices(A, B):
 
 def scalar_subtract_matrices(A, B):
     """Subtract two matrices element-wise.
-    
+
     Computes the element-wise difference of two matrices of the same dimensions.
-    
+
     Parameters
     ----------
     A : list[list[float]]
         First matrix as a list of lists.
     B : list[list[float]]
         Second matrix as a list of lists.
-        
+
     Returns
     -------
     list[list[float]]
         Resulting matrix after element-wise subtraction.
-        
+
     Examples
     --------
     >>> A = [[5.0, 6.0], [7.0, 8.0]]
     >>> B = [[1.0, 2.0], [3.0, 4.0]]
     >>> scalar_subtract_matrices(A, B)
     [[4.0, 4.0], [4.0, 4.0]]
-    
+
     Raises
     ------
     ValueError
@@ -824,7 +845,7 @@ def scalar_subtract_matrices(A, B):
     """
     if not A or not B or len(A) != len(B) or len(A[0]) != len(B[0]) or not len(A[0]):
         raise ValueError("Matrices must have the same dimensions and be non-empty")
-    
+
     result = []
     for row_A, row_B in zip(A, B):
         if len(row_A) != len(row_B):
@@ -835,27 +856,27 @@ def scalar_subtract_matrices(A, B):
 
 def scalar_multiply_matrix(scalar, matrix):
     """Multiply a matrix by a scalar.
-    
+
     Multiplies each element of the matrix by the specified scalar.
-    
+
     Parameters
     ----------
     scalar : float
         Scalar value to multiply each element by.
     matrix : list[list[float]]
         Input matrix as a list of lists.
-        
+
     Returns
     -------
     list[list[float]]
         Resulting matrix after scalar multiplication.
-        
+
     Examples
     --------
     >>> matrix = [[1, 2], [3, 4]]
     >>> scalar_multiply_matrix(2.0, matrix)
     [[2.0, 4.0], [6.0, 8.0]]
-    
+
     Raises
     ------
     ValueError
@@ -865,7 +886,7 @@ def scalar_multiply_matrix(scalar, matrix):
     """
     if not matrix or not matrix[0]:
         raise ValueError("Input matrix cannot be empty")
-    
+
     result = []
     for row in matrix:
         result.append([scalar * val for val in row])
@@ -874,27 +895,27 @@ def scalar_multiply_matrix(scalar, matrix):
 
 def scalar_divide_matrix(scalar, matrix):
     """Divide a matrix by a scalar.
-    
+
     Divides each element of the matrix by the specified scalar.
-    
+
     Parameters
     ----------
     scalar : float
         Scalar value to divide each element by (cannot be zero).
     matrix : list[list[float]]
         Input matrix as a list of lists.
-        
+
     Returns
     -------
     list[list[float]]
         Resulting matrix after scalar division.
-        
+
     Examples
     --------
     >>> matrix = [[2, 4], [6, 8]]
     >>> scalar_divide_matrix(2.0, matrix)
     [[1.0, 2.0], [3.0, 4.0]]
-    
+
     Raises
     ------
     ValueError
@@ -908,7 +929,7 @@ def scalar_divide_matrix(scalar, matrix):
         raise ZeroDivisionError("Cannot divide by zero")
     if not matrix or not matrix[0]:
         raise ValueError("Input matrix cannot be empty")
-    
+
     result = []
     for row in matrix:
         result.append([val / scalar for val in row])
@@ -916,17 +937,17 @@ def scalar_divide_matrix(scalar, matrix):
 
 def stack_vectors(vectors):
     """Stack a list of vectors into a matrix, similar to numpy.stack.
-    
+
     Parameters
     ----------
     vectors : list[list[float]]
         List of vectors to stack into rows of a matrix
-        
+
     Returns
     -------
     list[list[float]]
         Matrix where each row is one of the input vectors
-        
+
     Examples
     --------
     >>> stack_vectors([[1, 2], [3, 4]])
@@ -937,7 +958,7 @@ def stack_vectors(vectors):
     return [list(v) for v in vectors]  # Create copies of vectors
 def inplace_LU(A, ipivot):
     N = len(A)
-    
+
     for j in range(N):
         for i in range(j):
             tot = A[i][j]
@@ -956,7 +977,7 @@ def inplace_LU(A, ipivot):
             if apiv < abs(A[i][j]):
                 apiv = abs(A[i][j])
                 ipiv = i
-                
+
         if apiv == 0:
             raise ValueError("Singular matrix")
         ipivot[j] = ipiv
@@ -975,7 +996,7 @@ def inplace_LU(A, ipivot):
 def solve_from_lu(A, pivots, b):
     N = len(b)
     b = b.copy()  # Create a copy to avoid modifying the input
-    
+
     for i in range(N):
         tot = b[pivots[i]]
         b[pivots[i]] = b[i]
@@ -1002,7 +1023,7 @@ def solve_LU_decomposition(A, b):
 def inv_lu(a):
     N = len(a)
     A_copy = [row.copy() for row in a]  # Deep copy of a
-    
+
     ainv = [[0.0] * N for i in range(N)]
     pivots = [0] * N
     inplace_LU(A_copy, pivots)
@@ -1020,42 +1041,44 @@ def lu(A):
     """
     Compute LU decomposition of a matrix with partial pivoting.
     Returns P, L, U such that PA = LU
-    
-    Parameters:
+
+    Parameters
+    ----------
         A: list of lists representing square matrix
-        
-    Returns:
+
+    Returns
+    -------
         P: permutation matrix as list of lists
         L: lower triangular matrix with unit diagonal as list of lists
         U: upper triangular matrix as list of lists
     """
     N = len(A)
-    
+
     # Create working copy and pivots array
     A_copy = [row.copy() for row in A]
     pivots = [0] * N
-    
+
     # Perform LU decomposition
     inplace_LU(A_copy, pivots)
-    
+
     # Extract L (unit diagonal and below diagonal elements)
     L = [[1.0 if i == j else 0.0 for j in range(N)] for i in range(N)]
     for i in range(N):
         for j in range(i):
             L[i][j] = A_copy[i][j]
-    
+
     # Extract U (upper triangular including diagonal)
     U = [[0.0]*N for _ in range(N)]
     for i in range(N):
         for j in range(i, N):
             U[i][j] = A_copy[i][j]
-    
+
     # Create permutation matrix directly from pivot sequence
     P = [[1.0 if j == i else 0.0 for j in range(N)] for i in range(N)]
     for i, pivot in enumerate(pivots):
         if pivot != i:
             P[i], P[pivot] = P[pivot], P[i]
-            
+
     return P, L, U
 
 
@@ -1074,7 +1097,7 @@ def generate_cramer_solution(n):
     """Generate symbolic solution using Cramer's rule for small matrices"""
     A, b = generate_symbolic_system(n)
     det_A = A.det()
-    
+
     # Solve for each variable using Cramer's rule
     solutions = []
     for i in range(n):
@@ -1084,58 +1107,58 @@ def generate_cramer_solution(n):
         det_i = A_i.det()
         # Store numerator only - we'll multiply by inv_det later
         solutions.append(det_i)
-    
+
     return det_A, solutions
 
 def generate_python_solve():
     """Generate a unified matrix solve function with optimized 1x1, 2x2, and 3x3 cases"""
     size_specific_code = {}
-    
+
     # Special case for N=1
     size_specific_code[1] = """        # Direct solution for 1x1
         return [b[0]/matrix[0][0]]"""
-    
+
     # Generate specialized code for sizes 2 and 3
     for N in [2, 3]:
         det, solutions = generate_cramer_solution(N)
-        
+
         code = []
-        
+
         # Unpack matrix elements
         unpack_rows = []
         for i in range(N):
             row_vars = [f"a_{i}{j}" for j in range(N)]
             unpack_rows.append("(" + ", ".join(row_vars) + ")")
         code.append(f"        {', '.join(unpack_rows)} = matrix")
-        
+
         # Unpack b vector
         code.append(f"        {', '.join(f'b_{i}' for i in range(N))} = b")
-        
+
         # Calculate determinant
         det_expr = str(det)
         code.append("\n        # Calculate determinant")
         code.append(f"        det = {det_expr}")
-        
+
         # Check for singular matrix
         code.append("\n        # Check for singular matrix")
         code.append("        if abs(det) <= 1e-7:")
         code.append("            return solve_LU_decomposition(matrix, b)")
-        
+
         # Calculate solution
         code.append("\n        # Calculate solution")
         code.append("        inv_det = 1.0/det")
-        
+
         # Generate solution expressions (multiply by inv_det, don't divide by det)
         solution_lines = []
         for i, sol in enumerate(solutions):
             solution_lines.append(f"        x_{i} = ({sol}) * inv_det")
         code.append("\n".join(solution_lines))
-        
+
         # Return solution
         code.append("\n        return [" + ", ".join(f"x_{i}" for i in range(N)) + "]")
-        
+
         size_specific_code[N] = "\n".join(code)
-    
+
     # Generate the complete function
     complete_code = [
         "def solve(matrix, b):",
@@ -1150,7 +1173,7 @@ def generate_python_solve():
         "        return solve_LU_decomposition(matrix, b)",
         ""
     ]
-    
+
     return "\n".join(complete_code)
 
 # Generate and print the optimized solve function
@@ -1208,17 +1231,17 @@ def norm2(arr):
 
 def array_as_tridiagonals(arr):
     """Extract the three diagonals from a tridiagonal matrix.
-    
-    A tridiagonal matrix is a matrix that has nonzero elements only on the 
-    main diagonal, the first diagonal below this (subdiagonal), and the first 
+
+    A tridiagonal matrix is a matrix that has nonzero elements only on the
+    main diagonal, the first diagonal below this (subdiagonal), and the first
     diagonal above this (superdiagonal).
-    
+
     Parameters
     ----------
     arr : list[list[float]]
         Square matrix in tridiagonal form, where elements not on the three
         main diagonals are zero
-    
+
     Returns
     -------
     tuple[list[float], list[float], list[float]]
@@ -1226,7 +1249,7 @@ def array_as_tridiagonals(arr):
         a: subdiagonal elements (length n-1)
         b: main diagonal elements (length n)
         c: superdiagonal elements (length n-1)
-        
+
     Examples
     --------
     >>> arr = [[2, 1, 0], [1, 2, 1], [0, 1, 2]]
@@ -1237,14 +1260,14 @@ def array_as_tridiagonals(arr):
     [2, 2, 2]
     >>> c  # superdiagonal
     [1, 1]
-    
+
     Notes
     -----
-    For a matrix of size n×n, returns:
+    For a matrix of size nxn, returns:
     - a[i] contains elements at position (i+1,i) for i=0..n-2
     - b[i] contains elements at position (i,i) for i=0..n-1
     - c[i] contains elements at position (i,i+1) for i=0..n-2
-    
+
     No validation is performed to ensure the input matrix is actually tridiagonal.
     Elements outside the three diagonals are ignored.
     """
@@ -1261,10 +1284,10 @@ def array_as_tridiagonals(arr):
 
 def tridiagonals_as_array(a, b, c, zero=0.0):
     r"""Construct a square matrix from three diagonals.
-    
-    Creates a tridiagonal matrix using the provided sub-, main, and super-diagonal 
+
+    Creates a tridiagonal matrix using the provided sub-, main, and super-diagonal
     elements. All other elements are set to zero.
-    
+
     Parameters
     ----------
     a : list[float]
@@ -1275,12 +1298,12 @@ def tridiagonals_as_array(a, b, c, zero=0.0):
         Superdiagonal elements (length n-1)
     zero : float, optional
         Value to use for non-diagonal elements. Defaults to 0.0
-    
+
     Returns
     -------
     list[list[float]]
-        Square matrix of size n×n where n is the length of b
-        
+        Square matrix of size nxn where n is the length of b
+
     Examples
     --------
     >>> a = [1, 1]  # subdiagonal
@@ -1288,18 +1311,18 @@ def tridiagonals_as_array(a, b, c, zero=0.0):
     >>> c = [1, 1]  # superdiagonal
     >>> tridiagonals_as_array(a, b, c)
     [[2, 1, 0.0], [1, 2, 1], [0.0, 1, 2]]
-    
+
     Notes
     -----
-    For output matrix M of size n×n:
+    For output matrix M of size nxn:
     - a[i] becomes M[i+1][i] for i=0..n-2
     - b[i] becomes M[i][i] for i=0..n-1
     - c[i] becomes M[i][i+1] for i=0..n-2
-    
+
     No validation is performed on input lengths. For correct results:
     - len(b) should be n
     - len(a) and len(c) should be n-1
-    
+
     The function is the inverse of array_as_tridiagonals() when zero=0.0
     """
     N = len(b)
@@ -1316,16 +1339,16 @@ def tridiagonals_as_array(a, b, c, zero=0.0):
 
 def solve_tridiagonal(a, b, c, d):
     """Solve a tridiagonal system of equations using the Thomas algorithm.
-    
+
     Solves the equation system Ax = d where A is a tridiagonal matrix composed of
     diagonals a, b, and c. This is an efficient O(n) method also known as the
     tridiagonal matrix algorithm (TDMA).
-    
+
     The system of equations has the form:
     b[0]x[0] + c[0]x[1] = d[0]
     a[i]x[i-1] + b[i]x[i] + c[i]x[i+1] = d[i], for i=1..n-2
     a[n-1]x[n-2] + b[n-1]x[n-1] = d[n-1]
-    
+
     Parameters
     ----------
     a : list[float]
@@ -1336,12 +1359,12 @@ def solve_tridiagonal(a, b, c, d):
         Upper diagonal (superdiagonal) elements c[i] at (i,i+1), length n-1, [-]
     d : list[float]
         Right-hand side vector, length n, [-]
-        
+
     Returns
     -------
     x : list[float]
         Solution vector, length n, [-]
-        
+
     Examples
     --------
     >>> # Solve the system:
@@ -1354,25 +1377,25 @@ def solve_tridiagonal(a, b, c, d):
     >>> d = [1, 0, 1]  # right hand side
     >>> solve_tridiagonal(a, b, c, d)
     [0.16, 0.44, 0.72]
-    
+
     Notes
     -----
     The algorithm modifies the input arrays b and d in-place to save memory,
     but makes copies first to preserve the originals.
-    
-    
+
+
     The algorithm fails if any diagonal element becomes zero during elimination.
-    
+
     This implementation uses the Thomas algorithm, which is a specialized form
     of Gaussian elimination that exploits the tridiagonal structure for O(n)
     efficiency.
-    
+
     No validation is performed on input lengths. For correct results:
     - len(b) should be n
     - len(a), len(c) should be n-1
     - len(d) should be n
     where n is the size of the system.
-    
+
     References
     ----------
     .. [1] "Tridiagonal matrix algorithm", Wikipedia,
@@ -1381,18 +1404,18 @@ def solve_tridiagonal(a, b, c, d):
     # Make copies since the algorithm modifies arrays in-place
     b, d = [i for i in b], [i for i in d]
     N = len(d)
-    
+
     # Forward elimination phase
     for i in range(N - 1):
         m = a[i]/b[i]
         b[i+1] -= m*c[i]
         d[i+1] -= m*d[i]
-    
+
     # Back substitution phase
     b[-1] = d[-1]/b[-1]
     for i in range(N-2, -1, -1):
         b[i] = (d[i] - c[i]*b[i+1])/b[i]
-        
+
     return b
 def subset_matrix(whole, subset):
     if type(subset) is slice:
@@ -1444,35 +1467,35 @@ def argsort1d(arr):
 
 def sort_paired_lists(list1, list2):
     """
-    Sort two lists based on the values in the first list while maintaining 
+    Sort two lists based on the values in the first list while maintaining
     the relationship between corresponding elements.
-    
+
     Parameters
     ----------
     list1 : list
         First list that determines the sorting order
     list2 : list
         Second list that will be sorted according to list1's ordering
-        
+
     Returns
     -------
     tuple
         A tuple containing (sorted_list1, sorted_list2)
-        
+
     Raises
     ------
     ValueError
         If the lists have different lengths
     TypeError
         If either input is not a list
-        
+
     Examples
     --------
     >>> temps = [300, 100, 200]
     >>> props = ['hot', 'cold', 'warm']
     >>> sort_paired_lists(temps, props)
     ([100, 200, 300], ['cold', 'warm', 'hot'])
-    
+
     Notes
     -----
     This function maintains the one-to-one relationship between elements
@@ -1481,31 +1504,31 @@ def sort_paired_lists(list1, list2):
     # Input validation
     if len(list1) != len(list2):
         raise ValueError("Lists must have equal length")
-        
+
     # Handle empty lists
     if len(list1) == 0:
         return ([], [])
-        
+
     # Get sorting indices using argsort1d
     sorted_indices = argsort1d(list1)
-    
+
     # Apply the sorting to both lists
     sorted_list1 = [list1[i] for i in sorted_indices]
     sorted_list2 = [list2[i] for i in sorted_indices]
-    
+
     return sorted_list1, sorted_list2
 
 def svd(matrix):
     """Compute the singular value decomposition of a matrix.
-    
+
     This function wraps numpy.linalg.svd but maintains pure Python input/output
     interfaces.
-    
+
     Parameters
     ----------
     matrix : list[list[float]]
         Input matrix A to decompose
-        
+
     Returns
     -------
     tuple[list[list[float]], list[float], list[list[float]]]
@@ -1513,7 +1536,7 @@ def svd(matrix):
         - U is the left singular vectors as a matrix
         - s is the singular values as a 1D array
         - Vt is the transpose of the right singular vectors as a matrix
-        
+
     Notes
     -----
 
@@ -1532,10 +1555,10 @@ def svd(matrix):
 def gelsd(a, b, rcond=None):
     """Solve a linear least-squares problem using SVD (Singular Value Decomposition).
     This is a simplified implementation that uses numpy's SVD internally.
-    
+
     The function solves the equation arg min(|b - Ax|) for x, where A is
     an M x N matrix and b is a length M vector.
-    
+
     Parameters
     ----------
     a : list[list[float]]
@@ -1546,19 +1569,19 @@ def gelsd(a, b, rcond=None):
         Cutoff ratio for small singular values. Singular values smaller
         than rcond * largest_singular_value are considered zero.
         Default: max(M,N) * eps where eps is the machine precision
-    
+
     Returns
     -------
     x : list[float]
         Solution vector of length N
     residuals : float
-        Sum of squared residuals of the solution. Only computed for overdetermined 
+        Sum of squared residuals of the solution. Only computed for overdetermined
         systems (M > N)
     rank : int
         Effective rank of matrix A
     s : list[float]
         Singular values of A in descending order
-    
+
     Notes
     -----
     The implementation uses numpy.linalg.svd for the core computation but
@@ -1567,52 +1590,52 @@ def gelsd(a, b, rcond=None):
     # Get dimensions and handle empty cases
     m = len(a)
     n = len(a[0]) if m > 0 else 0
-    
+
     if m == 0:
         if n == 0:
             return [], 0.0, 0, []  # Empty matrix
         return [0.0] * n, 0.0, 0, []  # Empty rows
     elif n == 0:
         return [], 0.0, 0, []  # Empty columns
-    
+
     # Check compatibility
     if len(b) != m:
         raise ValueError(f"Incompatible dimensions: A is {m}x{n}, b has length {len(b)}")
-    
+
     U, s, Vt = svd(a)
 
     # Set default rcond
     if rcond is None:
         rcond = max(m, n) * 2.2e-16  # Approximate machine epsilon for float64
-    
+
     # Determine rank using rcond
     tol = rcond * s[0]
     rank = sum(sv > tol for sv in s)
-    
+
     # Handle zero matrix case (all singular values below threshold)
     if rank == 0:
         return [0.0] * n, sum(bi * bi for bi in b), 0, s
-    
+
     # We only need the first rank columns of U and V
-    # If U is economy sized (M×min(M,N)), this is fine
-    # If U is full sized (M×M), we still only use first rank columns
+    # If U is economy sized (Mxmin(M,N)), this is fine
+    # If U is full sized (MxM), we still only use first rank columns
     Ut = transpose(U)
     Utb = matrix_vector_dot(Ut[:rank], b)
-    
+
     # Apply 1/singular values with truncation
     s_inv_Utb = [Utb[i] / s[i] for i in range(rank)]
-    
+
     # Get the first rank rows of V (transpose of first rank columns of Vt)
     # Again, works with both economy and full-size Vt
     V = transpose(Vt[:rank])
     x = matrix_vector_dot(V, s_inv_Utb)
-    
+
     # Compute residuals for overdetermined systems
     residuals = 0.0
     if m > n and rank == n:
         # Compute Ax
         Ax = matrix_vector_dot(a, x)
-        
+
         # Compute residuals as |b - Ax|^2
         diff = [b[i] - Ax[i] for i in range(m)]
         residuals = dot_product(diff, diff)
@@ -1640,19 +1663,19 @@ def null_space(a, rcond=None):
     # Get dimensions and handle empty cases
     m = len(a)
     n = len(a[0]) if m > 0 else 0
-    
+
     if m == 0 or n == 0:
         return []  # Empty matrix
     U, s, Vt = svd(a)
     # Set default rcond
     if rcond is None:
         rcond = max(m, n) * 2.2e-16  # Approximate machine epsilon for float64
-    
+
     # Determine effective null space dimension using rcond
     tol = max(s) * rcond if s else 0.0
     num = sum(sv > tol for sv in s)
     # Extract null space basis
     V = transpose(Vt)  # V is transpose of Vt
     Z = [row[num:] for row in V]  # Extract last N - num columns
-    
+
     return Z

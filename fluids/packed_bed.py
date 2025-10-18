@@ -57,19 +57,35 @@ Voidage Correlations
 .. autofunction:: voidage_Benyahia_Oneil_cylindrical
 
 """
+from __future__ import annotations
 
 from math import exp, pi, sqrt
 
-__all__ = ['dP_packed_bed', 'dP_packed_bed_methods', 'Ergun', 'Kuo_Nydegger', 'Jones_Krier', 'Carman', 'Hicks',
-           'Brauer', 'KTA', 'Erdim_Akgiray_Demir', 'Fahien_Schriver',
-           'Tallmadge', 'Idelchik',
-           'Harrison_Brunner_Hecker', 'Montillet_Akkari_Comiti', 'Guo_Sun',
-            'voidage_Benyahia_Oneil',
-           'voidage_Benyahia_Oneil_spherical', 'voidage_Benyahia_Oneil_cylindrical']
+__all__: list[str] = [
+    "KTA",
+    "Brauer",
+    "Carman",
+    "Erdim_Akgiray_Demir",
+    "Ergun",
+    "Fahien_Schriver",
+    "Guo_Sun",
+    "Harrison_Brunner_Hecker",
+    "Hicks",
+    "Idelchik",
+    "Jones_Krier",
+    "Kuo_Nydegger",
+    "Montillet_Akkari_Comiti",
+    "Tallmadge",
+    "dP_packed_bed",
+    "dP_packed_bed_methods",
+    "voidage_Benyahia_Oneil",
+    "voidage_Benyahia_Oneil_cylindrical",
+    "voidage_Benyahia_Oneil_spherical",
+]
 
 
 
-def Ergun(dp, voidage, vs, rho, mu, L=1.0):
+def Ergun(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_ and [3]_. Eighteenth most
     accurate correlation overall in the review of [2]_.
@@ -152,7 +168,7 @@ def Ergun(dp, voidage, vs, rho, mu, L=1.0):
     return fp*rho*vs*vs*L/dp
 
 
-def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1.0):
+def Kuo_Nydegger(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_ and [3]. Thirty-eighth most
     accurate correlation overall in the review of [2]_.
@@ -218,7 +234,7 @@ def Kuo_Nydegger(dp, voidage, vs, rho, mu, L=1.0):
     return fp*rho*vs*vs*L/dp
 
 
-def Tallmadge(dp, voidage, vs, rho, mu, L=1.0):
+def Tallmadge(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_ and [3].
 
@@ -282,7 +298,7 @@ def Tallmadge(dp, voidage, vs, rho, mu, L=1.0):
     return fp*rho*vs*vs*L/dp
 
 
-def Jones_Krier(dp, voidage, vs, rho, mu, L=1.0):
+def Jones_Krier(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, also shown in [2]_. Tenth most accurate
     correlation overall in the review of [2]_.
@@ -345,7 +361,7 @@ def Jones_Krier(dp, voidage, vs, rho, mu, L=1.0):
     return fp*rho*vs*vs*L/dp
 
 
-def Carman(dp, voidage, vs, rho, mu, L=1.0):
+def Carman(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_. Fifth most accurate
     correlation overall in the review of [2]_. Also shown in [3]_.
@@ -409,7 +425,7 @@ def Carman(dp, voidage, vs, rho, mu, L=1.0):
     return fp*rho*vs*vs*L/dp
 
 
-def Hicks(dp, voidage, vs, rho, mu, L=1.0):
+def Hicks(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_. Twenty-third most accurate
     correlation overall in the review of [2]_. Also shown in [3]_.
@@ -473,7 +489,7 @@ def Hicks(dp, voidage, vs, rho, mu, L=1.0):
     return fp*rho*vs*vs*L/dp
 
 
-def Brauer(dp, voidage, vs, rho, mu, L=1.0):
+def Brauer(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_. Seventh most accurate
     correlation overall in the review of [2]_. Also shown in [3]_.
@@ -538,7 +554,7 @@ def Brauer(dp, voidage, vs, rho, mu, L=1.0):
     return fp*rho*vs*vs*L/dp
 
 
-def KTA(dp, voidage, vs, rho, mu, L=1.0):
+def KTA(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_. Third most accurate
     correlation overall in the review of [2]_.
@@ -602,7 +618,7 @@ def KTA(dp, voidage, vs, rho, mu, L=1.0):
     return fp*rho*vs*vs*L/dp
 
 
-def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1.0):
+def Erdim_Akgiray_Demir(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, claiming to be the best model to date.
 
@@ -662,7 +678,7 @@ def Erdim_Akgiray_Demir(dp, voidage, vs, rho, mu, L=1.0):
     return fv*(mu*vs*L/(dp*dp))*holdup*holdup/(voidage*voidage*voidage)
 
 
-def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1.0):
+def Fahien_Schriver(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, as shown in [2]_. Second most accurate
     correlation overall in the review of [2]_.
@@ -739,7 +755,7 @@ def Fahien_Schriver(dp, voidage, vs, rho, mu, L=1.0):
     return fp*rho*vs*vs*L/dp
 
 
-def Idelchik(dp, voidage, vs, rho, mu, L=1.0):
+def Idelchik(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres as in [2]_,
     originally in [1]_.
 
@@ -801,7 +817,7 @@ def Idelchik(dp, voidage, vs, rho, mu, L=1.0):
     return right/left
 
 
-def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
+def Harrison_Brunner_Hecker(dp: float, voidage: float, vs: float, rho: float, mu: float, L: int=1, Dt: float | None=None) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_, also shown in [2]_. Fourth most accurate
     correlation overall in the review of [2]_.
@@ -882,7 +898,7 @@ def Harrison_Brunner_Hecker(dp, voidage, vs, rho, mu, L=1, Dt=None):
     return fp*rho*vs*vs*L/dp
 
 
-def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
+def Montillet_Akkari_Comiti(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1, Dt: float | None=None) -> float:
     r"""Calculates pressure drop across a packed bed of spheres as in [2]_,
     originally in [1]_. Wall effect adjustment is used if `Dt` is provided.
 
@@ -956,7 +972,7 @@ def Montillet_Akkari_Comiti(dp, voidage, vs, rho, mu, L=1, Dt=None):
     return right/left
 
 
-def Guo_Sun(dp, voidage, vs, rho, mu, Dt=None, L=1.0):
+def Guo_Sun(dp: float, voidage: float, vs: float, rho: float, mu: float, Dt: float | None=None, L: float=1.0) -> float:
     r"""Calculates pressure drop across a packed bed of spheres using a
     correlation developed in [1]_. This is valid for highly-packed particles
     at particle/tube diameter ratios between 2 and 3, where a ring packing
@@ -1028,24 +1044,24 @@ def Guo_Sun(dp, voidage, vs, rho, mu, Dt=None, L=1.0):
 
 # Format: Nice name : (formula, uses_dt)
 packed_beds_correlations = {
-'Ergun': (Ergun, False),
-'Tallmadge': (Tallmadge, False),
-'Kuo & Nydegger': (Kuo_Nydegger, False),
-'Jones & Krier': (Jones_Krier, False),
-'Carman': (Carman, False),
-'Hicks': (Hicks, False),
-'Brauer': (Brauer, False),
-'KTA': (KTA, False),
-'Fahien & Schriver': (Fahien_Schriver, False),
-'Idelchik': (Idelchik, False),
-'Erdim, Akgiray & Demir': (Erdim_Akgiray_Demir, False),
+"Ergun": (Ergun, False),
+"Tallmadge": (Tallmadge, False),
+"Kuo & Nydegger": (Kuo_Nydegger, False),
+"Jones & Krier": (Jones_Krier, False),
+"Carman": (Carman, False),
+"Hicks": (Hicks, False),
+"Brauer": (Brauer, False),
+"KTA": (KTA, False),
+"Fahien & Schriver": (Fahien_Schriver, False),
+"Idelchik": (Idelchik, False),
+"Erdim, Akgiray & Demir": (Erdim_Akgiray_Demir, False),
 
-'Harrison, Brunner & Hecker': (Harrison_Brunner_Hecker, True),
-'Montillet, Akkari & Comiti': (Montillet_Akkari_Comiti, True),
-'Guo, Sun, Zhang, Ding & Liu': (Guo_Sun, True)
+"Harrison, Brunner & Hecker": (Harrison_Brunner_Hecker, True),
+"Montillet, Akkari & Comiti": (Montillet_Akkari_Comiti, True),
+"Guo, Sun, Zhang, Ding & Liu": (Guo_Sun, True)
 }
 
-def dP_packed_bed_methods(dp, voidage, vs, rho, mu, L=1.0, Dt=None, check_ranges=False):
+def dP_packed_bed_methods(dp: float, voidage: float, vs: float, rho: float, mu: float, L: float=1.0, Dt: float | None=None, check_ranges: bool=False) -> list[str]:
     r"""This function handles determining which pressure drop in a packed bed
     correlation are suitable for the provided inputs.
 
@@ -1089,16 +1105,16 @@ def dP_packed_bed_methods(dp, voidage, vs, rho, mu, L=1.0, Dt=None, check_ranges
     if (dp is not None and voidage is not None and vs is not None
         and rho is not None and mu is not None and L is not None):
         if Dt is not None:
-            methods = ['Harrison, Brunner & Hecker', 'Montillet, Akkari & Comiti', 'Guo, Sun, Zhang, Ding & Liu']
+            methods = ["Harrison, Brunner & Hecker", "Montillet, Akkari & Comiti", "Guo, Sun, Zhang, Ding & Liu"]
 
-        methods.extend(['Erdim, Akgiray & Demir', 'Idelchik', 'Fahien & Schriver',
-                        'KTA', 'Brauer', 'Hicks', 'Carman', 'Jones & Krier', 'Kuo & Nydegger',
-                        'Tallmadge', 'Ergun'])
+        methods.extend(["Erdim, Akgiray & Demir", "Idelchik", "Fahien & Schriver",
+                        "KTA", "Brauer", "Hicks", "Carman", "Jones & Krier", "Kuo & Nydegger",
+                        "Tallmadge", "Ergun"])
     return methods
 
 
-def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
-                  Method=None):
+def dP_packed_bed(dp: float, voidage: float, vs: float, rho: float, mu: float, L: int=1, Dt: float | None=None, sphericity: float | None=None,
+                  Method: str | None=None) -> float:
     r"""This function handles choosing which pressure drop in a packed bed
     correlation is used. Automatically select which correlation
     to use if none is provided. Returns None if insufficient information is
@@ -1148,7 +1164,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
         Pressure drop across the bed [Pa]
     """
     if Method is None:
-        Method2 = 'Harrison, Brunner & Hecker' if Dt is not None else 'Erdim, Akgiray & Demir'
+        Method2 = "Harrison, Brunner & Hecker" if Dt is not None else "Erdim, Akgiray & Demir"
     else:
         Method2 = Method
 
@@ -1184,7 +1200,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
     elif Method2 == "Guo, Sun, Zhang, Ding & Liu":
         return Guo_Sun(dp=dp, voidage=voidage, vs=vs, rho=rho, mu=mu, L=L, Dt=Dt)
     else:
-        raise ValueError('Unrecognized method')
+        raise ValueError("Unrecognized method")
 
 
 #import matplotlib.pyplot as plt
@@ -1208,7 +1224,7 @@ def dP_packed_bed(dp, voidage, vs, rho, mu, L=1, Dt=None, sphericity=None,
 
 ### Voidage correlations
 
-def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
+def voidage_Benyahia_Oneil(Dpe: float, Dt: float, sphericity: float) -> float:
     r"""Calculates voidage of a bed of arbitrarily shaped uniform particles
     packed into a bed or tube of diameter `Dt`, with equivalent sphere diameter
     `Dp`. Shown in [1]_, and cited by various authors. Correlations exist
@@ -1253,7 +1269,7 @@ def voidage_Benyahia_Oneil(Dpe, Dt, sphericity):
     x1 = Dt/Dpe + 0.1226
     return 0.1504 + 0.2024/sphericity + 1.0814/(x1*x1)
 
-def voidage_Benyahia_Oneil_spherical(Dp, Dt):
+def voidage_Benyahia_Oneil_spherical(Dp: float, Dt: float) -> float:
     r"""Calculates voidage of a bed of spheres
     packed into a bed or tube of diameter `Dt`, with sphere diameters
     `Dp`. Shown in [1]_, and cited by various authors. Correlations exist
@@ -1295,7 +1311,7 @@ def voidage_Benyahia_Oneil_spherical(Dp, Dt):
     return 0.390 + 1.740/(x1*x1)
 
 
-def voidage_Benyahia_Oneil_cylindrical(Dpe, Dt, sphericity):
+def voidage_Benyahia_Oneil_cylindrical(Dpe: float, Dt: float, sphericity: float) -> float:
     r"""Calculates voidage of a bed of cylindrical uniform particles
     packed into a bed or tube of diameter `Dt`, with equivalent sphere diameter
     `Dpe`. Shown in [1]_, and cited by various authors. Correlations exist

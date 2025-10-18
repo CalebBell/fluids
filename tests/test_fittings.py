@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 from math import isinf, isnan, log10, pi
 
@@ -129,8 +129,8 @@ def test_fittings():
     assert_close(K, 0.06952256647393829)
 
     # Misc
-    K1 = Darby3K(NPS=2., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
-    K2 = Darby3K(NPS=12., Re=10000., name='Valve, Angle valve, 45°, full line size, β = 1')
+    K1 = Darby3K(NPS=2., Re=10000., name="Valve, Angle valve, 45°, full line size, β = 1")
+    K2 = Darby3K(NPS=12., Re=10000., name="Valve, Angle valve, 45°, full line size, β = 1")
     K3 = Darby3K(NPS=12., Re=10000., K1=950.,  Ki=0.25,  Kd=4.)
     Ks = [1.1572523963562353, 0.819510280626355, 0.819510280626355]
     assert_close1d([K1, K2, K3], Ks)
@@ -138,12 +138,12 @@ def test_fittings():
     with pytest.raises(Exception):
         Darby3K(NPS=12., Re=10000)
     with pytest.raises(Exception):
-        Darby3K(NPS=12., Re=10000, name='fail')
+        Darby3K(NPS=12., Re=10000, name="fail")
 
     tot = sum([Darby3K(NPS=2., Re=1000, name=i) for i in Darby.keys()])
     assert_close(tot, 67.96442287975898)
 
-    K1 = Hooper2K(Di=2., Re=10000., name='Valve, Globe, Standard')
+    K1 = Hooper2K(Di=2., Re=10000., name="Valve, Globe, Standard")
     K2 = Hooper2K(Di=2., Re=10000., K1=900., Kinfty=4.)
     assert_close1d([K1, K2], [6.15, 6.09])
     tot = sum([Hooper2K(Di=2., Re=10000., name=i) for i in Hooper.keys()])
@@ -152,7 +152,7 @@ def test_fittings():
     with pytest.raises(Exception):
         Hooper2K(Di=2, Re=10000)
     with pytest.raises(Exception):
-        Hooper2K(Di=2., Re=10000, name='fail')
+        Hooper2K(Di=2., Re=10000, name="fail")
 
     K2 = change_K_basis(K1=32.68875692997804, D1=.01, D2=.02)
     assert_close(K2, 523.0201108796487)
@@ -175,22 +175,22 @@ def test_entrance_distance():
 
     assert_close(entrance_distance(Di=0.1, t=0.05), 0.57)
 
-    K = entrance_distance(Di=0.1, t=0.0005, method='Miller')
+    K = entrance_distance(Di=0.1, t=0.0005, method="Miller")
     assert_close(K, 1.0280427936730414)
 
-    K = entrance_distance(Di=0.1, t=0.0005, method='Idelchik')
+    K = entrance_distance(Di=0.1, t=0.0005, method="Idelchik")
     assert_close(K, 0.9249999999999999)
-    K = entrance_distance(Di=0.1, t=0.0005, l=.02, method='Idelchik')
+    K = entrance_distance(Di=0.1, t=0.0005, l=.02, method="Idelchik")
     assert_close(K, 0.8475000000000001)
 
-    K = entrance_distance(Di=0.1, t=0.0005, method='Harris')
+    K = entrance_distance(Di=0.1, t=0.0005, method="Harris")
     assert_close(K, 0.8705806231290558, 3e-3)
 
-    K = entrance_distance(Di=0.1, method='Crane')
+    K = entrance_distance(Di=0.1, method="Crane")
     assert_close(K, 0.78)
 
     with pytest.raises(Exception):
-        entrance_distance(Di=0.1, t=0.01, method='BADMETHOD')
+        entrance_distance(Di=0.1, t=0.01, method="BADMETHOD")
 
 
 def test_entrance_rounded():
@@ -198,37 +198,37 @@ def test_entrance_rounded():
     assert_close(K, 0.09839534618360923)
     assert_close(entrance_rounded(Di=0.1, rc=0.2), 0.03)
 
-    K = entrance_rounded(Di=0.1, rc=0.0235, method='Miller')
+    K = entrance_rounded(Di=0.1, rc=0.0235, method="Miller")
     assert_close(K, 0.057734448458542094)
 
-    K = entrance_rounded(Di=0.1, rc=0.0235, method='Swamee')
+    K = entrance_rounded(Di=0.1, rc=0.0235, method="Swamee")
     assert_close(K, 0.06818838227156554)
 
-    K = entrance_rounded(Di=0.1, rc=0.01, method='Crane')
+    K = entrance_rounded(Di=0.1, rc=0.01, method="Crane")
     assert_close(K, .09)
 
-    K = entrance_rounded(Di=0.1, rc=0.01, method='Harris')
+    K = entrance_rounded(Di=0.1, rc=0.01, method="Harris")
     assert_close(K, 0.04864878230217168)
 
     # Limiting condition
-    K = entrance_rounded(Di=0.1, rc=0.0235, method='Harris')
+    K = entrance_rounded(Di=0.1, rc=0.0235, method="Harris")
     assert_close(K, 0.0)
 
-    K = entrance_rounded(Di=0.1, rc=0.01, method='Idelchik')
+    K = entrance_rounded(Di=0.1, rc=0.01, method="Idelchik")
     assert_close(K, 0.11328005177738182)
 
     # Limiting condition
-    K = entrance_rounded(Di=0.1, rc=0.0235, method='Idelchik')
+    K = entrance_rounded(Di=0.1, rc=0.0235, method="Idelchik")
     assert_close(K, 0.03)
 
     with pytest.raises(Exception):
-        entrance_rounded(Di=0.1, rc=0.01, method='BADMETHOD')
+        entrance_rounded(Di=0.1, rc=0.01, method="BADMETHOD")
 
 def test_entrance_beveled():
     K = entrance_beveled(Di=0.1, l=0.003, angle=45.0)
     assert_close(K, 0.45086864221916984)
 
-    K = entrance_beveled(Di=0.1, l=0.003, angle=45.0, method='Idelchik')
+    K = entrance_beveled(Di=0.1, l=0.003, angle=45.0, method="Idelchik")
     assert_close(K, 0.3995000000000001)
 
 
@@ -236,21 +236,21 @@ def test_entrance_sharp():
     assert_close(entrance_sharp(), 0.57)
 
     with pytest.raises(Exception):
-        entrance_sharp(method='BADMETHOD')
+        entrance_sharp(method="BADMETHOD")
 
-    for method in ['Swamee', 'Blevins', 'Idelchik', 'Crane']:
+    for method in ["Swamee", "Blevins", "Idelchik", "Crane"]:
         assert_close(0.5, entrance_sharp(method=method))
 
-    entrance_sharp(method='Miller') # Don't bother checking a value for the Miller method
+    entrance_sharp(method="Miller") # Don't bother checking a value for the Miller method
 
 
 def test_entrance_angled():
     K_30_Idelchik = 0.9798076211353316
     assert_close(entrance_angled(30.0), K_30_Idelchik)
-    assert_close(entrance_angled(30.0, method='Idelchik'), K_30_Idelchik)
+    assert_close(entrance_angled(30.0, method="Idelchik"), K_30_Idelchik)
 
     with pytest.raises(Exception):
-        entrance_angled(30, method='BADMETHOD')
+        entrance_angled(30, method="BADMETHOD")
 
 
 ### Bends
@@ -301,34 +301,34 @@ def test_bend_rounded():
     K = bend_rounded(Di=4.020, bend_diameters=5.0, angle=30, Re=1E5)
     assert_close(K, 0.11532121658742862)
 
-    K = bend_rounded(Di=4.020, bend_diameters=5.0, angle=30, Re=1E5, method='Miller')
+    K = bend_rounded(Di=4.020, bend_diameters=5.0, angle=30, Re=1E5, method="Miller")
     assert_close(K, 0.10276501180879682)
 
-    K = bend_rounded(Di=.5, bend_diameters=5.0, angle=30, Re=1E5, method='Crane')
+    K = bend_rounded(Di=.5, bend_diameters=5.0, angle=30, Re=1E5, method="Crane")
     assert_close(K, 0.08959057097762159)
 
-    K = bend_rounded(Di=.5, bend_diameters=5.0, angle=30, Re=1E5, method='Ito')
+    K = bend_rounded(Di=.5, bend_diameters=5.0, angle=30, Re=1E5, method="Ito")
     assert_close(K, 0.10457946464978755)
 
-    K = bend_rounded(Di=.5, bend_diameters=5.0, angle=30, Re=1E5, method='Swamee')
+    K = bend_rounded(Di=.5, bend_diameters=5.0, angle=30, Re=1E5, method="Swamee")
     assert_close(K, 0.055429466248839564)
 
-    assert type(bend_rounded(Di=4.020, rc=4.0*5, angle=30, Re=1E5, method='Miller')) == float
+    assert type(bend_rounded(Di=4.020, rc=4.0*5, angle=30, Re=1E5, method="Miller")) == float
 
     # Crane standard fittings
     Di = 4
-    v0 = bend_rounded(Di=4, angle=45, method='Crane standard')/ft_Crane(Di)
+    v0 = bend_rounded(Di=4, angle=45, method="Crane standard")/ft_Crane(Di)
     assert_close(v0, 16.0)
-    v0 = bend_rounded(Di=4, angle=90, method='Crane standard')/ft_Crane(Di)
+    v0 = bend_rounded(Di=4, angle=90, method="Crane standard")/ft_Crane(Di)
     assert_close(v0, 30.0)
-    v0 = bend_rounded(Di=4, angle=180, method='Crane standard')/ft_Crane(Di)
+    v0 = bend_rounded(Di=4, angle=180, method="Crane standard")/ft_Crane(Di)
     assert_close(v0, 50.0)
 
     # extrapolation - check behavior is sane
-    v0 = bend_rounded(Di=4, angle=360, method='Crane standard')/ft_Crane(Di)
+    v0 = bend_rounded(Di=4, angle=360, method="Crane standard")/ft_Crane(Di)
     assert_close(v0, 90.0)
 
-    v0 = bend_rounded(Di=4, angle=0, method='Crane standard')/ft_Crane(Di)
+    v0 = bend_rounded(Di=4, angle=0, method="Crane standard")/ft_Crane(Di)
     assert_close(v0, 2.0)
 
 
@@ -339,17 +339,17 @@ def test_bend_miter():
     K_miter_values = [2.7128147734758103, 2.0264994448555864, 1.2020815280171306, 0.8332188430731828, 0.5299999999999998, 0.30419633092708653, 0.15308822558050816, 0.06051389308126326]
     assert_close1d(K_miters, K_miter_values)
 
-    K = bend_miter(Di=.6, angle=45.0, Re=1e6, roughness=1e-5, L_unimpeded=20.0, method='Miller')
+    K = bend_miter(Di=.6, angle=45.0, Re=1e6, roughness=1e-5, L_unimpeded=20.0, method="Miller")
     assert_close(K, 0.2944060416245167)
 
-    K = bend_miter(Di=.05, angle=45, Re=1e6, roughness=1e-5, method='Crane')
+    K = bend_miter(Di=.05, angle=45, Re=1e6, roughness=1e-5, method="Crane")
     assert_close(K, 0.28597953150073047)
 
-    K = bend_miter(angle=45, Re=1e6, method='Rennels')
+    K = bend_miter(angle=45, Re=1e6, method="Rennels")
     assert_close(K, 0.30419633092708653)
 
     with pytest.raises(Exception):
-        bend_miter(angle=45, Re=1e6, method='BADMETHOD')
+        bend_miter(angle=45, Re=1e6, method="BADMETHOD")
 
 
 
@@ -414,19 +414,19 @@ def test_diffuser_sharp():
     K_sharp = diffuser_sharp(Di1=.5, Di2=1.0)
     assert_close(K_sharp, 0.5625, rtol=1e-12)
 
-    K = diffuser_sharp(Di1=.5, Di2=1.0, Re=1e5, method='Hooper')
+    K = diffuser_sharp(Di1=.5, Di2=1.0, Re=1e5, method="Hooper")
     assert_close(K, 0.5705953978879232, rtol=1e-12)
 
-    K = diffuser_sharp(Di1=.5, Di2=1.0, Re=1e3, method='Hooper')
+    K = diffuser_sharp(Di1=.5, Di2=1.0, Re=1e3, method="Hooper")
     assert_close(K, 1.875, rtol=1e-12)
 
-    K = diffuser_sharp(Di1=.5, Di2=1.0, Re=1e5, fd=1e-7, method='Hooper')
+    K = diffuser_sharp(Di1=.5, Di2=1.0, Re=1e5, fd=1e-7, method="Hooper")
     assert_close(K, 0.562500045)
 
     with pytest.raises(Exception):
-        diffuser_sharp(Di1=.5, Di2=1.0, method='Hooper')
+        diffuser_sharp(Di1=.5, Di2=1.0, method="Hooper")
     with pytest.raises(Exception):
-        diffuser_sharp(Di1=.5, Di2=1.0, method='BADMETHOD')
+        diffuser_sharp(Di1=.5, Di2=1.0, method="BADMETHOD")
 
 def test_diffuser_conical():
 
@@ -451,35 +451,35 @@ def test_diffuser_conical():
     assert_close1d([K1, K2], Ks)
 
     # Idelchilk
-    Ks_Idelchik = [diffuser_conical(Di1=.1**0.5, Di2=1, l=l,  method='Idelchik') for l in [.1, .5, 1, 2, 3, 4, 5, 20]]
+    Ks_Idelchik = [diffuser_conical(Di1=.1**0.5, Di2=1, l=l,  method="Idelchik") for l in [.1, .5, 1, 2, 3, 4, 5, 20]]
     Ks_Idelchik_expect = [0.8617385829640242, 0.9283647028367953, 0.7082429168951839, 0.291016580744589, 0.18504484868875992, 0.147705693811332, 0.12911637682462676, 0.17]
     assert_close1d(Ks_Idelchik, Ks_Idelchik_expect, rtol=1e-2)
 
-    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=50.0, Re=1E6, method='Hooper')
+    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=50.0, Re=1E6, method="Hooper")
     assert_close(K, 0.79748427282836)
 
-    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, Re=1E6, method='Hooper')
+    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, Re=1E6, method="Hooper")
     assert_close(K, 0.2706407222679227)
 
-    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, Re=1E6, method='Hooper', fd=0.0)
+    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, Re=1E6, method="Hooper", fd=0.0)
     assert_close(K, 0.26814269611625413)
 
-    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, Re=100, method='Hooper')
+    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, Re=100, method="Hooper")
     assert_close(K, 0.6703567402906352)
 
-    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=50.0, Re=1e6, method='Hooper')
+    K = diffuser_conical(Di1=1/3., Di2=1.0, angle=50.0, Re=1e6, method="Hooper")
     assert_close(K, 0.79748427282836)
 
-    # The two equations don't actually converge, there may be a case for interpolating here in the future 
+    # The two equations don't actually converge, there may be a case for interpolating here in the future
     # to produce smooth results
-    assert_close(diffuser_conical(Di1=1/3., Di2=1.0, angle=45*(1+1e-13), Re=1e6, method='Hooper'),
-                 diffuser_conical(Di1=1/3., Di2=1.0, angle=45*(1-1e-13), Re=1e6, method='Hooper'), rtol=1e-2)
+    assert_close(diffuser_conical(Di1=1/3., Di2=1.0, angle=45*(1+1e-13), Re=1e6, method="Hooper"),
+                 diffuser_conical(Di1=1/3., Di2=1.0, angle=45*(1-1e-13), Re=1e6, method="Hooper"), rtol=1e-2)
 
     with pytest.raises(Exception):
-        diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, method='Hooper')
+        diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, method="Hooper")
 
     with pytest.raises(Exception):
-        diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, method='BADMETHOD')
+        diffuser_conical(Di1=1/3., Di2=1.0, angle=15.0, method="BADMETHOD")
 
 ### Contractions
 
@@ -488,22 +488,22 @@ def test_contraction_sharp():
     K_sharp = contraction_sharp(Di1=1.0, Di2=0.4)
     assert_close(K_sharp, 0.5301269161591805)
 
-    K = contraction_sharp(Di1=1.0, Di2=0.4, Re=1e5, method='Hooper')
+    K = contraction_sharp(Di1=1.0, Di2=0.4, Re=1e5, method="Hooper")
     assert_close(K, 0.5112534765075794)
 
-    K = contraction_sharp(Di1=1, Di2=0.4, Re=1e3, method='Hooper')
+    K = contraction_sharp(Di1=1, Di2=0.4, Re=1e3, method="Hooper")
     assert_close(K, 1.3251840000000001)
 
-    K = contraction_sharp(Di1=1, Di2=0.4, Re=1e7, fd=1e-5, method='Hooper')
+    K = contraction_sharp(Di1=1, Di2=0.4, Re=1e7, fd=1e-5, method="Hooper")
     assert_close(K, 0.5040040320000001)
 
     with pytest.raises(Exception):
-        contraction_sharp(Di1=1, Di2=0.4, method='Hooper')
+        contraction_sharp(Di1=1, Di2=0.4, method="Hooper")
 
     with pytest.raises(Exception):
-            K = contraction_sharp(Di1=1, Di2=0.4, Re=1e5, method='BADMETHOD')
+            K = contraction_sharp(Di1=1, Di2=0.4, Re=1e5, method="BADMETHOD")
 
-    K = contraction_sharp(3.0, 2.0, method='Crane')
+    K = contraction_sharp(3.0, 2.0, method="Crane")
     assert_close(K, 0.2777777777777778)
 
     # From Crane 7-19 Water sample problem
@@ -511,7 +511,7 @@ def test_contraction_sharp():
     K = change_K_basis(contraction_conical_Crane(3*inch, 2*inch, l=1e-10), 2.*inch, 3.*inch,)
     assert_close(K, 1.4062499999999991)
 
-    K = change_K_basis(contraction_sharp(3*inch, 2*inch, method='Crane'), 2.*inch, 3.*inch,)
+    K = change_K_basis(contraction_sharp(3*inch, 2*inch, method="Crane"), 2.*inch, 3.*inch,)
     assert_close(K, 1.4062499999999991)
 
 def test_contraction_conical_Crane():
@@ -524,14 +524,14 @@ def test_contraction_round():
     K_round = contraction_round(Di1=1.0, Di2=0.4, rc=0.04)
     assert_close(K_round, 0.1783332490866574)
 
-    K = contraction_round(Di1=1.0, Di2=0.4, rc=0.04, method='Miller')
+    K = contraction_round(Di1=1.0, Di2=0.4, rc=0.04, method="Miller")
     assert_close(K, 0.085659530512986387)
 
-    K = contraction_round(Di1=1.0, Di2=0.4, rc=0.04, method='Idelchik')
+    K = contraction_round(Di1=1.0, Di2=0.4, rc=0.04, method="Idelchik")
     assert_close(K, 0.1008)
 
     with pytest.raises(Exception):
-        contraction_round(Di1=1.0, Di2=0.4, rc=0.04, method='BADMETHOD')
+        contraction_round(Di1=1.0, Di2=0.4, rc=0.04, method="BADMETHOD")
 
 def test_contraction_round_Miller():
     K = contraction_round_Miller(Di1=1, Di2=0.4, rc=0.04)
@@ -547,88 +547,88 @@ def test_contraction_conical():
     with pytest.raises(Exception):
         contraction_conical(Di1=0.1, Di2=0.04, fd=0.0185)
 
-    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Rennels')
+    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method="Rennels")
     assert_close(K, 0.47462419839494946)
 
-    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Idelchik')
+    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method="Idelchik")
     assert_close(K, 0.391723)
 
-    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Crane')
+    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method="Crane")
     assert_close(K, 0.41815380146594)
 
-    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Swamee')
+    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method="Swamee")
     assert_close(K, 0.4479863925376303)
 
-    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='Blevins')
+    K = contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method="Blevins")
     assert_close(K, 0.365)
 
-    K = contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1E6, method='Miller')
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1E6, method="Miller")
     assert_close(K, 0.0918289683812792)
 
     # high l ratio rounding
-    K = contraction_conical(Di1=0.1, Di2=0.06, l=0.04, Re=1E6, method='Miller')
+    K = contraction_conical(Di1=0.1, Di2=0.06, l=0.04, Re=1E6, method="Miller")
     assert_close(K, 0.08651515699621345)
 
     # low a ratio rounding
-    K = contraction_conical(Di1=0.1, Di2=0.099, l=0.04, Re=1E6, method='Miller')
+    K = contraction_conical(Di1=0.1, Di2=0.099, l=0.04, Re=1E6, method="Miller")
     assert_close(K, 0.03065262382984957)
 
     # low l ratio
-    K = contraction_conical(Di1=0.1, Di2=0.04, l=0.001, Re=1E6, method='Miller')
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=0.001, Re=1E6, method="Miller")
     assert_close(K, 0.5)
 
     # high l ratio rounding
-    K = contraction_conical(Di1=0.1, Di2=0.05, l=1, Re=1E6, method='Miller')
+    K = contraction_conical(Di1=0.1, Di2=0.05, l=1, Re=1E6, method="Miller")
     assert_close(K, 0.04497085709551787)
 
     with pytest.raises(Exception):
-        contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method='BADMETHOD')
+        contraction_conical(Di1=0.1, Di2=.04, l=.004, Re=1E6, method="BADMETHOD")
 
-    K = contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1E6, method='Hooper') # Turb, high angle
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1E6, method="Hooper") # Turb, high angle
     assert_close(K, 0.39403366995770217, rtol=1e-12)
 
-    K = contraction_conical(Di1=0.1, Di2=0.04, l=.5, Re=1E6, method='Hooper') # low angle
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=.5, Re=1E6, method="Hooper") # low angle
     assert_close(K, 0.04874708101353686, rtol=1e-12)
 
-    K = contraction_conical(Di1=0.1, Di2=0.04, l=.5, Re=10, method='Hooper') # laminar
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=.5, Re=10, method="Hooper") # laminar
     assert_close(K, 1.606041003307766)
 
-    K = contraction_conical(Di1=0.1, Di2=0.04, l=.5, Re=1E6, fd=1e-6, method='Hooper')
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=.5, Re=1E6, fd=1e-6, method="Hooper")
     assert_close(K, 0.04829718188073081)
 
     with pytest.raises(Exception):
         # Need re to determine regime
-        contraction_conical(Di1=0.1, Di2=0.04, l=.5, fd=1e-6, method='Hooper')
+        contraction_conical(Di1=0.1, Di2=0.04, l=.5, fd=1e-6, method="Hooper")
     with pytest.raises(Exception):
-        contraction_conical(Di1=0.1, Di2=0.04, l=.5, method='Rennels')
+        contraction_conical(Di1=0.1, Di2=0.04, l=.5, method="Rennels")
 
     # l_ratio > 0.6 case
-    K = contraction_conical(Di1=0.1, Di2=0.04, l=10, fd=1e-6, method='Blevins')
+    K = contraction_conical(Di1=0.1, Di2=0.04, l=10, fd=1e-6, method="Blevins")
     assert_close(K, 0.2025)
 
     # Case A_ratio > 10
-    K = contraction_conical(Di1=0.1, Di2=0.01, l=10, fd=1e-6, method='Blevins')
+    K = contraction_conical(Di1=0.1, Di2=0.01, l=10, fd=1e-6, method="Blevins")
     assert_close(K, 0.27)
 
     # Case with A_ratio < 1.2
-    K = contraction_conical(Di1=0.1, Di2=0.099999, l=100, fd=1e-6, method='Blevins')
+    K = contraction_conical(Di1=0.1, Di2=0.099999, l=100, fd=1e-6, method="Blevins")
     assert_close(K, 0.03)
 
     # case angle_rad > 20.0*deg2rad
-    K = contraction_conical(Di1=1, Di2=0.01, l=.5, fd=1e-6, method='Idelchik')
+    K = contraction_conical(Di1=1, Di2=0.01, l=.5, fd=1e-6, method="Idelchik")
     assert_close(K, 0.21089636998777261)
 
     # case angle_rad < 2.0*deg2rad
-    K = contraction_conical(Di1=1, Di2=0.99, l=.5, fd=1e-6, method='Idelchik')
+    K = contraction_conical(Di1=1, Di2=0.99, l=.5, fd=1e-6, method="Idelchik")
     assert_close(K, 0.09947364590616913)
 
     # case angle_fric = angle_rad*rad2deg
-    K = contraction_conical(Di1=1, Di2=0.5, l=10, fd=1e-6, method='Idelchik')
+    K = contraction_conical(Di1=1, Di2=0.5, l=10, fd=1e-6, method="Idelchik")
     assert_close(K, 0.431024986913148)
 
     # Default method
     assert_close(contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1e6),
-                 contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1e6, method='Rennels'))
+                 contraction_conical(Di1=0.1, Di2=0.04, l=0.04, Re=1e6, method="Rennels"))
 
 
 ### Valves
@@ -893,10 +893,10 @@ def test_K_plug_valve_Crane():
 
 
 def test_v_lift_valve_Crane():
-    v = v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style='lift check straight')
+    v = v_lift_valve_Crane(rho=998.2, D1=0.0627, D2=0.0779, style="lift check straight")
     assert_close(v, 1.0252301935349286)
 
-    v = v_lift_valve_Crane(rho=998.2, style='swing check angled')
+    v = v_lift_valve_Crane(rho=998.2, style="swing check angled")
     assert_close(v, 1.4243074011010037)
 
 

@@ -9,7 +9,6 @@ and other parts only have obsolete dependencies i.e. pint on earlier Python vers
 For that reason, while the pytest test suite runs everywhere,
 the notebooks and doctests only run on one platform.""")
 
-import os
 import sys
 from datetime import datetime
 
@@ -22,8 +21,8 @@ now = datetime.now()
 
 main_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-remove_folders = ('__pycache__', '.mypy_cache', '_build', '.cache', '.ipynb_checkpoints')
-bad_extensions = ('.pyc', '.nbi', '.nbc')
+remove_folders = ("__pycache__", ".mypy_cache", "_build", ".cache", ".ipynb_checkpoints")
+bad_extensions = (".pyc", ".nbi", ".nbc")
 
 
 paths = [main_dir]
@@ -46,7 +45,7 @@ for p in paths:
 
 
 
-test_dir = os.path.join(main_dir, 'tests')
+test_dir = os.path.join(main_dir, "tests")
 os.chdir(test_dir)
 
 # mod_spec = importlib.util.spec_from_file_location("make_test_stubs", os.path.join(test_dir, "make_test_stubs.py"))

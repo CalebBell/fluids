@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -59,7 +59,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  * updated releases of this package.
  */
 
-'''
+"""
 
 import hashlib
 import os
@@ -69,9 +69,9 @@ import pytest
 from fluids.nrlmsise00.nrlmsise_00 import gtd7
 from fluids.nrlmsise00.nrlmsise_00_header import ap_array, nrlmsise_flags, nrlmsise_input, nrlmsise_output
 
-base = ''
+base = ""
 
-def build_file(txt, end=''):
+def build_file(txt, end=""):
     # TODO: replace print with this call. Return a giant string, not a plain text output.
     # It is important to not have to start a new python process - slow
     global base
@@ -132,88 +132,88 @@ def gtd7_file_output():
 
     #/* output type 1 */
     for i in range(17):
-        build_file('\n', end='')
+        build_file("\n", end="")
         for j in range(9):
-            build_file('%E ' % output[i].d[j], end='')
-        build_file('%E ' % output[i].t[0], end='')
-        build_file('%E ' % output[i].t[1], end='\n')
+            build_file(f"{output[i].d[j]:E} ", end="")
+        build_file(f"{output[i].t[0]:E} ", end="")
+        build_file(f"{output[i].t[1]:E} ", end="\n")
         #/* DL omitted */
 
     #/* output type 2 */
     for i in range(3):
-        build_file('\n', end='')
-        build_file("\nDAY   ", end='')
+        build_file("\n", end="")
+        build_file("\nDAY   ", end="")
         for j in range(5):
-            build_file("         %3i" % Input[i*5+j].doy, end='')
-        build_file("\nUT    ", end='')
+            build_file("         %3i" % Input[i*5+j].doy, end="")
+        build_file("\nUT    ", end="")
         for j in range(5):
-            build_file("       %5.0f" % Input[i*5+j].sec, end='')
-        build_file("\nALT   ", end='')
+            build_file(f"       {Input[i*5+j].sec:5.0f}", end="")
+        build_file("\nALT   ", end="")
         for j in range(5):
-            build_file("        %4.0f" % Input[i*5+j].alt, end='')
-        build_file("\nLAT   ", end='')
+            build_file(f"        {Input[i*5+j].alt:4.0f}", end="")
+        build_file("\nLAT   ", end="")
         for j in range(5):
-            build_file("         %3.0f" % Input[i*5+j].g_lat, end='')
-        build_file("\nLONG  ", end='')
+            build_file(f"         {Input[i*5+j].g_lat:3.0f}", end="")
+        build_file("\nLONG  ", end="")
         for j in range(5):
-            build_file("         %3.0f" % Input[i*5+j].g_long, end='')
-        build_file("\nLST   ", end='')
+            build_file(f"         {Input[i*5+j].g_long:3.0f}", end="")
+        build_file("\nLST   ", end="")
         for j in range(5):
-            build_file("       %5.0f" % Input[i*5+j].lst, end='')
-        build_file("\nF107A ", end='')
+            build_file(f"       {Input[i*5+j].lst:5.0f}", end="")
+        build_file("\nF107A ", end="")
         for j in range(5):
-            build_file("         %3.0f" % Input[i*5+j].f107A, end='')
-        build_file("\nF107  ", end='')
+            build_file(f"         {Input[i*5+j].f107A:3.0f}", end="")
+        build_file("\nF107  ", end="")
         for j in range(5):
-            build_file("         %3.0f" % Input[i*5+j].f107, end='')
+            build_file(f"         {Input[i*5+j].f107:3.0f}", end="")
 
-        build_file('\n\n', end='')
+        build_file("\n\n", end="")
 
-        build_file("\nTINF  ", end='')
+        build_file("\nTINF  ", end="")
         for j in range(5):
-            build_file("     %7.2f" % output[i*5+j].t[0], end='')
-        build_file("\nTG    ", end='')
+            build_file(f"     {output[i*5+j].t[0]:7.2f}", end="")
+        build_file("\nTG    ", end="")
         for j in range(5):
-            build_file("     %7.2f" % output[i*5+j].t[1], end='')
-        build_file("\nHE    ", end='')
+            build_file(f"     {output[i*5+j].t[1]:7.2f}", end="")
+        build_file("\nHE    ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[0], end='')
-        build_file("\nO     ", end='')
+            build_file(f"   {output[i*5+j].d[0]:1.3e}", end="")
+        build_file("\nO     ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[1], end='')
-        build_file("\nN2    ", end='')
+            build_file(f"   {output[i*5+j].d[1]:1.3e}", end="")
+        build_file("\nN2    ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[2], end='')
-        build_file("\nO2    ", end='')
+            build_file(f"   {output[i*5+j].d[2]:1.3e}", end="")
+        build_file("\nO2    ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[3], end='')
-        build_file("\nAR    ", end='')
+            build_file(f"   {output[i*5+j].d[3]:1.3e}", end="")
+        build_file("\nAR    ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[4], end='')
-        build_file("\nH     ", end='')
+            build_file(f"   {output[i*5+j].d[4]:1.3e}", end="")
+        build_file("\nH     ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[6], end='')
-        build_file("\nN     ", end='')
+            build_file(f"   {output[i*5+j].d[6]:1.3e}", end="")
+        build_file("\nN     ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[7], end='')
-        build_file("\nANM   ", end='')
+            build_file(f"   {output[i*5+j].d[7]:1.3e}", end="")
+        build_file("\nANM   ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[8], end='')
-        build_file("\nRHO   ", end='')
+            build_file(f"   {output[i*5+j].d[8]:1.3e}", end="")
+        build_file("\nRHO   ", end="")
         for j in range(5):
-            build_file("   %1.3e" % output[i*5+j].d[5], end='')
-        build_file('\n', '\n')
+            build_file(f"   {output[i*5+j].d[5]:1.3e}", end="")
+        build_file("\n", "\n")
 
 
-known_hash = 'bb504fc1ab541260f13b2d2d89884c4d'
+known_hash = "bb504fc1ab541260f13b2d2d89884c4d"
 
 @pytest.mark.slow
 def test_NRLMSISE00_against_C_output():
     global base
     # Test results currently match up exactly with those of the C test file.
-    script = os.path.join(os.path.dirname(__file__), 'nrlmsise_00_test.py')
+    script = os.path.join(os.path.dirname(__file__), "nrlmsise_00_test.py")
     # Load known data
-    known = os.path.join(os.path.dirname(__file__), 'data_from_C_version.txt')
+    known = os.path.join(os.path.dirname(__file__), "data_from_C_version.txt")
     # On a separate process, run the test script, and capture its output
     from sys import platform
     if platform == "linux" or platform == "linux2" or platform == "darwin":
@@ -234,4 +234,4 @@ def test_NRLMSISE00_against_C_output():
         hasher.update(response)
         expect = hasher.hexdigest()
         assert expect == known_hash
-    base = ''
+    base = ""
