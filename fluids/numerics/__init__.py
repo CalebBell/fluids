@@ -381,6 +381,7 @@ __numba_additional_funcs__ = ["py_bisplev", "py_splev", "binary_search",
 nan = float("nan")
 inf = float("inf")
 
+IS_NUMBA = "IS_NUMBA" in globals()
 
 
 
@@ -1885,9 +1886,7 @@ def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
              (diff <= rel_tol*abs(a))) or (diff <= abs_tol))
 
 # Voodoo to handle the fact numba doesn't have isclose
-try:
-    IS_NUMBA
-except:
+if not IS_NUMBA:
     try:
         from math import isclose
     except ImportError:
