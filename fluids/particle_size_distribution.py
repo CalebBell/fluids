@@ -116,10 +116,10 @@ __all__: list[str] = [
 ]
 
 from math import exp, log, log10, pi, sqrt
+from typing import Callable
 
 from fluids.numerics import brenth, cumsum, diff, epsilon, erf, gamma, gammaincc, linspace, logspace, normalize, quad
 from fluids.numerics import numpy as np
-from typing import Callable
 
 ROOT_TWO_PI = sqrt(2.0*pi)
 
@@ -1226,6 +1226,7 @@ class ParticleSizeDistributionContinuous:
        Analysis - Part 2: Calculation of Average Particle Sizes/Diameters and
        Moments from Particle Size Distributions.
     """
+
     order: int
     d_excessive: float
     truncated: bool

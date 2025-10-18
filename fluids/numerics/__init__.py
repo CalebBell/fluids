@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018, 2019, 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
@@ -21,128 +20,181 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from __future__ import division
-from math import (sin, exp, pi, fabs, copysign, log, isinf, isnan, acos, cos, sin,
-                  atan2, asinh, sqrt, gamma)
-from cmath import sqrt as csqrt, log as clog
 import sys
-from fluids.numerics.arrays import (solve as py_solve, inv, dot_product, norm2, matrix_vector_dot, eye,
-                     array_as_tridiagonals, tridiagonals_as_array, transpose,
-                     solve_tridiagonal, subset_matrix, argsort1d, shape, sort_paired_lists,
-                     stack_vectors, matrix_multiply, transpose, eye, inv, sum_matrix_rows, gelsd,
-                     null_space)
+from cmath import log as clog
+from cmath import sqrt as csqrt
+from math import acos, asinh, atan2, copysign, cos, exp, fabs, gamma, isinf, isnan, log, pi, sin, sqrt
 
-from fluids.numerics.special import (py_hypot, py_cacos, py_catan, py_catanh, 
-                                     trunc_exp, trunc_log, cbrt, factorial, comb)
+from fluids.numerics.arrays import (
+    argsort1d,
+    array_as_tridiagonals,
+    dot_product,
+    eye,
+    gelsd,
+    inv,
+    matrix_multiply,
+    matrix_vector_dot,
+    norm2,
+    null_space,
+    shape,
+    solve_tridiagonal,
+    sort_paired_lists,
+    stack_vectors,
+    subset_matrix,
+    sum_matrix_rows,
+    transpose,
+    tridiagonals_as_array,
+)
+from fluids.numerics.arrays import solve as py_solve
+from fluids.numerics.polynomial_evaluation import (
+    exp_horner_backwards,
+    exp_horner_backwards_and_der,
+    exp_horner_backwards_and_der2,
+    exp_horner_backwards_and_der3,
+    exp_horner_backwards_ln_tau,
+    exp_horner_backwards_ln_tau_and_der,
+    exp_horner_backwards_ln_tau_and_der2,
+    exp_horner_stable,
+    exp_horner_stable_and_der,
+    exp_horner_stable_and_der2,
+    exp_horner_stable_and_der3,
+    exp_horner_stable_ln_tau,
+    exp_horner_stable_ln_tau_and_der,
+    exp_horner_stable_ln_tau_and_der2,
+    horner,
+    horner_and_der,
+    horner_and_der2,
+    horner_and_der3,
+    horner_and_der4,
+    horner_backwards,
+    horner_backwards_ln_tau,
+    horner_backwards_ln_tau_and_der,
+    horner_backwards_ln_tau_and_der2,
+    horner_backwards_ln_tau_and_der3,
+    horner_domain,
+    horner_log,
+    horner_stable,
+    horner_stable_and_der,
+    horner_stable_and_der2,
+    horner_stable_and_der3,
+    horner_stable_and_der4,
+    horner_stable_ln_tau,
+    horner_stable_ln_tau_and_der,
+    horner_stable_ln_tau_and_der2,
+    horner_stable_ln_tau_and_der3,
+    horner_stable_log,
+)
+from fluids.numerics.polynomial_roots import roots_cubic, roots_cubic_a1, roots_cubic_a2, roots_quadratic, roots_quartic
+from fluids.numerics.polynomial_utils import (
+    deflate_cubic_real_roots,
+    exp_poly_ln_tau_coeffs2,
+    exp_poly_ln_tau_coeffs3,
+    poly_convert,
+    polyder,
+    polyint,
+    polyint_over_x,
+    polyint_over_x_stable,
+    polyint_stable,
+    polynomial_offset_scale,
+    quadratic_from_f_ders,
+    quadratic_from_points,
+    stable_poly_to_unstable,
+)
+from fluids.numerics.special import cbrt, comb, factorial, py_cacos, py_catan, py_catanh, py_hypot, trunc_exp, trunc_log
 
-from fluids.numerics.polynomial_roots import (roots_quadratic, roots_quartic, roots_cubic_a1, roots_cubic_a2, roots_cubic)
-from fluids.numerics.polynomial_evaluation import (horner, horner_and_der, horner_and_der2,
- horner_and_der3, horner_and_der4, horner_backwards, exp_horner_backwards,
- exp_horner_backwards_and_der, exp_horner_backwards_and_der2, exp_horner_backwards_and_der3,
- horner_backwards_ln_tau, horner_backwards_ln_tau_and_der, horner_backwards_ln_tau_and_der2, horner_backwards_ln_tau_and_der3,
- exp_horner_backwards_ln_tau, exp_horner_backwards_ln_tau_and_der, exp_horner_backwards_ln_tau_and_der2,
- horner_domain, horner_stable, horner_stable_and_der, horner_stable_and_der2, horner_stable_and_der3, horner_stable_and_der4,
- horner_stable_ln_tau, horner_stable_ln_tau_and_der, horner_stable_ln_tau_and_der2, horner_stable_ln_tau_and_der3,
- exp_horner_stable, exp_horner_stable_and_der, exp_horner_stable_and_der2, exp_horner_stable_and_der3,
- exp_horner_stable_ln_tau, exp_horner_stable_ln_tau_and_der, exp_horner_stable_ln_tau_and_der2,
- horner_log, horner_stable_log,
- )
+__all__ = ["isclose", "horner", "horner_and_der", "horner_and_der2",
+           "horner_and_der3", "quadratic_from_f_ders", "chebval", "interp",
+           "linspace", "logspace", "cumsum", "diff", "basic_damping",
+           "is_poly_negative", "is_poly_positive",
+           "exp_poly_ln_tau_coeffs3", "exp_poly_ln_tau_coeffs2",
+           "implementation_optimize_tck", "tck_interp2d_linear",
+           "bisect", "ridder", "brenth", "newton", "secant", "halley",
+           "one_sided_secant", "trunc_exp_numpy", "trunc_log_numpy",
+           "splev", "bisplev", "derivative", "jacobian", "hessian",
+           "normalize", "oscillation_checker",
+           "IS_PYPY", "roots_cubic", "roots_quartic", "newton_system",
+           "broyden2", "basic_damping", "solve_2_direct", "solve_3_direct",
+           "solve_4_direct", "sincos", "horner_and_der4",
+           "lambertw", "ellipe", "gamma", "gammaincc", "erf",
+           "i1", "i0", "k1", "k0", "iv", "mean", "polylog2", "roots_quadratic",
+           "numpy", "nquad", "catanh", "factorial", "comb", "SolverInterface",
+           "multivariate_solvers", "jacobian_methods",
+           "polyint_over_x", "horner_log", "polyint", "zeros", "full",
+           "chebder", "chebint", "exp_cheb",
+           "polyder", "make_damp_initial", "quadratic_from_points",
+           "OscillationError", "UnconvergedError", "caching_decorator",
+           "NoSolutionError", "SamePointError", "NotBoundedError",
+           "damping_maintain_sign", "oscillation_checking_wrapper",
+           "trunc_exp", "trunc_log", "fit_integral_linear_extrapolation",
+           "fit_integral_over_T_linear_extrapolation",
+           "poly_fit_integral_value", "poly_fit_integral_over_T_value",
+           "evaluate_linear_fits", "evaluate_linear_fits_d",
+           "evaluate_linear_fits_d2",
+           "best_bounding_bounds", "newton_minimize", "array_as_tridiagonals",
+           "tridiagonals_as_array", "solve_tridiagonal", "subset_matrix",
+           "assert_close", "assert_close1d", "assert_close2d", "assert_close3d",
+           "assert_close4d", "translate_bound_func", "translate_bound_jac",
+           "translate_bound_f_jac", "curve_fit",
+           "quad", "quad_adaptive", "stable_poly_to_unstable", "homotopy_solver",
+           "horner_stable_log",
+           "is_increasing",
+           "fixed_point_anderson",
+           "std", "min_max_ratios", "detect_outlier_normal",
+           "max_abs_error", "max_abs_rel_error", "max_squared_error",
+           "max_squared_rel_error", "mean_abs_error", "mean_abs_rel_error",
+           "mean_squared_error", "mean_squared_rel_error",
 
-from fluids.numerics.polynomial_utils import (polyint, polyint_over_x, polyder, quadratic_from_points, quadratic_from_f_ders, deflate_cubic_real_roots,
-exp_poly_ln_tau_coeffs3, exp_poly_ln_tau_coeffs2, polynomial_offset_scale, stable_poly_to_unstable, polyint_stable, polyint_over_x_stable, poly_convert)
-
-__all__ = ['isclose', 'horner', 'horner_and_der', 'horner_and_der2',
-           'horner_and_der3', 'quadratic_from_f_ders', 'chebval', 'interp',
-           'linspace', 'logspace', 'cumsum', 'diff', 'basic_damping',
-           'is_poly_negative', 'is_poly_positive',
-           'exp_poly_ln_tau_coeffs3', 'exp_poly_ln_tau_coeffs2',
-           'implementation_optimize_tck', 'tck_interp2d_linear',
-           'bisect', 'ridder', 'brenth', 'newton', 'secant', 'halley',
-           'one_sided_secant', 'trunc_exp_numpy', 'trunc_log_numpy',
-           'splev', 'bisplev', 'derivative', 'jacobian', 'hessian',
-           'normalize', 'oscillation_checker',
-           'IS_PYPY', 'roots_cubic', 'roots_quartic', 'newton_system',
-           'broyden2', 'basic_damping', 'solve_2_direct', 'solve_3_direct',
-           'solve_4_direct', 'sincos', 'horner_and_der4',
-           'lambertw', 'ellipe', 'gamma', 'gammaincc', 'erf',
-           'i1', 'i0', 'k1', 'k0', 'iv', 'mean', 'polylog2', 'roots_quadratic',
-           'numpy', 'nquad', 'catanh', 'factorial', 'comb', 'SolverInterface',
-           'multivariate_solvers', 'jacobian_methods',
-           'polyint_over_x', 'horner_log', 'polyint', 'zeros', 'full',
-           'chebder', 'chebint', 'exp_cheb',
-           'polyder', 'make_damp_initial', 'quadratic_from_points',
-           'OscillationError', 'UnconvergedError', 'caching_decorator',
-           'NoSolutionError', 'SamePointError', 'NotBoundedError',
-           'damping_maintain_sign', 'oscillation_checking_wrapper',
-           'trunc_exp', 'trunc_log', 'fit_integral_linear_extrapolation',
-           'fit_integral_over_T_linear_extrapolation',
-           'poly_fit_integral_value', 'poly_fit_integral_over_T_value',
-           'evaluate_linear_fits', 'evaluate_linear_fits_d',
-           'evaluate_linear_fits_d2',
-           'best_bounding_bounds', 'newton_minimize', 'array_as_tridiagonals',
-           'tridiagonals_as_array', 'solve_tridiagonal', 'subset_matrix',
-           'assert_close', 'assert_close1d', 'assert_close2d', 'assert_close3d',
-           'assert_close4d', 'translate_bound_func', 'translate_bound_jac',
-           'translate_bound_f_jac', 'curve_fit',
-           'quad', 'quad_adaptive', 'stable_poly_to_unstable', 'homotopy_solver',
-           'horner_stable_log',
-           'is_increasing',
-           'fixed_point_anderson',
-           'std', 'min_max_ratios', 'detect_outlier_normal',
-           'max_abs_error', 'max_abs_rel_error', 'max_squared_error',
-           'max_squared_rel_error', 'mean_abs_error', 'mean_abs_rel_error', 
-           'mean_squared_error', 'mean_squared_rel_error',
-
-           'fixed_point_to_residual', 'residual_to_fixed_point',
-           'sort_paired_lists',
-           'is_micropython',
+           "fixed_point_to_residual", "residual_to_fixed_point",
+           "sort_paired_lists",
+           "is_micropython",
 
            # Complex number math missing in micropython
-           'cacos', 'catan',
-           'deflate_cubic_real_roots', 'fit_minimization_targets',
+           "cacos", "catan",
+           "deflate_cubic_real_roots", "fit_minimization_targets",
 
-           'root', 'minimize', 'fsolve', 'differential_evolution',
-           'lmder', 'lmfit', 'horner_backwards', 'exp_horner_backwards',
-           'horner_backwards_ln_tau', 'exp_horner_backwards_ln_tau', 
-           'exp_horner_backwards_ln_tau_and_der', 'exp_horner_backwards_ln_tau_and_der2',
-           'exp_poly_ln_tau_coeffs2', 'exp_poly_ln_tau_coeffs3',
-           'exp_horner_backwards_and_der', 'exp_horner_backwards_and_der2',
-           'exp_horner_backwards_and_der3',
-           'horner_backwards_ln_tau_and_der', 'horner_backwards_ln_tau_and_der2',
-           'horner_backwards_ln_tau_and_der3',
-           
-           'horner_domain', 'polynomial_offset_scale', 'horner_stable',
-           'horner_stable_and_der', 'horner_stable_and_der2', 
-           'horner_stable_and_der3', 'horner_stable_and_der4',
-           'exp_horner_stable', 'exp_horner_stable_and_der', 
-           'exp_horner_stable_and_der2', 'exp_horner_stable_and_der3',
-           'exp_cheb_and_der', 'exp_cheb_and_der2', 'exp_cheb_and_der3',
-           'chebval_ln_tau', 'chebval_ln_tau_and_der',
-           'chebval_ln_tau_and_der2', 'chebval_ln_tau_and_der3',
-           'horner_stable_ln_tau', 'horner_stable_ln_tau_and_der', 
-           'horner_stable_ln_tau_and_der2', 'horner_stable_ln_tau_and_der3',
-           'exp_cheb_ln_tau', 'exp_cheb_ln_tau_and_der', 'exp_cheb_ln_tau_and_der2',
-           'exp_horner_stable_ln_tau', 'exp_horner_stable_ln_tau_and_der', 
-           'exp_horner_stable_ln_tau_and_der2',
-           'is_monotonic',
-           'sort_nelder_mead_points_numba', 'sort_nelder_mead_points_python', 
-           'bounds_clip_naive', 'nelder_mead', 'cbrt',
-           'polyint_stable', 'polyint_over_x_stable',
-           'argsort1d', 'poly_convert',
+           "root", "minimize", "fsolve", "differential_evolution",
+           "lmder", "lmfit", "horner_backwards", "exp_horner_backwards",
+           "horner_backwards_ln_tau", "exp_horner_backwards_ln_tau",
+           "exp_horner_backwards_ln_tau_and_der", "exp_horner_backwards_ln_tau_and_der2",
+           "exp_poly_ln_tau_coeffs2", "exp_poly_ln_tau_coeffs3",
+           "exp_horner_backwards_and_der", "exp_horner_backwards_and_der2",
+           "exp_horner_backwards_and_der3",
+           "horner_backwards_ln_tau_and_der", "horner_backwards_ln_tau_and_der2",
+           "horner_backwards_ln_tau_and_der3",
 
-           'cumulative_trapezoid',
+           "horner_domain", "polynomial_offset_scale", "horner_stable",
+           "horner_stable_and_der", "horner_stable_and_der2",
+           "horner_stable_and_der3", "horner_stable_and_der4",
+           "exp_horner_stable", "exp_horner_stable_and_der",
+           "exp_horner_stable_and_der2", "exp_horner_stable_and_der3",
+           "exp_cheb_and_der", "exp_cheb_and_der2", "exp_cheb_and_der3",
+           "chebval_ln_tau", "chebval_ln_tau_and_der",
+           "chebval_ln_tau_and_der2", "chebval_ln_tau_and_der3",
+           "horner_stable_ln_tau", "horner_stable_ln_tau_and_der",
+           "horner_stable_ln_tau_and_der2", "horner_stable_ln_tau_and_der3",
+           "exp_cheb_ln_tau", "exp_cheb_ln_tau_and_der", "exp_cheb_ln_tau_and_der2",
+           "exp_horner_stable_ln_tau", "exp_horner_stable_ln_tau_and_der",
+           "exp_horner_stable_ln_tau_and_der2",
+           "is_monotonic",
+           "sort_nelder_mead_points_numba", "sort_nelder_mead_points_python",
+           "bounds_clip_naive", "nelder_mead", "cbrt",
+           "polyint_stable", "polyint_over_x_stable",
+           "argsort1d", "poly_convert",
+
+           "cumulative_trapezoid",
            ]
 
 from fluids.numerics import doubledouble
 from fluids.numerics.doubledouble import *
+
 __all__.extend(doubledouble.__all__)
 
 
-__numba_additional_funcs__ = ['py_bisplev', 'py_splev', 'binary_search',
-                              'py_lambertw', '_lambertw_err', 'newton_err',
-                              'norm2', 'py_solve', 'func_35_splev', 'func_40_splev',
-                              'quad_adaptive', 'fixed_quad_Gauss_Kronrod',
-                              'halley_compat_numba',
+__numba_additional_funcs__ = ["py_bisplev", "py_splev", "binary_search",
+                              "py_lambertw", "_lambertw_err", "newton_err",
+                              "norm2", "py_solve", "func_35_splev", "func_40_splev",
+                              "quad_adaptive", "fixed_quad_Gauss_Kronrod",
+                              "halley_compat_numba",
                               ]
 nan = float("nan")
 inf = float("inf")
@@ -152,10 +204,10 @@ inf = float("inf")
 
 SKIP_DEPENDENCIES = False # for testing
 
-class FakePackage(object):
+class FakePackage:
     pkg = None
     def __getattr__(self, name):
-        raise ImportError('%s in not installed and required by this feature' %(self.pkg))
+        raise ImportError("%s in not installed and required by this feature" %(self.pkg))
 
     def __init__(self, pkg):
         self.pkg = pkg
@@ -164,7 +216,7 @@ class FakePackage(object):
 try:
     # The right way imports the platform module which costs to ms to load!
     # implementation = platform.python_implementation()
-    IS_PYPY = 'PyPy' in sys.version
+    IS_PYPY = "PyPy" in sys.version
 except AttributeError:
     IS_PYPY = False
 
@@ -179,7 +231,7 @@ except:
     array_if_needed = lambda x: x
 
 try:
-    is_micropython = sys.implementation.name == 'micropython'
+    is_micropython = sys.implementation.name == "micropython"
     if is_micropython:
         IS_PYPY = True
 except:
@@ -236,12 +288,15 @@ except:
     pass
 
 try:
-    from cmath import acos as cacos, atan as catan, atanh as catanh, isclose as cisclose
+    from cmath import acos as cacos
+    from cmath import atan as catan
+    from cmath import atanh as catanh
+    from cmath import isclose as cisclose
 except:
     cacos = py_cacos
     catan = py_catan
     catanh = py_catanh
-    
+
 try:
     from math import cbrt
 except:
@@ -268,10 +323,10 @@ if not SKIP_DEPENDENCIES:
         np = numpy
     except ImportError:
         # Allow a fake numpy to be imported, but will raise an excption on any use
-        numpy = FakePackage('numpy')
+        numpy = FakePackage("numpy")
         IS_PYPY = True
 else:
-    numpy = FakePackage('numpy')
+    numpy = FakePackage("numpy")
     IS_PYPY = True
 
 IS_PYPY_OR_SKIP_DEPENDENCIES = IS_PYPY or SKIP_DEPENDENCIES
@@ -334,7 +389,7 @@ def mean(data):
 def detect_outlier_normal(data, cutoff=3):
     std_val = std(data)
     mean_val = mean(data)
-    
+
     low = mean_val - std_val*cutoff
     high = mean_val + std_val*cutoff
     outlier_idxs = []
@@ -357,7 +412,7 @@ def linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None):
     if endpoint:
         if num == 1:
             return [start]
-        step = (stop-start)/float((num-1))
+        step = (stop-start)/float(num-1)
         if num == 1:
             step = nan
 
@@ -402,11 +457,11 @@ def cumulative_trapezoid(y, x=None, dx=None):
     """
     if not y:
         return []
-        
+
     n = len(y)
     if n < 2:
         return []
-    
+
     if x is None:
         # Unit spacing
         if dx is None:
@@ -417,10 +472,10 @@ def cumulative_trapezoid(y, x=None, dx=None):
             integral += (y[i] + y[i+1]) * dx*0.5
             result.append(integral)
         return result
-    
+
     if len(x) != n:
         raise ValueError("x and y must have same length")
-    
+
     # potentially variable spacing
     result = []
     integral = 0.0
@@ -612,8 +667,8 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True,
             raise ValueError
         weights = central_diff_weights(order, n)
     ho = order >> 1
-    
-    
+
+
     if n == 1:
         denominator = 1.0/dx
     else:
@@ -630,11 +685,11 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True,
             min_x = x0 + -ho*dx
             if min_x < lower_limit:
                 x0 += (x0 - min_x)
-        
+
         # failed optimization strategy - plus changes some answers
         # const = x0 - dx*ho
         # tot += weights[k]*func(const + dx*k, *args, **kwargs)
-        
+
         tot = 0.0
         for k in range(order):
             if weights[k] != 0.0:
@@ -1133,7 +1188,7 @@ def exp_cheb_ln_tau_and_der2(T, Tc, coeffs, der_coeffs, der2_coeffs, offset, sca
     val = exp(poly_val)
     der = -val*poly_val_der/(Tc*tau)
     der2 = (poly_val_der*poly_val_der - poly_val_der + poly_val_der2)*val/(Tc*Tc*(tau*tau))
-    
+
     return val, der, der2
 
 def chebval_ln_tau(T, Tc, coeffs, offset, scale):
@@ -1152,7 +1207,7 @@ def chebval_ln_tau_and_der(T, Tc, coeffs, der_coeffs, offset, scale):
     der = -poly_der/(Tc*(-T/Tc + 1))
     return val, der
 
-    
+
 def chebval_ln_tau_and_der2(T, Tc, coeffs, der_coeffs, der2_coeffs, offset, scale):
     if T >= Tc:
         return 0.0, 0.0, 0.0
@@ -1161,7 +1216,7 @@ def chebval_ln_tau_and_der2(T, Tc, coeffs, der_coeffs, der2_coeffs, offset, scal
     poly_der = chebval(lntau, der_coeffs, offset, scale)
     poly_der2 = chebval(lntau, der2_coeffs, offset, scale)
     der = -poly_der/(Tc*(-T/Tc + 1))
-    
+
     der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
     return val, der, der2
 
@@ -1176,7 +1231,7 @@ def chebval_ln_tau_and_der3(T, Tc, coeffs, der_coeffs, der2_coeffs, der3_coeffs,
     der = -poly_der/(Tc*(-T/Tc + 1))
     der2 = (-poly_der + poly_der2)/(Tc**2*(T/Tc - 1)**2)
     der3 = (2.0*poly_der - 3.0*poly_der2 + poly_der3)/(Tc**3*(T/Tc - 1)**3)
-    
+
     return val, der, der2, der3
 
 
@@ -1252,7 +1307,7 @@ def is_monotonic(points):
     N = len(points)
     if N == 1:
         return True
-    
+
     a_point_increased = False
     a_point_decreased = False
     for i in range(N-1):
@@ -1260,7 +1315,7 @@ def is_monotonic(points):
             a_point_increased = True
         if points[i+1] < points[i]:
             a_point_decreased = True
-    return not (a_point_increased and a_point_decreased) 
+    return not (a_point_increased and a_point_decreased)
 
 def is_increasing(points):
     """Check if a given sequence of points is entirely increasing. Points
@@ -1293,7 +1348,7 @@ def is_increasing(points):
     N = len(points)
     if N < 2:
         return True
-    
+
     previous = points[0]
     for i in range(1, N):
         current = points[i]
@@ -1304,14 +1359,14 @@ def is_increasing(points):
     return True
 
 def min_max_ratios(actual, calculated):
-    '''Given known and calculated data, compare
+    """Given known and calculated data, compare
     the two and provide two numbers describing
     how far away from the known data the calculated
     data is.
     
     The numbers are the ratio of the lowest relative
     calc, and the highest relative calc.
-    '''
+    """
     min_ratio = max_ratio = 1.0
     for i in range(len(actual)):
         if actual[i] == 0.0:
@@ -1325,14 +1380,14 @@ def min_max_ratios(actual, calculated):
     return min_ratio, max_ratio
 
 def std(data):
-    '''Fast implementation of numpy's std function
+    """Fast implementation of numpy's std function
     for 1d inputs only, with double precision only always.
-    '''
+    """
     tot = 0.0
     N = len(data)
     for i in range(N):
         tot += data[i]
-        
+
     mean = tot/N
     tot = 0.0
     for i in range(N):
@@ -1342,7 +1397,6 @@ def std(data):
 
 
 
-#
 
 def fit_integral_linear_extrapolation(T1, T2, int_coeffs, Tmin, Tmax,
                                       Tmin_value, Tmax_value,
@@ -1354,16 +1408,16 @@ def fit_integral_linear_extrapolation(T1, T2, int_coeffs, Tmin, Tmax,
 
     tot = 0.0
     if T1 < Tmin:
-        T2_low = T2 if T2 < Tmin else Tmin
+        T2_low = min(Tmin, T2)
         x1 = Tmin_value - Tmin_slope*Tmin
         tot += T2_low*(0.5*Tmin_slope*T2_low + x1) - T1*(0.5*Tmin_slope*T1 + x1)
     if (Tmin <= T1 <= Tmax) or (Tmin <= T2 <= Tmax) or (T1 <= Tmin and T2 >= Tmax):
-        T1_mid = T1 if T1 > Tmin else Tmin
-        T2_mid = T2 if T2 < Tmax else Tmax
+        T1_mid = max(Tmin, T1)
+        T2_mid = min(Tmax, T2)
         tot += (horner(int_coeffs, T2_mid) - horner(int_coeffs, T1_mid))
 
     if T2 > Tmax:
-        T1_high = T1 if T1 > Tmax else Tmax
+        T1_high = max(Tmax, T1)
         x1 = Tmax_value - Tmax_slope*Tmax
         tot += T2*(0.5*Tmax_slope*T2 + x1) - T1_high*(0.5*Tmax_slope*T1_high + x1)
     if flip:
@@ -1403,16 +1457,16 @@ def fit_integral_over_T_linear_extrapolation(T1, T2, T_int_T_coeffs,
 
     tot = 0.0
     if T1 < Tmin:
-        T2_low = T2 if T2 < Tmin else Tmin
+        T2_low = min(Tmin, T2)
         x1 = Tmin_value - Tmin_slope*Tmin
         tot += (Tmin_slope*T2_low + x1*log(T2_low)) - (Tmin_slope*T1 + x1*log(T1))
     if (Tmin <= T1 <= Tmax) or (Tmin <= T2 <= Tmax) or (T1 <= Tmin and T2 >= Tmax):
-        T1_mid = T1 if T1 > Tmin else Tmin
-        T2_mid = T2 if T2 < Tmax else Tmax
+        T1_mid = max(Tmin, T1)
+        T2_mid = min(Tmax, T2)
         tot += (horner_log(T_int_T_coeffs, poly_fit_log_coeff, T2_mid)
                     - horner_log(T_int_T_coeffs, poly_fit_log_coeff, T1_mid))
     if T2 > Tmax:
-        T1_high = T1 if T1 > Tmax else Tmax
+        T1_high = max(Tmax, T1)
         x1 = Tmax_value - Tmax_slope*Tmax
         tot += (Tmax_slope*T2 + x1*log(T2)) - (Tmax_slope*T1_high + x1*log(T1_high))
     if flip:
@@ -1635,7 +1689,7 @@ def isclose(a, b, rel_tol=1e-9, abs_tol=0.0):
             print(a, b, rel_tol, abs_tol)
     """
     if (rel_tol < 0.0 or abs_tol < 0.0 ):
-        raise ValueError('Negative tolerances')
+        raise ValueError("Negative tolerances")
 
     if ((a.real == b.real) and (a.imag == b.imag)):
         return True
@@ -1914,16 +1968,16 @@ def caching_decorator(f, full=False):
     wraps = my_wraps()
     @wraps(f)
     def wrapper(x, *args, **kwargs):
-        has_info = 'info' in kwargs
+        has_info = "info" in kwargs
         if x in cache:
-            if 'info' in kwargs:
-                kwargs['info'][:] = info_cache[x]
+            if "info" in kwargs:
+                kwargs["info"][:] = info_cache[x]
             return cache[x]
 
         err = f(x, *args, **kwargs)
         cache[x] = err
         if has_info:
-            info_cache[x] = list(kwargs['info'])
+            info_cache[x] = list(kwargs["info"])
         return err
     if full:
         return wrapper, cache, info_cache
@@ -2073,9 +2127,11 @@ class UnconvergedError(Exception):
 
 class SamePointError(UnconvergedError):
     """Error raised when two trial points in a root finding problem have the
-    same error."""
+    same error.
+    """
+
     def __repr__(self):
-        return 'TODO'
+        return "TODO"
 
     def __init__(self, message, iterations=None, err=None, q1=None, p1=None, q0=None, p0=None):
         super(UnconvergedError, self).__init__(message)
@@ -2089,14 +2145,17 @@ class SamePointError(UnconvergedError):
 
 class NoSolutionError(Exception):
     """Error raised when detected that there is no actual solution to a
-    problem."""
+    problem.
+    """
 
 class NotBoundedError(Exception):
     """Error raised when a bisection type algorithm fails because its initial
-    bounds do not bound the solution."""
+    bounds do not bound the solution.
+    """
 class DiscontinuityError(Exception):
     """Error raised when a bisection type algorithm fails because there is a
-    discontinuity."""
+    discontinuity.
+    """
 
 def damping_maintain_sign(x, step, damping=1.0, factor=0.5):
     """Damping function which will maintain the sign of the variable being
@@ -2220,7 +2279,7 @@ def oscillation_checking_wrapper(f, minimum_progress=0.3,
     return wrapper
 
 
-class oscillation_checker(object):
+class oscillation_checker:
     def __init__(self, minimum_progress=0.3, both_sides=False, good_err=None):
         self.minimum_progress = minimum_progress
         self.both_sides = both_sides
@@ -2284,7 +2343,7 @@ class oscillation_checker(object):
 
 def best_bounding_bounds(low, high, f=None, xs_pos=None, ys_pos=None,
                          xs_neg=None, ys_neg=None, fa=None, fb=None):
-    r'''Given:
+    r"""Given:
         1) A presumed bracketing interval such as very far out limits on
            physical bounds
         2) A history of a non-bounded search algorithm which did not converge
@@ -2341,7 +2400,7 @@ def best_bounding_bounds(low, high, f=None, xs_pos=None, ys_pos=None,
 
     More work could be done to handle better the case if the bounds not
     bracketing the root but the function history doing so.
-    '''
+    """
     if fa is None:
         fa = f(low)
     if fb is None:
@@ -2410,7 +2469,7 @@ def bisect(f, a, b, args=(), xtol=1e-12, rtol=2.220446049250313e-16, maxiter=100
 def ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
               full_output=False, disp=True):
     a_abs, b_abs = fabs(a), fabs(b)
-    tol = xtol + rtol*(a_abs if a_abs < b_abs else b_abs)
+    tol = xtol + rtol*(min(b_abs, a_abs))
 
     fa = f(a, *args)
     fb = f(b, *args)
@@ -2428,7 +2487,7 @@ def ridder(f, a, b, args=(), xtol=_xtol, rtol=_rtol, maxiter=_iter,
         dn = copysign(1.0/sqrt(fm*fm - fa*fb), fb - fa)*fm*dm
 
         dn_abs, dm_abs_tol = fabs(dn), fabs(dm) - 0.5*tol
-        xn = xm - copysign((dn_abs if dn_abs < dm_abs_tol else dm_abs_tol), dn)
+        xn = xm - copysign((min(dm_abs_tol, dn_abs)), dn)
         fn = f(xn, *args)
 
         if (fn*fm < 0.0):
@@ -2496,7 +2555,7 @@ def brenth(f, xa, xb, args=(),
         sbis = 0.5*(xblk - xcur)
 
         if ytol is not None:
-            if fcur == 0.0 or (abs(sbis) < delta) and abs(fcur) < ytol:
+            if fcur == 0.0 or ((abs(sbis) < delta) and abs(fcur) < ytol):
                 return xcur
         else:
             if fcur == 0.0 or (abs(sbis) < delta):
@@ -2549,7 +2608,7 @@ factors_nearby_decreasing = [1.0/v for v in factors_nearby_increasing]
 
 secant_bisection_factors = []
 for i in range(len(factors_growing_positive)):
-    for l in (factors_growing_positive, factors_shrinking_positive, 
+    for l in (factors_growing_positive, factors_shrinking_positive,
               factors_growing_negative, factors_shrinking_negative,
               factors_nearby_increasing, factors_nearby_decreasing):
         if l[i] != 1.0:
@@ -2607,9 +2666,9 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
             # For the check, we will require a significant difference in result magnitude
             if not (isnan(q1) or isinf(q1)) and abs(q1/q0-1.0) > 1e-10:
                 break
-    
+
     did_additional_guesses = False
-        
+
     if (ytol is not None and abs(q1) < ytol and not require_xtol) or q1 == 0.0:
         return p1
     if bisection:
@@ -2693,7 +2752,7 @@ def secant(func, x0, args=(), maxiter=100, low=None, high=None, damping=1.0,
                         if not (isnan(q1) or isinf(q1)) and temp_q*q0 < 0.0:
                             # print('Bisected the problem, restarting with new point')
                             break
-                    
+
                     did_additional_guesses = True
                 else:
                     # Cannot proceed, raise an error
@@ -2739,8 +2798,8 @@ line_search_factors_low_prec = line_search_factors[3:]
 newton_line_search_factors = [1.0] + line_search_factors
 newton_line_search_factors_disabled = [1.0]
 
-def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8, 
-                     ytol=None, require_xtol=True, damping=1.0, x1=None, 
+def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
+                     ytol=None, require_xtol=True, damping=1.0, x1=None,
                      y_flat=None, max_quadratic_iter=7, low_prec_ls_iter=3,
                      y0=None, y1=None,
                      kwargs={}):
@@ -2757,7 +2816,7 @@ def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
         y1 = f(x1, *args, **kwargs)
     # print(f'Start point: x={x1}, y={y1}')
     flat_higher_than_x = x_flat > x0
-    
+
     # this is the flat value - all other y values that are flat must be this number
     # we only need to calculate it if not provided
     if y_flat is None:
@@ -2768,7 +2827,7 @@ def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
         raise ValueError("The initial points have the same value, cannot start the search")
     if y1 == y_flat:
         raise ValueError("The second point is also flat, cannot start the search")
-        
+
     # store some other points for higher order steps
     x2 = x3 = y2 = y3 = None
 
@@ -2802,13 +2861,13 @@ def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
             except:
                 # print('Quadratic had a numerical error')
                 pass
-        
+
         # secant can always work
         if not has_step:
             step = - y1*(x1 - x0)/(y1 - y0)*damping
             # print(f'Secant desired point:  x={x1 + step}')
-        
-        force_line_search = x_flat <= (x1 + step) if flat_higher_than_x else x_flat >= (x1 + step) 
+
+        force_line_search = x_flat <= (x1 + step) if flat_higher_than_x else x_flat >= (x1 + step)
         if not force_line_search:
             x = x1 + step
             y = f(x, *args, **kwargs)
@@ -2818,7 +2877,7 @@ def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
         else:
             pass
             # print(f'Secant desired point lower than flat point: x={x1 + step}, x_flat={x_flat}')
-            
+
         if force_line_search or y == y_flat:
             # If the step is too big (overshoots the known flat point), recalculate it to be the limit
             if flat_higher_than_x:
@@ -2827,8 +2886,8 @@ def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
             else:
                 if x_flat >= (x0 + step):
                     step = x_flat - x0
-            
-            
+
+
             # Must use linesearch to find a x that gives a working y
             for line_search_factor in (line_search_factors if i > low_prec_ls_iter else line_search_factors_low_prec):
                 x = x0 + step*line_search_factor
@@ -2838,7 +2897,7 @@ def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
                     break
                 else:
                     x_flat = x
-                    
+
             if y == y_flat:
                 raise ValueError("The line search has finished and no point to continue with was found")
         # Check if we converged, but note this really requires a ytol as the xtol doesn't work well with lsearch
@@ -2852,7 +2911,7 @@ def one_sided_secant(f, x0, x_flat, args=tuple(), maxiter=100, xtol=1.48e-8,
         elif ytol is not None:
             if abs(y) < ytol:
                 return x
-            
+
         # change the points around, forgetting about one of the values
         x0, x1, x2, x3 = x, x0, x1, x2
         y0, y1, y2, y3 = y, y0, y1, y2
@@ -3280,10 +3339,9 @@ def solve_4_direct(mat, vec):
     return ans
 
 def check_jacobian(x, j, func, jac_error_allowed=False):
-    '''Basic function to check a jacobian for inf and nan, and approximate it
+    """Basic function to check a jacobian for inf and nan, and approximate it
     if it does contain those elements.
-    '''
-
+    """
     bad_jacobian = False
     for jrow in j:
         for jval in jrow:
@@ -3302,7 +3360,7 @@ def check_jacobian(x, j, func, jac_error_allowed=False):
                     break
             if bad_jacobian:
                 break
-            
+
     if bad_jacobian:
         raise ValueError("Cannot continue - nan or inf error found in Jacobian")
     return j
@@ -3329,7 +3387,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
     if xtol is None and (ytol is not None and err0 < ytol):
         return x0, 0
 
-    
+
     x = x0
     if not jac_also:  # numba: delete
         j = jac(x, *args)  # numba: delete
@@ -3390,11 +3448,11 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                     for v in fnew:
                         phi += v*v
                     Armijo_lhs = phi
-                    
+
                     phi0 = 0.0
                     for v in fcur:
                         phi0 += v*v
-                    
+
                     derphi0 = 0.0
                     for i in range(N):
                         temp = 0.0
@@ -3402,7 +3460,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                             temp += fcur[jidx]*j[jidx][i]
                         # Armijo_grad[i] = 2.0*temp
                         derphi0 += 4.0*temp*temp
-                    
+
                     # derphi0 = float(np.dot(Armijo_grad, Armijo_grad))
                     Armijo_rhs = Armijo_c1*factor*derphi0 + phi0
                     if Armijo_lhs <= Armijo_rhs:
@@ -3415,10 +3473,10 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
                     if not jac_also: # numba: delete
                         jac_updated = False # numba: delete
                     break
-            
+
         if (line_search and err_new > err0) and require_progress:
             raise ValueError("Completed line search without reducing the objective function error, cannot proceed")
-                
+
         fcur = fnew
         if err_new >= err0:
             # edge case, didn't make any progress but keep going
@@ -3462,7 +3520,7 @@ def newton_system(f, x0, jac, xtol=None, ytol=None, maxiter=100, damping=1.0,
             raise UnconvergedError("Failed to converge")
     if with_point: # numba: delete
         return x, iteration, fcur, j # numba: delete
-    
+
     return x, iteration
 
 def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping=1.0,
@@ -3513,7 +3571,7 @@ def newton_minimize(f, x0, jac, hess, xtol=None, ytol=None, maxiter=100, damping
     return x, iter
 
 def homotopy_function(x, lambd, F0, objf, args=()):
-    '''
+    """
     .. math::
         H(x, lambda) = F(x) - (1-lambda)*F(x_original)
     
@@ -3527,7 +3585,7 @@ def homotopy_function(x, lambd, F0, objf, args=()):
         Error function, [-]
     args : tuple
         Extra functions to objevtive function, [-]
-    '''
+    """
     Fx = objf(x, *args)
     const = 1.0 - lambd
 #     print(f'x={x}, Fx={Fx}, F0={F0}, err={[Fx[i] - const*F0[i] for i in range(len(F0))]}')
@@ -3546,12 +3604,12 @@ def homotopy_solver(f, x0, jac, xtol=1e-8, ytol=None, maxiter=100, lambd_step=0.
     homotopy_iter = 0
     failed_iters = 0
     f_n = lambda x, *discarded_args: homotopy_function(x, lambd, f0, f, args=args)
-    
+
     while abs(lambd - 1) > 1e-15:
         lambd += working_lambda_step
         if lambd > 1.0:
             lambd = 1.0
-        
+
         # Guess a next step by computing dx_dlambda with a numerical
         # evaluation of the derivative with respect to lambda
         # using the previous lambda value at the current point
@@ -3561,18 +3619,18 @@ def homotopy_solver(f, x0, jac, xtol=1e-8, ytol=None, maxiter=100, lambd_step=0.
             J = jac(x0, *args)
         H0 = [Fx[i] - (1.0 - lambd_previous)*f0[i] for i in range(N)]
         H1 = [Fx[i] - (1.0 - lambd)*f0[i] for i in range(N)]
-        
+
         const = -1.0/delta_lambd
         dx_dlambd = solve_func(J, [const*(H1[i] - H0[i]) for i in range(N)])
         # This gets the x values a little closer to the new H function
         x1 = [x0[i] + delta_lambd*dx_dlambd[i] for i in range(N)]
-        
+
         # Now solve the objective function using a newton solver with line search
-        
+
         use_xtol, use_ytol = (xtol, ytol) if lambd < terminal_lambd_criteria else (terminal_xtol, terminal_ytol)
         try:
             # last objf and J call is wasted- would be nice to reuse them in the earlier code
-            x2, niter, Fx, J = newton_system(f=f_n, x0=x1, jac=jac, xtol=use_xtol, ytol=use_ytol, maxiter=remaining_iters, 
+            x2, niter, Fx, J = newton_system(f=f_n, x0=x1, jac=jac, xtol=use_xtol, ytol=use_ytol, maxiter=remaining_iters,
                                       damping=damping, args=args, solve_func=solve_func, line_search=line_search,
                                       with_point=True)
         except:
@@ -3584,13 +3642,13 @@ def homotopy_solver(f, x0, jac, xtol=1e-8, ytol=None, maxiter=100, lambd_step=0.
                 raise UnconvergedError("Failed to converge")
             continue
         remaining_iters -= niter
-        
-        
+
+
         delta_lambd = lambd_step
         x0 = x2
         lambd_previous = lambd
 #         print(f'Converged lambda step {lambd}')
-        
+
         homotopy_iter += 1
     return x0, maxiter - remaining_iters
 
@@ -3647,7 +3705,7 @@ def broyden2(xs, fun, jac, xtol=1e-7, maxiter=100, jac_has_fun=False,
 
 def fixed_point(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
                 args=(), require_progress=False, check_numbers=False):
-    fcur = f(x0, *args) 
+    fcur = f(x0, *args)
     err0 = 0.0
     for v in fcur:
         err0 += abs(v)
@@ -3665,7 +3723,7 @@ def fixed_point(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
         err1 = 0.0
         for v in fcur:
             err1 += abs(v)
-        iteration += 1        
+        iteration += 1
         if xtol is not None:
             if (norm2(fcur) < xtol) and (ytol is None or err1 < ytol):
                 break
@@ -3675,9 +3733,9 @@ def fixed_point(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
         if err1 >= err0 and require_progress:
             raise ValueError("Fixed point is not making progress, cannot proceed")
         err0 = err1
-                
-                
-                
+
+
+
     if xtol is not None and norm2(fcur) > xtol:
         raise UnconvergedError("Failed to converge")
     if ytol is not None:
@@ -3706,7 +3764,7 @@ def fixed_point_aitken(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
                 args=(), require_progress=False, check_numbers=False, acc_frequency=4,
                 acc_damping=1.0, acc_max_change_ratio=1.0):
     all_guesses = [x0]
-    fcur = f(x0, *args) 
+    fcur = f(x0, *args)
     err0 = 0.0
     for v in fcur:
         err0 += abs(v)
@@ -3731,7 +3789,7 @@ def fixed_point_aitken(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
         err1 = 0.0
         for v in fcur:
             err1 += abs(v)
-        iteration += 1        
+        iteration += 1
         if xtol is not None:
             if (norm2(fcur) < xtol) and (ytol is None or err1 < ytol):
                 break
@@ -3741,7 +3799,7 @@ def fixed_point_aitken(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
         if err1 >= err0 and require_progress:
             raise ValueError("Fixed point is not making progress, cannot proceed")
         err0 = err1
-                
+
     if xtol is not None and norm2(fcur) > xtol:
         raise UnconvergedError("Failed to converge")
     if ytol is not None:
@@ -3792,7 +3850,7 @@ def gdem(x, x1, x2, x3, max_change_ratio=1.0):
     den_inv = 1.0/(to_den)
     mu1 = den_inv*(b02*b12 - b01*b22)
     mu2 = den_inv*(b01*b12 - b02*b11)
-    
+
     to_den2 = 1.0 + mu1 + mu2
     if to_den2 == 0:
         return dem(x, x1, x2, max_change_ratio)
@@ -3808,7 +3866,7 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
                 args=(), require_progress=False, check_numbers=False, acc_frequency=5,
                 acc_damping=1.0, acc_max_change_ratio=1.0):
     all_guesses = [x0]
-    fcur = f(x0, *args) 
+    fcur = f(x0, *args)
     err0 = 0.0
     for v in fcur:
         err0 += abs(v)
@@ -3826,7 +3884,7 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
                     raise ValueError("Cannot continue - math error in function value")
         if (iteration % acc_frequency) == 0:
             x1, x2, x3 = all_guesses[-2], all_guesses[-3], all_guesses[-4]
-            dx = gdem(x, x1, x2, x3, acc_max_change_ratio)            
+            dx = gdem(x, x1, x2, x3, acc_max_change_ratio)
             # print(np.array([xi - fi*acc_damping for xi, fi in zip(x, fcur)])/[xi + dxi*acc_damping for xi, dxi in zip(x, dx)])
             x = [xi + dxi*acc_damping for xi, dxi in zip(x, dx)]
         else:
@@ -3834,7 +3892,7 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
         err1 = 0.0
         for v in fcur:
             err1 += abs(v)
-        iteration += 1        
+        iteration += 1
         if xtol is not None:
             if (norm2(fcur) < xtol) and (ytol is None or err1 < ytol):
                 break
@@ -3844,7 +3902,7 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
         if err1 >= err0 and require_progress:
             raise ValueError("Fixed point is not making progress, cannot proceed")
         err0 = err1
-                
+
     if xtol is not None and norm2(fcur) > xtol:
         raise UnconvergedError("Failed to converge")
     if ytol is not None:
@@ -3859,9 +3917,9 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
 
 
 # def compute_accelerated_step(
-#     residuals: List[List[float]], 
-#     x_hist: List[List[float]], 
-#     gx_hist: List[List[float]], 
+#     residuals: List[List[float]],
+#     x_hist: List[List[float]],
+#     gx_hist: List[List[float]],
 #     reg: float = 1e-8,
 #     mixing_param: float = 1.0
 # ) -> List[float]:
@@ -3871,7 +3929,7 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
 #     N = len(RR)
 #     for i in range(N):
 #         RR[i][i] += reg
-        
+
 #     try:
 #         RR_inv = inv(RR)
 #         alpha = sum_matrix_rows(RR_inv)
@@ -3879,7 +3937,7 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
 #         # Fallback to least squares if matrix is singular
 #         ones = [1.0] * len(residuals)
 #         alpha = gelsd(RR, ones)[0]
-    
+
 #     # Normalize alpha
 #     alpha_sum = sum(alpha)
 #     # DO NOT REMOVE part of what is needed to switch to f in residual_to_fixed_point form
@@ -3888,15 +3946,15 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
 #     elif alpha_sum < 0:
 #         alpha = [-a for a in alpha]
 #         alpha_sum = -alpha_sum
-    
+
 #     # Compute the accelerated iterate
 #     dim = len(x_hist[0])
 #     x_acc = [0.0] * dim
-    
+
 #     for a, x, gx in zip(alpha, x_hist, gx_hist):
 #         for i in range(dim):
 #             x_acc[i] += (1 - mixing_param) * a * x[i] + mixing_param * a * gx[i]
-            
+
 #     return x_acc
 
 # def anderson_step(
@@ -3912,19 +3970,19 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
 #     # First iteration case
 #     if not x_hist:
 #         return x, [x], [], []
-    
+
 #     # Update histories
 #     x_prev = x_hist[-1]
 #     residual = [xi - xp for xi, xp in zip(x, x_prev)]
-    
+
 #     new_residuals_hist = residuals_hist + [residual]
 #     new_gx_hist = gx_hist + [x]
-    
+
 #     # Maintain window size
 #     if len(new_residuals_hist) > window_size + 1:
 #         new_residuals_hist = new_residuals_hist[1:]
 #         new_gx_hist = new_gx_hist[1:]
-    
+
 #     # Compute accelerated iterate
 #     x_acc = compute_accelerated_step(
 #         new_residuals_hist,
@@ -3933,12 +3991,12 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
 #         reg,
 #         mixing_param
 #     )
-    
+
 #     # Update x history
 #     new_x_hist = x_hist + [x_acc]
 #     if len(new_x_hist) > window_size + 1:
 #         new_x_hist = new_x_hist[1:]
-    
+
 #     return x_acc, new_x_hist, new_gx_hist, new_residuals_hist
 
 # def fixed_point_anderson(
@@ -3961,36 +4019,36 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
 #     residuals_hist: List[List[float]] = []
 #     x = x0
 #     fcur = f(x, *args)
-    
+
 #     # Check initial convergence for ytol
 #     err0 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
 #     if ytol is not None and xtol is None and err0 < ytol:
 #         return x0, 0
-    
+
 #     # Main iteration loop
 #     for iteration in range(maxiter):
 #         x_new = f(x, *args)
-        
+
 #         # Check for inf/nan
 #         if check_numbers and any(isnan(v) or isinf(v) for v in x_new):
 #             raise ValueError("Cannot continue - math error in function value")
-        
+
 #         # Apply Anderson acceleration
 #         x_acc, x_hist, gx_hist, residuals_hist = anderson_step(
-#             x_hist, gx_hist, residuals_hist, x_new, 
+#             x_hist, gx_hist, residuals_hist, x_new,
 #             window_size, reg, mixing_param
 #         )
-        
+
 #         # Calculate errors
 #         err1 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
-        
+
 #         # Check progress
 #         if require_progress and ytol is not None and err1 >= err0:
 #             raise ValueError("Fixed point is not making progress")
-        
+
 #         # Update error
 #         err0 = err1 if ytol is not None else 0.0
-        
+
 #         # Check convergence
 #         if xtol is not None:
 #             x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
@@ -3998,16 +4056,16 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
 #                 return x_acc, iteration
 #         elif ytol is not None and err1 < ytol:
 #             return x_acc, iteration
-        
+
 #         x = x_acc
-    
+
 #     # Check final convergence
 #     x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
 #     if xtol is not None and x_err > xtol:
 #         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {x_err}")
 #     if ytol is not None and err1 > ytol:
 #         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {err1}")
-    
+
 #     return x, iteration
 
 
@@ -4022,9 +4080,9 @@ def fixed_point_gdem(f, x0, xtol=None, ytol=None, maxiter=100, damping=1.0,
 
 
 def compute_accelerated_step(
-    residuals, 
-    x_hist, 
-    gx_hist, 
+    residuals,
+    x_hist,
+    gx_hist,
     reg: float = 1e-8,
     mixing_param: float = 1.0
 ):
@@ -4034,7 +4092,7 @@ def compute_accelerated_step(
     N = len(RR)
     for i in range(N):
         RR[i][i] += reg
-        
+
     try:
         RR_inv = inv(RR)
         alpha = sum_matrix_rows(RR_inv)
@@ -4042,7 +4100,7 @@ def compute_accelerated_step(
         # Fallback to least squares if matrix is singular
         ones = [1.0] * len(residuals)
         alpha = gelsd(RR, ones)[0]
-    
+
     # Normalize alpha
     alpha_sum = sum(alpha)
     # DO NOT REMOVE part of what is needed to switch to f in residual_to_fixed_point form
@@ -4051,10 +4109,10 @@ def compute_accelerated_step(
     elif alpha_sum < 0:
         alpha = [-a for a in alpha]
         alpha_sum = -alpha_sum
-    
+
     # sometimes alpha needs to be negative
     alpha = [a / alpha_sum for a in alpha]
-    
+
     # Compute the accelerated iterate
     dim = len(x_hist[0])
     x_acc = [0.0] * dim
@@ -4078,7 +4136,7 @@ def compute_accelerated_step(
 #     # First iteration case
 #     if not x_hist:
 #         return x, [x], [], []
-    
+
 #     # Update histories
 #     x_prev = x_hist[-1]
 #     # Flip between these to change the basis
@@ -4087,12 +4145,12 @@ def compute_accelerated_step(
 
 #     new_residuals_hist = residuals_hist + [residual]
 #     new_gx_hist = gx_hist + [x]
-    
+
 #     # Maintain window size
 #     if len(new_residuals_hist) > window_size + 1:
 #         new_residuals_hist = new_residuals_hist[1:]
 #         new_gx_hist = new_gx_hist[1:]
-    
+
 #     # Compute accelerated iterate
 #     x_acc = compute_accelerated_step(
 #         new_residuals_hist,
@@ -4101,12 +4159,12 @@ def compute_accelerated_step(
 #         reg,
 #         mixing_param
 #     )
-    
+
 #     # Update x history
 #     new_x_hist = x_hist + [x_acc]
 #     if len(new_x_hist) > window_size + 1:
 #         new_x_hist = new_x_hist[1:]
-    
+
 #     return x_acc, new_x_hist, new_gx_hist, new_residuals_hist
 
 # def fixed_point_anderson(
@@ -4130,36 +4188,36 @@ def compute_accelerated_step(
 #     x = x0
 #     # f = residual_to_fixed_point(f) # this commented out means the first lines should be uncommented; second lines commented
 #     fcur = f(x, *args)
-    
+
 #     # Check initial convergence for ytol
 #     err0 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
 #     if ytol is not None and xtol is None and err0 < ytol:
 #         return x0, 0
-    
+
 #     # Main iteration loop
 #     for iteration in range(maxiter):
 #         x_new = f(x, *args)
-        
+
 #         # Check for inf/nan
 #         if check_numbers and any(isnan(v) or isinf(v) for v in x_new):
 #             raise ValueError("Cannot continue - math error in function value")
-        
+
 #         # Apply Anderson acceleration
 #         x_acc, x_hist, gx_hist, residuals_hist = anderson_step(
-#             x_hist, gx_hist, residuals_hist, x_new, 
+#             x_hist, gx_hist, residuals_hist, x_new,
 #             window_size, reg, mixing_param
 #         )
-        
+
 #         # Calculate errors
 #         err1 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
-        
+
 #         # Check progress
 #         if require_progress and ytol is not None and err1 >= err0:
 #             raise ValueError("Fixed point is not making progress")
-        
+
 #         # Update error
 #         err0 = err1 if ytol is not None else 0.0
-        
+
 #         # Check convergence
 #         if xtol is not None:
 #             x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
@@ -4167,16 +4225,16 @@ def compute_accelerated_step(
 #                 return x_acc, iteration
 #         elif ytol is not None and err1 < ytol:
 #             return x_acc, iteration
-        
+
 #         x = x_acc
-    
+
 #     # Check final convergence
 #     x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
 #     if xtol is not None and x_err > xtol:
 #         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {x_err}")
 #     if ytol is not None and err1 > ytol:
 #         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {err1}")
-    
+
 #     return x, iteration
 
 
@@ -4195,27 +4253,27 @@ def compute_accelerated_step(
 #     # First iteration case
 #     if not x_hist:
 #         return x, [x], [x], []
-    
+
 #     # Update histories
 #     x_prev = x_hist[-1]
 #     # Flip between these to change the basis
 #     residual = [xi - xp for xi, xp in zip(x, x_prev)]
 #     # residual = [xi + xp for xi, xp in zip(x, x_prev)]
-    
+
 #     new_x_hist = x_hist + [x]
 #     new_gx_hist = gx_hist + [x]
 #     new_residuals_hist = residuals_hist + [residual]
-    
+
 #     # Maintain window size
 #     if len(new_residuals_hist) > window_size + 1:
 #         new_residuals_hist = new_residuals_hist[1:]
 #         new_gx_hist = new_gx_hist[1:]
 #         new_x_hist = new_x_hist[1:]
-    
+
 #     # During delay period, just return the current point but keep updating histories
 #     if current_iteration < delay_iterations:
 #         return x, new_x_hist, new_gx_hist, new_residuals_hist
-    
+
 #     # After delay, compute accelerated iterate using accumulated history
 #     x_acc = compute_accelerated_step(
 #         new_residuals_hist,
@@ -4224,10 +4282,10 @@ def compute_accelerated_step(
 #         reg,
 #         mixing_param
 #     )
-    
+
 #     # Update x history with accelerated point
 #     final_x_hist = new_x_hist[:-1] + [x_acc]
-    
+
 #     return x_acc, final_x_hist, new_gx_hist, new_residuals_hist
 
 # def fixed_point_anderson(
@@ -4252,37 +4310,37 @@ def compute_accelerated_step(
 #     x = x0
 #     # f = residual_to_fixed_point(f) # this commented out means the first lines should be uncommented; second lines commented
 #     fcur = f(x, *args)
-    
+
 #     # Check initial convergence for ytol
 #     err0 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
 #     if ytol is not None and xtol is None and err0 < ytol:
 #         return x0, 0
-    
+
 #     # Main iteration loop
 #     for iteration in range(maxiter):
 #         x_new = f(x, *args)
-        
+
 #         # Check for inf/nan
 #         if check_numbers and any(isnan(v) or isinf(v) for v in x_new):
 #             raise ValueError("Cannot continue - math error in function value")
-        
+
 #         # Apply Anderson acceleration with delay but keep building history
 #         x_acc, x_hist, gx_hist, residuals_hist = anderson_step(
-#             x_hist, gx_hist, residuals_hist, x_new, 
+#             x_hist, gx_hist, residuals_hist, x_new,
 #             window_size, reg, mixing_param,
 #             iteration, delay_iterations
 #         )
-        
+
 #         # Calculate errors
 #         err1 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
-        
+
 #         # Check progress
 #         if require_progress and ytol is not None and err1 >= err0:
 #             raise ValueError("Fixed point is not making progress")
-        
+
 #         # Update error
 #         err0 = err1 if ytol is not None else 0.0
-        
+
 #         # Check convergence
 #         if xtol is not None:
 #             x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
@@ -4290,16 +4348,16 @@ def compute_accelerated_step(
 #                 return x_acc, iteration
 #         elif ytol is not None and err1 < ytol:
 #             return x_acc, iteration
-        
+
 #         x = x_acc
-    
+
 #     # Check final convergence
 #     x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
 #     if xtol is not None and x_err > xtol:
 #         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {x_err}")
 #     if ytol is not None and err1 > ytol:
 #         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {err1}")
-    
+
 #     return x, iteration
 
 
@@ -4310,9 +4368,9 @@ def compute_accelerated_step(
 
 
 def compute_accelerated_step(
-    residuals, 
-    x_hist, 
-    gx_hist, 
+    residuals,
+    x_hist,
+    gx_hist,
     reg: float = 1e-8,
     mixing_param: float = 1.0
 ):
@@ -4322,7 +4380,7 @@ def compute_accelerated_step(
     N = len(RR)
     for i in range(N):
         RR[i][i] += reg
-        
+
     try:
         RR_inv = inv(RR)
         alpha = sum_matrix_rows(RR_inv)
@@ -4330,7 +4388,7 @@ def compute_accelerated_step(
         # Fallback to least squares if matrix is singular
         ones = [1.0] * len(residuals)
         alpha = gelsd(RR, ones)[0]
-    
+
     # Normalize alpha
     alpha_sum = sum(alpha)
     if alpha_sum == 0:
@@ -4338,10 +4396,10 @@ def compute_accelerated_step(
     elif alpha_sum < 0:
         alpha = [-a for a in alpha]
         alpha_sum = -alpha_sum
-    
+
     # sometimes alpha needs to be negative
     alpha = [a / alpha_sum for a in alpha]
-    
+
     # Compute the accelerated iterate
     dim = len(x_hist[0])
     x_acc = [0.0] * dim
@@ -4365,7 +4423,7 @@ def anderson_step(
     # First iteration case
     if not x_hist:
         return x, [x], [], []
-    
+
     # Update histories
     x_prev = x_hist[-1]
     # Flip between these to change the basis
@@ -4374,12 +4432,12 @@ def anderson_step(
 
     new_residuals_hist = residuals_hist + [residual]
     new_gx_hist = gx_hist + [x]
-    
+
     # Maintain window size
     if len(new_residuals_hist) > window_size + 1:
         new_residuals_hist = new_residuals_hist[1:]
         new_gx_hist = new_gx_hist[1:]
-    
+
     # Compute accelerated iterate
     x_acc = compute_accelerated_step(
         new_residuals_hist,
@@ -4388,12 +4446,12 @@ def anderson_step(
         reg,
         mixing_param
     )
-    
+
     # Update x history
     new_x_hist = x_hist + [x_acc]
     if len(new_x_hist) > window_size + 1:
         new_x_hist = new_x_hist[1:]
-    
+
     return x_acc, new_x_hist, new_gx_hist, new_residuals_hist
 
 
@@ -4429,20 +4487,20 @@ def fixed_point_anderson(
     # sometimes being 1 larger can be OK, for now not allowing it
     if len(fcur) < window_size:
         window_size = len(fcur)
-    
+
     # Check initial convergence for ytol
     err0 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
     if ytol is not None and xtol is None and err0 < ytol:
         return x0, 0
-    
+
     # Main iteration loop
     for iteration in range(maxiter):
         x_new = f(x, *args)
-        
+
         # Check for inf/nan
         if check_numbers and any(isnan(v) or isinf(v) for v in x_new):
             raise ValueError("Cannot continue - math error in function value")
-        
+
         if iteration < initial_iterations:
             # Damped fixed-point iteration
             x_acc = [
@@ -4455,7 +4513,7 @@ def fixed_point_anderson(
                 residuals_hist.append(residual)
                 gx_hist.append(x_new)
                 x_hist.append(x_acc)
-                
+
                 # Maintain window size
                 if len(residuals_hist) > window_size:
                     residuals_hist = residuals_hist[1:]
@@ -4464,47 +4522,47 @@ def fixed_point_anderson(
         else:
             # Apply Anderson acceleration with safeguards
             x_acc_raw, x_hist, gx_hist, residuals_hist = anderson_step(
-                x_hist, gx_hist, residuals_hist, x_new, 
+                x_hist, gx_hist, residuals_hist, x_new,
                 window_size, reg, mixing_param
             )
-            
+
             # Calculate phase-in factor (gradually increase from 0 to 1)
             phase = min(1.0, (iteration - initial_iterations + 1) / phase_in_steps)
-            
+
             # Compute damped acceleration step
             x_acc_damped = []
             for i in range(len(x)):
                 # Regular damped fixed-point step
                 fp_step = (1 - damping) * x[i] + damping * x_new[i]
-                
+
                 # Anderson acceleration step with its own damping
                 acc_step = (1 - acc_damping) * x[i] + acc_damping * x_acc_raw[i]
-                
+
                 # Blend between fixed-point and acceleration based on phase
                 x_acc_i = (1 - phase) * fp_step + phase * acc_step
-                
+
                 # Limit maximum step size relative to current position
                 max_change = abs(x[i] * (1.0-max_step_size))
                 change = x_acc_i - x[i]
                 if abs(change) > max_change:
                     # Clamp the change to the maximum allowed
                     x_acc_i = x[i] + max_change * (1 if change > 0 else -1)
-                
+
                 x_acc_damped.append(x_acc_i)
-            
+
             x_acc = x_acc_damped
             x_hist[-1] = x_acc
-        
+
         # Calculate errors
         err1 = sum(abs(v) for v in fcur) if ytol is not None else 0.0
-        
+
         # Check progress
         if require_progress and ytol is not None and err1 >= err0:
             raise ValueError("Fixed point is not making progress")
-        
+
         # Update error
         err0 = err1 if ytol is not None else 0.0
-        
+
         # Check convergence
         if xtol is not None:
             x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
@@ -4512,22 +4570,22 @@ def fixed_point_anderson(
                 return x_acc, iteration
         elif ytol is not None and err1 < ytol:
             return x_acc, iteration
-        
+
         x = x_acc
-    
+
     # Check final convergence
     x_err = max(abs((a - b) / abs(b)) for a, b in zip(x_acc, x))
     if xtol is not None and x_err > xtol:
         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {x_err}")
     if ytol is not None and err1 > ytol:
         raise ValueError(f"Failed to converge after {maxiter} iterations. Error: {err1}")
-    
+
     return x, iteration
 
 
 
 def fixed_point_anderson_residual(
-    f,  
+    f,
     x0,
     xtol: float = 1e-7,
     ytol: float = None,
@@ -4545,29 +4603,29 @@ def fixed_point_anderson_residual(
     gx_hist = []  # Will store the updates/steps
     residuals_hist = []
     x = x0
-    
+
     # Evaluate initial residual
     fcur = f(x, *args)
     if len(fcur) < window_size:
         window_size = len(fcur)
     err0 = sum(abs(v) for v in fcur)
-    
+
     if ytol is not None and xtol is None and err0 < ytol:
         return x0, 0
-    
+
     for iteration in range(maxiter):
         # Compute residual
         fcur = f(x, *args)
-        
+
         # Check for inf/nan
         if check_numbers and any(isnan(v) or isinf(v) for v in fcur):
             raise ValueError("Cannot continue - math error in function value")
-        
+
         if iteration < initial_iterations:
             # Damped step during initial phase
             x_step = [-fi * damping for fi in fcur]
             x_new = [xi + si for xi, si in zip(x, x_step)]
-            
+
             # Collect history (store steps instead of points)
             if iteration > 0:
                 # For history, store the full steps
@@ -4575,7 +4633,7 @@ def fixed_point_anderson_residual(
                 residuals_hist.append(fcur)
                 gx_hist.append(full_step)
                 x_hist.append(x)
-                
+
                 # Maintain window size
                 if len(residuals_hist) > window_size:
                     residuals_hist = residuals_hist[1:]
@@ -4584,69 +4642,69 @@ def fixed_point_anderson_residual(
         else:
             # Full steps for acceleration phase
             x_step = [-fi for fi in fcur]
-            
+
             # Update histories
             residuals_hist.append(fcur)
             gx_hist.append(x_step)
             x_hist.append(x)
-            
+
             if len(residuals_hist) > window_size:
                 residuals_hist = residuals_hist[1:]
                 gx_hist = gx_hist[1:]
                 x_hist = x_hist[1:]
-            
+
             # Compute Anderson coefficients
             RR = matrix_multiply(residuals_hist, transpose(residuals_hist))
             N = len(RR)
             for i in range(N):
                 RR[i][i] += reg
-            
+
             try:
                 RR_inv = inv(RR)
                 alpha = sum_matrix_rows(RR_inv)
             except:
                 ones = [1.0] * len(residuals_hist)
                 alpha = gelsd(RR, ones)[0]
-            
+
             # Normalize alpha
             alpha_sum = sum(alpha)
             if alpha_sum == 0:
                 raise ValueError("Sum of alpha coefficients is zero")
-            
+
             alpha = [a / alpha_sum for a in alpha]
-            
+
             # Apply acceleration to the steps
             acc_step = [0.0] * len(x)
             for a, step in zip(alpha, gx_hist):
                 for i in range(len(x)):
                     acc_step[i] += a * step[i]
-            
+
             # Apply accelerated step with damping
             x_new = [xi + si * acc_damping for xi, si in zip(x, acc_step)]
-        
+
         # Calculate errors
         err1 = sum(abs(v) for v in fcur)
-        
+
         # Check progress
         if require_progress and err1 >= err0:
             raise ValueError("Not making progress")
-        
+
         err0 = err1
-        
+
         # Check convergence
         if xtol is not None:
             if err1 < xtol and (ytol is None or err1 < ytol):
                 return x_new, iteration
         elif ytol is not None and err1 < ytol:
             return x_new, iteration
-        
+
         x = x_new
-    
+
     if xtol is not None and err1 > xtol:
         raise ValueError(f"Failed to converge after {maxiter} iterations")
     if ytol is not None and err1 > ytol:
         raise ValueError(f"Failed to converge after {maxiter} iterations")
-    
+
     return x, iteration
 
 
@@ -4661,7 +4719,7 @@ def fixed_point_anderson_residual(
 
 
 def normalize(values):
-    r'''Simple function which normalizes a series of values to be from 0 to 1,
+    r"""Simple function which normalizes a series of values to be from 0 to 1,
     and for their sum to add to 1.
 
     .. math::
@@ -4685,7 +4743,7 @@ def normalize(values):
     --------
     >>> normalize([3, 2, 1])
     [0.5, 0.3333333333333333, 0.16666666666666666]
-    '''
+    """
     tot_inv = 1.0/sum(values)
     return [i*tot_inv for i in values]
 
@@ -4790,7 +4848,7 @@ def py_splev(x, tck, ext=0, t=None, c=None, k=None):
     fpbspl(t, n, k, arg, l, h, hh)
     sp = 0.0E0
     ll = l - k1
-    for j in range(0, k1):
+    for j in range(k1):
         ll = ll + 1
         sp = sp + c[ll-1]*h[j] # -1 to get right index
     return sp
@@ -4889,7 +4947,7 @@ p_099_1 = array_if_needed([8.548256176424551e+34, 1.8485781239087334e+35, -2.170
 q_099_1 = array_if_needed([-1.9763570499484274e+35, 1.4813997374958851e+35, -1.4773854824041134e+34, 5.38853721252814e+32, -9.882387315028929e+30, 1.0635231532999732e+29, -7.334629044071992e+26, 3.420655574477631e+24, -1.1147787784365177e+22, 2.584530363912858e+19, -4.285376337404043e+16, 50430830490687.56, -41115254924.43107, 22072284.971253656, -7015.799744041691, 1.0])
 
 def polylog2(x):
-    r'''Simple function to calculate PolyLog(2, x) from ranges 0 <= x <= 1,
+    r"""Simple function to calculate PolyLog(2, x) from ranges 0 <= x <= 1,
     with relative error guaranteed to be < 1E-7 from 0 to 0.99999. This
     is a Pade approximation, with three coefficient sets with splits at 0.7
     and 0.99. An exception is raised if x is under 0 or above 1.
@@ -4916,7 +4974,7 @@ def polylog2(x):
     --------
     >>> polylog2(0.5)
     0.5822405264516294
-    '''
+    """
     if 0 <= x <= 0.7:
         p = p_0_70
         q = q_0_07
@@ -4930,7 +4988,7 @@ def polylog2(x):
         q = q_099_1
         offset = 0.999
     else:
-        raise ValueError('Approximation is valid between 0 and 1 only.')
+        raise ValueError("Approximation is valid between 0 and 1 only.")
     x = x - offset
     return horner(p, x)/horner(q, x)
 
@@ -4985,7 +5043,7 @@ def max_squared_rel_error(data, calc):
 def mean_abs_error(data, calc):
     mean_err = 0.0
     N = len(data)
-    for i in range(N): 
+    for i in range(N):
         mean_err += abs(data[i] - calc[i])
     return mean_err/N
 
@@ -5084,11 +5142,11 @@ def lmfit(*args, **kwargs):
     return sp_lmfit(*args, **kwargs)
 
 def fixed_quad_Gauss_Kronrod(f, a, b, k_points, k_weights, l_weights, args):
-    '''
+    """
     Note: This type of function cannot be fast in numba right now, the function
     call is too slow!
     https://numba.pydata.org/numba-doc/dev/user/faq.html#can-i-pass-a-function-as-an-argument-to-a-jitted-function
-    '''
+    """
     val_gauss_kronrod = val_gauss_legendre = 0.0
     diff = b - a
     fact = 0.5*diff
@@ -5123,7 +5181,7 @@ def quad_adaptive(f, a, b, args=(), kronrod_points=array_if_needed(kronrod_point
     #     area_accumulator = 0.0  # numba: delete
     #     error_accumulator = 0.0  # numba: delete
     #     for i in range(len(points) - 1):  # numba: delete
-    #         local_a, local_b = points[i], points[i + 1]       # numba: delete   
+    #         local_a, local_b = points[i], points[i + 1]       # numba: delete
     #         local_area, local_error = quad_adaptive(f, local_a, local_b, args, kronrod_points, kronrod_weights, legendre_weights, epsrel, epsabs)  # numba: delete
     #         area_accumulator += local_area  # numba: delete
     #         error_accumulator += local_error  # numba: delete
@@ -5166,14 +5224,14 @@ def nquad(func, ranges, args=(), epsrel=1.48e-8, epsabs=1.48e-8):
     my_low, my_high = ranges[-1](*args)
     if len(ranges) == 1:
         return quad_adaptive(func, my_low, my_high, args=args, epsrel=epsrel, epsabs=epsabs)
-    #
     return quad_adaptive(_call_nquad, my_low, my_high,
                          args=(func, ranges[:-1], epsrel, epsabs)  +args,
                          epsrel=epsrel, epsabs=epsabs)
 
 def dblquad(func, a, b, hfun, gfun, args=(), epsrel=1.48e-12, epsabs=1.48e-15):
     """Nominally working, but trying to use it has exposed the expected bugs in
-    `quad_adaptive`."""
+    `quad_adaptive`.
+    """
     def inner_func(y, *args):
         full_args = (y,)+args
         quad_fluids = quad_adaptive(func, hfun(y, *args), gfun(y, *args), args=full_args, epsrel=epsrel, epsabs=epsabs)[0]
@@ -5210,11 +5268,11 @@ def sort_nelder_mead_points_numba(sim, fsim):
 def sort_nelder_mead_points_python(sim, fsim):
     # inplace for speed
     sim = [x for _, x in sorted(zip(fsim, sim))]
-    fsim = list(sorted(fsim))
+    fsim = sorted(fsim)
     return sim, fsim
 
 def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=None,
-                initial_simplex=None, adaptive=False, initial_perturbation=0.05, 
+                initial_simplex=None, adaptive=False, initial_perturbation=0.05,
                 initial_zero_perturbation=0.00025, low=None, high=None):
     N = len(x0)
     has_bounds = low is not None or high is not None
@@ -5229,7 +5287,7 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
         chi = 2.0
         psi = 0.5
         sigma = 0.5
-        
+
     rhop1 = 1.0 + rho
     rhochip1 = rho*chi + 1.0
     rhopsip1 = rho*psi + 1.0
@@ -5238,14 +5296,14 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
     onempsi = 1.0 - psi
 #    sort_fun = sort_nelder_mead_points_numba # numba: uncomment
     sort_fun = sort_nelder_mead_points_python # numba: delete
-        
+
     sim = [x0.copy() for _ in range(N+1)] # numba: delete
 #    sim = np.zeros((N+1, N), dtype=float) # numba: uncomment
 
     if initial_simplex is None:
         for k in range(N):
             if x0[k]!= 0:
-                sim[k+1][k] = (1.0 + initial_perturbation)*x0[k] 
+                sim[k+1][k] = (1.0 + initial_perturbation)*x0[k]
             else:
                 sim[k+1][k] = initial_zero_perturbation
     else:
@@ -5256,16 +5314,16 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
     fsim = [x0 for _ in range(N+1)] # numba: delete
 #    fsim = np.zeros((N+1, ), dtype=float) # numba: uncomment
 
-    for k in range(N + 1): 
+    for k in range(N + 1):
         fsim[k] = func(sim[k])
-    
+
 #     print(sim, fsim)
     sim, fsim = sort_fun(sim, fsim)
-        
+
     iterations = 0
-    
+
     one_N = 1.0/N
-    
+
     while (iterations < maxiter):
         # Do the convergence checks
         errcheck1 = 0
@@ -5276,19 +5334,19 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
                 a_xdiff = abs(sim0[j] - asim[j])
                 if a_xdiff > errcheck1:
                     errcheck1 = a_xdiff
-        
+
         current_fdiff = 0.0
         current_best = fsim[0]
         for i in range(1, N+1):
             a_fdiff = abs(current_best - fsim[i])
             if a_fdiff > current_fdiff:
                 current_fdiff = a_fdiff
-        
+
         if (errcheck1 <= xtol and current_fdiff  <= ftol):
             break
-    
+
         sim_last = sim[-1]
-                
+
         xbar = [0.0]*N
         for j in range(N):
             xbarval = 0.0
@@ -5297,7 +5355,7 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
                 xbar[i] += simj[i]
         for i in range(N):
             xbar[i] *= one_N
-            
+
 #        xr = rhop1*xbar - rho*sim_last # numba: uncomment
         xr = [rhop1*xbar[i] - rho*sim_last[i] for i in range(N)] # numba: delete
         if has_bounds:
@@ -5320,7 +5378,7 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
             if fxr < fsim[-2]:
                 sim[-1] = xr
                 fsim[-1] = fxr
-            else:  # contraction            
+            else:  # contraction
                 if fxr < fsim[-1]:
 #                    xc = rhopsip1*xbar - rhopsi*sim_last # numba: uncomment
                     xc = [rhopsip1*xbar[i] - rhopsi*sim_last[i] for i in range(N)] # numba: delete
@@ -5339,10 +5397,10 @@ def nelder_mead(func, x0, args=(), xtol=1e-4, ftol=1e-4, maxiter=100, maxfun=Non
                     fxcc = func(xcc)
                     sim[-1] = xcc
                     fsim[-1] = fxcc
-                        
+
         sim, fsim = sort_fun(sim, fsim)
         iterations += 1
-        
+
     x = sim[0]
     fval = min(fsim)
     return x, fval, iterations
@@ -5352,10 +5410,12 @@ def fixed_point_to_residual(f_fixed_point):
     """
     Transforms a fixed-point iteration function to a residual-based function.
     
-    Parameters:
+    Parameters
+    ----------
     - f_fixed_point: Function that takes x and returns the difference x - thing
     
-    Returns:
+    Returns
+    -------
     - A function that outputs residuals: thing - x
     """
     def residual_function(x, *args):
@@ -5363,17 +5423,19 @@ def fixed_point_to_residual(f_fixed_point):
         fp_diff = f_fixed_point(x, *args)
         # Calculate the residuals as (thing - x)
         return [-diff for diff in fp_diff]
-    
+
     return residual_function
 
 def residual_to_fixed_point(f_residual):
     """
     Transforms a residual-based function to a fixed-point iteration function.
     
-    Parameters:
+    Parameters
+    ----------
     - f_residual: Function that takes x and returns residuals (thing - x)
     
-    Returns:
+    Returns
+    -------
     - A function that outputs differences for fixed-point: x - thing
     """
     def fixed_point_function(x, *args):
@@ -5381,52 +5443,73 @@ def residual_to_fixed_point(f_residual):
         res = f_residual(x, *args)
         # Calculate the fixed-point differences as (x - thing)
         return [-r for r in res]
-    
+
     return fixed_point_function
 
 
-scipy_root_options = ('hybr', 'lm', 'broyden1', 'broyden2', 'anderson',
-                      'linearmixing', 'diagbroyden', 'excitingmixing', 'krylov', 'df-sane')
+scipy_root_options = ("hybr", "lm", "broyden1", "broyden2", "anderson",
+                      "linearmixing", "diagbroyden", "excitingmixing", "krylov", "df-sane")
 scipy_root_options_set = frozenset(scipy_root_options)
 
-python_solvers = ('newton_system', 'newton_system_line_search', 'newton_system_line_search_progress', 'newton_minimize',
-                  'homotopy_solver', 'broyden2_python', 'fixed_point', 'fixed_point_aitken', 'fixed_point_gdem', 'fixed_point_anderson')
+python_solvers = ("newton_system", "newton_system_line_search", "newton_system_line_search_progress", "newton_minimize",
+                  "homotopy_solver", "broyden2_python", "fixed_point", "fixed_point_aitken", "fixed_point_gdem", "fixed_point_anderson")
 python_solvers_set = frozenset(python_solvers)
 
-scipy_minimize_options = ('Nelder-Mead', 'Powell', 'CG', 'BFGS', 'Newton-CG', 'L-BFGS-B', 
-                          'TNC', 'COBYLA', 'SLSQP', 'trust-constr',
-                          'trust-krylov',# needs hessian
-                          'trust-ncg',# needs hessian
-                          'dogleg', # needs hessian
-                          'trust-exact', # needs hessian
+scipy_minimize_options = ("Nelder-Mead", "Powell", "CG", "BFGS", "Newton-CG", "L-BFGS-B",
+                          "TNC", "COBYLA", "SLSQP", "trust-constr",
+                          "trust-krylov",# needs hessian
+                          "trust-ncg",# needs hessian
+                          "dogleg", # needs hessian
+                          "trust-exact", # needs hessian
                          )
 
-scipy_requires_hessian_options = ('trust-krylov', 'trust-ncg', 'dogleg', 'trust-exact')
+scipy_requires_hessian_options = ("trust-krylov", "trust-ncg", "dogleg", "trust-exact")
 scipy_requires_hessian_options_set = frozenset(scipy_requires_hessian_options)
 
-scipy_requires_jacobian_options = ('BFGS', 'Newton-CG', 'dogleg', 'trust-ncg', 'trust-krylov')
+scipy_requires_jacobian_options = ("BFGS", "Newton-CG", "dogleg", "trust-ncg", "trust-krylov")
 scipy_requires_jacobian_options_set = frozenset(scipy_requires_jacobian_options)
 
 scipy_minimize_options_set = frozenset(scipy_minimize_options)
 
 multivariate_solvers = python_solvers + scipy_root_options + scipy_minimize_options
 
-jacobian_methods = ('python', 'numdifftools_forward', 'numdifftools_reverse', 'numdifftools_central',
-                    'jacobi_forward', 'jacobi_central', 'jacobi_backward')
+jacobian_methods = ("python", "numdifftools_forward", "numdifftools_reverse", "numdifftools_central",
+                    "jacobi_forward", "jacobi_central", "jacobi_backward")
 
-python_jacobians_set = frozenset(['python'])
+python_jacobians_set = frozenset(["python"])
 
-hessian_methods = ('python',)
+hessian_methods = ("python",)
 python_hessians_set = frozenset(hessian_methods)
 
-class SolverInterface(object):
-    __slots__ = ('minimizing', 'fval_iter', 'jac_iter', 'jac_fval_count', 'method', 
-                 'objf_original', 'original_jac', 'xtol', 'ytol', 'maxiter', 'damping', 
-                 'jacobian_perturbation', 'jacobian_zero_offset', 'jacobian_method', 
-                 'jacobian_order', 'objf_numpy', 'matrix_solver', 'jacobian_numpy',
-                 'solver_numpy', 'objf', 'solver_analytical_jac', 'hess_iter',
-                 'hess_fval_count', 'hessian_method', 'hessian_numpy',
-                 'scalar_objective')
+class SolverInterface:
+    __slots__ = (
+        "damping",
+        "fval_iter",
+        "hess_fval_count",
+        "hess_iter",
+        "hessian_method",
+        "hessian_numpy",
+        "jac_fval_count",
+        "jac_iter",
+        "jacobian_method",
+        "jacobian_numpy",
+        "jacobian_order",
+        "jacobian_perturbation",
+        "jacobian_zero_offset",
+        "matrix_solver",
+        "maxiter",
+        "method",
+        "minimizing",
+        "objf",
+        "objf_numpy",
+        "objf_original",
+        "original_jac",
+        "scalar_objective",
+        "solver_analytical_jac",
+        "solver_numpy",
+        "xtol",
+        "ytol",
+    )
 
     def objf_counting(self, *args):
         self.fval_iter += 1
@@ -5458,7 +5541,7 @@ class SolverInterface(object):
         for v in errs:
             tot += v*v
         return tot
-    
+
     def jac_minimizing(self, x, *args):
         fval = self.objf_original(x, *args)
         jval = self.original_jac(x, *args)
@@ -5470,7 +5553,7 @@ class SolverInterface(object):
                 temp += fval[j]*jval[j][i]
             small_jac[i] = 2.0*temp
         return small_jac
-    
+
     def jac_minimizing_numpy(self, x, *args):
         fval = self.objf_original(x, *args)
         jval = self.original_jac(x, *args)
@@ -5485,32 +5568,32 @@ class SolverInterface(object):
         return float(self.objf_original(np.array(x), *args))
 
     def __init__(self, method, objf, jac=None, xtol=1e-8, ytol=None, maxiter=100, damping=1.0,
-                 jacobian_method='python', jacobian_perturbation=1e-9, jacobian_zero_offset=1e-7,
-                 hessian_method='python',
+                 jacobian_method="python", jacobian_perturbation=1e-9, jacobian_zero_offset=1e-7,
+                 hessian_method="python",
                  jacobian_order=1, objf_numpy=False, matrix_solver=py_solve, scalar_objective=False):
         self.method, self.objf_original, self.original_jac = method, objf, jac
         self.xtol, self.ytol, self.maxiter, self.damping = xtol, ytol, maxiter, damping
-        
-        (self.jacobian_perturbation, self.jacobian_zero_offset, self.jacobian_method, 
-         self.jacobian_order, self.hessian_method) = (jacobian_perturbation, 
+
+        (self.jacobian_perturbation, self.jacobian_zero_offset, self.jacobian_method,
+         self.jacobian_order, self.hessian_method) = (jacobian_perturbation,
                                                       jacobian_zero_offset,
                                                       jacobian_method,
-                                                      jacobian_order, 
+                                                      jacobian_order,
                                                       hessian_method)
         self.objf_numpy, self.matrix_solver = objf_numpy, matrix_solver
 
 
-        if jacobian_method == 'analytical':
+        if jacobian_method == "analytical":
             self.jacobian_numpy = objf_numpy
         else:
             self.jacobian_numpy = jacobian_method not in python_jacobians_set
-        if hessian_method == 'analytical':
+        if hessian_method == "analytical":
             self.hessian_numpy = objf_numpy
         else:
             self.hessian_numpy = hessian_method not in python_hessians_set
         # whether or not the solver uses numpy
         self.solver_numpy = solver_numpy = method not in python_solvers_set
-        
+
         self.minimizing = False
         self.fval_iter = self.jac_iter = self.jac_fval_count = self.hess_iter = self.hess_fval_count = 0
         self.scalar_objective = scalar_objective
@@ -5530,11 +5613,11 @@ class SolverInterface(object):
                 else:
                     self.objf = self.objf_counting
         else:
-            
+
             if method in scipy_minimize_options_set:
                 self.minimizing = True
-                if jacobian_method == 'scipy' and method in scipy_requires_jacobian_options_set:
-                    self.jacobian_method = 'python'
+                if jacobian_method == "scipy" and method in scipy_requires_jacobian_options_set:
+                    self.jacobian_method = "python"
                 self.objf = self.objf_numpy_minimizing if objf_numpy else self.objf_python_minimizing
             elif solver_numpy:
                 if not objf_numpy:
@@ -5546,7 +5629,7 @@ class SolverInterface(object):
                     self.objf = self.objf_numpy_return_python
                 else:
                     self.objf = self.objf_counting
-                    
+
             if self.minimizing:
                 if objf_numpy:
                     self.solver_analytical_jac = self.jac_minimizing_numpy
@@ -5554,11 +5637,11 @@ class SolverInterface(object):
                     self.solver_analytical_jac = self.jac_minimizing
             else:
                 self.solver_analytical_jac = self.original_jac
-        
-                
-                
-                
-    
+
+
+
+
+
     def hessian(self, x, base=None, args=()):
         self.hess_iter += 1
         fval_iter, hessian_method, objf_numpy, hessian_numpy = self.fval_iter, self.hessian_method, self.objf_numpy, self.hessian_numpy
@@ -5575,13 +5658,13 @@ class SolverInterface(object):
                 objf = self.objf_counting
             else:
                 objf = self.objf_python_return_numpy if self.hessian_numpy else self.objf_counting
-                
-            h = hessian(objf, x, scalar=True, 
+
+            h = hessian(objf, x, scalar=True,
                        perturbation=self.jacobian_perturbation,
-                       zero_offset=self.jacobian_zero_offset, 
+                       zero_offset=self.jacobian_zero_offset,
                        args=args)
         else:
-            if hessian_method == 'analytical':
+            if hessian_method == "analytical":
                 if objf_numpy and not return_numpy:
                     x = np.array(x)
                 elif return_numpy and not objf_numpy:
@@ -5612,33 +5695,33 @@ class SolverInterface(object):
                         else:
                             objf = self.objf_python_return_numpy
 
-                if hessian_method.startswith('numdifftools'):
+                if hessian_method.startswith("numdifftools"):
                     import numdifftools as nd
-                if hessian_method == 'python':
+                if hessian_method == "python":
                     h = hessian(objf, x, scalar=self.minimizing, perturbation=1e-4,
                                 zero_offset=self.jacobian_zero_offset, args=args)
 
-                elif hessian_method == 'numdifftools_forward':
-                    h = nd.Hessian(objf, method='forward')(x)
-                elif hessian_method == 'numdifftools_reverse':
-                    h = nd.Hessian(objf, method='reverse')(x)
-                elif hessian_method == 'numdifftools_central':
-                    h = nd.Hessian(objf, method='central')(x)
-            
+                elif hessian_method == "numdifftools_forward":
+                    h = nd.Hessian(objf, method="forward")(x)
+                elif hessian_method == "numdifftools_reverse":
+                    h = nd.Hessian(objf, method="reverse")(x)
+                elif hessian_method == "numdifftools_central":
+                    h = nd.Hessian(objf, method="central")(x)
+
         # Up the hessian fval count, set the fval back
         self.hess_fval_count += self.fval_iter - fval_iter
         self.fval_iter = fval_iter
-        
+
         if return_numpy:
             return np.array(h) if type(h) is list else h
         else:
             return h if type(h) is list else h.tolist()
-    
+
     def jacobian(self, x, *args):
-        '''
+        """
         jacobi - doesn't support jacobian_perturbation, jacobian_zero_offset, jacobian_order
         python - doesn't support jacobian_order
-        '''
+        """
         self.jac_iter += 1
         fval_iter, jacobian_method, objf_numpy, jacobian_numpy = self.fval_iter, self.jacobian_method, self.objf_numpy, self.jacobian_numpy
         return_numpy = type(x) is not list
@@ -5648,19 +5731,19 @@ class SolverInterface(object):
                 x = x if type(x) is list else x.tolist()
             else:
                 x = np.array(x)
-                
+
             # Use the correct objf based on numpy/python preferences
             if self.objf_numpy:
                 objf = self.objf_counting
             else:
                 objf = self.objf_python_return_numpy if self.jacobian_numpy else self.objf_counting
-                
-            j = jacobian(objf, x, scalar=True, 
+
+            j = jacobian(objf, x, scalar=True,
                         perturbation=self.jacobian_perturbation,
-                        zero_offset=self.jacobian_zero_offset, 
+                        zero_offset=self.jacobian_zero_offset,
                         args=args)
         else:
-            if jacobian_method == 'analytical':
+            if jacobian_method == "analytical":
                 if objf_numpy and not return_numpy:
                     x = np.array(x)
                 elif return_numpy and not objf_numpy:
@@ -5690,31 +5773,31 @@ class SolverInterface(object):
                         else:
                             objf = self.objf_python_return_numpy
 
-                if jacobian_method.startswith('numdifftools'):
+                if jacobian_method.startswith("numdifftools"):
                     import numdifftools as nd
                     numdifftools_func = nd.Gradient if self.minimizing else nd.Jacobian
                     step = self.jacobian_perturbation*x
                     step[np.where(step==0)] = self.jacobian_zero_offset
-                elif jacobian_method.startswith('jacobi'):
+                elif jacobian_method.startswith("jacobi"):
                     from jacobi import jacobi
-                if jacobian_method == 'python':
+                if jacobian_method == "python":
                     j = jacobian(objf, x, scalar=self.minimizing, perturbation=self.jacobian_perturbation,
                                 zero_offset=self.jacobian_zero_offset, args=args)
 
-                elif jacobian_method == 'numdifftools_forward':
-                    j = numdifftools_func(objf, method='forward', order=self.jacobian_order, step=step)(x)
-                elif jacobian_method == 'numdifftools_reverse':
-                    j = numdifftools_func(objf, method='reverse', order=self.jacobian_order, step=step)(x)
-                elif jacobian_method == 'numdifftools_central':
-                    j = numdifftools_func(objf, method='central', order=self.jacobian_order, step=step)(x)
+                elif jacobian_method == "numdifftools_forward":
+                    j = numdifftools_func(objf, method="forward", order=self.jacobian_order, step=step)(x)
+                elif jacobian_method == "numdifftools_reverse":
+                    j = numdifftools_func(objf, method="reverse", order=self.jacobian_order, step=step)(x)
+                elif jacobian_method == "numdifftools_central":
+                    j = numdifftools_func(objf, method="central", order=self.jacobian_order, step=step)(x)
 
-                elif jacobian_method == 'jacobi_forward':
+                elif jacobian_method == "jacobi_forward":
                     j = jacobi(objf, x, method=1)[0]
-                elif jacobian_method == 'jacobi_central':
+                elif jacobian_method == "jacobi_central":
                     j = jacobi(objf, x, method=0)[0]
-                elif jacobian_method == 'jacobi_backward':
+                elif jacobian_method == "jacobi_backward":
                     j = jacobi(objf, x, method=1)[0]
-        
+
         # Up the jacobian fval count, set the fval back
         self.jac_fval_count += self.fval_iter - fval_iter
         self.fval_iter = fval_iter
@@ -5725,12 +5808,12 @@ class SolverInterface(object):
         #     return np.array(j)
         # elif jacobian_numpy and not return_numpy:
         #     return j.tolist()
-        
+
         if return_numpy:
             return np.array(j) if type(j) is list else j
         else:
             return j if type(j) is list else j.tolist()
-        
+
     def solve(self, x0, args=()):
         self.fval_iter = self.jac_iter = self.jac_fval_count = self.hess_iter = self.hess_fval_count = 0
         return_numpy = type(x0) is not list
@@ -5738,65 +5821,64 @@ class SolverInterface(object):
             x0 = np.array(x0)
         elif return_numpy:
             x0 = x0.tolist()
-        
+
         process_root = False
         method = self.method
-        if method == 'newton_system':
+        if method == "newton_system":
             sln, niter = newton_system(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
-                                 ytol=self.ytol, maxiter=self.maxiter, damping=self.damping, 
+                                 ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
                                  solve_func=self.matrix_solver)
-        elif method == 'newton_system_line_search':
+        elif method == "newton_system_line_search":
             sln, niter = newton_system(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
                                        ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
                                        line_search=True, solve_func=self.matrix_solver, require_progress=False,
                                        check_numbers=True, Armijo=True)
-        elif method == 'newton_system_line_search_progress':
+        elif method == "newton_system_line_search_progress":
             sln, niter = newton_system(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
                                        ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
                                        line_search=True, solve_func=self.matrix_solver, require_progress=True,
                                        check_numbers=True, Armijo=True)
-        elif method == 'homotopy_solver':
+        elif method == "homotopy_solver":
             sln, niter = homotopy_solver(self.objf, x0, jac=self.jacobian, xtol=self.xtol, args=args,
                                        ytol=self.ytol, maxiter=self.maxiter, damping=self.damping,
                                        line_search=True, solve_func=self.matrix_solver)
-        elif method == 'broyden2_python':
+        elif method == "broyden2_python":
             sln, niter = broyden2(x0, self.objf, self.jacobian, xtol=self.xtol, maxiter=self.maxiter,
                                   args=args)
-        elif method == 'fixed_point':
+        elif method == "fixed_point":
             sln, niter = fixed_point(residual_to_fixed_point(self.objf), x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
-        elif method == 'fixed_point_aitken':
+        elif method == "fixed_point_aitken":
             sln, niter = fixed_point_aitken(residual_to_fixed_point(self.objf), x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
-        elif method == 'fixed_point_gdem':
+        elif method == "fixed_point_gdem":
             sln, niter = fixed_point_gdem(residual_to_fixed_point(self.objf), x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, damping=self.damping)
-        elif method == 'fixed_point_anderson':
+        elif method == "fixed_point_anderson":
             sln, niter = fixed_point_anderson_residual(residual_to_fixed_point(self.objf), x0, xtol=self.xtol, args=args, ytol=self.ytol, maxiter=self.maxiter, window_size=5, reg=1e-8, initial_iterations=5, acc_damping=0.3, damping=1.0)
         elif method in scipy_root_options_set:
             process_root = True
             jacobian_method = self.jacobian_method
-            jac = self.jacobian if jacobian_method != 'scipy' else None
+            jac = self.jacobian if jacobian_method != "scipy" else None
             result = root(self.objf, x0, args=args, method=method, jac=jac, tol=self.xtol)
         elif method in scipy_minimize_options_set:
             process_root = True
             jacobian_method = self.jacobian_method
-            jac = self.jacobian if jacobian_method != 'scipy' else None
+            jac = self.jacobian if jacobian_method != "scipy" else None
             hess = self.hessian if method in scipy_requires_hessian_options_set else None
             result = minimize(self.objf, x0, args=args, method=method, jac=jac, tol=self.xtol, hess=hess)
-        elif method == 'newton_minimize':
+        elif method == "newton_minimize":
             sln, niter = newton_minimize(
                     self.objf, x0, jac=self.jacobian, hess=self.hessian,
-                    xtol=self.xtol, ytol=self.ytol, 
+                    xtol=self.xtol, ytol=self.ytol,
                     maxiter=self.maxiter, damping=self.damping,
                     args=args)
         if process_root:
             sln = result.x
-            
+
             if not return_numpy:
                 sln = sln.tolist()
         elif return_numpy:
             sln = np.array(sln)
-            
+
         return sln
-            
 
 
 
@@ -5810,14 +5892,15 @@ class SolverInterface(object):
 
 
 
-fit_minimization_targets = {'MeanAbsErr': mean_abs_error,
-                            'MeanRelErr': mean_abs_rel_error,
-                            'MeanSquareErr': mean_squared_error,
-                            'MeanSquareRelErr': mean_squared_rel_error,
-                            'MaxAbsErr': max_abs_error,
-                            'MaxRelErr': max_abs_rel_error,
-                            'MaxSquareErr': max_squared_error,
-                            'MaxSquareRelErr': max_squared_rel_error,
+
+fit_minimization_targets = {"MeanAbsErr": mean_abs_error,
+                            "MeanRelErr": mean_abs_rel_error,
+                            "MeanSquareErr": mean_squared_error,
+                            "MeanSquareRelErr": mean_squared_rel_error,
+                            "MaxAbsErr": max_abs_error,
+                            "MaxRelErr": max_abs_rel_error,
+                            "MaxSquareErr": max_squared_error,
+                            "MaxSquareRelErr": max_squared_rel_error,
                             }
 
 
@@ -5984,9 +6067,7 @@ else:
 try:
     if FORCE_PYPY:
         lambertw = py_lambertw
-        from scipy.special import ellipe, gammaincc, gamma, ellipkinc, ellipeinc # fluids
-        from scipy.special import i1, i0, k1, k0, iv # ht
-        from scipy.special import hyp2f1
+        from scipy.special import ellipe, ellipeinc, ellipkinc, gamma, gammaincc, hyp2f1, i0, i1, iv, k0, k1  # fluids  # ht
         if erf is None:
             from scipy.special import erf
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023 Caleb Bell
 <Caleb.Andrew.Bell@gmail.com>
@@ -24,72 +23,91 @@ SOFTWARE.
 
 import os
 
-from . import numerics
-from . import constants
+from . import constants, numerics
 
 if not numerics.is_micropython: # type: ignore
-    from . import atmosphere
-    from . import compressible
-    from . import core
-    from . import friction
-    from . import filters
-    from . import fittings
-    from . import flow_meter
-    from . import geometry
-    from . import mixing
-    from . import open_flow
-    from . import packed_bed
-    from . import piping
-    from . import pump
-    from . import safety_valve
-    from . import packed_tower
-    from . import two_phase_voidage
-    from . import two_phase
-    from . import drag
-    from . import saltation
-    from . import separator
-    from . import particle_size_distribution
-    from . import jet_pump
-    from . import control_valve
-    
-    
+    from . import (
+        atmosphere,
+        compressible,
+        control_valve,
+        core,
+        drag,
+        filters,
+        fittings,
+        flow_meter,
+        friction,
+        geometry,
+        jet_pump,
+        mixing,
+        open_flow,
+        packed_bed,
+        packed_tower,
+        particle_size_distribution,
+        piping,
+        pump,
+        safety_valve,
+        saltation,
+        separator,
+        two_phase,
+        two_phase_voidage,
+    )
     from .atmosphere import *
     from .compressible import *
     from .control_valve import *
     from .core import *
+    from .drag import *
     from .filters import *
     from .fittings import *
     from .flow_meter import *
     from .friction import *
     from .geometry import *
+    from .jet_pump import *
     from .mixing import *
     from .open_flow import *
-    from .particle_size_distribution import *
     from .packed_bed import *
+    from .packed_tower import *
+    from .particle_size_distribution import *
     from .piping import *
     from .pump import *
     from .safety_valve import *
-    from .packed_tower import *
-    from .two_phase import *
-    from .two_phase_voidage import *
-    from .drag import *
     from .saltation import *
     from .separator import *
-    from .jet_pump import *
-    
-    
-    __all__ = ['atmosphere', 'compressible', 'control_valve', 'core', 'filters', 'fittings',
-    'friction', 'geometry', 'mixing', 'open_flow', 'packed_bed', 'piping',
-    'pump', 'safety_valve', 'packed_tower', 'two_phase', 'two_phase_voidage',
-    'drag', 'saltation', 'separator', 'flow_meter', 'particle_size_distribution',
-    'jet_pump']
-    
+    from .two_phase import *
+    from .two_phase_voidage import *
+
+
+    __all__ = [
+        "atmosphere",
+        "compressible",
+        "control_valve",
+        "core",
+        "drag",
+        "filters",
+        "fittings",
+        "flow_meter",
+        "friction",
+        "geometry",
+        "jet_pump",
+        "mixing",
+        "open_flow",
+        "packed_bed",
+        "packed_tower",
+        "particle_size_distribution",
+        "piping",
+        "pump",
+        "safety_valve",
+        "saltation",
+        "separator",
+        "two_phase",
+        "two_phase_voidage",
+    ]
+
     __all__.extend(atmosphere.__all__)
     __all__.extend(compressible.__all__)
     __all__.extend(control_valve.__all__)
     __all__.extend(core.__all__)
     __all__.extend(filters.__all__)
-    
+
     __all__.extend(fittings.__all__)
     __all__.extend(friction.__all__)
     __all__.extend(geometry.__all__)
@@ -108,7 +126,7 @@ if not numerics.is_micropython: # type: ignore
     __all__.extend(separator.__all__)
     __all__.extend(particle_size_distribution.__all__)
     __all__.extend(jet_pump.__all__)
-    
+
     submodules = [atmosphere, compressible, core, friction, filters, fittings,
                   flow_meter, geometry, mixing, open_flow, packed_bed, piping, pump,
                   safety_valve, packed_tower, two_phase_voidage, two_phase, drag,
@@ -116,32 +134,32 @@ if not numerics.is_micropython: # type: ignore
                   control_valve,]
 
     def __getattr__(name):
-        if name == 'vectorized':
+        if name == "vectorized":
             import fluids.vectorized
             globals()[name] = fluids.vectorized
             return fluids.vectorized
-        if name == 'numba':
+        if name == "numba":
             import fluids.numba
             globals()[name] = fluids.numba
             return fluids.numba
-        if name == 'units':
+        if name == "units":
             import fluids.units
             globals()[name] = fluids.units
             return fluids.units
-        if name == 'numba_vectorized':
+        if name == "numba_vectorized":
             import fluids.numba_vectorized
             globals()[name] = fluids.numba_vectorized
             return fluids.numba_vectorized
         raise AttributeError("module %s has no attribute %s" %(__name__, name))
-    
+
 def all_submodules(with_numerics=True):
-    from fluids.numerics import arrays, polynomial_roots, polynomial_evaluation, polynomial_utils
+    import fluids.nrlmsise00.nrlmsise_00
+    import fluids.nrlmsise00.nrlmsise_00_data
+    import fluids.nrlmsise00.nrlmsise_00_header
     import fluids.optional
     import fluids.optional.irradiance
     import fluids.optional.spa
-    import fluids.nrlmsise00.nrlmsise_00_data
-    import fluids.nrlmsise00.nrlmsise_00
-    import fluids.nrlmsise00.nrlmsise_00_header
+    from fluids.numerics import arrays, polynomial_evaluation, polynomial_roots, polynomial_utils
     new_submodules =  submodules + [fluids.optional, fluids.optional.irradiance, fluids.optional.spa,
                          fluids.nrlmsise00.nrlmsise_00_data, fluids.nrlmsise00.nrlmsise_00, fluids.nrlmsise00.nrlmsise_00_header,
                          ]
@@ -150,10 +168,10 @@ def all_submodules(with_numerics=True):
     return new_submodules
 
 
-__version__ = '1.1.0'
+__version__ = "1.1.0"
 
 try:
     fluids_dir = os.path.dirname(__file__)
-    fluids_data_dir = os.path.join(fluids_dir, 'data')
+    fluids_data_dir = os.path.join(fluids_dir, "data")
 except:
     pass
