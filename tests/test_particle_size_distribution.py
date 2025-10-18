@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 from math import log10
 
@@ -67,7 +67,7 @@ def test_ASTM_E11_sieves():
 
     # Test but do not validate these properties
     tot = 0.0
-    for attr in ['Y_variation_avg', 'X_variation_max', 'max_opening', 'd_wire', 'd_wire_min', 'd_wire_max', 'opening', 'opening_inch']:
+    for attr in ["Y_variation_avg", "X_variation_max", "max_opening", "d_wire", "d_wire_min", "d_wire_max", "opening", "opening_inch"]:
         tot += sum(getattr(i, attr) for i in sieves)
 
 def test_ISO_3310_2_sieves():
@@ -82,7 +82,7 @@ def test_ISO_3310_2_sieves():
 
     # Test but do not validate these properties
     tot = 0.0
-    for attr in ['Y_variation_avg', 'X_variation_max', 'd_wire', 'd_wire_min', 'd_wire_max', 'opening']:
+    for attr in ["Y_variation_avg", "X_variation_max", "d_wire", "d_wire_min", "d_wire_max", "opening"]:
         tot += sum(getattr(i, attr) for i in sieves)
 
     for l in [ISO_3310_1_R20_3, ISO_3310_1_R20, ISO_3310_1_R10, ISO_3310_1_R40_3]:
@@ -105,17 +105,17 @@ def test_ParticleSizeDistribution_basic():
     number_cdf = [0.010640039286298902, 0.030119495825830737, 0.06809625143231296, 0.13521034539204452, 0.2381731871009985, 0.3771484694712718, 0.5392044524472088, 0.6997871992142738, 0.8348338516942214, 0.9296120477983301, 0.9782288426911112, 0.9963987559338677, 0.9998363070879027, 0.9999999999999997]
 
     opts = [
-            {'fractions': numbers, 'cdf': False, 'order': 0},
+            {"fractions": numbers, "cdf": False, "order": 0},
 
-            {'fractions': number_fractions, 'cdf': False, 'order': 0},
-            {'fractions': length_fractions, 'cdf': False, 'order': 1},
-            {'fractions': area_fractions, 'cdf': False, 'order': 2},
-            {'fractions': fractions, 'cdf': False, 'order': 3},
+            {"fractions": number_fractions, "cdf": False, "order": 0},
+            {"fractions": length_fractions, "cdf": False, "order": 1},
+            {"fractions": area_fractions, "cdf": False, "order": 2},
+            {"fractions": fractions, "cdf": False, "order": 3},
 
-            {'fractions': fraction_cdf, 'cdf': True, 'order': 3},
-            {'fractions': area_cdf, 'cdf': True, 'order': 2},
-            {'fractions': length_cdf, 'cdf': True, 'order': 1},
-            {'fractions': number_cdf, 'cdf': True, 'order': 0}]
+            {"fractions": fraction_cdf, "cdf": True, "order": 3},
+            {"fractions": area_cdf, "cdf": True, "order": 2},
+            {"fractions": length_cdf, "cdf": True, "order": 1},
+            {"fractions": number_cdf, "cdf": True, "order": 0}]
 
     for opt in opts:
         asme_e799 = ParticleSizeDistribution(ds=ds, **opt)
@@ -237,11 +237,11 @@ def test_pdf_lognormal_basis_integral_fuzz():
 
 
 def test_cdf_Gates_Gaudin_Schuhman():
-    '''
+    """
     d, d_max, n, m = symbols('d, d_max, n, m')
     expr = (d/d_max)**n
     pdf = diff(expr, d)
-    '''
+    """
     cdf = cdf_Gates_Gaudin_Schuhman(d=2E-4, d_characteristic=1E-3, m=2.3)
     assert_close(cdf, 0.024681354508800397)
 
@@ -298,12 +298,12 @@ def test_cdf_Rosin_Rammler():
 
 
 def test_pdf_Rosin_Rammler():
-    '''
+    """
     from sympy import *
     d, k, n = symbols('d, k, n')
     model = 1 - exp(-k*d**n)
     print(latex(diff(model, d)))
-    '''
+    """
     from scipy.integrate import quad
 
     pdf = pdf_Rosin_Rammler(1E-3, 200.0, 2.0)
@@ -347,19 +347,19 @@ def test_pdf_Rosin_Rammler_basis_integral_fuzz():
 def testPSDLognormal_meshes():
     a = PSDLognormal(s=0.5, d_characteristic=5E-6)
     ds_expect = [5.011872336272722e-07, 6.309573444801932e-07, 7.943282347242815e-07, 1e-06]
-    ds = a.ds_discrete(d_max=1e-6, method='R10', pts=4)
+    ds = a.ds_discrete(d_max=1e-6, method="R10", pts=4)
     assert_close1d(ds_expect, ds)
 
-    ds = a.ds_discrete(d_min=1e-6, method='R10', pts=4)
+    ds = a.ds_discrete(d_min=1e-6, method="R10", pts=4)
     assert_close1d(ds, [1e-06, 1.2589254117941672e-06, 1.5848931924611134e-06, 1.9952623149688796e-06])
 
 
 @pytest.mark.fuzz
 @pytest.mark.slow
 def test_PSDLognormal_mean_sizes_numerical():
-    '''Takes like 1 second. Should not run normally.
+    """Takes like 1 second. Should not run normally.
     Not how things should be done, just a proof of concept.
-    '''
+    """
     # ISO standard example, done numerically
     a = PSDLognormal(s=0.5, d_characteristic=5E-6)
     ds = a.ds_discrete(d_max=1, pts=1E5)
@@ -446,7 +446,6 @@ def test_PSDLognormal_mean_sizes_analytical():
     # There guys - need more work
     d33 = disc.mean_size(3.0, 3.0)
     assert_close(d33, 5.000E-6, rtol=0, atol=1E-6)
-#
     d00 = disc.mean_size(0.0, 0.0)
     assert_close(d00, 2.362E-6, rtol=1e-4)
 
@@ -509,11 +508,11 @@ def test_PSDLognormal_dn():
 
 
 def test_PSDLognormal_dn_order_0_1_2():
-    '''Simple point to test where the order of n should be 0
+    """Simple point to test where the order of n should be 0
 
     Yes, the integrals need this many points (which makes them slow) to get
     the right accuracy. They've been tested and reduced already quite a bit.
-    '''
+    """
     from scipy.integrate import quad
     # test 2, 0 -> 2, 0
     disc = PSDLognormal(s=0.5, d_characteristic=5E-6)
@@ -553,7 +552,7 @@ def test_PSDLognormal_cdf_orders():
                   [ 0.033432418408916864, 0.15347299656473007, 0.3276949357115424, 0.5, 0.64231108623683952, 0.74950869138681098, 0.91717148099830148, 0.99721938213769046, 0.99983050191355338, 0.99999793935660408, 0.99999993474010451, 0.99999999896020164, 0.99999999999991951, 1.0, 1.0]]
 
     calc = []
-    for n in range(0, 4):
+    for n in range(4):
         calc.append([disc.cdf(i, n=n) for i in ds])
 
     assert_close2d(ans_expect, calc, rtol=1E-9)
@@ -627,13 +626,13 @@ def test_PSD_lognormal_truncated_mean_size():
 
 @pytest.mark.slow
 def test_PSD_PSDlognormal_area_length_count():
-    '''Compare the average difference between the analytical values for a
+    """Compare the average difference between the analytical values for a
     lognormal distribution with those of a discretized form of it.Note simply
     adding more points did not tend to help reduce the error.
     For the particle count case, 700 points has the lowest error.
 
     fractions_discrete is still the slowest part.
-    '''
+    """
     import numpy as np
     dist = PSDLognormal(s=0.5, d_characteristic=5E-6)
 
@@ -654,11 +653,11 @@ def test_PSD_PSDlognormal_area_length_count():
     assert 1E-4 > avg_err
 
 def test_PSDInterpolated_pchip():
-    '''For this test, ds is the same length as fractions, and we begin the series with the zero point.
+    """For this test, ds is the same length as fractions, and we begin the series with the zero point.
 
     Half the test is spend on the `dn` solver tests, and the other half is just
     that these tests are slow.
-    '''
+    """
     import numpy as np
     ds = [360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532]
     ds = np.array(ds)/1e6
@@ -753,42 +752,42 @@ def test_PSDInterpolated_discrete():
 
 
 def test_psd_spacing():
-    ans_log = psd_spacing(d_min=1, d_max=10, pts=4, method='logarithmic')
+    ans_log = psd_spacing(d_min=1, d_max=10, pts=4, method="logarithmic")
     ans_log_expect = [1.0, 2.154434690031884, 4.641588833612778, 10.0]
     assert_close1d(ans_log, ans_log_expect)
 
-    ans_lin = psd_spacing(d_min=0, d_max=10, pts=4, method='linear')
+    ans_lin = psd_spacing(d_min=0, d_max=10, pts=4, method="linear")
     ans_lin_expect = [0.0, 3.3333333333333335, 6.666666666666667, 10.0]
     assert_close1d(ans_lin, ans_lin_expect)
 
     with pytest.raises(Exception):
-        psd_spacing(d_min=0, d_max=10, pts=8, method='R5')
+        psd_spacing(d_min=0, d_max=10, pts=8, method="R5")
 
     with pytest.raises(Exception):
-        psd_spacing(d_min=5e-5, d_max=5e-4, method='BADMETHOD')
+        psd_spacing(d_min=5e-5, d_max=5e-4, method="BADMETHOD")
 
     # This example from an iso standard, ISO 9276-2 2014
-    ans_R5 = psd_spacing(d_max=25, pts=8, method='R5')
+    ans_R5 = psd_spacing(d_max=25, pts=8, method="R5")
     ans_R5_expect = [0.9952679263837426, 1.5773933612004825, 2.499999999999999, 3.9622329811527823, 6.279716078773949, 9.95267926383743, 15.77393361200483, 25]
     assert_close1d(ans_R5, ans_R5_expect)
-    ans_R5_reversed = psd_spacing(d_min=0.9952679263837426, pts=8, method='R5')
+    ans_R5_reversed = psd_spacing(d_min=0.9952679263837426, pts=8, method="R5")
     assert_close1d(ans_R5_reversed, ans_R5_expect)
 
-    ans_R5_float = psd_spacing(d_max=25, pts=8, method='R5.00000001')
+    ans_R5_float = psd_spacing(d_max=25, pts=8, method="R5.00000001")
     assert_close1d(ans_R5_float, ans_R5_expect)
 
-    ans = psd_spacing(d_min=5e-5, d_max=1e-3, method='ISO 3310-1')
+    ans = psd_spacing(d_min=5e-5, d_max=1e-3, method="ISO 3310-1")
     ans_expect = [5e-05, 5.3e-05, 5.6e-05, 6.3e-05, 7.1e-05, 7.5e-05, 8e-05, 9e-05, 0.0001, 0.000106, 0.000112, 0.000125, 0.00014, 0.00015, 0.00016, 0.00018, 0.0002, 0.000212, 0.000224, 0.00025, 0.00028, 0.0003, 0.000315, 0.000355, 0.0004, 0.000425, 0.00045, 0.0005, 0.00056, 0.0006, 0.00063, 0.00071, 0.0008, 0.00085, 0.0009, 0.001]
     assert_close1d(ans, ans_expect)
-    assert [] == psd_spacing(d_min=0, d_max=1e-6, method='ISO 3310-1')
-    assert [] == psd_spacing(d_min=1, d_max=1e2, method='ISO 3310-1')
+    assert [] == psd_spacing(d_min=0, d_max=1e-6, method="ISO 3310-1")
+    assert [] == psd_spacing(d_min=1, d_max=1e2, method="ISO 3310-1")
 
-    assert psd_spacing(d_min=5e-5, d_max=1e-3, method='ISO 3310-1 R20')
-    assert psd_spacing(d_min=5e-5, d_max=1e-3, method='ISO 3310-1 R20/3')
-    assert psd_spacing(d_min=5e-5, d_max=1e-3, method='ISO 3310-1 R40/3')
-    assert psd_spacing(d_min=0e-5, d_max=1e-3, method='ISO 3310-1 R10')
+    assert psd_spacing(d_min=5e-5, d_max=1e-3, method="ISO 3310-1 R20")
+    assert psd_spacing(d_min=5e-5, d_max=1e-3, method="ISO 3310-1 R20/3")
+    assert psd_spacing(d_min=5e-5, d_max=1e-3, method="ISO 3310-1 R40/3")
+    assert psd_spacing(d_min=0e-5, d_max=1e-3, method="ISO 3310-1 R10")
 
-    ds = psd_spacing(d_min=1e-5, d_max=1e-4, method='ASTM E11')
+    ds = psd_spacing(d_min=1e-5, d_max=1e-4, method="ASTM E11")
     ds_expect = [2e-05, 2.5e-05, 3.2e-05, 3.8e-05, 4.5e-05, 5.3e-05, 6.3e-05, 7.5e-05, 9e-05]
     assert_close1d(ds, ds_expect)
 

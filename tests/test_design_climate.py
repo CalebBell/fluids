@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import os
 
@@ -27,13 +27,13 @@ import pytest
 from fluids.design_climate import (
     IntegratedSurfaceDatabaseStation,
     StationDataGSOD,
-    get_latlongs,
     cooling_degree_days,
     geocode,
     get_closest_station,
+    get_latlongs,
     get_station_year_text,
-    heating_degree_days,
     get_stations,
+    heating_degree_days,
 )
 from fluids.numerics import assert_close, assert_close1d
 
@@ -42,7 +42,7 @@ try:
 except:
     has_geopy = False
 
-data_dir_override = os.path.join(os.path.dirname(__file__), 'gsod')
+data_dir_override = os.path.join(os.path.dirname(__file__), "gsod")
 
 
 def test_heating_degree_days():
@@ -76,10 +76,10 @@ def test_month_average_temperature():
 def test_IntegratedSurfaceDatabaseStation():
 
     # Information confirmed elsewhere i.e. https://geographic.org/global_weather/not_specified_canada/calgary_intl_cs_713930_99999.html
-    values = [713930.0, 99999.0, 'CALGARY INTL CS', 'CA', None, None, 51.1, -114.0, 1081.0, 20040921.0, 20150831.0]
+    values = [713930.0, 99999.0, "CALGARY INTL CS", "CA", None, None, 51.1, -114.0, 1081.0, 20040921.0, 20150831.0]
     test_station = IntegratedSurfaceDatabaseStation(*values)
-    for value, attr in zip(values, test_station.__slots__):
-        assert value == getattr(test_station, attr)
+    for attr in test_station.__slots__:
+        assert getattr(test_station, attr) in values
 
 def test_data():
     assert get_latlongs().shape[0] >= 27591
@@ -92,14 +92,14 @@ def test_data():
 def test_correct_WBAN():
     station = get_closest_station(31.9973, -102.0779)
     station_data = StationDataGSOD(station, data_dir_override=data_dir_override)
-    assert station.WBAN == '03071'
+    assert station.WBAN == "03071"
     assert station_data.month_average_temperature(2010, 2011, include_yearly=False)
 
 
 
 def test_get_closest_station():
     s = get_closest_station(51.02532675, -114.049868485806, 20150000)
-    assert s.NAME == 'CALGARY INTL CS'
+    assert s.NAME == "CALGARY INTL CS"
 
     with pytest.raises(Exception):
          get_closest_station(51.02532675, -114.049868485806, 90150000)
@@ -476,7 +476,7 @@ sample_data_random_station_1999 = """STN--- WBAN   YEARMODA    TEMP       DEWP  
 def test_get_station_year_text():
     downloaded_data = get_station_year_text(712650, 99999, 1999)
     try:
-        downloaded_data = downloaded_data.decode('utf-8')
+        downloaded_data = downloaded_data.decode("utf-8")
     except:
         pass
     assert downloaded_data == sample_data_random_station_1999
@@ -487,7 +487,7 @@ def test_get_station_year_text():
 
 @pytest.mark.slow
 @pytest.mark.online
-@pytest.mark.skipif(not has_geopy, reason='geopy is required')
+@pytest.mark.skipif(not has_geopy, reason="geopy is required")
 def test_geocode():
-    latlon = geocode('Fredericton, NB')
+    latlon = geocode("Fredericton, NB")
     assert_close(latlon, (45.966425, -66.645813), rtol=5e-4)

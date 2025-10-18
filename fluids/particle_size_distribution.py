@@ -86,31 +86,44 @@ Point Spacing
 -------------
 .. autofunction:: psd_spacing
 """
+from __future__ import annotations
 
-__all__ = ['ParticleSizeDistribution', 'ParticleSizeDistributionContinuous',
-           'PSDLognormal', 'PSDGatesGaudinSchuhman', 'PSDRosinRammler',
-           'PSDInterpolated', 'PSDCustom',
-           'psd_spacing',
-
-           'pdf_lognormal', 'cdf_lognormal', 'pdf_lognormal_basis_integral',
-
-           'pdf_Gates_Gaudin_Schuhman', 'cdf_Gates_Gaudin_Schuhman',
-           'pdf_Gates_Gaudin_Schuhman_basis_integral',
-
-           'pdf_Rosin_Rammler', 'cdf_Rosin_Rammler',
-           'pdf_Rosin_Rammler_basis_integral',
-
-           'ASTM_E11_sieves', 'ISO_3310_1_sieves', 'Sieve',
-           'ISO_3310_1_R20_3', 'ISO_3310_1_R20', 'ISO_3310_1_R10',
-           'ISO_3310_1_R40_3']
+__all__: list[str] = [
+    "ISO_3310_1_R10",
+    "ISO_3310_1_R20",
+    "ISO_3310_1_R20_3",
+    "ISO_3310_1_R40_3",
+    "ASTM_E11_sieves",
+    "ISO_3310_1_sieves",
+    "PSDCustom",
+    "PSDGatesGaudinSchuhman",
+    "PSDInterpolated",
+    "PSDLognormal",
+    "PSDRosinRammler",
+    "ParticleSizeDistribution",
+    "ParticleSizeDistributionContinuous",
+    "Sieve",
+    "cdf_Gates_Gaudin_Schuhman",
+    "cdf_Rosin_Rammler",
+    "cdf_lognormal",
+    "pdf_Gates_Gaudin_Schuhman",
+    "pdf_Gates_Gaudin_Schuhman_basis_integral",
+    "pdf_Rosin_Rammler",
+    "pdf_Rosin_Rammler_basis_integral",
+    "pdf_lognormal",
+    "pdf_lognormal_basis_integral",
+    "psd_spacing",
+]
 
 from math import exp, log, log10, pi, sqrt
+from typing import Callable
 
 from fluids.numerics import brenth, cumsum, diff, epsilon, erf, gamma, gammaincc, linspace, logspace, normalize, quad
+from fluids.numerics import numpy as np
 
 ROOT_TWO_PI = sqrt(2.0*pi)
 
-NO_MATPLOTLIB_MSG = 'Optional dependency matplotlib is required for plotting'
+NO_MATPLOTLIB_MSG = "Optional dependency matplotlib is required for plotting"
 
 
 class Sieve:
@@ -122,11 +135,11 @@ class Sieve:
     designation : str
         The standard name of the sieve - its opening's length in units of
         millimeters
+    opening : float
+        The opening length of the sieve holes, [m]
     old_designation : str
         The older, imperial-esque name of the sieve; in Numbers, or inches for
         large sieves
-    opening : float
-        The opening length of the sieve holes, [m]
     opening_inch : float
         The opening length of the sieve holes in the rounded inches as stated
         in common tables (not exactly equal to the `opening`), [inch]
@@ -165,34 +178,48 @@ class Sieve:
 
     """
 
-    __slots__ = ('designation', 'old_designation', 'opening', 'opening_inch',
-                 'Y_variation_avg', 'X_variation_max', 'max_opening',
-                 'calibration_samples', 'compliance_sd', 'inspection_samples',
-                 'inspection_sd', 'calibration_samples', 'calibration_sd',
-                 'd_wire', 'd_wire_min', 'd_wire_max', 'compliance_samples')
-
-#    def __repr__(self):
-#        s = 'Sieve(%s)'
-#        s2 = ''
-#        for attr, value in self.__dict__.items():
-#            if value is not None:
-#                if type(value) == float:
-#                    value = round(value, 8)
-#                elif type(value) == str:
-#                    value = "'" + value + "'"
-#                s2 += '%s=%s, '%(attr, value)
-#        s2 = s2[0:-2]
-#        return s %(s2)
+    __slots__ = (
+        "X_variation_max",
+        "Y_variation_avg",
+        "calibration_samples",
+        "calibration_samples",
+        "calibration_sd",
+        "compliance_samples",
+        "compliance_sd",
+        "d_wire",
+        "d_wire_max",
+        "d_wire_min",
+        "designation",
+        "inspection_samples",
+        "inspection_sd",
+        "max_opening",
+        "old_designation",
+        "opening",
+        "opening_inch",
+    )
 
     def __repr__(self):
-        return f'<Sieve, designation {self.designation} mm, opening {self.opening:g} m>'
+        s = "Sieve(%s)"
+        s2 = ""
+        for attr in self.__slots__:
+            value = getattr(self, attr)
+            if value is not None:
+                if type(value) == float:
+                    value = f"{value:g}"
+                elif type(value) == str:
+                    value = "'" + value + "'"
+                s2 += f"{attr}={value}, "
+        s2 = s2[0:-2]
+        return s %(s2)
 
-    def __init__(self, designation, old_designation=None, opening=None,
-                 opening_inch=None, Y_variation_avg=None, X_variation_max=None,
-                 max_opening=None, compliance_samples=None, compliance_sd=None,
-                 inspection_samples=None, inspection_sd=None, calibration_samples=None,
-                 calibration_sd=None, d_wire=None, d_wire_min=None, d_wire_max=None):
+    def __str__(self):
+        return f"<Sieve, designation {self.designation} mm, opening {self.opening:g} m>"
 
+    def __init__(self, designation: str, opening: float, old_designation: str | None=None,
+                 opening_inch: float | None=None, Y_variation_avg: float | None=None, X_variation_max: float | None=None,
+                 max_opening: float | None=None, compliance_samples: float | None=None, compliance_sd: float | None=None,
+                 inspection_samples: float | None=None, inspection_sd: float | None=None, calibration_samples: float | None=None,
+                 calibration_sd: float | None=None, d_wire: float | None=None, d_wire_min: float | None=None, d_wire_max: float | None=None) -> None:
         self.designation = designation
         self.old_designation = old_designation
         self.opening_inch = opening_inch
@@ -216,62 +243,62 @@ class Sieve:
         self.d_wire_max = d_wire_max
 
 
-ASTM_E11_sieves = {'0.02': Sieve(calibration_samples=300.0, d_wire_min=2e-08, d_wire=2e-08, inspection_sd=4.51, calibration_sd=4.75, old_designation='No. 635', opening=2e-05, compliance_samples=1000.0, opening_inch=8e-07, inspection_samples=100.0, designation='0.02', d_wire_max=2e-08, max_opening=0.035, X_variation_max=1.5e-05, Y_variation_avg=2.3e-06, compliance_sd=5.33),
- '0.025': Sieve(calibration_samples=300.0, d_wire_min=2e-08, d_wire=3e-08, inspection_sd=4.82, calibration_sd=5.06, old_designation='No. 500', opening=2.5e-05, compliance_samples=1000.0, opening_inch=1e-06, inspection_samples=100.0, designation='0.025', d_wire_max=3e-08, max_opening=0.041, X_variation_max=1.6e-05, Y_variation_avg=2.5e-06, compliance_sd=5.71),
- '0.032': Sieve(calibration_samples=300.0, d_wire_min=2e-08, d_wire=3e-08, inspection_sd=5.42, calibration_sd=5.71, old_designation='No. 450', opening=3.2e-05, compliance_samples=1000.0, opening_inch=1.2e-06, inspection_samples=100.0, designation='0.032', d_wire_max=3e-08, max_opening=0.05, X_variation_max=1.8e-05, Y_variation_avg=2.7e-06, compliance_sd=6.42),
- '0.038': Sieve(calibration_samples=300.0, d_wire_min=2e-08, d_wire=3e-08, inspection_sd=5.99, calibration_sd=6.31, old_designation='No. 400', opening=3.8e-05, compliance_samples=1000.0, opening_inch=1.5e-06, inspection_samples=100.0, designation='0.038', d_wire_max=3e-08, max_opening=0.058, X_variation_max=2e-05, Y_variation_avg=2.9e-06, compliance_sd=7.09),
- '0.045': Sieve(calibration_samples=250.0, d_wire_min=3e-08, d_wire=3e-08, inspection_sd=6.56, calibration_sd=6.84, old_designation='No. 325', opening=4.5e-05, compliance_samples=1000.0, opening_inch=1.7e-06, inspection_samples=100.0, designation='0.045', d_wire_max=4e-08, max_opening=0.067, X_variation_max=2.2e-05, Y_variation_avg=3.1e-06, compliance_sd=7.76),
- '0.053': Sieve(calibration_samples=250.0, d_wire_min=3e-08, d_wire=4e-08, inspection_sd=7.13, calibration_sd=7.44, old_designation='No. 270', opening=5.3e-05, compliance_samples=1000.0, opening_inch=2.1e-06, inspection_samples=100.0, designation='0.053', d_wire_max=4e-08, max_opening=0.077, X_variation_max=2.4e-05, Y_variation_avg=3.4e-06, compliance_sd=8.44),
- '0.063': Sieve(calibration_samples=250.0, d_wire_min=4e-08, d_wire=5e-08, inspection_sd=7.76, calibration_sd=8.09, old_designation='No. 230', opening=6.3e-05, compliance_samples=1000.0, opening_inch=2.5e-06, inspection_samples=100.0, designation='0.063', d_wire_max=5e-08, max_opening=0.089, X_variation_max=2.6e-05, Y_variation_avg=3.7e-06, compliance_sd=9.18),
- '0.075': Sieve(calibration_samples=250.0, d_wire_min=4e-08, d_wire=5e-08, inspection_sd=8.64, calibration_sd=9.02, old_designation='No. 200', opening=7.5e-05, compliance_samples=1000.0, opening_inch=2.9e-06, inspection_samples=100.0, designation='0.075', d_wire_max=6e-08, max_opening=0.104, X_variation_max=2.9e-05, Y_variation_avg=4.1e-06, compliance_sd=10.23),
- '0.09': Sieve(calibration_samples=200.0, d_wire_min=5e-08, d_wire=6e-08, inspection_sd=9.53, calibration_sd=9.8, old_designation='No. 170', opening=9e-05, compliance_samples=1000.0, opening_inch=3.5e-06, inspection_samples=100.0, designation='0.09', d_wire_max=7e-08, max_opening=0.122, X_variation_max=3.2e-05, Y_variation_avg=4.6e-06, compliance_sd=11.27),
- '0.106': Sieve(calibration_samples=200.0, d_wire_min=6e-08, d_wire=7e-08, inspection_sd=10.47, calibration_sd=10.77, old_designation='No. 140', opening=0.000106, compliance_samples=1000.0, opening_inch=4.1e-06, inspection_samples=100.0, designation='0.106', d_wire_max=8e-08, max_opening=0.141, X_variation_max=3.5e-05, Y_variation_avg=5.2e-06, compliance_sd=12.39),
- '0.125': Sieve(calibration_samples=200.0, d_wire_min=8e-08, d_wire=9e-08, inspection_sd=11.41, calibration_sd=11.74, old_designation='No. 120', opening=0.000125, compliance_samples=1000.0, opening_inch=4.9e-06, inspection_samples=100.0, designation='0.125', d_wire_max=1e-07, max_opening=0.163, X_variation_max=3.8e-05, Y_variation_avg=5.8e-06, compliance_sd=13.51),
- '0.15': Sieve(calibration_samples=200.0, d_wire_min=9e-08, d_wire=1e-07, inspection_sd=12.93, calibration_sd=13.3, old_designation='No. 100', opening=0.00015, compliance_samples=1000.0, opening_inch=5.9e-06, inspection_samples=100.0, designation='0.15', d_wire_max=1.2e-07, max_opening=0.193, X_variation_max=4.3e-05, Y_variation_avg=6.6e-06, compliance_sd=15.3),
- '0.18': Sieve(calibration_samples=200.0, d_wire_min=1.1e-07, d_wire=1.2e-07, inspection_sd=14.24, calibration_sd=14.65, old_designation='No. 80', opening=0.00018, compliance_samples=1000.0, opening_inch=7e-06, inspection_samples=100.0, designation='0.18', d_wire_max=1.5e-07, max_opening=0.227, X_variation_max=4.7e-05, Y_variation_avg=7.6e-06, compliance_sd=16.85),
- '0.212': Sieve(calibration_samples=160.0, d_wire_min=1.2e-07, d_wire=1.4e-07, inspection_sd=15.59, calibration_sd=16.08, old_designation='No. 70', opening=0.000212, compliance_samples=800.0, opening_inch=8.3e-06, inspection_samples=80.0, designation='0.212', d_wire_max=1.7e-07, max_opening=0.264, X_variation_max=5.2e-05, Y_variation_avg=8.7e-06, compliance_sd=18.79),
- '0.25': Sieve(calibration_samples=160.0, d_wire_min=1.3e-07, d_wire=1.6e-07, inspection_sd=17.44, calibration_sd=17.99, old_designation='No. 60', opening=0.00025, compliance_samples=800.0, opening_inch=9.8e-06, inspection_samples=80.0, designation='0.25', d_wire_max=1.9e-07, max_opening=0.308, X_variation_max=5.8e-05, Y_variation_avg=9.9e-06, compliance_sd=21.02),
- '0.3': Sieve(calibration_samples=160.0, d_wire_min=1.7e-07, d_wire=2e-07, inspection_sd=19.66, calibration_sd=20.29, old_designation='No. 50', opening=0.0003, compliance_samples=800.0, opening_inch=1.17e-05, inspection_samples=80.0, designation='0.3', d_wire_max=2.3e-07, max_opening=0.365, X_variation_max=6.5e-05, Y_variation_avg=1.15e-05, compliance_sd=23.7),
- '0.355': Sieve(calibration_samples=160.0, d_wire_min=1.9e-07, d_wire=2.2e-07, inspection_sd=21.95, calibration_sd=22.64, old_designation='No. 45', opening=0.000355, compliance_samples=800.0, opening_inch=1.39e-05, inspection_samples=80.0, designation='0.355', d_wire_max=2.6e-07, max_opening=0.427, X_variation_max=7.2e-05, Y_variation_avg=1.33e-05, compliance_sd=26.45),
- '0.425': Sieve(calibration_samples=120.0, d_wire_min=2.4e-07, d_wire=2.8e-07, inspection_sd=24.2, calibration_sd=25.08, old_designation='No. 40', opening=0.000425, compliance_samples=600.0, opening_inch=1.65e-05, inspection_samples=60.0, designation='0.425', d_wire_max=3.2e-07, max_opening=0.506, X_variation_max=8.1e-05, Y_variation_avg=1.55e-05, compliance_sd=29.95),
- '0.5': Sieve(calibration_samples=120.0, d_wire_min=2.7e-07, d_wire=3.2e-07, inspection_sd=26.85, calibration_sd=27.82, old_designation='No. 35', opening=0.0005, compliance_samples=600.0, opening_inch=1.97e-05, inspection_samples=60.0, designation='0.5', d_wire_max=3.6e-07, max_opening=0.589, X_variation_max=8.9e-05, Y_variation_avg=1.8e-05, compliance_sd=33.23),
- '0.6': Sieve(calibration_samples=100.0, d_wire_min=3.4e-07, d_wire=4e-07, inspection_sd=30.14, calibration_sd=31.32, old_designation='No. 30', opening=0.0006, compliance_samples=500.0, opening_inch=2.34e-05, inspection_samples=50.0, designation='0.6', d_wire_max=4.6e-07, max_opening=0.701, X_variation_max=0.000101, Y_variation_avg=2.12e-05, compliance_sd=38.0),
- '0.71': Sieve(calibration_samples=100.0, d_wire_min=3.8e-07, d_wire=4.5e-07, inspection_sd=33.82, calibration_sd=35.14, old_designation='No. 25', opening=0.00071, compliance_samples=500.0, opening_inch=2.78e-05, inspection_samples=50.0, designation='0.71', d_wire_max=5.2e-07, max_opening=0.822, X_variation_max=0.000112, Y_variation_avg=2.47e-05, compliance_sd=42.63),
- '0.85': Sieve(calibration_samples=80.0, d_wire_min=4.3e-07, d_wire=5e-07, inspection_sd=37.73, calibration_sd=39.36, old_designation='No. 20', opening=0.00085, compliance_samples=400.0, opening_inch=3.31e-05, inspection_samples=40.0, designation='0.85', d_wire_max=5.8e-07, max_opening=0.977, X_variation_max=0.000127, Y_variation_avg=2.91e-05, compliance_sd=48.76),
- '1': Sieve(calibration_samples=80.0, d_wire_min=0.00048, d_wire=0.00056, inspection_sd=0.042, calibration_sd=0.044, old_designation='No. 18', opening=0.001, compliance_samples=400.0, opening_inch=3.94e-05, inspection_samples=40.0, designation='1', d_wire_max=0.00064, max_opening=1.14, X_variation_max=0.00014, Y_variation_avg=3.4e-05, compliance_sd=0.055),
- '1.18': Sieve(calibration_samples=80.0, d_wire_min=0.00054, d_wire=0.00063, inspection_sd=0.049, calibration_sd=0.051, old_designation='No. 16', opening=0.00118, compliance_samples=400.0, opening_inch=4.69e-05, inspection_samples=40.0, designation='1.18', d_wire_max=0.00072, max_opening=1.34, X_variation_max=0.00016, Y_variation_avg=4e-05, compliance_sd=0.063),
- '1.4': Sieve(calibration_samples=80.0, d_wire_min=0.0006, d_wire=0.00071, inspection_sd=0.055, calibration_sd=0.057, old_designation='No. 14', opening=0.0014, compliance_samples=400.0, opening_inch=5.55e-05, inspection_samples=40.0, designation='1.4', d_wire_max=0.00082, max_opening=1.58, X_variation_max=0.00018, Y_variation_avg=4.6e-05, compliance_sd=0.071),
- '1.7': Sieve(calibration_samples=50.0, d_wire_min=0.00068, d_wire=0.0008, inspection_sd=0.059, calibration_sd=0.062, old_designation='No. 12', opening=0.0017, compliance_samples=250.0, opening_inch=6.61e-05, inspection_samples=25.0, designation='1.7', d_wire_max=0.00092, max_opening=1.9, X_variation_max=0.0002, Y_variation_avg=5.6e-05, compliance_sd=0.081),
- '100': Sieve(d_wire_min=0.0054, d_wire=0.0063, old_designation='4 in.', opening=0.1, compliance_samples=20.0, opening_inch=0.004, designation='100', d_wire_max=0.0072, max_opening=103.82, X_variation_max=0.00382, Y_variation_avg=0.00294),
- '106': Sieve(d_wire_min=0.0054, d_wire=0.0063, old_designation='4.24 in.', opening=0.106, compliance_samples=20.0, opening_inch=0.00424, designation='106', d_wire_max=0.0072, max_opening=109.99, X_variation_max=0.00399, Y_variation_avg=0.00312),
- '11.2': Sieve(calibration_samples=30.0, d_wire_min=0.0021, d_wire=0.0025, inspection_sd=0.256, calibration_sd=0.274, old_designation='7/16 in.', opening=0.0112, compliance_samples=150.0, opening_inch=0.000438, inspection_samples=15.0, designation='11.2', d_wire_max=0.0029, max_opening=11.97, X_variation_max=0.00077, Y_variation_avg=0.000346, compliance_sd=0.382),
- '12.5': Sieve(calibration_samples=30.0, d_wire_min=0.0021, d_wire=0.0025, inspection_sd=0.283, calibration_sd=0.302, old_designation='1/2 in.', opening=0.0125, compliance_samples=150.0, opening_inch=0.0005, inspection_samples=15.0, designation='12.5', d_wire_max=0.0029, max_opening=13.33, X_variation_max=0.00083, Y_variation_avg=0.000385, compliance_sd=0.421),
- '125': Sieve(d_wire_min=0.0068, d_wire=0.008, old_designation='5 in.', opening=0.125, compliance_samples=20.0, opening_inch=0.005, designation='125', d_wire_max=0.0092, max_opening=129.51, X_variation_max=0.00451, Y_variation_avg=0.00366),
- '13.2': Sieve(calibration_samples=30.0, d_wire_min=0.0024, d_wire=0.0028, inspection_sd=0.296, calibration_sd=0.316, old_designation='0.530 in.', opening=0.0132, compliance_samples=150.0, opening_inch=0.00053, inspection_samples=15.0, designation='13.2', d_wire_max=0.0032, max_opening=14.06, X_variation_max=0.00086, Y_variation_avg=0.000406, compliance_sd=0.441),
- '16': Sieve(calibration_samples=30.0, d_wire_min=0.0027, d_wire=0.00315, inspection_sd=0.354, calibration_sd=0.378, old_designation='5/8 in.', opening=0.016, compliance_samples=150.0, opening_inch=0.000625, inspection_samples=15.0, designation='16', d_wire_max=0.0036, max_opening=16.99, X_variation_max=0.00099, Y_variation_avg=0.00049, compliance_sd=0.527),
- '19': Sieve(calibration_samples=30.0, d_wire_min=0.0027, d_wire=0.00315, inspection_sd=0.418, calibration_sd=0.446, old_designation='3/4 in.', opening=0.019, compliance_samples=150.0, opening_inch=0.00075, inspection_samples=15.0, designation='19', d_wire_max=0.0035, max_opening=20.13, X_variation_max=0.00113, Y_variation_avg=0.000579, compliance_sd=0.622),
- '2': Sieve(calibration_samples=50.0, d_wire_min=0.00077, d_wire=0.0009, inspection_sd=0.068, calibration_sd=0.072, old_designation='No. 10', opening=0.002, compliance_samples=250.0, opening_inch=7.87e-05, inspection_samples=25.0, designation='2', d_wire_max=0.00104, max_opening=2.23, X_variation_max=0.00023, Y_variation_avg=6.5e-05, compliance_sd=0.094),
- '2.36': Sieve(calibration_samples=40.0, d_wire_min=0.00085, d_wire=0.001, inspection_sd=0.073, calibration_sd=0.077, old_designation='No. 8', opening=0.00236, compliance_samples=200.0, opening_inch=9.37e-05, inspection_samples=20.0, designation='2.36', d_wire_max=0.00115, max_opening=2.61, X_variation_max=0.00025, Y_variation_avg=7.6e-05, compliance_sd=0.104),
- '2.8': Sieve(calibration_samples=40.0, d_wire_min=0.00095, d_wire=0.00112, inspection_sd=0.085, calibration_sd=0.09, old_designation='No. 7', opening=0.0028, compliance_samples=200.0, opening_inch=0.00011, inspection_samples=20.0, designation='2.8', d_wire_max=0.0013, max_opening=3.09, X_variation_max=0.00029, Y_variation_avg=9e-05, compliance_sd=0.121),
- '22.4': Sieve(d_wire_min=0.003, d_wire=0.00355, inspection_sd=0.493, old_designation='7/8 in.', opening=0.0224, compliance_samples=150.0, opening_inch=0.000875, inspection_samples=15.0, designation='22.4', d_wire_max=0.0041, max_opening=23.67, X_variation_max=0.00127, Y_variation_avg=0.000681, compliance_sd=0.734),
- '25': Sieve(d_wire_min=0.003, d_wire=0.00355, inspection_sd=0.553, old_designation='1.00 in.', opening=0.025, compliance_samples=20.0, opening_inch=0.001, inspection_samples=15.0, designation='25', d_wire_max=0.0041, max_opening=26.38, X_variation_max=0.00138, Y_variation_avg=0.000758, compliance_sd=0.823),
- '26.5': Sieve(d_wire_min=0.003, d_wire=0.00355, inspection_sd=0.584, old_designation='1.06 in.', opening=0.0265, compliance_samples=20.0, opening_inch=0.00106, inspection_samples=15.0, designation='26.5', d_wire_max=0.0041, max_opening=27.94, X_variation_max=0.00144, Y_variation_avg=0.000802, compliance_sd=0.869),
- '3.35': Sieve(calibration_samples=40.0, d_wire_min=0.00106, d_wire=0.00125, inspection_sd=0.097, calibration_sd=0.103, old_designation='No. 6', opening=0.00335, compliance_samples=200.0, opening_inch=0.000132, inspection_samples=20.0, designation='3.35', d_wire_max=0.0015, max_opening=3.67, X_variation_max=0.00032, Y_variation_avg=0.000107, compliance_sd=0.138),
- '31.5': Sieve(d_wire_min=0.0034, d_wire=0.004, old_designation='1 1/4 in.', opening=0.0315, compliance_samples=20.0, opening_inch=0.00125, designation='31.5', d_wire_max=0.0046, max_opening=33.13, X_variation_max=0.00163, Y_variation_avg=0.00095, compliance_sd=1.066),
- '37.5': Sieve(d_wire_min=0.0038, d_wire=0.0045, old_designation='1 1/2 in.', opening=0.0375, compliance_samples=20.0, opening_inch=0.0015, designation='37.5', d_wire_max=0.0052, max_opening=39.35, X_variation_max=0.00185, Y_variation_avg=0.00113, compliance_sd=1.374),
- '4': Sieve(calibration_samples=30.0, d_wire_min=0.0012, d_wire=0.0014, inspection_sd=0.108, calibration_sd=0.115, old_designation='No. 5', opening=0.004, compliance_samples=150.0, opening_inch=0.000157, inspection_samples=15.0, designation='4', d_wire_max=0.0017, max_opening=4.37, X_variation_max=0.00037, Y_variation_avg=0.000127, compliance_sd=0.161),
- '4.75': Sieve(calibration_samples=30.0, d_wire_min=0.0013, d_wire=0.0016, inspection_sd=0.123, calibration_sd=0.131, old_designation='No. 4', opening=0.00475, compliance_samples=150.0, opening_inch=0.000187, inspection_samples=15.0, designation='4.75', d_wire_max=0.0019, max_opening=5.16, X_variation_max=0.00041, Y_variation_avg=0.00015, compliance_sd=0.182),
- '45': Sieve(d_wire_min=0.0038, d_wire=0.0045, old_designation='1 3/4 in.', opening=0.045, compliance_samples=20.0, opening_inch=0.00175, designation='45', d_wire_max=0.0052, max_opening=47.12, X_variation_max=0.00212, Y_variation_avg=0.00135),
- '5.6': Sieve(calibration_samples=30.0, d_wire_min=0.0013, d_wire=0.0016, inspection_sd=0.142, calibration_sd=0.151, old_designation='No. 3 1/2', opening=0.0056, compliance_samples=150.0, opening_inch=0.000223, inspection_samples=15.0, designation='5.6', d_wire_max=0.0019, max_opening=6.07, X_variation_max=0.00047, Y_variation_avg=0.000176, compliance_sd=0.211),
- '50': Sieve(d_wire_min=0.0043, d_wire=0.005, old_designation='2 in.', opening=0.05, compliance_samples=20.0, opening_inch=0.002, designation='50', d_wire_max=0.0058, max_opening=52.29, X_variation_max=0.00229, Y_variation_avg=0.00149),
- '53': Sieve(d_wire_min=0.0043, d_wire=0.005, old_designation='2.12 in.', opening=0.053, compliance_samples=20.0, opening_inch=0.00212, designation='53', d_wire_max=0.0058, max_opening=55.39, X_variation_max=0.00239, Y_variation_avg=0.00158),
- '6.3': Sieve(calibration_samples=30.0, d_wire_min=0.0015, d_wire=0.0018, inspection_sd=0.157, calibration_sd=0.167, old_designation='1/4 in.', opening=0.0063, compliance_samples=150.0, opening_inch=0.00025, inspection_samples=15.0, designation='6.3', d_wire_max=0.0021, max_opening=6.81, X_variation_max=0.00051, Y_variation_avg=0.000197, compliance_sd=0.233),
- '6.7': Sieve(calibration_samples=30.0, d_wire_min=0.0015, d_wire=0.0018, inspection_sd=0.164, calibration_sd=0.175, old_designation='0.265 in.', opening=0.0067, compliance_samples=150.0, opening_inch=0.000265, inspection_samples=15.0, designation='6.7', d_wire_max=0.0021, max_opening=7.23, X_variation_max=0.00053, Y_variation_avg=0.00021, compliance_sd=0.245),
- '63': Sieve(d_wire_min=0.0048, d_wire=0.0056, old_designation='2 1/2 in.', opening=0.063, compliance_samples=20.0, opening_inch=0.0025, designation='63', d_wire_max=0.0064, max_opening=65.71, X_variation_max=0.00271, Y_variation_avg=0.00187),
- '75': Sieve(d_wire_min=0.0054, d_wire=0.0063, old_designation='3 in.', opening=0.075, compliance_samples=20.0, opening_inch=0.003, designation='75', d_wire_max=0.0072, max_opening=78.09, X_variation_max=0.00309, Y_variation_avg=0.00222),
- '8': Sieve(calibration_samples=30.0, d_wire_min=0.0017, d_wire=0.002, inspection_sd=0.191, calibration_sd=0.204, old_designation='5/16 in.', opening=0.008, compliance_samples=150.0, opening_inch=0.000312, inspection_samples=15.0, designation='8', d_wire_max=0.0023, max_opening=8.6, X_variation_max=0.0006, Y_variation_avg=0.000249, compliance_sd=0.284),
- '9.5': Sieve(calibration_samples=30.0, d_wire_min=0.0019, d_wire=0.00224, inspection_sd=0.222, calibration_sd=0.237, old_designation='3/8 in.', opening=0.0095, compliance_samples=150.0, opening_inch=0.000375, inspection_samples=15.0, designation='9.5', d_wire_max=0.0026, max_opening=10.18, X_variation_max=0.00068, Y_variation_avg=0.000295, compliance_sd=0.33),
- '90': Sieve(d_wire_min=0.0054, d_wire=0.0063, old_designation='3 1/2 in.', opening=0.09, compliance_samples=20.0, opening_inch=0.0035, designation='90', d_wire_max=0.0072, max_opening=93.53, X_variation_max=0.00353, Y_variation_avg=0.00265)
+ASTM_E11_sieves = {"0.02": Sieve(calibration_samples=300.0, d_wire_min=2e-08, d_wire=2e-08, inspection_sd=4.51, calibration_sd=4.75, old_designation="No. 635", opening=2e-05, compliance_samples=1000.0, opening_inch=8e-07, inspection_samples=100.0, designation="0.02", d_wire_max=2e-08, max_opening=0.035, X_variation_max=1.5e-05, Y_variation_avg=2.3e-06, compliance_sd=5.33),
+ "0.025": Sieve(calibration_samples=300.0, d_wire_min=2e-08, d_wire=3e-08, inspection_sd=4.82, calibration_sd=5.06, old_designation="No. 500", opening=2.5e-05, compliance_samples=1000.0, opening_inch=1e-06, inspection_samples=100.0, designation="0.025", d_wire_max=3e-08, max_opening=0.041, X_variation_max=1.6e-05, Y_variation_avg=2.5e-06, compliance_sd=5.71),
+ "0.032": Sieve(calibration_samples=300.0, d_wire_min=2e-08, d_wire=3e-08, inspection_sd=5.42, calibration_sd=5.71, old_designation="No. 450", opening=3.2e-05, compliance_samples=1000.0, opening_inch=1.2e-06, inspection_samples=100.0, designation="0.032", d_wire_max=3e-08, max_opening=0.05, X_variation_max=1.8e-05, Y_variation_avg=2.7e-06, compliance_sd=6.42),
+ "0.038": Sieve(calibration_samples=300.0, d_wire_min=2e-08, d_wire=3e-08, inspection_sd=5.99, calibration_sd=6.31, old_designation="No. 400", opening=3.8e-05, compliance_samples=1000.0, opening_inch=1.5e-06, inspection_samples=100.0, designation="0.038", d_wire_max=3e-08, max_opening=0.058, X_variation_max=2e-05, Y_variation_avg=2.9e-06, compliance_sd=7.09),
+ "0.045": Sieve(calibration_samples=250.0, d_wire_min=3e-08, d_wire=3e-08, inspection_sd=6.56, calibration_sd=6.84, old_designation="No. 325", opening=4.5e-05, compliance_samples=1000.0, opening_inch=1.7e-06, inspection_samples=100.0, designation="0.045", d_wire_max=4e-08, max_opening=0.067, X_variation_max=2.2e-05, Y_variation_avg=3.1e-06, compliance_sd=7.76),
+ "0.053": Sieve(calibration_samples=250.0, d_wire_min=3e-08, d_wire=4e-08, inspection_sd=7.13, calibration_sd=7.44, old_designation="No. 270", opening=5.3e-05, compliance_samples=1000.0, opening_inch=2.1e-06, inspection_samples=100.0, designation="0.053", d_wire_max=4e-08, max_opening=0.077, X_variation_max=2.4e-05, Y_variation_avg=3.4e-06, compliance_sd=8.44),
+ "0.063": Sieve(calibration_samples=250.0, d_wire_min=4e-08, d_wire=5e-08, inspection_sd=7.76, calibration_sd=8.09, old_designation="No. 230", opening=6.3e-05, compliance_samples=1000.0, opening_inch=2.5e-06, inspection_samples=100.0, designation="0.063", d_wire_max=5e-08, max_opening=0.089, X_variation_max=2.6e-05, Y_variation_avg=3.7e-06, compliance_sd=9.18),
+ "0.075": Sieve(calibration_samples=250.0, d_wire_min=4e-08, d_wire=5e-08, inspection_sd=8.64, calibration_sd=9.02, old_designation="No. 200", opening=7.5e-05, compliance_samples=1000.0, opening_inch=2.9e-06, inspection_samples=100.0, designation="0.075", d_wire_max=6e-08, max_opening=0.104, X_variation_max=2.9e-05, Y_variation_avg=4.1e-06, compliance_sd=10.23),
+ "0.09": Sieve(calibration_samples=200.0, d_wire_min=5e-08, d_wire=6e-08, inspection_sd=9.53, calibration_sd=9.8, old_designation="No. 170", opening=9e-05, compliance_samples=1000.0, opening_inch=3.5e-06, inspection_samples=100.0, designation="0.09", d_wire_max=7e-08, max_opening=0.122, X_variation_max=3.2e-05, Y_variation_avg=4.6e-06, compliance_sd=11.27),
+ "0.106": Sieve(calibration_samples=200.0, d_wire_min=6e-08, d_wire=7e-08, inspection_sd=10.47, calibration_sd=10.77, old_designation="No. 140", opening=0.000106, compliance_samples=1000.0, opening_inch=4.1e-06, inspection_samples=100.0, designation="0.106", d_wire_max=8e-08, max_opening=0.141, X_variation_max=3.5e-05, Y_variation_avg=5.2e-06, compliance_sd=12.39),
+ "0.125": Sieve(calibration_samples=200.0, d_wire_min=8e-08, d_wire=9e-08, inspection_sd=11.41, calibration_sd=11.74, old_designation="No. 120", opening=0.000125, compliance_samples=1000.0, opening_inch=4.9e-06, inspection_samples=100.0, designation="0.125", d_wire_max=1e-07, max_opening=0.163, X_variation_max=3.8e-05, Y_variation_avg=5.8e-06, compliance_sd=13.51),
+ "0.15": Sieve(calibration_samples=200.0, d_wire_min=9e-08, d_wire=1e-07, inspection_sd=12.93, calibration_sd=13.3, old_designation="No. 100", opening=0.00015, compliance_samples=1000.0, opening_inch=5.9e-06, inspection_samples=100.0, designation="0.15", d_wire_max=1.2e-07, max_opening=0.193, X_variation_max=4.3e-05, Y_variation_avg=6.6e-06, compliance_sd=15.3),
+ "0.18": Sieve(calibration_samples=200.0, d_wire_min=1.1e-07, d_wire=1.2e-07, inspection_sd=14.24, calibration_sd=14.65, old_designation="No. 80", opening=0.00018, compliance_samples=1000.0, opening_inch=7e-06, inspection_samples=100.0, designation="0.18", d_wire_max=1.5e-07, max_opening=0.227, X_variation_max=4.7e-05, Y_variation_avg=7.6e-06, compliance_sd=16.85),
+ "0.212": Sieve(calibration_samples=160.0, d_wire_min=1.2e-07, d_wire=1.4e-07, inspection_sd=15.59, calibration_sd=16.08, old_designation="No. 70", opening=0.000212, compliance_samples=800.0, opening_inch=8.3e-06, inspection_samples=80.0, designation="0.212", d_wire_max=1.7e-07, max_opening=0.264, X_variation_max=5.2e-05, Y_variation_avg=8.7e-06, compliance_sd=18.79),
+ "0.25": Sieve(calibration_samples=160.0, d_wire_min=1.3e-07, d_wire=1.6e-07, inspection_sd=17.44, calibration_sd=17.99, old_designation="No. 60", opening=0.00025, compliance_samples=800.0, opening_inch=9.8e-06, inspection_samples=80.0, designation="0.25", d_wire_max=1.9e-07, max_opening=0.308, X_variation_max=5.8e-05, Y_variation_avg=9.9e-06, compliance_sd=21.02),
+ "0.3": Sieve(calibration_samples=160.0, d_wire_min=1.7e-07, d_wire=2e-07, inspection_sd=19.66, calibration_sd=20.29, old_designation="No. 50", opening=0.0003, compliance_samples=800.0, opening_inch=1.17e-05, inspection_samples=80.0, designation="0.3", d_wire_max=2.3e-07, max_opening=0.365, X_variation_max=6.5e-05, Y_variation_avg=1.15e-05, compliance_sd=23.7),
+ "0.355": Sieve(calibration_samples=160.0, d_wire_min=1.9e-07, d_wire=2.2e-07, inspection_sd=21.95, calibration_sd=22.64, old_designation="No. 45", opening=0.000355, compliance_samples=800.0, opening_inch=1.39e-05, inspection_samples=80.0, designation="0.355", d_wire_max=2.6e-07, max_opening=0.427, X_variation_max=7.2e-05, Y_variation_avg=1.33e-05, compliance_sd=26.45),
+ "0.425": Sieve(calibration_samples=120.0, d_wire_min=2.4e-07, d_wire=2.8e-07, inspection_sd=24.2, calibration_sd=25.08, old_designation="No. 40", opening=0.000425, compliance_samples=600.0, opening_inch=1.65e-05, inspection_samples=60.0, designation="0.425", d_wire_max=3.2e-07, max_opening=0.506, X_variation_max=8.1e-05, Y_variation_avg=1.55e-05, compliance_sd=29.95),
+ "0.5": Sieve(calibration_samples=120.0, d_wire_min=2.7e-07, d_wire=3.2e-07, inspection_sd=26.85, calibration_sd=27.82, old_designation="No. 35", opening=0.0005, compliance_samples=600.0, opening_inch=1.97e-05, inspection_samples=60.0, designation="0.5", d_wire_max=3.6e-07, max_opening=0.589, X_variation_max=8.9e-05, Y_variation_avg=1.8e-05, compliance_sd=33.23),
+ "0.6": Sieve(calibration_samples=100.0, d_wire_min=3.4e-07, d_wire=4e-07, inspection_sd=30.14, calibration_sd=31.32, old_designation="No. 30", opening=0.0006, compliance_samples=500.0, opening_inch=2.34e-05, inspection_samples=50.0, designation="0.6", d_wire_max=4.6e-07, max_opening=0.701, X_variation_max=0.000101, Y_variation_avg=2.12e-05, compliance_sd=38.0),
+ "0.71": Sieve(calibration_samples=100.0, d_wire_min=3.8e-07, d_wire=4.5e-07, inspection_sd=33.82, calibration_sd=35.14, old_designation="No. 25", opening=0.00071, compliance_samples=500.0, opening_inch=2.78e-05, inspection_samples=50.0, designation="0.71", d_wire_max=5.2e-07, max_opening=0.822, X_variation_max=0.000112, Y_variation_avg=2.47e-05, compliance_sd=42.63),
+ "0.85": Sieve(calibration_samples=80.0, d_wire_min=4.3e-07, d_wire=5e-07, inspection_sd=37.73, calibration_sd=39.36, old_designation="No. 20", opening=0.00085, compliance_samples=400.0, opening_inch=3.31e-05, inspection_samples=40.0, designation="0.85", d_wire_max=5.8e-07, max_opening=0.977, X_variation_max=0.000127, Y_variation_avg=2.91e-05, compliance_sd=48.76),
+ "1": Sieve(calibration_samples=80.0, d_wire_min=0.00048, d_wire=0.00056, inspection_sd=0.042, calibration_sd=0.044, old_designation="No. 18", opening=0.001, compliance_samples=400.0, opening_inch=3.94e-05, inspection_samples=40.0, designation="1", d_wire_max=0.00064, max_opening=1.14, X_variation_max=0.00014, Y_variation_avg=3.4e-05, compliance_sd=0.055),
+ "1.18": Sieve(calibration_samples=80.0, d_wire_min=0.00054, d_wire=0.00063, inspection_sd=0.049, calibration_sd=0.051, old_designation="No. 16", opening=0.00118, compliance_samples=400.0, opening_inch=4.69e-05, inspection_samples=40.0, designation="1.18", d_wire_max=0.00072, max_opening=1.34, X_variation_max=0.00016, Y_variation_avg=4e-05, compliance_sd=0.063),
+ "1.4": Sieve(calibration_samples=80.0, d_wire_min=0.0006, d_wire=0.00071, inspection_sd=0.055, calibration_sd=0.057, old_designation="No. 14", opening=0.0014, compliance_samples=400.0, opening_inch=5.55e-05, inspection_samples=40.0, designation="1.4", d_wire_max=0.00082, max_opening=1.58, X_variation_max=0.00018, Y_variation_avg=4.6e-05, compliance_sd=0.071),
+ "1.7": Sieve(calibration_samples=50.0, d_wire_min=0.00068, d_wire=0.0008, inspection_sd=0.059, calibration_sd=0.062, old_designation="No. 12", opening=0.0017, compliance_samples=250.0, opening_inch=6.61e-05, inspection_samples=25.0, designation="1.7", d_wire_max=0.00092, max_opening=1.9, X_variation_max=0.0002, Y_variation_avg=5.6e-05, compliance_sd=0.081),
+ "100": Sieve(d_wire_min=0.0054, d_wire=0.0063, old_designation="4 in.", opening=0.1, compliance_samples=20.0, opening_inch=0.004, designation="100", d_wire_max=0.0072, max_opening=103.82, X_variation_max=0.00382, Y_variation_avg=0.00294),
+ "106": Sieve(d_wire_min=0.0054, d_wire=0.0063, old_designation="4.24 in.", opening=0.106, compliance_samples=20.0, opening_inch=0.00424, designation="106", d_wire_max=0.0072, max_opening=109.99, X_variation_max=0.00399, Y_variation_avg=0.00312),
+ "11.2": Sieve(calibration_samples=30.0, d_wire_min=0.0021, d_wire=0.0025, inspection_sd=0.256, calibration_sd=0.274, old_designation="7/16 in.", opening=0.0112, compliance_samples=150.0, opening_inch=0.000438, inspection_samples=15.0, designation="11.2", d_wire_max=0.0029, max_opening=11.97, X_variation_max=0.00077, Y_variation_avg=0.000346, compliance_sd=0.382),
+ "12.5": Sieve(calibration_samples=30.0, d_wire_min=0.0021, d_wire=0.0025, inspection_sd=0.283, calibration_sd=0.302, old_designation="1/2 in.", opening=0.0125, compliance_samples=150.0, opening_inch=0.0005, inspection_samples=15.0, designation="12.5", d_wire_max=0.0029, max_opening=13.33, X_variation_max=0.00083, Y_variation_avg=0.000385, compliance_sd=0.421),
+ "125": Sieve(d_wire_min=0.0068, d_wire=0.008, old_designation="5 in.", opening=0.125, compliance_samples=20.0, opening_inch=0.005, designation="125", d_wire_max=0.0092, max_opening=129.51, X_variation_max=0.00451, Y_variation_avg=0.00366),
+ "13.2": Sieve(calibration_samples=30.0, d_wire_min=0.0024, d_wire=0.0028, inspection_sd=0.296, calibration_sd=0.316, old_designation="0.530 in.", opening=0.0132, compliance_samples=150.0, opening_inch=0.00053, inspection_samples=15.0, designation="13.2", d_wire_max=0.0032, max_opening=14.06, X_variation_max=0.00086, Y_variation_avg=0.000406, compliance_sd=0.441),
+ "16": Sieve(calibration_samples=30.0, d_wire_min=0.0027, d_wire=0.00315, inspection_sd=0.354, calibration_sd=0.378, old_designation="5/8 in.", opening=0.016, compliance_samples=150.0, opening_inch=0.000625, inspection_samples=15.0, designation="16", d_wire_max=0.0036, max_opening=16.99, X_variation_max=0.00099, Y_variation_avg=0.00049, compliance_sd=0.527),
+ "19": Sieve(calibration_samples=30.0, d_wire_min=0.0027, d_wire=0.00315, inspection_sd=0.418, calibration_sd=0.446, old_designation="3/4 in.", opening=0.019, compliance_samples=150.0, opening_inch=0.00075, inspection_samples=15.0, designation="19", d_wire_max=0.0035, max_opening=20.13, X_variation_max=0.00113, Y_variation_avg=0.000579, compliance_sd=0.622),
+ "2": Sieve(calibration_samples=50.0, d_wire_min=0.00077, d_wire=0.0009, inspection_sd=0.068, calibration_sd=0.072, old_designation="No. 10", opening=0.002, compliance_samples=250.0, opening_inch=7.87e-05, inspection_samples=25.0, designation="2", d_wire_max=0.00104, max_opening=2.23, X_variation_max=0.00023, Y_variation_avg=6.5e-05, compliance_sd=0.094),
+ "2.36": Sieve(calibration_samples=40.0, d_wire_min=0.00085, d_wire=0.001, inspection_sd=0.073, calibration_sd=0.077, old_designation="No. 8", opening=0.00236, compliance_samples=200.0, opening_inch=9.37e-05, inspection_samples=20.0, designation="2.36", d_wire_max=0.00115, max_opening=2.61, X_variation_max=0.00025, Y_variation_avg=7.6e-05, compliance_sd=0.104),
+ "2.8": Sieve(calibration_samples=40.0, d_wire_min=0.00095, d_wire=0.00112, inspection_sd=0.085, calibration_sd=0.09, old_designation="No. 7", opening=0.0028, compliance_samples=200.0, opening_inch=0.00011, inspection_samples=20.0, designation="2.8", d_wire_max=0.0013, max_opening=3.09, X_variation_max=0.00029, Y_variation_avg=9e-05, compliance_sd=0.121),
+ "22.4": Sieve(d_wire_min=0.003, d_wire=0.00355, inspection_sd=0.493, old_designation="7/8 in.", opening=0.0224, compliance_samples=150.0, opening_inch=0.000875, inspection_samples=15.0, designation="22.4", d_wire_max=0.0041, max_opening=23.67, X_variation_max=0.00127, Y_variation_avg=0.000681, compliance_sd=0.734),
+ "25": Sieve(d_wire_min=0.003, d_wire=0.00355, inspection_sd=0.553, old_designation="1.00 in.", opening=0.025, compliance_samples=20.0, opening_inch=0.001, inspection_samples=15.0, designation="25", d_wire_max=0.0041, max_opening=26.38, X_variation_max=0.00138, Y_variation_avg=0.000758, compliance_sd=0.823),
+ "26.5": Sieve(d_wire_min=0.003, d_wire=0.00355, inspection_sd=0.584, old_designation="1.06 in.", opening=0.0265, compliance_samples=20.0, opening_inch=0.00106, inspection_samples=15.0, designation="26.5", d_wire_max=0.0041, max_opening=27.94, X_variation_max=0.00144, Y_variation_avg=0.000802, compliance_sd=0.869),
+ "3.35": Sieve(calibration_samples=40.0, d_wire_min=0.00106, d_wire=0.00125, inspection_sd=0.097, calibration_sd=0.103, old_designation="No. 6", opening=0.00335, compliance_samples=200.0, opening_inch=0.000132, inspection_samples=20.0, designation="3.35", d_wire_max=0.0015, max_opening=3.67, X_variation_max=0.00032, Y_variation_avg=0.000107, compliance_sd=0.138),
+ "31.5": Sieve(d_wire_min=0.0034, d_wire=0.004, old_designation="1 1/4 in.", opening=0.0315, compliance_samples=20.0, opening_inch=0.00125, designation="31.5", d_wire_max=0.0046, max_opening=33.13, X_variation_max=0.00163, Y_variation_avg=0.00095, compliance_sd=1.066),
+ "37.5": Sieve(d_wire_min=0.0038, d_wire=0.0045, old_designation="1 1/2 in.", opening=0.0375, compliance_samples=20.0, opening_inch=0.0015, designation="37.5", d_wire_max=0.0052, max_opening=39.35, X_variation_max=0.00185, Y_variation_avg=0.00113, compliance_sd=1.374),
+ "4": Sieve(calibration_samples=30.0, d_wire_min=0.0012, d_wire=0.0014, inspection_sd=0.108, calibration_sd=0.115, old_designation="No. 5", opening=0.004, compliance_samples=150.0, opening_inch=0.000157, inspection_samples=15.0, designation="4", d_wire_max=0.0017, max_opening=4.37, X_variation_max=0.00037, Y_variation_avg=0.000127, compliance_sd=0.161),
+ "4.75": Sieve(calibration_samples=30.0, d_wire_min=0.0013, d_wire=0.0016, inspection_sd=0.123, calibration_sd=0.131, old_designation="No. 4", opening=0.00475, compliance_samples=150.0, opening_inch=0.000187, inspection_samples=15.0, designation="4.75", d_wire_max=0.0019, max_opening=5.16, X_variation_max=0.00041, Y_variation_avg=0.00015, compliance_sd=0.182),
+ "45": Sieve(d_wire_min=0.0038, d_wire=0.0045, old_designation="1 3/4 in.", opening=0.045, compliance_samples=20.0, opening_inch=0.00175, designation="45", d_wire_max=0.0052, max_opening=47.12, X_variation_max=0.00212, Y_variation_avg=0.00135),
+ "5.6": Sieve(calibration_samples=30.0, d_wire_min=0.0013, d_wire=0.0016, inspection_sd=0.142, calibration_sd=0.151, old_designation="No. 3 1/2", opening=0.0056, compliance_samples=150.0, opening_inch=0.000223, inspection_samples=15.0, designation="5.6", d_wire_max=0.0019, max_opening=6.07, X_variation_max=0.00047, Y_variation_avg=0.000176, compliance_sd=0.211),
+ "50": Sieve(d_wire_min=0.0043, d_wire=0.005, old_designation="2 in.", opening=0.05, compliance_samples=20.0, opening_inch=0.002, designation="50", d_wire_max=0.0058, max_opening=52.29, X_variation_max=0.00229, Y_variation_avg=0.00149),
+ "53": Sieve(d_wire_min=0.0043, d_wire=0.005, old_designation="2.12 in.", opening=0.053, compliance_samples=20.0, opening_inch=0.00212, designation="53", d_wire_max=0.0058, max_opening=55.39, X_variation_max=0.00239, Y_variation_avg=0.00158),
+ "6.3": Sieve(calibration_samples=30.0, d_wire_min=0.0015, d_wire=0.0018, inspection_sd=0.157, calibration_sd=0.167, old_designation="1/4 in.", opening=0.0063, compliance_samples=150.0, opening_inch=0.00025, inspection_samples=15.0, designation="6.3", d_wire_max=0.0021, max_opening=6.81, X_variation_max=0.00051, Y_variation_avg=0.000197, compliance_sd=0.233),
+ "6.7": Sieve(calibration_samples=30.0, d_wire_min=0.0015, d_wire=0.0018, inspection_sd=0.164, calibration_sd=0.175, old_designation="0.265 in.", opening=0.0067, compliance_samples=150.0, opening_inch=0.000265, inspection_samples=15.0, designation="6.7", d_wire_max=0.0021, max_opening=7.23, X_variation_max=0.00053, Y_variation_avg=0.00021, compliance_sd=0.245),
+ "63": Sieve(d_wire_min=0.0048, d_wire=0.0056, old_designation="2 1/2 in.", opening=0.063, compliance_samples=20.0, opening_inch=0.0025, designation="63", d_wire_max=0.0064, max_opening=65.71, X_variation_max=0.00271, Y_variation_avg=0.00187),
+ "75": Sieve(d_wire_min=0.0054, d_wire=0.0063, old_designation="3 in.", opening=0.075, compliance_samples=20.0, opening_inch=0.003, designation="75", d_wire_max=0.0072, max_opening=78.09, X_variation_max=0.00309, Y_variation_avg=0.00222),
+ "8": Sieve(calibration_samples=30.0, d_wire_min=0.0017, d_wire=0.002, inspection_sd=0.191, calibration_sd=0.204, old_designation="5/16 in.", opening=0.008, compliance_samples=150.0, opening_inch=0.000312, inspection_samples=15.0, designation="8", d_wire_max=0.0023, max_opening=8.6, X_variation_max=0.0006, Y_variation_avg=0.000249, compliance_sd=0.284),
+ "9.5": Sieve(calibration_samples=30.0, d_wire_min=0.0019, d_wire=0.00224, inspection_sd=0.222, calibration_sd=0.237, old_designation="3/8 in.", opening=0.0095, compliance_samples=150.0, opening_inch=0.000375, inspection_samples=15.0, designation="9.5", d_wire_max=0.0026, max_opening=10.18, X_variation_max=0.00068, Y_variation_avg=0.000295, compliance_sd=0.33),
+ "90": Sieve(d_wire_min=0.0054, d_wire=0.0063, old_designation="3 1/2 in.", opening=0.09, compliance_samples=20.0, opening_inch=0.0035, designation="90", d_wire_max=0.0072, max_opening=93.53, X_variation_max=0.00353, Y_variation_avg=0.00265)
  }
 """Dictionary containing ASTM E-11 sieve series :py:func:`Sieve` objects, indexed by
 their size in mm as a string.
@@ -282,16 +309,16 @@ References
    Cloth and Test Sieves.
 """
 
-ASTM_E11_sieve_designations = ['125', '106', '100', '90', '75', '63', '53',
-                               '50', '45', '37.5', '31.5', '26.5', '25',
-                               '22.4', '19', '16', '13.2', '12.5', '11.2',
-                               '9.5', '8', '6.7', '6.3', '5.6', '4.75', '4',
-                               '3.35', '2.8', '2.36', '2', '1.7', '1.4',
-                               '1.18', '1', '0.85', '0.71', '0.6', '0.5',
-                               '0.425', '0.355', '0.3', '0.25', '0.212',
-                               '0.18', '0.15', '0.125', '0.106', '0.09',
-                               '0.075', '0.063', '0.053', '0.045', '0.038',
-                               '0.032', '0.025', '0.02']
+ASTM_E11_sieve_designations = ["125", "106", "100", "90", "75", "63", "53",
+                               "50", "45", "37.5", "31.5", "26.5", "25",
+                               "22.4", "19", "16", "13.2", "12.5", "11.2",
+                               "9.5", "8", "6.7", "6.3", "5.6", "4.75", "4",
+                               "3.35", "2.8", "2.36", "2", "1.7", "1.4",
+                               "1.18", "1", "0.85", "0.71", "0.6", "0.5",
+                               "0.425", "0.355", "0.3", "0.25", "0.212",
+                               "0.18", "0.15", "0.125", "0.106", "0.09",
+                               "0.075", "0.063", "0.053", "0.045", "0.038",
+                               "0.032", "0.025", "0.02"]
 
 ASTM_E11_sieve_list = [ASTM_E11_sieves[i] for i in ASTM_E11_sieve_designations]
 
@@ -299,105 +326,105 @@ ASTM_E11_sieve_list = [ASTM_E11_sieves[i] for i in ASTM_E11_sieve_designations]
 
 
 ISO_3310_1_sieves = {
- '0.02': Sieve(designation='0.02', d_wire_max=2.3e-05, compliance_sd=4.7e-06, X_variation_max=1.3e-05, d_wire=2e-05, Y_variation_avg=2.1e-06, d_wire_min=2.3e-05, opening=2e-05),
- '0.025': Sieve(designation='0.025', d_wire_max=2.9e-05, compliance_sd=5.2e-06, X_variation_max=1.5e-05, d_wire=2.5e-05, Y_variation_avg=2.2e-06, d_wire_min=2.9e-05, opening=2.5e-05),
- '0.032': Sieve(designation='0.032', d_wire_max=3.3e-05, compliance_sd=5.9e-06, X_variation_max=1.7e-05, d_wire=2.8e-05, Y_variation_avg=2.4e-06, d_wire_min=3.3e-05, opening=3.2e-05),
- '0.036': Sieve(designation='0.036', d_wire_max=3.5e-05, compliance_sd=6.3e-06, X_variation_max=1.8e-05, d_wire=3e-05, Y_variation_avg=2.6e-06, d_wire_min=3.5e-05, opening=3.6e-05),
- '0.038': Sieve(designation='0.038', d_wire_max=3.5e-05, compliance_sd=6.4e-06, X_variation_max=1.8e-05, d_wire=3e-05, Y_variation_avg=2.6e-06, d_wire_min=3.5e-05, opening=3.8e-05),
- '0.04': Sieve(designation='0.04', d_wire_max=3.7e-05, compliance_sd=6.5e-06, X_variation_max=1.9e-05, d_wire=3.2e-05, Y_variation_avg=2.7e-06, d_wire_min=3.7e-05, opening=4e-05),
- '0.045': Sieve(designation='0.045', d_wire_max=3.7e-05, compliance_sd=6.9e-06, X_variation_max=2e-05, d_wire=3.2e-05, Y_variation_avg=2.8e-06, d_wire_min=3.7e-05, opening=4.5e-05),
- '0.05': Sieve(designation='0.05', d_wire_max=4.1e-05, compliance_sd=7.3e-06, X_variation_max=2.1e-05, d_wire=3.6e-05, Y_variation_avg=3e-06, d_wire_min=4.1e-05, opening=5e-05),
- '0.053': Sieve(designation='0.053', d_wire_max=4.1e-05, compliance_sd=7.6e-06, X_variation_max=2.1e-05, d_wire=3.6e-05, Y_variation_avg=3.1e-06, d_wire_min=4.1e-05, opening=5.3e-05),
- '0.056': Sieve(designation='0.056', d_wire_max=4.6e-05, compliance_sd=7.8e-06, X_variation_max=2.2e-05, d_wire=4e-05, Y_variation_avg=3.2e-06, d_wire_min=4.6e-05, opening=5.6e-05),
- '0.063': Sieve(designation='0.063', d_wire_max=5.2e-05, compliance_sd=8.3e-06, X_variation_max=2.4e-05, d_wire=4.5e-05, Y_variation_avg=3.4e-06, d_wire_min=5.2e-05, opening=6.3e-05),
- '0.071': Sieve(designation='0.071', d_wire_max=5.8e-05, compliance_sd=8.9e-06, X_variation_max=2.5e-05, d_wire=5e-05, Y_variation_avg=3.6e-06, d_wire_min=4.3e-05, opening=7.1e-05),
- '0.075': Sieve(designation='0.075', d_wire_max=5.8e-05, compliance_sd=9.1e-06, X_variation_max=2.6e-05, d_wire=5e-05, Y_variation_avg=3.7e-06, d_wire_min=4.3e-05, opening=7.5e-05),
- '0.08': Sieve(designation='0.08', d_wire_max=6.4e-05, compliance_sd=9.4e-06, X_variation_max=2.7e-05, d_wire=5.6e-05, Y_variation_avg=3.9e-06, d_wire_min=4.8e-05, opening=8e-05),
- '0.09': Sieve(designation='0.09', d_wire_max=7.2e-05, compliance_sd=1.01e-05, X_variation_max=2.9e-05, d_wire=6.3e-05, Y_variation_avg=4.2e-06, d_wire_min=5.4e-05, opening=9e-05),
- '0.1': Sieve(designation='0.1', d_wire_max=8.2e-05, compliance_sd=1.08e-05, X_variation_max=3e-05, d_wire=7.1e-05, Y_variation_avg=4.5e-06, d_wire_min=6e-05, opening=0.0001),
- '0.106': Sieve(designation='0.106', d_wire_max=8.2e-05, compliance_sd=1.11e-05, X_variation_max=3.1e-05, d_wire=7.1e-05, Y_variation_avg=4.7e-06, d_wire_min=6e-05, opening=0.000106),
- '0.112': Sieve(designation='0.112', d_wire_max=9.2e-05, compliance_sd=1.15e-05, X_variation_max=3.2e-05, d_wire=8e-05, Y_variation_avg=4.8e-06, d_wire_min=6.8e-05, opening=0.000112),
- '0.125': Sieve(designation='0.125', d_wire_max=0.000104, compliance_sd=1.22e-05, X_variation_max=3.4e-05, d_wire=9e-05, Y_variation_avg=5.2e-06, d_wire_min=7.7e-05, opening=0.000125),
- '0.14': Sieve(designation='0.14', d_wire_max=0.000115, compliance_sd=1.31e-05, X_variation_max=3.7e-05, d_wire=0.0001, Y_variation_avg=5.7e-06, d_wire_min=8.5e-05, opening=0.00014),
- '0.15': Sieve(designation='0.15', d_wire_max=0.000115, compliance_sd=1.37e-05, X_variation_max=3.8e-05, d_wire=0.0001, Y_variation_avg=6e-06, d_wire_min=8.5e-05, opening=0.00015),
- '0.16': Sieve(designation='0.16', d_wire_max=0.00013, compliance_sd=1.42e-05, X_variation_max=4e-05, d_wire=0.000112, Y_variation_avg=6.3e-06, d_wire_min=9.5e-05, opening=0.00016),
- '0.18': Sieve(designation='0.18', d_wire_max=0.00015, compliance_sd=1.53e-05, X_variation_max=4.3e-05, d_wire=0.000125, Y_variation_avg=6.8e-06, d_wire_min=0.000106, opening=0.00018),
- '0.2': Sieve(designation='0.2', d_wire_max=0.00017, compliance_sd=1.63e-05, X_variation_max=4.5e-05, d_wire=0.00014, Y_variation_avg=7.4e-06, d_wire_min=0.00012, opening=0.0002),
- '0.212': Sieve(designation='0.212', d_wire_max=0.00017, compliance_sd=1.69e-05, X_variation_max=4.7e-05, d_wire=0.00014, Y_variation_avg=7.8e-06, d_wire_min=0.00012, opening=0.000212),
- '0.224': Sieve(designation='0.224', d_wire_max=0.00019, compliance_sd=1.75e-05, X_variation_max=4.9e-05, d_wire=0.00016, Y_variation_avg=8.1e-06, d_wire_min=0.00013, opening=0.000224),
- '0.25': Sieve(designation='0.25', d_wire_max=0.00019, compliance_sd=1.88e-05, X_variation_max=5.2e-05, d_wire=0.00016, Y_variation_avg=8.9e-06, d_wire_min=0.00013, opening=0.00025),
- '0.28': Sieve(designation='0.28', d_wire_max=0.00021, compliance_sd=2.03e-05, X_variation_max=5.6e-05, d_wire=0.00018, Y_variation_avg=1e-05, d_wire_min=0.00015, opening=0.00028),
- '0.3': Sieve(designation='0.3', d_wire_max=0.00023, compliance_sd=2.12e-05, X_variation_max=5.8e-05, d_wire=0.0002, Y_variation_avg=1e-05, d_wire_min=0.00017, opening=0.0003),
- '0.315': Sieve(designation='0.315', d_wire_max=0.00023, compliance_sd=2.19e-05, X_variation_max=6e-05, d_wire=0.0002, Y_variation_avg=1.1e-05, d_wire_min=0.00017, opening=0.000315),
- '0.355': Sieve(designation='0.355', d_wire_max=0.00026, compliance_sd=2.37e-05, X_variation_max=6.5e-05, d_wire=0.000224, Y_variation_avg=1.2e-05, d_wire_min=0.00019, opening=0.000355),
- '0.4': Sieve(designation='0.4', d_wire_max=0.00029, compliance_sd=2.57e-05, X_variation_max=7e-05, d_wire=0.00025, Y_variation_avg=1.3e-05, d_wire_min=0.00021, opening=0.0004),
- '0.425': Sieve(designation='0.425', d_wire_max=0.00032, compliance_sd=2.68e-05, X_variation_max=7.3e-05, d_wire=0.00028, Y_variation_avg=1.4e-05, d_wire_min=0.00024, opening=0.000425),
- '0.45': Sieve(designation='0.45', d_wire_max=0.00032, compliance_sd=2.79e-05, X_variation_max=7.5e-05, d_wire=0.00028, Y_variation_avg=1.5e-05, d_wire_min=0.00024, opening=0.00045),
- '0.5': Sieve(designation='0.5', d_wire_max=0.00036, compliance_sd=3e-05, X_variation_max=8e-05, d_wire=0.000315, Y_variation_avg=1.6e-05, d_wire_min=0.00027, opening=0.0005),
- '0.56': Sieve(designation='0.56', d_wire_max=0.00041, compliance_sd=3.24e-05, X_variation_max=8.7e-05, d_wire=0.000355, Y_variation_avg=1.8e-05, d_wire_min=0.0003, opening=0.00056),
- '0.6': Sieve(designation='0.6', d_wire_max=0.00046, compliance_sd=3.4e-05, X_variation_max=9.1e-05, d_wire=0.0004, Y_variation_avg=1.9e-05, d_wire_min=0.00034, opening=0.0006),
- '0.63': Sieve(designation='0.63', d_wire_max=0.00046, compliance_sd=3.52e-05, X_variation_max=9.3e-05, d_wire=0.0004, Y_variation_avg=2e-05, d_wire_min=0.00034, opening=0.00063),
- '0.71': Sieve(designation='0.71', d_wire_max=0.00052, compliance_sd=3.84e-05, X_variation_max=0.000101, d_wire=0.00045, Y_variation_avg=2.2e-05, d_wire_min=0.00038, opening=0.00071),
- '0.8': Sieve(designation='0.8', d_wire_max=0.00052, compliance_sd=4.18e-05, X_variation_max=0.000109, d_wire=0.00045, Y_variation_avg=2.5e-05, d_wire_min=0.00038, opening=0.0008),
- '0.85': Sieve(designation='0.85', d_wire_max=0.00058, compliance_sd=4.36e-05, X_variation_max=0.000114, d_wire=0.0005, Y_variation_avg=2.6e-05, d_wire_min=0.00043, opening=0.00085),
- '0.9': Sieve(designation='0.9', d_wire_max=0.00058, compliance_sd=4.55e-05, X_variation_max=0.000118, d_wire=0.0005, Y_variation_avg=2.8e-05, d_wire_min=0.00043, opening=0.0009),
- '1': Sieve(designation='1', d_wire_max=0.00064, compliance_sd=4.9e-05, X_variation_max=0.00013, d_wire=0.00056, Y_variation_avg=3e-05, d_wire_min=0.00048, opening=0.001),
- '1.12': Sieve(designation='1.12', d_wire_max=0.00064, compliance_sd=5.3e-05, X_variation_max=0.00014, d_wire=0.00056, Y_variation_avg=3e-05, d_wire_min=0.00048, opening=0.00112),
- '1.18': Sieve(designation='1.18', d_wire_max=0.00072, compliance_sd=5.6e-05, X_variation_max=0.00014, d_wire=0.00063, Y_variation_avg=4e-05, d_wire_min=0.00054, opening=0.00118),
- '1.25': Sieve(designation='1.25', d_wire_max=0.00072, compliance_sd=5.8e-05, X_variation_max=0.00015, d_wire=0.00063, Y_variation_avg=4e-05, d_wire_min=0.00054, opening=0.00125),
- '1.4': Sieve(designation='1.4', d_wire_max=0.00082, compliance_sd=6.3e-05, X_variation_max=0.00016, d_wire=0.00071, Y_variation_avg=4e-05, d_wire_min=0.0006, opening=0.0014),
- '1.6': Sieve(designation='1.6', d_wire_max=0.00092, compliance_sd=7e-05, X_variation_max=0.00017, d_wire=0.0008, Y_variation_avg=5e-05, d_wire_min=0.00068, opening=0.0016),
- '1.7': Sieve(designation='1.7', d_wire_max=0.00092, compliance_sd=7.3e-05, X_variation_max=0.00018, d_wire=0.0008, Y_variation_avg=5e-05, d_wire_min=0.00068, opening=0.0017),
- '1.8': Sieve(designation='1.8', d_wire_max=0.00092, compliance_sd=7.6e-05, X_variation_max=0.00019, d_wire=0.0008, Y_variation_avg=5e-05, d_wire_min=0.00068, opening=0.0018),
- '10': Sieve(designation='10', d_wire_max=0.0029, compliance_sd=0.000307, X_variation_max=0.00064, d_wire=0.0025, Y_variation_avg=0.00028, d_wire_min=0.0021, opening=0.01),
- '100': Sieve(designation='100', d_wire_max=0.0072, X_variation_max=0.00344, d_wire=0.0063, Y_variation_avg=0.00265, d_wire_min=0.0054, opening=0.1),
- '106': Sieve(designation='106', d_wire_max=0.0072, X_variation_max=0.00359, d_wire=0.0063, Y_variation_avg=0.0028, d_wire_min=0.0054, opening=0.106),
- '11.2': Sieve(designation='11.2', d_wire_max=0.0029, compliance_sd=0.000339, X_variation_max=0.00069, d_wire=0.0025, Y_variation_avg=0.00031, d_wire_min=0.0021, opening=0.0112),
- '112': Sieve(designation='112', d_wire_max=0.0092, X_variation_max=0.00374, d_wire=0.008, Y_variation_avg=0.00296, d_wire_min=0.0068, opening=0.112),
- '12.5': Sieve(designation='12.5', d_wire_max=0.0029, compliance_sd=0.000374, X_variation_max=0.00075, d_wire=0.0025, Y_variation_avg=0.00035, d_wire_min=0.0021, opening=0.0125),
- '125': Sieve(designation='125', d_wire_max=0.0092, X_variation_max=0.00406, d_wire=0.008, Y_variation_avg=0.0033, d_wire_min=0.0068, opening=0.125),
- '13.2': Sieve(designation='13.2', d_wire_max=0.0032, compliance_sd=0.000392, X_variation_max=0.00078, d_wire=0.0028, Y_variation_avg=0.00037, d_wire_min=0.0024, opening=0.0132),
- '14': Sieve(designation='14', d_wire_max=0.0032, compliance_sd=0.000413, X_variation_max=0.00081, d_wire=0.0028, Y_variation_avg=0.00039, d_wire_min=0.0024, opening=0.014),
- '16': Sieve(designation='16', d_wire_max=0.0036, compliance_sd=0.000467, X_variation_max=0.00089, d_wire=0.00315, Y_variation_avg=0.00044, d_wire_min=0.0027, opening=0.016),
- '18': Sieve(designation='18', d_wire_max=0.0036, compliance_sd=0.00052, X_variation_max=0.00097, d_wire=0.00315, Y_variation_avg=0.00049, d_wire_min=0.0027, opening=0.018),
- '19': Sieve(designation='19', d_wire_max=0.0036, compliance_sd=0.000548, X_variation_max=0.00101, d_wire=0.00315, Y_variation_avg=0.00052, d_wire_min=0.0027, opening=0.019),
- '2': Sieve(designation='2', d_wire_max=0.00104, compliance_sd=8.3e-05, X_variation_max=0.0002, d_wire=0.0009, Y_variation_avg=6e-05, d_wire_min=0.00077, opening=0.002),
- '2.24': Sieve(designation='2.24', d_wire_max=0.00104, compliance_sd=9e-05, X_variation_max=0.00022, d_wire=0.0009, Y_variation_avg=7e-05, d_wire_min=0.00077, opening=0.00224),
- '2.36': Sieve(designation='2.36', d_wire_max=0.00115, compliance_sd=9.4e-05, X_variation_max=0.00023, d_wire=0.001, Y_variation_avg=7e-05, d_wire_min=0.00085, opening=0.00236),
- '2.5': Sieve(designation='2.5', d_wire_max=0.00115, compliance_sd=9.8e-05, X_variation_max=0.00024, d_wire=0.001, Y_variation_avg=7e-05, d_wire_min=0.00085, opening=0.0025),
- '2.8': Sieve(designation='2.8', d_wire_max=0.0013, compliance_sd=0.000108, X_variation_max=0.00026, d_wire=0.00112, Y_variation_avg=8e-05, d_wire_min=0.00095, opening=0.0028),
- '20': Sieve(designation='20', d_wire_max=0.0036, compliance_sd=0.000575, X_variation_max=0.00105, d_wire=0.00315, Y_variation_avg=0.00055, d_wire_min=0.0027, opening=0.02),
- '22.4': Sieve(designation='22.4', d_wire_max=0.0041, compliance_sd=0.000641, X_variation_max=0.00114, d_wire=0.00355, Y_variation_avg=0.00061, d_wire_min=0.003, opening=0.0224),
- '25': Sieve(designation='25', d_wire_max=0.0041, compliance_sd=0.000713, X_variation_max=0.00124, d_wire=0.00355, Y_variation_avg=0.00068, d_wire_min=0.003, opening=0.025),
- '26.5': Sieve(designation='26.5', d_wire_max=0.0041, compliance_sd=0.000757, X_variation_max=0.00129, d_wire=0.00355, Y_variation_avg=0.00072, d_wire_min=0.003, opening=0.0265),
- '28': Sieve(designation='28', d_wire_max=0.0041, compliance_sd=0.000801, X_variation_max=0.00135, d_wire=0.00355, Y_variation_avg=0.00076, d_wire_min=0.003, opening=0.028),
- '3.15': Sieve(designation='3.15', d_wire_max=0.0015, compliance_sd=0.000118, X_variation_max=0.00028, d_wire=0.00125, Y_variation_avg=9e-05, d_wire_min=0.00106, opening=0.00315),
- '3.35': Sieve(designation='3.35', d_wire_max=0.0015, compliance_sd=0.000124, X_variation_max=0.00029, d_wire=0.00125, Y_variation_avg=0.0001, d_wire_min=0.00106, opening=0.00335),
- '3.55': Sieve(designation='3.55', d_wire_max=0.0015, compliance_sd=0.00013, X_variation_max=0.0003, d_wire=0.00125, Y_variation_avg=0.0001, d_wire_min=0.00106, opening=0.00355),
- '31.5': Sieve(designation='31.5', d_wire_max=0.0046, compliance_sd=0.000905, X_variation_max=0.00147, d_wire=0.004, Y_variation_avg=0.00085, d_wire_min=0.0034, opening=0.0315),
- '35.5': Sieve(designation='35.5', d_wire_max=0.0046, compliance_sd=0.001, X_variation_max=0.0016, d_wire=0.004, Y_variation_avg=0.00096, d_wire_min=0.0034, opening=0.0355),
- '37.5': Sieve(designation='37.5', d_wire_max=0.0052, compliance_sd=0.001, X_variation_max=0.00167, d_wire=0.0045, Y_variation_avg=0.00101, d_wire_min=0.0038, opening=0.0375),
- '4': Sieve(designation='4', d_wire_max=0.0017, compliance_sd=0.000143, X_variation_max=0.00033, d_wire=0.0014, Y_variation_avg=0.00011, d_wire_min=0.0012, opening=0.004),
- '4.5': Sieve(designation='4.5', d_wire_max=0.0017, compliance_sd=0.000157, X_variation_max=0.00036, d_wire=0.0014, Y_variation_avg=0.00013, d_wire_min=0.0012, opening=0.0045),
- '4.75': Sieve(designation='4.75', d_wire_max=0.0019, compliance_sd=0.000164, X_variation_max=0.00037, d_wire=0.0016, Y_variation_avg=0.00014, d_wire_min=0.0013, opening=0.00475),
- '40': Sieve(designation='40', d_wire_max=0.0052, compliance_sd=0.001, X_variation_max=0.00175, d_wire=0.0045, Y_variation_avg=0.00108, d_wire_min=0.0038, opening=0.04),
- '45': Sieve(designation='45', d_wire_max=0.0052, compliance_sd=0.001, X_variation_max=0.00191, d_wire=0.0045, Y_variation_avg=0.00121, d_wire_min=0.0038, opening=0.045),
- '5': Sieve(designation='5', d_wire_max=0.0019, compliance_sd=0.000171, X_variation_max=0.00039, d_wire=0.0016, Y_variation_avg=0.00014, d_wire_min=0.0013, opening=0.005),
- '5.6': Sieve(designation='5.6', d_wire_max=0.0019, compliance_sd=0.000188, X_variation_max=0.00042, d_wire=0.0016, Y_variation_avg=0.00016, d_wire_min=0.0013, opening=0.0056),
- '50': Sieve(designation='50', d_wire_max=0.0058, X_variation_max=0.00206, d_wire=0.005, Y_variation_avg=0.00134, d_wire_min=0.0043, opening=0.05),
- '53': Sieve(designation='53', d_wire_max=0.0058, X_variation_max=0.00215, d_wire=0.005, Y_variation_avg=0.00142, d_wire_min=0.0043, opening=0.053),
- '56': Sieve(designation='56', d_wire_max=0.0058, X_variation_max=0.00224, d_wire=0.005, Y_variation_avg=0.0015, d_wire_min=0.0043, opening=0.056),
- '6.3': Sieve(designation='6.3', d_wire_max=0.0021, compliance_sd=0.000207, X_variation_max=0.00046, d_wire=0.0018, Y_variation_avg=0.00018, d_wire_min=0.0015, opening=0.0063),
- '6.7': Sieve(designation='6.7', d_wire_max=0.0021, compliance_sd=0.000218, X_variation_max=0.00048, d_wire=0.0018, Y_variation_avg=0.00019, d_wire_min=0.0015, opening=0.0067),
- '63': Sieve(designation='63', d_wire_max=0.0064, X_variation_max=0.00244, d_wire=0.0056, Y_variation_avg=0.00169, d_wire_min=0.0048, opening=0.063),
- '7.1': Sieve(designation='7.1', d_wire_max=0.0021, compliance_sd=0.000229, X_variation_max=0.0005, d_wire=0.0018, Y_variation_avg=0.0002, d_wire_min=0.0015, opening=0.0071),
- '71': Sieve(designation='71', d_wire_max=0.0064, X_variation_max=0.00267, d_wire=0.0056, Y_variation_avg=0.00189, d_wire_min=0.0048, opening=0.071),
- '75': Sieve(designation='75', d_wire_max=0.0072, X_variation_max=0.00278, d_wire=0.0063, Y_variation_avg=0.002, d_wire_min=0.0054, opening=0.075),
- '8': Sieve(designation='8', d_wire_max=0.0023, compliance_sd=0.000254, X_variation_max=0.00054, d_wire=0.002, Y_variation_avg=0.00022, d_wire_min=0.0017, opening=0.008),
- '80': Sieve(designation='80', d_wire_max=0.0072, X_variation_max=0.00291, d_wire=0.0063, Y_variation_avg=0.00213, d_wire_min=0.0054, opening=0.08),
- '9': Sieve(designation='9', d_wire_max=0.0026, compliance_sd=0.000281, X_variation_max=0.00059, d_wire=0.00224, Y_variation_avg=0.00025, d_wire_min=0.0019, opening=0.009),
- '9.5': Sieve(designation='9.5', d_wire_max=0.0026, compliance_sd=0.000294, X_variation_max=0.00061, d_wire=0.00224, Y_variation_avg=0.00027, d_wire_min=0.0019, opening=0.0095),
- '90': Sieve(designation='90', d_wire_max=0.0072, X_variation_max=0.00318, d_wire=0.0063, Y_variation_avg=0.00239, d_wire_min=0.0054, opening=0.09)
+ "0.02": Sieve(designation="0.02", d_wire_max=2.3e-05, compliance_sd=4.7e-06, X_variation_max=1.3e-05, d_wire=2e-05, Y_variation_avg=2.1e-06, d_wire_min=2.3e-05, opening=2e-05),
+ "0.025": Sieve(designation="0.025", d_wire_max=2.9e-05, compliance_sd=5.2e-06, X_variation_max=1.5e-05, d_wire=2.5e-05, Y_variation_avg=2.2e-06, d_wire_min=2.9e-05, opening=2.5e-05),
+ "0.032": Sieve(designation="0.032", d_wire_max=3.3e-05, compliance_sd=5.9e-06, X_variation_max=1.7e-05, d_wire=2.8e-05, Y_variation_avg=2.4e-06, d_wire_min=3.3e-05, opening=3.2e-05),
+ "0.036": Sieve(designation="0.036", d_wire_max=3.5e-05, compliance_sd=6.3e-06, X_variation_max=1.8e-05, d_wire=3e-05, Y_variation_avg=2.6e-06, d_wire_min=3.5e-05, opening=3.6e-05),
+ "0.038": Sieve(designation="0.038", d_wire_max=3.5e-05, compliance_sd=6.4e-06, X_variation_max=1.8e-05, d_wire=3e-05, Y_variation_avg=2.6e-06, d_wire_min=3.5e-05, opening=3.8e-05),
+ "0.04": Sieve(designation="0.04", d_wire_max=3.7e-05, compliance_sd=6.5e-06, X_variation_max=1.9e-05, d_wire=3.2e-05, Y_variation_avg=2.7e-06, d_wire_min=3.7e-05, opening=4e-05),
+ "0.045": Sieve(designation="0.045", d_wire_max=3.7e-05, compliance_sd=6.9e-06, X_variation_max=2e-05, d_wire=3.2e-05, Y_variation_avg=2.8e-06, d_wire_min=3.7e-05, opening=4.5e-05),
+ "0.05": Sieve(designation="0.05", d_wire_max=4.1e-05, compliance_sd=7.3e-06, X_variation_max=2.1e-05, d_wire=3.6e-05, Y_variation_avg=3e-06, d_wire_min=4.1e-05, opening=5e-05),
+ "0.053": Sieve(designation="0.053", d_wire_max=4.1e-05, compliance_sd=7.6e-06, X_variation_max=2.1e-05, d_wire=3.6e-05, Y_variation_avg=3.1e-06, d_wire_min=4.1e-05, opening=5.3e-05),
+ "0.056": Sieve(designation="0.056", d_wire_max=4.6e-05, compliance_sd=7.8e-06, X_variation_max=2.2e-05, d_wire=4e-05, Y_variation_avg=3.2e-06, d_wire_min=4.6e-05, opening=5.6e-05),
+ "0.063": Sieve(designation="0.063", d_wire_max=5.2e-05, compliance_sd=8.3e-06, X_variation_max=2.4e-05, d_wire=4.5e-05, Y_variation_avg=3.4e-06, d_wire_min=5.2e-05, opening=6.3e-05),
+ "0.071": Sieve(designation="0.071", d_wire_max=5.8e-05, compliance_sd=8.9e-06, X_variation_max=2.5e-05, d_wire=5e-05, Y_variation_avg=3.6e-06, d_wire_min=4.3e-05, opening=7.1e-05),
+ "0.075": Sieve(designation="0.075", d_wire_max=5.8e-05, compliance_sd=9.1e-06, X_variation_max=2.6e-05, d_wire=5e-05, Y_variation_avg=3.7e-06, d_wire_min=4.3e-05, opening=7.5e-05),
+ "0.08": Sieve(designation="0.08", d_wire_max=6.4e-05, compliance_sd=9.4e-06, X_variation_max=2.7e-05, d_wire=5.6e-05, Y_variation_avg=3.9e-06, d_wire_min=4.8e-05, opening=8e-05),
+ "0.09": Sieve(designation="0.09", d_wire_max=7.2e-05, compliance_sd=1.01e-05, X_variation_max=2.9e-05, d_wire=6.3e-05, Y_variation_avg=4.2e-06, d_wire_min=5.4e-05, opening=9e-05),
+ "0.1": Sieve(designation="0.1", d_wire_max=8.2e-05, compliance_sd=1.08e-05, X_variation_max=3e-05, d_wire=7.1e-05, Y_variation_avg=4.5e-06, d_wire_min=6e-05, opening=0.0001),
+ "0.106": Sieve(designation="0.106", d_wire_max=8.2e-05, compliance_sd=1.11e-05, X_variation_max=3.1e-05, d_wire=7.1e-05, Y_variation_avg=4.7e-06, d_wire_min=6e-05, opening=0.000106),
+ "0.112": Sieve(designation="0.112", d_wire_max=9.2e-05, compliance_sd=1.15e-05, X_variation_max=3.2e-05, d_wire=8e-05, Y_variation_avg=4.8e-06, d_wire_min=6.8e-05, opening=0.000112),
+ "0.125": Sieve(designation="0.125", d_wire_max=0.000104, compliance_sd=1.22e-05, X_variation_max=3.4e-05, d_wire=9e-05, Y_variation_avg=5.2e-06, d_wire_min=7.7e-05, opening=0.000125),
+ "0.14": Sieve(designation="0.14", d_wire_max=0.000115, compliance_sd=1.31e-05, X_variation_max=3.7e-05, d_wire=0.0001, Y_variation_avg=5.7e-06, d_wire_min=8.5e-05, opening=0.00014),
+ "0.15": Sieve(designation="0.15", d_wire_max=0.000115, compliance_sd=1.37e-05, X_variation_max=3.8e-05, d_wire=0.0001, Y_variation_avg=6e-06, d_wire_min=8.5e-05, opening=0.00015),
+ "0.16": Sieve(designation="0.16", d_wire_max=0.00013, compliance_sd=1.42e-05, X_variation_max=4e-05, d_wire=0.000112, Y_variation_avg=6.3e-06, d_wire_min=9.5e-05, opening=0.00016),
+ "0.18": Sieve(designation="0.18", d_wire_max=0.00015, compliance_sd=1.53e-05, X_variation_max=4.3e-05, d_wire=0.000125, Y_variation_avg=6.8e-06, d_wire_min=0.000106, opening=0.00018),
+ "0.2": Sieve(designation="0.2", d_wire_max=0.00017, compliance_sd=1.63e-05, X_variation_max=4.5e-05, d_wire=0.00014, Y_variation_avg=7.4e-06, d_wire_min=0.00012, opening=0.0002),
+ "0.212": Sieve(designation="0.212", d_wire_max=0.00017, compliance_sd=1.69e-05, X_variation_max=4.7e-05, d_wire=0.00014, Y_variation_avg=7.8e-06, d_wire_min=0.00012, opening=0.000212),
+ "0.224": Sieve(designation="0.224", d_wire_max=0.00019, compliance_sd=1.75e-05, X_variation_max=4.9e-05, d_wire=0.00016, Y_variation_avg=8.1e-06, d_wire_min=0.00013, opening=0.000224),
+ "0.25": Sieve(designation="0.25", d_wire_max=0.00019, compliance_sd=1.88e-05, X_variation_max=5.2e-05, d_wire=0.00016, Y_variation_avg=8.9e-06, d_wire_min=0.00013, opening=0.00025),
+ "0.28": Sieve(designation="0.28", d_wire_max=0.00021, compliance_sd=2.03e-05, X_variation_max=5.6e-05, d_wire=0.00018, Y_variation_avg=1e-05, d_wire_min=0.00015, opening=0.00028),
+ "0.3": Sieve(designation="0.3", d_wire_max=0.00023, compliance_sd=2.12e-05, X_variation_max=5.8e-05, d_wire=0.0002, Y_variation_avg=1e-05, d_wire_min=0.00017, opening=0.0003),
+ "0.315": Sieve(designation="0.315", d_wire_max=0.00023, compliance_sd=2.19e-05, X_variation_max=6e-05, d_wire=0.0002, Y_variation_avg=1.1e-05, d_wire_min=0.00017, opening=0.000315),
+ "0.355": Sieve(designation="0.355", d_wire_max=0.00026, compliance_sd=2.37e-05, X_variation_max=6.5e-05, d_wire=0.000224, Y_variation_avg=1.2e-05, d_wire_min=0.00019, opening=0.000355),
+ "0.4": Sieve(designation="0.4", d_wire_max=0.00029, compliance_sd=2.57e-05, X_variation_max=7e-05, d_wire=0.00025, Y_variation_avg=1.3e-05, d_wire_min=0.00021, opening=0.0004),
+ "0.425": Sieve(designation="0.425", d_wire_max=0.00032, compliance_sd=2.68e-05, X_variation_max=7.3e-05, d_wire=0.00028, Y_variation_avg=1.4e-05, d_wire_min=0.00024, opening=0.000425),
+ "0.45": Sieve(designation="0.45", d_wire_max=0.00032, compliance_sd=2.79e-05, X_variation_max=7.5e-05, d_wire=0.00028, Y_variation_avg=1.5e-05, d_wire_min=0.00024, opening=0.00045),
+ "0.5": Sieve(designation="0.5", d_wire_max=0.00036, compliance_sd=3e-05, X_variation_max=8e-05, d_wire=0.000315, Y_variation_avg=1.6e-05, d_wire_min=0.00027, opening=0.0005),
+ "0.56": Sieve(designation="0.56", d_wire_max=0.00041, compliance_sd=3.24e-05, X_variation_max=8.7e-05, d_wire=0.000355, Y_variation_avg=1.8e-05, d_wire_min=0.0003, opening=0.00056),
+ "0.6": Sieve(designation="0.6", d_wire_max=0.00046, compliance_sd=3.4e-05, X_variation_max=9.1e-05, d_wire=0.0004, Y_variation_avg=1.9e-05, d_wire_min=0.00034, opening=0.0006),
+ "0.63": Sieve(designation="0.63", d_wire_max=0.00046, compliance_sd=3.52e-05, X_variation_max=9.3e-05, d_wire=0.0004, Y_variation_avg=2e-05, d_wire_min=0.00034, opening=0.00063),
+ "0.71": Sieve(designation="0.71", d_wire_max=0.00052, compliance_sd=3.84e-05, X_variation_max=0.000101, d_wire=0.00045, Y_variation_avg=2.2e-05, d_wire_min=0.00038, opening=0.00071),
+ "0.8": Sieve(designation="0.8", d_wire_max=0.00052, compliance_sd=4.18e-05, X_variation_max=0.000109, d_wire=0.00045, Y_variation_avg=2.5e-05, d_wire_min=0.00038, opening=0.0008),
+ "0.85": Sieve(designation="0.85", d_wire_max=0.00058, compliance_sd=4.36e-05, X_variation_max=0.000114, d_wire=0.0005, Y_variation_avg=2.6e-05, d_wire_min=0.00043, opening=0.00085),
+ "0.9": Sieve(designation="0.9", d_wire_max=0.00058, compliance_sd=4.55e-05, X_variation_max=0.000118, d_wire=0.0005, Y_variation_avg=2.8e-05, d_wire_min=0.00043, opening=0.0009),
+ "1": Sieve(designation="1", d_wire_max=0.00064, compliance_sd=4.9e-05, X_variation_max=0.00013, d_wire=0.00056, Y_variation_avg=3e-05, d_wire_min=0.00048, opening=0.001),
+ "1.12": Sieve(designation="1.12", d_wire_max=0.00064, compliance_sd=5.3e-05, X_variation_max=0.00014, d_wire=0.00056, Y_variation_avg=3e-05, d_wire_min=0.00048, opening=0.00112),
+ "1.18": Sieve(designation="1.18", d_wire_max=0.00072, compliance_sd=5.6e-05, X_variation_max=0.00014, d_wire=0.00063, Y_variation_avg=4e-05, d_wire_min=0.00054, opening=0.00118),
+ "1.25": Sieve(designation="1.25", d_wire_max=0.00072, compliance_sd=5.8e-05, X_variation_max=0.00015, d_wire=0.00063, Y_variation_avg=4e-05, d_wire_min=0.00054, opening=0.00125),
+ "1.4": Sieve(designation="1.4", d_wire_max=0.00082, compliance_sd=6.3e-05, X_variation_max=0.00016, d_wire=0.00071, Y_variation_avg=4e-05, d_wire_min=0.0006, opening=0.0014),
+ "1.6": Sieve(designation="1.6", d_wire_max=0.00092, compliance_sd=7e-05, X_variation_max=0.00017, d_wire=0.0008, Y_variation_avg=5e-05, d_wire_min=0.00068, opening=0.0016),
+ "1.7": Sieve(designation="1.7", d_wire_max=0.00092, compliance_sd=7.3e-05, X_variation_max=0.00018, d_wire=0.0008, Y_variation_avg=5e-05, d_wire_min=0.00068, opening=0.0017),
+ "1.8": Sieve(designation="1.8", d_wire_max=0.00092, compliance_sd=7.6e-05, X_variation_max=0.00019, d_wire=0.0008, Y_variation_avg=5e-05, d_wire_min=0.00068, opening=0.0018),
+ "10": Sieve(designation="10", d_wire_max=0.0029, compliance_sd=0.000307, X_variation_max=0.00064, d_wire=0.0025, Y_variation_avg=0.00028, d_wire_min=0.0021, opening=0.01),
+ "100": Sieve(designation="100", d_wire_max=0.0072, X_variation_max=0.00344, d_wire=0.0063, Y_variation_avg=0.00265, d_wire_min=0.0054, opening=0.1),
+ "106": Sieve(designation="106", d_wire_max=0.0072, X_variation_max=0.00359, d_wire=0.0063, Y_variation_avg=0.0028, d_wire_min=0.0054, opening=0.106),
+ "11.2": Sieve(designation="11.2", d_wire_max=0.0029, compliance_sd=0.000339, X_variation_max=0.00069, d_wire=0.0025, Y_variation_avg=0.00031, d_wire_min=0.0021, opening=0.0112),
+ "112": Sieve(designation="112", d_wire_max=0.0092, X_variation_max=0.00374, d_wire=0.008, Y_variation_avg=0.00296, d_wire_min=0.0068, opening=0.112),
+ "12.5": Sieve(designation="12.5", d_wire_max=0.0029, compliance_sd=0.000374, X_variation_max=0.00075, d_wire=0.0025, Y_variation_avg=0.00035, d_wire_min=0.0021, opening=0.0125),
+ "125": Sieve(designation="125", d_wire_max=0.0092, X_variation_max=0.00406, d_wire=0.008, Y_variation_avg=0.0033, d_wire_min=0.0068, opening=0.125),
+ "13.2": Sieve(designation="13.2", d_wire_max=0.0032, compliance_sd=0.000392, X_variation_max=0.00078, d_wire=0.0028, Y_variation_avg=0.00037, d_wire_min=0.0024, opening=0.0132),
+ "14": Sieve(designation="14", d_wire_max=0.0032, compliance_sd=0.000413, X_variation_max=0.00081, d_wire=0.0028, Y_variation_avg=0.00039, d_wire_min=0.0024, opening=0.014),
+ "16": Sieve(designation="16", d_wire_max=0.0036, compliance_sd=0.000467, X_variation_max=0.00089, d_wire=0.00315, Y_variation_avg=0.00044, d_wire_min=0.0027, opening=0.016),
+ "18": Sieve(designation="18", d_wire_max=0.0036, compliance_sd=0.00052, X_variation_max=0.00097, d_wire=0.00315, Y_variation_avg=0.00049, d_wire_min=0.0027, opening=0.018),
+ "19": Sieve(designation="19", d_wire_max=0.0036, compliance_sd=0.000548, X_variation_max=0.00101, d_wire=0.00315, Y_variation_avg=0.00052, d_wire_min=0.0027, opening=0.019),
+ "2": Sieve(designation="2", d_wire_max=0.00104, compliance_sd=8.3e-05, X_variation_max=0.0002, d_wire=0.0009, Y_variation_avg=6e-05, d_wire_min=0.00077, opening=0.002),
+ "2.24": Sieve(designation="2.24", d_wire_max=0.00104, compliance_sd=9e-05, X_variation_max=0.00022, d_wire=0.0009, Y_variation_avg=7e-05, d_wire_min=0.00077, opening=0.00224),
+ "2.36": Sieve(designation="2.36", d_wire_max=0.00115, compliance_sd=9.4e-05, X_variation_max=0.00023, d_wire=0.001, Y_variation_avg=7e-05, d_wire_min=0.00085, opening=0.00236),
+ "2.5": Sieve(designation="2.5", d_wire_max=0.00115, compliance_sd=9.8e-05, X_variation_max=0.00024, d_wire=0.001, Y_variation_avg=7e-05, d_wire_min=0.00085, opening=0.0025),
+ "2.8": Sieve(designation="2.8", d_wire_max=0.0013, compliance_sd=0.000108, X_variation_max=0.00026, d_wire=0.00112, Y_variation_avg=8e-05, d_wire_min=0.00095, opening=0.0028),
+ "20": Sieve(designation="20", d_wire_max=0.0036, compliance_sd=0.000575, X_variation_max=0.00105, d_wire=0.00315, Y_variation_avg=0.00055, d_wire_min=0.0027, opening=0.02),
+ "22.4": Sieve(designation="22.4", d_wire_max=0.0041, compliance_sd=0.000641, X_variation_max=0.00114, d_wire=0.00355, Y_variation_avg=0.00061, d_wire_min=0.003, opening=0.0224),
+ "25": Sieve(designation="25", d_wire_max=0.0041, compliance_sd=0.000713, X_variation_max=0.00124, d_wire=0.00355, Y_variation_avg=0.00068, d_wire_min=0.003, opening=0.025),
+ "26.5": Sieve(designation="26.5", d_wire_max=0.0041, compliance_sd=0.000757, X_variation_max=0.00129, d_wire=0.00355, Y_variation_avg=0.00072, d_wire_min=0.003, opening=0.0265),
+ "28": Sieve(designation="28", d_wire_max=0.0041, compliance_sd=0.000801, X_variation_max=0.00135, d_wire=0.00355, Y_variation_avg=0.00076, d_wire_min=0.003, opening=0.028),
+ "3.15": Sieve(designation="3.15", d_wire_max=0.0015, compliance_sd=0.000118, X_variation_max=0.00028, d_wire=0.00125, Y_variation_avg=9e-05, d_wire_min=0.00106, opening=0.00315),
+ "3.35": Sieve(designation="3.35", d_wire_max=0.0015, compliance_sd=0.000124, X_variation_max=0.00029, d_wire=0.00125, Y_variation_avg=0.0001, d_wire_min=0.00106, opening=0.00335),
+ "3.55": Sieve(designation="3.55", d_wire_max=0.0015, compliance_sd=0.00013, X_variation_max=0.0003, d_wire=0.00125, Y_variation_avg=0.0001, d_wire_min=0.00106, opening=0.00355),
+ "31.5": Sieve(designation="31.5", d_wire_max=0.0046, compliance_sd=0.000905, X_variation_max=0.00147, d_wire=0.004, Y_variation_avg=0.00085, d_wire_min=0.0034, opening=0.0315),
+ "35.5": Sieve(designation="35.5", d_wire_max=0.0046, compliance_sd=0.001, X_variation_max=0.0016, d_wire=0.004, Y_variation_avg=0.00096, d_wire_min=0.0034, opening=0.0355),
+ "37.5": Sieve(designation="37.5", d_wire_max=0.0052, compliance_sd=0.001, X_variation_max=0.00167, d_wire=0.0045, Y_variation_avg=0.00101, d_wire_min=0.0038, opening=0.0375),
+ "4": Sieve(designation="4", d_wire_max=0.0017, compliance_sd=0.000143, X_variation_max=0.00033, d_wire=0.0014, Y_variation_avg=0.00011, d_wire_min=0.0012, opening=0.004),
+ "4.5": Sieve(designation="4.5", d_wire_max=0.0017, compliance_sd=0.000157, X_variation_max=0.00036, d_wire=0.0014, Y_variation_avg=0.00013, d_wire_min=0.0012, opening=0.0045),
+ "4.75": Sieve(designation="4.75", d_wire_max=0.0019, compliance_sd=0.000164, X_variation_max=0.00037, d_wire=0.0016, Y_variation_avg=0.00014, d_wire_min=0.0013, opening=0.00475),
+ "40": Sieve(designation="40", d_wire_max=0.0052, compliance_sd=0.001, X_variation_max=0.00175, d_wire=0.0045, Y_variation_avg=0.00108, d_wire_min=0.0038, opening=0.04),
+ "45": Sieve(designation="45", d_wire_max=0.0052, compliance_sd=0.001, X_variation_max=0.00191, d_wire=0.0045, Y_variation_avg=0.00121, d_wire_min=0.0038, opening=0.045),
+ "5": Sieve(designation="5", d_wire_max=0.0019, compliance_sd=0.000171, X_variation_max=0.00039, d_wire=0.0016, Y_variation_avg=0.00014, d_wire_min=0.0013, opening=0.005),
+ "5.6": Sieve(designation="5.6", d_wire_max=0.0019, compliance_sd=0.000188, X_variation_max=0.00042, d_wire=0.0016, Y_variation_avg=0.00016, d_wire_min=0.0013, opening=0.0056),
+ "50": Sieve(designation="50", d_wire_max=0.0058, X_variation_max=0.00206, d_wire=0.005, Y_variation_avg=0.00134, d_wire_min=0.0043, opening=0.05),
+ "53": Sieve(designation="53", d_wire_max=0.0058, X_variation_max=0.00215, d_wire=0.005, Y_variation_avg=0.00142, d_wire_min=0.0043, opening=0.053),
+ "56": Sieve(designation="56", d_wire_max=0.0058, X_variation_max=0.00224, d_wire=0.005, Y_variation_avg=0.0015, d_wire_min=0.0043, opening=0.056),
+ "6.3": Sieve(designation="6.3", d_wire_max=0.0021, compliance_sd=0.000207, X_variation_max=0.00046, d_wire=0.0018, Y_variation_avg=0.00018, d_wire_min=0.0015, opening=0.0063),
+ "6.7": Sieve(designation="6.7", d_wire_max=0.0021, compliance_sd=0.000218, X_variation_max=0.00048, d_wire=0.0018, Y_variation_avg=0.00019, d_wire_min=0.0015, opening=0.0067),
+ "63": Sieve(designation="63", d_wire_max=0.0064, X_variation_max=0.00244, d_wire=0.0056, Y_variation_avg=0.00169, d_wire_min=0.0048, opening=0.063),
+ "7.1": Sieve(designation="7.1", d_wire_max=0.0021, compliance_sd=0.000229, X_variation_max=0.0005, d_wire=0.0018, Y_variation_avg=0.0002, d_wire_min=0.0015, opening=0.0071),
+ "71": Sieve(designation="71", d_wire_max=0.0064, X_variation_max=0.00267, d_wire=0.0056, Y_variation_avg=0.00189, d_wire_min=0.0048, opening=0.071),
+ "75": Sieve(designation="75", d_wire_max=0.0072, X_variation_max=0.00278, d_wire=0.0063, Y_variation_avg=0.002, d_wire_min=0.0054, opening=0.075),
+ "8": Sieve(designation="8", d_wire_max=0.0023, compliance_sd=0.000254, X_variation_max=0.00054, d_wire=0.002, Y_variation_avg=0.00022, d_wire_min=0.0017, opening=0.008),
+ "80": Sieve(designation="80", d_wire_max=0.0072, X_variation_max=0.00291, d_wire=0.0063, Y_variation_avg=0.00213, d_wire_min=0.0054, opening=0.08),
+ "9": Sieve(designation="9", d_wire_max=0.0026, compliance_sd=0.000281, X_variation_max=0.00059, d_wire=0.00224, Y_variation_avg=0.00025, d_wire_min=0.0019, opening=0.009),
+ "9.5": Sieve(designation="9.5", d_wire_max=0.0026, compliance_sd=0.000294, X_variation_max=0.00061, d_wire=0.00224, Y_variation_avg=0.00027, d_wire_min=0.0019, opening=0.0095),
+ "90": Sieve(designation="90", d_wire_max=0.0072, X_variation_max=0.00318, d_wire=0.0063, Y_variation_avg=0.00239, d_wire_min=0.0054, opening=0.09)
 }
 """Dictionary containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 series, indexed by their size in mm as a string.
@@ -405,82 +432,82 @@ ISO 3310-1:2016 series, indexed by their size in mm as a string.
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-   -- Part 1: Test Sieves of Metal Wire Cloth.
+   Part 1: Test Sieves of Metal Wire Cloth.
 """
 
-ISO_3310_1_sieve_designations  = ['125', '112', '106', '100', '90', '80', '75',
-                                  '71', '63', '56', '53', '50', '45', '40',
-                                  '37.5', '35.5', '31.5', '28', '26.5', '25',
-                                  '22.4', '20', '19', '18', '16', '14', '13.2',
-                                  '12.5', '11.2', '10', '9.5', '9', '8', '7.1',
-                                  '6.7', '6.3', '5.6', '5', '4.75', '4.5', '4',
-                                  '3.55', '3.35', '3.15', '2.8', '2.5', '2.36',
-                                  '2.24', '2', '1.8', '1.7', '1.6', '1.4',
-                                  '1.25', '1.18', '1.12', '1', '0.9', '0.85',
-                                  '0.8', '0.71', '0.63', '0.6', '0.56', '0.5',
-                                  '0.45', '0.425', '0.4', '0.355', '0.315',
-                                  '0.3', '0.28', '0.25', '0.224', '0.212',
-                                  '0.2', '0.18', '0.16', '0.15', '0.14',
-                                  '0.125', '0.112', '0.106', '0.1', '0.09',
-                                  '0.08', '0.075', '0.071', '0.063', '0.056',
-                                  '0.053', '0.05', '0.045', '0.04', '0.038',
-                                  '0.036', '0.032', '0.025', '0.02']
+ISO_3310_1_sieve_designations  = ["125", "112", "106", "100", "90", "80", "75",
+                                  "71", "63", "56", "53", "50", "45", "40",
+                                  "37.5", "35.5", "31.5", "28", "26.5", "25",
+                                  "22.4", "20", "19", "18", "16", "14", "13.2",
+                                  "12.5", "11.2", "10", "9.5", "9", "8", "7.1",
+                                  "6.7", "6.3", "5.6", "5", "4.75", "4.5", "4",
+                                  "3.55", "3.35", "3.15", "2.8", "2.5", "2.36",
+                                  "2.24", "2", "1.8", "1.7", "1.6", "1.4",
+                                  "1.25", "1.18", "1.12", "1", "0.9", "0.85",
+                                  "0.8", "0.71", "0.63", "0.6", "0.56", "0.5",
+                                  "0.45", "0.425", "0.4", "0.355", "0.315",
+                                  "0.3", "0.28", "0.25", "0.224", "0.212",
+                                  "0.2", "0.18", "0.16", "0.15", "0.14",
+                                  "0.125", "0.112", "0.106", "0.1", "0.09",
+                                  "0.08", "0.075", "0.071", "0.063", "0.056",
+                                  "0.053", "0.05", "0.045", "0.04", "0.038",
+                                  "0.036", "0.032", "0.025", "0.02"]
 
 ISO_3310_1_sieve_list = [ISO_3310_1_sieves[i] for i in ISO_3310_1_sieve_designations]
 
 
-ISO_3310_1_R20_3 = [ISO_3310_1_sieves[i] for i in ('125', '90', '63', '45', '31.5', '22.4', '16', '11.2', '8', '5.6', '4', '2.8', '2', '1.4', '1', '0.71', '0.5', '0.355', '0.25', '0.18', '0.125', '0.09', '0.063', '0.045')]
+ISO_3310_1_R20_3 = [ISO_3310_1_sieves[i] for i in ("125", "90", "63", "45", "31.5", "22.4", "16", "11.2", "8", "5.6", "4", "2.8", "2", "1.4", "1", "0.71", "0.5", "0.355", "0.25", "0.18", "0.125", "0.09", "0.063", "0.045")]
 """List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R20/3 series only, ordered from largest  openings to smallest.
 
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-   -- Part 1: Test Sieves of Metal Wire Cloth.
+   Part 1: Test Sieves of Metal Wire Cloth.
 """
 
-ISO_3310_1_R20 = ['125', '112', '100', '90', '80', '71', '63', '56', '50', '45', '40', '35.5', '31.5', '28', '25', '22.4', '20', '18', '16', '14', '12.5', '11.2', '10', '9', '8', '7.1', '6.3', '5.6', '5', '4.5', '4', '3.55', '3.15', '2.8', '2.5', '2.24', '2', '1.8', '1.6', '1.4', '1.25', '1.12', '1', '0.9', '0.8', '0.71', '0.63', '0.56', '0.5', '0.45', '0.4', '0.355', '0.315', '0.28', '0.25', '0.224', '0.2', '0.18', '0.16', '0.14', '0.125', '0.112', '0.1', '0.09', '0.08', '0.071', '0.063', '0.056', '0.05', '0.045', '0.04', '0.036']
-ISO_3310_1_R20 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R20]
+ISO_3310_1_R20_keys = ["125", "112", "100", "90", "80", "71", "63", "56", "50", "45", "40", "35.5", "31.5", "28", "25", "22.4", "20", "18", "16", "14", "12.5", "11.2", "10", "9", "8", "7.1", "6.3", "5.6", "5", "4.5", "4", "3.55", "3.15", "2.8", "2.5", "2.24", "2", "1.8", "1.6", "1.4", "1.25", "1.12", "1", "0.9", "0.8", "0.71", "0.63", "0.56", "0.5", "0.45", "0.4", "0.355", "0.315", "0.28", "0.25", "0.224", "0.2", "0.18", "0.16", "0.14", "0.125", "0.112", "0.1", "0.09", "0.08", "0.071", "0.063", "0.056", "0.05", "0.045", "0.04", "0.036"]
+ISO_3310_1_R20 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R20_keys]
 """List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R20 series only, ordered from largest  openings to smallest.
 
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-   -- Part 1: Test Sieves of Metal Wire Cloth.
+   Part 1: Test Sieves of Metal Wire Cloth.
 """
 
-ISO_3310_1_R40_3 = ['125', '106', '90', '75', '63', '53', '45', '37.5', '31.5', '26.5', '22.4', '19', '16', '13.2', '11.2', '9.5', '8', '6.7', '5.6', '4.75', '4', '3.35', '2.8', '2.36', '2', '1.7', '1.4', '1.18', '1', '0.85', '0.71', '0.6', '0.5', '0.425', '0.355', '0.3', '0.25', '0.212', '0.18', '0.15', '0.125', '0.106', '0.09', '0.075', '0.063', '0.053', '0.045', '0.038']
-ISO_3310_1_R40_3 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R40_3]
+ISO_3310_1_R40_3_keys = ["125", "106", "90", "75", "63", "53", "45", "37.5", "31.5", "26.5", "22.4", "19", "16", "13.2", "11.2", "9.5", "8", "6.7", "5.6", "4.75", "4", "3.35", "2.8", "2.36", "2", "1.7", "1.4", "1.18", "1", "0.85", "0.71", "0.6", "0.5", "0.425", "0.355", "0.3", "0.25", "0.212", "0.18", "0.15", "0.125", "0.106", "0.09", "0.075", "0.063", "0.053", "0.045", "0.038"]
+ISO_3310_1_R40_3 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R40_3_keys]
 """List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R40/3 series only, ordered from largest  openings to smallest.
 
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-   -- Part 1: Test Sieves of Metal Wire Cloth.
+   Part 1: Test Sieves of Metal Wire Cloth.
 """
 
-ISO_3310_1_R10 = ['0.036', '0.032', '0.025', '0.02']
-ISO_3310_1_R10 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R10]
+ISO_3310_1_R10_keys = ["0.036", "0.032", "0.025", "0.02"]
+ISO_3310_1_R10 = [ISO_3310_1_sieves[i] for i in ISO_3310_1_R10_keys]
 """List containing all of the individual :py:func:`Sieve` objects, on the
 ISO 3310-1:2016 R10 series only, ordered from largest  openings to smallest.
 
 References
 ----------
 .. [1] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-   -- Part 1: Test Sieves of Metal Wire Cloth.
+   Part 1: Test Sieves of Metal Wire Cloth.
 """
 
-sieve_spacing_options = {'ISO 3310-1': ISO_3310_1_sieve_list,
-                         'ISO 3310-1 R20': ISO_3310_1_R20,
-                         'ISO 3310-1 R20/3': ISO_3310_1_R20_3,
-                         'ISO 3310-1 R40/3': ISO_3310_1_R40_3,
-                         'ISO 3310-1 R10': ISO_3310_1_R10,
-                         'ASTM E11': ASTM_E11_sieve_list,}
+sieve_spacing_options = {"ISO 3310-1": ISO_3310_1_sieve_list,
+                         "ISO 3310-1 R20": ISO_3310_1_R20,
+                         "ISO 3310-1 R20/3": ISO_3310_1_R20_3,
+                         "ISO 3310-1 R40/3": ISO_3310_1_R40_3,
+                         "ISO 3310-1 R10": ISO_3310_1_R10,
+                         "ASTM E11": ASTM_E11_sieve_list,}
 
 
-def psd_spacing(d_min=None, d_max=None, pts=20, method='logarithmic'):
+def psd_spacing(d_min: float | None=None, d_max: float | None=None, pts: int=20, method: str="logarithmic") -> list[float]:
     r"""Create a particle spacing mesh in one of several ways for use in
     modeling discrete particle size distributions. The allowable meshes are
     'linear', 'logarithmic', a geometric series specified by a Renard number
@@ -524,43 +551,46 @@ def psd_spacing(d_min=None, d_max=None, pts=20, method='logarithmic'):
     .. [1] ASTM E11 - 17 - Standard Specification for Woven Wire Test Sieve
        Cloth and Test Sieves.
     .. [2] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-       -- Part 1: Test Sieves of Metal Wire Cloth.
+       Part 1: Test Sieves of Metal Wire Cloth.
     """
     if d_min is not None:
         d_min = float(d_min)
     if d_max is not None:
         d_max = float(d_max)
-    if method == 'logarithmic':
+    if method == "logarithmic":
+        if d_min is None or d_max is None:
+            raise ValueError("d_min and d_max must be provided for logarithmic spacing")
         return logspace(log10(d_min), log10(d_max), pts)
-    elif method == 'linear':
+    elif method == "linear":
         return linspace(d_min, d_max, pts)
-    elif method[0] in ('R', 'r'):
+    elif method[0] in ("R", "r"):
         ratio = 10**(1.0/float(method[1:]))
-        if d_min is not None and d_max is not None:
-            raise ValueError('For geometric (Renard) series, only '
-                            'one of `d_min` and `d_max` should be provided')
-        if d_min is not None:
+        if d_min is not None and d_max is None:
             ds = [d_min]
             for i in range(pts-1):
                 ds.append(ds[-1]*ratio)
             return ds
-        elif d_max is not None:
+        elif d_max is not None and d_min is None:
             ds = [d_max]
             for i in range(pts-1):
                 ds.append(ds[-1]/ratio)
             return list(reversed(ds))
+        else:
+            raise ValueError("For geometric (Renard) series, exactly one of `d_min` or `d_max` must be provided")
     elif method in sieve_spacing_options:
+        if d_min is None or d_max is None:
+            raise ValueError("d_min and d_max must be provided for sieve spacing")
         l = sieve_spacing_options[method]
         ds = []
         for sieve in l:
-           if  d_min <= sieve.opening <= d_max:
-               ds.append(sieve.opening)
+            if  d_min <= sieve.opening <= d_max:
+                ds.append(sieve.opening)
         return list(reversed(ds))
     else:
-        raise ValueError('Method not recognized')
+        raise ValueError("Method not recognized")
 
 
-def pdf_lognormal(d, d_characteristic, s):
+def pdf_lognormal(d: float, d_characteristic: float, s: float) -> float:
     r"""Calculates the probability density function of a lognormal particle
     distribution given a particle diameter `d`, characteristic particle
     diameter `d_characteristic`, and distribution standard deviation `s`.
@@ -620,7 +650,7 @@ def pdf_lognormal(d, d_characteristic, s):
     return 1./(d*s*ROOT_TWO_PI)*exp(-0.5*log_term*log_term)
 
 
-def cdf_lognormal(d, d_characteristic, s):
+def cdf_lognormal(d: float, d_characteristic: float, s: float) -> float:
     r"""Calculates the cumulative distribution function of a lognormal particle
     distribution given a particle diameter `d`, characteristic particle
     diameter `d_characteristic`, and distribution standard deviation `s`.
@@ -679,7 +709,7 @@ def cdf_lognormal(d, d_characteristic, s):
         return 0.0
 
 
-def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
+def pdf_lognormal_basis_integral(d: float, d_characteristic: float, s: float, n: float) -> float:
     r"""Calculates the integral of the multiplication of d^n by the lognormal
     pdf, given a particle diameter `d`, characteristic particle
     diameter `d_characteristic`, distribution standard deviation `s`, and
@@ -739,7 +769,7 @@ def pdf_lognormal_basis_integral(d, d_characteristic, s, n):
         return pdf_lognormal_basis_integral(d=1E-80, d_characteristic=d_characteristic, s=s, n=n)
 
 
-def pdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
+def pdf_Gates_Gaudin_Schuhman(d: float, d_characteristic: float, m: float) -> float:
     r"""Calculates the probability density of a particle
     distribution following the Gates, Gaudin and Schuhman (GGS) model given a
     particle diameter `d`, characteristic (maximum) particle
@@ -793,7 +823,7 @@ def pdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
         return 0.0
 
 
-def cdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
+def cdf_Gates_Gaudin_Schuhman(d: float, d_characteristic: float, m: float) -> float:
     r"""Calculates the cumulative distribution function of a particle
     distribution following the Gates, Gaudin and Schuhman (GGS) model given a
     particle diameter `d`, characteristic (maximum) particle
@@ -847,7 +877,7 @@ def cdf_Gates_Gaudin_Schuhman(d, d_characteristic, m):
         return 1.0
 
 
-def pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic, m, n):
+def pdf_Gates_Gaudin_Schuhman_basis_integral(d: float, d_characteristic: float, m: float, n: float) -> float:
     r"""Calculates the integral of the multiplication of d^n by the Gates,
     Gaudin and Schuhman (GGS) model given a particle diameter `d`,
     characteristic (maximum) particle diameter `d_characteristic`, and exponent
@@ -886,7 +916,7 @@ def pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic, m, n):
     return m/(m+n)*d**n*(d/d_characteristic)**m
 
 
-def pdf_Rosin_Rammler(d, k, m):
+def pdf_Rosin_Rammler(d: float, k: float, m: float) -> float:
     r"""Calculates the probability density of a particle
     distribution following the Rosin-Rammler (RR) model given a
     particle diameter `d`, and the two parameters `k` and `m`.
@@ -927,7 +957,7 @@ def pdf_Rosin_Rammler(d, k, m):
     return d**(m - 1.0)*k*m*exp(-d**m*k)
 
 
-def cdf_Rosin_Rammler(d, k, m):
+def cdf_Rosin_Rammler(d: float, k: float, m: float) -> float:
     r"""Calculates the cumulative distribution function of a particle
     distribution following the Rosin-Rammler (RR) model given a
     particle diameter `d`, and the two parameters `k` and `m`.
@@ -973,7 +1003,7 @@ def cdf_Rosin_Rammler(d, k, m):
     return 1.0 - exp(-k*d**m)
 
 
-def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
+def pdf_Rosin_Rammler_basis_integral(d: float, k: float, m: float, n: float) -> float:
     r"""Calculates the integral of the multiplication of d^n by the Rosin
     Rammler (RR) pdf, given a particle diameter `d`, and the two parameters `k`
     and `m`.
@@ -1025,151 +1055,153 @@ def pdf_Rosin_Rammler_basis_integral(d, k, m, n):
         return pdf_Rosin_Rammler_basis_integral(1E-40, k, m, n)
 
 
-names = {0: 'Number distribution', 1: 'Length distribution',
-         2: 'Area distribution', 3: 'Volume/Mass distribution'}
+names = {0: "Number distribution", 1: "Length distribution",
+         2: "Area distribution", 3: "Volume/Mass distribution"}
 
 def _label_distribution_n(n):  # pragma: no cover
     if n in names:
         return names[n]
     else:
-        return f'Order {n!s} distribution'
+        return f"Order {n!s} distribution"
 
-_mean_size_docstring = r"""Calculates the mean particle size according to moment-ratio
-        notation. This is the more common and often convenient definition.
+_mean_size_docstring = r"""Calculates the mean particle size according to moment-ratio notation.
 
-        .. math::
-            \left[\bar D_{p,q} \right]^{(p-q)} = \frac{\sum_i n_i  D_i^p }
-            {\sum_i n_i D_i^q}
+This is the more common and often convenient definition.
 
-            \left[\bar D_{p,p} \right] = \exp\left[\frac{\sum_i n_i  D_i^p\ln
-            D_i }{\sum_i n_i D_i^p}\right]  \text{, if p = q}
+.. math::
+    \left[\bar D_{p,q} \right]^{(p-q)} = \frac{\sum_i n_i  D_i^p }
+    {\sum_i n_i D_i^q}
 
-        Note that :math:`n_i` in the above equation is replaceable with
-        the fraction of particles in that bin.
+    \left[\bar D_{p,p} \right] = \exp\left[\frac{\sum_i n_i  D_i^p\ln
+    D_i }{\sum_i n_i D_i^p}\right]  \text{, if p = q}
 
-        Parameters
-        ----------
-        p : int
-            Power and/or subscript of D moment in the above equations, [-]
-        q : int
-            Power and/or subscript of D moment in the above equations, [-]
+Note that :math:`n_i` in the above equation is replaceable with
+the fraction of particles in that bin.
 
-        Returns
-        -------
-        d_pq : float
-            Mean particle size according to the specified p and q, [m]
+Parameters
+----------
+p : int
+    Power and/or subscript of D moment in the above equations, [-]
+q : int
+    Power and/or subscript of D moment in the above equations, [-]
 
-        Notes
-        -----
-        The following is a list of common names for specific mean diameters.
+Returns
+-------
+d_pq : float
+    Mean particle size according to the specified p and q, [m]
 
-        * **D[-3, 0]**: arithmetic harmonic mean volume diameter
-        * **D[-2, 1]**: size-weighted harmonic mean volume diameter
-        * **D[-1, 2]**: area-weighted harmonic mean volume diameter
-        * **D[-2, 0]**: arithmetic harmonic mean area diameter
-        * **D[-1, 1]**: size-weighted harmonic mean area diameter
-        * **D[-1, 0]**: arithmetic harmonic mean diameter
-        * **D[0, 0]**: arithmetic geometric mean diameter
-        * **D[1, 1]**: size-weighted geometric mean diameter
-        * **D[2, 2]**: area-weighted geometric mean diameter
-        * **D[3, 3]**: volume-weighted geometric mean diameter
-        * **D[1, 0]**: arithmetic mean diameter
-        * **D[2, 1]**: size-weighted mean diameter
-        * **D[3, 2]**: area-weighted mean diameter, **Sauter mean diameter**
-        * **D[4, 3]**: volume-weighted mean diameter, **De Brouckere diameter**
-        * **D[2, 0]**: arithmetic mean area diameter
-        * **D[3, 1]**: size-weighted mean area diameter
-        * **D[4, 2]**: area-weighted mean area diameter
-        * **D[5, 3]**: volume-weighted mean area diameter
-        * **D[3, 0]**: arithmetic mean volume diameter
-        * **D[4, 1]**: size-weighted mean volume diameter
-        * **D[5, 2]**: area-weighted mean volume diameter
-        * **D[6, 3]**: volume-weighted mean volume diameter
+Notes
+-----
+The following is a list of common names for specific mean diameters.
 
-        This notation was first introduced in [1]_.
+* **D[-3, 0]**: arithmetic harmonic mean volume diameter
+* **D[-2, 1]**: size-weighted harmonic mean volume diameter
+* **D[-1, 2]**: area-weighted harmonic mean volume diameter
+* **D[-2, 0]**: arithmetic harmonic mean area diameter
+* **D[-1, 1]**: size-weighted harmonic mean area diameter
+* **D[-1, 0]**: arithmetic harmonic mean diameter
+* **D[0, 0]**: arithmetic geometric mean diameter
+* **D[1, 1]**: size-weighted geometric mean diameter
+* **D[2, 2]**: area-weighted geometric mean diameter
+* **D[3, 3]**: volume-weighted geometric mean diameter
+* **D[1, 0]**: arithmetic mean diameter
+* **D[2, 1]**: size-weighted mean diameter
+* **D[3, 2]**: area-weighted mean diameter, **Sauter mean diameter**
+* **D[4, 3]**: volume-weighted mean diameter, **De Brouckere diameter**
+* **D[2, 0]**: arithmetic mean area diameter
+* **D[3, 1]**: size-weighted mean area diameter
+* **D[4, 2]**: area-weighted mean area diameter
+* **D[5, 3]**: volume-weighted mean area diameter
+* **D[3, 0]**: arithmetic mean volume diameter
+* **D[4, 1]**: size-weighted mean volume diameter
+* **D[5, 2]**: area-weighted mean volume diameter
+* **D[6, 3]**: volume-weighted mean volume diameter
 
-        The sum of p and q is called the order of the mean size [3]_.
+This notation was first introduced in [1]_.
 
-        .. math::
-            \bar D_{p,q}  \equiv \bar D_{q, p}
+The sum of p and q is called the order of the mean size [3]_.
 
-        Examples
-        --------
+.. math::
+    \bar D_{p,q}  \equiv \bar D_{q, p}
+
+Examples
+--------
 %s
 
-        References
-        ----------
-        .. [1] Mugele, R. A., and H. D. Evans. "Droplet Size Distribution in
-           Sprays." Industrial & Engineering Chemistry 43, no. 6 (June 1951):
-           1317-24. https://doi.org/10.1021/ie50498a023.
-        .. [2] ASTM E799 - 03(2015) - Standard Practice for Determining Data
-           Criteria and Processing for Liquid Drop Size Analysis.
-        .. [3] ISO 9276-2:2014 - Representation of Results of Particle Size
-           Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
-           and Moments from Particle Size Distributions.
+References
+----------
+.. [1] Mugele, R. A., and H. D. Evans. "Droplet Size Distribution in
+       Sprays." Industrial & Engineering Chemistry 43, no. 6 (June 1951):
+       1317-24. https://doi.org/10.1021/ie50498a023.
+.. [2] ASTM E799 - 03(2015) - Standard Practice for Determining Data
+       Criteria and Processing for Liquid Drop Size Analysis.
+.. [3] ISO 9276-2:2014 - Representation of Results of Particle Size
+       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
+       and Moments from Particle Size Distributions.
 """
 
-_mean_size_iso_docstring =  r"""Calculates the mean particle size according to moment
-        notation (ISO). This system is related to the moment-ratio notation
-        as follows; see the `mean_size` method for the full formulas.
+_mean_size_iso_docstring =  r"""Calculates the mean particle size according to moment notation (ISO).
 
-        .. math::
-            \bar x_{p-q, q} \equiv \bar x_{k+r, r}  \equiv \bar D_{p,q}
+This system is related to the moment-ratio notation
+as follows; see the `mean_size` method for the full formulas.
 
-        Parameters
-        ----------
-        k : int
-            Power and/or subscript of D moment in the above equations, [-]
-        r : int
-            Power and/or subscript of D moment in the above equations, [-]
+.. math::
+    \bar x_{p-q, q} \equiv \bar x_{k+r, r}  \equiv \bar D_{p,q}
 
-        Returns
-        -------
-        x_kr : float
-            Mean particle size according to the specified k and r in the ISO
-            series, [m]
+Parameters
+----------
+k : int
+    Power and/or subscript of D moment in the above equations, [-]
+r : int
+    Power and/or subscript of D moment in the above equations, [-]
 
-        Notes
-        -----
-        The following is a list of common names for specific mean diameters in
-        the ISO naming convention.
+Returns
+-------
+x_kr : float
+    Mean particle size according to the specified k and r in the ISO
+    series, [m]
 
-        * **x[-3, 0]**: arithmetic harmonic mean volume diameter
-        * **x[-3, 1]**: size-weighted harmonic mean volume diameter
-        * **x[-3, 2]**: area-weighted harmonic mean volume diameter
-        * **x[-2, 0]**: arithmetic harmonic mean area diameter
-        * **x[-2, 1]**: size-weighted harmonic mean area diameter
-        * **x[-1, 0]**: arithmetic harmonic mean diameter
-        * **x[0, 0]**: arithmetic geometric mean diameter
-        * **x[0, 1]**: size-weighted geometric mean diameter
-        * **x[0, 2]**: area-weighted geometric mean diameter
-        * **x[0, 3]**: volume-weighted geometric mean diameter
-        * **x[1, 0]**: arithmetic mean diameter
-        * **x[1, 1]**: size-weighted mean diameter
-        * **x[1, 2]**: area-weighted mean diameter, **Sauter mean diameter**
-        * **x[1, 3]**: volume-weighted mean diameter, **De Brouckere diameter**
-        * **x[2, 0]**: arithmetic mean area diameter
-        * **x[1, 1]**: size-weighted mean area diameter
-        * **x[2, 2]**: area-weighted mean area diameter
-        * **x[2, 3]**: volume-weighted mean area diameter
-        * **x[3, 0]**: arithmetic mean volume diameter
-        * **x[3, 1]**: size-weighted mean volume diameter
-        * **x[3, 2]**: area-weighted mean volume diameter
-        * **x[3, 3]**: volume-weighted mean volume diameter
+Notes
+-----
+The following is a list of common names for specific mean diameters in
+the ISO naming convention.
 
-        When working with continuous distributions, the ISO series must be used
-        to perform the actual calculations.
+* **x[-3, 0]**: arithmetic harmonic mean volume diameter
+* **x[-3, 1]**: size-weighted harmonic mean volume diameter
+* **x[-3, 2]**: area-weighted harmonic mean volume diameter
+* **x[-2, 0]**: arithmetic harmonic mean area diameter
+* **x[-2, 1]**: size-weighted harmonic mean area diameter
+* **x[-1, 0]**: arithmetic harmonic mean diameter
+* **x[0, 0]**: arithmetic geometric mean diameter
+* **x[0, 1]**: size-weighted geometric mean diameter
+* **x[0, 2]**: area-weighted geometric mean diameter
+* **x[0, 3]**: volume-weighted geometric mean diameter
+* **x[1, 0]**: arithmetic mean diameter
+* **x[1, 1]**: size-weighted mean diameter
+* **x[1, 2]**: area-weighted mean diameter, **Sauter mean diameter**
+* **x[1, 3]**: volume-weighted mean diameter, **De Brouckere diameter**
+* **x[2, 0]**: arithmetic mean area diameter
+* **x[1, 1]**: size-weighted mean area diameter
+* **x[2, 2]**: area-weighted mean area diameter
+* **x[2, 3]**: volume-weighted mean area diameter
+* **x[3, 0]**: arithmetic mean volume diameter
+* **x[3, 1]**: size-weighted mean volume diameter
+* **x[3, 2]**: area-weighted mean volume diameter
+* **x[3, 3]**: volume-weighted mean volume diameter
 
-        Examples
-        --------
+When working with continuous distributions, the ISO series must be used
+to perform the actual calculations.
+
+Examples
+--------
 %s
 
-        References
-        ----------
-        .. [1] ISO 9276-2:2014 - Representation of Results of Particle Size
-           Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
-           and Moments from Particle Size Distributions.
-        """
+References
+----------
+.. [1] ISO 9276-2:2014 - Representation of Results of Particle Size
+       Analysis - Part 2: Calculation of Average Particle Sizes/Diameters
+       and Moments from Particle Size Distributions.
+"""
 
 
 
@@ -1198,12 +1230,30 @@ class ParticleSizeDistributionContinuous:
        Moments from Particle Size Distributions.
     """
 
-    def _pdf_basis_integral_definite(self, d_min, d_max, n):
+    order: int
+    d_excessive: float
+    truncated: bool
+    d_min: float
+    d_max: float
+    d_minimum: float
+    _cdf_d_max: float
+    _cdf_d_min: float
+
+    def _pdf(self, d: float) -> float:
+        raise NotImplementedError("Must be implemented by subclasses")
+
+    def _cdf(self, d: float) -> float:
+        raise NotImplementedError("Must be implemented by subclasses")
+
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
+        raise NotImplementedError("Must be implemented by subclasses")
+
+    def _pdf_basis_integral_definite(self, d_min: float, d_max: float, n: float) -> float:
         # Needed as an api for numerical integrals
         return (self._pdf_basis_integral(d=d_max, n=n)
                 - self._pdf_basis_integral(d=d_min, n=n))
 
-    def pdf(self, d, n=None):
+    def pdf(self, d: float, n: float | None=None) -> float:
         r"""Computes the probability density function of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
@@ -1268,7 +1318,7 @@ class ParticleSizeDistributionContinuous:
             ans = (ans)/(self._cdf_d_max - self._cdf_d_min)
         return ans
 
-    def cdf(self, d, n=None):
+    def cdf(self, d: float, n: float | None=None) -> float:
         r"""Computes the cumulative distribution density function of a
         continuous particle size distribution at a specified particle diameter,
         an optionally in a specified basis. The evaluation function varies with
@@ -1353,7 +1403,7 @@ class ParticleSizeDistributionContinuous:
         """
         return self.cdf(d_max, n=n) - self.cdf(d_min, n=n)
 
-    def dn(self, fraction, n=None):
+    def dn(self, fraction: float, n: None=None) -> float:
         r"""Computes the diameter at which a specified `fraction` of the
         distribution falls under. Utilizes a bounded solver to search for the
         desired diameter.
@@ -1388,7 +1438,7 @@ class ParticleSizeDistributionContinuous:
             # Avoid returning the maximum value of the search interval
             fraction = 1.0 - epsilon
         if fraction < 0:
-            raise ValueError('Fraction must be more than 0')
+            raise ValueError("Fraction must be more than 0")
         elif fraction == 0:  # pragma: no cover
             if self.truncated:
                 return self.d_min
@@ -1406,15 +1456,15 @@ class ParticleSizeDistributionContinuous:
 #            return brenth(err, self.d_minimum, self.d_excessive, maxiter=1000, xtol=1E-200)
 
         elif fraction > 1:
-            raise ValueError('Fraction less than 1')
+            raise ValueError("Fraction less than 1")
         # As the dn may be incredibly small, it is required for the absolute
         # tolerance to not be happy - it needs to continue iterating as long
         # as necessary to pin down the answer
         return brenth(lambda d:self.cdf(d, n=n) -fraction,
                       self.d_minimum, self.d_excessive, maxiter=1000, xtol=1E-200)
 
-    def ds_discrete(self, d_min=None, d_max=None, pts=20, limit=1e-9,
-                    method='logarithmic'):
+    def ds_discrete(self, d_min: float | None=None, d_max: float | None=None, pts: int=20, limit: float=1e-9,
+                    method: str="logarithmic") -> list[float]:
         r"""Create a particle spacing mesh to perform calculations with,
         according to one of several ways. The allowable meshes are
         'linear', 'logarithmic', a geometric series specified by a Renard
@@ -1458,16 +1508,16 @@ class ParticleSizeDistributionContinuous:
         .. [1] ASTM E11 - 17 - Standard Specification for Woven Wire Test Sieve
            Cloth and Test Sieves.
         .. [2] ISO 3310-1:2016 - Test Sieves -- Technical Requirements and Testing
-           -- Part 1: Test Sieves of Metal Wire Cloth.
+           Part 1: Test Sieves of Metal Wire Cloth.
         """
-        if method[0] not in ('R', 'r'):
+        if method[0] not in ("R", "r"):
             if d_min is None:
                 d_min = self.dn(limit)
             if d_max is None:
                 d_max = self.dn(1.0 - limit)
         return psd_spacing(d_min=d_min, d_max=d_max, pts=pts, method=method)
 
-    def fractions_discrete(self, ds, n=None):
+    def fractions_discrete(self, ds: list[float] | np.ndarray, n: None=None) -> list[float]:
         r"""Computes the fractions of the cumulative distribution functions
         which lie between the specified specified particle diameters. The first
         diameter contains the cdf from 0 to it.
@@ -1496,7 +1546,7 @@ class ParticleSizeDistributionContinuous:
         cdfs = [self.cdf(d, n=n) for d in ds]
         return [cdfs[0]] + diff(cdfs)
 
-    def cdf_discrete(self, ds, n=None):
+    def cdf_discrete(self, ds: list[float] | np.ndarray, n: None=None) -> list[float]:
         r"""Computes the cumulative distribution functions for a list of
         specified particle diameters.
 
@@ -1523,7 +1573,7 @@ class ParticleSizeDistributionContinuous:
         """
         return [self.cdf(d, n=n) for d in ds]
 
-    def mean_size(self, p, q):
+    def mean_size(self, p: float, q: float) -> float:
         """
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
         >>> psd.mean_size(3, 2)
@@ -1550,7 +1600,7 @@ class ParticleSizeDistributionContinuous:
         numerator = self._pdf_basis_integral_definite(d_min=self.d_minimum, d_max=self.d_excessive, n=pow3)
         return float((numerator/denominator)**(1.0/(root_power)))
 
-    def mean_size_ISO(self, k, r):
+    def mean_size_ISO(self, k: int, r: int) -> float:
         """
         >>> psd = PSDLognormal(s=0.5, d_characteristic=5E-6)
         >>> psd.mean_size_ISO(1, 2)
@@ -1561,7 +1611,7 @@ class ParticleSizeDistributionContinuous:
         return self.mean_size(p=p, q=q)
 
     @property
-    def vssa(self):
+    def vssa(self) -> float:
         r"""The volume-specific surface area of a particle size distribution.
 
         .. math::
@@ -1587,7 +1637,7 @@ class ParticleSizeDistributionContinuous:
 
 
     def plot_pdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500,
-                 normalized=False, method='linear'):  # pragma: no cover
+                 normalized=False, method="linear"):  # pragma: no cover
         r"""Plot the probability density function of the particle size
         distribution. The plotted range can be specified using `d_min` and
         `d_max`, or estimated automatically. One or more order can be plotted,
@@ -1634,16 +1684,16 @@ class ParticleSizeDistributionContinuous:
             if normalized:
                 fractions = normalize(fractions)
             plt.semilogx(ds, fractions, label=_label_distribution_n(n))
-        plt.ylabel('Probability density function, [-]')
-        plt.xlabel('Particle diameter, [m]')
-        plt.title(f'Probability density function of {self.name} distribution with '
-                  f'parameters {self.parameters}')
+        plt.ylabel("Probability density function, [-]")
+        plt.xlabel("Particle diameter, [m]")
+        plt.title(f"Probability density function of {self.name} distribution with "
+                  f"parameters {self.parameters}")
         plt.legend()
         plt.show()
         return fractions
 
     def plot_cdf(self, n=(0, 1, 2, 3), d_min=None, d_max=None, pts=500,
-                 method='logarithmic'):   # pragma: no cover
+                 method="logarithmic"):   # pragma: no cover
         r"""Plot the cumulative distribution function of the particle size
         distribution. The plotted range can be specified using `d_min` and
         `d_max`, or estimated automatically. One or more order can be plotted,
@@ -1681,19 +1731,19 @@ class ParticleSizeDistributionContinuous:
             cdfs = self.cdf_discrete(ds=ds, n=n)
             plt.semilogx(ds, cdfs, label=_label_distribution_n(n))
         if self.points:
-            plt.plot(self.ds, self.fraction_cdf, '+', label='Volume/Mass points')
+            plt.plot(self.ds, self.fraction_cdf, "+", label="Volume/Mass points")
 
-            if hasattr(self, 'area_fractions'):
-                plt.plot(self.ds, cumsum(self.area_fractions), '+', label='Area points')
-            if hasattr(self, 'length_fractions'):
-                plt.plot(self.ds, cumsum(self.length_fractions), '+', label='Length points')
-            if hasattr(self, 'number_fractions'):
-                plt.plot(self.ds, cumsum(self.number_fractions), '+', label='Number points')
+            if hasattr(self, "area_fractions"):
+                plt.plot(self.ds, cumsum(self.area_fractions), "+", label="Area points")
+            if hasattr(self, "length_fractions"):
+                plt.plot(self.ds, cumsum(self.length_fractions), "+", label="Length points")
+            if hasattr(self, "number_fractions"):
+                plt.plot(self.ds, cumsum(self.number_fractions), "+", label="Number points")
 
-        plt.ylabel('Cumulative density function, [-]')
-        plt.xlabel('Particle diameter, [m]')
-        plt.title(f'Cumulative density function of {self.name} distribution with '
-                  f'parameters {self.parameters}')
+        plt.ylabel("Cumulative density function, [-]")
+        plt.xlabel("Particle diameter, [m]")
+        plt.title(f"Cumulative density function of {self.name} distribution with "
+                  f"parameters {self.parameters}")
         plt.legend()
         plt.show()
 
@@ -1781,15 +1831,15 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
     """
 
     def __repr__(self):
-        txt = '<Particle Size Distribution, points=%d, D[3, 3]=%f m>'
+        txt = "<Particle Size Distribution, points=%d, D[3, 3]=%f m>"
         return txt %(self.N, self.mean_size(p=3, q=3))
 
     size_classes = False
     _interpolated = None
     points = True
     truncated = False
-    name = 'Discrete'
-    def __init__(self, ds, fractions, cdf=False, order=3, monotonic=True):
+    name = "Discrete"
+    def __init__(self, ds: list[float] | np.ndarray, fractions: list[float], cdf: bool=False, order: int=3, monotonic: bool=True) -> None:
         self.monotonic = monotonic
         self.ds = ds
         self.order = order
@@ -1804,8 +1854,8 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
             if len(fractions)+1 == len(ds):
                 fractions = [fractions[0]] + diff(fractions)
             else:
-                fractions = diff(fractions)
-                fractions.insert(0, 0.0)
+                fractions_diff = diff(fractions)
+                fractions = [0.0] + fractions_diff
         elif sum(fractions) != 1.0:
             # Normalize flow inputs
             tot_inv = 1.0/sum(fractions)
@@ -1843,7 +1893,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         # Things for interoperability with the Continuous distribution
         self.d_excessive = float(self.ds[-1])
         self.d_minimum = 0.0
-        self.parameters = {}
+        self.parameters: dict[str, float | None] = {}
         self.order = 3
         self.fraction_cdf = self.volume_cdf = cumsum(self.fractions)
         self.area_cdf = cumsum(self.area_fractions)
@@ -1851,7 +1901,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         self.number_cdf = cumsum(self.number_fractions)
 
     @property
-    def interpolated(self):
+    def interpolated(self) -> PSDInterpolated:
         if not self._interpolated:
             self._interpolated = PSDInterpolated(ds=self.ds,
                                                  fractions=self.fractions,
@@ -1859,13 +1909,13 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
                                                  monotonic=self.monotonic)
         return self._interpolated
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return self.interpolated._pdf(d)
 
-    def _cdf(self, d):
+    def _cdf(self, d: float) -> float:
         return self.interpolated._cdf(d)
 
-    def _pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
         return self.interpolated._pdf_basis_integral(d, n)
 
     def _fit_obj_function(self, vals, distribution, n):
@@ -1877,28 +1927,28 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
             err += abs(delta_cdf - self.fractions[i])
         return err
 
-    def fit(self, x0=None, distribution='lognormal', n=None, **kwargs):
+    def fit(self, x0=None, distribution="lognormal", n=None, **kwargs):
         """Incomplete method to fit experimental values to a curve.
 
         It is very hard to get good initial guesses, which are really required
         for this. Differential evolution is promising. This API is likely to
         change in the future.
         """
-        dist = {'lognormal': PSDLognormal,
-                'GGS': PSDGatesGaudinSchuhman,
-                'RR': PSDRosinRammler}[distribution]
+        dist = {"lognormal": PSDLognormal,
+                "GGS": PSDGatesGaudinSchuhman,
+                "RR": PSDRosinRammler}[distribution]
 
-        if distribution == 'lognormal':
+        if distribution == "lognormal":
             if x0 is None:
                 d_characteristic = sum([fi*di for fi, di in zip(self.fractions, self.Dis)])
                 s = 0.4
                 x0 = [d_characteristic, s]
-        elif distribution == 'GGS':
+        elif distribution == "GGS":
             if x0 is None:
                 d_characteristic = sum([fi*di for fi, di in zip(self.fractions, self.Dis)])
                 m = 1.5
                 x0 = [d_characteristic, m]
-        elif distribution == 'RR' and x0 is None:
+        elif distribution == "RR" and x0 is None:
             x0 = [5E-6, 1e-2]
         # from fluids.numerics import SolverInterface
         # solver = SolverInterface('newton_minimize', self._fit_obj_function, xtol=1e-10, jacobian_perturbation=1e-5, scalar_objective=True, **kwargs)
@@ -1907,11 +1957,11 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         return minimize(self._fit_obj_function, x0, args=(dist, n), **kwargs)
 
     @property
-    def Dis(self):
+    def Dis(self) -> list[float]:
         """Representative diameters of each bin."""
         return [self.di_power(i, power=1) for i in range(self.N)]
 
-    def di_power(self, i, power=1):
+    def di_power(self, i: int, power: float=1) -> float:
         r"""Method to calculate a power of a particle class/bin in a generic
         way so as to support when there are as many `ds` as `fractions`,
         or one more diameter spec than `fractions`.
@@ -1952,7 +2002,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         else:
             return self.ds[i]**power
 
-    def mean_size(self, p, q):
+    def mean_size(self, p: float, q: float) ->  float:
         """
         >>> import numpy as np
         >>> ds = 1E-6*np.array([240, 360, 450, 562.5, 703, 878, 1097, 1371, 1713, 2141, 2676, 3345, 4181, 5226, 6532])
@@ -1985,7 +2035,7 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         return self.mean_size(p=p, q=q)
 
     @property
-    def vssa(self):
+    def vssa(self) -> float:
         r"""The volume-specific surface area of a particle size distribution.
         Note this uses the diameters provided by the method `Dis`.
 
@@ -2010,147 +2060,153 @@ class ParticleSizeDistribution(ParticleSizeDistributionContinuous):
         VSSA = sum([fi*SASi for fi, SASi in zip(self.fractions, SASs)])
         return VSSA
 
-try:  # pragma: no cover
-    # Python 2
-    ParticleSizeDistributionContinuous.mean_size.__func__.__doc__ = _mean_size_docstring %(ParticleSizeDistributionContinuous.mean_size.__func__.__doc__)
-    ParticleSizeDistributionContinuous.mean_size_ISO.__func__.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistributionContinuous.mean_size_ISO.__func__.__doc__)
-    ParticleSizeDistribution.mean_size.__func__.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__func__.__doc__)
-    ParticleSizeDistribution.mean_size_ISO.__func__.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__func__.__doc__)
-except AttributeError:  # pragma: no cover
-    try:
-        # Python 3
-        ParticleSizeDistributionContinuous.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistributionContinuous.mean_size.__doc__)
-        ParticleSizeDistributionContinuous.mean_size_ISO.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistributionContinuous.mean_size_ISO.__doc__)
-        ParticleSizeDistribution.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__doc__)
-        ParticleSizeDistribution.mean_size_ISO.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__doc__)
-    except:
-        pass # micropython
+try:
+    ParticleSizeDistributionContinuous.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistributionContinuous.mean_size.__doc__)
+    ParticleSizeDistributionContinuous.mean_size_ISO.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistributionContinuous.mean_size_ISO.__doc__)
+    ParticleSizeDistribution.mean_size.__doc__ = _mean_size_docstring %(ParticleSizeDistribution.mean_size.__doc__)
+    ParticleSizeDistribution.mean_size_ISO.__doc__ = _mean_size_iso_docstring %(ParticleSizeDistribution.mean_size_ISO.__doc__)
+except:
+    pass # micropython
 del _mean_size_iso_docstring
 del _mean_size_docstring
 
 class PSDLognormal(ParticleSizeDistributionContinuous):
-    name = 'Lognormal'
+    name = "Lognormal"
     points = False
     truncated = False
-    def __init__(self, d_characteristic, s, order=3, d_min=None, d_max=None):
+    def __init__(self, d_characteristic: float, s: float, order: int=3, d_min: float | None=None, d_max: float | None=None) -> None:
         self.s = s
         self.d_characteristic = d_characteristic
         self.order = order
-        self.parameters = {'s': s, 'd_characteristic': d_characteristic,
-                           'd_min': d_min, 'd_max': d_max}
-        self.d_min = d_min
-        self.d_max = d_max
+        self.parameters = {"s": s, "d_characteristic": d_characteristic,
+                           "d_min": d_min, "d_max": d_max}
+        if d_min is not None:
+            self.d_min = d_min
+        if d_max is not None:
+            self.d_max = d_max
         # Pick an upper bound for the search algorithm of 15 orders of magnitude larger than
         # the characteristic diameter; should never be a problem, as diameters can only range
         # so much, physically.
-        if self.d_max is not None:
-            self.d_excessive = self.d_max
+        if d_max is not None:
+            self.d_excessive = d_max
         else:
             self.d_excessive = 1E15*self.d_characteristic
-        if self.d_min is not None:
-            self.d_minimum = self.d_min
+        if d_min is not None:
+            self.d_minimum = d_min
         else:
             self.d_minimum = 0.0
 
-        if self.d_min is not None or self.d_max is not None:
+        if d_min is not None or d_max is not None:
             self.truncated = True
-            if self.d_max is None:
+            if d_max is None:
                 self.d_max = self.d_excessive
-            if self.d_min is None:
+            else:
+                self.d_max = d_max
+            if d_min is None:
                 self.d_min = 0.0
+            else:
+                self.d_min = d_min
 
             self._cdf_d_max = self._cdf(self.d_max)
             self._cdf_d_min = self._cdf(self.d_min)
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return pdf_lognormal(d, self.d_characteristic, self.s)
 
-    def _cdf(self, d):
+    def _cdf(self, d: float) -> float:
         return cdf_lognormal(d, self.d_characteristic, self.s)
 
-    def _pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
         return pdf_lognormal_basis_integral(d, self.d_characteristic, self.s, n)
 
 
 class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
-    name = 'Gates Gaudin Schuhman'
+    name = "Gates Gaudin Schuhman"
     points = False
     truncated = False
     def __init__(self, d_characteristic, m, order=3, d_min=None, d_max=None):
         self.m = m
         self.d_characteristic = d_characteristic
         self.order = order
-        self.parameters = {'m': m, 'd_characteristic': d_characteristic,
-                           'd_min': d_min, 'd_max': d_max}
+        self.parameters = {"m": m, "d_characteristic": d_characteristic,
+                           "d_min": d_min, "d_max": d_max}
 
-        if self.d_max is not None:
+        if d_max is not None:
             # PDF above this is zero
             self.d_excessive = self.d_max
         else:
             self.d_excessive = self.d_characteristic
-        if self.d_min is not None:
-            self.d_minimum = self.d_min
+        if d_min is not None:
+            self.d_minimum = d_min
         else:
             self.d_minimum = 0.0
 
-        if self.d_min is not None or self.d_max is not None:
+        if d_min is not None or d_max is not None:
             self.truncated = True
-            if self.d_max is None:
+            if d_max is None:
                 self.d_max = self.d_excessive
-            if self.d_min is None:
+            else:
+                self.d_max = d_max
+            if d_min is None:
                 self.d_min = 0.0
+            else:
+                self.d_min = d_min
 
             self._cdf_d_max = self._cdf(self.d_max)
             self._cdf_d_min = self._cdf(self.d_min)
 
 
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return pdf_Gates_Gaudin_Schuhman(d, d_characteristic=self.d_characteristic, m=self.m)
 
-    def _cdf(self, d):
+    def _cdf(self, d : float) -> float:
         return cdf_Gates_Gaudin_Schuhman(d, d_characteristic=self.d_characteristic, m=self.m)
 
-    def _pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
         return pdf_Gates_Gaudin_Schuhman_basis_integral(d, d_characteristic=self.d_characteristic, m=self.m, n=n)
 
 
 class PSDRosinRammler(ParticleSizeDistributionContinuous):
-    name = 'Rosin Rammler'
+    name = "Rosin Rammler"
     points = False
     truncated = False
     def __init__(self, k, m, order=3, d_min=None, d_max=None):
         self.m = m
         self.k = k
         self.order = order
-        self.parameters = {'m': m, 'k': k, 'd_min': d_min, 'd_max': d_max}
+        self.parameters = {"m": m, "k": k, "d_min": d_min, "d_max": d_max}
 
-        if self.d_max is not None:
-            self.d_excessive = self.d_max
+        if d_max is not None:
+            self.d_excessive = d_max
         else:
             self.d_excessive = 1e15
-        if self.d_min is not None:
-            self.d_minimum = self.d_min
+        if d_min is not None:
+            self.d_minimum = d_min
         else:
             self.d_minimum = 0.0
 
-        if self.d_min is not None or self.d_max is not None:
+        if d_min is not None or d_max is not None:
             self.truncated = True
-            if self.d_max is None:
+            if d_max is None:
                 self.d_max = self.d_excessive
-            if self.d_min is None:
+            else:
+                self.d_max = d_max
+            if d_min is None:
                 self.d_min = 0.0
+            else:
+                self.d_min = d_min
 
             self._cdf_d_max = self._cdf(self.d_max)
             self._cdf_d_min = self._cdf(self.d_min)
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return pdf_Rosin_Rammler(d, k=self.k, m=self.m)
 
-    def _cdf(self, d):
+    def _cdf(self, d: float) -> float:
         return cdf_Rosin_Rammler(d, k=self.k, m=self.m)
 
-    def _pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
         return pdf_Rosin_Rammler_basis_integral(d, k=self.k, m=self.m, n=n)
 
 
@@ -2164,7 +2220,7 @@ psd = PSDCustom(distribution)
 """
 
 class PSDCustom(ParticleSizeDistributionContinuous):
-    name = ''
+    name = ""
     points = False
     truncated = False
     def __init__(self, distribution, order=3.0, d_excessive=1.0, name=None,
@@ -2178,40 +2234,42 @@ class PSDCustom(ParticleSizeDistributionContinuous):
                 pass
         try:
             self.parameters = dict(distribution.kwds)
-            self.parameters.update({'d_min': d_min, 'd_max': d_max})
+            self.parameters.update({"d_min": d_min, "d_max": d_max})
         except:
-            self.parameters = {'d_min': d_min, 'd_max': d_max}
+            self.parameters = {"d_min": d_min, "d_max": d_max}
 
         self.distribution = distribution
         self.order = order
-        self.d_max = d_max
-        self.d_min = d_min
 
-        if self.d_max is not None:
-            self.d_excessive = self.d_max
+        if d_max is not None:
+            self.d_excessive = d_max
         else:
             self.d_excessive = d_excessive
-        if self.d_min is not None:
-            self.d_minimum = self.d_min
+        if d_min is not None:
+            self.d_minimum = d_min
         else:
             self.d_minimum = 0.0
 
-        if self.d_min is not None or self.d_max is not None:
+        if d_min is not None or d_max is not None:
             self.truncated = True
-            if self.d_max is None:
+            if d_max is None:
                 self.d_max = self.d_excessive
-            if self.d_min is None:
+            else:
+                self.d_max = d_max
+            if d_min is None:
                 self.d_min = 0.0
+            else:
+                self.d_min = d_min
 
             self._cdf_d_max = self._cdf(self.d_max)
             self._cdf_d_min = self._cdf(self.d_min)
 
 
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return self.distribution.pdf(d)
 
-    def _cdf(self, d):
+    def _cdf(self, d: float) -> float:
         return self.distribution.cdf(d)
 
     def _pdf_basis_integral_definite(self, d_min, d_max, n):
@@ -2237,13 +2295,13 @@ class PSDCustom(ParticleSizeDistributionContinuous):
 
 
 class PSDInterpolated(ParticleSizeDistributionContinuous):
-    name = 'Interpolated'
+    name = "Interpolated"
     points = True
     truncated = False
-    def __init__(self, ds, fractions, order=3, monotonic=True):
+    def __init__(self, ds: list[float] | np.ndarray, fractions: list[float] | np.ndarray, order: int=3, monotonic: bool=True) -> None:
         self.order = order
         self.monotonic = monotonic # always true now
-        self.parameters = {}
+        self.parameters: dict[str, float | None] = {}
 
         ds = list(ds)
         fractions = list(fractions)
@@ -2253,9 +2311,9 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
             fractions.insert(0, 0.0)
             self.d_minimum = min(ds)
         elif ds[0] != 0:
-            ds = [0] + ds
+            ds = [0.0] + ds
             if len(ds) != len(fractions):
-                fractions = [0] + fractions
+                fractions = [0.0] + fractions
             self.d_minimum = 0.0
 
         self.ds = ds
@@ -2270,25 +2328,23 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
             self.cdf_spline = PchipInterpolator(ds, self.fraction_cdf, extrapolate=True)
             self.pdf_spline = PchipInterpolator(ds, self.fraction_cdf, extrapolate=True).derivative(1)
 
-        # The pdf basis integral splines will be stored here
-        self.basis_integrals = {}
+        self.basis_integrals: dict[int, Callable[[float], float]] = {}
 
 
-    def _pdf(self, d):
+    def _pdf(self, d: float) -> float:
         return max(0.0, float(self.pdf_spline(d)))
 
-    def _cdf(self, d):
+    def _cdf(self, d: float) -> float:
         if d > self.d_excessive:
             # Handle spline values past 1 that decrease to zero
             return 1.0
         return max(0.0, float(self.cdf_spline(d)))
 
-    def _pdf_basis_integral(self, d, n):
+    def _pdf_basis_integral(self, d: float, n: float) -> float:
         # there are slight errors with this approach - but they are OK to
         # ignore.
         # DO NOT evaluate the first point as it leads to inf values; just set
         # it to zero
-        from fluids.numerics import numpy as np
         if n not in self.basis_integrals:
             ds = np.array(self.ds[1:])
             pdf_vals = self.pdf_spline(ds)
@@ -2296,6 +2352,6 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
             basis_integral = ds**float(n)*pdf_vals
             if self.monotonic:
                 from scipy.interpolate import PchipInterpolator
-                self.basis_integrals[n] = PchipInterpolator(ds, basis_integral, extrapolate=True).antiderivative(1)
-        return max(float(self.basis_integrals[n](d)), 0.0)
+                self.basis_integrals[int(n)] = PchipInterpolator(ds, basis_integral, extrapolate=True).antiderivative(1)
+        return max(float(self.basis_integrals[int(n)](d)), 0.0)
 

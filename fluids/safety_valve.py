@@ -54,6 +54,7 @@ Functions and Data
 .. autodata:: API526_A
 
 """
+from __future__ import annotations
 
 from math import log10, pi, sqrt
 
@@ -61,26 +62,41 @@ from fluids.compressible import is_critical_flow
 from fluids.constants import atm, inch
 from fluids.numerics import bisplev, interp, tck_interp2d_linear
 
-__all__ = ['API526_A_sq_inch', 'API526_letters', 'API526_A',
-'API520_round_size', 'API520_C', 'API520_F2', 'API520_Kv', 'API520_N',
-'API520_SH', 'API520_B', 'API520_W', 'API520_A_g', 'API520_A_steam',
-'API521_noise', 'API521_noise_graph', 'VDI_3732_noise_ground_flare',
-'VDI_3732_noise_elevated_flare', 'API520_A_l']
+__all__: list[str] = [
+    "API520_B",
+    "API520_C",
+    "API520_F2",
+    "API520_N",
+    "API520_SH",
+    "API520_W",
+    "API526_A",
+    "API520_A_g",
+    "API520_A_l",
+    "API520_A_steam",
+    "API520_Kv",
+    "API520_round_size",
+    "API521_noise",
+    "API521_noise_graph",
+    "API526_A_sq_inch",
+    "API526_letters",
+    "VDI_3732_noise_elevated_flare",
+    "VDI_3732_noise_ground_flare",
+]
 
 API526_A_sq_inch = [0.110, 0.196, 0.307, 0.503, 0.785, 1.287, 1.838, 2.853, 3.60,
              4.34, 6.38, 11.05, 16.00, 26.00] # square inches
 """list: Nominal relief area in for different valve sizes in API 520, [in^2]"""
-API526_letters = ['D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R','T']
+API526_letters = ["D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R","T"]
 """list: Letter size designations for different valve sizes in API 520"""
 inch2 = inch*inch
 API526_A = [i*inch2 for i in API526_A_sq_inch]
 """list: Nominal relief area in for different valve sizes in API 520, [m^2]"""
 del inch2
 
-TENTH_EDITION = '10E'
-SEVENTH_EDITION = '7E'
+TENTH_EDITION = "10E"
+SEVENTH_EDITION = "7E"
 
-def API520_round_size(A):
+def API520_round_size(A: float) -> float:
     r"""Rounds up the area from an API 520 calculation to an API526 standard
     valve area. The returned area is always larger or equal to the input area.
 
@@ -120,10 +136,10 @@ def API520_round_size(A):
     for area in API526_A:
         if area >= A:
             return area
-    raise ValueError('Required relief area is larger than can be provided with one valve')
+    raise ValueError("Required relief area is larger than can be provided with one valve")
 
 
-def API520_C(k):
+def API520_C(k: float) -> float:
     r"""Calculates coefficient C for use in API 520 critical flow relief valve
     sizing.
 
@@ -172,7 +188,7 @@ def API520_C(k):
         # return 0.03948*sqrt(1./exp(1))
 
 
-def API520_F2(k, P1, P2):
+def API520_F2(k: float, P1: float, P2: float) -> float:
     r"""Calculates coefficient F2 for subcritical flow for use in API 520
     subcritical flow relief valve sizing.
 
@@ -218,7 +234,7 @@ def API520_F2(k, P1, P2):
     return sqrt(k/(k-1.0)*r**(2./k) * ((1-r**((k-1.)/k))/(1.-r)))
 
 
-def API520_N(P1):
+def API520_N(P1: float) -> float:
     r"""Calculates correction due to steam pressure for steam flow for use in
     API 520 relief valve sizing.
 
@@ -468,10 +484,10 @@ def API520_SH(T1, P1, edition=TENTH_EDITION):
     .. [1] API Standard 520, Part 1 - Sizing and Selection.
     """
     if T1 > 922.15:
-        raise ValueError('Superheat cannot be above 649 degrees Celcius')
+        raise ValueError("Superheat cannot be above 649 degrees Celcius")
     if edition == SEVENTH_EDITION:
         if P1 > 20780325.0: # 20679E3+atm
-            raise ValueError('For P above 20679 kPag, use the gas flow model')
+            raise ValueError("For P above 20679 kPag, use the gas flow model")
         if T1 < 422.15:
             return 1. # No superheat under 15 psig
         return float(bisplev(T1, P1, API520_KSH_tck_7E))
@@ -480,7 +496,7 @@ def API520_SH(T1, P1, edition=TENTH_EDITION):
             # Avoid extrapolating above 1.0
             return 1.0
         if P1 > 22063223.338138755:
-            raise ValueError('For P1 above 22.06 MPa, use the gas flow model')
+            raise ValueError("For P1 above 22.06 MPa, use the gas flow model")
         return float(bisplev(T1, P1, API520_KSH_tck_10E))
     else:
         raise ValueError("Acceptable editions are '7E', '10E'")
@@ -514,7 +530,7 @@ Kb_10_over_y = [0.998106, 0.995265, 0.99053, 0.985795, 0.981061, 0.975379,
                 0.716856, 0.70928, 0.701705, 0.695076]
 
 
-def API520_B(Pset, Pback, overpressure=0.1):
+def API520_B(Pset: float, Pback: float, overpressure: float=0.1) -> float:
     r"""Calculates capacity correction due to backpressure on balanced
     spring-loaded PRVs in vapor service. For pilot operated valves,
     this is always 1. Applicable up to 50% of the percent gauge backpressure,
@@ -555,13 +571,13 @@ def API520_B(Pset, Pback, overpressure=0.1):
     """
     gauge_backpressure = (Pback-atm)/(Pset-atm)*100.0 # in percent
     if overpressure not in (0.1, 0.16, 0.21):
-        raise ValueError('Only overpressure of 10%, 16%, or 21% are permitted')
+        raise ValueError("Only overpressure of 10%, 16%, or 21% are permitted")
     if (overpressure == 0.1 and gauge_backpressure < 30.0) or (
         overpressure == 0.16 and gauge_backpressure < 38.0) or (
         overpressure == 0.21 and gauge_backpressure <= 50.0):
         return 1.0
     elif gauge_backpressure > 50.0:
-        raise ValueError('Gauge pressure must be < 50%')
+        raise ValueError("Gauge pressure must be < 50%")
     if overpressure == 0.16:
         Kb = interp(gauge_backpressure, Kb_16_over_x, Kb_16_over_y)
     elif overpressure == 0.1:
@@ -569,7 +585,7 @@ def API520_B(Pset, Pback, overpressure=0.1):
     return Kb
 
 
-def API520_A_g(m, T, Z, MW, k, P1, P2=101325, Kd=0.975, Kb=1, Kc=1):
+def API520_A_g(m: float, T: float, Z: float, MW: float, k: float, P1: float, P2: float=101325, Kd: float=0.975, Kb: float=1, Kc: float=1) -> float:
     r"""Calculates required relief valve area for an API 520 valve passing
     a gas or a vapor, at either critical or sub-critical flow.
 
@@ -838,7 +854,7 @@ Kw_y = [1, 0.996283, 0.992565, 0.987918, 0.982342, 0.976766, 0.97119, 0.964684,
         0.677509, 0.671004, 0.666357]
 
 
-def API520_W(Pset, Pback):
+def API520_W(Pset: float, Pback: float) -> float:
     r"""Calculates capacity correction due to backpressure on balanced
     spring-loaded PRVs in liquid service. For pilot operated valves,
     this is always 1. Applicable up to 50% of the percent gauge backpressure,

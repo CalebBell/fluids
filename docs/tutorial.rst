@@ -257,7 +257,7 @@ Piping can be looked up based on nominal pipe size, outer diameter, or
 inner diameter with the :py:func:`~.nearest_pipe` function.
 
 >>> nearest_pipe(NPS=2) # returns NPS, inside diameter, outer diameter, wall thickness
-(2, 0.05248, 0.0603, 0.00391)
+(2.0, 0.05248, 0.0603, 0.00391)
 
 When looking up by actual diameter, the nearest pipe as large or larger 
 then requested is returned:
@@ -266,16 +266,16 @@ then requested is returned:
 >>> Di
 0.57504
 >>> nearest_pipe(Do=0.5)
-(20, 0.47782, 0.508, 0.01509)
+(20.0, 0.47782, 0.508, 0.01509)
 
 By default, the pipe schedule used for the lookup is schedule 40. Other schedules 
 that are available are: '5', '10', '20', '30', '40', '60', '80', '100',
 '120', '140', '160', 'STD', 'XS', 'XXS', '5S', '10S', '40S', '80S'.
 
 >>> nearest_pipe(Do=0.5, schedule='40S')
-(20, 0.48894, 0.508, 0.00953)
+(20.0, 0.48894, 0.508, 0.00953)
 >>> nearest_pipe(Do=0.5, schedule='80')
-(20, 0.45562, 0.508, 0.02619)
+(20.0, 0.45562, 0.508, 0.02619)
 
 If a diameter which is larger than any pipe in the schedule is input, an
 exception is raised:
@@ -299,7 +299,7 @@ and :py:func:`~.t_from_gauge` functions.
 Looking up the gauge from a wire of known diameter approximately 1.2 mm:
 
 >>> gauge_from_t(.0012)
-18
+18.0
 
 The reverse conversion:
 
@@ -424,7 +424,7 @@ Various main classes are available to model the atmosphere, of varying accuracy.
 US Standard Atmosphere 1976 (:py:class:`~.ATMOSPHERE_1976`), a basic
 but very quick model; the NRLMSISE 00 model, substantially more powerful and
 accurate and still the standard to this day (:py:class:`~.ATMOSPHERE_NRLMSISE00`).
- Solar models are :py:func:`~.earthsun_distance`,
+Solar models are :py:func:`~.earthsun_distance`,
 :py:func:`~.solar_position`, :py:func:`~.sunrise_sunset` and :py:func:`~.solar_irradiation`.
 
 :py:class:`~.ATMOSPHERE_1976` is the simplest model, and very suitable for basic engineering
@@ -1542,5 +1542,4 @@ Fluids was originally tightly integrated with SciPy and NumPy; today they
 are optional components used for only a small amount of functionality
 which do not have pure-Python numerical methods implemented.
 Fluids targets Python 2.7 and up as well as PyPy2 and PyPy3. Additionally,
-fluids has been tested by the author to load in IronPython,
-and micropython.
+fluids has been tested by the author to load in micropython.

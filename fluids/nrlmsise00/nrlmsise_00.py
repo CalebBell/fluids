@@ -38,12 +38,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
  */
 """
 
-from math import cos, exp, log, log10, pow, sin, sqrt
+from math import cos, exp, log, pow, sin, sqrt
 
 from .nrlmsise_00_data import pavgm, pd, pdl, pdm, pma, ps, pt, ptl, ptm
 from .nrlmsise_00_header import nrlmsise_output
 
-__all__ = ['gtd7']
+__all__ = ["gtd7"]
 
 """
 /* ------------------------------------------------------------------- */
@@ -65,7 +65,7 @@ def calc_trig_loc(tloc, sw7, sw8, sw14):
     if not (((sw7 == 0) and (sw8 == 0)) and (sw14 == 0)):
         return (
             sin(hr*tloc),      # stloc
-            cos(hr*tloc),      # ctloc  
+            cos(hr*tloc),      # ctloc
             sin(2.0*hr*tloc),  # s2tloc
             cos(2.0*hr*tloc),  # c2tloc
             sin(3.0*hr*tloc),  # s3tloc
@@ -107,10 +107,10 @@ def tselec(flags):
 def glatf(lat):
     dgtr = 1.74533E-2
     c2 = cos(2.0*dgtr*lat)
-    
+
     gsurf = 980.616 * (1.0 - 0.0026373 * c2)
     re_nrlmsise = 2.0 * gsurf / (3.085462E-6 + 2.27E-9 * c2) * 1.0E-5
-    
+
     return gsurf, re_nrlmsise
 """
 /* ------------------------------------------------------------------- */
@@ -286,8 +286,8 @@ def spline(x, y, n, yp1, ypn):
     */
     """
     y2 = [0.0]*n
-    u = [0.0]*n 
-    
+    u = [0.0]*n
+
     if (yp1 > 0.99E30): # pragma: no cover
         y2[0] = 0
         u[0] = 0
@@ -442,7 +442,7 @@ def densm(alt, d0, xm, tz, mn3, zn3, tn3, tgn3, mn2, zn2, tn2, tgn2, gsurf, re_n
 def densu(alt, dlb, tinf, tlb, xm, alpha, zlb, s2, mn1, zn1, tn1, tgn1, gsurf, re_nrlmsise_00):
     """
     /*      Calculate Temperature and Density Profiles for MSIS models
-    *      New lower thermo polynomial 
+    *      New lower thermo polynomial
     */
     tz, zn1, tn1, and tgn1 are simulated pointers
     Returns (density, temperature) tuple
@@ -674,7 +674,7 @@ def globe7(p, Input, flags, apt, plg):
         if (p44<0): # pragma: no cover
             p44 = 1.0E-5
         apdf = compute_apdf(apd, p44, p45)
-        
+
         if (flags.sw[9]):
             t[8]=apdf*(p[32]+p[45]*plg[0][2]+p[34]*plg[0][4]+ \
              (p[100]*plg[0][1]+p[101]*plg[0][3]+p[102]*plg[0][5])*cd14*flags.swc[5]+
@@ -1268,7 +1268,7 @@ def gts7(Input, flags, output, gsurf, re_nrlmsise_00, apt, plg, meso_tn1, meso_t
     #/* temperature */
     z = sqrt(Input.alt*Input.alt)
     ddum, output.t[1] = densu(z,1.0, tinf, tlb, 0.0, 0.0, ptm[5], s, mn1, zn1, meso_tn1, meso_tgn1,gsurf, re_nrlmsise_00)
-    
+
     if (flags.sw[0]): # pragma: no cover
         for i in range(9):
             output.d[i]=output.d[i]*1.0E6

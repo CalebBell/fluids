@@ -69,8 +69,8 @@ from numpy.testing import assert_allclose, assert_almost_equal
 
 try:
     from numba import __version__ as numba_version
-    numba_version_int = int(numba_version.split('.')[0] +
-                            numba_version.split('.')[1])
+    numba_version_int = int(numba_version.split(".")[0] +
+                            numba_version.split(".")[1])
 except ImportError:
     numba_version_int = 0
 except:
@@ -78,10 +78,10 @@ except:
 
 from fluids.optional import spa
 
-times = (pd.date_range('2003-10-17 12:30:30', periods=1, freq='D')
-           .tz_localize('America/Phoenix'))
-unixtimes = np.array(times.tz_convert('UTC').view(np.int64)*1.0/10**9)
-unixtimes = float(np.array(times.tz_convert('UTC').view(np.int64)*1.0/10**9)[0])
+times = (pd.date_range("2003-10-17 12:30:30", periods=1, freq="D")
+           .tz_localize("America/Phoenix"))
+unixtimes = np.array(times.tz_convert("UTC").view(np.int64)*1.0/10**9)
+unixtimes = float(np.array(times.tz_convert("UTC").view(np.int64)*1.0/10**9)[0])
 lat = 39.742476
 lon = -105.1786
 elev = 1830.14
@@ -146,7 +146,7 @@ class SpaBase:
     """Test functions common to numpy and numba spa"""
 
     def test_julian_day_dt(self):
-        dt = times.tz_convert('UTC')[0]
+        dt = times.tz_convert("UTC")[0]
         year = dt.year
         month = dt.month
         day = dt.day
@@ -305,13 +305,13 @@ class SpaBase:
         # tests at greenwich
         times = pd.DatetimeIndex([dt.datetime(1996, 7, 5, 0),
                                   dt.datetime(2004, 12, 4, 0)]
-                                 ).tz_localize('UTC').view(np.int64)*1.0/10**9
+                                 ).tz_localize("UTC").view(np.int64)*1.0/10**9
         sunrise = pd.DatetimeIndex([dt.datetime(1996, 7, 5, 7, 8, 15),
                                     dt.datetime(2004, 12, 4, 4, 38, 57)]
-                                   ).tz_localize('UTC').view(np.int64)*1.0/10**9
+                                   ).tz_localize("UTC").view(np.int64)*1.0/10**9
         sunset = pd.DatetimeIndex([dt.datetime(1996, 7, 5, 17, 1, 4),
                                    dt.datetime(2004, 12, 4, 19, 2, 2)]
-                                  ).tz_localize('UTC').view(np.int64)*1.0/10**9
+                                  ).tz_localize("UTC").view(np.int64)*1.0/10**9
         times = np.array(times)
         sunrise = np.array(sunrise)
         sunset = np.array(sunset)
@@ -322,11 +322,11 @@ class SpaBase:
 
 
         times = pd.DatetimeIndex([dt.datetime(1994, 1, 2),]
-                                 ).tz_localize('UTC').view(np.int64)*1.0/10**9
+                                 ).tz_localize("UTC").view(np.int64)*1.0/10**9
         sunset = pd.DatetimeIndex([dt.datetime(1994, 1, 2, 16, 59, 55),]
-                                  ).tz_localize('UTC').view(np.int64)*1.0/10**9
+                                  ).tz_localize("UTC").view(np.int64)*1.0/10**9
         sunrise = pd.DatetimeIndex([dt.datetime(1994, 1, 2, 7, 8, 12),]
-                                   ).tz_localize('UTC').view(np.int64)*1.0/10**9
+                                   ).tz_localize("UTC").view(np.int64)*1.0/10**9
         times = np.array(times)
         sunrise = np.array(sunrise)
         sunset = np.array(sunset)
@@ -341,17 +341,17 @@ class SpaBase:
                                   dt.datetime(2015, 4, 2),
                                   dt.datetime(2015, 8, 2),
                                   dt.datetime(2015, 12, 2),],
-                                 ).tz_localize('UTC').view(np.int64)*1.0/10**9
+                                 ).tz_localize("UTC").view(np.int64)*1.0/10**9
         sunrise = pd.DatetimeIndex([dt.datetime(2015, 1, 2, 7, 19),
                                     dt.datetime(2015, 4, 2, 5, 43),
                                     dt.datetime(2015, 8, 2, 5, 1),
                                     dt.datetime(2015, 12, 2, 7, 1),],
-                                   ).tz_localize('America/Phoenix').view(np.int64)*1.0/10**9
+                                   ).tz_localize("America/Phoenix").view(np.int64)*1.0/10**9
         sunset = pd.DatetimeIndex([dt.datetime(2015, 1, 2, 16, 49),
                                    dt.datetime(2015, 4, 2, 18, 24),
                                    dt.datetime(2015, 8, 2, 19, 10),
                                    dt.datetime(2015, 12, 2, 16, 38),],
-                                  ).tz_localize('America/Phoenix').view(np.int64)*1.0/10**9
+                                  ).tz_localize("America/Phoenix").view(np.int64)*1.0/10**9
         times = np.array(times)
         sunrise = np.array(sunrise)
         sunset = np.array(sunset)
@@ -365,18 +365,18 @@ class SpaBase:
                                   dt.datetime(2015, 4, 2),
                                   dt.datetime(2015, 8, 2),
                                   dt.datetime(2015, 12, 2),],
-                                 ).tz_localize('UTC').view(np.int64)*1.0/10**9
+                                 ).tz_localize("UTC").view(np.int64)*1.0/10**9
         sunrise = pd.DatetimeIndex([dt.datetime(2015, 1, 2, 7, 36),
                                     dt.datetime(2015, 4, 2, 5, 58),
                                     dt.datetime(2015, 8, 2, 5, 13),
                                     dt.datetime(2015, 12, 2, 7, 17),],
-                                   ).tz_localize('Asia/Shanghai'
+                                   ).tz_localize("Asia/Shanghai"
                                    ).view(np.int64)*1.0/10**9
         sunset = pd.DatetimeIndex([dt.datetime(2015, 1, 2, 17, 0),
                                    dt.datetime(2015, 4, 2, 18, 39),
                                    dt.datetime(2015, 8, 2, 19, 28),
                                    dt.datetime(2015, 12, 2, 16, 50),],
-                                  ).tz_localize('Asia/Shanghai'
+                                  ).tz_localize("Asia/Shanghai"
                                   ).view(np.int64)*1.0/10**9
         times = np.array(times)
         sunrise = np.array(sunrise)
@@ -387,9 +387,9 @@ class SpaBase:
             assert_almost_equal(sunset[i]/1e3, result[i][2]/1e3, 1)
 
     def test_earthsun_distance(self):
-        times = (pd.date_range('2003-10-17 12:30:30', periods=1, freq='D')
-           .tz_localize('America/Phoenix'))
-        unixtimes = times.tz_convert('UTC').view(np.int64)*1.0/10**9
+        times = (pd.date_range("2003-10-17 12:30:30", periods=1, freq="D")
+           .tz_localize("America/Phoenix"))
+        unixtimes = times.tz_convert("UTC").view(np.int64)*1.0/10**9
         unixtimes = float(np.array(unixtimes)[0])
         result = self.spa.earthsun_distance(unixtimes, 64.0)
         assert_almost_equal(R, result, 6)
@@ -413,6 +413,8 @@ class NumpySpaTest(unittest.TestCase, SpaBase):
     @classmethod
     def setUpClass(self):
         from fluids.optional import spa
+        if hasattr(spa, 'IS_NUMBA'):
+            delattr(spa, 'IS_NUMBA')
         spa = reload(spa)
         self.spa = spa
 
@@ -425,7 +427,7 @@ class NumpySpaTest(unittest.TestCase, SpaBase):
 
 
 @pytest.mark.skipif(numba_version_int < 17,
-                    reason='Numba not installed or version not >= 0.17.0')
+                    reason="Numba not installed or version not >= 0.17.0")
 class NumbaSpaTest(unittest.TestCase, SpaBase):
     """Import spa, compiling to numba, and run tests"""
 
@@ -433,6 +435,8 @@ class NumbaSpaTest(unittest.TestCase, SpaBase):
     def setUpClass(self):
         if numba_version_int >= 17:
             from fluids.optional import spa
+            if hasattr(spa, 'IS_NUMBA'):
+                delattr(spa, 'IS_NUMBA')
             spa = reload(spa)
             self.spa = spa
 
@@ -458,7 +462,7 @@ try:
     import astropy
 except:
     astropy = None
-@pytest.mark.skipif(astropy is None, reason='Astropy is not installed')
+@pytest.mark.skipif(astropy is None, reason="Astropy is not installed")
 def test_deltat_astropy():
     # Can't do a full range of tests because astropy doesn't have
     # answers before 1960, after 1999 in this version
@@ -466,7 +470,7 @@ def test_deltat_astropy():
 
     from astropy.time import Time
     def delta_t_astropy(dt):
-        t = Time(dt, scale='utc')
+        t = Time(dt, scale="utc")
         return -(dt - t.tt.value).total_seconds()
 
 #    years = range(1, 3000, 100) + [3000]
@@ -487,5 +491,5 @@ def test_deltat_astropy():
 #
 #NumpySpaTest.test_calculate_deltat()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

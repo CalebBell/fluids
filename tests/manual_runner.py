@@ -1,12 +1,27 @@
 #!/usr/bin/env python3
+"""
+How to run this test file using micropython:
+
+1. Install required modules using mip (MicroPython's package manager):
+   micropython -c "import mip; mip.install('github:josverl/micropython-stubs/mip/typing_mpy.json')"
+   micropython -c "import mip; mip.install('datetime')"
+   micropython -c "import mip; mip.install('__future__')"
+
+2. Run the test file with increased heap size:
+   micropython -X heapsize=4M tests/manual_runner.py
+
+Note: These modules will be installed to ~/.micropython/lib and only need to be installed once.
+"""
 import sys
+
+import test_drag
 
 import fluids.numerics
 
 try:
     import test_drag
 except:
-    print('run this from the tests directory')
+    print("run this from the fluids directory")
     sys.exit()
 #import test_numerics
 import test_atmosphere
@@ -40,28 +55,29 @@ to_test = [#test_numerics,
            test_packed_tower, test_saltation, test_mixing, test_nrlmsise00_full]
 #to_test.append([test_particle_size_distribution, test_jet_pump, test_geometry])
 
-if fluids.numerics.is_micropython or fluids.numerics.is_ironpython:
-    skip_marks = ['slow', 'fuzz', 'scipy', 'numpy', 'f2py', 'pytz', 'numba']
+if fluids.numerics.is_micropython:
+    skip_marks = ["slow", "fuzz", "scipy", "numpy", "f2py", "pytz", "numba"]
 else:
-    skip_marks = ['slow', 'fuzz']
-# pytz loads but doesn't work right in ironpython
+    skip_marks = ["slow", "fuzz"]
 skip_marks_set = set(skip_marks)
 if len(sys.argv) >= 2:
     #print(sys.argv)
     # Run modules specified by user
     to_test = [globals()[i] for i in sys.argv[1:]]
+
+failed_tests = []
 for mod in to_test:
     print(mod)
     for s in dir(mod):
         skip = False
         obj = getattr(mod, s)
-        if callable(obj) and hasattr(obj, '__name__') and obj.__name__.startswith('test'):
+        if callable(obj) and hasattr(obj, "__name__") and obj.__name__.startswith("test"):
             try:
                 for bad in skip_marks:
                     if bad in obj.__dict__:
                         skip = True
-                if 'pytestmark' in obj.__dict__:
-                    marked_names = [i.name for i in obj.__dict__['pytestmark']]
+                if "pytestmark" in obj.__dict__:
+                    marked_names = [i.name for i in obj.__dict__["pytestmark"]]
                     for mark_name in marked_names:
                         if mark_name in skip_marks_set:
                             skip = True
@@ -73,6 +89,11 @@ for mod in to_test:
                     #print(obj)
                     obj()
                 except Exception as e:
-                    print('FAILED TEST %s with error:' %s)
+                    print(f"FAILED TEST {s} with error:")
                     print(e)
-                    
+                    failed_tests.append(s)
+
+if failed_tests:
+    print(f"\n{len(failed_tests)} test(s) failed")
+    sys.exit(1)
+

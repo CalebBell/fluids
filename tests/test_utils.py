@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2020 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,13 +18,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import pytest
 
 
 def swap_funcs_and_test(names, substitutions, test):
-    '''Function to replace some globals in another function,
+    """Function to replace some globals in another function,
     run that function, and then set the globals back.
 
     names : list[str]
@@ -33,7 +33,7 @@ def swap_funcs_and_test(names, substitutions, test):
         Objects to put in
     test : function
         Unit test to run in the file
-    '''
+    """
     originals = {}
     glob = test.__globals__
     for name, sub in zip(names, substitutions):

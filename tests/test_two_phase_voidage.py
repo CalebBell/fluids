@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2016, 2017 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 import pytest
 
@@ -237,7 +237,7 @@ def test_liquid_gas_voidage():
         liquid_gas_voidage(Method=m, **kwargs)
 
     with pytest.raises(Exception):
-        liquid_gas_voidage(Method='BADMETHOD', **kwargs)
+        liquid_gas_voidage(Method="BADMETHOD", **kwargs)
 
     assert len(liquid_gas_voidage_methods(**kwargs)) == 29
 
@@ -294,15 +294,15 @@ def test_gas_liquid_viscosity():
     mu = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5)
     assert_close(2.4630541871921184e-05, mu)
 
-    mu = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2, Method='Duckler')
+    mu = gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2, Method="Duckler")
     assert_close(mu, 1.2092040385066917e-05)
 
     simple_methods = gas_liquid_viscosity_methods()
-    assert list(sorted(simple_methods)) == list(sorted(['McAdams', 'Cicchitti', 'Lin Kwok']))
+    assert sorted(simple_methods) == sorted(["McAdams", "Cicchitti", "Lin Kwok"])
 
     all_methods = gas_liquid_viscosity_methods(rhol=1000.0, rhog=2.)
-    all_methods_expect = ['Beattie Whalley', 'Fourar Bories', 'Duckler', 'McAdams', 'Cicchitti', 'Lin Kwok']
-    assert list(sorted(all_methods)) == list(sorted(all_methods_expect))
+    all_methods_expect = ["Beattie Whalley", "Fourar Bories", "Duckler", "McAdams", "Cicchitti", "Lin Kwok"]
+    assert sorted(all_methods) == sorted(all_methods_expect)
 
     for m in all_methods_expect:
         gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2, Method=m)
@@ -310,4 +310,4 @@ def test_gas_liquid_viscosity():
 
 
     with pytest.raises(Exception):
-        gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, Method='NOTAMETHOD')
+        gas_liquid_viscosity(x=0.4, mul=1E-3, mug=1E-5, Method="NOTAMETHOD")

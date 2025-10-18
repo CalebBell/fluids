@@ -11,12 +11,12 @@ bend_rounded_Crane_obj = UnivariateSpline(bend_rounded_Crane_ratios, bend_rounde
 fun = chebfun(f=bend_rounded_Crane_obj, domain=[1,20], N=10)
 
 
-plt.plot(bend_rounded_Crane_ratios, bend_rounded_Crane_fds, 'x', label='Crane data')
-plt.plot(ratios, bend_rounded_Crane_obj(ratios), label='Cubic spline')
-plt.plot(ratios, fun(ratios), label='Chebyshev approximation')
+plt.plot(bend_rounded_Crane_ratios, bend_rounded_Crane_fds, "x", label="Crane data")
+plt.plot(ratios, bend_rounded_Crane_obj(ratios), label="Cubic spline")
+plt.plot(ratios, fun(ratios), label="Chebyshev approximation")
 
 plt.legend()
 plt.title("Interpolation of Crane ft multipliers for pipe bend losses")
-plt.xlabel('Bend radius/pipe diameter ratio')
-plt.ylabel('Friction factor multiplier')
+plt.xlabel("Bend radius/pipe diameter ratio")
+plt.ylabel("Friction factor multiplier")
 #plt.show()

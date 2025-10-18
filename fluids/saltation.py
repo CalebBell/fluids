@@ -39,16 +39,24 @@ Correlations
 .. autofunction :: Geldart_Ling
 
 """
+from __future__ import annotations
 
 from math import sqrt
 
 from fluids.constants import g, pi
 
-__all__ = ['Rizk', 'Matsumoto_1974', 'Matsumoto_1975', 'Matsumoto_1977',
-'Schade', 'Weber_saltation', 'Geldart_Ling']
+__all__: list[str] = [
+    "Geldart_Ling",
+    "Matsumoto_1974",
+    "Matsumoto_1975",
+    "Matsumoto_1977",
+    "Rizk",
+    "Schade",
+    "Weber_saltation",
+]
 
 
-def Rizk(mp, dp, rhog, D):
+def Rizk(mp: float, dp: float, rhog: float, D: float) -> float:
     r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_ as described in [2]_ and many others.
 
@@ -108,7 +116,7 @@ def Rizk(mp, dp, rhog, D):
     return (expression2/expression1)**(1./(1. + beta))
 
 
-def Matsumoto_1974(mp, rhop, dp, rhog, D, Vterminal=1):
+def Matsumoto_1974(mp: float, rhop: float, dp: float, rhog: float, D: float, Vterminal: float=1) -> float:
     r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_. Also described in [2]_.
 
@@ -176,7 +184,7 @@ def Matsumoto_1974(mp, rhop, dp, rhog, D, Vterminal=1):
     return (expression2/expression1)**(1/4.)
 
 
-def Matsumoto_1975(mp, rhop, dp, rhog, D, Vterminal=1):
+def Matsumoto_1975(mp: float, rhop: float, dp: float, rhog: float, D: float, Vterminal: float=1) -> float:
     r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_. Also described in [2]_.
 
@@ -244,7 +252,7 @@ def Matsumoto_1975(mp, rhop, dp, rhog, D, Vterminal=1):
     return (expression2/expression1)**(1/4.)
 
 
-def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
+def Matsumoto_1977(mp: float, rhop: float, dp: float, rhog: float, D: float, Vterminal: float=1) -> float:
     r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_ and reproduced in [2]_, [3]_, and [4]_.
 
@@ -338,7 +346,7 @@ def Matsumoto_1977(mp, rhop, dp, rhog, D, Vterminal=1):
         return (expression2/expression1)**(0.2)
 
 
-def Schade(mp, rhop, dp, rhog, D):
+def Schade(mp: float, rhop: float, dp: float, rhog: float, D: float) -> float:
     r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_ as described in [2]_, [3]_, [4]_, and [5]_.
 
@@ -408,7 +416,7 @@ def Schade(mp, rhop, dp, rhog, D):
     return (C**0.11*B*A)**(1/1.11)
 
 
-def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
+def Weber_saltation(mp: float, rhop: float, dp: float, rhog: float, D: float, Vterminal: float=4) -> float:
     r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_ as described in [2]_, [3]_, [4]_, and [5]_.
 
@@ -489,7 +497,7 @@ def Weber_saltation(mp, rhop, dp, rhog, D, Vterminal=4):
     return (term1/term2*sqrt(sqrt(term3)))**(1/1.25)
 
 
-def Geldart_Ling(mp, rhog, D, mug):
+def Geldart_Ling(mp: float, rhog: float, D: float, mug: float) -> float:
     r"""Calculates saltation velocity of the gas for pneumatic conveying,
     according to [1]_ as described in [2]_ and [3]_.
 

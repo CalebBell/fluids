@@ -1,4 +1,4 @@
-'''Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
+"""Chemical Engineering Design Library (ChEDL). Utilities for process modeling.
 Copyright (C) 2018 Caleb Bell <Caleb.Andrew.Bell@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 from math import cos, erf, exp, isnan, log, pi, sin, sqrt
 
@@ -26,11 +26,12 @@ import pytest
 
 from fluids.numerics import (
     SolverInterface,
-    array_as_tridiagonals,
     assert_close,
     assert_close1d,
     assert_close2d,
+    assert_close3d,
     best_bounding_bounds,
+    broyden2,
     chebder,
     chebint,
     chebval,
@@ -39,9 +40,8 @@ from fluids.numerics import (
     chebval_ln_tau_and_der2,
     chebval_ln_tau_and_der3,
     cumsum,
+    cumulative_trapezoid,
     derivative,
-    hessian,
-    assert_close3d,
     exp_cheb,
     exp_cheb_and_der,
     exp_cheb_and_der2,
@@ -51,8 +51,15 @@ from fluids.numerics import (
     exp_cheb_ln_tau_and_der2,
     fit_integral_linear_extrapolation,
     fit_integral_over_T_linear_extrapolation,
+    fixed_point,
+    fixed_point_aitken,
+    fixed_point_anderson,
+    fixed_point_gdem,
+    fixed_point_to_residual,
     full,
+    hessian,
     horner,
+    is_increasing,
     is_monotonic,
     is_poly_positive,
     isclose,
@@ -74,31 +81,19 @@ from fluids.numerics import (
     polyint_over_x,
     polylog2,
     polynomial_offset_scale,
+    residual_to_fixed_point,
     secant,
     sincos,
-    fixed_point,
     solve_2_direct,
     solve_3_direct,
     solve_4_direct,
-    solve_tridiagonal,
     std,
-    subset_matrix,
     translate_bound_f_jac,
     translate_bound_func,
     translate_bound_jac,
-    tridiagonals_as_array,
     trunc_exp_numpy,
     trunc_log_numpy,
     zeros,
-    is_increasing,
-    argsort1d,
-    fixed_point_to_residual,
-    residual_to_fixed_point,
-    broyden2,
-    fixed_point_aitken, 
-    fixed_point_gdem,
-    fixed_point_anderson,
-    cumulative_trapezoid,
 )
 from fluids.numerics import numpy as np
 
@@ -296,9 +291,10 @@ def test_bisplev():
 
 def test_cumulative_trapezoid():
     """Test the cumulative_trapezoid implementation against scipy's version
-    and known analytical solutions."""
+    and known analytical solutions.
+    """
     from scipy.integrate import cumulative_trapezoid as scipy_cumtrapz
-    
+
     # Compare against scipy for linear function
     x = np.linspace(-2, 2, num=20).tolist()
     y = x.copy()  # f(x) = x, integral should be x^2/2
@@ -311,26 +307,26 @@ def test_cumulative_trapezoid():
     y_scipy = scipy_cumtrapz(y, dx=1).tolist()
     y_py = cumulative_trapezoid(y, dx=1)
     assert_allclose(y_py, y_scipy)
-    
+
     # Error handling
     # Test mismatched lengths
     with pytest.raises(ValueError):
         cumulative_trapezoid([1, 2, 3], [1, 2])
-    
+
     # Non-uniform spacing
     x = [0, 1, 4, 10]  # Non-uniform grid
     y = [0, 1, 4, 10]  # f(x) = x
     y_scipy = scipy_cumtrapz(y, x).tolist()
     y_py = cumulative_trapezoid(y, x)
     assert_allclose(y_py, y_scipy)
-    
+
     # Constant function
     x = np.linspace(0, 1, 5).tolist()
     y = [2.0] * 5  # f(x) = 2
     y_scipy = scipy_cumtrapz(y, x).tolist()
     y_py = cumulative_trapezoid(y, x)
     assert_allclose(y_py, y_scipy)
-    
+
     # Negative values
     x = [-2, -1, 0, 1, 2]
     y = [-4, -1, 0, 1, 4]
@@ -341,7 +337,7 @@ def test_cumulative_trapezoid():
     # Test empty inputs
     assert cumulative_trapezoid([]) == []
     assert cumulative_trapezoid([1]) == []
-    
+
 
 
 def test_linspace():
@@ -1703,77 +1699,77 @@ def newton_pathological(x):
         return factor*abs(x)**(1.0/3.0)*exp(-x**2)
 
 
-solver_1d_test_cases = [(lambda x: sin(x) - x/2, lambda x: cos(x) - 1/2, lambda x: -sin(x), lambda x: -cos(x), [0.1], None, None, 'TEST_ZERO #1'),
-        (lambda x: 2*x - exp(-x), lambda x: 2 + exp(-x), lambda x: -exp(-x), lambda x: exp(-x), [1.], None, None, 'TEST_ZERO #2'),
-        (lambda x: x*exp(-x), lambda x: -x*exp(-x) + exp(-x), lambda x: (x - 2)*exp(-x), lambda x: (3 - x)*exp(-x), [1.], None, None, 'TEST_ZERO #3'),
-        (lambda x: exp(x) - 1.0/(10.0*x)**2, lambda x: exp(x) + 0.02/x**3, lambda x: exp(x) - 0.06/x**4, lambda x: exp(x) + 0.24/x**5, [1.], None, None, 'TEST_ZERO #4'),
-        (lambda x: (x+3)*(x-1)**2, lambda x: (x - 1)**2 + (x + 3)*(2*x - 2), lambda x: 2*(3*x + 1), lambda x: 6, [1.], None, None, 'TEST_ZERO #5'),
-        (lambda x: exp(x) - 2 - 1/(10*x)**2 + 2/(100*x)**3, lambda x: exp(x) + 1/(50*x**3) - 3/(500000*x**4), lambda x: exp(x) - 3/(50*x**4) + 3/(125000*x**5), lambda x: exp(x) + 6/(25*x**5) - 3/(25000*x**6), [1.], None, None, 'TEST_ZERO #6'),
-        (lambda x: x**3, lambda x: 3*x**2, lambda x: 6*x, lambda x: 6.0, [1.], None, None, 'TEST_ZERO #7'),
-        (lambda x: cos(x) - x, lambda x: -sin(x) - 1, lambda x: -cos(x), lambda x: sin(x), [1.], None, None, 'TEST_ZERO #8'),
-        (newton_baffler, newton_baffler_d, lambda x: 0, lambda x: 0, [6.25 + 5.0, 6.25 - 1.0, 6.25 + 0.1], None, None, 'TEST_ZERO #9/Newton Baffler'),
-        (lambda x: 20*x/(100*x**2 + 1), lambda x: -4000*x**2/(100*x**2 + 1)**2 + 20/(100*x**2 + 1), lambda x: 4000*x*(400*x**2/(100*x**2 + 1) - 3)/(100*x**2 + 1)**2, lambda x: 12000*(-400*x**2*(200*x**2/(100*x**2 + 1) - 1)/(100*x**2 + 1) + 400*x**2/(100*x**2 + 1) - 1)/(100*x**2 + 1)**2, [1., -0.14, 0.041], None, None, 'TEST_ZERO #10/Repeller'),
-        (lambda x: (16 - x**4)/(16*x**4 + 0.00001), lambda x: -x**3*(16 - x**4)/(4*(x**4 + 6.25e-7)**2) - 4*x**3/(16*x**4 + 1.0e-5), lambda x: x**2*(2*x**4/(x**4 + 6.25e-7)**2 - (x**4 - 16)*(8*x**4/(x**4 + 6.25e-7) - 3)/(4*(x**4 + 6.25e-7)**2) - 12/(16*x**4 + 1.0e-5)), lambda x: 3*x*(-x**4*(8*x**4/(x**4 + 6.25e-7) - 3)/(x**4 + 6.25e-7)**2 + 3*x**4/(x**4 + 6.25e-7)**2 + (x**4 - 16)*(16*x**8/(x**4 + 6.25e-7)**2 - 12*x**4/(x**4 + 6.25e-7) + 1)/(2*(x**4 + 6.25e-7)**2) - 8/(16*x**4 + 1.0e-5)), [.25, 5., 1.1], None, None, 'TEST_ZERO #11/Pinhead'),
-        (flat_stanley, flat_stanley_d, flat_stanley_d2, flat_stanley_d3, [2, 0.5, 4], None, None, 'TEST_ZERO #12/Flat Stanley'),
-        (lambda x: 0.00000000001*(x - 100),lambda x: 1.00000000000000e-11, lambda x: 0, lambda x: 0, [100., 1.], None, None, 'TEST_ZERO #13/Lazy Boy'),
-        (lambda x: 1.0/((x - 0.3)**2 + 0.01) + 1.0/((x - 0.9)**2 + 0.04) + 2.0*x - 5.2, lambda x: 1.0*(0.6 - 2*x)/((x - 0.3)**2 + 0.01)**2 + 1.0*(1.8 - 2*x)/((x - 0.9)**2 + 0.04)**2 + 2.0, lambda x: 1.0*(2*x - 1.8)*(4*x - 3.6)/((x - 0.9)**2 + 0.04)**3 + 1.0*(2*x - 0.6)*(4*x - 1.2)/((x - 0.3)**2 + 0.01)**3 - 2.0/((x - 0.3)**2 + 0.01)**2 - 2.0/((x - 0.9)**2 + 0.04)**2, lambda x: -1.0*(2*x - 1.8)*(4*x - 3.6)*(6*x - 5.4)/((x - 0.9)**2 + 0.04)**4 - 1.0*(2*x - 0.6)*(4*x - 1.2)*(6*x - 1.8)/((x - 0.3)**2 + 0.01)**4 + (8.0*x - 7.2)/((x - 0.9)**2 + 0.04)**3 + (8.0*x - 2.4)/((x - 0.3)**2 + 0.01)**3 + (16.0*x - 14.4)/((x - 0.9)**2 + 0.04)**3 + (16.0*x - 4.8)/((x - 0.3)**2 + 0.01)**3, [3., -0.5, 0, 2.12742], None, None, 'TEST_ZERO #14/Camel'),
+solver_1d_test_cases = [(lambda x: sin(x) - x/2, lambda x: cos(x) - 1/2, lambda x: -sin(x), lambda x: -cos(x), [0.1], None, None, "TEST_ZERO #1"),
+        (lambda x: 2*x - exp(-x), lambda x: 2 + exp(-x), lambda x: -exp(-x), lambda x: exp(-x), [1.], None, None, "TEST_ZERO #2"),
+        (lambda x: x*exp(-x), lambda x: -x*exp(-x) + exp(-x), lambda x: (x - 2)*exp(-x), lambda x: (3 - x)*exp(-x), [1.], None, None, "TEST_ZERO #3"),
+        (lambda x: exp(x) - 1.0/(10.0*x)**2, lambda x: exp(x) + 0.02/x**3, lambda x: exp(x) - 0.06/x**4, lambda x: exp(x) + 0.24/x**5, [1.], None, None, "TEST_ZERO #4"),
+        (lambda x: (x+3)*(x-1)**2, lambda x: (x - 1)**2 + (x + 3)*(2*x - 2), lambda x: 2*(3*x + 1), lambda x: 6, [1.], None, None, "TEST_ZERO #5"),
+        (lambda x: exp(x) - 2 - 1/(10*x)**2 + 2/(100*x)**3, lambda x: exp(x) + 1/(50*x**3) - 3/(500000*x**4), lambda x: exp(x) - 3/(50*x**4) + 3/(125000*x**5), lambda x: exp(x) + 6/(25*x**5) - 3/(25000*x**6), [1.], None, None, "TEST_ZERO #6"),
+        (lambda x: x**3, lambda x: 3*x**2, lambda x: 6*x, lambda x: 6.0, [1.], None, None, "TEST_ZERO #7"),
+        (lambda x: cos(x) - x, lambda x: -sin(x) - 1, lambda x: -cos(x), lambda x: sin(x), [1.], None, None, "TEST_ZERO #8"),
+        (newton_baffler, newton_baffler_d, lambda x: 0, lambda x: 0, [6.25 + 5.0, 6.25 - 1.0, 6.25 + 0.1], None, None, "TEST_ZERO #9/Newton Baffler"),
+        (lambda x: 20*x/(100*x**2 + 1), lambda x: -4000*x**2/(100*x**2 + 1)**2 + 20/(100*x**2 + 1), lambda x: 4000*x*(400*x**2/(100*x**2 + 1) - 3)/(100*x**2 + 1)**2, lambda x: 12000*(-400*x**2*(200*x**2/(100*x**2 + 1) - 1)/(100*x**2 + 1) + 400*x**2/(100*x**2 + 1) - 1)/(100*x**2 + 1)**2, [1., -0.14, 0.041], None, None, "TEST_ZERO #10/Repeller"),
+        (lambda x: (16 - x**4)/(16*x**4 + 0.00001), lambda x: -x**3*(16 - x**4)/(4*(x**4 + 6.25e-7)**2) - 4*x**3/(16*x**4 + 1.0e-5), lambda x: x**2*(2*x**4/(x**4 + 6.25e-7)**2 - (x**4 - 16)*(8*x**4/(x**4 + 6.25e-7) - 3)/(4*(x**4 + 6.25e-7)**2) - 12/(16*x**4 + 1.0e-5)), lambda x: 3*x*(-x**4*(8*x**4/(x**4 + 6.25e-7) - 3)/(x**4 + 6.25e-7)**2 + 3*x**4/(x**4 + 6.25e-7)**2 + (x**4 - 16)*(16*x**8/(x**4 + 6.25e-7)**2 - 12*x**4/(x**4 + 6.25e-7) + 1)/(2*(x**4 + 6.25e-7)**2) - 8/(16*x**4 + 1.0e-5)), [.25, 5., 1.1], None, None, "TEST_ZERO #11/Pinhead"),
+        (flat_stanley, flat_stanley_d, flat_stanley_d2, flat_stanley_d3, [2, 0.5, 4], None, None, "TEST_ZERO #12/Flat Stanley"),
+        (lambda x: 0.00000000001*(x - 100),lambda x: 1.00000000000000e-11, lambda x: 0, lambda x: 0, [100., 1.], None, None, "TEST_ZERO #13/Lazy Boy"),
+        (lambda x: 1.0/((x - 0.3)**2 + 0.01) + 1.0/((x - 0.9)**2 + 0.04) + 2.0*x - 5.2, lambda x: 1.0*(0.6 - 2*x)/((x - 0.3)**2 + 0.01)**2 + 1.0*(1.8 - 2*x)/((x - 0.9)**2 + 0.04)**2 + 2.0, lambda x: 1.0*(2*x - 1.8)*(4*x - 3.6)/((x - 0.9)**2 + 0.04)**3 + 1.0*(2*x - 0.6)*(4*x - 1.2)/((x - 0.3)**2 + 0.01)**3 - 2.0/((x - 0.3)**2 + 0.01)**2 - 2.0/((x - 0.9)**2 + 0.04)**2, lambda x: -1.0*(2*x - 1.8)*(4*x - 3.6)*(6*x - 5.4)/((x - 0.9)**2 + 0.04)**4 - 1.0*(2*x - 0.6)*(4*x - 1.2)*(6*x - 1.8)/((x - 0.3)**2 + 0.01)**4 + (8.0*x - 7.2)/((x - 0.9)**2 + 0.04)**3 + (8.0*x - 2.4)/((x - 0.3)**2 + 0.01)**3 + (16.0*x - 14.4)/((x - 0.9)**2 + 0.04)**3 + (16.0*x - 4.8)/((x - 0.3)**2 + 0.01)**3, [3., -0.5, 0, 2.12742], None, None, "TEST_ZERO #14/Camel"),
         # (newton_pathological, [0.01, -0.25], None, None, 'TEST_ZERO #15/Newton Pathological'),
-        (lambda x: pi*(x - 5.0)/180.0 - 0.8*sin(pi*x/180), lambda x: -0.00444444444444444*pi*cos(pi*x/180) + 0.00555555555555556*pi, lambda x: 2.46913580246914e-5*pi**2*sin(pi*x/180), lambda x: 1.37174211248285e-7*pi**3*cos(pi*x/180), [0., 5+180., 5.], None, None, 'TEST_ZERO #16/Kepler'),
-        (lambda x: x**3 - 2*x - 5,lambda x: 3*x**2 - 2, lambda x: 6*x, lambda x: 6,  [2., 3.], None, None, 'TEST_ZERO #17/Wallis example'),
-        (lambda x: 10.0**14*(1.0*x**7 - 7.0*x**6 + 21.0*x**5 - 35.0*x**4 + 35.0*x**3 - 21.0*x**2 + 7.0*x - 1.0), lambda x: 700000000000000.0*x**6 - 4.2e+15*x**5 + 1.05e+16*x**4 - 1.4e+16*x**3 + 1.05e+16*x**2 - 4.2e+15*x + 700000000000000.0, lambda x: 4.2e+15*x**5 - 2.1e+16*x**4 + 4.2e+16*x**3 - 4.2e+16*x**2 + 2.1e+16*x - 4.2e+15, lambda x: 2.1e+16*x**4 - 8.4e+16*x**3 + 1.26e+17*x**2 - 8.4e+16*x + 2.1e+16, [.99, 1.013], None, None, 'TEST_ZERO #18'),
-        (lambda x: cos(100.0*x) - 4.0*erf(30*x - 10), lambda x: -100.0*sin(100.0*x) - 240.0*exp(-(30*x - 10)**2)/sqrt(pi), lambda x: (432000.0*x - 144000.0)*exp(-100*(3*x - 1)**2)/sqrt(pi) - 10000.0*cos(100.0*x), lambda x: -86400000.0*(3*x - 1)**2*exp(-100*(3*x - 1)**2)/sqrt(pi) + 1000000.0*sin(100.0*x) + 432000.0*exp(-100*(3*x - 1)**2)/sqrt(pi), [0., 1., 0.5], None, None, 'TEST_ZERO #19'),
+        (lambda x: pi*(x - 5.0)/180.0 - 0.8*sin(pi*x/180), lambda x: -0.00444444444444444*pi*cos(pi*x/180) + 0.00555555555555556*pi, lambda x: 2.46913580246914e-5*pi**2*sin(pi*x/180), lambda x: 1.37174211248285e-7*pi**3*cos(pi*x/180), [0., 5+180., 5.], None, None, "TEST_ZERO #16/Kepler"),
+        (lambda x: x**3 - 2*x - 5,lambda x: 3*x**2 - 2, lambda x: 6*x, lambda x: 6,  [2., 3.], None, None, "TEST_ZERO #17/Wallis example"),
+        (lambda x: 10.0**14*(1.0*x**7 - 7.0*x**6 + 21.0*x**5 - 35.0*x**4 + 35.0*x**3 - 21.0*x**2 + 7.0*x - 1.0), lambda x: 700000000000000.0*x**6 - 4.2e+15*x**5 + 1.05e+16*x**4 - 1.4e+16*x**3 + 1.05e+16*x**2 - 4.2e+15*x + 700000000000000.0, lambda x: 4.2e+15*x**5 - 2.1e+16*x**4 + 4.2e+16*x**3 - 4.2e+16*x**2 + 2.1e+16*x - 4.2e+15, lambda x: 2.1e+16*x**4 - 8.4e+16*x**3 + 1.26e+17*x**2 - 8.4e+16*x + 2.1e+16, [.99, 1.013], None, None, "TEST_ZERO #18"),
+        (lambda x: cos(100.0*x) - 4.0*erf(30*x - 10), lambda x: -100.0*sin(100.0*x) - 240.0*exp(-(30*x - 10)**2)/sqrt(pi), lambda x: (432000.0*x - 144000.0)*exp(-100*(3*x - 1)**2)/sqrt(pi) - 10000.0*cos(100.0*x), lambda x: -86400000.0*(3*x - 1)**2*exp(-100*(3*x - 1)**2)/sqrt(pi) + 1000000.0*sin(100.0*x) + 432000.0*exp(-100*(3*x - 1)**2)/sqrt(pi), [0., 1., 0.5], None, None, "TEST_ZERO #19"),
 
 #         # From scipy
-        (lambda x: x**2 - 2*x - 1, lambda x: 2*x - 2, lambda x: 2, lambda x: 0, [3,], None, None, 'Scipy/x**2 - 2*x - 1'),
-        (lambda x: exp(x) - cos(x), lambda x: exp(x) + sin(x), lambda x: exp(x) + cos(x), lambda x: exp(x) - sin(x), [3,], None, None, 'Scipy/exp(x) - cos(x)'),
-        (lambda x: x - 0.1, lambda x: 1, lambda x: 0, lambda x: 0, [-1e8, 1e7], None, None, 'Scipy/GH5555'),
-        (lambda x: -0.1 if x < 0.5 else x - 0.6, lambda x: 0.0 if x < 0.5 else 1.0, lambda x: 0, lambda x: 0, [1e20, 1.], None, None, 'Scipy/GH5557'), # Fail at 0 is expected - 0 slope
-        (lambda x: (x - 100.0)**2, lambda x: 2.0*x - 200.0, lambda x: 2., lambda x: 0, [10*(200.0 - 6.828499381469512e-06) / (2.0 + 6.828499381469512e-06)], None, None, 'Scipy/zero_der_nz_dp'),
-        (lambda x: x**3 - x**2, lambda x: 3*x**2 - 2*x, lambda x: 2*(3*x - 1), lambda x: 6, [0., 0.5], None, None, 'Scipy/GH8904'),
-        (lambda x: x**(1.00/9.0) - 9**(1.0/9), lambda x: 1/(9*x**(8/9)), lambda x: -8/(81*x**(17/9)), lambda x: 136/(729*x**(26/9)), [0.1], None, None, 'Scipy/GH8881'),
+        (lambda x: x**2 - 2*x - 1, lambda x: 2*x - 2, lambda x: 2, lambda x: 0, [3,], None, None, "Scipy/x**2 - 2*x - 1"),
+        (lambda x: exp(x) - cos(x), lambda x: exp(x) + sin(x), lambda x: exp(x) + cos(x), lambda x: exp(x) - sin(x), [3,], None, None, "Scipy/exp(x) - cos(x)"),
+        (lambda x: x - 0.1, lambda x: 1, lambda x: 0, lambda x: 0, [-1e8, 1e7], None, None, "Scipy/GH5555"),
+        (lambda x: -0.1 if x < 0.5 else x - 0.6, lambda x: 0.0 if x < 0.5 else 1.0, lambda x: 0, lambda x: 0, [1e20, 1.], None, None, "Scipy/GH5557"), # Fail at 0 is expected - 0 slope
+        (lambda x: (x - 100.0)**2, lambda x: 2.0*x - 200.0, lambda x: 2., lambda x: 0, [10*(200.0 - 6.828499381469512e-06) / (2.0 + 6.828499381469512e-06)], None, None, "Scipy/zero_der_nz_dp"),
+        (lambda x: x**3 - x**2, lambda x: 3*x**2 - 2*x, lambda x: 2*(3*x - 1), lambda x: 6, [0., 0.5], None, None, "Scipy/GH8904"),
+        (lambda x: x**(1.00/9.0) - 9**(1.0/9), lambda x: 1/(9*x**(8/9)), lambda x: -8/(81*x**(17/9)), lambda x: 136/(729*x**(26/9)), [0.1], None, None, "Scipy/GH8881"),
 
 #         # From scipy optimization suite - root functions only
-        (lambda x: sin(x) + sin(10.0 / 3.0 * x), lambda x: cos(x) + 10*cos(10*x/3)/3, lambda x: -(sin(x) + 100*sin(10*x/3)/9), lambda x: -(cos(x) + 1000*cos(10*x/3)/27),  [2.7048, 3.18, 4.14, 4.62, 5.1, 5.58, 6.06, 7.02, 7.4952], 2.7, 7.5, 'Scipy/Problem02'),
-        (lambda x: -sum(k * sin((k + 1) * x + k) for k in range(1, 6)), lambda x: -2*cos(2*x + 1) - 6*cos(3*x + 2) - 12*cos(4*x + 3) - 20*cos(5*x + 4) - 30*cos(6*x + 5), lambda x: 2*(2*sin(2*x + 1) + 9*sin(3*x + 2) + 24*sin(4*x + 3) + 50*sin(5*x + 4) + 90*sin(6*x + 5)), lambda x: 2*(4*cos(2*x + 1) + 27*cos(3*x + 2) + 96*cos(4*x + 3) + 250*cos(5*x + 4) + 540*cos(6*x + 5)), [-9.98, -8.0, -4.0, -2.0, 0.0, 2.0, 4, 8.0, 9.98], -10, 10, 'Scipy/Problem03'),
-        (lambda x: -(1.4 - 3 * x) * sin(18.0 * x), lambda x: 18.0*(3*x - 1.4)*cos(18.0*x) + 3*sin(18.0*x), lambda x: -324.0*(3*x - 1.4)*sin(18.0*x) + 108.0*cos(18.0*x), lambda x: -(5832.0*(3*x - 1.4)*cos(18.0*x) + 2916.0*sin(18.0*x)), [0.0012, 0.12, 0.36, 0.48, 0.6, 0.72, 0.84, 1.08, 1.1988], 0, 1.2, 'Scipy/Problem05'),
-        (lambda x: -(x + sin(x)) * exp(-x ** 2.0), lambda x: -2*x*(-x - sin(x))*exp(-x**2) + (-cos(x) - 1)*exp(-x**2), lambda x: (4*x*(cos(x) + 1) - 2*(x + sin(x))*(2*x**2 - 1) + sin(x))*exp(-x**2), lambda x: (4*x*(x + sin(x))*(2*x**2 - 3) - 6*x*sin(x) - 6*(2*x**2 - 1)*(cos(x) + 1) + cos(x))*exp(-x**2), [-9.98, -8.0, -4.0, -2.0, 0.0, 2.0, 4, 8.0, 9.98], -10, 10, 'Scipy/Problem06'),
-        (lambda x: sin(x) + sin(10.0 / 3.0 * x) + log(x) - 0.84 * x + 3, lambda x: cos(x) + 10*cos(10*x/3)/3 - 21/25 + 1/x, lambda x: -(sin(x) + 100*sin(10*x/3)/9 + x**(-2)), lambda x: -cos(x) - 1000*cos(10*x/3)/27 + 2/x**3, [2.7048, 3.18, 4.14, 4.62, 5.1, 5.58, 6.06, 7.02, 7.4952], 2.7, 7.5, 'Scipy/Problem07'),
-        (lambda x: -sum(k * cos((k + 1) * x + k) for k in range(1, 6)), lambda x: 2*sin(2*x + 1) + 6*sin(3*x + 2) + 12*sin(4*x + 3) + 20*sin(5*x + 4) + 30*sin(6*x + 5), lambda x: 2*(2*cos(2*x + 1) + 9*cos(3*x + 2) + 24*cos(4*x + 3) + 50*cos(5*x + 4) + 90*cos(6*x + 5)), lambda x: -2*(4*sin(2*x + 1) + 27*sin(3*x + 2) + 96*sin(4*x + 3) + 250*sin(5*x + 4) + 540*sin(6*x + 5)), [-9.98, -8.0, -4.0, -2.0, 0.0, 2.0, 4, 8.0, 9.98], -10, 10, 'Scipy/Problem08'),
-        (lambda x: sin(x) + sin(2.0 / 3.0 * x), lambda x: 2*cos(2*x/3)/3 + cos(x), lambda x: -(4*sin(2*x/3)/9 + sin(x)), lambda x: -(8*cos(2*x/3)/27 + cos(x)), [3.1173, 4.83, 8.29, 10.02, 11.75, 13.48, 15.21, 18.67, 20.3827], 3.1, 20.4, 'Scipy/Problem09'),
-        (lambda x: -x * sin(x), lambda x: -x*cos(x) - sin(x), lambda x: x*sin(x) - 2*cos(x), lambda x: x*cos(x) + 3*sin(x), [0.01, 1.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 9.99], 0, 10, 'Scipy/Problem10'),
+        (lambda x: sin(x) + sin(10.0 / 3.0 * x), lambda x: cos(x) + 10*cos(10*x/3)/3, lambda x: -(sin(x) + 100*sin(10*x/3)/9), lambda x: -(cos(x) + 1000*cos(10*x/3)/27),  [2.7048, 3.18, 4.14, 4.62, 5.1, 5.58, 6.06, 7.02, 7.4952], 2.7, 7.5, "Scipy/Problem02"),
+        (lambda x: -sum(k * sin((k + 1) * x + k) for k in range(1, 6)), lambda x: -2*cos(2*x + 1) - 6*cos(3*x + 2) - 12*cos(4*x + 3) - 20*cos(5*x + 4) - 30*cos(6*x + 5), lambda x: 2*(2*sin(2*x + 1) + 9*sin(3*x + 2) + 24*sin(4*x + 3) + 50*sin(5*x + 4) + 90*sin(6*x + 5)), lambda x: 2*(4*cos(2*x + 1) + 27*cos(3*x + 2) + 96*cos(4*x + 3) + 250*cos(5*x + 4) + 540*cos(6*x + 5)), [-9.98, -8.0, -4.0, -2.0, 0.0, 2.0, 4, 8.0, 9.98], -10, 10, "Scipy/Problem03"),
+        (lambda x: -(1.4 - 3 * x) * sin(18.0 * x), lambda x: 18.0*(3*x - 1.4)*cos(18.0*x) + 3*sin(18.0*x), lambda x: -324.0*(3*x - 1.4)*sin(18.0*x) + 108.0*cos(18.0*x), lambda x: -(5832.0*(3*x - 1.4)*cos(18.0*x) + 2916.0*sin(18.0*x)), [0.0012, 0.12, 0.36, 0.48, 0.6, 0.72, 0.84, 1.08, 1.1988], 0, 1.2, "Scipy/Problem05"),
+        (lambda x: -(x + sin(x)) * exp(-x ** 2.0), lambda x: -2*x*(-x - sin(x))*exp(-x**2) + (-cos(x) - 1)*exp(-x**2), lambda x: (4*x*(cos(x) + 1) - 2*(x + sin(x))*(2*x**2 - 1) + sin(x))*exp(-x**2), lambda x: (4*x*(x + sin(x))*(2*x**2 - 3) - 6*x*sin(x) - 6*(2*x**2 - 1)*(cos(x) + 1) + cos(x))*exp(-x**2), [-9.98, -8.0, -4.0, -2.0, 0.0, 2.0, 4, 8.0, 9.98], -10, 10, "Scipy/Problem06"),
+        (lambda x: sin(x) + sin(10.0 / 3.0 * x) + log(x) - 0.84 * x + 3, lambda x: cos(x) + 10*cos(10*x/3)/3 - 21/25 + 1/x, lambda x: -(sin(x) + 100*sin(10*x/3)/9 + x**(-2)), lambda x: -cos(x) - 1000*cos(10*x/3)/27 + 2/x**3, [2.7048, 3.18, 4.14, 4.62, 5.1, 5.58, 6.06, 7.02, 7.4952], 2.7, 7.5, "Scipy/Problem07"),
+        (lambda x: -sum(k * cos((k + 1) * x + k) for k in range(1, 6)), lambda x: 2*sin(2*x + 1) + 6*sin(3*x + 2) + 12*sin(4*x + 3) + 20*sin(5*x + 4) + 30*sin(6*x + 5), lambda x: 2*(2*cos(2*x + 1) + 9*cos(3*x + 2) + 24*cos(4*x + 3) + 50*cos(5*x + 4) + 90*cos(6*x + 5)), lambda x: -2*(4*sin(2*x + 1) + 27*sin(3*x + 2) + 96*sin(4*x + 3) + 250*sin(5*x + 4) + 540*sin(6*x + 5)), [-9.98, -8.0, -4.0, -2.0, 0.0, 2.0, 4, 8.0, 9.98], -10, 10, "Scipy/Problem08"),
+        (lambda x: sin(x) + sin(2.0 / 3.0 * x), lambda x: 2*cos(2*x/3)/3 + cos(x), lambda x: -(4*sin(2*x/3)/9 + sin(x)), lambda x: -(8*cos(2*x/3)/27 + cos(x)), [3.1173, 4.83, 8.29, 10.02, 11.75, 13.48, 15.21, 18.67, 20.3827], 3.1, 20.4, "Scipy/Problem09"),
+        (lambda x: -x * sin(x), lambda x: -x*cos(x) - sin(x), lambda x: x*sin(x) - 2*cos(x), lambda x: x*cos(x) + 3*sin(x), [0.01, 1.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 9.99], 0, 10, "Scipy/Problem10"),
         (lambda x: 2 * cos(x) + cos(2 * x), lambda x: -2*sin(x) - 2*sin(2*x), lambda x: -2*(cos(x) + 2*cos(2*x)), lambda x: 2*(sin(x) + 4*sin(2*x)), [-1.5629423451609221, -0.7853981633974483, 0.7853981633974483, 1.5707963267948966, 2.356194490192345,
                                                 3.141592653589793, 3.9269908169872414, 5.497787143782138, 6.275331325545612],
-            -pi / 2, 2 * pi, 'Scipy/Problem11'),
+            -pi / 2, 2 * pi, "Scipy/Problem11"),
         (lambda x: (sin(x))**3.0 + (cos(x))**3.0, lambda x: 3*sin(x)**2*cos(x) - 3*sin(x)*cos(x)**2, lambda x: 3*(-sin(x)**3 + 2*sin(x)**2*cos(x) + 2*sin(x)*cos(x)**2 - cos(x)**3), lambda x: 3*(-2*sin(x)**3 - 7*sin(x)**2*cos(x) + 7*sin(x)*cos(x)**2 + 2*cos(x)**3), [0.006283185307179587, 0.6283185307179586, 1.8849555921538759, 2.5132741228718345,
                                                     3.141592653589793, 3.7699111843077517, 4.39822971502571, 5.654866776461628, 6.276902121872407],
-            0, 2*pi, 'Scipy/Problem12'),
-        (lambda x: -exp(-x) * sin(2.0 * pi * x), lambda x: exp(-x)*sin(2*pi*x) - 2*pi*exp(-x)*cos(2*pi*x), lambda x: (-sin(2*pi*x) + 4*pi**2*sin(2*pi*x) + 4*pi*cos(2*pi*x))*exp(-x), lambda x: (-12*pi**2*sin(2*pi*x) + sin(2*pi*x) - 6*pi*cos(2*pi*x) + 8*pi**3*cos(2*pi*x))*exp(-x), [0.004, 0.4, 1.2, 1.6, 2.0, 2.4, 2.8, 3.6, 3.996], 0, 4, 'Scipy/Problem14'),
-        (lambda x: -(x - sin(x)) * exp(-x ** 2.0), lambda x: -2*x*(-x + sin(x))*exp(-x**2) + (cos(x) - 1)*exp(-x**2), lambda x: -(4*x*(cos(x) - 1) + 2*(x - sin(x))*(2*x**2 - 1) + sin(x))*exp(-x**2), lambda x: (4*x*(x - sin(x))*(2*x**2 - 3) + 6*x*sin(x) + 6*(2*x**2 - 1)*(cos(x) - 1) - cos(x))*exp(-x**2), [-9.98, -8.0, -4.0, -2.0, 0.0, 2.0, 4, 8.0, 9.98], -10, 10, 'Scipy/Problem20'),
-        (lambda x: x * sin(x) + x * cos(2.0 * x), lambda x: -2.0*x*sin(2.0*x) + x*cos(x) + sin(x) + cos(2.0*x), lambda x: -x*sin(x) - 4.0*x*cos(2.0*x) - 4.0*sin(2.0*x) + 2*cos(x), lambda x: 8.0*x*sin(2.0*x) - x*cos(x) - 3*sin(x) - 12.0*cos(2.0*x), [0.01, 1.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 9.99], 0, 10, 'Scipy/Problem21'),
-        (lambda x: exp(-3.0 * x) - (sin(x)) ** 3.0, lambda x: -3*sin(x)**2*cos(x) - 3*exp(-3*x), lambda x: 3*(sin(x)**3 - 2*sin(x)*cos(x)**2 + 3*exp(-3*x)), lambda x: 3*(7*sin(x)**2*cos(x) - 2*cos(x)**3 - 9*exp(-3*x)), [0.02, 2.0, 6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 19.98], 0, 20, 'Scipy/Problem22'),
+            0, 2*pi, "Scipy/Problem12"),
+        (lambda x: -exp(-x) * sin(2.0 * pi * x), lambda x: exp(-x)*sin(2*pi*x) - 2*pi*exp(-x)*cos(2*pi*x), lambda x: (-sin(2*pi*x) + 4*pi**2*sin(2*pi*x) + 4*pi*cos(2*pi*x))*exp(-x), lambda x: (-12*pi**2*sin(2*pi*x) + sin(2*pi*x) - 6*pi*cos(2*pi*x) + 8*pi**3*cos(2*pi*x))*exp(-x), [0.004, 0.4, 1.2, 1.6, 2.0, 2.4, 2.8, 3.6, 3.996], 0, 4, "Scipy/Problem14"),
+        (lambda x: -(x - sin(x)) * exp(-x ** 2.0), lambda x: -2*x*(-x + sin(x))*exp(-x**2) + (cos(x) - 1)*exp(-x**2), lambda x: -(4*x*(cos(x) - 1) + 2*(x - sin(x))*(2*x**2 - 1) + sin(x))*exp(-x**2), lambda x: (4*x*(x - sin(x))*(2*x**2 - 3) + 6*x*sin(x) + 6*(2*x**2 - 1)*(cos(x) - 1) - cos(x))*exp(-x**2), [-9.98, -8.0, -4.0, -2.0, 0.0, 2.0, 4, 8.0, 9.98], -10, 10, "Scipy/Problem20"),
+        (lambda x: x * sin(x) + x * cos(2.0 * x), lambda x: -2.0*x*sin(2.0*x) + x*cos(x) + sin(x) + cos(2.0*x), lambda x: -x*sin(x) - 4.0*x*cos(2.0*x) - 4.0*sin(2.0*x) + 2*cos(x), lambda x: 8.0*x*sin(2.0*x) - x*cos(x) - 3*sin(x) - 12.0*cos(2.0*x), [0.01, 1.0, 3.0, 4.0, 5.0, 6.0, 7.0, 9.0, 9.99], 0, 10, "Scipy/Problem21"),
+        (lambda x: exp(-3.0 * x) - (sin(x)) ** 3.0, lambda x: -3*sin(x)**2*cos(x) - 3*exp(-3*x), lambda x: 3*(sin(x)**3 - 2*sin(x)*cos(x)**2 + 3*exp(-3*x)), lambda x: 3*(7*sin(x)**2*cos(x) - 2*cos(x)**3 - 9*exp(-3*x)), [0.02, 2.0, 6.0, 8.0, 10.0, 12.0, 14.0, 18.0, 19.98], 0, 20, "Scipy/Problem22"),
 
 
 #         # from gsl
-        (lambda x: sin(x), lambda x: cos(x), lambda x: -sin(x), lambda x: -cos(x), [3, 4, -4, -3, -1/3., 1], None, None, 'sin(x)'),
-        (lambda x: cos(x), lambda x: -sin(x), lambda x: -cos(x), lambda x: sin(x), [0, 3, -3, 0], None, None, 'cos(x)'),
-        (lambda x: x**20 - 1,lambda x: 20*x**19, lambda x: 380*x**18, lambda x: 6840*x**17, [0.1, 2], None, None, 'x^20 - 1'), # Numerical derivative at .1 is 0, failing secant
+        (lambda x: sin(x), lambda x: cos(x), lambda x: -sin(x), lambda x: -cos(x), [3, 4, -4, -3, -1/3., 1], None, None, "sin(x)"),
+        (lambda x: cos(x), lambda x: -sin(x), lambda x: -cos(x), lambda x: sin(x), [0, 3, -3, 0], None, None, "cos(x)"),
+        (lambda x: x**20 - 1,lambda x: 20*x**19, lambda x: 380*x**18, lambda x: 6840*x**17, [0.1, 2], None, None, "x^20 - 1"), # Numerical derivative at .1 is 0, failing secant
         # (lambda x: np.sign(x)*abs(x)**0.5, [-1.0/3, 1], None, None, 'sign(x)*sqrt(abs(x))'),
-        (lambda x: x**2 - 1e-8, lambda x: 2*x, lambda x: 2, lambda x: 0, [0, 1], None, None, 'x^2 - 1e-8'),
-        (lambda x: (x-1.0)**7, lambda x: 7*(x - 1.0)**6, lambda x: 42*(x - 1.0)**5, lambda x: 210*(x - 1.0)**4, [0.9995, 1.0002], None, None, '(x-1.0)**7'),
+        (lambda x: x**2 - 1e-8, lambda x: 2*x, lambda x: 2, lambda x: 0, [0, 1], None, None, "x^2 - 1e-8"),
+        (lambda x: (x-1.0)**7, lambda x: 7*(x - 1.0)**6, lambda x: 42*(x - 1.0)**5, lambda x: 210*(x - 1.0)**4, [0.9995, 1.0002], None, None, "(x-1.0)**7"),
 
         # From Roots.jl
         # (lambda x: abs(x - 0.0), [0, 1], None, None, 'abs(x - 0.0)'),
-        (lambda x: 1024*x**11 - 2816*x**9 + 2816*x**7 - 1232*x**5 + 220*x**3 - 11*x, lambda x: 11264*x**10 - 25344*x**8 + 19712*x**6 - 6160*x**4 + 660*x**2 - 11, lambda x: 88*x*(1280*x**8 - 2304*x**6 + 1344*x**4 - 280*x**2 + 15), lambda x: 264*(3840*x**8 - 5376*x**6 + 2240*x**4 - 280*x**2 + 5), [0, -1, 1, 21], None, None, '1024*x**11 - 2816*x**9 + 2816*x**7 - 1232*x**5 + 220*x**3 - 11*x'),
-        (lambda x: 512*x**9 - 1024*x**7 + 672*x**5 - 160*x**3 +10*x, lambda x: 4608*x**8 - 7168*x**6 + 3360*x**4 - 480*x**2 + 10, lambda x: 192*x*(192*x**6 - 224*x**4 + 70*x**2 - 5), lambda x: 192*(1344*x**6 - 1120*x**4 + 210*x**2 - 5), [0, -1, 1, 7], None, None, '512*x**9 - 1024*x**7 + 672*x**5 - 160*x**3 +10*x')
+        (lambda x: 1024*x**11 - 2816*x**9 + 2816*x**7 - 1232*x**5 + 220*x**3 - 11*x, lambda x: 11264*x**10 - 25344*x**8 + 19712*x**6 - 6160*x**4 + 660*x**2 - 11, lambda x: 88*x*(1280*x**8 - 2304*x**6 + 1344*x**4 - 280*x**2 + 15), lambda x: 264*(3840*x**8 - 5376*x**6 + 2240*x**4 - 280*x**2 + 5), [0, -1, 1, 21], None, None, "1024*x**11 - 2816*x**9 + 2816*x**7 - 1232*x**5 + 220*x**3 - 11*x"),
+        (lambda x: 512*x**9 - 1024*x**7 + 672*x**5 - 160*x**3 +10*x, lambda x: 4608*x**8 - 7168*x**6 + 3360*x**4 - 480*x**2 + 10, lambda x: 192*x*(192*x**6 - 224*x**4 + 70*x**2 - 5), lambda x: 192*(1344*x**6 - 1120*x**4 + 210*x**2 - 5), [0, -1, 1, 7], None, None, "512*x**9 - 1024*x**7 + 672*x**5 - 160*x**3 +10*x")
         ]
 
 def test_secant_cases_internet():
 
     solvers = [secant]
-    solver_kwargs = [{'xtol': 1e-14, 'bisection': True, 'require_xtol': False, 'ytol': 1e-12,
-                      'additional_guesses': True, 'require_eval': True},
+    solver_kwargs = [{"xtol": 1e-14, "bisection": True, "require_xtol": False, "ytol": 1e-12,
+                      "additional_guesses": True, "require_eval": True},
                      ]
-    names = ['fluids secant']
+    names = ["fluids secant"]
     def print_err(fun):
         def f(x):
             err = fun(x)
@@ -1802,6 +1798,7 @@ def test_secant_cases_internet():
 @pytest.mark.filterwarnings("ignore:invalid value encountered in scalar power")
 def test_secant_cases_nan_inf():
     import numpy as np
+
     from fluids.numerics import UnconvergedError
     def div_by_zero(x):
         err = 1 / (np.array(x) - 1)
@@ -1862,10 +1859,10 @@ def test_newton_halley_cases_internet():
         return f
 
     solvers = [newton]
-    solver_kwargs = [{'xtol': 1e-14, 'bisection': True, 'ytol': 1e-11, 'require_xtol': False,
-                    'require_eval': True, 'additional_guesses': True},
+    solver_kwargs = [{"xtol": 1e-14, "bisection": True, "ytol": 1e-11, "require_xtol": False,
+                    "require_eval": True, "additional_guesses": True},
                     ]
-    names = ['fluids newton']
+    names = ["fluids newton"]
     for solver, kwargs, name in zip(solvers, solver_kwargs, names):
         passes = 0
         fails = 0
@@ -1900,7 +1897,7 @@ def test_basic_newton_system():
         # f1 = x^2 + y^2 - 4 = 0
         # f2 = exp(x) - y = 0
         return [x**2 + y**2 - 4, exp(x) - y]
-    
+
     # Define Jacobian matrix
     def jacobian(inputs):
         x, y = inputs
@@ -1918,9 +1915,9 @@ def test_basic_newton_system():
         xtol=1e-10,
         maxiter=100
     )
-    
+
     # Check results
-    assert iterations > 0 
+    assert iterations > 0
     assert iterations < 10  # Should converge in about 6 iters
     # Verify solution satisfies equations
     final_residuals = system(solution)
@@ -2033,7 +2030,7 @@ def test_newton_jacobian_has_nan_inf():
                [T - 873,
                 x - 11.0]]
     #     if len(Ts) == 3:
-        ans[0][0] = float('inf')
+        ans[0][0] = float("inf")
         return ans
 
     near_solution = [0.05995136780143791, 300]
@@ -2060,7 +2057,7 @@ def test_newton_jacobian_has_nan_inf():
                [T - 873,
                 x - 11.0]]
         if len(Ts) == 1:
-            ans[0][0] = float('inf')
+            ans[0][0] = float("inf")
         return ans
 
     # Check that if the initial jacobian is bad, it gets caught
@@ -2119,14 +2116,14 @@ try:
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         try:
-            import numdifftools as nd
-            jacob_methods = ['analytical', 'python', 'numdifftools_forward']
+            import numdifftools # noqa: F401, I001
+            jacob_methods = ["analytical", "python", "numdifftools_forward"]
         except:
-            jacob_methods = ['analytical', 'python']
+            jacob_methods = ["analytical", "python"]
 
         try:
-            import jacobi
-            jacob_methods += ['jacobi_forward']
+            import jacobi # noqa: F401, I001
+            jacob_methods += ["jacobi_forward"]
         except:
             pass
 except:
@@ -2135,7 +2132,7 @@ except:
 @pytest.mark.parametrize("jacob_method", jacob_methods)
 @pytest.mark.filterwarnings("ignore:Method")
 def test_SolverInterface_basics(jacob_method):
-    solver = SolverInterface(method='newton_system', objf=to_solve_newton_python,
+    solver = SolverInterface(method="newton_system", objf=to_solve_newton_python,
                              jacobian_method=jacob_method, jac=to_solve_jac_newton_python)
     # Not testing convergence so start quite close to the point
     x0 = [.06, 297.]
@@ -2149,12 +2146,12 @@ def test_SolverInterface_basics(jacob_method):
     assert_close2d(to_solve_jac_newton_python(x0), j0, rtol=1e-5)
     assert_close2d(to_solve_jac_newton_numpy(np.array(x0)), j0, rtol=1e-5)
 
-    if jacob_method == 'python':
-        working_methods = ('newton_system_line_search', 'homotopy_solver', 'hybr', 'lm',
-                       'krylov', 'df-sane', 'Nelder-Mead', 'Powell', 'BFGS', 'Newton-CG',
-                       'TNC', 'SLSQP')
+    if jacob_method == "python":
+        working_methods = ("newton_system_line_search", "homotopy_solver", "hybr", "lm",
+                       "krylov", "df-sane", "Nelder-Mead", "Powell", "BFGS", "Newton-CG",
+                       "TNC", "SLSQP")
     else:
-        working_methods = ('newton_system_line_search', 'hybr', 'Powell', 'BFGS')
+        working_methods = ("newton_system_line_search", "hybr", "Powell", "BFGS")
 
     for method in working_methods:
         solver = SolverInterface(method=method, objf=to_solve_newton_python, jacobian_method=jacob_method,
@@ -2162,7 +2159,7 @@ def test_SolverInterface_basics(jacob_method):
         res = solver.solve(x0)
         assert_close1d(res, expect, rtol=1e-5)
         assert type(res) is list
-        if method in ('newton_system_line_search', 'hybr', 'Powell', 'BFGS'):
+        if method in ("newton_system_line_search", "hybr", "Powell", "BFGS"):
             res = solver.solve(np.array(x0))
             assert isinstance(res, np.ndarray)
 
@@ -2177,7 +2174,7 @@ def test_SolverInterface_basics(jacob_method):
         res = solver.solve(np.array(x0))
         assert_close1d(res, expect, rtol=1e-5)
         assert isinstance(res, np.ndarray)
-        if method in ('newton_system_line_search', 'hybr', 'Powell', 'BFGS'):
+        if method in ("newton_system_line_search", "hybr", "Powell", "BFGS"):
             res = solver.solve([1, 400.])
             assert type(res) is list
 
@@ -2220,7 +2217,7 @@ def test_fixed_point_process():
         x0=x0,
         xtol=1e-10,
         maxiter=1000,
-        damping=.3, 
+        damping=.3,
     )
     assert iterations < 80 # 74 last check
     assert_close1d(basic_system(solution), [0, 0], atol=1e-6)
@@ -2231,7 +2228,7 @@ def test_fixed_point_process():
         x0=x0,
         xtol=1e-10,
         maxiter=1000,
-        damping=0.3, 
+        damping=0.3,
         acc_damping=0.4,# 44 last run iterations
     )
     assert iterations < 100
@@ -2243,7 +2240,7 @@ def test_fixed_point_process():
         x0=x0,
         xtol=1e-10,
         maxiter=1000,
-        damping=0.3, 
+        damping=0.3,
         acc_damping=0.3, # 81 last run
     )
     assert iterations < 100
@@ -2289,20 +2286,20 @@ def test_fixed_point_process():
 def test_SolverInterface_fixed_point():
     # Largely from Yoel's Flexsolve which is excellent, and wikipedia sample code https://en.wikipedia.org/wiki/Aitken%27s_delta-squared_process
     # Works really nice, few parameters not exposed still though
-    solver = SolverInterface(method='fixed_point', objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-9)
+    solver = SolverInterface(method="fixed_point", objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-9)
     ans = solver.solve(fixed_point_1_guess)
     assert_close1d(ans, fixed_point_1_expect, rtol=1e-6)
 
-    solver = SolverInterface(method='fixed_point_aitken', objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-12)
+    solver = SolverInterface(method="fixed_point_aitken", objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-12)
     ans = solver.solve(fixed_point_1_guess)
     assert solver.fval_iter == 79
     assert_close1d(ans, fixed_point_1_expect, rtol=1e-6)
 
-    solver = SolverInterface(method='fixed_point_gdem', objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-12)
+    solver = SolverInterface(method="fixed_point_gdem", objf=fixed_point_to_residual(fixed_point_1_func), maxiter=1000, xtol=1e-12)
     ans = solver.solve(fixed_point_1_guess)
     assert solver.fval_iter == 37
     assert_close1d(ans, fixed_point_1_expect, rtol=1e-12)
-    
+
 
 def test_isclose():
     assert not isclose(1.0, 2.0, rel_tol=0.0, abs_tol=0.0)

@@ -68,31 +68,53 @@ Two Phase Flow Regime Correlations
 .. autofunction:: Taitel_Dukler_regime
 
 """
+from __future__ import annotations
 
-__all__ = ['two_phase_dP', 'two_phase_dP_methods', 'two_phase_dP_acceleration',
-           'two_phase_dP_dz_acceleration', 'two_phase_dP_gravitational',
-           'two_phase_dP_dz_gravitational',
-           'Beggs_Brill', 'Lockhart_Martinelli', 'Friedel', 'Chisholm',
-           'Kim_Mudawar', 'Baroczy_Chisholm', 'Theissing',
-           'Muller_Steinhagen_Heck', 'Gronnerud', 'Lombardi_Pedrocchi',
-           'Jung_Radermacher', 'Tran', 'Chen_Friedel', 'Zhang_Webb', 'Xu_Fang',
-           'Yu_France', 'Wang_Chiang_Lu', 'Hwang_Kim', 'Zhang_Hibiki_Mishima',
-           'Mishima_Hibiki', 'Bankoff',
-           'Mandhane_Gregory_Aziz_regime', 'Taitel_Dukler_regime']
+__all__: list[str] = [
+    "Bankoff",
+    "Baroczy_Chisholm",
+    "Beggs_Brill",
+    "Chen_Friedel",
+    "Chisholm",
+    "Friedel",
+    "Gronnerud",
+    "Hwang_Kim",
+    "Jung_Radermacher",
+    "Kim_Mudawar",
+    "Lockhart_Martinelli",
+    "Lombardi_Pedrocchi",
+    "Mandhane_Gregory_Aziz_regime",
+    "Mishima_Hibiki",
+    "Muller_Steinhagen_Heck",
+    "Taitel_Dukler_regime",
+    "Theissing",
+    "Tran",
+    "Wang_Chiang_Lu",
+    "Xu_Fang",
+    "Yu_France",
+    "Zhang_Hibiki_Mishima",
+    "Zhang_Webb",
+    "two_phase_dP",
+    "two_phase_dP_acceleration",
+    "two_phase_dP_dz_acceleration",
+    "two_phase_dP_dz_gravitational",
+    "two_phase_dP_gravitational",
+    "two_phase_dP_methods",
+]
 
 from math import cos, exp, log, log10, pi, radians, sin, sqrt
 
 from fluids.constants import deg2rad, g
 from fluids.core import Bond, Confinement, Froude, Reynolds, Suratman, Weber
 from fluids.friction import friction_factor
-from fluids.numerics import implementation_optimize_tck, splev, cbrt
+from fluids.numerics import cbrt, implementation_optimize_tck, splev
 from fluids.two_phase_voidage import Lockhart_Martinelli_Xtt, homogeneous
 
-Beggs_Brill_dat = {'segregated': (0.98, 0.4846, 0.0868),
-'intermittent': (0.845, 0.5351, 0.0173),
-'distributed': (1.065, 0.5824, 0.0609)}
+Beggs_Brill_dat = {"segregated": (0.98, 0.4846, 0.0868),
+"intermittent": (0.845, 0.5351, 0.0173),
+"distributed": (1.065, 0.5824, 0.0609)}
 
-def _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV):
+def _Beggs_Brill_holdup(regime: int, lambda_L: float, Fr: float, angle: float, LV: float) -> float:
     if regime == 0:
         a, b, c = 0.98, 0.4846, 0.0868
     elif regime == 2:
@@ -127,8 +149,8 @@ def _Beggs_Brill_holdup(regime, lambda_L, Fr, angle, LV):
     Hl = HL0*Psi
     return Hl
 
-def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
-                L=1.0, g=g, acceleration=True):
+def Beggs_Brill(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, P: float, D: float, angle: float, roughness: float=0.0,
+                L: float=1.0, g: float=g, acceleration: bool=True) -> float:
     r"""Calculates the two-phase pressure drop according to the Beggs-Brill
     correlation ([1]_, [2]_, [3]_).
 
@@ -218,7 +240,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     elif (lambda_L < 0.4 and Fr >= L1) or (lambda_L >= 0.4 and Fr > L4):
         regime = 3
     else:
-        raise ValueError('Outside regime ranges')
+        raise ValueError("Outside regime ranges")
 
     LV = Vsl*sqrt(sqrt(rhol/(g*sigma)))
     if angle is None:
@@ -262,7 +284,7 @@ def Beggs_Brill(m, x, rhol, rhog, mul, mug, sigma, P, D, angle, roughness=0.0,
     return dP
 
 
-def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Friedel(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Friedel correlation.
 
     .. math::
@@ -386,7 +408,7 @@ def Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     return phi_lo2*dP_lo
 
 
-def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Gronnerud(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Gronnerud correlation as
     presented in [2]_, [3]_, and [4]_.
 
@@ -479,8 +501,8 @@ def Gronnerud(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return phi_gd*dP_lo
 
 
-def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
-             rough_correction=False):
+def Chisholm(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0,
+             rough_correction: bool=False) -> float:
     r"""Calculates two-phase pressure drop with the Chisholm (1973) correlation
     from [1]_, also in [2]_ and [3]_.
 
@@ -628,7 +650,7 @@ def Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0,
     return phi2_ch*dP_lo
 
 
-def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Baroczy_Chisholm(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Baroczy (1966) model.
     It was presented in graphical form originally; Chisholm (1973) made the
     correlation non-graphical. The model is also shown in [3]_.
@@ -734,7 +756,7 @@ def Baroczy_Chisholm(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return phi2_ch*dP_lo
 
 
-def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Muller_Steinhagen_Heck(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Muller-Steinhagen and Heck
     (1986) correlation from [1]_, also in [2]_ and [3]_.
 
@@ -811,7 +833,7 @@ def Muller_Steinhagen_Heck(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return G_MSH*cbrt(1.0-x)+ dP_go*x*x*x
 
 
-def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1.0):
+def Lombardi_Pedrocchi(m: float, x: float, rhol: float, rhog: float, sigma: float, D: float, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Lombardi-Pedrocchi (1972)
     correlation from [1]_ as shown in [2]_ and [3]_.
 
@@ -871,7 +893,7 @@ def Lombardi_Pedrocchi(m, x, rhol, rhog, sigma, D, L=1.0):
     return 0.83*G_tp**1.4*sigma**0.4*L/(D**1.2*rho_h**0.866)
 
 
-def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Theissing(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Theissing (1980)
     correlation as shown in [2]_ and [3]_.
 
@@ -992,7 +1014,7 @@ def Theissing(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return dP
 
 
-def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Jung_Radermacher(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Jung-Radermacher (1989)
     correlation, also shown in [2]_ and [3]_.
 
@@ -1066,7 +1088,7 @@ def Jung_Radermacher(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return phi_tp2*dP_lo
 
 
-def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Tran(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Tran (2000) correlation,
     also shown in [2]_ and [3]_.
 
@@ -1156,7 +1178,7 @@ def Tran(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     return dP_lo*phi_lo2
 
 
-def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Chen_Friedel(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Chen modification of the
     Friedel correlation, as given in [1]_ and also shown in [2]_ and [3]_.
 
@@ -1280,7 +1302,7 @@ def Chen_Friedel(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     return dP*Omega
 
 
-def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1.0):
+def Zhang_Webb(m: float, x: float, rhol: float, mul: float, P: float, Pc: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Zhang-Webb (2001)
     correlation as shown in [1]_ and also given in [2]_.
 
@@ -1352,7 +1374,7 @@ def Zhang_Webb(m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1.0):
     return dP_lo*phi_lo2
 
 
-def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Bankoff(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Bankoff (1960) correlation,
     as shown in [2]_, [3]_, and [4]_.
 
@@ -1431,7 +1453,7 @@ def Bankoff(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return dP_lo*phi_Bf**(7/4.)
 
 
-def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Xu_Fang(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Xu and Fang (2013)
     correlation. Developed after a comprehensive review of available
     correlations, likely meaning it is quite accurate.
@@ -1529,7 +1551,7 @@ def Xu_Fang(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     return phi_lo2*dP_lo
 
 
-def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Yu_France(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Yu, France, Wambsganss,
     and Hull (2002) correlation given in [1]_ and reviewed in [2]_ and [3]_.
 
@@ -1610,7 +1632,7 @@ def Yu_France(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return phi_l2*dP_l
 
 
-def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
+def Wang_Chiang_Lu(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Wang, Chiang, and Lu (1997)
     correlation given in [1]_ and reviewed in [2]_ and [3]_.
 
@@ -1709,7 +1731,7 @@ def Wang_Chiang_Lu(m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1.0):
     return dP_g*phi_g2
 
 
-def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Hwang_Kim(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Hwang and Kim (2006)
     correlation as in [1]_, also presented in [2]_ and [3]_.
 
@@ -1805,8 +1827,8 @@ def Hwang_Kim(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     return dP_l*phi_l2
 
 
-def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
-                         L=1.0, flowtype='adiabatic vapor'):
+def Zhang_Hibiki_Mishima(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0,
+                         L: float=1.0, flowtype: str="adiabatic vapor") -> float:
     r"""Calculates two-phase pressure drop with the Zhang, Hibiki, Mishima and
     (2010) correlation as in [1]_, also presented in [2]_ and [3]_.
 
@@ -1907,11 +1929,11 @@ def Zhang_Hibiki_Mishima(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0,
     X = sqrt(dP_l/dP_g)
     Co = Confinement(D=D, rhol=rhol, rhog=rhog, sigma=sigma)
 
-    if flowtype == 'adiabatic vapor':
+    if flowtype == "adiabatic vapor":
         C = 21*(1 - exp(-0.142/Co))
-    elif flowtype == 'adiabatic gas':
+    elif flowtype == "adiabatic gas":
         C = 21*(1 - exp(-0.674/Co))
-    elif flowtype == 'flow boiling':
+    elif flowtype == "flow boiling":
         C = 21*(1 - exp(-0.358/Co))
     else:
         raise ValueError("Only flow types 'adiabatic vapor', 'adiabatic gas', \
@@ -1921,7 +1943,7 @@ and 'flow boiling' are recognized.")
     return dP_l*phi_l2
 
 
-def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
+def Mishima_Hibiki(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, roughness: float=0.0, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Mishima and Hibiki (1996)
     correlation as in [1]_, also presented in [2]_ and [3]_.
 
@@ -2009,7 +2031,7 @@ def Mishima_Hibiki(m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1.0):
     phi_l2 = 1.0 + C/X + 1./(X*X)
     return dP_l*phi_l2
 
-def friction_factor_Kim_Mudawar(Re):
+def friction_factor_Kim_Mudawar(Re: float) -> float:
     if Re < 2000:
         return 64./Re
     elif Re < 20000:
@@ -2018,7 +2040,7 @@ def friction_factor_Kim_Mudawar(Re):
         return 0.184*Re**-0.2
 
 
-def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
+def Kim_Mudawar(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float, L: float=1.0) -> float:
     r"""Calculates two-phase pressure drop with the Kim and Mudawar (2012)
     correlation as in [1]_, also presented in [2]_.
 
@@ -2159,7 +2181,7 @@ def Kim_Mudawar(m, x, rhol, rhog, mul, mug, sigma, D, L=1.0):
     return dP_l*phi_l2
 
 
-def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
+def Lockhart_Martinelli(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, L: float=1.0, Re_c: float=2000.0) -> float:
     r"""Calculates two-phase pressure drop with the Lockhart and Martinelli
     (1949) correlation as presented in non-graphical form by Chisholm (1967).
 
@@ -2299,42 +2321,42 @@ def Lockhart_Martinelli(m, x, rhol, rhog, mul, mug, D, L=1.0, Re_c=2000.0):
 
 two_phase_correlations = {
     # 0 index, args are: m, x, rhol, mul, P, Pc, D, roughness=0.0, L=1
-    'Zhang_Webb': (Zhang_Webb, 0),
+    "Zhang_Webb": (Zhang_Webb, 0),
     # 1 index, args are: m, x, rhol, rhog, mul, mug, D, L=1
-    'Lockhart_Martinelli': (Lockhart_Martinelli, 1),
+    "Lockhart_Martinelli": (Lockhart_Martinelli, 1),
     # 2 index, args are: m, x, rhol, rhog, mul, mug, D, roughness=0.0, L=1
-    'Bankoff': (Bankoff, 2),
-    'Baroczy_Chisholm': (Baroczy_Chisholm, 2),
-    'Chisholm': (Chisholm, 2),
-    'Gronnerud': (Gronnerud, 2),
-    'Jung_Radermacher': (Jung_Radermacher, 2),
-    'Muller_Steinhagen_Heck': (Muller_Steinhagen_Heck, 2),
-    'Theissing': (Theissing, 2),
-    'Wang_Chiang_Lu': (Wang_Chiang_Lu, 2),
-    'Yu_France': (Yu_France, 2),
+    "Bankoff": (Bankoff, 2),
+    "Baroczy_Chisholm": (Baroczy_Chisholm, 2),
+    "Chisholm": (Chisholm, 2),
+    "Gronnerud": (Gronnerud, 2),
+    "Jung_Radermacher": (Jung_Radermacher, 2),
+    "Muller_Steinhagen_Heck": (Muller_Steinhagen_Heck, 2),
+    "Theissing": (Theissing, 2),
+    "Wang_Chiang_Lu": (Wang_Chiang_Lu, 2),
+    "Yu_France": (Yu_France, 2),
     # 3 index, args are: m, x, rhol, rhog, mul, mug, sigma, D, L=1
-    'Kim_Mudawar': (Kim_Mudawar, 3),
+    "Kim_Mudawar": (Kim_Mudawar, 3),
     # 4 index, args are: m, x, rhol, rhog, mul, mug, sigma, D, roughness=0.0, L=1
-    'Friedel': (Friedel, 4),
-    'Hwang_Kim': (Hwang_Kim, 4),
-    'Mishima_Hibiki': (Mishima_Hibiki, 4),
-    'Tran': (Tran, 4),
-    'Xu_Fang': (Xu_Fang, 4),
-    'Zhang_Hibiki_Mishima': (Zhang_Hibiki_Mishima, 4),
-    'Chen_Friedel': (Chen_Friedel, 4),
+    "Friedel": (Friedel, 4),
+    "Hwang_Kim": (Hwang_Kim, 4),
+    "Mishima_Hibiki": (Mishima_Hibiki, 4),
+    "Tran": (Tran, 4),
+    "Xu_Fang": (Xu_Fang, 4),
+    "Zhang_Hibiki_Mishima": (Zhang_Hibiki_Mishima, 4),
+    "Chen_Friedel": (Chen_Friedel, 4),
     # 5 index: args are m, x, rhol, rhog, sigma, D, L=1
-    'Lombardi_Pedrocchi': (Lombardi_Pedrocchi, 5),
+    "Lombardi_Pedrocchi": (Lombardi_Pedrocchi, 5),
     # Misc indexes:
-    'Chisholm rough': (Chisholm, 101),
-    'Zhang_Hibiki_Mishima adiabatic gas': (Zhang_Hibiki_Mishima, 102),
-    'Zhang_Hibiki_Mishima flow boiling': (Zhang_Hibiki_Mishima, 103),
-    'Beggs-Brill': (Beggs_Brill, 104)
+    "Chisholm rough": (Chisholm, 101),
+    "Zhang_Hibiki_Mishima adiabatic gas": (Zhang_Hibiki_Mishima, 102),
+    "Zhang_Hibiki_Mishima flow boiling": (Zhang_Hibiki_Mishima, 103),
+    "Beggs-Brill": (Beggs_Brill, 104)
 }
 _unknown_msg_two_phase = f"Unknown method; available methods are {list(two_phase_correlations.keys())}"
 
-def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
-                         sigma=None, P=None, Pc=None, roughness=0.0, angle=0,
-                         check_ranges=False):
+def two_phase_dP_methods(m: float, x: float, rhol: float, D: float, L: float=1.0, rhog: float | None=None, mul: float | None=None, mug: float | None=None,
+                         sigma: float | None=None, P: float | None=None, Pc: float | None=None, roughness: float=0.0, angle: float=0,
+                         check_ranges: bool=False) -> list[str]:
     r"""This function returns a list of names of correlations for two-phase
     liquid-gas pressure drop for flow inside channels.
     24 calculation methods are available, with varying input requirements.
@@ -2395,8 +2417,49 @@ def two_phase_dP_methods(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None,
         usable_indices.append(104)
     return [key for key, value in two_phase_correlations.items() if value[1] in usable_indices]
 
-def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None,
-                 P=None, Pc=None, roughness=0.0, angle=None, Method=None):
+# # Uncomment to regenerate the frozensets when adding new methods:
+# def _generate_two_phase_dP_parameter_requirements():
+#     """Generate frozensets of which methods require which parameters."""
+#     # Get all methods with all parameters present
+#     all_methods = set(two_phase_dP_methods(m=1.0, x=0.5, rhol=1000.0, D=0.1, L=1.0,
+#                                             rhog=1.0, mul=1e-3, mug=1e-5, sigma=0.05,
+#                                             P=1e5, Pc=1e6, angle=0.0, roughness=1e-5))
+
+#     params_to_check = [
+#         ('rhog', 'rhog'),
+#         ('mul', 'mul'),
+#         ('mug', 'mug'),
+#         ('sigma', 'sigma'),
+#         ('P', 'P'),
+#         ('Pc', 'Pc'),
+#         ('angle', 'angle'),
+#     ]
+
+#     for param_name, kwarg_name in params_to_check:
+#         # Get methods without this parameter
+#         kwargs = {'m': 1.0, 'x': 0.5, 'rhol': 1000.0, 'D': 0.1, 'L': 1.0,
+#                   'rhog': 1.0, 'mul': 1e-3, 'mug': 1e-5, 'sigma': 0.05,
+#                   'P': 1e5, 'Pc': 1e6, 'angle': 0.0, 'roughness': 1e-5}
+#         kwargs[kwarg_name] = None
+#         methods_without = set(two_phase_dP_methods(**kwargs))
+
+#         # Methods that require this parameter are those in all_methods but not in methods_without
+#         methods_needing = all_methods - methods_without
+#         print(f"two_phase_dP_methods_needing_{param_name} = frozenset({sorted(methods_needing)!r})")
+
+# _generate_two_phase_dP_parameter_requirements()
+
+# Generated frozensets (regenerate by uncommenting above code):
+two_phase_dP_methods_needing_rhog = frozenset(["Bankoff", "Baroczy_Chisholm", "Beggs-Brill", "Chen_Friedel", "Chisholm", "Chisholm rough", "Friedel", "Gronnerud", "Hwang_Kim", "Jung_Radermacher", "Kim_Mudawar", "Lockhart_Martinelli", "Lombardi_Pedrocchi", "Mishima_Hibiki", "Muller_Steinhagen_Heck", "Theissing", "Tran", "Wang_Chiang_Lu", "Xu_Fang", "Yu_France", "Zhang_Hibiki_Mishima", "Zhang_Hibiki_Mishima adiabatic gas", "Zhang_Hibiki_Mishima flow boiling"])
+two_phase_dP_methods_needing_mul = frozenset(["Bankoff", "Baroczy_Chisholm", "Beggs-Brill", "Chen_Friedel", "Chisholm", "Chisholm rough", "Friedel", "Gronnerud", "Hwang_Kim", "Jung_Radermacher", "Kim_Mudawar", "Lockhart_Martinelli", "Mishima_Hibiki", "Muller_Steinhagen_Heck", "Theissing", "Tran", "Wang_Chiang_Lu", "Xu_Fang", "Yu_France", "Zhang_Hibiki_Mishima", "Zhang_Hibiki_Mishima adiabatic gas", "Zhang_Hibiki_Mishima flow boiling", "Zhang_Webb"])
+two_phase_dP_methods_needing_mug = frozenset(["Bankoff", "Baroczy_Chisholm", "Beggs-Brill", "Chen_Friedel", "Chisholm", "Chisholm rough", "Friedel", "Gronnerud", "Hwang_Kim", "Jung_Radermacher", "Kim_Mudawar", "Lockhart_Martinelli", "Mishima_Hibiki", "Muller_Steinhagen_Heck", "Theissing", "Tran", "Wang_Chiang_Lu", "Xu_Fang", "Yu_France", "Zhang_Hibiki_Mishima", "Zhang_Hibiki_Mishima adiabatic gas", "Zhang_Hibiki_Mishima flow boiling"])
+two_phase_dP_methods_needing_sigma = frozenset(["Beggs-Brill", "Chen_Friedel", "Friedel", "Hwang_Kim", "Kim_Mudawar", "Lombardi_Pedrocchi", "Mishima_Hibiki", "Tran", "Xu_Fang", "Zhang_Hibiki_Mishima", "Zhang_Hibiki_Mishima adiabatic gas", "Zhang_Hibiki_Mishima flow boiling"])
+two_phase_dP_methods_needing_P = frozenset(["Beggs-Brill", "Zhang_Webb"])
+two_phase_dP_methods_needing_Pc = frozenset(["Zhang_Webb"])
+two_phase_dP_methods_needing_angle = frozenset(["Beggs-Brill"])
+
+def two_phase_dP(m: float, x: float, rhol: float, D: float, L: float=1.0, rhog: float | None=None, mul: float | None=None, mug: float | None=None, sigma: float | None=None,
+                 P: float | None=None, Pc: float | None=None, roughness: float=0.0, angle: float | None=None, Method: str | None=None) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     for flow inside channels. 23 calculation methods are available, with
     varying input requirements. A correlation will be automatically selected if
@@ -2467,80 +2530,119 @@ def two_phase_dP(m, x, rhol, D, L=1.0, rhog=None, mul=None, mug=None, sigma=None
     """
     if Method is None:
         if rhog is not None and mul is not None and mug is not None and sigma is not None:
-            Method2 = 'Kim_Mudawar' # Kim_Mudawar preferred
+            Method2 = "Kim_Mudawar" # Kim_Mudawar preferred
         elif rhog is not None and mul is not None and mug is not None:
-            Method2 = 'Chisholm' # Second choice, indexes 1 or 2
+            Method2 = "Chisholm" # Second choice, indexes 1 or 2
         elif mul is not None and P is not None and Pc is not None:
-            Method2 = 'Zhang_Webb' # Not a good choice
+            Method2 = "Zhang_Webb" # Not a good choice
         elif rhog is not None and sigma is not None:
-            Method2 = 'Lombardi_Pedrocchi' # Last try
+            Method2 = "Lombardi_Pedrocchi" # Last try
         else:
-            raise ValueError('All possible methods require more information \
-than provided; provide more inputs!')
+            raise ValueError("All possible methods require more information \
+than provided; provide more inputs!")
     else:
         Method2 = Method
 
+    # Type narrowing: validate required parameters based on selected method
+    # Initialize to dummy values for numba (will be overwritten before use)
+    rhog2 = 0.0
+    mul2 = 0.0
+    mug2 = 0.0
+    sigma2 = 0.0
+    P2 = 0.0
+    Pc2 = 0.0
+    angle2 = 0.0
+
+    if Method2 in two_phase_dP_methods_needing_rhog:
+        if rhog is None:
+            raise TypeError(f"{Method2} requires rhog")
+        rhog2 = rhog
+    if Method2 in two_phase_dP_methods_needing_mul:
+        if mul is None:
+            raise TypeError(f"{Method2} requires mul")
+        mul2 = mul
+    if Method2 in two_phase_dP_methods_needing_mug:
+        if mug is None:
+            raise TypeError(f"{Method2} requires mug")
+        mug2 = mug
+    if Method2 in two_phase_dP_methods_needing_sigma:
+        if sigma is None:
+            raise TypeError(f"{Method2} requires sigma")
+        sigma2 = sigma
+    if Method2 in two_phase_dP_methods_needing_P:
+        if P is None:
+            raise TypeError(f"{Method2} requires P")
+        P2 = P
+    if Method2 in two_phase_dP_methods_needing_Pc:
+        if Pc is None:
+            raise TypeError(f"{Method2} requires Pc")
+        Pc2 = Pc
+    if Method2 in two_phase_dP_methods_needing_angle:
+        if angle is None:
+            raise TypeError(f"{Method2} requires angle")
+        angle2 = angle
+
     if Method2 == "Zhang_Webb":
-        return Zhang_Webb(m=m, x=x, rhol=rhol, mul=mul, P=P, Pc=Pc, D=D, roughness=roughness, L=L)
+        return Zhang_Webb(m=m, x=x, rhol=rhol, mul=mul2, P=P2, Pc=Pc2, D=D, roughness=roughness, L=L)
     elif Method2 == "Lockhart_Martinelli":
-        return Lockhart_Martinelli(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, L=L)
+        return Lockhart_Martinelli(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, L=L)
     elif Method2 == "Bankoff":
-        return Bankoff(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Bankoff(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Baroczy_Chisholm":
-        return Baroczy_Chisholm(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Baroczy_Chisholm(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Chisholm":
-        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Gronnerud":
-        return Gronnerud(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Gronnerud(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Jung_Radermacher":
-        return Jung_Radermacher(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Jung_Radermacher(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Muller_Steinhagen_Heck":
-        return Muller_Steinhagen_Heck(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Muller_Steinhagen_Heck(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Theissing":
-        return Theissing(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Theissing(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Wang_Chiang_Lu":
-        return Wang_Chiang_Lu(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Wang_Chiang_Lu(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Yu_France":
-        return Yu_France(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D, roughness=roughness, L=L)
+        return Yu_France(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D, roughness=roughness, L=L)
     elif Method2 == "Kim_Mudawar":
-        return Kim_Mudawar(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, L=L)
+        return Kim_Mudawar(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, L=L)
     elif Method2 == "Friedel":
-        return Friedel(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Friedel(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Hwang_Kim":
-        return Hwang_Kim(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Hwang_Kim(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Mishima_Hibiki":
-        return Mishima_Hibiki(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Mishima_Hibiki(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Tran":
-        return Tran(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Tran(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Xu_Fang":
-        return Xu_Fang(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Xu_Fang(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Zhang_Hibiki_Mishima":
-        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Chen_Friedel":
-        return Chen_Friedel(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, sigma=sigma, D=D, roughness=roughness, L=L)
+        return Chen_Friedel(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, sigma=sigma2, D=D, roughness=roughness, L=L)
     elif Method2 == "Lombardi_Pedrocchi":
-        return Lombardi_Pedrocchi(m=m, x=x, rhol=rhol, rhog=rhog, sigma=sigma, D=D, L=L)
+        return Lombardi_Pedrocchi(m=m, x=x, rhol=rhol, rhog=rhog2, sigma=sigma2, D=D, L=L)
     elif Method2 == "Chisholm rough":
-        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug, D=D,
+        return Chisholm(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2, D=D,
                      L=L, roughness=roughness, rough_correction=True)
     elif Method2 == "Zhang_Hibiki_Mishima adiabatic gas":
-        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
-                     sigma=sigma, D=D, L=L, roughness=roughness,
-                     flowtype='adiabatic gas')
+        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2,
+                     sigma=sigma2, D=D, L=L, roughness=roughness,
+                     flowtype="adiabatic gas")
     elif Method2 == "Zhang_Hibiki_Mishima flow boiling":
-        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
-                     sigma=sigma, D=D, L=L, roughness=roughness,
-                     flowtype='flow boiling')
+        return Zhang_Hibiki_Mishima(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2,
+                     sigma=sigma2, D=D, L=L, roughness=roughness,
+                     flowtype="flow boiling")
     elif Method2 == "Beggs-Brill":
-        return Beggs_Brill(m=m, x=x, rhol=rhol, rhog=rhog, mul=mul, mug=mug,
-                     sigma=sigma, P=P, D=D, angle=angle, L=L,
+        return Beggs_Brill(m=m, x=x, rhol=rhol, rhog=rhog2, mul=mul2, mug=mug2,
+                     sigma=sigma2, P=P2, D=D, angle=angle2, L=L,
                      roughness=roughness, acceleration=False, g=g)
     else:
         raise ValueError(_unknown_msg_two_phase)
 
 
-def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
-                              rho_lo=None, rho_go=None):
+def two_phase_dP_acceleration(m: float, D: float, xi: float, xo: float, alpha_i: float, alpha_o: float, rho_li: float, rho_gi: float,
+                              rho_lo: float | None=None, rho_go: float | None=None) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to acceleration for flow inside channels. This is a discrete
     calculation for a segment with a known difference in quality (and ideally
@@ -2624,8 +2726,8 @@ def two_phase_dP_acceleration(m, D, xi, xo, alpha_i, alpha_o, rho_li, rho_gi,
     return G*G*(out_term - in_term)
 
 
-def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
-                                 dP_dL, dA_dL):
+def two_phase_dP_dz_acceleration(m: float, D: float, x: float, rhol: float, rhog: float, dv_dP_l: float, dv_dP_g: float, dx_dP: float,
+                                 dP_dL: float, dA_dL: float) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to acceleration for flow inside channels. This is a continuous
     calculation, providing the differential in pressure per unit length and
@@ -2708,8 +2810,8 @@ def two_phase_dP_dz_acceleration(m, D, x, rhol, rhog, dv_dP_l, dv_dP_g, dx_dP,
 
 
 
-def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
-                               alpha_o=None, rho_lo=None, rho_go=None, g=g):
+def two_phase_dP_gravitational(angle: float, z: float, alpha_i: float, rho_li: float, rho_gi: float,
+                               alpha_o: float | None=None, rho_lo: float | None=None, rho_go: float | None=None, g: float=g) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to gravitation for flow inside channels. This is a discrete
     calculation for a segment with a known difference in elevation (and ideally
@@ -2799,7 +2901,7 @@ def two_phase_dP_gravitational(angle, z, alpha_i, rho_li, rho_gi,
     return g*z*sin(angle)*(out_term + in_term)*0.5
 
 
-def two_phase_dP_dz_gravitational(angle, alpha, rhol, rhog, g=g):
+def two_phase_dP_dz_gravitational(angle: float, alpha: float, rhol: float, rhog: float, g: float=g) -> float:
     r"""This function handles calculation of two-phase liquid-gas pressure drop
     due to gravitation for flow inside channels. This is a differential
     calculation for a segment with an infinitesimal difference in elevation for
@@ -2873,8 +2975,8 @@ XC_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XC_tck))
 XD_interp_obj = lambda x: 10**float(splev(log10(x), Dukler_XD_tck))
 
 
-def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
-                         g=g):
+def Taitel_Dukler_regime(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, D: float, angle: float, roughness: float=0.0,
+                         g: float=g) -> tuple[str, float, float, float, float]:
     r"""Classifies the regime of a two-phase flow according to Taitel and
     Dukler (1976) ([1]_, [2]_).
 
@@ -2988,24 +3090,24 @@ def Taitel_Dukler_regime(m, x, rhol, rhog, mul, mug, D, angle, roughness=0.0,
     X_B_transition = 1.7917 # Roughly
 
     if F >= F_A_at_X and X <= X_B_transition:
-        regime = 'annular'
+        regime = "annular"
     elif F >= F_A_at_X:
         T_D_at_X = XD_interp_obj(X)
         if T >= T_D_at_X:
-            regime = 'bubbly'
+            regime = "bubbly"
         else:
-            regime = 'intermittent'
+            regime = "intermittent"
     else:
         K_C_at_X = XC_interp_obj(X)
         if K >= K_C_at_X:
-            regime = 'stratified wavy'
+            regime = "stratified wavy"
         else:
-            regime = 'stratified smooth'
+            regime = "stratified smooth"
 
     return regime, X, T, F, K
 
 
-def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
+def Mandhane_Gregory_Aziz_regime(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, D: float) -> tuple[str, float, float]:
     r"""Classifies the regime of a two-phase flow according to Mandhane,
     Gregory, and Aziz  (1974) flow map.
 
@@ -3105,21 +3207,21 @@ def Mandhane_Gregory_Aziz_regime(m, x, rhol, rhog, mul, mug, sigma, D):
         Y456 = Y456*X1
 
         if Vsg <= Y1345 and Vsl >= Y31:
-            regime = 'elongated bubble'
+            regime = "elongated bubble"
         elif Vsg <= Y1345 and Vsl <= Y31:
-            regime = 'stratified'
+            regime = "stratified"
         elif Vsg >= Y1345 and Vsg <= Y456 and Vsl > Y45:
-            regime = 'slug'
+            regime = "slug"
         elif Vsg >= Y1345 and Vsg <= Y456 and Vsl <= Y45:
-            regime = 'wave'
+            regime = "wave"
         else:
-            regime = 'annular mist'
+            regime = "annular mist"
     elif Vsg <= (230.*(Vsl/14.)**0.206)*X1:
-        regime = 'dispersed bubble'
+        regime = "dispersed bubble"
     else:
-        regime = 'annular mist'
+        regime = "annular mist"
     return regime, Vsl, Vsg
 
-Mandhane_Gregory_Aziz_regimes = {'elongated bubble': 1, 'stratified': 2,
-                                 'slug':3, 'wave': 4,
-                                 'annular mist': 5, 'dispersed bubble': 6}
+Mandhane_Gregory_Aziz_regimes = {"elongated bubble": 1, "stratified": 2,
+                                 "slug":3, "wave": 4,
+                                 "annular mist": 5, "dispersed bubble": 6}
