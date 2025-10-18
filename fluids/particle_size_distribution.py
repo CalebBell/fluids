@@ -199,16 +199,16 @@ class Sieve:
     )
 
     def __repr__(self):
-        s = 'Sieve(%s)'
-        s2 = ''
+        s = "Sieve(%s)"
+        s2 = ""
         for attr in self.__slots__:
             value = getattr(self, attr)
             if value is not None:
                 if type(value) == float:
-                    value = f'{value:g}'
+                    value = f"{value:g}"
                 elif type(value) == str:
                     value = "'" + value + "'"
-                s2 += '%s=%s, '%(attr, value)
+                s2 += f"{attr}={value}, "
         s2 = s2[0:-2]
         return s %(s2)
 
