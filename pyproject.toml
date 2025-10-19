@@ -85,7 +85,10 @@ test-multiarch = [
 ]
 
 # Optional performance boost (installed conditionally in CI)
-numba = ["numba"]
+numba = [
+    "numba",
+    "coverage>=7.6.1",  # Required for numba 0.62+ compatibility (https://github.com/numba/numba/issues/10239)
+]
 
 # Documentation
 docs = [
