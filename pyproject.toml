@@ -5,7 +5,7 @@ backend-path = ["_custom_build"]
 
 [project]
 name = "fluids"
-version = "1.2.0"
+version = "1.2.5"
 description = "Fluid dynamics component of Chemical Engineering Design Library (ChEDL)"
 readme = "README.rst"
 requires-python = ">=3.9"
@@ -136,7 +136,7 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/CalebBell/fluids"
-Download = "https://github.com/CalebBell/fluids/tarball/1.2.0"
+Download = "https://github.com/CalebBell/fluids/tarball/1.2.5"
 
 [tool.setuptools]
 packages = ["fluids"]
