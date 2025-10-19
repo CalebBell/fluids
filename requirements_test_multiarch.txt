@@ -1,9 +1,0 @@
-pytest
-pytest-cov
-sympy
-thefuzz
-pint
-pytz
-IPython
-sphinx
-wheel

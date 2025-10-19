@@ -8,7 +8,7 @@ name = "fluids"
 version = "1.2.0"
 description = "Fluid dynamics component of Chemical Engineering Design Library (ChEDL)"
 readme = "README.rst"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = "MIT"
 authors = [
     {name = "Caleb Bell", email = "Caleb.Andrew.Bell@gmail.com"}
@@ -36,7 +36,6 @@ classifiers = [
     "Operating System :: Unix",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",

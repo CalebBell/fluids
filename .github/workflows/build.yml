@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13', '3.13t', 'pypy3.9']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.13t', 'pypy3.9']
         os: [windows-latest, ubuntu-latest, macos-15-intel, macos-latest]
         architecture: ['x86', 'x64']
         exclude:
@@ -36,10 +36,7 @@ jobs:
           # no python builds available on linux 32 bit
           - os: ubuntu-latest
             architecture: x86
-          # scipy dropped 32 bit windows builds 
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.8
+          # scipy dropped 32 bit windows builds
           - os: windows-latest
             architecture: x86
             python-version: 3.9
@@ -67,8 +64,6 @@ jobs:
             python-version: 3.13t
 
           # These are arm - old versions of Python are not supported
-          - os: macos-latest
-            python-version: 3.8
           - os: macos-latest
             python-version: 3.9
           - os: macos-latest
