@@ -86,7 +86,7 @@ jobs:
       if: startsWith(runner.os, 'Linux')
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_test.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-${{ runner.architecture }}-${{ runner.python-version }}pip-
     - name: cache MacOS
@@ -94,7 +94,7 @@ jobs:
       if: startsWith(runner.os, 'macOS')
       with:
         path: ~/Library/Caches/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_test.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-${{ runner.architecture }}-${{ runner.python-version }}pip-
     - name: cache Windows
@@ -102,7 +102,7 @@ jobs:
       if: startsWith(runner.os, 'Windows')
       with:
         path: ~\AppData\Local\pip\Cache
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_test.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-${{ runner.architecture }}-${{ runner.python-version }}pip-
 
@@ -118,11 +118,11 @@ jobs:
         python -c "import platform; print(platform.platform()); print(platform.architecture())"
         python -m pip install --upgrade pip
         python -m pip install wheel
-        pip install -r requirements_test.txt
+        pip install -e .[test]
     - name: Add numba
       if: ${{ !contains(fromJSON('["pypy3.9", "3.13t"]'), matrix.python-version) }}
       run: |
-        pip install numba
+        pip install -e .[numba]
     - name: Test with pytest
       run: |
         pytest . -v --cov-report html --cov=fluids --cov-report term-missing -m "not online and not thermo"

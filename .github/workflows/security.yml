@@ -25,11 +25,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pip-audit
+        pip install -e .[security]
 
     - name: Run pip-audit
       run: |
-        pip-audit -r requirements.txt
+        pip-audit
 
   bandit:
     runs-on: ubuntu-latest
@@ -45,7 +45,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install bandit
+        pip install -e .[security]
 
     - name: Run bandit security scan
       run: |

@@ -9,6 +9,8 @@ VENV_PYTHON := ".venv/bin/python"
 VENV_PYTEST := ".venv/bin/pytest"
 VENV_MYPY   := ".venv/bin/mypy"
 VENV_RUFF   := ".venv/bin/ruff"
+VENV_PIP_AUDIT := ".venv/bin/pip-audit"
+VENV_BANDIT := ".venv/bin/bandit"
 
 # --- Main Recipes ---
 
@@ -20,10 +22,8 @@ default:
 install:
     @echo ">>> Creating virtual environment in ./.venv..."
     @uv venv
-    @echo "\n>>> Installing dependencies from requirements files..."
-    @uv pip install -r requirements_docs.txt
-    @echo "\n>>> Installing 'fluids' in editable mode..."
-    @uv pip install -e .
+    @echo "\n>>> Installing 'fluids' in editable mode with dev dependencies..."
+    @uv pip install -e .[dev]
     @echo "\n>>> Installing prek hooks..."
     @prek install
     @echo "\n✅ Environment setup complete! You can now run other commands."
@@ -57,6 +57,14 @@ lint:
 
 ## 🏁 check: Run all checks (linting and type checking).
 check: lint typecheck
+
+## 🔒 security: Run security scans with pip-audit and bandit.
+security:
+    @echo ">>> Running pip-audit..."
+    @{{VENV_PIP_AUDIT}} -r requirements.txt
+    @echo ">>> Running bandit..."
+    @{{VENV_BANDIT}} -r fluids -ll
+    @echo "✅ Security scans complete."
 
 ## 🪝 precommit: Run pre-commit hooks on all files.
 precommit:

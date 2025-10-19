@@ -30,7 +30,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~\AppData\Local\pip\Cache
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements_test.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-x64-${{ matrix.python-version }}pip-
 
@@ -39,7 +39,7 @@ jobs:
         python -c "import platform; print(platform.platform()); print(platform.architecture())"
         python -m pip install --upgrade pip
         python -m pip install wheel setuptools
-        pip install -r requirements_test.txt
+        pip install -e .[test]
         pip install py2exe
 
     - name: Install fluids
