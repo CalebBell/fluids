@@ -29,6 +29,7 @@ jobs:
 
     - name: Run pip-audit
       run: |
+        # Only audit the project's direct dependencies, not the entire environment (e.g., pip itself)
         pip-audit -r requirements.txt
 
   bandit:
