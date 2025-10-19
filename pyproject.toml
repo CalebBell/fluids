@@ -15,7 +15,7 @@ authors = [
 ]
 keywords = [
     "fluid dynamics", "atmosphere", "pipe", "fluids", "compressible",
-    "fluid dynamics", "chemical engineering", "mechanical engineering",
+    "chemical engineering", "mechanical engineering",
     "valve", "open channel", "tank", "friction", "pressure drop",
     "two phase", "pump", "drag", "reynolds", "sedimentation",
     "engineering", "pipeline", "process simulation",
