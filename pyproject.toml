@@ -57,10 +57,79 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-coverage-documentation = [
-    "wsgiref>=0.1.2",
-    "coverage>=4.0.3",
-    "pint"
+# Core testing (what all CI uses)
+test = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "pytest-xdist",
+    "sympy",
+    "thefuzz",
+    "pint",
+    "pytz",
+    "pandas",
+    "IPython",
+    "matplotlib",
+    "coveralls",
+]
+
+# For multiarch CI (lighter, no pandas/matplotlib issues)
+test-multiarch = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "sympy",
+    "thefuzz",
+    "pint",
+    "pytz",
+    "IPython",
+    "sphinx",
+    "wheel",
+]
+
+# Optional performance boost (installed conditionally in CI)
+numba = ["numba"]
+
+# Documentation
+docs = [
+    "sphinx",
+    "numpydoc",
+    "nbsphinx",
+    "ipython",
+    "numba",
+    "sphinxcontrib-katex",
+    "sphinx-sitemap",
+    "sphinxcontrib-applehelp",
+    "sphinxcontrib-devhelp",
+    "sphinxcontrib-htmlhelp",
+    "sphinxcontrib-qthelp",
+    "sphinxcontrib-serializinghtml",
+    "sphinxcontrib.googleanalytics",
+    "matplotlib",
+    "pint",
+]
+
+# Linting and type checking
+lint = ["ruff", "mypy"]
+
+# Pre-release validation
+prerelease = [
+    "fluids[test]",
+    "fluids[docs]",
+    "nbval",
+    "jacobi",
+    "numdifftools",
+    "mpmath",
+]
+
+# Security scanning
+security = ["pip-audit", "bandit"]
+
+# Local development (everything)
+dev = [
+    "fluids[test,numba,docs,lint,security]",
+    "prek",
+    "wheel",
+    "build",
+    "twine",
 ]
 
 [project.urls]
