@@ -41,16 +41,20 @@ jobs:
 
     - name: Test wheel installation
       run: |
-        python -m venv /tmp/wheel_test_env
-        /tmp/wheel_test_env/bin/pip install dist/*.whl
-        /tmp/wheel_test_env/bin/pip install pytest
-        cd /tmp
-        /tmp/wheel_test_env/bin/pytest --pyargs fluids -vv -m "not online and not thermo and not numba"
+        WHEEL_TEST_DIR=$(mktemp -d)
+        cd $WHEEL_TEST_DIR
+        python -m venv venv
+        venv/bin/pip install $GITHUB_WORKSPACE/dist/*.whl
+        venv/bin/pip install pytest
+        cp -r $GITHUB_WORKSPACE/tests .
+        venv/bin/pytest tests/ -vv -m "not online and not thermo and not numba"
 
     - name: Test sdist installation
       run: |
-        python -m venv /tmp/sdist_test_env
-        /tmp/sdist_test_env/bin/pip install dist/*.tar.gz
-        /tmp/sdist_test_env/bin/pip install pytest
-        cd /tmp
-        /tmp/sdist_test_env/bin/pytest --pyargs fluids -vv -m "not online and not thermo and not numba"
+        SDIST_TEST_DIR=$(mktemp -d)
+        cd $SDIST_TEST_DIR
+        python -m venv venv
+        venv/bin/pip install $GITHUB_WORKSPACE/dist/*.tar.gz
+        venv/bin/pip install pytest
+        cp -r $GITHUB_WORKSPACE/tests .
+        venv/bin/pytest tests/ -vv -m "not online and not thermo and not numba"
