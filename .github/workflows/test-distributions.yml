@@ -33,6 +33,12 @@ jobs:
     - name: Check distributions with twine
       run: twine check dist/*
 
+    - name: Upload distributions as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: distributions
+        path: dist/
+
     - name: Test wheel installation
       run: |
         python -m venv /tmp/wheel_test_env
