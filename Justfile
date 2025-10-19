@@ -89,6 +89,18 @@ hooks-remove:
 #     @echo ">>> Running benchmarks..."
 #     @asv run
 
+## 📦 build: Build wheel and source distributions.
+build:
+    @echo ">>> Building distributions..."
+    @{{VENV_PYTHON}} -m build
+    @echo "✅ Distributions built in dist/"
+
+## 🔍 check-dist: Check built distributions with twine.
+check-dist:
+    @echo ">>> Checking distributions with twine..."
+    @.venv/bin/twine check dist/*
+    @echo "✅ Distributions are valid."
+
 ## 🚀 ci: Run all CI checks (lint, typecheck, test).
 ci: lint typecheck test
     @echo "✅ All CI checks passed!"
