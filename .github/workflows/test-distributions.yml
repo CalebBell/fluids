@@ -44,9 +44,9 @@ jobs:
         WHEEL_TEST_DIR=$(mktemp -d)
         cd $WHEEL_TEST_DIR
         python -m venv venv
-        venv/bin/pip install $GITHUB_WORKSPACE/dist/*.whl
-        venv/bin/pip install pytest
+        venv/bin/pip install "$GITHUB_WORKSPACE/dist/*.whl[test]"
         cp -r $GITHUB_WORKSPACE/tests .
+        cp $GITHUB_WORKSPACE/pyproject.toml .
         venv/bin/pytest tests/ -vv -m "not online and not thermo and not numba"
 
     - name: Test sdist installation
@@ -54,7 +54,7 @@ jobs:
         SDIST_TEST_DIR=$(mktemp -d)
         cd $SDIST_TEST_DIR
         python -m venv venv
-        venv/bin/pip install $GITHUB_WORKSPACE/dist/*.tar.gz
-        venv/bin/pip install pytest
+        venv/bin/pip install "$GITHUB_WORKSPACE/dist/*.tar.gz[test]"
         cp -r $GITHUB_WORKSPACE/tests .
+        cp $GITHUB_WORKSPACE/pyproject.toml .
         venv/bin/pytest tests/ -vv -m "not online and not thermo and not numba"
