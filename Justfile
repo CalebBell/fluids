@@ -35,9 +35,9 @@ docs:
     @echo "✅ Docs built in _build/html"
 
 ## 🧪 test: Run the test suite with pytest.
-test:
+test *ARGS:
     @echo ">>> Running pytest..."
-    @{{VENV_PYTEST}} -n auto
+    @{{VENV_PYTEST}} -n auto {{ARGS}}
 
 ## 📊 test-cov: Run tests with coverage report.
 test-cov:

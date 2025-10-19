@@ -19,6 +19,7 @@ select = ["ALL"]
 extend-ignore = [
     "FBT001", # boolean positional argument
     "PD008", # .at with pandas is fine with me
+    "PD011", # Use .values instead of .to_numpy() - I prefer not to copy arrays
     "RUF059", # Allow unused variables
     "FIX002", # TODO are OK
     "FIX004", # HACK is OK
