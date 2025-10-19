@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools>=70.1", "wheel", "python-minifier"]
+build-backend = "backend"
+backend-path = ["_custom_build"]
+
+[project]
+name = "fluids"
+version = "1.2.0"
+description = "Fluid dynamics component of Chemical Engineering Design Library (ChEDL)"
+readme = "README.rst"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+    {name = "Caleb Bell", email = "Caleb.Andrew.Bell@gmail.com"}
+]
+keywords = [
+    "fluid dynamics", "atmosphere", "pipe", "fluids", "compressible",
+    "fluid dynamics", "chemical engineering", "mechanical engineering",
+    "valve", "open channel", "tank", "friction", "pressure drop",
+    "two phase", "pump", "drag", "reynolds", "sedimentation",
+    "engineering", "pipeline", "process simulation",
+    "particle size distribution"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Manufacturing",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: BSD",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Unix",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Python :: Implementation :: MicroPython",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "numpy>=1.5.0",
+    "scipy>=1.6.0"
+]
+
+[project.optional-dependencies]
+coverage-documentation = [
+    "wsgiref>=0.1.2",
+    "coverage>=4.0.3",
+    "pint"
+]
+
+[project.urls]
+Homepage = "https://github.com/CalebBell/fluids"
+Download = "https://github.com/CalebBell/fluids/tarball/1.2.0"
+
+[tool.setuptools]
+packages = ["fluids"]
+
+[tool.setuptools.package-data]
+fluids = [
+    "data/*.csv",
+    "nrlmsise00/*",
+    "optional/*.py",
+    "numerics/*",
+    "constants/*"
+]

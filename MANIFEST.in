@@ -1,6 +1,7 @@
-include LICENSE.txt AUTHORS README.rst pytest.ini 
+include LICENSE.txt AUTHORS README.rst pytest.ini
 recursive-include tests *
 recursive-include docs *
+recursive-include _custom_build *.py
 global-exclude __pycache__
 global-exclude *.py[co]
 global-exclude *.coverage
@@ -10,6 +11,6 @@ global-exclude ipynb_checkpoints
 global-exclude *-checkpoint.ipynb
 global-exclude *checkpoint*
 global-exclude .*ipynb_checkpoints*
-prune "docs/Examples/Crane TP 410 Solved Problems/.ipynb_checkpoints/"
+prune docs/Examples/Crane\ TP\ 410\ Solved\ Problems/.ipynb_checkpoints
 prune docs/Data/.ipynb_checkpoints/
 recursive-exclude docs *ipynb_checkpoints
