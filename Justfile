@@ -243,10 +243,49 @@ test-multiarch:
     @just test-arch arch=ppc64le distro=alpine_latest || echo "❌ ppc64le/alpine_latest failed"
     @echo "\n✅ Multi-arch testing complete!"
 
+## 🧬 test-multi-single: Test with specific Python/NumPy/SciPy versions (e.g., just test-multi-single 3.9 1.26.4 1.12.0).
+## Set KEEP_VENV=1 to keep the virtual environment for debugging (e.g., KEEP_VENV=1 just test-multi-single 3.9 1.26.4 1.12.0).
+test-multi-single py="3.10" numpy="2.0.1" scipy="1.14.0":
+    @echo ">>> Testing Python {{py}}, NumPy {{numpy}}, SciPy {{scipy}}..."
+    @echo ">>> Installing Python {{py}} if needed..."
+    @uv python install {{py}} || true
+    @echo ">>> Creating temporary virtual environment..."
+    @uv venv .venv-test-python{{py}}-numpy{{numpy}}-scipy{{scipy}} --python {{py}}
+    @echo ">>> Installing dependencies..."
+    @uv pip install --python .venv-test-python{{py}}-numpy{{numpy}}-scipy{{scipy}}/bin/python -e .[test]
+    @uv pip install --python .venv-test-python{{py}}-numpy{{numpy}}-scipy{{scipy}}/bin/python "numpy=={{numpy}}" "scipy=={{scipy}}"
+    @echo ">>> Installing numba..."
+    @uv pip install --python .venv-test-python{{py}}-numpy{{numpy}}-scipy{{scipy}}/bin/python -e .[numba] || echo "⚠️  Numba install failed, continuing..."
+    @echo ">>> Running tests (no coverage)..."
+    @.venv-test-python{{py}}-numpy{{numpy}}-scipy{{scipy}}/bin/pytest . -v -m "not online and not thermo and not numba"
+    @if [ -z "$${KEEP_VENV}" ]; then \
+        echo ">>> Cleaning up temporary environment..."; \
+        rm -rf .venv-test-python{{py}}-numpy{{numpy}}-scipy{{scipy}}; \
+    else \
+        echo ">>> Keeping venv .venv-test-python{{py}}-numpy{{numpy}}-scipy{{scipy}} for debugging (KEEP_VENV is set)"; \
+    fi
+    @echo "✅ Test complete for Python {{py}}, NumPy {{numpy}}, SciPy {{scipy}}!"
+
+## 🧬 test-multi: Run all Python/NumPy/SciPy combinations from CI locally.
+test-multi:
+    @echo ">>> Running multi-version tests (this will take a while)..."
+    @echo ">>> This mirrors the CI matrix from build_multi_numpy_scipy.yml"
+    @echo ""
+    @just test-multi-single 3.10 1.24.4 1.9.3 || echo "❌ Python 3.10, NumPy 1.24.4, SciPy 1.9.3 failed"
+    @just test-multi-single 3.10 1.24.4 1.12.0 || echo "❌ Python 3.10, NumPy 1.24.4, SciPy 1.12.0 failed"
+    @just test-multi-single 3.9 1.24.4 1.12.0 || echo "❌ Python 3.9, NumPy 1.24.4, SciPy 1.12.0 failed"
+    @just test-multi-single 3.9 1.26.4 1.10.1 || echo "❌ Python 3.9, NumPy 1.26.4, SciPy 1.10.1 failed"
+    @just test-multi-single 3.9 1.26.4 1.12.0 || echo "❌ Python 3.9, NumPy 1.26.4, SciPy 1.12.0 failed"
+    @just test-multi-single 3.10 1.26.4 1.14.0 || echo "❌ Python 3.10, NumPy 1.26.4, SciPy 1.14.0 failed"
+    @just test-multi-single 3.10 2.0.1 1.14.0 || echo "❌ Python 3.10, NumPy 2.0.1, SciPy 1.14.0 failed"
+    @echo ""
+    @echo "✅ All multi-version tests complete!"
+
 ## 🧹 clean: Remove build artifacts and Python caches.
 clean:
     @echo ">>> Cleaning up build artifacts and cache files..."
     @rm -rf _build .mypy_cache .pytest_cache dist *.egg-info htmlcov prof dev/build .venv-cxfreeze .venv-nuitka .nuitka-test .venv-pyinstaller .pyinstaller-test
+    @rm -rf .venv-test-*
     @rm -f fluids.*.so fluids.*.pyd
     @find . -type d -name "__pycache__" -exec rm -rf {} +
     @echo "✅ Cleanup complete."
