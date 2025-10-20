@@ -158,6 +158,91 @@ test-pyinstaller:
     @rm -rf .venv-pyinstaller .pyinstaller-test
     @echo "✅ PyInstaller test complete and cleaned up!"
 
+## 🌍 qemu-setup: Register QEMU interpreters for multi-arch container support.
+qemu-setup:
+    @echo ">>> Registering QEMU interpreters with binfmt_misc..."
+    @podman run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    @echo "✅ QEMU multi-arch support enabled."
+
+## 🏗️  test-arch: Run tests on a specific architecture (use arch=<arch> distro=<distro>).
+test-arch arch="aarch64" distro="trixie":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo ">>> Running tests on {{arch}} with {{distro}}..."
+
+    # Map architecture to platform
+    case "{{arch}}" in
+        armv6)   platform="linux/arm/v6" ;;
+        armv7)   platform="linux/arm/v7" ;;
+        aarch64) platform="linux/arm64" ;;
+        riscv64) platform="linux/riscv64" ;;
+        s390x)   platform="linux/s390x" ;;
+        ppc64le) platform="linux/ppc64le" ;;
+        *) echo "Unknown architecture: {{arch}}"; exit 1 ;;
+    esac
+
+    # Map distro to base image
+    case "{{distro}}" in
+        trixie)         image="debian:trixie" ;;
+        ubuntu_latest)  image="ubuntu:latest" ;;
+        ubuntu_devel)   image="ubuntu:devel" ;;
+        alpine_latest)  image="alpine:latest" ;;
+        *) echo "Unknown distro: {{distro}}"; exit 1 ;;
+    esac
+
+    echo "Platform: $platform, Image: $image"
+
+    # Determine package manager and install commands
+    if [[ "{{distro}}" == "alpine_latest" ]]; then
+        install_cmd="apk update && apk add python3 py3-pip py3-scipy py3-matplotlib py3-numpy py3-pandas"
+        pip_flags=""
+    else
+        install_cmd="apt-get update && apt-get install -y liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas && (apt-get install -y libatlas-base-dev || true)"
+        pip_flags="--break-system-packages"
+    fi
+
+    # Run the container with files copied (not mounted)
+    podman run --rm -it \
+        --platform "$platform" \
+        -v "$(pwd):/src:ro,Z" \
+        "$image" \
+        bash -c "
+            cp -r /src /workspace && \
+            cd /workspace && \
+            $install_cmd && \
+            python3 -m pip install wheel $pip_flags && \
+            pip3 install -e .[test-multiarch] $pip_flags && \
+            python3 -m pytest . -v -m 'not online and not thermo and not numba'
+        "
+
+    echo "✅ Tests on {{arch}} with {{distro}} complete!"
+
+## 🌐 test-multiarch: Run tests on all architectures from CI (requires time!).
+test-multiarch:
+    @echo ">>> Running multi-arch tests (this will take a while)..."
+    @echo "\n=== Debian Trixie ==="
+    @just test-arch arch=armv6 distro=trixie || echo "❌ armv6/trixie failed"
+    @just test-arch arch=armv7 distro=trixie || echo "❌ armv7/trixie failed"
+    @just test-arch arch=aarch64 distro=trixie || echo "❌ aarch64/trixie failed"
+    @just test-arch arch=riscv64 distro=trixie || echo "❌ riscv64/trixie failed"
+    @just test-arch arch=s390x distro=trixie || echo "❌ s390x/trixie failed"
+    @just test-arch arch=ppc64le distro=trixie || echo "❌ ppc64le/trixie failed"
+    @echo "\n=== Ubuntu Latest ==="
+    @just test-arch arch=armv7 distro=ubuntu_latest || echo "❌ armv7/ubuntu_latest failed"
+    @just test-arch arch=aarch64 distro=ubuntu_latest || echo "❌ aarch64/ubuntu_latest failed"
+    @just test-arch arch=s390x distro=ubuntu_latest || echo "❌ s390x/ubuntu_latest failed"
+    @just test-arch arch=ppc64le distro=ubuntu_latest || echo "❌ ppc64le/ubuntu_latest failed"
+    @echo "\n=== Ubuntu Devel ==="
+    @just test-arch arch=riscv64 distro=ubuntu_devel || echo "❌ riscv64/ubuntu_devel failed"
+    @echo "\n=== Alpine Latest ==="
+    @just test-arch arch=armv6 distro=alpine_latest || echo "❌ armv6/alpine_latest failed"
+    @just test-arch arch=armv7 distro=alpine_latest || echo "❌ armv7/alpine_latest failed"
+    @just test-arch arch=aarch64 distro=alpine_latest || echo "❌ aarch64/alpine_latest failed"
+    @just test-arch arch=riscv64 distro=alpine_latest || echo "❌ riscv64/alpine_latest failed"
+    @just test-arch arch=s390x distro=alpine_latest || echo "❌ s390x/alpine_latest failed"
+    @just test-arch arch=ppc64le distro=alpine_latest || echo "❌ ppc64le/alpine_latest failed"
+    @echo "\n✅ Multi-arch testing complete!"
+
 ## 🧹 clean: Remove build artifacts and Python caches.
 clean:
     @echo ">>> Cleaning up build artifacts and cache files..."
