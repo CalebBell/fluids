@@ -92,7 +92,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -c "import platform; print(platform.platform()); print(platform.architecture())"
-        uv pip install --system -e .[test]
+        if [[ "${{ matrix.python-version }}" == "3.13t" ]]; then
+          # Use pip for 3.13t (free-threading) as uv may not fully support it yet
+          python -m pip install --upgrade pip
+          pip install -e .[test]
+        else
+          uv pip install --system -e .[test]
+        fi
+      shell: bash
     - name: Add numba
       if: ${{ !contains(fromJSON('["pypy3.11", "3.13t"]'), matrix.python-version) }}
       run: |
