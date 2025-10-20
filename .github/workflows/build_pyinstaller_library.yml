@@ -39,6 +39,10 @@ jobs:
         uv pip install --system -e .[test]
         uv pip install --system pyinstaller
 
+    - name: Install fluids (non-editable, required by PyInstaller)
+      run: |
+        uv pip install --system .
+
     - name: Build PyInstaller executable
       run: |
         cd dev

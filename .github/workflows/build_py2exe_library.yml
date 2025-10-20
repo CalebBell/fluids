@@ -38,6 +38,10 @@ jobs:
         uv pip install --system -e .[test]
         uv pip install --system py2exe
 
+    - name: Install fluids (non-editable, required by py2exe)
+      run: |
+        uv pip install --system .
+
     - name: Build py2exe executable
       run: |
         cd dev
