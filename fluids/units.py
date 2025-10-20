@@ -256,8 +256,8 @@ def check_module_docstring_parameters(module, bad_names={"__getattr__", "all_sub
 
         if isinstance(obj, types.MethodType) and sig_params and sig_params[0] == "self":
             sig_params = sig_params[1:]
-        assert sig_params == doc_params, \
-            f"Mismatch in {obj.__name__}:\nSignature: {sig_params}\nDocstring: {doc_params}"
+        if not sig_params == doc_params:
+            raise ValueError(f"Mismatch in {obj.__name__}:\nSignature: {sig_params}\nDocstring: {doc_params}")
 
 def match_parse_units(doc, i=-1):
     if doc is None:

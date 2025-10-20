@@ -283,7 +283,7 @@ extend-ignore = [
     "RUF001",
     "RUF003",  # greek characters are used in this project e.g. for allotropes
     "RUF005",  # this one is not micropython compatible
-    "S101",
+    # "S101",  # Use assert - removed from global ignore, now controlled by per-file-ignores below
     "S110",
     "S112",
     "S311",
@@ -306,6 +306,12 @@ extend-ignore = [
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+# Allow asserts in test files
+"tests/**/*.py" = ["S101"]
+"**/test_*.py" = ["S101"]
+"docs/**/*.py" = ["S101"]  # Allow asserts in documentation examples
 
 [tool.pytest.ini_options]
 addopts = "--doctest-glob='*.rst' --ignore='manual_runner.py'"
