@@ -39,7 +39,10 @@ jobs:
     - name: Install just
       uses: extractions/setup-just@v3
 
-    - name: Install prek (needed by just install)
+    - name: Install Pandoc (required for docs)
+      run: sudo apt-get update && sudo apt-get install -y pandoc
+
+    - name: Install prek (required for just install)
       run: uv tool install prek
 
     - name: Install all dependencies
