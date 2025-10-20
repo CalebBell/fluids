@@ -40,7 +40,9 @@ jobs:
       uses: extractions/setup-just@v3
 
     - name: Install Pandoc (required for docs)
-      run: sudo apt-get update && sudo apt-get install -y pandoc
+      uses: r-lib/actions/setup-pandoc@v2
+      with:
+        pandoc-version: '3.1.11'
 
     - name: Install prek (required for just install)
       run: uv tool install prek

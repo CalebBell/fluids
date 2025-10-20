@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   test:
-    uses: ./.github/workflows/test-distributions.yml
+    uses: ./.github/workflows/quality.yml
 
   publish:
     needs: test
