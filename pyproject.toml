@@ -93,6 +93,7 @@ numba = [
 # Documentation
 docs = [
     "sphinx",
+    "furo",
     "numpydoc",
     "nbsphinx",
     "ipython",

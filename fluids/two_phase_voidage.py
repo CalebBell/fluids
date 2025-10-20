@@ -29,7 +29,6 @@ please use the `GitHub issue tracker <https://github.com/CalebBell/fluids/>`_
 or contact the author at Caleb.Andrew.Bell@gmail.com.
 
 
-.. contents:: :local:
 
 Interfaces
 ----------
