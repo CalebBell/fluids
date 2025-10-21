@@ -160,6 +160,7 @@ test-pyinstaller:
 
 ## 🌍 qemu-setup: Register QEMU interpreters for multi-arch container support.
 qemu-setup:
+    @command -v podman >/dev/null 2>&1 || { echo "❌ Error: podman is not installed. Please install podman first."; exit 1; }
     @echo ">>> Registering QEMU interpreters with binfmt_misc..."
     @podman run --rm --privileged multiarch/qemu-user-static --reset -p yes
     @echo "✅ QEMU multi-arch support enabled."
@@ -168,6 +169,19 @@ qemu-setup:
 prepare-multiarch-image arch distro="trixie":
     #!/usr/bin/env bash
     set -euo pipefail
+
+    # Check for podman
+    command -v podman >/dev/null 2>&1 || { echo "❌ Error: podman is not installed. Please install podman first."; exit 1; }
+
+    # Tag for cached image
+    tag="fluids-test-{{arch}}-{{distro}}:latest"
+
+    # Check if image already exists
+    if podman image exists "$tag" 2>/dev/null; then
+        echo "✅ Image $tag already exists, skipping build."
+        exit 0
+    fi
+
     echo ">>> Building cached image for {{arch}} with {{distro}}..."
 
     # Map architecture to platform
@@ -181,9 +195,9 @@ prepare-multiarch-image arch distro="trixie":
         *) echo "Unknown architecture: {{arch}}"; exit 1 ;;
     esac
 
-    # Map distro to base image
+    # Map distro to base image (using slim variants for Debian/Ubuntu)
     case "{{distro}}" in
-        trixie)         image="debian:trixie" ;;
+        trixie)         image="debian:trixie-slim" ;;
         ubuntu_latest)  image="ubuntu:latest" ;;
         ubuntu_devel)   image="ubuntu:devel" ;;
         alpine_latest)  image="alpine:latest" ;;
@@ -191,9 +205,6 @@ prepare-multiarch-image arch distro="trixie":
     esac
 
     echo "Platform: $platform, Image: $image"
-
-    # Tag for cached image
-    tag="fluids-test-{{arch}}-{{distro}}:latest"
 
     # Determine package manager and install commands
     if [[ "{{distro}}" == "alpine_latest" ]]; then
@@ -255,6 +266,10 @@ prepare-all-multiarch-images:
 test-arch arch distro="trixie":
     #!/usr/bin/env bash
     set -euo pipefail
+
+    # Check for podman
+    command -v podman >/dev/null 2>&1 || { echo "❌ Error: podman is not installed. Please install podman first."; exit 1; }
+
     echo ">>> Running tests on {{arch}} with {{distro}}..."
 
     # Map architecture to platform
@@ -367,8 +382,36 @@ clean:
     @find . -type d -name "__pycache__" -exec rm -rf {} +
     @echo "✅ Cleanup complete."
 
+## 🐳 clean-multiarch-images: Remove all cached multiarch container images.
+clean-multiarch-images:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Check for podman
+    command -v podman >/dev/null 2>&1 || { echo "❌ Error: podman is not installed. Please install podman first."; exit 1; }
+
+    echo ">>> Removing cached multiarch container images..."
+
+    # Find all images matching our naming pattern
+    images=$(podman images --format "{{{{.Repository}}}}:{{{{.Tag}}}}" | grep "^fluids-test-" || true)
+
+    if [ -z "$images" ]; then
+        echo "✅ No multiarch images found to remove."
+        exit 0
+    fi
+
+    removed=0
+    while IFS= read -r img; do
+        echo "  Removing $img..."
+        podman rmi "$img" 2>/dev/null || echo "  ⚠️  Failed to remove $img"
+        ((removed++))
+    done <<< "$images"
+
+    echo ""
+    echo "✅ Removed $removed multiarch image(s)."
+
 ## 💣 nuke: Remove the virtual environment and all build artifacts.
 nuke: clean
-    @echo ">>> Removing virtual environment..."
-    @rm -rf .venv
+    @echo ">>> Removing all virtual environments..."
+    @rm -rf .venv*
     @echo "✅ Project completely cleaned."
