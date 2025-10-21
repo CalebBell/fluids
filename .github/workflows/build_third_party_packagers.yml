@@ -38,5 +38,6 @@ jobs:
       uses: extractions/setup-just@v2
 
     - name: Test ${{ matrix.packager }}
+      shell: bash
       run: |
         just test-${{ matrix.packager }}
