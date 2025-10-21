@@ -231,35 +231,51 @@ prepare-multiarch-image arch distro="trixie":
 prepare-all-multiarch-images:
     #!/usr/bin/env bash
     set -euo pipefail
+
+    # Check for GNU parallel
+    command -v parallel >/dev/null 2>&1 || { echo "❌ Error: GNU parallel is not installed. Please install it (e.g., apt install parallel)."; exit 1; }
+
     echo ">>> Building all cached multiarch images in parallel (this will take a while)..."
 
-    # Build all images in parallel using background jobs
-    just prepare-multiarch-image armv6 trixie &
-    just prepare-multiarch-image armv7 trixie &
-    just prepare-multiarch-image aarch64 trixie &
-    just prepare-multiarch-image riscv64 trixie &
-    just prepare-multiarch-image s390x trixie &
-    just prepare-multiarch-image ppc64le trixie &
+    # Define all arch/distro combinations
+    combinations=(
+        "armv6 trixie"
+        "armv7 trixie"
+        "aarch64 trixie"
+        "riscv64 trixie"
+        "s390x trixie"
+        "ppc64le trixie"
+        "armv7 ubuntu_latest"
+        "aarch64 ubuntu_latest"
+        "s390x ubuntu_latest"
+        "ppc64le ubuntu_latest"
+        "riscv64 ubuntu_devel"
+        "armv6 alpine_latest"
+        "armv7 alpine_latest"
+        "aarch64 alpine_latest"
+        "riscv64 alpine_latest"
+        "s390x alpine_latest"
+        "ppc64le alpine_latest"
+    )
 
-    just prepare-multiarch-image armv7 ubuntu_latest &
-    just prepare-multiarch-image aarch64 ubuntu_latest &
-    just prepare-multiarch-image s390x ubuntu_latest &
-    just prepare-multiarch-image ppc64le ubuntu_latest &
+    # Get number of CPU cores
+    ncores=$(nproc)
+    echo ">>> Using $ncores parallel jobs"
 
-    just prepare-multiarch-image riscv64 ubuntu_devel &
-
-    just prepare-multiarch-image armv6 alpine_latest &
-    just prepare-multiarch-image armv7 alpine_latest &
-    just prepare-multiarch-image aarch64 alpine_latest &
-    just prepare-multiarch-image riscv64 alpine_latest &
-    just prepare-multiarch-image s390x alpine_latest &
-    just prepare-multiarch-image ppc64le alpine_latest &
-
-    # Wait for all background jobs to complete
-    wait
+    # Run all builds in parallel with line-buffered output and keep going on failures
+    failed=0
+    printf '%s\n' "${combinations[@]}" | \
+        parallel --line-buffer --keep-order --jobs "$ncores" --colsep ' ' \
+        'echo ">>> Starting {1}/{2}" && just prepare-multiarch-image {1} {2} && echo "✅ Completed {1}/{2}" || (echo "❌ Failed: {1}/{2}" && exit 1)' \
+        || failed=1
 
     echo ""
-    echo "✅ All cached multiarch images built!"
+    if [ $failed -eq 0 ]; then
+        echo "✅ All cached multiarch images built successfully!"
+    else
+        echo "⚠️  Some images failed to build. Check output above for details."
+        exit 1
+    fi
 
 ## 🏗️  test-arch: Run tests on a specific architecture (use: just test-arch <arch> <distro>).
 ## Note: This uses cached images built with prepare-multiarch-image for faster execution.
@@ -351,7 +367,7 @@ test-multi-single py="3.10" numpy="2.0.1" scipy="1.14.0":
     @echo ">>> Installing numba..."
     @uv pip install --python .venv-test-python{{py}}-numpy{{numpy}}-scipy{{scipy}}/bin/python -e .[numba] || echo "⚠️  Numba install failed, continuing..."
     @echo ">>> Running tests (no coverage)..."
-    @.venv-test-python{{py}}-numpy{{numpy}}-scipy{{scipy}}/bin/pytest . -v -m "not online and not thermo and not numba"
+    @.venv-test-python{{py}}-numpy{{numpy}}-scipy{{scipy}}/bin/pytest . -m "not online and not thermo and not numba"
     @if [ -z "$${KEEP_VENV}" ]; then \
         echo ">>> Cleaning up temporary environment..."; \
         rm -rf .venv-test-python{{py}}-numpy{{numpy}}-scipy{{scipy}}; \
@@ -362,18 +378,45 @@ test-multi-single py="3.10" numpy="2.0.1" scipy="1.14.0":
 
 ## 🧬 test-multi: Run all Python/NumPy/SciPy combinations from CI locally.
 test-multi:
-    @echo ">>> Running multi-version tests (this will take a while)..."
-    @echo ">>> This mirrors the CI matrix from build_multi_numpy_scipy.yml"
-    @echo ""
-    @just test-multi-single 3.10 1.24.4 1.9.3 || echo "❌ Python 3.10, NumPy 1.24.4, SciPy 1.9.3 failed"
-    @just test-multi-single 3.10 1.24.4 1.12.0 || echo "❌ Python 3.10, NumPy 1.24.4, SciPy 1.12.0 failed"
-    @just test-multi-single 3.9 1.24.4 1.12.0 || echo "❌ Python 3.9, NumPy 1.24.4, SciPy 1.12.0 failed"
-    @just test-multi-single 3.9 1.26.4 1.10.1 || echo "❌ Python 3.9, NumPy 1.26.4, SciPy 1.10.1 failed"
-    @just test-multi-single 3.9 1.26.4 1.12.0 || echo "❌ Python 3.9, NumPy 1.26.4, SciPy 1.12.0 failed"
-    @just test-multi-single 3.10 1.26.4 1.14.0 || echo "❌ Python 3.10, NumPy 1.26.4, SciPy 1.14.0 failed"
-    @just test-multi-single 3.10 2.0.1 1.14.0 || echo "❌ Python 3.10, NumPy 2.0.1, SciPy 1.14.0 failed"
-    @echo ""
-    @echo "✅ All multi-version tests complete!"
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Check for GNU parallel
+    command -v parallel >/dev/null 2>&1 || { echo "❌ Error: GNU parallel is not installed. Please install it (e.g., apt install parallel)."; exit 1; }
+
+    echo ">>> Running multi-version tests (this will take a while)..."
+    echo ">>> This mirrors the CI matrix from build_multi_numpy_scipy.yml"
+
+    # Define all Python/NumPy/SciPy combinations
+    combinations=(
+        "3.10 1.24.4 1.9.3"
+        "3.10 1.24.4 1.12.0"
+        "3.9 1.24.4 1.12.0"
+        "3.9 1.26.4 1.10.1"
+        "3.9 1.26.4 1.12.0"
+        "3.10 1.26.4 1.14.0"
+        "3.10 2.0.1 1.14.0"
+    )
+
+    # Get number of CPU cores
+    ncores=$(nproc)
+    echo ">>> Using $ncores parallel jobs"
+    echo ""
+
+    # Run all tests in parallel with line-buffered output and keep going on failures
+    failed=0
+    printf '%s\n' "${combinations[@]}" | \
+        parallel --line-buffer --keep-order --jobs "$ncores" --colsep ' ' \
+        'echo ">>> Starting Python {1}, NumPy {2}, SciPy {3}" && just test-multi-single {1} {2} {3} && echo "✅ Completed Python {1}, NumPy {2}, SciPy {3}" || (echo "❌ Failed: Python {1}, NumPy {2}, SciPy {3}" && exit 1)' \
+        || failed=1
+
+    echo ""
+    if [ $failed -eq 0 ]; then
+        echo "✅ All multi-version tests passed!"
+    else
+        echo "⚠️  Some tests failed. Check output above for details."
+        exit 1
+    fi
 
 ## 🧹 clean: Remove build artifacts and Python caches.
 clean:
