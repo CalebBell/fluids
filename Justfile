@@ -300,7 +300,9 @@ test-arch arch distro="trixie":
         -v "$(pwd):/src:ro,Z" \
         "$image" \
         bash -c "
-            cp -r /src /workspace && \
+            mkdir -p /workspace && \
+            cd /src && \
+            find . -mindepth 1 -maxdepth 1 ! -name '.*' -exec cp -r {} /workspace/ \; && \
             cd /workspace && \
             python3 -m pip install wheel $pip_flags && \
             pip3 install -e .[test-multiarch] $pip_flags && \
