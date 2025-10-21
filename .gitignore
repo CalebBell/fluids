@@ -18,7 +18,7 @@ monkeytype.sqlite3
 fluids.build
 node_modules
 package-lock.json
-
+dev/cx_freeze/build
 # Compiled source #
 ###################
 *.com

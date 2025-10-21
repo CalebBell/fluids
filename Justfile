@@ -106,18 +106,18 @@ ci: lint typecheck test
     @echo "✅ All CI checks passed!"
 
 ## 🧊 test-cxfreeze: Test cx_Freeze compatibility (build executable and run it).
-test-cxfreeze:
-    @echo ">>> Creating temporary virtual environment..."
-    @uv venv .venv-cxfreeze
+test-cxfreeze py="3.13":
+    @echo ">>> Creating temporary virtual environment with Python {{py}}..."
+    @uv venv .venv-cxfreeze-{{py}} --python {{py}}
     @echo "\n>>> Installing project and cx_Freeze in temporary environment..."
-    @uv pip install --python .venv-cxfreeze/bin/python -e .[test]
-    @uv pip install --python .venv-cxfreeze/bin/python cx_Freeze
+    @uv pip install --python .venv-cxfreeze-{{py}}/bin/python -e .[test]
+    @uv pip install --python .venv-cxfreeze-{{py}}/bin/python cx_Freeze
     @echo "\n>>> Building cx_Freeze executable..."
-    @cd dev && ../.venv-cxfreeze/bin/python cx_freeze_basic_standalone_check_builder.py build && cd ..
+    @cd dev/cx_freeze && ../../.venv-cxfreeze-{{py}}/bin/python cx_freeze_basic_standalone_check_builder.py build && cd ../..
     @echo "\n>>> Testing executable..."
-    @./dev/build/exe.*/basic_standalone_fluids_check
-    @echo "\n>>> Cleaning up temporary environment and build artifacts..."
-    @rm -rf .venv-cxfreeze dev/build
+    @./dev/cx_freeze/build/exe.*/basic_standalone_fluids_check
+    @echo "\n>>> Cleaning up temporary environment..."
+    @rm -rf .venv-cxfreeze-{{py}}
     @echo "✅ cx_Freeze test complete and cleaned up!"
 
 ## 🔥 test-nuitka: Test Nuitka compatibility (compile module and import it).
@@ -311,7 +311,7 @@ test-arch arch distro="trixie":
 
     # Determine pip flags
     if [[ "{{distro}}" == "alpine_latest" ]]; then
-        pip_flags=""
+        pip_flags="--break-system-packages"
     else
         pip_flags="--break-system-packages"
     fi
@@ -428,7 +428,7 @@ test-multi:
 ## 🧹 clean: Remove build artifacts and Python caches.
 clean:
     @echo ">>> Cleaning up build artifacts and cache files..."
-    @rm -rf _build .mypy_cache .pytest_cache dist *.egg-info htmlcov prof dev/build .venv-cxfreeze .venv-nuitka .nuitka-test .venv-pyinstaller .pyinstaller-test
+    @rm -rf _build .mypy_cache .pytest_cache dist *.egg-info htmlcov prof dev/cx_freeze/build .venv-cxfreeze .venv-nuitka .nuitka-test .venv-pyinstaller .pyinstaller-test
     @rm -rf .venv-test-*
     @rm -f fluids.*.so fluids.*.pyd
     @find . -type d -name "__pycache__" -exec rm -rf {} +
