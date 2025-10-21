@@ -121,41 +121,41 @@ test-cxfreeze py="3.13":
     @echo "✅ cx_Freeze test complete and cleaned up!"
 
 ## 🔥 test-nuitka: Test Nuitka compatibility (compile module and import it).
-test-nuitka:
-    @echo ">>> Creating temporary virtual environment..."
-    @uv venv .venv-nuitka
+test-nuitka py="3.13":
+    @echo ">>> Creating temporary virtual environment with Python {{py}}..."
+    @uv venv .venv-nuitka-{{py}} --python {{py}}
     @echo "\n>>> Installing project and Nuitka in temporary environment..."
-    @uv pip install --python .venv-nuitka/bin/python -e .[test,numba]
-    @uv pip install --python .venv-nuitka/bin/python nuitka
-    @echo "\n>>> Creating temporary test directory..."
-    @mkdir -p .nuitka-test
-    @cp -r fluids .nuitka-test/
-    @echo "\n>>> Building Nuitka module in temporary directory..."
-    @cd .nuitka-test && ../.venv-nuitka/bin/python -m nuitka --module fluids --include-package=fluids
-    @echo "\n>>> Removing original fluids folder from test directory..."
-    @rm -rf .nuitka-test/fluids/fluids
+    @uv pip install --python .venv-nuitka-{{py}}/bin/python -e .[test,numba]
+    @uv pip install --python .venv-nuitka-{{py}}/bin/python nuitka
+    @echo "\n>>> Preparing build directory..."
+    @mkdir -p dev/nuitka/build
+    @cp -r fluids dev/nuitka/build/
+    @echo "\n>>> Building Nuitka module..."
+    @cd dev/nuitka/build && ../../../.venv-nuitka-{{py}}/bin/python -m nuitka --module fluids --include-package=fluids
+    @echo "\n>>> Removing original fluids folder from build directory..."
+    @rm -rf dev/nuitka/build/fluids/fluids
     @echo "\n>>> Testing compiled module can be imported..."
-    @cd .nuitka-test && ../.venv-nuitka/bin/python -c "import fluids; print('Version:', fluids.__version__)"
-    @echo "\n>>> Cleaning up temporary environment and build artifacts..."
-    @rm -rf .venv-nuitka .nuitka-test
+    @cd dev/nuitka/build && ../../../.venv-nuitka-{{py}}/bin/python -c "import fluids; print('Version:', fluids.__version__)"
+    @echo "\n>>> Cleaning up temporary environment..."
+    @rm -rf .venv-nuitka-{{py}}
     @echo "✅ Nuitka test complete and cleaned up!"
 
 ## 📦 test-pyinstaller: Test PyInstaller compatibility (build executable and run it).
-test-pyinstaller:
-    @echo ">>> Creating temporary virtual environment..."
-    @uv venv .venv-pyinstaller
+test-pyinstaller py="3.13":
+    @echo ">>> Creating temporary virtual environment with Python {{py}}..."
+    @uv venv .venv-pyinstaller-{{py}} --python {{py}}
     @echo "\n>>> Installing project and PyInstaller in temporary environment..."
-    @uv pip install --python .venv-pyinstaller/bin/python .[test]
-    @uv pip install --python .venv-pyinstaller/bin/python pyinstaller
-    @echo "\n>>> Creating temporary test directory..."
-    @mkdir -p .pyinstaller-test
-    @cp -r dev .pyinstaller-test/
+    @uv pip install --python .venv-pyinstaller-{{py}}/bin/python .[test]
+    @uv pip install --python .venv-pyinstaller-{{py}}/bin/python pyinstaller
+    @rm -rf build
+    @echo "\n>>> Preparing build directory..."
+    @mkdir -p dev/pyinstaller/build
     @echo "\n>>> Building PyInstaller executable..."
-    @cd .pyinstaller-test/dev && ../../.venv-pyinstaller/bin/pyinstaller --onefile --name basic_standalone_fluids_check basic_standalone_fluids_check.py
+    @.venv-pyinstaller-{{py}}/bin/pyinstaller --onefile --name basic_standalone_fluids_check --distpath dev/pyinstaller/build/dist --workpath dev/pyinstaller/build/build --specpath dev/pyinstaller/build dev/basic_standalone_fluids_check.py
     @echo "\n>>> Testing executable..."
-    @./.pyinstaller-test/dev/dist/basic_standalone_fluids_check
-    @echo "\n>>> Cleaning up temporary environment and build artifacts..."
-    @rm -rf .venv-pyinstaller .pyinstaller-test
+    @./dev/pyinstaller/build/dist/basic_standalone_fluids_check
+    @echo "\n>>> Cleaning up temporary environment..."
+    @rm -rf .venv-pyinstaller-{{py}}
     @echo "✅ PyInstaller test complete and cleaned up!"
 
 ## 🌍 qemu-setup: Register QEMU interpreters for multi-arch container support.
@@ -428,7 +428,7 @@ test-multi:
 ## 🧹 clean: Remove build artifacts and Python caches.
 clean:
     @echo ">>> Cleaning up build artifacts and cache files..."
-    @rm -rf _build .mypy_cache .pytest_cache dist *.egg-info htmlcov prof dev/cx_freeze/build .venv-cxfreeze .venv-nuitka .nuitka-test .venv-pyinstaller .pyinstaller-test
+    @rm -rf _build .mypy_cache .pytest_cache dist *.egg-info htmlcov prof dev/cx_freeze/build dev/nuitka/build dev/pyinstaller/build .venv-cxfreeze-* .venv-nuitka-* .venv-pyinstaller-*
     @rm -rf .venv-test-*
     @rm -f fluids.*.so fluids.*.pyd
     @find . -type d -name "__pycache__" -exec rm -rf {} +
