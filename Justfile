@@ -12,6 +12,11 @@ VENV_RUFF   := ".venv/bin/ruff"
 VENV_PIP_AUDIT := ".venv/bin/pip-audit"
 VENV_BANDIT := ".venv/bin/bandit"
 
+# Cross-platform variables for third-party packager tests
+VENV_BIN_DIR := if os_family() == "windows" { "Scripts" } else { "bin" }
+PYTHON_EXE := if os_family() == "windows" { "python.exe" } else { "python" }
+EXE_SUFFIX := if os_family() == "windows" { ".exe" } else { "" }
+
 # --- Main Recipes ---
 
 # The default recipe, run when you just type `just`. It lists available commands.
@@ -110,12 +115,12 @@ test-cxfreeze py="3.13":
     @echo ">>> Creating temporary virtual environment with Python {{py}}..."
     @uv venv .venv-cxfreeze-{{py}} --python {{py}}
     @echo "\n>>> Installing project and cx_Freeze in temporary environment..."
-    @uv pip install --python .venv-cxfreeze-{{py}}/bin/python -e .[test]
-    @uv pip install --python .venv-cxfreeze-{{py}}/bin/python cx_Freeze
+    @uv pip install --python .venv-cxfreeze-{{py}}/{{VENV_BIN_DIR}}/{{PYTHON_EXE}} -e .[test]
+    @uv pip install --python .venv-cxfreeze-{{py}}/{{VENV_BIN_DIR}}/{{PYTHON_EXE}} cx_Freeze
     @echo "\n>>> Building cx_Freeze executable..."
-    @cd dev/cx_freeze && ../../.venv-cxfreeze-{{py}}/bin/python cx_freeze_basic_standalone_check_builder.py build && cd ../..
+    @cd dev/cx_freeze && ../../.venv-cxfreeze-{{py}}/{{VENV_BIN_DIR}}/{{PYTHON_EXE}} cx_freeze_basic_standalone_check_builder.py build && cd ../..
     @echo "\n>>> Testing executable..."
-    @./dev/cx_freeze/build/exe.*/basic_standalone_fluids_check
+    @./dev/cx_freeze/build/exe.*/basic_standalone_fluids_check{{EXE_SUFFIX}}
     @echo "\n>>> Cleaning up temporary environment..."
     @rm -rf .venv-cxfreeze-{{py}}
     @echo "✅ cx_Freeze test complete and cleaned up!"
@@ -125,17 +130,17 @@ test-nuitka py="3.13":
     @echo ">>> Creating temporary virtual environment with Python {{py}}..."
     @uv venv .venv-nuitka-{{py}} --python {{py}}
     @echo "\n>>> Installing project and Nuitka in temporary environment..."
-    @uv pip install --python .venv-nuitka-{{py}}/bin/python -e .[test,numba]
-    @uv pip install --python .venv-nuitka-{{py}}/bin/python nuitka
+    @uv pip install --python .venv-nuitka-{{py}}/{{VENV_BIN_DIR}}/{{PYTHON_EXE}} -e .[test,numba]
+    @uv pip install --python .venv-nuitka-{{py}}/{{VENV_BIN_DIR}}/{{PYTHON_EXE}} nuitka
     @echo "\n>>> Preparing build directory..."
     @mkdir -p dev/nuitka/build
     @cp -r fluids dev/nuitka/build/
     @echo "\n>>> Building Nuitka module..."
-    @cd dev/nuitka/build && ../../../.venv-nuitka-{{py}}/bin/python -m nuitka --module fluids --include-package=fluids
+    @cd dev/nuitka/build && ../../../.venv-nuitka-{{py}}/{{VENV_BIN_DIR}}/{{PYTHON_EXE}} -m nuitka --module fluids --include-package=fluids
     @echo "\n>>> Removing original fluids folder from build directory..."
     @rm -rf dev/nuitka/build/fluids/fluids
     @echo "\n>>> Testing compiled module can be imported..."
-    @cd dev/nuitka/build && ../../../.venv-nuitka-{{py}}/bin/python -c "import fluids; print('Version:', fluids.__version__)"
+    @cd dev/nuitka/build && ../../../.venv-nuitka-{{py}}/{{VENV_BIN_DIR}}/{{PYTHON_EXE}} -c "import fluids; print('Version:', fluids.__version__)"
     @echo "\n>>> Cleaning up temporary environment..."
     @rm -rf .venv-nuitka-{{py}}
     @echo "✅ Nuitka test complete and cleaned up!"
@@ -145,15 +150,15 @@ test-pyinstaller py="3.13":
     @echo ">>> Creating temporary virtual environment with Python {{py}}..."
     @uv venv .venv-pyinstaller-{{py}} --python {{py}}
     @echo "\n>>> Installing project and PyInstaller in temporary environment..."
-    @uv pip install --python .venv-pyinstaller-{{py}}/bin/python .[test]
-    @uv pip install --python .venv-pyinstaller-{{py}}/bin/python pyinstaller
+    @uv pip install --python .venv-pyinstaller-{{py}}/{{VENV_BIN_DIR}}/{{PYTHON_EXE}} .[test]
+    @uv pip install --python .venv-pyinstaller-{{py}}/{{VENV_BIN_DIR}}/{{PYTHON_EXE}} pyinstaller
     @rm -rf build
     @echo "\n>>> Preparing build directory..."
     @mkdir -p dev/pyinstaller/build
     @echo "\n>>> Building PyInstaller executable..."
-    @.venv-pyinstaller-{{py}}/bin/pyinstaller --onefile --name basic_standalone_fluids_check --distpath dev/pyinstaller/build/dist --workpath dev/pyinstaller/build/build --specpath dev/pyinstaller/build dev/basic_standalone_fluids_check.py
+    @.venv-pyinstaller-{{py}}/{{VENV_BIN_DIR}}/pyinstaller{{EXE_SUFFIX}} --onefile --name basic_standalone_fluids_check --distpath dev/pyinstaller/build/dist --workpath dev/pyinstaller/build/build --specpath dev/pyinstaller/build dev/basic_standalone_fluids_check.py
     @echo "\n>>> Testing executable..."
-    @./dev/pyinstaller/build/dist/basic_standalone_fluids_check
+    @./dev/pyinstaller/build/dist/basic_standalone_fluids_check{{EXE_SUFFIX}}
     @echo "\n>>> Cleaning up temporary environment..."
     @rm -rf .venv-pyinstaller-{{py}}
     @echo "✅ PyInstaller test complete and cleaned up!"
