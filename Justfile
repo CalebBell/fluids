@@ -208,7 +208,7 @@ prepare-multiarch-image arch distro="trixie":
 
     # Determine package manager and install commands
     if [[ "{{distro}}" == "alpine_latest" ]]; then
-        install_cmd="apk update && apk add python3 py3-pip py3-scipy py3-matplotlib py3-numpy py3-pandas"
+        install_cmd="apk update && apk add bash python3 py3-pip py3-scipy py3-matplotlib py3-numpy py3-pandas"
     else
         install_cmd="apt-get update && apt-get install -y liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas"
     fi
