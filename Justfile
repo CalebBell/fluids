@@ -317,9 +317,10 @@ test-arch arch distro="trixie":
     fi
 
     # Run the container with files copied (not mounted)
-    podman run --rm -it \
+    # Note: Removed -it flag for CI compatibility, removed :Z flag for broader compatibility
+    podman run --rm \
         --platform "$platform" \
-        -v "$(pwd):/src:ro,Z" \
+        -v "$(pwd):/src:ro" \
         "$image" \
         bash -c "
             mkdir -p /workspace && \
