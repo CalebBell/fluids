@@ -164,11 +164,11 @@ qemu-setup:
     @podman run --rm --privileged multiarch/qemu-user-static --reset -p yes
     @echo "✅ QEMU multi-arch support enabled."
 
-## 🏗️  test-arch: Run tests on a specific architecture (use arch=<arch> distro=<distro>).
-test-arch arch="aarch64" distro="trixie":
+## 🎯 prepare-multiarch-image: Build and cache a multiarch image with dependencies (use: just prepare-multiarch-image <arch> <distro>).
+prepare-multiarch-image arch distro="trixie":
     #!/usr/bin/env bash
     set -euo pipefail
-    echo ">>> Running tests on {{arch}} with {{distro}}..."
+    echo ">>> Building cached image for {{arch}} with {{distro}}..."
 
     # Map architecture to platform
     case "{{arch}}" in
@@ -192,12 +192,90 @@ test-arch arch="aarch64" distro="trixie":
 
     echo "Platform: $platform, Image: $image"
 
+    # Tag for cached image
+    tag="fluids-test-{{arch}}-{{distro}}:latest"
+
     # Determine package manager and install commands
     if [[ "{{distro}}" == "alpine_latest" ]]; then
         install_cmd="apk update && apk add python3 py3-pip py3-scipy py3-matplotlib py3-numpy py3-pandas"
+    else
+        install_cmd="apt-get update && apt-get install -y liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas"
+    fi
+
+    # Create a temporary Containerfile
+    cat > /tmp/Containerfile.fluids.{{arch}}.{{distro}} << EOF
+    FROM $image
+    RUN $install_cmd
+    EOF
+
+    # Build the image with the specified platform
+    podman build --platform "$platform" -t "$tag" -f /tmp/Containerfile.fluids.{{arch}}.{{distro}}
+
+    # Clean up
+    rm /tmp/Containerfile.fluids.{{arch}}.{{distro}}
+
+    echo "✅ Cached image $tag built successfully!"
+
+## 🔄 prepare-all-multiarch-images: Build all cached images for multiarch testing in parallel.
+prepare-all-multiarch-images:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo ">>> Building all cached multiarch images in parallel (this will take a while)..."
+
+    # Build all images in parallel using background jobs
+    just prepare-multiarch-image armv6 trixie &
+    just prepare-multiarch-image armv7 trixie &
+    just prepare-multiarch-image aarch64 trixie &
+    just prepare-multiarch-image riscv64 trixie &
+    just prepare-multiarch-image s390x trixie &
+    just prepare-multiarch-image ppc64le trixie &
+
+    just prepare-multiarch-image armv7 ubuntu_latest &
+    just prepare-multiarch-image aarch64 ubuntu_latest &
+    just prepare-multiarch-image s390x ubuntu_latest &
+    just prepare-multiarch-image ppc64le ubuntu_latest &
+
+    just prepare-multiarch-image riscv64 ubuntu_devel &
+
+    just prepare-multiarch-image armv6 alpine_latest &
+    just prepare-multiarch-image armv7 alpine_latest &
+    just prepare-multiarch-image aarch64 alpine_latest &
+    just prepare-multiarch-image riscv64 alpine_latest &
+    just prepare-multiarch-image s390x alpine_latest &
+    just prepare-multiarch-image ppc64le alpine_latest &
+
+    # Wait for all background jobs to complete
+    wait
+
+    echo ""
+    echo "✅ All cached multiarch images built!"
+
+## 🏗️  test-arch: Run tests on a specific architecture (use: just test-arch <arch> <distro>).
+## Note: This uses cached images built with prepare-multiarch-image for faster execution.
+test-arch arch distro="trixie":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo ">>> Running tests on {{arch}} with {{distro}}..."
+
+    # Map architecture to platform
+    case "{{arch}}" in
+        armv6)   platform="linux/arm/v6" ;;
+        armv7)   platform="linux/arm/v7" ;;
+        aarch64) platform="linux/arm64" ;;
+        riscv64) platform="linux/riscv64" ;;
+        s390x)   platform="linux/s390x" ;;
+        ppc64le) platform="linux/ppc64le" ;;
+        *) echo "Unknown architecture: {{arch}}"; exit 1 ;;
+    esac
+
+    # Use cached image
+    image="fluids-test-{{arch}}-{{distro}}:latest"
+    echo "Platform: $platform, Image: $image"
+
+    # Determine pip flags
+    if [[ "{{distro}}" == "alpine_latest" ]]; then
         pip_flags=""
     else
-        install_cmd="apt-get update && apt-get install -y liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev python3 python3-pip python3-scipy python3-matplotlib python3-numpy python3-pandas && (apt-get install -y libatlas-base-dev || true)"
         pip_flags="--break-system-packages"
     fi
 
@@ -209,7 +287,6 @@ test-arch arch="aarch64" distro="trixie":
         bash -c "
             cp -r /src /workspace && \
             cd /workspace && \
-            $install_cmd && \
             python3 -m pip install wheel $pip_flags && \
             pip3 install -e .[test-multiarch] $pip_flags && \
             python3 -m pytest . -v -m 'not online and not thermo and not numba'
@@ -221,26 +298,26 @@ test-arch arch="aarch64" distro="trixie":
 test-multiarch:
     @echo ">>> Running multi-arch tests (this will take a while)..."
     @echo "\n=== Debian Trixie ==="
-    @just test-arch arch=armv6 distro=trixie || echo "❌ armv6/trixie failed"
-    @just test-arch arch=armv7 distro=trixie || echo "❌ armv7/trixie failed"
-    @just test-arch arch=aarch64 distro=trixie || echo "❌ aarch64/trixie failed"
-    @just test-arch arch=riscv64 distro=trixie || echo "❌ riscv64/trixie failed"
-    @just test-arch arch=s390x distro=trixie || echo "❌ s390x/trixie failed"
-    @just test-arch arch=ppc64le distro=trixie || echo "❌ ppc64le/trixie failed"
+    @just test-arch armv6 trixie || echo "❌ armv6/trixie failed"
+    @just test-arch armv7 trixie || echo "❌ armv7/trixie failed"
+    @just test-arch aarch64 trixie || echo "❌ aarch64/trixie failed"
+    @just test-arch riscv64 trixie || echo "❌ riscv64/trixie failed"
+    @just test-arch s390x trixie || echo "❌ s390x/trixie failed"
+    @just test-arch ppc64le trixie || echo "❌ ppc64le/trixie failed"
     @echo "\n=== Ubuntu Latest ==="
-    @just test-arch arch=armv7 distro=ubuntu_latest || echo "❌ armv7/ubuntu_latest failed"
-    @just test-arch arch=aarch64 distro=ubuntu_latest || echo "❌ aarch64/ubuntu_latest failed"
-    @just test-arch arch=s390x distro=ubuntu_latest || echo "❌ s390x/ubuntu_latest failed"
-    @just test-arch arch=ppc64le distro=ubuntu_latest || echo "❌ ppc64le/ubuntu_latest failed"
+    @just test-arch armv7 ubuntu_latest || echo "❌ armv7/ubuntu_latest failed"
+    @just test-arch aarch64 ubuntu_latest || echo "❌ aarch64/ubuntu_latest failed"
+    @just test-arch s390x ubuntu_latest || echo "❌ s390x/ubuntu_latest failed"
+    @just test-arch ppc64le ubuntu_latest || echo "❌ ppc64le/ubuntu_latest failed"
     @echo "\n=== Ubuntu Devel ==="
-    @just test-arch arch=riscv64 distro=ubuntu_devel || echo "❌ riscv64/ubuntu_devel failed"
+    @just test-arch riscv64 ubuntu_devel || echo "❌ riscv64/ubuntu_devel failed"
     @echo "\n=== Alpine Latest ==="
-    @just test-arch arch=armv6 distro=alpine_latest || echo "❌ armv6/alpine_latest failed"
-    @just test-arch arch=armv7 distro=alpine_latest || echo "❌ armv7/alpine_latest failed"
-    @just test-arch arch=aarch64 distro=alpine_latest || echo "❌ aarch64/alpine_latest failed"
-    @just test-arch arch=riscv64 distro=alpine_latest || echo "❌ riscv64/alpine_latest failed"
-    @just test-arch arch=s390x distro=alpine_latest || echo "❌ s390x/alpine_latest failed"
-    @just test-arch arch=ppc64le distro=alpine_latest || echo "❌ ppc64le/alpine_latest failed"
+    @just test-arch armv6 alpine_latest || echo "❌ armv6/alpine_latest failed"
+    @just test-arch armv7 alpine_latest || echo "❌ armv7/alpine_latest failed"
+    @just test-arch aarch64 alpine_latest || echo "❌ aarch64/alpine_latest failed"
+    @just test-arch riscv64 alpine_latest || echo "❌ riscv64/alpine_latest failed"
+    @just test-arch s390x alpine_latest || echo "❌ s390x/alpine_latest failed"
+    @just test-arch ppc64le alpine_latest || echo "❌ ppc64le/alpine_latest failed"
     @echo "\n✅ Multi-arch testing complete!"
 
 ## 🧬 test-multi-single: Test with specific Python/NumPy/SciPy versions (e.g., just test-multi-single 3.9 1.26.4 1.12.0).
