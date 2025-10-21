@@ -37,7 +37,14 @@ jobs:
     - name: Install just
       uses: extractions/setup-just@v2
 
-    - name: Test ${{ matrix.packager }}
+    - name: Test ${{ matrix.packager }} (Windows)
+      if: runner.os == 'Windows'
       shell: bash
+      run: |
+        export SHELL="$(which bash)"
+        just test-${{ matrix.packager }}
+
+    - name: Test ${{ matrix.packager }} (Unix)
+      if: runner.os != 'Windows'
       run: |
         just test-${{ matrix.packager }}
