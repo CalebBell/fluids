@@ -303,6 +303,12 @@ test-arch arch distro="trixie":
     image="fluids-test-{{arch}}-{{distro}}:latest"
     echo "Platform: $platform, Image: $image"
 
+    # Build image if it doesn't exist
+    if ! podman image exists "$image" 2>/dev/null; then
+        echo ">>> Image $image not found, building it now..."
+        just prepare-multiarch-image {{arch}} {{distro}}
+    fi
+
     # Determine pip flags
     if [[ "{{distro}}" == "alpine_latest" ]]; then
         pip_flags=""
