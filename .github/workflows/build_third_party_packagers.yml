@@ -37,7 +37,14 @@ jobs:
     - name: Install just
       uses: extractions/setup-just@v2
 
-    - name: Test ${{ matrix.packager }}
-      shell: bash
+    - name: Test ${{ matrix.packager }} (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $env:PATH = "C:\Program Files\Git\bin;" + $env:PATH
+        just test-${{ matrix.packager }}
+
+    - name: Test ${{ matrix.packager }} (Unix)
+      if: runner.os != 'Windows'
       run: |
         just test-${{ matrix.packager }}
