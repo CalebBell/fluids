@@ -243,6 +243,7 @@ prepare-all-multiarch-images:
     echo ">>> Building all cached multiarch images in parallel (this will take a while)..."
 
     # Define all arch/distro combinations
+    # riscv64 ubuntu_devel fails often, on github actions with Illegal Instruction
     combinations=(
         "armv6 trixie"
         "armv7 trixie"
@@ -254,7 +255,7 @@ prepare-all-multiarch-images:
         "aarch64 ubuntu_latest"
         "s390x ubuntu_latest"
         "ppc64le ubuntu_latest"
-        "riscv64 ubuntu_devel"
+        # "riscv64 ubuntu_devel"
         "armv6 alpine_latest"
         "armv7 alpine_latest"
         "aarch64 alpine_latest"
@@ -305,7 +306,7 @@ test-arch arch distro="trixie":
     esac
 
     # Use cached image
-    image="fluids-test-{{arch}}-{{distro}}:latest"
+    image="localhost/fluids-test-{{arch}}-{{distro}}:latest"
     echo "Platform: $platform, Image: $image"
 
     # Build image if it doesn't exist
@@ -354,8 +355,8 @@ test-multiarch:
     @just test-arch aarch64 ubuntu_latest || echo "❌ aarch64/ubuntu_latest failed"
     @just test-arch s390x ubuntu_latest || echo "❌ s390x/ubuntu_latest failed"
     @just test-arch ppc64le ubuntu_latest || echo "❌ ppc64le/ubuntu_latest failed"
-    @echo "\n=== Ubuntu Devel ==="
-    @just test-arch riscv64 ubuntu_devel || echo "❌ riscv64/ubuntu_devel failed"
+    # @echo "\n=== Ubuntu Devel ==="
+    # @just test-arch riscv64 ubuntu_devel || echo "❌ riscv64/ubuntu_devel failed"
     @echo "\n=== Alpine Latest ==="
     @just test-arch armv6 alpine_latest || echo "❌ armv6/alpine_latest failed"
     @just test-arch armv7 alpine_latest || echo "❌ armv7/alpine_latest failed"

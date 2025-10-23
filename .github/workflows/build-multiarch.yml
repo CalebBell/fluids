@@ -38,8 +38,6 @@ jobs:
             distro: ubuntu_latest
           - arch: ppc64le
             distro: ubuntu_latest
-          - arch: riscv64
-            distro: ubuntu_devel
 
           - arch: armv6
             distro: alpine_latest
