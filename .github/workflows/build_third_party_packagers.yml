@@ -45,13 +45,7 @@ jobs:
       shell: bash
       run: rm 'C:/Windows/System32/bash.exe'
 
-    - name: Test ${{ matrix.packager }} (Windows)
-      if: runner.os == 'Windows'
-      shell: bash
-      run: |
-        just test-${{ matrix.packager }}
-
-    - name: Test ${{ matrix.packager }} (Unix)
+    - name: Test ${{ matrix.packager }}
       if: runner.os != 'Windows'
       run: |
         just test-${{ matrix.packager }}
