@@ -62,9 +62,6 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           image: tonistiigi/binfmt:qemu-v8.1.5
-      - name: Set up QEMU for multiarch
-        run: |
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       - name: Run tests on ${{ matrix.arch }}/${{ matrix.distro }}
         run: just test-arch ${{ matrix.arch }} ${{ matrix.distro }} 
 
