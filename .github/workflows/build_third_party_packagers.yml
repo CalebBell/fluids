@@ -39,9 +39,8 @@ jobs:
 
     - name: Test ${{ matrix.packager }} (Windows)
       if: runner.os == 'Windows'
-      shell: pwsh
+      shell: 'C:\Program Files\Git\bin\bash.exe'
       run: |
-        $env:PATH = "C:\Program Files\Git\bin;" + $env:PATH
         just test-${{ matrix.packager }}
 
     - name: Test ${{ matrix.packager }} (Unix)
