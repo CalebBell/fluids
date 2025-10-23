@@ -37,9 +37,17 @@ jobs:
     - name: Install just
       uses: extractions/setup-just@v2
 
+    # https://stackoverflow.com/questions/69250165/github-action-windows-runner-how-to-remove-all-sh-exe-from-path/69251820#69251820
+    # https://github.com/actions/runner-images/issues/7253#issuecomment-1500121978
+    # https://github.com/actions/runner-images/discussions/6049
+    - name: Remove windows bash
+      if: runner.os == 'Windows'
+      shell: bash
+      run: rm 'C:/Windows/System32/bash.exe'
+
     - name: Test ${{ matrix.packager }} (Windows)
       if: runner.os == 'Windows'
-      shell: 'C:\Program Files\Git\bin\bash.exe'
+      shell: bash
       run: |
         just test-${{ matrix.packager }}
 
