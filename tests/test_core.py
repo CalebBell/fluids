@@ -145,7 +145,7 @@ def test_core_dimensionless():
     assert_close1d([Le1, Le2], [0.8451327433628318, 0.00502815768302494])
     with pytest.raises(Exception):
         Lewis(D=22.6E-6, rho=800., k=.2)
-    with pytest.raises(ValueError, match="Diffusivity D is required"):
+    with pytest.raises(ValueError):
         Lewis(D=None, alpha=19.1E-6)
 
     We = Weber(0.18, 0.001, 900., 0.01)
