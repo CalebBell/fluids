@@ -89,7 +89,6 @@ numba = [
 # Documentation
 docs = [
     "sphinx",
-    "furo",
     "numpydoc",
     "nbsphinx",
     "ipython",
@@ -164,6 +163,18 @@ exclude_lines = [
 ]
 
 [tool.mypy]
+exclude = [
+    "^_build/",
+    "^_custom_build/",
+    "^build/",
+    "^dist/",
+    ".*\\.egg-info/",
+    "^venv/",
+    "^\\.venv/",
+    "^benchmarks/",
+    "^dev/",
+    "^notebooks/",
+]
 
 [[tool.mypy.overrides]]
 module = [
@@ -305,10 +316,12 @@ extend-ignore = [
 max-complexity = 10
 
 [tool.ruff.lint.per-file-ignores]
-# Allow asserts in test files
-"tests/**/*.py" = ["S101"]
-"**/test_*.py" = ["S101"]
-"docs/**/*.py" = ["S101"]  # Allow asserts in documentation examples
+# Allow asserts and star imports in test files
+"tests/**/*.py" = ["S101", "F403", "F405", "PT011", "B017", "TRY002"]  # asserts, star imports, broad exceptions OK in tests
+"**/test_*.py" = ["S101", "F403", "F405", "PT011", "B017", "TRY002"]
+# Allow asserts and star imports in documentation examples
+"docs/**/*.py" = ["S101", "F403", "F405", "PT011", "B017", "TRY002"]
+"docs/**/*.ipynb" = ["S101", "F403", "F405", "PT011", "B017", "TRY002"]
 
 [tool.pytest.ini_options]
 addopts = "--doctest-glob='*.rst' --ignore='manual_runner.py'"

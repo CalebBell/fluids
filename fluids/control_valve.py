@@ -191,14 +191,14 @@ def FF_critical_pressure_ratio_l(Psat: float, Pc: float) -> float:
     return 0.96 - 0.28*sqrt(Psat/Pc)
 
 
-def control_valve_choke_P_l(Psat: float, Pc: float, FL: float, P1: float | None=None, P2: float | None=None, disp: bool=True) -> float:
+def control_valve_choke_P_l(Psat: float, Pc: float, FL: float, P1: float | None=None, P2: float | None=None, check_choking: bool=True) -> float:
     r"""Calculates either the upstream or downstream pressure at which choked
     flow though a liquid control valve occurs, given either a set upstream or
     downstream pressure. Implements an analytical solution of
     the needed equations from the full function
     :py:func:`~.size_control_valve_l`. For some pressures, no choked flow
     is possible; for choked flow to occur the direction if flow must be
-    reversed. If `disp` is True, an exception will be raised for these
+    reversed. If `check_choking` is True, an exception will be raised for these
     conditions.
 
     .. math::
@@ -220,7 +220,7 @@ def control_valve_choke_P_l(Psat: float, Pc: float, FL: float, P1: float | None=
         Absolute pressure upstream of the valve [Pa]
     P2 : float, optional
         Absolute pressure downstream of the valve [Pa]
-    disp : bool, optional
+    check_choking : bool, optional
         Whether or not to raise an exception on flow reversal, [-]
 
     Returns
@@ -249,7 +249,7 @@ def control_valve_choke_P_l(Psat: float, Pc: float, FL: float, P1: float | None=
         ans = P1 = (FF*FL*FL*Psat - P2)/(FL*FL - 1.0)
     else:
         raise ValueError("Either P1 or P2 needs to be specified")
-    if P2 > P1 and disp:
+    if P2 > P1 and check_choking:
         raise ValueError("Specified P1 is too low for choking to occur "
                         "at any downstream pressure; minimum "
                         "upstream pressure for choking to be possible "

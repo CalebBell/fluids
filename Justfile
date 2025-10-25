@@ -36,7 +36,8 @@ install:
 ## 📚 docs: Build the Sphinx documentation.
 docs:
     @echo ">>> Building Sphinx docs..."
-    @{{VENV_PYTHON}} -m sphinx -b html -d _build/doctrees docs _build/html -j auto
+    # Note: -j auto (parallel build) is faster but less stable, can cause JSON decoding crashes
+    @{{VENV_PYTHON}} -m sphinx -b html -d _build/doctrees docs _build/html
     @echo "✅ Docs built in _build/html"
 
 ## 🧪 test: Run the test suite with pytest.
@@ -66,7 +67,7 @@ check: lint typecheck
 ## 🔒 security: Run security scans with pip-audit and bandit.
 security:
     @echo ">>> Running pip-audit..."
-    @{{VENV_PIP_AUDIT}} -r requirements.txt
+    @{{VENV_PIP_AUDIT}} -r requirements_security.txt
     @echo ">>> Running bandit..."
     @{{VENV_BANDIT}} -r fluids -ll
     @echo "✅ Security scans complete."

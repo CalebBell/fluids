@@ -518,6 +518,26 @@ def test_two_phase_dP():
     with pytest.raises(Exception):
         two_phase_dP(m=0.6, x=0.1, rhol=915., D=0.05, L=1.0)
 
+def test_two_phase_dP_missing_required_inputs():
+    base_kwargs = dict(m=0.6, x=0.1, rhol=915.0, D=0.05, L=1.0,
+                       rhog=2.67, mul=180E-6, mug=14E-6, sigma=0.0487,
+                       P=1e5, Pc=1e6, angle=30.0)
+
+    with pytest.raises(TypeError):
+        two_phase_dP(Method="Gronnerud", **{k: v for k, v in base_kwargs.items() if k != "rhog"})
+    with pytest.raises(TypeError):
+        two_phase_dP(Method="Zhang_Webb", **{k: v for k, v in base_kwargs.items() if k != "mul"})
+    with pytest.raises(TypeError):
+        two_phase_dP(Method="Kim_Mudawar", **{k: v for k, v in base_kwargs.items() if k != "mug"})
+    with pytest.raises(TypeError):
+        two_phase_dP(Method="Friedel", **{k: v for k, v in base_kwargs.items() if k != "sigma"})
+    with pytest.raises(TypeError):
+        two_phase_dP(Method="Beggs-Brill", **{k: v for k, v in base_kwargs.items() if k != "P"})
+    with pytest.raises(TypeError):
+        two_phase_dP(Method="Zhang_Webb", **{k: v for k, v in base_kwargs.items() if k != "Pc"})
+    with pytest.raises(TypeError):
+        two_phase_dP(Method="Beggs-Brill", **{k: v for k, v in base_kwargs.items() if k != "angle"})
+
     with pytest.raises(Exception):
         two_phase_dP(m=0.6, x=0.1, rhol=915., rhog=2.67, sigma=0.045, D=0.05, L=1, Method="BADMETHOD")
 

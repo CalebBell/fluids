@@ -23,7 +23,13 @@ SOFTWARE.
 import pytest
 
 from fluids.numerics import assert_close, assert_close1d
-from fluids.piping import erosional_velocity, gauge_from_t, nearest_pipe, t_from_gauge
+from fluids.piping import (
+    pipe_too_large_msg,
+    erosional_velocity,
+    gauge_from_t,
+    nearest_pipe,
+    t_from_gauge,
+)
 
 
 def test_piping():
@@ -90,6 +96,21 @@ def test_gauge():
         t_from_gauge(17.5, schedule="FAIL")
     with pytest.raises(Exception):
         t_from_gauge(17.5, schedule="MWG")
+
+def test_nearest_pipe_error_paths():
+    with pytest.raises(ValueError, match=pipe_too_large_msg):
+        nearest_pipe(Di=100.0, schedule="40")
+
+    # logic will match unless Di/Do is something that doesn't compare right
+    with pytest.raises(ValueError, match="Di lookup failed"):
+        nearest_pipe(Di=float("nan"), schedule="40")
+    with pytest.raises(ValueError, match="Do lookup failed"):
+        nearest_pipe(Do=float("nan"), schedule="40")
+    with pytest.raises(ValueError, match="NPS not in list"):
+        nearest_pipe(NPS=999, schedule="40")
+
+    with pytest.raises(ValueError, match="Schedule not recognized"):
+        nearest_pipe(Di=0.01, schedule="UNKNOWN")
 
     # Test schedule is implemented
     NPS, Di, Do, t = nearest_pipe(Do=.273, schedule="80D1527")
