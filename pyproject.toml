@@ -309,7 +309,7 @@ extend-ignore = [
     "TRY201",
     "TRY300",
     "TRY301",
-    "PYI024",  # PYI024 Use `typing.NamedTuple` instead of `collections.namedtuple
+    "PYI024",  # PYI024 Use `typing.NamedTuple` instead of `collections.namedtuple personal preference
 ]
 
 [tool.ruff.lint.mccabe]
