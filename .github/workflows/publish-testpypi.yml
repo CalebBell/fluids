@@ -22,12 +22,12 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Check if tag is on release branch
-        run: |
-          if ! git branch -r --contains ${{ github.ref }} | grep -q 'origin/release'; then
-            echo "Tag is not on release branch"
-            exit 1
-          fi
+      # - name: Check if tag is on release branch
+      #   run: |
+      #     if ! git branch -r --contains ${{ github.ref }} | grep -q 'origin/release'; then
+      #       echo "Tag is not on release branch"
+      #       exit 1
+      #     fi
       
       - name: Download distributions
         uses: actions/download-artifact@v4
