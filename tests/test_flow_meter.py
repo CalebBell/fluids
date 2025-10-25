@@ -28,7 +28,9 @@ from fluids.constants import inch
 from fluids.flow_meter import (
     AS_CAST_VENTURI_TUBE,
     CONCENTRIC_ORIFICE,
+    CONICAL_ORIFICE,
     CONE_METER,
+    ECCENTRIC_ORIFICE,
     HOLLINGSHEAD_CONE,
     HOLLINGSHEAD_ORIFICE,
     HOLLINGSHEAD_VENTURI_SHARP,
@@ -51,7 +53,9 @@ from fluids.flow_meter import (
     ORIFICE_FLANGE_TAPS,
     ORIFICE_PIPE_TAPS,
     ORIFICE_VENA_CONTRACTA_TAPS,
+    QUARTER_CIRCLE_ORIFICE,
     ROUGH_WELDED_CONVERGENT_VENTURI_TUBE,
+    SEGMENTAL_ORIFICE,
     TAPS_OPPOSITE,
     TAPS_SIDE,
     VENTURI_NOZZLE,
@@ -87,6 +91,8 @@ from fluids.flow_meter import (
     orifice_expansibility_1989,
     velocity_of_approach_factor,
 )
+import fluids.flow_meter as flow_meter_module
+
 from fluids.numerics import assert_close, assert_close1d, assert_close2d, isclose, logspace, secant
 
 
@@ -428,6 +434,32 @@ def test_unspecified_meter_C_specified():
          P2=183000.0, rho=999.1, mu=0.0011, k=1.33,
         meter_type="unspecified meter", taps="D", C_specified=None)
 
+def test_differential_pressure_meter_solver_brenth_fallback(monkeypatch):
+    base_kwargs = dict(D=0.07366, rho=999.1, mu=0.0011, k=1.33,
+                       meter_type=ISO_5167_ORIFICE, taps="D")
+    m_val = 7.702338035732168
+    D2_val = 0.05
+    P1_val = 200000.0
+    P2_val = 183000.0
+
+    expected_D2 = differential_pressure_meter_solver(D2=None, P1=P1_val, P2=P2_val, m=m_val, **base_kwargs)
+    expected_P2 = differential_pressure_meter_solver(D2=D2_val, P1=P1_val, P2=None, m=m_val, **base_kwargs)
+    expected_P1 = differential_pressure_meter_solver(D2=D2_val, P1=None, P2=P2_val, m=m_val, **base_kwargs)
+
+    def failing_secant(*args, **kwargs):
+        raise RuntimeError("secant disabled")
+
+    monkeypatch.setattr(flow_meter_module, "secant", failing_secant)
+
+    D2_result = differential_pressure_meter_solver(D2=None, P1=P1_val, P2=P2_val, m=m_val, **base_kwargs)
+    assert_close(D2_result, expected_D2)
+
+    P2_result = differential_pressure_meter_solver(D2=D2_val, P1=P1_val, P2=None, m=m_val, **base_kwargs)
+    assert_close(P2_result, expected_P2)
+
+    P1_result = differential_pressure_meter_solver(D2=D2_val, P1=None, P2=P2_val, m=m_val, **base_kwargs)
+    assert_close(P1_result, expected_P1)
+
 
 
 def test_C_eccentric_orifice_ISO_15377_1998():
@@ -625,6 +657,11 @@ def test_differential_pressure_meter_dP():
     with pytest.raises(ValueError):
         differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, meter_type="NOTAMETER")
 
+
+@pytest.mark.parametrize("meter_type", [ISO_5167_ORIFICE, LONG_RADIUS_NOZZLE, ISA_1932_NOZZLE])
+def test_differential_pressure_meter_dP_requires_C(meter_type):
+    with pytest.raises(ValueError, match="Parameter C is required"):
+        differential_pressure_meter_dP(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0, meter_type=meter_type)
 
 
 def test_differential_pressure_meter_beta():
@@ -887,6 +924,27 @@ def test_differential_pressure_meter_C_epsilon():
     P2=183000.0, rho=999.1, mu=0.0011, k=1.33, m=.01,
         meter_type=HOLLINGSHEAD_WEDGE)
     assert_close(C, 0.7002380207294499)
+
+@pytest.mark.parametrize(
+    ("alias", "canonical", "extra_kwargs"),
+    [
+        (ECCENTRIC_ORIFICE, ISO_15377_ECCENTRIC_ORIFICE, {}),
+        (CONICAL_ORIFICE, ISO_15377_CONICAL_ORIFICE, {}),
+        (QUARTER_CIRCLE_ORIFICE, ISO_15377_QUARTER_CIRCLE_ORIFICE, {}),
+        (SEGMENTAL_ORIFICE, MILLER_SEGMENTAL_ORIFICE, {"taps": ORIFICE_FLANGE_TAPS}),
+    ],
+)
+def test_differential_pressure_meter_C_epsilon_aliases(alias, canonical, extra_kwargs):
+    base_kwargs = dict(D=0.07366, D2=0.05, P1=200000.0, P2=183000.0,
+                       rho=999.1, mu=0.0011, k=1.33, m=7.702338035732168)
+    alias_kwargs = dict(base_kwargs)
+    alias_kwargs.update(extra_kwargs)
+    canonical_kwargs = dict(base_kwargs)
+    canonical_kwargs.update(extra_kwargs)
+    C_alias, eps_alias = differential_pressure_meter_C_epsilon(meter_type=alias, **alias_kwargs)
+    C_canon, eps_canon = differential_pressure_meter_C_epsilon(meter_type=canonical, **canonical_kwargs)
+    assert_close(C_alias, C_canon)
+    assert_close(eps_alias, eps_canon)
 
 def test_issue_49():
     kwargs = {"D": 0.36,  "rho": 39.6, "mu": 1.32e-05, "k": 1.3,"D2": 0.28,"P1": 5000000.0,

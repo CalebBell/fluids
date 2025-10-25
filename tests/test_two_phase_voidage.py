@@ -241,6 +241,25 @@ def test_liquid_gas_voidage():
 
     assert len(liquid_gas_voidage_methods(**kwargs)) == 29
 
+def test_liquid_gas_voidage_missing_required_inputs():
+    base_kwargs = dict(x=0.1, rhol=915.0, rhog=2.67, D=0.05, m=0.6, mul=180E-6,
+                       mug=14E-6, sigma=0.0487, P=1e5, Pc=7e6)
+
+    missing_cases = [
+        ("Kawahara", "D"),
+        ("Nicklin Wilkes Davidson", "m"),
+        ("Thom", "mul"),
+        ("Thom", "mug"),
+        ("Steiner", "sigma"),
+        ("Woldesemayat Ghajar", "P"),
+        ("Sun Duffey Peng", "Pc"),
+    ]
+    for method, missing in missing_cases:
+        kwargs = dict(base_kwargs)
+        kwargs.pop(missing, None)
+        with pytest.raises(TypeError):
+            liquid_gas_voidage(Method=method, **kwargs)
+
 def test_density_two_phase():
     assert_close(density_two_phase(.4, 800.0, 2.5), 481.0)
 
@@ -259,6 +278,16 @@ def test_McAdams():
     mu = McAdams(x=0.4, mul=1E-3, mug=1E-5)
     assert_close(mu, 2.4630541871921184e-05)
 
+def test_gas_liquid_viscosity_requires_densities():
+    base_kwargs = dict(x=0.4, mul=1E-3, mug=1E-5, rhol=850.0, rhog=1.2)
+    kwargs = dict(base_kwargs)
+    kwargs.pop("rhol")
+    with pytest.raises(TypeError):
+        gas_liquid_viscosity(Method="Duckler", **kwargs)
+    kwargs = dict(base_kwargs)
+    kwargs.pop("rhog")
+    with pytest.raises(TypeError):
+        gas_liquid_viscosity(Method="Duckler", **kwargs)
 
 def test_Cicchitti():
     mu = Cicchitti(x=0.4, mul=1E-3, mug=1E-5)

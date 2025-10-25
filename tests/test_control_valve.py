@@ -27,6 +27,7 @@ from fluids.control_valve import (
     Reynolds_factor,
     Reynolds_valve,
     cavitation_index,
+    convert_flow_coefficient,
     control_valve_choke_P_g,
     control_valve_choke_P_l,
     control_valve_noise_g_2011,
@@ -63,6 +64,11 @@ def test_control_valve():
 
     with pytest.raises(Exception):
         is_choked_turbulent_g(0.544, 0.929)
+
+    with pytest.raises(ValueError):
+        control_valve_choke_P_g(1.0, 1.3)
+    with pytest.raises(ValueError):
+        control_valve_choke_P_g(1.0, 1.3, P1=1e5, P2=7e4)
 
     Rev = Reynolds_valve(3.26e-07, 360, 100.0, 0.6, 0.98, 238.05817216710483)
     assert_close(Rev, 6596953.826574914)
@@ -181,6 +187,15 @@ def test_control_valve_size_l():
     res = size_control_valve_g(**kwargs)
     assert res["choked"]
 
+    with pytest.raises(ValueError):
+        size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3, mu=3.1472E-4,
+                             P1=680E3, P2=220E3, Q=0.1, D1=0.1, d=0.1)
+
+    kv_branch = size_control_valve_l(rho=965.4, Psat=70.1E3, Pc=22120E3,
+                                     mu=3.1472E-4, P1=680E3, P2=220E3, Q=0.05,
+                                     D1=0.05, D2=0.08, d=0.09)
+    assert kv_branch > 0
+
 def test_control_valve_size_g():
     # From [1]_, matching example 3 for non-choked gas flow with attached
     # fittings  and a rotary, eccentric plug, flow-to-open control valve:
@@ -198,6 +213,9 @@ def test_control_valve_size_g():
     # Diameters removed
     Kv = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=1.3E5, Q=0.46/3600., xT=0.8)
     assert_close(Kv, 0.012691357950765944)
+    with pytest.raises(ValueError):
+        size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0,
+                             P1=2.8E5, P2=1.3E5, Q=0.46/3600., D1=0.015, d=0.015, xT=0.8)
     ans = size_control_valve_g(T=320., MW=39.95, mu=5.625E-5, gamma=1.67, Z=1.0, P1=2.8E5, P2=1.3E5, Q=0.46/3600., xT=0.8, full_output=True)
     assert ans["laminar"] is False
     assert ans["choked"] is False
@@ -357,6 +375,38 @@ def test_control_valve_noise_g_2011():
                                rho_air=1.293, c_air=343.0, An=-3.8, Stp=0.2)
     assert_close(ans, 93.38835049261132)
 
+    with pytest.raises(ValueError):
+        control_valve_noise_g_2011(m=2.0, P1=1E6, P2=7E5, T1=450, rho=5.3,
+                                   gamma=1.22, MW=19.8, Kv=Cv_to_Kv(60.0),
+                                   d=0.1, Di=0.2031, FL=None, FLP=None, FP=None,
+                                   Fd=0.3, t_pipe=0.008, rho_pipe=8000.0,
+                                   c_pipe=5000.0, rho_air=1.293, c_air=343.0,
+                                   An=-3.8, Stp=0.2)
+
+def test_convert_flow_coefficient_invalid():
+    base_value = 10.0
+    # Round-trip each supported scale through Kv to ensure conversions invert
+    Cv_original = base_value
+    Kv_from_Cv = convert_flow_coefficient(Cv_original, "Cv", "Kv")
+    Cv_back = convert_flow_coefficient(Kv_from_Cv, "Kv", "Cv")
+    assert_close(Cv_back, Cv_original)
+
+    Kv_original = base_value
+    Cv_from_Kv = convert_flow_coefficient(Kv_original, "Kv", "Cv")
+    Kv_back = convert_flow_coefficient(Cv_from_Kv, "Cv", "Kv")
+    assert_close(Kv_back, Kv_original)
+
+    Av_original = convert_flow_coefficient(base_value, "Kv", "Av")
+    Kv_from_Av = convert_flow_coefficient(Av_original, "Av", "Kv")
+    Av_back = convert_flow_coefficient(Kv_from_Av, "Kv", "Av")
+    assert_close(Kv_from_Av, base_value)
+    assert_close(Av_back, Av_original)
+
+    with pytest.raises(NotImplementedError):
+        convert_flow_coefficient(1.0, "BAD", "Cv")
+    with pytest.raises(NotImplementedError):
+        convert_flow_coefficient(1.0, "Cv", "BAD")
+
 @pytest.mark.scipy
 def test_opening_quick_data():
     # Add some tolerance to tests after failures on arm64 https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=976558
@@ -374,3 +424,9 @@ def test_opening_equal_data():
     from fluids.control_valve import frac_CV_equal, opening_equal, opening_equal_tck
     tck_recalc = splrep(opening_equal, frac_CV_equal, k=3, s=0)
     [assert_close1d(i, j, atol=1e-10) for i, j in zip(opening_equal_tck[:-1], tck_recalc[:-1])]
+    with pytest.raises(ValueError):
+        control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6)
+    with pytest.raises(ValueError):
+        control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6, P1=680000.0, P2=220000.0)
+    with pytest.raises(ValueError):
+        control_valve_choke_P_l(69682.89291024722, 22048320.0, 0.6, P1=1e4, check_choking=True)

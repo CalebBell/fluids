@@ -19,7 +19,7 @@ def pytest_ignore_collect( collection_path, config):
         return True
 
     # Skip utility and development directories
-    skip_paths = ("cx_freeze", "py2exe", "manual_runner", "make_test_stubs", "plot", "prerelease", "benchmarks", "conf.py")
+    skip_paths = ("cx_freeze", "py2exe", "manual_runner", "make_test_stubs", "plot", "prerelease", "benchmarks", "conf.py", "_custom_build")
     if any(skip_path in path for skip_path in skip_paths):
         return True
 
@@ -35,9 +35,9 @@ def pytest_ignore_collect( collection_path, config):
         return True
 
     # Skip numba and .rst tests for unsupported configurations
-    # Numba requires: CPython 3.8-3.13, x86/x86_64 architecture, GIL-enabled
+    # Numba requires: CPython 3.9-3.13, x86/x86_64 architecture, GIL-enabled
     unsupported_for_numba = (
-        ver_tup < (3, 8) or
+        ver_tup < (3, 9) or
         ver_tup >= (3, 14) or
         is_pypy or
         is_graal or

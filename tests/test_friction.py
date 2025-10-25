@@ -20,6 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import sys
 from math import isnan, log10, pi
 
 import pytest
@@ -192,6 +193,14 @@ def test_friction_Colebrook():
     # even when the clamond solution is specified
     assert Colebrook(1, 1E-4, -1) == Colebrook(1, 1e-4)
 
+def test_Colebrook_requires_mpmath(monkeypatch):
+    class FakeMPMath:
+        def __getattr__(self, name):
+            raise ImportError("mpmath missing")
+
+    monkeypatch.setitem(sys.modules, "mpmath", FakeMPMath())
+    with pytest.raises(ImportError):
+        Colebrook(1e5, 1e-4, tol=0)
 
 @pytest.mark.slow
 @pytest.mark.mpmath
@@ -247,6 +256,19 @@ def test_Colebrook_vs_Clamond():
 def test_Colebrook_hard_regimes():
     fd_inf_regime = Colebrook(104800000000, 2.55e-08)
     assert_close(fd_inf_regime, 0.0037751087365339906, rtol=1e-10)
+
+def test_friction_factor_methods_range_filters():
+    methods = friction_factor_methods(3000.0, 1e-4, check_ranges=True)
+    assert "Moody" not in methods
+
+    methods = friction_factor_methods(2e8, 1e-4, check_ranges=True)
+    assert "Moody" not in methods
+
+    methods = friction_factor_methods(1e6, 5e-6, check_ranges=True)
+    assert "Wood_1966" not in methods
+
+    methods = friction_factor_methods(2e4, 0.01, check_ranges=True)
+    assert "Papaevangelo_2010" not in methods
 
 
 def test_one_phase_dP():
@@ -340,6 +362,10 @@ def test_roughness_Farshad():
     with pytest.raises(Exception):
         roughness_Farshad("BADID", 0.05)
 
+def test_roughness_Farshad_requires_D():
+    with pytest.raises(ValueError):
+        roughness_Farshad(coeffs=(0.0021, -1.0055))
+
 @pytest.mark.skipif(not has_thefuzz, reason="missing thefuzz")
 def test_nearest_material_roughness():
     hit1 = nearest_material_roughness("condensate pipes", clean=False)
@@ -347,6 +373,10 @@ def test_nearest_material_roughness():
 
     hit2 = nearest_material_roughness("Plastic", clean=True)
     assert hit2 == "Plastic coated"
+
+def test_nearest_material_roughness_default_dataset():
+    hit = nearest_material_roughness("Condensate pipes")
+    assert hit == "Seamless steel tubes, Condensate pipes in open systems or periodically operated steam pipelines"
 
 
 @pytest.mark.skipif(not has_thefuzz, reason="missing thefuzz")

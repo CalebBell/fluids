@@ -131,12 +131,8 @@ from __future__ import annotations
 
 from cmath import sqrt as csqrt
 from math import acos, acosh, asin, atan, cos, degrees, isclose, log, log1p, pi, radians, sin, sqrt, tan
-from typing import TYPE_CHECKING
 
 from fluids.numerics import cacos, catan, chebval, derivative, ellipe, ellipeinc, ellipkinc, linspace, newton, quad, secant, translate_bound_func
-
-if TYPE_CHECKING:
-    from numpy import float64
 
 __all__: list[str] = [
     "TANK",
@@ -2114,7 +2110,7 @@ def SA_partial_horiz_ellipsoidal_head(D: float, a: float, h: float) -> float:
     return SA
 
 
-def _SA_partial_horiz_guppy_head_to_int(x: float, a: float, R: float) -> float64:
+def _SA_partial_horiz_guppy_head_to_int(x: float, a: float, R: float) -> float:
     x0 = a*a
     x1 = R - x
     x2 = x1*x1
@@ -2138,8 +2134,8 @@ def _SA_partial_horiz_guppy_head_to_int(x: float, a: float, R: float) -> float64
     x100 = (-2.0*R*x*x11 + x11*x5 + x11*x6 + x13)
     x20 = x1*x14*sqrt(x2*x5*(x0 + x2)/(x100*x100))/x5
     return 0.08333333333333333*(
-             (-4.0*x10**0.75*x16*x20*ellipeinc(x18, x19) + 4.0*x9
-             + 2.0*x17*x20*(a*x11 + x10)*ellipkinc(x18, x19)/x16
+             (-4.0*x10**0.75*x16*x20*float(ellipeinc(x18, x19)) + 4.0*x9
+             + 2.0*x17*x20*(a*x11 + x10)*float(ellipkinc(x18, x19))/x16
              + 8.0*x15*x9/x14)*1.0/sqrt(x4))
 
 

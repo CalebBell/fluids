@@ -575,25 +575,25 @@ def Stichlmair_wet(Vg: float, Vl: float, rhog: float, rhol: float, mug: float, v
     return secant(_Stichlmair_wet_err, dP_dry, args=(h0, c1, dP_dry, H, voidage, c))
 
 
-def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,
-                        C1, C2, C3, H):
-    """Internal function which calculates the errors of the two Stichlmair
-    objective functions, and their jacobian.
-    """
-    Vg, dP_irr = float(inputs[0]), float(inputs[1])
-    dp = 6.0*(1.0 - voidage)/specific_area
-    Re = Vg*rhog*dp/mug
-    f0 = C1/Re + C2/sqrt(Re) + C3
-    dP_dry = 0.75*f0*(1.0 - voidage)/voidage**4.65*rhog*H/dp*Vg*Vg
-    c = (-C1/Re - 0.5*C2*1.0/sqrt(Re))/f0
-    Frl = Vl*Vl*specific_area/(g*voidage**4.65)
-    h0 = 0.555*Frl**(1/3.)
-    hT = h0*(1.0 + 20.0*(dP_irr/H/rhol/g)**2)
-    err1 = dP_dry/H*((1.0 - voidage + hT)/(1.0 - voidage))**((2.0 + c)/3.)*(voidage/(voidage-hT))**4.65 - dP_irr/H
-    term = (dP_irr/(rhol*g*H))**2
-    err2 = (1./term - 40.0*((2.0+c)/3.)*h0/(1.0 - voidage + h0*(1.0 + 20.0*term))
-    - 186.0*h0/(voidage - h0*(1.0 + 20.0*term)))
-    return err1, err2
+# def _Stichlmair_flood_f(inputs, Vl, rhog, rhol, mug, voidage, specific_area,
+#                         C1, C2, C3, H):
+#     """Internal function which calculates the errors of the two Stichlmair
+#     objective functions, and their jacobian.
+#     """
+#     Vg, dP_irr = float(inputs[0]), float(inputs[1])
+#     dp = 6.0*(1.0 - voidage)/specific_area
+#     Re = Vg*rhog*dp/mug
+#     f0 = C1/Re + C2/sqrt(Re) + C3
+#     dP_dry = 0.75*f0*(1.0 - voidage)/voidage**4.65*rhog*H/dp*Vg*Vg
+#     c = (-C1/Re - 0.5*C2*1.0/sqrt(Re))/f0
+#     Frl = Vl*Vl*specific_area/(g*voidage**4.65)
+#     h0 = 0.555*Frl**(1/3.)
+#     hT = h0*(1.0 + 20.0*(dP_irr/H/rhol/g)**2)
+#     err1 = dP_dry/H*((1.0 - voidage + hT)/(1.0 - voidage))**((2.0 + c)/3.)*(voidage/(voidage-hT))**4.65 - dP_irr/H
+#     term = (dP_irr/(rhol*g*H))**2
+#     err2 = (1./term - 40.0*((2.0+c)/3.)*h0/(1.0 - voidage + h0*(1.0 + 20.0*term))
+#     - 186.0*h0/(voidage - h0*(1.0 + 20.0*term)))
+#     return err1, err2
 
 def _Stichlmair_flood_f_and_jac(inputs: list[float], Vl: float, rhog: float, rhol: float, mug: float, voidage: float,
                                 specific_area: float, C1: float, C2: float, C3: float, H: float) -> tuple[list[float], list[list[float]]]:

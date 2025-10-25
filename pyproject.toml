@@ -5,17 +5,17 @@ backend-path = ["_custom_build"]
 
 [project]
 name = "fluids"
-version = "1.2.0"
+version = "1.2.6"
 description = "Fluid dynamics component of Chemical Engineering Design Library (ChEDL)"
 readme = "README.rst"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = "MIT"
 authors = [
     {name = "Caleb Bell", email = "Caleb.Andrew.Bell@gmail.com"}
 ]
 keywords = [
     "fluid dynamics", "atmosphere", "pipe", "fluids", "compressible",
-    "fluid dynamics", "chemical engineering", "mechanical engineering",
+    "chemical engineering", "mechanical engineering",
     "valve", "open channel", "tank", "friction", "pressure drop",
     "two phase", "pump", "drag", "reynolds", "sedimentation",
     "engineering", "pipeline", "process simulation",
@@ -36,7 +36,6 @@ classifiers = [
     "Operating System :: Unix",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -57,15 +56,83 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-coverage-documentation = [
-    "wsgiref>=0.1.2",
-    "coverage>=4.0.3",
-    "pint"
+# Core testing (what all CI uses)
+test = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "pytest-xdist",
+    "sympy",
+    "thefuzz",
+    "pint",
+    "pytz",
+    "pandas",
+    "IPython",
+    "matplotlib",
+    "coveralls",
+]
+
+# For multiarch CI (lighter, no pandas/matplotlib issues, no coverage for speed)
+test-multiarch = [
+    "pytest>=6.0",
+    "thefuzz",
+    "pint",
+    "pytz",
+    "wheel",
+]
+
+# Optional performance boost (installed conditionally in CI)
+numba = [
+    "numba",
+    "coverage>=7.6.1",  # Required for numba 0.62+ compatibility (https://github.com/numba/numba/issues/10239)
+]
+
+# Documentation
+docs = [
+    "sphinx",
+    "numpydoc",
+    "nbsphinx",
+    "ipython",
+    "numba",
+    "sphinxcontrib-katex",
+    "sphinx-sitemap",
+    "sphinxcontrib-applehelp",
+    "sphinxcontrib-devhelp",
+    "sphinxcontrib-htmlhelp",
+    "sphinxcontrib-qthelp",
+    "sphinxcontrib-serializinghtml",
+    "sphinxcontrib.googleanalytics",
+    "matplotlib",
+    "pint",
+]
+
+# Linting and type checking
+lint = ["ruff", "mypy"]
+
+# Pre-release validation
+prerelease = [
+    "fluids[test]",
+    "fluids[docs]",
+    "nbval",
+    "jacobi",
+    "numdifftools",
+    "mpmath",
+]
+
+# Security scanning
+security = ["pip-audit", "bandit"]
+
+# Local development (everything)
+dev = [
+    "fluids[test,numba,docs,lint,security]",
+    "prek",
+    "wheel",
+    "build",
+    "twine",
 ]
 
 [project.urls]
 Homepage = "https://github.com/CalebBell/fluids"
-Download = "https://github.com/CalebBell/fluids/tarball/1.2.0"
+Download = "https://github.com/CalebBell/fluids/tarball/1.2.6"
 
 [tool.setuptools]
 packages = ["fluids"]
@@ -77,4 +144,197 @@ fluids = [
     "optional/*.py",
     "numerics/*",
     "constants/*"
+]
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+omit = [
+    "*nrlmsise_00.py",
+    "*arrays.py",
+    "*design_climate.py",
+    "*pychebfun.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+]
+
+[tool.mypy]
+exclude = [
+    "^_build/",
+    "^_custom_build/",
+    "^build/",
+    "^dist/",
+    ".*\\.egg-info/",
+    "^venv/",
+    "^\\.venv/",
+    "^benchmarks/",
+    "^dev/",
+    "^notebooks/",
+]
+
+[[tool.mypy.overrides]]
+module = [
+    "scipy.*",
+    "numba.*",
+    "mpmath.*",
+    "sympy.*",
+    "matplotlib.*",
+    "geopy.*",
+    "appdirs.*",
+    "pandas.*",
+    "pvlib.*",
+    "pint.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "fluids.numerics"
+follow_imports = "skip"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "fluids.numerics.*"
+ignore_errors = true
+
+[tool.ruff]
+line-length = 160
+target-version = "py37"
+exclude = ["*.pyi"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+extend-ignore = [
+    "FBT001",  # boolean positional argument
+    "PD008",  # .at with pandas is fine with me
+    "PD011",  # Use .values instead of .to_numpy() - I prefer not to copy arrays
+    "RUF059",  # Allow unused variables
+    "FIX002",  # TODO are OK
+    "FIX004",  # HACK is OK
+    "SIM109",  # multiple equality comparisons are more performant than a set in small cases
+    "PLR1714",  # multiple equality comparisons are more performant than a set in small cases
+    "D415",  # First docstring line should end with a period, question mark, or exclamation point
+    "DTZ004",  # utcfromtimestamp makes sense for atmosphere model
+    "PGH003",  # type ignoring makes sense for numba-related things
+    "S102",  # Yes, exec is dangerous but it can be quite useful as well
+    "PYI056",  # changing __all__
+    "RUF012",  # not using typing today
+    "PERF403",  # obvious, use an autofix if one becomes available
+    "PERF203",  # `try`-`except` within a loop incurs performance overhead
+    "PERF401",  # PERF401 Use a list comprehension to create a transformed list
+    "PLR1730",  # use of min/max are less performant than `if
+    "PLC0415",  # Allow lazy imports
+    # chemicals specific
+    "E701",  # lots of this here
+    "S302",  # marshal is OK
+    "SIM116",  # 3 if statements does not require a dict
+    # maybe these
+    "PLE0605",
+    "PLE0604",
+    "TD002", "TD003", "TD004", "TD005",
+    # Originally from astropy's pyproject.toml, see about removing many of them later
+    "A00",
+    "ANN",
+    "ARG001", "ARG002", "ARG005",
+    "B004",
+    "B006",
+    "B007",
+    "B008",
+    "B904",
+    "BLE001",
+    "C408", "C416",
+    "C901",
+    "COM812",
+    "COM819",
+    "D101",
+    "D102",
+    "D103",
+    "D105",
+    "D107",
+    "D200",
+    "D203",
+    "D205",
+    "D212", "D213",
+    "D403",
+    "D404",
+    "D400",
+    "D401",
+    "D413",
+    "D414",
+    "D417",
+    "DTZ001", "DTZ007",
+    "E501",
+    # "E711",
+    "E721",
+    "E731",
+    "E741",
+    "EM",
+    "ERA001",
+    "F841",
+    "E722",
+    "FBT002", "FBT003",
+    "N8",
+    "PLR2004",
+    "PLR0911",
+    "PLR0912",
+    "PLR5501",
+    "PLR0913",
+    "PLR0915",
+    "PLW2901",
+    "PLW0603",
+    "PTH",
+    "RET",
+    "RSE102",
+    "RUF001",
+    "RUF003",  # greek characters are used in this project e.g. for allotropes
+    "RUF005",  # this one is not micropython compatible
+    # "S101",  # Use assert - removed from global ignore, now controlled by per-file-ignores below
+    "S110",
+    "S112",
+    "S311",
+    "S310",
+    "SIM102",
+    "SIM105",
+    "SIM108",
+    "SIM114",
+    "SIM115",
+    "SIM118",
+    "SIM300",
+    "SLF001",
+    "T201",
+    "TRY003",
+    "TRY201",
+    "TRY300",
+    "TRY301",
+    "PYI024",  # PYI024 Use `typing.NamedTuple` instead of `collections.namedtuple
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+# Allow asserts and star imports in test files
+"tests/**/*.py" = ["S101", "F403", "F405", "PT011", "B017", "TRY002"]  # asserts, star imports, broad exceptions OK in tests
+"**/test_*.py" = ["S101", "F403", "F405", "PT011", "B017", "TRY002"]
+# Allow asserts and star imports in documentation examples
+"docs/**/*.py" = ["S101", "F403", "F405", "PT011", "B017", "TRY002"]
+"docs/**/*.ipynb" = ["S101", "F403", "F405", "PT011", "B017", "TRY002"]
+
+[tool.pytest.ini_options]
+addopts = "--doctest-glob='*.rst' --ignore='manual_runner.py'"
+norecursedirs = [".cache", ".git", "htmlcov", "notebooks", "dist", "build", "*.egg-info", ".tox", "surfaces", "prof", "benchmarks", "dev", "_build", "__pycache__"]
+doctest_optionflags = ["NORMALIZE_WHITESPACE"]
+markers = [
+    "slow: slow tests",
+    "thermo: relies on the thermo library, for integration testing",
+    "online: needs internet",
+    "mpmath: needs mpmath to check results against a higher-precision result",
+    "fuzz: test not relevant to normal development, but can reveal bugs or provide certainty the results are correct",
+    "numba: numba",
+    "scipy: Needs scipy to work",
+    "numpy: Needs numpy to work",
+    "pytz: Needs pytz to work",
 ]

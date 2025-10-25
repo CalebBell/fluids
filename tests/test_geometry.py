@@ -70,6 +70,7 @@ from fluids import (
     V_vertical_spherical_concave,
     V_vertical_torispherical,
     V_vertical_torispherical_concave,
+    V_tank,
     a_torispherical,
     aspect_ratio,
     circle_segment_h_from_A,
@@ -247,6 +248,9 @@ def test_V_horiz_torispherical():
     assert_close(V_horiz_torispherical(2, 0, 0.9, 0.17, 1.8301830183018302), 2.0778125327193195, rtol=1e-9)
     assert_close(V_horiz_torispherical(1.018018018018018, 0, 0.8, 0.1, 1), 0.2316373202419867, rtol=1e-9)
 
+    with pytest.raises(ValueError):
+        V_horiz_torispherical(108.0, 156.0, None, 0.06, 36.0)
+
 def test_V_vertical_conical():
     # Two examples from [1]_, and at empty and h=D.
     Vs_calc = [V_vertical_conical(132., 33., i)/231. for i in [24, 60, 0, 132]]
@@ -277,6 +281,9 @@ def test_V_vertical_torispherical():
     Vs = [904.0688283793511, 3036.7614412163075, 0.0, 1.7906624793188568, 785.587561468186, 7302.146666890221]
     assert_close1d(Vs_calc, Vs)
     assert 0.0 == V_vertical_torispherical(132., 1.0, 0.06, 0.0)
+
+    with pytest.raises(ValueError):
+        V_vertical_torispherical(132.0, None, 0.06, 5.0)
 
 def test_V_vertical_conical_concave():
     # Three examples from [1]_, and at empty and with h=D.
@@ -413,6 +420,44 @@ def test_geometry():
     assert_close(V_from_h(h=7, D=1.5, L=5., horizontal=False),
                 V_from_h(h=5, D=1.5, L=5., horizontal=False),)
 
+
+def test_V_from_h_branch_coverage():
+    vol_conical = V_from_h(
+        h=3.5, D=10.0, L=25.0, horizontal=True,
+        sideA="conical", sideB="conical", sideA_a=2.0, sideB_a=2.0
+    )
+    assert_close(vol_conical, 637.262305170762, rtol=1e-12)
+
+    vol_guppy = V_from_h(
+        h=3.5, D=10.0, L=25.0, horizontal=True,
+        sideA="guppy", sideB="guppy", sideA_a=2.0, sideB_a=2.0
+    )
+    assert_close(vol_guppy, 625.8244884491141, rtol=1e-12)
+
+    vol_spherical = V_from_h(
+        h=3.5, D=10.0, L=25.0, horizontal=True,
+        sideA="spherical", sideB="spherical", sideA_a=2.0, sideB_a=2.0
+    )
+    assert_close(vol_spherical, 655.6243852843909, rtol=1e-12)
+
+    ellipsoidal_single = V_from_h(
+        h=3.5, D=10.0, L=25.0, horizontal=True,
+        sideA=None, sideB="ellipsoidal", sideB_a=2.0
+    )
+    assert_close(ellipsoidal_single, 641.9559862264738, rtol=1e-12)
+
+    with pytest.raises(ValueError):
+        V_from_h(
+            h=1.0, D=5.0, L=10.0, horizontal=True,
+            sideA="torispherical", sideA_a=1.0
+        )
+    with pytest.raises(ValueError):
+        V_from_h(
+            h=1.0, D=5.0, L=10.0, horizontal=True,
+            sideB="torispherical", sideB_a=1.0
+        )
+
+
 def test_TANK_cross_sectional_area():
     T1 = TANK(L=120*inch, D=72*inch, horizontal=False, sideA="torispherical" ,sideB="same")
 
@@ -427,6 +472,85 @@ def test_from_two_specs():
     assert_close(T1.V_total, T0.V_total)
     assert_close(T0.A_cross_sectional(1.5), T1.A_cross_sectional(1e-10))
 
+def test_from_two_specs_all_targets():
+    base = TANK(horizontal=True, L=6.0, D=2.4)
+    h = 1.1
+    targets = {
+        "V": base.V_total,
+        "SA": base.A,
+        "V_partial": base.V_from_h(h),
+        "SA_partial": base.SA_from_h(h),
+        "A_cross": base.A_cross_sectional(h),
+    }
+
+    def compute(tank, name):
+        if name == "V":
+            return tank.V_total
+        if name == "SA":
+            return tank.A
+        if name == "V_partial":
+            return tank.V_from_h(h)
+        if name == "SA_partial":
+            return tank.SA_from_h(h)
+        if name == "A_cross":
+            return tank.A_cross_sectional(h)
+        raise ValueError(name)
+
+    combos = [
+        ("V", "SA"),
+        ("SA", "A_cross"),
+        ("A_cross", "V"),
+        ("V_partial", "SA_partial"),
+        ("SA_partial", "V"),
+        ("SA", "V_partial"),
+    ]
+
+    for spec0_name, spec1_name in combos:
+        tank = TANK.from_two_specs(
+            targets[spec0_name],
+            targets[spec1_name],
+            spec0_name=spec0_name,
+            spec1_name=spec1_name,
+            h=h,
+            horizontal=True,
+        )
+        assert_close(compute(tank, spec0_name), targets[spec0_name], rtol=1e-8)
+        assert_close(compute(tank, spec1_name), targets[spec1_name], rtol=1e-8)
+
+def test_TANK_repr_round_trip():
+    tank = TANK(
+        D=2.8,
+        L=6.4,
+        horizontal=False,
+        sideA="conical",
+        sideA_a=0.45,
+        sideB="ellipsoidal",
+        sideB_a=0.62,
+    )
+    recreated = eval(repr(tank), {"TANK": TANK})
+    assert_TANKs_equal(tank, recreated)
+
+    torispherical = TANK(
+        D=1.6,
+        L=4.2,
+        horizontal=True,
+        sideA="torispherical",
+        sideA_f=1.0,
+        sideA_k=0.06,
+        sideB="same",
+    )
+    recreated_torispherical = eval(repr(torispherical), {"TANK": TANK})
+    assert_TANKs_equal(torispherical, recreated_torispherical)
+
+def test_TANK_hash_behavior():
+    base = TANK(D=3.1, L=5.5, horizontal=True)
+    same = TANK(D=3.1, L=5.5, horizontal=True)
+    assert hash(base) == hash(same)
+
+    altered = TANK(D=3.1, L=5.6, horizontal=True)
+    assert hash(base) != hash(altered)
+
+    assert len({hash(base), hash(altered)}) == 2
 
 def test_SA_partial():
     # Checked with
@@ -438,6 +562,75 @@ def test_SA_partial():
     # Checked at https://www.aqua-calc.com/calculate/volume-in-a-horizontal-cylinder
     assert_close(A_partial_circle(D=72, h=24), 1188.02989891)
     assert_close(A_partial_circle(D=72, h=72), 0.25*pi*72**2)
+
+def test_SA_from_h_branch_coverage():
+    with pytest.raises(ValueError):
+        SA_from_h(
+            h=1.0, D=5.0, L=10.0, horizontal=True,
+            sideA="torispherical", sideA_a=1.0
+        )
+    with pytest.raises(ValueError):
+        SA_from_h(
+            h=1.0, D=5.0, L=10.0, horizontal=True,
+            sideB="torispherical", sideB_a=1.0
+        )
+    with pytest.raises(ValueError):
+        SA_from_h(
+            h=4.5, D=4.0, L=3.0, horizontal=False,
+            sideA="conical", sideA_a=1.0,
+            sideB="torispherical", sideB_a=1.0
+        )
+    D = 2.0
+    L = 3.0
+    flat_sa = SA_from_h(h=L, D=D, L=L, horizontal=False, sideA=None, sideB=None)
+    expected = 0.25*pi*D*D*2 + pi*D*L
+    assert_close(flat_sa, expected, rtol=1e-12)
+
+def test_SA_tank_branch_coverage():
+    with pytest.raises(ValueError):
+        SA_tank(D=1.0, L=2.0, sideA="torispherical", sideA_a=0.3)
+    with pytest.raises(ValueError):
+        SA_tank(D=1.0, L=2.0, sideB="torispherical", sideB_a=0.3)
+    SA_total, SA_A, SA_B, SA_lat = SA_tank(
+        D=1.0, L=2.0, sideA="conical", sideA_a=0.3,
+        sideB="spherical", sideB_a=0.4
+    )
+    assert_close(SA_A, 0.9159237818140739, rtol=1e-12)
+    assert_close(SA_B, 1.2880529879718152, rtol=1e-12)
+    assert_close(SA_lat, 6.283185307179586, rtol=1e-12)
+    assert_close(SA_total, 8.487162076965475, rtol=1e-12)
+
+def test_V_tank_branch_coverage():
+    with pytest.raises(ValueError):
+        V_tank(D=2.0, L=3.0, horizontal=True, sideA="torispherical", sideA_a=0.5)
+    with pytest.raises(ValueError):
+        V_tank(D=2.0, L=3.0, horizontal=True, sideB="torispherical", sideB_a=0.5)
+
+    total, vA, vB, v_lat = V_tank(
+        D=2.0, L=3.0, horizontal=True,
+        sideA="conical", sideA_a=0.5,
+        sideB="ellipsoidal", sideB_a=0.6
+    )
+    assert_close(vA, 0.5235987755982988, rtol=1e-12)
+    assert_close(vB, 1.2566370614359175, rtol=1e-12)
+    assert_close(v_lat, 9.42477796076938, rtol=1e-12)
+    assert_close(total, 11.205013797803595, rtol=1e-12)
+
+    total_g, _, vB_g, _ = V_tank(
+        D=2.0, L=3.0, horizontal=True,
+        sideA="conical", sideA_a=0.3,
+        sideB="guppy", sideB_a=0.4
+    )
+    assert_close(vB_g, 0.41887902047863906, rtol=1e-12)
+    assert_close(total_g, 10.157816246606998, rtol=1e-12)
+
+    total_s, _, vB_s, _ = V_tank(
+        D=2.0, L=3.0, horizontal=True,
+        sideA="conical", sideA_a=0.3,
+        sideB="spherical", sideB_a=0.4
+    )
+    assert_close(vB_s, 0.6618288523562498, rtol=1e-12)
+    assert_close(total_s, 10.400766078484608, rtol=1e-12)
     assert_close(A_partial_circle(D=72, h=0), 0)
 
     # hard checks
