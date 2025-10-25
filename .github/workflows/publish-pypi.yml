@@ -1,4 +1,4 @@
-name: Publish to TestPyPI
+name: Publish to PyPI
 on:
   release:
     types: [published]
@@ -11,7 +11,7 @@ jobs:
     uses: ./.github/workflows/quality.yml
   
   publish:
-    # This job publishes to TestPyPI when a GitHub release is created with a tag starting with 'v' on the release branch.
+    # This job publishes to PyPI when a GitHub release is created with a tag starting with 'v' on the release branch.
     #
     # Requirements:
     # - Repository admin must create a release with a tag starting with 'v' (e.g., v1.2.3)
@@ -21,7 +21,7 @@ jobs:
     # Security notes:
     # - The tag and branch checks in this job are soft checks (can be bypassed by modifying workflow)
     # - Real security enforcement comes from the 'pypi' environment which requires manual approval by org admin
-    # - This provides a final gate before any code is published to TestPyPI
+    # - This provides a final gate before any code is published to PyPI
     needs: test
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
@@ -48,6 +48,4 @@ jobs:
           path: dist/
       
       - name: Upload to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/        
+        uses: pypa/gh-action-pypi-publish@release/v1        
