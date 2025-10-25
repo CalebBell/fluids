@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+      # The release branch check can be added but it isn't security, it is just for user assistance
       # - name: Check if tag is on release branch
       #   run: |
       #     if ! git branch -r --contains ${{ github.ref }} | grep -q 'origin/release'; then
