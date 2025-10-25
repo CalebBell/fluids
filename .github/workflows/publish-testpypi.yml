@@ -1,8 +1,8 @@
 name: Publish to TestPyPI
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
+
 permissions:
   id-token: write
   contents: read
