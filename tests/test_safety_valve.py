@@ -68,6 +68,8 @@ def test_safety_valve():
     B_calc = [API520_B(1E6, 3E5), API520_B(1E6, 5E5), API520_B(1E6, 5E5, overpressure=.16), API520_B(1E6, 5E5, overpressure=.21)]
     Bs = [1, 0.7929945420944432, 0.94825439189912, 1]
     assert_close1d(B_calc, Bs)
+    partial_backpressure = API520_B(1E6, 450000.0, overpressure=0.1)
+    assert_close(partial_backpressure, 0.8879198992719242)
 
     # Issue # 45
     assert 1 == API520_B(2*atm, 1.5*atm, overpressure=.21)
@@ -88,6 +90,8 @@ def test_API520_Kv():
     assert_close1d(Kv_calcs, Kvs)
 
     assert API520_Kv(1e9, edition="7E") == 1
+    with pytest.raises(ValueError):
+        API520_Kv(100, edition="BAD")
 
     assert_close(API520_Kv(4525, edition="10E"), 0.9817287137013179)
 
@@ -110,6 +114,8 @@ def test_API520_SH():
         API520_SH(593+273.15, 23E6, "10E")
     with pytest.raises(Exception):
         API520_SH(1000, 1066E3, "10E")
+    with pytest.raises(ValueError):
+        API520_SH(470, 1066E3, "BAD")
 
     assert API520_SH(470, 1066E3, "10E") == 1.0
     from fluids.safety_valve import _KSH_K_10E, _KSH_Pa_10E

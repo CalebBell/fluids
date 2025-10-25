@@ -30,7 +30,7 @@ The only bit included right now are the plots, which should run without an
 error; no contents checking is performed.
 """
 plots_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs", "plots")
-plot_files = [i for i in os.listdir(plots_folder) if i.endswith(".py")]
+plot_files = [i for i in os.listdir(plots_folder) if i.endswith(".py")] if os.path.exists(plots_folder) else []
 print(plot_files)
 
 @pytest.mark.parametrize("file", plot_files)

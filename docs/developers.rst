@@ -89,7 +89,7 @@ Type hints are a work in progress. After numerous years supporting old python ve
 
 Supported Python Versions
 -------------------------
-Fluids targets Python 3.8 and up as well as PyPy3. Additionally, fluids has been tested by the author at various points to load in Micropython.
+Fluids targets Python 3.9 and up as well as PyPy3. Additionally, fluids has been tested by the author at various points to load in Micropython.
 
 Unfortunately there is no CI infrastructure for these other Python implementations. 
 For Micropython there is no NumPy/SciPy which means there is no hope of passing the whole test suite on them either; indeed pytest won't load on any of them.

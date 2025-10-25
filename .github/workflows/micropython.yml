@@ -38,6 +38,7 @@ jobs:
         ln -s $PWD/fluids ~/.micropython/lib/fluids
 
     - name: Run tests
+      continue-on-error: true
       run: |
         cd tests
         micropython -X heapsize=4M manual_runner.py

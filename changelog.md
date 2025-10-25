@@ -2,6 +2,52 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2025-10-19
+
+### Added
+
+- Python 3.13 and 3.13t (free-threaded) support with PYTHON_GIL=0 configuration
+- MicroPython support with dedicated CI testing workflow and pytest shim
+- Pre-commit configuration with Ruff, mdformat, and file validators
+- New GitHub Actions workflows for pre-commit checks, MicroPython testing, and security scanning
+- Packaging compatibility workflows for cx_Freeze, PyInstaller, and py2exe
+- Standalone test scripts and demo builders for verifying packaged distributions
+- Coverage HTML artifact uploads to all test workflows
+- Concurrency controls to workflows to cancel redundant builds
+- Justfile for streamlined development tasks (setup, docs, test, typecheck, lint)
+- Security scanning with pip-audit and bandit
+
+### Changed
+
+- Minimum Python version raised from 3.6 to 3.8
+- Updated actions to latest versions (setup-qemu v3, run-on-arch v3)
+- Updated macOS CI runners (macos-13 → macos-15-intel, added macos-latest for ARM)
+- Enhanced thread safety in ATMOSPHERE_NRLMSISE00 for GIL-less Python compatibility
+- Extensive code quality improvements with Ruff linting across entire codebase:
+  - String quote normalization to double quotes
+  - Removed unused imports and variables
+  - Improved code formatting and PEP 8 compliance
+  - Better type hints compatibility
+- Merged type hints across the codebase with improved accuracy
+- Fixed multi-architecture builds for RISC-V (libatlas-base-dev now optional)
+- Updated copyright year to 2025
+- Fixed numerous typos across documentation files
+- Improved Sphinx configuration for Python 3.13 compatibility
+- Enhanced docstring and markdown formatting
+- Updated README to reflect Python 3.8+ requirement and MicroPython support
+
+### Removed
+
+- Dropped Python 3.6 and 3.7 support
+- Removed AppVeyor CI (no longer used for years)
+- Removed AppVeyor badge from README
+- Removed IronPython mention from README
+- Removed obsolete platform-specific exclusions
+
+### Security
+
+- Added automated security scanning workflow documented in SECURITY.md
+
 ## [1.1.0] - 2024-12-07
 
 ### Added

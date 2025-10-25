@@ -1902,10 +1902,10 @@ def assert_close(a, b, rtol=1e-7, atol=0.0):
         # Do not run these branches in -O, -OO mode
         try:
             try:
-                assert isclose(a, b, rel_tol=rtol, abs_tol=atol)
+                assert isclose(a, b, rel_tol=rtol, abs_tol=atol)  # noqa: S101
                 return
             except:
-                assert cisclose(a, b, rel_tol=rtol, abs_tol=atol)
+                assert cisclose(a, b, rel_tol=rtol, abs_tol=atol)  # noqa: S101
                 return
         except:
             pass

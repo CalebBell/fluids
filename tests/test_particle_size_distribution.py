@@ -37,6 +37,7 @@ from fluids.particle_size_distribution import (
     PSDCustom,
     PSDInterpolated,
     PSDLognormal,
+    Sieve,
     cdf_Gates_Gaudin_Schuhman,
     cdf_lognormal,
     cdf_Rosin_Rammler,
@@ -69,6 +70,23 @@ def test_ASTM_E11_sieves():
     tot = 0.0
     for attr in ["Y_variation_avg", "X_variation_max", "max_opening", "d_wire", "d_wire_min", "d_wire_max", "opening", "opening_inch"]:
         tot += sum(getattr(i, attr) for i in sieves)
+
+
+def test_sieve_repr_includes_set_fields():
+    sieve = Sieve(
+        designation="10",
+        opening=0.01,
+        old_designation="No.10",
+        opening_inch=0.4,
+        compliance_sd=0.5,
+    )
+    text = repr(sieve)
+    assert text.startswith("Sieve(")
+    assert "designation='10'" in text
+    assert "opening=0.01" in text
+    assert "old_designation='No.10'" in text
+    assert "compliance_sd=0.5" in text
+    assert "inspection_sd" not in text
 
 def test_ISO_3310_2_sieves():
     sieves = ISO_3310_1_sieves.values()

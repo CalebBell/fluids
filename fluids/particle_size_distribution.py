@@ -182,7 +182,6 @@ class Sieve:
         "X_variation_max",
         "Y_variation_avg",
         "calibration_samples",
-        "calibration_samples",
         "calibration_sd",
         "compliance_samples",
         "compliance_sd",
@@ -199,18 +198,18 @@ class Sieve:
     )
 
     def __repr__(self):
-        s = "Sieve(%s)"
-        s2 = ""
+        fields = []
         for attr in self.__slots__:
             value = getattr(self, attr)
-            if value is not None:
-                if type(value) == float:
-                    value = f"{value:g}"
-                elif type(value) == str:
-                    value = "'" + value + "'"
-                s2 += f"{attr}={value}, "
-        s2 = s2[0:-2]
-        return s %(s2)
+            if value is None:
+                continue
+            if isinstance(value, float):
+                rendered = f"{value:g}"
+            else:
+                rendered = repr(value)
+            fields.append(f"{attr}={rendered}")
+        params = ", ".join(fields)
+        return f"Sieve({params})"
 
     def __str__(self):
         return f"<Sieve, designation {self.designation} mm, opening {self.opening:g} m>"
