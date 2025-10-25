@@ -168,7 +168,7 @@ def all_submodules(with_numerics=True):
     return new_submodules
 
 
-__version__ = "1.2.6"
+__version__ = "1.2.7"
 
 try:
     fluids_dir = os.path.dirname(__file__)
