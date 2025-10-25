@@ -16,19 +16,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     environment:
       name: pypi
-    steps:
-      - name: Checkout to verify branch
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      # The release branch check can be added but it isn't security, it is just for user assistance
-      # - name: Check if tag is on release branch
-      #   run: |
-      #     if ! git branch -r --contains ${{ github.ref }} | grep -q 'origin/release'; then
-      #       echo "Tag is not on release branch"
-      #       exit 1
-      #     fi
-      
+    steps:      
       - name: Download distributions
         uses: actions/download-artifact@v4
         with:
