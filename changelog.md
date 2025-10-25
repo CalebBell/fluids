@@ -2,6 +2,42 @@
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-10-25
+
+### Added
+
+- Project is now PEP 517 compliant and doesn't use deprecated setup.py commands anymore
+- GitHub Actions workflow for publishing to PyPI using environment protection
+- `uv` package manager integration across CI workflows for faster dependency resolution
+- New consolidated `quality.yml` workflow for linting and testing
+- New `build_third_party_packagers.yml` workflow consolidating cx_Freeze, PyInstaller, Nuitka, and py2exe testing
+- Pre-commit hooks configuration
+- Justfile with extensive development automation commands - github actions have been refactored use this where possible, making them locally debuggable
+
+### Changed
+
+- **Breaking**: Dropped Python 3.8 support; minimum Python version is now 3.9
+- Migrated from setup.py to pyproject.toml-only configuration (PEP 517)
+- Consolidated multiarch CI workflows with reduced test matrix for improved performance
+- Simplified third-party packager testing into single consolidated workflow
+- Moved coverage configuration from .coveragerc to pyproject.toml
+- Moved pytest configuration from pytest.ini to pyproject.toml
+- Moved mypy configuration from mypy.ini to pyproject.toml
+- Moved Ruff configuration from .ruff.toml to pyproject.toml
+- Reorganized development requirements into pyproject.toml optional dependencies
+
+### Removed
+
+- Removed setup.py (replaced by pyproject.toml)
+- Removed standalone configuration files: .coveragerc, pytest.ini, mypy.ini, .ruff.toml
+- Removed separate workflow files: build_cxfreeze_library.yml, build_nuitka_library.yml, build_py2exe_library.yml, build_pyinstaller_library.yml
+- Removed pre-commit.yml and security.yml workflows (consolidated into quality.yml)
+- Removed separate requirements files (test, docs, multiarch) - now in pyproject.toml
+
+### Security
+
+- Implemented PyPI publishing workflow with manual approval gate
+
 ## [1.2.0] - 2025-10-19
 
 ### Added
