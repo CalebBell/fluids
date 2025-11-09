@@ -381,7 +381,8 @@ def test_bend_rounded_Miller_fuzz():
         L_unimpeded = log_uniform(1e-10, Di*1000)
         ans = bend_rounded_Miller(Di=Di, rc=rc, angle=angle, Re=Re, roughness=roughness, L_unimpeded=L_unimpeded)
         if isnan(ans) or isinf(ans):
-            raise Exception
+            raise ValueError(f"bend_rounded_Miller returned {ans} (NaN or Inf) for iteration {i} with inputs: "
+                           f"Di={Di}, rc={rc}, angle={angle}, Re={Re}, roughness={roughness}, L_unimpeded={L_unimpeded}")
         answers.append(ans)
 
     assert min(answers) >= 0
@@ -401,10 +402,49 @@ def test_bend_miter_Miller_fuzz():
         L_unimpeded = log_uniform(1e-10, Di*1000)
         ans = bend_miter_Miller(Di=Di, angle=angle, Re=Re, roughness=roughness, L_unimpeded=L_unimpeded)
         if isnan(ans) or isinf(ans):
-            raise Exception
+            raise ValueError(f"bend_miter_Miller returned {ans} (NaN or Inf) for iteration {i} with inputs: "
+                           f"Di={Di}, angle={angle}, Re={Re}, roughness={roughness}, L_unimpeded={L_unimpeded}")
         answers.append(ans)
     assert min(answers) >= 0
     assert max(answers) < 1E10
+
+
+def test_bend_rounded_Miller_low_reynolds():
+    """Test bend_rounded_Miller with very low Reynolds numbers.
+
+    This regression test ensures the function handles Re < 10 correctly
+    by using the laminar friction factor.
+    """
+    # Test case from fuzz test that previously caused NaN
+    result = bend_rounded_Miller(
+        Di=0.00025245895305993035,
+        rc=37.99385703460886,
+        angle=52.57154092916064,
+        Re=0.001290870786759309,
+        roughness=9.942554664171295e-05,
+        L_unimpeded=0.0007564261748889764
+    )
+    assert not isnan(result) and not isinf(result)
+    assert result >= 0
+
+
+
+def test_bend_miter_Miller_low_reynolds():
+    """Test bend_miter_Miller with very low Reynolds numbers.
+
+    This regression test ensures the function handles Re < 10 correctly
+    by using the laminar friction factor.
+    """
+    # Test case from fuzz test that previously caused NaN
+    result = bend_miter_Miller(
+        Di=0.003999207676352377,
+        angle=92.66290646488801,
+        Re=0.012296888674028263,
+        roughness=0.001190520629756548,
+        L_unimpeded=2.5794212409839814e-06
+    )
+    assert not isnan(result) and not isinf(result)
+    assert result >= 0
 
 
 ### Diffusers
