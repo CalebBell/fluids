@@ -1,9 +1,9 @@
 Solved Fluids Mechanics Problems
 ================================
 
-A collection of problems from Crane TP 410 have been solved using the fluids library.
+A collection of problems from Crane TP 410 have been solved using the Fluids library.
 These are industrially relevant problems. Crane TP 410 is used extensively as a source in
-fluids, although often there are better correlations that are implemented and chosen as default methods.
+Fluids, although often there are better correlations that are implemented and chosen as default methods.
 All problems include a description of the problems, but Crane TP 410 includes schematics that are
 not included here. A copy can be obtained from your local library or bought `here <https://store.flowoffluids.com/Book-CraneTP410.html>`_.
 

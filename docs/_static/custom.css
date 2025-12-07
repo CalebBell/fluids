@@ -1,0 +1,16 @@
+/* Fix for Sphinx issue #11000: nature theme sidebar overflow with autodoc names */
+/* See: https://github.com/sphinx-doc/sphinx/issues/11000 */
+
+/* Increase sidebar width to accommodate longer names */
+div.documentwrapper div.bodywrapper {
+    margin-left: 250px;
+}
+
+div.document div.sphinxsidebar {
+    width: 250px;
+}
+
+/* Add scrollbar for overflowing content */
+div.sphinxsidebarwrapper div {
+    overflow: auto;
+}
