@@ -17,10 +17,46 @@ other flow meters, ejectors, relief valves, and more.
 Module Contents:
 
 .. toctree::
-   :maxdepth: 2
-   
+   :maxdepth: 1
+   :caption: Tutorial
+
    tutorial.rst
-   modules.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: API
+
+   fluids.atmosphere
+   fluids.compressible
+   fluids.control_valve
+   fluids.core
+   fluids.drag
+   fluids.filters
+   fluids.fittings
+   fluids.flow_meter
+   fluids.friction
+   fluids.geometry
+   fluids.jet_pump
+   fluids.mixing
+   fluids.numba
+   fluids.open_flow
+   fluids.packed_bed
+   fluids.packed_tower
+   fluids.particle_size_distribution
+   fluids.piping
+   fluids.pump
+   fluids.safety_valve
+   fluids.separator
+   fluids.saltation
+   fluids.two_phase
+   fluids.two_phase_voidage
+   fluids.units
+   fluids.vectorized
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Additional Resources
+
    examples.rst
    data.rst
    sample_programs.rst
@@ -68,7 +104,7 @@ To get the git version, run:
 Latest source code
 ------------------
 
-The latest development version of fluids's sources can be obtained at
+The latest development version of Fluids's sources can be obtained at
 
     https://github.com/CalebBell/fluids
 
@@ -76,7 +112,7 @@ The latest development version of fluids's sources can be obtained at
 Bug reports
 -----------
 
-To report bugs, please use the fluids's Bug Tracker at:
+To report bugs, please use the Fluids's Bug Tracker at:
 
     https://github.com/CalebBell/fluids/issues
     

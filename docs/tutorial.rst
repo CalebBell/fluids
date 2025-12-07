@@ -1,4 +1,4 @@
-fluids tutorial
+Fluids Tutorial
 ===============
 
 Importing
@@ -14,7 +14,7 @@ All functions are available from either the main fluids module or the
 submodule; i.e. both fluids.friction_factor and 
 fluids.friction.friction_factor are valid ways of accessing a function.
 
-Design philosophy
+Design Philosophy
 -----------------
 Like all libraries, this was developed to scratch my own itches. Since its
 public release it has been found useful by many others, from students across 
@@ -60,7 +60,7 @@ with a different import.
 
 >>> from fluids.numba_vectorized import * # doctest: +SKIP
 
-Dimensionless numbers
+Dimensionless Numbers
 ---------------------
 
 More than 30 Dimensionless numbers are available in :py:mod:`fluids.core` :
@@ -97,7 +97,7 @@ transfer version; it always requires mass diffusivity.
 
 Among the coded dimensionless numbers are :py:func:`~.Archimedes`, :py:func:`~.Bejan_L`, :py:func:`~.Bejan_p`, :py:func:`~.Biot`, :py:func:`~.Boiling`, :py:func:`~.Bond`, :py:func:`~.Capillary`, :py:func:`~.Cavitation`, :py:func:`~.Confinement`, :py:func:`~.Dean`, :py:func:`~.Drag`, :py:func:`~.Eckert`, :py:func:`~.Euler`, :py:func:`~.Fourier_heat`, :py:func:`~.Fourier_mass`, :py:func:`~.Froude_densimetric`, :py:func:`~.Froude`, :py:func:`~.Graetz_heat`, :py:func:`~.Grashof`, :py:func:`~.Hagen`, :py:func:`~.Jakob`, :py:func:`~.Knudsen`, :py:func:`~.Lewis`, :py:func:`~.Mach`, :py:func:`~.Nusselt`, :py:func:`~.Ohnesorge`, :py:func:`~.Peclet_heat`, :py:func:`~.Peclet_mass`, :py:func:`~.Power_number`, :py:func:`~.Prandtl`, :py:func:`~.Rayleigh`, :py:func:`~.Reynolds`, :py:func:`~.Schmidt`, :py:func:`~.Sherwood`, :py:func:`~.Stanton`, :py:func:`~.Stokes_number`, :py:func:`~.Strouhal`, :py:func:`~.Suratman`, :py:func:`~.Weber`, :py:func:`~.Morton`.
 
-Miscellaneous utilities
+Miscellaneous Utilities
 -----------------------
 More than just dimensionless groups are implemented in :py:mod:`fluids.core`.
 
@@ -168,7 +168,7 @@ and latitude (input in degrees and height in meters):
 6.729011976863571
 
     
-Friction factors
+Friction Factors
 ----------------
 Friction factor is easily calculable with :py:func:`~.friction_factor`.
 
@@ -248,7 +248,7 @@ with the :py:func:`~.transmission_factor` function.
 0.01
 
 
-Pipe schedules
+Pipe Schedules
 --------------
 ASME/ANSI pipe tables from B36.10M-2004 and B36-19M-2004 are implemented 
 in fluids.piping.
@@ -288,7 +288,7 @@ Traceback (most recent call last):
 ValueError: Pipe input is larger than max of selected schedule
 
 
-Wire gauges
+Wire Gauges
 -----------
 
 The construction of mechanical systems often uses the "gauge" systems, a variety
@@ -324,7 +324,7 @@ Other schedules are also supported:
 0.00102362
 
 
-Tank geometry
+Tank Geometry
 -------------
 
 Sizing of vessels and storage tanks is implemented in an object-oriented way 
@@ -387,7 +387,7 @@ surface area of the tank.
 >>> DIN.A_sideA, DIN.A_sideB, DIN.A_lateral, DIN.A
 (24.749677, 24.749677, 47.123889, 96.623244)
 
-Miscellaneous geometry
+Miscellaneous Geometry
 ----------------------
 In addition to sizing all sorts of tanks, helical coils are supported and so are 
 a number of other simple calculations.
@@ -418,7 +418,7 @@ For a rectangle, one side length = 1, second side length = 100:
 0.03079690
 
 
-Atmospheric properties
+Atmospheric Properties
 ----------------------
 Various main classes are available to model the atmosphere, of varying accuracy. They are the
 US Standard Atmosphere 1976 (:py:class:`~.ATMOSPHERE_1976`), a basic
@@ -594,7 +594,7 @@ are obtained via the :py:class:`~.ATMOSPHERE_NRLMSISE00` class, but this
 quadruples the time required for the calculation.
 
 
-Compressor sizing
+Compressor Sizing
 -----------------
 Both isothermal and isentropic/polytropic compression models are implemented in
 :py:mod:`fluids.compressible`. Isothermal compression calculates the work required to compress a gas from
@@ -695,7 +695,7 @@ Checking the calculated power is the same:
 >>> isentropic_work_compression(P1=1E5, P2=1E6, T1=300, k=1.4, eta=eta_s)
 10556.4981
 
-Gas pipeline sizing
+Gas Pipeline Sizing
 -------------------
 
 The standard isothermal compressible gas flow is fully implemented as   
@@ -818,7 +818,7 @@ pressure drop is approximately 1%. Please note the values given here may change
 as properties are updated in the `thermo` library, they are here to demonstrate
 the technique only.
 
-Gas pipeline sizing: Empirical equations
+Gas Pipeline Sizing: Empirical Equations
 ----------------------------------------
 In addition to the actual model, many common simplifications used in industry
 are implemented as well. These are equally capable of solving for any of the
@@ -890,7 +890,7 @@ the most authoritative or common ones were used in those cases.
 
 
 
-Drag and terminal velocity
+Drag and Terminal Velocity
 --------------------------
 A number of spherical particle drag correlations are implemented.
 
@@ -943,7 +943,7 @@ of distance travelled:
 Many engineering applications such as direct contact condensers do operate far from terminal
 velocity however, and this function is useful there.
 
-Pressure drop through packed beds
+Pressure Drop Through Packed Beds
 ---------------------------------
 
 Twelve different packed bed pressure drop correlations are available. A meta
@@ -1027,10 +1027,10 @@ Same calculation, but using the general correlation for all shapes:
 >>> voidage_Benyahia_Oneil(Dpe=D_sphere_eq, Dt=0.05, sphericity=sph)
 0.44257695
 
-Pressure drop through piping
+Pressure Drop Through Piping
 ----------------------------
 It is straightforward to calculate the pressure drop of fluid flowing in a 
-pipeline with any number of fittings using the fluids library's 
+pipeline with any number of fittings using the Fluids library's 
 :py:mod:`fluids.fittings` submodule.
 
 15 m of piping, with a sharp entrance and sharp exit, two 30 degree miter 
@@ -1102,7 +1102,7 @@ pipe (15 more meters), and a sharp exit:
 
 
 
-Control valve sizing: Introduction
+Control Valve Sizing: Introduction
 ----------------------------------
 The now internationally-standardized methods (IEC 60534) for sizing liquid and 
 gas valves have been implemented. Conversion factors among the different types
@@ -1179,7 +1179,7 @@ have large influences on the performance of control valves.
 Historically, valve manufacturers had their own standards for sizing valves, 
 but these have been standardized today into the IEC 60534 methods. 
 
-Control valve sizing: Liquid flow
+Control Valve Sizing: Liquid Flow
 ---------------------------------
 To rigorously size a control valve for liquid flow, the inlet pressure, 
 allowable pressure drop, and desired flow rate must first be known. 
@@ -1253,7 +1253,7 @@ pressure through a mole-weighted average.
 For actual values of Cv, Fl, Fd, and available diameters, an excellent resource
 is the `Fisher Catalog 12 <http://www.documentation.emersonprocess.com/groups/public/documents/catalog/cat12_s1.pdf>`_.
 
-Control valve sizing: Gas flow
+Control Valve Sizing: Gas Flow
 ------------------------------
 To rigorously size a control valve for gas flow, the inlet pressure, 
 allowable pressure drop, and desired flow rate must first be known. 
@@ -1341,7 +1341,7 @@ Creating and solving the objective function:
 We see the valve should indeed be set to almost exactly 75% open to provide 
 the desired flow. 
 
-Electric motor sizing
+Electric Motor Sizing
 ---------------------
 Motors are available in standard sizes, mostly as designated by the
 National Electrical Manufacturers Association (NEMA). To easily determine what
@@ -1533,7 +1533,7 @@ Required Resources
 The fluids library is designed to be a low-overhead, lightweight repository
 of engineering knowledge and utilities that relate to fluid dynamics.
 It occupies ~4 MB of RAM on load and should load in a small fraction of a
-second. Fluids does load NumPy if it is present, which takes ~150 ms; fluids
+second. Fluids does load NumPy if it is present, which takes ~150 ms; Fluids
 itself loads in approximately 20 ms. No other libraries will become required 
 dependencies; anything else, including SciPy, is optional and loaded when
 needed.
@@ -1542,4 +1542,4 @@ Fluids was originally tightly integrated with SciPy and NumPy; today they
 are optional components used for only a small amount of functionality
 which do not have pure-Python numerical methods implemented.
 Fluids targets Python 3.9 and up as well as PyPy3. Additionally,
-fluids has been tested by the author to load in micropython.
+Fluids has been tested by the author to load in micropython.
