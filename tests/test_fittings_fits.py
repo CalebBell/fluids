@@ -31,6 +31,7 @@ from scipy.optimize import fsolve, newton
 
 from fluids import fluids_data_dir
 from fluids.core import Engauge_2d_parser
+from fluids.numerics import assert_close
 from fluids.optional.pychebfun import chebfun, chebfun_to_poly
 
 ### Contractions
@@ -139,7 +140,7 @@ def test_contraction_abrupt_Miller_coefficients():
         for rd in rd_checks:
             stored = float(bisplev(A, rd, tck_contraction_abrupt_Miller))
             recalc = float(bisplev(A, rd, tck_recalc))
-            assert_allclose(stored, recalc, rtol=1e-2, atol=1e-8)
+            assert_close(stored, recalc, rtol=1e-12, atol=1e-9)
 
 #   Plotting code
 #     print([i.tolist() for i in tck[:3]])

@@ -94,6 +94,8 @@ def py_cacos(z):
     s1 = csqrt(1. - z.real - z.imag*1.0j)
     s2 = csqrt(1. + z.real + z.imag*1.0j)
     r =  2.*atan2(s1.real, s2.real) + asinh(s2.real*s1.imag - s2.imag*s1.real)*1.0j
+    # On the real branch cut x > 1, equivalent sqrt sign choices can flip the
+    # imaginary sign even though the principal value should be deterministic.
     if z.imag == 0.0 and z.real > 1.0 and r.imag < 0.0:
         return r.real - r.imag*1.0j
     return r
