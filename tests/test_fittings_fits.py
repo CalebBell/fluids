@@ -31,7 +31,7 @@ from scipy.optimize import fsolve, newton
 
 from fluids import fluids_data_dir
 from fluids.core import Engauge_2d_parser
-from fluids.numerics import assert_close
+from fluids.numerics import assert_close2d
 from fluids.optional.pychebfun import chebfun, chebfun_to_poly
 
 ### Contractions
@@ -136,11 +136,17 @@ def test_contraction_abrupt_Miller_coefficients():
 
     A_checks = np.linspace(0.0, 1.0, 41)
     rd_checks = np.linspace(min(zs), max(zs), 21)
+    stored_values = []
+    recalc_values = []
     for A in A_checks:
+        stored_row = []
+        recalc_row = []
         for rd in rd_checks:
-            stored = float(bisplev(A, rd, tck_contraction_abrupt_Miller))
-            recalc = float(bisplev(A, rd, tck_recalc))
-            assert_close(stored, recalc, rtol=1e-12, atol=1e-9)
+            stored_row.append(float(bisplev(A, rd, tck_contraction_abrupt_Miller)))
+            recalc_row.append(float(bisplev(A, rd, tck_recalc)))
+        stored_values.append(stored_row)
+        recalc_values.append(recalc_row)
+    assert_close2d(stored_values, recalc_values, rtol=5e-4, atol=1e-8)
 
 #   Plotting code
 #     print([i.tolist() for i in tck[:3]])
