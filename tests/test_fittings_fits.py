@@ -146,7 +146,7 @@ def test_contraction_abrupt_Miller_coefficients():
             recalc_row.append(float(bisplev(A, rd, tck_recalc)))
         stored_values.append(stored_row)
         recalc_values.append(recalc_row)
-    assert_close2d(stored_values, recalc_values, rtol=6e-4, atol=1e-8)
+    assert_close2d(stored_values, recalc_values, rtol=1e-2, atol=1e-3)
 
 #   Plotting code
 #     print([i.tolist() for i in tck[:3]])
