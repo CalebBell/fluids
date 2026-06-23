@@ -72,3 +72,4 @@ Thumbs.db
 word_whitelist.txt
 simple_geolocator_cache.sqlite3
 .claude
+.codex
