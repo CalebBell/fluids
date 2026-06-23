@@ -11,6 +11,7 @@ __pycache__
 *kate-swp
 .spyproject
 fluids.egg-info
+*.egg-info/
 prof
 .mypy_cache
 monkeytype.sqlite3
@@ -59,7 +60,9 @@ dev/pyinstaller/build
 .DS_Store?
 .ipynb_checkpoints
 ._*
-_*
+__constants_data.c
+_Inline
+_build
 !_custom_build/
 !docs/_templates/
 !docs/_static/
@@ -69,6 +72,8 @@ ehthumbs.db
 Thumbs.db
 
 .pytest_cache/
+uv.lock
 word_whitelist.txt
 simple_geolocator_cache.sqlite3
 .claude
+.codex

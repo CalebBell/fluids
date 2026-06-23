@@ -135,6 +135,7 @@ __all__ = [
     "IS_PYPY",
     "NoSolutionError",
     "NotBoundedError",
+    "OscillationChecker",
     "OscillationError",
     "SamePointError",
     "SolverInterface",
@@ -2435,57 +2436,53 @@ def make_max_step_initial(max_step, steps=5, *args):
     return damping_func
 
 
-def oscillation_checking_wrapper(f, minimum_progress=0.3,
-                                 both_sides=False, full=True,
-                                 good_err=None):
-    checker = oscillation_checker(minimum_progress=minimum_progress,
-                                 both_sides=both_sides, good_err=good_err)
-    wraps = my_wraps()
-    @wraps(f)
-    def wrapper(x, *args, **kwargs):
-        err_test = err = f(x, *args, **kwargs)
-        if not isinstance(err, (float, int, complex)):
-            err_test = err[0]
-        try:
-            oscillating = checker(x, err_test)
-        except:
-            oscillating = False # Zero division error probably
+class OscillationChecker:
+    r"""Detect oscillation in iterative solvers by tracking progress on
+    each side of the root separately.
 
-        if oscillating:
-            raise OscillationError("Oscillating")
+    Parameters
+    ----------
+    minimum_progress : float, optional
+        Minimum fractional same-sign improvement required to avoid
+        declaring oscillation, [-]
+    both_sides : bool, optional
+        If ``True``, require insufficient progress on both sides before
+        declaring oscillation; otherwise either side can trigger it, [-]
+    good_err : float or None, optional
+        Suppress oscillation detection once the best residual magnitude
+        is below this threshold, [-]
+    """
 
-        return err
-    if full:
-        return wrapper, checker
-    return wrapper
+    __slots__ = (
+        "both_sides",
+        "good_err",
+        "minimum_progress",
+        "xs_neg",
+        "xs_pos",
+        "ys_neg",
+        "ys_pos",
+    )
 
-
-class oscillation_checker:
     def __init__(self, minimum_progress=0.3, both_sides=False, good_err=None):
         self.minimum_progress = minimum_progress
         self.both_sides = both_sides
-        self.xs_neg = []
         self.xs_pos = []
-
-        self.ys_neg = []
         self.ys_pos = []
-
-        # Provide a number that if the error is under this, no longer be able to return False
-        # For example, near phase boundaries newton could be bisecting as it overshoots
-        # each step, but is still converging fine
+        self.xs_neg = []
+        self.ys_neg = []
         self.good_err = good_err
 
     def clear(self):
-        self.xs_neg = []
         self.xs_pos = []
-
-        self.ys_neg = []
         self.ys_pos = []
+        self.xs_neg = []
+        self.ys_neg = []
 
-    def is_solve_oscilating(self, x, y):
+    def is_oscillating(self, x, y):
         if y == 0.0:
             return False
-        xs_neg, xs_pos, ys_neg, ys_pos = self.xs_neg, self.xs_pos, self.ys_neg, self.ys_pos
+        xs_neg, xs_pos = self.xs_neg, self.xs_pos
+        ys_neg, ys_pos = self.ys_neg, self.ys_pos
         minimum_progress = self.minimum_progress
 
         if y < 0.0:
@@ -2494,28 +2491,60 @@ class oscillation_checker:
         else:
             xs_pos.append(x)
             ys_pos.append(y)
-        if len(xs_pos) > 1 and len(xs_neg) > 1:
-            if y < 0:
-                dy_cur = y - ys_neg[-2]
-                dy_other = ys_pos[-1] - ys_pos[-2]
-                gain_neg = abs(dy_cur/y)
-                gain_pos = abs(dy_other/ys_pos[-1])
-            else:
-                dy_cur = y - ys_pos[-2]
-                dy_other = ys_neg[-1] - ys_neg[-2]
-                gain_pos = abs(dy_cur/y)
-                gain_neg = abs(dy_other/ys_neg[-1])
+        if len(xs_pos) < 2 or len(xs_neg) < 2:
+            return False
 
-#            print(gain_pos, gain_neg, y)
-            if self.both_sides:
-                if gain_pos < minimum_progress and gain_neg < minimum_progress:
-                    return not (self.good_err is not None and min(abs(ys_neg[-1]), abs(ys_pos[-1])) < self.good_err)
-            else:
-                if gain_pos < minimum_progress or gain_neg < minimum_progress:
-                    return not (self.good_err is not None and min(abs(ys_neg[-1]), abs(ys_pos[-1])) < self.good_err)
-        return False
+        if y < 0.0:
+            gain_neg = abs((y - ys_neg[-2])/y)
+            gain_pos = abs((ys_pos[-1] - ys_pos[-2])/ys_pos[-1])
+        else:
+            gain_pos = abs((y - ys_pos[-2])/y)
+            gain_neg = abs((ys_neg[-1] - ys_neg[-2])/ys_neg[-1])
 
-    __call__ = is_solve_oscilating
+        if self.both_sides:
+            oscillating = gain_pos < minimum_progress and gain_neg < minimum_progress
+        else:
+            oscillating = gain_pos < minimum_progress or gain_neg < minimum_progress
+
+        if oscillating and self.good_err is not None:
+            best_err = min(abs(ys_neg[-1]), abs(ys_pos[-1]))
+            if best_err < self.good_err:
+                return False
+        return bool(oscillating)
+
+    __call__ = is_oscillating
+
+    def wrap(self, f):
+        wraps = my_wraps()
+
+        @wraps(f)
+        def wrapper(x, *args, **kwargs):
+            err = f(x, *args, **kwargs)
+            err_test = err
+            if not isinstance(err_test, (float, int, complex)):
+                err_test = err[0]
+            try:
+                if self(x, err_test):
+                    raise OscillationError("Oscillating")
+            except (ZeroDivisionError, IndexError):
+                pass
+            return err
+
+        return wrapper
+
+
+oscillation_checker = OscillationChecker
+
+
+def oscillation_checking_wrapper(f, minimum_progress=0.3,
+                                 both_sides=False, full=True,
+                                 good_err=None):
+    checker = OscillationChecker(minimum_progress=minimum_progress,
+                                 both_sides=both_sides, good_err=good_err)
+    wrapper = checker.wrap(f)
+    if full:
+        return wrapper, checker
+    return wrapper
 
 
 def best_bounding_bounds(low, high, f=None, xs_pos=None, ys_pos=None,

@@ -50,8 +50,19 @@ def test_trunc_log():
     assert trunc_log(0.0) < trunc_log(1e-100)
 
 def test_py_cacos():
-    # Missed a asinh in this case
-    assert_close(py_cacos(1.0000000000000033), 8.16170211889097e-08j, rtol=1e-11)
+    # Normalize the real branch cut x > 1 so pure-real inputs stay on the
+    # same principal branch across csqrt implementations.
+    for value, expected in [
+        (1.0000000000000033, 8.16170211889097e-08j),
+        (2.0, 1.3169578969248166j),
+        (1e16, 37.53450866846468j),
+    ]:
+        assert_close(py_cacos(value), expected, rtol=1e-12, atol=1e-9)
+
+    # Inputs infinitesimally off the branch cut should preserve the side of
+    # approach instead of being forced onto the pure-real normalization path.
+    assert_close(py_cacos(1.0 + 1e-30j), 9.999999999999999e-16 - 1e-15j, rtol=1e-12, atol=1e-18)
+    assert_close(py_cacos(1.0 - 1e-30j), 9.999999999999999e-16 + 1e-15j, rtol=1e-12, atol=1e-18)
 
 def test_py_catanh():
     from cmath import atanh as catanh

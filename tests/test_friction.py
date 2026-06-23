@@ -398,6 +398,12 @@ def test_material_roughness():
     assert_close1d(e5, [0.001, 0.004])
 
 
+@pytest.mark.skipif(not has_thefuzz, reason="missing thefuzz")
+def test_material_roughness_corrected_spellings():
+    assert_close(material_roughness("Birch plywood, longitudinal grain, good quality"), 5.0e-5)
+    assert_close(material_roughness("Riveted laterally with four lines and longitudinally with six lines; overlapping joints inside"), 0.004)
+
+
 def test_von_Karman():
     f = von_Karman(1E-4)
     f_precalc = 0.011979797083255311
