@@ -11,6 +11,7 @@ __pycache__
 *kate-swp
 .spyproject
 fluids.egg-info
+*.egg-info/
 prof
 .mypy_cache
 monkeytype.sqlite3
