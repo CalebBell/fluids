@@ -132,7 +132,14 @@ def test_contraction_abrupt_Miller_coefficients():
             all_xs.append(x)
             all_ys.append(y)
     tck_recalc = bisplrep(all_xs, all_zs, all_ys, s=5e-4)
-    [assert_allclose(i, j, rtol=1e-2) for i, j in zip(tck_contraction_abrupt_Miller, tck_recalc)]
+
+    A_checks = np.linspace(0.0, 1.0, 41)
+    rd_checks = np.linspace(min(zs), max(zs), 21)
+    for A in A_checks:
+        for rd in rd_checks:
+            stored = float(bisplev(A, rd, tck_contraction_abrupt_Miller))
+            recalc = float(bisplev(A, rd, tck_recalc))
+            assert_allclose(stored, recalc, rtol=1e-2, atol=1e-8)
 
 #   Plotting code
 #     print([i.tolist() for i in tck[:3]])
@@ -370,7 +377,7 @@ def test_bend_rounded_Miller_Re_correction():
 
     from fluids.fittings import bend_rounded_Miller_C_Re, bend_rounded_Miller_C_Re_limit_1
     ps = np.linspace(1, 2)
-    qs = [newton(lambda x: bend_rounded_Miller_C_Re(x, i)-1, 2e5) for i in ps]
+    qs = [newton(lambda x, r_d=r_d: bend_rounded_Miller_C_Re(x, r_d) - 1, 2e5) for r_d in ps]
     rs = np.polyfit(ps, qs, 4).tolist()
     assert_allclose(rs, bend_rounded_Miller_C_Re_limit_1)
 
