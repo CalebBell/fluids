@@ -67,6 +67,8 @@ import pandas as pd
 import pytest
 from numpy.testing import assert_allclose, assert_almost_equal
 
+from fluids.optional import spa
+
 try:
     from numba import __version__ as numba_version
     numba_version_int = int(numba_version.split(".")[0] +
@@ -76,12 +78,12 @@ except ImportError:
 except:
     numba_version_int = -1
 
-from fluids.optional import spa
+def dtindex_to_unixtimes(index):
+    return np.array([ts.timestamp() for ts in index.to_pydatetime()], dtype=float)
 
 times = (pd.date_range("2003-10-17 12:30:30", periods=1, freq="D")
            .tz_localize("America/Phoenix"))
-unixtimes = np.array(times.tz_convert("UTC").view(np.int64)*1.0/10**9)
-unixtimes = float(np.array(times.tz_convert("UTC").view(np.int64)*1.0/10**9)[0])
+unixtimes = float(dtindex_to_unixtimes(times.tz_convert("UTC"))[0])
 lat = 39.742476
 lon = -105.1786
 elev = 1830.14
@@ -305,16 +307,16 @@ class SpaBase:
         # tests at greenwich
         times = pd.DatetimeIndex([dt.datetime(1996, 7, 5, 0),
                                   dt.datetime(2004, 12, 4, 0)]
-                                 ).tz_localize("UTC").view(np.int64)*1.0/10**9
+                                 ).tz_localize("UTC")
         sunrise = pd.DatetimeIndex([dt.datetime(1996, 7, 5, 7, 8, 15),
                                     dt.datetime(2004, 12, 4, 4, 38, 57)]
-                                   ).tz_localize("UTC").view(np.int64)*1.0/10**9
+                                   ).tz_localize("UTC")
         sunset = pd.DatetimeIndex([dt.datetime(1996, 7, 5, 17, 1, 4),
                                    dt.datetime(2004, 12, 4, 19, 2, 2)]
-                                  ).tz_localize("UTC").view(np.int64)*1.0/10**9
-        times = np.array(times)
-        sunrise = np.array(sunrise)
-        sunset = np.array(sunset)
+                                  ).tz_localize("UTC")
+        times = dtindex_to_unixtimes(times)
+        sunrise = dtindex_to_unixtimes(sunrise)
+        sunset = dtindex_to_unixtimes(sunset)
         result = [self.spa.transit_sunrise_sunset(t, -35.0, 0.0, 64.0) for t in times]
         for i in range(2):
             assert_almost_equal(sunrise[i]/1e3, result[i][1]/1e3, 3)
@@ -322,14 +324,14 @@ class SpaBase:
 
 
         times = pd.DatetimeIndex([dt.datetime(1994, 1, 2),]
-                                 ).tz_localize("UTC").view(np.int64)*1.0/10**9
+                                 ).tz_localize("UTC")
         sunset = pd.DatetimeIndex([dt.datetime(1994, 1, 2, 16, 59, 55),]
-                                  ).tz_localize("UTC").view(np.int64)*1.0/10**9
+                                  ).tz_localize("UTC")
         sunrise = pd.DatetimeIndex([dt.datetime(1994, 1, 2, 7, 8, 12),]
-                                   ).tz_localize("UTC").view(np.int64)*1.0/10**9
-        times = np.array(times)
-        sunrise = np.array(sunrise)
-        sunset = np.array(sunset)
+                                   ).tz_localize("UTC")
+        times = dtindex_to_unixtimes(times)
+        sunrise = dtindex_to_unixtimes(sunrise)
+        sunset = dtindex_to_unixtimes(sunset)
         result = [self.spa.transit_sunrise_sunset(t, 35.0, 0.0, 64.0) for t in times]
         for i in range(1):
             assert_almost_equal(sunrise[i]/1e3, result[i][1]/1e3, 3)
@@ -341,20 +343,20 @@ class SpaBase:
                                   dt.datetime(2015, 4, 2),
                                   dt.datetime(2015, 8, 2),
                                   dt.datetime(2015, 12, 2),],
-                                 ).tz_localize("UTC").view(np.int64)*1.0/10**9
+                                 ).tz_localize("UTC")
         sunrise = pd.DatetimeIndex([dt.datetime(2015, 1, 2, 7, 19),
                                     dt.datetime(2015, 4, 2, 5, 43),
                                     dt.datetime(2015, 8, 2, 5, 1),
                                     dt.datetime(2015, 12, 2, 7, 1),],
-                                   ).tz_localize("America/Phoenix").view(np.int64)*1.0/10**9
+                                   ).tz_localize("America/Phoenix")
         sunset = pd.DatetimeIndex([dt.datetime(2015, 1, 2, 16, 49),
                                    dt.datetime(2015, 4, 2, 18, 24),
                                    dt.datetime(2015, 8, 2, 19, 10),
                                    dt.datetime(2015, 12, 2, 16, 38),],
-                                  ).tz_localize("America/Phoenix").view(np.int64)*1.0/10**9
-        times = np.array(times)
-        sunrise = np.array(sunrise)
-        sunset = np.array(sunset)
+                                  ).tz_localize("America/Phoenix")
+        times = dtindex_to_unixtimes(times)
+        sunrise = dtindex_to_unixtimes(sunrise)
+        sunset = dtindex_to_unixtimes(sunset)
         result = [self.spa.transit_sunrise_sunset(t, 39.0, -105.0, 64.0) for t in times]
         for i in range(4):
             assert_almost_equal(sunrise[i]/1e3, result[i][1]/1e3, 1)
@@ -365,22 +367,20 @@ class SpaBase:
                                   dt.datetime(2015, 4, 2),
                                   dt.datetime(2015, 8, 2),
                                   dt.datetime(2015, 12, 2),],
-                                 ).tz_localize("UTC").view(np.int64)*1.0/10**9
+                                 ).tz_localize("UTC")
         sunrise = pd.DatetimeIndex([dt.datetime(2015, 1, 2, 7, 36),
                                     dt.datetime(2015, 4, 2, 5, 58),
                                     dt.datetime(2015, 8, 2, 5, 13),
                                     dt.datetime(2015, 12, 2, 7, 17),],
-                                   ).tz_localize("Asia/Shanghai"
-                                   ).view(np.int64)*1.0/10**9
+                                   ).tz_localize("Asia/Shanghai")
         sunset = pd.DatetimeIndex([dt.datetime(2015, 1, 2, 17, 0),
                                    dt.datetime(2015, 4, 2, 18, 39),
                                    dt.datetime(2015, 8, 2, 19, 28),
                                    dt.datetime(2015, 12, 2, 16, 50),],
-                                  ).tz_localize("Asia/Shanghai"
-                                  ).view(np.int64)*1.0/10**9
-        times = np.array(times)
-        sunrise = np.array(sunrise)
-        sunset = np.array(sunset)
+                                  ).tz_localize("Asia/Shanghai")
+        times = dtindex_to_unixtimes(times)
+        sunrise = dtindex_to_unixtimes(sunrise)
+        sunset = dtindex_to_unixtimes(sunset)
         result = [self.spa.transit_sunrise_sunset(t, 39.917, 116.383, 64.0) for t in times]
         for i in range(4):
             assert_almost_equal(sunrise[i]/1e3, result[i][1]/1e3, 1)
@@ -389,8 +389,7 @@ class SpaBase:
     def test_earthsun_distance(self):
         times = (pd.date_range("2003-10-17 12:30:30", periods=1, freq="D")
            .tz_localize("America/Phoenix"))
-        unixtimes = times.tz_convert("UTC").view(np.int64)*1.0/10**9
-        unixtimes = float(np.array(unixtimes)[0])
+        unixtimes = float(dtindex_to_unixtimes(times.tz_convert("UTC"))[0])
         result = self.spa.earthsun_distance(unixtimes, 64.0)
         assert_almost_equal(R, result, 6)
 
@@ -413,8 +412,8 @@ class NumpySpaTest(unittest.TestCase, SpaBase):
     @classmethod
     def setUpClass(self):
         from fluids.optional import spa
-        if hasattr(spa, 'IS_NUMBA'):
-            delattr(spa, 'IS_NUMBA')
+        if hasattr(spa, "IS_NUMBA"):
+            delattr(spa, "IS_NUMBA")
         spa = reload(spa)
         self.spa = spa
 
@@ -435,8 +434,8 @@ class NumbaSpaTest(unittest.TestCase, SpaBase):
     def setUpClass(self):
         if numba_version_int >= 17:
             from fluids.optional import spa
-            if hasattr(spa, 'IS_NUMBA'):
-                delattr(spa, 'IS_NUMBA')
+            if hasattr(spa, "IS_NUMBA"):
+                delattr(spa, "IS_NUMBA")
             spa = reload(spa)
             self.spa = spa
 
