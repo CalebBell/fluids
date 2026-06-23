@@ -1622,8 +1622,8 @@ def gelsd(a, b, rcond=None):
     Ut = transpose(U)
     Utb = matrix_vector_dot(Ut[:rank], b)
 
-    # Apply 1/singular values with truncation
-    s_inv_Utb = [Utb[i] / s[i] for i in range(rank)]
+    # Apply 1/singular values with truncation (pseudoinverse: 0 for zero singular values)
+    s_inv_Utb = [Utb[i] / s[i] if s[i] != 0.0 else 0.0 for i in range(rank)]
 
     # Get the first rank rows of V (transpose of first rank columns of Vt)
     # Again, works with both economy and full-size Vt

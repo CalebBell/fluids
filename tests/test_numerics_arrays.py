@@ -1393,7 +1393,7 @@ def test_gelsd_ill_conditioned():
 
     # Matrix should be detected as rank deficient
     assert rank == 1
-    assert s[0]/s[1] > 1e14  # Check condition number
+    assert s[1] == 0.0 or s[0]/s[1] > 1e14  # Check condition number
 
 def test_gelsd_zero_matrix():
     """Test with zero matrix"""
