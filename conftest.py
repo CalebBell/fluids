@@ -6,7 +6,8 @@ is_pypy = "PyPy" in sys.version
 is_graal = "Graal" in sys.version
 is_free_threaded = hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled()
 ver_tup = tuple(int(x) for x in platform.python_version_tuple()[:2])
-is_x86_or_x86_64 = platform.machine().lower() in ("i386", "i686", "x86", "x86_64", "amd64")
+is_mac = sys.platform == "darwin"
+has_numba_platform = (platform.machine().lower() in ("i386", "i686", "x86", "x86_64", "amd64") and not is_mac) or (is_mac and platform.machine() == "arm64")
 
 
 def pytest_ignore_collect( collection_path, config):
@@ -19,7 +20,7 @@ def pytest_ignore_collect( collection_path, config):
         return True
 
     # Skip utility and development directories
-    skip_paths = ("cx_freeze", "py2exe", "manual_runner", "make_test_stubs", "plot", "prerelease", "benchmarks", "conf.py", "_custom_build")
+    skip_paths = ("cx_freeze", "py2exe", "manual_runner", "make_test_stubs", "plot", "prerelease", "benchmarks", "conf.py", "_custom_build", "dev/freecad")
     if any(skip_path in path for skip_path in skip_paths):
         return True
 
@@ -42,7 +43,7 @@ def pytest_ignore_collect( collection_path, config):
         is_pypy or
         is_graal or
         is_free_threaded or
-        not is_x86_or_x86_64
+        not has_numba_platform
     )
     if unsupported_for_numba:
         if "numba" in path:
