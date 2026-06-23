@@ -53,22 +53,3 @@ def pytest_ignore_collect( collection_path, config):
             return True
 
     return False
-
-
-def pytest_configure(config):
-    """Configure pytest options for doctest support."""
-    # Only configure for Python 3
-    if sys.version[0] != "3":
-        return
-
-    import pytest
-    pytest_major_version = int(pytest.__version__.split(".")[0])
-
-    # Enable doctest modules for pytest >= 6
-    if pytest_major_version >= 6:
-        config.addinivalue_line("addopts", "--doctest-modules")
-        config.option.doctestmodules = True
-        config.addinivalue_line("doctest_optionflags", "NUMBER")
-
-    # Always normalize whitespace in doctests
-    config.addinivalue_line("doctest_optionflags", "NORMALIZE_WHITESPACE")

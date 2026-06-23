@@ -324,9 +324,9 @@ max-complexity = 10
 "docs/**/*.ipynb" = ["S101", "F403", "F405", "PT011", "B017", "TRY002"]
 
 [tool.pytest.ini_options]
-addopts = "--doctest-glob='*.rst' --ignore='manual_runner.py'"
+addopts = "--doctest-modules --doctest-glob='*.rst' --ignore='manual_runner.py'"
 norecursedirs = [".cache", ".git", "htmlcov", "notebooks", "dist", "build", "*.egg-info", ".tox", "surfaces", "prof", "benchmarks", "dev", "_build", "__pycache__"]
-doctest_optionflags = ["NORMALIZE_WHITESPACE"]
+doctest_optionflags = ["NORMALIZE_WHITESPACE", "NUMBER"]
 markers = [
     "slow: slow tests",
     "thermo: relies on the thermo library, for integration testing",
@@ -337,4 +337,5 @@ markers = [
     "scipy: Needs scipy to work",
     "numpy: Needs numpy to work",
     "pytz: Needs pytz to work",
+    "sympy: Needs sympy to work",
 ]
