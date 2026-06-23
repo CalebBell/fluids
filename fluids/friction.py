@@ -3818,7 +3818,7 @@ riveted_steel = {
     (1.2E-3, 1.4E-3, None),
     "Riveted longitudinally with six lines, after extensive use":
     (None, None, 2.0E-3),
-    "Riveted laterally with four line and longitudinally with six lines; overlapping joints inside":
+    "Riveted laterally with four lines and longitudinally with six lines; overlapping joints inside":
     (None, None, 4.0E-3),
     "Extremely poor surface; overlapping and uneven joints":
     (5.0E-3, None, None)}
@@ -3948,7 +3948,7 @@ wood_tube = {"Boards, thoroughly dressed": (None, None, 1.5E-4),
 
 plywood_tube = {"Birch plywood, transverse grain, good quality":
                 (None, None, 1.2E-4),
-                "Birch plywood, longitudal grain, good quality":
+                "Birch plywood, longitudinal grain, good quality":
                 (3.0E-5, 5.0E-5, None)}
 
 glass_tube = {"Glass": (1.5E-6, 1.0E-5, None)}
