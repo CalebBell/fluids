@@ -135,6 +135,7 @@ __all__ = [
     "IS_PYPY",
     "NoSolutionError",
     "NotBoundedError",
+    "OscillationChecker",
     "OscillationError",
     "SamePointError",
     "SolverInterface",
@@ -317,7 +318,6 @@ __all__ = [
     "null_space",
     "numpy",
     "one_sided_secant",
-    "OscillationChecker",
     "oscillation_checker",
     "oscillation_checking_wrapper",
     "pi",
@@ -2510,9 +2510,7 @@ class OscillationChecker:
             best_err = min(abs(ys_neg[-1]), abs(ys_pos[-1]))
             if best_err < self.good_err:
                 return False
-        if oscillating:
-            return True
-        return False
+        return bool(oscillating)
 
     __call__ = is_oscillating
 
