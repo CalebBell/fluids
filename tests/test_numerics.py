@@ -25,6 +25,8 @@ from math import cos, erf, exp, isnan, log, pi, sin, sqrt
 import pytest
 
 from fluids.numerics import (
+    OscillationChecker,
+    OscillationError,
     SolverInterface,
     assert_close,
     assert_close1d,
@@ -75,6 +77,8 @@ from fluids.numerics import (
     mean_squared_rel_error,
     min_max_ratios,
     newton_system,
+    oscillation_checker,
+    oscillation_checking_wrapper,
     poly_fit_integral_over_T_value,
     poly_fit_integral_value,
     polyint,
@@ -554,6 +558,46 @@ def test_best_bounding_bounds():
                                 xs_pos=[4.831, 4.6054], ys_pos= [25.38, 0.0288],
                         xs_neg=[4, 4.533, 4.6051690], ys_neg=[-45.40, -6.933, -0.0001139])
     assert_allclose(vals, (4.605169, 4.60517018599, -0.0001139, 1.908233571157325e-10), rtol=1e-12)
+
+
+def test_oscillation_checker_detects_stalled_progress():
+    checker = OscillationChecker(minimum_progress=0.3)
+    values = [(0.0, 4.0), (1.0, -4.0), (2.0, 3.8), (3.0, -3.9)]
+    results = [checker(x, y) for x, y in values]
+    assert results == [False, False, False, True]
+
+
+def test_oscillation_checker_preserves_both_sides_mode():
+    checker = OscillationChecker(minimum_progress=0.3, both_sides=True)
+    values = [(0.0, 4.0), (1.0, -4.0), (2.0, 3.8), (3.0, -1.0)]
+    results = [checker(x, y) for x, y in values]
+    assert results == [False, False, False, False]
+
+
+def test_oscillation_checker_honors_good_err():
+    checker = OscillationChecker(minimum_progress=0.3, good_err=1.1)
+    values = [(0.0, 4.0), (1.0, -4.0), (2.0, 3.8), (3.0, -1.0)]
+    results = [checker(x, y) for x, y in values]
+    assert results == [False, False, False, False]
+
+
+def test_oscillation_checking_wrapper_raises_and_uses_tuple_error():
+    err_map = {0.0: 4.0, 1.0: -4.0, 2.0: 3.8, 3.0: -3.9}
+
+    def objective(x):
+        return err_map[x], "meta"
+
+    wrapped, checker = oscillation_checking_wrapper(objective, minimum_progress=0.3)
+    assert checker is not None
+    assert wrapped(0.0) == (4.0, "meta")
+    assert wrapped(1.0) == (-4.0, "meta")
+    assert wrapped(2.0) == (3.8, "meta")
+    with pytest.raises(OscillationError):
+        wrapped(3.0)
+
+
+def test_oscillation_checker_alias_is_preserved():
+    assert oscillation_checker is OscillationChecker
 
 
 def test_is_poly_positive():
