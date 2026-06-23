@@ -1553,7 +1553,7 @@ def Rao_Kumar_2007(Re: float, eD: float) -> float:
     """
     term = log(Re*(1.0/6.5))
     beta = 1.0 - 0.55*exp(-0.33*term*term)
-    term = (2.0*log10(1.0/((2.0*eD*beta)*((0.444+0.135*Re)/Re))))
+    term = (2.0*log10(1.0/((2.0*eD*beta)*(0.444/Re + 0.135))))
     return 1.0/(term*term)
 
 
