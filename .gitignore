@@ -59,7 +59,9 @@ dev/pyinstaller/build
 .DS_Store?
 .ipynb_checkpoints
 ._*
-_*
+__constants_data.c
+_Inline
+_build
 !_custom_build/
 !docs/_templates/
 !docs/_static/
