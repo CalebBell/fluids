@@ -1655,7 +1655,7 @@ def Papaevangelo_2010(Re: float, eD: float) -> float:
     (2010) [2]_ as shown in [1]_.
 
     .. math::
-        f_D = \frac{0.2479 - 0.0000947(7-\ln Re)^4}{\left[\log_{10}\left
+        f_D = \frac{0.2479 - 0.0000947(7-\log_{10} Re)^4}{\left[\log_{10}\left
         (\frac{\epsilon}{3.615D} + \frac{7.366}{Re^{0.9142}}\right)\right]^2}
 
     Parameters
@@ -1677,7 +1677,7 @@ def Papaevangelo_2010(Re: float, eD: float) -> float:
     Examples
     --------
     >>> Papaevangelo_2010(1E5, 1E-4)
-    0.015685600818488177
+    0.018525128421514474
 
     References
     ----------
@@ -1691,7 +1691,7 @@ def Papaevangelo_2010(Re: float, eD: float) -> float:
        Corfu, Greece: University of Ioannina Greece and Stevens Institute of
        Technology New Jersey (2010)
     """
-    x1 = (7.0-log(Re))
+    x1 = (7.0-log10(Re))
     term = (log10(eD*(1.0/3.615) + 7.366*Re**-0.9142))
     return (0.2479-0.0000947*x1*x1*x1*x1)/(term*term)
 
