@@ -162,7 +162,7 @@ def test_Papaevangelo_2010_range():
         for eD in logspace(-5, -3, 9):
             fd = Papaevangelo_2010(Re, eD)
             assert fd > 0.0
-            ref = Colebrook(Re, eD, tol=0)
+            ref = Colebrook(Re, eD)
             worst = max(worst, abs(fd - ref)/ref)
     assert worst < 0.01
 
