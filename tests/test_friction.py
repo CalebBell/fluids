@@ -137,7 +137,7 @@ def test_friction_basic():
     assert_close(Rao_Kumar_2007(1E5, 1E-4), 0.01197759334600925)
     assert_close(Buzzelli_2008(1E5, 1E-4), 0.018513948401365277)
     assert_close(Avci_Karagoz_2009(1E5, 1E-4), 0.01857058061066499)
-    assert_close(Papaevangelo_2010(1E5, 1E-4), 0.015685600818488177)
+    assert_close(Papaevangelo_2010(1E5, 1E-4), 0.018525128421514474)
     assert_close(Brkic_2011_1(1E5, 1E-4), 0.01812455874141297)
     assert_close(Brkic_2011_2(1E5, 1E-4), 0.018619745410688716)
     assert_close(Fang_2011(1E5, 1E-4), 0.018481390682985432)
@@ -151,6 +151,25 @@ def test_friction_basic():
     fd = ft_Crane(.1)
     assert_close(fd, 0.01628845962146481)
     assert_close(ft_Crane(1e-5), 604.8402578042682)
+
+def test_Papaevangelo_2010_range():
+    # Papaevangelo_2010 is an explicit Colebrook approximation. Across its registered
+    # range (Re 1e4-1e7, eD 1e-5-1e-3) it must stay positive and track Colebrook within
+    # its ~1% literature accuracy. A natural-log-for-log10 slip in the numerator
+    # previously gave errors up to ~260% and negative friction factors above Re~3e6.
+    worst = 0.0
+    for Re in logspace(4, 7, 16):
+        for eD in logspace(-5, -3, 9):
+            fd = Papaevangelo_2010(Re, eD)
+            assert fd > 0.0
+            ref = Colebrook(Re, eD)
+            worst = max(worst, abs(fd - ref)/ref)
+    assert worst < 0.01
+
+    # the fix must also reach the public dispatcher and the once-negative Re=1e7 corner
+    assert Papaevangelo_2010(1e7, 1e-4) > 0.0
+    assert_close(friction_factor(1e7, 1e-4, Method="Papaevangelo_2010"),
+                 Papaevangelo_2010(1e7, 1e-4), rtol=0)
 
 def test_friction():
     assert_close(sum(_roughness.values()), 0.01504508)
