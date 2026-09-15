@@ -375,8 +375,8 @@ def CSA_motor_efficiency(P: float, closed: bool=False, poles: int=2, high_effici
     Several low-efficiency standard high power values were added to allow for
     easy programming; values are the last listed efficiency in the table.
 
-    Only 2, 4, and 6 pole motors have high-efficiency standard values; 8 pole
-    values are available for the minimum efficiency standard only. A
+    The high-efficiency standard covers 2, 4, and 6 pole motors only; the
+    minimum efficiency standard additionally covers 8 pole motors. A
     ValueError is raised for unsupported pole counts.
 
     Examples
