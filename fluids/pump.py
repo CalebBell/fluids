@@ -375,6 +375,10 @@ def CSA_motor_efficiency(P: float, closed: bool=False, poles: int=2, high_effici
     Several low-efficiency standard high power values were added to allow for
     easy programming; values are the last listed efficiency in the table.
 
+    The high-efficiency standard covers 2, 4, and 6 pole motors only; the
+    minimum efficiency standard additionally covers 8 pole motors. A
+    ValueError is raised for unsupported pole counts.
+
     Examples
     --------
     >>> CSA_motor_efficiency(100*hp)
@@ -388,6 +392,11 @@ def CSA_motor_efficiency(P: float, closed: bool=False, poles: int=2, high_effici
        375 kW). As modified 2015-12-17.
        https://natural-resources.canada.ca/energy-efficiency/energy-efficiency-regulations/electric-motors-1-500-hp0746-375-kw
     """
+    if high_efficiency:
+        if poles not in (2, 4, 6):
+            raise ValueError("Only 2, 4, and 6 pole motors have high-efficiency standard values")
+    elif poles not in (2, 4, 6, 8):
+        raise ValueError("Only 2, 4, 6, and 8 pole motors have standard efficiency values")
     P = P/hp
     # This could be replaced by a dict and a jump list
     if high_efficiency:
