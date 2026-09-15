@@ -297,7 +297,7 @@ def motor_round_size(P: float) -> float:
     ----------
     .. [1] Natural Resources Canada. Electric Motors (1 to 500 HP/0.746 to
        375 kW). As modified 2015-12-17.
-       https://www.nrcan.gc.ca/energy/regulations-codes-standards/products/6885
+       https://natural-resources.canada.ca/energy-efficiency/energy-efficiency-regulations/electric-motors-1-500-hp0746-375-kw
     """
     for P_actual in nema_sizes:
         if P_actual >= P:
@@ -390,7 +390,7 @@ def CSA_motor_efficiency(P: float, closed: bool=False, poles: int=2, high_effici
     ----------
     .. [1] Natural Resources Canada. Electric Motors (1 to 500 HP/0.746 to
        375 kW). As modified 2015-12-17.
-       https://www.nrcan.gc.ca/energy/regulations-codes-standards/products/6885
+       https://natural-resources.canada.ca/energy-efficiency/energy-efficiency-regulations/electric-motors-1-500-hp0746-375-kw
     """
     if high_efficiency:
         if poles not in (2, 4, 6):
