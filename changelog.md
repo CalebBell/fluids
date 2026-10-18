@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- `Beggs_Brill`: the liquid holdup is now bounded by 1. At low Froude number the holdup correlation exceeded 1, which gave an elevation pressure drop larger than that of a pipe full of liquid (#101).
+
 ## [1.3.1] - 2026-06-22
 
 ### Changed
