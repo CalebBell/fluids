@@ -147,6 +147,12 @@ def _Beggs_Brill_holdup(regime: int, lambda_L: float, Fr: float, angle: float, L
     if (angle > 0 and regime == 3) or angle == 0:
         Psi = 1.0
     Hl = HL0*Psi
+    # The holdup correlations are unbounded at low Froude number (HL0 ~ Fr**-c)
+    # and the inclination correction can raise Hl further; a liquid holdup
+    # above 1 is unphysical and would give an elevation pressure drop larger
+    # than that of a pipe full of liquid.
+    if Hl > 1.0:
+        Hl = 1.0
     return Hl
 
 def Beggs_Brill(m: float, x: float, rhol: float, rhog: float, mul: float, mug: float, sigma: float, P: float, D: float, angle: float, roughness: float=0.0,
