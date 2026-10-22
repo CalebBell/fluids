@@ -620,6 +620,17 @@ def tets_ATMOSPHERE_1976():
                  fluids.atmosphere.ATMOSPHERE_1976.pressure_integral(300, 1e5, 10))
 
 @mark_as_numba
+def test_guppy_geometry():
+    for a in [0., 0.3, 1., 2.]:
+        assert_close(fluids.numba.SA_guppy_head(2., a), fluids.SA_guppy_head(2., a))
+        for h in [-1., 0., 0.5, 1., 2., 3.]:
+            assert_close(fluids.numba.SA_partial_horiz_guppy_head(2., a, h),
+                         fluids.SA_partial_horiz_guppy_head(2., a, h))
+        assert_close1d(fluids.numba.SA_tank(2., 5., sideA="guppy", sideB="guppy", sideA_a=a, sideB_a=a),
+                       fluids.SA_tank(2., 5., sideA="guppy", sideB="guppy", sideA_a=a, sideB_a=a))
+
+
+@mark_as_numba
 def test_misc_geometry():
 
     assert_close(fluids.numba.geometry.SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0),
