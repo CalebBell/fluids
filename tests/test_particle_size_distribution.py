@@ -35,6 +35,7 @@ from fluids.particle_size_distribution import (
     ISO_3310_1_sieves,
     ParticleSizeDistribution,
     PSDCustom,
+    PSDGatesGaudinSchuhman,
     PSDInterpolated,
     PSDLognormal,
     Sieve,
@@ -54,6 +55,20 @@ try:
     from random import uniform
 except:
     pass
+
+
+@pytest.mark.parametrize("d_min", [None, 1e-4])
+def test_GGS_upper_truncation(d_min):
+    psd = PSDGatesGaudinSchuhman(d_characteristic=1e-3, m=2.3,
+                               d_min=d_min, d_max=5e-4)
+    lower = 0.0 if d_min is None else d_min
+    upper = 5e-4
+    # Conditional power-law distribution, independent of the PSD helpers.
+    assert_close(psd.cdf(3e-4), (3e-4**2.3 - lower**2.3)/(upper**2.3 - lower**2.3))
+    assert_close(psd.dn(0.5), (0.5*(upper**2.3 + lower**2.3))**(1/2.3))
+    assert psd.cdf(lower) == 0.0
+    assert psd.cdf(upper) == 1.0
+    assert psd.pdf(upper*1.1) == 0.0
 
 
 def test_ASTM_E11_sieves():
