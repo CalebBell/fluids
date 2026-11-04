@@ -171,6 +171,8 @@ __all__: list[str] = [
     "K_run_converging_Crane",
     "K_run_diverging_Crane",
     "K_swing_check_valve_Crane",
+    "K_symmetric_converging_Vazsonyi",
+    "K_symmetric_diverging_Vazsonyi",
     "K_tilting_disk_check_valve_Crane",
     "K_to_Cv",
     "K_to_Kv",
@@ -5246,5 +5248,211 @@ def K_run_diverging_Crane(D_run: float, D_branch: float, Q_run: float, Q_branch:
     else:
         M = 0.3*(2.*Q_ratio - 1.)
     return M*Q_ratio*Q_ratio
+
+
+def K_symmetric_diverging_Vazsonyi(D_comb: float, D_branch: float, Q_comb: float, angle: float=90.0) -> float:
+    r"""Returns the loss coefficient for a symmetric diverging tee or wye,
+    where the flow in one combined pipe splits equally into two identical
+    branches, according to the method of Vazsonyi [1]_, as reproduced in
+    [2]_.
+
+    .. math::
+        K = \lambda_1 + (2\lambda_2 - \lambda_1)\left(\frac{V_{branch}}
+        {V_{comb}}\right)^2 - 2\lambda_2 \left(\frac{V_{branch}}{V_{comb}}
+        \right)\cos\alpha'
+
+    .. math::
+        \alpha' = 1.41\alpha - 0.00594\alpha^2
+
+    Because the tee is symmetric, each branch carries half of the combined
+    flow, and the velocity ratio in the above equations is:
+
+    .. math::
+        \frac{V_{branch}}{V_{comb}} = \frac{Q_{comb}/2}{Q_{comb}}
+        \frac{A_{comb}}{A_{branch}} = \frac{1}{2\beta_{branch}^2},
+        \quad \beta_{branch} = \frac{D_{branch}}{D_{comb}}
+
+    Parameters
+    ----------
+    D_comb : float
+        Diameter of the combined-flow pipe (the inlet) [m]
+    D_branch : float
+        Diameter of each of the two identical branches [m]
+    Q_comb : float
+        Volumetric flow rate in the combined-flow pipe; it splits equally
+        between the two branches, [m^3/s]
+    angle : float, optional
+        Angle between each branch and the axis of the combined-flow pipe
+        (90 for a symmetric tee with perpendicular branches, less for a wye)
+        [degrees]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient for the path from the combined-flow pipe into one
+        branch, with respect to the velocity in the combined-flow pipe [-]
+
+    Notes
+    -----
+    The coefficients :math:`\lambda_1` and :math:`\lambda_2` depend only on
+    the angle:
+
+    .. math::
+        \lambda_1 = 0.0712\alpha^{0.7141} + 0.37 \;\; \text{for} \;\;
+        \alpha < 22.5^\circ, \quad \lambda_1 = 1.0 \;\; \text{otherwise}
+
+    .. math::
+        \lambda_2 = 0.0592\alpha^{0.7029} + 0.37 \;\; \text{for} \;\;
+        \alpha < 22.5^\circ, \quad \lambda_2 = 0.9 \;\; \text{otherwise}
+
+    Note that in [2]_ the second case of :math:`\lambda_2` is misprinted
+    with the subscript of :math:`\lambda_3`; the value 0.9 is the continuous
+    limit of the first case at :math:`\alpha = 22.5^\circ` and matches the
+    plateau of the :math:`\lambda_2` curve plotted there.
+
+    According to [1]_, the loss coefficient does not vary with Reynolds
+    number for :math:`Re_D > 1000`.
+
+    Examples
+    --------
+    A DN100 combined pipe carrying 0.02 m^3/s splits into two DN100
+    branches at 45 degrees to the combined pipe (a symmetric wye).
+
+    >>> K_symmetric_diverging_Vazsonyi(0.1, 0.1, 0.02, angle=45)
+    0.6387723385267976
+
+    References
+    ----------
+    .. [1] Vazsonyi, Andrew. "Pressure Loss in Elbows and Duct Branches."
+       Transactions of the ASME 66, no. 3 (1944): 177-83.
+    .. [2] Vasava, Paritosh R. "Fluid Flow in T-Junction of Pipes."
+       Master's thesis, Lappeenranta University of Technology, 2007.
+       https://lutpub.lut.fi/handle/10024/39713
+    """
+    beta = (D_branch/D_comb)
+    beta2 = beta*beta
+    # Each branch carries half of the combined flow in a symmetric tee
+    V_ratio = 0.5/beta2
+    if angle < 22.5:
+        lambda1 = 0.0712*angle**0.7141 + 0.37
+        lambda2 = 0.0592*angle**0.7029 + 0.37
+    else:
+        lambda1 = 1.0
+        lambda2 = 0.9
+    angle_eff = 1.41*angle - 0.00594*angle*angle
+    K = lambda1 + (2.*lambda2 - lambda1)*V_ratio*V_ratio - 2.*lambda2*V_ratio*cos(radians(angle_eff))
+    return K
+
+
+symmetric_converging_Vazsonyi_angles = [0.0, 15.0, 30.0, 45.0, 60.0, 75.0, 90.0, 105.0, 120.0, 135.0, 150.0]
+symmetric_converging_Vazsonyi_lambda3s = [0.95, 0.94, 0.93, 0.925, 0.90, 0.78, 0.57, 0.52, 0.505, 0.495, 0.49]
+
+def K_symmetric_converging_Vazsonyi(D_comb: float, D_branch: float, Q_comb: float, angle: float=90.0) -> float:
+    r"""Returns the loss coefficient for a symmetric converging tee or wye,
+    where the flows in two identical branches combine into one combined
+    pipe, according to the method of Vazsonyi [1]_, as reproduced in [2]_.
+
+    .. math::
+        K = \lambda_3\left(\frac{V_{branch}}{V_{comb}}\right)^2 + 1
+        - 2\left(\frac{V_{branch}}{V_{comb}}\right)\cos\alpha'
+
+    .. math::
+        \alpha' = 1.41\alpha - 0.00594\alpha^2
+
+    This is the symmetric specialization of the general combining-flow
+    formula of [1]_, in which the two branches have the same angle, diameter
+    and flow rate; the terms of the general formula involving the second
+    branch then become identical to those of the first. Because the tee is
+    symmetric, each branch carries half of the combined flow, and the
+    velocity ratio in the above equations is:
+
+    .. math::
+        \frac{V_{branch}}{V_{comb}} = \frac{Q_{comb}/2}{Q_{comb}}
+        \frac{A_{comb}}{A_{branch}} = \frac{1}{2\beta_{branch}^2},
+        \quad \beta_{branch} = \frac{D_{branch}}{D_{comb}}
+
+    Parameters
+    ----------
+    D_comb : float
+        Diameter of the combined-flow pipe (the outlet) [m]
+    D_branch : float
+        Diameter of each of the two identical branches [m]
+    Q_comb : float
+        Volumetric flow rate in the combined-flow pipe; each branch carries
+        half of it, [m^3/s]
+    angle : float, optional
+        Angle between each branch and the axis of the combined-flow pipe
+        (90 for a symmetric tee with perpendicular branches, less for a wye)
+        [degrees]
+
+    Returns
+    -------
+    K : float
+        Loss coefficient for the path from one branch into the combined-flow
+        pipe, with respect to the velocity in the combined-flow pipe [-]
+
+    Notes
+    -----
+    Unlike :math:`\lambda_1` and :math:`\lambda_2` of the diverging formula,
+    :math:`\lambda_3` is given in [1]_ and [2]_ only as a plotted curve of
+    the branch angle. The values used here were read from that plot and are
+    linearly interpolated:
+
+    +-----------+------+
+    | Angle [°] | λ3   |
+    +===========+======+
+    | 0         | 0.95 |
+    +-----------+------+
+    | 15        | 0.94 |
+    +-----------+------+
+    | 30        | 0.93 |
+    +-----------+------+
+    | 45        | 0.925|
+    +-----------+------+
+    | 60        | 0.90 |
+    +-----------+------+
+    | 75        | 0.78 |
+    +-----------+------+
+    | 90        | 0.57 |
+    +-----------+------+
+    | 105       | 0.52 |
+    +-----------+------+
+    | 120       | 0.505|
+    +-----------+------+
+    | 135       | 0.495|
+    +-----------+------+
+    | 150       | 0.49 |
+    +-----------+------+
+
+    Angles outside the table are held at the nearest table value.
+
+    According to [1]_, the loss coefficient does not vary with Reynolds
+    number for :math:`Re_D > 1000`.
+
+    Examples
+    --------
+    Two DN100 branches at 90 degrees to the combined pipe, each carrying
+    half of a combined flow of 0.02 m^3/s, combine into a DN100 pipe (a
+    symmetric tee with perpendicular branches).
+
+    >>> K_symmetric_converging_Vazsonyi(0.1, 0.1, 0.02, angle=90)
+    0.9480259620189421
+
+    References
+    ----------
+    .. [1] Vazsonyi, Andrew. "Pressure Loss in Elbows and Duct Branches."
+       Transactions of the ASME 66, no. 3 (1944): 177-83.
+    .. [2] Vasava, Paritosh R. "Fluid Flow in T-Junction of Pipes."
+       Master's thesis, Lappeenranta University of Technology, 2007.
+       https://lutpub.lut.fi/handle/10024/39713
+    """
+    beta = (D_branch/D_comb)
+    beta2 = beta*beta
+    # Each branch carries half of the combined flow in a symmetric tee
+    V_ratio = 0.5/beta2
+    lambda3 = interp(angle, symmetric_converging_Vazsonyi_angles, symmetric_converging_Vazsonyi_lambda3s)
+    angle_eff = 1.41*angle - 0.00594*angle*angle
+    K = lambda3*V_ratio*V_ratio + 1. - 2.*V_ratio*cos(radians(angle_eff))
+    return K
 
 

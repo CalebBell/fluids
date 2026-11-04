@@ -45,6 +45,8 @@ from fluids.fittings import (
     K_run_converging_Crane,
     K_run_diverging_Crane,
     K_swing_check_valve_Crane,
+    K_symmetric_converging_Vazsonyi,
+    K_symmetric_diverging_Vazsonyi,
     K_tilting_disk_check_valve_Crane,
     K_to_Cv,
     K_to_Kv,
@@ -1000,5 +1002,50 @@ def test_K_run_diverging_Crane():
 
     K = K_run_diverging_Crane(0.146, 0.08, 0.02525, 0.01583, angle=90)
     assert_close(K, 0.0593965132275684)
+
+
+def test_K_symmetric_diverging_Vazsonyi():
+    # Symmetric wye, equal diameters, branches at 45 degrees
+    K = K_symmetric_diverging_Vazsonyi(0.1, 0.1, 0.02, angle=45)
+    assert_close(K, 0.6387723385267976)
+
+    # Symmetric tee, branches perpendicular to the combined pipe (default)
+    K = K_symmetric_diverging_Vazsonyi(0.1, 0.1, 0.02)
+    assert_close(K, 1.0249733658170477)
+
+    K = K_symmetric_diverging_Vazsonyi(0.1, 0.1, 0.02, angle=30)
+    assert_close(K, 0.4807934213929479)
+
+    # Smaller branches than the combined pipe
+    K = K_symmetric_diverging_Vazsonyi(0.1, 0.07, 0.02, angle=45)
+    assert_close(K, 0.6876236812916736)
+
+    # Angle below 22.5 degrees, where the lambda correlations apply
+    K = K_symmetric_diverging_Vazsonyi(0.1, 0.1, 0.02, angle=15)
+    assert_close(K, 0.3086301754266092)
+
+    K = K_symmetric_diverging_Vazsonyi(0.146, 0.116, 0.02525, angle=90)
+    assert_close(K, 1.2246268134147669)
+
+
+def test_K_symmetric_converging_Vazsonyi():
+    # Symmetric tee, branches perpendicular to the combined pipe (default)
+    K = K_symmetric_converging_Vazsonyi(0.1, 0.1, 0.02)
+    assert_close(K, 0.9480259620189421)
+
+    # Symmetric wye, equal diameters, branches at 45 degrees
+    K = K_symmetric_converging_Vazsonyi(0.1, 0.1, 0.02, angle=45)
+    assert_close(K, 0.6076637094742195)
+
+    K = K_symmetric_converging_Vazsonyi(0.1, 0.1, 0.02, angle=30)
+    assert_close(K, 0.4333815793254977)
+
+    # Smaller branches than the combined pipe
+    K = K_symmetric_converging_Vazsonyi(0.1, 0.07, 0.02, angle=45)
+    assert_close(K, 0.6905152754784156)
+
+    # Angle between the tabulated lambda_3 points (interpolation)
+    K = K_symmetric_converging_Vazsonyi(0.1, 0.1, 0.02, angle=67.5)
+    assert_close(K, 0.8371883316900748)
 
 
