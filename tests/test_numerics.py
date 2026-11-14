@@ -32,6 +32,7 @@ from fluids.numerics import (
     assert_close1d,
     assert_close2d,
     assert_close3d,
+    backward_diff_weights_precomputed,
     best_bounding_bounds,
     broyden2,
     chebder,
@@ -58,6 +59,7 @@ from fluids.numerics import (
     fixed_point_anderson,
     fixed_point_gdem,
     fixed_point_to_residual,
+    forward_diff_weights_precomputed,
     full,
     hessian,
     horner,
@@ -77,6 +79,7 @@ from fluids.numerics import (
     mean_squared_rel_error,
     min_max_ratios,
     newton_system,
+    one_sided_diff_weights,
     oscillation_checker,
     oscillation_checking_wrapper,
     poly_fit_integral_over_T_value,
@@ -85,6 +88,7 @@ from fluids.numerics import (
     polyint_over_x,
     polylog2,
     polynomial_offset_scale,
+    product,
     residual_to_fixed_point,
     secant,
     sincos,
@@ -829,6 +833,175 @@ def test_chebval_ln_tau():
     assert_close(expect_d, calc4[1])
     assert_close(expect_d2, calc4[2])
     assert_close(expect_d3, calc4[3])
+
+
+def test_one_sided_diff_weights():
+    assert_close1d(one_sided_diff_weights(3, 1, "forward"), [-1.5, 2.0, -0.5], rtol=0.0)
+    assert_close1d(one_sided_diff_weights(3, 1, "backward"), [0.5, -2.0, 1.5], rtol=0.0)
+
+    for n, points in ((1, 5), (2, 5), (3, 7)):
+        factor = product(range(1, n + 1))
+        for direction in ("forward", "backward"):
+            weights = one_sided_diff_weights(points, n, direction)
+            if direction == "forward":
+                offsets = range(points)
+            else:
+                offsets = range(-(points - 1), 1)
+            for degree in range(points):
+                moment = sum(weight*offset**degree for weight, offset in zip(weights, offsets))
+                expected = factor if degree == n else 0.0
+                assert_close(moment, expected, rtol=0.0, atol=1e-11)
+
+    weights = one_sided_diff_weights(5, 2, "forward")
+    assert forward_diff_weights_precomputed[(2, 5)] is weights
+
+    with pytest.raises(ValueError, match="direction"):
+        one_sided_diff_weights(3, 1, "sideways")
+    with pytest.raises(ValueError, match="Points"):
+        one_sided_diff_weights(3, 3, "forward")
+
+
+@pytest.mark.sympy
+def test_one_sided_diff_weights_precomputed():
+    from sympy import Matrix
+
+    expected_keys = {
+        (1, 3), (1, 5), (1, 7), (1, 9), (1, 11), (1, 13), (1, 15), (1, 17), (1, 19), (1, 21),
+        (2, 3), (2, 5), (2, 7), (2, 9), (2, 11), (2, 13), (2, 15), (2, 17), (2, 19), (2, 21),
+        (3, 5), (3, 7), (3, 9), (3, 11),
+    }
+
+    tables = (("forward", forward_diff_weights_precomputed),
+              ("backward", backward_diff_weights_precomputed))
+    for direction, table in tables:
+        for n, points in expected_keys:
+            stored_weights = table[(n, points)]
+            if direction == "forward":
+                offsets = range(points)
+            else:
+                offsets = range(-(points - 1), 1)
+            matrix = []
+            for offset in offsets:
+                matrix.append([1] + [offset**degree for degree in range(1, points)])
+            factor = product(range(1, n + 1))
+            generated_weights = [float(value)*factor for value in Matrix(matrix).inv().tolist()[n]]
+            assert_close1d(stored_weights, generated_weights, rtol=0.0, atol=0.0)
+
+
+def test_derivative_one_sided_known_limits():
+    lower_points = []
+
+    def cubic_lower(x):
+        lower_points.append(x)
+        return x*x*x
+
+    lower = derivative(cubic_lower, 0.05, dx=0.1, n=2, order=3,
+                       lower_limit=0.0)
+    assert_close(lower, 0.3, rtol=0.0, atol=1e-12)
+    assert_close1d(lower_points, [0.05, 0.15, 0.25, 0.35, 0.45], rtol=0.0, atol=1e-15)
+    negative_dx = derivative(lambda x: x*x*x, 0.05, dx=-0.1, n=2, order=3,
+                             lower_limit=0.0)
+    assert_close(negative_dx, 0.3, rtol=0.0, atol=1e-12)
+
+    upper_points = []
+
+    def cubic_upper(x):
+        upper_points.append(x)
+        return x*x*x
+
+    upper = derivative(cubic_upper, -0.05, dx=0.1, n=2, order=3,
+                       upper_limit=0.0)
+    assert_close(upper, -0.3, rtol=0.0, atol=1e-12)
+    assert_close1d(upper_points, [-0.45, -0.35, -0.25, -0.15, -0.05], rtol=0.0, atol=1e-15)
+
+
+def test_derivative_one_sided_discovered_boundary():
+    def cubic(x):
+        return x*x*x
+
+    known = derivative(cubic, 0.05, dx=0.1, n=2, order=3,
+                       upper_limit=0.1)
+
+    def cubic_with_boundary(x):
+        if x > 0.1:
+            raise ValueError("outside domain")
+        return x*x*x
+
+    discovered = derivative(cubic_with_boundary, 0.05, dx=0.1, n=2,
+                            order=3)
+    assert_close(discovered, known, rtol=0.0, atol=1e-12)
+    assert_close(discovered, 0.3, rtol=0.0, atol=1e-12)
+
+
+def test_derivative_one_sided_nonfinite_boundary():
+    def cubic(x, bad_result):
+        if x > 0.1:
+            return bad_result
+        return x*x*x
+
+    for bad_result in (float("nan"), float("inf"), float("-inf")):
+        result = derivative(cubic, 0.05, dx=0.1, n=2, order=3, args=(bad_result,))
+        assert_close(result, 0.3, rtol=0.0, atol=1e-12)
+
+
+def test_derivative_one_sided_vector():
+    def values(x):
+        if x > 0.1:
+            return [x*x, float("inf")]
+        return [x*x, x*x*x]
+
+    result = derivative(values, 0.05, dx=0.1, order=3, scalar=False)
+    assert_close1d(result, [0.1, 0.0075], rtol=0.0, atol=1e-12)
+
+
+def test_derivative_one_sided_failures():
+    def fails_on_both_sides(x):
+        if x > 0.05 or x < -0.15:
+            raise ValueError("outside domain")
+        return x*x
+
+    with pytest.raises(ValueError, match="cannot compute derivative"):
+        derivative(fails_on_both_sides, 0.0, dx=0.1, order=3)
+
+    with pytest.raises(ValueError, match="available limits"):
+        derivative(lambda x: x*x, 0.35, dx=0.1, order=3,
+                   lower_limit=0.0, upper_limit=0.4)
+
+    evaluated_points = []
+
+    def record_point(x):
+        evaluated_points.append(x)
+        return x*x
+
+    with pytest.raises(ValueError, match="below lower_limit"):
+        derivative(record_point, -1.0, dx=0.1, lower_limit=0.0)
+    with pytest.raises(ValueError, match="above upper_limit"):
+        derivative(record_point, 1.0, dx=0.1, upper_limit=0.0)
+    assert evaluated_points == []
+
+    def fails_at_x0(x):
+        if x == 0.0:
+            raise ValueError("x0 failed")
+        return x*x
+
+    with pytest.raises(ValueError, match="itself"):
+        derivative(fails_at_x0, 0.0, dx=0.1, n=2, order=3)
+
+
+def test_derivative_skips_zero_weight_points():
+    points = []
+
+    def quadratic(x):
+        points.append(x)
+        if x == 0.0:
+            raise ValueError("x0 should be skipped")
+        return x*x
+
+    result = derivative(quadratic, 0.0, dx=0.1, order=3)
+    assert_close(result, 0.0, rtol=0.0, atol=1e-15)
+    assert_close1d(points, [-0.1, 0.1], rtol=0.0, atol=1e-15)
+
+
 
 def test_exp_cheb():
     xmin, xmax = (309.0, 591.72)
