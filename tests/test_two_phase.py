@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from math import log10
+from math import log10, radians
 
 import pytest
 
@@ -54,6 +54,8 @@ from fluids.two_phase import (
     two_phase_dP_gravitational,
     two_phase_dP_methods,
 )
+from fluids.constants import g
+from fluids.two_phase import _Beggs_Brill_holdup
 from fluids.two_phase_voidage import homogeneous
 
 try:
@@ -63,6 +65,30 @@ except:
 
 def log_uniform(low, high):
     return 10**uniform(log10(low), log10(high))
+
+
+def test_Beggs_Brill_holdup_bounded():
+    # https://github.com/CalebBell/fluids/issues/101
+    # At low Froude number the holdup correlation exceeds 1, which gave an
+    # elevation pressure drop larger than that of a pipe full of liquid.
+    rhol, mul, D, L = 887.0, 1.5e-3, 0.1016, 70.16
+    m = 30.0/86400*rhol  # 30 m^3/day, Vm ~ 0.04 m/s, Fr ~ 0.002
+    kwargs = dict(m=m, x=0.0, rhol=rhol, mul=mul, mug=1.5E-5, sigma=0.02,
+                  P=150E5, D=D, roughness=4.6E-5, L=L, acceleration=False)
+    dP_vertical = Beggs_Brill(rhog=200.0, angle=90.0, **kwargs)
+    dP_horizontal = Beggs_Brill(rhog=200.0, angle=0.0, **kwargs)
+    # pure liquid: elevation term is exactly the static liquid column
+    assert_close(dP_vertical - dP_horizontal, rhol*g*L, rtol=1e-12)
+    # with no gas the result cannot depend on the gas properties
+    assert_close(dP_vertical, Beggs_Brill(rhog=10.0, angle=90.0, **kwargs), rtol=1e-12)
+
+    # the holdup itself never exceeds 1 in any regime, at any inclination
+    for regime in (0, 2, 3):
+        for lambda_L in (0.1, 0.5, 0.9, 1.0):
+            for Fr in (1e-4, 1e-2, 1.0, 100.0):
+                for angle in (-90.0, -30.0, 0.0, 30.0, 90.0):
+                    Hl = _Beggs_Brill_holdup(regime, lambda_L, Fr, radians(angle), 1.0)
+                    assert Hl <= 1.0
 
 
 def test_Beggs_Brill():
