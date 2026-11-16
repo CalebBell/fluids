@@ -822,7 +822,7 @@ def isothermal_gas(rho: float, fd: float, P1: float | None=None, P2: float | Non
     D : float, optional
         Diameter of pipe, [m]
     m : float, optional
-        Mass flow rate of gas through pipe, [kg/s]
+        Nonnegative mass flow rate of gas through pipe, [kg/s]
 
     Returns
     -------
@@ -895,6 +895,8 @@ def isothermal_gas(rho: float, fd: float, P1: float | None=None, P2: float | Non
     .. [4] Rennels, Donald C., and Hobart M. Hudson. Pipe Flow: A Practical
        and Comprehensive Guide. 1st edition. Hoboken, N.J: Wiley, 2012.
     """
+    if m is not None and m < 0.0:
+        raise ValueError("Mass flow rate must be nonnegative; reverse flow is not supported.")
     if m is None and P1 is not None and P2 is not None and L is not None and D is not None:
         Pcf = P_isothermal_critical_flow(P=P1, fd=fd, D=D, L=L)
         if P2 < Pcf:
