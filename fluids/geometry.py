@@ -1363,11 +1363,12 @@ def SA_conical_head(D: float, a: float) -> float:
 
 def SA_guppy_head(D: float, a: float) -> float:
     r"""Calculates the surface area of a guppy head according to [1]_.
-    Some work was involved in combining formulas for the ellipse of the head,
-    and the conic section on the sides.
+    The head is an oblique cone with its apex level with the top of the
+    cylindrical shell. Integrating its ruled surface gives the area below,
+    where :math:`R = D/2`.
 
     .. math::
-        SA = \frac{\pi  D}{4}\sqrt{D^2 + a^2} + \frac{\pi D}{2}a
+        SA = R^2 \int_0^\pi \sqrt{(a/R)^2 + (1 - \cos\theta)^2}\,d\theta
 
     Parameters
     ----------
@@ -1384,14 +1385,22 @@ def SA_guppy_head(D: float, a: float) -> float:
     Examples
     --------
     >>> SA_guppy_head(2, 1)
-    6.654000019110157
+    4.753793841546192
 
     References
     ----------
     .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
        http://mathworld.wolfram.com/Cone.html.
     """
-    return 0.25*pi*D*sqrt(a*a + D*D) + 0.5*pi*D*a
+    R = 0.5*D
+    if a == 0.0:
+        return pi*R*R
+    return R*R*float(quad(_SA_guppy_head_to_int, 0.0, pi, args=(a/R,))[0])
+
+
+def _SA_guppy_head_to_int(theta: float, a_R: float) -> float:
+    t = 1.0 - cos(theta)
+    return sqrt(a_R*a_R + t*t)
 
 
 def SA_torispheroidal(D: float, f: float, k: float) -> float:
@@ -2221,13 +2230,13 @@ def SA_partial_horiz_guppy_head(D: float, a: float, h: float) -> float:
     .. [1] Jones, D. "Calculating Tank Wetted Area." Text. Chemical Processing.
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
     """
-    R = 0.5*D
-    if a == R:
-        return pi*R*h
-    elif h < 0.0:
+    if h <= 0.0:
         return 0.0
-    elif h > D:
-        h = D
+    elif h >= D:
+        return SA_guppy_head(D, a)
+    elif a == 0.0:
+        return A_partial_circle(D, h)
+    R = 0.5*D
     if -R == h-R:
         return 0.0
 
