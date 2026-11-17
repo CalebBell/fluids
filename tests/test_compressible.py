@@ -321,6 +321,23 @@ def test_IGT():
         IGT(D=D, P2=P2, L=L, SG=SG, mu=mu, Tavg=Tavg)
 
 
+@pytest.mark.parametrize("missing", ["P1", "P2", "L", "D"])
+@pytest.mark.parametrize("mass_flow", [-1.0, -100.0])
+def test_isothermal_gas_rejects_negative_mass_flow(missing, mass_flow):
+    inputs = dict(rho=11.3, fd=0.00185, P1=1E6, P2=9E5,
+                  L=1000.0, D=0.5, m=mass_flow)
+    inputs[missing] = None
+    with pytest.raises(ValueError, match="Mass flow rate must be nonnegative"):
+        isothermal_gas(**inputs)
+
+
+def test_isothermal_gas_zero_mass_flow_pressures():
+    assert isothermal_gas(rho=11.3, fd=0.00185, P1=1E6,
+                          L=1000.0, D=0.5, m=0.0) == 1E6
+    assert isothermal_gas(rho=11.3, fd=0.00185, P2=1E6,
+                          L=1000.0, D=0.5, m=0.0) == 1E6
+
+
 def test_isothermal_gas():
     mcalc = isothermal_gas(11.3, 0.00185, P1=1E6, P2=9E5, L=1000., D=0.5)
     assert_close(mcalc, 145.484757264)
