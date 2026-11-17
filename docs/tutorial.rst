@@ -1097,8 +1097,8 @@ pipe (15 more meters), and a sharp exit:
 >>> K += change_K_basis(K_from_f(fd=fd3, L=L3, D=D3), D1=D3, D2=D1)
 >>> K += diffuser_sharp(Di1=D2, Di2=D3)
 
->>> dP_from_K(K, rho=rho, V=V1)
-<Quantity(734959.105, 'pascal')>
+>>> str(dP_from_K(K, rho=rho, V=V1))
+'734959.1052267993 pascal'
 
 
 
@@ -1541,5 +1541,5 @@ needed.
 Fluids was originally tightly integrated with SciPy and NumPy; today they
 are optional components used for only a small amount of functionality
 which do not have pure-Python numerical methods implemented.
-Fluids targets Python 3.9 and up as well as PyPy3. Additionally,
+Fluids targets Python 3.10 and up as well as PyPy3. Additionally,
 Fluids has been tested by the author to load in micropython.

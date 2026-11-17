@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14', '3.14t', 'pypy3.11']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14', '3.14t', 'pypy3.11']
         os: [windows-latest, ubuntu-latest, macos-15-intel, macos-latest]
         architecture: ['x86', 'x64']
         exclude:
@@ -37,9 +37,6 @@ jobs:
           - os: ubuntu-latest
             architecture: x86
           # scipy dropped 32 bit windows builds
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.9
           - os: windows-latest
             architecture: x86
             python-version: 3.10
@@ -65,8 +62,6 @@ jobs:
 
           # These are arm - old versions of Python are not supported
           - os: macos-latest
-            python-version: 3.9
-          - os: macos-latest
             python-version: 3.10
     steps:
     - uses: actions/checkout@v6
@@ -88,7 +83,7 @@ jobs:
       run: |
         # Taken from scipy
         sudo apt-get update
-        sudo apt-get install -y libopenblas-dev libatlas-base-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev libjpeg-dev zlib1g-dev libtiff-dev libfreetype6-dev liblcms2-dev libwebp-dev
+        sudo apt-get install -y libopenblas-dev liblapack-dev gfortran libgmp-dev libmpfr-dev libsuitesparse-dev ccache libmpc-dev libjpeg-dev zlib1g-dev libtiff-dev libfreetype6-dev liblcms2-dev libwebp-dev
     
     - name: Install dependencies
       run: |

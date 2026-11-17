@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking**: Dropped Python 3.9 support; minimum Python version is now 3.10.
+  Python 3.9 reached end of life in October 2025 and the `ubuntu-26.04` GitHub
+  Actions runner image has no Python 3.9 build available.
+- CI: Stopped installing `libatlas-base-dev` on Ubuntu. ATLAS was deleted from
+  Ubuntu 25.10 onward (dead upstream) and has no installation candidate on the
+  `ubuntu-26.04` runner image; OpenBLAS and LAPACK are still installed.
+- CI: The MicroPython job now builds MicroPython v1.26.0 instead of v1.24.1,
+  which is the first release that compiles under GCC 15.
+- Docs: The `fluids.units` and tutorial doctests now compare `str(Quantity)` instead
+  of its `repr`. pint 0.26 changed the `Quantity` repr to drop the angle brackets and
+  print full magnitude precision, which broke those doctests on Python 3.12+ while
+  pint 0.25 is still required on Python 3.10 and 3.11. The `str` form is unchanged
+  between the two versions.
+
 ## [1.3.1] - 2026-06-22
 
 ### Changed
