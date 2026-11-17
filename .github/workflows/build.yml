@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14', '3.14t', 'pypy3.11']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14', '3.14t', '3.15', '3.15t', 'pypy3.11']
         os: [windows-latest, ubuntu-latest, macos-15-intel, macos-latest]
         architecture: ['x86', 'x64']
         exclude:
@@ -39,22 +39,6 @@ jobs:
           # scipy dropped 32 bit windows builds
           - os: windows-latest
             architecture: x86
-            python-version: 3.10
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.11
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.12
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.13
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.14
-          - os: windows-latest
-            architecture: x86
-            python-version: 3.14t
           # pandas doesn't have wheels for 3.14t on Windows x64
           - os: windows-latest
             architecture: x64
@@ -72,7 +56,7 @@ jobs:
         architecture: ${{ matrix.architecture }}
 
     - name: Install uv
-      if: matrix.python-version != '3.14t'
+      if: ${{ !endsWith(matrix.python-version, 't') }}
       uses: astral-sh/setup-uv@v8.1.0
       with:
         enable-cache: true
@@ -88,8 +72,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -c "import platform; print(platform.platform()); print(platform.architecture())"
-        if [[ "${{ matrix.python-version }}" == "3.14t" ]]; then
-          # Use pip for 3.14t (free-threading) as uv may not fully support it yet
+        if [[ "${{ matrix.python-version }}" == *t ]]; then
+          # Use pip for free-threaded builds (the "t" suffix) as uv may not fully support them yet
           python -m pip install --upgrade pip
           pip install -e .[test]
         else
@@ -97,7 +81,7 @@ jobs:
         fi
       shell: bash
     - name: Add numba
-      if: ${{ !contains(fromJSON('["pypy3.11", "3.14t"]'), matrix.python-version) && !contains(fromJSON('["macos-15-intel"]'), matrix.os) }}
+      if: ${{ matrix.python-version != 'pypy3.11' && !endsWith(matrix.python-version, 't') && !contains(fromJSON('["macos-15-intel"]'), matrix.os) }}
       run: |
         uv pip install --system -e .[numba]
     - name: Test with pytest
@@ -108,7 +92,7 @@ jobs:
         COVERALLS_REPO_TOKEN: ${{ secrets.coveralls }}
         COVERALLS_PARALLEL: true
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PYTHON_GIL: ${{ matrix.python-version == '3.14t' && '0' || '' }}
+        PYTHON_GIL: ${{ endsWith(matrix.python-version, 't') && '0' || '' }}
 
     - name: Upload coverage HTML report
       if: always()

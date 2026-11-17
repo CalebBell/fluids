@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- CI: Added Python 3.15 and 3.15t (free-threaded) to the test matrix.
+
 ### Changed
 
 - **Breaking**: Dropped Python 3.9 support; minimum Python version is now 3.10.
