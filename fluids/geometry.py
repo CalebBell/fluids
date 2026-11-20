@@ -1361,13 +1361,19 @@ def SA_conical_head(D: float, a: float) -> float:
     return 0.5*pi*D*sqrt(a*a + 0.25*D*D)
 
 
+def _SA_guppy_head_to_int(theta: float, a: float, R: float) -> float:
+    offset = R*(1.0 - cos(theta))
+    return sqrt(a*a + offset*offset)
+
+
 def SA_guppy_head(D: float, a: float) -> float:
-    r"""Calculates the surface area of a guppy head according to [1]_.
-    Some work was involved in combining formulas for the ellipse of the head,
-    and the conic section on the sides.
+    r"""Calculates the surface area of a guppy head (an oblique cone).
+
+    The apex is level with the top of the circular base, rather than on its
+    axis. With :math:`R = D/2`, the lateral area is
 
     .. math::
-        SA = \frac{\pi  D}{4}\sqrt{D^2 + a^2} + \frac{\pi D}{2}a
+        SA = R\int_0^\pi \sqrt{a^2 + R^2(1-\cos\theta)^2}\,d\theta
 
     Parameters
     ----------
@@ -1381,17 +1387,26 @@ def SA_guppy_head(D: float, a: float) -> float:
     SA : float
         Surface area [m^2]
 
+    Notes
+    -----
+    This uses numerical quadrature. A zero extension gives the area of a
+    flat circular head.
+
+    The integral follows by parametrizing the surface between the circular
+    base :math:`B=(0,R\sin\theta,R\cos\theta)` and apex :math:`A=(a,0,R)`
+    as :math:`A+s(B-A)`, for :math:`0 \le s \le 1`. Integrating the norm of
+    the cross product of its two derivatives over ``s`` and using symmetry
+    gives the expression above.
+
     Examples
     --------
     >>> SA_guppy_head(2, 1)
-    6.654000019110157
-
-    References
-    ----------
-    .. [1] Weisstein, Eric W. "Cone." Text. Accessed March 14, 2016.
-       http://mathworld.wolfram.com/Cone.html.
+    4.7537938
     """
-    return 0.25*pi*D*sqrt(a*a + D*D) + 0.5*pi*D*a
+    if a == 0.0:
+        return 0.25*pi*D*D
+    R = 0.5*D
+    return R*float(quad(_SA_guppy_head_to_int, 0.0, pi, args=(a, R))[0])
 
 
 def SA_torispheroidal(D: float, f: float, k: float) -> float:
@@ -2222,12 +2237,12 @@ def SA_partial_horiz_guppy_head(D: float, a: float, h: float) -> float:
        April 2017. https://www.chemicalprocessing.com/assets/Uploads/calculating-tank-wetted-area.pdf
     """
     R = 0.5*D
-    if a == R:
-        return pi*R*h
-    elif h < 0.0:
+    if a == 0.0:
+        return A_partial_circle(D, h)
+    if h < 0.0:
         return 0.0
-    elif h > D:
-        h = D
+    elif h >= D:
+        return SA_guppy_head(D, a)
     if -R == h-R:
         return 0.0
 

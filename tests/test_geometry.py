@@ -337,7 +337,7 @@ def test_geometry():
     assert_close(SA1, SAs)
 
     SA1 = SA_guppy_head(2, 1)
-    assert_close(SA1, 6.654000019110157)
+    assert_close(SA1, 4.753793841546192)
 
     SA1 = SA_torispheroidal(D=2.54, f=1.039370079, k=0.062362205)
     assert_close(SA1, 6.00394283477063, rtol=1e-12)
@@ -354,7 +354,7 @@ def test_geometry():
     assert_close1d([SA1, SA2, SA3, SA4], SAs)
 
     SA1 = SA_tank(D=1., L=5, sideA="guppy", sideA_a=0.5, sideB="guppy", sideB_a=0.5)[0]
-    assert_close(SA1, 19.034963277504044)
+    assert_close(SA1, 18.084860188722062)
 
     a1 = a_torispherical(D=96., f=0.9, k=0.2)
     a2 = a_torispherical(D=108., f=1., k=0.06)
@@ -743,15 +743,13 @@ def test_SA_partial_horiz_guppy_head():
     assert SA_partial_horiz_guppy_head(D=72., a=48.0, h=7200) == SA_partial_horiz_guppy_head(D=72., a=48.0, h=72)
 
     assert_close(SA_partial_horiz_guppy_head(D=72., a=48.0, h=24.0), 1467.8949780037, rtol=1e-8)
-    assert pi*72*inch/2*72*inch == SA_partial_horiz_guppy_head(D=72*inch, a=36*inch, h=72*inch)
-    # Area is NOT CONSISTENT!
     T1 = TANK(L=120*inch, D=72*inch, horizontal=True,
           sideA="guppy", sideA_a=48*inch, sideB="same")
     assert_close(T1.SA_from_h(24*inch)/foot**2, 94.24500, rtol=1e-7)
     assert_close(T1.SA_from_h(36*inch)/foot**2, 129.98330, rtol=1e-7)
     assert_close(T1.SA_from_h(48*inch)/foot**2, 167.06207, rtol=1e-7)
     assert 0.0 == T1.SA_from_h(0)
-    # assert_close(T1.SA_from_h(T1.h_max), T1.A, rtol=1e-12)
+    assert_close(T1.SA_from_h(T1.h_max), T1.A, rtol=1e-12)
 
 
 def test_SA_partial_horiz_ellipsoidal_head():
