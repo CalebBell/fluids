@@ -622,6 +622,14 @@ def tets_ATMOSPHERE_1976():
 @mark_as_numba
 def test_misc_geometry():
 
+    for a in (0.0, 0.6, 1.0, 2.0):
+        assert_close(fluids.numba.SA_guppy_head(2.0, a), fluids.SA_guppy_head(2.0, a))
+        assert_close(fluids.numba.SA_partial_horiz_guppy_head(2.0, a, 2.0),
+                     fluids.SA_guppy_head(2.0, a))
+    assert_close1d(
+        fluids.numba.SA_tank(2.0, 5.0, "guppy", "guppy", 0.6, 0.6),
+        fluids.SA_tank(2.0, 5.0, "guppy", "guppy", 0.6, 0.6))
+
     assert_close(fluids.numba.geometry.SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0),
                  fluids.geometry.SA_partial_horiz_spherical_head(D=72., a=48.0, h=24.0))
 
