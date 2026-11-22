@@ -332,7 +332,7 @@ def orifice_expansibility(D: float, Do: float, P1: float, P2: float, k: float) -
 
     Notes
     -----
-    This formula was determined for the range of P2/P1 >= 0.80, and for fluids
+    This formula was determined for the range of P2/P1 >= 0.75, and for fluids
     of air, steam, and natural gas. However, there is no objection to using
     it for other fluids.
 
@@ -453,7 +453,7 @@ def C_Reader_Harris_Gallagher(D: float, Do: float, rho: float, mu: float, m: flo
     discontinuity):
 
     .. math::
-        C += 0.11(0.75-\beta)\left(2.8-\frac{D}{0.0254}\right)
+        C += 0.011(0.75-\beta)\left(2.8-\frac{D}{0.0254}\right)
 
     If the orifice has corner taps:
 

@@ -22,6 +22,13 @@
   pint 0.25 is still required on Python 3.10 and 3.11. The `str` form is unchanged
   between the two versions.
 
+### Fixed
+
+- Docs: The small pipe diameter term in the `C_Reader_Harris_Gallagher` docstring formula now shows the
+  coefficient 0.011 that the code uses, instead of 0.11.
+- Docs: The `orifice_expansibility` notes now give the pressure ratio limit of ISO 5167-2,
+  P2/P1 >= 0.75, instead of 0.80.
+
 ## [1.3.1] - 2026-06-22
 
 ### Changed
