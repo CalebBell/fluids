@@ -28,6 +28,7 @@
   coefficient 0.011 that the code uses, instead of 0.11.
 - Docs: The `orifice_expansibility` notes now give the pressure ratio limit of ISO 5167-2,
   P2/P1 >= 0.75, instead of 0.80.
+- Docs: Reworded the garbled note on the Reynolds number multiplier in the `dP_venturi_tube` docstring.
 
 ## [1.3.1] - 2026-06-22
 

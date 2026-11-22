@@ -1682,10 +1682,10 @@ def dP_venturi_tube(D: float, Do: float, P1: float, P2: float) -> float:
     The recoverable pressure drop should be recovered by 6 pipe diameters
     downstream of the venturi tube.
 
-    Note there is some information on the effect of Reynolds number as well
-    in [1]_ and [2]_, with a curve showing an increased pressure drop
-    from 1E5-6E5 to with a decreasing multiplier from 1.75 to 1; the multiplier
-    is 1 for higher Reynolds numbers. This is not currently included in this
+    [1]_ and [2]_ also show the effect of the Reynolds number on the
+    pressure loss, as a curve of a multiplier applied to it: the multiplier
+    falls from 1.75 to 1 as the Reynolds number rises from 1E5 to 6E5, and is
+    1 at higher Reynolds numbers. This multiplier is not included in this
     implementation.
 
     Examples
