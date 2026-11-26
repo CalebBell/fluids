@@ -487,7 +487,7 @@ def test_diffuser_conical():
 
     K1 = diffuser_conical_staged(Di1=1., Di2=10., DEs=[2.0,3,4,5,6,7,8,9], ls=[1.0,1.0,1,1,1,1,1,1,1], fd=0.01)
     K2 = diffuser_conical(Di1=1., Di2=10.,l=9, fd=0.01)
-    Ks = [1.7681854713484308, 0.973137914861591]
+    Ks = [0.6908233148847378, 0.973137914861591]
     assert_close1d([K1, K2], Ks)
 
     # Idelchilk
@@ -1000,5 +1000,16 @@ def test_K_run_diverging_Crane():
 
     K = K_run_diverging_Crane(0.146, 0.08, 0.02525, 0.01583, angle=90)
     assert_close(K, 0.0593965132275684)
+
+
+def test_diffuser_conical_staged_velocity_head_basis():
+    # CalebBell/fluids #111 (a)
+    D1, D2, DE = 0.05, 0.10, 0.075
+    K_staged = diffuser_conical_staged(D1, D2, [DE], [0.05, 0.05], fd=0.02)
+    a = diffuser_conical(D1, DE, l=0.05, fd=0.02)
+    b = diffuser_conical(DE, D2, l=0.05, fd=0.02)
+    assert_close(K_staged, a + b * (D1/DE)**4, rtol=1e-12)
+    assert_close(K_staged, 0.26491610842199986, rtol=1e-12)
+
 
 

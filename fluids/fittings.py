@@ -2975,6 +2975,14 @@ def diffuser_conical_staged(Di1: float, Di2: float, DEs: list[float], ls: list[f
     as shown in [1]_. Five different formulas are used, depending on
     the angle and the ratio of diameters. This function calls diffuser_conical.
 
+    Each stage's loss coefficient is converted to the basis of the initial
+    upstream diameter `Di1` using the velocity-head ratio
+    :math:`(D_{i1}/D_{\text{in}})^4`.
+
+    .. math::
+        K = K_1 + \sum_{i=1}^{n-1} K_i \left(\frac{D_{i1}}{D_{E, i-1}}\right)^4
+        + K_n \left(\frac{D_{i1}}{D_{E, n-1}}\right)^4
+
     Parameters
     ----------
     Di1 : float
@@ -3008,7 +3016,7 @@ def diffuser_conical_staged(Di1: float, Di2: float, DEs: list[float], ls: list[f
     Examples
     --------
     >>> diffuser_conical_staged(Di1=1., Di2=10., DEs=[2,3,4], ls=[1.1,1.2,1.3,1.4], fd=0.01)
-    1.9317533188274658
+    0.6733656227415606
 
     References
     ----------
@@ -3017,9 +3025,9 @@ def diffuser_conical_staged(Di1: float, Di2: float, DEs: list[float], ls: list[f
     """
     K = 0.0
     K += diffuser_conical(Di1=Di1, Di2=DEs[0], l=ls[0], fd=fd, method=method)
-    K += diffuser_conical(Di1=DEs[-1], Di2=Di2, l=ls[-1], fd=fd, method=method)
     for i in range(len(DEs)-1):
-        K += diffuser_conical(Di1=DEs[i], Di2=DEs[i+1], l=ls[i+1], fd=fd, method=method)
+        K += diffuser_conical(Di1=DEs[i], Di2=DEs[i+1], l=ls[i+1], fd=fd, method=method)*(Di1/DEs[i])**4
+    K += diffuser_conical(Di1=DEs[-1], Di2=Di2, l=ls[-1], fd=fd, method=method)*(Di1/DEs[-1])**4
     return K
 
 
