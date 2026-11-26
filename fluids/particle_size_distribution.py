@@ -2132,7 +2132,7 @@ class PSDGatesGaudinSchuhman(ParticleSizeDistributionContinuous):
 
         if d_max is not None:
             # PDF above this is zero
-            self.d_excessive = self.d_max
+            self.d_excessive = d_max
         else:
             self.d_excessive = self.d_characteristic
         if d_min is not None:
@@ -2353,4 +2353,3 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
                 from scipy.interpolate import PchipInterpolator
                 self.basis_integrals[int(n)] = PchipInterpolator(ds, basis_integral, extrapolate=True).antiderivative(1)
         return max(float(self.basis_integrals[int(n)](d)), 0.0)
-
