@@ -1303,17 +1303,18 @@ class ParticleSizeDistributionContinuous:
            Technology: Fundamentals of Particles, Powder Beds, and Particle
            Generation. CRC Press, 2006.
         """
+        if self.truncated and (d < self.d_min or d > self.d_max):
+            return 0.0
         ans = self._pdf(d=d)
         if n is not None and n != self.order:
             power = n - self.order
             numerator = d**power*ans
-            denominator = self._pdf_basis_integral_definite(d_min=0.0, d_max=self.d_excessive, n=power)
+            d_min = self.d_min if self.truncated else 0.0
+            denominator = self._pdf_basis_integral_definite(d_min=d_min, d_max=self.d_excessive, n=power)
             ans = numerator/denominator
         # Handle splines which might go below zero
         ans = max(ans, 0.0)
-        if self.truncated:
-            if d < self.d_min or d > self.d_max:
-                return 0.0
+        if self.truncated and (n is None or n == self.order):
             ans = (ans)/(self._cdf_d_max - self._cdf_d_min)
         return ans
 
@@ -1352,21 +1353,23 @@ class ParticleSizeDistributionContinuous:
         >>> [psd.cdf(5e-6, n) for n in range(4)]
         [0.933192798731, 0.8413447460685, 0.6914624612740, 0.5]
         """
-        if n is not None and n != self.order:
-            power = n - self.order
-            # One of the pdf_basis_integral calls could be saved except for
-            # support for numerical integrals
-            numerator = self._pdf_basis_integral_definite(d_min=0.0, d_max=d, n=power)
-            denominator = self._pdf_basis_integral_definite(d_min=0.0, d_max=self.d_excessive, n=power)
-            ans =  max(numerator/denominator, 0.0)
-        # Handle splines which might go below zero
-        else:
-            ans = max(self._cdf(d=d), 0.0)
         if self.truncated:
             if d <= self.d_min:
                 return 0.0
             elif d >= self.d_max:
                 return 1.0
+        if n is not None and n != self.order:
+            power = n - self.order
+            # One of the pdf_basis_integral calls could be saved except for
+            # support for numerical integrals
+            d_min = self.d_min if self.truncated else 0.0
+            numerator = self._pdf_basis_integral_definite(d_min=d_min, d_max=d, n=power)
+            denominator = self._pdf_basis_integral_definite(d_min=d_min, d_max=self.d_excessive, n=power)
+            ans =  max(numerator/denominator, 0.0)
+        # Handle splines which might go below zero
+        else:
+            ans = max(self._cdf(d=d), 0.0)
+        if self.truncated and (n is None or n == self.order):
             ans = (ans - self._cdf_d_min)/(self._cdf_d_max - self._cdf_d_min)
         return ans
 
@@ -2353,4 +2356,3 @@ class PSDInterpolated(ParticleSizeDistributionContinuous):
                 from scipy.interpolate import PchipInterpolator
                 self.basis_integrals[int(n)] = PchipInterpolator(ds, basis_integral, extrapolate=True).antiderivative(1)
         return max(float(self.basis_integrals[int(n)](d)), 0.0)
-

@@ -597,6 +597,28 @@ def test_PSDLognormal_cdf_vs_pdf():
         ans_expect.append(delta)
     assert_close1d(ans_calc, ans_expect)
 
+@pytest.mark.parametrize("n", [0, 1, 2, 4])
+def test_truncated_lognormal_converted_basis(n):
+    from scipy.integrate import quad
+
+    psd = PSDLognormal(s=0.5, d_characteristic=5e-6, d_min=1e-6,
+                       d_max=1e-5, order=3)
+    # Integrate the raw density on the retained size interval; scaling the
+    # diameter keeps the reference integrals well conditioned.
+    def density(x):
+        return x**(n - 3)*pdf_lognormal(x*5e-6, 5e-6, 0.5)*5e-6
+
+    total = quad(density, 0.2, 2.0)[0]
+    expected_cdf = quad(density, 0.2, 1.1)[0]/total
+    assert_close(psd.cdf(5.5e-6, n=n), expected_cdf)
+    assert_close(psd.pdf(5.5e-6, n=n)*5e-6, density(1.1)/total)
+    assert_close(quad(lambda x: psd.pdf(x*5e-6, n=n)*5e-6, 0.2, 2.0)[0], 1.0)
+    assert_close(psd.cdf(psd.dn(0.5, n=n), n=n), 0.5)
+    assert psd.cdf(0.0, n=n) == 0.0
+    assert psd.cdf(1e-4, n=n) == 1.0
+    assert psd.pdf(0.0, n=n) == 0.0
+
+
 def test_PSD_lognormal_truncated():
     psd = PSDLognormal(s=0.5, d_characteristic=5E-6, d_max=1e-5, d_min=1e-6, order=3)
     assert_close(psd.dn(1), 1e-5)
