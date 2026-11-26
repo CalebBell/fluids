@@ -384,8 +384,8 @@ test-multiarch:
     @just test-arch ppc64le alpine_latest || echo "❌ ppc64le/alpine_latest failed"
     @echo "\n✅ Multi-arch testing complete!"
 
-## 🧬 test-multi-single: Test with specific Python/NumPy/SciPy versions (e.g., just test-multi-single 3.9 1.26.4 1.12.0).
-## Set KEEP_VENV=1 to keep the virtual environment for debugging (e.g., KEEP_VENV=1 just test-multi-single 3.9 1.26.4 1.12.0).
+## 🧬 test-multi-single: Test with specific Python/NumPy/SciPy versions (e.g., just test-multi-single 3.10 1.26.4 1.12.0).
+## Set KEEP_VENV=1 to keep the virtual environment for debugging (e.g., KEEP_VENV=1 just test-multi-single 3.10 1.26.4 1.12.0).
 test-multi-single py="3.10" numpy="2.0.1" scipy="1.14.0":
     @echo ">>> Testing Python {{py}}, NumPy {{numpy}}, SciPy {{scipy}}..."
     @echo ">>> Installing Python {{py}} if needed..."
@@ -422,9 +422,8 @@ test-multi:
     combinations=(
         "3.10 1.24.4 1.9.3"
         "3.10 1.24.4 1.12.0"
-        "3.9 1.24.4 1.12.0"
-        "3.9 1.26.4 1.10.1"
-        "3.9 1.26.4 1.12.0"
+        "3.10 1.26.4 1.10.1"
+        "3.10 1.26.4 1.12.0"
         "3.10 1.26.4 1.14.0"
         "3.10 2.0.1 1.14.0"
     )

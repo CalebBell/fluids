@@ -37,8 +37,8 @@ fluids.units.
 
 All dimensional arguments to functions in fluids.units must be provided as Quantity objects.
 
->>> Reynolds(V=3.5*u.m/u.s, D=2*u.m, rho=997.1*u.kg/u.m**3, mu=1E-3*u.Pa*u.s)
-<Quantity(6979700.0, 'dimensionless')>
+>>> str(Reynolds(V=3.5*u.m/u.s, D=2*u.m, rho=997.1*u.kg/u.m**3, mu=1E-3*u.Pa*u.s))
+'6979700.0 dimensionless'
 
 The result is always one or more Quantity objects, depending on the signature
 of the function called. 
@@ -46,24 +46,24 @@ of the function called.
 For arguments whose documentation specify they are dimensionless, they can
 optionally be passed in without making them dimensionless numbers with pint.
 
->>> speed_synchronous(50*u.Hz, poles=12*u.dimensionless) # doctest: +SKIP
-<Quantity(500.0, 'revolutions_per_minute')>
->>> speed_synchronous(50*u.Hz, poles=12)
-<Quantity(500.0, 'revolutions_per_minute')>
+>>> str(speed_synchronous(50*u.Hz, poles=12*u.dimensionless)) # doctest: +SKIP
+'500.0 revolutions_per_minute'
+>>> str(speed_synchronous(50*u.Hz, poles=12))
+'500.0 revolutions_per_minute'
 
 It is good practice to use dimensionless quantities as follows, but it is 
 optional.
     
->>> K_separator_Watkins(0.88*u.dimensionless, 985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, horizontal=True)
-<Quantity(0.079516136, 'meter / second')>
+>>> str(K_separator_Watkins(0.88*u.dimensionless, 985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, horizontal=True))
+'0.07951613600476297 meter / second'
  
 Like all pint registries, the default unit system can be changed. However, all
 functions will still return the unit their documentation says they do. To
 convert to the new base units, use the method .to_base_units(). 
 
 >>> u.default_system = 'imperial'
->>> K_separator_Watkins(0.88*u.dimensionless, 985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, horizontal=True).to_base_units()
-<Quantity(0.0869599038, 'yard / second')>
+>>> str(K_separator_Watkins(0.88*u.dimensionless, 985.4*u.kg/u.m**3, 1.3*u.kg/u.m**3, horizontal=True).to_base_units())
+'0.0869599037672386 yard / second'
 >>> u.default_system = 'mks'
 
 The order of the arguments to a function is the same as it is in the regular 
@@ -79,11 +79,11 @@ Properties, attributes, inputs, and units are all included.
 
 
 >>> T1 = TANK(L=3*u.m, D=150*u.cm, horizontal=True)
->>> T1.V_total, T1.h_max
-(<Quantity(5.3014376, 'meter ** 3')>, <Quantity(1.5, 'meter')>)
->>> T1.V_from_h(0.1*u.m)
-<Quantity(0.151783071, 'meter ** 3')>
+>>> str(T1.V_total), str(T1.h_max)
+('5.301437602932776 meter ** 3', '1.5 meter')
+>>> str(T1.V_from_h(0.1*u.m))
+'0.15178307137678837 meter ** 3'
 
 >>> atm = ATMOSPHERE_NRLMSISE00(Z=1E3*u.m, latitude=45*u.degrees, longitude=45*u.degrees, day=150*u.day)
->>> atm.rho, atm.O2_density
-(<Quantity(1.1019062, 'kilogram / meter ** 3')>, <Quantity(4.80470351e+24, 'count / meter ** 3')>)
+>>> str(atm.rho), str(atm.O2_density)
+('1.1019062026405517 kilogram / meter ** 3', '4.8047035072477747e+24 count / meter ** 3')

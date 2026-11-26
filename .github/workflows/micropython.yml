@@ -20,7 +20,7 @@ jobs:
     - name: Install MicroPython
       uses: BrianPugh/install-micropython@v2
       with:
-        reference: v1.24.1
+        reference: v1.26.0
 
     - name: Install MicroPython dependencies
       run: |
