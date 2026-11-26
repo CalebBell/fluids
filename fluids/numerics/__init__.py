@@ -835,6 +835,152 @@ def central_diff_weights(points, divisions=1):
     return w
 
 
+forward_diff_weights_precomputed = {
+    (1, 3): [-1.5, 2.0, -0.5],
+    (1, 5): [-2.0833333333333335, 4.0, -3.0, 1.3333333333333333, -0.25],
+    (1, 7): [-2.45, 6.0, -7.5, 6.666666666666667, -3.75, 1.2, -0.16666666666666666],
+    (1, 9): [-2.717857142857143, 8.0, -14.0, 18.666666666666668, -17.5, 11.2, -4.666666666666667, 1.1428571428571428,
+     -0.125],
+    (1, 11): [-2.9289682539682538, 10.0, -22.5, 40.0, -52.5, 50.4, -35.0, 17.142857142857142, -5.625,
+     1.1111111111111112, -0.1],
+    (1, 13): [-3.103210678210678, 12.0, -33.0, 73.33333333333333, -123.75, 158.4, -154.0, 113.14285714285714, -61.875,
+     24.444444444444443, -6.6, 1.0909090909090908, -0.08333333333333333],
+    (1, 15): [-3.2515623265623264, 14.0, -45.5, 121.33333333333333, -250.25, 400.4, -500.5, 490.2857142857143,
+     -375.375, 222.44444444444446, -100.1, 33.09090909090909, -7.583333333333333, 1.0769230769230769,
+     -0.07142857142857142],
+    (1, 17): [-3.3807289932289932, 16.0, -60.0, 186.66666666666666, -455.0, 873.6, -1334.6666666666667,
+     1634.2857142857142, -1608.75, 1271.111111111111, -800.8, 397.09090909090907, -151.66666666666666,
+     43.07692307692308, -8.571428571428571, 1.0666666666666667, -0.0625],
+    (1, 19): [-3.4951080781963135, 18.0, -76.5, 272.0, -765.0, 1713.6, -3094.0, 4546.285714285715, -5469.75,
+     5402.222222222223, -4375.8, 2893.090909090909, -1547.0, 659.0769230769231, -218.57142857142858, 54.4,
+     -9.5625, 1.0588235294117647, -0.05555555555555555],
+    (1, 21): [-3.597739657143682, 20.0, -95.0, 380.0, -1211.25, 3100.8, -6460.0, 11074.285714285714, -15746.25,
+     18662.222222222223, -18475.6, 15269.09090909091, -10497.5, 5963.076923076923, -2768.5714285714284,
+     1033.6, -302.8125, 67.05882352941177, -10.555555555555555, 1.0526315789473684, -0.05],
+    (2, 3): [1.0, -2.0, 1.0],
+    (2, 5): [2.9166666666666665, -8.666666666666666, 9.5, -4.666666666666667, 0.9166666666666666],
+    (2, 7): [4.511111111111111, -17.4, 29.25, -28.22222222222222, 16.5, -5.4, 0.7611111111111111],
+    (2, 9): [5.859325396825397, -27.485714285714284, 62.1, -89.02222222222223, 86.375, -56.4, 23.81111111111111,
+     -5.885714285714286, 0.6482142857142857],
+    (2, 11): [7.029087301587301, -38.57936507936508, 109.30357142857143, -207.65079365079364, 281.2916666666667,
+     -275.08, 193.36111111111111, -95.52380952380952, 31.544642857142858, -6.261904761904762,
+     0.5657936507936508],
+    (2, 13): [8.064939874939874, -50.47705627705628, 171.81190476190477, -406.24867724867727, 706.1696428571429,
+     -919.7371428571429, 904.4555555555555, -669.8857142857142, 368.55357142857144, -146.2804232804233,
+     39.642380952380954, -6.5722943722943725, 0.5033128908128908],
+    (2, 15): [8.996661724518868, -63.04374514374514, 250.39217171717172, -708.1569023569024, 1502.2819444444444,
+     -2443.6911111111112, 3087.9805555555554, -3048.3074829931975, 2347.266666666667, -1397.151851851852,
+     630.9427777777778, -209.17777777777778, 48.05147306397306, -6.837684537684538, 0.454304822161965],
+    (2, 17): [9.844981992214136, -76.18332778332778, 345.6874791874792, -1137.6943796943797, 2848.963383838384,
+     -5557.369696969697, 8579.403703703703, -10583.215419501134, 10475.308035714286, -8312.095238095239,
+     5254.415555555555, -2612.7151515151513, 1000.2100168350169, -284.63558663558666, 56.730864373721516,
+     -7.06999962999963, 0.41477862415362415],
+    (2, 19): [10.624887317462598, -89.82389081506729, 458.25153596403595, -1720.0054612054612, 4965.01535964036,
+     -11292.994405594405, 20596.395454545454, -30480.581076066792, 36867.297321428574, -36562.207231040564,
+     29712.627857142856, -19697.314285714285, 10556.031060606061, -4505.693706293706, 1496.6370415298986,
+     -373.01442557442556, 65.6486294955045, -7.276837868014338, 0.3821725025156398],
+    (2, 21): [11.347567396671314, -103.90958628574728, 588.5705348572995, -2480.9488060958647, 8109.899319430569,
+     -21071.42225774226, 44329.46303696304, -76520.71214499786, 109365.2536525974, -130136.4734648068,
+     129245.67761904762, -107092.22943722944, 73784.96076839826, -41989.8001998002, 19525.6882403311,
+     -7299.434085914086, 2141.0295173576424, -474.6311041899277, 74.77944214463822, -7.463385427781713,
+     0.3547739657143682],
+    (3, 5): [-2.5, 9.0, -12.0, 7.0, -1.5],
+    (3, 7): [-6.125, 29.0, -57.625, 62.0, -38.375, 13.0, -1.875],
+    (3, 9): [-10.0125, 58.16666666666667, -152.94166666666666, 239.10000000000002, -242.83333333333331,
+     163.03333333333333, -70.125, 17.566666666666666, -1.9541666666666666],
+    (3, 11): [-13.90459656084656, 95.13452380952381, -310.5080357142857, 635.8396825396826, -896.1125, 897.75,
+     -641.3736111111111, 320.5571428571429, -106.78660714285715, 21.34298941798942, -1.9389880952380953],
+}
+
+backward_diff_weights_precomputed = {
+    (1, 3): [0.5, -2.0, 1.5],
+    (1, 5): [0.25, -1.3333333333333333, 3.0, -4.0, 2.0833333333333335],
+    (1, 7): [0.16666666666666666, -1.2, 3.75, -6.666666666666667, 7.5, -6.0, 2.45],
+    (1, 9): [0.125, -1.1428571428571428, 4.666666666666667, -11.2, 17.5, -18.666666666666668, 14.0, -8.0,
+     2.717857142857143],
+    (1, 11): [0.1, -1.1111111111111112, 5.625, -17.142857142857142, 35.0, -50.4, 52.5, -40.0, 22.5, -10.0,
+     2.9289682539682538],
+    (1, 13): [0.08333333333333333, -1.0909090909090908, 6.6, -24.444444444444443, 61.875, -113.14285714285714, 154.0,
+     -158.4, 123.75, -73.33333333333333, 33.0, -12.0, 3.103210678210678],
+    (1, 15): [0.07142857142857142, -1.0769230769230769, 7.583333333333333, -33.09090909090909, 100.1,
+     -222.44444444444446, 375.375, -490.2857142857143, 500.5, -400.4, 250.25, -121.33333333333333, 45.5,
+     -14.0, 3.2515623265623264],
+    (1, 17): [0.0625, -1.0666666666666667, 8.571428571428571, -43.07692307692308, 151.66666666666666,
+     -397.09090909090907, 800.8, -1271.111111111111, 1608.75, -1634.2857142857142, 1334.6666666666667,
+     -873.6, 455.0, -186.66666666666666, 60.0, -16.0, 3.3807289932289932],
+    (1, 19): [0.05555555555555555, -1.0588235294117647, 9.5625, -54.4, 218.57142857142858, -659.0769230769231, 1547.0,
+     -2893.090909090909, 4375.8, -5402.222222222223, 5469.75, -4546.285714285715, 3094.0, -1713.6, 765.0,
+     -272.0, 76.5, -18.0, 3.4951080781963135],
+    (1, 21): [0.05, -1.0526315789473684, 10.555555555555555, -67.05882352941177, 302.8125, -1033.6,
+     2768.5714285714284, -5963.076923076923, 10497.5, -15269.09090909091, 18475.6, -18662.222222222223,
+     15746.25, -11074.285714285714, 6460.0, -3100.8, 1211.25, -380.0, 95.0, -20.0, 3.597739657143682],
+    (2, 3): [1.0, -2.0, 1.0],
+    (2, 5): [0.9166666666666666, -4.666666666666667, 9.5, -8.666666666666666, 2.9166666666666665],
+    (2, 7): [0.7611111111111111, -5.4, 16.5, -28.22222222222222, 29.25, -17.4, 4.511111111111111],
+    (2, 9): [0.6482142857142857, -5.885714285714286, 23.81111111111111, -56.4, 86.375, -89.02222222222223, 62.1,
+     -27.485714285714284, 5.859325396825397],
+    (2, 11): [0.5657936507936508, -6.261904761904762, 31.544642857142858, -95.52380952380952, 193.36111111111111,
+     -275.08, 281.2916666666667, -207.65079365079364, 109.30357142857143, -38.57936507936508,
+     7.029087301587301],
+    (2, 13): [0.5033128908128908, -6.5722943722943725, 39.642380952380954, -146.2804232804233, 368.55357142857144,
+     -669.8857142857142, 904.4555555555555, -919.7371428571429, 706.1696428571429, -406.24867724867727,
+     171.81190476190477, -50.47705627705628, 8.064939874939874],
+    (2, 15): [0.454304822161965, -6.837684537684538, 48.05147306397306, -209.17777777777778, 630.9427777777778,
+     -1397.151851851852, 2347.266666666667, -3048.3074829931975, 3087.9805555555554, -2443.6911111111112,
+     1502.2819444444444, -708.1569023569024, 250.39217171717172, -63.04374514374514, 8.996661724518868],
+    (2, 17): [0.41477862415362415, -7.06999962999963, 56.730864373721516, -284.63558663558666, 1000.2100168350169,
+     -2612.7151515151513, 5254.415555555555, -8312.095238095239, 10475.308035714286, -10583.215419501134,
+     8579.403703703703, -5557.369696969697, 2848.963383838384, -1137.6943796943797, 345.6874791874792,
+     -76.18332778332778, 9.844981992214136],
+    (2, 19): [0.3821725025156398, -7.276837868014338, 65.6486294955045, -373.01442557442556, 1496.6370415298986,
+     -4505.693706293706, 10556.031060606061, -19697.314285714285, 29712.627857142856, -36562.207231040564,
+     36867.297321428574, -30480.581076066792, 20596.395454545454, -11292.994405594405, 4965.01535964036,
+     -1720.0054612054612, 458.25153596403595, -89.82389081506729, 10.624887317462598],
+    (2, 21): [0.3547739657143682, -7.463385427781713, 74.77944214463822, -474.6311041899277, 2141.0295173576424,
+     -7299.434085914086, 19525.6882403311, -41989.8001998002, 73784.96076839826, -107092.22943722944,
+     129245.67761904762, -130136.4734648068, 109365.2536525974, -76520.71214499786, 44329.46303696304,
+     -21071.42225774226, 8109.899319430569, -2480.9488060958647, 588.5705348572995, -103.90958628574728,
+     11.347567396671314],
+    (3, 5): [1.5, -7.0, 12.0, -9.0, 2.5],
+    (3, 7): [1.875, -13.0, 38.375, -62.0, 57.625, -29.0, 6.125],
+    (3, 9): [1.9541666666666666, -17.566666666666666, 70.125, -163.03333333333333, 242.83333333333331,
+     -239.10000000000002, 152.94166666666666, -58.16666666666667, 10.0125],
+    (3, 11): [1.9389880952380953, -21.34298941798942, 106.78660714285715, -320.5571428571429, 641.3736111111111,
+     -897.75, 896.1125, -635.8396825396826, 310.5080357142857, -95.13452380952381, 13.90459656084656],
+}
+
+def one_sided_diff_weights(points: int, divisions: int=1, direction: str="backward"):
+    key = (divisions, points)
+    if direction == "backward":
+        weights_precomputed = backward_diff_weights_precomputed
+    elif direction == "forward":
+        weights_precomputed = forward_diff_weights_precomputed
+    else:
+        raise ValueError("direction must be 'backward' or 'forward'")
+    try:
+        return weights_precomputed[key]
+    except:
+        pass
+
+    if points < divisions + 1:
+        raise ValueError("Points < divisions + 1, cannot compute")
+    if direction == "backward":
+        x = [[xi] for xi in range(-(points - 1), 1)]
+    else:
+        x = [[xi] for xi in range(points)]
+
+    X = []
+    for xi in x:
+        line = [1] + [xi[0]**k for k in range(1, points)]
+        X.append(line)
+    factor = product(range(1, divisions + 1))
+    from sympy import Matrix
+    inverted = [[float(j) for j in i] for i in Matrix(X).inv().tolist()]
+    w = [i*factor for i in inverted[divisions]]
+    weights_precomputed[key] = w
+    return w
+
+
 def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True,
                lower_limit=None, upper_limit=None, kwargs={}):
     """Reimplementation of SciPy's derivative function, with more cached
@@ -842,7 +988,32 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True,
     needed, they are only calculated once and are remembered.
 
     Support for vector value functions has also been added.
+
+    If the centered points cross a limit, ``x0`` is kept fixed and a
+    one-sided formula is used. The one-sided formula uses ``order + 2``
+    points because switching to one-sided roughly doubles the error and
+    introduces a discontinuity in the numerical derivative. Avoiding that
+    discontinuity would require expensively locating the exact boundary and
+    using a switching function, with many more evaluations. Increasing the
+    order makes the error at the boundary much smaller instead.
+
+    A non-finite result or an ordinary exception is treated as a newly
+    discovered one-sided boundary. The other side is then assumed to be
+    continuous and valid. If it also fails, or crosses the opposite available
+    limit, an exception is raised. If ``func`` fails at ``x0`` when that point
+    is required, the derivative should not have been requested there.
+
+    ``func`` is assumed to return only real scalar or vector values. Complex
+    values are not supported.
+
+    Points with a zero weight are not evaluated, including ``x0``.
     """
+    bounds_error = "Cannot compute derivative within the available limits"
+    if lower_limit is not None and x0 < lower_limit:
+        raise ValueError("x0 is below lower_limit")
+    if upper_limit is not None and x0 > upper_limit:
+        raise ValueError("x0 is above upper_limit")
+    dx = abs(dx)
     try:
         weights = central_diff_weights_precomputed[(n, order)]
     except:
@@ -853,7 +1024,6 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True,
         weights = central_diff_weights(order, n)
     ho = order >> 1
 
-
     if n == 1:
         denominator = 1.0/dx
     else:
@@ -861,35 +1031,82 @@ def derivative(func, x0, dx=1.0, n=1, args=(), order=3, scalar=True,
         for i in range(n):
             denominator *= dx
         denominator = 1.0/denominator
-    if scalar:
-        if upper_limit is not None:
-            max_x = x0 + (order - 1 - ho)*dx
-            if max_x > upper_limit:
-                x0 -= (max_x - x0)
-        if lower_limit is not None:
-            min_x = x0 + -ho*dx
-            if min_x < lower_limit:
-                x0 += (x0 - min_x)
 
-        # failed optimization strategy - plus changes some answers
-        # const = x0 - dx*ho
-        # tot += weights[k]*func(const + dx*k, *args, **kwargs)
+    lower_exceeded = lower_limit is not None and x0 - ho*dx < lower_limit
+    upper_exceeded = upper_limit is not None and x0 + ho*dx > upper_limit
 
-        tot = 0.0
-        for k in range(order):
-            if weights[k] != 0.0:
-                tot += weights[k]*func(x0 + (k - ho)*dx, *args, **kwargs)
-        return tot*denominator
+    if lower_exceeded and upper_exceeded:
+        raise ValueError(bounds_error)
+
+    one_sided = lower_exceeded or upper_exceeded
+    if lower_exceeded:
+        points = order + 2
+        if upper_limit is not None and x0 + (points - 1)*dx > upper_limit:
+            raise ValueError(bounds_error)
+        offsets = range(points)
+        try:
+            weights = forward_diff_weights_precomputed[(n, points)]
+        except:
+            weights = one_sided_diff_weights(points, n, "forward")
+    elif upper_exceeded:
+        points = order + 2
+        if lower_limit is not None and x0 - (points - 1)*dx < lower_limit:
+            raise ValueError(bounds_error)
+        offsets = range(-(points - 1), 1)
+        try:
+            weights = backward_diff_weights_precomputed[(n, points)]
+        except:
+            weights = one_sided_diff_weights(points, n, "backward")
     else:
-        numerators = None
-        for k in range(order):
-            f = func(x0 + (k - ho)*dx, *args, **kwargs)
+        offsets = range(-ho, order - ho)
+
+    tot = 0.0
+    numerators = None
+    for weight, offset in zip(weights, offsets):
+        if weight == 0.0:
+            continue
+        point = x0 + offset*dx
+        try:
+            f = func(point, *args, **kwargs)
+        except Exception:
+            bad_value = True
+        else:
+            if scalar:
+                bad_value = isnan(f) or isinf(f)
+            else:
+                bad_value = False
+                for component in f:
+                    if isnan(component) or isinf(component):
+                        bad_value = True
+                        break
+
+        if bad_value:
+            if one_sided:
+                raise ValueError(f"func failed at x={point}; cannot compute derivative")
+            if point == x0:
+                raise ValueError(f"func failed at x0={x0} itself; no formula can avoid this")
+            if point > x0:
+                return derivative(func, x0, dx=dx, n=n, args=args, order=order,
+                                  scalar=scalar, lower_limit=lower_limit,
+                                  upper_limit=x0, kwargs=kwargs)
+            return derivative(func, x0, dx=dx, n=n, args=args, order=order,
+                              scalar=scalar, lower_limit=x0,
+                              upper_limit=upper_limit, kwargs=kwargs)
+
+        if scalar:
+            tot += weight*f
+        else:
             if numerators is None:
                 N = len(f)
                 numerators = [0.0]*N
+            elif len(f) != N:
+                raise ValueError("func returned vectors of different lengths")
             for i in range(N):
-                numerators[i] += weights[k]*f[i]
-        return [num*denominator for num in numerators]
+                numerators[i] += weight*f[i]
+
+    if scalar:
+        return tot*denominator
+    return [numerator*denominator for numerator in numerators]
 
 
 
