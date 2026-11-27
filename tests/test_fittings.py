@@ -1002,3 +1002,11 @@ def test_K_run_diverging_Crane():
     assert_close(K, 0.0593965132275684)
 
 
+def test_contraction_round_Rennels_large_r_D2():
+    # CalebBell/fluids #111 (b)
+    K_at_1 = contraction_round(Di1=0.1, Di2=0.05, rc=1.0*0.05, method="Rennels")
+    assert_close(K_at_1, 0.014530087500000002, rtol=1e-12)
+    for r_ratio in (1.5, 2.0, 3.0):
+        K_val = contraction_round(Di1=0.1, Di2=0.05, rc=r_ratio*0.05, method="Rennels")
+        assert_close(K_val, K_at_1, rtol=1e-12)
+

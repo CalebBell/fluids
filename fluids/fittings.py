@@ -2059,6 +2059,8 @@ def contraction_round(Di1: float, Di2: float, rc: float, method: str="Rennels") 
     -----
     Rounding radius larger than 0.14Di2 prevents flow separation from the wall.
     Further increase in rounding radius continues to reduce loss coefficient.
+    For the 'Rennels' method, the correlation is defined for :math:`r_c/D_2 \le 1.0`;
+    larger values are clamped to 1.0.
 
     .. plot:: plots/contraction_round_plot.py
 
@@ -2082,8 +2084,11 @@ def contraction_round(Di1: float, Di2: float, rc: float, method: str="Rennels") 
     if method is None:
         method = "Rennels"
     if method == "Rennels":
-        lbd = 1.0 + 0.622*(1.0 - 0.30*sqrt(rc/Di2) - 0.70*rc/Di2)**4*(1.0 - 0.215*beta**2 - 0.785*beta**5)
-        return 0.0696*(1.0 - 0.569*rc/Di2)*(1.0 - sqrt(rc/Di2)*beta)*(1.0 - beta**5)*lbd*lbd + (lbd - 1.0)**2
+        rc_D2 = rc/Di2
+        if rc_D2 > 1.0:
+            rc_D2 = 1.0
+        lbd = 1.0 + 0.622*(1.0 - 0.30*sqrt(rc_D2) - 0.70*rc_D2)**4*(1.0 - 0.215*beta**2 - 0.785*beta**5)
+        return 0.0696*(1.0 - 0.569*rc_D2)*(1.0 - sqrt(rc_D2)*beta)*(1.0 - beta**5)*lbd*lbd + (lbd - 1.0)**2
     elif method == "Miller":
         return contraction_round_Miller(Di1=Di1, Di2=Di2, rc=rc)
     elif method == "Idelchik":
